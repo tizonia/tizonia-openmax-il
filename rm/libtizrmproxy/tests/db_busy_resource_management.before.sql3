@@ -1,0 +1,2 @@
+update resources set current='1' where resid='0';
+

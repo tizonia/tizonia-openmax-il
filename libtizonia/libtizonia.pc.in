@@ -1,0 +1,14 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+toolsdir=@bindir@
+pluginsdir=@plugindir@
+
+Name: tizonia
+Description: Aratelia OpenMAX IL Component library
+Version: @VERSION@
+Require.private: check
+Cflags: -I${includedir} -I${includedir}/libtizonia
+Libs: -L${libdir} -ltizosal -ltizonia
+

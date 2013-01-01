@@ -1,0 +1,72 @@
+# Tizonia OpenMAX IL configuration file
+
+[ilcore]
+# A comma-separated list of paths to be scanned by the Tizonia IL Core when
+# searching for component plugins
+
+component-paths = /home/joni/temp/lib;
+
+extension-paths =
+
+
+[resource-management]
+
+enabled = true
+# This is the path to the Resource Manager database
+rmdb = /home/joni/work/tizonia/rm/tizrmd/data/tizrm.db
+
+# This is the path to the RM daemon executable
+rmd.path = /home/joni/work/tizonia/rm/tizrmd/src/tizrmd
+
+# This is the path to the shell script that initialises the RM db
+rmdb.init_script = /home/joni/work/tizonia/rm/tizrmd/data/tizrm_gendb.sh
+
+# This is the path to the sqlite3 script that contains the initial state of the RM db
+rmdb.sqlite_script = /home/joni/work/tizonia/rm/tizrmd/data/initrmdb.sql3
+
+# This is the path to the script that dumps the contents of the RM db
+rmdb.dbdump_script = /home/joni/work/tizonia/rm/tizrmd/data/tizrm_dumpdb.sh
+
+
+[plugins-data]
+
+# Each key-value pair represents a list of any data that a
+# specific component might need. The entries here must honor the following
+# format: OMX.component.name.key = <semi-colon-separated list of items>
+
+###############
+# File Reader #
+###############
+
+# OMX.Aratelia.file_reader.binary.default_uri /home/joni/work/media/raw_pcm/Jump_short.raw
+OMX.Aratelia.file_reader.binary.default_uri = /home/joni/work/media/raw_pcm/Here.raw
+OMX.Aratelia.file_reader.binary.testfile1_uri = /home/joni/work/media/raw_pcm/Jump_short.raw
+OMX.Aratelia.file_reader.binary.testfile2_uri = /home/joni/work/media/raw_pcm/Jump_short.raw.copy
+
+##################
+# Audio Renderer #
+##################
+OMX.Aratelia.audio_renderer.pcm.preannouncements_disabled.port0 = false
+OMX.Aratelia.audio_renderer.pcm.testfile1_uri = /home/joni/work/media/raw_pcm/Jump_signed_16_48_stereo.raw
+OMX.Aratelia.audio_renderer.pcm.testfile2_uri = /home/joni/work/media/raw_pcm/Jump_signed_16_44_1_stereo.raw
+
+###############
+# MP3 Decoder #
+###############
+
+OMX.Aratelia.audio_decoder.mp3.preannouncements_disabled.port0 = false
+OMX.Aratelia.audio_decoder.mp3.preannouncements_disabled.port1 = false
+OMX.Aratelia.audio_decoder.mp3.testfile2_uri = /home/joni/work/media/mp3/fight4u_short.mp3
+OMX.Aratelia.audio_decoder.mp3.testfile3_uri = /home/joni/work/media/mp3/fight4u_full2.mp3
+OMX.Aratelia.audio_decoder.mp3.testfile4_uri = /home/joni/work/media/mp3/free.mp3
+OMX.Aratelia.audio_decoder.mp3.testfile1_uri = /home/joni/work/media/mp3/lovin.mp3
+
+################
+# I/V Renderer #
+################
+OMX.Aratelia.yuv_renderer.overlay.testfile1_uri = /home/joni/work/media/raw_yuv420p/bunny_640x360_25fps_yuv420p.yuv
+
+###############
+# VP8 Decoder #
+###############
+OMX.Aratelia.video_decoder.vp8.testfile1_uri = /home/joni/work/media/ivf/bunny_640x360_25fps_vp8_yuv420p.ivf

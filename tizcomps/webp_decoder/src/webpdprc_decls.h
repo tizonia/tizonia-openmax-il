@@ -1,0 +1,57 @@
+/**
+ * Copyright (C) 2011-2013 Aratelia Limited - Juan A. Rubio
+ *
+ * This file is part of Tizonia
+ *
+ * Tizonia is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * Tizonia is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file   webpdprc_decls.h
+ * @author Juan A. Rubio <juan.rubio@aratelia.com>
+ * 
+ * @brief  Tizonia OpenMAX IL - WebP Decoder processor class decls
+ * 
+ * 
+ */
+
+#ifndef WEBPDPRC_DECLS_H
+#define WEBPDPRC_DECLS_H
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#include <stdbool.h>
+
+#include "OMX_Core.h"
+
+#include "webpdprc.h"
+#include "tizproc_decls.h"
+
+struct webpdprc
+{
+  /* Object */
+  const struct tizproc _;
+  OMX_BUFFERHEADERTYPE *pinhdr_;
+  OMX_BUFFERHEADERTYPE *pouthdr_;
+  bool eos_;
+};
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* WEBPDPRC_DECLS_H */

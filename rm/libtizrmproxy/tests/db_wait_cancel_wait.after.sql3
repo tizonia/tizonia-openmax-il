@@ -1,0 +1,1 @@
+update resources set current='8388607' where resid='0';

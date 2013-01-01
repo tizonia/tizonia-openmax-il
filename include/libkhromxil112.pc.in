@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+toolsdir=@bindir@
+pluginsdir=@plugindir@
+
+Name: libkhromxil112
+Description: Khronos OpenMAX IL 1.1.2 Header Files
+Version: @VERSION@
+Cflags: -I${includedir} -I${includedir}/omxil-1.1.2
+Libs: -L${libdir}

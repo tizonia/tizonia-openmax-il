@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.aratelia.tiz.tizrmd
+Exec=@bindir@/tizrmd

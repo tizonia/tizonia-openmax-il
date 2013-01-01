@@ -1,0 +1,7 @@
+# use glob syntax.
+syntax: glob
+Thumbs.db
+tizrm.db
+*.bak
+*~
+*.orig
