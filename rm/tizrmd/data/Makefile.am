@@ -23,3 +23,15 @@ EXTRA_DIST = $(sqlite_scripts) $(shell_scripts) $(sqlite_databases)
 
 tizrmdbdir = $(datadir)/$(PACKAGE)
 tizrmdb_DATA = $(sqlite_scripts) $(shell_scripts) $(sqlite_databases)
+
+tizrm.db: $(sqlite_scripts)
+	./tizrm_gendb.sh
+
+all-local: tizrm.db
+
+clean-local: clean-local-tizrmdb
+distclean-local: clean-local-tizrmdb
+.PHONY: clean-local-tizrmdb
+clean-local-tizrmdb:
+	-rm -f tizrm.db
+
