@@ -17,8 +17,6 @@
 
 lib_LTLIBRARIES = libtizcore.la
 
-noinst_HEADERS = tizcore.h
-
 libtizcore_la_SOURCES = tizcore.c
 
 libtizcore_la_CFLAGS = \

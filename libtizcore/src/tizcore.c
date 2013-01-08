@@ -47,7 +47,6 @@
 #include "OMX_Component.h"
 #include "OMX_Types.h"
 
-#include "tizcore.h"
 #include "tizrmproxy_c.h"
 #include "tizosal.h"
 
@@ -68,6 +67,81 @@ static OMX_VERSIONTYPE tc_spec_version = {
     OMX_VERSION_STEP
   }
 };
+
+typedef struct role_list_item role_list_item_t;
+typedef role_list_item_t *role_list_t;
+struct role_list_item
+{
+  OMX_U8 role[OMX_MAX_STRINGNAME_SIZE];
+  role_list_item_t *p_next;
+};
+
+typedef enum tizcore_state tizcore_state_t;
+enum tizcore_state
+{
+  ETIZCoreStateStopped = 0,
+  ETIZCoreStateStarting,
+  ETIZCoreStateStarted
+};
+
+typedef enum tizcore_msg_class tizcore_msg_class_t;
+enum tizcore_msg_class
+{
+  ETIZCoreMsgInit = 0,
+  ETIZCoreMsgDeinit,
+  ETIZCoreMsgComponentNameEnum,
+  ETIZCoreMsgGetHandle,
+  ETIZCoreMsgFreeHandle,
+  ETIZCoreMsgSetupTunnel,
+  ETIZCoreMsgTeardownTunnel,
+  ETIZCoreMsgComponentOfRoleEnum,
+  ETIZCoreMsgRoleOfComponentEnum,
+  ETIZCoreMsgGetCoreInterface,
+  ETIZCoreMsgFreeCoreInterface
+};
+
+typedef struct tizcore_msg tizcore_msg_t;
+typedef void * tizcore_msg_data_t;
+struct tizcore_msg
+{
+  tizcore_msg_class_t class;
+  tizcore_msg_data_t p_data;
+};
+
+typedef struct tizcore_msg_gethandle tizcore_msg_gethandle_t;
+struct tizcore_msg_gethandle
+{
+  OMX_HANDLETYPE *pp_hdl;
+  OMX_STRING p_comp_name;
+  OMX_PTR p_app_data;
+  OMX_CALLBACKTYPE *p_callbacks;
+};
+
+typedef struct tizcore_msg_freehandle tizcore_msg_freehandle_t;
+struct tizcore_msg_freehandle
+{
+  OMX_HANDLETYPE p_hdl;
+};
+
+typedef struct tizcore_msg_compnameenum tizcore_msg_compnameenum_t;
+struct tizcore_msg_compnameenum
+{
+  OMX_STRING p_comp_name;
+  OMX_U32 namelen;
+  OMX_U32 index;
+};
+
+typedef struct tizcore_msg_compofroleenum tizcore_msg_compofroleenum_t;
+struct tizcore_msg_compofroleenum
+{
+  OMX_STRING p_comp_name;
+  OMX_STRING p_role;
+  OMX_U32 index;
+};
+
+/* Use here the same structure being used for comp of role enum API */
+typedef struct tizcore_msg_compofroleenum tizcore_msg_roleofcompenum_t;
+
 
 typedef struct tizcore_registry_item tizcore_registry_item_t;
 
