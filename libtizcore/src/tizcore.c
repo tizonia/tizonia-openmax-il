@@ -1362,7 +1362,6 @@ OMX_Init (void)
   tizcore_msg_t *p_msg = NULL;
 
   tiz_log_init ();
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_Init");
 
   if (OMX_ErrorNone != (rc = start_core ()))
     {
