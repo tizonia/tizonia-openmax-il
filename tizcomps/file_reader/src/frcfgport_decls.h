@@ -42,7 +42,7 @@ struct frcfgport
 {
   /* Object */
   const struct tizconfigport _;
-  OMX_STRING ip_uri;
+  OMX_STRING p_uri_;
 };
 
 struct frcfgport_class

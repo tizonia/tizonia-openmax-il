@@ -155,10 +155,9 @@ get_component_roles (OMX_COMPONENTTYPE * ap_hdl,
 
       rc =
         ap_hdl->ComponentRoleEnum ((OMX_HANDLETYPE) ap_hdl,
-                                           p_role->role, role_index);
+                                   p_role->role, role_index);
 
       if (OMX_ErrorNone != rc && OMX_ErrorNoMore != rc)
-
         {
           TIZ_LOG (TIZ_LOG_TRACE, "Call to ComponentRoleEnum failed");
           tiz_mem_free (p_role);
@@ -170,6 +169,7 @@ get_component_roles (OMX_COMPONENTTYPE * ap_hdl,
           if (p_last)
             {
               p_last->p_next = p_role;
+              p_last = p_role;
             }
           else
             {
@@ -177,7 +177,7 @@ get_component_roles (OMX_COMPONENTTYPE * ap_hdl,
               p_first = p_role;
             }
           TIZ_LOG (TIZ_LOG_TRACE,
-                     "Found role [#%d] to be [%s]", role_index, p_role);
+                     "Found role [#%d] to be [%s]", role_index, p_role->role);
 
           role_index++;
         }
@@ -652,8 +652,8 @@ instantiate_component (tizcore_msg_gethandle_t * ap_msg)
                                       TIZ_DEFAULT_COMP_ENTRY_POINT_NAME,
                                       &p_dl_hdl, &p_entry_point);
 
-      // TODO: refactor these two blocks into a function. They are also used
-      // in add_to_comp_registry
+      /* TODO: refactor these two blocks into a function. They are also used */
+      /* in add_to_comp_registry */
 
       /*  Allocate the component hdl */
       if (!(p_hdl = (OMX_COMPONENTTYPE *) tiz_mem_alloc

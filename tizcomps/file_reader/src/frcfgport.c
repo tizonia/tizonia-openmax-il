@@ -43,6 +43,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_reader.frcfgport"
 #endif
 
+
 static char *
 find_default_uri()
 {
@@ -53,7 +54,7 @@ find_default_uri()
   tiz_rcfile_open(&p_rcfile);
 
   p_uri = tiz_rcfile_get_value(p_rcfile, "plugins-data",
-                               "OMX.Aratelia.file_reader.binary.default_uri");
+                               "OMX.Aratelia.file_reader.binary.default_audio_uri");
 
   if (!p_uri)
     {
@@ -79,12 +80,8 @@ static void *
 fr_cfgport_ctor (void *ap_obj, va_list * app)
 {
   struct frcfgport *p_obj = super_ctor (frcfgport, ap_obj, app);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Constructing frcfgport [%p]...", ap_obj);
-
+  p_obj->p_uri_ = find_default_uri();
   tizport_register_index (p_obj, OMX_IndexParamContentURI);
-  p_obj->ip_uri = find_default_uri();
-
   return p_obj;
 }
 
@@ -92,8 +89,7 @@ static void *
 fr_cfgport_dtor (void *ap_obj)
 {
   struct frcfgport *p_obj = (struct frcfgport *) ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing frcfgport [%p]...", ap_obj);
-  tiz_mem_free (p_obj->ip_uri);
+  tiz_mem_free (p_obj->p_uri_);
   return super_dtor (frcfgport, ap_obj);
 }
 
@@ -116,9 +112,9 @@ fr_cfgport_GetParameter (const void *ap_obj,
           = (OMX_PARAM_CONTENTURITYPE *) ap_struct;
         OMX_U32 uri_buf_size =
           p_uri->nSize - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE);
-        OMX_U32 uri_len = strlen (p_obj->ip_uri);
+        OMX_U32 uri_len = strlen (p_obj->p_uri_);
         TIZ_LOG (TIZ_LOG_TRACE, "uri_buf_size [%d]...", uri_buf_size);
-        TIZ_LOG (TIZ_LOG_TRACE, "p_obj->ip_uri [%08x]...", p_obj->ip_uri);
+        TIZ_LOG (TIZ_LOG_TRACE, "p_obj->p_uri_ [%08x]...", p_obj->p_uri_);
 
         if (uri_buf_size < (uri_len + 1))
           {
@@ -126,7 +122,7 @@ fr_cfgport_GetParameter (const void *ap_obj,
           }
 
         p_uri->nVersion.nVersion = OMX_VERSION;
-        strncpy ((char *)p_uri->contentURI, p_obj->ip_uri, uri_len + 1);
+        strncpy ((char *)p_uri->contentURI, p_obj->p_uri_, uri_len + 1);
         if (p_uri->contentURI)
           {
             p_uri->contentURI[uri_len] = '\0';
@@ -167,15 +163,15 @@ fr_cfgport_SetParameter (const void *ap_obj,
         OMX_U32 uri_size =
           p_uri->nSize - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE);
 
-        tiz_mem_free (p_obj->ip_uri);
-        p_obj->ip_uri = tiz_mem_calloc (1, uri_size);
-        strncpy (p_obj->ip_uri, (char*)p_uri->contentURI, uri_size);
-        if (p_obj->ip_uri)
+        tiz_mem_free (p_obj->p_uri_);
+        p_obj->p_uri_ = tiz_mem_calloc (1, uri_size);
+        strncpy (p_obj->p_uri_, (char*)p_uri->contentURI, uri_size);
+        if (p_obj->p_uri_)
           {
             p_uri->contentURI[uri_size - 1] = '\0';
           }
 
-        TIZ_LOG (TIZ_LOG_TRACE, "Set URI [%s]...", p_obj->ip_uri);
+        TIZ_LOG (TIZ_LOG_TRACE, "Set URI [%s]...", p_obj->p_uri_);
       }
       break;
 

@@ -41,10 +41,10 @@ struct frprc
 {
   /* Object */
   const struct tizproc _;
-  FILE *ip_file;
-  OMX_PARAM_CONTENTURITYPE *ip_uri_param;
-  OMX_U32 i_counter;
-  OMX_BOOL i_eos;
+  FILE *p_file_;
+  OMX_PARAM_CONTENTURITYPE *p_uri_param_;
+  OMX_U32 counter_;
+  OMX_BOOL eos_;
 };
 
 #ifdef __cplusplus

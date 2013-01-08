@@ -48,7 +48,10 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_reader"
 #endif
 
-#define ARATELIA_FILE_READER_DEFAULT_ROLE "file_reader.binary"
+#define ARATELIA_FILE_READER_AUDIO_READER_ROLE "audio_reader.binary"
+#define ARATELIA_FILE_READER_VIDEO_READER_ROLE "video_reader.binary"
+#define ARATELIA_FILE_READER_IMAGE_READER_ROLE "image_reader.binary"
+#define ARATELIA_FILE_READER_OTHER_READER_ROLE "other_reader.binary"
 #define ARATELIA_FILE_READER_COMPONENT_NAME "OMX.Aratelia.file_reader.binary"
 #define ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE 1024
@@ -59,7 +62,7 @@
 static OMX_VERSIONTYPE file_reader_version = { { 1, 0, 0, 0 } };
 
 static OMX_PTR
-instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
+instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_binaryport = NULL;
   tizport_options_t port_opts = {
@@ -82,19 +85,84 @@ instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
 }
 
 static OMX_PTR
+instantiate_video_port (OMX_HANDLETYPE ap_hdl)
+{
+  OMX_PTR p_binaryport = NULL;
+  tizport_options_t port_opts = {
+    OMX_PortDomainVideo,
+    OMX_DirOutput,
+    ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT,
+    ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE,
+    ARATELIA_FILE_READER_PORT_NONCONTIGUOUS,
+    ARATELIA_FILE_READER_PORT_ALIGNMENT,
+    ARATELIA_FILE_READER_PORT_SUPPLIERPREF,
+    {NULL, NULL, NULL},
+    -1                          /* use -1 for now */
+  };
+
+  init_tizbinaryport ();
+  p_binaryport = factory_new (tizbinaryport, &port_opts);
+  assert (p_binaryport);
+
+  return p_binaryport;
+}
+
+static OMX_PTR
+instantiate_image_port (OMX_HANDLETYPE ap_hdl)
+{
+  OMX_PTR p_binaryport = NULL;
+  tizport_options_t port_opts = {
+    OMX_PortDomainImage,
+    OMX_DirOutput,
+    ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT,
+    ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE,
+    ARATELIA_FILE_READER_PORT_NONCONTIGUOUS,
+    ARATELIA_FILE_READER_PORT_ALIGNMENT,
+    ARATELIA_FILE_READER_PORT_SUPPLIERPREF,
+    {NULL, NULL, NULL},
+    -1                          /* use -1 for now */
+  };
+
+  init_tizbinaryport ();
+  p_binaryport = factory_new (tizbinaryport, &port_opts);
+  assert (p_binaryport);
+
+  return p_binaryport;
+}
+
+static OMX_PTR
+instantiate_other_port (OMX_HANDLETYPE ap_hdl)
+{
+  OMX_PTR p_binaryport = NULL;
+  tizport_options_t port_opts = {
+    OMX_PortDomainOther,
+    OMX_DirOutput,
+    ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT,
+    ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE,
+    ARATELIA_FILE_READER_PORT_NONCONTIGUOUS,
+    ARATELIA_FILE_READER_PORT_ALIGNMENT,
+    ARATELIA_FILE_READER_PORT_SUPPLIERPREF,
+    {NULL, NULL, NULL},
+    -1                          /* use -1 for now */
+  };
+
+  init_tizbinaryport ();
+  p_binaryport = factory_new (tizbinaryport, &port_opts);
+  assert (p_binaryport);
+
+  return p_binaryport;
+}
+
+static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_cport = NULL;
-  OMX_STRING roles[] = {
-    ARATELIA_FILE_READER_DEFAULT_ROLE,
-    NULL
-  };
 
   /* Instantiate the config port */
   init_frcfgport ();
   p_cport = factory_new (frcfgport, NULL,       /* this port does not take options */
                          ARATELIA_FILE_READER_COMPONENT_NAME,
-                         &roles, file_reader_version);
+                         file_reader_version);
   assert (p_cport);
 
   return p_cport;
@@ -116,23 +184,45 @@ instantiate_processor (OMX_HANDLETYPE ap_hdl)
 OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_role_factory_t role_factory;
-  const tiz_role_factory_t *rf_list [] = {&role_factory};
+  tiz_role_factory_t audio_role;
+  tiz_role_factory_t video_role;
+  tiz_role_factory_t image_role;
+  tiz_role_factory_t other_role;
+  const tiz_role_factory_t *rf_list [] = {&audio_role, &video_role,
+                                          &image_role, &other_role};
 
   assert (ap_hdl);
 
   TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: Inititializing [%s]",
              ARATELIA_FILE_READER_COMPONENT_NAME);
 
-  strcpy ((OMX_STRING) role_factory.role, ARATELIA_FILE_READER_DEFAULT_ROLE);
-  role_factory.pf_cport   = instantiate_config_port;
-  role_factory.pf_port[0] = instantiate_binary_port;
-  role_factory.nports     = 1;
-  role_factory.pf_proc    = instantiate_processor;
+  strcpy ((OMX_STRING) audio_role.role, ARATELIA_FILE_READER_AUDIO_READER_ROLE);
+  audio_role.pf_cport   = instantiate_config_port;
+  audio_role.pf_port[0] = instantiate_audio_port;
+  audio_role.nports     = 1;
+  audio_role.pf_proc    = instantiate_processor;
+
+  strcpy ((OMX_STRING) video_role.role, ARATELIA_FILE_READER_VIDEO_READER_ROLE);
+  video_role.pf_cport   = instantiate_config_port;
+  video_role.pf_port[0] = instantiate_video_port;
+  video_role.nports     = 1;
+  video_role.pf_proc    = instantiate_processor;
+
+  strcpy ((OMX_STRING) image_role.role, ARATELIA_FILE_READER_IMAGE_READER_ROLE);
+  image_role.pf_cport   = instantiate_config_port;
+  image_role.pf_port[0] = instantiate_image_port;
+  image_role.nports     = 1;
+  image_role.pf_proc    = instantiate_processor;
+
+  strcpy ((OMX_STRING) other_role.role, ARATELIA_FILE_READER_OTHER_READER_ROLE);
+  other_role.pf_cport   = instantiate_config_port;
+  other_role.pf_port[0] = instantiate_other_port;
+  other_role.nports     = 1;
+  other_role.pf_proc    = instantiate_processor;
 
   tiz_init_component (ap_hdl, ARATELIA_FILE_READER_COMPONENT_NAME);
 
-  tiz_register_roles (ap_hdl, rf_list, 1);
+  tiz_register_roles (ap_hdl, rf_list, 4);
 
   return OMX_ErrorNone;
 }

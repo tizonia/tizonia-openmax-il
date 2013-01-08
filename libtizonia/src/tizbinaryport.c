@@ -36,6 +36,9 @@
 #include "tizbinaryport_decls.h"
 
 #include "tizaudioport.h"
+#include "tizvideoport.h"
+#include "tizimageport.h"
+#include "tizotherport.h"
 
 #include "tizosal.h"
 #include "tizutils.h"
@@ -79,22 +82,78 @@ binaryport_ctor (void *ap_obj, va_list * app)
 
     case OMX_PortDomainVideo:
       {
-        /* TODO */
-        /* p_obj->ip_port = factory_new(); */
+        OMX_VIDEO_PORTDEFINITIONTYPE portdef;
+        OMX_VIDEO_CODINGTYPE encodings[] = {
+          OMX_VIDEO_CodingUnused,
+          OMX_VIDEO_CodingMax
+        };
+        OMX_COLOR_FORMATTYPE formats[] = {
+          OMX_COLOR_FormatYUV420Planar,
+          OMX_COLOR_FormatMax
+        };
+        /* NOTE: No defaults are defined in the standard for the video output
+           port of the video_reader.binary component. So for the sake of
+           completeness, simply provide some default values here. */
+        portdef.pNativeRender = NULL;
+        portdef.nFrameWidth = 176;
+        portdef.nFrameHeight = 144;
+        portdef.nStride = 0;
+        portdef.nSliceHeight = 0;
+        portdef.nBitrate = 0;
+        portdef.xFramerate = 15;
+        portdef.bFlagErrorConcealment = OMX_FALSE;
+        portdef.eCompressionFormat = OMX_VIDEO_CodingUnused;
+        portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
+        portdef.pNativeWindow = NULL;
+
+        tizport_register_index (p_obj, OMX_IndexParamVideoPortFormat);
+        init_tizvideoport ();
+        p_obj->ip_port = factory_new (tizvideoport, p_opts, &portdef,
+                                      &encodings, &formats);
       }
       break;
 
     case OMX_PortDomainImage:
       {
-        /* TODO */
-        /* p_obj->ip_port = factory_new(); */
+        OMX_IMAGE_PORTDEFINITIONTYPE portdef;
+        OMX_IMAGE_CODINGTYPE encodings[] = {
+          OMX_IMAGE_CodingUnused,
+          OMX_IMAGE_CodingMax
+        };
+        OMX_COLOR_FORMATTYPE formats[] = {
+          OMX_COLOR_FormatYUV420Planar,
+          OMX_COLOR_FormatMax
+        };
+        /* NOTE: No defaults are defined in the standard for the image output
+           port of the image_reader.binary component. So for the sake of
+           completeness, simply provide some default values here. */
+        portdef.pNativeRender = NULL;
+        portdef.nFrameWidth = 176;
+        portdef.nFrameHeight = 144;
+        portdef.nStride = 0;
+        portdef.nSliceHeight = 0;
+        portdef.bFlagErrorConcealment = OMX_FALSE;
+        portdef.eCompressionFormat = OMX_IMAGE_CodingUnused;
+        portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
+        portdef.pNativeWindow = NULL;
+
+        tizport_register_index (p_obj, OMX_IndexParamImagePortFormat);
+        init_tizimageport ();
+        p_obj->ip_port = factory_new (tizimageport, p_opts, &portdef,
+                                      &encodings, &formats);
       }
       break;
 
     case OMX_PortDomainOther:
       {
-        /* TODO */
-        /* p_obj->ip_port = factory_new(); */
+        OMX_OTHER_FORMATTYPE formats[] = {
+          OMX_OTHER_FormatBinary,
+          OMX_OTHER_FormatMax
+        };
+
+        tizport_register_index (p_obj, OMX_IndexParamOtherPortFormat);
+        init_tizotherport ();
+        p_obj->ip_port = factory_new (tizotherport, p_opts, &formats);
       }
       break;
 

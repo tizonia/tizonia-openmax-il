@@ -467,7 +467,7 @@ init_test_data(tiz_rcfile_t *rcfile)
  * Unit tests
  */
 
-START_TEST (test_fr)
+START_TEST (test_audio_fr)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = 0;
@@ -713,17 +713,18 @@ START_TEST (test_fr)
 }
 END_TEST
 
-Suite * ar_suite (void)
+Suite *
+ar_suite (void)
 {
 
   TCase *tc_fr;
   Suite *s = suite_create ("libtizfr");
 
   /* test case */
-  tc_fr = tcase_create ("File reader");
+  tc_fr = tcase_create ("Binary file reader");
   tcase_add_unchecked_fixture (tc_fr, setup, teardown);
   tcase_set_timeout (tc_fr, 5);
-  tcase_add_test (tc_fr, test_fr);
+  tcase_add_test (tc_fr, test_audio_fr);
   suite_add_tcase (s, tc_fr);
 
   return s;

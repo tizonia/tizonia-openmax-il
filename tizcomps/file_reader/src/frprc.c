@@ -56,10 +56,10 @@ static void *
 fr_proc_ctor (void *ap_obj, va_list * app)
 {
   struct frprc *p_obj = super_ctor (frprc, ap_obj, app);
-  TIZ_LOG (TIZ_LOG_TRACE, "Constructing frprc...[%p]", p_obj);
-  p_obj->ip_file = NULL;
-  p_obj->ip_uri_param = NULL;
-  p_obj->i_eos = OMX_FALSE;
+  p_obj->p_file_ = NULL;
+  p_obj->p_uri_param_ = NULL;
+  p_obj->counter_ = 0;
+  p_obj->eos_ = OMX_FALSE;
   return p_obj;
 }
 
@@ -67,16 +67,15 @@ static void *
 fr_proc_dtor (void *ap_obj)
 {
   struct frprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing frprc...[%p]", p_obj);
 
-  if (p_obj->ip_file)
+  if (p_obj->p_file_)
     {
-      fclose (p_obj->ip_file);
+      fclose (p_obj->p_file_);
     }
 
-  if (p_obj->ip_uri_param)
+  if (p_obj->p_uri_param_)
     {
-      tiz_mem_free (p_obj->ip_uri_param);
+      tiz_mem_free (p_obj->p_uri_param_);
     }
 
   return super_dtor (frprc, ap_obj);
@@ -88,17 +87,17 @@ fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
   struct frprc *p_obj = (struct frprc *) ap_obj;
   int bytes_read = 0;
 
-  if (p_obj->ip_file && !(p_obj->i_eos))
+  if (p_obj->p_file_ && !(p_obj->eos_))
     {
       if (!(bytes_read
-            = fread (p_hdr->pBuffer, 1, p_hdr->nAllocLen, p_obj->ip_file)))
+            = fread (p_hdr->pBuffer, 1, p_hdr->nAllocLen, p_obj->p_file_)))
         {
-          if (feof (p_obj->ip_file))
+          if (feof (p_obj->p_file_))
             {
               TIZ_LOG (TIZ_LOG_TRACE,
                          "End of file reached bytes_read=[%d]", bytes_read);
               p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
-              p_obj->i_eos = OMX_TRUE;
+              p_obj->eos_ = OMX_TRUE;
             }
           else
             {
@@ -108,12 +107,12 @@ fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
         }
 
       p_hdr->nFilledLen = bytes_read;
-      p_obj->i_counter += p_hdr->nFilledLen;
+      p_obj->counter_ += p_hdr->nFilledLen;
     }
 
   TIZ_LOG (TIZ_LOG_TRACE, "Reading into HEADER [%p]...nFilledLen[%d] "
              "counter [%d] bytes_read[%d]",
-             p_hdr, p_hdr->nFilledLen, p_obj->i_counter, bytes_read);
+             p_hdr, p_hdr->nFilledLen, p_obj->counter_, bytes_read);
 
   return OMX_ErrorNone;
 
@@ -136,29 +135,37 @@ fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   TIZ_LOG (TIZ_LOG_TRACE, "Resource allocation complete... "
              "frprc = [%p]!!!", p_obj);
 
-
-  if (!(p_obj->ip_uri_param))
+  if (!(p_obj->p_uri_param_))
     {
-      p_obj->ip_uri_param = tiz_mem_calloc
+      p_obj->p_uri_param_ = tiz_mem_calloc
         (1, sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE);
-      p_obj->ip_uri_param->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
+
+      if (NULL == p_obj->p_uri_param_)
+        {
+          TIZ_LOG (TIZ_LOG_TRACE, "Error allocating memory "
+                   "for the content uri struct");
+          return OMX_ErrorInsufficientResources;
+        }
+
+      p_obj->p_uri_param_->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
         + OMX_MAX_STRINGNAME_SIZE - 1;
-      p_obj->ip_uri_param->nVersion.nVersion = OMX_VERSION;
+      p_obj->p_uri_param_->nVersion.nVersion = OMX_VERSION;
     }
 
   if (OMX_ErrorNone != (ret_val = tizapi_GetParameter
                         (p_krn,
                          p_parent->p_hdl_,
-                         OMX_IndexParamContentURI, p_obj->ip_uri_param)))
+                         OMX_IndexParamContentURI, p_obj->p_uri_param_)))
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Error retrieving URI param from port");
       return ret_val;
     }
 
   TIZ_LOG (TIZ_LOG_TRACE, "Retrieved URI [%s]",
-             p_obj->ip_uri_param->contentURI);
+             p_obj->p_uri_param_->contentURI);
 
-  if ((p_obj->ip_file = fopen ((const char*)p_obj->ip_uri_param->contentURI, "r")) == 0)
+  if ((p_obj->p_file_ 
+       = fopen ((const char*)p_obj->p_uri_param_->contentURI, "r")) == 0)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Error opening file from  URI string");
       return OMX_ErrorInsufficientResources;
@@ -173,20 +180,14 @@ fr_proc_deallocate_resources (void *ap_obj)
   struct frprc *p_obj = ap_obj;
   assert (ap_obj);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Resource deallocation complete..."
-             "frprc = [%p]!!!", p_obj);
-
-  if (p_obj->ip_file)
+  if (p_obj->p_file_)
     {
-      fclose (p_obj->ip_file);
-      p_obj->ip_file = NULL;
+      fclose (p_obj->p_file_);
+      p_obj->p_file_ = NULL;
     }
 
-  if (p_obj->ip_uri_param)
-    {
-      tiz_mem_free (p_obj->ip_uri_param);
-      p_obj->ip_uri_param = NULL;
-    }
+  tiz_mem_free (p_obj->p_uri_param_);
+  p_obj->p_uri_param_ = NULL;
 
   return OMX_ErrorNone;
 }
@@ -196,17 +197,9 @@ fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   struct frprc *p_obj = ap_obj;
   assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
-
-  p_obj->i_counter = 0;
-  p_obj->i_eos = OMX_FALSE;
-
-  TIZ_LOG (TIZ_LOG_TRACE,
-             "Prepared to transfer buffers...p_obj = [%p]!!!", p_obj);
-
+  p_obj->counter_ = 0;
+  p_obj->eos_ = OMX_FALSE;
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
@@ -214,27 +207,14 @@ fr_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
   struct frprc *p_obj = ap_obj;
   assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
-
-  p_obj->i_counter = 0;
-  p_obj->i_eos = OMX_FALSE;
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Awaiting buffers...p_obj = [%p]!!!", p_obj);
-
+  p_obj->counter_ = 0;
+  p_obj->eos_ = OMX_FALSE;
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
 fr_proc_stop_and_return (void *ap_obj)
 {
-  struct frprc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!",
-             p_obj);
-
   return OMX_ErrorNone;
 }
 
@@ -251,9 +231,7 @@ fr_proc_buffers_ready (const void *ap_obj)
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Buffers ready...");
-
-  if (!(p_obj->i_eos))
+  if (!(p_obj->eos_))
     {
       TIZ_PD_ZERO (&ports);
 
@@ -283,7 +261,6 @@ init_frprc (void)
 
   if (!frprc)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing frprc...");
       init_tizproc ();
       frprc =
         factory_new
@@ -300,5 +277,4 @@ init_frprc (void)
          tizservant_transfer_and_process, fr_proc_transfer_and_process,
          tizservant_stop_and_return, fr_proc_stop_and_return, 0);
     }
-
 }
