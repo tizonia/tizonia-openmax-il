@@ -1491,8 +1491,6 @@ OMX_FreeHandle (OMX_HANDLETYPE ap_hdl)
   tizcore_msg_t *p_msg = NULL;
   tizcore_msg_freehandle_t *p_freehdl = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "ap_hdl [%p]", ap_hdl);
-
   assert (ap_hdl);
 
   if (!(p_msg = init_core_message (ETIZCoreMsgFreeHandle)))
