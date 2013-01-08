@@ -70,7 +70,6 @@ static OMX_VERSIONTYPE tc_spec_version = {
 typedef struct tizcore_registry_item tizcore_registry_item_t;
 
 typedef tizcore_registry_item_t *tizcore_registry_t;
-
 struct tizcore_registry_item
 {
   OMX_STRING p_comp_name;
@@ -85,7 +84,6 @@ struct tizcore_registry_item
 
 
 typedef struct tizcore tizcore_t;
-
 struct tizcore
 {
   void *p_core;
