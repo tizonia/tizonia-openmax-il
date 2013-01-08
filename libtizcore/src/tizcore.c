@@ -1127,7 +1127,7 @@ init_core_message (tizcore_msg_class_t a_msg_class)
   if (!(p_msg =
        (tizcore_msg_t *) tiz_mem_calloc (1, sizeof (tizcore_msg_t))))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "mem alloc failed");
+      TIZ_LOG (TIZ_LOG_ERROR, "mem alloc failed");
       return NULL;
     }
 
