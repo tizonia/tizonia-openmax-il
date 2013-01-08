@@ -38,9 +38,7 @@ extern "C"
 #include "OMX_Types.h"
 
 typedef struct role_list_item role_list_item_t;
-
 typedef role_list_item_t *role_list_t;
-
 struct role_list_item
 {
   OMX_U8 role[OMX_MAX_STRINGNAME_SIZE];
@@ -48,17 +46,14 @@ struct role_list_item
 };
 
 typedef enum tizcore_state tizcore_state_t;
-
 enum tizcore_state
 {
-
   ETIZCoreStateStopped = 0,
   ETIZCoreStateStarting,
   ETIZCoreStateStarted
 };
 
 typedef enum tizcore_msg_class tizcore_msg_class_t;
-
 enum tizcore_msg_class
 {
   ETIZCoreMsgInit = 0,
@@ -75,9 +70,7 @@ enum tizcore_msg_class
 };
 
 typedef struct tizcore_msg tizcore_msg_t;
-
-typedef void *tizcore_msg_data_t;
-
+typedef void * tizcore_msg_data_t;
 struct tizcore_msg
 {
   tizcore_msg_class_t class;
@@ -85,7 +78,6 @@ struct tizcore_msg
 };
 
 typedef struct tizcore_msg_gethandle tizcore_msg_gethandle_t;
-
 struct tizcore_msg_gethandle
 {
   OMX_HANDLETYPE *pp_hdl;
@@ -95,14 +87,12 @@ struct tizcore_msg_gethandle
 };
 
 typedef struct tizcore_msg_freehandle tizcore_msg_freehandle_t;
-
 struct tizcore_msg_freehandle
 {
   OMX_HANDLETYPE p_hdl;
 };
 
 typedef struct tizcore_msg_compnameenum tizcore_msg_compnameenum_t;
-
 struct tizcore_msg_compnameenum
 {
   OMX_STRING p_comp_name;
@@ -111,7 +101,6 @@ struct tizcore_msg_compnameenum
 };
 
 typedef struct tizcore_msg_compofroleenum tizcore_msg_compofroleenum_t;
-
 struct tizcore_msg_compofroleenum
 {
   OMX_STRING p_comp_name;
