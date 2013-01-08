@@ -1108,7 +1108,7 @@ start_core ()
 
   assert (p_core);
 
-  // Create IL Core thread
+  /* Create IL Core thread */
   tiz_thread_create (&(p_core->thread), 0, 0, il_core_thread_func, p_core);
 
   TIZ_LOG (TIZ_LOG_TRACE, "waiting on thread creation...");
