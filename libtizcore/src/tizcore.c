@@ -681,7 +681,7 @@ instantiate_component (tizcore_msg_gethandle_t * ap_msg)
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Component [%s] not found.",
+      TIZ_LOG (TIZ_LOG_ERROR, "Component [%s] not found.",
                  ap_msg->p_comp_name);
 
       rc = OMX_ErrorComponentNotFound;
@@ -699,7 +699,7 @@ remove_comp_instance (tizcore_msg_freehandle_t * ap_msg)
 
   TIZ_LOG (TIZ_LOG_TRACE, "Removing component instance...");
 
-  // TODO: Fix error handling...!!!
+  /* TODO: Fix error handling...!!! */
 
   if ((p_reg_item = find_hdl_in_registry (ap_msg->p_hdl)))
     {
