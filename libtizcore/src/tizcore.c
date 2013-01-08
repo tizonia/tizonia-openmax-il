@@ -1277,7 +1277,7 @@ do_tunnel_requests(OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
                                            OMX_IndexParamPortDefinition,
                                            &port_def)))
         {
-          TIZ_LOG (TIZ_LOG_TRACE,
+          TIZ_LOG (TIZ_LOG_ERROR,
                      "%s : GetParameter on output port failed",
                      tiz_err_to_str (gp_to_st_err (rc)));
           return gp_to_st_err (rc);
