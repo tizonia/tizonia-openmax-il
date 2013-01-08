@@ -1396,7 +1396,6 @@ OMX_Deinit (void)
     }
 
   tiz_queue_send (p_core->p_queue, p_msg);
-  TIZ_LOG (TIZ_LOG_TRACE, "message sent [%p]", p_msg);
 
   tiz_sem_wait (&(p_core->sem));
 
