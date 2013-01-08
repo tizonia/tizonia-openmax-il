@@ -1562,8 +1562,6 @@ OMX_RoleOfComponentEnum(OMX_STRING ap_role, OMX_STRING ap_comp_name,
   tizcore_msg_t *p_msg = NULL;
   tizcore_msg_roleofcompenum_t *p_msg_rofcompenum = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_RoleOfComponentEnum");
-
   if (!ap_comp_name || !ap_role)
     {
       TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorBadParameter");
