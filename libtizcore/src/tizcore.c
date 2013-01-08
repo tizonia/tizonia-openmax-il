@@ -82,7 +82,6 @@ struct tizcore_registry_item
   tizcore_registry_item_t *p_next;
 };
 
-
 typedef struct tizcore tizcore_t;
 struct tizcore
 {
