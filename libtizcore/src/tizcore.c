@@ -1423,8 +1423,6 @@ OMX_ComponentNameEnum (OMX_STRING ap_cname, OMX_U32 a_namelen,
   tizcore_msg_t *p_msg = NULL;
   tizcore_msg_compnameenum_t *p_msg_cnameenum = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentNameEnum");
-
   /* INFO: BUG in 1.1.2 CTS: This comparison */
   /* if (OMX_MAX_STRINGNAME_SIZE > strlen(ap_cname)) { */
   /* return OMX_ErrorBadParameter} */
