@@ -42,6 +42,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h>
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
@@ -61,10 +62,10 @@
 
 static OMX_VERSIONTYPE tc_spec_version = {
   {
-    OMX_VERSION_MAJOR,
-    OMX_VERSION_MINOR,
-    OMX_VERSION_REVISION,
-    OMX_VERSION_STEP
+    (OMX_U8)OMX_VERSION_MAJOR,
+    (OMX_U8)OMX_VERSION_MINOR,
+    (OMX_U8)OMX_VERSION_REVISION,
+    (OMX_U8)OMX_VERSION_STEP
   }
 };
 
@@ -106,7 +107,7 @@ struct tizcore_msg_str
   OMX_STRING str;
 };
 
-tizcore_msg_str_t tizcore_msg_to_str_tbl[] = {
+static tizcore_msg_str_t tizcore_msg_to_str_tbl[] = {
   {ETIZCoreMsgInit, "ETIZCoreMsgInit"},
   {ETIZCoreMsgDeinit, "ETIZCoreMsgDeinit"},
   {ETIZCoreMsgGetHandle, "ETIZCoreMsgGetHandle"},
@@ -119,12 +120,12 @@ tizcore_msg_str_t tizcore_msg_to_str_tbl[] = {
   {ETIZCoreMsgMax, "ETIZCoreMsgMax"},
 };
 
-const OMX_STRING
+static const OMX_STRING
 tizcore_msg_to_str (const tizcore_msg_class_t a_msg)
 {
-  const OMX_S32 count =
+  const size_t count =
     sizeof (tizcore_msg_to_str_tbl) / sizeof (tizcore_msg_str_t);
-  OMX_S32 i = 0;
+  size_t i = 0;
 
   for (i = 0; i < count; ++i)
     {
@@ -246,18 +247,21 @@ static tizcore_registry_item_t *find_comp_in_registry (const OMX_STRING
 static void
 wait_complete (OMX_U32 rid, OMX_PTR ap_data)
 {
+  (void) ap_data;
   TIZ_LOG (TIZ_LOG_TRACE, "wait_complete : rid [%u]", rid);
 }
 
 static void
 preemption_req (OMX_U32 rid, OMX_PTR ap_data)
 {
+  (void) ap_data;
   TIZ_LOG (TIZ_LOG_TRACE, "preemption_req : rid [%u]", rid);
 }
 
 static void
 preemption_complete (OMX_U32 rid, OMX_PTR ap_data)
 {
+  (void) ap_data;
   TIZ_LOG (TIZ_LOG_TRACE, "preemption_complete : rid [%u]", rid);
 }
 
@@ -396,7 +400,7 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
         {
           TIZ_LOG (TIZ_LOG_ERROR, "Call to GetComponentVersion failed");
           tiz_mem_free (p_registry_new);
-          ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
+          (void)ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
           return rc == OMX_ErrorInsufficientResources
             ? OMX_ErrorInsufficientResources : OMX_ErrorUndefined;
         }
@@ -408,8 +412,8 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
       TIZ_LOG (TIZ_LOG_TRACE, "Component already in registry [%s]",
                comp_name);
       tiz_mem_free (p_registry_new);
-      ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
-      return OMX_ErrorNoMore;
+      rc = ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
+      return rc;
     }
 
   TIZ_LOG (TIZ_LOG_TRACE, "component not in registry [%s]", comp_name);
@@ -437,7 +441,7 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
         {
           /* Find the last entry in the registry */
           p_registry_last = p_core->p_registry;
-          while (1)
+          while (true)
             {
               if (p_registry_last->p_next)
                 {
@@ -452,9 +456,9 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
         }
 
       /* Finish filling the registry entry... */
-      p_registry_new->p_comp_name = strdup (comp_name);
-      p_registry_new->p_dl_name = strdup (ap_dl_name);
-      p_registry_new->p_dl_path = strdup (ap_dl_path);
+      p_registry_new->p_comp_name = strndup (comp_name, OMX_MAX_STRINGNAME_SIZE);
+      p_registry_new->p_dl_name = strndup (ap_dl_name, NAME_MAX);
+      p_registry_new->p_dl_path = strndup (ap_dl_path, PATH_MAX);
       p_registry_new->p_entry_point = ap_entry_point;
       p_registry_new->p_dl_hdl = ap_dl_hdl;
       p_registry_new->p_hdl = ap_hdl;
@@ -671,7 +675,7 @@ scan_component_folders (void)
       return OMX_ErrorInsufficientResources;
     }
 
-  for (i = 0; i < npaths; i++)
+  for (i = 0; i < (int)npaths; i++)
     {
       if (NULL == (p_dir = opendir (pp_paths[i])))
         {
@@ -691,12 +695,16 @@ scan_component_folders (void)
                 {
                   TIZ_LOG (TIZ_LOG_TRACE, "[%s]",
                            p_dir_entry->d_name);
-                  cache_comp_info (pp_paths[i],
-                                   p_dir_entry->d_name);
+                  if (OMX_ErrorInsufficientResources
+                      == cache_comp_info (pp_paths[i],
+                                          p_dir_entry->d_name))
+                    {
+                      return OMX_ErrorInsufficientResources;
+                    }
                 }
             }
 
-          closedir (p_dir);
+          (void)closedir (p_dir);
         }
 
     }
@@ -881,6 +889,7 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   tizrm_error_t rc = TIZRM_SUCCESS;
   tizcore_t *p_core = get_core ();
   OMX_PRIORITYMGMTTYPE primgmt;
+  (void) ap_msg;
 
   TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgInit received...");
   assert (NULL != p_core);
@@ -1039,6 +1048,7 @@ static OMX_ERRORTYPE
 do_cre (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
   /* TODO */
+  (void) ap_msg;
   return OMX_ErrorNotImplemented;
 }
 
@@ -1140,18 +1150,17 @@ il_core_thread_func (void *p_arg)
 
   assert (NULL != p_core);
 
-  tiz_sem_post (&(p_core->sem));
+  TIZ_UTIL_TEST_ERR_RET_NULL (tiz_sem_post (&(p_core->sem)));
 
   for (;;)
     {
-      /* TODO: Check ret val */
-      tiz_queue_receive (p_core->p_queue, &p_data);
+      TIZ_UTIL_TEST_ERR_RET_NULL (tiz_queue_receive (p_core->p_queue, &p_data));
       signal_client = dispatch_msg
         (&(p_core->state), (tizcore_msg_t *) p_data);
 
       if (signal_client > 0)
         {
-          tiz_sem_post (&(p_core->sem));
+          TIZ_UTIL_TEST_ERR_RET_NULL (tiz_sem_post (&(p_core->sem)));
         }
 
       if (ETIZCoreStateStopped == p_core->state)
@@ -1236,12 +1245,10 @@ init_core_message (tizcore_msg_class_t a_msg_class)
     {
       TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
                "Creating message [%s]", tizcore_msg_to_str (a_msg_class));
-    }
-  else
-    {
-      p_msg->class = a_msg_class;
+      return NULL;
     }
 
+  p_msg->class = a_msg_class;
   return p_msg;
 }
 
@@ -1252,9 +1259,8 @@ send_msg_blocking (tizcore_msg_t * ap_msg)
   assert (NULL != ap_msg);
   assert (NULL != p_core);
 
-  tiz_queue_send (p_core->p_queue, ap_msg);
-  TIZ_LOG (TIZ_LOG_TRACE, "message sent [%p]", ap_msg);
-  tiz_sem_wait (&(p_core->sem));
+  TIZ_UTIL_TEST_ERR (tiz_queue_send (p_core->p_queue, ap_msg));
+  TIZ_UTIL_TEST_ERR (tiz_sem_wait (&(p_core->sem)));
   TIZ_LOG (TIZ_LOG_TRACE, "OMX IL CORE RESULT [%s]",
            tiz_err_to_str (p_core->error));
 
@@ -1335,13 +1341,13 @@ do_tunnel_requests(OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
                tiz_err_to_str (rc));
     }
 
-  if (OMX_ErrorNone == rc && p_incmp)
+  if (OMX_ErrorNone == rc && NULL != p_incmp)
     {
       /* Verify the input port */
       /* Init the struct values just in case */
       /* they were overwritten in the previous call... */
-      port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
-      port_def.nVersion.nVersion = OMX_VERSION;
+      port_def.nSize = (OMX_U32) sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+      port_def.nVersion.nVersion = (OMX_U32) OMX_VERSION;
       port_def.nPortIndex = a_inport;
       if (OMX_ErrorNone
           != (rc = p_incmp->GetParameter (p_incmp,
@@ -1396,7 +1402,13 @@ OMX_Init (void)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tizcore_msg_t *p_msg = NULL;
 
-  tiz_log_init ();
+  if (tiz_log_init () != 0)
+    {
+      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
+               "Error while initializing the logging lib",
+               tiz_err_to_str (rc));
+      return OMX_ErrorInsufficientResources;
+    }
 
   if (OMX_ErrorNone != (rc = start_core ()))
     {
@@ -1428,19 +1440,17 @@ OMX_Deinit (void)
       return OMX_ErrorInsufficientResources;
     }
 
-  if (OMX_ErrorNone == tiz_queue_send (p_core->p_queue, p_msg))
-    {
-      tiz_sem_wait (&(p_core->sem));
-      tiz_thread_join (&(p_core->thread), &p_result);
-    }
-  
+  TIZ_UTIL_TEST_ERR (tiz_queue_send (p_core->p_queue, p_msg));
+  TIZ_UTIL_TEST_ERR (tiz_sem_wait (&(p_core->sem)));
+  tiz_thread_join (&(p_core->thread), &p_result);
+
   tiz_queue_destroy (p_core->p_queue);
   p_core->p_queue = NULL;
   (void)tiz_sem_destroy (&(p_core->sem));
   tiz_mem_free (pg_core);
   pg_core = NULL;
 
-  tiz_log_deinit ();
+  (void)tiz_log_deinit ();
 
   return OMX_ErrorNone;
 }
@@ -1559,6 +1569,8 @@ OMX_TeardownTunnel(OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
                    OMX_HANDLETYPE ap_inhdl, OMX_U32 a_inport)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_HANDLETYPE p_null_inhdl = NULL;
+  OMX_HANDLETYPE p_null_outhdl = NULL;
 
   TIZ_LOG (TIZ_LOG_TRACE, "ap_outhdl [%p] a_outport [%d] "
            "ap_inhdl [%p] a_inport [%d]", ap_outhdl, a_outport,
@@ -1572,11 +1584,11 @@ OMX_TeardownTunnel(OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
       return OMX_ErrorBadParameter;
     }
 
-  rc = do_tunnel_requests(ap_outhdl, a_outport, NULL, a_inport);
+  rc = do_tunnel_requests(ap_outhdl, a_outport, p_null_inhdl, a_inport);
 
   if (OMX_ErrorNone == rc)
     {
-      rc = do_tunnel_requests(NULL, a_outport, ap_inhdl, a_inport);
+      rc = do_tunnel_requests(p_null_outhdl, a_outport, ap_inhdl, a_inport);
     }
 
   return rc;
@@ -1587,6 +1599,10 @@ OMX_ComponentOfRoleEnum(OMX_STRING ap_comp_name, OMX_STRING ap_role,
                         OMX_U32 a_index)
 {
   assert(0);
+  (void) ap_comp_name;
+  (void) ap_role;
+  (void) a_index;
+
   return OMX_ErrorNotImplemented;
 }
 
@@ -1624,11 +1640,14 @@ OMX_ERRORTYPE
 OMX_GetCoreInterface(void ** ppItf, OMX_STRING cExtensionName)
 {
   assert(0);
+  (void) ppItf;
+  (void) cExtensionName;
   return OMX_ErrorNotImplemented;
 }
 
 OMX_API void
 OMX_FreeCoreInterface(void * pItf)
 {
+  (void) pItf;
   assert(0);
 }
