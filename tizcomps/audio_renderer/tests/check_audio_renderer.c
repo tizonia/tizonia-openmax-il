@@ -39,6 +39,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <limits.h>
 
 #include "OMX_Component.h"
 #include "OMX_Types.h"
@@ -116,7 +117,7 @@ refresh_rm_db (void)
     }
   else
     {
-      pg_rmd_path = strdup (p_rmd_path);
+      pg_rmd_path = strndup (p_rmd_path, PATH_MAX);
 
       TIZ_LOG(TIZ_LOG_TRACE, "RM daemon [%s] ...", pg_rmd_path);
 

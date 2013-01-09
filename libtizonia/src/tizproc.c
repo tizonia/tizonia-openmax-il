@@ -324,7 +324,7 @@ tizproc_msg_str_t tizproc_msg_to_str_tbl[] = {
   {ETIZProcMsgMax, "ETIZProcMsgMax"},
 };
 
-const OMX_STRING
+static const OMX_STRING
 tizproc_msg_to_str (tizproc_msg_class_t a_msg)
 {
   const OMX_S32 count =

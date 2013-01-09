@@ -320,7 +320,7 @@ tizsched_msg_str_t tizsched_msg_to_str_tbl[] = {
   {ETIZSchedMsgMax, "ETIZSchedMsgMax"},
 };
 
-const OMX_STRING
+static const OMX_STRING
 tizsched_msg_to_str (const tizsched_msg_class_t a_msg)
 {
   const OMX_S32 count =

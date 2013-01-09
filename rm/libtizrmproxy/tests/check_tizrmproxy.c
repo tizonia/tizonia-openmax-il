@@ -35,6 +35,7 @@
 #include <dirent.h>
 #include <assert.h>
 #include <sys/types.h>
+#include <limits.h>
 
 #include "tizosal.h"
 #include "OMX_Core.h"
@@ -87,20 +88,25 @@ setup (void)
 {
   tiz_rcfile_open(&pg_rcfile);
 
-  pg_rmdb_path = strdup (tiz_rcfile_get_value(pg_rcfile,
-                                              "resource-management", "rmdb"));
-  pg_sqlite_script = strdup (tiz_rcfile_get_value(pg_rcfile,
+  pg_rmdb_path = strndup (tiz_rcfile_get_value(pg_rcfile,
+                                               "resource-management", "rmdb"),
+                          PATH_MAX);
+  pg_sqlite_script = strndup (tiz_rcfile_get_value(pg_rcfile,
                                                   "resource-management",
-                                                "rmdb.sqlite_script"));
-  pg_init_script = strdup (tiz_rcfile_get_value(pg_rcfile,
+                                                   "rmdb.sqlite_script"),
+                              PATH_MAX);
+  pg_init_script = strndup (tiz_rcfile_get_value(pg_rcfile,
                                                 "resource-management",
-                                                "rmdb.init_script"));
-  pg_rmd_path = strdup (tiz_rcfile_get_value(pg_rcfile,
+                                                "rmdb.init_script"),
+                           PATH_MAX);
+  pg_rmd_path = strndup (tiz_rcfile_get_value(pg_rcfile,
                                              "resource-management",
-                                             "rmd.path"));
-  pg_dump_script = strdup (tiz_rcfile_get_value(pg_rcfile,
+                                             "rmd.path"),
+                        PATH_MAX);
+  pg_dump_script = strndup (tiz_rcfile_get_value(pg_rcfile,
                                                 "resource-management",
-                                                "rmdb.dbdump_script"));
+                                                "rmdb.dbdump_script"),
+                           PATH_MAX);
 
   if (!pg_rmdb_path || !pg_sqlite_script
       || !pg_init_script || !pg_rmd_path || !pg_dump_script)

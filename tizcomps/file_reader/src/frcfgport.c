@@ -32,6 +32,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <limits.h>
 
 #include "frcfgport.h"
 #include "frcfgport_decls.h"
@@ -63,7 +64,7 @@ find_default_uri()
   else
     {
       TIZ_LOG(TIZ_LOG_TRACE, "Default URI [%s]...", p_uri);
-      p_rv = strdup(p_uri);
+      p_rv = strndup(p_uri, PATH_MAX);
     }
 
   tiz_rcfile_close(p_rcfile);

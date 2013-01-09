@@ -368,6 +368,7 @@ extractkeyval (FILE * ap_file, char * ap_str, keyval_t ** app_last_kv,
 
           p_next_v = (value_t *) tiz_mem_calloc (1, sizeof (value_t));
 
+          /* TODO : Use strndup */
           p_next_v->p_value =
             strdup (trimlistseparator (trimwhitespace (pat)));
 
@@ -657,6 +658,7 @@ tiz_rcfile_get_value_list(tiz_rcfile_t * p_rc,
         {
           if (p_next_value)
             {
+              /* TODO : Use strndup */
               pp_ret[i] = strdup (p_next_value->p_value);
               TIZ_LOG (TIZ_LOG_TRACE, "item [%d] - val [%s]",
                          i, p_next_value->p_value);

@@ -67,6 +67,15 @@ extern "C"
     }                                                                   \
   } while(0)
 
+#define TIZ_UTIL_TEST_ERR_RET_NULL(_a)                                   \
+  do {                                                          \
+    OMX_ERRORTYPE _err = _a;                                    \
+    if (OMX_ErrorNone != _err) {                                \
+      TIZ_LOG(TIZ_LOG_ERROR, "[%s]...", tiz_err_to_str (_err)); \
+      return NULL;                                              \
+    }                                                           \
+  } while(0)
+
 #ifdef __cplusplus
 }
 #endif
