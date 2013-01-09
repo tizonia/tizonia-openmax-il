@@ -89,24 +89,53 @@ enum tizcore_msg_class
 {
   ETIZCoreMsgInit = 0,
   ETIZCoreMsgDeinit,
-  ETIZCoreMsgComponentNameEnum,
   ETIZCoreMsgGetHandle,
   ETIZCoreMsgFreeHandle,
-  ETIZCoreMsgSetupTunnel,
-  ETIZCoreMsgTeardownTunnel,
+  ETIZCoreMsgComponentNameEnum,
   ETIZCoreMsgComponentOfRoleEnum,
   ETIZCoreMsgRoleOfComponentEnum,
   ETIZCoreMsgGetCoreInterface,
-  ETIZCoreMsgFreeCoreInterface
+  ETIZCoreMsgFreeCoreInterface,
+  ETIZCoreMsgMax,
 };
 
-typedef struct tizcore_msg tizcore_msg_t;
-typedef void * tizcore_msg_data_t;
-struct tizcore_msg
+typedef struct tizcore_msg_str tizcore_msg_str_t;
+struct tizcore_msg_str
 {
-  tizcore_msg_class_t class;
-  tizcore_msg_data_t p_data;
+  tizcore_msg_class_t msg;
+  OMX_STRING str;
 };
+
+tizcore_msg_str_t tizcore_msg_to_str_tbl[] = {
+  {ETIZCoreMsgInit, "ETIZCoreMsgInit"},
+  {ETIZCoreMsgDeinit, "ETIZCoreMsgDeinit"},
+  {ETIZCoreMsgGetHandle, "ETIZCoreMsgGetHandle"},
+  {ETIZCoreMsgFreeHandle, "ETIZCoreMsgFreeHandle"},
+  {ETIZCoreMsgComponentNameEnum, "ETIZCoreMsgComponentNameEnum"},
+  {ETIZCoreMsgComponentOfRoleEnum, "ETIZCoreMsgComponentOfRoleEnum"},
+  {ETIZCoreMsgRoleOfComponentEnum, "ETIZCoreMsgRoleOfComponentEnum"},
+  {ETIZCoreMsgGetCoreInterface, "ETIZCoreMsgGetCoreInterface"},
+  {ETIZCoreMsgFreeCoreInterface, "ETIZCoreMsgFreeCoreInterface"},
+  {ETIZCoreMsgMax, "ETIZCoreMsgMax"},
+};
+
+const OMX_STRING
+tizcore_msg_to_str (const tizcore_msg_class_t a_msg)
+{
+  const OMX_S32 count =
+    sizeof (tizcore_msg_to_str_tbl) / sizeof (tizcore_msg_str_t);
+  OMX_S32 i = 0;
+
+  for (i = 0; i < count; ++i)
+    {
+      if (tizcore_msg_to_str_tbl[i].msg == a_msg)
+        {
+          return tizcore_msg_to_str_tbl[i].str;
+        }
+    }
+
+  return "Unknown core message";
+}
 
 typedef struct tizcore_msg_gethandle tizcore_msg_gethandle_t;
 struct tizcore_msg_gethandle
@@ -142,9 +171,45 @@ struct tizcore_msg_compofroleenum
 /* Use here the same structure being used for comp of role enum API */
 typedef struct tizcore_msg_compofroleenum tizcore_msg_roleofcompenum_t;
 
+typedef struct tizcore_msg tizcore_msg_t;
+struct tizcore_msg
+{
+  tizcore_msg_class_t class;
+  union
+  {
+    tizcore_msg_gethandle_t gh;
+    tizcore_msg_freehandle_t fh;
+    tizcore_msg_compnameenum_t cne;
+    tizcore_msg_compofroleenum_t cre;
+    tizcore_msg_roleofcompenum_t rce;
+  };
+};
+
+/* Forward declarations */
+static OMX_ERRORTYPE do_init (tizcore_state_t *, tizcore_msg_t *);
+static OMX_ERRORTYPE do_deinit (tizcore_state_t *, tizcore_msg_t *);
+static OMX_ERRORTYPE do_cne (tizcore_state_t *, tizcore_msg_t *);
+static OMX_ERRORTYPE do_gh (tizcore_state_t *, tizcore_msg_t *);
+static OMX_ERRORTYPE do_fh (tizcore_state_t *, tizcore_msg_t *);
+static OMX_ERRORTYPE do_cre (tizcore_state_t *, tizcore_msg_t *);
+static OMX_ERRORTYPE do_rce (tizcore_state_t *, tizcore_msg_t *);
+
+typedef OMX_ERRORTYPE (*tizcore_msg_dispatch_f) (tizcore_state_t * ap_state,
+                                                 tizcore_msg_t * ap_msg);
+static const tizcore_msg_dispatch_f tizcore_msg_to_fnt_tbl[] = {
+  do_init,
+  do_deinit,
+  do_gh,
+  do_fh,
+  do_cne,
+  do_cre,
+  do_rce,
+  NULL,                        /* ETIZCoreMsgGetCoreInterface */
+  NULL,                        /* ETIZCoreMsgFreeCoreInterface */
+};
+
 
 typedef struct tizcore_registry_item tizcore_registry_item_t;
-
 typedef tizcore_registry_item_t *tizcore_registry_t;
 struct tizcore_registry_item
 {
@@ -698,7 +763,7 @@ find_hdl_in_registry (OMX_HANDLETYPE ap_hdl)
   return p_registry;
 }
 
-static OMX_ERRORTYPE
+static inline OMX_ERRORTYPE
 instantiate_component (tizcore_msg_gethandle_t * ap_msg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -811,7 +876,7 @@ remove_comp_instance (tizcore_msg_freehandle_t * ap_msg)
 }
 
 static OMX_ERRORTYPE
-do_init (tizcore_state_t * ap_state)
+do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
   tizrm_error_t rc = TIZRM_SUCCESS;
   tizcore_t *p_core = get_core ();
@@ -851,7 +916,7 @@ do_init (tizcore_state_t * ap_state)
 }
 
 static OMX_ERRORTYPE
-do_deinit (tizcore_state_t * ap_state)
+do_deinit (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
   tizrm_error_t rc = TIZRM_SUCCESS;
   tizcore_t *p_core = get_core ();
@@ -876,21 +941,58 @@ do_deinit (tizcore_state_t * ap_state)
 }
 
 static OMX_ERRORTYPE
-do_compenum (tizcore_msg_compnameenum_t * ap_msg)
+do_gh (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
+  tizcore_msg_gethandle_t *p_msg_gh = NULL;
 
+  TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgGetHandle received...");
+  assert (NULL != ap_msg);
+  assert (NULL != ap_state);
+  assert (ETIZCoreStateStarted == *ap_state);
+
+  p_msg_gh = &(ap_msg->gh);
+  assert (NULL != p_msg_gh);
+
+  return instantiate_component (p_msg_gh);
+}
+
+static OMX_ERRORTYPE
+do_fh (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
+{
+  tizcore_msg_freehandle_t *p_msg_fh = NULL;
+
+  TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgFreeHandle received...");
+  assert (NULL != ap_msg);
+  assert (NULL != ap_state);
+  assert (ETIZCoreStateStarted == *ap_state);
+
+  p_msg_fh = &(ap_msg->fh);
+  assert (NULL != p_msg_fh);
+
+  return remove_comp_instance (p_msg_fh);
+}
+
+static OMX_ERRORTYPE
+do_cne (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
+{
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tizcore_msg_compnameenum_t *p_msg_cne = NULL;
   tizcore_t *p_core = get_core ();
   tizcore_registry_item_t *p_reg_item = NULL;
   OMX_BOOL found = OMX_FALSE;
-  OMX_U32 i;
+  OMX_U32 i = 0;
 
   assert (NULL != ap_msg);
+  assert (NULL != ap_state);
+  assert (ETIZCoreStateStarted == *ap_state);
+
+  p_msg_cne = &(ap_msg->cne);
+  assert (NULL != p_msg_cne);
 
   TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgComponentNameEnum received : "
-           "Index [%d]...", ap_msg->index);
+           "Index [%d]...", p_msg_cne->index);
 
-  if (0 == ap_msg->index)
+  if (0 == p_msg_cne->index)
     {
       if (OMX_ErrorNone != (rc = scan_component_folders ()))
         {
@@ -902,14 +1004,13 @@ do_compenum (tizcore_msg_compnameenum_t * ap_msg)
         }
     }
 
-  /*  */
   rc = OMX_ErrorNoMore;
-  if (p_core->p_registry)
+  if (NULL != p_core->p_registry)
     {
       p_reg_item = p_core->p_registry;
-      for (i = 0; i <= ap_msg->index && p_reg_item; ++i)
+      for (i = 0; i <= p_msg_cne->index && p_reg_item; ++i)
         {
-          if (ap_msg->index == i && p_reg_item)
+          if (p_msg_cne->index == i && NULL != p_reg_item)
             {
               found = OMX_TRUE;
               break;
@@ -918,15 +1019,15 @@ do_compenum (tizcore_msg_compnameenum_t * ap_msg)
         }
     }
 
-  if (found)
+  if (OMX_TRUE == found)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "[%s] found at index [%d]",
-               p_reg_item->p_comp_name, ap_msg->index);
-      strncpy (ap_msg->p_comp_name, p_reg_item->p_comp_name,
-               ap_msg->namelen);
-      if (ap_msg->namelen)
+               p_reg_item->p_comp_name, p_msg_cne->index);
+      strncpy (p_msg_cne->p_comp_name, p_reg_item->p_comp_name,
+               p_msg_cne->namelen);
+      if (p_msg_cne->namelen > 0)
         {
-          ap_msg->p_comp_name[ap_msg->namelen - 1] = '\0';
+          p_msg_cne->p_comp_name[p_msg_cne->namelen - 1] = '\0';
         }
       rc = OMX_ErrorNone;
     }
@@ -935,60 +1036,51 @@ do_compenum (tizcore_msg_compnameenum_t * ap_msg)
 }
 
 static OMX_ERRORTYPE
-do_get_hdl (tizcore_msg_gethandle_t * ap_msg)
-{
-
-  TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgGetHandle received...");
-  assert (NULL != ap_msg);
-  return instantiate_component (ap_msg);
-}
-
-static OMX_ERRORTYPE
-do_free_hdl (tizcore_msg_freehandle_t * ap_msg)
-{
-  TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgFreeHandle received...");
-  return remove_comp_instance (ap_msg);
-}
-
-static OMX_ERRORTYPE
-do_compofrole (tizcore_msg_compofroleenum_t * ap_msg)
+do_cre (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
   /* TODO */
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
-do_roleofcomp (tizcore_msg_roleofcompenum_t * ap_msg)
+do_rce (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tizcore_msg_roleofcompenum_t *p_msg_rce = NULL;
   tizcore_registry_item_t *p_reg_item = NULL;
   role_list_item_t *p_role_item = NULL;
   OMX_BOOL found = OMX_FALSE;
-  OMX_U32 i;
+  OMX_U32 i = 0;
 
   assert (NULL != ap_msg);
-  assert (NULL != ap_msg->p_comp_name);
-  assert (NULL != ap_msg->p_role);
+  assert (NULL != ap_state);
+  assert (ETIZCoreStateStarted == *ap_state);
+
+  p_msg_rce = &(ap_msg->rce);
+  assert (NULL != p_msg_rce);
+
+  assert (NULL != p_msg_rce->p_comp_name);
+  assert (NULL != p_msg_rce->p_role);
 
   TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgRoleOfComponentEnum received : "
-           "Index [%d]...", ap_msg->index);
+           "Index [%d]...", p_msg_rce->index);
 
-  if (NULL != (p_reg_item = find_comp_in_registry (ap_msg->p_comp_name)))
+  if (NULL != (p_reg_item = find_comp_in_registry (p_msg_rce->p_comp_name)))
     {
       p_role_item = p_reg_item->p_roles;
-      for (i=0; i < ap_msg->index
+      for (i=0; i < p_msg_rce->index
              && NULL != p_role_item; ++i)
         {
           p_role_item = p_role_item->p_next;
         }
 
-      if (p_role_item)
+      if (NULL != p_role_item)
         {
           found = true;
-          strncpy (ap_msg->p_role, (const char*) p_role_item->role,
+          strncpy (p_msg_rce->p_role, (const char*) p_role_item->role,
                    OMX_MAX_STRINGNAME_SIZE);
           /* Make sure the resulting string is null-terminated */
-          ap_msg->p_role[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+          p_msg_rce->p_role[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
         }
       else
         {
@@ -1002,17 +1094,17 @@ do_roleofcomp (tizcore_msg_roleofcompenum_t * ap_msg)
       rc = OMX_ErrorComponentNotFound;
     }
 
-  if (found)
+  if (OMX_TRUE == found)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "[%s]: Found role [%s] at index [%d]",
-               p_reg_item->p_comp_name, ap_msg->p_role, ap_msg->index);
+               p_reg_item->p_comp_name, p_msg_rce->p_role, p_msg_rce->index);
     }
 
   return rc;
 }
 
 static OMX_S32
-dispatch_msg (tizcore_msg_t * ap_msg, tizcore_state_t * ap_state)
+dispatch_msg (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
   OMX_S32 signal_client = 0;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1022,79 +1114,18 @@ dispatch_msg (tizcore_msg_t * ap_msg, tizcore_state_t * ap_state)
   assert (NULL != ap_state);
   assert (NULL != p_core);
 
-  if (ap_msg)
-    {
-      switch (ap_msg->class)
-        {
-        case ETIZCoreMsgInit:
-          {
-            rc = do_init (ap_state);
-            signal_client = 1;
-            break;
-          }
+  assert (ap_msg->class < ETIZCoreMsgMax);
 
-        case ETIZCoreMsgDeinit:
-          {
-            rc = do_deinit (ap_state);
-            signal_client = 1;
-            break;
-          }
+  TIZ_LOG (TIZ_LOG_TRACE, "msg [%p] class [%s]",
+           ap_msg, tizcore_msg_to_str (ap_msg->class));
 
-        case ETIZCoreMsgComponentNameEnum:
-          {
-            rc =
-              do_compenum ((tizcore_msg_compnameenum_t *) ap_msg->p_data);
-            signal_client = 1;
-            break;
-          }
+  signal_client = 1;
 
-        case ETIZCoreMsgGetHandle:
-          {
-            rc =
-              do_get_hdl ((tizcore_msg_gethandle_t *) ap_msg->p_data);
-            signal_client = 1;
-            break;
-          }
-
-        case ETIZCoreMsgFreeHandle:
-          {
-            rc = do_free_hdl
-              ((tizcore_msg_freehandle_t *) ap_msg->p_data);
-            signal_client = 1;
-            break;
-          }
-
-        case ETIZCoreMsgComponentOfRoleEnum:
-          {
-            rc =
-              do_compofrole ((tizcore_msg_compofroleenum_t *) ap_msg->p_data);
-            signal_client = 1;
-            break;
-          }
-
-        case ETIZCoreMsgRoleOfComponentEnum:
-          {
-            rc =
-              do_roleofcomp ((tizcore_msg_roleofcompenum_t *) ap_msg->p_data);
-            signal_client = 1;
-            break;
-          }
-
-        default:
-          break;
-        };
-    }
-  else
-    {
-      TIZ_LOG (TIZ_LOG_TRACE, "NULL msg");
-      rc = OMX_ErrorUndefined;
-      assert (0);
-    }
+  rc = tizcore_msg_to_fnt_tbl[ap_msg->class] (ap_state, ap_msg);
 
   /* Return error to client */
   p_core->error = rc;
 
-  tiz_mem_free (ap_msg->p_data);
   tiz_mem_free (ap_msg);
 
   return signal_client;
@@ -1116,9 +1147,9 @@ il_core_thread_func (void *p_arg)
       /* TODO: Check ret val */
       tiz_queue_receive (p_core->p_queue, &p_data);
       signal_client = dispatch_msg
-        ((tizcore_msg_t *) p_data, &(p_core->state));
+        (&(p_core->state), (tizcore_msg_t *) p_data);
 
-      if (signal_client)
+      if (signal_client > 0)
         {
           tiz_sem_post (&(p_core->sem));
         }
@@ -1197,91 +1228,21 @@ static tizcore_msg_t *
 init_core_message (tizcore_msg_class_t a_msg_class)
 {
   tizcore_msg_t *p_msg = NULL;
-  tizcore_msg_data_t p_data = NULL;
 
-  if (!(p_msg =
-        (tizcore_msg_t *) tiz_mem_calloc (1, sizeof (tizcore_msg_t))))
+  assert (a_msg_class < ETIZCoreMsgMax);
+
+  if (NULL == (p_msg = (tizcore_msg_t *)
+               tiz_mem_calloc (1, sizeof (tizcore_msg_t))))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "mem alloc failed");
-      return NULL;
-    }
-
-  switch (a_msg_class)
-    {
-    case ETIZCoreMsgInit:
-    case ETIZCoreMsgDeinit:
-      {
-        /* No data included in these messages */
-        break;
-      }
-
-    case ETIZCoreMsgGetHandle:
-      {
-        p_data = (tizcore_msg_gethandle_t *)
-          tiz_mem_calloc (1, sizeof (tizcore_msg_gethandle_t));
-        break;
-      }
-
-    case ETIZCoreMsgFreeHandle:
-      {
-        p_data = (tizcore_msg_freehandle_t *)
-          tiz_mem_calloc (1, sizeof (tizcore_msg_freehandle_t));
-        break;
-      }
-
-    case ETIZCoreMsgComponentNameEnum:
-      {
-        p_data = (tizcore_msg_compnameenum_t *)
-          tiz_mem_calloc (1, sizeof (tizcore_msg_compnameenum_t));
-        break;
-      }
-
-    case ETIZCoreMsgComponentOfRoleEnum:
-      {
-        // TODO
-        break;
-      }
-
-    case ETIZCoreMsgRoleOfComponentEnum:
-      {
-        p_data = (tizcore_msg_roleofcompenum_t *)
-          tiz_mem_calloc (1, sizeof (tizcore_msg_roleofcompenum_t));
-        break;
-      }
-
-    case ETIZCoreMsgGetCoreInterface:
-      {
-        // TODO
-        break;
-      }
-
-    case ETIZCoreMsgFreeCoreInterface:
-      {
-        // TODO
-        break;
-      }
-
-    default:
-      TIZ_LOG (TIZ_LOG_TRACE, "Unknown msg class [%d]", a_msg_class);
-      assert (0);
-      break;
-    };
-
-  if ((ETIZCoreMsgInit != a_msg_class
-       && ETIZCoreMsgDeinit != a_msg_class) && !p_data)
-    {
-      TIZ_LOG (TIZ_LOG_TRACE, "mem alloc failed");
-      tiz_mem_free (p_msg);
-      p_msg = NULL;
+      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
+               "Creating message [%s]", tizcore_msg_to_str (a_msg_class));
     }
   else
     {
       p_msg->class = a_msg_class;
-      p_msg->p_data = p_data;
     }
 
   return p_msg;
-
 }
 
 static inline OMX_ERRORTYPE
@@ -1439,13 +1400,13 @@ OMX_Init (void)
 
   if (OMX_ErrorNone != (rc = start_core ()))
     {
+      TIZ_LOG (TIZ_LOG_ERROR,
+               "[%s] : Error starting core", tiz_err_to_str (rc));
       return rc;
     }
 
-  if (!(p_msg = init_core_message (ETIZCoreMsgInit)))
+  if (NULL == (p_msg = init_core_message (ETIZCoreMsgInit)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR,
-               "Error creating Init message [%p]", p_msg);
       return OMX_ErrorInsufficientResources;
     }
 
@@ -1464,17 +1425,18 @@ OMX_Deinit (void)
   if (NULL == (p_msg = init_core_message (ETIZCoreMsgDeinit)))
     {
       /* TODO: Consider pre-allocating this message */
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
-               "Error creating DeInit message");
       return OMX_ErrorInsufficientResources;
     }
 
-  tiz_queue_send (p_core->p_queue, p_msg);
-  tiz_sem_wait (&(p_core->sem));
-  tiz_thread_join (&(p_core->thread), &p_result);
+  if (OMX_ErrorNone == tiz_queue_send (p_core->p_queue, p_msg))
+    {
+      tiz_sem_wait (&(p_core->sem));
+      tiz_thread_join (&(p_core->thread), &p_result);
+    }
+  
   tiz_queue_destroy (p_core->p_queue);
   p_core->p_queue = NULL;
-  tiz_sem_destroy (&(p_core->sem));
+  (void)tiz_sem_destroy (&(p_core->sem));
   tiz_mem_free (pg_core);
   pg_core = NULL;
 
@@ -1488,7 +1450,7 @@ OMX_ComponentNameEnum (OMX_STRING ap_cname, OMX_U32 a_namelen,
                        OMX_U32 a_index)
 {
   tizcore_msg_t *p_msg = NULL;
-  tizcore_msg_compnameenum_t *p_msg_cnameenum = NULL;
+  tizcore_msg_compnameenum_t *p_msg_cne = NULL;
 
   /* INFO: BUG in 1.1.2 CTS: This comparison */
   /* if (OMX_MAX_STRINGNAME_SIZE > strlen(ap_cname)) { */
@@ -1504,17 +1466,16 @@ OMX_ComponentNameEnum (OMX_STRING ap_cname, OMX_U32 a_namelen,
 
   if (NULL == (p_msg = init_core_message (ETIZCoreMsgComponentNameEnum)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
-               "Error creating ComponentNameEnum message");
       return OMX_ErrorInsufficientResources;
     }
 
   /* Finish-up this message */
-  p_msg_cnameenum = (tizcore_msg_compnameenum_t *) p_msg->p_data;
-  assert (p_msg_cnameenum);
-  p_msg_cnameenum->p_comp_name = ap_cname;
-  p_msg_cnameenum->namelen = a_namelen;
-  p_msg_cnameenum->index = a_index;
+  p_msg_cne = &(p_msg->cne);
+  assert (NULL != p_msg_cne);
+
+  p_msg_cne->p_comp_name = ap_cname;
+  p_msg_cne->namelen     = a_namelen;
+  p_msg_cne->index       = a_index;
 
   return send_msg_blocking (p_msg);
 }
@@ -1524,7 +1485,7 @@ OMX_GetHandle (OMX_HANDLETYPE * app_hdl, OMX_STRING ap_comp_name,
                OMX_PTR ap_app_data, OMX_CALLBACKTYPE * ap_callbacks)
 {
   tizcore_msg_t *p_msg = NULL;
-  tizcore_msg_gethandle_t *p_gethdl = NULL;
+  tizcore_msg_gethandle_t *p_msg_gh = NULL;
 
   if (NULL == app_hdl || NULL == ap_comp_name || NULL == ap_callbacks
       || (strlen (ap_comp_name) > OMX_MAX_STRINGNAME_SIZE))
@@ -1537,18 +1498,17 @@ OMX_GetHandle (OMX_HANDLETYPE * app_hdl, OMX_STRING ap_comp_name,
 
   if (NULL == (p_msg = init_core_message (ETIZCoreMsgGetHandle)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
-               "Error creating GetHandle message");
       return OMX_ErrorInsufficientResources;
     }
 
   /* Finish-up this message */
-  p_gethdl = (tizcore_msg_gethandle_t *) p_msg->p_data;
-  assert (p_gethdl);
-  p_gethdl->pp_hdl = app_hdl;
-  p_gethdl->p_comp_name = ap_comp_name;
-  p_gethdl->p_app_data = ap_app_data;
-  p_gethdl->p_callbacks = ap_callbacks;
+  p_msg_gh = &(p_msg->gh);
+  assert (NULL != p_msg_gh);
+
+  p_msg_gh->pp_hdl      = app_hdl;
+  p_msg_gh->p_comp_name = ap_comp_name;
+  p_msg_gh->p_app_data  = ap_app_data;
+  p_msg_gh->p_callbacks = ap_callbacks;
 
   return send_msg_blocking (p_msg);
 }
@@ -1557,21 +1517,20 @@ OMX_ERRORTYPE
 OMX_FreeHandle (OMX_HANDLETYPE ap_hdl)
 {
   tizcore_msg_t *p_msg = NULL;
-  tizcore_msg_freehandle_t *p_freehdl = NULL;
+  tizcore_msg_freehandle_t *p_msg_fh = NULL;
 
   assert (NULL != ap_hdl);
 
   if (NULL == (p_msg = init_core_message (ETIZCoreMsgFreeHandle)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
-               "Error creating FreeHandle message");
       return OMX_ErrorInsufficientResources;
     }
 
   /* Finish-up this message */
-  p_freehdl = (tizcore_msg_freehandle_t *) p_msg->p_data;
-  assert (p_freehdl);
-  p_freehdl->p_hdl = ap_hdl;
+  p_msg_fh = &(p_msg->fh);
+  assert (NULL != p_msg_fh);
+
+  p_msg_fh->p_hdl = ap_hdl;
 
   return send_msg_blocking (p_msg);
 }
@@ -1636,7 +1595,7 @@ OMX_RoleOfComponentEnum(OMX_STRING ap_role, OMX_STRING ap_comp_name,
                         OMX_U32 a_index)
 {
   tizcore_msg_t *p_msg = NULL;
-  tizcore_msg_roleofcompenum_t *p_msg_rofcompenum = NULL;
+  tizcore_msg_roleofcompenum_t *p_msg_rce = NULL;
 
   if (NULL == ap_comp_name || NULL == ap_role)
     {
@@ -1647,17 +1606,16 @@ OMX_RoleOfComponentEnum(OMX_STRING ap_role, OMX_STRING ap_comp_name,
 
   if (NULL == (p_msg = init_core_message (ETIZCoreMsgRoleOfComponentEnum)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
-               "Error creating RoleOfComponentEnum message");
       return OMX_ErrorInsufficientResources;
     }
 
   /* Finish-up this message */
-  p_msg_rofcompenum = (tizcore_msg_roleofcompenum_t *) p_msg->p_data;
-  assert (p_msg_rofcompenum);
-  p_msg_rofcompenum->p_comp_name = ap_comp_name;
-  p_msg_rofcompenum->p_role = ap_role;
-  p_msg_rofcompenum->index = a_index;
+  p_msg_rce = &(p_msg->rce);
+  assert (NULL != p_msg_rce);
+
+  p_msg_rce->p_comp_name = ap_comp_name;
+  p_msg_rce->p_role      = ap_role;
+  p_msg_rce->index       = a_index;
 
   return send_msg_blocking (p_msg);
 }

@@ -288,7 +288,6 @@ dispatch_msg (tiz_scheduler_t * ap_sched,
               tizsched_state_t * ap_state, tizsched_msg_t * ap_msg);
 
 typedef struct tizsched_msg_str tizsched_msg_str_t;
-
 struct tizsched_msg_str
 {
   tizsched_msg_class_t msg;
@@ -337,7 +336,6 @@ tizsched_msg_to_str (const tizsched_msg_class_t a_msg)
     }
 
   return "Unknown scheduler message";
-
 }
 
 static void
@@ -1352,11 +1350,13 @@ init_scheduler_message (OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_hdl);
   assert (a_msg_class < ETIZSchedMsgMax);
 
-  if (NULL == (p_msg = tiz_mem_calloc (1, sizeof (tizsched_msg_t))))
+  if (NULL == (p_msg = (tizsched_msg_t *)
+               tiz_mem_calloc (1, sizeof (tizsched_msg_t))))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
-                     "Creating message [%s]", tizsched_msg_to_str (a_msg_class));
+                     "Creating message [%s]",
+                     tizsched_msg_to_str (a_msg_class));
     }
   else
     {
