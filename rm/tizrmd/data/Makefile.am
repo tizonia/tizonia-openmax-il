@@ -19,10 +19,24 @@ sqlite_scripts = initrmdb.sql3
 shell_scripts = tizrm_dumpdb.sh tizrm_gendb.sh
 sqlite_databases = tizrm.db
 
-EXTRA_DIST = $(sqlite_scripts) $(shell_scripts) $(sqlite_databases)
-
 tizrmdbdir = $(datadir)/$(PACKAGE)
-tizrmdb_DATA = $(sqlite_scripts) $(shell_scripts) $(sqlite_databases)
+tizrmdb_DATA = $(sqlite_scripts) $(sqlite_databases)
+
+bin_SCRIPTS = $(shell_scripts)
+CLEANFILES = $(bin_SCRIPTS)
+EXTRA_DIST = $(sqlite_scripts) $(sqlite_databases) tizrm_dumpdb.sh.in tizrm_gendb.sh.in
+
+do_subst = sed -e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	-e 's,[@]VERSION[@],$(VERSION),g'
+
+tizrm_dumpdb.sh: tizrm_dumpdb.sh.in Makefile
+	$(do_subst) < $(srcdir)/tizrm_dumpdb.sh.in > tizrm_dumpdb.sh
+	chmod +x tizrm_dumpdb.sh
+
+tizrm_gendb.sh: tizrm_gendb.sh.in Makefile
+	$(do_subst) < $(srcdir)/tizrm_gendb.sh.in > tizrm_gendb.sh
+	chmod +x tizrm_gendb.sh
 
 tizrm.db: $(sqlite_scripts)
 	./tizrm_gendb.sh

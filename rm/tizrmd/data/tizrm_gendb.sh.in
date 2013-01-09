@@ -20,19 +20,27 @@
 SQLITE3=$(which sqlite3)
 BASEDIR=$(dirname $0)
 
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+datadir=@datadir@
+
 if [ -z "$1" ];
 then
+    COMMANDS=${BASEDIR}"/initrmdb.sql3"
     TIZRM_DB_NAME=${BASEDIR}"/tizrm.db"
 else
-    TIZRM_DB_NAME=$1
+    COMMANDS=$1
+    TIZRM_DB_NAME=$2
 fi
 
 if [ -f $TIZRM_DB_NAME ];
 then 
-    echo -e .dump | $SQLITE3 $TIZRM_DB_NAME > /tmp/$2
-    cat /tmp/$2
-    echo -e "Dumped $TIZRM_DB_NAME database to /tmp/$2..."
+    rm $TIZRM_DB_NAME
+    echo -e "Deleted old $TIZRM_DB_NAME database..."
 fi
 
+echo -e "Populating $TIZRM_DB_NAME using $COMMANDS..."
+$SQLITE3 $TIZRM_DB_NAME < $COMMANDS
 echo -e "Done."
 

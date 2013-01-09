@@ -18,13 +18,13 @@ rmd.path = /home/user/temp/bin/tizrmd
 rmdb = /home/user/temp/share/tizrmd/tizrm.db
 
 # This is the path to the shell script that initialises the RM db
-rmdb.init_script = /home/user/temp/share/tizrmd/tizrm_gendb.sh
+rmdb.init_script = /home/user/temp/bin/tizrm_gendb.sh
 
 # This is the path to the sqlite3 script that contains the initial state of the RM db
 rmdb.sqlite_script = /home/user/temp/share/tizrmd/initrmdb.sql3
 
 # This is the path to the script that dumps the contents of the RM db
-rmdb.dbdump_script = /home/user/temp/share/tizrmd/tizrm_dumpdb.sh
+rmdb.dbdump_script = /home/user/temp/bin/tizrm_dumpdb.sh
 
 
 [plugins-data]
