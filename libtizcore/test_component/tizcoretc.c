@@ -43,8 +43,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.ilcore.test_comp"
 #endif
 
-#define DEFAULT_ROLE "default"
-#define COMPONENT_NAME "OMX.Aratelia.ilcore.test_component"
+#define TIZ_CORE_TEST_COMPONENT_ROLE "default"
+#define TIZ_CORE_TEST_COMPONENT_NAME "OMX.Aratelia.ilcore.test_component"
 
 static OMX_VERSIONTYPE tc_comp_version = { {1, 0, 0, 0} };
 
@@ -64,7 +64,7 @@ GetComponentVersion (OMX_HANDLETYPE ap_hdl,
       return OMX_ErrorBadParameter;
     }
 
-  strcpy (ap_comp_name, COMPONENT_NAME);
+  strcpy (ap_comp_name, TIZ_CORE_TEST_COMPONENT_NAME);
 
   *ap_comp_ver = tc_comp_version;
 
@@ -211,7 +211,7 @@ ComponentRoleEnum (OMX_HANDLETYPE ap_hdl, OMX_U8 * a_role, OMX_U32 a_index)
 
   if (0 == a_index)
     {
-      strcpy ((char *) a_role, DEFAULT_ROLE);
+      strcpy ((char *) a_role, TIZ_CORE_TEST_COMPONENT_ROLE);
       ret_val = OMX_ErrorNone;
     }
   else

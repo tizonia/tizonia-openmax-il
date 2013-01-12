@@ -49,7 +49,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.ilcore.check"
 #endif
 
-#define COMPONENT_NAME "OMX.Aratelia.ilcore.test_component"
+#define TIZ_CORE_TEST_COMPONENT_NAME "OMX.Aratelia.ilcore.test_component"
+#define TIZ_CORE_TEST_COMPONENT_ROLE "default"
 #define AUDIO_RENDERER "OMX.Aratelia.audio_renderer.pcm"
 #define FILE_READER "OMX.Aratelia.file_reader.binary"
 
@@ -176,7 +177,8 @@ START_TEST (test_ilcore_init_and_deinit_get_hdl_free_hdl)
   fail_if (error != OMX_ErrorNone);
 
   error = OMX_GetHandle (&p_hdl,
-                         COMPONENT_NAME, (OMX_PTR *) (&appData), &callBacks);
+                         TIZ_CORE_TEST_COMPONENT_NAME,
+                         (OMX_PTR *) (&appData), &callBacks);
   TIZ_LOG (TIZ_LOG_TRACE, "OMX_GetHandle error [%s]", tiz_err_to_str (error));
   fail_if (error != OMX_ErrorNone);
 
@@ -184,30 +186,6 @@ START_TEST (test_ilcore_init_and_deinit_get_hdl_free_hdl)
 
   error = OMX_FreeHandle (p_hdl);
   fail_if (error != OMX_ErrorNone);
-
-  error = OMX_Deinit ();
-  fail_if (error != OMX_ErrorNone);
-}
-
-END_TEST
-START_TEST (test_ilcore_role_of_comp_enum)
-{
-  OMX_ERRORTYPE error = OMX_ErrorNone;
-  OMX_U32 index = 0;
-  OMX_S8 role[OMX_MAX_STRINGNAME_SIZE];
-
-  error = OMX_Init ();
-  fail_if (error != OMX_ErrorNone);
-
-  do
-    {
-      error = OMX_RoleOfComponentEnum ((OMX_STRING) role,
-                                       COMPONENT_NAME, index++);
-      TIZ_LOG (TIZ_LOG_TRACE, "[%s] : Role [%s] error [%s]",
-               COMPONENT_NAME, role, tiz_err_to_str (error));
-    } while (OMX_ErrorNone == error);
-
-  fail_if (OMX_ErrorNoMore != error);
 
   error = OMX_Deinit ();
   fail_if (error != OMX_ErrorNone);
@@ -261,6 +239,55 @@ START_TEST (test_ilcore_setup_tunnel_tear_down_tunnel)
   fail_if (error != OMX_ErrorNone);
 }
 
+END_TEST
+START_TEST (test_ilcore_comp_of_role_enum)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  OMX_U32 index = 0;
+  OMX_S8 comp_name[OMX_MAX_STRINGNAME_SIZE];
+
+  error = OMX_Init ();
+  fail_if (error != OMX_ErrorNone);
+
+  do
+    {
+      error = OMX_ComponentOfRoleEnum ((OMX_STRING) comp_name,
+                                       TIZ_CORE_TEST_COMPONENT_ROLE, index++);
+      TIZ_LOG (TIZ_LOG_TRACE, "[%s] : component [%s] error [%s]",
+               TIZ_CORE_TEST_COMPONENT_ROLE, comp_name, tiz_err_to_str (error));
+    } while (OMX_ErrorNone == error);
+
+  fail_if (OMX_ErrorNoMore != error);
+  fail_if (index != 2);
+
+  error = OMX_Deinit ();
+  fail_if (error != OMX_ErrorNone);
+}
+
+END_TEST
+START_TEST (test_ilcore_role_of_comp_enum)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  OMX_U32 index = 0;
+  OMX_S8 role[OMX_MAX_STRINGNAME_SIZE];
+
+  error = OMX_Init ();
+  fail_if (error != OMX_ErrorNone);
+
+  do
+    {
+      error = OMX_RoleOfComponentEnum ((OMX_STRING) role,
+                                       TIZ_CORE_TEST_COMPONENT_NAME, index++);
+      TIZ_LOG (TIZ_LOG_TRACE, "[%s] : Role [%s] error [%s]",
+               TIZ_CORE_TEST_COMPONENT_NAME, role, tiz_err_to_str (error));
+    } while (OMX_ErrorNone == error);
+
+  fail_if (OMX_ErrorNoMore != error);
+
+  error = OMX_Deinit ();
+  fail_if (error != OMX_ErrorNone);
+}
+
 END_TEST Suite * tizcore_suite (void)
 {
   TCase *tc_ilcore;
@@ -272,8 +299,9 @@ END_TEST Suite * tizcore_suite (void)
   tcase_add_test (tc_ilcore, test_ilcore_init_and_deinit);
   tcase_add_test (tc_ilcore,
                   test_ilcore_init_and_deinit_get_hdl_free_hdl);
-  tcase_add_test (tc_ilcore, test_ilcore_role_of_comp_enum);
   tcase_add_test (tc_ilcore, test_ilcore_setup_tunnel_tear_down_tunnel);
+  tcase_add_test (tc_ilcore, test_ilcore_comp_of_role_enum);
+  tcase_add_test (tc_ilcore, test_ilcore_role_of_comp_enum);
 
   /* TODO: Negative case for OMX_ErrorPortsNotConnected error */
 

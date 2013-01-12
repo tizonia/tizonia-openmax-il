@@ -171,7 +171,6 @@ struct tizcore_msg_compofroleenum
 
 /* Use here the same structure being used for comp of role enum API */
 typedef struct tizcore_msg_compofroleenum tizcore_msg_roleofcompenum_t;
-
 typedef struct tizcore_msg tizcore_msg_t;
 struct tizcore_msg
 {
@@ -713,6 +712,53 @@ scan_component_folders (void)
 }
 
 static tizcore_registry_item_t *
+find_role_in_registry (const OMX_STRING ap_role_str, OMX_U32 a_index)
+{
+  tizcore_t *p_core = get_core ();
+  tizcore_registry_t p_registry = NULL;
+  role_list_item_t *p_role = NULL;
+  OMX_S32 num_components_found = 0;
+
+  assert (NULL != p_core);
+  assert (NULL != ap_role_str);
+
+  p_registry = p_core->p_registry;
+
+  while (p_registry && num_components_found < a_index + 1)
+    {
+      p_role = p_registry->p_roles;
+      while (p_role)
+        {
+          if (0 == strncmp ((OMX_STRING)p_role->role, ap_role_str,
+                            OMX_MAX_STRINGNAME_SIZE))
+            {
+              num_components_found++;
+              TIZ_LOG (TIZ_LOG_TRACE, "[%s] found - comp [%s] "
+                       "num comps [%d].", ap_role_str, p_registry->p_comp_name,
+                       num_components_found);
+              break;
+            }
+          p_role = p_role->p_next;
+        }
+
+      if (num_components_found < a_index + 1)
+        {
+          p_registry = p_registry->p_next;
+        }
+    }
+
+  if (num_components_found < a_index + 1)
+    {
+      TIZ_LOG (TIZ_LOG_TRACE, "Could not find [%s] index [%d].",
+               ap_role_str, a_index);
+      /* Make sure we return null in this case */
+      p_registry = NULL;
+    }
+
+  return p_registry;
+}
+
+static tizcore_registry_item_t *
 find_comp_in_registry (const OMX_STRING ap_name)
 {
   tizcore_t *p_core = get_core ();
@@ -725,7 +771,8 @@ find_comp_in_registry (const OMX_STRING ap_name)
 
   while (p_registry)
     {
-      if (0 == strcmp (p_registry->p_comp_name, ap_name))
+      if (0 == strncmp (p_registry->p_comp_name, ap_name,
+                        OMX_MAX_STRINGNAME_SIZE))
         {
           TIZ_LOG (TIZ_LOG_TRACE, "[%s] found.", ap_name);
           break;
@@ -896,6 +943,7 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   assert (NULL != ap_state
           && (ETIZCoreStateStarting == * ap_state
               || ETIZCoreStateStarted == * ap_state));
+  assert (ETIZCoreMsgInit == ap_msg->class);
 
   if (ETIZCoreStateStarted == * ap_state)
     {
@@ -933,6 +981,8 @@ do_deinit (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgDeinit received...");
 
   assert (NULL != p_core);
+  assert (NULL != ap_msg);
+  assert (ETIZCoreMsgDeinit == ap_msg->class);
 
   * ap_state = ETIZCoreStateStopped;
 
@@ -958,6 +1008,7 @@ do_gh (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   assert (NULL != ap_msg);
   assert (NULL != ap_state);
   assert (ETIZCoreStateStarted == *ap_state);
+  assert (ETIZCoreMsgGetHandle == ap_msg->class);
 
   p_msg_gh = &(ap_msg->gh);
   assert (NULL != p_msg_gh);
@@ -974,6 +1025,7 @@ do_fh (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   assert (NULL != ap_msg);
   assert (NULL != ap_state);
   assert (ETIZCoreStateStarted == *ap_state);
+  assert (ETIZCoreMsgFreeHandle == ap_msg->class);
 
   p_msg_fh = &(ap_msg->fh);
   assert (NULL != p_msg_fh);
@@ -994,6 +1046,7 @@ do_cne (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   assert (NULL != ap_msg);
   assert (NULL != ap_state);
   assert (ETIZCoreStateStarted == *ap_state);
+  assert (ETIZCoreMsgComponentNameEnum == ap_msg->class);
 
   p_msg_cne = &(ap_msg->cne);
   assert (NULL != p_msg_cne);
@@ -1047,9 +1100,58 @@ do_cne (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 static OMX_ERRORTYPE
 do_cre (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
-  /* TODO */
-  (void) ap_msg;
-  return OMX_ErrorNotImplemented;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tizcore_msg_roleofcompenum_t *p_msg_cre = NULL;
+  tizcore_registry_item_t *p_reg_item = NULL;
+  OMX_BOOL found = OMX_FALSE;
+  OMX_U32 i = 0;
+
+  assert (NULL != ap_msg);
+  assert (NULL != ap_state);
+  assert (ETIZCoreStateStarted == *ap_state);
+  assert (ETIZCoreMsgComponentOfRoleEnum == ap_msg->class);
+
+  p_msg_cre = &(ap_msg->cre);
+  assert (NULL != p_msg_cre);
+
+  assert (NULL != p_msg_cre->p_comp_name);
+  assert (NULL != p_msg_cre->p_role);
+
+  TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgComponentOfRoleEnum received : "
+           "Role [%s] Index [%d]...", p_msg_cre->p_role,
+           p_msg_cre->index);
+
+
+  /* Do the obvious linear search for now */
+  i = p_msg_cre->index;
+  while (NULL != (p_reg_item = find_role_in_registry (p_msg_cre->p_role,
+                                                      i)))
+    {
+      if (p_msg_cre->index == i)
+        {
+          assert (NULL != p_reg_item->p_comp_name);
+          strncpy (p_msg_cre->p_comp_name,
+                   (const char*) p_reg_item->p_comp_name,
+                   OMX_MAX_STRINGNAME_SIZE);
+          /* Make sure the resulting string is null-terminated */
+          p_msg_cre->p_comp_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
+          found = OMX_TRUE;
+          break;
+        }
+      i++;
+    }
+
+  if (OMX_TRUE == found)
+    {
+      TIZ_LOG (TIZ_LOG_TRACE, "[%s]: Found role [%s] at index [%d]",
+               p_reg_item->p_comp_name, p_msg_cre->p_role, p_msg_cre->index);
+    }
+  else
+    {
+      rc = OMX_ErrorNoMore;
+    }
+
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -1065,6 +1167,7 @@ do_rce (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   assert (NULL != ap_msg);
   assert (NULL != ap_state);
   assert (ETIZCoreStateStarted == *ap_state);
+  assert (ETIZCoreMsgRoleOfComponentEnum == ap_msg->class);
 
   p_msg_rce = &(ap_msg->rce);
   assert (NULL != p_msg_rce);
@@ -1598,12 +1701,30 @@ OMX_ERRORTYPE
 OMX_ComponentOfRoleEnum(OMX_STRING ap_comp_name, OMX_STRING ap_role,
                         OMX_U32 a_index)
 {
-  assert(0);
-  (void) ap_comp_name;
-  (void) ap_role;
-  (void) a_index;
+  tizcore_msg_t *p_msg = NULL;
+  tizcore_msg_compofroleenum_t *p_msg_cre = NULL;
 
-  return OMX_ErrorNotImplemented;
+  if (NULL == ap_comp_name || NULL == ap_role)
+    {
+      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorBadParameter] : NULL argument"
+               "(comp name %p - role %p)", ap_comp_name, ap_role);
+      return OMX_ErrorBadParameter;
+    }
+
+  if (NULL == (p_msg = init_core_message (ETIZCoreMsgComponentOfRoleEnum)))
+    {
+      return OMX_ErrorInsufficientResources;
+    }
+
+  /* Finish-up this message */
+  p_msg_cre = &(p_msg->cre);
+  assert (NULL != p_msg_cre);
+
+  p_msg_cre->p_comp_name = ap_comp_name;
+  p_msg_cre->p_role      = ap_role;
+  p_msg_cre->index       = a_index;
+
+  return send_msg_blocking (p_msg);
 }
 
 OMX_ERRORTYPE

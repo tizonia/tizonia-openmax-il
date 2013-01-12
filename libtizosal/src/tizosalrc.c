@@ -197,6 +197,7 @@ find_node (const tiz_rcfile_t * ap_rc, const char *key)
   while (p_kvs && p_kvs->p_key)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Searching Key [%s]", p_kvs->p_key);
+      /* TODO: strncmp here */
       if (0 == strcmp (p_kvs->p_key, key))
         {
           TIZ_LOG (TIZ_LOG_TRACE, "Found Key [%s]", p_kvs->p_key);
@@ -216,6 +217,7 @@ is_list (const char *key)
   int i;
   for (i = 0; i < nrlist_keys; i++)
     {
+      /* TODO: strncmp here */
       if (0 == strcmp (list_keys[i], key))
         {
           TIZ_LOG (TIZ_LOG_TRACE, "Found list Key [%s]", key);
