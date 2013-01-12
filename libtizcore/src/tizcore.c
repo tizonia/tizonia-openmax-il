@@ -621,20 +621,6 @@ cache_comp_info (const OMX_STRING ap_dl_path, const OMX_STRING ap_dl_name)
   return rc;
 }
 
-/* Note being used for now */
-/* static int */
-/* stat_ctime (const char *path, time_t * time) */
-/* { */
-/*   struct stat astat; */
-/*   int statret = stat (path, &astat); */
-/*   if (0 != statret) */
-/*     { */
-/*       return statret; */
-/*     } */
-/*   *time = astat.st_ctime; */
-/*   return statret; */
-/* } */
-
 static char **
 find_component_paths(unsigned long * ap_npaths)
 {
