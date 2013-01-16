@@ -63,7 +63,7 @@ static const char *pg_files[] = {
   NULL
 };
 
-#define YUV_RENDERER_TEST_TIMEOUT 12
+#define YUV_RENDERER_TEST_TIMEOUT 35
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 500
