@@ -63,7 +63,7 @@ static const char *pg_files[] = {
   NULL
 };
 
-#define RAW_FILE_DURATION 6
+#define YUV_RENDERER_TEST_TIMEOUT 12
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 500
@@ -746,7 +746,7 @@ ar_suite (void)
   /* test case */
   tc_ivr = tcase_create ("DSL i/v YUV overlay renderer");
   tcase_add_unchecked_fixture (tc_ivr, setup, teardown);
-  tcase_set_timeout (tc_ivr, RAW_FILE_DURATION);
+  tcase_set_timeout (tc_ivr, YUV_RENDERER_TEST_TIMEOUT);
   tcase_add_loop_test (tc_ivr, test_yuv_play, 0, 1);
   suite_add_tcase (s, tc_ivr);
 

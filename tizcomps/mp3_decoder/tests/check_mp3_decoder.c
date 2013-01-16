@@ -65,7 +65,7 @@ static char PCM_RND_COMPONENT_NAME[] = "OMX.Aratelia.audio_renderer.pcm";
 #define RATE_FILE1 44100
 #define RATE_FILE2 44100
 
-#define MP3_FILE_DURATION 350
+#define MP3_DECODER_TEST_TIMEOUT 360
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 1000
@@ -1221,7 +1221,7 @@ Suite * mp3dec_suite (void)
   /* test case */
   tc_md = tcase_create ("MP3 Playback");
   tcase_add_unchecked_fixture (tc_md, setup, teardown);
-  tcase_set_timeout (tc_md, MP3_FILE_DURATION);
+  tcase_set_timeout (tc_md, MP3_DECODER_TEST_TIMEOUT);
   tcase_add_loop_test (tc_md, test_mp3_playback, 0, 1);
   suite_add_tcase (s, tc_md);
 

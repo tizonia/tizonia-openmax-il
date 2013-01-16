@@ -72,7 +72,7 @@ static const OMX_U32 pg_rates[] = {
   RATE_FILE2
 };
 
-#define PCM_FILE_DURATION 6
+#define PCM_RENDERER_TEST_TIMEOUT 12
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 500
@@ -735,9 +735,9 @@ END_TEST Suite * ar_suite (void)
   Suite *s = suite_create ("libtizar");
 
   /* test case */
-  tc_ar = tcase_create ("RAW PCM Playback");
+  tc_ar = tcase_create ("PCM Playback");
   tcase_add_unchecked_fixture (tc_ar, setup, teardown);
-  tcase_set_timeout (tc_ar, PCM_FILE_DURATION);
+  tcase_set_timeout (tc_ar, PCM_RENDERER_TEST_TIMEOUT);
   tcase_add_loop_test (tc_ar, test_ar_play, 0, 2);
   suite_add_tcase (s, tc_ar);
 

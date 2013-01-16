@@ -65,7 +65,7 @@ static char IV_RND_COMPONENT_NAME[] = "OMX.Aratelia.iv_renderer.yuv.overlay";
 #define RATE_FILE1 44100
 #define RATE_FILE2 44100
 
-#define VP8_FILE_DURATION 35
+#define VP8_DECODER_TEST_TIMEOUT 35
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 1500
@@ -1217,7 +1217,7 @@ vp8dec_suite (void)
   /* test case */
   tc_vp8d = tcase_create ("VP8 Playback");
   tcase_add_unchecked_fixture (tc_vp8d, setup, teardown);
-  tcase_set_timeout (tc_vp8d, VP8_FILE_DURATION);
+  tcase_set_timeout (tc_vp8d, VP8_DECODER_TEST_TIMEOUT);
   tcase_add_loop_test (tc_vp8d, test_vp8_playback, 0, 1);
   suite_add_tcase (s, tc_vp8d);
 
