@@ -37,17 +37,17 @@ rmdb.dbdump_script = /home/user/temp/bin/tizrm_dumpdb.sh
 # File Reader #
 ###############
 
-OMX.Aratelia.file_reader.binary.default_audio_uri = /home/user/temp/tizonia_test_media/pcm/Tom_Fahy_-_81_-_5sec_le_signed_16_44_1_stereo.raw
-OMX.Aratelia.file_reader.binary.testfile1_uri = /home/user/temp/tizonia_test_media/pcm/Tom_Fahy_-_81_-_5sec_le_signed_16_44_1_stereo.raw
-OMX.Aratelia.file_reader.binary.testfile2_uri = /home/user/temp/tizonia_test_media/pcm/Tom_Fahy_-_81_-_5sec_le_signed_16_44_1_stereo.raw.copy
+OMX.Aratelia.file_reader.binary.default_audio_uri = /home/user/temp/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
+OMX.Aratelia.file_reader.binary.testfile1_uri = /home/user/temp/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
+OMX.Aratelia.file_reader.binary.testfile2_uri = /home/user/temp/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
 
 ##################
 # Audio Renderer #
 ##################
 
 OMX.Aratelia.audio_renderer.pcm.preannouncements_disabled.port0 = false
-OMX.Aratelia.audio_renderer.pcm.testfile1_uri = /home/user/temp/tizonia_test_media/pcm/Tom_Fahy_-_81_-_4_5sec_le_signed_16_48_stereo.raw
-OMX.Aratelia.audio_renderer.pcm.testfile2_uri = /home/user/temp/tizonia_test_media/pcm/Tom_Fahy_-_81_-_5sec_le_signed_16_44_1_stereo.raw
+OMX.Aratelia.audio_renderer.pcm.testfile1_uri = /home/user/temp/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_48_stereo.raw
+OMX.Aratelia.audio_renderer.pcm.testfile2_uri = /home/user/temp/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
 
 ###############
 # MP3 Decoder #
@@ -55,17 +55,17 @@ OMX.Aratelia.audio_renderer.pcm.testfile2_uri = /home/user/temp/tizonia_test_med
 
 OMX.Aratelia.audio_decoder.mp3.preannouncements_disabled.port0 = false
 OMX.Aratelia.audio_decoder.mp3.preannouncements_disabled.port1 = false
-OMX.Aratelia.audio_decoder.mp3.testfile1_uri = /home/user/temp/tizonia_test_media/mp3/Tom_Fahy_-_81.mp3
-OMX.Aratelia.audio_decoder.mp3.testfile2_uri = /home/user/temp/tizonia_test_media/mp3/Emmas_Mini_-_Lost.mp3
+OMX.Aratelia.audio_decoder.mp3.testfile1_uri = /home/user/temp/tizonia-test-media/mp3/riff_rock.mp3
+OMX.Aratelia.audio_decoder.mp3.testfile2_uri = /home/user/temp/tizonia-test-media/mp3/strum12str.mp3
 
 ################
 # I/V Renderer #
 ################
 
-OMX.Aratelia.yuv_renderer.overlay.testfile1_uri = /home/user/temp/tizonia_test_media/yuv/bbb_640x360_25fps_yuv420p.yuv
+OMX.Aratelia.yuv_renderer.overlay.testfile1_uri = /home/user/temp/tizonia-test-media/yuv/bbb_640x360_25fps_yuv420p.yuv
 
 ###############
 # VP8 Decoder #
 ###############
 
-OMX.Aratelia.video_decoder.vp8.testfile1_uri = /home/user/temp/tizonia_test_media/ivf/bbb_640x360_25fps_vp8_yuv420p.ivf
+OMX.Aratelia.video_decoder.vp8.testfile1_uri = /home/user/temp/tizonia-test-media/ivf/bbb_640x360_25fps_vp8_yuv420p.ivf
