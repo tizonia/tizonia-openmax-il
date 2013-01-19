@@ -361,6 +361,56 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
 }
 
 static OMX_ERRORTYPE
+complete_port_enable (const void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
+                      OMX_ERRORTYPE a_error)
+{
+  const struct tizkernel *p_obj = ap_obj;
+
+  assert (ap_port);
+
+  /* Set enabled flag */
+  TIZPORT_SET_ENABLED (ap_port);
+
+  /* Complete the OMX_CommandPortEnable command */
+  (void) tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
+                                     a_error);
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
+                     OMX_ERRORTYPE a_error)
+{
+  struct tizkernel *p_obj = ap_obj;
+
+  assert (ap_port);
+
+  TIZPORT_CLEAR_FLUSH_IN_PROGRESS (ap_port);
+
+  /* Complete the OMX_CommandFlush command */
+  (void) tizservant_issue_cmd_event (p_obj, OMX_CommandFlush, a_pid,
+                                     a_error);
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+complete_mark_buffer (const void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
+                      OMX_ERRORTYPE a_error)
+{
+  const struct tizkernel *p_obj = ap_obj;
+
+  assert (ap_port);
+
+  /* Complete the OMX_CommandMarkBuffer command */
+  (void) tizservant_issue_cmd_event (p_obj, OMX_CommandMarkBuffer, a_pid,
+                                     a_error);
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
 complete_ongoing_transitions (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -844,8 +894,7 @@ process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid,
           if (OMX_ErrorNone == (rc = tizport_mark_buffer (p_port, ap_hdr)))
             {
               /* Successfully complete here the OMX_CommandMarkBuffer command */
-              tizservant_issue_cmd_event (p_obj, OMX_CommandMarkBuffer, a_pid,
-                                          OMX_ErrorNone);
+              complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone);
             }
           else
             {
@@ -881,10 +930,9 @@ flush_marks (void *ap_obj, OMX_PTR ap_port)
          marks found, it returns OMX_ErrorNoMore */
       if (OMX_ErrorNone == (rc = tizport_mark_buffer (p_port, &hdr)))
         {
-          /* Need to complete with an error the mark buffer command */
-          tizservant_issue_cmd_event (p_obj, OMX_CommandMarkBuffer,
-                                      tizport_index (p_port),
-                                      OMX_ErrorPortUnpopulated);
+          /* Need to complete the mark buffer command with an error */
+          complete_mark_buffer (p_obj, p_port, tizport_index (p_port),
+                                OMX_ErrorPortUnpopulated);
         }
     }
   while (OMX_ErrorNoMore != rc);
@@ -1465,7 +1513,7 @@ dispatch_port_disable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                    TIZ_CBUF(p_hdl),
                    "Requested port disable for PORT [%d]", pid);
 
-  /* Check the port index.. */
+  /* Verify the port index.. */
   if ((OMX_ALL != pid) && (check_pid (p_obj, pid) != OMX_ErrorNone))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR,
@@ -1496,8 +1544,7 @@ dispatch_port_disable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                            TIZ_CBUF(p_hdl),
                            "port [%d] was already disabled...",
                      pid);
-          tizservant_issue_cmd_event (p_obj, OMX_CommandPortDisable, pid,
-                                      OMX_ErrorNone);
+          complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone);
           ++i;
           continue;
         }
@@ -1675,7 +1722,7 @@ dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                    TIZ_CBUF(tizservant_super_get_hdl (tizkernel, p_obj)),
                    "Requested port enable for PORT [%d]", pid);
 
-  /* Check the port index.. */
+  /* Verify the port index.. */
   if ((OMX_ALL != pid) && (check_pid (p_obj, pid) != OMX_ErrorNone))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR,
@@ -1693,11 +1740,10 @@ dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
       assert (pp_port && *pp_port);
       p_port = *pp_port;
 
-      /* If port is already enabled, notify the command completion */
       if (TIZPORT_IS_ENABLED (p_port))
         {
-          tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, pid,
-                                      OMX_ErrorNone);
+          /* If port is already enabled, must notify the command completion */
+          complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone);
           ++i;
           continue;
         }
@@ -1706,11 +1752,8 @@ dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
         {
           if (EStateWaitForResources == now || EStateLoaded == now)
             {
-              TIZPORT_SET_ENABLED (p_port);
-              /* Complete the OMX_CommandPortEnable command */
-              tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, pid,
-                                          OMX_ErrorNone);
-
+              /* Complete OMX_CommandPortEnable on this port now */
+              complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone);
             }
           else
             {
@@ -1762,7 +1805,7 @@ dispatch_port_flush (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                    TIZ_CBUF(p_hdl),
                    "Requested port flush on PORT [%d]", pid);
 
-  /* Check the port index */
+  /* Verify the port index */
   if ((OMX_ALL != pid) && (check_pid (p_obj, pid) != OMX_ErrorNone))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR,
@@ -1892,15 +1935,12 @@ dispatch_port_flush (const void *ap_obj, OMX_HANDLETYPE p_hdl,
       if (OMX_ErrorNone != rc)
         {
           /* Complete the command with an error event */
-          tizservant_issue_cmd_event (p_obj, OMX_CommandFlush, pid,
-                                      rc);
-
           TIZ_LOG_CNAME (TIZ_LOG_TRACE,
                            TIZ_CNAME(p_hdl),
                            TIZ_CBUF(p_hdl),
                            "[%s] : Flush command failed on port [%d]...",
                            tiz_err_to_str (rc), pid);
-
+          complete_port_flush (p_obj, p_port, pid, rc);
         }
       else
         {
@@ -1917,8 +1957,7 @@ dispatch_port_flush (const void *ap_obj, OMX_HANDLETYPE p_hdl,
             {
               /* There are no buffers with the processor, then we can
                  sucessfully complete the OMX_CommandFlush command here. */
-              tizservant_issue_cmd_event (p_obj, OMX_CommandFlush, pid,
-                                          OMX_ErrorNone);
+              complete_port_flush (p_obj, p_port, pid, OMX_ErrorNone);
             }
           else
             {
@@ -2067,9 +2106,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
       if (TIZPORT_IS_BEING_FLUSHED (p_port))
         {
           /* Notify flush complete */
-          tizservant_issue_cmd_event (p_obj, OMX_CommandFlush,
-                                      p_msg_cb->pid, rc);
-          TIZPORT_CLEAR_FLUSH_IN_PROGRESS (p_port);
+          complete_port_flush (p_obj, p_port, p_msg_cb->pid, rc);
         }
 
       if ( ((ESubStateExecutingToIdle == now || ESubStatePauseToIdle == now))
@@ -2749,10 +2786,7 @@ kernel_UseBuffer (const void *ap_obj,
 
     if (was_being_enabled && TIZPORT_IS_POPULATED (p_port))
       {
-        /* Tell IL Client that OMX_CommandPortEnable has completed */
-        /* on this port */
-        tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
-                                    OMX_ErrorNone);
+        complete_port_enable (p_obj, p_port, a_pid, OMX_ErrorNone);
       }
   }
 
@@ -2825,13 +2859,7 @@ kernel_AllocateBuffer (const void *ap_obj,
 
     if (was_being_enabled && TIZPORT_IS_POPULATED (p_port))
       {
-        /* Tell IL Client that OMX_CommandPortEnable has completed */
-        /* in this port */
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl),
-                         TIZ_CBUF(ap_hdl),
-                         "OMX_CommandPortEnable has completed ");
-        tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
-                                    OMX_ErrorNone);
+        complete_port_enable (p_obj, p_port, a_pid, OMX_ErrorNone);
       }
   }
 
@@ -3047,7 +3075,7 @@ kernel_allocate_resources (void *ap_obj, OMX_U32 a_pid)
                  "port index [%d]...", a_pid);
 
 
-  /* Check the port index.. */
+  /* Verify the port index.. */
   if ((OMX_ALL != a_pid) && (check_pid (p_obj, a_pid) != OMX_ErrorNone))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(hdl), TIZ_CBUF(hdl),
@@ -3084,10 +3112,7 @@ kernel_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
           if (being_enabled && TIZPORT_IS_POPULATED_AND_ENABLED (p_port))
             {
-              /* Tell IL Client that OMX_CommandPortEnable has completed */
-              /* on this port */
-              tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, pid,
-                                          OMX_ErrorNone);
+              complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone);
             }
 
         }
@@ -3758,8 +3783,8 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
       if (OMX_ErrorNone == (rc = tizport_mark_buffer (p_port, *pp_hdr)))
         {
           /* Successfully complete here the OMX_CommandMarkBuffer command */
-          tizservant_issue_cmd_event (p_obj, OMX_CommandMarkBuffer, a_pid,
-                                      OMX_ErrorNone);
+          complete_mark_buffer (p_obj, p_port, a_pid,
+                                OMX_ErrorNone);
         }
       else
         {
