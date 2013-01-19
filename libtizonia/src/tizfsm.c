@@ -211,13 +211,124 @@ msg_to_priority (tizfsm_msg_class_t a_msg_class)
 }
 
 static OMX_ERRORTYPE
+validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
+                   OMX_STATETYPE a_state)
+{
+  const struct tizfsm *p_obj = ap_obj;
+  const void *p_krn = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+
+  p_krn = tiz_get_krn (ap_hdl);
+  assert (NULL != p_krn);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+                 "Requested transition to [%s] - cur_state_id_ [%s]",
+                 tiz_state_to_str (a_state),
+                 tiz_fsm_state_to_str (p_obj->cur_state_id_));
+
+  if (OMX_CommandMax != p_obj->unfinished_cmd_
+      && OMX_CommandStateSet != p_obj->unfinished_cmd_)
+
+    {
+      /* There is a command of a different type going on. Reject.  */
+      rc = OMX_ErrorIncorrectStateOperation;
+    }
+  else
+    {
+      if (p_obj->cur_state_id_ > EStateWaitForResources
+          && p_obj->cur_state_id_ < EStateMax)
+        {
+          /* There is a transitional state, which may or may not be cancelled */
+          if (ESubStateLoadedToIdle == p_obj->cur_state_id_
+              && a_state == OMX_StateLoaded)
+            {
+              /* Check the population status of the kernel. We will reject the
+                 command if the kernel may not be fully unpopulated. In other
+                 words, there is at least one buffer header allocated that needs to
+                 be freed after the request of a tunneled component. If that is the
+                 case, we won't allow the cancellation of the ongoing command. */
+              OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
+              if (ETIZKernelUnpopulated
+                  == tizkernel_get_population_status (p_krn, OMX_ALL,
+                                                      &may_be_fully_unpopulated))
+                {
+                  if (OMX_FALSE == may_be_fully_unpopulated)
+                    {
+                      /* This is NOT OK */
+                      rc = OMX_ErrorIncorrectStateOperation;
+                    }
+                }
+            }
+        }
+    }
+
+  return rc;
+}
+
+static OMX_ERRORTYPE
+validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
+                      OMX_U32 a_pid)
+{
+  const struct tizfsm *p_obj = ap_obj;
+  const void *p_krn = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+
+  p_krn = tiz_get_krn (ap_hdl);
+  assert (NULL != p_krn);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+                 "[OMX_CommandPortDisable] pid [%d] cur_state_id_ [%s]",
+                 a_pid, tiz_fsm_state_to_str (p_obj->cur_state_id_));
+
+  if (OMX_CommandMax != p_obj->unfinished_cmd_
+      && OMX_CommandStateSet != p_obj->unfinished_cmd_)
+
+    {
+      /* There is a command of a different type going on. Reject.  */
+      rc = OMX_ErrorIncorrectStateOperation;
+    }
+  else
+    {
+
+      if (p_obj->cur_state_id_ > EStateWaitForResources
+          && p_obj->cur_state_id_ < EStateMax)
+        {
+          /* There is an on-going state transition */
+          if (ESubStateLoadedToIdle == p_obj->cur_state_id_)
+            {
+              OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
+              if (ETIZKernelUnpopulated
+                  == tizkernel_get_population_status (p_krn, a_pid,
+                                                      &may_be_fully_unpopulated))
+                {
+                  if (OMX_FALSE == may_be_fully_unpopulated)
+                    {
+                      /* This is NOT OK */
+                      return OMX_ErrorIncorrectStateOperation;
+                    }
+                }
+            }
+        }
+    }
+
+  return rc;
+}
+
+static OMX_ERRORTYPE
 validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                       OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
                       OMX_PTR ap_cmd_data)
 {
-  const struct tizfsm *p_obj = ap_obj;
+  struct tizfsm *p_obj = (struct tizfsm *) ap_obj;
   const void *p_krn = tiz_get_krn (ap_hdl);
   struct tizport *p_port = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   if (OMX_CommandFlush == a_cmd
       || OMX_CommandPortDisable == a_cmd
@@ -239,58 +350,17 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     {
     case OMX_CommandStateSet:
       {
-        /* We need to verify that we can process this command at this specific
+        /* Verify that this state transition may be processed at this specific
            point in time */
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                       "SendCommand [%s] cur_state_id_ [%s]",
-                       tiz_state_to_str (a_param1),
-                       tiz_fsm_state_to_str (p_obj->cur_state_id_));
-
-        if (p_obj->cur_state_id_ > EStateWaitForResources
-            && p_obj->cur_state_id_ < EStateMax)
-          {
-            /* There is an on-going state transition */
-            if (ESubStateLoadedToIdle == p_obj->cur_state_id_
-                && a_param1 == OMX_StateLoaded)
-              {
-                OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
-                if (ETIZKernelUnpopulated
-                    == tizkernel_get_population_status (p_krn, OMX_ALL,
-                                                        &may_be_fully_unpopulated))
-                  {
-                    if (OMX_FALSE == may_be_fully_unpopulated)
-                      {
-                        /* This is NOT OK */
-                        return OMX_ErrorIncorrectStateOperation;
-                      }
-                  }
-              }
-          }
+        rc = validate_stateset (p_obj, ap_hdl, a_param1);
       }
       break;
 
     case OMX_CommandPortDisable:
       {
-        if (p_obj->cur_state_id_ > EStateWaitForResources
-            && p_obj->cur_state_id_ < EStateMax)
-          {
-            /* There is an on-going state transition */
-            if (ESubStateLoadedToIdle == p_obj->cur_state_id_)
-              {
-                OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
-                if (ETIZKernelUnpopulated
-                    == tizkernel_get_population_status (p_krn, a_param1,
-                                                        &may_be_fully_unpopulated))
-                  {
-                    if (OMX_FALSE == may_be_fully_unpopulated)
-                      {
-                        /* This is NOT OK */
-                        return OMX_ErrorIncorrectStateOperation;
-                      }
-                  }
-              }
-          }
-
+        /* Verify that this port transition may be processed at this specific
+           point in time */
+        rc = validate_portdisable (p_obj, ap_hdl, a_param1);
       }
       break;
 
@@ -325,8 +395,16 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       }
     };
 
-  return OMX_ErrorNone;
+  if (OMX_ErrorNone == rc)
+    {
+      /* At this point, we are accepting a command for processing. We must not
+         have any unfinished command. */
+      assert (OMX_CommandMax == p_obj->unfinished_cmd_);
+      /* Take note of what command we are going to process */
+      p_obj->unfinished_cmd_ = a_cmd;
+    }
 
+  return rc;
 }
 
 /*
@@ -360,8 +438,9 @@ fsm_ctor (void *ap_obj, va_list * app)
   p_obj->p_states_[ESubStatePauseToIdle] = factory_new (tizpausetoidle, p_obj);
 
   p_obj->cur_state_id_ = EStateLoaded;
-  p_obj->p_current_state_ = p_obj->p_states_[p_obj->cur_state_id_];
   p_obj->canceled_substate_id_ = EStateMax;
+  p_obj->p_current_state_ = p_obj->p_states_[p_obj->cur_state_id_];
+  p_obj->unfinished_cmd_ = OMX_CommandMax;
 
   return p_obj;
 }
@@ -780,6 +859,9 @@ fsm_set_state (const void *ap_obj, tizfsm_state_id_t a_new_state,
             (p_obj, a_new_state,
              p_obj->canceled_substate_id_ == EStateMax
              ? OMX_ErrorNone : OMX_ErrorCommandCanceled);
+
+          assert (OMX_CommandStateSet == p_obj->unfinished_cmd_);
+          p_obj->unfinished_cmd_ = OMX_CommandMax;
 
           /* TODO: Perhaps implement a transitional state instead of notifying
              Exe twice */

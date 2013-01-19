@@ -877,7 +877,8 @@ flush_marks (void *ap_obj, OMX_PTR ap_port)
       hdr.hMarkTargetComponent = NULL;
       hdr.pMarkData = NULL;
       /* tizport_mark_buffer returns OMX_ErrorNone if the port owned the
-         mark. Otherwise, it returns OMX_ErrorNotReady */
+         mark. If the mark is not owned, it returns OMX_ErrorNotReady. If no
+         marks found, it returns OMX_ErrorNoMore */
       if (OMX_ErrorNone == (rc = tizport_mark_buffer (p_port, &hdr)))
         {
           /* Need to complete with an error the mark buffer command */
@@ -1501,27 +1502,6 @@ dispatch_port_disable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
           continue;
         }
 
-      if (TIZPORT_IS_BEING_ENABLED (p_port)
-          || TIZPORT_IS_BEING_DISABLED (p_port))
-        {
-          /* TODO: Change the error code */
-          /* Complete this command with an error event... */
-          /* ...although there is no suitable event for this situation. */
-          tizservant_issue_err_event
-            (p_obj, OMX_ErrorUndefined);
-
-          if (OMX_ALL == pid)
-            {
-              ++i;
-              continue;
-            }
-          else
-            {
-              return OMX_ErrorUndefined;
-            }
-
-        }
-
       if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
         {
           /* Move buffers from egress to ingress */
@@ -1720,26 +1700,6 @@ dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                                       OMX_ErrorNone);
           ++i;
           continue;
-        }
-
-      if (TIZPORT_IS_BEING_ENABLED (p_port)
-          || TIZPORT_IS_BEING_DISABLED (p_port))
-        {
-          /* TODO: Change the error code */
-          /* Complete this command with an error event... */
-          /* ...although there is no suitable event for this situation. */
-          tizservant_issue_err_event
-            (p_obj, OMX_ErrorUndefined);
-
-          if (OMX_ALL == pid)
-            {
-              ++i;
-              continue;
-            }
-          else
-            {
-              rc = OMX_ErrorUndefined;
-            }
         }
 
       if (OMX_ErrorNone == rc)

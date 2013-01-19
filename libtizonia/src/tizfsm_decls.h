@@ -45,6 +45,7 @@ extern "C"
     tizfsm_state_id_t cur_state_id_;
     tizfsm_state_id_t canceled_substate_id_;
     void *p_current_state_;
+    OMX_COMMANDTYPE unfinished_cmd_;
   };
 
   struct tizfsm_class
