@@ -57,15 +57,15 @@ static OMX_ERRORTYPE dispatch_cb (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_pe (void *ap_obj, OMX_PTR ap_msg);
 
 typedef struct tizkernel_msg_sendcommand tizkernel_msg_sendcommand_t;
-static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+static OMX_ERRORTYPE dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
                                          tizkernel_msg_sendcommand_t * ap_msg_sc);
-static OMX_ERRORTYPE dispatch_port_disable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+static OMX_ERRORTYPE dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                                             tizkernel_msg_sendcommand_t * ap_msg_sc);
-static OMX_ERRORTYPE dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+static OMX_ERRORTYPE dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                                            tizkernel_msg_sendcommand_t * ap_msg_sc);
-static OMX_ERRORTYPE dispatch_port_flush (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+static OMX_ERRORTYPE dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
                                           tizkernel_msg_sendcommand_t * ap_msg_sc);
-static OMX_ERRORTYPE dispatch_mark_buffer (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+static OMX_ERRORTYPE dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE p_hdl,
                                            tizkernel_msg_sendcommand_t * ap_msg_sc);
 static OMX_ERRORTYPE flush_marks (void *ap_obj, OMX_PTR ap_port);
 
@@ -93,7 +93,7 @@ static const tizkernel_msg_dispatch_f tizkernel_msg_to_fnt_tbl[] = {
 };
 
 typedef OMX_ERRORTYPE (*tizkernel_msg_dispatch_sc_f)
-(const void *ap_obj, OMX_HANDLETYPE p_hdl,
+(void *ap_obj, OMX_HANDLETYPE p_hdl,
 tizkernel_msg_sendcommand_t * ap_msg_sc);
 
 static const tizkernel_msg_dispatch_sc_f tizkernel_msg_dispatch_sc_to_fnt_tbl[] = {
@@ -346,6 +346,7 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                        OMX_ERRORTYPE a_error)
 {
   struct tizkernel *p_obj = ap_obj;
+  const struct tizservant *p_parent = ap_obj;
 
   assert (ap_port);
 
@@ -356,15 +357,24 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   (void) tizservant_issue_cmd_event (p_obj, OMX_CommandPortDisable, a_pid,
                                      a_error);
 
+  /* Decrement the completion counter */
+  assert (p_obj->cmd_completion_count_ > 0);
+  if (--p_obj->cmd_completion_count_ == 0)
+    {
+      tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
+                               OMX_CommandPortDisable);
+    }
+
   /* Flush buffer marks and complete commands as required */
   return flush_marks (p_obj, ap_port);
 }
 
 static OMX_ERRORTYPE
-complete_port_enable (const void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
+complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                       OMX_ERRORTYPE a_error)
 {
-  const struct tizkernel *p_obj = ap_obj;
+  struct tizkernel *p_obj = ap_obj;
+  const struct tizservant *p_parent = ap_obj;
 
   assert (ap_port);
 
@@ -374,6 +384,13 @@ complete_port_enable (const void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   /* Complete the OMX_CommandPortEnable command */
   (void) tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
                                      a_error);
+  /* Decrement the completion counter */
+  assert (p_obj->cmd_completion_count_ > 0);
+  if (--p_obj->cmd_completion_count_ == 0)
+    {
+      tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
+                               OMX_CommandPortEnable);
+    }
 
   return OMX_ErrorNone;
 }
@@ -383,6 +400,7 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                      OMX_ERRORTYPE a_error)
 {
   struct tizkernel *p_obj = ap_obj;
+  const struct tizservant *p_parent = ap_obj;
 
   assert (ap_port);
 
@@ -392,20 +410,36 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   (void) tizservant_issue_cmd_event (p_obj, OMX_CommandFlush, a_pid,
                                      a_error);
 
+  /* Decrement the completion counter */
+  assert (p_obj->cmd_completion_count_ > 0);
+  if (--p_obj->cmd_completion_count_ == 0)
+    {
+      tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
+                               OMX_CommandFlush);
+    }
+
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-complete_mark_buffer (const void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
+complete_mark_buffer (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                       OMX_ERRORTYPE a_error)
 {
-  const struct tizkernel *p_obj = ap_obj;
+  struct tizkernel *p_obj = ap_obj;
 
   assert (ap_port);
 
   /* Complete the OMX_CommandMarkBuffer command */
   (void) tizservant_issue_cmd_event (p_obj, OMX_CommandMarkBuffer, a_pid,
                                      a_error);
+
+  /* Decrement the completion counter */
+/*   assert (p_obj->cmd_completion_count_ > 0); */
+/*   if (--p_obj->cmd_completion_count_ == 0) */
+/*     { */
+/*       tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl), p_obj, */
+/*                                OMX_CommandMarkBuffer); */
+/*     } */
 
   return OMX_ErrorNone;
 }
@@ -832,7 +866,7 @@ static OMX_ERRORTYPE
 process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid,
                OMX_COMPONENTTYPE * ap_hdl)
 {
-  const struct tizkernel *p_obj = ap_obj;
+  struct tizkernel *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const OMX_S32 nports = tiz_vector_length (p_obj->p_ports_);
   OMX_PTR *pp_port = NULL, p_port = NULL;
@@ -1142,7 +1176,7 @@ init_ports_and_lists (void *ap_obj)
   p_obj->image_init_ = null_param;
   p_obj->video_init_ = null_param;
   p_obj->other_init_ = null_param;
- 
+  p_obj->cmd_completion_count_ = 0;
 }
 
 static void
@@ -1336,7 +1370,7 @@ all_buffers_returned (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
                     tizkernel_msg_sendcommand_t * ap_msg_sc)
 {
   const struct tizkernel *p_obj = ap_obj;
@@ -1493,10 +1527,10 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
 }
 
 static OMX_ERRORTYPE
-dispatch_port_disable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                        tizkernel_msg_sendcommand_t * ap_msg_sc)
 {
-  struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
+  struct tizkernel *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_U32 pid = 0;
@@ -1523,6 +1557,11 @@ dispatch_port_disable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                        pid);
       return OMX_ErrorBadPortIndex;
     }
+
+  /* Record here the number of times we need to notify the IL client */
+  assert (p_obj->cmd_completion_count_ == 0);
+  p_obj->cmd_completion_count_ = (OMX_ALL == ap_msg_sc->param1) ?
+    nports : 1;
 
   do
     {
@@ -1705,10 +1744,10 @@ dispatch_port_disable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
 }
 
 static OMX_ERRORTYPE
-dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                       tizkernel_msg_sendcommand_t * ap_msg_sc)
 {
-  struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
+  struct tizkernel *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_U32 pid = ap_msg_sc->param1;
@@ -1732,6 +1771,11 @@ dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                        pid);
       return OMX_ErrorBadPortIndex;
     }
+
+  /* Record here the number of times we need to notify the IL client */
+  assert (p_obj->cmd_completion_count_ == 0);
+  p_obj->cmd_completion_count_ = (OMX_ALL == ap_msg_sc->param1) ?
+    nports : 1;
 
   do
     {
@@ -1787,10 +1831,10 @@ dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
 }
 
 static OMX_ERRORTYPE
-dispatch_port_flush (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
                      tizkernel_msg_sendcommand_t * ap_msg_sc)
 {
-  struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
+  struct tizkernel *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_U32 pid = ap_msg_sc->param1;
@@ -1815,6 +1859,11 @@ dispatch_port_flush (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                        pid);
       return OMX_ErrorBadPortIndex;
     }
+
+  /* Record here the number of times we need to notify the IL client */
+  assert (p_obj->cmd_completion_count_ == 0);
+  p_obj->cmd_completion_count_ = (OMX_ALL == ap_msg_sc->param1) ?
+    nports : 1;
 
   /* My Flush matrix */
   /*  |---------------+---------------+---------+--------------------------| */
@@ -1984,15 +2033,19 @@ dispatch_port_flush (const void *ap_obj, OMX_HANDLETYPE p_hdl,
 }
 
 static OMX_ERRORTYPE
-dispatch_mark_buffer (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE p_hdl,
                       tizkernel_msg_sendcommand_t * ap_msg_sc)
 {
-  const struct tizkernel *p_obj = ap_obj;
+  struct tizkernel *p_obj = ap_obj;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   const OMX_U32 pid = ap_msg_sc->param1;
   const OMX_MARKTYPE *p_mark = ap_msg_sc->p_cmd_data;
 
   /* TODO : Check whether pid can be OMX_ALL. For now assume it can't */
+
+  /* Record here the number of times we need to notify the IL client */
+  /*   assert (p_obj->cmd_completion_count_ == 0); */
+  /*   p_obj->cmd_completion_count_ = 1; */
 
   pp_port = tiz_vector_at (p_obj->p_ports_, pid);
   assert (pp_port && *pp_port);
@@ -2731,12 +2784,12 @@ kernel_ComponentTunnelRequest (const void *ap_obj,
 
 static OMX_ERRORTYPE
 kernel_UseBuffer (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_BUFFERHEADERTYPE ** app_hdr,
-                      OMX_U32 a_pid,
-                      OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_BUFFERHEADERTYPE ** app_hdr,
+                  OMX_U32 a_pid,
+                  OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
 {
-  const struct tizkernel *p_obj = ap_obj;
+  struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -2803,11 +2856,11 @@ kernel_UseBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 kernel_AllocateBuffer (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_BUFFERHEADERTYPE ** app_hdr,
-                           OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
+                       OMX_HANDLETYPE ap_hdl,
+                       OMX_BUFFERHEADERTYPE ** app_hdr,
+                       OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
 {
-  const struct tizkernel *p_obj = ap_obj;
+  struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const tizfsm_state_id_t now =

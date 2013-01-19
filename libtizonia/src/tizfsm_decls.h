@@ -45,7 +45,8 @@ extern "C"
     tizfsm_state_id_t cur_state_id_;
     tizfsm_state_id_t canceled_substate_id_;
     void *p_current_state_;
-    OMX_COMMANDTYPE unfinished_cmd_;
+    OMX_COMMANDTYPE in_progress_cmd_;
+    OMX_COMMANDTYPE cancellation_cmd_;
   };
 
   struct tizfsm_class
@@ -55,9 +56,12 @@ extern "C"
     OMX_ERRORTYPE (*set_state) (void *p_obj,
                                 tizfsm_state_id_t a_new_state,
                                 tizfsm_state_id_t a_canceled_substate);
-    OMX_ERRORTYPE (*complete_transition) (const void *p_obj,
+    OMX_ERRORTYPE (*complete_transition) (void *p_obj,
                                           const void * ap_servant,
                                           OMX_STATETYPE a_new_state);
+    OMX_ERRORTYPE (*complete_command) (void *p_obj,
+                                       const void * ap_servant,
+                                       OMX_COMMANDTYPE a_cmd);
     tizfsm_state_id_t (*get_substate) (const void *ap_obj);
   };
 

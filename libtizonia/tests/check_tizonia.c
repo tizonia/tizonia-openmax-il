@@ -1834,40 +1834,40 @@ tiz_suite (void)
   tc_tizonia = tcase_create ("tizonia");
   tcase_add_unchecked_fixture (tc_tizonia, setup, teardown);
 
-/* (void) test_tizonia_fsm_create_and_destroy; */
-/* (void) test_tizonia_kernel_create_and_destroy; */
-/* (void) test_tizonia_getstate; */
-/* (void) test_tizonia_gethandle_freehandle; */
-/* (void) test_tizonia_getparameter; */
-/* (void) test_tizonia_roles; */
-/* (void) test_tizonia_preannouncements_extension; */
-/* (void) test_tizonia_pd_set; */
-/* (void) test_tizonia_move_to_exe_with_usebuffer; */
-/* (void) test_tizonia_move_to_exe_and_transfer_with_allocbuffer; */
-/* (void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers; */
-/* (void) test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers; */
+(void) test_tizonia_fsm_create_and_destroy;
+(void) test_tizonia_kernel_create_and_destroy;
+(void) test_tizonia_getstate;
+(void) test_tizonia_gethandle_freehandle;
+(void) test_tizonia_getparameter;
+(void) test_tizonia_roles;
+(void) test_tizonia_preannouncements_extension;
+(void) test_tizonia_pd_set;
+(void) test_tizonia_move_to_exe_with_usebuffer;
+(void) test_tizonia_move_to_exe_and_transfer_with_allocbuffer;
+(void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers;
+(void) test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers;
 /* (void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_disabled_unblocks_transition; */
-/* (void) test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition; */
+(void) test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition;
 
-  tcase_add_test (tc_tizonia, test_tizonia_fsm_create_and_destroy);
-  tcase_add_test (tc_tizonia, test_tizonia_kernel_create_and_destroy);
-  tcase_add_test (tc_tizonia, test_tizonia_getstate);
-  tcase_add_test (tc_tizonia, test_tizonia_gethandle_freehandle);
-  tcase_add_test (tc_tizonia, test_tizonia_getparameter);
-  tcase_add_test (tc_tizonia, test_tizonia_roles);
-  tcase_add_test (tc_tizonia, test_tizonia_preannouncements_extension);
-  tcase_add_test (tc_tizonia, test_tizonia_pd_set);
-  tcase_add_test (tc_tizonia, test_tizonia_move_to_exe_with_usebuffer);
-  tcase_add_test (tc_tizonia,
-                  test_tizonia_move_to_exe_and_transfer_with_allocbuffer);
-  tcase_add_test (tc_tizonia,
-                  test_tizonia_command_cancellation_loaded_to_idle_no_buffers);
-  tcase_add_test (tc_tizonia,
-                  test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers);
+/*   tcase_add_test (tc_tizonia, test_tizonia_fsm_create_and_destroy); */
+/*   tcase_add_test (tc_tizonia, test_tizonia_kernel_create_and_destroy); */
+/*   tcase_add_test (tc_tizonia, test_tizonia_getstate); */
+/*   tcase_add_test (tc_tizonia, test_tizonia_gethandle_freehandle); */
+/*   tcase_add_test (tc_tizonia, test_tizonia_getparameter); */
+/*   tcase_add_test (tc_tizonia, test_tizonia_roles); */
+/*   tcase_add_test (tc_tizonia, test_tizonia_preannouncements_extension); */
+/*   tcase_add_test (tc_tizonia, test_tizonia_pd_set); */
+/*   tcase_add_test (tc_tizonia, test_tizonia_move_to_exe_with_usebuffer); */
+/*   tcase_add_test (tc_tizonia, */
+/*                   test_tizonia_move_to_exe_and_transfer_with_allocbuffer); */
+/*   tcase_add_test (tc_tizonia, */
+/*                   test_tizonia_command_cancellation_loaded_to_idle_no_buffers); */
+/*   tcase_add_test (tc_tizonia, */
+/*                   test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers); */
   tcase_add_test (tc_tizonia,
                   test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_disabled_unblocks_transition);
-  tcase_add_test (tc_tizonia,
-                  test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition);
+/*   tcase_add_test (tc_tizonia, */
+/*                   test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition); */
 
   suite_add_tcase (s, tc_tizonia);
 

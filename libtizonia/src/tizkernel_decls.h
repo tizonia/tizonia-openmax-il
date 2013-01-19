@@ -56,6 +56,7 @@ struct tizkernel
   OMX_PORT_PARAM_TYPE image_init_;
   OMX_PORT_PARAM_TYPE video_init_;
   OMX_PORT_PARAM_TYPE other_init_;
+  OMX_S32 cmd_completion_count_;
 };
 
 OMX_ERRORTYPE

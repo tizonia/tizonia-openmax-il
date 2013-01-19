@@ -36,37 +36,41 @@ extern "C"
 
 #include "tizservant.h"
 
-typedef enum tizfsm_state_id tizfsm_state_id_t;
-enum tizfsm_state_id
-{
-  EStateReserved_0x00000000 = OMX_StateReserved_0x00000000,
-  EStateLoaded = OMX_StateLoaded,
-  EStateIdle = OMX_StateIdle,
-  EStateExecuting = OMX_StateExecuting,
-  EStatePause = OMX_StatePause,
-  EStateWaitForResources = OMX_StateWaitForResources,
-  ESubStateLoadedToIdle,
-  ESubStateIdleToLoaded,
-  ESubStateExecutingToIdle,
-  ESubStatePauseToIdle,
-  EStateMax
-};
+  typedef enum tizfsm_state_id tizfsm_state_id_t;
+  enum tizfsm_state_id
+    {
+      EStateReserved_0x00000000 = OMX_StateReserved_0x00000000,
+      EStateLoaded = OMX_StateLoaded,
+      EStateIdle = OMX_StateIdle,
+      EStateExecuting = OMX_StateExecuting,
+      EStatePause = OMX_StatePause,
+      EStateWaitForResources = OMX_StateWaitForResources,
+      ESubStateLoadedToIdle,
+      ESubStateIdleToLoaded,
+      ESubStateExecutingToIdle,
+      ESubStatePauseToIdle,
+      EStateMax
+    };
 
-/* factory_new(tizfsm, ...) */
-extern const void *tizfsm, *tizfsm_class;
+  /* factory_new(tizfsm, ...) */
+  extern const void *tizfsm, *tizfsm_class;
 
-OMX_ERRORTYPE tizfsm_set_state (void *ap_obj,
-                                tizfsm_state_id_t a_new_state,
-                                tizfsm_state_id_t a_canceled_state);
+  OMX_ERRORTYPE tizfsm_set_state (void *ap_obj,
+                                  tizfsm_state_id_t a_new_state,
+                                  tizfsm_state_id_t a_canceled_state);
 
-OMX_ERRORTYPE tizfsm_complete_transition (const void *ap_obj,
-                                          const void * ap_servant,
-                                          OMX_STATETYPE a_new_state);
+  OMX_ERRORTYPE tizfsm_complete_transition (void *ap_obj,
+                                            const void * ap_servant,
+                                            OMX_STATETYPE a_new_state);
 
-tizfsm_state_id_t tizfsm_get_substate (const void *ap_obj);
+  OMX_ERRORTYPE tizfsm_complete_command (void *ap_obj,
+                                         const void * ap_servant,
+                                         OMX_COMMANDTYPE a_cmd);
+
+  tizfsm_state_id_t tizfsm_get_substate (const void *ap_obj);
 
 
-void init_tizfsm (void);
+  void init_tizfsm (void);
 
 #ifdef __cplusplus
 }
