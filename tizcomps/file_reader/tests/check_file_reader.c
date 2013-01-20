@@ -512,8 +512,8 @@ START_TEST (test_audio_fr)
   fail_if (OMX_ErrorNone != error);
 
   TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountMin [%d]",
-             port_def.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
 
   /* Obtain the current URI */
   p_uri_param = tiz_mem_calloc
@@ -542,13 +542,14 @@ START_TEST (test_audio_fr)
 
   /* Allocate buffers */
   p_hdrlst = (OMX_BUFFERHEADERTYPE **)
-    tiz_mem_calloc (port_def.nBufferCountMin, sizeof (OMX_BUFFERHEADERTYPE *));
+    tiz_mem_calloc (port_def.nBufferCountActual, sizeof (OMX_BUFFERHEADERTYPE *));
 
-  for (i = 0; i < port_def.nBufferCountMin; ++i)
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
     {
       error = OMX_AllocateBuffer (p_hdl, &p_hdrlst[i], 0,    /* input port */
                                   0, port_def.nBufferSize);
       fail_if (OMX_ErrorNone != error);
+      fail_if (p_hdrlst[i] == NULL);
       fail_if (port_def.nBufferSize > p_hdrlst[i]->nAllocLen);
       TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
       TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
@@ -598,7 +599,7 @@ START_TEST (test_audio_fr)
   fail_if ((p_file = fopen (pg_files[1], "w")) == 0);
 
   i = 0;
-  while (i < port_def.nBufferCountMin)
+  while (i < port_def.nBufferCountActual)
     {
       /* Transfer buffer */
       error = _ctx_reset (&ctx);
@@ -641,7 +642,7 @@ START_TEST (test_audio_fr)
         }
 
       i++;
-      i %= port_def.nBufferCountMin;
+      i %= port_def.nBufferCountActual;
 
     }
 
@@ -669,7 +670,7 @@ START_TEST (test_audio_fr)
 
   /* Deallocate buffers */
   fail_if (OMX_ErrorNone != error);
-  for (i = 0; i < port_def.nBufferCountMin; ++i)
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
     {
       error = OMX_FreeBuffer (p_hdl, 0,      /* input port */
                               p_hdrlst[i]);

@@ -502,8 +502,8 @@ START_TEST (test_ar_play)
   fail_if (OMX_ErrorNone != error);
 
   TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountMin [%d]",
-             port_def.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
 
   /* ------------------------------------ */
   /* Obtain the pcm port def from port #0 */
@@ -546,13 +546,15 @@ START_TEST (test_ar_play)
   /* Allocate buffers */
   /* ---------------- */
   p_hdrlst = (OMX_BUFFERHEADERTYPE **)
-    tiz_mem_calloc (port_def.nBufferCountMin, sizeof (OMX_BUFFERHEADERTYPE *));
+    tiz_mem_calloc (port_def.nBufferCountActual,
+                    sizeof (OMX_BUFFERHEADERTYPE *));
 
-  for (i = 0; i < port_def.nBufferCountMin; ++i)
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
     {
       error = OMX_AllocateBuffer (p_hdl, &p_hdrlst[i], 0,    /* input port */
                                   0, port_def.nBufferSize);
       fail_if (OMX_ErrorNone != error);
+      fail_if (p_hdrlst[i] == NULL);
       TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
       TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
                  p_hdrlst[i]->nAllocLen);
@@ -612,7 +614,7 @@ START_TEST (test_ar_play)
   fail_if ((p_file = fopen (pg_files[_i], "r")) == 0);
 
   i = 0;
-  while (i < port_def.nBufferCountMin)
+  while (i < port_def.nBufferCountActual)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Reading from file [%s]", pg_files[_i]);
       if (!
@@ -650,7 +652,7 @@ START_TEST (test_ar_play)
       fail_if (p_ctx->p_hdr != p_hdrlst[i]);
 
       i++;
-      i %= port_def.nBufferCountMin;
+      i %= port_def.nBufferCountActual;
 
       if (0 == err)
         {
@@ -692,7 +694,7 @@ START_TEST (test_ar_play)
   /* Deallocate buffers */
   /* ------------------ */
   fail_if (OMX_ErrorNone != error);
-  for (i = 0; i < port_def.nBufferCountMin; ++i)
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
     {
       error = OMX_FreeBuffer (p_hdl, 0,      /* input port */
                               p_hdrlst[i]);

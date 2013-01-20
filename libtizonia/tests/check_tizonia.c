@@ -864,8 +864,8 @@ START_TEST (test_tizonia_move_to_exe_with_usebuffer)
   fail_if (OMX_ErrorNone != error);
 
   TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountMin [%d]",
-             port_def.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
 
   /* ----------------------------------------*/
   /* Set supplier settings to "non-supplier" */
@@ -900,7 +900,7 @@ START_TEST (test_tizonia_move_to_exe_with_usebuffer)
   /* Allocate buffers */
   /* ---------------- */
   p_buf = tiz_mem_alloc (port_def.nBufferSize * sizeof (OMX_U8));
-  for (i = 0; i < port_def.nBufferCountMin; ++i)
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
     {
       error = OMX_UseBuffer (p_hdl, &p_hdr, 0,       /* input port */
                              0, port_def.nBufferSize, p_buf);
@@ -957,7 +957,7 @@ START_TEST (test_tizonia_move_to_exe_with_usebuffer)
 
   /* Deallocate buffers */
   fail_if (OMX_ErrorNone != error);
-  for (i = 0; i < port_def.nBufferCountMin; ++i)
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
     {
       error = OMX_FreeBuffer (p_hdl, 0,      /* input port */
                               p_hdr);
@@ -1025,15 +1025,15 @@ START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
   fail_if (OMX_ErrorNone != error);
 
   TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountMin [%d]",
-             port_def.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
 
   /* Initiate transition to IDLE */
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
 
   /* Allocate buffers */
-  for (i = 0; i < port_def.nBufferCountMin; ++i)
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
     {
       error = OMX_AllocateBuffer (p_hdl, &p_hdr, 0,  /* input port */
                                   0, port_def.nBufferSize);
@@ -1102,7 +1102,7 @@ START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
 
   /* Deallocate buffers */
   fail_if (OMX_ErrorNone != error);
-  for (i = 0; i < port_def.nBufferCountMin; ++i)
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
     {
       error = OMX_FreeBuffer (p_hdl, 0,      /* input port */
                               p_hdr);
@@ -1177,8 +1177,8 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers)
   fail_if (OMX_ErrorNone != error);
 
   TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountMin [%d]",
-             port_def.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
 
   /* ----------------------------------------*/
   /* Set supplier settings to "non-supplier" */
@@ -1303,8 +1303,8 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_suppl
   fail_if (OMX_ErrorNone != error);
 
   TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountMin [%d]",
-             port_def.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
 
   /* ------------------------------------ */
   /* Increase the buffer count on port #0 */
@@ -1472,8 +1472,8 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
   fail_if (OMX_ErrorNone != error);
 
   TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountMin [%d]",
-             port_def.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
 
   /* ------------------------------------ */
   /* Increase the buffer count on port #0 */
@@ -1652,8 +1652,8 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   fail_if (OMX_ErrorNone != error);
 
   TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountMin [%d]",
-             port_def.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
 
   /* ------------------------------------ */
   /* Increase the buffer count on port #0 */
@@ -1846,28 +1846,28 @@ tiz_suite (void)
 (void) test_tizonia_move_to_exe_and_transfer_with_allocbuffer;
 (void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers;
 (void) test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers;
-/* (void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_disabled_unblocks_transition; */
+(void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_disabled_unblocks_transition;
 (void) test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition;
 
-/*   tcase_add_test (tc_tizonia, test_tizonia_fsm_create_and_destroy); */
-/*   tcase_add_test (tc_tizonia, test_tizonia_kernel_create_and_destroy); */
-/*   tcase_add_test (tc_tizonia, test_tizonia_getstate); */
-/*   tcase_add_test (tc_tizonia, test_tizonia_gethandle_freehandle); */
-/*   tcase_add_test (tc_tizonia, test_tizonia_getparameter); */
-/*   tcase_add_test (tc_tizonia, test_tizonia_roles); */
-/*   tcase_add_test (tc_tizonia, test_tizonia_preannouncements_extension); */
-/*   tcase_add_test (tc_tizonia, test_tizonia_pd_set); */
-/*   tcase_add_test (tc_tizonia, test_tizonia_move_to_exe_with_usebuffer); */
-/*   tcase_add_test (tc_tizonia, */
-/*                   test_tizonia_move_to_exe_and_transfer_with_allocbuffer); */
-/*   tcase_add_test (tc_tizonia, */
-/*                   test_tizonia_command_cancellation_loaded_to_idle_no_buffers); */
-/*   tcase_add_test (tc_tizonia, */
-/*                   test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers); */
+  tcase_add_test (tc_tizonia, test_tizonia_fsm_create_and_destroy);
+  tcase_add_test (tc_tizonia, test_tizonia_kernel_create_and_destroy);
+  tcase_add_test (tc_tizonia, test_tizonia_getstate);
+  tcase_add_test (tc_tizonia, test_tizonia_gethandle_freehandle);
+  tcase_add_test (tc_tizonia, test_tizonia_getparameter);
+  tcase_add_test (tc_tizonia, test_tizonia_roles);
+  tcase_add_test (tc_tizonia, test_tizonia_preannouncements_extension);
+  tcase_add_test (tc_tizonia, test_tizonia_pd_set);
+  tcase_add_test (tc_tizonia, test_tizonia_move_to_exe_with_usebuffer);
+  tcase_add_test (tc_tizonia,
+                  test_tizonia_move_to_exe_and_transfer_with_allocbuffer);
+  tcase_add_test (tc_tizonia,
+                  test_tizonia_command_cancellation_loaded_to_idle_no_buffers);
+  tcase_add_test (tc_tizonia,
+                  test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers);
   tcase_add_test (tc_tizonia,
                   test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_disabled_unblocks_transition);
-/*   tcase_add_test (tc_tizonia, */
-/*                   test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition); */
+  tcase_add_test (tc_tizonia,
+                  test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition);
 
   suite_add_tcase (s, tc_tizonia);
 

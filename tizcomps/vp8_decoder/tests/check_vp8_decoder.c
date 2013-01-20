@@ -658,8 +658,8 @@ START_TEST (test_vp8_playback)
 
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #0 nBufferSize [%d]",
              VP8_DEC_COMPONENT_NAME, dec_port_def0.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #0 nBufferCountMin [%d]",
-             VP8_DEC_COMPONENT_NAME, dec_port_def0.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #0 nBufferCountActual [%d]",
+             VP8_DEC_COMPONENT_NAME, dec_port_def0.nBufferCountActual);
 
   /* ---------------------------------------------- */
   /* Obtain the port def from the decoder's port #1 */
@@ -672,8 +672,8 @@ START_TEST (test_vp8_playback)
 
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #1 nBufferSize [%d]",
              VP8_DEC_COMPONENT_NAME, dec_port_def1.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #1 nBufferCountMin [%d]",
-             VP8_DEC_COMPONENT_NAME, dec_port_def1.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #1 nBufferCountActual [%d]",
+             VP8_DEC_COMPONENT_NAME, dec_port_def1.nBufferCountActual);
 
   /* ----------------------------------------------- */
   /* Obtain the port def from the renderer's port #0 */
@@ -687,8 +687,8 @@ START_TEST (test_vp8_playback)
 
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] nBufferSize [%d]",
              IV_RND_COMPONENT_NAME, rend_port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] nBufferCountMin [%d]",
-             IV_RND_COMPONENT_NAME, rend_port_def.nBufferCountMin);
+  TIZ_LOG (TIZ_LOG_TRACE, "[%s] nBufferCountActual [%d]",
+             IV_RND_COMPONENT_NAME, rend_port_def.nBufferCountActual);
 
   /* ---------------------------------------------------- */
   /* Obtain the video settings from the decoder's port #0 */
@@ -839,14 +839,15 @@ START_TEST (test_vp8_playback)
   /* Allocate buffers for decoder's port #0 */
   /* -------------------------------------- */
   p_hdrlst = (OMX_BUFFERHEADERTYPE **)
-    tiz_mem_alloc (sizeof (OMX_BUFFERHEADERTYPE *) *
-                     dec_port_def0.nBufferCountMin);
+    tiz_mem_calloc (dec_port_def0.nBufferCountActual,
+                   sizeof (OMX_BUFFERHEADERTYPE *));
 
-  for (i = 0; i < dec_port_def0.nBufferCountMin; ++i)
+  for (i = 0; i < dec_port_def0.nBufferCountActual; ++i)
     {
       error = OMX_AllocateBuffer (p_vp8dec, &p_hdrlst[i], 0,    /* input port */
                                   0, dec_port_def0.nBufferSize);
       fail_if (OMX_ErrorNone != error);
+      fail_if (p_hdrlst[i] == NULL);
       TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
       TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
                  p_hdrlst[i]->nAllocLen);
@@ -966,7 +967,7 @@ START_TEST (test_vp8_playback)
   fail_if ((p_file = open (pg_files[_i], O_RDONLY)) == 0);
 
   i = 0;
-  while (i < dec_port_def0.nBufferCountMin)
+  while (i < dec_port_def0.nBufferCountActual)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Reading from file [%s]", pg_files[_i]);
       if (!
@@ -1012,7 +1013,7 @@ START_TEST (test_vp8_playback)
       fail_if (p_dec_ctx->p_hdr != p_hdrlst[i]);
 
       i++;
-      i %= dec_port_def0.nBufferCountMin;
+      i %= dec_port_def0.nBufferCountActual;
 
       if (0 == err)
         {
@@ -1136,7 +1137,7 @@ START_TEST (test_vp8_playback)
   /* Deallocate buffers on decoder's port #0 */
   /* --------------------------------------- */
   fail_if (OMX_ErrorNone != error);
-  for (i = 0; i < dec_port_def0.nBufferCountMin; ++i)
+  for (i = 0; i < dec_port_def0.nBufferCountActual; ++i)
     {
       error = OMX_FreeBuffer (p_vp8dec, 0,      /* input port */
                               p_hdrlst[i]);

@@ -264,15 +264,15 @@ validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
              that is the case, we won't allow the cancellation of the ongoing
              transition. */
           OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
-          if (ETIZKernelUnpopulated
-              == tizkernel_get_population_status (p_krn, OMX_ALL,
-                                                  &may_be_fully_unpopulated))
+          const tiz_kernel_population_status_t kps
+            = tizkernel_get_population_status (p_krn, OMX_ALL,
+                                               &may_be_fully_unpopulated);
+          if (ETIZKernelFullyUnpopulated == kps
+              || (ETIZKernelUnpopulated == kps
+                  && OMX_TRUE == may_be_fully_unpopulated) )
             {
-              if (OMX_TRUE == may_be_fully_unpopulated)
-                {
-                  /* This is OK */
-                  return OMX_ErrorNone;
-                }
+              /* This is OK */
+              return OMX_ErrorNone;
             }
         }
     }
@@ -302,26 +302,29 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       return OMX_ErrorNone;
     }
 
-  /* OK, at this point, we now there is a state transition in progress... By
-     default, we do not allow the port disable command, but there are
-     exceptions. */
-
-  if (p_obj->cur_state_id_ > EStateWaitForResources
-      && p_obj->cur_state_id_ < EStateMax)
+  if (OMX_CommandStateSet == p_obj->in_progress_cmd_)
     {
-      /* There is an on-going state transition */
-      if (ESubStateLoadedToIdle == p_obj->cur_state_id_)
+      /* OK, at this point, we now there is a state transition in progress... By
+         default, we do not allow the port disable command, but there are
+         exceptions. */
+
+      if (p_obj->cur_state_id_ > EStateWaitForResources
+          && p_obj->cur_state_id_ < EStateMax)
         {
-          OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
-          const tiz_kernel_population_status_t kps
-            = tizkernel_get_population_status (p_krn, a_pid,
-                                               &may_be_fully_unpopulated);
-          if (ETIZKernelFullyUnpopulated == kps
-              || (ETIZKernelUnpopulated == kps
-                  && OMX_TRUE == may_be_fully_unpopulated) )
+          /* There is an on-going state transition */
+          if (ESubStateLoadedToIdle == p_obj->cur_state_id_)
             {
-              /* This is OK */
-              return OMX_ErrorNone;
+              OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
+              const tiz_kernel_population_status_t kps
+                = tizkernel_get_population_status (p_krn, a_pid,
+                                                   &may_be_fully_unpopulated);
+              if (ETIZKernelFullyUnpopulated == kps
+                  || (ETIZKernelUnpopulated == kps
+                      && OMX_TRUE == may_be_fully_unpopulated) )
+                {
+                  /* This is OK */
+                  return OMX_ErrorNone;
+                }
             }
         }
     }
@@ -374,9 +377,21 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       break;
 
     case OMX_CommandFlush:
+      {
+        if (OMX_CommandMax != p_obj->in_progress_cmd_)
+          {
+           rc = OMX_ErrorIncorrectStateOperation;
+          }
+      }
       break;
 
     case OMX_CommandPortEnable:
+      {
+        if (OMX_CommandMax != p_obj->in_progress_cmd_)
+          {
+            rc = OMX_ErrorIncorrectStateOperation;
+          }
+      }
       break;
 
     case OMX_CommandMarkBuffer:
@@ -511,8 +526,8 @@ fsm_SendCommand (const void *ap_obj,
                                   a_param1, ap_cmd_data)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                     "[%s] : Invalid SendCommand message",
-                     tiz_err_to_str (rc));
+                     "[%s] : Command [%s] a_param1 [%d]", tiz_err_to_str (rc),
+                     tiz_cmd_to_str (a_cmd), a_param1);
       return rc;
     }
 
@@ -1021,15 +1036,16 @@ fsm_complete_command (void *ap_obj, const void * ap_servant,
                  nameOf(ap_servant),
                  tiz_cmd_to_str (a_cmd));
 
-  assert (OMX_CommandMax != p_obj->in_progress_cmd_);
-
   assert (a_cmd == p_obj->in_progress_cmd_
           || a_cmd == p_obj->cancellation_cmd_);
 
   if (a_cmd == p_obj->cancellation_cmd_)
     {
       p_obj->cancellation_cmd_ = OMX_CommandMax;
-      p_obj->in_progress_cmd_ = OMX_CommandMax;
+      if (p_obj->in_progress_cmd_ != OMX_CommandStateSet)
+        {
+          p_obj->in_progress_cmd_ = OMX_CommandMax;
+        }
     }
   else if (a_cmd == p_obj->in_progress_cmd_)
     {
