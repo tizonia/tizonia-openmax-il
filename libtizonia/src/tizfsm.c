@@ -224,9 +224,11 @@ validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != p_krn);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                 "Requested transition to [%s] - cur_state_id_ [%s]",
+                 "Requested transition to [%s] - cur_state_id_ [%s] "
+                 "in_progress_cmd_ [%s]",
                  tiz_state_to_str (a_state),
-                 tiz_fsm_state_to_str (p_obj->cur_state_id_));
+                 tiz_fsm_state_to_str (p_obj->cur_state_id_),
+                 tiz_cmd_to_str (p_obj->in_progress_cmd_));
 
   if (OMX_CommandMax == p_obj->in_progress_cmd_)
     {
@@ -373,11 +375,13 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         /* Validate that the port index is correct */
         /* in those commands where a port index is needed */
 
-        p_port = tizkernel_get_port (p_krn, a_param1);
-        assert (NULL != p_port);
-        if (a_param1 != OMX_ALL && !p_port)
+        if (a_param1 != OMX_ALL)
           {
-            return OMX_ErrorBadPortIndex;
+            p_port = tizkernel_get_port (p_krn, a_param1);
+            if (NULL == p_port)
+              {
+                return OMX_ErrorBadPortIndex;
+              }
           }
       }
 
@@ -425,6 +429,10 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
             return OMX_ErrorBadParameter;
           }
 
+        /* Not sure whether OMX_ALL may be used with OMX_CommandMarkBuffer. For
+           for now explicitly disallow it */
+        assert (OMX_ALL != a_param1);
+
         /* OMX_CommandMarkBuffer shall be allowed in Exe, Paused or port
            Disabled. Reject otherwise */
         if (!(TIZPORT_IS_DISABLED (p_port)
@@ -465,6 +473,7 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
           if (OMX_CommandMarkBuffer != a_cmd)
             {
               p_obj->in_progress_cmd_ = a_cmd;
+              p_obj->in_progress_param1_ = a_param1;
             }
         }
     }
@@ -506,6 +515,7 @@ fsm_ctor (void *ap_obj, va_list * app)
   p_obj->canceled_substate_id_ = EStateMax;
   p_obj->p_current_state_ = p_obj->p_states_[p_obj->cur_state_id_];
   p_obj->in_progress_cmd_ = OMX_CommandMax;
+  p_obj->in_progress_param1_ = 0;
   p_obj->cancellation_cmd_ = OMX_CommandMax;
 
   return p_obj;
@@ -863,7 +873,7 @@ fsm_SetCallbacks (const void *ap_obj,
 static OMX_ERRORTYPE
 fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 {
-  const struct tizfsm *p_obj = ap_obj;
+  struct tizfsm *p_obj = (struct tizfsm *) ap_obj;
   const struct tizservant *p_parent = ap_obj;
   tizfsm_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -882,6 +892,23 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
                    TIZ_CBUF(p_parent->p_hdl_),
                  "rc [%s] [%d]...", tiz_err_to_str (rc), rc);
+
+  /* There is an error, check whether we have an ongoing command. If that's the
+     case, this error will cancel the in-progress command. */
+  if (OMX_ErrorNone != rc)
+    {
+      if (OMX_CommandMax != p_obj->in_progress_cmd_)
+        {
+          tizservant_issue_cmd_event
+            (p_obj, p_obj->in_progress_cmd_, p_obj->in_progress_param1_,
+             rc);
+          p_obj->in_progress_cmd_ = OMX_CommandMax;
+
+          /* This is to make sure that the servant base class oes not report
+             this error again */
+          rc = OMX_ErrorNone;
+        }
+    }
 
   return rc;
 

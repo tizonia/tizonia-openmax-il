@@ -46,6 +46,7 @@ extern "C"
     tizfsm_state_id_t canceled_substate_id_;
     void *p_current_state_;
     OMX_COMMANDTYPE in_progress_cmd_;
+    OMX_U32 in_progress_param1_;
     OMX_COMMANDTYPE cancellation_cmd_;
   };
 
