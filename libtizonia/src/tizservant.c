@@ -511,8 +511,8 @@ servant_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_obj->p_hdl_),
                  TIZ_CBUF(p_obj->p_hdl_),
-                 "OMX_EventCmdComplete...[%s] pid [%d]",
-                 tiz_cmd_to_str (a_cmd), a_pid);
+                 "OMX_EventCmdComplete...[%s] pid [%d] error [%s]",
+                 tiz_cmd_to_str (a_cmd), a_pid, tiz_err_to_str (a_error));
   servant_issue_event (ap_obj, OMX_EventCmdComplete, a_cmd, a_pid,
                            (OMX_PTR) a_error);
 }

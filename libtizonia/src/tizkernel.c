@@ -353,16 +353,23 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   /* Set disabled flag */
   TIZPORT_SET_DISABLED (ap_port);
 
-  /* Complete the OMX_CommandPortDisable command */
-  (void) tizservant_issue_cmd_event (p_obj, OMX_CommandPortDisable, a_pid,
-                                     a_error);
-
   /* Decrement the completion counter */
   assert (p_obj->cmd_completion_count_ > 0);
-  if (--p_obj->cmd_completion_count_ == 0)
+  p_obj->cmd_completion_count_--;
+
+  if (p_obj->cmd_completion_count_ > 0)
+    {
+      /* Complete the OMX_CommandPortDisable command here */
+      (void) tizservant_issue_cmd_event (p_obj, OMX_CommandPortDisable, a_pid,
+                                         a_error);
+    }
+
+  /* If the completion count is zero, let the FSM complete, as it will know
+     whether this a cancelation or not. */
+  if (p_obj->cmd_completion_count_ == 0)
     {
       tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
-                               OMX_CommandPortDisable);
+                               OMX_CommandPortDisable, a_pid);
     }
 
   /* Flush buffer marks and complete commands as required */
@@ -381,15 +388,23 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   /* Set enabled flag */
   TIZPORT_SET_ENABLED (ap_port);
 
-  /* Complete the OMX_CommandPortEnable command */
-  (void) tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
-                                     a_error);
   /* Decrement the completion counter */
   assert (p_obj->cmd_completion_count_ > 0);
-  if (--p_obj->cmd_completion_count_ == 0)
+  p_obj->cmd_completion_count_--;
+
+  if (p_obj->cmd_completion_count_ > 0)
+    {
+      /* Complete the OMX_CommandPortEnable command here */
+      (void) tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
+                                         a_error);
+    }
+
+  /* If the completion count is zero, let the FSM complete, as it will know
+     whether this a cancelation or not. */
+  if (p_obj->cmd_completion_count_ == 0)
     {
       tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
-                               OMX_CommandPortEnable);
+                               OMX_CommandPortEnable, a_pid);
     }
 
   return OMX_ErrorNone;
@@ -415,7 +430,7 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   if (--p_obj->cmd_completion_count_ == 0)
     {
       tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
-                               OMX_CommandFlush);
+                               OMX_CommandFlush, a_pid);
     }
 
   return OMX_ErrorNone;
@@ -1559,7 +1574,6 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
     }
 
   /* Record here the number of times we need to notify the IL client */
-  assert (p_obj->cmd_completion_count_ == 0);
   p_obj->cmd_completion_count_ = (OMX_ALL == ap_msg_sc->param1) ?
     nports : 1;
 
@@ -1773,7 +1787,6 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
     }
 
   /* Record here the number of times we need to notify the IL client */
-  assert (p_obj->cmd_completion_count_ == 0);
   p_obj->cmd_completion_count_ = (OMX_ALL == ap_msg_sc->param1) ?
     nports : 1;
 
@@ -1861,7 +1874,6 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
     }
 
   /* Record here the number of times we need to notify the IL client */
-  assert (p_obj->cmd_completion_count_ == 0);
   p_obj->cmd_completion_count_ = (OMX_ALL == ap_msg_sc->param1) ?
     nports : 1;
 

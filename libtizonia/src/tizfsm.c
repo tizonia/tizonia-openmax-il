@@ -297,9 +297,18 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                  "[OMX_CommandPortDisable] pid [%d] cur_state_id_ [%s]",
                  a_pid, tiz_fsm_state_to_str (p_obj->cur_state_id_));
 
+  /* If no other command is currently being processed, the go on with this
+     one */
   if (OMX_CommandMax == p_obj->in_progress_cmd_)
     {
       return OMX_ErrorNone;
+    }
+
+   /* If OMX_ALL, then reject the command. We'll accept a "cancellation"
+      command only if it applies to a single port. */
+  if (a_pid == OMX_ALL)
+    {
+      return OMX_ErrorIncorrectStateOperation;
     }
 
   if (OMX_CommandStateSet == p_obj->in_progress_cmd_)
@@ -326,6 +335,20 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                   return OMX_ErrorNone;
                 }
             }
+        }
+    }
+  else if (OMX_CommandPortEnable == p_obj->in_progress_cmd_)
+    {
+      OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
+      const tiz_kernel_population_status_t kps
+        = tizkernel_get_population_status (p_krn, a_pid,
+                                           &may_be_fully_unpopulated);
+      if (ETIZKernelFullyUnpopulated == kps
+          || (ETIZKernelUnpopulated == kps
+              && OMX_TRUE == may_be_fully_unpopulated) )
+        {
+          /* This is OK */
+          return OMX_ErrorNone;
         }
     }
 
@@ -1017,7 +1040,7 @@ tizfsm_complete_transition (void *ap_obj, const void * ap_servant,
 
 static OMX_ERRORTYPE
 fsm_complete_command (void *ap_obj, const void * ap_servant,
-                      OMX_COMMANDTYPE a_cmd)
+                      OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1)
 {
   struct tizfsm *p_obj = ap_obj;
   const struct tizservant *p_parent = ap_obj;
@@ -1032,23 +1055,38 @@ fsm_complete_command (void *ap_obj, const void * ap_servant,
   assert (NULL != p_hdl);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_hdl), TIZ_CBUF(p_hdl),
-                 "Servant [%s] notifies cmd complete (cmd [%s])",
-                 nameOf(ap_servant),
-                 tiz_cmd_to_str (a_cmd));
+                 "Servant [%s] notifies cmd complete (cmd [%s]) "
+                 "in_progress_cmd_ [%s] cancellation_cmd_ [%s]",
+                 nameOf(ap_servant), tiz_cmd_to_str (a_cmd),
+                 tiz_cmd_to_str (p_obj->in_progress_cmd_),
+                 tiz_cmd_to_str (p_obj->cancellation_cmd_));
 
   assert (a_cmd == p_obj->in_progress_cmd_
           || a_cmd == p_obj->cancellation_cmd_);
 
   if (a_cmd == p_obj->cancellation_cmd_)
     {
-      p_obj->cancellation_cmd_ = OMX_CommandMax;
-      if (p_obj->in_progress_cmd_ != OMX_CommandStateSet)
+      if (p_obj->in_progress_cmd_ != OMX_CommandMax
+          && p_obj->in_progress_cmd_ != OMX_CommandStateSet)
         {
+          tizservant_issue_cmd_event
+            (p_obj, p_obj->in_progress_cmd_, a_param1,
+             OMX_ErrorCommandCanceled);
           p_obj->in_progress_cmd_ = OMX_CommandMax;
         }
+      else
+        {
+          tizservant_issue_cmd_event
+            (p_obj, p_obj->cancellation_cmd_, a_param1,
+             OMX_ErrorNone);
+        }
+      p_obj->cancellation_cmd_ = OMX_CommandMax;
     }
   else if (a_cmd == p_obj->in_progress_cmd_)
     {
+      tizservant_issue_cmd_event
+        (p_obj, p_obj->in_progress_cmd_, a_param1,
+         OMX_ErrorNone);
       p_obj->in_progress_cmd_ = OMX_CommandMax;
     }
 
@@ -1057,11 +1095,11 @@ fsm_complete_command (void *ap_obj, const void * ap_servant,
 
 OMX_ERRORTYPE
 tizfsm_complete_command (void *ap_obj, const void * ap_servant,
-                         OMX_COMMANDTYPE a_cmd)
+                         OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1)
 {
   const struct tizfsm_class *class = classOf (ap_obj);
   assert (class->complete_command);
-  return class->complete_command (ap_obj, ap_servant, a_cmd);
+  return class->complete_command (ap_obj, ap_servant, a_cmd, a_param1);
 }
 
 tizfsm_state_id_t

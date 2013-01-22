@@ -411,8 +411,8 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
       TIZ_LOG (TIZ_LOG_TRACE, "Component already in registry [%s]",
                comp_name);
       tiz_mem_free (p_registry_new);
-      rc = ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
-      return rc;
+      (void) ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
+      return OMX_ErrorUndefined;
     }
 
   TIZ_LOG (TIZ_LOG_TRACE, "component not in registry [%s]", comp_name);

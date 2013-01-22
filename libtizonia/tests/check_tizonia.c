@@ -373,8 +373,20 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
           break;
 
         case OMX_CommandPortEnable:
+          {
+            TIZ_LOG (TIZ_LOG_TRACE, "Port  [%d] transitioned to ENABLED",
+                     nData2);
+            p_ctx->port = (OMX_STATETYPE) (nData2);
+            p_ctx->error = (OMX_ERRORTYPE) (pEventData);
+            _ctx_signal (pp_ctx);
+          }
+          break;
+
         default:
           {
+            TIZ_LOG (TIZ_LOG_TRACE, "[%s] received!!",
+                     tiz_cmd_to_str (nData1));
+
             assert (0);
           }
 
@@ -1134,7 +1146,6 @@ END_TEST
 
 START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers)
 {
-
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = 0;
   OMX_COMMANDTYPE cmd = OMX_CommandStateSet;
@@ -1824,6 +1835,445 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
 }
 END_TEST
 
+START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_no_buffers)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  OMX_HANDLETYPE p_hdl = 0;
+  OMX_COMMANDTYPE cmd = OMX_CommandStateSet;
+  OMX_STATETYPE state = OMX_StateIdle;
+  cc_ctx_t ctx;
+  check_common_context_t *p_ctx = NULL;
+  OMX_BOOL timedout = OMX_FALSE;
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
+  OMX_INDEXTYPE index = OMX_IndexParamPortDefinition;
+  OMX_COMPONENTTYPE fake_comp;
+  OMX_TUNNELSETUPTYPE tsetup = { 0, OMX_BufferSupplyUnspecified };
+
+  init_fake_comp(&fake_comp);
+
+  error = _ctx_init (&ctx);
+  fail_if (OMX_ErrorNone != error);
+
+  p_ctx = (check_common_context_t *) (ctx);
+
+  error = OMX_Init ();
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------- */
+  /* Instantiate the component */
+  /* ------------------------- */
+  error = OMX_GetHandle (&p_hdl, COMPONENT_NAME, (OMX_PTR *) (&ctx),
+                         &_check_cbacks);
+  fail_if (OMX_ErrorNone != error);
+
+  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+
+  /* -------------------------------------- */
+  /* Obtain the port def params for port #0 */
+  /* -------------------------------------- */
+  port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  port_def.nVersion.nVersion = OMX_VERSION;
+  port_def.nPortIndex = 0;
+  error = OMX_GetParameter (p_hdl, index, &port_def);
+  fail_if (OMX_ErrorNone != error);
+
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
+
+  /* ----------------------------------------*/
+  /* Set supplier settings to "non-supplier" */
+  /* ----------------------------------------*/
+  supplier.nSize = sizeof (OMX_PARAM_BUFFERSUPPLIERTYPE);
+  supplier.nVersion.nVersion = OMX_VERSION;
+  supplier.nPortIndex = 0;
+  supplier.eBufferSupplier = OMX_BufferSupplyOutput;
+  error = OMX_SetParameter (p_hdl, OMX_IndexParamCompBufferSupplier,
+                            &supplier);
+  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+             COMPONENT_NAME, tiz_err_to_str(error));
+  fail_if (OMX_ErrorNone != error);
+
+  /* -------------------- */
+  /* Create a fake tunnel */
+  /* -------------------- */
+  error = ((OMX_COMPONENTTYPE*)p_hdl)->ComponentTunnelRequest (p_hdl,
+                                                                  0, /* port index */
+                                                                  &fake_comp,
+                                                                  0, /* whatever */
+                                                                  &tsetup);
+  fail_if (OMX_ErrorNone != error);
+
+  /* --------------- */
+  /* Disable port #0 */
+  /* --------------- */
+  error = _ctx_reset (&ctx);
+  cmd = OMX_CommandPortDisable;
+  error = OMX_SendCommand (p_hdl, cmd, 0, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* --------------------------- */
+  /* Await port disable callback */
+  /* --------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (0 != p_ctx->port);
+  fail_if (OMX_ErrorNone != p_ctx->error);
+
+  /* ------------------------------ */
+  /* Verfify port disabled property */
+  /* ------------------------------ */
+  port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  port_def.nVersion.nVersion = OMX_VERSION;
+  port_def.nPortIndex = 0;
+  index = OMX_IndexParamPortDefinition;
+  error = OMX_GetParameter (p_hdl, index, &port_def);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == port_def.bEnabled);
+
+  /* --------------------------- */
+  /* Initiate transition to IDLE */
+  /* --------------------------- */
+  error = _ctx_reset (&ctx);
+  cmd = OMX_CommandStateSet;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------- */
+  /* Await transition callback */
+  /* ------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_StateIdle != p_ctx->state);
+  fail_if (OMX_ErrorNone != p_ctx->error);
+
+  /* ------------------- */
+  /* Check state is IDLE */
+  /* ------------------- */
+  error = OMX_GetState (p_hdl, &state);
+  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateIdle != state);
+
+  /* -------------- */
+  /* Enable port #0 */
+  /* -------------- */
+  error = _ctx_reset (&ctx);
+  cmd = OMX_CommandPortEnable;
+  error = OMX_SendCommand (p_hdl, cmd, 0, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------- */
+  /* Await until timeout */
+  /* ------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_FAILURE, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE != timedout);
+
+  /* ---------------------------------------------------------- */
+  /* Cancel port ENABLED command by issuing a port DISABLED cmd */
+  /* ---------------------------------------------------------- */
+  error = _ctx_reset (&ctx);
+  timedout = OMX_FALSE;
+  cmd = OMX_CommandPortDisable;
+  error = OMX_SendCommand (p_hdl, cmd, 0, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ----------------------------------- */
+  /* Await canceled port enable callback */
+  /* ----------------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_ErrorCommandCanceled != p_ctx->error);
+
+  /* ----------------------------- */
+  /*  Command transition to LOADED */
+  /* ----------------------------- */
+  error = _ctx_reset (&ctx);
+  cmd = OMX_CommandStateSet;
+  state = OMX_StateLoaded;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------- */
+  /* Await transition callback */
+  /* ------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_StateLoaded != p_ctx->state);
+  fail_if (OMX_ErrorNone != p_ctx->error);
+
+  /* ------------------------------ */
+  /* Check state transition success */
+  /* ------------------------------ */
+  error = OMX_GetState (p_hdl, &state);
+  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateLoaded != state);
+
+  /* ---------------------- */
+  /* Free handle and deinit */
+  /* ---------------------- */
+  error = OMX_FreeHandle (p_hdl);
+  fail_if (OMX_ErrorNone != error);
+
+  error = OMX_Deinit ();
+  fail_if (OMX_ErrorNone != error);
+
+  _ctx_destroy(&ctx);
+
+}
+END_TEST
+
+START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_supplied_buffers)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  OMX_HANDLETYPE p_hdl = 0;
+  OMX_COMMANDTYPE cmd = OMX_CommandStateSet;
+  OMX_STATETYPE state = OMX_StateIdle;
+  cc_ctx_t ctx;
+  check_common_context_t *p_ctx = NULL;
+  OMX_BOOL timedout = OMX_FALSE;
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
+  OMX_INDEXTYPE index = OMX_IndexParamPortDefinition;
+  OMX_COMPONENTTYPE fake_comp;
+  OMX_TUNNELSETUPTYPE tsetup = { 0, OMX_BufferSupplyUnspecified };
+  OMX_U8 *p_buf = NULL;
+  OMX_U32 i;
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+
+  init_fake_comp(&fake_comp);
+
+  error = _ctx_init (&ctx);
+  fail_if (OMX_ErrorNone != error);
+
+  p_ctx = (check_common_context_t *) (ctx);
+
+  error = OMX_Init ();
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------- */
+  /* Instantiate the component */
+  /* ------------------------- */
+  error = OMX_GetHandle (&p_hdl, COMPONENT_NAME, (OMX_PTR *) (&ctx),
+                         &_check_cbacks);
+  fail_if (OMX_ErrorNone != error);
+
+  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+
+  /* -------------------------------------- */
+  /* Obtain the port def params for port #0 */
+  /* -------------------------------------- */
+  port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  port_def.nVersion.nVersion = OMX_VERSION;
+  port_def.nPortIndex = 0;
+  error = OMX_GetParameter (p_hdl, index, &port_def);
+  fail_if (OMX_ErrorNone != error);
+
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
+
+  /* ------------------------------------ */
+  /* Increase the buffer count on port #0 */
+  /* ------------------------------------ */
+  port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  port_def.nVersion.nVersion = OMX_VERSION;
+  port_def.nPortIndex = 0;
+  port_def.nBufferCountActual = port_def.nBufferCountMin + 1;
+  error = OMX_SetParameter (p_hdl, index, &port_def);
+  fail_if (OMX_ErrorNone != error);
+
+  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
+
+  /* ----------------------------------------*/
+  /* Set supplier settings to "non-supplier" */
+  /* ----------------------------------------*/
+  supplier.nSize = sizeof (OMX_PARAM_BUFFERSUPPLIERTYPE);
+  supplier.nVersion.nVersion = OMX_VERSION;
+  supplier.nPortIndex = 0;
+  supplier.eBufferSupplier = OMX_BufferSupplyOutput;
+  error = OMX_SetParameter (p_hdl, OMX_IndexParamCompBufferSupplier,
+                            &supplier);
+  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+             COMPONENT_NAME, tiz_err_to_str(error));
+  fail_if (OMX_ErrorNone != error);
+
+  /* -------------------- */
+  /* Create a fake tunnel */
+  /* -------------------- */
+  error = ((OMX_COMPONENTTYPE*)p_hdl)->ComponentTunnelRequest (p_hdl,
+                                                                  0, /* port index */
+                                                                  &fake_comp,
+                                                                  0, /* whatever */
+                                                                  &tsetup);
+  fail_if (OMX_ErrorNone != error);
+
+  /* --------------- */
+  /* Disable port #0 */
+  /* --------------- */
+  error = _ctx_reset (&ctx);
+  cmd = OMX_CommandPortDisable;
+  error = OMX_SendCommand (p_hdl, cmd, 0, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* --------------------------- */
+  /* Await port disable callback */
+  /* --------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (0 != p_ctx->port);
+  fail_if (OMX_ErrorNone != p_ctx->error);
+
+  /* ------------------------------ */
+  /* Verify port disabled property */
+  /* ------------------------------ */
+  port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  port_def.nVersion.nVersion = OMX_VERSION;
+  port_def.nPortIndex = 0;
+  index = OMX_IndexParamPortDefinition;
+  error = OMX_GetParameter (p_hdl, index, &port_def);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == port_def.bEnabled);
+
+  /* --------------------------- */
+  /* Initiate transition to IDLE */
+  /* --------------------------- */
+  error = _ctx_reset (&ctx);
+  cmd = OMX_CommandStateSet;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------- */
+  /* Await transition callback */
+  /* ------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_StateIdle != p_ctx->state);
+  fail_if (OMX_ErrorNone != p_ctx->error);
+
+  /* ------------------- */
+  /* Check state is IDLE */
+  /* ------------------- */
+  error = OMX_GetState (p_hdl, &state);
+  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateIdle != state);
+
+  /* -------------- */
+  /* Enable port #0 */
+  /* -------------- */
+  error = _ctx_reset (&ctx);
+  cmd = OMX_CommandPortEnable;
+  error = OMX_SendCommand (p_hdl, cmd, 0, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------- */
+  /* Await until timeout */
+  /* ------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_FAILURE, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE != timedout);
+
+
+  /* ------------------------------------ */
+  /* Allocate nBufferCountActual - 1 buffers */
+  /* ------------------------------------ */
+  p_buf = tiz_mem_alloc (port_def.nBufferSize * sizeof (OMX_U8));
+  for (i = 0; i < port_def.nBufferCountActual - 1; ++i)
+    {
+      error = OMX_UseBuffer (p_hdl, &p_hdr, 0,       /* input port */
+                             0, port_def.nBufferSize, p_buf);
+      fail_if (OMX_ErrorNone != error);
+    }
+
+  /* ---------------------------------------------------------- */
+  /* Cancel port ENABLED command by issuing a port DISABLED cmd */
+  /* ---------------------------------------------------------- */
+  /* NOTE: This must fail with error OMX_ErrorIncorrectStateOperation */
+  error = _ctx_reset (&ctx);
+  timedout = OMX_FALSE;
+  cmd = OMX_CommandPortDisable;
+  error = OMX_SendCommand (p_hdl, cmd, 0, NULL);
+  fail_if (OMX_ErrorIncorrectStateOperation != error);
+
+  /* ---------------------- */
+  /* Now deallocate buffers */
+  /* ---------------------- */
+  for (i = 0; i < port_def.nBufferCountActual - 1; ++i)
+    {
+      error = OMX_FreeBuffer (p_hdl, 0,      /* input port */
+                              p_hdr);
+      fail_if (OMX_ErrorNone != error);
+    }
+
+  /* ---------------------------------------------------------- */
+  /* Cancel port ENABLED command by issuing a port DISABLED cmd */
+  /* ---------------------------------------------------------- */
+  /* NOTE: This must succeed now */
+  error = _ctx_reset (&ctx);
+  timedout = OMX_FALSE;
+  cmd = OMX_CommandPortDisable;
+  error = OMX_SendCommand (p_hdl, cmd, 0, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ----------------------------------- */
+  /* Await canceled port enable callback */
+  /* ----------------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_ErrorCommandCanceled != p_ctx->error);
+
+  /* ----------------------------- */
+  /*  Command transition to LOADED */
+  /* ----------------------------- */
+  error = _ctx_reset (&ctx);
+  cmd = OMX_CommandStateSet;
+  state = OMX_StateLoaded;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------- */
+  /* Await transition callback */
+  /* ------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_StateLoaded != p_ctx->state);
+  fail_if (OMX_ErrorNone != p_ctx->error);
+
+  /* ------------------------------ */
+  /* Check state transition success */
+  /* ------------------------------ */
+  error = OMX_GetState (p_hdl, &state);
+  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateLoaded != state);
+
+  /* ---------------------- */
+  /* Free handle and deinit */
+  /* ---------------------- */
+  error = OMX_FreeHandle (p_hdl);
+  fail_if (OMX_ErrorNone != error);
+
+  error = OMX_Deinit ();
+  fail_if (OMX_ErrorNone != error);
+
+  _ctx_destroy(&ctx);
+
+}
+END_TEST
+
 Suite *
 tiz_suite (void)
 {
@@ -1848,6 +2298,8 @@ tiz_suite (void)
 (void) test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers;
 (void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_disabled_unblocks_transition;
 (void) test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition;
+(void) test_tizonia_command_cancellation_disabled_to_enabled_no_buffers;
+(void) test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_supplied_buffers;
 
   tcase_add_test (tc_tizonia, test_tizonia_fsm_create_and_destroy);
   tcase_add_test (tc_tizonia, test_tizonia_kernel_create_and_destroy);
@@ -1868,6 +2320,10 @@ tiz_suite (void)
                   test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_disabled_unblocks_transition);
   tcase_add_test (tc_tizonia,
                   test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_disabled_cant_unblock_transition);
+  tcase_add_test (tc_tizonia,
+                  test_tizonia_command_cancellation_disabled_to_enabled_no_buffers);
+  tcase_add_test (tc_tizonia,
+                  test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_supplied_buffers);
 
   suite_add_tcase (s, tc_tizonia);
 

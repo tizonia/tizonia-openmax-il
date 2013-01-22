@@ -61,7 +61,8 @@ extern "C"
                                           OMX_STATETYPE a_new_state);
     OMX_ERRORTYPE (*complete_command) (void *p_obj,
                                        const void * ap_servant,
-                                       OMX_COMMANDTYPE a_cmd);
+                                       OMX_COMMANDTYPE a_cmd,
+                                       OMX_U32 a_param1);
     tizfsm_state_id_t (*get_substate) (const void *ap_obj);
   };
 
