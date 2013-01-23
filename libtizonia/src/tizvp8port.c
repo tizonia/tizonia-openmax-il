@@ -57,6 +57,8 @@ vp8port_ctor (void *ap_obj, va_list * app)
   OMX_VIDEO_PARAM_BITRATETYPE *p_pbrtype = NULL;
   OMX_U32 i = 0;
 
+  assert (NULL != app);
+
   tizport_register_index (p_obj, OMX_IndexParamVideoVp8);
   tizport_register_index (p_obj, OMX_IndexParamVideoProfileLevelCurrent);
   tizport_register_index (p_obj, OMX_IndexParamVideoProfileLevelQuerySupported);

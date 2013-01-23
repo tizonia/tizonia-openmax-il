@@ -65,6 +65,7 @@ static const char *pg_files[] = {
   NULL
 };
 
+#define FILE_READER_TEST_TIMEOUT 30
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 500
@@ -692,16 +693,15 @@ START_TEST (test_audio_fr)
   error = OMX_FreeHandle (p_hdl);
   fail_if (OMX_ErrorNone != error);
 
-  cmp_cmd = tiz_mem_calloc (1,
-                              strlen (pg_files[0]) +
-                              strlen (pg_files[1]) + 4);
+  cmp_cmd = tiz_mem_calloc (1, strlen ("cmp") +
+                            strlen (pg_files[0]) +
+                            strlen (pg_files[1]) + 3);
 
   sprintf (cmp_cmd, "%s %s %s", "cmp", pg_files[0], pg_files[1]);
   fail_if (system (cmp_cmd) != 0);
 
   TIZ_LOG (TIZ_LOG_TRACE, "File comparison OK: [%s]", cmp_cmd);
 
-  /* TODO: Fix this. Uncommeting this sometimes produces a core due to double free of memory corruption */
   tiz_mem_free (p_hdrlst);
   tiz_mem_free (p_uri_param);
   tiz_mem_free (cmp_cmd);
@@ -725,7 +725,7 @@ ar_suite (void)
   /* test case */
   tc_fr = tcase_create ("Binary file reader");
   tcase_add_unchecked_fixture (tc_fr, setup, teardown);
-  tcase_set_timeout (tc_fr, 5);
+  tcase_set_timeout (tc_fr, FILE_READER_TEST_TIMEOUT);
   tcase_add_test (tc_fr, test_audio_fr);
   suite_add_tcase (s, tc_fr);
 

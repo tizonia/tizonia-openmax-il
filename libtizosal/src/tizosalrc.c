@@ -190,7 +190,12 @@ trimcommenting (char *str)
 static keyval_t *
 find_node (const tiz_rcfile_t * ap_rc, const char *key)
 {
-  keyval_t *p_kvs = ap_rc->p_keyvals;
+  keyval_t *p_kvs = NULL;
+
+  assert (NULL != ap_rc);
+  assert (NULL != key);
+
+  p_kvs = ap_rc->p_keyvals;
 
   TIZ_LOG (TIZ_LOG_TRACE, "Searching for Key [%s]", key);
 
@@ -206,7 +211,7 @@ find_node (const tiz_rcfile_t * ap_rc, const char *key)
       p_kvs = p_kvs->p_next;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Key not found [%s] [%p] [%p]", key, p_kvs);
+  TIZ_LOG (TIZ_LOG_TRACE, "Key not found [%s] [%p]", key, p_kvs);
   return NULL;
 
 }
@@ -258,6 +263,8 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
         {
           tiz_mem_free (p_kv);
           tiz_mem_free (p_v);
+          tiz_mem_free (value);
+          tiz_mem_free (key);
           ret = -1;
         }
       else
@@ -269,7 +276,6 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
           p_kv->valcount++;
           p_kv->p_next = NULL;
           ret = 1;
-
         }
     }
   else
@@ -311,6 +317,7 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
           p_kv->valcount = 1;
           ret = 0;
         }
+      tiz_mem_free (key);
     }
 
   * app_kv = p_kv;
@@ -399,7 +406,6 @@ extractkeyval (FILE * ap_file, char * ap_str, keyval_t ** app_last_kv,
   TIZ_LOG (TIZ_LOG_TRACE, "ret : [%d]", ret);
 
   return ret;
-
 }
 
 static int
@@ -676,28 +682,34 @@ tiz_rcfile_get_value_list(tiz_rcfile_t * p_rc,
 OMX_ERRORTYPE
 tiz_rcfile_close (tiz_rcfile_t * p_rc)
 {
-  keyval_t *p_kvs = NULL;
-  value_t *p_vallist = NULL;
+  keyval_t *p_kv_lst = NULL;
+  keyval_t *p_kvt = NULL;
+  value_t *p_val_lst = NULL;
 
   if (!p_rc)
     {
       return OMX_ErrorNone;
     }
 
-  p_kvs = p_rc->p_keyvals;
-  while (p_kvs && p_kvs->p_key)
+  p_kv_lst = p_rc->p_keyvals;
+  while (p_kv_lst)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Deleting Key [%s]", p_kvs->p_key);
-      tiz_mem_free (p_kvs->p_key);
-      p_vallist = p_kvs->p_value_list;
-      while (p_vallist)
+      value_t *p_vt = NULL;
+      TIZ_LOG (TIZ_LOG_TRACE, "Deleting Key [%s]", p_kv_lst->p_key);
+      tiz_mem_free (p_kv_lst->p_key);
+      p_val_lst = p_kv_lst->p_value_list;
+      while (p_val_lst)
         {
           TIZ_LOG (TIZ_LOG_TRACE, "Deleting Val [%s]",
-                     p_vallist->p_value);
-          tiz_mem_free (p_vallist->p_value);
-          p_vallist = p_vallist->p_next;
+                     p_val_lst->p_value);
+          p_vt = p_val_lst;
+          p_val_lst = p_val_lst->p_next;
+          tiz_mem_free (p_vt->p_value);
+          tiz_mem_free (p_vt);
         }
-      p_kvs = p_kvs->p_next;
+      p_kvt = p_kv_lst;
+      p_kv_lst = p_kv_lst->p_next;
+      tiz_mem_free (p_kvt);
     }
 
   tiz_mem_free (p_rc);

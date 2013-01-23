@@ -281,7 +281,7 @@ get_component_roles (OMX_COMPONENTTYPE * ap_hdl,
       p_role = (role_list_item_t *)
         tiz_mem_calloc (1, sizeof (role_list_item_t));
 
-      if (!p_role)
+      if (NULL == p_role)
         {
           TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
                    "Could not allocate role list item. "
@@ -491,7 +491,7 @@ delete_registry (void)
   tizcore_registry_item_t *p_registry_last = NULL, *p_registry_next = NULL;
   role_list_item_t *p_roles_last = NULL, *p_roles_next = NULL;
 
-  if (!p_core->p_registry)
+  if (NULL == p_core->p_registry)
     {
       return;
     }
@@ -503,7 +503,7 @@ delete_registry (void)
       tiz_mem_free (p_registry_last->p_dl_name);
       tiz_mem_free (p_registry_last->p_dl_path);
 
-      /* Delete roles list */
+      /* Delete roles */
       p_roles_last = p_registry_last->p_roles;
       while (p_roles_last)
         {
@@ -643,6 +643,21 @@ find_component_paths(unsigned long * ap_npaths)
   return val_lst;
 }
 
+static void
+free_paths (char **pp_paths, unsigned long npaths)
+{
+  int i = 0;
+
+  assert (NULL != pp_paths);
+
+  for (i = 0; i < (int)npaths; i++)
+    {
+      tiz_mem_free (pp_paths[i]);
+    }
+
+  tiz_mem_free (pp_paths);
+}
+
 static OMX_ERRORTYPE
 scan_component_folders (void)
 {
@@ -684,6 +699,7 @@ scan_component_folders (void)
                       == cache_comp_info (pp_paths[i],
                                           p_dir_entry->d_name))
                     {
+                      free_paths (pp_paths, npaths);
                       return OMX_ErrorInsufficientResources;
                     }
                 }
@@ -693,6 +709,8 @@ scan_component_folders (void)
         }
 
     }
+
+  free_paths (pp_paths, npaths);
 
   return OMX_ErrorNone;
 }

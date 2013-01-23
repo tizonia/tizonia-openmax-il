@@ -85,7 +85,7 @@ extern "C"
    * @param key The key to use to search for the value
    * @param length Return location for the number of returned strings
    * 
-   * @return A NULL-terminated string array or NULL if the specified key cannot
+   * @return An array of NULL-terminated strings or NULL if the specified key cannot
    * be found. The array should be freed by the caller.
    */
   char **tiz_rcfile_get_value_list(tiz_rcfile_t *rcfile,

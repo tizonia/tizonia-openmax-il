@@ -1212,21 +1212,14 @@ deinit_ports_and_lists (void *ap_obj)
       assert(pp_port);
       factory_delete (*pp_port);
       tiz_vector_pop_back (p_obj->p_ports_);
-      TIZ_LOG (TIZ_LOG_TRACE, "deleted and popped port - "
-                 "port list length is now [%d]...",
-                 tiz_vector_length (p_obj->p_ports_));
     }
   tiz_vector_destroy (p_obj->p_ports_);
   p_obj->p_ports_ = NULL;
 
   /* delete the ingress and egress lists */
-  TIZ_LOG (TIZ_LOG_TRACE, "ingress [%d]",
-             tiz_vector_length (p_obj->p_ingress_));
   while (tiz_vector_length (p_obj->p_ingress_) > 0)
     {
       p_list = *(tiz_vector_t **) tiz_vector_back (p_obj->p_ingress_);
-      TIZ_LOG (TIZ_LOG_TRACE, "popping ingress list [%p]...",
-                 p_list);
       tiz_vector_clear (p_list);
       tiz_vector_destroy (p_list);
       tiz_vector_pop_back (p_obj->p_ingress_);
@@ -1234,14 +1227,9 @@ deinit_ports_and_lists (void *ap_obj)
   tiz_vector_destroy (p_obj->p_ingress_);
   p_obj->p_ingress_ = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "egress [%d]",
-             tiz_vector_length (p_obj->p_egress_));
-
   while (tiz_vector_length (p_obj->p_egress_) > 0)
     {
       p_list = *(tiz_vector_t **) tiz_vector_back (p_obj->p_egress_);
-      TIZ_LOG (TIZ_LOG_TRACE, "popping egress list [%p]...",
-               p_list);
       tiz_vector_clear (p_list);
       tiz_vector_destroy (p_list);
       tiz_vector_pop_back (p_obj->p_egress_);

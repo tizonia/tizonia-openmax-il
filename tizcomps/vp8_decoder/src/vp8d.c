@@ -116,7 +116,9 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
 
   init_tizvp8port ();
   p_vp8port = factory_new (tizvp8port, &vp8_port_opts, &portdef, &encodings,
-                           &formats, &vp8type, &levels);
+                           &formats, &vp8type, &levels,
+                           NULL /* OMX_VIDEO_PARAM_BITRATETYPE */
+                           );
   assert (p_vp8port);
 
   return p_vp8port;
