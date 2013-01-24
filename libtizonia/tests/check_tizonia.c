@@ -63,7 +63,7 @@ pid_t g_rmd_pid;
 
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
-#define TIMEOUT_EXPECTING_SUCCESS 500
+#define TIMEOUT_EXPECTING_SUCCESS 1000
 /* duration of event timeout in msec when we don't expect event to be set */
 #define TIMEOUT_EXPECTING_FAILURE 2000
 
@@ -1755,15 +1755,6 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   error = OMX_SendCommand (p_hdl, cmd, 0, NULL);
   fail_if (OMX_ErrorNone != error);
 
-  /* ------------------------------------------------------------------- */
-  /* Try to unblock transition to IDLE by commanding the port to disable */
-  /* ------------------------------------------------------------------- */
-  /* NOTE: This must succeed now */
-  error = _ctx_reset (&ctx);
-  cmd = OMX_CommandPortDisable;
-  error = OMX_SendCommand (p_hdl, cmd, 0, NULL);
-  fail_if (OMX_ErrorNone != error);
-
   /* ---------------------------- */
   /* Await port disabled callback */
   /* ---------------------------- */
@@ -1809,6 +1800,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   /* ------------------------- */
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
+  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (p_ctx->state));
   fail_if (OMX_TRUE == timedout);
   fail_if (OMX_StateLoaded != p_ctx->state);
   fail_if (OMX_ErrorNone != p_ctx->error);
