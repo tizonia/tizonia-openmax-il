@@ -264,80 +264,103 @@ preemption_complete (OMX_U32 rid, OMX_PTR ap_data)
   TIZ_LOG (TIZ_LOG_TRACE, "preemption_complete : rid [%u]", rid);
 }
 
+static void
+free_roles (role_list_item_t *ap_role_lst)
+{
+  role_list_item_t *p_rli = NULL;
+
+  while (NULL != ap_role_lst)
+    {
+      p_rli = ap_role_lst->p_next;
+      tiz_mem_free (ap_role_lst);
+      ap_role_lst = p_rli;
+    }
+}
+
 static OMX_ERRORTYPE
 get_component_roles (OMX_COMPONENTTYPE * ap_hdl,
                      role_list_t * app_role_list)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  role_list_item_t *p_role = NULL, *p_first = NULL, *p_last = NULL;
+  role_list_item_t *p_role = NULL;
+  role_list_item_t *p_first = NULL;
+  role_list_item_t *p_last = NULL;
   OMX_U32 role_index = 0;
 
   assert (NULL != ap_hdl);
   assert (NULL != app_role_list);
 
   /* Find component roles */
-  do
+  while (OMX_ErrorNoMore != rc && role_index < 255)
+  {
+    p_role = (role_list_item_t *)
+      tiz_mem_calloc (1, sizeof (role_list_item_t));
+
+    if (NULL == p_role)
+      {
+        TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
+                 "Could not allocate role list item. "
+                 "Bailing registration");
+        rc = OMX_ErrorInsufficientResources;
+        break;
+      }
+
+    rc = ap_hdl->ComponentRoleEnum ((OMX_HANDLETYPE) ap_hdl,
+                                    p_role->role, role_index);
+
+    if (OMX_ErrorNone != rc && OMX_ErrorNoMore != rc)
+      {
+        TIZ_LOG (TIZ_LOG_ERROR, "[%s] : Call to ComponentRoleEnum failed",
+                 tiz_err_to_str (rc));
+        tiz_mem_free (p_role);
+        break;
+      }
+    else if (OMX_ErrorNoMore == rc)
+      {
+        TIZ_LOG (TIZ_LOG_ERROR, "[%s] : No more roles",
+                 tiz_err_to_str (rc));
+        tiz_mem_free (p_role);
+        break;
+      }
+
+    if (NULL != p_last)
+      {
+        p_last->p_next = p_role;
+      }
+    else
+      {
+        p_first = p_role;
+      }
+
+    p_last = p_role;
+
+    TIZ_LOG (TIZ_LOG_TRACE, "Found role [#%d] to be [%s]",
+             role_index, p_role->role);
+
+    role_index++;
+  }
+
+  if (OMX_ErrorNoMore == rc)
     {
-      p_role = (role_list_item_t *)
-        tiz_mem_calloc (1, sizeof (role_list_item_t));
-
-      if (NULL == p_role)
+      if (0 == role_index)
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
-                   "Could not allocate role list item. "
-                   "Bailing registration");
-          rc = OMX_ErrorInsufficientResources;
-          break;
+          TIZ_LOG (TIZ_LOG_ERROR, "Non-conformant component found. "
+                   "No roles retrieved. Skipping component registration...");
+          rc = OMX_ErrorUndefined;
         }
-
-      rc = ap_hdl->ComponentRoleEnum ((OMX_HANDLETYPE) ap_hdl,
-                                      p_role->role, role_index);
-
-      if (OMX_ErrorNone != rc && OMX_ErrorNoMore != rc)
+      else
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "[%s] : Call to ComponentRoleEnum failed",
-                   tiz_err_to_str (rc));
-          tiz_mem_free (p_role);
-          p_role = NULL;
+          rc = OMX_ErrorNone;
         }
-
-      if (OMX_ErrorNone == rc && NULL != p_role)
-        {
-          if (NULL != p_last)
-            {
-              p_last->p_next = p_role;
-              p_last = p_role;
-            }
-          else
-            {
-              p_last = p_role;
-              p_first = p_role;
-            }
-
-          TIZ_LOG (TIZ_LOG_TRACE, "Found role [#%d] to be [%s]",
-                   role_index, p_role->role);
-
-          role_index++;
-        }
-
     }
-  while (OMX_ErrorNoMore != rc && OMX_ErrorNone == rc
-         && role_index < 255);
-
-  if (OMX_ErrorNoMore == rc && 0 == role_index)
+  else if (OMX_ErrorNoMore != rc && OMX_ErrorNone != rc)
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "Non-conformant component found. "
-               "No roles retrieved. Skipping component registration...");
-      tiz_mem_free (p_role);
-      p_role = NULL;
+      free_roles (p_first);
+      p_first = NULL;
+      role_index = 0;
     }
 
-  if (OMX_ErrorNoMore == rc && role_index > 0)
-    {
-      rc = OMX_ErrorNone;
-    }
-
-  * app_role_list = role_index ? p_first : NULL;
+  * app_role_list = role_index > 0 ? p_first : NULL;
 
   return rc;
 }
@@ -353,7 +376,8 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_VERSIONTYPE comp_ver, spec_ver;
   OMX_UUIDTYPE comp_uuid;
-  tizcore_registry_item_t *p_registry_last = NULL, *p_registry_new = NULL;
+  tizcore_registry_item_t *p_registry_last = NULL;
+  tizcore_registry_item_t *p_registry_new = NULL;
   role_list_t p_role_list = NULL;
   tizcore_t *p_core = get_core ();
   char comp_name[OMX_MAX_STRINGNAME_SIZE];
@@ -382,34 +406,36 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
                         ((OMX_COMPONENTINITTYPE) ap_entry_point)
                         ((OMX_HANDLETYPE) ap_hdl)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "Call to entry point failed");
+      rc = (rc == OMX_ErrorInsufficientResources
+            ? OMX_ErrorInsufficientResources : OMX_ErrorUndefined);
+      TIZ_LOG (TIZ_LOG_ERROR, "[%s] : Call to entry point failed",
+               tiz_err_to_str (rc));
       tiz_mem_free (p_registry_new);
-      return OMX_ErrorUndefined;
+      return rc;
     }
 
   /* Get Component info */
-  if (OMX_ErrorNone == rc)
+  if (OMX_ErrorNone !=
+      (rc =
+       ap_hdl->
+       GetComponentVersion ((OMX_HANDLETYPE) ap_hdl,
+                            (OMX_STRING) (&comp_name), &comp_ver,
+                            &spec_ver, &comp_uuid)))
     {
-      if (OMX_ErrorNone !=
-          (rc =
-           ap_hdl->
-           GetComponentVersion ((OMX_HANDLETYPE) ap_hdl,
-                                (OMX_STRING) (&comp_name), &comp_ver,
-                                &spec_ver, &comp_uuid)))
-        {
-          TIZ_LOG (TIZ_LOG_ERROR, "Call to GetComponentVersion failed");
-          tiz_mem_free (p_registry_new);
-          (void)ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
-          return rc == OMX_ErrorInsufficientResources
-            ? OMX_ErrorInsufficientResources : OMX_ErrorUndefined;
-        }
+      rc = (rc == OMX_ErrorInsufficientResources
+            ? OMX_ErrorInsufficientResources : OMX_ErrorUndefined);
+      TIZ_LOG (TIZ_LOG_ERROR, "[%s] Call to GetComponentVersion failed",
+               tiz_err_to_str (rc));
+      tiz_mem_free (p_registry_new);
+      (void) ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
+      return rc;
     }
 
   /* Check in case the component already exists in the registry... */
   if (NULL != (p_registry_last = find_comp_in_registry (comp_name)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Component already in registry [%s]",
-               comp_name);
+      TIZ_LOG (TIZ_LOG_TRACE, "[OMX_ErrorUndefined] : "
+               "Component already in registry [%s]", comp_name);
       tiz_mem_free (p_registry_new);
       (void) ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
       return OMX_ErrorUndefined;
@@ -418,17 +444,23 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
   TIZ_LOG (TIZ_LOG_TRACE, "component not in registry [%s]", comp_name);
 
   /* Get the roles */
-  if (OMX_ErrorNone == rc)
+  if (OMX_ErrorNone != (rc = get_component_roles (ap_hdl, &p_role_list)))
     {
-      /* TODO: Check this error code and free role list in case of error.... */
-      rc = get_component_roles (ap_hdl, &p_role_list);
+      rc = (rc == OMX_ErrorInsufficientResources
+            ? OMX_ErrorInsufficientResources : OMX_ErrorUndefined);
+      TIZ_LOG (TIZ_LOG_ERROR, "[%s] Failed while getting component roles",
+               tiz_err_to_str (rc));
+      free_roles (p_role_list);
+      tiz_mem_free (p_registry_new);
+      (void) ap_hdl->ComponentDeInit ((OMX_HANDLETYPE) ap_hdl);
+      return rc;
     }
 
   if (OMX_ErrorNone == rc)
     {
 
       /* Add to registry */
-      if (!(p_core->p_registry))
+      if (NULL == (p_core->p_registry))
         {
           /* First entry in the registry */
           TIZ_LOG (TIZ_LOG_TRACE,
@@ -497,7 +529,7 @@ delete_registry (void)
     }
 
   p_registry_last = p_core->p_registry;
-  while (p_registry_last)
+  while (NULL != p_registry_last)
     {
       tiz_mem_free (p_registry_last->p_comp_name);
       tiz_mem_free (p_registry_last->p_dl_name);
@@ -773,21 +805,19 @@ find_comp_in_registry (const OMX_STRING ap_name)
 
   p_registry = p_core->p_registry;
 
-  while (p_registry)
+  while (NULL != p_registry)
     {
       if (0 == strncmp (p_registry->p_comp_name, ap_name,
                         OMX_MAX_STRINGNAME_SIZE))
         {
           TIZ_LOG (TIZ_LOG_TRACE, "[%s] found.", ap_name);
-          break;
+          return p_registry;
         }
       p_registry = p_registry->p_next;
     }
 
-  if (!p_registry)
-    {
-      TIZ_LOG (TIZ_LOG_TRACE, "Could not find [%s].", ap_name);
-    }
+
+  TIZ_LOG (TIZ_LOG_TRACE, "Could not find [%s].", ap_name);
 
   return p_registry;
 }

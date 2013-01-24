@@ -407,7 +407,6 @@ store_roles (tiz_scheduler_t * ap_sched,
 static inline OMX_ERRORTYPE
 send_msg_blocking (tiz_scheduler_t * ap_sched, tizsched_msg_t * ap_msg)
 {
-
   assert (NULL != ap_msg);
   assert (NULL != ap_sched);
 
@@ -415,15 +414,9 @@ send_msg_blocking (tiz_scheduler_t * ap_sched, tizsched_msg_t * ap_msg)
 
   tiz_queue_send (ap_sched->p_queue, ap_msg);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                 TIZ_CBUF (ap_sched->child.p_hdl),
-                 "message [%s] sent ([%p])",
-                 tizsched_msg_to_str (ap_msg->class), ap_msg);
-
   tiz_sem_wait (&(ap_sched->sem));
 
   return ap_sched->error;
-
 }
 
 static inline OMX_ERRORTYPE
@@ -435,13 +428,8 @@ send_msg_non_blocking (tiz_scheduler_t * ap_sched, tizsched_msg_t * ap_msg)
   ap_msg->will_block = OMX_FALSE;
 
   tiz_queue_send (ap_sched->p_queue, ap_msg);
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                 TIZ_CBUF (ap_sched->child.p_hdl),
-                 "message [%s] sent ([%p])",
-                 tizsched_msg_to_str (ap_msg->class), ap_msg);
 
   return ap_sched->error;
-
 }
 
 static OMX_S32
