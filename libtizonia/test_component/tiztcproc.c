@@ -53,22 +53,18 @@ static void *
 tiztc_proc_ctor (void *ap_obj, va_list * app)
 {
   struct tiztcproc *p_obj = super_ctor (tiztcproc, ap_obj, app);
-  TIZ_LOG (TIZ_LOG_TRACE, "Constructing tiztcproc...[%p]", p_obj);
   return p_obj;
 }
 
 static void *
 tiztc_proc_dtor (void *ap_obj)
 {
-  struct tiztcproc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing tiztcproc...[%p]", p_obj);
   return super_dtor (tiztcproc, ap_obj);
 }
 
 static OMX_ERRORTYPE
 tiztc_proc_render_buffer (OMX_BUFFERHEADERTYPE * p_hdr)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "Rendering HEADER [%p]...!!!", p_hdr);
   return OMX_ErrorNone;
 }
 
@@ -79,59 +75,30 @@ tiztc_proc_render_buffer (OMX_BUFFERHEADERTYPE * p_hdr)
 static OMX_ERRORTYPE
 tiztc_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct tiztcproc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Resource allocation...p_obj = [%p]!!!",
-             p_obj);
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 tiztc_proc_deallocate_resources (void *ap_obj)
 {
-  struct tiztcproc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Resource deallocation...p_obj = [%p]!!!",
-             p_obj);
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 tiztc_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  struct tiztcproc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Awaiting buffers...p_obj = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 tiztc_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  struct tiztcproc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Transfering buffers...p_obj = [%p]!!!",
-             p_obj);
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 tiztc_proc_stop_and_return (void *ap_obj)
 {
-  struct tiztcproc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!",
-             p_obj);
-
   return OMX_ErrorNone;
 }
 
@@ -156,9 +123,8 @@ tiztc_proc_buffers_ready (const void *ap_obj)
   if (TIZ_PD_ISSET (0, &ports))
     {
       TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer (p_ker, 0, 0, &p_hdr));
-      TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...", p_hdr);
       TIZ_UTIL_TEST_ERR (tiztc_proc_render_buffer (p_hdr));
-      tizkernel_relinquish_buffer (p_ker, 0, p_hdr);
+      (void) tizkernel_relinquish_buffer (p_ker, 0, p_hdr);
     }
 
   return OMX_ErrorNone;
@@ -173,10 +139,8 @@ const void *tiztcproc;
 void
 init_tiztcproc (void)
 {
-
   if (!tiztcproc)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing tiztcproc...");
       init_tizproc ();
       tiztcproc =
         factory_new
@@ -193,5 +157,4 @@ init_tiztcproc (void)
          tizservant_transfer_and_process, tiztc_proc_transfer_and_process,
          tizservant_stop_and_return, tiztc_proc_stop_and_return, 0);
     }
-
 }
