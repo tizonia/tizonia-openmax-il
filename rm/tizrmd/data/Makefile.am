@@ -39,7 +39,7 @@ tizrm_gendb.sh: tizrm_gendb.sh.in Makefile
 	chmod +x tizrm_gendb.sh
 
 tizrm.db: $(sqlite_scripts)
-	./tizrm_gendb.sh
+	. tizrm_gendb.sh
 
 all-local: tizrm.db
 
