@@ -61,6 +61,23 @@ START_TEST (test_rcfile_get_single_value)
 }
 END_TEST
 
+START_TEST (test_rcfile_get_unexistent_value)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  tiz_rcfile_t *p_rc = NULL;
+  const char *val =  NULL;
+
+  error = tiz_rcfile_open (&p_rc);
+  fail_if (error != OMX_ErrorNone);
+
+  val = tiz_rcfile_get_value(p_rc, "resource-management", "unexistentvalue124");
+  fail_if (val != NULL);
+
+  tiz_rcfile_close (p_rc);
+  fail_if (error != OMX_ErrorNone);
+}
+END_TEST
+
 START_TEST (test_rcfile_get_value_list)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;

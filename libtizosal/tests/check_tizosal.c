@@ -52,7 +52,7 @@ Suite *
 tiz_suite (void)
 {
 
-  TCase *tc_mem, *tc_sem, *tc_queue, *tc_pqueue, *tc_vector, *tc_rc, *tc_soa;;
+  TCase *tc_mem, *tc_sem, *tc_queue, *tc_pqueue, *tc_vector, *tc_rc, *tc_soa;
   Suite *s = suite_create ("tizosal");
 
   /* Memory API test case */
@@ -105,6 +105,7 @@ tiz_suite (void)
   tc_rc = tcase_create ("rc file parsing API");
   tcase_add_test (tc_rc, test_rcfile_open_and_close);
   tcase_add_test (tc_rc, test_rcfile_get_single_value);
+  tcase_add_test (tc_rc, test_rcfile_get_unexistent_value);
   tcase_add_test (tc_rc, test_rcfile_get_value_list);
   suite_add_tcase (s, tc_rc);
 
