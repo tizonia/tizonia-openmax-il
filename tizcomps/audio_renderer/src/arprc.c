@@ -45,7 +45,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.audio_renderer.prc"
 #endif
 
-#define ALSA_PLAYBACK_DEVICE "sysdefault"
+#define ALSA_PLAYBACK_DEVICE "plughw:0,0"
 
 /*
  * arprc
