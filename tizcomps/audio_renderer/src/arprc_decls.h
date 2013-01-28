@@ -48,6 +48,7 @@ struct arprc
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
   snd_pcm_t *p_playback_hdl;
   snd_pcm_hw_params_t *p_hw_params;
+  char *p_alsa_pcm_;
 };
 
 #ifdef __cplusplus

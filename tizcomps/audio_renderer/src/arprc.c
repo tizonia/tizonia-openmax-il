@@ -45,7 +45,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.audio_renderer.prc"
 #endif
 
-#define ALSA_PLAYBACK_DEVICE "null"
+#define TIZ_AR_ALSA_PCM_DEVICE "null"
 
 /*
  * arprc
@@ -55,7 +55,9 @@ static void *
 ar_proc_ctor (void *ap_obj, va_list * app)
 {
   struct arprc *p_obj = super_ctor (arprc, ap_obj, app);
-  TIZ_LOG (TIZ_LOG_TRACE, "Constructing arprc...[%p]", p_obj);
+  p_obj->p_playback_hdl = NULL;
+  p_obj->p_hw_params = NULL;
+  p_obj->p_alsa_pcm_ = NULL;
   return p_obj;
 }
 
@@ -63,7 +65,19 @@ static void *
 ar_proc_dtor (void *ap_obj)
 {
   struct arprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing arprc...[%p]", p_obj);
+
+  tiz_mem_free (p_obj->p_alsa_pcm_);
+
+  if (NULL != p_obj->p_hw_params)
+    {
+      snd_pcm_hw_params_free (p_obj->p_hw_params);
+    }
+
+  if (NULL != p_obj->p_playback_hdl)
+    {
+      snd_pcm_close (p_obj->p_playback_hdl);
+    }
+
   return super_dtor (arprc, ap_obj);
 }
 
@@ -103,7 +117,7 @@ ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
           err = snd_pcm_recover (p_obj->p_playback_hdl, err, 0);
           if (err < 0)
             {
-              TIZ_LOG (TIZ_LOG_TRACE, "snd_pcm_recover error: %s", 
+              TIZ_LOG (TIZ_LOG_TRACE, "snd_pcm_recover error: %s",
                          snd_strerror (err));
               break;
             }
@@ -117,12 +131,45 @@ ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
   p_hdr->nFilledLen = 0;
 
   return OMX_ErrorNone;
-
 }
 
 /*
  * from tizservant class
  */
+static char *
+get_alsa_device(void *ap_obj)
+{
+  struct arprc *p_obj = ap_obj;
+  tiz_rcfile_t *p_rcfile = NULL;
+  const char *p_alsa_pcm = NULL;
+
+  assert (ap_obj);
+
+  tiz_rcfile_open(&p_rcfile);
+
+  assert (NULL == p_obj->p_alsa_pcm_);
+
+  p_alsa_pcm
+    = tiz_rcfile_get_value(p_rcfile, "plugins-data",
+                           "OMX.Aratelia.audio_renderer.pcm.alsa_device");
+
+  if (NULL != p_alsa_pcm)
+    {
+      TIZ_LOG(TIZ_LOG_TRACE, "Using ALSA pcm [%s]...", p_alsa_pcm);
+      p_obj->p_alsa_pcm_ = strndup(p_alsa_pcm, OMX_MAX_STRINGNAME_SIZE);
+    }
+  else
+    {
+      TIZ_LOG(TIZ_LOG_TRACE,
+              "No alsa device found in config file. Using [%s]...",
+              TIZ_AR_ALSA_PCM_DEVICE);
+    }
+
+  tiz_rcfile_close(p_rcfile);
+
+  return (NULL != p_obj->p_alsa_pcm_) ? p_obj->p_alsa_pcm_
+    : TIZ_AR_ALSA_PCM_DEVICE;
+}
 
 static OMX_ERRORTYPE
 ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
@@ -133,11 +180,11 @@ ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
   if (!(p_obj->p_playback_hdl))
     {
-      if ((err = snd_pcm_open (&p_obj->p_playback_hdl, ALSA_PLAYBACK_DEVICE,
+      if ((err = snd_pcm_open (&p_obj->p_playback_hdl, get_alsa_device(p_obj),
                                SND_PCM_STREAM_PLAYBACK, 0)) < 0)
         {
           TIZ_LOG (TIZ_LOG_TRACE, "cannot open audio device %s (%s)",
-                     ALSA_PLAYBACK_DEVICE, snd_strerror (err));
+                     TIZ_AR_ALSA_PCM_DEVICE, snd_strerror (err));
           return OMX_ErrorInsufficientResources;
         }
 
@@ -178,8 +225,10 @@ ar_proc_deallocate_resources (void *ap_obj)
       p_obj->p_hw_params = NULL;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Resource deallocation complete..."
-             "arprc = [%p]!!!", p_obj);
+  tiz_mem_free (p_obj->p_alsa_pcm_);
+  p_obj->p_alsa_pcm_ = NULL;
+
+  TIZ_LOG (TIZ_LOG_TRACE, "Resource deallocation complete...");
 
   return OMX_ErrorNone;
 }
@@ -194,8 +243,6 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   int err;
   snd_pcm_format_t snd_pcm_format;
   assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
 
   /* Retrieve pcm params from port */
   p_obj->pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
@@ -242,11 +289,7 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Transfering buffers...p_obj = [%p]!!!",
-             p_obj);
-
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
@@ -285,8 +328,6 @@ ar_proc_buffers_ready (const void *ap_obj)
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Buffers ready...");
-
   TIZ_PD_ZERO (&ports);
 
   TIZ_UTIL_TEST_ERR (tizkernel_select (p_krn, 1, &ports));
@@ -322,7 +363,6 @@ init_arprc (void)
 
   if (!arprc)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing arprc...");
       init_tizproc ();
       arprc =
         factory_new

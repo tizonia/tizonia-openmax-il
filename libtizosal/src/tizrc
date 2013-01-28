@@ -46,6 +46,7 @@ OMX.Aratelia.file_reader.binary.testfile2_uri = /home/user/temp/tizonia-test-med
 ##################
 
 OMX.Aratelia.audio_renderer.pcm.preannouncements_disabled.port0 = false
+OMX.Aratelia.audio_renderer.pcm.alsa_device = default
 OMX.Aratelia.audio_renderer.pcm.testfile1_uri = /home/user/temp/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_48_stereo.raw
 OMX.Aratelia.audio_renderer.pcm.testfile2_uri = /home/user/temp/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
 

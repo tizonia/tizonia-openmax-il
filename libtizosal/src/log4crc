@@ -11,13 +11,14 @@
 	</config>
 
 <!--         <category name="root" priority="trace" appender="stdout"/> -->
-<!--         <category name="tiz.rm.daemon" priority="trace" appender="stdout"/> -->
+<!--         <category name="tiz.rm.daemon" priority="trace" appender="syslog"/> -->
 <!--         <category name="tiz.rm.proxy" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.rm.proxy_c" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.mem" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.vector" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.osal.pqueue" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.sync" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.rc" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal.soa" priority="trace" appender="stdout"/> -->
@@ -38,7 +39,10 @@
 <!--         <category name="tiz.tizonia.mp3port" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.videoport" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.audio_renderer" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.audio_renderer.prc" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.audio_renderer.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.file_reader" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.file_reader.prc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.file_reader.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.mp3_decoder" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.mp3_decoder.prc" priority="trace" appender="stdout" /> -->
