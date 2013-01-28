@@ -487,7 +487,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
             TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_CommandStateSet : "
                        "Component transitioned to [%s]",
                        p_cname,
-                       tiz_fsm_state_to_str ((tizfsm_state_id_t) (nData2)));
+                       tiz_state_to_str ((OMX_STATETYPE) (nData2)));
             p_ctx->state = (OMX_STATETYPE) (nData2);
             _ctx_signal (pp_ctx, OMX_EventCmdComplete);
             break;
@@ -870,7 +870,7 @@ START_TEST (test_vp8_playback)
   error = _ctx_wait (&rend_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_rend_ctx->state [%s] timedout [%s]",
-           tiz_fsm_state_to_str (p_rend_ctx->state),
+           tiz_state_to_str (p_rend_ctx->state),
            timedout == OMX_TRUE ? "TRUE" : "FALSE");
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -881,7 +881,7 @@ START_TEST (test_vp8_playback)
   /* ----------------------------------------- */
   error = OMX_GetState (p_ivrnd, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
-             IV_RND_COMPONENT_NAME, tiz_fsm_state_to_str (state));
+             IV_RND_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -891,7 +891,7 @@ START_TEST (test_vp8_playback)
   error = _ctx_wait (&dec_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_dec_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_dec_ctx->state));
+             tiz_state_to_str (p_dec_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   fail_if (OMX_StateIdle != p_dec_ctx->state);
@@ -901,7 +901,7 @@ START_TEST (test_vp8_playback)
   /* ----------------------------------------- */
   error = OMX_GetState (p_vp8dec, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
-             VP8_DEC_COMPONENT_NAME, tiz_fsm_state_to_str (state));
+             VP8_DEC_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -927,7 +927,7 @@ START_TEST (test_vp8_playback)
   error = _ctx_wait (&dec_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_dec_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_dec_ctx->state));
+             tiz_state_to_str (p_dec_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   fail_if (OMX_StateExecuting != p_dec_ctx->state);
@@ -937,7 +937,7 @@ START_TEST (test_vp8_playback)
   /* ----------------------------------------- */
   error = OMX_GetState (p_vp8dec, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
-             VP8_DEC_COMPONENT_NAME, tiz_fsm_state_to_str (state));
+             VP8_DEC_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateExecuting != state);
 
@@ -947,7 +947,7 @@ START_TEST (test_vp8_playback)
   error = _ctx_wait (&rend_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_rend_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_rend_ctx->state));
+             tiz_state_to_str (p_rend_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   fail_if (OMX_StateExecuting != p_rend_ctx->state);
@@ -957,7 +957,7 @@ START_TEST (test_vp8_playback)
   /* ----------------------------------------- */
   error = OMX_GetState (p_ivrnd, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
-             IV_RND_COMPONENT_NAME, tiz_fsm_state_to_str (state));
+             IV_RND_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateExecuting != state);
 
@@ -1083,7 +1083,7 @@ START_TEST (test_vp8_playback)
   error = _ctx_wait (&dec_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_dec_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_dec_ctx->state));
+             tiz_state_to_str (p_dec_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   fail_if (OMX_StateIdle != p_dec_ctx->state);
@@ -1093,7 +1093,7 @@ START_TEST (test_vp8_playback)
   /* ----------------------------------------- */
   error = OMX_GetState (p_vp8dec, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
-             VP8_DEC_COMPONENT_NAME, tiz_fsm_state_to_str (state));
+             VP8_DEC_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -1103,7 +1103,7 @@ START_TEST (test_vp8_playback)
   error = _ctx_wait (&rend_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_rend_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_rend_ctx->state));
+             tiz_state_to_str (p_rend_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   fail_if (OMX_StateIdle != p_rend_ctx->state);
@@ -1113,7 +1113,7 @@ START_TEST (test_vp8_playback)
   /* ----------------------------------------- */
   error = OMX_GetState (p_ivrnd, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
-             IV_RND_COMPONENT_NAME, tiz_fsm_state_to_str (state));
+             IV_RND_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -1152,7 +1152,7 @@ START_TEST (test_vp8_playback)
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_rend_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_rend_ctx->state));
+             tiz_state_to_str (p_rend_ctx->state));
   fail_if (OMX_StateLoaded != p_rend_ctx->state);
 
   /* ----------------------------------------- */
@@ -1160,7 +1160,7 @@ START_TEST (test_vp8_playback)
   /* ----------------------------------------- */
   error = OMX_GetState (p_ivrnd, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
-             IV_RND_COMPONENT_NAME, tiz_fsm_state_to_str (state));
+             IV_RND_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1172,7 +1172,7 @@ START_TEST (test_vp8_playback)
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_dec_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_dec_ctx->state));
+             tiz_state_to_str (p_dec_ctx->state));
   fail_if (OMX_StateLoaded != p_dec_ctx->state);
 
   /* ----------------------------------------- */
@@ -1180,7 +1180,7 @@ START_TEST (test_vp8_playback)
   /* ----------------------------------------- */
   error = OMX_GetState (p_vp8dec, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
-             VP8_DEC_COMPONENT_NAME, tiz_fsm_state_to_str (state));
+             VP8_DEC_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 

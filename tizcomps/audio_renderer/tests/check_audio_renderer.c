@@ -355,7 +355,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
         case OMX_CommandStateSet:
           {
             TIZ_LOG (TIZ_LOG_TRACE, "Component transitioned to [%s]",
-                       tiz_fsm_state_to_str ((tizfsm_state_id_t) (nData2)));
+                       tiz_state_to_str ((OMX_STATETYPE) (nData2)));
             p_ctx->state = (OMX_STATETYPE) (nData2);
             _ctx_signal (pp_ctx);
             break;
@@ -579,14 +579,14 @@ START_TEST (test_ar_play)
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_ctx->state));
+             tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
   /* ------------------------------ */
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -605,7 +605,7 @@ START_TEST (test_ar_play)
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_ctx->state));
+             tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateExecuting != p_ctx->state);
 
   /* -------------------- */
@@ -679,7 +679,7 @@ START_TEST (test_ar_play)
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
-             tiz_fsm_state_to_str (p_ctx->state));
+             tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
   /* ----------------------------- */
@@ -713,7 +713,7 @@ START_TEST (test_ar_play)
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
