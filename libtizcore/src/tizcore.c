@@ -1237,7 +1237,7 @@ do_rce (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   else
     {
       TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorComponentNotFound] : [%s]",
-               p_reg_item->p_comp_name);
+               p_msg_rce->p_comp_name);
       rc = OMX_ErrorComponentNotFound;
     }
 
