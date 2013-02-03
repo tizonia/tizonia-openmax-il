@@ -15,22 +15,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = include libtizosal rm libtizcore libtizonia tizcomps examples docs
+AC_PREREQ([2.67])
+AC_INIT([tizonia_examples], [0.1], [juan.rubio@aratelia.com])
+AC_CONFIG_AUX_DIR([.])
+AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
+AC_CONFIG_SRCDIR([config.h.in])
+AC_CONFIG_HEADERS([config.h])
 
-CLEANFILES = cscope.in.out cscope.out cscope.po.out
+# 'm4' is the directory where the extra autoconf macros are stored
+AC_CONFIG_MACRO_DIR([m4])
 
-.PHONY: cscope
-cscope:
-	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizosal -srm -stizcomps -sexamples;
+# Checks for programs.
+AC_PROG_CXX
+LT_INIT
 
-# ‘-nut’ = ‘--no-tabs’
-#    Use spaces instead of tabs.
-# ‘-sc’ = ‘--start-left-side-of-comments’
-#    Put the ‘*’ character at the left of comments.
-# ‘-pmt’ = ‘--preserve-mtime’
-#    Preserve access and modification times on output files.
+# Checks for libraries.
 
-.PHONY: indent
-indent:
-	find . -path ./include -prune -o -iname "*.[ch]" -exec indent --gnu-style -pmt -sc -nut "{}" \;
+# Checks for header files.
 
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+
+AC_CONFIG_FILES([Makefile tizdec/Makefile])
+AC_CONFIG_SUBDIRS([tizdec])
+AC_OUTPUT

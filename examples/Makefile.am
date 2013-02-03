@@ -15,22 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = include libtizosal rm libtizcore libtizonia tizcomps examples docs
+SUBDIRS = \
+	tizdec
 
-CLEANFILES = cscope.in.out cscope.out cscope.po.out
-
-.PHONY: cscope
-cscope:
-	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizosal -srm -stizcomps -sexamples;
-
-# ‘-nut’ = ‘--no-tabs’
-#    Use spaces instead of tabs.
-# ‘-sc’ = ‘--start-left-side-of-comments’
-#    Put the ‘*’ character at the left of comments.
-# ‘-pmt’ = ‘--preserve-mtime’
-#    Preserve access and modification times on output files.
-
-.PHONY: indent
-indent:
-	find . -path ./include -prune -o -iname "*.[ch]" -exec indent --gnu-style -pmt -sc -nut "{}" \;
-
+ACLOCAL_AMFLAGS = -I m4

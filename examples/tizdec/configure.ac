@@ -16,36 +16,54 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizonia], [0.1], [juan.rubio@aratelia.com])
+AC_INIT([tizdec], [0.1], [juan.rubio@aratelia.com])
+AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
-AC_CONFIG_SRCDIR([include/omxil-1.2/OMX_Core.h])
+AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 
-# Checks for programs.
-AC_PROG_CC
-PKG_PROG_PKG_CONFIG([0.25])
-AC_CHECK_PROGS([DOXYGEN], [doxygen])
-if test -z "$DOXYGEN";
-   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
-fi
 
-AM_CONDITIONAL([HAVE_DOXYGEN],
-[test -n "$DOXYGEN"])AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([docs/Doxyfile])])
+# 'm4' is the directory where the extra autoconf macros are stored
+AC_CONFIG_MACRO_DIR([m4])
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AM_PROG_CC_C_O
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+LT_INIT
+
+PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
+
+#PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
+#PKG_CHECK_MODULES([TIZ], [libtizosal])
 
 # Checks for header files.
+AC_CHECK_HEADERS([syslog.h unistd.h])
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([boost/foreach.hpp], [],
+    [AC_MSG_ERROR(You need the Boost libraries.)])
+AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_TYPE_MODE_T
+AC_TYPE_PID_T
+AC_C_RESTRICT
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile docs/Makefile])
-AC_CONFIG_SUBDIRS([include
-                   libtizosal
-                   rm
-                   libtizcore
-                   libtizonia
-                   tizcomps
-                   examples])
+AC_CONFIG_FILES([Makefile
+                src/Makefile])
+
+# End the configure script.
 AC_OUTPUT

@@ -15,22 +15,31 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = include libtizosal rm libtizcore libtizonia tizcomps examples docs
+bin_PROGRAMS = tizdec
 
-CLEANFILES = cscope.in.out cscope.out cscope.po.out
+noinst_HEADERS = \
+	tizomxutil.hh \
+	tizprobe.hh \
+	tizgraph.hh \
+	tizmp3graph.hh
 
-.PHONY: cscope
-cscope:
-	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizosal -srm -stizcomps -sexamples;
+tizdec_SOURCES = \
+	tizdec.cc \
+	tizomxutil.cc \
+	tizprobe.cc \
+	tizgraph.cc \
+	tizmp3graph.cc
 
-# ‘-nut’ = ‘--no-tabs’
-#    Use spaces instead of tabs.
-# ‘-sc’ = ‘--start-left-side-of-comments’
-#    Put the ‘*’ character at the left of comments.
-# ‘-pmt’ = ‘--preserve-mtime’
-#    Preserve access and modification times on output files.
+tizdec_CPPFLAGS = \
+	-I$(top_srcdir)/../../include/omxil-1.2 \
+	-I$(top_srcdir)/../../libtizosal/src \
+	-D__STDC_CONSTANT_MACROS
 
-.PHONY: indent
-indent:
-	find . -path ./include -prune -o -iname "*.[ch]" -exec indent --gnu-style -pmt -sc -nut "{}" \;
-
+tizdec_LDADD = \
+	-lboost_thread \
+	-lboost_system \
+	-lboost_filesystem \
+	-lavformat \
+	-lavcodec \
+	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizcore/src/libtizcore.la
