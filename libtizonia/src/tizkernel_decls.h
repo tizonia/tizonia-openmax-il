@@ -49,7 +49,7 @@ struct tizkernel
   tiz_vector_t *p_egress_;
   OMX_PTR p_cport_;
   OMX_PTR p_proc_;
-  OMX_BOOL stopping_;
+  OMX_BOOL eos_;
   tizrm_t rm_;
   tizrm_proxy_callbacks_t rm_cbacks_;
   OMX_PORT_PARAM_TYPE audio_init_;

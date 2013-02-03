@@ -1044,28 +1044,6 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
                            TIZ_CBUF(base->p_hdl_),
                          "HEADER [%p] BUFFER [%p]", p_hdr, p_hdr->pBuffer);
 
-          if (a_clear)
-            {
-              tiz_clear_header (p_hdr);
-            }
-          else
-            {
-              /* Automatically report EOS event on output ports  */
-              if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS && OMX_DirOutput == pdir)
-                {
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                                   TIZ_CNAME(base->p_hdl_),
-                                   TIZ_CBUF(base->p_hdl_),
-                                   "OMX_BUFFERFLAG_EOS on port [%d]...", pid);
-
-                  /* ... flag EOS ... */
-                  p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
-                  tizservant_issue_event ((OMX_PTR) ap_obj,
-                                          OMX_EventBufferFlag,
-                                          pid, p_hdr->nFlags, NULL);
-                }
-            }
-
           /* ... issue the callback... */
           {
             OMX_S32 scount = 0;
@@ -1142,6 +1120,31 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
                 /* Propagate buffer marks... */
                 process_marks (p_obj, p_hdr, pid, base->p_hdl_);
 
+                if (a_clear)
+                  {
+                    tiz_clear_header (p_hdr);
+                  }
+                else
+                  {
+                    /* Automatically report EOS event on output ports, but only
+                       once...  */
+                    if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS
+                        && OMX_DirOutput == pdir
+                        && p_obj->eos_ == OMX_FALSE)
+                      {
+                        TIZ_LOG_CNAME (TIZ_LOG_NOTICE,
+                                       TIZ_CNAME(base->p_hdl_),
+                                       TIZ_CBUF(base->p_hdl_),
+                                       "OMX_BUFFERFLAG_EOS on port [%d]...", pid);
+
+                        /* ... flag EOS ... */
+                        p_obj->eos_ = OMX_TRUE;
+                        tizservant_issue_event ((OMX_PTR) ap_obj,
+                                                OMX_EventBufferFlag,
+                                                pid, p_hdr->nFlags, NULL);
+                      }
+                  }
+
                 /* get rid of the buffer */
                 tizservant_issue_buf_callback ((OMX_PTR) ap_obj, p_hdr,
                                                pid, pdir, thdl);
@@ -1182,7 +1185,7 @@ init_ports_and_lists (void *ap_obj)
 
   p_obj->p_cport_ = NULL;
   p_obj->p_proc_ = NULL;
-  p_obj->stopping_ = OMX_FALSE;
+  p_obj->eos_ = OMX_FALSE;
   p_obj->rm_ = 0;
   p_obj->rm_cbacks_.pf_waitend = &wait_complete;
   p_obj->rm_cbacks_.pf_preempt = &preemption_req;
@@ -1367,7 +1370,7 @@ all_buffers_returned (void *ap_obj)
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(hdl), TIZ_CBUF(hdl),
                  "ALL BUFFERS returned = [TRUE]...");
 
-  p_obj->stopping_ = OMX_FALSE;
+  p_obj->eos_ = OMX_FALSE;
 
   return OMX_TRUE;
 }
@@ -2238,7 +2241,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tizkernel_msg_class_t a_msg_class)
 
   assert (nbufs != 0);
 
-  TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
                  TIZ_CNAME(p_msg->p_hdl),
                  TIZ_CBUF(p_msg->p_hdl),
                  "ingress list length [%d]", nbufs);
@@ -3321,8 +3324,6 @@ kernel_stop_and_return (void *ap_obj)
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(hdl), TIZ_CBUF(hdl),
                    "stop and return...[%p]", ap_obj);
-
-  p_obj->stopping_ = OMX_TRUE;
 
   for (i = 0; i < nports && OMX_ErrorNone == rc; ++i)
     {
