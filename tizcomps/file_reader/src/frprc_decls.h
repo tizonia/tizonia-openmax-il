@@ -34,6 +34,8 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
+
 #include "frprc.h"
 #include "tizproc_decls.h"
 
@@ -44,7 +46,7 @@ struct frprc
   FILE *p_file_;
   OMX_PARAM_CONTENTURITYPE *p_uri_param_;
   OMX_U32 counter_;
-  OMX_BOOL eos_;
+  bool eos_;
 };
 
 #ifdef __cplusplus

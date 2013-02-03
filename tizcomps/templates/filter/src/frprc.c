@@ -268,7 +268,7 @@ fr_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
          already, so its time to propagate the EOS flag */
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_LOG_NOTICE,
                        TIZ_CNAME(p_parent->ip_hdl),
                        TIZ_CBUF(p_parent->ip_hdl),
                        "p_obj->eos OUTPUT HEADER [%p]...",

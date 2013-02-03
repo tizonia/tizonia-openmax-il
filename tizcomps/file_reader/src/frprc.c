@@ -59,7 +59,7 @@ fr_proc_ctor (void *ap_obj, va_list * app)
   p_obj->p_file_ = NULL;
   p_obj->p_uri_param_ = NULL;
   p_obj->counter_ = 0;
-  p_obj->eos_ = OMX_FALSE;
+  p_obj->eos_ = false;
   return p_obj;
 }
 
@@ -94,10 +94,10 @@ fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
         {
           if (feof (p_obj->p_file_))
             {
-              TIZ_LOG (TIZ_LOG_TRACE,
+              TIZ_LOG (TIZ_LOG_NOTICE,
                          "End of file reached bytes_read=[%d]", bytes_read);
               p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
-              p_obj->eos_ = OMX_TRUE;
+              p_obj->eos_ = true;
             }
           else
             {
@@ -198,7 +198,7 @@ fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   struct frprc *p_obj = ap_obj;
   assert (ap_obj);
   p_obj->counter_ = 0;
-  p_obj->eos_ = OMX_FALSE;
+  p_obj->eos_ = false;
   return OMX_ErrorNone;
 }
 
@@ -208,7 +208,7 @@ fr_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
   struct frprc *p_obj = ap_obj;
   assert (ap_obj);
   p_obj->counter_ = 0;
-  p_obj->eos_ = OMX_FALSE;
+  p_obj->eos_ = false;
   return OMX_ErrorNone;
 }
 
@@ -231,7 +231,7 @@ fr_proc_buffers_ready (const void *ap_obj)
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  if (!(p_obj->eos_))
+  if (p_obj->eos_ == false)
     {
       TIZ_PD_ZERO (&ports);
 
@@ -240,7 +240,7 @@ fr_proc_buffers_ready (const void *ap_obj)
       if (TIZ_PD_ISSET (0, &ports))
         {
           TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer (p_krn, 0, 0, &p_hdr));
-          TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...", p_hdr);
+          TIZ_LOG (TIZ_LOG_NOTICE, "Claimed HEADER [%p]...", p_hdr);
           TIZ_UTIL_TEST_ERR (fr_proc_read_buffer (ap_obj, p_hdr));
           tizkernel_relinquish_buffer (p_krn, 0, p_hdr);
         }
