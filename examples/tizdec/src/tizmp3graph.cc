@@ -30,6 +30,7 @@
 #endif
 
 #include <boost/foreach.hpp>
+#include <boost/make_shared.hpp>
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
@@ -45,10 +46,20 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.graph.mp3"
 #endif
 
+tizmp3graph::tizmp3graph(tizprobe_ptr_t probe_ptr)
+  : tizgraph(3, probe_ptr)
+{
+}
+
 OMX_ERRORTYPE
-tizmp3graph::instantiate(const component_names_t &comp_list)
+tizmp3graph::load()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
+
+  component_names_t comp_list;
+  comp_list.push_back("OMX.Aratelia.file_reader.binary");
+  comp_list.push_back("OMX.Aratelia.audio_decoder.mp3");
+  comp_list.push_back("OMX.Aratelia.audio_renderer.pcm");
 
   if (OMX_ErrorNone != (ret = verify_existence(comp_list)))
     {
@@ -74,18 +85,20 @@ tizmp3graph::instantiate(const component_names_t &comp_list)
 }
 
 OMX_ERRORTYPE
-tizmp3graph::configure(const OMX_STRING file_uri)
+tizmp3graph::configure(const std::string &uri /* = std::string() */)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
-  OMX_PARAM_CONTENTURITYPE *p_uritype = NULL;
-  OMX_AUDIO_PARAM_MP3TYPE mp3type;
-  OMX_AUDIO_PARAM_PCMMODETYPE pcmmodetype;
 
-  assert (NULL != file_uri);
-
-  if (OMX_ErrorNone != (ret = verify_uri_existence(file_uri)))
+  if (!uri.empty())
     {
-      return ret;
+      // Probe the new uri
+      probe_ptr_.reset();
+      probe_ptr_ = boost::make_shared<tizprobe>(uri);
+      if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
+          || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
+        {
+          return OMX_ErrorContentURIError;
+        }
     }
 
   if (OMX_ErrorNone != (ret = setup_suppliers()))
@@ -94,6 +107,7 @@ tizmp3graph::configure(const OMX_STRING file_uri)
     }
 
   // Set the new URI
+  OMX_PARAM_CONTENTURITYPE *p_uritype = NULL;
 
   if (NULL == (p_uritype = (OMX_PARAM_CONTENTURITYPE*) tiz_mem_calloc
                (1, sizeof (OMX_PARAM_CONTENTURITYPE)
@@ -106,8 +120,9 @@ tizmp3graph::configure(const OMX_STRING file_uri)
     + OMX_MAX_STRINGNAME_SIZE;
   p_uritype->nVersion.nVersion = OMX_VERSION;
 
-  strncpy ((char*)p_uritype->contentURI, file_uri, OMX_MAX_STRINGNAME_SIZE);
-  p_uritype->contentURI[strlen (file_uri)] = '\0';
+  strncpy ((char*)p_uritype->contentURI, probe_ptr_->get_uri().c_str(),
+           OMX_MAX_STRINGNAME_SIZE);
+  p_uritype->contentURI[strlen (probe_ptr_->get_uri().c_str())] = '\0';
   if (OMX_ErrorNone != (ret = OMX_SetParameter (handles_[0],
                                                 OMX_IndexParamContentURI,
                                                 p_uritype)))
@@ -120,6 +135,7 @@ tizmp3graph::configure(const OMX_STRING file_uri)
   p_uritype = NULL;
 
   // Obtain the mp3 settings from the decoder's port #0
+  OMX_AUDIO_PARAM_MP3TYPE mp3type;
 
   mp3type.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
   mp3type.nVersion.nVersion = OMX_VERSION;
@@ -133,17 +149,7 @@ tizmp3graph::configure(const OMX_STRING file_uri)
 
   // Set the mp3 settings on decoder's port #0
 
-  mp3type.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
-  mp3type.nVersion.nVersion = OMX_VERSION;
-  mp3type.nPortIndex = 0;
-  mp3type.nChannels = 2;
-  mp3type.nBitRate = 0;
-  mp3type.nSampleRate = 44100;
-  mp3type.nAudioBandWidth = 0;
-  mp3type.eChannelMode = OMX_AUDIO_ChannelModeStereo;
-  mp3type.eFormat = OMX_AUDIO_MP3StreamFormatMP2Layer3;
-
-  probe (file_uri, mp3type);
+  probe_ptr_->get_mp3_codec_info(mp3type);
 
   if (OMX_ErrorNone
       != (ret = OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
@@ -152,17 +158,23 @@ tizmp3graph::configure(const OMX_STRING file_uri)
       return ret;
     }
 
-  // Await port settings change event on decoders's port #1
-
-  waitevent_list_t event_list (1,
-                               waitevent_info(handles_[1],
-                                              OMX_EventPortSettingsChanged,
-                                              1, //nData1
-                                              (OMX_U32)OMX_IndexParamAudioPcm, //nData2
-                                              NULL));
-  cback_handler_.wait_for_event_list(event_list);
+  // TODO: Finalize this if statement adding other relevant members of the
+  // mp3type struct
+  if (48000 != mp3type.nSampleRate)
+    {
+      // Await port settings change event on decoders's port #1
+      waitevent_list_t event_list 
+        (1,
+         waitevent_info(handles_[1],
+                        OMX_EventPortSettingsChanged,
+                        1, //nData1
+                        (OMX_U32)OMX_IndexParamAudioPcm, //nData2
+                        NULL));
+      cback_handler_.wait_for_event_list(event_list);
+    }
 
   // Set the pcm settings on renderer's port #0
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmodetype;
 
   pcmmodetype.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
   pcmmodetype.nVersion.nVersion = OMX_VERSION;
@@ -172,13 +184,13 @@ tizmp3graph::configure(const OMX_STRING file_uri)
   pcmmodetype.eEndian = OMX_EndianBig;
   pcmmodetype.bInterleaved = OMX_TRUE;
   pcmmodetype.nBitPerSample = 16;
-  pcmmodetype.nSamplingRate = 44100;
+  pcmmodetype.nSamplingRate = mp3type.nSampleRate;
   pcmmodetype.ePCMMode = OMX_AUDIO_PCMModeMULaw;
   pcmmodetype.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
   pcmmodetype.eChannelMapping[0] = OMX_AUDIO_ChannelRF;
   if (OMX_ErrorNone
       != (ret = OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
-                                    &pcmmodetype)))
+                                  &pcmmodetype)))
     {
       return ret;
     }
@@ -220,19 +232,11 @@ tizmp3graph::execute()
 }
 
 void
-tizmp3graph::destroy()
+tizmp3graph::unload()
 {
   (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
   (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
 
   tear_down_tunnels();
   destroy_list();
-}
-
-void
-tizmp3graph::probe(const OMX_STRING file_uri,
-                   OMX_AUDIO_PARAM_MP3TYPE &mp3type) const
-{
-  tizprobe pb (file_uri);
-  pb.get_mp3_codec_info(mp3type);
 }

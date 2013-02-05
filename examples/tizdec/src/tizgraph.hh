@@ -29,19 +29,24 @@
 #ifndef TIZGRAPH_HH
 #define TIZGRAPH_HH
 
-#include "OMX_Core.h"
-
 #include <vector>
 #include <string>
 #include <list>
 #include <map>
 #include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include "OMX_Core.h"
+#include "tizprobe.hh"
 
 typedef std::vector<std::string> component_names_t;
 typedef std::vector<OMX_HANDLETYPE> component_handles_t;
 typedef std::vector<std::string> component_roles_t;
 typedef std::vector<OMX_EVENTTYPE> component_events_t;
 typedef std::map<OMX_HANDLETYPE, std::string> handle_to_name_t;
+
+class tizgraph;
+typedef boost::shared_ptr<tizgraph> tizgraph_ptr_t;
 
 OMX_ERRORTYPE
 tizgraph_event_handler (OMX_HANDLETYPE hComponent,
@@ -88,8 +93,6 @@ struct waitevent_info
 
 typedef std::list<waitevent_info> waitevent_list_t;
 
-class tizgraph;
-
 class tizcback_handler
 {
 
@@ -129,13 +132,13 @@ class tizgraph
 
 public:
 
-  tizgraph(int graph_size);
-  ~tizgraph();
+  tizgraph(int graph_size, tizprobe_ptr_t probe);
+  virtual ~tizgraph();
 
-  virtual OMX_ERRORTYPE instantiate(const component_names_t &comp_list) = 0;
-  virtual OMX_ERRORTYPE configure(const OMX_STRING file_uri) = 0;
+  virtual OMX_ERRORTYPE load() = 0;
+  virtual OMX_ERRORTYPE configure(const std::string &uri = std::string()) = 0;
   virtual OMX_ERRORTYPE execute() = 0;
-  virtual void destroy() = 0;
+  virtual void unload() = 0;
 
 protected:
 
@@ -144,7 +147,6 @@ protected:
                             const std::string &role) const;
   OMX_ERRORTYPE verify_role_list(const component_names_t &comp_list,
                                  const component_roles_t &role_list) const;
-  OMX_ERRORTYPE verify_uri_existence(const OMX_STRING file_uri) const;
 
   OMX_ERRORTYPE instantiate_component(const std::string &comp,
                                       int graph_position);
@@ -164,6 +166,8 @@ protected:
   handle_to_name_t h2n_;
   component_handles_t handles_;
   tizcback_handler cback_handler_;
+  std::string uri_;
+  tizprobe_ptr_t probe_ptr_;
 
 };
 

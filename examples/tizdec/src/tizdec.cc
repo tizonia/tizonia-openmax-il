@@ -44,14 +44,16 @@
 #include <string>
 #include <getopt.h>
 
-#include "OMX_Core.h"
-
-#include "tizosal.h"
-
-#include "tizomxutil.hh"
-#include "tizmp3graph.hh"
-
 #include <boost/foreach.hpp>
+#include <boost/filesystem.hpp>
+#include <ostream>
+
+#include "OMX_Core.h"
+#include "tizosal.h"
+#include "tizomxutil.hh"
+#include "tizgraph.hh"
+#include "tizgraphfactory.hh"
+
 
 void
 tizdec_sig_hdlr(int sig)
@@ -160,48 +162,89 @@ comps_of_role(OMX_STRING role)
   return ret;
 }
 
-OMX_ERRORTYPE
-decode(const OMX_STRING file_uri)
+
+struct pathname_of
 {
-  std::vector<std::string> components;
+  pathname_of(std::vector<std::string> &file_list)
+    :
+    file_list_(file_list){}
+
+  void operator()(const boost::filesystem::directory_entry& p) const
+  {
+    file_list_.push_back(p.path().string());
+  }
+  std::vector<std::string> &file_list_;
+};
+
+static OMX_ERRORTYPE
+verify_uri (const std::string &uri,
+            std::vector<std::string> &file_list)
+{ 
+  if (boost::filesystem::exists (uri)
+      && boost::filesystem::is_regular_file (uri))
+  {
+    file_list.push_back (uri);
+    return OMX_ErrorNone;
+  }
+  else if (boost::filesystem::exists (uri)
+           && boost::filesystem::is_directory (uri))
+  {
+    std::for_each(boost::filesystem::directory_iterator
+                  (boost::filesystem::path(uri)),
+                  boost::filesystem::directory_iterator(),
+                  pathname_of(file_list));
+    return file_list.empty() ? OMX_ErrorContentURIError : OMX_ErrorNone;
+  }
+
+  return OMX_ErrorContentURIError;
+}
+
+OMX_ERRORTYPE
+decode(const OMX_STRING uri)
+{
   OMX_ERRORTYPE ret = OMX_ErrorNone;
-  int index = 0;
+  std::vector<std::string> file_list;
 
-  tizomxutil::init();
-
-  tizmp3graph g;
-  component_names_t comp_list;
-  comp_list.push_back("OMX.Aratelia.file_reader.binary");
-  comp_list.push_back("OMX.Aratelia.audio_decoder.mp3");
-  comp_list.push_back("OMX.Aratelia.audio_renderer.pcm");
-
-  if (OMX_ErrorNone != (ret = g.instantiate(comp_list)))
+  if (OMX_ErrorNone != verify_uri (uri, file_list))
     {
-      fprintf(stderr, "Found error %s while instantiating the graph.\n",
-              tiz_err_to_str (ret));
-      tizomxutil::deinit();
+      fprintf(stderr, "File not found.\n");
       exit(EXIT_FAILURE);
     }
 
-  if (OMX_ErrorNone != (ret = g.configure(file_uri)))
+  tizgraph_ptr_t g_ptr(tizgraphfactory::create_graph(file_list[0].c_str()));
+  if (!g_ptr)
     {
-      fprintf(stderr, "Found error %s while configuring the graph.\n",
-              tiz_err_to_str (ret));
-      tizomxutil::deinit();
+      fprintf(stderr, "Could not create a graph. Unsupported format.\n");
       exit(EXIT_FAILURE);
     }
 
-  if (OMX_ErrorNone != (ret = g.execute()))
+  int list_size = file_list.size();
+  for (int i=0; i < list_size; i++)
     {
-      fprintf(stderr, "Found error %s while executing the graph.\n",
-              tiz_err_to_str (ret));
-      tizomxutil::deinit();
-      exit(EXIT_FAILURE);
+
+      if (OMX_ErrorNone != (ret = g_ptr->load()))
+        {
+          fprintf(stderr, "Found error %s while loading the graph.\n",
+                  tiz_err_to_str (ret));
+          exit(EXIT_FAILURE);
+        }
+
+      if (OMX_ErrorNone != (ret = g_ptr->configure(i == 0 ? std::string()
+                                                   : file_list[i])))
+        {
+          fprintf(stderr, "Could not configure a graph. Skipping file.\n");
+          continue;
+        }
+
+      if (OMX_ErrorNone != (ret = g_ptr->execute()))
+        {
+          fprintf(stderr, "Found error %s while executing the graph.\n",
+                  tiz_err_to_str (ret));
+          exit(EXIT_FAILURE);
+        }
+
+      g_ptr->unload();
     }
-
-  g.destroy();
-
-  tizomxutil::deinit();
 
   return ret;
 }

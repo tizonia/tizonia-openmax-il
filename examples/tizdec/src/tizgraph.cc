@@ -33,7 +33,6 @@
 #include <assert.h>
 #include <algorithm>
 #include <boost/foreach.hpp>
-#include <boost/filesystem.hpp>
 
 #include "OMX_Component.h"
 #include "tizgraph.hh"
@@ -214,16 +213,20 @@ tizcback_handler::all_events_received ()
 //
 // tizgraph
 //
-tizgraph::tizgraph(int graph_size)
+tizgraph::tizgraph(int graph_size, tizprobe_ptr_t probe_ptr)
   :
   h2n_(),
   handles_(graph_size, OMX_HANDLETYPE(NULL)),
-  cback_handler_(*this)
+  cback_handler_(*this),
+  probe_ptr_(probe_ptr)
 {
+  assert (probe_ptr);
+  tizomxutil::init();
 }
 
 tizgraph::~tizgraph()
 {
+  tizomxutil::deinit();
 }
 
 OMX_ERRORTYPE
@@ -315,17 +318,6 @@ tizgraph::verify_role_list(const component_names_t &comp_list,
     }
 
   return error;
-}
-
-OMX_ERRORTYPE
-tizgraph::verify_uri_existence(const OMX_STRING file_uri) const
-{
-  if (boost::filesystem::exists (file_uri)
-      && boost::filesystem::is_regular_file (file_uri))
-  {
-    return OMX_ErrorNone;
-  }
-  return OMX_ErrorContentURIError;
 }
 
 OMX_ERRORTYPE

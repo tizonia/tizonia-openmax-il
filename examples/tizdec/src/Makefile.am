@@ -20,6 +20,7 @@ bin_PROGRAMS = tizdec
 noinst_HEADERS = \
 	tizomxutil.hh \
 	tizprobe.hh \
+	tizgraphfactory.hh \
 	tizgraph.hh \
 	tizmp3graph.hh
 
@@ -27,6 +28,7 @@ tizdec_SOURCES = \
 	tizdec.cc \
 	tizomxutil.cc \
 	tizprobe.cc \
+	tizgraphfactory.cc \
 	tizgraph.cc \
 	tizmp3graph.cc
 
