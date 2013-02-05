@@ -117,7 +117,7 @@ ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
           err = snd_pcm_recover (p_obj->p_playback_hdl, err, 0);
           if (err < 0)
             {
-              TIZ_LOG (TIZ_LOG_TRACE, "snd_pcm_recover error: %s",
+              TIZ_LOG (TIZ_LOG_ERROR, "snd_pcm_recover error: %s",
                          snd_strerror (err));
               break;
             }
@@ -183,14 +183,14 @@ ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       if ((err = snd_pcm_open (&p_obj->p_playback_hdl, get_alsa_device(p_obj),
                                SND_PCM_STREAM_PLAYBACK, 0)) < 0)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "cannot open audio device %s (%s)",
+          TIZ_LOG (TIZ_LOG_ERROR, "cannot open audio device %s (%s)",
                      TIZ_AR_ALSA_PCM_DEVICE, snd_strerror (err));
           return OMX_ErrorInsufficientResources;
         }
 
       if ((err = snd_pcm_hw_params_malloc (&p_obj->p_hw_params)) < 0)
         {
-          TIZ_LOG (TIZ_LOG_TRACE,
+          TIZ_LOG (TIZ_LOG_ERROR,
                      "cannot allocate hardware parameter structure" " (%s)",
                      snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -200,7 +200,7 @@ ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   if ((err = snd_pcm_hw_params_any (p_obj->p_playback_hdl,
                                     p_obj->p_hw_params)) < 0)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "cannot initialize hardware parameter "
+      TIZ_LOG (TIZ_LOG_ERROR, "cannot initialize hardware parameter "
                  "structure (%s)", snd_strerror (err));
       return OMX_ErrorInsufficientResources;
     }
@@ -253,11 +253,11 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                          p_parent->p_hdl_,
                          OMX_IndexParamAudioPcm, &p_obj->pcmmode)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Error retrieving pcm params from port");
+      TIZ_LOG (TIZ_LOG_ERROR, "Error retrieving pcm params from port");
       return ret_val;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nChannels = [%d] nBitPerSample = [%d] "
+  TIZ_LOG (TIZ_LOG_NOTICE, "nChannels = [%d] nBitPerSample = [%d] "
              "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
              "bInterleaved = [%s] ePCMMode = [%d]",
              p_obj->pcmmode.nChannels,
@@ -284,7 +284,7 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 
   if ((err = snd_pcm_prepare (p_obj->p_playback_hdl)) < 0)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Cannot prepare audio interface for use "
+      TIZ_LOG (TIZ_LOG_ERROR, "Cannot prepare audio interface for use "
                  "(%s)", snd_strerror (err));
       return OMX_ErrorInsufficientResources;
     }
@@ -339,7 +339,7 @@ ar_proc_buffers_ready (const void *ap_obj)
       TIZ_UTIL_TEST_ERR (ar_proc_render_buffer (ap_obj, p_hdr));
       if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOG (TIZ_LOG_TRACE,
+          TIZ_LOG (TIZ_LOG_DEBUG,
                      "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
           tizservant_issue_event ((OMX_PTR) ap_obj,
                                   OMX_EventBufferFlag,

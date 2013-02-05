@@ -54,7 +54,9 @@
 <!--         <category name="tiz.vp8_decoder.prc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.vp8_decoder.check" priority="trace" appender="stdout" /> -->
 
+<!--         <category name="tiz.dec" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.graph" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.graph.mp3" priority="trace" appender="stdout" /> -->
 
 
 <!-- 	<appender name="stdout" type="stream" layout="basic"/> -->
