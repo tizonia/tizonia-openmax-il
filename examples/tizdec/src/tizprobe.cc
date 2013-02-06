@@ -97,9 +97,25 @@ tizprobe::tizprobe(const std::string &uri)
   domain_(OMX_PortDomainMax),
   audio_coding_type_(OMX_AUDIO_CodingUnused),
   video_coding_type_(OMX_VIDEO_CodingUnused),
+  pcmtype_(),
   mp3type_(),
   vp8type_()
 {
+  // Defaults are the same as in the standard pcm renderer
+  pcmtype_.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+  pcmtype_.nVersion.nVersion = OMX_VERSION;
+  pcmtype_.nPortIndex = 0;
+  pcmtype_.nChannels = 2;
+  pcmtype_.eNumData = OMX_NumericalDataSigned;
+  pcmtype_.eEndian = OMX_EndianBig;
+  pcmtype_.bInterleaved = OMX_TRUE;
+  pcmtype_.nBitPerSample = 16;
+  pcmtype_.nSamplingRate = 48000;
+  pcmtype_.ePCMMode = OMX_AUDIO_PCMModeLinear;
+  pcmtype_.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
+  pcmtype_.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
+
+  // Defaults are the same as in the standard mp3 decoder
   mp3type_.nSize = sizeof(OMX_AUDIO_PARAM_MP3TYPE);
   mp3type_.nVersion.nVersion = OMX_VERSION;
   mp3type_.nPortIndex = 0;
@@ -156,10 +172,29 @@ tizprobe::probe_file()
       domain_ = OMX_PortDomainAudio;
       audio_coding_type_ = OMX_AUDIO_CodingMP3;
       mp3type_.nSampleRate = cc->sample_rate;
+      pcmtype_.nSamplingRate = cc->sample_rate;
       mp3type_.nChannels = cc->channels;
-      // printf("sample_fmt [%s]\n", av_get_sample_fmt_name(cc->sample_fmt));
-      // printf("mp3type_.nSampleRate [%lu]\n", mp3type_.nSampleRate);
-
+      pcmtype_.nChannels = cc->channels;
+      if ( AV_SAMPLE_FMT_U8 == cc->sample_fmt )
+        {
+          pcmtype_.eNumData = OMX_NumericalDataUnsigned;
+          pcmtype_.nBitPerSample = 8;
+        }
+      else if ( AV_SAMPLE_FMT_S16 == cc->sample_fmt )
+        {
+          pcmtype_.eNumData = OMX_NumericalDataSigned;
+          pcmtype_.nBitPerSample = 16;
+        }
+      else if ( AV_SAMPLE_FMT_S32 == cc->sample_fmt )
+        {
+          pcmtype_.eNumData = OMX_NumericalDataSigned;
+          pcmtype_.nBitPerSample = 32;
+        }
+      else
+        {
+          pcmtype_.eNumData = OMX_NumericalDataSigned;
+          pcmtype_.nBitPerSample = 16;
+        }
     }
   else if (codec_id == CODEC_ID_VP8)
     {
@@ -170,6 +205,21 @@ tizprobe::probe_file()
   close_input_file(&fmt_ctx);
 
   return 0;
+}
+
+void
+tizprobe::get_pcm_codec_info(OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file();
+    }
+
+  pcmtype = pcmtype_;
+  pcmtype.eChannelMapping[0] = pcmtype_.eChannelMapping[0];
+  pcmtype.eChannelMapping[1] = pcmtype_.eChannelMapping[1];
+
+  return;
 }
 
 void

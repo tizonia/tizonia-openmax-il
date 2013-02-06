@@ -177,9 +177,35 @@ struct pathname_of
 };
 
 static OMX_ERRORTYPE
+filter_unknown_media (std::vector<std::string> &file_list)
+{
+  std::vector<std::string>::iterator it = file_list.begin();
+  while (it != file_list.end())
+    {
+      std::string extension(boost::filesystem::path(*it).
+                            extension().string());
+      if (extension.compare (".mp3") != 0)
+        //&&
+        // extension.compare (".ivf") != 0)
+        {
+          printf ("Removing %s \n", (*it).c_str());
+          file_list.erase(it);
+          // Restart the loop
+          it = file_list.begin();
+        }
+      else
+        {
+          ++it;
+        }
+    }
+
+  return file_list.empty() ? OMX_ErrorContentURIError : OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
 verify_uri (const std::string &uri,
             std::vector<std::string> &file_list)
-{ 
+{
   if (boost::filesystem::exists (uri)
       && boost::filesystem::is_regular_file (uri))
   {
@@ -211,9 +237,19 @@ decode(const OMX_STRING uri)
       exit(EXIT_FAILURE);
     }
 
+  if (OMX_ErrorNone != filter_unknown_media (file_list))
+    {
+      fprintf(stderr, "Unsupported media types.\n");
+      exit(EXIT_FAILURE);
+    }
+
+  std::sort(file_list.begin(), file_list.end());
+
   tizgraph_ptr_t g_ptr(tizgraphfactory::create_graph(file_list[0].c_str()));
   if (!g_ptr)
     {
+      // At this point we have removed all unsupported media, so we should
+      // always have a graph object.
       fprintf(stderr, "Could not create a graph. Unsupported format.\n");
       exit(EXIT_FAILURE);
     }

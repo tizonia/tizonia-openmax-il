@@ -58,6 +58,7 @@ public:
   OMX_VIDEO_CODINGTYPE get_video_coding_type () const
   { return video_coding_type_; }
 
+  void get_pcm_codec_info(OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
   void get_mp3_codec_info(OMX_AUDIO_PARAM_MP3TYPE &mp3type);
   void get_vp8_codec_info(OMX_VIDEO_PARAM_VP8TYPE &vp8type);
 
@@ -71,6 +72,7 @@ private:
   OMX_PORTDOMAINTYPE domain_;
   OMX_AUDIO_CODINGTYPE audio_coding_type_;
   OMX_VIDEO_CODINGTYPE video_coding_type_;
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmtype_;
   OMX_AUDIO_PARAM_MP3TYPE mp3type_;
   OMX_VIDEO_PARAM_VP8TYPE vp8type_;
 };

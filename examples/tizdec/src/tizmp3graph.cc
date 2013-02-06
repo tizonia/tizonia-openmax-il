@@ -150,7 +150,7 @@ tizmp3graph::configure(const std::string &uri /* = std::string() */)
   // Set the mp3 settings on decoder's port #0
 
   probe_ptr_->get_mp3_codec_info(mp3type);
-
+  mp3type.nPortIndex = 0;
   if (OMX_ErrorNone
       != (ret = OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
                                     &mp3type)))
@@ -158,9 +158,7 @@ tizmp3graph::configure(const std::string &uri /* = std::string() */)
       return ret;
     }
 
-  // TODO: Finalize this if statement adding other relevant members of the
-  // mp3type struct
-  if (48000 != mp3type.nSampleRate)
+  if (48000 != mp3type.nSampleRate || 2 != mp3type.nChannels)
     {
       // Await port settings change event on decoders's port #1
       waitevent_list_t event_list 
@@ -174,23 +172,16 @@ tizmp3graph::configure(const std::string &uri /* = std::string() */)
     }
 
   // Set the pcm settings on renderer's port #0
-  OMX_AUDIO_PARAM_PCMMODETYPE pcmmodetype;
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
 
-  pcmmodetype.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  pcmmodetype.nVersion.nVersion = OMX_VERSION;
-  pcmmodetype.nPortIndex = 0;
-  pcmmodetype.nChannels = 2;
-  pcmmodetype.eNumData = OMX_NumericalDataSigned;
-  pcmmodetype.eEndian = OMX_EndianBig;
-  pcmmodetype.bInterleaved = OMX_TRUE;
-  pcmmodetype.nBitPerSample = 16;
-  pcmmodetype.nSamplingRate = mp3type.nSampleRate;
-  pcmmodetype.ePCMMode = OMX_AUDIO_PCMModeMULaw;
-  pcmmodetype.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
-  pcmmodetype.eChannelMapping[0] = OMX_AUDIO_ChannelRF;
+  probe_ptr_->get_pcm_codec_info(pcmtype);
+  pcmtype.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+  pcmtype.nVersion.nVersion = OMX_VERSION;
+  pcmtype.nPortIndex = 0;
+
   if (OMX_ErrorNone
       != (ret = OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
-                                  &pcmmodetype)))
+                                  &pcmtype)))
     {
       return ret;
     }
