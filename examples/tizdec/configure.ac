@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_PREREQ([2.67])
-AC_INIT([tizdec], [0.1], [juan.rubio@aratelia.com])
+AC_PREREQ([2.68])
+AC_INIT([tizdec], [0.1.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -34,31 +34,33 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AM_PROG_CC_C_O
-AC_PROG_INSTALL
-AC_PROG_LN_S
-AC_PROG_MAKE_SET
+AC_PROG_RANLIB
 LT_INIT
 
-PKG_PROG_PKG_CONFIG()
-
 # Checks for libraries.
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
+AC_CHECK_LIB([avcodec], [avcodec_init])
+AC_CHECK_LIB([avformat], [avformat_open_input])
+# FIXME: Replace `main' with a function in `-lboost_filesystem':
+AC_CHECK_LIB([boost_filesystem], [main])
+# FIXME: Replace `main' with a function in `-lboost_system':
+AC_CHECK_LIB([boost_system], [main])
+# FIXME: Replace `main' with a function in `-lboost_thread':
+AC_CHECK_LIB([boost_thread], [main])
 
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
 #PKG_CHECK_MODULES([TIZ], [libtizosal])
 
 # Checks for header files.
-AC_CHECK_HEADERS([syslog.h unistd.h])
+AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
+
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([boost/foreach.hpp], [],
     [AC_MSG_ERROR(You need the Boost libraries.)])
 AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_TYPE_MODE_T
-AC_TYPE_PID_T
-AC_C_RESTRICT
+AC_HEADER_STDBOOL
+AC_C_INLINE
 
 # Checks for library functions.
 

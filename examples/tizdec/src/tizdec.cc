@@ -188,7 +188,6 @@ filter_unknown_media (std::vector<std::string> &file_list)
         //&&
         // extension.compare (".ivf") != 0)
         {
-          printf ("Removing %s \n", (*it).c_str());
           file_list.erase(it);
           // Restart the loop
           it = file_list.begin();
