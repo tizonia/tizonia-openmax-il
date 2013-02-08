@@ -15,19 +15,21 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+TESTS = check_file_writer
 
-SUBDIRS = \
-	audio_renderer \
-	file_reader \
-	file_writer \
-	mp3_decoder \
-	vp8_decoder \
-	vp8_encoder \
-	webp_decoder \
-	webp_encoder \
-	yuv_renderer
+check_PROGRAMS = check_file_writer
 
+check_file_writer_SOURCES = check_file_writer.c
 
-#pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = tizcomps.pc
+check_file_writer_CFLAGS = \
+	-I$(top_srcdir)/../../include/omxil-1.2 \
+	-I$(top_srcdir)/../../libtizosal/src \
+	-I$(top_srcdir)/../../libtizonia/src/ \
+	@CHECK_CFLAGS@
+
+check_file_writer_LDADD = \
+	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizcore/src/libtizcore.la \
+	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	@CHECK_LIBS@
 

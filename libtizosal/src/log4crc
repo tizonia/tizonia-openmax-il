@@ -30,7 +30,7 @@
 <!--         <category name="tiz.tizonia.scheduler" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.servant" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.fsm" priority="trace" appender="stdout" /> -->
-<!--         <category name="tiz.tizonia.kernel" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.tizonia.kernel" priority="notice" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.object" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.proc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.arprc" priority="trace" appender="stdout" /> -->
@@ -44,6 +44,9 @@
 <!--         <category name="tiz.file_reader" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.file_reader.prc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.file_reader.check" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.file_writer" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.file_writer.prc" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.file_writer.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.mp3_decoder" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.mp3_decoder.prc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.mp3_decoder.check" priority="trace" appender="stdout" /> -->

@@ -15,19 +15,26 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+lib_LTLIBRARIES = libtizfw.la
 
-SUBDIRS = \
-	audio_renderer \
-	file_reader \
-	file_writer \
-	mp3_decoder \
-	vp8_decoder \
-	vp8_encoder \
-	webp_decoder \
-	webp_encoder \
-	yuv_renderer
+noinst_HEADERS = \
+	fwcfgport.h \
+	fwcfgport_decls.h \
+	fwprc.h \
+	fwprc_decls.h
 
+libtizfw_la_SOURCES = \
+	fw.c \
+	fwcfgport.c \
+	fwprc.c
 
-#pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = tizcomps.pc
+libtizfw_la_CFLAGS = \
+	-I$(top_srcdir)/../../include/omxil-1.2 \
+	-I$(top_srcdir)/../../libtizosal/src \
+	-I$(top_srcdir)/../../libtizonia/src
+
+libtizfw_la_LIBADD = \
+	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizonia/src/libtizonia.la
+
 

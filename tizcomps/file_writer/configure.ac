@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizcomps], [0.1], [juan.rubio@aratelia.com])
+AC_INIT([libtizfw], [0.1], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -49,17 +49,9 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 # Checks for library functions.
 
 
-AC_CONFIG_FILES([Makefile])
-
-AC_CONFIG_SUBDIRS([audio_renderer
-                   file_reader
-                   file_writer
-                   mp3_decoder
-                   vp8_decoder
-                   vp8_encoder
-                   webp_decoder
-                   webp_encoder
-                   yuv_renderer])
+AC_CONFIG_FILES([Makefile
+                 src/Makefile
+                 tests/Makefile])
 
 # End the configure script.
 AC_OUTPUT
