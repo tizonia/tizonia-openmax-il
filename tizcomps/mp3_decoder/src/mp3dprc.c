@@ -275,8 +275,6 @@ static void *
 mp3d_proc_ctor (void *ap_obj, va_list * app)
 {
   struct mp3dprc *p_obj = super_ctor (mp3dprc, ap_obj, app);
-  TIZ_LOG (TIZ_LOG_TRACE, "Constructing mp3dprc...[%p]", p_obj);
-
   p_obj->remaining_ = 0;
   p_obj->frame_count_ = 0;
   p_obj->p_inhdr_ = 0;
@@ -290,8 +288,6 @@ mp3d_proc_ctor (void *ap_obj, va_list * app)
 static void *
 mp3d_proc_dtor (void *ap_obj)
 {
-  struct mp3dprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing mp3dprc...[%p]", p_obj);
   return super_dtor (mp3dprc, ap_obj);
 }
 
@@ -710,7 +706,8 @@ static OMX_ERRORTYPE
 mp3d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
   struct mp3dprc *p_obj = (struct mp3dprc *)ap_obj;
-  /* Always relinquish all held buffers, regardless of the port id received */
+  /* Always relinquish all held buffers, regardless of the port this is
+     received on */
   relinquish_any_buffers_held (p_obj);
   return OMX_ErrorNone;
 }
@@ -742,7 +739,6 @@ init_mp3dprc (void)
 
   if (!mp3dprc)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing mp3dprc...");
       init_tizproc ();
       mp3dprc =
         factory_new

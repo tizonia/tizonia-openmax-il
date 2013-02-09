@@ -344,6 +344,34 @@ out_put(OMX_BUFFERHEADERTYPE *p_hdr, const uint8_t *buf, unsigned int len)
 
 }
 
+static void
+relinquish_any_buffers_held (const void *ap_obj)
+{
+  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  const struct tizservant *p_parent = ap_obj;
+  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+
+  if (NULL != p_obj->p_inhdr_)
+    {
+      tizkernel_relinquish_buffer (p_krn, 0, p_obj->p_inhdr_);
+      p_obj->p_inhdr_ = NULL;
+    }
+
+  if (NULL != p_obj->p_outhdr_)
+    {
+      tizkernel_relinquish_buffer (p_krn, 1, p_obj->p_outhdr_);
+      p_obj->p_outhdr_ = NULL;
+    }
+
+  if (NULL != p_obj->p_cbuf_)
+    {
+      free (p_obj->p_cbuf_);
+      p_obj->p_cbuf_ = NULL;
+      p_obj->cbuf_sz_ = 0;
+    }
+}
+
+
 /*
  * vp8dprc
  */
@@ -720,6 +748,32 @@ vp8d_proc_buffers_ready (const void *ap_obj)
   return OMX_ErrorNone;
 }
 
+static OMX_ERRORTYPE
+vp8d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
+{
+  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  /* Always relinquish all held buffers, regardless of the port this is
+     received on */
+  relinquish_any_buffers_held (p_obj);
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+vp8d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
+{
+  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  /* Always relinquish all held buffers, regardless of the port this is
+     received on */
+  relinquish_any_buffers_held (p_obj);
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+vp8d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
+{
+  return OMX_ErrorNone;
+}
+
 /*
  * initialization
  */
@@ -732,7 +786,6 @@ init_vp8dprc (void)
 
   if (!vp8dprc)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing vp8dprc...");
       init_tizproc ();
       vp8dprc =
         factory_new
@@ -742,12 +795,16 @@ init_vp8dprc (void)
          sizeof (struct vp8dprc),
          ctor, vp8d_proc_ctor,
          dtor, vp8d_proc_dtor,
-         tizproc_buffers_ready, vp8d_proc_buffers_ready,
          tizservant_allocate_resources, vp8d_proc_allocate_resources,
          tizservant_deallocate_resources, vp8d_proc_deallocate_resources,
          tizservant_prepare_to_transfer, vp8d_proc_prepare_to_transfer,
          tizservant_transfer_and_process, vp8d_proc_transfer_and_process,
-         tizservant_stop_and_return, vp8d_proc_stop_and_return, 0);
+         tizservant_stop_and_return, vp8d_proc_stop_and_return,
+         tizproc_buffers_ready, vp8d_proc_buffers_ready,
+         tizproc_port_flush, vp8d_proc_port_flush,
+         tizproc_port_disable, vp8d_proc_port_disable,
+         tizproc_port_enable, vp8d_proc_port_enable,
+         0);
     }
 
 }
