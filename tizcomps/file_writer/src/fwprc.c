@@ -85,25 +85,27 @@ static OMX_ERRORTYPE
 fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
   struct fwprc *p_obj = (struct fwprc *) ap_obj;
-  int bytes_written = 0;
+  int elems_written = 0;
 
-  if (p_obj->p_file_ && !(p_obj->eos_))
+  if (p_obj->p_file_ && !(p_obj->eos_) && p_hdr->nFilledLen > 0)
     {
-      if (!(bytes_written
-            = fwrite (p_hdr->pBuffer + p_hdr->nOffset,
-                      p_hdr->nFilledLen, 1, p_obj->p_file_)))
+      if (1 != (elems_written
+                = fwrite (p_hdr->pBuffer + p_hdr->nOffset,
+                          p_hdr->nFilledLen, 1, p_obj->p_file_)))
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "An error occurred while reading");
+          TIZ_LOG (TIZ_LOG_ERROR, "elems_written [%d] p_hdr->nFilledLen [%d]: "
+                   "An error occurred while writing", elems_written,
+                   p_hdr->nFilledLen);
           return OMX_ErrorInsufficientResources;
         }
 
-      p_hdr->nFilledLen -= bytes_written;
-      p_obj->counter_ += bytes_written;
+      p_hdr->nFilledLen = 0;
+      p_obj->counter_ += p_hdr->nFilledLen;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Writing data from HEADER [%p]...nFilledLen[%d] "
-           "counter [%d] bytes_written[%d]",
-           p_hdr, p_hdr->nFilledLen, p_obj->counter_, bytes_written);
+  TIZ_LOG (TIZ_LOG_TRACE, "Writing data from HEADER [%p]...nFilledLen [%d] "
+           "counter [%d] elems_written [%d]",
+           p_hdr, p_hdr->nFilledLen, p_obj->counter_, elems_written);
 
   return OMX_ErrorNone;
 
@@ -152,7 +154,7 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   TIZ_LOG (TIZ_LOG_NOTICE, "Retrieved URI [%s]",
            p_obj->p_uri_param_->contentURI);
 
-  if ((p_obj->p_file_ 
+  if ((p_obj->p_file_
        = fopen ((const char*)p_obj->p_uri_param_->contentURI, "w")) == 0)
     {
       TIZ_LOG (TIZ_LOG_ERROR, "Error opening file from URI string");

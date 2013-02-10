@@ -1689,7 +1689,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                 {
                   if (0 > move_to_egress (p_obj, pid))
                     {
-                      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
                                      TIZ_CNAME(p_hdl),
                                      TIZ_CBUF(p_hdl),
                                      "[OMX_ErrorInsufficientResources] : "
@@ -1912,7 +1912,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
                       nbufs = move_to_egress (p_obj, pid);
                       if (nbufs < 0)
                         {
-                          TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                          TIZ_LOG_CNAME (TIZ_LOG_ERROR,
                                            TIZ_CNAME(p_hdl),
                                            TIZ_CBUF(p_hdl),
                                            "[OMX_ErrorInsufficientResources] : "
@@ -1942,7 +1942,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
                       nbufs = move_to_ingress (p_obj, pid);
                       if (nbufs < 0)
                         {
-                          TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                          TIZ_LOG_CNAME (TIZ_LOG_ERROR,
                                            TIZ_CNAME(p_hdl),
                                            TIZ_CBUF(p_hdl),
                                            "[OMX_ErrorInsufficientResources] : "
@@ -1967,7 +1967,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
               nbufs = move_to_egress (p_obj, pid);
               if (nbufs < 0)
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                  TIZ_LOG_CNAME (TIZ_LOG_ERROR,
                                    TIZ_CNAME(p_hdl),
                                    TIZ_CBUF(p_hdl),
                                    "[OMX_ErrorInsufficientResources] : "
@@ -3345,6 +3345,9 @@ kernel_stop_and_return (void *ap_obj)
                            nbufs);
           if (nbufs < 0)
             {
+              TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(hdl), TIZ_CBUF(hdl),
+                             "[OMX_ErrorInsufficientResources] - nbufs [%d]",
+                             nbufs);
               rc = OMX_ErrorInsufficientResources;
             }
 
@@ -3358,6 +3361,9 @@ kernel_stop_and_return (void *ap_obj)
                        nbufs);
       if (nbufs < 0)
         {
+          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(hdl), TIZ_CBUF(hdl),
+                         "[OMX_ErrorInsufficientResources] - nbufs [%d]",
+                         nbufs);
           rc = OMX_ErrorInsufficientResources;
         }
 

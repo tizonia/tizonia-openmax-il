@@ -57,15 +57,12 @@ find_default_uri()
   p_uri = tiz_rcfile_get_value(p_rcfile, "plugins-data",
                                "OMX.Aratelia.file_reader.binary.default_audio_uri");
 
-  if (!p_uri)
-    {
-      TIZ_LOG(TIZ_LOG_TRACE, "Default URI not found...");
-    }
-  else
-    {
-      TIZ_LOG(TIZ_LOG_TRACE, "Default URI [%s]...", p_uri);
-      p_rv = strndup(p_uri, PATH_MAX);
-    }
+  assert (NULL != p_uri
+          && "OMX.Aratelia.file_reader.binary.default_audio_uri not present in tizrc...");
+
+  TIZ_LOG(TIZ_LOG_TRACE, "Default URI [%s]...", p_uri);
+
+  p_rv = strndup(p_uri, PATH_MAX);
 
   tiz_rcfile_close(p_rcfile);
 
