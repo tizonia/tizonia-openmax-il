@@ -292,7 +292,7 @@ mp3d_proc_dtor (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-mp3d_proc_decode_buffer (const void *ap_obj)
+decode_buffer (const void *ap_obj)
 {
   struct mp3dprc *p_obj = (struct mp3dprc *)ap_obj;
   unsigned char *p_guardzone = NULL;
@@ -676,7 +676,7 @@ mp3d_proc_buffers_ready (const void *ap_obj)
             }
         }
 
-      TIZ_UTIL_TEST_ERR (mp3d_proc_decode_buffer (ap_obj));
+      TIZ_UTIL_TEST_ERR (decode_buffer (ap_obj));
       if (p_obj->p_inhdr_ && (0 == p_obj->p_inhdr_->nFilledLen))
         {
           p_obj->p_inhdr_->nOffset = 0;
@@ -716,7 +716,8 @@ static OMX_ERRORTYPE
 mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
   struct mp3dprc *p_obj = (struct mp3dprc *)ap_obj;
-  /* Always relinquish all held buffers, regardless of the port id received */
+  /* Always relinquish all held buffers, regardless of the port this is
+     received on */
   relinquish_any_buffers_held (p_obj);
   return OMX_ErrorNone;
 }

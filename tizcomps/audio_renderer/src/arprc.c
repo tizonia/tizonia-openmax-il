@@ -244,49 +244,52 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   snd_pcm_format_t snd_pcm_format;
   assert (ap_obj);
 
-  /* Retrieve pcm params from port */
-  p_obj->pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  p_obj->pcmmode.nVersion.nVersion = OMX_VERSION;
-  p_obj->pcmmode.nPortIndex = 0; /* port index */
-  if (OMX_ErrorNone != (ret_val = tizapi_GetParameter
-                        (p_krn,
-                         p_parent->p_hdl_,
-                         OMX_IndexParamAudioPcm, &p_obj->pcmmode)))
+  if (NULL != p_obj->p_playback_hdl)
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "Error retrieving pcm params from port");
-      return ret_val;
-    }
+      /* Retrieve pcm params from port */
+      p_obj->pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+      p_obj->pcmmode.nVersion.nVersion = OMX_VERSION;
+      p_obj->pcmmode.nPortIndex = 0; /* port index */
+      if (OMX_ErrorNone != (ret_val = tizapi_GetParameter
+                            (p_krn,
+                             p_parent->p_hdl_,
+                             OMX_IndexParamAudioPcm, &p_obj->pcmmode)))
+        {
+          TIZ_LOG (TIZ_LOG_ERROR, "Error retrieving pcm params from port");
+          return ret_val;
+        }
 
-  TIZ_LOG (TIZ_LOG_NOTICE, "nChannels = [%d] nBitPerSample = [%d] "
-             "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
-             "bInterleaved = [%s] ePCMMode = [%d]",
-             p_obj->pcmmode.nChannels,
-             p_obj->pcmmode.nBitPerSample,
-             p_obj->pcmmode.nSamplingRate,
-             p_obj->pcmmode.eNumData,
-             p_obj->pcmmode.eEndian,
-             p_obj->pcmmode.bInterleaved ? "OMX_TRUE" : "OMX_FALSE",
-             p_obj->pcmmode.ePCMMode);
+      TIZ_LOG (TIZ_LOG_NOTICE, "nChannels = [%d] nBitPerSample = [%d] "
+               "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
+               "bInterleaved = [%s] ePCMMode = [%d]",
+               p_obj->pcmmode.nChannels,
+               p_obj->pcmmode.nBitPerSample,
+               p_obj->pcmmode.nSamplingRate,
+               p_obj->pcmmode.eNumData,
+               p_obj->pcmmode.eEndian,
+               p_obj->pcmmode.bInterleaved ? "OMX_TRUE" : "OMX_FALSE",
+               p_obj->pcmmode.ePCMMode);
 
-  /* TODO : Add function to encode properly encode snd_pcm_format */
-  snd_pcm_format = p_obj->pcmmode.eEndian == OMX_EndianLittle ?
-    SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_S16_BE;
+      /* TODO : Add function to encode properly encode snd_pcm_format */
+      snd_pcm_format = p_obj->pcmmode.eEndian == OMX_EndianLittle ?
+        SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_S16_BE;
 
-  if ((err = snd_pcm_set_params (p_obj->p_playback_hdl,
-                                 snd_pcm_format,
-                                 SND_PCM_ACCESS_RW_INTERLEAVED,
-                                 p_obj->pcmmode.nChannels,
-                                 p_obj->pcmmode.nSamplingRate,
-                                 1, 100 * 1000)) < 0)
-    {
-      TIZ_LOG (TIZ_LOG_TRACE, "Didn' work...p_obj = [ERROR]!!!");
-    }
+      if ((err = snd_pcm_set_params (p_obj->p_playback_hdl,
+                                     snd_pcm_format,
+                                     SND_PCM_ACCESS_RW_INTERLEAVED,
+                                     p_obj->pcmmode.nChannels,
+                                     p_obj->pcmmode.nSamplingRate,
+                                     1, 100 * 1000)) < 0)
+        {
+          TIZ_LOG (TIZ_LOG_TRACE, "Didn' work...p_obj = [ERROR]!!!");
+        }
 
-  if ((err = snd_pcm_prepare (p_obj->p_playback_hdl)) < 0)
-    {
-      TIZ_LOG (TIZ_LOG_ERROR, "Cannot prepare audio interface for use "
-                 "(%s)", snd_strerror (err));
-      return OMX_ErrorInsufficientResources;
+      if ((err = snd_pcm_prepare (p_obj->p_playback_hdl)) < 0)
+        {
+          TIZ_LOG (TIZ_LOG_ERROR, "Cannot prepare audio interface for use "
+                   "(%s)", snd_strerror (err));
+          return OMX_ErrorInsufficientResources;
+        }
     }
 
   return OMX_ErrorNone;

@@ -751,7 +751,7 @@ START_TEST (test_mp3_playback)
   dec_mp3_type.nSampleRate = pg_rates[_i];
   dec_mp3_type.nAudioBandWidth = 0;
   dec_mp3_type.eChannelMode = OMX_AUDIO_ChannelModeStereo;
-  dec_mp3_type.eFormat = OMX_AUDIO_MP3StreamFormatMP2Layer3;
+  dec_mp3_type.eFormat = OMX_AUDIO_MP3StreamFormatMP1Layer3;
   error = OMX_SetParameter (p_mp3dec, OMX_IndexParamAudioMp3, &dec_mp3_type);
   TIZ_LOG (TIZ_LOG_TRACE, "[%s] : OMX_SetParameter(port #0, "
            "OMX_IndexParamAudioMp3) = [%s]", MP3_DEC_COMPONENT_NAME,
@@ -1236,7 +1236,7 @@ main (void)
 
   tiz_log_init ();
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - MAD Mp3 Decoder unit tests");
+  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL MAD Mp3 Decoder unit tests");
 
   int number_failed;
   SRunner *sr = srunner_create (mp3dec_suite ());

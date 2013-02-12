@@ -21,6 +21,7 @@ SUBDIRS = \
 	file_reader \
 	file_writer \
 	mp3_decoder \
+	mp3_encoder \
 	vp8_decoder \
 	vp8_encoder \
 	webp_decoder \

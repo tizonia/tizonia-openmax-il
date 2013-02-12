@@ -51,4 +51,28 @@ typedef struct OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE
   OMX_BOOL bEnabled;
 } OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE;
 
+
+/* Shoutcast Renderer */
+
+#define OMX_ROLE_AUDIO_RENDERER_SHOUTCAST_MP3   "audio_renderer.shoutcast.mp3"
+#define OMX_ROLE_AUDIO_RENDERER_SHOUTCAST_VORBIS   "audio_renderer.shoutcast.vorbis"
+
+typedef struct OMX_AUDIO_PARAM_SHOUTCASTHTTPINFOTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U32 nServerPort;
+    OMX_U32 nMaxListeners;
+} OMX_AUDIO_PARAM_SHOUTCASTHTTPINFOTYPE;
+
+typedef struct OMX_AUDIO_CONFIG_SHOUTCASTMETADATATYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U32 nIcyMetadataPeriod;
+    OMX_U32 nMetadataSize;
+    OMX_U8 nMetadata[1];
+} OMX_AUDIO_CONFIG_SHOUTCASTMETADATATYPE;
+
+
 #endif /* TIZEXT_H */

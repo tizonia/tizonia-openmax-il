@@ -67,6 +67,15 @@ OMX.Aratelia.audio_decoder.mp3.preannouncements_disabled.port1 = false
 OMX.Aratelia.audio_decoder.mp3.testfile1_uri = /home/user/temp/tizonia-test-media/mp3/riff_rock.mp3
 OMX.Aratelia.audio_decoder.mp3.testfile2_uri = /home/user/temp/tizonia-test-media/mp3/strum12str.mp3
 
+###############
+# MP3 Encoder #
+###############
+
+OMX.Aratelia.audio_encoder.mp3.preannouncements_disabled.port0 = false
+OMX.Aratelia.audio_encoder.mp3.preannouncements_disabled.port1 = false
+OMX.Aratelia.audio_encoder.mp3.testfile1_uri = /home/user/work/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
+OMX.Aratelia.audio_encoder.mp3.testfile2_uri = /home/user/work/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_48_stereo.raw
+
 ################
 # I/V Renderer #
 ################

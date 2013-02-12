@@ -50,6 +50,9 @@
 <!--         <category name="tiz.mp3_decoder" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.mp3_decoder.prc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.mp3_decoder.check" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.mp3_encoder" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.mp3_encoder.prc" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.mp3_encoder.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.yuv_renderer" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.yuv_renderer.prc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.yuv_renderer.check" priority="trace" appender="stdout" /> -->

@@ -498,14 +498,18 @@ START_TEST (test_audio_fr)
   error = OMX_Init ();
   fail_if (OMX_ErrorNone != error);
 
+  /* ------------------------- */
   /* Instantiate the component */
+  /* ------------------------- */
   error = OMX_GetHandle (&p_hdl, COMPONENT_NAME, (OMX_PTR *) (&ctx),
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
   TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%p]", p_hdl);
 
+  /* -------------------------------- */
   /* Obtain the port def from port #0 */
+  /* -------------------------------- */
   port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
   port_def.nVersion.nVersion = OMX_VERSION;
   port_def.nPortIndex = 0;
@@ -516,7 +520,9 @@ START_TEST (test_audio_fr)
   TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
+  /* ---------------------- */
   /* Obtain the current URI */
+  /* ---------------------- */
   p_uri_param = tiz_mem_calloc
     (1, sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE);
 
@@ -529,7 +535,9 @@ START_TEST (test_audio_fr)
 
   TIZ_LOG (TIZ_LOG_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI);
 
+  /* ----------------*/
   /* Set the new URI */
+  /* ----------------*/
   strcpy ((char*)p_uri_param->contentURI, pg_files[0]);
   p_uri_param->contentURI[strlen (pg_files[0])] = '\0';
   error = OMX_SetParameter (p_hdl, OMX_IndexParamContentURI, p_uri_param);
@@ -537,11 +545,15 @@ START_TEST (test_audio_fr)
            "URI [%s]) = [%s]", p_uri_param->contentURI, tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
+  /* --------------------------- */
   /* Initiate transition to IDLE */
+  /* --------------------------- */
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
 
+  /* ---------------- */
   /* Allocate buffers */
+  /* ---------------- */
   p_hdrlst = (OMX_BUFFERHEADERTYPE **)
     tiz_mem_calloc (port_def.nBufferCountActual, sizeof (OMX_BUFFERHEADERTYPE *));
 
@@ -568,7 +580,9 @@ START_TEST (test_audio_fr)
 
     }
 
+  /* ------------------------- */
   /* Await transition callback */
+  /* ------------------------- */
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -576,19 +590,25 @@ START_TEST (test_audio_fr)
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
+  /* ------------------------------ */
   /* Check state transition success */
+  /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
+  /* -------------------------- */
   /* Initiate transition to EXE */
+  /* -------------------------- */
   error = _ctx_reset (&ctx);
   state = OMX_StateExecuting;
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
 
+  /* ------------------------- */
   /* Await transition callback */
+  /* ------------------------- */
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -596,19 +616,25 @@ START_TEST (test_audio_fr)
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateExecuting != p_ctx->state);
 
+  /* -------------------- */
   /* buffer transfer loop */
+  /* -------------------- */
   fail_if ((p_file = fopen (pg_files[1], "w")) == 0);
 
   i = 0;
   while (i < port_def.nBufferCountActual)
     {
+      /* --------------- */
       /* Transfer buffer */
+      /* --------------- */
       error = _ctx_reset (&ctx);
       p_hdrlst[i]->nFilledLen = 0;
       error = OMX_FillThisBuffer (p_hdl, p_hdrlst[i]);
       fail_if (OMX_ErrorNone != error);
 
+      /* ------------------------- */
       /* Await BufferDone callback */
+      /* ------------------------- */
       error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
       fail_if (OMX_ErrorNone != error);
       fail_if (OMX_TRUE == timedout);
@@ -649,13 +675,17 @@ START_TEST (test_audio_fr)
 
   fclose (p_file);
 
+  /* --------------------------- */
   /* Initiate transition to IDLE */
+  /* --------------------------- */
   error = _ctx_reset (&ctx);
   state = OMX_StateIdle;
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
 
+  /* ------------------------- */
   /* Await transition callback */
+  /* ------------------------- */
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -663,13 +693,17 @@ START_TEST (test_audio_fr)
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
+  /* ----------------------------- */
   /* Initiate transition to LOADED */
+  /* ----------------------------- */
   error = _ctx_reset (&ctx);
   state = OMX_StateLoaded;
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
 
+  /* ------------------ */
   /* Deallocate buffers */
+  /* ------------------ */
   fail_if (OMX_ErrorNone != error);
   for (i = 0; i < port_def.nBufferCountActual; ++i)
     {
@@ -678,13 +712,17 @@ START_TEST (test_audio_fr)
       fail_if (OMX_ErrorNone != error);
     }
 
+  /* ------------------------- */
   /* Await transition callback */
+  /* ------------------------- */
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   fail_if (OMX_StateLoaded != p_ctx->state);
 
+  /* ------------------------------ */
   /* Check state transition success */
+  /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
   TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);

@@ -404,7 +404,7 @@ vp8d_proc_dtor (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-vp8d_proc_transform_buffer (const void *ap_obj)
+transform_buffer (const void *ap_obj)
 {
   struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
   const struct tizservant *p_parent = ap_obj;
@@ -721,7 +721,7 @@ vp8d_proc_buffers_ready (const void *ap_obj)
             }
         }
 
-      TIZ_UTIL_TEST_ERR (vp8d_proc_transform_buffer (ap_obj));
+      TIZ_UTIL_TEST_ERR (transform_buffer (ap_obj));
       if (p_obj->p_inhdr_ && (0 == p_obj->p_inhdr_->nFilledLen))
         {
           p_obj->p_inhdr_->nOffset = 0;

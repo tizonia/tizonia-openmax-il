@@ -90,7 +90,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   mp3type.nSampleRate = 0;
   mp3type.nAudioBandWidth = 0;
   mp3type.eChannelMode = OMX_AUDIO_ChannelModeStereo;
-  mp3type.eFormat = OMX_AUDIO_MP3StreamFormatMP2Layer3;
+  mp3type.eFormat = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
   init_tizmp3port ();
   p_mp3port = factory_new (tizmp3port, &mp3_port_opts, &encodings,
