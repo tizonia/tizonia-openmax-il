@@ -52,14 +52,11 @@ struct mp3eprc
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
   OMX_AUDIO_PARAM_MP3TYPE mp3type_;
   lame_t lame_;
-  size_t remaining_;
-  unsigned long frame_count_;
-  unsigned char in_buff_ [INPUT_BUFFER_SIZE];
-  unsigned char out_buff_ [OUTPUT_BUFFER_SIZE];
+  int frame_size_;
   OMX_BUFFERHEADERTYPE *p_inhdr_;
   OMX_BUFFERHEADERTYPE *p_outhdr_;
-  int next_synth_sample_;
   bool eos_;
+  bool lame_flushed_;
 };
 
 #ifdef __cplusplus
