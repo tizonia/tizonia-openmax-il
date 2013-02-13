@@ -577,21 +577,19 @@ init_test_data(tiz_rcfile_t *rcfile)
   const char *p_testfile2 = NULL;
 
   p_testfile1 = tiz_rcfile_get_value(rcfile, "plugins-data",
-                                     "OMX.Aratelia.audio_encoder.mp3.testfile1_uri");
+                                     "OMX.Aratelia.audio_encoder.mp3.input_uri");
 
   p_testfile2 = tiz_rcfile_get_value(rcfile, "plugins-data",
-                                     "OMX.Aratelia.audio_encoder.mp3.testfile2_uri");
+                                     "OMX.Aratelia.audio_encoder.mp3.output_uri");
 
   if (!p_testfile1 || !p_testfile2)
 
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data not available...");
+      TIZ_LOG(TIZ_LOG_TRACE, "Test uris not configured...");
     }
   else
     {
       pg_files[0] = p_testfile1; pg_files[1] = p_testfile2;
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data available [%s]", pg_files[0]);
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data available [%s]", pg_files[1]);
       rv = true;
     }
 
@@ -804,9 +802,8 @@ START_TEST (test_mp3_encode)
   /* ----------------*/
   /* Set the new URI */
   /* ----------------*/
-  strcpy ((char*)p_uri_param->contentURI, pg_files[0]);
-  strcpy ((char*)p_uri_param->contentURI + strlen (pg_files[0]), ".mp3");
-  p_uri_param->contentURI[strlen (pg_files[0]) + strlen(".mp3")] = '\0';
+  strcpy ((char*)p_uri_param->contentURI, pg_files[1]);
+  p_uri_param->contentURI[strlen (pg_files[1])] = '\0';
   error = OMX_SetParameter (p_filewrt, OMX_IndexParamContentURI, p_uri_param);
   TIZ_LOG (TIZ_LOG_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, "
            "URI [%s]) = [%s]", p_uri_param->contentURI, tiz_err_to_str (error));
@@ -966,12 +963,12 @@ START_TEST (test_mp3_encode)
   /* ---------------------------------------- */
   /* buffer transfer loop - encoder's port #0 */
   /* ---------------------------------------- */
-  fail_if ((p_file = open (pg_files[_i], O_RDONLY)) == 0);
+  fail_if ((p_file = open (pg_files[0], O_RDONLY)) == 0);
 
   i = 0;
   while (i < enc_port_def0.nBufferCountActual)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Reading from file [%s]", pg_files[_i]);
+      TIZ_LOG (TIZ_LOG_TRACE, "Reading from file [%s]", pg_files[0]);
       if (!
           (err =
            read (p_file, p_hdrlst[i]->pBuffer, enc_port_def0.nBufferSize)))
@@ -979,13 +976,13 @@ START_TEST (test_mp3_encode)
           if (0 == err)
             {
               TIZ_LOG (TIZ_LOG_TRACE, "End of file reached for [%s]",
-                         pg_files[_i]);
+                         pg_files[0]);
             }
           else
             {
               TIZ_LOG (TIZ_LOG_TRACE,
                          "An error occurred while reading [%s]",
-                         pg_files[_i]);
+                         pg_files[0]);
               fail_if (0);
             }
         }
@@ -1203,6 +1200,8 @@ START_TEST (test_mp3_encode)
 
   error = OMX_Deinit ();
   fail_if (OMX_ErrorNone != error);
+
+  tiz_mem_free (p_uri_param);
 
   _ctx_destroy (&enc_ctx);
   _ctx_destroy (&wrt_ctx);
