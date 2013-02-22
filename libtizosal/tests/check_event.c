@@ -37,10 +37,14 @@
 
 #define CHECK_EVENT_SERV_PORT 9877
 #define MAXLINE 4096
-#define CHECK_MSG "Hello"
-#define CHECK_ECHO_CMD "/bin/bash -c \"echo -n \"Hello\" > /dev/udp/192.168.1.90/9877\""
+#define CHECK_MSG "Hello there!"
+#define CHECK_ECHO_CMD "/bin/bash -c \"echo -n \"Hello\\ there!\" > /dev/udp/127.0.0.1/9877\""
+#define CHECK_TIMER_PERIOD 1.5
 
 static bool g_io_cback_received = false;
+static int g_timeout_count = 5;
+static int g_restart_count = 2;
+static bool g_timer_restarted = false;
 
 static void
 check_event_io_cback (tiz_event_io_t * ap_ev_io, int fd, int events)
@@ -71,7 +75,7 @@ check_event_io_cback (tiz_event_io_t * ap_ev_io, int fd, int events)
   g_io_cback_received = true;
 }
 
-static OMX_ERRORTYPE
+static int
 start_udp_server()
 {
   int sockfd, bindrc, fcntlrc, flags;
@@ -85,7 +89,8 @@ start_udp_server()
   servaddr.sin_addr.s_addr = htonl (INADDR_ANY);
   servaddr.sin_port        = htons (CHECK_EVENT_SERV_PORT);
 
-  bindrc = bind (sockfd, (const struct sockaddr *) &servaddr, sizeof(servaddr));
+  bindrc = bind (sockfd, (const struct sockaddr *) &servaddr,
+                 sizeof(servaddr));
   fail_if (bindrc < 0);
 
   flags = fcntl(sockfd, F_GETFL, 0);
@@ -97,6 +102,46 @@ start_udp_server()
 
   return sockfd;
 }
+
+static void
+stop_udp_server(int sockfd)
+{
+  close(sockfd);
+}
+
+static void
+check_event_timer_cback (tiz_event_timer_t * ap_ev_timer, int events)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+
+  TIZ_LOG (TIZ_LOG_TRACE, "timer cback received - timeout count [%d]",
+           g_timeout_count);
+
+  fail_if (NULL == ap_ev_timer);
+
+  if (--g_timeout_count == 0)
+    {
+      if (false == g_timer_restarted)
+        {
+          TIZ_LOG (TIZ_LOG_TRACE, "timeout count [%d] - restarting timer",
+                   g_timeout_count);
+          error = tiz_event_timer_restart (ap_ev_timer);
+          fail_if (OMX_ErrorNone != error);
+          g_timeout_count = g_restart_count;
+          g_timer_restarted = true;
+        }
+      else
+        {
+          TIZ_LOG (TIZ_LOG_TRACE, "timeout count [%d] - stopping timer",
+                   g_timeout_count);
+          error = tiz_event_timer_stop (ap_ev_timer);
+          fail_if (OMX_ErrorNone != error);
+        }
+    }
+}
+
+
+/* TESTS */
 
 START_TEST (test_event_loop_init_and_destroy)
 {
@@ -146,6 +191,38 @@ START_TEST (test_event_io)
 
   tiz_event_io_destroy (p_ev_io);
 
+  stop_udp_server(fd);
+
+  tiz_event_loop_destroy ();
+}
+END_TEST
+
+START_TEST (test_event_timer)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  tiz_event_timer_t * p_ev_timer = NULL;
+  int sleep_len = (double)(CHECK_TIMER_PERIOD * g_timeout_count) +
+    (double)(CHECK_TIMER_PERIOD * g_restart_count) + 1;
+
+  error = tiz_event_loop_init ();
+  fail_if (error != OMX_ErrorNone);
+
+  error = tiz_event_timer_init (&p_ev_timer, check_event_timer_cback,
+                             1., CHECK_TIMER_PERIOD);
+  fail_if (error != OMX_ErrorNone);
+
+  error = tiz_event_timer_start (p_ev_timer);
+  fail_if (error != OMX_ErrorNone);
+
+  TIZ_LOG (TIZ_LOG_TRACE, "started timer watcher - sleep_len [%d]", sleep_len);
+
+  sleep (sleep_len);
+
+  fail_if (0 != g_timeout_count);
+
+  tiz_event_timer_destroy (p_ev_timer);
+
+  tiz_event_loop_destroy ();
   tiz_event_loop_destroy ();
 }
 END_TEST

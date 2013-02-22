@@ -60,7 +60,21 @@ extern "C"
    */
   typedef struct tiz_event_stat tiz_event_stat_t;
 
+
+  /**
+   * Callback prototype for io events
+   *
+   * @param p_ev_io The io event being notified
+   *
+   * @param fd The associated file descriptor
+   *
+   * @param events The event types notified
+   * 
+   * @ingroup event
+   */
   typedef void (*tiz_event_io_cb_f) (tiz_event_io_t * p_ev_io, int fd, int events);
+
+
   typedef void (*tiz_event_timer_cb_f) (tiz_event_timer_t * p_ev_timer,
                                         int events);
   typedef void (*tiz_event_stat_cb_f) (tiz_event_stat_t * p_ev_stat,
@@ -112,7 +126,7 @@ extern "C"
   void tiz_event_io_destroy (tiz_event_io_t * ap_ev_io);
 
   OMX_ERRORTYPE tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
-                                       const tiz_event_timer_cb_f * ap_cback,
+                                       tiz_event_timer_cb_f ap_cback,
                                        double after, double repeat);
 
   OMX_ERRORTYPE tiz_event_timer_start (tiz_event_timer_t * ap_ev_timer);
@@ -124,7 +138,7 @@ extern "C"
   void tiz_event_timer_destroy (tiz_event_timer_t * ap_ev_timer);
 
   OMX_ERRORTYPE tiz_event_stat_init (tiz_event_stat_t ** app_ev_stat,
-                                     const tiz_event_stat_cb_f * ap_cback,
+                                     tiz_event_stat_cb_f ap_cback,
                                      const char *path);
 
   OMX_ERRORTYPE tiz_event_stat_start (tiz_event_stat_t * ap_ev_stat);

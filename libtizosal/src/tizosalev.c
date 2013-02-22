@@ -124,21 +124,23 @@ io_watcher_cback (struct ev_loop *ap_loop, ev_io *ap_watcher, int a_revents)
   p_io_event->pf_cback(p_io_event, ((ev_io*) p_io_event)->fd, a_revents);
 }
 
-/* static void */
-/* timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher, int a_revents) */
-/* { */
-/*   tiz_event_timer_t *p_timer_event = (tiz_event_timer_t *)ap_watcher; */
+static void
+timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher, int a_revents)
+{
+  tiz_event_timer_t *p_timer_event = (tiz_event_timer_t *) ap_watcher;
 
-/*   if (NULL == gp_event_thread) */
-/*     { */
-/*       return; */
-/*     } */
+  if (NULL == gp_event_thread)
+    {
+      return;
+    }
 
-/*   assert (NULL != p_timer_event); */
-/*   assert (NULL != p_timer_event->pf_cback); */
+  assert (NULL != p_timer_event);
+  assert (NULL != p_timer_event->pf_cback);
 
-/*   p_timer_event->pf_cback(p_timer_event, a_revents); */
-/* } */
+  TIZ_LOG (TIZ_LOG_TRACE, "timer watcher cback");
+
+  p_timer_event->pf_cback(p_timer_event, a_revents);
+}
 
 /* static void */
 /* stat_watcher_cback (struct ev_loop *ap_loop, ev_stat *ap_watcher, int a_revents) */
@@ -351,20 +353,25 @@ tiz_event_loop_destroy ()
     }
 }
 
+/*
+ * IO Event-related functions
+ */
+
 OMX_ERRORTYPE
 tiz_event_io_init (tiz_event_io_t ** app_ev_io,
                    tiz_event_io_cb_f ap_cback,
                    int a_fd, tiz_event_io_event_t a_event)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_event_io_t *p_io_watcher = NULL;
 
   assert (NULL != app_ev_io);
   assert (NULL != ap_cback);
   assert (a_event < TIZ_EVENT_MAX);
   assert (NULL != gp_event_thread);
 
-  tiz_event_io_t *p_io_watcher = (tiz_event_io_t *) tiz_mem_alloc (sizeof (tiz_event_io_t));
-  if (NULL == p_io_watcher)
+  if (NULL == (p_io_watcher
+               = (tiz_event_io_t *) tiz_mem_calloc (1, sizeof (tiz_event_io_t))))
     {
       return OMX_ErrorInsufficientResources;
     }
@@ -415,41 +422,95 @@ tiz_event_io_destroy (tiz_event_io_t * ap_ev_io)
   tiz_mem_free (ap_ev_io);
 }
 
+/*
+ * Timer Event-related functions
+ */
+
 OMX_ERRORTYPE
 tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
-                      const tiz_event_timer_cb_f * ap_cback,
-                      double after, double repeat)
+                      tiz_event_timer_cb_f ap_cback,
+                      double a_after, double a_repeat)
 {
-  return OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_event_timer_t *p_timer_watcher = NULL;
+
+  assert (NULL != app_ev_timer);
+  assert (NULL != ap_cback);
+  assert (NULL != gp_event_thread);
+
+  if (NULL == (p_timer_watcher = (tiz_event_timer_t *)
+               tiz_mem_calloc (1, sizeof (tiz_event_timer_t))))
+    {
+      return OMX_ErrorInsufficientResources;
+    }
+
+  p_timer_watcher->pf_cback = ap_cback;
+  ev_timer_init ((ev_timer*) p_timer_watcher,
+                 timer_watcher_cback, a_after, a_repeat);
+
+  *app_ev_timer = p_timer_watcher;
+
+  return rc;
 }
 
 OMX_ERRORTYPE
 tiz_event_timer_start (tiz_event_timer_t * ap_ev_timer)
 {
+  assert (NULL != gp_event_thread);
+  assert (NULL != ap_ev_timer);
+
+  pthread_mutex_lock (gp_event_thread->mutex);
+  ev_timer_start (gp_event_thread->p_loop, (ev_timer *) ap_ev_timer);
+  ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
+  pthread_mutex_unlock (gp_event_thread->mutex);
+
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
 tiz_event_timer_restart (tiz_event_timer_t * ap_ev_timer)
 {
+  assert (NULL != gp_event_thread);
+  assert (NULL != ap_ev_timer);
+
+  pthread_mutex_lock (gp_event_thread->mutex);
+  ev_timer_again (gp_event_thread->p_loop, (ev_timer *) ap_ev_timer);
+  pthread_mutex_unlock (gp_event_thread->mutex);
+
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
 tiz_event_timer_stop (tiz_event_timer_t * ap_ev_timer)
 {
+  assert (NULL != gp_event_thread);
+  assert (NULL != ap_ev_timer);
+
+  pthread_mutex_lock (gp_event_thread->mutex);
+  ev_timer_stop (gp_event_thread->p_loop, (ev_timer *) ap_ev_timer);
+  ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
+  pthread_mutex_unlock (gp_event_thread->mutex);
+
   return OMX_ErrorNone;
 }
 
 void
 tiz_event_timer_destroy (tiz_event_timer_t * ap_ev_timer)
 {
+  assert (NULL != gp_event_thread);
+  assert (NULL != ap_ev_timer);
 
+  tiz_event_timer_stop (ap_ev_timer);
+  tiz_mem_free (ap_ev_timer);
 }
+
+/*
+ * File status Event-related functions
+ */
 
 OMX_ERRORTYPE
 tiz_event_stat_init (tiz_event_stat_t ** app_ev_stat,
-                     const tiz_event_stat_cb_f * ap_cback, const char *path)
+                     tiz_event_stat_cb_f ap_cback, const char *path)
 {
   return OMX_ErrorNone;
 }

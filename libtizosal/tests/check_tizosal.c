@@ -123,6 +123,7 @@ tiz_suite (void)
   tcase_set_timeout (tc_event, EVENT_API_TEST_TIMEOUT);
   tcase_add_test (tc_event, test_event_loop_init_and_destroy);
   tcase_add_test (tc_event, test_event_io);
+  tcase_add_test (tc_event, test_event_timer);
   suite_add_tcase (s, tc_event);
 
   return s;
