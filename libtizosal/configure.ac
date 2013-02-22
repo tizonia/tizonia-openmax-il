@@ -39,13 +39,14 @@ PKG_PROG_PKG_CONFIG([0.25])
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([libuuid], [uuid_generate])
+AC_CHECK_LIB([ev], [ev_run])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 PKG_CHECK_MODULES([uuid], [uuid >= 2.19.0])
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
 AM_PATH_LOG4C([1.2.1])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h stddef.h string.h unistd.h sys/time.h uuid/uuid.h])
+AC_CHECK_HEADERS([stdlib.h stddef.h string.h unistd.h sys/time.h uuid/uuid.h ev.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE

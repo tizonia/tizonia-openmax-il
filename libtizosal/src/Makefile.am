@@ -32,6 +32,7 @@ libtizosal_include_HEADERS = \
 	tizosaluuid.h \
 	tizosalrc.h \
 	tizosalsoa.h \
+	tizosalev.h \
 	utarray.h
 
 libtizosal_la_SOURCES = \
@@ -45,7 +46,8 @@ libtizosal_la_SOURCES = \
 	tizosalthread.c \
 	tizosaluuid.c \
 	tizosalrc.c \
-	tizosalsoa.c
+	tizosalsoa.c \
+	tizosalev.c
 
 libtizosal_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
@@ -54,6 +56,7 @@ libtizosal_la_CFLAGS = \
 
 libtizosal_la_LIBADD = \
 	-lpthread \
+	-lev \
 	@LOG4C_LIBS@ \
 	@uuid_LIBS@
 

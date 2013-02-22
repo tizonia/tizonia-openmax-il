@@ -27,7 +27,8 @@ noinst_HEADERS = \
 	check_sem.c \
 	check_vector.c \
 	check_rc.c \
-	check_soa.c
+	check_soa.c \
+	check_event.c
 
 check_tizosal_SOURCES = check_tizosal.c
 
