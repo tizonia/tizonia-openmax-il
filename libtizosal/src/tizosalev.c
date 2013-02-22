@@ -92,7 +92,8 @@ static pthread_once_t g_event_thread_once = PTHREAD_ONCE_INIT;
 static tiz_loop_thread_t *gp_event_thread = NULL;
 
 static void
-async_watcher_cback (struct ev_loop *ap_loop, ev_async *ap_watcher, int a_revents)
+async_watcher_cback (struct ev_loop *ap_loop, ev_async * ap_watcher,
+                     int a_revents)
 {
 
   if (NULL == gp_event_thread)
@@ -107,9 +108,9 @@ async_watcher_cback (struct ev_loop *ap_loop, ev_async *ap_watcher, int a_revent
 }
 
 static void
-io_watcher_cback (struct ev_loop *ap_loop, ev_io *ap_watcher, int a_revents)
+io_watcher_cback (struct ev_loop *ap_loop, ev_io * ap_watcher, int a_revents)
 {
-  tiz_event_io_t *p_io_event = (tiz_event_io_t *)ap_watcher;
+  tiz_event_io_t *p_io_event = (tiz_event_io_t *) ap_watcher;
 
   if (NULL == gp_event_thread)
     {
@@ -121,11 +122,12 @@ io_watcher_cback (struct ev_loop *ap_loop, ev_io *ap_watcher, int a_revents)
 
   TIZ_LOG (TIZ_LOG_TRACE, "io watcher cback");
 
-  p_io_event->pf_cback(p_io_event, ((ev_io*) p_io_event)->fd, a_revents);
+  p_io_event->pf_cback (p_io_event, ((ev_io *) p_io_event)->fd, a_revents);
 }
 
 static void
-timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher, int a_revents)
+timer_watcher_cback (struct ev_loop *ap_loop, ev_timer * ap_watcher,
+                     int a_revents)
 {
   tiz_event_timer_t *p_timer_event = (tiz_event_timer_t *) ap_watcher;
 
@@ -139,13 +141,14 @@ timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher, int a_revent
 
   TIZ_LOG (TIZ_LOG_TRACE, "timer watcher cback");
 
-  p_timer_event->pf_cback(p_timer_event);
+  p_timer_event->pf_cback (p_timer_event);
 }
 
 static void
-stat_watcher_cback (struct ev_loop *ap_loop, ev_stat *ap_watcher, int a_revents)
+stat_watcher_cback (struct ev_loop *ap_loop, ev_stat * ap_watcher,
+                    int a_revents)
 {
-  tiz_event_stat_t *p_stat_event = (tiz_event_stat_t *)ap_watcher;
+  tiz_event_stat_t *p_stat_event = (tiz_event_stat_t *) ap_watcher;
 
   if (NULL == gp_event_thread)
     {
@@ -157,7 +160,7 @@ stat_watcher_cback (struct ev_loop *ap_loop, ev_stat *ap_watcher, int a_revents)
 
   TIZ_LOG (TIZ_LOG_TRACE, "stat watcher cback");
 
-  p_stat_event->pf_cback(p_stat_event, a_revents);
+  p_stat_event->pf_cback (p_stat_event, a_revents);
 }
 
 static void *
@@ -264,9 +267,10 @@ init_loop_thread ()
           rc = OMX_ErrorInsufficientResources;
           goto end;
         }
-      
+
       ev_async_init (gp_event_thread->p_async_watcher, async_watcher_cback);
-      ev_async_start (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
+      ev_async_start (gp_event_thread->p_loop,
+                      gp_event_thread->p_async_watcher);
 
       gp_event_thread->ref_count = 0;
 
@@ -341,14 +345,15 @@ tiz_event_loop_destroy ()
           TIZ_LOG (TIZ_LOG_TRACE, "Last client: destroying event loop.");
           gp_event_thread->state = ETIZEventLoopStateStopping;
           ev_unref (gp_event_thread->p_loop);
-          ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
+          ev_async_send (gp_event_thread->p_loop,
+                         gp_event_thread->p_async_watcher);
         }
       tiz_mutex_unlock (&(gp_event_thread->mutex));
 
       if (ETIZEventLoopStateStopping == gp_event_thread->state)
         {
           OMX_PTR p_result = NULL;
-          tiz_thread_join(&(gp_event_thread->thread), &p_result);
+          tiz_thread_join (&(gp_event_thread->thread), &p_result);
           clean_up_thread_data (gp_event_thread);
           gp_event_thread = NULL;
         }
@@ -373,13 +378,15 @@ tiz_event_io_init (tiz_event_io_t ** app_ev_io,
   assert (NULL != gp_event_thread);
 
   if (NULL == (p_io_watcher
-               = (tiz_event_io_t *) tiz_mem_calloc (1, sizeof (tiz_event_io_t))))
+               =
+               (tiz_event_io_t *) tiz_mem_calloc (1,
+                                                  sizeof (tiz_event_io_t))))
     {
       return OMX_ErrorInsufficientResources;
     }
 
   p_io_watcher->pf_cback = ap_cback;
-  ev_io_init ((ev_io*) p_io_watcher, io_watcher_cback, a_fd, a_event);
+  ev_io_init ((ev_io *) p_io_watcher, io_watcher_cback, a_fd, a_event);
 
   *app_ev_io = p_io_watcher;
 
@@ -447,7 +454,7 @@ tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
     }
 
   p_timer_watcher->pf_cback = ap_cback;
-  ev_timer_init ((ev_timer*) p_timer_watcher,
+  ev_timer_init ((ev_timer *) p_timer_watcher,
                  timer_watcher_cback, a_after, a_repeat);
 
   *app_ev_timer = p_timer_watcher;
@@ -529,7 +536,7 @@ tiz_event_stat_init (tiz_event_stat_t ** app_ev_stat,
     }
 
   p_stat_watcher->pf_cback = ap_cback;
-  ev_stat_init ((ev_stat*) p_stat_watcher, stat_watcher_cback, ap_path, 0);
+  ev_stat_init ((ev_stat *) p_stat_watcher, stat_watcher_cback, ap_path, 0);
 
   *app_ev_stat = p_stat_watcher;
 

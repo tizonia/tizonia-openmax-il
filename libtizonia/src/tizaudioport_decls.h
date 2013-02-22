@@ -39,22 +39,22 @@ extern "C"
 #include "tizport_decls.h"
 #include "tizosal.h"
 
-struct tizaudioport
-{
-  /* Object */
-  const struct tizport _;
-  OMX_AUDIO_PARAM_PORTFORMATTYPE port_format_;
-  tiz_vector_t *p_encodings_;
-};
+  struct tizaudioport
+  {
+    /* Object */
+    const struct tizport _;
+    OMX_AUDIO_PARAM_PORTFORMATTYPE port_format_;
+    tiz_vector_t *p_encodings_;
+  };
 
-struct tizaudioport_class
-{
-  /* Class */
-  const struct tizport_class _;
-};
+  struct tizaudioport_class
+  {
+    /* Class */
+    const struct tizport_class _;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZAUDIOPORT_DECLS_H */
+#endif                          /* TIZAUDIOPORT_DECLS_H */

@@ -26,31 +26,31 @@ extern "C"
 {
 #endif
 
-struct Object
-{
-  /* object's description */
-  const struct Class *class;
-};
+  struct Object
+  {
+    /* object's description */
+    const struct Class *class;
+  };
 
-struct Class
-{
-  /* class' description */
-  const struct Object _;
-  /* class' name */
-  const char *name;
-  /* class' super class */
-  const struct Class *super;
-  /* class' object's size */
-  size_t size;
-  void *(*ctor) (void *p_obj, va_list * app);
-  void *(*dtor) (void *p_obj);
-};
+  struct Class
+  {
+    /* class' description */
+    const struct Object _;
+    /* class' name */
+    const char *name;
+    /* class' super class */
+    const struct Class *super;
+    /* class' object's size */
+    size_t size;
+    void *(*ctor) (void *p_obj, va_list * app);
+    void *(*dtor) (void *p_obj);
+  };
 
-void *super_ctor (const void *class, void *p_obj, va_list * app);
-void *super_dtor (const void *class, void *p_obj);
+  void *super_ctor (const void *class, void *p_obj, va_list * app);
+  void *super_dtor (const void *class, void *p_obj);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZOBJECT_DECLS_H */
+#endif                          /* TIZOBJECT_DECLS_H */

@@ -39,22 +39,22 @@ extern "C"
 #include "tizport_decls.h"
 #include "tizosal.h"
 
-struct tizotherport
-{
-  /* Object */
-  const struct tizport _;
-  OMX_OTHER_PARAM_PORTFORMATTYPE port_format_;
-  tiz_vector_t *p_formats_;
-};
+  struct tizotherport
+  {
+    /* Object */
+    const struct tizport _;
+    OMX_OTHER_PARAM_PORTFORMATTYPE port_format_;
+    tiz_vector_t *p_formats_;
+  };
 
-struct tizotherport_class
-{
-  /* Class */
-  const struct tizport_class _;
-};
+  struct tizotherport_class
+  {
+    /* Class */
+    const struct tizport_class _;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZOTHERPORT_DECLS_H */
+#endif                          /* TIZOTHERPORT_DECLS_H */

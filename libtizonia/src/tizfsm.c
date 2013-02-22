@@ -107,8 +107,7 @@ dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   return tizapi_SendCommand (p_obj->p_current_state_,
                              p_msg->p_hdl,
                              p_msg_sc->cmd,
-                             p_msg_sc->param1,
-                             p_msg_sc->p_cmd_data);
+                             p_msg_sc->param1, p_msg_sc->p_cmd_data);
 }
 
 static OMX_ERRORTYPE
@@ -125,8 +124,7 @@ dispatch_tc (void *ap_obj, OMX_PTR ap_msg)
   assert (p_msg_tc->state <= OMX_StateWaitForResources);
 
   return tizstate_trans_complete (p_obj->p_current_state_,
-                                  p_msg_tc->p_servant,
-                                  p_msg_tc->state);
+                                  p_msg_tc->p_servant, p_msg_tc->state);
 }
 
 typedef struct tizfsm_msg_str tizfsm_msg_str_t;
@@ -173,7 +171,7 @@ init_fsm_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (NULL == (p_msg = tizservant_init_msg (p_obj, sizeof (tizfsm_msg_t))))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
                      "Could not allocate message [%s]",
                      tizfsm_msg_to_str (a_msg_class));
@@ -223,7 +221,7 @@ validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   p_krn = tiz_get_krn (ap_hdl);
   assert (NULL != p_krn);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "Requested transition to [%s] - cur_state_id_ [%s] "
                  "in_progress_cmd_ [%s]",
                  tiz_state_to_str (a_state),
@@ -239,39 +237,39 @@ validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       && OMX_CommandStateSet != p_obj->in_progress_cmd_)
     {
       /* There is a command of a different type going on. Reject this
-         operation.  */
+       * operation.  */
       return OMX_ErrorIncorrectStateOperation;
     }
 
   /* OK, at this point, we now there is a state transition in progress... By
-     default, we do not allow the state transition command, but there are
-     some exceptions. */
+   * default, we do not allow the state transition command, but there are
+   * some exceptions. */
 
   /* If we are is a transitional state, check if we can allow its
-     cancellation. */
+   * cancellation. */
 
   if (p_obj->cur_state_id_ > EStateWaitForResources
       && p_obj->cur_state_id_ < EStateMax)
     {
       /* We are is a transitional state, which may or may not be
-         cancelled. Check that. */
+       * cancelled. Check that. */
 
       if (ESubStateLoadedToIdle == p_obj->cur_state_id_
           && a_state == OMX_StateLoaded)
         {
           /* Check the population status of the kernel. We will reject the
-             command if the kernel cannot be fully unpopulated by the IL
-             client. In other words, there is at least a buffer header
-             allocated that needs to be freed by a tunneled component. If
-             that is the case, we won't allow the cancellation of the ongoing
-             transition. */
+           * command if the kernel cannot be fully unpopulated by the IL
+           * client. In other words, there is at least a buffer header
+           * allocated that needs to be freed by a tunneled component. If
+           * that is the case, we won't allow the cancellation of the ongoing
+           * transition. */
           OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
           const tiz_kernel_population_status_t kps
             = tizkernel_get_population_status (p_krn, OMX_ALL,
                                                &may_be_fully_unpopulated);
           if (ETIZKernelFullyUnpopulated == kps
               || (ETIZKernelUnpopulated == kps
-                  && OMX_TRUE == may_be_fully_unpopulated) )
+                  && OMX_TRUE == may_be_fully_unpopulated))
             {
               /* This is OK */
               return OMX_ErrorNone;
@@ -295,19 +293,19 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   p_krn = tiz_get_krn (ap_hdl);
   assert (NULL != p_krn);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "[OMX_CommandPortDisable] pid [%d] cur_state_id_ [%s]",
                  a_pid, tiz_fsm_state_to_str (p_obj->cur_state_id_));
 
   /* If no other command is currently being processed, the go on with this
-     one */
+   * one */
   if (OMX_CommandMax == p_obj->in_progress_cmd_)
     {
       return OMX_ErrorNone;
     }
 
-   /* If OMX_ALL, then reject the command. We'll accept a "cancellation"
-      command only if it applies to a single port. */
+  /* If OMX_ALL, then reject the command. We'll accept a "cancellation"
+   * command only if it applies to a single port. */
   if (a_pid == OMX_ALL)
     {
       return OMX_ErrorIncorrectStateOperation;
@@ -316,8 +314,8 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   if (OMX_CommandStateSet == p_obj->in_progress_cmd_)
     {
       /* OK, at this point, we now there is a state transition in progress... By
-         default, we do not allow the port disable command, but there are
-         exceptions. */
+       * default, we do not allow the port disable command, but there are
+       * exceptions. */
 
       if (p_obj->cur_state_id_ > EStateWaitForResources
           && p_obj->cur_state_id_ < EStateMax)
@@ -331,7 +329,7 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                                                    &may_be_fully_unpopulated);
               if (ETIZKernelFullyUnpopulated == kps
                   || (ETIZKernelUnpopulated == kps
-                      && OMX_TRUE == may_be_fully_unpopulated) )
+                      && OMX_TRUE == may_be_fully_unpopulated))
                 {
                   /* This is OK */
                   return OMX_ErrorNone;
@@ -347,7 +345,7 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                                            &may_be_fully_unpopulated);
       if (ETIZKernelFullyUnpopulated == kps
           || (ETIZKernelUnpopulated == kps
-              && OMX_TRUE == may_be_fully_unpopulated) )
+              && OMX_TRUE == may_be_fully_unpopulated))
         {
           /* This is OK */
           return OMX_ErrorNone;
@@ -369,28 +367,27 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (OMX_CommandFlush == a_cmd
       || OMX_CommandPortDisable == a_cmd
-      || OMX_CommandPortEnable == a_cmd
-      || OMX_CommandMarkBuffer == a_cmd)
-      {
-        /* Validate that the port index is correct */
-        /* in those commands where a port index is needed */
+      || OMX_CommandPortEnable == a_cmd || OMX_CommandMarkBuffer == a_cmd)
+    {
+      /* Validate that the port index is correct */
+      /* in those commands where a port index is needed */
 
-        if (a_param1 != OMX_ALL)
-          {
-            p_port = tizkernel_get_port (p_krn, a_param1);
-            if (NULL == p_port)
-              {
-                return OMX_ErrorBadPortIndex;
-              }
-          }
-      }
+      if (a_param1 != OMX_ALL)
+        {
+          p_port = tizkernel_get_port (p_krn, a_param1);
+          if (NULL == p_port)
+            {
+              return OMX_ErrorBadPortIndex;
+            }
+        }
+    }
 
   switch (a_cmd)
     {
     case OMX_CommandStateSet:
       {
         /* Verify that this state transition may be processed at this specific
-           point in time */
+         * point in time */
         rc = validate_stateset (p_obj, ap_hdl, a_param1);
       }
       break;
@@ -398,7 +395,7 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     case OMX_CommandPortDisable:
       {
         /* Verify that this port transition may be processed at this specific
-           point in time */
+         * point in time */
         rc = validate_portdisable (p_obj, ap_hdl, a_param1);
       }
       break;
@@ -407,7 +404,7 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       {
         if (OMX_CommandMax != p_obj->in_progress_cmd_)
           {
-           rc = OMX_ErrorIncorrectStateOperation;
+            rc = OMX_ErrorIncorrectStateOperation;
           }
       }
       break;
@@ -423,18 +420,18 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     case OMX_CommandMarkBuffer:
       {
-        const OMX_MARKTYPE* p_mark = (OMX_MARKTYPE*) ap_cmd_data;
+        const OMX_MARKTYPE *p_mark = (OMX_MARKTYPE *) ap_cmd_data;
         if (!p_mark || !p_mark->hMarkTargetComponent)
           {
             return OMX_ErrorBadParameter;
           }
 
         /* Not sure whether OMX_ALL may be used with OMX_CommandMarkBuffer. For
-           for now explicitly disallow it */
+         * for now explicitly disallow it */
         assert (OMX_ALL != a_param1);
 
         /* OMX_CommandMarkBuffer shall be allowed in Exe, Paused or port
-           Disabled. Reject otherwise */
+         * Disabled. Reject otherwise */
         if (!(TIZPORT_IS_DISABLED (p_port)
               || EStateExecuting == p_obj->cur_state_id_
               || EStatePause == p_obj->cur_state_id_))
@@ -453,11 +450,11 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   if (OMX_ErrorNone == rc)
     {
       /* At this point, we are accepting a command for processing. If we have
-         an unfinished command, then the new command is interpreted as a
-         cancellation. */
+       * an unfinished command, then the new command is interpreted as a
+       * cancellation. */
       if (p_obj->in_progress_cmd_ != OMX_CommandMax)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "Unfinished command [%s] - cur_state_id_ [%s] "
                          "New command [%s]",
                          tiz_cmd_to_str (p_obj->in_progress_cmd_),
@@ -509,7 +506,8 @@ fsm_ctor (void *ap_obj, va_list * app)
     factory_new (tizidletoloaded, p_obj);
   p_obj->p_states_[ESubStateExecutingToIdle] =
     factory_new (tizexecutingtoidle, p_obj);
-  p_obj->p_states_[ESubStatePauseToIdle] = factory_new (tizpausetoidle, p_obj);
+  p_obj->p_states_[ESubStatePauseToIdle] =
+    factory_new (tizpausetoidle, p_obj);
 
   p_obj->cur_state_id_ = EStateLoaded;
   p_obj->canceled_substate_id_ = EStateMax;
@@ -541,24 +539,23 @@ fsm_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 fsm_SendCommand (const void *ap_obj,
-                     OMX_HANDLETYPE ap_hdl,
-                     OMX_COMMANDTYPE a_cmd,
-                     OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                 OMX_HANDLETYPE ap_hdl,
+                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   const struct tizfsm *p_obj = ap_obj;
   tizfsm_msg_t *p_msg = NULL;
   tizfsm_msg_sendcommand_t *p_msg_sc = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                   "SendCommand [%s] param1 [%d]",
-                   tiz_cmd_to_str (a_cmd), a_param1);
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "SendCommand [%s] param1 [%d]",
+                 tiz_cmd_to_str (a_cmd), a_param1);
 
   if (OMX_ErrorNone !=
       (rc = validate_sendcommand (p_obj, ap_hdl, a_cmd,
                                   a_param1, ap_cmd_data)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Command [%s] a_param1 [%d]", tiz_err_to_str (rc),
                      tiz_cmd_to_str (a_cmd), a_param1);
       return rc;
@@ -570,9 +567,9 @@ fsm_SendCommand (const void *ap_obj,
     }
 
   /* Finish-up this message */
-  p_msg_sc             = &(p_msg->sc);
-  p_msg_sc->cmd        = a_cmd;
-  p_msg_sc->param1     = a_param1;
+  p_msg_sc = &(p_msg->sc);
+  p_msg_sc->cmd = a_cmd;
+  p_msg_sc->param1 = a_param1;
   p_msg_sc->p_cmd_data = ap_cmd_data;
 
   return tizservant_enqueue (p_obj, p_msg,
@@ -582,12 +579,12 @@ fsm_SendCommand (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_GetParameter (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_INDEXTYPE a_index, OMX_PTR a_struct)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
   const struct tizfsm *p_obj = ap_obj;
   const void *p_krn = tiz_get_krn (ap_hdl);
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "GetParameter : [%s] [%s]",
                  tiz_fsm_state_to_str (p_obj->cur_state_id_),
                  tiz_idx_to_str (a_index));
@@ -596,11 +593,11 @@ fsm_GetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_SetParameter (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_INDEXTYPE a_index, OMX_PTR a_struct)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
   const struct tizfsm *p_obj = ap_obj;
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "SetParameter : [%s] [%s]",
                  tiz_fsm_state_to_str (p_obj->cur_state_id_),
                  tiz_idx_to_str (a_index));
@@ -610,8 +607,7 @@ fsm_SetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_GetConfig (const void *ap_obj,
-                   OMX_HANDLETYPE ap_hdl,
-                   OMX_INDEXTYPE a_index, OMX_PTR a_struct)
+               OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
   return tizapi_GetConfig (p_krn, ap_hdl, a_index, a_struct);
@@ -619,8 +615,7 @@ fsm_GetConfig (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_SetConfig (const void *ap_obj,
-                   OMX_HANDLETYPE ap_hdl,
-                   OMX_INDEXTYPE a_index, OMX_PTR a_struct)
+               OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
   return tizapi_SetConfig (p_krn, ap_hdl, a_index, a_struct);
@@ -628,12 +623,13 @@ fsm_SetConfig (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_GetState (const void *ap_obj,
-                  OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
+              OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   const struct tizfsm *p_obj = ap_obj;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                 "GetState [%s]", tiz_fsm_state_to_str(p_obj->cur_state_id_));
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "GetState [%s]",
+                 tiz_fsm_state_to_str (p_obj->cur_state_id_));
 
   assert (p_obj->cur_state_id_ != EStateMax);
 
@@ -647,11 +643,10 @@ fsm_GetState (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_ComponentTunnelRequest (const void *ap_obj,
-                                OMX_HANDLETYPE ap_hdl,
-                                OMX_U32 a_pid,
-                                OMX_HANDLETYPE ap_thdl,
-                                OMX_U32 a_tpid,
-                                OMX_TUNNELSETUPTYPE * ap_tsetup)
+                            OMX_HANDLETYPE ap_hdl,
+                            OMX_U32 a_pid,
+                            OMX_HANDLETYPE ap_thdl,
+                            OMX_U32 a_tpid, OMX_TUNNELSETUPTYPE * ap_tsetup)
 {
   const struct tizfsm *p_obj = ap_obj;
   const void *p_krn = tiz_get_krn (ap_hdl);
@@ -659,18 +654,18 @@ fsm_ComponentTunnelRequest (const void *ap_obj,
 
   if (!p_port)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                 "ComponentTunnelRequest : "
-                 "Bad parameter found (port index [%d])...", a_pid);
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "ComponentTunnelRequest : "
+                     "Bad parameter found (port index [%d])...", a_pid);
       return OMX_ErrorBadParameter;
     }
 
   if ((EStateLoaded != p_obj->cur_state_id_) && TIZPORT_IS_ENABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                       "ComponentTunnelRequest : Incorrect state op "
-                       "(In state %s and port [%d] enabled)...",
-                       tiz_fsm_state_to_str (p_obj->cur_state_id_), a_pid);
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "ComponentTunnelRequest : Incorrect state op "
+                     "(In state %s and port [%d] enabled)...",
+                     tiz_fsm_state_to_str (p_obj->cur_state_id_), a_pid);
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -681,10 +676,10 @@ fsm_ComponentTunnelRequest (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_UseBuffer (const void *ap_obj,
-                   OMX_HANDLETYPE ap_hdl,
-                   OMX_BUFFERHEADERTYPE ** app_hdr,
-                   OMX_U32 a_pid,
-                   OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
+               OMX_HANDLETYPE ap_hdl,
+               OMX_BUFFERHEADERTYPE ** app_hdr,
+               OMX_U32 a_pid,
+               OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
 {
   const struct tizfsm *p_obj = ap_obj;
   const void *p_krn = tiz_get_krn (ap_hdl);
@@ -692,7 +687,7 @@ fsm_UseBuffer (const void *ap_obj,
 
   if (NULL == p_port)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadParameter] : Wrong port id [%d]? ...",
                      a_pid);
       return OMX_ErrorBadParameter;
@@ -701,8 +696,8 @@ fsm_UseBuffer (const void *ap_obj,
   if ((ESubStateLoadedToIdle != p_obj->cur_state_id_)
       && TIZPORT_IS_ENABLED (p_port) && !TIZPORT_IS_BEING_ENABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                       "[OMX_ErrorIncorrectStateOperation]...");
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "[OMX_ErrorIncorrectStateOperation]...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -713,9 +708,9 @@ fsm_UseBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_AllocateBuffer (const void *ap_obj,
-                        OMX_HANDLETYPE ap_hdl,
-                        OMX_BUFFERHEADERTYPE ** app_hdr,
-                        OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
+                    OMX_HANDLETYPE ap_hdl,
+                    OMX_BUFFERHEADERTYPE ** app_hdr,
+                    OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
 {
   const struct tizfsm *p_obj = ap_obj;
   const void *p_krn = tiz_get_krn (ap_hdl);
@@ -723,7 +718,7 @@ fsm_AllocateBuffer (const void *ap_obj,
 
   if (!p_port)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadParameter] : Wrong port id [%d]? ...",
                      a_pid);
       return OMX_ErrorBadParameter;
@@ -732,28 +727,27 @@ fsm_AllocateBuffer (const void *ap_obj,
   if ((ESubStateLoadedToIdle != p_obj->cur_state_id_)
       && TIZPORT_IS_ENABLED (p_port) && !TIZPORT_IS_BEING_ENABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation]...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
   return tizapi_AllocateBuffer (p_krn,
-                                ap_hdl,
-                                app_hdr, a_pid, ap_apppriv, a_size);
+                                ap_hdl, app_hdr, a_pid, ap_apppriv, a_size);
 
 }
 
 static OMX_ERRORTYPE
 fsm_FreeBuffer (const void *ap_obj,
-                    OMX_HANDLETYPE ap_hdl,
-                    OMX_U32 a_pid, OMX_BUFFERHEADERTYPE * ap_hdr)
+                OMX_HANDLETYPE ap_hdl,
+                OMX_U32 a_pid, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
   const void *p_port = tizkernel_get_port (p_krn, a_pid);
 
   if (NULL == p_port)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadPortIndex] : Wrong port id [%d]? ...",
                      a_pid);
       return OMX_ErrorBadPortIndex;
@@ -764,8 +758,7 @@ fsm_FreeBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_EmptyThisBuffer (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
-                         OMX_BUFFERHEADERTYPE * ap_hdr)
+                     OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   const struct tizfsm *p_obj = ap_obj;
   const OMX_U32 pid = ap_hdr->nInputPortIndex;
@@ -773,28 +766,28 @@ fsm_EmptyThisBuffer (const void *ap_obj,
   const void *p_port = tizkernel_get_port (p_krn, pid);
 
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                   "EmptyThisBuffer HEADER = [%p] "
-                   "pid = [%d] nAllocLen = [%d] nFilledLen = [%d] "
-                   "nOutputPortIndex  = [%d] nInputPortIndex = [%d]",
-                   ap_hdr, pid, ap_hdr->nAllocLen, ap_hdr->nFilledLen,
-                   ap_hdr->nOutputPortIndex, ap_hdr->nInputPortIndex);
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "EmptyThisBuffer HEADER = [%p] "
+                 "pid = [%d] nAllocLen = [%d] nFilledLen = [%d] "
+                 "nOutputPortIndex  = [%d] nInputPortIndex = [%d]",
+                 ap_hdr, pid, ap_hdr->nAllocLen, ap_hdr->nFilledLen,
+                 ap_hdr->nOutputPortIndex, ap_hdr->nInputPortIndex);
 
   if (!p_port || (OMX_DirInput != tizport_dir (p_port)))
     {
       OMX_ERRORTYPE rc = (p_port ? OMX_ErrorBadParameter
                           : OMX_ErrorBadPortIndex);
 
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Bad parameter found...(%s)", tiz_err_to_str (rc),
-                       p_port ? "port dir" : "port index");
+                     p_port ? "port dir" : "port index");
       return rc;
     }
 
   if (TIZPORT_IS_DISABLED (p_port) && !TIZPORT_IS_BEING_ENABLED (p_port)
       && !TIZPORT_IS_BEING_DISABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "
                      "port is disabled...");
       return OMX_ErrorIncorrectStateOperation;
@@ -806,35 +799,34 @@ fsm_EmptyThisBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_FillThisBuffer (const void *ap_obj,
-                        OMX_HANDLETYPE ap_hdl,
-                        OMX_BUFFERHEADERTYPE * ap_hdr)
+                    OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   const struct tizfsm *p_obj = ap_obj;
   const OMX_U32 pid = ap_hdr->nOutputPortIndex;
   const void *p_krn = tiz_get_krn (ap_hdl);
   const void *p_port = tizkernel_get_port (p_krn, pid);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                   "FillThisBuffer HEADER = [%p] "
-                   "pid = [%d] nAllocLen = [%d] nFilledLen = [%d] "
-                   "nOutputPortIndex  = [%d] nInputPortIndex = [%d]",
-                   ap_hdr, pid, ap_hdr->nAllocLen, ap_hdr->nFilledLen,
-                   ap_hdr->nOutputPortIndex, ap_hdr->nInputPortIndex);
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "FillThisBuffer HEADER = [%p] "
+                 "pid = [%d] nAllocLen = [%d] nFilledLen = [%d] "
+                 "nOutputPortIndex  = [%d] nInputPortIndex = [%d]",
+                 ap_hdr, pid, ap_hdr->nAllocLen, ap_hdr->nFilledLen,
+                 ap_hdr->nOutputPortIndex, ap_hdr->nInputPortIndex);
 
   if (!p_port || (OMX_DirOutput != tizport_dir (p_port)))
     {
       OMX_ERRORTYPE rc = (p_port ? OMX_ErrorBadParameter
                           : OMX_ErrorBadPortIndex);
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Bad parameter found...(%s)", tiz_err_to_str (rc),
-                       p_port ? "port dir" : "port index");
+                     p_port ? "port dir" : "port index");
       return rc;
     }
 
   if (TIZPORT_IS_DISABLED (p_port) && !TIZPORT_IS_BEING_ENABLED (p_port)
       && !TIZPORT_IS_BEING_DISABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "
                      "port is disabled...");
       return OMX_ErrorIncorrectStateOperation;
@@ -847,8 +839,8 @@ fsm_FillThisBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 fsm_SetCallbacks (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_CALLBACKTYPE * ap_cbacks, OMX_PTR app_appdata)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_CALLBACKTYPE * ap_cbacks, OMX_PTR app_appdata)
 {
   const struct tizfsm *p_obj = ap_obj;
   assert (p_obj);
@@ -856,7 +848,7 @@ fsm_SetCallbacks (const void *ap_obj,
   /* only allowed in OMX_StateLoaded state */
   if (EStateLoaded != p_obj->cur_state_id_)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : Not allowed in %s",
                      tiz_fsm_state_to_str (p_obj->cur_state_id_));
       return OMX_ErrorIncorrectStateOperation;
@@ -881,31 +873,30 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                   TIZ_CBUF(p_parent->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
                  "Processing [%s]...", tizfsm_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZFsmMsgMax);
 
   rc = tizfsm_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) ap_obj, p_msg);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                   TIZ_CBUF(p_parent->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
                  "rc [%s] [%d]...", tiz_err_to_str (rc), rc);
 
   /* There is an error, check whether we have an ongoing command. If that's the
-     case, this error will cancel the in-progress command. */
+   * case, this error will cancel the in-progress command. */
   if (OMX_ErrorNone != rc)
     {
       if (OMX_CommandMax != p_obj->in_progress_cmd_)
         {
           tizservant_issue_cmd_event
-            (p_obj, p_obj->in_progress_cmd_, p_obj->in_progress_param1_,
-             rc);
+            (p_obj, p_obj->in_progress_cmd_, p_obj->in_progress_param1_, rc);
           p_obj->in_progress_cmd_ = OMX_CommandMax;
 
           /* This is to make sure that the servant base class oes not report
-             this error again */
+           * this error again */
           rc = OMX_ErrorNone;
         }
     }
@@ -920,7 +911,7 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 
 static OMX_ERRORTYPE
 fsm_set_state (const void *ap_obj, tizfsm_state_id_t a_new_state,
-                   tizfsm_state_id_t a_canceled_substate)
+               tizfsm_state_id_t a_canceled_substate)
 {
   struct tizfsm *p_obj = (struct tizfsm *) ap_obj;
   OMX_HANDLETYPE p_hdl = tizservant_get_hdl (p_obj);
@@ -932,8 +923,8 @@ fsm_set_state (const void *ap_obj, tizfsm_state_id_t a_new_state,
 
   if (a_new_state != p_obj->cur_state_id_)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_hdl),
-                     TIZ_CBUF(p_hdl), "New state = [%s]..."
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl),
+                     TIZ_CBUF (p_hdl), "New state = [%s]..."
                      "cancelled substate = [%s]",
                      tiz_fsm_state_to_str (a_new_state),
                      tiz_fsm_state_to_str (a_canceled_substate));
@@ -957,7 +948,7 @@ fsm_set_state (const void *ap_obj, tizfsm_state_id_t a_new_state,
           p_obj->in_progress_cmd_ = OMX_CommandMax;
 
           /* TODO: Perhaps implement a transitional state instead of notifying
-             Exe twice */
+           * Exe twice */
           if (EStateExecuting == a_new_state)
             {
               /* First notify the kernel servant */
@@ -972,8 +963,8 @@ fsm_set_state (const void *ap_obj, tizfsm_state_id_t a_new_state,
               /* Now notify the processor servant */
               if (OMX_ErrorNone
                   != (rc = tizapi_SendCommand (p_prc, p_hdl,
-                                                    OMX_CommandStateSet,
-                                                    a_new_state, NULL)))
+                                               OMX_CommandStateSet,
+                                               a_new_state, NULL)))
                 {
                   return rc;
                 }
@@ -997,8 +988,8 @@ tizfsm_set_state (void *ap_obj, tizfsm_state_id_t a_new_state,
 }
 
 static OMX_ERRORTYPE
-fsm_complete_transition (void *ap_obj, const void * ap_servant,
-                             OMX_STATETYPE a_new_state)
+fsm_complete_transition (void *ap_obj, const void *ap_servant,
+                         OMX_STATETYPE a_new_state)
 {
   struct tizfsm *p_obj = ap_obj;
   const struct tizservant *p_parent = ap_obj;
@@ -1014,50 +1005,49 @@ fsm_complete_transition (void *ap_obj, const void * ap_servant,
   p_hdl = p_parent->p_hdl_;
   assert (NULL != p_hdl);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_hdl), TIZ_CBUF(p_hdl),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                  "Servant [%s] notifies transition complete (to state [%s])",
-                 nameOf(ap_servant),
-                 tiz_fsm_state_to_str (a_new_state));
+                 nameOf (ap_servant), tiz_fsm_state_to_str (a_new_state));
 
   /* Validate that this is not an remnant from a cancelled transition */
-  if ( (ESubStateLoadedToIdle == p_obj->cur_state_id_
-        && OMX_StateIdle != a_new_state)
-       ||
-       (ESubStateIdleToLoaded == p_obj->cur_state_id_
-        && OMX_StateLoaded != a_new_state)
-       ||
-       (ESubStateExecutingToIdle == p_obj->cur_state_id_
-        && OMX_StateIdle != a_new_state)
-       ||
-       (ESubStatePauseToIdle == p_obj->cur_state_id_
-        && OMX_StateIdle != a_new_state) )
+  if ((ESubStateLoadedToIdle == p_obj->cur_state_id_
+       && OMX_StateIdle != a_new_state)
+      ||
+      (ESubStateIdleToLoaded == p_obj->cur_state_id_
+       && OMX_StateLoaded != a_new_state)
+      ||
+      (ESubStateExecutingToIdle == p_obj->cur_state_id_
+       && OMX_StateIdle != a_new_state)
+      ||
+      (ESubStatePauseToIdle == p_obj->cur_state_id_
+       && OMX_StateIdle != a_new_state))
     {
       /* Ignore this as this transition is not relevant anymore */
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_hdl), TIZ_CBUF(p_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                      "[%s] Ignoring Servant [%s] transition complete "
                      "notification (to state [%s])",
                      tiz_fsm_state_to_str (p_obj->cur_state_id_),
-                     nameOf(ap_servant),
-                     tiz_fsm_state_to_str (a_new_state));
+                     nameOf (ap_servant), tiz_fsm_state_to_str (a_new_state));
       return OMX_ErrorNone;
     }
 
-  if (NULL == (p_msg = init_fsm_message (p_obj, p_hdl, ETIZFsmMsgTransComplete)))
+  if (NULL ==
+      (p_msg = init_fsm_message (p_obj, p_hdl, ETIZFsmMsgTransComplete)))
     {
       return OMX_ErrorInsufficientResources;
     }
 
   /* Finish-up this message */
-  p_msg_tc            = &(p_msg->tc);
+  p_msg_tc = &(p_msg->tc);
   p_msg_tc->p_servant = (void *) ap_servant;
-  p_msg_tc->state     = a_new_state;
+  p_msg_tc->state = a_new_state;
 
   return tizservant_enqueue (p_obj, p_msg,
                              msg_to_priority (ETIZFsmMsgTransComplete));
 }
 
 OMX_ERRORTYPE
-tizfsm_complete_transition (void *ap_obj, const void * ap_servant,
+tizfsm_complete_transition (void *ap_obj, const void *ap_servant,
                             OMX_STATETYPE a_new_state)
 {
   const struct tizfsm_class *class = classOf (ap_obj);
@@ -1066,7 +1056,7 @@ tizfsm_complete_transition (void *ap_obj, const void * ap_servant,
 }
 
 static OMX_ERRORTYPE
-fsm_complete_command (void *ap_obj, const void * ap_servant,
+fsm_complete_command (void *ap_obj, const void *ap_servant,
                       OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1)
 {
   struct tizfsm *p_obj = ap_obj;
@@ -1081,10 +1071,10 @@ fsm_complete_command (void *ap_obj, const void * ap_servant,
   p_hdl = p_parent->p_hdl_;
   assert (NULL != p_hdl);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_hdl), TIZ_CBUF(p_hdl),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                  "Servant [%s] notifies cmd complete (cmd [%s]) "
                  "in_progress_cmd_ [%s] cancellation_cmd_ [%s]",
-                 nameOf(ap_servant), tiz_cmd_to_str (a_cmd),
+                 nameOf (ap_servant), tiz_cmd_to_str (a_cmd),
                  tiz_cmd_to_str (p_obj->in_progress_cmd_),
                  tiz_cmd_to_str (p_obj->cancellation_cmd_));
 
@@ -1104,16 +1094,14 @@ fsm_complete_command (void *ap_obj, const void * ap_servant,
       else
         {
           tizservant_issue_cmd_event
-            (p_obj, p_obj->cancellation_cmd_, a_param1,
-             OMX_ErrorNone);
+            (p_obj, p_obj->cancellation_cmd_, a_param1, OMX_ErrorNone);
         }
       p_obj->cancellation_cmd_ = OMX_CommandMax;
     }
   else if (a_cmd == p_obj->in_progress_cmd_)
     {
       tizservant_issue_cmd_event
-        (p_obj, p_obj->in_progress_cmd_, a_param1,
-         OMX_ErrorNone);
+        (p_obj, p_obj->in_progress_cmd_, a_param1, OMX_ErrorNone);
       p_obj->in_progress_cmd_ = OMX_CommandMax;
     }
 
@@ -1121,7 +1109,7 @@ fsm_complete_command (void *ap_obj, const void * ap_servant,
 }
 
 OMX_ERRORTYPE
-tizfsm_complete_command (void *ap_obj, const void * ap_servant,
+tizfsm_complete_command (void *ap_obj, const void *ap_servant,
                          OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1)
 {
   const struct tizfsm_class *class = classOf (ap_obj);
@@ -1155,7 +1143,7 @@ fsm_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -1179,7 +1167,7 @@ fsm_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 

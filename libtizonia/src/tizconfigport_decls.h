@@ -44,26 +44,26 @@ extern "C"
 #include "tizosal.h"
 
 
-struct tizconfigport
-{
-  /* Object */
-  const struct tizport _;
-  char comp_name_[OMX_MAX_STRINGNAME_SIZE];
-  OMX_VERSIONTYPE comp_ver_;
-  OMX_UUIDTYPE uuid_;
-  OMX_RESOURCECONCEALMENTTYPE param_rc_;
-  OMX_PARAM_SUSPENSIONPOLICYTYPE param_sp_;
-  OMX_PRIORITYMGMTTYPE config_pm_;
-};
+  struct tizconfigport
+  {
+    /* Object */
+    const struct tizport _;
+    char comp_name_[OMX_MAX_STRINGNAME_SIZE];
+    OMX_VERSIONTYPE comp_ver_;
+    OMX_UUIDTYPE uuid_;
+    OMX_RESOURCECONCEALMENTTYPE param_rc_;
+    OMX_PARAM_SUSPENSIONPOLICYTYPE param_sp_;
+    OMX_PRIORITYMGMTTYPE config_pm_;
+  };
 
-struct tizconfigport_class
-{
-  /* Class */
-  const struct tizport_class _;
-};
+  struct tizconfigport_class
+  {
+    /* Class */
+    const struct tizport_class _;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZCONFIGPORT_DECLS_H */
+#endif                          /* TIZCONFIGPORT_DECLS_H */

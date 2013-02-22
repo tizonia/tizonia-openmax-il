@@ -43,20 +43,20 @@ extern "C"
 #include "sdlivrprc.h"
 #include "tizproc_decls.h"
 
-struct sdlivrprc
-{
-  /* Object */
-  const struct tizproc _;
-  OMX_BUFFERHEADERTYPE *pinhdr_;
-  OMX_BUFFERHEADERTYPE *pouthdr_;
-  OMX_VIDEO_PORTDEFINITIONTYPE vportdef_;
-  SDL_Surface *p_surface;
-  SDL_Overlay *p_overlay;
-  bool eos_;
-};
+  struct sdlivrprc
+  {
+    /* Object */
+    const struct tizproc _;
+    OMX_BUFFERHEADERTYPE *pinhdr_;
+    OMX_BUFFERHEADERTYPE *pouthdr_;
+    OMX_VIDEO_PORTDEFINITIONTYPE vportdef_;
+    SDL_Surface *p_surface;
+    SDL_Overlay *p_overlay;
+    bool eos_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SDLIVRPRC_DECLS_H */
+#endif                          /* SDLIVRPRC_DECLS_H */

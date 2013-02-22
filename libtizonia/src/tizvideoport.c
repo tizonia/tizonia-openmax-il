@@ -58,8 +58,9 @@ videoport_ctor (void *ap_obj, va_list * app)
 
   tizport_register_index (p_obj, OMX_IndexParamVideoPortFormat);
 
-  tiz_vector_init (&(p_obj->p_video_encodings_), sizeof(OMX_VIDEO_CODINGTYPE));
-  tiz_vector_init (&(p_obj->p_color_formats_), sizeof(OMX_COLOR_FORMATTYPE));
+  tiz_vector_init (&(p_obj->p_video_encodings_),
+                   sizeof (OMX_VIDEO_CODINGTYPE));
+  tiz_vector_init (&(p_obj->p_color_formats_), sizeof (OMX_COLOR_FORMATTYPE));
 
   /* Finalize the base's port definition structure */
   if (NULL != (p_portdef = va_arg (*app, OMX_VIDEO_PORTDEFINITIONTYPE *)))
@@ -72,8 +73,10 @@ videoport_ctor (void *ap_obj, va_list * app)
       p_base->portdef_.format.video.nSliceHeight = p_portdef->nSliceHeight;
       p_base->portdef_.format.video.nBitrate = p_portdef->nBitrate;
       p_base->portdef_.format.video.xFramerate = p_portdef->xFramerate;
-      p_base->portdef_.format.video.bFlagErrorConcealment = p_portdef->bFlagErrorConcealment;
-      p_base->portdef_.format.video.eCompressionFormat = p_portdef->eCompressionFormat;
+      p_base->portdef_.format.video.bFlagErrorConcealment =
+        p_portdef->bFlagErrorConcealment;
+      p_base->portdef_.format.video.eCompressionFormat =
+        p_portdef->eCompressionFormat;
       p_base->portdef_.format.video.eColorFormat = p_portdef->eColorFormat;
       p_base->portdef_.format.video.pNativeWindow = p_portdef->pNativeWindow;
     }
@@ -88,7 +91,7 @@ videoport_ctor (void *ap_obj, va_list * app)
       while (OMX_VIDEO_CodingMax != p_encodings[i])
         {
           TIZ_LOG (TIZ_LOG_TRACE, "p_encodings[%u] = [%d]...",
-                     i, p_encodings[i]);
+                   i, p_encodings[i]);
           tiz_vector_push_back (p_obj->p_video_encodings_, &p_encodings[i]);
           i++;
         }
@@ -99,8 +102,7 @@ videoport_ctor (void *ap_obj, va_list * app)
   i = 0;
   if (NULL != (p_formats = va_arg (*app, OMX_COLOR_FORMATTYPE *)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "p_formats [%p]...",
-               p_formats);
+      TIZ_LOG (TIZ_LOG_TRACE, "p_formats [%p]...", p_formats);
       while (OMX_COLOR_FormatMax != p_formats[i])
         {
           TIZ_LOG (TIZ_LOG_TRACE, "p_formats [%p] p_formats[%u] = [%d]...",
@@ -109,9 +111,9 @@ videoport_ctor (void *ap_obj, va_list * app)
           i++;
         }
     }
-  p_obj->port_format_.eColorFormat       = p_formats
+  p_obj->port_format_.eColorFormat = p_formats
     ? p_formats[0] : OMX_COLOR_FormatUnused;
-  p_obj->port_format_.xFramerate         = 0;
+  p_obj->port_format_.xFramerate = 0;
 
   return p_obj;
 }
@@ -137,13 +139,12 @@ videoport_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 videoport_GetParameter (const void *ap_obj,
-                            OMX_HANDLETYPE ap_hdl,
-                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizvideoport *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -169,19 +170,21 @@ videoport_GetParameter (const void *ap_obj,
           }
         else
           {
-            if (p_pft->nIndex >= tiz_vector_length (p_obj->p_video_encodings_))
+            if (p_pft->nIndex >=
+                tiz_vector_length (p_obj->p_video_encodings_))
               {
                 return OMX_ErrorNoMore;
               }
 
-            p_encoding = tiz_vector_at (p_obj->p_video_encodings_, p_pft->nIndex);
+            p_encoding =
+              tiz_vector_at (p_obj->p_video_encodings_, p_pft->nIndex);
             assert (p_encoding);
             p_pft->eCompressionFormat = *p_encoding;
 
             TIZ_LOG (TIZ_LOG_TRACE, "CompressionFormat [%x] ", *p_encoding);
           }
         p_pft->xFramerate = p_obj->port_format_.xFramerate;
- 
+
       }
       break;
 
@@ -198,42 +201,41 @@ videoport_GetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 videoport_SetParameter (const void *ap_obj,
-                            OMX_HANDLETYPE ap_hdl,
-                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   struct tizvideoport *p_obj = (struct tizvideoport *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-             "SetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   /* Do now allow changes to nFrameWidth or nFrameHeight if this is a slave
-     output port */
+   * output port */
   if (OMX_IndexParamPortDefinition == a_index)
     {
-    const struct tizport *p_base = ap_obj;
-    OMX_PARAM_PORTDEFINITIONTYPE *p_portdef = ap_struct;
+      const struct tizport *p_base = ap_obj;
+      OMX_PARAM_PORTDEFINITIONTYPE *p_portdef = ap_struct;
 
-    if ( (OMX_DirOutput == p_base->portdef_.eDir)
-         && (p_base->opts_.mos_port != -1)
-         && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
-         && ((p_base->portdef_.format.video.nFrameWidth
-              != p_portdef->format.video.nFrameWidth)
-             || (p_base->portdef_.format.video.nFrameHeight
-                 != p_portdef->format.video.nFrameHeight)) )
-      {
-        TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME(ap_hdl),
-                       TIZ_CBUF(ap_hdl),
-                       "[OMX_ErrorBadParameter] : PORT [%d] "
-                       "SetParameter [OMX_IndexParamPortDefinition]... "
-                       "Slave port, cannot update frame width or height",
-                       tizport_dir (p_obj));
-        return OMX_ErrorBadParameter;
-      }
-  }
+      if ((OMX_DirOutput == p_base->portdef_.eDir)
+          && (p_base->opts_.mos_port != -1)
+          && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
+          && ((p_base->portdef_.format.video.nFrameWidth
+               != p_portdef->format.video.nFrameWidth)
+              || (p_base->portdef_.format.video.nFrameHeight
+                  != p_portdef->format.video.nFrameHeight)))
+        {
+          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+                         TIZ_CBUF (ap_hdl),
+                         "[OMX_ErrorBadParameter] : PORT [%d] "
+                         "SetParameter [OMX_IndexParamPortDefinition]... "
+                         "Slave port, cannot update frame width or height",
+                         tizport_dir (p_obj));
+          return OMX_ErrorBadParameter;
+        }
+    }
 
   switch (a_index)
     {
@@ -244,26 +246,26 @@ videoport_SetParameter (const void *ap_obj,
         OMX_VIDEO_CODINGTYPE encoding = p_video_format->eCompressionFormat;
         OMX_COLOR_FORMATTYPE format = p_video_format->eColorFormat;
 
-        if(OMX_VIDEO_CodingUnused == p_obj->port_format_.eCompressionFormat)
+        if (OMX_VIDEO_CodingUnused == p_obj->port_format_.eCompressionFormat)
           {
-            if(OMX_COLOR_FormatUnused == p_video_format->eColorFormat)
+            if (OMX_COLOR_FormatUnused == p_video_format->eColorFormat)
               {
                 /* Both Compression Format and Color can not be Unused at the
-                   same time. */
+                 * same time. */
                 return OMX_ErrorBadParameter;
               }
 
             if (encoding >= OMX_VIDEO_CodingMax)
               {
                 TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorBadParameter "
-                           "(Bad compression format [0x%08x]...)", encoding);
+                         "(Bad compression format [0x%08x]...)", encoding);
                 return OMX_ErrorBadParameter;
               }
 
             if (!tiz_vector_find (p_obj->p_color_formats_, &format))
               {
                 TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedSetting "
-                           "(Color format not supported [0x%08x]...)", format);
+                         "(Color format not supported [0x%08x]...)", format);
                 return OMX_ErrorUnsupportedSetting;
               }
 
@@ -271,8 +273,8 @@ videoport_SetParameter (const void *ap_obj,
             p_obj->port_format_.xFramerate = p_video_format->xFramerate;
 
             TIZ_LOG (TIZ_LOG_TRACE, "Set color format [0x%08x] "
-                       "and framerate [0x%08x]...", format,
-                       p_video_format->xFramerate);
+                     "and framerate [0x%08x]...", format,
+                     p_video_format->xFramerate);
           }
         else
           {
@@ -289,7 +291,7 @@ videoport_SetParameter (const void *ap_obj,
               {
                 p_obj->port_format_.eCompressionFormat = encoding;
                 TIZ_LOG (TIZ_LOG_TRACE, "Set video encoding"
-                           "[0x%08x]...", encoding);
+                         "[0x%08x]...", encoding);
               }
           }
 
@@ -310,9 +312,9 @@ videoport_SetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
-                                       const OMX_INDEXTYPE a_index,
-                                       const OMX_PTR ap_struct,
-                                       tiz_vector_t *ap_changed_idxs)
+                                   const OMX_INDEXTYPE a_index,
+                                   const OMX_PTR ap_struct,
+                                   tiz_vector_t * ap_changed_idxs)
 {
   struct tizvideoport *p_obj = ap_obj;
   struct tizport *p_base = ap_obj;
@@ -325,7 +327,7 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
   if (OMX_IndexParamPortDefinition == a_index)
     {
       const OMX_PARAM_PORTDEFINITIONTYPE *p_portdef = ap_struct;
-      const OMX_U32 new_width  = p_portdef->format.video.nFrameWidth;
+      const OMX_U32 new_width = p_portdef->format.video.nFrameWidth;
       const OMX_U32 new_height = p_portdef->format.video.nFrameHeight;
       const OMX_U32 y_sz = new_width * new_height;
       const OMX_U32 u_sz = y_sz / 4;
@@ -333,13 +335,13 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
       const OMX_U32 new_buf_sz = y_sz + u_sz + v_sz;
       OMX_BOOL portdef_changed = OMX_FALSE;
 
-      TIZ_LOG (TIZ_LOG_TRACE,"w[%d] h[%d] y[%d] u[%d] v[%d] ->  new_sz[%d] ",
+      TIZ_LOG (TIZ_LOG_TRACE, "w[%d] h[%d] y[%d] u[%d] v[%d] ->  new_sz[%d] ",
                new_width, new_height, y_sz, u_sz, v_sz, new_buf_sz);
 
-      if ( (p_base->portdef_.format.video.nFrameWidth != new_width)
-           || (p_base->portdef_.format.video.nFrameHeight != new_height) )
+      if ((p_base->portdef_.format.video.nFrameWidth != new_width)
+          || (p_base->portdef_.format.video.nFrameHeight != new_height))
         {
-          p_base->portdef_.format.video.nFrameWidth  = new_width;
+          p_base->portdef_.format.video.nFrameWidth = new_width;
           p_base->portdef_.format.video.nFrameHeight = new_height;
           portdef_changed = OMX_TRUE;
         }
@@ -354,15 +356,14 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
       if (OMX_TRUE == portdef_changed)
         {
           OMX_INDEXTYPE id = OMX_IndexParamPortDefinition;
-          tiz_vector_push_back(ap_changed_idxs, &id);
+          tiz_vector_push_back (ap_changed_idxs, &id);
         }
 
-      TIZ_LOG (TIZ_LOG_TRACE," original pid [%d] this pid [%d] : "
+      TIZ_LOG (TIZ_LOG_TRACE, " original pid [%d] this pid [%d] : "
                "[%s] -> changed [OMX_IndexParamPortDefinition] nBufferSize [%d]...",
                p_portdef->nPortIndex,
                p_base->portdef_.nPortIndex,
-               tiz_idx_to_str (a_index),
-               p_base->portdef_.nBufferSize);
+               tiz_idx_to_str (a_index), p_base->portdef_.nBufferSize);
     }
 
   return rc;
@@ -380,7 +381,7 @@ videoport_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -396,7 +397,7 @@ videoport_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 

@@ -45,7 +45,7 @@ extern "C"
   extern const void *tizservant;
   extern const void *tizservant_class;
 
-  void tizservant_set_allocator (void *ap_obj, tiz_soa_t *p_soa);
+  void tizservant_set_allocator (void *ap_obj, tiz_soa_t * p_soa);
 
   void tizservant_set_callbacks (void *ap_obj, OMX_PTR ap_appdata,
                                  OMX_CALLBACKTYPE * ap_cbacks);
@@ -59,7 +59,8 @@ extern "C"
 
   OMX_ERRORTYPE tizservant_remove_from_queue (const void *ap_obj,
                                               tiz_pq_func_f apf_func,
-                                              OMX_S32 a_data1, OMX_PTR ap_data2);
+                                              OMX_S32 a_data1,
+                                              OMX_PTR ap_data2);
 
   OMX_ERRORTYPE tizservant_dispatch_msg (const void *ap_obj, OMX_PTR ap_data);
 
@@ -93,7 +94,8 @@ extern "C"
   void tizservant_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
                                    OMX_U32 a_pid, OMX_ERRORTYPE a_error);
 
-  void tizservant_issue_trans_event (const void *ap_obj, OMX_STATETYPE a_state,
+  void tizservant_issue_trans_event (const void *ap_obj,
+                                     OMX_STATETYPE a_state,
                                      OMX_ERRORTYPE a_error);
 
   void tizservant_issue_buf_callback (const void *ap_obj,
@@ -113,4 +115,4 @@ extern "C"
 }
 #endif
 
-#endif /* TIZSERVANT_H */
+#endif                          /* TIZSERVANT_H */

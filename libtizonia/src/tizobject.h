@@ -31,26 +31,26 @@ extern "C"
 #include <stdio.h>
 
 /* factory_new(Object); */
-extern const void *Object;
+  extern const void *Object;
 
-void *factory_new (const void *class, ...);
-void factory_delete (void *p_obj);
+  void *factory_new (const void *class, ...);
+  void factory_delete (void *p_obj);
 
-const void *classOf (const void *p_obj);
-size_t sizeOf (const void *p_obj);
-const char * nameOf (const void *p_obj);
+  const void *classOf (const void *p_obj);
+  size_t sizeOf (const void *p_obj);
+  const char *nameOf (const void *p_obj);
 
-void *ctor (void *p_obj, va_list * app);
-void *dtor (void *p_obj);
+  void *ctor (void *p_obj, va_list * app);
+  void *dtor (void *p_obj);
 
 /* factory_new(Class, "name", super, size sel, meth, ... 0); */
-extern const void *Class;
+  extern const void *Class;
 
 /* class' superclass */
-const void *super (const void *p_obj);
+  const void *super (const void *p_obj);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZOBJECT_H */
+#endif                          /* TIZOBJECT_H */

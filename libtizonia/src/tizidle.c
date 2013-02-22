@@ -62,8 +62,8 @@ idle_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 idle_SetParameter (const void *ap_obj,
-                       OMX_HANDLETYPE ap_hdl,
-                       OMX_INDEXTYPE a_index, OMX_PTR a_struct)
+                   OMX_HANDLETYPE ap_hdl,
+                   OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
   OMX_PTR p_port = NULL;
@@ -76,13 +76,13 @@ idle_SetParameter (const void *ap_obj,
           tizkernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Cannot retrieve managing port (%s)...",
-                 tiz_err_to_str (ret_val));
+               tiz_err_to_str (ret_val));
       return ret_val;
     }
 
   assert (p_port);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "SetParameter : ENABLED [%d]",
                  TIZPORT_IS_ENABLED (p_port) ? 1 : 0);
 
@@ -90,7 +90,7 @@ idle_SetParameter (const void *ap_obj,
       || (!TIZPORT_IS_CONFIG_PORT (p_port) && TIZPORT_IS_ENABLED (p_port)))
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Incorrect state op "
-                 "(SetParameter received in Idle state)...");
+               "(SetParameter received in Idle state)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -100,28 +100,27 @@ idle_SetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 idle_GetState (const void *ap_obj,
-                   OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
+               OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                   "idle_GetState");
-  * ap_state = OMX_StateIdle;
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "idle_GetState");
+  *ap_state = OMX_StateIdle;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 idle_UseBuffer (const void *ap_obj,
-                    OMX_HANDLETYPE ap_hdl,
-                    OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                    OMX_U32 a_port_index,
-                    OMX_PTR ap_app_private, OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
+                OMX_HANDLETYPE ap_hdl,
+                OMX_BUFFERHEADERTYPE ** app_buf_hdr,
+                OMX_U32 a_port_index,
+                OMX_PTR ap_app_private, OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 idle_EmptyThisBuffer (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl,
-                          OMX_BUFFERHEADERTYPE * ap_hdr)
+                      OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   const OMX_U32 pid = ap_hdr->nInputPortIndex;
   const void *p_krn = tiz_get_krn (ap_hdl);
@@ -130,7 +129,7 @@ idle_EmptyThisBuffer (const void *ap_obj,
   if (TIZPORT_IS_ENABLED (p_port))
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Incorrect state op "
-                 "(ETB received in Idle state on an enabled port)...");
+               "(ETB received in Idle state on an enabled port)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -139,8 +138,7 @@ idle_EmptyThisBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 idle_FillThisBuffer (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
-                         OMX_BUFFERHEADERTYPE * ap_hdr)
+                     OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
 /*   const struct tizidle *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
@@ -170,9 +168,8 @@ idle_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
 static OMX_ERRORTYPE
 idle_state_set (const void *ap_obj,
-                    OMX_HANDLETYPE ap_hdl,
-                    OMX_COMMANDTYPE a_cmd,
-                    OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                OMX_HANDLETYPE ap_hdl,
+                OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   const struct tizidle *p_obj = ap_obj;
   tizfsm_state_id_t new_state = EStateMax;
@@ -182,7 +179,7 @@ idle_state_set (const void *ap_obj,
   assert (a_cmd == OMX_CommandStateSet);
 
   TIZ_LOG (TIZ_LOG_TRACE, "Requested transition to state [%s]...",
-             tiz_fsm_state_to_str (a_param1));
+           tiz_fsm_state_to_str (a_param1));
 
   /* Allowed transitions are OMX_StateLoaded, OMX_StateExecuting */
   /* and OMX_StatePause. */

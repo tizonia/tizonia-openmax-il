@@ -37,12 +37,12 @@ extern "C"
 #include "sdlivrprc.h"
 
 /* factory_new(sdlivrprc, ...) */
-extern const void *sdlivrprc;
+  extern const void *sdlivrprc;
 
-void init_sdlivrprc (void);
+  void init_sdlivrprc (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SDLIVRPRC_H */
+#endif                          /* SDLIVRPRC_H */

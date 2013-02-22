@@ -61,8 +61,8 @@ pause_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 pause_SetParameter (const void *ap_obj,
-                        OMX_HANDLETYPE ap_hdl,
-                        OMX_INDEXTYPE a_index, OMX_PTR a_struct)
+                    OMX_HANDLETYPE ap_hdl,
+                    OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
   OMX_PTR p_port = NULL;
@@ -75,7 +75,7 @@ pause_SetParameter (const void *ap_obj,
           tizkernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Cannot retrieve managing port (%s)...",
-                 tiz_err_to_str (ret_val));
+               tiz_err_to_str (ret_val));
       return ret_val;
     }
 
@@ -85,7 +85,7 @@ pause_SetParameter (const void *ap_obj,
       || (!TIZPORT_IS_CONFIG_PORT (p_port) && TIZPORT_IS_ENABLED (p_port)))
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Incorrect state op "
-                 "(SetParameter received in Pause state)...");
+               "(SetParameter received in Pause state)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -95,27 +95,26 @@ pause_SetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 pause_GetState (const void *ap_obj,
-                    OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
+                OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
-  * ap_state = OMX_StatePause;
+  *ap_state = OMX_StatePause;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 pause_UseBuffer (const void *ap_obj,
-                     OMX_HANDLETYPE ap_hdl,
-                     OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                     OMX_U32 a_port_index,
-                     OMX_PTR ap_app_private,
-                     OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
+                 OMX_HANDLETYPE ap_hdl,
+                 OMX_BUFFERHEADERTYPE ** app_buf_hdr,
+                 OMX_U32 a_port_index,
+                 OMX_PTR ap_app_private,
+                 OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 pause_EmptyThisBuffer (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_BUFFERHEADERTYPE * ap_hdr)
+                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
 /*   const struct tizpause *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nInputPortIndex; */
@@ -135,8 +134,7 @@ pause_EmptyThisBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 pause_FillThisBuffer (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl,
-                          OMX_BUFFERHEADERTYPE * ap_hdr)
+                      OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
 /*   const struct tizpause *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
@@ -167,9 +165,8 @@ pause_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
 static OMX_ERRORTYPE
 pause_state_set (const void *ap_obj,
-                     OMX_HANDLETYPE ap_hdl,
-                     OMX_COMMANDTYPE a_cmd,
-                     OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                 OMX_HANDLETYPE ap_hdl,
+                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   const struct tizpause *p_obj = ap_obj;
   tizfsm_state_id_t new_state = EStateMax;
@@ -179,7 +176,7 @@ pause_state_set (const void *ap_obj,
   assert (a_cmd == OMX_CommandStateSet);
 
   TIZ_LOG (TIZ_LOG_TRACE, "Requested transition to state [%s]...",
-             tiz_fsm_state_to_str (a_param1));
+           tiz_fsm_state_to_str (a_param1));
 
   /* Allowed transitions are OMX_StateIdle, and OMX_StateExecuting */
   switch (a_param1)
@@ -247,22 +244,21 @@ pause_state_set (const void *ap_obj,
 
 static OMX_ERRORTYPE
 pause_state_mark (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                          OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
-                          OMX_PTR ap_cmd_data)
+                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
+                  OMX_PTR ap_cmd_data)
 {
   struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
   /* Notify the kernel servant */
   /* No need to notify the processor servant */
-  return tizapi_SendCommand (p_krn, ap_hdl, a_cmd, a_param1,
-                             ap_cmd_data);
+  return tizapi_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 static OMX_ERRORTYPE
 pause_trans_complete (const void *ap_obj,
-                          OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
+                      OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
   TIZ_LOG (TIZ_LOG_TRACE, "Trans complete to state [%s]...",
-             tiz_fsm_state_to_str (a_new_state));
+           tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StatePause == a_new_state || OMX_StateIdle == a_new_state
           || OMX_StateExecuting == a_new_state);
   return tizstate_super_trans_complete (tizpause, ap_obj, ap_servant,

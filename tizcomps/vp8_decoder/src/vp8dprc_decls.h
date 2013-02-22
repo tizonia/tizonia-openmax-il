@@ -45,32 +45,32 @@ extern "C"
 #include <vpx_decoder.h>
 #include <vp8dx.h>
 
-typedef enum vp8dprc_stream_type vp8dprc_stream_type_t;
+  typedef enum vp8dprc_stream_type vp8dprc_stream_type_t;
 
-enum vp8dprc_stream_type
-{
+  enum vp8dprc_stream_type
+  {
     STREAM_RAW,
     STREAM_IVF
-};
+  };
 
-struct vp8dprc
-{
-  /* Object */
-  const struct tizproc _;
-  OMX_BUFFERHEADERTYPE *p_inhdr_;
-  OMX_BUFFERHEADERTYPE *p_outhdr_;
-  vpx_codec_ctx_t vp8ctx_;
-  bool first_buf_;
-  bool eos_;
-  vp8dprc_stream_type_t stream_type_;
-  uint8_t *p_cbuf_;
-  size_t cbuf_sz_;
-  size_t cbuf_alloc_sz_;
-  size_t cbuf_read_sz_;
-};
+  struct vp8dprc
+  {
+    /* Object */
+    const struct tizproc _;
+    OMX_BUFFERHEADERTYPE *p_inhdr_;
+    OMX_BUFFERHEADERTYPE *p_outhdr_;
+    vpx_codec_ctx_t vp8ctx_;
+    bool first_buf_;
+    bool eos_;
+    vp8dprc_stream_type_t stream_type_;
+    uint8_t *p_cbuf_;
+    size_t cbuf_sz_;
+    size_t cbuf_alloc_sz_;
+    size_t cbuf_read_sz_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* VP8DPRC_DECLS_H */
+#endif                          /* VP8DPRC_DECLS_H */

@@ -58,7 +58,7 @@
 #define ARATELIA_VP8_ENCODER_PORT_ALIGNMENT 0
 #define ARATELIA_VP8_ENCODER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
-static OMX_VERSIONTYPE vp8_encoder_version = { {1, 0, 0, 0 } };
+static OMX_VERSIONTYPE vp8_encoder_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
 instantiate_input_port (OMX_HANDLETYPE ap_hdl)
@@ -83,11 +83,11 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_VP8_ENCODER_PORT_SUPPLIERPREF,
     {NULL, NULL, NULL},
     -1                          /* use -1 until this becomes a real
-                                   component */
+                                 * component */
   };
 
   /* This figures are based on the defaults defined in the standard for the VP8
-     encoder component */
+   * encoder component */
   portdef.pNativeRender = NULL;
   portdef.nFrameWidth = 176;
   portdef.nFrameHeight = 144;
@@ -133,7 +133,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_VP8_ENCODER_PORT_SUPPLIERPREF,
     {NULL, NULL, NULL},
     -1                          /* use -1 until this becomes a real
-                                   component */
+                                 * component */
   };
   OMX_VIDEO_VP8LEVELTYPE levels[] = {
     OMX_VIDEO_VP8Level_Version0,
@@ -144,7 +144,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   };
 
   /* This figures are based on the defaults defined in the standard for the VP8
-     encoder component */
+   * encoder component */
   portdef.pNativeRender = NULL;
   portdef.nFrameWidth = 176;
   portdef.nFrameHeight = 144;
@@ -210,19 +210,19 @@ OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
-  const tiz_role_factory_t *rf_list [] = {&role_factory};
+  const tiz_role_factory_t *rf_list[] = { &role_factory };
 
   assert (ap_hdl);
 
   TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: "
-             "Inititializing [%s]", ARATELIA_VP8_ENCODER_COMPONENT_NAME);
+           "Inititializing [%s]", ARATELIA_VP8_ENCODER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_VP8_ENCODER_DEFAULT_ROLE);
-  role_factory.pf_cport   = instantiate_config_port;
+  role_factory.pf_cport = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_input_port;
   role_factory.pf_port[1] = instantiate_output_port;
-  role_factory.nports     = 2;
-  role_factory.pf_proc    = instantiate_processor;
+  role_factory.nports = 2;
+  role_factory.pf_proc = instantiate_processor;
 
   tiz_init_component (ap_hdl, ARATELIA_VP8_ENCODER_COMPONENT_NAME);
 

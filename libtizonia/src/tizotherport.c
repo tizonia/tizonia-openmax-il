@@ -56,7 +56,7 @@ otherport_ctor (void *ap_obj, va_list * app)
 
   tizport_register_index (p_obj, OMX_IndexParamOtherPortFormat);
 
-  tiz_vector_init (&(p_obj->p_formats_), sizeof(OMX_OTHER_FORMATTYPE));
+  tiz_vector_init (&(p_obj->p_formats_), sizeof (OMX_OTHER_FORMATTYPE));
 
   /* Initialize the OMX_OTHER_PARAM_PORTFORMATTYPE structure */
   p_obj->port_format_.nSize = sizeof (OMX_OTHER_PARAM_PORTFORMATTYPE);
@@ -67,8 +67,7 @@ otherport_ctor (void *ap_obj, va_list * app)
     {
       while (OMX_OTHER_FormatMax != p_formats[i])
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "p_formats[%u] = [%d]...",
-                     i, p_formats[i]);
+          TIZ_LOG (TIZ_LOG_TRACE, "p_formats[%u] = [%d]...", i, p_formats[i]);
           tiz_vector_push_back (p_obj->p_formats_, &p_formats[i++]);
         }
     }
@@ -97,13 +96,12 @@ otherport_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 otherport_GetParameter (const void *ap_obj,
-                            OMX_HANDLETYPE ap_hdl,
-                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizotherport *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -137,13 +135,12 @@ otherport_GetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 otherport_SetParameter (const void *ap_obj,
-                            OMX_HANDLETYPE ap_hdl,
-                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   struct tizotherport *p_obj = (struct tizotherport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -157,21 +154,21 @@ otherport_SetParameter (const void *ap_obj,
         if (format >= OMX_OTHER_FormatMax)
           {
             TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorBadParameter "
-                       "(Bad format [0x%08x]...)", format);
+                     "(Bad format [0x%08x]...)", format);
             return OMX_ErrorBadParameter;
           }
 
         if (!tiz_vector_find (p_obj->p_formats_, &format))
           {
             TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedSetting "
-                       "(Format not supported [0x%08x]...)", format);
+                     "(Format not supported [0x%08x]...)", format);
             return OMX_ErrorUnsupportedSetting;
           }
 
         p_obj->port_format_.eFormat = format;
 
         TIZ_LOG (TIZ_LOG_TRACE, "Set new other format "
-                   "[0x%08x]...", format);
+                 "[0x%08x]...", format);
 
       }
       break;
@@ -200,7 +197,7 @@ otherport_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -216,7 +213,7 @@ otherport_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 

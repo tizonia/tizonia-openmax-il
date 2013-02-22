@@ -53,8 +53,8 @@ struct tiz_queue_item
 
 struct tiz_queue
 {
-  /*@null@*/ tiz_queue_item_t *p_first;
-  /*@null@*/ tiz_queue_item_t *p_last;
+  /*@null@ */ tiz_queue_item_t *p_first;
+  /*@null@ */ tiz_queue_item_t *p_last;
   OMX_S32 capacity;
   OMX_S32 length;
   tiz_mutex_t mutex;
@@ -63,57 +63,52 @@ struct tiz_queue
 };
 
 static inline void
-deinit_queue_struct(/*@null@*/ tiz_queue_t * ap_q)
+deinit_queue_struct ( /*@null@ */ tiz_queue_t * ap_q)
 {
   /* Clean-up */
   if (ap_q)
     {
-      (void) tiz_cond_destroy(&(ap_q->cond_empty));
-      (void) tiz_cond_destroy(&(ap_q->cond_full));
-      (void) tiz_mutex_destroy(&(ap_q->mutex));
-      tiz_mem_free(ap_q);
+      (void) tiz_cond_destroy (&(ap_q->cond_empty));
+      (void) tiz_cond_destroy (&(ap_q->cond_full));
+      (void) tiz_mutex_destroy (&(ap_q->mutex));
+      tiz_mem_free (ap_q);
     }
 }
 
 /*@null@*/ static tiz_queue_t *
-init_queue_struct()
+init_queue_struct ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_queue_t *p_q = NULL;
   bool init_failed = false;
 
-  if ((p_q = (tiz_queue_t *)
-       tiz_mem_calloc (1, sizeof (tiz_queue_t))))
+  if ((p_q = (tiz_queue_t *) tiz_mem_calloc (1, sizeof (tiz_queue_t))))
     {
       if ((rc = tiz_mutex_init (&(p_q->mutex))) == OMX_ErrorNone)
         {
-          if ((rc
-               = tiz_cond_init (&(p_q->cond_full))) == OMX_ErrorNone)
+          if ((rc = tiz_cond_init (&(p_q->cond_full))) == OMX_ErrorNone)
             {
-              if ((rc =
-                   tiz_cond_init (&(p_q->cond_empty))) == OMX_ErrorNone)
+              if ((rc = tiz_cond_init (&(p_q->cond_empty))) == OMX_ErrorNone)
                 {
                   p_q->p_first =
                     (tiz_queue_item_t *)
                     tiz_mem_calloc (1, sizeof (tiz_queue_item_t));
                   if (!(p_q->p_first))
                     {
-                      TIZ_LOG (TIZ_LOG_ERROR, 
-                                 "Could not create first item.");
+                      TIZ_LOG (TIZ_LOG_ERROR, "Could not create first item.");
                       init_failed = true;
                     }
                 }
               else
                 {
-                  TIZ_LOG (TIZ_LOG_ERROR, 
-                             "Could not create empty cond variable.");
+                  TIZ_LOG (TIZ_LOG_ERROR,
+                           "Could not create empty cond variable.");
                   init_failed = true;
                 }
             }
           else
             {
-              TIZ_LOG (TIZ_LOG_ERROR, 
-                         "Could not create full cond variable.");
+              TIZ_LOG (TIZ_LOG_ERROR, "Could not create full cond variable.");
               init_failed = true;
             }
         }
@@ -131,7 +126,7 @@ init_queue_struct()
 
   if (init_failed)
     {
-      deinit_queue_struct(p_q);
+      deinit_queue_struct (p_q);
       p_q = 0;
     }
 
@@ -139,7 +134,7 @@ init_queue_struct()
 }
 
 OMX_ERRORTYPE
-tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
+tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_queue_item_t *p_new_item = NULL;
@@ -152,7 +147,7 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
 
   assert (a_capacity > 0);
 
-  if (NULL != (p_q = init_queue_struct()))
+  if (NULL != (p_q = init_queue_struct ()))
     {
       int i = 0;
       p_q->capacity = a_capacity;
@@ -173,7 +168,7 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
           else
             {
               TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources]: "
-                         "Could not instantiate queue items.");
+                       "Could not instantiate queue items.");
               rc = OMX_ErrorInsufficientResources;
 
               /* Clean-up */
@@ -186,7 +181,7 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
               /* end loop  */
               break;
             }
-        } /* for */
+        }                       /* for */
 
       if (OMX_ErrorNone == rc)
         {
@@ -197,7 +192,7 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
   else
     {
       TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorInsufficientResources: "
-                 "Could not instantiate queue struct.");
+               "Could not instantiate queue struct.");
       rc = OMX_ErrorInsufficientResources;
     }
 
@@ -212,7 +207,7 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
 }
 
 void
-tiz_queue_destroy (/*@null@*/ tiz_queue_t * p_q)
+tiz_queue_destroy ( /*@null@ */ tiz_queue_t * p_q)
 {
   if (p_q)
     {
@@ -232,7 +227,7 @@ tiz_queue_destroy (/*@null@*/ tiz_queue_t * p_q)
           p_q->p_first = NULL;
         }
 
-      deinit_queue_struct(p_q);
+      deinit_queue_struct (p_q);
     }
 }
 
@@ -281,8 +276,7 @@ tiz_queue_receive (tiz_queue_t * p_q, OMX_PTR * app_data)
 
   while (p_q->length == 0)
     {
-      rc = tiz_cond_wait (&(p_q->cond_empty),
-                                   &(p_q->mutex));
+      rc = tiz_cond_wait (&(p_q->cond_empty), &(p_q->mutex));
     }
 
   if (OMX_ErrorNone == rc)

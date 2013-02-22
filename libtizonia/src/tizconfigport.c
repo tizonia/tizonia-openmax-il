@@ -105,18 +105,18 @@ configport_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 configport_GetComponentVersion (const void *ap_obj,
-                                    OMX_HANDLETYPE ap_hdl,
-                                    OMX_STRING ap_comp_name,
-                                    OMX_VERSIONTYPE * ap_comp_version,
-                                    OMX_VERSIONTYPE * ap_spec_version,
-                                    OMX_UUIDTYPE * ap_comp_uuid)
+                                OMX_HANDLETYPE ap_hdl,
+                                OMX_STRING ap_comp_name,
+                                OMX_VERSIONTYPE * ap_comp_version,
+                                OMX_VERSIONTYPE * ap_spec_version,
+                                OMX_UUIDTYPE * ap_comp_uuid)
 {
   const struct tizconfigport *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_LOG_TRACE, "GetComponentVersion...");
 
   strcpy (ap_comp_name, p_obj->comp_name_);
-  * ap_comp_version = p_obj->comp_ver_;
+  *ap_comp_version = p_obj->comp_ver_;
   ap_spec_version->nVersion = OMX_VERSION;
 
   if (ap_comp_uuid)
@@ -130,8 +130,8 @@ configport_GetComponentVersion (const void *ap_obj,
 
 static OMX_ERRORTYPE
 configport_GetParameter (const void *ap_obj,
-                             OMX_HANDLETYPE ap_hdl,
-                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                         OMX_HANDLETYPE ap_hdl,
+                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizconfigport *p_obj = ap_obj;
 
@@ -161,7 +161,7 @@ configport_GetParameter (const void *ap_obj,
     default:
       {
         TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
-                   a_index);
+                 a_index);
         return OMX_ErrorUnsupportedIndex;
       }
     };
@@ -172,13 +172,12 @@ configport_GetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 configport_SetParameter (const void *ap_obj,
-                             OMX_HANDLETYPE ap_hdl,
-                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                         OMX_HANDLETYPE ap_hdl,
+                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   struct tizconfigport *p_obj = (struct tizconfigport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -223,7 +222,7 @@ configport_SetParameter (const void *ap_obj,
     default:
       {
         TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
-                   a_index);
+                 a_index);
         return OMX_ErrorUnsupportedIndex;
       }
     };
@@ -234,8 +233,8 @@ configport_SetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 configport_GetConfig (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl,
-                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                      OMX_HANDLETYPE ap_hdl,
+                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizconfigport *p_obj = ap_obj;
 
@@ -252,7 +251,7 @@ configport_GetConfig (const void *ap_obj,
     default:
       {
         TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
-                   a_index);
+                 a_index);
         return OMX_ErrorUnsupportedIndex;
       }
     };
@@ -263,8 +262,8 @@ configport_GetConfig (const void *ap_obj,
 
 static OMX_ERRORTYPE
 configport_SetConfig (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl,
-                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                      OMX_HANDLETYPE ap_hdl,
+                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   struct tizconfigport *p_obj = (struct tizconfigport *) ap_obj;
 
@@ -287,7 +286,7 @@ configport_SetConfig (const void *ap_obj,
     default:
       {
         TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
-                   a_index);
+                 a_index);
         return OMX_ErrorUnsupportedIndex;
       }
     };
@@ -297,9 +296,9 @@ configport_SetConfig (const void *ap_obj,
 
 static OMX_ERRORTYPE
 configport_GetExtensionIndex (const void *ap_obj,
-                                  OMX_HANDLETYPE ap_hdl,
-                                  OMX_STRING ap_param_name,
-                                  OMX_INDEXTYPE * ap_index_type)
+                              OMX_HANDLETYPE ap_hdl,
+                              OMX_STRING ap_param_name,
+                              OMX_INDEXTYPE * ap_index_type)
 {
   TIZ_LOG (TIZ_LOG_TRACE, "GetExtensionIndex [%s]...", ap_param_name);
 
@@ -320,7 +319,7 @@ configport_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -336,7 +335,7 @@ configport_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 
@@ -377,8 +376,7 @@ init_tizconfigport (void)
          tizapi_SetParameter, configport_SetParameter,
          tizapi_GetConfig, configport_GetConfig,
          tizapi_SetConfig, configport_SetConfig,
-         tizapi_GetExtensionIndex, configport_GetExtensionIndex,
-         0);
+         tizapi_GetExtensionIndex, configport_GetExtensionIndex, 0);
     }
 
 }

@@ -84,14 +84,13 @@ extern "C"
 
   int tiz_log_setappender (const char *catName, const char *appName);
 
-  void tiz_log (const char * __p_file,
-                  int __line,
-                  const char * __p_func,
-                  const char * __p_cat_name,
-                  int __priority,
-                  /*@null@*/ const char * __p_cname,
-                  /*@null@*/ char * __p_cbuf,
-                  const char * __p_format, ...);
+  void tiz_log (const char *__p_file,
+                int __line,
+                const char *__p_func,
+                const char *__p_cat_name, int __priority,
+                /*@null@ */ const char *__p_cname,
+                /*@null@ */ char *__p_cbuf,
+                const char *__p_format, ...);
 
 #ifdef __cplusplus
 }

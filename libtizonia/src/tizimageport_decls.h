@@ -39,23 +39,23 @@ extern "C"
 #include "tizport_decls.h"
 #include "tizosal.h"
 
-struct tizimageport
-{
-  /* Object */
-  const struct tizport _;
-  OMX_IMAGE_PARAM_PORTFORMATTYPE port_format_;
-  tiz_vector_t *p_image_encodings_;
-  tiz_vector_t *p_color_formats_;
-};
+  struct tizimageport
+  {
+    /* Object */
+    const struct tizport _;
+    OMX_IMAGE_PARAM_PORTFORMATTYPE port_format_;
+    tiz_vector_t *p_image_encodings_;
+    tiz_vector_t *p_color_formats_;
+  };
 
-struct tizimageport_class
-{
-  /* Class */
-  const struct tizport_class _;
-};
+  struct tizimageport_class
+  {
+    /* Class */
+    const struct tizport_class _;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZIMAGEPORT_DECLS_H */
+#endif                          /* TIZIMAGEPORT_DECLS_H */

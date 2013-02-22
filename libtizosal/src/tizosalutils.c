@@ -72,11 +72,11 @@ static const tiz_evt_str_t tiz_evt_to_str_tbl[] = {
   {OMX_EventBufferFlag, "OMX_EventBufferFlag"},
   {OMX_EventResourcesAcquired, "OMX_EventResourcesAcquired"},
   {OMX_EventComponentResumed, "OMX_EventComponentResumed"},
-  {OMX_EventDynamicResourcesAvailable,  "OMX_EventDynamicResourcesAvailable"},
-  {OMX_EventPortFormatDetected,  "OMX_EventPortFormatDetected"},
-  {OMX_EventIndexSettingChanged,  "OMX_EventIndexSettingChanged"},
-  {OMX_EventPortNeedsDisable,  "OMX_EventPortNeedsDisable"},
-  {OMX_EventPortNeedsFlush,  "OMX_EventPortNeedsFlush"},
+  {OMX_EventDynamicResourcesAvailable, "OMX_EventDynamicResourcesAvailable"},
+  {OMX_EventPortFormatDetected, "OMX_EventPortFormatDetected"},
+  {OMX_EventIndexSettingChanged, "OMX_EventIndexSettingChanged"},
+  {OMX_EventPortNeedsDisable, "OMX_EventPortNeedsDisable"},
+  {OMX_EventPortNeedsFlush, "OMX_EventPortNeedsFlush"},
   {OMX_EventKhronosExtensions, "OMX_EventKhronosExtensions"},
   {OMX_EventVendorStartUnused, "OMX_EventVendorStartUnused"},
   {OMX_EventMax, "OMX_EventMax"}
@@ -220,7 +220,7 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
   {OMX_IndexParamCompBufferSupplier, "OMX_IndexParamCompBufferSupplier"},
   {OMX_IndexReservedStartUnused, "OMX_IndexReservedStartUnused"},
 
-    /* Audio parameters and configurations */
+  /* Audio parameters and configurations */
   {OMX_IndexAudioStartUnused, "OMX_IndexAudioStartUnused"},
   {OMX_IndexParamAudioPortFormat, "OMX_IndexParamAudioPortFormat"},
   {OMX_IndexParamAudioPcm, "OMX_IndexParamAudioPcm"},
@@ -278,21 +278,28 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
   {OMX_IndexConfigAudio3DOutput, "OMX_IndexConfigAudio3DOutput"},
   {OMX_IndexConfigAudio3DLocation, "OMX_IndexConfigAudio3DLocation"},
   {OMX_IndexParamAudio3DDopplerMode, "OMX_IndexParamAudio3DDopplerMode"},
-  {OMX_IndexConfigAudio3DDopplerSettings, "OMX_IndexConfigAudio3DDopplerSettings"},
+  {OMX_IndexConfigAudio3DDopplerSettings,
+   "OMX_IndexConfigAudio3DDopplerSettings"},
   {OMX_IndexConfigAudio3DLevels, "OMX_IndexConfigAudio3DLevels"},
-  {OMX_IndexConfigAudio3DDistanceAttenuation, "OMX_IndexConfigAudio3DDistanceAttenuation"},
-  {OMX_IndexConfigAudio3DDirectivitySettings, "OMX_IndexConfigAudio3DDirectivitySettings"},
-  {OMX_IndexConfigAudio3DDirectivityOrientation, "OMX_IndexConfigAudio3DDirectivityOrientation"},
-  {OMX_IndexConfigAudio3DMacroscopicOrientation, "OMX_IndexConfigAudio3DMacroscopicOrientation"},
-  {OMX_IndexConfigAudio3DMacroscopicSize, "OMX_IndexConfigAudio3DMacroscopicSize"},
-  {OMX_IndexParamAudioQueryChannelMapping, "OMX_IndexParamAudioQueryChannelMapping"},
+  {OMX_IndexConfigAudio3DDistanceAttenuation,
+   "OMX_IndexConfigAudio3DDistanceAttenuation"},
+  {OMX_IndexConfigAudio3DDirectivitySettings,
+   "OMX_IndexConfigAudio3DDirectivitySettings"},
+  {OMX_IndexConfigAudio3DDirectivityOrientation,
+   "OMX_IndexConfigAudio3DDirectivityOrientation"},
+  {OMX_IndexConfigAudio3DMacroscopicOrientation,
+   "OMX_IndexConfigAudio3DMacroscopicOrientation"},
+  {OMX_IndexConfigAudio3DMacroscopicSize,
+   "OMX_IndexConfigAudio3DMacroscopicSize"},
+  {OMX_IndexParamAudioQueryChannelMapping,
+   "OMX_IndexParamAudioQueryChannelMapping"},
   {OMX_IndexConfigAudioSbcBitpool, "OMX_IndexConfigAudioSbcBitpool"},
   {OMX_IndexConfigAudioAmrMode, "OMX_IndexConfigAudioAmrMode"},
   {OMX_IndexConfigAudioBitrate, "OMX_IndexConfigAudioBitrate"},
   {OMX_IndexConfigAudioAMRISFIndex, "OMX_IndexConfigAudioAMRISFIndex"},
   {OMX_IndexParamAudioFixedPoint, "OMX_IndexParamAudioFixedPoint"},
 
-   /* Image specific parameters and configurations */
+  /* Image specific parameters and configurations */
   {OMX_IndexImageStartUnused, "OMX_IndexImageStartUnused"},
   {OMX_IndexParamImagePortFormat, "OMX_IndexParamImagePortFormat"},
   {OMX_IndexParamFlashControl, "OMX_IndexParamFlashControl"},
@@ -307,7 +314,7 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
   {OMX_IndexConfigImageHistogramInfo, "OMX_IndexConfigImageHistogramInfo"},
   {OMX_IndexConfigImageCaptureStarted, "OMX_IndexConfigImageCaptureStarted"},
   {OMX_IndexConfigImageCaptureEnded, "OMX_IndexConfigImageCaptureEnded"},
-  
+
   /* Video specific parameters and configurations */
   {OMX_IndexVideoStartUnused, "OMX_IndexVideoStartUnused"},
   {OMX_IndexParamVideoPortFormat, "OMX_IndexParamVideoPortFormat"},
@@ -342,17 +349,21 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
   {OMX_IndexParamVideoSliceFMO, "OMX_IndexParamVideoSliceFMO"},
   {OMX_IndexConfigVideoAVCIntraPeriod, "OMX_IndexConfigVideoAVCIntraPeriod"},
   {OMX_IndexConfigVideoNalSize, "OMX_IndexConfigVideoNalSize"},
-  {OMX_IndexParamNalStreamFormatSupported, "OMX_IndexParamNalStreamFormatSupported"},
+  {OMX_IndexParamNalStreamFormatSupported,
+   "OMX_IndexParamNalStreamFormatSupported"},
   {OMX_IndexParamNalStreamFormat, "OMX_IndexParamNalStreamFormat"},
-  {OMX_IndexParamNalStreamFormatSelect, "OMX_IndexParamNalStreamFormatSelect"},
+  {OMX_IndexParamNalStreamFormatSelect,
+   "OMX_IndexParamNalStreamFormatSelect"},
   {OMX_IndexParamVideoVC1, "OMX_IndexParamVideoVC1"},
   {OMX_IndexConfigVideoIntraPeriod, "OMX_IndexConfigVideoIntraPeriod"},
   {OMX_IndexConfigVideoIntraRefresh, "OMX_IndexConfigVideoIntraRefresh"},
   {OMX_IndexParamVideoVp8, "OMX_IndexParamVideoVp8"},
-  {OMX_IndexConfigVideoVp8ReferenceFrame, "OMX_IndexConfigVideoVp8ReferenceFrame"},
-  {OMX_IndexConfigVideoVp8ReferenceFrameType, "MX_IndexConfigVideoVp8ReferenceFrameType"},
+  {OMX_IndexConfigVideoVp8ReferenceFrame,
+   "OMX_IndexConfigVideoVp8ReferenceFrame"},
+  {OMX_IndexConfigVideoVp8ReferenceFrameType,
+   "MX_IndexConfigVideoVp8ReferenceFrameType"},
 
-    /* Image & Video common Configurations */
+  /* Image & Video common Configurations */
   {OMX_IndexCommonStartUnused, "OMX_IndexCommonStartUnused"},
   {OMX_IndexParamCommonDeblocking, "OMX_IndexParamCommonDeblocking"},
   {OMX_IndexParamCommonSensorMode, "OMX_IndexParamCommonSensorMode"},
@@ -392,24 +403,35 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
   {OMX_IndexParamCommonExtraQuantData, "OMX_IndexParamCommonExtraQuantData"},
   {OMX_IndexReserved_0x0700002A, "OMX_IndexReserved_0x0700002A"},
   {OMX_IndexReserved_0x0700002B, "OMX_IndexReserved_0x0700002B"},
-  {OMX_IndexConfigCommonTransitionEffect, "OMX_IndexConfigCommonTransitionEffect"},
+  {OMX_IndexConfigCommonTransitionEffect,
+   "OMX_IndexConfigCommonTransitionEffect"},
   {OMX_IndexConfigSharpness, "OMX_IndexConfigSharpness"},
-  {OMX_IndexConfigCommonExtDigitalZoom, "OMX_IndexConfigCommonExtDigitalZoom"},
-  {OMX_IndexConfigCommonExtOpticalZoom, "OMX_IndexConfigCommonExtOpticalZoom"},
-  {OMX_IndexConfigCommonCenterFieldOfView, "OMX_IndexConfigCommonCenterFieldOfView"},
+  {OMX_IndexConfigCommonExtDigitalZoom,
+   "OMX_IndexConfigCommonExtDigitalZoom"},
+  {OMX_IndexConfigCommonExtOpticalZoom,
+   "OMX_IndexConfigCommonExtOpticalZoom"},
+  {OMX_IndexConfigCommonCenterFieldOfView,
+   "OMX_IndexConfigCommonCenterFieldOfView"},
   {OMX_IndexConfigImageExposureLock, "OMX_IndexConfigImageExposureLock"},
-  {OMX_IndexConfigImageWhiteBalanceLock, "OMX_IndexConfigImageWhiteBalanceLock"},
+  {OMX_IndexConfigImageWhiteBalanceLock,
+   "OMX_IndexConfigImageWhiteBalanceLock"},
   {OMX_IndexConfigImageFocusLock, "OMX_IndexConfigImageFocusLock"},
   {OMX_IndexConfigCommonFocusRange, "OMX_IndexConfigCommonFocusRange"},
   {OMX_IndexConfigImageFlashStatus, "OMX_IndexConfigImageFlashStatus"},
-  {OMX_IndexConfigCommonExtCaptureMode, "OMX_IndexConfigCommonExtCaptureMode"},
-  {OMX_IndexConfigCommonNDFilterControl, "OMX_IndexConfigCommonNDFilterControl"},
-  {OMX_IndexConfigCommonAFAssistantLight, "OMX_IndexConfigCommonAFAssistantLight"},
-  {OMX_IndexConfigCommonFocusRegionStatus, "OMX_IndexConfigCommonFocusRegionStatus"},
-  {OMX_IndexConfigCommonFocusRegionControl, "OMX_IndexConfigCommonFocusRegionControl"},
+  {OMX_IndexConfigCommonExtCaptureMode,
+   "OMX_IndexConfigCommonExtCaptureMode"},
+  {OMX_IndexConfigCommonNDFilterControl,
+   "OMX_IndexConfigCommonNDFilterControl"},
+  {OMX_IndexConfigCommonAFAssistantLight,
+   "OMX_IndexConfigCommonAFAssistantLight"},
+  {OMX_IndexConfigCommonFocusRegionStatus,
+   "OMX_IndexConfigCommonFocusRegionStatus"},
+  {OMX_IndexConfigCommonFocusRegionControl,
+   "OMX_IndexConfigCommonFocusRegionControl"},
   {OMX_IndexParamInterlaceFormat, "OMX_IndexParamInterlaceFormat"},
   {OMX_IndexConfigDeInterlace, "OMX_IndexConfigDeInterlace"},
-  {OMX_IndexConfigStreamInterlaceFormats, "OMX_IndexConfigStreamInterlaceFormats"},
+  {OMX_IndexConfigStreamInterlaceFormats,
+   "OMX_IndexConfigStreamInterlaceFormats"},
 
   /* Reserved Configuration range */
   {OMX_IndexOtherStartUnused, "OMX_IndexOtherStartUnused"},
@@ -434,13 +456,16 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
   {OMX_IndexConfigTimeClientStartTime, "OMX_IndexConfigTimeClientStartTime"},
   {OMX_IndexConfigTimePosition, "OMX_IndexConfigTimePosition"},
   {OMX_IndexConfigTimeSeekMode, "OMX_IndexConfigTimeSeekMode"},
-  {OMX_IndexConfigTimeCurrentReference, "OMX_IndexConfigTimeCurrentReference"},
-  {OMX_IndexConfigTimeActiveRefClockUpdate, "OMX_IndexConfigTimeActiveRefClockUpdate"},
+  {OMX_IndexConfigTimeCurrentReference,
+   "OMX_IndexConfigTimeCurrentReference"},
+  {OMX_IndexConfigTimeActiveRefClockUpdate,
+   "OMX_IndexConfigTimeActiveRefClockUpdate"},
   {OMX_IndexConfigTimeRenderingDelay, "OMX_IndexConfigTimeRenderingDelay"},
   {OMX_IndexConfigTimeUpdate, "OMX_IndexConfigTimeUpdate"},
 
   /* Common or Domain Independent Time range */
-  {OMX_IndexCommonIndependentStartUnused, "OMX_IndexCommonIndependentStartUnused"},
+  {OMX_IndexCommonIndependentStartUnused,
+   "OMX_IndexCommonIndependentStartUnused"},
   {OMX_IndexConfigCommitMode, "OMX_IndexConfigCommitMode"},
   {OMX_IndexConfigCommit, "OMX_IndexConfigCommit"},
   {OMX_IndexConfigCallbackRequest, "OMX_IndexConfigCallbackRequest"},
@@ -459,8 +484,7 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
 /*@observer@*/ const OMX_STRING
 tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd)
 {
-  const size_t count
-    = sizeof (tiz_cmd_to_str_tbl) / sizeof (tiz_cmd_str_t);
+  const size_t count = sizeof (tiz_cmd_to_str_tbl) / sizeof (tiz_cmd_str_t);
   size_t i = 0;
 
   for (i = 0; i < count; ++i)
@@ -497,8 +521,7 @@ tiz_state_to_str (OMX_STATETYPE a_id)
 /*@observer@*/ const OMX_STRING
 tiz_evt_to_str (OMX_EVENTTYPE a_evt)
 {
-  const size_t count
-    = sizeof (tiz_evt_to_str_tbl) / sizeof (tiz_evt_str_t);
+  const size_t count = sizeof (tiz_evt_to_str_tbl) / sizeof (tiz_evt_str_t);
   size_t i = 0;
 
   for (i = 0; i < count; ++i)
@@ -515,8 +538,7 @@ tiz_evt_to_str (OMX_EVENTTYPE a_evt)
 /*@observer@*/ const OMX_STRING
 tiz_err_to_str (OMX_ERRORTYPE a_err)
 {
-  const size_t count
-    = sizeof (tiz_err_to_str_tbl) / sizeof (tiz_err_str_t);
+  const size_t count = sizeof (tiz_err_to_str_tbl) / sizeof (tiz_err_str_t);
   size_t i = 0;
 
   for (i = 0; i < count; ++i)
@@ -533,8 +555,7 @@ tiz_err_to_str (OMX_ERRORTYPE a_err)
 /*@observer@*/ const OMX_STRING
 tiz_dir_to_str (OMX_DIRTYPE a_dir)
 {
-  const size_t count
-    = sizeof (tiz_dir_to_str_tbl) / sizeof (tiz_dir_str_t);
+  const size_t count = sizeof (tiz_dir_to_str_tbl) / sizeof (tiz_dir_str_t);
   size_t i = 0;
 
   for (i = 0; i < count; ++i)
@@ -551,8 +572,7 @@ tiz_dir_to_str (OMX_DIRTYPE a_dir)
 /*@observer@*/ const OMX_STRING
 tiz_idx_to_str (OMX_INDEXTYPE a_idx)
 {
-  const size_t count
-    = sizeof (tiz_idx_to_str_tbl) / sizeof (tiz_idx_str_t);
+  const size_t count = sizeof (tiz_idx_to_str_tbl) / sizeof (tiz_idx_str_t);
   size_t i = 0;
 
   for (i = 0; i < count; ++i)

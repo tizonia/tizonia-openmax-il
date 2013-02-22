@@ -53,55 +53,54 @@ static const struct
 {
   char const *name;
   vpx_codec_iface_t *iface;
-  unsigned int             fourcc;
-  unsigned int             fourcc_mask;
+  unsigned int fourcc;
+  unsigned int fourcc_mask;
 } ifaces[] =
 {
-  {"vp8",  &vpx_codec_vp8_dx_algo,   VP8_FOURCC, 0x00FFFFFF},
-};
+  {
+"vp8", &vpx_codec_vp8_dx_algo, VP8_FOURCC, 0x00FFFFFF},};
 
 
-static unsigned int mem_get_le16(const void *vmem)
+static unsigned int
+mem_get_le16 (const void *vmem)
 {
-    unsigned int  val;
-    const unsigned char *mem = (const unsigned char *)vmem;
+  unsigned int val;
+  const unsigned char *mem = (const unsigned char *) vmem;
 
-    val = mem[1] << 8;
-    val |= mem[0];
-    return val;
+  val = mem[1] << 8;
+  val |= mem[0];
+  return val;
 }
 
-static unsigned int mem_get_le32(const void *vmem)
+static unsigned int
+mem_get_le32 (const void *vmem)
 {
-    unsigned int  val;
-    const unsigned char *mem = (const unsigned char *)vmem;
+  unsigned int val;
+  const unsigned char *mem = (const unsigned char *) vmem;
 
-    val = mem[3] << 24;
-    val |= mem[2] << 16;
-    val |= mem[1] << 8;
-    val |= mem[0];
-    return val;
+  val = mem[3] << 24;
+  val |= mem[2] << 16;
+  val |= mem[1] << 8;
+  val |= mem[0];
+  return val;
 }
 
 static int
-is_raw(OMX_U8 *p_buf,
-       unsigned int *fourcc,
-       unsigned int *width,
-       unsigned int *height,
-       unsigned int *fps_den,
-       unsigned int *fps_num)
+is_raw (OMX_U8 * p_buf,
+        unsigned int *fourcc,
+        unsigned int *width,
+        unsigned int *height, unsigned int *fps_den, unsigned int *fps_num)
 {
   unsigned char buf[32];
   vpx_codec_stream_info_t si;
   int i = 0;
   int is_raw = 0;
 
-  si.sz = sizeof(si);
+  si.sz = sizeof (si);
 
-  if(mem_get_le32(buf) < 256 * 1024 * 1024)
-    for (i = 0; i < sizeof(ifaces) / sizeof(ifaces[0]); i++)
-      if(!vpx_codec_peek_stream_info(ifaces[i].iface,
-                                     buf + 4, 32 - 4, &si))
+  if (mem_get_le32 (buf) < 256 * 1024 * 1024)
+    for (i = 0; i < sizeof (ifaces) / sizeof (ifaces[0]); i++)
+      if (!vpx_codec_peek_stream_info (ifaces[i].iface, buf + 4, 32 - 4, &si))
         {
           is_raw = 1;
           *fourcc = ifaces[i].fourcc;
@@ -116,12 +115,10 @@ is_raw(OMX_U8 *p_buf,
 }
 
 static int
-is_ivf(OMX_U8 *p_buf,
-       unsigned int *fourcc,
-       unsigned int *width,
-       unsigned int *height,
-       unsigned int *fps_den,
-       unsigned int *fps_num)
+is_ivf (OMX_U8 * p_buf,
+        unsigned int *fourcc,
+        unsigned int *width,
+        unsigned int *height, unsigned int *fps_den, unsigned int *fps_num)
 {
   int is_ivf = 0;
 
@@ -130,28 +127,30 @@ is_ivf(OMX_U8 *p_buf,
     {
       is_ivf = 1;
 
-      if (mem_get_le16(p_buf + 4) != 0)
-        fprintf(stderr, "Error: Unrecognized IVF version! This file may not"
-                " decode properly.");
+      if (mem_get_le16 (p_buf + 4) != 0)
+        fprintf (stderr, "Error: Unrecognized IVF version! This file may not"
+                 " decode properly.");
 
-      *fourcc = mem_get_le32(p_buf + 8);
-      *width = mem_get_le16(p_buf + 12);
-      *height = mem_get_le16(p_buf + 14);
-      *fps_num = mem_get_le32(p_buf + 16);
-      *fps_den = mem_get_le32(p_buf + 20);
+      *fourcc = mem_get_le32 (p_buf + 8);
+      *width = mem_get_le16 (p_buf + 12);
+      *height = mem_get_le16 (p_buf + 14);
+      *fps_num = mem_get_le32 (p_buf + 16);
+      *fps_den = mem_get_le32 (p_buf + 20);
 
       /* Some versions of vpxenc used 1/(2*fps) for the timebase, so
        * we can guess the framerate using only the timebase in this
        * case. Other files would require reading ahead to guess the
        * timebase, like we do for webm.
        */
-      if(*fps_num < 1000)
+      if (*fps_num < 1000)
         {
           /* Correct for the factor of 2 applied to the timebase in the
            * encoder.
            */
-          if(*fps_num&1)*fps_den<<=1;
-          else *fps_num>>=1;
+          if (*fps_num & 1)
+            *fps_den <<= 1;
+          else
+            *fps_num >>= 1;
         }
       else
         {
@@ -167,21 +166,20 @@ is_ivf(OMX_U8 *p_buf,
 }
 
 static int
-get_stream_info(OMX_U8 *p_buf,
-                vp8dprc_stream_type_t *stream,
-                unsigned int *fourcc,
-                unsigned int *width,
-                unsigned int *height,
-                unsigned int *fps_den,
-                unsigned int *fps_num)
+get_stream_info (OMX_U8 * p_buf,
+                 vp8dprc_stream_type_t * stream,
+                 unsigned int *fourcc,
+                 unsigned int *width,
+                 unsigned int *height,
+                 unsigned int *fps_den, unsigned int *fps_num)
 {
   int rc = EXIT_SUCCESS;
 
-  if(is_ivf(p_buf, fourcc, width, height, fps_den, fps_num))
+  if (is_ivf (p_buf, fourcc, width, height, fps_den, fps_num))
     {
       *stream = STREAM_IVF;
     }
-  else if(is_raw(p_buf, fourcc, width, height, fps_den, fps_num))
+  else if (is_raw (p_buf, fourcc, width, height, fps_den, fps_num))
     {
       *stream = STREAM_RAW;
     }
@@ -194,12 +192,12 @@ get_stream_info(OMX_U8 *p_buf,
 }
 
 static size_t
-read_from_omx_buffer(void *p_dst, size_t bytes, OMX_BUFFERHEADERTYPE *p_hdr)
+read_from_omx_buffer (void *p_dst, size_t bytes, OMX_BUFFERHEADERTYPE * p_hdr)
 {
   size_t to_read = bytes;
 
-  assert(p_dst);
-  assert(p_hdr);
+  assert (p_dst);
+  assert (p_hdr);
 
   TIZ_LOG (TIZ_LOG_TRACE,
            "bytes [%d], nFilledLen [%d] nOffset [%d]",
@@ -214,7 +212,7 @@ read_from_omx_buffer(void *p_dst, size_t bytes, OMX_BUFFERHEADERTYPE *p_hdr)
 
       if (to_read)
         {
-          memcpy(p_dst, p_hdr->pBuffer + p_hdr->nOffset, to_read);
+          memcpy (p_dst, p_hdr->pBuffer + p_hdr->nOffset, to_read);
         }
 
       p_hdr->nFilledLen -= to_read;
@@ -223,7 +221,7 @@ read_from_omx_buffer(void *p_dst, size_t bytes, OMX_BUFFERHEADERTYPE *p_hdr)
 
   TIZ_LOG (TIZ_LOG_TRACE,
            "bytes [%d], nFilledLen [%d] nOffset [%d] to_read [%d]",
-           bytes, p_hdr->nFilledLen, p_hdr->nOffset,to_read);
+           bytes, p_hdr->nFilledLen, p_hdr->nOffset, to_read);
 
   return to_read;
 }
@@ -231,18 +229,18 @@ read_from_omx_buffer(void *p_dst, size_t bytes, OMX_BUFFERHEADERTYPE *p_hdr)
 #define IVF_FRAME_HDR_SZ (sizeof(uint32_t) + sizeof(uint64_t))
 #define RAW_FRAME_HDR_SZ (sizeof(uint32_t))
 static bool
-read_frame(void *ap_obj, uint8_t **buf, size_t *buf_sz,
-           size_t *buf_alloc_sz, size_t *buf_read_sz)
+read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
+            size_t * buf_alloc_sz, size_t * buf_read_sz)
 {
   struct vp8dprc *p_vp8dprc = ap_obj;
   const struct tizservant *p_parent = ap_obj;
-  char            raw_hdr[IVF_FRAME_HDR_SZ];
-  size_t          new_buf_sz;
+  char raw_hdr[IVF_FRAME_HDR_SZ];
+  size_t new_buf_sz;
   vp8dprc_stream_type_t st = p_vp8dprc->stream_type_;
   size_t bytes_read = 0;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                 TIZ_CBUF(p_parent->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
                  "*buf_sz [%d] *buf_alloc_sz [%d] *buf_read_sz [%d]",
                  *buf_sz, *buf_alloc_sz, *buf_read_sz);
 
@@ -252,40 +250,40 @@ read_frame(void *ap_obj, uint8_t **buf, size_t *buf_sz,
        * of the frame header.
        */
       if (0 == (bytes_read
-                = read_from_omx_buffer(raw_hdr,
-                                       (st == STREAM_IVF ? IVF_FRAME_HDR_SZ
-                                        : RAW_FRAME_HDR_SZ),
-                                       p_vp8dprc->p_inhdr_) != 1))
+                = read_from_omx_buffer (raw_hdr,
+                                        (st == STREAM_IVF ? IVF_FRAME_HDR_SZ
+                                         : RAW_FRAME_HDR_SZ),
+                                        p_vp8dprc->p_inhdr_) != 1))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                         TIZ_CBUF(p_parent->p_hdl_),
+          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                         TIZ_CBUF (p_parent->p_hdl_),
                          "Failed to read frame size");
           new_buf_sz = 0;
         }
       else
         {
-          new_buf_sz = mem_get_le32(raw_hdr);
+          new_buf_sz = mem_get_le32 (raw_hdr);
 
           if (new_buf_sz > 256 * 1024 * 1024)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                             TIZ_CBUF(p_parent->p_hdl_),
+              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                             TIZ_CBUF (p_parent->p_hdl_),
                              "Error: Read invalid frame size [%u]",
-                             (unsigned int)new_buf_sz);
+                             (unsigned int) new_buf_sz);
               new_buf_sz = 0;
             }
 
           if (st == STREAM_RAW && new_buf_sz > 256 * 1024)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                             TIZ_CBUF(p_parent->p_hdl_),
+              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                             TIZ_CBUF (p_parent->p_hdl_),
                              "Warning: Read invalid frame size [%u]",
-                             (unsigned int)new_buf_sz);
+                             (unsigned int) new_buf_sz);
             }
 
           if (new_buf_sz > *buf_alloc_sz)
             {
-              uint8_t *new_buf = realloc(*buf, 2 * new_buf_sz);
+              uint8_t *new_buf = realloc (*buf, 2 * new_buf_sz);
 
               if (new_buf)
                 {
@@ -294,8 +292,8 @@ read_frame(void *ap_obj, uint8_t **buf, size_t *buf_sz,
                 }
               else
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                                 TIZ_CBUF(p_parent->p_hdl_),
+                  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                                 TIZ_CBUF (p_parent->p_hdl_),
                                  "Failed to allocate compressed data buffer");
                   new_buf_sz = 0;
                 }
@@ -305,12 +303,15 @@ read_frame(void *ap_obj, uint8_t **buf, size_t *buf_sz,
       *buf_sz = new_buf_sz;
     }
 
-  if (*buf_sz == 0 || (*buf_sz != (*buf_read_sz += read_from_omx_buffer((*buf) + *buf_read_sz,
-                                                                        *buf_sz - *buf_read_sz,
-                                                                        p_vp8dprc->p_inhdr_))))
+  if (*buf_sz == 0
+      || (*buf_sz !=
+          (*buf_read_sz +=
+           read_from_omx_buffer ((*buf) + *buf_read_sz,
+                                 *buf_sz - *buf_read_sz,
+                                 p_vp8dprc->p_inhdr_))))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                     TIZ_CBUF(p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
                      "Failed to read full frame");
       return false;
     }
@@ -319,8 +320,8 @@ read_frame(void *ap_obj, uint8_t **buf, size_t *buf_sz,
       *buf_read_sz = 0;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                 TIZ_CBUF(p_parent->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
                  "*buf_sz [%d] *buf_alloc_sz [%d] *buf_read_sz [%d]",
                  *buf_sz, *buf_alloc_sz, *buf_read_sz);
 
@@ -328,16 +329,16 @@ read_frame(void *ap_obj, uint8_t **buf, size_t *buf_sz,
 }
 
 static void
-out_put(OMX_BUFFERHEADERTYPE *p_hdr, const uint8_t *buf, unsigned int len)
+out_put (OMX_BUFFERHEADERTYPE * p_hdr, const uint8_t * buf, unsigned int len)
 {
-  memcpy(p_hdr->pBuffer + p_hdr->nOffset, buf, len);
+  memcpy (p_hdr->pBuffer + p_hdr->nOffset, buf, len);
   p_hdr->nOffset += len;
   p_hdr->nFilledLen = p_hdr->nOffset;
 
   if (p_hdr->nFilledLen > p_hdr->nAllocLen)
     {
       TIZ_LOG (TIZ_LOG_TRACE,
-               "len [%d] nFilledLen [%d] nAllocLen [%d]", 
+               "len [%d] nFilledLen [%d] nAllocLen [%d]",
                len, p_hdr->nFilledLen, p_hdr->nAllocLen);
       assert (p_hdr->nFilledLen <= p_hdr->nAllocLen);
     }
@@ -347,7 +348,7 @@ out_put(OMX_BUFFERHEADERTYPE *p_hdr, const uint8_t *buf, unsigned int len)
 static void
 relinquish_any_buffers_held (const void *ap_obj)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
   const struct tizservant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -382,13 +383,13 @@ vp8d_proc_ctor (void *ap_obj, va_list * app)
   struct vp8dprc *p_obj = super_ctor (vp8dprc, ap_obj, app);
   TIZ_LOG (TIZ_LOG_TRACE, "Constructing vp8dprc...[%p]", p_obj);
 
-  p_obj->p_inhdr_       = 0;
-  p_obj->p_outhdr_      = 0;
-  p_obj->first_buf_     = true;
-  p_obj->eos_           = false;
-  p_obj->stream_type_   = STREAM_IVF;
-  p_obj->p_cbuf_        = NULL;
-  p_obj->cbuf_sz_       = 0;
+  p_obj->p_inhdr_ = 0;
+  p_obj->p_outhdr_ = 0;
+  p_obj->first_buf_ = true;
+  p_obj->eos_ = false;
+  p_obj->stream_type_ = STREAM_IVF;
+  p_obj->p_cbuf_ = NULL;
+  p_obj->cbuf_sz_ = 0;
   p_obj->cbuf_alloc_sz_ = 0;
   p_obj->cbuf_read_sz_ = 0;
 
@@ -406,14 +407,14 @@ vp8d_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 transform_buffer (const void *ap_obj)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
   const struct tizservant *p_parent = ap_obj;
 
-  assert(p_obj->p_outhdr_);
+  assert (p_obj->p_outhdr_);
 
   if (p_obj->p_inhdr_)
     {
-      if((p_obj->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
+      if ((p_obj->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
         {
           p_obj->eos_ = true;
         }
@@ -427,17 +428,13 @@ transform_buffer (const void *ap_obj)
       unsigned int fps_den;
       unsigned int fps_num;
 
-      get_stream_info(p_obj->p_inhdr_->pBuffer,
-                      &(p_obj->stream_type_),
-                      &fourcc,
-                      &width,
-                      &height,
-                      &fps_den,
-                      &fps_num);
+      get_stream_info (p_obj->p_inhdr_->pBuffer,
+                       &(p_obj->stream_type_),
+                       &fourcc, &width, &height, &fps_den, &fps_num);
 
       TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                     TIZ_CNAME(p_parent->p_hdl_),
-                     TIZ_CBUF(p_parent->p_hdl_),
+                     TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
                      "Stream [%s] fourcc = [%d] width [%d] height [%d] "
                      "fps_den [%d] fps_num [%d]",
                      p_obj->stream_type_ == STREAM_RAW ? "RAW" : "IVF",
@@ -446,7 +443,7 @@ transform_buffer (const void *ap_obj)
       if (STREAM_IVF == p_obj->stream_type_)
         {
           /* Make sure we skip the IVF header the next time we read from the
-             buffer */
+           * buffer */
           p_obj->p_inhdr_->nOffset += 32;
           p_obj->p_inhdr_->nFilledLen -= 32;
         }
@@ -456,30 +453,30 @@ transform_buffer (const void *ap_obj)
     }
 
   /* Decode file */
-  while (read_frame(p_obj, &(p_obj->p_cbuf_), &(p_obj->cbuf_sz_),
-                    &(p_obj->cbuf_alloc_sz_), &(p_obj->cbuf_read_sz_)))
+  while (read_frame (p_obj, &(p_obj->p_cbuf_), &(p_obj->cbuf_sz_),
+                     &(p_obj->cbuf_alloc_sz_), &(p_obj->cbuf_read_sz_)))
     {
-      vpx_codec_iter_t  iter = NULL;
-      vpx_image_t    *img;
+      vpx_codec_iter_t iter = NULL;
+      vpx_image_t *img;
 
-      if (vpx_codec_decode(&(p_obj->vp8ctx_), p_obj->p_cbuf_,
-                           (unsigned int)(p_obj->cbuf_sz_), NULL, 0))
+      if (vpx_codec_decode (&(p_obj->vp8ctx_), p_obj->p_cbuf_,
+                            (unsigned int) (p_obj->cbuf_sz_), NULL, 0))
         {
-          const char *detail = vpx_codec_error_detail(&(p_obj->vp8ctx_));
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                         TIZ_CBUF(p_parent->p_hdl_),
+          const char *detail = vpx_codec_error_detail (&(p_obj->vp8ctx_));
+          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                         TIZ_CBUF (p_parent->p_hdl_),
                          "Failed to decode frame: %s",
-                         vpx_codec_error(&(p_obj->vp8ctx_)));
+                         vpx_codec_error (&(p_obj->vp8ctx_)));
           if (detail)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                             TIZ_CBUF(p_parent->p_hdl_), "%s", detail);
+              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                             TIZ_CBUF (p_parent->p_hdl_), "%s", detail);
             }
 
           return OMX_ErrorInsufficientResources;;
         }
 
-      img = vpx_codec_get_frame(&(p_obj->vp8ctx_), &iter);
+      img = vpx_codec_get_frame (&(p_obj->vp8ctx_), &iter);
 
       if (img)
         {
@@ -488,7 +485,7 @@ transform_buffer (const void *ap_obj)
 
           for (y = 0; y < img->d_h; y++)
             {
-              out_put(p_obj->p_outhdr_, buf, img->d_w);
+              out_put (p_obj->p_outhdr_, buf, img->d_w);
               buf += img->stride[VPX_PLANE_Y];
             }
 
@@ -496,7 +493,7 @@ transform_buffer (const void *ap_obj)
 
           for (y = 0; y < (1 + img->d_h) / 2; y++)
             {
-              out_put(p_obj->p_outhdr_, buf, (1 + img->d_w) / 2);
+              out_put (p_obj->p_outhdr_, buf, (1 + img->d_w) / 2);
               buf += img->stride[VPX_PLANE_U];
             }
 
@@ -504,13 +501,13 @@ transform_buffer (const void *ap_obj)
 
           for (y = 0; y < (1 + img->d_h) / 2; y++)
             {
-              out_put(p_obj->p_outhdr_, buf, (1 + img->d_w) / 2);
+              out_put (p_obj->p_outhdr_, buf, (1 + img->d_w) / 2);
               buf += img->stride[VPX_PLANE_V];
             }
 
           {
-            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                           TIZ_CBUF(p_parent->p_hdl_),
+            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                           TIZ_CBUF (p_parent->p_hdl_),
                            "relinquishing output buffer : nFilledLen %d "
                            "nAllocLen [%d]",
                            p_obj->p_outhdr_->nFilledLen,
@@ -547,21 +544,20 @@ vp8d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
   /* Initialize codec */
   if (VPX_CODEC_OK
-      != (err = vpx_codec_dec_init(&(p_obj->vp8ctx_),
-                                   ifaces[0].iface, NULL, flags)))
+      != (err = vpx_codec_dec_init (&(p_obj->vp8ctx_),
+                                    ifaces[0].iface, NULL, flags)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                     TIZ_CBUF(p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
                      "Unable to init the vp8 decoder [%s]...",
                      vpx_codec_err_to_string (err));
       return OMX_ErrorInsufficientResources;
     }
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                   TIZ_CNAME(p_parent->p_hdl_),
-                   TIZ_CBUF(p_parent->p_hdl_),
-                   "Resource allocation complete..."
-                   "pid = [%d]", a_pid);
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
+                 "Resource allocation complete..." "pid = [%d]", a_pid);
 
   return OMX_ErrorNone;
 }
@@ -579,9 +575,9 @@ vp8d_proc_deallocate_resources (void *ap_obj)
   vpx_codec_destroy (&(p_obj->vp8ctx_));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                   TIZ_CNAME(p_parent->p_hdl_),
-                   TIZ_CBUF(p_parent->p_hdl_),
-                   "Resource deallocation complete...");
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
+                 "Resource deallocation complete...");
 
   return OMX_ErrorNone;
 }
@@ -596,9 +592,9 @@ vp8d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   p_obj->first_buf_ = true;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                   TIZ_CNAME(p_parent->p_hdl_),
-                   TIZ_CBUF(p_parent->p_hdl_),
-                   "Transfering buffers...pid [%d]", a_pid);
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
+                 "Transfering buffers...pid [%d]", a_pid);
 
   return OMX_ErrorNone;
 
@@ -630,59 +626,56 @@ vp8d_proc_stop_and_return (void *ap_obj)
  */
 
 static bool
-claim_input(const void *ap_obj)
+claim_input (const void *ap_obj)
 {
   const struct tizservant *p_parent = ap_obj;
-  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_PD_ZERO (&ports);
   TIZ_UTIL_TEST_ERR (tizkernel_select (p_krn, 2, &ports));
 
-  /* We need one input buffers*/
+  /* We need one input buffers */
   if (TIZ_PD_ISSET (0, &ports))
     {
-      TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer (p_krn, 0, 0, &p_obj->p_inhdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                       TIZ_CNAME(p_parent->p_hdl_),
-                       TIZ_CBUF(p_parent->p_hdl_),
-                       "Claimed INPUT HEADER [%p]...",
-                       p_obj->p_inhdr_);
+      TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer
+                         (p_krn, 0, 0, &p_obj->p_inhdr_));
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
+                     "Claimed INPUT HEADER [%p]...", p_obj->p_inhdr_);
       return true;
     }
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                   TIZ_CNAME(p_parent->p_hdl_),
-                   TIZ_CBUF(p_parent->p_hdl_),
-                   "COULD NOT CLAIM AN INPUT HEADER...");
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
+                 "COULD NOT CLAIM AN INPUT HEADER...");
 
   return false;
 }
 
 static bool
-claim_output(const void *ap_obj)
+claim_output (const void *ap_obj)
 {
   const struct tizservant *p_parent = ap_obj;
-  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_PD_ZERO (&ports);
   TIZ_UTIL_TEST_ERR (tizkernel_select (p_krn, 2, &ports));
 
-  /* We need one output buffers*/
+  /* We need one output buffers */
   if (TIZ_PD_ISSET (1, &ports))
     {
-      TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer (p_krn, 1, 0, &p_obj->p_outhdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                       TIZ_CNAME(p_parent->p_hdl_),
-                       TIZ_CBUF(p_parent->p_hdl_),
-                       "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
-                       "nFilledLen [%d]...",
-                       p_obj->p_outhdr_,
-                       p_obj->p_outhdr_->pBuffer,
-                       p_obj->p_outhdr_->nFilledLen);
+      TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer
+                         (p_krn, 1, 0, &p_obj->p_outhdr_));
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
+                     "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
+                     "nFilledLen [%d]...", p_obj->p_outhdr_,
+                     p_obj->p_outhdr_->pBuffer, p_obj->p_outhdr_->nFilledLen);
       return true;
     }
 
@@ -692,22 +685,20 @@ claim_output(const void *ap_obj)
 static OMX_ERRORTYPE
 vp8d_proc_buffers_ready (const void *ap_obj)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
   const struct tizservant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                   TIZ_CNAME(p_parent->p_hdl_),
-                   TIZ_CBUF(p_parent->p_hdl_),
-                   "Buffers ready...");
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_), "Buffers ready...");
 
-  while(1)
+  while (1)
     {
 
       if (!p_obj->p_inhdr_)
         {
-          if (!claim_input(ap_obj)
-              || !p_obj->p_inhdr_)
+          if (!claim_input (ap_obj) || !p_obj->p_inhdr_)
             {
               break;
             }
@@ -715,7 +706,7 @@ vp8d_proc_buffers_ready (const void *ap_obj)
 
       if (!p_obj->p_outhdr_)
         {
-          if (!claim_output(ap_obj))
+          if (!claim_output (ap_obj))
             {
               break;
             }
@@ -734,12 +725,11 @@ vp8d_proc_buffers_ready (const void *ap_obj)
   if (p_obj->eos_ && p_obj->p_outhdr_)
     {
       /* EOS has been received and all the input data has been consumed
-         already, so its time to propagate the EOS flag */
+       * already, so its time to propagate the EOS flag */
       TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                       TIZ_CNAME(p_parent->p_hdl_),
-                       TIZ_CBUF(p_parent->p_hdl_),
-                       "p_obj->eos OUTPUT HEADER [%p]...",
-                       p_obj->p_outhdr_);
+                     TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
+                     "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);
       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
       tizkernel_relinquish_buffer (p_krn, 1, p_obj->p_outhdr_);
       p_obj->p_outhdr_ = NULL;
@@ -751,9 +741,9 @@ vp8d_proc_buffers_ready (const void *ap_obj)
 static OMX_ERRORTYPE
 vp8d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
   /* Always relinquish all held buffers, regardless of the port this is
-     received on */
+   * received on */
   relinquish_any_buffers_held (p_obj);
   return OMX_ErrorNone;
 }
@@ -761,9 +751,9 @@ vp8d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 vp8d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *)ap_obj;
+  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
   /* Always relinquish all held buffers, regardless of the port this is
-     received on */
+   * received on */
   relinquish_any_buffers_held (p_obj);
   return OMX_ErrorNone;
 }
@@ -803,8 +793,7 @@ init_vp8dprc (void)
          tizproc_buffers_ready, vp8d_proc_buffers_ready,
          tizproc_port_flush, vp8d_proc_port_flush,
          tizproc_port_disable, vp8d_proc_port_disable,
-         tizproc_port_enable, vp8d_proc_port_enable,
-         0);
+         tizproc_port_enable, vp8d_proc_port_enable, 0);
     }
 
 }

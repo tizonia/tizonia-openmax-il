@@ -42,7 +42,10 @@
 void
 tiz_uuid_generate (OMX_UUIDTYPE * ap_uuid)
 {
-  uuid_t uid = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
+  uuid_t uid =
+    { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+    '0', '0'
+  };
 
   assert (NULL != ap_uuid);
 
@@ -61,7 +64,7 @@ tiz_uuid_copy (OMX_UUIDTYPE * ap_uuid_dst, const OMX_UUIDTYPE * ap_uuid_src)
 {
   assert (NULL != ap_uuid_dst);
   assert (NULL != ap_uuid_src);
-  assert (ap_uuid_src != (const OMX_UUIDTYPE *)ap_uuid_dst);
+  assert (ap_uuid_src != (const OMX_UUIDTYPE *) ap_uuid_dst);
 
   /* Khronos uuid type is 128 bytes length */
   memcpy (ap_uuid_dst, ap_uuid_src, 128);
@@ -70,7 +73,10 @@ tiz_uuid_copy (OMX_UUIDTYPE * ap_uuid_dst, const OMX_UUIDTYPE * ap_uuid_src)
 void
 tiz_uuid_str (const OMX_U8 * ap_uuid, OMX_STRING ap_str)
 {
-  uuid_t uid = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
+  uuid_t uid =
+    { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+    '0', '0'
+  };
 
   assert (NULL != ap_uuid);
   assert (NULL != ap_str);
@@ -86,9 +92,12 @@ tiz_uuid_str (const OMX_U8 * ap_uuid, OMX_STRING ap_str)
 }
 
 void
-tiz_str_uuid (const char * ap_str, OMX_UUIDTYPE * ap_uuid)
+tiz_str_uuid (const char *ap_str, OMX_UUIDTYPE * ap_uuid)
 {
-  uuid_t uid = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
+  uuid_t uid =
+    { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+    '0', '0'
+  };
   int parse_result = 0;
 
   assert (NULL != ap_str);

@@ -62,16 +62,15 @@ idletoloaded_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 idletoloaded_SetParameter (const void *ap_obj,
-                               OMX_HANDLETYPE ap_hdl,
-                               OMX_INDEXTYPE a_index,
-                               OMX_PTR ap_struct)
+                           OMX_HANDLETYPE ap_hdl,
+                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 idletoloaded_GetState (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
+                       OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   *ap_state = OMX_StateIdle;
   return OMX_ErrorNone;
@@ -79,53 +78,51 @@ idletoloaded_GetState (const void *ap_obj,
 
 static OMX_ERRORTYPE
 idletoloaded_UseBuffer (const void *ap_obj,
-                            OMX_HANDLETYPE ap_hdl,
-                            OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                            OMX_U32 a_port_index,
-                            OMX_PTR ap_app_private,
-                            OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_BUFFERHEADERTYPE ** app_buf_hdr,
+                        OMX_U32 a_port_index,
+                        OMX_PTR ap_app_private,
+                        OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 idletoloaded_AllocateBuffer (const void *ap_obj,
-                                 OMX_HANDLETYPE ap_hdl,
-                                 OMX_BUFFERHEADERTYPE ** pap_buf,
-                                 OMX_U32 a_port_index,
-                                 OMX_PTR ap_app_private, OMX_U32 a_size_bytes)
+                             OMX_HANDLETYPE ap_hdl,
+                             OMX_BUFFERHEADERTYPE ** pap_buf,
+                             OMX_U32 a_port_index,
+                             OMX_PTR ap_app_private, OMX_U32 a_size_bytes)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 idletoloaded_FreeBuffer (const void *ap_obj,
-                             OMX_HANDLETYPE ap_hdl,
-                             OMX_U32 a_port_index,
-                             OMX_BUFFERHEADERTYPE * ap_buf)
+                         OMX_HANDLETYPE ap_hdl,
+                         OMX_U32 a_port_index, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 idletoloaded_EmptyThisBuffer (const void *ap_obj,
-                                  OMX_HANDLETYPE ap_hdl,
-                                  OMX_BUFFERHEADERTYPE * ap_buf)
+                              OMX_HANDLETYPE ap_hdl,
+                              OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 idletoloaded_FillThisBuffer (const void *ap_obj,
-                                 OMX_HANDLETYPE ap_hdl,
-                                 OMX_BUFFERHEADERTYPE * ap_buf)
+                             OMX_HANDLETYPE ap_hdl,
+                             OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
-idletoloaded_ComponentDeInit (const void *ap_obj,
-                                  OMX_HANDLETYPE ap_hdl)
+idletoloaded_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -136,8 +133,7 @@ idletoloaded_ComponentDeInit (const void *ap_obj,
 
 static OMX_ERRORTYPE
 idletoloaded_trans_complete (const void *ap_obj,
-                                 OMX_PTR ap_servant,
-                                 OMX_STATETYPE a_new_state)
+                             OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
   assert (OMX_StateLoaded == a_new_state);
   return tizstate_super_trans_complete (tizidletoloaded, ap_obj, ap_servant,

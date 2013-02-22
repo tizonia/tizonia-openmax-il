@@ -41,17 +41,17 @@ extern "C"
 #include "webpeprc.h"
 #include "tizproc_decls.h"
 
-struct webpeprc
-{
-  /* Object */
-  const struct tizproc _;
-  OMX_BUFFERHEADERTYPE *pinhdr_;
-  OMX_BUFFERHEADERTYPE *pouthdr_;
-  bool eos_;
-};
+  struct webpeprc
+  {
+    /* Object */
+    const struct tizproc _;
+    OMX_BUFFERHEADERTYPE *pinhdr_;
+    OMX_BUFFERHEADERTYPE *pouthdr_;
+    bool eos_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* WEBPEPRC_DECLS_H */
+#endif                          /* WEBPEPRC_DECLS_H */

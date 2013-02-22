@@ -39,26 +39,26 @@ extern "C"
 #include "tizvideoport_decls.h"
 #include "tizosal.h"
 
-struct tizvp8port
-{
-  /* Object */
-  const struct tizvideoport _;
-  OMX_VIDEO_PARAM_VP8TYPE vp8type_;
-  OMX_VIDEO_PARAM_PROFILELEVELTYPE pltype_;
-  tiz_vector_t *p_levels_;
-  OMX_VIDEO_PARAM_BITRATETYPE pbrtype_;
-  OMX_VIDEO_CONFIG_BITRATETYPE cbrtype_;
-  OMX_CONFIG_FRAMERATETYPE frtype_;
-};
+  struct tizvp8port
+  {
+    /* Object */
+    const struct tizvideoport _;
+    OMX_VIDEO_PARAM_VP8TYPE vp8type_;
+    OMX_VIDEO_PARAM_PROFILELEVELTYPE pltype_;
+    tiz_vector_t *p_levels_;
+    OMX_VIDEO_PARAM_BITRATETYPE pbrtype_;
+    OMX_VIDEO_CONFIG_BITRATETYPE cbrtype_;
+    OMX_CONFIG_FRAMERATETYPE frtype_;
+  };
 
-struct tizvp8port_class
-{
-  /* Class */
-  const struct tizvideoport_class _;
-};
+  struct tizvp8port_class
+  {
+    /* Class */
+    const struct tizvideoport_class _;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZVP8PORT_DECLS_H */
+#endif                          /* TIZVP8PORT_DECLS_H */

@@ -39,11 +39,11 @@ extern "C"
   void tiz_uuid_generate (OMX_UUIDTYPE * ap_uuid);
 
   void tiz_uuid_copy (OMX_UUIDTYPE * ap_uuid_dst,
-                        const OMX_UUIDTYPE * ap_uuid_src);
+                      const OMX_UUIDTYPE * ap_uuid_src);
 
   void tiz_uuid_str (const OMX_U8 * ap_uuid, OMX_STRING ap_str);
 
-  void tiz_str_uuid (const char * ap_str, OMX_UUIDTYPE * ap_uuid);
+  void tiz_str_uuid (const char *ap_str, OMX_UUIDTYPE * ap_uuid);
 
 #ifdef __cplusplus
 }

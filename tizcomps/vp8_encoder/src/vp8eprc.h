@@ -37,12 +37,12 @@ extern "C"
 #include "vp8eprc.h"
 
 /* factory_new(vp8eprc, ...) */
-extern const void *vp8eprc;
+  extern const void *vp8eprc;
 
-void init_vp8eprc (void);
+  void init_vp8eprc (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* VP8EPRC_H */
+#endif                          /* VP8EPRC_H */

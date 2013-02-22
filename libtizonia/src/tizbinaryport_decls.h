@@ -36,21 +36,21 @@ extern "C"
 
 #include "tizport_decls.h"
 
-struct tizbinaryport
-{
-  /* Object */
-  const struct tizport _;
-  void *ip_port;
-};
+  struct tizbinaryport
+  {
+    /* Object */
+    const struct tizport _;
+    void *ip_port;
+  };
 
-struct tizbinaryport_class
-{
-  /* Class */
-  const struct tizport_class _;
-};
+  struct tizbinaryport_class
+  {
+    /* Class */
+    const struct tizport_class _;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZBINARYPORT_DECLS_H */
+#endif                          /* TIZBINARYPORT_DECLS_H */

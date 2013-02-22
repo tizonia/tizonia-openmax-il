@@ -63,7 +63,7 @@ extern "C"
    * or greater than the right one.
    *
    */
-  typedef OMX_S32 (*tiz_pq_cmp_f) (void * ap_left, void * ap_right);
+  typedef OMX_S32 (*tiz_pq_cmp_f) (void *ap_left, void *ap_right);
 
   /**
    * \typedef The comparison function to be used by the removal function
@@ -79,8 +79,8 @@ extern "C"
    * criteria. OMX_FALSE otherwise.
    *
    */
-  typedef OMX_BOOL (*tiz_pq_func_f) (void * ap_elem, OMX_S32 a_data1,
-                                     void * ap_data2);
+  typedef OMX_BOOL (*tiz_pq_func_f) (void *ap_elem, OMX_S32 a_data1,
+                                     void *ap_data2);
 
   /**
    * \typedef Function that prints an item.
@@ -90,16 +90,16 @@ extern "C"
    * @param a_priority The priority of the item
    *
    */
-  typedef void (*tiz_pq_print_item_f) (void * ap_data, OMX_S32 a_priority);
+  typedef void (*tiz_pq_print_item_f) (void *ap_data, OMX_S32 a_priority);
 
   /**
    * \typedef Function to dump a node from the queue..
    *
    */
-  typedef void (*tiz_pq_dump_item_f) (void * ap_data,
+  typedef void (*tiz_pq_dump_item_f) (void *ap_data,
                                       OMX_S32 a_priority,
-                                      void * ap_cur,
-                                      void * ap_next, void * ap_prev);
+                                      void *ap_cur,
+                                      void *ap_next, void *ap_prev);
 
   /**
    * Initialize a new empty queue.
@@ -124,8 +124,7 @@ extern "C"
   OMX_ERRORTYPE tiz_pqueue_init (tiz_pqueue_t ** app_pq,
                                  OMX_S32 a_max_priority,
                                  tiz_pq_cmp_f apf_cmp,
-                                 tiz_soa_t *ap_soa,
-                                 const char *ap_str);
+                                 tiz_soa_t * ap_soa, const char *ap_str);
 
   /**
    * Destroy a priority queue.
@@ -136,7 +135,7 @@ extern "C"
    * @ingroup pqueue
    *
    */
-  void tiz_pqueue_destroy (/*@null@*/ tiz_pqueue_t * ap_pq);
+  void tiz_pqueue_destroy ( /*@null@ */ tiz_pqueue_t * ap_pq);
 
   /**
    * Add an item to the end of the priority group a_prio.
@@ -146,7 +145,7 @@ extern "C"
    * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources otherwise
    *
    */
-  OMX_ERRORTYPE tiz_pqueue_send (tiz_pqueue_t * ap_pq, void * ap_data,
+  OMX_ERRORTYPE tiz_pqueue_send (tiz_pqueue_t * ap_pq, void *ap_data,
                                  OMX_S32 a_prio);
 
   /**
@@ -158,7 +157,7 @@ extern "C"
    * @ingroup pqueue
    *
    */
-  OMX_ERRORTYPE tiz_pqueue_receive (tiz_pqueue_t * ap_pq, void * * app_data);
+  OMX_ERRORTYPE tiz_pqueue_receive (tiz_pqueue_t * ap_pq, void * *app_data);
 
   /**
    * Remove an item from the queue. The item is found using the comparison
@@ -169,7 +168,7 @@ extern "C"
    * @ingroup pqueue
    *
    */
-  OMX_ERRORTYPE tiz_pqueue_remove (tiz_pqueue_t * ap_pq, void * ap_data);
+  OMX_ERRORTYPE tiz_pqueue_remove (tiz_pqueue_t * ap_pq, void *ap_data);
 
   /**
    * Remove an item from the queue. The item is found using the comparison
@@ -181,7 +180,7 @@ extern "C"
    * @ingroup pqueue
    *
    */
-  OMX_ERRORTYPE tiz_pqueue_removep (tiz_pqueue_t * ap_pq, void * ap_data,
+  OMX_ERRORTYPE tiz_pqueue_removep (tiz_pqueue_t * ap_pq, void *ap_data,
                                     OMX_S32 a_priority);
 
   /**
@@ -194,8 +193,8 @@ extern "C"
    *
    */
   OMX_ERRORTYPE tiz_pqueue_remove_func (tiz_pqueue_t * ap_pq,
-                                        tiz_pq_func_f apf_func, OMX_S32 a_data1,
-                                        void * ap_data2);
+                                        tiz_pq_func_f apf_func,
+                                        OMX_S32 a_data1, void *ap_data2);
 
   /**
    * Return a reference to the first item in the queue.
@@ -205,7 +204,7 @@ extern "C"
    * @ingroup pqueue
    *
    */
-  OMX_ERRORTYPE tiz_pqueue_first (tiz_pqueue_t * ap_pq, void * * app_data);
+  OMX_ERRORTYPE tiz_pqueue_first (tiz_pqueue_t * ap_pq, void * *app_data);
 
   /**
    * Return the number of items currently in the queue.
@@ -226,8 +225,8 @@ extern "C"
    * @ingroup pqueue
    *
    */
-  OMX_S32  tiz_pqueue_print (tiz_pqueue_t * ap_pq,
-                             tiz_pq_print_item_f apf_print);
+  OMX_S32 tiz_pqueue_print (tiz_pqueue_t * ap_pq,
+                            tiz_pq_print_item_f apf_print);
 
   /**
    * This function dumps the contents of the nodes in the queue using the dump
@@ -238,8 +237,7 @@ extern "C"
    * @ingroup pqueue
    *
    */
-  OMX_S32  tiz_pqueue_dump (tiz_pqueue_t * ap_pq,
-                            tiz_pq_dump_item_f apf_dump);
+  OMX_S32 tiz_pqueue_dump (tiz_pqueue_t * ap_pq, tiz_pq_dump_item_f apf_dump);
 
 #ifdef __cplusplus
 }

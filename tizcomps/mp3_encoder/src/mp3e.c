@@ -65,10 +65,10 @@
 #define ARATELIA_MP3_ENCODER_PORT_ALIGNMENT 0
 #define ARATELIA_MP3_ENCODER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
-static OMX_VERSIONTYPE mp3_encoder_version = { {1, 0, 0, 0 } };
+static OMX_VERSIONTYPE mp3_encoder_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
-instantiate_mp3_port(OMX_HANDLETYPE ap_hdl)
+instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_mp3port = NULL;
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
@@ -99,15 +99,14 @@ instantiate_mp3_port(OMX_HANDLETYPE ap_hdl)
   mp3type.eFormat = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
   init_tizmp3port ();
-  p_mp3port = factory_new (tizmp3port, &mp3_port_opts, &encodings,
-                           &mp3type);
+  p_mp3port = factory_new (tizmp3port, &mp3_port_opts, &encodings, &mp3type);
   assert (p_mp3port);
 
   return p_mp3port;
 }
 
 static OMX_PTR
-instantiate_pcm_port(OMX_HANDLETYPE ap_hdl)
+instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_pcmport = NULL;
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
@@ -165,7 +164,7 @@ instantiate_pcm_port(OMX_HANDLETYPE ap_hdl)
 }
 
 static OMX_PTR
-instantiate_config_port(OMX_HANDLETYPE ap_hdl)
+instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_cport = NULL;
 
@@ -195,17 +194,17 @@ OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
-  const tiz_role_factory_t *rf_list [] = {&role_factory};
+  const tiz_role_factory_t *rf_list[] = { &role_factory };
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_MP3_ENCODER_DEFAULT_ROLE);
-  role_factory.pf_cport   = instantiate_config_port;
+  role_factory.pf_cport = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_pcm_port;
   role_factory.pf_port[1] = instantiate_mp3_port;
-  role_factory.nports     = 2;
-  role_factory.pf_proc    = instantiate_processor;
+  role_factory.nports = 2;
+  role_factory.pf_proc = instantiate_processor;
 
   TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: "
-             "Inititializing [%s]", ARATELIA_MP3_ENCODER_COMPONENT_NAME);
+           "Inititializing [%s]", ARATELIA_MP3_ENCODER_COMPONENT_NAME);
 
   assert (ap_hdl);
 

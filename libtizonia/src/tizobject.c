@@ -67,7 +67,7 @@ sizeOf (const void *ap_obj)
   return class->size;
 }
 
-const char * 
+const char *
 nameOf (const void *ap_obj)
 {
   const struct Class *class = classOf (ap_obj);
@@ -96,7 +96,7 @@ Class_ctor (void *ap_obj, va_list * app)
     typedef void (*voidf) ();   /* generic function pointer */
     voidf selector;
     va_list ap;
-    va_copy(ap, *app);
+    va_copy (ap, *app);
 
     while ((selector = va_arg (ap, voidf)))
       {
@@ -108,7 +108,7 @@ Class_ctor (void *ap_obj, va_list * app)
           *(voidf *) & p_obj->dtor = method;
       }
 
-    va_end(ap);
+    va_end (ap);
     return p_obj;
   }
 }

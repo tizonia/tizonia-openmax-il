@@ -38,15 +38,15 @@ extern "C"
 #include "frprc.h"
 #include "tizproc_decls.h"
 
-struct frprc
-{
-  /* Object */
-  const struct tizproc _;
-  bool eos_;
-};
+  struct frprc
+  {
+    /* Object */
+    const struct tizproc _;
+    bool eos_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* FRPRC_DECLS_H */
+#endif                          /* FRPRC_DECLS_H */

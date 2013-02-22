@@ -37,12 +37,12 @@ extern "C"
 #include "tizproc.h"
 
 /* factory_new(tiztcproc, ...) */
-extern const void *tiztcproc;
+  extern const void *tiztcproc;
 
-void init_tiztcproc (void);
+  void init_tiztcproc (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZTCPROC_H */
+#endif                          /* TIZTCPROC_H */

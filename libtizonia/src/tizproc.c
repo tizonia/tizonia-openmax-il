@@ -49,14 +49,22 @@ static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_br (void *ap_obj, OMX_PTR ap_msg);
 
 typedef struct tizproc_msg_sendcommand tizproc_msg_sendcommand_t;
-static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
-                                         tizproc_msg_sendcommand_t * ap_msg_sc);
-static OMX_ERRORTYPE dispatch_port_disable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
-                                            tizproc_msg_sendcommand_t * ap_msg_sc);
-static OMX_ERRORTYPE dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
-                                           tizproc_msg_sendcommand_t * ap_msg_sc);
-static OMX_ERRORTYPE dispatch_port_flush (const void *ap_obj, OMX_HANDLETYPE p_hdl,
-                                          tizproc_msg_sendcommand_t * ap_msg_sc);
+static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
+                                         OMX_HANDLETYPE p_hdl,
+                                         tizproc_msg_sendcommand_t *
+                                         ap_msg_sc);
+static OMX_ERRORTYPE dispatch_port_disable (const void *ap_obj,
+                                            OMX_HANDLETYPE p_hdl,
+                                            tizproc_msg_sendcommand_t *
+                                            ap_msg_sc);
+static OMX_ERRORTYPE dispatch_port_enable (const void *ap_obj,
+                                           OMX_HANDLETYPE p_hdl,
+                                           tizproc_msg_sendcommand_t *
+                                           ap_msg_sc);
+static OMX_ERRORTYPE dispatch_port_flush (const void *ap_obj,
+                                          OMX_HANDLETYPE p_hdl,
+                                          tizproc_msg_sendcommand_t *
+                                          ap_msg_sc);
 
 typedef enum tizproc_msg_class tizproc_msg_class_t;
 enum tizproc_msg_class
@@ -93,7 +101,8 @@ struct tizproc_msg
   };
 };
 
-typedef OMX_ERRORTYPE (*tizproc_msg_dispatch_f) (void *ap_obj, OMX_PTR ap_msg);
+typedef OMX_ERRORTYPE (*tizproc_msg_dispatch_f) (void *ap_obj,
+                                                 OMX_PTR ap_msg);
 
 static const tizproc_msg_dispatch_f tizproc_msg_to_fnt_tbl[] = {
   dispatch_sc,
@@ -101,8 +110,8 @@ static const tizproc_msg_dispatch_f tizproc_msg_to_fnt_tbl[] = {
 };
 
 typedef OMX_ERRORTYPE (*tizproc_msg_dispatch_sc_f)
-(const void *ap_obj, OMX_HANDLETYPE p_hdl,
-tizproc_msg_sendcommand_t * ap_msg_sc);
+  (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+   tizproc_msg_sendcommand_t * ap_msg_sc);
 
 static const tizproc_msg_dispatch_sc_f tizproc_msg_dispatch_sc_to_fnt_tbl[] = {
   dispatch_state_set,
@@ -153,25 +162,22 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
   p_port = tizkernel_get_port (p_krn, p_msg_br->pid);
   now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_msg->p_hdl),
-                   TIZ_CBUF(p_msg->p_hdl),
-                   "p_msg->p_hdl [%p] "
-                   "p_msg_br->pid = [%d] p_port [%p]",
-                   p_msg->p_hdl,
-                   p_msg_br->pid,
-                   p_port);
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
+                 TIZ_CBUF (p_msg->p_hdl),
+                 "p_msg->p_hdl [%p] "
+                 "p_msg_br->pid = [%d] p_port [%p]",
+                 p_msg->p_hdl, p_msg_br->pid, p_port);
 
-  assert(p_port);
+  assert (p_port);
 
   /* Do not notify this buffer in OMX_StatePause or if the port is disabled or
-     being disabled */
+   * being disabled */
   if (EStatePause != now && !TIZPORT_IS_DISABLED (p_port)
       && !TIZPORT_IS_BEING_DISABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_msg->p_hdl),
-                       TIZ_CBUF(p_msg->p_hdl),
-                       "p_msg_br->p_buffer [%p] ",
-                       p_msg_br->p_buffer);
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
+                     TIZ_CBUF (p_msg->p_hdl),
+                     "p_msg_br->p_buffer [%p] ", p_msg_br->p_buffer);
       rc = tizproc_buffers_ready (p_obj);
     }
 
@@ -188,7 +194,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
   OMX_BOOL done = OMX_FALSE;
 
   TIZ_LOG (TIZ_LOG_TRACE, "Requested transition to state [%s]",
-             tiz_fsm_state_to_str (ap_msg_sc->param1));
+           tiz_fsm_state_to_str (ap_msg_sc->param1));
 
   /* Obtain the current state */
   tizapi_GetState (tiz_get_fsm (p_hdl), p_hdl, &now);
@@ -350,22 +356,22 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   tizproc_msg_t *p_msg = ap_elem;
   const OMX_BUFFERHEADERTYPE *p_hdr = ap_data2;
 
-  assert(NULL != p_msg);
-  assert(NULL != p_hdr);
+  assert (NULL != p_msg);
+  assert (NULL != p_hdr);
 
   if (p_msg->class == a_data1)
     {
       tizproc_msg_buffersready_t *p_msg_br = &(p_msg->br);
-      assert(NULL != p_msg_br);
+      assert (NULL != p_msg_br);
 
       if (p_hdr == p_msg_br->p_buffer)
         {
           /* Found, return TRUE so this item will be removed from the servant
-             queue */
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_msg->p_hdl),
-                           TIZ_CBUF(p_msg->p_hdl),
-                           "tizproc_msg_buffersready_t : Found HEADER [%p]",
-                           p_hdr);
+           * queue */
+          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
+                         TIZ_CBUF (p_msg->p_hdl),
+                         "tizproc_msg_buffersready_t : Found HEADER [%p]",
+                         p_hdr);
           rc = OMX_TRUE;
         }
     }
@@ -373,8 +379,8 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
     {
       /* Not interested */
       TIZ_LOG (TIZ_LOG_TRACE,
-                 "Not interested : class  [%s]",
-                 tizproc_msg_to_str(p_msg->class));
+               "Not interested : class  [%s]",
+               tizproc_msg_to_str (p_msg->class));
     }
 
   return rc;
@@ -411,7 +417,7 @@ init_proc_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (NULL == (p_msg = tizservant_init_msg (p_obj, sizeof (tizproc_msg_t))))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
                      "Could not allocate message [%s]",
                      tizproc_msg_to_str (a_msg_class));
@@ -429,8 +435,7 @@ init_proc_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 static OMX_ERRORTYPE
 enqueue_buffersready_msg (const void *ap_obj,
                           OMX_HANDLETYPE ap_hdl,
-                          OMX_BUFFERHEADERTYPE * ap_hdr,
-                          OMX_U32 a_pid)
+                          OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid)
 {
   const struct tizproc *p_obj = ap_obj;
   tizproc_msg_t *p_msg = NULL;
@@ -445,10 +450,10 @@ enqueue_buffersready_msg (const void *ap_obj,
     }
 
   /* Finish-up this message */
-  p_msg_br           = &(p_msg->br);
+  p_msg_br = &(p_msg->br);
   p_msg_br->p_buffer = ap_hdr;
-  p_msg_br->pid      = a_pid;
-  
+  p_msg_br->pid = a_pid;
+
   /* Enqueueing with the lowest priority */
   return tizservant_enqueue (ap_obj, p_msg, 0);
 }
@@ -486,9 +491,9 @@ cmd_to_priority (OMX_COMMANDTYPE a_cmd)
 
 static OMX_ERRORTYPE
 proc_SendCommand (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_COMMANDTYPE a_cmd,
-                      OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_COMMANDTYPE a_cmd,
+                  OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   const struct tizproc *p_obj = ap_obj;
   tizproc_msg_t *p_msg = NULL;
@@ -503,9 +508,9 @@ proc_SendCommand (const void *ap_obj,
     }
 
   /* Finish-up this message */
-  p_msg_sc             = &(p_msg->sc);
-  p_msg_sc->cmd        = a_cmd;
-  p_msg_sc->param1     = a_param1;
+  p_msg_sc = &(p_msg->sc);
+  p_msg_sc->cmd = a_cmd;
+  p_msg_sc->param1 = a_param1;
   p_msg_sc->p_cmd_data = ap_cmd_data;
 
   return tizservant_enqueue (ap_obj, p_msg, cmd_to_priority (a_cmd));
@@ -513,12 +518,10 @@ proc_SendCommand (const void *ap_obj,
 
 static OMX_ERRORTYPE
 proc_EmptyThisBuffer (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl,
-                          OMX_BUFFERHEADERTYPE * ap_buf)
+                      OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl),
-                   TIZ_CBUF(ap_hdl),
-                   "pid [%d]", ap_buf->nInputPortIndex);
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+                 TIZ_CBUF (ap_hdl), "pid [%d]", ap_buf->nInputPortIndex);
 
   return enqueue_buffersready_msg (ap_obj, ap_hdl, ap_buf,
                                    ap_buf->nInputPortIndex);
@@ -526,12 +529,10 @@ proc_EmptyThisBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 proc_FillThisBuffer (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
-                         OMX_BUFFERHEADERTYPE * ap_buf)
+                     OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl),
-                   TIZ_CBUF(ap_hdl),
-                   "pid [%d]", ap_buf->nOutputPortIndex);
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+                 TIZ_CBUF (ap_hdl), "pid [%d]", ap_buf->nOutputPortIndex);
 
   return enqueue_buffersready_msg (ap_obj, ap_hdl, ap_buf,
                                    ap_buf->nOutputPortIndex);
@@ -543,7 +544,7 @@ proc_FillThisBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 proc_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
-                            OMX_S32 a_data1, OMX_PTR ap_data2)
+                        OMX_S32 a_data1, OMX_PTR ap_data2)
 {
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   /* Actual implementation is in the parent class */
@@ -564,17 +565,17 @@ proc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                 TIZ_CBUF(p_parent->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
                  "Processing [%s]...", tizproc_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZProcMsgMax);
 
   rc = tizproc_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) ap_obj, p_msg);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_parent->p_hdl_),
-                   TIZ_CBUF(p_parent->p_hdl_),
-                   "rc [%s]...", tiz_err_to_str (rc));
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
+                 "rc [%s]...", tiz_err_to_str (rc));
 
   return rc;
 }
@@ -693,7 +694,7 @@ proc_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -717,7 +718,7 @@ proc_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 
@@ -766,8 +767,7 @@ init_tizproc (void)
          tizproc_buffers_ready, proc_buffers_ready,
          tizproc_port_flush, proc_port_flush,
          tizproc_port_disable, proc_port_disable,
-         tizproc_port_enable, proc_port_enable,
-         0);
+         tizproc_port_enable, proc_port_enable, 0);
     }
 
 }

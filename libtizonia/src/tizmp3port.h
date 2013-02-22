@@ -40,13 +40,13 @@ extern "C"
 #include "tizaudioport.h"
 
 /* factory_new(tizmp3port, ...); */
-extern const void *tizmp3port;
-extern const void *tizmp3port_class;
+  extern const void *tizmp3port;
+  extern const void *tizmp3port_class;
 
-void init_tizmp3port (void);
+  void init_tizmp3port (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZMP3PORT_H */
+#endif                          /* TIZMP3PORT_H */

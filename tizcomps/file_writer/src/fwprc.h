@@ -37,12 +37,12 @@ extern "C"
 #include "fwprc.h"
 
 /* factory_new(fwprc, ...) */
-extern const void *fwprc;
+  extern const void *fwprc;
 
-void init_fwprc (void);
+  void init_fwprc (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* FWPRC_H */
+#endif                          /* FWPRC_H */

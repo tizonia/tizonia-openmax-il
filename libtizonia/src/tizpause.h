@@ -36,12 +36,12 @@ extern "C"
 
 #include "tizstate.h"
 
-extern const void *tizpause;
+  extern const void *tizpause;
 
-void init_tizpause (void);
+  void init_tizpause (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZPAUSE_H */
+#endif                          /* TIZPAUSE_H */

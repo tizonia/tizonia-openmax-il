@@ -38,21 +38,21 @@ extern "C"
 
 #include "tizconfigport_decls.h"
 
-struct frcfgport
-{
-  /* Object */
-  const struct tizconfigport _;
-  OMX_STRING p_uri_;
-};
+  struct frcfgport
+  {
+    /* Object */
+    const struct tizconfigport _;
+    OMX_STRING p_uri_;
+  };
 
-struct frcfgport_class
-{
-  /* Class */
-  const struct tizconfigport_class _;
-};
+  struct frcfgport_class
+  {
+    /* Class */
+    const struct tizconfigport_class _;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* FRCFGPORT_DECLS_H */
+#endif                          /* FRCFGPORT_DECLS_H */

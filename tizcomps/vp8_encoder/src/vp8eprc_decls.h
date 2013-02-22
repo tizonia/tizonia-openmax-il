@@ -41,17 +41,17 @@ extern "C"
 #include "vp8eprc.h"
 #include "tizproc_decls.h"
 
-struct vp8eprc
-{
-  /* Object */
-  const struct tizproc _;
-  OMX_BUFFERHEADERTYPE *pinhdr_;
-  OMX_BUFFERHEADERTYPE *pouthdr_;
-  bool eos_;
-};
+  struct vp8eprc
+  {
+    /* Object */
+    const struct tizproc _;
+    OMX_BUFFERHEADERTYPE *pinhdr_;
+    OMX_BUFFERHEADERTYPE *pouthdr_;
+    bool eos_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* VP8EPRC_DECLS_H */
+#endif                          /* VP8EPRC_DECLS_H */

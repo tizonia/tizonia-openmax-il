@@ -32,5 +32,11 @@ cscope:
 
 .PHONY: indent
 indent:
-	find . -path ./include -prune -o -iname "*.[ch]" -exec indent --gnu-style -pmt -sc -nut "{}" \;
+	find . -path ./include -prune \
+	-o -path "*tests*" -prune \
+	-o -path ./docs -prune \
+	-o -iname "config.h" -prune \
+	-o -iname "utarray.h" -prune \
+	-o -iname "*.[ch]" \
+	-exec indent --gnu-style -pmt -sc -nut "{}" \;
 

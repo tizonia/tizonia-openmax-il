@@ -44,7 +44,7 @@ extern "C"
     /* Object */
     const struct tizapi _;
     tiz_pqueue_t *p_pq_;
-    tiz_soa_t *p_soa_;           /* Not owned */
+    tiz_soa_t *p_soa_;          /* Not owned */
     OMX_COMPONENTTYPE *p_hdl_;
     OMX_PTR p_appdata_;
     OMX_CALLBACKTYPE *p_cbacks_;
@@ -95,24 +95,26 @@ extern "C"
   {
     /* Class */
     const struct tizapi_class _;
-    void (*set_allocator) (void *ap_obj, tiz_soa_t *p_soa);
+    void (*set_allocator) (void *ap_obj, tiz_soa_t * p_soa);
     void (*set_callbacks) (void *ap_obj, OMX_PTR ap_appdata,
                            OMX_CALLBACKTYPE * ap_cbacks);
-    OMX_ERRORTYPE (*tick) (const void *ap_obj);
-    OMX_PTR (*init_msg) (void *ap_obj, size_t msg_sz);
-    OMX_ERRORTYPE (*enqueue) (const void *ap_obj, OMX_PTR ap_data,
-                              OMX_U32 a_priority);
-    OMX_ERRORTYPE (*remove_from_queue) (const void *ap_obj,
-                                        tiz_pq_func_f apf_func,
-                                        OMX_S32 a_data1, OMX_PTR ap_data2);
-    OMX_ERRORTYPE (*dispatch_msg) (const void *ap_obj, OMX_PTR ap_data);
-    OMX_HANDLETYPE (*get_hdl) (const void *ap_obj);
-    OMX_BOOL (*is_ready) (const void *ap_obj);
-    OMX_ERRORTYPE (*allocate_resources) (const void *ap_obj, OMX_U32 a_pid);
-    OMX_ERRORTYPE (*deallocate_resources) (const void *ap_obj);
-    OMX_ERRORTYPE (*prepare_to_transfer) (const void *ap_obj, OMX_U32 a_pid);
-    OMX_ERRORTYPE (*transfer_and_process) (const void *ap_obj, OMX_U32 a_pid);
-    OMX_ERRORTYPE (*stop_and_return) (const void *ap_obj);
+      OMX_ERRORTYPE (*tick) (const void *ap_obj);
+      OMX_PTR (*init_msg) (void *ap_obj, size_t msg_sz);
+      OMX_ERRORTYPE (*enqueue) (const void *ap_obj, OMX_PTR ap_data,
+                                OMX_U32 a_priority);
+      OMX_ERRORTYPE (*remove_from_queue) (const void *ap_obj,
+                                          tiz_pq_func_f apf_func,
+                                          OMX_S32 a_data1, OMX_PTR ap_data2);
+      OMX_ERRORTYPE (*dispatch_msg) (const void *ap_obj, OMX_PTR ap_data);
+      OMX_HANDLETYPE (*get_hdl) (const void *ap_obj);
+      OMX_BOOL (*is_ready) (const void *ap_obj);
+      OMX_ERRORTYPE (*allocate_resources) (const void *ap_obj, OMX_U32 a_pid);
+      OMX_ERRORTYPE (*deallocate_resources) (const void *ap_obj);
+      OMX_ERRORTYPE (*prepare_to_transfer) (const void *ap_obj,
+                                            OMX_U32 a_pid);
+      OMX_ERRORTYPE (*transfer_and_process) (const void *ap_obj,
+                                             OMX_U32 a_pid);
+      OMX_ERRORTYPE (*stop_and_return) (const void *ap_obj);
     void (*issue_event) (const void *ap_obj, OMX_EVENTTYPE a_event,
                          OMX_U32 a_data1, OMX_U32 a_data2,
                          OMX_PTR ap_eventdata);
@@ -121,16 +123,16 @@ extern "C"
                              OMX_U32 a_pid, OMX_ERRORTYPE a_error);
     void (*issue_trans_event) (const void *ap_obj, OMX_STATETYPE a_state,
                                OMX_ERRORTYPE a_error);
-    void (*issue_buf_callback) (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr,
-                                OMX_U32 pid, OMX_DIRTYPE dir,
-                                OMX_HANDLETYPE ap_tcomp);
-    OMX_ERRORTYPE (*receive_pluggable_event) (const void *ap_obj,
-                                              OMX_HANDLETYPE ap_hdl,
-                                              tizevent_t * ap_event);
+    void (*issue_buf_callback) (const void *ap_obj,
+                                OMX_BUFFERHEADERTYPE * p_hdr, OMX_U32 pid,
+                                OMX_DIRTYPE dir, OMX_HANDLETYPE ap_tcomp);
+      OMX_ERRORTYPE (*receive_pluggable_event) (const void *ap_obj,
+                                                OMX_HANDLETYPE ap_hdl,
+                                                tizevent_t * ap_event);
   };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZSERVANT_DECLS_H */
+#endif                          /* TIZSERVANT_DECLS_H */

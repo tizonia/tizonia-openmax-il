@@ -56,7 +56,7 @@ audioport_ctor (void *ap_obj, va_list * app)
 
   tizport_register_index (p_obj, OMX_IndexParamAudioPortFormat);
 
-  tiz_vector_init (&(p_obj->p_encodings_), sizeof(OMX_AUDIO_CODINGTYPE));
+  tiz_vector_init (&(p_obj->p_encodings_), sizeof (OMX_AUDIO_CODINGTYPE));
 
   /* Initialize the OMX_AUDIO_PARAM_PORTFORMATTYPE structure */
   p_obj->port_format_.nSize = sizeof (OMX_AUDIO_PARAM_PORTFORMATTYPE);
@@ -95,13 +95,12 @@ audioport_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 audioport_GetParameter (const void *ap_obj,
-                            OMX_HANDLETYPE ap_hdl,
-                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizaudioport *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -135,13 +134,12 @@ audioport_GetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 audioport_SetParameter (const void *ap_obj,
-                            OMX_HANDLETYPE ap_hdl,
-                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   struct tizaudioport *p_obj = (struct tizaudioport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -155,21 +153,21 @@ audioport_SetParameter (const void *ap_obj,
         if (encoding >= OMX_AUDIO_CodingMax)
           {
             TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorBadParameter "
-                       "(Bad encoding [0x%08x]...)", encoding);
+                     "(Bad encoding [0x%08x]...)", encoding);
             return OMX_ErrorBadParameter;
           }
 
         if (!tiz_vector_find (p_obj->p_encodings_, &encoding))
           {
             TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedSetting "
-                       "(Encoding not supported [0x%08x]...)", encoding);
+                     "(Encoding not supported [0x%08x]...)", encoding);
             return OMX_ErrorUnsupportedSetting;
           }
 
         p_obj->port_format_.eEncoding = encoding;
 
         TIZ_LOG (TIZ_LOG_TRACE, "Set new audio encoding "
-                   "[0x%08x]...", encoding);
+                 "[0x%08x]...", encoding);
 
       }
       break;
@@ -198,7 +196,7 @@ audioport_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -214,7 +212,7 @@ audioport_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 

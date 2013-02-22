@@ -39,15 +39,15 @@ extern "C"
 #include "tiztcproc.h"
 #include "tizproc_decls.h"
 
-struct tiztcproc
-{
-  /* Object */
-  const struct tizproc _;
+  struct tiztcproc
+  {
+    /* Object */
+    const struct tizproc _;
 
-};
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZTCPROC_DECLS_H */
+#endif                          /* TIZTCPROC_DECLS_H */

@@ -36,12 +36,12 @@ extern "C"
 
 #include "tizexecuting.h"
 
-extern const void *tizexecutingtoidle;
+  extern const void *tizexecutingtoidle;
 
-void init_tizexecutingtoidle (void);
+  void init_tizexecutingtoidle (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZEXECUTINGTOIDLE_H */
+#endif                          /* TIZEXECUTINGTOIDLE_H */

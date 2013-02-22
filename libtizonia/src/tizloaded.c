@@ -61,12 +61,12 @@ loaded_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 loaded_SetParameter (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
-                         OMX_INDEXTYPE a_index, OMX_PTR a_struct)
+                     OMX_HANDLETYPE ap_hdl,
+                     OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "SetParameter");
 
   return tizapi_SetParameter (p_krn, ap_hdl, a_index, a_struct);
@@ -75,29 +75,28 @@ loaded_SetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 loaded_GetState (const void *ap_obj,
-                     OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
+                 OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
-                   "loaded_GetState");
-  * ap_state = OMX_StateLoaded;
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "loaded_GetState");
+  *ap_state = OMX_StateLoaded;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 loaded_UseBuffer (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                      OMX_U32 a_port_index,
-                      OMX_PTR ap_app_private,
-                      OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_BUFFERHEADERTYPE ** app_buf_hdr,
+                  OMX_U32 a_port_index,
+                  OMX_PTR ap_app_private,
+                  OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 loaded_EmptyThisBuffer (const void *ap_obj,
-                            OMX_HANDLETYPE ap_hdl,
-                            OMX_BUFFERHEADERTYPE * ap_hdr)
+                        OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   const OMX_U32 pid = ap_hdr->nInputPortIndex;
   const void *p_krn = tiz_get_krn (ap_hdl);
@@ -106,7 +105,7 @@ loaded_EmptyThisBuffer (const void *ap_obj,
   if (TIZPORT_IS_ENABLED (p_port))
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Incorrect state op "
-                 "(ETB received in Loaded state on an enabled port)...");
+               "(ETB received in Loaded state on an enabled port)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -117,8 +116,7 @@ loaded_EmptyThisBuffer (const void *ap_obj,
 
 static OMX_ERRORTYPE
 loaded_FillThisBuffer (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_BUFFERHEADERTYPE * ap_hdr)
+                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   const OMX_U32 pid = ap_hdr->nOutputPortIndex;
   const void *p_krn = tiz_get_krn (ap_hdl);
@@ -127,7 +125,7 @@ loaded_FillThisBuffer (const void *ap_obj,
   if (TIZPORT_IS_ENABLED (p_port))
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Incorrect state op "
-                 "(FTB received in Loaded state on an enabled port)...");
+               "(FTB received in Loaded state on an enabled port)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -148,9 +146,9 @@ loaded_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
 static OMX_ERRORTYPE
 loaded_state_set (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_COMMANDTYPE a_cmd,
-                      OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_COMMANDTYPE a_cmd,
+                  OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   const struct tizloaded *p_obj = ap_obj;
   tizfsm_state_id_t new_state = EStateMax;
@@ -160,7 +158,7 @@ loaded_state_set (const void *ap_obj,
   assert (a_cmd == OMX_CommandStateSet);
 
   TIZ_LOG (TIZ_LOG_TRACE, "Requested transition [OMX_StateLoaded -> %s]...",
-             tiz_fsm_state_to_str (a_param1));
+           tiz_fsm_state_to_str (a_param1));
 
   /* Allowed transitions are OMX_StateIdle and OMX_StateWaitForResources. */
   switch (a_param1)
@@ -229,10 +227,10 @@ loaded_state_set (const void *ap_obj,
 
 static OMX_ERRORTYPE
 loaded_trans_complete (const void *ap_obj,
-                           OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
+                       OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
   TIZ_LOG (TIZ_LOG_TRACE, "Trans complete to state [%s]...",
-             tiz_fsm_state_to_str (a_new_state));
+           tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateWaitForResources == a_new_state
           || OMX_StateIdle == a_new_state);
   return tizstate_super_trans_complete (tizloaded, ap_obj, ap_servant,

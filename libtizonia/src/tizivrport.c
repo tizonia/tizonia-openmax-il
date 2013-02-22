@@ -60,26 +60,26 @@ ivrport_ctor (void *ap_obj, va_list * app)
   tizport_register_index (p_obj, OMX_IndexConfigTimeRenderingDelay);
 
   /* Initialize the OMX_CONFIG_ROTATIONTYPE structure */
-  p_obj->crotate_.nSize = sizeof(OMX_CONFIG_ROTATIONTYPE);
+  p_obj->crotate_.nSize = sizeof (OMX_CONFIG_ROTATIONTYPE);
   p_obj->crotate_.nVersion.nVersion = OMX_VERSION;
   p_obj->crotate_.nPortIndex = p_base->portdef_.nPortIndex;
   p_obj->crotate_.nRotation = 0;
 
   /* Initialize the OMX_CONFIG_MIRRORTYPE structure */
-  p_obj->cmirror_.nSize = sizeof(OMX_CONFIG_MIRRORTYPE);
+  p_obj->cmirror_.nSize = sizeof (OMX_CONFIG_MIRRORTYPE);
   p_obj->cmirror_.nVersion.nVersion = OMX_VERSION;
   p_obj->cmirror_.nPortIndex = p_base->portdef_.nPortIndex;
   p_obj->cmirror_.eMirror = OMX_MirrorNone;
 
   /* Initialize the OMX_CONFIG_SCALEFACTORTYPE structure */
-  p_obj->cscale_.nSize = sizeof(OMX_CONFIG_SCALEFACTORTYPE);
+  p_obj->cscale_.nSize = sizeof (OMX_CONFIG_SCALEFACTORTYPE);
   p_obj->cscale_.nVersion.nVersion = OMX_VERSION;
   p_obj->cscale_.nPortIndex = p_base->portdef_.nPortIndex;
   p_obj->cscale_.xWidth = 1;
   p_obj->cscale_.xHeight = 1;
 
   /* Initialize the OMX_CONFIG_RECTTYPE structure */
-  p_obj->cincrop_.nSize = sizeof(OMX_CONFIG_RECTTYPE);
+  p_obj->cincrop_.nSize = sizeof (OMX_CONFIG_RECTTYPE);
   p_obj->cincrop_.nVersion.nVersion = OMX_VERSION;
   p_obj->cincrop_.nPortIndex = p_base->portdef_.nPortIndex;
   p_obj->cincrop_.nLeft = 0;
@@ -88,7 +88,7 @@ ivrport_ctor (void *ap_obj, va_list * app)
   p_obj->cincrop_.nHeight = 0;
 
   /* Initialize the OMX_TIME_CONFIG_RENDERINGDELAYTYPE structure */
-  p_obj->crendelay_.nSize = sizeof(OMX_TIME_CONFIG_RENDERINGDELAYTYPE);
+  p_obj->crendelay_.nSize = sizeof (OMX_TIME_CONFIG_RENDERINGDELAYTYPE);
   p_obj->crendelay_.nVersion.nVersion = OMX_VERSION;
   p_obj->crendelay_.nPortIndex = p_base->portdef_.nPortIndex;
   p_obj->crendelay_.nRenderingDelay = 0;
@@ -108,13 +108,12 @@ ivrport_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 ivrport_GetConfig (const void *ap_obj,
-                       OMX_HANDLETYPE ap_hdl,
-                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                   OMX_HANDLETYPE ap_hdl,
+                   OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizivrport *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetConfig [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "GetConfig [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -144,8 +143,7 @@ ivrport_GetConfig (const void *ap_obj,
 
     case OMX_IndexConfigCommonInputCrop:
       {
-        OMX_CONFIG_RECTTYPE *p_cincrop
-          = (OMX_CONFIG_RECTTYPE *) ap_struct;
+        OMX_CONFIG_RECTTYPE *p_cincrop = (OMX_CONFIG_RECTTYPE *) ap_struct;
         *p_cincrop = p_obj->cincrop_;
       }
       break;
@@ -171,13 +169,12 @@ ivrport_GetConfig (const void *ap_obj,
 
 static OMX_ERRORTYPE
 ivrport_SetConfig (const void *ap_obj,
-                       OMX_HANDLETYPE ap_hdl,
-                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                   OMX_HANDLETYPE ap_hdl,
+                   OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizivrport *p_obj = (struct tizivrport *)ap_obj;
+  struct tizivrport *p_obj = (struct tizivrport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetConfig [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -201,18 +198,17 @@ ivrport_SetConfig (const void *ap_obj,
       {
         OMX_CONFIG_SCALEFACTORTYPE *p_cscale
           = (OMX_CONFIG_SCALEFACTORTYPE *) ap_struct;
-        p_obj->cscale_.xWidth  = p_cscale->xWidth;
+        p_obj->cscale_.xWidth = p_cscale->xWidth;
         p_obj->cscale_.xHeight = p_cscale->xHeight;
       }
       break;
 
     case OMX_IndexConfigCommonInputCrop:
       {
-        OMX_CONFIG_RECTTYPE *p_cincrop
-          = (OMX_CONFIG_RECTTYPE *) ap_struct;
-        p_obj->cincrop_.nLeft   = p_cincrop->nLeft;
-        p_obj->cincrop_.nTop    = p_cincrop->nTop;
-        p_obj->cincrop_.nWidth  = p_cincrop->nWidth;
+        OMX_CONFIG_RECTTYPE *p_cincrop = (OMX_CONFIG_RECTTYPE *) ap_struct;
+        p_obj->cincrop_.nLeft = p_cincrop->nLeft;
+        p_obj->cincrop_.nTop = p_cincrop->nTop;
+        p_obj->cincrop_.nWidth = p_cincrop->nWidth;
         p_obj->cincrop_.nHeight = p_cincrop->nHeight;
       }
       break;
@@ -240,15 +236,17 @@ static OMX_ERRORTYPE
 {
   struct tizport *p_base = ap_obj;
   /* TODO: Finalize this function */
-  p_base->portdef_.format.video.nFrameWidth = ap_pdef->format.video.nFrameWidth;
-  p_base->portdef_.format.video.nFrameHeight = ap_pdef->format.video.nFrameHeight;
+  p_base->portdef_.format.video.nFrameWidth =
+    ap_pdef->format.video.nFrameWidth;
+  p_base->portdef_.format.video.nFrameHeight =
+    ap_pdef->format.video.nFrameHeight;
   return OMX_ErrorNone;
 }
 
 static OMX_BOOL
 ivrport_check_tunnel_compat (const void *ap_obj,
-                                 OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
-                                 OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
+                             OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
+                             OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
   struct tizport *p_obj = (struct tizport *) ap_obj;
 
@@ -258,17 +256,15 @@ ivrport_check_tunnel_compat (const void *ap_obj,
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
       TIZ_LOG (TIZ_LOG_TRACE,
-                 "port [%d] check_tunnel_compat : "
-                 "Video domain not found, instead found domain [%d]",
-                 p_obj->pid_,
-                 ap_other_def->eDomain);
+               "port [%d] check_tunnel_compat : "
+               "Video domain not found, instead found domain [%d]",
+               p_obj->pid_, ap_other_def->eDomain);
       return OMX_FALSE;
     }
 
   /* TODO : Review these compatibility checks */
 
-  TIZ_LOG (TIZ_LOG_TRACE, "port [%d] check_tunnel_compat [OK]",
-             p_obj->pid_);
+  TIZ_LOG (TIZ_LOG_TRACE, "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return OMX_TRUE;
 }
@@ -284,7 +280,7 @@ ivrport_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -300,7 +296,7 @@ ivrport_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 

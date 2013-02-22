@@ -72,8 +72,7 @@ extern "C"
    *
    * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
    */
-  OMX_ERRORTYPE tiz_thread_join (tiz_thread_t *ap_thread,
-                                   void **app_result);
+  OMX_ERRORTYPE tiz_thread_join (tiz_thread_t * ap_thread, void **app_result);
 
   /**
    * Terminate the calling thread..

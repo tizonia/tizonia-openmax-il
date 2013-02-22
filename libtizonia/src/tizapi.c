@@ -61,11 +61,11 @@ api_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 api_GetComponentVersion (const void *ap_obj,
-                             OMX_HANDLETYPE ap_hdl,
-                             OMX_STRING ap_comp_name,
-                             OMX_VERSIONTYPE * ap_comp_ver,
-                             OMX_VERSIONTYPE * ap_spec_ver,
-                             OMX_UUIDTYPE * ap_comp_uuid)
+                         OMX_HANDLETYPE ap_hdl,
+                         OMX_STRING ap_comp_name,
+                         OMX_VERSIONTYPE * ap_comp_ver,
+                         OMX_VERSIONTYPE * ap_spec_ver,
+                         OMX_UUIDTYPE * ap_comp_uuid)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -84,8 +84,7 @@ tizapi_GetComponentVersion (const void *ap_obj,
   return class->GetComponentVersion (ap_obj,
                                      ap_hdl,
                                      ap_comp_name,
-                                     ap_comp_ver,
-                                     ap_spec_ver, ap_comp_uuid);
+                                     ap_comp_ver, ap_spec_ver, ap_comp_uuid);
 }
 
 OMX_ERRORTYPE
@@ -109,8 +108,8 @@ super_GetComponentVersion (const void *a_class,
 
 static OMX_ERRORTYPE
 api_SendCommand (const void *ap_obj,
-                     OMX_HANDLETYPE ap_hdl,
-                     OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                 OMX_HANDLETYPE ap_hdl,
+                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -118,31 +117,33 @@ api_SendCommand (const void *ap_obj,
 OMX_ERRORTYPE
 tizapi_SendCommand (const void *ap_obj,
                     OMX_HANDLETYPE ap_hdl,
-                    OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                    OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
+                    OMX_PTR ap_cmd_data)
 {
   const struct tizapi_class *class = classOf (ap_obj);
 
   assert (class->SendCommand);
-  return class->SendCommand (ap_obj, ap_hdl,a_cmd, a_param1, ap_cmd_data);
+  return class->SendCommand (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 OMX_ERRORTYPE
 super_SendCommand (const void *a_class,
                    const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
-                   OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                   OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
+                   OMX_PTR ap_cmd_data)
 {
   const struct tizapi_class *superclass = super (a_class);
 
   assert (ap_obj && superclass->SendCommand);
-  return superclass->SendCommand (ap_obj, ap_hdl,a_cmd, a_param1, ap_cmd_data);
+  return superclass->SendCommand (ap_obj, ap_hdl, a_cmd, a_param1,
+                                  ap_cmd_data);
 }
 
 static OMX_ERRORTYPE
 api_GetParameter (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_INDEXTYPE a_index,
-                      OMX_PTR ap_struct)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -150,38 +151,31 @@ api_GetParameter (const void *ap_obj,
 OMX_ERRORTYPE
 tizapi_GetParameter (const void *ap_obj,
                      OMX_HANDLETYPE ap_hdl,
-                     OMX_INDEXTYPE a_index,
-                     OMX_PTR ap_struct)
+                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *class = classOf (ap_obj);
 
   assert (class->GetParameter);
-  return class->GetParameter (ap_obj,
-                              ap_hdl,
-                              a_index, ap_struct);
+  return class->GetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 OMX_ERRORTYPE
 super_GetParameter (const void *a_class,
                     const void *ap_obj,
                     OMX_HANDLETYPE ap_hdl,
-                    OMX_INDEXTYPE a_index,
-                    OMX_PTR ap_struct)
+                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *superclass = super (a_class);
 
   assert (ap_obj && superclass->GetParameter);
-  return superclass->GetParameter (ap_obj,
-                                   ap_hdl,
-                                   a_index, ap_struct);
+  return superclass->GetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 
 static OMX_ERRORTYPE
 api_SetParameter (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_INDEXTYPE a_index,
-                      OMX_PTR ap_struct)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -189,37 +183,31 @@ api_SetParameter (const void *ap_obj,
 OMX_ERRORTYPE
 tizapi_SetParameter (const void *ap_obj,
                      OMX_HANDLETYPE ap_hdl,
-                     OMX_INDEXTYPE a_index,
-                     OMX_PTR ap_struct)
+                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *class = classOf (ap_obj);
 
   assert (class->SetParameter);
-  return class->SetParameter (ap_obj,
-                              ap_hdl,
-                              a_index, ap_struct);
+  return class->SetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 OMX_ERRORTYPE
 super_SetParameter (const void *a_class,
                     const void *ap_obj,
                     OMX_HANDLETYPE ap_hdl,
-                    OMX_INDEXTYPE a_index,
-                    OMX_PTR ap_struct)
+                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *superclass = super (a_class);
 
   assert (ap_obj && superclass->SetParameter);
-  return superclass->SetParameter (ap_obj,
-                                   ap_hdl,
-                                   a_index, ap_struct);
+  return superclass->SetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 
 static OMX_ERRORTYPE
 api_GetConfig (const void *ap_obj,
-                   OMX_HANDLETYPE ap_hdl,
-                   OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+               OMX_HANDLETYPE ap_hdl,
+               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -232,8 +220,7 @@ tizapi_GetConfig (const void *ap_obj,
   const struct tizapi_class *class = classOf (ap_obj);
 
   assert (class->GetConfig);
-  return class->GetConfig (ap_obj,
-                           ap_hdl, a_index, ap_struct);
+  return class->GetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 OMX_ERRORTYPE
@@ -245,15 +232,13 @@ super_GetConfig (const void *a_class,
   const struct tizapi_class *superclass = super (a_class);
 
   assert (ap_obj && superclass->GetConfig);
-  return superclass->GetConfig (ap_obj,
-                                ap_hdl,
-                                a_index, ap_struct);
+  return superclass->GetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 static OMX_ERRORTYPE
 api_SetConfig (const void *ap_obj,
-                   OMX_HANDLETYPE ap_hdl,
-                   OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+               OMX_HANDLETYPE ap_hdl,
+               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -266,8 +251,7 @@ tizapi_SetConfig (const void *ap_obj,
   const struct tizapi_class *class = classOf (ap_obj);
 
   assert (class->SetConfig);
-  return class->SetConfig (ap_obj,
-                           ap_hdl, a_index, ap_struct);
+  return class->SetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 OMX_ERRORTYPE
@@ -279,16 +263,13 @@ super_SetConfig (const void *a_class,
   const struct tizapi_class *superclass = super (a_class);
 
   assert (ap_obj && superclass->SetConfig);
-  return superclass->SetConfig (ap_obj,
-                                ap_hdl,
-                                a_index, ap_struct);
+  return superclass->SetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 static OMX_ERRORTYPE
 api_GetExtensionIndex (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_STRING a_param_name,
-                           OMX_INDEXTYPE * ap_index_type)
+                       OMX_HANDLETYPE ap_hdl,
+                       OMX_STRING a_param_name, OMX_INDEXTYPE * ap_index_type)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -317,13 +298,12 @@ super_GetExtensionIndex (const void *a_class,
 
   assert (ap_obj && superclass->GetExtensionIndex);
   return superclass->GetExtensionIndex (ap_obj,
-                                        ap_hdl,
-                                        a_param_name, ap_index_type);
+                                        ap_hdl, a_param_name, ap_index_type);
 }
 
 static OMX_ERRORTYPE
 api_GetState (const void *ap_obj,
-                  OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
+              OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -351,11 +331,11 @@ super_GetState (const void *a_class,
 
 static OMX_ERRORTYPE
 api_ComponentTunnelRequest (const void *ap_obj,
-                                OMX_HANDLETYPE ap_hdl,
-                                OMX_U32 a_port,
-                                OMX_HANDLETYPE ap_tunn_comp,
-                                OMX_U32 a_tunn_port,
-                                OMX_TUNNELSETUPTYPE * ap_tunn_setup)
+                            OMX_HANDLETYPE ap_hdl,
+                            OMX_U32 a_port,
+                            OMX_HANDLETYPE ap_tunn_comp,
+                            OMX_U32 a_tunn_port,
+                            OMX_TUNNELSETUPTYPE * ap_tunn_setup)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -400,10 +380,10 @@ super_ComponentTunnelRequest (const void *a_class,
 
 static OMX_ERRORTYPE
 api_UseBuffer (const void *ap_obj,
-                   OMX_HANDLETYPE ap_hdl,
-                   OMX_BUFFERHEADERTYPE ** app_hdr,
-                   OMX_U32 a_pid,
-                   OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
+               OMX_HANDLETYPE ap_hdl,
+               OMX_BUFFERHEADERTYPE ** app_hdr,
+               OMX_U32 a_pid,
+               OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -441,9 +421,9 @@ super_UseBuffer (const void *a_class,
 
 static OMX_ERRORTYPE
 api_AllocateBuffer (const void *ap_obj,
-                        OMX_HANDLETYPE ap_hdl,
-                        OMX_BUFFERHEADERTYPE ** app_hdr,
-                        OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
+                    OMX_HANDLETYPE ap_hdl,
+                    OMX_BUFFERHEADERTYPE ** app_hdr,
+                    OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -458,8 +438,7 @@ tizapi_AllocateBuffer (const void *ap_obj,
 
   assert (class->AllocateBuffer);
   return class->AllocateBuffer (ap_obj,
-                                ap_hdl,
-                                app_hdr, a_pid, ap_apppriv, a_size);
+                                ap_hdl, app_hdr, a_pid, ap_apppriv, a_size);
 }
 
 OMX_ERRORTYPE
@@ -480,8 +459,8 @@ super_AllocateBuffer (const void *a_class,
 
 static OMX_ERRORTYPE
 api_FreeBuffer (const void *ap_obj,
-                    OMX_HANDLETYPE ap_hdl,
-                    OMX_U32 a_port_index, OMX_BUFFERHEADERTYPE * ap_buf)
+                OMX_HANDLETYPE ap_hdl,
+                OMX_U32 a_port_index, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -511,16 +490,14 @@ super_FreeBuffer (const void *a_class,
 
 static OMX_ERRORTYPE
 api_EmptyThisBuffer (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
-                         OMX_BUFFERHEADERTYPE * ap_buf)
+                     OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
 tizapi_EmptyThisBuffer (const void *ap_obj,
-                        OMX_HANDLETYPE ap_hdl,
-                        OMX_BUFFERHEADERTYPE * ap_buf)
+                        OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const struct tizapi_class *class = classOf (ap_obj);
 
@@ -531,8 +508,7 @@ tizapi_EmptyThisBuffer (const void *ap_obj,
 OMX_ERRORTYPE
 super_EmptyThisBuffer (const void *a_class,
                        const void *ap_obj,
-                       OMX_HANDLETYPE ap_hdl,
-                       OMX_BUFFERHEADERTYPE * ap_buf)
+                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const struct tizapi_class *superclass = super (a_class);
 
@@ -543,16 +519,14 @@ super_EmptyThisBuffer (const void *a_class,
 
 static OMX_ERRORTYPE
 api_FillThisBuffer (const void *ap_obj,
-                        OMX_HANDLETYPE ap_hdl,
-                        OMX_BUFFERHEADERTYPE * ap_buf)
+                    OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
 tizapi_FillThisBuffer (const void *ap_obj,
-                       OMX_HANDLETYPE ap_hdl,
-                       OMX_BUFFERHEADERTYPE * ap_buf)
+                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const struct tizapi_class *class = classOf (ap_obj);
 
@@ -563,8 +537,7 @@ tizapi_FillThisBuffer (const void *ap_obj,
 OMX_ERRORTYPE
 super_FillThisBuffer (const void *a_class,
                       const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_BUFFERHEADERTYPE * ap_buf)
+                      OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const struct tizapi_class *superclass = super (a_class);
 
@@ -574,8 +547,8 @@ super_FillThisBuffer (const void *a_class,
 
 static OMX_ERRORTYPE
 api_SetCallbacks (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_CALLBACKTYPE * ap_callbacks, OMX_PTR ap_app_data)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_CALLBACKTYPE * ap_callbacks, OMX_PTR ap_app_data)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -632,9 +605,9 @@ super_ComponentDeInit (const void *a_class,
 
 static OMX_ERRORTYPE
 api_UseEGLImage (const void *ap_obj,
-                     OMX_HANDLETYPE ap_hdl,
-                     OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                     OMX_U32 a_port_index, OMX_PTR ap_app_private, void *eglImage)
+                 OMX_HANDLETYPE ap_hdl,
+                 OMX_BUFFERHEADERTYPE ** app_buf_hdr,
+                 OMX_U32 a_port_index, OMX_PTR ap_app_private, void *eglImage)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -643,14 +616,16 @@ OMX_ERRORTYPE
 tizapi_UseEGLImage (const void *ap_obj,
                     OMX_HANDLETYPE ap_hdl,
                     OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                    OMX_U32 a_port_index, OMX_PTR ap_app_private, void *eglImage)
+                    OMX_U32 a_port_index, OMX_PTR ap_app_private,
+                    void *eglImage)
 {
   const struct tizapi_class *class = classOf (ap_obj);
 
   assert (class->UseEGLImage);
   return class->UseEGLImage (ap_obj,
                              ap_hdl,
-                             app_buf_hdr, a_port_index, ap_app_private, eglImage);
+                             app_buf_hdr, a_port_index, ap_app_private,
+                             eglImage);
 }
 
 OMX_ERRORTYPE
@@ -658,7 +633,8 @@ super_UseEGLImage (const void *a_class,
                    const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                   OMX_U32 a_port_index, OMX_PTR ap_app_private, void *eglImage)
+                   OMX_U32 a_port_index, OMX_PTR ap_app_private,
+                   void *eglImage)
 {
   const struct tizapi_class *superclass = super (a_class);
 
@@ -671,8 +647,8 @@ super_UseEGLImage (const void *a_class,
 
 static OMX_ERRORTYPE
 api_ComponentRoleEnum (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_U8 * a_role, OMX_U32 a_index)
+                       OMX_HANDLETYPE ap_hdl,
+                       OMX_U8 * a_role, OMX_U32 a_index)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -711,7 +687,7 @@ api_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -791,7 +767,7 @@ api_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
 
   return p_obj;
 }

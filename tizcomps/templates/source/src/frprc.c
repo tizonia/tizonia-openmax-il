@@ -95,7 +95,7 @@ fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   (void) p_obj;
 
   TIZ_LOG (TIZ_LOG_TRACE, "Resource allocation complete... "
-             "frprc = [%p]!!!", p_obj);
+           "frprc = [%p]!!!", p_obj);
 
   return OMX_ErrorNone;
 }
@@ -109,7 +109,7 @@ fr_proc_deallocate_resources (void *ap_obj)
   (void) p_obj;
 
   TIZ_LOG (TIZ_LOG_TRACE, "Resource deallocation complete..."
-             "frprc = [%p]!!!", p_obj);
+           "frprc = [%p]!!!", p_obj);
 
   return OMX_ErrorNone;
 }
@@ -123,7 +123,7 @@ fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
 
   TIZ_LOG (TIZ_LOG_TRACE,
-             "Prepared to transfer buffers...p_obj = [%p]!!!", p_obj);
+           "Prepared to transfer buffers...p_obj = [%p]!!!", p_obj);
 
   return OMX_ErrorNone;
 
@@ -148,8 +148,7 @@ fr_proc_stop_and_return (void *ap_obj)
   struct frprc *p_obj = ap_obj;
   assert (ap_obj);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!",
-             p_obj);
+  TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!", p_obj);
 
   return OMX_ErrorNone;
 }

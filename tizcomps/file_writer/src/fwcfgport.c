@@ -47,25 +47,26 @@
 #define TIZ_FILE_WRITER_DEFAULT_AUDIO_URI "OMX.Aratelia.file_writer.binary.default_audio_uri"
 
 static char *
-find_default_uri()
+find_default_uri ()
 {
-  char * p_rv = NULL;
+  char *p_rv = NULL;
   tiz_rcfile_t *p_rcfile = NULL;
   const char *p_uri = NULL;
 
-  tiz_rcfile_open(&p_rcfile);
+  tiz_rcfile_open (&p_rcfile);
 
-  p_uri = tiz_rcfile_get_value(p_rcfile, "plugins-data",
-                               TIZ_FILE_WRITER_DEFAULT_AUDIO_URI);
+  p_uri = tiz_rcfile_get_value (p_rcfile, "plugins-data",
+                                TIZ_FILE_WRITER_DEFAULT_AUDIO_URI);
 
   assert (NULL != p_uri
-          && "OMX.Aratelia.file_writer.binary.default_audio_uri not present in tizrc...");
+          &&
+          "OMX.Aratelia.file_writer.binary.default_audio_uri not present in tizrc...");
 
-  TIZ_LOG(TIZ_LOG_TRACE, "Default URI [%s]...", p_uri);
+  TIZ_LOG (TIZ_LOG_TRACE, "Default URI [%s]...", p_uri);
 
-  p_rv = strndup(p_uri, PATH_MAX);
+  p_rv = strndup (p_uri, PATH_MAX);
 
-  tiz_rcfile_close(p_rcfile);
+  tiz_rcfile_close (p_rcfile);
 
   return p_rv;
 }
@@ -79,7 +80,7 @@ static void *
 fw_cfgport_ctor (void *ap_obj, va_list * app)
 {
   struct fwcfgport *p_obj = super_ctor (fwcfgport, ap_obj, app);
-  p_obj->p_uri_ = find_default_uri();
+  p_obj->p_uri_ = find_default_uri ();
   tizport_register_index (p_obj, OMX_IndexParamContentURI);
   return p_obj;
 }
@@ -121,7 +122,7 @@ fw_cfgport_GetParameter (const void *ap_obj,
           }
 
         p_uri->nVersion.nVersion = OMX_VERSION;
-        strncpy ((char *)p_uri->contentURI, p_obj->p_uri_, uri_len + 1);
+        strncpy ((char *) p_uri->contentURI, p_obj->p_uri_, uri_len + 1);
         if (p_uri->contentURI)
           {
             p_uri->contentURI[uri_len] = '\0';
@@ -149,8 +150,7 @@ fw_cfgport_SetParameter (const void *ap_obj,
 {
   struct fwcfgport *p_obj = (struct fwcfgport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -164,7 +164,7 @@ fw_cfgport_SetParameter (const void *ap_obj,
 
         tiz_mem_free (p_obj->p_uri_);
         p_obj->p_uri_ = tiz_mem_calloc (1, uri_size);
-        strncpy (p_obj->p_uri_, (char*)p_uri->contentURI, uri_size);
+        strncpy (p_obj->p_uri_, (char *) p_uri->contentURI, uri_size);
         if (p_obj->p_uri_)
           {
             p_uri->contentURI[uri_size - 1] = '\0';
@@ -197,7 +197,7 @@ fw_cfgport_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -213,7 +213,7 @@ fw_cfgport_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 

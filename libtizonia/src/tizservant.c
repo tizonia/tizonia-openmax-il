@@ -61,7 +61,7 @@ servant_ctor (void *ap_obj, va_list * app)
 {
   struct tizservant *p_obj = super_ctor (tizservant, ap_obj, app);
   /* NOTE: The priority queue is initialised only when the allocator is set via
-     set_allocator */
+   * set_allocator */
   p_obj->p_pq_ = NULL;
   p_obj->p_soa_ = NULL;
   p_obj->p_hdl_ = va_arg (*app, OMX_COMPONENTTYPE *);
@@ -97,7 +97,7 @@ servant_dtor (void *ap_obj)
 }
 
 static void
-servant_set_allocator (void *ap_obj, tiz_soa_t *p_soa)
+servant_set_allocator (void *ap_obj, tiz_soa_t * p_soa)
 {
   struct tizservant *p_obj = ap_obj;
   p_obj->p_soa_ = p_soa;
@@ -106,7 +106,7 @@ servant_set_allocator (void *ap_obj, tiz_soa_t *p_soa)
 }
 
 void
-tizservant_set_allocator (void *ap_obj, tiz_soa_t *p_soa)
+tizservant_set_allocator (void *ap_obj, tiz_soa_t * p_soa)
 {
   const struct tizservant_class *class = classOf (ap_obj);
   assert (class->set_allocator);
@@ -115,7 +115,7 @@ tizservant_set_allocator (void *ap_obj, tiz_soa_t *p_soa)
 
 static void
 servant_set_callbacks (void *ap_obj,
-                           OMX_PTR ap_appdata, OMX_CALLBACKTYPE * ap_cbacks)
+                       OMX_PTR ap_appdata, OMX_CALLBACKTYPE * ap_cbacks)
 {
   struct tizservant *p_obj = ap_obj;
   p_obj->p_appdata_ = ap_appdata;
@@ -141,12 +141,12 @@ servant_tick (const void *ap_obj)
   for (;;)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Receiving msgs : queue length [%d]...",
-                 tiz_pqueue_length (p_obj->p_pq_));
+               tiz_pqueue_length (p_obj->p_pq_));
       if (OMX_ErrorNone !=
           (ret_val = tiz_pqueue_receive (p_obj->p_pq_, &p_msg)))
         {
           TIZ_LOG (TIZ_LOG_TRACE, "tiz_pqueue_receive error [%s]...",
-                     tiz_err_to_str (ret_val));
+                   tiz_err_to_str (ret_val));
           break;
         }
 
@@ -159,7 +159,7 @@ servant_tick (const void *ap_obj)
       if (OMX_ErrorNone != ret_val)
         {
           TIZ_LOG (TIZ_LOG_TRACE, "tizservant_dispatch_msg error [%s]...",
-                     tiz_err_to_str (ret_val));
+                   tiz_err_to_str (ret_val));
           break;
         }
 
@@ -242,7 +242,7 @@ tizservant_super_enqueue (const void *a_class,
 
 static OMX_ERRORTYPE
 servant_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
-                               OMX_S32 a_data1, OMX_PTR ap_data2)
+                           OMX_S32 a_data1, OMX_PTR ap_data2)
 {
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   return tiz_pqueue_remove_func (p_obj->p_pq_, apf_func, a_data1, ap_data2);
@@ -261,8 +261,7 @@ OMX_ERRORTYPE
 tizservant_super_remove_from_queue (const void *a_class,
                                     const void *ap_obj,
                                     tiz_pq_func_f apf_func,
-                                    OMX_S32 a_data1,
-                                    OMX_PTR ap_data2)
+                                    OMX_S32 a_data1, OMX_PTR ap_data2)
 {
   const struct tizservant_class *superclass = super (a_class);
   assert (ap_obj && superclass->remove_from_queue);
@@ -273,7 +272,7 @@ static OMX_ERRORTYPE
 servant_dispatch_msg (const void *ap_obj, OMX_PTR ap_data)
 {
   /* This is to be implemented by the children */
-  assert(0);
+  assert (0);
   return OMX_ErrorNotImplemented;
 }
 
@@ -382,7 +381,8 @@ tizservant_deallocate_resources (const void *ap_obj)
 }
 
 OMX_ERRORTYPE
-tizservant_super_deallocate_resources (const void *a_class, const void *ap_obj)
+tizservant_super_deallocate_resources (const void *a_class,
+                                       const void *ap_obj)
 {
   const struct tizservant_class *superclass = super (a_class);
   assert (ap_obj && superclass->deallocate_resources);
@@ -460,16 +460,15 @@ tizservant_super_stop_and_return (const void *a_class, const void *ap_obj)
 
 static void
 servant_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
-                         OMX_U32 a_data1, OMX_U32 a_data2,
-                         OMX_PTR ap_eventdata)
+                     OMX_U32 a_data1, OMX_U32 a_data2, OMX_PTR ap_eventdata)
 {
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   assert (p_obj);
   assert (p_obj->p_cbacks_);
   assert (p_obj->p_cbacks_->EventHandler);
   p_obj->p_cbacks_->EventHandler (p_obj->p_hdl_,
-                                 p_obj->p_appdata_,
-                                 a_event, a_data1, a_data2, ap_eventdata);
+                                  p_obj->p_appdata_,
+                                  a_event, a_data1, a_data2, ap_eventdata);
 }
 
 void
@@ -488,8 +487,8 @@ servant_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error)
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   assert (p_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_obj->p_hdl_),
-                 TIZ_CBUF(p_obj->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+                 TIZ_CBUF (p_obj->p_hdl_),
                  "OMX_EventError...[%s]", tiz_err_to_str (a_error));
   servant_issue_event (ap_obj, OMX_EventError, a_error, 0, 0);
 }
@@ -504,17 +503,17 @@ tizservant_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error)
 
 static void
 servant_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
-                             OMX_U32 a_pid, OMX_ERRORTYPE a_error)
+                         OMX_U32 a_pid, OMX_ERRORTYPE a_error)
 {
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   assert (p_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_obj->p_hdl_),
-                 TIZ_CBUF(p_obj->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+                 TIZ_CBUF (p_obj->p_hdl_),
                  "OMX_EventCmdComplete...[%s] pid [%d] error [%s]",
                  tiz_cmd_to_str (a_cmd), a_pid, tiz_err_to_str (a_error));
   servant_issue_event (ap_obj, OMX_EventCmdComplete, a_cmd, a_pid,
-                           (OMX_PTR) a_error);
+                       (OMX_PTR) a_error);
 }
 
 void
@@ -528,18 +527,18 @@ tizservant_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
 
 static void
 servant_issue_trans_event (void *ap_obj, OMX_STATETYPE a_state,
-                               OMX_ERRORTYPE a_error)
+                           OMX_ERRORTYPE a_error)
 {
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   assert (p_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_obj->p_hdl_),
-                 TIZ_CBUF(p_obj->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+                 TIZ_CBUF (p_obj->p_hdl_),
                  "OMX_EventCmdComplete...[OMX_CommandStateSet] [%s]",
                  tiz_fsm_state_to_str (a_state));
 
   servant_issue_event (ap_obj, OMX_EventCmdComplete, OMX_CommandStateSet,
-                           a_state, (OMX_PTR) a_error);
+                       a_state, (OMX_PTR) a_error);
 }
 
 void
@@ -553,17 +552,17 @@ tizservant_issue_trans_event (const void *ap_obj, OMX_STATETYPE a_state,
 
 static void
 servant_issue_buf_callback (const void *ap_obj,
-                                OMX_BUFFERHEADERTYPE * p_hdr,
-                                OMX_U32 pid,
-                                OMX_DIRTYPE dir, OMX_HANDLETYPE ap_tcomp)
+                            OMX_BUFFERHEADERTYPE * p_hdr,
+                            OMX_U32 pid,
+                            OMX_DIRTYPE dir, OMX_HANDLETYPE ap_tcomp)
 {
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   assert (p_obj);
   assert (p_obj->p_cbacks_);
   assert (p_obj->p_cbacks_->EventHandler);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_obj->p_hdl_),
-                 TIZ_CBUF(p_obj->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+                 TIZ_CBUF (p_obj->p_hdl_),
                  "HEADER [%p] BUFFER [%p] ap_tcomp [%p]",
                  p_hdr, p_hdr->pBuffer, ap_tcomp);
 
@@ -571,14 +570,14 @@ servant_issue_buf_callback (const void *ap_obj,
     {
       if (OMX_DirInput == dir)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_obj->p_hdl_),
-                         TIZ_CBUF(p_obj->p_hdl_), "OMX_FillThisBuffer");
+          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+                         TIZ_CBUF (p_obj->p_hdl_), "OMX_FillThisBuffer");
           OMX_FillThisBuffer (ap_tcomp, p_hdr);
         }
       else
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(p_obj->p_hdl_),
-                         TIZ_CBUF(p_obj->p_hdl_), "OMX_EmptyThisBuffer");
+          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+                         TIZ_CBUF (p_obj->p_hdl_), "OMX_EmptyThisBuffer");
           OMX_EmptyThisBuffer (ap_tcomp, p_hdr);
         }
     }
@@ -588,7 +587,8 @@ servant_issue_buf_callback (const void *ap_obj,
       OMX_ERRORTYPE (*fp_buf_done)
         (OMX_HANDLETYPE, OMX_PTR, OMX_BUFFERHEADERTYPE *) =
         (dir == OMX_DirInput ?
-         p_obj->p_cbacks_->EmptyBufferDone : p_obj->p_cbacks_->FillBufferDone);
+         p_obj->p_cbacks_->EmptyBufferDone : p_obj->p_cbacks_->
+         FillBufferDone);
 
       fp_buf_done (p_obj->p_hdl_, p_obj->p_appdata_, p_hdr);
     }
@@ -608,8 +608,7 @@ tizservant_issue_buf_callback (const void *ap_obj,
 
 static OMX_ERRORTYPE
 servant_receive_pluggable_event (const void *ap_obj,
-                                     OMX_HANDLETYPE ap_hdl,
-                                     tizevent_t * ap_event)
+                                 OMX_HANDLETYPE ap_hdl, tizevent_t * ap_event)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -637,7 +636,7 @@ servant_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -725,7 +724,7 @@ servant_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 

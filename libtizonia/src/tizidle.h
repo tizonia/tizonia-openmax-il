@@ -36,12 +36,12 @@ extern "C"
 
 #include "tizstate.h"
 
-extern const void *tizidle;
+  extern const void *tizidle;
 
-void init_tizidle (void);
+  void init_tizidle (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZIDLE_H */
+#endif                          /* TIZIDLE_H */

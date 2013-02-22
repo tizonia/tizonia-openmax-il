@@ -44,37 +44,36 @@ extern "C"
   extern const void *tizkernel, *tizkernel_class;
   typedef enum tiz_kernel_population_status tiz_kernel_population_status_t;
   enum tiz_kernel_population_status
-    {
-      ETIZKernelFullyPopulated,
-      ETIZKernelUnpopulated,
-      ETIZKernelFullyUnpopulated
-    };
+  {
+    ETIZKernelFullyPopulated,
+    ETIZKernelUnpopulated,
+    ETIZKernelFullyUnpopulated
+  };
 
-  OMX_ERRORTYPE
-  tizkernel_register_port (const void *ap_obj, OMX_PTR ap_port,
-                           OMX_BOOL ais_config);
+    OMX_ERRORTYPE
+    tizkernel_register_port (const void *ap_obj, OMX_PTR ap_port,
+                             OMX_BOOL ais_config);
 
-  void * tizkernel_get_port (const void *ap_obj, OMX_U32 a_pid);
-  
+  void *tizkernel_get_port (const void *ap_obj, OMX_U32 a_pid);
+
   OMX_ERRORTYPE tizkernel_find_managing_port (const void *ap_obj,
                                               OMX_INDEXTYPE a_index,
                                               OMX_PTR ap_struct,
                                               OMX_PTR * app_port);
 
   tiz_kernel_population_status_t tizkernel_get_population_status
-  (const void *ap_obj,
-   OMX_U32 a_pid,
-   OMX_BOOL *ap_may_be_fully_unpopulated);
-  
+    (const void *ap_obj,
+     OMX_U32 a_pid, OMX_BOOL * ap_may_be_fully_unpopulated);
+
   OMX_ERRORTYPE tizkernel_select (const void *ap_obj,
-                                  OMX_U32 a_nports,
-                                  tiz_pd_set_t * ap_set);
+                                  OMX_U32 a_nports, tiz_pd_set_t * ap_set);
 
   OMX_ERRORTYPE tizkernel_claim_buffer (const void *ap_obj,
                                         OMX_U32 a_pid, OMX_U32 a_pos,
                                         OMX_BUFFERHEADERTYPE ** p_hdr);
 
-  OMX_ERRORTYPE tizkernel_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
+  OMX_ERRORTYPE tizkernel_relinquish_buffer (const void *ap_obj,
+                                             OMX_U32 a_pid,
                                              OMX_BUFFERHEADERTYPE * ap_hdr);
 
   void tizkernel_deregister_all_ports (void *ap_obj);
@@ -85,4 +84,4 @@ extern "C"
 }
 #endif
 
-#endif /* TIZKERNEL_H */
+#endif                          /* TIZKERNEL_H */

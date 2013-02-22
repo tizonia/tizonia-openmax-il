@@ -36,12 +36,12 @@ extern "C"
 
 #include "tizstate.h"
 
-extern const void *tizexecuting;
+  extern const void *tizexecuting;
 
-void init_tizexecuting (void);
+  void init_tizexecuting (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZEXECUTING_H */
+#endif                          /* TIZEXECUTING_H */

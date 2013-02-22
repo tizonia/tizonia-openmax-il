@@ -43,24 +43,24 @@ extern "C"
 #include "tizproc_decls.h"
 
 #define INPUT_BUFFER_SIZE   (5*8192)
-#define OUTPUT_BUFFER_SIZE  8192 /* Must be an integer multiple of 4. */
+#define OUTPUT_BUFFER_SIZE  8192        /* Must be an integer multiple of 4. */
 
-struct mp3eprc
-{
-  /* Object */
-  const struct tizproc _;
-  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
-  OMX_AUDIO_PARAM_MP3TYPE mp3type_;
-  lame_t lame_;
-  int frame_size_;
-  OMX_BUFFERHEADERTYPE *p_inhdr_;
-  OMX_BUFFERHEADERTYPE *p_outhdr_;
-  bool eos_;
-  bool lame_flushed_;
-};
+  struct mp3eprc
+  {
+    /* Object */
+    const struct tizproc _;
+    OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
+    OMX_AUDIO_PARAM_MP3TYPE mp3type_;
+    lame_t lame_;
+    int frame_size_;
+    OMX_BUFFERHEADERTYPE *p_inhdr_;
+    OMX_BUFFERHEADERTYPE *p_outhdr_;
+    bool eos_;
+    bool lame_flushed_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MP3EPRC_DECLS_H */
+#endif                          /* MP3EPRC_DECLS_H */

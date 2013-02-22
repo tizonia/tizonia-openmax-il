@@ -92,8 +92,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
           OMX_COLOR_FormatMax
         };
         /* NOTE: No defaults are defined in the standard for the video output
-           port of the video_reader.binary component. So for the sake of
-           completeness, simply provide some default values here. */
+         * port of the video_reader.binary component. So for the sake of
+         * completeness, simply provide some default values here. */
         portdef.pNativeRender = NULL;
         portdef.nFrameWidth = 176;
         portdef.nFrameHeight = 144;
@@ -125,8 +125,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
           OMX_COLOR_FormatMax
         };
         /* NOTE: No defaults are defined in the standard for the image output
-           port of the image_reader.binary component. So for the sake of
-           completeness, simply provide some default values here. */
+         * port of the image_reader.binary component. So for the sake of
+         * completeness, simply provide some default values here. */
         portdef.pNativeRender = NULL;
         portdef.nFrameWidth = 176;
         portdef.nFrameHeight = 144;
@@ -181,14 +181,13 @@ binaryport_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 binaryport_GetParameter (const void *ap_obj,
-                             OMX_HANDLETYPE ap_hdl,
-                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                         OMX_HANDLETYPE ap_hdl,
+                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizbinaryport *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -206,7 +205,7 @@ binaryport_GetParameter (const void *ap_obj,
           }
       }
       /* NOTE: Fall through if GetParameter returned
-         OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
+       * OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
     default:
       {
         /* Delegate to the base port */
@@ -221,14 +220,13 @@ binaryport_GetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 binaryport_SetParameter (const void *ap_obj,
-                             OMX_HANDLETYPE ap_hdl,
-                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                         OMX_HANDLETYPE ap_hdl,
+                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   struct tizbinaryport *p_obj = (struct tizbinaryport *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...",
-             tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -247,7 +245,7 @@ binaryport_SetParameter (const void *ap_obj,
       }
 
       /* NOTE: Fall through if GetParameter returned
-         OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
+       * OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
     default:
       {
         /* Delegate to the base port */
@@ -261,10 +259,10 @@ binaryport_SetParameter (const void *ap_obj,
 }
 
 static OMX_BOOL
-binaryport_check_tunnel_compat
-(const void *ap_obj,
- OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
- OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
+  binaryport_check_tunnel_compat
+  (const void *ap_obj,
+   OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
+   OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
   struct tizport *p_obj = (struct tizport *) ap_obj;
   assert (ap_this_def);
@@ -273,8 +271,8 @@ binaryport_check_tunnel_compat
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "port [%d] check_tunnel_compat : "
-                 "Different domain found [%d]", p_obj->pid_,
-                 ap_other_def->eDomain);
+               "Different domain found [%d]", p_obj->pid_,
+               ap_other_def->eDomain);
       return OMX_FALSE;
     }
 
@@ -293,7 +291,7 @@ binaryport_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -309,7 +307,7 @@ binaryport_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 

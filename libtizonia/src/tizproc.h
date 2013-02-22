@@ -37,21 +37,21 @@ extern "C"
 #include "tizservant.h"
 
 /* factory_new(tizproc, ...) */
-extern const void *tizproc;
-extern const void *tizproc_class;
+  extern const void *tizproc;
+  extern const void *tizproc_class;
 
-OMX_ERRORTYPE tizproc_buffers_ready (const void *p_obj);
+  OMX_ERRORTYPE tizproc_buffers_ready (const void *p_obj);
 
-OMX_ERRORTYPE tizproc_port_flush (const void *ap_obj, OMX_U32 a_pid);
+  OMX_ERRORTYPE tizproc_port_flush (const void *ap_obj, OMX_U32 a_pid);
 
-OMX_ERRORTYPE tizproc_port_disable (const void *ap_obj, OMX_U32 a_pid);
+  OMX_ERRORTYPE tizproc_port_disable (const void *ap_obj, OMX_U32 a_pid);
 
-OMX_ERRORTYPE tizproc_port_enable (const void *ap_obj, OMX_U32 a_pid);
+  OMX_ERRORTYPE tizproc_port_enable (const void *ap_obj, OMX_U32 a_pid);
 
-void init_tizproc (void);
+  void init_tizproc (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZPROC_H */
+#endif                          /* TIZPROC_H */

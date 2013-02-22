@@ -38,21 +38,21 @@ extern "C"
 
 #include "tizaudioport_decls.h"
 
-struct tizmp3port
-{
-  /* Object */
-  const struct tizaudioport _;
-  OMX_AUDIO_PARAM_MP3TYPE mp3type_;
-};
+  struct tizmp3port
+  {
+    /* Object */
+    const struct tizaudioport _;
+    OMX_AUDIO_PARAM_MP3TYPE mp3type_;
+  };
 
-struct tizmp3port_class
-{
-  /* Class */
-  const struct tizaudioport_class _;
-};
+  struct tizmp3port_class
+  {
+    /* Class */
+    const struct tizaudioport_class _;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZMP3PORT_DECLS_H */
+#endif                          /* TIZMP3PORT_DECLS_H */

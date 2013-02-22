@@ -188,8 +188,7 @@ extern "C"
    *
    * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
    */
-  OMX_ERRORTYPE tiz_cond_wait (tiz_cond_t * ap_cond,
-                                 tiz_mutex_t * ap_mutex);
+  OMX_ERRORTYPE tiz_cond_wait (tiz_cond_t * ap_cond, tiz_mutex_t * ap_mutex);
 
   /**
    * Wait for a condition variable to be signaled or broadcast until a_millis
@@ -200,8 +199,7 @@ extern "C"
    * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
    */
   OMX_ERRORTYPE tiz_cond_timedwait (tiz_cond_t * ap_cond,
-                                      tiz_mutex_t * ap_mutex,
-                                      OMX_U32 a_millis);
+                                    tiz_mutex_t * ap_mutex, OMX_U32 a_millis);
 
   /**
    * Wake up all threads waiting for a condition variable.

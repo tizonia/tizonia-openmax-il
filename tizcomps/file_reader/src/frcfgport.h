@@ -40,13 +40,13 @@ extern "C"
 #include "tizconfigport.h"
 
 /* factory_new(frcfgport, ...); */
-extern const void *frcfgport;
-extern const void *frcfgport_class;
+  extern const void *frcfgport;
+  extern const void *frcfgport_class;
 
-void init_frcfgport (void);
+  void init_frcfgport (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* FRCFGPORT_H */
+#endif                          /* FRCFGPORT_H */

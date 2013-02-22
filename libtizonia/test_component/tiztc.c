@@ -66,14 +66,13 @@
     }                                                           \
   } while(0)
 
-static OMX_VERSIONTYPE tc_comp_version = { {1, 0, 0, 0 } };
+static OMX_VERSIONTYPE tc_comp_version = { {1, 0, 0, 0} };
 
 static OMX_U8 *
-pcm_port_alloc_hook (OMX_U32 *ap_size,
-                     OMX_PTR * app_port_priv,
-                     void * ap_args)
+pcm_port_alloc_hook (OMX_U32 * ap_size,
+                     OMX_PTR * app_port_priv, void *ap_args)
 {
-  OMX_U8 * p = NULL;
+  OMX_U8 *p = NULL;
   assert (ap_size);
   p = tiz_mem_alloc (*ap_size * sizeof (OMX_U8));
   TIZ_LOG (TIZ_LOG_TRACE, "Test Component Alloc Hook :size[%u] p=[%p]",
@@ -82,9 +81,7 @@ pcm_port_alloc_hook (OMX_U32 *ap_size,
 }
 
 static void
-pcm_port_free_hook (OMX_PTR ap_buf,
-                   OMX_PTR ap_port_priv,
-                   void * ap_args)
+pcm_port_free_hook (OMX_PTR ap_buf, OMX_PTR ap_port_priv, void *ap_args)
 {
   TIZ_LOG (TIZ_LOG_TRACE, "Test Component Free Hook : ap_buf[%p]", ap_buf);
   assert (ap_buf);
@@ -153,22 +150,22 @@ OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory1, role_factory2;
-  const tiz_role_factory_t *rf_list [] = {&role_factory1, &role_factory2};
+  const tiz_role_factory_t *rf_list[] = { &role_factory1, &role_factory2 };
   const tiz_port_alloc_hooks_t new_hooks =
-    {pcm_port_alloc_hook, pcm_port_free_hook, NULL};
-  tiz_port_alloc_hooks_t old_hooks = {NULL, NULL, NULL};
+    { pcm_port_alloc_hook, pcm_port_free_hook, NULL };
+  tiz_port_alloc_hooks_t old_hooks = { NULL, NULL, NULL };
 
   strcpy ((OMX_STRING) role_factory1.role, _DEFAULT_ROLE1);
-  role_factory1.pf_cport   = instantiate_config_port;
+  role_factory1.pf_cport = instantiate_config_port;
   role_factory1.pf_port[0] = instantiate_pcm_port;
-  role_factory1.nports     = 1;
-  role_factory1.pf_proc    = instantiate_processor;
+  role_factory1.nports = 1;
+  role_factory1.pf_proc = instantiate_processor;
 
   strcpy ((OMX_STRING) role_factory2.role, _DEFAULT_ROLE2);
-  role_factory2.pf_cport   = instantiate_config_port;
+  role_factory2.pf_cport = instantiate_config_port;
   role_factory2.pf_port[0] = instantiate_pcm_port;
-  role_factory2.nports     = 1;
-  role_factory2.pf_proc    = instantiate_processor;
+  role_factory2.nports = 1;
+  role_factory2.pf_proc = instantiate_processor;
 
   TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: "
            "Inititializing the test component");

@@ -36,12 +36,12 @@ extern "C"
 
 #include "tizidle.h"
 
-extern const void *tizidletoloaded;
+  extern const void *tizidletoloaded;
 
-void init_tizidletoloaded (void);
+  void init_tizidletoloaded (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZIDLETOLOADED_H */
+#endif                          /* TIZIDLETOLOADED_H */

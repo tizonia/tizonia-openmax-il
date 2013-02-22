@@ -38,19 +38,19 @@ extern "C"
 
   typedef enum tizfsm_state_id tizfsm_state_id_t;
   enum tizfsm_state_id
-    {
-      EStateReserved_0x00000000 = OMX_StateReserved_0x00000000,
-      EStateLoaded = OMX_StateLoaded,
-      EStateIdle = OMX_StateIdle,
-      EStateExecuting = OMX_StateExecuting,
-      EStatePause = OMX_StatePause,
-      EStateWaitForResources = OMX_StateWaitForResources,
-      ESubStateLoadedToIdle,
-      ESubStateIdleToLoaded,
-      ESubStateExecutingToIdle,
-      ESubStatePauseToIdle,
-      EStateMax
-    };
+  {
+    EStateReserved_0x00000000 = OMX_StateReserved_0x00000000,
+    EStateLoaded = OMX_StateLoaded,
+    EStateIdle = OMX_StateIdle,
+    EStateExecuting = OMX_StateExecuting,
+    EStatePause = OMX_StatePause,
+    EStateWaitForResources = OMX_StateWaitForResources,
+    ESubStateLoadedToIdle,
+    ESubStateIdleToLoaded,
+    ESubStateExecutingToIdle,
+    ESubStatePauseToIdle,
+    EStateMax
+  };
 
   /* factory_new(tizfsm, ...) */
   extern const void *tizfsm, *tizfsm_class;
@@ -60,11 +60,11 @@ extern "C"
                                   tizfsm_state_id_t a_canceled_state);
 
   OMX_ERRORTYPE tizfsm_complete_transition (void *ap_obj,
-                                            const void * ap_servant,
+                                            const void *ap_servant,
                                             OMX_STATETYPE a_new_state);
 
   OMX_ERRORTYPE tizfsm_complete_command (void *ap_obj,
-                                         const void * ap_servant,
+                                         const void *ap_servant,
                                          OMX_COMMANDTYPE a_cmd,
                                          OMX_U32 a_param1);
 
@@ -77,4 +77,4 @@ extern "C"
 }
 #endif
 
-#endif /* TIZFSM_H */
+#endif                          /* TIZFSM_H */

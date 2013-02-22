@@ -59,7 +59,7 @@
 #define ARATELIA_FILE_WRITER_PORT_ALIGNMENT 0
 #define ARATELIA_FILE_WRITER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
-static OMX_VERSIONTYPE file_writer_version = { { 1, 0, 0, 0 } };
+static OMX_VERSIONTYPE file_writer_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
 instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
@@ -188,37 +188,42 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t video_role;
   tiz_role_factory_t image_role;
   tiz_role_factory_t other_role;
-  const tiz_role_factory_t *rf_list [] = {&audio_role, &video_role,
-                                          &image_role, &other_role};
+  const tiz_role_factory_t *rf_list[] = { &audio_role, &video_role,
+    &image_role, &other_role
+  };
 
   assert (ap_hdl);
 
   TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: Inititializing [%s]",
-             ARATELIA_FILE_WRITER_COMPONENT_NAME);
+           ARATELIA_FILE_WRITER_COMPONENT_NAME);
 
-  strcpy ((OMX_STRING) audio_role.role, ARATELIA_FILE_WRITER_AUDIO_WRITER_ROLE);
-  audio_role.pf_cport   = instantiate_config_port;
+  strcpy ((OMX_STRING) audio_role.role,
+          ARATELIA_FILE_WRITER_AUDIO_WRITER_ROLE);
+  audio_role.pf_cport = instantiate_config_port;
   audio_role.pf_port[0] = instantiate_audio_port;
-  audio_role.nports     = 1;
-  audio_role.pf_proc    = instantiate_processor;
+  audio_role.nports = 1;
+  audio_role.pf_proc = instantiate_processor;
 
-  strcpy ((OMX_STRING) video_role.role, ARATELIA_FILE_WRITER_VIDEO_WRITER_ROLE);
-  video_role.pf_cport   = instantiate_config_port;
+  strcpy ((OMX_STRING) video_role.role,
+          ARATELIA_FILE_WRITER_VIDEO_WRITER_ROLE);
+  video_role.pf_cport = instantiate_config_port;
   video_role.pf_port[0] = instantiate_video_port;
-  video_role.nports     = 1;
-  video_role.pf_proc    = instantiate_processor;
+  video_role.nports = 1;
+  video_role.pf_proc = instantiate_processor;
 
-  strcpy ((OMX_STRING) image_role.role, ARATELIA_FILE_WRITER_IMAGE_WRITER_ROLE);
-  image_role.pf_cport   = instantiate_config_port;
+  strcpy ((OMX_STRING) image_role.role,
+          ARATELIA_FILE_WRITER_IMAGE_WRITER_ROLE);
+  image_role.pf_cport = instantiate_config_port;
   image_role.pf_port[0] = instantiate_image_port;
-  image_role.nports     = 1;
-  image_role.pf_proc    = instantiate_processor;
+  image_role.nports = 1;
+  image_role.pf_proc = instantiate_processor;
 
-  strcpy ((OMX_STRING) other_role.role, ARATELIA_FILE_WRITER_OTHER_WRITER_ROLE);
-  other_role.pf_cport   = instantiate_config_port;
+  strcpy ((OMX_STRING) other_role.role,
+          ARATELIA_FILE_WRITER_OTHER_WRITER_ROLE);
+  other_role.pf_cport = instantiate_config_port;
   other_role.pf_port[0] = instantiate_other_port;
-  other_role.nports     = 1;
-  other_role.pf_proc    = instantiate_processor;
+  other_role.nports = 1;
+  other_role.pf_proc = instantiate_processor;
 
   tiz_init_component (ap_hdl, ARATELIA_FILE_WRITER_COMPONENT_NAME);
 

@@ -46,18 +46,18 @@
 #endif
 
 #ifndef PTHREAD_STACK_MIN
-#define PTHREAD_STACK_MIN (2 * 1024 * 1024) /* Currently, this is the minimum
-                                               in glibc for x86 32 and 64
-                                               archs */
+#define PTHREAD_STACK_MIN (2 * 1024 * 1024)     /* Currently, this is the minimum
+                                                 * in glibc for x86 32 and 64
+                                                 * archs */
 #endif
 
 #define PTHREAD_SUCCESS 0
 
 OMX_ERRORTYPE
 tiz_thread_create (tiz_thread_t * ap_thread,
-                     size_t a_stack_size,
-                     OMX_U32 a_priority,
-                     OMX_PTR (*a_pf_routine) (OMX_PTR), OMX_PTR ap_arg)
+                   size_t a_stack_size,
+                   OMX_U32 a_priority,
+                   OMX_PTR (*a_pf_routine) (OMX_PTR), OMX_PTR ap_arg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   pthread_attr_t custom_attr;
@@ -76,7 +76,7 @@ tiz_thread_create (tiz_thread_t * ap_thread,
     {
       TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
                "Could not initialize the thread attributes (%s).",
-               strerror(error));
+               strerror (error));
       rc = OMX_ErrorInsufficientResources;
     }
   else
@@ -90,7 +90,7 @@ tiz_thread_create (tiz_thread_t * ap_thread,
         {
           TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
                    "Could not sets the stack size attribute (%s).",
-                   strerror(error));
+                   strerror (error));
           rc = OMX_ErrorInsufficientResources;
         }
       else
@@ -99,14 +99,15 @@ tiz_thread_create (tiz_thread_t * ap_thread,
           if (a_priority != 0)
             {
               priority_holder.sched_priority = 0;
-              (void) pthread_attr_getschedparam (&custom_attr, &priority_holder);
+              (void) pthread_attr_getschedparam (&custom_attr,
+                                                 &priority_holder);
               priority_holder.sched_priority += a_priority;
               if (PTHREAD_SUCCESS
                   != (error = pthread_attr_setschedparam (&custom_attr,
                                                           &priority_holder)))
                 {
                   TIZ_LOG (TIZ_LOG_ERROR, "Could not set the thread "
-                             "priority (%s). Continuing...", strerror(error));
+                           "priority (%s). Continuing...", strerror (error));
                 }
             }
 
@@ -119,12 +120,13 @@ tiz_thread_create (tiz_thread_t * ap_thread,
                                           a_pf_routine, (void *) ap_arg)))
             {
               TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
-                       "Could not create the thread (%s). ", strerror(error));
+                       "Could not create the thread (%s). ",
+                       strerror (error));
               rc = OMX_ErrorInsufficientResources;
             }
         }
 
-      (void) pthread_attr_destroy(&custom_attr);
+      (void) pthread_attr_destroy (&custom_attr);
     }
 
   return rc;
@@ -148,7 +150,7 @@ tiz_thread_join (tiz_thread_t * ap_thread, void **app_result)
   if (PTHREAD_SUCCESS != (error = pthread_join (*ap_thread, app_result)))
     {
       TIZ_LOG (TIZ_LOG_ERROR, "Could not join the thread (%s). "
-                 "Leaving with OMX_ErrorUndefined.", strerror(error));
+               "Leaving with OMX_ErrorUndefined.", strerror (error));
       rc = OMX_ErrorUndefined;
     }
 
@@ -172,7 +174,7 @@ tiz_sleep (OMX_U32 usec)
     }
   else
     {
-      rc = usleep ((useconds_t)usec);
+      rc = usleep ((useconds_t) usec);
     }
 
   if (0 != rc)

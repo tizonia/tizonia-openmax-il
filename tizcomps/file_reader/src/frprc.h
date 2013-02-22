@@ -37,12 +37,12 @@ extern "C"
 #include "frprc.h"
 
 /* factory_new(frprc, ...) */
-extern const void *frprc;
+  extern const void *frprc;
 
-void init_frprc (void);
+  void init_frprc (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* FRPRC_H */
+#endif                          /* FRPRC_H */

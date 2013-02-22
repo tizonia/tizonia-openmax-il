@@ -58,7 +58,7 @@ struct user_locinfo
 
 static const char *
 tiz_log_layout_format (const log4c_layout_t * a_layout,
-                         const log4c_logging_event_t * a_event)
+                       const log4c_logging_event_t * a_event)
 {
   static char buffer[4096];
   user_locinfo_t *uloc = NULL;
@@ -66,12 +66,12 @@ tiz_log_layout_format (const log4c_layout_t * a_layout,
   if (a_event->evt_loc->loc_data != NULL)
     {
       struct tm tm;
-      gmtime_r(&a_event->evt_timestamp.tv_sec, &tm);
+      gmtime_r (&a_event->evt_timestamp.tv_sec, &tm);
       uloc = (user_locinfo_t *) a_event->evt_loc->loc_data;
 
       if (NULL == uloc->cname)
         {
-          snprintf (buffer, sizeof(buffer),
+          snprintf (buffer, sizeof (buffer),
                     "%02d-%02d-%04d %02d:%02d:%02d.%03ld - "
                     "[PID:%i][TID:%i] [%s] [%s] [%s:%s:%i] --- %s\n",
                     tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900,
@@ -88,7 +88,7 @@ tiz_log_layout_format (const log4c_layout_t * a_layout,
       else
         {
           /* TODO: 4096 - this value needs be learnt at project configuration
-             time */
+           * time */
           snprintf (uloc->cbuf, 4096,
                     "%02d-%02d-%04d %02d:%02d:%02d.%03ld - "
                     "[PID:%i][TID:%i] [%s] [%s] [%s] [%s:%s:%i] --- %s\n",
@@ -183,14 +183,12 @@ tiz_log_setappender (const char *catName, const char *appName)
 }
 
 void
-tiz_log (const char * ap_file,
-           int a_line,
-           const char * ap_func,
-           const char * ap_cat_name,
-           int a_priority,
-           const char * ap_cname,
-           char * ap_cbuf,
-           const char * ap_format, ...)
+tiz_log (const char *ap_file,
+         int a_line,
+         const char *ap_func,
+         const char *ap_cat_name,
+         int a_priority,
+         const char *ap_cname, char *ap_cbuf, const char *ap_format, ...)
 {
 #ifndef WITHOUT_LOG4C
   log4c_location_info_t locinfo;
@@ -200,12 +198,12 @@ tiz_log (const char * ap_file,
   if (log4c_category_is_priority_enabled (p_category, a_priority))
     {
       /* TODO: 4096 - this value needs be received at project configuration
-         time */
-      char *buffer = alloca(4096);
+       * time */
+      char *buffer = alloca (4096);
       user_locinfo.pid = getpid ();
       user_locinfo.tid = syscall (SYS_gettid);
       user_locinfo.cname = ap_cname;
-      user_locinfo.cbuf  = ap_cbuf;
+      user_locinfo.cbuf = ap_cbuf;
       locinfo.loc_file = ap_file;
       locinfo.loc_line = a_line;
       locinfo.loc_function = ap_func;

@@ -40,13 +40,13 @@ extern "C"
 #include "tizport.h"
 
 /* factory_new(tizvideoport, ...); */
-extern const void *tizvideoport;
-extern const void *tizvideoport_class;
+  extern const void *tizvideoport;
+  extern const void *tizvideoport_class;
 
-void init_tizvideoport (void);
+  void init_tizvideoport (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZVIDEOPORT_H */
+#endif                          /* TIZVIDEOPORT_H */

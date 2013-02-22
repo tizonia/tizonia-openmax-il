@@ -56,7 +56,7 @@ extern "C"
    * @ingroup queue
    */
   typedef struct tiz_queue tiz_queue_t;
-  typedef /*@null@*/ tiz_queue_t * tiz_queue_ptr_t;
+  typedef /*@null@ */ tiz_queue_t *tiz_queue_ptr_t;
 
   /**
    * Initialize a new empty queue.
@@ -67,7 +67,7 @@ extern "C"
    *
    * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources otherwise.
    */
-  OMX_ERRORTYPE tiz_queue_init (/*@null@*/ tiz_queue_ptr_t *app_q,
+  OMX_ERRORTYPE tiz_queue_init ( /*@null@ */ tiz_queue_ptr_t * app_q,
                                 OMX_S32 a_capacity);
 
   /**
@@ -77,7 +77,7 @@ extern "C"
    * @ingroup queue
    *
    */
-  void tiz_queue_destroy (/*@null@*/ tiz_queue_t * ap_q);
+  void tiz_queue_destroy ( /*@null@ */ tiz_queue_t * ap_q);
 
   /**
    * Add an item onto the end of the queue. If the queue is full, it blocks

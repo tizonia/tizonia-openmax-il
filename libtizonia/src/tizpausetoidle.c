@@ -57,7 +57,7 @@ pausetoidle_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 pausetoidle_GetState (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
+                      OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   *ap_state = OMX_StatePause;
   return OMX_ErrorNone;
@@ -65,27 +65,27 @@ pausetoidle_GetState (const void *ap_obj,
 
 static OMX_ERRORTYPE
 pausetoidle_UseBuffer (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                           OMX_U32 a_port_index,
-                           OMX_PTR ap_app_private,
-                           OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
+                       OMX_HANDLETYPE ap_hdl,
+                       OMX_BUFFERHEADERTYPE ** app_buf_hdr,
+                       OMX_U32 a_port_index,
+                       OMX_PTR ap_app_private,
+                       OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 pausetoidle_EmptyThisBuffer (const void *ap_obj,
-                                 OMX_HANDLETYPE ap_hdl,
-                                 OMX_BUFFERHEADERTYPE * ap_buf)
+                             OMX_HANDLETYPE ap_hdl,
+                             OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 pausetoidle_FillThisBuffer (const void *ap_obj,
-                                OMX_HANDLETYPE ap_hdl,
-                                OMX_BUFFERHEADERTYPE * ap_buf)
+                            OMX_HANDLETYPE ap_hdl,
+                            OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -102,7 +102,7 @@ pausetoidle_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
 static OMX_ERRORTYPE
 pausetoidle_trans_complete (const void *ap_obj,
-                                OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
+                            OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
   assert (OMX_StateIdle == a_new_state);
   return tizstate_super_trans_complete (tizpausetoidle, ap_obj, ap_servant,

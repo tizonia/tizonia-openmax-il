@@ -59,8 +59,7 @@ tiz_executingtoidle_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 tiz_executingtoidle_GetState (const void *ap_obj,
-                              OMX_HANDLETYPE ap_hdl,
-                              OMX_STATETYPE * ap_state)
+                              OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   *ap_state = OMX_StateExecuting;
   return OMX_ErrorNone;
@@ -98,8 +97,8 @@ tiz_executingtoidle_trans_complete (const void *ap_obj,
                                     OMX_STATETYPE a_new_state)
 {
   assert (OMX_StateIdle == a_new_state);
-  return tizstate_super_trans_complete (tizexecutingtoidle, ap_obj, ap_servant,
-                                        a_new_state);
+  return tizstate_super_trans_complete (tizexecutingtoidle, ap_obj,
+                                        ap_servant, a_new_state);
 }
 
 

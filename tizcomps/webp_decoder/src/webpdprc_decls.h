@@ -41,17 +41,17 @@ extern "C"
 #include "webpdprc.h"
 #include "tizproc_decls.h"
 
-struct webpdprc
-{
-  /* Object */
-  const struct tizproc _;
-  OMX_BUFFERHEADERTYPE *pinhdr_;
-  OMX_BUFFERHEADERTYPE *pouthdr_;
-  bool eos_;
-};
+  struct webpdprc
+  {
+    /* Object */
+    const struct tizproc _;
+    OMX_BUFFERHEADERTYPE *pinhdr_;
+    OMX_BUFFERHEADERTYPE *pouthdr_;
+    bool eos_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* WEBPDPRC_DECLS_H */
+#endif                          /* WEBPDPRC_DECLS_H */

@@ -39,25 +39,25 @@ extern "C"
 #include "tizvideoport_decls.h"
 #include "tizosal.h"
 
-struct tizivrport
-{
-  /* Object */
-  const struct tizvideoport _;
-  OMX_CONFIG_ROTATIONTYPE crotate_;
-  OMX_CONFIG_MIRRORTYPE cmirror_;
-  OMX_CONFIG_SCALEFACTORTYPE cscale_;
-  OMX_CONFIG_RECTTYPE cincrop_;
-  OMX_TIME_CONFIG_RENDERINGDELAYTYPE crendelay_;
-};
+  struct tizivrport
+  {
+    /* Object */
+    const struct tizvideoport _;
+    OMX_CONFIG_ROTATIONTYPE crotate_;
+    OMX_CONFIG_MIRRORTYPE cmirror_;
+    OMX_CONFIG_SCALEFACTORTYPE cscale_;
+    OMX_CONFIG_RECTTYPE cincrop_;
+    OMX_TIME_CONFIG_RENDERINGDELAYTYPE crendelay_;
+  };
 
-struct tizivrport_class
-{
-  /* Class */
-  const struct tizvideoport_class _;
-};
+  struct tizivrport_class
+  {
+    /* Class */
+    const struct tizvideoport_class _;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZIVRPORT_DECLS_H */
+#endif                          /* TIZIVRPORT_DECLS_H */

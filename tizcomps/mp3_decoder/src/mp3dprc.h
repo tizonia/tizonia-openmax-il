@@ -38,12 +38,12 @@ extern "C"
 #include "mp3dprc.h"
 
 /* factory_new(mp3dprc, ...) */
-extern const void *mp3dprc;
+  extern const void *mp3dprc;
 
-void init_mp3dprc (void);
+  void init_mp3dprc (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MP3DPRC_H */
+#endif                          /* MP3DPRC_H */

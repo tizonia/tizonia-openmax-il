@@ -58,7 +58,7 @@ extern "C"
    * @return OMX_ErrorNone if at least one config file has been opened,
    * OMX_ErrorInsuficientResources otherwise
    */
-  OMX_ERRORTYPE tiz_rcfile_open(tiz_rcfile_t ** rcfile);
+  OMX_ERRORTYPE tiz_rcfile_open (tiz_rcfile_t ** rcfile);
 
   /**
    * Returns a value string from a give section using the value's key
@@ -71,9 +71,8 @@ extern "C"
    *
    * @return A newly allocated string or NULL if the specified key cannot be found.
    */
-  const char *tiz_rcfile_get_value(tiz_rcfile_t *rcfile,
-                                     const char *section,
-                                     const char *key);
+  const char *tiz_rcfile_get_value (tiz_rcfile_t * rcfile,
+                                    const char *section, const char *key);
 
   /**
    * Returns a value string from a give section using the value's key
@@ -88,10 +87,9 @@ extern "C"
    * @return An array of NULL-terminated strings or NULL if the specified key cannot
    * be found. The array should be freed by the caller.
    */
-  char **tiz_rcfile_get_value_list(tiz_rcfile_t *rcfile,
-                                   const char *section,
-                                   const char *key,
-                                   unsigned long *length);
+  char **tiz_rcfile_get_value_list (tiz_rcfile_t * rcfile,
+                                    const char *section,
+                                    const char *key, unsigned long *length);
 
   /**
    * Closes a config file hdl and frees all hdl's resources
@@ -102,7 +100,7 @@ extern "C"
    *
    * @return OMX_ErrorNone
    */
-  OMX_ERRORTYPE tiz_rcfile_close(tiz_rcfile_t *rcfile);
+  OMX_ERRORTYPE tiz_rcfile_close (tiz_rcfile_t * rcfile);
 
 #ifdef __cplusplus
 }

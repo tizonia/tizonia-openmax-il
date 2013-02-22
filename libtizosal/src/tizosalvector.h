@@ -51,8 +51,7 @@ extern "C"
   void tiz_vector_destroy (tiz_vector_t * ap_vector);
 
   OMX_ERRORTYPE tiz_vector_insert (tiz_vector_t * ap_vector,
-                                   OMX_PTR ap_data,
-                                   OMX_S32 a_pos);
+                                   OMX_PTR ap_data, OMX_S32 a_pos);
 
   OMX_ERRORTYPE tiz_vector_push_back (tiz_vector_t * ap_vector,
                                       OMX_PTR ap_data);
@@ -60,8 +59,7 @@ extern "C"
   void tiz_vector_pop_back (tiz_vector_t * ap_vector);
 
   OMX_ERRORTYPE tiz_vector_erase (tiz_vector_t * ap_vector,
-                                  OMX_S32 a_pos,
-                                  OMX_S32 a_len);
+                                  OMX_S32 a_pos, OMX_S32 a_len);
 
   OMX_PTR tiz_vector_at (const tiz_vector_t * ap_vector, OMX_S32 a_pos);
 

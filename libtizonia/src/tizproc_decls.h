@@ -39,28 +39,28 @@ extern "C"
 #include "tizproc.h"
 #include "tizservant_decls.h"
 
-struct tizproc
-{
-  /* Object */
-  const struct tizservant _;
-};
+  struct tizproc
+  {
+    /* Object */
+    const struct tizservant _;
+  };
 
-OMX_ERRORTYPE
-tizproc_super_buffers_ready (const void *class, const void *p_obj);
+    OMX_ERRORTYPE
+    tizproc_super_buffers_ready (const void *class, const void *p_obj);
 
-struct tizproc_class
-{
-  /* Class */
-  const struct tizservant_class _;
-  OMX_ERRORTYPE (*buffers_ready) (const void *p_obj);
-  OMX_ERRORTYPE (*port_flush) (const void *p_obj, OMX_U32 a_pid);
-  OMX_ERRORTYPE (*port_disable) (const void *p_obj, OMX_U32 a_pid);
-  OMX_ERRORTYPE (*port_enable) (const void *p_obj, OMX_U32 a_pid);
-};
+  struct tizproc_class
+  {
+    /* Class */
+    const struct tizservant_class _;
+      OMX_ERRORTYPE (*buffers_ready) (const void *p_obj);
+      OMX_ERRORTYPE (*port_flush) (const void *p_obj, OMX_U32 a_pid);
+      OMX_ERRORTYPE (*port_disable) (const void *p_obj, OMX_U32 a_pid);
+      OMX_ERRORTYPE (*port_enable) (const void *p_obj, OMX_U32 a_pid);
+  };
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZPROC_DECLS_H */
+#endif                          /* TIZPROC_DECLS_H */

@@ -65,7 +65,7 @@ tiz_sem_init (tiz_sem_t * app_sem, OMX_U32 a_value)
 
   if (SEM_SUCCESS != sem_init (p_sem, 0, a_value))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(errno));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
       return OMX_ErrorUndefined;
     }
 
@@ -84,7 +84,7 @@ tiz_sem_destroy (tiz_sem_t * app_sem)
 
   if (p_sem && (SEM_SUCCESS != sem_destroy (p_sem)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(errno));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
       return OMX_ErrorUndefined;
     }
 
@@ -106,7 +106,7 @@ tiz_sem_wait (tiz_sem_t * app_sem)
 
   if (SEM_SUCCESS != sem_wait (p_sem))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(errno));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
       return OMX_ErrorUndefined;
     }
 
@@ -125,7 +125,7 @@ tiz_sem_post (tiz_sem_t * app_sem)
 
   if (SEM_SUCCESS != sem_post (p_sem))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(errno));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
       return OMX_ErrorUndefined;
     }
 
@@ -144,7 +144,7 @@ tiz_sem_getvalue (tiz_sem_t * app_sem, OMX_S32 * ap_sval)
 
   if (SEM_SUCCESS != sem_getvalue (p_sem, (int *) ap_sval))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(errno));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
       return OMX_ErrorUndefined;
     }
 
@@ -159,8 +159,8 @@ tiz_mutex_init (tiz_mutex_t * app_mutex)
 
   assert (app_mutex);
 
-  if (! (p_mutex =
-         (pthread_mutex_t *) tiz_mem_alloc (sizeof (pthread_mutex_t))))
+  if (!(p_mutex =
+        (pthread_mutex_t *) tiz_mem_alloc (sizeof (pthread_mutex_t))))
     {
       TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorInsufficientResources");
       return OMX_ErrorInsufficientResources;
@@ -168,7 +168,7 @@ tiz_mutex_init (tiz_mutex_t * app_mutex)
 
   if (PTHREAD_SUCCESS != (error = pthread_mutex_init (p_mutex, NULL)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       return OMX_ErrorUndefined;
     }
 
@@ -186,9 +186,10 @@ tiz_mutex_destroy (tiz_mutex_t * app_mutex)
   assert (app_mutex);
   p_mutex = *app_mutex;
 
-  if (p_mutex && (PTHREAD_SUCCESS != (error = pthread_mutex_destroy (p_mutex))))
+  if (p_mutex
+      && (PTHREAD_SUCCESS != (error = pthread_mutex_destroy (p_mutex))))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       return OMX_ErrorUndefined;
     }
 
@@ -211,7 +212,7 @@ tiz_mutex_lock (tiz_mutex_t * app_mutex)
 
   if (PTHREAD_SUCCESS != (error = pthread_mutex_lock (p_mutex)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       return OMX_ErrorUndefined;
     }
 
@@ -231,7 +232,7 @@ tiz_mutex_unlock (tiz_mutex_t * app_mutex)
 
   if (PTHREAD_SUCCESS != (error = pthread_mutex_unlock (p_mutex)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       return OMX_ErrorUndefined;
     }
 
@@ -254,7 +255,7 @@ tiz_cond_init (tiz_cond_t * app_cond)
 
   if (PTHREAD_SUCCESS != (error = pthread_cond_init (p_cond, NULL)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       assert (EINVAL != error);
       return OMX_ErrorUndefined;
     }
@@ -275,7 +276,7 @@ tiz_cond_destroy (tiz_cond_t * app_cond)
 
   if (p_cond && (PTHREAD_SUCCESS != (error = pthread_cond_destroy (p_cond))))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       return OMX_ErrorUndefined;
     }
 
@@ -298,7 +299,7 @@ tiz_cond_signal (tiz_cond_t * app_cond)
 
   if (PTHREAD_SUCCESS != (error = pthread_cond_signal (p_cond)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       return OMX_ErrorUndefined;
     }
 
@@ -318,7 +319,7 @@ tiz_cond_broadcast (tiz_cond_t * app_cond)
 
   if (PTHREAD_SUCCESS != (error = pthread_cond_broadcast (p_cond)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       return OMX_ErrorUndefined;
     }
 
@@ -342,7 +343,7 @@ tiz_cond_wait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex)
 
   if (PTHREAD_SUCCESS != (error = pthread_cond_wait (p_cond, p_mutex)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       return OMX_ErrorUndefined;
     }
 
@@ -351,7 +352,7 @@ tiz_cond_wait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex)
 
 OMX_ERRORTYPE
 tiz_cond_timedwait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex,
-                      OMX_U32 a_millis)
+                    OMX_U32 a_millis)
 {
   pthread_cond_t *p_cond;
   pthread_mutex_t *p_mutex;
@@ -376,7 +377,7 @@ tiz_cond_timedwait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex,
   if (PTHREAD_SUCCESS != (error =
                           pthread_cond_timedwait (p_cond, p_mutex, &timeout)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror(error));
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       return OMX_ErrorUndefined;
     }
 

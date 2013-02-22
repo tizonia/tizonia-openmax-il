@@ -39,18 +39,18 @@ extern "C"
 #include "frprc.h"
 #include "tizproc_decls.h"
 
-struct frprc
-{
-  /* Object */
-  const struct tizproc _;
-  FILE *p_file_;
-  OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  OMX_U32 counter_;
-  bool eos_;
-};
+  struct frprc
+  {
+    /* Object */
+    const struct tizproc _;
+    FILE *p_file_;
+    OMX_PARAM_CONTENTURITYPE *p_uri_param_;
+    OMX_U32 counter_;
+    bool eos_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* FRPRC_DECLS_H */
+#endif                          /* FRPRC_DECLS_H */

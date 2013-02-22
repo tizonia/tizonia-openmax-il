@@ -41,18 +41,18 @@ extern "C"
 #include "arprc.h"
 #include "tizproc_decls.h"
 
-struct arprc
-{
-  /* Object */
-  const struct tizproc _;
-  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
-  snd_pcm_t *p_playback_hdl;
-  snd_pcm_hw_params_t *p_hw_params;
-  char *p_alsa_pcm_;
-};
+  struct arprc
+  {
+    /* Object */
+    const struct tizproc _;
+    OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
+    snd_pcm_t *p_playback_hdl;
+    snd_pcm_hw_params_t *p_hw_params;
+    char *p_alsa_pcm_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ARPRC_DECLS_H */
+#endif                          /* ARPRC_DECLS_H */

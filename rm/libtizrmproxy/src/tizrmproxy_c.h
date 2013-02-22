@@ -46,9 +46,9 @@ extern "C"
                       const tizrm_proxy_callbacks_t * ap_cbacks,
                       OMX_PTR ap_data);
 
-    tizrm_error_t tizrm_proxy_destroy (tizrm_t * ap_rm);
+  tizrm_error_t tizrm_proxy_destroy (tizrm_t * ap_rm);
 
-    OMX_S32 tizrm_proxy_version (const tizrm_t * ap_rm);
+  OMX_S32 tizrm_proxy_version (const tizrm_t * ap_rm);
 
     tizrm_error_t
     tizrm_proxy_acquire (const tizrm_t * ap_rm, OMX_U32 rid,

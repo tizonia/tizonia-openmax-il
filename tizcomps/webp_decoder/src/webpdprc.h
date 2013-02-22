@@ -37,12 +37,12 @@ extern "C"
 #include "webpdprc.h"
 
 /* factory_new(webpdprc, ...) */
-extern const void *webpdprc;
+  extern const void *webpdprc;
 
-void init_webpdprc (void);
+  void init_webpdprc (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* WEBPDPRC_H */
+#endif                          /* WEBPDPRC_H */

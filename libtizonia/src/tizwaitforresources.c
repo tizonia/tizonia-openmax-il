@@ -72,8 +72,7 @@ waitforresources_SetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 waitforresources_GetState (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_STATETYPE * ap_state)
+                           OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   *ap_state = OMX_StateWaitForResources;
   return OMX_ErrorNone;
@@ -149,7 +148,7 @@ waitforresources_state_set (const void *ap_obj,
     };
 
   /* TODO:  make state transition effective here? */
-  (void)new_state;
+  (void) new_state;
   /*   if (OMX_ErrorNone != */
   /*       (omx_error = tizfsm_set_state */
   /*        (tiz_get_fsm (ap_hdl), new_state))) */

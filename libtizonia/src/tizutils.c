@@ -84,7 +84,7 @@ tiz_fsm_state_to_str (tizfsm_state_id_t a_id)
         }
     }
 
-  if (OMX_StateMax == (OMX_STATETYPE)a_id)
+  if (OMX_StateMax == (OMX_STATETYPE) a_id)
     {
       return "OMX_StateMax";
     }

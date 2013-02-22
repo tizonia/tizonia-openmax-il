@@ -37,12 +37,12 @@ extern "C"
 #include "arprc.h"
 
 /* factory_new(arprc, ...) */
-extern const void *arprc;
+  extern const void *arprc;
 
-void init_arprc (void);
+  void init_arprc (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ARPRC_H */
+#endif                          /* ARPRC_H */

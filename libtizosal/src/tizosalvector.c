@@ -57,23 +57,22 @@ tiz_vector_init (tiz_vector_t ** app_vector, OMX_S32 a_elem_size)
   assert (app_vector);
   assert (a_elem_size > 0);
 
-  if (!(p_vec = (tiz_vector_t *)
-        tiz_mem_calloc(1, sizeof(tiz_vector_t))))
+  if (!(p_vec = (tiz_vector_t *) tiz_mem_calloc (1, sizeof (tiz_vector_t))))
     {
       return OMX_ErrorInsufficientResources;
     }
 
-  if (!(p_vec->p_icd = (UT_icd *) tiz_mem_calloc(1, sizeof(UT_icd))))
+  if (!(p_vec->p_icd = (UT_icd *) tiz_mem_calloc (1, sizeof (UT_icd))))
     {
       return OMX_ErrorInsufficientResources;
     }
 
   p_vec->p_icd->sz = a_elem_size;
   utarray_new (p_vec->p_uta, p_vec->p_icd);
-  * app_vector = p_vec;
+  *app_vector = p_vec;
 
   TIZ_LOG (TIZ_LOG_TRACE, "Initializing vector [%p] with elem size [%d]",
-             p_vec, a_elem_size);
+           p_vec, a_elem_size);
 
   return OMX_ErrorNone;
 }
@@ -85,14 +84,13 @@ tiz_vector_destroy (tiz_vector_t * p_vec)
   if (p_vec)
     {
       utarray_free (p_vec->p_uta);
-      tiz_mem_free(p_vec->p_icd);
-      tiz_mem_free(p_vec);
+      tiz_mem_free (p_vec->p_icd);
+      tiz_mem_free (p_vec);
     }
 }
 
 OMX_ERRORTYPE
-tiz_vector_insert (tiz_vector_t * p_vec, OMX_PTR ap_data,
-                     OMX_S32 a_pos)
+tiz_vector_insert (tiz_vector_t * p_vec, OMX_PTR ap_data, OMX_S32 a_pos)
 {
   assert (p_vec);
   assert (a_pos > 0);
@@ -108,8 +106,7 @@ tiz_vector_push_back (tiz_vector_t * p_vec, OMX_PTR ap_data)
 {
   assert (p_vec);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "pushing back [%p] in vector [%p]",
-             ap_data, p_vec);
+  TIZ_LOG (TIZ_LOG_TRACE, "pushing back [%p] in vector [%p]", ap_data, p_vec);
   utarray_push_back (p_vec->p_uta, ap_data);
 
   return OMX_ErrorNone;

@@ -93,7 +93,8 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
                 = fwrite (p_hdr->pBuffer + p_hdr->nOffset,
                           p_hdr->nFilledLen, 1, p_obj->p_file_)))
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "elems_written [%d] p_hdr->nFilledLen [%d]: "
+          TIZ_LOG (TIZ_LOG_ERROR,
+                   "elems_written [%d] p_hdr->nFilledLen [%d]: "
                    "An error occurred while writing", elems_written,
                    p_hdr->nFilledLen);
           return OMX_ErrorInsufficientResources;
@@ -155,7 +156,7 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
            p_obj->p_uri_param_->contentURI);
 
   if ((p_obj->p_file_
-       = fopen ((const char*)p_obj->p_uri_param_->contentURI, "w")) == 0)
+       = fopen ((const char *) p_obj->p_uri_param_->contentURI, "w")) == 0)
     {
       TIZ_LOG (TIZ_LOG_ERROR, "Error opening file from URI string");
       return OMX_ErrorInsufficientResources;

@@ -40,13 +40,13 @@ extern "C"
 #include "tizport.h"
 
 /* factory_new(tizbinaryport, ...); */
-extern const void *tizbinaryport;
-extern const void *tizbinaryport_class;
+  extern const void *tizbinaryport;
+  extern const void *tizbinaryport_class;
 
-void init_tizbinaryport (void);
+  void init_tizbinaryport (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZBINARYPORT_H */
+#endif                          /* TIZBINARYPORT_H */

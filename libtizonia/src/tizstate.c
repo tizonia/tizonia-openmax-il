@@ -68,9 +68,9 @@ state_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 state_SendCommand (const void *ap_obj,
-                       OMX_HANDLETYPE ap_hdl,
-                       OMX_COMMANDTYPE a_cmd,
-                       OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                   OMX_HANDLETYPE ap_hdl,
+                   OMX_COMMANDTYPE a_cmd,
+                   OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   const struct tizstate *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -79,50 +79,44 @@ state_SendCommand (const void *ap_obj,
     {
     case OMX_CommandStateSet:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] [%s]...",
-                       tiz_cmd_to_str (a_cmd), tiz_fsm_state_to_str (a_param1));
-        rc = tizstate_state_set (p_obj,
-                                 ap_hdl,
-                                 a_cmd, a_param1, ap_cmd_data);
+                       tiz_cmd_to_str (a_cmd),
+                       tiz_fsm_state_to_str (a_param1));
+        rc = tizstate_state_set (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
     case OMX_CommandFlush:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] PORT [%d]...",
                        tiz_cmd_to_str (a_cmd), a_param1);
-        rc = tizstate_flush (p_obj,
-                             ap_hdl, a_cmd, a_param1, ap_cmd_data);
+        rc = tizstate_flush (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
     case OMX_CommandPortDisable:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] PORT [%d]...",
                        tiz_cmd_to_str (a_cmd), a_param1);
-        rc = tizstate_disable (p_obj,
-                               ap_hdl,
-                               a_cmd, a_param1, ap_cmd_data);
+        rc = tizstate_disable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
     case OMX_CommandPortEnable:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME(ap_hdl), TIZ_CBUF(ap_hdl),
+        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] PORT [%d]...",
                        tiz_cmd_to_str (a_cmd), a_param1);
-        rc = tizstate_enable (p_obj,
-                              ap_hdl, a_cmd, a_param1, ap_cmd_data);
+        rc = tizstate_enable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
     case OMX_CommandMarkBuffer:
       {
-        rc = tizstate_mark (p_obj,
-                            ap_hdl, a_cmd, a_param1, ap_cmd_data);
+        rc = tizstate_mark (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
@@ -137,80 +131,77 @@ state_SendCommand (const void *ap_obj,
 
 static OMX_ERRORTYPE
 state_SetParameter (const void *ap_obj,
-                        OMX_HANDLETYPE ap_hdl,
-                        OMX_INDEXTYPE a_index,
-                        OMX_PTR ap_struct)
+                    OMX_HANDLETYPE ap_hdl,
+                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 state_GetState (const void *ap_obj,
-                    OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
+                OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 state_ComponentTunnelRequest (const void *ap_obj,
-                                  OMX_HANDLETYPE ap_hdl,
-                                  OMX_U32 a_port,
-                                  OMX_HANDLETYPE ap_tunn_comp,
-                                  OMX_U32 a_tunn_port,
-                                  OMX_TUNNELSETUPTYPE * ap_tunn_setup)
+                              OMX_HANDLETYPE ap_hdl,
+                              OMX_U32 a_port,
+                              OMX_HANDLETYPE ap_tunn_comp,
+                              OMX_U32 a_tunn_port,
+                              OMX_TUNNELSETUPTYPE * ap_tunn_setup)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 state_UseBuffer (const void *ap_obj,
-                     OMX_HANDLETYPE ap_hdl,
-                     OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                     OMX_U32 a_port_index,
-                     OMX_PTR ap_app_private,
-                     OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
+                 OMX_HANDLETYPE ap_hdl,
+                 OMX_BUFFERHEADERTYPE ** app_buf_hdr,
+                 OMX_U32 a_port_index,
+                 OMX_PTR ap_app_private,
+                 OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 state_AllocateBuffer (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl,
-                          OMX_BUFFERHEADERTYPE ** pap_buf,
-                          OMX_U32 a_port_index,
-                          OMX_PTR ap_app_private, OMX_U32 a_size_bytes)
+                      OMX_HANDLETYPE ap_hdl,
+                      OMX_BUFFERHEADERTYPE ** pap_buf,
+                      OMX_U32 a_port_index,
+                      OMX_PTR ap_app_private, OMX_U32 a_size_bytes)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 state_FreeBuffer (const void *ap_obj,
-                      OMX_HANDLETYPE ap_hdl,
-                      OMX_U32 a_port_index, OMX_BUFFERHEADERTYPE * ap_buf)
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_U32 a_port_index, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 state_EmptyThisBuffer (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_BUFFERHEADERTYPE * ap_buf)
+                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 state_FillThisBuffer (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl,
-                          OMX_BUFFERHEADERTYPE * ap_buf)
+                      OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
 
 static OMX_ERRORTYPE
 state_SetCallbacks (const void *ap_obj,
-                        OMX_HANDLETYPE ap_hdl,
-                        OMX_CALLBACKTYPE * ap_callbacks, OMX_PTR ap_app_data)
+                    OMX_HANDLETYPE ap_hdl,
+                    OMX_CALLBACKTYPE * ap_callbacks, OMX_PTR ap_app_data)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -228,9 +219,8 @@ state_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
 static OMX_ERRORTYPE
 state_state_set (const void *ap_obj,
-                     OMX_HANDLETYPE ap_hdl,
-                     OMX_COMMANDTYPE a_cmd,
-                     OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                 OMX_HANDLETYPE ap_hdl,
+                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -248,13 +238,13 @@ tizstate_state_set (const void *ap_obj,
 
 static OMX_ERRORTYPE
 state_flush (const void *ap_obj,
-                 OMX_HANDLETYPE ap_hdl,
-                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+             OMX_HANDLETYPE ap_hdl,
+             OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
 
   /* Notify the kernel servant, which will in turn notify the processor
-     servant, if needed */
+   * servant, if needed */
   return tizapi_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
@@ -270,8 +260,7 @@ tizstate_flush (const void *ap_obj,
 
 static OMX_ERRORTYPE
 state_disable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                   OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
-                   OMX_PTR ap_cmd_data)
+               OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   struct tizproc *p_prc = tiz_get_prc (ap_hdl);
@@ -279,16 +268,16 @@ state_disable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   /* First notify the kernel servant */
   if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_krn, ap_hdl,
-                                                      a_cmd, a_param1,
-                                                      ap_cmd_data)))
+                                                 a_cmd, a_param1,
+                                                 ap_cmd_data)))
     {
       return rc;
     }
 
   /* Notify now the processor servant */
   if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_prc, ap_hdl,
-                                                      a_cmd, a_param1,
-                                                      ap_cmd_data)))
+                                                 a_cmd, a_param1,
+                                                 ap_cmd_data)))
     {
       return rc;
     }
@@ -310,9 +299,8 @@ tizstate_disable (const void *ap_obj,
 
 static OMX_ERRORTYPE
 state_enable (const void *ap_obj,
-                  OMX_HANDLETYPE ap_hdl,
-                  OMX_COMMANDTYPE a_cmd,
-                  OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+              OMX_HANDLETYPE ap_hdl,
+              OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   struct tizproc *p_prc = tiz_get_prc (ap_hdl);
@@ -320,16 +308,16 @@ state_enable (const void *ap_obj,
 
   /* First notify the kernel servant */
   if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_krn, ap_hdl,
-                                                      a_cmd, a_param1,
-                                                      ap_cmd_data)))
+                                                 a_cmd, a_param1,
+                                                 ap_cmd_data)))
     {
       return rc;
     }
 
   /* Now notify the processor servant */
   if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_prc, ap_hdl,
-                                                      a_cmd, a_param1,
-                                                      ap_cmd_data)))
+                                                 a_cmd, a_param1,
+                                                 ap_cmd_data)))
     {
       return rc;
     }
@@ -350,11 +338,11 @@ tizstate_enable (const void *ap_obj,
 
 static OMX_ERRORTYPE
 state_mark (const void *ap_obj,
-                OMX_HANDLETYPE ap_hdl,
-                OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+            OMX_HANDLETYPE ap_hdl,
+            OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   /* This is the default implementation for states in which this command is not
-     allowed */
+   * allowed */
   struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
   struct tizport *p_port = tizkernel_get_port (p_krn, a_param1);
 
@@ -364,8 +352,7 @@ state_mark (const void *ap_obj,
 
   /* Notify the kernel servant */
   /* No need to notify the processor servant */
-  return tizapi_SendCommand (p_krn, ap_hdl, a_cmd, a_param1,
-                             ap_cmd_data);
+  return tizapi_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 OMX_ERRORTYPE
@@ -380,7 +367,7 @@ tizstate_mark (const void *ap_obj,
 
 static OMX_ERRORTYPE
 state_trans_complete (const void *ap_obj,
-                          OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
+                      OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
   struct tizstate *p_obj = (struct tizstate *) ap_obj;
   assert (p_obj);
@@ -389,7 +376,8 @@ state_trans_complete (const void *ap_obj,
 
   TIZ_LOG (TIZ_LOG_TRACE, "Transition to [%s] is NOW complete at [%s]..."
            "Servant count is now [%d]...",
-           tiz_fsm_state_to_str (a_new_state), nameOf(ap_servant), p_obj->i_servants_count);
+           tiz_fsm_state_to_str (a_new_state), nameOf (ap_servant),
+           p_obj->i_servants_count);
 
   if (2 == p_obj->i_servants_count)
     {
@@ -430,7 +418,7 @@ state_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
-  va_copy(ap, *app);
+  va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))
     {
@@ -462,7 +450,7 @@ state_class_ctor (void *ap_obj, va_list * app)
 
     }
 
-  va_end(ap);
+  va_end (ap);
   return p_obj;
 }
 

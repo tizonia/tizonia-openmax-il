@@ -58,8 +58,7 @@ GetComponentVersion (OMX_HANDLETYPE ap_hdl,
   TIZ_LOG (TIZ_LOG_TRACE, "GetComponentVersion");
 
   if (!ap_hdl
-      || !ap_comp_name
-      || !ap_comp_ver || !ap_spec_ver || !ap_comp_uuid)
+      || !ap_comp_name || !ap_comp_ver || !ap_spec_ver || !ap_comp_uuid)
     {
       return OMX_ErrorBadParameter;
     }
@@ -87,29 +86,25 @@ SendCommand (OMX_HANDLETYPE ap_hdl,
 }
 
 static OMX_ERRORTYPE
-GetParameter (OMX_HANDLETYPE ap_hdl,
-              OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+GetParameter (OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-SetParameter (OMX_HANDLETYPE ap_hdl,
-              OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+SetParameter (OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-GetConfig (OMX_HANDLETYPE ap_hdl,
-           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+GetConfig (OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-SetConfig (OMX_HANDLETYPE ap_hdl,
-           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+SetConfig (OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNone;
 }
@@ -149,7 +144,8 @@ UseBuffer (OMX_HANDLETYPE ap_hdl,
 static OMX_ERRORTYPE
 AllocateBuffer (OMX_HANDLETYPE ap_hdl,
                 OMX_BUFFERHEADERTYPE ** pap_buf,
-                OMX_U32 a_port_index, OMX_PTR ap_app_private, OMX_U32 a_size_bytes)
+                OMX_U32 a_port_index, OMX_PTR ap_app_private,
+                OMX_U32 a_size_bytes)
 {
   return OMX_ErrorNone;
 }
@@ -205,7 +201,7 @@ ComponentRoleEnum (OMX_HANDLETYPE ap_hdl, OMX_U8 * a_role, OMX_U32 a_index)
   if (!a_role)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "ComponentRoleEnum: "
-                 "NULL a_role pointer found.");
+               "NULL a_role pointer found.");
       return OMX_ErrorBadParameter;
     }
 
@@ -230,7 +226,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   OMX_COMPONENTTYPE *p_hdl = (OMX_COMPONENTTYPE *) ap_hdl;
 
   TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: "
-             "Inititializing the test component's hdl");
+           "Inititializing the test component's hdl");
 
   assert (p_hdl);
 

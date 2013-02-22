@@ -79,14 +79,13 @@ extern "C"
 
   typedef void (*tiz_event_stat_cb_f) (tiz_event_stat_t * p_ev_stat, int events);
 
-  typedef enum tiz_event_io_event tiz_event_io_event_t;
-  enum tiz_event_io_event
+  typedef enum tiz_event_io_event
   {
     TIZ_EVENT_READ          = 0x01, /* ev_io detected read will not block */
     TIZ_EVENT_WRITE         = 0x02, /* ev_io detected write will not block */
     TIZ_EVENT_READ_OR_WRITE = 0x03,
     TIZ_EVENT_MAX
-  };
+  } tiz_event_io_event_t;
 
 
   /**

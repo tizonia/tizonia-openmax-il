@@ -36,12 +36,12 @@ extern "C"
 
 #include "tizstate.h"
 
-extern const void *tizwaitforresources;
+  extern const void *tizwaitforresources;
 
-void init_tizwaitforresources (void);
+  void init_tizwaitforresources (void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TIZWAITFORRESOURCES_H */
+#endif                          /* TIZWAITFORRESOURCES_H */

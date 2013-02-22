@@ -43,29 +43,29 @@ extern "C"
 #include "tizproc_decls.h"
 
 #define INPUT_BUFFER_SIZE   (5*8192)
-#define OUTPUT_BUFFER_SIZE  8192 /* Must be an integer multiple of 4. */
+#define OUTPUT_BUFFER_SIZE  8192        /* Must be an integer multiple of 4. */
 
-struct mp3dprc
-{
-  /* Object */
-  const struct tizproc _;
-  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
-  struct mad_stream stream_;
-  struct mad_frame frame_;
-  struct mad_synth synth_;
-  size_t remaining_;
-  mad_timer_t timer_;
-  unsigned long frame_count_;
-  unsigned char in_buff_ [INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD];
-  unsigned char out_buff_ [OUTPUT_BUFFER_SIZE];
-  OMX_BUFFERHEADERTYPE *p_inhdr_;
-  OMX_BUFFERHEADERTYPE *p_outhdr_;
-  int next_synth_sample_;
-  bool eos_;
-};
+  struct mp3dprc
+  {
+    /* Object */
+    const struct tizproc _;
+    OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
+    struct mad_stream stream_;
+    struct mad_frame frame_;
+    struct mad_synth synth_;
+    size_t remaining_;
+    mad_timer_t timer_;
+    unsigned long frame_count_;
+    unsigned char in_buff_[INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD];
+    unsigned char out_buff_[OUTPUT_BUFFER_SIZE];
+    OMX_BUFFERHEADERTYPE *p_inhdr_;
+    OMX_BUFFERHEADERTYPE *p_outhdr_;
+    int next_synth_sample_;
+    bool eos_;
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* MP3DPRC_DECLS_H */
+#endif                          /* MP3DPRC_DECLS_H */
