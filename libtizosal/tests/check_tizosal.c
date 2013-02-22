@@ -124,6 +124,7 @@ tiz_suite (void)
   tcase_add_test (tc_event, test_event_loop_init_and_destroy);
   tcase_add_test (tc_event, test_event_io);
   tcase_add_test (tc_event, test_event_timer);
+  tcase_add_test (tc_event, test_event_stat);
   suite_add_tcase (s, tc_event);
 
   return s;

@@ -75,10 +75,9 @@ extern "C"
   typedef void (*tiz_event_io_cb_f) (tiz_event_io_t * p_ev_io, int fd, int events);
 
 
-  typedef void (*tiz_event_timer_cb_f) (tiz_event_timer_t * p_ev_timer,
-                                        int events);
-  typedef void (*tiz_event_stat_cb_f) (tiz_event_stat_t * p_ev_stat,
-                                       int events);
+  typedef void (*tiz_event_timer_cb_f) (tiz_event_timer_t * p_ev_timer);
+
+  typedef void (*tiz_event_stat_cb_f) (tiz_event_stat_t * p_ev_stat, int events);
 
   typedef enum tiz_event_io_event tiz_event_io_event_t;
   enum tiz_event_io_event

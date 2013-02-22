@@ -35,23 +35,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define CHECK_EVENT_SERV_PORT 9877
-#define MAXLINE 4096
-#define CHECK_MSG "Hello there!"
-#define CHECK_ECHO_CMD "/bin/bash -c \"echo -n \"Hello\\ there!\" > /dev/udp/127.0.0.1/9877\""
+#define CHECK_IO_SERV_PORT 9877
+#define CHECK_IO_MAXLINE 4096
+#define CHECK_IO_MSG "Hello there!"
+#define CHECK_IO_ECHO_CMD "/bin/bash -c \"echo -n \"Hello\\ there!\" > /dev/udp/127.0.0.1/9877\""
+
 #define CHECK_TIMER_PERIOD 1.5
+
+#define CHECK_STAT_FILE "/tmp/check_event.txt"
+#define CHECK_STAT_RM_CMD "/bin/bash -c \"rm -f /tmp/check_event.txt\""
+#define CHECK_STAT_TOUCH_CMD "/bin/bash -c \"touch /tmp/check_event.txt\""
+#define CHECK_STAT_ECHO_CMD "/bin/bash -c \"echo \"Hello\" > /tmp/check_event.txt\""
 
 static bool g_io_cback_received = false;
 static int g_timeout_count = 5;
 static int g_restart_count = 2;
 static bool g_timer_restarted = false;
+static bool g_file_status_changed = false;
 
 static void
 check_event_io_cback (tiz_event_io_t * ap_ev_io, int fd, int events)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   int rcvfromrc;
-  char msg [MAXLINE];
+  char msg [CHECK_IO_MAXLINE];
   struct sockaddr_in cliaddr;
   socklen_t len = sizeof (cliaddr);
 
@@ -63,14 +70,14 @@ check_event_io_cback (tiz_event_io_t * ap_ev_io, int fd, int events)
   error = tiz_event_io_stop (ap_ev_io);
   fail_if (OMX_ErrorNone != error);
 
-  rcvfromrc = recvfrom (fd, msg, MAXLINE, 0, (struct sockaddr *) &cliaddr,
+  rcvfromrc = recvfrom (fd, msg, CHECK_IO_MAXLINE, 0, (struct sockaddr *) &cliaddr,
                         &len);
   fail_if (rcvfromrc < 0);
 
   msg [rcvfromrc] = '\000';
   TIZ_LOG (TIZ_LOG_TRACE, "received : [%s]", msg);
 
-  fail_if (strncmp(msg, CHECK_MSG, strlen (msg) != 0));
+  fail_if (strncmp(msg, CHECK_IO_MSG, strlen (msg) != 0));
 
   g_io_cback_received = true;
 }
@@ -87,7 +94,7 @@ start_udp_server()
   bzero (&servaddr, sizeof(servaddr));
   servaddr.sin_family      = AF_INET;
   servaddr.sin_addr.s_addr = htonl (INADDR_ANY);
-  servaddr.sin_port        = htons (CHECK_EVENT_SERV_PORT);
+  servaddr.sin_port        = htons (CHECK_IO_SERV_PORT);
 
   bindrc = bind (sockfd, (const struct sockaddr *) &servaddr,
                  sizeof(servaddr));
@@ -110,7 +117,7 @@ stop_udp_server(int sockfd)
 }
 
 static void
-check_event_timer_cback (tiz_event_timer_t * ap_ev_timer, int events)
+check_event_timer_cback (tiz_event_timer_t * ap_ev_timer)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
@@ -140,6 +147,20 @@ check_event_timer_cback (tiz_event_timer_t * ap_ev_timer, int events)
     }
 }
 
+static void
+check_event_stat_cback (tiz_event_stat_t * ap_ev_stat, int events)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+
+  TIZ_LOG (TIZ_LOG_TRACE, "stat cback received ");
+
+  fail_if (NULL == ap_ev_stat);
+
+  g_file_status_changed = true;
+
+  error = tiz_event_stat_stop (ap_ev_stat);
+  fail_if (OMX_ErrorNone != error);
+}
 
 /* TESTS */
 
@@ -153,7 +174,6 @@ START_TEST (test_event_loop_init_and_destroy)
   error = tiz_event_loop_init ();
   fail_if (error != OMX_ErrorNone);
 
-/*   tiz_event_loop_destroy (); */
   tiz_event_loop_destroy ();
 }
 END_TEST
@@ -179,7 +199,7 @@ START_TEST (test_event_io)
   error = tiz_event_io_start (p_ev_io);
   fail_if (error != OMX_ErrorNone);
 
-  snprintf(cmd, strlen (CHECK_ECHO_CMD) + 1, "%s", CHECK_ECHO_CMD);
+  snprintf(cmd, strlen (CHECK_IO_ECHO_CMD) + 1, "%s", CHECK_IO_ECHO_CMD);
   TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
 
   fail_if (-1 == system (cmd));
@@ -221,6 +241,46 @@ START_TEST (test_event_timer)
   fail_if (0 != g_timeout_count);
 
   tiz_event_timer_destroy (p_ev_timer);
+
+  tiz_event_loop_destroy ();
+}
+END_TEST
+
+START_TEST (test_event_stat)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  tiz_event_stat_t * p_ev_stat = NULL;
+  char cmd [128];
+
+  snprintf (cmd, strlen (CHECK_STAT_RM_CMD) + 1, "%s", CHECK_STAT_RM_CMD);
+  TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
+  fail_if (-1 == system (cmd));
+
+  snprintf (cmd, strlen (CHECK_STAT_TOUCH_CMD) + 1, "%s", CHECK_STAT_TOUCH_CMD);
+  TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
+  fail_if (-1 == system (cmd));
+
+  error = tiz_event_loop_init ();
+  fail_if (error != OMX_ErrorNone);
+
+  error = tiz_event_stat_init (&p_ev_stat, check_event_stat_cback,
+                               CHECK_STAT_FILE);
+  fail_if (error != OMX_ErrorNone);
+
+  error = tiz_event_stat_start (p_ev_stat);
+  fail_if (error != OMX_ErrorNone);
+
+  TIZ_LOG (TIZ_LOG_TRACE, "started stat watcher");
+
+  snprintf (cmd, strlen (CHECK_STAT_ECHO_CMD) + 1, "%s", CHECK_STAT_ECHO_CMD);
+  TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
+  fail_if (-1 == system (cmd));
+
+  sleep (1);
+
+  fail_if (true != g_file_status_changed);
+
+  tiz_event_stat_destroy (p_ev_stat);
 
   tiz_event_loop_destroy ();
   tiz_event_loop_destroy ();
