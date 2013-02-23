@@ -159,7 +159,7 @@ icer_proc_buffers_ready (const void *ap_obj)
   const struct icerprc *p_obj = ap_obj;
   const struct tizservant *p_parent = ap_obj;
   tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (p_parent->ip_hdl);
+  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
   TIZ_LOG (TIZ_LOG_TRACE, "Buffers ready...");
