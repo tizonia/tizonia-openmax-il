@@ -51,7 +51,7 @@ sub init()
     rename_src_files($opt{a});
     process_src_fr_c($opt{n}, $opt{r}, $opt{a});
     process_src_frprc_c($opt{n}, $opt{r}, $opt{a});
-    process_src_frprc_defs_h($opt{n}, $opt{r}, $opt{a});
+    process_src_frprc_decls_h($opt{n}, $opt{r}, $opt{a});
     process_src_frprc_h($opt{n}, $opt{r}, $opt{a});
     create_m4_folder();
     rename_folder($opt{r});
@@ -120,12 +120,12 @@ sub rename_src_files
         rename $frprc_c => $new_frprc_c;
     }
 
-    $frprc_defs_h = "template/src/frprc_defs.h";
-    $new_frprc_defs_h = "template/src/" . "$acr" . "prc_defs.h";
+    $frprc_decls_h = "template/src/frprc_decls.h";
+    $new_frprc_decls_h = "template/src/" . "$acr" . "prc_decls.h";
 
-    if (-e $frprc_defs_h)
+    if (-e $frprc_decls_h)
     {
-        rename $frprc_defs_h => $new_frprc_defs_h;
+        rename $frprc_decls_h => $new_frprc_decls_h;
     }
 
     $frprc_h = "template/src/frprc.h";
@@ -208,7 +208,7 @@ sub process_src_frprc_c
     print "$file : \t\tDone.\n";
 }
 
-sub process_src_frprc_defs_h
+sub process_src_frprc_decls_h
 {
     $name = $_[0];
     $role = $_[1];
@@ -219,7 +219,7 @@ sub process_src_frprc_defs_h
     @data = split(/_/, $data[0]);
     $category = $category . "_" . "$data[1]";
 
-    $file = "template/src/" . "$acr" . "prc_defs.h";
+    $file = "template/src/" . "$acr" . "prc_decls.h";
 
     tie @lines, 'Tie::File', "$file" or die "Can't read file: $!\n";
 
@@ -241,7 +241,7 @@ sub process_src_frprc_defs_h
     }
     untie @lines;
 
-    $file = "src/" . "$acr" . "prc_defs.h";
+    $file = "src/" . "$acr" . "prc_decls.h";
     print "$file : \t\tDone.\n";
 }
 
