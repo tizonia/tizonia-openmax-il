@@ -18,11 +18,14 @@
 lib_LTLIBRARIES = libtizicesink.la
 
 noinst_HEADERS = \
+	icercfgport.h \
+	icercfgport_decls.h \
 	icerprc.h \
 	icerprc_decls.h
 
 libtizicesink_la_SOURCES = \
 	icer.c \
+	icercfgport.c \
 	icerprc.c
 
 libtizicesink_la_CFLAGS = \

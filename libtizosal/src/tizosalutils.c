@@ -475,6 +475,9 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
   {OMX_IndexVendorStartUnused, "OMX_IndexVendorStartUnused"},
   {OMX_TizoniaIndexParamBufferPreAnnouncementsMode,
    "OMX_TizoniaIndexParamBufferPreAnnouncementsMode"},
+  {OMX_TizoniaIndexParamHttpServer, "OMX_TizoniaIndexParamHttpServer"},
+  {OMX_TizoniaIndexConfigShoutcastMetadata,
+   "OMX_TizoniaIndexConfigShoutcastMetadata"},
 
   {OMX_IndexKhronosExtensions, "OMX_IndexKhronosExtensions"},
   {OMX_IndexVendorStartUnused, "OMX_IndexVendorStartUnused"},
