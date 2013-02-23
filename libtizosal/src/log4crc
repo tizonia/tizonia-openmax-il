@@ -22,6 +22,7 @@
 <!--         <category name="tiz.osal.sync" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.rc" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal.soa" priority="trace" appender="stdout"/> -->
+<!--         <category name="tiz.osal.event" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.ilcore" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.ilcore.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia" priority="trace" appender="stdout" /> -->
