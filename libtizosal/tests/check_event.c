@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define CHECK_IO_SERV_PORT 9877
 #define CHECK_IO_MAXLINE 4096
@@ -221,8 +222,10 @@ START_TEST (test_event_timer)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   tiz_event_timer_t * p_ev_timer = NULL;
+  time_t t1, t2;
   int sleep_len = (double)(CHECK_TIMER_PERIOD * g_timeout_count) +
     (double)(CHECK_TIMER_PERIOD * g_restart_count) + 1;
+  int sleep_count = sleep_len;
 
   error = tiz_event_loop_init ();
   fail_if (error != OMX_ErrorNone);
@@ -236,7 +239,24 @@ START_TEST (test_event_timer)
 
   TIZ_LOG (TIZ_LOG_TRACE, "started timer watcher - sleep_len [%d]", sleep_len);
 
-  sleep (sleep_len);
+  t1 = time (NULL);
+  while (--sleep_count > 0)
+    {
+      sleep (1);
+      if (1 == sleep_count)
+        {
+          t2 = time (NULL);
+          if ((t2 - t1) < sleep_len)
+            {
+              /* haven't waited enough */
+              sleep_count = sleep_len - (t2 - t1) + 1;
+              TIZ_LOG (TIZ_LOG_TRACE, "woken up too early - new sleep_count [%d]",
+                       sleep_count);
+              }
+        }
+    }
+
+  TIZ_LOG (TIZ_LOG_TRACE, "sleep_len [%d]", sleep_len);
 
   fail_if (0 != g_timeout_count);
 
