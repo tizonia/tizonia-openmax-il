@@ -28,4 +28,4 @@ libkhromxil12_include_HEADERS = \
 	OMX_RoleNames.h \
 	OMX_Types.h \
 	OMX_Video.h \
-	tizext.h
+	OMX_TizoniaExt.h

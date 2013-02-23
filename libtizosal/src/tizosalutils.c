@@ -34,7 +34,7 @@
 #include <string.h>
 
 #include "OMX_Core.h"
-#include "tizext.h"
+#include "OMX_TizoniaExt.h"
 
 #include "tizosalutils.h"
 

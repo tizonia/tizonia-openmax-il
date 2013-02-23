@@ -43,7 +43,7 @@
 #include "tizfsm.h"
 #include "tizkernel.h"
 #include "tizport.h"
-#include "tizext.h"
+#include "OMX_TizoniaExt.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

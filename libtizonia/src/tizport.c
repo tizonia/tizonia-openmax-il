@@ -34,7 +34,7 @@
 #include <string.h>
 
 #include "OMX_Types.h"
-#include "tizext.h"
+#include "OMX_TizoniaExt.h"
 
 #include "tizport.h"
 #include "tizport_decls.h"

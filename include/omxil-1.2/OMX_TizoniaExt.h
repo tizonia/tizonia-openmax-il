@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizext.h
+ * @file   OMX_TizoniaExt.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia OpenMAX IL - OpenMAX IL Extensions
@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZEXT_H
-#define TIZEXT_H
+#ifndef OMX_TizoniaExt_h
+#define OMX_TizoniaExt_h
 
 #include "OMX_Types.h"
 
@@ -75,4 +75,4 @@ typedef struct OMX_AUDIO_CONFIG_SHOUTCASTMETADATATYPE {
 } OMX_AUDIO_CONFIG_SHOUTCASTMETADATATYPE;
 
 
-#endif /* TIZEXT_H */
+#endif /* OMX_TizoniaExt_h */
