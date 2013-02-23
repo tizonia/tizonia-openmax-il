@@ -18,4 +18,5 @@ insert into components values('OMX.Aratelia.video_encoder.vp8',100,1,0,1);
 insert into components values('OMX.Aratelia.image_decoder.webp',100,1,0,1);
 insert into components values('OMX.Aratelia.image_encoder.webp',100,1,0,1);
 insert into components values('OMX.Aratelia.iv_renderer.yuv.overlay',100,1,0,1);
+insert into components values('OMX.Aratelia.ice_renderer.http',100,1,0,1);
 create table allocation(cname varchar(255), uuid varchar(16), grpid smallint, pri smallint, resid smallint, allocation mediumint);
