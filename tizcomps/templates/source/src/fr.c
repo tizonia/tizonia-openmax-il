@@ -87,8 +87,8 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
   OMX_PTR p_cport = NULL;
 
   /* Instantiate the config port */
-  init_frcfgport ();
-  p_cport = factory_new (frcfgport, NULL,       /* this port does not take options */
+  init_tizconfigport ();
+  p_cport = factory_new (tizconfigport, NULL,       /* this port does not take options */
                          ARATELIA_FILE_READER_COMPONENT_NAME,
                          file_reader_version);
   assert (p_cport);
@@ -113,7 +113,7 @@ OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
-  tiz_role_factory_t *rf_list[] = { &role_factory };
+  const tiz_role_factory_t *rf_list[] = { &role_factory };
 
   assert (ap_hdl);
 

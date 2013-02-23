@@ -97,8 +97,8 @@ fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   (void) p_obj;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (p_parent->ip_hdl),
-                 TIZ_CBUF (p_parent->ip_hdl),
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
                  "Resource allocation complete..." "pid = [%d]", a_pid);
 
   return OMX_ErrorNone;
@@ -115,8 +115,8 @@ fr_proc_deallocate_resources (void *ap_obj)
   (void) p_obj;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (p_parent->ip_hdl),
-                 TIZ_CBUF (p_parent->ip_hdl),
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
                  "Resource deallocation complete...");
 
   return OMX_ErrorNone;
@@ -129,8 +129,8 @@ fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   assert (ap_obj);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (p_parent->ip_hdl),
-                 TIZ_CBUF (p_parent->ip_hdl),
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
                  "Transfering buffers...pid [%d]", a_pid);
 
   return OMX_ErrorNone;
@@ -168,7 +168,7 @@ claim_input (const void *ap_obj)
   const struct tizservant *p_parent = ap_obj;
   struct frprc *p_obj = (struct frprc *) ap_obj;
   tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (p_parent->ip_hdl);
+  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_PD_ZERO (&ports);
   TIZ_UTIL_TEST_ERR (tizkernel_select (p_krn, 2, &ports));
@@ -178,15 +178,15 @@ claim_input (const void *ap_obj)
     {
       TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer
                          (p_krn, 0, 0, &p_obj->pinhdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->ip_hdl),
-                     TIZ_CBUF (p_parent->ip_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
                      "Claimed INPUT HEADER [%p]...", p_obj->pinhdr_);
       return true;
     }
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (p_parent->ip_hdl),
-                 TIZ_CBUF (p_parent->ip_hdl),
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
                  "COULD NOT CLAIM AN INPUT HEADER...");
 
   return false;
@@ -198,7 +198,7 @@ claim_output (const void *ap_obj)
   const struct tizservant *p_parent = ap_obj;
   struct frprc *p_obj = (struct frprc *) ap_obj;
   tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (p_parent->ip_hdl);
+  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_PD_ZERO (&ports);
   TIZ_UTIL_TEST_ERR (tizkernel_select (p_krn, 2, &ports));
@@ -208,8 +208,8 @@ claim_output (const void *ap_obj)
     {
       TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer
                          (p_krn, 1, 0, &p_obj->pouthdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->ip_hdl),
-                     TIZ_CBUF (p_parent->ip_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
                      "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
                      "nFilledLen [%d]...", p_obj->pouthdr_,
                      p_obj->pouthdr_->pBuffer, p_obj->pouthdr_->nFilledLen);
@@ -224,11 +224,11 @@ fr_proc_buffers_ready (const void *ap_obj)
 {
   struct frprc *p_obj = (struct frprc *) ap_obj;
   const struct tizservant *p_parent = ap_obj;
-  void *p_krn = tiz_get_krn (p_parent->ip_hdl);
+  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (p_parent->ip_hdl),
-                 TIZ_CBUF (p_parent->ip_hdl), "Buffers ready...");
+                 TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_), "Buffers ready...");
 
   while (1)
     {
@@ -263,8 +263,8 @@ fr_proc_buffers_ready (const void *ap_obj)
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
       TIZ_LOG_CNAME (TIZ_LOG_NOTICE,
-                     TIZ_CNAME (p_parent->ip_hdl),
-                     TIZ_CBUF (p_parent->ip_hdl),
+                     TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
                      "p_obj->eos OUTPUT HEADER [%p]...", p_obj->pouthdr_);
       p_obj->pouthdr_->nFlags |= OMX_BUFFERFLAG_EOS;
       tizkernel_relinquish_buffer (p_krn, 1, p_obj->pouthdr_);
