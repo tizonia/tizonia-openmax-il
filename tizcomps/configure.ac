@@ -60,7 +60,8 @@ AC_CONFIG_SUBDIRS([audio_renderer
                    vp8_encoder
                    webp_decoder
                    webp_encoder
-                   yuv_renderer])
+                   yuv_renderer
+                   http_renderer])
 
 # End the configure script.
 AC_OUTPUT
