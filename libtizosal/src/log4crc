@@ -60,6 +60,9 @@
 <!--         <category name="tiz.vp8_decoder" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.vp8_decoder.prc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.vp8_decoder.check" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.http_renderer" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.http_renderer.prc" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.http_renderer.check" priority="trace" appender="stdout" /> -->
 
 <!--         <category name="tiz.dec" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.graph" priority="trace" appender="stdout" /> -->
