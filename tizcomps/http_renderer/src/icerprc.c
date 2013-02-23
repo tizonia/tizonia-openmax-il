@@ -32,9 +32,11 @@
 #endif
 
 #include <assert.h>
-#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "OMX_Core.h"
+#include "OMX_TizoniaExt.h"
 
 #include "tizkernel.h"
 #include "tizscheduler.h"
@@ -49,22 +51,114 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.prc"
 #endif
 
-/*
- * icerprc
- */
-
-static void *
-icer_proc_ctor (void *ap_obj, va_list * app)
+static int
+get_server_socket (int port, const char *sinterface)
 {
-  struct icerprc *p_obj = super_ctor (icerprc, ap_obj, app);
-  p_obj->eos_ = false;
-  return p_obj;
+  struct sockaddr_storage sa;
+  struct addrinfo hints, *res, *ai;
+  char service [10];
+  int sock;
+
+  if (port < 0)
+    return SOCK_ERROR;
+
+  memset (&sa, 0, sizeof(sa));
+  memset (&hints, 0, sizeof(hints));
+
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG | AI_NUMERICSERV | AI_NUMERICHOST;
+  hints.ai_socktype = SOCK_STREAM;
+  snprintf (service, sizeof (service), "%d", port);
+
+  if (getaddrinfo (sinterface, service, &hints, &res))
+    return SOCK_ERROR;
+  ai = res;
+  do
+    {
+      int on = 1;
+      sock = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+      if (sock < 0)
+        continue;
+
+      setsockopt (sock, SOL_SOCKET, SO_REUSEADDR, (const void *)&on, sizeof(on));
+      on = 0;
+#ifdef IPV6_V6ONLY
+      setsockopt (sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof on);
+#endif
+
+      if (bind (sock, ai->ai_addr, ai->ai_addrlen) < 0)
+        {
+          sock_close (sock);
+          continue;
+        }
+      freeaddrinfo (res);
+      return sock;
+
+    } while ((ai = ai->ai_next));
+
+  freeaddrinfo (res);
+  return SOCK_ERROR;
 }
 
-static void *
-icer_proc_dtor (void *ap_obj)
+static OMX_ERRORTYPE
+set_non_blocking (int sockfd)
 {
-  return super_dtor (icerprc, ap_obj);
+  int rc, flags;
+
+  if ((flags = fcntl(sockfd, F_GETFL, 0)) < 0)
+    {
+      return OMX_ErrorUndefined;
+    }
+
+  flags |= O_NONBLOCK;
+  if ((rc = fcntl(sockfd, F_SETFL, flags)) < 0)
+    {
+      return OMX_ErrorUndefined;
+    }
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+setup_sockets (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
+{
+  struct icerprc *p_obj = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  int sock = 0;
+
+/*   OMX_ERRORTYPE ret_val = OMX_ErrorNone; */
+
+  assert (ap_obj);
+  assert (ap_hdl);
+  assert (ap_krn);
+
+  if (NULL ==
+      (p_obj->p_srv_sock_lst_ =
+       tiz_mem_calloc (p_obj->max_clients_, sizeof (int))))
+    {
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "[OMX_ErrorInsufficientResources] : Unable to allocate "
+                     "the list of server sockets");
+      return OMX_ErrorInsufficientResources;
+    }
+
+  if (OMX_ErrorNone != (rc = set_non_blocking (sock)))
+    {
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "[OMX_ErrorInsufficientResources] : Unable to set "
+                     "set socket as non-blocking.");
+      tiz_mem_free (p_obj->p_srv_sock_lst_);
+      p_obj->p_srv_sock_lst_ = NULL;
+      return OMX_ErrorInsufficientResources;
+    }
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+start_listening (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
+{
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -76,6 +170,27 @@ icer_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 }
 
 /*
+ * icerprc
+ */
+
+static void *
+icer_proc_ctor (void *ap_obj, va_list * app)
+{
+  struct icerprc *p_obj = super_ctor (icerprc, ap_obj, app);
+  p_obj->listening_port_ = 0;
+  p_obj->max_clients_ = 0;
+  p_obj->p_srv_sock_lst_ = NULL;
+  p_obj->eos_ = false;
+  return p_obj;
+}
+
+static void *
+icer_proc_dtor (void *ap_obj)
+{
+  return super_dtor (icerprc, ap_obj);
+}
+
+/*
  * from tizservant class
  */
 
@@ -84,16 +199,36 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   struct icerprc *p_obj = ap_obj;
   const struct tizservant *p_parent = ap_obj;
+  void *p_krn = NULL;
+  OMX_ERRORTYPE ret_val = OMX_ErrorNone;
+  OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE httpsrv;
 
   assert (ap_obj);
+  assert (p_parent->p_hdl_);
 
-  (void) p_parent;
-  (void) p_obj;
+  p_krn = tiz_get_krn (p_parent->p_hdl_);
+  assert (p_krn);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Resource allocation complete... "
-           "icerprc = [%p]!!!", p_obj);
+  /* Retrieve http server configuration from the component's config port */
+  httpsrv.nSize = sizeof (OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE);
+  httpsrv.nVersion.nVersion = OMX_VERSION;
+  if (OMX_ErrorNone != (ret_val = tizapi_GetParameter
+                        (p_krn, p_parent->p_hdl_,
+                         OMX_TizoniaIndexParamHttpServer, &httpsrv)))
+    {
+      TIZ_LOG (TIZ_LOG_ERROR,
+               "[%s] : Error retrieving HTTPSERVERTYPE from port",
+               tiz_err_to_str (ret_val));
+      return ret_val;
+    }
 
-  return OMX_ErrorNone;
+  TIZ_LOG (TIZ_LOG_TRACE, "nListeningPort = [%d] nMaxClients = [%d] ",
+           httpsrv.nListeningPort, httpsrv.nMaxClients);
+
+  p_obj->listening_port_ = httpsrv.nListeningPort;
+  p_obj->max_clients_ = httpsrv.nMaxClients;
+
+  return setup_sockets (p_obj, p_parent->p_hdl_, p_krn);
 }
 
 static OMX_ERRORTYPE
@@ -114,27 +249,25 @@ static OMX_ERRORTYPE
 icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   struct icerprc *p_obj = ap_obj;
-  assert (ap_obj);
+  const struct tizservant *p_parent = ap_obj;
+  void *p_krn = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
+  assert (ap_obj);
+  assert (p_parent->p_hdl_);
+
+  p_krn = tiz_get_krn (p_parent->p_hdl_);
+  assert (p_krn);
 
   TIZ_LOG (TIZ_LOG_TRACE,
            "Prepared to transfer buffers...p_obj = [%p]!!!", p_obj);
 
-  return OMX_ErrorNone;
-
+  return start_listening (p_obj, p_parent->p_hdl_, p_krn);
 }
 
 static OMX_ERRORTYPE
 icer_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  struct icerprc *p_obj = ap_obj;
-  assert (ap_obj);
-
   TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Awaiting buffers...p_obj = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
 }
 
