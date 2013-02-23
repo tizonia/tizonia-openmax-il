@@ -176,6 +176,7 @@ START_TEST (test_event_loop_init_and_destroy)
   fail_if (error != OMX_ErrorNone);
 
   tiz_event_loop_destroy ();
+  tiz_event_loop_destroy ();
 }
 END_TEST
 
@@ -302,7 +303,6 @@ START_TEST (test_event_stat)
 
   tiz_event_stat_destroy (p_ev_stat);
 
-  tiz_event_loop_destroy ();
   tiz_event_loop_destroy ();
 }
 END_TEST

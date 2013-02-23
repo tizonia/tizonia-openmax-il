@@ -18,29 +18,30 @@
  */
 
 /**
- * @file   check_tizrmd.c
+ * @file   tizosal.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Resource Manager unit tests
+ * @brief Tizonia OSAL - Initialization and finalization functions
  *
  *
  */
 
-#ifdef TIZ_LOG_CATEGORY_NAME
-#undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.rm.check"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
 
-#include <check.h>
-#include <stdlib.h>
-#include "tizosal.h"
+#include "tizosallog.h"
+#include "tizosalev.h"
 
-int
-main (void)
+void __attribute__ ((constructor)) tiz_osal_load (void)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - RM daemon unit tests");
+  tiz_log_init ();
+  (void) tiz_event_loop_init ();
 
-  /* No tests for now */
+}
 
-  return EXIT_SUCCESS;
+void __attribute__ ((destructor)) tiz_osal_unload (void)
+{
+  (void) tiz_event_loop_destroy ();
+  tiz_log_deinit ();
 }

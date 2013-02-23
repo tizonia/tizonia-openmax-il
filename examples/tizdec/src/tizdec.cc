@@ -300,8 +300,6 @@ main(int argc, char **argv)
   signal(SIGTERM, tizdec_sig_hdlr);
   signal(SIGINT, tizdec_sig_hdlr);
 
-  tiz_log_init();
-
   TIZ_LOG(TIZ_LOG_TRACE, "Tizonia OpenMAX IL decoder...");
 
   while (1)
@@ -360,12 +358,9 @@ main(int argc, char **argv)
 
         default:
             print_usage ();
-            tiz_log_deinit();
             exit(EXIT_FAILURE);
         }
     }
-
-  tiz_log_deinit();
 
   if (OMX_ErrorNone != error)
     {

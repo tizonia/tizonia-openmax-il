@@ -1228,9 +1228,6 @@ Suite * mp3enc_suite (void)
 int
 main (void)
 {
-
-  tiz_log_init ();
-
   TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL Lame Mp3 Encoder unit tests");
 
   int number_failed;
@@ -1240,8 +1237,5 @@ main (void)
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
 
-  tiz_log_deinit ();
-
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
-
 }

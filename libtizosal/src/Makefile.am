@@ -36,6 +36,7 @@ libtizosal_include_HEADERS = \
 	utarray.h
 
 libtizosal_la_SOURCES = \
+	tizosal.c \
 	tizosallog.c \
 	tizosalutils.c \
 	tizosalmem.c \

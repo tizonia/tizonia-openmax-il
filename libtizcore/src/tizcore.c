@@ -62,10 +62,11 @@
 
 static OMX_VERSIONTYPE tc_spec_version = {
   {
-   (OMX_U8) OMX_VERSION_MAJOR,
-   (OMX_U8) OMX_VERSION_MINOR,
-   (OMX_U8) OMX_VERSION_REVISION,
-   (OMX_U8) OMX_VERSION_STEP}
+    (OMX_U8)OMX_VERSION_MAJOR,
+    (OMX_U8)OMX_VERSION_MINOR,
+    (OMX_U8)OMX_VERSION_REVISION,
+    (OMX_U8)OMX_VERSION_STEP
+  }
 };
 
 typedef struct role_list_item role_list_item_t;
@@ -203,8 +204,8 @@ static const tizcore_msg_dispatch_f tizcore_msg_to_fnt_tbl[] = {
   do_cne,
   do_cre,
   do_rce,
-  NULL,                         /* ETIZCoreMsgGetCoreInterface */
-  NULL,                         /* ETIZCoreMsgFreeCoreInterface */
+  NULL,                        /* ETIZCoreMsgGetCoreInterface */
+  NULL,                        /* ETIZCoreMsgFreeCoreInterface */
 };
 
 
@@ -264,7 +265,7 @@ preemption_complete (OMX_U32 rid, OMX_PTR ap_data)
 }
 
 static void
-free_roles (role_list_item_t * ap_role_lst)
+free_roles (role_list_item_t *ap_role_lst)
 {
   role_list_item_t *p_rli = NULL;
 
@@ -277,7 +278,8 @@ free_roles (role_list_item_t * ap_role_lst)
 }
 
 static OMX_ERRORTYPE
-get_component_roles (OMX_COMPONENTTYPE * ap_hdl, role_list_t * app_role_list)
+get_component_roles (OMX_COMPONENTTYPE * ap_hdl,
+                     role_list_t * app_role_list)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   role_list_item_t *p_role = NULL;
@@ -290,53 +292,53 @@ get_component_roles (OMX_COMPONENTTYPE * ap_hdl, role_list_t * app_role_list)
 
   /* Find component roles */
   while (OMX_ErrorNoMore != rc && role_index < 255)
-    {
-      p_role = (role_list_item_t *)
-        tiz_mem_calloc (1, sizeof (role_list_item_t));
+  {
+    p_role = (role_list_item_t *)
+      tiz_mem_calloc (1, sizeof (role_list_item_t));
 
-      if (NULL == p_role)
-        {
-          TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
-                   "Could not allocate role list item. "
-                   "Bailing registration");
-          rc = OMX_ErrorInsufficientResources;
-          break;
-        }
+    if (NULL == p_role)
+      {
+        TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
+                 "Could not allocate role list item. "
+                 "Bailing registration");
+        rc = OMX_ErrorInsufficientResources;
+        break;
+      }
 
-      rc = ap_hdl->ComponentRoleEnum ((OMX_HANDLETYPE) ap_hdl,
-                                      p_role->role, role_index);
+    rc = ap_hdl->ComponentRoleEnum ((OMX_HANDLETYPE) ap_hdl,
+                                    p_role->role, role_index);
 
-      if (OMX_ErrorNone != rc && OMX_ErrorNoMore != rc)
-        {
-          TIZ_LOG (TIZ_LOG_ERROR, "[%s] : Call to ComponentRoleEnum failed",
-                   tiz_err_to_str (rc));
-          tiz_mem_free (p_role);
-          break;
-        }
-      else if (OMX_ErrorNoMore == rc)
-        {
-          TIZ_LOG (TIZ_LOG_ERROR, "[%s] : No more roles",
-                   tiz_err_to_str (rc));
-          tiz_mem_free (p_role);
-          break;
-        }
+    if (OMX_ErrorNone != rc && OMX_ErrorNoMore != rc)
+      {
+        TIZ_LOG (TIZ_LOG_ERROR, "[%s] : Call to ComponentRoleEnum failed",
+                 tiz_err_to_str (rc));
+        tiz_mem_free (p_role);
+        break;
+      }
+    else if (OMX_ErrorNoMore == rc)
+      {
+        TIZ_LOG (TIZ_LOG_ERROR, "[%s] : No more roles",
+                 tiz_err_to_str (rc));
+        tiz_mem_free (p_role);
+        break;
+      }
 
-      if (NULL != p_last)
-        {
-          p_last->p_next = p_role;
-        }
-      else
-        {
-          p_first = p_role;
-        }
+    if (NULL != p_last)
+      {
+        p_last->p_next = p_role;
+      }
+    else
+      {
+        p_first = p_role;
+      }
 
-      p_last = p_role;
+    p_last = p_role;
 
-      TIZ_LOG (TIZ_LOG_TRACE, "Found role [#%d] to be [%s]",
-               role_index, p_role->role);
+    TIZ_LOG (TIZ_LOG_TRACE, "Found role [#%d] to be [%s]",
+             role_index, p_role->role);
 
-      role_index++;
-    }
+    role_index++;
+  }
 
   if (OMX_ErrorNoMore == rc)
     {
@@ -358,7 +360,7 @@ get_component_roles (OMX_COMPONENTTYPE * ap_hdl, role_list_t * app_role_list)
       role_index = 0;
     }
 
-  *app_role_list = role_index > 0 ? p_first : NULL;
+  * app_role_list = role_index > 0 ? p_first : NULL;
 
   return rc;
 }
@@ -388,11 +390,11 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
   assert (NULL != ap_hdl);
   assert (NULL != app_reg_item);
 
-  *app_reg_item = NULL;
+  * app_reg_item = NULL;
 
   /* Allocate new registry item */
   if (NULL == (p_registry_new = (tizcore_registry_item_t *) tiz_mem_calloc
-               (1, sizeof (tizcore_registry_item_t))))
+        (1, sizeof (tizcore_registry_item_t))))
     {
       TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
                "Could not allocate memory for registry item.");
@@ -415,9 +417,10 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
   /* Get Component info */
   if (OMX_ErrorNone !=
       (rc =
-       ap_hdl->GetComponentVersion ((OMX_HANDLETYPE) ap_hdl,
-                                    (OMX_STRING) (&comp_name), &comp_ver,
-                                    &spec_ver, &comp_uuid)))
+       ap_hdl->
+       GetComponentVersion ((OMX_HANDLETYPE) ap_hdl,
+                            (OMX_STRING) (&comp_name), &comp_ver,
+                            &spec_ver, &comp_uuid)))
     {
       rc = (rc == OMX_ErrorInsufficientResources
             ? OMX_ErrorInsufficientResources : OMX_ErrorUndefined);
@@ -484,8 +487,7 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
         }
 
       /* Finish filling the registry entry... */
-      p_registry_new->p_comp_name =
-        strndup (comp_name, OMX_MAX_STRINGNAME_SIZE);
+      p_registry_new->p_comp_name = strndup (comp_name, OMX_MAX_STRINGNAME_SIZE);
       p_registry_new->p_dl_name = strndup (ap_dl_name, NAME_MAX);
       p_registry_new->p_dl_path = strndup (ap_dl_path, PATH_MAX);
       p_registry_new->p_entry_point = ap_entry_point;
@@ -500,10 +502,12 @@ add_to_comp_registry (const OMX_STRING ap_dl_path,
       TIZ_LOG (TIZ_LOG_TRACE, "dl_path [%s].", p_registry_new->p_dl_path);
       TIZ_LOG (TIZ_LOG_TRACE,
                "dl_entry_point [%p].", p_registry_new->p_entry_point);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_dl_hdl [%p].", p_registry_new->p_dl_hdl);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%p].", p_registry_new->p_hdl);
+      TIZ_LOG (TIZ_LOG_TRACE,
+               "p_dl_hdl [%p].", p_registry_new->p_dl_hdl);
+      TIZ_LOG (TIZ_LOG_TRACE,
+               "p_hdl [%p].", p_registry_new->p_hdl);
 
-      *app_reg_item = p_registry_new;
+      * app_reg_item = p_registry_new;
 
     }
 
@@ -573,7 +577,7 @@ instantiate_comp_lib (const OMX_STRING ap_path,
     }
   full_name[len] = 0;
 
-  if (NULL == (*app_dl_hdl = dlopen (strcat (full_name, ap_name), RTLD_LAZY)))
+  if (NULL == (* app_dl_hdl = dlopen (strcat (full_name, ap_name), RTLD_LAZY)))
     {
       TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorUndefined] : "
                "Error loading dynamic library [%s]", dlerror ());
@@ -583,12 +587,12 @@ instantiate_comp_lib (const OMX_STRING ap_path,
   /* TODO: OMX_ComponentInit is not a mandatory name for the component entry
    * point. Use an IL Core extension to configure additional entry point
    * function names. */
-  if (NULL == (*app_entry_point = dlsym (*app_dl_hdl, ap_entry_point_name)))
+  if (NULL == (* app_entry_point = dlsym (* app_dl_hdl, ap_entry_point_name)))
     {
       TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorUndefined] : "
                "Default entry point [%s] not found in [%s]",
                ap_entry_point_name, ap_name);
-      dlclose (*app_dl_hdl);
+      dlclose (* app_dl_hdl);
       return OMX_ErrorUndefined;
     }
 
@@ -650,22 +654,22 @@ cache_comp_info (const OMX_STRING ap_dl_path, const OMX_STRING ap_dl_name)
 }
 
 static char **
-find_component_paths (unsigned long *ap_npaths)
+find_component_paths(unsigned long * ap_npaths)
 {
   tiz_rcfile_t *p_rcfile = NULL;
   char **val_lst = NULL;
 
-  assert (ap_npaths);
+  assert(ap_npaths);
 
-  tiz_rcfile_open (&p_rcfile);
-  val_lst = tiz_rcfile_get_value_list (p_rcfile, "il-core",
-                                       "component-paths", ap_npaths);
-  tiz_rcfile_close (p_rcfile);
+  tiz_rcfile_open(&p_rcfile);
+  val_lst = tiz_rcfile_get_value_list(p_rcfile, "il-core",
+                                      "component-paths", ap_npaths);
+  tiz_rcfile_close(p_rcfile);
 
-  if (!val_lst || 0 == *ap_npaths)
+  if (!val_lst || 0 == * ap_npaths)
     {
       val_lst = NULL;
-      *ap_npaths = 0;
+      * ap_npaths = 0;
     }
 
   return val_lst;
@@ -678,7 +682,7 @@ free_paths (char **pp_paths, unsigned long npaths)
 
   assert (NULL != pp_paths);
 
-  for (i = 0; i < (int) npaths; i++)
+  for (i = 0; i < (int)npaths; i++)
     {
       tiz_mem_free (pp_paths[i]);
     }
@@ -697,19 +701,19 @@ scan_component_folders (void)
 
   TIZ_LOG (TIZ_LOG_TRACE, "Looking for component plugins...");
 
-  if (NULL == (pp_paths = find_component_paths (&npaths)))
+  if (NULL == (pp_paths = find_component_paths(&npaths)))
     {
       TIZ_LOG (TIZ_LOG_ERROR, "No component paths configured");
       return OMX_ErrorInsufficientResources;
     }
 
-  for (i = 0; i < (int) npaths; i++)
+  for (i = 0; i < (int)npaths; i++)
     {
       if (NULL == (p_dir = opendir (pp_paths[i])))
         {
           TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorUndefined] : "
                    "Error opening directory  [%s] - [%s]",
-                   pp_paths[i], strerror (errno));
+                   pp_paths[i], strerror(errno));
         }
       else
         {
@@ -721,9 +725,11 @@ scan_component_folders (void)
                   && !strstr (p_dir_entry->d_name,
                               TIZ_SHARED_LIB_SONAMET_STRING))
                 {
-                  TIZ_LOG (TIZ_LOG_TRACE, "[%s]", p_dir_entry->d_name);
+                  TIZ_LOG (TIZ_LOG_TRACE, "[%s]",
+                           p_dir_entry->d_name);
                   if (OMX_ErrorInsufficientResources
-                      == cache_comp_info (pp_paths[i], p_dir_entry->d_name))
+                      == cache_comp_info (pp_paths[i],
+                                          p_dir_entry->d_name))
                     {
                       free_paths (pp_paths, npaths);
                       return OMX_ErrorInsufficientResources;
@@ -731,7 +737,7 @@ scan_component_folders (void)
                 }
             }
 
-          (void) closedir (p_dir);
+          (void)closedir (p_dir);
         }
 
     }
@@ -759,13 +765,13 @@ find_role_in_registry (const OMX_STRING ap_role_str, OMX_U32 a_index)
       p_role = p_registry->p_roles;
       while (p_role)
         {
-          if (0 == strncmp ((OMX_STRING) p_role->role, ap_role_str,
+          if (0 == strncmp ((OMX_STRING)p_role->role, ap_role_str,
                             OMX_MAX_STRINGNAME_SIZE))
             {
               num_components_found++;
               TIZ_LOG (TIZ_LOG_TRACE, "[%s] found - comp [%s] "
-                       "num comps [%d].", ap_role_str,
-                       p_registry->p_comp_name, num_components_found);
+                       "num comps [%d].", ap_role_str, p_registry->p_comp_name,
+                       num_components_found);
               break;
             }
           p_role = p_role->p_next;
@@ -885,18 +891,17 @@ instantiate_component (tizcore_msg_gethandle_t * ap_msg)
                             ((OMX_COMPONENTINITTYPE) p_entry_point)
                             ((OMX_HANDLETYPE) p_hdl)))
         {
-          TIZ_LOG (TIZ_LOG_ERROR,
-                   "[%s] : Call to component's entry point failed",
+          TIZ_LOG (TIZ_LOG_ERROR, "[%s] : Call to component's entry point failed",
                    tiz_err_to_str (rc));
           return rc;
         }
 
-      TIZ_LOG (TIZ_LOG_TRACE, "Success - component hdl [%p]", p_hdl);
+      TIZ_LOG (TIZ_LOG_TRACE, "Success - component hdl [%p]",
+               p_hdl);
 
       if (OMX_ErrorNone
           != (rc = p_hdl->SetCallbacks ((OMX_HANDLETYPE) p_hdl,
-                                        ap_msg->p_callbacks,
-                                        ap_msg->p_app_data)))
+                                        ap_msg->p_callbacks, ap_msg->p_app_data)))
         {
           TIZ_LOG (TIZ_LOG_ERROR, "[%s] : Call to SetCallbacks failed",
                    tiz_err_to_str (rc));
@@ -935,7 +940,8 @@ remove_comp_instance (tizcore_msg_freehandle_t * ap_msg)
 
       /* Unload the component */
       if (OMX_ErrorNone != (rc =
-                            p_hdl->ComponentDeInit ((OMX_HANDLETYPE) p_hdl)))
+                            p_hdl->ComponentDeInit
+                            ((OMX_HANDLETYPE) p_hdl)))
         {
           TIZ_LOG (TIZ_LOG_ERROR, "Call to ComponentDeinit point failed");
         }
@@ -969,11 +975,11 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgInit received...");
   assert (NULL != p_core);
   assert (NULL != ap_state
-          && (ETIZCoreStateStarting == *ap_state
-              || ETIZCoreStateStarted == *ap_state));
+          && (ETIZCoreStateStarting == * ap_state
+              || ETIZCoreStateStarted == * ap_state));
   assert (ETIZCoreMsgInit == ap_msg->class);
 
-  if (ETIZCoreStateStarted == *ap_state)
+  if (ETIZCoreStateStarted == * ap_state)
     {
       return OMX_ErrorNone;
     }
@@ -996,7 +1002,7 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
       return OMX_ErrorInsufficientResources;
     }
 
-  *ap_state = ETIZCoreStateStarted;
+  * ap_state = ETIZCoreStateStarted;
   return scan_component_folders ();
 }
 
@@ -1012,7 +1018,7 @@ do_deinit (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   assert (NULL != ap_msg);
   assert (ETIZCoreMsgDeinit == ap_msg->class);
 
-  *ap_state = ETIZCoreStateStopped;
+  * ap_state = ETIZCoreStateStopped;
 
   /* Deinit the RM hdl */
   if (TIZRM_SUCCESS != (rc = tizrm_proxy_destroy (&p_core->rm)))
@@ -1146,18 +1152,20 @@ do_cre (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   assert (NULL != p_msg_cre->p_role);
 
   TIZ_LOG (TIZ_LOG_TRACE, "ETIZCoreMsgComponentOfRoleEnum received : "
-           "Role [%s] Index [%d]...", p_msg_cre->p_role, p_msg_cre->index);
+           "Role [%s] Index [%d]...", p_msg_cre->p_role,
+           p_msg_cre->index);
 
 
   /* Do the obvious linear search for now */
   i = p_msg_cre->index;
-  while (NULL != (p_reg_item = find_role_in_registry (p_msg_cre->p_role, i)))
+  while (NULL != (p_reg_item = find_role_in_registry (p_msg_cre->p_role,
+                                                      i)))
     {
       if (p_msg_cre->index == i)
         {
           assert (NULL != p_reg_item->p_comp_name);
           strncpy (p_msg_cre->p_comp_name,
-                   (const char *) p_reg_item->p_comp_name,
+                   (const char*) p_reg_item->p_comp_name,
                    OMX_MAX_STRINGNAME_SIZE);
           /* Make sure the resulting string is null-terminated */
           p_msg_cre->p_comp_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
@@ -1207,7 +1215,8 @@ do_rce (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   if (NULL != (p_reg_item = find_comp_in_registry (p_msg_rce->p_comp_name)))
     {
       p_role_item = p_reg_item->p_roles;
-      for (i = 0; i < p_msg_rce->index && NULL != p_role_item; ++i)
+      for (i=0; i < p_msg_rce->index
+             && NULL != p_role_item; ++i)
         {
           p_role_item = p_role_item->p_next;
         }
@@ -1215,7 +1224,7 @@ do_rce (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
       if (NULL != p_role_item)
         {
           found = true;
-          strncpy (p_msg_rce->p_role, (const char *) p_role_item->role,
+          strncpy (p_msg_rce->p_role, (const char*) p_role_item->role,
                    OMX_MAX_STRINGNAME_SIZE);
           /* Make sure the resulting string is null-terminated */
           p_msg_rce->p_role[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
@@ -1282,10 +1291,9 @@ il_core_thread_func (void *p_arg)
 
   for (;;)
     {
-      TIZ_UTIL_TEST_ERR_RET_NULL (tiz_queue_receive
-                                  (p_core->p_queue, &p_data));
-      signal_client =
-        dispatch_msg (&(p_core->state), (tizcore_msg_t *) p_data);
+      TIZ_UTIL_TEST_ERR_RET_NULL (tiz_queue_receive (p_core->p_queue, &p_data));
+      signal_client = dispatch_msg
+        (&(p_core->state), (tizcore_msg_t *) p_data);
 
       if (signal_client > 0)
         {
@@ -1315,7 +1323,8 @@ get_core ()
         {
           return NULL;
         }
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing core instance [%p]...", pg_core);
+      TIZ_LOG (TIZ_LOG_TRACE,
+               "Initializing core instance [%p]...", pg_core);
 
       pg_core->p_core = NULL;
 
@@ -1325,7 +1334,8 @@ get_core ()
           return NULL;
         }
 
-      if (OMX_ErrorNone != (rc = tiz_queue_init (&(pg_core->p_queue), 10)))
+      if (OMX_ErrorNone
+          != (rc = tiz_queue_init (&(pg_core->p_queue), 10)))
         {
           return NULL;
         }
@@ -1419,9 +1429,9 @@ gp_to_st_err (OMX_ERRORTYPE a_getparam_err)
     };
 }
 
-static OMX_ERRORTYPE
-do_tunnel_requests (OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
-                    OMX_HANDLETYPE ap_inhdl, OMX_U32 a_inport)
+static  OMX_ERRORTYPE
+do_tunnel_requests(OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
+                   OMX_HANDLETYPE ap_inhdl, OMX_U32 a_inport)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_COMPONENTTYPE *p_incmp = (OMX_COMPONENTTYPE *) ap_inhdl,
@@ -1516,7 +1526,8 @@ do_tunnel_requests (OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
                tiz_err_to_str (rc));
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "do_tunnel_requests [%s]", tiz_err_to_str (rc));
+  TIZ_LOG (TIZ_LOG_TRACE,
+           "do_tunnel_requests [%s]", tiz_err_to_str (rc));
 
   return rc;
 }
@@ -1527,14 +1538,6 @@ OMX_Init (void)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tizcore_msg_t *p_msg = NULL;
-
-  if (tiz_log_init () != 0)
-    {
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
-               "Error while initializing the logging lib",
-               tiz_err_to_str (rc));
-      return OMX_ErrorInsufficientResources;
-    }
 
   if (OMX_ErrorNone != (rc = start_core ()))
     {
@@ -1572,11 +1575,9 @@ OMX_Deinit (void)
 
   tiz_queue_destroy (p_core->p_queue);
   p_core->p_queue = NULL;
-  (void) tiz_sem_destroy (&(p_core->sem));
+  (void)tiz_sem_destroy (&(p_core->sem));
   tiz_mem_free (pg_core);
   pg_core = NULL;
-
-  (void) tiz_log_deinit ();
 
   return OMX_ErrorNone;
 }
@@ -1610,8 +1611,8 @@ OMX_ComponentNameEnum (OMX_STRING ap_cname, OMX_U32 a_namelen,
   assert (NULL != p_msg_cne);
 
   p_msg_cne->p_comp_name = ap_cname;
-  p_msg_cne->namelen = a_namelen;
-  p_msg_cne->index = a_index;
+  p_msg_cne->namelen     = a_namelen;
+  p_msg_cne->index       = a_index;
 
   return send_msg_blocking (p_msg);
 }
@@ -1626,8 +1627,7 @@ OMX_GetHandle (OMX_HANDLETYPE * app_hdl, OMX_STRING ap_comp_name,
   if (NULL == app_hdl || NULL == ap_comp_name || NULL == ap_callbacks
       || (strlen (ap_comp_name) > OMX_MAX_STRINGNAME_SIZE))
     {
-      TIZ_LOG (TIZ_LOG_ERROR,
-               "[OMX_ErrorBadParameter]: NULL argument found.");
+      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorBadParameter]: NULL argument found.");
       return OMX_ErrorBadParameter;
     }
 
@@ -1642,9 +1642,9 @@ OMX_GetHandle (OMX_HANDLETYPE * app_hdl, OMX_STRING ap_comp_name,
   p_msg_gh = &(p_msg->gh);
   assert (NULL != p_msg_gh);
 
-  p_msg_gh->pp_hdl = app_hdl;
+  p_msg_gh->pp_hdl      = app_hdl;
   p_msg_gh->p_comp_name = ap_comp_name;
-  p_msg_gh->p_app_data = ap_app_data;
+  p_msg_gh->p_app_data  = ap_app_data;
   p_msg_gh->p_callbacks = ap_callbacks;
 
   return send_msg_blocking (p_msg);
@@ -1688,12 +1688,12 @@ OMX_SetupTunnel (OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
       return OMX_ErrorBadParameter;
     }
 
-  return do_tunnel_requests (ap_outhdl, a_outport, ap_inhdl, a_inport);
+  return do_tunnel_requests(ap_outhdl, a_outport, ap_inhdl, a_inport);
 }
 
 OMX_ERRORTYPE
-OMX_TeardownTunnel (OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
-                    OMX_HANDLETYPE ap_inhdl, OMX_U32 a_inport)
+OMX_TeardownTunnel(OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
+                   OMX_HANDLETYPE ap_inhdl, OMX_U32 a_inport)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_HANDLETYPE p_null_inhdl = NULL;
@@ -1711,19 +1711,19 @@ OMX_TeardownTunnel (OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
       return OMX_ErrorBadParameter;
     }
 
-  rc = do_tunnel_requests (ap_outhdl, a_outport, p_null_inhdl, a_inport);
+  rc = do_tunnel_requests(ap_outhdl, a_outport, p_null_inhdl, a_inport);
 
   if (OMX_ErrorNone == rc)
     {
-      rc = do_tunnel_requests (p_null_outhdl, a_outport, ap_inhdl, a_inport);
+      rc = do_tunnel_requests(p_null_outhdl, a_outport, ap_inhdl, a_inport);
     }
 
   return rc;
 }
 
 OMX_ERRORTYPE
-OMX_ComponentOfRoleEnum (OMX_STRING ap_comp_name, OMX_STRING ap_role,
-                         OMX_U32 a_index)
+OMX_ComponentOfRoleEnum(OMX_STRING ap_comp_name, OMX_STRING ap_role,
+                        OMX_U32 a_index)
 {
   tizcore_msg_t *p_msg = NULL;
   tizcore_msg_compofroleenum_t *p_msg_cre = NULL;
@@ -1745,15 +1745,15 @@ OMX_ComponentOfRoleEnum (OMX_STRING ap_comp_name, OMX_STRING ap_role,
   assert (NULL != p_msg_cre);
 
   p_msg_cre->p_comp_name = ap_comp_name;
-  p_msg_cre->p_role = ap_role;
-  p_msg_cre->index = a_index;
+  p_msg_cre->p_role      = ap_role;
+  p_msg_cre->index       = a_index;
 
   return send_msg_blocking (p_msg);
 }
 
 OMX_ERRORTYPE
-OMX_RoleOfComponentEnum (OMX_STRING ap_role, OMX_STRING ap_comp_name,
-                         OMX_U32 a_index)
+OMX_RoleOfComponentEnum(OMX_STRING ap_role, OMX_STRING ap_comp_name,
+                        OMX_U32 a_index)
 {
   tizcore_msg_t *p_msg = NULL;
   tizcore_msg_roleofcompenum_t *p_msg_rce = NULL;
@@ -1775,24 +1775,24 @@ OMX_RoleOfComponentEnum (OMX_STRING ap_role, OMX_STRING ap_comp_name,
   assert (NULL != p_msg_rce);
 
   p_msg_rce->p_comp_name = ap_comp_name;
-  p_msg_rce->p_role = ap_role;
-  p_msg_rce->index = a_index;
+  p_msg_rce->p_role      = ap_role;
+  p_msg_rce->index       = a_index;
 
   return send_msg_blocking (p_msg);
 }
 
 OMX_ERRORTYPE
-OMX_GetCoreInterface (void **ppItf, OMX_STRING cExtensionName)
+OMX_GetCoreInterface(void ** ppItf, OMX_STRING cExtensionName)
 {
-  assert (0);
+  assert(0);
   (void) ppItf;
   (void) cExtensionName;
   return OMX_ErrorNotImplemented;
 }
 
 OMX_API void
-OMX_FreeCoreInterface (void *pItf)
+OMX_FreeCoreInterface(void * pItf)
 {
   (void) pItf;
-  assert (0);
+  assert(0);
 }
