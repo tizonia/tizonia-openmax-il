@@ -72,12 +72,14 @@ extern "C"
    * 
    * @ingroup event
    */
-  typedef void (*tiz_event_io_cb_f) (tiz_event_io_t * p_ev_io, int fd, int events);
+  typedef void (*tiz_event_io_cb_f) (tiz_event_io_t * p_ev_io,
+                                     OMX_HANDLETYPE p_hdl, int fd, int events);
 
+  typedef void (*tiz_event_timer_cb_f) (tiz_event_timer_t * p_ev_timer,
+                                        OMX_HANDLETYPE p_hdl);
 
-  typedef void (*tiz_event_timer_cb_f) (tiz_event_timer_t * p_ev_timer);
-
-  typedef void (*tiz_event_stat_cb_f) (tiz_event_stat_t * p_ev_stat, int events);
+  typedef void (*tiz_event_stat_cb_f) (tiz_event_stat_t * p_ev_stat,
+                                       OMX_HANDLETYPE p_hdl, int events);
 
   typedef enum tiz_event_io_event
   {
@@ -114,8 +116,11 @@ extern "C"
   void tiz_event_loop_destroy ();
 
   OMX_ERRORTYPE tiz_event_io_init (tiz_event_io_t ** app_ev_io,
-                                   tiz_event_io_cb_f ap_cback,
-                                   int a_fd, tiz_event_io_event_t a_event);
+                                   OMX_HANDLETYPE ap_hdl,
+                                   tiz_event_io_cb_f ap_cback);
+
+  void tiz_event_io_set (tiz_event_io_t * ap_ev_io,
+                         int a_fd, tiz_event_io_event_t a_event);
 
   OMX_ERRORTYPE tiz_event_io_start (tiz_event_io_t * ap_ev_io);
 
@@ -124,8 +129,11 @@ extern "C"
   void tiz_event_io_destroy (tiz_event_io_t * ap_ev_io);
 
   OMX_ERRORTYPE tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
-                                       tiz_event_timer_cb_f ap_cback,
-                                       double after, double repeat);
+                                      OMX_HANDLETYPE ap_hdl,
+                                      tiz_event_timer_cb_f ap_cback);
+
+  void tiz_event_timer_set (tiz_event_timer_t * ap_ev_timer,
+                            double a_after, double a_repeat);
 
   OMX_ERRORTYPE tiz_event_timer_start (tiz_event_timer_t * ap_ev_timer);
 
@@ -136,8 +144,11 @@ extern "C"
   void tiz_event_timer_destroy (tiz_event_timer_t * ap_ev_timer);
 
   OMX_ERRORTYPE tiz_event_stat_init (tiz_event_stat_t ** app_ev_stat,
-                                     tiz_event_stat_cb_f ap_cback,
-                                     const char *path);
+                                     OMX_HANDLETYPE ap_hdl,
+                                     tiz_event_stat_cb_f ap_cback);
+
+  void tiz_event_stat_set (tiz_event_stat_t * ap_ev_stat,
+                           const char *ap_path);
 
   OMX_ERRORTYPE tiz_event_stat_start (tiz_event_stat_t * ap_ev_stat);
 

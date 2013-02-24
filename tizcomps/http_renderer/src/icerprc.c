@@ -137,13 +137,15 @@ set_non_blocking (int sockfd)
 }
 
 static void
-srv_ev_io_cback (tiz_event_io_t * ap_ev_io, int fd, int events)
+srv_ev_io_cback (tiz_event_io_t * ap_ev_io, OMX_HANDLETYPE p_hdl, int fd,
+                 int events)
 {
 
 }
 
 static void
-clnt_ev_io_cback (tiz_event_io_t * ap_ev_io, int fd, int events)
+clnt_ev_io_cback (tiz_event_io_t * ap_ev_io, OMX_HANDLETYPE p_hdl, int fd,
+                  int events)
 {
 
 }
@@ -186,14 +188,15 @@ allocate_io_events (void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
   if (OMX_ErrorNone !=
       (rc =
-       tiz_event_io_init (&p_obj->p_srv_ev_io_, srv_ev_io_cback,
-                          p_obj->srv_sockfd_, TIZ_EVENT_READ)))
+       tiz_event_io_init (&p_obj->p_srv_ev_io_, ap_hdl, srv_ev_io_cback)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Error initializing the server's io event",
                      tiz_err_to_str (rc));
       goto end;
     }
+
+  tiz_event_io_set (p_obj->p_srv_ev_io_, p_obj->srv_sockfd_, TIZ_EVENT_READ);
 
   p_obj->p_clnt_ev_io_lst_ = (tiz_event_io_t **)
     tiz_mem_calloc (p_obj->max_clients_, sizeof (tiz_event_io_t *));
@@ -210,9 +213,8 @@ allocate_io_events (void *ap_obj, OMX_HANDLETYPE ap_hdl)
     {
       if (OMX_ErrorNone !=
           (rc =
-           tiz_event_io_init (&(p_obj->p_clnt_ev_io_lst_[i]),
-                              clnt_ev_io_cback, p_obj->p_clnt_socket_lst_[i],
-                              TIZ_EVENT_READ)))
+           tiz_event_io_init (&(p_obj->p_clnt_ev_io_lst_[i]), ap_hdl,
+                              clnt_ev_io_cback)))
         {
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "[%s] : Error initializing the server's io event",

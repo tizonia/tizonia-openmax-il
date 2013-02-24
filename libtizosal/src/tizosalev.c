@@ -52,18 +52,21 @@ struct tiz_event_io
 {
   ev_io io;
   tiz_event_io_cb_f pf_cback;
+  OMX_HANDLETYPE p_hdl;
 };
 
 struct tiz_event_timer
 {
   ev_timer timer;
   tiz_event_timer_cb_f pf_cback;
+  OMX_HANDLETYPE p_hdl;
 };
 
 struct tiz_event_stat
 {
   ev_stat stat;
   tiz_event_stat_cb_f pf_cback;
+  OMX_HANDLETYPE p_hdl;
 };
 
 typedef enum tiz_loop_thread_state tiz_loop_thread_state_t;
@@ -122,7 +125,8 @@ io_watcher_cback (struct ev_loop *ap_loop, ev_io * ap_watcher, int a_revents)
 
   TIZ_LOG (TIZ_LOG_TRACE, "io watcher cback");
 
-  p_io_event->pf_cback (p_io_event, ((ev_io *) p_io_event)->fd, a_revents);
+  p_io_event->pf_cback (p_io_event, p_io_event->p_hdl,
+                        ((ev_io *) p_io_event)->fd, a_revents);
 }
 
 static void
@@ -141,7 +145,7 @@ timer_watcher_cback (struct ev_loop *ap_loop, ev_timer * ap_watcher,
 
   TIZ_LOG (TIZ_LOG_TRACE, "timer watcher cback");
 
-  p_timer_event->pf_cback (p_timer_event);
+  p_timer_event->pf_cback (p_timer_event, p_timer_event->p_hdl);
 }
 
 static void
@@ -160,7 +164,7 @@ stat_watcher_cback (struct ev_loop *ap_loop, ev_stat * ap_watcher,
 
   TIZ_LOG (TIZ_LOG_TRACE, "stat watcher cback");
 
-  p_stat_event->pf_cback (p_stat_event, a_revents);
+  p_stat_event->pf_cback (p_stat_event, p_stat_event->p_hdl, a_revents);
 }
 
 static void *
@@ -366,15 +370,14 @@ tiz_event_loop_destroy ()
 
 OMX_ERRORTYPE
 tiz_event_io_init (tiz_event_io_t ** app_ev_io,
-                   tiz_event_io_cb_f ap_cback,
-                   int a_fd, tiz_event_io_event_t a_event)
+                   OMX_HANDLETYPE ap_hdl,
+                   tiz_event_io_cb_f ap_cback)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_event_io_t *p_io_watcher = NULL;
 
   assert (NULL != app_ev_io);
   assert (NULL != ap_cback);
-  assert (a_event < TIZ_EVENT_MAX);
   assert (NULL != gp_event_thread);
 
   if (NULL == (p_io_watcher
@@ -386,11 +389,24 @@ tiz_event_io_init (tiz_event_io_t ** app_ev_io,
     }
 
   p_io_watcher->pf_cback = ap_cback;
-  ev_io_init ((ev_io *) p_io_watcher, io_watcher_cback, a_fd, a_event);
+  p_io_watcher->p_hdl    = ap_hdl;
+  ev_init ((ev_io *) p_io_watcher, io_watcher_cback);
 
   *app_ev_io = p_io_watcher;
 
   return rc;
+}
+
+void
+tiz_event_io_set (tiz_event_io_t * ap_ev_io,
+                  int a_fd, tiz_event_io_event_t a_event)
+{
+  assert (NULL != gp_event_thread);
+  assert (NULL != ap_ev_io);
+  assert (a_fd > 0);
+  assert (a_event < TIZ_EVENT_MAX);
+
+  ev_io_set ((ev_io *) ap_ev_io, a_fd, a_event);
 }
 
 OMX_ERRORTYPE
@@ -437,8 +453,8 @@ tiz_event_io_destroy (tiz_event_io_t * ap_ev_io)
 
 OMX_ERRORTYPE
 tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
-                      tiz_event_timer_cb_f ap_cback,
-                      double a_after, double a_repeat)
+                      OMX_HANDLETYPE ap_hdl,
+                      tiz_event_timer_cb_f ap_cback)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_event_timer_t *p_timer_watcher = NULL;
@@ -454,12 +470,22 @@ tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
     }
 
   p_timer_watcher->pf_cback = ap_cback;
-  ev_timer_init ((ev_timer *) p_timer_watcher,
-                 timer_watcher_cback, a_after, a_repeat);
+  p_timer_watcher->p_hdl    = ap_hdl;
+  ev_init ((ev_timer *) p_timer_watcher, timer_watcher_cback);
 
   *app_ev_timer = p_timer_watcher;
 
   return rc;
+}
+
+void
+tiz_event_timer_set (tiz_event_timer_t * ap_ev_timer,
+                     double a_after, double a_repeat)
+{
+  assert (NULL != gp_event_thread);
+  assert (NULL != ap_ev_timer);
+
+  ev_timer_set ((ev_timer *) ap_ev_timer, a_after, a_repeat);
 }
 
 OMX_ERRORTYPE
@@ -519,14 +545,14 @@ tiz_event_timer_destroy (tiz_event_timer_t * ap_ev_timer)
 
 OMX_ERRORTYPE
 tiz_event_stat_init (tiz_event_stat_t ** app_ev_stat,
-                     tiz_event_stat_cb_f ap_cback, const char *ap_path)
+                     OMX_HANDLETYPE ap_hdl,
+                     tiz_event_stat_cb_f ap_cback)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_event_stat_t *p_stat_watcher = NULL;
 
   assert (NULL != app_ev_stat);
   assert (NULL != ap_cback);
-  assert (NULL != ap_path);
   assert (NULL != gp_event_thread);
 
   if (NULL == (p_stat_watcher = (tiz_event_stat_t *)
@@ -536,11 +562,22 @@ tiz_event_stat_init (tiz_event_stat_t ** app_ev_stat,
     }
 
   p_stat_watcher->pf_cback = ap_cback;
-  ev_stat_init ((ev_stat *) p_stat_watcher, stat_watcher_cback, ap_path, 0);
+  p_stat_watcher->p_hdl    = ap_hdl;
+  ev_init ((ev_stat *) p_stat_watcher, stat_watcher_cback);
 
   *app_ev_stat = p_stat_watcher;
 
   return rc;
+}
+
+void
+tiz_event_stat_set (tiz_event_stat_t * ap_ev_stat,
+                    const char *ap_path)
+{
+  assert (NULL != gp_event_thread);
+  assert (NULL != ap_ev_stat);
+
+  ev_stat_set ((ev_stat *) ap_ev_stat, ap_path, 0);
 }
 
 OMX_ERRORTYPE
