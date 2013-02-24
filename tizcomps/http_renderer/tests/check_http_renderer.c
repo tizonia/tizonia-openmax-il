@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   check_audio_renderer.c
+ * @file   check_http_renderer.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - PCM Audio Renderer unit tests
+ * @brief  Tizonia OpenMAX IL - HTTP Renderer unit tests
  *
  *
  */
@@ -73,7 +73,7 @@ static const OMX_U32 pg_rates[] = {
   RATE_FILE2
 };
 
-#define HTTP_RENDERER_TEST_TIMEOUT 8
+#define HTTP_RENDERER_TEST_TIMEOUT 12
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 500
@@ -476,6 +476,8 @@ START_TEST (test_http_stream)
   tiz_rcfile_open(&p_rcfile);
   fail_if (!init_test_data(p_rcfile));
 
+  TIZ_LOG (TIZ_LOG_TRACE, "Init", p_hdl);
+
   error = _ctx_init (&ctx);
   fail_if (OMX_ErrorNone != error);
 
@@ -512,6 +514,8 @@ START_TEST (test_http_stream)
   httpsrv.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
   error = OMX_GetParameter (p_hdl, OMX_TizoniaIndexParamHttpServer, &httpsrv);
+  TIZ_LOG (TIZ_LOG_TRACE, "OMX_GetParameter(OMX_TizoniaIndexParamHttpServer) = [%s]",
+           tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
   /* ---------------------------------------- */
@@ -530,7 +534,7 @@ START_TEST (test_http_stream)
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "after OMX_SendCommand");
+  TIZ_LOG (TIZ_LOG_TRACE, "Allocating buffers");
 
   /* ---------------- */
   /* Allocate buffers */
@@ -726,13 +730,13 @@ END_TEST Suite * ar_suite (void)
 {
 
   TCase *tc_icer;
-  Suite *s = suite_create ("libtizicer");
+  Suite *s = suite_create ("libtizicesink");
 
   /* test case */
   tc_icer = tcase_create ("Http Streaming");
   tcase_add_unchecked_fixture (tc_icer, setup, teardown);
   tcase_set_timeout (tc_icer, HTTP_RENDERER_TEST_TIMEOUT);
-  tcase_add_loop_test (tc_icer, test_http_stream, 0, 2);
+  tcase_add_loop_test (tc_icer, test_http_stream, 0, 1);
   suite_add_tcase (s, tc_icer);
 
   return s;
@@ -742,13 +746,18 @@ END_TEST Suite * ar_suite (void)
 int
 main (void)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - HTTP Renderer unit tests");
-
   int number_failed;
   SRunner *sr = srunner_create (ar_suite ());
+
+  tiz_log_init();
+
+  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - HTTP Renderer unit tests");
+
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
+
+  tiz_log_deinit ();
 
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

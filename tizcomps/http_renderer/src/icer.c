@@ -40,7 +40,8 @@
 #include "tizosal.h"
 #include "tizscheduler.h"
 #include "tizbinaryport.h"
-#include "tizconfigport.h"
+#include "icercfgport.h"
+
 #include "icerprc.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -87,8 +88,8 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
   OMX_PTR p_cport = NULL;
 
   /* Instantiate the config port */
-  init_tizconfigport ();
-  p_cport = factory_new (tizconfigport, NULL,   /* this port does not take options */
+  init_icercfgport ();
+  p_cport = factory_new (icercfgport, NULL,   /* this port does not take options */
                          ARATELIA_HTTP_RENDERER_COMPONENT_NAME,
                          http_renderer_version);
   assert (p_cport);

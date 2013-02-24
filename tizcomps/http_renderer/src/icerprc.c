@@ -68,7 +68,6 @@ create_server_socket (OMX_HANDLETYPE ap_hdl, int a_port,
   int sockfd, getaddrc;
 
   assert (a_port >= 0);
-  assert (NULL != a_interface);
 
   tiz_mem_set (&sa, 0, sizeof (sa));
   tiz_mem_set (&hints, 0, sizeof (hints));
