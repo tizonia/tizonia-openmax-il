@@ -54,7 +54,7 @@ icer_cfgport_ctor (void *ap_obj, va_list * app)
 {
   struct icercfgport *p_obj = super_ctor (icercfgport, ap_obj, app);
   tizport_register_index (p_obj, OMX_TizoniaIndexParamHttpServer);
-  p_obj->http_conf_.nSize = sizeof (OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE);
+  p_obj->http_conf_.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   p_obj->http_conf_.nVersion.nVersion = OMX_VERSION;
   p_obj->http_conf_.nListeningPort = 8010;
   p_obj->http_conf_.nMaxClients = 5;
@@ -80,8 +80,8 @@ icer_cfgport_GetParameter (const void *ap_obj,
 
   if (OMX_TizoniaIndexParamHttpServer == a_index)
     {
-      OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE *p_http_conf
-        = (OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE *) ap_struct;
+      OMX_TIZONIA_PARAM_HTTPSERVERTYPE *p_http_conf
+        = (OMX_TIZONIA_PARAM_HTTPSERVERTYPE *) ap_struct;
 
       *p_http_conf = p_obj->http_conf_;
     }
@@ -106,8 +106,8 @@ icer_cfgport_SetParameter (const void *ap_obj,
 
   if (OMX_TizoniaIndexParamHttpServer == a_index)
     {
-      OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE *p_http_conf
-        = (OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE *) ap_struct;
+      OMX_TIZONIA_PARAM_HTTPSERVERTYPE *p_http_conf
+        = (OMX_TIZONIA_PARAM_HTTPSERVERTYPE *) ap_struct;
       p_obj->http_conf_ = *p_http_conf;
 
       TIZ_LOG (TIZ_LOG_TRACE, "nListeningPort [%d]...",

@@ -265,6 +265,8 @@ setup_sockets (void *ap_obj, OMX_HANDLETYPE ap_hdl)
       goto end;
     }
 
+  p_obj->srv_sockfd_ = sockfd;
+
   if (OMX_ErrorNone != (rc = allocate_io_events (p_obj, ap_hdl)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
@@ -282,11 +284,9 @@ end:
       if (-1 != sockfd)
         {
           close (sockfd);
-          sockfd = -1;
+          p_obj->srv_sockfd_ = -1;
         }
     }
-
-  p_obj->srv_sockfd_ = sockfd;
 
   return rc;
 }
@@ -298,9 +298,14 @@ teardown_sockets (void *ap_obj)
 
   assert (NULL != p_obj);
 
-  p_obj->srv_sockfd_ = -1;
   tiz_mem_free (p_obj->p_clnt_socket_lst_);
   p_obj->p_clnt_socket_lst_ = NULL;
+
+  if (-1 != p_obj->srv_sockfd_)
+    {
+      close (p_obj->srv_sockfd_);
+      p_obj->srv_sockfd_ = -1;
+    }
 }
 
 static OMX_ERRORTYPE
@@ -378,7 +383,7 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   const struct tizservant *p_parent = ap_obj;
   void *p_krn = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE httpsrv;
+  OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
 
   assert (NULL != ap_obj);
   assert (p_parent->p_hdl_);
@@ -387,7 +392,7 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   assert (p_krn);
 
   /* Retrieve http server configuration from the component's config port */
-  httpsrv.nSize = sizeof (OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE);
+  httpsrv.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
   if (OMX_ErrorNone != (rc = tizapi_GetParameter
                         (p_krn, p_parent->p_hdl_,

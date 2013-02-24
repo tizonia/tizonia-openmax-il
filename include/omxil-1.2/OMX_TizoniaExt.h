@@ -59,17 +59,17 @@ typedef struct OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE
 #define OMX_ROLE_AUDIO_RENDERER_SHOUTCAST_MP3   "audio_renderer.shoutcast.mp3"
 #define OMX_ROLE_AUDIO_RENDERER_SHOUTCAST_VORBIS   "audio_renderer.shoutcast.vorbis"
 
-#define OMX_TizoniaIndexParamHttpServer 0x7F000002           /**< reference: OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE */
+#define OMX_TizoniaIndexParamHttpServer 0x7F000002           /**< reference: OMX_TIZONIA_PARAM_HTTPSERVERTYPE */
 #define OMX_TizoniaIndexConfigShoutcastMetadata 0x7F000003   /**< reference: OMX_TIZONIA_AUDIO_CONFIG_SHOUTCASTMETADATATYPE */
 
-typedef struct OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE {
+typedef struct OMX_TIZONIA_PARAM_HTTPSERVERTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nListeningPort;
     OMX_U32 nMaxClients;
-} OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE;
+} OMX_TIZONIA_PARAM_HTTPSERVERTYPE;
 
-typedef struct OMX_TIZONIA_AUDIO_CONFIG_SHOUTCASTMETADATATYPE {
+typedef struct OMX_TIZONIA_CONFIG_SHOUTCASTMETADATATYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;

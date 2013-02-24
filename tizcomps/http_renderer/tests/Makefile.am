@@ -15,6 +15,21 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+TESTS = check_http_renderer
 
-SUBDIRS = src tests
+check_PROGRAMS = check_http_renderer
+
+check_http_renderer_SOURCES = check_http_renderer.c
+
+check_http_renderer_CFLAGS = \
+	-I$(top_srcdir)/../../include/omxil-1.2 \
+	-I$(top_srcdir)/../../libtizosal/src \
+	-I$(top_srcdir)/../../libtizonia/src/ \
+	@CHECK_CFLAGS@
+
+check_http_renderer_LDADD = \
+	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizcore/src/libtizcore.la \
+	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	@CHECK_LIBS@
 

@@ -87,3 +87,10 @@ OMX.Aratelia.yuv_renderer.overlay.testfile1_uri = /home/user/temp/tizonia-test-m
 ###############
 
 OMX.Aratelia.video_decoder.vp8.testfile1_uri = /home/user/temp/tizonia-test-media/ivf/bbb_640x360_25fps_vp8_yuv420p.ivf
+
+#################
+# HTTP Renderer #
+#################
+
+OMX.Aratelia.ice_renderer.http.testfile1_uri = /home/joni/temp/tizonia-test-media/mp3/riff_rock.mp3
+OMX.Aratelia.ice_renderer.http.testfile2_uri = /home/joni/temp/tizonia-test-media/mp3/riff_rock.streamed.mp3

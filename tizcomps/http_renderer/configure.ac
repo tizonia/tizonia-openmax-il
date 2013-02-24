@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_PREREQ([2.67])
+AC_PREREQ([2.68])
 AC_INIT([libtizicesink], [0.1], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
@@ -28,24 +28,34 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
+AC_PROG_CPP
 AM_PROG_CC_C_O
-AC_PROG_GCC_TRADITIONAL
-LT_INIT
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+LT_INIT
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 # Checks for header files.
+AC_CHECK_HEADERS([fcntl.h limits.h netdb.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
 
 # Checks for library functions.
+AC_FUNC_FORK
+AC_CHECK_FUNCS([socket strerror strndup])
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 tests/Makefile])
 
 # End the configure script.
 AC_OUTPUT

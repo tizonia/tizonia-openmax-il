@@ -43,7 +43,7 @@ extern "C"
   {
     /* Object */
     const struct tizconfigport _;
-    OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE http_conf_;
+    OMX_TIZONIA_PARAM_HTTPSERVERTYPE http_conf_;
   };
 
   struct icercfgport_class
