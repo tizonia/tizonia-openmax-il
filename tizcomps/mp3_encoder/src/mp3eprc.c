@@ -443,10 +443,14 @@ mp3e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   struct mp3eprc *p_obj = ap_obj;
   const struct tizservant *p_parent = ap_obj;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = NULL;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
   assert (ap_obj);
+  assert (p_parent->p_hdl_);
+
+  p_krn = tiz_get_krn (p_parent->p_hdl_);
+  assert (p_krn);
 
   if (NULL == p_obj->lame_)
     {
