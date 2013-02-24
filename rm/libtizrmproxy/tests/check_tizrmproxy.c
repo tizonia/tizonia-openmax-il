@@ -1150,6 +1150,8 @@ main (void)
   int number_failed;
   SRunner *sr = srunner_create (rmproxy_suite ());
 
+  tiz_log_init();
+
   TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - RM client unit tests");
 
   /* Enable extra debugging info for D-BUSXX */
@@ -1158,6 +1160,8 @@ main (void)
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
+
+  tiz_log_deinit ();
 
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

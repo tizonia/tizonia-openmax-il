@@ -43,5 +43,5 @@ void __attribute__ ((constructor)) tiz_osal_load (void)
 void __attribute__ ((destructor)) tiz_osal_unload (void)
 {
   (void) tiz_event_loop_destroy ();
-  tiz_log_deinit ();
+/*   tiz_log_deinit (); */
 }
