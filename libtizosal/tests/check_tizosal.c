@@ -50,19 +50,27 @@
 #define EVENT_API_TEST_TIMEOUT 100
 
 Suite *
-tiz_main_suite (void)
+osal_mem_suite (void)
 {
-
-  TCase *tc_mem, *tc_sem, *tc_queue, *tc_pqueue, *tc_vector, *tc_rc, *tc_soa;
-  Suite *s = suite_create ("tizosal");
+  TCase *tc_mem = NULL;
+  Suite *s = suite_create ("Memory allocation APIs");
 
   /* Memory API test case */
   tc_mem = tcase_create ("memory");
   tcase_add_test (tc_mem, test_mem_alloc_and_free);
   suite_add_tcase (s, tc_mem);
 
+  return s;
+}
+
+Suite *
+osal_sync_suite (void)
+{
+  TCase *tc_sem = NULL;
+  Suite *s = suite_create ("Synchronization");
+
   /* synch APIs test case */
-  tc_sem = tcase_create ("synchAPIs");
+  tc_sem = tcase_create ("synchronization");
   tcase_add_test (tc_sem, test_sem_init_and_destroy);
   tcase_add_test (tc_sem, test_sem_post_and_wait);
   tcase_add_test_raise_signal (tc_sem, test_sem_init_null, SIGABRT);
@@ -77,14 +85,32 @@ tiz_main_suite (void)
   tcase_add_test_raise_signal (tc_sem, test_mutex_unlock_null, SIGABRT);
   suite_add_tcase (s, tc_sem);
 
+  return s;
+}
+
+Suite *
+osal_queue_suite (void)
+{
+  TCase *tc_queue = NULL;
+  Suite *s = suite_create ("Synchronized FIFO queue");
+
   /* queue API test case */
-  tc_queue = tcase_create ("queueAPI");
+  tc_queue = tcase_create ("queue");
   tcase_add_test (tc_queue, test_queue_init_and_destroy);
   tcase_add_test (tc_queue, test_queue_send_and_receive);
   suite_add_tcase (s, tc_queue);
 
+  return s;
+}
+
+Suite *
+osal_pqueue_suite (void)
+{
+  TCase *tc_pqueue = NULL;
+  Suite *s = suite_create ("FIFO priority queue");
+
   /* pqueue API test case */
-  tc_pqueue = tcase_create ("priority queueAPI");
+  tc_pqueue = tcase_create ("priority queue");
   tcase_add_test (tc_pqueue, test_pqueue_init_and_destroy);
   tcase_add_test (tc_pqueue, test_pqueue_send_and_receive_one_group);
   tcase_add_test (tc_pqueue, test_pqueue_send_and_receive_two_groups);
@@ -94,24 +120,51 @@ tiz_main_suite (void)
   tcase_add_test (tc_pqueue, test_pqueue_removep);
   suite_add_tcase (s, tc_pqueue);
 
+  return s;
+}
+
+Suite *
+osal_vector_suite (void)
+{
+  TCase *tc_vector = NULL;
+  Suite *s = suite_create ("Dynamic array implementation");
+
   /* vector API test case */
-  tc_vector = tcase_create ("vector API");
+  tc_vector = tcase_create ("vector");
   tcase_add_test (tc_vector, test_vector_init_and_destroy);
   tcase_add_test (tc_vector, test_vector_push_and_pop_length_front_back_ints);
   tcase_add_test (tc_vector, test_vector_push_and_pop_length_front_back_pointers);
   tcase_add_test (tc_vector, test_vector_push_back_vector);
   suite_add_tcase (s, tc_vector);
 
+  return s;
+}
+
+Suite *
+osal_rcfile_suite (void)
+{
+  TCase *tc_rc = NULL;
+  Suite *s = suite_create ("Runcon file parsing APIs");
+
   /* config file parsing API test cases */
-  tc_rc = tcase_create ("rc file parsing API");
+  tc_rc = tcase_create ("rcfile");
   tcase_add_test (tc_rc, test_rcfile_open_and_close);
   tcase_add_test (tc_rc, test_rcfile_get_single_value);
   tcase_add_test (tc_rc, test_rcfile_get_unexistent_value);
   tcase_add_test (tc_rc, test_rcfile_get_value_list);
   suite_add_tcase (s, tc_rc);
 
+  return s;
+}
+
+Suite *
+osal_soa_suite (void)
+{
+  TCase *tc_soa = NULL;
+  Suite *s = suite_create ("Small object allocation APIs");
+
   /* small object allocation API test cases */
-  tc_soa = tcase_create ("small object allocation API");
+  tc_soa = tcase_create ("soa");
   tcase_add_test (tc_soa, test_soa_basic_life_cycle);
   tcase_add_test (tc_soa, test_soa_reserve_life_cycle);
   suite_add_tcase (s, tc_soa);
@@ -120,7 +173,7 @@ tiz_main_suite (void)
 }
 
 Suite *
-tiz_event_suite (void)
+osal_event_suite (void)
 {
   TCase  *tc_event;
   Suite *s = suite_create ("events");
@@ -145,14 +198,20 @@ main (void)
 
   TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OSAL unit tests");
 
-  sr = srunner_create (tiz_main_suite ());
+  sr = srunner_create (osal_mem_suite ());
+  srunner_add_suite (sr, osal_sync_suite ());
+  srunner_add_suite (sr, osal_queue_suite ());
+  srunner_add_suite (sr, osal_pqueue_suite ());
+  srunner_add_suite (sr, osal_vector_suite ());
+  srunner_add_suite (sr, osal_rcfile_suite ());
+  srunner_add_suite (sr, osal_soa_suite ());
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
 
   /* For events unit testing, create a separate suite and runner that use the
      NO FORK mode */
-  sr = srunner_create (tiz_event_suite ());
+  sr = srunner_create (osal_event_suite ());
   srunner_set_fork_status (sr, CK_NOFORK);
   srunner_run_all (sr, CK_VERBOSE);
   number_failed += srunner_ntests_failed (sr);
