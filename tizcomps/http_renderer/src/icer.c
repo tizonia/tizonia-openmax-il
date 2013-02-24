@@ -88,7 +88,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 
   /* Instantiate the config port */
   init_tizconfigport ();
-  p_cport = factory_new (tizconfigport, NULL,       /* this port does not take options */
+  p_cport = factory_new (tizconfigport, NULL,   /* this port does not take options */
                          ARATELIA_HTTP_RENDERER_COMPONENT_NAME,
                          http_renderer_version);
   assert (p_cport);
@@ -120,7 +120,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_HTTP_RENDERER_COMPONENT_NAME);
 
-  strcpy ((OMX_STRING) role_factory.role, ARATELIA_HTTP_RENDERER_DEFAULT_ROLE);
+  strcpy ((OMX_STRING) role_factory.role,
+          ARATELIA_HTTP_RENDERER_DEFAULT_ROLE);
   role_factory.pf_cport = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_binary_port;
   role_factory.nports = 1;

@@ -36,6 +36,8 @@ extern "C"
 
 #include <stdbool.h>
 
+#include "tizosal.h"
+
 #include "icerprc.h"
 #include "tizproc_decls.h"
 
@@ -43,7 +45,17 @@ extern "C"
   {
     /* Object */
     const struct tizproc _;
+    OMX_STRING bind_address_;   /* if this is null, the server will listen on all
+                                 * interfaces. */
+    OMX_U32 listening_port_;
+    OMX_STRING mount_name_;
+    OMX_U32 max_clients_;
+    OMX_U32 burst_size_;
     bool eos_;
+    int srv_sockfd_;
+    int *p_clnt_socket_lst_;
+    tiz_event_io_t *p_srv_ev_io_;
+    tiz_event_io_t **p_clnt_ev_io_lst_;
   };
 
 #ifdef __cplusplus

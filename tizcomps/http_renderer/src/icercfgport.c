@@ -73,8 +73,8 @@ icer_cfgport_dtor (void *ap_obj)
 
 static OMX_ERRORTYPE
 icer_cfgport_GetParameter (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
-                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                           OMX_HANDLETYPE ap_hdl,
+                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct icercfgport *p_obj = ap_obj;
 
@@ -97,8 +97,8 @@ icer_cfgport_GetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 icer_cfgport_SetParameter (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
-                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                           OMX_HANDLETYPE ap_hdl,
+                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   struct icercfgport *p_obj = (struct icercfgport *) ap_obj;
 
@@ -110,8 +110,10 @@ icer_cfgport_SetParameter (const void *ap_obj,
         = (OMX_TIZONIA_AUDIO_PARAM_HTTPSERVERTYPE *) ap_struct;
       p_obj->http_conf_ = *p_http_conf;
 
-      TIZ_LOG (TIZ_LOG_TRACE, "nListeningPort [%d]...", p_obj->http_conf_.nListeningPort);
-      TIZ_LOG (TIZ_LOG_TRACE, "nMaxClients [%d]...", p_obj->http_conf_.nMaxClients);
+      TIZ_LOG (TIZ_LOG_TRACE, "nListeningPort [%d]...",
+               p_obj->http_conf_.nListeningPort);
+      TIZ_LOG (TIZ_LOG_TRACE, "nMaxClients [%d]...",
+               p_obj->http_conf_.nMaxClients);
     }
   else
     {
@@ -130,7 +132,8 @@ icer_cfgport_SetParameter (const void *ap_obj,
 static void *
 icer_cfgport_class_ctor (void *ap_obj, va_list * app)
 {
-  struct icercfgport_class *p_obj = super_ctor (icercfgport_class, ap_obj, app);
+  struct icercfgport_class *p_obj =
+    super_ctor (icercfgport_class, ap_obj, app);
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
@@ -168,10 +171,10 @@ init_icercfgport (void)
     {
       init_tizconfigport ();
       icercfgport_class = factory_new (tizconfigport_class,
-                                     "icercfgport_class",
-                                     tizconfigport_class,
-                                     sizeof (struct icercfgport_class),
-                                     ctor, icer_cfgport_class_ctor, 0);
+                                       "icercfgport_class",
+                                       tizconfigport_class,
+                                       sizeof (struct icercfgport_class),
+                                       ctor, icer_cfgport_class_ctor, 0);
 
     }
 
