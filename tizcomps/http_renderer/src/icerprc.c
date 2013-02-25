@@ -33,6 +33,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -57,6 +58,12 @@
 
 #define ICE_RENDERER_SOCK_ERROR (int)-1
 #define ICE_RENDERER_LISTEN_QUEUE 5
+
+#ifdef INET6_ADDRSTRLEN
+#define ICE_RENDERER_MAX_ADDR_LEN INET6_ADDRSTRLEN
+#else
+#define ICE_RENDERER_MAX_ADDR_LEN 46
+#endif
 
 static int
 create_server_socket (OMX_HANDLETYPE ap_hdl, int a_port,
@@ -351,6 +358,93 @@ start_listening (void *ap_obj, OMX_HANDLETYPE ap_hdl)
   return OMX_ErrorNone;
 }
 
+static inline bool
+valid_socket (int a_socketfd)
+{
+  int optval;
+  socklen_t optlen = sizeof (int);
+  return (0 ==  getsockopt(a_socketfd, SOL_SOCKET,
+                           SO_TYPE, (void*) &optval, &optlen));
+}
+
+static inline int
+sock_set_nolinger(int sock)
+{
+  struct linger lin = { 0, 0 };
+  return setsockopt(sock, SOL_SOCKET, SO_LINGER, (void *)&lin,
+                    sizeof(struct linger));
+}
+
+static inline int
+sock_set_nodelay (int sock)
+{
+  int nodelay = 1;
+
+  return setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (void *)&nodelay,
+                    sizeof(int));
+}
+
+static int
+accept_socket (void *ap_obj, OMX_HANDLETYPE ap_hdl, char *ap_ip, size_t a_ip_len)
+{
+  struct icerprc *p_obj = ap_obj;
+  struct sockaddr_storage sa;
+  int accepted_socket = ICE_RENDERER_SOCK_ERROR;
+  socklen_t slen = sizeof (sa);
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_ip);
+
+  if (!valid_socket (p_obj->srv_sockfd_))
+    {
+      return ICE_RENDERER_SOCK_ERROR;
+    }
+
+  accepted_socket = accept (p_obj->srv_sockfd_, (struct sockaddr *)&sa, &slen);
+
+  if (accepted_socket != ICE_RENDERER_SOCK_ERROR)
+    {
+      if (getnameinfo ((struct sockaddr *)&sa, slen, ap_ip, a_ip_len,
+                       NULL, 0, NI_NUMERICHOST))
+        {
+          /* TODO: Print log message with errno value  */
+          snprintf (a_ip, a_ip_len, "unknown");
+        }
+
+      sock_set_nolinger(accepted_socket);
+      sock_set_keepalive(accepted_socket);
+    }
+
+  return accepted_socket;
+}
+
+static icer_connection_t *
+accept_connection (void *ap_obj, OMX_HANDLETYPE ap_hdl)
+{
+  char *p_ip;
+  int connected_socket = -1;
+
+  /* Allocate enough room for an ipv4 or ipv6 IP address */
+  p_ip = (char *) tiz_mem_malloc (ICE_RENDERER_MAX_ADDR_LEN);
+  connected_socket = accept_socket (p_obj, ap_hdl, p_ip, ICE_RENDERER_MAX_ADDR_LEN);
+
+    if (sock != SOCK_ERROR)
+    {
+        connection_t *con = NULL;
+        /* Make any IPv4 mapped IPv6 address look like a normal IPv4 address */
+        if (strncmp (ip, "::ffff:", 7) == 0)
+            memmove (ip, ip+7, strlen (ip+7)+1);
+
+        if (accept_ip_address (ip))
+            con = connection_create (sock, serversock, ip);
+        if (con)
+            return con;
+        sock_close (sock);
+    }
+
+}
+
 static OMX_ERRORTYPE
 read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
@@ -536,6 +630,7 @@ icer_receive_event_io (void *ap_obj,
 {
   struct icerprc *p_obj = ap_obj;
   struct tizservant *p_parent = ap_obj;
+  icer_connection_t *p_con = NULL;
 
   assert (NULL != p_obj);
 
@@ -543,9 +638,9 @@ icer_receive_event_io (void *ap_obj,
                  TIZ_CBUF (p_parent->p_hdl_),
                  "received io event on fd [%d] ", a_fd);
 
-/*   con = accept_connection (p_obj, p_parent->p_hdl_); */
+  p_con = accept_connection (p_obj, p_parent->p_hdl_);
 
-/*   create_listener (p_obj, p_parent->p_hdl_, con); */
+/*   create_listener (p_obj, p_parent->p_hdl_, p_con); */
 
 
   stop_io_watchers (p_obj, p_parent->p_hdl_);
