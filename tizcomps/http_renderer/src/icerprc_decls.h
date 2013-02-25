@@ -41,6 +41,29 @@ extern "C"
 #include "icerprc.h"
 #include "tizproc_decls.h"
 
+/*   typedef struct ice_connection ice_connection_t; */
+/*   struct ice_connection */
+/*   { */
+/*     time_t con_time; */
+/*     time_t discon_time; */
+/*     uint64_t sent_bytes; */
+/*     sock_t sock; */
+/*     int error; */
+/*     char *ip; */
+/*     char *host; */
+/*   }; */
+
+/*   typedef struct ice_listener ice_listener_t; */
+/*   struct ice_listener */
+/*   { */
+/*     ice_connection_t *con; */
+/*     http_parser_t *parser; */
+/*     int respcode; */
+/*     long intro_offset; */
+/*     refbuf_t *refbuf; */
+/*     unsigned int pos; */
+/*   }; */
+
   struct icerprc
   {
     /* Object */

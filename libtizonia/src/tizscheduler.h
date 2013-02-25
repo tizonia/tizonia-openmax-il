@@ -125,7 +125,6 @@ extern "C"
     OMX_S32 npeers;
   };
 
-
   typedef struct tizevent tizevent_t;
 
   typedef void (*tiz_pluggable_event_hdlr_f) (OMX_PTR ap_servant,
@@ -137,6 +136,21 @@ extern "C"
     OMX_PTR p_servant;
     OMX_PTR p_data;
     tiz_pluggable_event_hdlr_f pf_hdlr;
+  };
+
+  typedef OMX_U8 *(*tiz_port_alloc_hook_f) (OMX_U32 * ap_size,
+                                            OMX_PTR * app_port_priv,
+                                            void *ap_args);
+
+  typedef void (*tiz_port_free_hook_f) (OMX_PTR ap_buf,
+                                        OMX_PTR ap_port_priv, void *ap_args);
+
+  typedef struct tiz_port_alloc_hooks tiz_port_alloc_hooks_t;
+  struct tiz_port_alloc_hooks
+  {
+    tiz_port_alloc_hook_f pf_alloc;
+    tiz_port_free_hook_f pf_free;
+    void *p_args;
   };
 
 /**
@@ -158,30 +172,22 @@ extern "C"
   OMX_ERRORTYPE tiz_receive_pluggable_event (OMX_HANDLETYPE ap_hdl,
                                              tizevent_t * ap_event);
 
+  OMX_ERRORTYPE tiz_register_port_alloc_hooks (OMX_HANDLETYPE ap_hdl,
+                                               const OMX_U32 a_pid,
+                                               const tiz_port_alloc_hooks_t *
+                                               ap_new_hooks,
+                                               tiz_port_alloc_hooks_t *
+                                               ap_old_hooks);
 
-  typedef OMX_U8 *(*tiz_port_alloc_hook_f) (OMX_U32 * ap_size,
-                                            OMX_PTR * app_port_priv,
-                                            void *ap_args);
+  void tiz_receive_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t * ap_ev_io, int a_fd,
+                             int a_events);
 
-  typedef void (*tiz_port_free_hook_f) (OMX_PTR ap_buf,
-                                        OMX_PTR ap_port_priv, void *ap_args);
+  void tiz_receive_event_timer (OMX_HANDLETYPE ap_hdl, tiz_event_timer_t * ap_ev_timer);
 
-  typedef struct tiz_port_alloc_hooks tiz_port_alloc_hooks_t;
-  struct tiz_port_alloc_hooks
-  {
-    tiz_port_alloc_hook_f pf_alloc;
-    tiz_port_free_hook_f pf_free;
-    void *p_args;
-  };
+  void tiz_receive_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t * ap_ev_stat,
+                               int a_events);
 
-    OMX_ERRORTYPE
-    tiz_register_port_alloc_hooks (OMX_HANDLETYPE ap_hdl,
-                                   const OMX_U32 a_pid,
-                                   const tiz_port_alloc_hooks_t *
-                                   ap_new_hooks,
-                                   tiz_port_alloc_hooks_t * ap_old_hooks);
-
-/* Utility functions */
+  /* Utility functions */
 
   void *tiz_get_fsm (const OMX_HANDLETYPE ap_hdl);
 

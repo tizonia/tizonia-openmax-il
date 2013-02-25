@@ -125,7 +125,7 @@ io_watcher_cback (struct ev_loop *ap_loop, ev_io * ap_watcher, int a_revents)
 
   TIZ_LOG (TIZ_LOG_TRACE, "io watcher cback");
 
-  p_io_event->pf_cback (p_io_event, p_io_event->p_hdl,
+  p_io_event->pf_cback (p_io_event->p_hdl, p_io_event,
                         ((ev_io *) p_io_event)->fd, a_revents);
 }
 
@@ -145,7 +145,7 @@ timer_watcher_cback (struct ev_loop *ap_loop, ev_timer * ap_watcher,
 
   TIZ_LOG (TIZ_LOG_TRACE, "timer watcher cback");
 
-  p_timer_event->pf_cback (p_timer_event, p_timer_event->p_hdl);
+  p_timer_event->pf_cback (p_timer_event->p_hdl, p_timer_event);
 }
 
 static void
@@ -164,7 +164,7 @@ stat_watcher_cback (struct ev_loop *ap_loop, ev_stat * ap_watcher,
 
   TIZ_LOG (TIZ_LOG_TRACE, "stat watcher cback");
 
-  p_stat_event->pf_cback (p_stat_event, p_stat_event->p_hdl, a_revents);
+  p_stat_event->pf_cback (p_stat_event->p_hdl, p_stat_event, a_revents);
 }
 
 static void *
@@ -178,7 +178,7 @@ event_loop_thread_func (void *p_arg)
   p_loop = p_loop_thread->p_loop;
   assert (NULL != p_loop);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "event loop [%p]", p_loop);
+  TIZ_LOG (TIZ_LOG_TRACE, "thread [%p] - loop [%p]", p_loop_thread, p_loop);
 
   TIZ_LOG (TIZ_LOG_TRACE, "Entering the dispatcher...");
   tiz_sem_post (&(p_loop_thread->sem));
@@ -333,6 +333,9 @@ tiz_event_loop_init ()
       return OMX_ErrorInsufficientResources;
     }
 
+  TIZ_LOG (TIZ_LOG_ERROR, "thread [%p] loop [%p] ", gp_event_thread,
+           gp_event_thread->p_loop);
+
   return OMX_ErrorNone;
 }
 
@@ -346,7 +349,8 @@ tiz_event_loop_destroy ()
                gp_event_thread->ref_count);
       if (--(gp_event_thread->ref_count) == 0)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Last client: destroying event loop.");
+          TIZ_LOG (TIZ_LOG_TRACE, "Last client: destroying thread [%p].",
+                   gp_event_thread);
           gp_event_thread->state = ETIZEventLoopStateStopping;
           ev_unref (gp_event_thread->p_loop);
           ev_async_send (gp_event_thread->p_loop,
@@ -414,6 +418,9 @@ tiz_event_io_start (tiz_event_io_t * ap_ev_io)
 {
   assert (NULL != gp_event_thread);
   assert (NULL != ap_ev_io);
+
+  TIZ_LOG (TIZ_LOG_TRACE,
+           "Started io watcher on fd [%d]", ((ev_io *) ap_ev_io)->fd);
 
   pthread_mutex_lock (gp_event_thread->mutex);
   ev_io_start (gp_event_thread->p_loop, (ev_io *) ap_ev_io);

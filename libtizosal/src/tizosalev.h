@@ -72,14 +72,16 @@ extern "C"
    * 
    * @ingroup event
    */
-  typedef void (*tiz_event_io_cb_f) (tiz_event_io_t * p_ev_io,
-                                     OMX_HANDLETYPE p_hdl, int fd, int events);
+  typedef void (*tiz_event_io_cb_f) (OMX_HANDLETYPE ap_hdl,
+                                     tiz_event_io_t * ap_ev_io,
+                                     int a_fd, int a_events);
 
-  typedef void (*tiz_event_timer_cb_f) (tiz_event_timer_t * p_ev_timer,
-                                        OMX_HANDLETYPE p_hdl);
+  typedef void (*tiz_event_timer_cb_f) (OMX_HANDLETYPE ap_hdl,
+                                        tiz_event_timer_t * ap_ev_timer);
 
-  typedef void (*tiz_event_stat_cb_f) (tiz_event_stat_t * p_ev_stat,
-                                       OMX_HANDLETYPE p_hdl, int events);
+  typedef void (*tiz_event_stat_cb_f) (OMX_HANDLETYPE ap_hdl,
+                                       tiz_event_stat_t * ap_ev_stat,
+                                       int a_events);
 
   typedef enum tiz_event_io_event
   {

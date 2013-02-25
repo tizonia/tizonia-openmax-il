@@ -55,7 +55,7 @@ static bool g_timer_restarted = false;
 static bool g_file_status_changed = false;
 
 static void
-check_event_io_cback (tiz_event_io_t * ap_ev_io, OMX_HANDLETYPE p_hdl, int fd,
+check_event_io_cback (OMX_HANDLETYPE p_hdl, tiz_event_io_t * ap_ev_io, int fd,
                       int events)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
@@ -119,7 +119,7 @@ stop_udp_server(int sockfd)
 }
 
 static void
-check_event_timer_cback (tiz_event_timer_t * ap_ev_timer, OMX_HANDLETYPE p_hdl)
+check_event_timer_cback (OMX_HANDLETYPE p_hdl, tiz_event_timer_t * ap_ev_timer)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
@@ -150,7 +150,7 @@ check_event_timer_cback (tiz_event_timer_t * ap_ev_timer, OMX_HANDLETYPE p_hdl)
 }
 
 static void
-check_event_stat_cback (tiz_event_stat_t * ap_ev_stat, OMX_HANDLETYPE p_hdl,
+check_event_stat_cback (OMX_HANDLETYPE p_hdl, tiz_event_stat_t * ap_ev_stat,
                         int events)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;

@@ -42,6 +42,7 @@
 #include "tizscheduler.h"
 #include "tizfsm.h"
 #include "tizkernel.h"
+#include "tizproc.h"
 #include "tizport.h"
 #include "OMX_TizoniaExt.h"
 
@@ -77,6 +78,9 @@ enum tizsched_msg_class
   ETIZSchedMsgPluggableEvent,
   ETIZSchedMsgRegisterRoles,
   ETIZSchedMsgRegisterPortHooks,
+  ETIZSchedMsgEvIo,
+  ETIZSchedMsgEvTimer,
+  ETIZSchedMsgEvStat,
   ETIZSchedMsgMax,
 };
 
@@ -196,6 +200,27 @@ struct tizsched_msg_regphooks
   tiz_port_alloc_hooks_t *p_old_hooks;
 };
 
+typedef struct tizsched_msg_ev_io tizsched_msg_ev_io_t;
+struct tizsched_msg_ev_io
+{
+  tiz_event_io_t * p_ev_io;
+  int fd;
+  int events;
+};
+
+typedef struct tizsched_msg_ev_timer tizsched_msg_ev_timer_t;
+struct tizsched_msg_ev_timer
+{
+  tiz_event_timer_t * p_ev_timer;
+};
+
+typedef struct tizsched_msg_ev_stat tizsched_msg_ev_stat_t;
+struct tizsched_msg_ev_stat
+{
+  tiz_event_stat_t * p_ev_stat;
+  int events;
+};
+
 typedef struct tizsched_msg tizsched_msg_t;
 struct tizsched_msg
 {
@@ -221,6 +246,9 @@ struct tizsched_msg
     tizsched_msg_plg_event_t pe;
     tizsched_msg_regroles_t rr;
     tizsched_msg_regphooks_t rph;
+    tizsched_msg_ev_io_t eio;
+    tizsched_msg_ev_timer_t etmr;
+    tizsched_msg_ev_stat_t estat;
   };
 };
 
@@ -267,6 +295,12 @@ static OMX_ERRORTYPE do_rr (tiz_scheduler_t *, tizsched_state_t *,
                             tizsched_msg_t *);
 static OMX_ERRORTYPE do_rph (tiz_scheduler_t *, tizsched_state_t *,
                              tizsched_msg_t *);
+static OMX_ERRORTYPE do_eio (tiz_scheduler_t *, tizsched_state_t *,
+                             tizsched_msg_t *);
+static OMX_ERRORTYPE do_etmr (tiz_scheduler_t *, tizsched_state_t *,
+                              tizsched_msg_t *);
+static OMX_ERRORTYPE do_estat (tiz_scheduler_t *, tizsched_state_t *,
+                               tizsched_msg_t *);
 
 static OMX_ERRORTYPE init_servants (tiz_scheduler_t *, tizsched_msg_t *);
 static OMX_ERRORTYPE deinit_servants (tiz_scheduler_t *, tizsched_msg_t *);
@@ -303,6 +337,9 @@ static const tizsched_msg_dispatch_f tizsched_msg_to_fnt_tbl[] = {
   do_plgevt,
   do_rr,
   do_rph,
+  do_eio,
+  do_etmr,
+  do_estat,
 };
 
 static OMX_BOOL
@@ -1347,6 +1384,72 @@ do_rph (tiz_scheduler_t * ap_sched,
   }
 
   return rc;
+}
+
+static OMX_ERRORTYPE
+do_eio (tiz_scheduler_t * ap_sched,
+        tizsched_state_t * ap_state, tizsched_msg_t * ap_msg)
+{
+  tizsched_msg_ev_io_t *p_msg_eio = NULL;
+
+  TIZ_LOG_CNAME (TIZ_LOG_NOTICE, TIZ_CNAME (ap_sched->child.p_hdl),
+                 TIZ_CBUF (ap_sched->child.p_hdl),
+                 "ETIZSchedMsgEvIo received...");
+
+  assert (NULL != ap_sched);
+  assert (NULL != ap_msg);
+  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+
+  p_msg_eio = &(ap_msg->eio);
+  assert (NULL != p_msg_eio);
+
+  return tizproc_receive_event_io (ap_sched->child.p_prc,
+                                   p_msg_eio->p_ev_io,
+                                   p_msg_eio->fd,
+                                   p_msg_eio->events);
+}
+
+static OMX_ERRORTYPE
+do_etmr (tiz_scheduler_t * ap_sched,
+        tizsched_state_t * ap_state, tizsched_msg_t * ap_msg)
+{
+  tizsched_msg_ev_timer_t *p_msg_etmr = NULL;
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
+                 TIZ_CBUF (ap_sched->child.p_hdl),
+                 "ETIZSchedMsgEvTimer received...");
+
+  assert (NULL != ap_sched);
+  assert (NULL != ap_msg);
+  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+
+  p_msg_etmr = &(ap_msg->etmr);
+  assert (NULL != p_msg_etmr);
+
+  return tizproc_receive_event_timer (ap_sched->child.p_prc,
+                                      p_msg_etmr->p_ev_timer);
+}
+
+static OMX_ERRORTYPE
+do_estat (tiz_scheduler_t * ap_sched,
+        tizsched_state_t * ap_state, tizsched_msg_t * ap_msg)
+{
+  tizsched_msg_ev_stat_t *p_msg_estat = NULL;
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
+                 TIZ_CBUF (ap_sched->child.p_hdl),
+                 "ETIZSchedMsgEvStat received...");
+
+  assert (NULL != ap_sched);
+  assert (NULL != ap_msg);
+  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+
+  p_msg_estat = &(ap_msg->estat);
+  assert (NULL != p_msg_estat);
+
+  return tizproc_receive_event_stat (ap_sched->child.p_prc,
+                                     p_msg_estat->p_ev_stat,
+                                     p_msg_estat->events);
 }
 
 static inline tizsched_msg_t *
@@ -2573,6 +2676,112 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
     }
 
   return rc;
+}
+
+void
+tiz_receive_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t * ap_ev_io, int a_fd,
+                    int a_events)
+{
+  tizsched_msg_t *p_msg = NULL;
+  tizsched_msg_ev_io_t *p_msg_eio = NULL;
+  tiz_scheduler_t *p_sched = NULL;
+
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_ev_io);
+
+  TIZ_LOG_CNAME (TIZ_LOG_NOTICE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Receiving an io event on fd [%d] ", a_fd);
+
+  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
+
+  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
+                                               ETIZSchedMsgEvIo,
+                                               OMX_FALSE)))
+    {
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "[OMX_ErrorInsufficientResources] : Unable to receive event");
+      return;
+    }
+
+  /* Finish-up this message */
+  p_msg_eio = &(p_msg->eio);
+  assert (NULL != p_msg_eio);
+
+  p_msg_eio->p_ev_io = ap_ev_io;
+  p_msg_eio->fd = a_fd;
+  p_msg_eio->events = a_events;
+
+  /* TODO: Shouldn't mask this return code */
+  (void) send_msg (p_sched, p_msg);
+}
+
+void
+tiz_receive_event_timer (OMX_HANDLETYPE ap_hdl, tiz_event_timer_t * ap_ev_timer)
+{
+  tizsched_msg_t *p_msg = NULL;
+  tizsched_msg_ev_timer_t *p_msg_etmr = NULL;
+  tiz_scheduler_t *p_sched = NULL;
+
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_ev_timer);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Receiving a timer event");
+
+  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
+
+  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
+                                               ETIZSchedMsgEvTimer,
+                                               OMX_FALSE)))
+    {
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "[OMX_ErrorInsufficientResources] : Unable to receive event");
+      return;
+    }
+
+  /* Finish-up this message */
+  p_msg_etmr = &(p_msg->etmr);
+  assert (NULL != p_msg_etmr);
+
+  p_msg_etmr->p_ev_timer = ap_ev_timer;
+
+  /* TODO: Shouldn't mask this return code */
+  (void) send_msg (p_sched, p_msg);
+}
+
+void
+tiz_receive_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t * ap_ev_stat,
+                      int a_events)
+{
+  tizsched_msg_t *p_msg = NULL;
+  tizsched_msg_ev_stat_t *p_msg_estat = NULL;
+  tiz_scheduler_t *p_sched = NULL;
+
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_ev_stat);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Receiving a stat event");
+
+  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
+
+  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
+                                               ETIZSchedMsgEvStat,
+                                               OMX_FALSE)))
+    {
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "[OMX_ErrorInsufficientResources] : Unable to receive event");
+      return;
+    }
+
+  /* Finish-up this message */
+  p_msg_estat = &(p_msg->estat);
+  assert (NULL != p_msg_estat);
+
+  p_msg_estat->p_ev_stat = ap_ev_stat;
+
+  /* TODO: Shouldn't mask this return code */
+  (void) send_msg (p_sched, p_msg);
 }
 
 void *

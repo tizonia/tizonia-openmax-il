@@ -136,20 +136,6 @@ set_non_blocking (int sockfd)
   return OMX_ErrorNone;
 }
 
-static void
-srv_ev_io_cback (tiz_event_io_t * ap_ev_io, OMX_HANDLETYPE p_hdl, int fd,
-                 int events)
-{
-
-}
-
-static void
-clnt_ev_io_cback (tiz_event_io_t * ap_ev_io, OMX_HANDLETYPE p_hdl, int fd,
-                  int events)
-{
-
-}
-
 static inline void
 clean_up_io_events (void *ap_obj)
 {
@@ -188,7 +174,7 @@ allocate_io_events (void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
   if (OMX_ErrorNone !=
       (rc =
-       tiz_event_io_init (&p_obj->p_srv_ev_io_, ap_hdl, srv_ev_io_cback)))
+       tiz_event_io_init (&p_obj->p_srv_ev_io_, ap_hdl, tiz_receive_event_io)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Error initializing the server's io event",
@@ -214,7 +200,7 @@ allocate_io_events (void *ap_obj, OMX_HANDLETYPE ap_hdl)
       if (OMX_ErrorNone !=
           (rc =
            tiz_event_io_init (&(p_obj->p_clnt_ev_io_lst_[i]), ap_hdl,
-                              clnt_ev_io_cback)))
+                              tiz_receive_event_io)))
         {
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "[%s] : Error initializing the server's io event",
@@ -231,6 +217,33 @@ end:
     }
 
   return rc;
+}
+
+static OMX_ERRORTYPE
+start_io_watchers (void *ap_obj, OMX_HANDLETYPE ap_hdl)
+{
+  const struct icerprc *p_obj = ap_obj;
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Starting server io watcher on socket fd [%d] ", p_obj->srv_sockfd_);
+
+  return tiz_event_io_start (p_obj->p_srv_ev_io_);
+}
+
+static OMX_ERRORTYPE
+stop_io_watchers (void *ap_obj, OMX_HANDLETYPE ap_hdl)
+{
+  const struct icerprc *p_obj = ap_obj;
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+                 TIZ_CBUF (ap_hdl),
+                 "stopping io watcher on fd [%d] ", p_obj->srv_sockfd_);
+
+  return tiz_event_io_stop (p_obj->p_srv_ev_io_);
 }
 
 static OMX_ERRORTYPE
@@ -414,6 +427,15 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   p_obj->listening_port_ = httpsrv.nListeningPort;
   p_obj->max_clients_ = httpsrv.nMaxClients;
 
+  if (OMX_ErrorNone != (rc = tiz_event_loop_init ()))
+    {
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                     TIZ_CBUF (p_parent->p_hdl_),
+                     "[%s] : Error starting event loop",
+                     tiz_err_to_str (rc));
+      return rc;
+    }
+
   return setup_sockets (p_obj, p_parent->p_hdl_);
 }
 
@@ -439,10 +461,10 @@ icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 /*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
 
   assert (NULL != ap_obj);
-  assert (p_parent->p_hdl_);
+  assert (NULL != p_parent->p_hdl_);
 
   TIZ_LOG (TIZ_LOG_TRACE,
-           "Prepared to transfer buffers...p_obj = [%p]!!!", p_obj);
+           "Server starts listening on port [%d]!!!", p_obj->listening_port_);
 
   return start_listening (p_obj, p_parent->p_hdl_);
 }
@@ -450,19 +472,28 @@ icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 icer_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
+  struct icerprc *p_obj = ap_obj;
+  const struct tizservant *p_parent = ap_obj;
+
+  assert (NULL != ap_obj);
+  assert (NULL != p_parent->p_hdl_);
+
   TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
-  return OMX_ErrorNone;
+
+  return start_io_watchers (p_obj, p_parent->p_hdl_);
 }
 
 static OMX_ERRORTYPE
 icer_proc_stop_and_return (void *ap_obj)
 {
   struct icerprc *p_obj = ap_obj;
+  const struct tizservant *p_parent = ap_obj;
+
   assert (NULL != ap_obj);
 
   TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!", p_obj);
 
-  return OMX_ErrorNone;
+  return stop_io_watchers (p_obj, p_parent->p_hdl_);
 }
 
 /*
@@ -498,6 +529,36 @@ icer_proc_buffers_ready (const void *ap_obj)
   return OMX_ErrorNone;
 }
 
+static OMX_ERRORTYPE
+icer_receive_event_io (void *ap_obj,
+                       tiz_event_io_t * ap_ev_io, int a_fd,
+                       int a_events)
+{
+  struct icerprc *p_obj = ap_obj;
+  struct tizservant *p_parent = ap_obj;
+
+  assert (NULL != p_obj);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                 TIZ_CBUF (p_parent->p_hdl_),
+                 "received io event on fd [%d] ", a_fd);
+
+/*   con = accept_connection (p_obj, p_parent->p_hdl_); */
+
+/*   create_listener (p_obj, p_parent->p_hdl_, con); */
+
+
+  stop_io_watchers (p_obj, p_parent->p_hdl_);
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+icer_receive_event_timer (void *ap_obj, tiz_event_timer_t * ap_ev_timer)
+{
+  return OMX_ErrorNone;
+}
+
 /*
  * initialization
  */
@@ -523,6 +584,9 @@ init_icerprc (void)
          tizservant_deallocate_resources, icer_proc_deallocate_resources,
          tizservant_prepare_to_transfer, icer_proc_prepare_to_transfer,
          tizservant_transfer_and_process, icer_proc_transfer_and_process,
-         tizservant_stop_and_return, icer_proc_stop_and_return, 0);
+         tizservant_stop_and_return, icer_proc_stop_and_return,
+         tizproc_receive_event_io, icer_receive_event_io,
+         tizproc_receive_event_timer, icer_receive_event_timer,
+         0);
     }
 }

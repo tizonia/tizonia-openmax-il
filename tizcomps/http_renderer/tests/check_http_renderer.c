@@ -73,7 +73,7 @@ static const OMX_U32 pg_rates[] = {
   RATE_FILE2
 };
 
-#define HTTP_RENDERER_TEST_TIMEOUT 12
+#define HTTP_RENDERER_TEST_TIMEOUT 40
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 500
@@ -584,25 +584,25 @@ START_TEST (test_http_stream)
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
-  sleep (3);
+  /* -------------------------- */
+  /* Initiate transition to EXE */
+  /* -------------------------- */
+  error = _ctx_reset (&ctx);
+  state = OMX_StateExecuting;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
 
-/*   /\* -------------------------- *\/ */
-/*   /\* Initiate transition to EXE *\/ */
-/*   /\* -------------------------- *\/ */
-/*   error = _ctx_reset (&ctx); */
-/*   state = OMX_StateExecuting; */
-/*   error = OMX_SendCommand (p_hdl, cmd, state, NULL); */
-/*   fail_if (OMX_ErrorNone != error); */
+  /* ------------------------- */
+  /* Await transition callback */
+  /* ------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
+             tiz_state_to_str (p_ctx->state));
+  fail_if (OMX_StateExecuting != p_ctx->state);
 
-/*   /\* ------------------------- *\/ */
-/*   /\* Await transition callback *\/ */
-/*   /\* ------------------------- *\/ */
-/*   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout); */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   fail_if (OMX_TRUE == timedout); */
-/*   TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]", */
-/*              tiz_state_to_str (p_ctx->state)); */
-/*   fail_if (OMX_StateExecuting != p_ctx->state); */
+  sleep (30);
 
 /*   /\* -------------------- *\/ */
 /*   /\* buffer transfer loop *\/ */
@@ -660,23 +660,23 @@ START_TEST (test_http_stream)
 
 /*   fclose (p_file); */
 
-/*   /\* --------------------------- *\/ */
-/*   /\* Initiate transition to IDLE *\/ */
-/*   /\* --------------------------- *\/ */
-/*   error = _ctx_reset (&ctx); */
-/*   state = OMX_StateIdle; */
-/*   error = OMX_SendCommand (p_hdl, cmd, state, NULL); */
-/*   fail_if (OMX_ErrorNone != error); */
+  /* --------------------------- */
+  /* Initiate transition to IDLE */
+  /* --------------------------- */
+  error = _ctx_reset (&ctx);
+  state = OMX_StateIdle;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
 
-/*   /\* ------------------------- *\/ */
-/*   /\* Await transition callback *\/ */
-/*   /\* ------------------------- *\/ */
-/*   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout); */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   fail_if (OMX_TRUE == timedout); */
-/*   TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]", */
-/*              tiz_state_to_str (p_ctx->state)); */
-/*   fail_if (OMX_StateIdle != p_ctx->state); */
+  /* ------------------------- */
+  /* Await transition callback */
+  /* ------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
+             tiz_state_to_str (p_ctx->state));
+  fail_if (OMX_StateIdle != p_ctx->state);
 
   /* ----------------------------- */
   /* Initiate transition to LOADED */

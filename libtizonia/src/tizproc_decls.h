@@ -52,10 +52,18 @@ extern "C"
   {
     /* Class */
     const struct tizservant_class _;
-      OMX_ERRORTYPE (*buffers_ready) (const void *p_obj);
-      OMX_ERRORTYPE (*port_flush) (const void *p_obj, OMX_U32 a_pid);
-      OMX_ERRORTYPE (*port_disable) (const void *p_obj, OMX_U32 a_pid);
-      OMX_ERRORTYPE (*port_enable) (const void *p_obj, OMX_U32 a_pid);
+    OMX_ERRORTYPE (*buffers_ready) (const void *p_obj);
+    OMX_ERRORTYPE (*port_flush) (const void *p_obj, OMX_U32 a_pid);
+    OMX_ERRORTYPE (*port_disable) (const void *p_obj, OMX_U32 a_pid);
+    OMX_ERRORTYPE (*port_enable) (const void *p_obj, OMX_U32 a_pid);
+    OMX_ERRORTYPE (*receive_event_io) (void *ap_obj,
+                                       tiz_event_io_t * ap_ev_io, int a_fd,
+                                       int a_events);
+    OMX_ERRORTYPE (*receive_event_timer) (void *ap_obj,
+                                          tiz_event_timer_t * ap_ev_timer);
+    OMX_ERRORTYPE (*receive_event_stat) (void *ap_obj,
+                                         tiz_event_stat_t * ap_ev_stat,
+                                         int a_events);
   };
 
 
