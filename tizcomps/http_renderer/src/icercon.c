@@ -254,8 +254,7 @@ allocate_io_watchers (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
       goto end;
     }
 
-  tiz_event_io_set (ap_obj->p_srv_ev_io_, ap_obj->srv_sockfd_,
-                    TIZ_EVENT_READ);
+  tiz_event_io_set (ap_obj->p_srv_ev_io_, ap_obj->srv_sockfd_, TIZ_EVENT_READ);
 
   ap_obj->p_clnt_ev_io_lst_ = (tiz_event_io_t **)
     tiz_mem_calloc (ap_obj->max_clients_, sizeof (tiz_event_io_t *));
@@ -282,7 +281,7 @@ allocate_io_watchers (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
         }
     }
 
- end:
+end:
 
   if (OMX_ErrorNone != rc)
     {
@@ -312,7 +311,7 @@ create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
       else
         {
           ap_obj->max_clients_++;
-          p_listener = 
+          p_listener =
             (icer_listener_t *) tiz_mem_calloc (1, sizeof (icer_listener_t));
           p_listener->con = con;
           p_listener->pos = 0;
@@ -333,7 +332,7 @@ create_connection (int connected_socketfd, char *ap_ip)
   if (con)
     {
       con->sock = connected_socketfd;
-      con->con_time = time(NULL);
+      con->con_time = time (NULL);
       con->ip = ap_ip;
     }
 
@@ -382,7 +381,7 @@ icer_con_setup_sockets (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
       goto end;
     }
 
- end:
+end:
 
   if (OMX_ErrorNone != rc)
     {

@@ -108,9 +108,9 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   /* Retrieve http server configuration from the component's config port */
   httpsrv.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
-  if (OMX_ErrorNone != (rc = tizapi_GetParameter
-                        (p_krn, p_parent->p_hdl_,
-                         OMX_TizoniaIndexParamHttpServer, &httpsrv)))
+  if (OMX_ErrorNone != (rc = tizapi_GetParameter (p_krn, p_parent->p_hdl_,
+                                                  OMX_TizoniaIndexParamHttpServer,
+                                                  &httpsrv)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
@@ -131,8 +131,7 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
-                     "[%s] : Error starting event loop",
-                     tiz_err_to_str (rc));
+                     "[%s] : Error starting event loop", tiz_err_to_str (rc));
       return rc;
     }
 
@@ -230,8 +229,7 @@ icer_proc_buffers_ready (const void *ap_obj)
 
 static OMX_ERRORTYPE
 icer_receive_event_io (void *ap_obj,
-                       tiz_event_io_t * ap_ev_io, int a_fd,
-                       int a_events)
+                       tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
   struct icerprc *p_obj = ap_obj;
   struct tizservant *p_parent = ap_obj;
@@ -287,7 +285,6 @@ init_icerprc (void)
          tizservant_transfer_and_process, icer_proc_transfer_and_process,
          tizservant_stop_and_return, icer_proc_stop_and_return,
          tizproc_receive_event_io, icer_receive_event_io,
-         tizproc_receive_event_timer, icer_receive_event_timer,
-         0);
+         tizproc_receive_event_timer, icer_receive_event_timer, 0);
     }
 }
