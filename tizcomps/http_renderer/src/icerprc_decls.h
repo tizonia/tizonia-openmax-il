@@ -47,22 +47,21 @@ extern "C"
     time_t con_time;
     time_t discon_time;
     uint64_t sent_bytes;
-    sock_t sock;
+    int sock;
     int error;
     char *ip;
     char *host;
   };
 
-/*   typedef struct ice_listener ice_listener_t; */
-/*   struct ice_listener */
-/*   { */
-/*     ice_connection_t *con; */
-/*     http_parser_t *parser; */
-/*     int respcode; */
-/*     long intro_offset; */
-/*     refbuf_t *refbuf; */
-/*     unsigned int pos; */
-/*   }; */
+  typedef struct icer_listener icer_listener_t;
+  struct icer_listener
+  {
+    icer_listener_t *p_next;
+    icer_connection_t *con;
+    int respcode;
+    long intro_offset;
+    unsigned int pos;
+  };
 
   struct icerprc
   {
@@ -73,12 +72,14 @@ extern "C"
     OMX_U32 listening_port_;
     OMX_STRING mount_name_;
     OMX_U32 max_clients_;
+    OMX_U32 nclients_;
     OMX_U32 burst_size_;
     bool eos_;
     int srv_sockfd_;
     int *p_clnt_socket_lst_;
     tiz_event_io_t *p_srv_ev_io_;
     tiz_event_io_t **p_clnt_ev_io_lst_;
+    icer_listener_t *p_listener_lst_;
   };
 
 #ifdef __cplusplus

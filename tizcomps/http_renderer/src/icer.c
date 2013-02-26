@@ -89,7 +89,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 
   /* Instantiate the config port */
   init_icercfgport ();
-  p_cport = factory_new (icercfgport, NULL,   /* this port does not take options */
+  p_cport = factory_new (icercfgport, NULL,     /* this port does not take options */
                          ARATELIA_HTTP_RENDERER_COMPONENT_NAME,
                          http_renderer_version);
   assert (p_cport);
