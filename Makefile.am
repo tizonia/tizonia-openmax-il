@@ -23,12 +23,14 @@ CLEANFILES = cscope.in.out cscope.out cscope.po.out
 cscope:
 	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizosal -srm -stizcomps -sexamples;
 
-# ‘-nut’ = ‘--no-tabs’
+# '-nut’ = '--no-tabs’
 #    Use spaces instead of tabs.
-# ‘-sc’ = ‘--start-left-side-of-comments’
-#    Put the ‘*’ character at the left of comments.
-# ‘-pmt’ = ‘--preserve-mtime’
+# '-sc’ = '--start-left-side-of-comments’
+#    Put the '*’ character at the left of comments.
+# '-pmt’ = '--preserve-mtime’
 #    Preserve access and modification times on output files.
+#  '-l79' = '--line-lengthn'
+#    Set maximum line length for non-comment lines to 79.
 
 .PHONY: indent
 indent:
@@ -38,5 +40,5 @@ indent:
 	-o -iname "config.h" -prune \
 	-o -iname "utarray.h" -prune \
 	-o -iname "*.[ch]" \
-	-exec indent --gnu-style -pmt -sc -nut "{}" \;
+	-exec indent --gnu-style -pmt -sc -nut -l79 "{}" \;
 
