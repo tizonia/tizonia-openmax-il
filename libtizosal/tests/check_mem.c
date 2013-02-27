@@ -37,5 +37,11 @@ START_TEST (test_mem_alloc_and_free)
   tiz_mem_free (p_item);
 
 }
-
 END_TEST
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */

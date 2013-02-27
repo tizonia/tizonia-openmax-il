@@ -40,8 +40,8 @@ START_TEST (test_queue_init_and_destroy)
   tiz_queue_destroy (p_queue);
 
 }
-
 END_TEST
+
 START_TEST (test_queue_send_and_receive)
 {
 
@@ -83,5 +83,11 @@ START_TEST (test_queue_send_and_receive)
   tiz_queue_destroy (p_queue);
 
 }
-
 END_TEST
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */

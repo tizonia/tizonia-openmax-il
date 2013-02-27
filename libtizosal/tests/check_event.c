@@ -314,3 +314,10 @@ START_TEST (test_event_stat)
   tiz_event_loop_destroy ();
 }
 END_TEST
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */

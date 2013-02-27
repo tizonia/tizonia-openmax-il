@@ -75,8 +75,8 @@ START_TEST (test_pqueue_init_and_destroy)
 
   tiz_pqueue_destroy (p_queue);
 }
-
 END_TEST
+
 START_TEST (test_pqueue_send_and_receive_one_group)
 {
   OMX_U32 i;
@@ -132,8 +132,8 @@ START_TEST (test_pqueue_send_and_receive_one_group)
   tiz_pqueue_destroy (p_queue);
   tiz_soa_destroy (p_soa);
 }
-
 END_TEST
+
 START_TEST (test_pqueue_send_and_receive_two_groups)
 {
 
@@ -201,8 +201,8 @@ START_TEST (test_pqueue_send_and_receive_two_groups)
   tiz_pqueue_destroy (p_queue);
 
 }
-
 END_TEST
+
 START_TEST (test_pqueue_send_and_receive_three_groups)
 {
 
@@ -300,8 +300,8 @@ START_TEST (test_pqueue_send_and_receive_three_groups)
   tiz_pqueue_destroy (p_queue);
 
 }
-
 END_TEST
+
 START_TEST (test_pqueue_first)
 {
 
@@ -351,8 +351,8 @@ START_TEST (test_pqueue_first)
   tiz_pqueue_destroy (p_queue);
 
 }
-
 END_TEST
+
 START_TEST (test_pqueue_remove)
 {
 
@@ -402,8 +402,8 @@ START_TEST (test_pqueue_remove)
   tiz_pqueue_destroy (p_queue);
 
 }
-
 END_TEST
+
 START_TEST (test_pqueue_removep)
 {
 
@@ -461,5 +461,11 @@ START_TEST (test_pqueue_removep)
   tiz_pqueue_destroy (p_queue);
 
 }
-
 END_TEST
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */

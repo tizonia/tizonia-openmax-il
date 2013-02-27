@@ -38,8 +38,8 @@ START_TEST (test_mutex_init_and_destroy)
   tiz_mutex_destroy (&mutex);
 
 }
-
 END_TEST
+
 START_TEST (test_mutex_lock_and_unlock)
 {
 
@@ -55,33 +55,39 @@ START_TEST (test_mutex_lock_and_unlock)
   tiz_mutex_destroy (&mutex);
 
 }
-
 END_TEST
+
 START_TEST (test_mutex_init_null)
 {
   OMX_ERRORTYPE error = tiz_mutex_init (0);
   (void)error;
 }
-
 END_TEST
+
 START_TEST (test_mutex_destroy_null)
 {
   OMX_ERRORTYPE error = tiz_mutex_destroy (0);
   (void)error;
 }
-
 END_TEST
+
 START_TEST (test_mutex_lock_null)
 {
   OMX_ERRORTYPE error = tiz_mutex_lock (0);
   (void)error;
 }
-
 END_TEST
+
 START_TEST (test_mutex_unlock_null)
 {
   OMX_ERRORTYPE error = tiz_mutex_unlock (0);
   (void)error;
 }
-
 END_TEST
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */

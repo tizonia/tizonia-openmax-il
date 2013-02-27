@@ -108,3 +108,10 @@ START_TEST (test_rcfile_get_value_list)
   tiz_mem_free(pp_vlst);
 }
 END_TEST
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */

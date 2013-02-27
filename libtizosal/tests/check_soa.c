@@ -254,3 +254,10 @@ START_TEST (test_soa_reserve_life_cycle)
   TIZ_LOG (TIZ_LOG_TRACE, "test_soa_reserve_life_cycle - end");
 }
 END_TEST
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */

@@ -38,8 +38,8 @@ START_TEST (test_sem_init_and_destroy)
   tiz_sem_destroy (&sem);
 
 }
-
 END_TEST
+
 START_TEST (test_sem_post_and_wait)
 {
 
@@ -55,33 +55,40 @@ START_TEST (test_sem_post_and_wait)
   tiz_sem_destroy (&sem);
 
 }
-
 END_TEST
+
 START_TEST (test_sem_init_null)
 {
   OMX_ERRORTYPE error = tiz_sem_init (0, 0);
   (void)error;
 }
-
 END_TEST
+
 START_TEST (test_sem_destroy_null)
 {
   OMX_ERRORTYPE error = tiz_sem_destroy (0);
   (void)error;
 }
-
 END_TEST
+
 START_TEST (test_sem_wait_null)
 {
   OMX_ERRORTYPE error = tiz_sem_wait (0);
   (void)error;
 }
-
 END_TEST
+
 START_TEST (test_sem_post_null)
 {
   OMX_ERRORTYPE error = tiz_sem_post (0);
   (void)error;
 }
-
 END_TEST
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */
+
