@@ -21,7 +21,7 @@
  * @file   tizosalvector.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dynamic array
+ * @brief  Dynamic array API
  *
  *
  */

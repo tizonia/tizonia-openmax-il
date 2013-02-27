@@ -21,7 +21,8 @@
  * @file   tizosalvector.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dynamic array implementation
+ * @brief Dynamic array implementation - A thin wrapper over Troy D. Hanson's
+ * utarray (see http://troydhanson.github.com/uthash/utarray.html)
  *
  *
  */
