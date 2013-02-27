@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+#SUBDIRS = http-parser
+
+EXTRA_DIST = log4crc tizrc
+
 lib_LTLIBRARIES = libtizosal.la
 
 libtizosal_includedir = $(includedir)/libtizosal
@@ -33,7 +37,8 @@ libtizosal_include_HEADERS = \
 	tizosalrc.h \
 	tizosalsoa.h \
 	tizosalev.h \
-	utarray.h
+	utarray/utarray.h \
+	http-parser/http_parser.h
 
 libtizosal_la_SOURCES = \
 	tizosal.c \
@@ -48,7 +53,8 @@ libtizosal_la_SOURCES = \
 	tizosaluuid.c \
 	tizosalrc.c \
 	tizosalsoa.c \
-	tizosalev.c
+	tizosalev.c \
+	http-parser/http_parser.c
 
 libtizosal_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
@@ -61,6 +67,5 @@ libtizosal_la_LIBADD = \
 	@LOG4C_LIBS@ \
 	@uuid_LIBS@
 
-EXTRA_DIST = log4crc tizrc
 
 # End of Makefile.am

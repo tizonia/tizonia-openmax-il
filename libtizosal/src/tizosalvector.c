@@ -34,7 +34,7 @@
 
 #include "tizosalmem.h"
 #include "tizosalvector.h"
-#include "utarray.h"
+#include "utarray/utarray.h"
 #include "tizosallog.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME

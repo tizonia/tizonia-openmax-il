@@ -36,6 +36,8 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG([0.25])
 
+AC_DEFINE([HTTP_PARSER_STRICT], [1], [Using strict http parsing.])
+
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([libuuid], [uuid_generate])
