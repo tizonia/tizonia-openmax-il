@@ -1403,7 +1403,7 @@ do_eio (tiz_scheduler_t * ap_sched,
   p_msg_eio = &(ap_msg->eio);
   assert (NULL != p_msg_eio);
 
-  return tizproc_receive_event_io (ap_sched->child.p_prc,
+  return tizproc_event_io_ready (ap_sched->child.p_prc,
                                    p_msg_eio->p_ev_io,
                                    p_msg_eio->fd,
                                    p_msg_eio->events);
@@ -1426,7 +1426,7 @@ do_etmr (tiz_scheduler_t * ap_sched,
   p_msg_etmr = &(ap_msg->etmr);
   assert (NULL != p_msg_etmr);
 
-  return tizproc_receive_event_timer (ap_sched->child.p_prc,
+  return tizproc_event_timer_ready (ap_sched->child.p_prc,
                                       p_msg_etmr->p_ev_timer);
 }
 
@@ -1447,7 +1447,7 @@ do_estat (tiz_scheduler_t * ap_sched,
   p_msg_estat = &(ap_msg->estat);
   assert (NULL != p_msg_estat);
 
-  return tizproc_receive_event_stat (ap_sched->child.p_prc,
+  return tizproc_event_stat_ready (ap_sched->child.p_prc,
                                      p_msg_estat->p_ev_stat,
                                      p_msg_estat->events);
 }

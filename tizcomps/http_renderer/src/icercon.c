@@ -21,7 +21,7 @@
  * @file   icercon.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - Http renderer socket management
+ * @brief Tizonia OpenMAX IL - Http renderer's socket management functions
  *
  *
  */
@@ -301,27 +301,54 @@ create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
 
-  if (NULL != p_listener)
+  if (ap_obj->max_clients_ == ap_obj->nclients_)
     {
-      if (ap_obj->max_clients_ == ap_obj->nclients_)
-        {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                         "client limit reached [%d]", ap_obj->max_clients_);
-        }
-      else
-        {
-          ap_obj->max_clients_++;
-          p_listener =
-            (icer_listener_t *) tiz_mem_calloc (1, sizeof (icer_listener_t));
-          p_listener->con = con;
-          p_listener->pos = 0;
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "client limit reached [%d]", ap_obj->max_clients_);
+    }
+  else
+    {
+      ap_obj->max_clients_++;
+      p_listener =
+        (icer_listener_t *) tiz_mem_calloc (1, sizeof (icer_listener_t));
+      p_listener->con = con;
+      p_listener->pos = 0;
 
-          set_non_blocking (p_listener->con->sock);
-          set_nodelay (p_listener->con->sock);
-        }
+      set_non_blocking (p_listener->con->sock);
+      set_nodelay (p_listener->con->sock);
     }
 
   return p_listener;
+}
+
+static int
+read_data (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
+{
+  return 1;
+}
+
+static icer_listener_t *
+handle_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
+                 icer_listener_t * ap_listener)
+{
+  tiz_http_parser_t *p_parser = NULL;
+  int nparsed = 0;
+  int nread = 0;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+
+  nread = read_data (ap_obj, ap_hdl);
+
+  tiz_http_parser_init (&p_parser, ETIZHttpParserTypeRequest);
+  ap_listener->p_parser = p_parser;
+
+  if (nread == (nparsed = tiz_http_parser_parse (p_parser, NULL, 1)))
+    {
+
+    }
+
+  return NULL;
 }
 
 static icer_connection_t *
@@ -473,6 +500,10 @@ icer_con_accept_connection (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
   if (NULL != con)
     {
       listener = create_listener (ap_obj, ap_hdl, con);
+      if (NULL != listener)
+        {
+          handle_listener (ap_obj, ap_hdl, listener);
+        }
     }
 
   return listener;

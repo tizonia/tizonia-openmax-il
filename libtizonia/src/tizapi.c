@@ -206,8 +206,7 @@ super_SetParameter (const void *a_class,
 
 static OMX_ERRORTYPE
 api_GetConfig (const void *ap_obj,
-               OMX_HANDLETYPE ap_hdl,
-               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+               OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -237,8 +236,7 @@ super_GetConfig (const void *a_class,
 
 static OMX_ERRORTYPE
 api_SetConfig (const void *ap_obj,
-               OMX_HANDLETYPE ap_hdl,
-               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+               OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -399,8 +397,7 @@ tizapi_UseBuffer (const void *ap_obj,
 
   assert (class->UseBuffer);
   return class->UseBuffer (ap_obj,
-                           ap_hdl,
-                           app_hdr, a_pid, ap_apppriv, a_size, ap_buf);
+                           ap_hdl, app_hdr, a_pid, ap_apppriv, a_size, ap_buf);
 }
 
 OMX_ERRORTYPE
@@ -647,8 +644,7 @@ super_UseEGLImage (const void *a_class,
 
 static OMX_ERRORTYPE
 api_ComponentRoleEnum (const void *ap_obj,
-                       OMX_HANDLETYPE ap_hdl,
-                       OMX_U8 * a_role, OMX_U32 a_index)
+                       OMX_HANDLETYPE ap_hdl, OMX_U8 * a_role, OMX_U32 a_index)
 {
   return OMX_ErrorNotImplemented;
 }

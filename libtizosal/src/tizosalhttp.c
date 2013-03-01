@@ -21,8 +21,8 @@
  * @file   tizosalhttp.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP parser implementation - A thin wrapper over joyent's http-parser
- *         library (see https://github.com/joyent/http-parser)
+ * @brief HTTP parser implementation - Based on joyent's http-parser library
+ *         (see https://github.com/joyent/http-parser)
  *
  *
  */

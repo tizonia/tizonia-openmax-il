@@ -179,13 +179,14 @@ extern "C"
                                                tiz_port_alloc_hooks_t *
                                                ap_old_hooks);
 
-  void tiz_receive_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t * ap_ev_io, int a_fd,
-                             int a_events);
+  void tiz_receive_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t * ap_ev_io,
+                             int a_fd, int a_events);
 
-  void tiz_receive_event_timer (OMX_HANDLETYPE ap_hdl, tiz_event_timer_t * ap_ev_timer);
+  void tiz_receive_event_timer (OMX_HANDLETYPE ap_hdl,
+                                tiz_event_timer_t * ap_ev_timer);
 
-  void tiz_receive_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t * ap_ev_stat,
-                               int a_events);
+  void tiz_receive_event_stat (OMX_HANDLETYPE ap_hdl,
+                               tiz_event_stat_t * ap_ev_stat, int a_events);
 
   /* Utility functions */
 

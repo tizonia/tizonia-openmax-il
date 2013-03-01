@@ -61,6 +61,7 @@ extern "C"
     int respcode;
     long intro_offset;
     unsigned int pos;
+    tiz_http_parser_t *p_parser;
   };
 
   struct icerprc

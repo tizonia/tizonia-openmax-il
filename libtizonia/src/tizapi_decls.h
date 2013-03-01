@@ -61,13 +61,11 @@ extern "C"
 
       OMX_ERRORTYPE (*GetParameter) (const void *ap_obj,
                                      OMX_HANDLETYPE ap_hdl,
-                                     OMX_INDEXTYPE a_index,
-                                     OMX_PTR ap_struct);
+                                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
 
       OMX_ERRORTYPE (*SetParameter) (const void *ap_obj,
                                      OMX_HANDLETYPE ap_hdl,
-                                     OMX_INDEXTYPE a_index,
-                                     OMX_PTR ap_struct);
+                                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
 
       OMX_ERRORTYPE (*GetConfig) (const void *ap_obj,
                                   OMX_HANDLETYPE ap_hdl,

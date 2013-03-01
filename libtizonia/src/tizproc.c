@@ -852,7 +852,7 @@ tizproc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-proc_receive_event_io (const void *ap_obj,
+proc_event_io_ready (const void *ap_obj,
                        tiz_event_io_t * ap_ev_io, int a_fd,
                        int a_events)
 {
@@ -860,17 +860,17 @@ proc_receive_event_io (const void *ap_obj,
 }
 
 OMX_ERRORTYPE
-tizproc_receive_event_io (void *ap_obj,
+tizproc_event_io_ready (void *ap_obj,
                           tiz_event_io_t * ap_ev_io, int a_fd,
                           int a_events)
 {
   const struct tizproc_class *class = classOf (ap_obj);
-  assert (class->receive_event_io);
-  return class->receive_event_io (ap_obj, ap_ev_io, a_fd, a_events);
+  assert (class->event_io_ready);
+  return class->event_io_ready (ap_obj, ap_ev_io, a_fd, a_events);
 }
 
 static OMX_ERRORTYPE
-proc_receive_event_timer (void *ap_obj,
+proc_event_timer_ready (void *ap_obj,
                           tiz_event_timer_t * ap_ev_timer, int a_fd,
                           int a_events)
 {
@@ -878,16 +878,16 @@ proc_receive_event_timer (void *ap_obj,
 }
 
 OMX_ERRORTYPE
-tizproc_receive_event_timer (void *ap_obj,
+tizproc_event_timer_ready (void *ap_obj,
                              tiz_event_timer_t * ap_ev_timer)
 {
   const struct tizproc_class *class = classOf (ap_obj);
-  assert (class->receive_event_timer);
-  return class->receive_event_timer (ap_obj, ap_ev_timer);
+  assert (class->event_timer_ready);
+  return class->event_timer_ready (ap_obj, ap_ev_timer);
 }
 
 static OMX_ERRORTYPE
-proc_receive_event_stat (void *ap_obj,
+proc_event_stat_ready (void *ap_obj,
                        tiz_event_stat_t * ap_ev_stat,
                        int a_events)
 {
@@ -895,13 +895,13 @@ proc_receive_event_stat (void *ap_obj,
 }
 
 OMX_ERRORTYPE
-tizproc_receive_event_stat (void *ap_obj,
+tizproc_event_stat_ready (void *ap_obj,
                           tiz_event_stat_t * ap_ev_stat,
                           int a_events)
 {
   const struct tizproc_class *class = classOf (ap_obj);
-  assert (class->receive_event_stat);
-  return class->receive_event_stat (ap_obj, ap_ev_stat, a_events);
+  assert (class->event_stat_ready);
+  return class->event_stat_ready (ap_obj, ap_ev_stat, a_events);
 }
 
 /*
@@ -936,17 +936,17 @@ proc_class_ctor (void *ap_obj, va_list * app)
         {
           *(voidf *) & p_obj->port_enable = method;
         }
-      else if (selector == (voidf) tizproc_receive_event_io)
+      else if (selector == (voidf) tizproc_event_io_ready)
         {
-          *(voidf *) & p_obj->receive_event_io = method;
+          *(voidf *) & p_obj->event_io_ready = method;
         }
-      else if (selector == (voidf) tizproc_receive_event_timer)
+      else if (selector == (voidf) tizproc_event_timer_ready)
         {
-          *(voidf *) & p_obj->receive_event_timer = method;
+          *(voidf *) & p_obj->event_timer_ready = method;
         }
-      else if (selector == (voidf) tizproc_receive_event_stat)
+      else if (selector == (voidf) tizproc_event_stat_ready)
         {
-          *(voidf *) & p_obj->receive_event_stat = method;
+          *(voidf *) & p_obj->event_stat_ready = method;
         }
     }
 
@@ -1000,9 +1000,9 @@ init_tizproc (void)
          tizproc_port_flush, proc_port_flush,
          tizproc_port_disable, proc_port_disable,
          tizproc_port_enable, proc_port_enable, 
-         tizproc_receive_event_io, proc_receive_event_io,
-         tizproc_receive_event_timer, proc_receive_event_timer,
-         tizproc_receive_event_stat, proc_receive_event_stat,
+         tizproc_event_io_ready, proc_event_io_ready,
+         tizproc_event_timer_ready, proc_event_timer_ready,
+         tizproc_event_stat_ready, proc_event_stat_ready,
          0);
     }
 

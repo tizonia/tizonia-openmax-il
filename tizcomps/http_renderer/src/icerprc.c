@@ -228,7 +228,7 @@ icer_proc_buffers_ready (const void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-icer_receive_event_io (void *ap_obj,
+icer_event_io_ready (void *ap_obj,
                        tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
   struct icerprc *p_obj = ap_obj;
@@ -253,7 +253,7 @@ icer_receive_event_io (void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-icer_receive_event_timer (void *ap_obj, tiz_event_timer_t * ap_ev_timer)
+icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer)
 {
   return OMX_ErrorNone;
 }
@@ -284,7 +284,7 @@ init_icerprc (void)
          tizservant_prepare_to_transfer, icer_proc_prepare_to_transfer,
          tizservant_transfer_and_process, icer_proc_transfer_and_process,
          tizservant_stop_and_return, icer_proc_stop_and_return,
-         tizproc_receive_event_io, icer_receive_event_io,
-         tizproc_receive_event_timer, icer_receive_event_timer, 0);
+         tizproc_event_io_ready, icer_event_io_ready,
+         tizproc_event_timer_ready, icer_event_timer_ready, 0);
     }
 }
