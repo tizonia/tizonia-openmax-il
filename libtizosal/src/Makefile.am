@@ -24,6 +24,9 @@ lib_LTLIBRARIES = libtizosal.la
 libtizosal_includedir = $(includedir)/libtizosal
 
 libtizosal_include_HEADERS = \
+	utarray/utarray.h \
+	avl/avl.h \
+	http-parser/http_parser.h \
 	tizosal.h \
 	tizosallog.h \
 	tizosalutils.h \
@@ -37,10 +40,11 @@ libtizosal_include_HEADERS = \
 	tizosalrc.h \
 	tizosalsoa.h \
 	tizosalev.h \
-	utarray/utarray.h \
-	http-parser/http_parser.h
+	tizosalhttp.h
 
 libtizosal_la_SOURCES = \
+	http-parser/http_parser.c \
+	avl/avl.c \
 	tizosal.c \
 	tizosallog.c \
 	tizosalutils.c \
@@ -54,7 +58,7 @@ libtizosal_la_SOURCES = \
 	tizosalrc.c \
 	tizosalsoa.c \
 	tizosalev.c \
-	http-parser/http_parser.c
+	tizosalhttp.c
 
 libtizosal_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
