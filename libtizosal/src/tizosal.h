@@ -49,6 +49,7 @@
 #include "tizosalrc.h"
 #include "tizosalsoa.h"
 #include "tizosalev.h"
+#include "tizosalhttp.h"
 
 /** @} */
 

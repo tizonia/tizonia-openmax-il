@@ -46,6 +46,7 @@
 #include "./check_rc.c"
 #include "./check_soa.c"
 #include "./check_event.c"
+#include "./check_http_parser.c"
 
 #define EVENT_API_TEST_TIMEOUT 100
 
@@ -190,6 +191,20 @@ osal_event_suite (void)
   return s;
 }
 
+Suite *
+osal_http_parser_suite (void)
+{
+  TCase  *tc_http;
+  Suite *s = suite_create ("http parser");
+
+  /* http loop API test cases */
+  tc_http = tcase_create ("http parser API");
+  tcase_add_test (tc_http, test_http_parser_request_test);
+  suite_add_tcase (s, tc_http);
+
+  return s;
+}
+
 int
 main (void)
 {
@@ -207,6 +222,7 @@ main (void)
   srunner_add_suite (sr, osal_vector_suite ());
   srunner_add_suite (sr, osal_rcfile_suite ());
   srunner_add_suite (sr, osal_soa_suite ());
+  srunner_add_suite (sr, osal_http_parser_suite ());
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
