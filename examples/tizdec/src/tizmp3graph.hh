@@ -47,7 +47,7 @@ public:
   OMX_ERRORTYPE configure(const std::string &uri = std::string());
   OMX_ERRORTYPE execute();
   void unload();
-
+  void signal();
 };
 
 #endif // TIZMP3GRAPH_HH

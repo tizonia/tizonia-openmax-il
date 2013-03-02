@@ -55,12 +55,33 @@
 #include "tizgraphfactory.hh"
 
 
+static tizgraph *gp_running_graph = NULL;
+
 void
-tizdec_sig_hdlr(int sig)
+tizdec_sig_term_hdlr(int sig)
 {
-  TIZ_LOG(TIZ_LOG_TRACE, "Tizonia OpenMAX IL decoder exiting...");
-  fprintf(stderr, "\nInterrupted...\n");
+  fprintf(stdout, "\nTizonia OpenMAX IL decoder... terminating.\n");
   exit(EXIT_FAILURE);
+}
+
+void
+tizdec_sig_quit_hdlr(int sig)
+{
+  if (NULL != gp_running_graph)
+    {
+      gp_running_graph->signal();
+    }
+  else
+    {
+      raise (SIGQUIT);
+    }
+}
+
+void
+tizdec_sig_stp_hdlr(int sig)
+{
+  fprintf(stdout, "\nPausing playback. Use 'fg' or 'bg' to resume...\n");
+  raise (SIGSTOP);
 }
 
 void print_usage(void)
@@ -73,6 +94,12 @@ void print_usage(void)
   printf("\t-c --comps-of-role <role>\t\tDisplay the components that implement <role>\n");
   printf("\t-d --decode <file_uri>\t\t\tDecode a mp3 or ivf (vp8) file\n");
   printf("\t-v --version\t\t\t\tDisplay version info\n");
+  printf("\n");
+  printf("Example:\n");
+  printf("\t tizdec -d ~/Music (decodes every supported file in the '~/Music' folder)\n");
+  printf("\t    * Press [Ctrl-\\] to skip to next song.\n");
+  printf("\t    * Press [Ctrl-z] to \"pause\" the playback (type 'fg' or 'bg' to resume).\n");
+  printf("\t    * Press [Ctrl-c] to terminate the decoder.\n");
   printf("\n");
 }
 
@@ -253,6 +280,7 @@ decode(const OMX_STRING uri)
       exit(EXIT_FAILURE);
     }
 
+  gp_running_graph = g_ptr.get();
   int list_size = file_list.size();
   for (int i=0; i < list_size; i++)
     {
@@ -297,8 +325,10 @@ main(int argc, char **argv)
       exit(EXIT_FAILURE);
     }
 
-  signal(SIGTERM, tizdec_sig_hdlr);
-  signal(SIGINT, tizdec_sig_hdlr);
+  signal(SIGTERM, tizdec_sig_term_hdlr);
+  signal(SIGINT, tizdec_sig_term_hdlr);
+  signal(SIGTSTP, tizdec_sig_stp_hdlr);
+  signal(SIGQUIT, tizdec_sig_quit_hdlr);
 
   tiz_log_deinit ();
 

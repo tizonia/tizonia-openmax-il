@@ -231,3 +231,15 @@ tizmp3graph::unload()
   tear_down_tunnels();
   destroy_list();
 }
+
+void
+tizmp3graph::signal ()
+{
+  OMX_CALLBACKTYPE *p_cbacks = cback_handler_.get_omx_cbacks();
+
+  if (NULL != p_cbacks)
+    {
+      p_cbacks->EventHandler (handles_[0], static_cast<void*>(&cback_handler_),
+                              OMX_EventVendorStartUnused, 0, 0, NULL);
+    }
+}

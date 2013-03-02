@@ -126,6 +126,14 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                tiz_evt_to_str (eEvent), tiz_err_to_str ((OMX_ERRORTYPE)nData1),
                nData2, pEventData);
     }
+  else if (eEvent == OMX_EventVendorStartUnused)
+    {
+      TIZ_LOG (TIZ_LOG_DEBUG, "[%s] : eEvent = [%s]\n",
+               const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
+               tiz_evt_to_str (eEvent));
+      expected_list_.clear();
+      events_outstanding_ = false;
+    }
   else
     {
       TIZ_LOG (TIZ_LOG_DEBUG, "Received from [%s] : "
@@ -134,13 +142,14 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                tiz_evt_to_str (eEvent));
     }
 
-  fflush(stdout);
-
-  received_queue_.push_back (waitevent_info(hComponent,
-                                            eEvent,
-                                            nData1,
-                                            nData2,
-                                            pEventData));
+  if (OMX_EventVendorStartUnused != eEvent)
+    {
+      received_queue_.push_back (waitevent_info(hComponent,
+                                                eEvent,
+                                                nData1,
+                                                nData2,
+                                                pEventData));
+    }
 
   if (all_events_received ())
     {

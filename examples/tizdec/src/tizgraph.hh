@@ -139,6 +139,7 @@ public:
   virtual OMX_ERRORTYPE configure(const std::string &uri = std::string()) = 0;
   virtual OMX_ERRORTYPE execute() = 0;
   virtual void unload() = 0;
+  virtual void signal() = 0;
 
 protected:
 

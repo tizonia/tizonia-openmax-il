@@ -81,11 +81,11 @@ set_non_blocking (int sockfd)
 }
 
 static inline bool
-valid_socket (int a_socketfd)
+valid_socket (int a_sockfd)
 {
   int optval;
   socklen_t optlen = sizeof (int);
-  return (0 == getsockopt (a_socketfd, SOL_SOCKET,
+  return (0 == getsockopt (a_sockfd, SOL_SOCKET,
                            SO_TYPE, (void *) &optval, &optlen));
 }
 
@@ -93,6 +93,9 @@ static inline int
 set_nolinger (int sock)
 {
   struct linger lin = { 0, 0 };
+  /* linger inactive, 0 seconds to linger for */
+  /* the call to close returns immediately and */
+  /* the closing is done in the background. */
   return setsockopt (sock, SOL_SOCKET, SO_LINGER, (void *) &lin,
                      sizeof (struct linger));
 }
@@ -101,7 +104,6 @@ static inline int
 set_nodelay (int sock)
 {
   int nodelay = 1;
-
   return setsockopt (sock, IPPROTO_TCP, TCP_NODELAY, (void *) &nodelay,
                      sizeof (int));
 }
@@ -352,18 +354,18 @@ handle_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static icer_connection_t *
-create_connection (int connected_socketfd, char *ap_ip)
+create_connection (int connected_sockfd, char *ap_ip)
 {
-  icer_connection_t *con;
-  con = (icer_connection_t *) tiz_mem_calloc (1, sizeof (icer_connection_t));
-  if (con)
+  icer_connection_t *p_con = NULL;;
+  if (NULL != (p_con = (icer_connection_t *)
+               tiz_mem_calloc (1, sizeof (icer_connection_t))));
     {
-      con->sock = connected_socketfd;
-      con->con_time = time (NULL);
-      con->ip = ap_ip;
+      p_con->sock = connected_sockfd;
+      p_con->con_time = time (NULL);
+      p_con->ip = ap_ip;
     }
 
-  return con;
+  return p_con;
 }
 
 OMX_ERRORTYPE
@@ -472,41 +474,54 @@ icer_con_start_listening (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
 icer_listener_t *
 icer_con_accept_connection (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
 {
-  char *p_ip;
-  icer_connection_t *con = NULL;
-  icer_listener_t *listener = NULL;
+  char *p_ip = NULL;
+  icer_connection_t *p_con = NULL;
+  icer_listener_t *p_lstnr = NULL;
   int connected_socket = ICE_RENDERER_SOCK_ERROR;
+  bool some_error = false;
 
-  /* Allocate enough room for an ipv4 or ipv6 IP address */
-  p_ip = (char *) tiz_mem_alloc (ICE_RENDERER_MAX_ADDR_LEN);
-  connected_socket =
-    accept_socket (ap_obj, ap_hdl, p_ip, ICE_RENDERER_MAX_ADDR_LEN);
-
-  if (connected_socket != ICE_RENDERER_SOCK_ERROR)
+  if (NULL != (p_ip = (char *) tiz_mem_alloc (ICE_RENDERER_MAX_ADDR_LEN)))
     {
-      /* Make any IPv4 mapped IPv6 address look like a normal IPv4 address */
-      if (strncmp (p_ip, "::ffff:", 7) == 0)
+      connected_socket =
+        accept_socket (ap_obj, ap_hdl, p_ip, ICE_RENDERER_MAX_ADDR_LEN);
+
+      if (ICE_RENDERER_SOCK_ERROR == connected_socket)
         {
-          memmove (p_ip, p_ip + 7, strlen (p_ip + 7) + 1);
+          some_error = true;
+          tiz_mem_free (p_ip);
+          return NULL;
         }
 
-      con = create_connection (connected_socket, p_ip);
-      if (NULL == con)
+      if (NULL == (p_con = create_connection (connected_socket, p_ip)))
         {
           close (connected_socket);
+          tiz_mem_free (p_ip);
+          return NULL;
         }
-    }
 
-  if (NULL != con)
-    {
-      listener = create_listener (ap_obj, ap_hdl, con);
-      if (NULL != listener)
+      if (NULL == (p_lstnr = create_listener (ap_obj, ap_hdl, p_con)))
         {
-          handle_listener (ap_obj, ap_hdl, listener);
+          send_http_error (p_lstnr, 403, "Connection limit reached");
+        }
+      handle_listener (ap_obj, ap_hdl, p_lstnr);
+    }
+
+ end:
+
+  if (some_error)
+    {
+      if (NULL != p_con)
+        {
+          send_http_error (p_lstnr, 403, "Connection limit reached");
+          
+        }
+      if (NULL != p_ip)
+        {
+
         }
     }
 
-  return listener;
+  return p_lstnr;
 }
 
 OMX_ERRORTYPE
