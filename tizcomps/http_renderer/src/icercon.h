@@ -57,7 +57,6 @@ extern "C"
   OMX_ERRORTYPE icer_con_stop_io_watchers (struct icerprc *ap_obj,
                                            OMX_HANDLETYPE ap_hdl);
 
-
 #ifdef __cplusplus
 }
 #endif

@@ -20,7 +20,7 @@
  * @file   icerprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Icecast-like Http Sink processor class
+ * @brief  Tizonia OpenMAX IL - Icecast-like HTTP Sink processor class
  * declarations
  *
  *
@@ -41,6 +41,8 @@ extern "C"
 #include "icerprc.h"
 #include "tizproc_decls.h"
 
+#define ICE_LISTENER_BUF_SIZE  4096
+#define ICE_DEFAULT_HEADER_TIMEOUT 10
   typedef struct icer_connection icer_connection_t;
   struct icer_connection
   {
@@ -49,18 +51,28 @@ extern "C"
     uint64_t sent_bytes;
     int sock;
     int error;
-    char *ip;
-    char *host;
+    char *p_ip;
+    char *p_host;
+  };
+
+  typedef struct icer_listener_buffer icer_listener_buffer_t;
+  struct icer_listener_buffer
+  {
+    unsigned int len;
+    unsigned int count;
+    char *p_data;
+    bool sync_point;
   };
 
   typedef struct icer_listener icer_listener_t;
   struct icer_listener
   {
     icer_listener_t *p_next;
-    icer_connection_t *con;
+    icer_connection_t *p_con;
     int respcode;
     long intro_offset;
     unsigned int pos;
+    icer_listener_buffer_t buf;
     tiz_http_parser_t *p_parser;
   };
 
@@ -69,7 +81,7 @@ extern "C"
     /* Object */
     const struct tizproc _;
     OMX_STRING bind_address_;   /* if this is null, the server will listen on all
-                                 * interfaces. */
+                                   interfaces. */
     OMX_U32 listening_port_;
     OMX_STRING mount_name_;
     OMX_U32 max_clients_;

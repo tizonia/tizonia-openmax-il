@@ -156,7 +156,6 @@ icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   struct icerprc *p_obj = ap_obj;
   const struct tizservant *p_parent = ap_obj;
-/*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
 
   assert (NULL != ap_obj);
   assert (NULL != p_parent->p_hdl_);

@@ -93,9 +93,8 @@ static inline int
 set_nolinger (int sock)
 {
   struct linger lin = { 0, 0 };
-  /* linger inactive, 0 seconds to linger for */
-  /* the call to close returns immediately and */
-  /* the closing is done in the background. */
+  /* linger inactive. close call will return immediately to the caller, and any
+     pending data will be delivered if possible. */
   return setsockopt (sock, SOL_SOCKET, SO_LINGER, (void *) &lin,
                      sizeof (struct linger));
 }
@@ -130,6 +129,9 @@ accept_socket (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl, char *ap_ip,
 
   if (!valid_socket (ap_obj->srv_sockfd_))
     {
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+                     TIZ_CBUF (ap_hdl),
+                     "Invalid server socket fd [%d] ", ap_obj->srv_sockfd_);
       return ICE_RENDERER_SOCK_ERROR;
     }
 
@@ -138,11 +140,15 @@ accept_socket (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl, char *ap_ip,
 
   if (accepted_socket != ICE_RENDERER_SOCK_ERROR)
     {
-      if (getnameinfo ((struct sockaddr *) &sa, slen, ap_ip, a_ip_len,
-                       NULL, 0, NI_NUMERICHOST))
+      int err = 0;
+      if (0 != (err = getnameinfo ((struct sockaddr *) &sa, slen,
+                                   ap_ip, a_ip_len, NULL, 0, NI_NUMERICHOST)))
         {
-          /* TODO: Print log message with errno value  */
           snprintf (ap_ip, a_ip_len, "unknown");
+          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+                         TIZ_CBUF (ap_hdl),
+                         "getnameinfo returned error [%s]",
+                         gai_strerror (err));
         }
 
       set_nolinger (accepted_socket);
@@ -293,15 +299,47 @@ end:
   return rc;
 }
 
+static void
+destroy_connection (icer_connection_t * ap_con)
+{
+  if (NULL != ap_con)
+    {
+      close (ap_con->sock);
+      tiz_mem_free (ap_con->p_ip);
+      tiz_mem_free (ap_con);
+    }
+}
+
+static void
+destroy_listener (icer_listener_t * ap_lstnr)
+{
+  if (NULL != ap_lstnr)
+    {
+      if (NULL != ap_lstnr->p_parser)
+        {
+          tiz_http_parser_destroy (ap_lstnr->p_parser);
+        }
+      if (NULL != ap_lstnr->buf.p_data)
+        {
+          tiz_mem_free (ap_lstnr->buf.p_data);
+        }
+      if (NULL != ap_lstnr->p_con)
+        {
+          destroy_connection (ap_lstnr->p_con);
+        }
+      tiz_mem_free (ap_lstnr);
+    }
+}
 
 static icer_listener_t *
 create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
-                 icer_connection_t * con)
+                 icer_connection_t * ap_con)
 {
-  icer_listener_t *p_listener = NULL;
+  icer_listener_t *p_lstnr = NULL;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
+  assert (NULL != ap_con);
 
   if (ap_obj->max_clients_ == ap_obj->nclients_)
     {
@@ -311,59 +349,258 @@ create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
   else
     {
       ap_obj->max_clients_++;
-      p_listener =
-        (icer_listener_t *) tiz_mem_calloc (1, sizeof (icer_listener_t));
-      p_listener->con = con;
-      p_listener->pos = 0;
+      if (NULL != (p_lstnr =
+                   (icer_listener_t *) tiz_mem_calloc (1,
+                                                       sizeof
+                                                       (icer_listener_t))))
+        {
+          bool some_error = true;
 
-      set_non_blocking (p_listener->con->sock);
-      set_nodelay (p_listener->con->sock);
+          p_lstnr->p_next = NULL;
+          p_lstnr->p_con = ap_con;
+          p_lstnr->respcode = 200;
+          p_lstnr->intro_offset = 0;
+          p_lstnr->pos = 0;
+          p_lstnr->buf.len = ICE_LISTENER_BUF_SIZE;
+          p_lstnr->buf.count = 1;
+          p_lstnr->buf.sync_point = false;
+          p_lstnr->p_parser = NULL;
+
+          if (NULL !=
+              (p_lstnr->buf.p_data =
+               (char *) tiz_mem_alloc (ICE_LISTENER_BUF_SIZE)))
+            {
+              goto end;
+            }
+
+          if (OMX_ErrorNone != (tiz_http_parser_init
+                                (&(p_lstnr->p_parser),
+                                 ETIZHttpParserTypeRequest)))
+            {
+              goto end;
+            }
+
+          p_lstnr->buf.p_data[ICE_LISTENER_BUF_SIZE - 1] = '\000';
+          set_non_blocking (p_lstnr->p_con->sock);
+          set_nodelay (p_lstnr->p_con->sock);
+
+          some_error = false;
+
+        end:
+
+          if (some_error)
+            {
+              destroy_listener (p_lstnr);
+              p_lstnr = NULL;
+            }
+
+        }
     }
 
-  return p_listener;
+  return p_lstnr;
 }
 
 static int
-read_data (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
+read_from_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
+                    icer_listener_t * ap_lstnr, char *ap_buf,
+                    unsigned int a_len)
 {
-  return 1;
-}
-
-static icer_listener_t *
-handle_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
-                 icer_listener_t * ap_listener)
-{
-  tiz_http_parser_t *p_parser = NULL;
-  int nparsed = 0;
-  int nread = 0;
+  icer_connection_t *p_con = NULL;
+  icer_listener_buffer_t *p_buf = NULL;
+  int len = ICE_LISTENER_BUF_SIZE - 1;  /* - offset */
 
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
+  assert (NULL != ap_lstnr);
+  assert (NULL != ap_lstnr->p_con);
 
-  nread = read_data (ap_obj, ap_hdl);
+  p_con = ap_lstnr->p_con;
+  p_buf = &ap_lstnr->buf;
+  assert (NULL != p_buf->p_data);
 
-  tiz_http_parser_init (&p_parser, ETIZHttpParserTypeRequest);
-  ap_listener->p_parser = p_parser;
-
-  if (nread == (nparsed = tiz_http_parser_parse (p_parser, NULL, 1)))
+  if (p_con->con_time + ICE_DEFAULT_HEADER_TIMEOUT <= time (NULL))
     {
-
+      len = 0;
+    }
+  else
+    {
+      len = recv (p_con->sock, p_buf->p_data, p_buf->len, 0);
     }
 
-  return NULL;
+  return len;
+}
+
+static ssize_t
+build_http_response (char *ap_buf, size_t len, int status, const char *ap_msg)
+{
+  const char *http_version = "1.0";
+  time_t now;
+  struct tm result;
+  struct tm *gmtime_result;
+  char currenttime_buffer[80];
+  char status_buffer[80];
+  char contenttype_buffer[80];
+  ssize_t ret;
+  const char *statusmsg = NULL;
+  const char *contenttype = "text/html";
+
+  assert (NULL != ap_buf);
+
+  switch (status)
+    {
+    case 200:
+      {
+        statusmsg = "OK";
+      }
+      break;
+    case 400:
+      {
+        statusmsg = "Bad Request";
+      }
+      break;
+    case 403:
+      {
+        statusmsg = "Forbidden";
+      }
+      break;
+    case 404:
+      {
+        statusmsg = "File Not Found";
+      }
+      break;
+    default:
+      {
+        statusmsg = "(unknown status code)";
+      }
+      break;
+    }
+
+  snprintf (status_buffer, sizeof (status_buffer), "HTTP/%s %d %s\r\n",
+            http_version, status, statusmsg);
+  snprintf (contenttype_buffer, sizeof (contenttype_buffer),
+            "Content-Type: %s\r\n", contenttype);
+
+  time (&now);
+  gmtime_result = gmtime_r (&now, &result);
+
+
+  strftime (currenttime_buffer, sizeof (currenttime_buffer),
+            "Date: %a, %d-%b-%Y %X GMT\r\n", gmtime_result);
+
+  ret = snprintf (ap_buf, len, "%sServer: %s\r\n%s%s%s%s",
+                  status_buffer,
+                  "Tizonia HTTP Sink",
+                  currenttime_buffer,
+                  contenttype_buffer,
+                  (ap_msg ? "\r\n" : ""), (ap_msg ? ap_msg : ""));
+
+  return ret;
+}
+
+static void
+send_http_error (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
+                 icer_listener_t * ap_lstnr, int a_error,
+                 const char *ap_err_msg)
+{
+  ssize_t resp_size = 0;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_lstnr);
+  assert (NULL != ap_lstnr->buf.p_data);
+  assert (NULL != ap_lstnr->p_con);
+  assert (NULL != ap_err_msg);
+
+  ap_lstnr->buf.p_data[ICE_LISTENER_BUF_SIZE - 1] = '\000';
+  resp_size = build_http_response (ap_lstnr->buf.p_data,
+                                   ICE_LISTENER_BUF_SIZE - 1, a_error, "");
+
+  snprintf (ap_lstnr->buf.p_data + resp_size,
+            ICE_LISTENER_BUF_SIZE - resp_size,
+            "<html><head><title>Error %i</title></head><body><b>%i - %s</b>"
+            "</body></html>\r\n", a_error, a_error, ap_err_msg);
+
+  ap_lstnr->buf.len = strlen (ap_lstnr->buf.p_data);
+
+  send (ap_lstnr->p_con->sock, ap_lstnr->buf.p_data, ap_lstnr->buf.len, 0);
+
+  destroy_listener (ap_lstnr);
+
+}
+
+static OMX_ERRORTYPE
+handle_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
+                 icer_listener_t * ap_lstnr)
+{
+  int nparsed = 0;
+  int nread = -1;
+  bool some_error = true;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_lstnr);
+  assert (NULL != ap_lstnr->p_parser);
+
+
+  if (ap_obj->max_clients_ == ap_obj->nclients_)
+    {
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "client limit reached [%d]", ap_obj->max_clients_);
+      send_http_error (ap_obj, ap_hdl, ap_lstnr, 400, "Client limit reached");
+      goto end;
+    }
+
+  nread = read_from_listener (ap_obj, ap_hdl, ap_lstnr, ap_lstnr->buf.p_data,
+                              ap_lstnr->buf.len);
+
+  if (nread > 0)
+    {
+      nparsed = tiz_http_parser_parse (ap_lstnr->p_parser,
+                                       ap_lstnr->buf.p_data, nread);
+    }
+
+  if (nparsed != nread)
+    {
+      send_http_error (ap_obj, ap_hdl, ap_lstnr, 400, "Bad request");
+      goto end;
+    }
+
+  if (0 != strcmp ("GET", tiz_http_parser_get_method (ap_lstnr->p_parser)))
+    {
+      send_http_error (ap_obj, ap_hdl, ap_lstnr, 405, "Method not allowed");
+      goto end;
+    }
+
+  if (0 != strcmp ("/", tiz_http_parser_get_url (ap_lstnr->p_parser)))
+    {
+      send_http_error (ap_obj, ap_hdl, ap_lstnr, 405, "Unathorized");
+      goto end;
+    }
+
+  some_error = false;
+
+end:
+
+  if (some_error)
+    {
+      rc = OMX_ErrorInsufficientResources;
+    }
+
+  return rc;
 }
 
 static icer_connection_t *
 create_connection (int connected_sockfd, char *ap_ip)
 {
-  icer_connection_t *p_con = NULL;;
+  icer_connection_t *p_con = NULL;
   if (NULL != (p_con = (icer_connection_t *)
                tiz_mem_calloc (1, sizeof (icer_connection_t))));
-    {
-      p_con->sock = connected_sockfd;
-      p_con->con_time = time (NULL);
-      p_con->ip = ap_ip;
-    }
+  {
+    p_con->sock = connected_sockfd;
+    p_con->con_time = time (NULL);
+    p_con->p_ip = ap_ip;
+  }
 
   return p_con;
 }
@@ -478,7 +715,7 @@ icer_con_accept_connection (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
   icer_connection_t *p_con = NULL;
   icer_listener_t *p_lstnr = NULL;
   int connected_socket = ICE_RENDERER_SOCK_ERROR;
-  bool some_error = false;
+  bool some_error = true;
 
   if (NULL != (p_ip = (char *) tiz_mem_alloc (ICE_RENDERER_MAX_ADDR_LEN)))
     {
@@ -487,37 +724,58 @@ icer_con_accept_connection (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
 
       if (ICE_RENDERER_SOCK_ERROR == connected_socket)
         {
-          some_error = true;
-          tiz_mem_free (p_ip);
-          return NULL;
+          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+                         TIZ_CBUF (ap_hdl),
+                         "Error found while accepting the connection");
+          goto end;
         }
 
       if (NULL == (p_con = create_connection (connected_socket, p_ip)))
         {
-          close (connected_socket);
-          tiz_mem_free (p_ip);
-          return NULL;
+          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+                         TIZ_CBUF (ap_hdl),
+                         "Error found while creating the connection");
+          goto end;
         }
 
       if (NULL == (p_lstnr = create_listener (ap_obj, ap_hdl, p_con)))
         {
-          send_http_error (p_lstnr, 403, "Connection limit reached");
+          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+                         TIZ_CBUF (ap_hdl),
+                         "Error found while creating the listener");
+          goto end;
         }
-      handle_listener (ap_obj, ap_hdl, p_lstnr);
+
+      if (OMX_ErrorNone != handle_listener (ap_obj, ap_hdl, p_lstnr))
+        {
+          /* If there is an error, handle_listener cleans up after itself, so
+           * at this point, the listener is already destroyed. */
+          p_lstnr = NULL;
+          /* and so are the connection and the socket */
+          p_con = NULL;
+          connected_socket = ICE_RENDERER_SOCK_ERROR;
+          goto end;
+        }
+
+      some_error = false;
     }
 
- end:
+end:
 
   if (some_error)
     {
       if (NULL != p_con)
         {
-          send_http_error (p_lstnr, 403, "Connection limit reached");
-          
+          destroy_connection (p_con);
+          p_con = NULL;
+          p_ip = NULL;
         }
-      if (NULL != p_ip)
+      else
         {
-
+          if (ICE_RENDERER_SOCK_ERROR != connected_socket)
+            {
+              close (connected_socket);
+            }
         }
     }
 
