@@ -2908,6 +2908,11 @@ kernel_AllocateBuffer (const void *ap_obj,
         }
     }
 
+  if (OMX_ErrorNone == rc)
+    {
+      assert (NULL != *app_hdr);
+    }
+
   return rc;
 }
 

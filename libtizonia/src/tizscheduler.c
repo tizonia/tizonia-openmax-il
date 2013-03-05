@@ -53,6 +53,30 @@
 
 #define SCHED_OMX_DEFAULT_ROLE "default"
 
+#include <execinfo.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+/* Obtain a backtrace and print it to stdout. */
+static void
+print_trace (void)
+{
+  void *array[30];
+  size_t size;
+  char **strings;
+  size_t i;
+     
+  size = backtrace (array, 30);
+  strings = backtrace_symbols (array, size);
+     
+  printf ("Obtained %zd stack frames.\n", size);
+     
+  for (i = 0; i < size; i++)
+    printf ("%s\n", strings[i]);
+     
+  free (strings);
+}
+
 typedef enum tizsched_msg_class tizsched_msg_class_t;
 enum tizsched_msg_class
 {
@@ -1070,6 +1094,7 @@ do_ab (tiz_scheduler_t * ap_sched,
        tizsched_state_t * ap_state, tizsched_msg_t * ap_msg)
 {
   tizsched_msg_allocbuffer_t *p_msg_ab = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
                  TIZ_CBUF (ap_sched->child.p_hdl),
                  "ETIZSchedMsgAllocateBuffer received...");
@@ -1079,11 +1104,17 @@ do_ab (tiz_scheduler_t * ap_sched,
   p_msg_ab = &(ap_msg->ab);
   assert (NULL != p_msg_ab);
 
-  return tizapi_AllocateBuffer (ap_sched->child.p_fsm,
-                                ap_msg->p_hdl,
-                                p_msg_ab->pp_hdr,
-                                p_msg_ab->pid,
-                                p_msg_ab->p_app_priv, p_msg_ab->size);
+  rc = tizapi_AllocateBuffer (ap_sched->child.p_fsm,
+                              ap_msg->p_hdl,
+                              p_msg_ab->pp_hdr,
+                              p_msg_ab->pid,
+                              p_msg_ab->p_app_priv, p_msg_ab->size);
+
+  if (NULL == *(p_msg_ab->pp_hdr))
+    {
+      print_trace ();
+    }
+  return rc;
 }
 
 static OMX_ERRORTYPE
