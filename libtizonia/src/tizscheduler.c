@@ -486,6 +486,11 @@ send_msg_non_blocking (tiz_scheduler_t * ap_sched, tizsched_msg_t * ap_msg)
 
   ap_msg->will_block = OMX_FALSE;
 
+  TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_sched->child.p_hdl),
+                 TIZ_CBUF (ap_sched->child.p_hdl),
+                 "[%s] - Sent non-blocking...",
+                 tizsched_msg_to_str (ap_msg->class));
+
   tiz_queue_send (ap_sched->p_queue, ap_msg);
 
   return ap_sched->error;
