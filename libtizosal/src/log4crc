@@ -16,13 +16,15 @@
 <!--         <category name="tiz.rm.proxy_c" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.mem" priority="trace" appender="stdout" /> -->
-<!--         <category name="tiz.osal.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.vector" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.pqueue" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.sync" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.rc" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal.soa" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal.event" priority="trace" appender="stdout"/> -->
+<!--         <category name="tiz.osal.http" priority="trace" appender="stdout"/> -->
+        <category name="tiz.osal.map" priority="trace" appender="stdout"/>
+<!--         <category name="tiz.osal.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.ilcore" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.ilcore.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia" priority="trace" appender="stdout" /> -->

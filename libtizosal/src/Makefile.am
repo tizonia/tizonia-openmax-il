@@ -40,6 +40,7 @@ libtizosal_include_HEADERS = \
 	tizosalrc.h \
 	tizosalsoa.h \
 	tizosalev.h \
+	tizosalmap.h \
 	tizosalhttp.h
 
 libtizosal_la_SOURCES = \
@@ -58,6 +59,7 @@ libtizosal_la_SOURCES = \
 	tizosalrc.c \
 	tizosalsoa.c \
 	tizosalev.c \
+	tizosalmap.c \
 	tizosalhttp.c
 
 libtizosal_la_CFLAGS = \

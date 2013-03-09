@@ -47,6 +47,7 @@
 #include "./check_soa.c"
 #include "./check_event.c"
 #include "./check_http_parser.c"
+#include "./check_map.c"
 
 #define EVENT_API_TEST_TIMEOUT 100
 
@@ -197,12 +198,29 @@ osal_http_parser_suite (void)
   TCase  *tc_http;
   Suite *s = suite_create ("http parser");
 
-  /* http loop API test cases */
+  /* http parser API test cases */
   tc_http = tcase_create ("http parser API");
   tcase_add_test (tc_http, test_http_parser_request_test);
   suite_add_tcase (s, tc_http);
 
   return s;
+}
+
+Suite *
+osal_map_suite (void)
+{
+  TCase  *tc_map;
+  Suite *s = suite_create ("map");
+
+  /* map API test cases */
+  tc_map = tcase_create ("map API");
+  tcase_add_test (tc_map, test_map_init_and_destroy);
+  tcase_add_test (tc_map, test_map_insert_find_erase_size_empty_at_for_each);
+  tcase_add_test (tc_map, test_map_clear);
+  suite_add_tcase (s, tc_map);
+
+  return s;
+
 }
 
 int
@@ -216,13 +234,14 @@ main (void)
   TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OSAL unit tests");
 
   sr = srunner_create (osal_mem_suite ());
-  srunner_add_suite (sr, osal_sync_suite ());
-  srunner_add_suite (sr, osal_queue_suite ());
-  srunner_add_suite (sr, osal_pqueue_suite ());
-  srunner_add_suite (sr, osal_vector_suite ());
-  srunner_add_suite (sr, osal_rcfile_suite ());
-  srunner_add_suite (sr, osal_soa_suite ());
-  srunner_add_suite (sr, osal_http_parser_suite ());
+/*   srunner_add_suite (sr, osal_sync_suite ()); */
+/*   srunner_add_suite (sr, osal_queue_suite ()); */
+/*   srunner_add_suite (sr, osal_pqueue_suite ()); */
+/*   srunner_add_suite (sr, osal_vector_suite ()); */
+/*   srunner_add_suite (sr, osal_rcfile_suite ()); */
+/*   srunner_add_suite (sr, osal_soa_suite ()); */
+/*   srunner_add_suite (sr, osal_http_parser_suite ()); */
+  srunner_add_suite (sr, osal_map_suite ());
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
@@ -231,7 +250,7 @@ main (void)
      NO FORK mode */
   sr = srunner_create (osal_event_suite ());
   srunner_set_fork_status (sr, CK_NOFORK);
-  srunner_run_all (sr, CK_VERBOSE);
+/*   srunner_run_all (sr, CK_VERBOSE); */
   number_failed += srunner_ntests_failed (sr);
   srunner_free (sr);
 

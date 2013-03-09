@@ -28,7 +28,9 @@ noinst_HEADERS = \
 	check_vector.c \
 	check_rc.c \
 	check_soa.c \
-	check_event.c
+	check_event.c \
+	check_http_parser.c \
+	check_map.c
 
 check_tizosal_SOURCES = check_tizosal.c
 

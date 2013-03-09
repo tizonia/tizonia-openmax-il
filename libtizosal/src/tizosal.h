@@ -50,6 +50,7 @@
 #include "tizosalsoa.h"
 #include "tizosalev.h"
 #include "tizosalhttp.h"
+#include "tizosalmap.h"
 
 /** @} */
 
