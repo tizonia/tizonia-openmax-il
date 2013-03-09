@@ -39,8 +39,6 @@
 #include "tizkernel.h"
 #include "tizscheduler.h"
 
-#include "icerprc.h"
-#include "icercon.h"
 #include "icerprc_decls.h"
 
 
@@ -66,17 +64,14 @@ icer_proc_ctor (void *ap_obj, va_list * app)
 {
   struct icerprc *p_obj = super_ctor (icerprc, ap_obj, app);
   p_obj->bind_address_ = NULL;
-  p_obj->listening_port_ = 0;
+  p_obj->lstn_port_ = 0;
   p_obj->mount_name_ = NULL;
   p_obj->max_clients_ = 0;
   p_obj->nclients_ = 0;
   p_obj->burst_size_ = 65536;
   p_obj->eos_ = false;
-  p_obj->srv_sockfd_ = -1;
-  p_obj->p_clnt_socket_lst_ = NULL;
-  p_obj->p_srv_ev_io_ = NULL;
-  p_obj->p_clnt_ev_io_lst_ = NULL;
-  p_obj->p_listener_lst_ = NULL;
+  p_obj->lstn_sockfd_ = ICE_RENDERER_SOCK_ERROR;
+  p_obj->p_server_ = NULL;
   return p_obj;
 }
 
@@ -124,7 +119,7 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
                  "nListeningPort = [%d] nMaxClients = [%d] ",
                  httpsrv.nListeningPort, httpsrv.nMaxClients);
 
-  p_obj->listening_port_ = httpsrv.nListeningPort;
+  p_obj->lstn_port_ = httpsrv.nListeningPort;
   p_obj->max_clients_ = httpsrv.nMaxClients;
 
   if (OMX_ErrorNone != (rc = tiz_event_loop_init ()))
@@ -135,7 +130,9 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       return rc;
     }
 
-  return icer_con_setup_sockets (p_obj, p_parent->p_hdl_);
+  return icer_con_setup_server (&(p_obj->p_server_), p_parent->p_hdl_,
+                                p_obj->bind_address_, p_obj->lstn_port_,
+                                p_obj->max_clients_);
 }
 
 static OMX_ERRORTYPE
@@ -145,7 +142,8 @@ icer_proc_deallocate_resources (void *ap_obj)
 
   assert (NULL != ap_obj);
 
-  icer_con_teardown_sockets (p_obj);
+  icer_con_teardown_server (p_obj->p_server_);
+  p_obj->p_server_ = NULL;
   tiz_event_loop_destroy ();
 
   return OMX_ErrorNone;
@@ -161,9 +159,9 @@ icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   assert (NULL != p_parent->p_hdl_);
 
   TIZ_LOG (TIZ_LOG_TRACE,
-           "Server starts listening on port [%d]", p_obj->listening_port_);
+           "Server starts listening on port [%d]", p_obj->lstn_port_);
 
-  return icer_con_start_listening (p_obj, p_parent->p_hdl_);
+  return icer_con_start_listening (p_obj->p_server_, p_parent->p_hdl_);
 }
 
 static OMX_ERRORTYPE
@@ -177,7 +175,7 @@ icer_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 
   TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
 
-  return icer_con_start_io_watchers (p_obj, p_parent->p_hdl_);
+  return icer_con_start_server_io_watcher (p_obj->p_server_, p_parent->p_hdl_);
 }
 
 static OMX_ERRORTYPE
@@ -190,7 +188,7 @@ icer_proc_stop_and_return (void *ap_obj)
 
   TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]", p_obj);
 
-  return icer_con_stop_io_watchers (p_obj, p_parent->p_hdl_);
+  return icer_con_stop_server_io_watcher (p_obj->p_server_, p_parent->p_hdl_);
 }
 
 /*
@@ -240,16 +238,16 @@ icer_event_io_ready (void *ap_obj,
                  TIZ_CBUF (p_parent->p_hdl_),
                  "received io event on fd [%d] ", a_fd);
 
-  if (a_fd == p_obj->srv_sockfd_)
+  if (a_fd == p_obj->lstn_sockfd_)
     {
       if (NULL !=
-          (p_lstnr = icer_con_accept_connection (p_obj, p_parent->p_hdl_)))
+          (p_lstnr = icer_con_accept_connection (p_obj->p_server_, p_parent->p_hdl_)))
         {
-          p_obj->p_listener_lst_ = p_lstnr;
+          /* TODO */
         }
     }
 
-  icer_con_stop_io_watchers (p_obj, p_parent->p_hdl_);
+  icer_con_stop_server_io_watcher (p_obj->p_server_, p_parent->p_hdl_);
 
   return OMX_ErrorNone;
 }

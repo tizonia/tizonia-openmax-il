@@ -37,24 +37,32 @@ extern "C"
 #include "OMX_Core.h"
 #include "OMX_Types.h"
 
-#include "icerprc.h"
-#include "icerprc_decls.h"
+#define ICE_RENDERER_SOCK_ERROR (int)-1
 
-  OMX_ERRORTYPE icer_con_setup_sockets (struct icerprc *ap_obj,
-                                        OMX_HANDLETYPE ap_hdl);
+  typedef struct icer_server icer_server_t;
+  typedef struct icer_listener_buffer icer_listener_buffer_t;
+  typedef struct icer_connection icer_connection_t;
+  typedef struct icer_listener icer_listener_t;
 
-  void icer_con_teardown_sockets (struct icerprc *ap_obj);
+  OMX_ERRORTYPE icer_con_setup_server (icer_server_t ** app_server,
+                                       OMX_HANDLETYPE ap_hdl,
+                                       OMX_STRING a_address, OMX_U32 a_port,
+                                       OMX_U32 a_max_clients);
 
-  OMX_ERRORTYPE icer_con_start_listening (struct icerprc *ap_obj,
+  void icer_con_teardown_server (icer_server_t * ap_server);
+
+  int icer_con_get_server_fd (const icer_server_t * ap_server);
+
+  OMX_ERRORTYPE icer_con_start_listening (icer_server_t * ap_server,
                                           OMX_HANDLETYPE ap_hdl);
 
-  icer_listener_t *icer_con_accept_connection (struct icerprc *ap_obj,
+  icer_listener_t *icer_con_accept_connection (icer_server_t * ap_server,
                                                OMX_HANDLETYPE ap_hdl);
 
-  OMX_ERRORTYPE icer_con_start_io_watchers (struct icerprc *ap_obj,
+  OMX_ERRORTYPE icer_con_start_server_io_watcher (icer_server_t * ap_server,
                                             OMX_HANDLETYPE ap_hdl);
 
-  OMX_ERRORTYPE icer_con_stop_io_watchers (struct icerprc *ap_obj,
+  OMX_ERRORTYPE icer_con_stop_server_io_watcher (icer_server_t * ap_server,
                                            OMX_HANDLETYPE ap_hdl);
 
 #ifdef __cplusplus

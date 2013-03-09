@@ -39,42 +39,9 @@ extern "C"
 #include "tizosal.h"
 
 #include "icerprc.h"
+#include "icercon.h"
 #include "tizproc_decls.h"
 
-#define ICE_LISTENER_BUF_SIZE  4096
-#define ICE_DEFAULT_HEADER_TIMEOUT 10
-  typedef struct icer_connection icer_connection_t;
-  struct icer_connection
-  {
-    time_t con_time;
-    time_t discon_time;
-    uint64_t sent_bytes;
-    int sock;
-    int error;
-    char *p_ip;
-    char *p_host;
-  };
-
-  typedef struct icer_listener_buffer icer_listener_buffer_t;
-  struct icer_listener_buffer
-  {
-    unsigned int len;
-    unsigned int count;
-    char *p_data;
-    bool sync_point;
-  };
-
-  typedef struct icer_listener icer_listener_t;
-  struct icer_listener
-  {
-    icer_listener_t *p_next;
-    icer_connection_t *p_con;
-    int respcode;
-    long intro_offset;
-    unsigned int pos;
-    icer_listener_buffer_t buf;
-    tiz_http_parser_t *p_parser;
-  };
 
   struct icerprc
   {
@@ -82,17 +49,14 @@ extern "C"
     const struct tizproc _;
     OMX_STRING bind_address_;   /* if this is null, the server will listen on all
                                    interfaces. */
-    OMX_U32 listening_port_;
+    OMX_U32 lstn_port_;
     OMX_STRING mount_name_;
     OMX_U32 max_clients_;
     OMX_U32 nclients_;
     OMX_U32 burst_size_;
     bool eos_;
-    int srv_sockfd_;
-    int *p_clnt_socket_lst_;
-    tiz_event_io_t *p_srv_ev_io_;
-    tiz_event_io_t **p_clnt_ev_io_lst_;
-    icer_listener_t *p_listener_lst_;
+    int lstn_sockfd_;
+    icer_server_t *p_server_;
   };
 
 #ifdef __cplusplus

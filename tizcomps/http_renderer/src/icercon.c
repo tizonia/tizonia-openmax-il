@@ -52,7 +52,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.prc.con"
 #endif
 
-#define ICE_RENDERER_SOCK_ERROR (int)-1
+#define ICE_LISTENER_BUF_SIZE  4096
+#define ICE_DEFAULT_HEADER_TIMEOUT 10
 #define ICE_RENDERER_LISTEN_QUEUE 5
 
 #ifdef INET6_ADDRSTRLEN
@@ -60,6 +61,76 @@
 #else
 #define ICE_RENDERER_MAX_ADDR_LEN 46
 #endif
+
+struct icer_listener_buffer
+{
+  unsigned int len;
+  unsigned int count;
+  char *p_data;
+  bool sync_point;
+};
+
+struct icer_connection
+{
+  time_t con_time;
+  time_t discon_time;
+  uint64_t sent_bytes;
+  int sock;
+  int error;
+  char *p_ip;
+  char *p_host;
+  tiz_event_io_t *p_ev_io;
+};
+
+struct icer_listener
+{
+  icer_listener_t *p_next;
+  icer_connection_t *p_con;
+  int respcode;
+  long intro_offset;
+  unsigned int pos;
+  icer_listener_buffer_t buf;
+  tiz_http_parser_t *p_parser;
+};
+
+struct icer_server
+{
+  int lstn_sockfd;
+  char *p_ip;
+  tiz_event_io_t *p_srv_ev_io;
+  OMX_U32 max_clients;
+  OMX_U32 nclients;
+  tiz_map_t *p_lstnrs;
+};
+
+static OMX_S32
+listeners_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+{
+  int *p_sockfd1 = (int*) ap_key1;
+  int *p_sockfd2 = (int*) ap_key2;
+
+  assert (NULL != ap_key1);
+  assert (NULL != ap_key2);
+
+  if (*p_sockfd1 == *p_sockfd2)
+    {
+      return 0;
+    }
+  else if (*p_sockfd1 < *p_sockfd2)
+    {
+      return -1;
+    }
+  else
+    {
+      return 1;
+    }
+}
+
+static void
+listeners_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
+{
+  tiz_mem_free (ap_key);
+}
 
 static OMX_ERRORTYPE
 set_non_blocking (int sockfd)
@@ -94,7 +165,7 @@ set_nolinger (int sock)
 {
   struct linger lin = { 0, 0 };
   /* linger inactive. close call will return immediately to the caller, and any
-     pending data will be delivered if possible. */
+   * pending data will be delivered if possible. */
   return setsockopt (sock, SOL_SOCKET, SO_LINGER, (void *) &lin,
                      sizeof (struct linger));
 }
@@ -116,27 +187,27 @@ set_keepalive (int sock)
 }
 
 static int
-accept_socket (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl, char *ap_ip,
+accept_socket (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl, char *ap_ip,
                size_t a_ip_len)
 {
   struct sockaddr_storage sa;
   int accepted_socket = ICE_RENDERER_SOCK_ERROR;
   socklen_t slen = sizeof (sa);
 
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
   assert (NULL != ap_hdl);
   assert (NULL != ap_ip);
 
-  if (!valid_socket (ap_obj->srv_sockfd_))
+  if (!valid_socket (ap_server->lstn_sockfd))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
-                     "Invalid server socket fd [%d] ", ap_obj->srv_sockfd_);
+                     "Invalid server socket fd [%d] ", ap_server->lstn_sockfd);
       return ICE_RENDERER_SOCK_ERROR;
     }
 
   accepted_socket =
-    accept (ap_obj->srv_sockfd_, (struct sockaddr *) &sa, &slen);
+    accept (ap_server->lstn_sockfd, (struct sockaddr *) &sa, &slen);
 
   if (accepted_socket != ICE_RENDERER_SOCK_ERROR)
     {
@@ -218,42 +289,42 @@ create_server_socket (OMX_HANDLETYPE ap_hdl, int a_port,
 }
 
 static void
-destroy_io_watchers (struct icerprc *ap_obj)
+destroy_server_io_watcher (icer_server_t *ap_server)
 {
-  int i = 0;
+/*   int i = 0; */
 
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
 
-  if (NULL != ap_obj->p_srv_ev_io_)
+  if (NULL != ap_server->p_srv_ev_io)
     {
-      tiz_event_io_destroy (ap_obj->p_srv_ev_io_);
-      ap_obj->p_srv_ev_io_ = NULL;
+      tiz_event_io_destroy (ap_server->p_srv_ev_io);
+      ap_server->p_srv_ev_io = NULL;
     }
 
-  for (i = 0; i < ap_obj->max_clients_; i++)
-    {
-      if (NULL != ap_obj->p_clnt_ev_io_lst_[i])
-        {
-          tiz_event_io_destroy (ap_obj->p_clnt_ev_io_lst_[i]);
-        }
-    }
+/*   for (i = 0; i < ap_server->max_clients_; i++) */
+/*     { */
+/*       if (NULL != ap_server->p_clnt_ev_io_lst_[i]) */
+/*         { */
+/*           tiz_event_io_destroy (ap_server->p_clnt_ev_io_lst_[i]); */
+/*         } */
+/*     } */
 
-  tiz_mem_free (ap_obj->p_clnt_ev_io_lst_);
-  ap_obj->p_clnt_ev_io_lst_ = NULL;
+/*   tiz_mem_free (ap_server->p_clnt_ev_io_lst_); */
+/*   ap_server->p_clnt_ev_io_lst_ = NULL; */
 }
 
 static OMX_ERRORTYPE
-allocate_io_watchers (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
+allocate_server_io_watcher (icer_server_t *ap_server, OMX_HANDLETYPE ap_hdl)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  int i = 0;
+/*   int i = 0; */
 
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
   assert (NULL != ap_hdl);
 
   if (OMX_ErrorNone !=
       (rc =
-       tiz_event_io_init (&ap_obj->p_srv_ev_io_, ap_hdl,
+       tiz_event_io_init (&(ap_server->p_srv_ev_io), ap_hdl,
                           tiz_receive_event_io)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
@@ -262,38 +333,39 @@ allocate_io_watchers (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
       goto end;
     }
 
-  tiz_event_io_set (ap_obj->p_srv_ev_io_, ap_obj->srv_sockfd_, TIZ_EVENT_READ);
+  tiz_event_io_set (ap_server->p_srv_ev_io, ap_server->lstn_sockfd,
+                    TIZ_EVENT_READ);
 
-  ap_obj->p_clnt_ev_io_lst_ = (tiz_event_io_t **)
-    tiz_mem_calloc (ap_obj->max_clients_, sizeof (tiz_event_io_t *));
+/*   ap_obj->p_clnt_ev_io_lst_ = (tiz_event_io_t **) */
+/*     tiz_mem_calloc (ap_obj->max_clients_, sizeof (tiz_event_io_t *)); */
 
-  if (NULL == ap_obj->p_clnt_ev_io_lst_)
-    {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                     "[OMX_ErrorInsufficientResources] : Error allocating "
-                     "the clients io event list");
-      goto end;
-    }
+/*   if (NULL == ap_obj->p_clnt_ev_io_lst_) */
+/*     { */
+/*       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl), */
+/*                      "[OMX_ErrorInsufficientResources] : Error allocating " */
+/*                      "the clients io event list"); */
+/*       goto end; */
+/*     } */
 
-  for (i = 0; i < ap_obj->max_clients_; i++)
-    {
-      if (OMX_ErrorNone !=
-          (rc =
-           tiz_event_io_init (&(ap_obj->p_clnt_ev_io_lst_[i]), ap_hdl,
-                              tiz_receive_event_io)))
-        {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                         "[%s] : Error initializing the server's io event",
-                         tiz_err_to_str (rc));
-          goto end;
-        }
-    }
+/*   for (i = 0; i < ap_obj->max_clients_; i++) */
+/*     { */
+/*       if (OMX_ErrorNone != */
+/*           (rc = */
+/*            tiz_event_io_init (&(ap_obj->p_clnt_ev_io_lst_[i]), ap_hdl, */
+/*                               tiz_receive_event_io))) */
+/*         { */
+/*           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl), */
+/*                          "[%s] : Error initializing the server's io event", */
+/*                          tiz_err_to_str (rc)); */
+/*           goto end; */
+/*         } */
+/*     } */
 
 end:
 
   if (OMX_ErrorNone != rc)
     {
-      destroy_io_watchers (ap_obj);
+      destroy_server_io_watcher (ap_server);
     }
 
   return rc;
@@ -326,13 +398,13 @@ destroy_listener (icer_listener_t * ap_lstnr)
 }
 
 static OMX_ERRORTYPE
-create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
-                 icer_listener_t ** app_lstnr,  icer_connection_t * ap_con)
+create_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
+                 icer_listener_t ** app_lstnr, icer_connection_t * ap_con)
 {
   icer_listener_t *p_lstnr = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
   assert (NULL != ap_hdl);
   assert (NULL != app_lstnr);
   assert (NULL != ap_con);
@@ -358,8 +430,7 @@ create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
   p_lstnr->p_parser = NULL;
 
   if (NULL !=
-      (p_lstnr->buf.p_data =
-       (char *) tiz_mem_alloc (ICE_LISTENER_BUF_SIZE)))
+      (p_lstnr->buf.p_data = (char *) tiz_mem_alloc (ICE_LISTENER_BUF_SIZE)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
@@ -370,8 +441,7 @@ create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
   p_lstnr->buf.p_data[ICE_LISTENER_BUF_SIZE - 1] = '\000';
 
   if (OMX_ErrorNone != (tiz_http_parser_init
-                        (&(p_lstnr->p_parser),
-                         ETIZHttpParserTypeRequest)))
+                        (&(p_lstnr->p_parser), ETIZHttpParserTypeRequest)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Error while initializing the http parser.",
@@ -383,7 +453,7 @@ create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
   set_non_blocking (p_lstnr->p_con->sock);
   set_nodelay (p_lstnr->p_con->sock);
 
- end:
+end:
 
   if (OMX_ErrorNone != rc)
     {
@@ -392,7 +462,7 @@ create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
     }
   else
     {
-      ap_obj->nclients_++;
+      ap_server->nclients++;
       *app_lstnr = p_lstnr;
     }
 
@@ -400,7 +470,7 @@ create_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static int
-read_from_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
+read_from_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
                     icer_listener_t * ap_lstnr, char *ap_buf,
                     unsigned int a_len)
 {
@@ -408,7 +478,7 @@ read_from_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
   icer_listener_buffer_t *p_buf = NULL;
   int len = ICE_LISTENER_BUF_SIZE - 1;  /* - offset */
 
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
   assert (NULL != ap_hdl);
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_con);
@@ -499,13 +569,13 @@ build_http_response (char *ap_buf, size_t len, int status, const char *ap_msg)
 }
 
 static void
-send_http_error (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
+send_http_error (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
                  icer_listener_t * ap_lstnr, int a_error,
                  const char *ap_err_msg)
 {
   ssize_t resp_size = 0;
 
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
   assert (NULL != ap_hdl);
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->buf.p_data);
@@ -527,7 +597,7 @@ send_http_error (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static OMX_ERRORTYPE
-handle_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
+handle_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
                  icer_listener_t * ap_lstnr)
 {
   int nparsed = 0;
@@ -535,33 +605,33 @@ handle_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
   bool some_error = true;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
   assert (NULL != ap_hdl);
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_parser);
 
-  if (ap_obj->nclients_ > ap_obj->max_clients_)
+  if (ap_server->nclients > ap_server->max_clients)
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                     "client limit reached [%d]", ap_obj->max_clients_);
-      send_http_error (ap_obj, ap_hdl, ap_lstnr, 400, "Client limit reached");
+                     "client limit reached [%d]", ap_server->max_clients);
+      send_http_error (ap_server, ap_hdl, ap_lstnr, 400, "Client limit reached");
       goto end;
     }
 
-  nread = read_from_listener (ap_obj, ap_hdl, ap_lstnr, ap_lstnr->buf.p_data,
+  nread = read_from_listener (ap_server, ap_hdl, ap_lstnr, ap_lstnr->buf.p_data,
                               ap_lstnr->buf.len);
 
   if (nread > 0)
     {
       nparsed = tiz_http_parser_parse (ap_lstnr->p_parser,
-                                   ap_lstnr->buf.p_data, nread);
+                                       ap_lstnr->buf.p_data, nread);
     }
   else
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Could not read any data from socket.");
       /* This could be due to a connection time out or to the peer having
-         closed the connection already */
+       * closed the connection already */
       goto end;
     }
 
@@ -569,19 +639,19 @@ handle_listener (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Bad http request");
-      send_http_error (ap_obj, ap_hdl, ap_lstnr, 400, "Bad request");
+      send_http_error (ap_server, ap_hdl, ap_lstnr, 400, "Bad request");
       goto end;
     }
 
   if (0 != strcmp ("GET", tiz_http_parser_get_method (ap_lstnr->p_parser)))
     {
-      send_http_error (ap_obj, ap_hdl, ap_lstnr, 405, "Method not allowed");
+      send_http_error (ap_server, ap_hdl, ap_lstnr, 405, "Method not allowed");
       goto end;
     }
 
   if (0 != strcmp ("/", tiz_http_parser_get_url (ap_lstnr->p_parser)))
     {
-      send_http_error (ap_obj, ap_hdl, ap_lstnr, 405, "Unathorized");
+      send_http_error (ap_server, ap_hdl, ap_lstnr, 405, "Unathorized");
       goto end;
     }
 
@@ -613,89 +683,139 @@ create_connection (int connected_sockfd, char *ap_ip)
 }
 
 OMX_ERRORTYPE
-icer_con_setup_sockets (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
+icer_con_setup_server (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
+                       OMX_STRING a_address, OMX_U32 a_port,
+                       OMX_U32 a_max_clients)
 {
+  icer_server_t * p_server = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  int sockfd = -1;
+  int sockfd = ICE_RENDERER_SOCK_ERROR;;
+  bool some_error = true;
 
-  assert (NULL != ap_obj);
+  assert (NULL != app_server);
   assert (NULL != ap_hdl);
 
-  if (NULL ==
-      (ap_obj->p_clnt_socket_lst_ = (int *)
-       tiz_mem_calloc (ap_obj->max_clients_, sizeof (int))))
+  if (NULL == (p_server = (icer_server_t *)
+               tiz_mem_calloc (1, sizeof (p_server))))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : Unable to allocate "
-                     "the list of server sockets");
-      rc = OMX_ErrorInsufficientResources;
-      goto end;
+                     "the icer_server_t struct.");
+      return OMX_ErrorInsufficientResources;
     }
 
-  if (ICE_RENDERER_SOCK_ERROR ==
-      (sockfd =
-       create_server_socket (ap_hdl, ap_obj->listening_port_,
-                             ap_obj->bind_address_)))
+  p_server->max_clients = a_max_clients;
+  p_server->nclients = 0;
+
+  if (NULL != a_address)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                     "[OMX_ErrorInsufficientResources] : Unable to create "
-                     "the server socket.");
-      rc = OMX_ErrorInsufficientResources;
-      goto end;
+      p_server->p_ip = strndup (a_address, ICE_RENDERER_MAX_ADDR_LEN);
     }
 
-  ap_obj->srv_sockfd_ = sockfd;
-
-  if (OMX_ErrorNone != (rc = allocate_io_watchers (ap_obj, ap_hdl)))
+  if (OMX_ErrorNone != (rc = tiz_map_init (&(p_server->p_lstnrs),
+                                           listeners_map_compare_func,
+                                           listeners_map_free_func, NULL)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                     "[%s] : Unable to allocate io events.",
+                     "[%s] : Error initializing the listeners map",
                      tiz_err_to_str (rc));
       goto end;
     }
 
+  if (ICE_RENDERER_SOCK_ERROR ==
+      (p_server->lstn_sockfd =
+       create_server_socket (ap_hdl, a_port, a_address)))
+    {
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "Unable to create the server socket.");
+      goto end;
+    }
+
+  if (OMX_ErrorNone != (rc = allocate_server_io_watcher (p_server, ap_hdl)))
+    {
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "[%s] : Unable to allocate the server io event.",
+                     tiz_err_to_str (rc));
+      goto end;
+    }
+
+  some_error = false;
+
 end:
 
-  if (OMX_ErrorNone != rc)
+  if (some_error)
     {
-      tiz_mem_free (ap_obj->p_clnt_socket_lst_);
-      ap_obj->p_clnt_socket_lst_ = NULL;
-      if (-1 != sockfd)
+      if (ICE_RENDERER_SOCK_ERROR != p_server->lstn_sockfd)
         {
           close (sockfd);
-          ap_obj->srv_sockfd_ = -1;
+          p_server->lstn_sockfd = ICE_RENDERER_SOCK_ERROR;
         }
+      if (NULL != p_server)
+        {
+          tiz_mem_free (p_server);
+          tiz_mem_free (p_server->p_ip);
+          p_server = NULL;
+        }
+      rc = OMX_ErrorInsufficientResources;
+    }
+  else
+    {
+      *app_server = p_server;
     }
 
   return rc;
 }
 
-void
-icer_con_teardown_sockets (struct icerprc *ap_obj)
+
+static OMX_S32
+map_for_each_delete_listener (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 {
-  assert (NULL != ap_obj);
+  icer_listener_t *p_lstnr = (icer_listener_t *) ap_value;
+  assert (NULL != p_lstnr);
+  destroy_listener (p_lstnr);
+  return 0;
+}
 
-  tiz_mem_free (ap_obj->p_clnt_socket_lst_);
-  ap_obj->p_clnt_socket_lst_ = NULL;
+void
+icer_con_teardown_server (icer_server_t * ap_server)
+{
+  assert (NULL != ap_server);
 
-  if (-1 != ap_obj->srv_sockfd_)
+  if (!tiz_map_empty (ap_server->p_lstnrs))
     {
-      close (ap_obj->srv_sockfd_);
-      ap_obj->srv_sockfd_ = -1;
+      (void) tiz_map_for_each (ap_server->p_lstnrs, map_for_each_delete_listener,
+                               NULL);
     }
 
-  destroy_io_watchers (ap_obj);
+  if (-1 != ap_server->lstn_sockfd)
+    {
+      close (ap_server->lstn_sockfd);
+      ap_server->lstn_sockfd = ICE_RENDERER_SOCK_ERROR;;
+    }
+
+  tiz_map_clear (ap_server->p_lstnrs);
+  tiz_map_destroy (ap_server->p_lstnrs);
+  ap_server->p_lstnrs = NULL;
+
+  destroy_server_io_watcher (ap_server);
+}
+
+int
+icer_con_get_server_fd (const icer_server_t * ap_server)
+{
+  assert (NULL != ap_server);
+  return ap_server->lstn_sockfd;
 }
 
 OMX_ERRORTYPE
-icer_con_start_listening (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
+icer_con_start_listening (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
   assert (NULL != ap_hdl);
 
-  if (listen (ap_obj->srv_sockfd_, ICE_RENDERER_LISTEN_QUEUE) ==
+  if (listen (ap_server->lstn_sockfd, ICE_RENDERER_LISTEN_QUEUE) ==
       ICE_RENDERER_SOCK_ERROR)
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
@@ -704,7 +824,7 @@ icer_con_start_listening (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
       return OMX_ErrorInsufficientResources;
     }
 
-  if (OMX_ErrorNone != (rc = set_non_blocking (ap_obj->srv_sockfd_)))
+  if (OMX_ErrorNone != (rc = set_non_blocking (ap_server->lstn_sockfd)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : Unable to set"
@@ -716,7 +836,7 @@ icer_con_start_listening (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
 }
 
 icer_listener_t *
-icer_con_accept_connection (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
+icer_con_accept_connection (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 {
   char *p_ip = NULL;
   icer_connection_t *p_con = NULL;
@@ -725,10 +845,13 @@ icer_con_accept_connection (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   bool some_error = true;
 
+  assert (NULL != ap_server);
+  assert (NULL != ap_hdl);
+
   if (NULL != (p_ip = (char *) tiz_mem_alloc (ICE_RENDERER_MAX_ADDR_LEN)))
     {
       conn_sock =
-        accept_socket (ap_obj, ap_hdl, p_ip, ICE_RENDERER_MAX_ADDR_LEN);
+        accept_socket (ap_server, ap_hdl, p_ip, ICE_RENDERER_MAX_ADDR_LEN);
 
       if (ICE_RENDERER_SOCK_ERROR == conn_sock)
         {
@@ -746,13 +869,13 @@ icer_con_accept_connection (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
           goto end;
         }
 
-      if (OMX_ErrorNone != (rc = create_listener (ap_obj, ap_hdl, &p_lstnr,
+      if (OMX_ErrorNone != (rc = create_listener (ap_server, ap_hdl, &p_lstnr,
                                                   p_con)))
         {
           goto end;
         }
 
-      if (OMX_ErrorNone != handle_listener (ap_obj, ap_hdl, p_lstnr))
+      if (OMX_ErrorNone != handle_listener (ap_server, ap_hdl, p_lstnr))
         {
           goto end;
         }
@@ -787,27 +910,29 @@ end:
 }
 
 OMX_ERRORTYPE
-icer_con_start_io_watchers (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
+icer_con_start_server_io_watcher (icer_server_t * ap_server,
+                                  OMX_HANDLETYPE ap_hdl)
 {
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
   assert (NULL != ap_hdl);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "Starting server io watcher on socket fd [%d] ",
-                 ap_obj->srv_sockfd_);
+                 ap_server->lstn_sockfd);
 
-  return tiz_event_io_start (ap_obj->p_srv_ev_io_);
+  return tiz_event_io_start (ap_server->p_srv_ev_io);
 }
 
 OMX_ERRORTYPE
-icer_con_stop_io_watchers (struct icerprc * ap_obj, OMX_HANDLETYPE ap_hdl)
+icer_con_stop_server_io_watcher (icer_server_t * ap_server,
+                                 OMX_HANDLETYPE ap_hdl)
 {
-  assert (NULL != ap_obj);
+  assert (NULL != ap_server);
   assert (NULL != ap_hdl);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
                  TIZ_CBUF (ap_hdl),
-                 "stopping io watcher on fd [%d] ", ap_obj->srv_sockfd_);
+                 "stopping io watcher on fd [%d] ", ap_server->lstn_sockfd);
 
-  return tiz_event_io_stop (ap_obj->p_srv_ev_io_);
+  return tiz_event_io_stop (ap_server->p_srv_ev_io);
 }
