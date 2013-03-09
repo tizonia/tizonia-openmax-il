@@ -228,11 +228,11 @@ icer_proc_buffers_ready (const void *ap_obj)
 
 static OMX_ERRORTYPE
 icer_event_io_ready (void *ap_obj,
-                       tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
+                     tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
   struct icerprc *p_obj = ap_obj;
   struct tizservant *p_parent = ap_obj;
-  icer_listener_t *p_listener = NULL;
+  icer_listener_t *p_lstnr = NULL;
 
   assert (NULL != p_obj);
 
@@ -242,8 +242,11 @@ icer_event_io_ready (void *ap_obj,
 
   if (a_fd == p_obj->srv_sockfd_)
     {
-      p_listener = icer_con_accept_connection (p_obj, p_parent->p_hdl_);
-      p_obj->p_listener_lst_ = p_listener;
+      if (NULL !=
+          (p_lstnr = icer_con_accept_connection (p_obj, p_parent->p_hdl_)))
+        {
+          p_obj->p_listener_lst_ = p_lstnr;
+        }
     }
 
   icer_con_stop_io_watchers (p_obj, p_parent->p_hdl_);
