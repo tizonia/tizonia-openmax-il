@@ -234,13 +234,13 @@ main (void)
   TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OSAL unit tests");
 
   sr = srunner_create (osal_mem_suite ());
-/*   srunner_add_suite (sr, osal_sync_suite ()); */
-/*   srunner_add_suite (sr, osal_queue_suite ()); */
-/*   srunner_add_suite (sr, osal_pqueue_suite ()); */
-/*   srunner_add_suite (sr, osal_vector_suite ()); */
-/*   srunner_add_suite (sr, osal_rcfile_suite ()); */
-/*   srunner_add_suite (sr, osal_soa_suite ()); */
-/*   srunner_add_suite (sr, osal_http_parser_suite ()); */
+  srunner_add_suite (sr, osal_sync_suite ());
+  srunner_add_suite (sr, osal_queue_suite ());
+  srunner_add_suite (sr, osal_pqueue_suite ());
+  srunner_add_suite (sr, osal_vector_suite ());
+  srunner_add_suite (sr, osal_rcfile_suite ());
+  srunner_add_suite (sr, osal_soa_suite ());
+  srunner_add_suite (sr, osal_http_parser_suite ());
   srunner_add_suite (sr, osal_map_suite ());
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
@@ -250,7 +250,7 @@ main (void)
      NO FORK mode */
   sr = srunner_create (osal_event_suite ());
   srunner_set_fork_status (sr, CK_NOFORK);
-/*   srunner_run_all (sr, CK_VERBOSE); */
+  srunner_run_all (sr, CK_VERBOSE);
   number_failed += srunner_ntests_failed (sr);
   srunner_free (sr);
 
