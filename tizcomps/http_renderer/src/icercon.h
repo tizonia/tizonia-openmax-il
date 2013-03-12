@@ -40,14 +40,19 @@ extern "C"
 #define ICE_RENDERER_SOCK_ERROR (int)-1
 
   typedef struct icer_server icer_server_t;
-  typedef struct icer_listener_buffer icer_listener_buffer_t;
-  typedef struct icer_connection icer_connection_t;
-  typedef struct icer_listener icer_listener_t;
+
+  typedef void (*icer_buffer_emptied_f) (OMX_BUFFERHEADERTYPE * ap_hdr,
+                                         OMX_PTR ap_arg);
+  typedef OMX_BUFFERHEADERTYPE *(*icer_buffer_needed_f) (OMX_PTR ap_arg);
+
 
   OMX_ERRORTYPE icer_con_setup_server (icer_server_t ** app_server,
                                        OMX_HANDLETYPE ap_hdl,
                                        OMX_STRING a_address, OMX_U32 a_port,
-                                       OMX_U32 a_max_clients);
+                                       OMX_U32 a_max_clients,
+                                       icer_buffer_emptied_f a_pf_emptied,
+                                       icer_buffer_needed_f a_pf_needed,
+                                       OMX_PTR ap_arg);
 
   void icer_con_teardown_server (icer_server_t * ap_server);
 
@@ -56,14 +61,17 @@ extern "C"
   OMX_ERRORTYPE icer_con_start_listening (icer_server_t * ap_server,
                                           OMX_HANDLETYPE ap_hdl);
 
-  icer_listener_t *icer_con_accept_connection (icer_server_t * ap_server,
-                                               OMX_HANDLETYPE ap_hdl);
-
-  OMX_ERRORTYPE icer_con_start_server_io_watcher (icer_server_t * ap_server,
+  OMX_ERRORTYPE icer_con_accept_connection (icer_server_t * ap_server,
                                             OMX_HANDLETYPE ap_hdl);
 
+  OMX_ERRORTYPE icer_con_start_server_io_watcher (icer_server_t * ap_server,
+                                                  OMX_HANDLETYPE ap_hdl);
+
   OMX_ERRORTYPE icer_con_stop_server_io_watcher (icer_server_t * ap_server,
-                                           OMX_HANDLETYPE ap_hdl);
+                                                 OMX_HANDLETYPE ap_hdl);
+
+  OMX_ERRORTYPE icer_con_write_data (icer_server_t * ap_server,
+                                     OMX_HANDLETYPE ap_hdl);
 
 #ifdef __cplusplus
 }

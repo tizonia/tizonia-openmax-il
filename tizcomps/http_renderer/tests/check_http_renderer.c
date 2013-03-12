@@ -736,7 +736,7 @@ END_TEST Suite * ar_suite (void)
   tc_icer = tcase_create ("Http Streaming");
   tcase_add_unchecked_fixture (tc_icer, setup, teardown);
   tcase_set_timeout (tc_icer, HTTP_RENDERER_TEST_TIMEOUT);
-  tcase_add_loop_test (tc_icer, test_http_stream, 0, 1);
+/*   tcase_add_loop_test (tc_icer, test_http_stream, 0, 1); */
   suite_add_tcase (s, tc_icer);
 
   return s;

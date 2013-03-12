@@ -281,11 +281,8 @@ static OMX_ERRORTYPE
 sdlivr_proc_stop_and_return (void *ap_obj)
 {
   struct sdlivrprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
 
-  assert (ap_obj);
-
-  (void) p_parent;
+  assert (NULL != p_obj);
 
   SDL_FreeYUVOverlay (p_obj->p_overlay);
 
@@ -337,7 +334,6 @@ init_sdlivrprc (void)
 
   if (!sdlivrprc)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing sdlivrprc...");
       init_tizproc ();
       sdlivrprc =
         factory_new

@@ -48,15 +48,17 @@ extern "C"
     /* Object */
     const struct tizproc _;
     OMX_STRING bind_address_;   /* if this is null, the server will listen on all
-                                   interfaces. */
+                                 * interfaces. */
     OMX_U32 lstn_port_;
     OMX_STRING mount_name_;
     OMX_U32 max_clients_;
     OMX_U32 nclients_;
     OMX_U32 burst_size_;
+    bool server_is_full_;
     bool eos_;
     int lstn_sockfd_;
     icer_server_t *p_server_;
+    OMX_BUFFERHEADERTYPE *p_inhdr_;
   };
 
 #ifdef __cplusplus
