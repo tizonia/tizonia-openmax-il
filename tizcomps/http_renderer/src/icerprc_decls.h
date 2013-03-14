@@ -47,8 +47,8 @@ extern "C"
   {
     /* Object */
     const struct tizproc _;
-    OMX_STRING bind_address_;   /* if this is null, the server will listen on all
-                                 * interfaces. */
+    OMX_STRING bind_address_; /* if this is null, the server will listen on all
+                                 interfaces. */
     OMX_U32 lstn_port_;
     OMX_STRING mount_name_;
     OMX_U32 max_clients_;

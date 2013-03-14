@@ -54,7 +54,7 @@ extern "C"
                                        icer_buffer_needed_f a_pf_needed,
                                        OMX_PTR ap_arg);
 
-  void icer_con_teardown_server (icer_server_t * ap_server);
+  void icer_con_teardown_server (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl);
 
   int icer_con_get_server_fd (const icer_server_t * ap_server);
 

@@ -469,8 +469,8 @@ START_TEST (test_http_stream)
   OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
   OMX_BUFFERHEADERTYPE **p_hdrlst;
   OMX_U32 i = 0;
-/*   FILE *p_file = 0; */
-/*   int err = 0; */
+  FILE *p_file = 0;
+  int err = 0;
   tiz_rcfile_t *p_rcfile = NULL;
 
   tiz_rcfile_open(&p_rcfile);
@@ -602,63 +602,73 @@ START_TEST (test_http_stream)
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateExecuting != p_ctx->state);
 
-  sleep (30);
+  /* -------------------- */
+  /* buffer transfer loop */
+  /* -------------------- */
+  fail_if ((p_file = fopen (pg_files[_i], "r")) == 0);
 
-/*   /\* -------------------- *\/ */
-/*   /\* buffer transfer loop *\/ */
-/*   /\* -------------------- *\/ */
-/*   fail_if ((p_file = fopen (pg_files[_i], "r")) == 0); */
+  i = 0;
+  while (i < port_def.nBufferCountActual)
+    {
+      TIZ_LOG (TIZ_LOG_TRACE, "Reading from file [%s]", pg_files[_i]);
+      if (!
+          (err =
+           fread (p_hdrlst[i]->pBuffer, 1, port_def.nBufferSize, p_file)))
+        {
+          if (feof (p_file))
+            {
+              TIZ_LOG (TIZ_LOG_TRACE, "End of file reached for [%s]",
+                         pg_files[_i]);
+            }
+          else
+            {
+              TIZ_LOG (TIZ_LOG_TRACE,
+                         "An error occurred while reading [%s]",
+                         pg_files[_i]);
+              fail_if (0);
+            }
+        }
 
-/*   i = 0; */
-/*   while (i < port_def.nBufferCountActual) */
-/*     { */
-/*       TIZ_LOG (TIZ_LOG_TRACE, "Reading from file [%s]", pg_files[_i]); */
-/*       if (! */
-/*           (err = */
-/*            fread (p_hdrlst[i]->pBuffer, 1, port_def.nBufferSize, p_file))) */
-/*         { */
-/*           if (feof (p_file)) */
-/*             { */
-/*               TIZ_LOG (TIZ_LOG_TRACE, "End of file reached for [%s]", */
-/*                          pg_files[_i]); */
-/*             } */
-/*           else */
-/*             { */
-/*               TIZ_LOG (TIZ_LOG_TRACE, */
-/*                          "An error occurred while reading [%s]", */
-/*                          pg_files[_i]); */
-/*               fail_if (0); */
-/*             } */
-/*         } */
+      /* --------------- */
+      /* Transfer buffer */
+      /* --------------- */
+      error = _ctx_reset (&ctx);
+      p_hdrlst[i]->nFilledLen = port_def.nBufferSize;
+      error = OMX_EmptyThisBuffer (p_hdl, p_hdrlst[i]);
+      fail_if (OMX_ErrorNone != error);
 
-/*       /\* --------------- *\/ */
-/*       /\* Transfer buffer *\/ */
-/*       /\* --------------- *\/ */
-/*       error = _ctx_reset (&ctx); */
-/*       p_hdrlst[i]->nFilledLen = port_def.nBufferSize; */
-/*       error = OMX_EmptyThisBuffer (p_hdl, p_hdrlst[i]); */
-/*       fail_if (OMX_ErrorNone != error); */
+      /* ------------------------- */
+      /* Await BufferDone callback */
+      /* ------------------------- */
+      do
+        {
+          error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+          fail_if (OMX_ErrorNone != error);
+          /*       fail_if (OMX_TRUE == timedout); */
+          if (error == OMX_ErrorNone && timedout == OMX_FALSE)
+            {
+              fail_if (p_ctx->p_hdr != p_hdrlst[i]);
+            }
+          else
+            {
+              timedout = OMX_FALSE;
+              error = OMX_ErrorTimeout;
+            }
+        } 
+      while (error != OMX_ErrorNone);
 
-/*       /\* ------------------------- *\/ */
-/*       /\* Await BufferDone callback *\/ */
-/*       /\* ------------------------- *\/ */
-/*       error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout); */
-/*       fail_if (OMX_ErrorNone != error); */
-/*       fail_if (OMX_TRUE == timedout); */
-/*       fail_if (p_ctx->p_hdr != p_hdrlst[i]); */
+      i++;
+      i %= port_def.nBufferCountActual;
 
-/*       i++; */
-/*       i %= port_def.nBufferCountActual; */
+      if (0 == err)
+        {
+          /* EOF */
+          break;
+        }
 
-/*       if (0 == err) */
-/*         { */
-/*           /\* EOF *\/ */
-/*           break; */
-/*         } */
+    }
 
-/*     } */
-
-/*   fclose (p_file); */
+  fclose (p_file);
 
   /* --------------------------- */
   /* Initiate transition to IDLE */
@@ -736,7 +746,7 @@ END_TEST Suite * ar_suite (void)
   tc_icer = tcase_create ("Http Streaming");
   tcase_add_unchecked_fixture (tc_icer, setup, teardown);
   tcase_set_timeout (tc_icer, HTTP_RENDERER_TEST_TIMEOUT);
-/*   tcase_add_loop_test (tc_icer, test_http_stream, 0, 1); */
+  tcase_add_loop_test (tc_icer, test_http_stream, 0, 1);
   suite_add_tcase (s, tc_icer);
 
   return s;

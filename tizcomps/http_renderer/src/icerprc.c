@@ -54,6 +54,11 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
 
+  if (ap_obj->nclients_ == 0)
+    {
+      return OMX_ErrorNone;
+    }
+
   if (ap_obj->p_server_ && !ap_obj->server_is_full_)
     {
       rc = icer_con_write_data (ap_obj->p_server_, ap_hdl);
@@ -62,7 +67,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
         {
         case OMX_ErrorNoMore:
           {
-            /* Send buffers are full */
+            /* Socket send buffers are full */
             ap_obj->server_is_full_ = true;
             rc = OMX_ErrorNone;
           }
@@ -77,7 +82,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
 
         case OMX_ErrorNotReady:
           {
-            /* There are no connected clients yet */
+            /* No connected clients yet */
             ap_obj->server_is_full_ = false;
             rc = OMX_ErrorNone;
           }
@@ -147,6 +152,8 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * p_hdr, void *p_arg)
   assert (NULL != p_hdr);
   assert (p_obj->p_inhdr_ == p_hdr);
 
+  TIZ_LOG (TIZ_LOG_TRACE, "HEADER emptied [%p]", p_hdr);
+
   p_krn = tiz_get_krn (p_parent->p_hdl_);
   assert (NULL != p_krn);
   assert (p_hdr->nFilledLen == 0);
@@ -200,10 +207,10 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
 
   assert (NULL != ap_obj);
-  assert (p_parent->p_hdl_);
+  assert (NULL != p_parent->p_hdl_);
 
   p_krn = tiz_get_krn (p_parent->p_hdl_);
-  assert (p_krn);
+  assert (NULL != p_krn);
 
   /* Retrieve http server configuration from the component's config port */
   httpsrv.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
@@ -245,10 +252,12 @@ static OMX_ERRORTYPE
 icer_proc_deallocate_resources (void *ap_obj)
 {
   struct icerprc *p_obj = ap_obj;
+  const struct tizservant *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
+  assert (NULL != p_parent->p_hdl_);
 
-  icer_con_teardown_server (p_obj->p_server_);
+  icer_con_teardown_server (p_obj->p_server_, p_parent->p_hdl_);
   p_obj->p_server_ = NULL;
   tiz_event_loop_destroy ();
 
@@ -266,6 +275,8 @@ icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 
   TIZ_LOG (TIZ_LOG_TRACE,
            "Server starts listening on port [%d]", p_obj->lstn_port_);
+
+  p_obj->lstn_sockfd_ = icer_con_get_server_fd (p_obj->p_server_);
 
   return icer_con_start_listening (p_obj->p_server_, p_parent->p_hdl_);
 }
@@ -326,22 +337,34 @@ icer_event_io_ready (void *ap_obj,
   assert (NULL != p_parent->p_hdl_);
   p_hdl = p_parent->p_hdl_;
 
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+                 "Received io event on socket fd [%d] lstn_sockfd_ [%d]",
+                 a_fd, p_obj->lstn_sockfd_);
+
   if (a_fd == p_obj->lstn_sockfd_)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
-                     "Received io event on server socket [%d] ", a_fd);
-
-      icer_con_stop_server_io_watcher (p_obj->p_server_, p_hdl);
-      rc = icer_con_accept_connection (p_obj->p_server_, p_hdl);
-      icer_con_start_server_io_watcher (p_obj->p_server_, p_hdl);
+      /* Allow only one client for now */
+      if (p_obj->nclients_ == 0)
+        {
+          rc = icer_con_accept_connection (p_obj->p_server_, p_hdl);
+          p_obj->nclients_++;
+        }
+      else
+        {
+          return OMX_ErrorNone;
+        }
     }
 
-  if (OMX_ErrorNone != rc)
+  if (rc == OMX_ErrorNone)
     {
-      return rc;
+      rc = stream_to_clients (p_obj, p_hdl);
+    }
+  else if (OMX_ErrorNotReady == rc)
+    {
+      rc = OMX_ErrorNone;
     }
 
-  return stream_to_clients (p_obj, p_hdl);
+  return rc;
 }
 
 static OMX_ERRORTYPE

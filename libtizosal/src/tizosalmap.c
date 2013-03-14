@@ -277,12 +277,15 @@ tiz_map_clear (tiz_map_t * ap_map)
   assert (NULL != ap_map);
   assert (NULL != ap_map->p_tree);
 
-  avl_free_avl_tree (ap_map->p_tree, map_free_key);
-  ap_map->size = 0;
-
-  if (NULL == (ap_map->p_tree = avl_new_avl_tree (map_compare, ap_map)))
+  if (ap_map->size > 0)
     {
-      return OMX_ErrorInsufficientResources;
+      avl_free_avl_tree (ap_map->p_tree, map_free_key);
+      ap_map->size = 0;
+
+      if (NULL == (ap_map->p_tree = avl_new_avl_tree (map_compare, ap_map)))
+        {
+          return OMX_ErrorInsufficientResources;
+        }
     }
 
   return OMX_ErrorNone;
