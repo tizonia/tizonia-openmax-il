@@ -60,7 +60,8 @@ extern "C"
                                        tiz_event_io_t * ap_ev_io, int a_fd,
                                        int a_events);
     OMX_ERRORTYPE (*event_timer_ready) (void *ap_obj,
-                                          tiz_event_timer_t * ap_ev_timer);
+                                        tiz_event_timer_t * ap_ev_timer,
+                                        void *ap_arg);
     OMX_ERRORTYPE (*event_stat_ready) (void *ap_obj,
                                          tiz_event_stat_t * ap_ev_stat,
                                          int a_events);

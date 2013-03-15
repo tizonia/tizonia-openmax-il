@@ -763,7 +763,7 @@ main (void)
 
   TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - HTTP Renderer unit tests");
 
-/*   srunner_run_all (sr, CK_VERBOSE); */
+  srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
 

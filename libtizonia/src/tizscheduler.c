@@ -236,6 +236,7 @@ typedef struct tizsched_msg_ev_timer tizsched_msg_ev_timer_t;
 struct tizsched_msg_ev_timer
 {
   tiz_event_timer_t * p_ev_timer;
+  void *p_arg;
 };
 
 typedef struct tizsched_msg_ev_stat tizsched_msg_ev_stat_t;
@@ -1463,7 +1464,8 @@ do_etmr (tiz_scheduler_t * ap_sched,
   assert (NULL != p_msg_etmr);
 
   return tizproc_event_timer_ready (ap_sched->child.p_prc,
-                                      p_msg_etmr->p_ev_timer);
+                                    p_msg_etmr->p_ev_timer,
+                                    p_msg_etmr->p_arg);
 }
 
 static OMX_ERRORTYPE
@@ -2752,7 +2754,8 @@ tiz_receive_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t * ap_ev_io, int a_fd
 }
 
 void
-tiz_receive_event_timer (OMX_HANDLETYPE ap_hdl, tiz_event_timer_t * ap_ev_timer)
+tiz_receive_event_timer (OMX_HANDLETYPE ap_hdl, tiz_event_timer_t * ap_ev_timer,
+                         void *ap_arg)
 {
   tizsched_msg_t *p_msg = NULL;
   tizsched_msg_ev_timer_t *p_msg_etmr = NULL;
@@ -2780,6 +2783,7 @@ tiz_receive_event_timer (OMX_HANDLETYPE ap_hdl, tiz_event_timer_t * ap_ev_timer)
   assert (NULL != p_msg_etmr);
 
   p_msg_etmr->p_ev_timer = ap_ev_timer;
+  p_msg_etmr->p_arg = ap_arg;
 
   /* TODO: Shouldn't mask this return code */
   (void) send_msg (p_sched, p_msg);

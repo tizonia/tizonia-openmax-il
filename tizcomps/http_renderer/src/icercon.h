@@ -46,15 +46,15 @@ extern "C"
   typedef OMX_BUFFERHEADERTYPE *(*icer_buffer_needed_f) (OMX_PTR ap_arg);
 
 
-  OMX_ERRORTYPE icer_con_setup_server (icer_server_t ** app_server,
-                                       OMX_HANDLETYPE ap_hdl,
-                                       OMX_STRING a_address, OMX_U32 a_port,
-                                       OMX_U32 a_max_clients,
-                                       icer_buffer_emptied_f a_pf_emptied,
-                                       icer_buffer_needed_f a_pf_needed,
-                                       OMX_PTR ap_arg);
+  OMX_ERRORTYPE icer_con_server_init (icer_server_t ** app_server,
+                                      OMX_HANDLETYPE ap_hdl,
+                                      OMX_STRING a_address, OMX_U32 a_port,
+                                      OMX_U32 a_max_clients,
+                                      icer_buffer_emptied_f a_pf_emptied,
+                                      icer_buffer_needed_f a_pf_needed,
+                                      OMX_PTR ap_arg);
 
-  void icer_con_teardown_server (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl);
+  void icer_con_server_destroy (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl);
 
   int icer_con_get_server_fd (const icer_server_t * ap_server);
 
@@ -64,11 +64,8 @@ extern "C"
   OMX_ERRORTYPE icer_con_accept_connection (icer_server_t * ap_server,
                                             OMX_HANDLETYPE ap_hdl);
 
-  OMX_ERRORTYPE icer_con_start_server_io_watcher (icer_server_t * ap_server,
-                                                  OMX_HANDLETYPE ap_hdl);
-
-  OMX_ERRORTYPE icer_con_stop_server_io_watcher (icer_server_t * ap_server,
-                                                 OMX_HANDLETYPE ap_hdl);
+  OMX_ERRORTYPE icer_con_stop_listening (icer_server_t * ap_server,
+                                         OMX_HANDLETYPE ap_hdl);
 
   OMX_ERRORTYPE icer_con_write_data (icer_server_t * ap_server,
                                      OMX_HANDLETYPE ap_hdl);

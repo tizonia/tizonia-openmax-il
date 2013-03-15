@@ -183,7 +183,8 @@ extern "C"
                              int a_fd, int a_events);
 
   void tiz_receive_event_timer (OMX_HANDLETYPE ap_hdl,
-                                tiz_event_timer_t * ap_ev_timer);
+                                tiz_event_timer_t * ap_ev_timer,
+                                void *ap_arg);
 
   void tiz_receive_event_stat (OMX_HANDLETYPE ap_hdl,
                                tiz_event_stat_t * ap_ev_stat, int a_events);

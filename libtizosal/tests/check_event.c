@@ -119,7 +119,8 @@ stop_udp_server(int sockfd)
 }
 
 static void
-check_event_timer_cback (OMX_HANDLETYPE p_hdl, tiz_event_timer_t * ap_ev_timer)
+check_event_timer_cback (OMX_HANDLETYPE p_hdl, tiz_event_timer_t * ap_ev_timer,
+                         void *ap_arg)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
@@ -236,7 +237,8 @@ START_TEST (test_event_timer)
   error = tiz_event_loop_init ();
   fail_if (error != OMX_ErrorNone);
 
-  error = tiz_event_timer_init (&p_ev_timer, p_hdl, check_event_timer_cback);
+  error = tiz_event_timer_init (&p_ev_timer, p_hdl, check_event_timer_cback,
+                                NULL);
   fail_if (error != OMX_ErrorNone);
 
   tiz_event_timer_set (p_ev_timer, 1., CHECK_TIMER_PERIOD);

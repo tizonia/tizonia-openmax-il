@@ -60,6 +60,7 @@ struct tiz_event_timer
   ev_timer timer;
   tiz_event_timer_cb_f pf_cback;
   OMX_HANDLETYPE p_hdl;
+  void *p_arg;
 };
 
 struct tiz_event_stat
@@ -145,7 +146,7 @@ timer_watcher_cback (struct ev_loop *ap_loop, ev_timer * ap_watcher,
 
   TIZ_LOG (TIZ_LOG_TRACE, "timer watcher cback");
 
-  p_timer_event->pf_cback (p_timer_event->p_hdl, p_timer_event);
+  p_timer_event->pf_cback (p_timer_event->p_hdl, p_timer_event, p_timer_event->p_arg);
 }
 
 static void
@@ -461,7 +462,8 @@ tiz_event_io_destroy (tiz_event_io_t * ap_ev_io)
 OMX_ERRORTYPE
 tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
                       OMX_HANDLETYPE ap_hdl,
-                      tiz_event_timer_cb_f ap_cback)
+                      tiz_event_timer_cb_f ap_cback,
+                      void *ap_arg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_event_timer_t *p_timer_watcher = NULL;
@@ -478,6 +480,7 @@ tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
 
   p_timer_watcher->pf_cback = ap_cback;
   p_timer_watcher->p_hdl    = ap_hdl;
+  p_timer_watcher->p_arg    = ap_arg;
   ev_init ((ev_timer *) p_timer_watcher, timer_watcher_cback);
 
   *app_ev_timer = p_timer_watcher;

@@ -69,6 +69,20 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* Socket send buffers are full */
             ap_obj->server_is_full_ = true;
+            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+                           TIZ_CBUF (ap_hdl),
+                           "[%s] : ", tiz_err_to_str (rc));
+            rc = OMX_ErrorNone;
+          }
+          break;
+
+        case OMX_ErrorOverflow:
+          {
+            /* Trying not send too much data. */
+            ap_obj->server_is_full_ = false;
+            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+                           TIZ_CBUF (ap_hdl),
+                           "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
           break;
@@ -77,6 +91,9 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* More data needed */
             ap_obj->server_is_full_ = false;
+            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+                           TIZ_CBUF (ap_hdl),
+                           "[%s] : ", tiz_err_to_str (rc));
           }
           break;
 
@@ -84,6 +101,9 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* No connected clients yet */
             ap_obj->server_is_full_ = false;
+            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+                           TIZ_CBUF (ap_hdl),
+                           "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
           break;
@@ -112,27 +132,33 @@ buffer_needed (void *ap_arg)
 
   if (!(p_obj->eos_))
     {
-      const struct tizservant *p_parent = ap_arg;
-      tiz_pd_set_t ports;
-      void *p_krn = NULL;
-
-      assert (NULL == p_obj->p_inhdr_);
-      assert (false == p_obj->server_is_full_);
-
-      assert (NULL != p_parent->p_hdl_);
-      p_krn = tiz_get_krn (p_parent->p_hdl_);
-
-      TIZ_PD_ZERO (&ports);
-      if (OMX_ErrorNone == tizkernel_select (p_krn, 1, &ports))
+      if (NULL != p_obj->p_inhdr_ && p_obj->p_inhdr_->nFilledLen > 0)
         {
-          if (TIZ_PD_ISSET (0, &ports))
+          return p_obj->p_inhdr_;
+        }
+      else
+        {
+          const struct tizservant *p_parent = ap_arg;
+          tiz_pd_set_t ports;
+          void *p_krn = NULL;
+
+          assert (false == p_obj->server_is_full_);
+
+          assert (NULL != p_parent->p_hdl_);
+          p_krn = tiz_get_krn (p_parent->p_hdl_);
+
+          TIZ_PD_ZERO (&ports);
+          if (OMX_ErrorNone == tizkernel_select (p_krn, 1, &ports))
             {
-              if (OMX_ErrorNone == tizkernel_claim_buffer
-                  (p_krn, 0, 0, &p_obj->p_inhdr_))
+              if (TIZ_PD_ISSET (0, &ports))
                 {
-                  TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...",
-                           p_obj->p_inhdr_);
-                  return p_obj->p_inhdr_;
+                  if (OMX_ErrorNone == tizkernel_claim_buffer
+                      (p_krn, 0, 0, &p_obj->p_inhdr_))
+                    {
+                      TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...",
+                               p_obj->p_inhdr_);
+                      return p_obj->p_inhdr_;
+                    }
                 }
             }
         }
@@ -242,10 +268,10 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       return rc;
     }
 
-  return icer_con_setup_server (&(p_obj->p_server_), p_parent->p_hdl_,
-                                p_obj->bind_address_, p_obj->lstn_port_,
-                                p_obj->max_clients_, buffer_emptied,
-                                buffer_needed, p_obj);
+  return icer_con_server_init (&(p_obj->p_server_), p_parent->p_hdl_,
+                               p_obj->bind_address_, p_obj->lstn_port_,
+                               p_obj->max_clients_, buffer_emptied,
+                               buffer_needed, p_obj);
 }
 
 static OMX_ERRORTYPE
@@ -257,7 +283,7 @@ icer_proc_deallocate_resources (void *ap_obj)
   assert (NULL != ap_obj);
   assert (NULL != p_parent->p_hdl_);
 
-  icer_con_teardown_server (p_obj->p_server_, p_parent->p_hdl_);
+  icer_con_server_destroy (p_obj->p_server_, p_parent->p_hdl_);
   p_obj->p_server_ = NULL;
   tiz_event_loop_destroy ();
 
@@ -284,15 +310,7 @@ icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 icer_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  struct icerprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
-
-  assert (NULL != ap_obj);
-  assert (NULL != p_parent->p_hdl_);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
-
-  return icer_con_start_server_io_watcher (p_obj->p_server_, p_parent->p_hdl_);
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -305,7 +323,7 @@ icer_proc_stop_and_return (void *ap_obj)
 
   TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]", p_obj);
 
-  return icer_con_stop_server_io_watcher (p_obj->p_server_, p_parent->p_hdl_);
+  return icer_con_stop_listening (p_obj->p_server_, p_parent->p_hdl_);
 }
 
 /*
@@ -355,6 +373,11 @@ icer_event_io_ready (void *ap_obj,
         }
     }
 
+  if (a_events & TIZ_EVENT_WRITE)
+    {
+      p_obj->server_is_full_ = false;
+    }
+
   if (rc == OMX_ErrorNone)
     {
       rc = stream_to_clients (p_obj, p_hdl);
@@ -368,9 +391,23 @@ icer_event_io_ready (void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer)
+icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer, void *ap_arg)
 {
-  return OMX_ErrorNone;
+  struct icerprc *p_obj = ap_obj;
+  struct tizservant *p_parent = ap_obj;
+  OMX_HANDLETYPE p_hdl = NULL;
+
+  assert (NULL != p_obj);
+  assert (NULL != p_parent->p_hdl_);
+  p_hdl = p_parent->p_hdl_;
+
+  TIZ_LOG_CNAME (TIZ_LOG_NOTICE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+                 "Received timer event ");
+  fflush (stdout);
+
+  p_obj->server_is_full_ = false;
+
+  return stream_to_clients (p_obj, p_hdl);;
 }
 
 /*

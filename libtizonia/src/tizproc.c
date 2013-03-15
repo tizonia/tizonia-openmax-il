@@ -871,19 +871,19 @@ tizproc_event_io_ready (void *ap_obj,
 
 static OMX_ERRORTYPE
 proc_event_timer_ready (void *ap_obj,
-                          tiz_event_timer_t * ap_ev_timer, int a_fd,
-                          int a_events)
+                        tiz_event_timer_t * ap_ev_timer, void *ap_arg)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
 tizproc_event_timer_ready (void *ap_obj,
-                             tiz_event_timer_t * ap_ev_timer)
+                           tiz_event_timer_t * ap_ev_timer,
+                           void *ap_arg)
 {
   const struct tizproc_class *class = classOf (ap_obj);
   assert (class->event_timer_ready);
-  return class->event_timer_ready (ap_obj, ap_ev_timer);
+  return class->event_timer_ready (ap_obj, ap_ev_timer, ap_arg);
 }
 
 static OMX_ERRORTYPE

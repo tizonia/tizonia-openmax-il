@@ -77,7 +77,8 @@ extern "C"
                                      int a_fd, int a_events);
 
   typedef void (*tiz_event_timer_cb_f) (OMX_HANDLETYPE ap_hdl,
-                                        tiz_event_timer_t * ap_ev_timer);
+                                        tiz_event_timer_t * ap_ev_timer,
+                                        void * ap_arg);
 
   typedef void (*tiz_event_stat_cb_f) (OMX_HANDLETYPE ap_hdl,
                                        tiz_event_stat_t * ap_ev_stat,
@@ -132,7 +133,8 @@ extern "C"
 
   OMX_ERRORTYPE tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
                                       OMX_HANDLETYPE ap_hdl,
-                                      tiz_event_timer_cb_f ap_cback);
+                                      tiz_event_timer_cb_f ap_cback,
+                                      void *ap_arg);
 
   void tiz_event_timer_set (tiz_event_timer_t * ap_ev_timer,
                             double a_after, double a_repeat);
