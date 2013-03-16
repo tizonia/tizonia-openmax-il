@@ -57,6 +57,7 @@
 char *pg_rmd_path;
 pid_t g_rmd_pid;
 pid_t g_mplayer_pid;
+bool g_manual_run = false;
 
 #define COMPONENT_NAME "OMX.Aratelia.ice_renderer.http"
 #define CHECK_HTTP_RENDERER_CURL_CMD "/bin/bash -c \"/usr/bin/curl -vs http://localhost:8011/ 2>&1 > /dev/null\""
@@ -459,9 +460,18 @@ static int
 exec_mplayer (void)
 {
 
-  /* NOTE: Uncomment this return statment if you want to manually run this test
-     connecting an external streaming client like vlc, mplayer, etc...*/
-  /*   return 1; */
+  /* NOTE: This return statment is here to manually run this test by connecting
+     an external streaming client like vlc, mplayer, etc...*/
+  /* e.g.: */
+  /*  */
+  /* $ cd ~/work/tizonia/tizcomps/http_renderer */
+  /* $ tests/.libs/check_http_renderer whatever */
+  /*  */
+
+  if (g_manual_run)
+    {
+      return 1;
+    }
 
   g_mplayer_pid = fork ();
   fail_if (g_mplayer_pid == -1);
@@ -799,10 +809,15 @@ END_TEST Suite * ar_suite (void)
 }
 
 int
-main (void)
+main (int argc, char **argv)
 {
   int number_failed;
   SRunner *sr = srunner_create (ar_suite ());
+
+  if (argc > 1)
+    {
+      g_manual_run = true;
+    }
 
   tiz_log_init();
 
