@@ -92,5 +92,5 @@ OMX.Aratelia.video_decoder.vp8.testfile1_uri = /home/user/temp/tizonia-test-medi
 # HTTP Renderer #
 #################
 
-OMX.Aratelia.ice_renderer.http.testfile1_uri = /home/joni/temp/tizonia-test-media/mp3/riff_rock.mp3
-OMX.Aratelia.ice_renderer.http.testfile2_uri = /home/joni/temp/tizonia-test-media/mp3/riff_rock.streamed.mp3
+OMX.Aratelia.ice_renderer.http.testfile1_uri = /home/user/temp/tizonia-test-media/mp3/riff_rock.mp3
+OMX.Aratelia.ice_renderer.http.testfile2_uri = /home/user/temp/tizonia-test-media/mp3/riff_rock.streamed.mp3
