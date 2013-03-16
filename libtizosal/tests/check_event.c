@@ -199,7 +199,7 @@ START_TEST (test_event_io)
   error = tiz_event_io_init (&p_ev_io, p_hdl, check_event_io_cback);
   fail_if (error != OMX_ErrorNone);
 
-  tiz_event_io_set (p_ev_io, fd, TIZ_EVENT_READ);
+  tiz_event_io_set (p_ev_io, fd, TIZ_EVENT_READ, false);
 
   TIZ_LOG (TIZ_LOG_TRACE, "started io watcher");
 

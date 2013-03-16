@@ -73,7 +73,7 @@ static const OMX_U32 pg_rates[] = {
   RATE_FILE2
 };
 
-#define HTTP_RENDERER_TEST_TIMEOUT 40
+#define HTTP_RENDERER_TEST_TIMEOUT 360
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 500

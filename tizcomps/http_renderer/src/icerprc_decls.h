@@ -52,7 +52,6 @@ extern "C"
     OMX_U32 lstn_port_;
     OMX_STRING mount_name_;
     OMX_U32 max_clients_;
-    OMX_U32 nclients_;
     OMX_U32 burst_size_;
     bool server_is_full_;
     bool eos_;

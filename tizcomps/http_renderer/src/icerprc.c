@@ -54,14 +54,14 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
 
-  if (ap_obj->nclients_ == 0)
+  if (icer_con_get_listeners_count (ap_obj->p_server_) == 0)
     {
       return OMX_ErrorNone;
     }
 
   if (ap_obj->p_server_ && !ap_obj->server_is_full_)
     {
-      rc = icer_con_write_data (ap_obj->p_server_, ap_hdl);
+      rc = icer_con_write_to_listeners (ap_obj->p_server_, ap_hdl);
 
       switch (rc)
         {
@@ -203,7 +203,6 @@ icer_proc_ctor (void *ap_obj, va_list * app)
   p_obj->lstn_port_ = 0;
   p_obj->mount_name_ = NULL;
   p_obj->max_clients_ = 0;
-  p_obj->nclients_ = 0;
   p_obj->burst_size_ = 65536;
   p_obj->server_is_full_ = false;
   p_obj->eos_ = false;
@@ -361,25 +360,16 @@ icer_event_io_ready (void *ap_obj,
 
   if (a_fd == p_obj->lstn_sockfd_)
     {
-      /* Allow only one client for now */
-      if (p_obj->nclients_ == 0)
-        {
-          rc = icer_con_accept_connection (p_obj->p_server_, p_hdl);
-          p_obj->nclients_++;
-        }
-      else
-        {
-          return OMX_ErrorNone;
-        }
+      rc = icer_con_accept_connection (p_obj->p_server_, p_hdl);
     }
 
-  if (a_events & TIZ_EVENT_WRITE)
+  if (OMX_ErrorNone == rc)
     {
-      p_obj->server_is_full_ = false;
-    }
+      if (a_events & TIZ_EVENT_WRITE)
+        {
+          p_obj->server_is_full_ = false;
+        }
 
-  if (rc == OMX_ErrorNone)
-    {
       rc = stream_to_clients (p_obj, p_hdl);
     }
   else if (OMX_ErrorNotReady == rc)

@@ -56,8 +56,6 @@ extern "C"
 
   void icer_con_server_destroy (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl);
 
-  int icer_con_get_server_fd (const icer_server_t * ap_server);
-
   OMX_ERRORTYPE icer_con_start_listening (icer_server_t * ap_server,
                                           OMX_HANDLETYPE ap_hdl);
 
@@ -67,8 +65,12 @@ extern "C"
   OMX_ERRORTYPE icer_con_stop_listening (icer_server_t * ap_server,
                                          OMX_HANDLETYPE ap_hdl);
 
-  OMX_ERRORTYPE icer_con_write_data (icer_server_t * ap_server,
-                                     OMX_HANDLETYPE ap_hdl);
+  OMX_ERRORTYPE icer_con_write_to_listeners (icer_server_t * ap_server,
+                                             OMX_HANDLETYPE ap_hdl);
+
+  int icer_con_get_server_fd (const icer_server_t * ap_server);
+
+  int icer_con_get_listeners_count (const icer_server_t * ap_server);
 
 #ifdef __cplusplus
 }

@@ -41,6 +41,7 @@ extern "C"
 
 #include <OMX_Core.h>
 #include <OMX_Types.h>
+#include <stdbool.h>
 
   /**
    * Handle to an io event
@@ -122,8 +123,9 @@ extern "C"
                                    OMX_HANDLETYPE ap_hdl,
                                    tiz_event_io_cb_f ap_cback);
 
-  void tiz_event_io_set (tiz_event_io_t * ap_ev_io,
-                         int a_fd, tiz_event_io_event_t a_event);
+  void tiz_event_io_set (tiz_event_io_t * ap_ev_io, int a_fd,
+                         tiz_event_io_event_t a_event,
+                         bool only_once);
 
   OMX_ERRORTYPE tiz_event_io_start (tiz_event_io_t * ap_ev_io);
 

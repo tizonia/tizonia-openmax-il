@@ -53,6 +53,7 @@ struct tiz_event_io
   ev_io io;
   tiz_event_io_cb_f pf_cback;
   OMX_HANDLETYPE p_hdl;
+  bool once;
 };
 
 struct tiz_event_timer
@@ -99,7 +100,6 @@ static void
 async_watcher_cback (struct ev_loop *ap_loop, ev_async * ap_watcher,
                      int a_revents)
 {
-
   if (NULL == gp_event_thread)
     {
       return;
@@ -123,6 +123,11 @@ io_watcher_cback (struct ev_loop *ap_loop, ev_io * ap_watcher, int a_revents)
 
   assert (NULL != p_io_event);
   assert (NULL != p_io_event->pf_cback);
+
+  if (p_io_event->once)
+    {
+      ev_io_stop (gp_event_thread->p_loop, (ev_io *) p_io_event);
+    }
 
   TIZ_LOG (TIZ_LOG_TRACE, "io watcher cback");
 
@@ -395,6 +400,7 @@ tiz_event_io_init (tiz_event_io_t ** app_ev_io,
 
   p_io_watcher->pf_cback = ap_cback;
   p_io_watcher->p_hdl    = ap_hdl;
+  p_io_watcher->once     = false;
   ev_init ((ev_io *) p_io_watcher, io_watcher_cback);
 
   *app_ev_io = p_io_watcher;
@@ -404,12 +410,15 @@ tiz_event_io_init (tiz_event_io_t ** app_ev_io,
 
 void
 tiz_event_io_set (tiz_event_io_t * ap_ev_io,
-                  int a_fd, tiz_event_io_event_t a_event)
+                  int a_fd, tiz_event_io_event_t a_event,
+                  bool only_once)
 {
   assert (NULL != gp_event_thread);
   assert (NULL != ap_ev_io);
   assert (a_fd > 0);
   assert (a_event < TIZ_EVENT_MAX);
+
+  ap_ev_io->once = only_once;
 
   ev_io_set ((ev_io *) ap_ev_io, a_fd, a_event);
 }
