@@ -56,8 +56,11 @@
 
 char *pg_rmd_path;
 pid_t g_rmd_pid;
+pid_t g_mplayer_pid;
 
 #define COMPONENT_NAME "OMX.Aratelia.ice_renderer.http"
+#define CHECK_HTTP_RENDERER_CURL_CMD "/bin/bash -c \"/usr/bin/curl -vs http://localhost:8011/ 2>&1 > /dev/null\""
+
 
 /* TODO: Move these two to the rc file */
 #define RATE_FILE1 48000
@@ -452,6 +455,36 @@ init_test_data(tiz_rcfile_t *rcfile)
   return rv;
 }
 
+static int
+exec_mplayer (void)
+{
+
+  /* NOTE: Uncomment this return statment if you want to manually run this test
+     connecting an external streaming client like vlc, mplayer, etc...*/
+  /*   return 1; */
+
+  g_mplayer_pid = fork ();
+  fail_if (g_mplayer_pid == -1);
+
+  if (g_mplayer_pid)
+    {
+      return g_mplayer_pid;
+    }
+  else
+    {
+      char cmd [128];
+      TIZ_LOG (TIZ_LOG_TRACE, "Connecting curl...");
+
+      snprintf (cmd, strlen (CHECK_HTTP_RENDERER_CURL_CMD) + 1, "%s",
+                CHECK_HTTP_RENDERER_CURL_CMD);
+      TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
+      fail_if (-1 == system (cmd));
+    }
+
+  return 0;
+}
+
+
 /*
  * Unit tests
  */
@@ -602,138 +635,150 @@ START_TEST (test_http_streaming)
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateExecuting != p_ctx->state);
 
-  /* -------------------- */
-  /* buffer transfer loop */
-  /* -------------------- */
-  fail_if ((p_file = fopen (pg_files[_i], "r")) == 0);
-
-  i = 0;
-  while (i < port_def.nBufferCountActual)
+  /* fork */
+  if (exec_mplayer ())
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Reading from file [%s]", pg_files[_i]);
-      if (!
-          (err =
-           fread (p_hdrlst[i]->pBuffer, 1, port_def.nBufferSize, p_file)))
-        {
-          if (feof (p_file))
-            {
-              TIZ_LOG (TIZ_LOG_TRACE, "End of file reached for [%s]",
-                         pg_files[_i]);
-            }
-          else
-            {
-              TIZ_LOG (TIZ_LOG_TRACE,
-                         "An error occurred while reading [%s]",
-                         pg_files[_i]);
-              fail_if (0);
-            }
-        }
+      /* -------------------- */
+      /* buffer transfer loop */
+      /* -------------------- */
+      fail_if ((p_file = fopen (pg_files[_i], "r")) == 0);
 
-      /* --------------- */
-      /* Transfer buffer */
-      /* --------------- */
-      error = _ctx_reset (&ctx);
-      p_hdrlst[i]->nFilledLen = port_def.nBufferSize;
-      error = OMX_EmptyThisBuffer (p_hdl, p_hdrlst[i]);
-      fail_if (OMX_ErrorNone != error);
-
-      /* ------------------------- */
-      /* Await BufferDone callback */
-      /* ------------------------- */
-      do
+      i = 0;
+      while (i < port_def.nBufferCountActual)
         {
-          error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+          TIZ_LOG (TIZ_LOG_TRACE, "Reading from file [%s]", pg_files[_i]);
+          if (!
+              (err =
+               fread (p_hdrlst[i]->pBuffer, 1, port_def.nBufferSize, p_file)))
+            {
+              if (feof (p_file))
+                {
+                  TIZ_LOG (TIZ_LOG_TRACE, "End of file reached for [%s]",
+                           pg_files[_i]);
+                }
+              else
+                {
+                  TIZ_LOG (TIZ_LOG_TRACE,
+                           "An error occurred while reading [%s]",
+                           pg_files[_i]);
+                  fail_if (0);
+                }
+            }
+
+          /* --------------- */
+          /* Transfer buffer */
+          /* --------------- */
+          error = _ctx_reset (&ctx);
+          p_hdrlst[i]->nFilledLen = port_def.nBufferSize;
+          TIZ_LOG (TIZ_LOG_TRACE, "Emptying buffer with len [%d]", p_hdrlst[i]->nFilledLen);
+
+          error = OMX_EmptyThisBuffer (p_hdl, p_hdrlst[i]);
           fail_if (OMX_ErrorNone != error);
-          /*       fail_if (OMX_TRUE == timedout); */
-          if (error == OMX_ErrorNone && timedout == OMX_FALSE)
-            {
-              fail_if (p_ctx->p_hdr != p_hdrlst[i]);
-            }
-          else
-            {
-              timedout = OMX_FALSE;
-              error = OMX_ErrorTimeout;
-            }
-        } 
-      while (error != OMX_ErrorNone);
 
-      i++;
-      i %= port_def.nBufferCountActual;
+          /* ------------------------- */
+          /* Await BufferDone callback */
+          /* ------------------------- */
+          do
+            {
+              error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+              fail_if (OMX_ErrorNone != error);
+              /*       fail_if (OMX_TRUE == timedout); */
+              if (error == OMX_ErrorNone && timedout == OMX_FALSE)
+                {
+                  fail_if (p_ctx->p_hdr != p_hdrlst[i]);
+                }
+              else
+                {
+                  timedout = OMX_FALSE;
+                  error = OMX_ErrorTimeout;
+                }
+            } 
+          while (error != OMX_ErrorNone);
 
-      if (0 == err)
-        {
-          /* EOF */
-          break;
+          i++;
+          i %= port_def.nBufferCountActual;
+
+          if (0 == err)
+            {
+              /* EOF */
+              break;
+            }
+
         }
 
-    }
+      fclose (p_file);
 
-  fclose (p_file);
-
-  /* --------------------------- */
-  /* Initiate transition to IDLE */
-  /* --------------------------- */
-  error = _ctx_reset (&ctx);
-  state = OMX_StateIdle;
-  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
-  fail_if (OMX_ErrorNone != error);
-
-  /* ------------------------- */
-  /* Await transition callback */
-  /* ------------------------- */
-  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  fail_if (OMX_ErrorNone != error);
-  fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
-             tiz_state_to_str (p_ctx->state));
-  fail_if (OMX_StateIdle != p_ctx->state);
-
-  /* ----------------------------- */
-  /* Initiate transition to LOADED */
-  /* ----------------------------- */
-  error = _ctx_reset (&ctx);
-  state = OMX_StateLoaded;
-  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
-  fail_if (OMX_ErrorNone != error);
-
-  /* ------------------ */
-  /* Deallocate buffers */
-  /* ------------------ */
-  fail_if (OMX_ErrorNone != error);
-  for (i = 0; i < port_def.nBufferCountActual; ++i)
-    {
-      error = OMX_FreeBuffer (p_hdl, 0,      /* input port */
-                              p_hdrlst[i]);
+      /* --------------------------- */
+      /* Initiate transition to IDLE */
+      /* --------------------------- */
+      error = _ctx_reset (&ctx);
+      state = OMX_StateIdle;
+      error = OMX_SendCommand (p_hdl, cmd, state, NULL);
       fail_if (OMX_ErrorNone != error);
+
+      /* ------------------------- */
+      /* Await transition callback */
+      /* ------------------------- */
+      error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+      fail_if (OMX_ErrorNone != error);
+      fail_if (OMX_TRUE == timedout);
+      TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
+               tiz_state_to_str (p_ctx->state));
+      fail_if (OMX_StateIdle != p_ctx->state);
+
+      /* ----------------------------- */
+      /* Initiate transition to LOADED */
+      /* ----------------------------- */
+      error = _ctx_reset (&ctx);
+      state = OMX_StateLoaded;
+      error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+      fail_if (OMX_ErrorNone != error);
+
+      /* ------------------ */
+      /* Deallocate buffers */
+      /* ------------------ */
+      fail_if (OMX_ErrorNone != error);
+      for (i = 0; i < port_def.nBufferCountActual; ++i)
+        {
+          error = OMX_FreeBuffer (p_hdl, 0,      /* input port */
+                                  p_hdrlst[i]);
+          fail_if (OMX_ErrorNone != error);
+        }
+
+      /* ------------------------- */
+      /* Await transition callback */
+      /* ------------------------- */
+      error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+      fail_if (OMX_ErrorNone != error);
+      fail_if (OMX_TRUE == timedout);
+      fail_if (OMX_StateLoaded != p_ctx->state);
+
+      /* ------------------------------ */
+      /* Check state transition success */
+      /* ------------------------------ */
+      error = OMX_GetState (p_hdl, &state);
+      TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_state_to_str (state));
+      fail_if (OMX_ErrorNone != error);
+      fail_if (OMX_StateLoaded != state);
+
+      error = OMX_FreeHandle (p_hdl);
+      fail_if (OMX_ErrorNone != error);
+
+      tiz_mem_free (p_hdrlst);
+
+      error = OMX_Deinit ();
+      fail_if (OMX_ErrorNone != error);
+
+      _ctx_destroy (&ctx);
+
+      tiz_rcfile_close(p_rcfile);
+
+    }
+  else
+    {
+      /* TODO: Compare dumped file with original */
     }
 
-  /* ------------------------- */
-  /* Await transition callback */
-  /* ------------------------- */
-  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  fail_if (OMX_ErrorNone != error);
-  fail_if (OMX_TRUE == timedout);
-  fail_if (OMX_StateLoaded != p_ctx->state);
-
-  /* ------------------------------ */
-  /* Check state transition success */
-  /* ------------------------------ */
-  error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_state_to_str (state));
-  fail_if (OMX_ErrorNone != error);
-  fail_if (OMX_StateLoaded != state);
-
-  error = OMX_FreeHandle (p_hdl);
-  fail_if (OMX_ErrorNone != error);
-
-  tiz_mem_free (p_hdrlst);
-
-  error = OMX_Deinit ();
-  fail_if (OMX_ErrorNone != error);
-
-  _ctx_destroy (&ctx);
-
-  tiz_rcfile_close(p_rcfile);
 }
 
 END_TEST Suite * ar_suite (void)
@@ -743,7 +788,7 @@ END_TEST Suite * ar_suite (void)
   Suite *s = suite_create ("libtizicesink");
 
   /* test case */
-  tc_icer = tcase_create ("Http Streaming");
+  tc_icer = tcase_create ("HTTP Streaming");
   tcase_add_unchecked_fixture (tc_icer, setup, teardown);
   tcase_set_timeout (tc_icer, HTTP_RENDERER_TEST_TIMEOUT);
   tcase_add_loop_test (tc_icer, test_http_streaming, 0, 1);
