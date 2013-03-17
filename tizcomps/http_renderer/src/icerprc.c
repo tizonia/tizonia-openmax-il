@@ -70,8 +70,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
             /* Socket send buffers are full */
             ap_obj->server_is_full_ = true;
             TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
-                           TIZ_CBUF (ap_hdl),
-                           "[%s] : ", tiz_err_to_str (rc));
+                           TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
           break;
@@ -81,8 +80,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
             /* Trying not send too much data. */
             ap_obj->server_is_full_ = false;
             TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
-                           TIZ_CBUF (ap_hdl),
-                           "[%s] : ", tiz_err_to_str (rc));
+                           TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
           break;
@@ -92,8 +90,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
             /* More data needed */
             ap_obj->server_is_full_ = false;
             TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
-                           TIZ_CBUF (ap_hdl),
-                           "[%s] : ", tiz_err_to_str (rc));
+                           TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
           }
           break;
 
@@ -102,8 +99,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
             /* No connected clients yet */
             ap_obj->server_is_full_ = false;
             TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
-                           TIZ_CBUF (ap_hdl),
-                           "[%s] : ", tiz_err_to_str (rc));
+                           TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
           break;
@@ -361,9 +357,13 @@ icer_event_io_ready (void *ap_obj,
   if (a_fd == p_obj->lstn_sockfd_)
     {
       rc = icer_con_accept_connection (p_obj->p_server_, p_hdl);
-    }
 
-  if (OMX_ErrorNone == rc)
+      if (OMX_ErrorInsufficientResources != rc)
+        {
+          rc = OMX_ErrorNone;
+        }
+    }
+  else
     {
       if (a_events & TIZ_EVENT_WRITE)
         {
@@ -372,16 +372,13 @@ icer_event_io_ready (void *ap_obj,
 
       rc = stream_to_clients (p_obj, p_hdl);
     }
-  else if (OMX_ErrorNotReady == rc)
-    {
-      rc = OMX_ErrorNone;
-    }
 
   return rc;
 }
 
 static OMX_ERRORTYPE
-icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer, void *ap_arg)
+icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
+                        void *ap_arg)
 {
   struct icerprc *p_obj = ap_obj;
   struct tizservant *p_parent = ap_obj;
