@@ -63,6 +63,13 @@ extern "C"
    */
   typedef void *tiz_cond_t;
 
+  /**
+   * Read-write mutex
+   * @ingroup sync
+   */
+  typedef void *tiz_rwmutex_t;
+
+
   /* Semaphore handling */
 
   /**
@@ -111,6 +118,7 @@ extern "C"
    */
   OMX_ERRORTYPE tiz_sem_getvalue (tiz_sem_t * ap_sem, OMX_S32 * ap_sval);
 
+
   /* Mutex handling APIs */
 
   /**
@@ -149,6 +157,56 @@ extern "C"
    * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
    */
   OMX_ERRORTYPE tiz_mutex_unlock (tiz_mutex_t * ap_mutex);
+
+
+  /* Read-write mutex handling APIs */
+
+  /**
+   * Initialize a read-write mutex.
+   *
+   * @ingroup sync
+   *
+   * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
+   * OMX_ErrorUndefined otherwise.
+   */
+  OMX_ERRORTYPE tiz_rwmutex_init (tiz_rwmutex_t * ap_rwmutex);
+
+  /**
+   * Destroy a read-write mutex.
+   *
+   * @ingroup sync
+   *
+   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+   */
+  OMX_ERRORTYPE tiz_rwmutex_destroy (tiz_rwmutex_t * ap_rwmutex);
+
+  /**
+   * Lock a read-write mutex for reading.
+   *
+   * @ingroup sync
+   *
+   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+   */
+  OMX_ERRORTYPE tiz_rwmutex_rdlock (tiz_rwmutex_t * ap_rwmutex);
+
+  /**
+   * Lock a read-write mutex for writing.
+   *
+   * @ingroup sync
+   *
+   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+   */
+  OMX_ERRORTYPE tiz_rwmutex_rwlock (tiz_rwmutex_t * ap_rwmutex);
+
+  /**
+   * Unlock a read-write mutex.
+   *
+   * @ingroup sync
+   *
+   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+   */
+  OMX_ERRORTYPE tiz_rwmutex_unlock (tiz_rwmutex_t * ap_rwmutex);
+
 
   /* Conditional variables handling */
 

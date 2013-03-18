@@ -383,3 +383,111 @@ tiz_cond_timedwait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex,
 
   return OMX_ErrorNone;
 }
+
+OMX_ERRORTYPE
+tiz_rwmutex_init (tiz_rwmutex_t * app_rwmutex)
+{
+  pthread_rwlock_t *p_mutex;
+  int error = 0;
+
+  assert (app_rwmutex);
+
+  if (!(p_mutex =
+        (pthread_rwlock_t *) tiz_mem_alloc (sizeof (pthread_rwlock_t))))
+    {
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorInsufficientResources");
+      return OMX_ErrorInsufficientResources;
+    }
+
+  if (PTHREAD_SUCCESS != (error = pthread_rwlock_init (p_mutex, NULL)))
+    {
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
+      return OMX_ErrorUndefined;
+    }
+
+  *app_rwmutex = p_mutex;
+
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tiz_rwmutex_destroy (tiz_rwmutex_t * app_rwmutex)
+{
+  pthread_rwlock_t *p_mutex;
+  int error = 0;
+
+  assert (app_rwmutex);
+  p_mutex = *app_rwmutex;
+
+  if (p_mutex
+      && (PTHREAD_SUCCESS != (error = pthread_rwlock_destroy (p_mutex))))
+    {
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
+      return OMX_ErrorUndefined;
+    }
+
+  tiz_mem_free (p_mutex);
+  *app_rwmutex = 0;
+
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tiz_rwmutex_rdlock (tiz_rwmutex_t * app_rwmutex)
+{
+  pthread_rwlock_t *p_mutex;
+  int error;
+
+  assert (app_rwmutex);
+  assert (*app_rwmutex);
+
+  p_mutex = *app_rwmutex;
+
+  if (PTHREAD_SUCCESS != (error = pthread_rwlock_rdlock (p_mutex)))
+    {
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
+      return OMX_ErrorUndefined;
+    }
+
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tiz_rwmutex_wrlock (tiz_rwmutex_t * app_rwmutex)
+{
+  pthread_rwlock_t *p_mutex;
+  int error;
+
+  assert (app_rwmutex);
+  assert (*app_rwmutex);
+
+  p_mutex = *app_rwmutex;
+
+  if (PTHREAD_SUCCESS != (error = pthread_rwlock_wrlock (p_mutex)))
+    {
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
+      return OMX_ErrorUndefined;
+    }
+
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tiz_rwmutex_unlock (tiz_rwmutex_t * app_rwmutex)
+{
+  pthread_rwlock_t *p_mutex;
+  int error;
+
+  assert (app_rwmutex);
+  assert (*app_rwmutex);
+
+  p_mutex = *app_rwmutex;
+
+  if (PTHREAD_SUCCESS != (error = pthread_rwlock_unlock (p_mutex)))
+    {
+      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
+      return OMX_ErrorUndefined;
+    }
+
+  return OMX_ErrorNone;
+}
