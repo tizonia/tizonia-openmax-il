@@ -79,7 +79,6 @@ tizapi_GetComponentVersion (const void *ap_obj,
                             OMX_UUIDTYPE * ap_comp_uuid)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->GetComponentVersion);
   return class->GetComponentVersion (ap_obj,
                                      ap_hdl,
@@ -97,7 +96,6 @@ super_GetComponentVersion (const void *a_class,
                            OMX_UUIDTYPE * ap_comp_uuid)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->GetComponentVersion);
   return superclass->GetComponentVersion (ap_obj,
                                           ap_hdl,
@@ -121,7 +119,6 @@ tizapi_SendCommand (const void *ap_obj,
                     OMX_PTR ap_cmd_data)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->SendCommand);
   return class->SendCommand (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -134,7 +131,6 @@ super_SendCommand (const void *a_class,
                    OMX_PTR ap_cmd_data)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->SendCommand);
   return superclass->SendCommand (ap_obj, ap_hdl, a_cmd, a_param1,
                                   ap_cmd_data);
@@ -154,7 +150,6 @@ tizapi_GetParameter (const void *ap_obj,
                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->GetParameter);
   return class->GetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
@@ -166,7 +161,6 @@ super_GetParameter (const void *a_class,
                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->GetParameter);
   return superclass->GetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
@@ -186,7 +180,6 @@ tizapi_SetParameter (const void *ap_obj,
                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->SetParameter);
   return class->SetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
@@ -198,7 +191,6 @@ super_SetParameter (const void *a_class,
                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->SetParameter);
   return superclass->SetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
@@ -217,7 +209,6 @@ tizapi_GetConfig (const void *ap_obj,
                   OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->GetConfig);
   return class->GetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
@@ -229,7 +220,6 @@ super_GetConfig (const void *a_class,
                  OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->GetConfig);
   return superclass->GetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
@@ -247,7 +237,6 @@ tizapi_SetConfig (const void *ap_obj,
                   OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->SetConfig);
   return class->SetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
@@ -259,7 +248,6 @@ super_SetConfig (const void *a_class,
                  OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->SetConfig);
   return superclass->SetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
@@ -279,7 +267,6 @@ tizapi_GetExtensionIndex (const void *ap_obj,
                           OMX_INDEXTYPE * ap_index_type)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->GetExtensionIndex);
   return class->GetExtensionIndex (ap_obj,
                                    ap_hdl, a_param_name, ap_index_type);
@@ -293,7 +280,6 @@ super_GetExtensionIndex (const void *a_class,
                          OMX_INDEXTYPE * ap_index_type)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->GetExtensionIndex);
   return superclass->GetExtensionIndex (ap_obj,
                                         ap_hdl, a_param_name, ap_index_type);
@@ -311,7 +297,6 @@ tizapi_GetState (const void *ap_obj,
                  OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->GetState);
   return class->GetState (ap_obj, ap_hdl, ap_state);
 }
@@ -322,7 +307,6 @@ super_GetState (const void *a_class,
                 OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->GetState);
   return superclass->GetState (ap_obj, ap_hdl, ap_state);
 }
@@ -347,7 +331,6 @@ tizapi_ComponentTunnelRequest (const void *ap_obj,
                                OMX_TUNNELSETUPTYPE * ap_tunn_setup)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->ComponentTunnelRequest);
   return class->ComponentTunnelRequest (ap_obj,
                                         ap_hdl,
@@ -366,7 +349,6 @@ super_ComponentTunnelRequest (const void *a_class,
                               OMX_TUNNELSETUPTYPE * ap_tunn_setup)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->ComponentTunnelRequest);
   return superclass->ComponentTunnelRequest (ap_obj,
                                              ap_hdl,
@@ -374,7 +356,6 @@ super_ComponentTunnelRequest (const void *a_class,
                                              ap_tunn_comp,
                                              a_tunn_port, ap_tunn_setup);
 }
-
 
 static OMX_ERRORTYPE
 api_UseBuffer (const void *ap_obj,
@@ -394,7 +375,6 @@ tizapi_UseBuffer (const void *ap_obj,
                   OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->UseBuffer);
   return class->UseBuffer (ap_obj,
                            ap_hdl, app_hdr, a_pid, ap_apppriv, a_size, ap_buf);
@@ -409,7 +389,6 @@ super_UseBuffer (const void *a_class,
                  OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->UseBuffer);
   return superclass->UseBuffer (ap_obj,
                                 ap_hdl,
@@ -432,7 +411,6 @@ tizapi_AllocateBuffer (const void *ap_obj,
                        OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->AllocateBuffer);
   return class->AllocateBuffer (ap_obj,
                                 ap_hdl, app_hdr, a_pid, ap_apppriv, a_size);
@@ -446,13 +424,11 @@ super_AllocateBuffer (const void *a_class,
                       OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->AllocateBuffer);
   return superclass->AllocateBuffer (ap_obj,
                                      ap_hdl,
                                      app_hdr, a_pid, ap_apppriv, a_size);
 }
-
 
 static OMX_ERRORTYPE
 api_FreeBuffer (const void *ap_obj,
@@ -480,7 +456,6 @@ super_FreeBuffer (const void *a_class,
                   OMX_U32 a_port_index, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->FreeBuffer);
   return superclass->FreeBuffer (ap_obj, ap_hdl, a_port_index, ap_buf);
 }
@@ -497,7 +472,6 @@ tizapi_EmptyThisBuffer (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->EmptyThisBuffer);
   return class->EmptyThisBuffer (ap_obj, ap_hdl, ap_buf);
 }
@@ -508,7 +482,6 @@ super_EmptyThisBuffer (const void *a_class,
                        OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->EmptyThisBuffer);
   return superclass->EmptyThisBuffer (ap_obj, ap_hdl, ap_buf);
 }
@@ -526,7 +499,6 @@ tizapi_FillThisBuffer (const void *ap_obj,
                        OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->FillThisBuffer);
   return class->FillThisBuffer (ap_obj, ap_hdl, ap_buf);
 }
@@ -537,7 +509,6 @@ super_FillThisBuffer (const void *a_class,
                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->FillThisBuffer);
   return superclass->FillThisBuffer (ap_obj, ap_hdl, ap_buf);
 }
@@ -556,7 +527,6 @@ tizapi_SetCallbacks (const void *ap_obj,
                      OMX_CALLBACKTYPE * ap_callbacks, OMX_PTR ap_app_data)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->SetCallbacks);
   return class->SetCallbacks (ap_obj, ap_hdl, ap_callbacks, ap_app_data);
 }
@@ -568,7 +538,6 @@ super_SetCallbacks (const void *a_class,
                     OMX_CALLBACKTYPE * ap_callbacks, OMX_PTR ap_app_data)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->SetCallbacks);
   return superclass->SetCallbacks (ap_obj, ap_hdl, ap_callbacks, ap_app_data);
 }
@@ -584,7 +553,6 @@ OMX_ERRORTYPE
 tizapi_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   const struct tizapi_class *class = classOf (ap_obj);
-
   assert (class->ComponentDeInit);
   return class->ComponentDeInit (ap_obj, ap_hdl);
 }
@@ -594,7 +562,6 @@ super_ComponentDeInit (const void *a_class,
                        const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   const struct tizapi_class *superclass = super (a_class);
-
   assert (ap_obj && superclass->ComponentDeInit);
   return superclass->ComponentDeInit (ap_obj, ap_hdl);
 }

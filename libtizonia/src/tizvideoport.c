@@ -170,8 +170,7 @@ videoport_GetParameter (const void *ap_obj,
           }
         else
           {
-            if (p_pft->nIndex >=
-                tiz_vector_length (p_obj->p_video_encodings_))
+            if (p_pft->nIndex >= tiz_vector_length (p_obj->p_video_encodings_))
               {
                 return OMX_ErrorNoMore;
               }

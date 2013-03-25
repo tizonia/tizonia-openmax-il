@@ -32,8 +32,11 @@
 
 #include <assert.h>
 
+#include "OMX_TizoniaExt.h"
+
 #include "tizexecutingtoidle.h"
 #include "tizstate_decls.h"
+#include "tizkernel.h"
 
 #include "tizosal.h"
 
@@ -44,7 +47,7 @@
 
 
 static void *
-tiz_executingtoidle_ctor (void *ap_obj, va_list * app)
+executingtoidle_ctor (void *ap_obj, va_list * app)
 {
   struct tizexecutingtoidle *p_obj =
     super_ctor (tizexecutingtoidle, ap_obj, app);
@@ -52,33 +55,27 @@ tiz_executingtoidle_ctor (void *ap_obj, va_list * app)
 }
 
 static void *
-tiz_executingtoidle_dtor (void *ap_obj)
+executingtoidle_dtor (void *ap_obj)
 {
   return super_dtor (tizexecutingtoidle, ap_obj);
 }
 
 static OMX_ERRORTYPE
-tiz_executingtoidle_GetState (const void *ap_obj,
-                              OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
+executingtoidle_GetState (const void *ap_obj,
+                          OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
+  assert (NULL != ap_state);
   *ap_state = OMX_StateExecuting;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-tiz_executingtoidle_UseBuffer (const void *ap_obj,
-                               OMX_HANDLETYPE ap_hdl,
-                               OMX_BUFFERHEADERTYPE ** app_buf_hdr,
-                               OMX_U32 a_port_index,
-                               OMX_PTR ap_app_private,
-                               OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
-{
-  return OMX_ErrorNotImplemented;
-}
-
-static OMX_ERRORTYPE
-tiz_executingtoidle_ComponentDeInit (const void *ap_obj,
-                                     OMX_HANDLETYPE ap_hdl)
+executingtoidle_UseBuffer (const void *ap_obj,
+                           OMX_HANDLETYPE ap_hdl,
+                           OMX_BUFFERHEADERTYPE ** app_buf_hdr,
+                           OMX_U32 a_port_index,
+                           OMX_PTR ap_app_private,
+                           OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -92,13 +89,65 @@ tiz_executingtoidle_ComponentDeInit (const void *ap_obj,
  */
 
 static OMX_ERRORTYPE
-tiz_executingtoidle_trans_complete (const void *ap_obj,
+executingtoidle_trans_complete (const void *ap_obj,
                                     OMX_PTR ap_servant,
                                     OMX_STATETYPE a_new_state)
 {
+  const struct tizstate *p_base = (const struct tizstate *) ap_obj;
+
+  TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (tizservant_get_hdl(ap_servant)),
+                 TIZ_CBUF (tizservant_get_hdl(ap_servant)),
+                 "Trans complete to state [%s]...",
+                 tiz_fsm_state_to_str (a_new_state));
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_servant);
   assert (OMX_StateIdle == a_new_state);
+
+  if (2 == p_base->servants_count_ + 1)
+    {
+
+      /* Reset the OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN flag in all ports where
+         this has been set */
+      tizkernel_reset_tunneled_ports_status
+        (tiz_get_krn (tizservant_get_hdl(ap_servant)),
+         OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
+    }
+
   return tizstate_super_trans_complete (tizexecutingtoidle, ap_obj,
                                         ap_servant, a_new_state);
+}
+
+static OMX_ERRORTYPE
+executingtoidle_tunneled_ports_status_update (void *ap_obj)
+{
+  struct tizstate *p_base = (struct tizstate *) ap_obj;
+
+  assert (NULL != ap_obj);
+
+  {
+    OMX_HANDLETYPE p_hdl = tizservant_get_hdl(p_base->p_fsm_);
+    struct tizkernel *p_krn = tiz_get_krn (p_hdl);
+    tiz_kernel_tunneled_ports_status_t status =
+      tizkernel_get_tunneled_ports_status (p_krn, OMX_TRUE);
+
+    TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+                   "kernel's tunneled port status [%d] ", status);
+
+    if (ETIZKernelNoTunneledPorts == status
+        || ETIZKernelTunneledPortsMayInitiateExeToIdle == status)
+      {
+        /* OK, at this point all the tunneled non-supplier neighboring ports
+           are ready to receive ETB/FTB calls.  NOTE: This will call the
+           'tizstate_state_set' function (we are passing 'tizidle' as the 1st
+           parameter  */
+        return tizstate_super_state_set (tizidle, ap_obj, p_hdl,
+                                         OMX_CommandStateSet,
+                                         OMX_StateIdle, NULL);
+      }
+  }
+
+  return OMX_ErrorNone;
 }
 
 
@@ -113,18 +162,17 @@ init_tizexecutingtoidle (void)
 {
   if (!tizexecutingtoidle)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing tizexecutingtoidle...");
-
       init_tizexecuting ();
       tizexecutingtoidle =
         factory_new
         (tizstate_class, "tizexecutingtoidle",
          tizexecuting, sizeof (struct tizexecutingtoidle),
-         ctor, tiz_executingtoidle_ctor,
-         dtor, tiz_executingtoidle_dtor,
-         tizapi_GetState, tiz_executingtoidle_GetState,
-         tizapi_UseBuffer, tiz_executingtoidle_UseBuffer,
-         tizapi_ComponentDeInit, tiz_executingtoidle_ComponentDeInit,
-         tizstate_trans_complete, tiz_executingtoidle_trans_complete, 0);
+         ctor, executingtoidle_ctor,
+         dtor, executingtoidle_dtor,
+         tizapi_GetState, executingtoidle_GetState,
+         tizapi_UseBuffer, executingtoidle_UseBuffer,
+         tizstate_trans_complete, executingtoidle_trans_complete,
+         tizstate_tunneled_ports_status_update, executingtoidle_tunneled_ports_status_update,
+         0);
     }
 }

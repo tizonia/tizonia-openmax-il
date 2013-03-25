@@ -65,9 +65,14 @@ idle_SetParameter (const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
-  const void *p_krn = tiz_get_krn (ap_hdl);
-  OMX_PTR p_port = NULL;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
+  const void *p_krn = NULL;
+  OMX_PTR p_port = NULL;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+
+  p_krn = tiz_get_krn (ap_hdl);
 
   /* TODO: Optimization: find_managing_port is called twice, first time here,
    * then in the SetParameter implementation of the kernel object. */
@@ -75,7 +80,8 @@ idle_SetParameter (const void *ap_obj,
       != (ret_val =
           tizkernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Cannot retrieve managing port (%s)...",
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+               "Cannot retrieve managing port (%s)...",
                tiz_err_to_str (ret_val));
       return ret_val;
     }
@@ -89,8 +95,9 @@ idle_SetParameter (const void *ap_obj,
   if (TIZPORT_IS_CONFIG_PORT (p_port)
       || (!TIZPORT_IS_CONFIG_PORT (p_port) && TIZPORT_IS_ENABLED (p_port)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Incorrect state op "
-               "(SetParameter received in Idle state)...");
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "Incorrect state op "
+                     "(SetParameter received in Idle state)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -102,8 +109,7 @@ static OMX_ERRORTYPE
 idle_GetState (const void *ap_obj,
                OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "idle_GetState");
+  assert (NULL != ap_state);
   *ap_state = OMX_StateIdle;
   return OMX_ErrorNone;
 }
@@ -122,14 +128,25 @@ static OMX_ERRORTYPE
 idle_EmptyThisBuffer (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  const OMX_U32 pid = ap_hdr->nInputPortIndex;
-  const void *p_krn = tiz_get_krn (ap_hdl);
-  const void *p_port = tizkernel_get_port (p_krn, pid);
+  OMX_U32 pid = 0;
+  const void *p_krn = NULL;
+  const void *p_port = NULL;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_hdr);
+
+  pid = ap_hdr->nInputPortIndex;
+  p_krn = tiz_get_krn (ap_hdl);
+  p_port = tizkernel_get_port (p_krn, pid);
+
+  /* TODO: Review whether this check is needed here or not */
 
   if (TIZPORT_IS_ENABLED (p_port))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Incorrect state op "
-               "(ETB received in Idle state on an enabled port)...");
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "[OMX_ErrorIncorrectStateOperation] : "
+                     "(ETB received in Idle state on an enabled port)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -140,6 +157,9 @@ static OMX_ERRORTYPE
 idle_FillThisBuffer (const void *ap_obj,
                      OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
+
+  /* TODO: Review whether this check is needed here or not */
+
 /*   const struct tizidle *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
@@ -156,30 +176,32 @@ idle_FillThisBuffer (const void *ap_obj,
   return tizapi_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
-static OMX_ERRORTYPE
-idle_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
-{
-  return OMX_ErrorNotImplemented;
-}
-
 /*
  * from tizstate
  */
 
 static OMX_ERRORTYPE
-idle_state_set (const void *ap_obj,
-                OMX_HANDLETYPE ap_hdl,
+idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizidle *p_obj = ap_obj;
   tizfsm_state_id_t new_state = EStateMax;
-  OMX_ERRORTYPE omx_error = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  struct tizkernel *p_krn = NULL;
+  tiz_kernel_tunneled_ports_status_t status = ETIZKernelTunneledPortsMax;
 
-  assert (p_obj);
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Requested transition to state [%s]...",
-           tiz_fsm_state_to_str (a_param1));
+  TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Requested transition to state [%s]...",
+                 tiz_fsm_state_to_str (a_param1));
+
+  p_krn = tiz_get_krn (ap_hdl);
+  status = tizkernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "kernel's tunneled port status [%d] ", status);
 
   /* Allowed transitions are OMX_StateLoaded, OMX_StateExecuting */
   /* and OMX_StatePause. */
@@ -192,9 +214,22 @@ idle_state_set (const void *ap_obj,
       break;
 
     case OMX_StateExecuting:
+      {
+        if (ETIZKernelNoTunneledPorts == status)
+          {
+            /* Transition directly to OMX_StateExecuting */
+            new_state = a_param1;
+          }
+        else
+          {
+            /* Transition to the transitional state */
+            new_state = ESubStateIdleToExecuting;
+          }
+      }
+      break;
+
     case OMX_StatePause:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "Requesting transition to exe");
         new_state = a_param1;
       }
       break;
@@ -206,46 +241,39 @@ idle_state_set (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorIncorrectStateTransition...");
+        TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                       "[OMX_ErrorIncorrectStateTransition] : "
+                       "(OMX_StateLoaded -> [%s]...)",
+                       tiz_state_to_str (a_param1));
         return OMX_ErrorIncorrectStateTransition;
       }
 
     };
 
-  if (ESubStateIdleToLoaded == new_state)
+  if (ESubStateIdleToLoaded == new_state
+      || ESubStateIdleToExecuting == new_state)
     {
       if (OMX_ErrorNone !=
-          (omx_error = tizfsm_set_state
+          (rc = tizfsm_set_state
            (tiz_get_fsm (ap_hdl), new_state, EStateMax)))
         {
-          return omx_error;
+          return rc;
         }
     }
 
-  {
-    /* IL resource deallocation takes place now */
-    struct tizproc *p_prc = tiz_get_prc (ap_hdl);
-    struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
-
-    /* First notify the kernel servant */
-    if (OMX_ErrorNone != (omx_error = tizapi_SendCommand (p_krn, ap_hdl,
-                                                          a_cmd, a_param1,
-                                                          ap_cmd_data)))
+  if (ESubStateIdleToExecuting == new_state)
+    {
+      if (ETIZKernelTunneledPortsAcceptNone == status)
       {
-        return omx_error;
+        TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                       "wait until all the tunneled non-supplier neighbours have "
+                       "reported that they are ready to exchange buffers ...");
+        return rc;
       }
+    }
 
-    /* Now notify the processor servant */
-    if (OMX_ErrorNone != (omx_error = tizapi_SendCommand (p_prc, ap_hdl,
-                                                          a_cmd, a_param1,
-                                                          ap_cmd_data)))
-      {
-        return omx_error;
-      }
-  }
-
-  return omx_error;
-
+  return tizstate_super_state_set (tizidle, ap_obj, ap_hdl, a_cmd,
+                                   a_param1, ap_cmd_data);
 }
 
 /*
@@ -271,7 +299,6 @@ init_tizidle (void)
          tizapi_UseBuffer, idle_UseBuffer,
          tizapi_EmptyThisBuffer, idle_EmptyThisBuffer,
          tizapi_FillThisBuffer, idle_FillThisBuffer,
-         tizapi_ComponentDeInit, idle_ComponentDeInit,
          tizstate_state_set, idle_state_set, 0);
     }
 }

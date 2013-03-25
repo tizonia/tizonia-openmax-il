@@ -176,7 +176,6 @@ setup (void)
       error = execlp (pg_rmd_path, arg0, (char *) NULL);
       fail_if (error == -1);
     }
-
 }
 
 static void

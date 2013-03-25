@@ -72,8 +72,7 @@ otherport_ctor (void *ap_obj, va_list * app)
         }
     }
 
-  p_obj->port_format_.eFormat = p_formats
-    ? p_formats[0] : OMX_OTHER_FormatMax;
+  p_obj->port_format_.eFormat = p_formats ? p_formats[0] : OMX_OTHER_FormatMax;
 
   return p_obj;
 }
@@ -167,8 +166,7 @@ otherport_SetParameter (const void *ap_obj,
 
         p_obj->port_format_.eFormat = format;
 
-        TIZ_LOG (TIZ_LOG_TRACE, "Set new other format "
-                 "[0x%08x]...", format);
+        TIZ_LOG (TIZ_LOG_TRACE, "Set new other format " "[0x%08x]...", format);
 
       }
       break;

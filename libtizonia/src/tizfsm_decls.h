@@ -36,6 +36,7 @@ extern "C"
 
 #include "tizfsm.h"
 #include "tizservant_decls.h"
+#include "tizosal.h"
 
   struct tizfsm
   {
@@ -54,17 +55,21 @@ extern "C"
   {
     /* Class */
     const struct tizservant_class _;
-      OMX_ERRORTYPE (*set_state) (void *p_obj,
-                                  tizfsm_state_id_t a_new_state,
-                                  tizfsm_state_id_t a_canceled_substate);
-      OMX_ERRORTYPE (*complete_transition) (void *p_obj,
-                                            const void *ap_servant,
-                                            OMX_STATETYPE a_new_state);
-      OMX_ERRORTYPE (*complete_command) (void *p_obj,
-                                         const void *ap_servant,
-                                         OMX_COMMANDTYPE a_cmd,
-                                         OMX_U32 a_param1);
-      tizfsm_state_id_t (*get_substate) (const void *ap_obj);
+
+    OMX_ERRORTYPE (*set_state) (void *p_obj,
+                                tizfsm_state_id_t a_new_state,
+                                tizfsm_state_id_t a_canceled_substate);
+    OMX_ERRORTYPE (*complete_transition) (void *p_obj,
+                                          const void *ap_servant,
+                                          OMX_STATETYPE a_new_state);
+    OMX_ERRORTYPE (*complete_command) (void *p_obj,
+                                       const void *ap_servant,
+                                       OMX_COMMANDTYPE a_cmd,
+                                       OMX_U32 a_param1);
+    tizfsm_state_id_t (*get_substate) (const void *ap_obj);
+
+    OMX_ERRORTYPE (*tunneled_ports_status_update) (void *ap_obj);
+
   };
 
 #ifdef __cplusplus

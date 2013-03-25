@@ -32,42 +32,49 @@ extern "C"
   struct tizstate
   {
     const struct tizapi _;
-    void *ip_fsm;
-    OMX_U32 i_servants_count;
+    void *p_fsm_;
+    OMX_U32 servants_count_;
   };
 
-    OMX_ERRORTYPE
-    tizstate_super_trans_complete (const void *a_class, const void *ap_obj,
-                                   OMX_PTR ap_servant,
-                                   OMX_STATETYPE a_new_state);
+  OMX_ERRORTYPE
+  tizstate_super_state_set (const void *a_class, const void *p_obj,
+                            OMX_HANDLETYPE ap_hdl,
+                            OMX_COMMANDTYPE a_cmd,
+                            OMX_U32 a_param1, OMX_PTR ap_cmd_data);
+
+  OMX_ERRORTYPE
+  tizstate_super_trans_complete (const void *a_class, const void *ap_obj,
+                                 OMX_PTR ap_servant,
+                                 OMX_STATETYPE a_new_state);
 
   struct tizstate_class
   {
     /* Class */
     const struct tizapi_class _;
-      OMX_ERRORTYPE (*state_set) (const void *p_obj,
-                                  OMX_HANDLETYPE ap_hdl,
-                                  OMX_COMMANDTYPE a_cmd,
-                                  OMX_U32 a_param1, OMX_PTR ap_cmd_data);
-      OMX_ERRORTYPE (*flush) (const void *p_obj,
-                              OMX_HANDLETYPE ap_hdl,
-                              OMX_COMMANDTYPE a_cmd,
-                              OMX_U32 a_param1, OMX_PTR ap_cmd_data);
-      OMX_ERRORTYPE (*disable) (const void *p_obj,
+    OMX_ERRORTYPE (*state_set) (const void *p_obj,
                                 OMX_HANDLETYPE ap_hdl,
                                 OMX_COMMANDTYPE a_cmd,
                                 OMX_U32 a_param1, OMX_PTR ap_cmd_data);
-      OMX_ERRORTYPE (*enable) (const void *p_obj,
-                               OMX_HANDLETYPE ap_hdl,
-                               OMX_COMMANDTYPE a_cmd,
-                               OMX_U32 a_param1, OMX_PTR ap_cmd_data);
-      OMX_ERRORTYPE (*mark) (const void *p_obj,
+    OMX_ERRORTYPE (*flush) (const void *p_obj,
+                            OMX_HANDLETYPE ap_hdl,
+                            OMX_COMMANDTYPE a_cmd,
+                            OMX_U32 a_param1, OMX_PTR ap_cmd_data);
+    OMX_ERRORTYPE (*disable) (const void *p_obj,
+                              OMX_HANDLETYPE ap_hdl,
+                              OMX_COMMANDTYPE a_cmd,
+                              OMX_U32 a_param1, OMX_PTR ap_cmd_data);
+    OMX_ERRORTYPE (*enable) (const void *p_obj,
                              OMX_HANDLETYPE ap_hdl,
                              OMX_COMMANDTYPE a_cmd,
                              OMX_U32 a_param1, OMX_PTR ap_cmd_data);
-      OMX_ERRORTYPE (*trans_complete) (const void *p_obj,
-                                       OMX_PTR ap_servant,
-                                       OMX_STATETYPE a_new_state);
+    OMX_ERRORTYPE (*mark) (const void *p_obj,
+                           OMX_HANDLETYPE ap_hdl,
+                           OMX_COMMANDTYPE a_cmd,
+                           OMX_U32 a_param1, OMX_PTR ap_cmd_data);
+    OMX_ERRORTYPE (*trans_complete) (const void *p_obj,
+                                     OMX_PTR ap_servant,
+                                     OMX_STATETYPE a_new_state);
+    OMX_ERRORTYPE (*tunneled_ports_status_update) (void *ap_obj);
   };
 
   typedef struct tizloaded tizloaded_t;
@@ -102,6 +109,13 @@ extern "C"
   typedef struct tizidletoloaded tizidletoloaded_t;
 
   struct tizidletoloaded
+  {
+    const tizidle_t _;
+  };
+
+  typedef struct tizidletoexecuting tizidletoexecuting_t;
+
+  struct tizidletoexecuting
   {
     const tizidle_t _;
   };

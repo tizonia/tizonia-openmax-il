@@ -84,26 +84,6 @@ extern "C"
     OMX_COMPONENTTYPE *p_hdl;
   };
 
-  typedef enum peer_type peer_type_t;
-  enum peer_type
-  {
-    ETIZSchedPeerTypeIlClient,
-    ETIZSchedPeerTypeIlCore,
-    ETIZSchedPeerTypeIlComponent,
-    ETIZSchedPeerTypeUnknown
-  };
-
-  typedef struct peer_info peer_info_t;
-  struct peer_info
-  {
-    peer_type_t type;
-    OMX_S32 tid;
-    tiz_mutex_t mutex;
-    tiz_sem_t sem;
-    OMX_HANDLETYPE hdl;         /* TODO: This should be a list of hdls */
-    peer_info_t *p_next;
-  };
-
   typedef struct tiz_scheduler tiz_scheduler_t;
   struct tiz_scheduler
   {
@@ -121,8 +101,6 @@ extern "C"
     tiz_servant_t child;
     tizsched_state_t state;
     tiz_servant_list_t *p_servants;
-    peer_info_t *p_peers;
-    OMX_S32 npeers;
   };
 
   typedef struct tizevent tizevent_t;

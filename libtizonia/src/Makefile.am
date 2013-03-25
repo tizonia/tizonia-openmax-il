@@ -34,6 +34,7 @@ libtizonia_include_HEADERS = \
 	tizfsm.h \
 	tizidle.h \
 	tizidletoloaded.h \
+	tizidletoexecuting.h \
 	tizkernel_decls.h \
 	tizkernel.h \
 	tizloaded.h \
@@ -80,6 +81,7 @@ libtizonia_la_SOURCES = \
 	tizwaitforresources.c \
 	tizidle.c \
 	tizidletoloaded.c \
+	tizidletoexecuting.c \
 	tizexecuting.c \
 	tizexecutingtoidle.c \
 	tizpause.c \

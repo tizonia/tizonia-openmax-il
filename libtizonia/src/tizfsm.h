@@ -47,6 +47,7 @@ extern "C"
     EStateWaitForResources = OMX_StateWaitForResources,
     ESubStateLoadedToIdle,
     ESubStateIdleToLoaded,
+    ESubStateIdleToExecuting,
     ESubStateExecutingToIdle,
     ESubStatePauseToIdle,
     EStateMax
@@ -70,6 +71,7 @@ extern "C"
 
   tizfsm_state_id_t tizfsm_get_substate (const void *ap_obj);
 
+  OMX_ERRORTYPE tizfsm_tunneled_ports_status_update (void *ap_obj);
 
   void init_tizfsm (void);
 

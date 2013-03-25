@@ -184,11 +184,12 @@ waitforresources_state_set (const void *ap_obj,
 
 static OMX_ERRORTYPE
 waitforresources_trans_complete (const void *ap_obj,
-                                 OMX_PTR ap_servant,
-                                 OMX_STATETYPE a_new_state)
+                                 OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "Trans complete to state [%s]...",
-           tiz_fsm_state_to_str (a_new_state));
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (tizservant_get_hdl (ap_servant)),
+                 TIZ_CBUF (tizservant_get_hdl (ap_servant)),
+                 "Trans complete to state [%s]...",
+                 tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateWaitForResources == a_new_state
           || OMX_StateLoaded == a_new_state);
   return tizstate_super_trans_complete (tizwaitforresources, ap_obj,

@@ -203,9 +203,20 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
 
   assert (p_port);
 
-  /* Do not notify this buffer in OMX_StatePause or if the port is disabled or
-   * being disabled */
-  if (EStatePause != now && !TIZPORT_IS_DISABLED (p_port)
+  /* Do not notify this buffer in the following situations:
+   * 
+   * - Component in OMX_StatePause or
+   *
+   * - Component in ExeToIdle or PauseToIdle
+   * 
+   * - the port is disabled or being disabled
+   * 
+   * */
+  if (EStatePause != now
+      && ESubStateExecutingToIdle != now
+      && ESubStateExecutingToIdle != now
+      && ESubStatePauseToIdle != now
+      && !TIZPORT_IS_DISABLED (p_port)
       && !TIZPORT_IS_BEING_DISABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
@@ -405,6 +416,14 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
             rc = tizservant_stop_and_return (p_obj);
             done = OMX_TRUE;
 
+          }
+        else if (OMX_StateIdle == now)
+          {
+            /* TODO : review when this situation would occur  */
+            TIZ_LOG_CNAME (TIZ_LOG_WARN, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+                           "Ignoring transition [%s] -> [%s]",
+                           tiz_fsm_state_to_str (now),
+                           tiz_fsm_state_to_str (ap_msg_sc->param1));
           }
         else
           {
@@ -623,7 +642,7 @@ enqueue_buffersready_msg (const void *ap_obj,
   p_msg_br->pid = a_pid;
 
   /* Enqueueing with the lowest priority */
-  return tizservant_enqueue (ap_obj, p_msg, 0);
+  return tizservant_enqueue (ap_obj, p_msg, 1);
 }
 
 /*

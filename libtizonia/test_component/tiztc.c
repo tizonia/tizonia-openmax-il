@@ -182,7 +182,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   RETURN_ON_IL_ERR (tiz_register_port_alloc_hooks
                     (ap_hdl, 0, &new_hooks, &old_hooks));
 
-  /* Verify that the old haoks have been returned */
+  /* Verify that the old hooks have been returned */
   assert (old_hooks.pf_alloc);
   assert (old_hooks.pf_free);
 

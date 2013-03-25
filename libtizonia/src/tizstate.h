@@ -40,6 +40,7 @@ extern "C"
 #include "tizwaitforresources.h"
 #include "tizidle.h"
 #include "tizidletoloaded.h"
+#include "tizidletoexecuting.h"
 #include "tizexecuting.h"
 #include "tizexecutingtoidle.h"
 #include "tizpause.h"
@@ -53,6 +54,7 @@ extern "C"
   extern const void *tizwaitforresources;
   extern const void *tizidle;
   extern const void *tizidletoloaded;
+  extern const void *tizidletoexecuting;
   extern const void *tizexecuting;
   extern const void *tizexecutingtoidle;
   extern const void *tizpause;
@@ -91,6 +93,8 @@ extern "C"
     OMX_ERRORTYPE
     tizstate_trans_complete (const void *p_obj, OMX_PTR ap_servant,
                              OMX_STATETYPE a_new_state);
+
+    OMX_ERRORTYPE tizstate_tunneled_ports_status_update (void *ap_obj);
 
   void init_tizstate (void);
 

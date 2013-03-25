@@ -381,8 +381,7 @@ tizservant_deallocate_resources (const void *ap_obj)
 }
 
 OMX_ERRORTYPE
-tizservant_super_deallocate_resources (const void *a_class,
-                                       const void *ap_obj)
+tizservant_super_deallocate_resources (const void *a_class, const void *ap_obj)
 {
   const struct tizservant_class *superclass = super (a_class);
   assert (ap_obj && superclass->deallocate_resources);
@@ -473,8 +472,7 @@ servant_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
 
 void
 tizservant_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
-                        OMX_U32 a_data1, OMX_U32 a_data2,
-                        OMX_PTR ap_eventdata)
+                        OMX_U32 a_data1, OMX_U32 a_data2, OMX_PTR ap_eventdata)
 {
   const struct tizservant_class *class = classOf (ap_obj);
   assert (class->issue_event);
@@ -587,8 +585,7 @@ servant_issue_buf_callback (const void *ap_obj,
       OMX_ERRORTYPE (*fp_buf_done)
         (OMX_HANDLETYPE, OMX_PTR, OMX_BUFFERHEADERTYPE *) =
         (dir == OMX_DirInput ?
-         p_obj->p_cbacks_->EmptyBufferDone : p_obj->p_cbacks_->
-         FillBufferDone);
+         p_obj->p_cbacks_->EmptyBufferDone : p_obj->p_cbacks_->FillBufferDone);
 
       fp_buf_done (p_obj->p_hdl_, p_obj->p_appdata_, p_hdr);
     }

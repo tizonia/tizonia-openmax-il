@@ -463,8 +463,7 @@ struct transition_to
 };
 
 OMX_ERRORTYPE
-tizgraph::transition_all (const OMX_STATETYPE to,
-                          const OMX_STATETYPE from)
+tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
@@ -472,15 +471,25 @@ tizgraph::transition_all (const OMX_STATETYPE to,
       ||
       (to == OMX_StateExecuting && from == OMX_StateIdle))
     {
-      // Non-suppliers first, hence front to back order
-      error = (std::for_each(handles_.begin(), handles_.end(),
+      // Suppliers first, hence back to front order
+      error = (std::for_each(handles_.rbegin(), handles_.rend(),
                              transition_to(to))).error_;
+
+      // Non-suppliers first, hence front to back order
+//       error = (std::for_each(handles_.begin(), handles_.end(),
+//                              transition_to(to))).error_;
+
     }
   else
     {
+      // Non-suppliers first, hence front to back order
+      error = (std::for_each(handles_.begin(), handles_.end(),
+                             transition_to(to))).error_;
+
       // Suppliers first, hence back to front order
-      error = (for_each(handles_.rbegin(), handles_.rend(),
-                        transition_to(to, 10000))).error_;
+//       error = (std::for_each(handles_.rbegin(), handles_.rend(),
+//                              transition_to(to))).error_;
+
     }
 
   if (OMX_ErrorNone == error)

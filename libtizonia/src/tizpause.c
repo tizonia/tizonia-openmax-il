@@ -106,8 +106,7 @@ pause_UseBuffer (const void *ap_obj,
                  OMX_HANDLETYPE ap_hdl,
                  OMX_BUFFERHEADERTYPE ** app_buf_hdr,
                  OMX_U32 a_port_index,
-                 OMX_PTR ap_app_private,
-                 OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
+                 OMX_PTR ap_app_private, OMX_U32 a_size_bytes, OMX_U8 * ap_buf)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -151,12 +150,6 @@ pause_FillThisBuffer (const void *ap_obj,
 
   /* Delegate to the kernel... */
   return tizapi_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
-}
-
-static OMX_ERRORTYPE
-pause_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
-{
-  return OMX_ErrorNotImplemented;
 }
 
 /*
@@ -244,8 +237,7 @@ pause_state_set (const void *ap_obj,
 
 static OMX_ERRORTYPE
 pause_state_mark (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
-                  OMX_PTR ap_cmd_data)
+                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
   /* Notify the kernel servant */
@@ -257,8 +249,10 @@ static OMX_ERRORTYPE
 pause_trans_complete (const void *ap_obj,
                       OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "Trans complete to state [%s]...",
-           tiz_fsm_state_to_str (a_new_state));
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (tizservant_get_hdl (ap_servant)),
+                 TIZ_CBUF (tizservant_get_hdl (ap_servant)),
+                 "Trans complete to state [%s]...",
+                 tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StatePause == a_new_state || OMX_StateIdle == a_new_state
           || OMX_StateExecuting == a_new_state);
   return tizstate_super_trans_complete (tizpause, ap_obj, ap_servant,
@@ -288,7 +282,6 @@ init_tizpause (void)
          tizapi_UseBuffer, pause_UseBuffer,
          tizapi_EmptyThisBuffer, pause_EmptyThisBuffer,
          tizapi_FillThisBuffer, pause_FillThisBuffer,
-         tizapi_ComponentDeInit, pause_ComponentDeInit,
          tizstate_state_set, pause_state_set,
          tizstate_mark, pause_state_mark,
          tizstate_trans_complete, pause_trans_complete, 0);

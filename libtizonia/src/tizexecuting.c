@@ -65,28 +65,36 @@ executing_SetParameter (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
-  const void *p_krn = tiz_get_krn (ap_hdl);
-  OMX_PTR p_port = NULL;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
+  const void *p_krn = NULL;
+  OMX_PTR p_port = NULL;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
+  
+  p_krn = tiz_get_krn (ap_hdl);
 
   /* TODO: Optimization: find_managing_port is called twice, first time here,
    * then in the SetParameter implementation of the kernel object. */
+
   if (OMX_ErrorNone
       != (ret_val =
           tizkernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Cannot retrieve managing port (%s)...",
-               tiz_err_to_str (ret_val));
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "[%s] : (Unable to retrieve managing port for index %d...)",
+                     tiz_err_to_str (ret_val), tiz_idx_to_str (a_index));
       return ret_val;
     }
 
-  assert (p_port);
+  assert (NULL != p_port);
 
   if (TIZPORT_IS_CONFIG_PORT (p_port)
       || (!TIZPORT_IS_CONFIG_PORT (p_port) && TIZPORT_IS_ENABLED (p_port)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Incorrect state op "
-               "(SetParameter received in Executing state)...");
+      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                     "[OMX_ErrorIncorrectStateOperation] : "
+                     "(SetParameter received in Executing state)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -97,8 +105,7 @@ static OMX_ERRORTYPE
 executing_GetState (const void *ap_obj,
                     OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "executing_GetState");
+  assert (NULL != ap_state);
   *ap_state = OMX_StateExecuting;
   return OMX_ErrorNone;
 }
@@ -119,6 +126,9 @@ executing_EmptyThisBuffer (const void *ap_obj,
                            OMX_HANDLETYPE ap_hdl,
                            OMX_BUFFERHEADERTYPE * ap_hdr)
 {
+
+  /* TODO: Review whether this check is needed here or not */
+
 /*   const struct tizexecuting *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nInputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
@@ -136,10 +146,13 @@ executing_EmptyThisBuffer (const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-executing_FillThisBuffer (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl,
+executing_FillThisBuffer (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                           OMX_BUFFERHEADERTYPE * ap_hdr)
 {
+
+  /* TODO: Review whether this check is needed here or not */
+
+
 /*   const struct tizexecuting *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
@@ -156,31 +169,25 @@ executing_FillThisBuffer (const void *ap_obj,
   return tizapi_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
-static OMX_ERRORTYPE
-executing_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
-{
-  return OMX_ErrorNotImplemented;
-}
-
 /*
  * from tizstate
  */
 
 static OMX_ERRORTYPE
-executing_state_set (const void *ap_obj,
-                     OMX_HANDLETYPE ap_hdl,
+executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                      OMX_COMMANDTYPE a_cmd,
                      OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizexecuting *p_obj = ap_obj;
   tizfsm_state_id_t new_state = EStateMax;
-  OMX_ERRORTYPE omx_error = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (p_obj);
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Requested transition to state [%s]...",
-           tiz_fsm_state_to_str (a_param1));
+  TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Requested transition to state [%s]...",
+                 tiz_fsm_state_to_str (a_param1));
 
   /* Allowed transitions are OMX_StateIdle and OMX_StateExecuting. */
   switch (a_param1)
@@ -204,7 +211,8 @@ executing_state_set (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorIncorrectStateTransition...");
+        TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                       "[OMX_ErrorIncorrectStateTransition]");
         return OMX_ErrorIncorrectStateTransition;
       }
 
@@ -213,37 +221,29 @@ executing_state_set (const void *ap_obj,
   if (ESubStateExecutingToIdle == new_state)
     {
       if (OMX_ErrorNone !=
-          (omx_error = tizfsm_set_state
+          (rc = tizfsm_set_state
            (tiz_get_fsm (ap_hdl), new_state, EStateMax)))
         {
-          return omx_error;
+          return rc;
         }
+
+      {
+        struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+        tiz_kernel_tunneled_ports_status_t status =
+          tizkernel_get_tunneled_ports_status (p_krn, OMX_TRUE);
+
+        if (ETIZKernelTunneledPortsAcceptNone == status)
+          {
+            TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                           "wait until all the tunneled supplier neighbours have "
+                           "reported that they have stopped the buffer exchange...");
+            return rc;
+          }
+      }
     }
 
-  {
-    /* IL transfer and processing of buffers take place now */
-    struct tizproc *p_prc = tiz_get_prc (ap_hdl);
-    struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
-
-    /* First notify the kernel servant */
-    if (OMX_ErrorNone != (omx_error = tizapi_SendCommand (p_krn, ap_hdl,
-                                                          a_cmd, a_param1,
-                                                          ap_cmd_data)))
-      {
-        return omx_error;
-      }
-
-    /* Now notify the processor servant */
-    if (OMX_ErrorNone != (omx_error = tizapi_SendCommand (p_prc, ap_hdl,
-                                                          a_cmd, a_param1,
-                                                          ap_cmd_data)))
-      {
-        return omx_error;
-      }
-  }
-
-  return omx_error;
-
+  return tizstate_super_state_set (tizexecuting, ap_obj, ap_hdl, a_cmd,
+                                   a_param1, ap_cmd_data);
 }
 
 static OMX_ERRORTYPE
@@ -261,8 +261,13 @@ static OMX_ERRORTYPE
 executing_trans_complete (const void *ap_obj,
                           OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "Trans complete to state [%s]...",
-           tiz_fsm_state_to_str (a_new_state));
+  assert (NULL != ap_obj);
+  assert (NULL != ap_servant);
+
+  TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (tizservant_get_hdl(ap_servant)),
+                 TIZ_CBUF (tizservant_get_hdl(ap_servant)),
+                 "Trans complete to state [%s]...",
+                 tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateExecuting == a_new_state || OMX_StatePause == a_new_state
           || OMX_StateIdle == a_new_state);
   return tizstate_super_trans_complete (tizexecuting, ap_obj, ap_servant,
@@ -292,7 +297,6 @@ init_tizexecuting (void)
          tizapi_UseBuffer, executing_UseBuffer,
          tizapi_EmptyThisBuffer, executing_EmptyThisBuffer,
          tizapi_FillThisBuffer, executing_FillThisBuffer,
-         tizapi_ComponentDeInit, executing_ComponentDeInit,
          tizstate_state_set, executing_state_set,
          tizstate_mark, executing_state_mark,
          tizstate_trans_complete, executing_trans_complete, 0);

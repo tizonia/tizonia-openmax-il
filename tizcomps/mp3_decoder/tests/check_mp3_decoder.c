@@ -203,7 +203,6 @@ setup (void)
       error = execlp (pg_rmd_path, arg0, (char *) NULL);
       fail_if (error == -1);
     }
-  tiz_mem_free (pg_rmd_path);
 }
 
 static void
@@ -216,6 +215,7 @@ teardown (void)
       error = kill (g_rmd_pid, SIGTERM);
       fail_if (error == -1);
     }
+  tiz_mem_free (pg_rmd_path);
 }
 
 static const char *
@@ -1073,8 +1073,6 @@ START_TEST (test_mp3_playback)
   error = _ctx_reset (&rend_ctx, OMX_EventCmdComplete);
   error = OMX_SendCommand (p_pcmrnd, OMX_CommandStateSet, OMX_StateIdle, NULL);
   fail_if (OMX_ErrorNone != error);
-
-  sleep(1);
 
   /* ------------------------------------- */
   /* Initiate decoder's transition to IDLE */

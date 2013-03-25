@@ -467,6 +467,8 @@ main()
   signal(SIGTERM, tizrmd_sig_hdlr);
   signal(SIGINT, tizrmd_sig_hdlr);
 
+  tiz_log_init();
+
   TIZ_LOG(TIZ_LOG_TRACE, "Starting Tizonia IL RM daemon...");
 
   if (find_rmdb_path(rmdb_path))
@@ -481,6 +483,8 @@ main()
       dispatcher.enter();
 
     }
+
+  tiz_log_deinit ();
 
   return 0;
 }

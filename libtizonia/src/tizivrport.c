@@ -127,8 +127,7 @@ ivrport_GetConfig (const void *ap_obj,
 
     case OMX_IndexConfigCommonMirror:
       {
-        OMX_CONFIG_MIRRORTYPE *p_cmirror
-          = (OMX_CONFIG_MIRRORTYPE *) ap_struct;
+        OMX_CONFIG_MIRRORTYPE *p_cmirror = (OMX_CONFIG_MIRRORTYPE *) ap_struct;
         *p_cmirror = p_obj->cmirror_;
       }
       break;
@@ -188,8 +187,7 @@ ivrport_SetConfig (const void *ap_obj,
 
     case OMX_IndexConfigCommonMirror:
       {
-        OMX_CONFIG_MIRRORTYPE *p_cmirror
-          = (OMX_CONFIG_MIRRORTYPE *) ap_struct;
+        OMX_CONFIG_MIRRORTYPE *p_cmirror = (OMX_CONFIG_MIRRORTYPE *) ap_struct;
         p_obj->cmirror_.eMirror = p_cmirror->eMirror;
       }
       break;
@@ -222,7 +220,7 @@ ivrport_SetConfig (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetConfig (tizivrport,
+        return super_SetConfig (tizivrport,
                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };

@@ -35,6 +35,7 @@
 #include "tizloadedtoidle.h"
 #include "tizstate_decls.h"
 #include "tizutils.h"
+#include "tizkernel.h"
 
 #include "tizosal.h"
 
@@ -65,7 +66,7 @@ loadedtoidle_SetParameter (const void *ap_obj,
   /* In this transitional state, OMX_SetParameter should only be allowed */
   /* until the first OMX_UseBuffer call is received */
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "SetParameter");
+                 "[%s]", tiz_idx_to_str (a_index));
 
   return super_SetParameter (tizloadedtoidle, ap_obj, ap_hdl, a_index,
                              ap_struct);
@@ -75,6 +76,7 @@ static OMX_ERRORTYPE
 loadedtoidle_GetState (const void *ap_obj,
                        OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
+  assert (NULL != ap_state);
   *ap_state = OMX_StateLoaded;
   return OMX_ErrorNone;
 }
@@ -106,12 +108,6 @@ loadedtoidle_FillThisBuffer (const void *ap_obj,
   return OMX_ErrorNotImplemented;
 }
 
-static OMX_ERRORTYPE
-loadedtoidle_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
-{
-  return OMX_ErrorNotImplemented;
-}
-
 /*
  * from tizstate class
  */
@@ -122,19 +118,20 @@ loadedtoidle_state_set (const void *ap_obj,
                         OMX_COMMANDTYPE a_cmd,
                         OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizloadedtoidle *p_obj = ap_obj;
   struct tizstate *p_base = (struct tizstate *) ap_obj;
   tizfsm_state_id_t new_state = EStateMax;
-  OMX_ERRORTYPE omx_error = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (p_obj);
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG (TIZ_LOG_TRACE,
-           "Requested transition [ESubStateLoadedToIdle -> %s]...",
-           tiz_fsm_state_to_str (a_param1));
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Requested transition [ESubStateLoadedToIdle -> %s]...",
+                 tiz_fsm_state_to_str (a_param1));
 
-  /* Allowed transitions are OMX_StateLoaded only (a.k.a. transition cancellation). */
+  /* Allowed transitions are OMX_StateLoaded only (a.k.a. transition
+   * cancellation). */
   switch (a_param1)
     {
     case OMX_StateLoaded:
@@ -145,59 +142,98 @@ loadedtoidle_state_set (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorIncorrectStateTransition...");
+        TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                       "[OMX_ErrorIncorrectStateTransition] : "
+                       "ESubStateLoadedToIdle -> [%s]",
+                       tiz_state_to_str (a_param1));
         return OMX_ErrorIncorrectStateTransition;
       }
 
     };
 
-  /* Reset the servants count for this state */
-  p_base->i_servants_count = 0;
+  /* reset here the servants count */
+  p_base->servants_count_ = 0;
 
   if (ESubStateIdleToLoaded == new_state)
     {
       if (OMX_ErrorNone !=
-          (omx_error = tizfsm_set_state
+          (rc = tizfsm_set_state
            (tiz_get_fsm (ap_hdl), new_state, ESubStateLoadedToIdle)))
         {
-          return omx_error;
+          return rc;
         }
     }
 
-  {
-    /* IL resource deallocation should take place now */
-    struct tizproc *p_prc = tiz_get_prc (ap_hdl);
-    struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
-
-    /* First notify the kernel servant */
-    if (OMX_ErrorNone != (omx_error = tizapi_SendCommand (p_krn, ap_hdl,
-                                                          a_cmd, a_param1,
-                                                          ap_cmd_data)))
-      {
-        return omx_error;
-      }
-
-    /* Now notify the processor servant */
-    if (OMX_ErrorNone != (omx_error = tizapi_SendCommand (p_prc, ap_hdl,
-                                                          a_cmd, a_param1,
-                                                          ap_cmd_data)))
-      {
-        return omx_error;
-      }
-  }
-
-  return omx_error;
-
+  /* IL resource deallocation should take place now */
+  /* NOTE: This will call the 'tizstate_state_set' function and not
+   * 'tizloaded_state_set' (we are passing 'tizloaded' as the 1st
+   * parameter  */
+  return tizstate_super_state_set (tizloaded, ap_obj, ap_hdl, a_cmd,
+                                   a_param1, ap_cmd_data);
 }
 
 static OMX_ERRORTYPE
 loadedtoidle_trans_complete (const void *ap_obj,
                              OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
+  const struct tizstate *p_base = (const struct tizstate *) ap_obj;
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (tizservant_get_hdl (ap_servant)),
+                 TIZ_CBUF (tizservant_get_hdl (ap_servant)),
+                 "Trans complete to state [%s]...",
+                 tiz_fsm_state_to_str (a_new_state));
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_servant);
   assert (OMX_StateIdle == a_new_state);
+
+  if (2 == p_base->servants_count_ + 1)
+    {
+      /* Reset the OMX_PORTSTATUS_ACCEPTUSEBUFFER flag in all ports where this
+       * has been set */
+      tizkernel_reset_tunneled_ports_status (tiz_get_krn
+                                             (tizservant_get_hdl (ap_servant)),
+                                             OMX_PORTSTATUS_ACCEPTUSEBUFFER);
+    }
+
   return tizstate_super_trans_complete (tizloadedtoidle, ap_obj, ap_servant,
                                         a_new_state);
 }
+
+static OMX_ERRORTYPE
+loadedtoidle_tunneled_ports_status_update (void *ap_obj)
+{
+  struct tizstate *p_base = (struct tizstate *) ap_obj;
+
+  assert (NULL != ap_obj);
+
+  {
+    OMX_HANDLETYPE p_hdl = tizservant_get_hdl (p_base->p_fsm_);
+    struct tizkernel *p_krn = tiz_get_krn (p_hdl);
+    tiz_kernel_tunneled_ports_status_t status =
+      tizkernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
+
+    TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+                   "kernel's tunneled port status [%d] ", status);
+
+    if (ETIZKernelNoTunneledPorts == status
+        || ETIZKernelTunneledPortsAcceptUseBuffer == status
+        || ETIZKernelTunneledPortsAcceptBoth == status)
+      {
+        /* OK, at this point all the tunneled non-supplier neighboring ports
+         * are ready to receive OMX_UseBuffer calls. IL resource allocation
+         * will take place now */
+        /* NOTE: This will call the 'tizstate_state_set' function (we are
+         * passing 'tizloaded' as the 1st parameter  */
+        return tizstate_super_state_set (tizloaded, ap_obj, p_hdl,
+                                         OMX_CommandStateSet,
+                                         OMX_StateIdle, NULL);
+      }
+  }
+
+  return OMX_ErrorNone;
+}
+
 
 /*
  * initialization
@@ -222,8 +258,9 @@ init_tizloadedtoidle (void)
          tizapi_UseBuffer, loadedtoidle_UseBuffer,
          tizapi_EmptyThisBuffer, loadedtoidle_EmptyThisBuffer,
          tizapi_FillThisBuffer, loadedtoidle_FillThisBuffer,
-         tizapi_ComponentDeInit, loadedtoidle_ComponentDeInit,
          tizstate_state_set, loadedtoidle_state_set,
-         tizstate_trans_complete, loadedtoidle_trans_complete, 0);
+         tizstate_trans_complete, loadedtoidle_trans_complete,
+         tizstate_tunneled_ports_status_update,
+         loadedtoidle_tunneled_ports_status_update, 0);
     }
 }

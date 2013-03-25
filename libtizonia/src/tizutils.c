@@ -51,6 +51,7 @@ tiz_state_str_t tiz_fsm_state_to_str_tbl[] = {
   {EStateWaitForResources, "OMX_StateWaitForResources"},
   {ESubStateLoadedToIdle, "ESubStateLoadedToIdle"},
   {ESubStateIdleToLoaded, "ESubStateIdleToLoaded"},
+  {ESubStateIdleToExecuting, "ESubStateIdleToExecuting"},
   {ESubStateExecutingToIdle, "ESubStateExecutingToIdle"},
   {ESubStatePauseToIdle, "ESubStatePauseToIdle"},
   {EStateMax, "EStateMax"}

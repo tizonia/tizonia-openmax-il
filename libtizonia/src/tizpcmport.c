@@ -297,8 +297,9 @@ pcmport_GetConfig (const void *ap_obj,
 
     default:
       {
-        /* No need to try the parent as we know there isn't any more configs */
-        return OMX_ErrorUnsupportedIndex;
+        /* Try the parent's indexes */
+        return super_GetConfig (tizpcmport,
+                                ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
@@ -353,8 +354,9 @@ pcmport_SetConfig (const void *ap_obj,
 
     default:
       {
-        /* No need to try the parent as we know there isn't any more configs */
-        return OMX_ErrorUnsupportedIndex;
+        /* Try the parent's indexes */
+        return super_SetConfig (tizpcmport,
+                                ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 

@@ -97,8 +97,7 @@ vp8port_ctor (void *ap_obj, va_list * app)
   p_obj->pltype_.nVersion.nVersion = OMX_VERSION;
   p_obj->pltype_.nPortIndex = p_base->portdef_.nPortIndex;
   p_obj->pltype_.eProfile = OMX_VIDEO_VP8ProfileMain;
-  p_obj->pltype_.eLevel =
-    p_levels ? p_levels[0] : OMX_VIDEO_VP8Level_Version0;
+  p_obj->pltype_.eLevel = p_levels ? p_levels[0] : OMX_VIDEO_VP8Level_Version0;
   p_obj->pltype_.nIndex = 0;
   p_obj->pltype_.eCodecType = 0;        /* Not applicable */
 
@@ -430,7 +429,7 @@ vp8port_SetConfig (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetConfig (tizvp8port,
+        return super_SetConfig (tizvp8port,
                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -467,13 +466,11 @@ vp8port_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->format.video.eCompressionFormat != OMX_VIDEO_CodingUnused)
     {
-      if (ap_other_def->format.video.eCompressionFormat !=
-          OMX_VIDEO_CodingVP8)
+      if (ap_other_def->format.video.eCompressionFormat != OMX_VIDEO_CodingVP8)
         {
           TIZ_LOG (TIZ_LOG_TRACE, "port [%d] check_tunnel_compat : "
                    "VP8 encoding not found, instead found encoding [%d]",
-                   p_obj->pid_,
-                   ap_other_def->format.video.eCompressionFormat);
+                   p_obj->pid_, ap_other_def->format.video.eCompressionFormat);
           return OMX_FALSE;
         }
     }

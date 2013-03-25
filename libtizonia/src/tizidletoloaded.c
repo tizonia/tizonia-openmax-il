@@ -34,7 +34,7 @@
 
 #include "tizidletoloaded.h"
 #include "tizstate_decls.h"
-
+#include "tizutils.h"
 #include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -121,12 +121,6 @@ idletoloaded_FillThisBuffer (const void *ap_obj,
   return OMX_ErrorNotImplemented;
 }
 
-static OMX_ERRORTYPE
-idletoloaded_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
-{
-  return OMX_ErrorNotImplemented;
-}
-
 /*
  * from tizstate class
  */
@@ -135,6 +129,10 @@ static OMX_ERRORTYPE
 idletoloaded_trans_complete (const void *ap_obj,
                              OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (tizservant_get_hdl (ap_servant)),
+                 TIZ_CBUF (tizservant_get_hdl (ap_servant)),
+                 "Trans complete to state [%s]...",
+                 tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateLoaded == a_new_state);
   return tizstate_super_trans_complete (tizidletoloaded, ap_obj, ap_servant,
                                         a_new_state);
@@ -165,7 +163,6 @@ init_tizidletoloaded (void)
          tizapi_FreeBuffer, idletoloaded_FreeBuffer,
          tizapi_EmptyThisBuffer, idletoloaded_EmptyThisBuffer,
          tizapi_FillThisBuffer, idletoloaded_FillThisBuffer,
-         tizapi_ComponentDeInit, idletoloaded_ComponentDeInit,
          tizstate_trans_complete, idletoloaded_trans_complete, 0);
     }
 }

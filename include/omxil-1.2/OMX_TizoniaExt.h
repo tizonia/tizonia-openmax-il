@@ -32,6 +32,9 @@
 #include "OMX_Core.h"
 #include "OMX_Types.h"
 
+#define OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN   0x00000004
+
+
 /**
  * Extension index used to select or deselect the buffer pre-announcements
  * feature on a particular port.
