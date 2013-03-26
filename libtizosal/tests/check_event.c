@@ -280,6 +280,7 @@ START_TEST (test_event_stat)
   OMX_ERRORTYPE error = OMX_ErrorNone;
   tiz_event_stat_t * p_ev_stat = NULL;
   char cmd [128];
+  int sleep_count = 5;
   OMX_HANDLETYPE p_hdl = NULL;
 
   snprintf (cmd, strlen (CHECK_STAT_RM_CMD) + 1, "%s", CHECK_STAT_RM_CMD);
@@ -307,7 +308,15 @@ START_TEST (test_event_stat)
   TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
   fail_if (-1 == system (cmd));
 
-  sleep (1);
+  do
+    {
+      sleep (1);
+      if (g_file_status_changed)
+        {
+          break;
+        }
+    }
+  while (--sleep_count != 0);
 
   fail_if (true != g_file_status_changed);
 
