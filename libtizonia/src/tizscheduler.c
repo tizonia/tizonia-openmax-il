@@ -53,29 +53,6 @@
 
 #define SCHED_OMX_DEFAULT_ROLE "default"
 
-#include <execinfo.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-/* Obtain a backtrace and print it to stdout. */
-static void
-print_trace (void)
-{
-  void *array[30];
-  size_t size;
-  char **strings;
-  size_t i;
-
-  size = backtrace (array, 30);
-  strings = backtrace_symbols (array, size);
-
-  printf ("Obtained %zd stack frames.\n", size);
-
-  for (i = 0; i < size; i++)
-    printf ("%s\n", strings[i]);
-
-  free (strings);
-}
 
 typedef enum tizsched_state tizsched_state_t;
 enum tizsched_state
@@ -995,11 +972,6 @@ do_ab (tiz_scheduler_t * ap_sched,
                               p_msg_ab->pp_hdr,
                               p_msg_ab->pid,
                               p_msg_ab->p_app_priv, p_msg_ab->size);
-
-  if (NULL == *(p_msg_ab->pp_hdr))
-    {
-      print_trace ();
-    }
 
   return rc;
 }

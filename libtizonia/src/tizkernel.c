@@ -42,7 +42,6 @@
 #include "tizkernel_decls.h"
 #include "tizutils.h"
 
-#include <execinfo.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -679,26 +678,6 @@ append_buflsts (tiz_vector_t * ap_dst2darr,
   return tiz_vector_append (p_list, ap_srclst);
 }
 
-/* Obtain a backtrace and print it to stdout. */
-static void
-print_trace (void)
-{
-  void *array[30];
-  size_t size;
-  char **strings;
-  size_t i;
-
-  size = backtrace (array, 30);
-  strings = backtrace_symbols (array, size);
-
-  printf ("Obtained %zd stack frames.\n", size);
-
-  for (i = 0; i < size; i++)
-    printf ("%s\n", strings[i]);
-
-  tiz_mem_free (strings);
-}
-
 static OMX_ERRORTYPE
 check_pid (const struct tizkernel *p_obj, OMX_U32 a_pid)
 {
@@ -709,8 +688,6 @@ check_pid (const struct tizkernel *p_obj, OMX_U32 a_pid)
                      TIZ_CBUF (tizservant_super_get_hdl (tizkernel, p_obj)),
                      "[OMX_ErrorBadPortIndex] : port [%d]...", a_pid);
 
-      print_trace ();
-      assert (0);
       return OMX_ErrorBadPortIndex;
     }
 
