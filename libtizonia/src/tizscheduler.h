@@ -21,7 +21,7 @@
  * @file   tizscheduler.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Scheduler class
+ * @brief  Tizonia OpenMAX IL - Servant scheduler
  *
  *
  */
@@ -40,27 +40,14 @@ extern "C"
 #include "OMX_Component.h"
 #include "tizosal.h"
 
-  typedef enum tizsched_state tizsched_state_t;
-
-  enum tizsched_state
-  {
-    ETIZSchedStateStopped = 0,
-    ETIZSchedStateStarting,
-    ETIZSchedStateStarted,
-    /* TODO : Check these two states at run time */
-    ETIZSchedStateCompInited,
-    ETIZSchedStateRolesRegistered,
-  };
+#define TIZ_MAX_PORTS 32
+#define TIZ_MAX_ROLES 64
 
   typedef OMX_PTR (*tiz_cport_factory_f) (OMX_HANDLETYPE ap_hdl);
   typedef OMX_PTR (*tiz_port_factory_f) (OMX_HANDLETYPE ap_hdl);
   typedef OMX_PTR (*tiz_proc_factory_f) (OMX_HANDLETYPE ap_hdl);
 
-#define TIZ_MAX_PORTS 32
-#define TIZ_MAX_ROLES 64
-
   typedef struct tiz_role_factory tiz_role_factory_t;
-
   struct tiz_role_factory
   {
     tiz_cport_factory_f pf_cport;
@@ -70,41 +57,7 @@ extern "C"
     OMX_U8 role[OMX_MAX_STRINGNAME_SIZE];
   };
 
-  typedef struct tiz_servant tiz_servant_t;
-
-  typedef tiz_servant_t *tiz_servant_list_t;
-
-  struct tiz_servant
-  {
-    void *p_fsm;
-    void *p_ker;
-    void *p_prc;
-    tiz_role_factory_t **p_role_list;
-    OMX_U32 nroles;
-    OMX_COMPONENTTYPE *p_hdl;
-  };
-
-  typedef struct tiz_scheduler tiz_scheduler_t;
-  struct tiz_scheduler
-  {
-    /* TODO: 4096 - this value needs to be set at project configuration time */
-    char cname[OMX_MAX_STRINGNAME_SIZE + 4096];
-    tiz_thread_t thread;
-    OMX_S32 thread_id;
-    tiz_mutex_t mutex;
-    tiz_sem_t sem;
-    tiz_sem_t schedsem;
-    tiz_sem_t cbacksem;
-    tiz_queue_t *p_queue;
-    tiz_soa_t *p_soa;
-    OMX_S32 error;
-    tiz_servant_t child;
-    tizsched_state_t state;
-    tiz_servant_list_t *p_servants;
-  };
-
   typedef struct tizevent tizevent_t;
-
   typedef void (*tiz_pluggable_event_hdlr_f) (OMX_PTR ap_servant,
                                               OMX_HANDLETYPE ap_hdl,
                                               tizevent_t * ap_event);
@@ -134,7 +87,7 @@ extern "C"
 /**
  * This is first function that must be called by a plugin in order to
  * initialize the base component infrastructure. When this function returns,
- * the component has a fsm and kernel objects ready to function.
+ * the component has a 'FSM' and 'Kernel' objects ready to function.
  *
  * @param ap_hdl The component handle to be initialized
  *

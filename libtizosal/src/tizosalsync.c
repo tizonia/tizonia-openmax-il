@@ -99,8 +99,8 @@ tiz_sem_wait (tiz_sem_t * app_sem)
 {
   sem_t *p_sem;
 
-  assert (app_sem);
-  assert (*app_sem);
+  assert (NULL != app_sem);
+  assert (NULL != *app_sem);
 
   p_sem = *app_sem;
 
@@ -118,8 +118,8 @@ tiz_sem_post (tiz_sem_t * app_sem)
 {
   sem_t *p_sem;
 
-  assert (app_sem);
-  assert (*app_sem);
+  assert (NULL != app_sem);
+  assert (NULL != *app_sem);
 
   p_sem = *app_sem;
 
@@ -137,8 +137,8 @@ tiz_sem_getvalue (tiz_sem_t * app_sem, OMX_S32 * ap_sval)
 {
   sem_t *p_sem;
 
-  assert (app_sem);
-  assert (*app_sem);
+  assert (NULL != app_sem);
+  assert (NULL != *app_sem);
 
   p_sem = *app_sem;
 
@@ -157,7 +157,7 @@ tiz_mutex_init (tiz_mutex_t * app_mutex)
   pthread_mutex_t *p_mutex;
   int error = 0;
 
-  assert (app_mutex);
+  assert (NULL != app_mutex);
 
   if (!(p_mutex =
         (pthread_mutex_t *) tiz_mem_alloc (sizeof (pthread_mutex_t))))
@@ -183,7 +183,7 @@ tiz_mutex_destroy (tiz_mutex_t * app_mutex)
   pthread_mutex_t *p_mutex;
   int error = 0;
 
-  assert (app_mutex);
+  assert (NULL != app_mutex);
   p_mutex = *app_mutex;
 
   if (p_mutex
@@ -205,8 +205,8 @@ tiz_mutex_lock (tiz_mutex_t * app_mutex)
   pthread_mutex_t *p_mutex;
   int error;
 
-  assert (app_mutex);
-  assert (*app_mutex);
+  assert (NULL != app_mutex);
+  assert (NULL != *app_mutex);
 
   p_mutex = *app_mutex;
 
@@ -225,8 +225,8 @@ tiz_mutex_unlock (tiz_mutex_t * app_mutex)
   pthread_mutex_t *p_mutex;
   int error;
 
-  assert (app_mutex);
-  assert (*app_mutex);
+  assert (NULL != app_mutex);
+  assert (NULL != *app_mutex);
 
   p_mutex = *app_mutex;
 
@@ -245,7 +245,7 @@ tiz_cond_init (tiz_cond_t * app_cond)
   pthread_cond_t *p_cond;
   int error;
 
-  assert (app_cond);
+  assert (NULL != app_cond);
 
   if (!(p_cond = (pthread_cond_t *) tiz_mem_alloc (sizeof (pthread_cond_t))))
     {
@@ -271,7 +271,7 @@ tiz_cond_destroy (tiz_cond_t * app_cond)
   pthread_cond_t *p_cond;
   int error = 0;
 
-  assert (app_cond);
+  assert (NULL != app_cond);
   p_cond = *app_cond;
 
   if (p_cond && (PTHREAD_SUCCESS != (error = pthread_cond_destroy (p_cond))))
@@ -292,8 +292,8 @@ tiz_cond_signal (tiz_cond_t * app_cond)
   pthread_cond_t *p_cond;
   int error = 0;
 
-  assert (app_cond);
-  assert (*app_cond);
+  assert (NULL != app_cond);
+  assert (NULL != *app_cond);
 
   p_cond = *app_cond;
 
@@ -312,8 +312,8 @@ tiz_cond_broadcast (tiz_cond_t * app_cond)
   pthread_cond_t *p_cond;
   int error = 0;
 
-  assert (app_cond);
-  assert (*app_cond);
+  assert (NULL != app_cond);
+  assert (NULL != *app_cond);
 
   p_cond = *app_cond;
 
@@ -333,10 +333,10 @@ tiz_cond_wait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex)
   pthread_mutex_t *p_mutex;
   int error = 0;
 
-  assert (app_cond);
-  assert (app_mutex);
-  assert (*app_cond);
-  assert (*app_mutex);
+  assert (NULL != app_cond);
+  assert (NULL != app_mutex);
+  assert (NULL != *app_cond);
+  assert (NULL != *app_mutex);
 
   p_cond = *app_cond;
   p_mutex = *app_mutex;
@@ -361,10 +361,10 @@ tiz_cond_timedwait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex,
   struct timespec timeout;
   struct timeval now;
 
-  assert (app_cond);
-  assert (app_mutex);
-  assert (*app_cond);
-  assert (*app_mutex);
+  assert (NULL != app_cond);
+  assert (NULL != app_mutex);
+  assert (NULL != *app_cond);
+  assert (NULL != *app_mutex);
 
   p_cond = *app_cond;
   p_mutex = *app_mutex;
@@ -390,7 +390,7 @@ tiz_rwmutex_init (tiz_rwmutex_t * app_rwmutex)
   pthread_rwlock_t *p_mutex;
   int error = 0;
 
-  assert (app_rwmutex);
+  assert (NULL != app_rwmutex);
 
   if (!(p_mutex =
         (pthread_rwlock_t *) tiz_mem_alloc (sizeof (pthread_rwlock_t))))
@@ -416,7 +416,7 @@ tiz_rwmutex_destroy (tiz_rwmutex_t * app_rwmutex)
   pthread_rwlock_t *p_mutex;
   int error = 0;
 
-  assert (app_rwmutex);
+  assert (NULL != app_rwmutex);
   p_mutex = *app_rwmutex;
 
   if (p_mutex
@@ -438,8 +438,8 @@ tiz_rwmutex_rdlock (tiz_rwmutex_t * app_rwmutex)
   pthread_rwlock_t *p_mutex;
   int error;
 
-  assert (app_rwmutex);
-  assert (*app_rwmutex);
+  assert (NULL != app_rwmutex);
+  assert (NULL != *app_rwmutex);
 
   p_mutex = *app_rwmutex;
 
@@ -458,8 +458,8 @@ tiz_rwmutex_wrlock (tiz_rwmutex_t * app_rwmutex)
   pthread_rwlock_t *p_mutex;
   int error;
 
-  assert (app_rwmutex);
-  assert (*app_rwmutex);
+  assert (NULL != app_rwmutex);
+  assert (NULL != *app_rwmutex);
 
   p_mutex = *app_rwmutex;
 
@@ -478,8 +478,8 @@ tiz_rwmutex_unlock (tiz_rwmutex_t * app_rwmutex)
   pthread_rwlock_t *p_mutex;
   int error;
 
-  assert (app_rwmutex);
-  assert (*app_rwmutex);
+  assert (NULL != app_rwmutex);
+  assert (NULL != *app_rwmutex);
 
   p_mutex = *app_rwmutex;
 
