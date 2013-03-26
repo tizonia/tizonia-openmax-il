@@ -282,6 +282,7 @@ START_TEST (test_event_stat)
   char cmd [128];
   int sleep_count = 5;
   OMX_HANDLETYPE p_hdl = NULL;
+  int echo_cmd_pid = 0;
 
   snprintf (cmd, strlen (CHECK_STAT_RM_CMD) + 1, "%s", CHECK_STAT_RM_CMD);
   TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
@@ -306,23 +307,36 @@ START_TEST (test_event_stat)
 
   snprintf (cmd, strlen (CHECK_STAT_ECHO_CMD) + 1, "%s", CHECK_STAT_ECHO_CMD);
   TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
-  fail_if (-1 == system (cmd));
 
-  do
+
+  /* Fork here to run the echo command on another process */
+  echo_cmd_pid = fork ();
+  fail_if (echo_cmd_pid == -1);
+
+  if (echo_cmd_pid)
     {
       sleep (1);
-      if (g_file_status_changed)
+      do
         {
-          break;
+          sleep (1);
+          if (g_file_status_changed)
+            {
+              break;
+            }
         }
+      while (--sleep_count != 0);
+      
+      fail_if (true != g_file_status_changed);
+      tiz_event_stat_destroy (p_ev_stat);
+      tiz_event_loop_destroy ();
+
     }
-  while (--sleep_count != 0);
+  else
+    {
+      TIZ_LOG (TIZ_LOG_TRACE, "Running echo command");
+      fail_if (-1 == system (cmd));
+    }
 
-  fail_if (true != g_file_status_changed);
-
-  tiz_event_stat_destroy (p_ev_stat);
-
-  tiz_event_loop_destroy ();
 }
 END_TEST
 
