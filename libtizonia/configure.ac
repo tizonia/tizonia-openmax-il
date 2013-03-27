@@ -59,5 +59,15 @@ AC_CONFIG_FILES([Makefile
                  test_component/Makefile
                  tests/Makefile])
 
+# Checks for command-line options
+AC_ARG_ENABLE([blocking-etb-ftb],
+ [  --enable-blocking-etb-ftb   Enable fully conformant blocking behaviour of ETB and FTB APIs],
+ [blocking_etb_ftb=${enableval}], [blocking_etb_ftb=no])
+
+if test "x${blocking_etb_ftb}" = xyes; then
+AC_DEFINE([EFB_FTB_SHOULD_BLOCK], 1, [ Blocking behaviour of ETB and FTB APIS is enabled])
+fi
+
+
 # End the configure script.
 AC_OUTPUT

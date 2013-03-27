@@ -457,8 +457,13 @@ static OMX_BOOL tizsched_blocking_apis_tbl[] = {
   OMX_TRUE,                     /* ETIZSchedMsgUseBuffer */
   OMX_TRUE,                     /* ETIZSchedMsgAllocateBuffer */
   OMX_TRUE,                     /* ETIZSchedMsgFreeBuffer */
+#ifdef EFB_FTB_SHOULD_BLOCK
+  OMX_TRUE,                     /* ETIZSchedMsgEmptyThisBuffer */
+  OMX_TRUE,                     /* ETIZSchedMsgFillThisBuffer */
+#else
   OMX_FALSE,                    /* ETIZSchedMsgEmptyThisBuffer */
-  OMX_FALSE,                    /* ETIZSchedMsgFillThisBuffer */
+  OMX_FALSE,                    /* ETIZSchedMsgEmptyThisBuffer */
+#endif
   OMX_TRUE,                     /* ETIZSchedMsgSetCallbacks */
   OMX_BOOL_MAX,                 /* ETIZSchedMsgUseEGLImage */
   OMX_TRUE,                     /* ETIZSchedMsgComponentRoleEnum */
