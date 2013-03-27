@@ -109,7 +109,7 @@ executingtoidle_trans_complete (const void *ap_obj,
 
       /* Reset the OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN flag in all ports where
          this has been set */
-      tizkernel_reset_tunneled_ports_status
+      tiz_kernel_reset_tunneled_ports_status
         (tiz_get_krn (tizservant_get_hdl(ap_servant)),
          OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
     }
@@ -129,7 +129,7 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
     OMX_HANDLETYPE p_hdl = tizservant_get_hdl(p_base->p_fsm_);
     struct tizkernel *p_krn = tiz_get_krn (p_hdl);
     tiz_kernel_tunneled_ports_status_t status =
-      tizkernel_get_tunneled_ports_status (p_krn, OMX_TRUE);
+      tiz_kernel_get_tunneled_ports_status (p_krn, OMX_TRUE);
 
     TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                    "kernel's tunneled port status [%d] ", status);

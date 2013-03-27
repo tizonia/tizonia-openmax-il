@@ -266,7 +266,7 @@ validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
            * transition. */
           OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
           const tiz_kernel_population_status_t kps
-            = tizkernel_get_population_status (p_krn, OMX_ALL,
+            = tiz_kernel_get_population_status (p_krn, OMX_ALL,
                                                &may_be_fully_unpopulated);
           if (ETIZKernelFullyUnpopulated == kps
               || (ETIZKernelUnpopulated == kps
@@ -326,7 +326,7 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
               const tiz_kernel_population_status_t kps
-                = tizkernel_get_population_status (p_krn, a_pid,
+                = tiz_kernel_get_population_status (p_krn, a_pid,
                                                    &may_be_fully_unpopulated);
               if (ETIZKernelFullyUnpopulated == kps
                   || (ETIZKernelUnpopulated == kps
@@ -342,7 +342,7 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       OMX_BOOL may_be_fully_unpopulated = OMX_FALSE;
       const tiz_kernel_population_status_t kps
-        = tizkernel_get_population_status (p_krn, a_pid,
+        = tiz_kernel_get_population_status (p_krn, a_pid,
                                            &may_be_fully_unpopulated);
       if (ETIZKernelFullyUnpopulated == kps
           || (ETIZKernelUnpopulated == kps
@@ -375,7 +375,7 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
       if (a_param1 != OMX_ALL)
         {
-          p_port = tizkernel_get_port (p_krn, a_param1);
+          p_port = tiz_kernel_get_port (p_krn, a_param1);
           if (NULL == p_port)
             {
               return OMX_ErrorBadPortIndex;
@@ -666,7 +666,7 @@ fsm_ComponentTunnelRequest (const void *ap_obj,
   assert (NULL != ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
-  p_port = tizkernel_get_port (p_krn, a_pid);
+  p_port = tiz_kernel_get_port (p_krn, a_pid);
 
   if (NULL == p_port)
     {
@@ -705,7 +705,7 @@ fsm_UseBuffer (const void *ap_obj,
   assert (NULL != ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
-  p_port = tizkernel_get_port (p_krn, a_pid);
+  p_port = tiz_kernel_get_port (p_krn, a_pid);
 
   if (NULL == p_port)
     {
@@ -745,7 +745,7 @@ fsm_AllocateBuffer (const void *ap_obj,
   assert (NULL != ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
-  p_port = tizkernel_get_port (p_krn, a_pid);
+  p_port = tiz_kernel_get_port (p_krn, a_pid);
 
   if (NULL == p_port)
     {
@@ -783,7 +783,7 @@ fsm_FreeBuffer (const void *ap_obj,
   assert (NULL != ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
-  p_port = tizkernel_get_port (p_krn, a_pid);
+  p_port = tiz_kernel_get_port (p_krn, a_pid);
 
   if (NULL == p_port)
     {
@@ -811,7 +811,7 @@ fsm_EmptyThisBuffer (const void *ap_obj,
 
   pid = ap_hdr->nInputPortIndex;
   p_krn = tiz_get_krn (ap_hdl);
-  p_port = tizkernel_get_port (p_krn, pid);
+  p_port = tiz_kernel_get_port (p_krn, pid);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "EmptyThisBuffer HEADER = [%p] "
@@ -860,7 +860,7 @@ fsm_FillThisBuffer (const void *ap_obj,
 
   pid = ap_hdr->nOutputPortIndex;
   p_krn = tiz_get_krn (ap_hdl);
-  p_port = tizkernel_get_port (p_krn, pid);
+  p_port = tiz_kernel_get_port (p_krn, pid);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "FillThisBuffer HEADER = [%p] "

@@ -795,7 +795,7 @@ do_sparam (tiz_scheduler_t * ap_sched,
               factory_delete (ap_sched->child.p_prc);
               ap_sched->child.p_prc = NULL;
 
-              tizkernel_deregister_all_ports (ap_sched->child.p_ker);
+              tiz_kernel_deregister_all_ports (ap_sched->child.p_ker);
 
               /* Populate defaults according to the new role */
               rc = init_and_register_role (ap_sched, role_pos);
@@ -1243,7 +1243,7 @@ do_rph (tiz_scheduler_t * ap_sched,
             pid = ((OMX_ALL != p_msg_rph->pid) ? p_msg_rph->pid : i++);
 
             if (NULL != (p_port
-                         = tizkernel_get_port (ap_sched->child.p_ker, pid)))
+                         = tiz_kernel_get_port (ap_sched->child.p_ker, pid)))
               {
                 tizport_set_alloc_hooks (p_port, p_msg_rph->p_hooks,
                                          p_msg_rph->pid == OMX_ALL ?
@@ -2490,7 +2490,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
 
   assert (NULL != p_port);
 
-  rc = tizkernel_register_port (ap_sched->child.p_ker, p_port, OMX_TRUE);       /* it is a config port */
+  rc = tiz_kernel_register_port (ap_sched->child.p_ker, p_port, OMX_TRUE);       /* it is a config port */
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
                  TIZ_CBUF (ap_sched->child.p_hdl),
@@ -2502,7 +2502,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
       /* Instantiate the port */
       p_port = p_rf->pf_port[j] (p_hdl);
       assert (NULL != p_port);
-      rc = tizkernel_register_port (ap_sched->child.p_ker, p_port, OMX_FALSE);  /* not a config port */
+      rc = tiz_kernel_register_port (ap_sched->child.p_ker, p_port, OMX_FALSE);  /* not a config port */
 
       rc = configure_port_preannouncements (ap_sched, p_hdl, p_port);
     }

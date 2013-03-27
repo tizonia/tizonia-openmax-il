@@ -63,42 +63,42 @@ extern "C"
   };
 
   OMX_ERRORTYPE
-  tizkernel_super_register_port (const void *a_class, const void *ap_obj,
+  tiz_kernel_super_register_port (const void *a_class, const void *ap_obj,
                                  OMX_PTR ap_port, OMX_BOOL ais_config);
 
   tiz_kernel_population_status_t
-  tizkernel_super_get_population_status (const void *a_class,
+  tiz_kernel_super_get_population_status (const void *a_class,
                                          const void *ap_obj, OMX_U32 a_pid,
                                          OMX_BOOL *
                                          ap_may_be_fully_unpopulated);
 
   OMX_ERRORTYPE
-  tizkernel_super_select (const void *a_class, const void *ap_obj,
+  tiz_kernel_super_select (const void *a_class, const void *ap_obj,
                           OMX_U32 a_nports, tiz_pd_set_t * p_set);
 
   OMX_ERRORTYPE
-  tizkernel_super_claim_buffer (const void *a_class, const void *ap_obj,
+  tiz_kernel_super_claim_buffer (const void *a_class, const void *ap_obj,
                                 OMX_U32 a_port_id, OMX_U32 a_pos,
                                 OMX_BUFFERHEADERTYPE ** p_hdr);
 
   OMX_ERRORTYPE
-  tizkernel_super_relinquish_buffer (const void *a_class,
+  tiz_kernel_super_relinquish_buffer (const void *a_class,
                                      const void *ap_obj, OMX_U32 a_port_id,
                                      OMX_BUFFERHEADERTYPE * ap_hdr);
 
   void
-  tizkernel_super_deregister_all_ports (const void *a_class, void *ap_obj);
+  tiz_kernel_super_deregister_all_ports (const void *a_class, void *ap_obj);
 
   tiz_kernel_tunneled_ports_status_t
-  tizkernel_super_get_tunneled_ports_status (const void *a_class,
+  tiz_kernel_super_get_tunneled_ports_status (const void *a_class,
                                              const void *ap_obj,
                                              OMX_BOOL a_exe_to_idle_interest);
 
-  void tizkernel_super_reset_tunneled_ports_status (const void *a_class,
+  void tiz_kernel_super_reset_tunneled_ports_status (const void *a_class,
                                                     void *ap_obj,
                                                     OMX_U32 a_port_status_flag);
 
-  struct tizkernel_class
+  struct tiz_kernel_class
   {
     /* Class */
     const struct tizservant_class _;

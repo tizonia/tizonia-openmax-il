@@ -192,7 +192,7 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_br->p_buffer);
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
-  p_port = tizkernel_get_port (p_krn, p_msg_br->pid);
+  p_port = tiz_kernel_get_port (p_krn, p_msg_br->pid);
   now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
@@ -248,7 +248,7 @@ dispatch_eio (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_br->p_buffer);
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
-  p_port = tizkernel_get_port (p_krn, p_msg_br->pid);
+  p_port = tiz_kernel_get_port (p_krn, p_msg_br->pid);
   now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
@@ -293,7 +293,7 @@ dispatch_etmr (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_br->p_buffer);
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
-  p_port = tizkernel_get_port (p_krn, p_msg_br->pid);
+  p_port = tiz_kernel_get_port (p_krn, p_msg_br->pid);
   now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
@@ -338,7 +338,7 @@ dispatch_estat (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_br->p_buffer);
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
-  p_port = tizkernel_get_port (p_krn, p_msg_br->pid);
+  p_port = tiz_kernel_get_port (p_krn, p_msg_br->pid);
   now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),

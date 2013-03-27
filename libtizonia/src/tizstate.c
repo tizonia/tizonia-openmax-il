@@ -381,7 +381,7 @@ state_mark (const void *ap_obj,
   /* This is the default implementation for states in which this command is not
    * allowed */
   struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
-  struct tizport *p_port = tizkernel_get_port (p_krn, a_param1);
+  struct tizport *p_port = tiz_kernel_get_port (p_krn, a_param1);
 
   /* The port must be disabled at this point */
 

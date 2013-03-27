@@ -58,28 +58,28 @@ static OMX_ERRORTYPE dispatch_ftb (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_cb (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_pe (void *ap_obj, OMX_PTR ap_msg);
 
-typedef struct tizkernel_msg_sendcommand tizkernel_msg_sendcommand_t;
+typedef struct tiz_kernel_msg_sendcommand tiz_kernel_msg_sendcommand_t;
 static OMX_ERRORTYPE dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                                         tizkernel_msg_sendcommand_t *
+                                         tiz_kernel_msg_sendcommand_t *
                                          ap_msg_sc);
 static OMX_ERRORTYPE dispatch_port_disable (void *ap_obj,
                                             OMX_HANDLETYPE p_hdl,
-                                            tizkernel_msg_sendcommand_t *
+                                            tiz_kernel_msg_sendcommand_t *
                                             ap_msg_sc);
 static OMX_ERRORTYPE dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                                           tizkernel_msg_sendcommand_t *
+                                           tiz_kernel_msg_sendcommand_t *
                                            ap_msg_sc);
 static OMX_ERRORTYPE dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                                          tizkernel_msg_sendcommand_t *
+                                          tiz_kernel_msg_sendcommand_t *
                                           ap_msg_sc);
 static OMX_ERRORTYPE dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                                           tizkernel_msg_sendcommand_t *
+                                           tiz_kernel_msg_sendcommand_t *
                                            ap_msg_sc);
 static OMX_ERRORTYPE flush_marks (void *ap_obj, OMX_PTR ap_port);
 
 
-typedef enum tizkernel_msg_class tizkernel_msg_class_t;
-enum tizkernel_msg_class
+typedef enum tiz_kernel_msg_class tiz_kernel_msg_class_t;
+enum tiz_kernel_msg_class
 {
   ETIZKernelMsgSendCommand = 0,
   ETIZKernelMsgEmptyThisBuffer,
@@ -89,10 +89,10 @@ enum tizkernel_msg_class
   ETIZKernelMsgMax
 };
 
-typedef OMX_ERRORTYPE (*tizkernel_msg_dispatch_f) (void *ap_obj,
+typedef OMX_ERRORTYPE (*tiz_kernel_msg_dispatch_f) (void *ap_obj,
                                                    OMX_PTR ap_msg);
 
-static const tizkernel_msg_dispatch_f tizkernel_msg_to_fnt_tbl[] = {
+static const tiz_kernel_msg_dispatch_f tiz_kernel_msg_to_fnt_tbl[] = {
   dispatch_sc,
   dispatch_etb,
   dispatch_ftb,
@@ -100,12 +100,12 @@ static const tizkernel_msg_dispatch_f tizkernel_msg_to_fnt_tbl[] = {
   dispatch_pe,
 };
 
-typedef OMX_ERRORTYPE (*tizkernel_msg_dispatch_sc_f)
+typedef OMX_ERRORTYPE (*tiz_kernel_msg_dispatch_sc_f)
   (void *ap_obj, OMX_HANDLETYPE p_hdl,
-   tizkernel_msg_sendcommand_t * ap_msg_sc);
+   tiz_kernel_msg_sendcommand_t * ap_msg_sc);
 
-static const tizkernel_msg_dispatch_sc_f
-  tizkernel_msg_dispatch_sc_to_fnt_tbl[] = {
+static const tiz_kernel_msg_dispatch_sc_f
+  tiz_kernel_msg_dispatch_sc_to_fnt_tbl[] = {
   dispatch_state_set,
   dispatch_port_flush,
   dispatch_port_disable,
@@ -113,56 +113,56 @@ static const tizkernel_msg_dispatch_sc_f
   dispatch_mark_buffer,
 };
 
-typedef struct tizkernel_msg_sendcommand tizkernel_msg_sendcommand_t;
-struct tizkernel_msg_sendcommand
+typedef struct tiz_kernel_msg_sendcommand tiz_kernel_msg_sendcommand_t;
+struct tiz_kernel_msg_sendcommand
 {
   OMX_COMMANDTYPE cmd;
   OMX_U32 param1;
   OMX_PTR p_cmd_data;
 };
 
-typedef struct tizkernel_msg_emptyfillbuffer tizkernel_msg_emptyfillbuffer_t;
-struct tizkernel_msg_emptyfillbuffer
+typedef struct tiz_kernel_msg_emptyfillbuffer tiz_kernel_msg_emptyfillbuffer_t;
+struct tiz_kernel_msg_emptyfillbuffer
 {
   OMX_BUFFERHEADERTYPE *p_hdr;
 };
 
-typedef struct tizkernel_msg_callback tizkernel_msg_callback_t;
-struct tizkernel_msg_callback
+typedef struct tiz_kernel_msg_callback tiz_kernel_msg_callback_t;
+struct tiz_kernel_msg_callback
 {
   OMX_BUFFERHEADERTYPE *p_hdr;
   OMX_U32 pid;
   OMX_DIRTYPE dir;
 };
 
-typedef struct tizkernel_msg_plg_event tizkernel_msg_plg_event_t;
-struct tizkernel_msg_plg_event
+typedef struct tiz_kernel_msg_plg_event tiz_kernel_msg_plg_event_t;
+struct tiz_kernel_msg_plg_event
 {
   tizevent_t *p_event;
 };
 
-typedef struct tizkernel_msg tizkernel_msg_t;
-struct tizkernel_msg
+typedef struct tiz_kernel_msg tiz_kernel_msg_t;
+struct tiz_kernel_msg
 {
   OMX_HANDLETYPE p_hdl;
-  tizkernel_msg_class_t class;
+  tiz_kernel_msg_class_t class;
   union
   {
-    tizkernel_msg_sendcommand_t sc;
-    tizkernel_msg_emptyfillbuffer_t ef;
-    tizkernel_msg_callback_t cb;
-    tizkernel_msg_plg_event_t pe;
+    tiz_kernel_msg_sendcommand_t sc;
+    tiz_kernel_msg_emptyfillbuffer_t ef;
+    tiz_kernel_msg_callback_t cb;
+    tiz_kernel_msg_plg_event_t pe;
   };
 };
 
-typedef struct tizkernel_msg_str tizkernel_msg_str_t;
-struct tizkernel_msg_str
+typedef struct tiz_kernel_msg_str tiz_kernel_msg_str_t;
+struct tiz_kernel_msg_str
 {
-  tizkernel_msg_class_t msg;
+  tiz_kernel_msg_class_t msg;
   OMX_STRING str;
 };
 
-static const tizkernel_msg_str_t tizkernel_msg_to_str_tbl[] = {
+static const tiz_kernel_msg_str_t tiz_kernel_msg_to_str_tbl[] = {
   {ETIZKernelMsgSendCommand, "ETIZKernelMsgSendCommand"},
   {ETIZKernelMsgEmptyThisBuffer, "ETIZKernelMsgEmptyThisBuffer"},
   {ETIZKernelMsgFillThisBuffer, "ETIZKernelMsgFillThisBuffer"},
@@ -172,17 +172,17 @@ static const tizkernel_msg_str_t tizkernel_msg_to_str_tbl[] = {
 };
 
 static const OMX_STRING
-tizkernel_msg_to_str (tizkernel_msg_class_t a_msg)
+tiz_kernel_msg_to_str (tiz_kernel_msg_class_t a_msg)
 {
   const OMX_S32 count =
-    sizeof (tizkernel_msg_to_str_tbl) / sizeof (tizkernel_msg_str_t);
+    sizeof (tiz_kernel_msg_to_str_tbl) / sizeof (tiz_kernel_msg_str_t);
   OMX_S32 i = 0;
 
   for (i = 0; i < count; ++i)
     {
-      if (tizkernel_msg_to_str_tbl[i].msg == a_msg)
+      if (tiz_kernel_msg_to_str_tbl[i].msg == a_msg)
         {
-          return tizkernel_msg_to_str_tbl[i].str;
+          return tiz_kernel_msg_to_str_tbl[i].str;
         }
     }
 
@@ -194,7 +194,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
                                   OMX_PTR ap_data2)
 {
   OMX_BOOL rc = OMX_FALSE;
-  tizkernel_msg_t *p_msg = ap_elem;
+  tiz_kernel_msg_t *p_msg = ap_elem;
   const OMX_BUFFERHEADERTYPE *p_hdr = ap_data2;
 
   assert (ap_elem);
@@ -202,14 +202,14 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
 
   if (p_msg->class == a_data1)
     {
-      tizkernel_msg_callback_t *p_msg_c = &(p_msg->cb);
+      tiz_kernel_msg_callback_t *p_msg_c = &(p_msg->cb);
       if (p_hdr == p_msg_c->p_hdr)
         {
           /* Found, return TRUE so this item will be removed from the servant
            * queue */
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
                          TIZ_CBUF (p_msg->p_hdl),
-                         "tizkernel_msg_callback_t : Found HEADER [%p]",
+                         "tiz_kernel_msg_callback_t : Found HEADER [%p]",
                          p_hdr);
           rc = OMX_TRUE;
         }
@@ -219,7 +219,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
       /* Not interested */
       TIZ_LOG (TIZ_LOG_TRACE,
                "Not interested : class  [%s]",
-               tizkernel_msg_to_str (p_msg->class));
+               tiz_kernel_msg_to_str (p_msg->class));
     }
 
   return rc;
@@ -694,23 +694,23 @@ check_pid (const struct tizkernel *p_obj, OMX_U32 a_pid)
   return OMX_ErrorNone;
 }
 
-static inline tizkernel_msg_t *
+static inline tiz_kernel_msg_t *
 init_kernel_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                     tizkernel_msg_class_t a_msg_class)
+                     tiz_kernel_msg_class_t a_msg_class)
 {
   struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
-  tizkernel_msg_t *p_msg = NULL;
+  tiz_kernel_msg_t *p_msg = NULL;
 
   assert (NULL != p_obj);
   assert (NULL != ap_hdl);
   assert (a_msg_class < ETIZKernelMsgMax);
 
-  if (NULL == (p_msg = tizservant_init_msg (p_obj, sizeof (tizkernel_msg_t))))
+  if (NULL == (p_msg = tizservant_init_msg (p_obj, sizeof (tiz_kernel_msg_t))))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
                      "Could not allocate message [%s]",
-                     tizkernel_msg_to_str (a_msg_class));
+                     tiz_kernel_msg_to_str (a_msg_class));
     }
   else
     {
@@ -727,8 +727,8 @@ enqueue_callback_msg (const void *ap_obj,
                       OMX_U32 a_pid, OMX_DIRTYPE a_dir)
 {
   struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
-  tizkernel_msg_t *p_msg = NULL;
-  tizkernel_msg_callback_t *p_msg_cb = NULL;
+  tiz_kernel_msg_t *p_msg = NULL;
+  tiz_kernel_msg_callback_t *p_msg_cb = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
 
   assert (ap_obj);
@@ -1325,7 +1325,7 @@ all_buffers_returned (void *ap_obj)
 
 static OMX_ERRORTYPE
 dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                    tizkernel_msg_sendcommand_t * ap_msg_sc)
+                    tiz_kernel_msg_sendcommand_t * ap_msg_sc)
 {
   struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1484,7 +1484,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
 static OMX_ERRORTYPE
 dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                       tizkernel_msg_sendcommand_t * ap_msg_sc)
+                       tiz_kernel_msg_sendcommand_t * ap_msg_sc)
 {
   struct tizkernel *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1696,7 +1696,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
 static OMX_ERRORTYPE
 dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                      tizkernel_msg_sendcommand_t * ap_msg_sc)
+                      tiz_kernel_msg_sendcommand_t * ap_msg_sc)
 {
   struct tizkernel *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1779,7 +1779,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
 static OMX_ERRORTYPE
 dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                     tizkernel_msg_sendcommand_t * ap_msg_sc)
+                     tiz_kernel_msg_sendcommand_t * ap_msg_sc)
 {
   struct tizkernel *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1974,7 +1974,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
 static OMX_ERRORTYPE
 dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                      tizkernel_msg_sendcommand_t * ap_msg_sc)
+                      tiz_kernel_msg_sendcommand_t * ap_msg_sc)
 {
   struct tizkernel *p_obj = ap_obj;
   OMX_PTR *pp_port = NULL, p_port = NULL;
@@ -2002,8 +2002,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
 {
   struct tizkernel *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tizkernel_msg_t *p_msg = ap_msg;
-  tizkernel_msg_callback_t *p_msg_cb = NULL;
+  tiz_kernel_msg_t *p_msg = ap_msg;
+  tiz_kernel_msg_callback_t *p_msg_cb = NULL;
   tizfsm_state_id_t now = OMX_StateMax;
   tiz_vector_t *p_list = NULL;
   OMX_PTR *pp_port = NULL, p_port = NULL;
@@ -2115,7 +2115,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
       if (all_buffers_returned (p_obj))
         {
           tiz_kernel_tunneled_ports_status_t status =
-            tizkernel_get_tunneled_ports_status (ap_obj, OMX_TRUE);
+            tiz_kernel_get_tunneled_ports_status (ap_obj, OMX_TRUE);
 
           TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (p_msg->p_hdl),
                          TIZ_CBUF (p_msg->p_hdl), "Back to idle - status [%d]",
@@ -2137,11 +2137,11 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
 }
 
 static OMX_ERRORTYPE
-dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tizkernel_msg_class_t a_msg_class)
+dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
 {
   struct tizkernel *p_obj = ap_obj;
-  tizkernel_msg_t *p_msg = ap_msg;
-  tizkernel_msg_emptyfillbuffer_t *p_msg_ef = NULL;
+  tiz_kernel_msg_t *p_msg = ap_msg;
+  tiz_kernel_msg_emptyfillbuffer_t *p_msg_ef = NULL;
   const tizfsm_state_id_t now =
     tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
   const void *p_prc = tiz_get_prc (p_msg->p_hdl);
@@ -2276,7 +2276,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tizkernel_msg_class_t a_msg_class)
       if (ESubStateExecutingToIdle == now || ESubStatePauseToIdle == now)
         {
           tiz_kernel_tunneled_ports_status_t status =
-            tizkernel_get_tunneled_ports_status (ap_obj, OMX_TRUE);
+            tiz_kernel_get_tunneled_ports_status (ap_obj, OMX_TRUE);
 
           if (all_buffers_returned (p_obj)
               && (ETIZKernelNoTunneledPorts == status
@@ -2329,8 +2329,8 @@ dispatch_ftb (void *ap_obj, OMX_PTR ap_msg)
 static OMX_ERRORTYPE
 dispatch_pe (void *ap_obj, OMX_PTR ap_msg)
 {
-  tizkernel_msg_t *p_msg = ap_msg;
-  tizkernel_msg_plg_event_t *p_msg_pe = NULL;
+  tiz_kernel_msg_t *p_msg = ap_msg;
+  tiz_kernel_msg_plg_event_t *p_msg_pe = NULL;
 
   assert (NULL != ap_obj);
   assert (NULL != p_msg);
@@ -2348,8 +2348,8 @@ static OMX_ERRORTYPE
 dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
 {
   struct tizkernel *p_obj = ap_obj;
-  tizkernel_msg_t *p_msg = ap_msg;
-  tizkernel_msg_sendcommand_t *p_msg_sc = NULL;
+  tiz_kernel_msg_t *p_msg = ap_msg;
+  tiz_kernel_msg_sendcommand_t *p_msg_sc = NULL;
 
   assert (NULL != p_obj);
   assert (NULL != p_msg);
@@ -2358,7 +2358,7 @@ dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_sc);
   assert (p_msg_sc->cmd <= OMX_CommandMarkBuffer);
 
-  return tizkernel_msg_dispatch_sc_to_fnt_tbl[p_msg_sc->cmd] (p_obj,
+  return tiz_kernel_msg_dispatch_sc_to_fnt_tbl[p_msg_sc->cmd] (p_obj,
                                                               p_msg->p_hdl,
                                                               p_msg_sc);
 }
@@ -2419,7 +2419,7 @@ kernel_GetParameter (const void *ap_obj,
                  "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   /* Find the port that holds the data */
-  if (OMX_ErrorNone == (rc = tizkernel_find_managing_port (p_obj, a_index,
+  if (OMX_ErrorNone == (rc = tiz_kernel_find_managing_port (p_obj, a_index,
                                                            ap_struct,
                                                            &p_port)))
     {
@@ -2493,7 +2493,7 @@ kernel_SetParameter (const void *ap_obj,
                  "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   /* Find the port that holds the data */
-  if (OMX_ErrorNone == (rc = tizkernel_find_managing_port (p_obj, a_index,
+  if (OMX_ErrorNone == (rc = tiz_kernel_find_managing_port (p_obj, a_index,
                                                            ap_struct,
                                                            &p_port)))
     {
@@ -2580,8 +2580,8 @@ kernel_SendCommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                     OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
                     OMX_PTR ap_cmd_data)
 {
-  tizkernel_msg_t *p_msg = NULL;
-  tizkernel_msg_sendcommand_t *p_msg_sc = NULL;
+  tiz_kernel_msg_t *p_msg = NULL;
+  tiz_kernel_msg_sendcommand_t *p_msg_sc = NULL;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
@@ -2614,7 +2614,7 @@ kernel_GetConfig (const void *ap_obj,
                  "GetConfig [%s]...", tiz_idx_to_str (a_index));
 
   /* Find the port that holds the data */
-  if (OMX_ErrorNone == (rc = tizkernel_find_managing_port (p_obj, a_index,
+  if (OMX_ErrorNone == (rc = tiz_kernel_find_managing_port (p_obj, a_index,
                                                            ap_struct,
                                                            &p_port)))
     {
@@ -2635,7 +2635,7 @@ kernel_SetConfig (const void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* Find the port that holds the data */
-  if (OMX_ErrorNone == (rc = tizkernel_find_managing_port (p_obj, a_index,
+  if (OMX_ErrorNone == (rc = tiz_kernel_find_managing_port (p_obj, a_index,
                                                            ap_struct,
                                                            &p_port)))
     {
@@ -2655,7 +2655,7 @@ kernel_SetConfig (const void *ap_obj,
   if (OMX_IndexConfigTunneledPortStatus == a_index)
     {
       tiz_kernel_tunneled_ports_status_t status
-        = tizkernel_get_tunneled_ports_status (p_obj, OMX_FALSE);
+        = tiz_kernel_get_tunneled_ports_status (p_obj, OMX_FALSE);
 
       if (OMX_FALSE == p_obj->accept_use_buffer_notified_
           && ETIZKernelTunneledPortsAcceptUseBuffer == status)
@@ -2679,7 +2679,7 @@ kernel_SetConfig (const void *ap_obj,
                &&
                (ETIZKernelTunneledPortsMayInitiateExeToIdle
                 == (status =
-                    tizkernel_get_tunneled_ports_status (p_obj, OMX_TRUE))))
+                    tiz_kernel_get_tunneled_ports_status (p_obj, OMX_TRUE))))
         {
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "kernel's tunneled port status [%d] ", status);
@@ -3025,8 +3025,8 @@ static OMX_ERRORTYPE
 kernel_EmptyThisBuffer (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  tizkernel_msg_t *p_msg = NULL;
-  tizkernel_msg_emptyfillbuffer_t *p_etb = NULL;
+  tiz_kernel_msg_t *p_msg = NULL;
+  tiz_kernel_msg_emptyfillbuffer_t *p_etb = NULL;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "HEADER [%p] BUFFER [%p] PID [%d]",
@@ -3049,8 +3049,8 @@ static OMX_ERRORTYPE
 kernel_FillThisBuffer (const void *ap_obj,
                        OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  tizkernel_msg_t *p_msg = NULL;
-  tizkernel_msg_emptyfillbuffer_t *p_msg_ftb = NULL;
+  tiz_kernel_msg_t *p_msg = NULL;
+  tiz_kernel_msg_emptyfillbuffer_t *p_msg_ftb = NULL;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "HEADER [%p] BUFFER [%p] PID [%d]",
@@ -3094,7 +3094,7 @@ static OMX_ERRORTYPE
 kernel_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 {
   struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
-  tizkernel_msg_t *p_msg = ap_msg;
+  tiz_kernel_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
@@ -3103,11 +3103,11 @@ kernel_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
-                 "Processing [%s]...", tizkernel_msg_to_str (p_msg->class));
+                 "Processing [%s]...", tiz_kernel_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZKernelMsgMax);
 
-  rc = tizkernel_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) p_obj, p_msg);
+  rc = tiz_kernel_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) p_obj, p_msg);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "rc [%s]...", tiz_err_to_str (rc));
@@ -3401,8 +3401,8 @@ static OMX_ERRORTYPE
 kernel_receive_pluggable_event (const void *ap_obj,
                                 OMX_HANDLETYPE ap_hdl, tizevent_t * ap_event)
 {
-  tizkernel_msg_t *p_msg = NULL;
-  tizkernel_msg_plg_event_t *p_plgevt = NULL;
+  tiz_kernel_msg_t *p_msg = NULL;
+  tiz_kernel_msg_plg_event_t *p_plgevt = NULL;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
                  TIZ_CBUF (ap_hdl), "PluggableEvent : event [%p]", ap_event);
@@ -3516,19 +3516,19 @@ kernel_register_port (void *ap_obj, OMX_PTR ap_port, OMX_BOOL ais_config)
 }
 
 OMX_ERRORTYPE
-tizkernel_register_port (const void *ap_obj, OMX_PTR ap_port,
+tiz_kernel_register_port (const void *ap_obj, OMX_PTR ap_port,
                          OMX_BOOL ais_config)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->register_port);
   return class->register_port (ap_obj, ap_port, ais_config);
 }
 
 OMX_ERRORTYPE
-tizkernel_super_register_port (const void *a_class, const void *ap_obj,
+tiz_kernel_super_register_port (const void *a_class, const void *ap_obj,
                                OMX_PTR ap_port, OMX_BOOL ais_config)
 {
-  const struct tizkernel_class *superclass = super (a_class);
+  const struct tiz_kernel_class *superclass = super (a_class);
   assert (ap_obj && superclass->register_port);
   return superclass->register_port (ap_obj, ap_port, ais_config);
 }
@@ -3553,9 +3553,9 @@ kernel_get_port (const void *ap_obj, OMX_U32 a_pid)
 }
 
 void *
-tizkernel_get_port (const void *ap_obj, OMX_U32 a_pid)
+tiz_kernel_get_port (const void *ap_obj, OMX_U32 a_pid)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->get_port);
   return class->get_port (ap_obj, a_pid);
 }
@@ -3626,10 +3626,10 @@ kernel_find_managing_port (const struct tizkernel * ap_krn,
 }
 
 OMX_ERRORTYPE
-tizkernel_find_managing_port (const void *ap_obj, OMX_INDEXTYPE a_index,
+tiz_kernel_find_managing_port (const void *ap_obj, OMX_INDEXTYPE a_index,
                               OMX_PTR ap_struct, OMX_PTR * app_port)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->find_managing_port);
   return class->find_managing_port (ap_obj, a_index, ap_struct, app_port);
 }
@@ -3720,21 +3720,21 @@ kernel_get_population_status (const void *ap_obj, OMX_U32 a_pid,
 }
 
 tiz_kernel_population_status_t
-tizkernel_get_population_status (const void *ap_obj, OMX_U32 a_pid,
+tiz_kernel_get_population_status (const void *ap_obj, OMX_U32 a_pid,
                                  OMX_BOOL * ap_may_be_fully_unpopulated)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->get_population_status);
   return class->get_population_status (ap_obj, a_pid,
                                        ap_may_be_fully_unpopulated);
 }
 
 tiz_kernel_population_status_t
-tizkernel_super_get_population_status (const void *a_class,
+tiz_kernel_super_get_population_status (const void *a_class,
                                        const void *ap_obj, OMX_U32 a_pid,
                                        OMX_BOOL * ap_may_be_fully_unpopulated)
 {
-  const struct tizkernel_class *superclass = super (a_class);
+  const struct tiz_kernel_class *superclass = super (a_class);
   assert (ap_obj && superclass->get_population_status);
   return superclass->get_population_status (ap_obj, a_pid,
                                             ap_may_be_fully_unpopulated);
@@ -3771,18 +3771,18 @@ kernel_select (const void *ap_obj, OMX_U32 a_nports, tiz_pd_set_t * ap_set)
 }
 
 OMX_ERRORTYPE
-tizkernel_select (const void *ap_obj, OMX_U32 a_nports, tiz_pd_set_t * ap_set)
+tiz_kernel_select (const void *ap_obj, OMX_U32 a_nports, tiz_pd_set_t * ap_set)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->select);
   return class->select (ap_obj, a_nports, ap_set);
 }
 
 OMX_ERRORTYPE
-tizkernel_super_select (const void *a_class, const void *ap_obj,
+tiz_kernel_super_select (const void *a_class, const void *ap_obj,
                         OMX_U32 a_nports, tiz_pd_set_t * ap_set)
 {
-  const struct tizkernel_class *superclass = super (a_class);
+  const struct tiz_kernel_class *superclass = super (a_class);
   assert (ap_obj && superclass->select);
   return superclass->select (ap_obj, a_nports, ap_set);
 }
@@ -3879,20 +3879,20 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
 }
 
 OMX_ERRORTYPE
-tizkernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
+tiz_kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
                         OMX_U32 a_pos, OMX_BUFFERHEADERTYPE ** app_hdr)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->claim_buffer);
   return class->claim_buffer (ap_obj, a_pid, a_pos, app_hdr);
 }
 
 OMX_ERRORTYPE
-tizkernel_super_claim_buffer (const void *a_class, const void *ap_obj,
+tiz_kernel_super_claim_buffer (const void *a_class, const void *ap_obj,
                               OMX_U32 a_pid, OMX_U32 a_pos,
                               OMX_BUFFERHEADERTYPE ** app_hdr)
 {
-  const struct tizkernel_class *superclass = super (a_class);
+  const struct tiz_kernel_class *superclass = super (a_class);
   assert (ap_obj && superclass->claim_buffer);
   return superclass->claim_buffer (ap_obj, a_pid, a_pos, app_hdr);
 }
@@ -3934,20 +3934,20 @@ kernel_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
 }
 
 OMX_ERRORTYPE
-tizkernel_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
+tiz_kernel_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
                              OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->relinquish_buffer);
   return class->relinquish_buffer (ap_obj, a_pid, ap_hdr);
 }
 
 OMX_ERRORTYPE
-tizkernel_super_relinquish_buffer (const void *a_class, const void *ap_obj,
+tiz_kernel_super_relinquish_buffer (const void *a_class, const void *ap_obj,
                                    OMX_U32 a_pid,
                                    OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  const struct tizkernel_class *superclass = super (a_class);
+  const struct tiz_kernel_class *superclass = super (a_class);
   assert (ap_obj && superclass->relinquish_buffer);
   return superclass->relinquish_buffer (ap_obj, a_pid, ap_hdr);
 }
@@ -3963,17 +3963,17 @@ kernel_deregister_all_ports (void *ap_obj)
 }
 
 void
-tizkernel_deregister_all_ports (void *ap_obj)
+tiz_kernel_deregister_all_ports (void *ap_obj)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->deregister_all_ports);
   class->deregister_all_ports (ap_obj);
 }
 
 void
-tizkernel_super_deregister_all_ports (const void *a_class, void *ap_obj)
+tiz_kernel_super_deregister_all_ports (const void *a_class, void *ap_obj)
 {
-  const struct tizkernel_class *superclass = super (a_class);
+  const struct tiz_kernel_class *superclass = super (a_class);
   assert (ap_obj && superclass->deregister_all_ports);
   superclass->deregister_all_ports (ap_obj);
 }
@@ -4123,20 +4123,20 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
 }
 
 tiz_kernel_tunneled_ports_status_t
-tizkernel_get_tunneled_ports_status (const void *ap_obj,
+tiz_kernel_get_tunneled_ports_status (const void *ap_obj,
                                      OMX_BOOL a_exe_to_idle_interest)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->get_tunneled_ports_status);
   return class->get_tunneled_ports_status (ap_obj, a_exe_to_idle_interest);
 }
 
 tiz_kernel_tunneled_ports_status_t
-tizkernel_super_get_tunneled_ports_status (const void *a_class,
+tiz_kernel_super_get_tunneled_ports_status (const void *a_class,
                                            const void *ap_obj,
                                            OMX_BOOL a_exe_to_idle_interest)
 {
-  const struct tizkernel_class *superclass = super (a_class);
+  const struct tiz_kernel_class *superclass = super (a_class);
   assert (ap_obj && superclass->get_tunneled_ports_status);
   return superclass->get_tunneled_ports_status (ap_obj,
                                                 a_exe_to_idle_interest);
@@ -4192,32 +4192,32 @@ kernel_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag)
 }
 
 void
-tizkernel_reset_tunneled_ports_status (void *ap_obj,
+tiz_kernel_reset_tunneled_ports_status (void *ap_obj,
                                        OMX_U32 a_port_status_flag)
 {
-  const struct tizkernel_class *class = classOf (ap_obj);
+  const struct tiz_kernel_class *class = classOf (ap_obj);
   assert (class->reset_tunneled_ports_status);
   class->reset_tunneled_ports_status (ap_obj, a_port_status_flag);
 }
 
 void
-tizkernel_super_reset_tunneled_ports_status (const void *a_class,
+tiz_kernel_super_reset_tunneled_ports_status (const void *a_class,
                                            void *ap_obj,
                                              OMX_U32 a_port_status_flag)
 {
-  const struct tizkernel_class *superclass = super (a_class);
+  const struct tiz_kernel_class *superclass = super (a_class);
   assert (ap_obj && superclass->reset_tunneled_ports_status);
   superclass->reset_tunneled_ports_status (ap_obj, a_port_status_flag);
 }
 
 /*
- * tizkernel_class
+ * tiz_kernel_class
  */
 
 static void *
 kernel_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tizkernel_class *p_obj = super_ctor (tizkernel_class, ap_obj, app);
+  struct tiz_kernel_class *p_obj = super_ctor (tiz_kernel_class, ap_obj, app);
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
@@ -4226,43 +4226,43 @@ kernel_class_ctor (void *ap_obj, va_list * app)
   while ((selector = va_arg (ap, voidf)))
     {
       voidf method = va_arg (ap, voidf);
-      if (selector == (voidf) tizkernel_register_port)
+      if (selector == (voidf) tiz_kernel_register_port)
         {
           *(voidf *) & p_obj->register_port = method;
         }
-      else if (selector == (voidf) tizkernel_get_port)
+      else if (selector == (voidf) tiz_kernel_get_port)
         {
           *(voidf *) & p_obj->get_port = method;
         }
-      else if (selector == (voidf) tizkernel_find_managing_port)
+      else if (selector == (voidf) tiz_kernel_find_managing_port)
         {
           *(voidf *) & p_obj->find_managing_port = method;
         }
-      else if (selector == (voidf) tizkernel_get_population_status)
+      else if (selector == (voidf) tiz_kernel_get_population_status)
         {
           *(voidf *) & p_obj->get_population_status = method;
         }
-      else if (selector == (voidf) tizkernel_select)
+      else if (selector == (voidf) tiz_kernel_select)
         {
           *(voidf *) & p_obj->select = method;
         }
-      else if (selector == (voidf) tizkernel_claim_buffer)
+      else if (selector == (voidf) tiz_kernel_claim_buffer)
         {
           *(voidf *) & p_obj->claim_buffer = method;
         }
-      else if (selector == (voidf) tizkernel_relinquish_buffer)
+      else if (selector == (voidf) tiz_kernel_relinquish_buffer)
         {
           *(voidf *) & p_obj->relinquish_buffer = method;
         }
-      else if (selector == (voidf) tizkernel_deregister_all_ports)
+      else if (selector == (voidf) tiz_kernel_deregister_all_ports)
         {
           *(voidf *) & p_obj->deregister_all_ports = method;
         }
-      else if (selector == (voidf) tizkernel_get_tunneled_ports_status)
+      else if (selector == (voidf) tiz_kernel_get_tunneled_ports_status)
         {
           *(voidf *) & p_obj->get_tunneled_ports_status = method;
         }
-      else if (selector == (voidf) tizkernel_reset_tunneled_ports_status)
+      else if (selector == (voidf) tiz_kernel_reset_tunneled_ports_status)
         {
           *(voidf *) & p_obj->reset_tunneled_ports_status = method;
         }
@@ -4277,19 +4277,19 @@ kernel_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizkernel, *tizkernel_class;
+const void *tizkernel, *tiz_kernel_class;
 
 void
 init_tizkernel (void)
 {
 
-  if (!tizkernel_class)
+  if (!tiz_kernel_class)
     {
       init_tizservant ();
-      tizkernel_class = factory_new (tizservant_class,
-                                     "tizkernel_class",
+      tiz_kernel_class = factory_new (tizservant_class,
+                                     "tiz_kernel_class",
                                      tizservant_class,
-                                     sizeof (struct tizkernel_class),
+                                     sizeof (struct tiz_kernel_class),
                                      ctor, kernel_class_ctor, 0);
 
     }
@@ -4299,7 +4299,7 @@ init_tizkernel (void)
       init_tizservant ();
       tizkernel =
         factory_new
-        (tizkernel_class,
+        (tiz_kernel_class,
          "tizkernel",
          tizservant,
          sizeof (struct tizkernel),
@@ -4327,16 +4327,16 @@ init_tizkernel (void)
          tizservant_transfer_and_process, kernel_transfer_and_process,
          tizservant_stop_and_return, kernel_stop_and_return,
          tizservant_receive_pluggable_event,
-         kernel_receive_pluggable_event, tizkernel_register_port,
-         kernel_register_port, tizkernel_get_port, kernel_get_port,
-         tizkernel_find_managing_port, kernel_find_managing_port,
-         tizkernel_get_population_status, kernel_get_population_status,
-         tizkernel_get_tunneled_ports_status, kernel_get_tunneled_ports_status,
-         tizkernel_select, kernel_select,
-         tizkernel_claim_buffer, kernel_claim_buffer,
-         tizkernel_relinquish_buffer, kernel_relinquish_buffer,
-         tizkernel_deregister_all_ports, kernel_deregister_all_ports,
-         tizkernel_reset_tunneled_ports_status,
+         kernel_receive_pluggable_event, tiz_kernel_register_port,
+         kernel_register_port, tiz_kernel_get_port, kernel_get_port,
+         tiz_kernel_find_managing_port, kernel_find_managing_port,
+         tiz_kernel_get_population_status, kernel_get_population_status,
+         tiz_kernel_get_tunneled_ports_status, kernel_get_tunneled_ports_status,
+         tiz_kernel_select, kernel_select,
+         tiz_kernel_claim_buffer, kernel_claim_buffer,
+         tiz_kernel_relinquish_buffer, kernel_relinquish_buffer,
+         tiz_kernel_deregister_all_ports, kernel_deregister_all_ports,
+         tiz_kernel_reset_tunneled_ports_status,
          kernel_reset_tunneled_ports_status, 0);
     }
 }

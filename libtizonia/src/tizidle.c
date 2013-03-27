@@ -78,7 +78,7 @@ idle_SetParameter (const void *ap_obj,
    * then in the SetParameter implementation of the kernel object. */
   if (OMX_ErrorNone
       != (ret_val =
-          tizkernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
+          tiz_kernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                "Cannot retrieve managing port (%s)...",
@@ -138,7 +138,7 @@ idle_EmptyThisBuffer (const void *ap_obj,
 
   pid = ap_hdr->nInputPortIndex;
   p_krn = tiz_get_krn (ap_hdl);
-  p_port = tizkernel_get_port (p_krn, pid);
+  p_port = tiz_kernel_get_port (p_krn, pid);
 
   /* TODO: Review whether this check is needed here or not */
 
@@ -163,7 +163,7 @@ idle_FillThisBuffer (const void *ap_obj,
 /*   const struct tizidle *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
-/*   const void *p_port = tizkernel_get_port (p_krn, pid); */
+/*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
 
 /*   if (TIZPORT_IS_ENABLED(p_port)) */
 /*     { */
@@ -198,7 +198,7 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                  tiz_fsm_state_to_str (a_param1));
 
   p_krn = tiz_get_krn (ap_hdl);
-  status = tizkernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
+  status = tiz_kernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "kernel's tunneled port status [%d] ", status);

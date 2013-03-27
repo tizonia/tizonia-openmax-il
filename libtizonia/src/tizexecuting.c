@@ -79,7 +79,7 @@ executing_SetParameter (const void *ap_obj,
 
   if (OMX_ErrorNone
       != (ret_val =
-          tizkernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
+          tiz_kernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : (Unable to retrieve managing port for index %d...)",
@@ -132,7 +132,7 @@ executing_EmptyThisBuffer (const void *ap_obj,
 /*   const struct tizexecuting *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nInputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
-/*   const void *p_port = tizkernel_get_port (p_krn, pid); */
+/*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
 
 /*   if (TIZPORT_IS_ENABLED(p_port)) */
 /*     { */
@@ -156,7 +156,7 @@ executing_FillThisBuffer (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 /*   const struct tizexecuting *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
-/*   const void *p_port = tizkernel_get_port (p_krn, pid); */
+/*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
 
 /*   if (TIZPORT_IS_ENABLED(p_port)) */
 /*     { */
@@ -230,7 +230,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       {
         struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
         tiz_kernel_tunneled_ports_status_t status =
-          tizkernel_get_tunneled_ports_status (p_krn, OMX_TRUE);
+          tiz_kernel_get_tunneled_ports_status (p_krn, OMX_TRUE);
 
         if (ETIZKernelTunneledPortsAcceptNone == status)
           {
