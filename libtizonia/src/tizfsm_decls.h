@@ -54,7 +54,7 @@ extern "C"
   struct tizfsm_class
   {
     /* Class */
-    const struct tizservant_class _;
+    const struct tiz_servant_class _;
 
     OMX_ERRORTYPE (*set_state) (void *p_obj,
                                 tizfsm_state_id_t a_new_state,

@@ -101,7 +101,7 @@ extern "C"
   struct tiz_kernel_class
   {
     /* Class */
-    const struct tizservant_class _;
+    const struct tiz_servant_class _;
 
     OMX_ERRORTYPE (*register_port) (const void *ap_obj, OMX_PTR ap_port,
                                     OMX_BOOL ais_config);

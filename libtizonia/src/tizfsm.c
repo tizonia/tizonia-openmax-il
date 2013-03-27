@@ -170,7 +170,7 @@ init_fsm_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_hdl);
   assert (a_msg_class < ETIZFsmMsgMax);
 
-  if (NULL == (p_msg = tizservant_init_msg (p_obj, sizeof (tizfsm_msg_t))))
+  if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tizfsm_msg_t))))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
@@ -577,7 +577,7 @@ fsm_SendCommand (const void *ap_obj,
   p_msg_sc->param1 = a_param1;
   p_msg_sc->p_cmd_data = ap_cmd_data;
 
-  return tizservant_enqueue (p_obj, p_msg,
+  return tiz_servant_enqueue (p_obj, p_msg,
                              msg_to_priority (ETIZFsmMsgSendCommand));
 
 }
@@ -953,7 +953,7 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
     {
       if (OMX_CommandMax != p_obj->in_progress_cmd_)
         {
-          tizservant_issue_cmd_event
+          tiz_servant_issue_cmd_event
             (p_obj, p_obj->in_progress_cmd_, p_obj->in_progress_param1_, rc);
 
           p_obj->in_progress_cmd_ = OMX_CommandMax;
@@ -985,7 +985,7 @@ fsm_set_state (const void *ap_obj, tizfsm_state_id_t a_new_state,
 
   assert (NULL != ap_obj);
 
-  p_hdl = tizservant_get_hdl (p_obj);
+  p_hdl = tiz_servant_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
   p_prc = tiz_get_prc (p_hdl);
@@ -1011,7 +1011,7 @@ fsm_set_state (const void *ap_obj, tizfsm_state_id_t a_new_state,
 
       if (EStateWaitForResources >= a_new_state)
         {
-          tizservant_issue_trans_event
+          tiz_servant_issue_trans_event
             (p_obj, a_new_state,
              p_obj->canceled_substate_id_ == EStateMax
              ? OMX_ErrorNone : OMX_ErrorCommandCanceled);
@@ -1121,7 +1121,7 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
   p_msg_tc->p_servant = (void *) ap_servant;
   p_msg_tc->state = a_new_state;
 
-  return tizservant_enqueue (p_obj, p_msg,
+  return tiz_servant_enqueue (p_obj, p_msg,
                              msg_to_priority (ETIZFsmMsgTransComplete));
 }
 
@@ -1165,7 +1165,7 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
       if (p_obj->in_progress_cmd_ != OMX_CommandMax
           && p_obj->in_progress_cmd_ != OMX_CommandStateSet)
         {
-          tizservant_issue_cmd_event
+          tiz_servant_issue_cmd_event
             (p_obj, p_obj->in_progress_cmd_, a_param1,
              OMX_ErrorCommandCanceled);
           
@@ -1174,14 +1174,14 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
         }
       else
         {
-          tizservant_issue_cmd_event
+          tiz_servant_issue_cmd_event
             (p_obj, p_obj->cancellation_cmd_, a_param1, OMX_ErrorNone);
         }
       p_obj->cancellation_cmd_ = OMX_CommandMax;
     }
   else if (a_cmd == p_obj->in_progress_cmd_)
     {
-      tizservant_issue_cmd_event
+      tiz_servant_issue_cmd_event
         (p_obj, p_obj->in_progress_cmd_, a_param1, OMX_ErrorNone);
 
       p_obj->in_progress_cmd_ = OMX_CommandMax;
@@ -1234,7 +1234,7 @@ tizfsm_tunneled_ports_status_update (void *ap_obj)
 }
 
 /*
- * tizservant_class
+ * tiz_servant_class
  */
 
 static void *
@@ -1290,9 +1290,9 @@ init_tizfsm (void)
   if (!tizfsm_class)
     {
       init_tizservant ();
-      tizfsm_class = factory_new (tizservant_class,
+      tizfsm_class = factory_new (tiz_servant_class,
                                   "tizfsm_class",
-                                  tizservant_class,
+                                  tiz_servant_class,
                                   sizeof (struct tizfsm_class),
                                   ctor, fsm_class_ctor, 0);
 
@@ -1327,7 +1327,7 @@ init_tizfsm (void)
          tizapi_EmptyThisBuffer, fsm_EmptyThisBuffer,
          tizapi_FillThisBuffer, fsm_FillThisBuffer,
          tizapi_SetCallbacks, fsm_SetCallbacks,
-         tizservant_dispatch_msg, fsm_dispatch_msg,
+         tiz_servant_dispatch_msg, fsm_dispatch_msg,
          tizfsm_set_state, fsm_set_state,
          tizfsm_complete_transition, fsm_complete_transition,
          tizfsm_complete_command, fsm_complete_command,

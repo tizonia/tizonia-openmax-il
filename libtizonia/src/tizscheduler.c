@@ -1070,11 +1070,11 @@ do_scbs (tiz_scheduler_t * ap_sched,
 
   /* Now we do the actual action of storing the callbacks so that they become
      available in each servant */
-  tizservant_set_callbacks (ap_sched->child.p_fsm, p_msg_scbs->p_appdata,
+  tiz_servant_set_callbacks (ap_sched->child.p_fsm, p_msg_scbs->p_appdata,
                             p_msg_scbs->p_cbacks);
-  tizservant_set_callbacks (ap_sched->child.p_ker, p_msg_scbs->p_appdata,
+  tiz_servant_set_callbacks (ap_sched->child.p_ker, p_msg_scbs->p_appdata,
                             p_msg_scbs->p_cbacks);
-  tizservant_set_callbacks (ap_sched->child.p_prc, p_msg_scbs->p_appdata,
+  tiz_servant_set_callbacks (ap_sched->child.p_prc, p_msg_scbs->p_appdata,
                             p_msg_scbs->p_cbacks);
 
   return rc;
@@ -1143,7 +1143,7 @@ do_plgevt (tiz_scheduler_t * ap_sched,
   assert (NULL != p_msg_pe->p_event);
 
   p_event = p_msg_pe->p_event;
-  return tizservant_receive_pluggable_event (p_event->p_servant,
+  return tiz_servant_receive_pluggable_event (p_event->p_servant,
                                              p_event->p_hdl, p_event);
 }
 
@@ -2115,34 +2115,34 @@ schedule_servants (tiz_scheduler_t * ap_sched,
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
                  TIZ_CBUF (ap_sched->child.p_hdl),
                  "READY fsm [%s] ker [%s] prc [%s]",
-                 tizservant_is_ready (ap_sched->child.p_fsm) ? "YES" : "NO",
-                 tizservant_is_ready (ap_sched->child.p_ker) ? "YES" : "NO",
-                 tizservant_is_ready (ap_sched->child.p_prc) ? "YES" : "NO");
+                 tiz_servant_is_ready (ap_sched->child.p_fsm) ? "YES" : "NO",
+                 tiz_servant_is_ready (ap_sched->child.p_ker) ? "YES" : "NO",
+                 tiz_servant_is_ready (ap_sched->child.p_prc) ? "YES" : "NO");
   do
     {
       p_ready = NULL;
-      if (tizservant_is_ready (ap_sched->child.p_fsm))
+      if (tiz_servant_is_ready (ap_sched->child.p_fsm))
         {
           p_ready = ap_sched->child.p_fsm;
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
                          TIZ_CBUF (ap_sched->child.p_hdl), "FSM READY");
-          rc = tizservant_tick (p_ready);
+          rc = tiz_servant_tick (p_ready);
         }
 
-      if (OMX_ErrorNone == rc && tizservant_is_ready (ap_sched->child.p_ker))
+      if (OMX_ErrorNone == rc && tiz_servant_is_ready (ap_sched->child.p_ker))
         {
           p_ready = ap_sched->child.p_ker;
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
                          TIZ_CBUF (ap_sched->child.p_hdl), "KRN READY");
-          rc = tizservant_tick (p_ready);
+          rc = tiz_servant_tick (p_ready);
         }
 
-      if (OMX_ErrorNone == rc && tizservant_is_ready (ap_sched->child.p_prc))
+      if (OMX_ErrorNone == rc && tiz_servant_is_ready (ap_sched->child.p_prc))
         {
           p_ready = ap_sched->child.p_prc;
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
                          TIZ_CBUF (ap_sched->child.p_hdl), "PRC READY");
-          rc = tizservant_tick (p_ready);
+          rc = tiz_servant_tick (p_ready);
         }
 
       if (tiz_queue_length (ap_sched->p_queue))
@@ -2157,7 +2157,7 @@ schedule_servants (tiz_scheduler_t * ap_sched,
     {
       /* INFO: For now, errors are sent via EventHandler by the servants */
       /* TODO: Review errors allowed via EventHandler */
-      /* TODO: Review if tizservant_tick should return void */
+      /* TODO: Review if tiz_servant_tick should return void */
     }
 }
 
@@ -2436,8 +2436,8 @@ init_servants (tiz_scheduler_t * ap_sched, tizsched_msg_t * ap_msg)
   ap_sched->child.p_ker = factory_new (tizkernel, p_hdl);
 
   /* All the servants use the same small object allocator */
-  tizservant_set_allocator (ap_sched->child.p_fsm, ap_sched->p_soa);
-  tizservant_set_allocator (ap_sched->child.p_ker, ap_sched->p_soa);
+  tiz_servant_set_allocator (ap_sched->child.p_fsm, ap_sched->p_soa);
+  tiz_servant_set_allocator (ap_sched->child.p_ker, ap_sched->p_soa);
 
   return OMX_ErrorNone;
 
@@ -2515,7 +2515,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
       ap_sched->child.p_prc = p_proc;
 
       /* All servants will use the same object allocator */
-      tizservant_set_allocator (p_proc, ap_sched->p_soa);
+      tiz_servant_set_allocator (p_proc, ap_sched->p_soa);
     }
 
   return rc;

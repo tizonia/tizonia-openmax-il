@@ -418,11 +418,11 @@ init_icerprc (void)
          ctor, icer_proc_ctor,
          dtor, icer_proc_dtor,
          tizproc_buffers_ready, icer_proc_buffers_ready,
-         tizservant_allocate_resources, icer_proc_allocate_resources,
-         tizservant_deallocate_resources, icer_proc_deallocate_resources,
-         tizservant_prepare_to_transfer, icer_proc_prepare_to_transfer,
-         tizservant_transfer_and_process, icer_proc_transfer_and_process,
-         tizservant_stop_and_return, icer_proc_stop_and_return,
+         tiz_servant_allocate_resources, icer_proc_allocate_resources,
+         tiz_servant_deallocate_resources, icer_proc_deallocate_resources,
+         tiz_servant_prepare_to_transfer, icer_proc_prepare_to_transfer,
+         tiz_servant_transfer_and_process, icer_proc_transfer_and_process,
+         tiz_servant_stop_and_return, icer_proc_stop_and_return,
          tizproc_event_io_ready, icer_event_io_ready,
          tizproc_event_timer_ready, icer_event_timer_ready, 0);
     }

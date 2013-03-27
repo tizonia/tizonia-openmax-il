@@ -237,7 +237,7 @@ fw_proc_buffers_ready (const void *ap_obj)
             {
               TIZ_LOG (TIZ_LOG_DEBUG,
                        "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
-              tizservant_issue_event ((OMX_PTR) ap_obj,
+              tiz_servant_issue_event ((OMX_PTR) ap_obj,
                                       OMX_EventBufferFlag,
                                       0, p_hdr->nFlags, NULL);
             }
@@ -270,10 +270,10 @@ init_fwprc (void)
          ctor, fw_proc_ctor,
          dtor, fw_proc_dtor,
          tizproc_buffers_ready, fw_proc_buffers_ready,
-         tizservant_allocate_resources, fw_proc_allocate_resources,
-         tizservant_deallocate_resources, fw_proc_deallocate_resources,
-         tizservant_prepare_to_transfer, fw_proc_prepare_to_transfer,
-         tizservant_transfer_and_process, fw_proc_transfer_and_process,
-         tizservant_stop_and_return, fw_proc_stop_and_return, 0);
+         tiz_servant_allocate_resources, fw_proc_allocate_resources,
+         tiz_servant_deallocate_resources, fw_proc_deallocate_resources,
+         tiz_servant_prepare_to_transfer, fw_proc_prepare_to_transfer,
+         tiz_servant_transfer_and_process, fw_proc_transfer_and_process,
+         tiz_servant_stop_and_return, fw_proc_stop_and_return, 0);
     }
 }

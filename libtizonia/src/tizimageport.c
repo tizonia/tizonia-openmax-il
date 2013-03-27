@@ -288,11 +288,11 @@ imageport_class_ctor (void *ap_obj, va_list * app)
   while ((selector = va_arg (ap, voidf)))
     {
       /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tizservant_tick) */
+      /*          if (selector == (voidf) tiz_servant_tick) */
       /*             { */
       /*                *(voidf*) & p_obj->tick = method; */
       /*             } */
-      /*          else if (selector == (voidf) tizservant_enqueue) */
+      /*          else if (selector == (voidf) tiz_servant_enqueue) */
       /*             { */
       /*                *(voidf*) & p_obj->enqueue = method; */
       /*             } */

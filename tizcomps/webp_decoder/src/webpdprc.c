@@ -297,11 +297,11 @@ init_webpdprc (void)
          ctor, webpd_proc_ctor,
          dtor, webpd_proc_dtor,
          tizproc_buffers_ready, webpd_proc_buffers_ready,
-         tizservant_allocate_resources, webpd_proc_allocate_resources,
-         tizservant_deallocate_resources, webpd_proc_deallocate_resources,
-         tizservant_prepare_to_transfer, webpd_proc_prepare_to_transfer,
-         tizservant_transfer_and_process, webpd_proc_transfer_and_process,
-         tizservant_stop_and_return, webpd_proc_stop_and_return, 0);
+         tiz_servant_allocate_resources, webpd_proc_allocate_resources,
+         tiz_servant_deallocate_resources, webpd_proc_deallocate_resources,
+         tiz_servant_prepare_to_transfer, webpd_proc_prepare_to_transfer,
+         tiz_servant_transfer_and_process, webpd_proc_transfer_and_process,
+         tiz_servant_stop_and_return, webpd_proc_stop_and_return, 0);
     }
 
 }

@@ -50,48 +50,48 @@ extern "C"
     OMX_CALLBACKTYPE *p_cbacks_;
   };
 
-  OMX_ERRORTYPE tizservant_super_tick (const void *class, const void *ap_obj);
+  OMX_ERRORTYPE tiz_servant_super_tick (const void *class, const void *ap_obj);
 
-  OMX_ERRORTYPE tizservant_super_enqueue (const void *class,
+  OMX_ERRORTYPE tiz_servant_super_enqueue (const void *class,
                                           const void *ap_obj,
                                           OMX_PTR ap_data,
                                           OMX_U32 a_priority);
 
-  OMX_ERRORTYPE tizservant_super_remove_from_queue (const void *class,
+  OMX_ERRORTYPE tiz_servant_super_remove_from_queue (const void *class,
                                                     const void *ap_obj,
                                                     tiz_pq_func_f apf_func,
                                                     OMX_S32 a_data1,
                                                     OMX_PTR ap_data2);
 
-  OMX_ERRORTYPE tizservant_super_dispatch_msg (const void *class,
+  OMX_ERRORTYPE tiz_servant_super_dispatch_msg (const void *class,
                                                const void *ap_obj,
                                                OMX_PTR ap_data);
 
-  OMX_HANDLETYPE tizservant_super_get_hdl (const void *class,
+  OMX_HANDLETYPE tiz_servant_super_get_hdl (const void *class,
                                            const void *ap_obj);
 
-  OMX_BOOL tizservant_super_is_ready (const void *class, const void *ap_obj);
+  OMX_BOOL tiz_servant_super_is_ready (const void *class, const void *ap_obj);
 
-  OMX_ERRORTYPE tizservant_super_allocate_resources (const void *a_class,
+  OMX_ERRORTYPE tiz_servant_super_allocate_resources (const void *a_class,
                                                      const void *ap_obj,
                                                      OMX_U32 a_pid);
 
-  OMX_ERRORTYPE tizservant_super_deallocate_resources (const void *a_class,
+  OMX_ERRORTYPE tiz_servant_super_deallocate_resources (const void *a_class,
                                                        const void *ap_obj);
 
-  OMX_ERRORTYPE tizservant_super_prepare_to_transfer (const void *a_class,
+  OMX_ERRORTYPE tiz_servant_super_prepare_to_transfer (const void *a_class,
                                                       const void *ap_obj,
                                                       OMX_U32 a_pid);
 
-  OMX_ERRORTYPE tizservant_super_transfer_and_process (const void *a_class,
+  OMX_ERRORTYPE tiz_servant_super_transfer_and_process (const void *a_class,
                                                        const void *ap_obj,
                                                        OMX_U32 a_pid);
 
-  OMX_ERRORTYPE tizservant_super_stop_and_return (const void *a_class,
+  OMX_ERRORTYPE tiz_servant_super_stop_and_return (const void *a_class,
                                                   const void *ap_obj);
 
 
-  struct tizservant_class
+  struct tiz_servant_class
   {
     /* Class */
     const struct tizapi_class _;

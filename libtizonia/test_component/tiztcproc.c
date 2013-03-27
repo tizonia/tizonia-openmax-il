@@ -151,10 +151,10 @@ init_tiztcproc (void)
          ctor, tiztc_proc_ctor,
          dtor, tiztc_proc_dtor,
          tizproc_buffers_ready, tiztc_proc_buffers_ready,
-         tizservant_allocate_resources, tiztc_proc_allocate_resources,
-         tizservant_deallocate_resources, tiztc_proc_deallocate_resources,
-         tizservant_prepare_to_transfer, tiztc_proc_prepare_to_transfer,
-         tizservant_transfer_and_process, tiztc_proc_transfer_and_process,
-         tizservant_stop_and_return, tiztc_proc_stop_and_return, 0);
+         tiz_servant_allocate_resources, tiztc_proc_allocate_resources,
+         tiz_servant_deallocate_resources, tiztc_proc_deallocate_resources,
+         tiz_servant_prepare_to_transfer, tiztc_proc_prepare_to_transfer,
+         tiz_servant_transfer_and_process, tiztc_proc_transfer_and_process,
+         tiz_servant_stop_and_return, tiztc_proc_stop_and_return, 0);
     }
 }

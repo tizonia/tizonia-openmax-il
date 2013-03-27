@@ -268,10 +268,10 @@ init_frprc (void)
          ctor, fr_proc_ctor,
          dtor, fr_proc_dtor,
          tizproc_buffers_ready, fr_proc_buffers_ready,
-         tizservant_allocate_resources, fr_proc_allocate_resources,
-         tizservant_deallocate_resources, fr_proc_deallocate_resources,
-         tizservant_prepare_to_transfer, fr_proc_prepare_to_transfer,
-         tizservant_transfer_and_process, fr_proc_transfer_and_process,
-         tizservant_stop_and_return, fr_proc_stop_and_return, 0);
+         tiz_servant_allocate_resources, fr_proc_allocate_resources,
+         tiz_servant_deallocate_resources, fr_proc_deallocate_resources,
+         tiz_servant_prepare_to_transfer, fr_proc_prepare_to_transfer,
+         tiz_servant_transfer_and_process, fr_proc_transfer_and_process,
+         tiz_servant_stop_and_return, fr_proc_stop_and_return, 0);
     }
 }

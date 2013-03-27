@@ -361,7 +361,7 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   if (p_obj->cmd_completion_count_ > 0)
     {
       /* Complete the OMX_CommandPortDisable command here */
-      (void) tizservant_issue_cmd_event (p_obj, OMX_CommandPortDisable, a_pid,
+      (void) tiz_servant_issue_cmd_event (p_obj, OMX_CommandPortDisable, a_pid,
                                          a_error);
     }
 
@@ -396,7 +396,7 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   if (p_obj->cmd_completion_count_ > 0)
     {
       /* Complete the OMX_CommandPortEnable command here */
-      (void) tizservant_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
+      (void) tiz_servant_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
                                          a_error);
     }
 
@@ -423,7 +423,7 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   TIZPORT_CLEAR_FLUSH_IN_PROGRESS (ap_port);
 
   /* Complete the OMX_CommandFlush command */
-  (void) tizservant_issue_cmd_event (p_obj, OMX_CommandFlush, a_pid, a_error);
+  (void) tiz_servant_issue_cmd_event (p_obj, OMX_CommandFlush, a_pid, a_error);
 
   /* Decrement the completion counter */
   assert (p_obj->cmd_completion_count_ > 0);
@@ -445,7 +445,7 @@ complete_mark_buffer (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   assert (ap_port);
 
   /* Complete the OMX_CommandMarkBuffer command */
-  (void) tizservant_issue_cmd_event (p_obj, OMX_CommandMarkBuffer, a_pid,
+  (void) tiz_servant_issue_cmd_event (p_obj, OMX_CommandMarkBuffer, a_pid,
                                      a_error);
 
   /* Decrement the completion counter */
@@ -604,7 +604,7 @@ add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
   const struct tizkernel *p_obj = ap_obj;
   tiz_vector_t *p_list = NULL;
   const OMX_U32 pid = tizport_index (ap_port);
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   assert (ap_dst2darr);
@@ -684,8 +684,8 @@ check_pid (const struct tizkernel *p_obj, OMX_U32 a_pid)
   if (a_pid >= tiz_vector_length (p_obj->p_ports_))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR,
-                     TIZ_CNAME (tizservant_super_get_hdl (tizkernel, p_obj)),
-                     TIZ_CBUF (tizservant_super_get_hdl (tizkernel, p_obj)),
+                     TIZ_CNAME (tiz_servant_super_get_hdl (tizkernel, p_obj)),
+                     TIZ_CBUF (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                      "[OMX_ErrorBadPortIndex] : port [%d]...", a_pid);
 
       return OMX_ErrorBadPortIndex;
@@ -705,7 +705,7 @@ init_kernel_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_hdl);
   assert (a_msg_class < ETIZKernelMsgMax);
 
-  if (NULL == (p_msg = tizservant_init_msg (p_obj, sizeof (tiz_kernel_msg_t))))
+  if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tiz_kernel_msg_t))))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
@@ -733,7 +733,7 @@ enqueue_callback_msg (const void *ap_obj,
 
   assert (ap_obj);
 
-  p_hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  p_hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                  "Enqueue msg callback : HEADER [%p] BUFFER [%p] "
@@ -753,7 +753,7 @@ enqueue_callback_msg (const void *ap_obj,
   p_msg_cb->pid = a_pid;
   p_msg_cb->dir = a_dir;
 
-  return tizservant_enqueue (ap_obj, p_msg, 1);
+  return tiz_servant_enqueue (ap_obj, p_msg, 1);
 }
 
 static inline OMX_U32
@@ -899,7 +899,7 @@ process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid,
       if (ap_hdr->hMarkTargetComponent == ap_hdl)
         {
           /* Return the mark to the IL Client */
-          tizservant_issue_event (ap_obj, OMX_EventMark, 0, 0,
+          tiz_servant_issue_event (ap_obj, OMX_EventMark, 0, 0,
                                   ap_hdr->pMarkData);
 
           /* Remove the mark from the header as it has been delivered */
@@ -1075,14 +1075,14 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
 
                     /* ... flag EOS ... */
                     p_obj->eos_ = OMX_TRUE;
-                    tizservant_issue_event ((OMX_PTR) ap_obj,
+                    tiz_servant_issue_event ((OMX_PTR) ap_obj,
                                             OMX_EventBufferFlag,
                                             pid, p_hdr->nFlags, NULL);
                   }
               }
 
             /* get rid of the buffer */
-            tizservant_issue_buf_callback ((OMX_PTR) ap_obj, p_hdr,
+            tiz_servant_issue_buf_callback ((OMX_PTR) ap_obj, p_hdr,
                                            pid, pdir, thdl);
             /* ... and delete it from the list. */
             tiz_vector_erase (p_list, 0, 1);
@@ -1181,7 +1181,7 @@ all_populated (const void *ap_obj)
   const OMX_S32 nports = tiz_vector_length (p_obj->p_ports_);
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_U32 i;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   assert (ap_obj);
@@ -1221,7 +1221,7 @@ all_depopulated (const void *ap_obj)
   const OMX_S32 nports = tiz_vector_length (p_obj->p_ports_);
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_U32 i;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   assert (ap_obj);
@@ -1254,7 +1254,7 @@ all_buffers_returned (void *ap_obj)
   tiz_vector_t *p_list = NULL;
   OMX_U32 i;
   OMX_S32 nbuf = 0, nbufin = 0;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   assert (ap_obj);
@@ -1348,7 +1348,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
       {
         if (OMX_StateIdle == now)
           {
-            rc = tizservant_deallocate_resources (ap_obj);
+            rc = tiz_servant_deallocate_resources (ap_obj);
 
             release_rm_resources (p_obj, p_hdl);
 
@@ -1396,7 +1396,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
             if (OMX_ErrorNone == rc)
               {
-                rc = tizservant_allocate_resources (ap_obj, OMX_ALL);
+                rc = tiz_servant_allocate_resources (ap_obj, OMX_ALL);
               }
 
             done = (OMX_ErrorNone == rc &&
@@ -1405,7 +1405,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
           }
         else if (OMX_StateExecuting == now || OMX_StatePause == now)
           {
-            rc = tizservant_stop_and_return (ap_obj);
+            rc = tiz_servant_stop_and_return (ap_obj);
             done = (OMX_ErrorNone == rc && all_buffers_returned
                     ((struct tizkernel *) p_obj)) ? OMX_TRUE : OMX_FALSE;
 
@@ -1429,7 +1429,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
       {
         if (OMX_StateIdle == now)
           {
-            rc = tizservant_prepare_to_transfer (ap_obj, OMX_ALL);
+            rc = tiz_servant_prepare_to_transfer (ap_obj, OMX_ALL);
 
             done = OMX_TRUE;
           }
@@ -1442,7 +1442,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
           }
         else if (OMX_StateExecuting == now)
           {
-            rc = tizservant_transfer_and_process (ap_obj, OMX_ALL);
+            rc = tiz_servant_transfer_and_process (ap_obj, OMX_ALL);
             done = OMX_FALSE;
           }
         else
@@ -1589,7 +1589,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                                      "HEADER [%p] BUFFER [%p]...",
                                      pid, nhdrs, *pp_hdr, (*pp_hdr)->pBuffer);
 
-                      tizservant_remove_from_queue
+                      tiz_servant_remove_from_queue
                         (ap_obj, &remove_buffer_from_servant_queue,
                          ETIZKernelMsgCallback, *pp_hdr);
 
@@ -1599,7 +1599,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                          * processor servant implementation of
                          * 'remove_from_queue' will replace them with its
                          * correct values */
-                        tizservant_remove_from_queue (p_prc, NULL, 0, *pp_hdr);
+                        tiz_servant_remove_from_queue (p_prc, NULL, 0, *pp_hdr);
                       }
 
                     }
@@ -1707,8 +1707,8 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   const tizfsm_state_id_t now = tizfsm_get_substate (tiz_get_fsm (p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (tizservant_super_get_hdl (tizkernel, p_obj)),
-                 TIZ_CBUF (tizservant_super_get_hdl (tizkernel, p_obj)),
+                 TIZ_CNAME (tiz_servant_super_get_hdl (tizkernel, p_obj)),
+                 TIZ_CBUF (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                  "Requested port enable for PORT [%d]", pid);
 
   /* Verify the port index.. */
@@ -1751,7 +1751,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
             {
               TIZPORT_SET_GOING_TO_ENABLED (p_port);
               if (OMX_ErrorNone
-                  == (rc = tizservant_allocate_resources (ap_obj, pid)))
+                  == (rc = tiz_servant_allocate_resources (ap_obj, pid)))
                 {
                   if (ESubStateLoadedToIdle == now)
                     {
@@ -1764,7 +1764,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                     }
                   else if (EStateExecuting == now)
                     {
-                      rc = tizservant_transfer_and_process (ap_obj, pid);
+                      rc = tiz_servant_transfer_and_process (ap_obj, pid);
                     }
                 }
             }
@@ -2233,7 +2233,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
                                      "port [%d] depopulated - removing leftovers - nhdrs [%d] "
                                      "HEADER [%p]...", pid, nhdrs, *pp_hdr);
 
-                      tizservant_remove_from_queue (p_obj,
+                      tiz_servant_remove_from_queue (p_obj,
                                                     &remove_buffer_from_servant_queue,
                                                     ETIZKernelMsgCallback,
                                                     *pp_hdr);
@@ -2244,7 +2244,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
                          * processor servant implementation of
                          * 'remove_from_queue' will replace them with its
                          * correct values */
-                        tizservant_remove_from_queue (p_prc, NULL, 0, *pp_hdr);
+                        tiz_servant_remove_from_queue (p_prc, NULL, 0, *pp_hdr);
                       }
 
                     }
@@ -2529,7 +2529,7 @@ kernel_SetParameter (const void *ap_obj,
                       OMX_INDEXTYPE *p_idx = tiz_vector_at (p_changed_idxs, i);
                       assert (p_idx != NULL);
                       /* Trigger here a port settings changed event */
-                      tizservant_issue_event (p_obj,
+                      tiz_servant_issue_event (p_obj,
                                               OMX_EventPortSettingsChanged,
                                               mos_pid, *p_idx, NULL);
                     }
@@ -2598,7 +2598,7 @@ kernel_SendCommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   p_msg_sc->param1 = a_param1;
   p_msg_sc->p_cmd_data = ap_cmd_data;
 
-  return tizservant_enqueue (ap_obj, p_msg, cmd_to_priority (a_cmd));
+  return tiz_servant_enqueue (ap_obj, p_msg, cmd_to_priority (a_cmd));
 }
 
 static OMX_ERRORTYPE
@@ -3006,7 +3006,7 @@ kernel_FreeBuffer (const void *ap_obj,
 
     if (issue_unpop)
       {
-        tizservant_issue_err_event (p_obj, OMX_ErrorPortUnpopulated);
+        tiz_servant_issue_err_event (p_obj, OMX_ErrorPortUnpopulated);
       }
 
     buf_count = tizport_buffer_count (p_port);
@@ -3042,7 +3042,7 @@ kernel_EmptyThisBuffer (const void *ap_obj,
   p_etb = &(p_msg->ef);
   p_etb->p_hdr = ap_hdr;
 
-  return tizservant_enqueue (ap_obj, p_msg, 2);
+  return tiz_servant_enqueue (ap_obj, p_msg, 2);
 }
 
 static OMX_ERRORTYPE
@@ -3065,7 +3065,7 @@ kernel_FillThisBuffer (const void *ap_obj,
   p_msg_ftb = &(p_msg->ef);
   p_msg_ftb->p_hdr = ap_hdr;
 
-  return tizservant_enqueue (ap_obj, p_msg, 2);
+  return tiz_servant_enqueue (ap_obj, p_msg, 2);
 }
 
 static OMX_ERRORTYPE
@@ -3096,7 +3096,7 @@ kernel_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
   tiz_kernel_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   assert (NULL != p_obj);
@@ -3124,7 +3124,7 @@ kernel_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_U32 pid = 0;
   OMX_S32 i = 0;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   assert (ap_obj);
@@ -3214,8 +3214,8 @@ kernel_deallocate_resources (void *ap_obj)
     }
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (tizservant_super_get_hdl (tizkernel, p_obj)),
-                 TIZ_CBUF (tizservant_super_get_hdl (tizkernel, p_obj)),
+                 TIZ_CNAME (tiz_servant_super_get_hdl (tizkernel, p_obj)),
+                 TIZ_CBUF (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                  "[%s] : ALL depopulated [%s]...",
                  tiz_err_to_str (rc),
                  all_depopulated (p_obj) ? "TRUE" : "FALSE");
@@ -3232,7 +3232,7 @@ kernel_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_U32 pid = 0;
   OMX_S32 i = 0;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
@@ -3292,7 +3292,7 @@ kernel_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_U32 pid = 0;
   OMX_S32 i = 0;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
@@ -3337,7 +3337,7 @@ kernel_stop_and_return (void *ap_obj)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_S32 i = 0, nbufs = 0;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
@@ -3417,7 +3417,7 @@ kernel_receive_pluggable_event (const void *ap_obj,
   p_plgevt = &(p_msg->pe);
   p_plgevt->p_event = ap_event;
 
-  return tizservant_enqueue (ap_obj, p_msg, 2);
+  return tiz_servant_enqueue (ap_obj, p_msg, 2);
 }
 
 /*
@@ -3428,7 +3428,7 @@ static OMX_ERRORTYPE
 kernel_register_port (void *ap_obj, OMX_PTR ap_port, OMX_BOOL ais_config)
 {
   struct tizkernel *p_obj = ap_obj;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   assert (ap_obj);
@@ -3569,7 +3569,7 @@ kernel_find_managing_port (const struct tizkernel * ap_krn,
   OMX_PTR *pp_port = NULL;
   OMX_S32 i, num_ports;
   OMX_U32 *p_port_index;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, ap_krn);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, ap_krn);
   (void) hdl;
 
   assert (app_port);
@@ -3796,7 +3796,7 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
   tiz_vector_t *p_list = NULL;
   OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
   OMX_PTR *pp_port = NULL, p_port = NULL;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   OMX_DIRTYPE pdir = OMX_DirMax;
 
   assert (app_hdr);
@@ -3904,7 +3904,7 @@ kernel_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
   struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
   tiz_vector_t *p_list = NULL;
   OMX_PTR *pp_port = NULL, p_port = NULL;
-  OMX_HANDLETYPE hdl = tizservant_super_get_hdl (tizkernel, p_obj);
+  OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
   /* Do all sorts of sanity checks */
@@ -4011,9 +4011,9 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
               {
                 status &= ~(OMX_PORTSTATUS_ACCEPTUSEBUFFER);
                 TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
-                               TIZ_CNAME (tizservant_super_get_hdl
+                               TIZ_CNAME (tiz_servant_super_get_hdl
                                           (tizkernel, p_obj)),
-                               TIZ_CBUF (tizservant_super_get_hdl
+                               TIZ_CBUF (tiz_servant_super_get_hdl
                                          (tizkernel, p_obj)),
                                "TIZPORT_MAY_CALL_USE_BUFFER = FALSE status [0x%08X]",
                                status);
@@ -4022,9 +4022,9 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
               {
                 status &= ~(OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
                 TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
-                               TIZ_CNAME (tizservant_super_get_hdl
+                               TIZ_CNAME (tiz_servant_super_get_hdl
                                           (tizkernel, p_obj)),
-                               TIZ_CBUF (tizservant_super_get_hdl
+                               TIZ_CBUF (tiz_servant_super_get_hdl
                                          (tizkernel, p_obj)),
                                "TIZPORT_MAY_EXCHANGE_BUFFERS = FALSE status [0x%08X]",
                                status);
@@ -4039,9 +4039,9 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
               {
                 status &= ~(OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
                 TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
-                               TIZ_CNAME (tizservant_super_get_hdl
+                               TIZ_CNAME (tiz_servant_super_get_hdl
                                           (tizkernel, p_obj)),
-                               TIZ_CBUF (tizservant_super_get_hdl
+                               TIZ_CBUF (tiz_servant_super_get_hdl
                                          (tizkernel, p_obj)),
                                "TIZPORT_MAY_INITIATE_EXE_TO_IDLE = FALSE status [0x%08X]",
                                status);
@@ -4049,9 +4049,9 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
             else
               {
                 TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
-                               TIZ_CNAME (tizservant_super_get_hdl
+                               TIZ_CNAME (tiz_servant_super_get_hdl
                                           (tizkernel, p_obj)),
-                               TIZ_CBUF (tizservant_super_get_hdl
+                               TIZ_CBUF (tiz_servant_super_get_hdl
                                          (tizkernel, p_obj)),
                                "TIZPORT_MAY_INITIATE_EXE_TO_IDLE = TRUE status [0x%08X]",
                                status);
@@ -4060,9 +4060,9 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
         else
           {
             TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
-                           TIZ_CNAME (tizservant_super_get_hdl
+                           TIZ_CNAME (tiz_servant_super_get_hdl
                                       (tizkernel, p_obj)),
-                           TIZ_CBUF (tizservant_super_get_hdl
+                           TIZ_CBUF (tiz_servant_super_get_hdl
                                      (tizkernel, p_obj)),
                            "NOT TUNNELED pid [%d]", tizport_index (*pp_port));
           }
@@ -4113,8 +4113,8 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
   }
 
   TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
-                 TIZ_CNAME (tizservant_super_get_hdl (tizkernel, p_obj)),
-                 TIZ_CBUF (tizservant_super_get_hdl (tizkernel, p_obj)),
+                 TIZ_CNAME (tiz_servant_super_get_hdl (tizkernel, p_obj)),
+                 TIZ_CBUF (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                  "status_report [%d]", status_report);
 
   assert (ETIZKernelTunneledPortsMax != status_report);
@@ -4183,7 +4183,7 @@ kernel_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag)
         assert (pp_port && *pp_port);
         p_port = *pp_port;
         tizport_reset_tunneled_port_status_flag (p_port,
-                                                 tizservant_get_hdl (p_obj),
+                                                 tiz_servant_get_hdl (p_obj),
                                                  a_port_status_flag);
       }
     while (i-- != 0);
@@ -4286,9 +4286,9 @@ init_tizkernel (void)
   if (!tiz_kernel_class)
     {
       init_tizservant ();
-      tiz_kernel_class = factory_new (tizservant_class,
+      tiz_kernel_class = factory_new (tiz_servant_class,
                                      "tiz_kernel_class",
-                                     tizservant_class,
+                                     tiz_servant_class,
                                      sizeof (struct tiz_kernel_class),
                                      ctor, kernel_class_ctor, 0);
 
@@ -4320,13 +4320,13 @@ init_tizkernel (void)
          tizapi_FillThisBuffer, kernel_FillThisBuffer,
          tizapi_SetCallbacks, kernel_SetCallbacks,
          tizapi_UseEGLImage, kernel_UseEGLImage,
-         tizservant_dispatch_msg, kernel_dispatch_msg,
-         tizservant_allocate_resources, kernel_allocate_resources,
-         tizservant_deallocate_resources, kernel_deallocate_resources,
-         tizservant_prepare_to_transfer, kernel_prepare_to_transfer,
-         tizservant_transfer_and_process, kernel_transfer_and_process,
-         tizservant_stop_and_return, kernel_stop_and_return,
-         tizservant_receive_pluggable_event,
+         tiz_servant_dispatch_msg, kernel_dispatch_msg,
+         tiz_servant_allocate_resources, kernel_allocate_resources,
+         tiz_servant_deallocate_resources, kernel_deallocate_resources,
+         tiz_servant_prepare_to_transfer, kernel_prepare_to_transfer,
+         tiz_servant_transfer_and_process, kernel_transfer_and_process,
+         tiz_servant_stop_and_return, kernel_stop_and_return,
+         tiz_servant_receive_pluggable_event,
          kernel_receive_pluggable_event, tiz_kernel_register_port,
          kernel_register_port, tiz_kernel_get_port, kernel_get_port,
          tiz_kernel_find_managing_port, kernel_find_managing_port,
