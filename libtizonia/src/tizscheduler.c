@@ -1413,42 +1413,6 @@ configure_port_preannouncements (tiz_scheduler_t * ap_sched,
   return rc;
 }
 
-OMX_ERRORTYPE
-tiz_init_component (OMX_HANDLETYPE ap_hdl, const char *ap_cname)
-{
-  tiz_sched_msg_t *p_msg = NULL;
-  tiz_scheduler_t *p_sched = NULL;
-
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] Initializing base component "
-           "infrastructure", ap_cname);
-
-  if (NULL == ap_hdl)
-    {
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorBadParameter] : (%s)", ap_cname);
-      return OMX_ErrorBadParameter;
-    }
-
-  /* Instantiate the scheduler */
-  if (NULL == (p_sched = instantiate_scheduler (ap_hdl, ap_cname)))
-    {
-      TIZ_LOG (TIZ_LOG_ERROR,
-               "[OMX_ErrorInsufficientResources] : ([%s] - Error Initializing"
-               " component - hdl [%p])...", ap_cname, ap_hdl);
-      return OMX_ErrorInsufficientResources;
-    }
-
-  /* Start scheduler */
-  start_scheduler (p_sched);
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgComponentInit)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
-
-  return send_msg (p_sched, p_msg);
-}
-
 static OMX_ERRORTYPE
 sched_ComponentDeInit (OMX_HANDLETYPE ap_hdl)
 {
@@ -2284,107 +2248,6 @@ instantiate_scheduler (OMX_HANDLETYPE ap_hdl, const char *ap_cname)
   return (p_sched->error == OMX_ErrorNone) ? p_sched : NULL;
 }
 
-OMX_ERRORTYPE
-tiz_receive_pluggable_event (OMX_HANDLETYPE ap_hdl, tizevent_t * ap_event)
-{
-  tiz_sched_msg_t *p_msg = NULL;
-  tiz_sched_msg_plg_event_t *p_msg_pe = NULL;
-  tiz_scheduler_t *p_sched = NULL;
-
-  assert (NULL != ap_hdl);
-  assert (NULL != ap_event);
-
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Receiving pluggable event [%p]", ap_event);
-
-
-  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgPluggableEvent)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
-
-  /* Finish-up this message */
-  p_msg_pe = &(p_msg->pe);
-  assert (NULL != p_msg_pe);
-
-  p_msg_pe->p_event = ap_event;
-
-  return send_msg (p_sched, p_msg);
-}
-
-OMX_ERRORTYPE
-tiz_register_roles (OMX_HANDLETYPE ap_hdl,
-                    const tiz_role_factory_t * ap_role_list[],
-                    const OMX_U32 a_nroles)
-{
-  tiz_sched_msg_t *p_msg = NULL;
-  tiz_sched_msg_regroles_t *p_msg_rr = NULL;
-  tiz_scheduler_t *p_sched = NULL;
-
-  assert (NULL != ap_hdl);
-  assert (NULL != ap_role_list);
-  assert (0 < a_nroles);
-  assert (a_nroles <= TIZ_MAX_ROLES);
-
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Registering [%d] roles", a_nroles);
-
-  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgRegisterRoles)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
-
-  /* Finish-up this message */
-  p_msg_rr = &(p_msg->rr);
-  assert (NULL != p_msg_rr);
-
-  p_msg_rr->p_role_list = ap_role_list;
-  p_msg_rr->nroles = a_nroles;
-
-  return send_msg (p_sched, p_msg);
-}
-
-OMX_ERRORTYPE
-tiz_register_port_alloc_hooks (OMX_HANDLETYPE ap_hdl,
-                               const OMX_U32 a_pid,
-                               const tiz_port_alloc_hooks_t * ap_new_hooks,
-                               tiz_port_alloc_hooks_t * ap_old_hooks)
-{
-  tiz_sched_msg_t *p_msg = NULL;
-  tiz_sched_msg_regphooks_t *p_msg_rph = NULL;
-  tiz_scheduler_t *p_sched = NULL;
-
-  assert (NULL != ap_hdl);
-  assert (NULL != ap_new_hooks);
-
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Registering alloc hooks for port [%d] ", a_pid);
-
-  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgRegisterPortHooks)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
-
-  /* Finish-up this message */
-  p_msg_rph = &(p_msg->rph);
-  assert (NULL != p_msg_rph);
-
-  p_msg_rph->pid = a_pid;
-  p_msg_rph->p_hooks = ap_new_hooks;
-  p_msg_rph->p_old_hooks = ap_old_hooks;
-
-  return send_msg (p_sched, p_msg);
-}
-
 static OMX_ERRORTYPE
 init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
 {
@@ -2519,6 +2382,143 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
     }
 
   return rc;
+}
+
+OMX_ERRORTYPE
+tiz_init_component (OMX_HANDLETYPE ap_hdl, const char *ap_cname)
+{
+  tiz_sched_msg_t *p_msg = NULL;
+  tiz_scheduler_t *p_sched = NULL;
+
+  TIZ_LOG (TIZ_LOG_TRACE, "[%s] Initializing base component "
+           "infrastructure", ap_cname);
+
+  if (NULL == ap_hdl)
+    {
+      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorBadParameter] : (%s)", ap_cname);
+      return OMX_ErrorBadParameter;
+    }
+
+  /* Instantiate the scheduler */
+  if (NULL == (p_sched = instantiate_scheduler (ap_hdl, ap_cname)))
+    {
+      TIZ_LOG (TIZ_LOG_ERROR,
+               "[OMX_ErrorInsufficientResources] : ([%s] - Error Initializing"
+               " component - hdl [%p])...", ap_cname, ap_hdl);
+      return OMX_ErrorInsufficientResources;
+    }
+
+  /* Start scheduler */
+  start_scheduler (p_sched);
+
+  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
+                                               ETIZSchedMsgComponentInit)))
+    {
+      return OMX_ErrorInsufficientResources;
+    }
+
+  return send_msg (p_sched, p_msg);
+}
+
+OMX_ERRORTYPE
+tiz_register_roles (OMX_HANDLETYPE ap_hdl,
+                    const tiz_role_factory_t * ap_role_list[],
+                    const OMX_U32 a_nroles)
+{
+  tiz_sched_msg_t *p_msg = NULL;
+  tiz_sched_msg_regroles_t *p_msg_rr = NULL;
+  tiz_scheduler_t *p_sched = NULL;
+
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_role_list);
+  assert (0 < a_nroles);
+  assert (a_nroles <= TIZ_MAX_ROLES);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Registering [%d] roles", a_nroles);
+
+  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
+
+  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
+                                               ETIZSchedMsgRegisterRoles)))
+    {
+      return OMX_ErrorInsufficientResources;
+    }
+
+  /* Finish-up this message */
+  p_msg_rr = &(p_msg->rr);
+  assert (NULL != p_msg_rr);
+
+  p_msg_rr->p_role_list = ap_role_list;
+  p_msg_rr->nroles = a_nroles;
+
+  return send_msg (p_sched, p_msg);
+}
+
+OMX_ERRORTYPE
+tiz_receive_pluggable_event (OMX_HANDLETYPE ap_hdl, tizevent_t * ap_event)
+{
+  tiz_sched_msg_t *p_msg = NULL;
+  tiz_sched_msg_plg_event_t *p_msg_pe = NULL;
+  tiz_scheduler_t *p_sched = NULL;
+
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_event);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Receiving pluggable event [%p]", ap_event);
+
+
+  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
+
+  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
+                                               ETIZSchedMsgPluggableEvent)))
+    {
+      return OMX_ErrorInsufficientResources;
+    }
+
+  /* Finish-up this message */
+  p_msg_pe = &(p_msg->pe);
+  assert (NULL != p_msg_pe);
+
+  p_msg_pe->p_event = ap_event;
+
+  return send_msg (p_sched, p_msg);
+}
+
+OMX_ERRORTYPE
+tiz_register_port_alloc_hooks (OMX_HANDLETYPE ap_hdl,
+                               const OMX_U32 a_pid,
+                               const tiz_port_alloc_hooks_t * ap_new_hooks,
+                               tiz_port_alloc_hooks_t * ap_old_hooks)
+{
+  tiz_sched_msg_t *p_msg = NULL;
+  tiz_sched_msg_regphooks_t *p_msg_rph = NULL;
+  tiz_scheduler_t *p_sched = NULL;
+
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_new_hooks);
+
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                 "Registering alloc hooks for port [%d] ", a_pid);
+
+  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
+
+  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
+                                               ETIZSchedMsgRegisterPortHooks)))
+    {
+      return OMX_ErrorInsufficientResources;
+    }
+
+  /* Finish-up this message */
+  p_msg_rph = &(p_msg->rph);
+  assert (NULL != p_msg_rph);
+
+  p_msg_rph->pid = a_pid;
+  p_msg_rph->p_hooks = ap_new_hooks;
+  p_msg_rph->p_old_hooks = ap_old_hooks;
+
+  return send_msg (p_sched, p_msg);
 }
 
 void
