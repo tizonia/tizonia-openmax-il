@@ -290,13 +290,13 @@ init_vp8eprc (void)
       init_tizproc ();
       vp8eprc =
         factory_new
-        (tizproc_class,
+        (tiz_proc_class,
          "vp8eprc",
          tizproc,
          sizeof (struct vp8eprc),
          ctor, vp8e_proc_ctor,
          dtor, vp8e_proc_dtor,
-         tizproc_buffers_ready, vp8e_proc_buffers_ready,
+         tiz_proc_buffers_ready, vp8e_proc_buffers_ready,
          tiz_servant_allocate_resources, vp8e_proc_allocate_resources,
          tiz_servant_deallocate_resources, vp8e_proc_deallocate_resources,
          tiz_servant_prepare_to_transfer, vp8e_proc_prepare_to_transfer,

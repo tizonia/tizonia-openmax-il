@@ -367,7 +367,7 @@ init_arprc (void)
       init_tizproc ();
       arprc =
         factory_new
-        (tizproc_class,
+        (tiz_proc_class,
          "arprc",
          tizproc,
          sizeof (struct arprc),
@@ -378,7 +378,7 @@ init_arprc (void)
          tiz_servant_prepare_to_transfer, ar_proc_prepare_to_transfer,
          tiz_servant_transfer_and_process, ar_proc_transfer_and_process,
          tiz_servant_stop_and_return, ar_proc_stop_and_return,
-         tizproc_buffers_ready, ar_proc_buffers_ready, 0);
+         tiz_proc_buffers_ready, ar_proc_buffers_ready, 0);
     }
 
 }

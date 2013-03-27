@@ -46,9 +46,9 @@ extern "C"
   };
 
     OMX_ERRORTYPE
-    tizproc_super_buffers_ready (const void *class, const void *p_obj);
+    tiz_proc_super_buffers_ready (const void *class, const void *p_obj);
 
-  struct tizproc_class
+  struct tiz_proc_class
   {
     /* Class */
     const struct tiz_servant_class _;

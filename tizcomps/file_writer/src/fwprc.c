@@ -263,13 +263,13 @@ init_fwprc (void)
       init_tizproc ();
       fwprc =
         factory_new
-        (tizproc_class,
+        (tiz_proc_class,
          "fwprc",
          tizproc,
          sizeof (struct fwprc),
          ctor, fw_proc_ctor,
          dtor, fw_proc_dtor,
-         tizproc_buffers_ready, fw_proc_buffers_ready,
+         tiz_proc_buffers_ready, fw_proc_buffers_ready,
          tiz_servant_allocate_resources, fw_proc_allocate_resources,
          tiz_servant_deallocate_resources, fw_proc_deallocate_resources,
          tiz_servant_prepare_to_transfer, fw_proc_prepare_to_transfer,

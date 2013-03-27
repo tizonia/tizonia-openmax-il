@@ -38,25 +38,25 @@ extern "C"
 
 /* factory_new(tizproc, ...) */
   extern const void *tizproc;
-  extern const void *tizproc_class;
+  extern const void *tiz_proc_class;
 
-  OMX_ERRORTYPE tizproc_buffers_ready (const void *p_obj);
+  OMX_ERRORTYPE tiz_proc_buffers_ready (const void *p_obj);
 
-  OMX_ERRORTYPE tizproc_port_flush (const void *ap_obj, OMX_U32 a_pid);
+  OMX_ERRORTYPE tiz_proc_port_flush (const void *ap_obj, OMX_U32 a_pid);
 
-  OMX_ERRORTYPE tizproc_port_disable (const void *ap_obj, OMX_U32 a_pid);
+  OMX_ERRORTYPE tiz_proc_port_disable (const void *ap_obj, OMX_U32 a_pid);
 
-  OMX_ERRORTYPE tizproc_port_enable (const void *ap_obj, OMX_U32 a_pid);
+  OMX_ERRORTYPE tiz_proc_port_enable (const void *ap_obj, OMX_U32 a_pid);
 
-  OMX_ERRORTYPE tizproc_event_io_ready (void *ap_obj,
+  OMX_ERRORTYPE tiz_proc_event_io_ready (void *ap_obj,
                                           tiz_event_io_t * ap_ev_io, int a_fd,
                                           int a_events);
 
-  OMX_ERRORTYPE tizproc_event_timer_ready (void *ap_obj,
+  OMX_ERRORTYPE tiz_proc_event_timer_ready (void *ap_obj,
                                            tiz_event_timer_t * ap_ev_timer,
                                            void *ap_arg);
 
-  OMX_ERRORTYPE tizproc_event_stat_ready (void *ap_obj,
+  OMX_ERRORTYPE tiz_proc_event_stat_ready (void *ap_obj,
                                             tiz_event_stat_t * ap_ev_stat,
                                             int a_events);
 

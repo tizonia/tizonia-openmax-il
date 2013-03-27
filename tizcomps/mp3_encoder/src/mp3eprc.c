@@ -591,7 +591,7 @@ init_mp3eprc (void)
       init_tizproc ();
       mp3eprc =
         factory_new
-        (tizproc_class,
+        (tiz_proc_class,
          "mp3eprc",
          tizproc,
          sizeof (struct mp3eprc),
@@ -602,9 +602,9 @@ init_mp3eprc (void)
          tiz_servant_prepare_to_transfer, mp3e_proc_prepare_to_transfer,
          tiz_servant_transfer_and_process, mp3e_proc_transfer_and_process,
          tiz_servant_stop_and_return, mp3e_proc_stop_and_return,
-         tizproc_buffers_ready, mp3e_proc_buffers_ready,
-         tizproc_port_flush, mp3e_proc_port_flush,
-         tizproc_port_disable, mp3e_proc_port_disable,
-         tizproc_port_enable, mp3e_proc_port_enable, 0);
+         tiz_proc_buffers_ready, mp3e_proc_buffers_ready,
+         tiz_proc_port_flush, mp3e_proc_port_flush,
+         tiz_proc_port_disable, mp3e_proc_port_disable,
+         tiz_proc_port_enable, mp3e_proc_port_enable, 0);
     }
 }

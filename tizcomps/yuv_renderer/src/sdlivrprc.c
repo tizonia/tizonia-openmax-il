@@ -337,13 +337,13 @@ init_sdlivrprc (void)
       init_tizproc ();
       sdlivrprc =
         factory_new
-        (tizproc_class,
+        (tiz_proc_class,
          "sdlivrprc",
          tizproc,
          sizeof (struct sdlivrprc),
          ctor, sdlivr_proc_ctor,
          dtor, sdlivr_proc_dtor,
-         tizproc_buffers_ready, sdlivr_proc_buffers_ready,
+         tiz_proc_buffers_ready, sdlivr_proc_buffers_ready,
          tiz_servant_allocate_resources, sdlivr_proc_allocate_resources,
          tiz_servant_deallocate_resources, sdlivr_proc_deallocate_resources,
          tiz_servant_prepare_to_transfer, sdlivr_proc_prepare_to_transfer,

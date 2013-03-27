@@ -779,7 +779,7 @@ init_vp8dprc (void)
       init_tizproc ();
       vp8dprc =
         factory_new
-        (tizproc_class,
+        (tiz_proc_class,
          "vp8dprc",
          tizproc,
          sizeof (struct vp8dprc),
@@ -790,10 +790,10 @@ init_vp8dprc (void)
          tiz_servant_prepare_to_transfer, vp8d_proc_prepare_to_transfer,
          tiz_servant_transfer_and_process, vp8d_proc_transfer_and_process,
          tiz_servant_stop_and_return, vp8d_proc_stop_and_return,
-         tizproc_buffers_ready, vp8d_proc_buffers_ready,
-         tizproc_port_flush, vp8d_proc_port_flush,
-         tizproc_port_disable, vp8d_proc_port_disable,
-         tizproc_port_enable, vp8d_proc_port_enable, 0);
+         tiz_proc_buffers_ready, vp8d_proc_buffers_ready,
+         tiz_proc_port_flush, vp8d_proc_port_flush,
+         tiz_proc_port_disable, vp8d_proc_port_disable,
+         tiz_proc_port_enable, vp8d_proc_port_enable, 0);
     }
 
 }

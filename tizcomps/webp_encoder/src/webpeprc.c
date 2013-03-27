@@ -290,13 +290,13 @@ init_webpeprc (void)
       init_tizproc ();
       webpeprc =
         factory_new
-        (tizproc_class,
+        (tiz_proc_class,
          "webpeprc",
          tizproc,
          sizeof (struct webpeprc),
          ctor, webpe_proc_ctor,
          dtor, webpe_proc_dtor,
-         tizproc_buffers_ready, webpe_proc_buffers_ready,
+         tiz_proc_buffers_ready, webpe_proc_buffers_ready,
          tiz_servant_allocate_resources, webpe_proc_allocate_resources,
          tiz_servant_deallocate_resources, webpe_proc_deallocate_resources,
          tiz_servant_prepare_to_transfer, webpe_proc_prepare_to_transfer,
