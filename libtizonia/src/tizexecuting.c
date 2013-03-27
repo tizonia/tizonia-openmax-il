@@ -178,7 +178,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                      OMX_COMMANDTYPE a_cmd,
                      OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  tizfsm_state_id_t new_state = EStateMax;
+  tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != ap_obj);
@@ -221,7 +221,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   if (ESubStateExecutingToIdle == new_state)
     {
       if (OMX_ErrorNone !=
-          (rc = tizfsm_set_state
+          (rc = tiz_fsm_set_state
            (tiz_get_fsm (ap_hdl), new_state, EStateMax)))
         {
           return rc;

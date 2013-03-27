@@ -385,8 +385,8 @@ port_GetParameter (const void *ap_obj,
     {
     case OMX_IndexParamPortDefinition:
       {
-        const tizfsm_state_id_t now =
-          tizfsm_get_substate (tiz_get_fsm (ap_hdl));
+        const tiz_fsm_state_id_t now =
+          tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
         OMX_PARAM_PORTDEFINITIONTYPE *p_pdef = ap_struct;
         *p_pdef = p_obj->portdef_;
 
@@ -448,8 +448,8 @@ port_SetParameter (const void *ap_obj,
     {
     case OMX_IndexParamPortDefinition:
       {
-        const tizfsm_state_id_t now =
-          tizfsm_get_substate (tiz_get_fsm (ap_hdl));
+        const tiz_fsm_state_id_t now =
+          tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
         const OMX_PARAM_PORTDEFINITIONTYPE *p_pdef
           = (OMX_PARAM_PORTDEFINITIONTYPE *) ap_struct;
 

@@ -36,8 +36,8 @@ extern "C"
 
 #include "tizservant.h"
 
-  typedef enum tizfsm_state_id tizfsm_state_id_t;
-  enum tizfsm_state_id
+  typedef enum tiz_fsm_state_id tiz_fsm_state_id_t;
+  enum tiz_fsm_state_id
   {
     EStateReserved_0x00000000 = OMX_StateReserved_0x00000000,
     EStateLoaded = OMX_StateLoaded,
@@ -54,24 +54,24 @@ extern "C"
   };
 
   /* factory_new(tizfsm, ...) */
-  extern const void *tizfsm, *tizfsm_class;
+  extern const void *tizfsm, *tiz_fsm_class;
 
-  OMX_ERRORTYPE tizfsm_set_state (void *ap_obj,
-                                  tizfsm_state_id_t a_new_state,
-                                  tizfsm_state_id_t a_canceled_state);
+  OMX_ERRORTYPE tiz_fsm_set_state (void *ap_obj,
+                                  tiz_fsm_state_id_t a_new_state,
+                                  tiz_fsm_state_id_t a_canceled_state);
 
-  OMX_ERRORTYPE tizfsm_complete_transition (void *ap_obj,
+  OMX_ERRORTYPE tiz_fsm_complete_transition (void *ap_obj,
                                             const void *ap_servant,
                                             OMX_STATETYPE a_new_state);
 
-  OMX_ERRORTYPE tizfsm_complete_command (void *ap_obj,
+  OMX_ERRORTYPE tiz_fsm_complete_command (void *ap_obj,
                                          const void *ap_servant,
                                          OMX_COMMANDTYPE a_cmd,
                                          OMX_U32 a_param1);
 
-  tizfsm_state_id_t tizfsm_get_substate (const void *ap_obj);
+  tiz_fsm_state_id_t tiz_fsm_get_substate (const void *ap_obj);
 
-  OMX_ERRORTYPE tizfsm_tunneled_ports_status_update (void *ap_obj);
+  OMX_ERRORTYPE tiz_fsm_tunneled_ports_status_update (void *ap_obj);
 
   void init_tizfsm (void);
 

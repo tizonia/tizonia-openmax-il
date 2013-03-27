@@ -742,8 +742,8 @@ do_sparam (tiz_scheduler_t * ap_sched,
 
   if (OMX_IndexParamStandardComponentRole == p_msg_gparam->index)
     {
-      const tizfsm_state_id_t now =
-        tizfsm_get_substate (ap_sched->child.p_fsm);
+      const tiz_fsm_state_id_t now =
+        tiz_fsm_get_substate (ap_sched->child.p_fsm);
 
       /* Only allow role (re)set if in OMX_StateLoded state */
       if (EStateLoaded != now)
@@ -1223,7 +1223,7 @@ do_rph (tiz_scheduler_t * ap_sched,
   assert (NULL != p_msg_rph->p_hooks);
 
   {
-    const tizfsm_state_id_t now = tizfsm_get_substate (ap_sched->child.p_fsm);
+    const tiz_fsm_state_id_t now = tiz_fsm_get_substate (ap_sched->child.p_fsm);
 
     /* Only allow role hook registration if in OMX_StateLoded state. Disallowed
      * for other states, even if the port is disabled.

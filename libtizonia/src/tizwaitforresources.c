@@ -116,7 +116,7 @@ waitforresources_state_set (const void *ap_obj,
                             OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   const struct tizwaitforresources *p_obj = ap_obj;
-  tizfsm_state_id_t new_state = EStateMax;
+  tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE omx_error = OMX_ErrorNone;
 
   assert (p_obj);
@@ -150,7 +150,7 @@ waitforresources_state_set (const void *ap_obj,
   /* TODO:  make state transition effective here? */
   (void) new_state;
   /*   if (OMX_ErrorNone != */
-  /*       (omx_error = tizfsm_set_state */
+  /*       (omx_error = tiz_fsm_set_state */
   /*        (tiz_get_fsm (ap_hdl), new_state))) */
   /*     { */
   /*       return omx_error; */

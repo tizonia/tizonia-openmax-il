@@ -119,7 +119,7 @@ loadedtoidle_state_set (const void *ap_obj,
                         OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   struct tizstate *p_base = (struct tizstate *) ap_obj;
-  tizfsm_state_id_t new_state = EStateMax;
+  tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != ap_obj);
@@ -157,7 +157,7 @@ loadedtoidle_state_set (const void *ap_obj,
   if (ESubStateIdleToLoaded == new_state)
     {
       if (OMX_ErrorNone !=
-          (rc = tizfsm_set_state
+          (rc = tiz_fsm_set_state
            (tiz_get_fsm (ap_hdl), new_state, ESubStateLoadedToIdle)))
         {
           return rc;

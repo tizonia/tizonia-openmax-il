@@ -77,7 +77,7 @@ extern "C"
 
   void tiz_clear_header (OMX_BUFFERHEADERTYPE * ap_hdr);
 
-  const OMX_STRING tiz_fsm_state_to_str (tizfsm_state_id_t a_id);
+  const OMX_STRING tiz_fsm_state_to_str (tiz_fsm_state_id_t a_id);
 
 
 #ifdef __cplusplus

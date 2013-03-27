@@ -43,22 +43,22 @@ extern "C"
     /* Object */
     const struct tizservant _;
     void *p_states_[EStateMax];
-    tizfsm_state_id_t cur_state_id_;
-    tizfsm_state_id_t canceled_substate_id_;
+    tiz_fsm_state_id_t cur_state_id_;
+    tiz_fsm_state_id_t canceled_substate_id_;
     void *p_current_state_;
     OMX_COMMANDTYPE in_progress_cmd_;
     OMX_U32 in_progress_param1_;
     OMX_COMMANDTYPE cancellation_cmd_;
   };
 
-  struct tizfsm_class
+  struct tiz_fsm_class
   {
     /* Class */
     const struct tiz_servant_class _;
 
     OMX_ERRORTYPE (*set_state) (void *p_obj,
-                                tizfsm_state_id_t a_new_state,
-                                tizfsm_state_id_t a_canceled_substate);
+                                tiz_fsm_state_id_t a_new_state,
+                                tiz_fsm_state_id_t a_canceled_substate);
     OMX_ERRORTYPE (*complete_transition) (void *p_obj,
                                           const void *ap_servant,
                                           OMX_STATETYPE a_new_state);
@@ -66,7 +66,7 @@ extern "C"
                                        const void *ap_servant,
                                        OMX_COMMANDTYPE a_cmd,
                                        OMX_U32 a_param1);
-    tizfsm_state_id_t (*get_substate) (const void *ap_obj);
+    tiz_fsm_state_id_t (*get_substate) (const void *ap_obj);
 
     OMX_ERRORTYPE (*tunneled_ports_status_update) (void *ap_obj);
 

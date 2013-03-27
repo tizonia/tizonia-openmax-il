@@ -181,7 +181,7 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
   tiz_proc_msg_buffersready_t *p_msg_br = NULL;
   const void *p_krn = NULL;
   const void *p_port = NULL;
-  tizfsm_state_id_t now = EStateMax;
+  tiz_fsm_state_id_t now = EStateMax;
 
   assert (NULL != p_obj);
   assert (NULL != p_msg);
@@ -193,7 +193,7 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
   p_port = tiz_kernel_get_port (p_krn, p_msg_br->pid);
-  now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
+  now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
                  TIZ_CBUF (p_msg->p_hdl),
@@ -237,7 +237,7 @@ dispatch_eio (void *ap_obj, OMX_PTR ap_msg)
   tiz_proc_msg_buffersready_t *p_msg_br = NULL;
   const void *p_krn = NULL;
   const void *p_port = NULL;
-  tizfsm_state_id_t now = EStateMax;
+  tiz_fsm_state_id_t now = EStateMax;
 
   assert (NULL != p_obj);
   assert (NULL != p_msg);
@@ -249,7 +249,7 @@ dispatch_eio (void *ap_obj, OMX_PTR ap_msg)
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
   p_port = tiz_kernel_get_port (p_krn, p_msg_br->pid);
-  now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
+  now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
                  TIZ_CBUF (p_msg->p_hdl),
@@ -282,7 +282,7 @@ dispatch_etmr (void *ap_obj, OMX_PTR ap_msg)
   tiz_proc_msg_buffersready_t *p_msg_br = NULL;
   const void *p_krn = NULL;
   const void *p_port = NULL;
-  tizfsm_state_id_t now = EStateMax;
+  tiz_fsm_state_id_t now = EStateMax;
 
   assert (NULL != p_obj);
   assert (NULL != p_msg);
@@ -294,7 +294,7 @@ dispatch_etmr (void *ap_obj, OMX_PTR ap_msg)
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
   p_port = tiz_kernel_get_port (p_krn, p_msg_br->pid);
-  now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
+  now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
                  TIZ_CBUF (p_msg->p_hdl),
@@ -327,7 +327,7 @@ dispatch_estat (void *ap_obj, OMX_PTR ap_msg)
   tiz_proc_msg_buffersready_t *p_msg_br = NULL;
   const void *p_krn = NULL;
   const void *p_port = NULL;
-  tizfsm_state_id_t now = EStateMax;
+  tiz_fsm_state_id_t now = EStateMax;
 
   assert (NULL != p_obj);
   assert (NULL != p_msg);
@@ -339,7 +339,7 @@ dispatch_estat (void *ap_obj, OMX_PTR ap_msg)
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
   p_port = tiz_kernel_get_port (p_krn, p_msg_br->pid);
-  now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
+  now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
                  TIZ_CBUF (p_msg->p_hdl),
@@ -471,7 +471,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
 
   if (OMX_ErrorNone == rc && OMX_TRUE == done)
     {
-      rc = tizfsm_complete_transition
+      rc = tiz_fsm_complete_transition
         (tiz_get_fsm (p_hdl), p_obj, ap_msg_sc->param1);
     }
 

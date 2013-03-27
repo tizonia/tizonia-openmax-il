@@ -38,7 +38,7 @@ typedef struct tiz_state_str tiz_state_str_t;
 
 struct tiz_state_str
 {
-  tizfsm_state_id_t state;
+  tiz_fsm_state_id_t state;
   OMX_STRING str;
 };
 
@@ -71,7 +71,7 @@ tiz_clear_header (OMX_BUFFERHEADERTYPE * ap_hdr)
 }
 
 const OMX_STRING
-tiz_fsm_state_to_str (tizfsm_state_id_t a_id)
+tiz_fsm_state_to_str (tiz_fsm_state_id_t a_id)
 {
   const OMX_S32 count =
     sizeof (tiz_fsm_state_to_str_tbl) / sizeof (tiz_state_str_t);

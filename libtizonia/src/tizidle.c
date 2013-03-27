@@ -184,7 +184,7 @@ static OMX_ERRORTYPE
 idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  tizfsm_state_id_t new_state = EStateMax;
+  tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   struct tizkernel *p_krn = NULL;
   tiz_kernel_tunneled_ports_status_t status = ETIZKernelTunneledPortsMax;
@@ -254,7 +254,7 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       || ESubStateIdleToExecuting == new_state)
     {
       if (OMX_ErrorNone !=
-          (rc = tizfsm_set_state
+          (rc = tiz_fsm_set_state
            (tiz_get_fsm (ap_hdl), new_state, EStateMax)))
         {
           return rc;

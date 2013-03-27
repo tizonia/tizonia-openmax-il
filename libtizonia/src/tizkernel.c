@@ -369,7 +369,7 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
    * whether this a cancelation or not. */
   if (p_obj->cmd_completion_count_ == 0)
     {
-      tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
+      tiz_fsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
                                OMX_CommandPortDisable, a_pid);
     }
 
@@ -404,7 +404,7 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
    * whether this a cancelation or not. */
   if (p_obj->cmd_completion_count_ == 0)
     {
-      tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
+      tiz_fsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
                                OMX_CommandPortEnable, a_pid);
     }
 
@@ -429,7 +429,7 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   assert (p_obj->cmd_completion_count_ > 0);
   if (--p_obj->cmd_completion_count_ == 0)
     {
-      tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
+      tiz_fsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
                                OMX_CommandFlush, a_pid);
     }
 
@@ -452,7 +452,7 @@ complete_mark_buffer (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
 /*   assert (p_obj->cmd_completion_count_ > 0); */
 /*   if (--p_obj->cmd_completion_count_ == 0) */
 /*     { */
-/*       tizfsm_complete_command (tiz_get_fsm (p_parent->p_hdl), p_obj, */
+/*       tiz_fsm_complete_command (tiz_get_fsm (p_parent->p_hdl), p_obj, */
 /*                                OMX_CommandMarkBuffer); */
 /*     } */
 
@@ -463,8 +463,8 @@ static OMX_ERRORTYPE
 complete_ongoing_transitions (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const tizfsm_state_id_t cur_state =
-    tizfsm_get_substate (tiz_get_fsm (ap_hdl));
+  const tiz_fsm_state_id_t cur_state =
+    tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
 
   if ((ESubStateIdleToLoaded == cur_state) && all_depopulated (ap_obj))
     {
@@ -473,14 +473,14 @@ complete_ongoing_transitions (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
       /* TODO : Review this */
       /* If all ports are depopulated, kick off removal of buffer
        * callbacks from servants kernel and proc queues  */
-      rc = tizfsm_complete_transition
+      rc = tiz_fsm_complete_transition
         (tiz_get_fsm (ap_hdl), ap_obj, OMX_StateLoaded);
     }
   else if ((ESubStateLoadedToIdle == cur_state) && all_populated (ap_obj))
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl), "AllPortsPopulated : [TRUE]");
-      rc = tizfsm_complete_transition
+      rc = tiz_fsm_complete_transition
         (tiz_get_fsm (ap_hdl), ap_obj, OMX_StateIdle);
     }
   return rc;
@@ -1472,7 +1472,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
   if (OMX_ErrorNone == rc && OMX_TRUE == done)
     {
-      rc = tizfsm_complete_transition
+      rc = tiz_fsm_complete_transition
         (tiz_get_fsm (p_hdl), ap_obj, ap_msg_sc->param1);
     }
 
@@ -1704,7 +1704,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   OMX_U32 pid = ap_msg_sc->param1;
   const OMX_S32 nports = tiz_vector_length (p_obj->p_ports_);
   OMX_S32 i = 0;
-  const tizfsm_state_id_t now = tizfsm_get_substate (tiz_get_fsm (p_hdl));
+  const tiz_fsm_state_id_t now = tiz_fsm_get_substate (tiz_get_fsm (p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
                  TIZ_CNAME (tiz_servant_super_get_hdl (tizkernel, p_obj)),
@@ -1758,7 +1758,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                       if (all_populated (p_obj))
                         {
                           /* Complete transition to OMX_StateIdle */
-                          rc = tizfsm_complete_transition
+                          rc = tiz_fsm_complete_transition
                             (tiz_get_fsm (p_hdl), ap_obj, OMX_StateIdle);
                         }
                     }
@@ -1788,7 +1788,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
   const OMX_S32 nports = tiz_vector_length (p_obj->p_ports_);
   OMX_S32 i = 0;
   OMX_S32 nbufs = 0;
-  const tizfsm_state_id_t now = tizfsm_get_substate (tiz_get_fsm (p_hdl));
+  const tiz_fsm_state_id_t now = tiz_fsm_get_substate (tiz_get_fsm (p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
                  TIZ_CNAME (p_hdl),
@@ -2004,7 +2004,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_kernel_msg_t *p_msg = ap_msg;
   tiz_kernel_msg_callback_t *p_msg_cb = NULL;
-  tizfsm_state_id_t now = OMX_StateMax;
+  tiz_fsm_state_id_t now = OMX_StateMax;
   tiz_vector_t *p_list = NULL;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_S32 claimed_count = 0;
@@ -2014,7 +2014,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
 
   p_msg_cb = &(p_msg->cb);
 
-  now = tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
+  now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
                  TIZ_CNAME (p_msg->p_hdl),
@@ -2126,7 +2126,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
                   || ETIZKernelTunneledPortsMayInitiateExeToIdle == status))
             {
               /* complete state transition to OMX_StateIdle */
-              rc = tizfsm_complete_transition
+              rc = tiz_fsm_complete_transition
                 (tiz_get_fsm (p_msg->p_hdl), p_obj, OMX_StateIdle);
             }
         }
@@ -2142,8 +2142,8 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
   struct tizkernel *p_obj = ap_obj;
   tiz_kernel_msg_t *p_msg = ap_msg;
   tiz_kernel_msg_emptyfillbuffer_t *p_msg_ef = NULL;
-  const tizfsm_state_id_t now =
-    tizfsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
+  const tiz_fsm_state_id_t now =
+    tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
   const void *p_prc = tiz_get_prc (p_msg->p_hdl);
   OMX_S32 nbufs = 0;
   OMX_PTR *pp_port = NULL, p_port = NULL;
@@ -2291,7 +2291,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
                              TIZ_CBUF (p_msg->p_hdl),
                              "all buffers returned : [TRUE]");
 
-              rc = tizfsm_complete_transition
+              rc = tiz_fsm_complete_transition
                 (tiz_get_fsm (p_msg->p_hdl), p_obj, OMX_StateIdle);
             }
           return rc;
@@ -2663,7 +2663,7 @@ kernel_SetConfig (const void *ap_obj,
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "kernel's tunneled port status [%d] ", status);
           p_obj->accept_use_buffer_notified_ = OMX_TRUE;
-          tizfsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
+          tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
         }
       else if ((OMX_FALSE == p_obj->accept_buffer_exchange_notified_)
                &&
@@ -2673,7 +2673,7 @@ kernel_SetConfig (const void *ap_obj,
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "kernel's tunneled port status [%d] ", status);
           p_obj->accept_buffer_exchange_notified_ = OMX_TRUE;
-          tizfsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
+          tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
         }
       else if ((OMX_FALSE == p_obj->may_transition_exe2idle_notified_)
                &&
@@ -2684,7 +2684,7 @@ kernel_SetConfig (const void *ap_obj,
           TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "kernel's tunneled port status [%d] ", status);
           p_obj->may_transition_exe2idle_notified_ = OMX_TRUE;
-          tizfsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
+          tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
         }
     }
 
@@ -2854,7 +2854,7 @@ kernel_UseBuffer (const void *ap_obj,
     {
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "AllPortsPopulated : [TRUE]");
-      rc = tizfsm_complete_transition
+      rc = tiz_fsm_complete_transition
         (tiz_get_fsm (ap_hdl), ap_obj, OMX_StateIdle);
     }
 
@@ -2870,7 +2870,7 @@ kernel_AllocateBuffer (const void *ap_obj,
   struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const tizfsm_state_id_t now = tizfsm_get_substate (tiz_get_fsm (ap_hdl));
+  const tiz_fsm_state_id_t now = tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "AllocateBuffer...");
@@ -2927,7 +2927,7 @@ kernel_AllocateBuffer (const void *ap_obj,
                      "AllPortsPopulated : [TRUE]");
       if (ESubStateLoadedToIdle == now)
         {
-          rc = tizfsm_complete_transition
+          rc = tiz_fsm_complete_transition
             (tiz_get_fsm (ap_hdl), ap_obj, OMX_StateIdle);
         }
     }
@@ -2949,8 +2949,8 @@ kernel_FreeBuffer (const void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_BOOL issue_unpop = OMX_FALSE;
-  const tizfsm_state_id_t cur_state =
-    tizfsm_get_substate (tiz_get_fsm (ap_hdl));
+  const tiz_fsm_state_id_t cur_state =
+    tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
   OMX_S32 buf_count;
 
   if (check_pid (p_obj, a_pid) != OMX_ErrorNone)
@@ -3803,10 +3803,10 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
   assert (check_pid (p_obj, a_pid) == OMX_ErrorNone);
 
   /* Buffers can't be claimed in OMX_StatePause state */
-  assert (EStatePause != tizfsm_get_substate (tiz_get_fsm (hdl)));
+  assert (EStatePause != tiz_fsm_get_substate (tiz_get_fsm (hdl)));
 
   /* Neither in ESubStatePauseToIdle or ESubStateExecutingToIdle state */
-  assert (EStatePause != tizfsm_get_substate (tiz_get_fsm (hdl)));
+  assert (EStatePause != tiz_fsm_get_substate (tiz_get_fsm (hdl)));
 
   /* Find the port.. */
   pp_port = tiz_vector_at (p_obj->p_ports_, a_pid);

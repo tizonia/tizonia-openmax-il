@@ -421,7 +421,7 @@ state_trans_complete (const void *ap_obj,
   if (2 == p_obj->servants_count_)
     {
 
-      tizfsm_set_state (p_obj->p_fsm_, a_new_state, EStateMax);
+      tiz_fsm_set_state (p_obj->p_fsm_, a_new_state, EStateMax);
     }
 
   p_obj->servants_count_ = p_obj->servants_count_ % 2;

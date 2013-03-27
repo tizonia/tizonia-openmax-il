@@ -162,7 +162,7 @@ pause_state_set (const void *ap_obj,
                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   const struct tizpause *p_obj = ap_obj;
-  tizfsm_state_id_t new_state = EStateMax;
+  tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
   assert (p_obj);
@@ -203,7 +203,7 @@ pause_state_set (const void *ap_obj,
   if (ESubStatePauseToIdle == new_state)
     {
       if (OMX_ErrorNone !=
-          (ret_val = tizfsm_set_state
+          (ret_val = tiz_fsm_set_state
            (tiz_get_fsm (ap_hdl), new_state, EStateMax)))
         {
           return ret_val;

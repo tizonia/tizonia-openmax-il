@@ -50,66 +50,66 @@
 static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_tc (void *ap_obj, OMX_PTR ap_msg);
 
-typedef enum tizfsm_msg_class tizfsm_msg_class_t;
-enum tizfsm_msg_class
+typedef enum tiz_fsm_msg_class tiz_fsm_msg_class_t;
+enum tiz_fsm_msg_class
 {
   ETIZFsmMsgSendCommand = 0,
   ETIZFsmMsgTransComplete,
   ETIZFsmMsgMax
 };
 
-typedef struct tizfsm_msg_sendcommand tizfsm_msg_sendcommand_t;
-struct tizfsm_msg_sendcommand
+typedef struct tiz_fsm_msg_sendcommand tiz_fsm_msg_sendcommand_t;
+struct tiz_fsm_msg_sendcommand
 {
   OMX_COMMANDTYPE cmd;
   OMX_U32 param1;
   OMX_PTR p_cmd_data;
 };
 
-typedef struct tizfsm_msg_transcomplete tizfsm_msg_transcomplete_t;
-struct tizfsm_msg_transcomplete
+typedef struct tiz_fsm_msg_transcomplete tiz_fsm_msg_transcomplete_t;
+struct tiz_fsm_msg_transcomplete
 {
   OMX_PTR p_servant;
   OMX_STATETYPE state;
 };
 
-typedef struct tizfsm_msg tizfsm_msg_t;
-struct tizfsm_msg
+typedef struct tiz_fsm_msg tiz_fsm_msg_t;
+struct tiz_fsm_msg
 {
   OMX_HANDLETYPE p_hdl;
-  tizfsm_msg_class_t class;
+  tiz_fsm_msg_class_t class;
   union
   {
-    tizfsm_msg_sendcommand_t sc;
-    tizfsm_msg_transcomplete_t tc;
+    tiz_fsm_msg_sendcommand_t sc;
+    tiz_fsm_msg_transcomplete_t tc;
   };
 };
 
-typedef struct tizfsm_msg_str tizfsm_msg_str_t;
-struct tizfsm_msg_str
+typedef struct tiz_fsm_msg_str tiz_fsm_msg_str_t;
+struct tiz_fsm_msg_str
 {
-  tizfsm_msg_class_t msg;
+  tiz_fsm_msg_class_t msg;
   OMX_STRING str;
 };
 
-static const tizfsm_msg_str_t tizfsm_msg_to_str_tbl[] = {
+static const tiz_fsm_msg_str_t tiz_fsm_msg_to_str_tbl[] = {
   {ETIZFsmMsgSendCommand, "ETIZFsmMsgSendCommand"},
   {ETIZFsmMsgTransComplete, "ETIZFsmMsgTransComplete"},
   {ETIZFsmMsgMax, "ETIZFsmMsgMax"},
 };
 
 static const OMX_STRING
-tizfsm_msg_to_str (tizfsm_msg_class_t a_msg)
+tiz_fsm_msg_to_str (tiz_fsm_msg_class_t a_msg)
 {
   const OMX_S32 count =
-    sizeof (tizfsm_msg_to_str_tbl) / sizeof (tizfsm_msg_str_t);
+    sizeof (tiz_fsm_msg_to_str_tbl) / sizeof (tiz_fsm_msg_str_t);
   OMX_S32 i = 0;
 
   for (i = 0; i < count; ++i)
     {
-      if (tizfsm_msg_to_str_tbl[i].msg == a_msg)
+      if (tiz_fsm_msg_to_str_tbl[i].msg == a_msg)
         {
-          return tizfsm_msg_to_str_tbl[i].str;
+          return tiz_fsm_msg_to_str_tbl[i].str;
         }
     }
 
@@ -117,8 +117,8 @@ tizfsm_msg_to_str (tizfsm_msg_class_t a_msg)
 }
 
 
-typedef OMX_ERRORTYPE (*tizfsm_msg_dispatch_f) (void *ap_obj, OMX_PTR ap_msg);
-static const tizfsm_msg_dispatch_f tizfsm_msg_to_fnt_tbl[] = {
+typedef OMX_ERRORTYPE (*tiz_fsm_msg_dispatch_f) (void *ap_obj, OMX_PTR ap_msg);
+static const tiz_fsm_msg_dispatch_f tiz_fsm_msg_to_fnt_tbl[] = {
   dispatch_sc,
   dispatch_tc
 };
@@ -127,8 +127,8 @@ static OMX_ERRORTYPE
 dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
 {
   struct tizfsm *p_obj = ap_obj;
-  tizfsm_msg_t *p_msg = ap_msg;
-  tizfsm_msg_sendcommand_t *p_msg_sc = NULL;
+  tiz_fsm_msg_t *p_msg = ap_msg;
+  tiz_fsm_msg_sendcommand_t *p_msg_sc = NULL;
 
   assert (NULL != p_msg);
 
@@ -146,8 +146,8 @@ static OMX_ERRORTYPE
 dispatch_tc (void *ap_obj, OMX_PTR ap_msg)
 {
   struct tizfsm *p_obj = ap_obj;
-  tizfsm_msg_t *p_msg = ap_msg;
-  tizfsm_msg_transcomplete_t *p_msg_tc = NULL;
+  tiz_fsm_msg_t *p_msg = ap_msg;
+  tiz_fsm_msg_transcomplete_t *p_msg_tc = NULL;
 
   assert (NULL != p_obj);
   assert (NULL != p_msg);
@@ -159,23 +159,23 @@ dispatch_tc (void *ap_obj, OMX_PTR ap_msg)
                                   p_msg_tc->p_servant, p_msg_tc->state);
 }
 
-static inline tizfsm_msg_t *
+static inline tiz_fsm_msg_t *
 init_fsm_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                  tizfsm_msg_class_t a_msg_class)
+                  tiz_fsm_msg_class_t a_msg_class)
 {
   struct tizfsm *p_obj = (struct tizfsm *) ap_obj;
-  tizfsm_msg_t *p_msg = NULL;
+  tiz_fsm_msg_t *p_msg = NULL;
 
   assert (NULL != p_obj);
   assert (NULL != ap_hdl);
   assert (a_msg_class < ETIZFsmMsgMax);
 
-  if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tizfsm_msg_t))))
+  if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tiz_fsm_msg_t))))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
                      "(Could not allocate message [%s]...)",
-                     tizfsm_msg_to_str (a_msg_class));
+                     tiz_fsm_msg_to_str (a_msg_class));
     }
   else
     {
@@ -187,7 +187,7 @@ init_fsm_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static inline OMX_U32
-msg_to_priority (tizfsm_msg_class_t a_msg_class)
+msg_to_priority (tiz_fsm_msg_class_t a_msg_class)
 {
   OMX_U32 prio = 0;
 
@@ -547,8 +547,8 @@ fsm_SendCommand (const void *ap_obj,
                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   const struct tizfsm *p_obj = ap_obj;
-  tizfsm_msg_t *p_msg = NULL;
-  tizfsm_msg_sendcommand_t *p_msg_sc = NULL;
+  tiz_fsm_msg_t *p_msg = NULL;
+  tiz_fsm_msg_sendcommand_t *p_msg_sc = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
@@ -929,7 +929,7 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 {
   struct tizfsm *p_obj = (struct tizfsm *) ap_obj;
   const struct tizservant *p_parent = ap_obj;
-  tizfsm_msg_t *p_msg = ap_msg;
+  tiz_fsm_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
@@ -937,11 +937,11 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
-                 "Processing [%s]...", tizfsm_msg_to_str (p_msg->class));
+                 "Processing [%s]...", tiz_fsm_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZFsmMsgMax);
 
-  rc = tizfsm_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) ap_obj, p_msg);
+  rc = tiz_fsm_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) ap_obj, p_msg);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
@@ -974,8 +974,8 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
  */
 
 static OMX_ERRORTYPE
-fsm_set_state (const void *ap_obj, tizfsm_state_id_t a_new_state,
-               tizfsm_state_id_t a_canceled_substate)
+fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
+               tiz_fsm_state_id_t a_canceled_substate)
 {
   struct tizfsm *p_obj = (struct tizfsm *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1058,10 +1058,10 @@ fsm_set_state (const void *ap_obj, tizfsm_state_id_t a_new_state,
 }
 
 OMX_ERRORTYPE
-tizfsm_set_state (void *ap_obj, tizfsm_state_id_t a_new_state,
-                  tizfsm_state_id_t a_canceled_substate)
+tiz_fsm_set_state (void *ap_obj, tiz_fsm_state_id_t a_new_state,
+                  tiz_fsm_state_id_t a_canceled_substate)
 {
-  const struct tizfsm_class *class = classOf (ap_obj);
+  const struct tiz_fsm_class *class = classOf (ap_obj);
   assert (class->set_state);
   return class->set_state (ap_obj, a_new_state, a_canceled_substate);
 }
@@ -1073,8 +1073,8 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
   struct tizfsm *p_obj = ap_obj;
   const struct tizservant *p_parent = ap_obj;
   const struct tizservant *p_servant = ap_servant;
-  tizfsm_msg_t *p_msg = NULL;
-  tizfsm_msg_transcomplete_t *p_msg_tc = NULL;
+  tiz_fsm_msg_t *p_msg = NULL;
+  tiz_fsm_msg_transcomplete_t *p_msg_tc = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
 
   assert (NULL != p_obj);
@@ -1126,10 +1126,10 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
 }
 
 OMX_ERRORTYPE
-tizfsm_complete_transition (void *ap_obj, const void *ap_servant,
+tiz_fsm_complete_transition (void *ap_obj, const void *ap_servant,
                             OMX_STATETYPE a_new_state)
 {
-  const struct tizfsm_class *class = classOf (ap_obj);
+  const struct tiz_fsm_class *class = classOf (ap_obj);
   assert (class->complete_transition);
   return class->complete_transition (ap_obj, ap_servant, a_new_state);
 }
@@ -1193,25 +1193,25 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
 }
 
 OMX_ERRORTYPE
-tizfsm_complete_command (void *ap_obj, const void *ap_servant,
+tiz_fsm_complete_command (void *ap_obj, const void *ap_servant,
                          OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1)
 {
-  const struct tizfsm_class *class = classOf (ap_obj);
+  const struct tiz_fsm_class *class = classOf (ap_obj);
   assert (class->complete_command);
   return class->complete_command (ap_obj, ap_servant, a_cmd, a_param1);
 }
 
-tizfsm_state_id_t
+tiz_fsm_state_id_t
 fsm_get_substate (const void *ap_obj)
 {
   const struct tizfsm *p_obj = ap_obj;
   return p_obj->cur_state_id_;
 }
 
-tizfsm_state_id_t
-tizfsm_get_substate (const void *ap_obj)
+tiz_fsm_state_id_t
+tiz_fsm_get_substate (const void *ap_obj)
 {
-  const struct tizfsm_class *class = classOf (ap_obj);
+  const struct tiz_fsm_class *class = classOf (ap_obj);
   assert (class->get_substate);
   return class->get_substate (ap_obj);
 }
@@ -1226,9 +1226,9 @@ fsm_tunneled_ports_status_update (void *ap_obj)
 }
 
 OMX_ERRORTYPE
-tizfsm_tunneled_ports_status_update (void *ap_obj)
+tiz_fsm_tunneled_ports_status_update (void *ap_obj)
 {
-  const struct tizfsm_class *class = classOf (ap_obj);
+  const struct tiz_fsm_class *class = classOf (ap_obj);
   assert (class->tunneled_ports_status_update);
   return class->tunneled_ports_status_update (ap_obj);
 }
@@ -1240,7 +1240,7 @@ tizfsm_tunneled_ports_status_update (void *ap_obj)
 static void *
 fsm_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tizfsm_class *p_obj = super_ctor (tizfsm_class, ap_obj, app);
+  struct tiz_fsm_class *p_obj = super_ctor (tiz_fsm_class, ap_obj, app);
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
@@ -1250,23 +1250,23 @@ fsm_class_ctor (void *ap_obj, va_list * app)
     {
       voidf method = va_arg (ap, voidf);
 
-      if (selector == (voidf) tizfsm_set_state)
+      if (selector == (voidf) tiz_fsm_set_state)
         {
           *(voidf *) & p_obj->set_state = method;
         }
-      else if (selector == (voidf) tizfsm_complete_transition)
+      else if (selector == (voidf) tiz_fsm_complete_transition)
         {
           *(voidf *) & p_obj->complete_transition = method;
         }
-      else if (selector == (voidf) tizfsm_complete_command)
+      else if (selector == (voidf) tiz_fsm_complete_command)
         {
           *(voidf *) & p_obj->complete_command = method;
         }
-      else if (selector == (voidf) tizfsm_get_substate)
+      else if (selector == (voidf) tiz_fsm_get_substate)
         {
           *(voidf *) & p_obj->get_substate = method;
         }
-      else if (selector == (voidf) tizfsm_tunneled_ports_status_update)
+      else if (selector == (voidf) tiz_fsm_tunneled_ports_status_update)
         {
           *(voidf *) & p_obj->tunneled_ports_status_update = method;
         }
@@ -1281,19 +1281,19 @@ fsm_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizfsm, *tizfsm_class;
+const void *tizfsm, *tiz_fsm_class;
 
 void
 init_tizfsm (void)
 {
 
-  if (!tizfsm_class)
+  if (!tiz_fsm_class)
     {
       init_tizservant ();
-      tizfsm_class = factory_new (tiz_servant_class,
-                                  "tizfsm_class",
+      tiz_fsm_class = factory_new (tiz_servant_class,
+                                  "tiz_fsm_class",
                                   tiz_servant_class,
-                                  sizeof (struct tizfsm_class),
+                                  sizeof (struct tiz_fsm_class),
                                   ctor, fsm_class_ctor, 0);
 
     }
@@ -1308,7 +1308,7 @@ init_tizfsm (void)
       init_tizservant ();
       tizfsm =
         factory_new
-        (tizfsm_class,
+        (tiz_fsm_class,
          "tizfsm",
          tizservant,
          sizeof (struct tizfsm),
@@ -1328,11 +1328,11 @@ init_tizfsm (void)
          tizapi_FillThisBuffer, fsm_FillThisBuffer,
          tizapi_SetCallbacks, fsm_SetCallbacks,
          tiz_servant_dispatch_msg, fsm_dispatch_msg,
-         tizfsm_set_state, fsm_set_state,
-         tizfsm_complete_transition, fsm_complete_transition,
-         tizfsm_complete_command, fsm_complete_command,
-         tizfsm_get_substate, fsm_get_substate,
-         tizfsm_tunneled_ports_status_update, fsm_tunneled_ports_status_update,
+         tiz_fsm_set_state, fsm_set_state,
+         tiz_fsm_complete_transition, fsm_complete_transition,
+         tiz_fsm_complete_command, fsm_complete_command,
+         tiz_fsm_get_substate, fsm_get_substate,
+         tiz_fsm_tunneled_ports_status_update, fsm_tunneled_ports_status_update,
          0);
     }
 }

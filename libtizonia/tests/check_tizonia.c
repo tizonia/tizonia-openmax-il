@@ -356,7 +356,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
             p_ctx->state = (OMX_STATETYPE) (nData2);
             p_ctx->error = (OMX_ERRORTYPE) (pEventData);
             TIZ_LOG (TIZ_LOG_TRACE, "Component transitioned to [%s] - pEventData [%s]",
-                     tiz_fsm_state_to_str ((tizfsm_state_id_t) (nData2)),
+                     tiz_fsm_state_to_str ((tiz_fsm_state_id_t) (nData2)),
                      tiz_err_to_str (p_ctx->error));
             _ctx_signal (pp_ctx);
             break;
