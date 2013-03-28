@@ -77,12 +77,12 @@ tizrmproxy::register_client(const char * ap_cname, const uint8_t uuid[],
   if (true == rv.second)
     {
 
-      TIZ_LOG(TIZ_LOG_TRACE, "'%s' : Registered with uuid [%s]...",
+      TIZ_LOG(TIZ_TRACE, "'%s' : Registered with uuid [%s]...",
                 ap_cname, uuid_str);
       return (void *)&(rv.first->first);
     }
 
-  TIZ_LOG(TIZ_LOG_TRACE, "Could not register client with uuid [%s]...",
+  TIZ_LOG(TIZ_TRACE, "Could not register client with uuid [%s]...",
             uuid_str);
 
   return NULL;
@@ -100,7 +100,7 @@ tizrmproxy::unregister_client(const tizrm_t * ap_rm)
 
   tiz_uuid_str(&((*p_uuid_vec)[0]), uuid_str);
 
-  TIZ_LOG(TIZ_LOG_TRACE, "Unregistering "
+  TIZ_LOG(TIZ_TRACE, "Unregistering "
             "client with uuid [%s]...",
             uuid_str);
 
@@ -110,7 +110,7 @@ tizrmproxy::unregister_client(const tizrm_t * ap_rm)
       // Release all resources currently allocated with the RM and cancel all
       // outstanding resource requests
       int32_t rc = TIZRM_SUCCESS;
-      TIZ_LOG(TIZ_LOG_TRACE, "Relinquishing rm resources "
+      TIZ_LOG(TIZ_TRACE, "Relinquishing rm resources "
                 "for client with uuid [%s]...",
                 uuid_str);
       rc = relinquish_all(ap_rm);
@@ -118,7 +118,7 @@ tizrmproxy::unregister_client(const tizrm_t * ap_rm)
       clients_.erase(it);
     }
 
-  TIZ_LOG(TIZ_LOG_TRACE, "Unregistered client with uuid [%s]...rc [%d]",
+  TIZ_LOG(TIZ_TRACE, "Unregistered client with uuid [%s]...rc [%d]",
             uuid_str, rc);
 
 }
@@ -175,7 +175,7 @@ tizrmproxy::relinquish_all(const tizrm_t * ap_rm)
       rc = TIZRM_MISUSE;
       char uuid_str[128];
       tiz_uuid_str(&((*p_uuid_vec)[0]), uuid_str);
-      TIZ_LOG(TIZ_LOG_TRACE, "Could not find the client with uuid [%s]...",
+      TIZ_LOG(TIZ_TRACE, "Could not find the client with uuid [%s]...",
                 uuid_str);
     }
 
@@ -200,7 +200,7 @@ tizrmproxy::wait_complete(const uint32_t &rid,
 
   // Notify the client component that the wait for resources has ended
 
-  TIZ_LOG(TIZ_LOG_TRACE, "wait_complete on uuid [%s]...",
+  TIZ_LOG(TIZ_TRACE, "wait_complete on uuid [%s]...",
             uuid_str);
 
   if (clients_.count(uuid))
@@ -208,7 +208,7 @@ tizrmproxy::wait_complete(const uint32_t &rid,
       uint32_t res = rid;
       client_data &data = clients_[uuid];
 
-      TIZ_LOG(TIZ_LOG_TRACE, "wait_complete on component  [%s]...",
+      TIZ_LOG(TIZ_TRACE, "wait_complete on component  [%s]...",
                 data.cname_.c_str());
 
       data.pf_waitend_(res, data.p_data_);
@@ -224,7 +224,7 @@ tizrmproxy::preemption_req(const uint32_t &rid,
 
   // Notify the owning component that a resource has been preempted
 
-  TIZ_LOG(TIZ_LOG_TRACE, "preemption_req on uuid [%s]...",
+  TIZ_LOG(TIZ_TRACE, "preemption_req on uuid [%s]...",
             uuid_str);
 
   if (clients_.count(uuid))
@@ -232,7 +232,7 @@ tizrmproxy::preemption_req(const uint32_t &rid,
       uint32_t res = rid;
       client_data &data = clients_[uuid];
 
-      TIZ_LOG(TIZ_LOG_TRACE, "preemption_req on component [%s]...",
+      TIZ_LOG(TIZ_TRACE, "preemption_req on component [%s]...",
                 data.cname_.c_str());
 
       data.pf_preempt_(res, data.p_data_);
@@ -248,7 +248,7 @@ tizrmproxy::preemption_complete(const uint32_t &rid,
 
   // Notify the owning component that a resource has been preempted
 
-  TIZ_LOG(TIZ_LOG_TRACE, "preemption_complete on uuid [%s]...",
+  TIZ_LOG(TIZ_TRACE, "preemption_complete on uuid [%s]...",
             uuid_str);
 
   if (clients_.count(uuid))
@@ -256,7 +256,7 @@ tizrmproxy::preemption_complete(const uint32_t &rid,
       uint32_t res = rid;
       client_data &data = clients_[uuid];
 
-      TIZ_LOG(TIZ_LOG_TRACE, "preemption_complete on component [%s]...",
+      TIZ_LOG(TIZ_TRACE, "preemption_complete on component [%s]...",
                 data.cname_.c_str());
 
       data.pf_preempt_end_(res, data.p_data_);
@@ -287,7 +287,7 @@ tizrmproxy::invokerm(pmf_t a_pmf, const tizrm_t * ap_rm, const uint32_t &rid,
       rc = TIZRM_MISUSE;
       char uuid_str[128];
       tiz_uuid_str(&((*p_uuid_vec)[0]), uuid_str);
-      TIZ_LOG(TIZ_LOG_TRACE, "Could not find the client with uuid [%s]...",
+      TIZ_LOG(TIZ_TRACE, "Could not find the client with uuid [%s]...",
                 uuid_str);
     }
 

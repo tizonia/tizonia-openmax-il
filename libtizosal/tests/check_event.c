@@ -64,7 +64,7 @@ check_event_io_cback (OMX_HANDLETYPE p_hdl, tiz_event_io_t * ap_ev_io, int fd,
   struct sockaddr_in cliaddr;
   socklen_t len = sizeof (cliaddr);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "io cback received");
+  TIZ_LOG (TIZ_TRACE, "io cback received");
 
   fail_if (NULL == ap_ev_io);
   fail_if ((events & TIZ_EVENT_READ) == 0);
@@ -77,7 +77,7 @@ check_event_io_cback (OMX_HANDLETYPE p_hdl, tiz_event_io_t * ap_ev_io, int fd,
   fail_if (rcvfromrc < 0);
 
   msg [rcvfromrc] = '\000';
-  TIZ_LOG (TIZ_LOG_TRACE, "received : [%s]", msg);
+  TIZ_LOG (TIZ_TRACE, "received : [%s]", msg);
 
   fail_if (strncmp(msg, CHECK_IO_MSG, strlen (msg) != 0));
 
@@ -124,7 +124,7 @@ check_event_timer_cback (OMX_HANDLETYPE p_hdl, tiz_event_timer_t * ap_ev_timer,
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "timer cback received - timeout count [%d]",
+  TIZ_LOG (TIZ_TRACE, "timer cback received - timeout count [%d]",
            g_timeout_count);
 
   fail_if (NULL == ap_ev_timer);
@@ -133,7 +133,7 @@ check_event_timer_cback (OMX_HANDLETYPE p_hdl, tiz_event_timer_t * ap_ev_timer,
     {
       if (false == g_timer_restarted)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "timeout count [%d] - restarting timer",
+          TIZ_LOG (TIZ_TRACE, "timeout count [%d] - restarting timer",
                    g_timeout_count);
           error = tiz_event_timer_restart (ap_ev_timer);
           fail_if (OMX_ErrorNone != error);
@@ -142,7 +142,7 @@ check_event_timer_cback (OMX_HANDLETYPE p_hdl, tiz_event_timer_t * ap_ev_timer,
         }
       else
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "timeout count [%d] - stopping timer",
+          TIZ_LOG (TIZ_TRACE, "timeout count [%d] - stopping timer",
                    g_timeout_count);
           error = tiz_event_timer_stop (ap_ev_timer);
           fail_if (OMX_ErrorNone != error);
@@ -156,7 +156,7 @@ check_event_stat_cback (OMX_HANDLETYPE p_hdl, tiz_event_stat_t * ap_ev_stat,
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "stat cback received ");
+  TIZ_LOG (TIZ_TRACE, "stat cback received ");
 
   fail_if (NULL == ap_ev_stat);
 
@@ -201,13 +201,13 @@ START_TEST (test_event_io)
 
   tiz_event_io_set (p_ev_io, fd, TIZ_EVENT_READ, false);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "started io watcher");
+  TIZ_LOG (TIZ_TRACE, "started io watcher");
 
   error = tiz_event_io_start (p_ev_io);
   fail_if (error != OMX_ErrorNone);
 
   snprintf(cmd, strlen (CHECK_IO_ECHO_CMD) + 1, "%s", CHECK_IO_ECHO_CMD);
-  TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
+  TIZ_LOG (TIZ_TRACE, "cmd = [%s]", cmd);
 
   fail_if (-1 == system (cmd));
 
@@ -246,7 +246,7 @@ START_TEST (test_event_timer)
   error = tiz_event_timer_start (p_ev_timer);
   fail_if (error != OMX_ErrorNone);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "started timer watcher - sleep_len [%d]", sleep_len);
+  TIZ_LOG (TIZ_TRACE, "started timer watcher - sleep_len [%d]", sleep_len);
 
   t1 = time (NULL);
   while (--sleep_count > 0)
@@ -259,13 +259,13 @@ START_TEST (test_event_timer)
             {
               /* haven't waited enough */
               sleep_count = sleep_len - (t2 - t1) + 1;
-              TIZ_LOG (TIZ_LOG_TRACE, "woken up too early - new sleep_count [%d]",
+              TIZ_LOG (TIZ_TRACE, "woken up too early - new sleep_count [%d]",
                        sleep_count);
               }
         }
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "sleep_len [%d]", sleep_len);
+  TIZ_LOG (TIZ_TRACE, "sleep_len [%d]", sleep_len);
 
   fail_if (0 != g_timeout_count);
 
@@ -285,11 +285,11 @@ START_TEST (test_event_stat)
   int echo_cmd_pid = 0;
 
   snprintf (cmd, strlen (CHECK_STAT_RM_CMD) + 1, "%s", CHECK_STAT_RM_CMD);
-  TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
+  TIZ_LOG (TIZ_TRACE, "cmd = [%s]", cmd);
   fail_if (-1 == system (cmd));
 
   snprintf (cmd, strlen (CHECK_STAT_TOUCH_CMD) + 1, "%s", CHECK_STAT_TOUCH_CMD);
-  TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
+  TIZ_LOG (TIZ_TRACE, "cmd = [%s]", cmd);
   fail_if (-1 == system (cmd));
 
   error = tiz_event_loop_init ();
@@ -303,10 +303,10 @@ START_TEST (test_event_stat)
   error = tiz_event_stat_start (p_ev_stat);
   fail_if (error != OMX_ErrorNone);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "started stat watcher");
+  TIZ_LOG (TIZ_TRACE, "started stat watcher");
 
   snprintf (cmd, strlen (CHECK_STAT_ECHO_CMD) + 1, "%s", CHECK_STAT_ECHO_CMD);
-  TIZ_LOG (TIZ_LOG_TRACE, "cmd = [%s]", cmd);
+  TIZ_LOG (TIZ_TRACE, "cmd = [%s]", cmd);
 
 
   /* Fork here to run the echo command on another process */
@@ -333,7 +333,7 @@ START_TEST (test_event_stat)
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Running echo command");
+      TIZ_LOG (TIZ_TRACE, "Running echo command");
       fail_if (-1 == system (cmd));
     }
 

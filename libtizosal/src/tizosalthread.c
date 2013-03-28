@@ -74,7 +74,7 @@ tiz_thread_create (tiz_thread_t * ap_thread,
 
   if (PTHREAD_SUCCESS != (error = pthread_attr_init (&custom_attr)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOG (TIZ_ERROR, "[OMX_ErrorInsufficientResources] : "
                "Could not initialize the thread attributes (%s).",
                strerror (error));
       rc = OMX_ErrorInsufficientResources;
@@ -88,7 +88,7 @@ tiz_thread_create (tiz_thread_t * ap_thread,
       if (PTHREAD_SUCCESS
           != (error = pthread_attr_setstacksize (&custom_attr, stack_size)))
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
+          TIZ_LOG (TIZ_ERROR, "[OMX_ErrorInsufficientResources] : "
                    "Could not sets the stack size attribute (%s).",
                    strerror (error));
           rc = OMX_ErrorInsufficientResources;
@@ -106,7 +106,7 @@ tiz_thread_create (tiz_thread_t * ap_thread,
                   != (error = pthread_attr_setschedparam (&custom_attr,
                                                           &priority_holder)))
                 {
-                  TIZ_LOG (TIZ_LOG_ERROR, "Could not set the thread "
+                  TIZ_LOG (TIZ_ERROR, "Could not set the thread "
                            "priority (%s). Continuing...", strerror (error));
                 }
             }
@@ -119,7 +119,7 @@ tiz_thread_create (tiz_thread_t * ap_thread,
               != (error = pthread_create (ap_thread, &custom_attr,
                                           a_pf_routine, (void *) ap_arg)))
             {
-              TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
+              TIZ_LOG (TIZ_ERROR, "[OMX_ErrorInsufficientResources] : "
                        "Could not create the thread (%s). ",
                        strerror (error));
               rc = OMX_ErrorInsufficientResources;
@@ -149,7 +149,7 @@ tiz_thread_join (tiz_thread_t * ap_thread, void **app_result)
 
   if (PTHREAD_SUCCESS != (error = pthread_join (*ap_thread, app_result)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "Could not join the thread (%s). "
+      TIZ_LOG (TIZ_ERROR, "Could not join the thread (%s). "
                "Leaving with OMX_ErrorUndefined.", strerror (error));
       rc = OMX_ErrorUndefined;
     }
@@ -179,7 +179,7 @@ tiz_sleep (OMX_U32 usec)
 
   if (0 != rc)
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorUndefined : ");
+      TIZ_LOG (TIZ_ERROR, "OMX_ErrorUndefined : ");
     }
 
   return rc;

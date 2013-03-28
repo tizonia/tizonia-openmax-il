@@ -74,7 +74,7 @@ pause_SetParameter (const void *ap_obj,
       != (ret_val =
           tiz_kernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Cannot retrieve managing port (%s)...",
+      TIZ_LOG (TIZ_TRACE, "Cannot retrieve managing port (%s)...",
                tiz_err_to_str (ret_val));
       return ret_val;
     }
@@ -84,7 +84,7 @@ pause_SetParameter (const void *ap_obj,
   if (TIZPORT_IS_CONFIG_PORT (p_port)
       || (!TIZPORT_IS_CONFIG_PORT (p_port) && TIZPORT_IS_ENABLED (p_port)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Incorrect state op "
+      TIZ_LOG (TIZ_TRACE, "Incorrect state op "
                "(SetParameter received in Pause state)...");
       return OMX_ErrorIncorrectStateOperation;
     }
@@ -122,7 +122,7 @@ pause_EmptyThisBuffer (const void *ap_obj,
 
   /*   if (TIZPORT_IS_ENABLED(p_port)) */
   /*     { */
-  /*       TIZ_LOG(TIZ_LOG_TRACE, "Incorrect state op " */
+  /*       TIZ_LOG(TIZ_TRACE, "Incorrect state op " */
   /*                 "(ETB received in Pause state on an enabled port)..."); */
   /*       return OMX_ErrorIncorrectStateOperation; */
   /*     } */
@@ -142,7 +142,7 @@ pause_FillThisBuffer (const void *ap_obj,
 
   /*   if (TIZPORT_IS_ENABLED(p_port)) */
   /*     { */
-  /*       TIZ_LOG(TIZ_LOG_TRACE, "Incorrect state op " */
+  /*       TIZ_LOG(TIZ_TRACE, "Incorrect state op " */
   /*                 "(FTB received in Pause state on an enabled port)..."); */
   /*       return OMX_ErrorIncorrectStateOperation; */
   /*     } */
@@ -168,7 +168,7 @@ pause_state_set (const void *ap_obj,
   assert (p_obj);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Requested transition to state [%s]...",
+  TIZ_LOG (TIZ_TRACE, "Requested transition to state [%s]...",
            tiz_fsm_state_to_str (a_param1));
 
   /* Allowed transitions are OMX_StateIdle, and OMX_StateExecuting */
@@ -193,7 +193,7 @@ pause_state_set (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorIncorrectStateTransition...");
+        TIZ_LOG (TIZ_TRACE, "OMX_ErrorIncorrectStateTransition...");
         return OMX_ErrorIncorrectStateTransition;
       }
 
@@ -249,7 +249,7 @@ static OMX_ERRORTYPE
 pause_trans_complete (const void *ap_obj,
                       OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
                  TIZ_CBUF (tiz_servant_get_hdl (ap_servant)),
                  "Trans complete to state [%s]...",
                  tiz_fsm_state_to_str (a_new_state));

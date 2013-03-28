@@ -57,7 +57,7 @@
 #define ARATELIA_AUDIO_RENDERER_PORT_ALIGNMENT 0
 #define ARATELIA_AUDIO_RENDERER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
-static OMX_VERSIONTYPE audio_renderer_version = { { 1, 0, 0, 0 } };
+static OMX_VERSIONTYPE audio_renderer_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
 instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
@@ -149,18 +149,19 @@ OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
-  const tiz_role_factory_t *rf_list [] = {&role_factory};
+  const tiz_role_factory_t *rf_list[] = { &role_factory };
 
   assert (ap_hdl);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: Inititializing [%s]",
+  TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_AUDIO_RENDERER_COMPONENT_NAME);
 
-  strcpy ((OMX_STRING) role_factory.role, ARATELIA_AUDIO_RENDERER_DEFAULT_ROLE);
-  role_factory.pf_cport   = instantiate_config_port;
+  strcpy ((OMX_STRING) role_factory.role,
+          ARATELIA_AUDIO_RENDERER_DEFAULT_ROLE);
+  role_factory.pf_cport = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_pcm_port;
-  role_factory.nports     = 1;
-  role_factory.pf_proc    = instantiate_processor;
+  role_factory.nports = 1;
+  role_factory.pf_proc = instantiate_processor;
 
   tiz_init_component (ap_hdl, ARATELIA_AUDIO_RENDERER_COMPONENT_NAME);
 

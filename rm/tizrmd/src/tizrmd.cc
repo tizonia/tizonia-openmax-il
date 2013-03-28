@@ -58,7 +58,7 @@ tizrmd::tizrmd(DBus::Connection &a_connection, char const * ap_dbname)
   rmdb_(ap_dbname),
   waiters_()
 {
-  TIZ_LOG(TIZ_LOG_TRACE, "Constructing tizrmd...");
+  TIZ_LOG(TIZ_TRACE, "Constructing tizrmd...");
   rmdb_.connect();
 }
 
@@ -73,7 +73,7 @@ tizrmd::acquire(const uint32_t &rid, const uint32_t &quantity,
                 const uint32_t& grpid, const uint32_t &pri)
 {
   tizrm_error_t rc = TIZRM_SUCCESS;
-  TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::acquire : '%s': acquiring rid [%d] -"
+  TIZ_LOG(TIZ_TRACE, "tizrmd::acquire : '%s': acquiring rid [%d] -"
             "quantity [%d] - grpid [%d] - pri [%d]...",
             cname.c_str(), rid, quantity, grpid, pri);
 
@@ -81,7 +81,7 @@ tizrmd::acquire(const uint32_t &rid, const uint32_t &quantity,
   if (TIZRM_SUCCESS
       != (rc = rmdb_.acquire_resource(rid, quantity, cname, uuid, grpid, pri)))
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::acquire : '%s': "
+      TIZ_LOG(TIZ_TRACE, "tizrmd::acquire : '%s': "
                 "Could not reserve [%d] "
                 "units of resource [%d]", cname.c_str(), quantity, rid);
 
@@ -129,7 +129,7 @@ tizrmd::acquire(const uint32_t &rid, const uint32_t &quantity,
                       char uuid_str[129];
                       tiz_uuid_str(&(cur_owner.uuid_[0]), uuid_str);
 
-                      TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::acquire : Notifying "
+                      TIZ_LOG(TIZ_TRACE, "tizrmd::acquire : Notifying "
                                 "'%s' (uuid [%s]) of resource preemption "
                                 "([%d] units of resource id [%d])",
                                 cur_owner.cname_.c_str(), uuid_str,
@@ -160,7 +160,7 @@ tizrmd::acquire(const uint32_t &rid, const uint32_t &quantity,
             }
           else
             {
-              TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::acquire : "
+              TIZ_LOG(TIZ_TRACE, "tizrmd::acquire : "
                         "No owners found with priority > [%d] - rid [%d] - "
                         "quantity [%d]", pri, rid, quantity);
             }
@@ -178,7 +178,7 @@ tizrmd::release(const uint32_t &rid, const uint32_t &quantity,
                 const uint32_t &grpid, const uint32_t &pri)
 {
   tizrm_error_t ret_val = TIZRM_SUCCESS;
-  TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::release : '%s': releasing rid [%d] - "
+  TIZ_LOG(TIZ_TRACE, "tizrmd::release : '%s': releasing rid [%d] - "
             "quantity [%d]", cname.c_str(), rid, quantity);
 
   // Release the resources now...
@@ -186,7 +186,7 @@ tizrmd::release(const uint32_t &rid, const uint32_t &quantity,
       != (ret_val = rmdb_.release_resource(rid, quantity, cname, uuid,
                                            grpid, pri)))
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::release : "
+      TIZ_LOG(TIZ_TRACE, "tizrmd::release : "
                 "'%s': Could not release [%d] "
                 "units of resource [%d]", cname.c_str(), quantity, rid);
       return ret_val;
@@ -211,7 +211,7 @@ tizrmd::release(const uint32_t &rid, const uint32_t &quantity,
           if (TIZRM_SUCCESS == ret_val)
             {
               // Signal the waiter
-              TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::release : "
+              TIZ_LOG(TIZ_TRACE, "tizrmd::release : "
                         "signalling waiter [%s] rid [%d] - "
                         "quantity [%d]", waiter.cname().c_str(),
                         rid, quantity);
@@ -235,14 +235,14 @@ tizrmd::wait(const uint32_t &rid, const uint32_t &quantity,
 {
   tizrm_error_t ret_val = TIZRM_SUCCESS;
 
-  TIZ_LOG(TIZ_LOG_TRACE, "'%s': waiting for rid [%d] - "
+  TIZ_LOG(TIZ_TRACE, "'%s': waiting for rid [%d] - "
             "quantity [%d]", cname.c_str(), rid, quantity);
 
   // Check that the component is provisioned and is allowed to access the
   // resource
   if (!rmdb_.comp_provisioned_with_resid(cname, rid))
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::wait : "
+      TIZ_LOG(TIZ_TRACE, "tizrmd::wait : "
                 "'%s': not provisioned...", cname.c_str());
       return TIZRM_COMPONENT_NOT_PROVISIONED;
     }
@@ -250,7 +250,7 @@ tizrmd::wait(const uint32_t &rid, const uint32_t &quantity,
   // Check that the requested resource is provisioned...
   if (!rmdb_.resource_provisioned(rid))
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::wait : "
+      TIZ_LOG(TIZ_TRACE, "tizrmd::wait : "
                 "Resource [%d] not provisioned...", rid);
       return TIZRM_RESOURCE_NOT_PROVISIONED;
     }
@@ -258,7 +258,7 @@ tizrmd::wait(const uint32_t &rid, const uint32_t &quantity,
   //...and that there isn't availability...
   if (rmdb_.resource_available(rid, quantity))
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::wait : "
+      TIZ_LOG(TIZ_TRACE, "tizrmd::wait : "
                 "Enough resource [%d] already available ...",
                 rid);
 
@@ -266,7 +266,7 @@ tizrmd::wait(const uint32_t &rid, const uint32_t &quantity,
           != (ret_val = rmdb_.acquire_resource(rid, quantity, cname,
                                                uuid, grpid, pri)))
         {
-          TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::wait : "
+          TIZ_LOG(TIZ_TRACE, "tizrmd::wait : "
                     "'%s': Could not reserve [%d] "
                     "units of resource [%d]", cname.c_str(),
                     quantity, rid);
@@ -279,7 +279,7 @@ tizrmd::wait(const uint32_t &rid, const uint32_t &quantity,
   // No preemption occurs at this point. Preemption can only happen if the
   // client calls acquire
 
-  TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::wait : "
+  TIZ_LOG(TIZ_TRACE, "tizrmd::wait : "
             "'%s' : Added to the waiting list", cname.c_str());
 
   // Now, add a waiter to the queue...
@@ -296,7 +296,7 @@ tizrmd::cancel_wait(const uint32_t &rid, const uint32_t &quantity,
 {
   // Remove the waiter from the queue...
 
-  TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::cancel_wait : "
+  TIZ_LOG(TIZ_TRACE, "tizrmd::cancel_wait : "
             "'%s': Cancelling wait for [%d] "
             "units of resource [%d] - waiters [%d]",
             cname.c_str(), quantity, rid, waiters_.size());
@@ -313,7 +313,7 @@ tizrmd::cancel_wait(const uint32_t &rid, const uint32_t &quantity,
         }
     }
 
-  TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::cancel_wait : "
+  TIZ_LOG(TIZ_TRACE, "tizrmd::cancel_wait : "
             "'%s': Cancelled wait for [%d] "
             "units of resource [%d] - waiters [%d]",
             cname.c_str(), quantity, rid, waiters_.size());
@@ -332,7 +332,7 @@ tizrmd::preemption_conf(const uint32_t &rid, const uint32_t &quantity,
     = preemptions_.find(tizrmowner(cname, uuid, grpid, pri,
                                    rid, quantity));
 
-  TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::preemption_conf : "
+  TIZ_LOG(TIZ_TRACE, "tizrmd::preemption_conf : "
             "'%s': resource id [%d] "
             "units of resource [%d]", cname.c_str(), rid, quantity);
 
@@ -349,7 +349,7 @@ tizrmd::preemption_conf(const uint32_t &rid, const uint32_t &quantity,
           != (ret_val = rmdb_.release_resource(rid, quantity, cname, uuid,
                                                grpid, pri)))
         {
-          TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::preemption_conf : "
+          TIZ_LOG(TIZ_TRACE, "tizrmd::preemption_conf : "
                     "'%s': Could not release [%d] "
                     "units of resource [%d]", cname.c_str(), quantity, rid);
           return ret_val;
@@ -371,14 +371,14 @@ tizrmd::preemption_conf(const uint32_t &rid, const uint32_t &quantity,
                                            future_owner.grpid_,
                                            future_owner.pri_)))
             {
-              TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::preemption_conf : "
+              TIZ_LOG(TIZ_TRACE, "tizrmd::preemption_conf : "
                         "'%s': Could not reserve [%d] "
                         "units of resource [%d]", future_owner.cname_.c_str(),
                         future_owner.quantity_, future_owner.rid_);
             }
 
           // ... and now signal the new owner...
-          TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::preemption_conf : "
+          TIZ_LOG(TIZ_TRACE, "tizrmd::preemption_conf : "
                     "'%s': signalling completion - resource id [%d] "
                     "units of resource [%d]", future_owner.cname_.c_str(),
                     future_owner.rid_, future_owner.quantity_);
@@ -404,14 +404,14 @@ tizrmd::relinquish_all(const std::string &cname,
 {
   tizrm_error_t ret_val = TIZRM_SUCCESS;
 
-  TIZ_LOG(TIZ_LOG_TRACE, "tizrmd::relinquish_all: '%s' : "
+  TIZ_LOG(TIZ_TRACE, "tizrmd::relinquish_all: '%s' : "
             "Releasing all resources and resource requests",
             cname.c_str());
 
   // Release the resources now...
   ret_val = rmdb_.release_all(cname, uuid);
 
-  TIZ_LOG(TIZ_LOG_TRACE, "'%s' : Released all resources - rc [%d]",
+  TIZ_LOG(TIZ_TRACE, "'%s' : Released all resources - rc [%d]",
             cname.c_str(), ret_val);
 
   std::remove_if(waiters_.begin(), waiters_.end(), remove_waiter_functor(uuid));
@@ -425,7 +425,7 @@ void
 tizrmd_sig_hdlr(int sig)
 {
   dispatcher.leave();
-  TIZ_LOG(TIZ_LOG_TRACE, "Tizonia IL RM daemon exiting...");
+  TIZ_LOG(TIZ_TRACE, "Tizonia IL RM daemon exiting...");
 }
 
 bool
@@ -446,11 +446,11 @@ find_rmdb_path(std::string & a_dbpath)
   if (!p_rm_enabled || !p_rmdb_path
       || (0 != strncmp (p_rm_enabled, "true", 4)))
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "RM is disabled...");
+      TIZ_LOG(TIZ_TRACE, "RM is disabled...");
     }
   else
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "RM db path [%s]...", p_rmdb_path);
+      TIZ_LOG(TIZ_TRACE, "RM db path [%s]...", p_rmdb_path);
       a_dbpath.assign(p_rmdb_path);
       rv = true;
     }
@@ -469,7 +469,7 @@ main()
 
   tiz_log_init();
 
-  TIZ_LOG(TIZ_LOG_TRACE, "Starting Tizonia IL RM daemon...");
+  TIZ_LOG(TIZ_TRACE, "Starting Tizonia IL RM daemon...");
 
   if (find_rmdb_path(rmdb_path))
     {

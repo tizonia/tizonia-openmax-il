@@ -53,7 +53,7 @@ sdlivr_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
   const struct sdlivrprc *p_obj = ap_obj;
   (void) p_obj;
 
-/*   TIZ_LOG (TIZ_LOG_TRACE, */
+/*   TIZ_LOG (TIZ_TRACE, */
 /*            "Rendering HEADER [%p]...nFilledLen[%d] !!!", p_hdr, */
 /*            p_hdr->nFilledLen); */
 
@@ -145,7 +145,7 @@ static void *
 sdlivr_proc_ctor (void *ap_obj, va_list * app)
 {
   struct sdlivrprc *p_obj = super_ctor (sdlivrprc, ap_obj, app);
-  TIZ_LOG (TIZ_LOG_TRACE, "Constructing sdlivrprc...[%p]", p_obj);
+  TIZ_LOG (TIZ_TRACE, "Constructing sdlivrprc...[%p]", p_obj);
 
   p_obj->pinhdr_ = 0;
   p_obj->pouthdr_ = 0;
@@ -158,7 +158,7 @@ static void *
 sdlivr_proc_dtor (void *ap_obj)
 {
   struct sdlivrprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing sdlivrprc...[%p]", p_obj);
+  TIZ_LOG (TIZ_TRACE, "Destructing sdlivrprc...[%p]", p_obj);
   return super_dtor (sdlivrprc, ap_obj);
 }
 
@@ -178,13 +178,13 @@ sdlivr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
   if (-1 == SDL_Init (SDL_INIT_VIDEO))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Error while initializing SDL [%s]", SDL_GetError ());
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Resource allocation complete..." "pid = [%d]", a_pid);
@@ -204,7 +204,7 @@ sdlivr_proc_deallocate_resources (void *ap_obj)
 
   SDL_Quit ();
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Resource deallocation complete...");
@@ -221,7 +221,7 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_PARAM_PORTDEFINITIONTYPE portdef;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
+  TIZ_LOG (TIZ_TRACE, "pid [%d]", a_pid);
 
   assert (ap_obj);
 
@@ -234,13 +234,13 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                          p_parent->p_hdl_,
                          OMX_IndexParamPortDefinition, &portdef)))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Error retrieving the port definition");
+      TIZ_LOG (TIZ_TRACE, "Error retrieving the port definition");
       return ret_val;
     }
 
   p_obj->vportdef_ = portdef.format.video;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nFrameWidth = [%d] nFrameHeight = [%d] ",
+  TIZ_LOG (TIZ_TRACE, "nFrameWidth = [%d] nFrameHeight = [%d] ",
 /*            "nStride = [%d] nSliceHeight = [%d] nBitrate = [%d] " */
 /*            "xFramerate = [%s] eCompressionFormat = [%d] eColorFormat = [%d]", */
            p_obj->vportdef_.nFrameWidth, p_obj->vportdef_.nFrameHeight);
@@ -262,7 +262,7 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
     (p_obj->vportdef_.nFrameWidth, p_obj->vportdef_.nFrameHeight,
      SDL_YV12_OVERLAY, p_obj->p_surface);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Transfering buffers...pid [%d]", a_pid);
@@ -311,7 +311,7 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
       TIZ_UTIL_TEST_ERR (sdlivr_proc_render_buffer (ap_obj, p_hdr));
       if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
+          TIZ_LOG (TIZ_TRACE, "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
           tiz_servant_issue_event ((OMX_PTR) ap_obj,
                                   OMX_EventBufferFlag,
                                   0, p_hdr->nFlags, NULL);

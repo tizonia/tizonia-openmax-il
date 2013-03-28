@@ -107,13 +107,13 @@ refresh_rm_db (void)
   if (!p_rmdb_path || !p_sqlite_path || !p_init_path || !p_rmd_path)
 
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data not available...");
+      TIZ_LOG(TIZ_TRACE, "Test data not available...");
     }
   else
     {
       pg_rmd_path = strndup (p_rmd_path, PATH_MAX);
 
-      TIZ_LOG(TIZ_LOG_TRACE, "RM daemon [%s] ...", pg_rmd_path);
+      TIZ_LOG(TIZ_TRACE, "RM daemon [%s] ...", pg_rmd_path);
 
       /* Re-fresh the rm db */
       size_t total_len = strlen (p_init_path)
@@ -126,12 +126,12 @@ refresh_rm_db (void)
                   p_init_path, p_sqlite_path, p_rmdb_path);
           if (-1 != system (p_cmd))
             {
-              TIZ_LOG(TIZ_LOG_TRACE, "Successfully run [%s] script...", p_cmd);
+              TIZ_LOG(TIZ_TRACE, "Successfully run [%s] script...", p_cmd);
               rv = true;
             }
           else
             {
-              TIZ_LOG(TIZ_LOG_TRACE, 
+              TIZ_LOG(TIZ_TRACE, 
                       "Error while executing db init shell script...");
             }
           tiz_mem_free (p_cmd);
@@ -160,7 +160,7 @@ setup (void)
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Starting the RM Daemon");
+      TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
       const char *arg0 = "";
       error = execlp (pg_rmd_path, arg0, (char *) NULL);
       fail_if (error == -1);
@@ -263,7 +263,7 @@ _ctx_wait (cc_ctx_t * app_ctx, OMX_U32 a_millis, OMX_BOOL * ap_has_timedout)
   assert (app_ctx);
   p_ctx = * app_ctx;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "a_millis [%u]", a_millis);
+  TIZ_LOG (TIZ_TRACE, "a_millis [%u]", a_millis);
 
   * ap_has_timedout = OMX_FALSE;
 
@@ -341,7 +341,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
   pp_ctx = (cc_ctx_t *) ap_app_data;
   p_ctx = *pp_ctx;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Component Event [%s]",
+  TIZ_LOG (TIZ_TRACE, "Component Event [%s]",
              tiz_evt_to_str (eEvent));
 
   if (OMX_EventCmdComplete == eEvent)
@@ -350,7 +350,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
         {
         case OMX_CommandStateSet:
           {
-            TIZ_LOG (TIZ_LOG_TRACE, "Component transitioned to [%s]",
+            TIZ_LOG (TIZ_TRACE, "Component transitioned to [%s]",
                        tiz_state_to_str ((OMX_STATETYPE) (nData2)));
             p_ctx->state = (OMX_STATETYPE) (nData2);
             _ctx_signal (pp_ctx);
@@ -371,7 +371,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
     {
       if (nData2 & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Received EOS from [%s] port[%i]",
+          TIZ_LOG (TIZ_TRACE, "Received EOS from [%s] port[%i]",
                      COMPONENT_NAME, nData1);
         }
       else
@@ -391,7 +391,7 @@ OMX_ERRORTYPE check_EmptyBufferDone
   check_common_context_t *p_ctx = NULL;
   cc_ctx_t *pp_ctx = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "EmptyBufferDone: BUFFER [%p]", ap_buf);
+  TIZ_LOG (TIZ_TRACE, "EmptyBufferDone: BUFFER [%p]", ap_buf);
 
   assert (ap_app_data);
   assert (ap_buf);
@@ -412,7 +412,7 @@ OMX_ERRORTYPE check_FillBufferDone
   check_common_context_t *p_ctx = NULL;
   cc_ctx_t *pp_ctx = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
              "FillBufferDone: BUFFER [%p] nFlags [%X]", ap_buf,
              ap_buf->nFlags);
 
@@ -450,13 +450,13 @@ init_test_data(tiz_rcfile_t *rcfile)
   if (!p_testfile1 || !p_testfile1)
 
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data not available...");
+      TIZ_LOG(TIZ_TRACE, "Test data not available...");
     }
   else
     {
       pg_files[0] = p_testfile1; pg_files[1] = p_testfile2;
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data available [%s]", pg_files[0]);
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data available [%s]", pg_files[1]);
+      TIZ_LOG(TIZ_TRACE, "Test data available [%s]", pg_files[0]);
+      TIZ_LOG(TIZ_TRACE, "Test data available [%s]", pg_files[1]);
       rv = true;
     }
 
@@ -504,7 +504,7 @@ START_TEST (test_audio_fr)
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%p]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%p]", p_hdl);
 
   /* -------------------------------- */
   /* Obtain the port def from port #0 */
@@ -515,8 +515,8 @@ START_TEST (test_audio_fr)
   error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ---------------------- */
@@ -532,7 +532,7 @@ START_TEST (test_audio_fr)
   error = OMX_GetParameter (p_hdl, OMX_IndexParamContentURI, p_uri_param);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI);
+  TIZ_LOG (TIZ_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI);
 
   /* ----------------*/
   /* Set the new URI */
@@ -540,7 +540,7 @@ START_TEST (test_audio_fr)
   strcpy ((char*)p_uri_param->contentURI, pg_files[0]);
   p_uri_param->contentURI[strlen (pg_files[0])] = '\0';
   error = OMX_SetParameter (p_hdl, OMX_IndexParamContentURI, p_uri_param);
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, "
+  TIZ_LOG (TIZ_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, "
            "URI [%s]) = [%s]", p_uri_param->contentURI, tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
@@ -563,18 +563,18 @@ START_TEST (test_audio_fr)
       fail_if (OMX_ErrorNone != error);
       fail_if (p_hdrlst[i] == NULL);
       fail_if (port_def.nBufferSize > p_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
                  p_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nFilledLen [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFilledLen [%d]", i,
                  p_hdrlst[i]->nFilledLen);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nOffset [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOffset [%d]", i,
                  p_hdrlst[i]->nOffset);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nOutputPortIndex [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOutputPortIndex [%d]", i,
                  p_hdrlst[i]->nOutputPortIndex);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nInputPortIndex [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nInputPortIndex [%d]", i,
                  p_hdrlst[i]->nInputPortIndex);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nFlags [%X]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFlags [%X]", i,
                  p_hdrlst[i]->nFlags);
 
     }
@@ -585,7 +585,7 @@ START_TEST (test_audio_fr)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
@@ -593,7 +593,7 @@ START_TEST (test_audio_fr)
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -611,7 +611,7 @@ START_TEST (test_audio_fr)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateExecuting != p_ctx->state);
 
@@ -641,27 +641,27 @@ START_TEST (test_audio_fr)
 
       if (p_hdrlst[i]->nFilledLen)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Writing [%d] bytes to file [%s]",
+          TIZ_LOG (TIZ_TRACE, "Writing [%d] bytes to file [%s]",
                      p_hdrlst[i]->nFilledLen, pg_files[1]);
           if (!
               (err =
                fwrite (p_hdrlst[i]->pBuffer, 1, p_hdrlst[i]->nFilledLen,
                        p_file)))
             {
-              TIZ_LOG (TIZ_LOG_TRACE,
+              TIZ_LOG (TIZ_TRACE,
                          "An error occurred while writing to [%s]",
                          pg_files[1]);
               fail_if (0);
             }
 
           bytes_read += p_hdrlst[i]->nFilledLen;
-          TIZ_LOG (TIZ_LOG_TRACE, "Bytes read [%d]", bytes_read);
+          TIZ_LOG (TIZ_TRACE, "Bytes read [%d]", bytes_read);
           p_hdrlst[i]->nFilledLen = 0;
         }
 
       if (p_hdrlst[i]->nFlags & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "End of file reached for [%s]",
+          TIZ_LOG (TIZ_TRACE, "End of file reached for [%s]",
                      pg_files[0]);
           /* EOF */
           break;
@@ -688,7 +688,7 @@ START_TEST (test_audio_fr)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
@@ -723,7 +723,7 @@ START_TEST (test_audio_fr)
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -737,7 +737,7 @@ START_TEST (test_audio_fr)
   sprintf (cmp_cmd, "%s %s %s", "cmp", pg_files[0], pg_files[1]);
   fail_if (system (cmp_cmd) != 0);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "File comparison OK: [%s]", cmp_cmd);
+  TIZ_LOG (TIZ_TRACE, "File comparison OK: [%s]", cmp_cmd);
 
   tiz_mem_free (p_hdrlst);
   tiz_mem_free (p_uri_param);
@@ -778,7 +778,7 @@ main (void)
 
   tiz_log_init();
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - Binary File Reader unit tests");
+  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL - Binary File Reader unit tests");
 
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);

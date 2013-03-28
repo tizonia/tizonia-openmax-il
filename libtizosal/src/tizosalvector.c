@@ -72,7 +72,7 @@ tiz_vector_init (tiz_vector_t ** app_vector, OMX_S32 a_elem_size)
   utarray_new (p_vec->p_uta, p_vec->p_icd);
   *app_vector = p_vec;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Initializing vector [%p] with elem size [%d]",
+  TIZ_LOG (TIZ_TRACE, "Initializing vector [%p] with elem size [%d]",
            p_vec, a_elem_size);
 
   return OMX_ErrorNone;
@@ -81,7 +81,7 @@ tiz_vector_init (tiz_vector_t ** app_vector, OMX_S32 a_elem_size)
 void
 tiz_vector_destroy (tiz_vector_t * p_vec)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "Destroying vector [%p]", p_vec);
+  TIZ_LOG (TIZ_TRACE, "Destroying vector [%p]", p_vec);
   if (p_vec)
     {
       utarray_free (p_vec->p_uta);
@@ -107,7 +107,7 @@ tiz_vector_push_back (tiz_vector_t * p_vec, OMX_PTR ap_data)
 {
   assert (p_vec);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "pushing back [%p] in vector [%p]", ap_data, p_vec);
+  TIZ_LOG (TIZ_TRACE, "pushing back [%p] in vector [%p]", ap_data, p_vec);
   utarray_push_back (p_vec->p_uta, ap_data);
 
   return OMX_ErrorNone;
@@ -118,7 +118,7 @@ tiz_vector_pop_back (tiz_vector_t * p_vec)
 {
   assert (p_vec);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "poping back in vector [%p]", p_vec);
+  TIZ_LOG (TIZ_TRACE, "poping back in vector [%p]", p_vec);
   utarray_pop_back (p_vec->p_uta);
 
   return;
@@ -178,11 +178,11 @@ tiz_vector_clear (tiz_vector_t * p_vec)
 {
   assert (p_vec);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Clearing vector [%p]", p_vec->p_uta);
+  TIZ_LOG (TIZ_TRACE, "Clearing vector [%p]", p_vec->p_uta);
 
   utarray_clear (p_vec->p_uta);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "vector [%p] cleared", p_vec->p_uta);
+  TIZ_LOG (TIZ_TRACE, "vector [%p] cleared", p_vec->p_uta);
 
   return;
 }

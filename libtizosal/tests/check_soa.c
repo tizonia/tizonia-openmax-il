@@ -51,7 +51,7 @@ START_TEST (test_soa_basic_life_cycle)
   int i = 0;
   tiz_soa_info_t info;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_soa_basic_life_cycle - begin");
+  TIZ_LOG (TIZ_TRACE, "test_soa_basic_life_cycle - begin");
 
   malloc_trim (0);
   malloc_stats();
@@ -183,7 +183,7 @@ START_TEST (test_soa_basic_life_cycle)
 
   malloc_trim (0);
   malloc_stats ();
-  TIZ_LOG (TIZ_LOG_TRACE, "test_soa_basic_life_cycle - end");
+  TIZ_LOG (TIZ_TRACE, "test_soa_basic_life_cycle - end");
 }
 END_TEST
 
@@ -198,7 +198,7 @@ START_TEST (test_soa_reserve_life_cycle)
   int i = 0;
   tiz_soa_info_t info;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_soa_reserve_life_cycle - begin");
+  TIZ_LOG (TIZ_TRACE, "test_soa_reserve_life_cycle - begin");
 
   malloc_trim (0);
   malloc_stats();
@@ -251,7 +251,7 @@ START_TEST (test_soa_reserve_life_cycle)
 
   malloc_trim (0);
   malloc_stats();
-  TIZ_LOG (TIZ_LOG_TRACE, "test_soa_reserve_life_cycle - end");
+  TIZ_LOG (TIZ_TRACE, "test_soa_reserve_life_cycle - end");
 }
 END_TEST
 

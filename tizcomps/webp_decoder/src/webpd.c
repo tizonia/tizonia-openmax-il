@@ -188,7 +188,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   assert (ap_hdl);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: "
+  TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_WEBP_DECODER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_WEBP_DECODER_DEFAULT_ROLE);

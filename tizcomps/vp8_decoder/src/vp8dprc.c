@@ -199,7 +199,7 @@ read_from_omx_buffer (void *p_dst, size_t bytes, OMX_BUFFERHEADERTYPE * p_hdr)
   assert (p_dst);
   assert (p_hdr);
 
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
            "bytes [%d], nFilledLen [%d] nOffset [%d]",
            bytes, p_hdr->nFilledLen, p_hdr->nOffset);
 
@@ -219,7 +219,7 @@ read_from_omx_buffer (void *p_dst, size_t bytes, OMX_BUFFERHEADERTYPE * p_hdr)
       p_hdr->nOffset += to_read;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
            "bytes [%d], nFilledLen [%d] nOffset [%d] to_read [%d]",
            bytes, p_hdr->nFilledLen, p_hdr->nOffset, to_read);
 
@@ -239,7 +239,7 @@ read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
   vp8dprc_stream_type_t st = p_vp8dprc->stream_type_;
   size_t bytes_read = 0;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "*buf_sz [%d] *buf_alloc_sz [%d] *buf_read_sz [%d]",
                  *buf_sz, *buf_alloc_sz, *buf_read_sz);
@@ -255,7 +255,7 @@ read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
                                          : RAW_FRAME_HDR_SZ),
                                         p_vp8dprc->p_inhdr_) != 1))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                          TIZ_CBUF (p_parent->p_hdl_),
                          "Failed to read frame size");
           new_buf_sz = 0;
@@ -266,7 +266,7 @@ read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
 
           if (new_buf_sz > 256 * 1024 * 1024)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+              TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                              TIZ_CBUF (p_parent->p_hdl_),
                              "Error: Read invalid frame size [%u]",
                              (unsigned int) new_buf_sz);
@@ -275,7 +275,7 @@ read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
 
           if (st == STREAM_RAW && new_buf_sz > 256 * 1024)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+              TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                              TIZ_CBUF (p_parent->p_hdl_),
                              "Warning: Read invalid frame size [%u]",
                              (unsigned int) new_buf_sz);
@@ -292,7 +292,7 @@ read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
                 }
               else
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+                  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                                  TIZ_CBUF (p_parent->p_hdl_),
                                  "Failed to allocate compressed data buffer");
                   new_buf_sz = 0;
@@ -310,7 +310,7 @@ read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
                                  *buf_sz - *buf_read_sz,
                                  p_vp8dprc->p_inhdr_))))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Failed to read full frame");
       return false;
@@ -320,7 +320,7 @@ read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
       *buf_read_sz = 0;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "*buf_sz [%d] *buf_alloc_sz [%d] *buf_read_sz [%d]",
                  *buf_sz, *buf_alloc_sz, *buf_read_sz);
@@ -337,7 +337,7 @@ out_put (OMX_BUFFERHEADERTYPE * p_hdr, const uint8_t * buf, unsigned int len)
 
   if (p_hdr->nFilledLen > p_hdr->nAllocLen)
     {
-      TIZ_LOG (TIZ_LOG_TRACE,
+      TIZ_LOG (TIZ_TRACE,
                "len [%d] nFilledLen [%d] nAllocLen [%d]",
                len, p_hdr->nFilledLen, p_hdr->nAllocLen);
       assert (p_hdr->nFilledLen <= p_hdr->nAllocLen);
@@ -381,7 +381,7 @@ static void *
 vp8d_proc_ctor (void *ap_obj, va_list * app)
 {
   struct vp8dprc *p_obj = super_ctor (vp8dprc, ap_obj, app);
-  TIZ_LOG (TIZ_LOG_TRACE, "Constructing vp8dprc...[%p]", p_obj);
+  TIZ_LOG (TIZ_TRACE, "Constructing vp8dprc...[%p]", p_obj);
 
   p_obj->p_inhdr_ = 0;
   p_obj->p_outhdr_ = 0;
@@ -400,7 +400,7 @@ static void *
 vp8d_proc_dtor (void *ap_obj)
 {
   struct vp8dprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing vp8dprc...[%p]", p_obj);
+  TIZ_LOG (TIZ_TRACE, "Destructing vp8dprc...[%p]", p_obj);
   return super_dtor (vp8dprc, ap_obj);
 }
 
@@ -432,7 +432,7 @@ transform_buffer (const void *ap_obj)
                        &(p_obj->stream_type_),
                        &fourcc, &width, &height, &fps_den, &fps_num);
 
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_TRACE,
                      TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Stream [%s] fourcc = [%d] width [%d] height [%d] "
@@ -463,13 +463,13 @@ transform_buffer (const void *ap_obj)
                             (unsigned int) (p_obj->cbuf_sz_), NULL, 0))
         {
           const char *detail = vpx_codec_error_detail (&(p_obj->vp8ctx_));
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                          TIZ_CBUF (p_parent->p_hdl_),
                          "Failed to decode frame: %s",
                          vpx_codec_error (&(p_obj->vp8ctx_)));
           if (detail)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+              TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                              TIZ_CBUF (p_parent->p_hdl_), "%s", detail);
             }
 
@@ -506,7 +506,7 @@ transform_buffer (const void *ap_obj)
             }
 
           {
-            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                            TIZ_CBUF (p_parent->p_hdl_),
                            "relinquishing output buffer : nFilledLen %d "
                            "nAllocLen [%d]",
@@ -547,14 +547,14 @@ vp8d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       != (err = vpx_codec_dec_init (&(p_obj->vp8ctx_),
                                     ifaces[0].iface, NULL, flags)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Unable to init the vp8 decoder [%s]...",
                      vpx_codec_err_to_string (err));
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Resource allocation complete..." "pid = [%d]", a_pid);
@@ -574,7 +574,7 @@ vp8d_proc_deallocate_resources (void *ap_obj)
 
   vpx_codec_destroy (&(p_obj->vp8ctx_));
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Resource deallocation complete...");
@@ -591,7 +591,7 @@ vp8d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 
   p_obj->first_buf_ = true;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Transfering buffers...pid [%d]", a_pid);
@@ -641,13 +641,13 @@ claim_input (const void *ap_obj)
     {
       TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer
                          (p_krn, 0, 0, &p_obj->p_inhdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Claimed INPUT HEADER [%p]...", p_obj->p_inhdr_);
       return true;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "COULD NOT CLAIM AN INPUT HEADER...");
@@ -671,7 +671,7 @@ claim_output (const void *ap_obj)
     {
       TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer
                          (p_krn, 1, 0, &p_obj->p_outhdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
                      "nFilledLen [%d]...", p_obj->p_outhdr_,
@@ -689,7 +689,7 @@ vp8d_proc_buffers_ready (const void *ap_obj)
   const struct tizservant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_), "Buffers ready...");
 
@@ -726,7 +726,7 @@ vp8d_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_TRACE,
                      TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);

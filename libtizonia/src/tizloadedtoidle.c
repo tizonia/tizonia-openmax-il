@@ -65,7 +65,7 @@ loadedtoidle_SetParameter (const void *ap_obj,
 {
   /* In this transitional state, OMX_SetParameter should only be allowed */
   /* until the first OMX_UseBuffer call is received */
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "[%s]", tiz_idx_to_str (a_index));
 
   return super_SetParameter (tizloadedtoidle, ap_obj, ap_hdl, a_index,
@@ -126,7 +126,7 @@ loadedtoidle_state_set (const void *ap_obj,
   assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "Requested transition [ESubStateLoadedToIdle -> %s]...",
                  tiz_fsm_state_to_str (a_param1));
 
@@ -142,7 +142,7 @@ loadedtoidle_state_set (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "[OMX_ErrorIncorrectStateTransition] : "
                        "ESubStateLoadedToIdle -> [%s]",
                        tiz_state_to_str (a_param1));
@@ -178,7 +178,7 @@ loadedtoidle_trans_complete (const void *ap_obj,
 {
   const struct tizstate *p_base = (const struct tizstate *) ap_obj;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
                  TIZ_CBUF (tiz_servant_get_hdl (ap_servant)),
                  "Trans complete to state [%s]...",
                  tiz_fsm_state_to_str (a_new_state));
@@ -213,7 +213,7 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
     tiz_kernel_tunneled_ports_status_t status =
       tiz_kernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
 
-    TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+    TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                    "kernel's tunneled port status [%d] ", status);
 
     if (ETIZKernelNoTunneledPorts == status

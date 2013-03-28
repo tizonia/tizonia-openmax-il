@@ -122,7 +122,7 @@ waitforresources_state_set (const void *ap_obj,
   assert (p_obj);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Requested transition to state [%s]...",
+  TIZ_LOG (TIZ_TRACE, "Requested transition to state [%s]...",
            tiz_fsm_state_to_str (a_param1));
 
   /* Only allowed transitions is OMX_StateLoaded. */
@@ -141,7 +141,7 @@ waitforresources_state_set (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorIncorrectStateTransition...");
+        TIZ_LOG (TIZ_TRACE, "OMX_ErrorIncorrectStateTransition...");
         return OMX_ErrorIncorrectStateTransition;
       }
 
@@ -186,7 +186,7 @@ static OMX_ERRORTYPE
 waitforresources_trans_complete (const void *ap_obj,
                                  OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
                  TIZ_CBUF (tiz_servant_get_hdl (ap_servant)),
                  "Trans complete to state [%s]...",
                  tiz_fsm_state_to_str (a_new_state));

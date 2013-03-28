@@ -55,7 +55,7 @@ configport_ctor (void *ap_obj, va_list * app)
 
   /* Make an internal copy of the component name */
   strcpy (p_obj->comp_name_, va_arg (*app, char *));
-  TIZ_LOG (TIZ_LOG_TRACE, "comp_name_ [%s]...", p_obj->comp_name_);
+  TIZ_LOG (TIZ_TRACE, "comp_name_ [%s]...", p_obj->comp_name_);
 
   /* Component version */
   p_obj->comp_ver_ = va_arg (*app, OMX_VERSIONTYPE);
@@ -113,7 +113,7 @@ configport_GetComponentVersion (const void *ap_obj,
 {
   const struct tizconfigport *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetComponentVersion...");
+  TIZ_LOG (TIZ_TRACE, "GetComponentVersion...");
 
   strcpy (ap_comp_name, p_obj->comp_name_);
   *ap_comp_version = p_obj->comp_ver_;
@@ -160,7 +160,7 @@ configport_GetParameter (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+        TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
                  a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -177,7 +177,7 @@ configport_SetParameter (const void *ap_obj,
 {
   struct tizconfigport *p_obj = (struct tizconfigport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -221,7 +221,7 @@ configport_SetParameter (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+        TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
                  a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -250,7 +250,7 @@ configport_GetConfig (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+        TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
                  a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -267,7 +267,7 @@ configport_SetConfig (const void *ap_obj,
 {
   struct tizconfigport *p_obj = (struct tizconfigport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetConfig [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_TRACE, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -285,7 +285,7 @@ configport_SetConfig (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+        TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
                  a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -300,7 +300,7 @@ configport_GetExtensionIndex (const void *ap_obj,
                               OMX_STRING ap_param_name,
                               OMX_INDEXTYPE * ap_index_type)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "GetExtensionIndex [%s]...", ap_param_name);
+  TIZ_LOG (TIZ_TRACE, "GetExtensionIndex [%s]...", ap_param_name);
 
   /* No extensions here. */
 

@@ -100,7 +100,7 @@ audioport_GetParameter (const void *ap_obj,
 {
   const struct tizaudioport *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -117,7 +117,7 @@ audioport_GetParameter (const void *ap_obj,
         p_encoding = tiz_vector_at (p_obj->p_encodings_, p_pft->nIndex);
         assert (p_encoding);
         p_pft->eEncoding = *p_encoding;
-        TIZ_LOG (TIZ_LOG_TRACE, "Encoding [0x%08x]...", *p_encoding);
+        TIZ_LOG (TIZ_TRACE, "Encoding [0x%08x]...", *p_encoding);
       }
       break;
 
@@ -139,7 +139,7 @@ audioport_SetParameter (const void *ap_obj,
 {
   struct tizaudioport *p_obj = (struct tizaudioport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -152,21 +152,21 @@ audioport_SetParameter (const void *ap_obj,
 
         if (encoding >= OMX_AUDIO_CodingMax)
           {
-            TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorBadParameter "
+            TIZ_LOG (TIZ_TRACE, "OMX_ErrorBadParameter "
                      "(Bad encoding [0x%08x]...)", encoding);
             return OMX_ErrorBadParameter;
           }
 
         if (!tiz_vector_find (p_obj->p_encodings_, &encoding))
           {
-            TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedSetting "
+            TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedSetting "
                      "(Encoding not supported [0x%08x]...)", encoding);
             return OMX_ErrorUnsupportedSetting;
           }
 
         p_obj->port_format_.eEncoding = encoding;
 
-        TIZ_LOG (TIZ_LOG_TRACE, "Set new audio encoding "
+        TIZ_LOG (TIZ_TRACE, "Set new audio encoding "
                  "[0x%08x]...", encoding);
 
       }

@@ -114,7 +114,7 @@ tiztc_proc_buffers_ready (const void *ap_obj)
   void *p_ker = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Buffers ready...");
+  TIZ_LOG (TIZ_TRACE, "Buffers ready...");
 
   TIZ_PD_ZERO (&ports);
 

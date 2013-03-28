@@ -197,21 +197,21 @@ find_node (const tiz_rcfile_t * ap_rc, const char *key)
 
   p_kvs = ap_rc->p_keyvals;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Searching for Key [%s]", key);
+  TIZ_LOG (TIZ_TRACE, "Searching for Key [%s]", key);
 
   while (p_kvs && p_kvs->p_key)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Searching Key [%s]", p_kvs->p_key);
+      TIZ_LOG (TIZ_TRACE, "Searching Key [%s]", p_kvs->p_key);
       /* TODO: strncmp here */
       if (0 == strcmp (p_kvs->p_key, key))
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Found Key [%s]", p_kvs->p_key);
+          TIZ_LOG (TIZ_TRACE, "Found Key [%s]", p_kvs->p_key);
           return p_kvs;
         }
       p_kvs = p_kvs->p_next;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Key not found [%s] [%p]", key, p_kvs);
+  TIZ_LOG (TIZ_TRACE, "Key not found [%s] [%p]", key, p_kvs);
   return NULL;
 
 }
@@ -225,7 +225,7 @@ is_list (const char *key)
       /* TODO: strncmp here */
       if (0 == strcmp (list_keys[i], key))
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Found list Key [%s]", key);
+          TIZ_LOG (TIZ_TRACE, "Found list Key [%s]", key);
           return true;
         }
     }
@@ -249,8 +249,8 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
   assert (str);
   assert (app_kv);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "key : [%s]", trimwhitespace (key));
-  TIZ_LOG (TIZ_LOG_TRACE, "val : [%s]",
+  TIZ_LOG (TIZ_TRACE, "key : [%s]", trimwhitespace (key));
+  TIZ_LOG (TIZ_TRACE, "val : [%s]",
            trimlistseparator (trimwhitespace (value)));
 
   /* Find if the key exists already */
@@ -285,7 +285,7 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
       if (is_list (key))
         {
           /* Add another value to the list */
-          TIZ_LOG (TIZ_LOG_TRACE, "Found list Key [%s]", key);
+          TIZ_LOG (TIZ_TRACE, "Found list Key [%s]", key);
           p_v = (value_t *) tiz_mem_calloc (1, sizeof (value_t));
           p_v->p_value = value;
 
@@ -297,7 +297,7 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
                 {
                   p_next_v->p_next = p_v;
                   p_kv->valcount++;
-                  TIZ_LOG (TIZ_LOG_TRACE, "Added value - "
+                  TIZ_LOG (TIZ_TRACE, "Added value - "
                            "new valcount [%d]", p_kv->valcount);
                   break;
                 }
@@ -310,7 +310,7 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
       else
         {
           /* Replace the existing value */
-          TIZ_LOG (TIZ_LOG_TRACE, "Replacing existing value [%s] "
+          TIZ_LOG (TIZ_TRACE, "Replacing existing value [%s] "
                    "key [%s]", p_kv->p_value_list->p_value, p_kv->p_key);
           tiz_mem_free (p_kv->p_value_list->p_value);
           p_kv->p_value_list->p_value = value;
@@ -340,7 +340,7 @@ extractkeyval (FILE * ap_file, char *ap_str, keyval_t ** app_last_kv,
 
   if (!p_kv)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Could not allocate memory " "for keyval_t...");
+      TIZ_LOG (TIZ_TRACE, "Could not allocate memory " "for keyval_t...");
       return OMX_ErrorInsufficientResources;
     }
 
@@ -348,7 +348,7 @@ extractkeyval (FILE * ap_file, char *ap_str, keyval_t ** app_last_kv,
   if (is_new)
     {
       /* This is a new node */
-      TIZ_LOG (TIZ_LOG_TRACE, "Linking new kv [%p] [%p] pair - "
+      TIZ_LOG (TIZ_TRACE, "Linking new kv [%p] [%p] pair - "
                "value [%s]", app_last_kv, p_kv, p_kv->p_value_list->p_value);
       (*app_last_kv) = p_kv;
       p_v = p_kv->p_value_list;
@@ -370,7 +370,7 @@ extractkeyval (FILE * ap_file, char *ap_str, keyval_t ** app_last_kv,
     {
       if (strstr (pat, ";"))
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "val : [%s]",
+          TIZ_LOG (TIZ_TRACE, "val : [%s]",
                    trimlistseparator (trimwhitespace (pat)));
 
           p_next_v = (value_t *) tiz_mem_calloc (1, sizeof (value_t));
@@ -382,7 +382,7 @@ extractkeyval (FILE * ap_file, char *ap_str, keyval_t ** app_last_kv,
           p_v->p_next = p_next_v;
           p_v = p_next_v;
           p_kv->valcount++;
-          TIZ_LOG (TIZ_LOG_TRACE, "Added value - "
+          TIZ_LOG (TIZ_TRACE, "Added value - "
                    "new valcount [%d]", p_kv->valcount);
         }
       else
@@ -401,7 +401,7 @@ extractkeyval (FILE * ap_file, char *ap_str, keyval_t ** app_last_kv,
         }
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "ret : [%d]", ret);
+  TIZ_LOG (TIZ_TRACE, "ret : [%d]", ret);
 
   return ret;
 }
@@ -413,18 +413,18 @@ analyze_pattern (FILE * ap_file, char *ap_str, keyval_t ** app_last_kv,
   if (strstr (ap_str, "#"))
     {
       char *str = trimcommenting (trimwhitespace (ap_str));
-      TIZ_LOG (TIZ_LOG_TRACE, "Comment : [%s]", trimwhitespace (str));
+      TIZ_LOG (TIZ_TRACE, "Comment : [%s]", trimwhitespace (str));
       (void) str;
     }
   else if ('[' == ap_str[0] && ']' == ap_str[strlen (ap_str) - 1])
     {
       char *str = trimsectioning (ap_str);
-      TIZ_LOG (TIZ_LOG_TRACE, "Section : [%s]", str);
+      TIZ_LOG (TIZ_TRACE, "Section : [%s]", str);
       (void) str;
     }
   else if (strstr (ap_str, "="))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "key-value pair : [%s]", ap_str);
+      TIZ_LOG (TIZ_TRACE, "key-value pair : [%s]", ap_str);
       return extractkeyval (ap_file, ap_str, app_last_kv, ap_tiz_rcfile);
     }
 
@@ -442,7 +442,7 @@ load_rc_file (const file_info_t * ap_finfo, tiz_rcfile_t * ap_tiz_rcfile)
   assert (ap_finfo->name);
   assert (ap_tiz_rcfile);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s]", ap_finfo->name);
+  TIZ_LOG (TIZ_TRACE, "[%s]", ap_finfo->name);
 
   if ((p_file = fopen (ap_finfo->name, "r")) == 0)
     {
@@ -472,7 +472,7 @@ load_rc_file (const file_info_t * ap_finfo, tiz_rcfile_t * ap_tiz_rcfile)
     {
       if (fgets (pat, PAT_SIZE, p_file) == NULL)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "EOF?");
+          TIZ_LOG (TIZ_TRACE, "EOF?");
           break;
         }
 
@@ -489,12 +489,12 @@ load_rc_file (const file_info_t * ap_finfo, tiz_rcfile_t * ap_tiz_rcfile)
 
       while (analyze_pattern (p_file, pat, pp_last_kv, ap_tiz_rcfile))
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "pp_last_kv = [%p]", pp_last_kv);
+          TIZ_LOG (TIZ_TRACE, "pp_last_kv = [%p]", pp_last_kv);
           if (pp_last_kv && *pp_last_kv)
             {
               pp_last_kv = &(*pp_last_kv)->p_next;
               ap_tiz_rcfile->count++;
-              TIZ_LOG (TIZ_LOG_TRACE, "pair count = [%d]",
+              TIZ_LOG (TIZ_TRACE, "pair count = [%d]",
                        ap_tiz_rcfile->count);
             }
         };
@@ -503,7 +503,7 @@ load_rc_file (const file_info_t * ap_finfo, tiz_rcfile_t * ap_tiz_rcfile)
         {
           pp_last_kv = &(*pp_last_kv)->p_next;
           ap_tiz_rcfile->count++;
-          TIZ_LOG (TIZ_LOG_TRACE, "pair count = [%d]", ap_tiz_rcfile->count);
+          TIZ_LOG (TIZ_TRACE, "pair count = [%d]", ap_tiz_rcfile->count);
         }
 
     }
@@ -537,7 +537,7 @@ tiz_rcfile_open (tiz_rcfile_t ** pp_rc)
   assert (pp_rc);
 
   /* load rc files */
-  TIZ_LOG (TIZ_LOG_TRACE, "Looking for [%d] rc files...", g_nrcfiles);
+  TIZ_LOG (TIZ_TRACE, "Looking for [%d] rc files...", g_nrcfiles);
 
   snprintf (rcfiles[0].name, sizeof (rcfiles[0].name) - 1, "%s/tizrc",
             TIZRC_ETCPATH);
@@ -556,20 +556,20 @@ tiz_rcfile_open (tiz_rcfile_t ** pp_rc)
 
   if (!(p_rc = (tiz_rcfile_t *) tiz_mem_calloc (1, sizeof (tiz_rcfile_t))))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Could not allocate memory "
+      TIZ_LOG (TIZ_TRACE, "Could not allocate memory "
                "for tiz_rcfile_t...");
       return OMX_ErrorInsufficientResources;
     }
 
   for (i = 0; i < g_nrcfiles; i++)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Checking for rc file at [%s]",
+      TIZ_LOG (TIZ_TRACE, "Checking for rc file at [%s]",
                rcfiles[i].name);
 
       /* Check file existence and user's read access */
       if (0 != access (rcfiles[i].name, R_OK))
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "rc file [%s] does not exist or "
+          TIZ_LOG (TIZ_TRACE, "rc file [%s] does not exist or "
                    "user has no read access permission", rcfiles[i].name);
           continue;
         }
@@ -577,7 +577,7 @@ tiz_rcfile_open (tiz_rcfile_t ** pp_rc)
       /* Store stat's ctime */
       if (stat_ctime (rcfiles[i].name, &rcfiles[i].ctime) != 0)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "stat_ctime for [%s] failed",
+          TIZ_LOG (TIZ_TRACE, "stat_ctime for [%s] failed",
                    rcfiles[i].name);
         }
 
@@ -585,12 +585,12 @@ tiz_rcfile_open (tiz_rcfile_t ** pp_rc)
 
       if (0 != load_rc_file (&rcfiles[i], p_rc))
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Loading [%s] rc file failed",
+          TIZ_LOG (TIZ_TRACE, "Loading [%s] rc file failed",
                    rcfiles[i].name);
         }
       else
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Loading [%s] rc file succeeded",
+          TIZ_LOG (TIZ_TRACE, "Loading [%s] rc file succeeded",
                    rcfiles[i].name);
         }
     }
@@ -618,7 +618,7 @@ tiz_rcfile_get_value (tiz_rcfile_t * p_rc,
   assert (ap_key);
   assert (is_list (ap_key) == false);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Retrieving value for Key [%s] in section [%s]",
+  TIZ_LOG (TIZ_TRACE, "Retrieving value for Key [%s] in section [%s]",
            ap_key, ap_section);
 
   if ((p_kv = find_node (p_rc, ap_key)))
@@ -644,13 +644,13 @@ tiz_rcfile_get_value_list (tiz_rcfile_t * p_rc,
   assert (ap_length);
   assert (is_list (ap_key) == true);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Retrieving value list "
+  TIZ_LOG (TIZ_TRACE, "Retrieving value list "
            "for Key [%s] in section [%s]", ap_key, ap_section);
 
   if ((p_kv = find_node (p_rc, ap_key)))
     {
       int i = 0;
-      TIZ_LOG (TIZ_LOG_TRACE, "Found value list - count [%d]",
+      TIZ_LOG (TIZ_TRACE, "Found value list - count [%d]",
                p_kv->valcount);
 
       *ap_length = p_kv->valcount;
@@ -663,7 +663,7 @@ tiz_rcfile_get_value_list (tiz_rcfile_t * p_rc,
             {
               /* TODO : Use strndup */
               pp_ret[i] = strdup (p_next_value->p_value);
-              TIZ_LOG (TIZ_LOG_TRACE, "item [%d] - val [%s]",
+              TIZ_LOG (TIZ_TRACE, "item [%d] - val [%s]",
                        i, p_next_value->p_value);
               p_next_value = p_next_value->p_next;
             }
@@ -690,12 +690,12 @@ tiz_rcfile_close (tiz_rcfile_t * p_rc)
   while (p_kv_lst)
     {
       value_t *p_vt = NULL;
-      TIZ_LOG (TIZ_LOG_TRACE, "Deleting Key [%s]", p_kv_lst->p_key);
+      TIZ_LOG (TIZ_TRACE, "Deleting Key [%s]", p_kv_lst->p_key);
       tiz_mem_free (p_kv_lst->p_key);
       p_val_lst = p_kv_lst->p_value_list;
       while (p_val_lst)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Deleting Val [%s]", p_val_lst->p_value);
+          TIZ_LOG (TIZ_TRACE, "Deleting Val [%s]", p_val_lst->p_value);
           p_vt = p_val_lst;
           p_val_lst = p_val_lst->p_next;
           tiz_mem_free (p_vt->p_value);

@@ -111,12 +111,12 @@ setup (void)
   if (!pg_rmdb_path || !pg_sqlite_script
       || !pg_init_script || !pg_rmd_path || !pg_dump_script)
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data not available...");
+      TIZ_LOG(TIZ_TRACE, "Test data not available...");
       fail_if(0);
     }
   else
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "RM daemon [%s] ...", pg_rmd_path);
+      TIZ_LOG(TIZ_TRACE, "RM daemon [%s] ...", pg_rmd_path);
     }
 
   tiz_rcfile_close(pg_rcfile);
@@ -150,12 +150,12 @@ refresh_rm_db (void)
                pg_init_script, pg_sqlite_script, pg_rmdb_path);
       if (-1 != system (p_cmd))
         {
-          TIZ_LOG(TIZ_LOG_TRACE, "Successfully run [%s] script...", p_cmd);
+          TIZ_LOG(TIZ_TRACE, "Successfully run [%s] script...", p_cmd);
           rv = true;
         }
       else
         {
-          TIZ_LOG(TIZ_LOG_TRACE,
+          TIZ_LOG(TIZ_TRACE,
                   "Error while executing db init shell script...");
         }
       tiz_mem_free (p_cmd);
@@ -181,12 +181,12 @@ dump_rmdb (const char * p_dest_path)
                pg_dump_script, pg_rmdb_path, p_dest_path);
       if (-1 != system (p_cmd))
         {
-          TIZ_LOG(TIZ_LOG_TRACE, "Successfully run [%s] script...", p_cmd);
+          TIZ_LOG(TIZ_TRACE, "Successfully run [%s] script...", p_cmd);
           rv = true;
         }
       else
         {
-          TIZ_LOG(TIZ_LOG_TRACE,
+          TIZ_LOG(TIZ_TRACE,
                   "Error while executing db dump shell script...");
         }
       tiz_mem_free (p_cmd);
@@ -277,7 +277,7 @@ _ctx_wait (cc_ctx_t * app_ctx, OMX_U32 a_millis, OMX_BOOL * ap_has_timedout)
   assert (app_ctx);
   p_ctx = * app_ctx;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "a_millis [%u]", a_millis);
+  TIZ_LOG (TIZ_TRACE, "a_millis [%u]", a_millis);
 
   * ap_has_timedout = OMX_FALSE;
 
@@ -346,7 +346,7 @@ _ctx_reset (cc_ctx_t * app_ctx)
 void
 check_tizrmproxy_comp1_wait_complete (OMX_U32 rid, OMX_PTR ap_data)
 {
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
              "check_tizrmproxy_comp1_wait_complete : rid [%u]", rid);
   fail_if (0);
 }
@@ -362,7 +362,7 @@ check_tizrmproxy_comp1_preemption_req (OMX_U32 rid, OMX_PTR ap_data)
   pp_ctx = (cc_ctx_t *) ap_data;
   p_ctx = *pp_ctx;
 
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
              "check_tizrmproxy_comp1_preemption_req : rid [%u]", rid);
 
   p_ctx->rid = rid;
@@ -372,7 +372,7 @@ check_tizrmproxy_comp1_preemption_req (OMX_U32 rid, OMX_PTR ap_data)
 void
 check_tizrmproxy_comp1_preemption_complete (OMX_U32 rid, OMX_PTR ap_data)
 {
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
              "check_tizrmproxy_comp1_preemption_complete : rid [%u]", rid);
   fail_if (0);
 }
@@ -387,7 +387,7 @@ check_tizrmproxy_comp2_wait_complete (OMX_U32 rid, OMX_PTR ap_data)
   pp_ctx = (cc_ctx_t *) ap_data;
   p_ctx = *pp_ctx;
 
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
              "check_tizrmproxy_comp2_wait_complete : rid [%u]", rid);
 
   p_ctx->rid = rid;
@@ -405,7 +405,7 @@ check_tizrmproxy_comp2_preemption_req (OMX_U32 rid, OMX_PTR ap_data)
   pp_ctx = (cc_ctx_t *) ap_data;
   p_ctx = *pp_ctx;
 
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
              "check_tizrmproxy_comp2_preemption_req : rid [%u]", rid);
 
   p_ctx->rid = rid;
@@ -421,7 +421,7 @@ check_tizrmproxy_comp2_preemption_complete (OMX_U32 rid, OMX_PTR ap_data)
   pp_ctx = (cc_ctx_t *) ap_data;
   p_ctx = *pp_ctx;
 
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
              "check_tizrmproxy_comp2_preemption_complete : rid [%u]", rid);
 
   p_ctx->rid = rid;
@@ -438,7 +438,7 @@ check_tizrmproxy_find_proc (const char *name)
 
   if (!(dir = opendir ("/proc")))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Could not open /proc");
+      TIZ_LOG (TIZ_TRACE, "Could not open /proc");
       return -1;
     }
 
@@ -466,7 +466,7 @@ check_tizrmproxy_find_proc (const char *name)
                 {
                   fclose (fp);
                   closedir (dir);
-                  TIZ_LOG (TIZ_LOG_TRACE, "Found process [%s] --> PID [%d]",
+                  TIZ_LOG (TIZ_TRACE, "Found process [%s] --> PID [%d]",
                              name, lpid);
                   return (pid_t) lpid;
                 }
@@ -475,7 +475,7 @@ check_tizrmproxy_find_proc (const char *name)
         }
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Process [%s] NOT FOUND", name);
+  TIZ_LOG (TIZ_TRACE, "Process [%s] NOT FOUND", name);
 
   closedir (dir);
   return -1;
@@ -502,7 +502,7 @@ START_TEST (test_proxy_acquire_and_release)
   if ((pid = check_tizrmproxy_find_proc ("tizrmd"))
       || (pid = check_tizrmproxy_find_proc ("lt-tizrmd")))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "RM Process [PID %d] FOUND", pid);
+      TIZ_LOG (TIZ_TRACE, "RM Process [PID %d] FOUND", pid);
     }
 
   if (-1 == pid)
@@ -530,7 +530,7 @@ START_TEST (test_proxy_acquire_and_release)
       cbacks.pf_preempt = &check_tizrmproxy_comp1_preemption_req;
       cbacks.pf_preempt_end = &check_tizrmproxy_comp1_preemption_complete;
 
-      TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_init");
+      TIZ_LOG (TIZ_TRACE, "tizrm_proxy_init");
       error =
         tizrm_proxy_init (&p_rm, COMPONENT1_NAME,
                           (const OMX_UUIDTYPE *) &uuid_omx, &primgmt, &cbacks,
@@ -539,11 +539,11 @@ START_TEST (test_proxy_acquire_and_release)
 
       /* error = tizrm_proxy_version(&p_rm); */
       error = tizrm_proxy_acquire (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
-      TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_acquire returned [%d]", error);
+      TIZ_LOG (TIZ_TRACE, "tizrm_proxy_acquire returned [%d]", error);
       fail_if (error != TIZRM_SUCCESS);
 
       error = tizrm_proxy_release (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
-      TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_release returned [%d]", error);
+      TIZ_LOG (TIZ_TRACE, "tizrm_proxy_release returned [%d]", error);
       fail_if (error != TIZRM_SUCCESS);
 
       error = tizrm_proxy_destroy (&p_rm);
@@ -562,14 +562,14 @@ START_TEST (test_proxy_acquire_and_release)
         system
         ("cmp -s /tmp/test_proxy_acquire_and_release.before.dump /tmp/test_proxy_acquire_and_release.after.dump");
 
-      TIZ_LOG (TIZ_LOG_TRACE, "DB comparison check [%s]",
+      TIZ_LOG (TIZ_TRACE, "DB comparison check [%s]",
                  (rc == 0 ? "SUCCESS" : "FAILED"));
       fail_if (rc != 0);
 
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Starting the RM Daemon");
+      TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
       const char *arg0 = "";
       error = execlp (pg_rmd_path, arg0, (char *) NULL);
       fail_if (error == -1);
@@ -598,7 +598,7 @@ START_TEST (test_proxy_acquire_and_destroy_no_release)
   if ((pid = check_tizrmproxy_find_proc ("tizrmd"))
       || (pid = check_tizrmproxy_find_proc ("lt-tizrmd")))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "RM Process [PID %d] FOUND", pid);
+      TIZ_LOG (TIZ_TRACE, "RM Process [PID %d] FOUND", pid);
     }
 
   if (-1 == pid)
@@ -626,7 +626,7 @@ START_TEST (test_proxy_acquire_and_destroy_no_release)
       cbacks.pf_preempt = &check_tizrmproxy_comp1_preemption_req;
       cbacks.pf_preempt_end = &check_tizrmproxy_comp1_preemption_complete;
 
-      TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_init");
+      TIZ_LOG (TIZ_TRACE, "tizrm_proxy_init");
       error =
         tizrm_proxy_init (&p_rm, COMPONENT1_NAME,
                           (const OMX_UUIDTYPE *) &uuid_omx, &primgmt, &cbacks,
@@ -635,7 +635,7 @@ START_TEST (test_proxy_acquire_and_destroy_no_release)
 
       /* error = tizrm_proxy_version(&p_rm); */
       error = tizrm_proxy_acquire (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
-      TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_acquire returned [%d]", error);
+      TIZ_LOG (TIZ_TRACE, "tizrm_proxy_acquire returned [%d]", error);
       fail_if (error != TIZRM_SUCCESS);
 
       error = tizrm_proxy_destroy (&p_rm);
@@ -654,14 +654,14 @@ START_TEST (test_proxy_acquire_and_destroy_no_release)
         system
         ("cmp -s /tmp/test_proxy_acquire_and_destroy_no_release.before.dump /tmp/test_proxy_acquire_and_destroy_no_release.after.dump");
 
-      TIZ_LOG (TIZ_LOG_TRACE, "DB comparison check [%s]",
+      TIZ_LOG (TIZ_TRACE, "DB comparison check [%s]",
                  (rc == 0 ? "SUCCESS" : "FAILED"));
       fail_if (rc != 0);
 
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Starting the RM Daemon");
+      TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
       const char *arg0 = "";
       error = execlp (pg_rmd_path, arg0, (char *) NULL);
       fail_if (error == -1);
@@ -683,7 +683,7 @@ START_TEST (test_proxy_wait_cancel_wait)
   if ((pid = check_tizrmproxy_find_proc ("tizrmd"))
       || (pid = check_tizrmproxy_find_proc ("lt-tizrmd")))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "RM Process [PID %d] FOUND -- > SKIPPING THIS TEST", pid);
+      TIZ_LOG (TIZ_TRACE, "RM Process [PID %d] FOUND -- > SKIPPING THIS TEST", pid);
     }
   else
     {
@@ -718,7 +718,7 @@ START_TEST (test_proxy_wait_cancel_wait)
           cbacks.pf_preempt = &check_tizrmproxy_comp1_preemption_req;
           cbacks.pf_preempt_end = &check_tizrmproxy_comp1_preemption_complete;
 
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_init");
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_init");
           error =
             tizrm_proxy_init (&p_rm, COMPONENT1_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx, &primgmt, &cbacks,
@@ -727,22 +727,22 @@ START_TEST (test_proxy_wait_cancel_wait)
 
           /* error = tizrm_proxy_version(&p_rm); */
           error = tizrm_proxy_acquire (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_acquire returned [%d]", error);
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_acquire returned [%d]", error);
           fail_if (error != TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE);
 
           /* Wait for the resource */
           error = tizrm_proxy_wait (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_wait returned [%d]", error);
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_wait returned [%d]", error);
           fail_if (error != TIZRM_SUCCESS);
 
           /* Now cancel the wait */
           error = tizrm_proxy_cancel_wait (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_cancel_wait returned [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_cancel_wait returned [%d]",
                      error);
           fail_if (error != TIZRM_SUCCESS);
 
           error = tizrm_proxy_destroy (&p_rm);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_destroy returned [%d]", error);
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_destroy returned [%d]", error);
           fail_if (error != TIZRM_SUCCESS);
 
           if (!daemon_existed)
@@ -758,7 +758,7 @@ START_TEST (test_proxy_wait_cancel_wait)
             system
             ("cmp -s /tmp/test_proxy_wait_cancel_wait.before.dump /tmp/test_proxy_wait_cancel_wait.after.dump");
 
-          TIZ_LOG (TIZ_LOG_TRACE, "DB comparison check [%s]",
+          TIZ_LOG (TIZ_TRACE, "DB comparison check [%s]",
                      (rc == 0 ? "SUCCESS" : "FAILED"));
           fail_if (rc != 0);
 
@@ -768,7 +768,7 @@ START_TEST (test_proxy_wait_cancel_wait)
         }
       else
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Starting the RM Daemon");
+          TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
           const char *arg0 = "";
           error = execlp (pg_rmd_path, arg0, (char *) NULL);
           fail_if (error == -1);
@@ -801,7 +801,7 @@ START_TEST (test_proxy_busy_resource_management)
   if ((pid = check_tizrmproxy_find_proc ("tizrmd"))
       || (pid = check_tizrmproxy_find_proc ("lt-tizrmd")))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "RM Process [PID %d] FOUND -- > SKIPPING THIS TEST", pid);
+      TIZ_LOG (TIZ_TRACE, "RM Process [PID %d] FOUND -- > SKIPPING THIS TEST", pid);
     }
   else
     {
@@ -836,7 +836,7 @@ START_TEST (test_proxy_busy_resource_management)
           cbacks1.pf_preempt = &check_tizrmproxy_comp1_preemption_req;
           cbacks1.pf_preempt_end = &check_tizrmproxy_comp1_preemption_complete;
 
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_init : [%s]", COMPONENT1_NAME);
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_init : [%s]", COMPONENT1_NAME);
           error =
             tizrm_proxy_init (&p_rm1, COMPONENT1_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx1, &primgmt,
@@ -847,7 +847,7 @@ START_TEST (test_proxy_busy_resource_management)
           cbacks2.pf_preempt = &check_tizrmproxy_comp2_preemption_req;
           cbacks2.pf_preempt_end = &check_tizrmproxy_comp2_preemption_complete;
 
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_init : [%s]", COMPONENT2_NAME);
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_init : [%s]", COMPONENT2_NAME);
           error =
             tizrm_proxy_init (&p_rm2, COMPONENT2_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx2, &primgmt,
@@ -856,26 +856,26 @@ START_TEST (test_proxy_busy_resource_management)
 
           /* Component1 acquires all the available units (1) of resource TIZRM_RESOURCE_DUMMY */
           error = tizrm_proxy_acquire (&p_rm1, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_acquire returned (rm1) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_acquire returned (rm1) [%d]",
                      error);
           fail_if (error != TIZRM_SUCCESS);
 
           /* Component2 cannot acquire the resource, because there are not enough
            * units available */
           error = tizrm_proxy_acquire (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_acquire returned (rm2) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_acquire returned (rm2) [%d]",
                      error);
           fail_if (error != TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE);
 
           /* Component2 signals its intent to wait for the resource */
           error = tizrm_proxy_wait (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_wait returned (rm2) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_wait returned (rm2) [%d]",
                      error);
           fail_if (error != TIZRM_SUCCESS);
 
           /* Now Component1 releases the resource */
           error = tizrm_proxy_release (&p_rm1, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_release returned (rm1) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_release returned (rm1) [%d]",
                      error);
           fail_if (error != TIZRM_SUCCESS);
 
@@ -886,24 +886,24 @@ START_TEST (test_proxy_busy_resource_management)
           fail_if (OMX_TRUE == timedout);
           fail_if (TIZRM_RESOURCE_DUMMY != p_ctx->rid);
 
-          TIZ_LOG (TIZ_LOG_TRACE, "Wait complete (rm2)");
+          TIZ_LOG (TIZ_TRACE, "Wait complete (rm2)");
 
           /* Component2 releases the resource  */
           error = tizrm_proxy_release (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
           fail_if (error != TIZRM_SUCCESS);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_release returned (rm2) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_release returned (rm2) [%d]",
                      error);
 
           /* Destroy the rm hdls */
-          TIZ_LOG (TIZ_LOG_TRACE, "Destroying rm hdls");
+          TIZ_LOG (TIZ_TRACE, "Destroying rm hdls");
           error = tizrm_proxy_destroy (&p_rm1);
           fail_if (error != TIZRM_SUCCESS);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_destroy returned (rm1) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_destroy returned (rm1) [%d]",
                      error);
 
           error = tizrm_proxy_destroy (&p_rm2);
           fail_if (error != TIZRM_SUCCESS);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_destroy returned (rm2) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_destroy returned (rm2) [%d]",
                      error);
 
           _ctx_reset(&ctx);
@@ -922,7 +922,7 @@ START_TEST (test_proxy_busy_resource_management)
             system
             ("cmp -s /tmp/test_proxy_busy_resource_management.before.dump /tmp/test_proxy_busy_resource_management.after.dump");
 
-          TIZ_LOG (TIZ_LOG_TRACE, "DB comparison check [%s]",
+          TIZ_LOG (TIZ_TRACE, "DB comparison check [%s]",
                      (rc == 0 ? "SUCCESS" : "FAILED"));
           fail_if (rc != 0);
 
@@ -932,7 +932,7 @@ START_TEST (test_proxy_busy_resource_management)
         }
       else
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Starting the RM Daemon");
+          TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
           const char *arg0 = "";
           error = execlp (pg_rmd_path, arg0, (char *) NULL);
           fail_if (error == -1);
@@ -965,7 +965,7 @@ START_TEST (test_proxy_resource_preemption)
   if ((pid = check_tizrmproxy_find_proc ("tizrmd"))
       || (pid = check_tizrmproxy_find_proc ("lt-tizrmd")))
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "RM Process [PID %d] FOUND -- > SKIPPING THIS TEST", pid);
+      TIZ_LOG (TIZ_TRACE, "RM Process [PID %d] FOUND -- > SKIPPING THIS TEST", pid);
     }
   else
     {
@@ -1006,7 +1006,7 @@ START_TEST (test_proxy_resource_preemption)
           cbacks1.pf_preempt = &check_tizrmproxy_comp1_preemption_req;
           cbacks1.pf_preempt_end = &check_tizrmproxy_comp1_preemption_complete;
 
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_init : [%s]", COMPONENT1_NAME);
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_init : [%s]", COMPONENT1_NAME);
           error =
             tizrm_proxy_init (&p_rm1, COMPONENT1_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx1, &primgmt,
@@ -1020,7 +1020,7 @@ START_TEST (test_proxy_resource_preemption)
           cbacks2.pf_preempt = &check_tizrmproxy_comp2_preemption_req;
           cbacks2.pf_preempt_end = &check_tizrmproxy_comp2_preemption_complete;
 
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_init : [%s]", COMPONENT2_NAME);
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_init : [%s]", COMPONENT2_NAME);
           error =
             tizrm_proxy_init (&p_rm2, COMPONENT2_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx2, &primgmt,
@@ -1029,18 +1029,18 @@ START_TEST (test_proxy_resource_preemption)
 
           /* Component1 acquires all the available units (1) of resource TIZRM_RESOURCE_DUMMY */
           error = tizrm_proxy_acquire (&p_rm1, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_acquire returned (rm1) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_acquire returned (rm1) [%d]",
                      error);
           fail_if (error != TIZRM_SUCCESS);
 
           /* Component2 requests the same resource. It belongs to a higher priority
            * group and causes the preemption of the resource from Component1 */
           error = tizrm_proxy_acquire (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_acquire returned (rm2) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_acquire returned (rm2) [%d]",
                      error);
           fail_if (error != TIZRM_PREEMPTION_IN_PROGRESS);
 
-          TIZ_LOG (TIZ_LOG_TRACE, "Preemption is in progress (rm1) [%d]",
+          TIZ_LOG (TIZ_TRACE, "Preemption is in progress (rm1) [%d]",
                      error);
 
           /* Verify preemption req for Component1's resource */
@@ -1049,12 +1049,12 @@ START_TEST (test_proxy_resource_preemption)
           fail_if (OMX_TRUE == timedout1);
           fail_if (TIZRM_RESOURCE_DUMMY != p_ctx1->rid);
 
-          TIZ_LOG (TIZ_LOG_TRACE, "Preemption request verified (rm1) [%d]",
+          TIZ_LOG (TIZ_TRACE, "Preemption request verified (rm1) [%d]",
                      error);
 
           /* Now Component1 releases the resource */
           error = tizrm_proxy_preemption_conf (&p_rm1, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE,
+          TIZ_LOG (TIZ_TRACE,
                      "tizrm_proxy_preemption_conf returned (rm1) [%d]", error);
           fail_if (error != TIZRM_SUCCESS);
 
@@ -1064,25 +1064,25 @@ START_TEST (test_proxy_resource_preemption)
           fail_if (OMX_TRUE == timedout2);
           fail_if (TIZRM_RESOURCE_DUMMY != p_ctx2->rid);
 
-          TIZ_LOG (TIZ_LOG_TRACE, "Preemption completion verified (rm2) [%d]",
+          TIZ_LOG (TIZ_TRACE, "Preemption completion verified (rm2) [%d]",
                      error);
 
           /* Now Component2 releases the resource */
           error = tizrm_proxy_release (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_release returned (rm2) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_release returned (rm2) [%d]",
                      error);
           fail_if (error != TIZRM_SUCCESS);
 
           /* Destroy the rm hdls */
-          TIZ_LOG (TIZ_LOG_TRACE, "Destroying rm hdls");
+          TIZ_LOG (TIZ_TRACE, "Destroying rm hdls");
           error = tizrm_proxy_destroy (&p_rm1);
           fail_if (error != TIZRM_SUCCESS);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_destroy returned (rm1) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_destroy returned (rm1) [%d]",
                      error);
 
           error = tizrm_proxy_destroy (&p_rm2);
           fail_if (error != TIZRM_SUCCESS);
-          TIZ_LOG (TIZ_LOG_TRACE, "tizrm_proxy_destroy returned (rm2) [%d]",
+          TIZ_LOG (TIZ_TRACE, "tizrm_proxy_destroy returned (rm2) [%d]",
                      error);
 
           _ctx_reset(&ctx1);
@@ -1104,7 +1104,7 @@ START_TEST (test_proxy_resource_preemption)
             system
             ("cmp -s /tmp/test_proxy_resource_preemption.before.dump /tmp/test_proxy_resource_preemption.after.dump");
 
-          TIZ_LOG (TIZ_LOG_TRACE, "DB comparison check [%s]",
+          TIZ_LOG (TIZ_TRACE, "DB comparison check [%s]",
                      (rc == 0 ? "SUCCESS" : "FAILED"));
           fail_if (rc != 0);
 
@@ -1114,7 +1114,7 @@ START_TEST (test_proxy_resource_preemption)
         }
       else
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Starting the RM Daemon");
+          TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
           const char *arg0 = "";
           error = execlp (pg_rmd_path, arg0, (char *) NULL);
           fail_if (error == -1);
@@ -1152,7 +1152,7 @@ main (void)
 
   tiz_log_init();
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - RM client unit tests");
+  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL - RM client unit tests");
 
   /* Enable extra debugging info for D-BUSXX */
   /* setenv ("DBUSXX_VERBOSE", "1", 0); */

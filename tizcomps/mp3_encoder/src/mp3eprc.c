@@ -113,7 +113,7 @@ encode_buffer (const void *ap_obj)
                   / p_obj->pcmmode_.nChannels /
                   p_obj->pcmmode_.nBitPerSample) * 8;
 
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "p_inhdr [%p] nsamples [%d] nFilledLen [%d] "
                      "nChannels [%d] nBitPerSample [%d]"
@@ -133,7 +133,7 @@ encode_buffer (const void *ap_obj)
         {
           if (encoded_bytes == -1)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+              TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                              TIZ_CBUF (p_parent->p_hdl_),
                              "Output buffer is not big enough... [%d]...",
                              p_obj->p_outhdr_->nAllocLen -
@@ -141,7 +141,7 @@ encode_buffer (const void *ap_obj)
             }
           else
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+              TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                              TIZ_CBUF (p_parent->p_hdl_),
                              "Some error occurred during encoding [%d]...",
                              encoded_bytes);
@@ -236,7 +236,7 @@ claim_output (const void *ap_obj)
     {
       TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer (p_krn, 1, 0,
                                                  &p_obj->p_outhdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_TRACE,
                      TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
@@ -269,12 +269,12 @@ set_lame_pcm_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
                         (ap_krn, ap_hdl,
                          OMX_IndexParamAudioPcm, &p_obj->pcmmode_)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "[%s] : Error retrieving pcm params from port",
+      TIZ_LOG (TIZ_ERROR, "[%s] : Error retrieving pcm params from port",
                tiz_err_to_str (ret_val));
       return ret_val;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nChannels = [%d] nBitPerSample = [%d] "
+  TIZ_LOG (TIZ_TRACE, "nChannels = [%d] nBitPerSample = [%d] "
            "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
            "bInterleaved = [%s] ePCMMode = [%d]",
            p_obj->pcmmode_.nChannels,
@@ -307,12 +307,12 @@ set_lame_mp3_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
                         (ap_krn, ap_hdl,
                          OMX_IndexParamAudioMp3, &p_obj->mp3type_)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "[%s] : Error retrieving mp3 params from port",
+      TIZ_LOG (TIZ_ERROR, "[%s] : Error retrieving mp3 params from port",
                tiz_err_to_str (ret_val));
       return ret_val;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nChannels = [%d] nBitRate = [%d] "
+  TIZ_LOG (TIZ_TRACE, "nChannels = [%d] nBitRate = [%d] "
            "nSampleRate = [%d] nAudioBandWidth = [%d] eChannelMode = [%d] "
            "eFormat = [%d]",
            p_obj->mp3type_.nChannels,
@@ -405,14 +405,14 @@ mp3e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
   if (NULL == (p_obj->lame_ = lame_init ()))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "[OMX_ErrorInsufficientResources] : "
                      "lame encoder initialization error");
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "lame encoder version [%s]", get_lame_version ());
 
@@ -473,7 +473,7 @@ mp3e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 
   if (-1 == lame_init_params (p_obj->lame_))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOG (TIZ_ERROR, "[OMX_ErrorInsufficientResources] : "
                "Error returned by lame during initialization.");
       return OMX_ErrorInsufficientResources;
     }
@@ -540,7 +540,7 @@ mp3e_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_TRACE,
                      TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);

@@ -43,7 +43,7 @@ START_TEST (test_http_parser_request_test)
   int req_len = strlen (p_req);
 
   error = tiz_http_parser_init (&p_http_parser, ETIZHttpParserTypeRequest);
-  TIZ_LOG (TIZ_LOG_TRACE, "tiz_http_init = %s", tiz_err_to_str (error));
+  TIZ_LOG (TIZ_TRACE, "tiz_http_init = %s", tiz_err_to_str (error));
   fail_if (error != OMX_ErrorNone);
 
   nparsed = tiz_http_parser_parse (p_http_parser, p_req, req_len);
@@ -52,7 +52,7 @@ START_TEST (test_http_parser_request_test)
   fail_if (0 != strcmp ("GET",
                         tiz_http_parser_get_method (p_http_parser)));
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Url = [%s]",
+  TIZ_LOG (TIZ_TRACE, "Url = [%s]",
            tiz_http_parser_get_url (p_http_parser));
 
   fail_if (0 != strcmp ("/metallica",
@@ -61,7 +61,7 @@ START_TEST (test_http_parser_request_test)
   fail_if (0 != strcmp ("Audacious/3.2.1 neon/0.29.6",
                         tiz_http_parser_get_header (p_http_parser, "User-Agent")));
 
-  TIZ_LOG (TIZ_LOG_TRACE, "User-Agent = [%s]",
+  TIZ_LOG (TIZ_TRACE, "User-Agent = [%s]",
            tiz_http_parser_get_header (p_http_parser, "User-Agent"));
 
   fail_if (0 != strcmp ("TE, close",

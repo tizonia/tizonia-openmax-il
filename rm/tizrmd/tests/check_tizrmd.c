@@ -38,7 +38,7 @@
 int
 main (void)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - RM daemon unit tests");
+  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL - RM daemon unit tests");
 
   /* No tests for now */
 

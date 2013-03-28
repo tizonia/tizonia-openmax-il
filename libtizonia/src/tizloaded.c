@@ -97,7 +97,7 @@ loaded_EmptyThisBuffer (const void *ap_obj,
 
   if (TIZPORT_IS_ENABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "
                      "(ETB received in Loaded state on an enabled port)...");
       return OMX_ErrorIncorrectStateOperation;
@@ -118,7 +118,7 @@ loaded_FillThisBuffer (const void *ap_obj,
 
   if (TIZPORT_IS_ENABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "
                      "(FTB received in Loaded state on an enabled port)...");
       return OMX_ErrorIncorrectStateOperation;
@@ -145,7 +145,7 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "Requested transition [OMX_StateLoaded -> %s]...",
                  tiz_fsm_state_to_str (a_param1));
 
@@ -171,7 +171,7 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     default:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "[OMX_ErrorIncorrectStateTransition]...: "
                        "(OMX_StateLoaded -> [%s]...)",
                        tiz_state_to_str (a_param1));
@@ -194,12 +194,12 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         tiz_kernel_tunneled_ports_status_t status =
           tiz_kernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
         
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "kernel's tunneled port status [%d] ", status);
 
         if (ETIZKernelTunneledPortsAcceptNone == status)
           {
-            TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+            TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                            "wait until all the tunneled non-supplier "
                            "neighbours have reported that they can accept "
                            "OMX_UseBuffer calls...");
@@ -218,7 +218,7 @@ static OMX_ERRORTYPE
 loaded_trans_complete (const void *ap_obj,
                        OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (tiz_servant_get_hdl(ap_servant)),
+  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (tiz_servant_get_hdl(ap_servant)),
                  TIZ_CBUF (tiz_servant_get_hdl(ap_servant)),
                  "Trans complete to state [%s]...",
                  tiz_fsm_state_to_str (a_new_state));

@@ -194,7 +194,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   assert (ap_hdl);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: Inititializing [%s]",
+  TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_FILE_READER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) audio_role.role,

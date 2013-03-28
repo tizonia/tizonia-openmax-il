@@ -140,12 +140,12 @@ servant_tick (const void *ap_obj)
 
   for (;;)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Receiving msgs : queue length [%d]...",
+      TIZ_LOG (TIZ_TRACE, "Receiving msgs : queue length [%d]...",
                tiz_pqueue_length (p_obj->p_pq_));
       if (OMX_ErrorNone !=
           (ret_val = tiz_pqueue_receive (p_obj->p_pq_, &p_msg)))
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "tiz_pqueue_receive error [%s]...",
+          TIZ_LOG (TIZ_TRACE, "tiz_pqueue_receive error [%s]...",
                    tiz_err_to_str (ret_val));
           break;
         }
@@ -158,7 +158,7 @@ servant_tick (const void *ap_obj)
 
       if (OMX_ErrorNone != ret_val)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "tiz_servant_dispatch_msg error [%s]...",
+          TIZ_LOG (TIZ_TRACE, "tiz_servant_dispatch_msg error [%s]...",
                    tiz_err_to_str (ret_val));
           break;
         }
@@ -485,7 +485,7 @@ servant_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error)
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   assert (p_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_obj->p_hdl_),
                  TIZ_CBUF (p_obj->p_hdl_),
                  "OMX_EventError...[%s]", tiz_err_to_str (a_error));
   servant_issue_event (ap_obj, OMX_EventError, a_error, 0, 0);
@@ -506,7 +506,7 @@ servant_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   assert (p_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_obj->p_hdl_),
                  TIZ_CBUF (p_obj->p_hdl_),
                  "OMX_EventCmdComplete...[%s] pid [%d] error [%s]",
                  tiz_cmd_to_str (a_cmd), a_pid, tiz_err_to_str (a_error));
@@ -530,7 +530,7 @@ servant_issue_trans_event (void *ap_obj, OMX_STATETYPE a_state,
   struct tizservant *p_obj = (struct tizservant *) ap_obj;
   assert (p_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_obj->p_hdl_),
                  TIZ_CBUF (p_obj->p_hdl_),
                  "OMX_EventCmdComplete...[OMX_CommandStateSet] [%s]",
                  tiz_fsm_state_to_str (a_state));
@@ -559,7 +559,7 @@ servant_issue_buf_callback (const void *ap_obj,
   assert (p_obj->p_cbacks_);
   assert (p_obj->p_cbacks_->EventHandler);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_obj->p_hdl_),
                  TIZ_CBUF (p_obj->p_hdl_),
                  "HEADER [%p] BUFFER [%p] ap_tcomp [%p]",
                  p_hdr, p_hdr->pBuffer, ap_tcomp);
@@ -568,13 +568,13 @@ servant_issue_buf_callback (const void *ap_obj,
     {
       if (OMX_DirInput == dir)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_obj->p_hdl_),
                          TIZ_CBUF (p_obj->p_hdl_), "OMX_FillThisBuffer");
           OMX_FillThisBuffer (ap_tcomp, p_hdr);
         }
       else
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_obj->p_hdl_),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_obj->p_hdl_),
                          TIZ_CBUF (p_obj->p_hdl_), "OMX_EmptyThisBuffer");
           OMX_EmptyThisBuffer (ap_tcomp, p_hdr);
         }

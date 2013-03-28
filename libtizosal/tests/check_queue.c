@@ -62,11 +62,11 @@ START_TEST (test_queue_send_and_receive)
       *p_item = i;
       error = tiz_queue_send (p_queue, p_item);
       fail_if (error != OMX_ErrorNone);
-      TIZ_LOG (TIZ_LOG_TRACE, "queue length [%d]",
+      TIZ_LOG (TIZ_TRACE, "queue length [%d]",
                  tiz_queue_length (p_queue));
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "queue length [%d]",
+  TIZ_LOG (TIZ_TRACE, "queue length [%d]",
              tiz_queue_length (p_queue));
   fail_if (10 != tiz_queue_length (p_queue));
 

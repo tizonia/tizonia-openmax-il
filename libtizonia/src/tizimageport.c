@@ -88,7 +88,7 @@ imageport_ctor (void *ap_obj, va_list * app)
     {
       while (OMX_IMAGE_CodingMax != p_encodings[i])
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "p_encodings[%u] = [%d]...",
+          TIZ_LOG (TIZ_TRACE, "p_encodings[%u] = [%d]...",
                    i, p_encodings[i]);
           tiz_vector_push_back (p_obj->p_image_encodings_, &p_encodings[i++]);
         }
@@ -99,7 +99,7 @@ imageport_ctor (void *ap_obj, va_list * app)
     {
       while (OMX_COLOR_FormatMax != p_formats[i])
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "p_formats[%u] = [%d]...", i, p_formats[i]);
+          TIZ_LOG (TIZ_TRACE, "p_formats[%u] = [%d]...", i, p_formats[i]);
           tiz_vector_push_back (p_obj->p_color_formats_, &p_formats[i++]);
         }
     }
@@ -138,7 +138,7 @@ imageport_GetParameter (const void *ap_obj,
 {
   const struct tizimageport *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -160,7 +160,7 @@ imageport_GetParameter (const void *ap_obj,
             p_pft->eCompressionFormat = OMX_IMAGE_CodingUnused;
             p_pft->eColorFormat = *p_format;
 
-            TIZ_LOG (TIZ_LOG_TRACE, "ColorFormat [%x]...", *p_format);
+            TIZ_LOG (TIZ_TRACE, "ColorFormat [%x]...", *p_format);
           }
         else
           {
@@ -174,7 +174,7 @@ imageport_GetParameter (const void *ap_obj,
             assert (p_encoding);
             p_pft->eCompressionFormat = *p_encoding;
 
-            TIZ_LOG (TIZ_LOG_TRACE, "CompressionFormat [%x] ", *p_encoding);
+            TIZ_LOG (TIZ_TRACE, "CompressionFormat [%x] ", *p_encoding);
           }
 
       }
@@ -198,7 +198,7 @@ imageport_SetParameter (const void *ap_obj,
 {
   struct tizimageport *p_obj = (struct tizimageport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -221,20 +221,20 @@ imageport_SetParameter (const void *ap_obj,
 
             if (encoding >= OMX_IMAGE_CodingMax)
               {
-                TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorBadParameter "
+                TIZ_LOG (TIZ_TRACE, "OMX_ErrorBadParameter "
                          "(Bad compression format [0x%08x]...)", encoding);
                 return OMX_ErrorBadParameter;
               }
 
             if (!tiz_vector_find (p_obj->p_color_formats_, &format))
               {
-                TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedSetting "
+                TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedSetting "
                          "(Color format not supported [0x%08x]...)", format);
                 return OMX_ErrorUnsupportedSetting;
               }
 
             p_obj->port_format_.eColorFormat = format;
-            TIZ_LOG (TIZ_LOG_TRACE, "Set new color format "
+            TIZ_LOG (TIZ_TRACE, "Set new color format "
                      "[0x%08x]...", format);
           }
         else
@@ -251,7 +251,7 @@ imageport_SetParameter (const void *ap_obj,
             else
               {
                 p_obj->port_format_.eCompressionFormat = encoding;
-                TIZ_LOG (TIZ_LOG_TRACE, "Set new image encoding "
+                TIZ_LOG (TIZ_TRACE, "Set new image encoding "
                          "[0x%08x]...", encoding);
               }
           }

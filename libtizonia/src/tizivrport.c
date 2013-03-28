@@ -113,7 +113,7 @@ ivrport_GetConfig (const void *ap_obj,
 {
   const struct tizivrport *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "GetConfig [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_TRACE, "GetConfig [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -173,7 +173,7 @@ ivrport_SetConfig (const void *ap_obj,
 {
   struct tizivrport *p_obj = (struct tizivrport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetConfig [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_TRACE, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -253,7 +253,7 @@ ivrport_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOG (TIZ_LOG_TRACE,
+      TIZ_LOG (TIZ_TRACE,
                "port [%d] check_tunnel_compat : "
                "Video domain not found, instead found domain [%d]",
                p_obj->pid_, ap_other_def->eDomain);
@@ -262,7 +262,7 @@ ivrport_check_tunnel_compat (const void *ap_obj,
 
   /* TODO : Review these compatibility checks */
 
-  TIZ_LOG (TIZ_LOG_TRACE, "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
+  TIZ_LOG (TIZ_TRACE, "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return OMX_TRUE;
 }

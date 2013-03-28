@@ -88,35 +88,35 @@ ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
   int err, offset = 0;
   int samples, step;
 
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
            "Rendering HEADER [%p]...nFilledLen[%d] !!!", p_hdr,
            p_hdr->nFilledLen);
 
   step = (p_obj->pcmmode.nBitPerSample / 8) * p_obj->pcmmode.nChannels;
   samples = p_hdr->nFilledLen / step;
-  TIZ_LOG (TIZ_LOG_TRACE, "step [%d], samples [%d]", step, samples);
+  TIZ_LOG (TIZ_TRACE, "step [%d], samples [%d]", step, samples);
 
   while (samples)
     {
       err = snd_pcm_writei (p_obj->p_playback_hdl,
                             p_hdr->pBuffer + p_hdr->nOffset + offset,
                             samples);
-      TIZ_LOG (TIZ_LOG_TRACE,
+      TIZ_LOG (TIZ_TRACE,
                "Rendering HEADER [%p]..." "err [%d] samples [%d]",
                p_hdr, err, samples);
       if (-EAGAIN == err)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Rendering HEADER [%p]...-EAGAIN");
+          TIZ_LOG (TIZ_TRACE, "Rendering HEADER [%p]...-EAGAIN");
           continue;
         }
 
       if (err < 0)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Rendering HEADER [%p]...underflow");
+          TIZ_LOG (TIZ_TRACE, "Rendering HEADER [%p]...underflow");
           err = snd_pcm_recover (p_obj->p_playback_hdl, err, 0);
           if (err < 0)
             {
-              TIZ_LOG (TIZ_LOG_ERROR, "snd_pcm_recover error: %s",
+              TIZ_LOG (TIZ_ERROR, "snd_pcm_recover error: %s",
                        snd_strerror (err));
               break;
             }
@@ -154,12 +154,12 @@ get_alsa_device (void *ap_obj)
 
   if (NULL != p_alsa_pcm)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Using ALSA pcm [%s]...", p_alsa_pcm);
+      TIZ_LOG (TIZ_TRACE, "Using ALSA pcm [%s]...", p_alsa_pcm);
       p_obj->p_alsa_pcm_ = strndup (p_alsa_pcm, OMX_MAX_STRINGNAME_SIZE);
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_TRACE,
+      TIZ_LOG (TIZ_TRACE,
                "No alsa device found in config file. Using [%s]...",
                TIZ_AR_ALSA_PCM_DEVICE);
     }
@@ -183,14 +183,14 @@ ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
            snd_pcm_open (&p_obj->p_playback_hdl, get_alsa_device (p_obj),
                          SND_PCM_STREAM_PLAYBACK, 0)) < 0)
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "cannot open audio device %s (%s)",
+          TIZ_LOG (TIZ_ERROR, "cannot open audio device %s (%s)",
                    TIZ_AR_ALSA_PCM_DEVICE, snd_strerror (err));
           return OMX_ErrorInsufficientResources;
         }
 
       if ((err = snd_pcm_hw_params_malloc (&p_obj->p_hw_params)) < 0)
         {
-          TIZ_LOG (TIZ_LOG_ERROR,
+          TIZ_LOG (TIZ_ERROR,
                    "cannot allocate hardware parameter structure" " (%s)",
                    snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -200,12 +200,12 @@ ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   if ((err = snd_pcm_hw_params_any (p_obj->p_playback_hdl,
                                     p_obj->p_hw_params)) < 0)
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "cannot initialize hardware parameter "
+      TIZ_LOG (TIZ_ERROR, "cannot initialize hardware parameter "
                "structure (%s)", snd_strerror (err));
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Resource allocation complete... "
+  TIZ_LOG (TIZ_TRACE, "Resource allocation complete... "
            "arprc = [%p]!!!", p_obj);
 
   return OMX_ErrorNone;
@@ -228,7 +228,7 @@ ar_proc_deallocate_resources (void *ap_obj)
   tiz_mem_free (p_obj->p_alsa_pcm_);
   p_obj->p_alsa_pcm_ = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Resource deallocation complete...");
+  TIZ_LOG (TIZ_TRACE, "Resource deallocation complete...");
 
   return OMX_ErrorNone;
 }
@@ -255,11 +255,11 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                              p_parent->p_hdl_,
                              OMX_IndexParamAudioPcm, &p_obj->pcmmode)))
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "Error retrieving pcm params from port");
+          TIZ_LOG (TIZ_ERROR, "Error retrieving pcm params from port");
           return ret_val;
         }
 
-      TIZ_LOG (TIZ_LOG_NOTICE, "nChannels = [%d] nBitPerSample = [%d] "
+      TIZ_LOG (TIZ_NOTICE, "nChannels = [%d] nBitPerSample = [%d] "
                "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
                "bInterleaved = [%s] ePCMMode = [%d]",
                p_obj->pcmmode.nChannels,
@@ -281,12 +281,12 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                                      p_obj->pcmmode.nSamplingRate,
                                      1, 100 * 1000)) < 0)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Didn' work...p_obj = [ERROR]!!!");
+          TIZ_LOG (TIZ_TRACE, "Didn' work...p_obj = [ERROR]!!!");
         }
 
       if ((err = snd_pcm_prepare (p_obj->p_playback_hdl)) < 0)
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "Cannot prepare audio interface for use "
+          TIZ_LOG (TIZ_ERROR, "Cannot prepare audio interface for use "
                    "(%s)", snd_strerror (err));
           return OMX_ErrorInsufficientResources;
         }
@@ -301,7 +301,7 @@ ar_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
   struct arprc *p_obj = ap_obj;
   assert (ap_obj);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Awaiting buffers...p_obj = [%p]!!!", p_obj);
+  TIZ_LOG (TIZ_TRACE, "Awaiting buffers...p_obj = [%p]!!!", p_obj);
 
   return OMX_ErrorNone;
 
@@ -313,7 +313,7 @@ ar_proc_stop_and_return (void *ap_obj)
   struct arprc *p_obj = ap_obj;
   assert (ap_obj);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!", p_obj);
+  TIZ_LOG (TIZ_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!", p_obj);
 
   return OMX_ErrorNone;
 }
@@ -337,11 +337,11 @@ ar_proc_buffers_ready (const void *ap_obj)
   if (TIZ_PD_ISSET (0, &ports))
     {
       TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer (p_krn, 0, 0, &p_hdr));
-      TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...", p_hdr);
+      TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...", p_hdr);
       TIZ_UTIL_TEST_ERR (ar_proc_render_buffer (ap_obj, p_hdr));
       if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOG (TIZ_LOG_DEBUG, "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
+          TIZ_LOG (TIZ_DEBUG, "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
           tiz_servant_issue_event ((OMX_PTR) ap_obj,
                                   OMX_EventBufferFlag,
                                   0, p_hdr->nFlags, NULL);

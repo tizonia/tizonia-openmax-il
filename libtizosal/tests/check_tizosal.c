@@ -231,7 +231,7 @@ main (void)
 
   tiz_log_init();
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OSAL unit tests");
+  TIZ_LOG (TIZ_TRACE, "Tizonia OSAL unit tests");
 
   sr = srunner_create (osal_mem_suite ());
   srunner_add_suite (sr, osal_sync_suite ());

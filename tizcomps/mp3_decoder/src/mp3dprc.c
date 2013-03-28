@@ -135,7 +135,7 @@ print_frame_info (struct mad_header *Header)
       break;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "%lu kb/s audio MPEG layer %s stream %s CRC, "
+  TIZ_LOG (TIZ_TRACE, "%lu kb/s audio MPEG layer %s stream %s CRC, "
            "%s with %s emphasis at %d Hz sample rate\n",
            Header->bitrate, Layer,
            Header->flags & MAD_FLAG_PROTECTION ? "with" : "without",
@@ -359,7 +359,7 @@ decode_buffer (const void *ap_obj)
             {
               if ((p_obj->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                  TIZ_LOG_CNAME (TIZ_TRACE,
                                  TIZ_CNAME (p_parent->p_hdl_),
                                  TIZ_CBUF (p_parent->p_hdl_),
                                  "end of input stream");
@@ -367,7 +367,7 @@ decode_buffer (const void *ap_obj)
                 }
               else
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                  TIZ_LOG_CNAME (TIZ_TRACE,
                                  TIZ_CNAME (p_parent->p_hdl_),
                                  TIZ_CBUF (p_parent->p_hdl_),
                                  "read_size <= 0");
@@ -400,7 +400,7 @@ decode_buffer (const void *ap_obj)
               if (p_obj->stream_.error != MAD_ERROR_LOSTSYNC
                   || p_obj->stream_.this_frame != p_guardzone)
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                  TIZ_LOG_CNAME (TIZ_TRACE,
                                  TIZ_CNAME (p_parent->p_hdl_),
                                  TIZ_CBUF (p_parent->p_hdl_),
                                  "recoverable frame level error (%s)",
@@ -414,7 +414,7 @@ decode_buffer (const void *ap_obj)
                 {
                   if (!p_obj->p_inhdr_)
                     {
-                      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                      TIZ_LOG_CNAME (TIZ_TRACE,
                                      TIZ_CNAME (p_parent->p_hdl_),
                                      TIZ_CBUF (p_parent->p_hdl_),
                                      "p_obj->stream_.error==MAD_ERROR_BUFLEN "
@@ -424,7 +424,7 @@ decode_buffer (const void *ap_obj)
                     }
                   else
                     {
-                      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                      TIZ_LOG_CNAME (TIZ_TRACE,
                                      TIZ_CNAME (p_parent->p_hdl_),
                                      TIZ_CBUF (p_parent->p_hdl_),
                                      "p_obj->stream_.error==MAD_ERROR_BUFLEN "
@@ -437,7 +437,7 @@ decode_buffer (const void *ap_obj)
                 }
               else
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                  TIZ_LOG_CNAME (TIZ_TRACE,
                                  TIZ_CNAME (p_parent->p_hdl_),
                                  TIZ_CBUF (p_parent->p_hdl_),
                                  "unrecoverable frame level error (%s).",
@@ -481,7 +481,7 @@ decode_buffer (const void *ap_obj)
 
 /*       p_obj->eos_ = true; */
 /*       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS; */
-/*       TIZ_LOG_CNAME (TIZ_LOG_TRACE, */
+/*       TIZ_LOG_CNAME (TIZ_TRACE, */
 /*                        TIZ_CNAME(p_parent->p_hdl_), */
 /*                        TIZ_CBUF(p_parent->p_hdl_), */
 /*                        "Relinquishing output buffer [%p] ..." */
@@ -510,7 +510,7 @@ mp3d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   mad_synth_init (&p_obj->synth_);
   mad_timer_reset (&p_obj->timer_);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Resource allocation complete..." "pid = [%d]", a_pid);
@@ -529,7 +529,7 @@ mp3d_proc_deallocate_resources (void *ap_obj)
   mad_frame_finish (&p_obj->frame_);
   mad_stream_finish (&p_obj->stream_);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Resource deallocation complete...");
@@ -543,7 +543,7 @@ mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   const struct tizservant *p_parent = ap_obj;
   assert (ap_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Transfering buffers...pid [%d]", a_pid);
@@ -570,7 +570,7 @@ mp3d_proc_stop_and_return (void *ap_obj)
 
   mad_timer_string (p_obj->timer_, buffer, "%lu:%02lu.%03u",
                     MAD_UNITS_MINUTES, MAD_UNITS_MILLISECONDS, 0);
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "%lu frames decoded (%s).\n", p_obj->frame_count_, buffer);
@@ -600,13 +600,13 @@ mp3d_claim_input (const void *ap_obj)
     {
       TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer
                          (p_krn, 0, 0, &p_obj->p_inhdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Claimed INPUT HEADER [%p]...", p_obj->p_inhdr_);
       return true;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "COULD NOT CLAIM AN INPUT HEADER...");
@@ -630,7 +630,7 @@ mp3d_claim_output (const void *ap_obj)
     {
       TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer
                          (p_krn, 1, 0, &p_obj->p_outhdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
                      "nFilledLen [%d]...", p_obj->p_outhdr_,
@@ -683,7 +683,7 @@ mp3d_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_TRACE,
                      TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);

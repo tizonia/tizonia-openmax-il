@@ -94,14 +94,14 @@ fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
         {
           if (feof (p_obj->p_file_))
             {
-              TIZ_LOG (TIZ_LOG_NOTICE,
+              TIZ_LOG (TIZ_NOTICE,
                        "End of file reached bytes_read=[%d]", bytes_read);
               p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
               p_obj->eos_ = true;
             }
           else
             {
-              TIZ_LOG (TIZ_LOG_ERROR, "An error occurred while reading");
+              TIZ_LOG (TIZ_ERROR, "An error occurred while reading");
               return OMX_ErrorInsufficientResources;
             }
         }
@@ -110,7 +110,7 @@ fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
       p_obj->counter_ += p_hdr->nFilledLen;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Reading into HEADER [%p]...nFilledLen[%d] "
+  TIZ_LOG (TIZ_TRACE, "Reading into HEADER [%p]...nFilledLen[%d] "
            "counter [%d] bytes_read[%d]",
            p_hdr, p_hdr->nFilledLen, p_obj->counter_, bytes_read);
 
@@ -139,7 +139,7 @@ fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
       if (NULL == p_obj->p_uri_param_)
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "Error allocating memory "
+          TIZ_LOG (TIZ_ERROR, "Error allocating memory "
                    "for the content uri struct");
           return OMX_ErrorInsufficientResources;
         }
@@ -154,17 +154,17 @@ fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
                          p_parent->p_hdl_,
                          OMX_IndexParamContentURI, p_obj->p_uri_param_)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "Error retrieving URI param from port");
+      TIZ_LOG (TIZ_ERROR, "Error retrieving URI param from port");
       return ret_val;
     }
 
-  TIZ_LOG (TIZ_LOG_NOTICE, "Retrieved URI [%s]",
+  TIZ_LOG (TIZ_NOTICE, "Retrieved URI [%s]",
            p_obj->p_uri_param_->contentURI);
 
   if ((p_obj->p_file_
        = fopen ((const char *) p_obj->p_uri_param_->contentURI, "r")) == 0)
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "Error opening file from  URI string");
+      TIZ_LOG (TIZ_ERROR, "Error opening file from  URI string");
       return OMX_ErrorInsufficientResources;
     }
 
@@ -237,7 +237,7 @@ fr_proc_buffers_ready (const void *ap_obj)
       if (TIZ_PD_ISSET (0, &ports))
         {
           TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer (p_krn, 0, 0, &p_hdr));
-          TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...", p_hdr);
+          TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...", p_hdr);
           TIZ_UTIL_TEST_ERR (fr_proc_read_buffer (ap_obj, p_hdr));
           tiz_kernel_relinquish_buffer (p_krn, 0, p_hdr);
         }

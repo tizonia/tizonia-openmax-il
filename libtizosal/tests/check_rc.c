@@ -31,7 +31,7 @@ START_TEST (test_rcfile_open_and_close)
   OMX_ERRORTYPE error = OMX_ErrorNone;
   tiz_rcfile_t *p_rc = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_rcfile_open_and_close");
+  TIZ_LOG (TIZ_TRACE, "test_rcfile_open_and_close");
 
   error = tiz_rcfile_open (&p_rc);
   fail_if (error != OMX_ErrorNone);
@@ -45,7 +45,7 @@ START_TEST (test_rcfile_get_single_value)
   OMX_ERRORTYPE error = OMX_ErrorNone;
   tiz_rcfile_t *p_rc = NULL;
   const char *val =  NULL;
-  TIZ_LOG (TIZ_LOG_TRACE, "test_rcfile_get_single_value");
+  TIZ_LOG (TIZ_TRACE, "test_rcfile_get_single_value");
 
   error = tiz_rcfile_open (&p_rc);
   fail_if (error != OMX_ErrorNone);
@@ -53,7 +53,7 @@ START_TEST (test_rcfile_get_single_value)
   val = tiz_rcfile_get_value(p_rc, "resource-management", "rmdb");
   fail_if (val == NULL);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_rcfile_get_single_value : "
+  TIZ_LOG (TIZ_TRACE, "test_rcfile_get_single_value : "
              "value [%s]", val);
 
   tiz_rcfile_close (p_rc);
@@ -86,7 +86,7 @@ START_TEST (test_rcfile_get_value_list)
   unsigned long length = 0;
   int i=0;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_rcfile_get_value_list");
+  TIZ_LOG (TIZ_TRACE, "test_rcfile_get_value_list");
 
   error = tiz_rcfile_open (&p_rc);
   fail_if (error != OMX_ErrorNone);
@@ -100,7 +100,7 @@ START_TEST (test_rcfile_get_value_list)
 
   for (i=0; i<length; i++)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "test_rcfile_get_value_list : "
+      TIZ_LOG (TIZ_TRACE, "test_rcfile_get_value_list : "
                  "pp_vlst[%d] = [%s]", i , pp_vlst[i]);
       tiz_mem_free(pp_vlst[i]);
     }

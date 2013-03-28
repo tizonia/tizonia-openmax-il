@@ -146,7 +146,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports = 1;
   role_factory.pf_proc = instantiate_processor;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_ComponentInit: "
+  TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_YUV_RENDERER_COMPONENT_NAME);
 
   assert (ap_hdl);

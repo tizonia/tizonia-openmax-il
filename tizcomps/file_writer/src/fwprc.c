@@ -93,7 +93,7 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
                 = fwrite (p_hdr->pBuffer + p_hdr->nOffset,
                           p_hdr->nFilledLen, 1, p_obj->p_file_)))
         {
-          TIZ_LOG (TIZ_LOG_ERROR,
+          TIZ_LOG (TIZ_ERROR,
                    "elems_written [%d] p_hdr->nFilledLen [%d]: "
                    "An error occurred while writing", elems_written,
                    p_hdr->nFilledLen);
@@ -104,7 +104,7 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
       p_obj->counter_ += p_hdr->nFilledLen;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Writing data from HEADER [%p]...nFilledLen [%d] "
+  TIZ_LOG (TIZ_TRACE, "Writing data from HEADER [%p]...nFilledLen [%d] "
            "counter [%d] elems_written [%d]",
            p_hdr, p_hdr->nFilledLen, p_obj->counter_, elems_written);
 
@@ -133,7 +133,7 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
       if (NULL == p_obj->p_uri_param_)
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "Error allocating memory "
+          TIZ_LOG (TIZ_ERROR, "Error allocating memory "
                    "for the content uri struct");
           return OMX_ErrorInsufficientResources;
         }
@@ -148,17 +148,17 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
                          p_parent->p_hdl_,
                          OMX_IndexParamContentURI, p_obj->p_uri_param_)))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "Error retrieving URI param from port");
+      TIZ_LOG (TIZ_ERROR, "Error retrieving URI param from port");
       return ret_val;
     }
 
-  TIZ_LOG (TIZ_LOG_NOTICE, "Retrieved URI [%s]",
+  TIZ_LOG (TIZ_NOTICE, "Retrieved URI [%s]",
            p_obj->p_uri_param_->contentURI);
 
   if ((p_obj->p_file_
        = fopen ((const char *) p_obj->p_uri_param_->contentURI, "w")) == 0)
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "Error opening file from URI string");
+      TIZ_LOG (TIZ_ERROR, "Error opening file from URI string");
       return OMX_ErrorInsufficientResources;
     }
 
@@ -231,11 +231,11 @@ fw_proc_buffers_ready (const void *ap_obj)
       if (TIZ_PD_ISSET (0, &ports))
         {
           TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer (p_krn, 0, 0, &p_hdr));
-          TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...", p_hdr);
+          TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...", p_hdr);
           TIZ_UTIL_TEST_ERR (fw_proc_write_buffer (ap_obj, p_hdr));
           if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
             {
-              TIZ_LOG (TIZ_LOG_DEBUG,
+              TIZ_LOG (TIZ_DEBUG,
                        "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
               tiz_servant_issue_event ((OMX_PTR) ap_obj,
                                       OMX_EventBufferFlag,

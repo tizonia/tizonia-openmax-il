@@ -145,13 +145,13 @@ refresh_rm_db (void)
   if (!p_rmdb_path || !p_sqlite_path || !p_init_path || !p_rmd_path)
 
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data not available...");
+      TIZ_LOG(TIZ_TRACE, "Test data not available...");
     }
   else
     {
       pg_rmd_path = strndup (p_rmd_path, PATH_MAX);
 
-      TIZ_LOG(TIZ_LOG_TRACE, "RM daemon [%s] ...", pg_rmd_path);
+      TIZ_LOG(TIZ_TRACE, "RM daemon [%s] ...", pg_rmd_path);
 
       /* Re-fresh the rm db */
       size_t total_len = strlen (p_init_path)
@@ -164,12 +164,12 @@ refresh_rm_db (void)
                   p_init_path, p_sqlite_path, p_rmdb_path);
           if (-1 != system (p_cmd))
             {
-              TIZ_LOG(TIZ_LOG_TRACE, "Successfully run [%s] script...", p_cmd);
+              TIZ_LOG(TIZ_TRACE, "Successfully run [%s] script...", p_cmd);
               rv = true;
             }
           else
             {
-              TIZ_LOG(TIZ_LOG_TRACE, 
+              TIZ_LOG(TIZ_TRACE, 
                       "Error while executing db init shell script...");
             }
           tiz_mem_free (p_cmd);
@@ -198,7 +198,7 @@ setup (void)
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Starting the RM Daemon");
+      TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
       const char *arg0 = "";
       error = execlp (pg_rmd_path, arg0, (char *) NULL);
       fail_if (error == -1);
@@ -343,7 +343,7 @@ _ctx_signal (cc_ctx_t * app_ctx, OMX_EVENTTYPE event)
       return OMX_ErrorBadParameter;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Context [%s] has been signalled [%s]",
+  TIZ_LOG (TIZ_TRACE, "Context [%s] has been signalled [%s]",
              ctx2cname(p_ctx), tiz_evt_to_str(event));
 
   p_ctx->signaled[event2signal(event)] = OMX_TRUE;
@@ -374,7 +374,7 @@ _ctx_wait (cc_ctx_t * app_ctx, OMX_EVENTTYPE event,
       return OMX_ErrorBadParameter;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Waiting for [%s] a_millis [%u] signaled [%s]",
+  TIZ_LOG (TIZ_TRACE, "Waiting for [%s] a_millis [%u] signaled [%s]",
              ctx2cname(p_ctx), a_millis,
              p_ctx->signaled[event2signal(event)] ? "OMX_TRUE" : "OMX_FALSE");
 
@@ -405,7 +405,7 @@ _ctx_wait (cc_ctx_t * app_ctx, OMX_EVENTTYPE event,
           if (retcode == OMX_ErrorUndefined 
               && !p_ctx->signaled[event2signal(event)])
             {
-              TIZ_LOG (TIZ_LOG_TRACE, "Waiting for [%s] - "
+              TIZ_LOG (TIZ_TRACE, "Waiting for [%s] - "
                          "timeout occurred", ctx2cname(p_ctx));
               * ap_has_timedout = OMX_TRUE;
               break;
@@ -431,7 +431,7 @@ _ctx_reset (cc_ctx_t * app_ctx, OMX_EVENTTYPE event)
       return OMX_ErrorBadParameter;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Resetting [%s] event [%s] ",
+  TIZ_LOG (TIZ_TRACE, "Resetting [%s] event [%s] ",
              ctx2cname(p_ctx), tiz_evt_to_str(event));
 
   p_ctx->signaled[event2signal(event)] = OMX_FALSE;
@@ -484,7 +484,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
         {
         case OMX_CommandStateSet:
           {
-            TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_CommandStateSet : "
+            TIZ_LOG (TIZ_TRACE, "[%s] OMX_CommandStateSet : "
                        "Component transitioned to [%s]",
                        p_cname,
                        tiz_state_to_str ((OMX_STATETYPE) (nData2)));
@@ -507,7 +507,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
     {
       if (nData2 & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "Received EOS from [%s] port[%i]",
+          TIZ_LOG (TIZ_TRACE, "Received EOS from [%s] port[%i]",
                      p_cname, nData1);
           p_ctx->flags = nData2;
           _ctx_signal (pp_ctx, OMX_EventBufferFlag);
@@ -522,7 +522,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
     {
       p_ctx->port = nData1;
       p_ctx->index = nData2;
-      TIZ_LOG (TIZ_LOG_TRACE, "Received OMX_EventPortSettingsChanged "
+      TIZ_LOG (TIZ_TRACE, "Received OMX_EventPortSettingsChanged "
                "from [%s] port[%i] index [%s]",
                p_cname, nData1, tiz_idx_to_str (nData2));
 
@@ -540,7 +540,7 @@ OMX_ERRORTYPE check_EmptyBufferDone
   check_common_context_t *p_ctx = NULL;
   cc_ctx_t *pp_ctx = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "EmptyBufferDone from [%s]: BUFFER [%p]",
+  TIZ_LOG (TIZ_TRACE, "EmptyBufferDone from [%s]: BUFFER [%p]",
              hdl2cname(ap_hdl), ap_buf);
 
   assert (ap_app_data);
@@ -585,7 +585,7 @@ init_test_data(tiz_rcfile_t *rcfile)
   if (!p_testfile1 || !p_testfile2)
 
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "Test uris not configured...");
+      TIZ_LOG(TIZ_TRACE, "Test uris not configured...");
     }
   else
     {
@@ -643,7 +643,7 @@ START_TEST (test_mp3_encode)
   error = OMX_GetHandle (&p_mp3enc, MP3_ENC_COMPONENT_NAME, (OMX_PTR *) (&enc_ctx),
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] hdl [%p]", MP3_ENC_COMPONENT_NAME, p_mp3enc);
+  TIZ_LOG (TIZ_TRACE, "[%s] hdl [%p]", MP3_ENC_COMPONENT_NAME, p_mp3enc);
   pg_hdls[0] = p_mp3enc;
 
   /* ---------------------------- */
@@ -652,7 +652,7 @@ START_TEST (test_mp3_encode)
   error = OMX_GetHandle (&p_filewrt, FILE_WRITER_COMPONENT_NAME, (OMX_PTR *) (&wrt_ctx),
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] hdl [%p]", FILE_WRITER_COMPONENT_NAME, p_filewrt);
+  TIZ_LOG (TIZ_TRACE, "[%s] hdl [%p]", FILE_WRITER_COMPONENT_NAME, p_filewrt);
   pg_hdls[1] = p_filewrt;;
 
   /* ---------------------------------------------- */
@@ -664,9 +664,9 @@ START_TEST (test_mp3_encode)
   error = OMX_GetParameter (p_mp3enc, OMX_IndexParamPortDefinition, &enc_port_def0);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #0 nBufferSize [%d]",
+  TIZ_LOG (TIZ_TRACE, "[%s] port #0 nBufferSize [%d]",
              MP3_ENC_COMPONENT_NAME, enc_port_def0.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #0 nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "[%s] port #0 nBufferCountActual [%d]",
              MP3_ENC_COMPONENT_NAME, enc_port_def0.nBufferCountActual);
 
   /* ---------------------------------------------- */
@@ -678,9 +678,9 @@ START_TEST (test_mp3_encode)
   error = OMX_GetParameter (p_mp3enc, OMX_IndexParamPortDefinition, &enc_port_def1);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #1 nBufferSize [%d]",
+  TIZ_LOG (TIZ_TRACE, "[%s] port #1 nBufferSize [%d]",
              MP3_ENC_COMPONENT_NAME, enc_port_def1.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] port #1 nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "[%s] port #1 nBufferCountActual [%d]",
              MP3_ENC_COMPONENT_NAME, enc_port_def1.nBufferCountActual);
 
   /* ----------------------------------------------- */
@@ -693,9 +693,9 @@ START_TEST (test_mp3_encode)
                             &wrt_port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] nBufferSize [%d]",
+  TIZ_LOG (TIZ_TRACE, "[%s] nBufferSize [%d]",
              FILE_WRITER_COMPONENT_NAME, wrt_port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "[%s] nBufferCountActual [%d]",
              FILE_WRITER_COMPONENT_NAME, wrt_port_def.nBufferCountActual);
 
   /* --------------------------------------------------- */
@@ -755,7 +755,7 @@ START_TEST (test_mp3_encode)
   enc_mp3_type.eChannelMode = OMX_AUDIO_ChannelModeStereo;
   enc_mp3_type.eFormat = OMX_AUDIO_MP3StreamFormatMP1Layer3;
   error = OMX_SetParameter (p_mp3enc, OMX_IndexParamAudioMp3, &enc_mp3_type);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] : OMX_SetParameter(port #0, "
+  TIZ_LOG (TIZ_TRACE, "[%s] : OMX_SetParameter(port #0, "
            "OMX_IndexParamAudioMp3) = [%s]", MP3_ENC_COMPONENT_NAME,
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
@@ -768,7 +768,7 @@ START_TEST (test_mp3_encode)
   supplier.nPortIndex = 0;
   supplier.eBufferSupplier = OMX_BufferSupplyInput;
   error = OMX_SetParameter (p_filewrt, OMX_IndexParamCompBufferSupplier, &supplier);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
              FILE_WRITER_COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -780,7 +780,7 @@ START_TEST (test_mp3_encode)
   supplier.nPortIndex = 1;
   supplier.eBufferSupplier = OMX_BufferSupplyInput;
   error = OMX_SetParameter (p_mp3enc, OMX_IndexParamCompBufferSupplier, &supplier);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
              MP3_ENC_COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -797,7 +797,7 @@ START_TEST (test_mp3_encode)
   error = OMX_GetParameter (p_filewrt, OMX_IndexParamContentURI, p_uri_param);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI);
+  TIZ_LOG (TIZ_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI);
 
   /* ----------------*/
   /* Set the new URI */
@@ -805,7 +805,7 @@ START_TEST (test_mp3_encode)
   strcpy ((char*)p_uri_param->contentURI, pg_files[1]);
   p_uri_param->contentURI[strlen (pg_files[1])] = '\0';
   error = OMX_SetParameter (p_filewrt, OMX_IndexParamContentURI, p_uri_param);
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, "
+  TIZ_LOG (TIZ_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, "
            "URI [%s]) = [%s]", p_uri_param->contentURI, tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
@@ -813,7 +813,7 @@ START_TEST (test_mp3_encode)
   /* Create Tunnel Encoder <-> Writer*/
   /* ----------------------------------- */
   error = OMX_SetupTunnel(p_mp3enc, 1, p_filewrt, 0);
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_SetupTunnel [%s]", tiz_err_to_str(error));
+  TIZ_LOG (TIZ_TRACE, "OMX_SetupTunnel [%s]", tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
   /* ------------------------------------- */
@@ -821,7 +821,7 @@ START_TEST (test_mp3_encode)
   /* ------------------------------------- */
   error = _ctx_reset (&enc_ctx, OMX_EventCmdComplete);
   error = OMX_SendCommand (p_mp3enc, OMX_CommandStateSet, OMX_StateIdle, NULL);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_StateIdle [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_StateIdle [%s]",
              MP3_ENC_COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -830,7 +830,7 @@ START_TEST (test_mp3_encode)
   /* -------------------------------------- */
   error = _ctx_reset (&wrt_ctx, OMX_EventCmdComplete);
   error = OMX_SendCommand (p_filewrt, OMX_CommandStateSet, OMX_StateIdle, NULL);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_StateIdle [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_StateIdle [%s]",
              FILE_WRITER_COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -847,18 +847,18 @@ START_TEST (test_mp3_encode)
                                   0, enc_port_def0.nBufferSize);
       fail_if (OMX_ErrorNone != error);
       fail_if (p_hdrlst[i] == NULL);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
                  p_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nFilledLen [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFilledLen [%d]", i,
                  p_hdrlst[i]->nFilledLen);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nOffset [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOffset [%d]", i,
                  p_hdrlst[i]->nOffset);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nOutputPortIndex [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOutputPortIndex [%d]", i,
                  p_hdrlst[i]->nOutputPortIndex);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nInputPortIndex [%d]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nInputPortIndex [%d]", i,
                  p_hdrlst[i]->nInputPortIndex);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_hdrlst[%d]->nFlags [%X]", i,
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFlags [%X]", i,
                  p_hdrlst[i]->nFlags);
       fail_if (enc_port_def0.nBufferSize > p_hdrlst[i]->nAllocLen);
     }
@@ -868,7 +868,7 @@ START_TEST (test_mp3_encode)
   /* -------------------------------------------------- */
   error = _ctx_wait (&wrt_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_wrt_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_wrt_ctx->state [%s]",
              tiz_state_to_str (p_wrt_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -878,7 +878,7 @@ START_TEST (test_mp3_encode)
   /* Check writer's state transition success */
   /* ----------------------------------------- */
   error = OMX_GetState (p_filewrt, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] state [%s]",
              FILE_WRITER_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
@@ -888,7 +888,7 @@ START_TEST (test_mp3_encode)
   /* ------------------------------------------------- */
   error = _ctx_wait (&enc_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_enc_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_enc_ctx->state [%s]",
              tiz_state_to_str (p_enc_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -898,7 +898,7 @@ START_TEST (test_mp3_encode)
   /* Check encoder's state transition success */
   /* ----------------------------------------- */
   error = OMX_GetState (p_mp3enc, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] state [%s]",
              MP3_ENC_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
@@ -924,7 +924,7 @@ START_TEST (test_mp3_encode)
   /* ------------------------------------------------------ */
   error = _ctx_wait (&enc_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_enc_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_enc_ctx->state [%s]",
              tiz_state_to_str (p_enc_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -935,7 +935,7 @@ START_TEST (test_mp3_encode)
   /* ----------------------------------------- */
   state = OMX_StateMax;
   error = OMX_GetState (p_mp3enc, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] state [%s]",
              MP3_ENC_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateExecuting != state);
@@ -945,7 +945,7 @@ START_TEST (test_mp3_encode)
   /* ------------------------------------------------------- */
   error = _ctx_wait (&wrt_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_wrt_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_wrt_ctx->state [%s]",
              tiz_state_to_str (p_wrt_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -955,7 +955,7 @@ START_TEST (test_mp3_encode)
   /* Check writer's state transition success */
   /* ----------------------------------------- */
   error = OMX_GetState (p_filewrt, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] state [%s]",
              FILE_WRITER_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateExecuting != state);
@@ -968,19 +968,19 @@ START_TEST (test_mp3_encode)
   i = 0;
   while (i < enc_port_def0.nBufferCountActual)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Reading from file [%s]", pg_files[0]);
+      TIZ_LOG (TIZ_TRACE, "Reading from file [%s]", pg_files[0]);
       if (!
           (err =
            read (p_file, p_hdrlst[i]->pBuffer, enc_port_def0.nBufferSize)))
         {
           if (0 == err)
             {
-              TIZ_LOG (TIZ_LOG_TRACE, "End of file reached for [%s]",
+              TIZ_LOG (TIZ_TRACE, "End of file reached for [%s]",
                          pg_files[0]);
             }
           else
             {
-              TIZ_LOG (TIZ_LOG_TRACE,
+              TIZ_LOG (TIZ_TRACE,
                          "An error occurred while reading [%s]",
                          pg_files[0]);
               fail_if (0);
@@ -994,7 +994,7 @@ START_TEST (test_mp3_encode)
           p_hdrlst[i]->nFlags |= OMX_BUFFERFLAG_EOS;
         }
 
-      TIZ_LOG (TIZ_LOG_TRACE, "Emptying header #%d -> [%p] "
+      TIZ_LOG (TIZ_TRACE, "Emptying header #%d -> [%p] "
                  "nFilledLen [%d] nFlags [%X]",
                  i, p_hdrlst[i], err,
                  p_hdrlst[i]->nFlags);
@@ -1032,7 +1032,7 @@ START_TEST (test_mp3_encode)
       error = _ctx_wait (&enc_ctx, OMX_EventBufferFlag,
                          TIMEOUT_EXPECTING_SUCCESS_BUFFER_TRANSFER,
                          &timedout);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_enc_ctx->flags [%X]",
+      TIZ_LOG (TIZ_TRACE, "p_enc_ctx->flags [%X]",
                  p_enc_ctx->flags);
       fail_if (OMX_ErrorNone != error);
       fail_if (!(p_enc_ctx->flags & OMX_BUFFERFLAG_EOS));
@@ -1050,7 +1050,7 @@ START_TEST (test_mp3_encode)
     {
       error = _ctx_wait (&wrt_ctx, OMX_EventBufferFlag,
                          TIMEOUT_EXPECTING_SUCCESS, &timedout);
-      TIZ_LOG (TIZ_LOG_TRACE, "p_wrt_ctx->flags [%X]",
+      TIZ_LOG (TIZ_TRACE, "p_wrt_ctx->flags [%X]",
                  p_wrt_ctx->flags);
       fail_if (OMX_ErrorNone != error);
       fail_if (!(p_wrt_ctx->flags & OMX_BUFFERFLAG_EOS));
@@ -1079,7 +1079,7 @@ START_TEST (test_mp3_encode)
   /* ------------------------------------------- */
   error = _ctx_wait (&enc_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_enc_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_enc_ctx->state [%s]",
              tiz_state_to_str (p_enc_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -1089,7 +1089,7 @@ START_TEST (test_mp3_encode)
   /* Check encoder's state transition success */
   /* ----------------------------------------- */
   error = OMX_GetState (p_mp3enc, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] state [%s]",
              MP3_ENC_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
@@ -1099,7 +1099,7 @@ START_TEST (test_mp3_encode)
   /* -------------------------------------------- */
   error = _ctx_wait (&wrt_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_wrt_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_wrt_ctx->state [%s]",
              tiz_state_to_str (p_wrt_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
@@ -1109,7 +1109,7 @@ START_TEST (test_mp3_encode)
   /* Check writer's state transition success */
   /* ----------------------------------------- */
   error = OMX_GetState (p_filewrt, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] state [%s]",
              FILE_WRITER_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
@@ -1148,7 +1148,7 @@ START_TEST (test_mp3_encode)
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_wrt_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_wrt_ctx->state [%s]",
              tiz_state_to_str (p_wrt_ctx->state));
   fail_if (OMX_StateLoaded != p_wrt_ctx->state);
 
@@ -1156,7 +1156,7 @@ START_TEST (test_mp3_encode)
   /* Check writer's state transition success */
   /* ----------------------------------------- */
   error = OMX_GetState (p_filewrt, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] state [%s]",
              FILE_WRITER_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
@@ -1168,7 +1168,7 @@ START_TEST (test_mp3_encode)
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_enc_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_enc_ctx->state [%s]",
              tiz_state_to_str (p_enc_ctx->state));
   fail_if (OMX_StateLoaded != p_enc_ctx->state);
 
@@ -1176,7 +1176,7 @@ START_TEST (test_mp3_encode)
   /* Check encoder's state transition success */
   /* ----------------------------------------- */
   error = OMX_GetState (p_mp3enc, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] state [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] state [%s]",
              MP3_ENC_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
@@ -1185,7 +1185,7 @@ START_TEST (test_mp3_encode)
   /* Teardown tunnel */
   /* ---------------- */
   error = OMX_TeardownTunnel(p_mp3enc, 1, p_filewrt, 0);
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_TeardownTunnel [%s]", tiz_err_to_str(error));
+  TIZ_LOG (TIZ_TRACE, "OMX_TeardownTunnel [%s]", tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
   /* ------------------ */
@@ -1231,7 +1231,7 @@ main (void)
 
   tiz_log_init();
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL Lame Mp3 Encoder unit tests");
+  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL Lame Mp3 Encoder unit tests");
 
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);

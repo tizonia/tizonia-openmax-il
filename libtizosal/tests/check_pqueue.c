@@ -29,7 +29,7 @@
 static void
 pqueue_print_item (OMX_PTR ap_data, OMX_S32 a_priority)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "data [%d] priority [%d]",
+  TIZ_LOG (TIZ_TRACE, "data [%d] priority [%d]",
              *(int *) ap_data, a_priority);
 }
 
@@ -37,7 +37,7 @@ static void
 pqueue_dump_item (OMX_PTR ap_data, OMX_S32 a_priority,
                   OMX_PTR ap_cur, OMX_PTR ap_next, OMX_PTR ap_prev)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "data [%d] priority [%d] cur [%p] "
+  TIZ_LOG (TIZ_TRACE, "data [%d] priority [%d] cur [%p] "
              "next [%p] prev [%p]",
              *(int *) ap_data, a_priority, ap_cur, ap_next, ap_prev);
 }
@@ -45,7 +45,7 @@ pqueue_dump_item (OMX_PTR ap_data, OMX_S32 a_priority,
 static OMX_S32
 pqueue_cmp (OMX_PTR ap_left, OMX_PTR ap_right)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "left [%d] right [%d]",
+  TIZ_LOG (TIZ_TRACE, "left [%d] right [%d]",
              *(int *) ap_left, *(int *) ap_right);
 
   if ((*(int *) ap_left) == (*(int *) ap_right))
@@ -66,7 +66,7 @@ START_TEST (test_pqueue_init_and_destroy)
   OMX_ERRORTYPE error = OMX_ErrorNone;
   tiz_pqueue_t *p_queue = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_pqueue_init_and_destroy");
+  TIZ_LOG (TIZ_TRACE, "test_pqueue_init_and_destroy");
 
   error = tiz_pqueue_init (&p_queue, 10, &pqueue_cmp, NULL, NULL);
 
@@ -86,7 +86,7 @@ START_TEST (test_pqueue_send_and_receive_one_group)
   tiz_pqueue_t *p_queue = NULL;
   tiz_soa_t *p_soa = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_pqueue_send_and_receive_one_group");
+  TIZ_LOG (TIZ_TRACE, "test_pqueue_send_and_receive_one_group");
 
   fail_if (tiz_soa_init (&p_soa) != OMX_ErrorNone);
 
@@ -103,7 +103,7 @@ START_TEST (test_pqueue_send_and_receive_one_group)
       fail_if (error != OMX_ErrorNone);
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "queue length %d",
+  TIZ_LOG (TIZ_TRACE, "queue length %d",
              tiz_pqueue_length (p_queue));
   fail_if (10 != tiz_pqueue_length (p_queue));
 
@@ -123,7 +123,7 @@ START_TEST (test_pqueue_send_and_receive_one_group)
       p_item = (int *) p_received;
       if (i < 9)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "item [%d]", *p_item);
+          TIZ_LOG (TIZ_TRACE, "item [%d]", *p_item);
           fail_if (*p_item != i);
           tiz_mem_free (p_received);
         }
@@ -143,7 +143,7 @@ START_TEST (test_pqueue_send_and_receive_two_groups)
   int *p_item = NULL;
   tiz_pqueue_t *p_queue = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_pqueue_send_and_receive_two_groups");
+  TIZ_LOG (TIZ_TRACE, "test_pqueue_send_and_receive_two_groups");
 
   error = tiz_pqueue_init (&p_queue, 1, &pqueue_cmp, NULL, NULL);
 
@@ -155,11 +155,11 @@ START_TEST (test_pqueue_send_and_receive_two_groups)
       fail_if (p_item == NULL);
       *p_item = i;
       error = tiz_pqueue_send (p_queue, p_item, i / 5);
-      TIZ_LOG (TIZ_LOG_TRACE, "error [%p]", error);
+      TIZ_LOG (TIZ_TRACE, "error [%p]", error);
       fail_if (error != OMX_ErrorNone);
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "queue length %d",
+  TIZ_LOG (TIZ_TRACE, "queue length %d",
              tiz_pqueue_length (p_queue));
   fail_if (10 != tiz_pqueue_length (p_queue));
 
@@ -169,7 +169,7 @@ START_TEST (test_pqueue_send_and_receive_two_groups)
       fail_if (error != OMX_ErrorNone);
       fail_if (p_received == NULL);
       p_item = (int *) p_received;
-      TIZ_LOG (TIZ_LOG_TRACE, "item [%d]", *p_item);
+      TIZ_LOG (TIZ_TRACE, "item [%d]", *p_item);
       fail_if (*p_item != i);
       tiz_mem_free (p_received);
     }
@@ -191,7 +191,7 @@ START_TEST (test_pqueue_send_and_receive_two_groups)
 
       if (i < 5)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "item [%d]", *p_item);
+          TIZ_LOG (TIZ_TRACE, "item [%d]", *p_item);
           fail_if (*p_item != i);
           tiz_mem_free (p_received);
         }
@@ -212,7 +212,7 @@ START_TEST (test_pqueue_send_and_receive_three_groups)
   int *p_item = NULL;
   tiz_pqueue_t *p_queue = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_pqueue_send_and_receive_three_groups");
+  TIZ_LOG (TIZ_TRACE, "test_pqueue_send_and_receive_three_groups");
 
   error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, NULL);
 
@@ -224,7 +224,7 @@ START_TEST (test_pqueue_send_and_receive_three_groups)
       fail_if (p_item == NULL);
       *p_item = i;
       error = tiz_pqueue_send (p_queue, p_item, 0);
-      TIZ_LOG (TIZ_LOG_TRACE, "error [%X]", error);
+      TIZ_LOG (TIZ_TRACE, "error [%X]", error);
       fail_if (error != OMX_ErrorNone);
     }
 
@@ -234,7 +234,7 @@ START_TEST (test_pqueue_send_and_receive_three_groups)
       fail_if (p_item == NULL);
       *p_item = i;
       error = tiz_pqueue_send (p_queue, p_item, 1);
-      TIZ_LOG (TIZ_LOG_TRACE, "error [%X]", error);
+      TIZ_LOG (TIZ_TRACE, "error [%X]", error);
       fail_if (error != OMX_ErrorNone);
     }
 
@@ -244,11 +244,11 @@ START_TEST (test_pqueue_send_and_receive_three_groups)
       fail_if (p_item == NULL);
       *p_item = i;
       error = tiz_pqueue_send (p_queue, p_item, 2);
-      TIZ_LOG (TIZ_LOG_TRACE, "error [%X]", error);
+      TIZ_LOG (TIZ_TRACE, "error [%X]", error);
       fail_if (error != OMX_ErrorNone);
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "queue length %d",
+  TIZ_LOG (TIZ_TRACE, "queue length %d",
              tiz_pqueue_length (p_queue));
   fail_if (10 != tiz_pqueue_length (p_queue));
 
@@ -258,7 +258,7 @@ START_TEST (test_pqueue_send_and_receive_three_groups)
       fail_if (error != OMX_ErrorNone);
       fail_if (p_received == NULL);
       p_item = (int *) p_received;
-      TIZ_LOG (TIZ_LOG_TRACE, "item [%d]", *p_item);
+      TIZ_LOG (TIZ_TRACE, "item [%d]", *p_item);
       fail_if (*p_item != i);
       tiz_mem_free (p_received);
     }
@@ -269,7 +269,7 @@ START_TEST (test_pqueue_send_and_receive_three_groups)
       fail_if (error != OMX_ErrorNone);
       fail_if (p_received == NULL);
       p_item = (int *) p_received;
-      TIZ_LOG (TIZ_LOG_TRACE, "item [%d]", *p_item);
+      TIZ_LOG (TIZ_TRACE, "item [%d]", *p_item);
       fail_if (*p_item != i);
       tiz_mem_free (p_received);
     }
@@ -291,7 +291,7 @@ START_TEST (test_pqueue_send_and_receive_three_groups)
 
       if (i < 3)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "item [%d]", *p_item);
+          TIZ_LOG (TIZ_TRACE, "item [%d]", *p_item);
           fail_if (*p_item != i);
           tiz_mem_free (p_received);
         }
@@ -311,7 +311,7 @@ START_TEST (test_pqueue_first)
   OMX_PTR p_received = NULL;
   int *p_item = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_pqueue_first");
+  TIZ_LOG (TIZ_TRACE, "test_pqueue_first");
 
   error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, NULL);
 
@@ -333,7 +333,7 @@ START_TEST (test_pqueue_first)
   error = tiz_pqueue_first (p_queue, &p_received);
   fail_if (error != OMX_ErrorNone);
   p_item = (int *) p_received;
-  TIZ_LOG (TIZ_LOG_TRACE, "*p_item [%d]", *p_item);
+  TIZ_LOG (TIZ_TRACE, "*p_item [%d]", *p_item);
   fail_if (*p_item != 2);
 
   tiz_pqueue_print (p_queue, &pqueue_print_item);
@@ -343,7 +343,7 @@ START_TEST (test_pqueue_first)
       error = tiz_pqueue_receive (p_queue, &p_received);
       fail_if (error != OMX_ErrorNone);
       p_item = (int *) p_received;
-      TIZ_LOG (TIZ_LOG_TRACE, "*p_item [%d]", *p_item);
+      TIZ_LOG (TIZ_TRACE, "*p_item [%d]", *p_item);
       fail_if (*p_item != i);
       tiz_mem_free (p_received);
     }
@@ -362,7 +362,7 @@ START_TEST (test_pqueue_remove)
   OMX_PTR p_received = NULL;
   int *p_item = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_pqueue_remove");
+  TIZ_LOG (TIZ_TRACE, "test_pqueue_remove");
 
   error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, NULL);
 
@@ -394,7 +394,7 @@ START_TEST (test_pqueue_remove)
       error = tiz_pqueue_receive (p_queue, &p_received);
       fail_if (error != OMX_ErrorNone);
       p_item = (int *) p_received;
-      TIZ_LOG (TIZ_LOG_TRACE, "*p_item [%d]", *p_item);
+      TIZ_LOG (TIZ_TRACE, "*p_item [%d]", *p_item);
       fail_if (*p_item != i);
       tiz_mem_free (p_received);
     }
@@ -414,7 +414,7 @@ START_TEST (test_pqueue_removep)
   int *p_item = NULL;
   int *p_item_cat_one = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_pqueue_removep");
+  TIZ_LOG (TIZ_TRACE, "test_pqueue_removep");
 
   error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, NULL);
 
@@ -450,7 +450,7 @@ START_TEST (test_pqueue_removep)
       error = tiz_pqueue_receive (p_queue, &p_received);
       fail_if (error != OMX_ErrorNone);
       p_item = (int *) p_received;
-      TIZ_LOG (TIZ_LOG_TRACE, "*p_item [%d]", *p_item);
+      TIZ_LOG (TIZ_TRACE, "*p_item [%d]", *p_item);
       if (2 == i)
         fail_if (*p_item != 2);
       if (1 == i)

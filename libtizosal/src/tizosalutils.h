@@ -52,7 +52,7 @@ extern "C"
   do {                                                          \
     OMX_ERRORTYPE _err = _a;                                    \
     if (OMX_ErrorNone != _err) {                                \
-      TIZ_LOG(TIZ_LOG_ERROR, "[%s]...", tiz_err_to_str (_err)); \
+      TIZ_LOG(TIZ_ERROR, "[%s]...", tiz_err_to_str (_err)); \
       return _err;                                              \
     }                                                           \
   } while(0)
@@ -61,7 +61,7 @@ extern "C"
   do {                                                                  \
     OMX_ERRORTYPE _err = _a;                                            \
     if (OMX_ErrorNone != _err) {                                        \
-      TIZ_LOG(TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] "        \
+      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources] "        \
               "was [%s]...", tiz_err_to_str (_err));                    \
       return OMX_ErrorInsufficientResources;                            \
     }                                                                   \
@@ -71,7 +71,7 @@ extern "C"
   do {                                                          \
     OMX_ERRORTYPE _err = _a;                                    \
     if (OMX_ErrorNone != _err) {                                \
-      TIZ_LOG(TIZ_LOG_ERROR, "[%s]...", tiz_err_to_str (_err)); \
+      TIZ_LOG(TIZ_ERROR, "[%s]...", tiz_err_to_str (_err)); \
       return NULL;                                              \
     }                                                           \
   } while(0)

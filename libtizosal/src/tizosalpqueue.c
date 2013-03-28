@@ -123,7 +123,7 @@ tiz_pqueue_init (tiz_pqueue_t ** pp_q,
 {
   tiz_pqueue_t *p_q = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Initializing [%s] pqueue with max_priority [%d]",
+  TIZ_LOG (TIZ_TRACE, "Initializing [%s] pqueue with max_priority [%d]",
            ap_str, a_max_priority);
 
   assert (pp_q != NULL);
@@ -163,7 +163,7 @@ tiz_pqueue_destroy (tiz_pqueue_t * p_q)
 {
   if (p_q)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Destroying [%s] pqueue [%p]", p_q->p_str, p_q);
+      TIZ_LOG (TIZ_TRACE, "Destroying [%s] pqueue [%p]", p_q->p_str, p_q);
 
       assert (p_q->p_first == p_q->p_last);
       assert (p_q->p_first == NULL);
@@ -189,7 +189,7 @@ tiz_pqueue_send (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
       == (p_new = (tiz_pqueue_item_t *)
           pqueue_calloc (p_q->p_soa, sizeof (tiz_pqueue_item_t))))
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOG (TIZ_ERROR, "[OMX_ErrorInsufficientResources] : "
                "pqueue[%p] length [%d]. Could not allocate a queue item.",
                p_q, p_q->length);
       rc = OMX_ErrorInsufficientResources;
@@ -258,7 +258,7 @@ tiz_pqueue_send (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
       p_new->priority = a_priority;
       p_q->length++;
 
-      TIZ_LOG (TIZ_LOG_TRACE, "[%s] pq[%p] len[%d] fst [%p] lst [%p]",
+      TIZ_LOG (TIZ_TRACE, "[%s] pq[%p] len[%d] fst [%p] lst [%p]",
                p_q->p_str, p_q, p_q->length, p_q->p_first, p_q->p_last);
 
       assert (NULL != p_q->p_first);
@@ -276,7 +276,7 @@ tiz_pqueue_receive (tiz_pqueue_t * p_q, void * *app_data)
   assert (NULL != p_q);
   assert (NULL != app_data);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s], pq[%p] len[%d] fst [%p] lst [%p]",
+  TIZ_LOG (TIZ_TRACE, "[%s], pq[%p] len[%d] fst [%p] lst [%p]",
            p_q->p_str, p_q, p_q->length, p_q->p_first, p_q->p_last);
 
   if (0 >= p_q->length)
@@ -296,7 +296,7 @@ tiz_pqueue_receive (tiz_pqueue_t * p_q, void * *app_data)
 
       if (p_prev)
         {
-          TIZ_LOG (TIZ_LOG_TRACE,
+          TIZ_LOG (TIZ_TRACE,
                    "[%s], pq[%p] len[%d] fst [%p] lst [%p] p_prev[%p]",
                    p_q->p_str, p_q, p_q->length, p_q->p_first, p_q->p_last,
                    p_prev);
@@ -329,7 +329,7 @@ tiz_pqueue_receive (tiz_pqueue_t * p_q, void * *app_data)
               0 ? (NULL != p_q->p_first && NULL != p_q->p_last) : 1);
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s], pq[%p] len[%d] fst [%p] lst [%p]",
+  TIZ_LOG (TIZ_TRACE, "[%s], pq[%p] len[%d] fst [%p] lst [%p]",
            p_q->p_str, p_q, p_q->length, p_q->p_first, p_q->p_last);
 
   return rc;
@@ -395,7 +395,7 @@ tiz_pqueue_remove (tiz_pqueue_t * p_q, void *ap_data)
       p_cur = p_cur->p_prev;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "pq[%p] len[%d] fst [%p] lst [%p]",
+  TIZ_LOG (TIZ_TRACE, "pq[%p] len[%d] fst [%p] lst [%p]",
            p_q, p_q->length, p_q->p_first, p_q->p_last);
 
   return rc;
@@ -409,7 +409,7 @@ tiz_pqueue_removep (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
   tiz_pqueue_item_t *p_prev = NULL;
   tiz_pqueue_item_t *p_next = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_q [%p] ap_data [%p] "
+  TIZ_LOG (TIZ_TRACE, "p_q [%p] ap_data [%p] "
            "a_priority [%d]", p_q, ap_data, a_priority);
 
   assert (NULL != p_q);
@@ -466,7 +466,7 @@ tiz_pqueue_removep (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
       p_cur = p_cur->p_prev;
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "pq[%p] len[%d] fst [%p] lst [%p]",
+  TIZ_LOG (TIZ_TRACE, "pq[%p] len[%d] fst [%p] lst [%p]",
            p_q, p_q->length, p_q->p_first, p_q->p_last);
 
   return rc;
@@ -484,7 +484,7 @@ tiz_pqueue_remove_func (tiz_pqueue_t * p_q, tiz_pq_func_f a_pf_func,
   assert (NULL != a_pf_func);
   assert (NULL != ap_data2);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "pq[%p] len[%d] fst [%p] lst [%p]",
+  TIZ_LOG (TIZ_TRACE, "pq[%p] len[%d] fst [%p] lst [%p]",
            p_q, p_q->length, p_q->p_first, p_q->p_last);
 
   p_cur = p_q->p_first;
@@ -580,7 +580,7 @@ tiz_pqueue_print (tiz_pqueue_t * p_q, tiz_pq_print_item_f a_pf_print)
   tiz_pqueue_item_t *p_first = NULL;
   OMX_S32 count = 0;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_q [%p]", p_q);
+  TIZ_LOG (TIZ_TRACE, "p_q [%p]", p_q);
 
   assert (NULL != p_q);
   assert (NULL != a_pf_print);
@@ -605,7 +605,7 @@ tiz_pqueue_dump (tiz_pqueue_t * p_q, tiz_pq_dump_item_f a_pf_dump)
   assert (NULL != p_q);
   assert (NULL != a_pf_dump);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_q [%p] first [%p] last [%p] "
+  TIZ_LOG (TIZ_TRACE, "p_q [%p] first [%p] last [%p] "
            "length [%d] max_priority [%d]", p_q, p_q->p_first,
            p_q->p_last, p_q->length, p_q->max_priority);
 

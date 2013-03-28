@@ -207,7 +207,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
         {
           /* Found, return TRUE so this item will be removed from the servant
            * queue */
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_msg->p_hdl),
                          TIZ_CBUF (p_msg->p_hdl),
                          "tiz_kernel_msg_callback_t : Found HEADER [%p]",
                          p_hdr);
@@ -217,7 +217,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   else
     {
       /* Not interested */
-      TIZ_LOG (TIZ_LOG_TRACE,
+      TIZ_LOG (TIZ_TRACE,
                "Not interested : class  [%s]",
                tiz_kernel_msg_to_str (p_msg->class));
     }
@@ -250,21 +250,21 @@ deliver_pluggable_event (OMX_U32 rid, OMX_HANDLETYPE ap_hdl)
 static void
 wait_complete (OMX_U32 rid, OMX_PTR ap_data)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "wait_complete : rid [%u]", rid);
+  TIZ_LOG (TIZ_TRACE, "wait_complete : rid [%u]", rid);
   deliver_pluggable_event (rid, ap_data);
 }
 
 static void
 preemption_req (OMX_U32 rid, OMX_PTR ap_data)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "preemption_req : rid [%u]", rid);
+  TIZ_LOG (TIZ_TRACE, "preemption_req : rid [%u]", rid);
   deliver_pluggable_event (rid, ap_data);
 }
 
 static void
 preemption_complete (OMX_U32 rid, OMX_PTR ap_data)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "preemption_complete : rid [%u]", rid);
+  TIZ_LOG (TIZ_TRACE, "preemption_complete : rid [%u]", rid);
   deliver_pluggable_event (rid, ap_data);
 }
 
@@ -284,7 +284,7 @@ init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
                                    &comp_ver, &spec_ver, &uuid);
   if (OMX_ErrorNone != rc)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[%s] : Could not obtain component name from config "
                      "port....RM proxy initialization bailing out...",
@@ -298,7 +298,7 @@ init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
                                                OMX_IndexConfigPriorityMgmt,
                                                &primgmt)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[%s] : Could not obtain OMX_IndexConfigPriorityMgmt config "
                      "from port....RM proxy initialization bailing out...",
@@ -311,14 +311,14 @@ init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
                                    (const OMX_UUIDTYPE *) &uuid,
                                    &primgmt, &p_obj->rm_cbacks_, ap_hdl)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
                      "RM proxy initialization failed RM error [%d]...", rmrc);
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                  TIZ_CBUF (ap_hdl),
                  "[%s] [%p] : RM init'ed", comp_name, ap_hdl);
 
@@ -334,7 +334,7 @@ deinit_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   if (TIZRM_SUCCESS != (rmrc = tizrm_proxy_destroy (&p_obj->rm_)))
     {
       /* TODO: Translate into a proper error code, especially OOM error  */
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl), "RM proxy deinitialization failed...");
       return OMX_ErrorUndefined;
     }
@@ -489,7 +489,7 @@ complete_ongoing_transitions (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
   if ((ESubStateIdleToLoaded == cur_state) && all_depopulated (ap_obj))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl), "AllPortsDepopulated : [TRUE]");
       /* TODO : Review this */
       /* If all ports are depopulated, kick off removal of buffer
@@ -499,7 +499,7 @@ complete_ongoing_transitions (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
     }
   else if ((ESubStateLoadedToIdle == cur_state) && all_populated (ap_obj))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl), "AllPortsPopulated : [TRUE]");
       rc = tiz_fsm_complete_transition
         (tiz_get_fsm (ap_hdl), ap_obj, OMX_StateIdle);
@@ -533,7 +533,7 @@ acquire_rm_resources (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
           }
         };
 
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[%s] : RM resource acquisition failed RM error [%d]...",
                      tiz_err_to_str (rc), rmrc);
@@ -552,7 +552,7 @@ release_rm_resources (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   if (TIZRM_SUCCESS
       != (rmrc = tizrm_proxy_release (&p_obj->rm_, TIZRM_RESOURCE_DUMMY, 1)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "RM resource release failed RM error [%d]...", rmrc);
     }
@@ -636,7 +636,7 @@ add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
   assert (p_list && *(tiz_vector_t **) p_list);
   p_list = *(tiz_vector_t **) p_list;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "HEADER [%p] BUFFER [%p] PID [%d] "
                  "list size [%d] buf count [%d]",
                  ap_hdr, ap_hdr->pBuffer, pid, tiz_vector_length (p_list),
@@ -677,7 +677,7 @@ clear_hdr_lst (tiz_vector_t * ap_hdr_lst, OMX_U32 a_pid)
       tiz_clear_header (*pp_hdr);
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Headers cleared [%d]...", hdr_count);
+  TIZ_LOG (TIZ_TRACE, "Headers cleared [%d]...", hdr_count);
 
   return hdr_count;
 }
@@ -704,7 +704,7 @@ check_pid (const struct tizkernel *p_obj, OMX_U32 a_pid)
 {
   if (a_pid >= tiz_vector_length (p_obj->p_ports_))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+      TIZ_LOG_CNAME (TIZ_ERROR,
                      TIZ_CNAME (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                      TIZ_CBUF (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                      "[OMX_ErrorBadPortIndex] : port [%d]...", a_pid);
@@ -728,7 +728,7 @@ init_kernel_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tiz_kernel_msg_t))))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
                      "Could not allocate message [%s]",
                      tiz_kernel_msg_to_str (a_msg_class));
@@ -756,7 +756,7 @@ enqueue_callback_msg (const void *ap_obj,
 
   p_hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                  "Enqueue msg callback : HEADER [%p] BUFFER [%p] "
                  "PID [%d] DIR [%s]",
                  ap_hdr, ap_hdr ? ap_hdr->pBuffer : NULL,
@@ -795,7 +795,7 @@ cmd_to_priority (OMX_COMMANDTYPE a_cmd)
       break;
 
     default:
-      TIZ_LOG (TIZ_LOG_TRACE, "Unknown command class [%d]", a_cmd);
+      TIZ_LOG (TIZ_TRACE, "Unknown command class [%d]", a_cmd);
       assert (0);
       break;
     };
@@ -836,7 +836,7 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
       p_list = tiz_vector_at (p_obj->p_ingress_, pid);
       assert (p_list && *(tiz_vector_t **) p_list);
       p_list = *(tiz_vector_t **) p_list;
-      TIZ_LOG (TIZ_LOG_TRACE, "port [%d]'s ingress list length [%d]...",
+      TIZ_LOG (TIZ_TRACE, "port [%d]'s ingress list length [%d]...",
                pid, tiz_vector_length (p_list));
 
       nbufs = tiz_vector_length (p_list);
@@ -847,7 +847,7 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
           assert (pp_hdr && *pp_hdr);
           p_hdr = *pp_hdr;
 
-          TIZ_LOG (TIZ_LOG_TRACE, "Dispatching HEADER [%p] BUFFER [%p]",
+          TIZ_LOG (TIZ_TRACE, "Dispatching HEADER [%p] BUFFER [%p]",
                    p_hdr, p_hdr->pBuffer);
 
           tiz_clear_header (p_hdr);
@@ -1027,7 +1027,7 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
     {
       /* Grab the port */
       pid = ((OMX_ALL != a_pid) ? a_pid : i);
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_TRACE,
                      TIZ_CNAME (base->p_hdl_),
                      TIZ_CBUF (base->p_hdl_),
                      "flush_egress : pid [%d] i [%d]", pid, i);
@@ -1044,7 +1044,7 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
       p_list = tiz_vector_at (p_obj->p_egress_, pid);
       assert (p_list && *(tiz_vector_t **) p_list);
       p_list = *(tiz_vector_t **) p_list;
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_TRACE,
                      TIZ_CNAME (base->p_hdl_),
                      TIZ_CBUF (base->p_hdl_),
                      "port [%d]'s i=[%d]  "
@@ -1058,7 +1058,7 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
           assert (pp_hdr && *pp_hdr);
           p_hdr = *pp_hdr;
 
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+          TIZ_LOG_CNAME (TIZ_TRACE,
                          TIZ_CNAME (base->p_hdl_),
                          TIZ_CBUF (base->p_hdl_),
                          "HEADER [%p] BUFFER [%p]", p_hdr, p_hdr->pBuffer);
@@ -1089,7 +1089,7 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
                 if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS
                     && OMX_DirOutput == pdir && p_obj->eos_ == OMX_FALSE)
                   {
-                    TIZ_LOG_CNAME (TIZ_LOG_NOTICE,
+                    TIZ_LOG_CNAME (TIZ_NOTICE,
                                    TIZ_CNAME (base->p_hdl_),
                                    TIZ_CBUF (base->p_hdl_),
                                    "OMX_BUFFERFLAG_EOS on port [%d]...", pid);
@@ -1212,14 +1212,14 @@ all_populated (const void *ap_obj)
       pp_port = tiz_vector_at (p_obj->p_ports_, i);
       assert (pp_port && *pp_port);
       p_port = *pp_port;
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                      "PORT [%d] is [%s] and [%s]", i,
                      TIZPORT_IS_ENABLED (p_port) ? "ENABLED" : "NOT ENABLED",
                      TIZPORT_IS_POPULATED (p_port) ? "POPULATED" :
                      "NOT POPULATED");
       if (TIZPORT_IS_ENABLED (p_port) && !(TIZPORT_IS_POPULATED (p_port)))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                          "ALL ENABLED ports are populated"
                          " = [%s]...", "OMX_FALSE");
           return OMX_FALSE;
@@ -1227,7 +1227,7 @@ all_populated (const void *ap_obj)
 
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (hdl),
                  TIZ_CBUF (hdl),
                  "ALL ENABLED ports are populated = [%s]...", "OMX_TRUE");
@@ -1254,13 +1254,13 @@ all_depopulated (const void *ap_obj)
       p_port = *pp_port;
       if (tizport_buffer_count (p_port))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                          "ALL DEPOPULATED = [%s]...", "OMX_FALSE");
           return OMX_FALSE;
         }
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "ALL DEPOPULATED = [%s]...", "OMX_TRUE");
 
   return OMX_TRUE;
@@ -1302,7 +1302,7 @@ all_buffers_returned (void *ap_obj)
               int j = 0;
               OMX_BUFFERHEADERTYPE **pp_hdr = NULL, *p_hdr = NULL;
 
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+              TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                              "Port [%d] : awaiting buffers"
                              "(only [%d] out of [%d] have arrived)", i,
                              nbufin, nbuf);
@@ -1313,7 +1313,7 @@ all_buffers_returned (void *ap_obj)
                   assert (pp_hdr && *pp_hdr);
                   p_hdr = *pp_hdr;
                   
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                  TIZ_LOG_CNAME (TIZ_TRACE,
                                  TIZ_CNAME (hdl),
                                  TIZ_CBUF (hdl),
                                  "HEADER [%p] BUFFER [%p]", p_hdr, p_hdr->pBuffer);
@@ -1327,7 +1327,7 @@ all_buffers_returned (void *ap_obj)
           const OMX_S32 claimed_count = TIZPORT_GET_CLAIMED_COUNT (p_port);
           if (claimed_count > 0)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+              TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                              "Port [%d] : still need to return [%d] buffers",
                              i, claimed_count);
               return OMX_FALSE;
@@ -1336,7 +1336,7 @@ all_buffers_returned (void *ap_obj)
 
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "ALL BUFFERS returned = [TRUE]...");
 
   p_obj->eos_ = OMX_FALSE;
@@ -1356,7 +1356,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
   /* Obtain the current state */
   tizapi_GetState (tiz_get_fsm (p_hdl), p_hdl, &now);
 
-  TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
+  TIZ_LOG_CNAME (TIZ_DEBUG,
                  TIZ_CNAME (p_hdl),
                  TIZ_CBUF (p_hdl),
                  "Requested transition [%s] -> [%s]",
@@ -1434,7 +1434,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
         else if (OMX_StateIdle == now)
           {
             /* TODO : review when this situation would occur  */
-            TIZ_LOG_CNAME (TIZ_LOG_WARN, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+            TIZ_LOG_CNAME (TIZ_WARN, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                            "Ignoring transition [%s] -> [%s]",
                            tiz_fsm_state_to_str (now),
                            tiz_fsm_state_to_str (ap_msg_sc->param1));
@@ -1483,7 +1483,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE,
+        TIZ_LOG (TIZ_TRACE,
                  "Unknown state [%s] [%d]",
                  tiz_fsm_state_to_str (ap_msg_sc->param1), ap_msg_sc->param1);
         assert (0);
@@ -1497,7 +1497,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE p_hdl,
         (tiz_get_fsm (p_hdl), ap_obj, ap_msg_sc->param1);
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                  "rc [%s]", tiz_err_to_str (rc));
 
   return rc;
@@ -1519,7 +1519,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   assert (p_hdl);
   pid = ap_msg_sc->param1;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_hdl),
                  TIZ_CBUF (p_hdl),
                  "Requested port disable for PORT [%d]", pid);
@@ -1527,7 +1527,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   /* Verify the port index.. */
   if ((OMX_ALL != pid) && (check_pid (p_obj, pid) != OMX_ErrorNone))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+      TIZ_LOG_CNAME (TIZ_ERROR,
                      TIZ_CNAME (p_hdl),
                      TIZ_CBUF (p_hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
@@ -1545,7 +1545,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
       assert (pp_port && *pp_port);
       p_port = *pp_port;
 
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_TRACE,
                      TIZ_CNAME (p_hdl),
                      TIZ_CBUF (p_hdl),
                      "disabling port [%d] of [%d]...", pid, nports - 1);
@@ -1553,7 +1553,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
       /* If port is already disabled, simply notify the command completion */
       if (TIZPORT_IS_DISABLED (p_port))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+          TIZ_LOG_CNAME (TIZ_TRACE,
                          TIZ_CNAME (p_hdl),
                          TIZ_CBUF (p_hdl),
                          "port [%d] was already disabled...", pid);
@@ -1568,7 +1568,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
           nbufs = move_to_ingress (p_obj, pid);
           if (nbufs < 0)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+              TIZ_LOG_CNAME (TIZ_ERROR,
                              TIZ_CNAME (p_hdl),
                              TIZ_CBUF (p_hdl),
                              "[OMX_ErrorInsufficientResources] : "
@@ -1602,7 +1602,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                       pp_hdr = tiz_vector_at (p_hdr_lst_copy, i);
                       assert (pp_hdr && *pp_hdr);
 
-                      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                      TIZ_LOG_CNAME (TIZ_TRACE,
                                      TIZ_CNAME (p_hdl),
                                      TIZ_CBUF (p_hdl),
                                      "port [%d] depopulated - removing "
@@ -1631,7 +1631,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
               if (OMX_ErrorNone != rc)
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+                  TIZ_LOG_CNAME (TIZ_ERROR,
                                  TIZ_CNAME (p_hdl),
                                  TIZ_CBUF (p_hdl),
                                  "[%s] depopulating port [%d]",
@@ -1657,7 +1657,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                 {
                   if (0 > move_to_egress (p_obj, pid))
                     {
-                      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+                      TIZ_LOG_CNAME (TIZ_ERROR,
                                      TIZ_CNAME (p_hdl),
                                      TIZ_CBUF (p_hdl),
                                      "[OMX_ErrorInsufficientResources] : "
@@ -1678,7 +1678,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                   /* We need to wait until the processor relinquishes all the
                    * buffers it is currently holding. */
 
-                  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                  TIZ_LOG_CNAME (TIZ_TRACE,
                                  TIZ_CNAME (p_hdl),
                                  TIZ_CBUF (p_hdl),
                                  "port [%d] going to disabled - claimed [%d]...",
@@ -1696,7 +1696,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
             }
           else
             {
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+              TIZ_LOG_CNAME (TIZ_TRACE,
                              TIZ_CNAME (p_hdl),
                              TIZ_CBUF (p_hdl),
                              "port [%d] is disabled...", pid);
@@ -1727,7 +1727,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   OMX_S32 i = 0;
   const tiz_fsm_state_id_t now = tiz_fsm_get_substate (tiz_get_fsm (p_hdl));
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                  TIZ_CBUF (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                  "Requested port enable for PORT [%d]", pid);
@@ -1735,7 +1735,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   /* Verify the port index.. */
   if ((OMX_ALL != pid) && (check_pid (p_obj, pid) != OMX_ErrorNone))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+      TIZ_LOG_CNAME (TIZ_ERROR,
                      TIZ_CNAME (p_hdl),
                      TIZ_CBUF (p_hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
@@ -1811,14 +1811,14 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
   OMX_S32 nbufs = 0;
   const tiz_fsm_state_id_t now = tiz_fsm_get_substate (tiz_get_fsm (p_hdl));
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_hdl),
                  TIZ_CBUF (p_hdl), "Requested port flush on PORT [%d]", pid);
 
   /* Verify the port index */
   if ((OMX_ALL != pid) && (check_pid (p_obj, pid) != OMX_ErrorNone))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+      TIZ_LOG_CNAME (TIZ_ERROR,
                      TIZ_CNAME (p_hdl),
                      TIZ_CBUF (p_hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
@@ -1872,7 +1872,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
                       nbufs = move_to_egress (p_obj, pid);
                       if (nbufs < 0)
                         {
-                          TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+                          TIZ_LOG_CNAME (TIZ_ERROR,
                                          TIZ_CNAME (p_hdl),
                                          TIZ_CBUF (p_hdl),
                                          "[OMX_ErrorInsufficientResources] : "
@@ -1901,7 +1901,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
                       nbufs = move_to_ingress (p_obj, pid);
                       if (nbufs < 0)
                         {
-                          TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+                          TIZ_LOG_CNAME (TIZ_ERROR,
                                          TIZ_CNAME (p_hdl),
                                          TIZ_CBUF (p_hdl),
                                          "[OMX_ErrorInsufficientResources] : "
@@ -1926,7 +1926,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
               nbufs = move_to_egress (p_obj, pid);
               if (nbufs < 0)
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+                  TIZ_LOG_CNAME (TIZ_ERROR,
                                  TIZ_CNAME (p_hdl),
                                  TIZ_CBUF (p_hdl),
                                  "[OMX_ErrorInsufficientResources] : "
@@ -1946,7 +1946,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
       if (OMX_ErrorNone != rc)
         {
           /* Complete the command with an error event */
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+          TIZ_LOG_CNAME (TIZ_TRACE,
                          TIZ_CNAME (p_hdl),
                          TIZ_CBUF (p_hdl),
                          "[%s] : Flush command failed on port [%d]...",
@@ -1958,7 +1958,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE p_hdl,
           /* Check if the processor holds a buffer. Will need to wait until any
            * buffers held by the processor are relinquished.  */
 
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+          TIZ_LOG_CNAME (TIZ_TRACE,
                          TIZ_CNAME (p_hdl),
                          TIZ_CBUF (p_hdl),
                          "port [%d] claimed_count = [%d]...",
@@ -2045,7 +2045,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
 
   now = tiz_fsm_get_substate (tiz_get_fsm (p_hdl));
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl),
                  TIZ_CBUF (p_hdl),
                  "HEADER [%p] STATE [%s] ", p_hdr,
                  tiz_fsm_state_to_str (now));
@@ -2063,7 +2063,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
    * OMX_StateExecuting. */
   if (EStatePause == now && !TIZPORT_IS_BEING_FLUSHED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl),
                      TIZ_CBUF (p_hdl),
                      "Deferring callbacks in "
                      "OMX_StatePause", p_hdr);
@@ -2071,7 +2071,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
       /* TODO: Double check whether this hack is needed anymore */
       if (NULL == p_hdr && OMX_DirMax == p_msg_cb->dir)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+          TIZ_LOG_CNAME (TIZ_TRACE,
                          TIZ_CNAME (p_hdl),
                          TIZ_CBUF (p_hdl),
                          "Enqueueing another dummy callback...");
@@ -2079,20 +2079,22 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
         }
       else
         {
-          /* Now decrement by one the port's claimed buffers count */
-          claimed_count = TIZPORT_DEC_CLAIMED_COUNT (p_port);
-
           /* ...add the header to the egress list... */
           if (OMX_ErrorNone
               != (rc = tiz_vector_push_back (p_egress_lst, &p_hdr)))
             {
-              TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+              TIZ_LOG_CNAME (TIZ_ERROR,
                              TIZ_CNAME (p_hdl),
                              TIZ_CBUF (p_hdl),
                              "[%s] : Could not add header [%p] to "
                              "port [%d] egress list",
                              tiz_err_to_str (rc), p_hdr,
                              pid);
+            }
+          else
+            {
+              /* Now decrement by one the port's claimed buffers count */
+              claimed_count = TIZPORT_DEC_CLAIMED_COUNT (p_port);
             }
         }
 
@@ -2108,7 +2110,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
   /* ...add the header to the egress list... */
   if (OMX_ErrorNone != (rc = tiz_vector_push_back (p_egress_lst, &p_hdr)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+      TIZ_LOG_CNAME (TIZ_ERROR,
                      TIZ_CNAME (p_hdl),
                      TIZ_CBUF (p_hdl),
                      "[%s] : Could not add header [%p] to "
@@ -2128,14 +2130,14 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
           /* If we are moving to Idle, move the buffers to ingress so they
              don't leave the component in the next step */
           nbufs = move_to_ingress (p_obj, pid);
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                          "nbufs [%d]", nbufs);
         }
 
       /* Here, we always flush the egress lists for ALL ports */
       if (OMX_ErrorNone != (rc = flush_egress (p_obj, OMX_ALL, OMX_FALSE)))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+          TIZ_LOG_CNAME (TIZ_ERROR,
                          TIZ_CNAME (p_hdl),
                          TIZ_CBUF (p_hdl),
                          "[%s] : Could not flush the egress lists",
@@ -2158,7 +2160,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
           tiz_kernel_tunneled_ports_status_t status =
             tiz_kernel_get_tunneled_ports_status (ap_obj, OMX_TRUE);
 
-          TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (p_hdl),
+          TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (p_hdl),
                          TIZ_CBUF (p_hdl), "Back to idle - status [%d]",
                          status);
 
@@ -2206,14 +2208,14 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
   pid = a_msg_class == ETIZKernelMsgEmptyThisBuffer ?
     p_hdr->nInputPortIndex : p_hdr->nOutputPortIndex;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_msg->p_hdl),
                  TIZ_CBUF (p_msg->p_hdl),
                  "HEADER [%p] BUFFER [%p] PID [%d]",
                  p_hdr, p_hdr->pBuffer, pid);
 
   if (check_pid (p_obj, pid) != OMX_ErrorNone)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+      TIZ_LOG_CNAME (TIZ_ERROR,
                      TIZ_CNAME (p_msg->p_hdl),
                      TIZ_CBUF (p_msg->p_hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
@@ -2229,7 +2231,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
   /* Add this buffer to the ingress hdr list */
   if (0 > (nbufs = add_to_buflst (p_obj, p_obj->p_ingress_, p_hdr, p_port)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+      TIZ_LOG_CNAME (TIZ_ERROR,
                      TIZ_CNAME (p_msg->p_hdl),
                      TIZ_CBUF (p_msg->p_hdl),
                      "[OMX_ErrorInsufficientResources] : "
@@ -2240,7 +2242,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
 
   assert (nbufs != 0);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_msg->p_hdl),
                  TIZ_CBUF (p_msg->p_hdl), "ingress list length [%d]", nbufs);
 
@@ -2268,7 +2270,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
                       pp_hdr = tiz_vector_at (p_hdr_lst_copy, i);
                       assert (pp_hdr && *pp_hdr);
 
-                      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+                      TIZ_LOG_CNAME (TIZ_TRACE,
                                      TIZ_CNAME (p_msg->p_hdl),
                                      TIZ_CBUF (p_msg->p_hdl),
                                      "port [%d] depopulated - removing leftovers - nhdrs [%d] "
@@ -2296,7 +2298,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
 
               if (OMX_ErrorNone != rc)
                 {
-                  TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+                  TIZ_LOG_CNAME (TIZ_ERROR,
                                  TIZ_CNAME (p_msg->p_hdl),
                                  TIZ_CBUF (p_msg->p_hdl),
                                  "[%s] depopulating port [%d]",
@@ -2323,11 +2325,11 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
               && (ETIZKernelNoTunneledPorts == status
                   || ETIZKernelTunneledPortsMayInitiateExeToIdle == status))
             {
-              TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (p_msg->p_hdl),
+              TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (p_msg->p_hdl),
                              TIZ_CBUF (p_msg->p_hdl),
                              "Back to idle - status [%d]", status);
 
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+              TIZ_LOG_CNAME (TIZ_TRACE,
                              TIZ_CNAME (p_msg->p_hdl),
                              TIZ_CBUF (p_msg->p_hdl),
                              "all buffers returned : [TRUE]");
@@ -2456,7 +2458,7 @@ kernel_GetParameter (const void *ap_obj,
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   /* Find the port that holds the data */
@@ -2470,7 +2472,7 @@ kernel_GetParameter (const void *ap_obj,
 
   if (OMX_ErrorUnsupportedIndex != rc)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[%s] : Could not retrieve "
                      "the managing port for index [%s]",
@@ -2510,7 +2512,7 @@ kernel_GetParameter (const void *ap_obj,
 
       default:
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+          TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
                    a_index);
           return OMX_ErrorUnsupportedIndex;
         }
@@ -2530,7 +2532,7 @@ kernel_SetParameter (const void *ap_obj,
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   /* Find the port that holds the data */
@@ -2587,7 +2589,7 @@ kernel_SetParameter (const void *ap_obj,
 
   if (OMX_ErrorUnsupportedIndex != rc)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[%s] : Could not retrieve "
                      "the managing port for index [%s]",
@@ -2607,7 +2609,7 @@ kernel_SetParameter (const void *ap_obj,
       }
     default:
       {
-        TIZ_LOG (TIZ_LOG_TRACE,
+        TIZ_LOG (TIZ_TRACE,
                  "OMX_ErrorUnsupportedIndex [0x%08x]...", a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -2624,7 +2626,7 @@ kernel_SendCommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   tiz_kernel_msg_t *p_msg = NULL;
   tiz_kernel_msg_sendcommand_t *p_msg_sc = NULL;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
 
   if (NULL == (p_msg = init_kernel_message (ap_obj, ap_hdl,
@@ -2651,7 +2653,7 @@ kernel_GetConfig (const void *ap_obj,
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "GetConfig [%s]...", tiz_idx_to_str (a_index));
 
   /* Find the port that holds the data */
@@ -2687,7 +2689,7 @@ kernel_SetConfig (const void *ap_obj,
 
   if (OMX_ErrorNone != rc)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : SetConfig (%s) ...", tiz_err_to_str (rc),
                      tiz_idx_to_str (a_index));
       return rc;
@@ -2701,7 +2703,7 @@ kernel_SetConfig (const void *ap_obj,
       if (OMX_FALSE == p_obj->accept_use_buffer_notified_
           && ETIZKernelTunneledPortsAcceptUseBuffer == status)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "kernel's tunneled port status [%d] ", status);
           p_obj->accept_use_buffer_notified_ = OMX_TRUE;
           tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
@@ -2711,7 +2713,7 @@ kernel_SetConfig (const void *ap_obj,
                (ETIZKernelTunneledPortsAcceptBufferExchange == status
                 || ETIZKernelTunneledPortsAcceptBoth == status))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "kernel's tunneled port status [%d] ", status);
           p_obj->accept_buffer_exchange_notified_ = OMX_TRUE;
           tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
@@ -2722,7 +2724,7 @@ kernel_SetConfig (const void *ap_obj,
                 == (status =
                     tiz_kernel_get_tunneled_ports_status (p_obj, OMX_TRUE))))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "kernel's tunneled port status [%d] ", status);
           p_obj->may_transition_exe2idle_notified_ = OMX_TRUE;
           tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
@@ -2744,7 +2746,7 @@ kernel_GetExtensionIndex (const void *ap_obj,
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_S32 i = 0;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "GetExtensionIndex [%s] nports [%d]...",
                  ap_param_name, nports);
 
@@ -2757,7 +2759,7 @@ kernel_GetExtensionIndex (const void *ap_obj,
 
       rc = tizapi_GetExtensionIndex (p_port, ap_hdl,
                                      ap_param_name, ap_index_type);
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "rc [%s]...", tiz_err_to_str (rc));
 
     }
@@ -2785,7 +2787,7 @@ kernel_ComponentTunnelRequest (const void *ap_obj,
 
   if (check_pid (p_obj, a_pid) != OMX_ErrorNone)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
                      a_pid);
@@ -2821,7 +2823,7 @@ kernel_ComponentTunnelRequest (const void *ap_obj,
                                               a_pid,
                                               ap_thdl, a_tpid, ap_tsetup)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[%s] : While delegating ComponentTunnelRequest "
                      "to port [%d]", tiz_err_to_str (rc), a_pid);
@@ -2842,12 +2844,12 @@ kernel_UseBuffer (const void *ap_obj,
   OMX_PTR *pp_port = NULL, p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "UseBuffer...");
 
   if (check_pid (p_obj, a_pid) != OMX_ErrorNone)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
                      a_pid);
@@ -2862,7 +2864,7 @@ kernel_UseBuffer (const void *ap_obj,
   /* Check that in case of tunnelling, this port is not a buffer supplier... */
   if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadPortIndex] : Bad port index"
                      "(port is tunneled)...");
@@ -2878,7 +2880,7 @@ kernel_UseBuffer (const void *ap_obj,
                                                  a_pid,
                                                  ap_apppriv, a_size, ap_buf)))
       {
-        TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                        TIZ_CBUF (ap_hdl),
                        "[%s] : While delegating UseBuffer "
                        "to port [%d]", tiz_err_to_str (rc), a_pid);
@@ -2893,7 +2895,7 @@ kernel_UseBuffer (const void *ap_obj,
 
   if (OMX_ErrorNone == rc && all_populated (p_obj))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "AllPortsPopulated : [TRUE]");
       rc = tiz_fsm_complete_transition
         (tiz_get_fsm (ap_hdl), ap_obj, OMX_StateIdle);
@@ -2913,12 +2915,12 @@ kernel_AllocateBuffer (const void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const tiz_fsm_state_id_t now = tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "AllocateBuffer...");
 
   if (check_pid (p_obj, a_pid) != OMX_ErrorNone)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
                      a_pid);
@@ -2933,7 +2935,7 @@ kernel_AllocateBuffer (const void *ap_obj,
   /* Check that in case of tunnelling, this port is not a buffer supplier... */
   if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadPortIndex] : port [%d] is supplier...",
                      a_pid);
@@ -2949,7 +2951,7 @@ kernel_AllocateBuffer (const void *ap_obj,
                                                       a_pid,
                                                       ap_apppriv, a_size)))
       {
-        TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                        TIZ_CBUF (ap_hdl),
                        "[%s] : While delegating AllocateBuffer "
                        "to port [%d]", tiz_err_to_str (rc), a_pid);
@@ -2964,7 +2966,7 @@ kernel_AllocateBuffer (const void *ap_obj,
 
   if (OMX_ErrorNone == rc && all_populated (p_obj))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "AllPortsPopulated : [TRUE]");
       if (ESubStateLoadedToIdle == now)
         {
@@ -2996,7 +2998,7 @@ kernel_FreeBuffer (const void *ap_obj,
 
   if (check_pid (p_obj, a_pid) != OMX_ErrorNone)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+      TIZ_LOG_CNAME (TIZ_ERROR,
                      TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
@@ -3008,14 +3010,14 @@ kernel_FreeBuffer (const void *ap_obj,
   p_port = *pp_port;
 
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "FreeBuffer : PORT [%d] STATE [%s]", a_pid,
                  tiz_fsm_state_to_str (cur_state));
 
   /* Check that in case of tunnelling, this is not buffer supplier... */
   if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+      TIZ_LOG_CNAME (TIZ_ERROR,
                      TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorBadPortIndex] : port [%d] is supplier...",
@@ -3038,7 +3040,7 @@ kernel_FreeBuffer (const void *ap_obj,
     if (OMX_ErrorNone != (rc = tizapi_FreeBuffer (p_port, ap_hdl,
                                                   a_pid, ap_hdr)))
       {
-        TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
+        TIZ_LOG_CNAME (TIZ_DEBUG,
                        TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "[%s] when delegating FreeBuffer to the port",
                        tiz_err_to_str (rc));
@@ -3069,7 +3071,7 @@ kernel_EmptyThisBuffer (const void *ap_obj,
   tiz_kernel_msg_t *p_msg = NULL;
   tiz_kernel_msg_emptyfillbuffer_t *p_etb = NULL;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "HEADER [%p] BUFFER [%p] PID [%d]",
                  ap_hdr, ap_hdr->pBuffer, ap_hdr->nInputPortIndex);
 
@@ -3093,7 +3095,7 @@ kernel_FillThisBuffer (const void *ap_obj,
   tiz_kernel_msg_t *p_msg = NULL;
   tiz_kernel_msg_emptyfillbuffer_t *p_msg_ftb = NULL;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "HEADER [%p] BUFFER [%p] PID [%d]",
                  ap_hdr, ap_hdr->pBuffer, ap_hdr->nOutputPortIndex)
     if (NULL == (p_msg = init_kernel_message (ap_obj, ap_hdl,
@@ -3143,14 +3145,14 @@ kernel_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "Processing [%s]...", tiz_kernel_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZKernelMsgMax);
 
   rc = tiz_kernel_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) p_obj, p_msg);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "rc [%s]...", tiz_err_to_str (rc));
 
   return rc;
@@ -3170,14 +3172,14 @@ kernel_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
   assert (ap_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "port index [%d]...", a_pid);
 
 
   /* Verify the port index.. */
   if ((OMX_ALL != a_pid) && (check_pid (p_obj, a_pid) != OMX_ErrorNone))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
                      a_pid);
       return OMX_ErrorBadPortIndex;
@@ -3195,7 +3197,7 @@ kernel_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       tizport_update_tunneled_status (p_port, hdl,
                                       OMX_PORTSTATUS_ACCEPTUSEBUFFER);
 
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                      "pid [%d] enabled [%s] tunneled [%s] "
                      "supplier [%s] populated [%s]..", pid,
                      TIZPORT_IS_ENABLED (p_port) ? "YES" : "NO",
@@ -3208,7 +3210,7 @@ kernel_allocate_resources (void *ap_obj, OMX_U32 a_pid)
           const OMX_BOOL being_enabled = TIZPORT_IS_BEING_ENABLED (p_port);
           if (OMX_ErrorNone != (rc = tizport_populate (p_port, hdl)))
             {
-              TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+              TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                              "[%s] : While populating port [%d] ",
                              tiz_err_to_str (rc), pid);
               return rc;
@@ -3254,7 +3256,7 @@ kernel_deallocate_resources (void *ap_obj)
         }
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                  TIZ_CBUF (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                  "[%s] : ALL depopulated [%s]...",
@@ -3276,12 +3278,12 @@ kernel_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "pid [%d]", a_pid);
 
   if ((OMX_ALL != a_pid) && (check_pid (p_obj, a_pid) != OMX_ErrorNone))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
                      a_pid);
       return OMX_ErrorBadPortIndex;
@@ -3308,7 +3310,7 @@ kernel_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
           if (OMX_ErrorNone !=
               (rc = append_buflsts (p_dst2darr, p_srclst, pid)))
             {
-              TIZ_LOG_CNAME (TIZ_LOG_ERROR,
+              TIZ_LOG_CNAME (TIZ_ERROR,
                              TIZ_CNAME (hdl),
                              TIZ_CBUF (hdl),
                              "[%s] : on port [%d] while appending buffer "
@@ -3336,12 +3338,12 @@ kernel_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
   OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "T&P pid [%d]", a_pid);
 
   if ((OMX_ALL != a_pid) && (check_pid (p_obj, a_pid) != OMX_ErrorNone))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                      "[OMX_ErrorBadPortIndex] : Could not find port [%d]...",
                      a_pid);
       return OMX_ErrorBadPortIndex;
@@ -3381,7 +3383,7 @@ kernel_stop_and_return (void *ap_obj)
   OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "stop and return...[%p]", ap_obj);
 
   for (i = 0; i < nports && OMX_ErrorNone == rc; ++i)
@@ -3399,11 +3401,11 @@ kernel_stop_and_return (void *ap_obj)
         {
           /* Move buffers from egress to ingress */
           nbufs = move_to_ingress (p_obj, i);
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                          "Moved [%d] tunnel buffers to ingress", nbufs);
           if (nbufs < 0)
             {
-              TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+              TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                              "[OMX_ErrorInsufficientResources] - nbufs [%d]",
                              nbufs);
               rc = OMX_ErrorInsufficientResources;
@@ -3419,11 +3421,11 @@ kernel_stop_and_return (void *ap_obj)
 
       /* Move buffers from ingress to egress */
       nbufs = move_to_egress (p_obj, i);
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                      "Moved [%d] non-tunnel buffers to egress", nbufs);
       if (nbufs < 0)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                          "[OMX_ErrorInsufficientResources] - nbufs [%d]",
                          nbufs);
           rc = OMX_ErrorInsufficientResources;
@@ -3445,7 +3447,7 @@ kernel_receive_pluggable_event (const void *ap_obj,
   tiz_kernel_msg_t *p_msg = NULL;
   tiz_kernel_msg_plg_event_t *p_plgevt = NULL;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                  TIZ_CBUF (ap_hdl), "PluggableEvent : event [%p]", ap_event);
 
   if (NULL == (p_msg = init_kernel_message (ap_obj, ap_hdl,
@@ -3480,7 +3482,7 @@ kernel_register_port (void *ap_obj, OMX_PTR ap_port, OMX_BOOL ais_config)
       assert (NULL == p_obj->p_cport_);
       p_obj->p_cport_ = ap_port;
       tizport_set_index (ap_port, TIZPORT_CONFIG_PORT_INDEX);
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                      "Registering config port [%p] "
                      "with index [%d]", ap_port, TIZPORT_CONFIG_PORT_INDEX);
       return OMX_ErrorNone;
@@ -3499,7 +3501,7 @@ kernel_register_port (void *ap_obj, OMX_PTR ap_port, OMX_BOOL ais_config)
     pid = tiz_vector_length (p_obj->p_ports_);
     tizport_set_index (ap_port, pid);
 
-    TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+    TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                    "Registering port [%p] with index [%d]", ap_port, pid);
 
     switch (tizport_domain (ap_port))
@@ -3581,7 +3583,7 @@ kernel_get_port (const void *ap_obj, OMX_U32 a_pid)
   OMX_PTR *pp_port = NULL;
   const OMX_S32 num_ports = tiz_vector_length (p_obj->p_ports_);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "num_ports [%d] a_pid [%d]...", num_ports, a_pid);
+  TIZ_LOG (TIZ_TRACE, "num_ports [%d] a_pid [%d]...", num_ports, a_pid);
 
   if (num_ports <= a_pid)
     {
@@ -3619,7 +3621,7 @@ kernel_find_managing_port (const struct tizkernel * ap_krn,
   if (OMX_ErrorNone == tizport_find_index (ap_krn->p_cport_, a_index))
     {
       *app_port = ap_krn->p_cport_;
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                      "[%s] : Config port being searched. "
                      "Returning...", tiz_idx_to_str (a_index));
       return OMX_ErrorNone;
@@ -3649,7 +3651,7 @@ kernel_find_managing_port (const struct tizkernel * ap_krn,
               return rc;
             }
 
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                          "[%s] : Found in port index [%d]...",
                          tiz_idx_to_str (a_index), *p_port_index);
 
@@ -3659,7 +3661,7 @@ kernel_find_managing_port (const struct tizkernel * ap_krn,
         }
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "[%s] : Could not find the managing port...",
                  tiz_idx_to_str (a_index));
 
@@ -3851,7 +3853,7 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
   assert (pp_port && *pp_port);
   p_port = *pp_port;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "port's [%d] a_pos [%d] buf count [%d]...",
                  a_pid, a_pos, tizport_buffer_count (p_port));
 
@@ -3871,7 +3873,7 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
   assert (pp_hdr);
   *app_hdr = *pp_hdr;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "port's [%d] HEADER [%p] BUFFER [%p] ingress list length [%d]...",
                  a_pid, *pp_hdr, (*pp_hdr)->pBuffer,
                  tiz_vector_length (p_list));
@@ -3962,7 +3964,7 @@ kernel_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
   p_list = tiz_vector_at (p_obj->p_egress_, a_pid);
   assert (p_list && *(tiz_vector_t **) p_list);
   p_list = *(tiz_vector_t **) p_list;
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl),
                  "HEADER [%p] port's [%d] egress list length [%d]...",
                  ap_hdr, a_pid, tiz_vector_length (p_list));
 
@@ -4048,7 +4050,7 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
             if (!TIZPORT_MAY_CALL_USE_BUFFER (*pp_port))
               {
                 status &= ~(OMX_PORTSTATUS_ACCEPTUSEBUFFER);
-                TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
+                TIZ_LOG_CNAME (TIZ_DEBUG,
                                TIZ_CNAME (tiz_servant_super_get_hdl
                                           (tizkernel, p_obj)),
                                TIZ_CBUF (tiz_servant_super_get_hdl
@@ -4059,7 +4061,7 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
             if (!TIZPORT_MAY_EXCHANGE_BUFFERS (*pp_port))
               {
                 status &= ~(OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
-                TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
+                TIZ_LOG_CNAME (TIZ_DEBUG,
                                TIZ_CNAME (tiz_servant_super_get_hdl
                                           (tizkernel, p_obj)),
                                TIZ_CBUF (tiz_servant_super_get_hdl
@@ -4076,7 +4078,7 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
             if (!TIZPORT_MAY_INITIATE_EXE_TO_IDLE (*pp_port))
               {
                 status &= ~(OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
-                TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
+                TIZ_LOG_CNAME (TIZ_DEBUG,
                                TIZ_CNAME (tiz_servant_super_get_hdl
                                           (tizkernel, p_obj)),
                                TIZ_CBUF (tiz_servant_super_get_hdl
@@ -4086,7 +4088,7 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
               }
             else
               {
-                TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
+                TIZ_LOG_CNAME (TIZ_DEBUG,
                                TIZ_CNAME (tiz_servant_super_get_hdl
                                           (tizkernel, p_obj)),
                                TIZ_CBUF (tiz_servant_super_get_hdl
@@ -4097,7 +4099,7 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
           }
         else
           {
-            TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
+            TIZ_LOG_CNAME (TIZ_DEBUG,
                            TIZ_CNAME (tiz_servant_super_get_hdl
                                       (tizkernel, p_obj)),
                            TIZ_CBUF (tiz_servant_super_get_hdl
@@ -4150,7 +4152,7 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
       }
   }
 
-  TIZ_LOG_CNAME (TIZ_LOG_DEBUG,
+  TIZ_LOG_CNAME (TIZ_DEBUG,
                  TIZ_CNAME (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                  TIZ_CBUF (tiz_servant_super_get_hdl (tizkernel, p_obj)),
                  "status_report [%d]", status_report);

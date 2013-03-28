@@ -55,7 +55,7 @@ static void *
 webpd_proc_ctor (void *ap_obj, va_list * app)
 {
   struct webpdprc *p_obj = super_ctor (webpdprc, ap_obj, app);
-  TIZ_LOG (TIZ_LOG_TRACE, "Constructing webpdprc...[%p]", p_obj);
+  TIZ_LOG (TIZ_TRACE, "Constructing webpdprc...[%p]", p_obj);
 
   p_obj->pinhdr_ = 0;
   p_obj->pouthdr_ = 0;
@@ -68,7 +68,7 @@ static void *
 webpd_proc_dtor (void *ap_obj)
 {
   struct webpdprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing webpdprc...[%p]", p_obj);
+  TIZ_LOG (TIZ_TRACE, "Destructing webpdprc...[%p]", p_obj);
   return super_dtor (webpdprc, ap_obj);
 }
 
@@ -96,7 +96,7 @@ webpd_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   (void) p_parent;
   (void) p_obj;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Resource allocation complete..." "pid = [%d]", a_pid);
@@ -114,7 +114,7 @@ webpd_proc_deallocate_resources (void *ap_obj)
   (void) p_parent;
   (void) p_obj;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Resource deallocation complete...");
@@ -128,7 +128,7 @@ webpd_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   const struct tizservant *p_parent = ap_obj;
   assert (ap_obj);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "Transfering buffers...pid [%d]", a_pid);
@@ -178,13 +178,13 @@ claim_input (const void *ap_obj)
     {
       TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer
                          (p_krn, 0, 0, &p_obj->pinhdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Claimed INPUT HEADER [%p]...", p_obj->pinhdr_);
       return true;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "COULD NOT CLAIM AN INPUT HEADER...");
@@ -208,7 +208,7 @@ claim_output (const void *ap_obj)
     {
       TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer
                          (p_krn, 1, 0, &p_obj->pouthdr_));
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
                      "nFilledLen [%d]...", p_obj->pouthdr_,
@@ -226,7 +226,7 @@ webpd_proc_buffers_ready (const void *ap_obj)
   const struct tizservant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+  TIZ_LOG_CNAME (TIZ_TRACE,
                  TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_), "Buffers ready...");
 
@@ -262,7 +262,7 @@ webpd_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE,
+      TIZ_LOG_CNAME (TIZ_TRACE,
                      TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "p_obj->eos OUTPUT HEADER [%p]...", p_obj->pouthdr_);
@@ -286,7 +286,7 @@ init_webpdprc (void)
 
   if (!webpdprc)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing webpdprc...");
+      TIZ_LOG (TIZ_TRACE, "Initializing webpdprc...");
       init_tizproc ();
       webpdprc =
         factory_new

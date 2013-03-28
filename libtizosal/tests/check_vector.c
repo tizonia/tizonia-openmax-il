@@ -29,7 +29,7 @@
 /* static OMX_S32 */
 /* vector_cmp(OMX_PTR ap_left, OMX_PTR ap_right) */
 /* { */
-/*   TIZ_LOG(TIZ_LOG_TRACE, "left [%d] right [%d]", */
+/*   TIZ_LOG(TIZ_TRACE, "left [%d] right [%d]", */
 /*             *(int*)ap_left, *(int*)ap_right); */
 
 /*   if ((*(int*)ap_left) == (*(int*)ap_right)) */
@@ -50,7 +50,7 @@ START_TEST (test_vector_init_and_destroy)
   OMX_ERRORTYPE error = OMX_ErrorNone;
   tiz_vector_t *p_vector;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_vector_init_and_destroy");
+  TIZ_LOG (TIZ_TRACE, "test_vector_init_and_destroy");
 
   error = tiz_vector_init (&p_vector, 10);
 
@@ -67,7 +67,7 @@ START_TEST (test_vector_push_and_pop_length_front_back_ints)
   int *p_item = NULL;
   tiz_vector_t *p_vector = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_vector_push_and_pop_length_front_back_ints");
+  TIZ_LOG (TIZ_TRACE, "test_vector_push_and_pop_length_front_back_ints");
 
   error = tiz_vector_init (&p_vector, sizeof(int));
   fail_if (error != OMX_ErrorNone);
@@ -85,7 +85,7 @@ START_TEST (test_vector_push_and_pop_length_front_back_ints)
       fail_if (*p_item != i);
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "vector length %d",
+  TIZ_LOG (TIZ_TRACE, "vector length %d",
              tiz_vector_length (p_vector));
   fail_if (10 != tiz_vector_length (p_vector));
 
@@ -112,7 +112,7 @@ START_TEST (test_vector_push_and_pop_length_front_back_pointers)
   int *p_item = NULL;
   tiz_vector_t *p_vector = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_vector_push_and_pop_length_front_back_pointers");
+  TIZ_LOG (TIZ_TRACE, "test_vector_push_and_pop_length_front_back_pointers");
 
   error = tiz_vector_init (&p_vector, sizeof(int*));
   fail_if (error != OMX_ErrorNone);
@@ -130,7 +130,7 @@ START_TEST (test_vector_push_and_pop_length_front_back_pointers)
       fail_if (*p_item != i);
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "vector length %d",
+  TIZ_LOG (TIZ_TRACE, "vector length %d",
              tiz_vector_length (p_vector));
   fail_if (10 != tiz_vector_length (p_vector));
 
@@ -158,7 +158,7 @@ START_TEST (test_vector_push_back_vector)
   tiz_vector_t *p_vector = NULL;
   tiz_vector_t *p_vector2 = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_vector_push_back_vector");
+  TIZ_LOG (TIZ_TRACE, "test_vector_push_back_vector");
 
   error = tiz_vector_init (&p_vector, sizeof(int*));
   error = tiz_vector_init (&p_vector2, sizeof(tiz_vector_t*));
@@ -178,17 +178,17 @@ START_TEST (test_vector_push_back_vector)
       fail_if (*p_item != i);
     }
 
-  TIZ_LOG (TIZ_LOG_TRACE, "vector length %d",
+  TIZ_LOG (TIZ_TRACE, "vector length %d",
              tiz_vector_length (p_vector));
   fail_if (10 != tiz_vector_length (p_vector));
 
 
-  TIZ_LOG (TIZ_LOG_TRACE, "pushing vector [%p] [%p]", p_vector, &p_vector);
+  TIZ_LOG (TIZ_TRACE, "pushing vector [%p] [%p]", p_vector, &p_vector);
 
   tiz_vector_push_back (p_vector2, &p_vector);
   p_vector = *(tiz_vector_t **) tiz_vector_back (p_vector2);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "received vector [%p] [%p] [%p]",
+  TIZ_LOG (TIZ_TRACE, "received vector [%p] [%p] [%p]",
            p_vector, &p_vector, *(tiz_vector_t **) p_vector);
 
   for (i = 0; i < 10; i++)
@@ -198,7 +198,7 @@ START_TEST (test_vector_push_back_vector)
       p_item = * (int **) tiz_vector_back (p_vector);
       fail_if (*p_item != 10 - i - 1);
 
-      TIZ_LOG (TIZ_LOG_TRACE, "received int [%d]", *p_item);
+      TIZ_LOG (TIZ_TRACE, "received int [%d]", *p_item);
 
       tiz_vector_pop_back (p_vector);
       tiz_mem_free(p_item);

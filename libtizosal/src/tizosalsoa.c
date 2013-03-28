@@ -107,7 +107,7 @@ alloc_chunk (tiz_soa_t * p_soa, int32_t chunk_class)
   size_t slice_sz = 0;
   chunk_t *p_new_chunk = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "chunk_class [%d] ", chunk_class);
+  TIZ_LOG (TIZ_TRACE, "chunk_class [%d] ", chunk_class);
 
   assert (p_soa != NULL);
   assert (chunk_class < TIZ_SOA_NUM_CHUNK_CLASSES);
@@ -153,7 +153,7 @@ tiz_soa_init ( /*@null@ */ tiz_soa_ptr_t * app_soa)
 
   assert (NULL != app_soa);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "init [%p]", app_soa);
+  TIZ_LOG (TIZ_TRACE, "init [%p]", app_soa);
 
   assert (NULL != app_soa);
 
@@ -185,7 +185,7 @@ tiz_soa_destroy (tiz_soa_t * p_soa)
       chunk_t *p_chunk = NULL;
       chunk_t *p_next = NULL;
 
-      TIZ_LOG (TIZ_LOG_TRACE, "destroying [%p]", p_soa);
+      TIZ_LOG (TIZ_TRACE, "destroying [%p]", p_soa);
 
       assert (p_soa != NULL);
 
@@ -293,6 +293,6 @@ tiz_soa_info (tiz_soa_t * p_soa, tiz_soa_info_t * p_info)
   p_info->chunks = p_soa->n_chunks;
   p_info->objects = p_soa->n_allocated_objects;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "objects [%d] chunks [%d]",
+  TIZ_LOG (TIZ_TRACE, "objects [%d] chunks [%d]",
            p_info->objects, p_info->chunks);
 }

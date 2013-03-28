@@ -79,7 +79,7 @@ state_SendCommand (const void *ap_obj,
     {
     case OMX_CommandStateSet:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] [%s]...",
                        tiz_cmd_to_str (a_cmd),
                        tiz_fsm_state_to_str (a_param1));
@@ -89,7 +89,7 @@ state_SendCommand (const void *ap_obj,
 
     case OMX_CommandFlush:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] PORT [%d]...",
                        tiz_cmd_to_str (a_cmd), a_param1);
         rc = tizstate_flush (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
@@ -98,7 +98,7 @@ state_SendCommand (const void *ap_obj,
 
     case OMX_CommandPortDisable:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] PORT [%d]...",
                        tiz_cmd_to_str (a_cmd), a_param1);
         rc = tizstate_disable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
@@ -107,7 +107,7 @@ state_SendCommand (const void *ap_obj,
 
     case OMX_CommandPortEnable:
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] PORT [%d]...",
                        tiz_cmd_to_str (a_cmd), a_param1);
         rc = tizstate_enable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
@@ -411,7 +411,7 @@ state_trans_complete (const void *ap_obj,
 
   p_obj->servants_count_++;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
                  TIZ_CBUF (tiz_servant_get_hdl (ap_servant)),
                  "Transition to [%s] is NOW complete at [%s]..."
                  "Servant count is now [%d]...",

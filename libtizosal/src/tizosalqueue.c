@@ -95,32 +95,32 @@ init_queue_struct ()
                     tiz_mem_calloc (1, sizeof (tiz_queue_item_t));
                   if (!(p_q->p_first))
                     {
-                      TIZ_LOG (TIZ_LOG_ERROR, "Could not create first item.");
+                      TIZ_LOG (TIZ_ERROR, "Could not create first item.");
                       init_failed = true;
                     }
                 }
               else
                 {
-                  TIZ_LOG (TIZ_LOG_ERROR,
+                  TIZ_LOG (TIZ_ERROR,
                            "Could not create empty cond variable.");
                   init_failed = true;
                 }
             }
           else
             {
-              TIZ_LOG (TIZ_LOG_ERROR, "Could not create full cond variable.");
+              TIZ_LOG (TIZ_ERROR, "Could not create full cond variable.");
               init_failed = true;
             }
         }
       else
         {
-          TIZ_LOG (TIZ_LOG_ERROR, "Could not create mutex.");
+          TIZ_LOG (TIZ_ERROR, "Could not create mutex.");
           init_failed = true;
         }
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "Could not instantiate queue struct.");
+      TIZ_LOG (TIZ_ERROR, "Could not instantiate queue struct.");
       init_failed = true;
     }
 
@@ -143,7 +143,7 @@ tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
 
   assert (NULL != app_q);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "queue capacity [%d]", a_capacity);
+  TIZ_LOG (TIZ_TRACE, "queue capacity [%d]", a_capacity);
 
   assert (a_capacity > 0);
 
@@ -167,7 +167,7 @@ tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
             }
           else
             {
-              TIZ_LOG (TIZ_LOG_ERROR, "[OMX_ErrorInsufficientResources]: "
+              TIZ_LOG (TIZ_ERROR, "[OMX_ErrorInsufficientResources]: "
                        "Could not instantiate queue items.");
               rc = OMX_ErrorInsufficientResources;
 
@@ -186,12 +186,12 @@ tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
       if (OMX_ErrorNone == rc)
         {
           p_cur_item->p_next = p_q->p_first;
-          TIZ_LOG (TIZ_LOG_TRACE, "queue created [%p]", p_q);
+          TIZ_LOG (TIZ_TRACE, "queue created [%p]", p_q);
         }
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_ERROR, "OMX_ErrorInsufficientResources: "
+      TIZ_LOG (TIZ_ERROR, "OMX_ErrorInsufficientResources: "
                "Could not instantiate queue struct.");
       rc = OMX_ErrorInsufficientResources;
     }

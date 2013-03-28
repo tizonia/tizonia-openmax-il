@@ -103,13 +103,13 @@ refresh_rm_db (void)
   if (!p_rmdb_path || !p_sqlite_path || !p_init_path || !p_rmd_path)
 
     {
-      TIZ_LOG(TIZ_LOG_TRACE, "Test data not available...");
+      TIZ_LOG(TIZ_TRACE, "Test data not available...");
     }
   else
     {
       pg_rmd_path = strndup (p_rmd_path, PATH_MAX);
 
-      TIZ_LOG(TIZ_LOG_TRACE, "RM daemon [%s] ...", pg_rmd_path);
+      TIZ_LOG(TIZ_TRACE, "RM daemon [%s] ...", pg_rmd_path);
 
       /* Re-fresh the rm db */
       size_t total_len = strlen (p_init_path)
@@ -122,12 +122,12 @@ refresh_rm_db (void)
                   p_init_path, p_sqlite_path, p_rmdb_path);
           if (-1 != system (p_cmd))
             {
-              TIZ_LOG(TIZ_LOG_TRACE, "Successfully run [%s] script...", p_cmd);
+              TIZ_LOG(TIZ_TRACE, "Successfully run [%s] script...", p_cmd);
               rv = true;
             }
           else
             {
-              TIZ_LOG(TIZ_LOG_TRACE, 
+              TIZ_LOG(TIZ_TRACE, 
                       "Error while executing db init shell script...");
             }
           tiz_mem_free (p_cmd);
@@ -156,7 +156,7 @@ setup (void)
     }
   else
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Starting the RM Daemon");
+      TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
       const char *arg0 = "";
       error = execlp (pg_rmd_path, arg0, (char *) NULL);
       fail_if (error == -1);
@@ -263,7 +263,7 @@ _ctx_wait (cc_ctx_t * app_ctx, OMX_U32 a_millis, OMX_BOOL * ap_has_timedout)
   assert (app_ctx);
   p_ctx = * app_ctx;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "a_millis [%u]", a_millis);
+  TIZ_LOG (TIZ_TRACE, "a_millis [%u]", a_millis);
 
   * ap_has_timedout = OMX_FALSE;
 
@@ -345,7 +345,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
   pp_ctx = (cc_ctx_t *) ap_app_data;
   p_ctx = *pp_ctx;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Component Event [%s]", tiz_evt_to_str (eEvent));
+  TIZ_LOG (TIZ_TRACE, "Component Event [%s]", tiz_evt_to_str (eEvent));
 
   if (OMX_EventCmdComplete == eEvent)
     {
@@ -355,7 +355,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
           {
             p_ctx->state = (OMX_STATETYPE) (nData2);
             p_ctx->error = (OMX_ERRORTYPE) (pEventData);
-            TIZ_LOG (TIZ_LOG_TRACE, "Component transitioned to [%s] - pEventData [%s]",
+            TIZ_LOG (TIZ_TRACE, "Component transitioned to [%s] - pEventData [%s]",
                      tiz_fsm_state_to_str ((tiz_fsm_state_id_t) (nData2)),
                      tiz_err_to_str (p_ctx->error));
             _ctx_signal (pp_ctx);
@@ -364,7 +364,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
 
         case OMX_CommandPortDisable:
           {
-            TIZ_LOG (TIZ_LOG_TRACE, "Port  [%d] transitioned to DISABLED",
+            TIZ_LOG (TIZ_TRACE, "Port  [%d] transitioned to DISABLED",
                      nData2);
             p_ctx->port = (OMX_STATETYPE) (nData2);
             p_ctx->error = (OMX_ERRORTYPE) (pEventData);
@@ -374,7 +374,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
 
         case OMX_CommandPortEnable:
           {
-            TIZ_LOG (TIZ_LOG_TRACE, "Port  [%d] transitioned to ENABLED",
+            TIZ_LOG (TIZ_TRACE, "Port  [%d] transitioned to ENABLED",
                      nData2);
             p_ctx->port = (OMX_STATETYPE) (nData2);
             p_ctx->error = (OMX_ERRORTYPE) (pEventData);
@@ -384,7 +384,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
 
         default:
           {
-            TIZ_LOG (TIZ_LOG_TRACE, "[%s] received!!",
+            TIZ_LOG (TIZ_TRACE, "[%s] received!!",
                      tiz_cmd_to_str (nData1));
 
             assert (0);
@@ -394,7 +394,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
     }
   else if (OMX_EventError == eEvent)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Component reported error [%s] - Test FAILED !!!.",
+      TIZ_LOG (TIZ_TRACE, "Component reported error [%s] - Test FAILED !!!.",
                tiz_err_to_str ((OMX_ERRORTYPE) (nData1)));
       fail ();
     }
@@ -414,7 +414,7 @@ OMX_ERRORTYPE check_EmptyBufferDone
   check_common_context_t *p_ctx = NULL;
   cc_ctx_t *pp_ctx = NULL;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "EmptyBufferDone: BUFFER [%p]", ap_buf);
+  TIZ_LOG (TIZ_TRACE, "EmptyBufferDone: BUFFER [%p]", ap_buf);
 
   assert (ap_app_data);
   assert (ap_buf);
@@ -549,7 +549,7 @@ START_TEST (test_tizonia_getstate)
                          COMPONENT_NAME, (OMX_PTR *) (&appData), &callBacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%X]", p_hdl);
 
   error = OMX_GetState (p_hdl, &state);
   fail_if (OMX_ErrorNone != error);
@@ -579,7 +579,7 @@ START_TEST (test_tizonia_gethandle_freehandle)
                          COMPONENT_NAME, (OMX_PTR *) (&appData), &callBacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%p]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%p]", p_hdl);
 
   error = OMX_FreeHandle (p_hdl);
   fail_if (OMX_ErrorNone != error);
@@ -606,28 +606,28 @@ START_TEST (test_tizonia_getparameter)
   error = OMX_GetHandle (&p_hdl,
                          COMPONENT_NAME, (OMX_PTR *) (&appData), &callBacks);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_getparameter: OMX_GetHandle error [%d]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_getparameter: OMX_GetHandle error [%d]",
              error);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%p]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%p]", p_hdl);
 
   port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
   port_def.nVersion.nVersion = OMX_VERSION;
   port_def.nPortIndex = 0;
 
   error = OMX_GetParameter (p_hdl, index, &port_def);
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_getparameter: OMX_GetParameter error [%d]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_getparameter: OMX_GetParameter error [%d]",
              error);
   fail_if (OMX_ErrorNone != error);
 
   error = OMX_FreeHandle (p_hdl);
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_getparameter: OMX_FreeHandle error [%d]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_getparameter: OMX_FreeHandle error [%d]",
              error);
   fail_if (OMX_ErrorNone != error);
 
   error = OMX_Deinit ();
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_getparameter: OMX_Deinit error [%d]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_getparameter: OMX_Deinit error [%d]",
              error);
   fail_if (OMX_ErrorNone != error);
 
@@ -652,18 +652,18 @@ START_TEST (test_tizonia_roles)
   error = OMX_GetHandle (&p_hdl,
                          COMPONENT_NAME, (OMX_PTR *) (&appData), &callBacks);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_roles: OMX_GetHandle error [%d]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_roles: OMX_GetHandle error [%d]",
              error);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%p]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%p]", p_hdl);
 
   for (i = 0; OMX_ErrorNone == error; ++i)
     {
       error = OMX_RoleOfComponentEnum ((OMX_STRING) role, COMPONENT_NAME, i);
       if (OMX_ErrorNone == error)
         {
-          TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_roles: [%s] -> Role [%d] -> [%s]",
+          TIZ_LOG (TIZ_TRACE, "test_tizonia_roles: [%s] -> Role [%d] -> [%s]",
                    tiz_err_to_str (error), i, role);
         }
     }
@@ -679,7 +679,7 @@ START_TEST (test_tizonia_roles)
 
   /* Set role #1 */
   error = OMX_SetParameter (p_hdl, OMX_IndexParamStandardComponentRole, &role_type);
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_roles: OMX_SetParameter COMPONENT_ROLE1 error [%s]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_roles: OMX_SetParameter COMPONENT_ROLE1 error [%s]",
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
@@ -689,7 +689,7 @@ START_TEST (test_tizonia_roles)
   port_def.nPortIndex = 0;
 
   error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &port_def);
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_getparameter: OMX_GetParameter error [%s]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_getparameter: OMX_GetParameter error [%s]",
              tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
@@ -702,20 +702,20 @@ START_TEST (test_tizonia_roles)
   port_def.nBufferCountActual = 7;
 
   error = OMX_SetParameter (p_hdl, OMX_IndexParamPortDefinition, &port_def);
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_getparameter: OMX_SetParameter error [%s]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_getparameter: OMX_SetParameter error [%s]",
              tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
   /* Set role #2 */
   strcpy ((OMX_STRING) role_type.cRole, COMPONENT_ROLE2);
   error = OMX_SetParameter (p_hdl, OMX_IndexParamStandardComponentRole, &role_type);
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_roles: OMX_SetParameter COMPONENT_ROLE2 error [%s]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_roles: OMX_SetParameter COMPONENT_ROLE2 error [%s]",
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
   /* Get port def */
   error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &port_def);
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_roles: OMX_GetParameter error [%s]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_roles: OMX_GetParameter error [%s]",
              tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
@@ -725,17 +725,17 @@ START_TEST (test_tizonia_roles)
   /* Now set the "default" role */
   strcpy ((OMX_STRING) role_type.cRole, COMPONENT_DEFAULT_ROLE);
   error = OMX_SetParameter (p_hdl, OMX_IndexParamStandardComponentRole, &role_type);
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_roles: OMX_SetParameter COMPONENT_DEFAULT_ROLE error [%s]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_roles: OMX_SetParameter COMPONENT_DEFAULT_ROLE error [%s]",
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
   error = OMX_FreeHandle (p_hdl);
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_roles: OMX_FreeHandle error [%s]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_roles: OMX_FreeHandle error [%s]",
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
   error = OMX_Deinit ();
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_roles: OMX_Deinit error [%s]",
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_roles: OMX_Deinit error [%s]",
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
@@ -757,13 +757,13 @@ START_TEST (test_tizonia_preannouncements_extension)
   error = OMX_GetHandle (&p_hdl,
                          COMPONENT_NAME, (OMX_PTR *) (&appData), &callBacks);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "test_tizonia_preannouncements_extension: "
+  TIZ_LOG (TIZ_TRACE, "test_tizonia_preannouncements_extension: "
            "OMX_GetHandle error [%s]", tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
   error = OMX_GetExtensionIndex (p_hdl, OMX_TIZONIA_INDEX_PARAM_BUFFER_PREANNOUNCEMENTSMODE,
                                  &ext_index);
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_GetExtensionIndex error  [%s] index [%s]",
+  TIZ_LOG (TIZ_TRACE, "OMX_GetExtensionIndex error  [%s] index [%s]",
            tiz_err_to_str (error), tiz_idx_to_str (ext_index));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TizoniaIndexParamBufferPreAnnouncementsMode != ext_index);
@@ -790,12 +790,12 @@ START_TEST (test_tizonia_preannouncements_extension)
   fail_if (OMX_FALSE != pamode.bEnabled);
 
   error = OMX_FreeHandle (p_hdl);
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_FreeHandle error [%s]",
+  TIZ_LOG (TIZ_TRACE, "OMX_FreeHandle error [%s]",
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
   error = OMX_Deinit ();
-  TIZ_LOG (TIZ_LOG_TRACE, "OMX_Deinit error [%s]",
+  TIZ_LOG (TIZ_TRACE, "OMX_Deinit error [%s]",
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
@@ -807,29 +807,29 @@ START_TEST (test_tizonia_pd_set)
 
   tiz_pd_set_t set;
   OMX_U32 i, port = 13;
-  TIZ_LOG (TIZ_LOG_TRACE, "_TIZ_PD_SETSIZE = [%d]", _TIZ_PD_SETSIZE);
-  TIZ_LOG (TIZ_LOG_TRACE, "_TIZ_NPDBITS = [%d]", _TIZ_NPDBITS);
-  TIZ_LOG (TIZ_LOG_TRACE, "_TIZ_PDELT = [%d]", _TIZ_PDELT (port));
-  TIZ_LOG (TIZ_LOG_TRACE, "sizeof (tiz_pd_set_t) = [%d]", sizeof (tiz_pd_set_t));
-  TIZ_LOG (TIZ_LOG_TRACE, "sizeof (_tiz_pd_mask) = [%d]", sizeof (_tiz_pd_mask));
+  TIZ_LOG (TIZ_TRACE, "_TIZ_PD_SETSIZE = [%d]", _TIZ_PD_SETSIZE);
+  TIZ_LOG (TIZ_TRACE, "_TIZ_NPDBITS = [%d]", _TIZ_NPDBITS);
+  TIZ_LOG (TIZ_TRACE, "_TIZ_PDELT = [%d]", _TIZ_PDELT (port));
+  TIZ_LOG (TIZ_TRACE, "sizeof (tiz_pd_set_t) = [%d]", sizeof (tiz_pd_set_t));
+  TIZ_LOG (TIZ_TRACE, "sizeof (_tiz_pd_mask) = [%d]", sizeof (_tiz_pd_mask));
 
   TIZ_PD_SET (port, (&set));
 
   for (i = 0; i < sizeof (tiz_pd_set_t); ++i)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "set = [%X]", set.a_pds_bits[i]);
+      TIZ_LOG (TIZ_TRACE, "set = [%X]", set.a_pds_bits[i]);
     }
 
   TIZ_PD_CLR (port, &set);
 
   for (i = 0; i < sizeof (tiz_pd_set_t); ++i)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "set = [%X]", set.a_pds_bits[i]);
+      TIZ_LOG (TIZ_TRACE, "set = [%X]", set.a_pds_bits[i]);
     }
 
   TIZ_PD_SET (port, (&set));
 
-  TIZ_LOG (TIZ_LOG_TRACE, "set = [%s]",
+  TIZ_LOG (TIZ_TRACE, "set = [%s]",
              TIZ_PD_ISSET (port, &set) ? "TRUE" : "FALSE");
 
 }
@@ -863,7 +863,7 @@ START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%X]", p_hdl);
 
   /* Obtain the port def params for port #0 */
   port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
@@ -872,8 +872,8 @@ START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
   error = OMX_GetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* Initiate transition to IDLE */
@@ -892,13 +892,13 @@ START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
              tiz_fsm_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
   /* Check state transition success */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -912,7 +912,7 @@ START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
              tiz_fsm_state_to_str (p_ctx->state));
   fail_if (OMX_StateExecuting != p_ctx->state);
 
@@ -938,7 +938,7 @@ START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_LOG_TRACE, "p_ctx->state [%s]",
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
              tiz_fsm_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
@@ -965,7 +965,7 @@ START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
 
   /* Check state transition success */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1012,7 +1012,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers)
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%X]", p_hdl);
 
   /* -------------------------------------- */
   /* Obtain the port def params for port #0 */
@@ -1023,8 +1023,8 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers)
   error = OMX_GetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ----------------------------------------*/
@@ -1036,7 +1036,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers)
   supplier.eBufferSupplier = OMX_BufferSupplyOutput;
   error = OMX_SetParameter (p_hdl, OMX_IndexParamCompBufferSupplier,
                             &supplier);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
              COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -1060,7 +1060,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers)
   /* Check state is still LOADED */
   /* --------------------------- */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1085,7 +1085,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers)
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1138,7 +1138,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_suppl
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%X]", p_hdl);
 
   /* -------------------------------------- */
   /* Obtain the port def params for port #0 */
@@ -1149,8 +1149,8 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_suppl
   error = OMX_GetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ------------------------------------ */
@@ -1163,7 +1163,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_suppl
   error = OMX_SetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ----------------------------------------*/
@@ -1175,7 +1175,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_suppl
   supplier.eBufferSupplier = OMX_BufferSupplyOutput;
   error = OMX_SetParameter (p_hdl, OMX_IndexParamCompBufferSupplier,
                             &supplier);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
              COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -1200,7 +1200,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_suppl
   /* Check state is still LOADED */
   /* --------------------------- */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1256,7 +1256,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_suppl
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1307,7 +1307,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%X]", p_hdl);
 
   /* -------------------------------------- */
   /* Obtain the port def params for port #0 */
@@ -1318,8 +1318,8 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
   error = OMX_GetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ------------------------------------ */
@@ -1332,7 +1332,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
   error = OMX_SetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ----------------------------------------*/
@@ -1344,7 +1344,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
   supplier.eBufferSupplier = OMX_BufferSupplyOutput;
   error = OMX_SetParameter (p_hdl, OMX_IndexParamCompBufferSupplier,
                             &supplier);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
              COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -1368,7 +1368,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
   /* Check state is still LOADED */
   /* --------------------------- */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1399,7 +1399,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
     {
       tiz_sleep(10000);
     }
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_StateIdle != p_ctx->state);
   fail_if (OMX_ErrorNone != p_ctx->error);
 
@@ -1407,7 +1407,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -1433,7 +1433,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1487,7 +1487,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%X]", p_hdl);
 
   /* -------------------------------------- */
   /* Obtain the port def params for port #0 */
@@ -1498,8 +1498,8 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   error = OMX_GetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ------------------------------------ */
@@ -1512,7 +1512,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   error = OMX_SetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ----------------------------------------*/
@@ -1524,7 +1524,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   supplier.eBufferSupplier = OMX_BufferSupplyOutput;
   error = OMX_SetParameter (p_hdl, OMX_IndexParamCompBufferSupplier,
                             &supplier);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
              COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -1548,7 +1548,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   /* Check state is still LOADED */
   /* --------------------------- */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1610,7 +1610,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
     {
       tiz_sleep(10000);
     }
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_StateIdle != p_ctx->state);
   fail_if (OMX_ErrorNone != p_ctx->error);
 
@@ -1618,7 +1618,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -1636,7 +1636,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   /* ------------------------- */
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (p_ctx->state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (p_ctx->state));
   fail_if (OMX_TRUE == timedout);
   fail_if (OMX_StateLoaded != p_ctx->state);
   fail_if (OMX_ErrorNone != p_ctx->error);
@@ -1645,7 +1645,7 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1695,7 +1695,7 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_no_buffers)
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%X]", p_hdl);
 
   /* -------------------------------------- */
   /* Obtain the port def params for port #0 */
@@ -1706,8 +1706,8 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_no_buffers)
   error = OMX_GetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ----------------------------------------*/
@@ -1719,7 +1719,7 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_no_buffers)
   supplier.eBufferSupplier = OMX_BufferSupplyOutput;
   error = OMX_SetParameter (p_hdl, OMX_IndexParamCompBufferSupplier,
                             &supplier);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
              COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -1782,7 +1782,7 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_no_buffers)
   /* Check state is IDLE */
   /* ------------------- */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -1840,7 +1840,7 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_no_buffers)
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1893,7 +1893,7 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "p_hdl [%X]", p_hdl);
+  TIZ_LOG (TIZ_TRACE, "p_hdl [%X]", p_hdl);
 
   /* -------------------------------------- */
   /* Obtain the port def params for port #0 */
@@ -1904,8 +1904,8 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_
   error = OMX_GetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ------------------------------------ */
@@ -1918,7 +1918,7 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_
   error = OMX_SetParameter (p_hdl, index, &port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
              port_def.nBufferCountActual);
 
   /* ----------------------------------------*/
@@ -1930,7 +1930,7 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_
   supplier.eBufferSupplier = OMX_BufferSupplyOutput;
   error = OMX_SetParameter (p_hdl, OMX_IndexParamCompBufferSupplier,
                             &supplier);
-  TIZ_LOG (TIZ_LOG_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+  TIZ_LOG (TIZ_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
              COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
@@ -1993,7 +1993,7 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_
   /* Check state is IDLE */
   /* ------------------- */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -2084,7 +2084,7 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_LOG_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_fsm_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -2164,7 +2164,7 @@ main (void)
 
   tiz_log_init();
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Tizonia OpenMAX IL - libtizonia unit tests");
+  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL - libtizonia unit tests");
 
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);

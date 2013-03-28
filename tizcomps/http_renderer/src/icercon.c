@@ -239,7 +239,7 @@ accept_socket (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl, char *ap_ip,
 
   if (!valid_socket (ap_server->lstn_sockfd))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                      TIZ_CBUF (ap_hdl),
                      "Invalid server socket fd [%d] ", ap_server->lstn_sockfd);
       return ICE_RENDERER_SOCK_ERROR;
@@ -249,7 +249,7 @@ accept_socket (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl, char *ap_ip,
   accepted_sockfd =
     accept (ap_server->lstn_sockfd, (struct sockaddr *) &sa, &slen);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "Accepted fd [%d] - errno [%s]", accepted_sockfd,
                  strerror (errno));
 
@@ -260,7 +260,7 @@ accept_socket (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl, char *ap_ip,
                                    ap_ip, a_ip_len, NULL, 0, NI_NUMERICHOST)))
         {
           snprintf (ap_ip, a_ip_len, "unknown");
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                          TIZ_CBUF (ap_hdl),
                          "getnameinfo returned error [%s]",
                          gai_strerror (err));
@@ -302,7 +302,7 @@ create_server_socket (OMX_HANDLETYPE ap_hdl, int a_port,
 
   if ((getaddrc = getaddrinfo (a_interface, service, &hints, &res)) != 0)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[ICE_RENDERER_SOCK_ERROR] : %s.",
                      gai_strerror (getaddrc));
       return ICE_RENDERER_SOCK_ERROR;
@@ -366,7 +366,7 @@ allocate_server_io_watcher (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
        tiz_event_io_init (&(ap_server->p_srv_ev_io), ap_hdl,
                           tiz_receive_event_io)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Error initializing the server's io event",
                      tiz_err_to_str (rc));
       goto end;
@@ -428,7 +428,7 @@ remove_listener (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
   nlstnrs = tiz_map_size (ap_server->p_lstnrs);
   assert (nlstnrs > 0);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Destroyed listener [%s] - [%d] listeners left",
+  TIZ_LOG (TIZ_TRACE, "Destroyed listener [%s] - [%d] listeners left",
            ap_lstnr->p_con->p_ip, nlstnrs - 1);
 
   tiz_map_erase (ap_server->p_lstnrs, &ap_lstnr->p_con->sock);
@@ -471,7 +471,7 @@ create_connection (OMX_HANDLETYPE ap_hdl, int connected_sockfd,
         != (rc = tiz_event_io_init (&(p_con->p_ev_io), ap_hdl,
                                     tiz_receive_event_io)))
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "[%s] : Error initializing a client io event",
                        tiz_err_to_str (rc));
         goto end;
@@ -485,7 +485,7 @@ create_connection (OMX_HANDLETYPE ap_hdl, int connected_sockfd,
         != (rc = tiz_event_timer_init (&(p_con->p_ev_timer), ap_hdl,
                                        tiz_receive_event_timer, ap_lstnr)))
       {
-        TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "[%s] : Error initializing a client timer event",
                        tiz_err_to_str (rc));
         goto end;
@@ -525,7 +525,7 @@ create_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
   if (NULL == (p_lstnr = (icer_listener_t *)
                tiz_mem_calloc (1, sizeof (icer_listener_t))))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
                      "Could not allocate the listener structure.");
       goto end;
@@ -536,7 +536,7 @@ create_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
        create_connection (ap_hdl, a_connected_sockfd, p_lstnr, ap_ip,
                           ap_port)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Error found while instantiating the listener's connection.");
       goto end;
     }
@@ -554,7 +554,7 @@ create_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
   if (NULL ==
       (p_lstnr->buf.p_data = (char *) tiz_mem_alloc (ICE_LISTENER_BUF_SIZE)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
                      "Could not allocate the listener's buffer.");
       goto end;
@@ -564,7 +564,7 @@ create_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
   if (OMX_ErrorNone != (tiz_http_parser_init
                         (&(p_lstnr->p_parser), ETIZHttpParserTypeRequest)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Error while initializing the http parser.",
                      tiz_err_to_str (rc));
       goto end;
@@ -826,7 +826,7 @@ handle_listeners_request (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
 
   if (tiz_map_size (ap_server->p_lstnrs) > ap_server->max_clients)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Client limit reached [%d]", ap_server->max_clients);
       send_http_error (ap_server, ap_hdl, ap_lstnr, 400,
                        "Client limit reached");
@@ -835,7 +835,7 @@ handle_listeners_request (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
 
   if (ap_lstnr->p_con->con_time + ICE_DEFAULT_HEADER_TIMEOUT <= time (NULL))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Connection timed out.");
       goto end;
     }
@@ -847,7 +847,7 @@ handle_listeners_request (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
     }
   else
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Could not read any data from socket (nread = %d errno = [%s]).",
                      nread, strerror (errno));
 
@@ -862,7 +862,7 @@ handle_listeners_request (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
 
   if (nparsed != nread)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Bad http request");
       send_http_error (ap_server, ap_hdl, ap_lstnr, 400, "Bad request");
       goto end;
@@ -870,7 +870,7 @@ handle_listeners_request (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
 
   if (0 != strcmp ("GET", tiz_http_parser_get_method (ap_lstnr->p_parser)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Bad http method");
       send_http_error (ap_server, ap_hdl, ap_lstnr, 405, "Method not allowed");
       goto end;
@@ -878,7 +878,7 @@ handle_listeners_request (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
 
   if (0 != strcmp ("/", tiz_http_parser_get_url (ap_lstnr->p_parser)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Bad url");
       send_http_error (ap_server, ap_hdl, ap_lstnr, 405, "Unathorized");
       goto end;
@@ -889,7 +889,7 @@ handle_listeners_request (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
                                                      ICE_LISTENER_BUF_SIZE -
                                                      1)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Internal Server Error");
       send_http_error (ap_server, ap_hdl, ap_lstnr, 500,
                        "Internal Server Error");
@@ -898,7 +898,7 @@ handle_listeners_request (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
 
   if (0 == send_http_response (ap_server, ap_hdl, ap_lstnr))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Internal Server Error");
       send_http_error (ap_server, ap_hdl, ap_lstnr, 500,
                        "Internal Server Error");
@@ -993,7 +993,7 @@ start_server_io_watcher (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
   assert (NULL != ap_server);
   assert (NULL != ap_hdl);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "Starting server io watcher on socket fd [%d] ",
                  ap_server->lstn_sockfd);
 
@@ -1006,7 +1006,7 @@ stop_server_io_watcher (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
   assert (NULL != ap_server);
   assert (NULL != ap_hdl);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                  TIZ_CBUF (ap_hdl),
                  "stopping io watcher on fd [%d] ", ap_server->lstn_sockfd);
 
@@ -1041,7 +1041,7 @@ start_listener_timer_watcher (icer_listener_t * ap_lstnr,
   assert (NULL != ap_lstnr->p_con);
   assert (NULL != ap_hdl);
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "Starting listener timer watcher on  fd [%d] ",
                  ap_lstnr->p_con->sock);
 
@@ -1084,7 +1084,7 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
   if (NULL == (p_server = (icer_server_t *)
                tiz_mem_calloc (1, sizeof (icer_server_t))))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : Unable to allocate "
                      "the icer_server_t struct.");
       return OMX_ErrorInsufficientResources;
@@ -1109,7 +1109,7 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
                                            listeners_map_compare_func,
                                            listeners_map_free_func, NULL)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Error initializing the listeners map",
                      tiz_err_to_str (rc));
       goto end;
@@ -1119,14 +1119,14 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
       (p_server->lstn_sockfd =
        create_server_socket (ap_hdl, a_port, a_address)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Unable to create the server socket.");
       goto end;
     }
 
   if (OMX_ErrorNone != (rc = allocate_server_io_watcher (p_server, ap_hdl)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Unable to allocate the server io event.",
                      tiz_err_to_str (rc));
       goto end;
@@ -1190,7 +1190,7 @@ icer_con_start_listening (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
   if (listen (ap_server->lstn_sockfd, ICE_LISTEN_QUEUE) ==
       ICE_RENDERER_SOCK_ERROR)
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : Unable to mark "
                      "socket as passive (%s).", strerror (errno));
       return OMX_ErrorInsufficientResources;
@@ -1198,7 +1198,7 @@ icer_con_start_listening (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 
   if (OMX_ErrorNone != (rc = set_non_blocking (ap_server->lstn_sockfd)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : Unable to set"
                      "socket as non-blocking.");
       return OMX_ErrorInsufficientResources;
@@ -1228,7 +1228,7 @@ icer_con_accept_connection (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 
       if (ICE_RENDERER_SOCK_ERROR == connected_sockfd)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "Error found while accepting the connection");
           goto end;
         }
@@ -1237,7 +1237,7 @@ icer_con_accept_connection (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
                                                   connected_sockfd, p_ip,
                                                   port)))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "[%s] : Error found while instantiating the listener",
                          tiz_err_to_str (rc));
           goto end;
@@ -1250,7 +1250,7 @@ icer_con_accept_connection (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
                                                    &p_lstnr->p_con->sock,
                                                    p_lstnr, &index)))
           {
-            TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl),
+            TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
                            TIZ_CBUF (ap_hdl),
                            "[%s] : Unable to add the listener to the map ",
                            tiz_err_to_str (rc));
@@ -1260,7 +1260,7 @@ icer_con_accept_connection (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 
       if (OMX_ErrorNone != (rc = start_listener_io_watcher (p_lstnr, ap_hdl)))
         {
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "[%s] : Error found while starting the listener's "
                          "io watcher", tiz_err_to_str (rc));
           goto end;
@@ -1294,7 +1294,7 @@ end:
     }
   else
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Client [%s:%u] fd [%d] is now connected",
                      p_lstnr->p_con->p_ip, p_lstnr->p_con->port,
                      p_lstnr->p_con->sock);
@@ -1328,7 +1328,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
   if (tiz_map_empty (ap_server->p_lstnrs))
     {
       /* no clients connected yet */
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorNotReady] : There are no clients connected.");
       return OMX_ErrorNotReady;
     }
@@ -1349,7 +1349,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
               (void) start_listener_io_watcher (p_lstnr, ap_hdl);
               return OMX_ErrorNone;
             }
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "[%s] : Error found while handling the "
                          "listener's initial request. Will remove listener",
                          tiz_err_to_str (rc));
@@ -1358,7 +1358,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
         }
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "sent_total [%llu] sent_last [%u] burst [%u]",
                  p_lstnr->p_con->sent_total,
                  p_lstnr->p_con->sent_last, p_lstnr->p_con->burst_bytes);
@@ -1374,7 +1374,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
           if (NULL == (p_hdr = ap_server->pf_needed (ap_server->p_arg)))
             {
               /* no more buffers available at the moment */
-              TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+              TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                              TIZ_CBUF (ap_hdl),
                              "[OMX_ErrorNone] : no more buffers available "
                              "at this moment");
@@ -1392,7 +1392,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 
       if (p_lstnr->p_con->error)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "[OMX_ErrorNone] : Will be destroying listener "
                          "(socket error while sending "
                          "to listener sent_last [%u])",
@@ -1404,7 +1404,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 
       if (p_lstnr->p_con->burst_bytes > ICE_DEFAULT_BURST_SIZE)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "[OMX_ErrorNoMore] : burst limit reached");
           /* Let's not send too much data in one go */
           (void) start_listener_timer_watcher (p_lstnr, ap_hdl);
@@ -1417,7 +1417,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
           /* Socket buffer (or perhaps the tcp window) is full. Start the io
            * watcher to get notified when the socket is again available for
            * writing */
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "[OMX_ErrorNoMore] : socket full/not ready");
           (void) start_listener_io_watcher (p_lstnr, ap_hdl);
           rc = OMX_ErrorNoMore;
@@ -1426,7 +1426,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 
       if (p_lstnr->pos == ap_server->p_hdr->nFilledLen)
         {
-          TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "Buffer emptied : sent_total [%llu] sent_last [%u] burst [%u]",
                          p_lstnr->p_con->sent_total,
                          p_lstnr->p_con->sent_last,
@@ -1440,7 +1440,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
         }
     };
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "Returning with [%s] : sent_total [%llu] sent_last [%u] burst [%u]",
                  tiz_err_to_str (rc),
                  p_lstnr->p_con->sent_total,

@@ -332,7 +332,7 @@ main(int argc, char **argv)
 
   tiz_log_deinit ();
 
-  TIZ_LOG(TIZ_LOG_TRACE, "Tizonia OpenMAX IL decoder...");
+  TIZ_LOG(TIZ_TRACE, "Tizonia OpenMAX IL decoder...");
 
   while (1)
     {

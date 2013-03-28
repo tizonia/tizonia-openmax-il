@@ -61,7 +61,7 @@ find_default_uri ()
           &&
           "OMX.Aratelia.file_reader.binary.default_audio_uri not present in tizrc...");
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Default URI [%s]...", p_uri);
+  TIZ_LOG (TIZ_TRACE, "Default URI [%s]...", p_uri);
 
   p_rv = strndup (p_uri, PATH_MAX);
 
@@ -112,8 +112,8 @@ fr_cfgport_GetParameter (const void *ap_obj,
         OMX_U32 uri_buf_size =
           p_uri->nSize - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE);
         OMX_U32 uri_len = strlen (p_obj->p_uri_);
-        TIZ_LOG (TIZ_LOG_TRACE, "uri_buf_size [%d]...", uri_buf_size);
-        TIZ_LOG (TIZ_LOG_TRACE, "p_obj->p_uri_ [%08x]...", p_obj->p_uri_);
+        TIZ_LOG (TIZ_TRACE, "uri_buf_size [%d]...", uri_buf_size);
+        TIZ_LOG (TIZ_TRACE, "p_obj->p_uri_ [%08x]...", p_obj->p_uri_);
 
         if (uri_buf_size < (uri_len + 1))
           {
@@ -149,7 +149,7 @@ fr_cfgport_SetParameter (const void *ap_obj,
 {
   struct frcfgport *p_obj = (struct frcfgport *) ap_obj;
 
-  TIZ_LOG (TIZ_LOG_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -169,7 +169,7 @@ fr_cfgport_SetParameter (const void *ap_obj,
             p_uri->contentURI[uri_size - 1] = '\0';
           }
 
-        TIZ_LOG (TIZ_LOG_TRACE, "Set URI [%s]...", p_obj->p_uri_);
+        TIZ_LOG (TIZ_TRACE, "Set URI [%s]...", p_obj->p_uri_);
       }
       break;
 
@@ -228,7 +228,7 @@ init_frcfgport (void)
 
   if (!frcfgport_class)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing frcfgport_class...");
+      TIZ_LOG (TIZ_TRACE, "Initializing frcfgport_class...");
       init_tizconfigport ();
       frcfgport_class = factory_new (tizconfigport_class,
                                      "frcfgport_class",
@@ -240,7 +240,7 @@ init_frcfgport (void)
 
   if (!frcfgport)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing frcfgport...");
+      TIZ_LOG (TIZ_TRACE, "Initializing frcfgport...");
       init_tizconfigport ();
       frcfgport =
         factory_new

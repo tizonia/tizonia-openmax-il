@@ -35,7 +35,7 @@ check_map_cmp_f (OMX_PTR ap_key1, OMX_PTR ap_key2)
   fail_if (NULL == ap_key1);
   fail_if (NULL == ap_key2);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "key1 [%d] key2 [%d]", *key1, *key2);
+  TIZ_LOG (TIZ_TRACE, "key1 [%d] key2 [%d]", *key1, *key2);
 
   if (*key1 == *key2)
     {
@@ -54,7 +54,7 @@ check_map_cmp_f (OMX_PTR ap_key1, OMX_PTR ap_key2)
 static void
 check_map_free_f (OMX_PTR ap_key, OMX_PTR ap_value)
 {
-  TIZ_LOG (TIZ_LOG_TRACE, "key [%d] value [%d]",
+  TIZ_LOG (TIZ_TRACE, "key [%d] value [%d]",
            *((int*)ap_key), *((int*)ap_value));
   tiz_mem_free (ap_key);
 }
@@ -71,7 +71,7 @@ check_map_for_each_f (OMX_PTR ap_key, OMX_PTR ap_value,
   fail_if (NULL == ap_value);
   fail_if (NULL != ap_arg);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "each [%d] key [%d] value [%d]", g_each, *p_key, *p_value);
+  TIZ_LOG (TIZ_TRACE, "each [%d] key [%d] value [%d]", g_each, *p_key, *p_value);
 
   fail_if (*p_key != *p_value);
   fail_if (g_each != *p_value);

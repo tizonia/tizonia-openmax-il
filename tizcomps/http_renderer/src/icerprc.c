@@ -69,7 +69,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* Socket send buffers are full */
             ap_obj->server_is_full_ = true;
-            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                            TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
@@ -79,7 +79,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* Trying not send too much data. */
             ap_obj->server_is_full_ = false;
-            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                            TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
@@ -89,7 +89,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* More data needed */
             ap_obj->server_is_full_ = false;
-            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                            TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
           }
           break;
@@ -98,7 +98,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* No connected clients yet */
             ap_obj->server_is_full_ = false;
-            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                            TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
@@ -106,7 +106,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
 
         default:
           {
-            TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (ap_hdl),
+            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
                            TIZ_CBUF (ap_hdl),
                            "[%s] : Error while writing to clients ...",
                            tiz_err_to_str (rc));
@@ -151,7 +151,7 @@ buffer_needed (void *ap_arg)
                   if (OMX_ErrorNone == tiz_kernel_claim_buffer
                       (p_krn, 0, 0, &p_obj->p_inhdr_))
                     {
-                      TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...",
+                      TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...",
                                p_obj->p_inhdr_);
                       return p_obj->p_inhdr_;
                     }
@@ -174,7 +174,7 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * p_hdr, void *p_arg)
   assert (NULL != p_hdr);
   assert (p_obj->p_inhdr_ == p_hdr);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "HEADER emptied [%p]", p_hdr);
+  TIZ_LOG (TIZ_TRACE, "HEADER emptied [%p]", p_hdr);
 
   p_krn = tiz_get_krn (p_parent->p_hdl_);
   assert (NULL != p_krn);
@@ -240,14 +240,14 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
                                                   OMX_TizoniaIndexParamHttpServer,
                                                   &httpsrv)))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "[%s] : Error retrieving HTTPSERVERTYPE from port",
                      tiz_err_to_str (rc));
       return rc;
     }
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                  TIZ_CBUF (p_parent->p_hdl_),
                  "nListeningPort = [%d] nMaxClients = [%d] ",
                  httpsrv.nListeningPort, httpsrv.nMaxClients);
@@ -257,7 +257,7 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
   if (OMX_ErrorNone != (rc = tiz_event_loop_init ()))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
+      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
                      "[%s] : Error starting event loop", tiz_err_to_str (rc));
       return rc;
@@ -294,7 +294,7 @@ icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   assert (NULL != ap_obj);
   assert (NULL != p_parent->p_hdl_);
 
-  TIZ_LOG (TIZ_LOG_TRACE,
+  TIZ_LOG (TIZ_TRACE,
            "Server starts listening on port [%d]", p_obj->lstn_port_);
 
   p_obj->lstn_sockfd_ = icer_con_get_server_fd (p_obj->p_server_);
@@ -316,7 +316,7 @@ icer_proc_stop_and_return (void *ap_obj)
 
   assert (NULL != ap_obj);
 
-  TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]", p_obj);
+  TIZ_LOG (TIZ_TRACE, "Stopped buffer transfer...p_obj = [%p]", p_obj);
 
   return icer_con_stop_listening (p_obj->p_server_, p_parent->p_hdl_);
 }
@@ -350,7 +350,7 @@ icer_event_io_ready (void *ap_obj,
   assert (NULL != p_parent->p_hdl_);
   p_hdl = p_parent->p_hdl_;
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                  "Received io event on socket fd [%d] lstn_sockfd_ [%d]",
                  a_fd, p_obj->lstn_sockfd_);
 
@@ -388,7 +388,7 @@ icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
   assert (NULL != p_parent->p_hdl_);
   p_hdl = p_parent->p_hdl_;
 
-  TIZ_LOG_CNAME (TIZ_LOG_NOTICE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+  TIZ_LOG_CNAME (TIZ_NOTICE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                  "Received timer event ");
   fflush (stdout);
 
