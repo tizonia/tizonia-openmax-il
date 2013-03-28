@@ -342,6 +342,27 @@ deinit_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   return OMX_ErrorNone;
 }
 
+static inline tiz_vector_t *
+get_egress_lst (const struct tizkernel *ap_obj, OMX_U32 a_pid)
+{
+  tiz_vector_t * p_list = NULL;
+  assert (NULL != ap_obj);
+  /* Grab the port's egress list */
+  p_list = tiz_vector_at (ap_obj->p_egress_, a_pid);
+  assert (p_list && *(tiz_vector_t **) p_list);
+  return (*(tiz_vector_t **) p_list);
+}
+
+static tiz_vector_t *
+get_port (const struct tizkernel *ap_obj, OMX_U32 a_pid)
+{
+  OMX_PTR *pp_port = NULL;
+  /* Find the port.. */
+  pp_port = tiz_vector_at (ap_obj->p_ports_, a_pid);
+  assert (pp_port && *pp_port);
+  return *pp_port;
+}
+
 static OMX_ERRORTYPE
 complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                        OMX_ERRORTYPE a_error)
@@ -2005,31 +2026,35 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
   tiz_kernel_msg_t *p_msg = ap_msg;
   tiz_kernel_msg_callback_t *p_msg_cb = NULL;
   tiz_fsm_state_id_t now = OMX_StateMax;
-  tiz_vector_t *p_list = NULL;
-  OMX_PTR *pp_port = NULL, p_port = NULL;
+  tiz_vector_t *p_egress_lst = NULL;
+  OMX_PTR p_port = NULL;
   OMX_S32 claimed_count = 0;
+  OMX_HANDLETYPE p_hdl = NULL;
+  OMX_U32 pid = 0;
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  assert (p_obj);
-  assert (p_msg);
+  assert (NULL != p_obj);
+  assert (NULL != p_msg);
+
+  p_hdl = p_msg->p_hdl;
+  assert (NULL != p_hdl);
 
   p_msg_cb = &(p_msg->cb);
+  pid = p_msg_cb->pid;
+  p_hdr = p_msg_cb->p_hdr;
 
-  now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
+  now = tiz_fsm_get_substate (tiz_get_fsm (p_hdl));
 
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
-                 TIZ_CBUF (p_msg->p_hdl),
-                 "HEADER [%p] STATE [%s] ", p_msg_cb->p_hdr,
+  TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl),
+                 TIZ_CBUF (p_hdl),
+                 "HEADER [%p] STATE [%s] ", p_hdr,
                  tiz_fsm_state_to_str (now));
 
   /* Find the port.. */
-  pp_port = tiz_vector_at (p_obj->p_ports_, p_msg_cb->pid);
-  assert (pp_port && *pp_port);
-  p_port = *pp_port;
+  p_port = get_port (p_obj, pid);
 
   /* Grab the port's egress list */
-  p_list = tiz_vector_at (p_obj->p_egress_, p_msg_cb->pid);
-  assert (p_list && *(tiz_vector_t **) p_list);
-  p_list = *(tiz_vector_t **) p_list;
+  p_egress_lst = get_egress_lst (p_obj, pid);
 
   /* Buffers are not allowed to leave the component in OMX_StatePause, unless
    * the port is being explicitly flushed by the IL Client. If the port is not
@@ -2038,54 +2063,55 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
    * OMX_StateExecuting. */
   if (EStatePause == now && !TIZPORT_IS_BEING_FLUSHED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_msg->p_hdl),
-                     TIZ_CBUF (p_msg->p_hdl),
+      TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_hdl),
+                     TIZ_CBUF (p_hdl),
                      "Deferring callbacks in "
-                     "OMX_StatePause", p_msg_cb->p_hdr);
+                     "OMX_StatePause", p_hdr);
 
       /* TODO: Double check whether this hack is needed anymore */
-      if (NULL == p_msg_cb->p_hdr && OMX_DirMax == p_msg_cb->dir)
+      if (NULL == p_hdr && OMX_DirMax == p_msg_cb->dir)
         {
           TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                         TIZ_CNAME (p_msg->p_hdl),
-                         TIZ_CBUF (p_msg->p_hdl),
+                         TIZ_CNAME (p_hdl),
+                         TIZ_CBUF (p_hdl),
                          "Enqueueing another dummy callback...");
           rc = enqueue_callback_msg (p_obj, NULL, 0, OMX_DirMax);
         }
       else
         {
+
           /* ...add the header to the egress list... */
           if (OMX_ErrorNone
-              != (rc = tiz_vector_push_back (p_list, &p_msg_cb->p_hdr)))
+              != (rc = tiz_vector_push_back (p_egress_lst, &p_hdr)))
             {
               TIZ_LOG_CNAME (TIZ_LOG_ERROR,
-                             TIZ_CNAME (p_msg->p_hdl),
-                             TIZ_CBUF (p_msg->p_hdl),
+                             TIZ_CNAME (p_hdl),
+                             TIZ_CBUF (p_hdl),
                              "[%s] : Could not add header [%p] to "
                              "port [%d] egress list",
-                             tiz_err_to_str (rc), p_msg_cb->p_hdr,
-                             p_msg_cb->pid);
+                             tiz_err_to_str (rc), p_hdr,
+                             pid);
             }
         }
 
       return rc;
     }
 
-  if (NULL == p_msg_cb->p_hdr && OMX_DirMax == p_msg_cb->dir)
+  if (NULL == p_hdr && OMX_DirMax == p_msg_cb->dir)
     {
       /* If this is a dummy callback, simply flush the lists and return */
       return flush_egress (p_obj, OMX_ALL, OMX_FALSE);
     }
 
   /* ...add the header to the egress list... */
-  if (OMX_ErrorNone != (rc = tiz_vector_push_back (p_list, &p_msg_cb->p_hdr)))
+  if (OMX_ErrorNone != (rc = tiz_vector_push_back (p_egress_lst, &p_hdr)))
     {
       TIZ_LOG_CNAME (TIZ_LOG_ERROR,
-                     TIZ_CNAME (p_msg->p_hdl),
-                     TIZ_CBUF (p_msg->p_hdl),
+                     TIZ_CNAME (p_hdl),
+                     TIZ_CBUF (p_hdl),
                      "[%s] : Could not add header [%p] to "
                      "port [%d] egress list",
-                     tiz_err_to_str (rc), p_msg_cb->p_hdr, p_msg_cb->pid);
+                     tiz_err_to_str (rc), p_hdr, pid);
     }
 
   if (OMX_ErrorNone == rc)
@@ -2099,8 +2125,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
           int nbufs = 0;
           /* If we are moving to Idle, move the buffers to ingress so they
              don't leave the component in the next step */
-          nbufs = move_to_ingress (p_obj, p_msg_cb->pid);
-          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (p_msg->p_hdl), TIZ_CBUF (p_msg->p_hdl),
+          nbufs = move_to_ingress (p_obj, pid);
+          TIZ_LOG_CNAME (TIZ_LOG_ERROR, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                          "nbufs [%d]", nbufs);
         }
 
@@ -2108,8 +2134,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
       if (OMX_ErrorNone != (rc = flush_egress (p_obj, OMX_ALL, OMX_FALSE)))
         {
           TIZ_LOG_CNAME (TIZ_LOG_ERROR,
-                         TIZ_CNAME (p_msg->p_hdl),
-                         TIZ_CBUF (p_msg->p_hdl),
+                         TIZ_CNAME (p_hdl),
+                         TIZ_CBUF (p_hdl),
                          "[%s] : Could not flush the egress lists",
                          tiz_err_to_str (rc));
         }
@@ -2122,7 +2148,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
       if (TIZPORT_IS_BEING_FLUSHED (p_port))
         {
           /* Notify flush complete */
-          complete_port_flush (p_obj, p_port, p_msg_cb->pid, rc);
+          complete_port_flush (p_obj, p_port, pid, rc);
         }
 
       if (all_buffers_returned (p_obj))
@@ -2130,8 +2156,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
           tiz_kernel_tunneled_ports_status_t status =
             tiz_kernel_get_tunneled_ports_status (ap_obj, OMX_TRUE);
 
-          TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (p_msg->p_hdl),
-                         TIZ_CBUF (p_msg->p_hdl), "Back to idle - status [%d]",
+          TIZ_LOG_CNAME (TIZ_LOG_DEBUG, TIZ_CNAME (p_hdl),
+                         TIZ_CBUF (p_hdl), "Back to idle - status [%d]",
                          status);
 
           if ((ESubStateExecutingToIdle == now || ESubStatePauseToIdle == now)
@@ -2140,7 +2166,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
             {
               /* complete state transition to OMX_StateIdle */
               rc = tiz_fsm_complete_transition
-                (tiz_get_fsm (p_msg->p_hdl), p_obj, OMX_StateIdle);
+                (tiz_get_fsm (p_hdl), p_obj, OMX_StateIdle);
             }
         }
 
