@@ -2079,6 +2079,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
         }
       else
         {
+          /* Now decrement by one the port's claimed buffers count */
+          claimed_count = TIZPORT_DEC_CLAIMED_COUNT (p_port);
 
           /* ...add the header to the egress list... */
           if (OMX_ErrorNone
