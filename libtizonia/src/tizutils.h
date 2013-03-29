@@ -70,10 +70,24 @@ extern "C"
 #define TIZ_PD_ISSET(d, set) \
   ((TIZ_PDS_BITS (set)[_TIZ_PDELT (d)] & _TIZ_PDMASK (d)) != 0)
 
+
+
+
 #define TIZ_CNAME(hdl) \
-  ((OMX_COMPONENTTYPE*)hdl)->pComponentPrivate
+  (((OMX_COMPONENTTYPE*)hdl)->pComponentPrivate)
 #define TIZ_CBUF(hdl)  \
-  ((OMX_COMPONENTTYPE*)hdl)->pComponentPrivate + OMX_MAX_STRINGNAME_SIZE
+  (((OMX_COMPONENTTYPE*)hdl)->pComponentPrivate + OMX_MAX_STRINGNAME_SIZE)
+
+#define TIZ_LOGN(priority,hdl,format,args...)                   \
+  tiz_log(__FILE__,                                             \
+          __LINE__,                                             \
+          __FUNCTION__,                                         \
+          TIZ_LOG_CATEGORY_NAME,                                \
+          priority,                                             \
+          TIZ_CNAME(hdl),                                       \
+          TIZ_CBUF(hdl),                                        \
+          format,                                               \
+          ##args);
 
   void tiz_clear_header (OMX_BUFFERHEADERTYPE * ap_hdr);
 
