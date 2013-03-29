@@ -48,10 +48,16 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.vp8_decoder"
 #endif
 
+#define ARATELIA_VP8_DECODER_DEFAULT_FRAME_WIDTH  176
+#define ARATELIA_VP8_DECODER_DEFAULT_FRAME_HEIGHT 144
+
+
 #define ARATELIA_VP8_DECODER_DEFAULT_ROLE "video_decoder.vp8"
 #define ARATELIA_VP8_DECODER_COMPONENT_NAME "OMX.Aratelia.video_decoder.vp8"
 #define ARATELIA_VP8_DECODER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_VP8_DECODER_PORT_MIN_INPUT_BUF_SIZE 8192
+
+/* 38016 = (width * height) + ((width * height)/2) */
+#define ARATELIA_VP8_DECODER_PORT_MIN_INPUT_BUF_SIZE 38016
 #define ARATELIA_VP8_DECODER_PORT_MIN_OUTPUT_BUF_SIZE 345600
 #define ARATELIA_VP8_DECODER_PORT_NONCONTIGUOUS OMX_FALSE
 #define ARATELIA_VP8_DECODER_PORT_ALIGNMENT 0
@@ -115,8 +121,9 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   vp8type.bErrorResilientMode = OMX_FALSE;
 
   init_tizvp8port ();
-  p_vp8port = factory_new (tizvp8port, &vp8_port_opts, &portdef, &encodings, &formats, &vp8type, &levels, NULL  /* OMX_VIDEO_PARAM_BITRATETYPE */
-    );
+  p_vp8port = factory_new (tizvp8port, &vp8_port_opts, &portdef,
+                           &encodings, &formats, &vp8type, &levels,
+                           NULL  /* OMX_VIDEO_PARAM_BITRATETYPE */);
   assert (p_vp8port);
 
   return p_vp8port;
