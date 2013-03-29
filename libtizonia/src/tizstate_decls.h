@@ -31,7 +31,7 @@ extern "C"
 
   struct tizstate
   {
-    const struct tizapi _;
+    const struct tiz_api _;
     void *p_fsm_;
     OMX_U32 servants_count_;
   };

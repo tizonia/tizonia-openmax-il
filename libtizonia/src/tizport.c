@@ -366,7 +366,7 @@ port_dtor (void *ap_obj)
 }
 
 /*
- * from tizapi
+ * from tiz_api
  */
 
 static OMX_ERRORTYPE
@@ -2249,7 +2249,7 @@ init_tizport (void)
 
   if (!tiz_port_class)
     {
-      init_tizapi ();
+      tiz_api_init ();
       tiz_port_class = factory_new (tiz_api_class,
                                    "tiz_port_class",
                                    tiz_api_class,
@@ -2260,12 +2260,12 @@ init_tizport (void)
 
   if (!tizport)
     {
-      init_tizapi ();
+      tiz_api_init ();
       tizport =
         factory_new
         (tiz_port_class,
          "tizport",
-         tizapi,
+         tiz_api,
          sizeof (struct tizport),
          ctor, port_ctor,
          dtor, port_dtor,

@@ -43,20 +43,20 @@
 
 
 /*
- * tizapi
+ * tiz_api
  */
 
 static void *
 api_ctor (void *ap_obj, va_list * app)
 {
-  struct tizapi *p_obj = super_ctor (tizapi, ap_obj, app);
+  struct tiz_api *p_obj = super_ctor (tiz_api, ap_obj, app);
   return p_obj;
 }
 
 static void *
 api_dtor (void *ap_obj)
 {
-  return super_dtor (tizapi, ap_obj);
+  return super_dtor (tiz_api, ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -739,10 +739,10 @@ api_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tiz_api_class, *tizapi;
+const void *tiz_api_class, *tiz_api;
 
 void
-init_tizapi (void)
+tiz_api_init (void)
 {
 
   if (!tiz_api_class)
@@ -754,14 +754,14 @@ init_tizapi (void)
                                   ctor, api_class_ctor, 0);
     }
 
-  if (!tizapi)
+  if (!tiz_api)
     {
-      tizapi =
+      tiz_api =
         factory_new
         (tiz_api_class,
-         "tizapi",
+         "tiz_api",
          Object,
-         sizeof (struct tizapi),
+         sizeof (struct tiz_api),
          ctor, api_ctor,
          dtor, api_dtor,
          tiz_api_GetComponentVersion, api_GetComponentVersion,

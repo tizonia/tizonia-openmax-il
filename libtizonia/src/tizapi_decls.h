@@ -36,7 +36,7 @@ extern "C"
 
 #include "tizobject_decls.h"
 
-  struct tizapi
+  struct tiz_api
   {
     /* Object */
     const struct Object _;

@@ -94,7 +94,7 @@ fw_cfgport_dtor (void *ap_obj)
 }
 
 /*
- * from tizapi
+ * from tiz_api
  */
 
 static OMX_ERRORTYPE

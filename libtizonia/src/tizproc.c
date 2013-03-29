@@ -646,7 +646,7 @@ enqueue_buffersready_msg (const void *ap_obj,
 }
 
 /*
- * from tizapi
+ * from tiz_api
  */
 
 static inline OMX_U32

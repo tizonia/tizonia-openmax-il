@@ -57,7 +57,7 @@ idletoloaded_dtor (void *ap_obj)
 }
 
 /*
- * from tizapi class
+ * from tiz_api class
  */
 
 static OMX_ERRORTYPE

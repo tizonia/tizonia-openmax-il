@@ -42,7 +42,7 @@ extern "C"
   struct tizservant
   {
     /* Object */
-    const struct tizapi _;
+    const struct tiz_api _;
     tiz_pqueue_t *p_pq_;
     tiz_soa_t *p_soa_;          /* Not owned */
     OMX_COMPONENTTYPE *p_hdl_;

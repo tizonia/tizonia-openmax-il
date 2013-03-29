@@ -2324,7 +2324,7 @@ kernel_dtor (void *ap_obj)
 }
 
 /*
- * tizapi
+ * tiz_api
  */
 
 static OMX_ERRORTYPE

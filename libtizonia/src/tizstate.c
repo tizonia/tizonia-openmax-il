@@ -63,7 +63,7 @@ state_dtor (void *ap_obj)
 }
 
 /*
- * from tizapi class
+ * from tiz_api class
  */
 
 static OMX_ERRORTYPE
@@ -525,7 +525,7 @@ init_tizstate (void)
 {
   if (!tiz_state_class)
     {
-      init_tizapi ();
+      tiz_api_init ();
       tiz_state_class = factory_new (tiz_api_class,
                                     "tiz_state_class",
                                     tiz_api_class,
@@ -536,11 +536,11 @@ init_tizstate (void)
 
   if (!tizstate)
     {
-      init_tizapi ();
+      tiz_api_init ();
       tizstate =
         factory_new
         (tiz_state_class, "tizstate",
-         tizapi, sizeof (struct tizstate),
+         tiz_api, sizeof (struct tizstate),
          ctor, state_ctor,
          dtor, state_dtor,
          tiz_api_SendCommand, state_SendCommand,

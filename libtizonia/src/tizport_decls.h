@@ -43,7 +43,7 @@ extern "C"
   struct tizport
   {
     /* Object */
-    const struct tizapi _;
+    const struct tiz_api _;
     tiz_vector_t *p_indexes_;
     tiz_vector_t *p_hdrs_info_;
     tiz_vector_t *p_hdrs_;
