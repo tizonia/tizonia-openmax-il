@@ -65,7 +65,7 @@ loaded_SetParameter (const void *ap_obj,
                      OMX_INDEXTYPE a_index, OMX_PTR a_struct)
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
-  return tizapi_SetParameter (p_krn, ap_hdl, a_index, a_struct);
+  return tiz_api_SetParameter (p_krn, ap_hdl, a_index, a_struct);
 }
 
 static OMX_ERRORTYPE
@@ -105,7 +105,7 @@ loaded_EmptyThisBuffer (const void *ap_obj,
 
 
   /* Delegate to the kernel... */
-  return tizapi_EmptyThisBuffer (p_krn, ap_hdl, ap_hdr);
+  return tiz_api_EmptyThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
 static OMX_ERRORTYPE
@@ -126,7 +126,7 @@ loaded_FillThisBuffer (const void *ap_obj,
 
 
   /* Delegate to the kernel... */
-  return tizapi_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
+  return tiz_api_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
 
@@ -247,11 +247,11 @@ init_tizloaded (void)
          tizstate, sizeof (struct tizloaded),
          ctor, loaded_ctor,
          dtor, loaded_dtor,
-         tizapi_SetParameter, loaded_SetParameter,
-         tizapi_GetState, loaded_GetState,
-         tizapi_UseBuffer, loaded_UseBuffer,
-         tizapi_EmptyThisBuffer, loaded_EmptyThisBuffer,
-         tizapi_FillThisBuffer, loaded_FillThisBuffer,
+         tiz_api_SetParameter, loaded_SetParameter,
+         tiz_api_GetState, loaded_GetState,
+         tiz_api_UseBuffer, loaded_UseBuffer,
+         tiz_api_EmptyThisBuffer, loaded_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, loaded_FillThisBuffer,
          tizstate_state_set, loaded_state_set,
          tizstate_trans_complete, loaded_trans_complete, 0);
     }

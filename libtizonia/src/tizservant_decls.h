@@ -94,7 +94,7 @@ extern "C"
   struct tiz_servant_class
   {
     /* Class */
-    const struct tizapi_class _;
+    const struct tiz_api_class _;
     void (*set_allocator) (void *ap_obj, tiz_soa_t * p_soa);
     void (*set_callbacks) (void *ap_obj, OMX_PTR ap_appdata,
                            OMX_CALLBACKTYPE * ap_cbacks);

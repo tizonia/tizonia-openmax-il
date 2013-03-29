@@ -89,7 +89,7 @@ pause_SetParameter (const void *ap_obj,
       return OMX_ErrorIncorrectStateOperation;
     }
 
-  return tizapi_SetParameter (p_krn, ap_hdl, a_index, a_struct);
+  return tiz_api_SetParameter (p_krn, ap_hdl, a_index, a_struct);
 
 }
 
@@ -128,7 +128,7 @@ pause_EmptyThisBuffer (const void *ap_obj,
   /*     } */
 
   /* Delegate to the kernel... */
-  return tizapi_EmptyThisBuffer (p_krn, ap_hdl, ap_hdr);
+  return tiz_api_EmptyThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
 static OMX_ERRORTYPE
@@ -149,7 +149,7 @@ pause_FillThisBuffer (const void *ap_obj,
 
 
   /* Delegate to the kernel... */
-  return tizapi_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
+  return tiz_api_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
 /*
@@ -215,7 +215,7 @@ pause_state_set (const void *ap_obj,
     struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
 
     /* First notify the kernel servant */
-    if (OMX_ErrorNone != (ret_val = tizapi_SendCommand (p_krn, ap_hdl,
+    if (OMX_ErrorNone != (ret_val = tiz_api_SendCommand (p_krn, ap_hdl,
                                                         a_cmd, a_param1,
                                                         ap_cmd_data)))
       {
@@ -223,7 +223,7 @@ pause_state_set (const void *ap_obj,
       }
 
     /* Now notify the processor servant */
-    if (OMX_ErrorNone != (ret_val = tizapi_SendCommand (p_prc, ap_hdl,
+    if (OMX_ErrorNone != (ret_val = tiz_api_SendCommand (p_prc, ap_hdl,
                                                         a_cmd, a_param1,
                                                         ap_cmd_data)))
       {
@@ -242,7 +242,7 @@ pause_state_mark (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
   /* Notify the kernel servant */
   /* No need to notify the processor servant */
-  return tizapi_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+  return tiz_api_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 static OMX_ERRORTYPE
@@ -277,11 +277,11 @@ init_tizpause (void)
          tizstate, sizeof (struct tizpause),
          ctor, pause_ctor,
          dtor, pause_dtor,
-         tizapi_SetParameter, pause_SetParameter,
-         tizapi_GetState, pause_GetState,
-         tizapi_UseBuffer, pause_UseBuffer,
-         tizapi_EmptyThisBuffer, pause_EmptyThisBuffer,
-         tizapi_FillThisBuffer, pause_FillThisBuffer,
+         tiz_api_SetParameter, pause_SetParameter,
+         tiz_api_GetState, pause_GetState,
+         tiz_api_UseBuffer, pause_UseBuffer,
+         tiz_api_EmptyThisBuffer, pause_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, pause_FillThisBuffer,
          tizstate_state_set, pause_state_set,
          tizstate_mark, pause_state_mark,
          tizstate_trans_complete, pause_trans_complete, 0);

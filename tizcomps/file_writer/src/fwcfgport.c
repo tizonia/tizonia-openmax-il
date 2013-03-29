@@ -249,8 +249,8 @@ init_fwcfgport (void)
          sizeof (struct fwcfgport),
          ctor, fw_cfgport_ctor,
          dtor, fw_cfgport_dtor,
-         tizapi_GetParameter, fw_cfgport_GetParameter,
-         tizapi_SetParameter, fw_cfgport_SetParameter, 0);
+         tiz_api_GetParameter, fw_cfgport_GetParameter,
+         tiz_api_SetParameter, fw_cfgport_SetParameter, 0);
     }
 
 }

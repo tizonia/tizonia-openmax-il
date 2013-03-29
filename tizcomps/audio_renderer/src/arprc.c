@@ -250,7 +250,7 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
       p_obj->pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
       p_obj->pcmmode.nVersion.nVersion = OMX_VERSION;
       p_obj->pcmmode.nPortIndex = 0;    /* port index */
-      if (OMX_ErrorNone != (ret_val = tizapi_GetParameter
+      if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                             (p_krn,
                              p_parent->p_hdl_,
                              OMX_IndexParamAudioPcm, &p_obj->pcmmode)))

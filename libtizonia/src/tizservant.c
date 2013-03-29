@@ -738,9 +738,9 @@ init_tizservant (void)
   if (!tiz_servant_class)
     {
       init_tizapi ();
-      tiz_servant_class = factory_new (tizapi_class,
+      tiz_servant_class = factory_new (tiz_api_class,
                                       "tiz_servant_class",
-                                      tizapi_class,
+                                      tiz_api_class,
                                       sizeof (struct tiz_servant_class),
                                       ctor, servant_class_ctor, 0);
 

@@ -67,7 +67,7 @@ waitforresources_SetParameter (const void *ap_obj,
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
 
-  return tizapi_SetParameter (p_krn, ap_hdl, a_index, a_struct);
+  return tiz_api_SetParameter (p_krn, ap_hdl, a_index, a_struct);
 }
 
 static OMX_ERRORTYPE
@@ -161,7 +161,7 @@ waitforresources_state_set (const void *ap_obj,
     struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
 
     /* First notify the kernel servant */
-    if (OMX_ErrorNone != (omx_error = tizapi_SendCommand (p_krn, ap_hdl,
+    if (OMX_ErrorNone != (omx_error = tiz_api_SendCommand (p_krn, ap_hdl,
                                                           a_cmd, a_param1,
                                                           ap_cmd_data)))
       {
@@ -169,7 +169,7 @@ waitforresources_state_set (const void *ap_obj,
       }
 
     /* Now notify the processor servant */
-    if (OMX_ErrorNone != (omx_error = tizapi_SendCommand (p_prc, ap_hdl,
+    if (OMX_ErrorNone != (omx_error = tiz_api_SendCommand (p_prc, ap_hdl,
                                                           a_cmd, a_param1,
                                                           ap_cmd_data)))
       {
@@ -215,11 +215,11 @@ init_tizwaitforresources (void)
          tizstate, sizeof (struct tizwaitforresources),
          ctor, waitforresources_ctor,
          dtor, waitforresources_dtor,
-         tizapi_SetParameter, waitforresources_SetParameter,
-         tizapi_GetState, waitforresources_GetState,
-         tizapi_UseBuffer, waitforresources_UseBuffer,
-         tizapi_EmptyThisBuffer, waitforresources_EmptyThisBuffer,
-         tizapi_FillThisBuffer, waitforresources_FillThisBuffer,
+         tiz_api_SetParameter, waitforresources_SetParameter,
+         tiz_api_GetState, waitforresources_GetState,
+         tiz_api_UseBuffer, waitforresources_UseBuffer,
+         tiz_api_EmptyThisBuffer, waitforresources_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, waitforresources_FillThisBuffer,
          tizstate_state_set, waitforresources_state_set,
          tizstate_trans_complete, waitforresources_trans_complete, 0);
     }

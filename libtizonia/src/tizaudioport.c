@@ -248,8 +248,8 @@ init_tizaudioport (void)
          sizeof (struct tizaudioport),
          ctor, audioport_ctor,
          dtor, audioport_dtor,
-         tizapi_GetParameter, audioport_GetParameter,
-         tizapi_SetParameter, audioport_SetParameter, 0);
+         tiz_api_GetParameter, audioport_GetParameter,
+         tiz_api_SetParameter, audioport_SetParameter, 0);
     }
 
 }

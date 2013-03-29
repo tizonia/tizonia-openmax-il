@@ -136,7 +136,7 @@ dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_sc);
   assert (p_msg_sc->cmd <= OMX_CommandMarkBuffer);
 
-  return tizapi_SendCommand (p_obj->p_current_state_,
+  return tiz_api_SendCommand (p_obj->p_current_state_,
                              p_msg->p_hdl,
                              p_msg_sc->cmd,
                              p_msg_sc->param1, p_msg_sc->p_cmd_data);
@@ -593,7 +593,7 @@ fsm_GetParameter (const void *ap_obj,
                  "GetParameter : [%s] [%s]",
                  tiz_fsm_state_to_str (p_obj->cur_state_id_),
                  tiz_idx_to_str (a_index));
-  return tizapi_GetParameter (p_krn, ap_hdl, a_index, ap_struct);
+  return tiz_api_GetParameter (p_krn, ap_hdl, a_index, ap_struct);
 }
 
 static OMX_ERRORTYPE
@@ -605,7 +605,7 @@ fsm_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                  "SetParameter : [%s] [%s]",
                  tiz_fsm_state_to_str (p_obj->cur_state_id_),
                  tiz_idx_to_str (a_index));
-  return tizapi_SetParameter (p_obj->p_current_state_,
+  return tiz_api_SetParameter (p_obj->p_current_state_,
                               ap_hdl, a_index, ap_struct);
 }
 
@@ -614,7 +614,7 @@ fsm_GetConfig (const void *ap_obj,
                OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
-  return tizapi_GetConfig (p_krn, ap_hdl, a_index, ap_struct);
+  return tiz_api_GetConfig (p_krn, ap_hdl, a_index, ap_struct);
 }
 
 static OMX_ERRORTYPE
@@ -629,7 +629,7 @@ fsm_SetConfig (const void *ap_obj,
   p_krn = tiz_get_krn (ap_hdl);
 
   /* Let's get this processed at the kernel */
-  return tizapi_SetConfig (p_krn, ap_hdl, a_index, ap_struct);
+  return tiz_api_SetConfig (p_krn, ap_hdl, a_index, ap_struct);
 }
 
 static OMX_ERRORTYPE
@@ -648,7 +648,7 @@ fsm_GetState (const void *ap_obj,
 
   assert (p_obj->cur_state_id_ != EStateMax);
 
-  return tizapi_GetState (p_obj->p_current_state_, ap_hdl, ap_state);
+  return tiz_api_GetState (p_obj->p_current_state_, ap_hdl, ap_state);
 }
 
 static OMX_ERRORTYPE
@@ -685,7 +685,7 @@ fsm_ComponentTunnelRequest (const void *ap_obj,
       return OMX_ErrorIncorrectStateOperation;
     }
 
-  return tizapi_ComponentTunnelRequest (p_krn,
+  return tiz_api_ComponentTunnelRequest (p_krn,
                                         ap_hdl,
                                         a_pid, ap_thdl, a_tpid, ap_tsetup);
 }
@@ -726,7 +726,7 @@ fsm_UseBuffer (const void *ap_obj,
       return OMX_ErrorIncorrectStateOperation;
     }
 
-  return tizapi_UseBuffer (p_krn,
+  return tiz_api_UseBuffer (p_krn,
                            ap_hdl,
                            app_hdr, a_pid, ap_apppriv, a_size, ap_buf);
 }
@@ -766,7 +766,7 @@ fsm_AllocateBuffer (const void *ap_obj,
       return OMX_ErrorIncorrectStateOperation;
     }
 
-  return tizapi_AllocateBuffer (p_krn,
+  return tiz_api_AllocateBuffer (p_krn,
                                 ap_hdl, app_hdr, a_pid, ap_apppriv, a_size);
 
 }
@@ -793,7 +793,7 @@ fsm_FreeBuffer (const void *ap_obj,
       return OMX_ErrorBadPortIndex;
     }
 
-  return tizapi_FreeBuffer (p_krn, ap_hdl, a_pid, ap_hdr);
+  return tiz_api_FreeBuffer (p_krn, ap_hdl, a_pid, ap_hdr);
 }
 
 static OMX_ERRORTYPE
@@ -842,7 +842,7 @@ fsm_EmptyThisBuffer (const void *ap_obj,
     }
 
   /* Delegate to the current state... */
-  return tizapi_EmptyThisBuffer (p_obj->p_current_state_, ap_hdl, ap_hdr);
+  return tiz_api_EmptyThisBuffer (p_obj->p_current_state_, ap_hdl, ap_hdr);
 }
 
 static OMX_ERRORTYPE
@@ -889,7 +889,7 @@ fsm_FillThisBuffer (const void *ap_obj,
     }
 
   /* Delegate to the current state... */
-  return tizapi_FillThisBuffer (p_obj->p_current_state_, ap_hdl, ap_hdr);
+  return tiz_api_FillThisBuffer (p_obj->p_current_state_, ap_hdl, ap_hdr);
 
 }
 
@@ -1031,7 +1031,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
             {
               /* First notify the kernel servant */
               if (OMX_ErrorNone
-                  != (rc = tizapi_SendCommand (p_krn, p_hdl,
+                  != (rc = tiz_api_SendCommand (p_krn, p_hdl,
                                                OMX_CommandStateSet,
                                                a_new_state, NULL)))
                 {
@@ -1040,7 +1040,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
 
               /* Now notify the processor servant */
               if (OMX_ErrorNone
-                  != (rc = tizapi_SendCommand (p_prc, p_hdl,
+                  != (rc = tiz_api_SendCommand (p_prc, p_hdl,
                                                OMX_CommandStateSet,
                                                a_new_state, NULL)))
                 {
@@ -1314,19 +1314,19 @@ init_tizfsm (void)
          sizeof (struct tizfsm),
          ctor, fsm_ctor,
          dtor, fsm_dtor,
-         tizapi_SendCommand, fsm_SendCommand,
-         tizapi_SetParameter, fsm_SetParameter,
-         tizapi_GetParameter, fsm_GetParameter,
-         tizapi_SetConfig, fsm_SetConfig,
-         tizapi_GetConfig, fsm_GetConfig,
-         tizapi_GetState, fsm_GetState,
-         tizapi_ComponentTunnelRequest, fsm_ComponentTunnelRequest,
-         tizapi_UseBuffer, fsm_UseBuffer,
-         tizapi_AllocateBuffer, fsm_AllocateBuffer,
-         tizapi_FreeBuffer, fsm_FreeBuffer,
-         tizapi_EmptyThisBuffer, fsm_EmptyThisBuffer,
-         tizapi_FillThisBuffer, fsm_FillThisBuffer,
-         tizapi_SetCallbacks, fsm_SetCallbacks,
+         tiz_api_SendCommand, fsm_SendCommand,
+         tiz_api_SetParameter, fsm_SetParameter,
+         tiz_api_GetParameter, fsm_GetParameter,
+         tiz_api_SetConfig, fsm_SetConfig,
+         tiz_api_GetConfig, fsm_GetConfig,
+         tiz_api_GetState, fsm_GetState,
+         tiz_api_ComponentTunnelRequest, fsm_ComponentTunnelRequest,
+         tiz_api_UseBuffer, fsm_UseBuffer,
+         tiz_api_AllocateBuffer, fsm_AllocateBuffer,
+         tiz_api_FreeBuffer, fsm_FreeBuffer,
+         tiz_api_EmptyThisBuffer, fsm_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, fsm_FillThisBuffer,
+         tiz_api_SetCallbacks, fsm_SetCallbacks,
          tiz_servant_dispatch_msg, fsm_dispatch_msg,
          tiz_fsm_set_state, fsm_set_state,
          tiz_fsm_complete_transition, fsm_complete_transition,

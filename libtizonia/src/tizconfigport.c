@@ -371,12 +371,12 @@ init_tizconfigport (void)
          sizeof (struct tizconfigport),
          ctor, configport_ctor,
          dtor, configport_dtor,
-         tizapi_GetComponentVersion, configport_GetComponentVersion,
-         tizapi_GetParameter, configport_GetParameter,
-         tizapi_SetParameter, configport_SetParameter,
-         tizapi_GetConfig, configport_GetConfig,
-         tizapi_SetConfig, configport_SetConfig,
-         tizapi_GetExtensionIndex, configport_GetExtensionIndex, 0);
+         tiz_api_GetComponentVersion, configport_GetComponentVersion,
+         tiz_api_GetParameter, configport_GetParameter,
+         tiz_api_SetParameter, configport_SetParameter,
+         tiz_api_GetConfig, configport_GetConfig,
+         tiz_api_SetConfig, configport_SetConfig,
+         tiz_api_GetExtensionIndex, configport_GetExtensionIndex, 0);
     }
 
 }

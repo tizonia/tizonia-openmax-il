@@ -265,7 +265,7 @@ set_lame_pcm_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
   p_obj->pcmmode_.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
   p_obj->pcmmode_.nVersion.nVersion = OMX_VERSION;
   p_obj->pcmmode_.nPortIndex = 0;
-  if (OMX_ErrorNone != (ret_val = tizapi_GetParameter
+  if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                         (ap_krn, ap_hdl,
                          OMX_IndexParamAudioPcm, &p_obj->pcmmode_)))
     {
@@ -303,7 +303,7 @@ set_lame_mp3_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
   p_obj->mp3type_.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
   p_obj->mp3type_.nVersion.nVersion = OMX_VERSION;
   p_obj->mp3type_.nPortIndex = 1;
-  if (OMX_ErrorNone != (ret_val = tizapi_GetParameter
+  if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                         (ap_krn, ap_hdl,
                          OMX_IndexParamAudioMp3, &p_obj->mp3type_)))
     {

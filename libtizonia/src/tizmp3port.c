@@ -451,8 +451,8 @@ init_tizmp3port (void)
          sizeof (struct tizmp3port),
          ctor, mp3port_ctor,
          dtor, mp3port_dtor,
-         tizapi_GetParameter, mp3port_GetParameter,
-         tizapi_SetParameter, mp3port_SetParameter,
+         tiz_api_GetParameter, mp3port_GetParameter,
+         tiz_api_SetParameter, mp3port_SetParameter,
          tiz_port_set_portdef_format, mp3port_set_portdef_format,
          tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
          tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour, 0);

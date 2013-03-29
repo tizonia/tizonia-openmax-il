@@ -376,7 +376,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
            tiz_fsm_state_to_str (ap_msg_sc->param1));
 
   /* Obtain the current state */
-  tizapi_GetState (tiz_get_fsm (p_hdl), p_hdl, &now);
+  tiz_api_GetState (tiz_get_fsm (p_hdl), p_hdl, &now);
 
   switch (ap_msg_sc->param1)
     {
@@ -1005,9 +1005,9 @@ init_tizproc (void)
          sizeof (struct tizproc),
          ctor, proc_ctor,
          dtor, proc_dtor,
-         tizapi_EmptyThisBuffer, proc_EmptyThisBuffer,
-         tizapi_FillThisBuffer, proc_FillThisBuffer,
-         tizapi_SendCommand, proc_SendCommand,
+         tiz_api_EmptyThisBuffer, proc_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, proc_FillThisBuffer,
+         tiz_api_SendCommand, proc_SendCommand,
          tiz_servant_remove_from_queue, proc_remove_from_queue,
          tiz_servant_dispatch_msg, proc_dispatch_msg,
          tiz_servant_allocate_resources, proc_allocate_resources,

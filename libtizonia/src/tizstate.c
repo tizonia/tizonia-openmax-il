@@ -233,7 +233,7 @@ state_state_set (const void *ap_obj,
     struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
 
     /* First notify the kernel servant */
-    if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_krn, ap_hdl,
+    if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_krn, ap_hdl,
                                                    a_cmd, a_param1,
                                                    ap_cmd_data)))
       {
@@ -241,7 +241,7 @@ state_state_set (const void *ap_obj,
       }
 
     /* Now notify the processor servant */
-    if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_prc, ap_hdl,
+    if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_prc, ap_hdl,
                                                    a_cmd, a_param1,
                                                    ap_cmd_data)))
       {
@@ -283,7 +283,7 @@ state_flush (const void *ap_obj,
 
   /* Notify the kernel servant, which will in turn notify the processor
    * servant, if needed */
-  return tizapi_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+  return tiz_api_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 OMX_ERRORTYPE
@@ -305,7 +305,7 @@ state_disable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
 
   /* First notify the kernel servant */
-  if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_krn, ap_hdl,
+  if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_krn, ap_hdl,
                                                  a_cmd, a_param1,
                                                  ap_cmd_data)))
     {
@@ -313,7 +313,7 @@ state_disable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     }
 
   /* Notify now the processor servant */
-  if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_prc, ap_hdl,
+  if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_prc, ap_hdl,
                                                  a_cmd, a_param1,
                                                  ap_cmd_data)))
     {
@@ -344,7 +344,7 @@ state_enable (const void *ap_obj,
   struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
 
   /* First notify the kernel servant */
-  if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_krn, ap_hdl,
+  if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_krn, ap_hdl,
                                                  a_cmd, a_param1,
                                                  ap_cmd_data)))
     {
@@ -352,7 +352,7 @@ state_enable (const void *ap_obj,
     }
 
   /* Now notify the processor servant */
-  if (OMX_ErrorNone != (rc = tizapi_SendCommand (p_prc, ap_hdl,
+  if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_prc, ap_hdl,
                                                  a_cmd, a_param1,
                                                  ap_cmd_data)))
     {
@@ -389,7 +389,7 @@ state_mark (const void *ap_obj,
 
   /* Notify the kernel servant */
   /* No need to notify the processor servant */
-  return tizapi_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+  return tiz_api_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 OMX_ERRORTYPE
@@ -526,9 +526,9 @@ init_tizstate (void)
   if (!tizstate_class)
     {
       init_tizapi ();
-      tizstate_class = factory_new (tizapi_class,
+      tizstate_class = factory_new (tiz_api_class,
                                     "tizstate_class",
-                                    tizapi_class,
+                                    tiz_api_class,
                                     sizeof (struct tizstate_class),
                                     ctor, state_class_ctor, 0);
 
@@ -543,17 +543,17 @@ init_tizstate (void)
          tizapi, sizeof (struct tizstate),
          ctor, state_ctor,
          dtor, state_dtor,
-         tizapi_SendCommand, state_SendCommand,
-         tizapi_SetParameter, state_SetParameter,
-         tizapi_SetConfig, state_SetConfig,
-         tizapi_GetState, state_GetState,
-         tizapi_ComponentTunnelRequest, state_ComponentTunnelRequest,
-         tizapi_UseBuffer, state_UseBuffer,
-         tizapi_AllocateBuffer, state_AllocateBuffer,
-         tizapi_FreeBuffer, state_FreeBuffer,
-         tizapi_EmptyThisBuffer, state_EmptyThisBuffer,
-         tizapi_FillThisBuffer, state_FillThisBuffer,
-         tizapi_SetCallbacks, state_SetCallbacks,
+         tiz_api_SendCommand, state_SendCommand,
+         tiz_api_SetParameter, state_SetParameter,
+         tiz_api_SetConfig, state_SetConfig,
+         tiz_api_GetState, state_GetState,
+         tiz_api_ComponentTunnelRequest, state_ComponentTunnelRequest,
+         tiz_api_UseBuffer, state_UseBuffer,
+         tiz_api_AllocateBuffer, state_AllocateBuffer,
+         tiz_api_FreeBuffer, state_FreeBuffer,
+         tiz_api_EmptyThisBuffer, state_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, state_FillThisBuffer,
+         tiz_api_SetCallbacks, state_SetCallbacks,
          tizstate_state_set, state_state_set,
          tizstate_flush, state_flush,
          tizstate_disable, state_disable,

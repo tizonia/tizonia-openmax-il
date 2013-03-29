@@ -281,7 +281,7 @@ init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
 
-  rc = tizapi_GetComponentVersion (p_obj->p_cport_, ap_hdl,
+  rc = tiz_api_GetComponentVersion (p_obj->p_cport_, ap_hdl,
                                    (OMX_STRING) (&comp_name),
                                    &comp_ver, &spec_ver, &uuid);
   if (OMX_ErrorNone != rc)
@@ -293,7 +293,7 @@ init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
   primgmt.nSize = sizeof (OMX_PRIORITYMGMTTYPE);
   primgmt.nVersion.nVersion = OMX_VERSION;
-  if (OMX_ErrorNone != (rc = tizapi_GetConfig (p_obj->p_cport_, ap_hdl,
+  if (OMX_ErrorNone != (rc = tiz_api_GetConfig (p_obj->p_cport_, ap_hdl,
                                                OMX_IndexConfigPriorityMgmt,
                                                &primgmt)))
     {
@@ -863,11 +863,11 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
           /* ... delegate to the processor... */
           if (OMX_DirInput == pdir)
             {
-              tizapi_EmptyThisBuffer (p_prc, base->p_hdl_, p_hdr);
+              tiz_api_EmptyThisBuffer (p_prc, base->p_hdl_, p_hdr);
             }
           else
             {
-              tizapi_FillThisBuffer (p_prc, base->p_hdl_, p_hdr);
+              tiz_api_FillThisBuffer (p_prc, base->p_hdl_, p_hdr);
             }
 
           /* ... and keep the header in the list. */
@@ -1351,7 +1351,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_msg_sc);
 
   /* Obtain the current state */
-  tizapi_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now);
+  tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now);
 
   TIZ_LOGN (TIZ_DEBUG, ap_hdl, "Requested transition [%s] -> [%s]",
             tiz_fsm_state_to_str (now),
@@ -1646,7 +1646,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                   /* Notify the processor servant... */
                   {
                     struct tizproc *p_prc = tiz_get_prc (p_hdl);
-                    rc = tizapi_SendCommand (p_prc, p_hdl,
+                    rc = tiz_api_SendCommand (p_prc, p_hdl,
                                              ap_msg_sc->cmd,
                                              pid, ap_msg_sc->p_cmd_data);
                   }
@@ -1920,7 +1920,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
               /* Notify the processor servant... */
               {
                 struct tizproc *p_prc = tiz_get_prc (ap_hdl);
-                rc = tizapi_SendCommand (p_prc, ap_hdl,
+                rc = tiz_api_SendCommand (p_prc, ap_hdl,
                                          ap_msg_pf->cmd,
                                          pid, ap_msg_pf->p_cmd_data);
               }
@@ -2242,11 +2242,11 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
       /* Delegate to the processor servant... */
       if (OMX_DirInput == dir)
         {
-          rc = tizapi_EmptyThisBuffer (p_prc, p_hdl, p_hdr);
+          rc = tiz_api_EmptyThisBuffer (p_prc, p_hdl, p_hdr);
         }
       else
         {
-          rc = tizapi_FillThisBuffer (p_prc, p_hdl, p_hdr);
+          rc = tiz_api_FillThisBuffer (p_prc, p_hdl, p_hdr);
         }
     }
 
@@ -2341,7 +2341,7 @@ kernel_GetComponentVersion (const void *ap_obj,
   assert (NULL != ap_hdl);
 
   /* Delegate to the config port */
-  return tizapi_GetComponentVersion (p_obj->p_cport_,
+  return tiz_api_GetComponentVersion (p_obj->p_cport_,
                                      ap_hdl,
                                      ap_comp_name,
                                      ap_comp_version,
@@ -2368,7 +2368,7 @@ kernel_GetParameter (const void *ap_obj,
                                                            &p_port)))
     {
       /* Delegate to that port */
-      return tizapi_GetParameter (p_port, ap_hdl, a_index, ap_struct);
+      return tiz_api_GetParameter (p_port, ap_hdl, a_index, ap_struct);
     }
 
   if (OMX_ErrorUnsupportedIndex != rc)
@@ -2444,7 +2444,7 @@ kernel_SetParameter (const void *ap_obj,
       OMX_U32 mos_pid = 0;      /* master's or slave's pid */
 
       /* Delegate to the port */
-      rc = tizapi_SetParameter (p_port, ap_hdl, a_index, ap_struct);
+      rc = tiz_api_SetParameter (p_port, ap_hdl, a_index, ap_struct);
 
       if (OMX_ErrorNone == rc && !TIZ_PORT_IS_CONFIG_PORT (p_port))
         {
@@ -2564,7 +2564,7 @@ kernel_GetConfig (const void *ap_obj,
                                                            &p_port)))
     {
       /* Delegate to that port */
-      return tizapi_GetConfig (p_port, ap_hdl, a_index, ap_struct);
+      return tiz_api_GetConfig (p_port, ap_hdl, a_index, ap_struct);
     }
 
   return rc;
@@ -2588,7 +2588,7 @@ kernel_SetConfig (const void *ap_obj,
                                                            &p_port)))
     {
       /* Delegate to that port */
-      rc = tizapi_SetConfig (p_port, ap_hdl, a_index, ap_struct);
+      rc = tiz_api_SetConfig (p_port, ap_hdl, a_index, ap_struct);
     }
 
 
@@ -2662,14 +2662,14 @@ kernel_GetExtensionIndex (const void *ap_obj,
   for (i = 0; i < nports && OMX_ErrorUnsupportedIndex == rc; ++i)
     {
       p_port = get_port (p_obj, i);
-      rc = tizapi_GetExtensionIndex (p_port, ap_hdl,
+      rc = tiz_api_GetExtensionIndex (p_port, ap_hdl,
                                      ap_param_name, ap_index_type);
     }
 
   if (OMX_ErrorUnsupportedIndex == rc)
     {
       /* Now check the config port */
-      rc = tizapi_GetExtensionIndex (p_obj->p_cport_, ap_hdl,
+      rc = tiz_api_GetExtensionIndex (p_obj->p_cport_, ap_hdl,
                                      ap_param_name, ap_index_type);
     }
 
@@ -2702,7 +2702,7 @@ kernel_ComponentTunnelRequest (const void *ap_obj,
   if (NULL == ap_thdl)
     {
       /* Delegate to the port */
-      rc = tizapi_ComponentTunnelRequest (p_port, ap_hdl,
+      rc = tiz_api_ComponentTunnelRequest (p_port, ap_hdl,
                                           a_pid, ap_thdl, a_tpid, ap_tsetup);
 
       return rc;
@@ -2716,7 +2716,7 @@ kernel_ComponentTunnelRequest (const void *ap_obj,
 
   /* Delegate to the port... */
   if (OMX_ErrorNone
-      != (rc = tizapi_ComponentTunnelRequest (p_port, ap_hdl, a_pid,
+      != (rc = tiz_api_ComponentTunnelRequest (p_port, ap_hdl, a_pid,
                                               ap_thdl, a_tpid, ap_tsetup)))
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : While delegating "
@@ -2761,7 +2761,7 @@ kernel_UseBuffer (const void *ap_obj,
   /* Now delegate to the port... */
   {
     const OMX_BOOL was_being_enabled = TIZ_PORT_IS_BEING_ENABLED (p_port);
-    if (OMX_ErrorNone != (rc = tizapi_UseBuffer (p_port,
+    if (OMX_ErrorNone != (rc = tiz_api_UseBuffer (p_port,
                                                  ap_hdl,
                                                  app_hdr,
                                                  a_pid,
@@ -2825,7 +2825,7 @@ kernel_AllocateBuffer (const void *ap_obj,
   /* Now delegate to the port... */
   {
     const OMX_BOOL was_being_enabled = TIZ_PORT_IS_BEING_ENABLED (p_port);
-    if (OMX_ErrorNone != (rc = tizapi_AllocateBuffer (p_port,
+    if (OMX_ErrorNone != (rc = tiz_api_AllocateBuffer (p_port,
                                                       ap_hdl,
                                                       app_hdr,
                                                       a_pid,
@@ -2907,7 +2907,7 @@ kernel_FreeBuffer (const void *ap_obj,
   {
     const OMX_BOOL was_being_disabled = TIZ_PORT_IS_BEING_DISABLED (p_port);
     /* Delegate to the port... */
-    if (OMX_ErrorNone != (rc = tizapi_FreeBuffer (p_port, ap_hdl,
+    if (OMX_ErrorNone != (rc = tiz_api_FreeBuffer (p_port, ap_hdl,
                                                   a_pid, ap_hdr)))
       {
         TIZ_LOGN (TIZ_DEBUG, ap_hdl, "[%s] when delegating FreeBuffer to "
@@ -4160,21 +4160,21 @@ init_tizkernel (void)
          sizeof (struct tizkernel),
          ctor, kernel_ctor,
          dtor, kernel_dtor,
-         tizapi_GetComponentVersion, kernel_GetComponentVersion,
-         tizapi_GetParameter, kernel_GetParameter,
-         tizapi_SetParameter, kernel_SetParameter,
-         tizapi_GetConfig, kernel_GetConfig,
-         tizapi_SetConfig, kernel_SetConfig,
-         tizapi_GetExtensionIndex, kernel_GetExtensionIndex,
-         tizapi_SendCommand, kernel_SendCommand,
-         tizapi_ComponentTunnelRequest, kernel_ComponentTunnelRequest,
-         tizapi_UseBuffer, kernel_UseBuffer,
-         tizapi_AllocateBuffer, kernel_AllocateBuffer,
-         tizapi_FreeBuffer, kernel_FreeBuffer,
-         tizapi_EmptyThisBuffer, kernel_EmptyThisBuffer,
-         tizapi_FillThisBuffer, kernel_FillThisBuffer,
-         tizapi_SetCallbacks, kernel_SetCallbacks,
-         tizapi_UseEGLImage, kernel_UseEGLImage,
+         tiz_api_GetComponentVersion, kernel_GetComponentVersion,
+         tiz_api_GetParameter, kernel_GetParameter,
+         tiz_api_SetParameter, kernel_SetParameter,
+         tiz_api_GetConfig, kernel_GetConfig,
+         tiz_api_SetConfig, kernel_SetConfig,
+         tiz_api_GetExtensionIndex, kernel_GetExtensionIndex,
+         tiz_api_SendCommand, kernel_SendCommand,
+         tiz_api_ComponentTunnelRequest, kernel_ComponentTunnelRequest,
+         tiz_api_UseBuffer, kernel_UseBuffer,
+         tiz_api_AllocateBuffer, kernel_AllocateBuffer,
+         tiz_api_FreeBuffer, kernel_FreeBuffer,
+         tiz_api_EmptyThisBuffer, kernel_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, kernel_FillThisBuffer,
+         tiz_api_SetCallbacks, kernel_SetCallbacks,
+         tiz_api_UseEGLImage, kernel_UseEGLImage,
          tiz_servant_dispatch_msg, kernel_dispatch_msg,
          tiz_servant_allocate_resources, kernel_allocate_resources,
          tiz_servant_deallocate_resources, kernel_deallocate_resources,

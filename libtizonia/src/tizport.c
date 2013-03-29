@@ -2250,9 +2250,9 @@ init_tizport (void)
   if (!tiz_port_class)
     {
       init_tizapi ();
-      tiz_port_class = factory_new (tizapi_class,
+      tiz_port_class = factory_new (tiz_api_class,
                                    "tiz_port_class",
-                                   tizapi_class,
+                                   tiz_api_class,
                                    sizeof (struct tiz_port_class),
                                    ctor, port_class_ctor, 0);
 
@@ -2269,15 +2269,15 @@ init_tizport (void)
          sizeof (struct tizport),
          ctor, port_ctor,
          dtor, port_dtor,
-         tizapi_GetParameter, port_GetParameter,
-         tizapi_SetParameter, port_SetParameter,
-         tizapi_GetConfig, port_GetConfig,
-         tizapi_SetConfig, port_SetConfig,
-         tizapi_GetExtensionIndex, port_GetExtensionIndex,
-         tizapi_ComponentTunnelRequest, port_ComponentTunnelRequest,
-         tizapi_UseBuffer, port_UseBuffer,
-         tizapi_AllocateBuffer, port_AllocateBuffer,
-         tizapi_FreeBuffer, port_FreeBuffer,
+         tiz_api_GetParameter, port_GetParameter,
+         tiz_api_SetParameter, port_SetParameter,
+         tiz_api_GetConfig, port_GetConfig,
+         tiz_api_SetConfig, port_SetConfig,
+         tiz_api_GetExtensionIndex, port_GetExtensionIndex,
+         tiz_api_ComponentTunnelRequest, port_ComponentTunnelRequest,
+         tiz_api_UseBuffer, port_UseBuffer,
+         tiz_api_AllocateBuffer, port_AllocateBuffer,
+         tiz_api_FreeBuffer, port_FreeBuffer,
          tiz_port_register_index, port_register_index,
          tiz_port_find_index, port_find_index,
          tiz_port_index, port_index,

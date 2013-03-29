@@ -198,7 +198,7 @@ binaryport_GetParameter (const void *ap_obj,
       {
         /* Delegate to the domain-specific port */
         if (OMX_ErrorUnsupportedIndex
-            != (rc = tizapi_GetParameter (p_obj->ip_port,
+            != (rc = tiz_api_GetParameter (p_obj->ip_port,
                                           ap_hdl, a_index, ap_struct)))
           {
             return rc;
@@ -237,7 +237,7 @@ binaryport_SetParameter (const void *ap_obj,
       {
         /* Delegate to the domain-specific port */
         if (OMX_ErrorUnsupportedIndex
-            != (rc = tizapi_SetParameter (p_obj->ip_port,
+            != (rc = tiz_api_SetParameter (p_obj->ip_port,
                                           ap_hdl, a_index, ap_struct)))
           {
             return rc;
@@ -343,8 +343,8 @@ init_tizbinaryport (void)
          sizeof (struct tizbinaryport),
          ctor, binaryport_ctor,
          dtor, binaryport_dtor,
-         tizapi_GetParameter, binaryport_GetParameter,
-         tizapi_SetParameter, binaryport_SetParameter,
+         tiz_api_GetParameter, binaryport_GetParameter,
+         tiz_api_SetParameter, binaryport_SetParameter,
          tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat, 0);
     }
 

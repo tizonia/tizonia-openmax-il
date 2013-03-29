@@ -432,8 +432,8 @@ init_tizvideoport (void)
          sizeof (struct tizvideoport),
          ctor, videoport_ctor,
          dtor, videoport_dtor,
-         tizapi_GetParameter, videoport_GetParameter,
-         tizapi_SetParameter, videoport_SetParameter,
+         tiz_api_GetParameter, videoport_GetParameter,
+         tiz_api_SetParameter, videoport_SetParameter,
          tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
          0);
     }

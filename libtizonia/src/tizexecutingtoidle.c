@@ -169,8 +169,8 @@ init_tizexecutingtoidle (void)
          tizexecuting, sizeof (struct tizexecutingtoidle),
          ctor, executingtoidle_ctor,
          dtor, executingtoidle_dtor,
-         tizapi_GetState, executingtoidle_GetState,
-         tizapi_UseBuffer, executingtoidle_UseBuffer,
+         tiz_api_GetState, executingtoidle_GetState,
+         tiz_api_UseBuffer, executingtoidle_UseBuffer,
          tizstate_trans_complete, executingtoidle_trans_complete,
          tizstate_tunneled_ports_status_update, executingtoidle_tunneled_ports_status_update,
          0);

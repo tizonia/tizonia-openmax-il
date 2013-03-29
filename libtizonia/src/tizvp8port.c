@@ -543,10 +543,10 @@ init_tizvp8port (void)
          sizeof (struct tizvp8port),
          ctor, vp8port_ctor,
          dtor, vp8port_dtor,
-         tizapi_GetParameter, vp8port_GetParameter,
-         tizapi_SetParameter, vp8port_SetParameter,
-         tizapi_GetConfig, vp8port_GetConfig,
-         tizapi_SetConfig, vp8port_SetConfig,
+         tiz_api_GetParameter, vp8port_GetParameter,
+         tiz_api_SetParameter, vp8port_SetParameter,
+         tiz_api_GetConfig, vp8port_GetConfig,
+         tiz_api_SetConfig, vp8port_SetConfig,
          tiz_port_set_portdef_format, vp8port_set_portdef_format,
          tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat, 0);
     }

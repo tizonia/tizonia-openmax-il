@@ -229,7 +229,7 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   portdef.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
   portdef.nVersion.nVersion = OMX_VERSION;
   portdef.nPortIndex = 0;       /* port index */
-  if (OMX_ErrorNone != (ret_val = tizapi_GetParameter
+  if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                         (p_krn,
                          p_parent->p_hdl_,
                          OMX_IndexParamPortDefinition, &portdef)))

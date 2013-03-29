@@ -156,13 +156,13 @@ init_tizidletoloaded (void)
          tizidle, sizeof (struct tizidletoloaded),
          ctor, idletoloaded_ctor,
          dtor, idletoloaded_dtor,
-         tizapi_SetParameter, idletoloaded_SetParameter,
-         tizapi_GetState, idletoloaded_GetState,
-         tizapi_UseBuffer, idletoloaded_UseBuffer,
-         tizapi_AllocateBuffer, idletoloaded_AllocateBuffer,
-         tizapi_FreeBuffer, idletoloaded_FreeBuffer,
-         tizapi_EmptyThisBuffer, idletoloaded_EmptyThisBuffer,
-         tizapi_FillThisBuffer, idletoloaded_FillThisBuffer,
+         tiz_api_SetParameter, idletoloaded_SetParameter,
+         tiz_api_GetState, idletoloaded_GetState,
+         tiz_api_UseBuffer, idletoloaded_UseBuffer,
+         tiz_api_AllocateBuffer, idletoloaded_AllocateBuffer,
+         tiz_api_FreeBuffer, idletoloaded_FreeBuffer,
+         tiz_api_EmptyThisBuffer, idletoloaded_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, idletoloaded_FillThisBuffer,
          tizstate_trans_complete, idletoloaded_trans_complete, 0);
     }
 }

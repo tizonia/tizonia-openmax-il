@@ -98,7 +98,7 @@ executing_SetParameter (const void *ap_obj,
       return OMX_ErrorIncorrectStateOperation;
     }
 
-  return tizapi_SetParameter (p_krn, ap_hdl, a_index, a_struct);
+  return tiz_api_SetParameter (p_krn, ap_hdl, a_index, a_struct);
 }
 
 static OMX_ERRORTYPE
@@ -142,7 +142,7 @@ executing_EmptyThisBuffer (const void *ap_obj,
 /*     } */
 
   /* Delegate to the kernel... */
-  return tizapi_EmptyThisBuffer (p_krn, ap_hdl, ap_hdr);
+  return tiz_api_EmptyThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
 static OMX_ERRORTYPE
@@ -166,7 +166,7 @@ executing_FillThisBuffer (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 /*     } */
 
   /* Delegate to the kernel... */
-  return tizapi_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
+  return tiz_api_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
 /*
@@ -254,7 +254,7 @@ executing_state_mark (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
   /* Notify the kernel servant */
   /* No need to notify the processor servant */
-  return tizapi_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+  return tiz_api_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 static OMX_ERRORTYPE
@@ -292,11 +292,11 @@ init_tizexecuting (void)
          tizstate, sizeof (struct tizexecuting),
          ctor, executing_ctor,
          dtor, executing_dtor,
-         tizapi_SetParameter, executing_SetParameter,
-         tizapi_GetState, executing_GetState,
-         tizapi_UseBuffer, executing_UseBuffer,
-         tizapi_EmptyThisBuffer, executing_EmptyThisBuffer,
-         tizapi_FillThisBuffer, executing_FillThisBuffer,
+         tiz_api_SetParameter, executing_SetParameter,
+         tiz_api_GetState, executing_GetState,
+         tiz_api_UseBuffer, executing_UseBuffer,
+         tiz_api_EmptyThisBuffer, executing_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, executing_FillThisBuffer,
          tizstate_state_set, executing_state_set,
          tizstate_mark, executing_state_mark,
          tizstate_trans_complete, executing_trans_complete, 0);

@@ -43,7 +43,7 @@ extern "C"
 
   };
 
-  struct tizapi_class
+  struct tiz_api_class
   {
     /* Class */
     const struct Class _;

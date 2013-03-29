@@ -330,8 +330,8 @@ init_tizivrport (void)
          sizeof (struct tizivrport),
          ctor, ivrport_ctor,
          dtor, ivrport_dtor,
-         tizapi_GetConfig, ivrport_GetConfig,
-         tizapi_SetConfig, ivrport_SetConfig,
+         tiz_api_GetConfig, ivrport_GetConfig,
+         tiz_api_SetConfig, ivrport_SetConfig,
          tiz_port_set_portdef_format, ivrport_set_portdef_format,
          tiz_port_check_tunnel_compat, ivrport_check_tunnel_compat, 0);
     }

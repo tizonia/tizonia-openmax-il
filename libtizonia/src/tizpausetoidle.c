@@ -125,10 +125,10 @@ init_tizpausetoidle (void)
          tizpause, sizeof (struct tizpausetoidle),
          ctor, pausetoidle_ctor,
          dtor, pausetoidle_dtor,
-         tizapi_GetState, pausetoidle_GetState,
-         tizapi_UseBuffer, pausetoidle_UseBuffer,
-         tizapi_EmptyThisBuffer, pausetoidle_EmptyThisBuffer,
-         tizapi_FillThisBuffer, pausetoidle_FillThisBuffer,
+         tiz_api_GetState, pausetoidle_GetState,
+         tiz_api_UseBuffer, pausetoidle_UseBuffer,
+         tiz_api_EmptyThisBuffer, pausetoidle_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, pausetoidle_FillThisBuffer,
          tizstate_trans_complete, pausetoidle_trans_complete, 0);
     }
 }

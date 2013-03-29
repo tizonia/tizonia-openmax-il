@@ -250,8 +250,8 @@ init_frcfgport (void)
          sizeof (struct frcfgport),
          ctor, fr_cfgport_ctor,
          dtor, fr_cfgport_dtor,
-         tizapi_GetParameter, fr_cfgport_GetParameter,
-         tizapi_SetParameter, fr_cfgport_SetParameter, 0);
+         tiz_api_GetParameter, fr_cfgport_GetParameter,
+         tiz_api_SetParameter, fr_cfgport_SetParameter, 0);
     }
 
 }

@@ -149,7 +149,7 @@ fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       p_obj->p_uri_param_->nVersion.nVersion = OMX_VERSION;
     }
 
-  if (OMX_ErrorNone != (ret_val = tizapi_GetParameter
+  if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                         (p_krn,
                          p_parent->p_hdl_,
                          OMX_IndexParamContentURI, p_obj->p_uri_param_)))

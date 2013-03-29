@@ -101,7 +101,7 @@ idle_SetParameter (const void *ap_obj,
       return OMX_ErrorIncorrectStateOperation;
     }
 
-  return tizapi_SetParameter (p_krn, ap_hdl, a_index, a_struct);
+  return tiz_api_SetParameter (p_krn, ap_hdl, a_index, a_struct);
 
 }
 
@@ -150,7 +150,7 @@ idle_EmptyThisBuffer (const void *ap_obj,
       return OMX_ErrorIncorrectStateOperation;
     }
 
-  return tizapi_EmptyThisBuffer (p_krn, ap_hdl, ap_hdr);
+  return tiz_api_EmptyThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
 static OMX_ERRORTYPE
@@ -173,7 +173,7 @@ idle_FillThisBuffer (const void *ap_obj,
 /*     } */
 
   /* Delegate to the kernel... */
-  return tizapi_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
+  return tiz_api_FillThisBuffer (p_krn, ap_hdl, ap_hdr);
 }
 
 /*
@@ -294,11 +294,11 @@ init_tizidle (void)
          tizstate, sizeof (struct tizidle),
          ctor, idle_ctor,
          dtor, idle_dtor,
-         tizapi_SetParameter, idle_SetParameter,
-         tizapi_GetState, idle_GetState,
-         tizapi_UseBuffer, idle_UseBuffer,
-         tizapi_EmptyThisBuffer, idle_EmptyThisBuffer,
-         tizapi_FillThisBuffer, idle_FillThisBuffer,
+         tiz_api_SetParameter, idle_SetParameter,
+         tiz_api_GetState, idle_GetState,
+         tiz_api_UseBuffer, idle_UseBuffer,
+         tiz_api_EmptyThisBuffer, idle_EmptyThisBuffer,
+         tiz_api_FillThisBuffer, idle_FillThisBuffer,
          tizstate_state_set, idle_state_set, 0);
     }
 }

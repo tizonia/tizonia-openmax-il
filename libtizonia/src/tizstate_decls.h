@@ -50,7 +50,7 @@ extern "C"
   struct tizstate_class
   {
     /* Class */
-    const struct tizapi_class _;
+    const struct tiz_api_class _;
     OMX_ERRORTYPE (*state_set) (const void *p_obj,
                                 OMX_HANDLETYPE ap_hdl,
                                 OMX_COMMANDTYPE a_cmd,

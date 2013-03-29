@@ -236,7 +236,7 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   /* Retrieve http server configuration from the component's config port */
   httpsrv.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
-  if (OMX_ErrorNone != (rc = tizapi_GetParameter (p_krn, p_parent->p_hdl_,
+  if (OMX_ErrorNone != (rc = tiz_api_GetParameter (p_krn, p_parent->p_hdl_,
                                                   OMX_TizoniaIndexParamHttpServer,
                                                   &httpsrv)))
     {

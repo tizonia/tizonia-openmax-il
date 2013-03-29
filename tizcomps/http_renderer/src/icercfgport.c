@@ -189,8 +189,8 @@ init_icercfgport (void)
          sizeof (struct icercfgport),
          ctor, icer_cfgport_ctor,
          dtor, icer_cfgport_dtor,
-         tizapi_GetParameter, icer_cfgport_GetParameter,
-         tizapi_SetParameter, icer_cfgport_SetParameter, 0);
+         tiz_api_GetParameter, icer_cfgport_GetParameter,
+         tiz_api_SetParameter, icer_cfgport_SetParameter, 0);
     }
 
 }

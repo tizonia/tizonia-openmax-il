@@ -335,8 +335,8 @@ init_tizimageport (void)
          sizeof (struct tizimageport),
          ctor, imageport_ctor,
          dtor, imageport_dtor,
-         tizapi_GetParameter, imageport_GetParameter,
-         tizapi_SetParameter, imageport_SetParameter, 0);
+         tiz_api_GetParameter, imageport_GetParameter,
+         tiz_api_SetParameter, imageport_SetParameter, 0);
     }
 
 }

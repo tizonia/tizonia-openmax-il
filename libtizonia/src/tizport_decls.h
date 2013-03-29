@@ -97,7 +97,7 @@ extern "C"
   struct tiz_port_class
   {
     /* Class */
-    const struct tizapi_class _;
+    const struct tiz_api_class _;
     OMX_ERRORTYPE (*register_index) (const void *ap_obj,
                                      OMX_INDEXTYPE a_index);
     OMX_ERRORTYPE (*find_index) (const void *ap_obj, OMX_INDEXTYPE a_index);

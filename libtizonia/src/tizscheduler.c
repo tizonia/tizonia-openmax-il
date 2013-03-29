@@ -660,7 +660,7 @@ do_getcv (tiz_scheduler_t * ap_sched,
   p_msg_getcv = &(ap_msg->gcv);
   assert (NULL != p_msg_getcv);
 
-  return tizapi_GetComponentVersion (ap_sched->child.p_ker,
+  return tiz_api_GetComponentVersion (ap_sched->child.p_ker,
                                      ap_msg->p_hdl,
                                      p_msg_getcv->p_comp_name,
                                      p_msg_getcv->p_comp_version,
@@ -684,7 +684,7 @@ do_scmd (tiz_scheduler_t * ap_sched,
   p_msg_sc = &(ap_msg->scmd);
   assert (NULL != p_msg_sc);
 
-  return tizapi_SendCommand (ap_sched->child.p_fsm,
+  return tiz_api_SendCommand (ap_sched->child.p_fsm,
                              ap_msg->p_hdl,
                              p_msg_sc->cmd,
                              p_msg_sc->param1, p_msg_sc->p_cmd_data);
@@ -715,7 +715,7 @@ do_gparam (tiz_scheduler_t * ap_sched,
     }
   else
     {
-      rc = tizapi_GetParameter (ap_sched->child.p_fsm,
+      rc = tiz_api_GetParameter (ap_sched->child.p_fsm,
                                 ap_msg->p_hdl,
                                 p_msg_gparam->index, p_msg_gparam->p_struct);
     }
@@ -808,7 +808,7 @@ do_sparam (tiz_scheduler_t * ap_sched,
     }
   else
     {
-      rc = tizapi_SetParameter (ap_sched->child.p_fsm, ap_msg->p_hdl,
+      rc = tiz_api_SetParameter (ap_sched->child.p_fsm, ap_msg->p_hdl,
                                 p_msg_gparam->index, p_msg_gparam->p_struct);
     }
 
@@ -831,7 +831,7 @@ do_gconfig (tiz_scheduler_t * ap_sched,
   p_msg_gconfig = &(ap_msg->sgpc);
   assert (NULL != p_msg_gconfig);
 
-  return tizapi_GetConfig (ap_sched->child.p_fsm,
+  return tiz_api_GetConfig (ap_sched->child.p_fsm,
                            ap_msg->p_hdl,
                            p_msg_gconfig->index, p_msg_gconfig->p_struct);
 }
@@ -853,7 +853,7 @@ do_sconfig (tiz_scheduler_t * ap_sched,
   p_msg_sconfig = &(ap_msg->sgpc);
   assert (NULL != p_msg_sconfig);
 
-  rc = tizapi_SetConfig (ap_sched->child.p_fsm,
+  rc = tiz_api_SetConfig (ap_sched->child.p_fsm,
                          ap_msg->p_hdl,
                          p_msg_sconfig->index, p_msg_sconfig->p_struct);
 
@@ -884,7 +884,7 @@ do_gei (tiz_scheduler_t * ap_sched,
   assert (NULL != p_msg_gei);
 
   /* Delegate to the kernel directly, no need to do checks in the fsm */
-  return tizapi_GetExtensionIndex (ap_sched->child.p_ker, ap_msg->p_hdl,
+  return tiz_api_GetExtensionIndex (ap_sched->child.p_ker, ap_msg->p_hdl,
                                    p_msg_gei->p_ext_name, p_msg_gei->p_index);
 }
 
@@ -904,7 +904,7 @@ do_gs (tiz_scheduler_t * ap_sched,
   p_msg_gs = &(ap_msg->gs);
   assert (NULL != p_msg_gs);
 
-  return tizapi_GetState (ap_sched->child.p_fsm,
+  return tiz_api_GetState (ap_sched->child.p_fsm,
                           ap_msg->p_hdl, p_msg_gs->p_state);
 }
 
@@ -924,7 +924,7 @@ do_tr (tiz_scheduler_t * ap_sched,
   p_msg_tr = &(ap_msg->tr);
   assert (NULL != p_msg_tr);
 
-  return tizapi_ComponentTunnelRequest (ap_sched->child.p_fsm,
+  return tiz_api_ComponentTunnelRequest (ap_sched->child.p_fsm,
                                         ap_msg->p_hdl,
                                         p_msg_tr->pid,
                                         p_msg_tr->p_thdl,
@@ -947,7 +947,7 @@ do_ub (tiz_scheduler_t * ap_sched,
   p_msg_ub = &(ap_msg->ub);
   assert (NULL != p_msg_ub);
 
-  return tizapi_UseBuffer (ap_sched->child.p_fsm,
+  return tiz_api_UseBuffer (ap_sched->child.p_fsm,
                            ap_msg->p_hdl,
                            p_msg_ub->pp_hdr,
                            p_msg_ub->pid,
@@ -972,7 +972,7 @@ do_ab (tiz_scheduler_t * ap_sched,
   p_msg_ab = &(ap_msg->ab);
   assert (NULL != p_msg_ab);
 
-  rc = tizapi_AllocateBuffer (ap_sched->child.p_fsm,
+  rc = tiz_api_AllocateBuffer (ap_sched->child.p_fsm,
                               ap_msg->p_hdl,
                               p_msg_ab->pp_hdr,
                               p_msg_ab->pid,
@@ -997,7 +997,7 @@ do_fb (tiz_scheduler_t * ap_sched,
   p_msg_fb = &(ap_msg->fb);
   assert (NULL != p_msg_fb);
 
-  return tizapi_FreeBuffer (ap_sched->child.p_fsm,
+  return tiz_api_FreeBuffer (ap_sched->child.p_fsm,
                             ap_msg->p_hdl, p_msg_fb->pid, p_msg_fb->p_hdr);
 }
 
@@ -1017,7 +1017,7 @@ do_etb (tiz_scheduler_t * ap_sched,
   p_msg_efb = &(ap_msg->efb);
   assert (NULL != p_msg_efb);
 
-  return tizapi_EmptyThisBuffer (ap_sched->child.p_fsm,
+  return tiz_api_EmptyThisBuffer (ap_sched->child.p_fsm,
                                ap_msg->p_hdl, p_msg_efb->p_hdr);
 }
 
@@ -1037,7 +1037,7 @@ do_ftb (tiz_scheduler_t * ap_sched,
   p_msg_efb = &(ap_msg->efb);
   assert (NULL != p_msg_efb);
 
-  return tizapi_FillThisBuffer (ap_sched->child.p_fsm,
+  return tiz_api_FillThisBuffer (ap_sched->child.p_fsm,
                                 ap_msg->p_hdl, p_msg_efb->p_hdr);
 }
 
@@ -1060,7 +1060,7 @@ do_scbs (tiz_scheduler_t * ap_sched,
   assert (NULL != p_msg_scbs);
 
   /* Use the FSM to validate this API call */
-  if (OMX_ErrorNone != (rc = tizapi_SetCallbacks (ap_sched->child.p_fsm,
+  if (OMX_ErrorNone != (rc = tiz_api_SetCallbacks (ap_sched->child.p_fsm,
                                                   ap_msg->p_hdl,
                                                   p_msg_scbs->p_cbacks,
                                                   p_msg_scbs->p_appdata)))
@@ -1403,7 +1403,7 @@ configure_port_preannouncements (tiz_scheduler_t * ap_sched,
       pamode.nVersion.nVersion = OMX_VERSION;
       pamode.nPortIndex = pid;
       pamode.bEnabled = OMX_FALSE;
-      rc = tizapi_SetParameter
+      rc = tiz_api_SetParameter
         (p_port, ap_hdl,
          OMX_TizoniaIndexParamBufferPreAnnouncementsMode, &pamode);
     }

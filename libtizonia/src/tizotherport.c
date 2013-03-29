@@ -247,8 +247,8 @@ init_tizotherport (void)
          sizeof (struct tizotherport),
          ctor, otherport_ctor,
          dtor, otherport_dtor,
-         tizapi_GetParameter, otherport_GetParameter,
-         tizapi_SetParameter, otherport_SetParameter, 0);
+         tiz_api_GetParameter, otherport_GetParameter,
+         tiz_api_SetParameter, otherport_SetParameter, 0);
     }
 
 }
