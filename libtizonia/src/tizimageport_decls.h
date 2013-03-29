@@ -51,7 +51,7 @@ extern "C"
   struct tizimageport_class
   {
     /* Class */
-    const struct tizport_class _;
+    const struct tiz_port_class _;
   };
 
 #ifdef __cplusplus

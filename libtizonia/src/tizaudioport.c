@@ -54,7 +54,7 @@ audioport_ctor (void *ap_obj, va_list * app)
   OMX_AUDIO_CODINGTYPE *p_encodings = NULL;
   OMX_U32 i = 0;
 
-  tizport_register_index (p_obj, OMX_IndexParamAudioPortFormat);
+  tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat);
 
   tiz_vector_init (&(p_obj->p_encodings_), sizeof (OMX_AUDIO_CODINGTYPE));
 
@@ -229,9 +229,9 @@ init_tizaudioport (void)
   if (!tizaudioport_class)
     {
       init_tizport ();
-      tizaudioport_class = factory_new (tizport_class,
+      tizaudioport_class = factory_new (tiz_port_class,
                                         "tizaudioport_class",
-                                        tizport_class,
+                                        tiz_port_class,
                                         sizeof (struct tizaudioport_class),
                                         ctor, audioport_class_ctor, 0);
 

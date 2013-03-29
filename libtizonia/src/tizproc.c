@@ -216,8 +216,8 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
       && ESubStateExecutingToIdle != now
       && ESubStateExecutingToIdle != now
       && ESubStatePauseToIdle != now
-      && !TIZPORT_IS_DISABLED (p_port)
-      && !TIZPORT_IS_BEING_DISABLED (p_port))
+      && !TIZ_PORT_IS_DISABLED (p_port)
+      && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_msg->p_hdl),
                      TIZ_CBUF (p_msg->p_hdl),
@@ -261,8 +261,8 @@ dispatch_eio (void *ap_obj, OMX_PTR ap_msg)
 
   /* Do not notify this buffer in OMX_StatePause or if the port is disabled or
    * being disabled */
-  if (EStatePause != now && !TIZPORT_IS_DISABLED (p_port)
-      && !TIZPORT_IS_BEING_DISABLED (p_port))
+  if (EStatePause != now && !TIZ_PORT_IS_DISABLED (p_port)
+      && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_msg->p_hdl),
                      TIZ_CBUF (p_msg->p_hdl),
@@ -306,8 +306,8 @@ dispatch_etmr (void *ap_obj, OMX_PTR ap_msg)
 
   /* Do not notify this buffer in OMX_StatePause or if the port is disabled or
    * being disabled */
-  if (EStatePause != now && !TIZPORT_IS_DISABLED (p_port)
-      && !TIZPORT_IS_BEING_DISABLED (p_port))
+  if (EStatePause != now && !TIZ_PORT_IS_DISABLED (p_port)
+      && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_msg->p_hdl),
                      TIZ_CBUF (p_msg->p_hdl),
@@ -351,8 +351,8 @@ dispatch_estat (void *ap_obj, OMX_PTR ap_msg)
 
   /* Do not notify this buffer in OMX_StatePause or if the port is disabled or
    * being disabled */
-  if (EStatePause != now && !TIZPORT_IS_DISABLED (p_port)
-      && !TIZPORT_IS_BEING_DISABLED (p_port))
+  if (EStatePause != now && !TIZ_PORT_IS_DISABLED (p_port)
+      && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_msg->p_hdl),
                      TIZ_CBUF (p_msg->p_hdl),

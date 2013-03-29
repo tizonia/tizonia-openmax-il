@@ -59,18 +59,18 @@ vp8port_ctor (void *ap_obj, va_list * app)
 
   assert (NULL != app);
 
-  tizport_register_index (p_obj, OMX_IndexParamVideoVp8);
-  tizport_register_index (p_obj, OMX_IndexParamVideoProfileLevelCurrent);
-  tizport_register_index (p_obj,
+  tiz_port_register_index (p_obj, OMX_IndexParamVideoVp8);
+  tiz_port_register_index (p_obj, OMX_IndexParamVideoProfileLevelCurrent);
+  tiz_port_register_index (p_obj,
                           OMX_IndexParamVideoProfileLevelQuerySupported);
 
   /* Register additional indexes used when the port is instantiated as an
    * output port during encoding */
   if (OMX_DirOutput == p_base->portdef_.eDir)
     {
-      tizport_register_index (p_obj, OMX_IndexParamVideoBitrate);
-      tizport_register_index (p_obj, OMX_IndexConfigVideoBitrate);
-      tizport_register_index (p_obj, OMX_IndexConfigVideoFramerate);
+      tiz_port_register_index (p_obj, OMX_IndexParamVideoBitrate);
+      tiz_port_register_index (p_obj, OMX_IndexConfigVideoBitrate);
+      tiz_port_register_index (p_obj, OMX_IndexConfigVideoFramerate);
     }
 
   /* Initialize the OMX_VIDEO_PARAM_VP8TYPE structure */
@@ -547,8 +547,8 @@ init_tizvp8port (void)
          tizapi_SetParameter, vp8port_SetParameter,
          tizapi_GetConfig, vp8port_GetConfig,
          tizapi_SetConfig, vp8port_SetConfig,
-         tizport_set_portdef_format, vp8port_set_portdef_format,
-         tizport_check_tunnel_compat, vp8port_check_tunnel_compat, 0);
+         tiz_port_set_portdef_format, vp8port_set_portdef_format,
+         tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat, 0);
     }
 
 }

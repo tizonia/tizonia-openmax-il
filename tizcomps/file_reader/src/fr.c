@@ -65,7 +65,7 @@ static OMX_PTR
 instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_binaryport = NULL;
-  tizport_options_t port_opts = {
+  tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirOutput,
     ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT,
@@ -88,7 +88,7 @@ static OMX_PTR
 instantiate_video_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_binaryport = NULL;
-  tizport_options_t port_opts = {
+  tiz_port_options_t port_opts = {
     OMX_PortDomainVideo,
     OMX_DirOutput,
     ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT,
@@ -111,7 +111,7 @@ static OMX_PTR
 instantiate_image_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_binaryport = NULL;
-  tizport_options_t port_opts = {
+  tiz_port_options_t port_opts = {
     OMX_PortDomainImage,
     OMX_DirOutput,
     ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT,
@@ -134,7 +134,7 @@ static OMX_PTR
 instantiate_other_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_binaryport = NULL;
-  tizport_options_t port_opts = {
+  tiz_port_options_t port_opts = {
     OMX_PortDomainOther,
     OMX_DirOutput,
     ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT,

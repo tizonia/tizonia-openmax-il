@@ -52,7 +52,7 @@ extern "C"
     OMX_U32 tpid_;
     OMX_S32 claimed_count_;
     OMX_HANDLETYPE thdl_;
-    tizport_options_t opts_;
+    tiz_port_options_t opts_;
     tiz_pd_set_t flags_;
     OMX_PARAM_PORTDEFINITIONTYPE portdef_;
     OMX_BOOL contiguity_pref_;
@@ -62,29 +62,29 @@ extern "C"
   };
 
   OMX_ERRORTYPE
-  tizport_super_register_index (const void *a_class, const void *ap_obj,
+  tiz_port_super_register_index (const void *a_class, const void *ap_obj,
                                 OMX_INDEXTYPE a_index);
 
   OMX_ERRORTYPE
-  tizport_super_find_index (const void *a_class, const void *ap_obj,
+  tiz_port_super_find_index (const void *a_class, const void *ap_obj,
                             OMX_INDEXTYPE a_index);
 
-  OMX_ERRORTYPE tizport_super_populate (const void *a_class,
+  OMX_ERRORTYPE tiz_port_super_populate (const void *a_class,
                                         const void *ap_obj,
                                         OMX_HANDLETYPE ap_hdl);
 
   OMX_ERRORTYPE
-  tizport_super_depopulate (const void *a_class, const void *ap_obj);
+  tiz_port_super_depopulate (const void *a_class, const void *ap_obj);
 
   OMX_BOOL
-  tizport_super_check_tunnel_compat (const void *a_class,
+  tiz_port_super_check_tunnel_compat (const void *a_class,
                                      const void *ap_obj,
                                      OMX_PARAM_PORTDEFINITIONTYPE *
                                      ap_this_def,
                                      OMX_PARAM_PORTDEFINITIONTYPE *
                                      ap_other_def);
 
-  OMX_ERRORTYPE tizport_super_apply_slaving_behaviour (void *a_class,
+  OMX_ERRORTYPE tiz_port_super_apply_slaving_behaviour (void *a_class,
                                                        void *ap_obj,
                                                        void *ap_mos_port,
                                                        const OMX_INDEXTYPE
@@ -94,7 +94,7 @@ extern "C"
                                                        tiz_vector_t *
                                                        ap_changed_idxs);
 
-  struct tizport_class
+  struct tiz_port_class
   {
     /* Class */
     const struct tizapi_class _;

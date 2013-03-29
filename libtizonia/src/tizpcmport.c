@@ -56,9 +56,9 @@ pcmport_ctor (void *ap_obj, va_list * app)
   OMX_AUDIO_CONFIG_VOLUMETYPE *p_volume = NULL;
   OMX_AUDIO_CONFIG_MUTETYPE *p_mute = NULL;
 
-  tizport_register_index (p_obj, OMX_IndexParamAudioPcm);
-  tizport_register_index (p_obj, OMX_IndexConfigAudioVolume);
-  tizport_register_index (p_obj, OMX_IndexConfigAudioMute);
+  tiz_port_register_index (p_obj, OMX_IndexParamAudioPcm);
+  tiz_port_register_index (p_obj, OMX_IndexConfigAudioVolume);
+  tiz_port_register_index (p_obj, OMX_IndexConfigAudioMute);
 
   /* Initialize the OMX_AUDIO_PARAM_PCMMODETYPE structure */
   if ((p_pcmmode = va_arg (*app, OMX_AUDIO_PARAM_PCMMODETYPE *)))
@@ -141,7 +141,7 @@ pcmport_SetParameter (const void *ap_obj,
   struct tizpcmport *p_obj = (struct tizpcmport *) ap_obj;
 
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "PORT [%d] SetParameter [%s]...", tizport_dir (p_obj),
+                 "PORT [%d] SetParameter [%s]...", tiz_port_dir (p_obj),
                  tiz_idx_to_str (a_index));
 
   switch (a_index)
@@ -172,7 +172,7 @@ pcmport_SetParameter (const void *ap_obj,
                              TIZ_CBUF (ap_hdl),
                              "[OMX_ErrorBadParameter] : PORT [%d] "
                              "SetParameter [%s]... Invalid sampling rate [%d]",
-                             tizport_dir (p_obj),
+                             tiz_port_dir (p_obj),
                              tiz_idx_to_str (a_index),
                              p_pcmmode->nSamplingRate);
               return OMX_ErrorBadParameter;
@@ -193,7 +193,7 @@ pcmport_SetParameter (const void *ap_obj,
                              "[OMX_ErrorBadParameter] : PORT [%d] "
                              "SetParameter [%s]... "
                              "Invalid bits per sample [%d]",
-                             tizport_dir (p_obj),
+                             tiz_port_dir (p_obj),
                              tiz_idx_to_str (a_index),
                              p_pcmmode->nBitPerSample);
               return OMX_ErrorBadParameter;
@@ -219,7 +219,7 @@ pcmport_SetParameter (const void *ap_obj,
                              "SetParameter [OMX_IndexParamAudioPcm]... "
                              "Slave port, cannot update sample rate "
                              "bits per sample or number of channels",
-                             tizport_dir (p_obj));
+                             tiz_port_dir (p_obj));
               return OMX_ErrorBadParameter;
             }
         }
@@ -579,7 +579,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
         TIZ_LOG (TIZ_TRACE, " original pid [%d] this pid [%d] : [%s] -> "
                  "changed [OMX_IndexParamAudioPcm]...",
-                 tizport_index (ap_mos_port),
+                 tiz_port_index (ap_mos_port),
                  p_base->portdef_.nPortIndex, tiz_idx_to_str (a_index));
       }
 
@@ -593,7 +593,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
         TIZ_LOG (TIZ_TRACE, " original pid [%d] this pid [%d] : [%s] -> "
                  "changed [OMX_IndexParamPortDefinition] nBufferSize [%d]...",
-                 tizport_index (ap_mos_port),
+                 tiz_port_index (ap_mos_port),
                  p_base->portdef_.nPortIndex,
                  tiz_idx_to_str (a_index), p_base->portdef_.nBufferSize);
       }
@@ -669,9 +669,9 @@ init_tizpcmport (void)
          tizapi_SetParameter, pcmport_SetParameter,
          tizapi_GetConfig, pcmport_GetConfig,
          tizapi_SetConfig, pcmport_SetConfig,
-         tizport_set_portdef_format, pcmport_set_portdef_format,
-         tizport_check_tunnel_compat, pcmport_check_tunnel_compat,
-         tizport_apply_slaving_behaviour, pcmport_apply_slaving_behaviour, 0);
+         tiz_port_set_portdef_format, pcmport_set_portdef_format,
+         tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
+         tiz_port_apply_slaving_behaviour, pcmport_apply_slaving_behaviour, 0);
     }
 
 }

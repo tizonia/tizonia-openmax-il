@@ -63,7 +63,7 @@ static OMX_PTR
 instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_binaryport = NULL;
-  tizport_options_t port_opts = {
+  tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
     ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_COUNT,

@@ -1245,7 +1245,7 @@ do_rph (tiz_scheduler_t * ap_sched,
             if (NULL != (p_port
                          = tiz_kernel_get_port (ap_sched->child.p_ker, pid)))
               {
-                tizport_set_alloc_hooks (p_port, p_msg_rph->p_hooks,
+                tiz_port_set_alloc_hooks (p_port, p_msg_rph->p_hooks,
                                          p_msg_rph->pid == OMX_ALL ?
                                          NULL : p_msg_rph->p_old_hooks);
               }
@@ -1367,7 +1367,7 @@ configure_port_preannouncements (tiz_scheduler_t * ap_sched,
   const char *p_preannounce_disabled = NULL;
   char fqd_key[OMX_MAX_STRINGNAME_SIZE];
   char port_num[OMX_MAX_STRINGNAME_SIZE];
-  OMX_U32 pid = tizport_index (p_port);
+  OMX_U32 pid = tiz_port_index (p_port);
 
   /* TODO : Fix error handling */
 

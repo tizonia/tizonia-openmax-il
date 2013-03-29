@@ -53,11 +53,11 @@ ivrport_ctor (void *ap_obj, va_list * app)
   struct tizivrport *p_obj = super_ctor (tizivrport, ap_obj, app);
   struct tizport *p_base = ap_obj;
 
-  tizport_register_index (p_obj, OMX_IndexConfigCommonRotate);
-  tizport_register_index (p_obj, OMX_IndexConfigCommonMirror);
-  tizport_register_index (p_obj, OMX_IndexConfigCommonScale);
-  tizport_register_index (p_obj, OMX_IndexConfigCommonInputCrop);
-  tizport_register_index (p_obj, OMX_IndexConfigTimeRenderingDelay);
+  tiz_port_register_index (p_obj, OMX_IndexConfigCommonRotate);
+  tiz_port_register_index (p_obj, OMX_IndexConfigCommonMirror);
+  tiz_port_register_index (p_obj, OMX_IndexConfigCommonScale);
+  tiz_port_register_index (p_obj, OMX_IndexConfigCommonInputCrop);
+  tiz_port_register_index (p_obj, OMX_IndexConfigTimeRenderingDelay);
 
   /* Initialize the OMX_CONFIG_ROTATIONTYPE structure */
   p_obj->crotate_.nSize = sizeof (OMX_CONFIG_ROTATIONTYPE);
@@ -332,8 +332,8 @@ init_tizivrport (void)
          dtor, ivrport_dtor,
          tizapi_GetConfig, ivrport_GetConfig,
          tizapi_SetConfig, ivrport_SetConfig,
-         tizport_set_portdef_format, ivrport_set_portdef_format,
-         tizport_check_tunnel_compat, ivrport_check_tunnel_compat, 0);
+         tiz_port_set_portdef_format, ivrport_set_portdef_format,
+         tiz_port_check_tunnel_compat, ivrport_check_tunnel_compat, 0);
     }
 
 }

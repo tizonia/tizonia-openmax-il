@@ -54,7 +54,7 @@ otherport_ctor (void *ap_obj, va_list * app)
   OMX_OTHER_FORMATTYPE *p_formats = NULL;
   OMX_U32 i = 0;
 
-  tizport_register_index (p_obj, OMX_IndexParamOtherPortFormat);
+  tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat);
 
   tiz_vector_init (&(p_obj->p_formats_), sizeof (OMX_OTHER_FORMATTYPE));
 
@@ -228,9 +228,9 @@ init_tizotherport (void)
   if (!tizotherport_class)
     {
       init_tizport ();
-      tizotherport_class = factory_new (tizport_class,
+      tizotherport_class = factory_new (tiz_port_class,
                                         "tizotherport_class",
-                                        tizport_class,
+                                        tiz_port_class,
                                         sizeof (struct tizotherport_class),
                                         ctor, otherport_class_ctor, 0);
 

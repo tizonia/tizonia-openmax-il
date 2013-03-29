@@ -53,7 +53,7 @@ static void *
 icer_cfgport_ctor (void *ap_obj, va_list * app)
 {
   struct icercfgport *p_obj = super_ctor (icercfgport, ap_obj, app);
-  tizport_register_index (p_obj, OMX_TizoniaIndexParamHttpServer);
+  tiz_port_register_index (p_obj, OMX_TizoniaIndexParamHttpServer);
   p_obj->http_conf_.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   p_obj->http_conf_.nVersion.nVersion = OMX_VERSION;
   p_obj->http_conf_.nListeningPort = 8010;

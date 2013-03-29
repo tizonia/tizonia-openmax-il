@@ -56,7 +56,7 @@ videoport_ctor (void *ap_obj, va_list * app)
   OMX_COLOR_FORMATTYPE *p_formats = NULL;
   OMX_U32 i = 0;
 
-  tizport_register_index (p_obj, OMX_IndexParamVideoPortFormat);
+  tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat);
 
   tiz_vector_init (&(p_obj->p_video_encodings_),
                    sizeof (OMX_VIDEO_CODINGTYPE));
@@ -231,7 +231,7 @@ videoport_SetParameter (const void *ap_obj,
                          "[OMX_ErrorBadParameter] : PORT [%d] "
                          "SetParameter [OMX_IndexParamPortDefinition]... "
                          "Slave port, cannot update frame width or height",
-                         tizport_dir (p_obj));
+                         tiz_port_dir (p_obj));
           return OMX_ErrorBadParameter;
         }
     }
@@ -413,9 +413,9 @@ init_tizvideoport (void)
   if (!tizvideoport_class)
     {
       init_tizport ();
-      tizvideoport_class = factory_new (tizport_class,
+      tizvideoport_class = factory_new (tiz_port_class,
                                         "tizvideoport_class",
-                                        tizport_class,
+                                        tiz_port_class,
                                         sizeof (struct tizvideoport_class),
                                         ctor, videoport_class_ctor, 0);
 
@@ -434,7 +434,7 @@ init_tizvideoport (void)
          dtor, videoport_dtor,
          tizapi_GetParameter, videoport_GetParameter,
          tizapi_SetParameter, videoport_SetParameter,
-         tizport_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
+         tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
          0);
     }
 

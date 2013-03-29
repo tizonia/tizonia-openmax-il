@@ -53,7 +53,7 @@ mp3port_ctor (void *ap_obj, va_list * app)
   struct tizmp3port *p_obj = super_ctor (tizmp3port, ap_obj, app);
   struct tizport *p_base = ap_obj;
   OMX_AUDIO_PARAM_MP3TYPE *p_mp3mode = NULL;
-  tizport_register_index (p_obj, OMX_IndexParamAudioMp3);
+  tiz_port_register_index (p_obj, OMX_IndexParamAudioMp3);
 
   /* Initialize the OMX_AUDIO_PARAM_MP3TYPE structure */
   if ((p_mp3mode = va_arg (*app, OMX_AUDIO_PARAM_MP3TYPE *)))
@@ -162,7 +162,7 @@ mp3port_SetParameter (const void *ap_obj,
                              "[OMX_ErrorBadParameter] : PORT [%d] "
                              "SetParameter [OMX_IndexParamAudioMp3]... "
                              "Slave port, cannot update sample rate "
-                             "or number of channels", tizport_dir (p_obj));
+                             "or number of channels", tiz_port_dir (p_obj));
               return OMX_ErrorBadParameter;
             }
         }
@@ -380,7 +380,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
         TIZ_LOG (TIZ_TRACE, " original pid [%d] this pid [%d] : [%s] -> "
                  "changed [OMX_IndexParamAudioMp3]...",
-                 tizport_index (ap_mos_port),
+                 tiz_port_index (ap_mos_port),
                  p_base->portdef_.nPortIndex, tiz_idx_to_str (a_index));
       }
 
@@ -453,9 +453,9 @@ init_tizmp3port (void)
          dtor, mp3port_dtor,
          tizapi_GetParameter, mp3port_GetParameter,
          tizapi_SetParameter, mp3port_SetParameter,
-         tizport_set_portdef_format, mp3port_set_portdef_format,
-         tizport_check_tunnel_compat, mp3port_check_tunnel_compat,
-         tizport_apply_slaving_behaviour, mp3port_apply_slaving_behaviour, 0);
+         tiz_port_set_portdef_format, mp3port_set_portdef_format,
+         tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
+         tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour, 0);
     }
 
 }

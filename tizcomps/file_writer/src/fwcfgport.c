@@ -81,7 +81,7 @@ fw_cfgport_ctor (void *ap_obj, va_list * app)
 {
   struct fwcfgport *p_obj = super_ctor (fwcfgport, ap_obj, app);
   p_obj->p_uri_ = find_default_uri ();
-  tizport_register_index (p_obj, OMX_IndexParamContentURI);
+  tiz_port_register_index (p_obj, OMX_IndexParamContentURI);
   return p_obj;
 }
 

@@ -385,7 +385,7 @@ state_mark (const void *ap_obj,
 
   /* The port must be disabled at this point */
 
-  assert (TIZPORT_IS_DISABLED (p_port));
+  assert (TIZ_PORT_IS_DISABLED (p_port));
 
   /* Notify the kernel servant */
   /* No need to notify the processor servant */

@@ -56,14 +56,14 @@ static void *
 binaryport_ctor (void *ap_obj, va_list * app)
 {
   struct tizbinaryport *p_obj = NULL;
-  tizport_options_t *p_opts = NULL;
+  tiz_port_options_t *p_opts = NULL;
   va_list app_copy;
 
   va_copy (app_copy, *app);
   p_obj = super_ctor (tizbinaryport, ap_obj, app);
 
   /* Grab the port options structure */
-  p_opts = va_arg (app_copy, tizport_options_t *);
+  p_opts = va_arg (app_copy, tiz_port_options_t *);
   assert (p_opts);
 
   switch (p_opts->domain)
@@ -74,7 +74,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
           OMX_AUDIO_CodingUnused,
           OMX_AUDIO_CodingMax
         };
-        tizport_register_index (p_obj, OMX_IndexParamAudioPortFormat);
+        tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat);
         init_tizaudioport ();
         p_obj->ip_port = factory_new (tizaudioport, p_opts, &encodings);
       }
@@ -106,7 +106,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
         portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
         portdef.pNativeWindow = NULL;
 
-        tizport_register_index (p_obj, OMX_IndexParamVideoPortFormat);
+        tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat);
         init_tizvideoport ();
         p_obj->ip_port = factory_new (tizvideoport, p_opts, &portdef,
                                       &encodings, &formats);
@@ -137,7 +137,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
         portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
         portdef.pNativeWindow = NULL;
 
-        tizport_register_index (p_obj, OMX_IndexParamImagePortFormat);
+        tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat);
         init_tizimageport ();
         p_obj->ip_port = factory_new (tizimageport, p_opts, &portdef,
                                       &encodings, &formats);
@@ -151,7 +151,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
           OMX_OTHER_FormatMax
         };
 
-        tizport_register_index (p_obj, OMX_IndexParamOtherPortFormat);
+        tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat);
         init_tizotherport ();
         p_obj->ip_port = factory_new (tizotherport, p_opts, &formats);
       }
@@ -324,9 +324,9 @@ init_tizbinaryport (void)
   if (!tizbinaryport_class)
     {
       init_tizport ();
-      tizbinaryport_class = factory_new (tizport_class,
+      tizbinaryport_class = factory_new (tiz_port_class,
                                          "tizbinaryport_class",
-                                         tizport_class,
+                                         tiz_port_class,
                                          sizeof (struct tizbinaryport_class),
                                          ctor, binaryport_class_ctor, 0);
 
@@ -345,7 +345,7 @@ init_tizbinaryport (void)
          dtor, binaryport_dtor,
          tizapi_GetParameter, binaryport_GetParameter,
          tizapi_SetParameter, binaryport_SetParameter,
-         tizport_check_tunnel_compat, binaryport_check_tunnel_compat, 0);
+         tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat, 0);
     }
 
 }

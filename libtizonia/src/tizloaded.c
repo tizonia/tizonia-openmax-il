@@ -95,7 +95,7 @@ loaded_EmptyThisBuffer (const void *ap_obj,
   const void *p_krn = tiz_get_krn (ap_hdl);
   const void *p_port = tiz_kernel_get_port (p_krn, pid);
 
-  if (TIZPORT_IS_ENABLED (p_port))
+  if (TIZ_PORT_IS_ENABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "
@@ -116,7 +116,7 @@ loaded_FillThisBuffer (const void *ap_obj,
   const void *p_krn = tiz_get_krn (ap_hdl);
   const void *p_port = tiz_kernel_get_port (p_krn, pid);
 
-  if (TIZPORT_IS_ENABLED (p_port))
+  if (TIZ_PORT_IS_ENABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "

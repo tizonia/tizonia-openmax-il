@@ -43,11 +43,11 @@ extern "C"
 #include "tizscheduler.h"
 #include "tizosal.h"
 
-#define TIZPORT_CONFIG_PORT_INDEX ULONG_MAX
+#define TIZ_PORT_CONFIG_PORT_INDEX ULONG_MAX
 
-  typedef enum tizport_flag_ids tizport_flag_ids_t;
+  typedef enum tiz_port_flag_ids tiz_port_flag_ids_t;
 
-  enum tizport_flag_ids
+  enum tiz_port_flag_ids
     {
       EFlagEnabled = 0,
       EFlagBeingEnabled,
@@ -60,9 +60,9 @@ extern "C"
       EFlagMax
     };
 
-  typedef struct tizport_options tizport_options_t;
+  typedef struct tiz_port_options tiz_port_options_t;
 
-  struct tizport_options
+  struct tiz_port_options
   {
     /* Port domain (audio, video, image, other...) */
     OMX_PORTDOMAINTYPE domain;
@@ -88,185 +88,185 @@ extern "C"
 
   /* factory_new(tizport, ...); */
   extern const void *tizport;
-  extern const void *tizport_class;
+  extern const void *tiz_port_class;
 
-  OMX_BOOL tizport_check_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
+  OMX_BOOL tiz_port_check_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
 
-#define TIZPORT_IS_CONFIG_PORT(_p)                      \
-  (TIZPORT_CONFIG_PORT_INDEX == tizport_index(_p))
+#define TIZ_PORT_IS_CONFIG_PORT(_p)                      \
+  (TIZ_PORT_CONFIG_PORT_INDEX == tiz_port_index(_p))
 
-#define TIZPORT_IS_ENABLED(_p) tizport_check_flags(_p,1,EFlagEnabled)
+#define TIZ_PORT_IS_ENABLED(_p) tiz_port_check_flags(_p,1,EFlagEnabled)
 
-#define TIZPORT_IS_DISABLED(_p) !tizport_check_flags(_p,1,EFlagEnabled)
+#define TIZ_PORT_IS_DISABLED(_p) !tiz_port_check_flags(_p,1,EFlagEnabled)
 
-#define TIZPORT_IS_BEING_ENABLED(_p)            \
-  tizport_check_flags(_p,1,EFlagBeingEnabled)
+#define TIZ_PORT_IS_BEING_ENABLED(_p)            \
+  tiz_port_check_flags(_p,1,EFlagBeingEnabled)
 
-#define TIZPORT_IS_BEING_DISABLED(_p)           \
-  tizport_check_flags(_p,1,EFlagBeingDisabled)
+#define TIZ_PORT_IS_BEING_DISABLED(_p)           \
+  tiz_port_check_flags(_p,1,EFlagBeingDisabled)
 
-#define TIZPORT_IS_POPULATED(_p)                \
-  tizport_check_flags(_p,1,EFlagPopulated)
+#define TIZ_PORT_IS_POPULATED(_p)                \
+  tiz_port_check_flags(_p,1,EFlagPopulated)
 
-#define TIZPORT_IS_TUNNELED(_p)                 \
-  tizport_check_flags(_p,1,EFlagTunneled)
+#define TIZ_PORT_IS_TUNNELED(_p)                 \
+  tiz_port_check_flags(_p,1,EFlagTunneled)
 
-#define TIZPORT_IS_SUPPLIER(_p)                 \
-  tizport_check_flags(_p,1,EFlagBufferSupplier)
+#define TIZ_PORT_IS_SUPPLIER(_p)                 \
+  tiz_port_check_flags(_p,1,EFlagBufferSupplier)
 
-#define TIZPORT_IS_ALLOCATOR(_p)                        \
-  tizport_check_flags(_p,1,EFlagBufferAllocator)
+#define TIZ_PORT_IS_ALLOCATOR(_p)                        \
+  tiz_port_check_flags(_p,1,EFlagBufferAllocator)
 
-#define TIZPORT_IS_POPULATED_AND_ENABLED(_p)            \
-  tizport_check_flags(_p,2,EFlagPopulated,EFlagEnabled)
+#define TIZ_PORT_IS_POPULATED_AND_ENABLED(_p)            \
+  tiz_port_check_flags(_p,2,EFlagPopulated,EFlagEnabled)
 
-#define TIZPORT_IS_TUNNELED_AND_SUPPLIER(_p)                    \
-  tizport_check_flags(_p,2,EFlagTunneled,EFlagBufferSupplier)
+#define TIZ_PORT_IS_TUNNELED_AND_SUPPLIER(_p)                    \
+  tiz_port_check_flags(_p,2,EFlagTunneled,EFlagBufferSupplier)
 
-#define TIZPORT_IS_ENABLED_TUNNELED_AND_SUPPLIER(_p)                    \
-  tizport_check_flags(_p,3,EFlagEnabled,EFlagTunneled,EFlagBufferSupplier)
+#define TIZ_PORT_IS_ENABLED_TUNNELED_AND_SUPPLIER(_p)                    \
+  tiz_port_check_flags(_p,3,EFlagEnabled,EFlagTunneled,EFlagBufferSupplier)
 
-#define TIZPORT_IS_ENABLED_TUNNELED_AND_NON_SUPPLIER(_p)                \
-  tizport_check_flags(_p,2,EFlagEnabled,EFlagTunneled)                  \
+#define TIZ_PORT_IS_ENABLED_TUNNELED_AND_NON_SUPPLIER(_p)                \
+  tiz_port_check_flags(_p,2,EFlagEnabled,EFlagTunneled)                  \
   &&                                                                    \
-  !tizport_check_flags(_p,1,EFlagBufferSupplier)
+  !tiz_port_check_flags(_p,1,EFlagBufferSupplier)
 
-#define TIZPORT_IS_ENABLED_TUNNELED_SUPPLIER_AND_NOT_POPULATED(_p)      \
-  tizport_check_flags(_p,3,EFlagEnabled,EFlagTunneled,EFlagBufferSupplier) \
+#define TIZ_PORT_IS_ENABLED_TUNNELED_SUPPLIER_AND_NOT_POPULATED(_p)      \
+  tiz_port_check_flags(_p,3,EFlagEnabled,EFlagTunneled,EFlagBufferSupplier) \
   &&                                                                    \
-  !tizport_check_flags(_p,1,EFlagPopulated)
+  !tiz_port_check_flags(_p,1,EFlagPopulated)
 
-#define TIZPORT_IS_POPULATED_AND_GOING_TO_ENABLED(_p)           \
-  tizport_check_flags(_p,2,EFlagPopulated,EFlagBeingEnabled)
+#define TIZ_PORT_IS_POPULATED_AND_GOING_TO_ENABLED(_p)           \
+  tiz_port_check_flags(_p,2,EFlagPopulated,EFlagBeingEnabled)
 
-#define TIZPORT_IS_BEING_FLUSHED(_p)                    \
-  tizport_check_flags(_p,1,EFlagFlushInProgress)
+#define TIZ_PORT_IS_BEING_FLUSHED(_p)                    \
+  tiz_port_check_flags(_p,1,EFlagFlushInProgress)
 
-  void tizport_set_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
+  void tiz_port_set_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
 
-#define TIZPORT_SET_GOING_TO_ENABLED(_p)        \
-  tizport_set_flags(_p,1,EFlagBeingEnabled)
+#define TIZ_PORT_SET_GOING_TO_ENABLED(_p)        \
+  tiz_port_set_flags(_p,1,EFlagBeingEnabled)
 
-#define TIZPORT_SET_GOING_TO_DISABLED(_p)       \
-  tizport_set_flags(_p,1,EFlagBeingDisabled)
+#define TIZ_PORT_SET_GOING_TO_DISABLED(_p)       \
+  tiz_port_set_flags(_p,1,EFlagBeingDisabled)
 
-  void tizport_clear_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
+  void tiz_port_clear_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
 
-#define TIZPORT_SET_DISABLED(_p)                                \
-  tizport_clear_flags(_p,2,EFlagEnabled,EFlagBeingDisabled)
+#define TIZ_PORT_SET_DISABLED(_p)                                \
+  tiz_port_clear_flags(_p,2,EFlagEnabled,EFlagBeingDisabled)
 
-#define TIZPORT_SET_ENABLED(_p)                         \
+#define TIZ_PORT_SET_ENABLED(_p)                         \
   do {                                                  \
-    tizport_set_flags(_p,1,EFlagEnabled);               \
-    tizport_clear_flags(_p,1,EFlagBeingEnabled);        \
+    tiz_port_set_flags(_p,1,EFlagEnabled);               \
+    tiz_port_clear_flags(_p,1,EFlagBeingEnabled);        \
   } while(0)
 
-#define TIZPORT_SET_FLUSH_IN_PROGRESS(_p)       \
-  tizport_set_flags(_p,1,EFlagFlushInProgress)
+#define TIZ_PORT_SET_FLUSH_IN_PROGRESS(_p)       \
+  tiz_port_set_flags(_p,1,EFlagFlushInProgress)
 
-#define TIZPORT_CLEAR_FLUSH_IN_PROGRESS(_p)             \
-  tizport_clear_flags(_p,1,EFlagFlushInProgress)
+#define TIZ_PORT_CLEAR_FLUSH_IN_PROGRESS(_p)             \
+  tiz_port_clear_flags(_p,1,EFlagFlushInProgress)
 
 
-  OMX_BOOL tizport_check_tunneled_port_status (const void *ap_obj,
+  OMX_BOOL tiz_port_check_tunneled_port_status (const void *ap_obj,
                                                OMX_U32 a_port_status);
 
-#define TIZPORT_MAY_CALL_USE_BUFFER(_p)                                 \
-  tizport_check_tunneled_port_status(_p,OMX_PORTSTATUS_ACCEPTUSEBUFFER)
+#define TIZ_PORT_MAY_CALL_USE_BUFFER(_p)                                 \
+  tiz_port_check_tunneled_port_status(_p,OMX_PORTSTATUS_ACCEPTUSEBUFFER)
 
-#define TIZPORT_MAY_EXCHANGE_BUFFERS(_p)                                \
-  tizport_check_tunneled_port_status(_p,OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE)
+#define TIZ_PORT_MAY_EXCHANGE_BUFFERS(_p)                                \
+  tiz_port_check_tunneled_port_status(_p,OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE)
 
-#define TIZPORT_MAY_INITIATE_EXE_TO_IDLE(_p)                            \
-  ( (tizport_check_flags(_p,2,EFlagEnabled,EFlagTunneled)               \
+#define TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE(_p)                            \
+  ( (tiz_port_check_flags(_p,2,EFlagEnabled,EFlagTunneled)               \
      &&                                                                 \
-     !tizport_check_flags(_p,1,EFlagBufferSupplier)                     \
+     !tiz_port_check_flags(_p,1,EFlagBufferSupplier)                     \
      &&                                                                 \
-     tizport_check_tunneled_port_status(_p,OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN)) \
+     tiz_port_check_tunneled_port_status(_p,OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN)) \
     ||                                                                  \
-    (tizport_check_flags(_p,3,EFlagEnabled,EFlagTunneled,EFlagBufferSupplier)) )
+    (tiz_port_check_flags(_p,3,EFlagEnabled,EFlagTunneled,EFlagBufferSupplier)) )
 
 
   OMX_ERRORTYPE
-  tizport_register_index (const void *ap_obj, OMX_INDEXTYPE a_index);
+  tiz_port_register_index (const void *ap_obj, OMX_INDEXTYPE a_index);
 
-  OMX_ERRORTYPE tizport_find_index (const void *ap_obj,
+  OMX_ERRORTYPE tiz_port_find_index (const void *ap_obj,
                                     OMX_INDEXTYPE a_index);
 
-  OMX_U32 tizport_index (const void *ap_obj);
+  OMX_U32 tiz_port_index (const void *ap_obj);
 
-  void tizport_set_index (void *ap_obj, OMX_U32 a_pid);
+  void tiz_port_set_index (void *ap_obj, OMX_U32 a_pid);
 
   OMX_ERRORTYPE
-  tizport_set_portdef_format (void *ap_obj,
+  tiz_port_set_portdef_format (void *ap_obj,
                               const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef);
 
-  OMX_S32 tizport_buffer_count (const void *ap_obj);
+  OMX_S32 tiz_port_buffer_count (const void *ap_obj);
 
-  OMX_DIRTYPE tizport_dir (const void *ap_obj);
+  OMX_DIRTYPE tiz_port_dir (const void *ap_obj);
 
-  OMX_PORTDOMAINTYPE tizport_domain (const void *ap_obj);
+  OMX_PORTDOMAINTYPE tiz_port_domain (const void *ap_obj);
 
-  OMX_HANDLETYPE tizport_get_tunnel_comp (const void *ap_obj);
+  OMX_HANDLETYPE tiz_port_get_tunnel_comp (const void *ap_obj);
 
   /* OMX_BUFFERHEADERTYPE* */
-  /* tizport_get_hdr(const void *ap_obj, OMX_S32 a_pos); */
+  /* tiz_port_get_hdr(const void *ap_obj, OMX_S32 a_pos); */
 
-  tiz_vector_t *tizport_get_hdrs_list (void *ap_obj);
+  tiz_vector_t *tiz_port_get_hdrs_list (void *ap_obj);
 
-  OMX_ERRORTYPE tizport_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl);
+  OMX_ERRORTYPE tiz_port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl);
 
-  OMX_ERRORTYPE tizport_depopulate (const void *ap_obj);
+  OMX_ERRORTYPE tiz_port_depopulate (const void *ap_obj);
 
   OMX_BOOL
-  tizport_check_tunnel_compat (const void *ap_obj,
+  tiz_port_check_tunnel_compat (const void *ap_obj,
                                OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                                OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def);
 
-  OMX_S32 tizport_update_claimed_count (void *ap_obj, OMX_S32 a_offset);
+  OMX_S32 tiz_port_update_claimed_count (void *ap_obj, OMX_S32 a_offset);
 
-#define TIZPORT_INC_CLAIMED_COUNT(_p)           \
-  tizport_update_claimed_count(_p,1)
+#define TIZ_PORT_INC_CLAIMED_COUNT(_p)           \
+  tiz_port_update_claimed_count(_p,1)
 
-#define TIZPORT_DEC_CLAIMED_COUNT(_p)           \
-  tizport_update_claimed_count(_p,-1)
+#define TIZ_PORT_DEC_CLAIMED_COUNT(_p)           \
+  tiz_port_update_claimed_count(_p,-1)
 
-#define TIZPORT_GET_CLAIMED_COUNT(_p)           \
-  tizport_update_claimed_count(_p,0)
+#define TIZ_PORT_GET_CLAIMED_COUNT(_p)           \
+  tiz_port_update_claimed_count(_p,0)
 
-  OMX_ERRORTYPE tizport_store_mark (void *ap_obj,
+  OMX_ERRORTYPE tiz_port_store_mark (void *ap_obj,
                                     const OMX_MARKTYPE * ap_mark_info,
                                     OMX_BOOL a_owned);
 
-  OMX_ERRORTYPE tizport_mark_buffer (void *ap_obj,
+  OMX_ERRORTYPE tiz_port_mark_buffer (void *ap_obj,
                                      OMX_BUFFERHEADERTYPE * ap_hdr);
 
   void
-  tizport_set_alloc_hooks (void *ap_obj,
+  tiz_port_set_alloc_hooks (void *ap_obj,
                            const tiz_port_alloc_hooks_t * ap_new_hooks,
                            tiz_port_alloc_hooks_t * ap_old_hooks);
 
   OMX_ERRORTYPE
-  tizport_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
+  tiz_port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                            OMX_BUFFERHEADERTYPE * ap_hdr);
 
   void
-  tizport_depopulate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
+  tiz_port_depopulate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                              OMX_BUFFERHEADERTYPE * ap_hdr);
 
   OMX_BOOL
-  tizport_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid);
+  tiz_port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid);
 
   OMX_ERRORTYPE
-  tizport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
+  tiz_port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
                                    const OMX_INDEXTYPE a_index,
                                    const OMX_PTR ap_struct,
                                    tiz_vector_t * ap_changed_idxs);
 
-  void tizport_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
+  void tiz_port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                                        OMX_U32 a_port_status);
 
-  void tizport_reset_tunneled_port_status_flag (void *ap_obj,
+  void tiz_port_reset_tunneled_port_status_flag (void *ap_obj,
                                                 OMX_HANDLETYPE ap_hdl,
                                                 OMX_U32 a_port_status_flag);
 

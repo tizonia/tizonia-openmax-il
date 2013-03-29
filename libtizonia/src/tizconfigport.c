@@ -82,10 +82,10 @@ configport_ctor (void *ap_obj, va_list * app)
   /* ... we clear the indexes added by the base port class */
   tiz_vector_clear (p_base->p_indexes_);
   /* Now register the indexes we are interested in */
-  tizport_register_index (p_obj, OMX_IndexParamDisableResourceConcealment);
-  tizport_register_index (p_obj, OMX_IndexParamSuspensionPolicy);
-  tizport_register_index (p_obj, OMX_IndexParamPriorityMgmt);
-  tizport_register_index (p_obj, OMX_IndexConfigPriorityMgmt);
+  tiz_port_register_index (p_obj, OMX_IndexParamDisableResourceConcealment);
+  tiz_port_register_index (p_obj, OMX_IndexParamSuspensionPolicy);
+  tiz_port_register_index (p_obj, OMX_IndexParamPriorityMgmt);
+  tiz_port_register_index (p_obj, OMX_IndexConfigPriorityMgmt);
 
   /* Generate the uuid */
   tiz_uuid_generate (&p_obj->uuid_);
@@ -352,9 +352,9 @@ init_tizconfigport (void)
   if (!tizconfigport_class)
     {
       init_tizport ();
-      tizconfigport_class = factory_new (tizport_class,
+      tizconfigport_class = factory_new (tiz_port_class,
                                          "tizconfigport_class",
-                                         tizport_class,
+                                         tiz_port_class,
                                          sizeof (struct tizconfigport_class),
                                          ctor, configport_class_ctor, 0);
 

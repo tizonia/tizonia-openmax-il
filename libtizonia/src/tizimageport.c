@@ -56,7 +56,7 @@ imageport_ctor (void *ap_obj, va_list * app)
   OMX_COLOR_FORMATTYPE *p_formats = NULL;
   OMX_U32 i = 0;
 
-  tizport_register_index (p_obj, OMX_IndexParamImagePortFormat);
+  tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat);
 
   tiz_vector_init (&(p_obj->p_image_encodings_),
                    sizeof (OMX_IMAGE_CODINGTYPE));
@@ -316,9 +316,9 @@ init_tizimageport (void)
   if (!tizimageport_class)
     {
       init_tizport ();
-      tizimageport_class = factory_new (tizport_class,
+      tizimageport_class = factory_new (tiz_port_class,
                                         "tizimageport_class",
-                                        tizport_class,
+                                        tiz_port_class,
                                         sizeof (struct tizimageport_class),
                                         ctor, imageport_class_ctor, 0);
 

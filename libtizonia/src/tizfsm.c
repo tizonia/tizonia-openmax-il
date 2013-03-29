@@ -433,7 +433,7 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
         /* OMX_CommandMarkBuffer shall be allowed in Exe, Paused or port
          * Disabled. Reject otherwise */
-        if (!(TIZPORT_IS_DISABLED (p_port)
+        if (!(TIZ_PORT_IS_DISABLED (p_port)
               || EStateExecuting == p_obj->cur_state_id_
               || EStatePause == p_obj->cur_state_id_))
           {
@@ -676,7 +676,7 @@ fsm_ComponentTunnelRequest (const void *ap_obj,
       return OMX_ErrorBadParameter;
     }
 
-  if ((EStateLoaded != p_obj->cur_state_id_) && TIZPORT_IS_ENABLED (p_port))
+  if ((EStateLoaded != p_obj->cur_state_id_) && TIZ_PORT_IS_ENABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "
@@ -716,7 +716,7 @@ fsm_UseBuffer (const void *ap_obj,
     }
 
   if ((ESubStateLoadedToIdle != p_obj->cur_state_id_)
-      && TIZPORT_IS_ENABLED (p_port) && !TIZPORT_IS_BEING_ENABLED (p_port))
+      && TIZ_PORT_IS_ENABLED (p_port) && !TIZ_PORT_IS_BEING_ENABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "
@@ -756,7 +756,7 @@ fsm_AllocateBuffer (const void *ap_obj,
     }
 
   if ((ESubStateLoadedToIdle != p_obj->cur_state_id_)
-      && TIZPORT_IS_ENABLED (p_port) && !TIZPORT_IS_BEING_ENABLED (p_port))
+      && TIZ_PORT_IS_ENABLED (p_port) && !TIZ_PORT_IS_BEING_ENABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "
@@ -820,7 +820,7 @@ fsm_EmptyThisBuffer (const void *ap_obj,
                  ap_hdr, pid, ap_hdr->nAllocLen, ap_hdr->nFilledLen,
                  ap_hdr->nOutputPortIndex, ap_hdr->nInputPortIndex);
 
-  if (!p_port || (OMX_DirInput != tizport_dir (p_port)))
+  if (!p_port || (OMX_DirInput != tiz_port_dir (p_port)))
     {
       OMX_ERRORTYPE rc = (p_port ? OMX_ErrorBadParameter
                           : OMX_ErrorBadPortIndex);
@@ -832,8 +832,8 @@ fsm_EmptyThisBuffer (const void *ap_obj,
       return rc;
     }
 
-  if (TIZPORT_IS_DISABLED (p_port) && !TIZPORT_IS_BEING_ENABLED (p_port)
-      && !TIZPORT_IS_BEING_DISABLED (p_port))
+  if (TIZ_PORT_IS_DISABLED (p_port) && !TIZ_PORT_IS_BEING_ENABLED (p_port)
+      && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "
@@ -869,7 +869,7 @@ fsm_FillThisBuffer (const void *ap_obj,
                  ap_hdr, pid, ap_hdr->nAllocLen, ap_hdr->nFilledLen,
                  ap_hdr->nOutputPortIndex, ap_hdr->nInputPortIndex);
 
-  if (!p_port || (OMX_DirOutput != tizport_dir (p_port)))
+  if (!p_port || (OMX_DirOutput != tiz_port_dir (p_port)))
     {
       OMX_ERRORTYPE rc = (p_port ? OMX_ErrorBadParameter
                           : OMX_ErrorBadPortIndex);
@@ -879,8 +879,8 @@ fsm_FillThisBuffer (const void *ap_obj,
       return rc;
     }
 
-  if (TIZPORT_IS_DISABLED (p_port) && !TIZPORT_IS_BEING_ENABLED (p_port)
-      && !TIZPORT_IS_BEING_DISABLED (p_port))
+  if (TIZ_PORT_IS_DISABLED (p_port) && !TIZ_PORT_IS_BEING_ENABLED (p_port)
+      && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
       TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorIncorrectStateOperation] : "

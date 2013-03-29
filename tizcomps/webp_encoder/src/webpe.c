@@ -74,7 +74,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     OMX_COLOR_FormatYUV420Planar,
     OMX_COLOR_FormatMax
   };
-  tizport_options_t video_port_opts = {
+  tiz_port_options_t video_port_opts = {
     OMX_PortDomainVideo,
     OMX_DirInput,
     ARATELIA_WEBP_ENCODER_PORT_MIN_BUF_COUNT,
@@ -122,7 +122,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
     OMX_COLOR_FormatUnused,
     OMX_COLOR_FormatMax
   };
-  tizport_options_t image_port_opts = {
+  tiz_port_options_t image_port_opts = {
     OMX_PortDomainImage,
     OMX_DirOutput,
     ARATELIA_WEBP_ENCODER_PORT_MIN_BUF_COUNT,

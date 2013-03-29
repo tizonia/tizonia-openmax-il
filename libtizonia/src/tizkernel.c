@@ -391,7 +391,7 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   assert (NULL != ap_port);
 
   /* Set disabled flag */
-  TIZPORT_SET_DISABLED (ap_port);
+  TIZ_PORT_SET_DISABLED (ap_port);
 
   /* Decrement the completion counter */
   assert (p_obj->cmd_completion_count_ > 0);
@@ -427,7 +427,7 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   assert (NULL != ap_port);
 
   /* Set enabled flag */
-  TIZPORT_SET_ENABLED (ap_port);
+  TIZ_PORT_SET_ENABLED (ap_port);
 
   /* Decrement the completion counter */
   assert (p_obj->cmd_completion_count_ > 0);
@@ -461,7 +461,7 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
 
-  TIZPORT_CLEAR_FLUSH_IN_PROGRESS (ap_port);
+  TIZ_PORT_CLEAR_FLUSH_IN_PROGRESS (ap_port);
 
   /* Complete the OMX_CommandFlush command */
   (void) tiz_servant_issue_cmd_event (p_obj, OMX_CommandFlush, a_pid, a_error);
@@ -643,7 +643,7 @@ add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
 {
   const struct tizkernel *p_obj = ap_obj;
   tiz_vector_t *p_list = NULL;
-  const OMX_U32 pid = tizport_index (ap_port);
+  const OMX_U32 pid = tiz_port_index (ap_port);
   OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   (void) hdl;
 
@@ -657,9 +657,9 @@ add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
 
   TIZ_LOGN (TIZ_TRACE, hdl, "HEADER [%p] BUFFER [%p] PID [%d] "
             "list size [%d] buf count [%d]", ap_hdr, ap_hdr->pBuffer, pid,
-            tiz_vector_length (p_list), tizport_buffer_count (ap_port));
+            tiz_vector_length (p_list), tiz_port_buffer_count (ap_port));
 
-  assert (tiz_vector_length (p_list) < tizport_buffer_count (ap_port));
+  assert (tiz_vector_length (p_list) < tiz_port_buffer_count (ap_port));
 
   if (OMX_ErrorNone != tiz_vector_push_back (p_list, &ap_hdr))
     {
@@ -667,7 +667,7 @@ add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
     }
   else
     {
-      assert (tiz_vector_length (p_list) <= tizport_buffer_count (ap_port));
+      assert (tiz_vector_length (p_list) <= tiz_port_buffer_count (ap_port));
 
       return tiz_vector_length (p_list);
     }
@@ -840,7 +840,7 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
       p_port = get_port (p_obj, pid);
 
       /* Get port direction */
-      pdir = tizport_dir (p_port);
+      pdir = tiz_port_dir (p_port);
 
       /* Grab the port's ingress list */
       p_list = get_ingress_lst (p_obj, pid);
@@ -896,9 +896,9 @@ transfer_mark (void *ap_obj, const OMX_MARKTYPE * ap_mark)
     {
       p_port = get_port (p_obj, i);
 
-      if (OMX_DirOutput == tizport_dir (p_port))
+      if (OMX_DirOutput == tiz_port_dir (p_port))
         {
-          rc = tizport_store_mark (p_port, ap_mark, OMX_FALSE);
+          rc = tiz_port_store_mark (p_port, ap_mark, OMX_FALSE);
         }
     }
 
@@ -946,7 +946,7 @@ process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid,
           /* If port is output, do nothing */
           /* If port is input, transfer its mark to all the output ports in the
            * component */
-          const OMX_DIRTYPE dir = tizport_dir (p_port);
+          const OMX_DIRTYPE dir = tiz_port_dir (p_port);
           if (dir == OMX_DirInput)
             {
               const OMX_MARKTYPE mark = {
@@ -966,12 +966,12 @@ process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid,
     {
       /* No mark found. If port is input, nothing to do. */
       /* If port if output, mark the buffer, if any marks available... */
-      const OMX_DIRTYPE dir = tizport_dir (p_port);
+      const OMX_DIRTYPE dir = tiz_port_dir (p_port);
       if (dir == OMX_DirOutput)
         {
-          /* NOTE: tizport_mark_buffer returns OMX_ErrorNone if the port marked
+          /* NOTE: tiz_port_mark_buffer returns OMX_ErrorNone if the port marked
            * the buffer with one of its own marks */
-          if (OMX_ErrorNone == (rc = tizport_mark_buffer (p_port, ap_hdr)))
+          if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (p_port, ap_hdr)))
             {
               /* Successfully complete here the OMX_CommandMarkBuffer command */
               complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone);
@@ -1006,13 +1006,13 @@ flush_marks (void *ap_obj, OMX_PTR ap_port)
     {
       hdr.hMarkTargetComponent = NULL;
       hdr.pMarkData = NULL;
-      /* tizport_mark_buffer returns OMX_ErrorNone if the port owned the
+      /* tiz_port_mark_buffer returns OMX_ErrorNone if the port owned the
        * mark. If the mark is not owned, it returns OMX_ErrorNotReady. If no
        * marks found, it returns OMX_ErrorNoMore */
-      if (OMX_ErrorNone == (rc = tizport_mark_buffer (p_port, &hdr)))
+      if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (p_port, &hdr)))
         {
           /* Need to complete the mark buffer command with an error */
-          complete_mark_buffer (p_obj, p_port, tizport_index (p_port),
+          complete_mark_buffer (p_obj, p_port, tiz_port_index (p_port),
                                 OMX_ErrorPortUnpopulated);
         }
     }
@@ -1050,8 +1050,8 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
       p_port = get_port (p_obj, pid);
 
       /* Get port direction and tunnel info */
-      pdir = tizport_dir (p_port);
-      thdl = tizport_get_tunnel_comp (p_port);
+      pdir = tiz_port_dir (p_port);
+      thdl = tiz_port_get_tunnel_comp (p_port);
 
       /* Grab the port's egress list */
       p_list = get_egress_lst (p_obj, pid);
@@ -1074,9 +1074,9 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
              * allocate the actual buffer, in case pre-announcements have
              * been disabled on this port. This function call has no effect
              * if pre-announcements are enabled on the port. */
-            if (OMX_DirInput == pdir && TIZPORT_IS_ALLOCATOR (p_port))
+            if (OMX_DirInput == pdir && TIZ_PORT_IS_ALLOCATOR (p_port))
               {
-                tizport_populate_header (p_port, hdl, p_hdr);
+                tiz_port_populate_header (p_port, hdl, p_hdr);
               }
 
             /* Propagate buffer marks... */
@@ -1217,11 +1217,11 @@ all_populated (const void *ap_obj)
       p_port = get_port (p_obj, i);
 
       TIZ_LOGN (TIZ_TRACE, p_hdl, "PORT [%d] is [%s] and [%s]", i,
-                TIZPORT_IS_ENABLED (p_port) ? "ENABLED" : "NOT ENABLED",
-                TIZPORT_IS_POPULATED (p_port) ? "POPULATED" :
+                TIZ_PORT_IS_ENABLED (p_port) ? "ENABLED" : "NOT ENABLED",
+                TIZ_PORT_IS_POPULATED (p_port) ? "POPULATED" :
                 "NOT POPULATED");
 
-      if (TIZPORT_IS_ENABLED (p_port) && !(TIZPORT_IS_POPULATED (p_port)))
+      if (TIZ_PORT_IS_ENABLED (p_port) && !(TIZ_PORT_IS_POPULATED (p_port)))
         {
           TIZ_LOGN (TIZ_TRACE, p_hdl, "ALL ENABLED ports are populated = "
                     "[OMX_FALSE]");
@@ -1254,7 +1254,7 @@ all_depopulated (const void *ap_obj)
     {
       p_port = get_port (p_obj, i);
 
-      if (tizport_buffer_count (p_port))
+      if (tiz_port_buffer_count (p_port))
         {
           TIZ_LOGN (TIZ_TRACE, p_hdl, "ALL DEPOPULATED = [OMX_FALSE]");
           return OMX_FALSE;
@@ -1287,14 +1287,14 @@ all_buffers_returned (void *ap_obj)
     {
       p_port = get_port (p_obj, i);
 
-      nbuf = tizport_buffer_count (p_port);
+      nbuf = tiz_port_buffer_count (p_port);
 
-      if (TIZPORT_IS_DISABLED (p_port) || !nbuf)
+      if (TIZ_PORT_IS_DISABLED (p_port) || !nbuf)
         {
           continue;
         }
 
-      if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
+      if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
         {
           p_list = get_ingress_lst (p_obj, i);
 
@@ -1319,7 +1319,7 @@ all_buffers_returned (void *ap_obj)
         }
       else
         {
-          const OMX_S32 claimed_count = TIZPORT_GET_CLAIMED_COUNT (p_port);
+          const OMX_S32 claimed_count = TIZ_PORT_GET_CLAIMED_COUNT (p_port);
           if (claimed_count > 0)
             {
               TIZ_LOGN (TIZ_TRACE, p_hdl, "Port [%d] : still need to "
@@ -1527,14 +1527,14 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
       p_port = get_port (p_obj, pid);
 
       /* If port is already disabled, simply notify the command completion */
-      if (TIZPORT_IS_DISABLED (p_port))
+      if (TIZ_PORT_IS_DISABLED (p_port))
         {
           complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone);
           ++i;
           continue;
         }
 
-      if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
+      if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
         {
           /* Move buffers from egress to ingress */
           nbufs = move_to_ingress (p_obj, pid);
@@ -1546,21 +1546,21 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
               return OMX_ErrorInsufficientResources;
             }
 
-          if (tizport_buffer_count (p_port) != nbufs)
+          if (tiz_port_buffer_count (p_port) != nbufs)
             {
               /* Some of the buffers aren't back yet */
-              TIZPORT_SET_GOING_TO_DISABLED (p_port);
+              TIZ_PORT_SET_GOING_TO_DISABLED (p_port);
             }
           else
             {
-              tiz_vector_t *p_hdr_lst = tizport_get_hdrs_list (p_port);
+              tiz_vector_t *p_hdr_lst = tiz_port_get_hdrs_list (p_port);
               tiz_vector_t *p_hdr_lst_copy;
               tiz_vector_init (&(p_hdr_lst_copy),
                                sizeof (OMX_BUFFERHEADERTYPE *));
               tiz_vector_append (p_hdr_lst_copy, p_hdr_lst);
 
               /* Depopulate the tunnel... */
-              if (OMX_ErrorNone == (rc = tizport_depopulate (p_port)))
+              if (OMX_ErrorNone == (rc = tiz_port_depopulate (p_port)))
                 {
                   const OMX_S32 nhdrs = tiz_vector_length (p_hdr_lst_copy);
                   OMX_S32 i = 0;
@@ -1608,9 +1608,9 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
         }
       else
         {
-          if (tizport_buffer_count (p_port) > 0)
+          if (tiz_port_buffer_count (p_port) > 0)
             {
-              TIZPORT_SET_GOING_TO_DISABLED (p_port);
+              TIZ_PORT_SET_GOING_TO_DISABLED (p_port);
 
               /* Move headers from ingress to egress, ... */
               /* ....and clear their contents before doing that... */
@@ -1634,14 +1634,14 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                   rc = flush_egress (p_obj, pid, OMX_FALSE);
                 }
 
-              if (TIZPORT_GET_CLAIMED_COUNT (p_port) > 0)
+              if (TIZ_PORT_GET_CLAIMED_COUNT (p_port) > 0)
                 {
                   /* We need to wait until the processor relinquishes all the
                    * buffers it is currently holding. */
 
                   TIZ_LOGN (TIZ_TRACE, p_hdl, "port [%d] going to disabled - "
                             "claimed [%d]...", pid,
-                            TIZPORT_GET_CLAIMED_COUNT (p_port));
+                            TIZ_PORT_GET_CLAIMED_COUNT (p_port));
 
                   /* Notify the processor servant... */
                   {
@@ -1707,7 +1707,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
       pid = ((OMX_ALL != ap_msg_pe->param1) ? ap_msg_pe->param1 : i);
       p_port = get_port (p_obj, pid);
 
-      if (TIZPORT_IS_ENABLED (p_port))
+      if (TIZ_PORT_IS_ENABLED (p_port))
         {
           /* If port is already enabled, must notify the command completion */
           complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone);
@@ -1724,7 +1724,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
             }
           else
             {
-              TIZPORT_SET_GOING_TO_ENABLED (p_port);
+              TIZ_PORT_SET_GOING_TO_ENABLED (p_port);
               if (OMX_ErrorNone
                   == (rc = tiz_servant_allocate_resources (ap_obj, pid)))
                 {
@@ -1808,13 +1808,13 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
       pid = ((OMX_ALL != ap_msg_pf->param1) ? ap_msg_pf->param1 : i);
       p_port = get_port (p_obj, pid);
 
-      if (tizport_buffer_count (p_port) && TIZPORT_IS_ENABLED (p_port)
+      if (tiz_port_buffer_count (p_port) && TIZ_PORT_IS_ENABLED (p_port)
           && (now == EStateExecuting || now == EStatePause))
         {
 
-          if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
+          if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
             {
-              if (OMX_DirInput == tizport_dir (p_port))
+              if (OMX_DirInput == tiz_port_dir (p_port))
                 {
                   /* INPUT PORT: Move input headers from ingress to egress,
                    * ... */
@@ -1868,7 +1868,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               /* Move (input or output) headers from ingress to egress... */
               /* ....but clear only output headers ... */
-              if (OMX_DirInput == tizport_dir (p_port))
+              if (OMX_DirInput == tiz_port_dir (p_port))
                 {
                   clear_hdr_lst (p_obj->p_egress_, pid);
                 }
@@ -1903,9 +1903,9 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
            * buffers held by the processor are relinquished.  */
 
           TIZ_LOGN (TIZ_TRACE, ap_hdl, "port [%d] claimed_count = [%d]...",
-                    pid, TIZPORT_GET_CLAIMED_COUNT (p_port));
+                    pid, TIZ_PORT_GET_CLAIMED_COUNT (p_port));
 
-          if (TIZPORT_GET_CLAIMED_COUNT (p_port) == 0)
+          if (TIZ_PORT_GET_CLAIMED_COUNT (p_port) == 0)
             {
               /* There are no buffers with the processor, then we can
                * sucessfully complete the OMX_CommandFlush command here. */
@@ -1915,7 +1915,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               /* We need to wait until the processor relinquishes all the
                * buffers it is currently holding. */
-              TIZPORT_SET_FLUSH_IN_PROGRESS (p_port);
+              TIZ_PORT_SET_FLUSH_IN_PROGRESS (p_port);
 
               /* Notify the processor servant... */
               {
@@ -1952,7 +1952,7 @@ dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE p_hdl,
   p_port = get_port (p_obj, pid);
 
   /* Simply enqueue the mark in the port... */
-  return tizport_store_mark (p_port, p_mark, OMX_TRUE); /* The port owns this
+  return tiz_port_store_mark (p_port, p_mark, OMX_TRUE); /* The port owns this
                                                          * mark */
 
 }
@@ -1998,7 +1998,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
    * being flushed and the component is paused, a dummy callback msg will be
    * added to the queue once the component transitions from OMX_StatePause to
    * OMX_StateExecuting. */
-  if (EStatePause == now && !TIZPORT_IS_BEING_FLUSHED (p_port))
+  if (EStatePause == now && !TIZ_PORT_IS_BEING_FLUSHED (p_port))
     {
       TIZ_LOGN (TIZ_TRACE, p_hdl, "OMX_StatePause -> Deferring HEADER [%p]",
                 p_hdr);
@@ -2022,7 +2022,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
           else
             {
               /* Now decrement by one the port's claimed buffers count */
-              claimed_count = TIZPORT_DEC_CLAIMED_COUNT (p_port);
+              claimed_count = TIZ_PORT_DEC_CLAIMED_COUNT (p_port);
             }
         }
 
@@ -2045,10 +2045,10 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
   if (OMX_ErrorNone == rc)
     {
       /* Now decrement by one the port's claimed buffers count */
-      claimed_count = TIZPORT_DEC_CLAIMED_COUNT (p_port);
+      claimed_count = TIZ_PORT_DEC_CLAIMED_COUNT (p_port);
 
       if ((ESubStateExecutingToIdle == now || ESubStatePauseToIdle == now)
-          && TIZPORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_port))
+          && TIZ_PORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_port))
         {
           int nbufs = 0;
           /* If we are moving to Idle, move the buffers to ingress so they
@@ -2069,7 +2069,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
    * command or state transition to OMX_StateIdle. */
   if (0 == claimed_count)
     {
-      if (TIZPORT_IS_BEING_FLUSHED (p_port))
+      if (TIZ_PORT_IS_BEING_FLUSHED (p_port))
         {
           /* Notify flush complete */
           complete_port_flush (p_obj, p_port, pid, rc);
@@ -2151,20 +2151,20 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
 
   TIZ_LOGN (TIZ_TRACE, p_hdl, "ingress list length [%d]", nbufs);
 
-  if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
+  if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
     {
-      if (TIZPORT_IS_BEING_DISABLED (p_port))
+      if (TIZ_PORT_IS_BEING_DISABLED (p_port))
         {
-          if (tizport_buffer_count (p_port) == nbufs)
+          if (tiz_port_buffer_count (p_port) == nbufs)
             {
-              tiz_vector_t *p_hdr_lst = tizport_get_hdrs_list (p_port);
+              tiz_vector_t *p_hdr_lst = tiz_port_get_hdrs_list (p_port);
               tiz_vector_t *p_hdr_lst_copy;
               tiz_vector_init (&(p_hdr_lst_copy),
                                sizeof (OMX_BUFFERHEADERTYPE *));
               tiz_vector_append (p_hdr_lst_copy, p_hdr_lst);
 
               /* All buffers are back... now free headers on the other end */
-              if (OMX_ErrorNone == (rc = tizport_depopulate (p_port)))
+              if (OMX_ErrorNone == (rc = tiz_port_depopulate (p_port)))
                 {
                   const OMX_S32 nhdrs = tiz_vector_length (p_hdr_lst_copy);
                   OMX_S32 i = 0;
@@ -2235,7 +2235,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
         }
     }
 
-  if (EStatePause != now && TIZPORT_IS_ENABLED (p_port))
+  if (EStatePause != now && TIZ_PORT_IS_ENABLED (p_port))
     {
       const void *p_prc = tiz_get_prc (p_hdl);
 
@@ -2446,9 +2446,9 @@ kernel_SetParameter (const void *ap_obj,
       /* Delegate to the port */
       rc = tizapi_SetParameter (p_port, ap_hdl, a_index, ap_struct);
 
-      if (OMX_ErrorNone == rc && !TIZPORT_IS_CONFIG_PORT (p_port))
+      if (OMX_ErrorNone == rc && !TIZ_PORT_IS_CONFIG_PORT (p_port))
         {
-          if (OMX_TRUE == tizport_is_master_or_slave (p_port, &mos_pid))
+          if (OMX_TRUE == tiz_port_is_master_or_slave (p_port, &mos_pid))
             {
               OMX_PTR *pp_mos_port = NULL, p_mos_port = NULL;
               tiz_vector_t *p_changed_idxs = NULL;
@@ -2459,7 +2459,7 @@ kernel_SetParameter (const void *ap_obj,
               p_mos_port = *pp_mos_port;
 
               tiz_vector_init (&(p_changed_idxs), sizeof (OMX_INDEXTYPE));
-              rc = tizport_apply_slaving_behaviour (p_mos_port, p_port,
+              rc = tiz_port_apply_slaving_behaviour (p_mos_port, p_port,
                                                     a_index, ap_struct,
                                                     p_changed_idxs);
 
@@ -2709,7 +2709,7 @@ kernel_ComponentTunnelRequest (const void *ap_obj,
     }
 
   /* Check port being re-tunnelled... */
-  if (TIZPORT_IS_TUNNELED (p_port))
+  if (TIZ_PORT_IS_TUNNELED (p_port))
     {
       /* TODO */
     }
@@ -2751,7 +2751,7 @@ kernel_UseBuffer (const void *ap_obj,
   p_port = get_port (p_obj, a_pid);
 
   /* Check that in case of tunnelling, this port is not a buffer supplier... */
-  if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
+  if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadPortIndex] : Bad port index"
                 "(port is tunneled)...");
@@ -2760,7 +2760,7 @@ kernel_UseBuffer (const void *ap_obj,
 
   /* Now delegate to the port... */
   {
-    const OMX_BOOL was_being_enabled = TIZPORT_IS_BEING_ENABLED (p_port);
+    const OMX_BOOL was_being_enabled = TIZ_PORT_IS_BEING_ENABLED (p_port);
     if (OMX_ErrorNone != (rc = tizapi_UseBuffer (p_port,
                                                  ap_hdl,
                                                  app_hdr,
@@ -2772,7 +2772,7 @@ kernel_UseBuffer (const void *ap_obj,
         return rc;
       }
 
-    if (was_being_enabled && TIZPORT_IS_POPULATED (p_port))
+    if (was_being_enabled && TIZ_PORT_IS_POPULATED (p_port))
       {
         complete_port_enable (p_obj, p_port, a_pid, OMX_ErrorNone);
       }
@@ -2815,7 +2815,7 @@ kernel_AllocateBuffer (const void *ap_obj,
   p_port = get_port (p_obj, a_pid);
 
   /* Check that in case of tunnelling, this port is not a buffer supplier... */
-  if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
+  if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadPortIndex] : port [%d] "
                 "is supplier...", a_pid);
@@ -2824,7 +2824,7 @@ kernel_AllocateBuffer (const void *ap_obj,
 
   /* Now delegate to the port... */
   {
-    const OMX_BOOL was_being_enabled = TIZPORT_IS_BEING_ENABLED (p_port);
+    const OMX_BOOL was_being_enabled = TIZ_PORT_IS_BEING_ENABLED (p_port);
     if (OMX_ErrorNone != (rc = tizapi_AllocateBuffer (p_port,
                                                       ap_hdl,
                                                       app_hdr,
@@ -2836,7 +2836,7 @@ kernel_AllocateBuffer (const void *ap_obj,
         return rc;
       }
 
-    if (was_being_enabled && TIZPORT_IS_POPULATED (p_port))
+    if (was_being_enabled && TIZ_PORT_IS_POPULATED (p_port))
       {
         complete_port_enable (p_obj, p_port, a_pid, OMX_ErrorNone);
       }
@@ -2888,7 +2888,7 @@ kernel_FreeBuffer (const void *ap_obj,
             tiz_fsm_state_to_str (now));
 
   /* Check that in case of tunnelling, this is not buffer supplier... */
-  if (TIZPORT_IS_TUNNELED_AND_SUPPLIER (p_port))
+  if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadPortIndex] : port [%d] "
                 "is supplier...", a_pid);
@@ -2896,7 +2896,7 @@ kernel_FreeBuffer (const void *ap_obj,
     }
 
   if (ESubStateIdleToLoaded != now
-      && TIZPORT_IS_ENABLED (p_port) && TIZPORT_IS_POPULATED (p_port))
+      && TIZ_PORT_IS_ENABLED (p_port) && TIZ_PORT_IS_POPULATED (p_port))
     {
       /* The port should be disabled. */
       /* The buffer deallocation will raise an OMX_ErrorPortUnpopulated  */
@@ -2905,7 +2905,7 @@ kernel_FreeBuffer (const void *ap_obj,
     }
 
   {
-    const OMX_BOOL was_being_disabled = TIZPORT_IS_BEING_DISABLED (p_port);
+    const OMX_BOOL was_being_disabled = TIZ_PORT_IS_BEING_DISABLED (p_port);
     /* Delegate to the port... */
     if (OMX_ErrorNone != (rc = tizapi_FreeBuffer (p_port, ap_hdl,
                                                   a_pid, ap_hdr)))
@@ -2920,7 +2920,7 @@ kernel_FreeBuffer (const void *ap_obj,
         tiz_servant_issue_err_event (p_obj, OMX_ErrorPortUnpopulated);
       }
 
-    buf_count = tizport_buffer_count (p_port);
+    buf_count = tiz_port_buffer_count (p_port);
 
     if (!buf_count && was_being_disabled)
       {
@@ -3053,27 +3053,27 @@ kernel_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
       /* This function will do nothing if it doesn't have to, e.g. because the
        * port isn't tunneled, or is disabled, etc. */
-      tizport_update_tunneled_status (p_port, p_hdl,
+      tiz_port_update_tunneled_status (p_port, p_hdl,
                                       OMX_PORTSTATUS_ACCEPTUSEBUFFER);
 
       TIZ_LOGN (TIZ_TRACE, p_hdl, "pid [%d] enabled [%s] tunneled [%s] "
                 "supplier [%s] populated [%s]..", pid,
-                TIZPORT_IS_ENABLED (p_port) ? "YES" : "NO",
-                TIZPORT_IS_TUNNELED (p_port) ? "YES" : "NO",
-                TIZPORT_IS_SUPPLIER (p_port) ? "YES" : "NO",
-                TIZPORT_IS_POPULATED (p_port) ? "YES" : "NO");
+                TIZ_PORT_IS_ENABLED (p_port) ? "YES" : "NO",
+                TIZ_PORT_IS_TUNNELED (p_port) ? "YES" : "NO",
+                TIZ_PORT_IS_SUPPLIER (p_port) ? "YES" : "NO",
+                TIZ_PORT_IS_POPULATED (p_port) ? "YES" : "NO");
 
-      if (TIZPORT_IS_ENABLED_TUNNELED_SUPPLIER_AND_NOT_POPULATED (p_port))
+      if (TIZ_PORT_IS_ENABLED_TUNNELED_SUPPLIER_AND_NOT_POPULATED (p_port))
         {
-          const OMX_BOOL being_enabled = TIZPORT_IS_BEING_ENABLED (p_port);
-          if (OMX_ErrorNone != (rc = tizport_populate (p_port, p_hdl)))
+          const OMX_BOOL being_enabled = TIZ_PORT_IS_BEING_ENABLED (p_port);
+          if (OMX_ErrorNone != (rc = tiz_port_populate (p_port, p_hdl)))
             {
               TIZ_LOGN (TIZ_ERROR, p_hdl, "[%s] : While populating port [%d] ",
                         tiz_err_to_str (rc), pid);
               return rc;
             }
 
-          if (being_enabled && TIZPORT_IS_POPULATED_AND_ENABLED (p_port))
+          if (being_enabled && TIZ_PORT_IS_POPULATED_AND_ENABLED (p_port))
             {
               complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone);
             }
@@ -3103,9 +3103,9 @@ kernel_deallocate_resources (void *ap_obj)
     {
       p_port = get_port (p_obj, i);
 
-      if (TIZPORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_port))
+      if (TIZ_PORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_port))
         {
-          if (OMX_ErrorNone != (rc = tizport_depopulate (p_port)))
+          if (OMX_ErrorNone != (rc = tiz_port_depopulate (p_port)))
             {
               break;
             }
@@ -3149,10 +3149,10 @@ kernel_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
       pid = ((OMX_ALL != a_pid) ? a_pid : i);
       p_port = get_port (p_obj, pid);
 
-      if (TIZPORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_port))
+      if (TIZ_PORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_port))
         {
-          const OMX_DIRTYPE dir = tizport_dir (p_port);
-          tiz_vector_t *p_dst2darr, *p_srclst = tizport_get_hdrs_list (p_port);
+          const OMX_DIRTYPE dir = tiz_port_dir (p_port);
+          tiz_vector_t *p_dst2darr, *p_srclst = tiz_port_get_hdrs_list (p_port);
           assert (OMX_DirInput == dir || OMX_DirOutput == dir);
 
           /* Input port -> Add header to egress list... */
@@ -3208,7 +3208,7 @@ kernel_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 
       /* This function will do nothing if it doesn't have to, e.g. because the
        * port isn't tunneled, or is disabled, etc. */
-      tizport_update_tunneled_status (p_port, p_hdl,
+      tiz_port_update_tunneled_status (p_port, p_hdl,
                                       OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
 
       flush_egress (p_obj, pid, OMX_TRUE);
@@ -3245,12 +3245,12 @@ kernel_stop_and_return (void *ap_obj)
     {
       p_port = get_port (p_obj, i);
 
-      if (TIZPORT_IS_DISABLED (p_port) || !tizport_buffer_count (p_port))
+      if (TIZ_PORT_IS_DISABLED (p_port) || !tiz_port_buffer_count (p_port))
         {
           continue;
         }
 
-      if (TIZPORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_port))
+      if (TIZ_PORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_port))
         {
           /* Move buffers from egress to ingress */
           nbufs = move_to_ingress (p_obj, i);
@@ -3265,7 +3265,7 @@ kernel_stop_and_return (void *ap_obj)
 
           /* This function will do nothing if the port is disabled, for
            * example */
-          tizport_update_tunneled_status (p_port, p_hdl,
+          tiz_port_update_tunneled_status (p_port, p_hdl,
                                           OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
 
           continue;
@@ -3331,9 +3331,9 @@ kernel_register_port (void *ap_obj, OMX_PTR ap_port, OMX_BOOL ais_config)
     {
       assert (NULL == p_obj->p_cport_);
       p_obj->p_cport_ = ap_port;
-      tizport_set_index (ap_port, TIZPORT_CONFIG_PORT_INDEX);
+      tiz_port_set_index (ap_port, TIZ_PORT_CONFIG_PORT_INDEX);
       TIZ_LOGN (TIZ_TRACE, hdl, "Registering config port [%p] "
-               "with index [%d]", ap_port, TIZPORT_CONFIG_PORT_INDEX);
+               "with index [%d]", ap_port, TIZ_PORT_CONFIG_PORT_INDEX);
       return OMX_ErrorNone;
     }
 
@@ -3348,12 +3348,12 @@ kernel_register_port (void *ap_obj, OMX_PTR ap_port, OMX_BOOL ais_config)
     tiz_vector_push_back (p_obj->p_egress_, &p_out_list);
 
     pid = tiz_vector_length (p_obj->p_ports_);
-    tizport_set_index (ap_port, pid);
+    tiz_port_set_index (ap_port, pid);
 
     TIZ_LOGN (TIZ_TRACE, hdl, "Registering port [%p] with index [%d]",
               ap_port, pid);
 
-    switch (tizport_domain (ap_port))
+    switch (tiz_port_domain (ap_port))
       {
       case OMX_PortDomainAudio:
         {
@@ -3470,7 +3470,7 @@ kernel_find_managing_port (const struct tizkernel * ap_krn,
 
   p_hdl = tiz_servant_super_get_hdl (tizkernel, ap_krn);
 
-  if (OMX_ErrorNone == tizport_find_index (ap_krn->p_cport_, a_index))
+  if (OMX_ErrorNone == tiz_port_find_index (ap_krn->p_cport_, a_index))
     {
       *app_port = ap_krn->p_cport_;
       TIZ_LOGN (TIZ_TRACE, p_hdl, "[%s] : Config port being searched. "
@@ -3483,7 +3483,7 @@ kernel_find_managing_port (const struct tizkernel * ap_krn,
       for (i = 0; i < num_ports; ++i)
         {
           pp_port = tiz_vector_at (ap_krn->p_ports_, i);
-          if (OMX_ErrorNone == tizport_find_index (*pp_port, a_index))
+          if (OMX_ErrorNone == tiz_port_find_index (*pp_port, a_index))
             {
               rc = OMX_ErrorNone;
               break;
@@ -3560,9 +3560,9 @@ kernel_get_population_status (const void *ap_obj, OMX_U32 a_pid,
             {
               p_port = get_port (p_obj, i);
 
-              if (tizport_buffer_count (p_port) > 0
-                  && !TIZPORT_IS_SUPPLIER (p_port)
-                  && TIZPORT_IS_TUNNELED (p_port))
+              if (tiz_port_buffer_count (p_port) > 0
+                  && !TIZ_PORT_IS_SUPPLIER (p_port)
+                  && TIZ_PORT_IS_TUNNELED (p_port))
                 {
                   /* There is a non-supplier, tunneled port that is being
                    * populated. This means we cannot be fully unpopulated
@@ -3583,11 +3583,11 @@ kernel_get_population_status (const void *ap_obj, OMX_U32 a_pid,
 
       p_port = get_port (p_obj, a_pid);
 
-      if (TIZPORT_IS_POPULATED (p_port))
+      if (TIZ_PORT_IS_POPULATED (p_port))
         {
           status = ETIZKernelFullyPopulated;
         }
-      else if (tizport_buffer_count (p_port) == 0)
+      else if (tiz_port_buffer_count (p_port) == 0)
         {
           status = ETIZKernelFullyUnpopulated;
         }
@@ -3598,7 +3598,7 @@ kernel_get_population_status (const void *ap_obj, OMX_U32 a_pid,
           status = ETIZKernelUnpopulated;
           *ap_may_be_fully_unpopulated = OMX_TRUE;
 
-          if (!TIZPORT_IS_SUPPLIER (p_port))
+          if (!TIZ_PORT_IS_SUPPLIER (p_port))
             {
               /* A non-supplier port that is being populated */
               *ap_may_be_fully_unpopulated = OMX_FALSE;
@@ -3701,16 +3701,16 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
   p_port = get_port (p_obj, a_pid);
 
   TIZ_LOGN (TIZ_TRACE, hdl, "port's [%d] a_pos [%d] buf count [%d]...",
-            a_pid, a_pos, tizport_buffer_count (p_port));
+            a_pid, a_pos, tiz_port_buffer_count (p_port));
 
   /* Buffers can't be claimed on an disabled port */
-  assert (!TIZPORT_IS_DISABLED (p_port));
+  assert (!TIZ_PORT_IS_DISABLED (p_port));
 
-  assert (a_pos < tizport_buffer_count (p_port));
+  assert (a_pos < tiz_port_buffer_count (p_port));
 
   /* Grab the port's ingress list  */
   p_list = get_ingress_lst (p_obj, a_pid);
-  assert (tiz_vector_length (p_list) <= tizport_buffer_count (p_port));
+  assert (tiz_vector_length (p_list) <= tiz_port_buffer_count (p_port));
 
   /* Retrieve the header... */
   p_hdr = get_header (p_list, a_pos);
@@ -3720,29 +3720,29 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
             "list length [%d]...", a_pid, p_hdr, p_hdr->pBuffer,
             tiz_vector_length (p_list));
 
-  pdir = tizport_dir (p_port);
+  pdir = tiz_port_dir (p_port);
   /* If it's an output port and allocator, ask the port to allocate the actual
    * buffer, in case pre-announcements have been disabled on this port. This
    * function call has no effect if pre-announcements are enabled on the
    * port. */
-  if (OMX_DirOutput == pdir && TIZPORT_IS_ALLOCATOR (p_port))
+  if (OMX_DirOutput == pdir && TIZ_PORT_IS_ALLOCATOR (p_port))
     {
-      tizport_populate_header (p_port, hdl, p_hdr);
+      tiz_port_populate_header (p_port, hdl, p_hdr);
     }
 
   /* ... and delete it from the list */
   tiz_vector_erase (p_list, a_pos, 1);
 
   /* Now increment by one the claimed buffers count on this port */
-  TIZPORT_INC_CLAIMED_COUNT (p_port);
+  TIZ_PORT_INC_CLAIMED_COUNT (p_port);
 
   /* ...and if its an input buffer, mark the header, if any marks
    * available... */
   if (OMX_DirInput == pdir)
     {
-      /* NOTE: tizport_mark_buffer returns OMX_ErrorNone if the port marked the
+      /* NOTE: tiz_port_mark_buffer returns OMX_ErrorNone if the port marked the
        * buffer with one of its own marks */
-      if (OMX_ErrorNone == (rc = tizport_mark_buffer (p_port, p_hdr)))
+      if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (p_port, p_hdr)))
         {
           /* Successfully complete here the OMX_CommandMarkBuffer command */
           complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone);
@@ -3807,9 +3807,9 @@ kernel_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
   TIZ_LOGN (TIZ_TRACE, p_hdl, "HEADER [%p] pid [%d] egress length [%d]...",
             ap_hdr, a_pid, tiz_vector_length (p_list));
 
-  assert (tiz_vector_length (p_list) < tizport_buffer_count (p_port));
+  assert (tiz_vector_length (p_list) < tiz_port_buffer_count (p_port));
 
-  return enqueue_callback_msg (p_obj, ap_hdr, a_pid, tizport_dir (p_port));
+  return enqueue_callback_msg (p_obj, ap_hdr, a_pid, tiz_port_dir (p_port));
 }
 
 OMX_ERRORTYPE
@@ -3883,47 +3883,47 @@ kernel_get_tunneled_ports_status (const void *ap_obj,
         pp_port = tiz_vector_at (p_obj->p_ports_, i);
         assert (NULL != pp_port);
 
-        if (TIZPORT_IS_TUNNELED (*pp_port) && TIZPORT_IS_SUPPLIER (*pp_port))
+        if (TIZ_PORT_IS_TUNNELED (*pp_port) && TIZ_PORT_IS_SUPPLIER (*pp_port))
           {
 
-            if (!TIZPORT_MAY_CALL_USE_BUFFER (*pp_port))
+            if (!TIZ_PORT_MAY_CALL_USE_BUFFER (*pp_port))
               {
                 status &= ~(OMX_PORTSTATUS_ACCEPTUSEBUFFER);
                 TIZ_LOGN (TIZ_DEBUG, tiz_servant_super_get_hdl (tizkernel, p_obj),
-                          "TIZPORT_MAY_CALL_USE_BUFFER = FALSE status [0x%08X]",
+                          "TIZ_PORT_MAY_CALL_USE_BUFFER = FALSE status [0x%08X]",
                           status);
               }
-            if (!TIZPORT_MAY_EXCHANGE_BUFFERS (*pp_port))
+            if (!TIZ_PORT_MAY_EXCHANGE_BUFFERS (*pp_port))
               {
                 status &= ~(OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
                 TIZ_LOGN (TIZ_DEBUG, tiz_servant_super_get_hdl (tizkernel, p_obj),
-                          "TIZPORT_MAY_EXCHANGE_BUFFERS = FALSE status [0x%08X]",
+                          "TIZ_PORT_MAY_EXCHANGE_BUFFERS = FALSE status [0x%08X]",
                           status);
               }
           }
 
-        if (TIZPORT_IS_TUNNELED (*pp_port))
+        if (TIZ_PORT_IS_TUNNELED (*pp_port))
           {
             tunneled_found = OMX_TRUE;
 
-            if (!TIZPORT_MAY_INITIATE_EXE_TO_IDLE (*pp_port))
+            if (!TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE (*pp_port))
               {
                 status &= ~(OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
                 TIZ_LOGN (TIZ_DEBUG, tiz_servant_super_get_hdl (tizkernel, p_obj),
-                          "TIZPORT_MAY_INITIATE_EXE_TO_IDLE = FALSE status [0x%08X]",
+                          "TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE = FALSE status [0x%08X]",
                           status);
               }
             else
               {
                 TIZ_LOGN (TIZ_DEBUG, tiz_servant_super_get_hdl (tizkernel, p_obj),
-                          "TIZPORT_MAY_INITIATE_EXE_TO_IDLE = TRUE status [0x%08X]",
+                          "TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE = TRUE status [0x%08X]",
                           status);
               }
           }
         else
           {
             TIZ_LOGN (TIZ_DEBUG, tiz_servant_super_get_hdl (tizkernel, p_obj),
-                      "NOT TUNNELED pid [%d]", tizport_index (*pp_port));
+                      "NOT TUNNELED pid [%d]", tiz_port_index (*pp_port));
           }
       }
 
@@ -4037,7 +4037,7 @@ kernel_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag)
     do
       {
         p_port = get_port (p_obj, i);
-        tizport_reset_tunneled_port_status_flag (p_port,
+        tiz_port_reset_tunneled_port_status_flag (p_port,
                                                  tiz_servant_get_hdl (p_obj),
                                                  a_port_status_flag);
       }

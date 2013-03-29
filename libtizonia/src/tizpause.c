@@ -81,8 +81,8 @@ pause_SetParameter (const void *ap_obj,
 
   assert (p_port);
 
-  if (TIZPORT_IS_CONFIG_PORT (p_port)
-      || (!TIZPORT_IS_CONFIG_PORT (p_port) && TIZPORT_IS_ENABLED (p_port)))
+  if (TIZ_PORT_IS_CONFIG_PORT (p_port)
+      || (!TIZ_PORT_IS_CONFIG_PORT (p_port) && TIZ_PORT_IS_ENABLED (p_port)))
     {
       TIZ_LOG (TIZ_TRACE, "Incorrect state op "
                "(SetParameter received in Pause state)...");
@@ -120,7 +120,7 @@ pause_EmptyThisBuffer (const void *ap_obj,
   const void *p_krn = tiz_get_krn (ap_hdl);
 /*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
 
-  /*   if (TIZPORT_IS_ENABLED(p_port)) */
+  /*   if (TIZ_PORT_IS_ENABLED(p_port)) */
   /*     { */
   /*       TIZ_LOG(TIZ_TRACE, "Incorrect state op " */
   /*                 "(ETB received in Pause state on an enabled port)..."); */
@@ -140,7 +140,7 @@ pause_FillThisBuffer (const void *ap_obj,
   const void *p_krn = tiz_get_krn (ap_hdl);
 /*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
 
-  /*   if (TIZPORT_IS_ENABLED(p_port)) */
+  /*   if (TIZ_PORT_IS_ENABLED(p_port)) */
   /*     { */
   /*       TIZ_LOG(TIZ_TRACE, "Incorrect state op " */
   /*                 "(FTB received in Pause state on an enabled port)..."); */

@@ -73,7 +73,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     OMX_COLOR_FormatYUV420Planar,
     OMX_COLOR_FormatMax
   };
-  tizport_options_t rawvideo_port_opts = {
+  tiz_port_options_t rawvideo_port_opts = {
     OMX_PortDomainVideo,
     OMX_DirInput,
     ARATELIA_YUV_RENDERER_PORT_MIN_BUF_COUNT,

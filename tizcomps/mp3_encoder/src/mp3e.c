@@ -76,7 +76,7 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
     OMX_AUDIO_CodingMP3,
     OMX_AUDIO_CodingMax
   };
-  tizport_options_t mp3_port_opts = {
+  tiz_port_options_t mp3_port_opts = {
     OMX_PortDomainAudio,
     OMX_DirOutput,
     ARATELIA_MP3_ENCODER_PORT_MIN_BUF_COUNT,
@@ -116,7 +116,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
     OMX_AUDIO_CodingPCM,
     OMX_AUDIO_CodingMax
   };
-  tizport_options_t pcm_port_opts = {
+  tiz_port_options_t pcm_port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
     ARATELIA_MP3_ENCODER_PORT_MIN_BUF_COUNT,
