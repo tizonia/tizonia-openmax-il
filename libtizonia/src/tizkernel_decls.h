@@ -43,7 +43,7 @@ extern "C"
   struct tizkernel
   {
     /* Object */
-    const struct tizservant _;
+    const struct tiz_servant _;
     tiz_vector_t *p_ports_;
     tiz_vector_t *p_ingress_;
     tiz_vector_t *p_egress_;

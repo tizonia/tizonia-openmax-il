@@ -51,7 +51,7 @@ static void
 relinquish_any_buffers_held (const void *ap_obj)
 {
   struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   if (p_obj->p_inhdr_)
@@ -212,7 +212,7 @@ static int
 synthesize_samples (const void *ap_obj, int next_sample)
 {
   struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   int i;
   const unsigned char *p_bufend = p_obj->p_outhdr_->pBuffer
     + p_obj->p_outhdr_->nAllocLen;
@@ -295,7 +295,7 @@ decode_buffer (const void *ap_obj)
 {
   struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
   unsigned char *p_guardzone = NULL;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   int status = 0;
 
   assert (p_obj->p_outhdr_);
@@ -476,7 +476,7 @@ decode_buffer (const void *ap_obj)
 /*       && p_obj->p_outhdr_->nFilledLen != 0 */
 /*       && status == 2) */
 /*     { */
-/*       const struct tizservant *p_parent = ap_obj; */
+/*       const struct tiz_servant *p_parent = ap_obj; */
 /*       void *p_krn = tiz_get_krn (p_parent->p_hdl_); */
 
 /*       p_obj->eos_ = true; */
@@ -495,14 +495,14 @@ decode_buffer (const void *ap_obj)
 }
 
 /*
- * from tizservant class
+ * from tiz_servant class
  */
 
 static OMX_ERRORTYPE
 mp3d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   struct mp3dprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   assert (ap_obj);
 
   mad_stream_init (&p_obj->stream_);
@@ -522,7 +522,7 @@ static OMX_ERRORTYPE
 mp3d_proc_deallocate_resources (void *ap_obj)
 {
   struct mp3dprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   assert (ap_obj);
 
   mad_synth_finish (&p_obj->synth_);
@@ -540,7 +540,7 @@ mp3d_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   assert (ap_obj);
 
   TIZ_LOG_CNAME (TIZ_TRACE,
@@ -563,7 +563,7 @@ static OMX_ERRORTYPE
 mp3d_proc_stop_and_return (void *ap_obj)
 {
   struct mp3dprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   char buffer[80];
 
   assert (ap_obj);
@@ -587,7 +587,7 @@ mp3d_proc_stop_and_return (void *ap_obj)
 static bool
 mp3d_claim_input (const void *ap_obj)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -617,7 +617,7 @@ mp3d_claim_input (const void *ap_obj)
 static bool
 mp3d_claim_output (const void *ap_obj)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -645,7 +645,7 @@ static OMX_ERRORTYPE
 mp3d_proc_buffers_ready (const void *ap_obj)
 {
   struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   while (1)

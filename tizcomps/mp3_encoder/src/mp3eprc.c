@@ -53,7 +53,7 @@ static OMX_ERRORTYPE
 relinquish_any_buffers_held (const void *ap_obj)
 {
   struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   if (p_obj->p_inhdr_)
@@ -96,7 +96,7 @@ static OMX_ERRORTYPE
 encode_buffer (const void *ap_obj)
 {
   struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   int nsamples = 0;
   int encoded_bytes = 0;
 
@@ -201,7 +201,7 @@ lame_debugf (const char *format, va_list ap)
 static bool
 claim_input (const void *ap_obj)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -223,7 +223,7 @@ claim_input (const void *ap_obj)
 static bool
 claim_output (const void *ap_obj)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -393,14 +393,14 @@ mp3e_proc_dtor (void *ap_obj)
 }
 
 /*
- * from tizservant class
+ * from tiz_servant class
  */
 
 static OMX_ERRORTYPE
 mp3e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   struct mp3eprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   assert (ap_obj);
 
   if (NULL == (p_obj->lame_ = lame_init ()))
@@ -442,7 +442,7 @@ static OMX_ERRORTYPE
 mp3e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   struct mp3eprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   void *p_krn = NULL;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
@@ -505,7 +505,7 @@ static OMX_ERRORTYPE
 mp3e_proc_buffers_ready (const void *ap_obj)
 {
   struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   while (1)

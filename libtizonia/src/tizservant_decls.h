@@ -39,7 +39,7 @@ extern "C"
 #include "tizapi_decls.h"
 #include "tizosal.h"
 
-  struct tizservant
+  struct tiz_servant
   {
     /* Object */
     const struct tiz_api _;

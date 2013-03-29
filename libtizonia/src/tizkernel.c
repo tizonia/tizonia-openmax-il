@@ -385,7 +385,7 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                        OMX_ERRORTYPE a_error)
 {
   struct tizkernel *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -421,7 +421,7 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                       OMX_ERRORTYPE a_error)
 {
   struct tizkernel *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -456,7 +456,7 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                      OMX_ERRORTYPE a_error)
 {
   struct tizkernel *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -817,7 +817,7 @@ static OMX_ERRORTYPE
 propagate_ingress (void *ap_obj, OMX_U32 a_pid)
 {
   struct tizkernel *p_obj = ap_obj;
-  struct tizservant *base = ap_obj;
+  struct tiz_servant *base = ap_obj;
   void *p_prc = NULL;
   tiz_vector_t *p_list = NULL;
   OMX_PTR p_port = NULL;
@@ -1025,7 +1025,7 @@ static OMX_ERRORTYPE
 flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
 {
   struct tizkernel *p_obj = ap_obj;
-  struct tizservant *p_base = ap_obj;
+  struct tiz_servant *p_base = ap_obj;
   tiz_vector_t *p_list = NULL;
   OMX_PTR p_port = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -2997,7 +2997,7 @@ kernel_UseEGLImage (const void *ap_obj,
 }
 
 /*
- * from tizservant api
+ * from tiz_servant api
  */
 
 static OMX_ERRORTYPE
@@ -4140,7 +4140,7 @@ init_tizkernel (void)
 
   if (!tiz_kernel_class)
     {
-      init_tizservant ();
+      tiz_servant_init ();
       tiz_kernel_class = factory_new (tiz_servant_class,
                                      "tiz_kernel_class",
                                      tiz_servant_class,
@@ -4151,12 +4151,12 @@ init_tizkernel (void)
 
   if (!tizkernel)
     {
-      init_tizservant ();
+      tiz_servant_init ();
       tizkernel =
         factory_new
         (tiz_kernel_class,
          "tizkernel",
-         tizservant,
+         tiz_servant,
          sizeof (struct tizkernel),
          ctor, kernel_ctor,
          dtor, kernel_dtor,

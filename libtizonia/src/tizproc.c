@@ -726,14 +726,14 @@ proc_FillThisBuffer (const void *ap_obj,
 }
 
 /*
- * from tizservant api
+ * from tiz_servant api
  */
 
 static OMX_ERRORTYPE
 proc_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
                         OMX_S32 a_data1, OMX_PTR ap_data2)
 {
-  struct tizservant *p_obj = (struct tizservant *) ap_obj;
+  struct tiz_servant *p_obj = (struct tiz_servant *) ap_obj;
   /* Actual implementation is in the parent class */
   /* Replace dummy parameters apf_func and a_data1 */
   return tiz_servant_super_remove_from_queue
@@ -745,7 +745,7 @@ static OMX_ERRORTYPE
 proc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 {
   const struct tizproc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   tiz_proc_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -985,7 +985,7 @@ init_tizproc (void)
 
   if (!tiz_proc_class)
     {
-      init_tizservant ();
+      tiz_servant_init ();
       tiz_proc_class = factory_new (tiz_servant_class,
                                    "tiz_proc_class",
                                    tiz_servant_class,
@@ -996,12 +996,12 @@ init_tizproc (void)
 
   if (!tizproc)
     {
-      init_tizservant ();
+      tiz_servant_init ();
       tizproc =
         factory_new
         (tiz_proc_class,
          "tizproc",
-         tizservant,
+         tiz_servant,
          sizeof (struct tizproc),
          ctor, proc_ctor,
          dtor, proc_dtor,

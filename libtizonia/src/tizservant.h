@@ -41,9 +41,9 @@ extern "C"
 #include "tizapi.h"
 #include "tizscheduler.h"
 
-  /* factory_new(tizservant, ...); */
-  extern const void *tizservant;
+  extern const void *tiz_servant;
   extern const void *tiz_servant_class;
+  void tiz_servant_init (void);
 
   void tiz_servant_set_allocator (void *ap_obj, tiz_soa_t * p_soa);
 
@@ -108,8 +108,6 @@ extern "C"
   OMX_ERRORTYPE tiz_servant_receive_pluggable_event (const void *ap_obj,
                                                     OMX_HANDLETYPE ap_hdl,
                                                     tizevent_t * ap_event);
-
-  void init_tizservant (void);
 
 #ifdef __cplusplus
 }

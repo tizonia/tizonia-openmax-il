@@ -920,7 +920,7 @@ fsm_SetCallbacks (const void *ap_obj,
 }
 
 /*
- * from tizservant api
+ * from tiz_servant api
  */
 
 
@@ -928,7 +928,7 @@ static OMX_ERRORTYPE
 fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 {
   struct tizfsm *p_obj = (struct tizfsm *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   tiz_fsm_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -1071,8 +1071,8 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
                          OMX_STATETYPE a_new_state)
 {
   struct tizfsm *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
-  const struct tizservant *p_servant = ap_servant;
+  const struct tiz_servant *p_parent = ap_obj;
+  const struct tiz_servant *p_servant = ap_servant;
   tiz_fsm_msg_t *p_msg = NULL;
   tiz_fsm_msg_transcomplete_t *p_msg_tc = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
@@ -1139,8 +1139,8 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
                       OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1)
 {
   struct tizfsm *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
-  const struct tizservant *p_servant = ap_servant;
+  const struct tiz_servant *p_parent = ap_obj;
+  const struct tiz_servant *p_servant = ap_servant;
   OMX_HANDLETYPE p_hdl = NULL;
 
   assert (NULL != p_obj);
@@ -1289,7 +1289,7 @@ init_tizfsm (void)
 
   if (!tiz_fsm_class)
     {
-      init_tizservant ();
+      tiz_servant_init ();
       tiz_fsm_class = factory_new (tiz_servant_class,
                                   "tiz_fsm_class",
                                   tiz_servant_class,
@@ -1305,12 +1305,12 @@ init_tizfsm (void)
 
   if (!tizfsm)
     {
-      init_tizservant ();
+      tiz_servant_init ();
       tizfsm =
         factory_new
         (tiz_fsm_class,
          "tizfsm",
-         tizservant,
+         tiz_servant,
          sizeof (struct tizfsm),
          ctor, fsm_ctor,
          dtor, fsm_dtor,

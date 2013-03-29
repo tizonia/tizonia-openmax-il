@@ -233,7 +233,7 @@ read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
             size_t * buf_alloc_sz, size_t * buf_read_sz)
 {
   struct vp8dprc *p_vp8dprc = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   char raw_hdr[IVF_FRAME_HDR_SZ];
   size_t new_buf_sz;
   vp8dprc_stream_type_t st = p_vp8dprc->stream_type_;
@@ -349,7 +349,7 @@ static void
 relinquish_any_buffers_held (const void *ap_obj)
 {
   struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   if (NULL != p_obj->p_inhdr_)
@@ -408,7 +408,7 @@ static OMX_ERRORTYPE
 transform_buffer (const void *ap_obj)
 {
   struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
 
   assert (p_obj->p_outhdr_);
 
@@ -525,14 +525,14 @@ transform_buffer (const void *ap_obj)
 }
 
 /*
- * from tizservant class
+ * from tiz_servant class
  */
 
 static OMX_ERRORTYPE
 vp8d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   struct vp8dprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   vpx_codec_err_t err = VPX_CODEC_OK;
   int flags = 0;
   assert (ap_obj);
@@ -566,7 +566,7 @@ static OMX_ERRORTYPE
 vp8d_proc_deallocate_resources (void *ap_obj)
 {
   struct vp8dprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   assert (ap_obj);
 
   (void) p_parent;
@@ -586,7 +586,7 @@ static OMX_ERRORTYPE
 vp8d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   struct vp8dprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   assert (ap_obj);
 
   p_obj->first_buf_ = true;
@@ -611,7 +611,7 @@ static OMX_ERRORTYPE
 vp8d_proc_stop_and_return (void *ap_obj)
 {
   struct vp8dprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
 
   assert (ap_obj);
 
@@ -628,7 +628,7 @@ vp8d_proc_stop_and_return (void *ap_obj)
 static bool
 claim_input (const void *ap_obj)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -658,7 +658,7 @@ claim_input (const void *ap_obj)
 static bool
 claim_output (const void *ap_obj)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -686,7 +686,7 @@ static OMX_ERRORTYPE
 vp8d_proc_buffers_ready (const void *ap_obj)
 {
   struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_LOG_CNAME (TIZ_TRACE,

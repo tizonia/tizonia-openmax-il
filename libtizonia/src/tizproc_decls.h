@@ -42,7 +42,7 @@ extern "C"
   struct tizproc
   {
     /* Object */
-    const struct tizservant _;
+    const struct tiz_servant _;
   };
 
     OMX_ERRORTYPE

@@ -163,14 +163,14 @@ sdlivr_proc_dtor (void *ap_obj)
 }
 
 /*
- * from tizservant class
+ * from tiz_servant class
  */
 
 static OMX_ERRORTYPE
 sdlivr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   struct sdlivrprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   assert (ap_obj);
 
   (void) p_parent;
@@ -196,7 +196,7 @@ static OMX_ERRORTYPE
 sdlivr_proc_deallocate_resources (void *ap_obj)
 {
   struct sdlivrprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   assert (ap_obj);
 
   (void) p_parent;
@@ -216,7 +216,7 @@ static OMX_ERRORTYPE
 sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   struct sdlivrprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_PARAM_PORTDEFINITIONTYPE portdef;
@@ -296,7 +296,7 @@ sdlivr_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 sdlivr_proc_buffers_ready (const void *ap_obj)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tiz_servant *p_parent = ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;

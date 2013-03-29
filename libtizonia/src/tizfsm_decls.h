@@ -41,7 +41,7 @@ extern "C"
   struct tizfsm
   {
     /* Object */
-    const struct tizservant _;
+    const struct tiz_servant _;
     void *p_states_[EStateMax];
     tiz_fsm_state_id_t cur_state_id_;
     tiz_fsm_state_id_t canceled_substate_id_;
