@@ -3685,7 +3685,7 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
   struct tizkernel *p_obj = (struct tizkernel *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_vector_t *p_list = NULL;
-  OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   OMX_PTR p_port = NULL;
   OMX_HANDLETYPE hdl = tiz_servant_super_get_hdl (tizkernel, p_obj);
   OMX_DIRTYPE pdir = OMX_DirMax;
@@ -3713,10 +3713,11 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
   assert (tiz_vector_length (p_list) <= tizport_buffer_count (p_port));
 
   /* Retrieve the header... */
-  *app_hdr = get_header (p_list, a_pos);
+  p_hdr = get_header (p_list, a_pos);
+  *app_hdr = p_hdr;
 
   TIZ_LOGN (TIZ_TRACE, hdl, "port's [%d] HEADER [%p] BUFFER [%p] ingress "
-            "list length [%d]...", a_pid, *pp_hdr, (*pp_hdr)->pBuffer,
+            "list length [%d]...", a_pid, p_hdr, p_hdr->pBuffer,
             tiz_vector_length (p_list));
 
   pdir = tizport_dir (p_port);
@@ -3726,7 +3727,7 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
    * port. */
   if (OMX_DirOutput == pdir && TIZPORT_IS_ALLOCATOR (p_port))
     {
-      tizport_populate_header (p_port, hdl, *pp_hdr);
+      tizport_populate_header (p_port, hdl, p_hdr);
     }
 
   /* ... and delete it from the list */
@@ -3741,7 +3742,7 @@ kernel_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
     {
       /* NOTE: tizport_mark_buffer returns OMX_ErrorNone if the port marked the
        * buffer with one of its own marks */
-      if (OMX_ErrorNone == (rc = tizport_mark_buffer (p_port, *pp_hdr)))
+      if (OMX_ErrorNone == (rc = tizport_mark_buffer (p_port, p_hdr)))
         {
           /* Successfully complete here the OMX_CommandMarkBuffer command */
           complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone);
