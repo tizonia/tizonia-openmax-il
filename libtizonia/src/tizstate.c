@@ -83,7 +83,7 @@ state_SendCommand (const void *ap_obj,
                        "SendCommand [%s] [%s]...",
                        tiz_cmd_to_str (a_cmd),
                        tiz_fsm_state_to_str (a_param1));
-        rc = tizstate_state_set (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+        rc = tiz_state_state_set (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
@@ -92,7 +92,7 @@ state_SendCommand (const void *ap_obj,
         TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] PORT [%d]...",
                        tiz_cmd_to_str (a_cmd), a_param1);
-        rc = tizstate_flush (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+        rc = tiz_state_flush (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
@@ -101,7 +101,7 @@ state_SendCommand (const void *ap_obj,
         TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] PORT [%d]...",
                        tiz_cmd_to_str (a_cmd), a_param1);
-        rc = tizstate_disable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+        rc = tiz_state_disable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
@@ -110,13 +110,13 @@ state_SendCommand (const void *ap_obj,
         TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "SendCommand [%s] PORT [%d]...",
                        tiz_cmd_to_str (a_cmd), a_param1);
-        rc = tizstate_enable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+        rc = tiz_state_enable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
     case OMX_CommandMarkBuffer:
       {
-        rc = tizstate_mark (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+        rc = tiz_state_mark (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
@@ -253,23 +253,23 @@ state_state_set (const void *ap_obj,
 }
 
 OMX_ERRORTYPE
-tizstate_state_set (const void *ap_obj,
+tiz_state_state_set (const void *ap_obj,
                     OMX_HANDLETYPE ap_hdl,
                     OMX_COMMANDTYPE a_cmd,
                     OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizstate_class *class = classOf (ap_obj);
+  const struct tiz_state_class *class = classOf (ap_obj);
   assert (class->state_set);
   return class->state_set (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 OMX_ERRORTYPE
-tizstate_super_state_set (const void *ap_class, const void *ap_obj,
+tiz_state_super_state_set (const void *ap_class, const void *ap_obj,
                           OMX_HANDLETYPE ap_hdl,
                           OMX_COMMANDTYPE a_cmd,
                           OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizstate_class *superclass = super (ap_class);
+  const struct tiz_state_class *superclass = super (ap_class);
   assert (ap_obj && superclass->state_set);
   return superclass->state_set (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -287,11 +287,11 @@ state_flush (const void *ap_obj,
 }
 
 OMX_ERRORTYPE
-tizstate_flush (const void *ap_obj,
+tiz_state_flush (const void *ap_obj,
                 OMX_HANDLETYPE ap_hdl,
                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizstate_class *class = classOf (ap_obj);
+  const struct tiz_state_class *class = classOf (ap_obj);
   assert (class->flush);
   return class->flush (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -325,11 +325,11 @@ state_disable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 OMX_ERRORTYPE
-tizstate_disable (const void *ap_obj,
+tiz_state_disable (const void *ap_obj,
                   OMX_HANDLETYPE ap_hdl,
                   OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizstate_class *class = classOf (ap_obj);
+  const struct tiz_state_class *class = classOf (ap_obj);
   assert (class->disable);
   return class->disable (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -364,11 +364,11 @@ state_enable (const void *ap_obj,
 }
 
 OMX_ERRORTYPE
-tizstate_enable (const void *ap_obj,
+tiz_state_enable (const void *ap_obj,
                  OMX_HANDLETYPE ap_hdl,
                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizstate_class *class = classOf (ap_obj);
+  const struct tiz_state_class *class = classOf (ap_obj);
   assert (class->enable);
   return class->enable (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -393,11 +393,11 @@ state_mark (const void *ap_obj,
 }
 
 OMX_ERRORTYPE
-tizstate_mark (const void *ap_obj,
+tiz_state_mark (const void *ap_obj,
                OMX_HANDLETYPE ap_hdl,
                OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizstate_class *class = classOf (ap_obj);
+  const struct tiz_state_class *class = classOf (ap_obj);
   assert (class->mark);
   return class->mark (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -429,19 +429,19 @@ state_trans_complete (const void *ap_obj,
 }
 
 OMX_ERRORTYPE
-tizstate_trans_complete (const void *ap_obj,
+tiz_state_trans_complete (const void *ap_obj,
                          OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  const struct tizstate_class *class = classOf (ap_obj);
+  const struct tiz_state_class *class = classOf (ap_obj);
   assert (class->trans_complete);
   return class->trans_complete (ap_obj, ap_servant, a_new_state);
 }
 
 OMX_ERRORTYPE
-tizstate_super_trans_complete (const void *a_class, const void *ap_obj,
+tiz_state_super_trans_complete (const void *a_class, const void *ap_obj,
                                OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  const struct tizstate_class *superclass = super (a_class);
+  const struct tiz_state_class *superclass = super (a_class);
   assert (ap_obj && superclass->trans_complete);
   return superclass->trans_complete (ap_obj, ap_servant, a_new_state);
 }
@@ -455,21 +455,21 @@ state_tunneled_ports_status_update (void *ap_obj)
 }
 
 OMX_ERRORTYPE
-tizstate_tunneled_ports_status_update (void *ap_obj)
+tiz_state_tunneled_ports_status_update (void *ap_obj)
 {
-  const struct tizstate_class *class = classOf (ap_obj);
+  const struct tiz_state_class *class = classOf (ap_obj);
   assert (class->tunneled_ports_status_update);
   return class->tunneled_ports_status_update (ap_obj);
 }
 
 /*
- * tizstate_class
+ * tiz_state_class
  */
 
 static void *
 state_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tizstate_class *p_obj = super_ctor (tizstate_class, ap_obj, app);
+  struct tiz_state_class *p_obj = super_ctor (tiz_state_class, ap_obj, app);
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
@@ -478,31 +478,31 @@ state_class_ctor (void *ap_obj, va_list * app)
   while ((selector = va_arg (ap, voidf)))
     {
       voidf method = va_arg (ap, voidf);
-      if (selector == (voidf) tizstate_state_set)
+      if (selector == (voidf) tiz_state_state_set)
         {
           *(voidf *) & p_obj->state_set = method;
         }
-      else if (selector == (voidf) tizstate_flush)
+      else if (selector == (voidf) tiz_state_flush)
         {
           *(voidf *) & p_obj->flush = method;
         }
-      else if (selector == (voidf) tizstate_disable)
+      else if (selector == (voidf) tiz_state_disable)
         {
           *(voidf *) & p_obj->disable = method;
         }
-      else if (selector == (voidf) tizstate_enable)
+      else if (selector == (voidf) tiz_state_enable)
         {
           *(voidf *) & p_obj->enable = method;
         }
-      else if (selector == (voidf) tizstate_mark)
+      else if (selector == (voidf) tiz_state_mark)
         {
           *(voidf *) & p_obj->mark = method;
         }
-      else if (selector == (voidf) tizstate_trans_complete)
+      else if (selector == (voidf) tiz_state_trans_complete)
         {
           *(voidf *) & p_obj->trans_complete = method;
         }
-      else if (selector == (voidf) tizstate_tunneled_ports_status_update)
+      else if (selector == (voidf) tiz_state_tunneled_ports_status_update)
         {
           *(voidf *) & p_obj->tunneled_ports_status_update = method;
         }
@@ -517,19 +517,19 @@ state_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizstate, *tizstate_class;
+const void *tizstate, *tiz_state_class;
 
 
 void
 init_tizstate (void)
 {
-  if (!tizstate_class)
+  if (!tiz_state_class)
     {
       init_tizapi ();
-      tizstate_class = factory_new (tiz_api_class,
-                                    "tizstate_class",
+      tiz_state_class = factory_new (tiz_api_class,
+                                    "tiz_state_class",
                                     tiz_api_class,
-                                    sizeof (struct tizstate_class),
+                                    sizeof (struct tiz_state_class),
                                     ctor, state_class_ctor, 0);
 
     }
@@ -539,7 +539,7 @@ init_tizstate (void)
       init_tizapi ();
       tizstate =
         factory_new
-        (tizstate_class, "tizstate",
+        (tiz_state_class, "tizstate",
          tizapi, sizeof (struct tizstate),
          ctor, state_ctor,
          dtor, state_dtor,
@@ -554,13 +554,13 @@ init_tizstate (void)
          tiz_api_EmptyThisBuffer, state_EmptyThisBuffer,
          tiz_api_FillThisBuffer, state_FillThisBuffer,
          tiz_api_SetCallbacks, state_SetCallbacks,
-         tizstate_state_set, state_state_set,
-         tizstate_flush, state_flush,
-         tizstate_disable, state_disable,
-         tizstate_enable, state_enable,
-         tizstate_mark, state_mark,
-         tizstate_trans_complete, state_trans_complete,
-         tizstate_tunneled_ports_status_update,
+         tiz_state_state_set, state_state_set,
+         tiz_state_flush, state_flush,
+         tiz_state_disable, state_disable,
+         tiz_state_enable, state_enable,
+         tiz_state_mark, state_mark,
+         tiz_state_trans_complete, state_trans_complete,
+         tiz_state_tunneled_ports_status_update,
          state_tunneled_ports_status_update, 0);
     }
 

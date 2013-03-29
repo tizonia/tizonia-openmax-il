@@ -210,7 +210,7 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     }
 
   /* IL resource allocation takes place now */
-  return tizstate_super_state_set (tizloaded, ap_obj, ap_hdl, a_cmd,
+  return tiz_state_super_state_set (tizloaded, ap_obj, ap_hdl, a_cmd,
                                    a_param1, ap_cmd_data);
 }
 
@@ -224,7 +224,7 @@ loaded_trans_complete (const void *ap_obj,
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateWaitForResources == a_new_state
           || OMX_StateIdle == a_new_state);
-  return tizstate_super_trans_complete (tizloaded, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (tizloaded, ap_obj, ap_servant,
                                         a_new_state);
 }
 
@@ -243,7 +243,7 @@ init_tizloaded (void)
       init_tizstate ();
       tizloaded =
         factory_new
-        (tizstate_class, "tizloaded",
+        (tiz_state_class, "tizloaded",
          tizstate, sizeof (struct tizloaded),
          ctor, loaded_ctor,
          dtor, loaded_dtor,
@@ -252,7 +252,7 @@ init_tizloaded (void)
          tiz_api_UseBuffer, loaded_UseBuffer,
          tiz_api_EmptyThisBuffer, loaded_EmptyThisBuffer,
          tiz_api_FillThisBuffer, loaded_FillThisBuffer,
-         tizstate_state_set, loaded_state_set,
-         tizstate_trans_complete, loaded_trans_complete, 0);
+         tiz_state_state_set, loaded_state_set,
+         tiz_state_trans_complete, loaded_trans_complete, 0);
     }
 }

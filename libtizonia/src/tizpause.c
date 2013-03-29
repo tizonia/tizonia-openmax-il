@@ -255,7 +255,7 @@ pause_trans_complete (const void *ap_obj,
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StatePause == a_new_state || OMX_StateIdle == a_new_state
           || OMX_StateExecuting == a_new_state);
-  return tizstate_super_trans_complete (tizpause, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (tizpause, ap_obj, ap_servant,
                                         a_new_state);
 }
 
@@ -273,7 +273,7 @@ init_tizpause (void)
       init_tizstate ();
       tizpause =
         factory_new
-        (tizstate_class, "tizpause",
+        (tiz_state_class, "tizpause",
          tizstate, sizeof (struct tizpause),
          ctor, pause_ctor,
          dtor, pause_dtor,
@@ -282,8 +282,8 @@ init_tizpause (void)
          tiz_api_UseBuffer, pause_UseBuffer,
          tiz_api_EmptyThisBuffer, pause_EmptyThisBuffer,
          tiz_api_FillThisBuffer, pause_FillThisBuffer,
-         tizstate_state_set, pause_state_set,
-         tizstate_mark, pause_state_mark,
-         tizstate_trans_complete, pause_trans_complete, 0);
+         tiz_state_state_set, pause_state_set,
+         tiz_state_mark, pause_state_mark,
+         tiz_state_trans_complete, pause_trans_complete, 0);
     }
 }

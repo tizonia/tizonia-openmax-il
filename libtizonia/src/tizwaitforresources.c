@@ -192,7 +192,7 @@ waitforresources_trans_complete (const void *ap_obj,
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateWaitForResources == a_new_state
           || OMX_StateLoaded == a_new_state);
-  return tizstate_super_trans_complete (tizwaitforresources, ap_obj,
+  return tiz_state_super_trans_complete (tizwaitforresources, ap_obj,
                                         ap_servant, a_new_state);
 }
 
@@ -211,7 +211,7 @@ init_tizwaitforresources (void)
       init_tizstate ();
       tizwaitforresources =
         factory_new
-        (tizstate_class, "tizwaitforresources",
+        (tiz_state_class, "tizwaitforresources",
          tizstate, sizeof (struct tizwaitforresources),
          ctor, waitforresources_ctor,
          dtor, waitforresources_dtor,
@@ -220,8 +220,8 @@ init_tizwaitforresources (void)
          tiz_api_UseBuffer, waitforresources_UseBuffer,
          tiz_api_EmptyThisBuffer, waitforresources_EmptyThisBuffer,
          tiz_api_FillThisBuffer, waitforresources_FillThisBuffer,
-         tizstate_state_set, waitforresources_state_set,
-         tizstate_trans_complete, waitforresources_trans_complete, 0);
+         tiz_state_state_set, waitforresources_state_set,
+         tiz_state_trans_complete, waitforresources_trans_complete, 0);
     }
 
 }

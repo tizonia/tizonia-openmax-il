@@ -155,7 +155,7 @@ dispatch_tc (void *ap_obj, OMX_PTR ap_msg)
   p_msg_tc = &(p_msg->tc);
   assert (p_msg_tc->state <= OMX_StateWaitForResources);
 
-  return tizstate_trans_complete (p_obj->p_current_state_,
+  return tiz_state_trans_complete (p_obj->p_current_state_,
                                   p_msg_tc->p_servant, p_msg_tc->state);
 }
 
@@ -1222,7 +1222,7 @@ fsm_tunneled_ports_status_update (void *ap_obj)
   struct tizfsm *p_obj = ap_obj;
 
   /* Delegate to the current state... */
-  return tizstate_tunneled_ports_status_update (p_obj->p_current_state_);
+  return tiz_state_tunneled_ports_status_update (p_obj->p_current_state_);
 }
 
 OMX_ERRORTYPE

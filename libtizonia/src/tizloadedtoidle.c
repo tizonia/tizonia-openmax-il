@@ -165,10 +165,10 @@ loadedtoidle_state_set (const void *ap_obj,
     }
 
   /* IL resource deallocation should take place now */
-  /* NOTE: This will call the 'tizstate_state_set' function and not
+  /* NOTE: This will call the 'tiz_state_state_set' function and not
    * 'tizloaded_state_set' (we are passing 'tizloaded' as the 1st
    * parameter  */
-  return tizstate_super_state_set (tizloaded, ap_obj, ap_hdl, a_cmd,
+  return tiz_state_super_state_set (tizloaded, ap_obj, ap_hdl, a_cmd,
                                    a_param1, ap_cmd_data);
 }
 
@@ -196,7 +196,7 @@ loadedtoidle_trans_complete (const void *ap_obj,
                                              OMX_PORTSTATUS_ACCEPTUSEBUFFER);
     }
 
-  return tizstate_super_trans_complete (tizloadedtoidle, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (tizloadedtoidle, ap_obj, ap_servant,
                                         a_new_state);
 }
 
@@ -223,9 +223,9 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
         /* OK, at this point all the tunneled non-supplier neighboring ports
          * are ready to receive OMX_UseBuffer calls. IL resource allocation
          * will take place now */
-        /* NOTE: This will call the 'tizstate_state_set' function (we are
+        /* NOTE: This will call the 'tiz_state_state_set' function (we are
          * passing 'tizloaded' as the 1st parameter  */
-        return tizstate_super_state_set (tizloaded, ap_obj, p_hdl,
+        return tiz_state_super_state_set (tizloaded, ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateIdle, NULL);
       }
@@ -249,7 +249,7 @@ init_tizloadedtoidle (void)
       init_tizloaded ();
       tizloadedtoidle =
         factory_new
-        (tizstate_class, "tizloadedtoidle",
+        (tiz_state_class, "tizloadedtoidle",
          tizloaded, sizeof (struct tizloadedtoidle),
          ctor, loadedtoidle_ctor,
          dtor, loadedtoidle_dtor,
@@ -258,9 +258,9 @@ init_tizloadedtoidle (void)
          tiz_api_UseBuffer, loadedtoidle_UseBuffer,
          tiz_api_EmptyThisBuffer, loadedtoidle_EmptyThisBuffer,
          tiz_api_FillThisBuffer, loadedtoidle_FillThisBuffer,
-         tizstate_state_set, loadedtoidle_state_set,
-         tizstate_trans_complete, loadedtoidle_trans_complete,
-         tizstate_tunneled_ports_status_update,
+         tiz_state_state_set, loadedtoidle_state_set,
+         tiz_state_trans_complete, loadedtoidle_trans_complete,
+         tiz_state_tunneled_ports_status_update,
          loadedtoidle_tunneled_ports_status_update, 0);
     }
 }

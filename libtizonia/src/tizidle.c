@@ -272,7 +272,7 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       }
     }
 
-  return tizstate_super_state_set (tizidle, ap_obj, ap_hdl, a_cmd,
+  return tiz_state_super_state_set (tizidle, ap_obj, ap_hdl, a_cmd,
                                    a_param1, ap_cmd_data);
 }
 
@@ -290,7 +290,7 @@ init_tizidle (void)
       init_tizstate ();
       tizidle =
         factory_new
-        (tizstate_class, "tizidle",
+        (tiz_state_class, "tizidle",
          tizstate, sizeof (struct tizidle),
          ctor, idle_ctor,
          dtor, idle_dtor,
@@ -299,6 +299,6 @@ init_tizidle (void)
          tiz_api_UseBuffer, idle_UseBuffer,
          tiz_api_EmptyThisBuffer, idle_EmptyThisBuffer,
          tiz_api_FillThisBuffer, idle_FillThisBuffer,
-         tizstate_state_set, idle_state_set, 0);
+         tiz_state_state_set, idle_state_set, 0);
     }
 }

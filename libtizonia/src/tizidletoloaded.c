@@ -134,7 +134,7 @@ idletoloaded_trans_complete (const void *ap_obj,
                  "Trans complete to state [%s]...",
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateLoaded == a_new_state);
-  return tizstate_super_trans_complete (tizidletoloaded, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (tizidletoloaded, ap_obj, ap_servant,
                                         a_new_state);
 }
 
@@ -152,7 +152,7 @@ init_tizidletoloaded (void)
       init_tizidle ();
       tizidletoloaded =
         factory_new
-        (tizstate_class, "tizidletoloaded",
+        (tiz_state_class, "tizidletoloaded",
          tizidle, sizeof (struct tizidletoloaded),
          ctor, idletoloaded_ctor,
          dtor, idletoloaded_dtor,
@@ -163,6 +163,6 @@ init_tizidletoloaded (void)
          tiz_api_FreeBuffer, idletoloaded_FreeBuffer,
          tiz_api_EmptyThisBuffer, idletoloaded_EmptyThisBuffer,
          tiz_api_FillThisBuffer, idletoloaded_FillThisBuffer,
-         tizstate_trans_complete, idletoloaded_trans_complete, 0);
+         tiz_state_trans_complete, idletoloaded_trans_complete, 0);
     }
 }

@@ -114,7 +114,7 @@ executingtoidle_trans_complete (const void *ap_obj,
          OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
     }
 
-  return tizstate_super_trans_complete (tizexecutingtoidle, ap_obj,
+  return tiz_state_super_trans_complete (tizexecutingtoidle, ap_obj,
                                         ap_servant, a_new_state);
 }
 
@@ -139,9 +139,9 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
       {
         /* OK, at this point all the tunneled non-supplier neighboring ports
            are ready to receive ETB/FTB calls.  NOTE: This will call the
-           'tizstate_state_set' function (we are passing 'tizidle' as the 1st
+           'tiz_state_state_set' function (we are passing 'tizidle' as the 1st
            parameter  */
-        return tizstate_super_state_set (tizidle, ap_obj, p_hdl,
+        return tiz_state_super_state_set (tizidle, ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateIdle, NULL);
       }
@@ -165,14 +165,14 @@ init_tizexecutingtoidle (void)
       init_tizexecuting ();
       tizexecutingtoidle =
         factory_new
-        (tizstate_class, "tizexecutingtoidle",
+        (tiz_state_class, "tizexecutingtoidle",
          tizexecuting, sizeof (struct tizexecutingtoidle),
          ctor, executingtoidle_ctor,
          dtor, executingtoidle_dtor,
          tiz_api_GetState, executingtoidle_GetState,
          tiz_api_UseBuffer, executingtoidle_UseBuffer,
-         tizstate_trans_complete, executingtoidle_trans_complete,
-         tizstate_tunneled_ports_status_update, executingtoidle_tunneled_ports_status_update,
+         tiz_state_trans_complete, executingtoidle_trans_complete,
+         tiz_state_tunneled_ports_status_update, executingtoidle_tunneled_ports_status_update,
          0);
     }
 }

@@ -103,7 +103,7 @@ pausetoidle_trans_complete (const void *ap_obj,
                  "Trans complete to state [%s]...",
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateIdle == a_new_state);
-  return tizstate_super_trans_complete (tizpausetoidle, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (tizpausetoidle, ap_obj, ap_servant,
                                         a_new_state);
 }
 
@@ -121,7 +121,7 @@ init_tizpausetoidle (void)
       init_tizpause ();
       tizpausetoidle =
         factory_new
-        (tizstate_class, "tizpausetoidle",
+        (tiz_state_class, "tizpausetoidle",
          tizpause, sizeof (struct tizpausetoidle),
          ctor, pausetoidle_ctor,
          dtor, pausetoidle_dtor,
@@ -129,6 +129,6 @@ init_tizpausetoidle (void)
          tiz_api_UseBuffer, pausetoidle_UseBuffer,
          tiz_api_EmptyThisBuffer, pausetoidle_EmptyThisBuffer,
          tiz_api_FillThisBuffer, pausetoidle_FillThisBuffer,
-         tizstate_trans_complete, pausetoidle_trans_complete, 0);
+         tiz_state_trans_complete, pausetoidle_trans_complete, 0);
     }
 }

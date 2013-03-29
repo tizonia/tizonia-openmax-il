@@ -27,7 +27,7 @@ extern "C"
 
 #include "tizapi_decls.h"
 
-  typedef struct tizstate tizstate_t;
+  typedef struct tizstate tiz_state_t;
 
   struct tizstate
   {
@@ -37,17 +37,17 @@ extern "C"
   };
 
   OMX_ERRORTYPE
-  tizstate_super_state_set (const void *a_class, const void *p_obj,
+  tiz_state_super_state_set (const void *a_class, const void *p_obj,
                             OMX_HANDLETYPE ap_hdl,
                             OMX_COMMANDTYPE a_cmd,
                             OMX_U32 a_param1, OMX_PTR ap_cmd_data);
 
   OMX_ERRORTYPE
-  tizstate_super_trans_complete (const void *a_class, const void *ap_obj,
+  tiz_state_super_trans_complete (const void *a_class, const void *ap_obj,
                                  OMX_PTR ap_servant,
                                  OMX_STATETYPE a_new_state);
 
-  struct tizstate_class
+  struct tiz_state_class
   {
     /* Class */
     const struct tiz_api_class _;
@@ -81,7 +81,7 @@ extern "C"
 
   struct tizloaded
   {
-    const tizstate_t _;
+    const tiz_state_t _;
 
   };
 
@@ -96,14 +96,14 @@ extern "C"
 
   struct tizwaitforresources
   {
-    const tizstate_t _;
+    const tiz_state_t _;
   };
 
   typedef struct tizidle tizidle_t;
 
   struct tizidle
   {
-    const tizstate_t _;
+    const tiz_state_t _;
   };
 
   typedef struct tizidletoloaded tizidletoloaded_t;
@@ -124,7 +124,7 @@ extern "C"
 
   struct tizexecuting
   {
-    const tizstate_t _;
+    const tiz_state_t _;
   };
 
   typedef struct tizexecutingtoidle tizexecutingtoidle_t;
@@ -138,7 +138,7 @@ extern "C"
 
   struct tizpause
   {
-    const tizstate_t _;
+    const tiz_state_t _;
   };
 
   typedef struct tizpausetoidle tizpausetoidle_t;

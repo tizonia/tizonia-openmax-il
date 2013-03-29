@@ -47,7 +47,7 @@ extern "C"
 #include "tizpausetoidle.h"
 
   extern const void *tizstate;
-  extern const void *tizstate_class;
+  extern const void *tiz_state_class;
 
   extern const void *tizloaded;
   extern const void *tizloadedtoidle;
@@ -61,40 +61,40 @@ extern "C"
   extern const void *tizpausetoidle;
 
     OMX_ERRORTYPE
-    tizstate_state_set (const void *p_obj,
+    tiz_state_state_set (const void *p_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_COMMANDTYPE a_cmd,
                         OMX_U32 a_param1, OMX_PTR ap_cmd_data);
 
     OMX_ERRORTYPE
-    tizstate_flush (const void *p_obj,
+    tiz_state_flush (const void *p_obj,
                     OMX_HANDLETYPE ap_hdl,
                     OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
                     OMX_PTR ap_cmd_data);
 
     OMX_ERRORTYPE
-    tizstate_disable (const void *p_obj,
+    tiz_state_disable (const void *p_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_COMMANDTYPE a_cmd,
                       OMX_U32 a_param1, OMX_PTR ap_cmd_data);
 
     OMX_ERRORTYPE
-    tizstate_enable (const void *p_obj,
+    tiz_state_enable (const void *p_obj,
                      OMX_HANDLETYPE ap_hdl,
                      OMX_COMMANDTYPE a_cmd,
                      OMX_U32 a_param1, OMX_PTR ap_cmd_data);
 
     OMX_ERRORTYPE
-    tizstate_mark (const void *p_obj,
+    tiz_state_mark (const void *p_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
                    OMX_PTR ap_cmd_data);
 
     OMX_ERRORTYPE
-    tizstate_trans_complete (const void *p_obj, OMX_PTR ap_servant,
+    tiz_state_trans_complete (const void *p_obj, OMX_PTR ap_servant,
                              OMX_STATETYPE a_new_state);
 
-    OMX_ERRORTYPE tizstate_tunneled_ports_status_update (void *ap_obj);
+    OMX_ERRORTYPE tiz_state_tunneled_ports_status_update (void *ap_obj);
 
   void init_tizstate (void);
 

@@ -242,7 +242,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       }
     }
 
-  return tizstate_super_state_set (tizexecuting, ap_obj, ap_hdl, a_cmd,
+  return tiz_state_super_state_set (tizexecuting, ap_obj, ap_hdl, a_cmd,
                                    a_param1, ap_cmd_data);
 }
 
@@ -270,7 +270,7 @@ executing_trans_complete (const void *ap_obj,
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateExecuting == a_new_state || OMX_StatePause == a_new_state
           || OMX_StateIdle == a_new_state);
-  return tizstate_super_trans_complete (tizexecuting, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (tizexecuting, ap_obj, ap_servant,
                                         a_new_state);
 }
 
@@ -288,7 +288,7 @@ init_tizexecuting (void)
       init_tizstate ();
       tizexecuting =
         factory_new
-        (tizstate_class, "tizexecuting",
+        (tiz_state_class, "tizexecuting",
          tizstate, sizeof (struct tizexecuting),
          ctor, executing_ctor,
          dtor, executing_dtor,
@@ -297,8 +297,8 @@ init_tizexecuting (void)
          tiz_api_UseBuffer, executing_UseBuffer,
          tiz_api_EmptyThisBuffer, executing_EmptyThisBuffer,
          tiz_api_FillThisBuffer, executing_FillThisBuffer,
-         tizstate_state_set, executing_state_set,
-         tizstate_mark, executing_state_mark,
-         tizstate_trans_complete, executing_trans_complete, 0);
+         tiz_state_state_set, executing_state_set,
+         tiz_state_mark, executing_state_mark,
+         tiz_state_trans_complete, executing_trans_complete, 0);
     }
 }
