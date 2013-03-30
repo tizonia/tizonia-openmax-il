@@ -53,8 +53,9 @@ extern "C"
     EStateMax
   };
 
-  /* factory_new(tizfsm, ...) */
-  extern const void *tizfsm, *tiz_fsm_class;
+  extern const void *tizfsm;
+  extern const void *tizfsm_class;
+  void tiz_fsm_init (void);
 
   OMX_ERRORTYPE tiz_fsm_set_state (void *ap_obj,
                                   tiz_fsm_state_id_t a_new_state,
@@ -72,8 +73,6 @@ extern "C"
   tiz_fsm_state_id_t tiz_fsm_get_substate (const void *ap_obj);
 
   OMX_ERRORTYPE tiz_fsm_tunneled_ports_status_update (void *ap_obj);
-
-  void init_tizfsm (void);
 
 #ifdef __cplusplus
 }

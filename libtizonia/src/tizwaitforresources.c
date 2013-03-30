@@ -49,7 +49,7 @@
 static void *
 waitforresources_ctor (void *ap_obj, va_list * app)
 {
-  struct tizwaitforresources *p_obj =
+  tiz_waitforresources_t *p_obj =
     super_ctor (tizwaitforresources, ap_obj, app);
   return p_obj;
 }
@@ -106,7 +106,7 @@ waitforresources_FillThisBuffer (const void *ap_obj,
 }
 
 /*
- * from tizstate
+ * from tiz_state
  */
 
 static OMX_ERRORTYPE
@@ -115,7 +115,7 @@ waitforresources_state_set (const void *ap_obj,
                             OMX_COMMANDTYPE a_cmd,
                             OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizwaitforresources *p_obj = ap_obj;
+  const tiz_waitforresources_t *p_obj = ap_obj;
   tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE omx_error = OMX_ErrorNone;
 
@@ -157,8 +157,8 @@ waitforresources_state_set (const void *ap_obj,
   /*     } */
 
   {
-    struct tizproc *p_prc = tiz_get_prc (ap_hdl);
-    struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+    void *p_prc = tiz_get_prc (ap_hdl);
+    void *p_krn = tiz_get_krn (ap_hdl);
 
     /* First notify the kernel servant */
     if (OMX_ErrorNone != (omx_error = tiz_api_SendCommand (p_krn, ap_hdl,
@@ -203,16 +203,16 @@ waitforresources_trans_complete (const void *ap_obj,
 const void *tizwaitforresources;
 
 void
-init_tizwaitforresources (void)
+tiz_waitforresources_init (void)
 {
 
   if (!tizwaitforresources)
     {
-      init_tizstate ();
+      tiz_state_init ();
       tizwaitforresources =
         factory_new
-        (tiz_state_class, "tizwaitforresources",
-         tizstate, sizeof (struct tizwaitforresources),
+        (tizstate_class, "tizwaitforresources",
+         tizstate, sizeof (tiz_waitforresources_t),
          ctor, waitforresources_ctor,
          dtor, waitforresources_dtor,
          tiz_api_SetParameter, waitforresources_SetParameter,

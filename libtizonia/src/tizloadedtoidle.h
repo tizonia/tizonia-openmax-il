@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizloadedtoidle;
 
-  void init_tizloadedtoidle (void);
+  void tiz_loadedtoidle_init (void);
 
 #ifdef __cplusplus
 }

@@ -49,7 +49,7 @@
 static void *
 pause_ctor (void *ap_obj, va_list * app)
 {
-  struct tizpause *p_obj = super_ctor (tizpause, ap_obj, app);
+  tiz_pause_t *p_obj = super_ctor (tizpause, ap_obj, app);
   return p_obj;
 }
 
@@ -115,7 +115,7 @@ static OMX_ERRORTYPE
 pause_EmptyThisBuffer (const void *ap_obj,
                        OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-/*   const struct tizpause *p_obj = ap_obj; */
+/*   const tiz_pause_t *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nInputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
 /*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
@@ -135,7 +135,7 @@ static OMX_ERRORTYPE
 pause_FillThisBuffer (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-/*   const struct tizpause *p_obj = ap_obj; */
+/*   const tiz_pause_t *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
 /*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
@@ -153,7 +153,7 @@ pause_FillThisBuffer (const void *ap_obj,
 }
 
 /*
- * from tizstate
+ * from tiz_state
  */
 
 static OMX_ERRORTYPE
@@ -161,7 +161,7 @@ pause_state_set (const void *ap_obj,
                  OMX_HANDLETYPE ap_hdl,
                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizpause *p_obj = ap_obj;
+  const tiz_pause_t *p_obj = ap_obj;
   tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
@@ -211,8 +211,8 @@ pause_state_set (const void *ap_obj,
     }
 
   {
-    struct tizproc *p_prc = tiz_get_prc (ap_hdl);
-    struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+    void *p_prc = tiz_get_prc (ap_hdl);
+    void *p_krn = tiz_get_krn (ap_hdl);
 
     /* First notify the kernel servant */
     if (OMX_ErrorNone != (ret_val = tiz_api_SendCommand (p_krn, ap_hdl,
@@ -239,7 +239,7 @@ static OMX_ERRORTYPE
 pause_state_mark (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                   OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+  void *p_krn = tiz_get_krn (ap_hdl);
   /* Notify the kernel servant */
   /* No need to notify the processor servant */
   return tiz_api_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
@@ -266,15 +266,15 @@ pause_trans_complete (const void *ap_obj,
 const void *tizpause;
 
 void
-init_tizpause (void)
+tiz_pause_init (void)
 {
   if (!tizpause)
     {
-      init_tizstate ();
+      tiz_state_init ();
       tizpause =
         factory_new
-        (tiz_state_class, "tizpause",
-         tizstate, sizeof (struct tizpause),
+        (tizstate_class, "tizpause",
+         tizstate, sizeof (tiz_pause_t),
          ctor, pause_ctor,
          dtor, pause_dtor,
          tiz_api_SetParameter, pause_SetParameter,

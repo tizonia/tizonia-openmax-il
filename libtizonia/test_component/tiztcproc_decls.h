@@ -42,7 +42,7 @@ extern "C"
   struct tiztcproc
   {
     /* Object */
-    const struct tizproc _;
+    const tiz_proc_t _;
 
   };
 

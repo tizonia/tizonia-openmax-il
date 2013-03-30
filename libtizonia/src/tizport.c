@@ -2250,9 +2250,9 @@ init_tizport (void)
   if (!tiz_port_class)
     {
       tiz_api_init ();
-      tiz_port_class = factory_new (tiz_api_class,
+      tiz_port_class = factory_new (tizapi_class,
                                    "tiz_port_class",
-                                   tiz_api_class,
+                                   tizapi_class,
                                    sizeof (struct tiz_port_class),
                                    ctor, port_class_ctor, 0);
 
@@ -2265,7 +2265,7 @@ init_tizport (void)
         factory_new
         (tiz_port_class,
          "tizport",
-         tiz_api,
+         tizapi,
          sizeof (struct tizport),
          ctor, port_ctor,
          dtor, port_dtor,

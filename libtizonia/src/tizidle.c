@@ -50,7 +50,7 @@
 static void *
 idle_ctor (void *ap_obj, va_list * app)
 {
-  struct tizidle *p_obj = super_ctor (tizidle, ap_obj, app);
+  tiz_idle_t *p_obj = super_ctor (tizidle, ap_obj, app);
   return p_obj;
 }
 
@@ -160,7 +160,7 @@ idle_FillThisBuffer (const void *ap_obj,
 
   /* TODO: Review whether this check is needed here or not */
 
-/*   const struct tizidle *p_obj = ap_obj; */
+/*   const tiz_idle_t *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
 /*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
@@ -177,7 +177,7 @@ idle_FillThisBuffer (const void *ap_obj,
 }
 
 /*
- * from tizstate
+ * from tiz_state
  */
 
 static OMX_ERRORTYPE
@@ -186,7 +186,7 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 {
   tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  struct tizkernel *p_krn = NULL;
+  void *p_krn = NULL;
   tiz_kernel_tunneled_ports_status_t status = ETIZKernelTunneledPortsMax;
 
   assert (NULL != ap_obj);
@@ -283,15 +283,15 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 const void *tizidle;
 
 void
-init_tizidle (void)
+tiz_idle_init (void)
 {
   if (!tizidle)
     {
-      init_tizstate ();
+      tiz_state_init ();
       tizidle =
         factory_new
-        (tiz_state_class, "tizidle",
-         tizstate, sizeof (struct tizidle),
+        (tizstate_class, "tizidle",
+         tizstate, sizeof (tiz_idle_t),
          ctor, idle_ctor,
          dtor, idle_dtor,
          tiz_api_SetParameter, idle_SetParameter,

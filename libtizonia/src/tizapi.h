@@ -39,8 +39,8 @@ extern "C"
 
 #include "tizobject.h"
 
-  extern const void *tiz_api;
-  extern const void *tiz_api_class;
+  extern const void *tizapi;
+  extern const void *tizapi_class;
   void tiz_api_init (void);
 
 

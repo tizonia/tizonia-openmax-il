@@ -76,7 +76,7 @@ static OMX_ERRORTYPE
 webpd_proc_transform_buffer (const void *ap_obj)
 {
   struct webpdprc *p_obj = (struct webpdprc *) ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   (void) p_parent;
   (void) p_obj;
   return OMX_ErrorNone;
@@ -90,7 +90,7 @@ static OMX_ERRORTYPE
 webpd_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   struct webpdprc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
   (void) p_parent;
@@ -108,7 +108,7 @@ static OMX_ERRORTYPE
 webpd_proc_deallocate_resources (void *ap_obj)
 {
   struct webpdprc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
   (void) p_parent;
@@ -125,7 +125,7 @@ webpd_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 webpd_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
   TIZ_LOG_CNAME (TIZ_TRACE,
@@ -148,7 +148,7 @@ static OMX_ERRORTYPE
 webpd_proc_stop_and_return (void *ap_obj)
 {
   struct webpdprc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
 
   assert (ap_obj);
 
@@ -159,13 +159,13 @@ webpd_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tizproc class
+ * from tiz_proc class
  */
 
 static bool
 claim_input (const void *ap_obj)
 {
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   struct webpdprc *p_obj = (struct webpdprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -195,7 +195,7 @@ claim_input (const void *ap_obj)
 static bool
 claim_output (const void *ap_obj)
 {
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   struct webpdprc *p_obj = (struct webpdprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -223,7 +223,7 @@ static OMX_ERRORTYPE
 webpd_proc_buffers_ready (const void *ap_obj)
 {
   struct webpdprc *p_obj = (struct webpdprc *) ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_LOG_CNAME (TIZ_TRACE,
@@ -287,10 +287,10 @@ init_webpdprc (void)
   if (!webpdprc)
     {
       TIZ_LOG (TIZ_TRACE, "Initializing webpdprc...");
-      init_tizproc ();
+      tiz_proc_init ();
       webpdprc =
         factory_new
-        (tiz_proc_class,
+        (tizproc_class,
          "webpdprc",
          tizproc,
          sizeof (struct webpdprc),

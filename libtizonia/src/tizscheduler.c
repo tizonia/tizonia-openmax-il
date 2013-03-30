@@ -2291,11 +2291,11 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   tiz_soa_init (&(ap_sched->p_soa));
 
   /* Init the FSM */
-  init_tizfsm ();
+  tiz_fsm_init ();
   ap_sched->child.p_fsm = factory_new (tizfsm, p_hdl);
 
   /* Init the kernel */
-  init_tizkernel ();
+  tiz_kernel_init ();
   ap_sched->child.p_ker = factory_new (tizkernel, p_hdl);
 
   /* All the servants use the same small object allocator */

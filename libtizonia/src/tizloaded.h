@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizloaded;
 
-  void init_tizloaded (void);
+  void tiz_loaded_init (void);
 
 #ifdef __cplusplus
 }

@@ -46,7 +46,7 @@ extern "C"
   struct icerprc
   {
     /* Object */
-    const struct tizproc _;
+    const tiz_proc_t _;
     OMX_STRING bind_address_;   /* if this is null, the server will listen on all
                                  * interfaces. */
     OMX_U32 lstn_port_;

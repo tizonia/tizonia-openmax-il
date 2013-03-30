@@ -49,7 +49,7 @@
 static void *
 loaded_ctor (void *ap_obj, va_list * app)
 {
-  struct tizloaded *p_obj = super_ctor (tizloaded, ap_obj, app);
+  tiz_loaded_t *p_obj = super_ctor (tizloaded, ap_obj, app);
   return p_obj;
 }
 
@@ -131,7 +131,7 @@ loaded_FillThisBuffer (const void *ap_obj,
 
 
 /*
- * from tizstate
+ * from tiz_state
  */
 
 static OMX_ERRORTYPE
@@ -190,7 +190,7 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         }
 
       {
-        struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+        void *p_krn = tiz_get_krn (ap_hdl);
         tiz_kernel_tunneled_ports_status_t status =
           tiz_kernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
         
@@ -236,15 +236,15 @@ loaded_trans_complete (const void *ap_obj,
 const void *tizloaded;
 
 void
-init_tizloaded (void)
+tiz_loaded_init (void)
 {
   if (!tizloaded)
     {
-      init_tizstate ();
+      tiz_state_init ();
       tizloaded =
         factory_new
-        (tiz_state_class, "tizloaded",
-         tizstate, sizeof (struct tizloaded),
+        (tizstate_class, "tizloaded",
+         tizstate, sizeof (tiz_loaded_t),
          ctor, loaded_ctor,
          dtor, loaded_dtor,
          tiz_api_SetParameter, loaded_SetParameter,

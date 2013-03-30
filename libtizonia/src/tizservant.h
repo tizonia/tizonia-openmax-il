@@ -41,8 +41,8 @@ extern "C"
 #include "tizapi.h"
 #include "tizscheduler.h"
 
-  extern const void *tiz_servant;
-  extern const void *tiz_servant_class;
+  extern const void *tizservant;
+  extern const void *tizservant_class;
   void tiz_servant_init (void);
 
   void tiz_servant_set_allocator (void *ap_obj, tiz_soa_t * p_soa);

@@ -103,13 +103,13 @@ tiztc_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tizproc class
+ * from tiz_proc class
  */
 
 static OMX_ERRORTYPE
 tiztc_proc_buffers_ready (const void *ap_obj)
 {
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
   void *p_ker = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -141,10 +141,10 @@ init_tiztcproc (void)
 {
   if (!tiztcproc)
     {
-      init_tizproc ();
+      tiz_proc_init ();
       tiztcproc =
         factory_new
-        (tiz_proc_class,
+        (tizproc_class,
          "tiztcproc",
          tizproc,
          sizeof (struct tiztcproc),

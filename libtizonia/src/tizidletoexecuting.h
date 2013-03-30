@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizidletoexecuting;
 
-  void init_tizidletoexecuting (void);
+  void tiz_idletoexecuting_init (void);
 
 #ifdef __cplusplus
 }

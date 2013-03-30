@@ -39,19 +39,21 @@ extern "C"
 #include "tizproc.h"
 #include "tizservant_decls.h"
 
-  struct tizproc
+  typedef struct tiz_proc tiz_proc_t;
+  struct tiz_proc
   {
     /* Object */
-    const struct tiz_servant _;
+    const tiz_servant_t _;
   };
 
     OMX_ERRORTYPE
     tiz_proc_super_buffers_ready (const void *class, const void *p_obj);
 
+  typedef struct tiz_proc_class tiz_proc_class_t;
   struct tiz_proc_class
   {
     /* Class */
-    const struct tiz_servant_class _;
+    const tiz_servant_class_t _;
     OMX_ERRORTYPE (*buffers_ready) (const void *p_obj);
     OMX_ERRORTYPE (*port_flush) (const void *p_obj, OMX_U32 a_pid);
     OMX_ERRORTYPE (*port_disable) (const void *p_obj, OMX_U32 a_pid);

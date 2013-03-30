@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizpause;
 
-  void init_tizpause (void);
+  void tiz_pause_init (void);
 
 #ifdef __cplusplus
 }

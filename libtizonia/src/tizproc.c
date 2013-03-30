@@ -156,7 +156,7 @@ static const tiz_proc_msg_dispatch_sc_f tiz_proc_msg_dispatch_sc_to_fnt_tbl[] = 
 static OMX_ERRORTYPE
 dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
 {
-  struct tizproc *p_obj = ap_obj;
+  tiz_proc_t *p_obj = ap_obj;
   tiz_proc_msg_t *p_msg = ap_msg;
   tiz_proc_msg_sendcommand_t *p_msg_sc = NULL;
 
@@ -176,7 +176,7 @@ static OMX_ERRORTYPE
 dispatch_br (void *ap_obj, OMX_PTR ap_msg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  struct tizproc *p_obj = ap_obj;
+  tiz_proc_t *p_obj = ap_obj;
   tiz_proc_msg_t *p_msg = ap_msg;
   tiz_proc_msg_buffersready_t *p_msg_br = NULL;
   const void *p_krn = NULL;
@@ -204,13 +204,13 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
   assert (p_port);
 
   /* Do not notify this buffer in the following situations:
-   * 
+   *
    * - Component in OMX_StatePause or
    *
    * - Component in ExeToIdle or PauseToIdle
-   * 
+   *
    * - the port is disabled or being disabled
-   * 
+   *
    * */
   if (EStatePause != now
       && ESubStateExecutingToIdle != now
@@ -232,7 +232,7 @@ static OMX_ERRORTYPE
 dispatch_eio (void *ap_obj, OMX_PTR ap_msg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  struct tizproc *p_obj = ap_obj;
+  tiz_proc_t *p_obj = ap_obj;
   tiz_proc_msg_t *p_msg = ap_msg;
   tiz_proc_msg_buffersready_t *p_msg_br = NULL;
   const void *p_krn = NULL;
@@ -277,7 +277,7 @@ static OMX_ERRORTYPE
 dispatch_etmr (void *ap_obj, OMX_PTR ap_msg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  struct tizproc *p_obj = ap_obj;
+  tiz_proc_t *p_obj = ap_obj;
   tiz_proc_msg_t *p_msg = ap_msg;
   tiz_proc_msg_buffersready_t *p_msg_br = NULL;
   const void *p_krn = NULL;
@@ -322,7 +322,7 @@ static OMX_ERRORTYPE
 dispatch_estat (void *ap_obj, OMX_PTR ap_msg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  struct tizproc *p_obj = ap_obj;
+  tiz_proc_t *p_obj = ap_obj;
   tiz_proc_msg_t *p_msg = ap_msg;
   tiz_proc_msg_buffersready_t *p_msg_br = NULL;
   const void *p_krn = NULL;
@@ -367,7 +367,7 @@ static OMX_ERRORTYPE
 dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                     tiz_proc_msg_sendcommand_t * ap_msg_sc)
 {
-  const struct tizproc *p_obj = ap_obj;
+  const tiz_proc_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_STATETYPE now = OMX_StateMax;
   OMX_BOOL done = OMX_FALSE;
@@ -575,13 +575,13 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
 
 
 /*
- * tizproc
+ * tiz_proc
  */
 
 static void *
 proc_ctor (void *ap_obj, va_list * app)
 {
-  struct tizproc *p_obj = super_ctor (tizproc, ap_obj, app);
+  tiz_proc_t *p_obj = super_ctor (tizproc, ap_obj, app);
   return p_obj;
 }
 
@@ -595,7 +595,7 @@ static inline tiz_proc_msg_t *
 init_proc_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                    tiz_proc_msg_class_t a_msg_class)
 {
-  struct tizproc *p_obj = (struct tizproc *) ap_obj;
+  tiz_proc_t *p_obj = (tiz_proc_t *) ap_obj;
   tiz_proc_msg_t *p_msg = NULL;
 
   assert (NULL != p_obj);
@@ -624,7 +624,7 @@ enqueue_buffersready_msg (const void *ap_obj,
                           OMX_HANDLETYPE ap_hdl,
                           OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid)
 {
-  const struct tizproc *p_obj = ap_obj;
+  const tiz_proc_t *p_obj = ap_obj;
   tiz_proc_msg_t *p_msg = NULL;
   tiz_proc_msg_buffersready_t *p_msg_br = NULL;
 
@@ -682,7 +682,7 @@ proc_SendCommand (const void *ap_obj,
                   OMX_COMMANDTYPE a_cmd,
                   OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizproc *p_obj = ap_obj;
+  const tiz_proc_t *p_obj = ap_obj;
   tiz_proc_msg_t *p_msg = NULL;
   tiz_proc_msg_sendcommand_t *p_msg_sc = NULL;
 
@@ -733,7 +733,7 @@ static OMX_ERRORTYPE
 proc_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
                         OMX_S32 a_data1, OMX_PTR ap_data2)
 {
-  struct tiz_servant *p_obj = (struct tiz_servant *) ap_obj;
+  tiz_servant_t *p_obj = (tiz_servant_t *) ap_obj;
   /* Actual implementation is in the parent class */
   /* Replace dummy parameters apf_func and a_data1 */
   return tiz_servant_super_remove_from_queue
@@ -744,8 +744,8 @@ proc_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
 static OMX_ERRORTYPE
 proc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 {
-  const struct tizproc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_proc_t *p_obj = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   tiz_proc_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -803,7 +803,7 @@ proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tizproc class
+ * from tiz_proc class
  */
 
 static OMX_ERRORTYPE
@@ -815,7 +815,7 @@ proc_buffers_ready (const void *ap_obj)
 OMX_ERRORTYPE
 tiz_proc_buffers_ready (const void *ap_obj)
 {
-  const struct tiz_proc_class *class = classOf (ap_obj);
+  const tiz_proc_class_t *class = classOf (ap_obj);
   assert (class->buffers_ready);
   return class->buffers_ready (ap_obj);
 }
@@ -823,7 +823,7 @@ tiz_proc_buffers_ready (const void *ap_obj)
 OMX_ERRORTYPE
 tiz_proc_super_buffers_ready (const void *a_class, const void *ap_obj)
 {
-  const struct tiz_proc_class *superclass = super (a_class);
+  const tiz_proc_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->buffers_ready);
   return superclass->buffers_ready (ap_obj);
 }
@@ -837,7 +837,7 @@ proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 OMX_ERRORTYPE
 tiz_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
-  const struct tiz_proc_class *class = classOf (ap_obj);
+  const tiz_proc_class_t *class = classOf (ap_obj);
   assert (class->port_flush);
   return class->port_flush (ap_obj, a_pid);
 }
@@ -851,7 +851,7 @@ proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 OMX_ERRORTYPE
 tiz_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
-  const struct tiz_proc_class *class = classOf (ap_obj);
+  const tiz_proc_class_t *class = classOf (ap_obj);
   assert (class->port_disable);
   return class->port_disable (ap_obj, a_pid);
 }
@@ -865,7 +865,7 @@ proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 OMX_ERRORTYPE
 tiz_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 {
-  const struct tiz_proc_class *class = classOf (ap_obj);
+  const tiz_proc_class_t *class = classOf (ap_obj);
   assert (class->port_enable);
   return class->port_enable (ap_obj, a_pid);
 }
@@ -883,7 +883,7 @@ tiz_proc_event_io_ready (void *ap_obj,
                           tiz_event_io_t * ap_ev_io, int a_fd,
                           int a_events)
 {
-  const struct tiz_proc_class *class = classOf (ap_obj);
+  const tiz_proc_class_t *class = classOf (ap_obj);
   assert (class->event_io_ready);
   return class->event_io_ready (ap_obj, ap_ev_io, a_fd, a_events);
 }
@@ -900,7 +900,7 @@ tiz_proc_event_timer_ready (void *ap_obj,
                            tiz_event_timer_t * ap_ev_timer,
                            void *ap_arg)
 {
-  const struct tiz_proc_class *class = classOf (ap_obj);
+  const tiz_proc_class_t *class = classOf (ap_obj);
   assert (class->event_timer_ready);
   return class->event_timer_ready (ap_obj, ap_ev_timer, ap_arg);
 }
@@ -918,7 +918,7 @@ tiz_proc_event_stat_ready (void *ap_obj,
                           tiz_event_stat_t * ap_ev_stat,
                           int a_events)
 {
-  const struct tiz_proc_class *class = classOf (ap_obj);
+  const tiz_proc_class_t *class = classOf (ap_obj);
   assert (class->event_stat_ready);
   return class->event_stat_ready (ap_obj, ap_ev_stat, a_events);
 }
@@ -930,7 +930,7 @@ tiz_proc_event_stat_ready (void *ap_obj,
 static void *
 proc_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tiz_proc_class *p_obj = super_ctor (tiz_proc_class, ap_obj, app);
+  tiz_proc_class_t *p_obj = super_ctor (tizproc_class, ap_obj, app);
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
@@ -977,19 +977,19 @@ proc_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizproc, *tiz_proc_class;
+const void *tizproc, *tizproc_class;
 
 void
-init_tizproc (void)
+tiz_proc_init (void)
 {
 
-  if (!tiz_proc_class)
+  if (!tizproc_class)
     {
       tiz_servant_init ();
-      tiz_proc_class = factory_new (tiz_servant_class,
-                                   "tiz_proc_class",
-                                   tiz_servant_class,
-                                   sizeof (struct tiz_proc_class),
+      tizproc_class = factory_new (tizservant_class,
+                                   "tizproc_class",
+                                   tizservant_class,
+                                   sizeof (tiz_proc_class_t),
                                    ctor, proc_class_ctor, 0);
 
     }
@@ -999,10 +999,10 @@ init_tizproc (void)
       tiz_servant_init ();
       tizproc =
         factory_new
-        (tiz_proc_class,
+        (tizproc_class,
          "tizproc",
-         tiz_servant,
-         sizeof (struct tizproc),
+         tizservant,
+         sizeof (tiz_proc_t),
          ctor, proc_ctor,
          dtor, proc_dtor,
          tiz_api_EmptyThisBuffer, proc_EmptyThisBuffer,
@@ -1018,7 +1018,7 @@ init_tizproc (void)
          tiz_proc_buffers_ready, proc_buffers_ready,
          tiz_proc_port_flush, proc_port_flush,
          tiz_proc_port_disable, proc_port_disable,
-         tiz_proc_port_enable, proc_port_enable, 
+         tiz_proc_port_enable, proc_port_enable,
          tiz_proc_event_io_ready, proc_event_io_ready,
          tiz_proc_event_timer_ready, proc_event_timer_ready,
          tiz_proc_event_stat_ready, proc_event_stat_ready,

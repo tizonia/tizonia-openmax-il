@@ -43,7 +43,7 @@ extern "C"
   struct tizport
   {
     /* Object */
-    const struct tiz_api _;
+    const tiz_api_t _;
     tiz_vector_t *p_indexes_;
     tiz_vector_t *p_hdrs_info_;
     tiz_vector_t *p_hdrs_;
@@ -97,7 +97,7 @@ extern "C"
   struct tiz_port_class
   {
     /* Class */
-    const struct tiz_api_class _;
+    const tiz_api_class_t _;
     OMX_ERRORTYPE (*register_index) (const void *ap_obj,
                                      OMX_INDEXTYPE a_index);
     OMX_ERRORTYPE (*find_index) (const void *ap_obj, OMX_INDEXTYPE a_index);

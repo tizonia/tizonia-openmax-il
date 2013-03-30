@@ -42,7 +42,7 @@ extern "C"
   struct fwprc
   {
     /* Object */
-    const struct tizproc _;
+    const tiz_proc_t _;
     FILE *p_file_;
     OMX_PARAM_CONTENTURITYPE *p_uri_param_;
     OMX_U32 counter_;

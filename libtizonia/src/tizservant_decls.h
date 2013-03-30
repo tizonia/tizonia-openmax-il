@@ -39,10 +39,11 @@ extern "C"
 #include "tizapi_decls.h"
 #include "tizosal.h"
 
+  typedef struct tiz_servant tiz_servant_t;
   struct tiz_servant
   {
     /* Object */
-    const struct tiz_api _;
+    const tiz_api_t _;
     tiz_pqueue_t *p_pq_;
     tiz_soa_t *p_soa_;          /* Not owned */
     OMX_COMPONENTTYPE *p_hdl_;
@@ -90,11 +91,11 @@ extern "C"
   OMX_ERRORTYPE tiz_servant_super_stop_and_return (const void *a_class,
                                                   const void *ap_obj);
 
-
+  typedef struct tiz_servant_class tiz_servant_class_t;
   struct tiz_servant_class
   {
     /* Class */
-    const struct tiz_api_class _;
+    const tiz_api_class_t _;
     void (*set_allocator) (void *ap_obj, tiz_soa_t * p_soa);
     void (*set_callbacks) (void *ap_obj, OMX_PTR ap_appdata,
                            OMX_CALLBACKTYPE * ap_cbacks);

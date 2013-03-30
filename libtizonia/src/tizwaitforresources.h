@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizwaitforresources;
 
-  void init_tizwaitforresources (void);
+  void tiz_waitforresources_init (void);
 
 #ifdef __cplusplus
 }

@@ -40,10 +40,11 @@ extern "C"
 #include "tizservant_decls.h"
 #include "tizrmproxy_c.h"
 
-  struct tizkernel
+  typedef struct tiz_kernel tiz_kernel_t;
+  struct tiz_kernel
   {
     /* Object */
-    const struct tiz_servant _;
+    const tiz_servant_t _;
     tiz_vector_t *p_ports_;
     tiz_vector_t *p_ingress_;
     tiz_vector_t *p_egress_;
@@ -98,10 +99,11 @@ extern "C"
                                                     void *ap_obj,
                                                     OMX_U32 a_port_status_flag);
 
+  typedef struct tiz_kernel_class tiz_kernel_class_t;
   struct tiz_kernel_class
   {
     /* Class */
-    const struct tiz_servant_class _;
+    const tiz_servant_class_t _;
 
     OMX_ERRORTYPE (*register_port) (const void *ap_obj, OMX_PTR ap_port,
                                     OMX_BOOL ais_config);

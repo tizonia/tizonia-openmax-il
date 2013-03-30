@@ -46,7 +46,7 @@
 static void *
 idletoloaded_ctor (void *ap_obj, va_list * app)
 {
-  struct tizidletoloaded *p_obj = super_ctor (tizidletoloaded, ap_obj, app);
+  tiz_idletoloaded_t *p_obj = super_ctor (tizidletoloaded, ap_obj, app);
   return p_obj;
 }
 
@@ -122,7 +122,7 @@ idletoloaded_FillThisBuffer (const void *ap_obj,
 }
 
 /*
- * from tizstate class
+ * from tiz_state class
  */
 
 static OMX_ERRORTYPE
@@ -145,15 +145,15 @@ idletoloaded_trans_complete (const void *ap_obj,
 const void *tizidletoloaded;
 
 void
-init_tizidletoloaded (void)
+tiz_idletoloaded_init (void)
 {
   if (!tizidletoloaded)
     {
-      init_tizidle ();
+      tiz_idle_init ();
       tizidletoloaded =
         factory_new
-        (tiz_state_class, "tizidletoloaded",
-         tizidle, sizeof (struct tizidletoloaded),
+        (tizstate_class, "tizidletoloaded",
+         tizidle, sizeof (tiz_idletoloaded_t),
          ctor, idletoloaded_ctor,
          dtor, idletoloaded_dtor,
          tiz_api_SetParameter, idletoloaded_SetParameter,

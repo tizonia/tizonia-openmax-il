@@ -46,7 +46,7 @@ extern "C"
   struct sdlivrprc
   {
     /* Object */
-    const struct tizproc _;
+    const tiz_proc_t _;
     OMX_BUFFERHEADERTYPE *pinhdr_;
     OMX_BUFFERHEADERTYPE *pouthdr_;
     OMX_VIDEO_PORTDEFINITIONTYPE vportdef_;

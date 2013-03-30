@@ -134,7 +134,7 @@ buffer_needed (void *ap_arg)
         }
       else
         {
-          const struct tiz_servant *p_parent = ap_arg;
+          const tiz_servant_t *p_parent = ap_arg;
           tiz_pd_set_t ports;
           void *p_krn = NULL;
 
@@ -167,7 +167,7 @@ static void
 buffer_emptied (OMX_BUFFERHEADERTYPE * p_hdr, void *p_arg)
 {
   struct icerprc *p_obj = p_arg;
-  const struct tiz_servant *p_parent = p_arg;
+  const tiz_servant_t *p_parent = p_arg;
   void *p_krn = NULL;
 
   assert (NULL != p_obj);
@@ -222,7 +222,7 @@ static OMX_ERRORTYPE
 icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   struct icerprc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
@@ -273,7 +273,7 @@ static OMX_ERRORTYPE
 icer_proc_deallocate_resources (void *ap_obj)
 {
   struct icerprc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != p_parent->p_hdl_);
@@ -289,7 +289,7 @@ static OMX_ERRORTYPE
 icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   struct icerprc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != p_parent->p_hdl_);
@@ -312,7 +312,7 @@ static OMX_ERRORTYPE
 icer_proc_stop_and_return (void *ap_obj)
 {
   struct icerprc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
 
@@ -322,14 +322,14 @@ icer_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tizproc class
+ * from tiz_proc class
  */
 
 static OMX_ERRORTYPE
 icer_proc_buffers_ready (const void *ap_obj)
 {
   struct icerprc *p_obj = (struct icerprc *) ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
 
   assert (NULL != p_parent);
   assert (NULL != p_parent->p_hdl_);
@@ -342,7 +342,7 @@ icer_event_io_ready (void *ap_obj,
                      tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
   struct icerprc *p_obj = ap_obj;
-  struct tiz_servant *p_parent = ap_obj;
+  tiz_servant_t *p_parent = ap_obj;
   OMX_HANDLETYPE p_hdl = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -381,7 +381,7 @@ icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
                         void *ap_arg)
 {
   struct icerprc *p_obj = ap_obj;
-  struct tiz_servant *p_parent = ap_obj;
+  tiz_servant_t *p_parent = ap_obj;
   OMX_HANDLETYPE p_hdl = NULL;
 
   assert (NULL != p_obj);
@@ -408,10 +408,10 @@ init_icerprc (void)
 {
   if (!icerprc)
     {
-      init_tizproc ();
+      tiz_proc_init ();
       icerprc =
         factory_new
-        (tiz_proc_class,
+        (tizproc_class,
          "icerprc",
          tizproc,
          sizeof (struct icerprc),

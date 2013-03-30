@@ -50,7 +50,7 @@
 static void *
 state_ctor (void *ap_obj, va_list * app)
 {
-  struct tizstate *p_obj = super_ctor (tizstate, ap_obj, app);
+  tiz_state_t *p_obj = super_ctor (tizstate, ap_obj, app);
   p_obj->p_fsm_ = va_arg (*app, void *);
   p_obj->servants_count_ = 0;
   return p_obj;
@@ -72,7 +72,7 @@ state_SendCommand (const void *ap_obj,
                    OMX_COMMANDTYPE a_cmd,
                    OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tizstate *p_obj = ap_obj;
+  const tiz_state_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   switch (a_cmd)
@@ -212,7 +212,7 @@ state_SetCallbacks (const void *ap_obj,
 
 
 /*
- * from tizstate
+ * from tiz_state
  */
 
 static OMX_ERRORTYPE
@@ -221,7 +221,7 @@ state_state_set (const void *ap_obj,
                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   /* NOTE: This is a default implementation, to be overriden as/when needed */
-  struct tizstate *p_obj = (struct tizstate *) ap_obj;
+  tiz_state_t *p_obj = (tiz_state_t *) ap_obj;
   assert (NULL != p_obj);
 
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -229,8 +229,8 @@ state_state_set (const void *ap_obj,
   assert (NULL != ap_hdl);
 
   {
-    struct tizproc *p_prc = tiz_get_prc (ap_hdl);
-    struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+    void *p_prc = tiz_get_prc (ap_hdl);
+    void *p_krn = tiz_get_krn (ap_hdl);
 
     /* First notify the kernel servant */
     if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_krn, ap_hdl,
@@ -258,7 +258,7 @@ tiz_state_state_set (const void *ap_obj,
                     OMX_COMMANDTYPE a_cmd,
                     OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tiz_state_class *class = classOf (ap_obj);
+  const tiz_state_class_t *class = classOf (ap_obj);
   assert (class->state_set);
   return class->state_set (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -269,7 +269,7 @@ tiz_state_super_state_set (const void *ap_class, const void *ap_obj,
                           OMX_COMMANDTYPE a_cmd,
                           OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tiz_state_class *superclass = super (ap_class);
+  const tiz_state_class_t *superclass = super (ap_class);
   assert (ap_obj && superclass->state_set);
   return superclass->state_set (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -279,7 +279,7 @@ state_flush (const void *ap_obj,
              OMX_HANDLETYPE ap_hdl,
              OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+  void *p_krn = tiz_get_krn (ap_hdl);
 
   /* Notify the kernel servant, which will in turn notify the processor
    * servant, if needed */
@@ -291,7 +291,7 @@ tiz_state_flush (const void *ap_obj,
                 OMX_HANDLETYPE ap_hdl,
                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tiz_state_class *class = classOf (ap_obj);
+  const tiz_state_class_t *class = classOf (ap_obj);
   assert (class->flush);
   return class->flush (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -301,8 +301,8 @@ state_disable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  struct tizproc *p_prc = tiz_get_prc (ap_hdl);
-  struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+  void *p_prc = tiz_get_prc (ap_hdl);
+  void *p_krn = tiz_get_krn (ap_hdl);
 
   /* First notify the kernel servant */
   if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_krn, ap_hdl,
@@ -329,7 +329,7 @@ tiz_state_disable (const void *ap_obj,
                   OMX_HANDLETYPE ap_hdl,
                   OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tiz_state_class *class = classOf (ap_obj);
+  const tiz_state_class_t *class = classOf (ap_obj);
   assert (class->disable);
   return class->disable (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -340,8 +340,8 @@ state_enable (const void *ap_obj,
               OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  struct tizproc *p_prc = tiz_get_prc (ap_hdl);
-  struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+  void *p_prc = tiz_get_prc (ap_hdl);
+  void *p_krn = tiz_get_krn (ap_hdl);
 
   /* First notify the kernel servant */
   if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_krn, ap_hdl,
@@ -368,7 +368,7 @@ tiz_state_enable (const void *ap_obj,
                  OMX_HANDLETYPE ap_hdl,
                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tiz_state_class *class = classOf (ap_obj);
+  const tiz_state_class_t *class = classOf (ap_obj);
   assert (class->enable);
   return class->enable (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -380,7 +380,7 @@ state_mark (const void *ap_obj,
 {
   /* This is the default implementation for states in which this command is not
    * allowed */
-  struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+  void *p_krn = tiz_get_krn (ap_hdl);
   struct tizport *p_port = tiz_kernel_get_port (p_krn, a_param1);
 
   /* The port must be disabled at this point */
@@ -397,7 +397,7 @@ tiz_state_mark (const void *ap_obj,
                OMX_HANDLETYPE ap_hdl,
                OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const struct tiz_state_class *class = classOf (ap_obj);
+  const tiz_state_class_t *class = classOf (ap_obj);
   assert (class->mark);
   return class->mark (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
@@ -406,7 +406,7 @@ static OMX_ERRORTYPE
 state_trans_complete (const void *ap_obj,
                       OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  struct tizstate *p_obj = (struct tizstate *) ap_obj;
+  tiz_state_t *p_obj = (tiz_state_t *) ap_obj;
   assert (NULL != p_obj);
 
   p_obj->servants_count_++;
@@ -432,7 +432,7 @@ OMX_ERRORTYPE
 tiz_state_trans_complete (const void *ap_obj,
                          OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  const struct tiz_state_class *class = classOf (ap_obj);
+  const tiz_state_class_t *class = classOf (ap_obj);
   assert (class->trans_complete);
   return class->trans_complete (ap_obj, ap_servant, a_new_state);
 }
@@ -441,7 +441,7 @@ OMX_ERRORTYPE
 tiz_state_super_trans_complete (const void *a_class, const void *ap_obj,
                                OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  const struct tiz_state_class *superclass = super (a_class);
+  const tiz_state_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->trans_complete);
   return superclass->trans_complete (ap_obj, ap_servant, a_new_state);
 }
@@ -449,7 +449,7 @@ tiz_state_super_trans_complete (const void *a_class, const void *ap_obj,
 static OMX_ERRORTYPE
 state_tunneled_ports_status_update (void *ap_obj)
 {
-  struct tizstate *p_obj = ap_obj;
+  tiz_state_t *p_obj = ap_obj;
   assert (NULL != p_obj);
   return OMX_ErrorNone;
 }
@@ -457,19 +457,19 @@ state_tunneled_ports_status_update (void *ap_obj)
 OMX_ERRORTYPE
 tiz_state_tunneled_ports_status_update (void *ap_obj)
 {
-  const struct tiz_state_class *class = classOf (ap_obj);
+  const tiz_state_class_t *class = classOf (ap_obj);
   assert (class->tunneled_ports_status_update);
   return class->tunneled_ports_status_update (ap_obj);
 }
 
 /*
- * tiz_state_class
+ * tizstate_class
  */
 
 static void *
 state_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tiz_state_class *p_obj = super_ctor (tiz_state_class, ap_obj, app);
+  tiz_state_class_t *p_obj = super_ctor (tizstate_class, ap_obj, app);
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
@@ -517,19 +517,19 @@ state_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizstate, *tiz_state_class;
+const void *tizstate, *tizstate_class;
 
 
 void
-init_tizstate (void)
+tiz_state_init (void)
 {
-  if (!tiz_state_class)
+  if (!tizstate_class)
     {
       tiz_api_init ();
-      tiz_state_class = factory_new (tiz_api_class,
-                                    "tiz_state_class",
-                                    tiz_api_class,
-                                    sizeof (struct tiz_state_class),
+      tizstate_class = factory_new (tizapi_class,
+                                    "tizstate_class",
+                                    tizapi_class,
+                                    sizeof (tiz_state_class_t),
                                     ctor, state_class_ctor, 0);
 
     }
@@ -539,8 +539,8 @@ init_tizstate (void)
       tiz_api_init ();
       tizstate =
         factory_new
-        (tiz_state_class, "tizstate",
-         tiz_api, sizeof (struct tizstate),
+        (tizstate_class, "tizstate",
+         tizapi, sizeof (tiz_state_t),
          ctor, state_ctor,
          dtor, state_dtor,
          tiz_api_SendCommand, state_SendCommand,
@@ -567,61 +567,61 @@ init_tizstate (void)
 }
 
 void
-init_tizstates (void)
+tiz_state_init_states (void)
 {
   if (!tizstate)
     {
-      init_tizstate ();
+      tiz_state_init ();
     }
 
   if (!tizloaded)
     {
-      init_tizloaded ();
+      tiz_loaded_init ();
     }
 
   if (!tizloadedtoidle)
     {
-      init_tizloadedtoidle ();
+      tiz_loadedtoidle_init ();
     }
 
   if (!tizwaitforresources)
     {
-      init_tizwaitforresources ();
+      tiz_waitforresources_init ();
     }
 
   if (!tizidle)
     {
-      init_tizidle ();
+      tiz_idle_init ();
     }
 
   if (!tizidletoloaded)
     {
-      init_tizidletoloaded ();
+      tiz_idletoloaded_init ();
     }
 
   if (!tizidletoexecuting)
     {
-      init_tizidletoexecuting ();
+      tiz_idletoexecuting_init ();
     }
 
   if (!tizexecuting)
     {
-      init_tizexecuting ();
+      tiz_executing_init ();
     }
 
   if (!tizexecutingtoidle)
     {
-      init_tizexecutingtoidle ();
+      tiz_executingtoidle_init ();
     }
 
   if (!tizpause)
     {
-      init_tizpause ();
+      tiz_pause_init ();
     }
 
   if (!tizpausetoidle)
     {
-      init_tizpausetoidle ();
+      tiz_pausetoidle_init ();
     }
 
 }

@@ -36,6 +36,7 @@ extern "C"
 
 #include "tizobject_decls.h"
 
+  typedef struct tiz_api tiz_api_t;
   struct tiz_api
   {
     /* Object */
@@ -43,6 +44,7 @@ extern "C"
 
   };
 
+  typedef struct tiz_api_class tiz_api_class_t;
   struct tiz_api_class
   {
     /* Class */

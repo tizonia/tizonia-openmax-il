@@ -50,7 +50,7 @@
 static void *
 executing_ctor (void *ap_obj, va_list * app)
 {
-  struct tizexecuting *p_obj = super_ctor (tizexecuting, ap_obj, app);
+  tiz_executing_t *p_obj = super_ctor (tizexecuting, ap_obj, app);
   return p_obj;
 }
 
@@ -129,7 +129,7 @@ executing_EmptyThisBuffer (const void *ap_obj,
 
   /* TODO: Review whether this check is needed here or not */
 
-/*   const struct tizexecuting *p_obj = ap_obj; */
+/*   const tiz_executing_t *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nInputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
 /*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
@@ -153,7 +153,7 @@ executing_FillThisBuffer (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   /* TODO: Review whether this check is needed here or not */
 
 
-/*   const struct tizexecuting *p_obj = ap_obj; */
+/*   const tiz_executing_t *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
 /*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
@@ -170,7 +170,7 @@ executing_FillThisBuffer (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 /*
- * from tizstate
+ * from tiz_state
  */
 
 static OMX_ERRORTYPE
@@ -228,7 +228,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         }
 
       {
-        struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+        void *p_krn = tiz_get_krn (ap_hdl);
         tiz_kernel_tunneled_ports_status_t status =
           tiz_kernel_get_tunneled_ports_status (p_krn, OMX_TRUE);
 
@@ -251,7 +251,7 @@ executing_state_mark (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                       OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
                       OMX_PTR ap_cmd_data)
 {
-  struct tizkernel *p_krn = tiz_get_krn (ap_hdl);
+  void *p_krn = tiz_get_krn (ap_hdl);
   /* Notify the kernel servant */
   /* No need to notify the processor servant */
   return tiz_api_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
@@ -281,15 +281,15 @@ executing_trans_complete (const void *ap_obj,
 const void *tizexecuting;
 
 void
-init_tizexecuting (void)
+tiz_executing_init (void)
 {
   if (!tizexecuting)
     {
-      init_tizstate ();
+      tiz_state_init ();
       tizexecuting =
         factory_new
-        (tiz_state_class, "tizexecuting",
-         tizstate, sizeof (struct tizexecuting),
+        (tizstate_class, "tizexecuting",
+         tizstate, sizeof (tiz_executing_t),
          ctor, executing_ctor,
          dtor, executing_dtor,
          tiz_api_SetParameter, executing_SetParameter,

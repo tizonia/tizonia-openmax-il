@@ -126,7 +126,7 @@ static OMX_ERRORTYPE
 fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   struct frprc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -216,14 +216,14 @@ fr_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tizproc class
+ * from tiz_proc class
  */
 
 static OMX_ERRORTYPE
 fr_proc_buffers_ready (const void *ap_obj)
 {
   const struct frprc *p_obj = ap_obj;
-  const struct tiz_servant *p_parent = ap_obj;
+  const tiz_servant_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -258,10 +258,10 @@ init_frprc (void)
 
   if (!frprc)
     {
-      init_tizproc ();
+      tiz_proc_init ();
       frprc =
         factory_new
-        (tiz_proc_class,
+        (tizproc_class,
          "frprc",
          tizproc,
          sizeof (struct frprc),

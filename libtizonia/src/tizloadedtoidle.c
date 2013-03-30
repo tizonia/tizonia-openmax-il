@@ -48,7 +48,7 @@
 static void *
 loadedtoidle_ctor (void *ap_obj, va_list * app)
 {
-  struct tizloadedtoidle *p_obj = super_ctor (tizloadedtoidle, ap_obj, app);
+  tiz_loadedtoidle_t *p_obj = super_ctor (tizloadedtoidle, ap_obj, app);
   return p_obj;
 }
 
@@ -109,7 +109,7 @@ loadedtoidle_FillThisBuffer (const void *ap_obj,
 }
 
 /*
- * from tizstate class
+ * from tiz_state class
  */
 
 static OMX_ERRORTYPE
@@ -118,7 +118,7 @@ loadedtoidle_state_set (const void *ap_obj,
                         OMX_COMMANDTYPE a_cmd,
                         OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  struct tizstate *p_base = (struct tizstate *) ap_obj;
+  tiz_state_t *p_base = (tiz_state_t *) ap_obj;
   tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -176,7 +176,7 @@ static OMX_ERRORTYPE
 loadedtoidle_trans_complete (const void *ap_obj,
                              OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  const struct tizstate *p_base = (const struct tizstate *) ap_obj;
+  const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
                  TIZ_CBUF (tiz_servant_get_hdl (ap_servant)),
@@ -203,13 +203,13 @@ loadedtoidle_trans_complete (const void *ap_obj,
 static OMX_ERRORTYPE
 loadedtoidle_tunneled_ports_status_update (void *ap_obj)
 {
-  struct tizstate *p_base = (struct tizstate *) ap_obj;
+  tiz_state_t *p_base = (tiz_state_t *) ap_obj;
 
   assert (NULL != ap_obj);
 
   {
     OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_base->p_fsm_);
-    struct tizkernel *p_krn = tiz_get_krn (p_hdl);
+    void *p_krn = tiz_get_krn (p_hdl);
     tiz_kernel_tunneled_ports_status_t status =
       tiz_kernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
 
@@ -242,15 +242,15 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
 const void *tizloadedtoidle;
 
 void
-init_tizloadedtoidle (void)
+tiz_loadedtoidle_init (void)
 {
   if (!tizloadedtoidle)
     {
-      init_tizloaded ();
+      tiz_loaded_init ();
       tizloadedtoidle =
         factory_new
-        (tiz_state_class, "tizloadedtoidle",
-         tizloaded, sizeof (struct tizloadedtoidle),
+        (tizstate_class, "tizloadedtoidle",
+         tizloaded, sizeof (tiz_loadedtoidle_t),
          ctor, loadedtoidle_ctor,
          dtor, loadedtoidle_dtor,
          tiz_api_SetParameter, loadedtoidle_SetParameter,

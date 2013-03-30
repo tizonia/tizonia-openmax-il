@@ -45,7 +45,7 @@
 static void *
 pausetoidle_ctor (void *ap_obj, va_list * app)
 {
-  struct tizpausetoidle *p_obj = super_ctor (tizpausetoidle, ap_obj, app);
+  tiz_pausetoidle_t *p_obj = super_ctor (tizpausetoidle, ap_obj, app);
   return p_obj;
 }
 
@@ -114,15 +114,15 @@ pausetoidle_trans_complete (const void *ap_obj,
 const void *tizpausetoidle;
 
 void
-init_tizpausetoidle (void)
+tiz_pausetoidle_init (void)
 {
   if (!tizpausetoidle)
     {
-      init_tizpause ();
+      tiz_pause_init ();
       tizpausetoidle =
         factory_new
-        (tiz_state_class, "tizpausetoidle",
-         tizpause, sizeof (struct tizpausetoidle),
+        (tizstate_class, "tizpausetoidle",
+         tizpause, sizeof (tiz_pausetoidle_t),
          ctor, pausetoidle_ctor,
          dtor, pausetoidle_dtor,
          tiz_api_GetState, pausetoidle_GetState,

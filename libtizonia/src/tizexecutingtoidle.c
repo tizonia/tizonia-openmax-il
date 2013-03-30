@@ -49,7 +49,7 @@
 static void *
 executingtoidle_ctor (void *ap_obj, va_list * app)
 {
-  struct tizexecutingtoidle *p_obj =
+  tiz_executingtoidle_t *p_obj =
     super_ctor (tizexecutingtoidle, ap_obj, app);
   return p_obj;
 }
@@ -85,7 +85,7 @@ executingtoidle_UseBuffer (const void *ap_obj,
  */
 
 /*
- * from tizstate
+ * from tiz_state
  */
 
 static OMX_ERRORTYPE
@@ -93,7 +93,7 @@ executingtoidle_trans_complete (const void *ap_obj,
                                     OMX_PTR ap_servant,
                                     OMX_STATETYPE a_new_state)
 {
-  const struct tizstate *p_base = (const struct tizstate *) ap_obj;
+  const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
   TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (tiz_servant_get_hdl(ap_servant)),
                  TIZ_CBUF (tiz_servant_get_hdl(ap_servant)),
@@ -121,13 +121,13 @@ executingtoidle_trans_complete (const void *ap_obj,
 static OMX_ERRORTYPE
 executingtoidle_tunneled_ports_status_update (void *ap_obj)
 {
-  struct tizstate *p_base = (struct tizstate *) ap_obj;
+  tiz_state_t *p_base = (tiz_state_t *) ap_obj;
 
   assert (NULL != ap_obj);
 
   {
     OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl(p_base->p_fsm_);
-    struct tizkernel *p_krn = tiz_get_krn (p_hdl);
+    void *p_krn = tiz_get_krn (p_hdl);
     tiz_kernel_tunneled_ports_status_t status =
       tiz_kernel_get_tunneled_ports_status (p_krn, OMX_TRUE);
 
@@ -158,15 +158,15 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
 const void *tizexecutingtoidle;
 
 void
-init_tizexecutingtoidle (void)
+tiz_executingtoidle_init (void)
 {
   if (!tizexecutingtoidle)
     {
-      init_tizexecuting ();
+      tiz_executing_init ();
       tizexecutingtoidle =
         factory_new
-        (tiz_state_class, "tizexecutingtoidle",
-         tizexecuting, sizeof (struct tizexecutingtoidle),
+        (tizstate_class, "tizexecutingtoidle",
+         tizexecuting, sizeof (tiz_executingtoidle_t),
          ctor, executingtoidle_ctor,
          dtor, executingtoidle_dtor,
          tiz_api_GetState, executingtoidle_GetState,

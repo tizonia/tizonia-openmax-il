@@ -27,11 +27,10 @@ extern "C"
 
 #include "tizapi_decls.h"
 
-  typedef struct tizstate tiz_state_t;
-
-  struct tizstate
+  typedef struct tiz_state tiz_state_t;
+  struct tiz_state
   {
-    const struct tiz_api _;
+    const tiz_api_t _;
     void *p_fsm_;
     OMX_U32 servants_count_;
   };
@@ -47,10 +46,11 @@ extern "C"
                                  OMX_PTR ap_servant,
                                  OMX_STATETYPE a_new_state);
 
+  typedef struct tiz_state_class tiz_state_class_t;
   struct tiz_state_class
   {
     /* Class */
-    const struct tiz_api_class _;
+    const tiz_api_class_t _;
     OMX_ERRORTYPE (*state_set) (const void *p_obj,
                                 OMX_HANDLETYPE ap_hdl,
                                 OMX_COMMANDTYPE a_cmd,
@@ -77,75 +77,65 @@ extern "C"
     OMX_ERRORTYPE (*tunneled_ports_status_update) (void *ap_obj);
   };
 
-  typedef struct tizloaded tizloaded_t;
-
-  struct tizloaded
+  typedef struct tiz_loaded tiz_loaded_t;
+  struct tiz_loaded
   {
     const tiz_state_t _;
 
   };
 
-  typedef struct tizloadedtoidle tizloadedtoidle_t;
-
-  struct tizloadedtoidle
+  typedef struct tiz_loadedtoidle tiz_loadedtoidle_t;
+  struct tiz_loadedtoidle
   {
-    const tizloaded_t _;
+    const tiz_loaded_t _;
   };
 
-  typedef struct tizwaitforresources tizwaitforresources_t;
-
-  struct tizwaitforresources
+  typedef struct tiz_waitforresources tiz_waitforresources_t;
+  struct tiz_waitforresources
   {
     const tiz_state_t _;
   };
 
-  typedef struct tizidle tizidle_t;
-
-  struct tizidle
+  typedef struct tiz_idle tiz_idle_t;
+  struct tiz_idle
   {
     const tiz_state_t _;
   };
 
-  typedef struct tizidletoloaded tizidletoloaded_t;
-
-  struct tizidletoloaded
+  typedef struct tiz_idletoloaded tiz_idletoloaded_t;
+  struct tiz_idletoloaded
   {
-    const tizidle_t _;
+    const tiz_idle_t _;
   };
 
-  typedef struct tizidletoexecuting tizidletoexecuting_t;
-
-  struct tizidletoexecuting
+  typedef struct tiz_idletoexecuting tiz_idletoexecuting_t;
+  struct tiz_idletoexecuting
   {
-    const tizidle_t _;
+    const tiz_idle_t _;
   };
 
-  typedef struct tizexecuting tizexecuting_t;
-
-  struct tizexecuting
+  typedef struct tiz_executing tiz_executing_t;
+  struct tiz_executing
   {
     const tiz_state_t _;
   };
 
-  typedef struct tizexecutingtoidle tizexecutingtoidle_t;
-
-  struct tizexecutingtoidle
+  typedef struct tiz_executingtoidle tiz_executingtoidle_t;
+  struct tiz_executingtoidle
   {
-    const tizexecuting_t _;
+    const tiz_executing_t _;
   };
 
-  typedef struct tizpause tizpause_t;
-
-  struct tizpause
+  typedef struct tiz_pause tiz_pause_t;
+  struct tiz_pause
   {
     const tiz_state_t _;
   };
 
-  typedef struct tizpausetoidle tizpausetoidle_t;
-
-  struct tizpausetoidle
+  typedef struct tiz_pausetoidle tiz_pausetoidle_t;
+  struct tiz_pausetoidle
   {
-    const tizpause_t _;
+    const tiz_pause_t _;
   };
 
 #ifdef __cplusplus

@@ -36,9 +36,9 @@ extern "C"
 
 #include "tizservant.h"
 
-/* factory_new(tizproc, ...) */
   extern const void *tizproc;
-  extern const void *tiz_proc_class;
+  extern const void *tizproc_class;
+  void tiz_proc_init (void);
 
   OMX_ERRORTYPE tiz_proc_buffers_ready (const void *p_obj);
 
@@ -59,8 +59,6 @@ extern "C"
   OMX_ERRORTYPE tiz_proc_event_stat_ready (void *ap_obj,
                                             tiz_event_stat_t * ap_ev_stat,
                                             int a_events);
-
-  void init_tizproc (void);
 
 #ifdef __cplusplus
 }

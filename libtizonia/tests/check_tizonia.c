@@ -510,7 +510,7 @@ START_TEST (test_tizonia_fsm_create_and_destroy)
 
   void *p_fsm = 0;
 
-  init_tizfsm ();
+  tiz_fsm_init ();
   p_fsm = factory_new (tizfsm);
 
   fail_if (!p_fsm);
@@ -524,8 +524,8 @@ START_TEST (test_tizonia_kernel_create_and_destroy)
 
   void *p_kernel = 0;
 
-  init_tizkernel ();
-  p_kernel = factory_new (tizkernel);
+  tiz_kernel_init ();
+  p_kernel = factory_new (tiz_kernel);
 
   fail_if (!p_kernel);
   factory_delete (p_kernel);

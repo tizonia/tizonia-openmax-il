@@ -47,7 +47,7 @@
 static void *
 idletoexecuting_ctor (void *ap_obj, va_list * app)
 {
-  struct tizidletoexecuting *p_obj =
+  tiz_idletoexecuting_t *p_obj =
     super_ctor (tizidletoexecuting, ap_obj, app);
   return p_obj;
 }
@@ -133,7 +133,7 @@ static OMX_ERRORTYPE
 idletoexecuting_trans_complete (const void *ap_obj,
                                 OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  const struct tizstate *p_base = (const struct tizstate *) ap_obj;
+  const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
                  TIZ_CBUF (tiz_servant_get_hdl (ap_servant)),
@@ -160,13 +160,13 @@ idletoexecuting_trans_complete (const void *ap_obj,
 static OMX_ERRORTYPE
 idletoexecuting_tunneled_ports_status_update (void *ap_obj)
 {
-  struct tizstate *p_base = (struct tizstate *) ap_obj;
+  tiz_state_t *p_base = (tiz_state_t *) ap_obj;
 
   assert (NULL != ap_obj);
 
   {
     OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_base->p_fsm_);
-    struct tizkernel *p_krn = tiz_get_krn (p_hdl);
+    void *p_krn = tiz_get_krn (p_hdl);
     tiz_kernel_tunneled_ports_status_t status =
       tiz_kernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
 
@@ -198,15 +198,15 @@ idletoexecuting_tunneled_ports_status_update (void *ap_obj)
 const void *tizidletoexecuting;
 
 void
-init_tizidletoexecuting (void)
+tiz_idletoexecuting_init (void)
 {
   if (!tizidletoexecuting)
     {
-      init_tizidle ();
+      tiz_idle_init ();
       tizidletoexecuting =
         factory_new
-        (tiz_state_class, "tizidletoexecuting",
-         tizidle, sizeof (struct tizidletoexecuting),
+        (tizstate_class, "tizidletoexecuting",
+         tizidle, sizeof (tiz_idletoexecuting_t),
          ctor, idletoexecuting_ctor,
          dtor, idletoexecuting_dtor,
          tiz_api_SetParameter, idletoexecuting_SetParameter,

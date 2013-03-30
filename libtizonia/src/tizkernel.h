@@ -40,8 +40,9 @@ extern "C"
 #include "tizservant.h"
 #include "tizutils.h"
 
-  /* factory_new(tizkernel, ...) */
-  extern const void *tizkernel, *tiz_kernel_class;
+  extern const void *tizkernel;
+  extern const void *tizkernel_class;
+  void tiz_kernel_init (void);
 
   typedef enum tiz_kernel_population_status tiz_kernel_population_status_t;
   enum tiz_kernel_population_status
@@ -95,8 +96,6 @@ extern "C"
   (const void *ap_obj, OMX_BOOL a_exe_to_idle_interest);
 
   void tiz_kernel_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag);
-
-  void init_tizkernel (void);
 
 #ifdef __cplusplus
 }

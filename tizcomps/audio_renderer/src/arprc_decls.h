@@ -44,7 +44,7 @@ extern "C"
   struct arprc
   {
     /* Object */
-    const struct tizproc _;
+    const tiz_proc_t _;
     OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
     snd_pcm_t *p_playback_hdl;
     snd_pcm_hw_params_t *p_hw_params;
