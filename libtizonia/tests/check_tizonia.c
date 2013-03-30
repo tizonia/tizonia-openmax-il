@@ -507,7 +507,6 @@ init_fake_comp(OMX_COMPONENTTYPE *p_hdl)
 
 START_TEST (test_tizonia_fsm_create_and_destroy)
 {
-
   void *p_fsm = 0;
 
   tiz_fsm_init ();
@@ -515,21 +514,18 @@ START_TEST (test_tizonia_fsm_create_and_destroy)
 
   fail_if (!p_fsm);
   factory_delete (p_fsm);
-
 }
 END_TEST
 
 START_TEST (test_tizonia_kernel_create_and_destroy)
 {
-
   void *p_kernel = 0;
 
   tiz_kernel_init ();
-  p_kernel = factory_new (tiz_kernel);
+  p_kernel = factory_new (tizkernel);
 
   fail_if (!p_kernel);
   factory_delete (p_kernel);
-
 }
 END_TEST
 
@@ -560,13 +556,11 @@ START_TEST (test_tizonia_getstate)
 
   error = OMX_Deinit ();
   fail_if (OMX_ErrorNone != error);
-
 }
 END_TEST
 
 START_TEST (test_tizonia_gethandle_freehandle)
 {
-
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = 0;
   OMX_U32 appData;
@@ -586,13 +580,11 @@ START_TEST (test_tizonia_gethandle_freehandle)
 
   error = OMX_Deinit ();
   fail_if (OMX_ErrorNone != error);
-
 }
 END_TEST
 
 START_TEST (test_tizonia_getparameter)
 {
-
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = 0;
   OMX_U32 appData;
@@ -630,7 +622,6 @@ START_TEST (test_tizonia_getparameter)
   TIZ_LOG (TIZ_TRACE, "test_tizonia_getparameter: OMX_Deinit error [%d]",
              error);
   fail_if (OMX_ErrorNone != error);
-
 }
 END_TEST
 
@@ -738,7 +729,6 @@ START_TEST (test_tizonia_roles)
   TIZ_LOG (TIZ_TRACE, "test_tizonia_roles: OMX_Deinit error [%s]",
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
-
 }
 END_TEST
 
@@ -804,7 +794,6 @@ END_TEST
 
 START_TEST (test_tizonia_pd_set)
 {
-
   tiz_pd_set_t set;
   OMX_U32 i, port = 13;
   TIZ_LOG (TIZ_TRACE, "_TIZ_PD_SETSIZE = [%d]", _TIZ_PD_SETSIZE);
@@ -831,13 +820,11 @@ START_TEST (test_tizonia_pd_set)
 
   TIZ_LOG (TIZ_TRACE, "set = [%s]",
              TIZ_PD_ISSET (port, &set) ? "TRUE" : "FALSE");
-
 }
 END_TEST
 
 START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
 {
-
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = 0;
   OMX_COMMANDTYPE cmd = OMX_CommandStateSet;
@@ -976,7 +963,6 @@ START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
   fail_if (OMX_ErrorNone != error);
 
   _ctx_destroy(&ctx);
-
 }
 END_TEST
 
@@ -1099,7 +1085,6 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers)
   fail_if (OMX_ErrorNone != error);
 
   _ctx_destroy(&ctx);
-
 }
 END_TEST
 
@@ -1270,7 +1255,6 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_suppl
   fail_if (OMX_ErrorNone != error);
 
   _ctx_destroy(&ctx);
-
 }
 END_TEST
 
@@ -1447,7 +1431,6 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_no_buffers_port_dis
   fail_if (OMX_ErrorNone != error);
 
   _ctx_destroy(&ctx);
-
 }
 END_TEST
 
@@ -1659,7 +1642,6 @@ START_TEST (test_tizonia_command_cancellation_loaded_to_idle_with_buffers_port_d
   fail_if (OMX_ErrorNone != error);
 
   _ctx_destroy(&ctx);
-
 }
 END_TEST
 
@@ -1854,7 +1836,6 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_no_buffers)
   fail_if (OMX_ErrorNone != error);
 
   _ctx_destroy(&ctx);
-
 }
 END_TEST
 
@@ -2098,7 +2079,6 @@ START_TEST (test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_
   fail_if (OMX_ErrorNone != error);
 
   _ctx_destroy(&ctx);
-
 }
 END_TEST
 
@@ -2174,3 +2154,10 @@ main (void)
 
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */
