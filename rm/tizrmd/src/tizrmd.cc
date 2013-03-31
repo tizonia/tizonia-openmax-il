@@ -29,6 +29,9 @@
 #include <config.h>
 #endif
 
+#include "./tizrmd.h"
+#include "tizosal.h"
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -38,8 +41,6 @@
 
 #include <algorithm>
 
-#include "tizrmd.hh"
-#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

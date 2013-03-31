@@ -33,8 +33,8 @@ class sqlite3;
 #include <boost/utility.hpp>
 #include <string>
 
-#include "tizrmtypes.h"
-#include "tizrmowner.hh"
+#include "./tizrmtypes.h"
+#include "./tizrmowner.h"
 
 class tizrmdb : boost::noncopyable
 {

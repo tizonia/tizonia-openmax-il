@@ -29,6 +29,9 @@
 #ifndef TIZRMWAITER_HH
 #define TIZRMWAITER_HH
 
+#include <string>
+#include <vector>
+
 class tizrmwaiter
 {
 
@@ -47,17 +50,17 @@ public:
   {
   }
 
-  std::string cname() const {return cname_;};
+  std::string cname() const {return cname_;}
 
-  uint32_t resid() const {return rid_;};
+  uint32_t resid() const {return rid_;}
 
-  uint32_t quantity() const {return quantity_;};
+  uint32_t quantity() const {return quantity_;}
 
-  const std::vector< uint8_t > & uuid() const {return uuid_;};
+  const std::vector< uint8_t > & uuid() const {return uuid_;}
 
-  uint32_t grpid() const {return grpid_;};
+  uint32_t grpid() const {return grpid_;}
 
-  uint32_t pri() const {return pri_;};
+  uint32_t pri() const {return pri_;}
 
   bool operator==(const tizrmwaiter& rhs) const
   {
@@ -92,7 +95,6 @@ private:
   uint32_t pri_;
   uint32_t rid_;
   uint32_t quantity_;
-
 };
 
 class remove_waiter_functor
@@ -100,7 +102,7 @@ class remove_waiter_functor
 
 public:
 
-  remove_waiter_functor(const std::vector<unsigned char> &uuid)
+  explicit remove_waiter_functor(const std::vector<unsigned char> &uuid)
     : uuid_(uuid)
   {
   }
@@ -116,4 +118,4 @@ private:
 
 };
 
-#endif // TIZRMWAITER_HH
+#endif  // TIZRMWAITER_HH

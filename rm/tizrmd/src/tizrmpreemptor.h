@@ -29,7 +29,7 @@
 #ifndef TIZRMPREEMPTOR_HH
 #define TIZRMPREEMPTOR_HH
 
-#include "tizrmowner.hh"
+#include "tizrmowner.h"
 
 class tizrmpreemptor
 {

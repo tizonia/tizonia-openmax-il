@@ -36,10 +36,10 @@
 #include <string>
 
 #include "tizrmd-dbus.hh"
-#include "tizrmdb.hh"
-#include "tizrmwaiter.hh"
-#include "tizrmpreemptor.hh"
-#include "tizrmowner.hh"
+#include "tizrmdb.h"
+#include "tizrmwaiter.h"
+#include "tizrmpreemptor.h"
+#include "tizrmowner.h"
 
 class tizrmd :
   public com::aratelia::tiz::tizrmif_adaptor,

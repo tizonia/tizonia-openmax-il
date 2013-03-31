@@ -18,11 +18,11 @@
 bin_PROGRAMS = tizrmd
 
 noinst_HEADERS = \
-	tizrmowner.hh \
-	tizrmpreemptor.hh \
-	tizrmwaiter.hh \
-        tizrmd.hh \
-	tizrmdb.hh
+	tizrmowner.h \
+	tizrmpreemptor.h \
+	tizrmwaiter.h \
+        tizrmd.h \
+	tizrmdb.h
 
 tizrmd_SOURCES = \
 	tizrmd.cc \
