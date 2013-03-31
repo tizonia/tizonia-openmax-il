@@ -31,38 +31,39 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.omxutil"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.omxutil"
 #endif
+
+#include "tizomxutil.h"
+#include "tizosal.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
 #include <string>
 
-#include "tizomxutil.hh"
-#include "tizosal.h"
 
 void
-tizomxutil::init()
+tizomxutil::init ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
-  if (OMX_ErrorNone != (ret = OMX_Init()))
+  if (OMX_ErrorNone != (ret = OMX_Init ()))
     {
-      fprintf(stderr, "FATAL. Could not init OpenMAX IL : %s",
-              tiz_err_to_str (ret));
-      exit(EXIT_FAILURE);
+      fprintf (stderr, "FATAL. Could not init OpenMAX IL : %s",
+               tiz_err_to_str (ret));
+      exit (EXIT_FAILURE);
     }
 }
 
 void
-tizomxutil::deinit()
+tizomxutil::deinit ()
 {
-  (void) OMX_Deinit();
+  (void) OMX_Deinit ();
 }
 
 OMX_ERRORTYPE
-tizomxutil::list_comps(std::vector<std::string>& components)
+tizomxutil::list_comps (std::vector < std::string > &components)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_U32 index = 0;
@@ -71,19 +72,20 @@ tizomxutil::list_comps(std::vector<std::string>& components)
   do
     {
       error = OMX_ComponentNameEnum ((OMX_STRING) comp_name,
-                                       OMX_MAX_STRINGNAME_SIZE, index++);
+                                     OMX_MAX_STRINGNAME_SIZE, index++);
       if (OMX_ErrorNone == error)
         {
-          components.push_back(std::string (comp_name));
+          components.push_back (std::string (comp_name));
         }
-    } while (OMX_ErrorNone == error);
+    }
+  while (OMX_ErrorNone == error);
 
   return error;
 }
 
 OMX_ERRORTYPE
-tizomxutil::roles_of_comp(const OMX_STRING arg,
-                          std::vector<std::string>& roles)
+tizomxutil::roles_of_comp (const OMX_STRING arg,
+                           std::vector < std::string > &roles)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_U32 index = 0;
@@ -91,20 +93,20 @@ tizomxutil::roles_of_comp(const OMX_STRING arg,
 
   do
     {
-      error = OMX_RoleOfComponentEnum ((OMX_STRING) role,
-                                       arg, index++);
+      error = OMX_RoleOfComponentEnum ((OMX_STRING) role, arg, index++);
       if (OMX_ErrorNone == error)
         {
-          roles.push_back(std::string (role));
+          roles.push_back (std::string (role));
         }
-    } while (OMX_ErrorNone == error);
+    }
+  while (OMX_ErrorNone == error);
 
   return error;
 }
 
 OMX_ERRORTYPE
-tizomxutil::comps_of_role(const OMX_STRING arg,
-                          std::vector<std::string>& components)
+tizomxutil::comps_of_role (const OMX_STRING arg,
+                           std::vector < std::string > &components)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_U32 index = 0;
@@ -112,13 +114,13 @@ tizomxutil::comps_of_role(const OMX_STRING arg,
 
   do
     {
-      error = OMX_ComponentOfRoleEnum ((OMX_STRING) comp_name,
-                                       arg, index++);
+      error = OMX_ComponentOfRoleEnum ((OMX_STRING) comp_name, arg, index++);
       if (OMX_ErrorNone == error)
         {
-          components.push_back(std::string (comp_name));
+          components.push_back (std::string (comp_name));
         }
-    } while (OMX_ErrorNone == error);
+    }
+  while (OMX_ErrorNone == error);
 
   return error;
 }

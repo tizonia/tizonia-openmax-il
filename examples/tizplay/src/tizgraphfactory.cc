@@ -30,12 +30,14 @@
 #include <config.h>
 #endif
 
+#include "tizgraphfactory.h"
+#include "tizprobe.h"
+#include "tizmp3graph.h"
+
 #include <assert.h>
+
 #include <boost/make_shared.hpp>
 
-#include "tizgraphfactory.hh"
-#include "tizprobe.hh"
-#include "tizmp3graph.hh"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -43,20 +45,20 @@
 #endif
 
 tizgraph_ptr_t
-tizgraphfactory::create_graph(const std::string &uri)
+tizgraphfactory::create_graph (const std::string & uri)
 {
-  tizprobe_ptr_t p = boost::make_shared<tizprobe>(uri.c_str());
+  tizprobe_ptr_t p = boost::make_shared < tizprobe > (uri.c_str ());
 
   if (p->get_omx_domain () == OMX_PortDomainAudio
       && p->get_audio_coding_type () == OMX_AUDIO_CodingMP3)
     {
-      return boost::make_shared<tizmp3graph>(p);
+      return boost::make_shared < tizmp3graph > (p);
     }
   else if (p->get_omx_domain () == OMX_PortDomainVideo
            && p->get_video_coding_type () == OMX_VIDEO_CodingVP8)
     {
-      return boost::make_shared<tizmp3graph>(p);
+      return boost::make_shared < tizmp3graph > (p);
     }
 
-  return tizgraph_ptr_t();
+  return tizgraph_ptr_t ();
 }

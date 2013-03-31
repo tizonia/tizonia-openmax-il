@@ -15,33 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-bin_PROGRAMS = tizdec
 
-noinst_HEADERS = \
-	tizomxutil.hh \
-	tizprobe.hh \
-	tizgraphfactory.hh \
-	tizgraph.hh \
-	tizmp3graph.hh
+SUBDIRS= src
 
-tizdec_SOURCES = \
-	tizdec.cc \
-	tizomxutil.cc \
-	tizprobe.cc \
-	tizgraphfactory.cc \
-	tizgraph.cc \
-	tizmp3graph.cc
+#pkgconfigdir = $(libdir)/pkgconfig
+#pkgconfig_DATA = tizplay.pc
 
-tizdec_CPPFLAGS = \
-	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizosal/src \
-	-D__STDC_CONSTANT_MACROS
-
-tizdec_LDADD = \
-	-lboost_thread \
-	-lboost_system \
-	-lboost_filesystem \
-	-lavformat \
-	-lavcodec \
-	$(top_builddir)/../../libtizosal/src/libtizosal.la \
-	$(top_builddir)/../../libtizcore/src/libtizcore.la

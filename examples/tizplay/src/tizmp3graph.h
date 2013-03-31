@@ -18,33 +18,37 @@
  */
 
 /**
- * @file   tizgraphfactory.hh
+ * @file   tizmp3graph.hh
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL graph factory
+ * @brief  OpenMAX IL mp3 graph class
  *
  *
  */
 
-#ifndef TIZGRAPHFACTORY_HH
-#define TIZGRAPHFACTORY_HH
+#ifndef TIZMP3GRAPH_HH
+#define TIZMP3GRAPH_HH
 
 #include <string>
 
-#include "OMX_Types.h"
-#include "tizgraph.hh"
+#include "tizgraph.h"
+#include "tizprobe.h"
 
-class tizgraphfactory
+#include "OMX_Audio.h"
+
+class tizmp3graph : public tizgraph
 {
 
 public:
 
-  static tizgraph_ptr_t create_graph(const std::string &uri);
+  tizmp3graph(tizprobe_ptr_t probe_ptr);
 
-protected:
-
-   tizgraphfactory(int graph_size);
-
+  OMX_ERRORTYPE load();
+  OMX_ERRORTYPE configure(const std::string &uri = std::string());
+  OMX_ERRORTYPE execute();
+  void unload();
+  void signal();
 };
 
-#endif // TIZGRAPHFACTORY_HH
+#endif // TIZMP3GRAPH_HH
+

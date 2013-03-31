@@ -30,18 +30,19 @@
 #endif
 
 
+#include "OMX_Component.h"
+#include "tizgraph.h"
+#include "tizomxutil.h"
+#include "tizosal.h"
+
 #include <assert.h>
 #include <algorithm>
 #include <boost/foreach.hpp>
 
-#include "OMX_Component.h"
-#include "tizgraph.hh"
-#include "tizomxutil.hh"
-#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.graph"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph"
 #endif
 
 OMX_ERRORTYPE

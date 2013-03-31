@@ -30,6 +30,8 @@
 #include <config.h>
 #endif
 
+#include "tizprobe.h"
+
 extern "C"
 {
 #include <libavformat/avformat.h>
@@ -40,66 +42,64 @@ extern "C"
 #include <libavdevice/avdevice.h>
 }
 
-#include "tizprobe.hh"
 
 static AVDictionary *format_opts;
 static AVInputFormat *iformat = NULL;
 
 static int
-open_input_file(AVFormatContext **fmt_ctx_ptr, const char *filename)
+open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename)
 {
   int err, i;
   AVFormatContext *fmt_ctx = NULL;
   AVDictionaryEntry *t;
 
-  if ((err = avformat_open_input(&fmt_ctx, filename,
-                                 iformat, &format_opts)) < 0)
+  if ((err = avformat_open_input (&fmt_ctx, filename,
+                                  iformat, &format_opts)) < 0)
     {
       return err;
     }
 
-  if ((t = av_dict_get(format_opts, "", NULL, AV_DICT_IGNORE_SUFFIX)))
+  if ((t = av_dict_get (format_opts, "", NULL, AV_DICT_IGNORE_SUFFIX)))
     {
-      av_log(NULL, AV_LOG_ERROR, "Option %s not found.\n", t->key);
+      av_log (NULL, AV_LOG_ERROR, "Option %s not found.\n", t->key);
       return AVERROR_OPTION_NOT_FOUND;
     }
 
   /* fill the streams in the format context */
-  if ((err = avformat_find_stream_info(fmt_ctx, NULL)) < 0)
+  if ((err = avformat_find_stream_info (fmt_ctx, NULL)) < 0)
     {
       return err;
     }
 
-  av_dump_format(fmt_ctx, 0, filename, 0);
+  av_dump_format (fmt_ctx, 0, filename, 0);
 
   *fmt_ctx_ptr = fmt_ctx;
   return 0;
 }
 
 static void
-close_input_file(AVFormatContext **ctx_ptr)
+close_input_file (AVFormatContext ** ctx_ptr)
 {
   int i;
   AVFormatContext *fmt_ctx = *ctx_ptr;
 
   /* close decoder for each stream */
-  for (i = 0; i < fmt_ctx->nb_streams; i++) 
+  for (i = 0; i < fmt_ctx->nb_streams; i++)
     {
       AVStream *stream = fmt_ctx->streams[i];
-      avcodec_close(stream->codec);
+      avcodec_close (stream->codec);
     }
-  avformat_close_input(ctx_ptr);
+  avformat_close_input (ctx_ptr);
 }
 
-tizprobe::tizprobe(const std::string &uri)
-  :
-  uri_(uri),
-  domain_(OMX_PortDomainMax),
-  audio_coding_type_(OMX_AUDIO_CodingUnused),
-  video_coding_type_(OMX_VIDEO_CodingUnused),
-  pcmtype_(),
-  mp3type_(),
-  vp8type_()
+tizprobe::tizprobe (const std::string & uri):
+uri_ (uri),
+domain_ (OMX_PortDomainMax),
+audio_coding_type_ (OMX_AUDIO_CodingUnused),
+video_coding_type_ (OMX_VIDEO_CodingUnused),
+pcmtype_ (),
+mp3type_ (),
+vp8type_ ()
 {
   // Defaults are the same as in the standard pcm renderer
   pcmtype_.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
@@ -116,7 +116,7 @@ tizprobe::tizprobe(const std::string &uri)
   pcmtype_.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
 
   // Defaults are the same as in the standard mp3 decoder
-  mp3type_.nSize = sizeof(OMX_AUDIO_PARAM_MP3TYPE);
+  mp3type_.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
   mp3type_.nVersion.nVersion = OMX_VERSION;
   mp3type_.nPortIndex = 0;
   mp3type_.nChannels = 2;
@@ -126,23 +126,22 @@ tizprobe::tizprobe(const std::string &uri)
   mp3type_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
   mp3type_.eFormat = OMX_AUDIO_MP3StreamFormatMP2Layer3;
 
-  av_register_all();
+  av_register_all ();
 
 }
 
-OMX_PORTDOMAINTYPE
-tizprobe::get_omx_domain ()
+OMX_PORTDOMAINTYPE tizprobe::get_omx_domain ()
 {
   if (OMX_PortDomainMax == domain_)
     {
-      (void) probe_file();
+      (void) probe_file ();
     }
 
   return domain_;
 }
 
 int
-tizprobe::probe_file()
+tizprobe::probe_file ()
 {
   int ret = 0;
   AVFormatContext *fmt_ctx = NULL;
@@ -150,7 +149,7 @@ tizprobe::probe_file()
   AVCodecContext *cc = NULL;
   CodecID codec_id = CODEC_ID_PROBE;
 
-  if ((ret = open_input_file(&fmt_ctx, uri_.c_str())))
+  if ((ret = open_input_file (&fmt_ctx, uri_.c_str ())))
     {
       return ret;
     }
@@ -175,17 +174,17 @@ tizprobe::probe_file()
       pcmtype_.nSamplingRate = cc->sample_rate;
       mp3type_.nChannels = cc->channels;
       pcmtype_.nChannels = cc->channels;
-      if ( AV_SAMPLE_FMT_U8 == cc->sample_fmt )
+      if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
         {
           pcmtype_.eNumData = OMX_NumericalDataUnsigned;
           pcmtype_.nBitPerSample = 8;
         }
-      else if ( AV_SAMPLE_FMT_S16 == cc->sample_fmt )
+      else if (AV_SAMPLE_FMT_S16 == cc->sample_fmt)
         {
           pcmtype_.eNumData = OMX_NumericalDataSigned;
           pcmtype_.nBitPerSample = 16;
         }
-      else if ( AV_SAMPLE_FMT_S32 == cc->sample_fmt )
+      else if (AV_SAMPLE_FMT_S32 == cc->sample_fmt)
         {
           pcmtype_.eNumData = OMX_NumericalDataSigned;
           pcmtype_.nBitPerSample = 32;
@@ -202,17 +201,17 @@ tizprobe::probe_file()
       video_coding_type_ = OMX_VIDEO_CodingVP8;
     }
 
-  close_input_file(&fmt_ctx);
+  close_input_file (&fmt_ctx);
 
   return 0;
 }
 
 void
-tizprobe::get_pcm_codec_info(OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
+tizprobe::get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE & pcmtype)
 {
   if (OMX_PortDomainMax == domain_)
     {
-      (void) probe_file();
+      (void) probe_file ();
     }
 
   pcmtype = pcmtype_;
@@ -223,22 +222,22 @@ tizprobe::get_pcm_codec_info(OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
 }
 
 void
-tizprobe::get_mp3_codec_info(OMX_AUDIO_PARAM_MP3TYPE &mp3type)
+tizprobe::get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE & mp3type)
 {
   if (OMX_PortDomainMax == domain_)
     {
-      (void) probe_file();
+      (void) probe_file ();
     }
   mp3type = mp3type_;
   return;
 }
 
 void
-tizprobe::get_vp8_codec_info(OMX_VIDEO_PARAM_VP8TYPE &vp8type)
+tizprobe::get_vp8_codec_info (OMX_VIDEO_PARAM_VP8TYPE & vp8type)
 {
   if (OMX_PortDomainMax == domain_)
     {
-      (void) probe_file();
+      (void) probe_file ();
     }
   vp8type = vp8type_;
   return;

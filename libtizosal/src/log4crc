@@ -66,9 +66,10 @@
 <!--         <category name="tiz.http_renderer.prc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.http_renderer.check" priority="trace" appender="stdout" /> -->
 
-<!--         <category name="tiz.dec" priority="trace" appender="stdout" /> -->
-<!--         <category name="tiz.graph" priority="trace" appender="stdout" /> -->
-<!--         <category name="tiz.graph.mp3" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.play" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.play.omxutil" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.play.graph" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.play.graph.mp3" priority="trace" appender="stdout" /> -->
 
 
 <!-- 	<appender name="stdout" type="stream" layout="basic"/> -->

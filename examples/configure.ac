@@ -43,6 +43,6 @@ AC_PROG_RANLIB
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile tizdec/Makefile])
-AC_CONFIG_SUBDIRS([tizdec])
+AC_CONFIG_FILES([Makefile tizplay/Makefile])
+AC_CONFIG_SUBDIRS([tizplay])
 AC_OUTPUT

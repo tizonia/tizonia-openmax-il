@@ -29,15 +29,15 @@
 #ifndef TIZGRAPH_HH
 #define TIZGRAPH_HH
 
+#include "OMX_Core.h"
+#include "tizprobe.h"
+
 #include <vector>
 #include <string>
 #include <list>
 #include <map>
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
-
-#include "OMX_Core.h"
-#include "tizprobe.hh"
 
 typedef std::vector<std::string> component_names_t;
 typedef std::vector<OMX_HANDLETYPE> component_handles_t;
