@@ -593,6 +593,7 @@ instantiate_comp_lib (const OMX_STRING ap_path,
                "Default entry point [%s] not found in [%s]",
                ap_entry_point_name, ap_name);
       dlclose (* app_dl_hdl);
+      *app_dl_hdl = NULL;
       return OMX_ErrorUndefined;
     }
 
@@ -910,6 +911,7 @@ instantiate_component (tizcore_msg_gethandle_t * ap_msg)
 
       *(ap_msg->pp_hdl) = p_hdl;
       p_reg_item->p_hdl = p_hdl;
+      p_reg_item->p_dl_hdl = p_dl_hdl;
 
     }
   else
@@ -954,6 +956,8 @@ remove_comp_instance (tizcore_msg_freehandle_t * ap_msg)
       /*  Deallocate the component hdl */
       tiz_mem_free (p_hdl);
       p_reg_item->p_hdl = NULL;
+      dlclose (p_reg_item->p_dl_hdl);
+      p_reg_item->p_dl_hdl = NULL;
 
     }
   else
