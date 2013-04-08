@@ -10,10 +10,10 @@ Tizonia OpenMAX IL consists of a number of resources:
   (with support for both Base and Interop profiles)
 * An IL Core implementation.
 * An OS abstraction/utility library,
-  * with wrappers for
+    with wrappers for
     * memory allocation,
     * threading and synchronization primitives,
-  * and utilities for
+    and utilities for
     * FIFO and priority queues,
     * dynamic arrays,
     * associative arrays,
