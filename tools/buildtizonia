@@ -77,13 +77,15 @@ elif [ "$1" == "media" ];  then
     exit_status=$?
 elif [ "$1" == "tizrc" ];  then
     echo "Copy the Resource Manager's D-bus service file to the user's local D-Bus search path"
-    DBUS_SERVICE_FILE="$INSTALL_DIR/share/dbus-1/services/com.aratelia.tiz.rm.service"
+    echo ${INSTALL_DIR}
+    DBUS_SERVICE_FILE=${INSTALL_DIR}"/share/dbus-1/services/com.aratelia.tiz.rm.service"
     DBUS_DIR="$HOME/.local/share/dbus-1/services"
-    mkdir -p $DBUS_DIR && cp $DBUS_SERVICE_FILE $DBUS_DIR
+    mkdir -p "$DBUS_DIR" && cp "$DBUS_SERVICE_FILE" "$DBUS_DIR"
     exit_status=$?
     if [ $exit_status -eq 0 ] ; then
         echo "Preparing the $HOME/.tizrc config file..."
-        cp "$TIZ_DIR/libtizosal/src/tizrc" "$HOME/.tizrc" && sed -i "s/\/home\/user\/temp/$INSTALL_DIR/g" "$HOME/.tizrc"
+        cp "$TIZ_DIR/libtizosal/src/tizrc" "$HOME/.tizrc" \
+            && sed -i "s/\/home\/user\/temp/$(echo $INSTALL_DIR | sed -e 's/\\/\\\\/g' -e 's/\//\\\//g' -e 's/&/\\\&/g')/g" "$HOME/.tizrc"
         exit_status=$?
     fi
 elif [ "$1" == "bldonly" ];  then
@@ -109,4 +111,3 @@ fi
 cd $CWD
 
 exit $exit_status
-

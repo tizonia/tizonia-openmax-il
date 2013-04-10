@@ -22,9 +22,9 @@
 language: c
 compiler:
   - gcc
-before_install: ./tools/buildtizonia deps $HOME
+before_install: ./tools/buildtizonia deps "$HOME"
 before_script:
- - ./tools/buildtizonia media $HOME/build
+ - ./tools/buildtizonia media "$HOME/build"
 script:
- - ./tools/buildtizonia debug $HOME/build/tizonia/tizonia-openmax-il
- - ./tools/buildtizonia tizrc $HOME/build/tizonia/tizonia-openmax-il
+ - ./tools/buildtizonia debug "$HOME/build/tizonia/tizonia-openmax-il"
+ - ./tools/buildtizonia tizrc "$HOME/build/tizonia/tizonia-openmax-il"
