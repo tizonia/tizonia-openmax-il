@@ -1,0 +1,110 @@
+#!/bin/bash -x
+#
+# Copyright (C) 2013 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+TIZ_DIR="/home/$USER/tizonia-openmax-il"
+INSTALL_DIR="/home/$USER/build"
+CWD=`pwd`
+
+if [ "$2" != "" ]; then
+    TIZ_DIR="$2"
+fi
+
+if [ "$3" != "" ]; then
+    INSTALL_DIR="$3"
+fi
+
+
+mkdir -p $INSTALL_DIR
+
+echo "Changing dir to $TIZ_DIR"
+cd $TIZ_DIR
+
+
+if [ "$1" == "debug" ]; then
+    echo "Reconfiguring Tizonia for [DEBUG] build - Install dir [$INSTALL_DIR]..."
+    autoreconf -ifs
+    exit_status=$?
+    if [ $exit_status -eq 0 ] ; then
+	./configure --prefix=$INSTALL_DIR CFLAGS="-ggdb -Wall -Werror"
+	exit_status=$?
+    fi
+elif [ "$1" == "release" ];  then
+    echo "Reconfiguring Tizonia for [RELEASE] build - Install dir [$INSTALL_DIR]..."
+    autoreconf -ifs
+    exit_status=$?
+    if [ $exit_status -eq 0 ] ; then
+	./configure --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
+	exit_status=$?
+    fi
+elif [ "$1" == "conf" ];  then
+    echo "Reconfiguring Tizonia for [CONFORMANCE TESTING] build - Install dir [$INSTALL_DIR]..."
+    autoreconf -ifs
+    exit_status=$?
+    if [ $exit_status -eq 0 ] ; then
+	./configure --enable-silent-rules --enable-blocking-etb-ftb --prefix=$INSTALL_DIR CFLAGS="-ggdb -Wall -Werror"
+	exit_status=$?
+    fi
+elif [ "$1" == "deps" ];  then
+    echo "Installing project dependencies..."
+    sudo apt-get update -qq && sudo apt-get install -qq autoconf automake autotools-dev build-essential \
+        libtool check cscope doxygen indent wget \
+        libmad0 libmad0-dev liblog4c3 liblog4c-dev \
+        libasound2 libasound2-dev libdbus-1-dev \
+        libdbus-c++-1-0 libdbus-c++-dev libsqlite3-0 \
+        libsqlite3-dev libboost-all-dev \
+        uuid uuid-dev libsdl1.2debian \
+        libsdl1.2-dev libvpx-dev libavcodec-dev \
+        libavformat-dev libavdevice-dev libmp3lame-dev \
+        libev-dev python-sphinx curl
+    exit_status=$?
+elif [ "$1" == "media" ];  then
+    echo "Downloading test media files..."
+    wget http://www.juanrubio.me/tizonia/tizonia-test-media.tgz && tar zxvf tizonia-test-media.tgz
+    exit_status=$?
+elif [ "$1" == "tizrc" ];  then
+    echo "Copy the Resource Manager's D-bus service file to the user's local D-Bus search path"
+    DBUS_SERVICE_FILE="$INSTALL_DIR/share/dbus-1/services/com.aratelia.tiz.rm.service"
+    DBUS_DIR="$HOME/.local/share/dbus-1/services"
+    mkdir -p $DBUS_DIR && cp $DBUS_SERVICE_FILE $DBUS_DIR
+    exit_status=$?
+    if [ $exit_status -eq 0 ] ; then
+        echo "Preparing the $HOME/.tizrc config file..."
+        cp "$TIZ_DIR/libtizosal/src/tizrc" "$HOME/.tizrc"
+        sed -i "s/\/home\/user\/temp/$INSTALL_DIR/g" "$HOME/.tizrc"
+    fi
+elif [ "$1" == "bldonly" ];  then
+    echo "Build only..."
+else
+   CMD=`basename $0`
+   echo "Usage: $CMD <debug|release|conf|deps|media|tizrc|bldonly|>"
+   exit 1
+fi
+
+if [ $exit_status -eq 0 ] ; then
+    make -j2
+    exit_status=$?
+fi
+
+if [ $exit_status -eq 0 ] ; then
+    make install
+    exit_status=$?
+fi
+
+cd $CWD
+
+exit $exit_status
+
