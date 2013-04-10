@@ -129,7 +129,7 @@ extern "C"
                                 OMX_DIRTYPE dir, OMX_HANDLETYPE ap_tcomp);
       OMX_ERRORTYPE (*receive_pluggable_event) (const void *ap_obj,
                                                 OMX_HANDLETYPE ap_hdl,
-                                                tizevent_t * ap_event);
+                                                tiz_event_pluggable_t * ap_event);
   };
 
 #ifdef __cplusplus

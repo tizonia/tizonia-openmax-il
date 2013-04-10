@@ -151,9 +151,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory1, role_factory2;
   const tiz_role_factory_t *rf_list[] = { &role_factory1, &role_factory2 };
-  const tiz_port_alloc_hooks_t new_hooks =
+  const tiz_alloc_hooks_t new_hooks =
     { pcm_port_alloc_hook, pcm_port_free_hook, NULL };
-  tiz_port_alloc_hooks_t old_hooks = { NULL, NULL, NULL };
+  tiz_alloc_hooks_t old_hooks = { NULL, NULL, NULL };
 
   strcpy ((OMX_STRING) role_factory1.role, _DEFAULT_ROLE1);
   role_factory1.pf_cport = instantiate_config_port;
@@ -173,13 +173,13 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   assert (ap_hdl);
 
   /* Initialize the component infrastructure */
-  RETURN_ON_IL_ERR (tiz_init_component (ap_hdl, _COMPONENT_NAME));
+  RETURN_ON_IL_ERR (tiz_comp_init (ap_hdl, _COMPONENT_NAME));
 
   /* Register two roles */
-  RETURN_ON_IL_ERR (tiz_register_roles (ap_hdl, rf_list, 2));
+  RETURN_ON_IL_ERR (tiz_comp_register_roles (ap_hdl, rf_list, 2));
 
   /* Register alloc hooks */
-  RETURN_ON_IL_ERR (tiz_register_port_alloc_hooks
+  RETURN_ON_IL_ERR (tiz_comp_register_alloc_hooks
                     (ap_hdl, 0, &new_hooks, &old_hooks));
 
   /* Verify that the old hooks have been returned */

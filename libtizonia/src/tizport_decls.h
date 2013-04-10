@@ -131,8 +131,8 @@ extern "C"
     OMX_ERRORTYPE (*mark_buffer) (void *ap_obj,
                                   OMX_BUFFERHEADERTYPE * ap_hdr);
     void (*set_alloc_hooks) (void *ap_obj,
-                             const tiz_port_alloc_hooks_t * ap_new_hooks,
-                             tiz_port_alloc_hooks_t * ap_old_hooks);
+                             const tiz_alloc_hooks_t * ap_new_hooks,
+                             tiz_alloc_hooks_t * ap_old_hooks);
     OMX_ERRORTYPE (*populate_header) (const void *ap_obj,
                                       OMX_HANDLETYPE ap_hdl,
                                       OMX_BUFFERHEADERTYPE * ap_hdr);

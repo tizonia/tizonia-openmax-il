@@ -1006,6 +1006,8 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
       return OMX_ErrorInsufficientResources;
     }
 
+  (void) tiz_thread_setname (&(p_core->thread), "tizilcore");
+  
   * ap_state = ETIZCoreStateStarted;
   return scan_component_folders ();
 }

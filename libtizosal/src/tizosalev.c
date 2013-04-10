@@ -186,6 +186,8 @@ event_loop_thread_func (void *p_arg)
 
   TIZ_LOG (TIZ_TRACE, "thread [%p] - loop [%p]", p_loop_thread, p_loop);
 
+  (void) tiz_thread_setname (&(p_loop_thread->thread), "tizevloop");
+  
   TIZ_LOG (TIZ_TRACE, "Entering the dispatcher...");
   tiz_sem_post (&(p_loop_thread->sem));
 
@@ -348,6 +350,9 @@ tiz_event_loop_init ()
 void
 tiz_event_loop_destroy ()
 {
+  /* TODO: We should not destroy the thread as it's been instantiated with
+     pthread_once. */
+  
   if (NULL != gp_event_thread)
     {
       tiz_mutex_lock (&(gp_event_thread->mutex));

@@ -138,7 +138,7 @@ struct tiz_kernel_msg_callback
 typedef struct tiz_kernel_msg_plg_event tiz_kernel_msg_plg_event_t;
 struct tiz_kernel_msg_plg_event
 {
-  tizevent_t *p_event;
+  tiz_event_pluggable_t *p_event;
 };
 
 typedef struct tiz_kernel_msg tiz_kernel_msg_t;
@@ -222,7 +222,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
 }
 
 static void
-rm_callback_hdlr (void *ap_obj, OMX_HANDLETYPE ap_hdl, tizevent_t * ap_event)
+rm_callback_hdlr (void *ap_obj, OMX_HANDLETYPE ap_hdl, tiz_event_pluggable_t * ap_event)
 {
   if (NULL != ap_event)
     {
@@ -234,7 +234,7 @@ rm_callback_hdlr (void *ap_obj, OMX_HANDLETYPE ap_hdl, tizevent_t * ap_event)
 static void
 deliver_pluggable_event (OMX_U32 rid, OMX_HANDLETYPE ap_hdl)
 {
-  tizevent_t *p_event = (tizevent_t *) tiz_mem_calloc (1, sizeof (tizevent_t));
+  tiz_event_pluggable_t *p_event = (tiz_event_pluggable_t *) tiz_mem_calloc (1, sizeof (tiz_event_pluggable_t));
   OMX_U32 *p_rid = (OMX_U32 *) tiz_mem_calloc (1, sizeof (OMX_U32));
   *p_rid = rid;
 
@@ -243,7 +243,7 @@ deliver_pluggable_event (OMX_U32 rid, OMX_HANDLETYPE ap_hdl)
   p_event->p_data = p_rid;
   p_event->pf_hdlr = &rm_callback_hdlr;
 
-  tiz_receive_pluggable_event (ap_hdl, p_event);
+  tiz_comp_event_pluggable (ap_hdl, p_event);
 }
 
 static void
@@ -3293,7 +3293,7 @@ kernel_stop_and_return (void *ap_obj)
 
 static OMX_ERRORTYPE
 kernel_receive_pluggable_event (const void *ap_obj,
-                                OMX_HANDLETYPE ap_hdl, tizevent_t * ap_event)
+                                OMX_HANDLETYPE ap_hdl, tiz_event_pluggable_t * ap_event)
 {
   tiz_kernel_msg_t *p_msg = NULL;
   tiz_kernel_msg_plg_event_t *p_plgevt = NULL;

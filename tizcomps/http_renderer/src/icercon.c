@@ -364,7 +364,7 @@ allocate_server_io_watcher (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
   if (OMX_ErrorNone !=
       (rc =
        tiz_event_io_init (&(ap_server->p_srv_ev_io), ap_hdl,
-                          tiz_receive_event_io)))
+                          tiz_comp_event_io)))
     {
       TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Error initializing the server's io event",
@@ -469,7 +469,7 @@ create_connection (OMX_HANDLETYPE ap_hdl, int connected_sockfd,
 
     if (OMX_ErrorNone
         != (rc = tiz_event_io_init (&(p_con->p_ev_io), ap_hdl,
-                                    tiz_receive_event_io)))
+                                    tiz_comp_event_io)))
       {
         TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "[%s] : Error initializing a client io event",
@@ -483,7 +483,7 @@ create_connection (OMX_HANDLETYPE ap_hdl, int connected_sockfd,
 
     if (OMX_ErrorNone
         != (rc = tiz_event_timer_init (&(p_con->p_ev_timer), ap_hdl,
-                                       tiz_receive_event_timer, ap_lstnr)))
+                                       tiz_comp_event_timer, ap_lstnr)))
       {
         TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "[%s] : Error initializing a client timer event",

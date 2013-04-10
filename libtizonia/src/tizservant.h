@@ -107,7 +107,7 @@ extern "C"
   /* Pluggable events interface */
   OMX_ERRORTYPE tiz_servant_receive_pluggable_event (const void *ap_obj,
                                                     OMX_HANDLETYPE ap_hdl,
-                                                    tizevent_t * ap_event);
+                                                    tiz_event_pluggable_t * ap_event);
 
 #ifdef __cplusplus
 }

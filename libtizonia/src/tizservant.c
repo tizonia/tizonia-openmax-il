@@ -605,7 +605,7 @@ tiz_servant_issue_buf_callback (const void *ap_obj,
 
 static OMX_ERRORTYPE
 servant_receive_pluggable_event (const void *ap_obj,
-                                 OMX_HANDLETYPE ap_hdl, tizevent_t * ap_event)
+                                 OMX_HANDLETYPE ap_hdl, tiz_event_pluggable_t * ap_event)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -613,7 +613,7 @@ servant_receive_pluggable_event (const void *ap_obj,
 OMX_ERRORTYPE
 tiz_servant_receive_pluggable_event (const void *ap_obj,
                                     OMX_HANDLETYPE ap_hdl,
-                                    tizevent_t * ap_event)
+                                    tiz_event_pluggable_t * ap_event)
 {
   const tiz_servant_class_t *class = classOf (ap_obj);
   assert (class->receive_pluggable_event);

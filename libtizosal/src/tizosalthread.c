@@ -30,6 +30,8 @@
 #include <config.h>
 #endif
 
+#define _GNU_SOURCE
+
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
@@ -161,6 +163,25 @@ OMX_S32
 tiz_thread_id (void)
 {
   return syscall (SYS_gettid);
+}
+
+OMX_ERRORTYPE
+tiz_thread_setname (tiz_thread_t * ap_thread, const OMX_STRING a_name)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  int error = 0;
+
+  assert (NULL != ap_thread);
+  assert (NULL != a_name);
+
+  if (PTHREAD_SUCCESS != (error = pthread_setname_np (*ap_thread, a_name)))
+    {
+      TIZ_LOG (TIZ_ERROR, "Could not set the thread's name (%s). "
+               "Leaving with OMX_ErrorUndefined.", strerror (error));
+      rc = OMX_ErrorUndefined;
+    }
+
+  return rc;
 }
 
 OMX_S32

@@ -225,9 +225,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   other_role.nports = 1;
   other_role.pf_proc = instantiate_processor;
 
-  tiz_init_component (ap_hdl, ARATELIA_FILE_WRITER_COMPONENT_NAME);
+  tiz_comp_init (ap_hdl, ARATELIA_FILE_WRITER_COMPONENT_NAME);
 
-  tiz_register_roles (ap_hdl, rf_list, 4);
+  tiz_comp_register_roles (ap_hdl, rf_list, 4);
 
   return OMX_ErrorNone;
 }

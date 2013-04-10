@@ -163,9 +163,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports = 1;
   role_factory.pf_proc = instantiate_processor;
 
-  tiz_init_component (ap_hdl, ARATELIA_AUDIO_RENDERER_COMPONENT_NAME);
+  tiz_comp_init (ap_hdl, ARATELIA_AUDIO_RENDERER_COMPONENT_NAME);
 
-  tiz_register_roles (ap_hdl, rf_list, 1);
+  tiz_comp_register_roles (ap_hdl, rf_list, 1);
 
   return OMX_ErrorNone;
 }

@@ -1826,8 +1826,8 @@ tiz_port_mark_buffer (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
 
 static void
 port_set_alloc_hooks (void *ap_obj,
-                      const tiz_port_alloc_hooks_t * ap_new_hooks,
-                      tiz_port_alloc_hooks_t * ap_old_hooks)
+                      const tiz_alloc_hooks_t * ap_new_hooks,
+                      tiz_alloc_hooks_t * ap_old_hooks)
 {
   struct tizport *p_obj = ap_obj;
 
@@ -1845,8 +1845,8 @@ port_set_alloc_hooks (void *ap_obj,
 
 void
 tiz_port_set_alloc_hooks (void *ap_obj,
-                         const tiz_port_alloc_hooks_t * ap_new_hooks,
-                         tiz_port_alloc_hooks_t * ap_old_hooks)
+                         const tiz_alloc_hooks_t * ap_new_hooks,
+                         tiz_alloc_hooks_t * ap_old_hooks)
 {
   struct tiz_port_class *class = (struct tiz_port_class *) classOf (ap_obj);
   assert (class->set_alloc_hooks);

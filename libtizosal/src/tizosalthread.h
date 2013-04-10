@@ -75,7 +75,17 @@ extern "C"
   OMX_ERRORTYPE tiz_thread_join (tiz_thread_t * ap_thread, void **app_result);
 
   /**
-   * Terminate the calling thread..
+   * Set the name of a thread.
+   *
+   * @ingroup thread
+   *
+   * @return 0 if success, -1 otherwise.
+   */
+  OMX_ERRORTYPE tiz_thread_setname (tiz_thread_t * ap_thread,
+                                    const OMX_STRING a_name);
+
+  /**
+   * Terminate the calling thread.
    *
    * @ingroup thread
    */

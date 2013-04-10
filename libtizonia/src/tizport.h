@@ -79,7 +79,7 @@ extern "C"
     /* Port supplier preference used during tunneling */
     OMX_BUFFERSUPPLIERTYPE buf_supplier;
     /* Memory allocation and deallocation hooks */
-    tiz_port_alloc_hooks_t mem_hooks;
+    tiz_alloc_hooks_t mem_hooks;
     /* Port index of the port that acts as a master or slave of this port. Use -1
      * for none. */
     OMX_U32 mos_port;
@@ -243,8 +243,8 @@ extern "C"
 
   void
   tiz_port_set_alloc_hooks (void *ap_obj,
-                           const tiz_port_alloc_hooks_t * ap_new_hooks,
-                           tiz_port_alloc_hooks_t * ap_old_hooks);
+                           const tiz_alloc_hooks_t * ap_new_hooks,
+                           tiz_alloc_hooks_t * ap_old_hooks);
 
   OMX_ERRORTYPE
   tiz_port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,

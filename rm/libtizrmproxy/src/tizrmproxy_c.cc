@@ -82,6 +82,8 @@ il_rmproxy_thread_func(void *p_arg)
 
   assert(p_rm);
 
+  (void) tiz_thread_setname (&(p_rm->thread), (const OMX_STRING) "tizrmproxy");
+  
   TIZ_LOG(TIZ_TRACE, "Entering the dispatcher...");
 
   p_rm->p_dispatcher->enter();
