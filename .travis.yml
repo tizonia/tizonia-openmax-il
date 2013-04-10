@@ -25,5 +25,6 @@ compiler:
 before_install: ./tools/buildtizonia deps $HOME
 before_script:
  - ./tools/buildtizonia media $HOME/build
- - ./tools/buildtizonia tizrc $HOME
-script: ./tools/buildtizonia debug
+script:
+ - ./tools/buildtizonia debug $HOME/build/tizonia/tizonia-openmax-il
+ - ./tools/buildtizonia tizrc $HOME/build/tizonia/tizonia-openmax-il
