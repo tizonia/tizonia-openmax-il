@@ -95,11 +95,12 @@ extern "C"
 
 
   /**
-   * Initialises a global event loop. The loop is hosted in its own thread
-   * which is spawned the first time this function is called.  Ensure that the
-   * first call to this function is serialized to avoid race conditions during
-   * construction. Once the loop is fully constructed, subsequent calls to this
-   * function simply increment a reference count and will be thread-safe.
+   * Explicit initialisation of the global event loop. The loop is hosted in
+   * its own thread which is spawned the first time this function or any other
+   * function in this module are called. Therefore it is not mandatory to call
+   * this function in order to instantiate the global event loop. This is only
+   * useful if for some reason the initialization cannot be done at the same
+   * time as the first use.
    *
    * @ingroup event
    *
@@ -110,9 +111,10 @@ extern "C"
   OMX_ERRORTYPE tiz_event_loop_init ();
 
   /**
-   * Decrements the clients reference count and destroys the event loop if last
-   * client. Since the last client's call destroys the hosting thread, it is
-   * advisable to make sure that the last call is serialized.
+   * Explicit destruction of the global event loop. WARNING: After this
+   * function, the event loop cannot be recreated in the current
+   * process. Therefore, if this function is used, the caller should guarantee
+   * that the global event loop is no longer needed.
    *
    * @ingroup event
    * 

@@ -241,16 +241,9 @@ main (void)
   srunner_add_suite (sr, osal_soa_suite ());
   srunner_add_suite (sr, osal_http_parser_suite ());
   srunner_add_suite (sr, osal_map_suite ());
+  srunner_add_suite (sr, osal_event_suite ());
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
-  srunner_free (sr);
-
-  /* For events unit testing, create a separate suite and runner that use the
-     NO FORK mode */
-  sr = srunner_create (osal_event_suite ());
-  srunner_set_fork_status (sr, CK_NOFORK);
-  srunner_run_all (sr, CK_VERBOSE);
-  number_failed += srunner_ntests_failed (sr);
   srunner_free (sr);
 
   tiz_log_deinit ();

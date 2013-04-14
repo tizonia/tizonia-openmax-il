@@ -255,14 +255,6 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   p_obj->lstn_port_ = httpsrv.nListeningPort;
   p_obj->max_clients_ = httpsrv.nMaxClients;
 
-  if (OMX_ErrorNone != (rc = tiz_event_loop_init ()))
-    {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
-                     TIZ_CBUF (p_parent->p_hdl_),
-                     "[%s] : Error starting event loop", tiz_err_to_str (rc));
-      return rc;
-    }
-
   return icer_con_server_init (&(p_obj->p_server_), p_parent->p_hdl_,
                                p_obj->bind_address_, p_obj->lstn_port_,
                                p_obj->max_clients_, buffer_emptied,
@@ -280,7 +272,6 @@ icer_proc_deallocate_resources (void *ap_obj)
 
   icer_con_server_destroy (p_obj->p_server_, p_parent->p_hdl_);
   p_obj->p_server_ = NULL;
-  tiz_event_loop_destroy ();
 
   return OMX_ErrorNone;
 }

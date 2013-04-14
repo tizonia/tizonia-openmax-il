@@ -97,7 +97,7 @@ void tiz_rcfile_destroy (tiz_rcfile_t * rcfile);
  *
  * @private
  */
-tiz_rcfile_t *tiz_rcfile_get_hdl (void);
+tiz_rcfile_t *tiz_rcfile_get_handle (void);
 
 
 #endif                          /* TIZOSALINT_H */

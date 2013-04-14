@@ -584,7 +584,7 @@ const char *
 tiz_rcfile_get_value (const char *ap_section, const char *ap_key)
 {
   keyval_t *p_kv = NULL;
-  tiz_rcfile_t * p_rc = tiz_rcfile_get_hdl ();
+  tiz_rcfile_t * p_rc = tiz_rcfile_get_handle ();
 
   if (NULL == p_rc)
     {
@@ -613,7 +613,7 @@ tiz_rcfile_get_value_list (const char *ap_section,
   keyval_t *p_kv = NULL;
   char **pp_ret = NULL;
   value_t *p_next_value = NULL;
-  tiz_rcfile_t * p_rc = tiz_rcfile_get_hdl ();
+  tiz_rcfile_t * p_rc = tiz_rcfile_get_handle ();
 
   if (NULL == p_rc)
     {

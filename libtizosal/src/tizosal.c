@@ -33,9 +33,11 @@
 #include "tizosallog.h"
 #include "tizosalev.h"
 
+/* TODO */
+
 void __attribute__ ((constructor)) tiz_osal_load (void)
 {
-/*   tiz_log_init (); */
+  /*   tiz_log_init (); */
   /*   (void) tiz_event_loop_init (); */
 
 }

@@ -389,7 +389,7 @@ tiz_event_io_init (tiz_event_io_t ** app_ev_io,
 
   assert (NULL != app_ev_io);
   assert (NULL != ap_cback);
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
 
   if (NULL == (p_io_watcher
                =
@@ -414,7 +414,7 @@ tiz_event_io_set (tiz_event_io_t * ap_ev_io,
                   int a_fd, tiz_event_io_event_t a_event,
                   bool only_once)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_io);
   assert (a_fd > 0);
   assert (a_event < TIZ_EVENT_MAX);
@@ -427,7 +427,7 @@ tiz_event_io_set (tiz_event_io_t * ap_ev_io,
 OMX_ERRORTYPE
 tiz_event_io_start (tiz_event_io_t * ap_ev_io)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_io);
 
   TIZ_LOG (TIZ_TRACE,
@@ -444,7 +444,7 @@ tiz_event_io_start (tiz_event_io_t * ap_ev_io)
 OMX_ERRORTYPE
 tiz_event_io_stop (tiz_event_io_t * ap_ev_io)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_io);
 
   tiz_mutex_lock (&(gp_event_thread->mutex));
@@ -458,7 +458,7 @@ tiz_event_io_stop (tiz_event_io_t * ap_ev_io)
 void
 tiz_event_io_destroy (tiz_event_io_t * ap_ev_io)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_io);
 
   tiz_event_io_stop (ap_ev_io);
@@ -480,7 +480,7 @@ tiz_event_timer_init (tiz_event_timer_t ** app_ev_timer,
 
   assert (NULL != app_ev_timer);
   assert (NULL != ap_cback);
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
 
   if (NULL == (p_timer_watcher = (tiz_event_timer_t *)
                tiz_mem_calloc (1, sizeof (tiz_event_timer_t))))
@@ -502,7 +502,7 @@ void
 tiz_event_timer_set (tiz_event_timer_t * ap_ev_timer,
                      double a_after, double a_repeat)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_timer);
 
   ev_timer_set ((ev_timer *) ap_ev_timer, a_after, a_repeat);
@@ -511,7 +511,7 @@ tiz_event_timer_set (tiz_event_timer_t * ap_ev_timer,
 OMX_ERRORTYPE
 tiz_event_timer_start (tiz_event_timer_t * ap_ev_timer)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_timer);
 
   tiz_mutex_lock (&(gp_event_thread->mutex));
@@ -525,7 +525,7 @@ tiz_event_timer_start (tiz_event_timer_t * ap_ev_timer)
 OMX_ERRORTYPE
 tiz_event_timer_restart (tiz_event_timer_t * ap_ev_timer)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_timer);
 
   tiz_mutex_lock (&(gp_event_thread->mutex));
@@ -538,7 +538,7 @@ tiz_event_timer_restart (tiz_event_timer_t * ap_ev_timer)
 OMX_ERRORTYPE
 tiz_event_timer_stop (tiz_event_timer_t * ap_ev_timer)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_timer);
 
   tiz_mutex_lock (&(gp_event_thread->mutex));
@@ -552,7 +552,7 @@ tiz_event_timer_stop (tiz_event_timer_t * ap_ev_timer)
 void
 tiz_event_timer_destroy (tiz_event_timer_t * ap_ev_timer)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_timer);
 
   tiz_event_timer_stop (ap_ev_timer);
@@ -573,7 +573,7 @@ tiz_event_stat_init (tiz_event_stat_t ** app_ev_stat,
 
   assert (NULL != app_ev_stat);
   assert (NULL != ap_cback);
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
 
   if (NULL == (p_stat_watcher = (tiz_event_stat_t *)
                tiz_mem_calloc (1, sizeof (tiz_event_stat_t))))
@@ -594,7 +594,7 @@ void
 tiz_event_stat_set (tiz_event_stat_t * ap_ev_stat,
                     const char *ap_path)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_stat);
 
   ev_stat_set ((ev_stat *) ap_ev_stat, ap_path, 0);
@@ -603,7 +603,7 @@ tiz_event_stat_set (tiz_event_stat_t * ap_ev_stat,
 OMX_ERRORTYPE
 tiz_event_stat_start (tiz_event_stat_t * ap_ev_stat)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_stat);
 
   tiz_mutex_lock (&(gp_event_thread->mutex));
@@ -617,7 +617,7 @@ tiz_event_stat_start (tiz_event_stat_t * ap_ev_stat)
 OMX_ERRORTYPE
 tiz_event_stat_stop (tiz_event_stat_t * ap_ev_stat)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_stat);
 
   tiz_mutex_lock (&(gp_event_thread->mutex));
@@ -631,7 +631,7 @@ tiz_event_stat_stop (tiz_event_stat_t * ap_ev_stat)
 void
 tiz_event_stat_destroy (tiz_event_stat_t * ap_ev_stat)
 {
-  assert (NULL != gp_event_thread);
+  (void) get_loop_thread ();
   assert (NULL != ap_ev_stat);
 
   tiz_event_stat_stop (ap_ev_stat);
@@ -639,7 +639,7 @@ tiz_event_stat_destroy (tiz_event_stat_t * ap_ev_stat)
 }
 
 tiz_rcfile_t *
-tiz_rcfile_get_hdl (void)
+tiz_rcfile_get_handle (void)
 {
   tiz_loop_thread_t *p_event_thread = get_loop_thread ();
   return (p_event_thread && p_event_thread->p_rcfile)
