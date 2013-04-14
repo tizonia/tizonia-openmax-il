@@ -49,12 +49,9 @@ static char *
 find_default_uri ()
 {
   char *p_rv = NULL;
-  tiz_rcfile_t *p_rcfile = NULL;
   const char *p_uri = NULL;
 
-  tiz_rcfile_open (&p_rcfile);
-
-  p_uri = tiz_rcfile_get_value (p_rcfile, "plugins-data",
+  p_uri = tiz_rcfile_get_value ("plugins-data",
                                 "OMX.Aratelia.file_reader.binary.default_audio_uri");
 
   assert (NULL != p_uri
@@ -64,8 +61,6 @@ find_default_uri ()
   TIZ_LOG (TIZ_TRACE, "Default URI [%s]...", p_uri);
 
   p_rv = strndup (p_uri, PATH_MAX);
-
-  tiz_rcfile_close (p_rcfile);
 
   return p_rv;
 }

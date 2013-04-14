@@ -30,6 +30,8 @@
 #include <config.h>
 #endif
 
+#include "tizosal.h"
+
 #include <string.h>
 #include <errno.h>
 #include <sys/time.h>
@@ -37,10 +39,6 @@
 
 #include <pthread.h>
 #include <semaphore.h>
-
-#include "tizosalsync.h"
-#include "tizosalmem.h"
-#include "tizosallog.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

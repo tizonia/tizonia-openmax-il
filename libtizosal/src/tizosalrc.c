@@ -31,6 +31,9 @@
 #include <config.h>
 #endif
 
+#include "tizosal.h"
+#include "tizosalint.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,10 +42,6 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <ctype.h>
-
-#include "tizosalrc.h"
-#include "tizosalmem.h"
-#include "tizosallog.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -56,33 +55,7 @@
 
 static char pat[PAT_SIZE];
 
-typedef struct value value_t;
-
-struct value
-{
-  char *p_value;
-  value_t *p_next;
-};
-
-typedef struct keyval keyval_t;
-
-struct keyval
-{
-  char *p_key;
-  value_t *p_value_list;
-  value_t *p_value_iter;
-  int valcount;
-  keyval_t *p_next;
-};
-
-struct tiz_rcfile
-{
-  keyval_t *p_keyvals;
-  int count;
-};
-
 typedef struct file_info file_info_t;
-
 struct file_info
 {
   char name[256];
@@ -528,7 +501,7 @@ stat_ctime (const char *path, time_t * time)
 }
 
 OMX_ERRORTYPE
-tiz_rcfile_open (tiz_rcfile_t ** pp_rc)
+tiz_rcfile_init (tiz_rcfile_t ** pp_rc)
 {
   int i;
   tiz_rcfile_t *p_rc = NULL;
@@ -608,12 +581,16 @@ tiz_rcfile_open (tiz_rcfile_t ** pp_rc)
 }
 
 const char *
-tiz_rcfile_get_value (tiz_rcfile_t * p_rc,
-                      const char *ap_section, const char *ap_key)
+tiz_rcfile_get_value (const char *ap_section, const char *ap_key)
 {
   keyval_t *p_kv = NULL;
+  tiz_rcfile_t * p_rc = tiz_rcfile_get_hdl ();
 
-  assert (p_rc);
+  if (NULL == p_rc)
+    {
+      return NULL;
+    }
+
   assert (ap_section);
   assert (ap_key);
   assert (is_list (ap_key) == false);
@@ -630,15 +607,19 @@ tiz_rcfile_get_value (tiz_rcfile_t * p_rc,
 }
 
 char **
-tiz_rcfile_get_value_list (tiz_rcfile_t * p_rc,
-                           const char *ap_section,
+tiz_rcfile_get_value_list (const char *ap_section,
                            const char *ap_key, unsigned long *ap_length)
 {
   keyval_t *p_kv = NULL;
   char **pp_ret = NULL;
   value_t *p_next_value = NULL;
+  tiz_rcfile_t * p_rc = tiz_rcfile_get_hdl ();
 
-  assert (p_rc);
+  if (NULL == p_rc)
+    {
+      return NULL;
+    }
+
   assert (ap_section);
   assert (ap_key);
   assert (ap_length);
@@ -674,16 +655,16 @@ tiz_rcfile_get_value_list (tiz_rcfile_t * p_rc,
   return pp_ret;
 }
 
-OMX_ERRORTYPE
-tiz_rcfile_close (tiz_rcfile_t * p_rc)
+void
+tiz_rcfile_destroy (tiz_rcfile_t * p_rc)
 {
   keyval_t *p_kv_lst = NULL;
   keyval_t *p_kvt = NULL;
   value_t *p_val_lst = NULL;
 
-  if (!p_rc)
+  if (NULL == p_rc)
     {
-      return OMX_ErrorNone;
+      return;
     }
 
   p_kv_lst = p_rc->p_keyvals;
@@ -707,6 +688,4 @@ tiz_rcfile_close (tiz_rcfile_t * p_rc)
     }
 
   tiz_mem_free (p_rc);
-
-  return OMX_ErrorNone;
 }

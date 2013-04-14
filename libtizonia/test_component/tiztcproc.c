@@ -118,12 +118,12 @@ tiztc_proc_buffers_ready (const void *ap_obj)
 
   TIZ_PD_ZERO (&ports);
 
-  TIZ_UTIL_TEST_ERR (tiz_kernel_select (p_ker, 1, &ports));
+  tiz_check_omx_err (tiz_kernel_select (p_ker, 1, &ports));
 
   if (TIZ_PD_ISSET (0, &ports))
     {
-      TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer (p_ker, 0, 0, &p_hdr));
-      TIZ_UTIL_TEST_ERR (tiztc_proc_render_buffer (p_hdr));
+      tiz_check_omx_err (tiz_kernel_claim_buffer (p_ker, 0, 0, &p_hdr));
+      tiz_check_omx_err (tiztc_proc_render_buffer (p_hdr));
       (void) tiz_kernel_relinquish_buffer (p_ker, 0, p_hdr);
     }
 

@@ -98,17 +98,14 @@ refresh_rm_db (void)
   const char *p_sqlite_path = NULL;
   const char *p_init_path = NULL;
   const char *p_rmd_path = NULL;
-  tiz_rcfile_t *p_rcfile = NULL;
 
-  tiz_rcfile_open(&p_rcfile);
-
-  p_rmdb_path = tiz_rcfile_get_value(p_rcfile, "resource-management", "rmdb");
-  p_sqlite_path = tiz_rcfile_get_value(p_rcfile, "resource-management",
+  p_rmdb_path = tiz_rcfile_get_value("resource-management", "rmdb");
+  p_sqlite_path = tiz_rcfile_get_value("resource-management",
                                        "rmdb.sqlite_script");
-  p_init_path = tiz_rcfile_get_value(p_rcfile, "resource-management",
+  p_init_path = tiz_rcfile_get_value("resource-management",
                                      "rmdb.init_script");
 
-  p_rmd_path = tiz_rcfile_get_value(p_rcfile, "resource-management", "rmd.path");
+  p_rmd_path = tiz_rcfile_get_value("resource-management", "rmd.path");
 
   if (!p_rmdb_path || !p_sqlite_path || !p_init_path || !p_rmd_path)
 
@@ -143,8 +140,6 @@ refresh_rm_db (void)
           tiz_mem_free (p_cmd);
         }
     }
-
-  tiz_rcfile_close(p_rcfile);
 
   return rv;
 }
@@ -423,15 +418,15 @@ static OMX_CALLBACKTYPE _check_cbacks = {
 };
 
 static bool
-init_test_data(tiz_rcfile_t *rcfile)
+init_test_data()
 {
   bool rv = false;
   const char *p_testfile1 = NULL;
   const char *p_testfile2 = NULL;
 
-  p_testfile1 = tiz_rcfile_get_value(rcfile, "plugins-data",
+  p_testfile1 = tiz_rcfile_get_value("plugins-data",
                                      "OMX.Aratelia.audio_renderer.pcm.testfile1_uri");
-  p_testfile2 = tiz_rcfile_get_value(rcfile, "plugins-data",
+  p_testfile2 = tiz_rcfile_get_value("plugins-data",
                                      "OMX.Aratelia.audio_renderer.pcm.testfile2_uri");
 
   if (!p_testfile1 || !p_testfile2)
@@ -469,10 +464,8 @@ START_TEST (test_ar_play)
   OMX_U32 i;
   FILE *p_file = 0;
   int err = 0;
-  tiz_rcfile_t *p_rcfile = NULL;
 
-  tiz_rcfile_open(&p_rcfile);
-  fail_if (!init_test_data(p_rcfile));
+  fail_if (!init_test_data());
 
   error = _ctx_init (&ctx);
   fail_if (OMX_ErrorNone != error);
@@ -725,8 +718,6 @@ START_TEST (test_ar_play)
   fail_if (OMX_ErrorNone != error);
 
   _ctx_destroy (&ctx);
-
-  tiz_rcfile_close(p_rcfile);
 }
 
 END_TEST Suite * ar_suite (void)

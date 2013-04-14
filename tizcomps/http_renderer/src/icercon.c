@@ -1109,7 +1109,7 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
                                            listeners_map_compare_func,
                                            listeners_map_free_func, NULL)))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Error initializing the listeners map",
                      tiz_err_to_str (rc));
       goto end;
@@ -1119,14 +1119,14 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
       (p_server->lstn_sockfd =
        create_server_socket (ap_hdl, a_port, a_address)))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "Unable to create the server socket.");
       goto end;
     }
 
   if (OMX_ErrorNone != (rc = allocate_server_io_watcher (p_server, ap_hdl)))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[%s] : Unable to allocate the server io event.",
                      tiz_err_to_str (rc));
       goto end;
@@ -1190,7 +1190,7 @@ icer_con_start_listening (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
   if (listen (ap_server->lstn_sockfd, ICE_LISTEN_QUEUE) ==
       ICE_RENDERER_SOCK_ERROR)
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : Unable to mark "
                      "socket as passive (%s).", strerror (errno));
       return OMX_ErrorInsufficientResources;
@@ -1198,7 +1198,7 @@ icer_con_start_listening (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 
   if (OMX_ErrorNone != (rc = set_non_blocking (ap_server->lstn_sockfd)))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : Unable to set"
                      "socket as non-blocking.");
       return OMX_ErrorInsufficientResources;

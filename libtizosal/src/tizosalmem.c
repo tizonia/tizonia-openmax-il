@@ -30,12 +30,11 @@
 #include <config.h>
 #endif
 
+#include "tizosal.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "tizosalmem.h"
-#include "tizosallog.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

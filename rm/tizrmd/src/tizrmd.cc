@@ -433,16 +433,11 @@ bool
 find_rmdb_path(std::string & a_dbpath)
 {
   bool rv = false;
-  tiz_rcfile_t *p_rcfile = NULL;
   const char *p_rm_enabled = NULL;
   const char *p_rmdb_path = NULL;
 
-  tiz_rcfile_open(&p_rcfile);
-
-  p_rm_enabled = tiz_rcfile_get_value(p_rcfile, "resource-management",
-                                     "enabled");
-  p_rmdb_path = tiz_rcfile_get_value(p_rcfile, "resource-management",
-                                     "rmdb");
+  p_rm_enabled = tiz_rcfile_get_value("resource-management", "enabled");
+  p_rmdb_path = tiz_rcfile_get_value("resource-management", "rmdb");
 
   if (!p_rm_enabled || !p_rmdb_path
       || (0 != strncmp (p_rm_enabled, "true", 4)))
@@ -455,8 +450,6 @@ find_rmdb_path(std::string & a_dbpath)
       a_dbpath.assign(p_rmdb_path);
       rv = true;
     }
-
-  tiz_rcfile_close(p_rcfile);
 
   return rv;
 }

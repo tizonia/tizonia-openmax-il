@@ -30,13 +30,12 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
-
 #include "OMX_Core.h"
 #include "OMX_TizoniaExt.h"
+#include "tizosal.h"
 
-#include "tizosalutils.h"
+#include <assert.h>
+#include <string.h>
 
 
 typedef struct tiz_cmd_str tiz_cmd_str_t;

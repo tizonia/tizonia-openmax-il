@@ -30,14 +30,13 @@
 #include <config.h>
 #endif
 
+#include "OMX_Core.h"
+#include "tizosal.h"
+
 #include <assert.h>
 #include <uuid/uuid.h>
 #include <string.h>
 
-#include "OMX_Core.h"
-
-#include "tizosaluuid.h"
-#include "tizosalmem.h"
 
 void
 tiz_uuid_generate (OMX_UUIDTYPE * ap_uuid)

@@ -150,7 +150,6 @@ osal_rcfile_suite (void)
 
   /* config file parsing API test cases */
   tc_rc = tcase_create ("rcfile");
-  tcase_add_test (tc_rc, test_rcfile_open_and_close);
   tcase_add_test (tc_rc, test_rcfile_get_single_value);
   tcase_add_test (tc_rc, test_rcfile_get_unexistent_value);
   tcase_add_test (tc_rc, test_rcfile_get_value_list);

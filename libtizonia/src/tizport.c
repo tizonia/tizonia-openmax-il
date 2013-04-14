@@ -52,8 +52,6 @@
 
 #define TIZ_HDR_NOT_FOUND -1
 
-#define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
-
 static OMX_VERSIONTYPE _spec_version = {
   {
    OMX_VERSION_MAJOR,

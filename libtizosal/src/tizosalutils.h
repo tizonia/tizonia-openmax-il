@@ -35,6 +35,7 @@ extern "C"
 #endif
 
 #include "OMX_Types.h"
+#include "OMX_Core.h"
 
   /*@observer@ */ const OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd);
 
@@ -47,34 +48,6 @@ extern "C"
   /*@observer@ */ const OMX_STRING tiz_dir_to_str (OMX_DIRTYPE a_dir);
 
   /*@observer@ */ const OMX_STRING tiz_idx_to_str (OMX_INDEXTYPE a_idx);
-
-#define TIZ_UTIL_TEST_ERR(_a)                                   \
-  do {                                                          \
-    OMX_ERRORTYPE _err = _a;                                    \
-    if (OMX_ErrorNone != _err) {                                \
-      TIZ_LOG(TIZ_ERROR, "[%s]...", tiz_err_to_str (_err)); \
-      return _err;                                              \
-    }                                                           \
-  } while(0)
-
-#define TIZ_UTIL_TEST_ERR_OOM(_a)                                       \
-  do {                                                                  \
-    OMX_ERRORTYPE _err = _a;                                            \
-    if (OMX_ErrorNone != _err) {                                        \
-      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources] "        \
-              "was [%s]...", tiz_err_to_str (_err));                    \
-      return OMX_ErrorInsufficientResources;                            \
-    }                                                                   \
-  } while(0)
-
-#define TIZ_UTIL_TEST_ERR_RET_NULL(_a)                                   \
-  do {                                                          \
-    OMX_ERRORTYPE _err = _a;                                    \
-    if (OMX_ErrorNone != _err) {                                \
-      TIZ_LOG(TIZ_ERROR, "[%s]...", tiz_err_to_str (_err)); \
-      return NULL;                                              \
-    }                                                           \
-  } while(0)
 
 #ifdef __cplusplus
 }

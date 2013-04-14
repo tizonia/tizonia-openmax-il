@@ -32,15 +32,14 @@
 
 #define _GNU_SOURCE
 
+#include "tizosal.h"
+
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <pthread.h>
 #include <assert.h>
-
-#include "tizosalthread.h"
-#include "tizosallog.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

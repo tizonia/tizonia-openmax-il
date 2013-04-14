@@ -51,8 +51,6 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.scheduler"
 #endif
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
 #define SCHED_OMX_DEFAULT_ROLE "default"
 
 
@@ -1363,7 +1361,6 @@ static OMX_ERRORTYPE
 configure_port_preannouncements (tiz_scheduler_t * ap_sched,
                                  OMX_HANDLETYPE ap_hdl, OMX_PTR p_port)
 {
-  tiz_rcfile_t *p_rcfile = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const char *p_preannounce_disabled = NULL;
   char fqd_key[OMX_MAX_STRINGNAME_SIZE];
@@ -1379,10 +1376,7 @@ configure_port_preannouncements (tiz_scheduler_t * ap_sched,
            OMX_MAX_STRINGNAME_SIZE - 1);
   strncat (fqd_key, port_num, OMX_MAX_STRINGNAME_SIZE - 1);
 
-  tiz_rcfile_open (&p_rcfile);
-
-  p_preannounce_disabled = tiz_rcfile_get_value (p_rcfile, "plugins-data",
-                                                 fqd_key);
+  p_preannounce_disabled = tiz_rcfile_get_value ("plugins-data", fqd_key);
 
   if (!p_preannounce_disabled
       || (0 != strncmp (p_preannounce_disabled, "true", 4)))
@@ -1408,8 +1402,6 @@ configure_port_preannouncements (tiz_scheduler_t * ap_sched,
         (p_port, ap_hdl,
          OMX_TizoniaIndexParamBufferPreAnnouncementsMode, &pamode);
     }
-
-  tiz_rcfile_close (p_rcfile);
 
   return rc;
 }

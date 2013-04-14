@@ -37,6 +37,7 @@
  * 
  */
 
+#include "tizmacros.h"
 #include "tizosallog.h"
 #include "tizosalmem.h"
 #include "tizosalqueue.h"

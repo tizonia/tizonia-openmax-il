@@ -31,14 +31,12 @@
 #include <config.h>
 #endif
 
+#include "tizosal.h"
+#include "http-parser/http_parser.h"
+
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
-
-#include "tizosalmem.h"
-#include "tizosallog.h"
-#include "http-parser/http_parser.h"
-#include "tizosalhttp.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

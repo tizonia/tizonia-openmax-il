@@ -30,13 +30,10 @@
 #include <config.h>
 #endif
 
+#include "tizosal.h"
+
 #include <assert.h>
 #include <stdbool.h>
-
-#include "tizosalqueue.h"
-#include "tizosalmem.h"
-#include "tizosallog.h"
-#include "tizosalutils.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -238,7 +235,7 @@ tiz_queue_send (tiz_queue_t * p_q, OMX_PTR ap_data)
 
   assert (NULL != p_q);
 
-  TIZ_UTIL_TEST_ERR_OOM (tiz_mutex_lock (&(p_q->mutex)));
+  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(p_q->mutex)));
 
   assert (NULL != p_q->p_last);
   assert (NULL == (p_q->p_last->p_data));
@@ -256,8 +253,8 @@ tiz_queue_send (tiz_queue_t * p_q, OMX_PTR ap_data)
       p_q->length++;
     }
 
-  TIZ_UTIL_TEST_ERR_OOM (tiz_mutex_unlock (&(p_q->mutex)));
-  TIZ_UTIL_TEST_ERR_OOM (tiz_cond_broadcast (&(p_q->cond_empty)));
+  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&(p_q->mutex)));
+  tiz_check_omx_err_ret_oom (tiz_cond_broadcast (&(p_q->cond_empty)));
 
   return rc;
 }
@@ -270,7 +267,7 @@ tiz_queue_receive (tiz_queue_t * p_q, OMX_PTR * app_data)
   assert (NULL != p_q);
   assert (NULL != app_data);
 
-  TIZ_UTIL_TEST_ERR_OOM (tiz_mutex_lock (&(p_q->mutex)));
+  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(p_q->mutex)));
 
   assert (!(p_q->length < 0));
 
@@ -289,8 +286,8 @@ tiz_queue_receive (tiz_queue_t * p_q, OMX_PTR * app_data)
       p_q->length--;
     }
 
-  TIZ_UTIL_TEST_ERR_OOM (tiz_mutex_unlock (&(p_q->mutex)));
-  TIZ_UTIL_TEST_ERR_OOM (tiz_cond_broadcast (&(p_q->cond_full)));
+  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&(p_q->mutex)));
+  tiz_check_omx_err_ret_oom (tiz_cond_broadcast (&(p_q->cond_full)));
 
   return rc;
 }
@@ -302,11 +299,11 @@ tiz_queue_length (tiz_queue_t * p_q)
 
   assert (NULL != p_q);
 
-  TIZ_UTIL_TEST_ERR_OOM (tiz_mutex_lock (&(p_q->mutex)));
+  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(p_q->mutex)));
 
   length = p_q->length;
 
-  TIZ_UTIL_TEST_ERR_OOM (tiz_mutex_unlock (&(p_q->mutex)));
+  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&(p_q->mutex)));
 
   return length;
 }

@@ -103,17 +103,14 @@ refresh_rm_db (void)
   const char *p_sqlite_path = NULL;
   const char *p_init_path = NULL;
   const char *p_rmd_path = NULL;
-  tiz_rcfile_t *p_rcfile = NULL;
 
-  tiz_rcfile_open(&p_rcfile);
-
-  p_rmdb_path = tiz_rcfile_get_value(p_rcfile, "resource-management", "rmdb");
-  p_sqlite_path = tiz_rcfile_get_value(p_rcfile, "resource-management",
+  p_rmdb_path = tiz_rcfile_get_value("resource-management", "rmdb");
+  p_sqlite_path = tiz_rcfile_get_value("resource-management",
                                        "rmdb.sqlite_script");
-  p_init_path = tiz_rcfile_get_value(p_rcfile, "resource-management",
+  p_init_path = tiz_rcfile_get_value("resource-management",
                                      "rmdb.init_script");
 
-  p_rmd_path = tiz_rcfile_get_value(p_rcfile, "resource-management", "rmd.path");
+  p_rmd_path = tiz_rcfile_get_value("resource-management", "rmd.path");
 
   if (!p_rmdb_path || !p_sqlite_path || !p_init_path || !p_rmd_path)
 
@@ -148,8 +145,6 @@ refresh_rm_db (void)
           tiz_mem_free (p_cmd);
         }
     }
-
-  tiz_rcfile_close(p_rcfile);
 
   return rv;
 }
@@ -350,7 +345,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
   pp_ctx = (cc_ctx_t *) ap_app_data;
   p_ctx = *pp_ctx;
 
-  TIZ_LOG (TIZ_TRACE, "Component Event [%d]", eEvent);
+  TIZ_LOG (TIZ_TRACE, "Component Event [%s]", tiz_evt_to_str (eEvent));
 
   if (OMX_EventCmdComplete == eEvent)
     {
@@ -428,15 +423,15 @@ static OMX_CALLBACKTYPE _check_cbacks = {
 };
 
 static bool
-init_test_data(tiz_rcfile_t *rcfile)
+init_test_data()
 {
   bool rv = false;
   const char *p_testfile1 = NULL;
   const char *p_testfile2 = NULL;
 
-  p_testfile1 = tiz_rcfile_get_value(rcfile, "plugins-data",
+  p_testfile1 = tiz_rcfile_get_value("plugins-data",
                                      "OMX.Aratelia.ice_renderer.http.testfile1_uri");
-  p_testfile2 = tiz_rcfile_get_value(rcfile, "plugins-data",
+  p_testfile2 = tiz_rcfile_get_value("plugins-data",
                                      "OMX.Aratelia.ice_renderer.http.testfile2_uri");
 
   if (!p_testfile1 || !p_testfile2)
@@ -483,7 +478,7 @@ exec_mplayer (void)
     {
       char cmd [128];
       TIZ_LOG (TIZ_TRACE, "Connecting curl...");
-
+      sleep (1);
       snprintf (cmd, strlen (CHECK_HTTP_RENDERER_CURL_CMD) + 1, "%s",
                 CHECK_HTTP_RENDERER_CURL_CMD);
       TIZ_LOG (TIZ_TRACE, "cmd = [%s]", cmd);
@@ -513,10 +508,7 @@ START_TEST (test_http_streaming)
   OMX_U32 i = 0;
   FILE *p_file = 0;
   int err = 0;
-  tiz_rcfile_t *p_rcfile = NULL;
-
-  tiz_rcfile_open(&p_rcfile);
-  fail_if (!init_test_data(p_rcfile));
+  fail_if (!init_test_data());
 
   TIZ_LOG (TIZ_TRACE, "Init", p_hdl);
 
@@ -779,9 +771,6 @@ START_TEST (test_http_streaming)
       fail_if (OMX_ErrorNone != error);
 
       _ctx_destroy (&ctx);
-
-      tiz_rcfile_close(p_rcfile);
-
     }
   else
     {
@@ -789,8 +778,10 @@ START_TEST (test_http_streaming)
     }
 
 }
+END_TEST
 
-END_TEST Suite * ar_suite (void)
+Suite *
+ar_suite (void)
 {
 
   TCase *tc_icer;

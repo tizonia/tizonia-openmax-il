@@ -30,6 +30,8 @@
 #include <config.h>
 #endif
 
+#include "tizosallog.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -45,7 +47,6 @@
 #include <log4c.h>
 #include <alloca.h>
 
-#include "tizosallog.h"
 
 typedef struct user_locinfo user_locinfo_t;
 struct user_locinfo
@@ -135,8 +136,8 @@ static int nlayout_types =
   (int) (sizeof (layout_types) / sizeof (layout_types[0]));
 
 
-int
-tiz_log_formatters_init ()
+static int
+log_formatters_init ()
 {
   int rc = 0;
   int i = 0;
@@ -153,7 +154,7 @@ int
 tiz_log_init ()
 {
 #ifndef WITHOUT_LOG4C
-  tiz_log_formatters_init ();
+  log_formatters_init ();
   return (log4c_init ());
 #else
   return 0;

@@ -31,12 +31,10 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
-#include "tizosalmem.h"
-#include "tizosalvector.h"
+#include "tizosal.h"
 #include "utarray/utarray.h"
-#include "tizosallog.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

@@ -56,7 +56,6 @@ char *pg_sqlite_script = NULL;
 char *pg_init_script   = NULL;
 char *pg_dump_script   = NULL;
 char *pg_rmd_path      = NULL;
-tiz_rcfile_t *pg_rcfile = NULL;
 
 #define COMPONENT1_NAME "OMX.Aratelia.ilcore.test_component"
 #define COMPONENT1_PRIORITY 3
@@ -86,25 +85,18 @@ struct check_common_context
 static void
 setup (void)
 {
-  tiz_rcfile_open(&pg_rcfile);
-
-  pg_rmdb_path = strndup (tiz_rcfile_get_value(pg_rcfile,
-                                               "resource-management", "rmdb"),
+  pg_rmdb_path = strndup (tiz_rcfile_get_value("resource-management", "rmdb"),
                           PATH_MAX);
-  pg_sqlite_script = strndup (tiz_rcfile_get_value(pg_rcfile,
-                                                  "resource-management",
+  pg_sqlite_script = strndup (tiz_rcfile_get_value("resource-management",
                                                    "rmdb.sqlite_script"),
                               PATH_MAX);
-  pg_init_script = strndup (tiz_rcfile_get_value(pg_rcfile,
-                                                "resource-management",
+  pg_init_script = strndup (tiz_rcfile_get_value("resource-management",
                                                 "rmdb.init_script"),
                            PATH_MAX);
-  pg_rmd_path = strndup (tiz_rcfile_get_value(pg_rcfile,
-                                             "resource-management",
+  pg_rmd_path = strndup (tiz_rcfile_get_value("resource-management",
                                              "rmd.path"),
                         PATH_MAX);
-  pg_dump_script = strndup (tiz_rcfile_get_value(pg_rcfile,
-                                                "resource-management",
+  pg_dump_script = strndup (tiz_rcfile_get_value("resource-management",
                                                 "rmdb.dbdump_script"),
                            PATH_MAX);
 
@@ -119,8 +111,6 @@ setup (void)
       TIZ_LOG(TIZ_TRACE, "RM daemon [%s] ...", pg_rmd_path);
     }
 
-  tiz_rcfile_close(pg_rcfile);
-  pg_rcfile = NULL;
 }
 
 static void

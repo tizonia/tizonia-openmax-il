@@ -303,12 +303,12 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
 
   TIZ_PD_ZERO (&ports);
 
-  TIZ_UTIL_TEST_ERR (tiz_kernel_select (p_krn, 1, &ports));
+  tiz_check_omx_err (tiz_kernel_select (p_krn, 1, &ports));
 
   if (TIZ_PD_ISSET (0, &ports))
     {
-      TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer (p_krn, 0, 0, &p_hdr));
-      TIZ_UTIL_TEST_ERR (sdlivr_proc_render_buffer (ap_obj, p_hdr));
+      tiz_check_omx_err (tiz_kernel_claim_buffer (p_krn, 0, 0, &p_hdr));
+      tiz_check_omx_err (sdlivr_proc_render_buffer (ap_obj, p_hdr));
       if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
         {
           TIZ_LOG (TIZ_TRACE, "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);

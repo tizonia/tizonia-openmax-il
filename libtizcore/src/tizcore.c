@@ -317,7 +317,7 @@ get_component_roles (OMX_COMPONENTTYPE * ap_hdl,
       }
     else if (OMX_ErrorNoMore == rc)
       {
-        TIZ_LOG (TIZ_ERROR, "[%s] : No more roles",
+        TIZ_LOG (TIZ_TRACE, "[%s] : No more roles",
                  tiz_err_to_str (rc));
         tiz_mem_free (p_role);
         break;
@@ -657,15 +657,11 @@ cache_comp_info (const OMX_STRING ap_dl_path, const OMX_STRING ap_dl_name)
 static char **
 find_component_paths(unsigned long * ap_npaths)
 {
-  tiz_rcfile_t *p_rcfile = NULL;
   char **val_lst = NULL;
 
   assert(ap_npaths);
 
-  tiz_rcfile_open(&p_rcfile);
-  val_lst = tiz_rcfile_get_value_list(p_rcfile, "il-core",
-                                      "component-paths", ap_npaths);
-  tiz_rcfile_close(p_rcfile);
+  val_lst = tiz_rcfile_get_value_list("il-core", "component-paths", ap_npaths);
 
   if (!val_lst || 0 == * ap_npaths)
     {
@@ -1293,17 +1289,17 @@ il_core_thread_func (void *p_arg)
 
   assert (NULL != p_core);
 
-  TIZ_UTIL_TEST_ERR_RET_NULL (tiz_sem_post (&(p_core->sem)));
+  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_core->sem)));
 
   for (;;)
     {
-      TIZ_UTIL_TEST_ERR_RET_NULL (tiz_queue_receive (p_core->p_queue, &p_data));
+      tiz_check_omx_err_ret_null (tiz_queue_receive (p_core->p_queue, &p_data));
       signal_client = dispatch_msg
         (&(p_core->state), (tizcore_msg_t *) p_data);
 
       if (signal_client > 0)
         {
-          TIZ_UTIL_TEST_ERR_RET_NULL (tiz_sem_post (&(p_core->sem)));
+          tiz_check_omx_err_ret_null (tiz_sem_post (&(p_core->sem)));
         }
 
       if (ETIZCoreStateStopped == p_core->state)
@@ -1402,8 +1398,8 @@ send_msg_blocking (tizcore_msg_t * ap_msg)
   assert (NULL != ap_msg);
   assert (NULL != p_core);
 
-  TIZ_UTIL_TEST_ERR (tiz_queue_send (p_core->p_queue, ap_msg));
-  TIZ_UTIL_TEST_ERR (tiz_sem_wait (&(p_core->sem)));
+  tiz_check_omx_err (tiz_queue_send (p_core->p_queue, ap_msg));
+  tiz_check_omx_err (tiz_sem_wait (&(p_core->sem)));
   TIZ_LOG (TIZ_TRACE, "OMX IL CORE RESULT [%s]",
            tiz_err_to_str (p_core->error));
 
@@ -1577,8 +1573,8 @@ OMX_Deinit (void)
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_UTIL_TEST_ERR (tiz_queue_send (p_core->p_queue, p_msg));
-  TIZ_UTIL_TEST_ERR (tiz_sem_wait (&(p_core->sem)));
+  tiz_check_omx_err (tiz_queue_send (p_core->p_queue, p_msg));
+  tiz_check_omx_err (tiz_sem_wait (&(p_core->sem)));
   tiz_thread_join (&(p_core->thread), &p_result);
 
   tiz_queue_destroy (p_core->p_queue);

@@ -28,6 +28,8 @@ libtizosal_include_HEADERS = \
 	avl/avl.h \
 	http-parser/http_parser.h \
 	tizosal.h \
+	tizmacros.h \
+	tizosalint.h \
 	tizosallog.h \
 	tizosalutils.h \
 	tizosalmem.h \

@@ -139,18 +139,14 @@ static char *
 get_alsa_device (void *ap_obj)
 {
   struct arprc *p_obj = ap_obj;
-  tiz_rcfile_t *p_rcfile = NULL;
   const char *p_alsa_pcm = NULL;
 
   assert (ap_obj);
 
-  tiz_rcfile_open (&p_rcfile);
-
   assert (NULL == p_obj->p_alsa_pcm_);
 
   p_alsa_pcm
-    = tiz_rcfile_get_value (p_rcfile, "plugins-data",
-                            "OMX.Aratelia.audio_renderer.pcm.alsa_device");
+    = tiz_rcfile_get_value ("plugins-data", "OMX.Aratelia.audio_renderer.pcm.alsa_device");
 
   if (NULL != p_alsa_pcm)
     {
@@ -163,8 +159,6 @@ get_alsa_device (void *ap_obj)
                "No alsa device found in config file. Using [%s]...",
                TIZ_AR_ALSA_PCM_DEVICE);
     }
-
-  tiz_rcfile_close (p_rcfile);
 
   return (NULL != p_obj->p_alsa_pcm_) ? p_obj->p_alsa_pcm_
     : TIZ_AR_ALSA_PCM_DEVICE;
@@ -332,13 +326,13 @@ ar_proc_buffers_ready (const void *ap_obj)
 
   TIZ_PD_ZERO (&ports);
 
-  TIZ_UTIL_TEST_ERR (tiz_kernel_select (p_krn, 1, &ports));
+  tiz_check_omx_err (tiz_kernel_select (p_krn, 1, &ports));
 
   if (TIZ_PD_ISSET (0, &ports))
     {
-      TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer (p_krn, 0, 0, &p_hdr));
+      tiz_check_omx_err (tiz_kernel_claim_buffer (p_krn, 0, 0, &p_hdr));
       TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...", p_hdr);
-      TIZ_UTIL_TEST_ERR (ar_proc_render_buffer (ap_obj, p_hdr));
+      tiz_check_omx_err (ar_proc_render_buffer (ap_obj, p_hdr));
       if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
         {
           TIZ_LOG (TIZ_DEBUG, "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);

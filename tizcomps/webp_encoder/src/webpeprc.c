@@ -171,12 +171,12 @@ claim_input (const void *ap_obj)
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_PD_ZERO (&ports);
-  TIZ_UTIL_TEST_ERR (tiz_kernel_select (p_krn, 2, &ports));
+  tiz_check_omx_err (tiz_kernel_select (p_krn, 2, &ports));
 
   /* We need one input buffers */
   if (TIZ_PD_ISSET (0, &ports))
     {
-      TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer
+      tiz_check_omx_err (tiz_kernel_claim_buffer
                          (p_krn, 0, 0, &p_obj->pinhdr_));
       TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
@@ -201,12 +201,12 @@ claim_output (const void *ap_obj)
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_PD_ZERO (&ports);
-  TIZ_UTIL_TEST_ERR (tiz_kernel_select (p_krn, 2, &ports));
+  tiz_check_omx_err (tiz_kernel_select (p_krn, 2, &ports));
 
   /* We need one output buffers */
   if (TIZ_PD_ISSET (1, &ports))
     {
-      TIZ_UTIL_TEST_ERR (tiz_kernel_claim_buffer
+      tiz_check_omx_err (tiz_kernel_claim_buffer
                          (p_krn, 1, 0, &p_obj->pouthdr_));
       TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
@@ -249,7 +249,7 @@ webpe_proc_buffers_ready (const void *ap_obj)
             }
         }
 
-      TIZ_UTIL_TEST_ERR (webpe_proc_transform_buffer (ap_obj));
+      tiz_check_omx_err (webpe_proc_transform_buffer (ap_obj));
       if (p_obj->pinhdr_ && (0 == p_obj->pinhdr_->nFilledLen))
         {
           p_obj->pinhdr_->nOffset = 0;
