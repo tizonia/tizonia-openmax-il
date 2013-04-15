@@ -40,7 +40,7 @@ extern "C"
 /* factory_new(mp3dprc, ...) */
   extern const void *mp3dprc;
 
-  void init_mp3dprc (void);
+  void mp3d_prc_init (void);
 
 #ifdef __cplusplus
 }

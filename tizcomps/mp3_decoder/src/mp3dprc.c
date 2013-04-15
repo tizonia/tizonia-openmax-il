@@ -30,17 +30,15 @@
 #include <config.h>
 #endif
 
+#include "mp3dprc.h"
+#include "mp3dprc_decls.h"
+#include "tizkernel.h"
+#include "tizscheduler.h"
+#include "tizosal.h"
+
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
-#include "mp3dprc.h"
-#include "mp3dprc_decls.h"
-
-#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -50,7 +48,7 @@
 static void
 relinquish_any_buffers_held (const void *ap_obj)
 {
-  struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -211,7 +209,7 @@ read_from_omx_buffer (void *p_dst, size_t bytes, OMX_BUFFERHEADERTYPE * p_hdr)
 static int
 synthesize_samples (const void *ap_obj, int next_sample)
 {
-  struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   int i;
   const unsigned char *p_bufend = p_obj->p_outhdr_->pBuffer
@@ -273,7 +271,7 @@ synthesize_samples (const void *ap_obj, int next_sample)
 static void *
 mp3d_proc_ctor (void *ap_obj, va_list * app)
 {
-  struct mp3dprc *p_obj = super_ctor (mp3dprc, ap_obj, app);
+  mp3d_prc_t *p_obj = super_ctor (mp3dprc, ap_obj, app);
   p_obj->remaining_ = 0;
   p_obj->frame_count_ = 0;
   p_obj->p_inhdr_ = 0;
@@ -293,7 +291,7 @@ mp3d_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 decode_buffer (const void *ap_obj)
 {
-  struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
   unsigned char *p_guardzone = NULL;
   const tiz_servant_t *p_parent = ap_obj;
   int status = 0;
@@ -501,7 +499,7 @@ decode_buffer (const void *ap_obj)
 static OMX_ERRORTYPE
 mp3d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct mp3dprc *p_obj = ap_obj;
+  mp3d_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
@@ -521,7 +519,7 @@ mp3d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 mp3d_proc_deallocate_resources (void *ap_obj)
 {
-  struct mp3dprc *p_obj = ap_obj;
+  mp3d_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
@@ -562,7 +560,7 @@ mp3d_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 mp3d_proc_stop_and_return (void *ap_obj)
 {
-  struct mp3dprc *p_obj = ap_obj;
+  mp3d_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   char buffer[80];
 
@@ -588,7 +586,7 @@ static bool
 mp3d_claim_input (const void *ap_obj)
 {
   const tiz_servant_t *p_parent = ap_obj;
-  struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -618,7 +616,7 @@ static bool
 mp3d_claim_output (const void *ap_obj)
 {
   const tiz_servant_t *p_parent = ap_obj;
-  struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -644,7 +642,7 @@ mp3d_claim_output (const void *ap_obj)
 static OMX_ERRORTYPE
 mp3d_proc_buffers_ready (const void *ap_obj)
 {
-  struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -698,7 +696,7 @@ mp3d_proc_buffers_ready (const void *ap_obj)
 static OMX_ERRORTYPE
 mp3d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
-  struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
   /* Always relinquish all held buffers, regardless of the port this is
    * received on */
   relinquish_any_buffers_held (p_obj);
@@ -708,7 +706,7 @@ mp3d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
-  struct mp3dprc *p_obj = (struct mp3dprc *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
   /* Always relinquish all held buffers, regardless of the port this is
    * received on */
   relinquish_any_buffers_held (p_obj);
@@ -728,9 +726,8 @@ mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 const void *mp3dprc;
 
 void
-init_mp3dprc (void)
+mp3d_prc_init (void)
 {
-
   if (!mp3dprc)
     {
       tiz_proc_init ();
@@ -739,7 +736,7 @@ init_mp3dprc (void)
         (tizproc_class,
          "mp3dprc",
          tizproc,
-         sizeof (struct mp3dprc),
+         sizeof (mp3d_prc_t),
          ctor, mp3d_proc_ctor,
          dtor, mp3d_proc_dtor,
          tiz_servant_allocate_resources, mp3d_proc_allocate_resources,
@@ -752,5 +749,4 @@ init_mp3dprc (void)
          tiz_proc_port_disable, mp3d_proc_port_disable,
          tiz_proc_port_enable, mp3d_proc_port_enable, 0);
     }
-
 }

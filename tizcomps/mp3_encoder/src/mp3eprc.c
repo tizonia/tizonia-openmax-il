@@ -30,17 +30,15 @@
 #include <config.h>
 #endif
 
+#include "mp3eprc.h"
+#include "mp3eprc_decls.h"
+#include "tizkernel.h"
+#include "tizscheduler.h"
+#include "tizosal.h"
+
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
-#include "mp3eprc.h"
-#include "mp3eprc_decls.h"
-
-#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -52,7 +50,7 @@
 static OMX_ERRORTYPE
 relinquish_any_buffers_held (const void *ap_obj)
 {
-  struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
+  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -95,7 +93,7 @@ relinquish_any_buffers_held (const void *ap_obj)
 static OMX_ERRORTYPE
 encode_buffer (const void *ap_obj)
 {
-  struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
+  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   int nsamples = 0;
   int encoded_bytes = 0;
@@ -202,7 +200,7 @@ static bool
 claim_input (const void *ap_obj)
 {
   const tiz_servant_t *p_parent = ap_obj;
-  struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
+  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -224,7 +222,7 @@ static bool
 claim_output (const void *ap_obj)
 {
   const tiz_servant_t *p_parent = ap_obj;
-  struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
+  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -254,7 +252,7 @@ claim_output (const void *ap_obj)
 static OMX_ERRORTYPE
 set_lame_pcm_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
 {
-  struct mp3eprc *p_obj = ap_obj;
+  mp3e_prc_t *p_obj = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
   assert (ap_obj);
@@ -291,7 +289,7 @@ set_lame_pcm_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
 static OMX_ERRORTYPE
 set_lame_mp3_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
 {
-  struct mp3eprc *p_obj = ap_obj;
+  mp3e_prc_t *p_obj = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   int lame_mode = 0;
 
@@ -368,7 +366,7 @@ set_lame_mp3_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
 static void *
 mp3e_proc_ctor (void *ap_obj, va_list * app)
 {
-  struct mp3eprc *p_obj = super_ctor (mp3eprc, ap_obj, app);
+  mp3e_prc_t *p_obj = super_ctor (mp3eprc, ap_obj, app);
   p_obj->lame_ = NULL;
   p_obj->frame_size_ = 0;
   p_obj->p_inhdr_ = 0;
@@ -381,7 +379,7 @@ mp3e_proc_ctor (void *ap_obj, va_list * app)
 static void *
 mp3e_proc_dtor (void *ap_obj)
 {
-  struct mp3eprc *p_obj = ap_obj;
+  mp3e_prc_t *p_obj = ap_obj;
 
   if (NULL != p_obj->lame_)
     {
@@ -399,7 +397,7 @@ mp3e_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 mp3e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct mp3eprc *p_obj = ap_obj;
+  mp3e_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
@@ -426,7 +424,7 @@ mp3e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 mp3e_proc_deallocate_resources (void *ap_obj)
 {
-  struct mp3eprc *p_obj = ap_obj;
+  mp3e_prc_t *p_obj = ap_obj;
   assert (ap_obj);
 
   if (NULL != p_obj->lame_)
@@ -441,7 +439,7 @@ mp3e_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 mp3e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  struct mp3eprc *p_obj = ap_obj;
+  mp3e_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = NULL;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
@@ -493,7 +491,7 @@ mp3e_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 mp3e_proc_stop_and_return (void *ap_obj)
 {
-  struct mp3eprc *p_obj = ap_obj;
+  mp3e_prc_t *p_obj = ap_obj;
   return relinquish_any_buffers_held (p_obj);
 }
 
@@ -504,7 +502,7 @@ mp3e_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 mp3e_proc_buffers_ready (const void *ap_obj)
 {
-  struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
+  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -555,7 +553,7 @@ mp3e_proc_buffers_ready (const void *ap_obj)
 static OMX_ERRORTYPE
 mp3e_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
-  struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
+  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   /* Always relinquish all held buffers, regardless of the port this is
    * received on */
   return relinquish_any_buffers_held (p_obj);
@@ -564,7 +562,7 @@ mp3e_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 mp3e_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
-  struct mp3eprc *p_obj = (struct mp3eprc *) ap_obj;
+  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   /* Always relinquish all held buffers, regardless of the port this is
    * received on */
   return relinquish_any_buffers_held (p_obj);
@@ -583,9 +581,8 @@ mp3e_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 const void *mp3eprc;
 
 void
-init_mp3eprc (void)
+mp3e_prc_init (void)
 {
-
   if (!mp3eprc)
     {
       tiz_proc_init ();
@@ -594,7 +591,7 @@ init_mp3eprc (void)
         (tizproc_class,
          "mp3eprc",
          tizproc,
-         sizeof (struct mp3eprc),
+         sizeof (mp3e_prc_t),
          ctor, mp3e_proc_ctor,
          dtor, mp3e_proc_dtor,
          tiz_servant_allocate_resources, mp3e_proc_allocate_resources,

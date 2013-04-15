@@ -183,7 +183,7 @@ instantiate_processor (OMX_HANDLETYPE ap_hdl)
   OMX_PTR p_proc = NULL;
 
   /* Instantiate the processor */
-  init_mp3eprc ();
+  mp3e_prc_init ();
   p_proc = factory_new (mp3eprc, ap_hdl);
   assert (p_proc);
 

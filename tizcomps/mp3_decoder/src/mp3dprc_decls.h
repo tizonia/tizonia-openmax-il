@@ -34,18 +34,18 @@ extern "C"
 {
 #endif
 
-#include <stdbool.h>
-#include <mad.h>
-
 #include "OMX_Core.h"
-
 #include "mp3dprc.h"
 #include "tizproc_decls.h"
+
+#include <stdbool.h>
+#include <mad.h>
 
 #define INPUT_BUFFER_SIZE   (5*8192)
 #define OUTPUT_BUFFER_SIZE  8192        /* Must be an integer multiple of 4. */
 
-  struct mp3dprc
+  typedef struct mp3d_prc mp3d_prc_t;
+  struct mp3d_prc
   {
     /* Object */
     const tiz_proc_t _;
