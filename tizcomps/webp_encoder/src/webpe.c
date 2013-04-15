@@ -101,7 +101,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow = NULL;
 
-  init_tizvideoport ();
+  tiz_videoport_init ();
   p_videoport = factory_new (tizvideoport, &video_port_opts, &portdef,
                              &encodings, &formats);
   assert (p_videoport);

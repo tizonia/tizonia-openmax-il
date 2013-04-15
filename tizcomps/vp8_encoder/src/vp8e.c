@@ -100,7 +100,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow = NULL;
 
-  init_tizvideoport ();
+  tiz_videoport_init ();
   p_videoport = factory_new (tizvideoport, &rawvideo_port_opts, &portdef,
                              &encodings, &formats);
   assert (p_videoport);
@@ -171,7 +171,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   pbrtype.eControlRate = OMX_Video_ControlRateConstant;
   pbrtype.nTargetBitrate = 64000;
 
-  init_tizvp8port ();
+  tiz_vp8port_init ();
   p_vp8port = factory_new (tizvp8port, &vp8_port_opts, &portdef, &encodings,
                            &formats, &vp8type, &levels, &pbrtype);
   assert (p_vp8port);

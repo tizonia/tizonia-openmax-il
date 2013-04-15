@@ -35,25 +35,19 @@ extern "C"
 #endif
 
 #include "OMX_Component.h"
-
 #include "tizvideoport_decls.h"
 #include "tizosal.h"
 
-  struct tizivrport
+  typedef struct tiz_ivrport tiz_ivrport_t;
+  struct tiz_ivrport
   {
     /* Object */
-    const struct tizvideoport _;
+    const tiz_videoport_t _;
     OMX_CONFIG_ROTATIONTYPE crotate_;
     OMX_CONFIG_MIRRORTYPE cmirror_;
     OMX_CONFIG_SCALEFACTORTYPE cscale_;
     OMX_CONFIG_RECTTYPE cincrop_;
     OMX_TIME_CONFIG_RENDERINGDELAYTYPE crendelay_;
-  };
-
-  struct tizivrport_class
-  {
-    /* Class */
-    const struct tizvideoport_class _;
   };
 
 #ifdef __cplusplus

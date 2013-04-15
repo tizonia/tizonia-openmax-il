@@ -34,14 +34,12 @@ extern "C"
 {
 #endif
 
-#include <stdbool.h>
-
-#include <SDL.h>
-
 #include "OMX_Core.h"
-
 #include "sdlivrprc.h"
 #include "tizproc_decls.h"
+
+#include <stdbool.h>
+#include <SDL.h>
 
   struct sdlivrprc
   {

@@ -50,7 +50,7 @@
 static void *
 videoport_ctor (void *ap_obj, va_list * app)
 {
-  struct tizvideoport *p_obj = super_ctor (tizvideoport, ap_obj, app);
+  tiz_videoport_t *p_obj = super_ctor (tizvideoport, ap_obj, app);
   OMX_VIDEO_PORTDEFINITIONTYPE *p_portdef = NULL;
   OMX_VIDEO_CODINGTYPE *p_encodings = NULL;
   OMX_COLOR_FORMATTYPE *p_formats = NULL;
@@ -121,7 +121,7 @@ videoport_ctor (void *ap_obj, va_list * app)
 static void *
 videoport_dtor (void *ap_obj)
 {
-  struct tizvideoport *p_obj = ap_obj;
+  tiz_videoport_t *p_obj = ap_obj;
   assert (p_obj);
 
   tiz_vector_clear (p_obj->p_video_encodings_);
@@ -142,7 +142,7 @@ videoport_GetParameter (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizvideoport *p_obj = ap_obj;
+  const tiz_videoport_t *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -203,7 +203,7 @@ videoport_SetParameter (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizvideoport *p_obj = (struct tizvideoport *) ap_obj;
+  tiz_videoport_t *p_obj = (tiz_videoport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -315,7 +315,7 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
                                    const OMX_PTR ap_struct,
                                    tiz_vector_t * ap_changed_idxs)
 {
-  struct tizvideoport *p_obj = ap_obj;
+  tiz_videoport_t *p_obj = ap_obj;
   tiz_port_t *p_base = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -375,29 +375,8 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 static void *
 videoport_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tizvideoport_class *p_obj =
-    super_ctor (tizvideoport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return ap_obj;
 }
 
 /*
@@ -407,18 +386,16 @@ videoport_class_ctor (void *ap_obj, va_list * app)
 const void *tizvideoport, *tizvideoport_class;
 
 void
-init_tizvideoport (void)
+tiz_videoport_init (void)
 {
-
   if (!tizvideoport_class)
     {
       tiz_port_init ();
       tizvideoport_class = factory_new (tizport_class,
                                         "tizvideoport_class",
                                         tizport_class,
-                                        sizeof (struct tizvideoport_class),
+                                        sizeof (tiz_videoport_class_t),
                                         ctor, videoport_class_ctor, 0);
-
     }
 
   if (!tizvideoport)
@@ -429,7 +406,7 @@ init_tizvideoport (void)
         (tizvideoport_class,
          "tizvideoport",
          tizport,
-         sizeof (struct tizvideoport),
+         sizeof (tiz_videoport_t),
          ctor, videoport_ctor,
          dtor, videoport_dtor,
          tiz_api_GetParameter, videoport_GetParameter,
@@ -437,5 +414,4 @@ init_tizvideoport (void)
          tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
          0);
     }
-
 }

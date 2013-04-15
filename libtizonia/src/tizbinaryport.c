@@ -107,7 +107,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
         portdef.pNativeWindow = NULL;
 
         tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat);
-        init_tizvideoport ();
+        tiz_videoport_init ();
         p_obj->ip_port = factory_new (tizvideoport, p_opts, &portdef,
                                       &encodings, &formats);
       }

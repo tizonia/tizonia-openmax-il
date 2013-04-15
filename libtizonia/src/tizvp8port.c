@@ -50,7 +50,7 @@
 static void *
 vp8port_ctor (void *ap_obj, va_list * app)
 {
-  struct tizvp8port *p_obj = super_ctor (tizvp8port, ap_obj, app);
+  tiz_vp8port_t *p_obj = super_ctor (tizvp8port, ap_obj, app);
   tiz_port_t *p_base = ap_obj;
   OMX_VIDEO_PARAM_VP8TYPE *p_vp8type = NULL;
   OMX_VIDEO_VP8LEVELTYPE *p_levels = NULL;
@@ -128,7 +128,7 @@ vp8port_ctor (void *ap_obj, va_list * app)
 static void *
 vp8port_dtor (void *ap_obj)
 {
-  struct tizvp8port *p_obj = ap_obj;
+  tiz_vp8port_t *p_obj = ap_obj;
   tiz_vector_clear (p_obj->p_levels_);
   tiz_vector_destroy (p_obj->p_levels_);
   return super_dtor (tizvp8port, ap_obj);
@@ -143,7 +143,7 @@ vp8port_GetParameter (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizvp8port *p_obj = ap_obj;
+  const tiz_vp8port_t *p_obj = ap_obj;
   const tiz_port_t *p_base = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
@@ -222,7 +222,7 @@ vp8port_SetParameter (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizvp8port *p_obj = (struct tizvp8port *) ap_obj;
+  tiz_vp8port_t *p_obj = (tiz_vp8port_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -330,7 +330,7 @@ vp8port_GetConfig (const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizvp8port *p_obj = ap_obj;
+  const tiz_vp8port_t *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetConfig [%s]...", tiz_idx_to_str (a_index));
 
@@ -386,7 +386,7 @@ vp8port_SetConfig (const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizvp8port *p_obj = (struct tizvp8port *) ap_obj;
+  tiz_vp8port_t *p_obj = (tiz_vp8port_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
@@ -481,66 +481,23 @@ vp8port_check_tunnel_compat (const void *ap_obj,
 }
 
 /*
- * tizvp8port_class
- */
-
-static void *
-vp8port_class_ctor (void *ap_obj, va_list * app)
-{
-  struct tizvp8port_class *p_obj = super_ctor (tizvp8port_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
-}
-
-/*
  * initialization
  */
 
-const void *tizvp8port, *tizvp8port_class;
+const void *tizvp8port;
 
 void
-init_tizvp8port (void)
+tiz_vp8port_init (void)
 {
-
-  if (!tizvp8port_class)
-    {
-      init_tizvideoport ();
-      tizvp8port_class = factory_new (tizvideoport_class,
-                                      "tizvp8port_class",
-                                      tizvideoport_class,
-                                      sizeof (struct tizvp8port_class),
-                                      ctor, vp8port_class_ctor, 0);
-
-    }
-
   if (!tizvp8port)
     {
-      init_tizvideoport ();
+      tiz_videoport_init ();
       tizvp8port =
         factory_new
-        (tizvp8port_class,
+        (tizvideoport_class,
          "tizvp8port",
          tizvideoport,
-         sizeof (struct tizvp8port),
+         sizeof (tiz_vp8port_t),
          ctor, vp8port_ctor,
          dtor, vp8port_dtor,
          tiz_api_GetParameter, vp8port_GetParameter,
@@ -550,5 +507,4 @@ init_tizvp8port (void)
          tiz_port_set_portdef_format, vp8port_set_portdef_format,
          tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat, 0);
     }
-
 }

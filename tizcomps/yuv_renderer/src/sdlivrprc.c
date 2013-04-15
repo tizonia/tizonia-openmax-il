@@ -331,7 +331,6 @@ const void *sdlivrprc;
 void
 init_sdlivrprc (void)
 {
-
   if (!sdlivrprc)
     {
       tiz_proc_init ();

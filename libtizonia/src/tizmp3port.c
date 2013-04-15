@@ -397,7 +397,6 @@ const void *tizmp3port;
 void
 tiz_mp3port_init (void)
 {
-
   if (!tizmp3port)
     {
       tiz_audioport_init ();
@@ -415,5 +414,4 @@ tiz_mp3port_init (void)
          tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
          tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour, 0);
     }
-
 }

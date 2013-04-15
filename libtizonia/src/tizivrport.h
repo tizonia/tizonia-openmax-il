@@ -36,14 +36,12 @@ extern "C"
 
 #include "OMX_Core.h"
 #include "OMX_Types.h"
-
 #include "tizvideoport.h"
 
 /* factory_new(tizivrport, ...); */
   extern const void *tizivrport;
-  extern const void *tizivrport_class;
 
-  void init_tizivrport (void);
+  void tiz_ivrport_init (void);
 
 #ifdef __cplusplus
 }

@@ -30,13 +30,12 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "tizivrport.h"
 #include "tizivrport_decls.h"
-
 #include "tizutils.h"
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -50,7 +49,7 @@
 static void *
 ivrport_ctor (void *ap_obj, va_list * app)
 {
-  struct tizivrport *p_obj = super_ctor (tizivrport, ap_obj, app);
+  tiz_ivrport_t *p_obj = super_ctor (tizivrport, ap_obj, app);
   tiz_port_t *p_base = ap_obj;
 
   tiz_port_register_index (p_obj, OMX_IndexConfigCommonRotate);
@@ -111,7 +110,7 @@ ivrport_GetConfig (const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizivrport *p_obj = ap_obj;
+  const tiz_ivrport_t *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetConfig [%s]...", tiz_idx_to_str (a_index));
 
@@ -171,7 +170,7 @@ ivrport_SetConfig (const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizivrport *p_obj = (struct tizivrport *) ap_obj;
+  tiz_ivrport_t *p_obj = (tiz_ivrport_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
@@ -268,66 +267,23 @@ ivrport_check_tunnel_compat (const void *ap_obj,
 }
 
 /*
- * tizivrport_class
- */
-
-static void *
-ivrport_class_ctor (void *ap_obj, va_list * app)
-{
-  struct tizivrport_class *p_obj = super_ctor (tizivrport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
-}
-
-/*
  * initialization
  */
 
-const void *tizivrport, *tizivrport_class;
+const void *tizivrport;
 
 void
-init_tizivrport (void)
+tiz_ivrport_init (void)
 {
-
-  if (!tizivrport_class)
-    {
-      init_tizvideoport ();
-      tizivrport_class = factory_new (tizvideoport_class,
-                                      "tizivrport_class",
-                                      tizvideoport_class,
-                                      sizeof (struct tizivrport_class),
-                                      ctor, ivrport_class_ctor, 0);
-
-    }
-
   if (!tizivrport)
     {
-      init_tizvideoport ();
+      tiz_videoport_init ();
       tizivrport =
         factory_new
-        (tizivrport_class,
+        (tizvideoport_class,
          "tizivrport",
          tizvideoport,
-         sizeof (struct tizivrport),
+         sizeof (tiz_ivrport_t),
          ctor, ivrport_ctor,
          dtor, ivrport_dtor,
          tiz_api_GetConfig, ivrport_GetConfig,
@@ -335,5 +291,4 @@ init_tizivrport (void)
          tiz_port_set_portdef_format, ivrport_set_portdef_format,
          tiz_port_check_tunnel_compat, ivrport_check_tunnel_compat, 0);
     }
-
 }
