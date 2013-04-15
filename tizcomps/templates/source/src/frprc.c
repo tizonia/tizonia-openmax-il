@@ -195,7 +195,6 @@ const void *frprc;
 void
 init_frprc (void)
 {
-
   if (!frprc)
     {
       TIZ_LOG (TIZ_LOG_TRACE, "Initializing frprc...");
@@ -215,5 +214,4 @@ init_frprc (void)
          tizservant_transfer_and_process, fr_proc_transfer_and_process,
          tizservant_stop_and_return, fr_proc_stop_and_return, 0);
     }
-
 }

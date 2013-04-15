@@ -30,18 +30,15 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <stdio.h>
-
 #include "OMX_Core.h"
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
 #include "frprc.h"
 #include "frprc_decls.h"
-
+#include "tizkernel.h"
+#include "tizscheduler.h"
 #include "tizosal.h"
+
+#include <assert.h>
+#include <stdio.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -55,7 +52,7 @@
 static void *
 fr_proc_ctor (void *ap_obj, va_list * app)
 {
-  struct frprc *p_obj = super_ctor (frprc, ap_obj, app);
+  fr_prc_t *p_obj = super_ctor (frprc, ap_obj, app);
   p_obj->p_file_ = NULL;
   p_obj->p_uri_param_ = NULL;
   p_obj->counter_ = 0;
@@ -66,7 +63,7 @@ fr_proc_ctor (void *ap_obj, va_list * app)
 static void *
 fr_proc_dtor (void *ap_obj)
 {
-  struct frprc *p_obj = ap_obj;
+  fr_prc_t *p_obj = ap_obj;
 
   if (p_obj->p_file_)
     {
@@ -84,7 +81,7 @@ fr_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
-  struct frprc *p_obj = (struct frprc *) ap_obj;
+  fr_prc_t *p_obj = (fr_prc_t *) ap_obj;
   int bytes_read = 0;
 
   if (p_obj->p_file_ && !(p_obj->eos_))
@@ -125,7 +122,7 @@ fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 static OMX_ERRORTYPE
 fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct frprc *p_obj = ap_obj;
+  fr_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -174,7 +171,7 @@ fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 fr_proc_deallocate_resources (void *ap_obj)
 {
-  struct frprc *p_obj = ap_obj;
+  fr_prc_t *p_obj = ap_obj;
   assert (ap_obj);
 
   if (p_obj->p_file_)
@@ -192,7 +189,7 @@ fr_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  struct frprc *p_obj = ap_obj;
+  fr_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   p_obj->counter_ = 0;
   p_obj->eos_ = false;
@@ -202,7 +199,7 @@ fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 fr_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  struct frprc *p_obj = ap_obj;
+  fr_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   p_obj->counter_ = 0;
   p_obj->eos_ = false;
@@ -222,7 +219,7 @@ fr_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 fr_proc_buffers_ready (const void *ap_obj)
 {
-  const struct frprc *p_obj = ap_obj;
+  const fr_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -253,9 +250,8 @@ fr_proc_buffers_ready (const void *ap_obj)
 const void *frprc;
 
 void
-init_frprc (void)
+fr_prc_init (void)
 {
-
   if (!frprc)
     {
       tiz_proc_init ();
@@ -264,7 +260,7 @@ init_frprc (void)
         (tizproc_class,
          "frprc",
          tizproc,
-         sizeof (struct frprc),
+         sizeof (fr_prc_t),
          ctor, fr_proc_ctor,
          dtor, fr_proc_dtor,
          tiz_proc_buffers_ready, fr_proc_buffers_ready,

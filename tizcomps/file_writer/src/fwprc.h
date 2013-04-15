@@ -39,7 +39,7 @@ extern "C"
 /* factory_new(fwprc, ...) */
   extern const void *fwprc;
 
-  void init_fwprc (void);
+  void fw_prc_init (void);
 
 #ifdef __cplusplus
 }

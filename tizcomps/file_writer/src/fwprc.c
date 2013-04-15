@@ -30,18 +30,15 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <stdio.h>
-
 #include "OMX_Core.h"
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
 #include "fwprc.h"
 #include "fwprc_decls.h"
-
+#include "tizkernel.h"
+#include "tizscheduler.h"
 #include "tizosal.h"
+
+#include <assert.h>
+#include <stdio.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -55,7 +52,7 @@
 static void *
 fw_proc_ctor (void *ap_obj, va_list * app)
 {
-  struct fwprc *p_obj = super_ctor (fwprc, ap_obj, app);
+  fw_prc_t *p_obj = super_ctor (fwprc, ap_obj, app);
   p_obj->p_file_ = NULL;
   p_obj->p_uri_param_ = NULL;
   p_obj->counter_ = 0;
@@ -66,7 +63,7 @@ fw_proc_ctor (void *ap_obj, va_list * app)
 static void *
 fw_proc_dtor (void *ap_obj)
 {
-  struct fwprc *p_obj = ap_obj;
+  fw_prc_t *p_obj = ap_obj;
 
   if (p_obj->p_file_)
     {
@@ -84,7 +81,7 @@ fw_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
-  struct fwprc *p_obj = (struct fwprc *) ap_obj;
+  fw_prc_t *p_obj = (fw_prc_t *) ap_obj;
   int elems_written = 0;
 
   if (p_obj->p_file_ && !(p_obj->eos_) && p_hdr->nFilledLen > 0)
@@ -119,7 +116,7 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 static OMX_ERRORTYPE
 fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct fwprc *p_obj = ap_obj;
+  fw_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -168,7 +165,7 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 fw_proc_deallocate_resources (void *ap_obj)
 {
-  struct fwprc *p_obj = ap_obj;
+  fw_prc_t *p_obj = ap_obj;
   assert (ap_obj);
 
   if (p_obj->p_file_)
@@ -186,7 +183,7 @@ fw_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 fw_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  struct fwprc *p_obj = ap_obj;
+  fw_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   p_obj->counter_ = 0;
   p_obj->eos_ = false;
@@ -196,7 +193,7 @@ fw_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 fw_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  struct fwprc *p_obj = ap_obj;
+  fw_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   p_obj->counter_ = 0;
   p_obj->eos_ = false;
@@ -216,7 +213,7 @@ fw_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 fw_proc_buffers_ready (const void *ap_obj)
 {
-  const struct fwprc *p_obj = ap_obj;
+  const fw_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -255,9 +252,8 @@ fw_proc_buffers_ready (const void *ap_obj)
 const void *fwprc;
 
 void
-init_fwprc (void)
+fw_prc_init (void)
 {
-
   if (!fwprc)
     {
       tiz_proc_init ();
@@ -266,7 +262,7 @@ init_fwprc (void)
         (tizproc_class,
          "fwprc",
          tizproc,
-         sizeof (struct fwprc),
+         sizeof (fw_prc_t),
          ctor, fw_proc_ctor,
          dtor, fw_proc_dtor,
          tiz_proc_buffers_ready, fw_proc_buffers_ready,

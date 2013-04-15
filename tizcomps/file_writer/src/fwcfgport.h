@@ -36,7 +36,6 @@ extern "C"
 
 #include "OMX_Core.h"
 #include "OMX_Types.h"
-
 #include "tizconfigport.h"
 
 /* factory_new(fwcfgport, ...); */

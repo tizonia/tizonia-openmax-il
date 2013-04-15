@@ -39,7 +39,8 @@ extern "C"
 #include "frprc.h"
 #include "tizproc_decls.h"
 
-  struct frprc
+  typedef struct fr_prc fr_prc_t;
+  struct fr_prc
   {
     /* Object */
     const tiz_proc_t _;

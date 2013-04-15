@@ -34,12 +34,13 @@ extern "C"
 {
 #endif
 
-#include <stdbool.h>
-
 #include "fwprc.h"
 #include "tizproc_decls.h"
 
-  struct fwprc
+#include <stdbool.h>
+
+  typedef struct fw_prc fw_prc_t;
+  struct fw_prc
   {
     /* Object */
     const tiz_proc_t _;

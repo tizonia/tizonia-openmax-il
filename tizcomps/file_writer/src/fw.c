@@ -30,9 +30,6 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
-
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
@@ -42,6 +39,9 @@
 #include "tizbinaryport.h"
 #include "fwcfgport.h"
 #include "fwprc.h"
+
+#include <assert.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -174,7 +174,7 @@ instantiate_processor (OMX_HANDLETYPE ap_hdl)
   OMX_PTR p_proc = NULL;
 
   /* Instantiate the processor */
-  init_fwprc ();
+  fw_prc_init ();
   p_proc = factory_new (fwprc, ap_hdl);
   assert (p_proc);
 

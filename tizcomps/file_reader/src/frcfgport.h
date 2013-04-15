@@ -36,12 +36,10 @@ extern "C"
 
 #include "OMX_Core.h"
 #include "OMX_Types.h"
-
 #include "tizconfigport.h"
 
 /* factory_new(frcfgport, ...); */
   extern const void *frcfgport;
-  extern const void *frcfgport_class;
 
   void fr_cfgport_init (void);
 

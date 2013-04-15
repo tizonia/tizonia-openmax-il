@@ -30,14 +30,13 @@
 #include <config.h>
 #endif
 
+#include "fwcfgport.h"
+#include "fwcfgport_decls.h"
+#include "tizosal.h"
+
 #include <assert.h>
 #include <string.h>
 #include <limits.h>
-
-#include "fwcfgport.h"
-#include "fwcfgport_decls.h"
-
-#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
