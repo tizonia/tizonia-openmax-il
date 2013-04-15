@@ -34,6 +34,7 @@
 
 #include "tizfsm.h"
 #include "tizport.h"
+#include "tizport-macros.h"
 #include "tizscheduler.h"
 #include "tizkernel.h"
 #include "tizexecuting.h"

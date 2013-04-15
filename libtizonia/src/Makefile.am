@@ -53,6 +53,7 @@ libtizonia_include_HEADERS = \
 	tizpcmport.h \
 	tizport_decls.h \
 	tizport.h \
+	tizport-macros.h \
 	tizproc_decls.h \
 	tizproc.h \
 	tizscheduler.h \

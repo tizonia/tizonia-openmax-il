@@ -35,6 +35,7 @@
 #include "tizscheduler.h"
 #include "tizkernel.h"
 #include "tizport.h"
+#include "tizport-macros.h"
 #include "tizpause.h"
 #include "tizstate_decls.h"
 

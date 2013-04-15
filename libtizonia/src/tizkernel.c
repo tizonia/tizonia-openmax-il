@@ -38,6 +38,7 @@
 
 #include "tizfsm.h"
 #include "tizport.h"
+#include "tizport-macros.h"
 #include "tizkernel.h"
 #include "tizkernel_decls.h"
 #include "tizutils.h"

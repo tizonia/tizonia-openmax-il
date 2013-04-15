@@ -37,6 +37,7 @@
 #include "OMX_TizoniaExt.h"
 
 #include "tizport.h"
+#include "tizport-macros.h"
 #include "tizport_decls.h"
 #include "tizfsm.h"
 

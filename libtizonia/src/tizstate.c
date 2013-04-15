@@ -38,6 +38,7 @@
 #include "tizscheduler.h"
 #include "tizkernel.h"
 #include "tizport.h"
+#include "tizport-macros.h"
 #include "tizutils.h"
 #include "tizosal.h"
 
