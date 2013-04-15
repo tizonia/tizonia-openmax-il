@@ -39,7 +39,7 @@ extern "C"
 /* factory_new(arprc, ...) */
   extern const void *arprc;
 
-  void init_arprc (void);
+  void ar_prc_init (void);
 
 #ifdef __cplusplus
 }

@@ -30,17 +30,15 @@
 #include <config.h>
 #endif
 
+#include "sdlivrprc.h"
+#include "sdlivrprc_decls.h"
+#include "tizkernel.h"
+#include "tizscheduler.h"
+#include "tizosal.h"
+
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
-#include "sdlivrprc.h"
-#include "sdlivrprc_decls.h"
-
-#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -50,7 +48,7 @@
 static OMX_ERRORTYPE
 sdlivr_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
-  const struct sdlivrprc *p_obj = ap_obj;
+  const sdlivr_prc_t *p_obj = ap_obj;
   (void) p_obj;
 
 /*   TIZ_LOG (TIZ_TRACE, */
@@ -144,7 +142,7 @@ sdlivr_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 static void *
 sdlivr_proc_ctor (void *ap_obj, va_list * app)
 {
-  struct sdlivrprc *p_obj = super_ctor (sdlivrprc, ap_obj, app);
+  sdlivr_prc_t *p_obj = super_ctor (sdlivrprc, ap_obj, app);
   TIZ_LOG (TIZ_TRACE, "Constructing sdlivrprc...[%p]", p_obj);
 
   p_obj->pinhdr_ = 0;
@@ -157,7 +155,7 @@ sdlivr_proc_ctor (void *ap_obj, va_list * app)
 static void *
 sdlivr_proc_dtor (void *ap_obj)
 {
-  struct sdlivrprc *p_obj = ap_obj;
+  sdlivr_prc_t *p_obj = ap_obj;
   TIZ_LOG (TIZ_TRACE, "Destructing sdlivrprc...[%p]", p_obj);
   return super_dtor (sdlivrprc, ap_obj);
 }
@@ -169,7 +167,7 @@ sdlivr_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 sdlivr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct sdlivrprc *p_obj = ap_obj;
+  sdlivr_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
@@ -195,7 +193,7 @@ sdlivr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 sdlivr_proc_deallocate_resources (void *ap_obj)
 {
-  struct sdlivrprc *p_obj = ap_obj;
+  sdlivr_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
@@ -215,7 +213,7 @@ sdlivr_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  struct sdlivrprc *p_obj = ap_obj;
+  sdlivr_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -280,7 +278,7 @@ sdlivr_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 sdlivr_proc_stop_and_return (void *ap_obj)
 {
-  struct sdlivrprc *p_obj = ap_obj;
+  sdlivr_prc_t *p_obj = ap_obj;
 
   assert (NULL != p_obj);
 
@@ -329,7 +327,7 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
 const void *sdlivrprc;
 
 void
-init_sdlivrprc (void)
+sdlivr_prc_init (void)
 {
   if (!sdlivrprc)
     {
@@ -339,7 +337,7 @@ init_sdlivrprc (void)
         (tizproc_class,
          "sdlivrprc",
          tizproc,
-         sizeof (struct sdlivrprc),
+         sizeof (sdlivr_prc_t),
          ctor, sdlivr_proc_ctor,
          dtor, sdlivr_proc_dtor,
          tiz_proc_buffers_ready, sdlivr_proc_buffers_ready,

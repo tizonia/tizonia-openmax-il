@@ -41,7 +41,8 @@ extern "C"
 #include <stdbool.h>
 #include <SDL.h>
 
-  struct sdlivrprc
+  typedef struct sdlivr_prc sdlivr_prc_t;
+  struct sdlivr_prc
   {
     /* Object */
     const tiz_proc_t _;

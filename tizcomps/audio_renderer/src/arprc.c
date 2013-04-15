@@ -30,15 +30,13 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
 #include "arprc.h"
 #include "arprc_decls.h"
-
+#include "tizkernel.h"
+#include "tizscheduler.h"
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -54,7 +52,7 @@
 static void *
 ar_proc_ctor (void *ap_obj, va_list * app)
 {
-  struct arprc *p_obj = super_ctor (arprc, ap_obj, app);
+  ar_prc_t *p_obj = super_ctor (arprc, ap_obj, app);
   p_obj->p_playback_hdl = NULL;
   p_obj->p_hw_params = NULL;
   p_obj->p_alsa_pcm_ = NULL;
@@ -64,7 +62,7 @@ ar_proc_ctor (void *ap_obj, va_list * app)
 static void *
 ar_proc_dtor (void *ap_obj)
 {
-  struct arprc *p_obj = ap_obj;
+  ar_prc_t *p_obj = ap_obj;
 
   tiz_mem_free (p_obj->p_alsa_pcm_);
 
@@ -84,7 +82,7 @@ ar_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
-  const struct arprc *p_obj = ap_obj;
+  const ar_prc_t *p_obj = ap_obj;
   int err, offset = 0;
   int samples, step;
 
@@ -138,7 +136,7 @@ ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 static char *
 get_alsa_device (void *ap_obj)
 {
-  struct arprc *p_obj = ap_obj;
+  ar_prc_t *p_obj = ap_obj;
   const char *p_alsa_pcm = NULL;
 
   assert (ap_obj);
@@ -167,7 +165,7 @@ get_alsa_device (void *ap_obj)
 static OMX_ERRORTYPE
 ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct arprc *p_obj = ap_obj;
+  ar_prc_t *p_obj = ap_obj;
   int err;
   assert (ap_obj);
 
@@ -208,7 +206,7 @@ ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 ar_proc_deallocate_resources (void *ap_obj)
 {
-  struct arprc *p_obj = ap_obj;
+  ar_prc_t *p_obj = ap_obj;
   assert (ap_obj);
 
   if (p_obj->p_hw_params)
@@ -230,7 +228,7 @@ ar_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  struct arprc *p_obj = ap_obj;
+  ar_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -292,7 +290,7 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 ar_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  struct arprc *p_obj = ap_obj;
+  ar_prc_t *p_obj = ap_obj;
   assert (ap_obj);
 
   TIZ_LOG (TIZ_TRACE, "Awaiting buffers...p_obj = [%p]!!!", p_obj);
@@ -304,7 +302,7 @@ ar_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 ar_proc_stop_and_return (void *ap_obj)
 {
-  struct arprc *p_obj = ap_obj;
+  ar_prc_t *p_obj = ap_obj;
   assert (ap_obj);
 
   TIZ_LOG (TIZ_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!", p_obj);
@@ -353,9 +351,8 @@ ar_proc_buffers_ready (const void *ap_obj)
 const void *arprc;
 
 void
-init_arprc (void)
+ar_prc_init (void)
 {
-
   if (!arprc)
     {
       tiz_proc_init ();
@@ -364,7 +361,7 @@ init_arprc (void)
         (tizproc_class,
          "arprc",
          tizproc,
-         sizeof (struct arprc),
+         sizeof (ar_prc_t),
          ctor, ar_proc_ctor,
          dtor, ar_proc_dtor,
          tiz_servant_allocate_resources, ar_proc_allocate_resources,
@@ -374,5 +371,4 @@ init_arprc (void)
          tiz_servant_stop_and_return, ar_proc_stop_and_return,
          tiz_proc_buffers_ready, ar_proc_buffers_ready, 0);
     }
-
 }

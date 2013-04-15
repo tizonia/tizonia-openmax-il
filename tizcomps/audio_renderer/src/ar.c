@@ -30,9 +30,6 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
-
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
@@ -43,6 +40,9 @@
 #include "tizpcmport.h"
 #include "tizconfigport.h"
 #include "arprc.h"
+
+#include <assert.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -138,7 +138,7 @@ instantiate_processor (OMX_HANDLETYPE ap_hdl)
   OMX_PTR p_proc = NULL;
 
   /* Instantiate the processor */
-  init_arprc ();
+  ar_prc_init ();
   p_proc = factory_new (arprc, ap_hdl);
   assert (p_proc);
 

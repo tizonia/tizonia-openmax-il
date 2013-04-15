@@ -39,7 +39,7 @@ extern "C"
 /* factory_new(sdlivrprc, ...) */
   extern const void *sdlivrprc;
 
-  void init_sdlivrprc (void);
+  void sdlivr_prc_init (void);
 
 #ifdef __cplusplus
 }

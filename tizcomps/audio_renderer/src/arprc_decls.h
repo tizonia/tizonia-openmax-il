@@ -34,14 +34,14 @@ extern "C"
 {
 #endif
 
-#include <alsa/asoundlib.h>
-
 #include "OMX_Core.h"
-
 #include "arprc.h"
 #include "tizproc_decls.h"
 
-  struct arprc
+#include <alsa/asoundlib.h>
+
+  typedef struct ar_prc ar_prc_t;
+  struct ar_prc
   {
     /* Object */
     const tiz_proc_t _;
