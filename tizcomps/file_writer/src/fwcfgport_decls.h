@@ -35,20 +35,14 @@ extern "C"
 #endif
 
 #include "OMX_Types.h"
-
 #include "tizconfigport_decls.h"
 
-  struct fwcfgport
+  typedef struct fw_cfgport fw_cfgport_t;
+  struct fw_cfgport
   {
     /* Object */
-    const struct tizconfigport _;
+    const tiz_configport_t _;
     OMX_STRING p_uri_;
-  };
-
-  struct fwcfgport_class
-  {
-    /* Class */
-    const struct tizconfigport_class _;
   };
 
 #ifdef __cplusplus

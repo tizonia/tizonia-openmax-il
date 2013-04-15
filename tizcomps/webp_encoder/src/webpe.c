@@ -158,7 +158,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_cport = NULL;
 
-  init_tizconfigport ();
+  tiz_configport_init ();
   p_cport = factory_new (tizconfigport, NULL,   /* this port does not take options */
                          ARATELIA_WEBP_ENCODER_COMPONENT_NAME,
                          webp_encoder_version);

@@ -30,13 +30,12 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
-
 #include "tizconfigport.h"
 #include "tizconfigport_decls.h"
-
 #include "tizosal.h"
+
+#include <assert.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -50,7 +49,7 @@
 static void *
 configport_ctor (void *ap_obj, va_list * app)
 {
-  struct tizconfigport *p_obj = super_ctor (tizconfigport, ap_obj, app);
+  tiz_configport_t *p_obj = super_ctor (tizconfigport, ap_obj, app);
   tiz_port_t *p_base = ap_obj;
 
   /* Make an internal copy of the component name */
@@ -111,7 +110,7 @@ configport_GetComponentVersion (const void *ap_obj,
                                 OMX_VERSIONTYPE * ap_spec_version,
                                 OMX_UUIDTYPE * ap_comp_uuid)
 {
-  const struct tizconfigport *p_obj = ap_obj;
+  const tiz_configport_t *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetComponentVersion...");
 
@@ -133,7 +132,7 @@ configport_GetParameter (const void *ap_obj,
                          OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizconfigport *p_obj = ap_obj;
+  const tiz_configport_t *p_obj = ap_obj;
 
   switch (a_index)
     {
@@ -175,7 +174,7 @@ configport_SetParameter (const void *ap_obj,
                          OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizconfigport *p_obj = (struct tizconfigport *) ap_obj;
+  tiz_configport_t *p_obj = (tiz_configport_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -236,7 +235,7 @@ configport_GetConfig (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizconfigport *p_obj = ap_obj;
+  const tiz_configport_t *p_obj = ap_obj;
 
   switch (a_index)
     {
@@ -265,7 +264,7 @@ configport_SetConfig (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizconfigport *p_obj = (struct tizconfigport *) ap_obj;
+  tiz_configport_t *p_obj = (tiz_configport_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
@@ -301,9 +300,7 @@ configport_GetExtensionIndex (const void *ap_obj,
                               OMX_INDEXTYPE * ap_index_type)
 {
   TIZ_LOG (TIZ_TRACE, "GetExtensionIndex [%s]...", ap_param_name);
-
   /* No extensions here. */
-
   return OMX_ErrorUnsupportedIndex;
 }
 
@@ -314,29 +311,8 @@ configport_GetExtensionIndex (const void *ap_obj,
 static void *
 configport_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tizconfigport_class *p_obj =
-    super_ctor (tizconfigport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-/*       voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return ap_obj;
 }
 
 /*
@@ -346,18 +322,16 @@ configport_class_ctor (void *ap_obj, va_list * app)
 const void *tizconfigport, *tizconfigport_class;
 
 void
-init_tizconfigport (void)
+tiz_configport_init (void)
 {
-
   if (!tizconfigport_class)
     {
       tiz_port_init ();
-      tizconfigport_class = factory_new (tiz_port_class,
+      tizconfigport_class = factory_new (tizport_class,
                                          "tizconfigport_class",
-                                         tiz_port_class,
-                                         sizeof (struct tizconfigport_class),
+                                         tizport_class,
+                                         sizeof (tiz_configport_class_t),
                                          ctor, configport_class_ctor, 0);
-
     }
 
   if (!tizconfigport)
@@ -368,7 +342,7 @@ init_tizconfigport (void)
         (tizconfigport_class,
          "tizconfigport",
          tizport,
-         sizeof (struct tizconfigport),
+         sizeof (tiz_configport_t),
          ctor, configport_ctor,
          dtor, configport_dtor,
          tiz_api_GetComponentVersion, configport_GetComponentVersion,
@@ -378,5 +352,4 @@ init_tizconfigport (void)
          tiz_api_SetConfig, configport_SetConfig,
          tiz_api_GetExtensionIndex, configport_GetExtensionIndex, 0);
     }
-
 }

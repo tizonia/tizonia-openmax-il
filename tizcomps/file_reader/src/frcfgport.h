@@ -43,7 +43,7 @@ extern "C"
   extern const void *frcfgport;
   extern const void *frcfgport_class;
 
-  void init_frcfgport (void);
+  void fr_cfgport_init (void);
 
 #ifdef __cplusplus
 }

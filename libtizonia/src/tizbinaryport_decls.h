@@ -36,17 +36,20 @@ extern "C"
 
 #include "tizport_decls.h"
 
-  struct tizbinaryport
+  typedef struct tiz_binaryport tiz_binaryport_t;
+  struct tiz_binaryport
   {
     /* Object */
     const tiz_port_t _;
     void *ip_port;
   };
 
-  struct tizbinaryport_class
+  typedef struct tiz_binaryport_class tiz_binaryport_class_t;
+  struct tiz_binaryport_class
   {
     /* Class */
     const tiz_port_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

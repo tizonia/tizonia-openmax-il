@@ -191,29 +191,8 @@ audioport_SetParameter (const void *ap_obj,
 static void *
 audioport_class_ctor (void *ap_obj, va_list * app)
 {
-  tiz_audioport_class_t *p_obj =
-    super_ctor (tizaudioport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return ap_obj;
 }
 
 /*
@@ -225,13 +204,12 @@ const void *tizaudioport, *tizaudioport_class;
 void
 tiz_audioport_init (void)
 {
-
   if (!tizaudioport_class)
     {
       tiz_port_init ();
-      tizaudioport_class = factory_new (tiz_port_class,
+      tizaudioport_class = factory_new (tizport_class,
                                         "tizaudioport_class",
-                                        tiz_port_class,
+                                        tizport_class,
                                         sizeof (tiz_audioport_class_t),
                                         ctor, audioport_class_ctor, 0);
 
@@ -251,5 +229,4 @@ tiz_audioport_init (void)
          tiz_api_GetParameter, audioport_GetParameter,
          tiz_api_SetParameter, audioport_SetParameter, 0);
     }
-
 }

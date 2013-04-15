@@ -184,7 +184,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_PTR p_cport = NULL;
 
-  init_tizconfigport ();
+  tiz_configport_init ();
   p_cport = factory_new (tizconfigport, NULL,   /* this port does not take options */
                          ARATELIA_VP8_ENCODER_COMPONENT_NAME,
                          vp8_encoder_version);

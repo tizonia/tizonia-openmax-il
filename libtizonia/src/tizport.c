@@ -2112,7 +2112,7 @@ tiz_port_reset_tunneled_port_status_flag (void *ap_obj, OMX_HANDLETYPE ap_hdl,
 static void *
 port_class_ctor (void *ap_obj, va_list * app)
 {
-  tiz_port_class_t *p_obj = super_ctor (tiz_port_class, ap_obj, app);
+  tiz_port_class_t *p_obj = super_ctor (tizport_class, ap_obj, app);
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
@@ -2240,17 +2240,17 @@ port_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizport, *tiz_port_class;
+const void *tizport, *tizport_class;
 
 void
 tiz_port_init (void)
 {
 
-  if (!tiz_port_class)
+  if (!tizport_class)
     {
       tiz_api_init ();
-      tiz_port_class = factory_new (tizapi_class,
-                                   "tiz_port_class",
+      tizport_class = factory_new (tizapi_class,
+                                   "tizport_class",
                                    tizapi_class,
                                    sizeof (tiz_port_class_t),
                                    ctor, port_class_ctor, 0);
@@ -2262,7 +2262,7 @@ tiz_port_init (void)
       tiz_api_init ();
       tizport =
         factory_new
-        (tiz_port_class,
+        (tizport_class,
          "tizport",
          tizapi,
          sizeof (tiz_port_t),

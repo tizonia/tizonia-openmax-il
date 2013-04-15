@@ -123,7 +123,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
   TIZ_LOG (TIZ_TRACE, "Inititializing the test component's config port");
 
   /* Instantiate the config port */
-  init_tizconfigport ();
+  tiz_configport_init ();
   p_cport = factory_new (tizconfigport, NULL,   /* this port does not take options */
                          _COMPONENT_NAME, tc_comp_version);
   assert (p_cport);

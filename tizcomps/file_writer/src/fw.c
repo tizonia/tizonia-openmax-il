@@ -77,7 +77,7 @@ instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  init_tizbinaryport ();
+  tiz_binaryport_init ();
   p_binaryport = factory_new (tizbinaryport, &port_opts);
   assert (p_binaryport);
 
@@ -100,7 +100,7 @@ instantiate_video_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  init_tizbinaryport ();
+  tiz_binaryport_init ();
   p_binaryport = factory_new (tizbinaryport, &port_opts);
   assert (p_binaryport);
 
@@ -123,7 +123,7 @@ instantiate_image_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  init_tizbinaryport ();
+  tiz_binaryport_init ();
   p_binaryport = factory_new (tizbinaryport, &port_opts);
   assert (p_binaryport);
 
@@ -146,7 +146,7 @@ instantiate_other_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  init_tizbinaryport ();
+  tiz_binaryport_init ();
   p_binaryport = factory_new (tizbinaryport, &port_opts);
   assert (p_binaryport);
 
@@ -159,7 +159,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
   OMX_PTR p_cport = NULL;
 
   /* Instantiate the config port */
-  init_fwcfgport ();
+  fw_cfgport_init ();
   p_cport = factory_new (fwcfgport, NULL,       /* this port does not take options */
                          ARATELIA_FILE_WRITER_COMPONENT_NAME,
                          file_writer_version);

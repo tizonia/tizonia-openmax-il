@@ -413,9 +413,9 @@ init_tizvideoport (void)
   if (!tizvideoport_class)
     {
       tiz_port_init ();
-      tizvideoport_class = factory_new (tiz_port_class,
+      tizvideoport_class = factory_new (tizport_class,
                                         "tizvideoport_class",
-                                        tiz_port_class,
+                                        tizport_class,
                                         sizeof (struct tizvideoport_class),
                                         ctor, videoport_class_ctor, 0);
 

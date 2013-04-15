@@ -52,7 +52,7 @@
 static void *
 icer_cfgport_ctor (void *ap_obj, va_list * app)
 {
-  struct icercfgport *p_obj = super_ctor (icercfgport, ap_obj, app);
+  icer_cfgport_t *p_obj = super_ctor (icercfgport, ap_obj, app);
   tiz_port_register_index (p_obj, OMX_TizoniaIndexParamHttpServer);
   p_obj->http_conf_.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   p_obj->http_conf_.nVersion.nVersion = OMX_VERSION;
@@ -76,7 +76,7 @@ icer_cfgport_GetParameter (const void *ap_obj,
                            OMX_HANDLETYPE ap_hdl,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct icercfgport *p_obj = ap_obj;
+  const icer_cfgport_t *p_obj = ap_obj;
 
   if (OMX_TizoniaIndexParamHttpServer == a_index)
     {
@@ -100,7 +100,7 @@ icer_cfgport_SetParameter (const void *ap_obj,
                            OMX_HANDLETYPE ap_hdl,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct icercfgport *p_obj = (struct icercfgport *) ap_obj;
+  icer_cfgport_t *p_obj = (icer_cfgport_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -126,71 +126,26 @@ icer_cfgport_SetParameter (const void *ap_obj,
 }
 
 /*
- * icercfgport_class
- */
-
-static void *
-icer_cfgport_class_ctor (void *ap_obj, va_list * app)
-{
-  struct icercfgport_class *p_obj =
-    super_ctor (icercfgport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
-}
-
-/*
  * initialization
  */
 
-const void *icercfgport, *icercfgport_class;
+const void *icercfgport;
 
 void
-init_icercfgport (void)
+icer_cfgport_init (void)
 {
-
-  if (!icercfgport_class)
-    {
-      init_tizconfigport ();
-      icercfgport_class = factory_new (tizconfigport_class,
-                                       "icercfgport_class",
-                                       tizconfigport_class,
-                                       sizeof (struct icercfgport_class),
-                                       ctor, icer_cfgport_class_ctor, 0);
-
-    }
-
   if (!icercfgport)
     {
-      init_tizconfigport ();
+      tiz_configport_init ();
       icercfgport =
         factory_new
-        (icercfgport_class,
+        (tizconfigport_class,
          "icercfgport",
          tizconfigport,
-         sizeof (struct icercfgport),
+         sizeof (icer_cfgport_t),
          ctor, icer_cfgport_ctor,
          dtor, icer_cfgport_dtor,
          tiz_api_GetParameter, icer_cfgport_GetParameter,
          tiz_api_SetParameter, icer_cfgport_SetParameter, 0);
     }
-
 }

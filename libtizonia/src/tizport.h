@@ -86,7 +86,7 @@ extern "C"
 
   /* factory_new(tizport, ...); */
   extern const void *tizport;
-  extern const void *tiz_port_class;
+  extern const void *tizport_class;
 
   void tiz_port_init (void);
 

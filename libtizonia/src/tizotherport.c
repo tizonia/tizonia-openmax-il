@@ -228,9 +228,9 @@ init_tizotherport (void)
   if (!tizotherport_class)
     {
       tiz_port_init ();
-      tizotherport_class = factory_new (tiz_port_class,
+      tizotherport_class = factory_new (tizport_class,
                                         "tizotherport_class",
-                                        tiz_port_class,
+                                        tizport_class,
                                         sizeof (struct tizotherport_class),
                                         ctor, otherport_class_ctor, 0);
 

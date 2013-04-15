@@ -55,7 +55,7 @@
 static void *
 binaryport_ctor (void *ap_obj, va_list * app)
 {
-  struct tizbinaryport *p_obj = NULL;
+  tiz_binaryport_t *p_obj = NULL;
   tiz_port_options_t *p_opts = NULL;
   va_list app_copy;
 
@@ -169,7 +169,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
 static void *
 binaryport_dtor (void *ap_obj)
 {
-  struct tizbinaryport *p_obj = ap_obj;
+  tiz_binaryport_t *p_obj = ap_obj;
   assert (p_obj);
   factory_delete (p_obj->ip_port);
   return super_dtor (tizbinaryport, ap_obj);
@@ -184,7 +184,7 @@ binaryport_GetParameter (const void *ap_obj,
                          OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizbinaryport *p_obj = ap_obj;
+  const tiz_binaryport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
@@ -223,7 +223,7 @@ binaryport_SetParameter (const void *ap_obj,
                          OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizbinaryport *p_obj = (struct tizbinaryport *) ap_obj;
+  tiz_binaryport_t *p_obj = (tiz_binaryport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
@@ -286,29 +286,8 @@ static OMX_BOOL
 static void *
 binaryport_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tizbinaryport_class *p_obj =
-    super_ctor (tizbinaryport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return ap_obj;
 }
 
 /*
@@ -318,18 +297,16 @@ binaryport_class_ctor (void *ap_obj, va_list * app)
 const void *tizbinaryport, *tizbinaryport_class;
 
 void
-init_tizbinaryport (void)
+tiz_binaryport_init (void)
 {
-
   if (!tizbinaryport_class)
     {
       tiz_port_init ();
-      tizbinaryport_class = factory_new (tiz_port_class,
+      tizbinaryport_class = factory_new (tizport_class,
                                          "tizbinaryport_class",
-                                         tiz_port_class,
-                                         sizeof (struct tizbinaryport_class),
+                                         tizport_class,
+                                         sizeof (tiz_binaryport_class_t),
                                          ctor, binaryport_class_ctor, 0);
-
     }
 
   if (!tizbinaryport)
@@ -340,12 +317,11 @@ init_tizbinaryport (void)
         (tizbinaryport_class,
          "tizbinaryport",
          tizport,
-         sizeof (struct tizbinaryport),
+         sizeof (tiz_binaryport_t),
          ctor, binaryport_ctor,
          dtor, binaryport_dtor,
          tiz_api_GetParameter, binaryport_GetParameter,
          tiz_api_SetParameter, binaryport_SetParameter,
          tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat, 0);
     }
-
 }

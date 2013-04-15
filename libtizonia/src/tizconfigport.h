@@ -43,7 +43,7 @@ extern "C"
   extern const void *tizconfigport;
   extern const void *tizconfigport_class;
 
-  void init_tizconfigport (void);
+  void tiz_configport_init (void);
 
 #ifdef __cplusplus
 }

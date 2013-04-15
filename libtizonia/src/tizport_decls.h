@@ -35,7 +35,6 @@ extern "C"
 #endif
 
 #include "OMX_Component.h"
-
 #include "tizapi_decls.h"
 #include "tizutils.h"
 #include "tizosal.h"
@@ -62,38 +61,37 @@ extern "C"
     OMX_CONFIG_TUNNELEDPORTSTATUSTYPE tport_status_;
   };
 
-  OMX_ERRORTYPE
-  tiz_port_super_register_index (const void *a_class, const void *ap_obj,
-                                OMX_INDEXTYPE a_index);
+  OMX_ERRORTYPE tiz_port_super_register_index (const void *a_class,
+                                               const void *ap_obj,
+                                               OMX_INDEXTYPE a_index);
 
-  OMX_ERRORTYPE
-  tiz_port_super_find_index (const void *a_class, const void *ap_obj,
-                            OMX_INDEXTYPE a_index);
+  OMX_ERRORTYPE tiz_port_super_find_index (const void *a_class,
+                                           const void *ap_obj,
+                                           OMX_INDEXTYPE a_index);
 
   OMX_ERRORTYPE tiz_port_super_populate (const void *a_class,
                                         const void *ap_obj,
                                         OMX_HANDLETYPE ap_hdl);
 
-  OMX_ERRORTYPE
-  tiz_port_super_depopulate (const void *a_class, const void *ap_obj);
+  OMX_ERRORTYPE tiz_port_super_depopulate (const void *a_class,
+                                           const void *ap_obj);
 
-  OMX_BOOL
-  tiz_port_super_check_tunnel_compat (const void *a_class,
-                                     const void *ap_obj,
-                                     OMX_PARAM_PORTDEFINITIONTYPE *
-                                     ap_this_def,
-                                     OMX_PARAM_PORTDEFINITIONTYPE *
-                                     ap_other_def);
+  OMX_BOOL tiz_port_super_check_tunnel_compat (const void *a_class,
+                                               const void *ap_obj,
+                                               OMX_PARAM_PORTDEFINITIONTYPE *
+                                               ap_this_def,
+                                               OMX_PARAM_PORTDEFINITIONTYPE *
+                                               ap_other_def);
 
   OMX_ERRORTYPE tiz_port_super_apply_slaving_behaviour (void *a_class,
-                                                       void *ap_obj,
-                                                       void *ap_mos_port,
-                                                       const OMX_INDEXTYPE
-                                                       a_index,
-                                                       const OMX_PTR
-                                                       ap_struct,
-                                                       tiz_vector_t *
-                                                       ap_changed_idxs);
+                                                        void *ap_obj,
+                                                        void *ap_mos_port,
+                                                        const OMX_INDEXTYPE
+                                                        a_index,
+                                                        const OMX_PTR
+                                                        ap_struct,
+                                                        tiz_vector_t *
+                                                        ap_changed_idxs);
 
   typedef struct tiz_port_class tiz_port_class_t;
   struct tiz_port_class
@@ -153,7 +151,6 @@ extern "C"
     void (*reset_tunneled_port_status_flag) (void *ap_obj,
                                              OMX_HANDLETYPE ap_hdl,
                                              OMX_U32 a_port_status_flag);
-
   };
 
 #ifdef __cplusplus

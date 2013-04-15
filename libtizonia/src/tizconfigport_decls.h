@@ -40,11 +40,10 @@ extern "C"
 
 #include "tizconfigport.h"
 #include "tizport_decls.h"
-
 #include "tizosal.h"
 
-
-  struct tizconfigport
+  typedef struct tiz_configport tiz_configport_t;
+  struct tiz_configport
   {
     /* Object */
     const tiz_port_t _;
@@ -56,10 +55,12 @@ extern "C"
     OMX_PRIORITYMGMTTYPE config_pm_;
   };
 
-  struct tizconfigport_class
+  typedef struct tiz_configport_class tiz_configport_class_t;
+  struct tiz_configport_class
   {
     /* Class */
     const tiz_port_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

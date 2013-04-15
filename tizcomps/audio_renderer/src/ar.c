@@ -123,7 +123,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
   OMX_PTR p_cport = NULL;
 
   /* Instantiate the config port */
-  init_tizconfigport ();
+  tiz_configport_init ();
   p_cport = factory_new (tizconfigport, NULL,   /* this port does not take options */
                          ARATELIA_AUDIO_RENDERER_COMPONENT_NAME,
                          audio_renderer_version);

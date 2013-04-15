@@ -41,9 +41,8 @@ extern "C"
 
 /* factory_new(fwcfgport, ...); */
   extern const void *fwcfgport;
-  extern const void *fwcfgport_class;
 
-  void init_fwcfgport (void);
+  void fw_cfgport_init (void);
 
 #ifdef __cplusplus
 }

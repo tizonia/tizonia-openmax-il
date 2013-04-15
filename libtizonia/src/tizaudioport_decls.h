@@ -53,6 +53,7 @@ extern "C"
   {
     /* Class */
     const tiz_port_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

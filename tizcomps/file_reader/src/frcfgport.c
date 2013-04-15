@@ -73,7 +73,7 @@ find_default_uri ()
 static void *
 fr_cfgport_ctor (void *ap_obj, va_list * app)
 {
-  struct frcfgport *p_obj = super_ctor (frcfgport, ap_obj, app);
+  fr_cfgport_t *p_obj = super_ctor (frcfgport, ap_obj, app);
   p_obj->p_uri_ = find_default_uri ();
   tiz_port_register_index (p_obj, OMX_IndexParamContentURI);
   return p_obj;
@@ -82,7 +82,7 @@ fr_cfgport_ctor (void *ap_obj, va_list * app)
 static void *
 fr_cfgport_dtor (void *ap_obj)
 {
-  struct frcfgport *p_obj = (struct frcfgport *) ap_obj;
+  fr_cfgport_t *p_obj = (fr_cfgport_t *) ap_obj;
   tiz_mem_free (p_obj->p_uri_);
   return super_dtor (frcfgport, ap_obj);
 }
@@ -96,7 +96,7 @@ fr_cfgport_GetParameter (const void *ap_obj,
                          OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct frcfgport *p_obj = ap_obj;
+  const fr_cfgport_t *p_obj = ap_obj;
 
   switch (a_index)
     {
@@ -142,7 +142,7 @@ fr_cfgport_SetParameter (const void *ap_obj,
                          OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct frcfgport *p_obj = (struct frcfgport *) ap_obj;
+  fr_cfgport_t *p_obj = (fr_cfgport_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -181,72 +181,26 @@ fr_cfgport_SetParameter (const void *ap_obj,
 }
 
 /*
- * frcfgport_class
- */
-
-static void *
-fr_cfgport_class_ctor (void *ap_obj, va_list * app)
-{
-  struct frcfgport_class *p_obj = super_ctor (frcfgport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
-}
-
-/*
  * initialization
  */
 
-const void *frcfgport, *frcfgport_class;
+const void *frcfgport;
 
 void
-init_frcfgport (void)
+fr_cfgport_init (void)
 {
-
-  if (!frcfgport_class)
-    {
-      TIZ_LOG (TIZ_TRACE, "Initializing frcfgport_class...");
-      init_tizconfigport ();
-      frcfgport_class = factory_new (tizconfigport_class,
-                                     "frcfgport_class",
-                                     tizconfigport_class,
-                                     sizeof (struct frcfgport_class),
-                                     ctor, fr_cfgport_class_ctor, 0);
-
-    }
-
   if (!frcfgport)
     {
-      TIZ_LOG (TIZ_TRACE, "Initializing frcfgport...");
-      init_tizconfigport ();
+      tiz_configport_init ();
       frcfgport =
         factory_new
-        (frcfgport_class,
+        (tizconfigport_class,
          "frcfgport",
          tizconfigport,
-         sizeof (struct frcfgport),
+         sizeof (fr_cfgport_t),
          ctor, fr_cfgport_ctor,
          dtor, fr_cfgport_dtor,
          tiz_api_GetParameter, fr_cfgport_GetParameter,
          tiz_api_SetParameter, fr_cfgport_SetParameter, 0);
     }
-
 }

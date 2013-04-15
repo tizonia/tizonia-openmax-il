@@ -316,9 +316,9 @@ init_tizimageport (void)
   if (!tizimageport_class)
     {
       tiz_port_init ();
-      tizimageport_class = factory_new (tiz_port_class,
+      tizimageport_class = factory_new (tizport_class,
                                         "tizimageport_class",
-                                        tiz_port_class,
+                                        tizport_class,
                                         sizeof (struct tizimageport_class),
                                         ctor, imageport_class_ctor, 0);
 

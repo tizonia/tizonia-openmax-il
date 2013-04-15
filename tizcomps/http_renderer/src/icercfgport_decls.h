@@ -36,20 +36,14 @@ extern "C"
 
 #include "OMX_Types.h"
 #include "OMX_TizoniaExt.h"
-
 #include "tizconfigport_decls.h"
 
-  struct icercfgport
+  typedef struct icer_cfgport icer_cfgport_t;
+  struct icer_cfgport
   {
     /* Object */
-    const struct tizconfigport _;
+    const tiz_configport_t _;
     OMX_TIZONIA_PARAM_HTTPSERVERTYPE http_conf_;
-  };
-
-  struct icercfgport_class
-  {
-    /* Class */
-    const struct tizconfigport_class _;
   };
 
 #ifdef __cplusplus
