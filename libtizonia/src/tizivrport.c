@@ -51,7 +51,7 @@ static void *
 ivrport_ctor (void *ap_obj, va_list * app)
 {
   struct tizivrport *p_obj = super_ctor (tizivrport, ap_obj, app);
-  struct tizport *p_base = ap_obj;
+  tiz_port_t *p_base = ap_obj;
 
   tiz_port_register_index (p_obj, OMX_IndexConfigCommonRotate);
   tiz_port_register_index (p_obj, OMX_IndexConfigCommonMirror);
@@ -232,7 +232,7 @@ static OMX_ERRORTYPE
   ivrport_set_portdef_format
   (void *ap_obj, const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
 {
-  struct tizport *p_base = ap_obj;
+  tiz_port_t *p_base = ap_obj;
   /* TODO: Finalize this function */
   p_base->portdef_.format.video.nFrameWidth =
     ap_pdef->format.video.nFrameWidth;
@@ -246,7 +246,7 @@ ivrport_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
   assert (ap_this_def);
   assert (ap_other_def);

@@ -39,7 +39,7 @@ extern "C"
   struct tizbinaryport
   {
     /* Object */
-    const struct tizport _;
+    const tiz_port_t _;
     void *ip_port;
   };
 

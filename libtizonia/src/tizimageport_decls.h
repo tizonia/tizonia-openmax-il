@@ -42,7 +42,7 @@ extern "C"
   struct tizimageport
   {
     /* Object */
-    const struct tizport _;
+    const tiz_port_t _;
     OMX_IMAGE_PARAM_PORTFORMATTYPE port_format_;
     tiz_vector_t *p_image_encodings_;
     tiz_vector_t *p_color_formats_;

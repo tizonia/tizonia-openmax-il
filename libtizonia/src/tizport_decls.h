@@ -40,7 +40,8 @@ extern "C"
 #include "tizutils.h"
 #include "tizosal.h"
 
-  struct tizport
+  typedef struct tiz_port tiz_port_t;
+  struct tiz_port
   {
     /* Object */
     const tiz_api_t _;

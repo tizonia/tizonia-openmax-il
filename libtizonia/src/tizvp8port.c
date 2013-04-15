@@ -51,7 +51,7 @@ static void *
 vp8port_ctor (void *ap_obj, va_list * app)
 {
   struct tizvp8port *p_obj = super_ctor (tizvp8port, ap_obj, app);
-  struct tizport *p_base = ap_obj;
+  tiz_port_t *p_base = ap_obj;
   OMX_VIDEO_PARAM_VP8TYPE *p_vp8type = NULL;
   OMX_VIDEO_VP8LEVELTYPE *p_levels = NULL;
   OMX_VIDEO_PARAM_BITRATETYPE *p_pbrtype = NULL;
@@ -144,7 +144,7 @@ vp8port_GetParameter (const void *ap_obj,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const struct tizvp8port *p_obj = ap_obj;
-  const struct tizport *p_base = ap_obj;
+  const tiz_port_t *p_base = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -232,7 +232,7 @@ vp8port_SetParameter (const void *ap_obj,
       {
         /* This is a read-only index when used on an input port and read-write
          * on an output port. Just ignore when read-only. */
-        const struct tizport *p_base = ap_obj;
+        const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput == p_base->portdef_.eDir)
           {
             const OMX_VIDEO_PARAM_VP8TYPE *p_vp8type
@@ -278,7 +278,7 @@ vp8port_SetParameter (const void *ap_obj,
         const OMX_VIDEO_PARAM_BITRATETYPE *p_pbrtype
           = (OMX_VIDEO_PARAM_BITRATETYPE *) ap_struct;
         /* This index is only supported when used on an output port. */
-        const struct tizport *p_base = ap_obj;
+        const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
             TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
@@ -296,7 +296,7 @@ vp8port_SetParameter (const void *ap_obj,
         const OMX_VIDEO_PARAM_PROFILELEVELTYPE *p_pltype
           = (OMX_VIDEO_PARAM_PROFILELEVELTYPE *) ap_struct;
         /* This index is read-write only when used on an output port. */
-        const struct tizport *p_base = ap_obj;
+        const tiz_port_t *p_base = ap_obj;
 
         if (OMX_DirOutput == p_base->portdef_.eDir)
           {
@@ -341,7 +341,7 @@ vp8port_GetConfig (const void *ap_obj,
         OMX_VIDEO_CONFIG_BITRATETYPE *p_cbrtype
           = (OMX_VIDEO_CONFIG_BITRATETYPE *) ap_struct;
         /* This index is only supported when used on an output port. */
-        const struct tizport *p_base = ap_obj;
+        const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
             TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
@@ -358,7 +358,7 @@ vp8port_GetConfig (const void *ap_obj,
         OMX_CONFIG_FRAMERATETYPE *p_frtype
           = (OMX_CONFIG_FRAMERATETYPE *) ap_struct;
         /* This index is only supported when used on an output port. */
-        const struct tizport *p_base = ap_obj;
+        const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
             TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
@@ -397,7 +397,7 @@ vp8port_SetConfig (const void *ap_obj,
         const OMX_VIDEO_CONFIG_BITRATETYPE *p_cbrtype
           = (OMX_VIDEO_CONFIG_BITRATETYPE *) ap_struct;
         /* This index is only supported when used on an output port. */
-        const struct tizport *p_base = ap_obj;
+        const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
             TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
@@ -414,7 +414,7 @@ vp8port_SetConfig (const void *ap_obj,
         const OMX_CONFIG_FRAMERATETYPE *p_frtype
           = (OMX_CONFIG_FRAMERATETYPE *) ap_struct;
         /* This index is only supported when used on an output port. */
-        const struct tizport *p_base = ap_obj;
+        const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
             TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
@@ -450,7 +450,7 @@ vp8port_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
   assert (ap_this_def);
   assert (ap_other_def);

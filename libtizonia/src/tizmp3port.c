@@ -51,7 +51,7 @@ static void *
 mp3port_ctor (void *ap_obj, va_list * app)
 {
   struct tizmp3port *p_obj = super_ctor (tizmp3port, ap_obj, app);
-  struct tizport *p_base = ap_obj;
+  tiz_port_t *p_base = ap_obj;
   OMX_AUDIO_PARAM_MP3TYPE *p_mp3mode = NULL;
   tiz_port_register_index (p_obj, OMX_IndexParamAudioMp3);
 
@@ -149,7 +149,7 @@ mp3port_SetParameter (const void *ap_obj,
         /* Do now allow changes to sampling rate or num of channels if this is
          * a slave output port */
         {
-          const struct tizport *p_base = ap_obj;
+          const tiz_port_t *p_base = ap_obj;
 
           if ((OMX_DirOutput == p_base->portdef_.eDir)
               && (p_base->opts_.mos_port != -1)
@@ -211,7 +211,7 @@ mp3port_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
   assert (ap_this_def);
   assert (ap_other_def);
@@ -252,7 +252,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
                                  tiz_vector_t * ap_changed_idxs)
 {
   struct tizmp3port *p_obj = ap_obj;
-  struct tizport *p_base = ap_obj;
+  tiz_port_t *p_base = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* OpenMAX IL 1.2 Section 3.5 : Slaving behaviour for nSamplingRate and

@@ -42,7 +42,7 @@ extern "C"
   struct tizotherport
   {
     /* Object */
-    const struct tizport _;
+    const tiz_port_t _;
     OMX_OTHER_PARAM_PORTFORMATTYPE port_format_;
     tiz_vector_t *p_formats_;
   };

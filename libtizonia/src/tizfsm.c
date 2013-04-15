@@ -364,7 +364,7 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 {
   tiz_fsm_t *p_obj = (tiz_fsm_t *) ap_obj;
   const void *p_krn = tiz_get_krn (ap_hdl);
-  struct tizport *p_port = NULL;
+  const void *p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   if (OMX_CommandFlush == a_cmd

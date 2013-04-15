@@ -46,7 +46,6 @@ extern "C"
 #define TIZ_PORT_CONFIG_PORT_INDEX ULONG_MAX
 
   typedef enum tiz_port_flag_ids tiz_port_flag_ids_t;
-
   enum tiz_port_flag_ids
   {
     EFlagEnabled = 0,
@@ -61,7 +60,6 @@ extern "C"
   };
 
   typedef struct tiz_port_options tiz_port_options_t;
-
   struct tiz_port_options
   {
     /* Port domain (audio, video, image, other...) */

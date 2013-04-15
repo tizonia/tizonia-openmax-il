@@ -65,7 +65,7 @@ videoport_ctor (void *ap_obj, va_list * app)
   /* Finalize the base's port definition structure */
   if (NULL != (p_portdef = va_arg (*app, OMX_VIDEO_PORTDEFINITIONTYPE *)))
     {
-      struct tizport *p_base = ap_obj;
+      tiz_port_t *p_base = ap_obj;
       p_base->portdef_.format.video.pNativeRender = p_portdef->pNativeRender;
       p_base->portdef_.format.video.nFrameWidth = p_portdef->nFrameWidth;
       p_base->portdef_.format.video.nFrameHeight = p_portdef->nFrameHeight;
@@ -215,7 +215,7 @@ videoport_SetParameter (const void *ap_obj,
    * output port */
   if (OMX_IndexParamPortDefinition == a_index)
     {
-      const struct tizport *p_base = ap_obj;
+      const tiz_port_t *p_base = ap_obj;
       OMX_PARAM_PORTDEFINITIONTYPE *p_portdef = ap_struct;
 
       if ((OMX_DirOutput == p_base->portdef_.eDir)
@@ -316,7 +316,7 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
                                    tiz_vector_t * ap_changed_idxs)
 {
   struct tizvideoport *p_obj = ap_obj;
-  struct tizport *p_base = ap_obj;
+  tiz_port_t *p_base = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj != NULL);

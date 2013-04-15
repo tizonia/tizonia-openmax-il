@@ -381,12 +381,11 @@ state_mark (const void *ap_obj,
 {
   /* This is the default implementation for states in which this command is not
    * allowed */
+  assert (NULL != ap_hdl);
   void *p_krn = tiz_get_krn (ap_hdl);
-  struct tizport *p_port = tiz_kernel_get_port (p_krn, a_param1);
 
   /* The port must be disabled at this point */
-
-  assert (TIZ_PORT_IS_DISABLED (p_port));
+  assert (TIZ_PORT_IS_DISABLED (tiz_kernel_get_port (p_krn, a_param1)));
 
   /* Notify the kernel servant */
   /* No need to notify the processor servant */

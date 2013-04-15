@@ -47,7 +47,7 @@ extern "C"
   struct tizconfigport
   {
     /* Object */
-    const struct tizport _;
+    const tiz_port_t _;
     char comp_name_[OMX_MAX_STRINGNAME_SIZE];
     OMX_VERSIONTYPE comp_ver_;
     OMX_UUIDTYPE uuid_;

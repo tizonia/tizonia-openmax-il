@@ -995,12 +995,11 @@ static OMX_ERRORTYPE
 flush_marks (void *ap_obj, OMX_PTR ap_port)
 {
   tiz_kernel_t *p_obj = ap_obj;
-  struct tizport *p_port = ap_port;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE hdr;
 
   assert (NULL != ap_obj);
-  assert (NULL != p_port);
+  assert (NULL != ap_port);
 
   /* Use a dummy header to flush all marks in the port */
   do
@@ -1010,10 +1009,10 @@ flush_marks (void *ap_obj, OMX_PTR ap_port)
       /* tiz_port_mark_buffer returns OMX_ErrorNone if the port owned the
        * mark. If the mark is not owned, it returns OMX_ErrorNotReady. If no
        * marks found, it returns OMX_ErrorNoMore */
-      if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (p_port, &hdr)))
+      if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (ap_port, &hdr)))
         {
           /* Need to complete the mark buffer command with an error */
-          complete_mark_buffer (p_obj, p_port, tiz_port_index (p_port),
+          complete_mark_buffer (p_obj, ap_port, tiz_port_index (ap_port),
                                 OMX_ErrorPortUnpopulated);
         }
     }

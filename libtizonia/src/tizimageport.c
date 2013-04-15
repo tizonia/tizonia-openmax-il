@@ -65,7 +65,7 @@ imageport_ctor (void *ap_obj, va_list * app)
   /* Finalize the base's port definition structure */
   if (NULL != (p_portdef = va_arg (*app, OMX_IMAGE_PORTDEFINITIONTYPE *)))
     {
-      struct tizport *p_base = ap_obj;
+      tiz_port_t *p_base = ap_obj;
       p_base->portdef_.format.image.pNativeRender = p_portdef->pNativeRender;
       p_base->portdef_.format.image.nFrameWidth = p_portdef->nFrameWidth;
       p_base->portdef_.format.image.nFrameHeight = p_portdef->nFrameHeight;

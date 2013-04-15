@@ -51,7 +51,7 @@ static void *
 configport_ctor (void *ap_obj, va_list * app)
 {
   struct tizconfigport *p_obj = super_ctor (tizconfigport, ap_obj, app);
-  struct tizport *p_base = ap_obj;
+  tiz_port_t *p_base = ap_obj;
 
   /* Make an internal copy of the component name */
   strcpy (p_obj->comp_name_, va_arg (*app, char *));

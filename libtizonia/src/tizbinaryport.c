@@ -264,7 +264,7 @@ static OMX_BOOL
    OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
    OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   assert (ap_this_def);
   assert (ap_other_def);
 

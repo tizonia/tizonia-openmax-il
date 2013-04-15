@@ -42,7 +42,7 @@ extern "C"
   struct tizaudioport
   {
     /* Object */
-    const struct tizport _;
+    const tiz_port_t _;
     OMX_AUDIO_PARAM_PORTFORMATTYPE port_format_;
     tiz_vector_t *p_encodings_;
   };

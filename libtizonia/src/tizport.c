@@ -105,7 +105,7 @@ static OMX_ERRORTYPE
 alloc_buf (void *ap_obj,
            OMX_U32 * ap_size, OMX_U8 ** app_buf, OMX_PTR * app_portPrivate)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
   OMX_U8 *p_buf = 0;
   OMX_U32 alloc_size = 0;
 
@@ -137,7 +137,7 @@ alloc_buf (void *ap_obj,
 static void
 free_buf (void *ap_obj, OMX_PTR ap_buf, OMX_PTR ap_portPrivate)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
   TIZ_LOG (TIZ_TRACE, "ap_buf[%p]", ap_buf);
   assert (NULL != ap_buf);
   p_obj->opts_.mem_hooks.pf_free (ap_buf, ap_portPrivate,
@@ -148,7 +148,7 @@ static OMX_ERRORTYPE
 register_header (const void *ap_obj,
                  OMX_BUFFERHEADERTYPE * ap_hdr, OMX_BOOL ais_owned)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   tiz_port_buf_props_t *p_bps = tiz_mem_alloc (sizeof (tiz_port_buf_props_t));
 
   if (!p_bps)
@@ -172,7 +172,7 @@ static OMX_S32
 find_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr,
              OMX_BOOL * ap_is_owned)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_S32 i, hdr_count = tiz_vector_length (p_obj->p_hdrs_info_);
   tiz_port_buf_props_t **pp_bps = NULL, *p_bps = NULL;
   assert (NULL != ap_hdr);
@@ -196,7 +196,7 @@ find_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr,
 static OMX_BUFFERHEADERTYPE *
 deregister_header (const void *ap_obj, OMX_S32 hdr_pos)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   tiz_port_buf_props_t **pp_bps = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
@@ -216,7 +216,7 @@ deregister_header (const void *ap_obj, OMX_S32 hdr_pos)
 static void *
 port_ctor (void *ap_obj, va_list * app)
 {
-  struct tizport *p_obj = super_ctor (tizport, ap_obj, app);
+  tiz_port_t *p_obj = super_ctor (tizport, ap_obj, app);
   tiz_port_options_t *p_opts = NULL;
   OMX_BOOL supplier = OMX_FALSE;
   OMX_INDEXTYPE id1 = OMX_IndexParamPortDefinition;
@@ -343,7 +343,7 @@ port_ctor (void *ap_obj, va_list * app)
 static void *
 port_dtor (void *ap_obj)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
 
   assert (NULL != p_obj);
 
@@ -373,7 +373,7 @@ port_GetParameter (const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizport *p_obj = ap_obj;
+  const tiz_port_t *p_obj = ap_obj;
 
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "PORT [%d] GetParameter [%s]...",
@@ -434,7 +434,7 @@ port_SetParameter (const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
@@ -567,7 +567,7 @@ port_GetConfig (const void *ap_obj,
                 OMX_HANDLETYPE ap_hdl,
                 OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
   assert (NULL != p_obj);
 
@@ -601,7 +601,7 @@ port_SetConfig (const void *ap_obj,
                 OMX_HANDLETYPE ap_hdl,
                 OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
   assert (NULL != p_obj);
 
@@ -639,7 +639,7 @@ port_GetExtensionIndex (const void *ap_obj,
                         OMX_STRING ap_param_name,
                         OMX_INDEXTYPE * ap_index_type)
 {
-  const struct tizport *p_obj = ap_obj;
+  const tiz_port_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorUnsupportedIndex;
 
   assert (NULL != p_obj);
@@ -667,7 +667,7 @@ port_ComponentTunnelRequest (const void *ap_obj,
                              OMX_HANDLETYPE ap_thdl,
                              OMX_U32 a_tpid, OMX_TUNNELSETUPTYPE * ap_tsetup)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PARAM_PORTDEFINITIONTYPE port_def = {
     sizeof (OMX_PARAM_PORTDEFINITIONTYPE),
@@ -812,7 +812,7 @@ port_UseBuffer (const void *ap_obj,
                 OMX_U32 a_pid,
                 OMX_PTR ap_app_priv, OMX_U32 a_size, OMX_U8 * ap_buf)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_PTR p_port_priv = 0;
   OMX_PTR p_plat_priv = 0;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -897,7 +897,7 @@ port_AllocateBuffer (const void *ap_obj,
                      OMX_BUFFERHEADERTYPE ** app_hdr,
                      OMX_U32 a_pid, OMX_PTR ap_app_priv, OMX_U32 a_size)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_U8 *p_buf = 0;
   OMX_PTR p_port_priv = 0, p_plat_priv = 0;
@@ -997,7 +997,7 @@ port_FreeBuffer (const void *ap_obj,
                  OMX_HANDLETYPE ap_hdl,
                  OMX_U32 a_pid, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_BOOL is_owned = OMX_FALSE;
   OMX_S32 hdr_pos = find_buffer (p_obj, ap_hdr, &is_owned);
   OMX_S32 hdr_count = 0;
@@ -1041,7 +1041,7 @@ port_FreeBuffer (const void *ap_obj,
 static OMX_ERRORTYPE
 port_register_index (const void *ap_obj, OMX_INDEXTYPE a_index)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   return tiz_vector_push_back (p_obj->p_indexes_, &a_index);
 }
 
@@ -1066,7 +1066,7 @@ tiz_port_super_register_index (const void *a_class,
 static OMX_ERRORTYPE
 port_find_index (const void *ap_obj, OMX_INDEXTYPE a_index)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   assert (NULL != p_obj);
   return (tiz_vector_find (p_obj->p_indexes_, &a_index) ?
           OMX_ErrorNone : OMX_ErrorUnsupportedIndex);
@@ -1093,7 +1093,7 @@ tiz_port_super_find_index (const void *a_class,
 static OMX_U32
 port_index (const void *ap_obj)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   assert (NULL != p_obj);
   return p_obj->pid_;
 }
@@ -1109,7 +1109,7 @@ tiz_port_index (const void *ap_obj)
 static void
 port_set_index (void *ap_obj, OMX_U32 a_pid)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
   p_obj->pid_ = a_pid;
   p_obj->bufsupplier_.nPortIndex = a_pid;
   p_obj->portdef_.nPortIndex = a_pid;
@@ -1143,7 +1143,7 @@ tiz_port_set_portdef_format (void *ap_obj,
 static OMX_S32
 port_buffer_count (const void *ap_obj)
 {
-  const struct tizport *p_obj = ap_obj;
+  const tiz_port_t *p_obj = ap_obj;
   return tiz_vector_length (p_obj->p_hdrs_info_);
 }
 
@@ -1158,7 +1158,7 @@ tiz_port_buffer_count (const void *ap_obj)
 static OMX_DIRTYPE
 port_dir (const void *ap_obj)
 {
-  const struct tizport *p_obj = ap_obj;
+  const tiz_port_t *p_obj = ap_obj;
   return p_obj->opts_.dir;
 }
 
@@ -1173,7 +1173,7 @@ tiz_port_dir (const void *ap_obj)
 static OMX_PORTDOMAINTYPE
 port_domain (const void *ap_obj)
 {
-  const struct tizport *p_obj = ap_obj;
+  const tiz_port_t *p_obj = ap_obj;
   return p_obj->opts_.domain;
 }
 
@@ -1188,7 +1188,7 @@ tiz_port_domain (const void *ap_obj)
 static OMX_HANDLETYPE
 port_get_tunnel_comp (const void *ap_obj)
 {
-  const struct tizport *p_obj = ap_obj;
+  const tiz_port_t *p_obj = ap_obj;
   return p_obj->thdl_;
 }
 
@@ -1203,7 +1203,7 @@ tiz_port_get_tunnel_comp (const void *ap_obj)
 static tiz_vector_t *
 port_get_hdrs_list (void *ap_obj)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
   const OMX_S32 hdr_count = tiz_vector_length (p_obj->p_hdrs_info_);
   tiz_port_buf_props_t **pp_bps = NULL, *p_bps = NULL;
   OMX_S32 i = 0;
@@ -1231,7 +1231,7 @@ tiz_port_get_hdrs_list (void *ap_obj)
 static OMX_BOOL
 port_check_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   assert (NULL != p_obj);
   OMX_BOOL rv = OMX_TRUE;
   OMX_U32 i;
@@ -1280,7 +1280,7 @@ tiz_port_check_flags (const void *ap_obj, OMX_U32 a_nflags, ...)
 static void
 port_set_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   assert (NULL != p_obj);
   OMX_U32 i;
   tiz_port_flag_ids_t flag;
@@ -1326,7 +1326,7 @@ tiz_port_set_flags (const void *ap_obj, OMX_U32 a_nflags, ...)
 static void
 port_clear_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   assert (NULL != p_obj);
   OMX_U32 i;
   tiz_port_flag_ids_t flag;
@@ -1371,7 +1371,7 @@ tiz_port_clear_flags (const void *ap_obj, OMX_U32 a_nflags, ...)
 static OMX_BOOL
 port_check_tunneled_port_status (const void *ap_obj, OMX_U32 a_port_status_flag)
 {
-  const struct tizport *p_obj = ap_obj;
+  const tiz_port_t *p_obj = ap_obj;
   assert (NULL != p_obj);
   TIZ_LOG (TIZ_TRACE,
            "port index [%d] nTunneledPortStatus [%d] a_port_status_flag [0x%08x] ",
@@ -1392,7 +1392,7 @@ tiz_port_check_tunneled_port_status (const void *ap_obj, OMX_U32 a_port_status)
 static OMX_ERRORTYPE
 port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_U32 nbufs = 0, nbytes = 0, i = 0;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -1615,7 +1615,7 @@ tiz_port_super_populate (const void *a_class, const void *ap_obj,
 static OMX_ERRORTYPE
 port_depopulate (const void *ap_obj)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_U32 nbufs = 0, i = 0;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -1685,7 +1685,7 @@ port_check_tunnel_compat (const void *ap_obj,
                           OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                           OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   TIZ_LOG (TIZ_TRACE, "port [%d] check_tunnel_compat", p_obj->pid_);
   /* To be implemented by derived classes */
   return OMX_TRUE;
@@ -1715,7 +1715,7 @@ tiz_port_super_check_tunnel_compat (const void *a_class, const void *ap_obj,
 static OMX_S32
 port_update_claimed_count (void *ap_obj, OMX_S32 a_offset)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
   p_obj->claimed_count_ += a_offset;
   TIZ_LOG (TIZ_TRACE, "port [%d] offset [%d] count [%d]",
            p_obj->pid_, a_offset, p_obj->claimed_count_);
@@ -1736,7 +1736,7 @@ static OMX_ERRORTYPE
 port_store_mark (void *ap_obj, const OMX_MARKTYPE * ap_mark_info,
                  OMX_BOOL a_owned)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
   tiz_port_mark_info_t *p_mi = tiz_mem_alloc (sizeof (tiz_port_mark_info_t));
 
   assert (ap_mark_info);
@@ -1771,7 +1771,7 @@ tiz_port_store_mark (void *ap_obj, const OMX_MARKTYPE * ap_mark_info,
 static OMX_ERRORTYPE
 port_mark_buffer (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const OMX_S32 mark_count = tiz_vector_length (p_obj->p_marks_);
 
@@ -1828,7 +1828,7 @@ port_set_alloc_hooks (void *ap_obj,
                       const tiz_alloc_hooks_t * ap_new_hooks,
                       tiz_alloc_hooks_t * ap_old_hooks)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
 
   assert (NULL != ap_obj);
   assert (ap_new_hooks);
@@ -1856,7 +1856,7 @@ static OMX_ERRORTYPE
 port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                       OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_U32 size = p_obj->portdef_.nBufferSize;
   OMX_U8 *p_buf = 0;
@@ -1927,7 +1927,7 @@ static void
 port_depopulate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                         OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  struct tizport *p_obj = (struct tizport *) ap_obj;
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_PTR p_port_priv = 0;
 
   assert (NULL != ap_obj);
@@ -1964,7 +1964,7 @@ tiz_port_depopulate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 static OMX_BOOL
 port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid)
 {
-  const struct tizport *p_obj = ap_obj;
+  const tiz_port_t *p_obj = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_mos_pid);
@@ -2022,7 +2022,7 @@ static void
 port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                              OMX_U32 a_port_status)
 {
-  const struct tizport *p_obj = ap_obj;
+  const tiz_port_t *p_obj = ap_obj;
   OMX_CONFIG_TUNNELEDPORTSTATUSTYPE port_status;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -2090,7 +2090,7 @@ static void
 reset_tunneled_port_status_flag (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                                  OMX_U32 a_port_status_flag)
 {
-  struct tizport *p_obj = ap_obj;
+  tiz_port_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
   p_obj->tport_status_.nTunneledPortStatus &= ~(a_port_status_flag);
@@ -2265,7 +2265,7 @@ init_tizport (void)
         (tiz_port_class,
          "tizport",
          tizapi,
-         sizeof (struct tizport),
+         sizeof (tiz_port_t),
          ctor, port_ctor,
          dtor, port_dtor,
          tiz_api_GetParameter, port_GetParameter,
