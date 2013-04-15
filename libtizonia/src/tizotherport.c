@@ -50,7 +50,7 @@
 static void *
 otherport_ctor (void *ap_obj, va_list * app)
 {
-  struct tizotherport *p_obj = super_ctor (tizotherport, ap_obj, app);
+  tiz_otherport_t *p_obj = super_ctor (tizotherport, ap_obj, app);
   OMX_OTHER_FORMATTYPE *p_formats = NULL;
   OMX_U32 i = 0;
 
@@ -80,7 +80,7 @@ otherport_ctor (void *ap_obj, va_list * app)
 static void *
 otherport_dtor (void *ap_obj)
 {
-  struct tizotherport *p_obj = ap_obj;
+  tiz_otherport_t *p_obj = ap_obj;
   assert (p_obj);
 
   tiz_vector_clear (p_obj->p_formats_);
@@ -98,7 +98,7 @@ otherport_GetParameter (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizotherport *p_obj = ap_obj;
+  const tiz_otherport_t *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -137,7 +137,7 @@ otherport_SetParameter (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizotherport *p_obj = (struct tizotherport *) ap_obj;
+  tiz_otherport_t *p_obj = (tiz_otherport_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -190,29 +190,8 @@ otherport_SetParameter (const void *ap_obj,
 static void *
 otherport_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tizotherport_class *p_obj =
-    super_ctor (tizotherport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return ap_obj;
 }
 
 /*
@@ -222,16 +201,15 @@ otherport_class_ctor (void *ap_obj, va_list * app)
 const void *tizotherport, *tizotherport_class;
 
 void
-init_tizotherport (void)
+tiz_otherport_init (void)
 {
-
   if (!tizotherport_class)
     {
       tiz_port_init ();
       tizotherport_class = factory_new (tizport_class,
                                         "tizotherport_class",
                                         tizport_class,
-                                        sizeof (struct tizotherport_class),
+                                        sizeof (tiz_otherport_class_t),
                                         ctor, otherport_class_ctor, 0);
 
     }
@@ -244,11 +222,10 @@ init_tizotherport (void)
         (tizotherport_class,
          "tizotherport",
          tizport,
-         sizeof (struct tizotherport),
+         sizeof (tiz_otherport_t),
          ctor, otherport_ctor,
          dtor, otherport_dtor,
          tiz_api_GetParameter, otherport_GetParameter,
          tiz_api_SetParameter, otherport_SetParameter, 0);
     }
-
 }

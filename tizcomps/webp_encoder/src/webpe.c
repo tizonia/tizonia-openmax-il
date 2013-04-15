@@ -145,7 +145,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat = OMX_COLOR_FormatUnused;
   portdef.pNativeWindow = NULL;
 
-  init_tizimageport ();
+  tiz_imageport_init ();
   p_imageport = factory_new (tizimageport, &image_port_opts, &portdef,
                              &encodings, &formats);
   assert (p_imageport);

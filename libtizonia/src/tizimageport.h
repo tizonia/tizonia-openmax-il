@@ -43,7 +43,7 @@ extern "C"
   extern const void *tizimageport;
   extern const void *tizimageport_class;
 
-  void init_tizimageport (void);
+  void tiz_imageport_init (void);
 
 #ifdef __cplusplus
 }

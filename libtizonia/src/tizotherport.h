@@ -43,7 +43,7 @@ extern "C"
   extern const void *tizotherport;
   extern const void *tizotherport_class;
 
-  void init_tizotherport (void);
+  void tiz_otherport_init (void);
 
 #ifdef __cplusplus
 }

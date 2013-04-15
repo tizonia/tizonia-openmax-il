@@ -50,7 +50,7 @@
 static void *
 imageport_ctor (void *ap_obj, va_list * app)
 {
-  struct tizimageport *p_obj = super_ctor (tizimageport, ap_obj, app);
+  tiz_imageport_t *p_obj = super_ctor (tizimageport, ap_obj, app);
   OMX_IMAGE_PORTDEFINITIONTYPE *p_portdef = NULL;
   OMX_IMAGE_CODINGTYPE *p_encodings = NULL;
   OMX_COLOR_FORMATTYPE *p_formats = NULL;
@@ -115,7 +115,7 @@ imageport_ctor (void *ap_obj, va_list * app)
 static void *
 imageport_dtor (void *ap_obj)
 {
-  struct tizimageport *p_obj = ap_obj;
+  tiz_imageport_t *p_obj = ap_obj;
   assert (p_obj);
 
   tiz_vector_clear (p_obj->p_image_encodings_);
@@ -136,7 +136,7 @@ imageport_GetParameter (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizimageport *p_obj = ap_obj;
+  const tiz_imageport_t *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -196,7 +196,7 @@ imageport_SetParameter (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizimageport *p_obj = (struct tizimageport *) ap_obj;
+  tiz_imageport_t *p_obj = (tiz_imageport_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -278,29 +278,8 @@ imageport_SetParameter (const void *ap_obj,
 static void *
 imageport_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tizimageport_class *p_obj =
-    super_ctor (tizimageport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return ap_obj;
 }
 
 /*
@@ -310,16 +289,15 @@ imageport_class_ctor (void *ap_obj, va_list * app)
 const void *tizimageport, *tizimageport_class;
 
 void
-init_tizimageport (void)
+tiz_imageport_init (void)
 {
-
   if (!tizimageport_class)
     {
       tiz_port_init ();
       tizimageport_class = factory_new (tizport_class,
                                         "tizimageport_class",
                                         tizport_class,
-                                        sizeof (struct tizimageport_class),
+                                        sizeof (tiz_imageport_class_t),
                                         ctor, imageport_class_ctor, 0);
 
     }
@@ -332,11 +310,10 @@ init_tizimageport (void)
         (tizimageport_class,
          "tizimageport",
          tizport,
-         sizeof (struct tizimageport),
+         sizeof (tiz_imageport_t),
          ctor, imageport_ctor,
          dtor, imageport_dtor,
          tiz_api_GetParameter, imageport_GetParameter,
          tiz_api_SetParameter, imageport_SetParameter, 0);
     }
-
 }

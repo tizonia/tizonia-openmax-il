@@ -39,7 +39,8 @@ extern "C"
 #include "tizport_decls.h"
 #include "tizosal.h"
 
-  struct tizotherport
+  typedef struct tiz_otherport tiz_otherport_t;
+  struct tiz_otherport
   {
     /* Object */
     const tiz_port_t _;
@@ -47,10 +48,12 @@ extern "C"
     tiz_vector_t *p_formats_;
   };
 
-  struct tizotherport_class
+  typedef struct tiz_otherport_class tiz_otherport_class_t;
+  struct tiz_otherport_class
   {
     /* Class */
     const tiz_port_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

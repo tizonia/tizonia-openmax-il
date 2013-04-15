@@ -39,7 +39,8 @@ extern "C"
 #include "tizport_decls.h"
 #include "tizosal.h"
 
-  struct tizimageport
+  typedef struct tiz_imageport tiz_imageport_t;
+  struct tiz_imageport
   {
     /* Object */
     const tiz_port_t _;
@@ -48,10 +49,12 @@ extern "C"
     tiz_vector_t *p_color_formats_;
   };
 
-  struct tizimageport_class
+  typedef struct tiz_imageport_class tiz_imageport_class_t;
+  struct tiz_imageport_class
   {
     /* Class */
     const tiz_port_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

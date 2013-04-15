@@ -138,7 +138,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
         portdef.pNativeWindow = NULL;
 
         tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat);
-        init_tizimageport ();
+        tiz_imageport_init ();
         p_obj->ip_port = factory_new (tizimageport, p_opts, &portdef,
                                       &encodings, &formats);
       }
@@ -152,7 +152,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
         };
 
         tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat);
-        init_tizotherport ();
+        tiz_otherport_init ();
         p_obj->ip_port = factory_new (tizotherport, p_opts, &formats);
       }
       break;
