@@ -279,7 +279,7 @@ static void *
 imageport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return ap_obj;
+  return super_ctor (tizimageport_class, ap_obj, app);
 }
 
 /*

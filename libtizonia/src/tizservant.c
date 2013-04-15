@@ -734,7 +734,6 @@ const void *tizservant, *tizservant_class;
 void
 tiz_servant_init (void)
 {
-
   if (!tizservant_class)
     {
       tiz_api_init ();
@@ -779,5 +778,4 @@ tiz_servant_init (void)
          tiz_servant_receive_pluggable_event,
          servant_receive_pluggable_event, 0);
     }
-
 }
