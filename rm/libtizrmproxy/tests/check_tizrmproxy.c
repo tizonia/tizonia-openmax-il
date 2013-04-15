@@ -452,7 +452,8 @@ check_tizrmproxy_find_proc (const char *name)
             {
               /* check the first token in the file, the program name */
               char *first = strtok (buf, " ");
-              if (strstr (first, name))
+              TIZ_LOG (TIZ_TRACE, "buf [%s]", buf);
+              if (first && strstr (first, name))
                 {
                   fclose (fp);
                   closedir (dir);
