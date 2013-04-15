@@ -199,7 +199,7 @@ instantiate_processor (OMX_HANDLETYPE ap_hdl)
   OMX_PTR p_proc = NULL;
 
   /* Instantiate the processor */
-  init_vp8eprc ();
+  vp8e_prc_init ();
   p_proc = factory_new (vp8eprc, ap_hdl);
   assert (p_proc);
 

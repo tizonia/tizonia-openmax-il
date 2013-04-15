@@ -33,15 +33,14 @@
 extern "C"
 {
 #endif
-
-#include <stdbool.h>
-
 #include "OMX_Core.h"
-
 #include "vp8eprc.h"
 #include "tizproc_decls.h"
 
-  struct vp8eprc
+#include <stdbool.h>
+
+  typedef struct vp8e_prc vp8e_prc_t;
+  struct vp8e_prc
   {
     /* Object */
     const tiz_proc_t _;

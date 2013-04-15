@@ -232,7 +232,7 @@ static bool
 read_frame (void *ap_obj, uint8_t ** buf, size_t * buf_sz,
             size_t * buf_alloc_sz, size_t * buf_read_sz)
 {
-  struct vp8dprc *p_vp8dprc = ap_obj;
+  vp8d_prc_t *p_vp8dprc = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   char raw_hdr[IVF_FRAME_HDR_SZ];
   size_t new_buf_sz;
@@ -348,7 +348,7 @@ out_put (OMX_BUFFERHEADERTYPE * p_hdr, const uint8_t * buf, unsigned int len)
 static void
 relinquish_any_buffers_held (const void *ap_obj)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
+  vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -380,7 +380,7 @@ relinquish_any_buffers_held (const void *ap_obj)
 static void *
 vp8d_proc_ctor (void *ap_obj, va_list * app)
 {
-  struct vp8dprc *p_obj = super_ctor (vp8dprc, ap_obj, app);
+  vp8d_prc_t *p_obj = super_ctor (vp8dprc, ap_obj, app);
   TIZ_LOG (TIZ_TRACE, "Constructing vp8dprc...[%p]", p_obj);
 
   p_obj->p_inhdr_ = 0;
@@ -399,7 +399,7 @@ vp8d_proc_ctor (void *ap_obj, va_list * app)
 static void *
 vp8d_proc_dtor (void *ap_obj)
 {
-  struct vp8dprc *p_obj = ap_obj;
+  vp8d_prc_t *p_obj = ap_obj;
   TIZ_LOG (TIZ_TRACE, "Destructing vp8dprc...[%p]", p_obj);
   return super_dtor (vp8dprc, ap_obj);
 }
@@ -407,7 +407,7 @@ vp8d_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 transform_buffer (const void *ap_obj)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
+  vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
 
   assert (p_obj->p_outhdr_);
@@ -531,7 +531,7 @@ transform_buffer (const void *ap_obj)
 static OMX_ERRORTYPE
 vp8d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct vp8dprc *p_obj = ap_obj;
+  vp8d_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   vpx_codec_err_t err = VPX_CODEC_OK;
   int flags = 0;
@@ -565,7 +565,7 @@ vp8d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 vp8d_proc_deallocate_resources (void *ap_obj)
 {
-  struct vp8dprc *p_obj = ap_obj;
+  vp8d_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
@@ -585,7 +585,7 @@ vp8d_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 vp8d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  struct vp8dprc *p_obj = ap_obj;
+  vp8d_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
@@ -610,7 +610,7 @@ vp8d_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 vp8d_proc_stop_and_return (void *ap_obj)
 {
-  struct vp8dprc *p_obj = ap_obj;
+  vp8d_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
 
   assert (ap_obj);
@@ -629,7 +629,7 @@ static bool
 claim_input (const void *ap_obj)
 {
   const tiz_servant_t *p_parent = ap_obj;
-  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
+  vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -659,7 +659,7 @@ static bool
 claim_output (const void *ap_obj)
 {
   const tiz_servant_t *p_parent = ap_obj;
-  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
+  vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -685,7 +685,7 @@ claim_output (const void *ap_obj)
 static OMX_ERRORTYPE
 vp8d_proc_buffers_ready (const void *ap_obj)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
+  vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -741,7 +741,7 @@ vp8d_proc_buffers_ready (const void *ap_obj)
 static OMX_ERRORTYPE
 vp8d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
+  vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
   /* Always relinquish all held buffers, regardless of the port this is
    * received on */
   relinquish_any_buffers_held (p_obj);
@@ -751,7 +751,7 @@ vp8d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 vp8d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
-  struct vp8dprc *p_obj = (struct vp8dprc *) ap_obj;
+  vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
   /* Always relinquish all held buffers, regardless of the port this is
    * received on */
   relinquish_any_buffers_held (p_obj);
@@ -771,7 +771,7 @@ vp8d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 const void *vp8dprc;
 
 void
-init_vp8dprc (void)
+vp8d_prc_init (void)
 {
 
   if (!vp8dprc)
@@ -782,7 +782,7 @@ init_vp8dprc (void)
         (tizproc_class,
          "vp8dprc",
          tizproc,
-         sizeof (struct vp8dprc),
+         sizeof (vp8d_prc_t),
          ctor, vp8d_proc_ctor,
          dtor, vp8d_proc_dtor,
          tiz_servant_allocate_resources, vp8d_proc_allocate_resources,

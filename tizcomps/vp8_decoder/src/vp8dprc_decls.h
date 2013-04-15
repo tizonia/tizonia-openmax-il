@@ -33,27 +33,25 @@
 extern "C"
 {
 #endif
-
-#include <stdbool.h>
-
 #include "OMX_Core.h"
-
 #include "vp8dprc.h"
 #include "tizproc_decls.h"
+
+#include <stdbool.h>
 
 #define VPX_CODEC_DISABLE_COMPAT 1
 #include <vpx_decoder.h>
 #include <vp8dx.h>
 
   typedef enum vp8dprc_stream_type vp8dprc_stream_type_t;
-
   enum vp8dprc_stream_type
   {
     STREAM_RAW,
     STREAM_IVF
   };
 
-  struct vp8dprc
+  typedef struct vp8d_prc vp8d_prc_t;
+  struct vp8d_prc
   {
     /* Object */
     const tiz_proc_t _;

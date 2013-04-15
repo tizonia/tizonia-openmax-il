@@ -34,12 +34,10 @@ extern "C"
 {
 #endif
 
-#include "vp8eprc.h"
-
 /* factory_new(vp8eprc, ...) */
   extern const void *vp8eprc;
 
-  void init_vp8eprc (void);
+  void vp8e_prc_init (void);
 
 #ifdef __cplusplus
 }

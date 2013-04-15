@@ -30,17 +30,15 @@
 #include <config.h>
 #endif
 
+#include "vp8eprc.h"
+#include "vp8eprc_decls.h"
+#include "tizkernel.h"
+#include "tizscheduler.h"
+#include "tizosal.h"
+
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
-#include "vp8eprc.h"
-#include "vp8eprc_decls.h"
-
-#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -54,7 +52,7 @@
 static void *
 vp8e_proc_ctor (void *ap_obj, va_list * app)
 {
-  struct vp8eprc *p_obj = super_ctor (vp8eprc, ap_obj, app);
+  vp8e_prc_t *p_obj = super_ctor (vp8eprc, ap_obj, app);
   TIZ_LOG (TIZ_TRACE, "Constructing vp8eprc...[%p]", p_obj);
 
   p_obj->pinhdr_ = 0;
@@ -67,7 +65,7 @@ vp8e_proc_ctor (void *ap_obj, va_list * app)
 static void *
 vp8e_proc_dtor (void *ap_obj)
 {
-  struct vp8eprc *p_obj = ap_obj;
+  vp8e_prc_t *p_obj = ap_obj;
   TIZ_LOG (TIZ_TRACE, "Destructing vp8eprc...[%p]", p_obj);
   return super_dtor (vp8eprc, ap_obj);
 }
@@ -75,7 +73,7 @@ vp8e_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 vp8e_proc_transform_buffer (const void *ap_obj)
 {
-  struct vp8eprc *p_obj = (struct vp8eprc *) ap_obj;
+  vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   (void) p_parent;
   (void) p_obj;
@@ -89,7 +87,7 @@ vp8e_proc_transform_buffer (const void *ap_obj)
 static OMX_ERRORTYPE
 vp8e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct vp8eprc *p_obj = ap_obj;
+  vp8e_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
@@ -107,7 +105,7 @@ vp8e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 vp8e_proc_deallocate_resources (void *ap_obj)
 {
-  struct vp8eprc *p_obj = ap_obj;
+  vp8e_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   assert (ap_obj);
 
@@ -147,7 +145,7 @@ vp8e_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 vp8e_proc_stop_and_return (void *ap_obj)
 {
-  struct vp8eprc *p_obj = ap_obj;
+  vp8e_prc_t *p_obj = ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
 
   assert (ap_obj);
@@ -166,7 +164,7 @@ static bool
 claim_input (const void *ap_obj)
 {
   const tiz_servant_t *p_parent = ap_obj;
-  struct vp8eprc *p_obj = (struct vp8eprc *) ap_obj;
+  vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -196,7 +194,7 @@ static bool
 claim_output (const void *ap_obj)
 {
   const tiz_servant_t *p_parent = ap_obj;
-  struct vp8eprc *p_obj = (struct vp8eprc *) ap_obj;
+  vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -222,7 +220,7 @@ claim_output (const void *ap_obj)
 static OMX_ERRORTYPE
 vp8e_proc_buffers_ready (const void *ap_obj)
 {
-  struct vp8eprc *p_obj = (struct vp8eprc *) ap_obj;
+  vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
   const tiz_servant_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
@@ -281,19 +279,17 @@ vp8e_proc_buffers_ready (const void *ap_obj)
 const void *vp8eprc;
 
 void
-init_vp8eprc (void)
+vp8e_prc_init (void)
 {
-
   if (!vp8eprc)
     {
-      TIZ_LOG (TIZ_TRACE, "Initializing vp8eprc...");
       tiz_proc_init ();
       vp8eprc =
         factory_new
         (tizproc_class,
          "vp8eprc",
          tizproc,
-         sizeof (struct vp8eprc),
+         sizeof (vp8e_prc_t),
          ctor, vp8e_proc_ctor,
          dtor, vp8e_proc_dtor,
          tiz_proc_buffers_ready, vp8e_proc_buffers_ready,
@@ -303,5 +299,4 @@ init_vp8eprc (void)
          tiz_servant_transfer_and_process, vp8e_proc_transfer_and_process,
          tiz_servant_stop_and_return, vp8e_proc_stop_and_return, 0);
     }
-
 }
