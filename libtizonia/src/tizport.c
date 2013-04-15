@@ -1048,7 +1048,7 @@ port_register_index (const void *ap_obj, OMX_INDEXTYPE a_index)
 OMX_ERRORTYPE
 tiz_port_register_index (const void *ap_obj, OMX_INDEXTYPE a_index)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->register_index);
   return class->register_index (ap_obj, a_index);
 }
@@ -1057,7 +1057,7 @@ OMX_ERRORTYPE
 tiz_port_super_register_index (const void *a_class,
                               const void *ap_obj, OMX_INDEXTYPE a_index)
 {
-  const struct tiz_port_class *superclass = super (a_class);
+  const tiz_port_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->register_index);
   return superclass->register_index (ap_obj, a_index);
 }
@@ -1075,7 +1075,7 @@ port_find_index (const void *ap_obj, OMX_INDEXTYPE a_index)
 OMX_ERRORTYPE
 tiz_port_find_index (const void *ap_obj, OMX_INDEXTYPE a_index)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->find_index);
   return class->find_index (ap_obj, a_index);
 }
@@ -1084,7 +1084,7 @@ OMX_ERRORTYPE
 tiz_port_super_find_index (const void *a_class,
                           const void *ap_obj, OMX_INDEXTYPE a_index)
 {
-  const struct tiz_port_class *superclass = super (a_class);
+  const tiz_port_class_t *superclass = super (a_class);
 
   assert (ap_obj && superclass->find_index);
   return superclass->find_index (ap_obj, a_index);
@@ -1101,7 +1101,7 @@ port_index (const void *ap_obj)
 OMX_U32
 tiz_port_index (const void *ap_obj)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->index);
   return class->index (ap_obj);
 }
@@ -1118,7 +1118,7 @@ port_set_index (void *ap_obj, OMX_U32 a_pid)
 void
 tiz_port_set_index (void *ap_obj, OMX_U32 a_pid)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->set_index);
   class->set_index (ap_obj, a_pid);
 }
@@ -1135,7 +1135,7 @@ OMX_ERRORTYPE
 tiz_port_set_portdef_format (void *ap_obj,
                             const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->set_portdef_format);
   return class->set_portdef_format (ap_obj, ap_pdef);
 }
@@ -1150,7 +1150,7 @@ port_buffer_count (const void *ap_obj)
 OMX_S32
 tiz_port_buffer_count (const void *ap_obj)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->buffer_count);
   return class->buffer_count (ap_obj);
 }
@@ -1165,7 +1165,7 @@ port_dir (const void *ap_obj)
 OMX_DIRTYPE
 tiz_port_dir (const void *ap_obj)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->dir);
   return class->dir (ap_obj);
 }
@@ -1180,7 +1180,7 @@ port_domain (const void *ap_obj)
 OMX_PORTDOMAINTYPE
 tiz_port_domain (const void *ap_obj)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->domain);
   return class->domain (ap_obj);
 }
@@ -1195,7 +1195,7 @@ port_get_tunnel_comp (const void *ap_obj)
 OMX_HANDLETYPE
 tiz_port_get_tunnel_comp (const void *ap_obj)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->get_tunnel_comp);
   return class->get_tunnel_comp (ap_obj);
 }
@@ -1223,7 +1223,7 @@ port_get_hdrs_list (void *ap_obj)
 tiz_vector_t *
 tiz_port_get_hdrs_list (void *ap_obj)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->get_hdrs_list);
   return class->get_hdrs_list (ap_obj);
 }
@@ -1265,7 +1265,7 @@ port_check_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
 OMX_BOOL
 tiz_port_check_flags (const void *ap_obj, OMX_U32 a_nflags, ...)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   va_list ap;
   OMX_BOOL rc;
   assert (class->check_flags);
@@ -1314,7 +1314,7 @@ port_set_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
 void
 tiz_port_set_flags (const void *ap_obj, OMX_U32 a_nflags, ...)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   va_list ap;
   assert (class->set_flags);
 
@@ -1359,7 +1359,7 @@ port_clear_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
 void
 tiz_port_clear_flags (const void *ap_obj, OMX_U32 a_nflags, ...)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   va_list ap;
   assert (class->clear_flags);
 
@@ -1384,7 +1384,7 @@ port_check_tunneled_port_status (const void *ap_obj, OMX_U32 a_port_status_flag)
 OMX_BOOL
 tiz_port_check_tunneled_port_status (const void *ap_obj, OMX_U32 a_port_status)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->check_tunneled_port_status);
   return class->check_tunneled_port_status (ap_obj, a_port_status);
 }
@@ -1598,7 +1598,7 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 OMX_ERRORTYPE
 tiz_port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->populate);
   return class->populate (ap_obj, ap_hdl);
 }
@@ -1607,7 +1607,7 @@ OMX_ERRORTYPE
 tiz_port_super_populate (const void *a_class, const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl)
 {
-  const struct tiz_port_class *superclass = super (a_class);
+  const tiz_port_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->populate);
   return superclass->populate (ap_obj, ap_hdl);
 }
@@ -1667,7 +1667,7 @@ port_depopulate (const void *ap_obj)
 OMX_ERRORTYPE
 tiz_port_depopulate (const void *ap_obj)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->depopulate);
   return class->depopulate (ap_obj);
 }
@@ -1675,7 +1675,7 @@ tiz_port_depopulate (const void *ap_obj)
 OMX_ERRORTYPE
 tiz_port_super_depopulate (const void *a_class, const void *ap_obj)
 {
-  const struct tiz_port_class *superclass = super (a_class);
+  const tiz_port_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->depopulate);
   return superclass->depopulate (ap_obj);
 }
@@ -1696,7 +1696,7 @@ tiz_port_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->check_tunnel_compat);
   return class->check_tunnel_compat (ap_obj, ap_this_def, ap_other_def);
 }
@@ -1707,7 +1707,7 @@ tiz_port_super_check_tunnel_compat (const void *a_class, const void *ap_obj,
                                    OMX_PARAM_PORTDEFINITIONTYPE *
                                    ap_other_def)
 {
-  const struct tiz_port_class *superclass = super (a_class);
+  const tiz_port_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->check_tunnel_compat);
   return superclass->check_tunnel_compat (ap_obj, ap_this_def, ap_other_def);
 }
@@ -1727,7 +1727,7 @@ port_update_claimed_count (void *ap_obj, OMX_S32 a_offset)
 OMX_S32
 tiz_port_update_claimed_count (void *ap_obj, OMX_S32 a_offset)
 {
-  struct tiz_port_class *class = (struct tiz_port_class *) classOf (ap_obj);
+  tiz_port_class_t *class = (tiz_port_class_t *) classOf (ap_obj);
   assert (class->update_claimed_count);
   return class->update_claimed_count (ap_obj, a_offset);
 }
@@ -1763,7 +1763,7 @@ OMX_ERRORTYPE
 tiz_port_store_mark (void *ap_obj, const OMX_MARKTYPE * ap_mark_info,
                     OMX_BOOL a_owned)
 {
-  struct tiz_port_class *class = (struct tiz_port_class *) classOf (ap_obj);
+  tiz_port_class_t *class = (tiz_port_class_t *) classOf (ap_obj);
   assert (class->store_mark);
   return class->store_mark (ap_obj, ap_mark_info, a_owned);
 }
@@ -1818,7 +1818,7 @@ port_mark_buffer (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
 OMX_ERRORTYPE
 tiz_port_mark_buffer (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  struct tiz_port_class *class = (struct tiz_port_class *) classOf (ap_obj);
+  tiz_port_class_t *class = (tiz_port_class_t *) classOf (ap_obj);
   assert (class->mark_buffer);
   return class->mark_buffer (ap_obj, ap_hdr);
 }
@@ -1847,7 +1847,7 @@ tiz_port_set_alloc_hooks (void *ap_obj,
                          const tiz_alloc_hooks_t * ap_new_hooks,
                          tiz_alloc_hooks_t * ap_old_hooks)
 {
-  struct tiz_port_class *class = (struct tiz_port_class *) classOf (ap_obj);
+  tiz_port_class_t *class = (tiz_port_class_t *) classOf (ap_obj);
   assert (class->set_alloc_hooks);
   class->set_alloc_hooks (ap_obj, ap_new_hooks, ap_old_hooks);
 }
@@ -1918,7 +1918,7 @@ OMX_ERRORTYPE
 tiz_port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                          OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  struct tiz_port_class *class = (struct tiz_port_class *) classOf (ap_obj);
+  tiz_port_class_t *class = (tiz_port_class_t *) classOf (ap_obj);
   assert (class->populate_header);
   return class->populate_header (ap_obj, ap_hdl, ap_hdr);
 }
@@ -1956,7 +1956,7 @@ void
 tiz_port_depopulate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                            OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  struct tiz_port_class *class = (struct tiz_port_class *) classOf (ap_obj);
+  tiz_port_class_t *class = (tiz_port_class_t *) classOf (ap_obj);
   assert (class->depopulate_header);
   class->depopulate_header (ap_obj, ap_hdl, ap_hdr);
 }
@@ -1979,7 +1979,7 @@ port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid)
 OMX_BOOL
 tiz_port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->is_master_or_slave);
   return class->is_master_or_slave (ap_obj, ap_mos_pid);
 }
@@ -1999,7 +1999,7 @@ tiz_port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
                                  const OMX_PTR ap_struct,
                                  tiz_vector_t * ap_changed_idxs)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->apply_slaving_behaviour);
   return class->apply_slaving_behaviour (ap_obj, ap_mos_port,
                                          a_index, ap_struct, ap_changed_idxs);
@@ -2012,7 +2012,7 @@ tiz_port_super_apply_slaving_behaviour (void *a_class, void *ap_obj,
                                        const OMX_PTR ap_struct,
                                        tiz_vector_t * ap_changed_idxs)
 {
-  const struct tiz_port_class *superclass = super (a_class);
+  const tiz_port_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->apply_slaving_behaviour);
   return superclass->apply_slaving_behaviour (ap_obj, ap_mos_port, a_index,
                                               ap_struct, ap_changed_idxs);
@@ -2081,7 +2081,7 @@ void
 tiz_port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                                 OMX_U32 a_port_status)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->update_tunneled_status);
   class->update_tunneled_status (ap_obj, ap_hdl, a_port_status);
 }
@@ -2100,7 +2100,7 @@ void
 tiz_port_reset_tunneled_port_status_flag (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                                          OMX_U32 a_port_status_flag)
 {
-  const struct tiz_port_class *class = classOf (ap_obj);
+  const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->reset_tunneled_port_status_flag);
   class->reset_tunneled_port_status_flag (ap_obj, ap_hdl, a_port_status_flag);
 }
@@ -2112,7 +2112,7 @@ tiz_port_reset_tunneled_port_status_flag (void *ap_obj, OMX_HANDLETYPE ap_hdl,
 static void *
 port_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tiz_port_class *p_obj = super_ctor (tiz_port_class, ap_obj, app);
+  tiz_port_class_t *p_obj = super_ctor (tiz_port_class, ap_obj, app);
   typedef void (*voidf) ();
   voidf selector;
   va_list ap;
@@ -2243,7 +2243,7 @@ port_class_ctor (void *ap_obj, va_list * app)
 const void *tizport, *tiz_port_class;
 
 void
-init_tizport (void)
+tiz_port_init (void)
 {
 
   if (!tiz_port_class)
@@ -2252,7 +2252,7 @@ init_tizport (void)
       tiz_port_class = factory_new (tizapi_class,
                                    "tiz_port_class",
                                    tizapi_class,
-                                   sizeof (struct tiz_port_class),
+                                   sizeof (tiz_port_class_t),
                                    ctor, port_class_ctor, 0);
 
     }

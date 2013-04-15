@@ -351,7 +351,7 @@ init_tizconfigport (void)
 
   if (!tizconfigport_class)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizconfigport_class = factory_new (tiz_port_class,
                                          "tizconfigport_class",
                                          tiz_port_class,
@@ -362,7 +362,7 @@ init_tizconfigport (void)
 
   if (!tizconfigport)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizconfigport =
         factory_new
         (tizconfigport_class,

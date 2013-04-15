@@ -95,6 +95,7 @@ extern "C"
                                                        tiz_vector_t *
                                                        ap_changed_idxs);
 
+  typedef struct tiz_port_class tiz_port_class_t;
   struct tiz_port_class
   {
     /* Class */

@@ -41,9 +41,8 @@ extern "C"
 
 /* factory_new(tizmp3port, ...); */
   extern const void *tizmp3port;
-  extern const void *tizmp3port_class;
 
-  void init_tizmp3port (void);
+  void tiz_mp3port_init (void);
 
 #ifdef __cplusplus
 }

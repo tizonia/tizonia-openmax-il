@@ -315,7 +315,7 @@ init_tizimageport (void)
 
   if (!tizimageport_class)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizimageport_class = factory_new (tiz_port_class,
                                         "tizimageport_class",
                                         tiz_port_class,
@@ -326,7 +326,7 @@ init_tizimageport (void)
 
   if (!tizimageport)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizimageport =
         factory_new
         (tizimageport_class,

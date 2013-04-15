@@ -50,7 +50,7 @@
 static void *
 pcmport_ctor (void *ap_obj, va_list * app)
 {
-  struct tizpcmport *p_obj = super_ctor (tizpcmport, ap_obj, app);
+  tiz_pcmport_t *p_obj = super_ctor (tizpcmport, ap_obj, app);
   tiz_port_t *p_base = ap_obj;
   OMX_AUDIO_PARAM_PCMMODETYPE *p_pcmmode = NULL;
   OMX_AUDIO_CONFIG_VOLUMETYPE *p_volume = NULL;
@@ -108,7 +108,7 @@ pcmport_GetParameter (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizpcmport *p_obj = ap_obj;
+  const tiz_pcmport_t *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -138,7 +138,7 @@ pcmport_SetParameter (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizpcmport *p_obj = (struct tizpcmport *) ap_obj;
+  tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
 
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "PORT [%d] SetParameter [%s]...", tiz_port_dir (p_obj),
@@ -272,7 +272,7 @@ pcmport_GetConfig (const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizpcmport *p_obj = ap_obj;
+  const tiz_pcmport_t *p_obj = ap_obj;
 
   switch (a_index)
     {
@@ -312,7 +312,7 @@ pcmport_SetConfig (const void *ap_obj,
                    OMX_HANDLETYPE ap_hdl,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizpcmport *p_obj = (struct tizpcmport *) ap_obj;
+  tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
 
   switch (a_index)
     {
@@ -418,7 +418,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
                                  const OMX_PTR ap_struct,
                                  tiz_vector_t * ap_changed_idxs)
 {
-  struct tizpcmport *p_obj = ap_obj;
+  tiz_pcmport_t *p_obj = ap_obj;
   tiz_port_t *p_base = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -603,66 +603,23 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 }
 
 /*
- * tizpcmport_class
- */
-
-static void *
-pcmport_class_ctor (void *ap_obj, va_list * app)
-{
-  struct tizpcmport_class *p_obj = super_ctor (tizpcmport_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
-}
-
-/*
  * initialization
  */
 
-const void *tizpcmport, *tizpcmport_class;
+const void *tizpcmport;
 
 void
-init_tizpcmport (void)
+tiz_pcmport_init (void)
 {
-
-  if (!tizpcmport_class)
-    {
-      init_tizaudioport ();
-      tizpcmport_class = factory_new (tizaudioport_class,
-                                      "tizpcmport_class",
-                                      tizaudioport_class,
-                                      sizeof (struct tizpcmport_class),
-                                      ctor, pcmport_class_ctor, 0);
-
-    }
-
   if (!tizpcmport)
     {
-      init_tizaudioport ();
+      tiz_audioport_init ();
       tizpcmport =
         factory_new
-        (tizpcmport_class,
+        (tizaudioport_class,
          "tizpcmport",
          tizaudioport,
-         sizeof (struct tizpcmport),
+         sizeof (tiz_pcmport_t),
          ctor, pcmport_ctor,
          dtor, pcmport_dtor,
          tiz_api_GetParameter, pcmport_GetParameter,
@@ -673,5 +630,4 @@ init_tizpcmport (void)
          tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
          tiz_port_apply_slaving_behaviour, pcmport_apply_slaving_behaviour, 0);
     }
-
 }

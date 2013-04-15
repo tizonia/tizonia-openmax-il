@@ -109,7 +109,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.nPortIndex = 0;
   mute.bMute = OMX_FALSE;
 
-  init_tizpcmport ();
+  tiz_pcmport_init ();
   p_pcmport = factory_new (tizpcmport, &port_opts, &encodings,
                            &pcmmode, &volume, &mute);
   assert (p_pcmport);

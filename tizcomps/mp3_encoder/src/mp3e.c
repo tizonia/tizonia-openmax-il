@@ -98,7 +98,7 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
   mp3type.eChannelMode = OMX_AUDIO_ChannelModeStereo;
   mp3type.eFormat = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
-  init_tizmp3port ();
+  tiz_mp3port_init ();
   p_mp3port = factory_new (tizmp3port, &mp3_port_opts, &encodings, &mp3type);
   assert (p_mp3port);
 
@@ -155,7 +155,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.nPortIndex = 0;
   mute.bMute = OMX_FALSE;
 
-  init_tizpcmport ();
+  tiz_pcmport_init ();
   p_pcmport = factory_new (tizpcmport, &pcm_port_opts, &encodings,
                            &pcmmode, &volume, &mute);
   assert (p_pcmport);

@@ -39,7 +39,8 @@ extern "C"
 #include "tizport_decls.h"
 #include "tizosal.h"
 
-  struct tizaudioport
+  typedef struct tiz_audioport tiz_audioport_t;
+  struct tiz_audioport
   {
     /* Object */
     const tiz_port_t _;
@@ -47,10 +48,11 @@ extern "C"
     tiz_vector_t *p_encodings_;
   };
 
-  struct tizaudioport_class
+  typedef struct tiz_audioport_class tiz_audioport_class_t;
+  struct tiz_audioport_class
   {
     /* Class */
-    const struct tiz_port_class _;
+    const tiz_port_class_t _;
   };
 
 #ifdef __cplusplus

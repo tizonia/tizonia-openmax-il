@@ -50,7 +50,7 @@
 static void *
 audioport_ctor (void *ap_obj, va_list * app)
 {
-  struct tizaudioport *p_obj = super_ctor (tizaudioport, ap_obj, app);
+  tiz_audioport_t *p_obj = super_ctor (tizaudioport, ap_obj, app);
   OMX_AUDIO_CODINGTYPE *p_encodings = NULL;
   OMX_U32 i = 0;
 
@@ -80,7 +80,7 @@ audioport_ctor (void *ap_obj, va_list * app)
 static void *
 audioport_dtor (void *ap_obj)
 {
-  struct tizaudioport *p_obj = ap_obj;
+  tiz_audioport_t *p_obj = ap_obj;
   assert (p_obj);
 
   tiz_vector_clear (p_obj->p_encodings_);
@@ -98,7 +98,7 @@ audioport_GetParameter (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizaudioport *p_obj = ap_obj;
+  const tiz_audioport_t *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -137,7 +137,7 @@ audioport_SetParameter (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizaudioport *p_obj = (struct tizaudioport *) ap_obj;
+  tiz_audioport_t *p_obj = (tiz_audioport_t *) ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -191,7 +191,7 @@ audioport_SetParameter (const void *ap_obj,
 static void *
 audioport_class_ctor (void *ap_obj, va_list * app)
 {
-  struct tizaudioport_class *p_obj =
+  tiz_audioport_class_t *p_obj =
     super_ctor (tizaudioport_class, ap_obj, app);
   typedef void (*voidf) ();
   voidf selector;
@@ -223,29 +223,29 @@ audioport_class_ctor (void *ap_obj, va_list * app)
 const void *tizaudioport, *tizaudioport_class;
 
 void
-init_tizaudioport (void)
+tiz_audioport_init (void)
 {
 
   if (!tizaudioport_class)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizaudioport_class = factory_new (tiz_port_class,
                                         "tizaudioport_class",
                                         tiz_port_class,
-                                        sizeof (struct tizaudioport_class),
+                                        sizeof (tiz_audioport_class_t),
                                         ctor, audioport_class_ctor, 0);
 
     }
 
   if (!tizaudioport)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizaudioport =
         factory_new
         (tizaudioport_class,
          "tizaudioport",
          tizport,
-         sizeof (struct tizaudioport),
+         sizeof (tiz_audioport_t),
          ctor, audioport_ctor,
          dtor, audioport_dtor,
          tiz_api_GetParameter, audioport_GetParameter,

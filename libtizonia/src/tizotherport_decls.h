@@ -50,7 +50,7 @@ extern "C"
   struct tizotherport_class
   {
     /* Class */
-    const struct tiz_port_class _;
+    const tiz_port_class_t _;
   };
 
 #ifdef __cplusplus

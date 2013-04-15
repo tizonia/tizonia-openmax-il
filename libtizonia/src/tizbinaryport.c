@@ -75,7 +75,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
           OMX_AUDIO_CodingMax
         };
         tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat);
-        init_tizaudioport ();
+        tiz_audioport_init ();
         p_obj->ip_port = factory_new (tizaudioport, p_opts, &encodings);
       }
       break;
@@ -323,7 +323,7 @@ init_tizbinaryport (void)
 
   if (!tizbinaryport_class)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizbinaryport_class = factory_new (tiz_port_class,
                                          "tizbinaryport_class",
                                          tiz_port_class,
@@ -334,7 +334,7 @@ init_tizbinaryport (void)
 
   if (!tizbinaryport)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizbinaryport =
         factory_new
         (tizbinaryport_class,

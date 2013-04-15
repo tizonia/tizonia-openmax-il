@@ -41,9 +41,8 @@ extern "C"
 
 /* factory_new(tizpcmport, ...); */
   extern const void *tizpcmport;
-  extern const void *tizpcmport_class;
 
-  void init_tizpcmport (void);
+  void tiz_pcmport_init (void);
 
 #ifdef __cplusplus
 }

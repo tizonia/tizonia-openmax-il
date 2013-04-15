@@ -88,6 +88,8 @@ extern "C"
   extern const void *tizport;
   extern const void *tiz_port_class;
 
+  void tiz_port_init (void);
+
   OMX_BOOL tiz_port_check_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
 
   void tiz_port_set_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
@@ -165,8 +167,6 @@ extern "C"
   void tiz_port_reset_tunneled_port_status_flag (void *ap_obj,
                                                  OMX_HANDLETYPE ap_hdl,
                                                  OMX_U32 a_port_status_flag);
-
-  void init_tizport (void);
 
 #ifdef __cplusplus
 }

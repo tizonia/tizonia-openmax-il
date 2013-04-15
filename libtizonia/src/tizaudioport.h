@@ -43,7 +43,7 @@ extern "C"
   extern const void *tizaudioport;
   extern const void *tizaudioport_class;
 
-  void init_tizaudioport (void);
+  void tiz_audioport_init (void);
 
 #ifdef __cplusplus
 }

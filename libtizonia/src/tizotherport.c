@@ -227,7 +227,7 @@ init_tizotherport (void)
 
   if (!tizotherport_class)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizotherport_class = factory_new (tiz_port_class,
                                         "tizotherport_class",
                                         tiz_port_class,
@@ -238,7 +238,7 @@ init_tizotherport (void)
 
   if (!tizotherport)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizotherport =
         factory_new
         (tizotherport_class,

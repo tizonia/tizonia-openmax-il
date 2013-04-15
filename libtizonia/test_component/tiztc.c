@@ -108,7 +108,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   TIZ_LOG (TIZ_TRACE, "Inititializing the test component's pcm port");
 
   /* Instantiate a pcm port */
-  init_tizpcmport ();
+  tiz_pcmport_init ();
   p_pcmport = factory_new (tizpcmport, &port_opts, NULL, NULL, NULL, NULL);
   assert (p_pcmport);
 

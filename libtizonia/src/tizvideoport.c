@@ -412,7 +412,7 @@ init_tizvideoport (void)
 
   if (!tizvideoport_class)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizvideoport_class = factory_new (tiz_port_class,
                                         "tizvideoport_class",
                                         tiz_port_class,
@@ -423,7 +423,7 @@ init_tizvideoport (void)
 
   if (!tizvideoport)
     {
-      init_tizport ();
+      tiz_port_init ();
       tizvideoport =
         factory_new
         (tizvideoport_class,

@@ -38,10 +38,11 @@ extern "C"
 
 #include "tizaudioport_decls.h"
 
-  struct tizpcmport
+  typedef struct tiz_pcmport tiz_pcmport_t;
+  struct tiz_pcmport
   {
     /* Object */
-    const struct tizaudioport _;
+    const tiz_audioport_t _;
     OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
     OMX_AUDIO_CONFIG_VOLUMETYPE volume_;
     OMX_AUDIO_CONFIG_MUTETYPE mute_;
@@ -50,7 +51,7 @@ extern "C"
   struct tizpcmport_class
   {
     /* Class */
-    const struct tizaudioport_class _;
+    const tiz_audioport_class_t _;
   };
 
 #ifdef __cplusplus

@@ -50,7 +50,7 @@
 static void *
 mp3port_ctor (void *ap_obj, va_list * app)
 {
-  struct tizmp3port *p_obj = super_ctor (tizmp3port, ap_obj, app);
+  tiz_mp3port_t *p_obj = super_ctor (tizmp3port, ap_obj, app);
   tiz_port_t *p_base = ap_obj;
   OMX_AUDIO_PARAM_MP3TYPE *p_mp3mode = NULL;
   tiz_port_register_index (p_obj, OMX_IndexParamAudioMp3);
@@ -86,7 +86,7 @@ mp3port_GetParameter (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const struct tizmp3port *p_obj = ap_obj;
+  const tiz_mp3port_t *p_obj = ap_obj;
 
   TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -116,7 +116,7 @@ mp3port_SetParameter (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  struct tizmp3port *p_obj = (struct tizmp3port *) ap_obj;
+  tiz_mp3port_t *p_obj = (tiz_mp3port_t *) ap_obj;
 
   switch (a_index)
     {
@@ -251,7 +251,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
                                  const OMX_PTR ap_struct,
                                  tiz_vector_t * ap_changed_idxs)
 {
-  struct tizmp3port *p_obj = ap_obj;
+  tiz_mp3port_t *p_obj = ap_obj;
   tiz_port_t *p_base = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -389,66 +389,24 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 }
 
 /*
- * tizmp3port_class
- */
-
-static void *
-mp3port_class_ctor (void *ap_obj, va_list * app)
-{
-  struct tizmp3port_class *p_obj = super_ctor (tizmp3port_class, ap_obj, app);
-  typedef void (*voidf) ();
-  voidf selector;
-  va_list ap;
-  va_copy (ap, *app);
-
-  while ((selector = va_arg (ap, voidf)))
-    {
-      /* voidf method = va_arg (ap, voidf); */
-      /*          if (selector == (voidf) tiz_servant_tick) */
-      /*             { */
-      /*                *(voidf*) & p_obj->tick = method; */
-      /*             } */
-      /*          else if (selector == (voidf) tiz_servant_enqueue) */
-      /*             { */
-      /*                *(voidf*) & p_obj->enqueue = method; */
-      /*             } */
-
-    }
-
-  va_end (ap);
-  return p_obj;
-}
-
-/*
  * initialization
  */
 
-const void *tizmp3port, *tizmp3port_class;
+const void *tizmp3port;
 
 void
-init_tizmp3port (void)
+tiz_mp3port_init (void)
 {
-
-  if (!tizmp3port_class)
-    {
-      init_tizaudioport ();
-      tizmp3port_class = factory_new (tizaudioport_class,
-                                      "tizmp3port_class",
-                                      tizaudioport_class,
-                                      sizeof (struct tizmp3port_class),
-                                      ctor, mp3port_class_ctor, 0);
-
-    }
 
   if (!tizmp3port)
     {
-      init_tizaudioport ();
+      tiz_audioport_init ();
       tizmp3port =
         factory_new
-        (tizmp3port_class,
+        (tizaudioport_class,
          "tizmp3port",
          tizaudioport,
-         sizeof (struct tizmp3port),
+         sizeof (tiz_mp3port_t),
          ctor, mp3port_ctor,
          dtor, mp3port_dtor,
          tiz_api_GetParameter, mp3port_GetParameter,
