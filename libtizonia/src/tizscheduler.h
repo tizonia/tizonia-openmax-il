@@ -78,6 +78,7 @@ extern "C"
   typedef struct tiz_alloc_hooks tiz_alloc_hooks_t;
   struct tiz_alloc_hooks
   {
+    OMX_U32 pid;
     tiz_alloc_hook_f pf_alloc;
     tiz_free_hook_f pf_free;
     void *p_args;
@@ -106,7 +107,6 @@ extern "C"
                                          const OMX_U32 a_nroles);
 
   OMX_ERRORTYPE tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
-                                               const OMX_U32 a_pid,
                                                const tiz_alloc_hooks_t *
                                                ap_new_hooks,
                                                tiz_alloc_hooks_t *

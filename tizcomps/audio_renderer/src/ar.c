@@ -30,6 +30,9 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+#include <string.h>
+
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
@@ -41,9 +44,6 @@
 #include "tizconfigport.h"
 #include "arprc.h"
 
-#include <assert.h>
-#include <string.h>
-
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.audio_renderer"
@@ -51,6 +51,7 @@
 
 #define ARATELIA_AUDIO_RENDERER_DEFAULT_ROLE "audio_renderer.pcm"
 #define ARATELIA_AUDIO_RENDERER_COMPONENT_NAME "OMX.Aratelia.audio_renderer.pcm"
+#define ARATELIA_AUDIO_RENDERER_PORT_INDEX 0 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_AUDIO_RENDERER_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_AUDIO_RENDERER_PORT_MIN_BUF_SIZE 1024
 #define ARATELIA_AUDIO_RENDERER_PORT_NONCONTIGUOUS OMX_FALSE
@@ -78,36 +79,38 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_AUDIO_RENDERER_PORT_NONCONTIGUOUS,
     ARATELIA_AUDIO_RENDERER_PORT_ALIGNMENT,
     ARATELIA_AUDIO_RENDERER_PORT_SUPPLIERPREF,
-    {NULL, NULL, NULL},
+    {ARATELIA_AUDIO_RENDERER_PORT_INDEX, NULL, NULL, NULL},
     -1                          /* use -1 for now */
   };
 
   /* Instantiate the pcm port */
-  pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  pcmmode.nVersion.nVersion = OMX_VERSION;
-  pcmmode.nPortIndex = 0;
-  pcmmode.nChannels = 2;
-  pcmmode.eNumData = OMX_NumericalDataSigned;
-  pcmmode.eEndian = OMX_EndianLittle;
-  pcmmode.bInterleaved = OMX_TRUE;
-  pcmmode.nBitPerSample = 16;
-  pcmmode.nSamplingRate = 48000;
-  pcmmode.ePCMMode = OMX_AUDIO_PCMModeLinear;
+  pcmmode.nSize              = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+  pcmmode.nVersion.nVersion  = OMX_VERSION;
+  pcmmode.nPortIndex         = ARATELIA_AUDIO_RENDERER_PORT_INDEX;
+  pcmmode.nChannels          = 2;
+  pcmmode.eNumData           = OMX_NumericalDataSigned;
+  pcmmode.eEndian            = OMX_EndianLittle;
+  pcmmode.bInterleaved       = OMX_TRUE;
+  pcmmode.nBitPerSample      = 16;
+  pcmmode.nSamplingRate      = 48000;
+  pcmmode.ePCMMode           = OMX_AUDIO_PCMModeLinear;
   pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
   pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
+  
 
-  volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
+  volume.nSize             = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
   volume.nVersion.nVersion = OMX_VERSION;
-  volume.nPortIndex = 0;
-  volume.bLinear = OMX_FALSE;
-  volume.sVolume.nValue = 50;
-  volume.sVolume.nMin = 0;
-  volume.sVolume.nMax = 100;
+  volume.nPortIndex        = ARATELIA_AUDIO_RENDERER_PORT_INDEX;
+  volume.bLinear           = OMX_FALSE;
+  volume.sVolume.nValue    = 50;
+  volume.sVolume.nMin      = 0;
+  volume.sVolume.nMax      = 100;
+  
 
-  mute.nSize = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
+  mute.nSize             = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
   mute.nVersion.nVersion = OMX_VERSION;
-  mute.nPortIndex = 0;
-  mute.bMute = OMX_FALSE;
+  mute.nPortIndex        = ARATELIA_AUDIO_RENDERER_PORT_INDEX;
+  mute.bMute             = OMX_FALSE;
 
   tiz_pcmport_init ();
   p_pcmport = factory_new (tizpcmport, &port_opts, &encodings,
@@ -158,10 +161,10 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   strcpy ((OMX_STRING) role_factory.role,
           ARATELIA_AUDIO_RENDERER_DEFAULT_ROLE);
-  role_factory.pf_cport = instantiate_config_port;
+  role_factory.pf_cport   = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_pcm_port;
-  role_factory.nports = 1;
-  role_factory.pf_proc = instantiate_processor;
+  role_factory.nports     = 1;
+  role_factory.pf_proc    = instantiate_processor;
 
   tiz_comp_init (ap_hdl, ARATELIA_AUDIO_RENDERER_COMPONENT_NAME);
 

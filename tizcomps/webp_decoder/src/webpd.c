@@ -30,10 +30,6 @@
 #include <config.h>
 #endif
 
-
-#include <assert.h>
-#include <string.h>
-
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
@@ -45,6 +41,9 @@
 #include "tizconfigport.h"
 #include "webpdprc.h"
 
+#include <assert.h>
+#include <string.h>
+
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.webp_decoder"
@@ -52,6 +51,11 @@
 
 #define ARATELIA_WEBP_DECODER_DEFAULT_ROLE "image_decoder.webp"
 #define ARATELIA_WEBP_DECODER_COMPONENT_NAME "OMX.Aratelia.image_decoder.webp"
+
+/* With libtizonia, port indexes must start at index 0 */
+#define ARATELIA_WEBP_DECODER_INPUT_PORT_INDEX  0
+#define ARATELIA_WEBP_DECODER_OUTPUT_PORT_INDEX 1
+
 #define ARATELIA_WEBP_DECODER_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_WEBP_DECODER_PORT_MIN_INPUT_BUF_SIZE 8192
 #define ARATELIA_WEBP_DECODER_PORT_MIN_OUTPUT_BUF_SIZE 8192
@@ -82,20 +86,20 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_WEBP_DECODER_PORT_NONCONTIGUOUS,
     ARATELIA_WEBP_DECODER_PORT_ALIGNMENT,
     ARATELIA_WEBP_DECODER_PORT_SUPPLIERPREF,
-    {NULL, NULL, NULL},
+    {ARATELIA_WEBP_DECODER_INPUT_PORT_INDEX, NULL, NULL, NULL},
     -1                          /* use -1 until this becomes a real
                                  * component */
   };
 
-  portdef.pNativeRender = NULL;
-  portdef.nFrameWidth = 640;
-  portdef.nFrameHeight = 480;
-  portdef.nStride = 0;
-  portdef.nSliceHeight = 0;
+  portdef.pNativeRender         = NULL;
+  portdef.nFrameWidth           = 640;
+  portdef.nFrameHeight          = 480;
+  portdef.nStride               = 0;
+  portdef.nSliceHeight          = 0;
   portdef.bFlagErrorConcealment = OMX_FALSE;
-  portdef.eCompressionFormat = OMX_IMAGE_CodingWEBP;
-  portdef.eColorFormat = OMX_COLOR_FormatUnused;
-  portdef.pNativeWindow = NULL;
+  portdef.eCompressionFormat    = OMX_IMAGE_CodingWEBP;
+  portdef.eColorFormat          = OMX_COLOR_FormatUnused;
+  portdef.pNativeWindow         = NULL;
 
   tiz_imageport_init ();
   p_imageport = factory_new (tizimageport, &image_port_opts, &portdef,
@@ -126,24 +130,24 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_WEBP_DECODER_PORT_NONCONTIGUOUS,
     ARATELIA_WEBP_DECODER_PORT_ALIGNMENT,
     ARATELIA_WEBP_DECODER_PORT_SUPPLIERPREF,
-    {NULL, NULL, NULL},
+    {ARATELIA_WEBP_DECODER_OUTPUT_PORT_INDEX, NULL, NULL, NULL},
     -1                          /* use -1 until this becomes a real
                                  * component */
   };
 
   /* This figures are based on the defaults defined in the standard for the WebP
    * decoder component */
-  portdef.pNativeRender = NULL;
-  portdef.nFrameWidth = 640;
-  portdef.nFrameHeight = 480;
-  portdef.nStride = 0;
-  portdef.nSliceHeight = 0;
-  portdef.nBitrate = 0;
-  portdef.xFramerate = 0;
+  portdef.pNativeRender         = NULL;
+  portdef.nFrameWidth           = 640;
+  portdef.nFrameHeight          = 480;
+  portdef.nStride               = 0;
+  portdef.nSliceHeight          = 0;
+  portdef.nBitrate              = 0;
+  portdef.xFramerate            = 0;
   portdef.bFlagErrorConcealment = OMX_FALSE;
-  portdef.eCompressionFormat = OMX_VIDEO_CodingUnused;
-  portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
-  portdef.pNativeWindow = NULL;
+  portdef.eCompressionFormat    = OMX_VIDEO_CodingUnused;
+  portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
+  portdef.pNativeWindow         = NULL;
 
   tiz_videoport_init ();
   p_videoport = factory_new (tizvideoport, &video_port_opts, &portdef,
@@ -192,11 +196,11 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
            "Inititializing [%s]", ARATELIA_WEBP_DECODER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_WEBP_DECODER_DEFAULT_ROLE);
-  role_factory.pf_cport = instantiate_config_port;
+  role_factory.pf_cport   = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_input_port;
   role_factory.pf_port[1] = instantiate_output_port;
-  role_factory.nports = 2;
-  role_factory.pf_proc = instantiate_processor;
+  role_factory.nports     = 2;
+  role_factory.pf_proc    = instantiate_processor;
 
   tiz_comp_init (ap_hdl, ARATELIA_WEBP_DECODER_COMPONENT_NAME);
 

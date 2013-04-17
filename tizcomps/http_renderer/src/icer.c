@@ -30,9 +30,6 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
-
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
@@ -41,8 +38,10 @@
 #include "tizscheduler.h"
 #include "tizbinaryport.h"
 #include "icercfgport.h"
-
 #include "icerprc.h"
+
+#include <assert.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -51,6 +50,7 @@
 
 #define ARATELIA_HTTP_RENDERER_DEFAULT_ROLE "ice_renderer.http"
 #define ARATELIA_HTTP_RENDERER_COMPONENT_NAME "OMX.Aratelia.ice_renderer.http"
+#define ARATELIA_HTTP_RENDERER_PORT_INDEX 0 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_SIZE (8*1024)
 #define ARATELIA_HTTP_RENDERER_PORT_NONCONTIGUOUS OMX_FALSE
@@ -71,7 +71,7 @@ instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_HTTP_RENDERER_PORT_NONCONTIGUOUS,
     ARATELIA_HTTP_RENDERER_PORT_ALIGNMENT,
     ARATELIA_HTTP_RENDERER_PORT_SUPPLIERPREF,
-    {NULL, NULL, NULL},
+    {ARATELIA_HTTP_RENDERER_PORT_INDEX, NULL, NULL, NULL},
     -1                          /* use -1 for now */
   };
 
@@ -122,10 +122,10 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
            ARATELIA_HTTP_RENDERER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_HTTP_RENDERER_DEFAULT_ROLE);
-  role_factory.pf_cport = instantiate_config_port;
+  role_factory.pf_cport   = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_binary_port;
-  role_factory.nports = 1;
-  role_factory.pf_proc = instantiate_processor;
+  role_factory.nports     = 1;
+  role_factory.pf_proc    = instantiate_processor;
 
   tiz_comp_init (ap_hdl, ARATELIA_HTTP_RENDERER_COMPONENT_NAME);
 

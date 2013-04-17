@@ -50,6 +50,7 @@
 
 #define ARATELIA_YUV_RENDERER_DEFAULT_ROLE "iv_renderer.yuv.overlay"
 #define ARATELIA_YUV_RENDERER_COMPONENT_NAME "OMX.Aratelia.iv_renderer.yuv.overlay"
+#define ARATELIA_YUV_RENDERER_PORT_INDEX 0 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_YUV_RENDERER_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_YUV_RENDERER_PORT_MIN_INPUT_BUF_SIZE 8192
 #define ARATELIA_YUV_RENDERER_PORT_MIN_OUTPUT_BUF_SIZE 8192
@@ -80,23 +81,23 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_YUV_RENDERER_PORT_NONCONTIGUOUS,
     ARATELIA_YUV_RENDERER_PORT_ALIGNMENT,
     ARATELIA_YUV_RENDERER_PORT_SUPPLIERPREF,
-    {NULL, NULL, NULL},
+    {ARATELIA_YUV_RENDERER_PORT_INDEX, NULL, NULL, NULL},
     0                           /* use 0 for now */
   };
 
   /* This figures are based on the defaults defined in the standard for the YUV
    * Overlay Image/Video Renderer */
-  portdef.pNativeRender = NULL;
-  portdef.nFrameWidth = 176;
-  portdef.nFrameHeight = 220;
-  portdef.nStride = 0;
-  portdef.nSliceHeight = 0;
-  portdef.nBitrate = 64000;
-  portdef.xFramerate = 15;
+  portdef.pNativeRender         = NULL;
+  portdef.nFrameWidth           = 176;
+  portdef.nFrameHeight          = 220;
+  portdef.nStride               = 0;
+  portdef.nSliceHeight          = 0;
+  portdef.nBitrate              = 64000;
+  portdef.xFramerate            = 15;
   portdef.bFlagErrorConcealment = OMX_FALSE;
-  portdef.eCompressionFormat = OMX_VIDEO_CodingUnused;
-  portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
-  portdef.pNativeWindow = NULL;
+  portdef.eCompressionFormat    = OMX_VIDEO_CodingUnused;
+  portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
+  portdef.pNativeWindow         = NULL;
 
   tiz_ivrport_init ();
   p_ivrport = factory_new (tizivrport, &rawvideo_port_opts, &portdef,
@@ -139,16 +140,16 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
 
-  strcpy ((OMX_STRING) role_factory.role, ARATELIA_YUV_RENDERER_DEFAULT_ROLE);
-  role_factory.pf_cport = instantiate_config_port;
-  role_factory.pf_port[0] = instantiate_input_port;
-  role_factory.nports = 1;
-  role_factory.pf_proc = instantiate_processor;
+  assert (ap_hdl);
 
   TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_YUV_RENDERER_COMPONENT_NAME);
 
-  assert (ap_hdl);
+  strcpy ((OMX_STRING) role_factory.role, ARATELIA_YUV_RENDERER_DEFAULT_ROLE);
+  role_factory.pf_cport   = instantiate_config_port;
+  role_factory.pf_port[0] = instantiate_input_port;
+  role_factory.nports     = 1;
+  role_factory.pf_proc    = instantiate_processor;
 
   tiz_comp_init (ap_hdl, ARATELIA_YUV_RENDERER_COMPONENT_NAME);
 

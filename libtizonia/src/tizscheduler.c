@@ -235,7 +235,6 @@ struct tiz_sched_msg_regroles
 typedef struct tiz_sched_msg_regphooks tiz_sched_msg_regphooks_t;
 struct tiz_sched_msg_regphooks
 {
-  OMX_U32 pid;
   const tiz_alloc_hooks_t *p_hooks;
   tiz_alloc_hooks_t *p_old_hooks;
 };
@@ -1207,6 +1206,7 @@ do_rph (tiz_scheduler_t * ap_sched,
         tiz_sched_state_t * ap_state, tiz_sched_msg_t * ap_msg)
 {
   tiz_sched_msg_regphooks_t *p_msg_rph = NULL;
+  const tiz_alloc_hooks_t *p_hooks = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
@@ -1219,7 +1219,8 @@ do_rph (tiz_scheduler_t * ap_sched,
 
   p_msg_rph = &(ap_msg->rph);
   assert (NULL != p_msg_rph);
-  assert (NULL != p_msg_rph->p_hooks);
+  p_hooks = p_msg_rph->p_hooks;
+  assert (NULL != p_hooks);
 
   {
     const tiz_fsm_state_id_t now = tiz_fsm_get_substate (ap_sched->child.p_fsm);
@@ -1239,19 +1240,19 @@ do_rph (tiz_scheduler_t * ap_sched,
 
         do
           {
-            pid = ((OMX_ALL != p_msg_rph->pid) ? p_msg_rph->pid : i++);
+            pid = ((OMX_ALL != p_hooks->pid) ? p_hooks->pid : i++);
 
             if (NULL != (p_port
                          = tiz_kernel_get_port (ap_sched->child.p_ker, pid)))
               {
-                tiz_port_set_alloc_hooks (p_port, p_msg_rph->p_hooks,
-                                         p_msg_rph->pid == OMX_ALL ?
+                tiz_port_set_alloc_hooks (p_port, p_hooks,
+                                         p_hooks->pid == OMX_ALL ?
                                          NULL : p_msg_rph->p_old_hooks);
               }
           }
-        while (p_port != NULL && (OMX_ALL == p_msg_rph->pid));
+        while (p_port != NULL && (OMX_ALL == p_hooks->pid));
 
-        if (NULL == p_port && OMX_ALL != p_msg_rph->pid)
+        if (NULL == p_port && OMX_ALL != p_hooks->pid)
           {
             /* Bad port index received */
             rc = OMX_ErrorBadPortIndex;
@@ -2507,7 +2508,6 @@ tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
 
 OMX_ERRORTYPE
 tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
-                               const OMX_U32 a_pid,
                                const tiz_alloc_hooks_t * ap_new_hooks,
                                tiz_alloc_hooks_t * ap_old_hooks)
 {
@@ -2519,7 +2519,7 @@ tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_new_hooks);
 
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Registering alloc hooks for port [%d] ", a_pid);
+                 "Registering alloc hooks for port [%d] ", ap_new_hooks->pid);
 
   p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
 
@@ -2533,8 +2533,7 @@ tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
   p_msg_rph = &(p_msg->rph);
   assert (NULL != p_msg_rph);
 
-  p_msg_rph->pid = a_pid;
-  p_msg_rph->p_hooks = ap_new_hooks;
+  p_msg_rph->p_hooks     = ap_new_hooks;
   p_msg_rph->p_old_hooks = ap_old_hooks;
 
   return send_msg (p_sched, p_msg);

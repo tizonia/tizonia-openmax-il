@@ -30,6 +30,9 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+#include <string.h>
+
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
@@ -39,9 +42,6 @@
 #include "tizbinaryport.h"
 #include "fwcfgport.h"
 #include "fwprc.h"
-
-#include <assert.h>
-#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -53,6 +53,7 @@
 #define ARATELIA_FILE_WRITER_IMAGE_WRITER_ROLE "image_writer.binary"
 #define ARATELIA_FILE_WRITER_OTHER_WRITER_ROLE "other_writer.binary"
 #define ARATELIA_FILE_WRITER_COMPONENT_NAME "OMX.Aratelia.file_writer.binary"
+#define ARATELIA_FILE_WRITER_PORT_INDEX 0 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_FILE_WRITER_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_FILE_WRITER_PORT_MIN_BUF_SIZE 1024
 #define ARATELIA_FILE_WRITER_PORT_NONCONTIGUOUS OMX_FALSE
@@ -73,7 +74,7 @@ instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_FILE_WRITER_PORT_NONCONTIGUOUS,
     ARATELIA_FILE_WRITER_PORT_ALIGNMENT,
     ARATELIA_FILE_WRITER_PORT_SUPPLIERPREF,
-    {NULL, NULL, NULL},
+    {ARATELIA_FILE_WRITER_PORT_INDEX, NULL, NULL, NULL},
     -1                          /* use -1 for now */
   };
 
@@ -96,7 +97,7 @@ instantiate_video_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_FILE_WRITER_PORT_NONCONTIGUOUS,
     ARATELIA_FILE_WRITER_PORT_ALIGNMENT,
     ARATELIA_FILE_WRITER_PORT_SUPPLIERPREF,
-    {NULL, NULL, NULL},
+    {ARATELIA_FILE_WRITER_PORT_INDEX, NULL, NULL, NULL},
     -1                          /* use -1 for now */
   };
 
@@ -119,7 +120,7 @@ instantiate_image_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_FILE_WRITER_PORT_NONCONTIGUOUS,
     ARATELIA_FILE_WRITER_PORT_ALIGNMENT,
     ARATELIA_FILE_WRITER_PORT_SUPPLIERPREF,
-    {NULL, NULL, NULL},
+    {ARATELIA_FILE_WRITER_PORT_INDEX, NULL, NULL, NULL},
     -1                          /* use -1 for now */
   };
 
@@ -142,7 +143,7 @@ instantiate_other_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_FILE_WRITER_PORT_NONCONTIGUOUS,
     ARATELIA_FILE_WRITER_PORT_ALIGNMENT,
     ARATELIA_FILE_WRITER_PORT_SUPPLIERPREF,
-    {NULL, NULL, NULL},
+    {ARATELIA_FILE_WRITER_PORT_INDEX, NULL, NULL, NULL},
     -1                          /* use -1 for now */
   };
 
@@ -199,31 +200,31 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   strcpy ((OMX_STRING) audio_role.role,
           ARATELIA_FILE_WRITER_AUDIO_WRITER_ROLE);
-  audio_role.pf_cport = instantiate_config_port;
+  audio_role.pf_cport   = instantiate_config_port;
   audio_role.pf_port[0] = instantiate_audio_port;
-  audio_role.nports = 1;
-  audio_role.pf_proc = instantiate_processor;
+  audio_role.nports     = 1;
+  audio_role.pf_proc    = instantiate_processor;
 
   strcpy ((OMX_STRING) video_role.role,
           ARATELIA_FILE_WRITER_VIDEO_WRITER_ROLE);
-  video_role.pf_cport = instantiate_config_port;
+  video_role.pf_cport   = instantiate_config_port;
   video_role.pf_port[0] = instantiate_video_port;
-  video_role.nports = 1;
-  video_role.pf_proc = instantiate_processor;
+  video_role.nports     = 1;
+  video_role.pf_proc    = instantiate_processor;
 
   strcpy ((OMX_STRING) image_role.role,
           ARATELIA_FILE_WRITER_IMAGE_WRITER_ROLE);
-  image_role.pf_cport = instantiate_config_port;
+  image_role.pf_cport   = instantiate_config_port;
   image_role.pf_port[0] = instantiate_image_port;
-  image_role.nports = 1;
-  image_role.pf_proc = instantiate_processor;
+  image_role.nports     = 1;
+  image_role.pf_proc    = instantiate_processor;
 
   strcpy ((OMX_STRING) other_role.role,
           ARATELIA_FILE_WRITER_OTHER_WRITER_ROLE);
-  other_role.pf_cport = instantiate_config_port;
+  other_role.pf_cport   = instantiate_config_port;
   other_role.pf_port[0] = instantiate_other_port;
-  other_role.nports = 1;
-  other_role.pf_proc = instantiate_processor;
+  other_role.nports     = 1;
+  other_role.pf_proc    = instantiate_processor;
 
   tiz_comp_init (ap_hdl, ARATELIA_FILE_WRITER_COMPONENT_NAME);
 

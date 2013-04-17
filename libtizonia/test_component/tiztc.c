@@ -101,7 +101,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
     _PORT_NONCONTIGUOUS,
     _PORT_ALIGNMENT,
     _PORT_SUPPLIERPREF,
-    {pcm_port_alloc_hook, pcm_port_free_hook, NULL},
+    {0, pcm_port_alloc_hook, pcm_port_free_hook, NULL},
     -1
   };
 
@@ -152,8 +152,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t role_factory1, role_factory2;
   const tiz_role_factory_t *rf_list[] = { &role_factory1, &role_factory2 };
   const tiz_alloc_hooks_t new_hooks =
-    { pcm_port_alloc_hook, pcm_port_free_hook, NULL };
-  tiz_alloc_hooks_t old_hooks = { NULL, NULL, NULL };
+    { 0, pcm_port_alloc_hook, pcm_port_free_hook, NULL };
+  tiz_alloc_hooks_t old_hooks = { 0, NULL, NULL, NULL };
 
   strcpy ((OMX_STRING) role_factory1.role, _DEFAULT_ROLE1);
   role_factory1.pf_cport = instantiate_config_port;
@@ -180,7 +180,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   /* Register alloc hooks */
   RETURN_ON_IL_ERR (tiz_comp_register_alloc_hooks
-                    (ap_hdl, 0, &new_hooks, &old_hooks));
+                    (ap_hdl, &new_hooks, &old_hooks));
 
   /* Verify that the old hooks have been returned */
   assert (old_hooks.pf_alloc);

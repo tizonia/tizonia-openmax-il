@@ -279,26 +279,7 @@ port_ctor (void *ap_obj, va_list * app)
 
   /* Initialize the port flags */
   TIZ_PD_ZERO (&p_obj->flags_);
-
-/*   { */
-/*     unsigned int a_i; */
-/*     tiz_pd_set_t *a_arr = &(p_obj->flags_); */
-/*     for (a_i=0; a_i < sizeof(tiz_pd_set_t) / sizeof(_tiz_pd_mask); ++a_i) */
-/*       /\* TIZ_PDS_BITS (a_arr)[a_i] = 0; *\/ */
-/*       TIZ_LOG (TIZ_TRACE, " TIZ_PDS_BITS(a_arr)[%u] = [%x] ", a_i, TIZ_PDS_BITS (a_arr)[a_i]); */
-
-/*   } */
-
   TIZ_PD_SET (EFlagEnabled, &p_obj->flags_);
-
-/*   { */
-/*     unsigned int a_i; */
-/*     tiz_pd_set_t *a_arr = &(p_obj->flags_); */
-/*     for (a_i=0; a_i < sizeof(tiz_pd_set_t) / sizeof(_tiz_pd_mask); ++a_i) */
-/*       /\* TIZ_PDS_BITS (a_arr)[a_i] = 0; *\/ */
-/*       TIZ_LOG (TIZ_TRACE, " TIZ_PDS_BITS(a_arr)[%u] = [%x] ", a_i, TIZ_PDS_BITS (a_arr)[a_i]); */
-
-/*   } */
 
   supplier = ((p_obj->portdef_.eDir == OMX_DirInput &&
                p_obj->bufsupplier_.eBufferSupplier == OMX_BufferSupplyInput)
@@ -310,18 +291,6 @@ port_ctor (void *ap_obj, va_list * app)
   if (supplier)
     {
       tiz_port_set_flags (p_obj, 1, EFlagBufferSupplier);
-
-
-/*       { */
-/*         unsigned int a_i; */
-/*         tiz_pd_set_t *a_arr = &(p_obj->flags_); */
-/*         for (a_i = 0; a_i < sizeof (tiz_pd_set_t) / sizeof (_tiz_pd_mask); */
-/*              ++a_i) */
-/*           /\* TIZ_PDS_BITS (a_arr)[a_i] = 0; *\/ */
-/*           TIZ_LOG (TIZ_TRACE, " TIZ_PDS_BITS(a_arr)[%u] = [%x] ", a_i, */
-/*                    TIZ_PDS_BITS (a_arr)[a_i]); */
-/*       } */
-
     }
 
   p_obj->thdl_ = NULL;
@@ -1110,9 +1079,14 @@ static void
 port_set_index (void *ap_obj, OMX_U32 a_pid)
 {
   tiz_port_t *p_obj = ap_obj;
-  p_obj->pid_ = a_pid;
+
+  if (TIZ_PORT_CONFIG_PORT_INDEX != a_pid)
+    {
+      assert (a_pid == p_obj->opts_.mem_hooks.pid);
+    }
+  p_obj->pid_                    = a_pid;
   p_obj->bufsupplier_.nPortIndex = a_pid;
-  p_obj->portdef_.nPortIndex = a_pid;
+  p_obj->portdef_.nPortIndex     = a_pid;
 }
 
 void
@@ -1238,15 +1212,6 @@ port_check_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
   tiz_port_flag_ids_t flag;
   va_list ap;
   va_copy (ap, *app);
-
-  {
-/*     unsigned int a_i; */
-/*     tiz_pd_set_t *a_arr = &(p_obj->flags_); */
-/*     for (a_i=0; a_i < sizeof(tiz_pd_set_t) / sizeof(_tiz_pd_mask); ++a_i) */
-    /* TIZ_PDS_BITS (a_arr)[a_i] = 0; */
-/*       TIZ_LOG (TIZ_TRACE, " TIZ_PDS_BITS(a_arr)[%u] = [%x] ", a_i, TIZ_PDS_BITS (a_arr)[a_i]); */
-
-  }
 
   for (i = 0; i < a_nflags; ++i)
     {
@@ -1831,7 +1796,7 @@ port_set_alloc_hooks (void *ap_obj,
   tiz_port_t *p_obj = ap_obj;
 
   assert (NULL != ap_obj);
-  assert (ap_new_hooks);
+  assert (NULL != ap_new_hooks);
 
   if (NULL != ap_old_hooks)
     {
@@ -1839,7 +1804,6 @@ port_set_alloc_hooks (void *ap_obj,
     }
 
   p_obj->opts_.mem_hooks = *ap_new_hooks;
-
 }
 
 void
