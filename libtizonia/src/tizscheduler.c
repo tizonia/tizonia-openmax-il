@@ -53,6 +53,19 @@
 
 #define SCHED_OMX_DEFAULT_ROLE "default"
 
+#define TIZ_COMP_INIT_MSG(hdl,msg,msgtype)                              \
+  do {                                                                  \
+    tiz_ret_on_err ( (msg = init_scheduler_message (hdl,                \
+                                                    (msgtype))));       \
+  } while (0)
+
+#define TIZ_COMP_INIT_MSG_OOM(hdl,msg,msgtype)                              \
+  do {                                                                  \
+    tiz_ret_val_on_err ( (msg = init_scheduler_message (hdl,            \
+                                                        (msgtype))),    \
+                         OMX_ErrorInsufficientResources);               \
+  } while (0)
+
 
 typedef enum tiz_sched_state tiz_sched_state_t;
 enum tiz_sched_state
@@ -473,6 +486,13 @@ static OMX_BOOL tiz_sched_blocking_apis_tbl[] = {
   OMX_FALSE,                    /* ETIZSchedMsgEvStat */
   OMX_BOOL_MAX,                 /* ETIZSchedMsgMax */
 };
+
+static inline tiz_scheduler_t *
+get_sched (const OMX_HANDLETYPE ap_hdl)
+{
+  assert (NULL != ap_hdl);
+  return ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
+}
 
 static void
 delete_roles (tiz_scheduler_t * ap_sched)
@@ -2082,24 +2102,18 @@ schedule_servants (tiz_scheduler_t * ap_sched,
       if (tiz_servant_is_ready (ap_sched->child.p_fsm))
         {
           p_ready = ap_sched->child.p_fsm;
-          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                         TIZ_CBUF (ap_sched->child.p_hdl), "FSM READY");
           rc = tiz_servant_tick (p_ready);
         }
 
       if (OMX_ErrorNone == rc && tiz_servant_is_ready (ap_sched->child.p_ker))
         {
           p_ready = ap_sched->child.p_ker;
-          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                         TIZ_CBUF (ap_sched->child.p_hdl), "KRN READY");
           rc = tiz_servant_tick (p_ready);
         }
 
       if (OMX_ErrorNone == rc && tiz_servant_is_ready (ap_sched->child.p_prc))
         {
           p_ready = ap_sched->child.p_prc;
-          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                         TIZ_CBUF (ap_sched->child.p_hdl), "PRC READY");
           rc = tiz_servant_tick (p_ready);
         }
 
@@ -2134,8 +2148,6 @@ il_sched_thread_func (void *p_arg)
 
   for (;;)
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_sched->child.p_hdl),
-                     TIZ_CBUF (p_sched->child.p_hdl), "waiting for msgs");
       /* TODO: Check ret val */
       tiz_queue_receive (p_sched->p_queue, &p_data);
       signal_client = dispatch_msg
@@ -2256,9 +2268,10 @@ set_thread_name (tiz_scheduler_t * ap_sched)
   assert (NULL != ap_sched);
 
   /* Let's skip the 'OMX.Company.' part */
-  p_cname = strstr (strstr (ap_sched->cname, ".") + 1, ".") + 1;
-  p_next_dot   = strstr (p_cname, ".");;
+  p_cname         = strstr (strstr (ap_sched->cname, ".") + 1, ".") + 1;
+  p_next_dot      = strstr (p_cname, ".");;
   thread_name_len = MIN (p_next_dot - p_cname, 16 - 1);
+  
 
   strncpy (thread_name, p_cname, thread_name_len);
   thread_name [thread_name_len] = '\0';
@@ -2284,27 +2297,28 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   /* Init the component hdl */
   p_hdl->nVersion.s.nVersionMajor = 1;
   p_hdl->nVersion.s.nVersionMinor = 0;
-  p_hdl->nVersion.s.nRevision = 0;
-  p_hdl->nVersion.s.nStep = 0;
-  p_hdl->pComponentPrivate = ap_sched;
-  p_hdl->GetComponentVersion = sched_GetComponentVersion;
-  p_hdl->SendCommand = sched_SendCommand;
-  p_hdl->GetParameter = sched_GetParameter;
-  p_hdl->SetParameter = sched_SetParameter;
-  p_hdl->GetConfig = sched_GetConfig;
-  p_hdl->SetConfig = sched_SetConfig;
-  p_hdl->GetExtensionIndex = sched_GetExtensionIndex;
-  p_hdl->GetState = sched_GetState;
+  p_hdl->nVersion.s.nRevision     = 0;
+  p_hdl->nVersion.s.nStep         = 0;
+  p_hdl->pComponentPrivate        = ap_sched;
+  
+  p_hdl->GetComponentVersion    = sched_GetComponentVersion;
+  p_hdl->SendCommand            = sched_SendCommand;
+  p_hdl->GetParameter           = sched_GetParameter;
+  p_hdl->SetParameter           = sched_SetParameter;
+  p_hdl->GetConfig              = sched_GetConfig;
+  p_hdl->SetConfig              = sched_SetConfig;
+  p_hdl->GetExtensionIndex      = sched_GetExtensionIndex;
+  p_hdl->GetState               = sched_GetState;
   p_hdl->ComponentTunnelRequest = sched_ComponentTunnelRequest;
-  p_hdl->UseBuffer = sched_UseBuffer;
-  p_hdl->AllocateBuffer = sched_AllocateBuffer;
-  p_hdl->FreeBuffer = sched_FreeBuffer;
-  p_hdl->EmptyThisBuffer = sched_EmptyThisBuffer;
-  p_hdl->FillThisBuffer = sched_FillThisBuffer;
-  p_hdl->SetCallbacks = sched_SetCallbacks;
-  p_hdl->ComponentDeInit = sched_ComponentDeInit;
-  p_hdl->UseEGLImage = sched_UseEGLImage;
-  p_hdl->ComponentRoleEnum = sched_ComponentRoleEnum;
+  p_hdl->UseBuffer              = sched_UseBuffer;
+  p_hdl->AllocateBuffer         = sched_AllocateBuffer;
+  p_hdl->FreeBuffer             = sched_FreeBuffer;
+  p_hdl->EmptyThisBuffer        = sched_EmptyThisBuffer;
+  p_hdl->FillThisBuffer         = sched_FillThisBuffer;
+  p_hdl->SetCallbacks           = sched_SetCallbacks;
+  p_hdl->ComponentDeInit        = sched_ComponentDeInit;
+  p_hdl->UseEGLImage            = sched_UseEGLImage;
+  p_hdl->ComponentRoleEnum      = sched_ComponentRoleEnum;
 
   /* Init the small object allocator */
   tiz_soa_init (&(ap_sched->p_soa));
@@ -2322,7 +2336,6 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   tiz_servant_set_allocator (ap_sched->child.p_ker, ap_sched->p_soa);
 
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
@@ -2430,11 +2443,7 @@ tiz_comp_init (const OMX_HANDLETYPE ap_hdl, const char *ap_cname)
   /* Start scheduler */
   start_scheduler (p_sched);
 
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgComponentInit)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
+  TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgComponentInit);
 
   return send_msg (p_sched, p_msg);
 }
@@ -2446,23 +2455,13 @@ tiz_comp_register_roles (const OMX_HANDLETYPE ap_hdl,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_regroles_t *p_msg_rr = NULL;
-  tiz_scheduler_t *p_sched = NULL;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
-  assert (NULL != ap_hdl);
   assert (NULL != ap_role_list);
   assert (0 < a_nroles);
   assert (a_nroles <= TIZ_COMP_MAX_ROLES);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Registering [%d] roles", a_nroles);
-
-  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgRegisterRoles)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
+  TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgRegisterRoles);
 
   /* Finish-up this message */
   p_msg_rr = &(p_msg->rr);
@@ -2480,22 +2479,11 @@ tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_plg_event_t *p_msg_pe = NULL;
-  tiz_scheduler_t *p_sched = NULL;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
-  assert (NULL != ap_hdl);
   assert (NULL != ap_event);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Receiving pluggable event [%p]", ap_event);
-
-
-  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgPluggableEvent)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
+  TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgPluggableEvent);
 
   /* Finish-up this message */
   p_msg_pe = &(p_msg->pe);
@@ -2513,21 +2501,11 @@ tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_regphooks_t *p_msg_rph = NULL;
-  tiz_scheduler_t *p_sched = NULL;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
-  assert (NULL != ap_hdl);
   assert (NULL != ap_new_hooks);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Registering alloc hooks for port [%d] ", ap_new_hooks->pid);
-
-  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgRegisterPortHooks)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
+  TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgRegisterPortHooks);
 
   /* Finish-up this message */
   p_msg_rph = &(p_msg->rph);
@@ -2545,23 +2523,11 @@ tiz_comp_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t * ap_ev_io, int a_fd,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_ev_io_t *p_msg_eio = NULL;
-  tiz_scheduler_t *p_sched = NULL;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
-  assert (NULL != ap_hdl);
   assert (NULL != ap_ev_io);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Receiving an io event on fd [%d] ", a_fd);
-
-  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgEvIo)))
-    {
-      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "[OMX_ErrorInsufficientResources] : Unable to receive event");
-      return;
-    }
+  TIZ_COMP_INIT_MSG (ap_hdl, p_msg, ETIZSchedMsgEvIo);
 
   /* Finish-up this message */
   p_msg_eio = &(p_msg->eio);
@@ -2581,23 +2547,11 @@ tiz_comp_event_timer (OMX_HANDLETYPE ap_hdl, tiz_event_timer_t * ap_ev_timer,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_ev_timer_t *p_msg_etmr = NULL;
-  tiz_scheduler_t *p_sched = NULL;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
-  assert (NULL != ap_hdl);
   assert (NULL != ap_ev_timer);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Receiving a timer event");
-
-  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgEvTimer)))
-    {
-      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "[OMX_ErrorInsufficientResources] : Unable to receive event");
-      return;
-    }
+  TIZ_COMP_INIT_MSG (ap_hdl, p_msg, ETIZSchedMsgEvTimer);
 
   /* Finish-up this message */
   p_msg_etmr = &(p_msg->etmr);
@@ -2616,23 +2570,11 @@ tiz_comp_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t * ap_ev_stat,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_ev_stat_t *p_msg_estat = NULL;
-  tiz_scheduler_t *p_sched = NULL;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
-  assert (NULL != ap_hdl);
   assert (NULL != ap_ev_stat);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Receiving a stat event");
-
-  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
-
-  if (NULL == (p_msg = init_scheduler_message (ap_hdl,
-                                               ETIZSchedMsgEvStat)))
-    {
-      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "[OMX_ErrorInsufficientResources] : Unable to receive event");
-      return;
-    }
+  TIZ_COMP_INIT_MSG (ap_hdl, p_msg, ETIZSchedMsgEvStat);
 
   /* Finish-up this message */
   p_msg_estat = &(p_msg->estat);

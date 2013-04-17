@@ -121,7 +121,7 @@ extern "C"
 #define tiz_check_err (expr) do { (void) (expr); } while (0)
 
 /**
- * tiz_ret_val_or_err:
+ * tiz_ret_val_on_err:
  * @expr: the expression to check
  * @val: the value to return if the expression is not true
  *
@@ -192,7 +192,7 @@ extern "C"
     };                                                                  \
   } while (0)
 
-#define tiz_ret_val_or_err(expr,val)                                \
+#define tiz_ret_val_on_err(expr,val)                                \
   do {                                                                  \
     if TIZ_LIKELY(expr) {}                                              \
     else {                                                              \
@@ -252,7 +252,7 @@ extern "C"
     };                                                                  \
   } while (0)
 
-#define tiz_ret_val_or_err (expr, val)                              \
+#define tiz_ret_val_on_err (expr, val)                              \
   do {                                                                  \
     if (expr) {}                                                        \
     else {                                                              \

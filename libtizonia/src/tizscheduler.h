@@ -94,8 +94,7 @@ extern "C"
    * to 'OMX_ComponentInit'. The handle is passed to the base component so that
    * it can initialize the IL API entry points.
    *
-   * @param ap_cname The component handle, which is passed by the IL Core to
-   * 'OMX_ComponentInit' so that it can be initialized by the component.
+   * @param ap_cname The component's name.
    *
    * @return An OpenMAX IL error
    */
