@@ -45,7 +45,7 @@ extern "C"
   extern const void *tizservant_class;
   void tiz_servant_init (void);
 
-  void tiz_servant_set_allocator (void *ap_obj, tiz_soa_t * p_soa);
+  OMX_ERRORTYPE tiz_servant_set_allocator (void *ap_obj, tiz_soa_t * p_soa);
 
   void tiz_servant_set_callbacks (void *ap_obj, OMX_PTR ap_appdata,
                                  OMX_CALLBACKTYPE * ap_cbacks);

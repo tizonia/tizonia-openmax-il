@@ -96,7 +96,7 @@ extern "C"
   {
     /* Class */
     const tiz_api_class_t _;
-    void (*set_allocator) (void *ap_obj, tiz_soa_t * p_soa);
+    OMX_ERRORTYPE (*set_allocator) (void *ap_obj, tiz_soa_t * p_soa);
     void (*set_callbacks) (void *ap_obj, OMX_PTR ap_appdata,
                            OMX_CALLBACKTYPE * ap_cbacks);
     OMX_ERRORTYPE (*tick) (const void *ap_obj);

@@ -96,21 +96,23 @@ servant_dtor (void *ap_obj)
   return super_dtor (tizservant, ap_obj);
 }
 
-static void
+static OMX_ERRORTYPE
 servant_set_allocator (void *ap_obj, tiz_soa_t * p_soa)
 {
   tiz_servant_t *p_obj = ap_obj;
+  assert (NULL != ap_obj);
+  assert (NULL != p_soa);
   p_obj->p_soa_ = p_soa;
-  /* TODO: Check ret code */
-  tiz_pqueue_init (&p_obj->p_pq_, 5, &pqueue_cmp, p_soa, nameOf (ap_obj));
+  return tiz_pqueue_init (&p_obj->p_pq_, 5, &pqueue_cmp, p_soa,
+                          nameOf (ap_obj));
 }
 
-void
+OMX_ERRORTYPE
 tiz_servant_set_allocator (void *ap_obj, tiz_soa_t * p_soa)
 {
   const tiz_servant_class_t *class = classOf (ap_obj);
   assert (class->set_allocator);
-  class->set_allocator (ap_obj, p_soa);
+  return class->set_allocator (ap_obj, p_soa);
 }
 
 static void
