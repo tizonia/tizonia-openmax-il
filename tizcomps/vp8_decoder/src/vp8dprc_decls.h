@@ -50,6 +50,15 @@ extern "C"
     STREAM_IVF
   };
 
+  typedef struct vp8d_codec_buffer vp8d_codec_buffer_t;
+  struct vp8d_codec_buffer
+  {
+    uint8_t *p_data;
+    size_t  frame_size;
+    size_t  filled_len;
+    size_t  alloc_len;
+  };
+  
   typedef struct vp8d_prc vp8d_prc_t;
   struct vp8d_prc
   {
@@ -61,10 +70,7 @@ extern "C"
     bool first_buf_;
     bool eos_;
     vp8dprc_stream_type_t stream_type_;
-    uint8_t *p_cbuf_;
-    size_t cbuf_sz_;
-    size_t cbuf_alloc_sz_;
-    size_t cbuf_read_sz_;
+    vp8d_codec_buffer_t codec_buf_;
   };
 
 #ifdef __cplusplus
