@@ -92,7 +92,7 @@ tiz_log_layout_format (const log4c_layout_t * a_layout,
            * time */
           snprintf (uloc->cbuf, 4096,
                     "%02d-%02d-%04d %02d:%02d:%02d.%03ld - "
-                    "[PID:%i][TID:%i] [%s] [%s] [%s] [%s:%s:%i] --- %s\n",
+                    "[PID:%i][TID:%i] [%s] [%s] [%s:%s:%i] --- %s\n",
                     tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900,
                     tm.tm_hour, tm.tm_min, tm.tm_sec,
                     a_event->evt_timestamp.tv_usec / 1000,
@@ -100,7 +100,6 @@ tiz_log_layout_format (const log4c_layout_t * a_layout,
                     uloc->tid,
                     log4c_priority_to_string (a_event->evt_priority),
                     uloc->cname,
-                    a_event->evt_category,
                     a_event->evt_loc->loc_file,
                     a_event->evt_loc->loc_function,
                     a_event->evt_loc->loc_line, a_event->evt_msg);
