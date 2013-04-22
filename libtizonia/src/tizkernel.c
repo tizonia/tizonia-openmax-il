@@ -3250,6 +3250,19 @@ kernel_stop_and_return (void *ap_obj)
           continue;
         }
 
+      /* OMX_CommandFlush is used to notify the processor servant that it has
+         to return some buffers ... */
+      if (TIZ_PORT_GET_CLAIMED_COUNT (p_port) >= 0)
+        {
+          void *p_prc        = tiz_get_prc (p_hdl);
+          if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_prc, p_hdl,
+                                                          OMX_CommandFlush,
+                                                          i, NULL)))
+            {
+              break;
+            }
+        }
+
       if (TIZ_PORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_port))
         {
           /* Move buffers from egress to ingress */
@@ -3298,8 +3311,6 @@ kernel_receive_pluggable_event (const void *ap_obj,
   tiz_kernel_msg_t *p_msg = NULL;
   tiz_kernel_msg_plg_event_t *p_plgevt = NULL;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PluggableEvent : event [%p]", ap_event);
-
   if (NULL == (p_msg = init_kernel_message (ap_obj, ap_hdl,
                                             ETIZKernelMsgPluggableEvent)))
     {
@@ -3332,8 +3343,6 @@ kernel_register_port (void *ap_obj, OMX_PTR ap_port, OMX_BOOL ais_config)
       assert (NULL == p_obj->p_cport_);
       p_obj->p_cport_ = ap_port;
       tiz_port_set_index (ap_port, TIZ_PORT_CONFIG_PORT_INDEX);
-      TIZ_LOGN (TIZ_TRACE, hdl, "Registering config port [%p] "
-               "with index [%d]", ap_port, TIZ_PORT_CONFIG_PORT_INDEX);
       return OMX_ErrorNone;
     }
 
@@ -3349,9 +3358,6 @@ kernel_register_port (void *ap_obj, OMX_PTR ap_port, OMX_BOOL ais_config)
 
     pid = tiz_vector_length (p_obj->p_ports_);
     tiz_port_set_index (ap_port, pid);
-
-    TIZ_LOGN (TIZ_TRACE, hdl, "Registering port [%p] with index [%d]",
-              ap_port, pid);
 
     switch (tiz_port_domain (ap_port))
       {
