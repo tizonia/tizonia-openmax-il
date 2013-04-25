@@ -527,10 +527,9 @@ store_roles (tiz_scheduler_t * ap_sched,
                = tiz_mem_calloc (ap_msg_regroles->nroles,
                                  sizeof (tiz_role_factory_t *))))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                     TIZ_CBUF (ap_sched->child.p_hdl),
-                     "[OMX_ErrorInsufficientResources] : list of roles - "
-                     "Failed when making local copy ..");
+      TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+                "[OMX_ErrorInsufficientResources] : list of roles - "
+                "Failed when making local copy ..");
       rc = OMX_ErrorInsufficientResources;
     }
 
@@ -547,10 +546,9 @@ store_roles (tiz_scheduler_t * ap_sched,
       else
         {
           rc = OMX_ErrorInsufficientResources;
-          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                         TIZ_CBUF (ap_sched->child.p_hdl),
-                         "[OMX_ErrorInsufficientResources] : list of roles - "
-                         "Failed when making local copy ..");
+          TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+                    "[OMX_ErrorInsufficientResources] : list of roles - "
+                    "Failed when making local copy ..");
         }
     }
 
@@ -568,16 +566,9 @@ send_msg_blocking (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
 {
   assert (NULL != ap_msg);
   assert (NULL != ap_sched);
-
-  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_sched->child.p_hdl),
-                 TIZ_CBUF (ap_sched->child.p_hdl),
-                 "[%s] - Sent blocking...",
-                 tiz_sched_msg_to_str (ap_msg->class));
-
   ap_msg->will_block = OMX_TRUE;
   tiz_check_omx_err_ret_oom (tiz_queue_send (ap_sched->p_queue, ap_msg));
   tiz_check_omx_err_ret_oom (tiz_sem_wait (&(ap_sched->sem)));
-
   return ap_sched->error;
 }
 
@@ -586,15 +577,8 @@ send_msg_non_blocking (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
 {
   assert (NULL != ap_msg);
   assert (NULL != ap_sched);
-
-  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_sched->child.p_hdl),
-                 TIZ_CBUF (ap_sched->child.p_hdl),
-                 "[%s] - Sent non-blocking...",
-                 tiz_sched_msg_to_str (ap_msg->class));
-
   ap_msg->will_block = OMX_FALSE;
   tiz_check_omx_err_ret_oom (tiz_queue_send (ap_sched->p_queue, ap_msg));
-
   return ap_sched->error;
 }
 
@@ -611,10 +595,9 @@ send_msg (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
 
   if (tid == ap_sched->thread_id)
     {
-      TIZ_LOG_CNAME (TIZ_WARN, TIZ_CNAME (ap_sched->child.p_hdl),
-                     TIZ_CBUF (ap_sched->child.p_hdl),
-                     "WARNING: (API %s called from IL callback context...)",
-                     tiz_sched_msg_to_str (ap_msg->class));
+      TIZ_LOGN (TIZ_WARN, ap_sched->child.p_hdl,
+                "WARNING: (API %s called from IL callback context...)",
+                tiz_sched_msg_to_str (ap_msg->class));
       ap_msg->will_block = OMX_FALSE;
       (void) dispatch_msg (ap_sched, &(ap_sched->state), ap_msg);
       rc = ap_sched->error;
@@ -687,8 +670,7 @@ do_scmd (tiz_scheduler_t * ap_sched,
   assert (NULL != p_msg_sc);
 
   return tiz_api_SendCommand (ap_sched->child.p_fsm,
-                             ap_msg->p_hdl,
-                             p_msg_sc->cmd,
+                             ap_msg->p_hdl, p_msg_sc->cmd,
                              p_msg_sc->param1, p_msg_sc->p_cmd_data);
 }
 
@@ -722,6 +704,74 @@ do_gparam (tiz_scheduler_t * ap_sched,
 }
 
 static OMX_ERRORTYPE
+do_set_component_role (tiz_scheduler_t * ap_sched,
+                       const OMX_PARAM_COMPONENTROLETYPE *ap_role)
+{
+  tiz_fsm_state_id_t now = EStateMax;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_sched);
+  now = tiz_fsm_get_substate (ap_sched->child.p_fsm);
+
+  /* Only allow role (re)set if in OMX_StateLoded state */
+  if (EStateLoaded != now)
+    {
+      rc = OMX_ErrorIncorrectStateOperation;
+    }
+  else 
+    {
+      OMX_U32 role_pos = 0, nroles = ap_sched->child.nroles;
+      OMX_STRING p_str = NULL;
+
+      for (role_pos = 0; role_pos < nroles; ++role_pos)
+        {
+          if (0 == strncmp ((char *) ap_role->cRole,
+                            (const char *) ap_sched->
+                            child.p_role_list[role_pos]->role,
+                            OMX_MAX_STRINGNAME_SIZE))
+            {
+              TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+                        "Found role [%s]...", p_str);
+              break;
+            }
+        }
+
+      if (role_pos >= nroles)
+        {
+          /* Check for "default" role */
+          if (0 == strncmp ((char *) ap_role->cRole,
+                            SCHED_OMX_DEFAULT_ROLE,
+                            OMX_MAX_STRINGNAME_SIZE))
+            {
+              TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+                        "Found default role...");
+              role_pos = 0;
+            }
+        }
+
+      if (role_pos < nroles)
+        {
+          /* Deregister the current role */
+
+          /* First, delete the processor */
+          factory_delete (ap_sched->child.p_prc);
+          ap_sched->child.p_prc = NULL;
+
+          tiz_kernel_deregister_all_ports (ap_sched->child.p_ker);
+
+          /* Populate defaults according to the new role */
+          rc = init_and_register_role (ap_sched, role_pos);
+        }
+      else
+        {
+          rc = OMX_ErrorBadParameter;
+        }
+    }
+
+  return rc;
+}
+
+static OMX_ERRORTYPE
 do_sparam (tiz_scheduler_t * ap_sched,
            tiz_sched_state_t * ap_state, tiz_sched_msg_t * ap_msg)
 {
@@ -736,69 +786,7 @@ do_sparam (tiz_scheduler_t * ap_sched,
 
   if (OMX_IndexParamStandardComponentRole == p_msg_gparam->index)
     {
-      const tiz_fsm_state_id_t now =
-        tiz_fsm_get_substate (ap_sched->child.p_fsm);
-
-      /* Only allow role (re)set if in OMX_StateLoded state */
-      if (EStateLoaded != now)
-        {
-          rc = OMX_ErrorIncorrectStateOperation;
-        }
-      else
-        {
-          const OMX_PARAM_COMPONENTROLETYPE *p_role
-            = (OMX_PARAM_COMPONENTROLETYPE *) p_msg_gparam->p_struct;
-          OMX_U32 role_pos = 0, nroles = ap_sched->child.nroles;
-          OMX_STRING p_str = NULL;
-
-          for (role_pos = 0; role_pos < nroles; ++role_pos)
-            {
-              if (0 == strncmp ((char *) p_role->cRole,
-                                (const char *) ap_sched->
-                                child.p_role_list[role_pos]->role,
-                                OMX_MAX_STRINGNAME_SIZE))
-                {
-                  TIZ_LOG_CNAME (TIZ_TRACE,
-                                 TIZ_CNAME (ap_sched->child.p_hdl),
-                                 TIZ_CBUF (ap_sched->child.p_hdl),
-                                 "Found role [%s]...", p_str);
-                  break;
-                }
-            }
-
-          if (role_pos >= nroles)
-            {
-              /* Check for "default" role */
-              if (0 == strncmp ((char *) p_role->cRole,
-                                SCHED_OMX_DEFAULT_ROLE,
-                                OMX_MAX_STRINGNAME_SIZE))
-                {
-                  TIZ_LOG_CNAME (TIZ_TRACE,
-                                 TIZ_CNAME (ap_sched->child.p_hdl),
-                                 TIZ_CBUF (ap_sched->child.p_hdl),
-                                 "Found default role...");
-                  role_pos = 0;
-                }
-            }
-
-          if (role_pos < nroles)
-            {
-              /* Deregister the current role */
-
-              /* First, delete the processor */
-              factory_delete (ap_sched->child.p_prc);
-              ap_sched->child.p_prc = NULL;
-
-              tiz_kernel_deregister_all_ports (ap_sched->child.p_ker);
-
-              /* Populate defaults according to the new role */
-              rc = init_and_register_role (ap_sched, role_pos);
-            }
-          else
-            {
-              rc = OMX_ErrorBadParameter;
-            }
-        }
+      rc = do_set_component_role (ap_sched, p_msg_gparam->p_struct);
     }
   else
     {
@@ -821,8 +809,7 @@ do_gconfig (tiz_scheduler_t * ap_sched,
   p_msg_gconfig = &(ap_msg->sgpc);
   assert (NULL != p_msg_gconfig);
 
-  return tiz_api_GetConfig (ap_sched->child.p_fsm,
-                           ap_msg->p_hdl,
+  return tiz_api_GetConfig (ap_sched->child.p_fsm, ap_msg->p_hdl,
                            p_msg_gconfig->index, p_msg_gconfig->p_struct);
 }
 
@@ -839,8 +826,7 @@ do_sconfig (tiz_scheduler_t * ap_sched,
   p_msg_sconfig = &(ap_msg->sgpc);
   assert (NULL != p_msg_sconfig);
 
-  rc = tiz_api_SetConfig (ap_sched->child.p_fsm,
-                         ap_msg->p_hdl,
+  rc = tiz_api_SetConfig (ap_sched->child.p_fsm, ap_msg->p_hdl,
                          p_msg_sconfig->index, p_msg_sconfig->p_struct);
 
   /* Now have to delete the config struct, if api has been called
@@ -982,10 +968,6 @@ do_ftb (tiz_scheduler_t * ap_sched,
         tiz_sched_state_t * ap_state, tiz_sched_msg_t * ap_msg)
 {
   tiz_sched_msg_emptyfillbuffer_t *p_msg_efb = NULL;
-
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                 TIZ_CBUF (ap_sched->child.p_hdl),
-                 "ETIZSchedMsgFillThisBuffer received...");
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
@@ -1258,10 +1240,8 @@ init_scheduler_message (OMX_HANDLETYPE ap_hdl,
   if (NULL == (p_msg = (tiz_sched_msg_t *)
                tiz_mem_calloc (1, sizeof (tiz_sched_msg_t))))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                     "[OMX_ErrorInsufficientResources] : "
-                     "Creating message [%s]",
-                     tiz_sched_msg_to_str (a_msg_class));
+      TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+                "Creating message [%s]", tiz_sched_msg_to_str (a_msg_class));
     }
   else
     {
@@ -1296,9 +1276,8 @@ configure_port_preannouncements (tiz_scheduler_t * ap_sched,
   if (NULL == p_preannounce_disabled
       || (0 != strncmp (p_preannounce_disabled, "true", 4)))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                     "[%s:port-%d] Preannouncements are [ENABLED]...",
-                     ap_sched->cname, pid);
+      TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s:port-%d] Preannouncements are "
+                "[ENABLED]...", ap_sched->cname, pid);
     }
   else
     {
@@ -1841,13 +1820,10 @@ dispatch_msg (tiz_scheduler_t * ap_sched,
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
   assert (NULL != ap_state);
-
   assert (ap_msg->class < ETIZSchedMsgMax);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                 TIZ_CBUF (ap_sched->child.p_hdl),
-                 "msg [%p] class [%s]",
-                 ap_msg, tiz_sched_msg_to_str (ap_msg->class));
+  TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl, "msg [%p] class [%s]",
+            ap_msg, tiz_sched_msg_to_str (ap_msg->class));
 
   signal_client = ap_msg->will_block;
 
@@ -1875,23 +1851,20 @@ schedule_servants (tiz_scheduler_t * ap_sched,
       || NULL == ap_sched->child.p_prc
       || NULL == ap_sched->child.p_ker || NULL == ap_sched->child.p_fsm)
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                     TIZ_CBUF (ap_sched->child.p_hdl),
-                     "Not ready prc [%p] fsm [%p] "
-                     "ker [%p]",
-                     ap_sched->child.p_prc,
-                     ap_sched->child.p_fsm, ap_sched->child.p_ker);
+      TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+                "Not ready prc [%p] fsm [%p] ker [%p]",
+                ap_sched->child.p_prc, ap_sched->child.p_fsm,
+                ap_sched->child.p_ker);
       return;
     }
 
   /* Find the servant that is ready */
   /* Round-robin policy: fsm->ker->prc */
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                 TIZ_CBUF (ap_sched->child.p_hdl),
-                 "READY fsm [%s] ker [%s] prc [%s]",
-                 tiz_servant_is_ready (ap_sched->child.p_fsm) ? "YES" : "NO",
-                 tiz_servant_is_ready (ap_sched->child.p_ker) ? "YES" : "NO",
-                 tiz_servant_is_ready (ap_sched->child.p_prc) ? "YES" : "NO");
+  TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+            "READY fsm [%s] ker [%s] prc [%s]",
+            tiz_servant_is_ready (ap_sched->child.p_fsm) ? "YES" : "NO",
+            tiz_servant_is_ready (ap_sched->child.p_ker) ? "YES" : "NO",
+            tiz_servant_is_ready (ap_sched->child.p_prc) ? "YES" : "NO");
   do
     {
       p_ready = NULL;
@@ -1960,7 +1933,6 @@ il_sched_thread_func (void *p_arg)
         }
 
       schedule_servants (p_sched, p_sched->state);
-
     }
 
   TIZ_LOG (TIZ_TRACE, "Tizonia scheduler exiting...");
@@ -2044,7 +2016,7 @@ set_thread_name (tiz_scheduler_t * ap_sched)
 
   /* Let's skip the 'OMX.Company.' part */
   p_cname         = strstr (strstr (ap_sched->cname, ".") + 1, ".") + 1;
-  p_next_dot      = strstr (p_cname, ".");;
+  p_next_dot      = strstr (p_cname, ".");
   thread_name_len = MIN (p_next_dot - p_cname, 16 - 1);
   
   strncpy (thread_name, p_cname, thread_name_len);
@@ -2155,10 +2127,9 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
 
   rc = tiz_kernel_register_port (ap_sched->child.p_ker, p_port, OMX_TRUE);       /* it is a config port */
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_sched->child.p_hdl),
-                 TIZ_CBUF (ap_sched->child.p_hdl),
-                 "Registering role #[%d] -> [%s] nports = [%d] rc = [%s]...",
-                 a_role_pos, p_rf->role, p_rf->nports, tiz_err_to_str (rc));
+  TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+            "Registering role #[%d] -> [%s] nports = [%d] rc = [%s]...",
+            a_role_pos, p_rf->role, p_rf->nports, tiz_err_to_str (rc));
 
   for (j = 0; j < p_rf->nports && rc == OMX_ErrorNone; ++j)
     {
@@ -2167,7 +2138,10 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
       assert (NULL != p_port);
       rc = tiz_kernel_register_port (ap_sched->child.p_ker, p_port, OMX_FALSE);  /* not a config port */
 
-      rc = configure_port_preannouncements (ap_sched, p_hdl, p_port);
+      if (OMX_ErrorNone == rc)
+        {
+          rc = configure_port_preannouncements (ap_sched, p_hdl, p_port);
+        }
     }
 
   if (OMX_ErrorNone == rc)
