@@ -669,7 +669,7 @@ cmd_to_priority (OMX_COMMANDTYPE a_cmd)
     case OMX_CommandMarkBuffer:
       /* NOTE: Mark buffer command is not hdld in this class */
     default:
-      TIZ_LOG (TIZ_TRACE, "Unknown/unhdld command class [%d]", a_cmd);
+      TIZ_LOG (TIZ_TRACE, "Unknown/unhandled command class [%d]", a_cmd);
       assert (0);
       break;
     };

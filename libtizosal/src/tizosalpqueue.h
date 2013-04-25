@@ -66,7 +66,7 @@ extern "C"
   typedef OMX_S32 (*tiz_pq_cmp_f) (void *ap_left, void *ap_right);
 
   /**
-   * \typedef The comparison function to be used by the removal function
+   * \typedef A comparison function to be used by the removal function
    * tiz_pqueue_remove_func.
    *
    * @param ap_elem The item from the queue that is being compared
@@ -83,33 +83,37 @@ extern "C"
                                      void *ap_data2);
 
   /**
-   * \typedef Function that prints an item.
+   * \typedef Function callback that receives the contents of a node from the
+   * queue.
    *
-   * @param ap_data The item to be printed
+   * @param ap_name The queue's name
    *
-   * @param a_priority The priority of the item
+   * @param ap_data Data stored in the node
+   *
+   * @param a_priority Priority group of the node
+   *
+   * @param ap_cur The address of the current node
+   *
+   * @param ap_next The address of the next node (equal or lower priority)
+   *
+   * @param ap_prev The address of the previous node (equal or higher priority)
    *
    */
-  typedef void (*tiz_pq_print_item_f) (void *ap_data, OMX_S32 a_priority);
-
-  /**
-   * \typedef Function to dump a node from the queue..
-   *
-   */
-  typedef void (*tiz_pq_dump_item_f) (void *ap_data,
-                                      OMX_S32 a_priority,
-                                      void *ap_cur,
+  typedef void (*tiz_pq_dump_item_f) (const char *ap_name, void *ap_data,
+                                      OMX_S32 a_priority, void *ap_cur,
                                       void *ap_next, void *ap_prev);
 
+#define TIZ_PQUEUE_MAX_NAME_LEN 20
   /**
-   * Initialize a new empty queue.
+   * Initialize a new empty priority queue with up to a_max_prio + 1 different
+   * priorities (i.e. priority groups [0..a_max_prio]). 0 is the highest
+   * priority.
    *
    * @ingroup pqueue
    *
-   * @param app_pq The memory address where the pointer to the newly created
-   * priority queue object will be stored
+   * @param app_pq A handle to the priority queue object to be initialized
    *
-   * @param a_max_priority Maximum number of priority groups that can be stored
+   * @param a_max_prio Maximum number of priority groups that can be stored
    * in the queue
    *
    * @param apf_cmp A comparison function (used by tiz_pqueue_remove and
@@ -119,12 +123,14 @@ extern "C"
    * NULL if the Tizonia's default allocation/deallocation routines should be
    * used instead
    *
+   * @ap_name A string of up to TIZ_PQUEUE_MAX_NAME_LEN characters that can be
+   * used during debugging to identify this queue
+   *
    * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources otherwise
    */
-  OMX_ERRORTYPE tiz_pqueue_init (tiz_pqueue_t ** app_pq,
-                                 OMX_S32 a_max_priority,
-                                 tiz_pq_cmp_f apf_cmp,
-                                 tiz_soa_t * ap_soa, const char *ap_str);
+  OMX_ERRORTYPE tiz_pqueue_init (tiz_pqueue_t ** app_pq, OMX_S32 a_max_prio,
+                                 tiz_pq_cmp_f apf_cmp, tiz_soa_t * ap_soa,
+                                 const char *ap_name);
 
   /**
    * Destroy a priority queue.
@@ -132,6 +138,8 @@ extern "C"
    * @param ap_pq The priority queue to be destroyed. If NULL, or if the queue
    * has already been detroyed, no operation is performed.
    *
+   * @pre The queue must be empty before calling this function 
+   
    * @ingroup pqueue
    *
    */
@@ -217,20 +225,8 @@ extern "C"
   OMX_S32 tiz_pqueue_length (const tiz_pqueue_t * ap_pq);
 
   /**
-   * This function prints the items in the queue using the print function
-   * apf_print.
-   *
-   * @return The number of items processed.
-   *
-   * @ingroup pqueue
-   *
-   */
-  OMX_S32 tiz_pqueue_print (tiz_pqueue_t * ap_pq,
-                            tiz_pq_print_item_f apf_print);
-
-  /**
-   * This function dumps the contents of the nodes in the queue using the dump
-   * function apf_dump.
+   * This function dumps the contents of all the nodes in the queue using the
+   * apf_dump callback function.
    *
    * @return The number of nodes processed.
    *

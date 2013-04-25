@@ -195,6 +195,10 @@ msg_to_priority (tiz_fsm_msg_class_t a_msg_class)
   switch (a_msg_class)
     {
     case ETIZFsmMsgSendCommand:
+      {
+        prio = 1;
+      }
+      break;
     case ETIZFsmMsgTransComplete:
       {
         prio = 0;

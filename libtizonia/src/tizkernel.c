@@ -802,7 +802,7 @@ cmd_to_priority (OMX_COMMANDTYPE a_cmd)
     case OMX_CommandPortEnable:
     case OMX_CommandMarkBuffer:
       {
-        prio = 0;
+        prio = 2;
       }
       break;
 
@@ -2952,7 +2952,7 @@ kernel_EmptyThisBuffer (const void *ap_obj,
   p_etb = &(p_msg->ef);
   p_etb->p_hdr = ap_hdr;
 
-  return tiz_servant_enqueue (ap_obj, p_msg, 2);
+  return tiz_servant_enqueue (ap_obj, p_msg, 0);
 }
 
 static OMX_ERRORTYPE
@@ -2975,7 +2975,7 @@ kernel_FillThisBuffer (const void *ap_obj,
   p_msg_ftb = &(p_msg->ef);
   p_msg_ftb->p_hdr = ap_hdr;
 
-  return tiz_servant_enqueue (ap_obj, p_msg, 2);
+  return tiz_servant_enqueue (ap_obj, p_msg, 0);
 }
 
 static OMX_ERRORTYPE

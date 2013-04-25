@@ -109,7 +109,7 @@ Suite *
 osal_pqueue_suite (void)
 {
   TCase *tc_pqueue = NULL;
-  Suite *s = suite_create ("FIFO priority queue");
+  Suite *s = suite_create ("Priority queue");
 
   /* pqueue API test case */
   tc_pqueue = tcase_create ("priority queue");
