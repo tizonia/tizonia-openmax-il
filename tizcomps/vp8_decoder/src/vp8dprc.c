@@ -283,7 +283,7 @@ get_output_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
               if (OMX_ErrorNone == tiz_kernel_claim_buffer
                   (ap_krn, 1, 0, &ap_obj->p_outhdr_))
                 {
-                  TIZ_LOG (TIZ_TRACE, "Claimed output HEADER [%p]..."
+                  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Claimed output HEADER [%p]..."
                            "nFilledLen [%d]",
                            ap_obj->p_outhdr_, ap_obj->p_outhdr_->nFilledLen);
                   return ap_obj->p_outhdr_;
@@ -296,14 +296,15 @@ get_output_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
 }
 
 static void
-buffer_emptied (vp8d_prc_t *ap_obj, OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_krn)
+buffer_emptied (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
+                OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_krn)
 {
   assert (NULL != ap_obj);
   assert (NULL != ap_hdr);
   assert (NULL != ap_krn);
   assert (ap_obj->p_inhdr_ == ap_hdr);
 
-  TIZ_LOG (TIZ_TRACE, "HEADER [%p] emptied ", ap_hdr);
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "HEADER [%p] emptied ", ap_hdr);
 
   assert (ap_hdr->nFilledLen == 0);
   ap_hdr->nOffset = 0;
@@ -318,14 +319,15 @@ buffer_emptied (vp8d_prc_t *ap_obj, OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_krn)
 }
 
 static void
-buffer_filled (vp8d_prc_t *ap_obj, OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_krn)
+buffer_filled (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
+               OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_krn)
 {
   assert (NULL != ap_obj);
   assert (NULL != ap_hdr);
   assert (NULL != ap_krn);
   assert (ap_obj->p_outhdr_ == ap_hdr);
 
-  TIZ_LOG (TIZ_TRACE, "HEADER [%p] nFilledLen [%d] ", ap_hdr,
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "HEADER [%p] nFilledLen [%d] ", ap_hdr,
            ap_hdr->nFilledLen);
 
   ap_hdr->nOffset = 0;
@@ -588,12 +590,12 @@ decode_stream (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
       /* Step 4: Get rid of input and output buffers, if we can */
       if (p_inhdr->nFilledLen == 0)
         {
-          buffer_emptied (ap_obj, p_inhdr, ap_krn);
+          buffer_emptied (ap_obj, ap_hdl, p_inhdr, ap_krn);
         }
 
       if (p_outhdr->nFilledLen > 0 || ap_obj->eos_)
         {
-          buffer_filled (ap_obj, p_outhdr, ap_krn);
+          buffer_filled (ap_obj, ap_hdl, p_outhdr, ap_krn);
         }
     }
 }
@@ -610,8 +612,9 @@ static void
 relinquish_any_buffers_held (const void *ap_obj)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = tiz_get_krn (tiz_servant_get_hdl (p_obj));
+
+  assert (NULL != ap_obj);
 
   if (NULL != p_obj->p_inhdr_)
     {
@@ -747,7 +750,6 @@ static OMX_ERRORTYPE
 vp8d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
-  assert (NULL != ap_obj);
   /* Relinquish all held buffers, regardless of the port this is received on */
   relinquish_any_buffers_held (p_obj);
   return OMX_ErrorNone;
@@ -757,7 +759,6 @@ static OMX_ERRORTYPE
 vp8d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
-  assert (NULL != ap_obj);
   /* Relinquish all held buffers, regardless of the port this is received on */
   relinquish_any_buffers_held (p_obj);
   return OMX_ErrorNone;
