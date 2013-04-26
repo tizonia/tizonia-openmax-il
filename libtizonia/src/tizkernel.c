@@ -78,6 +78,10 @@ static OMX_ERRORTYPE dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE p_hdl,
                                            ap_msg_sc);
 static OMX_ERRORTYPE flush_marks (void *ap_obj, OMX_PTR ap_port);
 
+static OMX_ERRORTYPE check_pid (const tiz_kernel_t *ap_obj, OMX_U32 a_pid);
+static inline tiz_vector_t * get_port (const tiz_kernel_t *ap_obj, OMX_U32 a_pid);
+static OMX_S32 add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
+                              const OMX_BUFFERHEADERTYPE * ap_hdr, const void *ap_port);
 
 typedef enum tiz_kernel_msg_class tiz_kernel_msg_class_t;
 enum tiz_kernel_msg_class
@@ -212,18 +216,76 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
           rc = OMX_TRUE;
         }
     }
-  else
+
+  return rc;
+}
+
+static OMX_BOOL
+remove_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
+                               OMX_PTR ap_data2)
+{
+  OMX_BOOL rc = OMX_FALSE;
+  tiz_kernel_msg_t *p_msg = ap_elem;
+  tiz_kernel_t *p_obj = ap_data2;
+
+  assert (NULL != ap_elem);
+  assert (NULL != ap_data2);
+
+  if (p_msg->class == ETIZKernelMsgEmptyThisBuffer
+      || p_msg->class == ETIZKernelMsgFillThisBuffer)
     {
-      /* Not interested */
-      TIZ_LOG (TIZ_TRACE, "Not interested in msg - class [%s]",
-               tiz_kernel_msg_to_str (p_msg->class));
+      tiz_kernel_msg_emptyfillbuffer_t *p_msg_ef = NULL;
+      OMX_PTR p_port = NULL;
+      OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+      OMX_U32 pid = 0;
+      OMX_HANDLETYPE *p_hdl = NULL;
+      OMX_S32 nbufs = 0;
+
+      assert (NULL != p_obj);
+      assert (NULL != p_msg);
+
+      p_msg_ef = &(p_msg->ef);
+      assert (NULL != p_msg_ef);
+
+      p_hdr = p_msg_ef->p_hdr;
+      assert (NULL != p_hdr);
+
+      p_hdl = p_msg->p_hdl;
+      assert (NULL != p_hdl);
+
+      pid = p_msg->class == ETIZKernelMsgEmptyThisBuffer ?
+        p_hdr->nInputPortIndex : p_hdr->nOutputPortIndex;
+
+      if (OMX_ALL == a_data1 || pid == a_data1)
+        {
+          TIZ_LOGN (TIZ_TRACE, p_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
+                    p_hdr, p_hdr->pBuffer, pid);
+
+          assert (check_pid (p_obj, pid) == OMX_ErrorNone);
+
+          /* Retrieve the port... */
+          p_port = get_port (p_obj, pid);
+
+          /* Add this buffer to the ingress hdr list */
+          if (0 < (nbufs = add_to_buflst (p_obj, p_obj->p_ingress_,
+                                          p_hdr, p_port)))
+            {
+              rc = OMX_TRUE;
+            }
+          else
+            {
+              TIZ_LOGN (TIZ_ERROR, p_hdl, "Error on port [%d] while "
+                        "adding buffer to ingress list", pid);
+            }
+        }
     }
 
   return rc;
 }
 
 static void
-rm_callback_hdlr (void *ap_obj, OMX_HANDLETYPE ap_hdl, tiz_event_pluggable_t * ap_event)
+rm_callback_hdlr (void *ap_obj, OMX_HANDLETYPE ap_hdl,
+                  tiz_event_pluggable_t * ap_event)
 {
   if (NULL != ap_event)
     {
@@ -235,7 +297,9 @@ rm_callback_hdlr (void *ap_obj, OMX_HANDLETYPE ap_hdl, tiz_event_pluggable_t * a
 static void
 deliver_pluggable_event (OMX_U32 rid, OMX_HANDLETYPE ap_hdl)
 {
-  tiz_event_pluggable_t *p_event = (tiz_event_pluggable_t *) tiz_mem_calloc (1, sizeof (tiz_event_pluggable_t));
+  tiz_event_pluggable_t *p_event
+    = (tiz_event_pluggable_t *)
+    tiz_mem_calloc (1, sizeof (tiz_event_pluggable_t));
   OMX_U32 *p_rid = (OMX_U32 *) tiz_mem_calloc (1, sizeof (OMX_U32));
   *p_rid = rid;
 
@@ -386,7 +450,6 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                        OMX_ERRORTYPE a_error)
 {
   tiz_kernel_t *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -409,7 +472,8 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
    * whether this a cancelation or not. */
   if (p_obj->cmd_completion_count_ == 0)
     {
-      tiz_fsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
+      OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
+      tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
                                OMX_CommandPortDisable, a_pid);
     }
 
@@ -422,7 +486,6 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                       OMX_ERRORTYPE a_error)
 {
   tiz_kernel_t *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -445,7 +508,8 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
    * whether this a cancelation or not. */
   if (p_obj->cmd_completion_count_ == 0)
     {
-      tiz_fsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
+      OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
+      tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
                                OMX_CommandPortEnable, a_pid);
     }
 
@@ -457,7 +521,6 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                      OMX_ERRORTYPE a_error)
 {
   tiz_kernel_t *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -471,7 +534,8 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   assert (p_obj->cmd_completion_count_ > 0);
   if (--p_obj->cmd_completion_count_ == 0)
     {
-      tiz_fsm_complete_command (tiz_get_fsm (p_parent->p_hdl_), p_obj,
+      OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
+      tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
                                OMX_CommandFlush, a_pid);
     }
 
@@ -495,7 +559,8 @@ complete_mark_buffer (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
 /*   assert (p_obj->cmd_completion_count_ > 0); */
 /*   if (--p_obj->cmd_completion_count_ == 0) */
 /*     { */
-/*       tiz_fsm_complete_command (tiz_get_fsm (p_parent->p_hdl), p_obj, */
+/*       OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj); */
+/*       tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj, */
 /*                                OMX_CommandMarkBuffer); */
 /*     } */
 
@@ -786,7 +851,7 @@ enqueue_callback_msg (const void *ap_obj,
   p_msg_cb->pid = a_pid;
   p_msg_cb->dir = a_dir;
 
-  return tiz_servant_enqueue (ap_obj, p_msg, 1);
+  return tiz_servant_enqueue (ap_obj, p_msg, 0);
 }
 
 static inline OMX_U32
@@ -802,7 +867,7 @@ cmd_to_priority (OMX_COMMANDTYPE a_cmd)
     case OMX_CommandPortEnable:
     case OMX_CommandMarkBuffer:
       {
-        prio = 2;
+        prio = 1;
       }
       break;
 
@@ -818,7 +883,6 @@ static OMX_ERRORTYPE
 propagate_ingress (void *ap_obj, OMX_U32 a_pid)
 {
   tiz_kernel_t *p_obj = ap_obj;
-  tiz_servant_t *base = ap_obj;
   void *p_prc = NULL;
   tiz_vector_t *p_list = NULL;
   OMX_PTR p_port = NULL;
@@ -829,10 +893,11 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
   OMX_U32 pid = 0;
   OMX_DIRTYPE pdir = OMX_DirMax;
   OMX_S32 nports = 0;
+  OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
 
   assert (NULL != ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
-  p_prc = tiz_get_prc (base->p_hdl_);
+  p_prc = tiz_get_prc (p_hdl);
 
   do
     {
@@ -864,11 +929,11 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
           /* ... delegate to the processor... */
           if (OMX_DirInput == pdir)
             {
-              tiz_api_EmptyThisBuffer (p_prc, base->p_hdl_, p_hdr);
+              tiz_api_EmptyThisBuffer (p_prc, p_hdl, p_hdr);
             }
           else
             {
-              tiz_api_FillThisBuffer (p_prc, base->p_hdl_, p_hdr);
+              tiz_api_FillThisBuffer (p_prc, p_hdl, p_hdr);
             }
 
           /* ... and keep the header in the list. */
@@ -1025,23 +1090,19 @@ static OMX_ERRORTYPE
 flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
 {
   tiz_kernel_t *p_obj = ap_obj;
-  tiz_servant_t *p_base = ap_obj;
   tiz_vector_t *p_list = NULL;
   OMX_PTR p_port = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   OMX_S32 i = 0;
   OMX_U32 pid = 0;
   OMX_DIRTYPE pdir = OMX_DirMax;
-  OMX_HANDLETYPE hdl = NULL;
-  OMX_HANDLETYPE thdl = NULL;
+  OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
+  OMX_HANDLETYPE p_thdl = NULL;
   OMX_S32 nports = 0;
 
   assert (NULL != ap_obj);
 
   nports = tiz_vector_length (p_obj->p_ports_);
-
-  hdl = p_base->p_hdl_;
-  assert (NULL != hdl);
 
   do
     {
@@ -1051,20 +1112,20 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
 
       /* Get port direction and tunnel info */
       pdir = tiz_port_dir (p_port);
-      thdl = tiz_port_get_tunnel_comp (p_port);
+      p_thdl = tiz_port_get_tunnel_comp (p_port);
 
       /* Grab the port's egress list */
       p_list = get_egress_lst (p_obj, pid);
 
-      TIZ_LOGN (TIZ_TRACE, hdl, "pid [%d] loop index=[%d] egress length [%d] "
-                "- thdl [%p]...", pid, i, tiz_vector_length (p_list), thdl);
+      TIZ_LOGN (TIZ_TRACE, p_hdl, "pid [%d] loop index=[%d] egress length [%d] "
+                "- p_thdl [%p]...", pid, i, tiz_vector_length (p_list), p_thdl);
 
       while (tiz_vector_length (p_list) > 0)
         {
           /* Retrieve the header... */
           p_hdr = get_header (p_list, 0);
 
-          TIZ_LOGN (TIZ_TRACE, hdl, "HEADER [%p] BUFFER [%p]", p_hdr,
+          TIZ_LOGN (TIZ_TRACE, p_hdl, "HEADER [%p] BUFFER [%p]", p_hdr,
                     p_hdr->pBuffer);
 
           /* ... issue the callback... */
@@ -1076,11 +1137,11 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
              * if pre-announcements are enabled on the port. */
             if (OMX_DirInput == pdir && TIZ_PORT_IS_ALLOCATOR (p_port))
               {
-                tiz_port_populate_header (p_port, hdl, p_hdr);
+                tiz_port_populate_header (p_port, p_hdl, p_hdr);
               }
 
             /* Propagate buffer marks... */
-            process_marks (p_obj, p_hdr, pid, hdl);
+            process_marks (p_obj, p_hdr, pid, p_hdl);
 
             if (a_clear)
               {
@@ -1093,7 +1154,7 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
                 if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS
                     && OMX_DirOutput == pdir && p_obj->eos_ == OMX_FALSE)
                   {
-                    TIZ_LOGN (TIZ_NOTICE, hdl, "OMX_BUFFERFLAG_EOS on "
+                    TIZ_LOGN (TIZ_NOTICE, p_hdl, "OMX_BUFFERFLAG_EOS on "
                               "port [%d]...", pid);
 
                     /* ... flag EOS ... */
@@ -1106,7 +1167,7 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
 
             /* get rid of the buffer */
             tiz_servant_issue_buf_callback ((OMX_PTR) ap_obj, p_hdr,
-                                           pid, pdir, thdl);
+                                           pid, pdir, p_thdl);
             /* ... and delete it from the list. */
             tiz_vector_erase (p_list, 0, 1);
 
@@ -1534,6 +1595,13 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
           continue;
         }
 
+      /* This will move this port's ETB or FTB messages currently queued in the
+         kernel's servant queue into the corresponding port ingress list. This
+         guarantees that all buffers received by the component on this port are
+         correctly returned during port stop */
+      tiz_servant_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
+                                     i, p_obj);
+
       if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
         {
           /* Move buffers from egress to ingress */
@@ -1584,8 +1652,8 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                         const void *p_prc = tiz_get_prc (p_hdl);
                         /* NOTE : 2nd and 3rd parameters are dummy ones, the
                          * processor servant implementation of
-                         * 'remove_from_queue' will replace them with its
-                         * correct values */
+                         * 'remove_from_queue' will replace them with the right
+                         * values */
                         tiz_servant_remove_from_queue (p_prc, NULL, 0, *pp_hdr);
                       }
 
@@ -1811,6 +1879,12 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
       if (tiz_port_buffer_count (p_port) && TIZ_PORT_IS_ENABLED (p_port)
           && (now == EStateExecuting || now == EStatePause))
         {
+          /* This will move this port's ETB or FTB messages currently queued in the
+             kernel's servant queue into the corresponding port ingress list. This
+             guarantees that all buffers received by the component on this port are
+             correctly returned during port flush */
+          tiz_servant_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
+                                         i, p_obj);
 
           if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
             {
@@ -2188,8 +2262,8 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
                         const void *p_prc = tiz_get_prc (p_hdl);
                         /* NOTE : 2nd and 3rd parameters are dummy ones, the
                          * processor servant implementation of
-                         * 'remove_from_queue' will replace them with its
-                         * correct values */
+                         * 'remove_from_queue' will replace them with the right
+                         * values */
                         tiz_servant_remove_from_queue (p_prc, NULL, 0, *pp_hdr);
                       }
 
@@ -2952,7 +3026,7 @@ kernel_EmptyThisBuffer (const void *ap_obj,
   p_etb = &(p_msg->ef);
   p_etb->p_hdr = ap_hdr;
 
-  return tiz_servant_enqueue (ap_obj, p_msg, 0);
+  return tiz_servant_enqueue (ap_obj, p_msg, 2);
 }
 
 static OMX_ERRORTYPE
@@ -2975,7 +3049,7 @@ kernel_FillThisBuffer (const void *ap_obj,
   p_msg_ftb = &(p_msg->ef);
   p_msg_ftb->p_hdr = ap_hdr;
 
-  return tiz_servant_enqueue (ap_obj, p_msg, 0);
+  return tiz_servant_enqueue (ap_obj, p_msg, 2);
 }
 
 static OMX_ERRORTYPE
@@ -3249,6 +3323,13 @@ kernel_stop_and_return (void *ap_obj)
         {
           continue;
         }
+
+      /* This will move any ETB or FTB messages currently queued in the
+         kernel's servant queue into the corresponding port ingress list. This
+         guarantees that all buffers received by the component are correctly
+         returned during stop */
+      tiz_servant_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
+                                     OMX_ALL, p_obj);
 
       /* OMX_CommandFlush is used to notify the processor servant that it has
          to return some buffers ... */
