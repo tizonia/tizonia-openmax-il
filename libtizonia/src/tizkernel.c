@@ -30,19 +30,18 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
-
 #include "OMX_Types.h"
 #include "OMX_TizoniaExt.h"
 
+#include "tizkernel.h"
+#include "tizkernel_decls.h"
 #include "tizfsm.h"
 #include "tizport.h"
 #include "tizport-macros.h"
-#include "tizkernel.h"
-#include "tizkernel_decls.h"
 #include "tizutils.h"
 
+#include <assert.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -314,21 +313,18 @@ deliver_pluggable_event (OMX_U32 rid, OMX_HANDLETYPE ap_hdl)
 static void
 wait_complete (OMX_U32 rid, OMX_PTR ap_data)
 {
-  TIZ_LOG (TIZ_TRACE, "wait_complete : rid [%u]", rid);
   deliver_pluggable_event (rid, ap_data);
 }
 
 static void
 preemption_req (OMX_U32 rid, OMX_PTR ap_data)
 {
-  TIZ_LOG (TIZ_TRACE, "preemption_req : rid [%u]", rid);
   deliver_pluggable_event (rid, ap_data);
 }
 
 static void
 preemption_complete (OMX_U32 rid, OMX_PTR ap_data)
 {
-  TIZ_LOG (TIZ_TRACE, "preemption_complete : rid [%u]", rid);
   deliver_pluggable_event (rid, ap_data);
 }
 
@@ -1537,8 +1533,8 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     default:
       {
-        TIZ_LOG (TIZ_TRACE, "Unknown state [%s] [%d]",
-                 tiz_fsm_state_to_str (ap_msg_sc->param1), ap_msg_sc->param1);
+        TIZ_LOGN (TIZ_ERROR, ap_hdl, "Unknown state [%s] [%d]",
+                  tiz_fsm_state_to_str (ap_msg_sc->param1), ap_msg_sc->param1);
         assert (0);
         break;
       }
@@ -2581,8 +2577,8 @@ kernel_SetParameter (const void *ap_obj,
       }
     default:
       {
-        TIZ_LOG (TIZ_TRACE,
-                 "OMX_ErrorUnsupportedIndex [0x%08x]...", a_index);
+        TIZ_LOGN (TIZ_TRACE, ap_hdl,
+                  "OMX_ErrorUnsupportedIndex [0x%08x]...", a_index);
         return OMX_ErrorUnsupportedIndex;
       }
     };
@@ -2601,7 +2597,7 @@ kernel_SendCommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
 
-  TIZ_LOG (TIZ_TRACE, ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
 
   if (NULL == (p_msg = init_kernel_message (ap_obj, ap_hdl,
                                             ETIZKernelMsgSendCommand)))
@@ -3520,8 +3516,6 @@ kernel_get_port (const void *ap_obj, OMX_U32 a_pid)
 
   assert (NULL != ap_obj);
   num_ports = tiz_vector_length (p_obj->p_ports_);
-
-  TIZ_LOG (TIZ_TRACE, "num_ports [%d] a_pid [%d]...", num_ports, a_pid);
 
   if (num_ports <= a_pid)
     {
