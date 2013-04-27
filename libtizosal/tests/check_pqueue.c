@@ -61,7 +61,7 @@ START_TEST (test_pqueue_init_and_destroy)
 
   TIZ_LOG (TIZ_TRACE, "test_pqueue_init_and_destroy");
 
-  error = tiz_pqueue_init (&p_queue, 10, &pqueue_cmp, NULL, "tizkernel");
+  error = tiz_pqueue_init (&p_queue, 10, &pqueue_cmp, NULL, "tizkrn");
 
   fail_if (p_queue == NULL);
   fail_if (error != OMX_ErrorNone);
@@ -83,7 +83,7 @@ START_TEST (test_pqueue_send_and_receive_one_group)
 
   fail_if (tiz_soa_init (&p_soa) != OMX_ErrorNone);
 
-  error = tiz_pqueue_init (&p_queue, 0, &pqueue_cmp, p_soa, "tizkernel");
+  error = tiz_pqueue_init (&p_queue, 0, &pqueue_cmp, p_soa, "tizkrn");
 
   fail_if (error != OMX_ErrorNone);
 
@@ -138,7 +138,7 @@ START_TEST (test_pqueue_send_and_receive_two_groups)
 
   TIZ_LOG (TIZ_TRACE, "test_pqueue_send_and_receive_two_groups");
 
-  error = tiz_pqueue_init (&p_queue, 1, &pqueue_cmp, NULL, "tizkernel");
+  error = tiz_pqueue_init (&p_queue, 1, &pqueue_cmp, NULL, "tizkrn");
 
   fail_if (error != OMX_ErrorNone);
 
@@ -205,7 +205,7 @@ START_TEST (test_pqueue_send_and_receive_three_groups)
 
   TIZ_LOG (TIZ_TRACE, "test_pqueue_send_and_receive_three_groups");
 
-  error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, "tizkernel");
+  error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, "tizkrn");
 
   fail_if (error != OMX_ErrorNone);
 
@@ -304,7 +304,7 @@ START_TEST (test_pqueue_first)
 
   TIZ_LOG (TIZ_TRACE, "test_pqueue_first");
 
-  error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, "tizkernel");
+  error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, "tizkrn");
 
   fail_if (error != OMX_ErrorNone);
 
@@ -353,7 +353,7 @@ START_TEST (test_pqueue_remove)
 
   TIZ_LOG (TIZ_TRACE, "test_pqueue_remove");
 
-  error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, "tizkernel");
+  error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, "tizkrn");
 
   fail_if (error != OMX_ErrorNone);
 
@@ -405,7 +405,7 @@ START_TEST (test_pqueue_removep)
 
   TIZ_LOG (TIZ_TRACE, "test_pqueue_removep");
 
-  error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, "tizkernel");
+  error = tiz_pqueue_init (&p_queue, 2, &pqueue_cmp, NULL, "tizkrn");
 
   fail_if (error != OMX_ErrorNone);
 

@@ -49,12 +49,12 @@ extern "C"
   typedef enum tiz_krn_msg_class tiz_krn_msg_class_t;
   enum tiz_krn_msg_class
     {
-      ETIZKernelMsgSendCommand = 0,
-      ETIZKernelMsgEmptyThisBuffer,
-      ETIZKernelMsgFillThisBuffer,
-      ETIZKernelMsgCallback,
-      ETIZKernelMsgPluggableEvent,
-      ETIZKernelMsgMax
+      ETIZKrnMsgSendCommand = 0,
+      ETIZKrnMsgEmptyThisBuffer,
+      ETIZKrnMsgFillThisBuffer,
+      ETIZKrnMsgCallback,
+      ETIZKrnMsgPluggableEvent,
+      ETIZKrnMsgMax
     };
 
   typedef OMX_ERRORTYPE (*tiz_krn_msg_dispatch_f) (void *ap_obj,

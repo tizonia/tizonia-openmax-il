@@ -277,8 +277,8 @@ validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
           const tiz_krn_population_status_t kps
             = tiz_krn_get_population_status (p_krn, OMX_ALL,
                                                 &may_be_fully_unpopulated);
-          if (ETIZKernelFullyUnpopulated == kps
-              || (ETIZKernelUnpopulated == kps
+          if (ETIZKrnFullyUnpopulated == kps
+              || (ETIZKrnUnpopulated == kps
                   && OMX_TRUE == may_be_fully_unpopulated))
             {
               /* This is OK */
@@ -336,8 +336,8 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl, OMX_U32 a_pid)
               const tiz_krn_population_status_t kps
                 = tiz_krn_get_population_status (p_krn, a_pid,
                                                     &may_be_fully_unpopulated);
-              if (ETIZKernelFullyUnpopulated == kps
-                  || (ETIZKernelUnpopulated == kps
+              if (ETIZKrnFullyUnpopulated == kps
+                  || (ETIZKrnUnpopulated == kps
                       && OMX_TRUE == may_be_fully_unpopulated))
                 {
                   /* This is OK */
@@ -352,8 +352,8 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl, OMX_U32 a_pid)
       const tiz_krn_population_status_t kps
         = tiz_krn_get_population_status (p_krn, a_pid,
                                             &may_be_fully_unpopulated);
-      if (ETIZKernelFullyUnpopulated == kps
-          || (ETIZKernelUnpopulated == kps
+      if (ETIZKrnFullyUnpopulated == kps
+          || (ETIZKrnUnpopulated == kps
               && OMX_TRUE == may_be_fully_unpopulated))
         {
           /* This is OK */

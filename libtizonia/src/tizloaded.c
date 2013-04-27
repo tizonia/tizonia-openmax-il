@@ -198,7 +198,7 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "kernel's tunneled port status [%d] ", status);
 
-        if (ETIZKernelTunneledPortsAcceptNone == status)
+        if (ETIZKrnTunneledPortsAcceptNone == status)
           {
             TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                            "wait until all the tunneled non-supplier "

@@ -216,9 +216,9 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
     TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                    "kernel's tunneled port status [%d] ", status);
 
-    if (ETIZKernelNoTunneledPorts == status
-        || ETIZKernelTunneledPortsAcceptUseBuffer == status
-        || ETIZKernelTunneledPortsAcceptBoth == status)
+    if (ETIZKrnNoTunneledPorts == status
+        || ETIZKrnTunneledPortsAcceptUseBuffer == status
+        || ETIZKrnTunneledPortsAcceptBoth == status)
       {
         /* OK, at this point all the tunneled non-supplier neighboring ports
          * are ready to receive OMX_UseBuffer calls. IL resource allocation

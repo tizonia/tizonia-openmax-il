@@ -512,12 +512,12 @@ START_TEST (test_tizonia_fsm_create_and_destroy)
 }
 END_TEST
 
-START_TEST (test_tizonia_kernel_create_and_destroy)
+START_TEST (test_tizonia_krn_create_and_destroy)
 {
   void *p_kernel = 0;
 
   tiz_krn_init ();
-  p_kernel = factory_new (tizkernel);
+  p_kernel = factory_new (tizkrn);
 
   fail_if (!p_kernel);
   factory_delete (p_kernel);
@@ -2088,7 +2088,7 @@ tiz_suite (void)
   tcase_add_unchecked_fixture (tc_tizonia, setup, teardown);
 
 (void) test_tizonia_fsm_create_and_destroy;
-(void) test_tizonia_kernel_create_and_destroy;
+(void) test_tizonia_krn_create_and_destroy;
 (void) test_tizonia_getstate;
 (void) test_tizonia_gethandle_freehandle;
 (void) test_tizonia_getparameter;
@@ -2104,7 +2104,7 @@ tiz_suite (void)
 (void) test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_supplied_buffers;
 
   tcase_add_test (tc_tizonia, test_tizonia_fsm_create_and_destroy);
-  tcase_add_test (tc_tizonia, test_tizonia_kernel_create_and_destroy);
+  tcase_add_test (tc_tizonia, test_tizonia_krn_create_and_destroy);
   tcase_add_test (tc_tizonia, test_tizonia_getstate);
   tcase_add_test (tc_tizonia, test_tizonia_gethandle_freehandle);
   tcase_add_test (tc_tizonia, test_tizonia_getparameter);

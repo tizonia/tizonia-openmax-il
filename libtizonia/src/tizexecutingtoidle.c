@@ -134,8 +134,8 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
     TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                    "kernel's tunneled port status [%d] ", status);
 
-    if (ETIZKernelNoTunneledPorts == status
-        || ETIZKernelTunneledPortsMayInitiateExeToIdle == status)
+    if (ETIZKrnNoTunneledPorts == status
+        || ETIZKrnTunneledPortsMayInitiateExeToIdle == status)
       {
         /* OK, at this point all the tunneled non-supplier neighboring ports
            are ready to receive ETB/FTB calls.  NOTE: This will call the

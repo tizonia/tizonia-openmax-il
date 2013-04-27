@@ -24,8 +24,8 @@
  *
  * @brief  Tizonia OpenMAX IL - kernel's dispatch functions
  *
- * @remark This file is meant to be included in the main tizkernel.c to create
- * a single compilation unit.
+ * @remark This file is meant to be included in the main tizkernel.c module to
+ * create a single compilation unit.
  *
  */
 
@@ -73,9 +73,9 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
         }
 
       /* This will move this port's ETB or FTB messages currently queued in the
-         kernel's servant queue into the corresponding port ingress list. This
-         guarantees that all buffers received by the component on this port are
-         correctly returned during port stop */
+       * kernel's servant queue into the corresponding port ingress list. This
+       * guarantees that all buffers received by the component on this port are
+       * correctly returned during port stop */
       tiz_servant_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
                                      i, p_obj);
 
@@ -123,7 +123,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
                       tiz_servant_remove_from_queue
                         (ap_obj, &remove_buffer_from_servant_queue,
-                         ETIZKernelMsgCallback, *pp_hdr);
+                         ETIZKrnMsgCallback, *pp_hdr);
 
                       {
                         const void *p_prc = tiz_get_prc (p_hdl);
@@ -131,7 +131,8 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                          * processor servant implementation of
                          * 'remove_from_queue' will replace them with the right
                          * values */
-                        tiz_servant_remove_from_queue (p_prc, NULL, 0, *pp_hdr);
+                        tiz_servant_remove_from_queue (p_prc, NULL, 0,
+                                                       *pp_hdr);
                       }
 
                     }
@@ -192,8 +193,8 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                   {
                     void *p_prc = tiz_get_prc (p_hdl);
                     rc = tiz_api_SendCommand (p_prc, p_hdl,
-                                             ap_msg_sc->cmd,
-                                             pid, ap_msg_sc->p_cmd_data);
+                                              ap_msg_sc->cmd,
+                                              pid, ap_msg_sc->p_cmd_data);
                   }
                 }
 
@@ -357,11 +358,12 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
           && (now == EStateExecuting || now == EStatePause))
         {
           /* This will move this port's ETB or FTB messages currently queued in the
-             kernel's servant queue into the corresponding port ingress list. This
-             guarantees that all buffers received by the component on this port are
-             correctly returned during port flush */
-          tiz_servant_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
-                                         i, p_obj);
+           * kernel's servant queue into the corresponding port ingress list. This
+           * guarantees that all buffers received by the component on this port are
+           * correctly returned during port flush */
+          tiz_servant_remove_from_queue (ap_obj,
+                                         &remove_efb_from_servant_queue, i,
+                                         p_obj);
 
           if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
             {
@@ -427,7 +429,8 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
               nbufs = move_to_egress (p_obj, pid);
               if (nbufs < 0)
                 {
-                  TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+                  TIZ_LOGN (TIZ_ERROR, ap_hdl,
+                            "[OMX_ErrorInsufficientResources] : "
                             "on port [%d]...", pid);
                   rc = OMX_ErrorInsufficientResources;
                 }
@@ -444,7 +447,8 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
       if (OMX_ErrorNone != rc)
         {
           /* Complete the command with an error event */
-          TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : Flush command failed on port [%d]...",
+          TIZ_LOGN (TIZ_TRACE, ap_hdl,
+                    "[%s] : Flush command failed on port [%d]...",
                     tiz_err_to_str (rc), pid);
           complete_port_flush (p_obj, p_port, pid, rc);
         }
@@ -472,8 +476,8 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
               {
                 void *p_prc = tiz_get_prc (ap_hdl);
                 rc = tiz_api_SendCommand (p_prc, ap_hdl,
-                                         ap_msg_pf->cmd,
-                                         pid, ap_msg_pf->p_cmd_data);
+                                          ap_msg_pf->cmd,
+                                          pid, ap_msg_pf->p_cmd_data);
               }
             }
         }
@@ -503,8 +507,8 @@ dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE p_hdl,
   p_port = get_port (p_obj, pid);
 
   /* Simply enqueue the mark in the port... */
-  return tiz_port_store_mark (p_port, p_mark, OMX_TRUE); /* The port owns this
-                                                         * mark */
+  return tiz_port_store_mark (p_port, p_mark, OMX_TRUE);        /* The port owns this
+                                                                 * mark */
 
 }
 
@@ -603,7 +607,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
         {
           int nbufs = 0;
           /* If we are moving to Idle, move the buffers to ingress so they
-             don't leave the component in the next step */
+           * don't leave the component in the next step */
           nbufs = move_to_ingress (p_obj, pid);
           TIZ_LOGN (TIZ_ERROR, p_hdl, "nbufs [%d]", nbufs);
         }
@@ -611,7 +615,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
       /* Here, we always flush the egress lists for ALL ports */
       if (OMX_ErrorNone != (rc = flush_egress (p_obj, OMX_ALL, OMX_FALSE)))
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[%s] : Could not flush the egress lists",
+          TIZ_LOGN (TIZ_ERROR, p_hdl,
+                    "[%s] : Could not flush the egress lists",
                     tiz_err_to_str (rc));
         }
     }
@@ -632,8 +637,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
             tiz_krn_get_tunneled_ports_status (ap_obj, OMX_TRUE);
 
           if ((ESubStateExecutingToIdle == now || ESubStatePauseToIdle == now)
-              && (ETIZKernelNoTunneledPorts == status
-                  || ETIZKernelTunneledPortsMayInitiateExeToIdle == status))
+              && (ETIZKrnNoTunneledPorts == status
+                  || ETIZKrnTunneledPortsMayInitiateExeToIdle == status))
             {
               /* complete state transition to OMX_StateIdle */
               rc = tiz_fsm_complete_transition
@@ -656,7 +661,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
   OMX_S32 nbufs = 0;
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const OMX_DIRTYPE dir = a_msg_class == ETIZKernelMsgEmptyThisBuffer ?
+  const OMX_DIRTYPE dir = a_msg_class == ETIZKrnMsgEmptyThisBuffer ?
     OMX_DirInput : OMX_DirOutput;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   OMX_U32 pid = 0;
@@ -676,7 +681,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
 
   now = tiz_fsm_get_substate (tiz_get_fsm (p_hdl));
 
-  pid = a_msg_class == ETIZKernelMsgEmptyThisBuffer ?
+  pid = a_msg_class == ETIZKrnMsgEmptyThisBuffer ?
     p_hdr->nInputPortIndex : p_hdr->nOutputPortIndex;
 
   TIZ_LOGN (TIZ_TRACE, p_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
@@ -731,9 +736,9 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
                                 "HEADER [%p]...", pid, nhdrs, *pp_hdr);
 
                       tiz_servant_remove_from_queue (p_obj,
-                                                    &remove_buffer_from_servant_queue,
-                                                    ETIZKernelMsgCallback,
-                                                    *pp_hdr);
+                                                     &remove_buffer_from_servant_queue,
+                                                     ETIZKrnMsgCallback,
+                                                     *pp_hdr);
 
                       {
                         const void *p_prc = tiz_get_prc (p_hdl);
@@ -741,7 +746,8 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
                          * processor servant implementation of
                          * 'remove_from_queue' will replace them with the right
                          * values */
-                        tiz_servant_remove_from_queue (p_prc, NULL, 0, *pp_hdr);
+                        tiz_servant_remove_from_queue (p_prc, NULL, 0,
+                                                       *pp_hdr);
                       }
 
                     }
@@ -773,8 +779,8 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
             tiz_krn_get_tunneled_ports_status (ap_obj, OMX_TRUE);
 
           if (all_buffers_returned (p_obj)
-              && (ETIZKernelNoTunneledPorts == status
-                  || ETIZKernelTunneledPortsMayInitiateExeToIdle == status))
+              && (ETIZKrnNoTunneledPorts == status
+                  || ETIZKrnTunneledPortsMayInitiateExeToIdle == status))
             {
               TIZ_LOGN (TIZ_DEBUG, p_hdl, "Back to idle - status [%d] "
                         "all buffers returned : [TRUE]", status);
@@ -807,13 +813,13 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
 static OMX_ERRORTYPE
 dispatch_etb (void *ap_obj, OMX_PTR ap_msg)
 {
-  return dispatch_efb (ap_obj, ap_msg, ETIZKernelMsgEmptyThisBuffer);
+  return dispatch_efb (ap_obj, ap_msg, ETIZKrnMsgEmptyThisBuffer);
 }
 
 static OMX_ERRORTYPE
 dispatch_ftb (void *ap_obj, OMX_PTR ap_msg)
 {
-  return dispatch_efb (ap_obj, ap_msg, ETIZKernelMsgFillThisBuffer);
+  return dispatch_efb (ap_obj, ap_msg, ETIZKrnMsgFillThisBuffer);
 }
 
 static OMX_ERRORTYPE
@@ -849,8 +855,8 @@ dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   assert (p_msg_sc->cmd <= OMX_CommandMarkBuffer);
 
   return tiz_krn_msg_dispatch_sc_to_fnt_tbl[p_msg_sc->cmd] (p_obj,
-                                                              p_msg->p_hdl,
-                                                              p_msg_sc);
+                                                            p_msg->p_hdl,
+                                                            p_msg_sc);
 }
 
 static OMX_ERRORTYPE
@@ -1007,4 +1013,4 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   return rc;
 }
 
-#endif                          /* TIZKERNEL_DISPATCH_INL */
+#endif /* TIZKERNEL_DISPATCH_INL */

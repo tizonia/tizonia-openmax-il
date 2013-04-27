@@ -2071,7 +2071,7 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
 
   /* Init the kernel */
   tiz_krn_init ();
-  ap_sched->child.p_ker = factory_new (tizkernel, p_hdl);
+  ap_sched->child.p_ker = factory_new (tizkrn, p_hdl);
 
   /* All servants will use the same small object allocator */
   tiz_check_omx_err_ret_oom

@@ -233,7 +233,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         tiz_krn_tunneled_ports_status_t status =
           tiz_krn_get_tunneled_ports_status (p_krn, OMX_TRUE);
 
-        if (ETIZKernelTunneledPortsAcceptNone == status)
+        if (ETIZKrnTunneledPortsAcceptNone == status)
           {
             TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                            "wait until all the tunneled supplier neighbours have "
