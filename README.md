@@ -4,6 +4,8 @@ tizonia-openmax-il
 An experimental implementation for Linux of the OpenMAX IL 1.2 provisional
 specification.
 
+_This is a highly experimental, rapidly-changing project. APIs might change overnight._
+
 Tizonia OpenMAX IL consists of a number of resources:
 
 * An almost complete implementation of a base OpenMAX IL 1.2 component library
