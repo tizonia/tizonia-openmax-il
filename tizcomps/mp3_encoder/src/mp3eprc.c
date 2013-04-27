@@ -51,7 +51,7 @@ static OMX_ERRORTYPE
 relinquish_any_buffers_held (const void *ap_obj)
 {
   mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   if (p_obj->p_inhdr_)
@@ -94,7 +94,7 @@ static OMX_ERRORTYPE
 encode_buffer (const void *ap_obj)
 {
   mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   int nsamples = 0;
   int encoded_bytes = 0;
 
@@ -199,7 +199,7 @@ lame_debugf (const char *format, va_list ap)
 static bool
 claim_input (const void *ap_obj)
 {
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -221,7 +221,7 @@ claim_input (const void *ap_obj)
 static bool
 claim_output (const void *ap_obj)
 {
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -391,14 +391,14 @@ mp3e_proc_dtor (void *ap_obj)
 }
 
 /*
- * from tiz_servant class
+ * from tiz_srv class
  */
 
 static OMX_ERRORTYPE
 mp3e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   mp3e_prc_t *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   assert (ap_obj);
 
   if (NULL == (p_obj->lame_ = lame_init ()))
@@ -440,7 +440,7 @@ static OMX_ERRORTYPE
 mp3e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   mp3e_prc_t *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   void *p_krn = NULL;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
@@ -503,7 +503,7 @@ static OMX_ERRORTYPE
 mp3e_proc_buffers_ready (const void *ap_obj)
 {
   mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   while (1)
@@ -594,11 +594,11 @@ mp3e_prc_init (void)
          sizeof (mp3e_prc_t),
          ctor, mp3e_proc_ctor,
          dtor, mp3e_proc_dtor,
-         tiz_servant_allocate_resources, mp3e_proc_allocate_resources,
-         tiz_servant_deallocate_resources, mp3e_proc_deallocate_resources,
-         tiz_servant_prepare_to_transfer, mp3e_proc_prepare_to_transfer,
-         tiz_servant_transfer_and_process, mp3e_proc_transfer_and_process,
-         tiz_servant_stop_and_return, mp3e_proc_stop_and_return,
+         tiz_srv_allocate_resources, mp3e_proc_allocate_resources,
+         tiz_srv_deallocate_resources, mp3e_proc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, mp3e_proc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, mp3e_proc_transfer_and_process,
+         tiz_srv_stop_and_return, mp3e_proc_stop_and_return,
          tiz_proc_buffers_ready, mp3e_proc_buffers_ready,
          tiz_proc_port_flush, mp3e_proc_port_flush,
          tiz_proc_port_disable, mp3e_proc_port_disable,

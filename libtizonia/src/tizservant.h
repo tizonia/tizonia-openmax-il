@@ -41,71 +41,71 @@ extern "C"
 #include "tizapi.h"
 #include "tizscheduler.h"
 
-  extern const void *tizservant;
-  extern const void *tizservant_class;
-  void tiz_servant_init (void);
+  extern const void *tizsrv;
+  extern const void *tizsrv_class;
+  void tiz_srv_init (void);
 
-  OMX_ERRORTYPE tiz_servant_set_allocator (void *ap_obj, tiz_soa_t * p_soa);
+  OMX_ERRORTYPE tiz_srv_set_allocator (void *ap_obj, tiz_soa_t * p_soa);
 
-  void tiz_servant_set_callbacks (void *ap_obj, OMX_PTR ap_appdata,
+  void tiz_srv_set_callbacks (void *ap_obj, OMX_PTR ap_appdata,
                                  OMX_CALLBACKTYPE * ap_cbacks);
 
-  OMX_ERRORTYPE tiz_servant_tick (const void *ap_obj);
+  OMX_ERRORTYPE tiz_srv_tick (const void *ap_obj);
 
-  OMX_PTR tiz_servant_init_msg (void *ap_obj, size_t msg_sz);
+  OMX_PTR tiz_srv_init_msg (void *ap_obj, size_t msg_sz);
 
-  OMX_ERRORTYPE tiz_servant_enqueue (const void *ap_obj, OMX_PTR ap_data,
+  OMX_ERRORTYPE tiz_srv_enqueue (const void *ap_obj, OMX_PTR ap_data,
                                     OMX_U32 a_priority);
 
-  OMX_ERRORTYPE tiz_servant_remove_from_queue (const void *ap_obj,
+  OMX_ERRORTYPE tiz_srv_remove_from_queue (const void *ap_obj,
                                               tiz_pq_func_f apf_func,
                                               OMX_S32 a_data1,
                                               OMX_PTR ap_data2);
 
-  OMX_ERRORTYPE tiz_servant_dispatch_msg (const void *ap_obj, OMX_PTR ap_data);
+  OMX_ERRORTYPE tiz_srv_dispatch_msg (const void *ap_obj, OMX_PTR ap_data);
 
-  OMX_HANDLETYPE tiz_servant_get_hdl (const void *ap_obj);
+  OMX_HANDLETYPE tiz_srv_get_hdl (const void *ap_obj);
 
-  OMX_BOOL tiz_servant_is_ready (const void *ap_obj);
+  OMX_BOOL tiz_srv_is_ready (const void *ap_obj);
 
-  OMX_ERRORTYPE tiz_servant_allocate_resources (const void *ap_obj,
+  OMX_ERRORTYPE tiz_srv_allocate_resources (const void *ap_obj,
                                                OMX_U32 a_pid);
 
-  OMX_ERRORTYPE tiz_servant_deallocate_resources (const void *ap_obj);
+  OMX_ERRORTYPE tiz_srv_deallocate_resources (const void *ap_obj);
 
-  OMX_ERRORTYPE tiz_servant_prepare_to_transfer (const void *ap_obj,
+  OMX_ERRORTYPE tiz_srv_prepare_to_transfer (const void *ap_obj,
                                                 OMX_U32 a_pid);
 
-  OMX_ERRORTYPE tiz_servant_transfer_and_process (const void *ap_obj,
+  OMX_ERRORTYPE tiz_srv_transfer_and_process (const void *ap_obj,
                                                  OMX_U32 a_pid);
 
-  OMX_ERRORTYPE tiz_servant_stop_and_return (const void *ap_obj);
+  OMX_ERRORTYPE tiz_srv_stop_and_return (const void *ap_obj);
 
   /*
    * Event/callback handling
    */
 
-  void tiz_servant_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
+  void tiz_srv_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
                                OMX_U32 a_data1, OMX_U32 a_data2,
                                OMX_PTR ap_eventdata);
 
-  void tiz_servant_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error);
+  void tiz_srv_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error);
 
-  void tiz_servant_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
+  void tiz_srv_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
                                    OMX_U32 a_pid, OMX_ERRORTYPE a_error);
 
-  void tiz_servant_issue_trans_event (const void *ap_obj,
+  void tiz_srv_issue_trans_event (const void *ap_obj,
                                      OMX_STATETYPE a_state,
                                      OMX_ERRORTYPE a_error);
 
-  void tiz_servant_issue_buf_callback (const void *ap_obj,
+  void tiz_srv_issue_buf_callback (const void *ap_obj,
                                       OMX_BUFFERHEADERTYPE * p_hdr,
                                       OMX_U32 pid,
                                       OMX_DIRTYPE dir,
                                       OMX_HANDLETYPE ap_tcomp);
 
   /* Pluggable events interface */
-  OMX_ERRORTYPE tiz_servant_receive_pluggable_event (const void *ap_obj,
+  OMX_ERRORTYPE tiz_srv_receive_pluggable_event (const void *ap_obj,
                                                     OMX_HANDLETYPE ap_hdl,
                                                     tiz_event_pluggable_t * ap_event);
 

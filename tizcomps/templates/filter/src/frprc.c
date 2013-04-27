@@ -30,17 +30,15 @@
 #include <config.h>
 #endif
 
+#include "frprc.h"
+#include "frprc_decls.h"
+#include "tizkernel.h"
+#include "tizscheduler.h"
+#include "tizosal.h"
+
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
-#include "frprc.h"
-#include "frprc_decls.h"
-
-#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -67,94 +65,46 @@ fr_proc_ctor (void *ap_obj, va_list * app)
 static void *
 fr_proc_dtor (void *ap_obj)
 {
-  struct frprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing frprc...[%p]", p_obj);
   return super_dtor (frprc, ap_obj);
 }
 
 static OMX_ERRORTYPE
 fr_proc_transform_buffer (const void *ap_obj)
 {
-  struct frprc *p_obj = (struct frprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
-  (void) p_parent;
-  (void) p_obj;
   return OMX_ErrorNone;
 }
 
 /*
- * from tizservant class
+ * from tizsrv class
  */
 
 static OMX_ERRORTYPE
 fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct frprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
-  assert (ap_obj);
-
-  (void) p_parent;
-  (void) p_obj;
-
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "Resource allocation complete..." "pid = [%d]", a_pid);
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 fr_proc_deallocate_resources (void *ap_obj)
 {
-  struct frprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
-  assert (ap_obj);
-
-  (void) p_parent;
-  (void) p_obj;
-
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "Resource deallocation complete...");
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  const struct tizservant *p_parent = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG_CNAME (TIZ_LOG_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "Transfering buffers...pid [%d]", a_pid);
-
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
 fr_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  assert (ap_obj);
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 fr_proc_stop_and_return (void *ap_obj)
 {
-  struct frprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
-
-  assert (ap_obj);
-
-  (void) p_obj;
-  (void) p_parent;
-
   return OMX_ErrorNone;
 }
 
@@ -165,18 +115,18 @@ fr_proc_stop_and_return (void *ap_obj)
 static bool
 claim_input (const void *ap_obj)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tizsrv *p_parent = ap_obj;
   struct frprc *p_obj = (struct frprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_PD_ZERO (&ports);
-  TIZ_UTIL_TEST_ERR (tizkernel_select (p_krn, 2, &ports));
+  TIZ_UTIL_TEST_ERR (tiz_krn_select (p_krn, 2, &ports));
 
   /* We need one input buffers */
   if (TIZ_PD_ISSET (0, &ports))
     {
-      TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer
+      TIZ_UTIL_TEST_ERR (tiz_krn_claim_buffer
                          (p_krn, 0, 0, &p_obj->pinhdr_));
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
@@ -195,18 +145,18 @@ claim_input (const void *ap_obj)
 static bool
 claim_output (const void *ap_obj)
 {
-  const struct tizservant *p_parent = ap_obj;
+  const struct tizsrv *p_parent = ap_obj;
   struct frprc *p_obj = (struct frprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_PD_ZERO (&ports);
-  TIZ_UTIL_TEST_ERR (tizkernel_select (p_krn, 2, &ports));
+  TIZ_UTIL_TEST_ERR (tiz_krn_select (p_krn, 2, &ports));
 
   /* We need one output buffers */
   if (TIZ_PD_ISSET (1, &ports))
     {
-      TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer
+      TIZ_UTIL_TEST_ERR (tiz_krn_claim_buffer
                          (p_krn, 1, 0, &p_obj->pouthdr_));
       TIZ_LOG_CNAME (TIZ_LOG_TRACE, TIZ_CNAME (p_parent->p_hdl_),
                      TIZ_CBUF (p_parent->p_hdl_),
@@ -223,7 +173,7 @@ static OMX_ERRORTYPE
 fr_proc_buffers_ready (const void *ap_obj)
 {
   struct frprc *p_obj = (struct frprc *) ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tizsrv *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_LOG_CNAME (TIZ_LOG_TRACE,
@@ -253,7 +203,7 @@ fr_proc_buffers_ready (const void *ap_obj)
       if (p_obj->pinhdr_ && (0 == p_obj->pinhdr_->nFilledLen))
         {
           p_obj->pinhdr_->nOffset = 0;
-          tizkernel_relinquish_buffer (p_krn, 0, p_obj->pinhdr_);
+          tiz_krn_relinquish_buffer (p_krn, 0, p_obj->pinhdr_);
           p_obj->pinhdr_ = NULL;
         }
     }
@@ -267,7 +217,7 @@ fr_proc_buffers_ready (const void *ap_obj)
                      TIZ_CBUF (p_parent->p_hdl_),
                      "p_obj->eos OUTPUT HEADER [%p]...", p_obj->pouthdr_);
       p_obj->pouthdr_->nFlags |= OMX_BUFFERFLAG_EOS;
-      tizkernel_relinquish_buffer (p_krn, 1, p_obj->pouthdr_);
+      tiz_krn_relinquish_buffer (p_krn, 1, p_obj->pouthdr_);
       p_obj->pouthdr_ = NULL;
     }
 
@@ -286,7 +236,6 @@ init_frprc (void)
 
   if (!frprc)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing frprc...");
       init_tizproc ();
       frprc =
         factory_new
@@ -297,11 +246,11 @@ init_frprc (void)
          ctor, fr_proc_ctor,
          dtor, fr_proc_dtor,
          tizproc_buffers_ready, fr_proc_buffers_ready,
-         tizservant_allocate_resources, fr_proc_allocate_resources,
-         tizservant_deallocate_resources, fr_proc_deallocate_resources,
-         tizservant_prepare_to_transfer, fr_proc_prepare_to_transfer,
-         tizservant_transfer_and_process, fr_proc_transfer_and_process,
-         tizservant_stop_and_return, fr_proc_stop_and_return, 0);
+         tiz_srv_allocate_resources, fr_proc_allocate_resources,
+         tiz_srv_deallocate_resources, fr_proc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, fr_proc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, fr_proc_transfer_and_process,
+         tiz_srv_stop_and_return, fr_proc_stop_and_return, 0);
     }
 
 }

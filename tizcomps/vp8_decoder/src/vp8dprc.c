@@ -612,7 +612,7 @@ static void
 relinquish_any_buffers_held (const void *ap_obj)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
-  void *p_krn = tiz_get_krn (tiz_servant_get_hdl (p_obj));
+  void *p_krn = tiz_get_krn (tiz_srv_get_hdl (p_obj));
 
   assert (NULL != ap_obj);
 
@@ -662,14 +662,14 @@ vp8d_proc_dtor (void *ap_obj)
 }
 
 /*
- * from tiz_servant class
+ * from tiz_srv class
  */
 
 static OMX_ERRORTYPE
 vp8d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   vpx_codec_err_t err = VPX_CODEC_OK;
   int flags = 0;
 
@@ -737,7 +737,7 @@ static OMX_ERRORTYPE
 vp8d_proc_buffers_ready (const void *ap_obj)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
 
   assert (NULL != p_parent);
   assert (NULL != p_parent->p_hdl_);
@@ -790,11 +790,11 @@ vp8d_prc_init (void)
          sizeof (vp8d_prc_t),
          ctor, vp8d_proc_ctor,
          dtor, vp8d_proc_dtor,
-         tiz_servant_allocate_resources, vp8d_proc_allocate_resources,
-         tiz_servant_deallocate_resources, vp8d_proc_deallocate_resources,
-         tiz_servant_prepare_to_transfer, vp8d_proc_prepare_to_transfer,
-         tiz_servant_transfer_and_process, vp8d_proc_transfer_and_process,
-         tiz_servant_stop_and_return, vp8d_proc_stop_and_return,
+         tiz_srv_allocate_resources, vp8d_proc_allocate_resources,
+         tiz_srv_deallocate_resources, vp8d_proc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, vp8d_proc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, vp8d_proc_transfer_and_process,
+         tiz_srv_stop_and_return, vp8d_proc_stop_and_return,
          tiz_proc_buffers_ready, vp8d_proc_buffers_ready,
          tiz_proc_port_flush, vp8d_proc_port_flush,
          tiz_proc_port_disable, vp8d_proc_port_disable,

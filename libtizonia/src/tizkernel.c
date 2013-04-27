@@ -45,7 +45,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.kernel"
+#define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.krn"
 #endif
 
 #define TIZ_KRN_INIT_MSG_OOM(obj,hdl,msg,msgtype)                       \
@@ -355,7 +355,7 @@ krn_SetParameter (const void *ap_obj,
                       OMX_INDEXTYPE *p_idx = tiz_vector_at (p_changed_idxs, i);
                       assert (p_idx != NULL);
                       /* Trigger here a port settings changed event */
-                      tiz_servant_issue_event (p_obj,
+                      tiz_srv_issue_event (p_obj,
                                                OMX_EventPortSettingsChanged,
                                                mos_pid, *p_idx, NULL);
                     }
@@ -545,7 +545,7 @@ krn_SendCommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   p_msg_sc->cmd = a_cmd;
   p_msg_sc->param1 = a_param1;
   p_msg_sc->p_cmd_data = ap_cmd_data;
-  return tiz_servant_enqueue (ap_obj, p_msg, cmd_to_priority (a_cmd));
+  return tiz_srv_enqueue (ap_obj, p_msg, cmd_to_priority (a_cmd));
 }
 
 static OMX_ERRORTYPE
@@ -785,7 +785,7 @@ krn_FreeBuffer (const void *ap_obj,
 
     if (issue_unpop)
       {
-        tiz_servant_issue_err_event (p_obj, OMX_ErrorPortUnpopulated);
+        tiz_srv_issue_err_event (p_obj, OMX_ErrorPortUnpopulated);
       }
 
     buf_count = tiz_port_buffer_count (p_port);
@@ -816,7 +816,7 @@ krn_EmptyThisBuffer (const void *ap_obj,
 
   p_etb = &(p_msg->ef);
   p_etb->p_hdr = ap_hdr;
-  return tiz_servant_enqueue (ap_obj, p_msg, 2);
+  return tiz_srv_enqueue (ap_obj, p_msg, 2);
 }
 
 static OMX_ERRORTYPE
@@ -835,11 +835,11 @@ krn_FillThisBuffer (const void *ap_obj,
 
   p_msg_ftb = &(p_msg->ef);
   p_msg_ftb->p_hdr = ap_hdr;
-  return tiz_servant_enqueue (ap_obj, p_msg, 2);
+  return tiz_srv_enqueue (ap_obj, p_msg, 2);
 }
 
 /*
- * from tiz_servant api
+ * from tiz_srv api
  */
 
 static OMX_ERRORTYPE
@@ -852,7 +852,7 @@ krn_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj), "Processing [%s]...",
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj), "Processing [%s]...",
             krn_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZKrnMsgMax);
@@ -873,7 +873,7 @@ krn_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   assert (NULL != ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
             "port index [%d]...", a_pid);
 
   /* Verify the port index.. */
@@ -889,10 +889,10 @@ krn_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
       /* This function will do nothing if it doesn't have to, e.g. because the
        * port isn't tunneled, or is disabled, etc. */
-      tiz_port_update_tunneled_status (p_port, tiz_servant_get_hdl (p_obj),
+      tiz_port_update_tunneled_status (p_port, tiz_srv_get_hdl (p_obj),
                                        OMX_PORTSTATUS_ACCEPTUSEBUFFER);
 
-      TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                 "pid [%d] enabled [%s] tunneled [%s] "
                 "supplier [%s] populated [%s]..", pid,
                 TIZ_PORT_IS_ENABLED (p_port) ? "YES" : "NO",
@@ -904,9 +904,9 @@ krn_allocate_resources (void *ap_obj, OMX_U32 a_pid)
         {
           const OMX_BOOL being_enabled = TIZ_PORT_IS_BEING_ENABLED (p_port);
           if (OMX_ErrorNone != (rc = tiz_port_populate (p_port,
-                                                        tiz_servant_get_hdl (p_obj))))
+                                                        tiz_srv_get_hdl (p_obj))))
             {
-              TIZ_LOGN (TIZ_ERROR, tiz_servant_get_hdl (p_obj),
+              TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_obj),
                         "[%s] : While populating port [%d] ",
                         tiz_err_to_str (rc), pid);
               return rc;
@@ -951,7 +951,7 @@ krn_deallocate_resources (void *ap_obj)
         }
     }
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
             "[%s] : ALL depopulated [%s]...", tiz_err_to_str (rc),
             all_depopulated (p_obj) ? "TRUE" : "FALSE");
   return rc;
@@ -970,7 +970,7 @@ krn_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   assert (NULL != ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj), "pid [%d]", a_pid);
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj), "pid [%d]", a_pid);
 
   if ((OMX_ALL != a_pid) && (check_pid (p_obj, a_pid) != OMX_ErrorNone))
     {
@@ -996,7 +996,7 @@ krn_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
           if (OMX_ErrorNone !=
               (rc = append_buflsts (p_dst2darr, p_srclst, pid)))
             {
-              TIZ_LOGN (TIZ_ERROR, tiz_servant_get_hdl (p_obj),
+              TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_obj),
                         "[%s] : on port [%d] while appending "
                         "buffer lists", tiz_err_to_str (rc), pid);
               return rc;
@@ -1023,7 +1023,7 @@ krn_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
   assert (NULL != ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj), "T&P pid [%d]", a_pid);
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj), "T&P pid [%d]", a_pid);
 
   if ((OMX_ALL != a_pid) && (check_pid (p_obj, a_pid) != OMX_ErrorNone))
     {
@@ -1037,7 +1037,7 @@ krn_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 
       /* This function will do nothing if it doesn't have to, e.g. because the
        * port isn't tunneled, or is disabled, etc. */
-      tiz_port_update_tunneled_status (p_port, tiz_servant_get_hdl (p_obj),
+      tiz_port_update_tunneled_status (p_port, tiz_srv_get_hdl (p_obj),
                                        OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
       flush_egress (p_obj, pid, OMX_TRUE);
       propagate_ingress (p_obj, pid);
@@ -1060,7 +1060,7 @@ krn_stop_and_return (void *ap_obj)
   assert (NULL != ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj), "stop and return...[%p]",
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj), "stop and return...[%p]",
             ap_obj);
 
   for (i = 0; i < nports && OMX_ErrorNone == rc; ++i)
@@ -1076,17 +1076,17 @@ krn_stop_and_return (void *ap_obj)
          kernel's servant queue into the corresponding port ingress list. This
          guarantees that all buffers received by the component are correctly
          returned during stop */
-      tiz_servant_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
+      tiz_srv_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
                                      OMX_ALL, p_obj);
 
       /* OMX_CommandFlush is used to notify the processor servant that it has
          to return some buffers ... */
       if (TIZ_PORT_GET_CLAIMED_COUNT (p_port) >= 0)
         {
-          void *p_prc        = tiz_get_prc (tiz_servant_get_hdl (p_obj));
+          void *p_prc        = tiz_get_prc (tiz_srv_get_hdl (p_obj));
           if (OMX_ErrorNone
               != (rc = tiz_api_SendCommand (p_prc,
-                                            tiz_servant_get_hdl (p_obj),
+                                            tiz_srv_get_hdl (p_obj),
                                             OMX_CommandFlush,
                                             i, NULL)))
             {
@@ -1098,11 +1098,11 @@ krn_stop_and_return (void *ap_obj)
         {
           /* Move buffers from egress to ingress */
           nbufs = move_to_ingress (p_obj, i);
-          TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                     "Moved [%d] tunnel buffers to ingress", nbufs);
           if (nbufs < 0)
             {
-              TIZ_LOGN (TIZ_ERROR, tiz_servant_get_hdl (p_obj),
+              TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_obj),
                         "[OMX_ErrorInsufficientResources] - nbufs [%d]",
                         nbufs);
               rc = OMX_ErrorInsufficientResources;
@@ -1110,7 +1110,7 @@ krn_stop_and_return (void *ap_obj)
 
           /* This function will do nothing if the port is disabled, for
            * example */
-          tiz_port_update_tunneled_status (p_port, tiz_servant_get_hdl (p_obj),
+          tiz_port_update_tunneled_status (p_port, tiz_srv_get_hdl (p_obj),
                                            OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
 
           continue;
@@ -1118,11 +1118,11 @@ krn_stop_and_return (void *ap_obj)
 
       /* Move buffers from ingress to egress */
       nbufs = move_to_egress (p_obj, i);
-      TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                 "Moved [%d] non-tunnel buffers to egress", nbufs);
       if (nbufs < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, tiz_servant_get_hdl (p_obj),
+          TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_obj),
                     "[OMX_ErrorInsufficientResources] - nbufs [%d]", nbufs);
           rc = OMX_ErrorInsufficientResources;
         }
@@ -1149,7 +1149,7 @@ krn_receive_pluggable_event (const void *ap_obj,
 
   p_plgevt = &(p_msg->pe);
   p_plgevt->p_event = ap_event;
-  return tiz_servant_enqueue (ap_obj, p_msg, 2);
+  return tiz_srv_enqueue (ap_obj, p_msg, 2);
 }
 
 /*
@@ -1299,7 +1299,7 @@ krn_find_managing_port (const tiz_krn_t * ap_krn,
   if (OMX_ErrorNone == tiz_port_find_index (ap_krn->p_cport_, a_index))
     {
       *app_port = ap_krn->p_cport_;
-      TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (ap_krn),
+      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_krn),
                 "[%s] : Config port being searched. "
                 "Returning...", tiz_idx_to_str (a_index));
       return OMX_ErrorNone;
@@ -1329,7 +1329,7 @@ krn_find_managing_port (const tiz_krn_t * ap_krn,
               return rc;
             }
 
-          TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (ap_krn),
+          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_krn),
                     "[%s] : Found in port index [%d]...",
                     tiz_idx_to_str (a_index), *p_port_index);
 
@@ -1339,7 +1339,7 @@ krn_find_managing_port (const tiz_krn_t * ap_krn,
         }
     }
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (ap_krn),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_krn),
             "[%s] : Could not find the managing port...",
             tiz_idx_to_str (a_index));
 
@@ -1516,7 +1516,7 @@ krn_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
   tiz_vector_t *p_list = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   OMX_PTR p_port = NULL;
-  OMX_HANDLETYPE hdl = tiz_servant_get_hdl (p_obj);
+  OMX_HANDLETYPE hdl = tiz_srv_get_hdl (p_obj);
   OMX_DIRTYPE pdir = OMX_DirMax;
 
   assert (NULL != ap_obj);
@@ -1629,7 +1629,7 @@ krn_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
   /* Grab the port's egress list */
   p_list = get_egress_lst (p_obj, a_pid);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
             "HEADER [%p] pid [%d] egress length [%d]...",
             ap_hdr, a_pid, tiz_vector_length (p_list));
 
@@ -1714,14 +1714,14 @@ krn_get_tunneled_ports_status (const void *ap_obj,
             if (!TIZ_PORT_MAY_CALL_USE_BUFFER (*pp_port))
               {
                 status &= ~(OMX_PORTSTATUS_ACCEPTUSEBUFFER);
-                TIZ_LOGN (TIZ_DEBUG, tiz_servant_get_hdl (p_obj),
+                TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
                           "TIZ_PORT_MAY_CALL_USE_BUFFER = FALSE status [0x%08X]",
                           status);
               }
             if (!TIZ_PORT_MAY_EXCHANGE_BUFFERS (*pp_port))
               {
                 status &= ~(OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
-                TIZ_LOGN (TIZ_DEBUG, tiz_servant_get_hdl (p_obj),
+                TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
                           "TIZ_PORT_MAY_EXCHANGE_BUFFERS = FALSE status [0x%08X]",
                           status);
               }
@@ -1734,20 +1734,20 @@ krn_get_tunneled_ports_status (const void *ap_obj,
             if (!TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE (*pp_port))
               {
                 status &= ~(OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
-                TIZ_LOGN (TIZ_DEBUG, tiz_servant_get_hdl (p_obj),
+                TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
                           "TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE = FALSE status [0x%08X]",
                           status);
               }
             else
               {
-                TIZ_LOGN (TIZ_DEBUG, tiz_servant_get_hdl (p_obj),
+                TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
                           "TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE = TRUE status [0x%08X]",
                           status);
               }
           }
         else
           {
-            TIZ_LOGN (TIZ_DEBUG, tiz_servant_get_hdl (p_obj),
+            TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
                       "NOT TUNNELED pid [%d]", tiz_port_index (*pp_port));
           }
       }
@@ -1796,7 +1796,7 @@ krn_get_tunneled_ports_status (const void *ap_obj,
       }
   }
 
-  TIZ_LOGN (TIZ_DEBUG, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
             "status_report [%d]", status_report);
 
   assert (ETIZKrnTunneledPortsMax != status_report);
@@ -1863,7 +1863,7 @@ krn_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag)
       {
         p_port = get_port (p_obj, i);
         tiz_port_reset_tunneled_port_status_flag (p_port,
-                                                  tiz_servant_get_hdl (p_obj),
+                                                  tiz_srv_get_hdl (p_obj),
                                                   a_port_status_flag);
       }
     while (i-- != 0);
@@ -1964,22 +1964,22 @@ tiz_krn_init (void)
 {
   if (!tizkrn_class)
     {
-      tiz_servant_init ();
-      tizkrn_class = factory_new (tizservant_class,
+      tiz_srv_init ();
+      tizkrn_class = factory_new (tizsrv_class,
                                   "tizkrn_class",
-                                  tizservant_class,
+                                  tizsrv_class,
                                   sizeof (tiz_krn_class_t),
                                   ctor, krn_class_ctor, 0);
     }
 
   if (!tizkrn)
     {
-      tiz_servant_init ();
+      tiz_srv_init ();
       tizkrn =
         factory_new
         (tizkrn_class,
          "tizkrn",
-         tizservant,
+         tizsrv,
          sizeof (tiz_krn_t),
          ctor, krn_ctor,
          dtor, krn_dtor,
@@ -1996,13 +1996,13 @@ tiz_krn_init (void)
          tiz_api_FreeBuffer, krn_FreeBuffer,
          tiz_api_EmptyThisBuffer, krn_EmptyThisBuffer,
          tiz_api_FillThisBuffer, krn_FillThisBuffer,
-         tiz_servant_dispatch_msg, krn_dispatch_msg,
-         tiz_servant_allocate_resources, krn_allocate_resources,
-         tiz_servant_deallocate_resources, krn_deallocate_resources,
-         tiz_servant_prepare_to_transfer, krn_prepare_to_transfer,
-         tiz_servant_transfer_and_process, krn_transfer_and_process,
-         tiz_servant_stop_and_return, krn_stop_and_return,
-         tiz_servant_receive_pluggable_event,
+         tiz_srv_dispatch_msg, krn_dispatch_msg,
+         tiz_srv_allocate_resources, krn_allocate_resources,
+         tiz_srv_deallocate_resources, krn_deallocate_resources,
+         tiz_srv_prepare_to_transfer, krn_prepare_to_transfer,
+         tiz_srv_transfer_and_process, krn_transfer_and_process,
+         tiz_srv_stop_and_return, krn_stop_and_return,
+         tiz_srv_receive_pluggable_event,
          krn_receive_pluggable_event, tiz_krn_register_port,
          krn_register_port, tiz_krn_get_port, krn_get_port,
          tiz_krn_find_managing_port, krn_find_managing_port,

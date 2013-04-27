@@ -131,7 +131,7 @@ ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 }
 
 /*
- * from tiz_servant class
+ * from tiz_srv class
  */
 static char *
 get_alsa_device (void *ap_obj)
@@ -229,7 +229,7 @@ static OMX_ERRORTYPE
 ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   ar_prc_t *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   int err;
@@ -317,7 +317,7 @@ ar_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 ar_proc_buffers_ready (const void *ap_obj)
 {
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -334,7 +334,7 @@ ar_proc_buffers_ready (const void *ap_obj)
       if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
         {
           TIZ_LOG (TIZ_DEBUG, "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
-          tiz_servant_issue_event ((OMX_PTR) ap_obj,
+          tiz_srv_issue_event ((OMX_PTR) ap_obj,
                                   OMX_EventBufferFlag,
                                   0, p_hdr->nFlags, NULL);
         }
@@ -364,11 +364,11 @@ ar_prc_init (void)
          sizeof (ar_prc_t),
          ctor, ar_proc_ctor,
          dtor, ar_proc_dtor,
-         tiz_servant_allocate_resources, ar_proc_allocate_resources,
-         tiz_servant_deallocate_resources, ar_proc_deallocate_resources,
-         tiz_servant_prepare_to_transfer, ar_proc_prepare_to_transfer,
-         tiz_servant_transfer_and_process, ar_proc_transfer_and_process,
-         tiz_servant_stop_and_return, ar_proc_stop_and_return,
+         tiz_srv_allocate_resources, ar_proc_allocate_resources,
+         tiz_srv_deallocate_resources, ar_proc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, ar_proc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, ar_proc_transfer_and_process,
+         tiz_srv_stop_and_return, ar_proc_stop_and_return,
          tiz_proc_buffers_ready, ar_proc_buffers_ready, 0);
     }
 }

@@ -113,7 +113,7 @@ extern "C"
   struct tiz_krn
   {
     /* Object */
-    const tiz_servant_t _;
+    const tiz_srv_t _;
     tiz_vector_t *p_ports_;
     tiz_vector_t *p_ingress_;
     tiz_vector_t *p_egress_;
@@ -172,7 +172,7 @@ extern "C"
   struct tiz_krn_class
   {
     /* Class */
-    const tiz_servant_class_t _;
+    const tiz_srv_class_t _;
 
     OMX_ERRORTYPE (*register_port) (const void *ap_obj, OMX_PTR ap_port,
                                     OMX_BOOL ais_config);

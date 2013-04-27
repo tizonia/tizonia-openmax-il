@@ -42,7 +42,7 @@ extern "C"
   struct tiz_fsm
   {
     /* Object */
-    const tiz_servant_t _;
+    const tiz_srv_t _;
     void *p_states_[EStateMax];
     tiz_fsm_state_id_t cur_state_id_;
     tiz_fsm_state_id_t canceled_substate_id_;
@@ -56,7 +56,7 @@ extern "C"
   struct tiz_fsm_class
   {
     /* Class */
-    const tiz_servant_class_t _;
+    const tiz_srv_class_t _;
 
     OMX_ERRORTYPE (*set_state) (void *p_obj,
                                 tiz_fsm_state_id_t a_new_state,

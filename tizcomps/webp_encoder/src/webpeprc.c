@@ -76,21 +76,21 @@ static OMX_ERRORTYPE
 webpe_proc_transform_buffer (const void *ap_obj)
 {
   struct webpeprc *p_obj = (struct webpeprc *) ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   (void) p_parent;
   (void) p_obj;
   return OMX_ErrorNone;
 }
 
 /*
- * from tiz_servant class
+ * from tiz_srv class
  */
 
 static OMX_ERRORTYPE
 webpe_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   struct webpeprc *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   assert (ap_obj);
 
   (void) p_parent;
@@ -108,7 +108,7 @@ static OMX_ERRORTYPE
 webpe_proc_deallocate_resources (void *ap_obj)
 {
   struct webpeprc *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   assert (ap_obj);
 
   (void) p_parent;
@@ -125,7 +125,7 @@ webpe_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 webpe_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   assert (ap_obj);
 
   TIZ_LOG_CNAME (TIZ_TRACE,
@@ -148,7 +148,7 @@ static OMX_ERRORTYPE
 webpe_proc_stop_and_return (void *ap_obj)
 {
   struct webpeprc *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
 
   assert (ap_obj);
 
@@ -165,7 +165,7 @@ webpe_proc_stop_and_return (void *ap_obj)
 static bool
 claim_input (const void *ap_obj)
 {
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   struct webpeprc *p_obj = (struct webpeprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -195,7 +195,7 @@ claim_input (const void *ap_obj)
 static bool
 claim_output (const void *ap_obj)
 {
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   struct webpeprc *p_obj = (struct webpeprc *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
@@ -223,7 +223,7 @@ static OMX_ERRORTYPE
 webpe_proc_buffers_ready (const void *ap_obj)
 {
   struct webpeprc *p_obj = (struct webpeprc *) ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
 
   TIZ_LOG_CNAME (TIZ_TRACE,
@@ -297,11 +297,11 @@ init_webpeprc (void)
          ctor, webpe_proc_ctor,
          dtor, webpe_proc_dtor,
          tiz_proc_buffers_ready, webpe_proc_buffers_ready,
-         tiz_servant_allocate_resources, webpe_proc_allocate_resources,
-         tiz_servant_deallocate_resources, webpe_proc_deallocate_resources,
-         tiz_servant_prepare_to_transfer, webpe_proc_prepare_to_transfer,
-         tiz_servant_transfer_and_process, webpe_proc_transfer_and_process,
-         tiz_servant_stop_and_return, webpe_proc_stop_and_return, 0);
+         tiz_srv_allocate_resources, webpe_proc_allocate_resources,
+         tiz_srv_deallocate_resources, webpe_proc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, webpe_proc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, webpe_proc_transfer_and_process,
+         tiz_srv_stop_and_return, webpe_proc_stop_and_return, 0);
     }
 
 }

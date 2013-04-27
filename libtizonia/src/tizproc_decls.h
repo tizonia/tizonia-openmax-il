@@ -43,7 +43,7 @@ extern "C"
   struct tiz_proc
   {
     /* Object */
-    const tiz_servant_t _;
+    const tiz_srv_t _;
   };
 
     OMX_ERRORTYPE
@@ -53,7 +53,7 @@ extern "C"
   struct tiz_proc_class
   {
     /* Class */
-    const tiz_servant_class_t _;
+    const tiz_srv_class_t _;
     OMX_ERRORTYPE (*buffers_ready) (const void *p_obj);
     OMX_ERRORTYPE (*port_flush) (const void *p_obj, OMX_U32 a_pid);
     OMX_ERRORTYPE (*port_disable) (const void *p_obj, OMX_U32 a_pid);

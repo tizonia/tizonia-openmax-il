@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /**
  * @file   frprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
@@ -29,18 +30,15 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <stdio.h>
-
 #include "OMX_Core.h"
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
 #include "frprc.h"
 #include "frprc_decls.h"
-
+#include "tizkernel.h"
+#include "tizscheduler.h"
 #include "tizosal.h"
+
+#include <assert.h>
+#include <stdio.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -55,101 +53,53 @@ static void *
 fr_proc_ctor (void *ap_obj, va_list * app)
 {
   struct frprc *p_obj = super_ctor (frprc, ap_obj, app);
-  TIZ_LOG (TIZ_LOG_TRACE, "Constructing frprc...[%p]", p_obj);
-
   p_obj->eos_ = false;
-
   return p_obj;
 }
 
 static void *
 fr_proc_dtor (void *ap_obj)
 {
-  struct frprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_LOG_TRACE, "Destructing frprc...[%p]", p_obj);
   return super_dtor (frprc, ap_obj);
 }
 
 static OMX_ERRORTYPE
 fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
-  struct frprc *p_obj = (struct frprc *) ap_obj;
-  (void) p_obj;
-
   return OMX_ErrorNone;
 }
 
 /*
- * from tizservant class
+ * from tizsrv class
  */
 
 static OMX_ERRORTYPE
 fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct frprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
-
-  assert (ap_obj);
-
-  (void) p_parent;
-  (void) p_obj;
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Resource allocation complete... "
-           "frprc = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 fr_proc_deallocate_resources (void *ap_obj)
 {
-  struct frprc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  (void) p_obj;
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Resource deallocation complete..."
-           "frprc = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  struct frprc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
-
-  TIZ_LOG (TIZ_LOG_TRACE,
-           "Prepared to transfer buffers...p_obj = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
 fr_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  struct frprc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "pid [%d]", a_pid);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Awaiting buffers...p_obj = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 fr_proc_stop_and_return (void *ap_obj)
 {
-  struct frprc *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_LOG_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
 }
 
@@ -161,7 +111,7 @@ static OMX_ERRORTYPE
 fr_proc_buffers_ready (const void *ap_obj)
 {
   const struct frprc *p_obj = ap_obj;
-  const struct tizservant *p_parent = ap_obj;
+  const struct tizsrv *p_parent = ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -172,14 +122,14 @@ fr_proc_buffers_ready (const void *ap_obj)
     {
       TIZ_PD_ZERO (&ports);
 
-      TIZ_UTIL_TEST_ERR (tizkernel_select (p_krn, 1, &ports));
+      TIZ_UTIL_TEST_ERR (tiz_krn_select (p_krn, 1, &ports));
 
       if (TIZ_PD_ISSET (0, &ports))
         {
-          TIZ_UTIL_TEST_ERR (tizkernel_claim_buffer (p_krn, 0, 0, &p_hdr));
+          TIZ_UTIL_TEST_ERR (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
           TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...", p_hdr);
           TIZ_UTIL_TEST_ERR (fr_proc_read_buffer (ap_obj, p_hdr));
-          tizkernel_relinquish_buffer (p_krn, 0, p_hdr);
+          tiz_krn_relinquish_buffer (p_krn, 0, p_hdr);
         }
     }
 
@@ -197,7 +147,6 @@ init_frprc (void)
 {
   if (!frprc)
     {
-      TIZ_LOG (TIZ_LOG_TRACE, "Initializing frprc...");
       init_tizproc ();
       frprc =
         factory_new
@@ -208,10 +157,10 @@ init_frprc (void)
          ctor, fr_proc_ctor,
          dtor, fr_proc_dtor,
          tizproc_buffers_ready, fr_proc_buffers_ready,
-         tizservant_allocate_resources, fr_proc_allocate_resources,
-         tizservant_deallocate_resources, fr_proc_deallocate_resources,
-         tizservant_prepare_to_transfer, fr_proc_prepare_to_transfer,
-         tizservant_transfer_and_process, fr_proc_transfer_and_process,
-         tizservant_stop_and_return, fr_proc_stop_and_return, 0);
+         tiz_srv_allocate_resources, fr_proc_allocate_resources,
+         tiz_srv_deallocate_resources, fr_proc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, fr_proc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, fr_proc_transfer_and_process,
+         tiz_srv_stop_and_return, fr_proc_stop_and_return, 0);
     }
 }

@@ -197,7 +197,7 @@ add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
   assert (p_list && *(tiz_vector_t **) p_list);
   p_list = *(tiz_vector_t **) p_list;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
             "HEADER [%p] BUFFER [%p] PID [%d] "
             "list size [%d] buf count [%d]", ap_hdr, ap_hdr->pBuffer, pid,
             tiz_vector_length (p_list), tiz_port_buffer_count (ap_port));
@@ -263,7 +263,7 @@ check_pid (const tiz_krn_t * ap_obj, OMX_U32 a_pid)
 
   if (a_pid >= tiz_vector_length (ap_obj->p_ports_))
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_servant_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (ap_obj),
                 "[OMX_ErrorBadPortIndex] : port [%d]...", a_pid);
       return OMX_ErrorBadPortIndex;
     }
@@ -310,7 +310,7 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
   OMX_U32 pid = 0;
   OMX_DIRTYPE pdir = OMX_DirMax;
   OMX_S32 nports = 0;
-  OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
+  OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
 
   assert (NULL != ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
@@ -327,7 +327,7 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
 
       /* Grab the port's ingress list */
       p_list = get_ingress_lst (p_obj, pid);
-      TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                 "port [%d]'s ingress list length [%d]...",
                 pid, tiz_vector_length (p_list));
 
@@ -337,7 +337,7 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
           /* Retrieve the header... */
           p_hdr = get_header (p_list, j);
 
-          TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                     "Dispatching HEADER [%p] BUFFER [%p]",
                     p_hdr, p_hdr->pBuffer);
 
@@ -398,14 +398,14 @@ complete_mark_buffer (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   assert (NULL != ap_port);
 
   /* Complete the OMX_CommandMarkBuffer command */
-  (void) tiz_servant_issue_cmd_event (p_obj, OMX_CommandMarkBuffer, a_pid,
+  (void) tiz_srv_issue_cmd_event (p_obj, OMX_CommandMarkBuffer, a_pid,
                                       a_error);
 
   /* Decrement the completion counter */
   /*   assert (p_obj->cmd_completion_count_ > 0); */
   /*   if (--p_obj->cmd_completion_count_ == 0) */
   /*     { */
-  /*       OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj); */
+  /*       OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj); */
   /*       tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj, */
   /*                                OMX_CommandMarkBuffer); */
   /*     } */
@@ -438,7 +438,7 @@ process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid,
       if (ap_hdr->hMarkTargetComponent == ap_hdl)
         {
           /* Return the mark to the IL Client */
-          tiz_servant_issue_event (ap_obj, OMX_EventMark, 0, 0,
+          tiz_srv_issue_event (ap_obj, OMX_EventMark, 0, 0,
                                    ap_hdr->pMarkData);
 
           /* Remove the mark from the header as it has been delivered */
@@ -537,7 +537,7 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
   OMX_S32 i = 0;
   OMX_U32 pid = 0;
   OMX_DIRTYPE pdir = OMX_DirMax;
-  OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
+  OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
   OMX_HANDLETYPE p_thdl = NULL;
   OMX_S32 nports = 0;
 
@@ -602,14 +602,14 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
 
                     /* ... flag EOS ... */
                     p_obj->eos_ = OMX_TRUE;
-                    tiz_servant_issue_event ((OMX_PTR) ap_obj,
+                    tiz_srv_issue_event ((OMX_PTR) ap_obj,
                                              OMX_EventBufferFlag,
                                              pid, p_hdr->nFlags, NULL);
                   }
               }
 
             /* get rid of the buffer */
-            tiz_servant_issue_buf_callback ((OMX_PTR) ap_obj, p_hdr,
+            tiz_srv_issue_buf_callback ((OMX_PTR) ap_obj, p_hdr,
                                             pid, pdir, p_thdl);
             /* ... and delete it from the list. */
             tiz_vector_erase (p_list, 0, 1);
@@ -661,7 +661,7 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   if (p_obj->cmd_completion_count_ > 0)
     {
       /* Complete the OMX_CommandPortDisable command here */
-      (void) tiz_servant_issue_cmd_event (p_obj, OMX_CommandPortDisable, a_pid,
+      (void) tiz_srv_issue_cmd_event (p_obj, OMX_CommandPortDisable, a_pid,
                                           a_error);
     }
 
@@ -669,7 +669,7 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
    * whether this a cancelation or not. */
   if (p_obj->cmd_completion_count_ == 0)
     {
-      OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
+      OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
       tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
                                 OMX_CommandPortDisable, a_pid);
     }
@@ -697,7 +697,7 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   if (p_obj->cmd_completion_count_ > 0)
     {
       /* Complete the OMX_CommandPortEnable command here */
-      (void) tiz_servant_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
+      (void) tiz_srv_issue_cmd_event (p_obj, OMX_CommandPortEnable, a_pid,
                                           a_error);
     }
 
@@ -705,7 +705,7 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
    * whether this a cancelation or not. */
   if (p_obj->cmd_completion_count_ == 0)
     {
-      OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
+      OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
       tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
                                 OMX_CommandPortEnable, a_pid);
     }
@@ -725,13 +725,13 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   TIZ_PORT_CLEAR_FLUSH_IN_PROGRESS (ap_port);
 
   /* Complete the OMX_CommandFlush command */
-  (void) tiz_servant_issue_cmd_event (p_obj, OMX_CommandFlush, a_pid, a_error);
+  (void) tiz_srv_issue_cmd_event (p_obj, OMX_CommandFlush, a_pid, a_error);
 
   /* Decrement the completion counter */
   assert (p_obj->cmd_completion_count_ > 0);
   if (--p_obj->cmd_completion_count_ == 0)
     {
-      OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_obj);
+      OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
       tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
                                 OMX_CommandFlush, a_pid);
     }
@@ -866,7 +866,7 @@ init_krn_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_obj);
   assert (a_msg_class < ETIZKrnMsgMax);
 
-  if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tiz_krn_msg_t))))
+  if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_krn_msg_t))))
     {
       TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorInsufficientResources] : "
                 "Could not allocate message [%s]",
@@ -892,19 +892,19 @@ enqueue_callback_msg (const void *ap_obj,
 
   assert (NULL != ap_obj);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
             "callback : HEADER [%p] BUFFER [%p] "
             "PID [%d] DIR [%s]", ap_hdr, ap_hdr ? ap_hdr->pBuffer : NULL,
             a_pid, tiz_dir_to_str (a_dir));
 
-  TIZ_KRN_INIT_MSG_OOM (p_obj, tiz_servant_get_hdl (p_obj), p_msg,
+  TIZ_KRN_INIT_MSG_OOM (p_obj, tiz_srv_get_hdl (p_obj), p_msg,
                         ETIZKrnMsgCallback);
 
   p_msg_cb = &(p_msg->cb);
   p_msg_cb->p_hdr = ap_hdr;
   p_msg_cb->pid = a_pid;
   p_msg_cb->dir = a_dir;
-  return tiz_servant_enqueue (ap_obj, p_msg, 0);
+  return tiz_srv_enqueue (ap_obj, p_msg, 0);
 }
 
 static OMX_ERRORTYPE
@@ -1041,7 +1041,7 @@ all_populated (const void *ap_obj)
     {
       p_port = get_port (p_obj, i);
 
-      TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                 "PORT [%d] is [%s] and [%s]", i,
                 TIZ_PORT_IS_ENABLED (p_port) ? "ENABLED" : "NOT ENABLED",
                 TIZ_PORT_IS_POPULATED (p_port) ? "POPULATED" :
@@ -1049,13 +1049,13 @@ all_populated (const void *ap_obj)
 
       if (TIZ_PORT_IS_ENABLED (p_port) && !(TIZ_PORT_IS_POPULATED (p_port)))
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                     "ALL ENABLED ports are populated = [OMX_FALSE]");
           return OMX_FALSE;
         }
     }
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
             "ALL ENABLED ports are populated = [OMX_TRUE]");
 
   return OMX_TRUE;
@@ -1077,13 +1077,13 @@ all_depopulated (const void *ap_obj)
       p_port = get_port (p_obj, i);
       if (tiz_port_buffer_count (p_port))
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                     "ALL DEPOPULATED = [OMX_FALSE]");
           return OMX_FALSE;
         }
     }
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
             "ALL DEPOPULATED = [OMX_TRUE]");
 
   return OMX_TRUE;
@@ -1122,7 +1122,7 @@ all_buffers_returned (void *ap_obj)
               int j = 0;
               OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-              TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+              TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                         "Port [%d] : awaiting buffers (only "
                         " [%d] out of [%d] have arrived)", i, nbufin, nbuf);
 
@@ -1130,7 +1130,7 @@ all_buffers_returned (void *ap_obj)
                 {
                   p_hdr = get_header (p_list, j);
 
-                  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+                  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                             "HEADER [%p] BUFFER [%p]", p_hdr, p_hdr->pBuffer);
                 }
 
@@ -1142,7 +1142,7 @@ all_buffers_returned (void *ap_obj)
           const OMX_S32 claimed_count = TIZ_PORT_GET_CLAIMED_COUNT (p_port);
           if (claimed_count > 0)
             {
-              TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+              TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
                         "Port [%d] : still need to "
                         "return [%d] buffers", i, claimed_count);
               return OMX_FALSE;
@@ -1151,7 +1151,7 @@ all_buffers_returned (void *ap_obj)
 
     }
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
             "ALL BUFFERS returned = [TRUE]...");
 
   p_obj->eos_ = OMX_FALSE;

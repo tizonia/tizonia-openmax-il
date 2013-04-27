@@ -177,7 +177,7 @@ init_fsm_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_hdl);
   assert (a_msg_class < ETIZFsmMsgMax);
 
-  if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tiz_fsm_msg_t))))
+  if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_fsm_msg_t))))
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
                 "(Could not allocate message [%s]...)",
@@ -575,7 +575,7 @@ fsm_SendCommand (const void *ap_obj,
   p_msg_sc->param1 = a_param1;
   p_msg_sc->p_cmd_data = ap_cmd_data;
 
-  return tiz_servant_enqueue (p_obj, p_msg,
+  return tiz_srv_enqueue (p_obj, p_msg,
                               msg_to_priority (ETIZFsmMsgSendCommand));
 }
 
@@ -891,7 +891,7 @@ fsm_SetCallbacks (const void *ap_obj,
 }
 
 /*
- * from tiz_servant api
+ * from tiz_srv api
  */
 
 
@@ -906,7 +906,7 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  p_hdl = tiz_servant_get_hdl (p_obj);
+  p_hdl = tiz_srv_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
   TIZ_LOGN (TIZ_TRACE, p_hdl, "Processing [%s]...",
@@ -925,7 +925,7 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 
       if (OMX_CommandMax != p_obj->in_progress_cmd_)
         {
-          tiz_servant_issue_cmd_event
+          tiz_srv_issue_cmd_event
             (p_obj, p_obj->in_progress_cmd_, p_obj->in_progress_param1_, rc);
 
           p_obj->in_progress_cmd_ = OMX_CommandMax;
@@ -957,7 +957,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
 
   assert (NULL != ap_obj);
 
-  p_hdl = tiz_servant_get_hdl (p_obj);
+  p_hdl = tiz_srv_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
   p_prc = tiz_get_prc (p_hdl);
@@ -982,7 +982,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
 
       if (EStateWaitForResources >= a_new_state)
         {
-          tiz_servant_issue_trans_event
+          tiz_srv_issue_trans_event
             (p_obj, a_new_state,
              p_obj->canceled_substate_id_ == EStateMax
              ? OMX_ErrorNone : OMX_ErrorCommandCanceled);
@@ -1039,7 +1039,7 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
                          OMX_STATETYPE a_new_state)
 {
   tiz_fsm_t *p_obj = ap_obj;
-  const tiz_servant_t *p_servant = ap_servant;
+  const tiz_srv_t *p_servant = ap_servant;
   tiz_fsm_msg_t *p_msg = NULL;
   tiz_fsm_msg_transcomplete_t *p_msg_tc = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
@@ -1047,7 +1047,7 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
   assert (NULL != p_obj);
   assert (NULL != p_servant);
 
-  p_hdl = tiz_servant_get_hdl (p_obj);
+  p_hdl = tiz_srv_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
   TIZ_LOGN (TIZ_TRACE, p_hdl, "Servant [%s] notifies transition complete "
@@ -1086,7 +1086,7 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
   p_msg_tc->p_servant = (void *) ap_servant;
   p_msg_tc->state = a_new_state;
 
-  return tiz_servant_enqueue (p_obj, p_msg,
+  return tiz_srv_enqueue (p_obj, p_msg,
                               msg_to_priority (ETIZFsmMsgTransComplete));
 }
 
@@ -1104,13 +1104,13 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
                       OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1)
 {
   tiz_fsm_t *p_obj = ap_obj;
-  const tiz_servant_t *p_servant = ap_servant;
+  const tiz_srv_t *p_servant = ap_servant;
   OMX_HANDLETYPE p_hdl = NULL;
 
   assert (NULL != p_obj);
   assert (NULL != p_servant);
 
-  p_hdl = tiz_servant_get_hdl (p_obj);
+  p_hdl = tiz_srv_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
   TIZ_LOGN (TIZ_TRACE, p_hdl, "Servant [%s] notifies cmd complete (cmd [%s]) "
@@ -1127,7 +1127,7 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
       if (p_obj->in_progress_cmd_ != OMX_CommandMax
           && p_obj->in_progress_cmd_ != OMX_CommandStateSet)
         {
-          tiz_servant_issue_cmd_event
+          tiz_srv_issue_cmd_event
             (p_obj, p_obj->in_progress_cmd_, a_param1,
              OMX_ErrorCommandCanceled);
 
@@ -1136,14 +1136,14 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
         }
       else
         {
-          tiz_servant_issue_cmd_event
+          tiz_srv_issue_cmd_event
             (p_obj, p_obj->cancellation_cmd_, a_param1, OMX_ErrorNone);
         }
       p_obj->cancellation_cmd_ = OMX_CommandMax;
     }
   else if (a_cmd == p_obj->in_progress_cmd_)
     {
-      tiz_servant_issue_cmd_event
+      tiz_srv_issue_cmd_event
         (p_obj, p_obj->in_progress_cmd_, a_param1, OMX_ErrorNone);
 
       p_obj->in_progress_cmd_ = OMX_CommandMax;
@@ -1195,7 +1195,7 @@ tiz_fsm_tunneled_ports_status_update (void *ap_obj)
 }
 
 /*
- * tiz_servant_class
+ * tiz_srv_class
  */
 
 static void *
@@ -1249,10 +1249,10 @@ tiz_fsm_init (void)
 {
   if (!tizfsm_class)
     {
-      tiz_servant_init ();
-      tizfsm_class = factory_new (tizservant_class,
+      tiz_srv_init ();
+      tizfsm_class = factory_new (tizsrv_class,
                                   "tizfsm_class",
-                                  tizservant_class,
+                                  tizsrv_class,
                                   sizeof (tiz_fsm_class_t),
                                   ctor, fsm_class_ctor, 0);
     }
@@ -1264,12 +1264,12 @@ tiz_fsm_init (void)
 
   if (!tizfsm)
     {
-      tiz_servant_init ();
+      tiz_srv_init ();
       tizfsm =
         factory_new
         (tizfsm_class,
          "tizfsm",
-         tizservant,
+         tizsrv,
          sizeof (tiz_fsm_t),
          ctor, fsm_ctor,
          dtor, fsm_dtor,
@@ -1286,7 +1286,7 @@ tiz_fsm_init (void)
          tiz_api_EmptyThisBuffer, fsm_EmptyThisBuffer,
          tiz_api_FillThisBuffer, fsm_FillThisBuffer,
          tiz_api_SetCallbacks, fsm_SetCallbacks,
-         tiz_servant_dispatch_msg, fsm_dispatch_msg,
+         tiz_srv_dispatch_msg, fsm_dispatch_msg,
          tiz_fsm_set_state, fsm_set_state,
          tiz_fsm_complete_transition, fsm_complete_transition,
          tiz_fsm_complete_command, fsm_complete_command,

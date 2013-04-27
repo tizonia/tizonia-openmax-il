@@ -411,8 +411,8 @@ state_trans_complete (const void *ap_obj,
 
   p_obj->servants_count_++;
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_servant_get_hdl (ap_servant)),
-                 TIZ_CBUF (tiz_servant_get_hdl (ap_servant)),
+  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_srv_get_hdl (ap_servant)),
+                 TIZ_CBUF (tiz_srv_get_hdl (ap_servant)),
                  "Transition to [%s] is NOW complete at [%s]..."
                  "Servant count is now [%d]...",
                  tiz_fsm_state_to_str (a_new_state), nameOf (ap_servant),

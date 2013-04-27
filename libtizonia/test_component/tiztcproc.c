@@ -69,7 +69,7 @@ tiztc_proc_render_buffer (OMX_BUFFERHEADERTYPE * p_hdr)
 }
 
 /*
- * from tiz_servant class
+ * from tiz_srv class
  */
 
 static OMX_ERRORTYPE
@@ -109,7 +109,7 @@ tiztc_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 tiztc_proc_buffers_ready (const void *ap_obj)
 {
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
   void *p_ker = tiz_get_krn (p_parent->p_hdl_);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -151,10 +151,10 @@ init_tiztcproc (void)
          ctor, tiztc_proc_ctor,
          dtor, tiztc_proc_dtor,
          tiz_proc_buffers_ready, tiztc_proc_buffers_ready,
-         tiz_servant_allocate_resources, tiztc_proc_allocate_resources,
-         tiz_servant_deallocate_resources, tiztc_proc_deallocate_resources,
-         tiz_servant_prepare_to_transfer, tiztc_proc_prepare_to_transfer,
-         tiz_servant_transfer_and_process, tiztc_proc_transfer_and_process,
-         tiz_servant_stop_and_return, tiztc_proc_stop_and_return, 0);
+         tiz_srv_allocate_resources, tiztc_proc_allocate_resources,
+         tiz_srv_deallocate_resources, tiztc_proc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, tiztc_proc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, tiztc_proc_transfer_and_process,
+         tiz_srv_stop_and_return, tiztc_proc_stop_and_return, 0);
     }
 }

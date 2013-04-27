@@ -385,7 +385,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
       {
         if (OMX_StateIdle == now)
           {
-            rc = tiz_servant_deallocate_resources (p_obj);
+            rc = tiz_srv_deallocate_resources (p_obj);
             done = OMX_TRUE;
           }
         else if (OMX_StateWaitForResources == now)
@@ -409,12 +409,12 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
       {
         if (OMX_StateLoaded == now)
           {
-            rc = tiz_servant_allocate_resources (p_obj, OMX_ALL);
+            rc = tiz_srv_allocate_resources (p_obj, OMX_ALL);
             done = OMX_TRUE;
           }
         else if (OMX_StateExecuting == now || OMX_StatePause == now)
           {
-            rc = tiz_servant_stop_and_return (p_obj);
+            rc = tiz_srv_stop_and_return (p_obj);
             done = OMX_TRUE;
 
           }
@@ -437,7 +437,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
       {
         if (OMX_StateIdle == now)
           {
-            rc = tiz_servant_prepare_to_transfer (p_obj, OMX_ALL);
+            rc = tiz_srv_prepare_to_transfer (p_obj, OMX_ALL);
             done = OMX_TRUE;
           }
         else if (OMX_StatePause == now)
@@ -446,7 +446,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
           }
         else if (OMX_StateExecuting == now)
           {
-            rc = tiz_servant_transfer_and_process (p_obj, OMX_ALL);
+            rc = tiz_srv_transfer_and_process (p_obj, OMX_ALL);
             done = OMX_FALSE;
           }
         else
@@ -603,7 +603,7 @@ init_proc_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_hdl);
   assert (a_msg_class < ETIZProcMsgMax);
 
-  if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tiz_proc_msg_t))))
+  if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_proc_msg_t))))
     {
       TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                      "[OMX_ErrorInsufficientResources] : "
@@ -643,7 +643,7 @@ enqueue_buffersready_msg (const void *ap_obj,
   p_msg_br->pid = a_pid;
 
   /* Enqueueing with the lowest priority */
-  return tiz_servant_enqueue (ap_obj, p_msg, 1);
+  return tiz_srv_enqueue (ap_obj, p_msg, 1);
 }
 
 /*
@@ -701,7 +701,7 @@ proc_SendCommand (const void *ap_obj,
   p_msg_sc->param1 = a_param1;
   p_msg_sc->p_cmd_data = ap_cmd_data;
 
-  return tiz_servant_enqueue (ap_obj, p_msg, cmd_to_priority (a_cmd));
+  return tiz_srv_enqueue (ap_obj, p_msg, cmd_to_priority (a_cmd));
 }
 
 static OMX_ERRORTYPE
@@ -727,17 +727,17 @@ proc_FillThisBuffer (const void *ap_obj,
 }
 
 /*
- * from tiz_servant api
+ * from tiz_srv api
  */
 
 static OMX_ERRORTYPE
 proc_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
                         OMX_S32 a_data1, OMX_PTR ap_data2)
 {
-  tiz_servant_t *p_obj = (tiz_servant_t *) ap_obj;
+  tiz_srv_t *p_obj = (tiz_srv_t *) ap_obj;
   /* Actual implementation is in the parent class */
   /* Replace dummy parameters apf_func and a_data1 */
-  return tiz_servant_super_remove_from_queue
+  return tiz_srv_super_remove_from_queue
     (tizproc, p_obj,
      &remove_buffer_from_servant_queue, ETIZProcMsgBuffersReady, ap_data2);
 }
@@ -746,7 +746,7 @@ static OMX_ERRORTYPE
 proc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 {
   const tiz_proc_t *p_obj = ap_obj;
-  const tiz_servant_t *p_parent = ap_obj;
+  const tiz_srv_t *p_parent = ap_obj;
   tiz_proc_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -986,10 +986,10 @@ tiz_proc_init (void)
 
   if (!tizproc_class)
     {
-      tiz_servant_init ();
-      tizproc_class = factory_new (tizservant_class,
+      tiz_srv_init ();
+      tizproc_class = factory_new (tizsrv_class,
                                    "tizproc_class",
-                                   tizservant_class,
+                                   tizsrv_class,
                                    sizeof (tiz_proc_class_t),
                                    ctor, proc_class_ctor, 0);
 
@@ -997,25 +997,25 @@ tiz_proc_init (void)
 
   if (!tizproc)
     {
-      tiz_servant_init ();
+      tiz_srv_init ();
       tizproc =
         factory_new
         (tizproc_class,
          "tizproc",
-         tizservant,
+         tizsrv,
          sizeof (tiz_proc_t),
          ctor, proc_ctor,
          dtor, proc_dtor,
          tiz_api_EmptyThisBuffer, proc_EmptyThisBuffer,
          tiz_api_FillThisBuffer, proc_FillThisBuffer,
          tiz_api_SendCommand, proc_SendCommand,
-         tiz_servant_remove_from_queue, proc_remove_from_queue,
-         tiz_servant_dispatch_msg, proc_dispatch_msg,
-         tiz_servant_allocate_resources, proc_allocate_resources,
-         tiz_servant_deallocate_resources, proc_deallocate_resources,
-         tiz_servant_prepare_to_transfer, proc_prepare_to_transfer,
-         tiz_servant_transfer_and_process, proc_transfer_and_process,
-         tiz_servant_stop_and_return, proc_stop_and_return,
+         tiz_srv_remove_from_queue, proc_remove_from_queue,
+         tiz_srv_dispatch_msg, proc_dispatch_msg,
+         tiz_srv_allocate_resources, proc_allocate_resources,
+         tiz_srv_deallocate_resources, proc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, proc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, proc_transfer_and_process,
+         tiz_srv_stop_and_return, proc_stop_and_return,
          tiz_proc_buffers_ready, proc_buffers_ready,
          tiz_proc_port_flush, proc_port_flush,
          tiz_proc_port_disable, proc_port_disable,

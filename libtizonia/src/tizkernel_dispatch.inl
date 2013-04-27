@@ -76,7 +76,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
        * kernel's servant queue into the corresponding port ingress list. This
        * guarantees that all buffers received by the component on this port are
        * correctly returned during port stop */
-      tiz_servant_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
+      tiz_srv_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
                                      i, p_obj);
 
       if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
@@ -121,7 +121,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                                 "HEADER [%p] BUFFER [%p]...",
                                 pid, nhdrs, *pp_hdr, (*pp_hdr)->pBuffer);
 
-                      tiz_servant_remove_from_queue
+                      tiz_srv_remove_from_queue
                         (ap_obj, &remove_buffer_from_servant_queue,
                          ETIZKrnMsgCallback, *pp_hdr);
 
@@ -131,7 +131,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                          * processor servant implementation of
                          * 'remove_from_queue' will replace them with the right
                          * values */
-                        tiz_servant_remove_from_queue (p_prc, NULL, 0,
+                        tiz_srv_remove_from_queue (p_prc, NULL, 0,
                                                        *pp_hdr);
                       }
 
@@ -236,7 +236,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   assert (NULL != ap_msg_pe);
   pid = ap_msg_pe->param1;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_servant_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
             "Requested port enable for PORT [%d]", pid);
 
   /* Verify the port index.. */
@@ -272,7 +272,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
             {
               TIZ_PORT_SET_GOING_TO_ENABLED (p_port);
               if (OMX_ErrorNone
-                  == (rc = tiz_servant_allocate_resources (ap_obj, pid)))
+                  == (rc = tiz_srv_allocate_resources (ap_obj, pid)))
                 {
                   if (ESubStateLoadedToIdle == now)
                     {
@@ -285,7 +285,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                     }
                   else if (EStateExecuting == now)
                     {
-                      rc = tiz_servant_transfer_and_process (ap_obj, pid);
+                      rc = tiz_srv_transfer_and_process (ap_obj, pid);
                     }
                 }
             }
@@ -361,7 +361,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
            * kernel's servant queue into the corresponding port ingress list. This
            * guarantees that all buffers received by the component on this port are
            * correctly returned during port flush */
-          tiz_servant_remove_from_queue (ap_obj,
+          tiz_srv_remove_from_queue (ap_obj,
                                          &remove_efb_from_servant_queue, i,
                                          p_obj);
 
@@ -735,7 +735,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
                                 "removing leftovers - nhdrs [%d] "
                                 "HEADER [%p]...", pid, nhdrs, *pp_hdr);
 
-                      tiz_servant_remove_from_queue (p_obj,
+                      tiz_srv_remove_from_queue (p_obj,
                                                      &remove_buffer_from_servant_queue,
                                                      ETIZKrnMsgCallback,
                                                      *pp_hdr);
@@ -746,7 +746,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
                          * processor servant implementation of
                          * 'remove_from_queue' will replace them with the right
                          * values */
-                        tiz_servant_remove_from_queue (p_prc, NULL, 0,
+                        tiz_srv_remove_from_queue (p_prc, NULL, 0,
                                                        *pp_hdr);
                       }
 
@@ -884,7 +884,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
       {
         if (OMX_StateIdle == now)
           {
-            rc = tiz_servant_deallocate_resources (ap_obj);
+            rc = tiz_srv_deallocate_resources (ap_obj);
 
             release_rm_resources (p_obj, ap_hdl);
 
@@ -932,7 +932,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
             if (OMX_ErrorNone == rc)
               {
-                rc = tiz_servant_allocate_resources (ap_obj, OMX_ALL);
+                rc = tiz_srv_allocate_resources (ap_obj, OMX_ALL);
               }
 
             done = (OMX_ErrorNone == rc &&
@@ -941,7 +941,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
           }
         else if (OMX_StateExecuting == now || OMX_StatePause == now)
           {
-            rc = tiz_servant_stop_and_return (ap_obj);
+            rc = tiz_srv_stop_and_return (ap_obj);
             done = (OMX_ErrorNone == rc && all_buffers_returned
                     ((tiz_krn_t *) p_obj)) ? OMX_TRUE : OMX_FALSE;
 
@@ -964,7 +964,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
       {
         if (OMX_StateIdle == now)
           {
-            rc = tiz_servant_prepare_to_transfer (ap_obj, OMX_ALL);
+            rc = tiz_srv_prepare_to_transfer (ap_obj, OMX_ALL);
 
             done = OMX_TRUE;
           }
@@ -977,7 +977,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
           }
         else if (OMX_StateExecuting == now)
           {
-            rc = tiz_servant_transfer_and_process (ap_obj, OMX_ALL);
+            rc = tiz_srv_transfer_and_process (ap_obj, OMX_ALL);
             done = OMX_FALSE;
           }
         else

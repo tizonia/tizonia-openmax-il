@@ -78,8 +78,8 @@ enum tiz_sched_state
     ETIZSchedStateRolesRegistered,
   };
 
-typedef struct tiz_servant_group tiz_servant_group_t;
-struct tiz_servant_group
+typedef struct tiz_srv_group tiz_srv_group_t;
+struct tiz_srv_group
 {
   void *p_fsm;
   void *p_ker;
@@ -102,7 +102,7 @@ struct tiz_scheduler
   tiz_queue_t *p_queue;
   tiz_soa_t *p_soa;
   OMX_S32 error;
-  tiz_servant_group_t child;
+  tiz_srv_group_t child;
   tiz_sched_state_t state;
 };
 
@@ -1004,11 +1004,11 @@ do_scbs (tiz_scheduler_t * ap_sched,
 
   /* do the actual storing of the callbacks in the servants, who will be using
      them */
-  tiz_servant_set_callbacks (ap_sched->child.p_fsm, p_msg_scbs->p_appdata,
+  tiz_srv_set_callbacks (ap_sched->child.p_fsm, p_msg_scbs->p_appdata,
                             p_msg_scbs->p_cbacks);
-  tiz_servant_set_callbacks (ap_sched->child.p_ker, p_msg_scbs->p_appdata,
+  tiz_srv_set_callbacks (ap_sched->child.p_ker, p_msg_scbs->p_appdata,
                             p_msg_scbs->p_cbacks);
-  tiz_servant_set_callbacks (ap_sched->child.p_prc, p_msg_scbs->p_appdata,
+  tiz_srv_set_callbacks (ap_sched->child.p_prc, p_msg_scbs->p_appdata,
                             p_msg_scbs->p_cbacks);
 
   return rc;
@@ -1059,7 +1059,7 @@ do_plgevt (tiz_scheduler_t * ap_sched,
   assert (NULL != p_msg_pe->p_event);
 
   p_event = p_msg_pe->p_event;
-  return tiz_servant_receive_pluggable_event (p_event->p_servant,
+  return tiz_srv_receive_pluggable_event (p_event->p_servant,
                                              p_event->p_hdl, p_event);
 }
 
@@ -1862,28 +1862,28 @@ schedule_servants (tiz_scheduler_t * ap_sched,
   /* Round-robin policy: fsm->ker->prc */
   TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
             "READY fsm [%s] ker [%s] prc [%s]",
-            tiz_servant_is_ready (ap_sched->child.p_fsm) ? "YES" : "NO",
-            tiz_servant_is_ready (ap_sched->child.p_ker) ? "YES" : "NO",
-            tiz_servant_is_ready (ap_sched->child.p_prc) ? "YES" : "NO");
+            tiz_srv_is_ready (ap_sched->child.p_fsm) ? "YES" : "NO",
+            tiz_srv_is_ready (ap_sched->child.p_ker) ? "YES" : "NO",
+            tiz_srv_is_ready (ap_sched->child.p_prc) ? "YES" : "NO");
   do
     {
       p_ready = NULL;
-      if (tiz_servant_is_ready (ap_sched->child.p_fsm))
+      if (tiz_srv_is_ready (ap_sched->child.p_fsm))
         {
           p_ready = ap_sched->child.p_fsm;
-          rc = tiz_servant_tick (p_ready);
+          rc = tiz_srv_tick (p_ready);
         }
 
-      if (OMX_ErrorNone == rc && tiz_servant_is_ready (ap_sched->child.p_ker))
+      if (OMX_ErrorNone == rc && tiz_srv_is_ready (ap_sched->child.p_ker))
         {
           p_ready = ap_sched->child.p_ker;
-          rc = tiz_servant_tick (p_ready);
+          rc = tiz_srv_tick (p_ready);
         }
 
-      if (OMX_ErrorNone == rc && tiz_servant_is_ready (ap_sched->child.p_prc))
+      if (OMX_ErrorNone == rc && tiz_srv_is_ready (ap_sched->child.p_prc))
         {
           p_ready = ap_sched->child.p_prc;
-          rc = tiz_servant_tick (p_ready);
+          rc = tiz_srv_tick (p_ready);
         }
 
       if (tiz_queue_length (ap_sched->p_queue))
@@ -1898,7 +1898,7 @@ schedule_servants (tiz_scheduler_t * ap_sched,
     {
       /* INFO: For now, errors are sent via EventHandler by the servants */
       /* TODO: Review errors allowed via EventHandler */
-      /* TODO: Review if tiz_servant_tick should return void */
+      /* TODO: Review if tiz_srv_tick should return void */
     }
 }
 
@@ -2075,9 +2075,9 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
 
   /* All servants will use the same small object allocator */
   tiz_check_omx_err_ret_oom
-    (tiz_servant_set_allocator (ap_sched->child.p_fsm, ap_sched->p_soa));
+    (tiz_srv_set_allocator (ap_sched->child.p_fsm, ap_sched->p_soa));
   tiz_check_omx_err_ret_oom
-    (tiz_servant_set_allocator (ap_sched->child.p_ker, ap_sched->p_soa));
+    (tiz_srv_set_allocator (ap_sched->child.p_ker, ap_sched->p_soa));
 
   return OMX_ErrorNone;
 }
@@ -2152,7 +2152,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
       ap_sched->child.p_prc = p_proc;
 
       /* All servants will use the same object allocator */
-      tiz_servant_set_allocator (p_proc, ap_sched->p_soa);
+      tiz_srv_set_allocator (p_proc, ap_sched->p_soa);
     }
 
   return rc;

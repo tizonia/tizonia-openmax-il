@@ -219,8 +219,8 @@ static OMX_ERRORTYPE
 loaded_trans_complete (const void *ap_obj,
                        OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (tiz_servant_get_hdl(ap_servant)),
-                 TIZ_CBUF (tiz_servant_get_hdl(ap_servant)),
+  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (tiz_srv_get_hdl(ap_servant)),
+                 TIZ_CBUF (tiz_srv_get_hdl(ap_servant)),
                  "Trans complete to state [%s]...",
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateWaitForResources == a_new_state

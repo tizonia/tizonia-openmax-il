@@ -265,8 +265,8 @@ executing_trans_complete (const void *ap_obj,
   assert (NULL != ap_obj);
   assert (NULL != ap_servant);
 
-  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (tiz_servant_get_hdl(ap_servant)),
-                 TIZ_CBUF (tiz_servant_get_hdl(ap_servant)),
+  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (tiz_srv_get_hdl(ap_servant)),
+                 TIZ_CBUF (tiz_srv_get_hdl(ap_servant)),
                  "Trans complete to state [%s]...",
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateExecuting == a_new_state || OMX_StatePause == a_new_state
