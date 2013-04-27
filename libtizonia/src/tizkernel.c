@@ -807,6 +807,8 @@ krn_EmptyThisBuffer (const void *ap_obj,
   tiz_krn_msg_t *p_msg = NULL;
   tiz_krn_msg_emptyfillbuffer_t *p_etb = NULL;
 
+  assert (NULL != ap_obj);
+
   TIZ_LOGN (TIZ_TRACE, ap_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
             ap_hdr, ap_hdr->pBuffer, ap_hdr->nInputPortIndex);
 
@@ -823,6 +825,8 @@ krn_FillThisBuffer (const void *ap_obj,
 {
   tiz_krn_msg_t *p_msg = NULL;
   tiz_krn_msg_emptyfillbuffer_t *p_msg_ftb = NULL;
+
+  assert (NULL != ap_obj);
 
   TIZ_LOGN (TIZ_TRACE, ap_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
             ap_hdr, ap_hdr->pBuffer, ap_hdr->nOutputPortIndex);
@@ -1139,16 +1143,12 @@ krn_receive_pluggable_event (const void *ap_obj,
   tiz_krn_msg_t *p_msg = NULL;
   tiz_krn_msg_plg_event_t *p_plgevt = NULL;
 
-  if (NULL == (p_msg = init_krn_message (ap_obj, ap_hdl,
-                                         ETIZKrnMsgPluggableEvent)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
+  assert (NULL != ap_obj);
 
-  /* Finish-up this message */
+  TIZ_KRN_INIT_MSG_OOM (ap_obj, ap_hdl, p_msg, ETIZKrnMsgPluggableEvent);
+
   p_plgevt = &(p_msg->pe);
   p_plgevt->p_event = ap_event;
-
   return tiz_servant_enqueue (ap_obj, p_msg, 2);
 }
 
