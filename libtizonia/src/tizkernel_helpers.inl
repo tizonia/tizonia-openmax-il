@@ -79,7 +79,7 @@ preemption_complete (OMX_U32 rid, OMX_PTR ap_data)
 }
 
 static inline tiz_vector_t *
-get_ingress_lst (const tiz_kernel_t *ap_obj, OMX_U32 a_pid)
+get_ingress_lst (const tiz_krn_t *ap_obj, OMX_U32 a_pid)
 {
   tiz_vector_t * p_list = NULL;
   assert (NULL != ap_obj);
@@ -90,7 +90,7 @@ get_ingress_lst (const tiz_kernel_t *ap_obj, OMX_U32 a_pid)
 }
 
 static inline tiz_vector_t *
-get_egress_lst (const tiz_kernel_t *ap_obj, OMX_U32 a_pid)
+get_egress_lst (const tiz_krn_t *ap_obj, OMX_U32 a_pid)
 {
   tiz_vector_t * p_list = NULL;
   assert (NULL != ap_obj);
@@ -101,7 +101,7 @@ get_egress_lst (const tiz_kernel_t *ap_obj, OMX_U32 a_pid)
 }
 
 static inline tiz_vector_t *
-get_port (const tiz_kernel_t *ap_obj, OMX_U32 a_pid)
+get_port (const tiz_krn_t *ap_obj, OMX_U32 a_pid)
 {
   OMX_PTR *pp_port = NULL;
   assert (NULL != ap_obj);
@@ -126,7 +126,7 @@ static OMX_S32
 move_to_ingress (void *ap_obj, OMX_U32 a_pid)
 {
 
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   tiz_vector_t *p_elist = NULL;
   tiz_vector_t *p_ilist = NULL;
   const OMX_S32 nports = tiz_vector_length (p_obj->p_ports_);
@@ -155,7 +155,7 @@ static OMX_S32
 move_to_egress (void *ap_obj, OMX_U32 a_pid)
 {
 
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   const OMX_S32 nports = tiz_vector_length (p_obj->p_ports_);
   tiz_vector_t *p_elist = NULL;
   tiz_vector_t *p_ilist = NULL;
@@ -184,7 +184,7 @@ static OMX_S32
 add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
                const OMX_BUFFERHEADERTYPE * ap_hdr, const void *ap_port)
 {
-  const tiz_kernel_t *p_obj = ap_obj;
+  const tiz_krn_t *p_obj = ap_obj;
   tiz_vector_t *p_list = NULL;
   const OMX_U32 pid = tiz_port_index (ap_port);
 
@@ -257,7 +257,7 @@ append_buflsts (tiz_vector_t * ap_dst2darr,
 }
 
 static OMX_ERRORTYPE
-check_pid (const tiz_kernel_t *ap_obj, OMX_U32 a_pid)
+check_pid (const tiz_krn_t *ap_obj, OMX_U32 a_pid)
 {
   assert (NULL != ap_obj);
 
@@ -299,7 +299,7 @@ cmd_to_priority (OMX_COMMANDTYPE a_cmd)
 static OMX_ERRORTYPE
 propagate_ingress (void *ap_obj, OMX_U32 a_pid)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   void *p_prc = NULL;
   tiz_vector_t *p_list = NULL;
   OMX_PTR p_port = NULL;
@@ -366,7 +366,7 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 transfer_mark (void *ap_obj, const OMX_MARKTYPE * ap_mark)
 {
-  const tiz_kernel_t *p_obj = ap_obj;
+  const tiz_krn_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_S32 nports = 0;
   OMX_PTR p_port = NULL;
@@ -392,7 +392,7 @@ static OMX_ERRORTYPE
 complete_mark_buffer (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                       OMX_ERRORTYPE a_error)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -417,7 +417,7 @@ static OMX_ERRORTYPE
 process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid,
                OMX_COMPONENTTYPE * ap_hdl)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_S32 nports = 0;
   OMX_PTR p_port = NULL;
@@ -500,7 +500,7 @@ process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid,
 static OMX_ERRORTYPE
 flush_marks (void *ap_obj, OMX_PTR ap_port)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE hdr;
 
@@ -530,7 +530,7 @@ flush_marks (void *ap_obj, OMX_PTR ap_port)
 static OMX_ERRORTYPE
 flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   tiz_vector_t *p_list = NULL;
   OMX_PTR p_port = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -623,17 +623,17 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
 }
 
 static const OMX_STRING
-kernel_msg_to_str (tiz_kernel_msg_class_t a_msg)
+kernel_msg_to_str (tiz_krn_msg_class_t a_msg)
 {
   const OMX_S32 count =
-    sizeof (tiz_kernel_msg_to_str_tbl) / sizeof (tiz_kernel_msg_str_t);
+    sizeof (tiz_krn_msg_to_str_tbl) / sizeof (tiz_krn_msg_str_t);
   OMX_S32 i = 0;
 
   for (i = 0; i < count; ++i)
     {
-      if (tiz_kernel_msg_to_str_tbl[i].msg == a_msg)
+      if (tiz_krn_msg_to_str_tbl[i].msg == a_msg)
         {
-          return tiz_kernel_msg_to_str_tbl[i].str;
+          return tiz_krn_msg_to_str_tbl[i].str;
         }
     }
 
@@ -644,7 +644,7 @@ static OMX_ERRORTYPE
 complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                        OMX_ERRORTYPE a_error)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -680,7 +680,7 @@ static OMX_ERRORTYPE
 complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                       OMX_ERRORTYPE a_error)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -715,7 +715,7 @@ static OMX_ERRORTYPE
 complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
                      OMX_ERRORTYPE a_error)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_port);
@@ -770,7 +770,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
                                   OMX_PTR ap_data2)
 {
   OMX_BOOL rc = OMX_FALSE;
-  tiz_kernel_msg_t *p_msg = ap_elem;
+  tiz_krn_msg_t *p_msg = ap_elem;
   const OMX_BUFFERHEADERTYPE *p_hdr = ap_data2;
 
   assert (NULL != ap_elem);
@@ -778,7 +778,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
 
   if (p_msg->class == a_data1)
     {
-      tiz_kernel_msg_callback_t *p_msg_c = &(p_msg->cb);
+      tiz_krn_msg_callback_t *p_msg_c = &(p_msg->cb);
       if (p_hdr == p_msg_c->p_hdr)
         {
           /* Found, return TRUE so this item will be removed from the servant
@@ -796,8 +796,8 @@ remove_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
                                OMX_PTR ap_data2)
 {
   OMX_BOOL rc = OMX_FALSE;
-  tiz_kernel_msg_t *p_msg = ap_elem;
-  tiz_kernel_t *p_obj = ap_data2;
+  tiz_krn_msg_t *p_msg = ap_elem;
+  tiz_krn_t *p_obj = ap_data2;
 
   assert (NULL != ap_elem);
   assert (NULL != ap_data2);
@@ -805,7 +805,7 @@ remove_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   if (p_msg->class == ETIZKernelMsgEmptyThisBuffer
       || p_msg->class == ETIZKernelMsgFillThisBuffer)
     {
-      tiz_kernel_msg_emptyfillbuffer_t *p_msg_ef = NULL;
+      tiz_krn_msg_emptyfillbuffer_t *p_msg_ef = NULL;
       OMX_PTR p_port = NULL;
       OMX_BUFFERHEADERTYPE *p_hdr = NULL;
       OMX_U32 pid = 0;
@@ -854,17 +854,17 @@ remove_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   return rc;
 }
 
-static inline tiz_kernel_msg_t *
+static inline tiz_krn_msg_t *
 init_kernel_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                     tiz_kernel_msg_class_t a_msg_class)
+                     tiz_krn_msg_class_t a_msg_class)
 {
-  tiz_kernel_t *p_obj = (tiz_kernel_t *) ap_obj;
-  tiz_kernel_msg_t *p_msg = NULL;
+  tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
+  tiz_krn_msg_t *p_msg = NULL;
 
   assert (NULL != ap_obj);
   assert (a_msg_class < ETIZKernelMsgMax);
 
-  if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tiz_kernel_msg_t))))
+  if (NULL == (p_msg = tiz_servant_init_msg (p_obj, sizeof (tiz_krn_msg_t))))
     {
       TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorInsufficientResources] : "
                 "Could not allocate message [%s]",
@@ -884,9 +884,9 @@ enqueue_callback_msg (const void *ap_obj,
                       OMX_BUFFERHEADERTYPE * ap_hdr,
                       OMX_U32 a_pid, OMX_DIRTYPE a_dir)
 {
-  tiz_kernel_t *p_obj = (tiz_kernel_t *) ap_obj;
-  tiz_kernel_msg_t *p_msg = NULL;
-  tiz_kernel_msg_callback_t *p_msg_cb = NULL;
+  tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
+  tiz_krn_msg_t *p_msg = NULL;
+  tiz_krn_msg_callback_t *p_msg_cb = NULL;
 
   assert (NULL != ap_obj);
 
@@ -908,7 +908,7 @@ enqueue_callback_msg (const void *ap_obj,
 static OMX_ERRORTYPE
 init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
-  tiz_kernel_t *p_obj = (tiz_kernel_t *) ap_obj;
+  tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
   OMX_U8 comp_name[OMX_MAX_STRINGNAME_SIZE];
   OMX_VERSIONTYPE comp_ver, spec_ver;
   OMX_UUIDTYPE uuid;
@@ -958,7 +958,7 @@ init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 static OMX_ERRORTYPE
 deinit_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
-  tiz_kernel_t *p_obj = (tiz_kernel_t *) ap_obj;
+  tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
   tizrm_error_t rmrc = TIZRM_SUCCESS;
 
   assert (NULL != ap_obj);
@@ -977,7 +977,7 @@ deinit_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 static OMX_ERRORTYPE
 acquire_rm_resources (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
-  tiz_kernel_t *p_obj = (tiz_kernel_t *) ap_obj;
+  tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
   tizrm_error_t rmrc = TIZRM_SUCCESS;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -1011,7 +1011,7 @@ acquire_rm_resources (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 static OMX_ERRORTYPE
 release_rm_resources (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
-  tiz_kernel_t *p_obj = (tiz_kernel_t *) ap_obj;
+  tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
   tizrm_error_t rmrc = TIZRM_SUCCESS;
 
   if (TIZRM_SUCCESS
@@ -1024,11 +1024,10 @@ release_rm_resources (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   return OMX_ErrorNone;
 }
 
-
 static OMX_BOOL
 all_populated (const void *ap_obj)
 {
-  const tiz_kernel_t *p_obj = ap_obj;
+  const tiz_krn_t *p_obj = ap_obj;
   OMX_S32 nports = 0;
   OMX_PTR p_port = NULL;
   OMX_U32 i = 0;
@@ -1063,7 +1062,7 @@ all_populated (const void *ap_obj)
 static OMX_BOOL
 all_depopulated (const void *ap_obj)
 {
-  const tiz_kernel_t *p_obj = ap_obj;
+  const tiz_krn_t *p_obj = ap_obj;
   OMX_S32 nports = 0;
   OMX_PTR p_port = NULL;
   OMX_U32 i;
@@ -1091,7 +1090,7 @@ all_depopulated (const void *ap_obj)
 static OMX_BOOL
 all_buffers_returned (void *ap_obj)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   OMX_S32 nports = 0;
   OMX_PTR p_port = NULL;
   tiz_vector_t *p_list = NULL;

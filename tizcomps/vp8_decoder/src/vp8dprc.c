@@ -240,11 +240,11 @@ get_input_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
       tiz_pd_set_t ports;
 
       TIZ_PD_ZERO (&ports);
-      if (OMX_ErrorNone == tiz_kernel_select (ap_krn, 1, &ports))
+      if (OMX_ErrorNone == tiz_krn_select (ap_krn, 1, &ports))
         {
           if (TIZ_PD_ISSET (0, &ports))
             {
-              if (OMX_ErrorNone == tiz_kernel_claim_buffer
+              if (OMX_ErrorNone == tiz_krn_claim_buffer
                   (ap_krn, 0, 0, &ap_obj->p_inhdr_))
                 {
                   TIZ_LOGN (TIZ_TRACE, ap_hdl, "Claimed HEADER [%p]...",
@@ -276,11 +276,11 @@ get_output_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
       tiz_pd_set_t ports;
 
       TIZ_PD_ZERO (&ports);
-      if (OMX_ErrorNone == tiz_kernel_select (ap_krn, 2, &ports))
+      if (OMX_ErrorNone == tiz_krn_select (ap_krn, 2, &ports))
         {
           if (TIZ_PD_ISSET (1, &ports))
             {
-              if (OMX_ErrorNone == tiz_kernel_claim_buffer
+              if (OMX_ErrorNone == tiz_krn_claim_buffer
                   (ap_krn, 1, 0, &ap_obj->p_outhdr_))
                 {
                   TIZ_LOGN (TIZ_TRACE, ap_hdl, "Claimed output HEADER [%p]..."
@@ -314,7 +314,7 @@ buffer_emptied (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
       ap_obj->eos_ = true;
     }
 
-  tiz_kernel_relinquish_buffer (ap_krn, 0, ap_hdr);
+  tiz_krn_relinquish_buffer (ap_krn, 0, ap_hdr);
   ap_obj->p_inhdr_ = NULL;
 }
 
@@ -341,7 +341,7 @@ buffer_filled (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
       ap_obj->eos_ = false;
     }
 
-  tiz_kernel_relinquish_buffer (ap_krn, 1, ap_hdr);
+  tiz_krn_relinquish_buffer (ap_krn, 1, ap_hdr);
   ap_obj->p_outhdr_ = NULL;
 }
 
@@ -618,13 +618,13 @@ relinquish_any_buffers_held (const void *ap_obj)
 
   if (NULL != p_obj->p_inhdr_)
     {
-      tiz_kernel_relinquish_buffer (p_krn, 0, p_obj->p_inhdr_);
+      tiz_krn_relinquish_buffer (p_krn, 0, p_obj->p_inhdr_);
       p_obj->p_inhdr_ = NULL;
     }
 
   if (NULL != p_obj->p_outhdr_)
     {
-      tiz_kernel_relinquish_buffer (p_krn, 1, p_obj->p_outhdr_);
+      tiz_krn_relinquish_buffer (p_krn, 1, p_obj->p_outhdr_);
       p_obj->p_outhdr_ = NULL;
     }
 

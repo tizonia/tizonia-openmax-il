@@ -148,7 +148,7 @@ idletoexecuting_trans_complete (const void *ap_obj,
     {
       /* Reset the OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE flag in all ports where this
        * has been set */
-      tiz_kernel_reset_tunneled_ports_status (tiz_get_krn
+      tiz_krn_reset_tunneled_ports_status (tiz_get_krn
                                              (tiz_servant_get_hdl (ap_servant)),
                                              OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
     }
@@ -167,8 +167,8 @@ idletoexecuting_tunneled_ports_status_update (void *ap_obj)
   {
     OMX_HANDLETYPE p_hdl = tiz_servant_get_hdl (p_base->p_fsm_);
     void *p_krn = tiz_get_krn (p_hdl);
-    tiz_kernel_tunneled_ports_status_t status =
-      tiz_kernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
+    tiz_krn_tunneled_ports_status_t status =
+      tiz_krn_get_tunneled_ports_status (p_krn, OMX_FALSE);
 
     TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
                    "kernel's tunneled port status [%d] ", status);

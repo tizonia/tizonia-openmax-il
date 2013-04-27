@@ -385,7 +385,7 @@ state_mark (const void *ap_obj,
   void *p_krn = tiz_get_krn (ap_hdl);
 
   /* The port must be disabled at this point */
-  assert (TIZ_PORT_IS_DISABLED (tiz_kernel_get_port (p_krn, a_param1)));
+  assert (TIZ_PORT_IS_DISABLED (tiz_krn_get_port (p_krn, a_param1)));
 
   /* Notify the kernel servant */
   /* No need to notify the processor servant */

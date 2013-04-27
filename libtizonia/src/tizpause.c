@@ -73,7 +73,7 @@ pause_SetParameter (const void *ap_obj,
    * then in the SetParameter implementation of the kernel object. */
   if (OMX_ErrorNone
       != (ret_val =
-          tiz_kernel_find_managing_port (p_krn, a_index, a_struct, &p_port)))
+          tiz_krn_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
       TIZ_LOG (TIZ_TRACE, "Cannot retrieve managing port (%s)...",
                tiz_err_to_str (ret_val));
@@ -119,7 +119,7 @@ pause_EmptyThisBuffer (const void *ap_obj,
 /*   const tiz_pause_t *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nInputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
-/*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
+/*   const void *p_port = tiz_krn_get_port (p_krn, pid); */
 
   /*   if (TIZ_PORT_IS_ENABLED(p_port)) */
   /*     { */
@@ -139,7 +139,7 @@ pause_FillThisBuffer (const void *ap_obj,
 /*   const tiz_pause_t *p_obj = ap_obj; */
 /*   const OMX_U32 pid = ap_hdr->nOutputPortIndex; */
   const void *p_krn = tiz_get_krn (ap_hdl);
-/*   const void *p_port = tiz_kernel_get_port (p_krn, pid); */
+/*   const void *p_port = tiz_krn_get_port (p_krn, pid); */
 
   /*   if (TIZ_PORT_IS_ENABLED(p_port)) */
   /*     { */

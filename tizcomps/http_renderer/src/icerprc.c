@@ -144,11 +144,11 @@ buffer_needed (void *ap_arg)
           p_krn = tiz_get_krn (p_parent->p_hdl_);
 
           TIZ_PD_ZERO (&ports);
-          if (OMX_ErrorNone == tiz_kernel_select (p_krn, 1, &ports))
+          if (OMX_ErrorNone == tiz_krn_select (p_krn, 1, &ports))
             {
               if (TIZ_PD_ISSET (0, &ports))
                 {
-                  if (OMX_ErrorNone == tiz_kernel_claim_buffer
+                  if (OMX_ErrorNone == tiz_krn_claim_buffer
                       (p_krn, 0, 0, &p_obj->p_inhdr_))
                     {
                       TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...",
@@ -183,7 +183,7 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * p_hdr, void *p_arg)
   p_obj->server_is_full_ = false;
   p_hdr->nOffset = 0;
 
-  tiz_kernel_relinquish_buffer (p_krn, 0, p_hdr);
+  tiz_krn_relinquish_buffer (p_krn, 0, p_hdr);
   p_obj->p_inhdr_ = NULL;
 }
 

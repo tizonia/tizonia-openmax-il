@@ -757,7 +757,7 @@ do_set_component_role (tiz_scheduler_t * ap_sched,
           factory_delete (ap_sched->child.p_prc);
           ap_sched->child.p_prc = NULL;
 
-          tiz_kernel_deregister_all_ports (ap_sched->child.p_ker);
+          tiz_krn_deregister_all_ports (ap_sched->child.p_ker);
 
           /* Populate defaults according to the new role */
           rc = init_and_register_role (ap_sched, role_pos);
@@ -1153,7 +1153,7 @@ do_rph (tiz_scheduler_t * ap_sched,
             pid = ((OMX_ALL != p_hooks->pid) ? p_hooks->pid : i++);
 
             if (NULL != (p_port
-                         = tiz_kernel_get_port (ap_sched->child.p_ker, pid)))
+                         = tiz_krn_get_port (ap_sched->child.p_ker, pid)))
               {
                 tiz_port_set_alloc_hooks (p_port, p_hooks,
                                          p_hooks->pid == OMX_ALL ?
@@ -2070,7 +2070,7 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   ap_sched->child.p_fsm = factory_new (tizfsm, p_hdl);
 
   /* Init the kernel */
-  tiz_kernel_init ();
+  tiz_krn_init ();
   ap_sched->child.p_ker = factory_new (tizkernel, p_hdl);
 
   /* All servants will use the same small object allocator */
@@ -2125,7 +2125,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
 
   assert (NULL != p_port);
 
-  rc = tiz_kernel_register_port (ap_sched->child.p_ker, p_port, OMX_TRUE);       /* it is a config port */
+  rc = tiz_krn_register_port (ap_sched->child.p_ker, p_port, OMX_TRUE);       /* it is a config port */
 
   TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
             "Registering role #[%d] -> [%s] nports = [%d] rc = [%s]...",
@@ -2136,7 +2136,7 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
       /* Instantiate the port */
       p_port = p_rf->pf_port[j] (p_hdl);
       assert (NULL != p_port);
-      rc = tiz_kernel_register_port (ap_sched->child.p_ker, p_port, OMX_FALSE);  /* not a config port */
+      rc = tiz_krn_register_port (ap_sched->child.p_ker, p_port, OMX_FALSE);  /* not a config port */
 
       if (OMX_ErrorNone == rc)
         {

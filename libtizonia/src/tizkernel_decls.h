@@ -40,14 +40,14 @@ extern "C"
 #include "tizservant_decls.h"
 #include "tizrmproxy_c.h"
 
-  typedef struct tiz_kernel_msg_sendcommand tiz_kernel_msg_sendcommand_t;
+  typedef struct tiz_krn_msg_sendcommand tiz_krn_msg_sendcommand_t;
   
-  typedef OMX_ERRORTYPE (*tiz_kernel_msg_dispatch_sc_f)
+  typedef OMX_ERRORTYPE (*tiz_krn_msg_dispatch_sc_f)
   (void *ap_obj, OMX_HANDLETYPE ap_hdl,
-   tiz_kernel_msg_sendcommand_t * ap_msg_sc);
+   tiz_krn_msg_sendcommand_t * ap_msg_sc);
 
-  typedef enum tiz_kernel_msg_class tiz_kernel_msg_class_t;
-  enum tiz_kernel_msg_class
+  typedef enum tiz_krn_msg_class tiz_krn_msg_class_t;
+  enum tiz_krn_msg_class
     {
       ETIZKernelMsgSendCommand = 0,
       ETIZKernelMsgEmptyThisBuffer,
@@ -57,60 +57,60 @@ extern "C"
       ETIZKernelMsgMax
     };
 
-  typedef OMX_ERRORTYPE (*tiz_kernel_msg_dispatch_f) (void *ap_obj,
+  typedef OMX_ERRORTYPE (*tiz_krn_msg_dispatch_f) (void *ap_obj,
                                                       OMX_PTR ap_msg);
 
-  typedef struct tiz_kernel_msg_sendcommand tiz_kernel_msg_sendcommand_t;
-  struct tiz_kernel_msg_sendcommand
+  typedef struct tiz_krn_msg_sendcommand tiz_krn_msg_sendcommand_t;
+  struct tiz_krn_msg_sendcommand
   {
     OMX_COMMANDTYPE cmd;
     OMX_U32 param1;
     OMX_PTR p_cmd_data;
   };
 
-  typedef struct tiz_kernel_msg_emptyfillbuffer tiz_kernel_msg_emptyfillbuffer_t;
-  struct tiz_kernel_msg_emptyfillbuffer
+  typedef struct tiz_krn_msg_emptyfillbuffer tiz_krn_msg_emptyfillbuffer_t;
+  struct tiz_krn_msg_emptyfillbuffer
   {
     OMX_BUFFERHEADERTYPE *p_hdr;
   };
 
-  typedef struct tiz_kernel_msg_callback tiz_kernel_msg_callback_t;
-  struct tiz_kernel_msg_callback
+  typedef struct tiz_krn_msg_callback tiz_krn_msg_callback_t;
+  struct tiz_krn_msg_callback
   {
     OMX_BUFFERHEADERTYPE *p_hdr;
     OMX_U32 pid;
     OMX_DIRTYPE dir;
   };
 
-  typedef struct tiz_kernel_msg_plg_event tiz_kernel_msg_plg_event_t;
-  struct tiz_kernel_msg_plg_event
+  typedef struct tiz_krn_msg_plg_event tiz_krn_msg_plg_event_t;
+  struct tiz_krn_msg_plg_event
   {
     tiz_event_pluggable_t *p_event;
   };
 
-  typedef struct tiz_kernel_msg tiz_kernel_msg_t;
-  struct tiz_kernel_msg
+  typedef struct tiz_krn_msg tiz_krn_msg_t;
+  struct tiz_krn_msg
   {
     OMX_HANDLETYPE p_hdl;
-    tiz_kernel_msg_class_t class;
+    tiz_krn_msg_class_t class;
     union
     {
-      tiz_kernel_msg_sendcommand_t sc;
-      tiz_kernel_msg_emptyfillbuffer_t ef;
-      tiz_kernel_msg_callback_t cb;
-      tiz_kernel_msg_plg_event_t pe;
+      tiz_krn_msg_sendcommand_t sc;
+      tiz_krn_msg_emptyfillbuffer_t ef;
+      tiz_krn_msg_callback_t cb;
+      tiz_krn_msg_plg_event_t pe;
     };
   };
 
-  typedef struct tiz_kernel_msg_str tiz_kernel_msg_str_t;
-  struct tiz_kernel_msg_str
+  typedef struct tiz_krn_msg_str tiz_krn_msg_str_t;
+  struct tiz_krn_msg_str
   {
-    tiz_kernel_msg_class_t msg;
+    tiz_krn_msg_class_t msg;
     OMX_STRING str;
   };
 
-  typedef struct tiz_kernel tiz_kernel_t;
-  struct tiz_kernel
+  typedef struct tiz_krn tiz_krn_t;
+  struct tiz_krn
   {
     /* Object */
     const tiz_servant_t _;
@@ -133,43 +133,43 @@ extern "C"
   };
 
   OMX_ERRORTYPE
-  tiz_kernel_super_register_port (const void *a_class, const void *ap_obj,
+  tiz_krn_super_register_port (const void *a_class, const void *ap_obj,
                                  OMX_PTR ap_port, OMX_BOOL ais_config);
 
-  tiz_kernel_population_status_t
-  tiz_kernel_super_get_population_status (const void *a_class,
+  tiz_krn_population_status_t
+  tiz_krn_super_get_population_status (const void *a_class,
                                          const void *ap_obj, OMX_U32 a_pid,
                                          OMX_BOOL *
                                          ap_may_be_fully_unpopulated);
 
   OMX_ERRORTYPE
-  tiz_kernel_super_select (const void *a_class, const void *ap_obj,
+  tiz_krn_super_select (const void *a_class, const void *ap_obj,
                           OMX_U32 a_nports, tiz_pd_set_t * p_set);
 
   OMX_ERRORTYPE
-  tiz_kernel_super_claim_buffer (const void *a_class, const void *ap_obj,
+  tiz_krn_super_claim_buffer (const void *a_class, const void *ap_obj,
                                 OMX_U32 a_port_id, OMX_U32 a_pos,
                                 OMX_BUFFERHEADERTYPE ** p_hdr);
 
   OMX_ERRORTYPE
-  tiz_kernel_super_relinquish_buffer (const void *a_class,
+  tiz_krn_super_relinquish_buffer (const void *a_class,
                                      const void *ap_obj, OMX_U32 a_port_id,
                                      OMX_BUFFERHEADERTYPE * ap_hdr);
 
   void
-  tiz_kernel_super_deregister_all_ports (const void *a_class, void *ap_obj);
+  tiz_krn_super_deregister_all_ports (const void *a_class, void *ap_obj);
 
-  tiz_kernel_tunneled_ports_status_t
-  tiz_kernel_super_get_tunneled_ports_status (const void *a_class,
+  tiz_krn_tunneled_ports_status_t
+  tiz_krn_super_get_tunneled_ports_status (const void *a_class,
                                              const void *ap_obj,
                                              OMX_BOOL a_exe_to_idle_interest);
 
-  void tiz_kernel_super_reset_tunneled_ports_status (const void *a_class,
+  void tiz_krn_super_reset_tunneled_ports_status (const void *a_class,
                                                     void *ap_obj,
                                                     OMX_U32 a_port_status_flag);
 
-  typedef struct tiz_kernel_class tiz_kernel_class_t;
-  struct tiz_kernel_class
+  typedef struct tiz_krn_class tiz_krn_class_t;
+  struct tiz_krn_class
   {
     /* Class */
     const tiz_servant_class_t _;
@@ -184,7 +184,7 @@ extern "C"
                                          OMX_PTR ap_struct,
                                          OMX_PTR * app_port);
 
-    tiz_kernel_population_status_t (*get_population_status)
+    tiz_krn_population_status_t (*get_population_status)
     (const void *ap_obj, OMX_U32 a_pid,
      OMX_BOOL * ap_may_be_fully_unpopulated);
     
@@ -200,7 +200,7 @@ extern "C"
                                         OMX_BUFFERHEADERTYPE * p_hdr);
     void (*deregister_all_ports) (void *ap_obj);
 
-    tiz_kernel_tunneled_ports_status_t (*get_tunneled_ports_status)
+    tiz_krn_tunneled_ports_status_t (*get_tunneled_ports_status)
     (const void *ap_obj, OMX_BOOL a_exe_to_idle_interest);
 
     void (*reset_tunneled_ports_status) (void *ap_obj,

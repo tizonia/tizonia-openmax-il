@@ -34,9 +34,9 @@
 
 static OMX_ERRORTYPE
 dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                       tiz_kernel_msg_sendcommand_t * ap_msg_sc)
+                       tiz_krn_msg_sendcommand_t * ap_msg_sc)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR p_port = NULL;
   OMX_U32 pid = 0;
@@ -216,9 +216,9 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
 static OMX_ERRORTYPE
 dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                      tiz_kernel_msg_sendcommand_t * ap_msg_pe)
+                      tiz_krn_msg_sendcommand_t * ap_msg_pe)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR p_port = NULL;
   OMX_U32 pid = 0;
@@ -299,9 +299,9 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
 static OMX_ERRORTYPE
 dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                     tiz_kernel_msg_sendcommand_t * ap_msg_pf)
+                     tiz_krn_msg_sendcommand_t * ap_msg_pf)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR p_port = NULL;
   OMX_U32 pid = 0;
@@ -487,9 +487,9 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
 static OMX_ERRORTYPE
 dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE p_hdl,
-                      tiz_kernel_msg_sendcommand_t * ap_msg_sc)
+                      tiz_krn_msg_sendcommand_t * ap_msg_sc)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   OMX_PTR p_port = NULL;
   const OMX_U32 pid = ap_msg_sc->param1;
   const OMX_MARKTYPE *p_mark = ap_msg_sc->p_cmd_data;
@@ -511,10 +511,10 @@ dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE p_hdl,
 static OMX_ERRORTYPE
 dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_kernel_msg_t *p_msg = ap_msg;
-  tiz_kernel_msg_callback_t *p_msg_cb = NULL;
+  tiz_krn_msg_t *p_msg = ap_msg;
+  tiz_krn_msg_callback_t *p_msg_cb = NULL;
   tiz_fsm_state_id_t now = OMX_StateMax;
   tiz_vector_t *p_egress_lst = NULL;
   OMX_PTR p_port = NULL;
@@ -628,8 +628,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
 
       if (all_buffers_returned (p_obj))
         {
-          tiz_kernel_tunneled_ports_status_t status =
-            tiz_kernel_get_tunneled_ports_status (ap_obj, OMX_TRUE);
+          tiz_krn_tunneled_ports_status_t status =
+            tiz_krn_get_tunneled_ports_status (ap_obj, OMX_TRUE);
 
           if ((ESubStateExecutingToIdle == now || ESubStatePauseToIdle == now)
               && (ETIZKernelNoTunneledPorts == status
@@ -647,11 +647,11 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
 }
 
 static OMX_ERRORTYPE
-dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
+dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
 {
-  tiz_kernel_t *p_obj = ap_obj;
-  tiz_kernel_msg_t *p_msg = ap_msg;
-  tiz_kernel_msg_emptyfillbuffer_t *p_msg_ef = NULL;
+  tiz_krn_t *p_obj = ap_obj;
+  tiz_krn_msg_t *p_msg = ap_msg;
+  tiz_krn_msg_emptyfillbuffer_t *p_msg_ef = NULL;
   tiz_fsm_state_id_t now = EStateMax;
   OMX_S32 nbufs = 0;
   OMX_PTR p_port = NULL;
@@ -769,8 +769,8 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_kernel_msg_class_t a_msg_class)
 
       if (ESubStateExecutingToIdle == now || ESubStatePauseToIdle == now)
         {
-          tiz_kernel_tunneled_ports_status_t status =
-            tiz_kernel_get_tunneled_ports_status (ap_obj, OMX_TRUE);
+          tiz_krn_tunneled_ports_status_t status =
+            tiz_krn_get_tunneled_ports_status (ap_obj, OMX_TRUE);
 
           if (all_buffers_returned (p_obj)
               && (ETIZKernelNoTunneledPorts == status
@@ -819,8 +819,8 @@ dispatch_ftb (void *ap_obj, OMX_PTR ap_msg)
 static OMX_ERRORTYPE
 dispatch_pe (void *ap_obj, OMX_PTR ap_msg)
 {
-  tiz_kernel_msg_t *p_msg = ap_msg;
-  tiz_kernel_msg_plg_event_t *p_msg_pe = NULL;
+  tiz_krn_msg_t *p_msg = ap_msg;
+  tiz_krn_msg_plg_event_t *p_msg_pe = NULL;
 
   assert (NULL != ap_obj);
   assert (NULL != p_msg);
@@ -837,9 +837,9 @@ dispatch_pe (void *ap_obj, OMX_PTR ap_msg)
 static OMX_ERRORTYPE
 dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
 {
-  tiz_kernel_t *p_obj = ap_obj;
-  tiz_kernel_msg_t *p_msg = ap_msg;
-  tiz_kernel_msg_sendcommand_t *p_msg_sc = NULL;
+  tiz_krn_t *p_obj = ap_obj;
+  tiz_krn_msg_t *p_msg = ap_msg;
+  tiz_krn_msg_sendcommand_t *p_msg_sc = NULL;
 
   assert (NULL != p_obj);
   assert (NULL != p_msg);
@@ -848,16 +848,16 @@ dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_sc);
   assert (p_msg_sc->cmd <= OMX_CommandMarkBuffer);
 
-  return tiz_kernel_msg_dispatch_sc_to_fnt_tbl[p_msg_sc->cmd] (p_obj,
+  return tiz_krn_msg_dispatch_sc_to_fnt_tbl[p_msg_sc->cmd] (p_obj,
                                                               p_msg->p_hdl,
                                                               p_msg_sc);
 }
 
 static OMX_ERRORTYPE
 dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                    tiz_kernel_msg_sendcommand_t * ap_msg_sc)
+                    tiz_krn_msg_sendcommand_t * ap_msg_sc)
 {
-  tiz_kernel_t *p_obj = ap_obj;
+  tiz_krn_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_STATETYPE now = OMX_StateMax;
   OMX_BOOL done = OMX_FALSE;
@@ -937,7 +937,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
           {
             rc = tiz_servant_stop_and_return (ap_obj);
             done = (OMX_ErrorNone == rc && all_buffers_returned
-                    ((tiz_kernel_t *) p_obj)) ? OMX_TRUE : OMX_FALSE;
+                    ((tiz_krn_t *) p_obj)) ? OMX_TRUE : OMX_FALSE;
 
           }
         else if (OMX_StateIdle == now)

@@ -94,7 +94,7 @@ loaded_EmptyThisBuffer (const void *ap_obj,
 {
   const OMX_U32 pid = ap_hdr->nInputPortIndex;
   const void *p_krn = tiz_get_krn (ap_hdl);
-  const void *p_port = tiz_kernel_get_port (p_krn, pid);
+  const void *p_port = tiz_krn_get_port (p_krn, pid);
 
   if (TIZ_PORT_IS_ENABLED (p_port))
     {
@@ -115,7 +115,7 @@ loaded_FillThisBuffer (const void *ap_obj,
 {
   const OMX_U32 pid = ap_hdr->nOutputPortIndex;
   const void *p_krn = tiz_get_krn (ap_hdl);
-  const void *p_port = tiz_kernel_get_port (p_krn, pid);
+  const void *p_port = tiz_krn_get_port (p_krn, pid);
 
   if (TIZ_PORT_IS_ENABLED (p_port))
     {
@@ -192,8 +192,8 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
       {
         void *p_krn = tiz_get_krn (ap_hdl);
-        tiz_kernel_tunneled_ports_status_t status =
-          tiz_kernel_get_tunneled_ports_status (p_krn, OMX_FALSE);
+        tiz_krn_tunneled_ports_status_t status =
+          tiz_krn_get_tunneled_ports_status (p_krn, OMX_FALSE);
         
         TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "kernel's tunneled port status [%d] ", status);

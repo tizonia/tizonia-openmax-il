@@ -516,7 +516,7 @@ START_TEST (test_tizonia_kernel_create_and_destroy)
 {
   void *p_kernel = 0;
 
-  tiz_kernel_init ();
+  tiz_krn_init ();
   p_kernel = factory_new (tizkernel);
 
   fail_if (!p_kernel);
