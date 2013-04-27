@@ -68,7 +68,9 @@ libtizonia_include_HEADERS = \
 	tizvp8port_decls.h \
 	tizvp8port.h \
 	tizivrport_decls.h \
-	tizivrport.h
+	tizivrport.h \
+	tizkernel_helpers.inl \
+	tizkernel_dispatch.inl
 
 libtizonia_la_SOURCES = \
 	tizscheduler.c \

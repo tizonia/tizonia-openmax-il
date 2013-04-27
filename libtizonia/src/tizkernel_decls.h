@@ -40,6 +40,75 @@ extern "C"
 #include "tizservant_decls.h"
 #include "tizrmproxy_c.h"
 
+  typedef struct tiz_kernel_msg_sendcommand tiz_kernel_msg_sendcommand_t;
+  
+  typedef OMX_ERRORTYPE (*tiz_kernel_msg_dispatch_sc_f)
+  (void *ap_obj, OMX_HANDLETYPE ap_hdl,
+   tiz_kernel_msg_sendcommand_t * ap_msg_sc);
+
+  typedef enum tiz_kernel_msg_class tiz_kernel_msg_class_t;
+  enum tiz_kernel_msg_class
+    {
+      ETIZKernelMsgSendCommand = 0,
+      ETIZKernelMsgEmptyThisBuffer,
+      ETIZKernelMsgFillThisBuffer,
+      ETIZKernelMsgCallback,
+      ETIZKernelMsgPluggableEvent,
+      ETIZKernelMsgMax
+    };
+
+  typedef OMX_ERRORTYPE (*tiz_kernel_msg_dispatch_f) (void *ap_obj,
+                                                      OMX_PTR ap_msg);
+
+  typedef struct tiz_kernel_msg_sendcommand tiz_kernel_msg_sendcommand_t;
+  struct tiz_kernel_msg_sendcommand
+  {
+    OMX_COMMANDTYPE cmd;
+    OMX_U32 param1;
+    OMX_PTR p_cmd_data;
+  };
+
+  typedef struct tiz_kernel_msg_emptyfillbuffer tiz_kernel_msg_emptyfillbuffer_t;
+  struct tiz_kernel_msg_emptyfillbuffer
+  {
+    OMX_BUFFERHEADERTYPE *p_hdr;
+  };
+
+  typedef struct tiz_kernel_msg_callback tiz_kernel_msg_callback_t;
+  struct tiz_kernel_msg_callback
+  {
+    OMX_BUFFERHEADERTYPE *p_hdr;
+    OMX_U32 pid;
+    OMX_DIRTYPE dir;
+  };
+
+  typedef struct tiz_kernel_msg_plg_event tiz_kernel_msg_plg_event_t;
+  struct tiz_kernel_msg_plg_event
+  {
+    tiz_event_pluggable_t *p_event;
+  };
+
+  typedef struct tiz_kernel_msg tiz_kernel_msg_t;
+  struct tiz_kernel_msg
+  {
+    OMX_HANDLETYPE p_hdl;
+    tiz_kernel_msg_class_t class;
+    union
+    {
+      tiz_kernel_msg_sendcommand_t sc;
+      tiz_kernel_msg_emptyfillbuffer_t ef;
+      tiz_kernel_msg_callback_t cb;
+      tiz_kernel_msg_plg_event_t pe;
+    };
+  };
+
+  typedef struct tiz_kernel_msg_str tiz_kernel_msg_str_t;
+  struct tiz_kernel_msg_str
+  {
+    tiz_kernel_msg_class_t msg;
+    OMX_STRING str;
+  };
+
   typedef struct tiz_kernel tiz_kernel_t;
   struct tiz_kernel
   {
