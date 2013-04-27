@@ -44,7 +44,7 @@ extern "C"
   struct webpeprc
   {
     /* Object */
-    const tiz_proc_t _;
+    const tiz_prc_t _;
     OMX_BUFFERHEADERTYPE *pinhdr_;
     OMX_BUFFERHEADERTYPE *pouthdr_;
     bool eos_;

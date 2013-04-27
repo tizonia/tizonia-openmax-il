@@ -313,7 +313,7 @@ icer_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static OMX_ERRORTYPE
@@ -399,22 +399,22 @@ init_icerprc (void)
 {
   if (!icerprc)
     {
-      tiz_proc_init ();
+      tiz_prc_init ();
       icerprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "icerprc",
-         tizproc,
+         tizprc,
          sizeof (struct icerprc),
          ctor, icer_proc_ctor,
          dtor, icer_proc_dtor,
-         tiz_proc_buffers_ready, icer_proc_buffers_ready,
+         tiz_prc_buffers_ready, icer_proc_buffers_ready,
          tiz_srv_allocate_resources, icer_proc_allocate_resources,
          tiz_srv_deallocate_resources, icer_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, icer_proc_prepare_to_transfer,
          tiz_srv_transfer_and_process, icer_proc_transfer_and_process,
          tiz_srv_stop_and_return, icer_proc_stop_and_return,
-         tiz_proc_event_io_ready, icer_event_io_ready,
-         tiz_proc_event_timer_ready, icer_event_timer_ready, 0);
+         tiz_prc_event_io_ready, icer_event_io_ready,
+         tiz_prc_event_timer_ready, icer_event_timer_ready, 0);
     }
 }

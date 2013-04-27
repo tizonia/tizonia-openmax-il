@@ -39,18 +39,18 @@ extern "C"
 #include "tizproc.h"
 #include "tizservant_decls.h"
 
-  typedef struct tiz_proc tiz_proc_t;
-  struct tiz_proc
+  typedef struct tiz_prc tiz_prc_t;
+  struct tiz_prc
   {
     /* Object */
     const tiz_srv_t _;
   };
 
     OMX_ERRORTYPE
-    tiz_proc_super_buffers_ready (const void *class, const void *p_obj);
+    tiz_prc_super_buffers_ready (const void *class, const void *p_obj);
 
-  typedef struct tiz_proc_class tiz_proc_class_t;
-  struct tiz_proc_class
+  typedef struct tiz_prc_class tiz_prc_class_t;
+  struct tiz_prc_class
   {
     /* Class */
     const tiz_srv_class_t _;

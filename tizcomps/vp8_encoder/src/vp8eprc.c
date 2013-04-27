@@ -157,7 +157,7 @@ vp8e_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static bool
@@ -283,16 +283,16 @@ vp8e_prc_init (void)
 {
   if (!vp8eprc)
     {
-      tiz_proc_init ();
+      tiz_prc_init ();
       vp8eprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "vp8eprc",
-         tizproc,
+         tizprc,
          sizeof (vp8e_prc_t),
          ctor, vp8e_proc_ctor,
          dtor, vp8e_proc_dtor,
-         tiz_proc_buffers_ready, vp8e_proc_buffers_ready,
+         tiz_prc_buffers_ready, vp8e_proc_buffers_ready,
          tiz_srv_allocate_resources, vp8e_proc_allocate_resources,
          tiz_srv_deallocate_resources, vp8e_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, vp8e_proc_prepare_to_transfer,

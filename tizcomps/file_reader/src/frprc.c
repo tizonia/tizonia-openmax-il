@@ -213,7 +213,7 @@ fr_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static OMX_ERRORTYPE
@@ -254,16 +254,16 @@ fr_prc_init (void)
 {
   if (!frprc)
     {
-      tiz_proc_init ();
+      tiz_prc_init ();
       frprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "frprc",
-         tizproc,
+         tizprc,
          sizeof (fr_prc_t),
          ctor, fr_proc_ctor,
          dtor, fr_proc_dtor,
-         tiz_proc_buffers_ready, fr_proc_buffers_ready,
+         tiz_prc_buffers_ready, fr_proc_buffers_ready,
          tiz_srv_allocate_resources, fr_proc_allocate_resources,
          tiz_srv_deallocate_resources, fr_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, fr_proc_prepare_to_transfer,

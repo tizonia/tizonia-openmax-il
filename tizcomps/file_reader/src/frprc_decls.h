@@ -43,7 +43,7 @@ extern "C"
   struct fr_prc
   {
     /* Object */
-    const tiz_proc_t _;
+    const tiz_prc_t _;
     FILE *p_file_;
     OMX_PARAM_CONTENTURITYPE *p_uri_param_;
     OMX_U32 counter_;

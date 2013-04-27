@@ -103,7 +103,7 @@ tiztc_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static OMX_ERRORTYPE
@@ -141,16 +141,16 @@ init_tiztcproc (void)
 {
   if (!tiztcproc)
     {
-      tiz_proc_init ();
+      tiz_prc_init ();
       tiztcproc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "tiztcproc",
-         tizproc,
+         tizprc,
          sizeof (struct tiztcproc),
          ctor, tiztc_proc_ctor,
          dtor, tiztc_proc_dtor,
-         tiz_proc_buffers_ready, tiztc_proc_buffers_ready,
+         tiz_prc_buffers_ready, tiztc_proc_buffers_ready,
          tiz_srv_allocate_resources, tiztc_proc_allocate_resources,
          tiz_srv_deallocate_resources, tiztc_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, tiztc_proc_prepare_to_transfer,

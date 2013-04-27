@@ -63,7 +63,7 @@ extern "C"
   struct vp8d_prc
   {
     /* Object */
-    const tiz_proc_t _;
+    const tiz_prc_t _;
     OMX_BUFFERHEADERTYPE *p_inhdr_;
     OMX_BUFFERHEADERTYPE *p_outhdr_;
     vpx_codec_ctx_t vp8ctx_;

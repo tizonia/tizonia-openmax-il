@@ -311,7 +311,7 @@ ar_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static OMX_ERRORTYPE
@@ -355,12 +355,12 @@ ar_prc_init (void)
 {
   if (!arprc)
     {
-      tiz_proc_init ();
+      tiz_prc_init ();
       arprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "arprc",
-         tizproc,
+         tizprc,
          sizeof (ar_prc_t),
          ctor, ar_proc_ctor,
          dtor, ar_proc_dtor,
@@ -369,6 +369,6 @@ ar_prc_init (void)
          tiz_srv_prepare_to_transfer, ar_proc_prepare_to_transfer,
          tiz_srv_transfer_and_process, ar_proc_transfer_and_process,
          tiz_srv_stop_and_return, ar_proc_stop_and_return,
-         tiz_proc_buffers_ready, ar_proc_buffers_ready, 0);
+         tiz_prc_buffers_ready, ar_proc_buffers_ready, 0);
     }
 }

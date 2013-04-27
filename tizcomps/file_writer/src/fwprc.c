@@ -207,7 +207,7 @@ fw_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static OMX_ERRORTYPE
@@ -256,16 +256,16 @@ fw_prc_init (void)
 {
   if (!fwprc)
     {
-      tiz_proc_init ();
+      tiz_prc_init ();
       fwprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "fwprc",
-         tizproc,
+         tizprc,
          sizeof (fw_prc_t),
          ctor, fw_proc_ctor,
          dtor, fw_proc_dtor,
-         tiz_proc_buffers_ready, fw_proc_buffers_ready,
+         tiz_prc_buffers_ready, fw_proc_buffers_ready,
          tiz_srv_allocate_resources, fw_proc_allocate_resources,
          tiz_srv_deallocate_resources, fw_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, fw_proc_prepare_to_transfer,

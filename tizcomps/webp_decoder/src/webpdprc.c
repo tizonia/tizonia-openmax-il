@@ -159,7 +159,7 @@ webpd_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static bool
@@ -287,16 +287,16 @@ init_webpdprc (void)
   if (!webpdprc)
     {
       TIZ_LOG (TIZ_TRACE, "Initializing webpdprc...");
-      tiz_proc_init ();
+      tiz_prc_init ();
       webpdprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "webpdprc",
-         tizproc,
+         tizprc,
          sizeof (struct webpdprc),
          ctor, webpd_proc_ctor,
          dtor, webpd_proc_dtor,
-         tiz_proc_buffers_ready, webpd_proc_buffers_ready,
+         tiz_prc_buffers_ready, webpd_proc_buffers_ready,
          tiz_srv_allocate_resources, webpd_proc_allocate_resources,
          tiz_srv_deallocate_resources, webpd_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, webpd_proc_prepare_to_transfer,

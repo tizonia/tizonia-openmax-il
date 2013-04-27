@@ -730,7 +730,7 @@ vp8d_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static OMX_ERRORTYPE
@@ -781,12 +781,12 @@ vp8d_prc_init (void)
 {
   if (!vp8dprc)
     {
-      tiz_proc_init ();
+      tiz_prc_init ();
       vp8dprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "vp8dprc",
-         tizproc,
+         tizprc,
          sizeof (vp8d_prc_t),
          ctor, vp8d_proc_ctor,
          dtor, vp8d_proc_dtor,
@@ -795,9 +795,9 @@ vp8d_prc_init (void)
          tiz_srv_prepare_to_transfer, vp8d_proc_prepare_to_transfer,
          tiz_srv_transfer_and_process, vp8d_proc_transfer_and_process,
          tiz_srv_stop_and_return, vp8d_proc_stop_and_return,
-         tiz_proc_buffers_ready, vp8d_proc_buffers_ready,
-         tiz_proc_port_flush, vp8d_proc_port_flush,
-         tiz_proc_port_disable, vp8d_proc_port_disable,
-         tiz_proc_port_enable, vp8d_proc_port_enable, 0);
+         tiz_prc_buffers_ready, vp8d_proc_buffers_ready,
+         tiz_prc_port_flush, vp8d_proc_port_flush,
+         tiz_prc_port_disable, vp8d_proc_port_disable,
+         tiz_prc_port_enable, vp8d_proc_port_enable, 0);
     }
 }

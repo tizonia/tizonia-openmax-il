@@ -147,16 +147,16 @@ init_frprc (void)
 {
   if (!frprc)
     {
-      init_tizproc ();
+      tiz_prc_init ();
       frprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "frprc",
-         tizproc,
+         tizprc,
          sizeof (struct frprc),
          ctor, fr_proc_ctor,
          dtor, fr_proc_dtor,
-         tizproc_buffers_ready, fr_proc_buffers_ready,
+         tiz_prc_buffers_ready, fr_proc_buffers_ready,
          tiz_srv_allocate_resources, fr_proc_allocate_resources,
          tiz_srv_deallocate_resources, fr_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, fr_proc_prepare_to_transfer,

@@ -288,7 +288,7 @@ sdlivr_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static OMX_ERRORTYPE
@@ -331,16 +331,16 @@ sdlivr_prc_init (void)
 {
   if (!sdlivrprc)
     {
-      tiz_proc_init ();
+      tiz_prc_init ();
       sdlivrprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "sdlivrprc",
-         tizproc,
+         tizprc,
          sizeof (sdlivr_prc_t),
          ctor, sdlivr_proc_ctor,
          dtor, sdlivr_proc_dtor,
-         tiz_proc_buffers_ready, sdlivr_proc_buffers_ready,
+         tiz_prc_buffers_ready, sdlivr_proc_buffers_ready,
          tiz_srv_allocate_resources, sdlivr_proc_allocate_resources,
          tiz_srv_deallocate_resources, sdlivr_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, sdlivr_proc_prepare_to_transfer,

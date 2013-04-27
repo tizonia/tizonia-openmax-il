@@ -48,7 +48,7 @@ extern "C"
   struct mp3e_prc
   {
     /* Object */
-    const tiz_proc_t _;
+    const tiz_prc_t _;
     OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
     OMX_AUDIO_PARAM_MP3TYPE mp3type_;
     lame_t lame_;

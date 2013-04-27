@@ -44,7 +44,7 @@ extern "C"
   struct frprc
   {
     /* Object */
-    const struct tizproc _;
+    const struct tizprc _;
     OMX_BUFFERHEADERTYPE *pinhdr_;
     OMX_BUFFERHEADERTYPE *pouthdr_;
     bool eos_;

@@ -496,7 +496,7 @@ mp3e_proc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tiz_proc class
+ * from tiz_prc class
  */
 
 static OMX_ERRORTYPE
@@ -585,12 +585,12 @@ mp3e_prc_init (void)
 {
   if (!mp3eprc)
     {
-      tiz_proc_init ();
+      tiz_prc_init ();
       mp3eprc =
         factory_new
-        (tizproc_class,
+        (tizprc_class,
          "mp3eprc",
-         tizproc,
+         tizprc,
          sizeof (mp3e_prc_t),
          ctor, mp3e_proc_ctor,
          dtor, mp3e_proc_dtor,
@@ -599,9 +599,9 @@ mp3e_prc_init (void)
          tiz_srv_prepare_to_transfer, mp3e_proc_prepare_to_transfer,
          tiz_srv_transfer_and_process, mp3e_proc_transfer_and_process,
          tiz_srv_stop_and_return, mp3e_proc_stop_and_return,
-         tiz_proc_buffers_ready, mp3e_proc_buffers_ready,
-         tiz_proc_port_flush, mp3e_proc_port_flush,
-         tiz_proc_port_disable, mp3e_proc_port_disable,
-         tiz_proc_port_enable, mp3e_proc_port_enable, 0);
+         tiz_prc_buffers_ready, mp3e_proc_buffers_ready,
+         tiz_prc_port_flush, mp3e_proc_port_flush,
+         tiz_prc_port_disable, mp3e_proc_port_disable,
+         tiz_prc_port_enable, mp3e_proc_port_enable, 0);
     }
 }

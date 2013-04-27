@@ -41,7 +41,7 @@ extern "C"
   struct frprc
   {
     /* Object */
-    const struct tizproc _;
+    const struct tizprc _;
     bool eos_;
   };
 
