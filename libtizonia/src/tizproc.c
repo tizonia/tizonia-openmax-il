@@ -72,14 +72,14 @@ static OMX_ERRORTYPE dispatch_port_flush (const void *ap_obj,
 
 typedef enum tiz_prc_msg_class tiz_prc_msg_class_t;
 enum tiz_prc_msg_class
-{
-  ETIZPrcMsgSendCommand = 0,
-  ETIZPrcMsgBuffersReady,
-  ETIZPrcMsgEvIo,
-  ETIZPrcMsgEvTimer,
-  ETIZPrcMsgEvStat,
-  ETIZPrcMsgMax,
-};
+  {
+    ETIZPrcMsgSendCommand = 0,
+    ETIZPrcMsgBuffersReady,
+    ETIZPrcMsgEvIo,
+    ETIZPrcMsgEvTimer,
+    ETIZPrcMsgEvStat,
+    ETIZPrcMsgMax,
+  };
 
 typedef struct tiz_prc_msg_sendcommand tiz_prc_msg_sendcommand_t;
 struct tiz_prc_msg_sendcommand
@@ -144,8 +144,8 @@ static const tiz_prc_msg_dispatch_f tiz_prc_msg_to_fnt_tbl[] = {
 };
 
 typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_sc_f)
-  (const void *ap_obj, OMX_HANDLETYPE p_hdl,
-   tiz_prc_msg_sendcommand_t * ap_msg_sc);
+(const void *ap_obj, OMX_HANDLETYPE p_hdl,
+ tiz_prc_msg_sendcommand_t * ap_msg_sc);
 
 static const tiz_prc_msg_dispatch_sc_f tiz_prc_msg_dispatch_sc_to_fnt_tbl[] = {
   dispatch_state_set,
@@ -872,56 +872,56 @@ tiz_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-proc_event_io_ready (const void *ap_obj,
-                       tiz_event_io_t * ap_ev_io, int a_fd,
-                       int a_events)
+proc_io_ready (const void *ap_obj,
+               tiz_event_io_t * ap_ev_io, int a_fd,
+               int a_events)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_prc_event_io_ready (void *ap_obj,
-                          tiz_event_io_t * ap_ev_io, int a_fd,
-                          int a_events)
+tiz_prc_io_ready (void *ap_obj,
+                  tiz_event_io_t * ap_ev_io, int a_fd,
+                  int a_events)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->event_io_ready);
-  return class->event_io_ready (ap_obj, ap_ev_io, a_fd, a_events);
+  assert (class->io_ready);
+  return class->io_ready (ap_obj, ap_ev_io, a_fd, a_events);
 }
 
 static OMX_ERRORTYPE
-proc_event_timer_ready (void *ap_obj,
-                        tiz_event_timer_t * ap_ev_timer, void *ap_arg)
+proc_timer_ready (void *ap_obj,
+                  tiz_event_timer_t * ap_ev_timer, void *ap_arg)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_prc_event_timer_ready (void *ap_obj,
-                           tiz_event_timer_t * ap_ev_timer,
-                           void *ap_arg)
+tiz_prc_timer_ready (void *ap_obj,
+                     tiz_event_timer_t * ap_ev_timer,
+                     void *ap_arg)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->event_timer_ready);
-  return class->event_timer_ready (ap_obj, ap_ev_timer, ap_arg);
+  assert (class->timer_ready);
+  return class->timer_ready (ap_obj, ap_ev_timer, ap_arg);
 }
 
 static OMX_ERRORTYPE
-proc_event_stat_ready (void *ap_obj,
-                       tiz_event_stat_t * ap_ev_stat,
-                       int a_events)
+proc_stat_ready (void *ap_obj,
+                 tiz_event_stat_t * ap_ev_stat,
+                 int a_events)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_prc_event_stat_ready (void *ap_obj,
-                          tiz_event_stat_t * ap_ev_stat,
-                          int a_events)
+tiz_prc_stat_ready (void *ap_obj,
+                    tiz_event_stat_t * ap_ev_stat,
+                    int a_events)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->event_stat_ready);
-  return class->event_stat_ready (ap_obj, ap_ev_stat, a_events);
+  assert (class->stat_ready);
+  return class->stat_ready (ap_obj, ap_ev_stat, a_events);
 }
 
 /*
@@ -956,17 +956,17 @@ proc_class_ctor (void *ap_obj, va_list * app)
         {
           *(voidf *) & p_obj->port_enable = method;
         }
-      else if (selector == (voidf) tiz_prc_event_io_ready)
+      else if (selector == (voidf) tiz_prc_io_ready)
         {
-          *(voidf *) & p_obj->event_io_ready = method;
+          *(voidf *) & p_obj->io_ready = method;
         }
-      else if (selector == (voidf) tiz_prc_event_timer_ready)
+      else if (selector == (voidf) tiz_prc_timer_ready)
         {
-          *(voidf *) & p_obj->event_timer_ready = method;
+          *(voidf *) & p_obj->timer_ready = method;
         }
-      else if (selector == (voidf) tiz_prc_event_stat_ready)
+      else if (selector == (voidf) tiz_prc_stat_ready)
         {
-          *(voidf *) & p_obj->event_stat_ready = method;
+          *(voidf *) & p_obj->stat_ready = method;
         }
     }
 
@@ -988,10 +988,10 @@ tiz_prc_init (void)
     {
       tiz_srv_init ();
       tizprc_class = factory_new (tizsrv_class,
-                                   "tizprc_class",
-                                   tizsrv_class,
-                                   sizeof (tiz_prc_class_t),
-                                   ctor, proc_class_ctor, 0);
+                                  "tizprc_class",
+                                  tizsrv_class,
+                                  sizeof (tiz_prc_class_t),
+                                  ctor, proc_class_ctor, 0);
 
     }
 
@@ -1020,9 +1020,9 @@ tiz_prc_init (void)
          tiz_prc_port_flush, proc_port_flush,
          tiz_prc_port_disable, proc_port_disable,
          tiz_prc_port_enable, proc_port_enable,
-         tiz_prc_event_io_ready, proc_event_io_ready,
-         tiz_prc_event_timer_ready, proc_event_timer_ready,
-         tiz_prc_event_stat_ready, proc_event_stat_ready,
+         tiz_prc_io_ready, proc_io_ready,
+         tiz_prc_timer_ready, proc_timer_ready,
+         tiz_prc_stat_ready, proc_stat_ready,
          0);
     }
 

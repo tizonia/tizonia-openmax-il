@@ -291,7 +291,7 @@ icer_proc_buffers_ready (const void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-icer_event_io_ready (void *ap_obj,
+icer_io_ready (void *ap_obj,
                      tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
   icer_prc_t *p_obj = ap_obj;
@@ -323,7 +323,7 @@ icer_event_io_ready (void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
+icer_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
                         void *ap_arg)
 {
   icer_prc_t *p_obj = ap_obj;
@@ -359,7 +359,7 @@ icer_prc_init (void)
          tiz_srv_prepare_to_transfer, icer_proc_prepare_to_transfer,
          tiz_srv_transfer_and_process, icer_proc_transfer_and_process,
          tiz_srv_stop_and_return, icer_proc_stop_and_return,
-         tiz_prc_event_io_ready, icer_event_io_ready,
-         tiz_prc_event_timer_ready, icer_event_timer_ready, 0);
+         tiz_prc_io_ready, icer_io_ready,
+         tiz_prc_timer_ready, icer_timer_ready, 0);
     }
 }

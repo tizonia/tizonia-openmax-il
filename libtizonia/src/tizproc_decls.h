@@ -58,13 +58,13 @@ extern "C"
     OMX_ERRORTYPE (*port_flush) (const void *p_obj, OMX_U32 a_pid);
     OMX_ERRORTYPE (*port_disable) (const void *p_obj, OMX_U32 a_pid);
     OMX_ERRORTYPE (*port_enable) (const void *p_obj, OMX_U32 a_pid);
-    OMX_ERRORTYPE (*event_io_ready) (void *ap_obj,
+    OMX_ERRORTYPE (*io_ready) (void *ap_obj,
                                        tiz_event_io_t * ap_ev_io, int a_fd,
                                        int a_events);
-    OMX_ERRORTYPE (*event_timer_ready) (void *ap_obj,
+    OMX_ERRORTYPE (*timer_ready) (void *ap_obj,
                                         tiz_event_timer_t * ap_ev_timer,
                                         void *ap_arg);
-    OMX_ERRORTYPE (*event_stat_ready) (void *ap_obj,
+    OMX_ERRORTYPE (*stat_ready) (void *ap_obj,
                                          tiz_event_stat_t * ap_ev_stat,
                                          int a_events);
   };
