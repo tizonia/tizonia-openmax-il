@@ -20,7 +20,7 @@
  * @file   icerprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Icecast-like HTTP Sink processor class
+ * @brief  Tizonia OpenMAX IL - HTTP renderer processor class
  * declarations
  *
  *
@@ -34,16 +34,15 @@ extern "C"
 {
 #endif
 
-#include <stdbool.h>
-
+#include "icerprc.h"
+#include "tizproc_decls.h"
+#include "icercon.h"
 #include "tizosal.h"
 
-#include "icerprc.h"
-#include "icercon.h"
-#include "tizproc_decls.h"
+#include <stdbool.h>
 
-
-  struct icerprc
+  typedef struct icer_prc icer_prc_t;
+  struct icer_prc
   {
     /* Object */
     const tiz_prc_t _;

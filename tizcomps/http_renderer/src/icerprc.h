@@ -21,7 +21,7 @@
  * @file   icerprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Icecast-like Http Sink processor class
+ * @brief  Tizonia OpenMAX IL - HTTP renderer processor class
  *
  *
  */
@@ -39,7 +39,7 @@ extern "C"
 /* factory_new(icerprc, ...) */
   extern const void *icerprc;
 
-  void init_icerprc (void);
+  void icer_prc_init (void);
 
 #ifdef __cplusplus
 }

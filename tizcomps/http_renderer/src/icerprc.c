@@ -21,7 +21,7 @@
  * @file   icerprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - Icecast-like Http Sink processor class
+ * @brief Tizonia OpenMAX IL - HTTP renderer processor class
  * implementation
  *
  *
@@ -47,12 +47,11 @@
 #endif
 
 static OMX_ERRORTYPE
-stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
+stream_to_clients (icer_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
 
   if (icer_con_get_listeners_count (ap_obj->p_server_) == 0)
     {
@@ -69,8 +68,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* Socket send buffers are full */
             ap_obj->server_is_full_ = true;
-            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
-                           TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
+            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
           break;
@@ -79,8 +77,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* Trying not send too much data. */
             ap_obj->server_is_full_ = false;
-            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
-                           TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
+            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
           break;
@@ -89,8 +86,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* More data needed */
             ap_obj->server_is_full_ = false;
-            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
-                           TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
+            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : ", tiz_err_to_str (rc));
           }
           break;
 
@@ -98,18 +94,15 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
           {
             /* No connected clients yet */
             ap_obj->server_is_full_ = false;
-            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
-                           TIZ_CBUF (ap_hdl), "[%s] : ", tiz_err_to_str (rc));
+            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
           break;
 
         default:
           {
-            TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
-                           TIZ_CBUF (ap_hdl),
-                           "[%s] : Error while writing to clients ...",
-                           tiz_err_to_str (rc));
+            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : Error while writing to "
+                      "clients ...", tiz_err_to_str (rc));
           }
           break;
 
@@ -122,7 +115,7 @@ stream_to_clients (struct icerprc *ap_obj, OMX_HANDLETYPE ap_hdl)
 static OMX_BUFFERHEADERTYPE *
 buffer_needed (void *ap_arg)
 {
-  struct icerprc *p_obj = ap_arg;
+  icer_prc_t *p_obj = ap_arg;
 
   assert (NULL != p_obj);
 
@@ -141,7 +134,7 @@ buffer_needed (void *ap_arg)
           assert (false == p_obj->server_is_full_);
 
           assert (NULL != p_parent->p_hdl_);
-          p_krn = tiz_get_krn (p_parent->p_hdl_);
+          p_krn = tiz_get_krn (tiz_srv_get_hdl (p_obj));
 
           TIZ_PD_ZERO (&ports);
           if (OMX_ErrorNone == tiz_krn_select (p_krn, 1, &ports))
@@ -151,8 +144,9 @@ buffer_needed (void *ap_arg)
                   if (OMX_ErrorNone == tiz_krn_claim_buffer
                       (p_krn, 0, 0, &p_obj->p_inhdr_))
                     {
-                      TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...",
-                               p_obj->p_inhdr_);
+                      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+                                "Claimed HEADER [%p]...",
+                                p_obj->p_inhdr_);
                       return p_obj->p_inhdr_;
                     }
                 }
@@ -164,26 +158,21 @@ buffer_needed (void *ap_arg)
 }
 
 static void
-buffer_emptied (OMX_BUFFERHEADERTYPE * p_hdr, void *p_arg)
+buffer_emptied (OMX_BUFFERHEADERTYPE * ap_hdr, void *ap_arg)
 {
-  struct icerprc *p_obj = p_arg;
-  const tiz_srv_t *p_parent = p_arg;
-  void *p_krn = NULL;
+  icer_prc_t *p_obj = ap_arg;
 
   assert (NULL != p_obj);
-  assert (NULL != p_hdr);
-  assert (p_obj->p_inhdr_ == p_hdr);
+  assert (NULL != ap_hdr);
+  assert (p_obj->p_inhdr_ == ap_hdr);
+  assert (ap_hdr->nFilledLen == 0);
 
-  TIZ_LOG (TIZ_TRACE, "HEADER emptied [%p]", p_hdr);
-
-  p_krn = tiz_get_krn (p_parent->p_hdl_);
-  assert (NULL != p_krn);
-  assert (p_hdr->nFilledLen == 0);
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj), "HEADER [%p] emptied", ap_hdr);
 
   p_obj->server_is_full_ = false;
-  p_hdr->nOffset = 0;
+  ap_hdr->nOffset = 0;
 
-  tiz_krn_relinquish_buffer (p_krn, 0, p_hdr);
+  tiz_krn_relinquish_buffer (tiz_get_krn (tiz_srv_get_hdl (p_obj)), 0, ap_hdr);
   p_obj->p_inhdr_ = NULL;
 }
 
@@ -194,17 +183,17 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * p_hdr, void *p_arg)
 static void *
 icer_proc_ctor (void *ap_obj, va_list * app)
 {
-  struct icerprc *p_obj = super_ctor (icerprc, ap_obj, app);
-  p_obj->bind_address_ = NULL;
-  p_obj->lstn_port_ = 0;
-  p_obj->mount_name_ = NULL;
-  p_obj->max_clients_ = 0;
-  p_obj->burst_size_ = 65536;
+  icer_prc_t *p_obj      = super_ctor (icerprc, ap_obj, app);
+  p_obj->bind_address_   = NULL;
+  p_obj->lstn_port_      = 0;
+  p_obj->mount_name_     = NULL;
+  p_obj->max_clients_    = 0;
+  p_obj->burst_size_     = 65536;
   p_obj->server_is_full_ = false;
-  p_obj->eos_ = false;
-  p_obj->lstn_sockfd_ = ICE_RENDERER_SOCK_ERROR;
-  p_obj->p_server_ = NULL;
-  p_obj->p_inhdr_ = NULL;
+  p_obj->eos_            = false;
+  p_obj->lstn_sockfd_    = ICE_RENDERER_SOCK_ERROR;
+  p_obj->p_server_       = NULL;
+  p_obj->p_inhdr_        = NULL;
   return p_obj;
 }
 
@@ -221,41 +210,35 @@ icer_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct icerprc *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
-  void *p_krn = NULL;
+  icer_prc_t *p_obj = ap_obj;
+  OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
+  void *p_krn = tiz_get_krn (p_hdl);
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
 
   assert (NULL != ap_obj);
-  assert (NULL != p_parent->p_hdl_);
-
-  p_krn = tiz_get_krn (p_parent->p_hdl_);
   assert (NULL != p_krn);
 
   /* Retrieve http server configuration from the component's config port */
   httpsrv.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
-  if (OMX_ErrorNone != (rc = tiz_api_GetParameter (p_krn, p_parent->p_hdl_,
-                                                  OMX_TizoniaIndexParamHttpServer,
-                                                  &httpsrv)))
+  if (OMX_ErrorNone
+      != (rc = tiz_api_GetParameter (p_krn, p_hdl,
+                                     OMX_TizoniaIndexParamHttpServer,
+                                     &httpsrv)))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
-                     TIZ_CBUF (p_parent->p_hdl_),
-                     "[%s] : Error retrieving HTTPSERVERTYPE from port",
-                     tiz_err_to_str (rc));
+      TIZ_LOGN (TIZ_TRACE, p_hdl, "[%s] : Error retrieving "
+                "HTTPSERVERTYPE from port", tiz_err_to_str (rc));
       return rc;
     }
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "nListeningPort = [%d] nMaxClients = [%d] ",
-                 httpsrv.nListeningPort, httpsrv.nMaxClients);
+  TIZ_LOGN (TIZ_TRACE, p_hdl, "nListeningPort = [%d] nMaxClients = [%d] ",
+            httpsrv.nListeningPort, httpsrv.nMaxClients);
 
   p_obj->lstn_port_ = httpsrv.nListeningPort;
   p_obj->max_clients_ = httpsrv.nMaxClients;
 
-  return icer_con_server_init (&(p_obj->p_server_), p_parent->p_hdl_,
+  return icer_con_server_init (&(p_obj->p_server_), p_hdl,
                                p_obj->bind_address_, p_obj->lstn_port_,
                                p_obj->max_clients_, buffer_emptied,
                                buffer_needed, p_obj);
@@ -264,33 +247,22 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 icer_proc_deallocate_resources (void *ap_obj)
 {
-  struct icerprc *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
-
+  icer_prc_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
-  assert (NULL != p_parent->p_hdl_);
-
-  icer_con_server_destroy (p_obj->p_server_, p_parent->p_hdl_);
+  icer_con_server_destroy (p_obj->p_server_, tiz_srv_get_hdl (p_obj));
   p_obj->p_server_ = NULL;
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  struct icerprc *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
-
+  icer_prc_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
-  assert (NULL != p_parent->p_hdl_);
-
-  TIZ_LOG (TIZ_TRACE,
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
            "Server starts listening on port [%d]", p_obj->lstn_port_);
-
   p_obj->lstn_sockfd_ = icer_con_get_server_fd (p_obj->p_server_);
-
-  return icer_con_start_listening (p_obj->p_server_, p_parent->p_hdl_);
+  return icer_con_start_listening (p_obj->p_server_, tiz_srv_get_hdl (p_obj));
 }
 
 static OMX_ERRORTYPE
@@ -302,14 +274,9 @@ icer_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 icer_proc_stop_and_return (void *ap_obj)
 {
-  struct icerprc *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
-
+  icer_prc_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
-
-  TIZ_LOG (TIZ_TRACE, "Stopped buffer transfer...p_obj = [%p]", p_obj);
-
-  return icer_con_stop_listening (p_obj->p_server_, p_parent->p_hdl_);
+  return icer_con_stop_listening (p_obj->p_server_, tiz_srv_get_hdl (p_obj));
 }
 
 /*
@@ -319,36 +286,25 @@ icer_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 icer_proc_buffers_ready (const void *ap_obj)
 {
-  struct icerprc *p_obj = (struct icerprc *) ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
-
-  assert (NULL != p_parent);
-  assert (NULL != p_parent->p_hdl_);
-
-  return stream_to_clients (p_obj, p_parent->p_hdl_);
+  icer_prc_t *p_obj = (icer_prc_t *) ap_obj;
+  return stream_to_clients (p_obj, tiz_srv_get_hdl (p_obj));
 }
 
 static OMX_ERRORTYPE
 icer_event_io_ready (void *ap_obj,
                      tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
-  struct icerprc *p_obj = ap_obj;
-  tiz_srv_t *p_parent = ap_obj;
-  OMX_HANDLETYPE p_hdl = NULL;
+  icer_prc_t *p_obj = ap_obj;
+  OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
-  assert (NULL != p_parent->p_hdl_);
-  p_hdl = p_parent->p_hdl_;
-
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
-                 "Received io event on socket fd [%d] lstn_sockfd_ [%d]",
-                 a_fd, p_obj->lstn_sockfd_);
+  TIZ_LOGN (TIZ_TRACE, p_hdl, "Received io event on socket fd [%d] "
+            "lstn_sockfd_ [%d]", a_fd, p_obj->lstn_sockfd_);
 
   if (a_fd == p_obj->lstn_sockfd_)
     {
       rc = icer_con_accept_connection (p_obj->p_server_, p_hdl);
-
       if (OMX_ErrorInsufficientResources != rc)
         {
           rc = OMX_ErrorNone;
@@ -360,7 +316,6 @@ icer_event_io_ready (void *ap_obj,
         {
           p_obj->server_is_full_ = false;
         }
-
       rc = stream_to_clients (p_obj, p_hdl);
     }
 
@@ -371,21 +326,11 @@ static OMX_ERRORTYPE
 icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
                         void *ap_arg)
 {
-  struct icerprc *p_obj = ap_obj;
-  tiz_srv_t *p_parent = ap_obj;
-  OMX_HANDLETYPE p_hdl = NULL;
-
+  icer_prc_t *p_obj = ap_obj;
   assert (NULL != p_obj);
-  assert (NULL != p_parent->p_hdl_);
-  p_hdl = p_parent->p_hdl_;
-
-  TIZ_LOG_CNAME (TIZ_NOTICE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
-                 "Received timer event ");
-  fflush (stdout);
-
+  TIZ_LOGN (TIZ_NOTICE, tiz_srv_get_hdl (p_obj), "Received timer event ");
   p_obj->server_is_full_ = false;
-
-  return stream_to_clients (p_obj, p_hdl);;
+  return stream_to_clients (p_obj, tiz_srv_get_hdl (p_obj));
 }
 
 /*
@@ -395,7 +340,7 @@ icer_event_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
 const void *icerprc;
 
 void
-init_icerprc (void)
+icer_prc_init (void)
 {
   if (!icerprc)
     {
@@ -405,7 +350,7 @@ init_icerprc (void)
         (tizprc_class,
          "icerprc",
          tizprc,
-         sizeof (struct icerprc),
+         sizeof (icer_prc_t),
          ctor, icer_proc_ctor,
          dtor, icer_proc_dtor,
          tiz_prc_buffers_ready, icer_proc_buffers_ready,

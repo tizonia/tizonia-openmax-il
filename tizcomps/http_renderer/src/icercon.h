@@ -21,7 +21,7 @@
  * @file   icercon.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - HTTP sink connection management functions
+ * @brief Tizonia OpenMAX IL - HTTP renderer's connection management functions
  *
  *
  */

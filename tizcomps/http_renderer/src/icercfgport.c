@@ -102,18 +102,16 @@ icer_cfgport_SetParameter (const void *ap_obj,
 {
   icer_cfgport_t *p_obj = (icer_cfgport_t *) ap_obj;
 
-  TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
-
   if (OMX_TizoniaIndexParamHttpServer == a_index)
     {
       OMX_TIZONIA_PARAM_HTTPSERVERTYPE *p_http_conf
         = (OMX_TIZONIA_PARAM_HTTPSERVERTYPE *) ap_struct;
       p_obj->http_conf_ = *p_http_conf;
 
-      TIZ_LOG (TIZ_TRACE, "nListeningPort [%d]...",
-               p_obj->http_conf_.nListeningPort);
-      TIZ_LOG (TIZ_TRACE, "nMaxClients [%d]...",
-               p_obj->http_conf_.nMaxClients);
+      TIZ_LOGN (TIZ_TRACE, ap_hdl, "nListeningPort [%d]...",
+                p_obj->http_conf_.nListeningPort);
+      TIZ_LOGN (TIZ_TRACE, ap_hdl, "nMaxClients [%d]...",
+                p_obj->http_conf_.nMaxClients);
     }
   else
     {

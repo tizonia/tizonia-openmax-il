@@ -21,7 +21,7 @@
  * @file   icer.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Icecast-like Http Sink component
+ * @brief  Tizonia OpenMAX IL - Icecast-like HTTP renderer
  *
  *
  */
@@ -62,7 +62,6 @@ static OMX_VERSIONTYPE http_renderer_version = { {1, 0, 0, 0} };
 static OMX_PTR
 instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_binaryport = NULL;
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
@@ -76,38 +75,25 @@ instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
   };
 
   tiz_binaryport_init ();
-  p_binaryport = factory_new (tizbinaryport, &port_opts);
-  assert (p_binaryport);
-
-  return p_binaryport;
+  return factory_new (tizbinaryport, &port_opts);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_cport = NULL;
-
   /* Instantiate the config port */
   icer_cfgport_init ();
-  p_cport = factory_new (icercfgport, NULL,     /* this port does not take options */
-                         ARATELIA_HTTP_RENDERER_COMPONENT_NAME,
-                         http_renderer_version);
-  assert (p_cport);
-
-  return p_cport;
+  return factory_new (icercfgport, NULL,     /* this port does not take options */
+                      ARATELIA_HTTP_RENDERER_COMPONENT_NAME,
+                      http_renderer_version);
 }
 
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_proc = NULL;
-
   /* Instantiate the processor */
-  init_icerprc ();
-  p_proc = factory_new (icerprc, ap_hdl);
-  assert (p_proc);
-
-  return p_proc;
+  icer_prc_init ();
+  return factory_new (icerprc, ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -127,9 +113,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 1;
   role_factory.pf_proc    = instantiate_processor;
 
-  tiz_comp_init (ap_hdl, ARATELIA_HTTP_RENDERER_COMPONENT_NAME);
-
-  tiz_comp_register_roles (ap_hdl, rf_list, 1);
+  tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_HTTP_RENDERER_COMPONENT_NAME));
+  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;
 }
