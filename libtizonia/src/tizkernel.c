@@ -1609,7 +1609,7 @@ tiz_krn_super_claim_buffer (const void *a_class, const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-krn_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
+krn_release_buffer (const void *ap_obj, OMX_U32 a_pid,
                        OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
@@ -1639,22 +1639,22 @@ krn_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
 }
 
 OMX_ERRORTYPE
-tiz_krn_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
+tiz_krn_release_buffer (const void *ap_obj, OMX_U32 a_pid,
                            OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (class->relinquish_buffer);
-  return class->relinquish_buffer (ap_obj, a_pid, ap_hdr);
+  assert (class->release_buffer);
+  return class->release_buffer (ap_obj, a_pid, ap_hdr);
 }
 
 OMX_ERRORTYPE
-tiz_krn_super_relinquish_buffer (const void *a_class, const void *ap_obj,
+tiz_krn_super_release_buffer (const void *a_class, const void *ap_obj,
                                  OMX_U32 a_pid,
                                  OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   const tiz_krn_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->relinquish_buffer);
-  return superclass->relinquish_buffer (ap_obj, a_pid, ap_hdr);
+  assert (ap_obj && superclass->release_buffer);
+  return superclass->release_buffer (ap_obj, a_pid, ap_hdr);
 }
 
 static void
@@ -1930,9 +1930,9 @@ krn_class_ctor (void *ap_obj, va_list * app)
         {
           *(voidf *) & p_obj->claim_buffer = method;
         }
-      else if (selector == (voidf) tiz_krn_relinquish_buffer)
+      else if (selector == (voidf) tiz_krn_release_buffer)
         {
-          *(voidf *) & p_obj->relinquish_buffer = method;
+          *(voidf *) & p_obj->release_buffer = method;
         }
       else if (selector == (voidf) tiz_krn_deregister_all_ports)
         {
@@ -2010,7 +2010,7 @@ tiz_krn_init (void)
          tiz_krn_get_tunneled_ports_status, krn_get_tunneled_ports_status,
          tiz_krn_select, krn_select,
          tiz_krn_claim_buffer, krn_claim_buffer,
-         tiz_krn_relinquish_buffer, krn_relinquish_buffer,
+         tiz_krn_release_buffer, krn_release_buffer,
          tiz_krn_deregister_all_ports, krn_deregister_all_ports,
          tiz_krn_reset_tunneled_ports_status,
          krn_reset_tunneled_ports_status, 0);

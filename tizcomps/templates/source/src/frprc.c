@@ -129,7 +129,7 @@ fr_proc_buffers_ready (const void *ap_obj)
           TIZ_UTIL_TEST_ERR (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
           TIZ_LOG (TIZ_LOG_TRACE, "Claimed HEADER [%p]...", p_hdr);
           TIZ_UTIL_TEST_ERR (fr_proc_read_buffer (ap_obj, p_hdr));
-          tiz_krn_relinquish_buffer (p_krn, 0, p_hdr);
+          tiz_krn_release_buffer (p_krn, 0, p_hdr);
         }
     }
 

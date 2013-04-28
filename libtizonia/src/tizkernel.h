@@ -87,7 +87,7 @@ extern "C"
                                       OMX_U32 a_pos,
                                       OMX_BUFFERHEADERTYPE ** p_hdr);
 
-  OMX_ERRORTYPE tiz_krn_relinquish_buffer (const void *ap_obj, OMX_U32 a_pid,
+  OMX_ERRORTYPE tiz_krn_release_buffer (const void *ap_obj, OMX_U32 a_pid,
                                            OMX_BUFFERHEADERTYPE * ap_hdr);
 
   void tiz_krn_deregister_all_ports (void *ap_obj);

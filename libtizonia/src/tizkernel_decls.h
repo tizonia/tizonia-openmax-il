@@ -152,7 +152,7 @@ extern "C"
                                 OMX_BUFFERHEADERTYPE ** p_hdr);
 
   OMX_ERRORTYPE
-  tiz_krn_super_relinquish_buffer (const void *a_class,
+  tiz_krn_super_release_buffer (const void *a_class,
                                      const void *ap_obj, OMX_U32 a_port_id,
                                      OMX_BUFFERHEADERTYPE * ap_hdr);
 
@@ -195,7 +195,7 @@ extern "C"
                                    OMX_U32 a_pos,
                                    OMX_BUFFERHEADERTYPE ** p_hdr);
 
-    OMX_ERRORTYPE (*relinquish_buffer) (const void *ap_obj,
+    OMX_ERRORTYPE (*release_buffer) (const void *ap_obj,
                                         OMX_U32 a_port_id,
                                         OMX_BUFFERHEADERTYPE * p_hdr);
     void (*deregister_all_ports) (void *ap_obj);

@@ -48,7 +48,7 @@
 #define TIZ_LAME_MP3_ENC_MIN_BUFFER_SIZE 7200
 
 static OMX_ERRORTYPE
-relinquish_any_buffers_held (const void *ap_obj)
+release_buffers (const void *ap_obj)
 {
   mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   const tiz_srv_t *p_parent = ap_obj;
@@ -56,13 +56,13 @@ relinquish_any_buffers_held (const void *ap_obj)
 
   if (p_obj->p_inhdr_)
     {
-      tiz_krn_relinquish_buffer (p_krn, 0, p_obj->p_inhdr_);
+      tiz_krn_release_buffer (p_krn, 0, p_obj->p_inhdr_);
       p_obj->p_inhdr_ = NULL;
     }
 
   if (p_obj->p_outhdr_)
     {
-      tiz_krn_relinquish_buffer (p_krn, 1, p_obj->p_outhdr_);
+      tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_);
       p_obj->p_outhdr_ = NULL;
     }
 
@@ -164,7 +164,7 @@ encode_buffer (const void *ap_obj)
         {
           void *p_krn = tiz_get_krn (p_parent->p_hdl_);
           p_obj->p_outhdr_->nOffset = 0;
-          tiz_krn_relinquish_buffer (p_krn, 1, p_obj->p_outhdr_);
+          tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_);
           p_obj->p_outhdr_ = NULL;
         }
 
@@ -492,7 +492,7 @@ static OMX_ERRORTYPE
 mp3e_proc_stop_and_return (void *ap_obj)
 {
   mp3e_prc_t *p_obj = ap_obj;
-  return relinquish_any_buffers_held (p_obj);
+  return release_buffers (p_obj);
 }
 
 /*
@@ -529,7 +529,7 @@ mp3e_proc_buffers_ready (const void *ap_obj)
       if (p_obj->p_inhdr_ && (0 == p_obj->p_inhdr_->nFilledLen))
         {
           p_obj->p_inhdr_->nOffset = 0;
-          tiz_krn_relinquish_buffer (p_krn, 0, p_obj->p_inhdr_);
+          tiz_krn_release_buffer (p_krn, 0, p_obj->p_inhdr_);
           p_obj->p_inhdr_ = NULL;
         }
     }
@@ -543,7 +543,7 @@ mp3e_proc_buffers_ready (const void *ap_obj)
                      TIZ_CBUF (p_parent->p_hdl_),
                      "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);
       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
-      tiz_krn_relinquish_buffer (p_krn, 1, p_obj->p_outhdr_);
+      tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_);
       p_obj->p_outhdr_ = NULL;
     }
 
@@ -554,18 +554,16 @@ static OMX_ERRORTYPE
 mp3e_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
   mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
-  /* Always relinquish all held buffers, regardless of the port this is
-   * received on */
-  return relinquish_any_buffers_held (p_obj);
+  /* Release all buffers, regardless of the port this is received on */
+  return release_buffers (p_obj);
 }
 
 static OMX_ERRORTYPE
 mp3e_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
   mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
-  /* Always relinquish all held buffers, regardless of the port this is
-   * received on */
-  return relinquish_any_buffers_held (p_obj);
+  /* Release all buffers, regardless of the port this is received on */
+  return release_buffers (p_obj);
 }
 
 static OMX_ERRORTYPE

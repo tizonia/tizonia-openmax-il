@@ -314,7 +314,7 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
                                   OMX_EventBufferFlag,
                                   0, p_hdr->nFlags, NULL);
         }
-      tiz_krn_relinquish_buffer (p_krn, 0, p_hdr);
+      tiz_krn_release_buffer (p_krn, 0, p_hdr);
     }
 
   return OMX_ErrorNone;

@@ -251,7 +251,7 @@ vp8e_proc_buffers_ready (const void *ap_obj)
       if (p_obj->pinhdr_ && (0 == p_obj->pinhdr_->nFilledLen))
         {
           p_obj->pinhdr_->nOffset = 0;
-          tiz_krn_relinquish_buffer (p_krn, 0, p_obj->pinhdr_);
+          tiz_krn_release_buffer (p_krn, 0, p_obj->pinhdr_);
           p_obj->pinhdr_ = NULL;
         }
     }
@@ -265,7 +265,7 @@ vp8e_proc_buffers_ready (const void *ap_obj)
                      TIZ_CBUF (p_parent->p_hdl_),
                      "p_obj->eos OUTPUT HEADER [%p]...", p_obj->pouthdr_);
       p_obj->pouthdr_->nFlags |= OMX_BUFFERFLAG_EOS;
-      tiz_krn_relinquish_buffer (p_krn, 1, p_obj->pouthdr_);
+      tiz_krn_release_buffer (p_krn, 1, p_obj->pouthdr_);
       p_obj->pouthdr_ = NULL;
     }
 

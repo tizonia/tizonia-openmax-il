@@ -172,7 +172,7 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * ap_hdr, void *ap_arg)
   p_obj->server_is_full_ = false;
   ap_hdr->nOffset = 0;
 
-  tiz_krn_relinquish_buffer (tiz_get_krn (tiz_srv_get_hdl (p_obj)), 0, ap_hdr);
+  tiz_krn_release_buffer (tiz_get_krn (tiz_srv_get_hdl (p_obj)), 0, ap_hdr);
   p_obj->p_inhdr_ = NULL;
 }
 

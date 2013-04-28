@@ -314,7 +314,7 @@ buffer_emptied (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
       ap_obj->eos_ = true;
     }
 
-  tiz_krn_relinquish_buffer (ap_krn, 0, ap_hdr);
+  tiz_krn_release_buffer (ap_krn, 0, ap_hdr);
   ap_obj->p_inhdr_ = NULL;
 }
 
@@ -341,7 +341,7 @@ buffer_filled (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
       ap_obj->eos_ = false;
     }
 
-  tiz_krn_relinquish_buffer (ap_krn, 1, ap_hdr);
+  tiz_krn_release_buffer (ap_krn, 1, ap_hdr);
   ap_obj->p_outhdr_ = NULL;
 }
 
@@ -609,7 +609,7 @@ free_codec_buffer (vp8d_prc_t *p_obj)
 }
 
 static void
-relinquish_any_buffers_held (const void *ap_obj)
+release_buffers (const void *ap_obj)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
   void *p_krn = tiz_get_krn (tiz_srv_get_hdl (p_obj));
@@ -618,13 +618,13 @@ relinquish_any_buffers_held (const void *ap_obj)
 
   if (NULL != p_obj->p_inhdr_)
     {
-      tiz_krn_relinquish_buffer (p_krn, 0, p_obj->p_inhdr_);
+      tiz_krn_release_buffer (p_krn, 0, p_obj->p_inhdr_);
       p_obj->p_inhdr_ = NULL;
     }
 
   if (NULL != p_obj->p_outhdr_)
     {
-      tiz_krn_relinquish_buffer (p_krn, 1, p_obj->p_outhdr_);
+      tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_);
       p_obj->p_outhdr_ = NULL;
     }
 
@@ -750,8 +750,8 @@ static OMX_ERRORTYPE
 vp8d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
-  /* Relinquish all held buffers, regardless of the port this is received on */
-  relinquish_any_buffers_held (p_obj);
+  /* Release all buffers, regardless of the port this is received on */
+  release_buffers (p_obj);
   return OMX_ErrorNone;
 }
 
@@ -759,8 +759,8 @@ static OMX_ERRORTYPE
 vp8d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
-  /* Relinquish all held buffers, regardless of the port this is received on */
-  relinquish_any_buffers_held (p_obj);
+  /* Release all buffers, regardless of the port this is received on */
+  release_buffers (p_obj);
   return OMX_ErrorNone;
 }
 
