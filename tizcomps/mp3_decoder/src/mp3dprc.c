@@ -57,6 +57,7 @@ release_buffers (const void *ap_obj)
     {
       tiz_krn_release_buffer (p_krn, 0, p_obj->p_inhdr_);
       p_obj->p_inhdr_ = NULL;
+      p_obj->remaining_ = 0;
     }
 
   if (NULL != p_obj->p_outhdr_)
