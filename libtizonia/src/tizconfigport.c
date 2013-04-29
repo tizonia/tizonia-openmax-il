@@ -51,9 +51,13 @@ configport_ctor (void *ap_obj, va_list * app)
 {
   tiz_configport_t *p_obj = super_ctor (tizconfigport, ap_obj, app);
   tiz_port_t *p_base = ap_obj;
-
+  size_t str_len = 0;
+  
   /* Make an internal copy of the component name */
-  strcpy (p_obj->comp_name_, va_arg (*app, char *));
+  strncpy (p_obj->comp_name_, va_arg (*app, char *), OMX_MAX_STRINGNAME_SIZE - 1);
+  str_len = strnlen (p_obj->comp_name_, OMX_MAX_STRINGNAME_SIZE - 1);
+  p_obj->comp_name_[str_len] = '\0';
+
   TIZ_LOG (TIZ_TRACE, "comp_name_ [%s]...", p_obj->comp_name_);
 
   /* Component version */
@@ -114,7 +118,7 @@ configport_GetComponentVersion (const void *ap_obj,
 
   TIZ_LOG (TIZ_TRACE, "GetComponentVersion...");
 
-  strcpy (ap_comp_name, p_obj->comp_name_);
+  strncpy (ap_comp_name, p_obj->comp_name_, strlen (p_obj->comp_name_));
   *ap_comp_version = p_obj->comp_ver_;
   ap_spec_version->nVersion = OMX_VERSION;
 
