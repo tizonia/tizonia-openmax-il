@@ -284,7 +284,7 @@ cmd_to_priority (OMX_COMMANDTYPE a_cmd)
     case OMX_CommandPortEnable:
     case OMX_CommandMarkBuffer:
       {
-        prio = 1;
+        prio = 0;
       }
       break;
 
@@ -794,7 +794,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
 }
 
 static OMX_BOOL
-remove_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
+process_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
                                OMX_PTR ap_data2)
 {
   OMX_BOOL rc = OMX_FALSE;
@@ -807,18 +807,12 @@ remove_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   if (p_msg->class == ETIZKrnMsgEmptyThisBuffer
       || p_msg->class == ETIZKrnMsgFillThisBuffer)
     {
-      tiz_krn_msg_emptyfillbuffer_t *p_msg_ef = NULL;
+      tiz_krn_msg_emptyfillbuffer_t *p_msg_ef = &(p_msg->ef);
       OMX_PTR p_port = NULL;
       OMX_BUFFERHEADERTYPE *p_hdr = NULL;
       OMX_U32 pid = 0;
       OMX_HANDLETYPE *p_hdl = NULL;
       OMX_S32 nbufs = 0;
-
-      assert (NULL != p_obj);
-      assert (NULL != p_msg);
-
-      p_msg_ef = &(p_msg->ef);
-      assert (NULL != p_msg_ef);
 
       p_hdr = p_msg_ef->p_hdr;
       assert (NULL != p_hdr);
@@ -849,6 +843,62 @@ remove_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
             {
               TIZ_LOGN (TIZ_ERROR, p_hdl, "Error on port [%d] while "
                         "adding buffer to ingress list", pid);
+            }
+        }
+    }
+
+  return rc;
+}
+
+static OMX_BOOL
+process_cbacks_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
+                                   OMX_PTR ap_data2)
+{
+  OMX_BOOL rc = OMX_FALSE;
+  tiz_krn_msg_t *p_msg = ap_elem;
+  tiz_krn_t *p_obj = ap_data2;
+
+  assert (NULL != ap_elem);
+  assert (NULL != ap_data2);
+
+  if (p_msg->class == ETIZKrnMsgCallback)
+    {
+      tiz_krn_msg_callback_t *p_msg_cb = &(p_msg->cb);
+      OMX_PTR p_port = NULL;
+      OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+      OMX_U32 pid = 0;
+      OMX_HANDLETYPE *p_hdl = NULL;
+      OMX_S32 nbufs = 0;
+
+      p_hdr = p_msg_cb->p_hdr;
+      assert (NULL != p_hdr);
+
+      p_hdl = p_msg->p_hdl;
+      assert (NULL != p_hdl);
+
+      pid = p_msg_cb->pid;
+
+      if (OMX_ALL == a_data1 || pid == a_data1)
+        {
+          TIZ_LOGN (TIZ_TRACE, p_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
+                    p_hdr, p_hdr->pBuffer, pid);
+
+          assert (check_pid (p_obj, pid) == OMX_ErrorNone);
+
+          /* Retrieve the port... */
+          p_port = get_port (p_obj, pid);
+
+          /* Add this buffer to the egress hdr list */
+          if (0 < (nbufs = add_to_buflst (p_obj, p_obj->p_egress_,
+                                          p_hdr, p_port)))
+            {
+              TIZ_PORT_DEC_CLAIMED_COUNT (p_port);
+              rc = OMX_TRUE;
+            }
+          else
+            {
+              TIZ_LOGN (TIZ_ERROR, p_hdl, "Error on port [%d] while "
+                        "adding buffer to egress list", pid);
             }
         }
     }
@@ -904,7 +954,7 @@ enqueue_callback_msg (const void *ap_obj,
   p_msg_cb->p_hdr = ap_hdr;
   p_msg_cb->pid = a_pid;
   p_msg_cb->dir = a_dir;
-  return tiz_srv_enqueue (ap_obj, p_msg, 0);
+  return tiz_srv_enqueue (ap_obj, p_msg, 1);
 }
 
 static OMX_ERRORTYPE

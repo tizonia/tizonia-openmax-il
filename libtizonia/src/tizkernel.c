@@ -1076,8 +1076,15 @@ krn_stop_and_return (void *ap_obj)
          kernel's servant queue into the corresponding port ingress list. This
          guarantees that all buffers received by the component are correctly
          returned during stop */
-      tiz_srv_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
-                                     OMX_ALL, p_obj);
+      tiz_srv_remove_from_queue (ap_obj, &process_efb_from_servant_queue,
+                                 OMX_ALL, p_obj);
+
+      /* This will move any processor callbacks currently queued in the
+         kernel's servant queue into the corresponding port egress list. This
+         guarantees that all buffers held by the component are correctly
+         returned during stop */
+      tiz_srv_remove_from_queue (ap_obj, &process_cbacks_from_servant_queue,
+                                 OMX_ALL, p_obj);
 
       /* OMX_CommandFlush is used to notify the processor servant that it has
          to return some buffers ... */

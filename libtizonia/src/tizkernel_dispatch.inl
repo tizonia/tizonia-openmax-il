@@ -76,8 +76,14 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
        * kernel's servant queue into the corresponding port ingress list. This
        * guarantees that all buffers received by the component on this port are
        * correctly returned during port stop */
-      tiz_srv_remove_from_queue (ap_obj, &remove_efb_from_servant_queue,
-                                     i, p_obj);
+      tiz_srv_remove_from_queue (ap_obj, &process_efb_from_servant_queue,
+                                 i, p_obj);
+      /* This will move this port's processor callbacks currently queued in the
+       * kernel's servant queue into the corresponding port egress list. This
+       * guarantees that all buffers held by the component on this port are
+       * correctly returned during port stop */
+      tiz_srv_remove_from_queue (ap_obj, &process_cbacks_from_servant_queue,
+                                 i, p_obj);
 
       if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
         {
@@ -361,9 +367,15 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
            * kernel's servant queue into the corresponding port ingress list. This
            * guarantees that all buffers received by the component on this port are
            * correctly returned during port flush */
-          tiz_srv_remove_from_queue (ap_obj,
-                                         &remove_efb_from_servant_queue, i,
-                                         p_obj);
+          tiz_srv_remove_from_queue (ap_obj, &process_efb_from_servant_queue, i,
+                                     p_obj);
+
+          /* This will move this port's processor callbacks currently queued in
+           * the kernel's servant queue into the corresponding port egress
+           * list. This guarantees that all buffers held by the component on
+           * this port are correctly returned during port flush */
+          tiz_srv_remove_from_queue (ap_obj, &process_cbacks_from_servant_queue, i,
+                                     p_obj);
 
           if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
             {
