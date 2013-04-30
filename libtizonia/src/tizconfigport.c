@@ -118,7 +118,7 @@ configport_GetComponentVersion (const void *ap_obj,
 
   TIZ_LOG (TIZ_TRACE, "GetComponentVersion...");
 
-  strncpy (ap_comp_name, p_obj->comp_name_, strlen (p_obj->comp_name_));
+  strcpy (ap_comp_name, p_obj->comp_name_);
   *ap_comp_version = p_obj->comp_ver_;
   ap_spec_version->nVersion = OMX_VERSION;
 
