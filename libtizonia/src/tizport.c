@@ -1466,7 +1466,7 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
                               &p_hdr,
                               p_obj->tpid_, p_port_priv, nbytes, p_buf);
 
-          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+          TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                          "OMX_UseBuffer returned [%s] HEADER [%p] BUFFER [%p]; "
                          "will retry [%s]", tiz_err_to_str (rc), p_hdr,
                          p_hdr->pBuffer,

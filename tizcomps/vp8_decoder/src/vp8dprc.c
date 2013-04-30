@@ -229,8 +229,6 @@ get_input_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
   assert (NULL != ap_hdl);
   assert (NULL != ap_krn);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "eos_ = %s", ap_obj->eos_ ? "TRUE" : "FALSE");
-
   if (NULL != ap_obj->p_inhdr_)
     {
       return ap_obj->p_inhdr_;
@@ -247,8 +245,9 @@ get_input_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
               if (OMX_ErrorNone == tiz_krn_claim_buffer
                   (ap_krn, 0, 0, &ap_obj->p_inhdr_))
                 {
-                  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Claimed HEADER [%p]...",
-                            ap_obj->p_inhdr_);
+                  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Claimed input HEADER [%p]..."
+                            "nFilledLen [%d]", ap_obj->p_inhdr_,
+                            ap_obj->p_inhdr_->nFilledLen);
                   return ap_obj->p_inhdr_;
                 }
             }
@@ -567,6 +566,8 @@ decode_stream (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
       p_outhdr = get_output_buffer (ap_obj, ap_hdl, ap_krn);
       if (!p_inhdr || !p_outhdr)
         {
+          TIZ_LOGN (TIZ_TRACE, ap_hdl, "p_inhdr [%p] p_outhdr [%p]",
+                    p_inhdr, p_outhdr);
           return OMX_ErrorNone;
         }
 
@@ -588,6 +589,9 @@ decode_stream (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
         }
 
       /* Step 4: Get rid of input and output buffers, if we can */
+      TIZ_LOGN (TIZ_TRACE, ap_hdl, "p_inhdr->nFilledLen [%d]",
+                p_inhdr->nFilledLen);
+
       if (p_inhdr->nFilledLen == 0)
         {
           buffer_emptied (ap_obj, ap_hdl, p_inhdr, ap_krn);
