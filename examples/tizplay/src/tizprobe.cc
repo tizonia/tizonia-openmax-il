@@ -42,7 +42,6 @@ extern "C"
 #include <libavdevice/avdevice.h>
 }
 
-
 static AVDictionary *format_opts;
 static AVInputFormat *iformat = NULL;
 

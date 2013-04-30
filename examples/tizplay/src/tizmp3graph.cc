@@ -47,14 +47,17 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.mp3"
 #endif
 
-tizmp3graph::tizmp3graph (tizprobe_ptr_t probe_ptr):tizgraph (3, probe_ptr)
+tizmp3graph::tizmp3graph (tizprobe_ptr_t probe_ptr)
+  : tizgraph (3, probe_ptr)
 {
+    TIZ_LOG (TIZ_TRACE, "Constructing...");
 }
 
 OMX_ERRORTYPE
-tizmp3graph::load ()
+tizmp3graph::do_load ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
+  TIZ_LOG (TIZ_TRACE, "Loading...");
 
   component_names_t comp_list;
   comp_list.push_back ("OMX.Aratelia.file_reader.binary");
@@ -85,7 +88,7 @@ tizmp3graph::load ()
 }
 
 OMX_ERRORTYPE
-tizmp3graph::configure (const std::string & uri /* = std::string() */ )
+tizmp3graph::do_configure (const std::string & uri /* = std::string() */ )
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
@@ -196,7 +199,7 @@ tizmp3graph::configure (const std::string & uri /* = std::string() */ )
 }
 
 OMX_ERRORTYPE
-tizmp3graph::execute ()
+tizmp3graph::do_execute ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
@@ -213,21 +216,33 @@ tizmp3graph::execute ()
 
   // Await EOS from renderer
 
-  waitevent_list_t event_list
-    (1,
-     waitevent_info (handles_[2],
-                     OMX_EventBufferFlag,
-                     0,   //port index
-                     1,     //OMX_BUFFERFLAG_EOS=0x00000001
-                     NULL));
-  cback_handler_.wait_for_event_list (event_list);
+//   waitevent_list_t event_list
+//     (1,
+//      waitevent_info (handles_[2],
+//                      OMX_EventBufferFlag,
+//                      0,   //port index
+//                      1,     //OMX_BUFFERFLAG_EOS=0x00000001
+//                      NULL));
+//   cback_handler_.wait_for_event_list (event_list);
 
   return OMX_ErrorNone;
 }
 
-void
-tizmp3graph::unload ()
+OMX_ERRORTYPE
+tizmp3graph::do_pause ()
 {
+  if (OMX_StateExecuting == current_state_)
+    (void) transition_all (OMX_StatePause, OMX_StateExecuting);
+  else if (OMX_StatePause == current_state_)
+    (void) transition_all (OMX_StateExecuting, OMX_StatePause);
+  return OMX_ErrorNone;
+}
+
+void
+tizmp3graph::do_unload ()
+{
+  TIZ_LOG (TIZ_TRACE, "Unloading...");
+
   (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
   (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
 
@@ -236,7 +251,7 @@ tizmp3graph::unload ()
 }
 
 void
-tizmp3graph::signal ()
+tizmp3graph::do_signal ()
 {
   OMX_CALLBACKTYPE *p_cbacks = cback_handler_.get_omx_cbacks ();
 

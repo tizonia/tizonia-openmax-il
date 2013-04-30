@@ -29,12 +29,11 @@
 #ifndef TIZMP3GRAPH_HH
 #define TIZMP3GRAPH_HH
 
-#include <string>
-
 #include "tizgraph.h"
 #include "tizprobe.h"
-
 #include "OMX_Audio.h"
+
+#include <string>
 
 class tizmp3graph : public tizgraph
 {
@@ -43,11 +42,14 @@ public:
 
   tizmp3graph(tizprobe_ptr_t probe_ptr);
 
-  OMX_ERRORTYPE load();
-  OMX_ERRORTYPE configure(const std::string &uri = std::string());
-  OMX_ERRORTYPE execute();
-  void unload();
-  void signal();
+protected:
+
+  OMX_ERRORTYPE do_load();
+  OMX_ERRORTYPE do_configure(const std::string &uri = std::string());
+  OMX_ERRORTYPE do_execute();
+  OMX_ERRORTYPE do_pause();
+  void do_unload();
+  void do_signal();
 };
 
 #endif // TIZMP3GRAPH_HH

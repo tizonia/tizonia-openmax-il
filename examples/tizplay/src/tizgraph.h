@@ -1,3 +1,4 @@
+/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2013 Aratelia Limited - Juan A. Rubio
  *
@@ -30,6 +31,7 @@
 #define TIZGRAPH_HH
 
 #include "OMX_Core.h"
+#include "tizosal.h"
 #include "tizprobe.h"
 
 #include <vector>
@@ -125,24 +127,69 @@ protected:
   waitevent_list_t expected_list_;
 };
 
+class tizgraphcmd
+{
+
+public:
+
+  enum cmd_type
+  {
+    ETIZGraphCmdLoad,
+    ETIZGraphCmdConfig,
+    ETIZGraphCmdExecute,
+    ETIZGraphCmdPause,
+    ETIZGraphCmdSeek,
+    ETIZGraphCmdVolume,
+    ETIZGraphCmdUnload,
+    ETIZGraphCmdSignal,
+    ETIZGraphCmdMax
+  };
+
+  tizgraphcmd (const cmd_type type, const std::string &str)
+    : type_ (type),
+      str_ (str)
+  {assert (type_ < ETIZGraphCmdMax);}
+
+  cmd_type get_type () const {return type_;}
+  std::string get_str () const {return str_;}
+
+private:
+
+  const cmd_type type_;
+  const std::string str_;
+
+};
+  
 class tizgraph
 {
 
   friend class tizcback_handler;
-
+  friend       void* ::g_graph_thread_func (void *);
+  
 public:
 
   tizgraph(int graph_size, tizprobe_ptr_t probe);
   virtual ~tizgraph();
 
-  virtual OMX_ERRORTYPE load() = 0;
-  virtual OMX_ERRORTYPE configure(const std::string &uri = std::string()) = 0;
-  virtual OMX_ERRORTYPE execute() = 0;
-  virtual void unload() = 0;
-  virtual void signal() = 0;
+  virtual OMX_ERRORTYPE load();
+  virtual OMX_ERRORTYPE configure(const std::string &uri = std::string());
+  virtual OMX_ERRORTYPE execute();
+  virtual OMX_ERRORTYPE pause();
+  virtual void unload();
+  virtual void signal();
 
 protected:
 
+  virtual OMX_ERRORTYPE do_load() = 0;
+  virtual OMX_ERRORTYPE do_configure(const std::string &uri = std::string()) = 0;
+  virtual OMX_ERRORTYPE do_execute() = 0;
+  virtual OMX_ERRORTYPE do_pause() = 0;
+  virtual void do_unload() = 0;
+  virtual void do_signal() = 0;
+
+  virtual OMX_ERRORTYPE init();
+  virtual OMX_ERRORTYPE deinit();
+  
   OMX_ERRORTYPE verify_existence(const component_names_t &comp_list) const;
   OMX_ERRORTYPE verify_role(const std::string &comp,
                             const std::string &role) const;
@@ -162,13 +209,23 @@ protected:
   OMX_ERRORTYPE transition_all (const OMX_STATETYPE to,
                                 const OMX_STATETYPE from);
 
+  OMX_ERRORTYPE send_msg (const tizgraphcmd::cmd_type type,
+                          const std::string &str = std::string());
+
+  static void dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd);
+
 protected:
 
-  handle_to_name_t h2n_;
-  component_handles_t handles_;
-  tizcback_handler cback_handler_;
-  std::string uri_;
-  tizprobe_ptr_t probe_ptr_;
+  handle_to_name_t     h2n_;
+  component_handles_t  handles_;
+  tizcback_handler     cback_handler_;
+  std::string          uri_;
+  tizprobe_ptr_t       probe_ptr_;
+  tiz_thread_t         thread_;
+  tiz_mutex_t          mutex_;
+  tiz_sem_t            sem_;
+  tiz_queue_t         *p_queue_;
+  OMX_STATETYPE        current_state_;
 
 };
 

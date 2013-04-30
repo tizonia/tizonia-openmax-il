@@ -1,3 +1,4 @@
+/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2013 Aratelia Limited - Juan A. Rubio
  *
@@ -54,33 +55,55 @@
 #include <boost/filesystem.hpp>
 #include <ostream>
 
+#include <termios.h>
 
 static tizgraph *gp_running_graph = NULL;
+
+static struct termios old_term, new_term;
+
+void
+init_termios(int echo)
+{
+  tcgetattr(0, &old_term); /* grab old terminal i/o settings */
+  new_term = old_term; /* make new settings same as old settings */
+  new_term.c_lflag &= ~ICANON; /* disable buffered i/o */
+  new_term.c_lflag &= echo ? ECHO : ~ECHO; /* set echo mode */
+  tcsetattr(0, TCSANOW, &new_term); /* use these new terminal i/o settings now */
+}
+
+void
+reset_termios(void)
+{
+  tcsetattr(0, TCSANOW, &old_term);
+}
+
+char
+getch_(int echo)
+{
+  char ch;
+  init_termios (echo);
+  ch = getchar();
+  reset_termios ();
+  return ch;
+}
+
+char
+getch (void)
+{
+  /* Read 1 character without echo */
+  return getch_(0);
+}
 
 void
 tizplay_sig_term_hdlr (int sig)
 {
-  fprintf (stdout, "\nTizonia OpenMAX IL player... terminating.\n");
+  reset_termios ();
   exit (EXIT_FAILURE);
-}
-
-void
-tizplay_sig_quit_hdlr (int sig)
-{
-  if (NULL != gp_running_graph)
-    {
-      gp_running_graph->signal ();
-    }
-  else
-    {
-      raise (SIGQUIT);
-    }
 }
 
 void
 tizplay_sig_stp_hdlr (int sig)
 {
-  fprintf (stdout, "\nPausing playback. Use 'fg' or 'bg' to resume...\n");
   raise (SIGSTOP);
 }
 
@@ -88,23 +111,24 @@ void
 print_usage (void)
 {
   printf ("Tizonia OpenMAX IL player version %s\n\n", PACKAGE_VERSION);
-  printf ("usage: %s [-l] [-r] [-c] [-v] [-d] <file_uri>\n", PACKAGE_NAME);
+  printf ("usage: %s [-l] [-r] [-c] [-v] [-h] [FILE]\n", PACKAGE_NAME);
   printf ("options:\n");
-  printf ("\t-l --list-components\t\t\tEnumerate all OpenMAX IL components\n");
+  printf ("\t-l --list-components\t\t\tEnumerate all OpenMAX IL components.\n");
   printf
-    ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>\n");
+    ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>.\n");
   printf
-    ("\t-c --comps-of-role <role>\t\tDisplay the components that implement <role>\n");
-  printf ("\t-d --decode <file_uri>\t\t\tDecode a mp3 or ivf (vp8) file\n");
-  printf ("\t-v --version\t\t\t\tDisplay version info\n");
+    ("\t-c --comps-of-role <role>\t\tDisplay the components that implement <role>.\n");
+  printf ("\t-v --version\t\t\t\tDisplay version info.\n");
+  printf ("\t-h --help\t\t\t\tDisplay help.\n");
   printf ("\n");
   printf ("Example:\n");
   printf
-    ("\t tizplay -d ~/Music (decodes every supported file in the '~/Music' folder)\n");
-  printf ("\t    * Press [Ctrl-\\] to skip to next song.\n");
-  printf
-    ("\t    * Press [Ctrl-z] to suspend the playback (type 'fg' or 'bg' to resume).\n");
-  printf ("\t    * Press [Ctrl-c] to terminate the player.\n");
+    ("\t tizplay ~/Music (decodes every supported file in the '~/Music' folder)\n");
+  printf ("\t    * Press [p] to skip to previous file.\n");
+  printf ("\t    * Press [n] to skip to next file.\n");
+  printf ("\t    * Press [SPACE] to pause playback.\n");
+  printf ("\t    * Press [q] to quit.\n");
+  printf ("\t    * Press [Ctrl-c] to terminate the player at any time.\n");
   printf ("\n");
 }
 
@@ -253,7 +277,78 @@ verify_uri (const std::string & uri, std::vector < std::string > &file_list)
   return OMX_ErrorContentURIError;
 }
 
-OMX_ERRORTYPE
+enum ETIZPlayUserInput
+{
+  ETIZPlayUserStop,
+  ETIZPlayUserNextFile,
+  ETIZPlayUserPrevFile,
+  ETIZPlayUserMax,
+};
+
+static ETIZPlayUserInput
+wait_for_user_input (tizgraph_ptr_t graph_ptr)
+{
+  ETIZPlayUserInput input = ETIZPlayUserMax;
+  while (1)
+    {
+      int ch[2];
+
+      ch[0] = getch ();
+
+      switch (ch[0])
+        {
+        case 'q':
+          return ETIZPlayUserStop;
+
+        case 68:            // key left
+          // seek
+          printf ("Seek (left key) - not implemented\n");
+          break;
+
+        case 67:            // key right
+          // seek
+          printf ("Seek (right key) - not implemented\n");
+          break;
+
+        case 65: // key up
+          // seek
+          printf ("Seek (up key) - not implemented\n");
+          break;
+
+        case 66: // key down
+          // seek
+          printf ("Seek (down key) - not implemented\n");
+          break;
+
+        case ' ':
+          graph_ptr->pause ();
+          break;
+
+        case 'n':
+          return ETIZPlayUserNextFile;
+
+        case 'p':
+          return ETIZPlayUserPrevFile;
+
+        case '-':
+          printf ("Vol down - not implemented\n");
+          //Volume
+          break;
+
+        case '+':
+          printf ("Vol up - not implemented\n");
+          //Volume
+          break;
+
+        default:
+//           printf ("%d - not implemented\n", ch[0]);
+          break;
+        };
+    }
+
+}
+
+static OMX_ERRORTYPE
 decode (const OMX_STRING uri)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
@@ -283,10 +378,11 @@ decode (const OMX_STRING uri)
     }
 
   gp_running_graph = g_ptr.get ();
-  int list_size = file_list.size ();
-  for (int i = 0; i < list_size; i++)
+  int list_size    = file_list.size ();
+  ETIZPlayUserInput user = ETIZPlayUserMax;
+  bool config_first_time = true;
+  for (int i = 0; i < list_size && user != ETIZPlayUserStop; i++)
     {
-
       if (OMX_ErrorNone != (ret = g_ptr->load ()))
         {
           fprintf (stderr, "Found error %s while loading the graph.\n",
@@ -294,12 +390,16 @@ decode (const OMX_STRING uri)
           exit (EXIT_FAILURE);
         }
 
-      if (OMX_ErrorNone != (ret = g_ptr->configure (i == 0 ? std::string ()
+      if (OMX_ErrorNone != (ret = g_ptr->configure (config_first_time
+                                                    ? std::string ()
                                                     : file_list[i])))
         {
           fprintf (stderr, "Could not configure a graph. Skipping file.\n");
+          g_ptr->unload ();
           continue;
         }
+
+      config_first_time = false;
 
       if (OMX_ErrorNone != (ret = g_ptr->execute ()))
         {
@@ -308,6 +408,13 @@ decode (const OMX_STRING uri)
           exit (EXIT_FAILURE);
         }
 
+      user = wait_for_user_input (g_ptr);
+      if (ETIZPlayUserPrevFile == user)
+        {
+          i   -= 2;
+          if (i < -1)
+            i  = -1;
+        }
       g_ptr->unload ();
     }
 
@@ -317,7 +424,7 @@ decode (const OMX_STRING uri)
 int
 main (int argc, char **argv)
 {
-  OMX_ERRORTYPE error = OMX_ErrorNone;
+  OMX_ERRORTYPE error = OMX_ErrorMax;
   int opt;
   int digit_optind = 0;
 
@@ -330,9 +437,9 @@ main (int argc, char **argv)
   signal (SIGTERM, tizplay_sig_term_hdlr);
   signal (SIGINT, tizplay_sig_term_hdlr);
   signal (SIGTSTP, tizplay_sig_stp_hdlr);
-  signal (SIGQUIT, tizplay_sig_quit_hdlr);
+  signal (SIGQUIT, tizplay_sig_term_hdlr);
 
-  tiz_log_deinit ();
+  tiz_log_init ();
 
   TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL player...");
 
@@ -344,17 +451,21 @@ main (int argc, char **argv)
         {"list-components", no_argument, 0, 'l'},
         {"roles-of-comp", required_argument, 0, 'r'},
         {"comps-of-role", required_argument, 0, 'c'},
-        {"decode", required_argument, 0, 'd'},
         {"version", no_argument, 0, 'v'},
+        {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
       };
 
-      opt = getopt_long (argc, argv, "lr:c:d:v", long_options, &option_index);
+      opt = getopt_long (argc, argv, "lr:c:vh", long_options, &option_index);
       if (opt == -1)
         break;
 
       switch (opt)
         {
+
+        case 0:
+          break;
+
         case 'l':
           {
             error = list_comps ();
@@ -373,18 +484,18 @@ main (int argc, char **argv)
           }
           break;
 
-        case 'd':
+        case 'v':
           {
+            error = OMX_ErrorNone;
             printf ("Tizonia OpenMAX IL player version %s\n",
                     PACKAGE_VERSION);
-            error = decode (optarg);
           }
           break;
 
-        case 'v':
+        case 'h':
           {
-            printf ("Tizonia OpenMAX IL player version %s\n",
-                    PACKAGE_VERSION);
+            error = OMX_ErrorNone;
+            print_usage ();
           }
           break;
 
@@ -394,11 +505,26 @@ main (int argc, char **argv)
         }
     }
 
+  if (OMX_ErrorNone == error)
+    {
+      exit (EXIT_SUCCESS);
+    }
+
+  if (optind >= argc)
+    {
+      print_usage ();
+      exit (EXIT_FAILURE);
+    }
+
+  if (OMX_ErrorMax == error)
+    {
+      error = decode (argv[optind]);
+    }
+  
   (void) tiz_log_deinit ();
 
   if (OMX_ErrorNone != error)
     {
-      fprintf (stderr, "Error: %s\n", tiz_err_to_str (error));
       exit (EXIT_FAILURE);
     }
 

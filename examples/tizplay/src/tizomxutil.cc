@@ -39,9 +39,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <string>
-
 
 void
 tizomxutil::init ()

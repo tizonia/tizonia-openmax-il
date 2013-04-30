@@ -29,21 +29,55 @@
 #include <config.h>
 #endif
 
-
-#include "OMX_Component.h"
 #include "tizgraph.h"
 #include "tizomxutil.h"
 #include "tizosal.h"
+#include "tizmacros.h"
+#include "OMX_Component.h"
 
 #include <assert.h>
 #include <algorithm>
 #include <boost/foreach.hpp>
 
-
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graph"
 #endif
+
+void *
+g_graph_thread_func (void *p_arg)
+{
+  tizgraph *p_graph = (tizgraph *) (p_arg);
+  void *p_data = NULL;
+
+  assert (NULL != p_graph);
+
+  (void) tiz_thread_setname (&(p_graph->thread_), (char *) "tizgraph");
+
+  tiz_check_omx_err_ret_null (tiz_sem_post (&(p_graph->sem_)));
+
+  for (;;)
+    {
+      tiz_check_omx_err_ret_null
+        (tiz_queue_receive (p_graph->p_queue_, &p_data));
+
+      assert (NULL != p_data);
+
+      tizgraphcmd *p_cmd =  static_cast<tizgraphcmd *>(p_data);
+      tiz_sem_post (&(p_graph->sem_));
+      tizgraph::dispatch (p_graph, p_cmd);
+      if (tizgraphcmd::ETIZGraphCmdUnload == p_cmd->get_type ())
+        {
+          delete p_cmd;
+          break;
+        }
+      delete p_cmd;
+    }
+
+  TIZ_LOG (TIZ_TRACE, "Graph thread exiting...");
+
+  return NULL;
+}
 
 OMX_ERRORTYPE
 tizgraph_event_handler (OMX_HANDLETYPE hComponent,
@@ -188,26 +222,25 @@ tizcback_handler::all_events_received ()
 {
   if (!expected_list_.empty() && !received_queue_.empty())
     {
-      waitevent_list_t::iterator exp_it = expected_list_.begin();
+      waitevent_list_t::iterator exp_it = expected_list_.begin ();
       while (exp_it != expected_list_.end())
         {
-          waitevent_list_t::iterator queue_end = received_queue_.end();
+          waitevent_list_t::iterator queue_end = received_queue_.end ();
           waitevent_list_t::iterator queue_it = queue_end;
-          if (queue_end != (queue_it = std::find(received_queue_.begin(),
-                                                 received_queue_.end(),
+          if (queue_end != (queue_it = std::find(received_queue_.begin (),
+                                                 received_queue_.end (),
                                                  *exp_it)))
             {
               expected_list_.erase (exp_it);
-              received_queue_.erase(queue_it);
-              TIZ_LOG (TIZ_DEBUG, "Erased [%s] "
-                       "from component [%s] "
+              received_queue_.erase (queue_it);
+              TIZ_LOG (TIZ_DEBUG, "Erased [%s] from component [%s] "
                        "event_list size [%d]\n",
                        const_cast<tizgraph &>(parent_).
-                       h2n_[exp_it->component_].c_str(),
+                       h2n_[exp_it->component_].c_str (),
                        tiz_evt_to_str (exp_it->event_),
-                       expected_list_.size());
+                       expected_list_.size ());
               // restart the loop
-              exp_it = expected_list_.begin();
+              exp_it = expected_list_.begin ();
             }
           else
             {
@@ -216,7 +249,7 @@ tizcback_handler::all_events_received ()
         }
     }
 
-  return (expected_list_.empty() ? true : false);
+  return (expected_list_.empty () ? true : false);
 }
 
 
@@ -228,15 +261,83 @@ tizgraph::tizgraph(int graph_size, tizprobe_ptr_t probe_ptr)
   h2n_(),
   handles_(graph_size, OMX_HANDLETYPE(NULL)),
   cback_handler_(*this),
-  probe_ptr_(probe_ptr)
+  probe_ptr_(probe_ptr),
+  thread_ (),
+  mutex_ (),
+  sem_ ()
 {
   assert (probe_ptr);
-  tizomxutil::init();
+  TIZ_LOG (TIZ_TRACE, "Constructing...");
+  tiz_mutex_init (&mutex_);
+  tiz_sem_init (&sem_, 0);
+  tiz_queue_init (&p_queue_, 10);
+
+  tizomxutil::init ();
 }
 
 tizgraph::~tizgraph()
 {
   tizomxutil::deinit();
+  tiz_mutex_destroy (&mutex_);
+  tiz_sem_destroy (&sem_);
+  tiz_queue_destroy (p_queue_);
+}
+
+OMX_ERRORTYPE
+tizgraph::init()
+{
+  /* Create this graph's thread */
+  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
+  tiz_check_omx_err_ret_oom
+    (tiz_thread_create (&thread_, 0, 0, g_graph_thread_func, this));
+
+  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+  tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+}
+
+OMX_ERRORTYPE
+tizgraph::deinit()
+{
+  void * p_result = NULL;
+  tiz_thread_join (&thread_, &p_result);
+}
+
+OMX_ERRORTYPE
+tizgraph::load()
+{
+  init ();
+  return send_msg (tizgraphcmd::ETIZGraphCmdLoad);
+}
+
+OMX_ERRORTYPE
+tizgraph::configure(const std::string &uri /* = std::string() */)
+{
+  return send_msg (tizgraphcmd::ETIZGraphCmdConfig, uri);
+}
+
+OMX_ERRORTYPE
+tizgraph::execute()
+{
+  return send_msg (tizgraphcmd::ETIZGraphCmdExecute);
+}
+
+OMX_ERRORTYPE
+tizgraph::pause()
+{
+  return send_msg (tizgraphcmd::ETIZGraphCmdPause);
+}
+
+void
+tizgraph::unload()
+{
+  send_msg (tizgraphcmd::ETIZGraphCmdUnload);
+  deinit ();
+}
+
+void
+tizgraph::signal()
+{
+  send_msg (tizgraphcmd::ETIZGraphCmdSignal);
 }
 
 OMX_ERRORTYPE
@@ -505,7 +606,68 @@ tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
                                               (OMX_PTR) OMX_ErrorNone));
         }
       cback_handler_.wait_for_event_list(event_list);
+      current_state_ = to;
     }
 
   return error;
+}
+
+OMX_ERRORTYPE
+tizgraph::send_msg (const tizgraphcmd::cmd_type type,
+                    const std::string &str /* = std::string() */)
+{
+  assert (type < tizgraphcmd::ETIZGraphCmdMax);
+
+  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
+  tiz_check_omx_err_ret_oom
+    (tiz_queue_send (p_queue_, new tizgraphcmd (type, str)));
+  tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+  return OMX_ErrorNone;
+}
+
+void
+tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
+{
+  assert (NULL != p_graph);
+  assert (NULL != p_cmd);
+
+  TIZ_LOG (TIZ_TRACE, "type [%d]...", p_cmd->get_type ());
+
+  switch(p_cmd->get_type ())
+    {
+    case tizgraphcmd::ETIZGraphCmdLoad:
+      {
+        p_graph->do_load ();
+        break;
+      }
+    case tizgraphcmd::ETIZGraphCmdConfig:
+      {
+        p_graph->do_configure (p_cmd->get_str ());
+        break;
+      }
+    case tizgraphcmd::ETIZGraphCmdExecute:
+      {
+        p_graph->do_execute ();
+        break;
+      }
+    case tizgraphcmd::ETIZGraphCmdPause:
+      {
+        p_graph->do_pause ();
+        break;
+      }
+    case tizgraphcmd::ETIZGraphCmdUnload:
+      {
+        p_graph->do_unload ();
+        break;
+      }
+    case tizgraphcmd::ETIZGraphCmdSignal:
+      {
+        p_graph->do_signal ();
+        break;
+      }
+    default:
+      assert (0);
+    };
+
 }

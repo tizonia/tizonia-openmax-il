@@ -35,7 +35,6 @@
 #include "tizmp3graph.h"
 
 #include <assert.h>
-
 #include <boost/make_shared.hpp>
 
 
@@ -48,17 +47,16 @@ tizgraph_ptr_t
 tizgraphfactory::create_graph (const std::string & uri)
 {
   tizprobe_ptr_t p = boost::make_shared < tizprobe > (uri.c_str ());
-
+  tizgraph_ptr_t null_ptr;
   if (p->get_omx_domain () == OMX_PortDomainAudio
       && p->get_audio_coding_type () == OMX_AUDIO_CodingMP3)
     {
       return boost::make_shared < tizmp3graph > (p);
     }
-  else if (p->get_omx_domain () == OMX_PortDomainVideo
-           && p->get_video_coding_type () == OMX_VIDEO_CodingVP8)
-    {
-      return boost::make_shared < tizmp3graph > (p);
-    }
-
-  return tizgraph_ptr_t ();
+  //   else if (p->get_omx_domain () == OMX_PortDomainVideo
+  //            && p->get_video_coding_type () == OMX_VIDEO_CodingVP8)
+  //     {
+  //       return boost::make_shared < tizmp3graph > (p);
+  //     }
+  return null_ptr;
 }
