@@ -46,7 +46,8 @@ static AVDictionary *format_opts;
 static AVInputFormat *iformat = NULL;
 
 static int
-open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename)
+open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
+                 const bool quiet)
 {
   int err, i;
   AVFormatContext *fmt_ctx = NULL;
@@ -70,7 +71,10 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename)
       return err;
     }
 
-  av_dump_format (fmt_ctx, 0, filename, 0);
+  if (!quiet)
+    {
+      av_dump_format (fmt_ctx, 0, filename, 0);
+    }
 
   *fmt_ctx_ptr = fmt_ctx;
   return 0;
@@ -91,8 +95,9 @@ close_input_file (AVFormatContext ** ctx_ptr)
   avformat_close_input (ctx_ptr);
 }
 
-tizprobe::tizprobe (const std::string & uri):
+tizprobe::tizprobe (const std::string & uri, const bool quiet):
 uri_ (uri),
+quiet_ (quiet),
 domain_ (OMX_PortDomainMax),
 audio_coding_type_ (OMX_AUDIO_CodingUnused),
 video_coding_type_ (OMX_VIDEO_CodingUnused),
@@ -148,7 +153,7 @@ tizprobe::probe_file ()
   AVCodecContext *cc = NULL;
   CodecID codec_id = CODEC_ID_PROBE;
 
-  if ((ret = open_input_file (&fmt_ctx, uri_.c_str ())))
+  if ((ret = open_input_file (&fmt_ctx, uri_.c_str (), quiet_)))
     {
       return ret;
     }

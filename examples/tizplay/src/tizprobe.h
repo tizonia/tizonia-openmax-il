@@ -45,7 +45,7 @@ class tizprobe
 
 public:
 
-  tizprobe(const std::string &uri);
+  tizprobe(const std::string &uri, const bool quiet = false);
 
   std::string get_uri ()
   { return uri_; }
@@ -69,6 +69,8 @@ private:
 private:
 
   std::string uri_;
+  bool quiet_; // this is to control whether the probe object should dump any
+               // format info to the stdout
   OMX_PORTDOMAINTYPE domain_;
   OMX_AUDIO_CODINGTYPE audio_coding_type_;
   OMX_VIDEO_CODINGTYPE video_coding_type_;
