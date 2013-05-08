@@ -10,12 +10,14 @@
 		<reread>1</reread>
 	</config>
 
-<!--         <category name="root" priority="trace" appender="stdout"/> -->
+<!--         <category name="root" priority="error" appender="stdout"/> -->
 <!--         <category name="tiz.rm.daemon" priority="trace" appender="syslog"/> -->
 <!--         <category name="tiz.rm.proxy" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.rm.proxy_c" priority="trace" appender="stdout"/> -->
+<!--         <category name="tiz.rm.proxy_c.check" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.mem" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.osal.thread" priority="error" appender="stdout" /> -->
 <!--         <category name="tiz.osal.vector" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.pqueue" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.osal.sync" priority="trace" appender="stdout" /> -->
@@ -23,7 +25,7 @@
 <!--         <category name="tiz.osal.soa" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal.event" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal.http" priority="trace" appender="stdout"/> -->
-        <category name="tiz.osal.map" priority="trace" appender="stdout"/>
+<!--         <category name="tiz.osal.map" priority="trace" appender="stdout"/> -->
 <!--         <category name="tiz.osal.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.ilcore" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.ilcore.check" priority="trace" appender="stdout" /> -->
@@ -33,7 +35,7 @@
 <!--         <category name="tiz.tizonia.scheduler" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.servant" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.fsm" priority="trace" appender="stdout" /> -->
-<!--         <category name="tiz.tizonia.kernel" priority="notice" appender="stdout" /> -->
+<!--         <category name="tiz.tizonia.krn" priority="trace" appender="tizrollingfile" /> -->
 <!--         <category name="tiz.tizonia.object" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.proc" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.tizonia.arprc" priority="trace" appender="stdout" /> -->
@@ -64,6 +66,7 @@
 <!--         <category name="tiz.vp8_decoder.check" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.http_renderer" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.http_renderer.prc" priority="trace" appender="stdout" /> -->
+<!--         <category name="tiz.http_renderer.prc.con" priority="trace" appender="stdout" /> -->
 <!--         <category name="tiz.http_renderer.check" priority="trace" appender="stdout" /> -->
 
 <!--         <category name="tiz.play" priority="trace" appender="stdout" /> -->
@@ -72,15 +75,15 @@
 <!--         <category name="tiz.play.graph.mp3" priority="trace" appender="stdout" /> -->
 
 
-<!-- 	<appender name="stdout" type="stream" layout="basic"/> -->
-	<appender name="stdout" type="stream" layout="tiz"/>
-
-	<appender name="stderr" type="stream" layout="dated"/>
-	<appender name="syslog" type="syslog" layout="dated"/>
-
 	<layout name="basic" type="basic"/>
 	<layout name="dated" type="dated"/>
 	<layout name="tiz" type="tiz_layout"/>
 
+	<appender name="stdout" type="stream" layout="tiz"/>
+	<appender name="stderr" type="stream" layout="dated"/>
+	<appender name="syslog" type="syslog" layout="dated"/>
+
+	<rollingpolicy name="tizrolling" type="sizewin" maxsize="20971520" maxnum="10" />
+	<appender name="tizrollingfile" type="rollingfile" logdir="/home/joni/temp" prefix="tizonia.log" layout="tiz" rollingpolicy="tizrolling" />
 
 </log4c>
