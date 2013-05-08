@@ -154,7 +154,6 @@ move_to_ingress (void *ap_obj, OMX_U32 a_pid)
 static OMX_S32
 move_to_egress (void *ap_obj, OMX_U32 a_pid)
 {
-
   tiz_krn_t *p_obj = ap_obj;
   const OMX_S32 nports = tiz_vector_length (p_obj->p_ports_);
   tiz_vector_t *p_elist = NULL;
@@ -216,7 +215,7 @@ add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
 }
 
 static OMX_S32
-clear_hdr_lst (tiz_vector_t * ap_hdr_lst, OMX_U32 a_pid)
+clear_hdr_contents (tiz_vector_t * ap_hdr_lst, OMX_U32 a_pid)
 {
   tiz_vector_t *p_list = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -254,6 +253,37 @@ append_buflsts (tiz_vector_t * ap_dst2darr,
   assert (tiz_vector_length (p_list) == 0);
 
   return tiz_vector_append (p_list, ap_srclst);
+}
+
+static void
+clear_hdr_lsts (void *ap_obj, const OMX_U32 a_pid)
+{
+  tiz_krn_t *p_obj = ap_obj;
+  tiz_vector_t *p_list = NULL;
+  OMX_S32 i = 0;
+  OMX_U32 pid = 0;
+  OMX_S32 nports = 0;
+
+  assert (NULL != ap_obj);
+  nports = tiz_vector_length (p_obj->p_ports_);
+
+  do
+    {
+      pid = ((OMX_ALL != a_pid) ? a_pid : i);
+
+      p_list = tiz_vector_at (p_obj->p_ingress_, pid);
+      assert (p_list && *(tiz_vector_t **) p_list);
+      p_list = *(tiz_vector_t **) p_list;
+      tiz_vector_clear (p_list);
+
+      p_list = tiz_vector_at (p_obj->p_egress_, pid);
+      assert (p_list && *(tiz_vector_t **) p_list);
+      p_list = *(tiz_vector_t **) p_list;
+      tiz_vector_clear (p_list);
+
+      ++i;
+    }
+  while (OMX_ALL == pid && i < nports);
 }
 
 static OMX_ERRORTYPE
@@ -346,10 +376,12 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
           /* ... delegate to the processor... */
           if (OMX_DirInput == pdir)
             {
+              assert (p_hdr->nInputPortIndex == pid);
               tiz_api_EmptyThisBuffer (p_prc, p_hdl, p_hdr);
             }
           else
             {
+              assert (p_hdr->nOutputPortIndex == pid);
               tiz_api_FillThisBuffer (p_prc, p_hdl, p_hdr);
             }
 

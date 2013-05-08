@@ -166,7 +166,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
 
               /* Move headers from ingress to egress, ... */
               /* ....and clear their contents before doing that... */
-              const OMX_S32 count = clear_hdr_lst (p_obj->p_ingress_, pid);
+              const OMX_S32 count = clear_hdr_contents (p_obj->p_ingress_, pid);
 
               if (count)
                 {
@@ -384,7 +384,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                   /* INPUT PORT: Move input headers from ingress to egress,
                    * ... */
                   /* ....and clear their contents before doing that... */
-                  const OMX_S32 count = clear_hdr_lst (p_obj->p_ingress_, pid);
+                  const OMX_S32 count = clear_hdr_contents (p_obj->p_ingress_, pid);
 
                   if (count)
                     {
@@ -412,7 +412,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                   /* OUTPUT PORT: Move output headers from egress to
                    * ingress... */
                   /* ....and clear their contents before doing that */
-                  const OMX_S32 count = clear_hdr_lst (p_obj->p_egress_, pid);
+                  const OMX_S32 count = clear_hdr_contents (p_obj->p_egress_, pid);
                   if (count)
                     {
                       nbufs = move_to_ingress (p_obj, pid);
@@ -435,7 +435,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
               /* ....but clear only output headers ... */
               if (OMX_DirInput == tiz_port_dir (p_port))
                 {
-                  clear_hdr_lst (p_obj->p_egress_, pid);
+                  clear_hdr_contents (p_obj->p_egress_, pid);
                 }
 
               nbufs = move_to_egress (p_obj, pid);
@@ -652,6 +652,7 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
               && (ETIZKrnNoTunneledPorts == status
                   || ETIZKrnTunneledPortsMayInitiateExeToIdle == status))
             {
+              clear_hdr_lsts (ap_obj, OMX_ALL);
               /* complete state transition to OMX_StateIdle */
               rc = tiz_fsm_complete_transition
                 (tiz_get_fsm (p_hdl), p_obj, OMX_StateIdle);
@@ -797,6 +798,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
               TIZ_LOGN (TIZ_DEBUG, p_hdl, "Back to idle - status [%d] "
                         "all buffers returned : [TRUE]", status);
 
+              clear_hdr_lsts (p_obj, OMX_ALL);
               rc = tiz_fsm_complete_transition
                 (tiz_get_fsm (p_hdl), p_obj, OMX_StateIdle);
             }
@@ -917,7 +919,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
         else if (OMX_StateLoaded == now)
           {
             /* TODO : Need to review whe this situation would occur  */
-            return OMX_ErrorSameState;
+            assert (0);
           }
         else
           {
@@ -953,9 +955,13 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
           }
         else if (OMX_StateExecuting == now || OMX_StatePause == now)
           {
-            rc = tiz_srv_stop_and_return (ap_obj);
+            rc   = tiz_srv_stop_and_return (ap_obj);
             done = (OMX_ErrorNone == rc && all_buffers_returned
                     ((tiz_krn_t *) p_obj)) ? OMX_TRUE : OMX_FALSE;
+            if (done)
+              {
+                clear_hdr_lsts (ap_obj, OMX_ALL);
+              }
 
           }
         else if (OMX_StateIdle == now)
@@ -964,6 +970,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
             TIZ_LOGN (TIZ_WARN, ap_hdl, "Ignoring transition [%s] -> [%s]",
                       tiz_fsm_state_to_str (now),
                       tiz_fsm_state_to_str (ap_msg_sc->param1));
+            assert (0);
           }
         else
           {

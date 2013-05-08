@@ -1622,7 +1622,6 @@ port_depopulate (const void *ap_obj)
 
   tiz_port_clear_flags (p_obj, 1, EFlagPopulated);
   tiz_port_clear_flags (p_obj, 1, EFlagBeingDisabled);
-  tiz_port_clear_flags (p_obj, 1, EFlagEnabled);
 
   TIZ_LOG (TIZ_TRACE, "port [%d] depopulated", p_obj->pid_);
 
@@ -2058,6 +2057,8 @@ reset_tunneled_port_status_flag (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
   p_obj->tport_status_.nTunneledPortStatus &= ~(a_port_status_flag);
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "nTunneledPortStatus = [%d]",
+            p_obj->tport_status_.nTunneledPortStatus);
 }
 
 void

@@ -993,6 +993,8 @@ krn_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
           p_dst2darr = (OMX_DirInput == dir ?
                         p_obj->p_egress_ : p_obj->p_ingress_);
 
+          tiz_vector_clear (*(tiz_vector_t **)tiz_vector_at (p_dst2darr, pid));
+
           if (OMX_ErrorNone !=
               (rc = append_buflsts (p_dst2darr, p_srclst, pid)))
             {
@@ -1001,7 +1003,6 @@ krn_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                         "buffer lists", tiz_err_to_str (rc), pid);
               return rc;
             }
-
         }
 
       ++i;
