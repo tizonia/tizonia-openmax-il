@@ -41,14 +41,18 @@
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
-typedef std::vector<std::string> component_names_t;
-typedef std::vector<OMX_HANDLETYPE> component_handles_t;
-typedef std::vector<std::string> component_roles_t;
-typedef std::vector<OMX_EVENTTYPE> component_events_t;
-typedef std::map<OMX_HANDLETYPE, std::string> handle_to_name_t;
+typedef std::vector < std::string > component_names_t;
+typedef std::vector < OMX_HANDLETYPE > component_handles_t;
+typedef std::vector < std::string > component_roles_t;
+typedef std::vector < OMX_EVENTTYPE > component_events_t;
+typedef std::map < OMX_HANDLETYPE, std::string > handle_to_name_t;
+typedef std::vector < std::string > uri_list_t;
 
 class tizgraph;
 typedef boost::shared_ptr<tizgraph> tizgraph_ptr_t;
+
+struct waitevent_info;
+typedef std::list<waitevent_info> waitevent_list_t;
 
 OMX_ERRORTYPE
 tizgraph_event_handler (OMX_HANDLETYPE hComponent,
@@ -93,15 +97,13 @@ struct waitevent_info
   OMX_PTR pEventData_;
 };
 
-typedef std::list<waitevent_info> waitevent_list_t;
-
 class tizcback_handler
 {
 
 public:
 
   tizcback_handler(const tizgraph &graph);
-  ~tizcback_handler();
+  ~tizcback_handler() {};
 
   inline OMX_CALLBACKTYPE *get_omx_cbacks()
   { return &cbacks_;}
@@ -139,25 +141,34 @@ public:
     ETIZGraphCmdExecute,
     ETIZGraphCmdPause,
     ETIZGraphCmdSeek,
+    ETIZGraphCmdSkip,
     ETIZGraphCmdVolume,
     ETIZGraphCmdUnload,
-    ETIZGraphCmdSignal,
+    ETIZGraphCmdEos,
     ETIZGraphCmdMax
   };
 
-  tizgraphcmd (const cmd_type type, const std::string &str)
+  tizgraphcmd (const cmd_type          type,
+                 const uri_list_t     &uri_list = uri_list_t (),
+                 const OMX_HANDLETYPE  handle   = NULL,
+                 int jump                       = 0)
     : type_ (type),
-      str_ (str)
+      uris_ (uri_list),
+      handle_ (handle),
+      jump_ (jump)
   {assert (type_ < ETIZGraphCmdMax);}
 
   cmd_type get_type () const {return type_;}
-  std::string get_str () const {return str_;}
+  uri_list_t get_uris () const {return uris_;}
+  OMX_HANDLETYPE get_handle () const {return handle_;}
+  int get_jump () const {return jump_;};
 
 private:
 
-  const cmd_type type_;
-  const std::string str_;
-
+  const cmd_type   type_;
+  const uri_list_t uris_;
+  OMX_HANDLETYPE   handle_;
+  int jump_;
 };
   
 class tizgraph
@@ -171,46 +182,55 @@ public:
   tizgraph(int graph_size, tizprobe_ptr_t probe);
   virtual ~tizgraph();
 
-  virtual OMX_ERRORTYPE load();
-  virtual OMX_ERRORTYPE configure(const std::string &uri = std::string());
-  virtual OMX_ERRORTYPE execute();
-  virtual OMX_ERRORTYPE pause();
+  virtual OMX_ERRORTYPE load ();
+  virtual OMX_ERRORTYPE configure (const uri_list_t &uri_list = uri_list_t ());
+  virtual OMX_ERRORTYPE execute ();
+  virtual OMX_ERRORTYPE pause ();
+  virtual OMX_ERRORTYPE seek ();
+  virtual OMX_ERRORTYPE skip (const int jump);
+  virtual OMX_ERRORTYPE volume ();
   virtual void unload();
-  virtual void signal();
 
 protected:
 
-  virtual OMX_ERRORTYPE do_load() = 0;
-  virtual OMX_ERRORTYPE do_configure(const std::string &uri = std::string()) = 0;
-  virtual OMX_ERRORTYPE do_execute() = 0;
-  virtual OMX_ERRORTYPE do_pause() = 0;
-  virtual void do_unload() = 0;
-  virtual void do_signal() = 0;
+  virtual OMX_ERRORTYPE do_load ()                                                = 0;
+  virtual OMX_ERRORTYPE do_configure (const uri_list_t &uri_list = uri_list_t ()) = 0;
+  virtual OMX_ERRORTYPE do_execute ()                                             = 0;
+  virtual OMX_ERRORTYPE do_pause ()                                               = 0;
+  virtual OMX_ERRORTYPE do_seek ()                                                = 0;
+  virtual OMX_ERRORTYPE do_skip (const int jump)                                  = 0;
+  virtual OMX_ERRORTYPE do_volume ()                                              = 0;
+  virtual void do_eos (const OMX_HANDLETYPE handle)                               = 0;
+  virtual void do_unload ()                                                       = 0;
 
-  virtual OMX_ERRORTYPE init();
-  virtual OMX_ERRORTYPE deinit();
+  virtual OMX_ERRORTYPE init ();
+  virtual OMX_ERRORTYPE deinit ();
   
-  OMX_ERRORTYPE verify_existence(const component_names_t &comp_list) const;
-  OMX_ERRORTYPE verify_role(const std::string &comp,
+  OMX_ERRORTYPE verify_existence (const component_names_t &comp_list) const;
+  OMX_ERRORTYPE verify_role (const std::string &comp,
                             const std::string &role) const;
-  OMX_ERRORTYPE verify_role_list(const component_names_t &comp_list,
-                                 const component_roles_t &role_list) const;
+  OMX_ERRORTYPE verify_role_list (const component_names_t &comp_list,
+                                  const component_roles_t &role_list) const;
 
-  OMX_ERRORTYPE instantiate_component(const std::string &comp,
+  OMX_ERRORTYPE instantiate_component (const std::string &comp,
                                       int graph_position);
-  OMX_ERRORTYPE instantiate_list(const component_names_t &comp_list);
+  OMX_ERRORTYPE instantiate_list (const component_names_t &comp_list);
   void destroy_list();
 
-  OMX_ERRORTYPE setup_tunnels() const;
-  OMX_ERRORTYPE tear_down_tunnels() const;
+  OMX_ERRORTYPE setup_tunnels () const;
+  OMX_ERRORTYPE tear_down_tunnels () const;
 
-  OMX_ERRORTYPE setup_suppliers() const;
+  OMX_ERRORTYPE setup_suppliers () const;
 
   OMX_ERRORTYPE transition_all (const OMX_STATETYPE to,
                                 const OMX_STATETYPE from);
 
+
+  void eos (OMX_HANDLETYPE handle);
   OMX_ERRORTYPE send_msg (const tizgraphcmd::cmd_type type,
-                          const std::string &str = std::string());
+                          const uri_list_t &uri_list = uri_list_t (),
+                          const OMX_HANDLETYPE   handle = NULL,
+                          const int jump = 0);
 
   static void dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd);
 
@@ -225,7 +245,7 @@ protected:
   tiz_mutex_t          mutex_;
   tiz_sem_t            sem_;
   tiz_queue_t         *p_queue_;
-  OMX_STATETYPE        current_state_;
+  OMX_STATETYPE        current_graph_state_;
 
 };
 

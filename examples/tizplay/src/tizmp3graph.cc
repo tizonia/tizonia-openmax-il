@@ -88,10 +88,18 @@ tizmp3graph::do_load ()
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_configure (const std::string & uri /* = std::string() */ )
+tizmp3graph::configure_mp3_graph (const int file_index)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
+  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
+           current_file_index_);
+
+  assert (file_index < file_list_.size ());
+  assert (OMX_StateLoaded == current_graph_state_);
+ 
+  const std::string &uri = file_list_[file_index];
+  
   if (!uri.empty ())
     {
       // Probe the new uri
@@ -138,7 +146,7 @@ tizmp3graph::do_configure (const std::string & uri /* = std::string() */ )
   p_uritype = NULL;
 
   // Obtain the mp3 settings from the decoder's port #0
-  OMX_AUDIO_PARAM_MP3TYPE mp3type;
+  OMX_AUDIO_PARAM_MP3TYPE mp3type, mp3type_orig;;
 
   mp3type.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
   mp3type.nVersion.nVersion = OMX_VERSION;
@@ -149,7 +157,8 @@ tizmp3graph::do_configure (const std::string & uri /* = std::string() */ )
     {
       return ret;
     }
-
+  mp3type_orig = mp3type;
+  
   // Set the mp3 settings on decoder's port #0
 
   probe_ptr_->get_mp3_codec_info (mp3type);
@@ -161,7 +170,8 @@ tizmp3graph::do_configure (const std::string & uri /* = std::string() */ )
       return ret;
     }
 
-  if (48000 != mp3type.nSampleRate || 2 != mp3type.nChannels)
+  if (mp3type_orig.nSampleRate != mp3type.nSampleRate
+      || mp3type_orig.nChannels != mp3type.nChannels)
     {
       // Await port settings change event on decoders's port #1
       waitevent_list_t event_list
@@ -199,31 +209,53 @@ tizmp3graph::do_configure (const std::string & uri /* = std::string() */ )
 }
 
 OMX_ERRORTYPE
+tizmp3graph::do_configure (const uri_list_t &uri_list /* = uri_list_t () */ )
+{
+  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
+           current_file_index_);
+  file_list_ = uri_list;
+  current_file_index_ = 0;
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
 tizmp3graph::do_execute ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
-  if (OMX_ErrorNone != (ret = transition_all (OMX_StateIdle, OMX_StateLoaded)))
+  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d] list size [%d]...",
+           current_file_index_, file_list_.size ());
+
+  assert (OMX_StateLoaded == current_graph_state_);
+
+  if (current_file_index_ < file_list_.size ())
     {
-      return ret;
+      TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
+               current_file_index_);
+  
+      if (OMX_ErrorNone != (ret = configure_mp3_graph (current_file_index_++)))
+        {
+          return ret;
+        }
+      TIZ_LOG (TIZ_TRACE, "Idle current_file_index_ [%d]...",
+               current_file_index_);
+
+      if (OMX_ErrorNone != (ret = transition_all (OMX_StateIdle, OMX_StateLoaded)))
+        {
+          return ret;
+        }
+      TIZ_LOG (TIZ_TRACE, "Exe current_file_index_ [%d]...",
+               current_file_index_);
+
+      if (OMX_ErrorNone != (ret = transition_all (OMX_StateExecuting,
+                                                  OMX_StateIdle)))
+        {
+          return ret;
+        }
+      TIZ_LOG (TIZ_TRACE, "Running current_file_index_ [%d]...",
+               current_file_index_);
+
     }
-
-  if (OMX_ErrorNone != (ret = transition_all (OMX_StateExecuting,
-                                              OMX_StateIdle)))
-    {
-      return ret;
-    }
-
-  // Await EOS from renderer
-
-//   waitevent_list_t event_list
-//     (1,
-//      waitevent_info (handles_[2],
-//                      OMX_EventBufferFlag,
-//                      0,   //port index
-//                      1,     //OMX_BUFFERFLAG_EOS=0x00000001
-//                      NULL));
-//   cback_handler_.wait_for_event_list (event_list);
 
   return OMX_ErrorNone;
 }
@@ -231,10 +263,55 @@ tizmp3graph::do_execute ()
 OMX_ERRORTYPE
 tizmp3graph::do_pause ()
 {
-  if (OMX_StateExecuting == current_state_)
-    (void) transition_all (OMX_StatePause, OMX_StateExecuting);
-  else if (OMX_StatePause == current_state_)
-    (void) transition_all (OMX_StateExecuting, OMX_StatePause);
+  if (OMX_StateExecuting == current_graph_state_)
+    {
+      (void) transition_all (OMX_StatePause, OMX_StateExecuting);
+    }
+  else if (OMX_StatePause == current_graph_state_)
+    {
+      (void) transition_all (OMX_StateExecuting, OMX_StatePause);
+    }
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tizmp3graph::do_seek ()
+{
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tizmp3graph::do_skip (const int jump)
+{
+  (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
+  (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
+
+  current_file_index_ += jump;
+
+  if (jump > 0)
+    {
+      current_file_index_--;
+    }
+
+  if (current_file_index_ < 0)
+    {
+      current_file_index_ = 0;
+    }
+
+  if (current_file_index_ > file_list_.size ())
+    {
+      current_file_index_ = file_list_.size ();
+    }
+
+  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
+           current_file_index_);
+
+  return do_execute ();
+}
+
+OMX_ERRORTYPE
+tizmp3graph::do_volume ()
+{
   return OMX_ErrorNone;
 }
 
@@ -251,14 +328,14 @@ tizmp3graph::do_unload ()
 }
 
 void
-tizmp3graph::do_signal ()
+tizmp3graph::do_eos (const OMX_HANDLETYPE handle)
 {
-  OMX_CALLBACKTYPE *p_cbacks = cback_handler_.get_omx_cbacks ();
+  TIZ_LOG (TIZ_TRACE, "Unloading...");
 
-  if (NULL != p_cbacks)
+  if (handle == handles_[2])
     {
-      p_cbacks->EventHandler (handles_[0],
-                              static_cast < void *>(&cback_handler_),
-                              OMX_EventVendorStartUnused, 0, 0, NULL);
+      (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
+      (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
+      (void) do_execute ();
     }
 }

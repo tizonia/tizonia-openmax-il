@@ -219,7 +219,7 @@ comps_of_role (OMX_STRING role)
 
 struct pathname_of
 {
-  pathname_of (std::vector < std::string > &file_list):file_list_ (file_list)
+  pathname_of (uri_list_t &file_list):file_list_ (file_list)
   {
   }
 
@@ -227,13 +227,13 @@ struct pathname_of
   {
     file_list_.push_back (p.path ().string ());
   }
-  std::vector < std::string > &file_list_;
+  uri_list_t &file_list_;
 };
 
 static OMX_ERRORTYPE
-filter_unknown_media (std::vector < std::string > &file_list)
+filter_unknown_media (uri_list_t &file_list)
 {
-  std::vector < std::string >::iterator it = file_list.begin ();
+  uri_list_t::iterator it = file_list.begin ();
   while (it != file_list.end ())
     {
       std::string extension (boost::filesystem::path (*it).extension ().
@@ -256,7 +256,7 @@ filter_unknown_media (std::vector < std::string > &file_list)
 }
 
 static OMX_ERRORTYPE
-verify_uri (const std::string & uri, std::vector < std::string > &file_list)
+verify_uri (const std::string & uri, uri_list_t &file_list)
 {
   if (boost::filesystem::exists (uri)
       && boost::filesystem::is_regular_file (uri))
@@ -325,10 +325,12 @@ wait_for_user_input (tizgraph_ptr_t graph_ptr)
           break;
 
         case 'n':
-          return ETIZPlayUserNextFile;
+          graph_ptr->skip (1);
+          break;
 
         case 'p':
-          return ETIZPlayUserPrevFile;
+          graph_ptr->skip (-2);
+          break;
 
         case '-':
           printf ("Vol down - not implemented\n");
@@ -352,7 +354,7 @@ static OMX_ERRORTYPE
 decode (const OMX_STRING uri)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
-  std::vector < std::string > file_list;
+  uri_list_t file_list;
 
   if (OMX_ErrorNone != verify_uri (uri, file_list))
     {
@@ -380,43 +382,31 @@ decode (const OMX_STRING uri)
   gp_running_graph = g_ptr.get ();
   int list_size    = file_list.size ();
   ETIZPlayUserInput user = ETIZPlayUserMax;
-  bool config_first_time = true;
-  for (int i = 0; i < list_size && user != ETIZPlayUserStop; i++)
+
+  if (OMX_ErrorNone != (ret = g_ptr->load ()))
     {
-      if (OMX_ErrorNone != (ret = g_ptr->load ()))
-        {
-          fprintf (stderr, "Found error %s while loading the graph.\n",
-                   tiz_err_to_str (ret));
-          exit (EXIT_FAILURE);
-        }
-
-      if (OMX_ErrorNone != (ret = g_ptr->configure (config_first_time
-                                                    ? std::string ()
-                                                    : file_list[i])))
-        {
-          fprintf (stderr, "Could not configure a graph. Skipping file.\n");
-          g_ptr->unload ();
-          continue;
-        }
-
-      config_first_time = false;
-
-      if (OMX_ErrorNone != (ret = g_ptr->execute ()))
-        {
-          fprintf (stderr, "Found error %s while executing the graph.\n",
-                   tiz_err_to_str (ret));
-          exit (EXIT_FAILURE);
-        }
-
-      user = wait_for_user_input (g_ptr);
-      if (ETIZPlayUserPrevFile == user)
-        {
-          i   -= 2;
-          if (i < -1)
-            i  = -1;
-        }
-      g_ptr->unload ();
+      fprintf (stderr, "Found error %s while loading the graph.\n",
+               tiz_err_to_str (ret));
+      exit (EXIT_FAILURE);
     }
+
+  if (OMX_ErrorNone != (ret = g_ptr->configure (file_list)))
+    {
+      fprintf (stderr, "Could not configure a graph. Skipping file.\n");
+      exit (EXIT_FAILURE);
+    }
+
+  if (OMX_ErrorNone != (ret = g_ptr->execute ()))
+    {
+      fprintf (stderr, "Found error %s while executing the graph.\n",
+               tiz_err_to_str (ret));
+      exit (EXIT_FAILURE);
+    }
+
+  while (ETIZPlayUserStop != wait_for_user_input (g_ptr))
+    {}
+
+  g_ptr->unload ();
 
   return ret;
 }

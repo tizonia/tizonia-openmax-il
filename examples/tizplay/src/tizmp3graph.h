@@ -1,3 +1,4 @@
+/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2013 Aratelia Limited - Juan A. Rubio
  *
@@ -40,16 +41,28 @@ class tizmp3graph : public tizgraph
 
 public:
 
-  tizmp3graph(tizprobe_ptr_t probe_ptr);
+  tizmp3graph (tizprobe_ptr_t probe_ptr);
 
 protected:
 
-  OMX_ERRORTYPE do_load();
-  OMX_ERRORTYPE do_configure(const std::string &uri = std::string());
-  OMX_ERRORTYPE do_execute();
-  OMX_ERRORTYPE do_pause();
-  void do_unload();
-  void do_signal();
+  OMX_ERRORTYPE do_load ();
+  OMX_ERRORTYPE do_configure (const uri_list_t &uri_list = uri_list_t ());
+  OMX_ERRORTYPE do_execute ();
+  OMX_ERRORTYPE do_pause ();
+  OMX_ERRORTYPE do_seek ();
+  OMX_ERRORTYPE do_skip (const int jump);
+  OMX_ERRORTYPE do_volume ();
+  void          do_eos (const OMX_HANDLETYPE handle);
+  void          do_unload ();
+
+private:
+
+  OMX_ERRORTYPE configure_mp3_graph (const int file_index);
+
+private:
+
+  uri_list_t file_list_;
+  int current_file_index_;
 };
 
 #endif // TIZMP3GRAPH_HH

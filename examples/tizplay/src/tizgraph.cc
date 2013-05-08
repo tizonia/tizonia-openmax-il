@@ -64,7 +64,7 @@ g_graph_thread_func (void *p_arg)
       assert (NULL != p_data);
 
       tizgraphcmd *p_cmd =  static_cast<tizgraphcmd *>(p_data);
-      tiz_sem_post (&(p_graph->sem_));
+
       tizgraph::dispatch (p_graph, p_cmd);
       if (tizgraphcmd::ETIZGraphCmdUnload == p_cmd->get_type ())
         {
@@ -116,8 +116,6 @@ tizcback_handler::tizcback_handler(const tizgraph &graph)
   cbacks_.FillBufferDone = NULL;
 }
 
-tizcback_handler::~tizcback_handler(){}
-
 void
 tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                                 OMX_EVENTTYPE eEvent,
@@ -152,6 +150,8 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent), nData1, nData2,
                pEventData);
+      const_cast<tizgraph &>(parent_).eos (hComponent);
+      return;
     }
   else if (eEvent == OMX_EventError)
     {
@@ -197,20 +197,29 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
 int
 tizcback_handler::wait_for_event_list (const waitevent_list_t &event_list)
 {
-  boost::unique_lock<boost::mutex> lock(mutex_);
+  boost::unique_lock<boost::mutex> lock (mutex_);
 
   assert (expected_list_.empty() == true);
   expected_list_ = event_list;
   events_outstanding_ = true;
 
-  TIZ_LOG (TIZ_DEBUG, "events_outstanding_ = [%s] event_list size [%d]\n",
+  TIZ_LOG (TIZ_DEBUG, "events_outstanding_ = [%s] event_list size [%d]",
            events_outstanding_ ? "true" : "false", event_list.size());
-
+  for (waitevent_list_t::const_iterator it = event_list.begin ();
+       it != event_list.end (); ++it)
+    {
+      TIZ_LOG (TIZ_DEBUG, "[%s] event [%s] [%s]",
+               const_cast<tizgraph &>(parent_).h2n_[(*it).component_].c_str (),
+               tiz_evt_to_str ((*it).event_),
+               (*it).event_ == OMX_EventCmdComplete
+               ? tiz_state_to_str ((OMX_STATETYPE)(*it).ndata2_) : "");
+    }
+  
   if (!all_events_received ())
     {
-      while(events_outstanding_)
+      while (events_outstanding_)
         {
-          cond_.wait(lock);
+          cond_.wait (lock);
         }
     }
 
@@ -220,7 +229,7 @@ tizcback_handler::wait_for_event_list (const waitevent_list_t &event_list)
 bool
 tizcback_handler::all_events_received ()
 {
-  if (!expected_list_.empty() && !received_queue_.empty())
+  if (!expected_list_.empty () && !received_queue_.empty ())
     {
       waitevent_list_t::iterator exp_it = expected_list_.begin ();
       while (exp_it != expected_list_.end())
@@ -264,7 +273,9 @@ tizgraph::tizgraph(int graph_size, tizprobe_ptr_t probe_ptr)
   probe_ptr_(probe_ptr),
   thread_ (),
   mutex_ (),
-  sem_ ()
+  sem_ (),
+  p_queue_ (NULL),
+  current_graph_state_ (OMX_StateLoaded)
 {
   assert (probe_ptr);
   TIZ_LOG (TIZ_TRACE, "Constructing...");
@@ -310,9 +321,9 @@ tizgraph::load()
 }
 
 OMX_ERRORTYPE
-tizgraph::configure(const std::string &uri /* = std::string() */)
+tizgraph::configure(const uri_list_t &uri_list /* = uri_list_t () */)
 {
-  return send_msg (tizgraphcmd::ETIZGraphCmdConfig, uri);
+  return send_msg (tizgraphcmd::ETIZGraphCmdConfig, uri_list);
 }
 
 OMX_ERRORTYPE
@@ -327,17 +338,35 @@ tizgraph::pause()
   return send_msg (tizgraphcmd::ETIZGraphCmdPause);
 }
 
+OMX_ERRORTYPE
+tizgraph::seek()
+{
+  return send_msg (tizgraphcmd::ETIZGraphCmdSeek);
+}
+
+OMX_ERRORTYPE
+tizgraph::skip(const int jump)
+{
+  return send_msg (tizgraphcmd::ETIZGraphCmdSkip, uri_list_t (), NULL, jump);
+}
+
+OMX_ERRORTYPE
+tizgraph::volume()
+{
+  return send_msg (tizgraphcmd::ETIZGraphCmdVolume);
+}
+
+void
+tizgraph::eos (OMX_HANDLETYPE handle)
+{
+  send_msg (tizgraphcmd::ETIZGraphCmdEos, uri_list_t (), handle);
+}
+
 void
 tizgraph::unload()
 {
   send_msg (tizgraphcmd::ETIZGraphCmdUnload);
   deinit ();
-}
-
-void
-tizgraph::signal()
-{
-  send_msg (tizgraphcmd::ETIZGraphCmdSignal);
 }
 
 OMX_ERRORTYPE
@@ -606,7 +635,7 @@ tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
                                               (OMX_PTR) OMX_ErrorNone));
         }
       cback_handler_.wait_for_event_list(event_list);
-      current_state_ = to;
+      current_graph_state_ = to;
     }
 
   return error;
@@ -614,14 +643,15 @@ tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
 
 OMX_ERRORTYPE
 tizgraph::send_msg (const tizgraphcmd::cmd_type type,
-                    const std::string &str /* = std::string() */)
+                    const uri_list_t &uri_list /* = uri_list_t () */,
+                    const OMX_HANDLETYPE   handle /* = NULL */,
+                    const int jump /* = 0 */)
 {
   assert (type < tizgraphcmd::ETIZGraphCmdMax);
 
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_err_ret_oom
-    (tiz_queue_send (p_queue_, new tizgraphcmd (type, str)));
-  tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+    (tiz_queue_send (p_queue_, new tizgraphcmd (type, uri_list, handle, jump)));
   tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
   return OMX_ErrorNone;
 }
@@ -643,7 +673,7 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
       }
     case tizgraphcmd::ETIZGraphCmdConfig:
       {
-        p_graph->do_configure (p_cmd->get_str ());
+        p_graph->do_configure (p_cmd->get_uris ());
         break;
       }
     case tizgraphcmd::ETIZGraphCmdExecute:
@@ -656,14 +686,29 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
         p_graph->do_pause ();
         break;
       }
+    case tizgraphcmd::ETIZGraphCmdSeek:
+      {
+        p_graph->do_seek ();
+        break;
+      }
+    case tizgraphcmd::ETIZGraphCmdSkip:
+      {
+        p_graph->do_skip (p_cmd->get_jump ());
+        break;
+      }
+    case tizgraphcmd::ETIZGraphCmdVolume:
+      {
+        p_graph->do_volume ();
+        break;
+      }
     case tizgraphcmd::ETIZGraphCmdUnload:
       {
         p_graph->do_unload ();
         break;
       }
-    case tizgraphcmd::ETIZGraphCmdSignal:
+    case tizgraphcmd::ETIZGraphCmdEos:
       {
-        p_graph->do_signal ();
+        p_graph->do_eos (p_cmd->get_handle ());
         break;
       }
     default:
