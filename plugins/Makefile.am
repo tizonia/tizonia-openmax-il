@@ -29,7 +29,3 @@ SUBDIRS = \
 	yuv_renderer \
 	http_renderer
 
-
-#pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = tizcomps.pc
-

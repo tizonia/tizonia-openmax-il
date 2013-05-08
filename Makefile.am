@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = include libtizosal rm libtizcore libtizonia tizcomps examples docs
+SUBDIRS = include libtizosal rm libtizcore libtizonia plugins examples docs
 
 CLEANFILES = cscope.in.out cscope.out cscope.po.out
 

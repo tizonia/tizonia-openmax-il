@@ -46,6 +46,6 @@ AC_CONFIG_SUBDIRS([include
                    rm
                    libtizcore
                    libtizonia
-                   tizcomps
+                   plugins
                    examples])
 AC_OUTPUT
