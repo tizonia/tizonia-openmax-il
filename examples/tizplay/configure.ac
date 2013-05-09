@@ -22,10 +22,6 @@ AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 
-
-# 'm4' is the directory where the extra autoconf macros are stored
-AC_CONFIG_MACRO_DIR([m4])
-
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
@@ -51,7 +47,7 @@ AC_CHECK_LIB([boost_thread], [main])
 #PKG_CHECK_MODULES([TIZ], [libtizosal])
 
 # Checks for header files.
-AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([limits.h stdlib.h string.h termios.h unistd.h])
 
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([boost/foreach.hpp], [],

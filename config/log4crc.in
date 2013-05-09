@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE log4c SYSTEM "">
+
+<log4c version="1.2.1">
+
+	<config>
+		<bufsize>0</bufsize>
+		<debug level="2"/>
+		<nocleanup>0</nocleanup>
+		<reread>1</reread>
+	</config>
+
+<!--         <category name="root" priority="error" appender="tizlogfile"/> -->
+<!--         <category name="tiz.rm.daemon" priority="trace" appender="syslog"/> -->
+<!--         <category name="tiz.rm.proxy" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.rm.proxy_c" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.rm.proxy_c.check" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.osal" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.osal.mem" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.osal.thread" priority="error" appender="tizlogfile" /> -->
+<!--         <category name="tiz.osal.vector" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.osal.pqueue" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.osal.sync" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.osal.rc" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.osal.soa" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.osal.event" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.osal.http" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.osal.map" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.osal.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.ilcore" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.ilcore.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.test_comp" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.scheduler" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.servant" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.fsm" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.krn" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.object" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.proc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.arprc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.port" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.pcmport" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.mp3port" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.videoport" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.audio_renderer" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.audio_renderer.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.audio_renderer.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.file_reader" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.file_reader.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.file_reader.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.file_writer" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.file_writer.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.file_writer.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp3_decoder" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp3_decoder.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp3_decoder.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp3_encoder" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp3_encoder.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp3_encoder.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.yuv_renderer" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.yuv_renderer.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.yuv_renderer.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.vp8_decoder" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.vp8_decoder.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.vp8_decoder.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.http_renderer" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.http_renderer.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.http_renderer.prc.con" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.http_renderer.check" priority="trace" appender="tizlogfile" /> -->
+
+<!--         <category name="tiz.play" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.play.omxutil" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.play.graph" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.play.graph.mp3" priority="trace" appender="tizlogfile" /> -->
+
+
+	<layout name="basic" type="basic"/>
+	<layout name="dated" type="dated"/>
+	<layout name="tiz" type="tiz_layout"/>
+
+	<appender name="stdout" type="stream" layout="tiz"/>
+	<appender name="stderr" type="stream" layout="dated"/>
+	<appender name="syslog" type="syslog" layout="dated"/>
+
+	<rollingpolicy name="tizrolling" type="sizewin" maxsize="20971520" maxnum="10" />
+	<appender name="tizlogfile" type="rollingfile" logdir="@localstatedir@/log/tizonia" prefix="tizonia.log" layout="tiz" rollingpolicy="tizrolling" />
+
+</log4c>

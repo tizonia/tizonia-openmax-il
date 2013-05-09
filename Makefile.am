@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = include libtizosal rm libtizcore libtizonia plugins examples docs
+SUBDIRS = config include libtizosal rm libtizcore libtizonia plugins examples docs
 
 CLEANFILES = cscope.in.out cscope.out cscope.po.out
 
 .PHONY: cscope
 cscope:
-	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizosal -srm -stizcomps -sexamples;
+	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizosal -srm -splugins -sexamples;
 
 # '-nut’ = '--no-tabs’
 #    Use spaces instead of tabs.

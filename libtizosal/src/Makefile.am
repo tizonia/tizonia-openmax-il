@@ -17,8 +17,6 @@
 
 #SUBDIRS = http-parser
 
-EXTRA_DIST = log4crc tizrc
-
 lib_LTLIBRARIES = libtizosal.la
 
 libtizosal_includedir = $(includedir)/libtizosal
@@ -68,6 +66,8 @@ libtizosal_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
 	@LOG4C_CFLAGS@ \
 	@uuid_CFLAGS@
+
+libtizosal_la_CPPFLAGS = -DSYSCONFDIR="\"${sysconfdir}/tizonia\""
 
 libtizosal_la_LIBADD = \
 	-lpthread \

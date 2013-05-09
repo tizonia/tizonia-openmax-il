@@ -43,13 +43,14 @@
 #include <stdbool.h>
 #include <ctype.h>
 
+#ifndef SYSCONFDIR
+# define SYSCONFDIR "/etc/tizonia"
+#endif
+
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.osal.rc"
 #endif
-
-#define TIZRC_ETCPATH "/etc/tizonia"
-#define TIZRC_PATH ""
 
 #define PAT_SIZE 255
 
@@ -70,9 +71,8 @@ static char *list_keys[] = {
 static const int nrlist_keys = 1;
 
 static file_info_t rcfiles[] = {
-  {"$TIZRC_ETCPATH/tizrc"},
-  {"$TIZRC_PATH/tizrc"},
-  {"$HOME/.tizrc"}
+  {"$SYSCONFDIR/tizonia.conf"},
+  {"$HOME/.tizonia.conf"}
 };
 
 static const int g_nrcfiles = sizeof (rcfiles) / sizeof (rcfiles[0]);
@@ -170,11 +170,10 @@ find_node (const tiz_rcfile_t * ap_rc, const char *key)
 
   p_kvs = ap_rc->p_keyvals;
 
-  TIZ_LOG (TIZ_TRACE, "Searching for Key [%s]", key);
+  TIZ_LOG (TIZ_TRACE, "Looking for Key [%s]", key);
 
   while (p_kvs && p_kvs->p_key)
     {
-      TIZ_LOG (TIZ_TRACE, "Searching Key [%s]", p_kvs->p_key);
       /* TODO: strncmp here */
       if (0 == strcmp (p_kvs->p_key, key))
         {
@@ -512,18 +511,13 @@ tiz_rcfile_init (tiz_rcfile_t ** pp_rc)
   /* load rc files */
   TIZ_LOG (TIZ_TRACE, "Looking for [%d] rc files...", g_nrcfiles);
 
-  snprintf (rcfiles[0].name, sizeof (rcfiles[0].name) - 1, "%s/tizrc",
-            TIZRC_ETCPATH);
-
-  if (g_nrcfiles >= 1 && (p_env_str = getenv ("TIZRC_PATH")))
-    {
-      snprintf (rcfiles[1].name, sizeof (rcfiles[1].name) - 1, "%s/tizrc",
-                p_env_str ? p_env_str : TIZRC_PATH);
-    }
+  snprintf (rcfiles[0].name, sizeof (rcfiles[0].name) - 1, "%s/tizonia.conf",
+            SYSCONFDIR);
 
   if (g_nrcfiles >= 2 && (p_env_str = getenv ("HOME")))
     {
-      snprintf (rcfiles[2].name, sizeof (rcfiles[2].name) - 1, "%s/.tizrc",
+      TIZ_LOG (TIZ_TRACE, "HOME [%s] ...", p_env_str);
+      snprintf (rcfiles[1].name, sizeof (rcfiles[1].name) - 1, "%s/.tizonia.conf",
                 p_env_str ? p_env_str : "");
     }
 

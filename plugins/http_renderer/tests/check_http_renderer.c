@@ -458,7 +458,7 @@ exec_mplayer (void)
      an external streaming client like vlc, mplayer, etc...*/
   /* e.g.: */
   /*  */
-  /* $ cd ~/work/tizonia/tizcomps/http_renderer */
+  /* $ cd ~/work/tizonia/plugins/http_renderer */
   /* $ tests/.libs/check_http_renderer whatever */
   /*  */
 

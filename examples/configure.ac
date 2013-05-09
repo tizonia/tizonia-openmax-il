@@ -16,24 +16,14 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizonia_examples], [0.1], [juan.rubio@aratelia.com])
+AC_INIT([tizonia_examples], [0.1.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 
-# 'm4' is the directory where the extra autoconf macros are stored
-AC_CONFIG_MACRO_DIR([m4])
-
 # Checks for programs.
-AC_PROG_CXX
-AC_PROG_AWK
 AC_PROG_CC
-AC_PROG_CPP
-AC_PROG_INSTALL
-AC_PROG_LN_S
-AC_PROG_MAKE_SET
-AC_PROG_RANLIB
 
 # Checks for libraries.
 
@@ -43,6 +33,6 @@ AC_PROG_RANLIB
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile tizplay/Makefile])
+AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SUBDIRS([tizplay])
 AC_OUTPUT
