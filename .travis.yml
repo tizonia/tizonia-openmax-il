@@ -18,6 +18,10 @@
 #
 # Travis-ci configuration file (see http://travis-ci.org)
 #
+# NOTE: This file is work in progress
+#
+# TODO: Add step to run Tizonia's unit tests
+#
 
 language: c
 compiler:

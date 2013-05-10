@@ -84,8 +84,7 @@ elif [ "$1" == "tizrc" ];  then
     exit_status=$?
     if [ $exit_status -eq 0 ] ; then
         echo "Preparing the $HOME/.tizrc config file..."
-        cp "$TIZ_DIR/libtizosal/src/tizrc" "$HOME/.tizrc" \
-            && sed -i "s/\/home\/user\/temp/$(echo $INSTALL_DIR | sed -e 's/\\/\\\\/g' -e 's/\//\\\//g' -e 's/&/\\\&/g')/g" "$HOME/.tizrc"
+        cp "$TIZ_DIR/config/tizonia.conf" "$HOME/.tizonia.conf"
         exit_status=$?
     fi
 elif [ "$1" == "bldonly" ];  then
