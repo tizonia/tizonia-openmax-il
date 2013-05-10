@@ -34,5 +34,5 @@ AC_PROG_CC
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([tizplay])
+AC_CONFIG_SUBDIRS([tplay])
 AC_OUTPUT
