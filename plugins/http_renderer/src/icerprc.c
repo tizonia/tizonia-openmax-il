@@ -24,6 +24,7 @@
  * @brief Tizonia OpenMAX IL - HTTP renderer processor class
  * implementation
  *
+ * NOTE: This is work in progress!
  *
  */
 
@@ -171,6 +172,14 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * ap_hdr, void *ap_arg)
 
   p_obj->server_is_full_ = false;
   ap_hdr->nOffset = 0;
+
+  if ((ap_hdr->nFlags & OMX_BUFFERFLAG_EOS) != 0)
+    {
+      TIZ_LOG (TIZ_TRACE, "OMX_BUFFERFLAG_EOS in HEADER [%p]", ap_hdr);
+      tiz_srv_issue_event ((OMX_PTR) p_obj,
+                           OMX_EventBufferFlag,
+                           0, ap_hdr->nFlags, NULL);
+    }
 
   tiz_krn_release_buffer (tiz_get_krn (tiz_srv_get_hdl (p_obj)), 0, ap_hdr);
   p_obj->p_inhdr_ = NULL;

@@ -23,6 +23,7 @@
  *
  * @brief Tizonia OpenMAX IL - HTTP renderer's connection management functions
  *
+ * NOTE: This is work in progress!
  *
  */
 
@@ -713,7 +714,7 @@ build_http_positive_response (char *ap_buf, size_t len)
   int channels = 2;
   int samplerate = 44100;
   int status = 200;
-  const char *station = "Radio Tizonia";
+  const char *station = "Tizonia Radio";
   const char *description = "The coolest radio station ever!";
   const char *genre = "Pop/rock";
   const char *url = "http://tizonia.org";
@@ -1349,6 +1350,16 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
           ap_server->p_hdr = p_hdr;
         }
 
+      if (p_hdr->nFilledLen == 0)
+        {
+          /* Let's pretend we emptied the buffer */
+          p_lstnr->pos = 0;
+          ap_server->p_hdr = NULL;
+          ap_server->pf_emptied (p_hdr, ap_server->p_arg);
+          p_hdr = NULL;
+          continue;
+        }
+
       /* TODO: check return code */
       /* NOTE: We assume only one client for now. But still do it like this in
        * preparation for when multiple clients are fully supported */
@@ -1376,9 +1387,8 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
 
       if (p_lstnr->p_con->full || p_lstnr->p_con->not_ready)
         {
-          /* Socket buffer (or perhaps the tcp window) is full. Start the io
-           * watcher to get notified when the socket is again available for
-           * writing */
+          /* Socket buffer is full. Start the io watcher to get notified when
+           * the socket is again available for writing */
           TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorNoMore] : "
                     "socket full/not ready");
           (void) start_listener_io_watcher (p_lstnr, ap_hdl);
