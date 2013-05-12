@@ -54,6 +54,9 @@ extern "C"
 #define TIZ_UNLIKELY(expr) (expr)
 #endif
 
+/* NOTE : This is WORK IN PROGRESS !!! : When the TIZ_DISABLE_CHECKS feature is
+   implemented correctly, it WILL NOT DISABLE ALL CHECKS, only those that have
+   to do with out-of-memory conditions. */
 #ifdef TIZ_DISABLE_CHECKS
 
 /**
