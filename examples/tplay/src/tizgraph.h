@@ -170,13 +170,13 @@ private:
   OMX_HANDLETYPE   handle_;
   int jump_;
 };
-  
+
 class tizgraph
 {
 
   friend class tizcback_handler;
   friend       void* ::g_graph_thread_func (void *);
-  
+
 public:
 
   tizgraph(int graph_size, tizprobe_ptr_t probe);
@@ -205,7 +205,7 @@ protected:
 
   virtual OMX_ERRORTYPE init ();
   virtual OMX_ERRORTYPE deinit ();
-  
+
   OMX_ERRORTYPE verify_existence (const component_names_t &comp_list) const;
   OMX_ERRORTYPE verify_role (const std::string &comp,
                             const std::string &role) const;
@@ -224,7 +224,12 @@ protected:
 
   OMX_ERRORTYPE transition_all (const OMX_STATETYPE to,
                                 const OMX_STATETYPE from);
+  OMX_ERRORTYPE transition_one (const int handle_id,
+                                const OMX_STATETYPE to);
 
+  OMX_ERRORTYPE modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd);
+  OMX_ERRORTYPE disable_tunnel (const int tunnel_id);
+  OMX_ERRORTYPE enable_tunnel (const int tunnel_id);
 
   void eos (OMX_HANDLETYPE handle);
   OMX_ERRORTYPE send_msg (const tizgraphcmd::cmd_type type,

@@ -22,7 +22,8 @@ noinst_HEADERS = \
 	tizprobe.h \
 	tizgraphfactory.h \
 	tizgraph.h \
-	tizmp3graph.h
+	tizmp3graph.h \
+	tizstreamsrvgraph.h
 
 tplay_SOURCES = \
 	tizplay.cc \
@@ -30,7 +31,8 @@ tplay_SOURCES = \
 	tizprobe.cc \
 	tizgraphfactory.cc \
 	tizgraph.cc \
-	tizmp3graph.cc
+	tizmp3graph.cc \
+	tizstreamsrvgraph.cc
 
 tplay_CPPFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \

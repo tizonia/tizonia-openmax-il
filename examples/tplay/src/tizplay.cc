@@ -39,6 +39,7 @@
 #include "tizomxutil.h"
 #include "tizgraph.h"
 #include "tizgraphfactory.h"
+#include "tizstreamsrvgraph.h"
 #include "tizosal.h"
 
 #include <unistd.h>
@@ -50,9 +51,11 @@
 #include <vector>
 #include <string>
 #include <getopt.h>
+#include <netdb.h>
 
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/make_shared.hpp>
 #include <ostream>
 
 #include <termios.h>
@@ -118,15 +121,20 @@ print_usage (void)
     ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>.\n");
   printf
     ("\t-c --comps-of-role <role>\t\tDisplay the components that implement <role>.\n");
+  printf ("\t-s --stream\t\t\t\tStream media on port 8010.\n");
   printf ("\t-v --version\t\t\t\tDisplay version info.\n");
   printf ("\t-h --help\t\t\t\tDisplay help.\n");
   printf ("\n");
-  printf ("Example:\n");
+  printf ("Examples:\n");
   printf
     ("\t tizplay ~/Music (decodes every supported file in the '~/Music' folder)\n");
   printf ("\t    * Press [p] to skip to previous file.\n");
   printf ("\t    * Press [n] to skip to next file.\n");
   printf ("\t    * Press [SPACE] to pause playback.\n");
+  printf ("\t    * Press [q] to quit.\n");
+  printf ("\t    * Press [Ctrl-c] to terminate the player at any time.\n");
+  printf
+    ("\n\t tizplay -s ~/Music (streams every supported file in the '~/Music' folder)\n");
   printf ("\t    * Press [q] to quit.\n");
   printf ("\t    * Press [Ctrl-c] to terminate the player at any time.\n");
   printf ("\n");
@@ -411,6 +419,77 @@ decode (const OMX_STRING uri)
   return ret;
 }
 
+static OMX_ERRORTYPE
+stream (const OMX_STRING uri)
+{
+  OMX_ERRORTYPE ret = OMX_ErrorNone;
+  uri_list_t    file_list;
+  char hostname[120] = "";
+
+  if (0 == gethostname (hostname, sizeof(hostname)))
+    {
+      struct hostent *p_hostent = gethostbyname(hostname);
+      struct in_addr ip_addr = *(struct in_addr *)(p_hostent->h_addr);
+      fprintf (stdout, "Streaming from http://%s:8010\n\n", hostname);
+    }
+  
+  if (OMX_ErrorNone != verify_uri (uri, file_list))
+    {
+      fprintf (stderr, "File not found.\n");
+      exit (EXIT_FAILURE);
+    }
+
+  if (OMX_ErrorNone != filter_unknown_media (file_list))
+    {
+      fprintf (stderr, "Unsupported media types.\n");
+      exit (EXIT_FAILURE);
+    }
+
+  std::sort (file_list.begin (), file_list.end ());
+
+  tizprobe_ptr_t p = boost::make_shared < tizprobe > (file_list[0],
+                                                      /* quiet = */ true);
+  tizgraph_ptr_t g_ptr = boost::make_shared < tizstreamsrvgraph > (p);
+  if (!g_ptr)
+    {
+      // At this point we have removed all unsupported media, so we should
+      // always have a graph object.
+      fprintf (stderr, "Could not create a graph. Unsupported format.\n");
+      exit (EXIT_FAILURE);
+    }
+
+  gp_running_graph = g_ptr.get ();
+  int list_size    = file_list.size ();
+  ETIZPlayUserInput user = ETIZPlayUserMax;
+
+  if (OMX_ErrorNone != (ret = g_ptr->load ()))
+    {
+      fprintf (stderr, "Found error %s while loading the graph.\n",
+               tiz_err_to_str (ret));
+      exit (EXIT_FAILURE);
+    }
+
+  if (OMX_ErrorNone != (ret = g_ptr->configure (file_list)))
+    {
+      fprintf (stderr, "Could not configure a graph. Skipping file.\n");
+      exit (EXIT_FAILURE);
+    }
+
+  if (OMX_ErrorNone != (ret = g_ptr->execute ()))
+    {
+      fprintf (stderr, "Found error %s while executing the graph.\n",
+               tiz_err_to_str (ret));
+      exit (EXIT_FAILURE);
+    }
+
+  while (ETIZPlayUserStop != wait_for_user_input (g_ptr))
+    {}
+
+  g_ptr->unload ();
+
+  return ret;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -441,12 +520,13 @@ main (int argc, char **argv)
         {"list-components", no_argument, 0, 'l'},
         {"roles-of-comp", required_argument, 0, 'r'},
         {"comps-of-role", required_argument, 0, 'c'},
+        {"stream", required_argument, 0, 's'},
         {"version", no_argument, 0, 'v'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
       };
 
-      opt = getopt_long (argc, argv, "lr:c:vh", long_options, &option_index);
+      opt = getopt_long (argc, argv, "lr:c:s:vh", long_options, &option_index);
       if (opt == -1)
         break;
 
@@ -471,6 +551,12 @@ main (int argc, char **argv)
         case 'c':
           {
             error = comps_of_role (optarg);
+          }
+          break;
+
+        case 's':
+          {
+            error = stream (optarg);
           }
           break;
 

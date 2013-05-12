@@ -44,6 +44,23 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graph"
 #endif
 
+struct transition_to
+{
+  transition_to(const OMX_STATETYPE to_state, const OMX_U32 useconds = 0)
+    : to_state_(to_state), delay_(useconds), error_(OMX_ErrorNone) {}
+  void operator()(const OMX_HANDLETYPE &handle)
+  {
+    if (OMX_ErrorNone == error_)
+      error_ = OMX_SendCommand (handle, OMX_CommandStateSet, to_state_,
+                                NULL);
+    tiz_sleep(delay_);
+  }
+
+  const OMX_STATETYPE to_state_;
+  OMX_U32 delay_;
+  OMX_ERRORTYPE error_;
+};
+
 void *
 g_graph_thread_func (void *p_arg)
 {
@@ -160,6 +177,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent), tiz_err_to_str ((OMX_ERRORTYPE)nData1),
                nData2, pEventData);
+      return;
     }
   else if (eEvent == OMX_EventVendorStartUnused)
     {
@@ -175,6 +193,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                "eEvent = [%s]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent));
+      return;
     }
 
   if (OMX_EventVendorStartUnused != eEvent)
@@ -208,9 +227,11 @@ tizcback_handler::wait_for_event_list (const waitevent_list_t &event_list)
   for (waitevent_list_t::const_iterator it = event_list.begin ();
        it != event_list.end (); ++it)
     {
-      TIZ_LOG (TIZ_DEBUG, "[%s] event [%s] [%s]",
+      TIZ_LOG (TIZ_DEBUG, "[%s] event [%s] ndata1 [%s] ndata2 [%s]",
                const_cast<tizgraph &>(parent_).h2n_[(*it).component_].c_str (),
                tiz_evt_to_str ((*it).event_),
+               (*it).event_ == OMX_EventCmdComplete
+               ? tiz_cmd_to_str ((OMX_COMMANDTYPE)(*it).ndata1_) : "",
                (*it).event_ == OMX_EventCmdComplete
                ? tiz_state_to_str ((OMX_STATETYPE)(*it).ndata2_) : "");
     }
@@ -244,9 +265,9 @@ tizcback_handler::all_events_received ()
               received_queue_.erase (queue_it);
               TIZ_LOG (TIZ_DEBUG, "Erased [%s] from component [%s] "
                        "event_list size [%d]\n",
+                       tiz_evt_to_str (exp_it->event_),
                        const_cast<tizgraph &>(parent_).
                        h2n_[exp_it->component_].c_str (),
-                       tiz_evt_to_str (exp_it->event_),
                        expected_list_.size ());
               // restart the loop
               exp_it = expected_list_.begin ();
@@ -301,7 +322,6 @@ tizgraph::init()
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_err_ret_oom
     (tiz_thread_create (&thread_, 0, 0, g_graph_thread_func, this));
-
   tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
   tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
 }
@@ -576,23 +596,6 @@ tizgraph::setup_suppliers() const
 
 }
 
-struct transition_to
-{
-  transition_to(const OMX_STATETYPE to_state, const OMX_U32 useconds = 0)
-    : to_state_(to_state), delay_(useconds), error_(OMX_ErrorNone) {}
-  void operator()(const OMX_HANDLETYPE &handle)
-  {
-    if (OMX_ErrorNone == error_)
-      error_ = OMX_SendCommand (handle, OMX_CommandStateSet, to_state_,
-                                NULL);
-    tiz_sleep(delay_);
-  }
-
-  const OMX_STATETYPE to_state_;
-  OMX_U32 delay_;
-  OMX_ERRORTYPE error_;
-};
-
 OMX_ERRORTYPE
 tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
 {
@@ -639,6 +642,84 @@ tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
     }
 
   return error;
+}
+
+OMX_ERRORTYPE
+tizgraph::transition_one (const int handle_id, const OMX_STATETYPE to)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+
+  assert (handle_id < handles_.size());
+
+  struct transition_to transition_component (to);
+
+  transition_component (handles_[handle_id]);
+  error = transition_component.error_;
+  
+  if (OMX_ErrorNone == error)
+    {
+      waitevent_list_t event_list;
+      event_list.push_back(waitevent_info(handles_[handle_id],
+                                          OMX_EventCmdComplete,
+                                          OMX_CommandStateSet,
+                                          to,
+                                          (OMX_PTR) OMX_ErrorNone));
+      cback_handler_.wait_for_event_list(event_list);
+    }
+
+  return error;
+}
+
+OMX_ERRORTYPE
+tizgraph::modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  int handle_lst_size = handles_.size();
+  assert (tunnel_id < handle_lst_size - 1);
+
+  component_handles_t tunnel_handles;
+  tunnel_handles.push_back (handles_[tunnel_id]);
+  tunnel_handles.push_back (handles_[tunnel_id + 1]);
+
+  std::vector < int > port_ids;
+  port_ids.push_back (tunnel_id == 0 ? 0 : 1);
+  port_ids.push_back (tunnel_id+1==handle_lst_size - 1 ? 0 : 1);
+
+  for (int i=0; i<2 && error == OMX_ErrorNone; i++)
+    {
+      TIZ_LOG (TIZ_DEBUG, "tunnel_id [%d] cmd [%s] comp [%s] port [%d]",
+               tunnel_id, tiz_cmd_to_str (cmd), h2n_[tunnel_handles[i]].c_str(),
+               port_ids[i]);
+      error = OMX_SendCommand (tunnel_handles[i], cmd, port_ids[i], NULL);
+    }
+
+  if (error == OMX_ErrorNone)
+    {
+      waitevent_list_t event_list;
+      for (int i=0; i<2; i++)
+        {
+          event_list.push_back(waitevent_info(tunnel_handles[i],
+                                              OMX_EventCmdComplete,
+                                              cmd,
+                                              port_ids[i],
+                                              (OMX_PTR) OMX_ErrorNone));
+        }
+      cback_handler_.wait_for_event_list(event_list);
+    }
+
+  return error;
+}
+
+OMX_ERRORTYPE
+tizgraph::disable_tunnel (const int tunnel_id)
+{
+  return modify_tunnel (tunnel_id, OMX_CommandPortDisable);
+}
+
+OMX_ERRORTYPE
+tizgraph::enable_tunnel (const int tunnel_id)
+{
+  return modify_tunnel (tunnel_id, OMX_CommandPortEnable);
 }
 
 OMX_ERRORTYPE

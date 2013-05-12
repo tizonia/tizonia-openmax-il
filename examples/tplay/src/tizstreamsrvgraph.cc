@@ -29,7 +29,7 @@
 #include <config.h>
 #endif
 
-#include "tizmp3graph.h"
+#include "tizstreamsrvgraph.h"
 #include "tizprobe.h"
 #include "tizosal.h"
 
@@ -42,24 +42,24 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.mp3"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.streamsrv"
 #endif
 
-tizmp3graph::tizmp3graph (tizprobe_ptr_t probe_ptr)
-  : tizgraph (3, probe_ptr)
+tizstreamsrvgraph::tizstreamsrvgraph (tizprobe_ptr_t probe_ptr)
+  : tizgraph (2, probe_ptr)
 {
+    TIZ_LOG (TIZ_TRACE, "Constructing...");
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_load ()
+tizstreamsrvgraph::do_load ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
   TIZ_LOG (TIZ_TRACE, "Loading...");
 
   component_names_t comp_list;
   comp_list.push_back ("OMX.Aratelia.file_reader.binary");
-  comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
-  comp_list.push_back ("OMX.Aratelia.audio_renderer.pcm");
+  comp_list.push_back ("OMX.Aratelia.ice_renderer.http");
 
   if (OMX_ErrorNone != (ret = verify_existence (comp_list)))
     {
@@ -68,8 +68,7 @@ tizmp3graph::do_load ()
 
   component_roles_t role_list;
   role_list.push_back ("audio_reader.binary");
-  role_list.push_back ("audio_decoder.mp3");
-  role_list.push_back ("audio_renderer.pcm");
+  role_list.push_back ("ice_renderer.http");
 
   if (OMX_ErrorNone != (ret = verify_role_list (comp_list, role_list)))
     {
@@ -85,21 +84,23 @@ tizmp3graph::do_load ()
 }
 
 OMX_ERRORTYPE
-tizmp3graph::configure_mp3_graph (const int file_index)
+tizstreamsrvgraph::configure_streamsrv_graph ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
   TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
            current_file_index_);
 
-  assert (file_index < file_list_.size ());
-  assert (OMX_StateLoaded == current_graph_state_);
- 
-  const std::string &uri = file_list_[file_index];
-  
+  if (current_file_index_ < 0 || current_file_index_ >= file_list_.size ())
+    {
+      current_file_index_ = 0;
+    }
+
+  const std::string &uri = file_list_[current_file_index_++];
+
   if (!uri.empty ())
     {
-      // Probe the new uri
+      // Probe a new uri
       probe_ptr_.reset ();
       probe_ptr_ = boost::make_shared < tizprobe > (uri);
       if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
@@ -126,72 +127,29 @@ tizmp3graph::configure_mp3_graph (const int file_index)
   strncpy ((char *) p_uritype->contentURI, probe_ptr_->get_uri ().c_str (),
            OMX_MAX_STRINGNAME_SIZE);
   p_uritype->contentURI[strlen (probe_ptr_->get_uri ().c_str ())] = '\0';
-
-  ret = OMX_SetParameter (handles_[0], OMX_IndexParamContentURI, p_uritype);
-
-  tiz_mem_free (p_uritype);
-  p_uritype = NULL;
-
-  if (OMX_ErrorNone != ret)
+  if (OMX_ErrorNone != (ret = OMX_SetParameter (handles_[0],
+                                                OMX_IndexParamContentURI,
+                                                p_uritype)))
     {
+      tiz_mem_free (p_uritype);
       return ret;
     }
 
-  // Obtain the mp3 settings from the decoder's port #0
-  OMX_AUDIO_PARAM_MP3TYPE mp3type, mp3type_orig;;
-
-  mp3type.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
-  mp3type.nVersion.nVersion = OMX_VERSION;
-  mp3type.nPortIndex = 0;
-  tiz_check_omx_err (OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3,
-                                       &mp3type));
-  mp3type_orig = mp3type;
-  
-  // Set the mp3 settings on decoder's port #0
-
-  probe_ptr_->get_mp3_codec_info (mp3type);
-  mp3type.nPortIndex = 0;
-  tiz_check_omx_err (OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
-                                       &mp3type));
-
-  if (mp3type_orig.nSampleRate != mp3type.nSampleRate
-      || mp3type_orig.nChannels != mp3type.nChannels)
-    {
-      // Await port settings change event on decoders's port #1
-      waitevent_list_t event_list
-        (1,
-         waitevent_info
-         (handles_[1],
-          OMX_EventPortSettingsChanged,
-          1,     //nData1
-          (OMX_U32) OMX_IndexParamAudioPcm,       //nData2
-          NULL));
-      cback_handler_.wait_for_event_list (event_list);
-    }
-
-  // Set the pcm settings on renderer's port #0
-  OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
-
-  probe_ptr_->get_pcm_codec_info (pcmtype);
-  pcmtype.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  pcmtype.nVersion.nVersion = OMX_VERSION;
-  pcmtype.nPortIndex = 0;
-
-  tiz_check_omx_err (OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
-                                       &pcmtype));
+  tiz_mem_free (p_uritype);
+  p_uritype = NULL;
 
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_configure (const uri_list_t &uri_list /* = uri_list_t () */ )
+tizstreamsrvgraph::do_configure (const uri_list_t &uri_list /* = uri_list_t () */ )
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
   TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
            current_file_index_);
 
-  file_list_ = uri_list;
+  file_list_          = uri_list;
   current_file_index_ = 0;
 
   tiz_check_omx_err (setup_suppliers ());
@@ -201,7 +159,7 @@ tizmp3graph::do_configure (const uri_list_t &uri_list /* = uri_list_t () */ )
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_execute ()
+tizstreamsrvgraph::do_execute ()
 {
   TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d] list size [%d]...",
            current_file_index_, file_list_.size ());
@@ -210,7 +168,7 @@ tizmp3graph::do_execute ()
 
   if (current_file_index_ < file_list_.size ())
     {
-      tiz_check_omx_err (configure_mp3_graph (current_file_index_++));
+      tiz_check_omx_err (configure_streamsrv_graph ());
       tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateLoaded));
       tiz_check_omx_err (transition_all (OMX_StateExecuting, OMX_StateIdle));
     }
@@ -219,76 +177,56 @@ tizmp3graph::do_execute ()
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_pause ()
-{
-  if (OMX_StateExecuting == current_graph_state_)
-    {
-      return transition_all (OMX_StatePause, OMX_StateExecuting);
-    }
-  else if (OMX_StatePause == current_graph_state_)
-    {
-      return transition_all (OMX_StateExecuting, OMX_StatePause);
-    }
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-tizmp3graph::do_seek ()
+tizstreamsrvgraph::do_pause ()
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_skip (const int jump)
+tizstreamsrvgraph::do_seek ()
 {
-  tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateExecuting));
-  tiz_check_omx_err (transition_all (OMX_StateLoaded, OMX_StateIdle));
-
-  current_file_index_ += jump;
-
-  if (jump > 0)
-    {
-      current_file_index_--;
-    }
-
-  if (current_file_index_ < 0)
-    {
-      current_file_index_ = 0;
-    }
-
-  if (current_file_index_ > file_list_.size ())
-    {
-      current_file_index_ = file_list_.size ();
-    }
-
-  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
-           current_file_index_);
-
-  return do_execute ();
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_volume ()
+tizstreamsrvgraph::do_skip (const int jump)
+{
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tizstreamsrvgraph::do_volume ()
 {
   return OMX_ErrorNone;
 }
 
 void
-tizmp3graph::do_unload ()
+tizstreamsrvgraph::do_unload ()
 {
+  TIZ_LOG (TIZ_TRACE, "Unloading...");
+
   (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
   (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
+
   tear_down_tunnels ();
   destroy_list ();
 }
 
 void
-tizmp3graph::do_eos (const OMX_HANDLETYPE handle)
+tizstreamsrvgraph::do_eos (const OMX_HANDLETYPE handle)
 {
-  if (handle == handles_[2])
+  TIZ_LOG (TIZ_TRACE, "eos...");
+
+  if (handle == handles_[1])
     {
-      (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
-      (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
-      (void) do_execute ();
+      int tunnel_id = 0; // there is only one tunnel in this graph
+      int file_reader_id = 0; // here we are interested in the file reader
+      (void) disable_tunnel (tunnel_id);
+      (void) transition_one (file_reader_id, OMX_StateIdle);
+      (void) transition_one (file_reader_id, OMX_StateLoaded);
+      (void) configure_streamsrv_graph ();
+      (void) transition_one (file_reader_id, OMX_StateIdle);
+      (void) transition_one (file_reader_id, OMX_StateExecuting);
+      (void) enable_tunnel (tunnel_id);
     }
 }
