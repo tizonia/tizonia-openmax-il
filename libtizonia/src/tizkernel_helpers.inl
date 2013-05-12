@@ -1241,4 +1241,32 @@ all_buffers_returned (void *ap_obj)
   return OMX_TRUE;
 }
 
+static OMX_BOOL
+all_disabled (const void *ap_obj)
+{
+  const tiz_krn_t *p_obj = ap_obj;
+  OMX_S32 nports = 0;
+  OMX_PTR p_port = NULL;
+  OMX_U32 i;
+
+  assert (NULL != ap_obj);
+  nports = tiz_vector_length (p_obj->p_ports_);
+
+  for (i = 0; i < nports; ++i)
+    {
+      p_port = get_port (p_obj, i);
+      if (TIZ_PORT_IS_ENABLED (p_port))
+        {
+          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+                    "ALL DISABLED = [OMX_FALSE]");
+          return OMX_FALSE;
+        }
+    }
+
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+            "ALL DISABLED = [OMX_TRUE]");
+
+  return OMX_TRUE;
+}
+
 #endif /* TIZKERNEL_HELPERS_INL */

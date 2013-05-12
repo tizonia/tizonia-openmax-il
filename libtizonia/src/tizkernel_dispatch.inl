@@ -50,6 +50,8 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   assert (NULL != ap_msg_sc);
   pid = ap_msg_sc->param1;
 
+  TIZ_LOGN (TIZ_ERROR, p_hdl, "Port Disable on port [%d] ", pid);
+
   /* Verify the port index.. */
   if ((OMX_ALL != pid) && (check_pid (p_obj, pid) != OMX_ErrorNone))
     {
@@ -291,7 +293,11 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                     }
                   else if (EStateExecuting == now)
                     {
-                      rc = tiz_srv_transfer_and_process (ap_obj, pid);
+                      if (OMX_ErrorNone
+                          == (rc = tiz_srv_prepare_to_transfer (ap_obj, OMX_ALL)))
+                        {
+                          rc = tiz_srv_transfer_and_process (ap_obj, pid);
+                        }
                     }
                 }
             }
@@ -805,6 +811,11 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
           return rc;
         }
     }
+  else if (TIZ_PORT_IS_BEING_DISABLED (p_port))
+    {
+      move_to_egress (ap_obj, pid);
+      return flush_egress (p_obj, pid, OMX_FALSE);
+    }
 
   if (EStatePause != now && TIZ_PORT_IS_ENABLED (p_port))
     {
@@ -867,6 +878,9 @@ dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   p_msg_sc = &(p_msg->sc);
   assert (NULL != p_msg_sc);
   assert (p_msg_sc->cmd <= OMX_CommandMarkBuffer);
+
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj), "Processing [%s]...",
+            tiz_cmd_to_str (p_msg_sc->cmd));
 
   return tiz_krn_msg_dispatch_sc_to_fnt_tbl[p_msg_sc->cmd] (p_obj,
                                                             p_msg->p_hdl,

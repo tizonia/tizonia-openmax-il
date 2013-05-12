@@ -58,6 +58,7 @@
 static OMX_BOOL all_populated (const void *ap_obj);
 static OMX_BOOL all_depopulated (const void *ap_obj);
 static OMX_BOOL all_buffers_returned (void *ap_obj);
+static OMX_BOOL all_disabled (const void *ap_obj);
 static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_etb (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_ftb (void *ap_obj, OMX_PTR ap_msg);
@@ -609,8 +610,11 @@ krn_UseBuffer (const void *ap_obj,
   tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_fsm_state_id_t now = EStateMax;
 
   assert (NULL != ap_obj);
+
+  now = tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
 
   if (check_pid (p_obj, a_pid) != OMX_ErrorNone)
     {
@@ -651,8 +655,11 @@ krn_UseBuffer (const void *ap_obj,
   if (OMX_ErrorNone == rc && all_populated (p_obj))
     {
       TIZ_LOGN (TIZ_TRACE, ap_hdl, "AllPortsPopulated : [TRUE]");
-      rc = tiz_fsm_complete_transition
-        (tiz_get_fsm (ap_hdl), ap_obj, OMX_StateIdle);
+      if (ESubStateLoadedToIdle == now)
+        {
+          rc = tiz_fsm_complete_transition
+            (tiz_get_fsm (ap_hdl), ap_obj, OMX_StateIdle);
+        }
     }
 
   return rc;
@@ -977,6 +984,8 @@ krn_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
       return OMX_ErrorBadPortIndex;
     }
 
+  clear_hdr_lsts (p_obj, a_pid);
+    
   do
     {
       pid = ((OMX_ALL != a_pid) ? a_pid : i);
@@ -992,8 +1001,6 @@ krn_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
           /* Output port -> Add header to ingress list... */
           p_dst2darr = (OMX_DirInput == dir ?
                         p_obj->p_egress_ : p_obj->p_ingress_);
-
-          tiz_vector_clear (*(tiz_vector_t **)tiz_vector_at (p_dst2darr, pid));
 
           if (OMX_ErrorNone !=
               (rc = append_buflsts (p_dst2darr, p_srclst, pid)))
@@ -1541,7 +1548,7 @@ krn_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
             a_pid, a_pos, tiz_port_buffer_count (p_port));
 
   /* Buffers can't be claimed on an disabled port */
-  assert (!TIZ_PORT_IS_DISABLED (p_port));
+  assert (TIZ_PORT_IS_ENABLED (p_port));
 
   assert (a_pos < tiz_port_buffer_count (p_port));
 
@@ -1768,7 +1775,8 @@ krn_get_tunneled_ports_status (const void *ap_obj,
       {
         if (a_exe_to_idle_interest)
           {
-            if (status & OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN)
+            if (all_disabled (p_obj)
+                || (status & OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN))
               {
                 /* Ignore other flags if a_exe_to_idle_interest is
                  * true */
