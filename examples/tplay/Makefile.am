@@ -19,5 +19,5 @@
 SUBDIRS= src
 
 #pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = tizplay.pc
+#pkgconfig_DATA = tplay.pc
 

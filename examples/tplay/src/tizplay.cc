@@ -127,14 +127,14 @@ print_usage (void)
   printf ("\n");
   printf ("Examples:\n");
   printf
-    ("\t tizplay ~/Music (decodes every supported file in the '~/Music' folder)\n");
+    ("\t tplay ~/Music (decodes every supported file in the '~/Music' folder)\n");
   printf ("\t    * Press [p] to skip to previous file.\n");
   printf ("\t    * Press [n] to skip to next file.\n");
   printf ("\t    * Press [SPACE] to pause playback.\n");
   printf ("\t    * Press [q] to quit.\n");
   printf ("\t    * Press [Ctrl-c] to terminate the player at any time.\n");
   printf
-    ("\n\t tizplay -s ~/Music (streams every supported file in the '~/Music' folder)\n");
+    ("\n\t tplay -s ~/Music (streams every supported file in the '~/Music' folder)\n");
   printf ("\t    * Press [q] to quit.\n");
   printf ("\t    * Press [Ctrl-c] to terminate the player at any time.\n");
   printf ("\n");
