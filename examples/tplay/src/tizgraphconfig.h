@@ -1,3 +1,4 @@
+/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2013 Aratelia Limited - Juan A. Rubio
  *
@@ -18,35 +19,41 @@
  */
 
 /**
- * @file   tizdec.h
+ * @file   tizgraphconfig.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - OMX IL graph utility functions
+ * @brief  OpenMAX IL graph configuration base class
  *
  *
  */
 
-#ifndef TIZOMXUTIL_H
-#define TIZOMXUTIL_H
+#ifndef TIZGRAPHCONFIG_H
+#define TIZGRAPHCONFIG_H
 
-#include <vector>
-#include <string>
+#include "tizgraphtypes.h"
+#include <boost/shared_ptr.hpp>
 
-#include "OMX_Core.h"
+class tizgraphconfig;
+typedef boost::shared_ptr<tizgraphconfig> tizgraphconfig_ptr_t;
 
-class tizomxutil
+class tizgraphconfig
 {
+
 public:
 
+  tizgraphconfig (const uri_list_t & uris)
+    : uris_ (uris)
+  {}
 
-  static void init();
-  static void deinit();
-  static OMX_ERRORTYPE list_comps(std::vector<std::string>& components);
-  static OMX_ERRORTYPE roles_of_comp(const OMX_STRING comp,
-                                     std::vector<std::string>& roles);
-  static OMX_ERRORTYPE comps_of_role(const OMX_STRING role,
-                                     std::vector<std::string>& components);
+  virtual ~tizgraphconfig () {}
+
+  uri_list_t get_uris () const {return uris_;}
+  void set_uris (const uri_list_t & uris)  {uris_ = uris;}
+
+protected:
+
+  uri_list_t uris_;
 
 };
 
-#endif // TIZOMXUTIL_H
+#endif // TIZGRAPHCONFIG_H

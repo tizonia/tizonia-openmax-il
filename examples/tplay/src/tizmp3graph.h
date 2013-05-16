@@ -19,7 +19,7 @@
  */
 
 /**
- * @file   tizmp3graph.hh
+ * @file   tizmp3graph.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  OpenMAX IL mp3 graph class
@@ -27,14 +27,12 @@
  *
  */
 
-#ifndef TIZMP3GRAPH_HH
-#define TIZMP3GRAPH_HH
+#ifndef TIZMP3GRAPH_H
+#define TIZMP3GRAPH_H
 
 #include "tizgraph.h"
 #include "tizprobe.h"
 #include "OMX_Audio.h"
-
-#include <string>
 
 class tizmp3graph : public tizgraph
 {
@@ -46,14 +44,14 @@ public:
 protected:
 
   OMX_ERRORTYPE do_load ();
-  OMX_ERRORTYPE do_configure (const uri_list_t &uri_list = uri_list_t ());
+  OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t config);
   OMX_ERRORTYPE do_execute ();
   OMX_ERRORTYPE do_pause ();
   OMX_ERRORTYPE do_seek ();
   OMX_ERRORTYPE do_skip (const int jump);
   OMX_ERRORTYPE do_volume ();
-  void          do_eos (const OMX_HANDLETYPE handle);
-  void          do_unload ();
+  void              do_eos (const OMX_HANDLETYPE handle);
+  void              do_unload ();
 
 private:
 
@@ -63,7 +61,8 @@ private:
 
   uri_list_t file_list_;
   int current_file_index_;
+
 };
 
-#endif // TIZMP3GRAPH_HH
+#endif // TIZMP3GRAPH_H
 

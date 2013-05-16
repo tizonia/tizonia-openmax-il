@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizgraphfactory.hh
+ * @file   tizgraphfactory.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  OpenMAX IL graph factory
@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZGRAPHFACTORY_HH
-#define TIZGRAPHFACTORY_HH
+#ifndef TIZGRAPHFACTORY_H
+#define TIZGRAPHFACTORY_H
 
 #include <string>
 
@@ -47,4 +47,4 @@ protected:
 
 };
 
-#endif // TIZGRAPHFACTORY_HH
+#endif // TIZGRAPHFACTORY_H

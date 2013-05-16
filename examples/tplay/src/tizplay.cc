@@ -114,14 +114,15 @@ void
 print_usage (void)
 {
   printf ("Tizonia OpenMAX IL player version %s\n\n", PACKAGE_VERSION);
-  printf ("usage: %s [-l] [-r] [-c] [-v] [-h] [FILE]\n", PACKAGE_NAME);
+  printf ("usage: %s [-l] [-r] [-c] [-p] [-s] [-v] [-h] [FILE]\n", PACKAGE_NAME);
   printf ("options:\n");
   printf ("\t-l --list-components\t\t\tEnumerate all OpenMAX IL components.\n");
   printf
     ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>.\n");
   printf
     ("\t-c --comps-of-role <role>\t\tDisplay the components that implement <role>.\n");
-  printf ("\t-s --stream\t\t\t\tStream media on port 8010.\n");
+  printf ("\t-p --port\t\t\t\tPort to be used for http streaming.\n");
+  printf ("\t-s --stream\t\t\t\tStream media via http. Default port is 8010.\n");
   printf ("\t-v --version\t\t\t\tDisplay version info.\n");
   printf ("\t-h --help\t\t\t\tDisplay help.\n");
   printf ("\n");
@@ -134,7 +135,7 @@ print_usage (void)
   printf ("\t    * Press [q] to quit.\n");
   printf ("\t    * Press [Ctrl-c] to terminate the player at any time.\n");
   printf
-    ("\n\t tplay -s ~/Music (streams every supported file in the '~/Music' folder)\n");
+    ("\n\t tplay -p 8011 -s ~/Music (streams supported files in the '~/Music' folder)\n");
   printf ("\t    * Press [q] to quit.\n");
   printf ("\t    * Press [Ctrl-c] to terminate the player at any time.\n");
   printf ("\n");
@@ -398,7 +399,9 @@ decode (const OMX_STRING uri)
       exit (EXIT_FAILURE);
     }
 
-  if (OMX_ErrorNone != (ret = g_ptr->configure (file_list)))
+  tizgraphconfig_ptr_t config
+    = boost::make_shared < tizgraphconfig > (file_list);
+  if (OMX_ErrorNone != (ret = g_ptr->configure (config)))
     {
       fprintf (stderr, "Could not configure a graph. Skipping file.\n");
       exit (EXIT_FAILURE);
@@ -420,7 +423,7 @@ decode (const OMX_STRING uri)
 }
 
 static OMX_ERRORTYPE
-stream (const OMX_STRING uri)
+stream (const std::string & uri, long int port)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
   uri_list_t    file_list;
@@ -430,7 +433,7 @@ stream (const OMX_STRING uri)
     {
       struct hostent *p_hostent = gethostbyname(hostname);
       struct in_addr ip_addr = *(struct in_addr *)(p_hostent->h_addr);
-      fprintf (stdout, "Streaming from http://%s:8010\n\n", hostname);
+      fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
     }
   
   if (OMX_ErrorNone != verify_uri (uri, file_list))
@@ -469,7 +472,9 @@ stream (const OMX_STRING uri)
       exit (EXIT_FAILURE);
     }
 
-  if (OMX_ErrorNone != (ret = g_ptr->configure (file_list)))
+  tizgraphconfig_ptr_t config
+    = boost::make_shared < tizstreamsrvconfig > (file_list, port);
+  if (OMX_ErrorNone != (ret = g_ptr->configure (config)))
     {
       fprintf (stderr, "Could not configure a graph. Skipping file.\n");
       exit (EXIT_FAILURE);
@@ -496,7 +501,9 @@ main (int argc, char **argv)
   OMX_ERRORTYPE error = OMX_ErrorMax;
   int opt;
   int digit_optind = 0;
-
+  long int srv_port = 8010; // default port for http streaming
+  std::string streaming_media;
+    
   if (argc < 2)
     {
       print_usage ();
@@ -521,12 +528,13 @@ main (int argc, char **argv)
         {"roles-of-comp", required_argument, 0, 'r'},
         {"comps-of-role", required_argument, 0, 'c'},
         {"stream", required_argument, 0, 's'},
+        {"port", required_argument, 0, 'p'},
         {"version", no_argument, 0, 'v'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
       };
 
-      opt = getopt_long (argc, argv, "lr:c:s:vh", long_options, &option_index);
+      opt = getopt_long (argc, argv, "lr:c:p:s:vh", long_options, &option_index);
       if (opt == -1)
         break;
 
@@ -554,9 +562,22 @@ main (int argc, char **argv)
           }
           break;
 
+        case 'p':
+          {
+            char* p_end = NULL;
+            srv_port    = strtol (optarg, &p_end, 10);
+            if ((p_end != NULL && *p_end != '\0') || srv_port < 1024)
+              {
+                fprintf (stderr, "Please provide a port number in the range "
+                         "[1024-65535] - %ld\n", srv_port);
+                exit (EXIT_FAILURE);
+              }
+          }
+          break;
+
         case 's':
           {
-            error = stream (optarg);
+            streaming_media = optarg;
           }
           break;
 
@@ -586,12 +607,11 @@ main (int argc, char **argv)
       exit (EXIT_SUCCESS);
     }
 
-  if (optind >= argc)
+  if (!streaming_media.empty())
     {
-      print_usage ();
-      exit (EXIT_FAILURE);
+      error = stream (streaming_media.c_str (), srv_port);
     }
-
+  
   if (OMX_ErrorMax == error)
     {
       error = decode (argv[optind]);

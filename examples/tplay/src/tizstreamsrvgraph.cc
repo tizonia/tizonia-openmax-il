@@ -35,6 +35,7 @@
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
+#include "OMX_TizoniaExt.h"
 
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
@@ -46,16 +47,17 @@
 #endif
 
 tizstreamsrvgraph::tizstreamsrvgraph (tizprobe_ptr_t probe_ptr)
-  : tizgraph (2, probe_ptr)
+  : tizgraph (2, probe_ptr),
+    file_list_ (),
+    current_file_index_ (0),
+    config_ ()
 {
-    TIZ_LOG (TIZ_TRACE, "Constructing...");
 }
 
 OMX_ERRORTYPE
 tizstreamsrvgraph::do_load ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
-  TIZ_LOG (TIZ_TRACE, "Loading...");
 
   component_names_t comp_list;
   comp_list.push_back ("OMX.Aratelia.file_reader.binary");
@@ -127,29 +129,48 @@ tizstreamsrvgraph::configure_streamsrv_graph ()
   strncpy ((char *) p_uritype->contentURI, probe_ptr_->get_uri ().c_str (),
            OMX_MAX_STRINGNAME_SIZE);
   p_uritype->contentURI[strlen (probe_ptr_->get_uri ().c_str ())] = '\0';
-  if (OMX_ErrorNone != (ret = OMX_SetParameter (handles_[0],
-                                                OMX_IndexParamContentURI,
-                                                p_uritype)))
-    {
-      tiz_mem_free (p_uritype);
-      return ret;
-    }
+
+  ret = OMX_SetParameter (handles_[0], OMX_IndexParamContentURI,
+                          p_uritype);
 
   tiz_mem_free (p_uritype);
   p_uritype = NULL;
 
-  return OMX_ErrorNone;
+  if (OMX_ErrorNone != ret)
+    {
+      return ret;
+    }
+
+  OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
+  httpsrv.nSize             = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
+  httpsrv.nVersion.nVersion = OMX_VERSION;
+
+  tiz_check_omx_err
+    (OMX_GetParameter
+     (handles_[1],
+      static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamHttpServer),
+      &httpsrv));
+
+  tizstreamsrvconfig_ptr_t srv_config
+    = boost::dynamic_pointer_cast<tizstreamsrvconfig>(config_);
+  assert (srv_config);
+  httpsrv.nListeningPort = srv_config->get_port ();
+  httpsrv.nMaxClients    = 1; // the http renderer component supports only one
+                              // client, for now
+
+  return OMX_SetParameter
+    (handles_[1],
+     static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamHttpServer),
+     &httpsrv);
 }
 
 OMX_ERRORTYPE
-tizstreamsrvgraph::do_configure (const uri_list_t &uri_list /* = uri_list_t () */ )
+tizstreamsrvgraph::do_configure (const tizgraphconfig_ptr_t config)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
-           current_file_index_);
-
-  file_list_          = uri_list;
+  config_             = config;
+  file_list_          = config->get_uris ();
   current_file_index_ = 0;
 
   tiz_check_omx_err (setup_suppliers ());
@@ -161,9 +182,6 @@ tizstreamsrvgraph::do_configure (const uri_list_t &uri_list /* = uri_list_t () *
 OMX_ERRORTYPE
 tizstreamsrvgraph::do_execute ()
 {
-  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d] list size [%d]...",
-           current_file_index_, file_list_.size ());
-
   assert (OMX_StateLoaded == current_graph_state_);
 
   if (current_file_index_ < file_list_.size ())
@@ -203,11 +221,8 @@ tizstreamsrvgraph::do_volume ()
 void
 tizstreamsrvgraph::do_unload ()
 {
-  TIZ_LOG (TIZ_TRACE, "Unloading...");
-
   (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
   (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
-
   tear_down_tunnels ();
   destroy_list ();
 }
@@ -215,8 +230,6 @@ tizstreamsrvgraph::do_unload ()
 void
 tizstreamsrvgraph::do_eos (const OMX_HANDLETYPE handle)
 {
-  TIZ_LOG (TIZ_TRACE, "eos...");
-
   if (handle == handles_[1])
     {
       int tunnel_id = 0; // there is only one tunnel in this graph

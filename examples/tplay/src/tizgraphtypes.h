@@ -1,3 +1,4 @@
+/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2013 Aratelia Limited - Juan A. Rubio
  *
@@ -18,35 +19,28 @@
  */
 
 /**
- * @file   tizdec.h
+ * @file   tizgraphtypes.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - OMX IL graph utility functions
+ * @brief  OpenMAX IL graph configuration base class
  *
  *
  */
 
-#ifndef TIZOMXUTIL_H
-#define TIZOMXUTIL_H
-
-#include <vector>
-#include <string>
+#ifndef TIZGRAPHTYPES_H
+#define TIZGRAPHTYPES_H
 
 #include "OMX_Core.h"
+#include <vector>
+#include <string>
+#include <map>
 
-class tizomxutil
-{
-public:
+typedef std::vector < std::string > component_names_t;
+typedef std::vector < OMX_HANDLETYPE > component_handles_t;
+typedef std::vector < std::string > component_roles_t;
+typedef std::vector < OMX_EVENTTYPE > component_events_t;
+typedef std::map < OMX_HANDLETYPE, std::string > handle_to_name_t;
+typedef std::vector < std::string > uri_list_t;
 
 
-  static void init();
-  static void deinit();
-  static OMX_ERRORTYPE list_comps(std::vector<std::string>& components);
-  static OMX_ERRORTYPE roles_of_comp(const OMX_STRING comp,
-                                     std::vector<std::string>& roles);
-  static OMX_ERRORTYPE comps_of_role(const OMX_STRING role,
-                                     std::vector<std::string>& components);
-
-};
-
-#endif // TIZOMXUTIL_H
+#endif // TIZGRAPHTYPES_H

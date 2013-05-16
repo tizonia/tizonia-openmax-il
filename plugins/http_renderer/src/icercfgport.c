@@ -44,6 +44,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.cfgport"
 #endif
 
+#define ARATELIA_HTTP_RENDERER_DEFAULT_HTTP_SERVER_PORT 8010
 
 /*
  * icercfgport class
@@ -53,11 +54,13 @@ static void *
 icer_cfgport_ctor (void *ap_obj, va_list * app)
 {
   icer_cfgport_t *p_obj = super_ctor (icercfgport, ap_obj, app);
+
   tiz_port_register_index (p_obj, OMX_TizoniaIndexParamHttpServer);
-  p_obj->http_conf_.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
+  p_obj->http_conf_.nSize             = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   p_obj->http_conf_.nVersion.nVersion = OMX_VERSION;
-  p_obj->http_conf_.nListeningPort = 8010;
-  p_obj->http_conf_.nMaxClients = 5;
+  p_obj->http_conf_.nListeningPort    = ARATELIA_HTTP_RENDERER_DEFAULT_HTTP_SERVER_PORT;
+  p_obj->http_conf_.nMaxClients       = 5;
+
   return p_obj;
 }
 

@@ -19,7 +19,7 @@
  */
 
 /**
- * @file   tizstreamsrvgraph.hh
+ * @file   tizstreamsrvgraph.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  OpenMAX IL HTTP Streaming Server graph class
@@ -27,14 +27,34 @@
  *
  */
 
-#ifndef TIZSTREAMSRVGRAPH_HH
-#define TIZSTREAMSRVGRAPH_HH
+#ifndef TIZSTREAMSRVGRAPH_H
+#define TIZSTREAMSRVGRAPH_H
 
 #include "tizgraph.h"
+#include "tizgraphconfig.h"
 #include "tizprobe.h"
-#include "OMX_Audio.h"
 
-#include <string>
+class tizstreamsrvconfig;
+typedef boost::shared_ptr<tizstreamsrvconfig> tizstreamsrvconfig_ptr_t;
+
+class tizstreamsrvconfig : public tizgraphconfig
+{
+
+public:
+
+  tizstreamsrvconfig (const uri_list_t & uris, int port)
+    : tizgraphconfig (uris), port_ (port)
+  {}
+
+  ~tizstreamsrvconfig () {}
+
+  int get_port () const {return port_;}
+
+protected:
+
+  int port_;
+
+};
 
 class tizstreamsrvgraph : public tizgraph
 {
@@ -46,14 +66,14 @@ public:
 protected:
 
   OMX_ERRORTYPE do_load ();
-  OMX_ERRORTYPE do_configure (const uri_list_t &uri_list = uri_list_t ());
+  OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t config);
   OMX_ERRORTYPE do_execute ();
   OMX_ERRORTYPE do_pause ();
   OMX_ERRORTYPE do_seek ();
   OMX_ERRORTYPE do_skip (const int jump);
   OMX_ERRORTYPE do_volume ();
-  void          do_eos (const OMX_HANDLETYPE handle);
-  void          do_unload ();
+  void              do_eos (const OMX_HANDLETYPE handle);
+  void              do_unload ();
 
 private:
 
@@ -63,7 +83,9 @@ private:
 
   uri_list_t file_list_;
   int current_file_index_;
+  tizgraphconfig_ptr_t config_;
+
 };
 
-#endif // TIZSTREAMSRVGRAPH_HH
+#endif // TIZSTREAMSRVGRAPH_H
 

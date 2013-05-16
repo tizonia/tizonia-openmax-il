@@ -19,7 +19,7 @@
  */
 
 /**
- * @file   tizgraph.hh
+ * @file   tizgraph.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  OpenMAX IL graph base class
@@ -27,26 +27,17 @@
  *
  */
 
-#ifndef TIZGRAPH_HH
-#define TIZGRAPH_HH
+#ifndef TIZGRAPH_H
+#define TIZGRAPH_H
 
-#include "OMX_Core.h"
+#include "tizgraphtypes.h"
+#include "tizgraphconfig.h"
 #include "tizosal.h"
 #include "tizprobe.h"
+#include "OMX_Core.h"
 
-#include <vector>
-#include <string>
-#include <list>
-#include <map>
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
-
-typedef std::vector < std::string > component_names_t;
-typedef std::vector < OMX_HANDLETYPE > component_handles_t;
-typedef std::vector < std::string > component_roles_t;
-typedef std::vector < OMX_EVENTTYPE > component_events_t;
-typedef std::map < OMX_HANDLETYPE, std::string > handle_to_name_t;
-typedef std::vector < std::string > uri_list_t;
 
 class tizgraph;
 typedef boost::shared_ptr<tizgraph> tizgraph_ptr_t;
@@ -70,11 +61,11 @@ struct waitevent_info
                  OMX_U32 ndata2,
                  OMX_PTR pEventData)
     :
-    component_(component),
-    event_(event),
-    ndata1_(ndata1),
-    ndata2_(ndata2),
-    pEventData_(pEventData)
+    component_ (component),
+    event_ (event),
+    ndata1_ (ndata1),
+    ndata2_ (ndata2),
+    pEventData_ (pEventData)
   {}
 
   bool operator==(const waitevent_info& b)
@@ -102,21 +93,21 @@ class tizcback_handler
 
 public:
 
-  tizcback_handler(const tizgraph &graph);
-  ~tizcback_handler() {};
+  tizcback_handler (const tizgraph &graph);
+  ~tizcback_handler () {};
 
-  inline OMX_CALLBACKTYPE *get_omx_cbacks()
+  inline OMX_CALLBACKTYPE *get_omx_cbacks ()
   { return &cbacks_;}
-  int wait_for_event_list(const waitevent_list_t &event_list);
-  void receive_event(OMX_HANDLETYPE component,
-                     OMX_EVENTTYPE event,
-                     OMX_U32 ndata1,
-                     OMX_U32 ndata2,
-                     OMX_PTR pEventData);
+  int wait_for_event_list (const waitevent_list_t &event_list);
+  void receive_event (OMX_HANDLETYPE component,
+                      OMX_EVENTTYPE event,
+                      OMX_U32 ndata1,
+                      OMX_U32 ndata2,
+                      OMX_PTR pEventData);
 
 protected:
 
-  bool all_events_received();
+  bool all_events_received ();
 
 protected:
 
@@ -148,27 +139,28 @@ public:
     ETIZGraphCmdMax
   };
 
-  tizgraphcmd (const cmd_type          type,
-                 const uri_list_t     &uri_list = uri_list_t (),
-                 const OMX_HANDLETYPE  handle   = NULL,
-                 int jump                       = 0)
+  tizgraphcmd (const cmd_type type,
+                 const tizgraphconfig_ptr_t config,
+                 const OMX_HANDLETYPE handle = NULL,
+                 const int jump = 0)
     : type_ (type),
-      uris_ (uri_list),
+      config_ (config),
       handle_ (handle),
       jump_ (jump)
   {assert (type_ < ETIZGraphCmdMax);}
 
   cmd_type get_type () const {return type_;}
-  uri_list_t get_uris () const {return uris_;}
+  tizgraphconfig_ptr_t get_config () const {return config_;}
   OMX_HANDLETYPE get_handle () const {return handle_;}
   int get_jump () const {return jump_;};
 
 private:
 
-  const cmd_type   type_;
-  const uri_list_t uris_;
-  OMX_HANDLETYPE   handle_;
+  const cmd_type type_;
+  tizgraphconfig_ptr_t config_;
+  OMX_HANDLETYPE handle_;
   int jump_;
+
 };
 
 class tizgraph
@@ -182,19 +174,19 @@ public:
   tizgraph(int graph_size, tizprobe_ptr_t probe);
   virtual ~tizgraph();
 
-  virtual OMX_ERRORTYPE load ();
-  virtual OMX_ERRORTYPE configure (const uri_list_t &uri_list = uri_list_t ());
-  virtual OMX_ERRORTYPE execute ();
-  virtual OMX_ERRORTYPE pause ();
-  virtual OMX_ERRORTYPE seek ();
-  virtual OMX_ERRORTYPE skip (const int jump);
-  virtual OMX_ERRORTYPE volume ();
-  virtual void unload();
+  OMX_ERRORTYPE load ();
+  OMX_ERRORTYPE configure (const tizgraphconfig_ptr_t config);
+  OMX_ERRORTYPE execute ();
+  OMX_ERRORTYPE pause ();
+  OMX_ERRORTYPE seek ();
+  OMX_ERRORTYPE skip (const int jump);
+  OMX_ERRORTYPE volume ();
+  void unload();
 
 protected:
 
   virtual OMX_ERRORTYPE do_load ()                                                = 0;
-  virtual OMX_ERRORTYPE do_configure (const uri_list_t &uri_list = uri_list_t ()) = 0;
+  virtual OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t config)            = 0;
   virtual OMX_ERRORTYPE do_execute ()                                             = 0;
   virtual OMX_ERRORTYPE do_pause ()                                               = 0;
   virtual OMX_ERRORTYPE do_seek ()                                                = 0;
@@ -233,8 +225,8 @@ protected:
 
   void eos (OMX_HANDLETYPE handle);
   OMX_ERRORTYPE send_msg (const tizgraphcmd::cmd_type type,
-                          const uri_list_t &uri_list = uri_list_t (),
-                          const OMX_HANDLETYPE   handle = NULL,
+                          const tizgraphconfig_ptr_t config,
+                          const OMX_HANDLETYPE handle = NULL,
                           const int jump = 0);
 
   static void dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd);
@@ -254,4 +246,4 @@ protected:
 
 };
 
-#endif // TIZGRAPH_HH
+#endif // TIZGRAPH_H

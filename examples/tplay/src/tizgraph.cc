@@ -316,7 +316,7 @@ tizgraph::~tizgraph()
 }
 
 OMX_ERRORTYPE
-tizgraph::init()
+tizgraph::init ()
 {
   /* Create this graph's thread */
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
@@ -327,70 +327,78 @@ tizgraph::init()
 }
 
 OMX_ERRORTYPE
-tizgraph::deinit()
+tizgraph::deinit ()
 {
   void * p_result = NULL;
   tiz_thread_join (&thread_, &p_result);
 }
 
 OMX_ERRORTYPE
-tizgraph::load()
+tizgraph::load ()
 {
-  init ();
-  return send_msg (tizgraphcmd::ETIZGraphCmdLoad);
+  tiz_check_omx_err (init ());
+  tizgraphconfig_ptr_t null_config;
+  return send_msg (tizgraphcmd::ETIZGraphCmdLoad, null_config);
 }
 
 OMX_ERRORTYPE
-tizgraph::configure(const uri_list_t &uri_list /* = uri_list_t () */)
+tizgraph::configure (const tizgraphconfig_ptr_t config)
 {
-  return send_msg (tizgraphcmd::ETIZGraphCmdConfig, uri_list);
+  return send_msg (tizgraphcmd::ETIZGraphCmdConfig, config);
 }
 
 OMX_ERRORTYPE
-tizgraph::execute()
+tizgraph::execute ()
 {
-  return send_msg (tizgraphcmd::ETIZGraphCmdExecute);
+  tizgraphconfig_ptr_t null_config;
+  return send_msg (tizgraphcmd::ETIZGraphCmdExecute, null_config);
 }
 
 OMX_ERRORTYPE
-tizgraph::pause()
+tizgraph::pause ()
 {
-  return send_msg (tizgraphcmd::ETIZGraphCmdPause);
+  tizgraphconfig_ptr_t null_config;
+  return send_msg (tizgraphcmd::ETIZGraphCmdPause, null_config);
 }
 
 OMX_ERRORTYPE
-tizgraph::seek()
+tizgraph::seek ()
 {
-  return send_msg (tizgraphcmd::ETIZGraphCmdSeek);
+  tizgraphconfig_ptr_t null_config;
+  return send_msg (tizgraphcmd::ETIZGraphCmdSeek, null_config);
 }
 
 OMX_ERRORTYPE
-tizgraph::skip(const int jump)
+tizgraph::skip (const int jump)
 {
-  return send_msg (tizgraphcmd::ETIZGraphCmdSkip, uri_list_t (), NULL, jump);
+  tizgraphconfig_ptr_t null_config;
+  return send_msg (tizgraphcmd::ETIZGraphCmdSkip, null_config, NULL, jump);
 }
 
 OMX_ERRORTYPE
-tizgraph::volume()
+tizgraph::volume ()
 {
-  return send_msg (tizgraphcmd::ETIZGraphCmdVolume);
+  tizgraphconfig_ptr_t null_config;
+  return send_msg (tizgraphcmd::ETIZGraphCmdVolume, null_config);
 }
 
 void
 tizgraph::eos (OMX_HANDLETYPE handle)
 {
-  send_msg (tizgraphcmd::ETIZGraphCmdEos, uri_list_t (), handle);
+  tizgraphconfig_ptr_t null_config;
+  send_msg (tizgraphcmd::ETIZGraphCmdEos, null_config, handle);
 }
 
 void
-tizgraph::unload()
+tizgraph::unload ()
 {
-  send_msg (tizgraphcmd::ETIZGraphCmdUnload);
+  tizgraphconfig_ptr_t null_config;
+  send_msg (tizgraphcmd::ETIZGraphCmdUnload, null_config);
   deinit ();
 }
 
 OMX_ERRORTYPE
-tizgraph::verify_existence(const component_names_t &comp_list) const
+tizgraph::verify_existence (const component_names_t &comp_list) const
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   std::vector<std::string> components;
@@ -426,8 +434,8 @@ tizgraph::verify_existence(const component_names_t &comp_list) const
 }
 
 OMX_ERRORTYPE
-tizgraph::verify_role(const std::string &comp,
-                      const std::string &comp_role) const
+tizgraph::verify_role (const std::string &comp,
+                       const std::string &comp_role) const
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   std::vector<std::string> roles;
@@ -459,8 +467,8 @@ tizgraph::verify_role(const std::string &comp,
 }
 
 OMX_ERRORTYPE
-tizgraph::verify_role_list(const component_names_t &comp_list,
-                           const component_roles_t &role_list) const
+tizgraph::verify_role_list (const component_names_t &comp_list,
+                            const component_roles_t &role_list) const
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   std::vector<std::string> roles;
@@ -481,7 +489,7 @@ tizgraph::verify_role_list(const component_names_t &comp_list,
 }
 
 OMX_ERRORTYPE
-tizgraph::instantiate_component(const std::string &comp_name, int graph_position)
+tizgraph::instantiate_component (const std::string &comp_name, int graph_position)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = NULL;
@@ -501,7 +509,7 @@ tizgraph::instantiate_component(const std::string &comp_name, int graph_position
 }
 
 OMX_ERRORTYPE
-tizgraph::instantiate_list(const component_names_t &comp_list)
+tizgraph::instantiate_list (const component_names_t &comp_list)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   int position = 0;
@@ -527,7 +535,7 @@ tizgraph::instantiate_list(const component_names_t &comp_list)
 }
 
 void
-tizgraph::destroy_list()
+tizgraph::destroy_list ()
 {
   int handle_lst_size = handles_.size();
 
@@ -542,7 +550,7 @@ tizgraph::destroy_list()
 }
 
 OMX_ERRORTYPE
-tizgraph::setup_tunnels() const
+tizgraph::setup_tunnels () const
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   int handle_lst_size = handles_.size();
@@ -556,7 +564,7 @@ tizgraph::setup_tunnels() const
 }
 
 OMX_ERRORTYPE
-tizgraph::tear_down_tunnels() const
+tizgraph::tear_down_tunnels () const
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   int handle_lst_size = handles_.size();
@@ -570,7 +578,7 @@ tizgraph::tear_down_tunnels() const
 }
 
 OMX_ERRORTYPE
-tizgraph::setup_suppliers() const
+tizgraph::setup_suppliers () const
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
@@ -724,7 +732,7 @@ tizgraph::enable_tunnel (const int tunnel_id)
 
 OMX_ERRORTYPE
 tizgraph::send_msg (const tizgraphcmd::cmd_type type,
-                    const uri_list_t &uri_list /* = uri_list_t () */,
+                    const tizgraphconfig_ptr_t config,
                     const OMX_HANDLETYPE   handle /* = NULL */,
                     const int jump /* = 0 */)
 {
@@ -732,7 +740,7 @@ tizgraph::send_msg (const tizgraphcmd::cmd_type type,
 
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_err_ret_oom
-    (tiz_queue_send (p_queue_, new tizgraphcmd (type, uri_list, handle, jump)));
+    (tiz_queue_send (p_queue_, new tizgraphcmd (type, config, handle, jump)));
   tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
   return OMX_ErrorNone;
 }
@@ -754,7 +762,7 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
       }
     case tizgraphcmd::ETIZGraphCmdConfig:
       {
-        p_graph->do_configure (p_cmd->get_uris ());
+        p_graph->do_configure (p_cmd->get_config ());
         break;
       }
     case tizgraphcmd::ETIZGraphCmdExecute:

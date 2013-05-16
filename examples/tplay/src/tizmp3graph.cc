@@ -54,7 +54,6 @@ OMX_ERRORTYPE
 tizmp3graph::do_load ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
-  TIZ_LOG (TIZ_TRACE, "Loading...");
 
   component_names_t comp_list;
   comp_list.push_back ("OMX.Aratelia.file_reader.binary");
@@ -140,9 +139,10 @@ tizmp3graph::configure_mp3_graph (const int file_index)
   // Obtain the mp3 settings from the decoder's port #0
   OMX_AUDIO_PARAM_MP3TYPE mp3type, mp3type_orig;;
 
-  mp3type.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
+  mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
   mp3type.nVersion.nVersion = OMX_VERSION;
-  mp3type.nPortIndex = 0;
+  mp3type.nPortIndex        = 0;
+
   tiz_check_omx_err (OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3,
                                        &mp3type));
   mp3type_orig = mp3type;
@@ -184,14 +184,11 @@ tizmp3graph::configure_mp3_graph (const int file_index)
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_configure (const uri_list_t &uri_list /* = uri_list_t () */ )
+tizmp3graph::do_configure (const tizgraphconfig_ptr_t config)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
-           current_file_index_);
-
-  file_list_ = uri_list;
+  file_list_ = config->get_uris ();
   current_file_index_ = 0;
 
   tiz_check_omx_err (setup_suppliers ());

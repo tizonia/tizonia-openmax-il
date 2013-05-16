@@ -21,6 +21,8 @@ noinst_HEADERS = \
 	tizomxutil.h \
 	tizprobe.h \
 	tizgraphfactory.h \
+	tizgraphtypes.h \
+	tizgraphconfig.h \
 	tizgraph.h \
 	tizmp3graph.h \
 	tizstreamsrvgraph.h

@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizprobe.hh
+ * @file   tizprobe.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  File probing utility
@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZPROBE_HH
-#define TIZPROBE_HH
+#ifndef TIZPROBE_H
+#define TIZPROBE_H
 
 #include <string>
 #include <boost/shared_ptr.hpp>
@@ -79,4 +79,4 @@ private:
   OMX_VIDEO_PARAM_VP8TYPE vp8type_;
 };
 
-#endif // TIZPROBE_HH
+#endif // TIZPROBE_H
