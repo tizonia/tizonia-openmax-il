@@ -36,6 +36,7 @@ LT_INIT
 # Checks for libraries.
 AC_CHECK_LIB([avcodec], [avcodec_init])
 AC_CHECK_LIB([avformat], [avformat_open_input])
+AC_CHECK_LIB([avutil], [av_dict_get])
 # FIXME: Replace `main' with a function in `-lboost_filesystem':
 AC_CHECK_LIB([boost_filesystem], [main])
 # FIXME: Replace `main' with a function in `-lboost_system':

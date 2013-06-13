@@ -47,5 +47,6 @@ tplay_LDADD = \
 	-lboost_filesystem \
 	-lavformat \
 	-lavcodec \
+	-lavutil \
 	$(top_builddir)/../../libtizosal/src/libtizosal.la \
 	$(top_builddir)/../../libtizcore/src/libtizcore.la

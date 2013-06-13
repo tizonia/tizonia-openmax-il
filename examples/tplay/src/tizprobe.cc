@@ -61,7 +61,6 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
 
   if ((t = av_dict_get (format_opts, "", NULL, AV_DICT_IGNORE_SUFFIX)))
     {
-      av_log (NULL, AV_LOG_ERROR, "Option %s not found.\n", t->key);
       return AVERROR_OPTION_NOT_FOUND;
     }
 
