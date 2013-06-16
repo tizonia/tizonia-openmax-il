@@ -57,9 +57,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/make_shared.hpp>
 #include <ostream>
-
 #include <termios.h>
 
+static bool gb_daemon_mode = false;
 static tizgraph *gp_running_graph = NULL;
 
 static struct termios old_term, new_term;
@@ -100,7 +100,10 @@ getch (void)
 void
 tizplay_sig_term_hdlr (int sig)
 {
-  reset_termios ();
+  if (!gb_daemon_mode)
+    {
+      reset_termios ();
+    }
   exit (EXIT_FAILURE);
 }
 
@@ -121,6 +124,7 @@ print_usage (void)
     ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>.\n");
   printf
     ("\t-c --comps-of-role <role>\t\tDisplay the components that implement <role>.\n");
+  printf ("\t-d --daemon\t\t\t\tRun in the background.\n");
   printf ("\t-p --port\t\t\t\tPort to be used for http streaming.\n");
   printf ("\t-s --stream\t\t\t\tStream media via http. Default port is 8010.\n");
   printf ("\t-v --version\t\t\t\tDisplay version info.\n");
@@ -300,61 +304,68 @@ wait_for_user_input (tizgraph_ptr_t graph_ptr)
   ETIZPlayUserInput input = ETIZPlayUserMax;
   while (1)
     {
-      int ch[2];
-
-      ch[0] = getch ();
-
-      switch (ch[0])
+      if (gb_daemon_mode)
         {
-        case 'q':
-          return ETIZPlayUserStop;
+          sleep (5000);
+        }
+      else
+        {
+          int ch[2];
 
-        case 68:            // key left
-          // seek
-          printf ("Seek (left key) - not implemented\n");
-          break;
+          ch[0] = getch ();
 
-        case 67:            // key right
-          // seek
-          printf ("Seek (right key) - not implemented\n");
-          break;
+          switch (ch[0])
+            {
+            case 'q':
+              return ETIZPlayUserStop;
 
-        case 65: // key up
-          // seek
-          printf ("Seek (up key) - not implemented\n");
-          break;
+            case 68:            // key left
+              // seek
+              printf ("Seek (left key) - not implemented\n");
+              break;
 
-        case 66: // key down
-          // seek
-          printf ("Seek (down key) - not implemented\n");
-          break;
+            case 67:            // key right
+              // seek
+              printf ("Seek (right key) - not implemented\n");
+              break;
 
-        case ' ':
-          graph_ptr->pause ();
-          break;
+            case 65: // key up
+              // seek
+              printf ("Seek (up key) - not implemented\n");
+              break;
 
-        case 'n':
-          graph_ptr->skip (1);
-          break;
+            case 66: // key down
+              // seek
+              printf ("Seek (down key) - not implemented\n");
+              break;
 
-        case 'p':
-          graph_ptr->skip (-2);
-          break;
+            case ' ':
+              graph_ptr->pause ();
+              break;
 
-        case '-':
-          printf ("Vol down - not implemented\n");
-          //Volume
-          break;
+            case 'n':
+              graph_ptr->skip (1);
+              break;
 
-        case '+':
-          printf ("Vol up - not implemented\n");
-          //Volume
-          break;
+            case 'p':
+              graph_ptr->skip (-2);
+              break;
 
-        default:
-//           printf ("%d - not implemented\n", ch[0]);
-          break;
-        };
+            case '-':
+              printf ("Vol down - not implemented\n");
+              //Volume
+              break;
+
+            case '+':
+              printf ("Vol up - not implemented\n");
+              //Volume
+              break;
+
+            default:
+              //           printf ("%d - not implemented\n", ch[0]);
+              break;
+            };
+        }
     }
 
 }
@@ -510,15 +521,6 @@ main (int argc, char **argv)
       exit (EXIT_FAILURE);
     }
 
-  signal (SIGTERM, tizplay_sig_term_hdlr);
-  signal (SIGINT, tizplay_sig_term_hdlr);
-  signal (SIGTSTP, tizplay_sig_stp_hdlr);
-  signal (SIGQUIT, tizplay_sig_term_hdlr);
-
-  tiz_log_init ();
-
-  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL player...");
-
   while (1)
     {
       int this_option_optind = optind ? optind : 1;
@@ -527,6 +529,7 @@ main (int argc, char **argv)
         {"list-components", no_argument, 0, 'l'},
         {"roles-of-comp", required_argument, 0, 'r'},
         {"comps-of-role", required_argument, 0, 'c'},
+        {"daemon", no_argument, 0, 'd'},
         {"stream", required_argument, 0, 's'},
         {"port", required_argument, 0, 'p'},
         {"version", no_argument, 0, 'v'},
@@ -534,7 +537,7 @@ main (int argc, char **argv)
         {0, 0, 0, 0}
       };
 
-      opt = getopt_long (argc, argv, "lr:c:p:s:vh", long_options, &option_index);
+      opt = getopt_long (argc, argv, "lr:c:dp:s:vh", long_options, &option_index);
       if (opt == -1)
         break;
 
@@ -559,6 +562,12 @@ main (int argc, char **argv)
         case 'c':
           {
             error = comps_of_role (optarg);
+          }
+          break;
+
+        case 'd':
+          {
+            gb_daemon_mode = true;
           }
           break;
 
@@ -606,6 +615,25 @@ main (int argc, char **argv)
     {
       exit (EXIT_SUCCESS);
     }
+
+  if (gb_daemon_mode)
+    {
+      printf ("Tizonia OpenMAX IL player version %s as a daemon (PID %d).\n",
+              PACKAGE_VERSION, getpid () );
+      if (-1 == daemon (1, 0))
+        {
+          fprintf (stderr, "Could not daemon.\n");
+          exit (EXIT_FAILURE);
+        }
+    }
+
+  signal (SIGTERM, tizplay_sig_term_hdlr);
+  signal (SIGINT, tizplay_sig_term_hdlr);
+  signal (SIGTSTP, tizplay_sig_stp_hdlr);
+  signal (SIGQUIT, tizplay_sig_term_hdlr);
+
+  tiz_log_init ();
+  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL player...");
 
   if (!streaming_media.empty())
     {
