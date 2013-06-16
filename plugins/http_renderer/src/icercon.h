@@ -45,7 +45,6 @@ extern "C"
                                          OMX_PTR ap_arg);
   typedef OMX_BUFFERHEADERTYPE *(*icer_buffer_needed_f) (OMX_PTR ap_arg);
 
-
   OMX_ERRORTYPE icer_con_server_init (icer_server_t ** app_server,
                                       OMX_HANDLETYPE ap_hdl,
                                       OMX_STRING a_address, OMX_U32 a_port,

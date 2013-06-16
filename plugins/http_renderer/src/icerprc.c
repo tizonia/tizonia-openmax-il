@@ -146,8 +146,8 @@ buffer_needed (void *ap_arg)
                       (p_krn, 0, 0, &p_obj->p_inhdr_))
                     {
                       TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
-                                "Claimed HEADER [%p]...",
-                                p_obj->p_inhdr_);
+                                "Claimed HEADER [%p]...nFilledLen [%d]",
+                                p_obj->p_inhdr_, p_obj->p_inhdr_->nFilledLen);
                       return p_obj->p_inhdr_;
                     }
                 }
@@ -321,7 +321,7 @@ icer_io_ready (void *ap_obj,
     }
   else
     {
-      if (a_events & TIZ_EVENT_WRITE)
+      if (a_events & TIZ_EVENT_WRITE || a_events & TIZ_EVENT_READ_OR_WRITE)
         {
           p_obj->server_is_full_ = false;
         }
