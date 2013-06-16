@@ -54,12 +54,15 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.prc.con"
 #endif
 
-#define ICE_LISTENER_BUF_SIZE  4096
+#define ICE_LISTENER_BUF_SIZE      4096
 #define ICE_DEFAULT_HEADER_TIMEOUT 10
-#define ICE_LISTEN_QUEUE 5
-#define ICE_METADATA_INTERVAL 16000
-#define ICE_DEFAULT_BURST_SIZE 1400
-#define ICE_DEFAULT_WAIT_TIME .042
+#define ICE_LISTEN_QUEUE           5
+#define ICE_METADATA_INTERVAL      16000
+#define ICE_MIN_BURST_SIZE         1400
+#define ICE_DEFAULT_BURST_SIZE     ICE_MIN_BURST_SIZE * 2
+#define ICE_MAX_BURST_SIZE         ICE_DEFAULT_BURST_SIZE * 2
+#define ICE_MIN_PACKETS_PER_SECOND 6
+#define ICE_MAX_PACKETS_PER_SECOND 12
 
 #ifdef INET6_ADDRSTRLEN
 #define ICE_RENDERER_MAX_ADDR_LEN INET6_ADDRSTRLEN
@@ -121,6 +124,9 @@ struct icer_server
   OMX_U32 bitrate;
   OMX_U32 num_channels;
   OMX_U32 sample_rate;
+  OMX_U32 bytes_per_frame;
+  OMX_U32 burst_size;
+  double wait_time;
 };
 
 static void destroy_listener (icer_listener_t * ap_lstnr);
@@ -454,7 +460,7 @@ remove_listener (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
 static icer_connection_t *
 create_connection (OMX_HANDLETYPE ap_hdl, int connected_sockfd,
                    icer_listener_t * ap_lstnr, char *ap_ip,
-                   unsigned short ap_port)
+                   unsigned short ap_port, double a_wait_time)
 {
   icer_connection_t *p_con = NULL;
 
@@ -503,7 +509,7 @@ create_connection (OMX_HANDLETYPE ap_hdl, int connected_sockfd,
       }
 
     /* These are one-off timers */
-    tiz_event_timer_set (p_con->p_ev_timer, ICE_DEFAULT_WAIT_TIME, 0.);
+    tiz_event_timer_set (p_con->p_ev_timer, a_wait_time, 0.);
 
   end:
 
@@ -544,7 +550,7 @@ create_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
   if (NULL ==
       (p_con =
        create_connection (ap_hdl, a_connected_sockfd, p_lstnr, ap_ip,
-                          ap_port)))
+                          ap_port, ap_server->wait_time)))
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "Error found while instantiating"
                 " the listener's connection.");
@@ -749,7 +755,7 @@ build_http_positive_response (char *ap_buf, size_t len, OMX_U32 a_bitrate,
             "Content-Type: %s\r\n", contenttype);
 
   /* icy-br header */
-  snprintf (icybr_buffer, sizeof (icybr_buffer), "icy-br:%d\r\n", (int)a_bitrate);
+  snprintf (icybr_buffer, sizeof (icybr_buffer), "icy-br:%d\r\n", (int)a_bitrate/1000);
 
   /* ice-audio-info header */
   snprintf (iceaudioinfo_buffer, sizeof (iceaudioinfo_buffer),
@@ -990,7 +996,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 
       if (NULL != p_hdr && NULL != p_hdr->pBuffer)
         {
-          int to_copy = ICE_DEFAULT_BURST_SIZE - p_lstnr_buf->len;
+          int to_copy = p_server->burst_size - p_lstnr_buf->len;
           if (to_copy > p_hdr->nFilledLen)
             {
               to_copy = p_hdr->nFilledLen;
@@ -1018,9 +1024,9 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
       assert (p_lstnr->pos <= p_hdr->nFilledLen);
 
       len = p_hdr->nFilledLen - p_lstnr->pos;
-      if (len > ICE_DEFAULT_BURST_SIZE)
+      if (len > p_server->burst_size)
         {
-          len = ICE_DEFAULT_BURST_SIZE;
+          len = p_server->burst_size;
         }
     }
 
@@ -1112,7 +1118,7 @@ stop_listener_io_watcher (icer_listener_t * ap_lstnr, OMX_HANDLETYPE ap_hdl)
 
 static OMX_ERRORTYPE
 start_listener_timer_watcher (icer_listener_t * ap_lstnr,
-                              OMX_HANDLETYPE ap_hdl)
+                              OMX_HANDLETYPE ap_hdl, double a_wait_time)
 {
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_con);
@@ -1121,7 +1127,7 @@ start_listener_timer_watcher (icer_listener_t * ap_lstnr,
   TIZ_LOGN (TIZ_TRACE, ap_hdl, "Starting listener timer watcher on fd [%d] ",
             ap_lstnr->p_con->sock);
 
-  tiz_event_timer_set (ap_lstnr->p_con->p_ev_timer, ICE_DEFAULT_WAIT_TIME, 0.);
+  tiz_event_timer_set (ap_lstnr->p_con->p_ev_timer, a_wait_time, 0.);
 
   return tiz_event_timer_start (ap_lstnr->p_con->p_ev_timer);
 }
@@ -1165,20 +1171,24 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
       return OMX_ErrorInsufficientResources;
     }
 
-  p_server->p_hdl        = ap_hdl;
-  p_server->lstn_sockfd  = ICE_RENDERER_SOCK_ERROR;
-  p_server->p_ip         = NULL;
-  p_server->p_srv_ev_io  = NULL;
-  p_server->max_clients  = a_max_clients;
-  p_server->p_lstnrs     = NULL;
-  p_server->p_hdr        = NULL;
-  p_server->pf_emptied   = a_pf_emptied;
-  p_server->pf_needed    = a_pf_needed;
-  p_server->p_arg        = ap_arg;
-  p_server->bitrate      = 0;
-  p_server->num_channels = 0;
-  p_server->sample_rate  = 0;
-
+  p_server->p_hdl           = ap_hdl;
+  p_server->lstn_sockfd     = ICE_RENDERER_SOCK_ERROR;
+  p_server->p_ip            = NULL;
+  p_server->p_srv_ev_io     = NULL;
+  p_server->max_clients     = a_max_clients;
+  p_server->p_lstnrs        = NULL;
+  p_server->p_hdr           = NULL;
+  p_server->pf_emptied      = a_pf_emptied;
+  p_server->pf_needed       = a_pf_needed;
+  p_server->p_arg           = ap_arg;
+  p_server->bitrate         = 0;
+  p_server->num_channels    = 0;
+  p_server->sample_rate     = 0;
+  p_server->bytes_per_frame = 144 * 128000 / 44100;
+  p_server->burst_size      = ICE_DEFAULT_BURST_SIZE;
+  p_server->wait_time       = 1 /
+    (double) (p_server->bytes_per_frame * 38 / p_server->burst_size);
+  
   if (NULL != a_address)
     {
       p_server->p_ip = strndup (a_address, ICE_RENDERER_MAX_ADDR_LEN);
@@ -1412,7 +1422,7 @@ listener_ready (icer_server_t * ap_server, icer_listener_t *ap_lstnr,
               TIZ_LOGN (TIZ_ERROR, ap_hdl, "There is no data yet, "
                         "lets wait some more time ");
               /* There is no data yet, lets wait some time */
-              (void) start_listener_timer_watcher (ap_lstnr, ap_hdl);
+              (void) start_listener_timer_watcher (ap_lstnr, ap_hdl, ap_server->wait_time);
 
               //(void) start_listener_io_watcher (ap_lstnr, ap_hdl);
             }
@@ -1544,14 +1554,14 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
           break;
         }
 
-      if (p_con->burst_bytes >= ICE_DEFAULT_BURST_SIZE)
+      if (p_con->burst_bytes >= ap_server->burst_size)
         {
           /* Let's not send too much data in one go */
 
           TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorNoMore] : "
                     "burst limit reached");
 
-          if ((p_hdr->nFilledLen - p_lstnr->pos) < ICE_DEFAULT_BURST_SIZE)
+          if ((p_hdr->nFilledLen - p_lstnr->pos) < ap_server->burst_size)
             {
               /* copy the remaining data into the listener buffer */
               int bytes_to_copy = p_hdr->nFilledLen - p_lstnr->pos;
@@ -1565,7 +1575,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
               release_empty_buffer (ap_server, p_lstnr, &p_hdr);
             }
 
-          (void) start_listener_timer_watcher (p_lstnr, ap_hdl);
+          (void) start_listener_timer_watcher (p_lstnr, ap_hdl, ap_server->wait_time);
           rc = OMX_ErrorNoMore;
           break;
         }
@@ -1610,9 +1620,37 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
                            OMX_U32               a_num_channels,
                            OMX_U32               a_sample_rate)
 {
-  assert (NULL != ap_server);
+  int pkts_per_sec_1 = 0;
+  int pkts_per_sec_3 = 0;
 
-  ap_server->bitrate      = a_bitrate;
-  ap_server->num_channels = a_num_channels;
-  ap_server->sample_rate  = a_sample_rate;
+  assert (NULL != ap_server);
+  
+  ap_server->bitrate         = a_bitrate;
+  ap_server->num_channels    = a_num_channels;
+  ap_server->sample_rate     = a_sample_rate;
+  ap_server->bytes_per_frame = 144 * a_bitrate / a_sample_rate;
+  ap_server->burst_size      = ICE_DEFAULT_BURST_SIZE;
+
+  pkts_per_sec_1 = ap_server->bytes_per_frame * 38 / 1400;
+  pkts_per_sec_3 = pkts_per_sec_1 / 4;
+  
+  if (pkts_per_sec_1 >= ICE_MIN_PACKETS_PER_SECOND
+      && pkts_per_sec_1 <= ICE_MAX_PACKETS_PER_SECOND)
+    {
+      ap_server->burst_size = ICE_MIN_BURST_SIZE;
+    }
+  else if (pkts_per_sec_3 >= ICE_MIN_PACKETS_PER_SECOND
+      && pkts_per_sec_3 <= ICE_MAX_PACKETS_PER_SECOND)
+    {
+      ap_server->burst_size = ICE_MAX_BURST_SIZE;
+    }
+
+  ap_server->wait_time = 
+    (1 / (double) (ap_server->bytes_per_frame * 38 / ap_server->burst_size) * .95);
+
+  TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "burst_size [%d] bytes per frame [%d] "
+            "wait_time [%f] pkts/s [%f]", ap_server->burst_size,
+            ap_server->bytes_per_frame,
+            ap_server->wait_time,
+            (double) (ap_server->bytes_per_frame * 38 / ap_server->burst_size));
 }
