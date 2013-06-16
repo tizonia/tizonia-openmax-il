@@ -114,6 +114,12 @@ tizplay_sig_stp_hdlr (int sig)
 }
 
 void
+tizplay_sig_pipe_hdlr (int sig)
+{
+  // Simply ignore this one
+}
+
+void
 print_usage (void)
 {
   printf ("Tizonia OpenMAX IL player version %s\n\n", PACKAGE_VERSION);
@@ -631,6 +637,7 @@ main (int argc, char **argv)
   signal (SIGINT, tizplay_sig_term_hdlr);
   signal (SIGTSTP, tizplay_sig_stp_hdlr);
   signal (SIGQUIT, tizplay_sig_term_hdlr);
+  signal (SIGPIPE, tizplay_sig_pipe_hdlr);
 
   tiz_log_init ();
   TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL player...");
