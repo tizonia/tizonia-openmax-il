@@ -136,7 +136,7 @@ tizmp3graph::configure_mp3_graph (const int file_index)
       return ret;
     }
 
-  // Obtain the mp3 settings from the decoder's port #0
+  // Retrive the current mp3 settings from the decoder's port #0
   OMX_AUDIO_PARAM_MP3TYPE mp3type, mp3type_orig;;
 
   mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);

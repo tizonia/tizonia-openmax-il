@@ -36,7 +36,7 @@
 
 #include "tizosal.h"
 #include "tizscheduler.h"
-#include "tizbinaryport.h"
+#include "tizmp3port.h"
 #include "icercfgport.h"
 #include "icerprc.h"
 
@@ -60,9 +60,15 @@
 static OMX_VERSIONTYPE http_renderer_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
-instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
+instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_port_options_t port_opts = {
+  OMX_PTR p_mp3port = NULL;
+  OMX_AUDIO_PARAM_MP3TYPE mp3type;
+  OMX_AUDIO_CODINGTYPE encodings[] = {
+    OMX_AUDIO_CodingMP3,
+    OMX_AUDIO_CodingMax
+  };
+  tiz_port_options_t mp3_port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
     ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_COUNT,
@@ -71,11 +77,24 @@ instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_HTTP_RENDERER_PORT_ALIGNMENT,
     ARATELIA_HTTP_RENDERER_PORT_SUPPLIERPREF,
     {ARATELIA_HTTP_RENDERER_PORT_INDEX, NULL, NULL, NULL},
-    -1                          /* use -1 for now */
+    0                           /* Master port */
   };
 
-  tiz_binaryport_init ();
-  return factory_new (tizbinaryport, &port_opts);
+  mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
+  mp3type.nVersion.nVersion = OMX_VERSION;
+  mp3type.nPortIndex        = ARATELIA_HTTP_RENDERER_PORT_INDEX;
+  mp3type.nChannels         = 2;
+  mp3type.nBitRate          = 0;
+  mp3type.nSampleRate       = 0;
+  mp3type.nAudioBandWidth   = 0;
+  mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
+  mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
+
+  tiz_mp3port_init ();
+  p_mp3port = factory_new (tizmp3port, &mp3_port_opts, &encodings, &mp3type);
+  assert (p_mp3port);
+
+  return p_mp3port;
 }
 
 static OMX_PTR
@@ -109,7 +128,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_HTTP_RENDERER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;
-  role_factory.pf_port[0] = instantiate_binary_port;
+  role_factory.pf_port[0] = instantiate_mp3_port;
   role_factory.nports     = 1;
   role_factory.pf_proc    = instantiate_processor;
 

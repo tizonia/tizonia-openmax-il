@@ -141,6 +141,24 @@ tizstreamsrvgraph::configure_streamsrv_graph ()
       return ret;
     }
 
+  // Retrive the current mp3 settings from the rerender's input port
+  OMX_AUDIO_PARAM_MP3TYPE mp3type, mp3type_orig;
+
+  mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
+  mp3type.nVersion.nVersion = OMX_VERSION;
+  mp3type.nPortIndex        = 0;
+
+  tiz_check_omx_err (OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3,
+                                       &mp3type));
+  mp3type_orig = mp3type;
+
+  // Set the mp3 settings on the renderer's input port
+
+  probe_ptr_->get_mp3_codec_info (mp3type);
+  mp3type.nPortIndex = 0;
+  tiz_check_omx_err (OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
+                                       &mp3type));
+
   OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
   httpsrv.nSize             = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;

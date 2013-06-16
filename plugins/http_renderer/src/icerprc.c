@@ -203,6 +203,7 @@ icer_proc_ctor (void *ap_obj, va_list * app)
   p_obj->lstn_sockfd_    = ICE_RENDERER_SOCK_ERROR;
   p_obj->p_server_       = NULL;
   p_obj->p_inhdr_        = NULL;
+  /* p_obj->mp3type */
   return p_obj;
 }
 
@@ -244,7 +245,7 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   TIZ_LOGN (TIZ_TRACE, p_hdl, "nListeningPort = [%d] nMaxClients = [%d] ",
             httpsrv.nListeningPort, httpsrv.nMaxClients);
 
-  p_obj->lstn_port_ = httpsrv.nListeningPort;
+  p_obj->lstn_port_   = httpsrv.nListeningPort;
   p_obj->max_clients_ = httpsrv.nMaxClients;
 
   return icer_con_server_init (&(p_obj->p_server_), p_hdl,
@@ -263,14 +264,52 @@ icer_proc_deallocate_resources (void *ap_obj)
   return OMX_ErrorNone;
 }
 
+static inline OMX_ERRORTYPE
+retrieve_mp3_settings (void *ap_obj, OMX_AUDIO_PARAM_MP3TYPE *ap_mp3type)
+{
+  const icer_prc_t *p_obj = ap_obj;
+  OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
+  void *p_krn = tiz_get_krn (p_hdl);
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_mp3type);
+
+  /* Retrieve the mp3 settings from the input port */
+  ap_mp3type->nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
+  ap_mp3type->nVersion.nVersion = OMX_VERSION;
+  ap_mp3type->nPortIndex        = 0;
+  if (OMX_ErrorNone
+      != (rc = tiz_api_GetParameter (p_krn, p_hdl, OMX_IndexParamAudioMp3,
+                                     ap_mp3type)))
+    {
+      TIZ_LOGN (TIZ_TRACE, p_hdl, "[%s] : Error retrieving "
+                "OMX_IndexParamAudioMp3 from port", tiz_err_to_str (rc));
+    }
+
+  return rc;
+}
+
 static OMX_ERRORTYPE
 icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  icer_prc_t *p_obj = ap_obj;
+  icer_prc_t *p_obj   = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
   assert (NULL != ap_obj);
+
   TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
            "Server starts listening on port [%d]", p_obj->lstn_port_);
   p_obj->lstn_sockfd_ = icer_con_get_server_fd (p_obj->p_server_);
+
+  if (OMX_ErrorNone != (rc = retrieve_mp3_settings (ap_obj, &(p_obj->mp3type))))
+    {
+      return rc;
+    }
+
+  icer_con_set_mp3_settings (p_obj->p_server_, p_obj->mp3type.nBitRate,
+                             p_obj->mp3type.nChannels, p_obj->mp3type.nSampleRate);
+
   return icer_con_start_listening (p_obj->p_server_, tiz_srv_get_hdl (p_obj));
 }
 
@@ -301,7 +340,7 @@ icer_proc_buffers_ready (const void *ap_obj)
 
 static OMX_ERRORTYPE
 icer_io_ready (void *ap_obj,
-                     tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
+               tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
   icer_prc_t *p_obj = ap_obj;
   OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
@@ -342,6 +381,31 @@ icer_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
   return stream_to_clients (p_obj, tiz_srv_get_hdl (p_obj));
 }
 
+static OMX_ERRORTYPE
+icer_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
+{
+  icer_prc_t *p_obj = (icer_prc_t *) ap_obj;
+  OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
+  void *p_krn = tiz_get_krn (p_hdl);
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
+  assert (NULL != p_krn);
+
+  assert (0 == a_pid);
+
+  if (OMX_ErrorNone != (rc = retrieve_mp3_settings (p_obj, &(p_obj->mp3type))))
+    {
+      return rc;
+    }
+
+  icer_con_set_mp3_settings (p_obj->p_server_, p_obj->mp3type.nBitRate,
+                             p_obj->mp3type.nChannels, p_obj->mp3type.nSampleRate);
+
+  return OMX_ErrorNone;
+}
+
+
 /*
  * initialization
  */
@@ -363,6 +427,7 @@ icer_prc_init (void)
          ctor, icer_proc_ctor,
          dtor, icer_proc_dtor,
          tiz_prc_buffers_ready, icer_proc_buffers_ready,
+         tiz_prc_port_enable, icer_proc_port_enable,
          tiz_srv_allocate_resources, icer_proc_allocate_resources,
          tiz_srv_deallocate_resources, icer_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, icer_proc_prepare_to_transfer,

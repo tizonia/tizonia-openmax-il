@@ -95,14 +95,14 @@ close_input_file (AVFormatContext ** ctx_ptr)
 }
 
 tizprobe::tizprobe (const std::string & uri, const bool quiet):
-uri_ (uri),
-quiet_ (quiet),
-domain_ (OMX_PortDomainMax),
-audio_coding_type_ (OMX_AUDIO_CodingUnused),
-video_coding_type_ (OMX_VIDEO_CodingUnused),
-pcmtype_ (),
-mp3type_ (),
-vp8type_ ()
+  uri_ (uri),
+  quiet_ (quiet),
+  domain_ (OMX_PortDomainMax),
+  audio_coding_type_ (OMX_AUDIO_CodingUnused),
+  video_coding_type_ (OMX_VIDEO_CodingUnused),
+  pcmtype_ (),
+  mp3type_ (),
+  vp8type_ ()
 {
   // Defaults are the same as in the standard pcm renderer
   pcmtype_.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
@@ -171,12 +171,14 @@ tizprobe::probe_file ()
 
   if (codec_id == CODEC_ID_MP3)
     {
-      domain_ = OMX_PortDomainAudio;
-      audio_coding_type_ = OMX_AUDIO_CodingMP3;
-      mp3type_.nSampleRate = cc->sample_rate;
+      domain_                = OMX_PortDomainAudio;
+      audio_coding_type_     = OMX_AUDIO_CodingMP3;
+      mp3type_.nSampleRate   = cc->sample_rate;
       pcmtype_.nSamplingRate = cc->sample_rate;
-      mp3type_.nChannels = cc->channels;
-      pcmtype_.nChannels = cc->channels;
+      mp3type_.nBitRate      = cc->bit_rate;
+      mp3type_.nChannels     = cc->channels;
+      pcmtype_.nChannels     = cc->channels;
+      
       if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
         {
           pcmtype_.eNumData = OMX_NumericalDataUnsigned;

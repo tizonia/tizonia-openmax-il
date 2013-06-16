@@ -118,6 +118,9 @@ struct icer_server
   icer_buffer_emptied_f pf_emptied;
   icer_buffer_needed_f pf_needed;
   OMX_PTR p_arg;
+  OMX_U32 bitrate;
+  OMX_U32 num_channels;
+  OMX_U32 sample_rate;
 };
 
 static void destroy_listener (icer_listener_t * ap_lstnr);
@@ -710,7 +713,8 @@ send_http_error (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
 }
 
 static ssize_t
-build_http_positive_response (char *ap_buf, size_t len)
+build_http_positive_response (char *ap_buf, size_t len, OMX_U32 a_bitrate,
+                              OMX_U32 a_num_channels, OMX_U32 a_sample_rate)
 {
   const char *http_version = "1.0";
   char status_buffer[80];
@@ -726,12 +730,9 @@ build_http_positive_response (char *ap_buf, size_t len)
   ssize_t ret;
   const char *statusmsg = "OK";
   const char *contenttype = "audio/mpeg";
-  int bitrate = 262;
-  int channels = 2;
-  int samplerate = 44100;
   int status = 200;
   const char *station = "Tizonia Radio";
-  const char *description = "The coolest radio station ever!";
+  const char *description = "The finest radio station";
   const char *genre = "Pop/rock";
   const char *url = "http://tizonia.org";
   int pub = 0;
@@ -748,12 +749,12 @@ build_http_positive_response (char *ap_buf, size_t len)
             "Content-Type: %s\r\n", contenttype);
 
   /* icy-br header */
-  snprintf (icybr_buffer, sizeof (icybr_buffer), "icy-br:%u\r\n", bitrate);
+  snprintf (icybr_buffer, sizeof (icybr_buffer), "icy-br:%d\r\n", (int)a_bitrate);
 
   /* ice-audio-info header */
   snprintf (iceaudioinfo_buffer, sizeof (iceaudioinfo_buffer),
-            "ice-audio-info: " "bitrate=%u;channels=%u;samplerate=%u\r\n",
-            bitrate, channels, samplerate);
+            "ice-audio-info: " "bitrate=%d;channels=%d;samplerate=%d\r\n",
+            (int) a_bitrate, (int) a_num_channels, (int) a_sample_rate);
 
   /* icy-name header */
   snprintf (icyname_buffer, sizeof (icyname_buffer), "icy-name:%s\r\n",
@@ -891,8 +892,10 @@ handle_listeners_request (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
 
   /* The request seems ok. Now build the response */
   if (0 == (to_write = build_http_positive_response (ap_lstnr->buf.p_data,
-                                                     ICE_LISTENER_BUF_SIZE -
-                                                     1)))
+                                                     ICE_LISTENER_BUF_SIZE - 1,
+                                                     ap_server->bitrate,
+                                                     ap_server->num_channels,
+                                                     ap_server->sample_rate)))
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "Internal Server Error");
       send_http_error (ap_server, ap_hdl, ap_lstnr, 500,
@@ -1162,16 +1165,19 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
       return OMX_ErrorInsufficientResources;
     }
 
-  p_server->p_hdl = ap_hdl;
-  p_server->lstn_sockfd = ICE_RENDERER_SOCK_ERROR;
-  p_server->p_ip = NULL;
-  p_server->p_srv_ev_io = NULL;
-  p_server->max_clients = a_max_clients;
-  p_server->p_lstnrs = NULL;
-  p_server->p_hdr = NULL;
-  p_server->pf_emptied = a_pf_emptied;
-  p_server->pf_needed = a_pf_needed;
-  p_server->p_arg = ap_arg;
+  p_server->p_hdl        = ap_hdl;
+  p_server->lstn_sockfd  = ICE_RENDERER_SOCK_ERROR;
+  p_server->p_ip         = NULL;
+  p_server->p_srv_ev_io  = NULL;
+  p_server->max_clients  = a_max_clients;
+  p_server->p_lstnrs     = NULL;
+  p_server->p_hdr        = NULL;
+  p_server->pf_emptied   = a_pf_emptied;
+  p_server->pf_needed    = a_pf_needed;
+  p_server->p_arg        = ap_arg;
+  p_server->bitrate      = 0;
+  p_server->num_channels = 0;
+  p_server->sample_rate  = 0;
 
   if (NULL != a_address)
     {
@@ -1596,4 +1602,17 @@ icer_con_get_listeners_count (const icer_server_t * ap_server)
 {
   assert (NULL != ap_server);
   return tiz_map_size (ap_server->p_lstnrs);
+}
+
+void
+icer_con_set_mp3_settings (icer_server_t * ap_server,
+                           OMX_U32               a_bitrate,
+                           OMX_U32               a_num_channels,
+                           OMX_U32               a_sample_rate)
+{
+  assert (NULL != ap_server);
+
+  ap_server->bitrate      = a_bitrate;
+  ap_server->num_channels = a_num_channels;
+  ap_server->sample_rate  = a_sample_rate;
 }
