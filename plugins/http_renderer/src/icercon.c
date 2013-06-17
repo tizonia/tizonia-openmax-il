@@ -54,15 +54,15 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.prc.con"
 #endif
 
-#define ICE_LISTENER_BUF_SIZE      4096
 #define ICE_DEFAULT_HEADER_TIMEOUT 10
 #define ICE_LISTEN_QUEUE           5
 #define ICE_METADATA_INTERVAL      16000
 #define ICE_MIN_BURST_SIZE         1400
-#define ICE_DEFAULT_BURST_SIZE     ICE_MIN_BURST_SIZE * 2
-#define ICE_MAX_BURST_SIZE         ICE_DEFAULT_BURST_SIZE * 2
+#define ICE_DEFAULT_BURST_SIZE     2800
+#define ICE_MAX_BURST_SIZE         4200
 #define ICE_MIN_PACKETS_PER_SECOND 6
 #define ICE_MAX_PACKETS_PER_SECOND 12
+#define ICE_LISTENER_BUF_SIZE      ICE_MAX_BURST_SIZE
 
 #ifdef INET6_ADDRSTRLEN
 #define ICE_RENDERER_MAX_ADDR_LEN INET6_ADDRSTRLEN
@@ -1001,7 +1001,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
             {
               to_copy = p_hdr->nFilledLen;
             }
-          memcpy (p_lstnr_buf->p_data + p_lstnr->pos + p_lstnr_buf->len,
+          memcpy (p_lstnr_buf->p_data + p_lstnr_buf->len,
                   p_hdr->pBuffer + p_hdr->nOffset,
                   to_copy);
           p_lstnr->pos = to_copy;
@@ -1186,8 +1186,8 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
   p_server->sample_rate     = 0;
   p_server->bytes_per_frame = 144 * 128000 / 44100;
   p_server->burst_size      = ICE_DEFAULT_BURST_SIZE;
-  p_server->wait_time       = 1 /
-    (double) (p_server->bytes_per_frame * 38 / p_server->burst_size);
+  p_server->wait_time       = 
+    (1 / (double) (p_server->bytes_per_frame * 38 / p_server->burst_size)) * .75;
   
   if (NULL != a_address)
     {
@@ -1645,8 +1645,8 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
       ap_server->burst_size = ICE_MAX_BURST_SIZE;
     }
 
-  ap_server->wait_time = 
-    (1 / (double) (ap_server->bytes_per_frame * 38 / ap_server->burst_size) * .95);
+  ap_server->wait_time =
+    (1 / (double) (ap_server->bytes_per_frame * 38 / ap_server->burst_size)) * .75;
 
   TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "burst_size [%d] bytes per frame [%d] "
             "wait_time [%f] pkts/s [%f]", ap_server->burst_size,
