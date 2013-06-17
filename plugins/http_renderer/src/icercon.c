@@ -63,6 +63,7 @@
 #define ICE_MIN_PACKETS_PER_SECOND 6
 #define ICE_MAX_PACKETS_PER_SECOND 12
 #define ICE_LISTENER_BUF_SIZE      ICE_MAX_BURST_SIZE
+#define ICE_SEND_BUF_EVAL_PERIOD   1 /* seconds */
 
 #ifdef INET6_ADDRSTRLEN
 #define ICE_RENDERER_MAX_ADDR_LEN INET6_ADDRSTRLEN
@@ -127,6 +128,8 @@ struct icer_server
   OMX_U32 bytes_per_frame;
   OMX_U32 burst_size;
   double wait_time;
+  OMX_U32 pkts_per_sec;
+  OMX_U32 pkt_count;
 };
 
 static void destroy_listener (icer_listener_t * ap_lstnr);
@@ -215,7 +218,17 @@ valid_socket (int a_sockfd)
 }
 
 static inline int
-get_socket_snd_buffer_size (int a_sockfd)
+get_socket_buffer_size (int a_sockfd)
+{
+  int       optval;
+  socklen_t optlen = sizeof (int);
+  getsockopt (a_sockfd, SOL_SOCKET,
+              SO_SNDBUF, (void *) &optval, &optlen);
+  return optval;
+}
+
+static inline int
+get_socket_buffer_utilization (int a_sockfd)
 {
   int remaining = -1;
   ioctl(a_sockfd, TIOCOUTQ, &remaining);
@@ -1186,8 +1199,8 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
   p_server->sample_rate     = 0;
   p_server->bytes_per_frame = 144 * 128000 / 44100;
   p_server->burst_size      = ICE_DEFAULT_BURST_SIZE;
-  p_server->wait_time       = 
-    (1 / (double) (p_server->bytes_per_frame * 38 / p_server->burst_size)) * .75;
+  p_server->pkts_per_sec    = p_server->bytes_per_frame * 38 / p_server->burst_size;
+  p_server->wait_time       = (1 / (double) p_server->pkts_per_sec);
   
   if (NULL != a_address)
     {
@@ -1529,9 +1542,29 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
        * preparation for when multiple clients are fully supported */
       tiz_map_for_each (ap_server->p_lstnrs, write_omx_buffer, ap_server);
 
-      TIZ_LOGN (TIZ_NOTICE, ap_hdl, "Bytes left in buffer : [%d] socket buf [%d]",
-                p_hdr->nFilledLen - p_lstnr->pos,
-                get_socket_snd_buffer_size (p_con->sock));
+      if (++ap_server->pkt_count
+          > (ICE_SEND_BUF_EVAL_PERIOD * ap_server->pkts_per_sec))
+        {
+          int buf_size = get_socket_buffer_size (p_con->sock);
+          int buf_util = get_socket_buffer_utilization (p_con->sock);
+
+          TIZ_LOGN (TIZ_NOTICE, ap_hdl, "Send buffer size [%d] "
+                    "bytes in buffer [%d] wait time [%f] ",
+                    buf_size, buf_util, ap_server->wait_time);
+
+          if (buf_util > ((double) buf_size * .12))
+            {
+              /* Decrease packet rate by 2% */
+              ap_server->wait_time = ap_server->wait_time * 1.02;
+            }
+            else if (buf_util < ((double) buf_size * .1))
+            {
+              /* Increase packet rate by .5% */
+              ap_server->wait_time = ap_server->wait_time * .995;
+            }
+          
+          ap_server->pkt_count = 0;
+        }
 
       if (p_con->error)
         {
@@ -1631,7 +1664,7 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
   ap_server->bytes_per_frame = 144 * a_bitrate / a_sample_rate;
   ap_server->burst_size      = ICE_DEFAULT_BURST_SIZE;
 
-  pkts_per_sec_1 = ap_server->bytes_per_frame * 38 / 1400;
+  pkts_per_sec_1 = ap_server->bytes_per_frame * 38 / ICE_MIN_BURST_SIZE;
   pkts_per_sec_3 = pkts_per_sec_1 / 4;
   
   if (pkts_per_sec_1 >= ICE_MIN_PACKETS_PER_SECOND
@@ -1645,12 +1678,13 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
       ap_server->burst_size = ICE_MAX_BURST_SIZE;
     }
 
-  ap_server->wait_time =
-    (1 / (double) (ap_server->bytes_per_frame * 38 / ap_server->burst_size)) * .75;
-
-  TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "burst_size [%d] bytes per frame [%d] "
-            "wait_time [%f] pkts/s [%f]", ap_server->burst_size,
-            ap_server->bytes_per_frame,
-            ap_server->wait_time,
-            (double) (ap_server->bytes_per_frame * 38 / ap_server->burst_size));
+  ap_server->pkts_per_sec = ap_server->bytes_per_frame * 38
+    / ap_server->burst_size;
+  ap_server->wait_time    = (1 / (double) ap_server->pkts_per_sec);
+  ap_server->pkt_count    = 0;
+  
+  TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "burst_size [%d] bytes per frame [%d]"
+            " wait_time [%f] pkts/s [%f]", ap_server->burst_size,
+            ap_server->bytes_per_frame, ap_server->wait_time,
+            ap_server->pkts_per_sec);
 }
