@@ -504,6 +504,7 @@ START_TEST (test_http_streaming)
   OMX_BOOL timedout = OMX_FALSE;
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
+  OMX_AUDIO_PARAM_MP3TYPE mp3type;
   OMX_BUFFERHEADERTYPE **p_hdrlst;
   OMX_U32 i = 0;
   FILE *p_file = 0;
@@ -560,6 +561,27 @@ START_TEST (test_http_streaming)
   httpsrv.nListeningPort = 8011;
   httpsrv.nMaxClients = 5;
   error = OMX_SetParameter (p_hdl, OMX_TizoniaIndexParamHttpServer, &httpsrv);
+  fail_if (OMX_ErrorNone != error);
+
+  /* --------------------------- */
+  /* Retrieve the mp3 settings   */
+  /* --------------------------- */
+  mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
+  mp3type.nVersion.nVersion = OMX_VERSION;
+  mp3type.nPortIndex        = 0;
+  error = OMX_GetParameter (p_hdl, OMX_IndexParamAudioMp3, &mp3type);
+  fail_if (OMX_ErrorNone != error);
+
+  /* -------------------- */
+  /* Set some mp3 params  */
+  /* -------------------- */
+  mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
+  mp3type.nVersion.nVersion = OMX_VERSION;
+  mp3type.nPortIndex        = 0;
+  mp3type.nBitRate          = 320000;
+  mp3type.nSampleRate       = 48000;
+  mp3type.nChannels         = 2;
+  error = OMX_SetParameter (p_hdl, OMX_IndexParamAudioMp3, &mp3type);
   fail_if (OMX_ErrorNone != error);
 
   /* --------------------------- */
