@@ -1005,7 +1005,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
                 "p_lstnr->pos [%d] p_hdr [%p]", p_lstnr_buf->len,
                 p_lstnr->pos, p_hdr);
 
-      if (NULL != p_hdr && NULL != p_hdr->pBuffer)
+      if (NULL != p_hdr && NULL != p_hdr->pBuffer && p_hdr->nFilledLen > 0)
         {
           int to_copy = p_server->burst_size - p_lstnr_buf->len;
           if (to_copy > p_hdr->nFilledLen)
@@ -1026,55 +1026,59 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
     }
   else
     {
-      p_buffer = p_hdr->pBuffer + p_hdr->nOffset + p_lstnr->pos;
-
-      assert (p_hdr->nFilledLen > 0);
-      assert (p_hdr->nAllocLen >= (p_hdr->nOffset + p_hdr->nFilledLen));
-      assert (p_lstnr->pos <= p_hdr->nFilledLen);
-
-      len = p_hdr->nFilledLen - p_lstnr->pos;
-      if (len > p_server->burst_size)
+      if (p_hdr->nFilledLen > 0)
         {
-          len = p_server->burst_size;
+          p_buffer = p_hdr->pBuffer + p_hdr->nOffset + p_lstnr->pos;
+
+          assert (p_hdr->nAllocLen >= (p_hdr->nOffset + p_hdr->nFilledLen));
+          assert (p_lstnr->pos <= p_hdr->nFilledLen);
+
+          len = p_hdr->nFilledLen - p_lstnr->pos;
+          if (len > p_server->burst_size)
+            {
+              len = p_server->burst_size;
+            }
         }
     }
 
-  errno = 0;
-  bytes = send (sock, (const void *) p_buffer, len, 0);
-
-  if (bytes < 0)
+  if (len > 0)
     {
-      if (!error_recoverable (p_server, sock, errno))
+      errno = 0;
+      bytes = send (sock, (const void *) p_buffer, len, 0);
+
+      if (bytes < 0)
         {
-          TIZ_LOGN (TIZ_TRACE, p_server->p_hdl, "not recoverable error");
-          p_con->error = true;
+          if (!error_recoverable (p_server, sock, errno))
+            {
+              TIZ_LOGN (TIZ_TRACE, p_server->p_hdl, "not recoverable error");
+              p_con->error = true;
+            }
+          else
+            {
+              TIZ_LOGN (TIZ_TRACE, p_server->p_hdl, "recoverable error");
+              p_con->not_ready = true;
+            }
         }
       else
         {
-          TIZ_LOGN (TIZ_TRACE, p_server->p_hdl, "recoverable error");
-          p_con->not_ready = true;
-        }
-    }
-  else
-    {
-      if (p_lstnr_buf->len > 0)
-        {
-          p_lstnr_buf->len -= bytes;
-        }
-      else
-        {
-          p_lstnr->pos += bytes;
-        }
+          if (p_lstnr_buf->len > 0)
+            {
+              p_lstnr_buf->len -= bytes;
+            }
+          else
+            {
+              p_lstnr->pos += bytes;
+            }
 
-      p_con->sent_last = bytes;
-      p_con->sent_total += bytes;
-      p_con->burst_bytes += bytes;
+          p_con->sent_last = bytes;
+          p_con->sent_total += bytes;
+          p_con->burst_bytes += bytes;
 
-      if (bytes < len)
-        {
-          p_con->full = true;
+          if (bytes < len)
+            {
+              p_con->full = true;
+            }
         }
-
     }
 
   /* always return success */
@@ -1525,14 +1529,6 @@ icer_con_write_to_listeners (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl)
             }
 
           ap_server->p_hdr = p_hdr;
-        }
-
-      /* Check if this buffer was received empty */
-      if (p_hdr->nFilledLen == 0)
-        {
-          /* Get rid of it */
-          release_empty_buffer (ap_server, p_lstnr, &p_hdr);
-          continue;
         }
 
       /* TODO: check return code */

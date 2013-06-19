@@ -123,7 +123,6 @@ const void *
 super (const void *ap_obj)
 {
   const struct Class *p_obj = ap_obj;
-
   assert (p_obj && p_obj->super);
   return p_obj->super;
 }
@@ -152,16 +151,17 @@ void *
 factory_new (const void *a_class, ...)
 {
   const struct Class *class = a_class;
-  struct Object *object;
+  struct Object *object = NULL;
   va_list ap;
 
   assert (class && class->size);
-  object = calloc (1, class->size);
-  assert (object);
-  object->class = class;
-  va_start (ap, a_class);
-  object = ctor (object, &ap);
-  va_end (ap);
+  if (NULL != (object = tiz_mem_calloc (1, class->size)))
+  {
+    object->class = class;
+    va_start (ap, a_class);
+    object        = ctor (object, &ap);
+    va_end (ap);
+  }
   return object;
 }
 
@@ -178,7 +178,6 @@ void *
 ctor (void *ap_obj, va_list * app)
 {
   const struct Class *class = classOf (ap_obj);
-
   assert (class->ctor);
   return class->ctor (ap_obj, app);
 }
@@ -187,7 +186,6 @@ void *
 super_ctor (const void *a_class, void *ap_obj, va_list * app)
 {
   const struct Class *superclass = super (a_class);
-
   assert (ap_obj && superclass->ctor);
   return superclass->ctor (ap_obj, app);
 }
@@ -196,7 +194,6 @@ void *
 dtor (void *ap_obj)
 {
   const struct Class *class = classOf (ap_obj);
-
   assert (class->dtor);
   return class->dtor (ap_obj);
 }
@@ -205,7 +202,6 @@ void *
 super_dtor (const void *a_class, void *ap_obj)
 {
   const struct Class *superclass = super (a_class);
-
   assert (ap_obj && superclass->dtor);
   return superclass->dtor (ap_obj);
 }
