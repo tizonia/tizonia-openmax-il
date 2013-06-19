@@ -84,8 +84,8 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
   mp3type.nVersion.nVersion = OMX_VERSION;
   mp3type.nPortIndex        = ARATELIA_HTTP_RENDERER_PORT_INDEX;
   mp3type.nChannels         = 2;
-  mp3type.nBitRate          = 0;
-  mp3type.nSampleRate       = 0;
+  mp3type.nBitRate          = 128000;
+  mp3type.nSampleRate       = 44100;
   mp3type.nAudioBandWidth   = 0;
   mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
   mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;

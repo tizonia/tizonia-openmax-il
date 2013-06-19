@@ -1613,8 +1613,11 @@ icer_con_get_server_fd (const icer_server_t * ap_server)
 int
 icer_con_get_listeners_count (const icer_server_t * ap_server)
 {
-  assert (NULL != ap_server);
-  return tiz_map_size (ap_server->p_lstnrs);
+  if (NULL != ap_server)
+    {
+      return tiz_map_size (ap_server->p_lstnrs);
+    }
+  return 0;
 }
 
 void
@@ -1628,11 +1631,11 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
 
   assert (NULL != ap_server);
 
-  ap_server->bitrate = a_bitrate;
-  ap_server->num_channels = a_num_channels;
-  ap_server->sample_rate = a_sample_rate;
+  ap_server->bitrate         = (a_bitrate != 0 ? a_bitrate : 128000);
+  ap_server->num_channels    = (a_num_channels != 0 ? a_num_channels : 2);
+  ap_server->sample_rate     = (a_sample_rate != 0 ? a_sample_rate : 44100);
   ap_server->bytes_per_frame = (double) 144 *a_bitrate / a_sample_rate;
-  ap_server->burst_size = ICE_DEFAULT_BURST_SIZE;
+  ap_server->burst_size      = ICE_DEFAULT_BURST_SIZE;
 
   pkts_per_sec_min_burst
     = (double) ap_server->bytes_per_frame * 38 / ICE_MIN_BURST_SIZE;
