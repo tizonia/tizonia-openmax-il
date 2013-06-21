@@ -53,19 +53,15 @@ extern "C"
                                       icer_buffer_needed_f a_pf_needed,
                                       OMX_PTR ap_arg);
 
-  void icer_con_server_destroy (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl);
+  void icer_con_server_destroy (icer_server_t * ap_server);
 
-  OMX_ERRORTYPE icer_con_start_listening (icer_server_t * ap_server,
-                                          OMX_HANDLETYPE ap_hdl);
+  OMX_ERRORTYPE icer_con_start_listening (icer_server_t * ap_server);
 
-  OMX_ERRORTYPE icer_con_accept_connection (icer_server_t * ap_server,
-                                            OMX_HANDLETYPE ap_hdl);
+  OMX_ERRORTYPE icer_con_accept_connection (icer_server_t * ap_server);
 
-  OMX_ERRORTYPE icer_con_stop_listening (icer_server_t * ap_server,
-                                         OMX_HANDLETYPE ap_hdl);
+  OMX_ERRORTYPE icer_con_stop_listening (icer_server_t * ap_server);
 
-  OMX_ERRORTYPE icer_con_write_to_listeners (icer_server_t * ap_server,
-                                             OMX_HANDLETYPE ap_hdl);
+  OMX_ERRORTYPE icer_con_write_to_listeners (icer_server_t * ap_server);
 
   int icer_con_get_server_fd (const icer_server_t * ap_server);
 

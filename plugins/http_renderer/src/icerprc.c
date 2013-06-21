@@ -61,7 +61,7 @@ stream_to_clients (icer_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl)
 
   if (ap_obj->p_server_ && !ap_obj->server_is_full_)
     {
-      rc = icer_con_write_to_listeners (ap_obj->p_server_, ap_hdl);
+      rc = icer_con_write_to_listeners (ap_obj->p_server_);
 
       switch (rc)
         {
@@ -259,7 +259,7 @@ icer_proc_deallocate_resources (void *ap_obj)
 {
   icer_prc_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
-  icer_con_server_destroy (p_obj->p_server_, tiz_srv_get_hdl (p_obj));
+  icer_con_server_destroy (p_obj->p_server_);
   p_obj->p_server_ = NULL;
   return OMX_ErrorNone;
 }
@@ -310,7 +310,7 @@ icer_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   icer_con_set_mp3_settings (p_obj->p_server_, p_obj->mp3type.nBitRate,
                              p_obj->mp3type.nChannels, p_obj->mp3type.nSampleRate);
 
-  return icer_con_start_listening (p_obj->p_server_, tiz_srv_get_hdl (p_obj));
+  return icer_con_start_listening (p_obj->p_server_);
 }
 
 static OMX_ERRORTYPE
@@ -324,7 +324,7 @@ icer_proc_stop_and_return (void *ap_obj)
 {
   icer_prc_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
-  return icer_con_stop_listening (p_obj->p_server_, tiz_srv_get_hdl (p_obj));
+  return icer_con_stop_listening (p_obj->p_server_);
 }
 
 /*
@@ -352,7 +352,7 @@ icer_io_ready (void *ap_obj,
 
   if (a_fd == p_obj->lstn_sockfd_)
     {
-      rc = icer_con_accept_connection (p_obj->p_server_, p_hdl);
+      rc = icer_con_accept_connection (p_obj->p_server_);
       if (OMX_ErrorInsufficientResources != rc)
         {
           rc = OMX_ErrorNone;
