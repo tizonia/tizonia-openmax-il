@@ -51,65 +51,31 @@ static OMX_ERRORTYPE
 stream_to_clients (icer_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-
   assert (NULL != ap_obj);
-
-  if (icer_con_get_listeners_count (ap_obj->p_server_) == 0)
-    {
-      return OMX_ErrorNone;
-    }
-
-  if (ap_obj->p_server_ && !ap_obj->server_is_full_)
+  if (ap_obj->p_server_)
     {
       rc = icer_con_write_to_listeners (ap_obj->p_server_);
-
       switch (rc)
         {
         case OMX_ErrorNoMore:
-          {
-            /* Socket send buffers are full */
-            ap_obj->server_is_full_ = true;
-            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : ", tiz_err_to_str (rc));
-            rc = OMX_ErrorNone;
-          }
-          break;
-
-        case OMX_ErrorOverflow:
-          {
-            /* Trying not send too much data. */
-            ap_obj->server_is_full_ = false;
-            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : ", tiz_err_to_str (rc));
-            rc = OMX_ErrorNone;
-          }
-          break;
-
+          /* Socket not ready, send buffer full or burst limit reached */
         case OMX_ErrorNone:
-          {
-            /* More data needed */
-            ap_obj->server_is_full_ = false;
-            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : ", tiz_err_to_str (rc));
-          }
-          break;
-
+            /* No more data to send or some  */
         case OMX_ErrorNotReady:
           {
             /* No connected clients yet */
-            ap_obj->server_is_full_ = false;
-            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : ", tiz_err_to_str (rc));
             rc = OMX_ErrorNone;
           }
           break;
 
         default:
           {
-            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : Error while writing to "
-                      "clients ...", tiz_err_to_str (rc));
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s]", tiz_err_to_str (rc));
+            assert (0);
           }
           break;
-
         };
     }
-
   return rc;
 }
 
@@ -120,7 +86,7 @@ buffer_needed (void *ap_arg)
 
   assert (NULL != p_obj);
 
-  if (!(p_obj->eos_))
+  if (false == p_obj->port_disabled_)
     {
       if (NULL != p_obj->p_inhdr_ && p_obj->p_inhdr_->nFilledLen > 0)
         {
@@ -131,8 +97,6 @@ buffer_needed (void *ap_arg)
           const tiz_srv_t *p_parent = ap_arg;
           tiz_pd_set_t ports;
           void *p_krn = NULL;
-
-          assert (false == p_obj->server_is_full_);
 
           assert (NULL != p_parent->p_hdl_);
           p_krn = tiz_get_krn (tiz_srv_get_hdl (p_obj));
@@ -155,6 +119,7 @@ buffer_needed (void *ap_arg)
         }
     }
 
+  p_obj->awaiting_buffers_ = true;
   return NULL;
 }
 
@@ -170,7 +135,6 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * ap_hdr, void *ap_arg)
 
   TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj), "HEADER [%p] emptied", ap_hdr);
 
-  p_obj->server_is_full_ = false;
   ap_hdr->nOffset = 0;
 
   if ((ap_hdr->nFlags & OMX_BUFFERFLAG_EOS) != 0)
@@ -192,17 +156,16 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * ap_hdr, void *ap_arg)
 static void *
 icer_proc_ctor (void *ap_obj, va_list * app)
 {
-  icer_prc_t *p_obj      = super_ctor (icerprc, ap_obj, app);
-  p_obj->bind_address_   = NULL;
-  p_obj->lstn_port_      = 0;
-  p_obj->mount_name_     = NULL;
-  p_obj->max_clients_    = 0;
-  p_obj->burst_size_     = 65536;
-  p_obj->server_is_full_ = false;
-  p_obj->eos_            = false;
-  p_obj->lstn_sockfd_    = ICE_RENDERER_SOCK_ERROR;
-  p_obj->p_server_       = NULL;
-  p_obj->p_inhdr_        = NULL;
+  icer_prc_t *p_obj         = super_ctor (icerprc, ap_obj, app);
+  p_obj->bind_address_     = NULL;
+  p_obj->lstn_port_        = 0;
+  p_obj->mount_name_       = NULL;
+  p_obj->max_clients_      = 0;
+  p_obj->awaiting_buffers_ = true;
+  p_obj->port_disabled_    = false;
+  p_obj->lstn_sockfd_      = ICE_RENDERER_SOCK_ERROR;
+  p_obj->p_server_         = NULL;
+  p_obj->p_inhdr_          = NULL;
   /* p_obj->mp3type */
   return p_obj;
 }
@@ -335,7 +298,12 @@ static OMX_ERRORTYPE
 icer_proc_buffers_ready (const void *ap_obj)
 {
   icer_prc_t *p_obj = (icer_prc_t *) ap_obj;
-  return stream_to_clients (p_obj, tiz_srv_get_hdl (p_obj));
+  if (p_obj->awaiting_buffers_)
+    {
+      p_obj->awaiting_buffers_ = false;
+      return stream_to_clients (p_obj, tiz_srv_get_hdl (p_obj));
+    }
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -360,10 +328,6 @@ icer_io_ready (void *ap_obj,
     }
   else
     {
-      if (a_events & TIZ_EVENT_WRITE || a_events & TIZ_EVENT_READ_OR_WRITE)
-        {
-          p_obj->server_is_full_ = false;
-        }
       rc = stream_to_clients (p_obj, p_hdl);
     }
 
@@ -374,10 +338,9 @@ static OMX_ERRORTYPE
 icer_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
                         void *ap_arg)
 {
-  icer_prc_t *p_obj = ap_obj;
+  icer_prc_t *p_obj      = ap_obj;
   assert (NULL != p_obj);
   TIZ_LOGN (TIZ_NOTICE, tiz_srv_get_hdl (p_obj), "Received timer event ");
-  p_obj->server_is_full_ = false;
   return stream_to_clients (p_obj, tiz_srv_get_hdl (p_obj));
 }
 
@@ -391,17 +354,27 @@ icer_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 
   assert (NULL != ap_obj);
   assert (NULL != p_krn);
-
   assert (0 == a_pid);
+
+  p_obj->port_disabled_ = false;
 
   if (OMX_ErrorNone != (rc = retrieve_mp3_settings (p_obj, &(p_obj->mp3type))))
     {
       return rc;
     }
 
+  
   icer_con_set_mp3_settings (p_obj->p_server_, p_obj->mp3type.nBitRate,
                              p_obj->mp3type.nChannels, p_obj->mp3type.nSampleRate);
 
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+icer_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
+{
+  icer_prc_t *p_obj = (icer_prc_t *) ap_obj;
+  p_obj->port_disabled_ = true;
   return OMX_ErrorNone;
 }
 
@@ -428,6 +401,7 @@ icer_prc_init (void)
          dtor, icer_proc_dtor,
          tiz_prc_buffers_ready, icer_proc_buffers_ready,
          tiz_prc_port_enable, icer_proc_port_enable,
+         tiz_prc_port_disable, icer_proc_port_disable,
          tiz_srv_allocate_resources, icer_proc_allocate_resources,
          tiz_srv_deallocate_resources, icer_proc_deallocate_resources,
          tiz_srv_prepare_to_transfer, icer_proc_prepare_to_transfer,

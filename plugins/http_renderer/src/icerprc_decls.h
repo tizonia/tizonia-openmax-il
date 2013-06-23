@@ -51,9 +51,8 @@ extern "C"
     OMX_U32 lstn_port_;
     OMX_STRING mount_name_;
     OMX_U32 max_clients_;
-    OMX_U32 burst_size_;
-    bool server_is_full_;
-    bool eos_;
+    bool awaiting_buffers_;
+    bool port_disabled_;
     int lstn_sockfd_;
     icer_server_t *p_server_;
     OMX_BUFFERHEADERTYPE *p_inhdr_;

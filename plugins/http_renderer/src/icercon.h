@@ -65,8 +65,6 @@ extern "C"
 
   int icer_con_get_server_fd (const icer_server_t * ap_server);
 
-  int icer_con_get_listeners_count (const icer_server_t * ap_server);
-
   void icer_con_set_mp3_settings (icer_server_t * ap_server,
                                   OMX_U32 a_bitrate,
                                   OMX_U32 a_num_channels,
