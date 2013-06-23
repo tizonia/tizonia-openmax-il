@@ -128,9 +128,12 @@ mp3port_SetParameter (const void *ap_obj,
 
         switch (p_mp3type->nSampleRate)
           {
-          case 32000:
-          case 44100:
-          case 48000:
+          case 16000:           /* MPEG-2 */
+          case 24000:           /* MPEG-2 */
+          case 22050:           /* MPEG-2 */
+          case 32000:           /* MPEG-1 */
+          case 44100:           /* MPEG-1 */
+          case 48000:           /* MPEG-1 */
             {
               break;
             }
