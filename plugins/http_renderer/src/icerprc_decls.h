@@ -57,6 +57,7 @@ extern "C"
     icer_server_t *p_server_;
     OMX_BUFFERHEADERTYPE *p_inhdr_;
     OMX_AUDIO_PARAM_MP3TYPE mp3type;
+    OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mountpoint_type_;
   };
 
 #ifdef __cplusplus

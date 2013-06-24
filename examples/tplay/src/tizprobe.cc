@@ -42,12 +42,34 @@ extern "C"
 #include <libavdevice/avdevice.h>
 }
 
-static AVDictionary *format_opts;
+static AVDictionary  *format_opts;
 static AVInputFormat *iformat = NULL;
+
+static void
+dump_artist_title_to_string(AVDictionary *m, std::string &stream_title)
+{
+  AVDictionaryEntry *tag = NULL;
+  std::string artist, title;
+
+  while ((tag = av_dict_get (m, "", tag, AV_DICT_IGNORE_SUFFIX)))
+    {
+      if (0 == strcmp("artist", tag->key))
+        {
+          artist.assign (tag->value);
+        }
+      else if (0 == strcmp("title", tag->key))
+        {
+          title.assign (tag->value);
+        }
+    }
+  stream_title.assign (artist);
+  stream_title.append (" - ");
+  stream_title.append (title);
+}
 
 static int
 open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
-                 const bool quiet)
+                 std::string &stream_title, const bool quiet)
 {
   int err, i;
   AVFormatContext *fmt_ctx = NULL;
@@ -69,6 +91,8 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
     {
       return err;
     }
+
+  dump_artist_title_to_string (fmt_ctx->metadata, stream_title);
 
   if (!quiet)
     {
@@ -133,7 +157,8 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
 
 }
 
-OMX_PORTDOMAINTYPE tizprobe::get_omx_domain ()
+OMX_PORTDOMAINTYPE
+tizprobe::get_omx_domain ()
 {
   if (OMX_PortDomainMax == domain_)
     {
@@ -152,7 +177,7 @@ tizprobe::probe_file ()
   AVCodecContext *cc = NULL;
   CodecID codec_id = CODEC_ID_PROBE;
 
-  if ((ret = open_input_file (&fmt_ctx, uri_.c_str (), quiet_)))
+  if ((ret = open_input_file (&fmt_ctx, uri_.c_str (), stream_title_, quiet_)))
     {
       return ret;
     }
@@ -178,7 +203,7 @@ tizprobe::probe_file ()
       mp3type_.nBitRate      = cc->bit_rate;
       mp3type_.nChannels     = cc->channels;
       pcmtype_.nChannels     = cc->channels;
-      
+
       if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
         {
           pcmtype_.eNumData = OMX_NumericalDataUnsigned;
@@ -246,4 +271,14 @@ tizprobe::get_vp8_codec_info (OMX_VIDEO_PARAM_VP8TYPE & vp8type)
     }
   vp8type = vp8type_;
   return;
+}
+
+std::string
+tizprobe::get_stream_title ()
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file ();
+    }
+  return stream_title_;
 }
