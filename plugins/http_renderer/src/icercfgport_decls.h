@@ -43,7 +43,7 @@ extern "C"
   {
     /* Object */
     const tiz_configport_t _;
-    OMX_TIZONIA_PARAM_HTTPSERVERTYPE http_conf_;
+    OMX_TIZONIA_HTTPSERVERTYPE http_conf_;
   };
 
 #ifdef __cplusplus

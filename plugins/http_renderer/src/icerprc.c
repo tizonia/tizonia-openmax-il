@@ -187,13 +187,13 @@ icer_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
   void *p_krn = tiz_get_krn (p_hdl);
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
+  OMX_TIZONIA_HTTPSERVERTYPE httpsrv;
 
   assert (NULL != ap_obj);
   assert (NULL != p_krn);
 
   /* Retrieve http server configuration from the component's config port */
-  httpsrv.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
+  httpsrv.nSize = sizeof (OMX_TIZONIA_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
   if (OMX_ErrorNone
       != (rc = tiz_api_GetParameter (p_krn, p_hdl,

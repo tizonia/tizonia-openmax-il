@@ -31,6 +31,7 @@
 
 #include "OMX_Core.h"
 #include "OMX_Types.h"
+#include "OMX_Audio.h"
 
 #define OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN   0x00000004
 
@@ -56,30 +57,45 @@ typedef struct OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE
 } OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE;
 
 
-/* Shoutcast Renderer */
+/* Definitions for icecast-like source and sink components */
+#define OMX_ROLE_AUDIO_RENDERER_ICECAST_MP3   "audio_renderer.icecast.mp3"
+#define OMX_ROLE_AUDIO_RENDERER_ICECAST_VORBIS   "audio_renderer.icecast.vorbis"
 
+#define OMX_TizoniaIndexParamHttpServer 0x7F000002           /**< reference: OMX_TIZONIA_HTTPSERVERTYPE */
+#define OMX_TizoniaIndexParamIcecastMountpoint 0x7F000003    /**< reference: OMX_TIZONIA_ICECASTMOUNTPOINTTYPE */
+#define OMX_TizoniaIndexConfigIcecastMetadata 0x7F000004     /**< reference: OMX_TIZONIA_ICECASTMETADATATYPE */
 
-#define OMX_ROLE_AUDIO_RENDERER_SHOUTCAST_MP3   "audio_renderer.shoutcast.mp3"
-#define OMX_ROLE_AUDIO_RENDERER_SHOUTCAST_VORBIS   "audio_renderer.shoutcast.vorbis"
+#define OMX_TIZONIA_ICECAST_STRING_SIZE 80
 
-#define OMX_TizoniaIndexParamHttpServer 0x7F000002           /**< reference: OMX_TIZONIA_PARAM_HTTPSERVERTYPE */
-#define OMX_TizoniaIndexConfigShoutcastMetadata 0x7F000003   /**< reference: OMX_TIZONIA_AUDIO_CONFIG_SHOUTCASTMETADATATYPE */
-
-typedef struct OMX_TIZONIA_PARAM_HTTPSERVERTYPE {
+typedef struct OMX_TIZONIA_HTTPSERVERTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
+    OMX_STRING cBindAddress[OMX_MAX_STRINGNAME_SIZE];
     OMX_U32 nListeningPort;
     OMX_U32 nMaxClients;
-} OMX_TIZONIA_PARAM_HTTPSERVERTYPE;
+} OMX_TIZONIA_HTTPSERVERTYPE;
 
-typedef struct OMX_TIZONIA_CONFIG_SHOUTCASTMETADATATYPE {
+typedef struct OMX_TIZONIA_ICECASTMOUNTPOINTTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
-    OMX_STRING cMountPoint[OMX_MAX_STRINGNAME_SIZE];
+    OMX_STRING cName[OMX_MAX_STRINGNAME_SIZE];
     OMX_U32 nIcyMetadataPeriod;
-    OMX_U32 nMetadataSize;
-    OMX_U8 nMetadata[1];
-} OMX_TIZONIA_AUDIO_CONFIG_SHOUTCASTMETADATATYPE;
+    OMX_BOOL bBurstOnConnect;
+    OMX_U32 nBurstSize;
+    OMX_U32 nMaxClients;
+    OMX_AUDIO_CODINGTYPE eEncoding;
+    OMX_STRING cStationName[OMX_TIZONIA_ICECAST_STRING_SIZE];
+    OMX_STRING cStationDescription[OMX_TIZONIA_ICECAST_STRING_SIZE];
+    OMX_STRING cStationGenre[OMX_TIZONIA_ICECAST_STRING_SIZE];
+    OMX_STRING cStationUrl[OMX_TIZONIA_ICECAST_STRING_SIZE];
+} OMX_TIZONIA_ICECASTMOUNTPOINTTYPE;
+
+typedef struct OMX_TIZONIA_ICECASTMETADATATYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_STRING cStreamTitle[OMX_TIZONIA_ICECAST_STRING_SIZE];
+} OMX_TIZONIA_ICECASTMETADATATYPE;
 
 #endif /* OMX_TizoniaExt_h */

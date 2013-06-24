@@ -159,8 +159,8 @@ tizstreamsrvgraph::configure_streamsrv_graph ()
   tiz_check_omx_err (OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
                                        &mp3type));
 
-  OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
-  httpsrv.nSize             = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
+  OMX_TIZONIA_HTTPSERVERTYPE httpsrv;
+  httpsrv.nSize             = sizeof (OMX_TIZONIA_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
 
   tiz_check_omx_err
