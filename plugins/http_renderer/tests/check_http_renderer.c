@@ -503,7 +503,7 @@ START_TEST (test_http_streaming)
   check_common_context_t *p_ctx = NULL;
   OMX_BOOL timedout = OMX_FALSE;
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
-  OMX_TIZONIA_PARAM_HTTPSERVERTYPE httpsrv;
+  OMX_TIZONIA_HTTPSERVERTYPE httpsrv;
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
   OMX_BUFFERHEADERTYPE **p_hdrlst;
   OMX_U32 i = 0;
@@ -546,7 +546,7 @@ START_TEST (test_http_streaming)
   /* -------------------------------- */
   /* Retrieve the http server params  */
   /* -------------------------------- */
-  httpsrv.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
+  httpsrv.nSize = sizeof (OMX_TIZONIA_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
   error = OMX_GetParameter (p_hdl, OMX_TizoniaIndexParamHttpServer, &httpsrv);
   TIZ_LOG (TIZ_TRACE, "OMX_GetParameter(OMX_TizoniaIndexParamHttpServer) = [%s]",
@@ -556,7 +556,7 @@ START_TEST (test_http_streaming)
   /* ---------------------------------------- */
   /* Now set the desired http server settings */
   /* ---------------------------------------- */
-  httpsrv.nSize = sizeof (OMX_TIZONIA_PARAM_HTTPSERVERTYPE);
+  httpsrv.nSize = sizeof (OMX_TIZONIA_HTTPSERVERTYPE);
   httpsrv.nVersion.nVersion = OMX_VERSION;
   httpsrv.nListeningPort = 8011;
   httpsrv.nMaxClients = 5;
