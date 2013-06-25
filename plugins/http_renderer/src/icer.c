@@ -36,7 +36,7 @@
 
 #include "tizosal.h"
 #include "tizscheduler.h"
-#include "tizmp3port.h"
+#include "icermp3port.h"
 #include "icercfgport.h"
 #include "icerprc.h"
 
@@ -90,8 +90,8 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
   mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
   mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
-  tiz_mp3port_init ();
-  p_mp3port = factory_new (tizmp3port, &mp3_port_opts, &encodings, &mp3type);
+  icer_mp3port_init ();
+  p_mp3port = factory_new (icermp3port, &mp3_port_opts, &encodings, &mp3type);
   assert (p_mp3port);
 
   return p_mp3port;

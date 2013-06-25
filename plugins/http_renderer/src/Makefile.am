@@ -20,6 +20,8 @@ lib_LTLIBRARIES = libtizicesink.la
 noinst_HEADERS = \
 	icercfgport.h \
 	icercfgport_decls.h \
+	icermp3port.h \
+	icermp3port_decls.h \
 	icercon.h \
 	icerprc.h \
 	icerprc_decls.h
@@ -27,6 +29,7 @@ noinst_HEADERS = \
 libtizicesink_la_SOURCES = \
 	icer.c \
 	icercfgport.c \
+	icermp3port.c \
 	icercon.c \
 	icerprc.c
 

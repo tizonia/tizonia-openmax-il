@@ -56,7 +56,6 @@ typedef struct OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE
   OMX_BOOL bEnabled;
 } OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE;
 
-
 /* Definitions for icecast-like source and sink components */
 #define OMX_ROLE_AUDIO_RENDERER_ICECAST_MP3   "audio_renderer.icecast.mp3"
 #define OMX_ROLE_AUDIO_RENDERER_ICECAST_VORBIS   "audio_renderer.icecast.vorbis"
