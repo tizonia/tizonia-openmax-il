@@ -106,6 +106,7 @@ icer_mp3port_SetParameter (const void *ap_obj,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   icer_mp3port_t *p_obj = (icer_mp3port_t *) ap_obj;
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
   if (OMX_TizoniaIndexParamIcecastMountpoint == a_index)
     {
@@ -120,7 +121,7 @@ icer_mp3port_SetParameter (const void *ap_obj,
     }
   else
     {
-      /* Delegate to the base port */
+      /* Try the parent's indexes */
       return super_SetParameter (icermp3port,
                                  ap_obj, ap_hdl, a_index, ap_struct);
     }
@@ -186,12 +187,12 @@ icer_mp3port_init (void)
 {
   if (!icermp3port)
     {
-      tiz_configport_init ();
+      tiz_mp3port_init ();
       icermp3port =
         factory_new
-        (tizconfigport_class,
+        (tizmp3port_class,
          "icermp3port",
-         tizconfigport,
+         tizmp3port,
          sizeof (icer_mp3port_t),
          ctor, icer_mp3port_ctor,
          dtor, icer_mp3port_dtor,

@@ -46,6 +46,14 @@ extern "C"
     OMX_AUDIO_PARAM_MP3TYPE mp3type_;
   };
 
+  typedef struct tiz_mp3port_class tiz_mp3port_class_t;
+  struct tiz_mp3port_class
+  {
+    /* Class */
+    const tiz_audioport_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
+
 #ifdef __cplusplus
 }
 #endif

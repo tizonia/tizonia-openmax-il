@@ -392,14 +392,36 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 }
 
 /*
+ * tizmp3port_class
+ */
+
+static void *
+mp3port_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (tizmp3port_class, ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *tizmp3port;
+const void *tizmp3port, *tizmp3port_class;
 
 void
 tiz_mp3port_init (void)
 {
+  if (!tizmp3port_class)
+    {
+      tiz_port_init ();
+      tizmp3port_class = factory_new (tizport_class,
+                                        "tizmp3port_class",
+                                        tizport_class,
+                                        sizeof (tiz_mp3port_class_t),
+                                        ctor, mp3port_class_ctor, 0);
+
+    }
+
   if (!tizmp3port)
     {
       tiz_audioport_init ();

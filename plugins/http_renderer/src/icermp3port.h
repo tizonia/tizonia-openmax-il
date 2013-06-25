@@ -36,7 +36,7 @@ extern "C"
 
 #include "OMX_Core.h"
 #include "OMX_Types.h"
-#include "tizconfigport.h"
+#include "tizmp3port.h"
 
 /* factory_new(icermp3port, ...); */
   extern const void *icermp3port;
