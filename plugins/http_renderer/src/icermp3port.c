@@ -21,7 +21,7 @@
  * @file   icermp3port.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Http renderer mp3 port implementation
+ * @brief Tizonia OpenMAX IL - Http renderer's specialised mp3 port
  *
  *
  */
@@ -115,7 +115,7 @@ icer_mp3port_SetParameter (const void *ap_obj,
       p_obj->mountpoint_.cStationName [OMX_MAX_STRINGNAME_SIZE - 1]        = '\000';
       p_obj->mountpoint_.cStationDescription [OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       p_obj->mountpoint_.cStationGenre [OMX_MAX_STRINGNAME_SIZE - 1]       = '\000';
-      p_obj->mountpoint_.cStationUrl [OMX_MAX_STRINGNAME_SIZE - 1]       = '\000';
+      p_obj->mountpoint_.cStationUrl [OMX_MAX_STRINGNAME_SIZE - 1]         = '\000';
       TIZ_LOGN (TIZ_TRACE, ap_hdl, "Station Name [%s]...",
                 p_obj->mountpoint_.cStationName);
     }

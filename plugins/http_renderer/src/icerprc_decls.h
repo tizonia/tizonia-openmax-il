@@ -46,18 +46,16 @@ extern "C"
   {
     /* Object */
     const tiz_prc_t _;
-    OMX_STRING bind_address_;   /* if this is null, the server will listen on all
-                                 * interfaces. */
-    OMX_U32 lstn_port_;
+    OMX_STRING bind_address_;
     OMX_STRING mount_name_;
-    OMX_U32 max_clients_;
     bool awaiting_buffers_;
     bool port_disabled_;
     int lstn_sockfd_;
     icer_server_t *p_server_;
     OMX_BUFFERHEADERTYPE *p_inhdr_;
-    OMX_AUDIO_PARAM_MP3TYPE mp3type;
-    OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mountpoint_type_;
+    OMX_AUDIO_PARAM_MP3TYPE mp3type_;
+    OMX_TIZONIA_HTTPSERVERTYPE server_info_;
+    OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mountpoint_;
   };
 
 #ifdef __cplusplus

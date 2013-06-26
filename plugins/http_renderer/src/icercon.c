@@ -84,6 +84,19 @@ struct icer_listener_buffer
   bool sync_point;
 };
 
+typedef struct icer_mount icer_mount_t;
+struct icer_mount
+{
+  OMX_STRING *p_mount_name;
+  OMX_STRING *p_station_name;
+  OMX_STRING *p_station_description;
+  OMX_STRING *p_station_genre;
+  OMX_STRING *p_station_url;
+  OMX_U32 metadata_period;
+  OMX_U32 burst_size;
+  OMX_U32 max_clients;
+};
+
 typedef struct icer_connection icer_connection_t;
 struct icer_connection
 {
@@ -106,7 +119,7 @@ struct icer_connection
 typedef struct icer_listener icer_listener_t;
 struct icer_listener
 {
-icer_connection_t *p_con;
+  icer_connection_t *p_con;
   int respcode;
   long intro_offset;
   unsigned long pos;
@@ -135,6 +148,7 @@ struct icer_server
   OMX_U32 burst_size;
   double wait_time;
   double pkts_per_sec;
+  icer_mount_t mountpoint;
 };
 
 static void destroy_listener (icer_listener_t * ap_lstnr);
@@ -1349,8 +1363,11 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
   p_server->sample_rate = 0;
   p_server->bytes_per_frame = 144 * 128000 / 44100;
   p_server->burst_size = ICE_MEDIUM_BURST_SIZE;
-  p_server->pkts_per_sec =
+  p_server->pkts_per_sec = ((double) p_server->bytes_per_frame
+                            * (double) (1000/26)
+                            / (double) p_server->burst_size);
   p_server->wait_time = (1 / (double) p_server->pkts_per_sec);
+  tiz_mem_set (&(p_server->mountpoint), 0, sizeof (icer_mount_t));
 
   if (NULL != a_address)
     {
@@ -1772,4 +1789,17 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
             "pkts/s [%f]", a_sample_rate, a_bitrate, ap_server->burst_size,
             ap_server->bytes_per_frame, ap_server->wait_time,
             ap_server->pkts_per_sec);
+}
+
+void
+icer_con_set_mountpoint_settings (icer_server_t * ap_server,
+                                  OMX_STRING *ap_mount_name,
+                                  OMX_STRING *ap_station_name,
+                                  OMX_STRING *ap_station_description,
+                                  OMX_STRING *ap_station_genre,
+                                  OMX_STRING *ap_station_url,
+                                  OMX_U32 metadata_period,
+                                  OMX_U32 burst_size,
+                                  OMX_U32 max_clients)
+{
 }

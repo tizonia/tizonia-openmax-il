@@ -21,7 +21,7 @@
  * @file   icermp3port.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Http renderer mp3 input port class
+ * @brief Tizonia OpenMAX IL - Http renderer's specialised mp3 port class
  *
  *
  */
