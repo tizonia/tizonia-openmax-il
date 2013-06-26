@@ -87,11 +87,11 @@ struct icer_listener_buffer
 typedef struct icer_mount icer_mount_t;
 struct icer_mount
 {
-  OMX_STRING *p_mount_name;
-  OMX_STRING *p_station_name;
-  OMX_STRING *p_station_description;
-  OMX_STRING *p_station_genre;
-  OMX_STRING *p_station_url;
+  OMX_U8 mount_name[OMX_MAX_STRINGNAME_SIZE];
+  OMX_U8 station_name[OMX_MAX_STRINGNAME_SIZE];
+  OMX_U8 station_description[OMX_MAX_STRINGNAME_SIZE];
+  OMX_U8 station_genre[OMX_MAX_STRINGNAME_SIZE];
+  OMX_U8 station_url[OMX_MAX_STRINGNAME_SIZE];
   OMX_U32 metadata_period;
   OMX_U32 burst_size;
   OMX_U32 max_clients;
@@ -829,17 +829,19 @@ send_http_error (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 }
 
 static ssize_t
-build_http_positive_response (char *ap_buf, size_t len, OMX_U32 a_bitrate,
-                              OMX_U32 a_num_channels, OMX_U32 a_sample_rate)
+build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
+                              size_t len, OMX_U32 a_bitrate,
+                              OMX_U32 a_num_channels,
+                              OMX_U32 a_sample_rate)
 {
   const char *http_version = "1.0";
   char status_buffer[80];
   char contenttype_buffer[80];
   char icybr_buffer[80];
-  char icyname_buffer[80];
-  char icydescription_buffer[80];
-  char icygenre_buffer[80];
-  char icyurl_buffer[80];
+  char icyname_buffer[OMX_MAX_STRINGNAME_SIZE];
+  char icydescription_buffer[OMX_MAX_STRINGNAME_SIZE];
+  char icygenre_buffer[OMX_MAX_STRINGNAME_SIZE];
+  char icyurl_buffer[OMX_MAX_STRINGNAME_SIZE];
   char icypub_buffer[80];
   char iceaudioinfo_buffer[80];
   char icymetaint_buffer[80];
@@ -847,13 +849,10 @@ build_http_positive_response (char *ap_buf, size_t len, OMX_U32 a_bitrate,
   const char *statusmsg = "OK";
   const char *contenttype = "audio/mpeg";
   int status = 200;
-  const char *station = "Tizonia Radio";
-  const char *description = "The finest radio station";
-  const char *genre = "Pop/rock";
-  const char *url = "http://tizonia.org";
   int pub = 0;
   bool metadata = false;
 
+  assert (NULL != ap_server);
   assert (NULL != ap_buf);
 
   /* HTTP status line */
@@ -875,18 +874,20 @@ build_http_positive_response (char *ap_buf, size_t len, OMX_U32 a_bitrate,
 
   /* icy-name header */
   snprintf (icyname_buffer, sizeof (icyname_buffer), "icy-name:%s\r\n",
-            station);
+            ap_server->mountpoint.station_name);
 
   /* icy-decription header */
   snprintf (icydescription_buffer, sizeof (icydescription_buffer),
-            "icy-description:%s\r\n", description);
+            "icy-description:%s\r\n",
+            ap_server->mountpoint.station_description);
 
   /* icy-genre header */
   snprintf (icygenre_buffer, sizeof (icygenre_buffer), "icy-genre:%s\r\n",
-            genre);
+            ap_server->mountpoint.station_genre);
 
   /* icy-url header */
-  snprintf (icyurl_buffer, sizeof (icyurl_buffer), "icy-url:%s\r\n", url);
+  snprintf (icyurl_buffer, sizeof (icyurl_buffer), "icy-url:%s\r\n",
+            ap_server->mountpoint.station_url);
 
   /* icy-pub header */
   snprintf (icypub_buffer, sizeof (icypub_buffer), "icy-pub:%u\r\n", pub);
@@ -1003,7 +1004,8 @@ handle_listeners_request (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
     }
 
   /* The request seems ok. Now build the response */
-  if (0 == (to_write = build_http_positive_response (ap_lstnr->buf.p_data,
+  if (0 == (to_write = build_http_positive_response (ap_server,
+                                                     ap_lstnr->buf.p_data,
                                                      ICE_LISTENER_BUF_SIZE - 1,
                                                      ap_server->bitrate,
                                                      ap_server->num_channels,
@@ -1793,13 +1795,43 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
 
 void
 icer_con_set_mountpoint_settings (icer_server_t * ap_server,
-                                  OMX_STRING *ap_mount_name,
-                                  OMX_STRING *ap_station_name,
-                                  OMX_STRING *ap_station_description,
-                                  OMX_STRING *ap_station_genre,
-                                  OMX_STRING *ap_station_url,
-                                  OMX_U32 metadata_period,
-                                  OMX_U32 burst_size,
-                                  OMX_U32 max_clients)
+                                  OMX_U8 *ap_mount_name,
+                                  OMX_U8 *ap_station_name,
+                                  OMX_U8 *ap_station_description,
+                                  OMX_U8 *ap_station_genre,
+                                  OMX_U8 *ap_station_url,
+                                  OMX_U32 a_metadata_period,
+                                  OMX_U32 a_burst_size,
+                                  OMX_U32 a_max_clients)
 {
+  assert (NULL != ap_server);
+  assert (NULL != ap_mount_name);
+  assert (NULL != ap_station_name);
+  assert (NULL != ap_station_description);
+  assert (NULL != ap_station_genre);
+  assert (NULL != ap_station_url);
+
+  strncpy ((char *) ap_server->mountpoint.mount_name,
+           (char *) ap_mount_name, OMX_MAX_STRINGNAME_SIZE);
+  ap_server->mountpoint.mount_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+
+  strncpy ((char *) ap_server->mountpoint.station_name,
+           (char *) ap_station_name, OMX_MAX_STRINGNAME_SIZE);
+  ap_server->mountpoint.station_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  
+  strncpy ((char *) ap_server->mountpoint.station_description,
+           (char *) ap_station_description, OMX_MAX_STRINGNAME_SIZE);
+  ap_server->mountpoint.station_description[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  
+  strncpy ((char *) ap_server->mountpoint.station_genre,
+           (char *) ap_station_genre, OMX_MAX_STRINGNAME_SIZE);
+  ap_server->mountpoint.station_genre[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  
+  strncpy ((char *) ap_server->mountpoint.station_url,
+           (char *) ap_station_url, OMX_MAX_STRINGNAME_SIZE);
+  ap_server->mountpoint.station_url[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+
+  ap_server->mountpoint.metadata_period = a_metadata_period;
+  ap_server->mountpoint.burst_size      = a_burst_size;
+  ap_server->mountpoint.max_clients     = a_max_clients;
 }

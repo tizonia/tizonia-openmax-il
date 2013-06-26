@@ -71,11 +71,11 @@ extern "C"
                                   OMX_U32 a_sample_rate);
 
   void icer_con_set_mountpoint_settings (icer_server_t * ap_server,
-                                         OMX_STRING *ap_mount_name,
-                                         OMX_STRING *ap_station_name,
-                                         OMX_STRING *ap_station_description,
-                                         OMX_STRING *ap_station_genre,
-                                         OMX_STRING *ap_station_url,
+                                         OMX_U8 *ap_mount_name,
+                                         OMX_U8 *ap_station_name,
+                                         OMX_U8 *ap_station_description,
+                                         OMX_U8 *ap_station_genre,
+                                         OMX_U8 *ap_station_url,
                                          OMX_U32 metadata_period,
                                          OMX_U32 burst_size,
                                          OMX_U32 max_clients);

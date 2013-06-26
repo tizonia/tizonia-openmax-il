@@ -44,6 +44,10 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.mp3port"
 #endif
 
+#define ICE_METADATA_INTERVAL          16000
+#define ICE_INITIAL_BURST_SIZE         80000
+#define ICE_MAX_CLIENTS_PER_MOUNTPOINT 10
+
 /*
  * icermp3port class
  */
@@ -60,10 +64,28 @@ icer_mp3port_ctor (void *ap_obj, va_list * app)
   p_obj->mountpoint_.nVersion.nVersion = OMX_VERSION;
   p_obj->mountpoint_.nPortIndex        = 0;
 
+  snprintf ((char *) p_obj->mountpoint_.cMountName,
+            sizeof (p_obj->mountpoint_.cMountName), "/");
+  snprintf ((char *) p_obj->mountpoint_.cStationName,
+            sizeof (p_obj->mountpoint_.cStationName), "Tizonia Radio!");
+  snprintf ((char *) p_obj->mountpoint_.cStationDescription,
+            sizeof (p_obj->mountpoint_.cStationDescription), "Cool Radio Station");
+  snprintf ((char *) p_obj->mountpoint_.cStationGenre,
+            sizeof (p_obj->mountpoint_.cStationGenre), "Some punchy genre");
+  snprintf ((char *) p_obj->mountpoint_.cStationUrl,
+            sizeof (p_obj->mountpoint_.cStationUrl), "http://tizonia.org");
+
+  p_obj->mountpoint_.eEncoding          = OMX_AUDIO_CodingMP3;
+  p_obj->mountpoint_.nIcyMetadataPeriod = ICE_METADATA_INTERVAL;
+  p_obj->mountpoint_.bBurstOnConnect    = OMX_TRUE;
+  p_obj->mountpoint_.nBurstSize         = ICE_INITIAL_BURST_SIZE;
+  p_obj->mountpoint_.nMaxClients        = ICE_MAX_CLIENTS_PER_MOUNTPOINT;
+
   p_obj->metadata_.nSize             = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE);
   p_obj->metadata_.nVersion.nVersion = OMX_VERSION;
   p_obj->metadata_.nPortIndex        = 0;
-  
+  snprintf ((char *) p_obj->metadata_.cStreamTitle,
+            sizeof (p_obj->metadata_.cStreamTitle), "This is the song's title");
 
   return p_obj;
 }
