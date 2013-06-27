@@ -1334,7 +1334,8 @@ krn_find_managing_port (const tiz_krn_t * ap_krn,
 
       if (OMX_ErrorNone == rc)
         {
-          /* Now we retrieve the port index from the struct */
+          /* Now we retrieve the port index from the struct. */
+          /* TODO: This is not the best way to do this */
           p_port_index = (OMX_U32 *) ap_struct +
             sizeof (OMX_U32) / sizeof (OMX_U32) +
             sizeof (OMX_VERSIONTYPE) / sizeof (OMX_U32);
