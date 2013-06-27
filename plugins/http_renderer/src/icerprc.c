@@ -304,16 +304,27 @@ icer_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                              p_obj->mp3type_.nChannels,
                              p_obj->mp3type_.nSampleRate);
 
-  /* Obtain mount point and station-related information */
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+            "Server starts listening on port [%d]",
+            p_obj->server_info_.nListeningPort);
+
+    /* Obtain mount point and station-related information */
   if (OMX_ErrorNone !=
       (rc = retrieve_mountpoint_settings (ap_obj, &(p_obj->mountpoint_))))
     {
       return rc;
     }
 
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
-            "Server starts listening on port [%d]",
-            p_obj->server_info_.nListeningPort);
+  icer_con_set_mountpoint_settings (p_obj->p_server_,
+                                    p_obj->mountpoint_.cMountName,
+                                    p_obj->mountpoint_.cStationName,
+                                    p_obj->mountpoint_.cStationDescription,
+                                    p_obj->mountpoint_.cStationGenre,
+                                    p_obj->mountpoint_.cStationUrl,
+                                    p_obj->mountpoint_.nIcyMetadataPeriod,
+                                    (p_obj->mountpoint_.bBurstOnConnect == OMX_TRUE
+                                     ? p_obj->mountpoint_.nBurstSize : 0),
+                                    p_obj->mountpoint_.nMaxClients);
 
   return icer_con_start_listening (p_obj->p_server_);
 }

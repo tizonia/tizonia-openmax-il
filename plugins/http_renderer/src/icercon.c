@@ -1701,6 +1701,10 @@ int
 icer_con_get_server_fd (const icer_server_t * ap_server)
 {
   assert (NULL != ap_server);
+  if (NULL == ap_server)
+    {
+      return ICE_RENDERER_SOCK_ERROR;
+    }
   return ap_server->lstn_sockfd;
 }
 
@@ -1719,6 +1723,11 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
   double rate_adjustment = 0;
 
   assert (NULL != ap_server);
+
+  if (NULL == ap_server)
+    {
+      return;
+    }
 
   ap_server->bitrate         = (a_bitrate != 0 ? a_bitrate : 128000);
   ap_server->num_channels    = (a_num_channels != 0 ? a_num_channels : 2);
@@ -1810,6 +1819,11 @@ icer_con_set_mountpoint_settings (icer_server_t * ap_server,
   assert (NULL != ap_station_description);
   assert (NULL != ap_station_genre);
   assert (NULL != ap_station_url);
+
+  if (NULL == ap_server)
+    {
+      return;
+    }
 
   strncpy ((char *) ap_server->mountpoint.mount_name,
            (char *) ap_mount_name, OMX_MAX_STRINGNAME_SIZE);
