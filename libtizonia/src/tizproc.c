@@ -48,6 +48,7 @@
 /* Forward declarations */
 static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_br (void *ap_obj, OMX_PTR ap_msg);
+static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_eio (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_etmr (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_estat (void *ap_obj, OMX_PTR ap_msg);
@@ -75,6 +76,7 @@ enum tiz_prc_msg_class
   {
     ETIZPrcMsgSendCommand = 0,
     ETIZPrcMsgBuffersReady,
+    ETIZPrcMsgConfig,
     ETIZPrcMsgEvIo,
     ETIZPrcMsgEvTimer,
     ETIZPrcMsgEvStat,
@@ -94,6 +96,13 @@ struct tiz_prc_msg_buffersready
 {
   OMX_BUFFERHEADERTYPE *p_buffer;
   OMX_U32 pid;
+};
+
+typedef struct tiz_prc_msg_configchange tiz_prc_msg_configchange_t;
+struct tiz_prc_msg_configchange
+{
+  OMX_U32 pid;
+  OMX_INDEXTYPE idx;
 };
 
 typedef struct tiz_prc_msg_ev_io tiz_prc_msg_ev_io_t;
@@ -126,6 +135,7 @@ struct tiz_prc_msg
   {
     tiz_prc_msg_sendcommand_t sc;
     tiz_prc_msg_buffersready_t br;
+    tiz_prc_msg_configchange_t cc;
     tiz_prc_msg_ev_io_t eio;
     tiz_prc_msg_ev_timer_t etmr;
     tiz_prc_msg_ev_stat_t estat;
@@ -138,6 +148,7 @@ typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_f) (void *ap_obj,
 static const tiz_prc_msg_dispatch_f tiz_prc_msg_to_fnt_tbl[] = {
   dispatch_sc,
   dispatch_br,
+  dispatch_config,
   dispatch_eio,
   dispatch_etmr,
   dispatch_estat,
@@ -227,6 +238,13 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
     }
 
   return rc;
+}
+
+static OMX_ERRORTYPE
+dispatch_config (void *ap_obj, OMX_PTR ap_msg)
+{
+  /* TODO */
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -515,6 +533,10 @@ struct tiz_prc_msg_str
 tiz_prc_msg_str_t tiz_prc_msg_to_str_tbl[] = {
   {ETIZPrcMsgSendCommand, "ETIZPrcMsgSendCommand"},
   {ETIZPrcMsgBuffersReady, "ETIZPrcMsgBuffersReady"},
+  {ETIZPrcMsgConfig,"ETIZPrcMsgConfig"},
+  {ETIZPrcMsgEvIo,"ETIZPrcMsgEvIo"},
+  {ETIZPrcMsgEvTimer,"ETIZPrcMsgEvTimer"},
+  {ETIZPrcMsgEvStat,"ETIZPrcMsgEvStat"},
   {ETIZPrcMsgMax, "ETIZPrcMsgMax"},
 };
 
@@ -872,6 +894,22 @@ tiz_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
+proc_config_change (const void *ap_obj, OMX_U32 a_pid,
+                    OMX_INDEXTYPE a_config_idx)
+{
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tiz_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
+                       OMX_INDEXTYPE a_config_idx)
+{
+  const tiz_prc_class_t *class = classOf (ap_obj);
+  assert (class->config_change);
+  return class->config_change (ap_obj, a_pid, a_config_idx);
+}
+
+static OMX_ERRORTYPE
 proc_io_ready (const void *ap_obj,
                tiz_event_io_t * ap_ev_io, int a_fd,
                int a_events)
@@ -956,6 +994,10 @@ proc_class_ctor (void *ap_obj, va_list * app)
         {
           *(voidf *) & p_obj->port_enable = method;
         }
+      else if (selector == (voidf) tiz_prc_config_change)
+        {
+          *(voidf *) & p_obj->config_change = method;
+        }
       else if (selector == (voidf) tiz_prc_io_ready)
         {
           *(voidf *) & p_obj->io_ready = method;
@@ -1020,6 +1062,7 @@ tiz_prc_init (void)
          tiz_prc_port_flush, proc_port_flush,
          tiz_prc_port_disable, proc_port_disable,
          tiz_prc_port_enable, proc_port_enable,
+         tiz_prc_config_change, proc_config_change,
          tiz_prc_io_ready, proc_io_ready,
          tiz_prc_timer_ready, proc_timer_ready,
          tiz_prc_stat_ready, proc_stat_ready,
