@@ -77,7 +77,9 @@ protected:
 
 private:
 
-  OMX_ERRORTYPE configure_streamsrv_graph ();
+  OMX_ERRORTYPE configure_server ();
+  OMX_ERRORTYPE configure_station ();
+  OMX_ERRORTYPE configure_stream ();
 
 private:
 

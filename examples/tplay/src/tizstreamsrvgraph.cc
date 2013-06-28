@@ -86,9 +86,67 @@ tizstreamsrvgraph::do_load ()
 }
 
 OMX_ERRORTYPE
-tizstreamsrvgraph::configure_streamsrv_graph ()
+tizstreamsrvgraph::configure_server ()
 {
-  OMX_ERRORTYPE ret = OMX_ErrorNone;
+  OMX_TIZONIA_HTTPSERVERTYPE httpsrv;
+  httpsrv.nSize             = sizeof (OMX_TIZONIA_HTTPSERVERTYPE);
+  httpsrv.nVersion.nVersion = OMX_VERSION;
+
+  tiz_check_omx_err
+    (OMX_GetParameter
+     (handles_[1],
+      static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamHttpServer),
+      &httpsrv));
+
+  tizstreamsrvconfig_ptr_t srv_config
+    = boost::dynamic_pointer_cast<tizstreamsrvconfig>(config_);
+  assert (srv_config);
+  httpsrv.nListeningPort = srv_config->get_port ();
+  httpsrv.nMaxClients    = 1; // the http renderer component supports only one
+                              // client, for now
+
+  return OMX_SetParameter
+    (handles_[1],
+     static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamHttpServer),
+     &httpsrv);
+}
+
+OMX_ERRORTYPE
+tizstreamsrvgraph::configure_station ()
+{
+  OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mount;
+  mount.nSize             = sizeof (OMX_TIZONIA_ICECASTMOUNTPOINTTYPE);
+  mount.nVersion.nVersion = OMX_VERSION;
+  mount.nPortIndex        = 0;
+
+  tiz_check_omx_err
+    (OMX_GetParameter
+     (handles_[1],
+      static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamIcecastMountpoint),
+      &mount));
+
+  snprintf ((char *) mount.cMountName, sizeof (mount.cMountName), "/");
+  snprintf ((char *) mount.cStationName, sizeof (mount.cStationName),
+            "Tizonia Radio Station");
+  snprintf ((char *) mount.cStationDescription,
+            sizeof (mount.cStationDescription),
+            "Audio Streaming with OpenMAX IL");
+  snprintf ((char *) mount.cStationGenre, sizeof (mount.cStationGenre),
+            "Rock");
+  snprintf ((char *) mount.cStationUrl, sizeof (mount.cStationUrl),
+            "http://tizonia.org");
+  mount.eEncoding   = OMX_AUDIO_CodingMP3;
+  mount.nMaxClients = 1;
+  return OMX_SetParameter
+    (handles_[1],
+     static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamIcecastMountpoint),
+     &mount);
+}
+
+OMX_ERRORTYPE
+tizstreamsrvgraph::configure_stream ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
            current_file_index_);
@@ -130,15 +188,15 @@ tizstreamsrvgraph::configure_streamsrv_graph ()
            OMX_MAX_STRINGNAME_SIZE);
   p_uritype->contentURI[strlen (probe_ptr_->get_uri ().c_str ())] = '\0';
 
-  ret = OMX_SetParameter (handles_[0], OMX_IndexParamContentURI,
+  rc = OMX_SetParameter (handles_[0], OMX_IndexParamContentURI,
                           p_uritype);
 
   tiz_mem_free (p_uritype);
   p_uritype = NULL;
 
-  if (OMX_ErrorNone != ret)
+  if (OMX_ErrorNone != rc)
     {
-      return ret;
+      return rc;
     }
 
   // Retrive the current mp3 settings from the rerender's input port
@@ -153,33 +211,45 @@ tizstreamsrvgraph::configure_streamsrv_graph ()
   mp3type_orig = mp3type;
 
   // Set the mp3 settings on the renderer's input port
-
   probe_ptr_->get_mp3_codec_info (mp3type);
   mp3type.nPortIndex = 0;
+
   tiz_check_omx_err (OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
                                        &mp3type));
 
-  OMX_TIZONIA_HTTPSERVERTYPE httpsrv;
-  httpsrv.nSize             = sizeof (OMX_TIZONIA_HTTPSERVERTYPE);
-  httpsrv.nVersion.nVersion = OMX_VERSION;
+  // Obtain the stream title
+  std::string stream_title = probe_ptr_->get_stream_title ();
+  size_t      title_len    = stream_title.length ();
+  if (title_len > OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1)
+    {
+      title_len = OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1;
+    }
 
-  tiz_check_omx_err
-    (OMX_GetParameter
-     (handles_[1],
-      static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamHttpServer),
-      &httpsrv));
+  // Set the stream title on to the renderer's input port
+  OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata = NULL;
+  if (NULL == (p_metadata
+               = (OMX_TIZONIA_ICECASTMETADATATYPE *) tiz_mem_calloc
+               (1, sizeof (OMX_TIZONIA_ICECASTMETADATATYPE)
+                + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)))
+    {
+      return OMX_ErrorInsufficientResources;
+    }
 
-  tizstreamsrvconfig_ptr_t srv_config
-    = boost::dynamic_pointer_cast<tizstreamsrvconfig>(config_);
-  assert (srv_config);
-  httpsrv.nListeningPort = srv_config->get_port ();
-  httpsrv.nMaxClients    = 1; // the http renderer component supports only one
-                              // client, for now
+  p_metadata->nSize             = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE);
+  p_metadata->nVersion.nVersion = OMX_VERSION;
+  p_metadata->nPortIndex        = 0;
+  snprintf ((char *) p_metadata->cStreamTitle, title_len, "%s",
+            stream_title.c_str ());
+  p_metadata->cStreamTitle[title_len] = '\000';
 
-  return OMX_SetParameter
+  rc = OMX_SetConfig
     (handles_[1],
-     static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamHttpServer),
-     &httpsrv);
+     static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexConfigIcecastMetadata),
+     p_metadata);
+
+  tiz_mem_free (p_metadata);
+  p_metadata = NULL;
+  return rc;
 }
 
 OMX_ERRORTYPE
@@ -204,7 +274,9 @@ tizstreamsrvgraph::do_execute ()
 
   if (current_file_index_ < file_list_.size ())
     {
-      tiz_check_omx_err (configure_streamsrv_graph ());
+      tiz_check_omx_err (configure_server ());
+      tiz_check_omx_err (configure_station ());
+      tiz_check_omx_err (configure_stream ());
       tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateLoaded));
       tiz_check_omx_err (transition_all (OMX_StateExecuting, OMX_StateIdle));
     }
@@ -255,7 +327,7 @@ tizstreamsrvgraph::do_eos (const OMX_HANDLETYPE handle)
       (void) disable_tunnel (tunnel_id);
       (void) transition_one (file_reader_id, OMX_StateIdle);
       (void) transition_one (file_reader_id, OMX_StateLoaded);
-      (void) configure_streamsrv_graph ();
+      (void) configure_stream ();
       (void) transition_one (file_reader_id, OMX_StateIdle);
       (void) transition_one (file_reader_id, OMX_StateExecuting);
       (void) enable_tunnel (tunnel_id);

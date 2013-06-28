@@ -46,7 +46,7 @@ static AVDictionary  *format_opts;
 static AVInputFormat *iformat = NULL;
 
 static void
-dump_artist_title_to_string(AVDictionary *m, std::string &stream_title)
+dump_artist_and_title_to_string(AVDictionary *m, std::string &stream_title)
 {
   AVDictionaryEntry *tag = NULL;
   std::string artist, title;
@@ -92,7 +92,7 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
       return err;
     }
 
-  dump_artist_title_to_string (fmt_ctx->metadata, stream_title);
+  dump_artist_and_title_to_string (fmt_ctx->metadata, stream_title);
 
   if (!quiet)
     {
