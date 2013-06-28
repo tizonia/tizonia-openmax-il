@@ -80,6 +80,9 @@ extern "C"
                                          OMX_U32 burst_size,
                                          OMX_U32 max_clients);
 
+  void icer_con_set_icecast_metadata (icer_server_t * ap_server,
+                                      OMX_U8 *ap_stream_title);
+
 #ifdef __cplusplus
 }
 #endif

@@ -156,12 +156,17 @@ fw_cfgport_SetParameter (const void *ap_obj,
         OMX_U32 uri_size =
           p_uri->nSize - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE);
 
+        if (uri_size > PATH_MAX)
+        {
+          uri_size = PATH_MAX;
+        }
+
         tiz_mem_free (p_obj->p_uri_);
         p_obj->p_uri_ = tiz_mem_calloc (1, uri_size);
-        strncpy (p_obj->p_uri_, (char *) p_uri->contentURI, uri_size);
         if (p_obj->p_uri_)
           {
-            p_uri->contentURI[uri_size - 1] = '\0';
+            strncpy (p_obj->p_uri_, (char *) p_uri->contentURI, uri_size);
+            p_uri->contentURI[uri_size - 1] = '\000';
           }
 
         TIZ_LOG (TIZ_TRACE, "Set URI [%s]...", p_obj->p_uri_);

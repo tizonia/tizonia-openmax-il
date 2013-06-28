@@ -432,6 +432,50 @@ icer_prc_port_disable (const void *ap_obj, OMX_U32 a_pid)
   return OMX_ErrorNone;
 }
 
+static OMX_ERRORTYPE
+icer_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
+                        OMX_INDEXTYPE a_config_idx)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const icer_prc_t *p_obj = ap_obj;
+
+  assert (NULL != ap_obj);
+
+  if (OMX_TizoniaIndexConfigIcecastMetadata == a_config_idx
+      && 0 == a_pid)
+    {
+      OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
+      void *p_krn = tiz_get_krn (p_hdl);
+      OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata = NULL;
+
+      if (NULL == (p_metadata = (OMX_TIZONIA_ICECASTMETADATATYPE *) tiz_mem_calloc
+                   (1, sizeof (OMX_TIZONIA_ICECASTMETADATATYPE)
+                    + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)))
+        {
+          return OMX_ErrorInsufficientResources;
+        }
+
+      /* Retrieve the updated icecast metadata from the input port */
+      p_metadata->nSize = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE);
+      p_metadata->nVersion.nVersion = OMX_VERSION;
+      p_metadata->nPortIndex = 0;
+      if (OMX_ErrorNone
+          != (rc = tiz_api_GetParameter (p_krn, p_hdl,
+                                         OMX_TizoniaIndexConfigIcecastMetadata,
+                                         p_metadata)))
+        {
+          TIZ_LOGN (TIZ_TRACE, p_hdl, "[%s] : Error retrieving "
+                    "OMX_TizoniaIndexConfigIcecastMetadata from port",
+                    tiz_err_to_str (rc));
+        }
+      else
+        {
+          icer_con_set_icecast_metadata (p_obj->p_server_,
+                                         p_metadata->cStreamTitle);
+        }
+    }
+  return rc;
+}
 
 /*
  * initialization
@@ -456,6 +500,7 @@ icer_prc_init (void)
          tiz_prc_buffers_ready, icer_prc_buffers_ready,
          tiz_prc_port_enable, icer_prc_port_enable,
          tiz_prc_port_disable, icer_prc_port_disable,
+         tiz_prc_config_change, icer_prc_config_change,
          tiz_srv_allocate_resources, icer_prc_allocate_resources,
          tiz_srv_deallocate_resources, icer_prc_deallocate_resources,
          tiz_srv_prepare_to_transfer, icer_prc_prepare_to_transfer,

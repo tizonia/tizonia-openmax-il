@@ -81,11 +81,7 @@ icer_mp3port_ctor (void *ap_obj, va_list * app)
   p_obj->mountpoint_.nBurstSize         = ICE_INITIAL_BURST_SIZE;
   p_obj->mountpoint_.nMaxClients        = ICE_MAX_CLIENTS_PER_MOUNTPOINT;
 
-  p_obj->metadata_.nSize             = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE);
-  p_obj->metadata_.nVersion.nVersion = OMX_VERSION;
-  p_obj->metadata_.nPortIndex        = 0;
-  snprintf ((char *) p_obj->metadata_.cStreamTitle,
-            sizeof (p_obj->metadata_.cStreamTitle), "This is the song's title");
+  p_obj->p_stream_title_ = NULL;
 
   return p_obj;
 }
@@ -93,6 +89,8 @@ icer_mp3port_ctor (void *ap_obj, va_list * app)
 static void *
 icer_mp3port_dtor (void *ap_obj)
 {
+  icer_mp3port_t *p_obj = ap_obj;
+  tiz_mem_free (p_obj->p_stream_title_);
   return super_dtor (icermp3port, ap_obj);
 }
 
@@ -153,21 +151,39 @@ icer_mp3port_SetParameter (const void *ap_obj,
 
 static OMX_ERRORTYPE
 icer_mp3port_GetConfig (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const icer_mp3port_t *p_obj = ap_obj;
 
   if (OMX_TizoniaIndexConfigIcecastMetadata == a_index)
     {
-      memcpy (ap_struct, &(p_obj->metadata_),
-              sizeof (OMX_TIZONIA_ICECASTMETADATATYPE));
+      OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata
+        = (OMX_TIZONIA_ICECASTMETADATATYPE *) ap_struct;
+      OMX_U32 metadata_buf_size = p_metadata->nSize
+        - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE) - sizeof (OMX_U32);
+      OMX_U32 stream_title_len = strlen (p_obj->p_stream_title_);
+
+      assert (stream_title_len  < OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE);
+      if (metadata_buf_size < (stream_title_len + 1)
+          && metadata_buf_size < OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)
+        {
+          return OMX_ErrorBadParameter;
+        }
+
+      p_metadata->nVersion.nVersion = OMX_VERSION;
+      if (NULL != p_metadata->cStreamTitle)
+        {
+          strncpy ((char *) p_metadata->cStreamTitle, p_obj->p_stream_title_,
+                   stream_title_len);
+          p_metadata->cStreamTitle[stream_title_len] = '\000';
+        }
     }
   else
     {
       /* Delegate to the base port */
       return super_GetConfig (icermp3port,
-                                 ap_obj, ap_hdl, a_index, ap_struct);
+                              ap_obj, ap_hdl, a_index, ap_struct);
     }
 
   return OMX_ErrorNone;
@@ -182,11 +198,27 @@ icer_mp3port_SetConfig (const void *ap_obj,
 
   if (OMX_TizoniaIndexConfigIcecastMetadata == a_index)
     {
-      memcpy (&(p_obj->metadata_), ap_struct,
-              sizeof (OMX_TIZONIA_ICECASTMETADATATYPE));
-      p_obj->metadata_.cStreamTitle [OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata
+        = (OMX_TIZONIA_ICECASTMETADATATYPE *) ap_struct;
+      OMX_U32 stream_title_len = p_metadata->nSize
+        - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE) - sizeof (OMX_U32);
+
+      if (stream_title_len > OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)
+        {
+          return OMX_ErrorBadParameter;
+        }
+
+      tiz_mem_free (p_obj->p_stream_title_);
+      p_obj->p_stream_title_ = tiz_mem_calloc (1, stream_title_len);
+      if (NULL != p_obj->p_stream_title_)
+        {
+          strncpy (p_obj->p_stream_title_,
+                   (char *) p_metadata->cStreamTitle, stream_title_len);
+          p_obj->p_stream_title_[stream_title_len - 1] = '\000';
+        }
+      
       TIZ_LOGN (TIZ_TRACE, ap_hdl, "Stream title [%s]...",
-                p_obj->metadata_.cStreamTitle);
+                p_obj->p_stream_title_);
     }
   else
     {

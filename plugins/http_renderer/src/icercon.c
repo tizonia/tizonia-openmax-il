@@ -38,6 +38,7 @@
 #include "icercon.h"
 #include "tizosal.h"
 #include "tizutils.h"
+#include "OMX_TizoniaExt.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -93,6 +94,7 @@ struct icer_mount
   OMX_U8 station_genre[OMX_MAX_STRINGNAME_SIZE];
   OMX_U8 station_url[OMX_MAX_STRINGNAME_SIZE];
   OMX_U32 metadata_period;
+  OMX_U8 stream_title[OMX_MAX_STRINGNAME_SIZE];
   OMX_U32 burst_size;
   OMX_U32 max_clients;
 };
@@ -1350,25 +1352,25 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
       return OMX_ErrorInsufficientResources;
     }
 
-  p_server->p_hdl = ap_hdl;
-  p_server->lstn_sockfd = ICE_RENDERER_SOCK_ERROR;
-  p_server->p_ip = NULL;
-  p_server->p_srv_ev_io = NULL;
-  p_server->max_clients = a_max_clients;
-  p_server->p_lstnrs = NULL;
-  p_server->p_hdr = NULL;
-  p_server->pf_emptied = a_pf_emptied;
-  p_server->pf_needed = a_pf_needed;
-  p_server->p_arg = ap_arg;
-  p_server->bitrate = 0;
-  p_server->num_channels = 0;
-  p_server->sample_rate = 0;
+  p_server->p_hdl           = ap_hdl;
+  p_server->lstn_sockfd     = ICE_RENDERER_SOCK_ERROR;
+  p_server->p_ip            = NULL;
+  p_server->p_srv_ev_io     = NULL;
+  p_server->max_clients     = a_max_clients;
+  p_server->p_lstnrs        = NULL;
+  p_server->p_hdr           = NULL;
+  p_server->pf_emptied      = a_pf_emptied;
+  p_server->pf_needed       = a_pf_needed;
+  p_server->p_arg           = ap_arg;
+  p_server->bitrate         = 0;
+  p_server->num_channels    = 0;
+  p_server->sample_rate     = 0;
   p_server->bytes_per_frame = 144 * 128000 / 44100;
-  p_server->burst_size = ICE_MEDIUM_BURST_SIZE;
-  p_server->pkts_per_sec = ((double) p_server->bytes_per_frame
+  p_server->burst_size      = ICE_MEDIUM_BURST_SIZE;
+  p_server->pkts_per_sec    = ((double) p_server->bytes_per_frame
                             * (double) (1000/26)
                             / (double) p_server->burst_size);
-  p_server->wait_time = (1 / (double) p_server->pkts_per_sec);
+  p_server->wait_time       = (1 / (double) p_server->pkts_per_sec);
   tiz_mem_set (&(p_server->mountpoint), 0, sizeof (icer_mount_t));
 
   if (NULL != a_address)
@@ -1848,4 +1850,13 @@ icer_con_set_mountpoint_settings (icer_server_t * ap_server,
   ap_server->mountpoint.metadata_period = a_metadata_period;
   ap_server->mountpoint.burst_size      = a_burst_size;
   ap_server->mountpoint.max_clients     = a_max_clients;
+}
+
+void
+icer_con_set_icecast_metadata (icer_server_t *  ap_server,
+                               OMX_U8          *ap_stream_title)
+{
+  strncpy ((char *) ap_server->mountpoint.stream_title,
+           (char *) ap_stream_title, OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE);
+  ap_server->mountpoint.stream_title[OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1] = '\000';
 }

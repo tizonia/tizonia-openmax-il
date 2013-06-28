@@ -444,7 +444,6 @@ krn_SetConfig (const void *ap_obj,
       rc = tiz_api_SetConfig (p_port, ap_hdl, a_index, ap_struct);
     }
 
-
   if (OMX_ErrorNone != rc)
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : SetConfig (%s) ...",
@@ -486,6 +485,13 @@ krn_SetConfig (const void *ap_obj,
           p_obj->may_transition_exe2idle_notified_ = OMX_TRUE;
           tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
         }
+    }
+  else
+    {
+      /* There has been a successful update to a config structures, so let's
+         tell the processor about it. */
+      void *p_prc = tiz_get_prc (tiz_srv_get_hdl (p_obj));
+      rc = tiz_api_SetConfig (p_prc, ap_hdl, a_index, ap_struct);
     }
 
   return rc;
