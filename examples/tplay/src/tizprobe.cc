@@ -31,6 +31,8 @@
 #endif
 
 #include "tizprobe.h"
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 extern "C"
 {
@@ -49,22 +51,39 @@ static void
 dump_artist_and_title_to_string(AVDictionary *m, std::string &stream_title)
 {
   AVDictionaryEntry *tag = NULL;
-  std::string artist, title;
+  std::string artist, title, album;
 
   while ((tag = av_dict_get (m, "", tag, AV_DICT_IGNORE_SUFFIX)))
     {
       if (0 == strcmp("artist", tag->key))
         {
           artist.assign (tag->value);
+          boost::trim(artist);
         }
       else if (0 == strcmp("title", tag->key))
         {
           title.assign (tag->value);
+          boost::trim(title);
+        }
+      if (0 == strcmp("album", tag->key))
+        {
+          album.assign (tag->value);
+          boost::trim(album);
         }
     }
+
   stream_title.assign (artist);
-  stream_title.append (" - ");
-  stream_title.append (title);
+  if (!album.empty ())
+    {
+      stream_title.append (" - ");
+      stream_title.append (album);
+    }
+
+  if (!title.empty ())
+    {
+      stream_title.append (" - ");
+      stream_title.append (title);
+    }
 }
 
 static int
@@ -93,6 +112,11 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
     }
 
   dump_artist_and_title_to_string (fmt_ctx->metadata, stream_title);
+  if (stream_title.empty ())
+    {
+      stream_title.assign (filename);
+    }
+  boost::replace_all (stream_title, "_", " ");
 
   if (!quiet)
     {

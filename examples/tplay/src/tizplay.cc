@@ -376,6 +376,36 @@ wait_for_user_input (tizgraph_ptr_t graph_ptr)
 
 }
 
+static ETIZPlayUserInput
+wait_for_user_input_while_streaming (tizgraph_ptr_t graph_ptr)
+{
+  ETIZPlayUserInput input = ETIZPlayUserMax;
+  while (1)
+    {
+      if (gb_daemon_mode)
+        {
+          sleep (5000);
+        }
+      else
+        {
+          int ch[2];
+
+          ch[0] = getch ();
+
+          switch (ch[0])
+            {
+            case 'q':
+              return ETIZPlayUserStop;
+
+            default:
+              //           printf ("%d - not implemented\n", ch[0]);
+              break;
+            };
+        }
+    }
+
+}
+
 static OMX_ERRORTYPE
 decode (const OMX_STRING uri)
 {
@@ -504,7 +534,7 @@ stream (const std::string & uri, long int port)
       exit (EXIT_FAILURE);
     }
 
-  while (ETIZPlayUserStop != wait_for_user_input (g_ptr))
+  while (ETIZPlayUserStop != wait_for_user_input_while_streaming (g_ptr))
     {}
 
   g_ptr->unload ();

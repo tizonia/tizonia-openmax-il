@@ -84,7 +84,7 @@ typedef struct OMX_TIZONIA_ICECASTMOUNTPOINTTYPE {
     OMX_AUDIO_CODINGTYPE eEncoding;
     OMX_U32 nIcyMetadataPeriod;
     OMX_BOOL bBurstOnConnect;
-    OMX_U32 nBurstSize;
+    OMX_U32 nInitialBurstSize;
     OMX_U32 nMaxClients;
 } OMX_TIZONIA_ICECASTMOUNTPOINTTYPE;
 

@@ -80,7 +80,7 @@ icer_mp3port_ctor (void *ap_obj, va_list * app)
   p_obj->mountpoint_.eEncoding          = OMX_AUDIO_CodingMP3;
   p_obj->mountpoint_.nIcyMetadataPeriod = ICE_DEFAULT_METADATA_INTERVAL;
   p_obj->mountpoint_.bBurstOnConnect    = OMX_TRUE;
-  p_obj->mountpoint_.nBurstSize         = ICE_INITIAL_BURST_SIZE;
+  p_obj->mountpoint_.nInitialBurstSize  = ICE_INITIAL_BURST_SIZE;
   p_obj->mountpoint_.nMaxClients        = ICE_MAX_CLIENTS_PER_MOUNTPOINT;
 
   p_obj->p_stream_title_ = NULL;
@@ -206,25 +206,25 @@ icer_mp3port_SetConfig (const void *ap_obj,
     {
       OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata
         = (OMX_TIZONIA_ICECASTMETADATATYPE *) ap_struct;
-      OMX_U32 stream_title_len = p_metadata->nSize
-        - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE) - sizeof (OMX_U32);
-
+      OMX_U32 stream_title_len = strlen ((char *) p_metadata->cStreamTitle);
       if (stream_title_len > OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)
         {
           return OMX_ErrorBadParameter;
         }
+      TIZ_LOGN (TIZ_TRACE, ap_hdl, "stream_title_len [%d] Stream title [%s]...",
+                stream_title_len, p_metadata->cStreamTitle);
 
       tiz_mem_free (p_obj->p_stream_title_);
-      p_obj->p_stream_title_ = tiz_mem_calloc (1, stream_title_len);
+      p_obj->p_stream_title_ = tiz_mem_calloc (1, stream_title_len + 1);
       if (NULL != p_obj->p_stream_title_)
         {
           strncpy (p_obj->p_stream_title_,
                    (char *) p_metadata->cStreamTitle, stream_title_len);
-          p_obj->p_stream_title_[stream_title_len - 1] = '\000';
+          p_obj->p_stream_title_[stream_title_len] = '\000';
         }
       
-      TIZ_LOGN (TIZ_TRACE, ap_hdl, "Stream title [%s]...",
-                p_obj->p_stream_title_);
+      TIZ_LOGN (TIZ_TRACE, ap_hdl, "stream_title_len [%d] Stream title [%s]...",
+                stream_title_len, p_obj->p_stream_title_);
     }
   else
     {

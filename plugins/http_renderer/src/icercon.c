@@ -26,7 +26,6 @@
  * NOTE: This is work in progress!!!!
  *
  * TODO: Better flow control
- * TODO: Icecast metadata
  * TODO: Multiple listeners
  *
  */
@@ -61,14 +60,18 @@
 
 #define ICE_DEFAULT_HEADER_TIMEOUT 10
 #define ICE_LISTEN_QUEUE           5
-#define ICE_METADATA_INTERVAL      16000
 #define ICE_INITIAL_BURST_SIZE     80000
 #define ICE_MIN_BURST_SIZE         1400
 #define ICE_MEDIUM_BURST_SIZE      2800
 #define ICE_MAX_BURST_SIZE         4200
 #define ICE_MIN_PACKETS_PER_SECOND 6
 #define ICE_MAX_PACKETS_PER_SECOND 12
-#define ICE_LISTENER_BUF_SIZE      ICE_MAX_BURST_SIZE
+#define ICE_LISTENER_BUF_SIZE      (ICE_MAX_BURST_SIZE + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)
+
+/* TODO: There is a duplicate of this macro in icermp3port.c. Move to a common
+   header. */
+#define ICE_DEFAULT_METADATA_INTERVAL  16000
+
 
 #ifdef INET6_ADDRSTRLEN
 #define ICE_RENDERER_MAX_ADDR_LEN INET6_ADDRSTRLEN
@@ -95,7 +98,8 @@ struct icer_mount
   OMX_U8 station_url[OMX_MAX_STRINGNAME_SIZE];
   OMX_U32 metadata_period;
   OMX_U8 stream_title[OMX_MAX_STRINGNAME_SIZE];
-  OMX_U32 burst_size;
+  OMX_U32 stream_title_len;
+  OMX_U32 initial_burst_size;
   OMX_U32 max_clients;
 };
 
@@ -106,6 +110,8 @@ struct icer_connection
   uint64_t sent_total;
   unsigned int sent_last;
   unsigned int burst_bytes;
+  OMX_S32 initial_burst_bytes;
+  bool metadata_delivered;
   int sockfd;
   bool error;
   bool full;
@@ -113,7 +119,6 @@ struct icer_connection
   char *p_host;
   char *p_ip;
   unsigned short port;
-  OMX_S32 initial_burst;
   tiz_event_io_t *p_ev_io;
   tiz_event_timer_t *p_ev_timer;
 };
@@ -345,7 +350,7 @@ accept_socket (icer_server_t * ap_server, char *ap_ip, size_t a_ip_len,
 }
 
 static inline int
-create_server_socket (OMX_HANDLETYPE ap_hdl, int a_port,
+create_server_socket (icer_server_t *ap_server, int a_port,
                       const char *a_interface)
 {
   struct sockaddr_storage sa;
@@ -353,6 +358,7 @@ create_server_socket (OMX_HANDLETYPE ap_hdl, int a_port,
   char service[10];
   int sockfd, getaddrc;
 
+  assert (NULL != ap_server);
   assert (a_port >= 0);
 
   tiz_mem_set (&sa, 0, sizeof (sa));
@@ -366,7 +372,7 @@ create_server_socket (OMX_HANDLETYPE ap_hdl, int a_port,
 
   if ((getaddrc = getaddrinfo (a_interface, service, &hints, &res)) != 0)
     {
-      TIZ_LOGN (TIZ_TRACE, ap_hdl, "[ICE_RENDERER_SOCK_ERROR] : %s.",
+      TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "[ICE_RENDERER_SOCK_ERROR] : %s.",
                 gai_strerror (getaddrc));
       return ICE_RENDERER_SOCK_ERROR;
     }
@@ -572,40 +578,41 @@ remove_listener (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
 }
 
 static icer_connection_t *
-create_connection (OMX_HANDLETYPE ap_hdl, int connected_sockfd,
-                   icer_listener_t * ap_lstnr, char *ap_ip,
+create_connection (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
+                   int connected_sockfd, char *ap_ip,
                    unsigned short ap_port, double a_wait_time)
 {
   icer_connection_t *p_con = NULL;
+  OMX_HANDLETYPE p_hdl = NULL;
 
-  assert (NULL != ap_hdl);
+  assert (NULL != ap_server);
   assert (NULL != ap_lstnr);
+  p_hdl = ap_server->p_hdl;
 
   if (NULL != (p_con = (icer_connection_t *)
                tiz_mem_calloc (1, sizeof (icer_connection_t))));
   {
     OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-    p_con->con_time      = time (NULL);
-    p_con->sent_total    = 0;
-    p_con->sent_last     = 0;
-    p_con->burst_bytes   = 0;
-    p_con->sockfd        = connected_sockfd;
-    p_con->error         = false;
-    p_con->full          = false;
-    p_con->not_ready     = false;
-    p_con->p_host        = NULL;
-    p_con->p_ip          = ap_ip;
-    p_con->port          = ap_port;
-    p_con->initial_burst = ICE_INITIAL_BURST_SIZE;
-    p_con->p_ev_io       = NULL;
-    p_con->p_ev_timer    = NULL;
+    p_con->con_time            = time (NULL);
+    p_con->sent_total          = 0;
+    p_con->sent_last           = 0;
+    p_con->burst_bytes         = 0;
+    p_con->initial_burst_bytes = ap_server->mountpoint.initial_burst_size;
+    p_con->sockfd              = connected_sockfd;
+    p_con->error               = false;
+    p_con->full                = false;
+    p_con->not_ready           = false;
+    p_con->p_host              = NULL;
+    p_con->p_ip                = ap_ip;
+    p_con->port                = ap_port;
+    p_con->p_ev_io             = NULL;
+    p_con->p_ev_timer          = NULL;
 
-    if (OMX_ErrorNone
-        != (rc = tiz_event_io_init (&(p_con->p_ev_io), ap_hdl,
-                                    tiz_comp_event_io)))
+    if (OMX_ErrorNone != (rc = tiz_event_io_init
+                          (&(p_con->p_ev_io), p_hdl, tiz_comp_event_io)))
       {
-        TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : Error initializing a client "
+        TIZ_LOGN (TIZ_TRACE, p_hdl, "[%s] : Error initializing a client "
                   "io event", tiz_err_to_str (rc));
         goto end;
       }
@@ -615,10 +622,10 @@ create_connection (OMX_HANDLETYPE ap_hdl, int connected_sockfd,
     tiz_event_io_set (p_con->p_ev_io, p_con->sockfd, TIZ_EVENT_WRITE, true);
 
     if (OMX_ErrorNone
-        != (rc = tiz_event_timer_init (&(p_con->p_ev_timer), ap_hdl,
+        != (rc = tiz_event_timer_init (&(p_con->p_ev_timer), p_hdl,
                                        tiz_comp_event_timer, ap_lstnr)))
       {
-        TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : Error initializing a client timer"
+        TIZ_LOGN (TIZ_TRACE, p_hdl, "[%s] : Error initializing a client timer"
                   " event", tiz_err_to_str (rc));
         goto end;
       }
@@ -637,34 +644,35 @@ create_connection (OMX_HANDLETYPE ap_hdl, int connected_sockfd,
 }
 
 static OMX_ERRORTYPE
-create_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
-                 icer_listener_t ** app_lstnr, int a_connected_sockfd,
+create_listener (icer_server_t * ap_server, icer_listener_t ** app_lstnr,
+                 int a_connected_sockfd,
                  char *ap_ip, unsigned short ap_port)
 {
   icer_listener_t *p_lstnr = NULL;
-  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   icer_connection_t *p_con = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
+  OMX_HANDLETYPE p_hdl = NULL;
 
   assert (NULL != ap_server);
-  assert (NULL != ap_hdl);
   assert (NULL != app_lstnr);
   assert (ICE_RENDERER_SOCK_ERROR != a_connected_sockfd);
   assert (NULL != ap_ip);
+  p_hdl = ap_server->p_hdl;
 
   if (NULL == (p_lstnr = (icer_listener_t *)
                tiz_mem_calloc (1, sizeof (icer_listener_t))))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                 "allocating the listener structure.");
       goto end;
     }
 
   if (NULL ==
       (p_con =
-       create_connection (ap_hdl, a_connected_sockfd, p_lstnr, ap_ip,
+       create_connection (ap_server, p_lstnr, a_connected_sockfd, ap_ip,
                           ap_port, ap_server->wait_time)))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                 "instantiating the listener's connection.");
       goto end;
     }
@@ -683,7 +691,7 @@ create_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
   if (NULL ==
       (p_lstnr->buf.p_data = (char *) tiz_mem_alloc (ICE_LISTENER_BUF_SIZE)))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                 "allocating the listener's buffer.");
       goto end;
     }
@@ -693,7 +701,7 @@ create_listener (icer_server_t * ap_server, OMX_HANDLETYPE ap_hdl,
       != (rc = (tiz_http_parser_init (&(p_lstnr->p_parser),
                                       ETIZHttpParserTypeRequest))))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : initializing the http parser.",
+      TIZ_LOGN (TIZ_ERROR, p_hdl, "[%s] : initializing the http parser.",
                 tiz_err_to_str (rc));
       goto end;
     }
@@ -833,8 +841,7 @@ send_http_error (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 static ssize_t
 build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
                               size_t len, OMX_U32 a_bitrate,
-                              OMX_U32 a_num_channels,
-                              OMX_U32 a_sample_rate)
+                              OMX_U32 a_num_channels, OMX_U32 a_sample_rate)
 {
   const char *http_version = "1.0";
   char status_buffer[80];
@@ -852,7 +859,6 @@ build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
   const char *contenttype = "audio/mpeg";
   int status = 200;
   int pub = 0;
-  bool metadata = false;
 
   assert (NULL != ap_server);
   assert (NULL != ap_buf);
@@ -894,11 +900,11 @@ build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
   /* icy-pub header */
   snprintf (icypub_buffer, sizeof (icypub_buffer), "icy-pub:%u\r\n", pub);
 
-  if (metadata)
+  if (ap_server->mountpoint.metadata_period > 0)
     {
       /* icy-metaint header */
       snprintf (icymetaint_buffer, sizeof (icymetaint_buffer),
-                "icy-metaint:%u\r\n", ICE_METADATA_INTERVAL);
+                "icy-metaint:%lu\r\n", ap_server->mountpoint.metadata_period);
     }
 
   ret = snprintf (ap_buf, len, "%s%s%s%s%s%s%s%s%s%s%s%s\r\n",
@@ -911,9 +917,10 @@ build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
                   icygenre_buffer,
                   icyurl_buffer,
                   icypub_buffer,
-                  (metadata ? icymetaint_buffer : ""),
-                  "Server: Tizonia HTTP Server 0.1.0\r\n",
-                  "Cache-Control: no-cache\r\n\r\n");
+                  (ap_server->mountpoint.
+                   metadata_period ? icymetaint_buffer : ""),
+                  "Server: Tizonia HTTP Renderer 0.1.0\r\n",
+                  "Cache-Control: no-cache\r\n");
 
   return ret;
 }
@@ -938,7 +945,8 @@ send_http_response (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
 
 
 static OMX_ERRORTYPE
-handle_listeners_request (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
+handle_listeners_request (icer_server_t * ap_server,
+                          icer_listener_t * ap_lstnr)
 {
   int nparsed = 0;
   int nread = -1;
@@ -1108,9 +1116,156 @@ listener_ready (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
   return lstnr_ready;
 }
 
+static inline bool
+is_time_to_send_metadata (icer_server_t * ap_server,
+                          icer_listener_t * ap_lstnr)
+{
+  if (ap_lstnr->p_con->sent_total == 0)
+    {
+      return false;
+    }
+
+  if (((ap_lstnr->p_con->sent_total + ap_server->burst_size)
+       % ap_server->mountpoint.metadata_period) <= ap_server->burst_size)
+    {
+      return true;
+    }
+
+  return false;
+}
+
+static inline size_t
+get_metadata_offset (const icer_server_t * ap_server,
+                     const icer_listener_t * ap_lstnr)
+{
+  if (ap_lstnr->p_con->sent_total == 0)
+    {
+      return 0;
+    }
+
+  return (ap_server->mountpoint.metadata_period
+          * ((ap_lstnr->p_con->sent_total + ap_server->burst_size)
+             / ap_server->mountpoint.metadata_period))
+    - ap_lstnr->p_con->sent_total;
+}
+
+static inline size_t
+get_metadata_length (const icer_server_t * ap_server,
+                     const icer_listener_t * ap_lstnr)
+{
+  if (ap_lstnr->p_con->sent_total == 0
+      || ap_lstnr->p_con->metadata_delivered)
+    {
+      return 0;
+    }
+
+  return strlen ((char *) ap_server->mountpoint.stream_title);
+}
+
 static void
-arrange_data (icer_server_t *ap_server, icer_listener_t *ap_lstnr,
-              OMX_U8 **app_buffer, size_t *ap_len)
+arrange_metadata (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
+                  OMX_U8 ** app_buffer, size_t * ap_len)
+{
+  OMX_U8 *p_buffer = NULL;
+  size_t len = 0;
+  icer_listener_buffer_t *p_lstnr_buf = NULL;
+  OMX_HANDLETYPE p_hdl = NULL;
+
+  assert (NULL != ap_server);
+  assert (NULL != ap_lstnr);
+  assert (NULL != app_buffer);
+  assert (NULL != ap_len);
+
+  p_buffer = *app_buffer;
+  len = *ap_len;
+  p_lstnr_buf = &ap_lstnr->buf;
+  p_hdl = ap_server->p_hdl;
+  (void) p_hdl;
+
+  if (0 == len)
+    {
+      return;
+    }
+
+  /* If metadata needs to be sent in this burst, copy both data + metadata into
+   * the listener buffer */
+  if (is_time_to_send_metadata (ap_server, ap_lstnr))
+    {
+      OMX_U8 *p_dest = NULL;
+      OMX_U8 *p_src = NULL;
+
+      size_t metadata_len = get_metadata_length (ap_server, ap_lstnr);
+      size_t metadata_offset = get_metadata_offset (ap_server, ap_lstnr);
+      size_t metadata_total = 0;
+      size_t metadata_byte = 0;
+
+      TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl,
+                "metadata_offset=[%d] p_lstnr_buf->len [%d] len [%d]",
+                metadata_offset, p_lstnr_buf->len, len);
+
+      /* We use the listener's buffer to inline the metadata */
+      if (p_lstnr_buf->len == 0)
+        {
+          memcpy (p_lstnr_buf->p_data, p_buffer, len);
+          p_buffer = (OMX_U8 *) p_lstnr_buf->p_data;
+          p_lstnr_buf->len = len;
+          ap_lstnr->pos += len;
+        }
+
+      if (metadata_len > 0)
+        {
+          metadata_byte = (metadata_len - 1) / 16 + 1;
+        }
+      else
+        {
+          metadata_byte = 0;
+        }
+
+      metadata_total = (metadata_byte * 16) + 1;
+      p_dest = p_buffer + metadata_offset + metadata_total;
+      p_src = p_buffer + metadata_offset;
+
+      /* Move content to make space for the metadata */
+      memmove (p_dest, p_src, len - metadata_offset);
+
+      ap_server->mountpoint.stream_title_len = metadata_total;
+
+      if (metadata_len)
+        {
+          snprintf ((char *) p_src, metadata_total, "%c%s",
+                    (int) metadata_byte,
+                    (char *) ap_server->mountpoint.stream_title);
+          ap_lstnr->p_con->metadata_delivered = true;
+          TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl,
+                    "p_src[0]=[%u] offset [%d] (metadata [%s])",
+                    (unsigned int) p_src[0], p_src - p_buffer,
+                    (char *) p_src + 1);
+        }
+      else
+        {
+          p_src[0] = metadata_byte;
+        }
+
+      len += metadata_total;
+      p_lstnr_buf->len = len;
+
+      TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "p_src[0]=[%u] "
+                "(metadata_len [%d] metadata_offset [%d] "
+                "metadata_total [%d]) inserting at byte [%d] "
+                "p_lstnr_buf->len [%d] stream_title_len [%d]",
+                (unsigned int) p_src[0],
+                metadata_len, metadata_offset,
+                metadata_total, ap_lstnr->p_con->sent_total + metadata_offset,
+                p_lstnr_buf->len, ap_server->mountpoint.stream_title_len);
+
+      *ap_len = len;
+      *app_buffer = p_buffer;
+    }
+}
+
+static void
+arrange_data (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
+              OMX_U8 ** app_buffer, size_t * ap_len)
 {
   OMX_U8 *p_buffer = NULL;
   size_t len = 0;
@@ -1124,13 +1279,13 @@ arrange_data (icer_server_t *ap_server, icer_listener_t *ap_lstnr,
   assert (NULL != ap_len);
 
   p_lstnr_buf = &ap_lstnr->buf;
-  p_hdr       = ap_server->p_hdr;
-  p_hdl       = ap_server->p_hdl;
+  p_hdr = ap_server->p_hdr;
+  p_hdl = ap_server->p_hdl;
   (void) p_hdl;
 
   if (p_lstnr_buf->len > 0)
     {
-      TIZ_LOGN (TIZ_TRACE, p_hdl, "lstnr buffer len : [%d] "
+      TIZ_LOGN (TIZ_TRACE, p_hdl, "lstnr buffer len : [%u] "
                 "p_lstnr->pos [%d] p_hdr [%p]", p_lstnr_buf->len,
                 ap_lstnr->pos, p_hdr);
 
@@ -1170,6 +1325,8 @@ arrange_data (icer_server_t *ap_server, icer_listener_t *ap_lstnr,
         }
     }
 
+  arrange_metadata (ap_server, ap_lstnr, &p_buffer, &len);
+
   *ap_len = len;
   *app_buffer = p_buffer;
 }
@@ -1191,19 +1348,20 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
   assert (NULL != ap_key);
   assert (NULL != ap_value);
 
-  p_hdr       = p_server->p_hdr;
-  p_lstnr     = (icer_listener_t *) ap_value;
+  p_hdr = p_server->p_hdr;
+  p_lstnr = (icer_listener_t *) ap_value;
   assert (NULL != p_lstnr->p_con);
-  p_con       = p_lstnr->p_con;
+  p_con = p_lstnr->p_con;
   p_lstnr_buf = &p_lstnr->buf;
-  sock        = p_con->sockfd;
+  sock = p_con->sockfd;
 
   p_con->sent_last = 0;
-  p_con->error     = false;
-  p_con->full      = false;
+  p_con->error = false;
+  p_con->full = false;
   p_con->not_ready = false;
 
-  TIZ_LOGN (TIZ_ERROR, p_server->p_hdl, "write to socket fd [%d]", sock);
+  TIZ_LOGN (TIZ_TRACE, p_server->p_hdl, "socket fd [%d] sent_total [%d]",
+            sock, p_con->sent_total);
 
   if (!valid_socket (sock))
     {
@@ -1242,34 +1400,40 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
         }
       else
         {
+          TIZ_LOGN (TIZ_TRACE, p_server->p_hdl,
+                    "bytes [%d] p_lstnr_buf->len [%d] "
+                    "burst_bytes [%d] stream_title_len [%d]", bytes,
+                    p_lstnr_buf->len, p_con->burst_bytes,
+                    p_server->mountpoint.stream_title_len);
+
           if (p_lstnr_buf->len > 0)
             {
               p_lstnr_buf->len -= bytes;
             }
           else
             {
-              p_lstnr->pos += bytes;
+              p_lstnr->pos += (bytes - p_server->mountpoint.stream_title_len);
             }
 
-          if (p_con->initial_burst > 0)
+          if (p_con->initial_burst_bytes > 0)
             {
-              p_con->initial_burst -= bytes;
+              p_con->initial_burst_bytes -=
+                (bytes - p_server->mountpoint.stream_title_len);
             }
           else
             {
-              if (p_lstnr->p_con->con_time == 0)
+              if (p_con->con_time == 0)
                 {
-                  p_lstnr->p_con->con_time = time (NULL);
+                  p_con->con_time = time (NULL);
                 }
             }
 
-          if (p_lstnr->p_con->con_time > 0)
-            {
-              p_con->sent_total += bytes;
-            }
+          p_con->sent_total += (bytes - p_server->mountpoint.stream_title_len);
+          p_con->sent_last = (bytes - p_server->mountpoint.stream_title_len);
+          p_con->burst_bytes +=
+            (bytes - p_server->mountpoint.stream_title_len);
 
-          p_con->sent_last = bytes;
-          p_con->burst_bytes += bytes;
+          p_server->mountpoint.stream_title_len = 0;
 
           if (bytes < len)
             {
@@ -1281,25 +1445,28 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
             }
           else
             {
-              if ((p_con->initial_burst <= 0)
+              if ((p_con->initial_burst_bytes <= 0)
                   && (p_con->burst_bytes >= p_server->burst_size))
                 {
                   /* Let's not send too much data in one go */
 
                   TIZ_LOGN (TIZ_TRACE, p_server->p_hdl, "burst limit reached");
 
-                  if ((p_hdr->nFilledLen - p_lstnr->pos) < p_server->burst_size)
+                  if ((p_hdr->nFilledLen - p_lstnr->pos) <
+                      p_server->burst_size)
                     {
                       /* copy the remaining data into the listener's buffer */
                       int bytes_to_copy = p_hdr->nFilledLen - p_lstnr->pos;
-                      memcpy (p_lstnr->buf.p_data, p_hdr->pBuffer + p_lstnr->pos,
-                              bytes_to_copy);
+                      memcpy (p_lstnr->buf.p_data,
+                              p_hdr->pBuffer + p_lstnr->pos, bytes_to_copy);
                       p_lstnr->buf.len = bytes_to_copy;
-                      TIZ_LOGN (TIZ_TRACE, p_server->p_hdl, "Copied to lstnr buffer : "
-                                "%d bytes", bytes_to_copy);
+                      TIZ_LOGN (TIZ_TRACE, p_server->p_hdl,
+                                "Copied to lstnr buffer : " "%d bytes",
+                                bytes_to_copy);
 
                       /* Buffer emptied */
-                      release_empty_buffer (p_server, p_lstnr, &p_server->p_hdr);
+                      release_empty_buffer (p_server, p_lstnr,
+                                            &p_server->p_hdr);
                     }
 
                   start_listener_timer_watcher (p_lstnr, p_server->wait_time);
@@ -1310,17 +1477,6 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 
   /* always return success */
   return 0;
-}
-
-static inline int
-estimated_bytes_sent (icer_server_t * ap_server, icer_listener_t *ap_lstnr)
-{
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
-  assert (NULL != ap_lstnr->p_con);
-
-  return ((time (NULL) - ap_lstnr->p_con->con_time)
-          * (ap_server->bytes_per_frame * (int) (1000/26)));
 }
 
 /*               */
@@ -1367,11 +1523,15 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
   p_server->sample_rate     = 0;
   p_server->bytes_per_frame = 144 * 128000 / 44100;
   p_server->burst_size      = ICE_MEDIUM_BURST_SIZE;
-  p_server->pkts_per_sec    = ((double) p_server->bytes_per_frame
-                            * (double) (1000/26)
-                            / (double) p_server->burst_size);
-  p_server->wait_time       = (1 / (double) p_server->pkts_per_sec);
+  p_server->pkts_per_sec    = 
+    (((double) p_server->bytes_per_frame * (double) (1000 / 26) /
+      (double) p_server->burst_size));
+  p_server->wait_time       = (1 / p_server->pkts_per_sec);
+
   tiz_mem_set (&(p_server->mountpoint), 0, sizeof (icer_mount_t));
+  p_server->mountpoint.metadata_period        = ICE_DEFAULT_METADATA_INTERVAL;
+  p_server->mountpoint.initial_burst_size     = ICE_INITIAL_BURST_SIZE;;
+  p_server->mountpoint.max_clients            = 1;
 
   if (NULL != a_address)
     {
@@ -1390,7 +1550,7 @@ icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
 
   if (ICE_RENDERER_SOCK_ERROR ==
       (p_server->lstn_sockfd =
-       create_server_socket (ap_hdl, a_port, a_address)))
+       create_server_socket (p_server, a_port, a_address)))
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
                 "creating the server socket.");
@@ -1483,6 +1643,7 @@ icer_con_accept_connection (icer_server_t * ap_server)
 {
   char *p_ip = NULL;
   icer_listener_t *p_lstnr = NULL;
+  icer_connection_t *p_con = NULL;
   int connected_sockfd = ICE_RENDERER_SOCK_ERROR;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   bool some_error = true;
@@ -1491,8 +1652,8 @@ icer_con_accept_connection (icer_server_t * ap_server)
   assert (NULL != ap_server);
   p_hdl = ap_server->p_hdl;
 
-  /* TODO: This is a temporary hack to prevent more than one connection at a
-   * time, until we are ready to implement a multi-client renderer */
+  /* TODO: This is a temporary solution to prevent more than one connection at
+   * a time, until we are ready to implement a multi-client renderer */
   if (get_listeners_count (ap_server))
     {
       tiz_map_for_each (ap_server->p_lstnrs, remove_existing_listener,
@@ -1512,7 +1673,7 @@ icer_con_accept_connection (icer_server_t * ap_server)
           goto end;
         }
 
-      if (OMX_ErrorNone != (rc = create_listener (ap_server, p_hdl, &p_lstnr,
+      if (OMX_ErrorNone != (rc = create_listener (ap_server, &p_lstnr,
                                                   connected_sockfd, p_ip,
                                                   port)))
         {
@@ -1521,11 +1682,14 @@ icer_con_accept_connection (icer_server_t * ap_server)
           goto end;
         }
 
+      assert (NULL != p_lstnr->p_con);
+      p_con = p_lstnr->p_con;
+
       {
         OMX_U32 index;
         /* TODO: Check return code */
         if (OMX_ErrorNone != (rc = tiz_map_insert (ap_server->p_lstnrs,
-                                                   &p_lstnr->p_con->sockfd,
+                                                   &(p_con->sockfd),
                                                    p_lstnr, &index)))
           {
             TIZ_LOGN (TIZ_ERROR, p_hdl, "[%s] : Unable to add the listener "
@@ -1570,8 +1734,7 @@ end:
   else
     {
       TIZ_LOGN (TIZ_TRACE, p_hdl, "Client [%s:%u] fd [%d] is now connected",
-                p_lstnr->p_con->p_ip, p_lstnr->p_con->port,
-                p_lstnr->p_con->sockfd);
+                p_con->p_ip, p_con->port, p_con->sockfd);
     }
 
   /* Always restart the server's watcher, even if an error occurred */
@@ -1598,7 +1761,6 @@ icer_con_write_to_listeners (icer_server_t * ap_server)
   icer_listener_t *p_lstnr = NULL;
   icer_connection_t *p_con = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
-  int drift = 0;
 
   if (NULL == ap_server)
     {
@@ -1624,22 +1786,20 @@ icer_con_write_to_listeners (icer_server_t * ap_server)
   stop_listener_io_watcher (p_lstnr);
   start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
 
-  drift     = p_con->sent_total - estimated_bytes_sent (ap_server, p_lstnr);
   TIZ_LOGN (TIZ_TRACE, p_hdl, "total [%llu] last [%u] burst [%u] cache [%d] "
-            "srate [%d] brate [%d] pkts/s [%f] wait [%f] socket [%d] drift [%d]" ,
+            "srate [%d] brate [%d] pkts/s [%f] wait [%f] socket [%d]",
             p_con->sent_total, p_con->sent_last, p_con->burst_bytes,
-            p_con->initial_burst, ap_server->sample_rate, ap_server->bitrate,
-            ap_server->pkts_per_sec,
-            ap_server->wait_time, get_socket_buffer_size (p_con->sockfd)
-            - get_socket_buffer_utilization (p_con->sockfd),
-            drift);
+            p_con->initial_burst_bytes, ap_server->sample_rate,
+            ap_server->bitrate, ap_server->pkts_per_sec, ap_server->wait_time,
+            get_socket_buffer_size (p_con->sockfd) -
+            get_socket_buffer_utilization (p_con->sockfd));
 
   if (!listener_ready (ap_server, p_lstnr))
     {
       return OMX_ErrorNone;
     }
 
-  if (p_con->initial_burst <= 0)
+  if (p_con->initial_burst_bytes <= 0)
     {
       p_con->burst_bytes = 0;
     }
@@ -1673,7 +1833,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server)
         }
 
       if (p_con->full || p_con->not_ready
-          || (((p_con->initial_burst <= 0))
+          || (((p_con->initial_burst_bytes <= 0))
               && (p_con->burst_bytes >= ap_server->burst_size)))
         {
           rc = OMX_ErrorNoMore;
@@ -1719,7 +1879,6 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
 #define ICE_RATE_ADJUSTMENT_44dot1KH 1.013
 #define ICE_RATE_ADJUSTMENT_48KH     1.093
 
-  icer_listener_t *p_lstnr = NULL;
   double pkts_per_sec_med_burst = 0;
   double pkts_per_sec_max_burst = 0;
   double rate_adjustment = 0;
@@ -1734,7 +1893,7 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
   ap_server->bitrate         = (a_bitrate != 0 ? a_bitrate : 128000);
   ap_server->num_channels    = (a_num_channels != 0 ? a_num_channels : 2);
   ap_server->sample_rate     = (a_sample_rate != 0 ? a_sample_rate : 44100);
-  ap_server->bytes_per_frame = (144 *a_bitrate / a_sample_rate) + 1;
+  ap_server->bytes_per_frame = (144 * a_bitrate / a_sample_rate) + 1;
   ap_server->burst_size      = ICE_MIN_BURST_SIZE;
 
   rate_adjustment = (a_sample_rate == 0 ? ICE_RATE_ADJUSTMENT_44dot1KH : 0);
@@ -1742,7 +1901,8 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
     {
       if (a_sample_rate < 32000)
         {
-          rate_adjustment = a_sample_rate * ICE_RATE_ADJUSTMENT_44dot1KH / 44100;
+          rate_adjustment =
+            a_sample_rate * ICE_RATE_ADJUSTMENT_44dot1KH / 44100;
         }
       else
         {
@@ -1769,7 +1929,7 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
     = (double) ap_server->bytes_per_frame * 38 / ICE_MAX_BURST_SIZE;
 
   if (pkts_per_sec_med_burst >= ICE_MIN_PACKETS_PER_SECOND
-           && pkts_per_sec_med_burst <= ICE_MAX_PACKETS_PER_SECOND)
+      && pkts_per_sec_med_burst <= ICE_MAX_PACKETS_PER_SECOND)
     {
       ap_server->burst_size = ICE_MEDIUM_BURST_SIZE;
     }
@@ -1780,21 +1940,18 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
     }
 
   /* Increase the rate by a certain % to mitigate decay */
-  ap_server->pkts_per_sec =  rate_adjustment
-    * (((double) ap_server->bytes_per_frame * (double) (1000/26)
+  ap_server->pkts_per_sec = rate_adjustment
+    * (((double) ap_server->bytes_per_frame * (double) (1000 / 26)
         / (double) ap_server->burst_size));
 
   ap_server->wait_time = (1 / ap_server->pkts_per_sec);
 
   if (get_listeners_count (ap_server) > 0)
     {
-      p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
+      icer_listener_t *p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
       assert (NULL != p_lstnr);
       stop_listener_timer_watcher (p_lstnr);
       start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
-      assert (NULL != p_lstnr->p_con);
-      p_lstnr->p_con->con_time = 0;
-      p_lstnr->p_con->sent_total = 0;
     }
 
   TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "sample rate [%d] bitrate [%d] "
@@ -1806,15 +1963,16 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
 
 void
 icer_con_set_mountpoint_settings (icer_server_t * ap_server,
-                                  OMX_U8 *ap_mount_name,
-                                  OMX_U8 *ap_station_name,
-                                  OMX_U8 *ap_station_description,
-                                  OMX_U8 *ap_station_genre,
-                                  OMX_U8 *ap_station_url,
+                                  OMX_U8 * ap_mount_name,
+                                  OMX_U8 * ap_station_name,
+                                  OMX_U8 * ap_station_description,
+                                  OMX_U8 * ap_station_genre,
+                                  OMX_U8 * ap_station_url,
                                   OMX_U32 a_metadata_period,
-                                  OMX_U32 a_burst_size,
-                                  OMX_U32 a_max_clients)
+                                  OMX_U32 a_burst_size, OMX_U32 a_max_clients)
 {
+  icer_mount_t *p_mount = NULL;
+
   assert (NULL != ap_server);
   assert (NULL != ap_mount_name);
   assert (NULL != ap_station_name);
@@ -1827,36 +1985,65 @@ icer_con_set_mountpoint_settings (icer_server_t * ap_server,
       return;
     }
 
-  strncpy ((char *) ap_server->mountpoint.mount_name,
+  p_mount = &(ap_server->mountpoint);
+
+  strncpy ((char *) p_mount->mount_name,
            (char *) ap_mount_name, OMX_MAX_STRINGNAME_SIZE);
-  ap_server->mountpoint.mount_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  p_mount->mount_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
 
-  strncpy ((char *) ap_server->mountpoint.station_name,
+  strncpy ((char *) p_mount->station_name,
            (char *) ap_station_name, OMX_MAX_STRINGNAME_SIZE);
-  ap_server->mountpoint.station_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-  
-  strncpy ((char *) ap_server->mountpoint.station_description,
-           (char *) ap_station_description, OMX_MAX_STRINGNAME_SIZE);
-  ap_server->mountpoint.station_description[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-  
-  strncpy ((char *) ap_server->mountpoint.station_genre,
-           (char *) ap_station_genre, OMX_MAX_STRINGNAME_SIZE);
-  ap_server->mountpoint.station_genre[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-  
-  strncpy ((char *) ap_server->mountpoint.station_url,
-           (char *) ap_station_url, OMX_MAX_STRINGNAME_SIZE);
-  ap_server->mountpoint.station_url[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+  p_mount->station_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
 
-  ap_server->mountpoint.metadata_period = a_metadata_period;
-  ap_server->mountpoint.burst_size      = a_burst_size;
-  ap_server->mountpoint.max_clients     = a_max_clients;
+  strncpy ((char *) p_mount->station_description,
+           (char *) ap_station_description, OMX_MAX_STRINGNAME_SIZE);
+  p_mount->station_description[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+
+  strncpy ((char *) p_mount->station_genre,
+           (char *) ap_station_genre, OMX_MAX_STRINGNAME_SIZE);
+  p_mount->station_genre[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+
+  strncpy ((char *) p_mount->station_url,
+           (char *) ap_station_url, OMX_MAX_STRINGNAME_SIZE);
+  p_mount->station_url[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+
+  p_mount->metadata_period = a_metadata_period;
+  p_mount->initial_burst_size = a_burst_size;
+  p_mount->max_clients = a_max_clients;
 }
 
 void
-icer_con_set_icecast_metadata (icer_server_t *  ap_server,
-                               OMX_U8          *ap_stream_title)
+icer_con_set_icecast_metadata (icer_server_t * ap_server,
+                               OMX_U8 * ap_stream_title)
 {
-  strncpy ((char *) ap_server->mountpoint.stream_title,
+  icer_mount_t *p_mount = NULL;
+
+  assert (NULL != ap_server);
+  assert (NULL != ap_stream_title);
+
+  if (NULL == ap_server)
+    {
+      return;
+    }
+
+  p_mount = &(ap_server->mountpoint);
+
+  TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "ap_stream_title [%s]",
+            ap_stream_title);
+
+  strncpy ((char *) p_mount->stream_title,
            (char *) ap_stream_title, OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE);
-  ap_server->mountpoint.stream_title[OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1] = '\000';
+  p_mount->stream_title[OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1] = '\000';
+
+  p_mount->stream_title_len   = 0;
+
+  if (get_listeners_count (ap_server) > 0)
+    {
+      icer_listener_t *p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
+      assert (NULL != p_lstnr);
+      assert (NULL != p_lstnr->p_con);
+      p_lstnr->p_con->metadata_delivered = false;
+      stop_listener_timer_watcher (p_lstnr);
+      start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
+    }
 }

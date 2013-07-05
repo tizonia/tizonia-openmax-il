@@ -219,11 +219,6 @@ tizstreamsrvgraph::configure_stream ()
 
   // Obtain the stream title
   std::string stream_title = probe_ptr_->get_stream_title ();
-  size_t      title_len    = stream_title.length ();
-  if (title_len > OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1)
-    {
-      title_len = OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1;
-    }
 
   // Set the stream title on to the renderer's input port
   OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata = NULL;
@@ -235,12 +230,14 @@ tizstreamsrvgraph::configure_stream ()
       return OMX_ErrorInsufficientResources;
     }
 
-  p_metadata->nSize             = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE);
   p_metadata->nVersion.nVersion = OMX_VERSION;
   p_metadata->nPortIndex        = 0;
-  snprintf ((char *) p_metadata->cStreamTitle, title_len, "%s",
-            stream_title.c_str ());
-  p_metadata->cStreamTitle[title_len] = '\000';
+  snprintf ((char *) p_metadata->cStreamTitle, OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE,
+            "StreamTitle='%s';", stream_title.c_str ());
+  p_metadata->nSize             = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE) + strlen ((char *) p_metadata->cStreamTitle);
+
+  TIZ_LOG (TIZ_TRACE, "p_metadata->cStreamTitle [%s]...",
+           p_metadata->cStreamTitle);
 
   rc = OMX_SetConfig
     (handles_[1],

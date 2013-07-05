@@ -44,7 +44,6 @@ extern "C"
     /* Object */
     const tiz_mp3port_t               _;
     OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mountpoint_;
-    OMX_TIZONIA_ICECASTMETADATATYPE   metadata_;
     OMX_STRING p_stream_title_;
   };
 
