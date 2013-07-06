@@ -90,9 +90,9 @@ static int
 open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
                  std::string &stream_title, const bool quiet)
 {
-  int err, i;
+  int err = 0;
   AVFormatContext *fmt_ctx = NULL;
-  AVDictionaryEntry *t;
+  AVDictionaryEntry *t = NULL;
 
   if ((err = avformat_open_input (&fmt_ctx, filename,
                                   iformat, &format_opts)) < 0)
@@ -130,7 +130,7 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
 static void
 close_input_file (AVFormatContext ** ctx_ptr)
 {
-  int i;
+  int i = 0;
   AVFormatContext *fmt_ctx = *ctx_ptr;
 
   /* close decoder for each stream */

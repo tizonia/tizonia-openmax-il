@@ -156,12 +156,12 @@ list_comps ()
 {
   std::vector < std::string > components;
   OMX_ERRORTYPE ret = OMX_ErrorNone;
-  int index = 0;
 
   tizomxutil::init ();
 
   if (OMX_ErrorNoMore == (ret = tizomxutil::list_comps (components)))
     {
+      int index = 0;
       BOOST_FOREACH (std::string component, components)
       {
         printf ("Component at index [%d] -> [%s]\n", index++,
@@ -184,12 +184,12 @@ roles_of_comp (OMX_STRING component)
 {
   std::vector < std::string > roles;
   OMX_ERRORTYPE ret = OMX_ErrorNone;
-  int index = 0;
 
   tizomxutil::init ();
 
   if (OMX_ErrorNoMore == (ret = tizomxutil::roles_of_comp (component, roles)))
     {
+      int index = 0;
       BOOST_FOREACH (std::string role, roles)
       {
         printf ("Component [%s] : role #%d -> [%s]\n", component, index++,
@@ -213,7 +213,6 @@ comps_of_role (OMX_STRING role)
 {
   std::vector < std::string > components;
   OMX_ERRORTYPE ret = OMX_ErrorNone;
-  int index = 0;
 
   tizomxutil::init ();
 
@@ -307,7 +306,6 @@ enum ETIZPlayUserInput
 static ETIZPlayUserInput
 wait_for_user_input (tizgraph_ptr_t graph_ptr)
 {
-  ETIZPlayUserInput input = ETIZPlayUserMax;
   while (1)
     {
       if (gb_daemon_mode)
@@ -379,7 +377,6 @@ wait_for_user_input (tizgraph_ptr_t graph_ptr)
 static ETIZPlayUserInput
 wait_for_user_input_while_streaming (tizgraph_ptr_t graph_ptr)
 {
-  ETIZPlayUserInput input = ETIZPlayUserMax;
   while (1)
     {
       if (gb_daemon_mode)
@@ -436,8 +433,6 @@ decode (const OMX_STRING uri)
     }
 
   gp_running_graph = g_ptr.get ();
-  int list_size    = file_list.size ();
-  ETIZPlayUserInput user = ETIZPlayUserMax;
 
   if (OMX_ErrorNone != (ret = g_ptr->load ()))
     {
@@ -509,8 +504,6 @@ stream (const std::string & uri, long int port)
     }
 
   gp_running_graph = g_ptr.get ();
-  int list_size    = file_list.size ();
-  ETIZPlayUserInput user = ETIZPlayUserMax;
 
   if (OMX_ErrorNone != (ret = g_ptr->load ()))
     {
@@ -547,7 +540,6 @@ main (int argc, char **argv)
 {
   OMX_ERRORTYPE error = OMX_ErrorMax;
   int opt;
-  int digit_optind = 0;
   long int srv_port = 8010; // default port for http streaming
   std::string streaming_media;
     
@@ -559,7 +551,6 @@ main (int argc, char **argv)
 
   while (1)
     {
-      int this_option_optind = optind ? optind : 1;
       int option_index = 0;
       static struct option long_options[] = {
         {"list-components", no_argument, 0, 'l'},

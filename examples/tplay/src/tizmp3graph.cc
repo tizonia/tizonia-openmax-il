@@ -46,7 +46,9 @@
 #endif
 
 tizmp3graph::tizmp3graph (tizprobe_ptr_t probe_ptr)
-  : tizgraph (3, probe_ptr)
+  : tizgraph (3, probe_ptr),
+    file_list_ (),
+    current_file_index_ (0)
 {
 }
 

@@ -64,7 +64,7 @@ struct transition_to
 void *
 g_graph_thread_func (void *p_arg)
 {
-  tizgraph *p_graph = (tizgraph *) (p_arg);
+  tizgraph *p_graph = static_cast<tizgraph *>(p_arg);
   void *p_data = NULL;
 
   assert (NULL != p_graph);
@@ -261,14 +261,14 @@ tizcback_handler::all_events_received ()
                                                  received_queue_.end (),
                                                  *exp_it)))
             {
-              expected_list_.erase (exp_it);
-              received_queue_.erase (queue_it);
               TIZ_LOG (TIZ_DEBUG, "Erased [%s] from component [%s] "
                        "event_list size [%d]\n",
                        tiz_evt_to_str (exp_it->event_),
                        const_cast<tizgraph &>(parent_).
                        h2n_[exp_it->component_].c_str (),
                        expected_list_.size ());
+              expected_list_.erase (exp_it);
+              received_queue_.erase (queue_it);
               // restart the loop
               exp_it = expected_list_.begin ();
             }

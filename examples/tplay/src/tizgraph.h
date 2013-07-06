@@ -39,6 +39,8 @@
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
+void * g_graph_thread_func (void *p_arg);
+
 class tizgraph;
 typedef boost::shared_ptr<tizgraph> tizgraph_ptr_t;
 
@@ -74,7 +76,7 @@ struct waitevent_info
         && event_ == b.event_
         && ndata1_ == b.ndata1_
         && ndata2_ == b.ndata2_
-        && pEventData_ == pEventData_)
+        && pEventData_ == b.pEventData_)
       {
         return true;
       }
