@@ -55,7 +55,6 @@ vp8port_ctor (void *ap_obj, va_list * app)
   OMX_VIDEO_PARAM_VP8TYPE *p_vp8type = NULL;
   OMX_VIDEO_VP8LEVELTYPE *p_levels = NULL;
   OMX_VIDEO_PARAM_BITRATETYPE *p_pbrtype = NULL;
-  OMX_U32 i = 0;
 
   assert (NULL != app);
 
@@ -84,6 +83,7 @@ vp8port_ctor (void *ap_obj, va_list * app)
 
   if (NULL != (p_levels = va_arg (*app, OMX_VIDEO_VP8LEVELTYPE *)))
     {
+      OMX_U32 i = 0;
       while (OMX_VIDEO_VP8LevelMax != p_levels[i])
         {
           TIZ_LOG (TIZ_TRACE, "p_levels[%u] = [%d]...", i, p_levels[i]);

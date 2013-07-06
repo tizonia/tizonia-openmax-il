@@ -52,7 +52,6 @@ audioport_ctor (void *ap_obj, va_list * app)
 {
   tiz_audioport_t *p_obj = super_ctor (tizaudioport, ap_obj, app);
   OMX_AUDIO_CODINGTYPE *p_encodings = NULL;
-  OMX_U32 i = 0;
 
   tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat);
 
@@ -65,6 +64,7 @@ audioport_ctor (void *ap_obj, va_list * app)
 
   if (NULL != (p_encodings = va_arg (*app, OMX_AUDIO_CODINGTYPE *)))
     {
+      OMX_U32 i = 0;
       while (OMX_AUDIO_CodingMax != p_encodings[i])
         {
           tiz_vector_push_back (p_obj->p_encodings_, &p_encodings[i++]);

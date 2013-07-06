@@ -60,7 +60,6 @@ extern "C"
   typedef OMX_ERRORTYPE (*tiz_krn_msg_dispatch_f) (void *ap_obj,
                                                       OMX_PTR ap_msg);
 
-  typedef struct tiz_krn_msg_sendcommand tiz_krn_msg_sendcommand_t;
   struct tiz_krn_msg_sendcommand
   {
     OMX_COMMANDTYPE cmd;

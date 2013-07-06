@@ -78,10 +78,9 @@ servant_dtor (void *ap_obj)
   if (NULL != p_obj->p_pq_)
     {
       OMX_PTR p_msg = NULL;
-      int qlen = tiz_pqueue_length (p_obj->p_pq_);
 
       /* Make sure we clean up any remaining items in the queue */
-      while (0 < (qlen = tiz_pqueue_length (p_obj->p_pq_)))
+      while (0 < tiz_pqueue_length (p_obj->p_pq_))
         {
           if (OMX_ErrorNone != tiz_pqueue_receive (p_obj->p_pq_, &p_msg))
             {

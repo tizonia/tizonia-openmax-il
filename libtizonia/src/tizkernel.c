@@ -1148,10 +1148,16 @@ krn_stop_and_return (void *ap_obj)
           rc = OMX_ErrorInsufficientResources;
         }
 
-      rc = flush_egress (p_obj, i, OMX_FALSE);
+      if (OMX_ErrorNone == rc)
+        {
+          rc = flush_egress (p_obj, i, OMX_FALSE);
+        }
 
-      /* Flush buffer marks and complete commands as required */
-      flush_marks (p_obj, p_port);
+      if (OMX_ErrorNone == rc)
+        {
+          /* Flush buffer marks and complete commands as required */
+          rc = flush_marks (p_obj, p_port);
+        }
     }
 
   return rc;
@@ -1711,7 +1717,6 @@ krn_get_tunneled_ports_status (const void *ap_obj,
   const tiz_krn_t *p_obj = ap_obj;
   tiz_krn_tunneled_ports_status_t status_report =
     ETIZKrnTunneledPortsMax;
-  OMX_U32 status = 0;
 
   assert (NULL != ap_obj);
 
@@ -1719,6 +1724,7 @@ krn_get_tunneled_ports_status (const void *ap_obj,
     OMX_S32 i, nports = tiz_vector_length (p_obj->p_ports_);
     OMX_PTR *pp_port = NULL;
     OMX_BOOL tunneled_found = OMX_FALSE;
+    OMX_U32 status = 0;
 
     /* Loop through all regular (non-config) ports */
     status |= OMX_PORTSTATUS_ACCEPTUSEBUFFER;

@@ -52,7 +52,6 @@ otherport_ctor (void *ap_obj, va_list * app)
 {
   tiz_otherport_t *p_obj = super_ctor (tizotherport, ap_obj, app);
   OMX_OTHER_FORMATTYPE *p_formats = NULL;
-  OMX_U32 i = 0;
 
   tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat);
 
@@ -65,6 +64,7 @@ otherport_ctor (void *ap_obj, va_list * app)
 
   if (NULL != (p_formats = va_arg (*app, OMX_OTHER_FORMATTYPE *)))
     {
+      OMX_U32 i = 0;
       while (OMX_OTHER_FormatMax != p_formats[i])
         {
           TIZ_LOG (TIZ_TRACE, "p_formats[%u] = [%d]...", i, p_formats[i]);

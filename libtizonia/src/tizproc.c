@@ -193,7 +193,6 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
    * */
   if (EStatePause != now
       && ESubStateExecutingToIdle != now
-      && ESubStateExecutingToIdle != now
       && ESubStatePauseToIdle != now
       && !TIZ_PORT_IS_DISABLED (p_port)
       && !TIZ_PORT_IS_BEING_DISABLED (p_port))
@@ -243,7 +242,6 @@ dispatch_config (void *ap_obj, OMX_PTR ap_msg)
    *
    * */
   if (EStatePause != now
-      && ESubStateExecutingToIdle != now
       && ESubStateExecutingToIdle != now
       && ESubStatePauseToIdle != now
       && !TIZ_PORT_IS_DISABLED (p_port)

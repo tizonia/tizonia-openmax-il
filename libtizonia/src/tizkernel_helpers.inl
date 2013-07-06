@@ -840,11 +840,9 @@ process_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
       || p_msg->class == ETIZKrnMsgFillThisBuffer)
     {
       tiz_krn_msg_emptyfillbuffer_t *p_msg_ef = &(p_msg->ef);
-      OMX_PTR p_port = NULL;
       OMX_BUFFERHEADERTYPE *p_hdr = NULL;
       OMX_U32 pid = 0;
       OMX_HANDLETYPE *p_hdl = NULL;
-      OMX_S32 nbufs = 0;
 
       p_hdr = p_msg_ef->p_hdr;
       assert (NULL != p_hdr);
@@ -857,6 +855,8 @@ process_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
 
       if (OMX_ALL == a_data1 || pid == a_data1)
         {
+          OMX_PTR p_port = NULL;
+          OMX_S32 nbufs = 0;
           TIZ_LOGN (TIZ_TRACE, p_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
                     p_hdr, p_hdr->pBuffer, pid);
 
@@ -896,11 +896,9 @@ process_cbacks_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   if (p_msg->class == ETIZKrnMsgCallback)
     {
       tiz_krn_msg_callback_t *p_msg_cb = &(p_msg->cb);
-      OMX_PTR p_port = NULL;
       OMX_BUFFERHEADERTYPE *p_hdr = NULL;
       OMX_U32 pid = 0;
       OMX_HANDLETYPE *p_hdl = NULL;
-      OMX_S32 nbufs = 0;
 
       p_hdr = p_msg_cb->p_hdr;
       assert (NULL != p_hdr);
@@ -912,6 +910,8 @@ process_cbacks_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
 
       if (OMX_ALL == a_data1 || pid == a_data1)
         {
+          OMX_PTR p_port = NULL;
+          OMX_S32 nbufs = 0;
           TIZ_LOGN (TIZ_TRACE, p_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
                     p_hdr, p_hdr->pBuffer, pid);
 
