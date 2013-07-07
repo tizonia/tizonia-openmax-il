@@ -866,49 +866,51 @@ instantiate_component (tizcore_msg_gethandle_t * ap_msg)
 
   if (NULL != (p_reg_item = find_comp_in_registry (ap_msg->p_comp_name)))
     {
-      rc = instantiate_comp_lib (p_reg_item->p_dl_path,
-                                 p_reg_item->p_dl_name,
-                                 TIZ_DEFAULT_COMP_ENTRY_POINT_NAME,
-                                 &p_dl_hdl, &p_entry_point);
-
-      /* TODO: refactor these two blocks into a function. They are also used */
-      /* in add_to_comp_registry */
-
-      /*  Allocate the component hdl */
-      if (NULL == (p_hdl = (OMX_COMPONENTTYPE *) tiz_mem_calloc
-                   (1, (sizeof (OMX_COMPONENTTYPE)))))
-        {
-          TIZ_LOG (TIZ_ERROR, "{OMX_ErrorInsufficientResources] : "
-                   "Could not allocate memory for component handle");
-          return OMX_ErrorInsufficientResources;
-        }
-
-      /* Load the component */
-      if (OMX_ErrorNone != (rc =
-                            ((OMX_COMPONENTINITTYPE) p_entry_point)
-                            ((OMX_HANDLETYPE) p_hdl)))
-        {
-          TIZ_LOG (TIZ_ERROR, "[%s] : Call to component's entry point failed",
-                   tiz_err_to_str (rc));
-          return rc;
-        }
-
-      TIZ_LOG (TIZ_TRACE, "Success - component hdl [%p]",
-               p_hdl);
-
       if (OMX_ErrorNone
-          != (rc = p_hdl->SetCallbacks ((OMX_HANDLETYPE) p_hdl,
-                                        ap_msg->p_callbacks, ap_msg->p_app_data)))
+          == (rc = instantiate_comp_lib (p_reg_item->p_dl_path,
+                                         p_reg_item->p_dl_name,
+                                         TIZ_DEFAULT_COMP_ENTRY_POINT_NAME,
+                                         &p_dl_hdl, &p_entry_point)))
         {
-          TIZ_LOG (TIZ_ERROR, "[%s] : Call to SetCallbacks failed",
-                   tiz_err_to_str (rc));
-          return rc;
+          /* TODO: refactor these two blocks into a function. They are also used */
+          /* in add_to_comp_registry */
+
+          /*  Allocate the component hdl */
+          if (NULL == (p_hdl = (OMX_COMPONENTTYPE *) tiz_mem_calloc
+                       (1, (sizeof (OMX_COMPONENTTYPE)))))
+            {
+              TIZ_LOG (TIZ_ERROR, "{OMX_ErrorInsufficientResources] : "
+                       "Could not allocate memory for component handle");
+              return OMX_ErrorInsufficientResources;
+            }
+
+          /* Load the component */
+          if (OMX_ErrorNone != (rc =
+                                ((OMX_COMPONENTINITTYPE) p_entry_point)
+                                ((OMX_HANDLETYPE) p_hdl)))
+            {
+              TIZ_LOG (TIZ_ERROR, "[%s] : Call to component's entry point "
+                       "failed", tiz_err_to_str (rc));
+              return rc;
+            }
+
+          TIZ_LOG (TIZ_TRACE, "Success - component hdl [%p]",
+                   p_hdl);
+
+          if (OMX_ErrorNone
+              != (rc = p_hdl->SetCallbacks ((OMX_HANDLETYPE) p_hdl,
+                                            ap_msg->p_callbacks,
+                                            ap_msg->p_app_data)))
+            {
+              TIZ_LOG (TIZ_ERROR, "[%s] : Call to SetCallbacks failed",
+                       tiz_err_to_str (rc));
+              return rc;
+            }
+
+          *(ap_msg->pp_hdl) = p_hdl;
+          p_reg_item->p_hdl = p_hdl;
+          p_reg_item->p_dl_hdl = p_dl_hdl;
         }
-
-      *(ap_msg->pp_hdl) = p_hdl;
-      p_reg_item->p_hdl = p_hdl;
-      p_reg_item->p_dl_hdl = p_dl_hdl;
-
     }
   else
     {
