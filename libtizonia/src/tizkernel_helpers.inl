@@ -856,7 +856,6 @@ process_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
       if (OMX_ALL == a_data1 || pid == a_data1)
         {
           OMX_PTR p_port = NULL;
-          OMX_S32 nbufs = 0;
           TIZ_LOGN (TIZ_TRACE, p_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
                     p_hdr, p_hdr->pBuffer, pid);
 
@@ -866,8 +865,7 @@ process_efb_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
           p_port = get_port (p_obj, pid);
 
           /* Add this buffer to the ingress hdr list */
-          if (0 < (nbufs = add_to_buflst (p_obj, p_obj->p_ingress_,
-                                          p_hdr, p_port)))
+          if (0 < add_to_buflst (p_obj, p_obj->p_ingress_, p_hdr, p_port))
             {
               rc = OMX_TRUE;
             }
@@ -911,7 +909,6 @@ process_cbacks_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
       if (OMX_ALL == a_data1 || pid == a_data1)
         {
           OMX_PTR p_port = NULL;
-          OMX_S32 nbufs = 0;
           TIZ_LOGN (TIZ_TRACE, p_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
                     p_hdr, p_hdr->pBuffer, pid);
 
@@ -921,8 +918,7 @@ process_cbacks_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
           p_port = get_port (p_obj, pid);
 
           /* Add this buffer to the egress hdr list */
-          if (0 < (nbufs = add_to_buflst (p_obj, p_obj->p_egress_,
-                                          p_hdr, p_port)))
+          if (0 < add_to_buflst (p_obj, p_obj->p_egress_, p_hdr, p_port))
             {
               TIZ_PORT_DEC_CLAIMED_COUNT (p_port);
               rc = OMX_TRUE;

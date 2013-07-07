@@ -450,7 +450,6 @@ port_SetParameter (const void *ap_obj,
 
     case OMX_IndexParamCompBufferSupplier:
       {
-        OMX_BOOL is_supplier = OMX_FALSE;
         const OMX_PARAM_BUFFERSUPPLIERTYPE *p_bufsup
           = (OMX_PARAM_BUFFERSUPPLIERTYPE *) ap_struct;
 
@@ -461,6 +460,7 @@ port_SetParameter (const void *ap_obj,
 
         if (p_obj->bufsupplier_.eBufferSupplier != p_bufsup->eBufferSupplier)
           {
+            OMX_BOOL is_supplier = OMX_FALSE;
             /* the buffer supplier override procedure */
             /* is initiated by the input port... */
             if (p_obj->thdl_ && p_obj->portdef_.eDir == OMX_DirInput)
@@ -642,7 +642,6 @@ port_ComponentTunnelRequest (const void *ap_obj,
     sizeof (OMX_PARAM_PORTDEFINITIONTYPE),
     _spec_version
   };
-  OMX_BUFFERSUPPLIERTYPE supplier = OMX_BufferSupplyUnspecified;
   OMX_PARAM_BUFFERSUPPLIERTYPE buf_supplier = {
     sizeof (OMX_PARAM_BUFFERSUPPLIERTYPE),
     _spec_version
@@ -705,6 +704,8 @@ port_ComponentTunnelRequest (const void *ap_obj,
   else
     {
       /* OMX_DirInput */
+
+      OMX_BUFFERSUPPLIERTYPE supplier = OMX_BufferSupplyUnspecified;
 
       /* Sanity-check the tunnel setup struct */
       if ((ap_tsetup->eSupplier != OMX_BufferSupplyUnspecified) &&

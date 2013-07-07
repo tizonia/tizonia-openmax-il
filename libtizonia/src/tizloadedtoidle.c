@@ -120,7 +120,6 @@ loadedtoidle_state_set (const void *ap_obj,
 {
   tiz_state_t *p_base = (tiz_state_t *) ap_obj;
   tiz_fsm_state_id_t new_state = EStateMax;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
@@ -156,6 +155,7 @@ loadedtoidle_state_set (const void *ap_obj,
 
   if (ESubStateIdleToLoaded == new_state)
     {
+      OMX_ERRORTYPE rc = OMX_ErrorNone;
       if (OMX_ErrorNone !=
           (rc = tiz_fsm_set_state
            (tiz_get_fsm (ap_hdl), new_state, ESubStateLoadedToIdle)))

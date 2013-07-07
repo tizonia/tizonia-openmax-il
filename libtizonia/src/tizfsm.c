@@ -279,7 +279,7 @@ validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                                                 &may_be_fully_unpopulated);
           if (ETIZKrnFullyUnpopulated == kps
               || (ETIZKrnUnpopulated == kps
-                  && OMX_TRUE == may_be_fully_unpopulated))
+                  && (OMX_TRUE == may_be_fully_unpopulated)))
             {
               /* This is OK */
               return OMX_ErrorNone;
@@ -338,7 +338,7 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl, OMX_U32 a_pid)
                                                     &may_be_fully_unpopulated);
               if (ETIZKrnFullyUnpopulated == kps
                   || (ETIZKrnUnpopulated == kps
-                      && OMX_TRUE == may_be_fully_unpopulated))
+                      && (OMX_TRUE == may_be_fully_unpopulated)))
                 {
                   /* This is OK */
                   return OMX_ErrorNone;
@@ -354,7 +354,7 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl, OMX_U32 a_pid)
                                             &may_be_fully_unpopulated);
       if (ETIZKrnFullyUnpopulated == kps
           || (ETIZKrnUnpopulated == kps
-              && OMX_TRUE == may_be_fully_unpopulated))
+              && (OMX_TRUE == may_be_fully_unpopulated)))
         {
           /* This is OK */
           return OMX_ErrorNone;
@@ -950,7 +950,6 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
                tiz_fsm_state_id_t a_canceled_substate)
 {
   tiz_fsm_t *p_obj = (tiz_fsm_t *) ap_obj;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = NULL;
   void *p_prc = NULL;
   void *p_krn = NULL;
@@ -999,6 +998,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
            * Exe twice */
           if (EStateExecuting == a_new_state)
             {
+              OMX_ERRORTYPE rc = OMX_ErrorNone;
               /* First notify the kernel servant */
               if (OMX_ErrorNone
                   != (rc = tiz_api_SendCommand (p_krn, p_hdl,

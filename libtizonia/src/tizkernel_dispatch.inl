@@ -1037,7 +1037,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
       }
     };
 
-  if (OMX_ErrorNone == rc && OMX_TRUE == done)
+  if (OMX_ErrorNone == rc && (OMX_TRUE == done))
     {
       rc = tiz_fsm_complete_transition
         (tiz_get_fsm (ap_hdl), ap_obj, ap_msg_sc->param1);

@@ -748,11 +748,9 @@ krn_FreeBuffer (const void *ap_obj,
                 OMX_U32 a_pid, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   const tiz_krn_t *p_obj = ap_obj;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR p_port = NULL;
   OMX_BOOL issue_unpop = OMX_FALSE;
   tiz_fsm_state_id_t now = EStateMax;
-  OMX_S32 buf_count;
 
   assert (NULL != ap_obj);
 
@@ -786,6 +784,8 @@ krn_FreeBuffer (const void *ap_obj,
     }
 
   {
+    OMX_ERRORTYPE rc = OMX_ErrorNone;
+    OMX_S32 buf_count;
     const OMX_BOOL was_being_disabled = TIZ_PORT_IS_BEING_DISABLED (p_port);
     /* Delegate to the port... */
     if (OMX_ErrorNone != (rc = tiz_api_FreeBuffer (p_port, ap_hdl,
@@ -1316,7 +1316,6 @@ krn_find_managing_port (const tiz_krn_t * ap_krn,
 {
   OMX_ERRORTYPE rc = OMX_ErrorUnsupportedIndex;
   OMX_PTR *pp_port = NULL;
-  OMX_S32 i, num_ports;
   OMX_U32 *p_port_index;
 
   assert (NULL != ap_krn);
@@ -1333,7 +1332,8 @@ krn_find_managing_port (const tiz_krn_t * ap_krn,
     }
   else
     {
-      num_ports = tiz_vector_length (ap_krn->p_ports_);
+      OMX_S32 i = 0;
+      OMX_S32 num_ports = tiz_vector_length (ap_krn->p_ports_);
       for (i = 0; i < num_ports; ++i)
         {
           pp_port = tiz_vector_at (ap_krn->p_ports_, i);
