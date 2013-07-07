@@ -49,8 +49,8 @@
 static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_br (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg);
-
 typedef struct tiz_prc_msg_sendcommand tiz_prc_msg_sendcommand_t;
+
 static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
                                          OMX_HANDLETYPE p_hdl,
                                          tiz_prc_msg_sendcommand_t *
@@ -77,7 +77,6 @@ enum tiz_prc_msg_class
     ETIZPrcMsgMax,
   };
 
-typedef struct tiz_prc_msg_sendcommand tiz_prc_msg_sendcommand_t;
 struct tiz_prc_msg_sendcommand
 {
   OMX_COMMANDTYPE cmd;
