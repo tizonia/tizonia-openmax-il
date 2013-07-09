@@ -134,6 +134,7 @@ struct icer_listener
   tiz_http_parser_t *p_parser;
   bool need_response;
   bool timer_started;
+  bool want_metadata;
 };
 
 struct icer_server
@@ -687,7 +688,8 @@ create_listener (icer_server_t * ap_server, icer_listener_t ** app_lstnr,
   p_lstnr->p_parser       = NULL;
   p_lstnr->need_response  = true;
   p_lstnr->timer_started  = false;
-
+  p_lstnr->want_metadata  = false;
+ 
   if (NULL ==
       (p_lstnr->buf.p_data = (char *) tiz_mem_alloc (ICE_LISTENER_BUF_SIZE)))
     {
@@ -841,7 +843,8 @@ send_http_error (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 static ssize_t
 build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
                               size_t len, OMX_U32 a_bitrate,
-                              OMX_U32 a_num_channels, OMX_U32 a_sample_rate)
+                              OMX_U32 a_num_channels, OMX_U32 a_sample_rate,
+                              bool a_want_metadata)
 {
   const char *http_version = "1.0";
   char status_buffer[80];
@@ -900,7 +903,7 @@ build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
   /* icy-pub header */
   snprintf (icypub_buffer, sizeof (icypub_buffer), "icy-pub:%u\r\n", pub);
 
-  if (ap_server->mountpoint.metadata_period > 0)
+  if (ap_server->mountpoint.metadata_period > 0 && a_want_metadata)
     {
       /* icy-metaint header */
       snprintf (icymetaint_buffer, sizeof (icymetaint_buffer),
@@ -1013,13 +1016,21 @@ handle_listeners_request (icer_server_t * ap_server,
       goto end;
     }
 
+  if (0 == strcmp ("1", tiz_http_parser_get_header (ap_lstnr->p_parser,
+                                                    "Icy-MetaData")))
+    {
+      TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "ICY metadata requested");
+      ap_lstnr->want_metadata  = true;
+    }
+
   /* The request seems ok. Now build the response */
   if (0 == (to_write = build_http_positive_response (ap_server,
                                                      ap_lstnr->buf.p_data,
                                                      ICE_LISTENER_BUF_SIZE - 1,
                                                      ap_server->bitrate,
                                                      ap_server->num_channels,
-                                                     ap_server->sample_rate)))
+                                                     ap_server->sample_rate,
+                                                     ap_lstnr->want_metadata)))
     {
       TIZ_LOGN (TIZ_ERROR, ap_server->p_hdl, "Internal Server Error");
       send_http_error (ap_server, ap_lstnr, 500, "Internal Server Error");
@@ -1182,8 +1193,9 @@ arrange_metadata (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
   p_hdl = ap_server->p_hdl;
   (void) p_hdl;
 
-  if (0 == len)
+  if (0 == len || !ap_lstnr->want_metadata)
     {
+      ap_server->mountpoint.stream_title_len = 0;
       return;
     }
 
