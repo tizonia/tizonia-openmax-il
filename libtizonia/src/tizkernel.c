@@ -1160,6 +1160,12 @@ krn_stop_and_return (void *ap_obj)
         }
     }
 
+  if (OMX_ErrorNone != rc)
+    {
+      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_obj),
+                "[%s]", tiz_err_to_str (rc));
+    }
+
   return rc;
 }
 
@@ -1612,6 +1618,12 @@ krn_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
               rc = OMX_ErrorNone;
             }
         }
+    }
+
+  if (OMX_ErrorNone != rc)
+    {
+      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_obj),
+                "[%s]", tiz_err_to_str (rc));
     }
 
   return rc;

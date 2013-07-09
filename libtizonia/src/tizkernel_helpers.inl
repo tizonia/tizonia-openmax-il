@@ -545,16 +545,27 @@ flush_marks (void *ap_obj, OMX_PTR ap_port)
       hdr.hMarkTargetComponent = NULL;
       hdr.pMarkData = NULL;
       /* tiz_port_mark_buffer returns OMX_ErrorNone if the port owned the
-       * mark. If the mark is not owned, it returns OMX_ErrorNotReady. If no
-       * marks found, it returns OMX_ErrorNoMore */
+       * mark. If the mark is not owned, it returns OMX_ErrorNotReady. When no
+       * marks are found, it returns OMX_ErrorNoMore */
       if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (ap_port, &hdr)))
         {
+          OMX_ERRORTYPE complet_mark_rc = OMX_ErrorNone;
           /* Need to complete the mark buffer command with an error */
-          complete_mark_buffer (p_obj, ap_port, tiz_port_index (ap_port),
-                                OMX_ErrorPortUnpopulated);
+          if (OMX_ErrorNone
+              != (complet_mark_rc = complete_mark_buffer (p_obj, ap_port,
+                                                          tiz_port_index (ap_port),
+                                                          OMX_ErrorPortUnpopulated)))
+            {
+              break;
+            }
         }
     }
   while (OMX_ErrorNoMore != rc);
+
+  if (OMX_ErrorNoMore == rc)
+    {
+      rc = OMX_ErrorNone;
+    }
 
   return rc;
 }
