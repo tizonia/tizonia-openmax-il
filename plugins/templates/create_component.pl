@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+use strict;
+use warnings;
 use Tie::File;
 use Getopt::Long;
 use vars qw/ %opt /;
@@ -38,7 +40,7 @@ sub init()
     {
         usage();
     }
-    $opt_string = 'l:n:r:a:';
+    my $opt_string = 'l:n:r:a:';
     getopts( "$opt_string", \%opt ) or usage();
     # for $key (keys %opt)
 #     {
@@ -59,9 +61,9 @@ sub init()
 
 sub process_configure_ac
 {
-    $lib = $_[0];
-
-    $file = "template/configure.ac";
+    my $lib   = $_[0];
+    my $file  = "template/configure.ac";
+    my @lines = ();
 
     tie @lines, 'Tie::File', "$file" or die "Can't read file: $!\n";
     foreach ( @lines )
@@ -80,14 +82,13 @@ sub process_top_makefile_am
 
 sub process_src_makefile_am
 {
-    $lib = $_[0];
-    $acr = $_[1];
-
-    $file = "template/src/Makefile.am";
+    my $lib  = $_[0];
+    my $acr  = $_[1];
+    my $file = "template/src/Makefile.am";
+    my @lines = ();
+    my $acrprc = $acr . "prc";
 
     tie @lines, 'Tie::File', "$file" or die "Can't read file: $!\n";
-
-    $acrprc = $acr . "prc";
 
     foreach ( @lines )
     {
@@ -102,34 +103,33 @@ sub process_src_makefile_am
 
 sub rename_src_files
 {
-    $acr = $_[0];
-
-    $fr_c = "template/src/fr.c";
-    $new_fr_c = "template/src/" . "$acr" . ".c";
+    my $acr = $_[0];
+    my $fr_c = "template/src/fr.c";
+    my $new_fr_c = "template/src/" . "$acr" . ".c";
 
     if (-e $fr_c)
     {
         rename $fr_c => $new_fr_c;
     }
 
-    $frprc_c = "template/src/frprc.c";
-    $new_frprc_c = "template/src/" . "$acr" . "prc.c";
+    my $frprc_c = "template/src/frprc.c";
+    my $new_frprc_c = "template/src/" . "$acr" . "prc.c";
 
     if (-e $frprc_c)
     {
         rename $frprc_c => $new_frprc_c;
     }
 
-    $frprc_decls_h = "template/src/frprc_decls.h";
-    $new_frprc_decls_h = "template/src/" . "$acr" . "prc_decls.h";
+    my $frprc_decls_h = "template/src/frprc_decls.h";
+    my $new_frprc_decls_h = "template/src/" . "$acr" . "prc_decls.h";
 
     if (-e $frprc_decls_h)
     {
         rename $frprc_decls_h => $new_frprc_decls_h;
     }
 
-    $frprc_h = "template/src/frprc.h";
-    $new_frprc_h = "template/src/" . "$acr" . "prc.h";
+    my $frprc_h = "template/src/frprc.h";
+    my $new_frprc_h = "template/src/" . "$acr" . "prc.h";
 
     if (-e $frprc_h)
     {
@@ -141,22 +141,24 @@ sub rename_src_files
 
 sub process_src_fr_c
 {
-    $name = $_[0];
-    $role = $_[1];
-    $acr  = $_[2];
+    my $name = $_[0];
+    my $role = $_[1];
+    my $acr  = $_[2];
+    my @data = ();
 
     @data = split(/\./, $role);
-    $category = $data[1];
+    my $category = $data[1];
     @data = split(/_/, $data[0]);
     $category = $category . "_" . "$data[1]";
 
-    $file = "template/src/" . "$acr" . ".c";
+    my $file = "template/src/" . "$acr" . ".c";
 
+    my @lines = ();
     tie @lines, 'Tie::File', "$file" or die "Can't read file: $!\n";
 
-    $acrprc = $acr . "prc";
+    my $acrprc = $acr . "prc";
 
-    $category_uc = uc $category;
+    my $category_uc = uc $category;
 
     foreach ( @lines )
     {
@@ -175,22 +177,24 @@ sub process_src_fr_c
 
 sub process_src_frprc_c
 {
-    $name = $_[0];
-    $role = $_[1];
-    $acr  = $_[2];
+    my $name = $_[0];
+    my $role = $_[1];
+    my $acr  = $_[2];
+    my @data = ();
 
     @data = split(/\./, $role);
-    $category = $data[1];
+    my $category = $data[1];
     @data = split(/_/, $data[0]);
     $category = $category . "_" . "$data[1]";
 
-    $file = "template/src/" . "$acr" . "prc.c";
+    my $file = "template/src/" . "$acr" . "prc.c";
 
+    my @lines = ();
     tie @lines, 'Tie::File', "$file" or die "Can't read file: $!\n";
 
-    $acrprc = $acr . "prc";
-    $category_uc = uc $category;
-    $fr_ = $acr . "_";
+    my $acrprc = $acr . "prc";
+    my $category_uc = uc $category;
+    my $fr_ = $acr . "_";
 
     foreach ( @lines )
     {
@@ -210,23 +214,25 @@ sub process_src_frprc_c
 
 sub process_src_frprc_decls_h
 {
-    $name = $_[0];
-    $role = $_[1];
-    $acr  = $_[2];
+    my $name = $_[0];
+    my $role = $_[1];
+    my $acr  = $_[2];
+    my @data = ();
 
     @data = split(/\./, $role);
-    $category = $data[1];
+    my $category = $data[1];
     @data = split(/_/, $data[0]);
     $category = $category . "_" . "$data[1]";
 
-    $file = "template/src/" . "$acr" . "prc_decls.h";
+    my $file = "template/src/" . "$acr" . "prc_decls.h";
 
+    my @lines = ();
     tie @lines, 'Tie::File', "$file" or die "Can't read file: $!\n";
 
-    $acrprc = $acr . "prc";
-    $acrprc_uc = uc $acrprc;
-    $category_uc = uc $category;
-    $fr_ = $acr . "_";
+    my $acrprc = $acr . "prc";
+    my $acrprc_uc = uc $acrprc;
+    my $category_uc = uc $category;
+    my $fr_ = $acr . "_";
 
     foreach ( @lines )
     {
@@ -247,23 +253,25 @@ sub process_src_frprc_decls_h
 
 sub process_src_frprc_h
 {
-    $name = $_[0];
-    $role = $_[1];
-    $acr  = $_[2];
+    my $name = $_[0];
+    my $role = $_[1];
+    my $acr  = $_[2];
+    my @data = ();
 
     @data = split(/\./, $role);
-    $category = $data[1];
+    my $category = $data[1];
     @data = split(/_/, $data[0]);
     $category = $category . "_" . "$data[1]";
 
-    $file = "template/src/" . "$acr" . "prc.h";
+    my $file = "template/src/" . "$acr" . "prc.h";
 
+    my @lines = ();
     tie @lines, 'Tie::File', "$file" or die "Can't read file: $!\n";
 
-    $acrprc = $acr . "prc";
-    $acrprc_uc = uc $acrprc;
-    $category_uc = uc $category;
-    $fr_ = $acr . "_";
+    my $acrprc = $acr . "prc";
+    my $acrprc_uc = uc $acrprc;
+    my $category_uc = uc $category;
+    my $fr_ = $acr . "_";
 
     foreach ( @lines )
     {
@@ -285,12 +293,13 @@ sub process_src_frprc_h
 
 sub rename_folder
 {
-    $role = $_[0];
+    my $role = $_[0];
+    my @data = ();
 
     @data = split(/\./, $role);
-    $tech = $data[1];
+    my $tech = $data[1];
     @data = split(/_/, $data[0]);
-    $new_folder_name = $tech . "_" . "$data[1]";
+    my $new_folder_name = $tech . "_" . "$data[1]";
 
     if (-e "template")
     {
