@@ -834,7 +834,7 @@ send_http_error (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
             "<html><head><title>Error %i</title></head><body><b>%i - %s</b>"
             "</body></html>\r\n", a_error, a_error, ap_err_msg);
 
-  ap_lstnr->buf.len = strlen (ap_lstnr->buf.p_data);
+  ap_lstnr->buf.len = strnlen (ap_lstnr->buf.p_data, ICE_LISTENER_BUF_SIZE);
 
   send (ap_lstnr->p_con->sockfd, ap_lstnr->buf.p_data, ap_lstnr->buf.len, 0);
   ap_lstnr->buf.len = 0;
@@ -920,8 +920,7 @@ build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
                   icygenre_buffer,
                   icyurl_buffer,
                   icypub_buffer,
-                  (ap_server->mountpoint.
-                   metadata_period ? icymetaint_buffer : ""),
+                  (a_want_metadata ? icymetaint_buffer : ""),
                   "Server: Tizonia HTTP Renderer 0.1.0\r\n",
                   "Cache-Control: no-cache\r\n");
 
@@ -938,7 +937,7 @@ send_http_response (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
   assert (NULL != ap_lstnr->buf.p_data);
   assert (NULL != ap_lstnr->p_con);
 
-  ap_lstnr->buf.len = strlen (ap_lstnr->buf.p_data);
+  ap_lstnr->buf.len = strnlen (ap_lstnr->buf.p_data, ICE_LISTENER_BUF_SIZE);
 
   sent_bytes = send (ap_lstnr->p_con->sockfd, ap_lstnr->buf.p_data,
                      ap_lstnr->buf.len, 0);
@@ -956,6 +955,7 @@ handle_listeners_request (icer_server_t * ap_server,
   bool some_error = true;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int to_write = -1;
+  const char * parsed_string = NULL;
 
   assert (NULL != ap_server);
   assert (NULL != ap_lstnr);
@@ -1002,22 +1002,25 @@ handle_listeners_request (icer_server_t * ap_server,
       goto end;
     }
 
-  if (0 != strcmp ("GET", tiz_http_parser_get_method (ap_lstnr->p_parser)))
+  if (NULL == (parsed_string = tiz_http_parser_get_method (ap_lstnr->p_parser))
+      || (0 != strncmp ("GET", parsed_string, strlen ("GET"))))
     {
       TIZ_LOGN (TIZ_ERROR, ap_server->p_hdl, "Bad http method");
       send_http_error (ap_server, ap_lstnr, 405, "Method not allowed");
       goto end;
     }
 
-  if (0 != strcmp ("/", tiz_http_parser_get_url (ap_lstnr->p_parser)))
+  if (NULL == (parsed_string = tiz_http_parser_get_url (ap_lstnr->p_parser))
+      || (0 != strncmp ("/", parsed_string, strlen ("/"))))
     {
       TIZ_LOGN (TIZ_ERROR, ap_server->p_hdl, "Bad url");
       send_http_error (ap_server, ap_lstnr, 405, "Unathorized");
       goto end;
     }
 
-  if (0 == strcmp ("1", tiz_http_parser_get_header (ap_lstnr->p_parser,
-                                                    "Icy-MetaData")))
+  if (NULL != (parsed_string = tiz_http_parser_get_header (ap_lstnr->p_parser,
+                                                           "Icy-MetaData"))
+      && (0 == strncmp ("1", parsed_string, strlen ("1"))))
     {
       TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "ICY metadata requested");
       ap_lstnr->want_metadata  = true;
@@ -1170,7 +1173,8 @@ get_metadata_length (const icer_server_t * ap_server,
       return 0;
     }
 
-  return strlen ((char *) ap_server->mountpoint.stream_title);
+  return strnlen ((char *) ap_server->mountpoint.stream_title,
+                  OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE);
 }
 
 static void
