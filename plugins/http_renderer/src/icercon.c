@@ -591,7 +591,7 @@ create_connection (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
   p_hdl = ap_server->p_hdl;
 
   if (NULL != (p_con = (icer_connection_t *)
-               tiz_mem_calloc (1, sizeof (icer_connection_t))));
+               tiz_mem_calloc (1, sizeof (icer_connection_t))))
   {
     OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -862,6 +862,7 @@ build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
   const char *contenttype = "audio/mpeg";
   int status = 200;
   int pub = 0;
+  bool metadata_needed = false;
 
   assert (NULL != ap_server);
   assert (NULL != ap_buf);
@@ -905,6 +906,7 @@ build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
 
   if (ap_server->mountpoint.metadata_period > 0 && a_want_metadata)
     {
+      metadata_needed = true;
       /* icy-metaint header */
       snprintf (icymetaint_buffer, sizeof (icymetaint_buffer),
                 "icy-metaint:%lu\r\n", ap_server->mountpoint.metadata_period);
@@ -920,7 +922,7 @@ build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
                   icygenre_buffer,
                   icyurl_buffer,
                   icypub_buffer,
-                  (a_want_metadata ? icymetaint_buffer : ""),
+                  (metadata_needed ? icymetaint_buffer : ""),
                   "Server: Tizonia HTTP Renderer 0.1.0\r\n",
                   "Cache-Control: no-cache\r\n");
 
@@ -1197,7 +1199,8 @@ arrange_metadata (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
   p_hdl = ap_server->p_hdl;
   (void) p_hdl;
 
-  if (0 == len || !ap_lstnr->want_metadata)
+  if (0 == len || !ap_lstnr->want_metadata
+      || 0 == ap_server->mountpoint.metadata_period)
     {
       ap_server->mountpoint.stream_title_len = 0;
       return;
@@ -1207,75 +1210,78 @@ arrange_metadata (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
    * the listener buffer */
   if (is_time_to_send_metadata (ap_server, ap_lstnr))
     {
-      OMX_U8 *p_dest = NULL;
-      OMX_U8 *p_src = NULL;
-
-      size_t metadata_len = get_metadata_length (ap_server, ap_lstnr);
       size_t metadata_offset = get_metadata_offset (ap_server, ap_lstnr);
-      size_t metadata_total = 0;
-      size_t metadata_byte = 0;
 
       TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl,
                 "metadata_offset=[%d] p_lstnr_buf->len [%d] len [%d]",
                 metadata_offset, p_lstnr_buf->len, len);
 
-      /* We use the listener's buffer to inline the metadata */
-      if (p_lstnr_buf->len == 0)
+      if (metadata_offset < len)
         {
-          memcpy (p_lstnr_buf->p_data, p_buffer, len);
-          p_buffer = (OMX_U8 *) p_lstnr_buf->p_data;
+          OMX_U8 *p_dest = NULL;
+          OMX_U8 *p_src = NULL;
+          size_t metadata_len = get_metadata_length (ap_server, ap_lstnr);
+          size_t metadata_total = 0;
+          size_t metadata_byte = 0;
+
+          /* We use the listener's buffer to inline the metadata */
+          if (p_lstnr_buf->len == 0)
+            {
+              memcpy (p_lstnr_buf->p_data, p_buffer, len);
+              p_buffer = (OMX_U8 *) p_lstnr_buf->p_data;
+              p_lstnr_buf->len = len;
+              ap_lstnr->pos += len;
+            }
+
+          if (metadata_len > 0)
+            {
+              metadata_byte = (metadata_len - 1) / 16 + 1;
+            }
+          else
+            {
+              metadata_byte = 0;
+            }
+
+          metadata_total = (metadata_byte * 16) + 1;
+          p_dest = p_buffer + metadata_offset + metadata_total;
+          p_src = p_buffer + metadata_offset;
+
+          /* Move content to make space for the metadata */
+          memmove (p_dest, p_src, len - metadata_offset);
+
+          ap_server->mountpoint.stream_title_len = metadata_total;
+
+          if (metadata_len)
+            {
+              snprintf ((char *) p_src, metadata_total, "%c%s",
+                        (int) metadata_byte,
+                        (char *) ap_server->mountpoint.stream_title);
+              ap_lstnr->p_con->metadata_delivered = true;
+              TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl,
+                        "p_src[0]=[%u] offset [%d] (metadata [%s])",
+                        (unsigned int) p_src[0], p_src - p_buffer,
+                        (char *) p_src + 1);
+            }
+          else
+            {
+              p_src[0] = metadata_byte;
+            }
+
+          len += metadata_total;
           p_lstnr_buf->len = len;
-          ap_lstnr->pos += len;
+
+          TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "p_src[0]=[%u] "
+                    "(metadata_len [%d] metadata_offset [%d] "
+                    "metadata_total [%d]) inserting at byte [%d] "
+                    "p_lstnr_buf->len [%d] stream_title_len [%d]",
+                    (unsigned int) p_src[0],
+                    metadata_len, metadata_offset,
+                    metadata_total, ap_lstnr->p_con->sent_total + metadata_offset,
+                    p_lstnr_buf->len, ap_server->mountpoint.stream_title_len);
+
+          *ap_len     = len;
+          *app_buffer = p_buffer;
         }
-
-      if (metadata_len > 0)
-        {
-          metadata_byte = (metadata_len - 1) / 16 + 1;
-        }
-      else
-        {
-          metadata_byte = 0;
-        }
-
-      metadata_total = (metadata_byte * 16) + 1;
-      p_dest = p_buffer + metadata_offset + metadata_total;
-      p_src = p_buffer + metadata_offset;
-
-      /* Move content to make space for the metadata */
-      memmove (p_dest, p_src, len - metadata_offset);
-
-      ap_server->mountpoint.stream_title_len = metadata_total;
-
-      if (metadata_len)
-        {
-          snprintf ((char *) p_src, metadata_total, "%c%s",
-                    (int) metadata_byte,
-                    (char *) ap_server->mountpoint.stream_title);
-          ap_lstnr->p_con->metadata_delivered = true;
-          TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl,
-                    "p_src[0]=[%u] offset [%d] (metadata [%s])",
-                    (unsigned int) p_src[0], p_src - p_buffer,
-                    (char *) p_src + 1);
-        }
-      else
-        {
-          p_src[0] = metadata_byte;
-        }
-
-      len += metadata_total;
-      p_lstnr_buf->len = len;
-
-      TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "p_src[0]=[%u] "
-                "(metadata_len [%d] metadata_offset [%d] "
-                "metadata_total [%d]) inserting at byte [%d] "
-                "p_lstnr_buf->len [%d] stream_title_len [%d]",
-                (unsigned int) p_src[0],
-                metadata_len, metadata_offset,
-                metadata_total, ap_lstnr->p_con->sent_total + metadata_offset,
-                p_lstnr_buf->len, ap_server->mountpoint.stream_title_len);
-
-      *ap_len = len;
-      *app_buffer = p_buffer;
     }
 }
 
@@ -1361,6 +1367,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
   int bytes = 0;
 
   assert (NULL != p_server);
+  assert (NULL != p_server->p_hdr);
   assert (NULL != ap_key);
   assert (NULL != ap_value);
 
@@ -1906,9 +1913,10 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
       return;
     }
 
-  ap_server->bitrate         = (a_bitrate != 0 ? a_bitrate : 128000);
-  ap_server->num_channels    = (a_num_channels != 0 ? a_num_channels : 2);
-  ap_server->sample_rate     = (a_sample_rate != 0 ? a_sample_rate : 44100);
+  ap_server->bitrate      = (a_bitrate != 0 ? a_bitrate : 128000);
+  ap_server->num_channels = (a_num_channels != 0 ? a_num_channels : 2);
+  ap_server->sample_rate  = (a_sample_rate != 0 ? a_sample_rate : 44100);
+  assert (0 != a_sample_rate);
   ap_server->bytes_per_frame = (144 * a_bitrate / a_sample_rate) + 1;
   ap_server->burst_size      = ICE_MIN_BURST_SIZE;
 
