@@ -36,7 +36,7 @@ extern "C"
 
 #include "icerprc.h"
 #include "tizproc_decls.h"
-#include "icercon.h"
+#include "icernet.h"
 #include "tizosal.h"
 
 #include <stdbool.h>

@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   icercon.c
+ * @file   icernet.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - HTTP renderer's connection management functions
+ * @brief Tizonia OpenMAX IL - HTTP renderer's networking functions
  *
  * NOTE: This is work in progress!!!!
  *
@@ -34,7 +34,7 @@
 #include <config.h>
 #endif
 
-#include "icercon.h"
+#include "icernet.h"
 #include "tizosal.h"
 #include "tizutils.h"
 #include "OMX_TizoniaExt.h"
@@ -55,7 +55,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.prc.con"
+#define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.prc.net"
 #endif
 
 #define ICE_DEFAULT_HEADER_TIMEOUT 10
@@ -1521,7 +1521,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 /*               */
 
 OMX_ERRORTYPE
-icer_con_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
+icer_net_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
                       OMX_STRING a_address, OMX_U32 a_port,
                       OMX_U32 a_max_clients,
                       icer_buffer_emptied_f a_pf_emptied,
@@ -1630,7 +1630,7 @@ end:
 }
 
 void
-icer_con_server_destroy (icer_server_t * ap_server)
+icer_net_server_destroy (icer_server_t * ap_server)
 {
   assert (NULL != ap_server);
 
@@ -1649,7 +1649,7 @@ icer_con_server_destroy (icer_server_t * ap_server)
 }
 
 OMX_ERRORTYPE
-icer_con_start_listening (icer_server_t * ap_server)
+icer_net_start_listening (icer_server_t * ap_server)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = NULL;
@@ -1676,7 +1676,7 @@ icer_con_start_listening (icer_server_t * ap_server)
 }
 
 OMX_ERRORTYPE
-icer_con_accept_connection (icer_server_t * ap_server)
+icer_net_accept_connection (icer_server_t * ap_server)
 {
   char *p_ip = NULL;
   icer_listener_t *p_lstnr = NULL;
@@ -1781,7 +1781,7 @@ end:
 }
 
 OMX_ERRORTYPE
-icer_con_stop_listening (icer_server_t * ap_server)
+icer_net_stop_listening (icer_server_t * ap_server)
 {
   if (NULL != ap_server)
     {
@@ -1791,7 +1791,7 @@ icer_con_stop_listening (icer_server_t * ap_server)
 }
 
 OMX_ERRORTYPE
-icer_con_write_to_listeners (icer_server_t * ap_server)
+icer_net_write_to_listeners (icer_server_t * ap_server)
 {
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1891,7 +1891,7 @@ icer_con_write_to_listeners (icer_server_t * ap_server)
 }
 
 int
-icer_con_get_server_fd (const icer_server_t * ap_server)
+icer_net_get_server_fd (const icer_server_t * ap_server)
 {
   assert (NULL != ap_server);
   if (NULL == ap_server)
@@ -1902,7 +1902,7 @@ icer_con_get_server_fd (const icer_server_t * ap_server)
 }
 
 void
-icer_con_set_mp3_settings (icer_server_t * ap_server,
+icer_net_set_mp3_settings (icer_server_t * ap_server,
                            OMX_U32 a_bitrate,
                            OMX_U32 a_num_channels, OMX_U32 a_sample_rate)
 {
@@ -1994,7 +1994,7 @@ icer_con_set_mp3_settings (icer_server_t * ap_server,
 }
 
 void
-icer_con_set_mountpoint_settings (icer_server_t * ap_server,
+icer_net_set_mountpoint_settings (icer_server_t * ap_server,
                                   OMX_U8 * ap_mount_name,
                                   OMX_U8 * ap_station_name,
                                   OMX_U8 * ap_station_description,
@@ -2045,7 +2045,7 @@ icer_con_set_mountpoint_settings (icer_server_t * ap_server,
 }
 
 void
-icer_con_set_icecast_metadata (icer_server_t * ap_server,
+icer_net_set_icecast_metadata (icer_server_t * ap_server,
                                OMX_U8 * ap_stream_title)
 {
   icer_mount_t *p_mount = NULL;

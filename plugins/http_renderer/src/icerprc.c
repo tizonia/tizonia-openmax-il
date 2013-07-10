@@ -58,7 +58,7 @@ stream_to_clients (icer_prc_t * ap_obj, OMX_HANDLETYPE ap_hdl)
   assert (NULL != ap_obj);
   if (ap_obj->p_server_)
     {
-      rc = icer_con_write_to_listeners (ap_obj->p_server_);
+      rc = icer_net_write_to_listeners (ap_obj->p_server_);
       switch (rc)
         {
         case OMX_ErrorNoMore:
@@ -265,7 +265,7 @@ icer_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
             p_obj->server_info_.nListeningPort,
             p_obj->server_info_.nMaxClients);
 
-  return icer_con_server_init (&(p_obj->p_server_), p_hdl,
+  return icer_net_server_init (&(p_obj->p_server_), p_hdl,
                                p_obj->server_info_.cBindAddress,    /* if this is
                                                                      * null, the
                                                                      * server will
@@ -282,7 +282,7 @@ icer_prc_deallocate_resources (void *ap_obj)
 {
   icer_prc_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
-  icer_con_server_destroy (p_obj->p_server_);
+  icer_net_server_destroy (p_obj->p_server_);
   p_obj->p_server_ = NULL;
   return OMX_ErrorNone;
 }
@@ -295,7 +295,7 @@ icer_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 
   assert (NULL != ap_obj);
 
-  p_obj->lstn_sockfd_ = icer_con_get_server_fd (p_obj->p_server_);
+  p_obj->lstn_sockfd_ = icer_net_get_server_fd (p_obj->p_server_);
 
   /* Obtain mp3 settings from port */
   if (OMX_ErrorNone !=
@@ -304,7 +304,7 @@ icer_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
       return rc;
     }
 
-  icer_con_set_mp3_settings (p_obj->p_server_, p_obj->mp3type_.nBitRate,
+  icer_net_set_mp3_settings (p_obj->p_server_, p_obj->mp3type_.nBitRate,
                              p_obj->mp3type_.nChannels,
                              p_obj->mp3type_.nSampleRate);
 
@@ -319,7 +319,7 @@ icer_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
       return rc;
     }
 
-  icer_con_set_mountpoint_settings (p_obj->p_server_,
+  icer_net_set_mountpoint_settings (p_obj->p_server_,
                                     p_obj->mountpoint_.cMountName,
                                     p_obj->mountpoint_.cStationName,
                                     p_obj->mountpoint_.cStationDescription,
@@ -332,7 +332,7 @@ icer_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 
   icer_prc_config_change (p_obj, 0, OMX_TizoniaIndexConfigIcecastMetadata);
 
-  return icer_con_start_listening (p_obj->p_server_);
+  return icer_net_start_listening (p_obj->p_server_);
 }
 
 static OMX_ERRORTYPE
@@ -346,7 +346,7 @@ icer_prc_stop_and_return (void *ap_obj)
 {
   icer_prc_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
-  return icer_con_stop_listening (p_obj->p_server_);
+  return icer_net_stop_listening (p_obj->p_server_);
 }
 
 /*
@@ -379,7 +379,7 @@ icer_prc_io_ready (void *ap_obj,
 
   if (a_fd == p_obj->lstn_sockfd_)
     {
-      rc = icer_con_accept_connection (p_obj->p_server_);
+      rc = icer_net_accept_connection (p_obj->p_server_);
       if (OMX_ErrorInsufficientResources != rc)
         {
           rc = OMX_ErrorNone;
@@ -423,7 +423,7 @@ icer_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
       return rc;
     }
 
-  icer_con_set_mp3_settings (p_obj->p_server_, p_obj->mp3type_.nBitRate,
+  icer_net_set_mp3_settings (p_obj->p_server_, p_obj->mp3type_.nBitRate,
                              p_obj->mp3type_.nChannels,
                              p_obj->mp3type_.nSampleRate);
 
@@ -485,7 +485,7 @@ icer_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
         }
       else
         {
-          icer_con_set_icecast_metadata (p_obj->p_server_,
+          icer_net_set_icecast_metadata (p_obj->p_server_,
                                          p_metadata->cStreamTitle);
         }
     }
