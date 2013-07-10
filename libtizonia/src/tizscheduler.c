@@ -1267,11 +1267,11 @@ configure_port_preannouncements (tiz_scheduler_t * ap_sched,
   /* OMX.component.name.key */
   sprintf (port_num, "%u", (unsigned int) pid);
   strncpy (fqd_key, ap_sched->cname, OMX_MAX_STRINGNAME_SIZE - 1);
-  /* Make sure fqd_key is null-terminated, to make static analyzers happy */
+  /* Make sure fqd_key is null-terminated */
   fqd_key[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
   strncat (fqd_key, ".preannouncements_disabled.port",
-           OMX_MAX_STRINGNAME_SIZE - 1);
-  strncat (fqd_key, port_num, OMX_MAX_STRINGNAME_SIZE - 1);
+           OMX_MAX_STRINGNAME_SIZE - strlen (fqd_key) - 1);
+  strncat (fqd_key, port_num, OMX_MAX_STRINGNAME_SIZE - strlen (fqd_key) - 1);
 
   p_preannounce_disabled = tiz_rcfile_get_value ("plugins-data", fqd_key);
 

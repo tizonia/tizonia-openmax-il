@@ -124,7 +124,8 @@ tizmp3graph::configure_mp3_graph (const int file_index)
     + OMX_MAX_STRINGNAME_SIZE;
   p_uritype->nVersion.nVersion = OMX_VERSION;
 
-  strncpy ((char *) p_uritype->contentURI, probe_ptr_->get_uri ().c_str (),
+  const size_t uri_offset = offsetof (OMX_PARAM_CONTENTURITYPE, contentURI);
+  strncpy ((char *) p_uritype + uri_offset, probe_ptr_->get_uri ().c_str (),
            OMX_MAX_STRINGNAME_SIZE);
   p_uritype->contentURI[strlen (probe_ptr_->get_uri ().c_str ())] = '\0';
 
