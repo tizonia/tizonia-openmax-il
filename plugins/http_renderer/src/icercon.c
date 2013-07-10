@@ -83,9 +83,8 @@ typedef struct icer_listener_buffer icer_listener_buffer_t;
 struct icer_listener_buffer
 {
   unsigned int len;
-  unsigned int count;
+  unsigned int metadata_bytes;
   char *p_data;
-  bool sync_point;
 };
 
 typedef struct icer_mount icer_mount_t;
@@ -98,7 +97,6 @@ struct icer_mount
   OMX_U8 station_url[OMX_MAX_STRINGNAME_SIZE];
   OMX_U32 metadata_period;
   OMX_U8 stream_title[OMX_MAX_STRINGNAME_SIZE];
-  OMX_U32 stream_title_len;
   OMX_U32 initial_burst_size;
   OMX_U32 max_clients;
 };
@@ -678,17 +676,16 @@ create_listener (icer_server_t * ap_server, icer_listener_t ** app_lstnr,
       goto end;
     }
 
-  p_lstnr->p_con          = p_con;
-  p_lstnr->respcode       = 200;
-  p_lstnr->intro_offset   = 0;
-  p_lstnr->pos            = 0;
-  p_lstnr->buf.len        = ICE_LISTENER_BUF_SIZE;
-  p_lstnr->buf.count      = 1;
-  p_lstnr->buf.sync_point = false;
-  p_lstnr->p_parser       = NULL;
-  p_lstnr->need_response  = true;
-  p_lstnr->timer_started  = false;
-  p_lstnr->want_metadata  = false;
+  p_lstnr->p_con              = p_con;
+  p_lstnr->respcode           = 200;
+  p_lstnr->intro_offset       = 0;
+  p_lstnr->pos                = 0;
+  p_lstnr->buf.len            = ICE_LISTENER_BUF_SIZE;
+  p_lstnr->buf.metadata_bytes = 0;
+  p_lstnr->p_parser           = NULL;
+  p_lstnr->need_response      = true;
+  p_lstnr->timer_started      = false;
+  p_lstnr->want_metadata      = false;
  
   if (NULL ==
       (p_lstnr->buf.p_data = (char *) tiz_mem_alloc (ICE_LISTENER_BUF_SIZE)))
@@ -1080,6 +1077,26 @@ remove_existing_listener (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
   return 0;
 }
 
+static OMX_S32
+remove_failed_listener (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
+{
+  icer_server_t *p_server = ap_arg;
+  icer_listener_t *p_lstnr = NULL;
+
+  assert (NULL != p_server);
+  assert (NULL != ap_key);
+  assert (NULL != ap_value);
+
+  p_lstnr = (icer_listener_t *) ap_value;
+
+  if (NULL != p_lstnr->p_con && true == p_lstnr->p_con->error)
+    {
+      remove_listener (p_server, p_lstnr);
+    }
+
+  return 0;
+}
+
 inline static void
 release_empty_buffer (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
                       OMX_BUFFERHEADERTYPE ** app_hdr)
@@ -1183,106 +1200,103 @@ static void
 arrange_metadata (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
                   OMX_U8 ** app_buffer, size_t * ap_len)
 {
-  OMX_U8 *p_buffer = NULL;
   size_t len = 0;
   icer_listener_buffer_t *p_lstnr_buf = NULL;
-  OMX_HANDLETYPE p_hdl = NULL;
 
   assert (NULL != ap_server);
   assert (NULL != ap_lstnr);
   assert (NULL != app_buffer);
   assert (NULL != ap_len);
 
-  p_buffer = *app_buffer;
-  len = *ap_len;
+  len         = *ap_len;
   p_lstnr_buf = &ap_lstnr->buf;
-  p_hdl = ap_server->p_hdl;
-  (void) p_hdl;
-
+  
   if (0 == len || !ap_lstnr->want_metadata
-      || 0 == ap_server->mountpoint.metadata_period)
+      || 0 == ap_server->mountpoint.metadata_period
+      || !is_time_to_send_metadata (ap_server, ap_lstnr))
     {
-      ap_server->mountpoint.stream_title_len = 0;
+      p_lstnr_buf->metadata_bytes = 0;
       return;
     }
 
   /* If metadata needs to be sent in this burst, copy both data + metadata into
    * the listener buffer */
-  if (is_time_to_send_metadata (ap_server, ap_lstnr))
-    {
-      size_t metadata_offset = get_metadata_offset (ap_server, ap_lstnr);
+  {
+    OMX_HANDLETYPE p_hdl = ap_server->p_hdl;
+    OMX_U8 *p_buffer = *app_buffer;
+    size_t metadata_offset = get_metadata_offset (ap_server, ap_lstnr);
 
-      TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl,
-                "metadata_offset=[%d] p_lstnr_buf->len [%d] len [%d]",
-                metadata_offset, p_lstnr_buf->len, len);
+    TIZ_LOGN (TIZ_TRACE, p_hdl,
+              "metadata_offset=[%d] p_lstnr_buf->len [%d] len [%d]",
+              metadata_offset, p_lstnr_buf->len, len);
 
-      if (metadata_offset < len)
-        {
-          OMX_U8 *p_dest = NULL;
-          OMX_U8 *p_src = NULL;
-          size_t metadata_len = get_metadata_length (ap_server, ap_lstnr);
-          size_t metadata_total = 0;
-          size_t metadata_byte = 0;
+    if (metadata_offset < len)
+      {
+        OMX_U8 *p_dest = NULL;
+        OMX_U8 *p_src = NULL;
+        size_t metadata_len = get_metadata_length (ap_server, ap_lstnr);
+        size_t metadata_total = 0;
+        size_t metadata_byte = 0;
 
-          /* We use the listener's buffer to inline the metadata */
-          if (p_lstnr_buf->len == 0)
-            {
-              memcpy (p_lstnr_buf->p_data, p_buffer, len);
-              p_buffer = (OMX_U8 *) p_lstnr_buf->p_data;
-              p_lstnr_buf->len = len;
-              ap_lstnr->pos += len;
-            }
+        /* We use the listener's buffer to inline the metadata */
+        if (p_lstnr_buf->len == 0)
+          {
+            memcpy (p_lstnr_buf->p_data, p_buffer, len);
+            p_buffer = (OMX_U8 *) p_lstnr_buf->p_data;
+            p_lstnr_buf->len = len;
+            ap_lstnr->pos += len;
+          }
 
-          if (metadata_len > 0)
-            {
-              metadata_byte = (metadata_len - 1) / 16 + 1;
-            }
-          else
-            {
-              metadata_byte = 0;
-            }
+        if (metadata_len > 0)
+          {
+            metadata_byte = (metadata_len - 1) / 16 + 1;
+          }
+        else
+          {
+            metadata_byte = 0;
+          }
 
-          metadata_total = (metadata_byte * 16) + 1;
-          p_dest = p_buffer + metadata_offset + metadata_total;
-          p_src = p_buffer + metadata_offset;
+        metadata_total = (metadata_byte * 16) + 1;
+        p_dest = p_buffer + metadata_offset + metadata_total;
+        p_src = p_buffer + metadata_offset;
 
-          /* Move content to make space for the metadata */
-          memmove (p_dest, p_src, len - metadata_offset);
+        /* Move content to make space for the metadata */
+        memmove (p_dest, p_src, len - metadata_offset);
 
-          ap_server->mountpoint.stream_title_len = metadata_total;
+        p_lstnr_buf->metadata_bytes = metadata_total;
 
-          if (metadata_len)
-            {
-              snprintf ((char *) p_src, metadata_total, "%c%s",
-                        (int) metadata_byte,
-                        (char *) ap_server->mountpoint.stream_title);
-              ap_lstnr->p_con->metadata_delivered = true;
-              TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl,
-                        "p_src[0]=[%u] offset [%d] (metadata [%s])",
-                        (unsigned int) p_src[0], p_src - p_buffer,
-                        (char *) p_src + 1);
-            }
-          else
-            {
-              p_src[0] = metadata_byte;
-            }
+        if (metadata_len)
+          {
+            snprintf ((char *) p_src, metadata_total, "%c%s",
+                      (int) metadata_byte,
+                      (char *) ap_server->mountpoint.stream_title);
+            ap_lstnr->p_con->metadata_delivered = true;
+            TIZ_LOGN (TIZ_TRACE, p_hdl,
+                      "p_src[0]=[%u] offset [%d] (metadata [%s])",
+                      (unsigned int) p_src[0], p_src - p_buffer,
+                      (char *) p_src + 1);
+          }
+        else
+          {
+            p_src[0] = metadata_byte;
+          }
 
-          len += metadata_total;
-          p_lstnr_buf->len = len;
+        len += metadata_total;
+        p_lstnr_buf->len = len;
 
-          TIZ_LOGN (TIZ_TRACE, ap_server->p_hdl, "p_src[0]=[%u] "
-                    "(metadata_len [%d] metadata_offset [%d] "
-                    "metadata_total [%d]) inserting at byte [%d] "
-                    "p_lstnr_buf->len [%d] stream_title_len [%d]",
-                    (unsigned int) p_src[0],
-                    metadata_len, metadata_offset,
-                    metadata_total, ap_lstnr->p_con->sent_total + metadata_offset,
-                    p_lstnr_buf->len, ap_server->mountpoint.stream_title_len);
+        TIZ_LOGN (TIZ_TRACE, p_hdl, "p_src[0]=[%u] "
+                  "(metadata_len [%d] metadata_offset [%d] "
+                  "metadata_total [%d]) inserting at byte [%d] "
+                  "p_lstnr_buf->len [%d] stream_title_len [%d]",
+                  (unsigned int) p_src[0],
+                  metadata_len, metadata_offset,
+                  metadata_total, ap_lstnr->p_con->sent_total + metadata_offset,
+                  p_lstnr_buf->len, p_lstnr_buf->metadata_bytes);
 
-          *ap_len     = len;
-          *app_buffer = p_buffer;
-        }
-    }
+        *ap_len     = len;
+        *app_buffer = p_buffer;
+      }
+  }
 }
 
 static void
@@ -1390,8 +1404,8 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
     {
       TIZ_LOGN (TIZ_WARN, p_server->p_hdl, "Destroying listener "
                 "(Invalid listener socket fd [%d])", sock);
+      /* Mark the listener as failed, so that it will get removed */
       p_con->error = true;
-      remove_listener (p_server, p_lstnr);
       return 0;
     }
 
@@ -1409,7 +1423,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
             {
               TIZ_LOGN (TIZ_WARN, p_server->p_hdl, "Destroying listener "
                         "(non-recoverable error while writing to socket ");
-              remove_listener (p_server, p_lstnr);
+              /* Mark the listener as failed, so that it will get removed */
               p_con->error = true;
             }
           else
@@ -1427,7 +1441,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
                     "bytes [%d] p_lstnr_buf->len [%d] "
                     "burst_bytes [%d] stream_title_len [%d]", bytes,
                     p_lstnr_buf->len, p_con->burst_bytes,
-                    p_server->mountpoint.stream_title_len);
+                    p_lstnr_buf->metadata_bytes);
 
           if (p_lstnr_buf->len > 0)
             {
@@ -1435,13 +1449,13 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
             }
           else
             {
-              p_lstnr->pos += (bytes - p_server->mountpoint.stream_title_len);
+              p_lstnr->pos += (bytes - p_lstnr_buf->metadata_bytes);
             }
 
           if (p_con->initial_burst_bytes > 0)
             {
               p_con->initial_burst_bytes -=
-                (bytes - p_server->mountpoint.stream_title_len);
+                (bytes - p_lstnr_buf->metadata_bytes);
             }
           else
             {
@@ -1451,12 +1465,12 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
                 }
             }
 
-          p_con->sent_total += (bytes - p_server->mountpoint.stream_title_len);
-          p_con->sent_last = (bytes - p_server->mountpoint.stream_title_len);
+          p_con->sent_total += (bytes - p_lstnr_buf->metadata_bytes);
+          p_con->sent_last = (bytes - p_lstnr_buf->metadata_bytes);
           p_con->burst_bytes +=
-            (bytes - p_server->mountpoint.stream_title_len);
+            (bytes - p_lstnr_buf->metadata_bytes);
 
-          p_server->mountpoint.stream_title_len = 0;
+          p_lstnr_buf->metadata_bytes = 0;
 
           if (bytes < len)
             {
@@ -1677,7 +1691,7 @@ icer_con_accept_connection (icer_server_t * ap_server)
 
   /* TODO: This is a temporary solution to prevent more than one connection at
    * a time, until we are ready to implement a multi-client renderer */
-  if (get_listeners_count (ap_server))
+  if (get_listeners_count (ap_server) > 0)
     {
       tiz_map_for_each (ap_server->p_lstnrs, remove_existing_listener,
                         ap_server);
@@ -1844,17 +1858,16 @@ icer_con_write_to_listeners (icer_server_t * ap_server)
           ap_server->p_hdr = p_hdr;
         }
 
-      /* TODO: check return code */
       /* NOTE: We assume only one client for now. But still do it like this in
        * preparation for when multiple clients are fully supported */
       tiz_map_for_each (ap_server->p_lstnrs, write_omx_buffer, ap_server);
+      tiz_map_for_each (ap_server->p_lstnrs, remove_failed_listener, ap_server);
 
-      if (p_con->error)
+      if (get_listeners_count (ap_server) == 0)
         {
-          rc = OMX_ErrorNone;
           break;
         }
-
+      
       if (p_con->full || p_con->not_ready
           || (((p_con->initial_burst_bytes <= 0))
               && (p_con->burst_bytes >= ap_server->burst_size)))
@@ -1862,22 +1875,17 @@ icer_con_write_to_listeners (icer_server_t * ap_server)
           rc = OMX_ErrorNoMore;
           break;
         }
-
+      
       if (p_lstnr->pos == ap_server->p_hdr->nFilledLen)
         {
           TIZ_LOGN (TIZ_TRACE, p_hdl, "Buffer emptied : sent_total "
                     "[%llu] sent_last [%u] burst [%u]",
                     p_con->sent_total, p_con->sent_last, p_con->burst_bytes);
-
+          
           /* Buffer emptied */
           release_empty_buffer (ap_server, p_lstnr, &p_hdr);
         }
     };
-
-  TIZ_LOGN (TIZ_TRACE, p_hdl, "Returning with [%s] : "
-            "sent_total [%llu] sent_last [%u] burst [%u]",
-            tiz_err_to_str (rc), p_con->sent_total,
-            p_con->sent_last, p_con->burst_bytes);
 
   return rc;
 }
@@ -2058,8 +2066,6 @@ icer_con_set_icecast_metadata (icer_server_t * ap_server,
   strncpy ((char *) p_mount->stream_title,
            (char *) ap_stream_title, OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE);
   p_mount->stream_title[OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE - 1] = '\000';
-
-  p_mount->stream_title_len   = 0;
 
   if (get_listeners_count (ap_server) > 0)
     {
