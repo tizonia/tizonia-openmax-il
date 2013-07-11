@@ -522,7 +522,8 @@ stream (const std::string & uri, const long int port, const bool shuffle_playlis
     }
 
   tizgraphconfig_ptr_t config
-    = boost::make_shared < tizstreamsrvconfig > (file_list, ip_address, port);
+    = boost::make_shared < tizstreamsrvconfig > (file_list, hostname,
+                                                 ip_address, port);
   if (OMX_ErrorNone != (ret = g_ptr->configure (config)))
     {
       fprintf (stderr, "Could not configure a graph. Skipping file.\n");

@@ -42,18 +42,22 @@ class tizstreamsrvconfig : public tizgraphconfig
 
 public:
 
-  tizstreamsrvconfig (const uri_list_t & uris, const std::string &ip_address,
+  tizstreamsrvconfig (const uri_list_t & uris,
+                      const std::string &host,
+                      const std::string &ip_address,
                       const long int port)
-    : tizgraphconfig (uris), addr_ (ip_address), port_ (port)
+    : tizgraphconfig (uris), host_ (host), addr_ (ip_address), port_ (port)
   {}
 
   ~tizstreamsrvconfig () {}
 
   std::string get_addr () const {return addr_;}
+  std::string get_host_name () const {return host_;}
   long int get_port () const {return port_;}
 
 protected:
 
+  std::string host_;
   std::string addr_;
   long int port_;
 

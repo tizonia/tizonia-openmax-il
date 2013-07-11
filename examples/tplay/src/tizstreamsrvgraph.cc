@@ -129,7 +129,8 @@ tizstreamsrvgraph::configure_station ()
 
   snprintf ((char *) mount.cMountName, sizeof (mount.cMountName), "/");
   snprintf ((char *) mount.cStationName, sizeof (mount.cStationName),
-            "Tizonia Radio Station (%s:%ld)", srv_config->get_addr ().c_str (),
+            "Tizonia Radio Station (%s:%ld)",
+            srv_config->get_host_name ().c_str (),
             srv_config->get_port ());
   snprintf ((char *) mount.cStationDescription,
             sizeof (mount.cStationDescription),
