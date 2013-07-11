@@ -46,9 +46,7 @@
 #endif
 
 tizmp3graph::tizmp3graph (tizprobe_ptr_t probe_ptr)
-  : tizgraph (3, probe_ptr),
-    file_list_ (),
-    current_file_index_ (0)
+  : tizgraph (3, probe_ptr)
 {
 }
 
@@ -95,20 +93,8 @@ tizmp3graph::configure_mp3_graph (const int file_index)
 
   assert (file_index < file_list_.size ());
   assert (OMX_StateLoaded == current_graph_state_);
- 
-  const std::string &uri = file_list_[file_index];
-  
-  if (!uri.empty ())
-    {
-      // Probe the new uri
-      probe_ptr_.reset ();
-      probe_ptr_ = boost::make_shared < tizprobe > (uri);
-      if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
-          || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
-        {
-          return OMX_ErrorContentURIError;
-        }
-    }
+
+  tiz_check_omx_err (probe_uri (file_index));
 
   // Set the new URI
   OMX_PARAM_CONTENTURITYPE *p_uritype = NULL;

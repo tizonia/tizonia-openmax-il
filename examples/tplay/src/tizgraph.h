@@ -211,6 +211,8 @@ protected:
   OMX_ERRORTYPE instantiate_list (const component_names_t &comp_list);
   void destroy_list();
 
+  OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
+  
   OMX_ERRORTYPE setup_tunnels () const;
   OMX_ERRORTYPE tear_down_tunnels () const;
 
@@ -235,16 +237,19 @@ protected:
 
 protected:
 
-  handle_to_name_t     h2n_;
-  component_handles_t  handles_;
-  tizcback_handler     cback_handler_;
-  std::string          uri_;
-  tizprobe_ptr_t       probe_ptr_;
-  tiz_thread_t         thread_;
-  tiz_mutex_t          mutex_;
-  tiz_sem_t            sem_;
-  tiz_queue_t         *p_queue_;
-  OMX_STATETYPE        current_graph_state_;
+  handle_to_name_t      h2n_;
+  component_handles_t   handles_;
+  tizcback_handler      cback_handler_;
+  std::string           uri_;
+  tizprobe_ptr_t        probe_ptr_;
+  tiz_thread_t          thread_;
+  tiz_mutex_t           mutex_;
+  tiz_sem_t             sem_;
+  tiz_queue_t          *p_queue_;
+  OMX_STATETYPE         current_graph_state_;
+  uri_list_t            file_list_;
+  int                   current_file_index_;
+  tizgraphconfig_ptr_t  config_;
 
 };
 

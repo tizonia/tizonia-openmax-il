@@ -38,8 +38,6 @@
 #include "OMX_TizoniaExt.h"
 
 #include <boost/foreach.hpp>
-#include <boost/make_shared.hpp>
-
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -47,10 +45,7 @@
 #endif
 
 tizstreamsrvgraph::tizstreamsrvgraph (tizprobe_ptr_t probe_ptr)
-  : tizgraph (2, probe_ptr),
-    file_list_ (),
-    current_file_index_ (0),
-    config_ ()
+  : tizgraph (2, probe_ptr)
 {
 }
 
@@ -119,6 +114,9 @@ tizstreamsrvgraph::configure_station ()
   mount.nVersion.nVersion = OMX_VERSION;
   mount.nPortIndex        = 0;
 
+  bool quiet = true;
+  tiz_check_omx_err (probe_uri (0, quiet));
+
   tizstreamsrvconfig_ptr_t srv_config
     = boost::dynamic_pointer_cast<tizstreamsrvconfig>(config_);
   assert (srv_config);
@@ -137,7 +135,7 @@ tizstreamsrvgraph::configure_station ()
             sizeof (mount.cStationDescription),
             "Audio Streaming with OpenMAX IL");
   snprintf ((char *) mount.cStationGenre, sizeof (mount.cStationGenre),
-            "Rock");
+            "%s", probe_ptr_->get_stream_genre ().c_str ());
   snprintf ((char *) mount.cStationUrl, sizeof (mount.cStationUrl),
             "http://tizonia.org");
   mount.eEncoding   = OMX_AUDIO_CodingMP3;
@@ -161,19 +159,7 @@ tizstreamsrvgraph::configure_stream ()
       current_file_index_ = 0;
     }
 
-  const std::string &uri = file_list_[current_file_index_++];
-
-  if (!uri.empty ())
-    {
-      // Probe a new uri
-      probe_ptr_.reset ();
-      probe_ptr_ = boost::make_shared < tizprobe > (uri);
-      if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
-          || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
-        {
-          return OMX_ErrorContentURIError;
-        }
-    }
+  tiz_check_omx_err (probe_uri (current_file_index_++));
 
   // Set the new URI
   OMX_PARAM_CONTENTURITYPE *p_uritype = NULL;
@@ -238,9 +224,11 @@ tizstreamsrvgraph::configure_stream ()
 
   p_metadata->nVersion.nVersion = OMX_VERSION;
   p_metadata->nPortIndex        = 0;
-  snprintf ((char *) p_metadata->cStreamTitle, OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE,
+  snprintf ((char *) p_metadata->cStreamTitle,
+            OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE,
             "StreamTitle='%s';", stream_title.c_str ());
-  p_metadata->nSize             = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE) + strlen ((char *) p_metadata->cStreamTitle);
+  p_metadata->nSize = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE)
+    + strlen ((char *) p_metadata->cStreamTitle);
 
   TIZ_LOG (TIZ_TRACE, "p_metadata->cStreamTitle [%s]...",
            p_metadata->cStreamTitle);

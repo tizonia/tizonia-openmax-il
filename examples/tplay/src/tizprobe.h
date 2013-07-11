@@ -62,6 +62,7 @@ public:
   void get_mp3_codec_info(OMX_AUDIO_PARAM_MP3TYPE &mp3type);
   void get_vp8_codec_info(OMX_VIDEO_PARAM_VP8TYPE &vp8type);
   std::string get_stream_title ();
+  std::string get_stream_genre ();
 
 private:
 
@@ -79,6 +80,7 @@ private:
   OMX_AUDIO_PARAM_MP3TYPE mp3type_;
   OMX_VIDEO_PARAM_VP8TYPE vp8type_;
   std::string stream_title_;
+  std::string stream_genre_;
 };
 
 #endif // TIZPROBE_H

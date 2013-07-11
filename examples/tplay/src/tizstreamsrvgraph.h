@@ -84,12 +84,6 @@ private:
   OMX_ERRORTYPE configure_station ();
   OMX_ERRORTYPE configure_stream ();
 
-private:
-
-  uri_list_t file_list_;
-  int current_file_index_;
-  tizgraphconfig_ptr_t config_;
-
 };
 
 #endif // TIZSTREAMSRVGRAPH_H

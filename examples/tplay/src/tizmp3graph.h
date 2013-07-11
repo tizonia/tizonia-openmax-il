@@ -57,11 +57,6 @@ private:
 
   OMX_ERRORTYPE configure_mp3_graph (const int file_index);
 
-private:
-
-  uri_list_t file_list_;
-  int current_file_index_;
-
 };
 
 #endif // TIZMP3GRAPH_H

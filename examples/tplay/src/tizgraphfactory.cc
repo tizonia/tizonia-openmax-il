@@ -46,7 +46,7 @@
 tizgraph_ptr_t
 tizgraphfactory::create_graph (const std::string & uri)
 {
-  tizprobe_ptr_t p = boost::make_shared < tizprobe > (uri.c_str (),
+  tizprobe_ptr_t p = boost::make_shared < tizprobe > (uri,
                                                       /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
   if (p->get_omx_domain () == OMX_PortDomainAudio

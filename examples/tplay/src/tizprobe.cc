@@ -48,10 +48,11 @@ static AVDictionary  *format_opts;
 static AVInputFormat *iformat = NULL;
 
 static void
-dump_artist_and_title_to_string(AVDictionary *m, std::string &stream_title)
+dump_stream_info_to_string(AVDictionary *m, std::string &stream_title,
+                           std::string &stream_genre)
 {
   AVDictionaryEntry *tag = NULL;
-  std::string artist, title, album;
+  std::string artist, title, album, genre;
 
   while ((tag = av_dict_get (m, "", tag, AV_DICT_IGNORE_SUFFIX)))
     {
@@ -70,6 +71,11 @@ dump_artist_and_title_to_string(AVDictionary *m, std::string &stream_title)
           album.assign (tag->value);
           boost::trim(album);
         }
+      if (0 == strcmp("genre", tag->key))
+        {
+          genre.assign (tag->value);
+          boost::trim(genre);
+        }
     }
 
   stream_title.assign (artist);
@@ -84,17 +90,19 @@ dump_artist_and_title_to_string(AVDictionary *m, std::string &stream_title)
       stream_title.append (" - ");
       stream_title.append (title);
     }
+  stream_genre.assign (genre);
 }
 
 static int
-open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
-                 std::string &stream_title, const bool quiet)
+open_input_file (AVFormatContext ** fmt_ctx_ptr, const std::string &filename,
+                 std::string &stream_title, std::string &stream_genre,
+                 const bool quiet)
 {
   int err = 0;
   AVFormatContext *fmt_ctx = NULL;
   AVDictionaryEntry *t = NULL;
 
-  if ((err = avformat_open_input (&fmt_ctx, filename,
+  if ((err = avformat_open_input (&fmt_ctx, filename.c_str (),
                                   iformat, &format_opts)) < 0)
     {
       return err;
@@ -111,16 +119,16 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const char *filename,
       return err;
     }
 
-  dump_artist_and_title_to_string (fmt_ctx->metadata, stream_title);
+  dump_stream_info_to_string (fmt_ctx->metadata, stream_title, stream_genre);
   if (stream_title.empty ())
     {
-      stream_title.assign (filename);
+      stream_title.assign (filename.c_str ());
     }
   boost::replace_all (stream_title, "_", " ");
 
   if (!quiet)
     {
-      av_dump_format (fmt_ctx, 0, filename, 0);
+      av_dump_format (fmt_ctx, 0, filename.c_str (), 0);
     }
 
   *fmt_ctx_ptr = fmt_ctx;
@@ -150,7 +158,9 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   video_coding_type_ (OMX_VIDEO_CodingUnused),
   pcmtype_ (),
   mp3type_ (),
-  vp8type_ ()
+  vp8type_ (),
+  stream_title_ (),
+  stream_genre_ ()
 {
   // Defaults are the same as in the standard pcm renderer
   pcmtype_.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
@@ -201,7 +211,9 @@ tizprobe::probe_file ()
   AVCodecContext *cc = NULL;
   CodecID codec_id = CODEC_ID_PROBE;
 
-  if ((ret = open_input_file (&fmt_ctx, uri_.c_str (), stream_title_, quiet_)))
+  if ((ret = open_input_file (&fmt_ctx, uri_,
+                              stream_title_, stream_genre_,
+                              quiet_)))
     {
       return ret;
     }
@@ -305,4 +317,14 @@ tizprobe::get_stream_title ()
       (void) probe_file ();
     }
   return stream_title_;
+}
+
+std::string
+tizprobe::get_stream_genre ()
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file ();
+    }
+  return stream_genre_;
 }

@@ -38,6 +38,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <boost/foreach.hpp>
+#include <boost/make_shared.hpp>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -296,7 +297,10 @@ tizgraph::tizgraph(int graph_size, tizprobe_ptr_t probe_ptr)
   mutex_ (),
   sem_ (),
   p_queue_ (NULL),
-  current_graph_state_ (OMX_StateLoaded)
+  current_graph_state_ (OMX_StateLoaded),
+  file_list_ (),
+  current_file_index_ (0),
+  config_ ()
 {
   assert (probe_ptr);
   TIZ_LOG (TIZ_TRACE, "Constructing...");
@@ -547,6 +551,27 @@ tizgraph::destroy_list ()
           handles_[i] = NULL;
         }
     }
+}
+
+OMX_ERRORTYPE
+tizgraph::probe_uri (const int uri_index, const bool quiet)
+{
+  assert (uri_index < file_list_.size ());
+  
+  const std::string &uri = file_list_[uri_index];
+
+  if (!uri.empty ())
+    {
+      // Probe a new uri
+      probe_ptr_.reset ();
+      probe_ptr_ = boost::make_shared < tizprobe > (uri, quiet);
+      if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
+          || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
+        {
+          return OMX_ErrorContentURIError;
+        }
+    }
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
