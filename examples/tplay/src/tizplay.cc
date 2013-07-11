@@ -126,18 +126,20 @@ void
 print_usage (void)
 {
   printf ("Tizonia OpenMAX IL player version %s\n\n", PACKAGE_VERSION);
-  printf ("usage: %s [-l] [-r] [-c] [-p] [-s] [-v] [-h] [FILE]\n", PACKAGE_NAME);
+  printf ("usage: %s [-c] [-d] [-h] [-l] [-p port] [-r] [-s] [--shuffle] [-v] [FILE/DIR]\n",
+          PACKAGE_NAME);
   printf ("options:\n");
-  printf ("\t-l --list-components\t\t\tEnumerate all OpenMAX IL components.\n");
-  printf
-    ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>.\n");
   printf
     ("\t-c --comps-of-role <role>\t\tDisplay the components that implement <role>.\n");
   printf ("\t-d --daemon\t\t\t\tRun in the background.\n");
+  printf ("\t-h --help\t\t\t\tDisplay help.\n");
+  printf ("\t-l --list-components\t\t\tEnumerate all OpenMAX IL components.\n");
   printf ("\t-p --port\t\t\t\tPort to be used for http streaming.\n");
+  printf
+    ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>.\n");
+  printf ("\t   --shuffle\t\t\t\tShuffle the playlist.\n");
   printf ("\t-s --stream\t\t\t\tStream media via http. Default port is 8010.\n");
   printf ("\t-v --version\t\t\t\tDisplay version info.\n");
-  printf ("\t-h --help\t\t\t\tDisplay help.\n");
   printf ("\n");
   printf ("Examples:\n");
   printf
@@ -406,12 +408,10 @@ wait_for_user_input_while_streaming (tizgraph_ptr_t graph_ptr)
 
 }
 
-static OMX_ERRORTYPE
-decode (const OMX_STRING uri)
+static void
+prepare_play_list (const std::string &uri, const bool shuffle_playlist,
+                   uri_list_t &file_list)
 {
-  OMX_ERRORTYPE ret = OMX_ErrorNone;
-  uri_list_t file_list;
-
   if (OMX_ErrorNone != verify_uri (uri, file_list))
     {
       fprintf (stderr, "File not found.\n");
@@ -424,7 +424,23 @@ decode (const OMX_STRING uri)
       exit (EXIT_FAILURE);
     }
 
-  std::sort (file_list.begin (), file_list.end ());
+  if (shuffle_playlist)
+    {
+      std::random_shuffle (file_list.begin (), file_list.end ());
+    }
+  else
+    {
+      std::sort (file_list.begin (), file_list.end ());
+    }
+}
+
+static OMX_ERRORTYPE
+decode (const std::string & uri, const bool shuffle_playlist)
+{
+  OMX_ERRORTYPE ret = OMX_ErrorNone;
+  uri_list_t file_list;
+
+  prepare_play_list (uri, shuffle_playlist, file_list);
 
   tizgraph_ptr_t g_ptr (tizgraphfactory::create_graph (file_list[0].c_str ()));
   if (!g_ptr)
@@ -468,34 +484,14 @@ decode (const OMX_STRING uri)
 }
 
 static OMX_ERRORTYPE
-stream (const std::string & uri, long int port)
+stream (const std::string & uri, const long int port, const bool shuffle_playlist)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
   uri_list_t    file_list;
   char hostname[120] = "";
   std::string ip_address;
 
-  if (0 == gethostname (hostname, sizeof(hostname)))
-    {
-      struct hostent *p_hostent = gethostbyname(hostname);
-      struct in_addr  ip_addr   = *(struct in_addr *)(p_hostent->h_addr);
-      ip_address = inet_ntoa(ip_addr);
-      fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
-    }
-  
-  if (OMX_ErrorNone != verify_uri (uri, file_list))
-    {
-      fprintf (stderr, "File not found.\n");
-      exit (EXIT_FAILURE);
-    }
-
-  if (OMX_ErrorNone != filter_unknown_media (file_list))
-    {
-      fprintf (stderr, "Unsupported media types.\n");
-      exit (EXIT_FAILURE);
-    }
-
-  std::sort (file_list.begin (), file_list.end ());
+  prepare_play_list (uri, shuffle_playlist, file_list);
 
   tizprobe_ptr_t p = boost::make_shared < tizprobe > (file_list[0],
                                                       /* quiet = */ true);
@@ -506,6 +502,14 @@ stream (const std::string & uri, long int port)
       // always have a graph object.
       fprintf (stderr, "Could not create a graph. Unsupported format.\n");
       exit (EXIT_FAILURE);
+    }
+
+  if (0 == gethostname (hostname, sizeof(hostname)))
+    {
+      struct hostent *p_hostent = gethostbyname(hostname);
+      struct in_addr  ip_addr   = *(struct in_addr *)(p_hostent->h_addr);
+      ip_address = inet_ntoa(ip_addr);
+      fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
     }
 
   gp_running_graph = g_ptr.get ();
@@ -547,7 +551,8 @@ main (int argc, char **argv)
   int opt;
   long int srv_port = 8010; // default port for http streaming
   std::string streaming_media;
-    
+  bool shuffle_playlist = false;
+
   if (argc < 2)
     {
       print_usage ();
@@ -562,6 +567,7 @@ main (int argc, char **argv)
         {"roles-of-comp", required_argument, 0, 'r'},
         {"comps-of-role", required_argument, 0, 'c'},
         {"daemon", no_argument, 0, 'd'},
+        {"shuffle", no_argument, 0, 1},
         {"stream", required_argument, 0, 's'},
         {"port", required_argument, 0, 'p'},
         {"version", no_argument, 0, 'v'},
@@ -569,7 +575,7 @@ main (int argc, char **argv)
         {0, 0, 0, 0}
       };
 
-      opt = getopt_long (argc, argv, "lr:c:dp:s:vh", long_options, &option_index);
+      opt = getopt_long (argc, argv, "lr:c:d1p:s:vh", long_options, &option_index);
       if (opt == -1)
         break;
 
@@ -577,6 +583,12 @@ main (int argc, char **argv)
         {
 
         case 0:
+          break;
+
+        case 1:
+          {
+            shuffle_playlist = true;
+          }
           break;
 
         case 'l':
@@ -671,14 +683,14 @@ main (int argc, char **argv)
 
   if (!streaming_media.empty())
     {
-      error = stream (streaming_media.c_str (), srv_port);
+      error = stream (streaming_media.c_str (), srv_port, shuffle_playlist);
     }
-  
+
   if (OMX_ErrorMax == error)
     {
-      error = decode (argv[optind]);
+      error = decode (argv[optind], shuffle_playlist);
     }
-  
+
   (void) tiz_log_deinit ();
 
   if (OMX_ErrorNone != error)
