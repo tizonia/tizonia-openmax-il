@@ -52,6 +52,9 @@
 #include <string>
 #include <getopt.h>
 #include <netdb.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
@@ -470,11 +473,13 @@ stream (const std::string & uri, long int port)
   OMX_ERRORTYPE ret = OMX_ErrorNone;
   uri_list_t    file_list;
   char hostname[120] = "";
+  std::string ip_address;
 
   if (0 == gethostname (hostname, sizeof(hostname)))
     {
       struct hostent *p_hostent = gethostbyname(hostname);
-      struct in_addr ip_addr = *(struct in_addr *)(p_hostent->h_addr);
+      struct in_addr  ip_addr   = *(struct in_addr *)(p_hostent->h_addr);
+      ip_address = inet_ntoa(ip_addr);
       fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
     }
   
@@ -513,7 +518,7 @@ stream (const std::string & uri, long int port)
     }
 
   tizgraphconfig_ptr_t config
-    = boost::make_shared < tizstreamsrvconfig > (file_list, port);
+    = boost::make_shared < tizstreamsrvconfig > (file_list, ip_address, port);
   if (OMX_ErrorNone != (ret = g_ptr->configure (config)))
     {
       fprintf (stderr, "Could not configure a graph. Skipping file.\n");
@@ -645,8 +650,9 @@ main (int argc, char **argv)
 
   if (gb_daemon_mode)
     {
-      printf ("Tizonia OpenMAX IL player version %s as a daemon (PID %d).\n",
-              PACKAGE_VERSION, getpid () );
+      fprintf (stdout, "Tizonia OpenMAX IL player version %s "
+               "running as a daemon (PID %d).\n",
+               PACKAGE_VERSION, getpid () );
       if (-1 == daemon (1, 0))
         {
           fprintf (stderr, "Could not daemon.\n");

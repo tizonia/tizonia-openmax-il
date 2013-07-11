@@ -119,6 +119,10 @@ tizstreamsrvgraph::configure_station ()
   mount.nVersion.nVersion = OMX_VERSION;
   mount.nPortIndex        = 0;
 
+  tizstreamsrvconfig_ptr_t srv_config
+    = boost::dynamic_pointer_cast<tizstreamsrvconfig>(config_);
+  assert (srv_config);
+
   tiz_check_omx_err
     (OMX_GetParameter
      (handles_[1],
@@ -127,7 +131,8 @@ tizstreamsrvgraph::configure_station ()
 
   snprintf ((char *) mount.cMountName, sizeof (mount.cMountName), "/");
   snprintf ((char *) mount.cStationName, sizeof (mount.cStationName),
-            "Tizonia Radio Station");
+            "Tizonia Radio Station (%s:%ld)", srv_config->get_addr ().c_str (),
+            srv_config->get_port ());
   snprintf ((char *) mount.cStationDescription,
             sizeof (mount.cStationDescription),
             "Audio Streaming with OpenMAX IL");
