@@ -39,3 +39,7 @@ Tizonia OpenMAX IL is released under the GNU Lesser General Public License
 version 3
 
 For more information, please visit the project web site at http://tizonia.org
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/tizonia/tizonia-openmax-il/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
