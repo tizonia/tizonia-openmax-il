@@ -40,6 +40,6 @@ version 3
 
 For more information, please visit the project web site at http://tizonia.org
 
-
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/4770c19ac3ef04585d85aa79020c42c8 "githalytics.com")](http://githalytics.com/tizonia/tizonia-openmax-il)
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/tizonia/tizonia-openmax-il/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
