@@ -30,12 +30,14 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
+#include "OMX_TizoniaExt.h"
 
 #include "tizpausetoidle.h"
 #include "tizstate_decls.h"
-#include "tizutils.h"
+#include "tizkernel.h"
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -74,22 +76,6 @@ pausetoidle_UseBuffer (const void *ap_obj,
   return OMX_ErrorNotImplemented;
 }
 
-static OMX_ERRORTYPE
-pausetoidle_EmptyThisBuffer (const void *ap_obj,
-                             OMX_HANDLETYPE ap_hdl,
-                             OMX_BUFFERHEADERTYPE * ap_buf)
-{
-  return OMX_ErrorNotImplemented;
-}
-
-static OMX_ERRORTYPE
-pausetoidle_FillThisBuffer (const void *ap_obj,
-                            OMX_HANDLETYPE ap_hdl,
-                            OMX_BUFFERHEADERTYPE * ap_buf)
-{
-  return OMX_ErrorNotImplemented;
-}
-
 /*
  * from tizstate class
  */
@@ -98,13 +84,57 @@ static OMX_ERRORTYPE
 pausetoidle_trans_complete (const void *ap_obj,
                             OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
+  const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
+
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_srv_get_hdl (ap_servant)),
                  TIZ_CBUF (tiz_srv_get_hdl (ap_servant)),
                  "Trans complete to state [%s]...",
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateIdle == a_new_state);
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_servant);
+  assert (OMX_StateIdle == a_new_state);
+
+  if (2 == p_base->servants_count_ + 1)
+    {
+      /* Reset the OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN flag in all ports
+         where this has been set */
+      tiz_krn_reset_tunneled_ports_status
+        (tiz_get_krn (tiz_srv_get_hdl(ap_servant)),
+         OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
+    }
+
   return tiz_state_super_trans_complete (tizpausetoidle, ap_obj, ap_servant,
                                         a_new_state);
+}
+
+static OMX_ERRORTYPE
+pausetoidle_tunneled_ports_status_update (void *ap_obj)
+{
+  tiz_state_t *p_base = (tiz_state_t *) ap_obj;
+
+  assert (NULL != ap_obj);
+
+  {
+    OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl(p_base->p_fsm_);
+    void *p_krn = tiz_get_krn (p_hdl);
+
+    if (TIZ_KRN_MAY_INIT_EXE_TO_IDLE (p_krn))
+      {
+        /* OK, at this point all the tunneled non-supplier neighboring ports
+           are ready to receive ETB/FTB calls.  NOTE: This will call the
+         * 'tiz_state_state_set' function of the tiz_state_t base class (note
+         * we are passing 'tizidle' as 1st parameter */
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+                       "kernel may initiate pause to idle");
+        return tiz_state_super_state_set (tizidle, ap_obj, p_hdl,
+                                         OMX_CommandStateSet,
+                                         OMX_StateIdle, NULL);
+      }
+  }
+
+  return OMX_ErrorNone;
 }
 
 /*
@@ -119,7 +149,7 @@ tiz_pausetoidle_init (void)
   if (!tizpausetoidle)
     {
       tiz_pause_init ();
-      tizpausetoidle =
+      tizpausetoidle = 
         factory_new
         (tizstate_class, "tizpausetoidle",
          tizpause, sizeof (tiz_pausetoidle_t),
@@ -127,8 +157,8 @@ tiz_pausetoidle_init (void)
          dtor, pausetoidle_dtor,
          tiz_api_GetState, pausetoidle_GetState,
          tiz_api_UseBuffer, pausetoidle_UseBuffer,
-         tiz_api_EmptyThisBuffer, pausetoidle_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, pausetoidle_FillThisBuffer,
-         tiz_state_trans_complete, pausetoidle_trans_complete, 0);
+         tiz_state_trans_complete, pausetoidle_trans_complete,
+         tiz_state_tunneled_ports_status_update, pausetoidle_tunneled_ports_status_update,
+         0);
     }
 }

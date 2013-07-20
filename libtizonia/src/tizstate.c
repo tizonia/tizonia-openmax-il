@@ -421,6 +421,14 @@ state_trans_complete (const void *ap_obj,
   if (2 == p_obj->servants_count_)
     {
 
+      if (OMX_StateExecuting == a_new_state)
+        {
+          /* Reset the OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE flag in all ports where this
+           * has been set */
+          tiz_krn_reset_tunneled_ports_status (tiz_get_krn
+                                               (tiz_srv_get_hdl (ap_servant)),
+                                               OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
+        }
       tiz_fsm_set_state (p_obj->p_fsm_, a_new_state, EStateMax);
     }
 

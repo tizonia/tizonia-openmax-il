@@ -58,7 +58,7 @@
 static OMX_BOOL all_populated (const void *ap_obj);
 static OMX_BOOL all_depopulated (const void *ap_obj);
 static OMX_BOOL all_buffers_returned (void *ap_obj);
-static OMX_BOOL all_disabled (const void *ap_obj);
+/* static OMX_BOOL all_disabled (const void *ap_obj); */
 static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_etb (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_ftb (void *ap_obj, OMX_PTR ap_msg);
@@ -84,7 +84,7 @@ static OMX_ERRORTYPE dispatch_mark_buffer (void *ap_obj, OMX_HANDLETYPE ap_hdl,
 static OMX_ERRORTYPE flush_marks (void *ap_obj, OMX_PTR ap_port);
 
 static OMX_ERRORTYPE check_pid (const tiz_krn_t *ap_obj, OMX_U32 a_pid);
-static inline tiz_vector_t * get_port (const tiz_krn_t *ap_obj, OMX_U32 a_pid);
+static inline OMX_PTR get_port (const tiz_krn_t *ap_obj, OMX_U32 a_pid);
 static OMX_S32 add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
                               const OMX_BUFFERHEADERTYPE * ap_hdr, const void *ap_port);
 
@@ -453,37 +453,39 @@ krn_SetConfig (const void *ap_obj,
 
   if (OMX_IndexConfigTunneledPortStatus == a_index)
     {
-      tiz_krn_tunneled_ports_status_t status
-        = tiz_krn_get_tunneled_ports_status (p_obj, OMX_FALSE);
-
+      const OMX_CONFIG_TUNNELEDPORTSTATUSTYPE *p_port_status
+        = (OMX_CONFIG_TUNNELEDPORTSTATUSTYPE *) ap_struct;
       if (OMX_FALSE == p_obj->accept_use_buffer_notified_
-          && ETIZKrnTunneledPortsAcceptUseBuffer == status)
+          && p_port_status->nTunneledPortStatus & OMX_PORTSTATUS_ACCEPTUSEBUFFER
+          && TIZ_KRN_MAY_INIT_ALLOC_PHASE (p_obj))
         {
-          TIZ_LOGN (TIZ_TRACE, ap_hdl, "kernel's tunneled port status [%d] ",
-                    status);
+          TIZ_LOGN (TIZ_TRACE, ap_hdl, "update fsm : TIZ_KRN_MAY_INIT_ALLOC_PHASE");
           p_obj->accept_use_buffer_notified_ = OMX_TRUE;
           tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
         }
       else if ((OMX_FALSE == p_obj->accept_buffer_exchange_notified_)
-               &&
-               (ETIZKrnTunneledPortsAcceptBufferExchange == status
-                || ETIZKrnTunneledPortsAcceptBoth == status))
+               && p_port_status->nTunneledPortStatus & OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE
+               && TIZ_KRN_MAY_EXCHANGE_BUFFERS (p_obj))
         {
-          TIZ_LOGN (TIZ_TRACE, ap_hdl, "kernel's tunneled port status [%d] ",
-                    status);
-          p_obj->accept_buffer_exchange_notified_ = OMX_TRUE;
+          TIZ_LOGN (TIZ_TRACE, ap_hdl, "update fsm : TIZ_KRN_MAY_EXCHANGE_BUFFERS");
+/*           p_obj->accept_buffer_exchange_notified_ = OMX_TRUE; */
           tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
         }
       else if ((OMX_FALSE == p_obj->may_transition_exe2idle_notified_)
-               &&
-               (ETIZKrnTunneledPortsMayInitiateExeToIdle
-                == (status =
-                    tiz_krn_get_tunneled_ports_status (p_obj, OMX_TRUE))))
+               && p_port_status->nTunneledPortStatus & OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN
+               && (TIZ_KRN_MAY_INIT_EXE_TO_IDLE (p_obj)))
         {
-          TIZ_LOGN (TIZ_TRACE, ap_hdl, "kernel's tunneled port status [%d] ",
-                    status);
+          TIZ_LOGN (TIZ_TRACE, ap_hdl, "update fsm : TIZ_KRN_MAY_INIT_EXE_TO_IDLE");
           p_obj->may_transition_exe2idle_notified_ = OMX_TRUE;
           tiz_fsm_tunneled_ports_status_update (tiz_get_fsm (ap_hdl));
+        }
+      else
+        {
+          TIZ_LOGN (TIZ_TRACE, ap_hdl, "TIZ_KRN_MAY - NO NOTIFICATION!!! "
+                    "use_buffer [%s] buffer_exchange [%s] exe2idle [%s]",
+                    p_obj->accept_use_buffer_notified_ ? "TRUE" : "FALSE",
+                    p_obj->accept_buffer_exchange_notified_ ? "TRUE" : "FALSE",
+                    p_obj->may_transition_exe2idle_notified_ ? "TRUE" : "FALSE");
         }
     }
   else
@@ -683,7 +685,7 @@ krn_AllocateBuffer (const void *ap_obj,
   tiz_fsm_state_id_t now = EStateMax;
 
   assert (NULL != ap_obj);
-  
+
   now = tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
 
   TIZ_LOGN (TIZ_TRACE, ap_hdl, "AllocateBuffer...");
@@ -991,7 +993,7 @@ krn_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
     }
 
   clear_hdr_lsts (p_obj, a_pid);
-    
+
   do
     {
       pid = ((OMX_ALL != a_pid) ? a_pid : i);
@@ -1722,149 +1724,6 @@ tiz_krn_super_deregister_all_ports (const void *a_class, void *ap_obj)
   superclass->deregister_all_ports (ap_obj);
 }
 
-static OMX_U32
-krn_get_tunneled_ports_status (const void *ap_obj,
-                               OMX_BOOL a_exe_to_idle_interest)
-{
-  const tiz_krn_t *p_obj = ap_obj;
-  tiz_krn_tunneled_ports_status_t status_report =
-    ETIZKrnTunneledPortsMax;
-
-  assert (NULL != ap_obj);
-
-  {
-    OMX_S32 i, nports = tiz_vector_length (p_obj->p_ports_);
-    OMX_PTR *pp_port = NULL;
-    OMX_BOOL tunneled_found = OMX_FALSE;
-    OMX_U32 status = 0;
-
-    /* Loop through all regular (non-config) ports */
-    status |= OMX_PORTSTATUS_ACCEPTUSEBUFFER;
-    status |= OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE;
-    status |= OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN;
-
-    for (i = 0; i < nports; ++i)
-      {
-        pp_port = tiz_vector_at (p_obj->p_ports_, i);
-        assert (NULL != pp_port);
-
-        if (TIZ_PORT_IS_TUNNELED (*pp_port) && TIZ_PORT_IS_SUPPLIER (*pp_port))
-          {
-
-            if (!TIZ_PORT_MAY_CALL_USE_BUFFER (*pp_port))
-              {
-                status &= ~(OMX_PORTSTATUS_ACCEPTUSEBUFFER);
-                TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
-                          "TIZ_PORT_MAY_CALL_USE_BUFFER = FALSE status [0x%08X]",
-                          status);
-              }
-            if (!TIZ_PORT_MAY_EXCHANGE_BUFFERS (*pp_port))
-              {
-                status &= ~(OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
-                TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
-                          "TIZ_PORT_MAY_EXCHANGE_BUFFERS = FALSE status [0x%08X]",
-                          status);
-              }
-          }
-
-        if (TIZ_PORT_IS_TUNNELED (*pp_port))
-          {
-            tunneled_found = OMX_TRUE;
-
-            if (!TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE (*pp_port))
-              {
-                status &= ~(OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
-                TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
-                          "TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE = FALSE status [0x%08X]",
-                          status);
-              }
-            else
-              {
-                TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
-                          "TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE = TRUE status [0x%08X]",
-                          status);
-              }
-          }
-        else
-          {
-            TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
-                      "NOT TUNNELED pid [%d]", tiz_port_index (*pp_port));
-          }
-      }
-
-    if (OMX_FALSE == tunneled_found)
-      {
-        status_report = ETIZKrnNoTunneledPorts;
-      }
-    else
-      {
-        if (a_exe_to_idle_interest)
-          {
-            if (all_disabled (p_obj)
-                || (status & OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN))
-              {
-                /* Ignore other flags if a_exe_to_idle_interest is
-                 * true */
-                status_report = ETIZKrnTunneledPortsMayInitiateExeToIdle;
-              }
-            else
-              {
-                status_report = ETIZKrnTunneledPortsAcceptNone;
-              }
-          }
-        else
-          {
-            /* OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN is not set, so now we
-             * look at the other flags */
-            if ((status & OMX_PORTSTATUS_ACCEPTUSEBUFFER)
-                && (status & OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE))
-              {
-                status_report = ETIZKrnTunneledPortsAcceptBoth;
-              }
-            else if (status & OMX_PORTSTATUS_ACCEPTUSEBUFFER)
-              {
-                status_report = ETIZKrnTunneledPortsAcceptUseBuffer;
-              }
-            else if (status & OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE)
-              {
-                status_report = ETIZKrnTunneledPortsAcceptBufferExchange;
-              }
-            else
-              {
-                status_report = ETIZKrnTunneledPortsAcceptNone;
-              }
-          }
-      }
-  }
-
-  TIZ_LOGN (TIZ_DEBUG, tiz_srv_get_hdl (p_obj),
-            "status_report [%d]", status_report);
-
-  assert (ETIZKrnTunneledPortsMax != status_report);
-
-  return status_report;
-}
-
-tiz_krn_tunneled_ports_status_t
-tiz_krn_get_tunneled_ports_status (const void *ap_obj,
-                                   OMX_BOOL a_exe_to_idle_interest)
-{
-  const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (class->get_tunneled_ports_status);
-  return class->get_tunneled_ports_status (ap_obj, a_exe_to_idle_interest);
-}
-
-tiz_krn_tunneled_ports_status_t
-tiz_krn_super_get_tunneled_ports_status (const void *a_class,
-                                         const void *ap_obj,
-                                         OMX_BOOL a_exe_to_idle_interest)
-{
-  const tiz_krn_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->get_tunneled_ports_status);
-  return superclass->get_tunneled_ports_status (ap_obj,
-                                                a_exe_to_idle_interest);
-}
-
 static void
 krn_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag)
 {
@@ -1876,16 +1735,24 @@ krn_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag)
     {
     case OMX_PORTSTATUS_ACCEPTUSEBUFFER:
       {
+        TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+                  "Reset [OMX_PORTSTATUS_ACCEPTUSEBUFFER]...");
         p_obj->accept_use_buffer_notified_ = OMX_FALSE;
       }
       break;
+
     case OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE:
       {
+        TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+                  "Reset [OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE]...");
         p_obj->accept_buffer_exchange_notified_ = OMX_FALSE;
       }
       break;
+
     case OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN:
       {
+        TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+                  "Reset [OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN]...");
         p_obj->may_transition_exe2idle_notified_ = OMX_FALSE;
       }
       break;
@@ -1898,12 +1765,10 @@ krn_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag)
 
   {
     OMX_S32 i = tiz_vector_length (p_obj->p_ports_) - 1;
-    OMX_PTR p_port = NULL;
 
     do
       {
-        p_port = get_port (p_obj, i);
-        tiz_port_reset_tunneled_port_status_flag (p_port,
+        tiz_port_reset_tunneled_port_status_flag (get_port (p_obj, i),
                                                   tiz_srv_get_hdl (p_obj),
                                                   a_port_status_flag);
       }
@@ -1929,6 +1794,139 @@ tiz_krn_super_reset_tunneled_ports_status (const void *a_class,
   const tiz_krn_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->reset_tunneled_ports_status);
   superclass->reset_tunneled_ports_status (ap_obj, a_port_status_flag);
+}
+
+static bool
+is_ready_for_alloc_phase (const tiz_krn_t *ap_obj)
+{
+  bool outcome = true;
+
+  assert (NULL != ap_obj);
+
+  {
+    const OMX_S32 nports = tiz_vector_length (ap_obj->p_ports_);
+    OMX_S32 i = 0;
+    OMX_PTR p_port = NULL;
+    for (i = 0; i < nports; ++i)
+      {
+        p_port = get_port (ap_obj, i);
+        if (NULL != p_port)
+          {
+            if (TIZ_PORT_IS_TUNNELED (p_port) && TIZ_PORT_IS_SUPPLIER (p_port))
+              {
+                if (!TIZ_PORT_MAY_CALL_USE_BUFFER (p_port))
+                  {
+                    return false;
+                  }
+              }
+          }
+      }
+  }
+
+  return outcome;
+}
+
+static bool
+is_ready_to_exchange_buffers (const tiz_krn_t *ap_obj)
+{
+  bool outcome = true;
+
+  assert (NULL != ap_obj);
+
+  {
+    const OMX_S32 nports = tiz_vector_length (ap_obj->p_ports_);
+    OMX_S32 i = 0;
+    OMX_PTR p_port = NULL;
+    for (i = 0; i < nports; ++i)
+      {
+      p_port = get_port (ap_obj, i);
+      if (NULL != p_port)
+        {
+          if (TIZ_PORT_IS_TUNNELED (p_port) && TIZ_PORT_IS_SUPPLIER (p_port))
+            {
+              if (!TIZ_PORT_MAY_EXCHANGE_BUFFERS (p_port))
+                {
+                  return false;
+                }
+            }
+        }
+      }
+  }
+
+  return outcome;
+}
+
+static bool
+is_ready_for_exe_to_idle (const tiz_krn_t *ap_obj)
+{
+  bool outcome = true;
+
+  assert (NULL != ap_obj);
+
+  {
+    const OMX_S32 nports = tiz_vector_length (ap_obj->p_ports_);
+    OMX_S32 i = 0;
+    OMX_PTR p_port = NULL;
+    for (i = 0; i < nports; ++i)
+      {
+      p_port = get_port (ap_obj, i);
+      if (NULL != p_port)
+        {
+          if (TIZ_PORT_IS_TUNNELED (p_port))
+            {
+              if (!TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE (p_port))
+                {
+                  return false;
+                }
+            }
+        }
+      }
+  }
+
+  return outcome;
+}
+
+static bool
+krn_get_restriction_status (const void *ap_obj,
+                            const tiz_krn_restriction_t a_restriction)
+{
+  assert (a_restriction < ETIZKrnMayMax);
+
+  switch (a_restriction)
+    {
+    case ETIZKrnMayInitiateAllocPhase:
+      {
+        return is_ready_for_alloc_phase (ap_obj);
+      }
+      break;
+
+    case ETIZKrnMayExchangeBuffers:
+      {
+        return is_ready_to_exchange_buffers (ap_obj);
+      }
+      break;
+
+    case ETIZKrnMayInitiateExeToIdle:
+      {
+        return is_ready_for_exe_to_idle (ap_obj);
+      }
+      break;
+    default:
+      {
+        /* TODO */
+      }
+    };
+
+  return false;
+}
+
+bool
+tiz_krn_get_restriction_status (const void *ap_obj,
+                                const tiz_krn_restriction_t a_restriction)
+{
+  const tiz_krn_class_t *class = classOf (ap_obj);
+  assert (class->get_restriction_status);
+  return class->get_restriction_status (ap_obj, a_restriction);
 }
 
 /*
@@ -1979,13 +1977,13 @@ krn_class_ctor (void *ap_obj, va_list * app)
         {
           *(voidf *) & p_obj->deregister_all_ports = method;
         }
-      else if (selector == (voidf) tiz_krn_get_tunneled_ports_status)
-        {
-          *(voidf *) & p_obj->get_tunneled_ports_status = method;
-        }
       else if (selector == (voidf) tiz_krn_reset_tunneled_ports_status)
         {
           *(voidf *) & p_obj->reset_tunneled_ports_status = method;
+        }
+      else if (selector == (voidf) tiz_krn_get_restriction_status)
+        {
+          *(voidf *) & p_obj->get_restriction_status = method;
         }
 
     }
@@ -2048,12 +2046,14 @@ tiz_krn_init (void)
          krn_register_port, tiz_krn_get_port, krn_get_port,
          tiz_krn_find_managing_port, krn_find_managing_port,
          tiz_krn_get_population_status, krn_get_population_status,
-         tiz_krn_get_tunneled_ports_status, krn_get_tunneled_ports_status,
          tiz_krn_select, krn_select,
          tiz_krn_claim_buffer, krn_claim_buffer,
          tiz_krn_release_buffer, krn_release_buffer,
          tiz_krn_deregister_all_ports, krn_deregister_all_ports,
          tiz_krn_reset_tunneled_ports_status,
-         krn_reset_tunneled_ports_status, 0);
+         krn_reset_tunneled_ports_status,
+         tiz_krn_get_restriction_status,
+         krn_get_restriction_status,
+         0);
     }
 }

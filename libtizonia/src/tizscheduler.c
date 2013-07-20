@@ -591,8 +591,6 @@ send_msg (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
 
-  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(ap_sched->mutex)));
-
   if (tid == ap_sched->thread_id)
     {
       TIZ_LOGN (TIZ_WARN, ap_sched->child.p_hdl,
@@ -610,11 +608,11 @@ send_msg (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
         }
       else
         {
+          tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(ap_sched->mutex)));
           rc = send_msg_blocking (ap_sched, ap_msg);
+          tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&(ap_sched->mutex)));
         }
     }
-
-  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&(ap_sched->mutex)));
 
   return rc;
 }
@@ -1376,6 +1374,8 @@ sched_SendCommand (OMX_HANDLETYPE ap_hdl,
                "(Bad parameter found)");
       return OMX_ErrorBadParameter;
     }
+
+  TIZ_LOGN (TIZ_ERROR, ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
 
   p_sched = get_sched (ap_hdl);
 

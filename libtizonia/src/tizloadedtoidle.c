@@ -210,21 +210,14 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
   {
     OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_base->p_fsm_);
     void *p_krn = tiz_get_krn (p_hdl);
-    tiz_krn_tunneled_ports_status_t status =
-      tiz_krn_get_tunneled_ports_status (p_krn, OMX_FALSE);
 
-    TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
-                   "kernel's tunneled port status [%d] ", status);
-
-    if (ETIZKrnNoTunneledPorts == status
-        || ETIZKrnTunneledPortsAcceptUseBuffer == status
-        || ETIZKrnTunneledPortsAcceptBoth == status)
+    if (TIZ_KRN_MAY_INIT_ALLOC_PHASE (p_krn))
       {
         /* OK, at this point all the tunneled non-supplier neighboring ports
          * are ready to receive OMX_UseBuffer calls. IL resource allocation
          * will take place now */
-        /* NOTE: This will call the 'tiz_state_state_set' function (we are
-         * passing 'tizloaded' as the 1st parameter  */
+        /* NOTE: This will call the 'tiz_state_state_set' function of the base
+         * class (we are passing 'tizloaded' as the 1st parameter */
         return tiz_state_super_state_set (tizloaded, ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateIdle, NULL);

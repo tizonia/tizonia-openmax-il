@@ -651,12 +651,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
 
       if (all_buffers_returned (p_obj))
         {
-          tiz_krn_tunneled_ports_status_t status =
-            tiz_krn_get_tunneled_ports_status (ap_obj, OMX_TRUE);
-
           if ((ESubStateExecutingToIdle == now || ESubStatePauseToIdle == now)
-              && (ETIZKrnNoTunneledPorts == status
-                  || ETIZKrnTunneledPortsMayInitiateExeToIdle == status))
+              && (TIZ_KRN_MAY_INIT_EXE_TO_IDLE (ap_obj)))
             {
               clear_hdr_lsts (ap_obj, OMX_ALL);
               /* complete state transition to OMX_StateIdle */
@@ -794,15 +790,11 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
 
       if (ESubStateExecutingToIdle == now || ESubStatePauseToIdle == now)
         {
-          tiz_krn_tunneled_ports_status_t status =
-            tiz_krn_get_tunneled_ports_status (ap_obj, OMX_TRUE);
-
           if (all_buffers_returned (p_obj)
-              && (ETIZKrnNoTunneledPorts == status
-                  || ETIZKrnTunneledPortsMayInitiateExeToIdle == status))
+              && (TIZ_KRN_MAY_INIT_EXE_TO_IDLE (p_obj)))
             {
-              TIZ_LOGN (TIZ_DEBUG, p_hdl, "Back to idle - status [%d] "
-                        "all buffers returned : [TRUE]", status);
+              TIZ_LOGN (TIZ_DEBUG, p_hdl, "Back to idle "
+                        "all buffers returned : [TRUE]");
 
               clear_hdr_lsts (p_obj, OMX_ALL);
               rc = tiz_fsm_complete_transition
@@ -914,10 +906,16 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
           {
             rc = tiz_srv_deallocate_resources (ap_obj);
 
-            release_rm_resources (p_obj, ap_hdl);
+            if (OMX_ErrorNone == rc)
+              {
+                rc = release_rm_resources (p_obj, ap_hdl);
+              }
 
-            /* Uninitialize the Resource Manager hdl */
-            deinit_rm (p_obj, ap_hdl);
+            if (OMX_ErrorNone == rc)
+              {
+                /* Uninitialize the Resource Manager hdl */
+                rc = deinit_rm (p_obj, ap_hdl);
+              }
 
             done = (OMX_ErrorNone == rc &&
                     all_depopulated (p_obj)) ? OMX_TRUE : OMX_FALSE;
@@ -954,9 +952,12 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
           {
             /* Before allocating any resources, we need to initialize the
              * Resource Manager hdl */
-            init_rm (p_obj, ap_hdl);
+            rc = init_rm (p_obj, ap_hdl);
 
-            rc = acquire_rm_resources (p_obj, ap_hdl);
+            if (OMX_ErrorNone == rc)
+              {
+                rc = acquire_rm_resources (p_obj, ap_hdl);
+              }
 
             if (OMX_ErrorNone == rc)
               {

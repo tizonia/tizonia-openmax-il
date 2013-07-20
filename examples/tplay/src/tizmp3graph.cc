@@ -194,12 +194,14 @@ tizmp3graph::do_execute ()
 
   assert (OMX_StateLoaded == current_graph_state_);
 
-  if (current_file_index_ < file_list_.size ())
+  if (current_file_index_ >= file_list_.size ())
     {
-      tiz_check_omx_err (configure_mp3_graph (current_file_index_++));
-      tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateLoaded));
-      tiz_check_omx_err (transition_all (OMX_StateExecuting, OMX_StateIdle));
+      current_file_index_ = 0;
     }
+
+  tiz_check_omx_err (configure_mp3_graph (current_file_index_++));
+  tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateLoaded));
+  tiz_check_omx_err (transition_all (OMX_StateExecuting, OMX_StateIdle));
 
   return OMX_ErrorNone;
 }
@@ -227,8 +229,29 @@ tizmp3graph::do_seek ()
 OMX_ERRORTYPE
 tizmp3graph::do_skip (const int jump)
 {
-  tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateExecuting));
-  tiz_check_omx_err (transition_all (OMX_StateLoaded, OMX_StateIdle));
+  if (jump == 0)
+    {
+      return OMX_ErrorNone;
+    }
+
+  if (OMX_StateExecuting != current_graph_state_
+      && OMX_StatePause != current_graph_state_)
+    {
+      // Only allow skip to next/prev song if the graph is in executing or
+      // pause states.
+      return OMX_ErrorNone;
+    }
+  
+  if (OMX_StateExecuting == current_graph_state_)
+    {
+      tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateExecuting));
+      tiz_check_omx_err (transition_all (OMX_StateLoaded, OMX_StateIdle));
+    }
+  else if (OMX_StatePause == current_graph_state_)
+    {
+      tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StatePause));
+      tiz_check_omx_err (transition_all (OMX_StateLoaded, OMX_StateIdle));
+    }
 
   current_file_index_ += jump;
 

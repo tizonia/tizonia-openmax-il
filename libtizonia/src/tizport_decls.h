@@ -58,7 +58,7 @@ extern "C"
     OMX_BOOL contiguity_pref_;
     OMX_PARAM_BUFFERSUPPLIERTYPE bufsupplier_;
     OMX_BOOL announce_bufs_;
-    OMX_CONFIG_TUNNELEDPORTSTATUSTYPE tport_status_;
+    OMX_CONFIG_TUNNELEDPORTSTATUSTYPE peer_port_status_;
   };
 
   OMX_ERRORTYPE tiz_port_super_register_index (const void *a_class,

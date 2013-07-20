@@ -133,8 +133,6 @@ static OMX_ERRORTYPE
 idletoexecuting_trans_complete (const void *ap_obj,
                                 OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
-
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_srv_get_hdl (ap_servant)),
                  TIZ_CBUF (tiz_srv_get_hdl (ap_servant)),
                  "Trans complete to state [%s]...",
@@ -144,14 +142,8 @@ idletoexecuting_trans_complete (const void *ap_obj,
   assert (NULL != ap_servant);
   assert (OMX_StateExecuting == a_new_state);
 
-  if (2 == p_base->servants_count_ + 1)
-    {
-      /* Reset the OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE flag in all ports where this
-       * has been set */
-      tiz_krn_reset_tunneled_ports_status (tiz_get_krn
-                                             (tiz_srv_get_hdl (ap_servant)),
-                                             OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
-    }
+  /* NOTE: Resetting of the OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE flag takes
+     place in the tiz_state base class */
 
   return tiz_state_super_trans_complete (tizidletoexecuting, ap_obj, ap_servant,
                                         a_new_state);
@@ -166,21 +158,15 @@ idletoexecuting_tunneled_ports_status_update (void *ap_obj)
 
   {
     OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_base->p_fsm_);
-    void *p_krn = tiz_get_krn (p_hdl);
-    tiz_krn_tunneled_ports_status_t status =
-      tiz_krn_get_tunneled_ports_status (p_krn, OMX_FALSE);
 
-    TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
-                   "kernel's tunneled port status [%d] ", status);
-
-    if (ETIZKrnNoTunneledPorts == status
-        || ETIZKrnTunneledPortsAcceptBufferExchange == status
-        || ETIZKrnTunneledPortsAcceptBoth == status)
+    if (TIZ_KRN_MAY_EXCHANGE_BUFFERS (tiz_get_krn (p_hdl)))
       {
         /* OK, at this point all the tunneled non-supplier neighboring ports
          * are ready to receive ETB/FTB calls.  NOTE: This will call the
-         * 'tiz_state_state_set' function (we are passing 'tizidle' as the 1st
-         * parameter  */
+         * 'tiz_state_state_set' function of the tiz_state_t base class (note
+         * we are passing 'tizidle' as 1st parameter */
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+                       "kernel ready to exchange buffers");
         return tiz_state_super_state_set (tizidle, ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateExecuting, NULL);

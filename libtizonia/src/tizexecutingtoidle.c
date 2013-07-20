@@ -30,15 +30,14 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "OMX_TizoniaExt.h"
 
 #include "tizexecutingtoidle.h"
 #include "tizstate_decls.h"
 #include "tizkernel.h"
-
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -106,9 +105,8 @@ executingtoidle_trans_complete (const void *ap_obj,
 
   if (2 == p_base->servants_count_ + 1)
     {
-
-      /* Reset the OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN flag in all ports where
-         this has been set */
+      /* Reset the OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN flag in all ports
+         where this has been set */
       tiz_krn_reset_tunneled_ports_status
         (tiz_get_krn (tiz_srv_get_hdl(ap_servant)),
          OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
@@ -128,19 +126,15 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
   {
     OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl(p_base->p_fsm_);
     void *p_krn = tiz_get_krn (p_hdl);
-    tiz_krn_tunneled_ports_status_t status =
-      tiz_krn_get_tunneled_ports_status (p_krn, OMX_TRUE);
 
-    TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
-                   "kernel's tunneled port status [%d] ", status);
-
-    if (ETIZKrnNoTunneledPorts == status
-        || ETIZKrnTunneledPortsMayInitiateExeToIdle == status)
+    if (TIZ_KRN_MAY_INIT_EXE_TO_IDLE (p_krn))
       {
         /* OK, at this point all the tunneled non-supplier neighboring ports
            are ready to receive ETB/FTB calls.  NOTE: This will call the
-           'tiz_state_state_set' function (we are passing 'tizidle' as the 1st
-           parameter  */
+         * 'tiz_state_state_set' function of the tiz_state_t base class (note
+         * we are passing 'tizidle' as 1st parameter */
+        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
+                       "kernel may initiate exe to idle");
         return tiz_state_super_state_set (tizidle, ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateIdle, NULL);

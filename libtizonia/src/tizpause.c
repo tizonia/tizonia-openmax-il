@@ -67,17 +67,17 @@ pause_SetParameter (const void *ap_obj,
 {
   const void *p_krn = tiz_get_krn (ap_hdl);
   OMX_PTR p_port = NULL;
-  OMX_ERRORTYPE ret_val = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* TODO: Optimization: find_managing_port is called twice, first time here,
    * then in the SetParameter implementation of the kernel object. */
   if (OMX_ErrorNone
-      != (ret_val =
+      != (rc =
           tiz_krn_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
       TIZ_LOG (TIZ_TRACE, "Cannot retrieve managing port (%s)...",
-               tiz_err_to_str (ret_val));
-      return ret_val;
+               tiz_err_to_str (rc));
+      return rc;
     }
 
   assert (p_port);
@@ -164,7 +164,7 @@ pause_state_set (const void *ap_obj,
 {
   const tiz_pause_t *p_obj = ap_obj;
   tiz_fsm_state_id_t new_state = EStateMax;
-  OMX_ERRORTYPE ret_val = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
   assert (a_cmd == OMX_CommandStateSet);
@@ -204,36 +204,25 @@ pause_state_set (const void *ap_obj,
   if (ESubStatePauseToIdle == new_state)
     {
       if (OMX_ErrorNone !=
-          (ret_val = tiz_fsm_set_state
+          (rc = tiz_fsm_set_state
            (tiz_get_fsm (ap_hdl), new_state, EStateMax)))
         {
-          return ret_val;
+          return rc;
         }
+
+      {
+        if (!TIZ_KRN_MAY_INIT_EXE_TO_IDLE(tiz_get_krn (ap_hdl)))
+          {
+            TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+                           "wait until all the tunneled supplier neighbours have "
+                           "reported that they have stopped the buffer exchange...");
+            return rc;
+          }
+      }
     }
 
-  {
-    void *p_prc = tiz_get_prc (ap_hdl);
-    void *p_krn = tiz_get_krn (ap_hdl);
-
-    /* First notify the kernel servant */
-    if (OMX_ErrorNone != (ret_val = tiz_api_SendCommand (p_krn, ap_hdl,
-                                                        a_cmd, a_param1,
-                                                        ap_cmd_data)))
-      {
-        return ret_val;
-      }
-
-    /* Now notify the processor servant */
-    if (OMX_ErrorNone != (ret_val = tiz_api_SendCommand (p_prc, ap_hdl,
-                                                        a_cmd, a_param1,
-                                                        ap_cmd_data)))
-      {
-        return ret_val;
-      }
-  }
-
-  return ret_val;
-
+  return tiz_state_super_state_set (tizpause, ap_obj, ap_hdl, a_cmd,
+                                   a_param1, ap_cmd_data);
 }
 
 static OMX_ERRORTYPE

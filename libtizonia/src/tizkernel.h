@@ -52,20 +52,18 @@ extern "C"
       ETIZKrnFullyUnpopulated,
     };
 
-  typedef enum tiz_krn_tunneled_ports_status tiz_krn_tunneled_ports_status_t;
-  enum tiz_krn_tunneled_ports_status
+  typedef enum tiz_krn_restriction tiz_krn_restriction_t;
+  enum tiz_krn_restriction
     {
-      ETIZKrnNoTunneledPorts,
-      ETIZKrnTunneledPortsAcceptUseBuffer,
-      ETIZKrnTunneledPortsAcceptBufferExchange,
-      ETIZKrnTunneledPortsAcceptBoth,
-      ETIZKrnTunneledPortsAcceptNone,
-      ETIZKrnTunneledPortsMayInitiateExeToIdle,
-      ETIZKrnTunneledPortsMax,
+      ETIZKrnMayInitiateAllocPhase,
+      ETIZKrnMayExchangeBuffers,
+      ETIZKrnMayInitiateExeToIdle,
+      ETIZKrnMayMax,
     };
 
   OMX_ERRORTYPE tiz_krn_register_port (const void *ap_obj, OMX_PTR ap_port,
                                        OMX_BOOL ais_config);
+  void tiz_krn_deregister_all_ports (void *ap_obj);
 
   void *tiz_krn_get_port (const void *ap_obj, OMX_U32 a_pid);
 
@@ -73,12 +71,6 @@ extern "C"
                                             OMX_INDEXTYPE a_index,
                                             OMX_PTR ap_struct,
                                             OMX_PTR * app_port);
-
-  tiz_krn_population_status_t tiz_krn_get_population_status
-  (const void *ap_obj, OMX_U32 a_pid, OMX_BOOL * ap_may_be_fully_unpopulated);
-
-  OMX_BOOL tiz_krn_check_tunneled_ports_status
-  (const void *ap_obj, OMX_U32 a_tunneled_port_flag);
 
   OMX_ERRORTYPE tiz_krn_select (const void *ap_obj, OMX_U32 a_nports,
                                 tiz_pd_set_t * ap_set);
@@ -90,12 +82,22 @@ extern "C"
   OMX_ERRORTYPE tiz_krn_release_buffer (const void *ap_obj, OMX_U32 a_pid,
                                            OMX_BUFFERHEADERTYPE * ap_hdr);
 
-  void tiz_krn_deregister_all_ports (void *ap_obj);
-
-  tiz_krn_tunneled_ports_status_t tiz_krn_get_tunneled_ports_status
-  (const void *ap_obj, OMX_BOOL a_exe_to_idle_interest);
-
   void tiz_krn_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag);
+
+  tiz_krn_population_status_t tiz_krn_get_population_status
+  (const void *ap_obj, OMX_U32 a_pid, OMX_BOOL * ap_may_be_fully_unpopulated);
+
+  bool tiz_krn_get_restriction_status
+  (const void *ap_obj, const tiz_krn_restriction_t a_restriction);
+
+#define TIZ_KRN_MAY_INIT_ALLOC_PHASE(_p)                        \
+  tiz_krn_get_restriction_status(_p,ETIZKrnMayInitiateAllocPhase)
+
+#define TIZ_KRN_MAY_EXCHANGE_BUFFERS(_p)                        \
+  tiz_krn_get_restriction_status(_p,ETIZKrnMayExchangeBuffers)
+  
+#define TIZ_KRN_MAY_INIT_EXE_TO_IDLE(_p)                                \
+  tiz_krn_get_restriction_status(_p,ETIZKrnMayInitiateExeToIdle)
 
 #ifdef __cplusplus
 }

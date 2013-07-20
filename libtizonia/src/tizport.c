@@ -299,12 +299,14 @@ port_ctor (void *ap_obj, va_list * app)
 
   p_obj->announce_bufs_ = OMX_TRUE;     /* Default to 1.1.2 behaviour */
 
-  p_obj->tport_status_.nSize = sizeof (OMX_CONFIG_TUNNELEDPORTSTATUSTYPE);
-  p_obj->tport_status_.nVersion.nVersion = OMX_VERSION;
-  p_obj->tport_status_.nPortIndex = p_obj->tpid_; /* This value would be set
+  p_obj->peer_port_status_.nSize               = sizeof (OMX_CONFIG_TUNNELEDPORTSTATUSTYPE);
+  p_obj->peer_port_status_.nVersion.nVersion   = OMX_VERSION;
+  p_obj->peer_port_status_.nPortIndex          = p_obj->tpid_; /* This value
+                                                     will be set correctly
                                                      later when tunneled to
                                                      another port */
-  p_obj->tport_status_.nTunneledPortStatus = 0;
+  p_obj->peer_port_status_.nTunneledPortStatus = 0;
+  
 
   return p_obj;
 }
@@ -552,7 +554,9 @@ port_GetConfig (const void *ap_obj,
       {
         OMX_CONFIG_TUNNELEDPORTSTATUSTYPE *p_port_status
           = (OMX_CONFIG_TUNNELEDPORTSTATUSTYPE *) ap_struct;
-        *p_port_status =  p_obj->tport_status_;
+        /* NOTE: We return the status that we have been set to. That is, the
+           peer's port status. */
+        *p_port_status =  p_obj->peer_port_status_;
       }
       break;
 
@@ -584,12 +588,13 @@ port_SetConfig (const void *ap_obj,
       {
         const OMX_CONFIG_TUNNELEDPORTSTATUSTYPE *p_port_status
           = (OMX_CONFIG_TUNNELEDPORTSTATUSTYPE *) ap_struct;
-        p_obj->tport_status_.nTunneledPortStatus
+        /* ALWAYS Overwrite previous peer's status flags */
+        p_obj->peer_port_status_.nTunneledPortStatus
           = p_port_status->nTunneledPortStatus;
         TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                       "PORT [%d] SetConfig [%s] nTunneledPortStatus [%d]...",
+                       "PORT [%d] SetConfig [%s] peer TunneledPortStatus [%d]...",
                        p_obj->pid_, tiz_idx_to_str (a_index),
-                       p_obj->tport_status_.nTunneledPortStatus);
+                       p_obj->peer_port_status_.nTunneledPortStatus);
       }
       break;
 
@@ -1340,10 +1345,9 @@ port_check_tunneled_port_status (const void *ap_obj, OMX_U32 a_port_status_flag)
   const tiz_port_t *p_obj = ap_obj;
   assert (NULL != p_obj);
   TIZ_LOG (TIZ_TRACE,
-           "port index [%d] nTunneledPortStatus [%d] a_port_status_flag [0x%08x] ",
-           p_obj->pid_, p_obj->tport_status_.nTunneledPortStatus, a_port_status_flag);
-  fflush (stdout);
-  return (p_obj->tport_status_.nTunneledPortStatus & a_port_status_flag
+           "port index [%d] peer nTunneledPortStatus [%d] a_port_status_flag [0x%08x] ",
+           p_obj->pid_, p_obj->peer_port_status_.nTunneledPortStatus, a_port_status_flag);
+  return (p_obj->peer_port_status_.nTunneledPortStatus & a_port_status_flag
           ? OMX_TRUE : OMX_FALSE);
 }
 
@@ -1468,9 +1472,8 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
                               p_obj->tpid_, p_port_priv, nbytes, p_buf);
 
           TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                         "OMX_UseBuffer returned [%s] HEADER [%p] BUFFER [%p]; "
+                         "OMX_UseBuffer returned [%s] HEADER [%p]"
                          "will retry [%s]", tiz_err_to_str (rc), p_hdr,
-                         p_hdr->pBuffer,
                          OMX_ErrorIncorrectStateOperation ==
                          rc ? "YES" : "NO");
         }
@@ -2026,7 +2029,6 @@ port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                  "pid [%d] tpid_ [%d] port_status [0x%08X]", p_obj->pid_,
                  p_obj->tpid_, a_port_status);
-  fflush (stdout);
   /* Inform the tunneled port */
   rc = OMX_SetConfig (p_obj->thdl_, OMX_IndexConfigTunneledPortStatus,
                       &port_status);
@@ -2057,9 +2059,9 @@ reset_tunneled_port_status_flag (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   tiz_port_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
-  p_obj->tport_status_.nTunneledPortStatus &= ~(a_port_status_flag);
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "nTunneledPortStatus = [%d]",
-            p_obj->tport_status_.nTunneledPortStatus);
+  p_obj->peer_port_status_.nTunneledPortStatus &= ~(a_port_status_flag);
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "peer nTunneledPortStatus = [%d]",
+            p_obj->peer_port_status_.nTunneledPortStatus);
 }
 
 void

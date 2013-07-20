@@ -192,14 +192,7 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         }
 
       {
-        void *p_krn = tiz_get_krn (ap_hdl);
-        tiz_krn_tunneled_ports_status_t status =
-          tiz_krn_get_tunneled_ports_status (p_krn, OMX_FALSE);
-        
-        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                       "kernel's tunneled port status [%d] ", status);
-
-        if (ETIZKrnTunneledPortsAcceptNone == status)
+        if (!TIZ_KRN_MAY_INIT_ALLOC_PHASE (tiz_get_krn (ap_hdl)))
           {
             TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                            "wait until all the tunneled non-supplier "

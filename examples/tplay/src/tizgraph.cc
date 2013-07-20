@@ -178,6 +178,14 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent), tiz_err_to_str ((OMX_ERRORTYPE)nData1),
                nData2, pEventData);
+      if (OMX_ErrorPortUnpopulated != nData1)
+        {
+          // Ok, this is serious enough, let's get it fixed....
+          fprintf (stderr, "Aborting after receiving a [%s] from [%s]\n",
+                   tiz_err_to_str ((OMX_ERRORTYPE)nData1),
+                   const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str());
+          abort ();
+        }
       return;
     }
   else if (eEvent == OMX_EventVendorStartUnused)
@@ -236,7 +244,7 @@ tizcback_handler::wait_for_event_list (const waitevent_list_t &event_list)
                (*it).event_ == OMX_EventCmdComplete
                ? tiz_state_to_str ((OMX_STATETYPE)(*it).ndata2_) : "");
     }
-  
+
   if (!all_events_received ())
     {
       while (events_outstanding_)
@@ -262,12 +270,21 @@ tizcback_handler::all_events_received ()
                                                  received_queue_.end (),
                                                  *exp_it)))
             {
-              TIZ_LOG (TIZ_DEBUG, "Erased [%s] from component [%s] "
-                       "event_list size [%d]\n",
+#ifdef _DEBUG
+              char port_str [10];
+              snprintf (port_str, 10, "%ld", exp_it->ndata2_);
+              port_str[9] = '\0';
+              TIZ_LOG (TIZ_DEBUG, "Erasing [%s:%s(%s)] from [%s] "
+                       "[%d] events remaining\n",
                        tiz_evt_to_str (exp_it->event_),
+                       exp_it->event_ == OMX_EventCmdComplete
+                       ? tiz_cmd_to_str ((OMX_COMMANDTYPE)exp_it->ndata1_) : "",
+                       exp_it->ndata1_ == OMX_CommandStateSet
+                       ? tiz_state_to_str ((OMX_STATETYPE)exp_it->ndata2_) : port_str,
                        const_cast<tizgraph &>(parent_).
                        h2n_[exp_it->component_].c_str (),
-                       expected_list_.size ());
+                       expected_list_.size () - 1);
+#endif
               expected_list_.erase (exp_it);
               received_queue_.erase (queue_it);
               // restart the loop
@@ -557,7 +574,7 @@ OMX_ERRORTYPE
 tizgraph::probe_uri (const int uri_index, const bool quiet)
 {
   assert (uri_index < file_list_.size ());
-  
+
   const std::string &uri = file_list_[uri_index];
 
   if (!uri.empty ())
@@ -634,6 +651,12 @@ tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
+  if (to == current_graph_state_)
+    {
+      // Nothing to do
+      return OMX_ErrorNone;
+    }
+
   if ((to == OMX_StateIdle && from == OMX_StateLoaded)
       ||
       (to == OMX_StateExecuting && from == OMX_StateIdle))
@@ -642,9 +665,10 @@ tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
       error = (std::for_each(handles_.rbegin(), handles_.rend(),
                              transition_to(to))).error_;
 
+      // NOTE: Leave this commented code here - for testing purposes
       // Non-suppliers first, hence front to back order
-//       error = (std::for_each(handles_.begin(), handles_.end(),
-//                              transition_to(to))).error_;
+      //       error = (std::for_each(handles_.begin(), handles_.end(),
+      //                              transition_to(to))).error_;
 
     }
   else
@@ -653,9 +677,10 @@ tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
       error = (std::for_each(handles_.begin(), handles_.end(),
                              transition_to(to))).error_;
 
+      // NOTE: Leave this commented code here - for testing purposes
       // Suppliers first, hence back to front order
-//       error = (std::for_each(handles_.rbegin(), handles_.rend(),
-//                              transition_to(to))).error_;
+      //       error = (std::for_each(handles_.rbegin(), handles_.rend(),
+      //                              transition_to(to))).error_;
 
     }
 
@@ -688,7 +713,7 @@ tizgraph::transition_one (const int handle_id, const OMX_STATETYPE to)
 
   transition_component (handles_[handle_id]);
   error = transition_component.error_;
-  
+
   if (OMX_ErrorNone == error)
     {
       waitevent_list_t event_list;

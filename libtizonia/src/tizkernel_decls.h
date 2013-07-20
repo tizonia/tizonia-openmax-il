@@ -158,11 +158,6 @@ extern "C"
   void
   tiz_krn_super_deregister_all_ports (const void *a_class, void *ap_obj);
 
-  tiz_krn_tunneled_ports_status_t
-  tiz_krn_super_get_tunneled_ports_status (const void *a_class,
-                                             const void *ap_obj,
-                                             OMX_BOOL a_exe_to_idle_interest);
-
   void tiz_krn_super_reset_tunneled_ports_status (const void *a_class,
                                                     void *ap_obj,
                                                     OMX_U32 a_port_status_flag);
@@ -199,11 +194,11 @@ extern "C"
                                         OMX_BUFFERHEADERTYPE * p_hdr);
     void (*deregister_all_ports) (void *ap_obj);
 
-    tiz_krn_tunneled_ports_status_t (*get_tunneled_ports_status)
-    (const void *ap_obj, OMX_BOOL a_exe_to_idle_interest);
-
     void (*reset_tunneled_ports_status) (void *ap_obj,
                                          OMX_U32 a_port_status_flag);
+
+    bool (*get_restriction_status) (const void *ap_obj,
+                                    const tiz_krn_restriction_t a_restriction);
 
   };
 

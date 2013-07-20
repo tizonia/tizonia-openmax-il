@@ -188,7 +188,6 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   tiz_fsm_state_id_t new_state = EStateMax;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   void *p_krn = NULL;
-  tiz_krn_tunneled_ports_status_t status = ETIZKrnTunneledPortsMax;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
@@ -199,10 +198,6 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                  tiz_fsm_state_to_str (a_param1));
 
   p_krn = tiz_get_krn (ap_hdl);
-  status = tiz_krn_get_tunneled_ports_status (p_krn, OMX_FALSE);
-
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "kernel's tunneled port status [%d] ", status);
 
   /* Allowed transitions are OMX_StateLoaded, OMX_StateExecuting */
   /* and OMX_StatePause. */
@@ -216,7 +211,7 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     case OMX_StateExecuting:
       {
-        if (ETIZKrnNoTunneledPorts == status)
+        if (TIZ_KRN_MAY_EXCHANGE_BUFFERS (p_krn))
           {
             /* Transition directly to OMX_StateExecuting */
             new_state = a_param1;
@@ -264,7 +259,7 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (ESubStateIdleToExecuting == new_state)
     {
-      if (ETIZKrnTunneledPortsAcceptNone == status)
+      if (!TIZ_KRN_MAY_EXCHANGE_BUFFERS (p_krn))
       {
         TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
                        "wait until all the tunneled non-supplier neighbours have "
