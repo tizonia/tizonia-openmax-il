@@ -268,6 +268,17 @@ extern "C"
 
 #endif /* !TIZ_DISABLE_CHECKS */
 
+#ifdef TIZ_UNUSED
+#elif defined(__GNUC__)
+# define TIZ_UNUSED(x) UNUSED_ ## x __attribute__((unused))
+#elif defined(__LCLINT__)
+# define TIZ_UNUSED(x) /*@unused@*/ x
+#elif defined(__cplusplus)
+# define TIZ_UNUSED(x)
+#else
+#                  define TIZ_UNUSED(x) x
+#endif
+
 
 #ifdef __cplusplus
 }

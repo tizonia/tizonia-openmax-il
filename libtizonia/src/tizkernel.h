@@ -73,7 +73,7 @@ extern "C"
                                             OMX_PTR * app_port);
 
   OMX_ERRORTYPE tiz_krn_select (const void *ap_obj, OMX_U32 a_nports,
-                                tiz_pd_set_t * ap_set);
+                                /*@out@*/ tiz_pd_set_t * ap_set);
 
   OMX_ERRORTYPE tiz_krn_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
                                       OMX_U32 a_pos,

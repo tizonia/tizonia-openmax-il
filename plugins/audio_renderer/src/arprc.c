@@ -37,6 +37,7 @@
 #include "tizosal.h"
 
 #include <assert.h>
+#include <errno.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -73,7 +74,7 @@ ar_proc_dtor (void *ap_obj)
 
   if (NULL != p_obj->p_playback_hdl)
     {
-      snd_pcm_close (p_obj->p_playback_hdl);
+      (void) snd_pcm_close (p_obj->p_playback_hdl);
     }
 
   return super_dtor (arprc, ap_obj);
@@ -83,8 +84,10 @@ static OMX_ERRORTYPE
 ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
   const ar_prc_t *p_obj = ap_obj;
-  int err, offset = 0;
-  int samples, step;
+  snd_pcm_sframes_t err = 0;
+  int offset = 0;
+  snd_pcm_uframes_t samples = 0;
+  unsigned long int step = 0;
 
   TIZ_LOG (TIZ_TRACE,
            "Rendering HEADER [%p]...nFilledLen[%d] !!!", p_hdr,
@@ -94,7 +97,7 @@ ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
   samples = p_hdr->nFilledLen / step;
   TIZ_LOG (TIZ_TRACE, "step [%d], samples [%d]", step, samples);
 
-  while (samples)
+  while (samples > 0)
     {
       err = snd_pcm_writei (p_obj->p_playback_hdl,
                             p_hdr->pBuffer + p_hdr->nOffset + offset,
@@ -111,11 +114,11 @@ ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
       if (err < 0)
         {
           TIZ_LOG (TIZ_TRACE, "Rendering HEADER [%p]...underflow");
-          err = snd_pcm_recover (p_obj->p_playback_hdl, err, 0);
+          err = snd_pcm_recover (p_obj->p_playback_hdl, (int) err, 0);
           if (err < 0)
             {
               TIZ_LOG (TIZ_ERROR, "snd_pcm_recover error: %s",
-                       snd_strerror (err));
+                       snd_strerror ((int) err));
               break;
             }
         }
@@ -133,14 +136,13 @@ ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 /*
  * from tiz_srv class
  */
-static char *
+/*@null@*/ static char *
 get_alsa_device (void *ap_obj)
 {
   ar_prc_t *p_obj = ap_obj;
   const char *p_alsa_pcm = NULL;
 
-  assert (ap_obj);
-
+  assert (NULL != ap_obj);
   assert (NULL == p_obj->p_alsa_pcm_);
 
   p_alsa_pcm
@@ -163,16 +165,20 @@ get_alsa_device (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
+ar_proc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
   ar_prc_t *p_obj = ap_obj;
-  int err;
-  assert (ap_obj);
+  int err = 0;
 
-  if (!(p_obj->p_playback_hdl))
+  assert (NULL != ap_obj);
+
+  if (NULL == p_obj->p_playback_hdl)
     {
+      char * p_device = get_alsa_device (p_obj);
+      assert (NULL != p_device);
+
       if ((err =
-           snd_pcm_open (&p_obj->p_playback_hdl, get_alsa_device (p_obj),
+           snd_pcm_open (&p_obj->p_playback_hdl, p_device,
                          SND_PCM_STREAM_PLAYBACK, 0)) < 0)
         {
           TIZ_LOG (TIZ_ERROR, "cannot open audio device %s (%s)",
@@ -189,6 +195,8 @@ ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
         }
     }
 
+  assert (NULL != p_obj->p_playback_hdl);
+  
   if ((err = snd_pcm_hw_params_any (p_obj->p_playback_hdl,
                                     p_obj->p_hw_params)) < 0)
     {
@@ -197,9 +205,6 @@ ar_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_LOG (TIZ_TRACE, "Resource allocation complete... "
-           "arprc = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
 }
 
@@ -207,12 +212,12 @@ static OMX_ERRORTYPE
 ar_proc_deallocate_resources (void *ap_obj)
 {
   ar_prc_t *p_obj = ap_obj;
-  assert (ap_obj);
+  assert (NULL != ap_obj);
 
   if (p_obj->p_hw_params)
     {
       snd_pcm_hw_params_free (p_obj->p_hw_params);
-      snd_pcm_close (p_obj->p_playback_hdl);
+      (void)snd_pcm_close (p_obj->p_playback_hdl);
       p_obj->p_playback_hdl = NULL;
       p_obj->p_hw_params = NULL;
     }
@@ -226,21 +231,22 @@ ar_proc_deallocate_resources (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
   ar_prc_t *p_obj = ap_obj;
   const tiz_srv_t *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   void *p_krn = tiz_get_krn (p_parent->p_hdl_);
-  int err;
+  int err = 0;
   snd_pcm_format_t snd_pcm_format;
-  assert (ap_obj);
+
+  assert (NULL != ap_obj);
 
   if (NULL != p_obj->p_playback_hdl)
     {
       /* Retrieve pcm params from port */
-      p_obj->pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-      p_obj->pcmmode.nVersion.nVersion = OMX_VERSION;
+      p_obj->pcmmode.nSize = (OMX_U32) sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+      p_obj->pcmmode.nVersion.nVersion = (OMX_U32) OMX_VERSION;
       p_obj->pcmmode.nPortIndex = 0;    /* port index */
       if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                             (p_krn,
@@ -259,7 +265,7 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                p_obj->pcmmode.nSamplingRate,
                p_obj->pcmmode.eNumData,
                p_obj->pcmmode.eEndian,
-               p_obj->pcmmode.bInterleaved ? "OMX_TRUE" : "OMX_FALSE",
+               p_obj->pcmmode.bInterleaved == OMX_TRUE ? "OMX_TRUE" : "OMX_FALSE",
                p_obj->pcmmode.ePCMMode);
 
       /* TODO : Add function to encode properly encode snd_pcm_format */
@@ -269,8 +275,8 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
       if ((err = snd_pcm_set_params (p_obj->p_playback_hdl,
                                      snd_pcm_format,
                                      SND_PCM_ACCESS_RW_INTERLEAVED,
-                                     p_obj->pcmmode.nChannels,
-                                     p_obj->pcmmode.nSamplingRate,
+                                     (unsigned int) p_obj->pcmmode.nChannels,
+                                     (unsigned int) p_obj->pcmmode.nSamplingRate,
                                      1, 100 * 1000)) < 0)
         {
           TIZ_LOG (TIZ_TRACE, "Didn' work...p_obj = [ERROR]!!!");
@@ -288,25 +294,15 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-ar_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
+ar_proc_transfer_and_process (/*@unused@*/ void * ap_obj,
+                              OMX_U32 TIZ_UNUSED(a_pid))
 {
-  ar_prc_t *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_TRACE, "Awaiting buffers...p_obj = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
-ar_proc_stop_and_return (void *ap_obj)
+ar_proc_stop_and_return (/*@unused@*/ void * ap_obj)
 {
-  ar_prc_t *p_obj = ap_obj;
-  assert (ap_obj);
-
-  TIZ_LOG (TIZ_TRACE, "Stopped buffer transfer...p_obj = [%p]!!!", p_obj);
-
   return OMX_ErrorNone;
 }
 
@@ -329,16 +325,18 @@ ar_proc_buffers_ready (const void *ap_obj)
   if (TIZ_PD_ISSET (0, &ports))
     {
       tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
+      assert (NULL != p_hdr);
       TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...", p_hdr);
       tiz_check_omx_err (ar_proc_render_buffer (ap_obj, p_hdr));
-      if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
+      if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0)
         {
+          OMX_PTR event_data = NULL; 
           TIZ_LOG (TIZ_DEBUG, "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
           tiz_srv_issue_event ((OMX_PTR) ap_obj,
                                   OMX_EventBufferFlag,
-                                  0, p_hdr->nFlags, NULL);
+                                  0, p_hdr->nFlags, event_data);
         }
-      tiz_krn_release_buffer (p_krn, 0, p_hdr);
+      tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, p_hdr));
     }
 
   return OMX_ErrorNone;

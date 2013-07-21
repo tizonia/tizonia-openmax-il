@@ -87,7 +87,7 @@ extern "C"
 
   void tiz_srv_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
                                OMX_U32 a_data1, OMX_U32 a_data2,
-                               OMX_PTR ap_eventdata);
+                               /*@null@*/ OMX_PTR ap_eventdata);
 
   void tiz_srv_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error);
 
