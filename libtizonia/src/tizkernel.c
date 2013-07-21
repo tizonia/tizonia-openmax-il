@@ -1812,7 +1812,8 @@ is_ready_for_alloc_phase (const tiz_krn_t *ap_obj)
         p_port = get_port (ap_obj, i);
         if (NULL != p_port)
           {
-            if (TIZ_PORT_IS_TUNNELED (p_port) && TIZ_PORT_IS_SUPPLIER (p_port))
+            if (TIZ_PORT_IS_ENABLED (p_port)
+                && TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
               {
                 if (!TIZ_PORT_MAY_CALL_USE_BUFFER (p_port))
                   {
@@ -1842,7 +1843,8 @@ is_ready_to_exchange_buffers (const tiz_krn_t *ap_obj)
       p_port = get_port (ap_obj, i);
       if (NULL != p_port)
         {
-          if (TIZ_PORT_IS_TUNNELED (p_port) && TIZ_PORT_IS_SUPPLIER (p_port))
+          if (TIZ_PORT_IS_ENABLED (p_port)
+              && TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
             {
               if (!TIZ_PORT_MAY_EXCHANGE_BUFFERS (p_port))
                 {
@@ -1872,7 +1874,7 @@ is_ready_for_exe_to_idle (const tiz_krn_t *ap_obj)
       p_port = get_port (ap_obj, i);
       if (NULL != p_port)
         {
-          if (TIZ_PORT_IS_TUNNELED (p_port))
+          if (TIZ_PORT_IS_ENABLED (p_port) && TIZ_PORT_IS_TUNNELED (p_port))
             {
               if (!TIZ_PORT_MAY_INITIATE_EXE_TO_IDLE (p_port))
                 {
