@@ -137,6 +137,7 @@ print_usage (void)
   printf ("\t-p --port\t\t\t\tPort to be used for http streaming.\n");
   printf
     ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>.\n");
+  printf ("\t-R --recurse\t\t\t\tRecursively process DIR.\n");
   printf ("\t   --shuffle\t\t\t\tShuffle the playlist.\n");
   printf ("\t-s --stream\t\t\t\tStream media via http. Default port is 8010.\n");
   printf ("\t-v --version\t\t\t\tDisplay version info.\n");
@@ -279,7 +280,7 @@ filter_unknown_media (uri_list_t &file_list)
 }
 
 static OMX_ERRORTYPE
-verify_uri (const std::string & uri, uri_list_t &file_list)
+process_uri (const std::string & uri, uri_list_t &file_list, bool recurse = false)
 {
   if (boost::filesystem::exists (uri)
       && boost::filesystem::is_regular_file (uri))
@@ -287,14 +288,26 @@ verify_uri (const std::string & uri, uri_list_t &file_list)
       file_list.push_back (uri);
       return OMX_ErrorNone;
     }
-  else if (boost::filesystem::exists (uri)
-           && boost::filesystem::is_directory (uri))
+
+  if (boost::filesystem::exists (uri)
+      && boost::filesystem::is_directory (uri))
     {
-      std::for_each (boost::filesystem::directory_iterator
-                     (boost::filesystem::path (uri)),
-                     boost::filesystem::directory_iterator (),
-                     pathname_of (file_list));
-      return file_list.empty ()? OMX_ErrorContentURIError : OMX_ErrorNone;
+      if (!recurse)
+        {
+          std::for_each (boost::filesystem::directory_iterator
+                         (boost::filesystem::path (uri)),
+                         boost::filesystem::directory_iterator (),
+                         pathname_of (file_list));
+          return file_list.empty () ? OMX_ErrorContentURIError : OMX_ErrorNone;
+        }
+      else
+        {
+          std::for_each (boost::filesystem::recursive_directory_iterator
+                         (boost::filesystem::path (uri)),
+                         boost::filesystem::recursive_directory_iterator (),
+                         pathname_of (file_list));
+          return file_list.empty () ? OMX_ErrorContentURIError : OMX_ErrorNone;
+        }
     }
 
   return OMX_ErrorContentURIError;
@@ -409,10 +422,10 @@ wait_for_user_input_while_streaming (tizgraph_ptr_t graph_ptr)
 }
 
 static void
-prepare_play_list (const std::string &uri, const bool shuffle_playlist,
-                   uri_list_t &file_list)
+assemble_play_list (const std::string &uri, const bool shuffle_playlist,
+                    const bool recurse, uri_list_t &file_list)
 {
-  if (OMX_ErrorNone != verify_uri (uri, file_list))
+  if (OMX_ErrorNone != process_uri (uri, file_list, recurse))
     {
       fprintf (stderr, "File not found.\n");
       exit (EXIT_FAILURE);
@@ -420,7 +433,7 @@ prepare_play_list (const std::string &uri, const bool shuffle_playlist,
 
   if (OMX_ErrorNone != filter_unknown_media (file_list))
     {
-      fprintf (stderr, "Unsupported media types.\n");
+      fprintf (stderr, "No supported media types found.\n");
       exit (EXIT_FAILURE);
     }
 
@@ -435,12 +448,13 @@ prepare_play_list (const std::string &uri, const bool shuffle_playlist,
 }
 
 static OMX_ERRORTYPE
-decode (const std::string & uri, const bool shuffle_playlist)
+decode (const std::string & uri, const bool shuffle_playlist,
+        const bool recurse)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
   uri_list_t file_list;
 
-  prepare_play_list (uri, shuffle_playlist, file_list);
+  assemble_play_list (uri, shuffle_playlist, recurse, file_list);
 
   tizgraph_ptr_t g_ptr (tizgraphfactory::create_graph (file_list[0].c_str ()));
   if (!g_ptr)
@@ -484,14 +498,15 @@ decode (const std::string & uri, const bool shuffle_playlist)
 }
 
 static OMX_ERRORTYPE
-stream (const std::string & uri, const long int port, const bool shuffle_playlist)
+stream (const std::string & uri, const long int port, const bool shuffle_playlist,
+        const bool recurse)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
   uri_list_t    file_list;
   char hostname[120] = "";
   std::string ip_address;
 
-  prepare_play_list (uri, shuffle_playlist, file_list);
+  assemble_play_list (uri, shuffle_playlist, recurse, file_list);
 
   tizprobe_ptr_t p = boost::make_shared < tizprobe > (file_list[0],
                                                       /* quiet = */ true);
@@ -548,11 +563,12 @@ stream (const std::string & uri, const long int port, const bool shuffle_playlis
 int
 main (int argc, char **argv)
 {
-  OMX_ERRORTYPE error = OMX_ErrorMax;
-  int opt;
-  long int srv_port = 8010; // default port for http streaming
-  std::string streaming_media;
-  bool shuffle_playlist = false;
+  OMX_ERRORTYPE error            = OMX_ErrorMax;
+  int           opt;
+  long int      srv_port         = 8010; // default port for http streaming
+  std::string   streaming_media;
+  bool          shuffle_playlist = false;
+  bool          recurse   = false;
 
   if (argc < 2)
     {
@@ -571,12 +587,13 @@ main (int argc, char **argv)
         {"shuffle", no_argument, 0, 1},
         {"stream", required_argument, 0, 's'},
         {"port", required_argument, 0, 'p'},
+        {"recurse", no_argument, 0, 'R'},
         {"version", no_argument, 0, 'v'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
       };
 
-      opt = getopt_long (argc, argv, "lr:c:d1p:s:vh", long_options, &option_index);
+      opt = getopt_long (argc, argv, "lr:c:d1p:s:Rvh", long_options, &option_index);
       if (opt == -1)
         break;
 
@@ -635,6 +652,12 @@ main (int argc, char **argv)
           }
           break;
 
+        case 'R':
+          {
+            recurse = true;
+          }
+          break;
+
         case 'v':
           {
             error = OMX_ErrorNone;
@@ -684,12 +707,13 @@ main (int argc, char **argv)
 
   if (!streaming_media.empty())
     {
-      error = stream (streaming_media.c_str (), srv_port, shuffle_playlist);
+      error = stream (streaming_media.c_str (), srv_port,
+                      shuffle_playlist, recurse);
     }
 
   if (OMX_ErrorMax == error)
     {
-      error = decode (argv[optind], shuffle_playlist);
+      error = decode (argv[optind], shuffle_playlist, recurse);
     }
 
   (void) tiz_log_deinit ();
