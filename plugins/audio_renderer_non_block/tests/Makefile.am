@@ -15,18 +15,21 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+TESTS = check_audio_renderer
 
-SUBDIRS = \
-	audio_renderer \
-	audio_renderer_non_block \
-	file_reader \
-	file_writer \
-	mp3_decoder \
-	mp3_encoder \
-	vp8_decoder \
-	vp8_encoder \
-	webp_decoder \
-	webp_encoder \
-	yuv_renderer \
-	http_renderer
+check_PROGRAMS = check_audio_renderer
+
+check_audio_renderer_SOURCES = check_audio_renderer.c
+
+check_audio_renderer_CFLAGS = \
+	-I$(top_srcdir)/../../include/omxil-1.2 \
+	-I$(top_srcdir)/../../libtizosal/src \
+	-I$(top_srcdir)/../../libtizonia/src/ \
+	@CHECK_CFLAGS@
+
+check_audio_renderer_LDADD = \
+	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizcore/src/libtizcore.la \
+	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	@CHECK_LIBS@
 

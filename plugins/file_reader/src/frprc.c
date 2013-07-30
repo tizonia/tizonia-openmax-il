@@ -52,27 +52,27 @@
 static void *
 fr_proc_ctor (void *ap_obj, va_list * app)
 {
-  fr_prc_t *p_obj = super_ctor (frprc, ap_obj, app);
-  p_obj->p_file_ = NULL;
-  p_obj->p_uri_param_ = NULL;
-  p_obj->counter_ = 0;
-  p_obj->eos_ = false;
-  return p_obj;
+  fr_prc_t *p_prc = super_ctor (frprc, ap_obj, app);
+  p_prc->p_file_ = NULL;
+  p_prc->p_uri_param_ = NULL;
+  p_prc->counter_ = 0;
+  p_prc->eos_ = false;
+  return p_prc;
 }
 
 static void *
 fr_proc_dtor (void *ap_obj)
 {
-  fr_prc_t *p_obj = ap_obj;
+  fr_prc_t *p_prc = ap_obj;
 
-  if (p_obj->p_file_)
+  if (p_prc->p_file_)
     {
-      fclose (p_obj->p_file_);
+      fclose (p_prc->p_file_);
     }
 
-  if (p_obj->p_uri_param_)
+  if (p_prc->p_uri_param_)
     {
-      tiz_mem_free (p_obj->p_uri_param_);
+      tiz_mem_free (p_prc->p_uri_param_);
     }
 
   return super_dtor (frprc, ap_obj);
@@ -81,35 +81,37 @@ fr_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
-  fr_prc_t *p_obj = (fr_prc_t *) ap_obj;
+  fr_prc_t *p_prc = (fr_prc_t *) ap_obj;
   int bytes_read = 0;
 
-  if (p_obj->p_file_ && !(p_obj->eos_))
+  if (p_prc->p_file_ && !(p_prc->eos_))
     {
       if (!(bytes_read
-            = fread (p_hdr->pBuffer, 1, p_hdr->nAllocLen, p_obj->p_file_)))
+            = fread (p_hdr->pBuffer, 1, p_hdr->nAllocLen, p_prc->p_file_)))
         {
-          if (feof (p_obj->p_file_))
+          if (feof (p_prc->p_file_))
             {
-              TIZ_LOG (TIZ_NOTICE,
+              TIZ_LOGN (TIZ_NOTICE, tiz_srv_get_hdl (p_prc),
                        "End of file reached bytes_read=[%d]", bytes_read);
               p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
-              p_obj->eos_ = true;
+              p_prc->eos_ = true;
             }
           else
             {
-              TIZ_LOG (TIZ_ERROR, "An error occurred while reading");
+              TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
+                       "An error occurred while reading");
               return OMX_ErrorInsufficientResources;
             }
         }
 
       p_hdr->nFilledLen = bytes_read;
-      p_obj->counter_ += p_hdr->nFilledLen;
+      p_prc->counter_ += p_hdr->nFilledLen;
     }
 
-  TIZ_LOG (TIZ_TRACE, "Reading into HEADER [%p]...nFilledLen[%d] "
+  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+           "Reading into HEADER [%p]...nFilledLen[%d] "
            "counter [%d] bytes_read[%d]",
-           p_hdr, p_hdr->nFilledLen, p_obj->counter_, bytes_read);
+           p_hdr, p_hdr->nFilledLen, p_prc->counter_, bytes_read);
 
   return OMX_ErrorNone;
 
@@ -122,46 +124,46 @@ fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 static OMX_ERRORTYPE
 fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  fr_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
-  OMX_ERRORTYPE ret_val = OMX_ErrorNone;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  fr_prc_t *p_prc = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  void *p_krn = tiz_get_krn (tiz_srv_get_hdl (p_prc));
 
-  assert (ap_obj);
+  assert (NULL != ap_obj);
 
-  if (!(p_obj->p_uri_param_))
+  if (!(p_prc->p_uri_param_))
     {
-      p_obj->p_uri_param_ = tiz_mem_calloc
+      p_prc->p_uri_param_ = tiz_mem_calloc
         (1, sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE);
 
-      if (NULL == p_obj->p_uri_param_)
+      if (NULL == p_prc->p_uri_param_)
         {
-          TIZ_LOG (TIZ_ERROR, "Error allocating memory "
-                   "for the content uri struct");
+          TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
+                    "Error allocating memory for the content uri struct");
           return OMX_ErrorInsufficientResources;
         }
 
-      p_obj->p_uri_param_->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
+      p_prc->p_uri_param_->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
         + OMX_MAX_STRINGNAME_SIZE - 1;
-      p_obj->p_uri_param_->nVersion.nVersion = OMX_VERSION;
+      p_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
     }
 
-  if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
-                        (p_krn,
-                         p_parent->p_hdl_,
-                         OMX_IndexParamContentURI, p_obj->p_uri_param_)))
+  if (OMX_ErrorNone != (rc = tiz_api_GetParameter
+                        (p_krn, tiz_srv_get_hdl (p_prc),
+                         OMX_IndexParamContentURI, p_prc->p_uri_param_)))
     {
-      TIZ_LOG (TIZ_ERROR, "Error retrieving URI param from port");
-      return ret_val;
+      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
+               "Error retrieving URI param from port");
+      return rc;
     }
 
-  TIZ_LOG (TIZ_NOTICE, "Retrieved URI [%s]",
-           p_obj->p_uri_param_->contentURI);
+  TIZ_LOGN (TIZ_NOTICE, tiz_srv_get_hdl (p_prc), "Retrieved URI [%s]",
+            p_prc->p_uri_param_->contentURI);
 
-  if ((p_obj->p_file_
-       = fopen ((const char *) p_obj->p_uri_param_->contentURI, "r")) == 0)
+  if ((p_prc->p_file_
+       = fopen ((const char *) p_prc->p_uri_param_->contentURI, "r")) == 0)
     {
-      TIZ_LOG (TIZ_ERROR, "Error opening file from  URI string");
+      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
+               "Error opening file from  URI string");
       return OMX_ErrorInsufficientResources;
     }
 
@@ -171,17 +173,17 @@ fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 fr_proc_deallocate_resources (void *ap_obj)
 {
-  fr_prc_t *p_obj = ap_obj;
-  assert (ap_obj);
+  fr_prc_t *p_prc = ap_obj;
+  assert (NULL != ap_obj);
 
-  if (p_obj->p_file_)
+  if (p_prc->p_file_)
     {
-      fclose (p_obj->p_file_);
-      p_obj->p_file_ = NULL;
+      fclose (p_prc->p_file_);
+      p_prc->p_file_ = NULL;
     }
 
-  tiz_mem_free (p_obj->p_uri_param_);
-  p_obj->p_uri_param_ = NULL;
+  tiz_mem_free (p_prc->p_uri_param_);
+  p_prc->p_uri_param_ = NULL;
 
   return OMX_ErrorNone;
 }
@@ -189,20 +191,20 @@ fr_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  fr_prc_t *p_obj = ap_obj;
-  assert (ap_obj);
-  p_obj->counter_ = 0;
-  p_obj->eos_ = false;
+  fr_prc_t *p_prc = ap_obj;
+  assert (NULL != ap_obj);
+  p_prc->counter_ = 0;
+  p_prc->eos_ = false;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 fr_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  fr_prc_t *p_obj = ap_obj;
-  assert (ap_obj);
-  p_obj->counter_ = 0;
-  p_obj->eos_ = false;
+  fr_prc_t *p_prc = ap_obj;
+  assert (NULL != ap_obj);
+  p_prc->counter_ = 0;
+  p_prc->eos_ = false;
   return OMX_ErrorNone;
 }
 
@@ -219,13 +221,14 @@ fr_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 fr_proc_buffers_ready (const void *ap_obj)
 {
-  const fr_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
+  const fr_prc_t *p_prc = ap_obj;
   tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = tiz_get_krn (tiz_srv_get_hdl (p_prc));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  if (p_obj->eos_ == false)
+  assert (NULL != ap_obj);
+
+  if (p_prc->eos_ == false)
     {
       TIZ_PD_ZERO (&ports);
 
@@ -234,8 +237,10 @@ fr_proc_buffers_ready (const void *ap_obj)
       if (TIZ_PD_ISSET (0, &ports))
         {
           tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
-          TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...", p_hdr);
-          tiz_check_omx_err (fr_proc_read_buffer (ap_obj, p_hdr));
+          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+                    "Claimed HEADER [%p]...nFilledLen [%d]", p_hdr,
+                    p_hdr->nFilledLen);
+          tiz_check_omx_err (fr_proc_read_buffer (p_prc, p_hdr));
           tiz_krn_release_buffer (p_krn, 0, p_hdr);
         }
     }

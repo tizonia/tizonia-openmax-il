@@ -7,6 +7,8 @@ insert into components values('OMX.Aratelia.tizonia.test_component',300,3,0,1);
 insert into components values('OMX.Aratelia.ilcore.test_component',300,3,0,1);
 insert into components values('OMX.Aratelia.audio_renderer.pcm',100,1,0,1);
 insert into components values('OMX.Aratelia.audio_renderer.pcm',100,1,1,1);
+insert into components values('OMX.Aratelia.audio_renderer_nb.pcm',100,1,0,1);
+insert into components values('OMX.Aratelia.audio_renderer_nb.pcm',100,1,1,1);
 insert into components values('OMX.Aratelia.file_reader.binary',100,1,0,1);
 insert into components values('OMX.Aratelia.file_reader.binary',100,1,2,1);
 insert into components values('OMX.Aratelia.file_writer.binary',100,1,0,1);

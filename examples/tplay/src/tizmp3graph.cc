@@ -58,7 +58,7 @@ tizmp3graph::do_load ()
   component_names_t comp_list;
   comp_list.push_back ("OMX.Aratelia.file_reader.binary");
   comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
-  comp_list.push_back ("OMX.Aratelia.audio_renderer.pcm");
+  comp_list.push_back ("OMX.Aratelia.audio_renderer_nb.pcm");
 
   if (OMX_ErrorNone != (ret = verify_existence (comp_list)))
     {

@@ -62,6 +62,9 @@ release_buffers (const void *ap_obj)
 
   if (NULL != p_obj->p_outhdr_)
     {
+      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+                "Releasing output HEADER [%p] nFilledLen [%d]",
+                p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen);
       tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_);
       p_obj->p_outhdr_ = NULL;
     }
@@ -244,9 +247,12 @@ synthesize_samples (const void *ap_obj, int next_sample)
       if (p_output == p_bufend)
         {
           void *p_krn = tiz_get_krn (tiz_srv_get_hdl (p_obj));
-          p_output = p_obj->p_outhdr_->pBuffer;
-          tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_);
+          p_output    = p_obj->p_outhdr_->pBuffer;
+          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+                    "Releasing output HEADER [%p] nFilledLen [%d]",
+                    p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen);
           p_obj->p_outhdr_->nFilledLen = p_obj->p_outhdr_->nAllocLen;
+          tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_);
           p_obj->p_outhdr_ = NULL;
           buffer_full = true;
         }

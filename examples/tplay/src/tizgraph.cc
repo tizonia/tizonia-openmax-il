@@ -145,7 +145,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
   if (eEvent == OMX_EventCmdComplete)
     {
       TIZ_LOG (TIZ_DEBUG, "[%s] : "
-               "eEvent = [%s] event [%s] state [%s] error [%p]\n",
+               "[%s] [%s] [%s] error [%p]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent),
                tiz_cmd_to_str ((OMX_COMMANDTYPE)nData1),
@@ -155,7 +155,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
   else if (eEvent == OMX_EventPortSettingsChanged)
     {
       TIZ_LOG (TIZ_DEBUG, "[%s] : "
-               "eEvent = [%s] port [%lu] index [%s] pEventData [%p]\n",
+               "[%s] port [%lu] index [%s] pEventData [%p]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent), nData1,
                tiz_idx_to_str ((OMX_INDEXTYPE)nData2),
@@ -164,7 +164,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
   else if (eEvent == OMX_EventBufferFlag)
     {
       TIZ_LOG (TIZ_DEBUG, "[%s] : "
-               "eEvent = [%s] port [%lu] flags [%lX] pEventData [%p]\n",
+               "[%s] port [%lu] flags [%lX] pEventData [%p]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent), nData1, nData2,
                pEventData);
@@ -174,7 +174,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
   else if (eEvent == OMX_EventError)
     {
       TIZ_LOG (TIZ_DEBUG, "[%s] : "
-               "eEvent = [%s] error [%s] port [%lu] pEventData [%p]\n",
+               "[%s] error [%s] port [%lu] pEventData [%p]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent), tiz_err_to_str ((OMX_ERRORTYPE)nData1),
                nData2, pEventData);
@@ -190,7 +190,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
     }
   else if (eEvent == OMX_EventVendorStartUnused)
     {
-      TIZ_LOG (TIZ_DEBUG, "[%s] : eEvent = [%s]\n",
+      TIZ_LOG (TIZ_DEBUG, "[%s] : [%s]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent));
       expected_list_.clear();
@@ -199,7 +199,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
   else
     {
       TIZ_LOG (TIZ_DEBUG, "Received from [%s] : "
-               "eEvent = [%s]\n",
+               "[%s]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent));
       return;
@@ -233,6 +233,7 @@ tizcback_handler::wait_for_event_list (const waitevent_list_t &event_list)
 
   TIZ_LOG (TIZ_DEBUG, "events_outstanding_ = [%s] event_list size [%d]",
            events_outstanding_ ? "true" : "false", event_list.size());
+
   for (waitevent_list_t::const_iterator it = event_list.begin ();
        it != event_list.end (); ++it)
     {

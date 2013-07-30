@@ -15,18 +15,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+lib_LTLIBRARIES = libtizarnb.la
 
-SUBDIRS = \
-	audio_renderer \
-	audio_renderer_non_block \
-	file_reader \
-	file_writer \
-	mp3_decoder \
-	mp3_encoder \
-	vp8_decoder \
-	vp8_encoder \
-	webp_decoder \
-	webp_encoder \
-	yuv_renderer \
-	http_renderer
+noinst_HEADERS = \
+	arprc.h \
+	arprc_decls.h
+
+libtizarnb_la_SOURCES = \
+	ar.c \
+	arprc.c
+
+libtizarnb_la_CFLAGS = \
+	-I$(top_srcdir)/../../include/omxil-1.2 \
+	-I$(top_srcdir)/../../libtizosal/src \
+	-I$(top_srcdir)/../../libtizonia/src \
+	@ALSA_CFLAGS@
+
+libtizarnb_la_LIBADD = \
+	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	@ALSA_LIBS@
+
 

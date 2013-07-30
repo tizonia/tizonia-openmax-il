@@ -16,17 +16,8 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SUBDIRS = \
-	audio_renderer \
-	audio_renderer_non_block \
-	file_reader \
-	file_writer \
-	mp3_decoder \
-	mp3_encoder \
-	vp8_decoder \
-	vp8_encoder \
-	webp_decoder \
-	webp_encoder \
-	yuv_renderer \
-	http_renderer
+SUBDIRS= src tests
+
+#pkgconfigdir = $(libdir)/pkgconfig
+#pkgconfig_DATA = tizcomps.pc
 
