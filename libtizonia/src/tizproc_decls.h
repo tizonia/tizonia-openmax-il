@@ -55,6 +55,8 @@ extern "C"
     /* Class */
     const tiz_srv_class_t _;
     OMX_ERRORTYPE (*buffers_ready) (const void *p_obj);
+    OMX_ERRORTYPE (*pause) (const void *p_obj);
+    OMX_ERRORTYPE (*resume) (const void *p_obj);
     OMX_ERRORTYPE (*port_flush) (const void *p_obj, OMX_U32 a_pid);
     OMX_ERRORTYPE (*port_disable) (const void *p_obj, OMX_U32 a_pid);
     OMX_ERRORTYPE (*port_enable) (const void *p_obj, OMX_U32 a_pid);

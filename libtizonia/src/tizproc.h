@@ -42,6 +42,10 @@ extern "C"
 
   OMX_ERRORTYPE tiz_prc_buffers_ready (const void *p_obj);
 
+  OMX_ERRORTYPE tiz_prc_pause (const void *p_obj);
+
+  OMX_ERRORTYPE tiz_prc_resume (const void *p_obj);
+
   OMX_ERRORTYPE tiz_prc_port_flush (const void *ap_obj, OMX_U32 a_pid);
 
   OMX_ERRORTYPE tiz_prc_port_disable (const void *ap_obj, OMX_U32 a_pid);
