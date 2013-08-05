@@ -33,15 +33,18 @@ extern "C"
 {
 #endif
 
-#include <stdbool.h>
-
 #include "frprc.h"
 #include "tizproc_decls.h"
 
+#include "OMX_Core.h"
+
+#include <stdbool.h>
+
+  typedef struct fr_prc fr_prc_t;
   struct frprc
   {
     /* Object */
-    const struct tizprc _;
+    const tiz_prc_t _;
     bool eos_;
   };
 

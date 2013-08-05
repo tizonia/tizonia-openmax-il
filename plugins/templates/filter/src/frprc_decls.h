@@ -34,17 +34,18 @@ extern "C"
 {
 #endif
 
-#include <stdbool.h>
-
-#include "OMX_Core.h"
-
 #include "frprc.h"
 #include "tizproc_decls.h"
 
-  struct frprc
+#include "OMX_Core.h"
+
+#include <stdbool.h>
+
+  typedef struct fr_prc fr_prc_t;
+  struct fr_prc
   {
     /* Object */
-    const struct tizprc _;
+    const tiz_prc_t _;
     OMX_BUFFERHEADERTYPE *pinhdr_;
     OMX_BUFFERHEADERTYPE *pouthdr_;
     bool eos_;
