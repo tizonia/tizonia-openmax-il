@@ -65,7 +65,6 @@ static OMX_VERSIONTYPE file_reader_version = { {1, 0, 0, 0} };
 static OMX_PTR
 instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_binaryport = NULL;
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirOutput,
@@ -79,16 +78,12 @@ instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
   };
 
   tiz_binaryport_init ();
-  p_binaryport = factory_new (tizbinaryport, &port_opts);
-  assert (p_binaryport);
-
-  return p_binaryport;
+  return factory_new (tizbinaryport, &port_opts);
 }
 
 static OMX_PTR
 instantiate_video_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_binaryport = NULL;
   tiz_port_options_t port_opts = {
     OMX_PortDomainVideo,
     OMX_DirOutput,
@@ -102,16 +97,12 @@ instantiate_video_port (OMX_HANDLETYPE ap_hdl)
   };
 
   tiz_binaryport_init ();
-  p_binaryport = factory_new (tizbinaryport, &port_opts);
-  assert (p_binaryport);
-
-  return p_binaryport;
+  return factory_new (tizbinaryport, &port_opts);
 }
 
 static OMX_PTR
 instantiate_image_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_binaryport = NULL;
   tiz_port_options_t port_opts = {
     OMX_PortDomainImage,
     OMX_DirOutput,
@@ -125,16 +116,12 @@ instantiate_image_port (OMX_HANDLETYPE ap_hdl)
   };
 
   tiz_binaryport_init ();
-  p_binaryport = factory_new (tizbinaryport, &port_opts);
-  assert (p_binaryport);
-
-  return p_binaryport;
+  return factory_new (tizbinaryport, &port_opts);
 }
 
 static OMX_PTR
 instantiate_other_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_binaryport = NULL;
   tiz_port_options_t port_opts = {
     OMX_PortDomainOther,
     OMX_DirOutput,
@@ -148,38 +135,25 @@ instantiate_other_port (OMX_HANDLETYPE ap_hdl)
   };
 
   tiz_binaryport_init ();
-  p_binaryport = factory_new (tizbinaryport, &port_opts);
-  assert (p_binaryport);
-
-  return p_binaryport;
+  return factory_new (tizbinaryport, &port_opts);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_cport = NULL;
-
   /* Instantiate the config port */
   fr_cfgport_init ();
-  p_cport = factory_new (frcfgport, NULL,       /* this port does not take options */
-                         ARATELIA_FILE_READER_COMPONENT_NAME,
-                         file_reader_version);
-  assert (p_cport);
-
-  return p_cport;
+  return factory_new (frcfgport, NULL,       /* this port does not take options */
+                      ARATELIA_FILE_READER_COMPONENT_NAME,
+                      file_reader_version);
 }
 
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_proc = NULL;
-
   /* Instantiate the processor */
   fr_prc_init ();
-  p_proc = factory_new (frprc, ap_hdl);
-  assert (p_proc);
-
-  return p_proc;
+  return factory_new (frprc, ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -204,7 +178,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   audio_role.pf_port[0] = instantiate_audio_port;
   audio_role.nports     = 1;
   audio_role.pf_proc    = instantiate_processor;
-  
+
 
   strcpy ((OMX_STRING) video_role.role,
           ARATELIA_FILE_READER_VIDEO_READER_ROLE);
@@ -212,7 +186,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   video_role.pf_port[0] = instantiate_video_port;
   video_role.nports     = 1;
   video_role.pf_proc    = instantiate_processor;
-  
+
 
   strcpy ((OMX_STRING) image_role.role,
           ARATELIA_FILE_READER_IMAGE_READER_ROLE);
@@ -220,7 +194,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   image_role.pf_port[0] = instantiate_image_port;
   image_role.nports     = 1;
   image_role.pf_proc    = instantiate_processor;
-  
+
 
   strcpy ((OMX_STRING) other_role.role,
           ARATELIA_FILE_READER_OTHER_READER_ROLE);
@@ -228,11 +202,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   other_role.pf_port[0] = instantiate_other_port;
   other_role.nports     = 1;
   other_role.pf_proc    = instantiate_processor;
-  
 
-  tiz_comp_init (ap_hdl, ARATELIA_FILE_READER_COMPONENT_NAME);
-
-  tiz_comp_register_roles (ap_hdl, rf_list, 4);
+  tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_FILE_READER_COMPONENT_NAME));
+  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 4));
 
   return OMX_ErrorNone;
 }
