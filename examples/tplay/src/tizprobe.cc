@@ -93,6 +93,21 @@ dump_stream_info_to_string(AVDictionary *m, std::string &stream_title,
   stream_genre.assign (genre);
 }
 
+static void
+close_input_file (AVFormatContext ** ctx_ptr)
+{
+  int i = 0;
+  AVFormatContext *fmt_ctx = *ctx_ptr;
+
+  /* close decoder for each stream */
+  for (i = 0; i < fmt_ctx->nb_streams; i++)
+    {
+      AVStream *stream = fmt_ctx->streams[i];
+      avcodec_close (stream->codec);
+    }
+  avformat_close_input (ctx_ptr);
+}
+
 static int
 open_input_file (AVFormatContext ** fmt_ctx_ptr, const std::string &filename,
                  std::string &stream_title, std::string &stream_genre,
@@ -110,12 +125,14 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const std::string &filename,
 
   if ((t = av_dict_get (format_opts, "", NULL, AV_DICT_IGNORE_SUFFIX)))
     {
+      close_input_file (&fmt_ctx);
       return AVERROR_OPTION_NOT_FOUND;
     }
 
   /* fill the streams in the format context */
   if ((err = avformat_find_stream_info (fmt_ctx, NULL)) < 0)
     {
+      close_input_file (&fmt_ctx);
       return err;
     }
 
@@ -133,21 +150,6 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const std::string &filename,
 
   *fmt_ctx_ptr = fmt_ctx;
   return 0;
-}
-
-static void
-close_input_file (AVFormatContext ** ctx_ptr)
-{
-  int i = 0;
-  AVFormatContext *fmt_ctx = *ctx_ptr;
-
-  /* close decoder for each stream */
-  for (i = 0; i < fmt_ctx->nb_streams; i++)
-    {
-      AVStream *stream = fmt_ctx->streams[i];
-      avcodec_close (stream->codec);
-    }
-  avformat_close_input (ctx_ptr);
 }
 
 tizprobe::tizprobe (const std::string & uri, const bool quiet):
@@ -220,11 +222,13 @@ tizprobe::probe_file ()
 
   if (NULL == (st = fmt_ctx->streams[0]))
     {
+      close_input_file (&fmt_ctx);
       return 1;
     }
 
   if (NULL == (cc = st->codec))
     {
+      close_input_file (&fmt_ctx);
       return 1;
     }
 
