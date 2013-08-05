@@ -63,7 +63,14 @@ pcmport_ctor (void *ap_obj, va_list * app)
   /* Initialize the OMX_AUDIO_PARAM_PCMMODETYPE structure */
   if ((p_pcmmode = va_arg (*app, OMX_AUDIO_PARAM_PCMMODETYPE *)))
     {
+      int i = 0;
+      tiz_mem_set (&p_obj->pcmmode_, 0, sizeof p_obj->pcmmode_);
       p_obj->pcmmode_ = *p_pcmmode;
+      for (i = 0; i < OMX_AUDIO_MAXCHANNELS; ++i)
+        {
+          p_obj->pcmmode_.eChannelMapping[i] = p_pcmmode->eChannelMapping[i];
+        }
+
       TIZ_LOG (TIZ_TRACE, "nChannels = [%d]", p_obj->pcmmode_.nChannels);
       TIZ_LOG (TIZ_TRACE, "nBitPerSample = [%d]",
                p_obj->pcmmode_.nBitPerSample);
@@ -116,9 +123,14 @@ pcmport_GetParameter (const void *ap_obj,
     {
     case OMX_IndexParamAudioPcm:
       {
+        int i = 0;
         OMX_AUDIO_PARAM_PCMMODETYPE *p_pcmmode
           = (OMX_AUDIO_PARAM_PCMMODETYPE *) ap_struct;
         *p_pcmmode = p_obj->pcmmode_;
+        for (i = 0; i < OMX_AUDIO_MAXCHANNELS; ++i)
+        {
+          p_pcmmode->eChannelMapping[i] = p_obj->pcmmode_.eChannelMapping[i];
+        }
         break;
       }
 
@@ -225,31 +237,18 @@ pcmport_SetParameter (const void *ap_obj,
         }
 
         /* Apply the new default values */
-        if (p_obj->pcmmode_.nChannels != p_pcmmode->nChannels ||
-            p_obj->pcmmode_.eNumData != p_pcmmode->eNumData ||
-            p_obj->pcmmode_.eEndian != p_pcmmode->eEndian ||
-            p_obj->pcmmode_.bInterleaved != p_pcmmode->bInterleaved ||
-            p_obj->pcmmode_.nBitPerSample != p_pcmmode->nBitPerSample ||
-            p_obj->pcmmode_.nSamplingRate != p_pcmmode->nSamplingRate ||
-            p_obj->pcmmode_.ePCMMode != p_pcmmode->ePCMMode)
-          {
-            p_obj->pcmmode_.nChannels = p_pcmmode->nChannels;
-            p_obj->pcmmode_.eNumData = p_pcmmode->eNumData;
-            p_obj->pcmmode_.eEndian = p_pcmmode->eEndian;
-            p_obj->pcmmode_.bInterleaved = p_pcmmode->bInterleaved;
-            p_obj->pcmmode_.nBitPerSample = p_pcmmode->nBitPerSample;
-            p_obj->pcmmode_.nSamplingRate = p_pcmmode->nSamplingRate;
-            p_obj->pcmmode_.ePCMMode = p_pcmmode->ePCMMode;
-          }
+        p_obj->pcmmode_.nChannels     = p_pcmmode->nChannels;
+        p_obj->pcmmode_.eNumData      = p_pcmmode->eNumData;
+        p_obj->pcmmode_.eEndian       = p_pcmmode->eEndian;
+        p_obj->pcmmode_.bInterleaved  = p_pcmmode->bInterleaved;
+        p_obj->pcmmode_.nBitPerSample = p_pcmmode->nBitPerSample;
+        p_obj->pcmmode_.nSamplingRate = p_pcmmode->nSamplingRate;
+        p_obj->pcmmode_.ePCMMode      = p_pcmmode->ePCMMode;
 
         for (i = 0; i < OMX_AUDIO_MAXCHANNELS; ++i)
           {
-            if (p_obj->pcmmode_.eChannelMapping[i]
-                != p_pcmmode->eChannelMapping[i])
-              {
-                p_obj->pcmmode_.eChannelMapping[i]
-                  = p_pcmmode->eChannelMapping[i];
-              }
+            p_obj->pcmmode_.eChannelMapping[i]
+              = p_pcmmode->eChannelMapping[i];
           }
 
       }

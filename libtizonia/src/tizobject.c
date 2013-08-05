@@ -94,7 +94,7 @@ Class_ctor (void *ap_obj, va_list * app)
           + offset, sizeOf (p_obj->super) - offset);
   {
     typedef void (*voidf) ();   /* generic function pointer */
-    voidf selector;
+    voidf selector = NULL;
     va_list ap;
     va_copy (ap, *app);
 

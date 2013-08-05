@@ -1203,7 +1203,7 @@ fsm_class_ctor (void *ap_obj, va_list * app)
 {
   tiz_fsm_class_t *p_obj = super_ctor (tizfsm_class, ap_obj, app);
   typedef void (*voidf) ();
-  voidf selector;
+  voidf selector = NULL;
   va_list ap;
   va_copy (ap, *app);
 

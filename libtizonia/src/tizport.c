@@ -2082,7 +2082,7 @@ port_class_ctor (void *ap_obj, va_list * app)
 {
   tiz_port_class_t *p_obj = super_ctor (tizport_class, ap_obj, app);
   typedef void (*voidf) ();
-  voidf selector;
+  voidf selector = NULL;
   va_list ap;
   va_copy (ap, *app);
 
