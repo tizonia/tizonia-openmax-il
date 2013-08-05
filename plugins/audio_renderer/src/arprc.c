@@ -51,7 +51,7 @@
  */
 
 static void *
-ar_proc_ctor (void *ap_obj, va_list * app)
+ar_prc_ctor (void *ap_obj, va_list * app)
 {
   ar_prc_t *p_obj = super_ctor (arprc, ap_obj, app);
   p_obj->p_playback_hdl = NULL;
@@ -61,7 +61,7 @@ ar_proc_ctor (void *ap_obj, va_list * app)
 }
 
 static void *
-ar_proc_dtor (void *ap_obj)
+ar_prc_dtor (void *ap_obj)
 {
   ar_prc_t *p_obj = ap_obj;
 
@@ -81,7 +81,7 @@ ar_proc_dtor (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-ar_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
+ar_prc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
   const ar_prc_t *p_obj = ap_obj;
   snd_pcm_sframes_t err = 0;
@@ -165,7 +165,7 @@ get_alsa_device (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-ar_proc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
+ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
   ar_prc_t *p_obj = ap_obj;
   int err = 0;
@@ -209,15 +209,16 @@ ar_proc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 }
 
 static OMX_ERRORTYPE
-ar_proc_deallocate_resources (void *ap_obj)
+ar_prc_deallocate_resources (void *ap_obj)
 {
   ar_prc_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
 
-  if (p_obj->p_hw_params)
+  if (NULL != p_obj->p_hw_params)
     {
       snd_pcm_hw_params_free (p_obj->p_hw_params);
-      (void)snd_pcm_close (p_obj->p_playback_hdl);
+      (void) snd_pcm_close (p_obj->p_playback_hdl);
+      (void) snd_config_update_free_global ();
       p_obj->p_playback_hdl = NULL;
       p_obj->p_hw_params = NULL;
     }
@@ -231,7 +232,7 @@ ar_proc_deallocate_resources (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
+ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
   ar_prc_t *p_obj = ap_obj;
   const tiz_srv_t *p_parent = ap_obj;
@@ -294,14 +295,14 @@ ar_proc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 }
 
 static OMX_ERRORTYPE
-ar_proc_transfer_and_process (/*@unused@*/ void * ap_obj,
+ar_prc_transfer_and_process (/*@unused@*/ void * ap_obj,
                               OMX_U32 TIZ_UNUSED(a_pid))
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-ar_proc_stop_and_return (/*@unused@*/ void * ap_obj)
+ar_prc_stop_and_return (/*@unused@*/ void * ap_obj)
 {
   return OMX_ErrorNone;
 }
@@ -311,7 +312,7 @@ ar_proc_stop_and_return (/*@unused@*/ void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-ar_proc_buffers_ready (const void *ap_obj)
+ar_prc_buffers_ready (const void *ap_obj)
 {
   const tiz_srv_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
@@ -327,7 +328,7 @@ ar_proc_buffers_ready (const void *ap_obj)
       tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
       assert (NULL != p_hdr);
       TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...", p_hdr);
-      tiz_check_omx_err (ar_proc_render_buffer (ap_obj, p_hdr));
+      tiz_check_omx_err (ar_prc_render_buffer (ap_obj, p_hdr));
       if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0)
         {
           OMX_PTR event_data = NULL; 
@@ -360,13 +361,13 @@ ar_prc_init (void)
          "arprc",
          tizprc,
          sizeof (ar_prc_t),
-         ctor, ar_proc_ctor,
-         dtor, ar_proc_dtor,
-         tiz_srv_allocate_resources, ar_proc_allocate_resources,
-         tiz_srv_deallocate_resources, ar_proc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, ar_proc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, ar_proc_transfer_and_process,
-         tiz_srv_stop_and_return, ar_proc_stop_and_return,
-         tiz_prc_buffers_ready, ar_proc_buffers_ready, 0);
+         ctor, ar_prc_ctor,
+         dtor, ar_prc_dtor,
+         tiz_srv_allocate_resources, ar_prc_allocate_resources,
+         tiz_srv_deallocate_resources, ar_prc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, ar_prc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, ar_prc_transfer_and_process,
+         tiz_srv_stop_and_return, ar_prc_stop_and_return,
+         tiz_prc_buffers_ready, ar_prc_buffers_ready, 0);
     }
 }
