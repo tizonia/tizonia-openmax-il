@@ -534,14 +534,15 @@ ar_prc_deallocate_resources (void *ap_obj)
       p_prc->p_ev_io_ = NULL;
     }
 
-  if (p_prc->p_hw_params)
+  if (NULL != p_prc->p_hw_params)
     {
       snd_pcm_hw_params_free (p_prc->p_hw_params);
       (void)snd_pcm_close (p_prc->p_pcm_hdl);
+      (void) snd_config_update_free_global ();
       p_prc->p_pcm_hdl = NULL;
       p_prc->p_hw_params = NULL;
     }
-
+ 
   tiz_mem_free (p_prc->p_alsa_pcm_);
   p_prc->p_alsa_pcm_ = NULL;
 
