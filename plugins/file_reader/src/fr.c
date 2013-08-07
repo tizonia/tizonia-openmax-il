@@ -48,17 +48,17 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_reader"
 #endif
 
-#define ARATELIA_FILE_READER_AUDIO_READER_ROLE "audio_reader.binary"
-#define ARATELIA_FILE_READER_VIDEO_READER_ROLE "video_reader.binary"
-#define ARATELIA_FILE_READER_IMAGE_READER_ROLE "image_reader.binary"
-#define ARATELIA_FILE_READER_OTHER_READER_ROLE "other_reader.binary"
-#define ARATELIA_FILE_READER_COMPONENT_NAME "OMX.Aratelia.file_reader.binary"
-#define ARATELIA_FILE_READER_PORT_INDEX 0 /* With libtizonia, port indexes must start at index 0 */
+#define ARATELIA_FILE_READER_AUDIO_READER_ROLE  "audio_reader.binary"
+#define ARATELIA_FILE_READER_VIDEO_READER_ROLE  "video_reader.binary"
+#define ARATELIA_FILE_READER_IMAGE_READER_ROLE  "image_reader.binary"
+#define ARATELIA_FILE_READER_OTHER_READER_ROLE  "other_reader.binary"
+#define ARATELIA_FILE_READER_COMPONENT_NAME     "OMX.Aratelia.file_reader.binary"
+#define ARATELIA_FILE_READER_PORT_INDEX         0 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE 1024
+#define ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE  1024
 #define ARATELIA_FILE_READER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_FILE_READER_PORT_ALIGNMENT 0
-#define ARATELIA_FILE_READER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
+#define ARATELIA_FILE_READER_PORT_ALIGNMENT     0
+#define ARATELIA_FILE_READER_PORT_SUPPLIERPREF  OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE file_reader_version = { {1, 0, 0, 0} };
 
@@ -166,8 +166,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t *rf_list[] = { &audio_role, &video_role,
     &image_role, &other_role
   };
-
-  assert (ap_hdl);
 
   TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_FILE_READER_COMPONENT_NAME);

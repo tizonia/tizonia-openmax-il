@@ -39,47 +39,76 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_reader.prc"
 #endif
 
-/*
- * frprc
- */
+/* Forward declarations */
+static OMX_ERRORTYPE fr_prc_deallocate_resources (void *);
 
-static void *
-fr_proc_ctor (void *ap_obj, va_list * app)
+static inline void
+delete_file (fr_prc_t *ap_prc)
 {
-  fr_prc_t *p_prc = super_ctor (frprc, ap_obj, app);
-  p_prc->p_file_ = NULL;
-  p_prc->p_uri_param_ = NULL;
-  p_prc->counter_ = 0;
-  p_prc->eos_ = false;
-  return p_prc;
+  assert (NULL != ap_prc);
+  if (NULL != ap_prc->p_file_)
+    {
+      fclose (ap_prc->p_file_);
+      ap_prc->p_file_ = NULL;
+    }
 }
 
-static void *
-fr_proc_dtor (void *ap_obj)
+static inline void
+delete_uri (fr_prc_t *ap_prc)
 {
-  fr_prc_t *p_prc = ap_obj;
-
-  if (p_prc->p_file_)
-    {
-      fclose (p_prc->p_file_);
-    }
-
-  if (p_prc->p_uri_param_)
-    {
-      tiz_mem_free (p_prc->p_uri_param_);
-    }
-
-  return super_dtor (frprc, ap_obj);
+  assert (NULL != ap_prc);
+  tiz_mem_free (ap_prc->p_uri_param_);
+  ap_prc->p_uri_param_ = NULL;
 }
 
 static OMX_ERRORTYPE
-fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
+obtain_uri (fr_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  void *p_krn = tiz_get_krn (tiz_srv_get_hdl (ap_prc));
+  assert (NULL != ap_prc);
+  assert (NULL == ap_prc->p_uri_param_);
+
+  ap_prc->p_uri_param_ = tiz_mem_calloc
+    (1, sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE);
+
+  if (NULL == ap_prc->p_uri_param_)
+    {
+      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (ap_prc),
+                "Error allocating memory for the content uri struct");
+      return OMX_ErrorInsufficientResources;
+    }
+
+  ap_prc->p_uri_param_->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
+    + OMX_MAX_STRINGNAME_SIZE - 1;
+  ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
+
+  if (OMX_ErrorNone != (rc = tiz_api_GetParameter
+                        (p_krn, tiz_srv_get_hdl (ap_prc),
+                         OMX_IndexParamContentURI, ap_prc->p_uri_param_)))
+    {
+      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (ap_prc),
+                "[%s] : Error retrieving URI param from port",
+                tiz_err_to_str (rc));
+      return rc;
+    }
+
+  TIZ_LOGN (TIZ_NOTICE, tiz_srv_get_hdl (ap_prc), "URI [%s]",
+            ap_prc->p_uri_param_->contentURI);
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
   fr_prc_t *p_prc = (fr_prc_t *) ap_obj;
   int bytes_read = 0;
@@ -118,52 +147,49 @@ fr_proc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 }
 
 /*
+ * frprc
+ */
+
+static void *
+fr_prc_ctor (void *ap_obj, va_list * app)
+{
+  fr_prc_t *p_prc     = super_ctor (frprc, ap_obj, app);
+  p_prc->p_file_      = NULL;
+  p_prc->p_uri_param_ = NULL;
+  p_prc->counter_     = 0;
+  p_prc->eos_         = false;
+  return p_prc;
+}
+
+static void *
+fr_prc_dtor (void *ap_obj)
+{
+  (void) fr_prc_deallocate_resources (ap_obj);
+  return super_dtor (frprc, ap_obj);
+}
+
+/*
  * from tiz_srv class
  */
 
 static OMX_ERRORTYPE
-fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
+fr_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
   fr_prc_t *p_prc = ap_obj;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  void *p_krn = tiz_get_krn (tiz_srv_get_hdl (p_prc));
+  assert (NULL != p_prc);
+  assert (NULL == p_prc->p_uri_param_);
+  assert (NULL == p_prc->p_file_);
 
-  assert (NULL != ap_obj);
+  tiz_check_omx_err (obtain_uri (p_prc));
 
-  if (!(p_prc->p_uri_param_))
-    {
-      p_prc->p_uri_param_ = tiz_mem_calloc
-        (1, sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE);
-
-      if (NULL == p_prc->p_uri_param_)
-        {
-          TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
-                    "Error allocating memory for the content uri struct");
-          return OMX_ErrorInsufficientResources;
-        }
-
-      p_prc->p_uri_param_->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
-        + OMX_MAX_STRINGNAME_SIZE - 1;
-      p_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
-    }
-
-  if (OMX_ErrorNone != (rc = tiz_api_GetParameter
-                        (p_krn, tiz_srv_get_hdl (p_prc),
-                         OMX_IndexParamContentURI, p_prc->p_uri_param_)))
-    {
-      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
-               "Error retrieving URI param from port");
-      return rc;
-    }
-
-  TIZ_LOGN (TIZ_NOTICE, tiz_srv_get_hdl (p_prc), "Retrieved URI [%s]",
+  TIZ_LOGN (TIZ_NOTICE, tiz_srv_get_hdl (p_prc), "URI [%s]",
             p_prc->p_uri_param_->contentURI);
 
   if ((p_prc->p_file_
        = fopen ((const char *) p_prc->p_uri_param_->contentURI, "r")) == 0)
     {
       TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
-               "Error opening file from  URI string");
+                "Error opening file from URI (%s)", strerror (errno));
       return OMX_ErrorInsufficientResources;
     }
 
@@ -171,45 +197,35 @@ fr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-fr_proc_deallocate_resources (void *ap_obj)
+fr_prc_deallocate_resources (void *ap_obj)
 {
-  fr_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
-
-  if (p_prc->p_file_)
-    {
-      fclose (p_prc->p_file_);
-      p_prc->p_file_ = NULL;
-    }
-
-  tiz_mem_free (p_prc->p_uri_param_);
-  p_prc->p_uri_param_ = NULL;
-
+  delete_file (ap_obj);
+  delete_uri (ap_obj);
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-fr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+fr_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
   fr_prc_t *p_prc = ap_obj;
   assert (NULL != ap_obj);
   p_prc->counter_ = 0;
-  p_prc->eos_ = false;
+  p_prc->eos_     = false;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-fr_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
+fr_prc_transfer_and_process (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
   fr_prc_t *p_prc = ap_obj;
   assert (NULL != ap_obj);
   p_prc->counter_ = 0;
-  p_prc->eos_ = false;
+  p_prc->eos_     = false;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-fr_proc_stop_and_return (void *ap_obj)
+fr_prc_stop_and_return (void *ap_obj)
 {
   return OMX_ErrorNone;
 }
@@ -219,7 +235,7 @@ fr_proc_stop_and_return (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-fr_proc_buffers_ready (const void *ap_obj)
+fr_prc_buffers_ready (const void *ap_obj)
 {
   const fr_prc_t *p_prc = ap_obj;
   tiz_pd_set_t ports;
@@ -240,8 +256,8 @@ fr_proc_buffers_ready (const void *ap_obj)
           TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
                     "Claimed HEADER [%p]...nFilledLen [%d]", p_hdr,
                     p_hdr->nFilledLen);
-          tiz_check_omx_err (fr_proc_read_buffer (p_prc, p_hdr));
-          tiz_krn_release_buffer (p_krn, 0, p_hdr);
+          tiz_check_omx_err (read_buffer (p_prc, p_hdr));
+          tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, p_hdr));
         }
     }
 
@@ -266,13 +282,13 @@ fr_prc_init (void)
          "frprc",
          tizprc,
          sizeof (fr_prc_t),
-         ctor, fr_proc_ctor,
-         dtor, fr_proc_dtor,
-         tiz_prc_buffers_ready, fr_proc_buffers_ready,
-         tiz_srv_allocate_resources, fr_proc_allocate_resources,
-         tiz_srv_deallocate_resources, fr_proc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, fr_proc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, fr_proc_transfer_and_process,
-         tiz_srv_stop_and_return, fr_proc_stop_and_return, 0);
+         ctor, fr_prc_ctor,
+         dtor, fr_prc_dtor,
+         tiz_prc_buffers_ready, fr_prc_buffers_ready,
+         tiz_srv_allocate_resources, fr_prc_allocate_resources,
+         tiz_srv_deallocate_resources, fr_prc_deallocate_resources,
+         tiz_srv_prepare_to_transfer, fr_prc_prepare_to_transfer,
+         tiz_srv_transfer_and_process, fr_prc_transfer_and_process,
+         tiz_srv_stop_and_return, fr_prc_stop_and_return, 0);
     }
 }
