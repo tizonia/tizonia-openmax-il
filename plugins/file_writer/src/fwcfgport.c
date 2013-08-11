@@ -191,21 +191,23 @@ fw_cfgport_SetParameter (const void *ap_obj,
 
 const void *fwcfgport;
 
-void
+OMX_ERRORTYPE
 fw_cfgport_init (void)
 {
   if (!fwcfgport)
     {
-      tiz_configport_init ();
-      fwcfgport =
-        factory_new
-        (tizconfigport_class,
-         "fwcfgport",
-         tizconfigport,
-         sizeof (fw_cfgport_t),
-         ctor, fw_cfgport_ctor,
-         dtor, fw_cfgport_dtor,
-         tiz_api_GetParameter, fw_cfgport_GetParameter,
-         tiz_api_SetParameter, fw_cfgport_SetParameter, 0);
+      tiz_check_omx_err_ret_oom (tiz_configport_init ());
+      tiz_check_null_ret_oom
+        (fwcfgport =
+         factory_new
+         (tizconfigport_class,
+          "fwcfgport",
+          tizconfigport,
+          sizeof (fw_cfgport_t),
+          ctor, fw_cfgport_ctor,
+          dtor, fw_cfgport_dtor,
+          tiz_api_GetParameter, fw_cfgport_GetParameter,
+          tiz_api_SetParameter, fw_cfgport_SetParameter, 0));
     }
+  return OMX_ErrorNone;
 }

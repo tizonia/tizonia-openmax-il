@@ -183,27 +183,29 @@ idletoexecuting_tunneled_ports_status_update (void *ap_obj)
 
 const void *tizidletoexecuting;
 
-void
+OMX_ERRORTYPE
 tiz_idletoexecuting_init (void)
 {
   if (!tizidletoexecuting)
     {
-      tiz_idle_init ();
-      tizidletoexecuting =
-        factory_new
-        (tizstate_class, "tizidletoexecuting",
-         tizidle, sizeof (tiz_idletoexecuting_t),
-         ctor, idletoexecuting_ctor,
-         dtor, idletoexecuting_dtor,
-         tiz_api_SetParameter, idletoexecuting_SetParameter,
-         tiz_api_GetState, idletoexecuting_GetState,
-         tiz_api_UseBuffer, idletoexecuting_UseBuffer,
-         tiz_api_AllocateBuffer, idletoexecuting_AllocateBuffer,
-         tiz_api_FreeBuffer, idletoexecuting_FreeBuffer,
-         tiz_api_EmptyThisBuffer, idletoexecuting_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, idletoexecuting_FillThisBuffer,
-         tiz_state_trans_complete, idletoexecuting_trans_complete,
-         tiz_state_tunneled_ports_status_update,
-         idletoexecuting_tunneled_ports_status_update, 0);
+      tiz_check_omx_err_ret_oom (tiz_idle_init ());
+      tiz_check_null_ret_oom
+        (tizidletoexecuting =
+         factory_new
+         (tizstate_class, "tizidletoexecuting",
+          tizidle, sizeof (tiz_idletoexecuting_t),
+          ctor, idletoexecuting_ctor,
+          dtor, idletoexecuting_dtor,
+          tiz_api_SetParameter, idletoexecuting_SetParameter,
+          tiz_api_GetState, idletoexecuting_GetState,
+          tiz_api_UseBuffer, idletoexecuting_UseBuffer,
+          tiz_api_AllocateBuffer, idletoexecuting_AllocateBuffer,
+          tiz_api_FreeBuffer, idletoexecuting_FreeBuffer,
+          tiz_api_EmptyThisBuffer, idletoexecuting_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, idletoexecuting_FillThisBuffer,
+          tiz_state_trans_complete, idletoexecuting_trans_complete,
+          tiz_state_tunneled_ports_status_update,
+          idletoexecuting_tunneled_ports_status_update, 0));
     }
+  return OMX_ErrorNone;
 }

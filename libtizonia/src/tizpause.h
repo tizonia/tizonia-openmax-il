@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizpause;
 
-  void tiz_pause_init (void);
+  OMX_ERRORTYPE tiz_pause_init (void);
 
 #ifdef __cplusplus
 }

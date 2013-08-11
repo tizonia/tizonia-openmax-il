@@ -42,7 +42,7 @@ extern "C"
   extern const void *tizvideoport;
   extern const void *tizvideoport_class;
 
-  void tiz_videoport_init (void);
+  OMX_ERRORTYPE tiz_videoport_init (void);
 
 #ifdef __cplusplus
 }

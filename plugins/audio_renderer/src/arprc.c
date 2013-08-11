@@ -349,25 +349,27 @@ ar_prc_buffers_ready (const void *ap_obj)
 
 const void *arprc;
 
-void
+OMX_ERRORTYPE
 ar_prc_init (void)
 {
   if (!arprc)
     {
-      tiz_prc_init ();
-      arprc =
-        factory_new
-        (tizprc_class,
-         "arprc",
-         tizprc,
-         sizeof (ar_prc_t),
-         ctor, ar_prc_ctor,
-         dtor, ar_prc_dtor,
-         tiz_srv_allocate_resources, ar_prc_allocate_resources,
-         tiz_srv_deallocate_resources, ar_prc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, ar_prc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, ar_prc_transfer_and_process,
-         tiz_srv_stop_and_return, ar_prc_stop_and_return,
-         tiz_prc_buffers_ready, ar_prc_buffers_ready, 0);
+      tiz_check_omx_err_ret_oom (tiz_prc_init ());
+      tiz_check_null_ret_oom
+        (arprc =
+         factory_new
+         (tizprc_class,
+          "arprc",
+          tizprc,
+          sizeof (ar_prc_t),
+          ctor, ar_prc_ctor,
+          dtor, ar_prc_dtor,
+          tiz_srv_allocate_resources, ar_prc_allocate_resources,
+          tiz_srv_deallocate_resources, ar_prc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, ar_prc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, ar_prc_transfer_and_process,
+          tiz_srv_stop_and_return, ar_prc_stop_and_return,
+          tiz_prc_buffers_ready, ar_prc_buffers_ready, 0));
     }
+  return OMX_ErrorNone;
 }

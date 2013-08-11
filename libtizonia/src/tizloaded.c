@@ -230,24 +230,26 @@ loaded_trans_complete (const void *ap_obj,
 
 const void *tizloaded;
 
-void
+OMX_ERRORTYPE
 tiz_loaded_init (void)
 {
   if (!tizloaded)
     {
-      tiz_state_init ();
-      tizloaded =
-        factory_new
-        (tizstate_class, "tizloaded",
-         tizstate, sizeof (tiz_loaded_t),
-         ctor, loaded_ctor,
-         dtor, loaded_dtor,
-         tiz_api_SetParameter, loaded_SetParameter,
-         tiz_api_GetState, loaded_GetState,
-         tiz_api_UseBuffer, loaded_UseBuffer,
-         tiz_api_EmptyThisBuffer, loaded_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, loaded_FillThisBuffer,
-         tiz_state_state_set, loaded_state_set,
-         tiz_state_trans_complete, loaded_trans_complete, 0);
+      tiz_check_omx_err_ret_oom (tiz_state_init ());
+      tiz_check_null_ret_oom
+        (tizloaded =
+         factory_new
+         (tizstate_class, "tizloaded",
+          tizstate, sizeof (tiz_loaded_t),
+          ctor, loaded_ctor,
+          dtor, loaded_dtor,
+          tiz_api_SetParameter, loaded_SetParameter,
+          tiz_api_GetState, loaded_GetState,
+          tiz_api_UseBuffer, loaded_UseBuffer,
+          tiz_api_EmptyThisBuffer, loaded_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, loaded_FillThisBuffer,
+          tiz_state_state_set, loaded_state_set,
+          tiz_state_trans_complete, loaded_trans_complete, 0));
     }
+  return OMX_ErrorNone;
 }

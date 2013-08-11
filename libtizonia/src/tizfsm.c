@@ -1244,54 +1244,57 @@ fsm_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizfsm, *tizfsm_class;
 
-void
+OMX_ERRORTYPE
 tiz_fsm_init (void)
 {
   if (!tizfsm_class)
     {
-      tiz_srv_init ();
-      tizfsm_class = factory_new (tizsrv_class,
-                                  "tizfsm_class",
-                                  tizsrv_class,
-                                  sizeof (tiz_fsm_class_t),
-                                  ctor, fsm_class_ctor, 0);
+      tiz_check_omx_err_ret_oom (tiz_srv_init ());
+      tiz_check_null_ret_oom
+        (tizfsm_class = factory_new (tizsrv_class,
+                                     "tizfsm_class",
+                                     tizsrv_class,
+                                     sizeof (tiz_fsm_class_t),
+                                     ctor, fsm_class_ctor, 0));
     }
 
   if (!tizstate)
     {
-      tiz_state_init_states ();
+      tiz_check_omx_err_ret_oom (tiz_state_init_states ());
     }
 
   if (!tizfsm)
     {
-      tiz_srv_init ();
-      tizfsm =
-        factory_new
-        (tizfsm_class,
-         "tizfsm",
-         tizsrv,
-         sizeof (tiz_fsm_t),
-         ctor, fsm_ctor,
-         dtor, fsm_dtor,
-         tiz_api_SendCommand, fsm_SendCommand,
-         tiz_api_SetParameter, fsm_SetParameter,
-         tiz_api_GetParameter, fsm_GetParameter,
-         tiz_api_SetConfig, fsm_SetConfig,
-         tiz_api_GetConfig, fsm_GetConfig,
-         tiz_api_GetState, fsm_GetState,
-         tiz_api_ComponentTunnelRequest, fsm_ComponentTunnelRequest,
-         tiz_api_UseBuffer, fsm_UseBuffer,
-         tiz_api_AllocateBuffer, fsm_AllocateBuffer,
-         tiz_api_FreeBuffer, fsm_FreeBuffer,
-         tiz_api_EmptyThisBuffer, fsm_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, fsm_FillThisBuffer,
-         tiz_api_SetCallbacks, fsm_SetCallbacks,
-         tiz_srv_dispatch_msg, fsm_dispatch_msg,
-         tiz_fsm_set_state, fsm_set_state,
-         tiz_fsm_complete_transition, fsm_complete_transition,
-         tiz_fsm_complete_command, fsm_complete_command,
-         tiz_fsm_get_substate, fsm_get_substate,
-         tiz_fsm_tunneled_ports_status_update,
-         fsm_tunneled_ports_status_update, 0);
+      tiz_check_omx_err_ret_oom (tiz_srv_init ());
+      tiz_check_null_ret_oom
+        (tizfsm =
+         factory_new
+         (tizfsm_class,
+          "tizfsm",
+          tizsrv,
+          sizeof (tiz_fsm_t),
+          ctor, fsm_ctor,
+          dtor, fsm_dtor,
+          tiz_api_SendCommand, fsm_SendCommand,
+          tiz_api_SetParameter, fsm_SetParameter,
+          tiz_api_GetParameter, fsm_GetParameter,
+          tiz_api_SetConfig, fsm_SetConfig,
+          tiz_api_GetConfig, fsm_GetConfig,
+          tiz_api_GetState, fsm_GetState,
+          tiz_api_ComponentTunnelRequest, fsm_ComponentTunnelRequest,
+          tiz_api_UseBuffer, fsm_UseBuffer,
+          tiz_api_AllocateBuffer, fsm_AllocateBuffer,
+          tiz_api_FreeBuffer, fsm_FreeBuffer,
+          tiz_api_EmptyThisBuffer, fsm_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, fsm_FillThisBuffer,
+          tiz_api_SetCallbacks, fsm_SetCallbacks,
+          tiz_srv_dispatch_msg, fsm_dispatch_msg,
+          tiz_fsm_set_state, fsm_set_state,
+          tiz_fsm_complete_transition, fsm_complete_transition,
+          tiz_fsm_complete_command, fsm_complete_command,
+          tiz_fsm_get_substate, fsm_get_substate,
+          tiz_fsm_tunneled_ports_status_update,
+          fsm_tunneled_ports_status_update, 0));
     }
+  return OMX_ErrorNone;
 }

@@ -86,6 +86,19 @@ extern "C"
 #define tiz_check_omx_err_ret_oom (expr) do { (void) (expr); } while (0)
 
 /**
+ * tiz_check_null_ret_oom:
+ * @expr: the expression to check
+ *
+ * Verifies that the expression evaluates to non-NULL. Otherwise an error
+ * message is logged and the current function returns
+ * OMX_ErrorInsufficientResources.
+ *
+ * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
+ * expression is still evaluated.
+ */
+#define tiz_check_omx_err_ret_oom (expr) do { (void) (expr); } while (0)
+
+/**
  * tiz_check_omx_err_ret_null:
  * @expr: the expression to check
  *
@@ -163,6 +176,15 @@ extern "C"
     }                                                                   \
   } while(0)
 
+#define tiz_check_null_ret_oom(expr)                                    \
+  do {                                                                  \
+    if TIZ_LIKELY(NULL != (expr)){}                                     \
+    else {                                                              \
+      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources]");           \
+      return OMX_ErrorInsufficientResources;                            \
+    }                                                                   \
+  } while(0)
+
 #define tiz_check_omx_err_ret_null(expr)                                 \
   do {                                                                  \
     OMX_ERRORTYPE _err = expr;                                          \
@@ -223,6 +245,15 @@ extern "C"
               "was [%s]...", tiz_err_to_str (_err));               \
       return OMX_ErrorInsufficientResources;                       \
     }                                                              \
+  } while(0)
+
+#define tiz_check_null_ret_oom(expr)                                    \
+  do {                                                                  \
+    if (NULL != (expr)) {}                                              \
+    else {                                                              \
+      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources]");           \
+      return OMX_ErrorInsufficientResources;                            \
+    }                                                                   \
   } while(0)
 
 #define tiz_check_omx_err_ret_null(expr)                   \

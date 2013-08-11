@@ -147,25 +147,27 @@ opusd_prc_buffers_ready (const void *ap_obj)
 
 const void *opusdprc;
 
-void
+OMX_ERRORTYPE
 opusd_prc_init (void)
 {
   if (!opusdprc)
     {
-      tiz_prc_init ();
-      opusdprc =
-        factory_new
-        (tizprc_class,
-         "opusdprc",
-         tizprc,
-         sizeof (opusd_prc_t),
-         ctor, opusd_prc_ctor,
-         dtor, opusd_prc_dtor,
-         tiz_prc_buffers_ready, opusd_prc_buffers_ready,
-         tiz_srv_allocate_resources, opusd_prc_allocate_resources,
-         tiz_srv_deallocate_resources, opusd_prc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, opusd_prc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, opusd_prc_transfer_and_process,
-         tiz_srv_stop_and_return, opusd_prc_stop_and_return, 0);
+      tiz_check_omx_err_ret_oom (tiz_prc_init ());
+      tiz_check_null_ret_oom
+        (opusdprc =
+         factory_new
+         (tizprc_class,
+          "opusdprc",
+          tizprc,
+          sizeof (opusd_prc_t),
+          ctor, opusd_prc_ctor,
+          dtor, opusd_prc_dtor,
+          tiz_prc_buffers_ready, opusd_prc_buffers_ready,
+          tiz_srv_allocate_resources, opusd_prc_allocate_resources,
+          tiz_srv_deallocate_resources, opusd_prc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, opusd_prc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, opusd_prc_transfer_and_process,
+          tiz_srv_stop_and_return, opusd_prc_stop_and_return, 0));
     }
+  return OMX_ErrorNone;
 }

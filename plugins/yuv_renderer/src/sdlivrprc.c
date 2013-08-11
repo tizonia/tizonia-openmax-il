@@ -326,25 +326,27 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
 
 const void *sdlivrprc;
 
-void
+OMX_ERRORTYPE
 sdlivr_prc_init (void)
 {
   if (!sdlivrprc)
     {
-      tiz_prc_init ();
-      sdlivrprc =
-        factory_new
-        (tizprc_class,
-         "sdlivrprc",
-         tizprc,
-         sizeof (sdlivr_prc_t),
-         ctor, sdlivr_proc_ctor,
-         dtor, sdlivr_proc_dtor,
-         tiz_prc_buffers_ready, sdlivr_proc_buffers_ready,
-         tiz_srv_allocate_resources, sdlivr_proc_allocate_resources,
-         tiz_srv_deallocate_resources, sdlivr_proc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, sdlivr_proc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, sdlivr_proc_transfer_and_process,
-         tiz_srv_stop_and_return, sdlivr_proc_stop_and_return, 0);
+      tiz_check_omx_err_ret_oom (tiz_prc_init ());
+      tiz_check_null_ret_oom
+        (sdlivrprc =
+         factory_new
+         (tizprc_class,
+          "sdlivrprc",
+          tizprc,
+          sizeof (sdlivr_prc_t),
+          ctor, sdlivr_proc_ctor,
+          dtor, sdlivr_proc_dtor,
+          tiz_prc_buffers_ready, sdlivr_proc_buffers_ready,
+          tiz_srv_allocate_resources, sdlivr_proc_allocate_resources,
+          tiz_srv_deallocate_resources, sdlivr_proc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, sdlivr_proc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, sdlivr_proc_transfer_and_process,
+          tiz_srv_stop_and_return, sdlivr_proc_stop_and_return, 0));
     }
+  return OMX_ErrorNone;
 }

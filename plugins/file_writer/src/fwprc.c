@@ -52,11 +52,11 @@
 static void *
 fw_proc_ctor (void *ap_obj, va_list * app)
 {
-  fw_prc_t *p_obj = super_ctor (fwprc, ap_obj, app);
-  p_obj->p_file_ = NULL;
+  fw_prc_t *p_obj     = super_ctor (fwprc, ap_obj, app);
+  p_obj->p_file_      = NULL;
   p_obj->p_uri_param_ = NULL;
-  p_obj->counter_ = 0;
-  p_obj->eos_ = false;
+  p_obj->counter_     = 0;
+  p_obj->eos_         = false;
   return p_obj;
 }
 
@@ -238,7 +238,7 @@ fw_proc_buffers_ready (const void *ap_obj)
                                       OMX_EventBufferFlag,
                                       0, p_hdr->nFlags, NULL);
             }
-          tiz_krn_release_buffer (p_krn, 0, p_hdr);
+          tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, p_hdr));
         }
     }
 
@@ -251,25 +251,27 @@ fw_proc_buffers_ready (const void *ap_obj)
 
 const void *fwprc;
 
-void
+OMX_ERRORTYPE
 fw_prc_init (void)
 {
   if (!fwprc)
     {
-      tiz_prc_init ();
-      fwprc =
-        factory_new
-        (tizprc_class,
-         "fwprc",
-         tizprc,
-         sizeof (fw_prc_t),
-         ctor, fw_proc_ctor,
-         dtor, fw_proc_dtor,
-         tiz_prc_buffers_ready, fw_proc_buffers_ready,
-         tiz_srv_allocate_resources, fw_proc_allocate_resources,
-         tiz_srv_deallocate_resources, fw_proc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, fw_proc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, fw_proc_transfer_and_process,
-         tiz_srv_stop_and_return, fw_proc_stop_and_return, 0);
+      tiz_check_omx_err_ret_oom (tiz_prc_init ());
+      tiz_check_null_ret_oom
+        (fwprc =
+         factory_new
+         (tizprc_class,
+          "fwprc",
+          tizprc,
+          sizeof (fw_prc_t),
+          ctor, fw_proc_ctor,
+          dtor, fw_proc_dtor,
+          tiz_prc_buffers_ready, fw_proc_buffers_ready,
+          tiz_srv_allocate_resources, fw_proc_allocate_resources,
+          tiz_srv_deallocate_resources, fw_proc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, fw_proc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, fw_proc_transfer_and_process,
+          tiz_srv_stop_and_return, fw_proc_stop_and_return, 0));
     }
+  return OMX_ErrorNone;
 }

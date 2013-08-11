@@ -288,32 +288,34 @@ imageport_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizimageport, *tizimageport_class;
 
-void
+OMX_ERRORTYPE
 tiz_imageport_init (void)
 {
   if (!tizimageport_class)
     {
-      tiz_port_init ();
-      tizimageport_class = factory_new (tizport_class,
-                                        "tizimageport_class",
-                                        tizport_class,
-                                        sizeof (tiz_imageport_class_t),
-                                        ctor, imageport_class_ctor, 0);
-
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizimageport_class = factory_new (tizport_class,
+                                           "tizimageport_class",
+                                           tizport_class,
+                                           sizeof (tiz_imageport_class_t),
+                                           ctor, imageport_class_ctor, 0));
     }
 
   if (!tizimageport)
     {
-      tiz_port_init ();
-      tizimageport =
-        factory_new
-        (tizimageport_class,
-         "tizimageport",
-         tizport,
-         sizeof (tiz_imageport_t),
-         ctor, imageport_ctor,
-         dtor, imageport_dtor,
-         tiz_api_GetParameter, imageport_GetParameter,
-         tiz_api_SetParameter, imageport_SetParameter, 0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizimageport =
+         factory_new
+         (tizimageport_class,
+          "tizimageport",
+          tizport,
+          sizeof (tiz_imageport_t),
+          ctor, imageport_ctor,
+          dtor, imageport_dtor,
+          tiz_api_GetParameter, imageport_GetParameter,
+          tiz_api_SetParameter, imageport_SetParameter, 0));
     }
+  return OMX_ErrorNone;
 }

@@ -38,10 +38,11 @@ extern "C"
 #include "tizscheduler.h"
 #include "tizosal.h"
 
-#include <limits.h>
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
+
+#include <limits.h>
 
 #define TIZ_PORT_CONFIG_PORT_INDEX ULONG_MAX
 
@@ -88,7 +89,7 @@ extern "C"
   extern const void *tizport;
   extern const void *tizport_class;
 
-  void tiz_port_init (void);
+  OMX_ERRORTYPE tiz_port_init (void);
 
   OMX_BOOL tiz_port_check_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
 

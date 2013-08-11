@@ -34,14 +34,15 @@ extern "C"
 {
 #endif
 
+#include "tizvideoport.h"
+
 #include "OMX_Core.h"
 #include "OMX_Types.h"
-#include "tizvideoport.h"
 
 /* factory_new(tizvp8port, ...); */
   extern const void *tizvp8port;
 
-  void tiz_vp8port_init (void);
+  OMX_ERRORTYPE tiz_vp8port_init (void);
 
 #ifdef __cplusplus
 }

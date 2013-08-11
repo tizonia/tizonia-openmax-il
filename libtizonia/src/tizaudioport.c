@@ -30,13 +30,12 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "tizaudioport.h"
 #include "tizaudioport_decls.h"
-
 #include "tizosal.h"
 #include "tizutils.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -201,32 +200,35 @@ audioport_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizaudioport, *tizaudioport_class;
 
-void
+OMX_ERRORTYPE
 tiz_audioport_init (void)
 {
   if (!tizaudioport_class)
     {
-      tiz_port_init ();
-      tizaudioport_class = factory_new (tizport_class,
-                                        "tizaudioport_class",
-                                        tizport_class,
-                                        sizeof (tiz_audioport_class_t),
-                                        ctor, audioport_class_ctor, 0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizaudioport_class = factory_new (tizport_class,
+                                           "tizaudioport_class",
+                                           tizport_class,
+                                           sizeof (tiz_audioport_class_t),
+                                           ctor, audioport_class_ctor, 0));
 
     }
 
   if (!tizaudioport)
     {
-      tiz_port_init ();
-      tizaudioport =
-        factory_new
-        (tizaudioport_class,
-         "tizaudioport",
-         tizport,
-         sizeof (tiz_audioport_t),
-         ctor, audioport_ctor,
-         dtor, audioport_dtor,
-         tiz_api_GetParameter, audioport_GetParameter,
-         tiz_api_SetParameter, audioport_SetParameter, 0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizaudioport =
+         factory_new
+         (tizaudioport_class,
+          "tizaudioport",
+          tizport,
+          sizeof (tiz_audioport_t),
+          ctor, audioport_ctor,
+          dtor, audioport_dtor,
+          tiz_api_GetParameter, audioport_GetParameter,
+          tiz_api_SetParameter, audioport_SetParameter, 0));
     }
+  return OMX_ErrorNone;
 }

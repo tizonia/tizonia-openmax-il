@@ -37,10 +37,12 @@ extern "C"
 
 #include "mp3eprc.h"
 
+#include "OMX_Core.h"
+
 /* factory_new(mp3eprc, ...) */
   extern const void *mp3eprc;
 
-  void mp3e_prc_init (void);
+  OMX_ERRORTYPE mp3e_prc_init (void);
 
 #ifdef __cplusplus
 }

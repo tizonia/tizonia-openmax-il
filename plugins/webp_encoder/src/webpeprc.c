@@ -280,28 +280,27 @@ webpe_proc_buffers_ready (const void *ap_obj)
 
 const void *webpeprc;
 
-void
+OMX_ERRORTYPE
 init_webpeprc (void)
 {
-
   if (!webpeprc)
     {
-      TIZ_LOG (TIZ_TRACE, "Initializing webpeprc...");
-      tiz_prc_init ();
-      webpeprc =
-        factory_new
-        (tizprc_class,
-         "webpeprc",
-         tizprc,
-         sizeof (struct webpeprc),
-         ctor, webpe_proc_ctor,
-         dtor, webpe_proc_dtor,
-         tiz_prc_buffers_ready, webpe_proc_buffers_ready,
-         tiz_srv_allocate_resources, webpe_proc_allocate_resources,
-         tiz_srv_deallocate_resources, webpe_proc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, webpe_proc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, webpe_proc_transfer_and_process,
-         tiz_srv_stop_and_return, webpe_proc_stop_and_return, 0);
+      tiz_check_omx_err_ret_oom (tiz_prc_init ());
+      tiz_check_null_ret_oom
+        (webpeprc =
+         factory_new
+         (tizprc_class,
+          "webpeprc",
+          tizprc,
+          sizeof (struct webpeprc),
+          ctor, webpe_proc_ctor,
+          dtor, webpe_proc_dtor,
+          tiz_prc_buffers_ready, webpe_proc_buffers_ready,
+          tiz_srv_allocate_resources, webpe_proc_allocate_resources,
+          tiz_srv_deallocate_resources, webpe_proc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, webpe_proc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, webpe_proc_transfer_and_process,
+          tiz_srv_stop_and_return, webpe_proc_stop_and_return, 0));
     }
-
+  return OMX_ErrorNone;
 }

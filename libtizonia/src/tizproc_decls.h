@@ -34,10 +34,10 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-
 #include "tizproc.h"
 #include "tizservant_decls.h"
+
+#include "OMX_Core.h"
 
   typedef struct tiz_prc tiz_prc_t;
   struct tiz_prc

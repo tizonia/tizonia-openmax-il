@@ -55,20 +55,15 @@ static void *
 webpd_proc_ctor (void *ap_obj, va_list * app)
 {
   struct webpdprc *p_obj = super_ctor (webpdprc, ap_obj, app);
-  TIZ_LOG (TIZ_TRACE, "Constructing webpdprc...[%p]", p_obj);
-
   p_obj->pinhdr_ = 0;
   p_obj->pouthdr_ = 0;
   p_obj->eos_ = false;
-
   return p_obj;
 }
 
 static void *
 webpd_proc_dtor (void *ap_obj)
 {
-  struct webpdprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_TRACE, "Destructing webpdprc...[%p]", p_obj);
   return super_dtor (webpdprc, ap_obj);
 }
 
@@ -280,28 +275,28 @@ webpd_proc_buffers_ready (const void *ap_obj)
 
 const void *webpdprc;
 
-void
+OMX_ERRORTYPE
 init_webpdprc (void)
 {
 
   if (!webpdprc)
     {
-      TIZ_LOG (TIZ_TRACE, "Initializing webpdprc...");
-      tiz_prc_init ();
-      webpdprc =
-        factory_new
-        (tizprc_class,
-         "webpdprc",
-         tizprc,
-         sizeof (struct webpdprc),
-         ctor, webpd_proc_ctor,
-         dtor, webpd_proc_dtor,
-         tiz_prc_buffers_ready, webpd_proc_buffers_ready,
-         tiz_srv_allocate_resources, webpd_proc_allocate_resources,
-         tiz_srv_deallocate_resources, webpd_proc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, webpd_proc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, webpd_proc_transfer_and_process,
-         tiz_srv_stop_and_return, webpd_proc_stop_and_return, 0);
+      tiz_check_omx_err_ret_oom (tiz_prc_init ());
+      tiz_check_null_ret_oom
+        (webpdprc =
+         factory_new
+         (tizprc_class,
+          "webpdprc",
+          tizprc,
+          sizeof (struct webpdprc),
+          ctor, webpd_proc_ctor,
+          dtor, webpd_proc_dtor,
+          tiz_prc_buffers_ready, webpd_proc_buffers_ready,
+          tiz_srv_allocate_resources, webpd_proc_allocate_resources,
+          tiz_srv_deallocate_resources, webpd_proc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, webpd_proc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, webpd_proc_transfer_and_process,
+          tiz_srv_stop_and_return, webpd_proc_stop_and_return, 0));
     }
-
+  return OMX_ErrorNone;
 }

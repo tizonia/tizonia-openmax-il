@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizidletoexecuting;
 
-  void tiz_idletoexecuting_init (void);
+  OMX_ERRORTYPE tiz_idletoexecuting_init (void);
 
 #ifdef __cplusplus
 }

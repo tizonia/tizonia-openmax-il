@@ -43,7 +43,7 @@ extern "C"
   extern const void *tizconfigport;
   extern const void *tizconfigport_class;
 
-  void tiz_configport_init (void);
+  OMX_ERRORTYPE tiz_configport_init (void);
 
 #ifdef __cplusplus
 }

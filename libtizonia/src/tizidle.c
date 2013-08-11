@@ -278,23 +278,25 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
 const void *tizidle;
 
-void
+OMX_ERRORTYPE
 tiz_idle_init (void)
 {
   if (!tizidle)
     {
-      tiz_state_init ();
-      tizidle =
-        factory_new
-        (tizstate_class, "tizidle",
-         tizstate, sizeof (tiz_idle_t),
-         ctor, idle_ctor,
-         dtor, idle_dtor,
-         tiz_api_SetParameter, idle_SetParameter,
-         tiz_api_GetState, idle_GetState,
-         tiz_api_UseBuffer, idle_UseBuffer,
-         tiz_api_EmptyThisBuffer, idle_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, idle_FillThisBuffer,
-         tiz_state_state_set, idle_state_set, 0);
+      tiz_check_omx_err_ret_oom (tiz_state_init ());
+      tiz_check_null_ret_oom
+        (tizidle =
+         factory_new
+         (tizstate_class, "tizidle",
+          tizstate, sizeof (tiz_idle_t),
+          ctor, idle_ctor,
+          dtor, idle_dtor,
+          tiz_api_SetParameter, idle_SetParameter,
+          tiz_api_GetState, idle_GetState,
+          tiz_api_UseBuffer, idle_UseBuffer,
+          tiz_api_EmptyThisBuffer, idle_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, idle_FillThisBuffer,
+          tiz_state_state_set, idle_state_set, 0));
     }
+  return OMX_ErrorNone;
 }

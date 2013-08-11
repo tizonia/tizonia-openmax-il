@@ -72,7 +72,7 @@ executing_SetParameter (const void *ap_obj,
 
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
-  
+
   p_krn = tiz_get_krn (ap_hdl);
 
   /* TODO: Optimization: find_managing_port is called twice, first time here,
@@ -277,25 +277,27 @@ executing_trans_complete (const void *ap_obj,
 
 const void *tizexecuting;
 
-void
+OMX_ERRORTYPE
 tiz_executing_init (void)
 {
   if (!tizexecuting)
     {
-      tiz_state_init ();
-      tizexecuting =
-        factory_new
-        (tizstate_class, "tizexecuting",
-         tizstate, sizeof (tiz_executing_t),
-         ctor, executing_ctor,
-         dtor, executing_dtor,
-         tiz_api_SetParameter, executing_SetParameter,
-         tiz_api_GetState, executing_GetState,
-         tiz_api_UseBuffer, executing_UseBuffer,
-         tiz_api_EmptyThisBuffer, executing_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, executing_FillThisBuffer,
-         tiz_state_state_set, executing_state_set,
-         tiz_state_mark, executing_state_mark,
-         tiz_state_trans_complete, executing_trans_complete, 0);
+      tiz_check_omx_err_ret_oom (tiz_state_init ());
+      tiz_check_null_ret_oom
+        (tizexecuting =
+         factory_new
+         (tizstate_class, "tizexecuting",
+          tizstate, sizeof (tiz_executing_t),
+          ctor, executing_ctor,
+          dtor, executing_dtor,
+          tiz_api_SetParameter, executing_SetParameter,
+          tiz_api_GetState, executing_GetState,
+          tiz_api_UseBuffer, executing_UseBuffer,
+          tiz_api_EmptyThisBuffer, executing_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, executing_FillThisBuffer,
+          tiz_state_state_set, executing_state_set,
+          tiz_state_mark, executing_state_mark,
+          tiz_state_trans_complete, executing_trans_complete, 0));
     }
+  return OMX_ErrorNone;
 }

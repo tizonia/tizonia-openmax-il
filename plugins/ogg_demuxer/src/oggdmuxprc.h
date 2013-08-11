@@ -36,10 +36,12 @@ extern "C"
 
 #include "oggdmuxprc.h"
 
+#include "OMX_Core.h"
+
 /* factory_new(oggdmuxprc, ...) */
   extern const void *oggdmuxprc;
 
-  void oggdmux_prc_init (void);
+  OMX_ERRORTYPE oggdmux_prc_init (void);
 
 #ifdef __cplusplus
 }

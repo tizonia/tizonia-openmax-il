@@ -43,7 +43,7 @@ extern "C"
   extern const void *tizmp3port;
   extern const void *tizmp3port_class;
 
-  void tiz_mp3port_init (void);
+  OMX_ERRORTYPE tiz_mp3port_init (void);
 
 #ifdef __cplusplus
 }

@@ -34,14 +34,14 @@ extern "C"
 {
 #endif
 
+#include "tizobject.h"
+
 #include "OMX_Core.h"
 #include "OMX_Types.h"
 
-#include "tizobject.h"
-
   extern const void *tizapi;
   extern const void *tizapi_class;
-  void tiz_api_init (void);
+  OMX_ERRORTYPE tiz_api_init (void);
 
 
   OMX_ERRORTYPE

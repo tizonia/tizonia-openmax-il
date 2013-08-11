@@ -41,7 +41,7 @@ extern "C"
 /* factory_new(icermp3port, ...); */
   extern const void *icermp3port;
 
-  void icer_mp3port_init (void);
+  OMX_ERRORTYPE icer_mp3port_init (void);
 
 #ifdef __cplusplus
 }

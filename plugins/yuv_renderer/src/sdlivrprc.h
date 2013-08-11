@@ -36,10 +36,12 @@ extern "C"
 
 #include "sdlivrprc.h"
 
+#include "OMX_Core.h"
+
 /* factory_new(sdlivrprc, ...) */
   extern const void *sdlivrprc;
 
-  void sdlivr_prc_init (void);
+  OMX_ERRORTYPE sdlivr_prc_init (void);
 
 #ifdef __cplusplus
 }

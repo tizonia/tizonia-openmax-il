@@ -234,26 +234,28 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
 
 const void *tizloadedtoidle;
 
-void
+OMX_ERRORTYPE
 tiz_loadedtoidle_init (void)
 {
   if (!tizloadedtoidle)
     {
-      tiz_loaded_init ();
-      tizloadedtoidle =
-        factory_new
-        (tizstate_class, "tizloadedtoidle",
-         tizloaded, sizeof (tiz_loadedtoidle_t),
-         ctor, loadedtoidle_ctor,
-         dtor, loadedtoidle_dtor,
-         tiz_api_SetParameter, loadedtoidle_SetParameter,
-         tiz_api_GetState, loadedtoidle_GetState,
-         tiz_api_UseBuffer, loadedtoidle_UseBuffer,
-         tiz_api_EmptyThisBuffer, loadedtoidle_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, loadedtoidle_FillThisBuffer,
-         tiz_state_state_set, loadedtoidle_state_set,
-         tiz_state_trans_complete, loadedtoidle_trans_complete,
-         tiz_state_tunneled_ports_status_update,
-         loadedtoidle_tunneled_ports_status_update, 0);
+      tiz_check_omx_err_ret_oom (tiz_loaded_init ());
+      tiz_check_null_ret_oom
+        (tizloadedtoidle =
+         factory_new
+         (tizstate_class, "tizloadedtoidle",
+          tizloaded, sizeof (tiz_loadedtoidle_t),
+          ctor, loadedtoidle_ctor,
+          dtor, loadedtoidle_dtor,
+          tiz_api_SetParameter, loadedtoidle_SetParameter,
+          tiz_api_GetState, loadedtoidle_GetState,
+          tiz_api_UseBuffer, loadedtoidle_UseBuffer,
+          tiz_api_EmptyThisBuffer, loadedtoidle_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, loadedtoidle_FillThisBuffer,
+          tiz_state_state_set, loadedtoidle_state_set,
+          tiz_state_trans_complete, loadedtoidle_trans_complete,
+          tiz_state_tunneled_ports_status_update,
+          loadedtoidle_tunneled_ports_status_update, 0));
     }
+  return OMX_ErrorNone;
 }

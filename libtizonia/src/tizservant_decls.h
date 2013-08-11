@@ -34,10 +34,12 @@ extern "C"
 {
 #endif
 
+#include "tizapi_decls.h"
+#include "tizscheduler.h"
+#include "tizosal.h"
+
 #include "OMX_Component.h"
 
-#include "tizapi_decls.h"
-#include "tizosal.h"
 
   typedef struct tiz_srv tiz_srv_t;
   struct tiz_srv

@@ -55,7 +55,7 @@ extern "C"
 
   extern const void *tizfsm;
   extern const void *tizfsm_class;
-  void tiz_fsm_init (void);
+  OMX_ERRORTYPE tiz_fsm_init (void);
 
   OMX_ERRORTYPE tiz_fsm_set_state (void *ap_obj,
                                   tiz_fsm_state_id_t a_new_state,

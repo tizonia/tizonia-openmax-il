@@ -34,16 +34,17 @@ extern "C"
 {
 #endif
 
+#include "tizport.h"
+
 #include "OMX_Core.h"
 #include "OMX_Types.h"
 
-#include "tizport.h"
 
 /* factory_new(tizotherport, ...); */
   extern const void *tizotherport;
   extern const void *tizotherport_class;
 
-  void tiz_otherport_init (void);
+  OMX_ERRORTYPE tiz_otherport_init (void);
 
 #ifdef __cplusplus
 }

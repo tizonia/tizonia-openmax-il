@@ -75,7 +75,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
           OMX_AUDIO_CodingMax
         };
         tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat);
-        tiz_audioport_init ();
+        tiz_check_omx_err_ret_null (tiz_audioport_init ());
         p_obj->ip_port = factory_new (tizaudioport, p_opts, &encodings);
       }
       break;
@@ -107,7 +107,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
         portdef.pNativeWindow = NULL;
 
         tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat);
-        tiz_videoport_init ();
+        tiz_check_omx_err_ret_null (tiz_videoport_init ());
         p_obj->ip_port = factory_new (tizvideoport, p_opts, &portdef,
                                       &encodings, &formats);
       }
@@ -138,7 +138,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
         portdef.pNativeWindow = NULL;
 
         tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat);
-        tiz_imageport_init ();
+        tiz_check_omx_err_ret_null (tiz_imageport_init ());
         p_obj->ip_port = factory_new (tizimageport, p_opts, &portdef,
                                       &encodings, &formats);
       }
@@ -152,7 +152,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
         };
 
         tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat);
-        tiz_otherport_init ();
+        tiz_check_omx_err_ret_null (tiz_otherport_init ());
         p_obj->ip_port = factory_new (tizotherport, p_opts, &formats);
       }
       break;
@@ -296,32 +296,35 @@ binaryport_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizbinaryport, *tizbinaryport_class;
 
-void
+OMX_ERRORTYPE
 tiz_binaryport_init (void)
 {
   if (!tizbinaryport_class)
     {
-      tiz_port_init ();
-      tizbinaryport_class = factory_new (tizport_class,
-                                         "tizbinaryport_class",
-                                         tizport_class,
-                                         sizeof (tiz_binaryport_class_t),
-                                         ctor, binaryport_class_ctor, 0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizbinaryport_class = factory_new (tizport_class,
+                                            "tizbinaryport_class",
+                                            tizport_class,
+                                            sizeof (tiz_binaryport_class_t),
+                                            ctor, binaryport_class_ctor, 0));
     }
 
   if (!tizbinaryport)
     {
-      tiz_port_init ();
-      tizbinaryport =
-        factory_new
-        (tizbinaryport_class,
-         "tizbinaryport",
-         tizport,
-         sizeof (tiz_binaryport_t),
-         ctor, binaryport_ctor,
-         dtor, binaryport_dtor,
-         tiz_api_GetParameter, binaryport_GetParameter,
-         tiz_api_SetParameter, binaryport_SetParameter,
-         tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat, 0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizbinaryport =
+         factory_new
+         (tizbinaryport_class,
+          "tizbinaryport",
+          tizport,
+          sizeof (tiz_binaryport_t),
+          ctor, binaryport_ctor,
+          dtor, binaryport_dtor,
+          tiz_api_GetParameter, binaryport_GetParameter,
+          tiz_api_SetParameter, binaryport_SetParameter,
+          tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat, 0));
     }
+  return OMX_ErrorNone;
 }

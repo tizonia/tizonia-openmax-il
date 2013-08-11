@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "tizopusport.h"
 #include "tizopusport_decls.h"
 
 #include "tizutils.h"
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -406,35 +406,38 @@ opusport_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizopusport, *tizopusport_class;
 
-void
+OMX_ERRORTYPE
 tiz_opusport_init (void)
 {
   if (!tizopusport_class)
     {
-      tiz_port_init ();
-      tizopusport_class = factory_new (tizport_class,
-                                        "tizopusport_class",
-                                        tizport_class,
-                                        sizeof (tiz_opusport_class_t),
-                                        ctor, opusport_class_ctor, 0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizopusport_class = factory_new (tizport_class,
+                                          "tizopusport_class",
+                                          tizport_class,
+                                          sizeof (tiz_opusport_class_t),
+                                          ctor, opusport_class_ctor, 0));
 
     }
 
   if (!tizopusport)
     {
-      tiz_audioport_init ();
-      tizopusport =
-        factory_new
-        (tizaudioport_class,
-         "tizopusport",
-         tizaudioport,
-         sizeof (tiz_opusport_t),
-         ctor, opusport_ctor,
-         dtor, opusport_dtor,
-         tiz_api_GetParameter, opusport_GetParameter,
-         tiz_api_SetParameter, opusport_SetParameter,
-         tiz_port_set_portdef_format, opusport_set_portdef_format,
-         tiz_port_check_tunnel_compat, opusport_check_tunnel_compat,
-         tiz_port_apply_slaving_behaviour, opusport_apply_slaving_behaviour, 0);
+      tiz_check_omx_err_ret_oom (tiz_audioport_init ());
+      tiz_check_null_ret_oom
+        (tizopusport =
+         factory_new
+         (tizaudioport_class,
+          "tizopusport",
+          tizaudioport,
+          sizeof (tiz_opusport_t),
+          ctor, opusport_ctor,
+          dtor, opusport_dtor,
+          tiz_api_GetParameter, opusport_GetParameter,
+          tiz_api_SetParameter, opusport_SetParameter,
+          tiz_port_set_portdef_format, opusport_set_portdef_format,
+          tiz_port_check_tunnel_compat, opusport_check_tunnel_compat,
+          tiz_port_apply_slaving_behaviour, opusport_apply_slaving_behaviour, 0));
     }
+  return OMX_ErrorNone;
 }

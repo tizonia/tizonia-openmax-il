@@ -39,7 +39,7 @@ extern "C"
 /* factory_new(webpdprc, ...) */
   extern const void *webpdprc;
 
-  void init_webpdprc (void);
+  OMX_ERRORTYPE init_webpdprc (void);
 
 #ifdef __cplusplus
 }

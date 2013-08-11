@@ -2210,68 +2210,71 @@ port_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizport, *tizport_class;
 
-void
+OMX_ERRORTYPE
 tiz_port_init (void)
 {
 
   if (!tizport_class)
     {
-      tiz_api_init ();
-      tizport_class = factory_new (tizapi_class,
-                                   "tizport_class",
-                                   tizapi_class,
-                                   sizeof (tiz_port_class_t),
-                                   ctor, port_class_ctor, 0);
+      tiz_check_omx_err_ret_oom (tiz_api_init ());
+      tiz_check_null_ret_oom
+        (tizport_class = factory_new (tizapi_class,
+                                      "tizport_class",
+                                      tizapi_class,
+                                      sizeof (tiz_port_class_t),
+                                      ctor, port_class_ctor, 0));
 
     }
 
   if (!tizport)
     {
-      tiz_api_init ();
-      tizport =
-        factory_new
-        (tizport_class,
-         "tizport",
-         tizapi,
-         sizeof (tiz_port_t),
-         ctor, port_ctor,
-         dtor, port_dtor,
-         tiz_api_GetParameter, port_GetParameter,
-         tiz_api_SetParameter, port_SetParameter,
-         tiz_api_GetConfig, port_GetConfig,
-         tiz_api_SetConfig, port_SetConfig,
-         tiz_api_GetExtensionIndex, port_GetExtensionIndex,
-         tiz_api_ComponentTunnelRequest, port_ComponentTunnelRequest,
-         tiz_api_UseBuffer, port_UseBuffer,
-         tiz_api_AllocateBuffer, port_AllocateBuffer,
-         tiz_api_FreeBuffer, port_FreeBuffer,
-         tiz_port_register_index, port_register_index,
-         tiz_port_find_index, port_find_index,
-         tiz_port_index, port_index,
-         tiz_port_set_index, port_set_index,
-         tiz_port_set_portdef_format, port_set_portdef_format,
-         tiz_port_buffer_count, port_buffer_count,
-         tiz_port_dir, port_dir,
-         tiz_port_domain, port_domain,
-         tiz_port_get_tunnel_comp, port_get_tunnel_comp,
-         tiz_port_get_hdrs_list, port_get_hdrs_list,
-         tiz_port_check_flags, port_check_flags,
-         tiz_port_set_flags, port_set_flags,
-         tiz_port_clear_flags, port_clear_flags,
-         tiz_port_check_tunneled_port_status, port_check_tunneled_port_status,
-         tiz_port_populate, port_populate,
-         tiz_port_depopulate, port_depopulate,
-         tiz_port_check_tunnel_compat, port_check_tunnel_compat,
-         tiz_port_update_claimed_count, port_update_claimed_count,
-         tiz_port_store_mark, port_store_mark,
-         tiz_port_mark_buffer, port_mark_buffer,
-         tiz_port_set_alloc_hooks, port_set_alloc_hooks,
-         tiz_port_populate_header, port_populate_header,
-         tiz_port_depopulate_header, port_depopulate_header,
-         tiz_port_is_master_or_slave, port_is_master_or_slave,
-         tiz_port_apply_slaving_behaviour, port_apply_slaving_behaviour,
-         tiz_port_update_tunneled_status, port_update_tunneled_status,
-         tiz_port_reset_tunneled_port_status_flag, reset_tunneled_port_status_flag,
-         0);
+      tiz_check_omx_err_ret_oom (tiz_api_init ());
+      tiz_check_null_ret_oom
+        (tizport =
+         factory_new
+         (tizport_class,
+          "tizport",
+          tizapi,
+          sizeof (tiz_port_t),
+          ctor, port_ctor,
+          dtor, port_dtor,
+          tiz_api_GetParameter, port_GetParameter,
+          tiz_api_SetParameter, port_SetParameter,
+          tiz_api_GetConfig, port_GetConfig,
+          tiz_api_SetConfig, port_SetConfig,
+          tiz_api_GetExtensionIndex, port_GetExtensionIndex,
+          tiz_api_ComponentTunnelRequest, port_ComponentTunnelRequest,
+          tiz_api_UseBuffer, port_UseBuffer,
+          tiz_api_AllocateBuffer, port_AllocateBuffer,
+          tiz_api_FreeBuffer, port_FreeBuffer,
+          tiz_port_register_index, port_register_index,
+          tiz_port_find_index, port_find_index,
+          tiz_port_index, port_index,
+          tiz_port_set_index, port_set_index,
+          tiz_port_set_portdef_format, port_set_portdef_format,
+          tiz_port_buffer_count, port_buffer_count,
+          tiz_port_dir, port_dir,
+          tiz_port_domain, port_domain,
+          tiz_port_get_tunnel_comp, port_get_tunnel_comp,
+          tiz_port_get_hdrs_list, port_get_hdrs_list,
+          tiz_port_check_flags, port_check_flags,
+          tiz_port_set_flags, port_set_flags,
+          tiz_port_clear_flags, port_clear_flags,
+          tiz_port_check_tunneled_port_status, port_check_tunneled_port_status,
+          tiz_port_populate, port_populate,
+          tiz_port_depopulate, port_depopulate,
+          tiz_port_check_tunnel_compat, port_check_tunnel_compat,
+          tiz_port_update_claimed_count, port_update_claimed_count,
+          tiz_port_store_mark, port_store_mark,
+          tiz_port_mark_buffer, port_mark_buffer,
+          tiz_port_set_alloc_hooks, port_set_alloc_hooks,
+          tiz_port_populate_header, port_populate_header,
+          tiz_port_depopulate_header, port_depopulate_header,
+          tiz_port_is_master_or_slave, port_is_master_or_slave,
+          tiz_port_apply_slaving_behaviour, port_apply_slaving_behaviour,
+          tiz_port_update_tunneled_status, port_update_tunneled_status,
+          tiz_port_reset_tunneled_port_status_flag, reset_tunneled_port_status_flag,
+          0));
     }
+  return OMX_ErrorNone;
 }

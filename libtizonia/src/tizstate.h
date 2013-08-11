@@ -48,8 +48,8 @@ extern "C"
 
   extern const void *tizstate;
   extern const void *tizstate_class;
-  void tiz_state_init (void);
-  void tiz_state_init_states (void);
+  OMX_ERRORTYPE tiz_state_init (void);
+  OMX_ERRORTYPE tiz_state_init_states (void);
 
   extern const void *tizloaded;
   extern const void *tizloadedtoidle;

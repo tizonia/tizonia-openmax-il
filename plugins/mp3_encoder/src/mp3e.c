@@ -30,16 +30,16 @@
 #include <config.h>
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include "tizosal.h"
 #include "tizscheduler.h"
 #include "tizmp3port.h"
 #include "tizpcmport.h"
 #include "tizconfigport.h"
 #include "mp3eprc.h"
+
+#include "OMX_Core.h"
+#include "OMX_Component.h"
+#include "OMX_Types.h"
 
 #include <assert.h>
 #include <string.h>
@@ -57,22 +57,21 @@
 #define ARATELIA_MP3_ENCODER_INPUT_PORT_INDEX  0
 #define ARATELIA_MP3_ENCODER_OUTPUT_PORT_INDEX 1
 
-#define ARATELIA_MP3_ENCODER_PORT_MIN_BUF_COUNT 2
+#define ARATELIA_MP3_ENCODER_PORT_MIN_BUF_COUNT       2
 /* Assuming worst case of 16 bit per sample per channel adn 48khz, lets try to
    fit 25ms of audio (1200 samples per channel) */
-#define ARATELIA_MP3_ENCODER_PORT_MIN_INPUT_BUF_SIZE (2*4800)
+#define ARATELIA_MP3_ENCODER_PORT_MIN_INPUT_BUF_SIZE  (2*4800)
 /* output buffer size in bytes = 1.25*num_samples + 7200 */
 #define ARATELIA_MP3_ENCODER_PORT_MIN_OUTPUT_BUF_SIZE 10200
-#define ARATELIA_MP3_ENCODER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_MP3_ENCODER_PORT_ALIGNMENT 0
-#define ARATELIA_MP3_ENCODER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
+#define ARATELIA_MP3_ENCODER_PORT_NONCONTIGUOUS       OMX_FALSE
+#define ARATELIA_MP3_ENCODER_PORT_ALIGNMENT           0
+#define ARATELIA_MP3_ENCODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE mp3_encoder_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
 instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_pcmport = NULL;
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
   OMX_AUDIO_CONFIG_MUTETYPE mute;
@@ -119,18 +118,14 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.nPortIndex        = ARATELIA_MP3_ENCODER_INPUT_PORT_INDEX;
   mute.bMute             = OMX_FALSE;
 
-  tiz_pcmport_init ();
-  p_pcmport = factory_new (tizpcmport, &pcm_port_opts, &encodings,
-                           &pcmmode, &volume, &mute);
-  assert (p_pcmport);
-
-  return p_pcmport;
+  tiz_check_omx_err_ret_null (tiz_pcmport_init ());
+  return factory_new (tizpcmport, &pcm_port_opts, &encodings,
+                      &pcmmode, &volume, &mute);
 }
 
 static OMX_PTR
 instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_mp3port = NULL;
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
   OMX_AUDIO_CODINGTYPE encodings[] = {
     OMX_AUDIO_CodingMP3,
@@ -158,38 +153,24 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
   mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
   mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
-  tiz_mp3port_init ();
-  p_mp3port = factory_new (tizmp3port, &mp3_port_opts, &encodings, &mp3type);
-  assert (p_mp3port);
-
-  return p_mp3port;
+  tiz_check_omx_err_ret_null (tiz_mp3port_init ());
+  return factory_new (tizmp3port, &mp3_port_opts, &encodings, &mp3type);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_cport = NULL;
-
-  tiz_configport_init ();
-  p_cport = factory_new (tizconfigport, NULL,   /* this port does not take options */
-                         ARATELIA_MP3_ENCODER_COMPONENT_NAME,
-                         mp3_encoder_version);
-  assert (p_cport);
-
-  return p_cport;
+  tiz_check_omx_err_ret_null (tiz_configport_init ());
+  return factory_new (tizconfigport, NULL,   /* this port does not take options */
+                      ARATELIA_MP3_ENCODER_COMPONENT_NAME,
+                      mp3_encoder_version);
 }
 
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_proc = NULL;
-
-  /* Instantiate the processor */
-  mp3e_prc_init ();
-  p_proc = factory_new (mp3eprc, ap_hdl);
-  assert (p_proc);
-
-  return p_proc;
+  tiz_check_omx_err_ret_null (mp3e_prc_init ());
+  return factory_new (mp3eprc, ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -208,11 +189,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_MP3_ENCODER_COMPONENT_NAME);
 
-  assert (ap_hdl);
-
-  tiz_comp_init (ap_hdl, ARATELIA_MP3_ENCODER_COMPONENT_NAME);
-
-  tiz_comp_register_roles (ap_hdl, rf_list, 1);
+  tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_MP3_ENCODER_COMPONENT_NAME));
+  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;
 }

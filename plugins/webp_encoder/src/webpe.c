@@ -30,16 +30,16 @@
 #include <config.h>
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include "tizosal.h"
 #include "tizscheduler.h"
 #include "tizimageport.h"
 #include "tizvideoport.h"
 #include "tizconfigport.h"
 #include "webpeprc.h"
+
+#include "OMX_Core.h"
+#include "OMX_Component.h"
+#include "OMX_Types.h"
 
 #include <assert.h>
 #include <string.h>
@@ -56,19 +56,18 @@
 #define ARATELIA_WEBP_ENCODER_INPUT_PORT_INDEX  0
 #define ARATELIA_WEBP_ENCODER_OUTPUT_PORT_INDEX 1
 
-#define ARATELIA_WEBP_ENCODER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_WEBP_ENCODER_PORT_MIN_INPUT_BUF_SIZE 8192
+#define ARATELIA_WEBP_ENCODER_PORT_MIN_BUF_COUNT       2
+#define ARATELIA_WEBP_ENCODER_PORT_MIN_INPUT_BUF_SIZE  8192
 #define ARATELIA_WEBP_ENCODER_PORT_MIN_OUTPUT_BUF_SIZE 8192
-#define ARATELIA_WEBP_ENCODER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_WEBP_ENCODER_PORT_ALIGNMENT 0
-#define ARATELIA_WEBP_ENCODER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
+#define ARATELIA_WEBP_ENCODER_PORT_NONCONTIGUOUS       OMX_FALSE
+#define ARATELIA_WEBP_ENCODER_PORT_ALIGNMENT           0
+#define ARATELIA_WEBP_ENCODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE webp_encoder_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
 instantiate_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_videoport = NULL;
   OMX_VIDEO_PORTDEFINITIONTYPE portdef;
   OMX_VIDEO_CODINGTYPE encodings[] = {
     OMX_VIDEO_CodingUnused,
@@ -105,18 +104,14 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  tiz_videoport_init ();
-  p_videoport = factory_new (tizvideoport, &video_port_opts, &portdef,
+  tiz_check_omx_err_ret_null (tiz_videoport_init ());
+  return factory_new (tizvideoport, &video_port_opts, &portdef,
                              &encodings, &formats);
-  assert (p_videoport);
-
-  return p_videoport;
 }
 
 static OMX_PTR
 instantiate_output_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_imageport = NULL;
   OMX_IMAGE_PORTDEFINITIONTYPE portdef;
   OMX_IMAGE_CODINGTYPE encodings[] = {
     OMX_IMAGE_CodingWEBP,
@@ -149,39 +144,25 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatUnused;
   portdef.pNativeWindow         = NULL;
 
-  tiz_imageport_init ();
-  p_imageport = factory_new (tizimageport, &image_port_opts, &portdef,
+  tiz_check_omx_err_ret_null (tiz_imageport_init ());
+  return factory_new (tizimageport, &image_port_opts, &portdef,
                              &encodings, &formats);
-  assert (p_imageport);
-
-  return p_imageport;
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_cport = NULL;
-
-  tiz_configport_init ();
-  p_cport = factory_new (tizconfigport, NULL,   /* this port does not take options */
+  tiz_check_omx_err_ret_null (tiz_configport_init ());
+  return factory_new (tizconfigport, NULL,   /* this port does not take options */
                          ARATELIA_WEBP_ENCODER_COMPONENT_NAME,
                          webp_encoder_version);
-  assert (p_cport);
-
-  return p_cport;
 }
 
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_proc = NULL;
-
-  /* Instantiate the processor */
-  init_webpeprc ();
-  p_proc = factory_new (webpeprc, ap_hdl);
-  assert (p_proc);
-
-  return p_proc;
+  tiz_check_omx_err_ret_null (init_webpeprc ());
+  return factory_new (webpeprc, ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -189,8 +170,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
-
-  assert (ap_hdl);
 
   TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_WEBP_ENCODER_COMPONENT_NAME);
@@ -202,9 +181,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 2;
   role_factory.pf_proc    = instantiate_processor;
 
-  tiz_comp_init (ap_hdl, ARATELIA_WEBP_ENCODER_COMPONENT_NAME);
-
-  tiz_comp_register_roles (ap_hdl, rf_list, 1);
+  tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_WEBP_ENCODER_COMPONENT_NAME));
+  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;
 }

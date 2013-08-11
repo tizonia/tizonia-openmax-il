@@ -42,7 +42,7 @@ extern "C"
   extern const void *tizbinaryport;
   extern const void *tizbinaryport_class;
 
-  void tiz_binaryport_init (void);
+  OMX_ERRORTYPE tiz_binaryport_init (void);
 
 #ifdef __cplusplus
 }

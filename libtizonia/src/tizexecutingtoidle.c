@@ -151,22 +151,24 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
 
 const void *tizexecutingtoidle;
 
-void
+OMX_ERRORTYPE
 tiz_executingtoidle_init (void)
 {
   if (!tizexecutingtoidle)
     {
-      tiz_executing_init ();
-      tizexecutingtoidle =
-        factory_new
-        (tizstate_class, "tizexecutingtoidle",
-         tizexecuting, sizeof (tiz_executingtoidle_t),
-         ctor, executingtoidle_ctor,
-         dtor, executingtoidle_dtor,
-         tiz_api_GetState, executingtoidle_GetState,
-         tiz_api_UseBuffer, executingtoidle_UseBuffer,
-         tiz_state_trans_complete, executingtoidle_trans_complete,
-         tiz_state_tunneled_ports_status_update, executingtoidle_tunneled_ports_status_update,
-         0);
+      tiz_check_omx_err_ret_oom (tiz_executing_init ());
+      tiz_check_null_ret_oom
+        (tizexecutingtoidle =
+         factory_new
+         (tizstate_class, "tizexecutingtoidle",
+          tizexecuting, sizeof (tiz_executingtoidle_t),
+          ctor, executingtoidle_ctor,
+          dtor, executingtoidle_dtor,
+          tiz_api_GetState, executingtoidle_GetState,
+          tiz_api_UseBuffer, executingtoidle_UseBuffer,
+          tiz_state_trans_complete, executingtoidle_trans_complete,
+          tiz_state_tunneled_ports_status_update, executingtoidle_tunneled_ports_status_update,
+          0));
     }
+  return OMX_ErrorNone;
 }

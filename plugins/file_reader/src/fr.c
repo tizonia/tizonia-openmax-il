@@ -30,15 +30,15 @@
 #include <config.h>
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include "tizosal.h"
 #include "tizscheduler.h"
 #include "tizbinaryport.h"
 #include "frcfgport.h"
 #include "frprc.h"
+
+#include "OMX_Core.h"
+#include "OMX_Component.h"
+#include "OMX_Types.h"
 
 #include <assert.h>
 #include <string.h>
@@ -77,7 +77,7 @@ instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_binaryport_init ();
+  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
   return factory_new (tizbinaryport, &port_opts);
 }
 
@@ -96,7 +96,7 @@ instantiate_video_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_binaryport_init ();
+  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
   return factory_new (tizbinaryport, &port_opts);
 }
 
@@ -115,7 +115,7 @@ instantiate_image_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_binaryport_init ();
+  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
   return factory_new (tizbinaryport, &port_opts);
 }
 
@@ -134,7 +134,7 @@ instantiate_other_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_binaryport_init ();
+  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
   return factory_new (tizbinaryport, &port_opts);
 }
 
@@ -142,7 +142,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   /* Instantiate the config port */
-  fr_cfgport_init ();
+  tiz_check_omx_err_ret_null (fr_cfgport_init ());
   return factory_new (frcfgport, NULL,       /* this port does not take options */
                       ARATELIA_FILE_READER_COMPONENT_NAME,
                       file_reader_version);
@@ -151,8 +151,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  /* Instantiate the processor */
-  fr_prc_init ();
+  tiz_check_omx_err_ret_null (fr_prc_init ());
   return factory_new (frprc, ap_hdl);
 }
 

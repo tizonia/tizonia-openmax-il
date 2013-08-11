@@ -672,28 +672,30 @@ mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 
 const void *mp3dprc;
 
-void
+OMX_ERRORTYPE
 mp3d_prc_init (void)
 {
   if (!mp3dprc)
     {
-      tiz_prc_init ();
-      mp3dprc =
-        factory_new
-        (tizprc_class,
-         "mp3dprc",
-         tizprc,
-         sizeof (mp3d_prc_t),
-         ctor, mp3d_proc_ctor,
-         dtor, mp3d_proc_dtor,
-         tiz_srv_allocate_resources, mp3d_proc_allocate_resources,
-         tiz_srv_deallocate_resources, mp3d_proc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, mp3d_proc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, mp3d_proc_transfer_and_process,
-         tiz_srv_stop_and_return, mp3d_proc_stop_and_return,
-         tiz_prc_buffers_ready, mp3d_proc_buffers_ready,
-         tiz_prc_port_flush, mp3d_proc_port_flush,
-         tiz_prc_port_disable, mp3d_proc_port_disable,
-         tiz_prc_port_enable, mp3d_proc_port_enable, 0);
+      tiz_check_omx_err_ret_oom (tiz_prc_init ());
+      tiz_check_null_ret_oom
+        (mp3dprc =
+         factory_new
+         (tizprc_class,
+          "mp3dprc",
+          tizprc,
+          sizeof (mp3d_prc_t),
+          ctor, mp3d_proc_ctor,
+          dtor, mp3d_proc_dtor,
+          tiz_srv_allocate_resources, mp3d_proc_allocate_resources,
+          tiz_srv_deallocate_resources, mp3d_proc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, mp3d_proc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, mp3d_proc_transfer_and_process,
+          tiz_srv_stop_and_return, mp3d_proc_stop_and_return,
+          tiz_prc_buffers_ready, mp3d_proc_buffers_ready,
+          tiz_prc_port_flush, mp3d_proc_port_flush,
+          tiz_prc_port_disable, mp3d_proc_port_disable,
+          tiz_prc_port_enable, mp3d_proc_port_enable, 0));
     }
+  return OMX_ErrorNone;
 }

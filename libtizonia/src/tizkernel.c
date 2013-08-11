@@ -117,7 +117,7 @@ static const tiz_krn_msg_str_t tiz_krn_msg_to_str_tbl[] = {
 #include "tizkernel_helpers.inl"
 #include "tizkernel_dispatch.inl"
 
-static void
+static OMX_ERRORTYPE
 init_ports_and_lists (void *ap_obj)
 {
   tiz_krn_t *p_obj = ap_obj;
@@ -128,9 +128,9 @@ init_ports_and_lists (void *ap_obj)
     0
   };
 
-  tiz_vector_init (&(p_obj->p_ports_), sizeof (OMX_PTR));
-  tiz_vector_init (&(p_obj->p_ingress_), sizeof (tiz_vector_t *));
-  tiz_vector_init (&(p_obj->p_egress_), sizeof (tiz_vector_t *));
+  tiz_check_omx_err_ret_oom (tiz_vector_init (&(p_obj->p_ports_), sizeof (OMX_PTR)));
+  tiz_check_omx_err_ret_oom (tiz_vector_init (&(p_obj->p_ingress_), sizeof (tiz_vector_t *)));
+  tiz_check_omx_err_ret_oom (tiz_vector_init (&(p_obj->p_egress_), sizeof (tiz_vector_t *)));
 
   p_obj->p_cport_                          = NULL;
   p_obj->p_proc_                           = NULL;
@@ -147,6 +147,8 @@ init_ports_and_lists (void *ap_obj)
   p_obj->accept_use_buffer_notified_       = OMX_FALSE;
   p_obj->accept_buffer_exchange_notified_  = OMX_FALSE;
   p_obj->may_transition_exe2idle_notified_ = OMX_FALSE;
+
+  return OMX_ErrorNone;
 }
 
 static void
@@ -201,7 +203,7 @@ static void *
 krn_ctor (void *ap_obj, va_list * app)
 {
   tiz_krn_t *p_obj = super_ctor (tizkrn, ap_obj, app);
-  init_ports_and_lists (p_obj);
+  tiz_check_omx_err_ret_null (init_ports_and_lists (p_obj));
   return p_obj;
 }
 
@@ -2000,62 +2002,65 @@ krn_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizkrn, *tizkrn_class;
 
-void
+OMX_ERRORTYPE
 tiz_krn_init (void)
 {
   if (!tizkrn_class)
     {
-      tiz_srv_init ();
-      tizkrn_class = factory_new (tizsrv_class,
-                                  "tizkrn_class",
-                                  tizsrv_class,
-                                  sizeof (tiz_krn_class_t),
-                                  ctor, krn_class_ctor, 0);
+      tiz_check_omx_err_ret_oom (tiz_srv_init ());
+      tiz_check_null_ret_oom
+        (tizkrn_class = factory_new (tizsrv_class,
+                                     "tizkrn_class",
+                                     tizsrv_class,
+                                     sizeof (tiz_krn_class_t),
+                                     ctor, krn_class_ctor, 0));
     }
 
   if (!tizkrn)
     {
-      tiz_srv_init ();
-      tizkrn =
-        factory_new
-        (tizkrn_class,
-         "tizkrn",
-         tizsrv,
-         sizeof (tiz_krn_t),
-         ctor, krn_ctor,
-         dtor, krn_dtor,
-         tiz_api_GetComponentVersion, krn_GetComponentVersion,
-         tiz_api_GetParameter, krn_GetParameter,
-         tiz_api_SetParameter, krn_SetParameter,
-         tiz_api_GetConfig, krn_GetConfig,
-         tiz_api_SetConfig, krn_SetConfig,
-         tiz_api_GetExtensionIndex, krn_GetExtensionIndex,
-         tiz_api_SendCommand, krn_SendCommand,
-         tiz_api_ComponentTunnelRequest, krn_ComponentTunnelRequest,
-         tiz_api_UseBuffer, krn_UseBuffer,
-         tiz_api_AllocateBuffer, krn_AllocateBuffer,
-         tiz_api_FreeBuffer, krn_FreeBuffer,
-         tiz_api_EmptyThisBuffer, krn_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, krn_FillThisBuffer,
-         tiz_srv_dispatch_msg, krn_dispatch_msg,
-         tiz_srv_allocate_resources, krn_allocate_resources,
-         tiz_srv_deallocate_resources, krn_deallocate_resources,
-         tiz_srv_prepare_to_transfer, krn_prepare_to_transfer,
-         tiz_srv_transfer_and_process, krn_transfer_and_process,
-         tiz_srv_stop_and_return, krn_stop_and_return,
-         tiz_srv_receive_pluggable_event,
-         krn_receive_pluggable_event, tiz_krn_register_port,
-         krn_register_port, tiz_krn_get_port, krn_get_port,
-         tiz_krn_find_managing_port, krn_find_managing_port,
-         tiz_krn_get_population_status, krn_get_population_status,
-         tiz_krn_select, krn_select,
-         tiz_krn_claim_buffer, krn_claim_buffer,
-         tiz_krn_release_buffer, krn_release_buffer,
-         tiz_krn_deregister_all_ports, krn_deregister_all_ports,
-         tiz_krn_reset_tunneled_ports_status,
-         krn_reset_tunneled_ports_status,
-         tiz_krn_get_restriction_status,
-         krn_get_restriction_status,
-         0);
+      tiz_check_omx_err_ret_oom (tiz_srv_init ());
+      tiz_check_null_ret_oom
+        (tizkrn =
+         factory_new
+         (tizkrn_class,
+          "tizkrn",
+          tizsrv,
+          sizeof (tiz_krn_t),
+          ctor, krn_ctor,
+          dtor, krn_dtor,
+          tiz_api_GetComponentVersion, krn_GetComponentVersion,
+          tiz_api_GetParameter, krn_GetParameter,
+          tiz_api_SetParameter, krn_SetParameter,
+          tiz_api_GetConfig, krn_GetConfig,
+          tiz_api_SetConfig, krn_SetConfig,
+          tiz_api_GetExtensionIndex, krn_GetExtensionIndex,
+          tiz_api_SendCommand, krn_SendCommand,
+          tiz_api_ComponentTunnelRequest, krn_ComponentTunnelRequest,
+          tiz_api_UseBuffer, krn_UseBuffer,
+          tiz_api_AllocateBuffer, krn_AllocateBuffer,
+          tiz_api_FreeBuffer, krn_FreeBuffer,
+          tiz_api_EmptyThisBuffer, krn_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, krn_FillThisBuffer,
+          tiz_srv_dispatch_msg, krn_dispatch_msg,
+          tiz_srv_allocate_resources, krn_allocate_resources,
+          tiz_srv_deallocate_resources, krn_deallocate_resources,
+          tiz_srv_prepare_to_transfer, krn_prepare_to_transfer,
+          tiz_srv_transfer_and_process, krn_transfer_and_process,
+          tiz_srv_stop_and_return, krn_stop_and_return,
+          tiz_srv_receive_pluggable_event,
+          krn_receive_pluggable_event, tiz_krn_register_port,
+          krn_register_port, tiz_krn_get_port, krn_get_port,
+          tiz_krn_find_managing_port, krn_find_managing_port,
+          tiz_krn_get_population_status, krn_get_population_status,
+          tiz_krn_select, krn_select,
+          tiz_krn_claim_buffer, krn_claim_buffer,
+          tiz_krn_release_buffer, krn_release_buffer,
+          tiz_krn_deregister_all_ports, krn_deregister_all_ports,
+          tiz_krn_reset_tunneled_ports_status,
+          krn_reset_tunneled_ports_status,
+          tiz_krn_get_restriction_status,
+          krn_get_restriction_status,
+          0));
     }
+  return OMX_ErrorNone;
 }

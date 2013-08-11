@@ -42,7 +42,7 @@ extern "C"
 
   extern const void *tizkrn;
   extern const void *tizkrn_class;
-  void tiz_krn_init (void);
+  OMX_ERRORTYPE tiz_krn_init (void);
 
   typedef enum tiz_krn_population_status tiz_krn_population_status_t;
   enum tiz_krn_population_status

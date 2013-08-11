@@ -30,21 +30,21 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
+#include "tizscheduler.h"
 #include "tizosal.h"
 #include "tizutils.h"
-#include "tizscheduler.h"
 #include "tizfsm.h"
 #include "tizkernel.h"
 #include "tizproc.h"
 #include "tizport.h"
 #include "OMX_TizoniaExt.h"
+
+#include "OMX_Core.h"
+#include "OMX_Component.h"
+#include "OMX_Types.h"
+
+#include <assert.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

@@ -132,21 +132,23 @@ icer_cfgport_SetParameter (const void *ap_obj,
 
 const void *icercfgport;
 
-void
+OMX_ERRORTYPE
 icer_cfgport_init (void)
 {
   if (!icercfgport)
     {
-      tiz_configport_init ();
-      icercfgport =
-        factory_new
-        (tizconfigport_class,
-         "icercfgport",
-         tizconfigport,
-         sizeof (icer_cfgport_t),
-         ctor, icer_cfgport_ctor,
-         dtor, icer_cfgport_dtor,
-         tiz_api_GetParameter, icer_cfgport_GetParameter,
-         tiz_api_SetParameter, icer_cfgport_SetParameter, 0);
+      tiz_check_omx_err_ret_oom (tiz_configport_init ());
+      tiz_check_null_ret_oom
+        (icercfgport =
+         factory_new
+         (tizconfigport_class,
+          "icercfgport",
+          tizconfigport,
+          sizeof (icer_cfgport_t),
+          ctor, icer_cfgport_ctor,
+          dtor, icer_cfgport_dtor,
+          tiz_api_GetParameter, icer_cfgport_GetParameter,
+          tiz_api_SetParameter, icer_cfgport_SetParameter, 0));
     }
+  return OMX_ErrorNone;
 }

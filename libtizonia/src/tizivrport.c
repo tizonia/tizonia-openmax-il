@@ -32,6 +32,7 @@
 
 #include "tizivrport.h"
 #include "tizivrport_decls.h"
+
 #include "tizutils.h"
 #include "tizosal.h"
 
@@ -272,23 +273,25 @@ ivrport_check_tunnel_compat (const void *ap_obj,
 
 const void *tizivrport;
 
-void
+OMX_ERRORTYPE
 tiz_ivrport_init (void)
 {
   if (!tizivrport)
     {
-      tiz_videoport_init ();
-      tizivrport =
-        factory_new
-        (tizvideoport_class,
-         "tizivrport",
-         tizvideoport,
-         sizeof (tiz_ivrport_t),
-         ctor, ivrport_ctor,
-         dtor, ivrport_dtor,
-         tiz_api_GetConfig, ivrport_GetConfig,
-         tiz_api_SetConfig, ivrport_SetConfig,
-         tiz_port_set_portdef_format, ivrport_set_portdef_format,
-         tiz_port_check_tunnel_compat, ivrport_check_tunnel_compat, 0);
+      tiz_check_omx_err_ret_oom (tiz_videoport_init ());
+      tiz_check_null_ret_oom
+        (tizivrport =
+         factory_new
+         (tizvideoport_class,
+          "tizivrport",
+          tizvideoport,
+          sizeof (tiz_ivrport_t),
+          ctor, ivrport_ctor,
+          dtor, ivrport_dtor,
+          tiz_api_GetConfig, ivrport_GetConfig,
+          tiz_api_SetConfig, ivrport_SetConfig,
+          tiz_port_set_portdef_format, ivrport_set_portdef_format,
+          tiz_port_check_tunnel_compat, ivrport_check_tunnel_compat, 0));
     }
+  return OMX_ErrorNone;
 }

@@ -325,35 +325,38 @@ configport_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizconfigport, *tizconfigport_class;
 
-void
+OMX_ERRORTYPE
 tiz_configport_init (void)
 {
   if (!tizconfigport_class)
     {
-      tiz_port_init ();
-      tizconfigport_class = factory_new (tizport_class,
-                                         "tizconfigport_class",
-                                         tizport_class,
-                                         sizeof (tiz_configport_class_t),
-                                         ctor, configport_class_ctor, 0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizconfigport_class = factory_new (tizport_class,
+                                            "tizconfigport_class",
+                                            tizport_class,
+                                            sizeof (tiz_configport_class_t),
+                                            ctor, configport_class_ctor, 0));
     }
 
   if (!tizconfigport)
     {
-      tiz_port_init ();
-      tizconfigport =
-        factory_new
-        (tizconfigport_class,
-         "tizconfigport",
-         tizport,
-         sizeof (tiz_configport_t),
-         ctor, configport_ctor,
-         dtor, configport_dtor,
-         tiz_api_GetComponentVersion, configport_GetComponentVersion,
-         tiz_api_GetParameter, configport_GetParameter,
-         tiz_api_SetParameter, configport_SetParameter,
-         tiz_api_GetConfig, configport_GetConfig,
-         tiz_api_SetConfig, configport_SetConfig,
-         tiz_api_GetExtensionIndex, configport_GetExtensionIndex, 0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizconfigport =
+         factory_new
+         (tizconfigport_class,
+          "tizconfigport",
+          tizport,
+          sizeof (tiz_configport_t),
+          ctor, configport_ctor,
+          dtor, configport_dtor,
+          tiz_api_GetComponentVersion, configport_GetComponentVersion,
+          tiz_api_GetParameter, configport_GetParameter,
+          tiz_api_SetParameter, configport_SetParameter,
+          tiz_api_GetConfig, configport_GetConfig,
+          tiz_api_SetConfig, configport_SetConfig,
+          tiz_api_GetExtensionIndex, configport_GetExtensionIndex, 0));
     }
+  return OMX_ErrorNone;
 }

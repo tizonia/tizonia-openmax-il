@@ -42,7 +42,7 @@ extern "C"
 /* factory_new(tizpcmport, ...); */
   extern const void *tizpcmport;
 
-  void tiz_pcmport_init (void);
+  OMX_ERRORTYPE tiz_pcmport_init (void);
 
 #ifdef __cplusplus
 }

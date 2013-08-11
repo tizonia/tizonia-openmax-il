@@ -408,35 +408,37 @@ mp3port_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizmp3port, *tizmp3port_class;
 
-void
+OMX_ERRORTYPE
 tiz_mp3port_init (void)
 {
   if (!tizmp3port_class)
     {
-      tiz_port_init ();
-      tizmp3port_class = factory_new (tizport_class,
-                                        "tizmp3port_class",
-                                        tizport_class,
-                                        sizeof (tiz_mp3port_class_t),
-                                        ctor, mp3port_class_ctor, 0);
-
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizmp3port_class = factory_new (tizport_class,
+                                         "tizmp3port_class",
+                                         tizport_class,
+                                         sizeof (tiz_mp3port_class_t),
+                                         ctor, mp3port_class_ctor, 0));
     }
 
   if (!tizmp3port)
     {
-      tiz_audioport_init ();
-      tizmp3port =
-        factory_new
-        (tizaudioport_class,
-         "tizmp3port",
-         tizaudioport,
-         sizeof (tiz_mp3port_t),
-         ctor, mp3port_ctor,
-         dtor, mp3port_dtor,
-         tiz_api_GetParameter, mp3port_GetParameter,
-         tiz_api_SetParameter, mp3port_SetParameter,
-         tiz_port_set_portdef_format, mp3port_set_portdef_format,
-         tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
-         tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour, 0);
+      tiz_check_omx_err_ret_oom (tiz_audioport_init ());
+      tiz_check_null_ret_oom
+        (tizmp3port =
+         factory_new
+         (tizaudioport_class,
+          "tizmp3port",
+          tizaudioport,
+          sizeof (tiz_mp3port_t),
+          ctor, mp3port_ctor,
+          dtor, mp3port_dtor,
+          tiz_api_GetParameter, mp3port_GetParameter,
+          tiz_api_SetParameter, mp3port_SetParameter,
+          tiz_port_set_portdef_format, mp3port_set_portdef_format,
+          tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
+          tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour, 0));
     }
+  return OMX_ErrorNone;
 }

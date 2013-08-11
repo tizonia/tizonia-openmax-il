@@ -963,54 +963,55 @@ prc_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizprc, *tizprc_class;
 
-void
+OMX_ERRORTYPE
 tiz_prc_init (void)
 {
 
   if (!tizprc_class)
     {
-      tiz_srv_init ();
-      tizprc_class = factory_new (tizsrv_class,
-                                  "tizprc_class",
-                                  tizsrv_class,
-                                  sizeof (tiz_prc_class_t),
-                                  ctor, prc_class_ctor, 0);
-
+      tiz_check_omx_err_ret_oom (tiz_srv_init ());
+      tiz_check_null_ret_oom
+        (tizprc_class = factory_new (tizsrv_class,
+                                     "tizprc_class",
+                                     tizsrv_class,
+                                     sizeof (tiz_prc_class_t),
+                                     ctor, prc_class_ctor, 0));
     }
 
   if (!tizprc)
     {
-      tiz_srv_init ();
-      tizprc =
-        factory_new
-        (tizprc_class,
-         "tizprc",
-         tizsrv,
-         sizeof (tiz_prc_t),
-         ctor, prc_ctor,
-         dtor, prc_dtor,
-         tiz_api_EmptyThisBuffer, prc_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, prc_FillThisBuffer,
-         tiz_api_SendCommand, prc_SendCommand,
-         tiz_api_SetConfig, prc_SetConfig,
-         tiz_srv_remove_from_queue, prc_remove_from_queue,
-         tiz_srv_dispatch_msg, prc_dispatch_msg,
-         tiz_srv_allocate_resources, prc_allocate_resources,
-         tiz_srv_deallocate_resources, prc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, prc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, prc_transfer_and_process,
-         tiz_srv_stop_and_return, prc_stop_and_return,
-         tiz_prc_buffers_ready, prc_buffers_ready,
-         tiz_prc_pause, prc_pause,
-         tiz_prc_resume, prc_resume,
-         tiz_prc_port_flush, prc_port_flush,
-         tiz_prc_port_disable, prc_port_disable,
-         tiz_prc_port_enable, prc_port_enable,
-         tiz_prc_config_change, prc_config_change,
-         tiz_prc_io_ready, prc_io_ready,
-         tiz_prc_timer_ready, prc_timer_ready,
-         tiz_prc_stat_ready, prc_stat_ready,
-         0);
+      tiz_check_omx_err_ret_oom (tiz_srv_init ());
+      tiz_check_null_ret_oom
+        (tizprc =
+         factory_new
+         (tizprc_class,
+          "tizprc",
+          tizsrv,
+          sizeof (tiz_prc_t),
+          ctor, prc_ctor,
+          dtor, prc_dtor,
+          tiz_api_EmptyThisBuffer, prc_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, prc_FillThisBuffer,
+          tiz_api_SendCommand, prc_SendCommand,
+          tiz_api_SetConfig, prc_SetConfig,
+          tiz_srv_remove_from_queue, prc_remove_from_queue,
+          tiz_srv_dispatch_msg, prc_dispatch_msg,
+          tiz_srv_allocate_resources, prc_allocate_resources,
+          tiz_srv_deallocate_resources, prc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, prc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, prc_transfer_and_process,
+          tiz_srv_stop_and_return, prc_stop_and_return,
+          tiz_prc_buffers_ready, prc_buffers_ready,
+          tiz_prc_pause, prc_pause,
+          tiz_prc_resume, prc_resume,
+          tiz_prc_port_flush, prc_port_flush,
+          tiz_prc_port_disable, prc_port_disable,
+          tiz_prc_port_enable, prc_port_enable,
+          tiz_prc_config_change, prc_config_change,
+          tiz_prc_io_ready, prc_io_ready,
+          tiz_prc_timer_ready, prc_timer_ready,
+          tiz_prc_stat_ready, prc_stat_ready,
+          0));
     }
-
+  return OMX_ErrorNone;
 }

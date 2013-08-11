@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizwaitforresources;
 
-  void tiz_waitforresources_init (void);
+  OMX_ERRORTYPE tiz_waitforresources_init (void);
 
 #ifdef __cplusplus
 }

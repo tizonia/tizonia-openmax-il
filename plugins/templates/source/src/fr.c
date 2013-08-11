@@ -48,15 +48,15 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_reader"
 #endif
 
-#define ARATELIA_FILE_READER_DEFAULT_ROLE "file_reader.binary"
-#define ARATELIA_FILE_READER_COMPONENT_NAME "OMX.Aratelia.file_reader.binary"
+#define ARATELIA_FILE_READER_DEFAULT_ROLE       "file_reader.binary"
+#define ARATELIA_FILE_READER_COMPONENT_NAME     "OMX.Aratelia.file_reader.binary"
 /* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_FILE_READER_INPUT_PORT_INDEX        0
+#define ARATELIA_FILE_READER_INPUT_PORT_INDEX   0
 #define ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE 2048
+#define ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE  2048
 #define ARATELIA_FILE_READER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_FILE_READER_PORT_ALIGNMENT 0
-#define ARATELIA_FILE_READER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
+#define ARATELIA_FILE_READER_PORT_ALIGNMENT     0
+#define ARATELIA_FILE_READER_PORT_SUPPLIERPREF  OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE file_reader_version = { {1, 0, 0, 0} };
 
@@ -75,15 +75,14 @@ instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* slave port's index, use -1 for now */
   };
 
-  tiz_binaryport_init ();
+  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
   return factory_new (tizbinaryport, &port_opts);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  /* Instantiate the config port */
-  tiz_configport_init ();
+  tiz_check_omx_err_ret_null (tiz_configport_init ());
   return factory_new (tizconfigport, NULL,       /* this port does not take options */
                       ARATELIA_FILE_READER_COMPONENT_NAME,
                       file_reader_version);
@@ -92,8 +91,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  /* Instantiate the processor */
-  fr_prc_init ();
+  tiz_check_omx_err_ret_null (fr_prc_init ());
   return factory_new (frprc, ap_hdl);
 }
 
@@ -102,8 +100,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
-
-  assert (NULL != ap_hdl);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_FILE_READER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;

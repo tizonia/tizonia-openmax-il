@@ -34,11 +34,11 @@ extern "C"
 {
 #endif
 
-#include "tizservant.h"
-
+#include "tizosal.h"
+  
   extern const void *tizprc;
   extern const void *tizprc_class;
-  void tiz_prc_init (void);
+  OMX_ERRORTYPE tiz_prc_init (void);
 
   OMX_ERRORTYPE tiz_prc_buffers_ready (const void *p_obj);
 

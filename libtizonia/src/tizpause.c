@@ -255,25 +255,27 @@ pause_trans_complete (const void *ap_obj,
 
 const void *tizpause;
 
-void
+OMX_ERRORTYPE
 tiz_pause_init (void)
 {
   if (!tizpause)
     {
-      tiz_state_init ();
-      tizpause =
-        factory_new
-        (tizstate_class, "tizpause",
-         tizstate, sizeof (tiz_pause_t),
-         ctor, pause_ctor,
-         dtor, pause_dtor,
-         tiz_api_SetParameter, pause_SetParameter,
-         tiz_api_GetState, pause_GetState,
-         tiz_api_UseBuffer, pause_UseBuffer,
-         tiz_api_EmptyThisBuffer, pause_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, pause_FillThisBuffer,
-         tiz_state_state_set, pause_state_set,
-         tiz_state_mark, pause_state_mark,
-         tiz_state_trans_complete, pause_trans_complete, 0);
+      tiz_check_omx_err_ret_oom (tiz_state_init ());
+      tiz_check_null_ret_oom
+        (tizpause =
+         factory_new
+         (tizstate_class, "tizpause",
+          tizstate, sizeof (tiz_pause_t),
+          ctor, pause_ctor,
+          dtor, pause_dtor,
+          tiz_api_SetParameter, pause_SetParameter,
+          tiz_api_GetState, pause_GetState,
+          tiz_api_UseBuffer, pause_UseBuffer,
+          tiz_api_EmptyThisBuffer, pause_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, pause_FillThisBuffer,
+          tiz_state_state_set, pause_state_set,
+          tiz_state_mark, pause_state_mark,
+          tiz_state_trans_complete, pause_trans_complete, 0));
     }
+  return OMX_ErrorNone;
 }

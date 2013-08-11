@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizloaded;
 
-  void tiz_loaded_init (void);
+  OMX_ERRORTYPE tiz_loaded_init (void);
 
 #ifdef __cplusplus
 }

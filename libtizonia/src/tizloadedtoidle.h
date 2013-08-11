@@ -38,7 +38,7 @@ extern "C"
 
   extern const void *tizloadedtoidle;
 
-  void tiz_loadedtoidle_init (void);
+  OMX_ERRORTYPE tiz_loadedtoidle_init (void);
 
 #ifdef __cplusplus
 }

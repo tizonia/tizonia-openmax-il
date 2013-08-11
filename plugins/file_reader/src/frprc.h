@@ -34,12 +34,12 @@ extern "C"
 {
 #endif
 
-#include "frprc.h"
+#include "OMX_Core.h"
 
 /* factory_new(frprc, ...) */
   extern const void *frprc;
 
-  void fr_prc_init (void);
+  OMX_ERRORTYPE fr_prc_init (void);
 
 #ifdef __cplusplus
 }

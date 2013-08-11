@@ -36,10 +36,12 @@ extern "C"
 
 #include "arprc.h"
 
+#include "OMX_Core.h"
+  
 /* factory_new(arprc, ...) */
   extern const void *arprc;
 
-  void ar_prc_init (void);
+  OMX_ERRORTYPE ar_prc_init (void);
 
 #ifdef __cplusplus
 }

@@ -189,21 +189,23 @@ fr_cfgport_SetParameter (const void *ap_obj,
 
 const void *frcfgport;
 
-void
+OMX_ERRORTYPE
 fr_cfgport_init (void)
 {
   if (!frcfgport)
     {
-      tiz_configport_init ();
-      frcfgport =
-        factory_new
-        (tizconfigport_class,
-         "frcfgport",
-         tizconfigport,
-         sizeof (fr_cfgport_t),
-         ctor, fr_cfgport_ctor,
-         dtor, fr_cfgport_dtor,
-         tiz_api_GetParameter, fr_cfgport_GetParameter,
-         tiz_api_SetParameter, fr_cfgport_SetParameter, 0);
+      tiz_check_omx_err_ret_oom (tiz_configport_init ());
+      tiz_check_null_ret_oom
+        (frcfgport =
+         factory_new
+         (tizconfigport_class,
+          "frcfgport",
+          tizconfigport,
+          sizeof (fr_cfgport_t),
+          ctor, fr_cfgport_ctor,
+          dtor, fr_cfgport_dtor,
+          tiz_api_GetParameter, fr_cfgport_GetParameter,
+          tiz_api_SetParameter, fr_cfgport_SetParameter, 0));
     }
+  return OMX_ErrorNone;
 }

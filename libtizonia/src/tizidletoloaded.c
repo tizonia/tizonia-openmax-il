@@ -144,25 +144,27 @@ idletoloaded_trans_complete (const void *ap_obj,
 
 const void *tizidletoloaded;
 
-void
+OMX_ERRORTYPE
 tiz_idletoloaded_init (void)
 {
   if (!tizidletoloaded)
     {
-      tiz_idle_init ();
-      tizidletoloaded =
+      tiz_check_omx_err_ret_oom (tiz_idle_init ());
+      tiz_check_null_ret_oom
+        (tizidletoloaded =
         factory_new
-        (tizstate_class, "tizidletoloaded",
-         tizidle, sizeof (tiz_idletoloaded_t),
-         ctor, idletoloaded_ctor,
-         dtor, idletoloaded_dtor,
-         tiz_api_SetParameter, idletoloaded_SetParameter,
-         tiz_api_GetState, idletoloaded_GetState,
-         tiz_api_UseBuffer, idletoloaded_UseBuffer,
-         tiz_api_AllocateBuffer, idletoloaded_AllocateBuffer,
-         tiz_api_FreeBuffer, idletoloaded_FreeBuffer,
-         tiz_api_EmptyThisBuffer, idletoloaded_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, idletoloaded_FillThisBuffer,
-         tiz_state_trans_complete, idletoloaded_trans_complete, 0);
+         (tizstate_class, "tizidletoloaded",
+          tizidle, sizeof (tiz_idletoloaded_t),
+          ctor, idletoloaded_ctor,
+          dtor, idletoloaded_dtor,
+          tiz_api_SetParameter, idletoloaded_SetParameter,
+          tiz_api_GetState, idletoloaded_GetState,
+          tiz_api_UseBuffer, idletoloaded_UseBuffer,
+          tiz_api_AllocateBuffer, idletoloaded_AllocateBuffer,
+          tiz_api_FreeBuffer, idletoloaded_FreeBuffer,
+          tiz_api_EmptyThisBuffer, idletoloaded_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, idletoloaded_FillThisBuffer,
+          tiz_state_trans_complete, idletoloaded_trans_complete, 0));
     }
+  return OMX_ErrorNone;
 }

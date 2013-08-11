@@ -256,24 +256,26 @@ icer_mp3port_SetConfig (const void *ap_obj,
 
 const void *icermp3port;
 
-void
+OMX_ERRORTYPE
 icer_mp3port_init (void)
 {
   if (!icermp3port)
     {
-      tiz_mp3port_init ();
-      icermp3port =
-        factory_new
-        (tizmp3port_class,
-         "icermp3port",
-         tizmp3port,
-         sizeof (icer_mp3port_t),
-         ctor, icer_mp3port_ctor,
-         dtor, icer_mp3port_dtor,
-         tiz_api_GetParameter, icer_mp3port_GetParameter,
-         tiz_api_SetParameter, icer_mp3port_SetParameter,
-         tiz_api_GetConfig, icer_mp3port_GetConfig,
-         tiz_api_SetConfig, icer_mp3port_SetConfig,
-         0);
+      tiz_check_omx_err_ret_oom (tiz_mp3port_init ());
+      tiz_check_null_ret_oom
+        (icermp3port =
+         factory_new
+         (tizmp3port_class,
+          "icermp3port",
+          tizmp3port,
+          sizeof (icer_mp3port_t),
+          ctor, icer_mp3port_ctor,
+          dtor, icer_mp3port_dtor,
+          tiz_api_GetParameter, icer_mp3port_GetParameter,
+          tiz_api_SetParameter, icer_mp3port_SetParameter,
+          tiz_api_GetConfig, icer_mp3port_GetConfig,
+          tiz_api_SetConfig, icer_mp3port_SetConfig,
+          0));
     }
+  return OMX_ErrorNone;
 }

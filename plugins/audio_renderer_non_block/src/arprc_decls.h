@@ -34,10 +34,11 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
 #include "arprc.h"
 #include "tizproc_decls.h"
 #include "tizosal.h"
+
+#include "OMX_Core.h"
 
 #include <stdbool.h>
 #include <alsa/asoundlib.h>

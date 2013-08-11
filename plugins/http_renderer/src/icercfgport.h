@@ -34,14 +34,15 @@ extern "C"
 {
 #endif
 
+#include "tizconfigport.h"
+
 #include "OMX_Core.h"
 #include "OMX_Types.h"
-#include "tizconfigport.h"
 
 /* factory_new(icercfgport, ...); */
   extern const void *icercfgport;
 
-  void icer_cfgport_init (void);
+  OMX_ERRORTYPE icer_cfgport_init (void);
 
 #ifdef __cplusplus
 }

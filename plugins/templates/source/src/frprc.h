@@ -34,7 +34,7 @@ extern "C"
 {
 #endif
 
-#include "frprc.h"
+#include "OMX_Core.h"
 
 /* factory_new(frprc, ...) */
   extern const void *frprc;

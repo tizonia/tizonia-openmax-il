@@ -93,7 +93,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
   mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
-  init_tizmp3port ();
+  tiz_check_omx_err_ret_null (init_tizmp3port ());
   return factory_new (tizmp3port, &mp3_port_opts, &encodings, &mp3type);
 }
 
@@ -145,8 +145,8 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   mute.nVersion.nVersion = OMX_VERSION;
   mute.nPortIndex        = 1;
   mute.bMute             = OMX_FALSE;
-
-  tiz_pcmport_init ();
+  
+  tiz_check_omx_err_ret_null (tiz_pcmport_init ());
   return factory_new (tizpcmport, &pcm_port_opts, &encodings,
                       &pcmmode, &volume, &mute);
 }
@@ -154,7 +154,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_configport_init ();
+  tiz_check_omx_err_ret_null (tiz_configport_init ());
   return factory_new (tizconfigport, NULL,   /* this port does not take options */
                       ARATELIA_FILE_READER_COMPONENT_NAME,
                       file_reader_version);
@@ -163,8 +163,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  /* Instantiate the processor */
-  fr_prc_init ();
+  tiz_check_omx_err_ret_null (fr_prc_init ());
   return factory_new (frprc, ap_hdl);
 }
 
@@ -173,8 +172,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
-
-  assert (NULL != ap_hdl);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_FILE_READER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;

@@ -385,33 +385,36 @@ videoport_class_ctor (void *ap_obj, va_list * app)
 
 const void *tizvideoport, *tizvideoport_class;
 
-void
+OMX_ERRORTYPE
 tiz_videoport_init (void)
 {
   if (!tizvideoport_class)
     {
-      tiz_port_init ();
-      tizvideoport_class = factory_new (tizport_class,
-                                        "tizvideoport_class",
-                                        tizport_class,
-                                        sizeof (tiz_videoport_class_t),
-                                        ctor, videoport_class_ctor, 0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizvideoport_class = factory_new (tizport_class,
+                                           "tizvideoport_class",
+                                           tizport_class,
+                                           sizeof (tiz_videoport_class_t),
+                                           ctor, videoport_class_ctor, 0));
     }
 
   if (!tizvideoport)
     {
-      tiz_port_init ();
-      tizvideoport =
-        factory_new
-        (tizvideoport_class,
-         "tizvideoport",
-         tizport,
-         sizeof (tiz_videoport_t),
-         ctor, videoport_ctor,
-         dtor, videoport_dtor,
-         tiz_api_GetParameter, videoport_GetParameter,
-         tiz_api_SetParameter, videoport_SetParameter,
-         tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
-         0);
+      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_null_ret_oom
+        (tizvideoport =
+         factory_new
+         (tizvideoport_class,
+          "tizvideoport",
+          tizport,
+          sizeof (tiz_videoport_t),
+          ctor, videoport_ctor,
+          dtor, videoport_dtor,
+          tiz_api_GetParameter, videoport_GetParameter,
+          tiz_api_SetParameter, videoport_SetParameter,
+          tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
+          0));
     }
+  return OMX_ErrorNone;
 }

@@ -30,15 +30,15 @@
 #include <config.h>
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include "tizosal.h"
 #include "tizscheduler.h"
 #include "tizvp8port.h"
 #include "tizconfigport.h"
 #include "vp8dprc.h"
+
+#include "OMX_Core.h"
+#include "OMX_Component.h"
+#include "OMX_Types.h"
 
 #include <assert.h>
 #include <string.h>
@@ -58,13 +58,13 @@
 #define ARATELIA_VP8_DECODER_INPUT_PORT_INDEX  0
 #define ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX 1
 
-#define ARATELIA_VP8_DECODER_PORT_MIN_BUF_COUNT 2
+#define ARATELIA_VP8_DECODER_PORT_MIN_BUF_COUNT       2
 /* 38016 = (width * height) + ((width * height)/2) */
-#define ARATELIA_VP8_DECODER_PORT_MIN_INPUT_BUF_SIZE 38016
+#define ARATELIA_VP8_DECODER_PORT_MIN_INPUT_BUF_SIZE  38016
 #define ARATELIA_VP8_DECODER_PORT_MIN_OUTPUT_BUF_SIZE 345600
-#define ARATELIA_VP8_DECODER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_VP8_DECODER_PORT_ALIGNMENT 0
-#define ARATELIA_VP8_DECODER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
+#define ARATELIA_VP8_DECODER_PORT_NONCONTIGUOUS       OMX_FALSE
+#define ARATELIA_VP8_DECODER_PORT_ALIGNMENT           0
+#define ARATELIA_VP8_DECODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE vp8_decoder_version = { {1, 0, 0, 0} };
 
@@ -122,7 +122,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   vp8type.nDCTPartitions      = 0; /* 1 DCP partitiion */
   vp8type.bErrorResilientMode = OMX_FALSE;
 
-  tiz_vp8port_init ();
+  tiz_check_omx_err_ret_null (tiz_vp8port_init ());
   return factory_new (tizvp8port, &vp8_port_opts, &portdef,
                       &encodings, &formats, &vp8type, &levels,
                       NULL  /* OMX_VIDEO_PARAM_BITRATETYPE */);
@@ -166,7 +166,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  tiz_videoport_init ();
+  tiz_check_omx_err_ret_null (tiz_videoport_init ());
   return factory_new (tizvideoport, &rawvideo_port_opts, &portdef,
                       &encodings, &formats);
 }
@@ -174,7 +174,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_configport_init ();
+  tiz_check_omx_err_ret_null (tiz_configport_init ());
   return factory_new (tizconfigport, NULL,   /* this port does not take options */
                       ARATELIA_VP8_DECODER_COMPONENT_NAME,
                       vp8_decoder_version);
@@ -183,8 +183,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  /* Instantiate the processor */
-  vp8d_prc_init ();
+  tiz_check_omx_err_ret_null (vp8d_prc_init ());
   return factory_new (vp8dprc, ap_hdl);
 }
 
@@ -193,8 +192,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
-
-  assert (ap_hdl);
 
   TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_VP8_DECODER_COMPONENT_NAME);

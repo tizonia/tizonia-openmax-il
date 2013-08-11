@@ -34,16 +34,16 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-
-#include "tizosalpqueue.h"
 #include "tizapi.h"
 #include "tizscheduler.h"
 
+#include "OMX_Core.h"
+#include "OMX_Types.h"
+
+
   extern const void *tizsrv;
   extern const void *tizsrv_class;
-  void tiz_srv_init (void);
+  OMX_ERRORTYPE tiz_srv_init (void);
 
   OMX_ERRORTYPE tiz_srv_set_allocator (void *ap_obj, tiz_soa_t * p_soa);
 

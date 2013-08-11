@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "tizvp8port.h"
 #include "tizvp8port_decls.h"
 
 #include "tizutils.h"
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -486,25 +486,27 @@ vp8port_check_tunnel_compat (const void *ap_obj,
 
 const void *tizvp8port;
 
-void
+OMX_ERRORTYPE
 tiz_vp8port_init (void)
 {
   if (!tizvp8port)
     {
-      tiz_videoport_init ();
-      tizvp8port =
-        factory_new
-        (tizvideoport_class,
-         "tizvp8port",
-         tizvideoport,
-         sizeof (tiz_vp8port_t),
-         ctor, vp8port_ctor,
-         dtor, vp8port_dtor,
-         tiz_api_GetParameter, vp8port_GetParameter,
-         tiz_api_SetParameter, vp8port_SetParameter,
-         tiz_api_GetConfig, vp8port_GetConfig,
-         tiz_api_SetConfig, vp8port_SetConfig,
-         tiz_port_set_portdef_format, vp8port_set_portdef_format,
-         tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat, 0);
+      tiz_check_omx_err_ret_oom (tiz_videoport_init ());
+      tiz_check_null_ret_oom
+        (tizvp8port =
+         factory_new
+         (tizvideoport_class,
+          "tizvp8port",
+          tizvideoport,
+          sizeof (tiz_vp8port_t),
+          ctor, vp8port_ctor,
+          dtor, vp8port_dtor,
+          tiz_api_GetParameter, vp8port_GetParameter,
+          tiz_api_SetParameter, vp8port_SetParameter,
+          tiz_api_GetConfig, vp8port_GetConfig,
+          tiz_api_SetConfig, vp8port_SetConfig,
+          tiz_port_set_portdef_format, vp8port_set_portdef_format,
+          tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat, 0));
     }
+  return OMX_ErrorNone;
 }

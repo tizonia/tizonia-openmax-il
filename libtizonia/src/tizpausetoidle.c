@@ -143,22 +143,24 @@ pausetoidle_tunneled_ports_status_update (void *ap_obj)
 
 const void *tizpausetoidle;
 
-void
+OMX_ERRORTYPE
 tiz_pausetoidle_init (void)
 {
   if (!tizpausetoidle)
     {
-      tiz_pause_init ();
-      tizpausetoidle = 
-        factory_new
-        (tizstate_class, "tizpausetoidle",
-         tizpause, sizeof (tiz_pausetoidle_t),
-         ctor, pausetoidle_ctor,
-         dtor, pausetoidle_dtor,
-         tiz_api_GetState, pausetoidle_GetState,
-         tiz_api_UseBuffer, pausetoidle_UseBuffer,
-         tiz_state_trans_complete, pausetoidle_trans_complete,
-         tiz_state_tunneled_ports_status_update, pausetoidle_tunneled_ports_status_update,
-         0);
+      tiz_check_omx_err_ret_oom (tiz_pause_init ());
+      tiz_check_null_ret_oom
+        (tizpausetoidle = 
+         factory_new
+         (tizstate_class, "tizpausetoidle",
+          tizpause, sizeof (tiz_pausetoidle_t),
+          ctor, pausetoidle_ctor,
+          dtor, pausetoidle_dtor,
+          tiz_api_GetState, pausetoidle_GetState,
+          tiz_api_UseBuffer, pausetoidle_UseBuffer,
+          tiz_state_trans_complete, pausetoidle_trans_complete,
+          tiz_state_tunneled_ports_status_update, pausetoidle_tunneled_ports_status_update,
+          0));
     }
+  return OMX_ErrorNone;
 }

@@ -121,25 +121,27 @@ fr_prc_buffers_ready (const void *ap_obj)
 
 const void *frprc;
 
-void
+OMX_ERRORTYPE
 fr_prc_init (void)
 {
   if (!frprc)
     {
-      tiz_prc_init ();
-      frprc =
-        factory_new
-        (tizprc_class,
-         "frprc",
-         tizprc,
-         sizeof (fr_prc_t),
-         ctor, fr_prc_ctor,
-         dtor, fr_prc_dtor,
-         tiz_prc_buffers_ready, fr_prc_buffers_ready,
-         tiz_srv_allocate_resources, fr_prc_allocate_resources,
-         tiz_srv_deallocate_resources, fr_prc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, fr_prc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, fr_prc_transfer_and_process,
-         tiz_srv_stop_and_return, fr_prc_stop_and_return, 0);
+      tiz_check_omx_err_ret_ (tiz_prc_init ());
+      tiz_check_null_ret_oom
+        (frprc =
+         factory_new
+         (tizprc_class,
+          "frprc",
+          tizprc,
+          sizeof (fr_prc_t),
+          ctor, fr_prc_ctor,
+          dtor, fr_prc_dtor,
+          tiz_prc_buffers_ready, fr_prc_buffers_ready,
+          tiz_srv_allocate_resources, fr_prc_allocate_resources,
+          tiz_srv_deallocate_resources, fr_prc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, fr_prc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, fr_prc_transfer_and_process,
+          tiz_srv_stop_and_return, fr_prc_stop_and_return, 0));
     }
+  return OMX_ErrorNone;
 }

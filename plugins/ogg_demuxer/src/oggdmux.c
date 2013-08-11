@@ -77,7 +77,7 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_binaryport_init ();
+  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
   return factory_new (tizbinaryport, &port_opts);
 }
 
@@ -96,14 +96,14 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_binaryport_init ();
+  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
   return factory_new (tizbinaryport, &port_opts);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_configport_init ();
+  tiz_check_omx_err_ret_null (tiz_configport_init ());
   return factory_new (tizconfigport, NULL,   /* this port does not take options */
                       ARATELIA_OGG_DEMUXER_COMPONENT_NAME,
                       ogg_demuxer_version);
@@ -112,8 +112,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  /* Instantiate the processor */
-  oggdmux_prc_init ();
+  tiz_check_omx_err_ret_null (oggdmux_prc_init ());
   return factory_new (oggdmuxprc, ap_hdl);
 }
 
@@ -122,8 +121,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
-
-  assert (NULL != ap_hdl);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_OGG_DEMUXER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;

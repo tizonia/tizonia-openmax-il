@@ -607,26 +607,28 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
 const void *tizpcmport;
 
-void
+OMX_ERRORTYPE
 tiz_pcmport_init (void)
 {
   if (!tizpcmport)
     {
-      tiz_audioport_init ();
-      tizpcmport =
-        factory_new
-        (tizaudioport_class,
-         "tizpcmport",
-         tizaudioport,
-         sizeof (tiz_pcmport_t),
-         ctor, pcmport_ctor,
-         dtor, pcmport_dtor,
-         tiz_api_GetParameter, pcmport_GetParameter,
-         tiz_api_SetParameter, pcmport_SetParameter,
-         tiz_api_GetConfig, pcmport_GetConfig,
-         tiz_api_SetConfig, pcmport_SetConfig,
-         tiz_port_set_portdef_format, pcmport_set_portdef_format,
-         tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
-         tiz_port_apply_slaving_behaviour, pcmport_apply_slaving_behaviour, 0);
+      tiz_check_omx_err_ret_oom (tiz_audioport_init ());
+      tiz_check_null_ret_oom
+        (tizpcmport =
+         factory_new
+         (tizaudioport_class,
+          "tizpcmport",
+          tizaudioport,
+          sizeof (tiz_pcmport_t),
+          ctor, pcmport_ctor,
+          dtor, pcmport_dtor,
+          tiz_api_GetParameter, pcmport_GetParameter,
+          tiz_api_SetParameter, pcmport_SetParameter,
+          tiz_api_GetConfig, pcmport_GetConfig,
+          tiz_api_SetConfig, pcmport_SetConfig,
+          tiz_port_set_portdef_format, pcmport_set_portdef_format,
+          tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
+          tiz_port_apply_slaving_behaviour, pcmport_apply_slaving_behaviour, 0));
     }
+  return OMX_ErrorNone;
 }

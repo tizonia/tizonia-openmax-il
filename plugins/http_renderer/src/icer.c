@@ -30,15 +30,15 @@
 #include <config.h>
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include "tizosal.h"
 #include "tizscheduler.h"
 #include "icermp3port.h"
 #include "icercfgport.h"
 #include "icerprc.h"
+
+#include "OMX_Core.h"
+#include "OMX_Component.h"
+#include "OMX_Types.h"
 
 #include <assert.h>
 #include <string.h>
@@ -48,21 +48,20 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer"
 #endif
 
-#define ARATELIA_HTTP_RENDERER_DEFAULT_ROLE "ice_renderer.http"
-#define ARATELIA_HTTP_RENDERER_COMPONENT_NAME "OMX.Aratelia.ice_renderer.http"
-#define ARATELIA_HTTP_RENDERER_PORT_INDEX 0 /* With libtizonia, port indexes must start at index 0 */
+#define ARATELIA_HTTP_RENDERER_DEFAULT_ROLE       "ice_renderer.http"
+#define ARATELIA_HTTP_RENDERER_COMPONENT_NAME     "OMX.Aratelia.ice_renderer.http"
+#define ARATELIA_HTTP_RENDERER_PORT_INDEX         0 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_SIZE (8*1024)
+#define ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_SIZE  (8*1024)
 #define ARATELIA_HTTP_RENDERER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_HTTP_RENDERER_PORT_ALIGNMENT 0
-#define ARATELIA_HTTP_RENDERER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
+#define ARATELIA_HTTP_RENDERER_PORT_ALIGNMENT     0
+#define ARATELIA_HTTP_RENDERER_PORT_SUPPLIERPREF  OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE http_renderer_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
 instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_mp3port = NULL;
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
   OMX_AUDIO_CODINGTYPE encodings[] = {
     OMX_AUDIO_CodingMP3,
@@ -90,18 +89,14 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
   mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
   mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
-  icer_mp3port_init ();
-  p_mp3port = factory_new (icermp3port, &mp3_port_opts, &encodings, &mp3type);
-  assert (p_mp3port);
-
-  return p_mp3port;
+  tiz_check_omx_err_ret_null (icer_mp3port_init ());
+  return factory_new (icermp3port, &mp3_port_opts, &encodings, &mp3type);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  /* Instantiate the config port */
-  icer_cfgport_init ();
+  tiz_check_omx_err_ret_null (icer_cfgport_init ());
   return factory_new (icercfgport, NULL,     /* this port does not take options */
                       ARATELIA_HTTP_RENDERER_COMPONENT_NAME,
                       http_renderer_version);
@@ -110,8 +105,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  /* Instantiate the processor */
-  icer_prc_init ();
+  tiz_check_omx_err_ret_null (icer_prc_init ());
   return factory_new (icerprc, ap_hdl);
 }
 
@@ -120,8 +114,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
-
-  assert (ap_hdl);
 
   TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_HTTP_RENDERER_COMPONENT_NAME);

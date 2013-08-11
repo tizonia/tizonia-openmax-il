@@ -39,7 +39,7 @@ extern "C"
 /* factory_new(icerprc, ...) */
   extern const void *icerprc;
 
-  void icer_prc_init (void);
+  OMX_ERRORTYPE icer_prc_init (void);
 
 #ifdef __cplusplus
 }

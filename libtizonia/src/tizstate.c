@@ -528,108 +528,110 @@ state_class_ctor (void *ap_obj, va_list * app)
 const void *tizstate, *tizstate_class;
 
 
-void
+OMX_ERRORTYPE
 tiz_state_init (void)
 {
   if (!tizstate_class)
     {
-      tiz_api_init ();
-      tizstate_class = factory_new (tizapi_class,
-                                    "tizstate_class",
-                                    tizapi_class,
-                                    sizeof (tiz_state_class_t),
-                                    ctor, state_class_ctor, 0);
+      tiz_check_omx_err_ret_oom (tiz_api_init ());
+      tiz_check_null_ret_oom
+        (tizstate_class = factory_new (tizapi_class,
+                                       "tizstate_class",
+                                       tizapi_class,
+                                       sizeof (tiz_state_class_t),
+                                       ctor, state_class_ctor, 0));
 
     }
 
   if (!tizstate)
     {
-      tiz_api_init ();
-      tizstate =
-        factory_new
-        (tizstate_class, "tizstate",
-         tizapi, sizeof (tiz_state_t),
-         ctor, state_ctor,
-         dtor, state_dtor,
-         tiz_api_SendCommand, state_SendCommand,
-         tiz_api_SetParameter, state_SetParameter,
-         tiz_api_SetConfig, state_SetConfig,
-         tiz_api_GetState, state_GetState,
-         tiz_api_ComponentTunnelRequest, state_ComponentTunnelRequest,
-         tiz_api_UseBuffer, state_UseBuffer,
-         tiz_api_AllocateBuffer, state_AllocateBuffer,
-         tiz_api_FreeBuffer, state_FreeBuffer,
-         tiz_api_EmptyThisBuffer, state_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, state_FillThisBuffer,
-         tiz_api_SetCallbacks, state_SetCallbacks,
-         tiz_state_state_set, state_state_set,
-         tiz_state_flush, state_flush,
-         tiz_state_disable, state_disable,
-         tiz_state_enable, state_enable,
-         tiz_state_mark, state_mark,
-         tiz_state_trans_complete, state_trans_complete,
-         tiz_state_tunneled_ports_status_update,
-         state_tunneled_ports_status_update, 0);
+      tiz_check_omx_err_ret_oom (tiz_api_init ());
+      tiz_check_null_ret_oom
+        (tizstate =
+         factory_new
+         (tizstate_class, "tizstate",
+          tizapi, sizeof (tiz_state_t),
+          ctor, state_ctor,
+          dtor, state_dtor,
+          tiz_api_SendCommand, state_SendCommand,
+          tiz_api_SetParameter, state_SetParameter,
+          tiz_api_SetConfig, state_SetConfig,
+          tiz_api_GetState, state_GetState,
+          tiz_api_ComponentTunnelRequest, state_ComponentTunnelRequest,
+          tiz_api_UseBuffer, state_UseBuffer,
+          tiz_api_AllocateBuffer, state_AllocateBuffer,
+          tiz_api_FreeBuffer, state_FreeBuffer,
+          tiz_api_EmptyThisBuffer, state_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, state_FillThisBuffer,
+          tiz_api_SetCallbacks, state_SetCallbacks,
+          tiz_state_state_set, state_state_set,
+          tiz_state_flush, state_flush,
+          tiz_state_disable, state_disable,
+          tiz_state_enable, state_enable,
+          tiz_state_mark, state_mark,
+          tiz_state_trans_complete, state_trans_complete,
+          tiz_state_tunneled_ports_status_update,
+          state_tunneled_ports_status_update, 0));
     }
-
+  return OMX_ErrorNone;
 }
 
-void
+OMX_ERRORTYPE
 tiz_state_init_states (void)
 {
   if (!tizstate)
     {
-      tiz_state_init ();
+      tiz_check_omx_err_ret_oom (tiz_state_init ());
     }
 
   if (!tizloaded)
     {
-      tiz_loaded_init ();
+      tiz_check_omx_err_ret_oom (tiz_loaded_init ());
     }
 
   if (!tizloadedtoidle)
     {
-      tiz_loadedtoidle_init ();
+      tiz_check_omx_err_ret_oom (tiz_loadedtoidle_init ());
     }
 
   if (!tizwaitforresources)
     {
-      tiz_waitforresources_init ();
+      tiz_check_omx_err_ret_oom (tiz_waitforresources_init ());
     }
 
   if (!tizidle)
     {
-      tiz_idle_init ();
+      tiz_check_omx_err_ret_oom (tiz_idle_init ());
     }
 
   if (!tizidletoloaded)
     {
-      tiz_idletoloaded_init ();
+      tiz_check_omx_err_ret_oom (tiz_idletoloaded_init ());
     }
 
   if (!tizidletoexecuting)
     {
-      tiz_idletoexecuting_init ();
+      tiz_check_omx_err_ret_oom (tiz_idletoexecuting_init ());
     }
 
   if (!tizexecuting)
     {
-      tiz_executing_init ();
+      tiz_check_omx_err_ret_oom (tiz_executing_init ());
     }
 
   if (!tizexecutingtoidle)
     {
-      tiz_executingtoidle_init ();
+      tiz_check_omx_err_ret_oom (tiz_executingtoidle_init ());
     }
 
   if (!tizpause)
     {
-      tiz_pause_init ();
+      tiz_check_omx_err_ret_oom (tiz_pause_init ());
     }
 
   if (!tizpausetoidle)
     {
-      tiz_pausetoidle_init ();
+      tiz_check_omx_err_ret_oom (tiz_pausetoidle_init ());
     }
-
+  return OMX_ErrorNone;
 }

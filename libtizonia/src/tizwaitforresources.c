@@ -202,26 +202,26 @@ waitforresources_trans_complete (const void *ap_obj,
 
 const void *tizwaitforresources;
 
-void
+OMX_ERRORTYPE
 tiz_waitforresources_init (void)
 {
-
   if (!tizwaitforresources)
     {
-      tiz_state_init ();
-      tizwaitforresources =
-        factory_new
-        (tizstate_class, "tizwaitforresources",
-         tizstate, sizeof (tiz_waitforresources_t),
-         ctor, waitforresources_ctor,
-         dtor, waitforresources_dtor,
-         tiz_api_SetParameter, waitforresources_SetParameter,
-         tiz_api_GetState, waitforresources_GetState,
-         tiz_api_UseBuffer, waitforresources_UseBuffer,
-         tiz_api_EmptyThisBuffer, waitforresources_EmptyThisBuffer,
-         tiz_api_FillThisBuffer, waitforresources_FillThisBuffer,
-         tiz_state_state_set, waitforresources_state_set,
-         tiz_state_trans_complete, waitforresources_trans_complete, 0);
+      tiz_check_omx_err_ret_oom (tiz_state_init ());
+      tiz_check_null_ret_oom
+        (tizwaitforresources =
+         factory_new
+         (tizstate_class, "tizwaitforresources",
+          tizstate, sizeof (tiz_waitforresources_t),
+          ctor, waitforresources_ctor,
+          dtor, waitforresources_dtor,
+          tiz_api_SetParameter, waitforresources_SetParameter,
+          tiz_api_GetState, waitforresources_GetState,
+          tiz_api_UseBuffer, waitforresources_UseBuffer,
+          tiz_api_EmptyThisBuffer, waitforresources_EmptyThisBuffer,
+          tiz_api_FillThisBuffer, waitforresources_FillThisBuffer,
+          tiz_state_state_set, waitforresources_state_set,
+          tiz_state_trans_complete, waitforresources_trans_complete, 0));
     }
-
+  return OMX_ErrorNone;
 }

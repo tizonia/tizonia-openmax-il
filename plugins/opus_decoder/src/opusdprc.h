@@ -36,10 +36,12 @@ extern "C"
 
 #include "opusdprc.h"
 
+#include <OMX_Core.h>
+
 /* factory_new(opusdprc, ...) */
   extern const void *opusdprc;
 
-  void opusd_prc_init (void);
+  OMX_ERRORTYPE opusd_prc_init (void);
 
 #ifdef __cplusplus
 }

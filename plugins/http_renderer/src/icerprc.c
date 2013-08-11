@@ -498,30 +498,32 @@ icer_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
 
 const void *icerprc;
 
-void
+OMX_ERRORTYPE
 icer_prc_init (void)
 {
   if (!icerprc)
     {
-      tiz_prc_init ();
-      icerprc =
-        factory_new
-        (tizprc_class,
-         "icerprc",
-         tizprc,
-         sizeof (icer_prc_t),
-         ctor, icer_prc_ctor,
-         dtor, icer_prc_dtor,
-         tiz_srv_allocate_resources, icer_prc_allocate_resources,
-         tiz_srv_deallocate_resources, icer_prc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, icer_prc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, icer_prc_transfer_and_process,
-         tiz_srv_stop_and_return, icer_prc_stop_and_return,
-         tiz_prc_buffers_ready, icer_prc_buffers_ready,
-         tiz_prc_port_enable, icer_prc_port_enable,
-         tiz_prc_port_disable, icer_prc_port_disable,
-         tiz_prc_config_change, icer_prc_config_change,
-         tiz_prc_io_ready, icer_prc_io_ready,
-         tiz_prc_timer_ready, icer_prc_timer_ready, 0);
+      tiz_check_omx_err_ret_oom (tiz_prc_init ());
+      tiz_check_null_ret_oom
+        (icerprc =
+         factory_new
+         (tizprc_class,
+          "icerprc",
+          tizprc,
+          sizeof (icer_prc_t),
+          ctor, icer_prc_ctor,
+          dtor, icer_prc_dtor,
+          tiz_srv_allocate_resources, icer_prc_allocate_resources,
+          tiz_srv_deallocate_resources, icer_prc_deallocate_resources,
+          tiz_srv_prepare_to_transfer, icer_prc_prepare_to_transfer,
+          tiz_srv_transfer_and_process, icer_prc_transfer_and_process,
+          tiz_srv_stop_and_return, icer_prc_stop_and_return,
+          tiz_prc_buffers_ready, icer_prc_buffers_ready,
+          tiz_prc_port_enable, icer_prc_port_enable,
+          tiz_prc_port_disable, icer_prc_port_disable,
+          tiz_prc_config_change, icer_prc_config_change,
+          tiz_prc_io_ready, icer_prc_io_ready,
+          tiz_prc_timer_ready, icer_prc_timer_ready, 0));
     }
+  return OMX_ErrorNone;
 }
