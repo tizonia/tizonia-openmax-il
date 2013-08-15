@@ -102,7 +102,7 @@ fr_prc_stop_and_return (void *ap_obj)
 }
 
 /*
- * from tizproc class
+ * from tizprc class
  */
 
 static OMX_ERRORTYPE

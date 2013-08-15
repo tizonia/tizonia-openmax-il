@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizproc_decls.h
+ * @file   tizprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia OpenMAX IL - processor class declarations
@@ -26,15 +26,15 @@
  *
  */
 
-#ifndef TIZPROC_DECLS_H
-#define TIZPROC_DECLS_H
+#ifndef TIZPRC_DECLS_H
+#define TIZPRC_DECLS_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "tizproc.h"
+#include "tizprc.h"
 #include "tizservant_decls.h"
 
 #include "OMX_Core.h"
@@ -77,4 +77,4 @@ extern "C"
 }
 #endif
 
-#endif                          /* TIZPROC_DECLS_H */
+#endif                          /* TIZPRC_DECLS_H */

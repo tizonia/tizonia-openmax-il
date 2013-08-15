@@ -35,7 +35,7 @@ extern "C"
 #endif
 
 #include "arprc.h"
-#include "tizproc_decls.h"
+#include "tizprc_decls.h"
 #include "tizosal.h"
 
 #include "OMX_Core.h"

@@ -35,7 +35,7 @@ extern "C"
 #endif
 #include "OMX_Core.h"
 #include "vp8eprc.h"
-#include "tizproc_decls.h"
+#include "tizprc_decls.h"
 
 #include <stdbool.h>
 

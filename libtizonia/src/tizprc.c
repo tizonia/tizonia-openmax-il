@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizproc.c
+ * @file   tizprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia OpenMAX IL - processor class implementation
@@ -30,19 +30,19 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
+#include "tizprc.h"
+#include "tizprc_decls.h"
 #include "tizscheduler.h"
 #include "tizport.h"
 #include "tizport-macros.h"
 #include "tizkernel.h"
-#include "tizproc.h"
-#include "tizproc_decls.h"
 #include "tizutils.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.proc"
+#define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.prc"
 #endif
 
 /* Forward declarations */
@@ -673,24 +673,21 @@ static OMX_ERRORTYPE
 prc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 {
   const tiz_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
   tiz_prc_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "Processing [%s]...", tiz_prc_msg_to_str (p_msg->class));
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "Processing [%s]...", tiz_prc_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZPrcMsgMax);
 
   rc = tiz_prc_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) ap_obj, p_msg);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "rc [%s]...", tiz_err_to_str (rc));
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "rc [%s]...",
+            tiz_err_to_str (rc));
 
   return rc;
 }

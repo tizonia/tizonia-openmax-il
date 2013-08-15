@@ -34,7 +34,7 @@ extern "C"
 {
 #endif
 
-#include "tizproc.h"
+#include "tizprc.h"
 
 /* factory_new(tiztcproc, ...) */
   extern const void *tiztcproc;

@@ -35,7 +35,7 @@
 #include "tizutils.h"
 #include "tizfsm.h"
 #include "tizkernel.h"
-#include "tizproc.h"
+#include "tizprc.h"
 #include "tizport.h"
 #include "OMX_TizoniaExt.h"
 

@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizproc.h
+ * @file   tizprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia OpenMAX IL - processor class
@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZPROC_H
-#define TIZPROC_H
+#ifndef TIZPRC_H
+#define TIZPRC_H
 
 #ifdef __cplusplus
 extern "C"
@@ -72,4 +72,4 @@ extern "C"
 }
 #endif
 
-#endif                          /* TIZPROC_H */
+#endif                          /* TIZPRC_H */

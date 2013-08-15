@@ -37,7 +37,7 @@ extern "C"
 #include "OMX_Core.h"
 
 #include "tiztcproc.h"
-#include "tizproc_decls.h"
+#include "tizprc_decls.h"
 
   struct tiztcproc
   {

@@ -35,7 +35,7 @@ extern "C"
 #endif
 
 #include "icerprc.h"
-#include "tizproc_decls.h"
+#include "tizprc_decls.h"
 #include "icernet.h"
 #include "tizosal.h"
 

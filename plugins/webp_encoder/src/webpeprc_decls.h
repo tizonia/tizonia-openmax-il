@@ -34,12 +34,12 @@ extern "C"
 {
 #endif
 
-#include <stdbool.h>
+#include "webpeprc.h"
+#include "tizprc_decls.h"
 
 #include "OMX_Core.h"
 
-#include "webpeprc.h"
-#include "tizproc_decls.h"
+#include <stdbool.h>
 
   struct webpeprc
   {

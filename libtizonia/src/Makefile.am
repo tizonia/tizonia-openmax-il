@@ -54,8 +54,8 @@ libtizonia_include_HEADERS = \
 	tizport_decls.h \
 	tizport.h \
 	tizport-macros.h \
-	tizproc_decls.h \
-	tizproc.h \
+	tizprc_decls.h \
+	tizprc.h \
 	tizscheduler.h \
 	tizservant_decls.h \
 	tizservant.h \
@@ -100,7 +100,7 @@ libtizonia_la_SOURCES = \
 	tizotherport.c \
 	tizbinaryport.c \
 	tizpcmport.c \
-	tizproc.c \
+	tizprc.c \
 	tizutils.c \
 	tizmp3port.c \
 	tizopusport.c \
