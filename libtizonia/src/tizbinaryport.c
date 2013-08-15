@@ -76,7 +76,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
         };
         tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat);
         tiz_check_omx_err_ret_null (tiz_audioport_init ());
-        p_obj->ip_port = factory_new (tizaudioport, p_opts, &encodings);
+        p_obj->ip_port = factory_new (tizaudioport, tiz_api_get_hdl (ap_obj),
+                                      p_opts, &encodings);
       }
       break;
 
@@ -108,7 +109,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
 
         tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat);
         tiz_check_omx_err_ret_null (tiz_videoport_init ());
-        p_obj->ip_port = factory_new (tizvideoport, p_opts, &portdef,
+        p_obj->ip_port = factory_new (tizvideoport, tiz_api_get_hdl (ap_obj),
+                                      p_opts, &portdef,
                                       &encodings, &formats);
       }
       break;
@@ -139,7 +141,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
 
         tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat);
         tiz_check_omx_err_ret_null (tiz_imageport_init ());
-        p_obj->ip_port = factory_new (tizimageport, p_opts, &portdef,
+        p_obj->ip_port = factory_new (tizimageport, tiz_api_get_hdl (ap_obj),
+                                      p_opts, &portdef,
                                       &encodings, &formats);
       }
       break;
@@ -153,7 +156,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
 
         tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat);
         tiz_check_omx_err_ret_null (tiz_otherport_init ());
-        p_obj->ip_port = factory_new (tizotherport, p_opts, &formats);
+        p_obj->ip_port = factory_new (tizotherport, tiz_api_get_hdl (ap_obj),
+                                      p_opts, &formats);
       }
       break;
 

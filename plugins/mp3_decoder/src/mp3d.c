@@ -97,7 +97,7 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
   mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
   tiz_check_omx_err_ret_null (tiz_mp3port_init ());
-  return factory_new (tizmp3port, &mp3_port_opts, &encodings, &mp3type);
+  return factory_new (tizmp3port, ap_hdl, &mp3_port_opts, &encodings, &mp3type);
 }
 
 static OMX_PTR
@@ -151,7 +151,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.bMute = OMX_FALSE;
 
   tiz_check_omx_err_ret_null (tiz_pcmport_init ());
-  return factory_new (tizpcmport, &pcm_port_opts, &encodings,
+  return factory_new (tizpcmport, ap_hdl, &pcm_port_opts, &encodings,
                       &pcmmode, &volume, &mute);
 }
 
@@ -159,7 +159,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, NULL,   /* this port does not take options */
+  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
                       ARATELIA_MP3_DECODER_COMPONENT_NAME,
                       mp3_decoder_version);
 }

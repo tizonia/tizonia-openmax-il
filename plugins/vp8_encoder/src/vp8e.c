@@ -104,7 +104,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.pNativeWindow         = NULL;
 
   tiz_check_omx_err_ret_null (tiz_videoport_init ());
-  return factory_new (tizvideoport, &rawvideo_port_opts, &portdef,
+  return factory_new (tizvideoport, ap_hdl, &rawvideo_port_opts, &portdef,
                       &encodings, &formats);
 }
 
@@ -171,7 +171,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   pbrtype.nTargetBitrate    = 64000;
 
   tiz_check_omx_err_ret_null (tiz_vp8port_init ());
-  return factory_new (tizvp8port, &vp8_port_opts, &portdef, &encodings,
+  return factory_new (tizvp8port, ap_hdl, &vp8_port_opts, &portdef, &encodings,
                       &formats, &vp8type, &levels, &pbrtype);
 }
 
@@ -179,7 +179,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, NULL,   /* this port does not take options */
+  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
                       ARATELIA_VP8_ENCODER_COMPONENT_NAME,
                       vp8_encoder_version);
 }

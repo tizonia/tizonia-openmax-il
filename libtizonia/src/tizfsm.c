@@ -504,21 +504,26 @@ fsm_ctor (void *ap_obj, va_list * app)
     }
 
   /* Add the standard states... */
-  p_obj->p_states_[EStateLoaded] = factory_new (tizloaded, p_obj);
-  p_obj->p_states_[EStateIdle] = factory_new (tizidle, p_obj);
-  p_obj->p_states_[EStateExecuting] = factory_new (tizexecuting, p_obj);
-  p_obj->p_states_[EStatePause] = factory_new (tizpause, p_obj);
-  p_obj->p_states_[EStateWaitForResources] =
-    factory_new (tizwaitforresources, p_obj);
-  p_obj->p_states_[ESubStateLoadedToIdle] =
-    factory_new (tizloadedtoidle, p_obj);
-  p_obj->p_states_[ESubStateIdleToLoaded] =
-    factory_new (tizidletoloaded, p_obj);
-  p_obj->p_states_[ESubStateIdleToExecuting] =
-    factory_new (tizidletoexecuting, p_obj);
-  p_obj->p_states_[ESubStateExecutingToIdle] =
-    factory_new (tizexecutingtoidle, p_obj);
-  p_obj->p_states_[ESubStatePauseToIdle] = factory_new (tizpausetoidle, p_obj);
+  p_obj->p_states_[EStateLoaded]
+    = factory_new (tizloaded, tiz_api_get_hdl (ap_obj), p_obj);
+  p_obj->p_states_[EStateIdle]
+    = factory_new (tizidle, tiz_api_get_hdl (ap_obj), p_obj);
+  p_obj->p_states_[EStateExecuting]
+    = factory_new (tizexecuting, tiz_api_get_hdl (ap_obj), p_obj);
+  p_obj->p_states_[EStatePause]
+    = factory_new (tizpause, tiz_api_get_hdl (ap_obj), p_obj);
+  p_obj->p_states_[EStateWaitForResources]
+    = factory_new (tizwaitforresources, tiz_api_get_hdl (ap_obj), p_obj);
+  p_obj->p_states_[ESubStateLoadedToIdle]
+    = factory_new (tizloadedtoidle, tiz_api_get_hdl (ap_obj), p_obj);
+  p_obj->p_states_[ESubStateIdleToLoaded]
+    = factory_new (tizidletoloaded, tiz_api_get_hdl (ap_obj), p_obj);
+  p_obj->p_states_[ESubStateIdleToExecuting]
+    = factory_new (tizidletoexecuting, tiz_api_get_hdl (ap_obj), p_obj);
+  p_obj->p_states_[ESubStateExecutingToIdle]
+    = factory_new (tizexecutingtoidle, tiz_api_get_hdl (ap_obj), p_obj);
+  p_obj->p_states_[ESubStatePauseToIdle]
+    = factory_new (tizpausetoidle, tiz_api_get_hdl (ap_obj), p_obj);
 
   p_obj->cur_state_id_ = EStateLoaded;
   p_obj->canceled_substate_id_ = EStateMax;
@@ -906,7 +911,7 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  p_hdl = tiz_srv_get_hdl (p_obj);
+  p_hdl = tiz_api_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
   TIZ_LOGN (TIZ_TRACE, p_hdl, "Processing [%s]...",
@@ -956,7 +961,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
 
   assert (NULL != ap_obj);
 
-  p_hdl = tiz_srv_get_hdl (p_obj);
+  p_hdl = tiz_api_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
   p_prc = tiz_get_prc (p_hdl);
@@ -1047,7 +1052,7 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
   assert (NULL != p_obj);
   assert (NULL != p_servant);
 
-  p_hdl = tiz_srv_get_hdl (p_obj);
+  p_hdl = tiz_api_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
   TIZ_LOGN (TIZ_TRACE, p_hdl, "Servant [%s] notifies transition complete "
@@ -1110,7 +1115,7 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
   assert (NULL != p_obj);
   assert (NULL != p_servant);
 
-  p_hdl = tiz_srv_get_hdl (p_obj);
+  p_hdl = tiz_api_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
   TIZ_LOGN (TIZ_TRACE, p_hdl, "Servant [%s] notifies cmd complete (cmd [%s]) "

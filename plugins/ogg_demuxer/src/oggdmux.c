@@ -78,7 +78,7 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
   };
 
   tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, &port_opts);
+  return factory_new (tizbinaryport, ap_hdl, &port_opts);
 }
 
 static OMX_PTR
@@ -97,14 +97,14 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
   };
 
   tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, &port_opts);
+  return factory_new (tizbinaryport, ap_hdl, &port_opts);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, NULL,   /* this port does not take options */
+  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
                       ARATELIA_OGG_DEMUXER_COMPONENT_NAME,
                       ogg_demuxer_version);
 }

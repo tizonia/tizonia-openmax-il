@@ -49,15 +49,10 @@ static OMX_ERRORTYPE
 sdlivr_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
   const sdlivr_prc_t *p_obj = ap_obj;
-  (void) p_obj;
-
-/*   TIZ_LOG (TIZ_TRACE, */
-/*            "Rendering HEADER [%p]...nFilledLen[%d] !!!", p_hdr, */
-/*            p_hdr->nFilledLen); */
 
   if (p_obj->p_overlay)
     {
-      //AVPicture pict;
+      /* AVPicture pict; */
       SDL_Rect rect;
       uint8_t *y;
       uint8_t *u;
@@ -65,11 +60,11 @@ sdlivr_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
       unsigned int bytes;
       int pitch0, pitch1;
 
-      //align pitch on 16-pixel boundary.
+      /* align pitch on 16-pixel boundary. */
       pitch0 = (p_obj->vportdef_.nFrameWidth + 15) & ~15;
       pitch1 = pitch0 / 2;
 
-      //FIXME: hard-coded to be YUV420 plannar
+      /* hard-coded to be YUV420 plannar */
       y = p_hdr->pBuffer;
       u = y + pitch0 * p_obj->vportdef_.nFrameHeight;
       v = u + pitch1 * p_obj->vportdef_.nFrameHeight / 2;
@@ -143,20 +138,15 @@ static void *
 sdlivr_proc_ctor (void *ap_obj, va_list * app)
 {
   sdlivr_prc_t *p_obj = super_ctor (sdlivrprc, ap_obj, app);
-  TIZ_LOG (TIZ_TRACE, "Constructing sdlivrprc...[%p]", p_obj);
-
   p_obj->pinhdr_ = 0;
   p_obj->pouthdr_ = 0;
   p_obj->eos_ = false;
-
   return p_obj;
 }
 
 static void *
 sdlivr_proc_dtor (void *ap_obj)
 {
-  sdlivr_prc_t *p_obj = ap_obj;
-  TIZ_LOG (TIZ_TRACE, "Destructing sdlivrprc...[%p]", p_obj);
   return super_dtor (sdlivrprc, ap_obj);
 }
 
@@ -168,25 +158,17 @@ static OMX_ERRORTYPE
 sdlivr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   sdlivr_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
   assert (ap_obj);
-
-  (void) p_parent;
   (void) p_obj;
 
   if (-1 == SDL_Init (SDL_INIT_VIDEO))
     {
-      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (p_parent->p_hdl_),
-                     TIZ_CBUF (p_parent->p_hdl_),
-                     "Error while initializing SDL [%s]", SDL_GetError ());
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+                "Error while initializing SDL [%s]", SDL_GetError ());
       return OMX_ErrorInsufficientResources;
     }
-
-  TIZ_LOG_CNAME (TIZ_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
                  "Resource allocation complete..." "pid = [%d]", a_pid);
-
   return OMX_ErrorNone;
 }
 
@@ -194,19 +176,11 @@ static OMX_ERRORTYPE
 sdlivr_proc_deallocate_resources (void *ap_obj)
 {
   sdlivr_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
   assert (ap_obj);
-
-  (void) p_parent;
   (void) p_obj;
-
   SDL_Quit ();
-
-  TIZ_LOG_CNAME (TIZ_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "Resource deallocation complete...");
-
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "Resource deallocation complete...");
   return OMX_ErrorNone;
 }
 
@@ -214,12 +188,11 @@ static OMX_ERRORTYPE
 sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   sdlivr_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
   OMX_PARAM_PORTDEFINITIONTYPE portdef;
 
-  TIZ_LOG (TIZ_TRACE, "pid [%d]", a_pid);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "pid [%d]", a_pid);
 
   assert (ap_obj);
 
@@ -229,25 +202,27 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   portdef.nPortIndex = 0;       /* port index */
   if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                         (p_krn,
-                         p_parent->p_hdl_,
+                         tiz_api_get_hdl (ap_obj),
                          OMX_IndexParamPortDefinition, &portdef)))
     {
-      TIZ_LOG (TIZ_TRACE, "Error retrieving the port definition");
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+                "Error retrieving the port definition");
       return ret_val;
     }
 
   p_obj->vportdef_ = portdef.format.video;
 
-  TIZ_LOG (TIZ_TRACE, "nFrameWidth = [%d] nFrameHeight = [%d] ",
-/*            "nStride = [%d] nSliceHeight = [%d] nBitrate = [%d] " */
-/*            "xFramerate = [%s] eCompressionFormat = [%d] eColorFormat = [%d]", */
-           p_obj->vportdef_.nFrameWidth, p_obj->vportdef_.nFrameHeight);
-/*            p_obj->vportdef_.nStride, */
-/*            p_obj->vportdef_.nSliceHeight, */
-/*            p_obj->vportdef_.nBitrate, */
-/*            p_obj->vportdef_.xFramerate, */
-/*            p_obj->vportdef_.eCompressionFormat, */
-/*            p_obj->vportdef_.eColorFormat); */
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "nFrameWidth = [%d] nFrameHeight = [%d] ",
+            /*            "nStride = [%d] nSliceHeight = [%d] nBitrate = [%d] " */
+            /*            "xFramerate = [%s] eCompressionFormat = [%d] eColorFormat = [%d]", */
+            p_obj->vportdef_.nFrameWidth, p_obj->vportdef_.nFrameHeight);
+  /*            p_obj->vportdef_.nStride, */
+  /*            p_obj->vportdef_.nSliceHeight, */
+  /*            p_obj->vportdef_.nBitrate, */
+  /*            p_obj->vportdef_.xFramerate, */
+  /*            p_obj->vportdef_.eCompressionFormat, */
+  /*            p_obj->vportdef_.eColorFormat); */
 
   SDL_WM_SetCaption ("Tizonia OpenMAX IL YUV renderer", "YUV");
 
@@ -259,12 +234,8 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   p_obj->p_overlay = SDL_CreateYUVOverlay
     (p_obj->vportdef_.nFrameWidth, p_obj->vportdef_.nFrameHeight,
      SDL_YV12_OVERLAY, p_obj->p_surface);
-
-  TIZ_LOG_CNAME (TIZ_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "Transfering buffers...pid [%d]", a_pid);
-
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "Transfering buffers...pid [%d]", a_pid);
   return OMX_ErrorNone;
 }
 
@@ -294,9 +265,8 @@ sdlivr_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 sdlivr_proc_buffers_ready (const void *ap_obj)
 {
-  const tiz_srv_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
   TIZ_PD_ZERO (&ports);
@@ -309,7 +279,8 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
       tiz_check_omx_err (sdlivr_proc_render_buffer (ap_obj, p_hdr));
       if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOG (TIZ_TRACE, "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+                    "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
           tiz_srv_issue_event ((OMX_PTR) ap_obj,
                                   OMX_EventBufferFlag,
                                   0, p_hdr->nFlags, NULL);

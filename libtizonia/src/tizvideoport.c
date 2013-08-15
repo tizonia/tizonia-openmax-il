@@ -208,8 +208,8 @@ videoport_SetParameter (const void *ap_obj,
 
   assert (p_obj);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SetParameter [%s]...",
+            tiz_idx_to_str (a_index));
 
   /* Do now allow changes to nFrameWidth or nFrameHeight if this is a slave
    * output port */
@@ -226,12 +226,10 @@ videoport_SetParameter (const void *ap_obj,
               || (p_base->portdef_.format.video.nFrameHeight
                   != p_portdef->format.video.nFrameHeight)))
         {
-          TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
-                         TIZ_CBUF (ap_hdl),
-                         "[OMX_ErrorBadParameter] : PORT [%d] "
-                         "SetParameter [OMX_IndexParamPortDefinition]... "
-                         "Slave port, cannot update frame width or height",
-                         tiz_port_dir (p_obj));
+          TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+                    "SetParameter [OMX_IndexParamPortDefinition]... "
+                    "Slave port, cannot update frame width or height",
+                    tiz_port_dir (p_obj));
           return OMX_ErrorBadParameter;
         }
     }

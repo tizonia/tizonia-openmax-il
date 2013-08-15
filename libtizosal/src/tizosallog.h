@@ -53,17 +53,6 @@ extern "C"
             format,                             \
             ##args);
 
-#define TIZ_LOG_CNAME(priority,cname,cbuf,format,args...)     \
-  tiz_log(__FILE__,                                           \
-            __LINE__,                                           \
-            __FUNCTION__,                                       \
-            TIZ_LOG_CATEGORY_NAME,                            \
-            priority,                                           \
-            cname,                                              \
-            cbuf,                                               \
-            format,                                             \
-            ##args);
-
 #ifndef WITHOUT_LOG4C
 #define TIZ_ERROR  LOG4C_PRIORITY_ERROR
 #define TIZ_WARN   LOG4C_PRIORITY_WARN

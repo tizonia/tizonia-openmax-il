@@ -99,7 +99,7 @@ instantiate_opus_port (OMX_HANDLETYPE ap_hdl)
   opustype.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
 
   tiz_check_omx_err_ret_null (tiz_opusport_init ());
-  return factory_new (tizopusport, &opus_port_opts, &encodings, &opustype);
+  return factory_new (tizopusport, ap_hdl, &opus_port_opts, &encodings, &opustype);
 }
 
 static OMX_PTR
@@ -153,7 +153,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.bMute = OMX_FALSE;
 
   tiz_check_omx_err_ret_null (tiz_pcmport_init ());
-  return factory_new (tizpcmport, &pcm_port_opts, &encodings,
+  return factory_new (tizpcmport, ap_hdl, &pcm_port_opts, &encodings,
                            &pcmmode, &volume, &mute);
 }
 
@@ -161,7 +161,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, NULL,   /* this port does not take options */
+  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
                       ARATELIA_OPUS_DECODER_COMPONENT_NAME,
                       opus_decoder_version);
 }

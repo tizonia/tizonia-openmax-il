@@ -133,10 +133,9 @@ static OMX_ERRORTYPE
 idletoexecuting_trans_complete (const void *ap_obj,
                                 OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_srv_get_hdl (ap_servant)),
-                 TIZ_CBUF (tiz_srv_get_hdl (ap_servant)),
-                 "Trans complete to state [%s]...",
-                 tiz_fsm_state_to_str (a_new_state));
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_servant),
+            "Trans complete to state [%s]...",
+            tiz_fsm_state_to_str (a_new_state));
 
   assert (NULL != ap_obj);
   assert (NULL != ap_servant);
@@ -157,7 +156,7 @@ idletoexecuting_tunneled_ports_status_update (void *ap_obj)
   assert (NULL != ap_obj);
 
   {
-    OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_base->p_fsm_);
+    OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_base->p_fsm_);
 
     if (TIZ_KRN_MAY_EXCHANGE_BUFFERS (tiz_get_krn (p_hdl)))
       {
@@ -165,8 +164,7 @@ idletoexecuting_tunneled_ports_status_update (void *ap_obj)
          * are ready to receive ETB/FTB calls.  NOTE: This will call the
          * 'tiz_state_state_set' function of the tiz_state_t base class (note
          * we are passing 'tizidle' as 1st parameter */
-        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
-                       "kernel ready to exchange buffers");
+        TIZ_LOGN (TIZ_TRACE, p_hdl, "kernel ready to exchange buffers");
         return tiz_state_super_state_set (tizidle, ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateExecuting, NULL);

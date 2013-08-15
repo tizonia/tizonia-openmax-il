@@ -2120,41 +2120,42 @@ init_and_register_role (tiz_scheduler_t * ap_sched, const OMX_U32 a_role_pos)
   OMX_U32 j = 0;
 
   assert (NULL != ap_sched);
+  assert (a_role_pos < ap_sched->child.nroles);
 
   p_hdl = ap_sched->child.p_hdl;
-  p_rf = ap_sched->child.p_role_list[a_role_pos];
-  p_port = p_rf->pf_cport (p_hdl);
+  p_rf  = ap_sched->child.p_role_list[a_role_pos];
 
-  assert (NULL != p_port);
+  /* Instantiate the config port */
+  tiz_check_null_ret_oom (p_port = p_rf->pf_cport (p_hdl));
 
-  rc = tiz_krn_register_port (ap_sched->child.p_ker, p_port, OMX_TRUE);       /* it is a config port */
+  /* Register it with the kernel */
+  tiz_check_omx_err_ret_oom (tiz_krn_register_port (ap_sched->child.p_ker,
+                                                    p_port,
+                                                    OMX_TRUE));       /* it is a config port */
 
-  TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+  TIZ_LOGN (TIZ_TRACE, p_hdl,
             "Registering role #[%d] -> [%s] nports = [%d] rc = [%s]...",
             a_role_pos, p_rf->role, p_rf->nports, tiz_err_to_str (rc));
 
   for (j = 0; j < p_rf->nports && rc == OMX_ErrorNone; ++j)
     {
-      /* Instantiate the port */
-      p_port = p_rf->pf_port[j] (p_hdl);
-      assert (NULL != p_port);
-      rc = tiz_krn_register_port (ap_sched->child.p_ker, p_port, OMX_FALSE);  /* not a config port */
-
-      if (OMX_ErrorNone == rc)
-        {
-          rc = configure_port_preannouncements (ap_sched, p_hdl, p_port);
-        }
+      /* Instantiate and register the normal ports */
+      tiz_check_null_ret_oom (p_port = p_rf->pf_port[j] (p_hdl));
+      tiz_check_omx_err_ret_oom (tiz_krn_register_port (ap_sched->child.p_ker,
+                                                        p_port,
+                                                        OMX_FALSE));  /* not a config port */
+      rc = configure_port_preannouncements (ap_sched, p_hdl, p_port);
     }
 
   if (OMX_ErrorNone == rc)
     {
-      p_proc = p_rf->pf_proc (p_hdl);
-      assert (NULL != p_proc);
+      /* Instantiate the processor */
+      tiz_check_null_ret_oom (p_proc = p_rf->pf_proc (p_hdl));
       assert (NULL == ap_sched->child.p_prc);
       ap_sched->child.p_prc = p_proc;
 
       /* All servants will use the same object allocator */
-      tiz_srv_set_allocator (p_proc, ap_sched->p_soa);
+      tiz_check_omx_err_ret_oom (tiz_srv_set_allocator (p_proc, ap_sched->p_soa));
     }
 
   return rc;

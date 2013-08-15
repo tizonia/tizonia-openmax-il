@@ -43,6 +43,11 @@ extern "C"
   extern const void *tizapi_class;
   OMX_ERRORTYPE tiz_api_init (void);
 
+  OMX_HANDLETYPE
+  tiz_api_get_hdl (const void *ap_obj);
+
+  void
+  tiz_api_set_hdl (const void *ap_obj, const OMX_HANDLETYPE ap_hdl);
 
   OMX_ERRORTYPE
   tiz_api_GetComponentVersion (const void *ap_obj,
@@ -146,6 +151,8 @@ extern "C"
                              OMX_HANDLETYPE ap_hdl,
                              OMX_U8 * a_role, OMX_U32 a_index);
 
+  OMX_HANDLETYPE
+  tiz_api_get_hdl (const void *ap_obj);
 
 #ifdef __cplusplus
 }

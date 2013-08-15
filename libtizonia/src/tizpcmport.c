@@ -152,9 +152,8 @@ pcmport_SetParameter (const void *ap_obj,
 {
   tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "PORT [%d] SetParameter [%s]...", tiz_port_dir (p_obj),
-                 tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
+            tiz_port_dir (p_obj), tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
@@ -180,13 +179,10 @@ pcmport_SetParameter (const void *ap_obj,
             }
           default:
             {
-              TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
-                             TIZ_CBUF (ap_hdl),
-                             "[OMX_ErrorBadParameter] : PORT [%d] "
-                             "SetParameter [%s]... Invalid sampling rate [%d]",
-                             tiz_port_dir (p_obj),
-                             tiz_idx_to_str (a_index),
-                             p_pcmmode->nSamplingRate);
+              TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+                        "SetParameter [%s]... Invalid sampling rate [%d]",
+                        tiz_port_dir (p_obj), tiz_idx_to_str (a_index),
+                        p_pcmmode->nSamplingRate);
               return OMX_ErrorBadParameter;
             }
           };
@@ -200,14 +196,10 @@ pcmport_SetParameter (const void *ap_obj,
             }
           default:
             {
-              TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
-                             TIZ_CBUF (ap_hdl),
-                             "[OMX_ErrorBadParameter] : PORT [%d] "
-                             "SetParameter [%s]... "
-                             "Invalid bits per sample [%d]",
-                             tiz_port_dir (p_obj),
-                             tiz_idx_to_str (a_index),
-                             p_pcmmode->nBitPerSample);
+              TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+                        "SetParameter [%s]... Invalid bits per sample [%d]",
+                        tiz_port_dir (p_obj), tiz_idx_to_str (a_index),
+                        p_pcmmode->nBitPerSample);
               return OMX_ErrorBadParameter;
             }
           };
@@ -225,13 +217,10 @@ pcmport_SetParameter (const void *ap_obj,
                   || p_obj->pcmmode_.nSamplingRate !=
                   p_pcmmode->nSamplingRate))
             {
-              TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
-                             TIZ_CBUF (ap_hdl),
-                             "[OMX_ErrorBadParameter] : PORT [%d] "
-                             "SetParameter [OMX_IndexParamAudioPcm]... "
-                             "Slave port, cannot update sample rate "
-                             "bits per sample or number of channels",
-                             tiz_port_dir (p_obj));
+              TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+                        "SetParameter [OMX_IndexParamAudioPcm]... "
+                        "Slave port, cannot update sample rate "
+                        "bits per sample or number of channels", tiz_port_dir (p_obj));
               return OMX_ErrorBadParameter;
             }
         }

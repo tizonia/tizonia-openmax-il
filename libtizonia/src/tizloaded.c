@@ -98,7 +98,7 @@ loaded_EmptyThisBuffer (const void *ap_obj,
 
   if (TIZ_PORT_IS_ENABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
+      TIZ_LOGN (TIZ_ERROR, ap_hdl,
                      "[OMX_ErrorIncorrectStateOperation] : "
                      "(ETB received in Loaded state on an enabled port)...");
       return OMX_ErrorIncorrectStateOperation;
@@ -119,9 +119,8 @@ loaded_FillThisBuffer (const void *ap_obj,
 
   if (TIZ_PORT_IS_ENABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                     "[OMX_ErrorIncorrectStateOperation] : "
-                     "(FTB received in Loaded state on an enabled port)...");
+      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
+                "(FTB received in Loaded state on an enabled port)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -145,9 +144,8 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Requested transition [OMX_StateLoaded -> %s]...",
-                 tiz_fsm_state_to_str (a_param1));
+  TIZ_LOGN (TIZ_DEBUG, ap_hdl, "Requested transition "
+            "[OMX_StateLoaded -> %s]...", tiz_fsm_state_to_str (a_param1));
 
   /* Allowed transitions are OMX_StateIdle and OMX_StateWaitForResources. */
   switch (a_param1)
@@ -171,10 +169,8 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     default:
       {
-        TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                       "[OMX_ErrorIncorrectStateTransition]...: "
-                       "(OMX_StateLoaded -> [%s]...)",
-                       tiz_state_to_str (a_param1));
+        TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateTransition]...: "
+                  "(OMX_StateLoaded -> [%s]...)", tiz_state_to_str (a_param1));
         return OMX_ErrorIncorrectStateTransition;
       }
 
@@ -194,10 +190,10 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       {
         if (!TIZ_KRN_MAY_INIT_ALLOC_PHASE (tiz_get_krn (ap_hdl)))
           {
-            TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                           "wait until all the tunneled non-supplier "
-                           "neighbours have reported that they can accept "
-                           "OMX_UseBuffer calls...");
+            TIZ_LOGN (TIZ_DEBUG, ap_hdl,
+                      "wait until all the tunneled non-supplier "
+                      "neighbours have reported that they can accept "
+                      "OMX_UseBuffer calls...");
             return rc;
           }
       }
@@ -213,10 +209,9 @@ static OMX_ERRORTYPE
 loaded_trans_complete (const void *ap_obj,
                        OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (tiz_srv_get_hdl(ap_servant)),
-                 TIZ_CBUF (tiz_srv_get_hdl(ap_servant)),
-                 "Trans complete to state [%s]...",
-                 tiz_fsm_state_to_str (a_new_state));
+  TIZ_LOGN (TIZ_DEBUG, tiz_api_get_hdl(ap_servant),
+            "Trans complete to state [%s]...",
+            tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateWaitForResources == a_new_state
           || OMX_StateIdle == a_new_state);
   return tiz_state_super_trans_complete (tizloaded, ap_obj, ap_servant,

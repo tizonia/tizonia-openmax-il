@@ -173,11 +173,9 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
   p_port = tiz_krn_get_port (p_krn, p_msg_br->pid);
   now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_msg->p_hdl),
-                 TIZ_CBUF (p_msg->p_hdl),
-                 "p_msg->p_hdl [%p] "
-                 "p_msg_br->pid = [%d] p_port [%p]",
-                 p_msg->p_hdl, p_msg_br->pid, p_port);
+  TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl, "p_msg->p_hdl [%p] "
+            "p_msg_br->pid = [%d] p_port [%p]",
+            p_msg->p_hdl, p_msg_br->pid, p_port);
 
   assert (p_port);
 
@@ -196,8 +194,7 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
       && !TIZ_PORT_IS_DISABLED (p_port)
       && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_msg->p_hdl),
-                     TIZ_CBUF (p_msg->p_hdl),
+      TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl,
                      "p_msg_br->p_buffer [%p] ", p_msg_br->p_buffer);
       rc = tiz_prc_buffers_ready (p_obj);
     }
@@ -311,10 +308,9 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
         else if (OMX_StateIdle == now)
           {
             /* TODO : review when this situation would occur  */
-            TIZ_LOG_CNAME (TIZ_WARN, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
-                           "Ignoring transition [%s] -> [%s]",
-                           tiz_fsm_state_to_str (now),
-                           tiz_fsm_state_to_str (ap_msg_sc->param1));
+            TIZ_LOGN (TIZ_WARN, p_hdl, "Ignoring transition [%s] -> [%s]",
+                      tiz_fsm_state_to_str (now),
+                      tiz_fsm_state_to_str (ap_msg_sc->param1));
           }
         else
           {
@@ -452,10 +448,8 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
         {
           /* Found, return TRUE so this item will be removed from the servant
            * queue */
-          TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_msg->p_hdl),
-                         TIZ_CBUF (p_msg->p_hdl),
-                         "tiz_prc_msg_buffersready_t : Found HEADER [%p]",
-                         p_hdr);
+          TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl,
+                    "tiz_prc_msg_buffersready_t : Found HEADER [%p]", p_hdr);
           rc = OMX_TRUE;
         }
     }
@@ -501,10 +495,9 @@ init_prc_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_prc_msg_t))))
     {
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                     "[OMX_ErrorInsufficientResources] : "
-                     "Could not allocate message [%s]",
-                     tiz_prc_msg_to_str (a_msg_class));
+      TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+                "Could not allocate message [%s]",
+                tiz_prc_msg_to_str (a_msg_class));
     }
   else
     {
@@ -577,9 +570,7 @@ static OMX_ERRORTYPE
 prc_EmptyThisBuffer (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
-                 TIZ_CBUF (ap_hdl), "pid [%d]", ap_buf->nInputPortIndex);
-
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "pid [%d]", ap_buf->nInputPortIndex);
   return enqueue_buffersready_msg (ap_obj, ap_hdl, ap_buf,
                                    ap_buf->nInputPortIndex);
 }
@@ -588,9 +579,7 @@ static OMX_ERRORTYPE
 prc_FillThisBuffer (const void *ap_obj,
                      OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
-                 TIZ_CBUF (ap_hdl), "pid [%d]", ap_buf->nOutputPortIndex);
-
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "pid [%d]", ap_buf->nOutputPortIndex);
   return enqueue_buffersready_msg (ap_obj, ap_hdl, ap_buf,
                                    ap_buf->nOutputPortIndex);
 }

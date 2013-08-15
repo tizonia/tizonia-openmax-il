@@ -65,8 +65,7 @@ loadedtoidle_SetParameter (const void *ap_obj,
 {
   /* In this transitional state, OMX_SetParameter should only be allowed */
   /* until the first OMX_UseBuffer call is received */
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "[%s]", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s]", tiz_idx_to_str (a_index));
 
   return super_SetParameter (tizloadedtoidle, ap_obj, ap_hdl, a_index,
                              ap_struct);
@@ -125,9 +124,9 @@ loadedtoidle_state_set (const void *ap_obj,
   assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                 "Requested transition [ESubStateLoadedToIdle -> %s]...",
-                 tiz_fsm_state_to_str (a_param1));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Requested transition "
+            "[ESubStateLoadedToIdle -> %s]...",
+            tiz_fsm_state_to_str (a_param1));
 
   /* Allowed transitions are OMX_StateLoaded only (a.k.a. transition
    * cancellation). */
@@ -141,10 +140,9 @@ loadedtoidle_state_set (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                       "[OMX_ErrorIncorrectStateTransition] : "
-                       "ESubStateLoadedToIdle -> [%s]",
-                       tiz_state_to_str (a_param1));
+        TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateTransition] : "
+                  "ESubStateLoadedToIdle -> [%s]",
+                  tiz_state_to_str (a_param1));
         return OMX_ErrorIncorrectStateTransition;
       }
 
@@ -178,10 +176,9 @@ loadedtoidle_trans_complete (const void *ap_obj,
 {
   const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_srv_get_hdl (ap_servant)),
-                 TIZ_CBUF (tiz_srv_get_hdl (ap_servant)),
-                 "Trans complete to state [%s]...",
-                 tiz_fsm_state_to_str (a_new_state));
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_servant),
+            "Trans complete to state [%s]...",
+            tiz_fsm_state_to_str (a_new_state));
 
   assert (NULL != ap_obj);
   assert (NULL != ap_servant);
@@ -192,7 +189,7 @@ loadedtoidle_trans_complete (const void *ap_obj,
       /* Reset the OMX_PORTSTATUS_ACCEPTUSEBUFFER flag in all ports where this
        * has been set */
       tiz_krn_reset_tunneled_ports_status (tiz_get_krn
-                                             (tiz_srv_get_hdl (ap_servant)),
+                                             (tiz_api_get_hdl (ap_servant)),
                                              OMX_PORTSTATUS_ACCEPTUSEBUFFER);
     }
 
@@ -208,7 +205,7 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
   assert (NULL != ap_obj);
 
   {
-    OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_base->p_fsm_);
+    OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_base->p_fsm_);
     void *p_krn = tiz_get_krn (p_hdl);
 
     if (TIZ_KRN_MAY_INIT_ALLOC_PHASE (p_krn))

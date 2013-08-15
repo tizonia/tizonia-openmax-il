@@ -139,12 +139,11 @@ mp3port_SetParameter (const void *ap_obj,
             }
           default:
             {
-              TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl),
-                             TIZ_CBUF (ap_hdl),
-                             "[%s] : OMX_ErrorBadParameter : "
-                             "Sample rate not supported [%d]. "
-                             "Returning...", tiz_idx_to_str (a_index),
-                             p_mp3type->nSampleRate);
+              TIZ_LOGN (TIZ_TRACE, ap_hdl,
+                        "[%s] : OMX_ErrorBadParameter : "
+                        "Sample rate not supported [%d]. "
+                        "Returning...", tiz_idx_to_str (a_index),
+                        p_mp3type->nSampleRate);
               return OMX_ErrorBadParameter;
             }
           };
@@ -160,12 +159,11 @@ mp3port_SetParameter (const void *ap_obj,
               && (p_obj->mp3type_.nChannels != p_mp3type->nChannels
                   || p_obj->mp3type_.nSampleRate != p_mp3type->nSampleRate))
             {
-              TIZ_LOG_CNAME (TIZ_ERROR, TIZ_CNAME (ap_hdl),
-                             TIZ_CBUF (ap_hdl),
-                             "[OMX_ErrorBadParameter] : PORT [%d] "
-                             "SetParameter [OMX_IndexParamAudioMp3]... "
-                             "Slave port, cannot update sample rate "
-                             "or number of channels", tiz_port_dir (p_obj));
+              TIZ_LOGN (TIZ_ERROR, ap_hdl,
+                        "[OMX_ErrorBadParameter] : PORT [%d] "
+                        "SetParameter [OMX_IndexParamAudioMp3]... "
+                        "Slave port, cannot update sample rate "
+                        "or number of channels", tiz_port_dir (p_obj));
               return OMX_ErrorBadParameter;
             }
         }

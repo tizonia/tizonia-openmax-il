@@ -112,7 +112,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.bMute             = OMX_FALSE;
 
   tiz_check_omx_err_ret_null (tiz_pcmport_init ());
-  return factory_new (tizpcmport, &port_opts, &encodings,
+  return factory_new (tizpcmport, ap_hdl, &port_opts, &encodings,
                            &pcmmode, &volume, &mute);
 }
 
@@ -121,7 +121,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   /* Instantiate the config port */
   tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, NULL,   /* this port does not take options */
+  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
                       ARATELIA_AUDIO_RENDERER_COMPONENT_NAME,
                       audio_renderer_version);
 }
@@ -129,7 +129,6 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  /* Instantiate the processor */
   tiz_check_omx_err_ret_null (ar_prc_init ());
   return factory_new (arprc, ap_hdl);
 }

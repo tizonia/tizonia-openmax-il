@@ -244,7 +244,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   assert (NULL != ap_msg_pe);
   pid = ap_msg_pe->param1;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj),
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
             "Requested port enable for PORT [%d]", pid);
 
   /* Verify the port index.. */
@@ -871,7 +871,7 @@ dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_sc);
   assert (p_msg_sc->cmd <= OMX_CommandMarkBuffer);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_obj), "Processing [%s]...",
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj), "Processing [%s]...",
             tiz_cmd_to_str (p_msg_sc->cmd));
 
   return tiz_krn_msg_dispatch_sc_to_fnt_tbl[p_msg_sc->cmd] (p_obj,

@@ -74,8 +74,6 @@ static OMX_ERRORTYPE
 vp8e_proc_transform_buffer (const void *ap_obj)
 {
   vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
-  (void) p_parent;
   (void) p_obj;
   return OMX_ErrorNone;
 }
@@ -88,17 +86,10 @@ static OMX_ERRORTYPE
 vp8e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   vp8e_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
   assert (ap_obj);
-
-  (void) p_parent;
   (void) p_obj;
-
-  TIZ_LOG_CNAME (TIZ_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "Resource allocation complete..." "pid = [%d]", a_pid);
-
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "Resource allocation complete..." "pid = [%d]", a_pid);
   return OMX_ErrorNone;
 }
 
@@ -106,33 +97,20 @@ static OMX_ERRORTYPE
 vp8e_proc_deallocate_resources (void *ap_obj)
 {
   vp8e_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
   assert (ap_obj);
-
-  (void) p_parent;
   (void) p_obj;
-
-  TIZ_LOG_CNAME (TIZ_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "Resource deallocation complete...");
-
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "Resource deallocation complete...");
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 vp8e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  const tiz_srv_t *p_parent = ap_obj;
   assert (ap_obj);
-
-  TIZ_LOG_CNAME (TIZ_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "Transfering buffers...pid [%d]", a_pid);
-
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "Transfering buffers...pid [%d]", a_pid);
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
@@ -146,13 +124,8 @@ static OMX_ERRORTYPE
 vp8e_proc_stop_and_return (void *ap_obj)
 {
   vp8e_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
-
   assert (ap_obj);
-
   (void) p_obj;
-  (void) p_parent;
-
   return OMX_ErrorNone;
 }
 
@@ -163,10 +136,9 @@ vp8e_proc_stop_and_return (void *ap_obj)
 static bool
 claim_input (const void *ap_obj)
 {
-  const tiz_srv_t *p_parent = ap_obj;
   vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
   tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
   TIZ_PD_ZERO (&ports);
   tiz_check_omx_err (tiz_krn_select (p_krn, 2, &ports));
@@ -176,27 +148,22 @@ claim_input (const void *ap_obj)
     {
       tiz_check_omx_err (tiz_krn_claim_buffer
                          (p_krn, 0, 0, &p_obj->pinhdr_));
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
-                     TIZ_CBUF (p_parent->p_hdl_),
-                     "Claimed INPUT HEADER [%p]...", p_obj->pinhdr_);
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+                "Claimed INPUT HEADER [%p]...", p_obj->pinhdr_);
       return true;
     }
 
-  TIZ_LOG_CNAME (TIZ_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_),
-                 "COULD NOT CLAIM AN INPUT HEADER...");
-
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "COULD NOT CLAIM AN INPUT HEADER...");
   return false;
 }
 
 static bool
 claim_output (const void *ap_obj)
 {
-  const tiz_srv_t *p_parent = ap_obj;
   vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
   tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
   TIZ_PD_ZERO (&ports);
   tiz_check_omx_err (tiz_krn_select (p_krn, 2, &ports));
@@ -206,11 +173,10 @@ claim_output (const void *ap_obj)
     {
       tiz_check_omx_err (tiz_krn_claim_buffer
                          (p_krn, 1, 0, &p_obj->pouthdr_));
-      TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_parent->p_hdl_),
-                     TIZ_CBUF (p_parent->p_hdl_),
-                     "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
-                     "nFilledLen [%d]...", p_obj->pouthdr_,
-                     p_obj->pouthdr_->pBuffer, p_obj->pouthdr_->nFilledLen);
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+                "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
+                "nFilledLen [%d]...", p_obj->pouthdr_,
+                p_obj->pouthdr_->pBuffer, p_obj->pouthdr_->nFilledLen);
       return true;
     }
 
@@ -221,12 +187,9 @@ static OMX_ERRORTYPE
 vp8e_proc_buffers_ready (const void *ap_obj)
 {
   vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
-  TIZ_LOG_CNAME (TIZ_TRACE,
-                 TIZ_CNAME (p_parent->p_hdl_),
-                 TIZ_CBUF (p_parent->p_hdl_), "Buffers ready...");
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "Buffers ready...");
 
   while (1)
     {
@@ -260,10 +223,8 @@ vp8e_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_LOG_CNAME (TIZ_TRACE,
-                     TIZ_CNAME (p_parent->p_hdl_),
-                     TIZ_CBUF (p_parent->p_hdl_),
-                     "p_obj->eos OUTPUT HEADER [%p]...", p_obj->pouthdr_);
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+                "p_obj->eos OUTPUT HEADER [%p]...", p_obj->pouthdr_);
       p_obj->pouthdr_->nFlags |= OMX_BUFFERFLAG_EOS;
       tiz_krn_release_buffer (p_krn, 1, p_obj->pouthdr_);
       p_obj->pouthdr_ = NULL;

@@ -26,20 +26,23 @@ extern "C"
 {
 #endif
 
-  struct Object
+  typedef struct tiz_class  tiz_class_t;
+  typedef struct tiz_object tiz_object_t;
+
+  struct tiz_object
   {
     /* object's description */
-    const struct Class *class;
+    const tiz_class_t *class;
   };
 
-  struct Class
+  struct tiz_class
   {
     /* class' description */
-    const struct Object _;
+    const tiz_object_t _;
     /* class' name */
     const char *name;
     /* class' super class */
-    const struct Class *super;
+    const tiz_class_t *super;
     /* class' object's size */
     size_t size;
     void *(*ctor) (void *p_obj, va_list * app);

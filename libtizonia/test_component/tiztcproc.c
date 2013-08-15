@@ -109,9 +109,8 @@ tiztc_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 tiztc_proc_buffers_ready (const void *ap_obj)
 {
-  const tiz_srv_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
-  void *p_ker = tiz_get_krn (p_parent->p_hdl_);
+  void *p_ker = tiz_get_krn (tiz_api_get_hdl (ap_obj));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
   TIZ_LOG (TIZ_TRACE, "Buffers ready...");

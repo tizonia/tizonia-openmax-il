@@ -34,13 +34,13 @@ extern "C"
 {
 #endif
 
-#include "OMX_Component.h"
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-
 #include "tizconfigport.h"
 #include "tizport_decls.h"
 #include "tizosal.h"
+
+#include "OMX_Component.h"
+#include "OMX_Core.h"
+#include "OMX_Types.h"
 
   typedef struct tiz_configport tiz_configport_t;
   struct tiz_configport

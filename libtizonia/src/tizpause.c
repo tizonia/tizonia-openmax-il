@@ -213,9 +213,9 @@ pause_state_set (const void *ap_obj,
       {
         if (!TIZ_KRN_MAY_INIT_EXE_TO_IDLE(tiz_get_krn (ap_hdl)))
           {
-            TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                           "wait until all the tunneled supplier neighbours have "
-                           "reported that they have stopped the buffer exchange...");
+            TIZ_LOGN (TIZ_DEBUG, ap_hdl,
+                      "wait until all the tunneled supplier neighbours have "
+                      "reported that they have stopped the buffer exchange...");
             return rc;
           }
       }
@@ -239,10 +239,9 @@ static OMX_ERRORTYPE
 pause_trans_complete (const void *ap_obj,
                       OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_srv_get_hdl (ap_servant)),
-                 TIZ_CBUF (tiz_srv_get_hdl (ap_servant)),
-                 "Trans complete to state [%s]...",
-                 tiz_fsm_state_to_str (a_new_state));
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_servant),
+            "Trans complete to state [%s]...",
+            tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StatePause == a_new_state || OMX_StateIdle == a_new_state
           || OMX_StateExecuting == a_new_state);
   return tiz_state_super_trans_complete (tizpause, ap_obj, ap_servant,

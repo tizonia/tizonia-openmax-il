@@ -21,20 +21,18 @@
 #include <config.h>
 #endif
 
+#include "tizobject.h"
+#include "tizobject_decls.h"
+#include "tizosal.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "tizobject.h"
-#include "tizobject_decls.h"
-
-#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.object"
 #endif
-
 
 /*
  * Object
@@ -55,7 +53,7 @@ Object_dtor (void *ap_obj)
 const void *
 classOf (const void *ap_obj)
 {
-  const struct Object *p_obj = ap_obj;
+  const tiz_object_t *p_obj = ap_obj;
   assert (p_obj && p_obj->class);
   return p_obj->class;
 }
@@ -63,14 +61,14 @@ classOf (const void *ap_obj)
 size_t
 sizeOf (const void *ap_obj)
 {
-  const struct Class *class = classOf (ap_obj);
+  const tiz_class_t *class = classOf (ap_obj);
   return class->size;
 }
 
 const char *
 nameOf (const void *ap_obj)
 {
-  const struct Class *class = classOf (ap_obj);
+  const tiz_class_t *class = classOf (ap_obj);
   return class->name;
 }
 
@@ -81,11 +79,11 @@ nameOf (const void *ap_obj)
 static void *
 Class_ctor (void *ap_obj, va_list * app)
 {
-  struct Class *p_obj = ap_obj;
-  const size_t offset = offsetof (struct Class, ctor);
+  tiz_class_t *p_obj = ap_obj;
+  const size_t offset = offsetof (tiz_class_t, ctor);
 
   p_obj->name = va_arg (*app, char *);
-  p_obj->super = va_arg (*app, struct Class *);
+  p_obj->super = va_arg (*app, tiz_class_t *);
   p_obj->size = va_arg (*app, size_t);
 
   assert (p_obj->super);
@@ -122,7 +120,7 @@ Class_dtor (void *ap_obj)
 const void *
 super (const void *ap_obj)
 {
-  const struct Class *p_obj = ap_obj;
+  const tiz_class_t *p_obj = ap_obj;
   assert (p_obj && p_obj->super);
   return p_obj->super;
 }
@@ -131,12 +129,12 @@ super (const void *ap_obj)
  * initialization
  */
 
-static const struct Class object[] = {
+static const tiz_class_t object[] = {
   {{object + 1},
-   "Object", object, sizeof (struct Object),
+   "Object", object, sizeof (tiz_object_t),
    Object_ctor, Object_dtor},
   {{object + 1},
-   "Class", object, sizeof (struct Class),
+   "Class", object, sizeof (tiz_class_t),
    Class_ctor, Class_dtor}
 };
 
@@ -150,8 +148,8 @@ const void *Class = object + 1;
 void *
 factory_new (const void *a_class, ...)
 {
-  const struct Class *class = a_class;
-  struct Object *object = NULL;
+  const tiz_class_t *class = a_class;
+  tiz_object_t *object = NULL;
   va_list ap;
 
   assert (class && class->size);
@@ -170,14 +168,14 @@ factory_delete (void *ap_obj)
 {
   if (ap_obj)
     {
-      free (dtor (ap_obj));
+      tiz_mem_free (dtor (ap_obj));
     }
 }
 
 void *
 ctor (void *ap_obj, va_list * app)
 {
-  const struct Class *class = classOf (ap_obj);
+  const tiz_class_t *class = classOf (ap_obj);
   assert (class->ctor);
   return class->ctor (ap_obj, app);
 }
@@ -185,7 +183,7 @@ ctor (void *ap_obj, va_list * app)
 void *
 super_ctor (const void *a_class, void *ap_obj, va_list * app)
 {
-  const struct Class *superclass = super (a_class);
+  const tiz_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->ctor);
   return superclass->ctor (ap_obj, app);
 }
@@ -193,7 +191,7 @@ super_ctor (const void *a_class, void *ap_obj, va_list * app)
 void *
 dtor (void *ap_obj)
 {
-  const struct Class *class = classOf (ap_obj);
+  const tiz_class_t *class = classOf (ap_obj);
   assert (class->dtor);
   return class->dtor (ap_obj);
 }
@@ -201,7 +199,7 @@ dtor (void *ap_obj)
 void *
 super_dtor (const void *a_class, void *ap_obj)
 {
-  const struct Class *superclass = super (a_class);
+  const tiz_class_t *superclass = super (a_class);
   assert (ap_obj && superclass->dtor);
   return superclass->dtor (ap_obj);
 }

@@ -64,8 +64,6 @@ extern "C"
 
   OMX_ERRORTYPE tiz_srv_dispatch_msg (const void *ap_obj, OMX_PTR ap_data);
 
-  OMX_HANDLETYPE tiz_srv_get_hdl (const void *ap_obj);
-
   OMX_BOOL tiz_srv_is_ready (const void *ap_obj);
 
   OMX_ERRORTYPE tiz_srv_allocate_resources (const void *ap_obj,

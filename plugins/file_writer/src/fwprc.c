@@ -117,9 +117,8 @@ static OMX_ERRORTYPE
 fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   fw_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
   assert (ap_obj);
 
@@ -130,7 +129,8 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
       if (NULL == p_obj->p_uri_param_)
         {
-          TIZ_LOG (TIZ_ERROR, "Error allocating memory "
+          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+                    "Error allocating memory "
                    "for the content uri struct");
           return OMX_ErrorInsufficientResources;
         }
@@ -142,10 +142,11 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
   if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                         (p_krn,
-                         p_parent->p_hdl_,
+                         tiz_api_get_hdl (ap_obj),
                          OMX_IndexParamContentURI, p_obj->p_uri_param_)))
     {
-      TIZ_LOG (TIZ_ERROR, "Error retrieving URI param from port");
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+                "Error retrieving URI param from port");
       return ret_val;
     }
 
@@ -214,9 +215,8 @@ static OMX_ERRORTYPE
 fw_proc_buffers_ready (const void *ap_obj)
 {
   const fw_prc_t *p_obj = ap_obj;
-  const tiz_srv_t *p_parent = ap_obj;
   tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (p_parent->p_hdl_);
+  void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
   if (p_obj->eos_ == false)

@@ -99,7 +99,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.pNativeWindow         = NULL;
 
   tiz_check_omx_err_ret_null (tiz_ivrport_init ());
-  return factory_new (tizivrport, &rawvideo_port_opts, &portdef,
+  return factory_new (tizivrport, ap_hdl, &rawvideo_port_opts, &portdef,
                            &encodings, &formats);
 }
 
@@ -107,7 +107,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, NULL,   /* this port does not take options */
+  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
                          ARATELIA_YUV_RENDERER_COMPONENT_NAME,
                          yuv_renderer_version);
 }

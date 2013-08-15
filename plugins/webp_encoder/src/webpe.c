@@ -105,7 +105,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.pNativeWindow         = NULL;
 
   tiz_check_omx_err_ret_null (tiz_videoport_init ());
-  return factory_new (tizvideoport, &video_port_opts, &portdef,
+  return factory_new (tizvideoport, ap_hdl, &video_port_opts, &portdef,
                              &encodings, &formats);
 }
 
@@ -145,7 +145,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   portdef.pNativeWindow         = NULL;
 
   tiz_check_omx_err_ret_null (tiz_imageport_init ());
-  return factory_new (tizimageport, &image_port_opts, &portdef,
+  return factory_new (tizimageport, ap_hdl, &image_port_opts, &portdef,
                              &encodings, &formats);
 }
 
@@ -153,7 +153,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, NULL,   /* this port does not take options */
+  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
                          ARATELIA_WEBP_ENCODER_COMPONENT_NAME,
                          webp_encoder_version);
 }

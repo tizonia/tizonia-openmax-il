@@ -92,7 +92,6 @@ pcm_port_free_hook (OMX_PTR ap_buf, OMX_PTR ap_port_priv, void *ap_args)
 static OMX_PTR
 instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_pcmport = NULL;
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
@@ -109,41 +108,24 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 
   /* Instantiate a pcm port */
   tiz_pcmport_init ();
-  p_pcmport = factory_new (tizpcmport, &port_opts, NULL, NULL, NULL, NULL);
-  assert (p_pcmport);
-
-  return p_pcmport;
+  return factory_new (tizpcmport, ap_hdl, &port_opts,
+                      NULL, NULL, NULL, NULL);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_cport = NULL;
-
-  TIZ_LOG (TIZ_TRACE, "Inititializing the test component's config port");
-
-  /* Instantiate the config port */
   tiz_configport_init ();
-  p_cport = factory_new (tizconfigport, NULL,   /* this port does not take options */
-                         _COMPONENT_NAME, tc_comp_version);
-  assert (p_cport);
-
-  return p_cport;
+  return factory_new (tizconfigport, ap_hdl,
+                      NULL,   /* this port does not take options */
+                      _COMPONENT_NAME, tc_comp_version);
 }
 
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_PTR p_proc = NULL;
-
-  TIZ_LOG (TIZ_TRACE, "Inititializing the test component's processor");
-
-  /* Instantiate the processor */
   init_tiztcproc ();
-  p_proc = factory_new (tiztcproc, ap_hdl);
-  assert (p_proc);
-
-  return p_proc;
+  return factory_new (tiztcproc, ap_hdl);
 }
 
 OMX_ERRORTYPE

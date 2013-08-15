@@ -94,10 +94,9 @@ executingtoidle_trans_complete (const void *ap_obj,
 {
   const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
-  TIZ_LOG_CNAME (TIZ_DEBUG, TIZ_CNAME (tiz_srv_get_hdl(ap_servant)),
-                 TIZ_CBUF (tiz_srv_get_hdl(ap_servant)),
-                 "Trans complete to state [%s]...",
-                 tiz_fsm_state_to_str (a_new_state));
+  TIZ_LOGN (TIZ_DEBUG, tiz_api_get_hdl(ap_servant),
+            "Trans complete to state [%s]...",
+            tiz_fsm_state_to_str (a_new_state));
 
   assert (NULL != ap_obj);
   assert (NULL != ap_servant);
@@ -108,7 +107,7 @@ executingtoidle_trans_complete (const void *ap_obj,
       /* Reset the OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN flag in all ports
          where this has been set */
       tiz_krn_reset_tunneled_ports_status
-        (tiz_get_krn (tiz_srv_get_hdl(ap_servant)),
+        (tiz_get_krn (tiz_api_get_hdl(ap_servant)),
          OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
     }
 
@@ -124,7 +123,7 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
   assert (NULL != ap_obj);
 
   {
-    OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl(p_base->p_fsm_);
+    OMX_HANDLETYPE p_hdl = tiz_api_get_hdl(p_base->p_fsm_);
     void *p_krn = tiz_get_krn (p_hdl);
 
     if (TIZ_KRN_MAY_INIT_EXE_TO_IDLE (p_krn))
@@ -133,8 +132,7 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
            are ready to receive ETB/FTB calls.  NOTE: This will call the
          * 'tiz_state_state_set' function of the tiz_state_t base class (note
          * we are passing 'tizidle' as 1st parameter */
-        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (p_hdl), TIZ_CBUF (p_hdl),
-                       "kernel may initiate exe to idle");
+        TIZ_LOGN (TIZ_TRACE, p_hdl, "kernel may initiate exe to idle");
         return tiz_state_super_state_set (tizidle, ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateIdle, NULL);

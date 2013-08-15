@@ -84,7 +84,7 @@ static OMX_ERRORTYPE
 obtain_uri (oggdmux_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  void *p_krn = tiz_get_krn (tiz_srv_get_hdl (ap_prc));
+  void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_prc));
   assert (NULL != ap_prc);
   assert (NULL == ap_prc->p_uri_param_);
 
@@ -93,7 +93,7 @@ obtain_uri (oggdmux_prc_t *ap_prc)
 
   if (NULL == ap_prc->p_uri_param_)
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
                 "Error allocating memory for the content uri struct");
       return OMX_ErrorInsufficientResources;
     }
@@ -103,16 +103,16 @@ obtain_uri (oggdmux_prc_t *ap_prc)
   ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
   if (OMX_ErrorNone != (rc = tiz_api_GetParameter
-                        (p_krn, tiz_srv_get_hdl (ap_prc),
+                        (p_krn, tiz_api_get_hdl (ap_prc),
                          OMX_IndexParamContentURI, ap_prc->p_uri_param_)))
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
                 "[%s] : Error retrieving URI param from port",
                 tiz_err_to_str (rc));
       return rc;
     }
 
-  TIZ_LOGN (TIZ_NOTICE, tiz_srv_get_hdl (ap_prc), "URI [%s]",
+  TIZ_LOGN (TIZ_NOTICE, tiz_api_get_hdl (ap_prc), "URI [%s]",
             ap_prc->p_uri_param_->contentURI);
 
   return OMX_ErrorNone;
@@ -135,7 +135,7 @@ read_audio_packet (OGGZ * oggz, oggz_packet * zp, long serialno, void * user_dat
 
   if (op->b_o_s)
   {
-    TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+    TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
               "%010lu: [%" PRId64 "] BOS %8s\n",
               serialno, op->granulepos, op->packet);
   }
@@ -143,7 +143,7 @@ read_audio_packet (OGGZ * oggz, oggz_packet * zp, long serialno, void * user_dat
   if (op->e_o_s)
   {
     p_prc->eos_ = true;
-    TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+    TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
               "%010lu: [%" PRId64 "] EOS\n",
               serialno, op->granulepos);
   }
@@ -168,7 +168,7 @@ read_video_packet (OGGZ * oggz, oggz_packet * zp, long serialno, void * user_dat
 
   if (op->b_o_s)
   {
-    TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+    TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
               "%010lu: [%" PRId64 "] BOS %8s\n",
               serialno, op->granulepos, op->packet);
   }
@@ -176,7 +176,7 @@ read_video_packet (OGGZ * oggz, oggz_packet * zp, long serialno, void * user_dat
   if (op->e_o_s)
   {
     p_prc->eos_ = true;
-    TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+    TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
               "%010lu: [%" PRId64 "] EOS\n",
               serialno, op->granulepos);
   }
@@ -281,21 +281,21 @@ oggdmux_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   if ((p_prc->p_file_
        = fopen ((const char *) p_prc->p_uri_param_->contentURI, "r")) == 0)
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (p_prc),
                 "Error opening file from URI (%s)", strerror (errno));
       return OMX_ErrorInsufficientResources;
     }
 
   if (NULL == (p_prc->p_oggz_ = oggz_new (OGGZ_READ|OGGZ_AUTO)))
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (p_prc),
                 "Cannot create a new oggz object (%s)", strerror (errno));
       return OMX_ErrorInsufficientResources;
     }
 
   if (NULL == (p_prc->p_tracks_ = oggz_table_new ()))
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (p_prc),
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (p_prc),
                 "Cannot create a new oggz object");
       return OMX_ErrorInsufficientResources;
     }
@@ -328,7 +328,7 @@ print_codec_name (oggdmux_prc_t *ap_prc, long serialno)
     {
       codec_name = "unknown";
     }
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc), "Found codec [%s]", codec_name);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc), "Found codec [%s]", codec_name);
 }
 
 static void

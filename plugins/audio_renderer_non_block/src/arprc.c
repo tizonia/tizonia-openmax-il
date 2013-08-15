@@ -60,13 +60,13 @@ get_alsa_device (ar_prc_t *ap_prc)
 
   if (NULL != p_alsa_pcm)
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                 "Using ALSA pcm [%s]...", p_alsa_pcm);
       ap_prc->p_alsa_pcm_ = strndup (p_alsa_pcm, OMX_MAX_STRINGNAME_SIZE);
     }
   else
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                "No alsa device found in config file. Using [%s]...",
                TIZ_AR_ALSA_PCM_DEVICE);
     }
@@ -102,7 +102,7 @@ release_buffers (ar_prc_t *ap_prc)
 
   if (ap_prc->p_inhdr_)
     {
-      void *p_krn = tiz_get_krn (tiz_srv_get_hdl (ap_prc));
+      void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_prc));
       tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, ap_prc->p_inhdr_));
       ap_prc->p_inhdr_ = NULL;
     }
@@ -129,14 +129,14 @@ render_buffer (ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
   assert (NULL != ap_prc);
   assert (NULL != ap_hdr);
   
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc),
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
            "Rendering HEADER [%p]...nFilledLen[%d] !!!", ap_hdr,
            ap_hdr->nFilledLen);
 
   step = (ap_prc->pcmmode.nBitPerSample / 8) * ap_prc->pcmmode.nChannels;
   assert (ap_hdr->nFilledLen >= ap_hdr->nOffset);
   samples = (ap_hdr->nFilledLen - ap_hdr->nOffset) / step;
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc),
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
     "step [%d], samples [%d]", step, samples);
 
   while (samples > 0)
@@ -144,25 +144,25 @@ render_buffer (ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
       err = snd_pcm_writei (ap_prc->p_pcm_hdl,
                             ap_hdr->pBuffer + ap_hdr->nOffset,
                             samples);
-      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                "Rendering HEADER [%p]..." "err [%d] samples [%d] nOffset [%d]",
                 ap_hdr, err, samples, ap_hdr->nOffset);
 
       if (-EAGAIN == err)
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc),
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                     "Ring buffer must be full (got -EAGAIN)");
           return start_io_watcher (ap_prc);
         }
 
       if (err < 0)
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc),
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                     "Rendering HEADER [%p]...underflow");
           err = snd_pcm_recover (ap_prc->p_pcm_hdl, (int) err, 0);
           if (err < 0)
             {
-              TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (ap_prc),
+              TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
                         "snd_pcm_recover error: %s",
                        snd_strerror ((int) err));
               break;
@@ -194,7 +194,7 @@ buffer_needed (ar_prc_t *ap_prc)
           tiz_pd_set_t ports;
           void *p_krn = NULL;
 
-          p_krn = tiz_get_krn (tiz_srv_get_hdl (ap_prc));
+          p_krn = tiz_get_krn (tiz_api_get_hdl (ap_prc));
 
           TIZ_PD_ZERO (&ports);
           if (OMX_ErrorNone == tiz_krn_select (p_krn, 1, &ports))
@@ -204,7 +204,7 @@ buffer_needed (ar_prc_t *ap_prc)
                   if (OMX_ErrorNone == tiz_krn_claim_buffer
                       (p_krn, 0, 0, &ap_prc->p_inhdr_))
                     {
-                      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc),
+                      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                                 "Claimed HEADER [%p]...nFilledLen [%d]",
                                 ap_prc->p_inhdr_,
                                 ap_prc->p_inhdr_->nFilledLen);
@@ -225,14 +225,14 @@ buffer_emptied (ar_prc_t *ap_prc)
   assert (NULL != ap_prc);
   assert (ap_prc->p_inhdr_->nFilledLen == 0);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc), "HEADER [%p] emptied",
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc), "HEADER [%p] emptied",
             ap_prc->p_inhdr_);
 
   ap_prc->p_inhdr_->nOffset = 0;
 
   if ((ap_prc->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                 "OMX_BUFFERFLAG_EOS in HEADER [%p]",
                 ap_prc->p_inhdr_);
       tiz_srv_issue_event ((OMX_PTR) ap_prc,
@@ -241,7 +241,7 @@ buffer_emptied (ar_prc_t *ap_prc)
     }
 
   tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn
-                                             (tiz_srv_get_hdl (ap_prc)),
+                                             (tiz_api_get_hdl (ap_prc)),
                                              0, ap_prc->p_inhdr_));
   ap_prc->p_inhdr_ = NULL;
   return OMX_ErrorNone;
@@ -261,7 +261,7 @@ render_pcm_data (ar_prc_t *ap_prc)
           tiz_check_omx_err (render_buffer (ap_prc, p_hdr));
         }
 
-      TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
                 "awaiting_io_ev_ [%s]",
                 ap_prc->awaiting_io_ev_ ? "YES" : "NO");
 
@@ -269,7 +269,7 @@ render_pcm_data (ar_prc_t *ap_prc)
         {
           if (OMX_ErrorNone != (rc = buffer_emptied (ap_prc)))
             {
-              TIZ_LOGN (TIZ_ERROR, tiz_srv_get_hdl (ap_prc),
+              TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
                         "[%s] Error while returning bufffer",
                         tiz_err_to_str (rc));
               return rc;
@@ -336,7 +336,7 @@ static OMX_ERRORTYPE
 ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
   ar_prc_t *p_prc = ap_obj;
-  OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_prc);
+  OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_prc);
   int err = 0;
 
   assert (NULL != ap_obj);
@@ -425,7 +425,7 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
     {
       OMX_ERRORTYPE rc = OMX_ErrorNone;
       snd_pcm_format_t snd_pcm_format;
-      OMX_HANDLETYPE p_hdl = tiz_srv_get_hdl (p_obj);
+      OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
       void *p_krn = tiz_get_krn (p_hdl);
       int err = 0;
 
@@ -513,7 +513,7 @@ ar_prc_stop_and_return (void * ap_obj)
 {
   ar_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
             "stop_and_return");
   return do_flush (p_prc);
 }
@@ -557,7 +557,7 @@ static OMX_ERRORTYPE
 ar_prc_buffers_ready (const void *ap_obj)
 {
   ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
             "Received buffer ready notification - awaiting_buffers [%s] "
             "awaiting_io_ev [%s]",
             p_prc->awaiting_buffers_ ? "YES" : "NO",
@@ -576,7 +576,7 @@ ar_prc_io_ready (void *ap_obj,
 {
   ar_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
             "Received io event on fd [%d]", a_fd);
   stop_io_watcher (p_prc);
   return render_pcm_data (p_prc);
@@ -589,7 +589,7 @@ ar_prc_pause (const void *ap_obj)
   int       pause = 1;
   assert (NULL != p_prc);
   snd_pcm_pause (p_prc->p_pcm_hdl, pause);
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
             "PAUSED ALSA device..."
             "awaiting_io_ev_ [%s]",
             p_prc->awaiting_io_ev_ ? "YES" : "NO");
@@ -606,7 +606,7 @@ ar_prc_resume (const void *ap_obj)
   ar_prc_t *p_prc  = (ar_prc_t *) ap_obj;
   int       resume = 0;
   assert (NULL != p_prc);
-  TIZ_LOGN (TIZ_TRACE, tiz_srv_get_hdl (p_prc),
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
             "RESUMING ALSA device...");
   snd_pcm_pause (p_prc->p_pcm_hdl, resume);
   if (p_prc->awaiting_io_ev_ == true)

@@ -80,37 +80,33 @@ state_SendCommand (const void *ap_obj,
     {
     case OMX_CommandStateSet:
       {
-        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                       "SendCommand [%s] [%s]...",
-                       tiz_cmd_to_str (a_cmd),
-                       tiz_fsm_state_to_str (a_param1));
+        TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s] [%s]...",
+                  tiz_cmd_to_str (a_cmd),
+                  tiz_fsm_state_to_str (a_param1));
         rc = tiz_state_state_set (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
     case OMX_CommandFlush:
       {
-        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                       "SendCommand [%s] PORT [%d]...",
-                       tiz_cmd_to_str (a_cmd), a_param1);
+        TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s] PORT [%d]...",
+                  tiz_cmd_to_str (a_cmd), a_param1);
         rc = tiz_state_flush (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
     case OMX_CommandPortDisable:
       {
-        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                       "SendCommand [%s] PORT [%d]...",
-                       tiz_cmd_to_str (a_cmd), a_param1);
+        TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s] PORT [%d]...",
+                  tiz_cmd_to_str (a_cmd), a_param1);
         rc = tiz_state_disable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
 
     case OMX_CommandPortEnable:
       {
-        TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (ap_hdl), TIZ_CBUF (ap_hdl),
-                       "SendCommand [%s] PORT [%d]...",
-                       tiz_cmd_to_str (a_cmd), a_param1);
+        TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s] PORT [%d]...",
+                  tiz_cmd_to_str (a_cmd), a_param1);
         rc = tiz_state_enable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
       break;
@@ -411,12 +407,11 @@ state_trans_complete (const void *ap_obj,
 
   p_obj->servants_count_++;
 
-  TIZ_LOG_CNAME (TIZ_TRACE, TIZ_CNAME (tiz_srv_get_hdl (ap_servant)),
-                 TIZ_CBUF (tiz_srv_get_hdl (ap_servant)),
-                 "Transition to [%s] is NOW complete at [%s]..."
-                 "Servant count is now [%d]...",
-                 tiz_fsm_state_to_str (a_new_state), nameOf (ap_servant),
-                 p_obj->servants_count_);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_servant),
+            "Transition to [%s] is NOW complete at [%s]..."
+            "Servant count is now [%d]...",
+            tiz_fsm_state_to_str (a_new_state), nameOf (ap_servant),
+            p_obj->servants_count_);
 
   if (2 == p_obj->servants_count_)
     {
@@ -426,7 +421,7 @@ state_trans_complete (const void *ap_obj,
           /* Reset the OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE flag in all ports where this
            * has been set */
           tiz_krn_reset_tunneled_ports_status (tiz_get_krn
-                                               (tiz_srv_get_hdl (ap_servant)),
+                                               (tiz_api_get_hdl (ap_servant)),
                                                OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
         }
       tiz_fsm_set_state (p_obj->p_fsm_, a_new_state, EStateMax);
