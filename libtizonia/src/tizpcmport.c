@@ -90,6 +90,7 @@ pcmport_ctor (void *ap_obj, va_list * app)
       p_obj->mute_ = *p_mute;
     }
 
+  /* TODO: Extract this from the va_list */
   p_base->portdef_.eDomain = OMX_PortDomainAudio;
   p_base->portdef_.format.audio.pNativeRender = 0;
   /* TODO: MIME type */

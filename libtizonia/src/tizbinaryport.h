@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizaudioport.h
+ * @file   tizbinaryport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia OpenMAX IL - binaryport class
@@ -34,9 +34,10 @@ extern "C"
 {
 #endif
 
+#include "tizport.h"
+
 #include "OMX_Core.h"
 #include "OMX_Types.h"
-#include "tizport.h"
 
 /* factory_new(tizbinaryport, ...); */
   extern const void *tizbinaryport;

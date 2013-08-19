@@ -34,10 +34,10 @@ extern "C"
 {
 #endif
 
+#include "tizport.h"
+
 #include "OMX_Core.h"
 #include "OMX_Types.h"
-
-#include "tizport.h"
 
 /* factory_new(tizconfigport, ...); */
   extern const void *tizconfigport;

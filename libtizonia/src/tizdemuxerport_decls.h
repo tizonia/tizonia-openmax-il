@@ -18,16 +18,16 @@
  */
 
 /**
- * @file   tizbinaryport_decls.h
+ * @file   tizdemuxerport_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - binaryport class declarations
+ * @brief  Tizonia OpenMAX IL - demuxerport class declarations
  *
  *
  */
 
-#ifndef TIZBINARYPORT_DECLS_H
-#define TIZBINARYPORT_DECLS_H
+#ifndef TIZDEMUXERPORT_DECLS_H
+#define TIZDEMUXERPORT_DECLS_H
 
 #ifdef __cplusplus
 extern "C"
@@ -36,16 +36,16 @@ extern "C"
 
 #include "tizport_decls.h"
 
-  typedef struct tiz_binaryport tiz_binaryport_t;
-  struct tiz_binaryport
+  typedef struct tiz_demuxerport tiz_demuxerport_t;
+  struct tiz_demuxerport
   {
     /* Object */
     const tiz_port_t _;
     void *p_port_;
   };
 
-  typedef struct tiz_binaryport_class tiz_binaryport_class_t;
-  struct tiz_binaryport_class
+  typedef struct tiz_demuxerport_class tiz_demuxerport_class_t;
+  struct tiz_demuxerport_class
   {
     /* Class */
     const tiz_port_class_t _;
@@ -56,4 +56,4 @@ extern "C"
 }
 #endif
 
-#endif                          /* TIZBINARYPORT_DECLS_H */
+#endif                          /* TIZDEMUXERPORT_DECLS_H */

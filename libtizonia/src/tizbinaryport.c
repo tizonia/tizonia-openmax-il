@@ -30,8 +30,6 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "tizbinaryport.h"
 #include "tizbinaryport_decls.h"
 
@@ -42,6 +40,8 @@
 
 #include "tizosal.h"
 #include "tizutils.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -76,7 +76,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
         };
         tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat);
         tiz_check_omx_err_ret_null (tiz_audioport_init ());
-        p_obj->ip_port = factory_new (tizaudioport, tiz_api_get_hdl (ap_obj),
+        p_obj->p_port_ = factory_new (tizaudioport, tiz_api_get_hdl (ap_obj),
                                       p_opts, &encodings);
       }
       break;
@@ -109,7 +109,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
 
         tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat);
         tiz_check_omx_err_ret_null (tiz_videoport_init ());
-        p_obj->ip_port = factory_new (tizvideoport, tiz_api_get_hdl (ap_obj),
+        p_obj->p_port_ = factory_new (tizvideoport, tiz_api_get_hdl (ap_obj),
                                       p_opts, &portdef,
                                       &encodings, &formats);
       }
@@ -141,7 +141,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
 
         tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat);
         tiz_check_omx_err_ret_null (tiz_imageport_init ());
-        p_obj->ip_port = factory_new (tizimageport, tiz_api_get_hdl (ap_obj),
+        p_obj->p_port_ = factory_new (tizimageport, tiz_api_get_hdl (ap_obj),
                                       p_opts, &portdef,
                                       &encodings, &formats);
       }
@@ -156,7 +156,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
 
         tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat);
         tiz_check_omx_err_ret_null (tiz_otherport_init ());
-        p_obj->ip_port = factory_new (tizotherport, tiz_api_get_hdl (ap_obj),
+        p_obj->p_port_ = factory_new (tizotherport, tiz_api_get_hdl (ap_obj),
                                       p_opts, &formats);
       }
       break;
@@ -175,7 +175,7 @@ binaryport_dtor (void *ap_obj)
 {
   tiz_binaryport_t *p_obj = ap_obj;
   assert (p_obj);
-  factory_delete (p_obj->ip_port);
+  factory_delete (p_obj->p_port_);
   return super_dtor (tizbinaryport, ap_obj);
 }
 
@@ -191,8 +191,6 @@ binaryport_GetParameter (const void *ap_obj,
   const tiz_binaryport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
-
   switch (a_index)
     {
     case OMX_IndexParamAudioPortFormat:
@@ -202,7 +200,7 @@ binaryport_GetParameter (const void *ap_obj,
       {
         /* Delegate to the domain-specific port */
         if (OMX_ErrorUnsupportedIndex
-            != (rc = tiz_api_GetParameter (p_obj->ip_port,
+            != (rc = tiz_api_GetParameter (p_obj->p_port_,
                                           ap_hdl, a_index, ap_struct)))
           {
             return rc;
@@ -230,8 +228,6 @@ binaryport_SetParameter (const void *ap_obj,
   tiz_binaryport_t *p_obj = (tiz_binaryport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
-
   switch (a_index)
     {
     case OMX_IndexParamAudioPortFormat:
@@ -241,7 +237,7 @@ binaryport_SetParameter (const void *ap_obj,
       {
         /* Delegate to the domain-specific port */
         if (OMX_ErrorUnsupportedIndex
-            != (rc = tiz_api_SetParameter (p_obj->ip_port,
+            != (rc = tiz_api_SetParameter (p_obj->p_port_,
                                           ap_hdl, a_index, ap_struct)))
           {
             return rc;
@@ -274,9 +270,9 @@ static OMX_BOOL
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOG (TIZ_TRACE, "port [%d] check_tunnel_compat : "
-               "Different domain found [%d]", p_obj->pid_,
-               ap_other_def->eDomain);
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+                "port [%d] check_tunnel_compat : Different domain found [%d]",
+                p_obj->pid_, ap_other_def->eDomain);
       return OMX_FALSE;
     }
 
