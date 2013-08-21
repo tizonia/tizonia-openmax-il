@@ -308,7 +308,7 @@ pcmport_SetConfig (const void *ap_obj,
 
     case OMX_IndexConfigAudioVolume:
       {
-
+        /* TODO: Delegate this to the processor */
         const OMX_AUDIO_CONFIG_VOLUMETYPE *p_volume
           = (OMX_AUDIO_CONFIG_VOLUMETYPE *) ap_struct;
 
@@ -330,6 +330,7 @@ pcmport_SetConfig (const void *ap_obj,
     case OMX_IndexConfigAudioMute:
       {
 
+        /* TODO: Delegate this to the processor */
         const OMX_AUDIO_CONFIG_MUTETYPE *p_mute
           = (OMX_AUDIO_CONFIG_MUTETYPE *) ap_struct;
 

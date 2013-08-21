@@ -214,6 +214,8 @@ ivrport_SetConfig (const void *ap_obj,
     case OMX_IndexConfigTimeRenderingDelay:
       {
         /* This is a read-only index. Simply ignore it. */
+        TIZ_LOGN (TIZ_NOTICE, ap_hdl, "Ignoring read-only index [%s] ",
+                  tiz_idx_to_str (a_index));
       }
       break;
 

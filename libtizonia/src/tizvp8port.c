@@ -270,6 +270,11 @@ vp8port_SetParameter (const void *ap_obj,
             p_obj->vp8type_.bErrorResilientMode =
               p_vp8type->bErrorResilientMode;
           }
+        else
+          {
+            TIZ_LOGN (TIZ_NOTICE, ap_hdl, "Ignoring read-only index [%s] ",
+                      tiz_idx_to_str (a_index));
+          }
       }
       break;
 
@@ -311,6 +316,8 @@ vp8port_SetParameter (const void *ap_obj,
       {
         /* This is a read-only index for both input and output ports. Simply
          * ignore it here.  */
+        TIZ_LOGN (TIZ_NOTICE, ap_hdl, "Ignoring read-only index [%s] ",
+                  tiz_idx_to_str (a_index));
       }
       break;
 
