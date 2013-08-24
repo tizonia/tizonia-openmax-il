@@ -73,6 +73,8 @@ libtizonia_include_HEADERS = \
 	tizivrport.h \
 	tizdemuxerport_decls.h \
 	tizdemuxerport.h \
+	tizdemuxercfgport.h \
+	tizdemuxercfgport_decls.h \
 	tizkernel_helpers.inl \
 	tizkernel_dispatch.inl
 
@@ -108,7 +110,8 @@ libtizonia_la_SOURCES = \
 	tizopusport.c \
 	tizvp8port.c \
 	tizivrport.c \
-	tizdemuxerport.c
+	tizdemuxerport.c \
+	tizdemuxercfgport.c
 
 libtizonia_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \

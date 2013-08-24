@@ -30,11 +30,12 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
 #include "tizscheduler.h"
 #include "tizivrport.h"
 #include "tizconfigport.h"
 #include "sdlivrprc.h"
+
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"

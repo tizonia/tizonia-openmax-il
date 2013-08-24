@@ -30,11 +30,13 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
-#include "tizscheduler.h"
-#include "tizbinaryport.h"
 #include "frcfgport.h"
 #include "frprc.h"
+
+#include "tizscheduler.h"
+#include "tizbinaryport.h"
+
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"

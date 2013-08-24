@@ -30,12 +30,6 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
-
-#include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
-
 #include "tizport.h"
 #include "tizport-macros.h"
 #include "tizport_decls.h"
@@ -43,6 +37,12 @@
 
 #include "tizutils.h"
 #include "tizosal.h"
+
+#include "OMX_Types.h"
+#include "OMX_TizoniaExt.h"
+
+#include <assert.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -224,6 +224,8 @@ port_ctor (void *ap_obj, va_list * app)
   OMX_INDEXTYPE id3 = OMX_IndexConfigTunneledPortStatus;
   OMX_INDEXTYPE id4 = OMX_TizoniaIndexParamBufferPreAnnouncementsMode;
 
+  assert (NULL != ap_obj);
+
   /* Register the indexes managed by this base port class */
   tiz_vector_init (&(p_obj->p_indexes_), sizeof (OMX_INDEXTYPE));
   tiz_vector_push_back (p_obj->p_indexes_, &id1);
@@ -242,6 +244,8 @@ port_ctor (void *ap_obj, va_list * app)
   if ((p_opts = va_arg (*app, tiz_port_options_t *)))
     {
       p_obj->opts_ = *p_opts;
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "min_buf_size [%d]",
+                p_opts->min_buf_size);
     }
 
   if (NULL == p_obj->opts_.mem_hooks.pf_alloc
@@ -2042,6 +2046,9 @@ port_class_ctor (void *ap_obj, va_list * app)
   typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
+
+  assert (NULL != ap_obj);
+
   va_copy (ap, *app);
 
   while ((selector = va_arg (ap, voidf)))

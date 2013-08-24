@@ -46,7 +46,7 @@ extern "C"
   typedef void (*tiz_pv_dump_item_f) (OMX_PTR ap_data);
 
   OMX_ERRORTYPE tiz_vector_init (tiz_vector_t ** app_vector,
-                                 OMX_S32 a_capacity);
+                                 size_t a_elem_size);
 
   void tiz_vector_destroy (tiz_vector_t * ap_vector);
 

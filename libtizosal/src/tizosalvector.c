@@ -49,7 +49,7 @@ struct tiz_vector
 
 
 OMX_ERRORTYPE
-tiz_vector_init (tiz_vector_t ** app_vector, OMX_S32 a_elem_size)
+tiz_vector_init (tiz_vector_t ** app_vector, size_t a_elem_size)
 {
   tiz_vector_t *p_vec = NULL;
 

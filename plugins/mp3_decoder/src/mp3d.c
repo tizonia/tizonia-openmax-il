@@ -30,12 +30,14 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
+#include "mp3dprc.h"
+
 #include "tizscheduler.h"
 #include "tizmp3port.h"
 #include "tizpcmport.h"
 #include "tizconfigport.h"
-#include "mp3dprc.h"
+
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
@@ -54,9 +56,8 @@
 #define ARATELIA_MP3_DECODER_COMPONENT_NAME   "OMX.Aratelia.audio_decoder.mp3"
 
 /* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_MP3_DECODER_INPUT_PORT_INDEX  0
-#define ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX 1
-
+#define ARATELIA_MP3_DECODER_INPUT_PORT_INDEX         0
+#define ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX        1
 #define ARATELIA_MP3_DECODER_PORT_MIN_BUF_COUNT       2
 #define ARATELIA_MP3_DECODER_PORT_MIN_INPUT_BUF_SIZE  (5*8192)
 #define ARATELIA_MP3_DECODER_PORT_MIN_OUTPUT_BUF_SIZE (2*8192)

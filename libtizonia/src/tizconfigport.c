@@ -58,12 +58,15 @@ configport_ctor (void *ap_obj, va_list * app)
   str_len = strnlen (p_obj->comp_name_, OMX_MAX_STRINGNAME_SIZE - 1);
   p_obj->comp_name_[str_len] = '\0';
 
-  TIZ_LOG (TIZ_TRACE, "comp_name_ [%s]...", p_obj->comp_name_);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "comp_name_ [%s]...", p_obj->comp_name_);
 
   /* Component version */
   p_obj->comp_ver_ = va_arg (*app, OMX_VERSIONTYPE);
 
   /* Init the OMX IL structs */
+
+  /* TODO: One day, these should probably be exposed via constructor arguments */
 
   /* OMX_RESOURCECONCEALMENTTYPE */
   p_obj->param_rc_.nSize = sizeof (OMX_RESOURCECONCEALMENTTYPE);
@@ -84,11 +87,16 @@ configport_ctor (void *ap_obj, va_list * app)
   /* This is a bit ugly... */
   /* ... we clear the indexes added by the base port class */
   tiz_vector_clear (p_base->p_indexes_);
+
   /* Now register the indexes we are interested in */
-  tiz_port_register_index (p_obj, OMX_IndexParamDisableResourceConcealment);
-  tiz_port_register_index (p_obj, OMX_IndexParamSuspensionPolicy);
-  tiz_port_register_index (p_obj, OMX_IndexParamPriorityMgmt);
-  tiz_port_register_index (p_obj, OMX_IndexConfigPriorityMgmt);
+  tiz_check_omx_err_ret_null
+    (tiz_port_register_index (p_obj, OMX_IndexParamDisableResourceConcealment));
+  tiz_check_omx_err_ret_null
+    (tiz_port_register_index (p_obj, OMX_IndexParamSuspensionPolicy));
+  tiz_check_omx_err_ret_null
+    (tiz_port_register_index (p_obj, OMX_IndexParamPriorityMgmt));
+  tiz_check_omx_err_ret_null
+    (tiz_port_register_index (p_obj, OMX_IndexConfigPriorityMgmt));
 
   /* Generate the uuid */
   tiz_uuid_generate (&p_obj->uuid_);

@@ -57,34 +57,50 @@ demuxerport_ctor (void *ap_obj, va_list * app)
   tiz_port_options_t *p_opts = NULL;
   va_list app_copy;
 
+  /* Make a copy of the incoming va_list before it gets parsed by the parent
+     class:
+     The expected arguments are:
+     ap_hdl,
+     port_opts
+
+     */
   va_copy (app_copy, *app);
+
+  /* Now give the original to the base class */
   if (NULL !=  (p_obj = super_ctor (tizdemuxerport, ap_obj, app)))
     {
-      /* Register the demuxer port-specific indexes  */
+      /* Register the demuxer-specific indexes  */
       tiz_check_omx_err_ret_null
         (tiz_port_register_index (p_obj, OMX_IndexParamNumAvailableStreams));
       tiz_check_omx_err_ret_null
         (tiz_port_register_index (p_obj, OMX_IndexParamActiveStream));
 
-      /* Grab the port options structure */
-      p_opts = va_arg (app_copy, tiz_port_options_t *);
+      /* Do not forget to pop the component handle (its needed in a base class) */
+      (void) va_arg (app_copy, OMX_HANDLETYPE);
+
+      /* Grab the port options structure (mandatory argument) */
+      p_opts      = va_arg (app_copy, tiz_port_options_t *);
       assert (NULL != p_opts);
+
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "min_buf_size [%d]",
+                p_opts->min_buf_size);
 
       switch (p_opts->domain)
         {
         case OMX_PortDomainAudio:
           {
             /* Let's instantiate a PCM port */
+            OMX_AUDIO_CODINGTYPE *p_encodings = NULL;
             OMX_AUDIO_PARAM_PCMMODETYPE *p_pcmmode = NULL;
             OMX_AUDIO_CONFIG_VOLUMETYPE *p_volume = NULL;
             OMX_AUDIO_CONFIG_MUTETYPE *p_mute = NULL;
-
-            /* TODO: Extract this from the va_list */
             OMX_AUDIO_CODINGTYPE encodings[] = {
               OMX_AUDIO_CodingUnused,
               OMX_AUDIO_CodingMax
             };
 
+            /* Register the PCM port indexes, so this port receives the get/set
+               requests */
             tiz_check_omx_err_ret_null
               (tiz_port_register_index (p_obj, OMX_IndexParamAudioPcm));
             tiz_check_omx_err_ret_null
@@ -92,20 +108,30 @@ demuxerport_ctor (void *ap_obj, va_list * app)
             tiz_check_omx_err_ret_null
               (tiz_port_register_index (p_obj, OMX_IndexConfigAudioMute));
 
-            /* Get the OMX_AUDIO_PARAM_PCMMODETYPE structure */
-            p_pcmmode = va_arg (*app, OMX_AUDIO_PARAM_PCMMODETYPE *);
+            /* Get the array of OMX_AUDIO_CODINGTYPE values  (mandatory argument) */
+            p_encodings = va_arg (app_copy, OMX_AUDIO_CODINGTYPE *);
+            assert (NULL != p_encodings);
 
-            /* Get the OMX_AUDIO_CONFIG_VOLUMETYPE structure */
-            p_volume = va_arg (*app, OMX_AUDIO_CONFIG_VOLUMETYPE *);
+            /* Get the OMX_AUDIO_PARAM_PCMMODETYPE structure (mandatory argument) */
+            p_pcmmode = va_arg (app_copy, OMX_AUDIO_PARAM_PCMMODETYPE *);
+            assert (NULL != p_pcmmode);
 
-            /* Get the OMX_AUDIO_CONFIG_MUTETYPE structure */
-            p_mute = va_arg (*app, OMX_AUDIO_CONFIG_MUTETYPE *);
+            /* Get the OMX_AUDIO_CONFIG_VOLUMETYPE structure (mandatory argument) */
+            p_volume = va_arg (app_copy, OMX_AUDIO_CONFIG_VOLUMETYPE *);
+            assert (NULL != p_volume);
+
+            TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "p_volume->sVolume.nValue [%d]",
+                      p_volume->sVolume.nValue);
+
+            /* Get the OMX_AUDIO_CONFIG_MUTETYPE structure (mandatory argument) */
+            p_mute = va_arg (app_copy, OMX_AUDIO_CONFIG_MUTETYPE *);
+            assert (NULL != p_mute);
 
             tiz_check_omx_err_ret_null (tiz_pcmport_init ());
-            if (NULL == (p_obj->p_port_
-                         = factory_new (tizpcmport, tiz_api_get_hdl (ap_obj),
-                                        p_opts, &encodings,
-                                        p_pcmmode, p_volume, p_mute)))
+            p_obj->p_port_
+              = factory_new (tizpcmport, tiz_api_get_hdl (ap_obj),
+                             p_opts, &encodings, p_pcmmode, p_volume, p_mute);
+            if (NULL == p_obj->p_port_)
               {
                 return NULL;
               }
@@ -114,38 +140,31 @@ demuxerport_ctor (void *ap_obj, va_list * app)
 
         case OMX_PortDomainVideo:
           {
-            OMX_VIDEO_PORTDEFINITIONTYPE portdef;
-            OMX_VIDEO_CODINGTYPE encodings[] = {
-              OMX_VIDEO_CodingUnused,
-              OMX_VIDEO_CodingMax
-            };
-            OMX_COLOR_FORMATTYPE formats[] = {
-              OMX_COLOR_FormatYUV420Planar,
-              OMX_COLOR_FormatMax
-            };
-            /* NOTE: No defaults are defined in the standard for the video
-             * output port of the video_reader.demuxer component. So for the
-             * sake of completeness, simply provide some default values
-             * here. */
-            portdef.pNativeRender = NULL;
-            portdef.nFrameWidth = 176;
-            portdef.nFrameHeight = 144;
-            portdef.nStride = 0;
-            portdef.nSliceHeight = 0;
-            portdef.nBitrate = 0;
-            portdef.xFramerate = 15;
-            portdef.bFlagErrorConcealment = OMX_FALSE;
-            portdef.eCompressionFormat = OMX_VIDEO_CodingUnused;
-            portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
-            portdef.pNativeWindow = NULL;
+            OMX_VIDEO_PORTDEFINITIONTYPE *p_portdef = NULL;
+            OMX_VIDEO_CODINGTYPE *p_encodings = NULL;
+            OMX_COLOR_FORMATTYPE *p_formats = NULL;
 
+            /* Register the raw video port indexes, so this port receives the
+               get/set requests */
             tiz_check_omx_err_ret_null
               (tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat));
+
+            /* Get the OMX_VIDEO_PORTDEFINITIONTYPE structure (mandatory argument) */
+            p_portdef = va_arg (app_copy, OMX_VIDEO_PORTDEFINITIONTYPE *);
+            assert (NULL != p_portdef);
+
+            /* Get the array of OMX_VIDEO_CODINGTYPE values (mandatory argument) */
+            p_encodings = va_arg (app_copy, OMX_VIDEO_CODINGTYPE *);
+            assert (NULL != p_encodings);
+
+            /* Get the array of OMX_COLOR_FORMATTYPE values (mandatory argument) */
+            p_formats = va_arg (app_copy, OMX_COLOR_FORMATTYPE *);
+            assert (NULL != p_formats);
+
             tiz_check_omx_err_ret_null (tiz_videoport_init ());
             if (NULL == (p_obj->p_port_
                          = factory_new (tizvideoport, tiz_api_get_hdl (ap_obj),
-                                        p_opts, &portdef,
-                                        &encodings, &formats)))
+                                        p_opts, p_portdef, p_encodings, p_formats)))
               {
                 return NULL;
               }
@@ -165,7 +184,7 @@ static void *
 demuxerport_dtor (void *ap_obj)
 {
   tiz_demuxerport_t *p_obj = ap_obj;
-  assert (p_obj);
+  assert (NULL != p_obj);
   factory_delete (p_obj->p_port_);
   return super_dtor (tizdemuxerport, ap_obj);
 }
@@ -218,6 +237,7 @@ demuxerport_GetParameter (const void *ap_obj,
       }
       /* NOTE: Fall through if GetParameter returned
        * OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
+      /*@fallthrough@*/
     default:
       {
         /* Delegate to the base port */
@@ -273,7 +293,7 @@ demuxerport_SetParameter (const void *ap_obj,
     case OMX_IndexParamVideoPortFormat:
       {
         /* Delegate to the domain-specific port */
-        assert (p_obj->p_port_);
+        assert (NULL != p_obj->p_port_);
         if (OMX_ErrorUnsupportedIndex
             != (rc = tiz_api_SetParameter (p_obj->p_port_,
                                            ap_hdl, a_index, ap_struct)))
@@ -284,6 +304,7 @@ demuxerport_SetParameter (const void *ap_obj,
 
       /* NOTE: Fall through if SetParameter returned
        * OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
+      /*@fallthrough@*/
     default:
       {
         /* Delegate to the base port */
@@ -300,6 +321,7 @@ demuxerport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_demuxerport_t *p_obj = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
             "GetConfig [%s]...", tiz_idx_to_str (a_index));
@@ -311,7 +333,6 @@ demuxerport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     case OMX_IndexConfigAudioVolume:
     case OMX_IndexConfigAudioMute:
       {
-        OMX_ERRORTYPE rc = OMX_ErrorNone;
         /* Delegate to the domain-specific port */
         if (OMX_ErrorUnsupportedIndex
             != (rc = tiz_api_GetConfig (p_obj->p_port_,
@@ -323,15 +344,16 @@ demuxerport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
       /* NOTE: Fall through if GetParameter returned
        * OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
+      /*@fallthrough@*/
     default:
       {
         /* Try the parent's indexes */
-        return super_GetConfig (tizdemuxerport,
-                                ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_GetConfig (tizdemuxerport,
+                              ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
-  return OMX_ErrorNone;
+  return rc;
 
 }
 
@@ -341,6 +363,7 @@ demuxerport_SetConfig (const void *ap_obj,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_demuxerport_t *p_obj = (tiz_demuxerport_t *) ap_obj;
+        OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
             "SetConfig [%s]...", tiz_idx_to_str (a_index));
@@ -352,7 +375,6 @@ demuxerport_SetConfig (const void *ap_obj,
     case OMX_IndexConfigAudioVolume:
     case OMX_IndexConfigAudioMute:
       {
-        OMX_ERRORTYPE rc = OMX_ErrorNone;
         /* TODO: Delegate this to the processor */
         if (OMX_ErrorUnsupportedIndex
             != (rc = tiz_api_SetConfig (p_obj->p_port_,
@@ -364,15 +386,16 @@ demuxerport_SetConfig (const void *ap_obj,
 
       /* NOTE: Fall through if GetParameter returned
        * OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
+      /*@fallthrough@*/
     default:
       {
         /* Try the parent's indexes */
-        return super_SetConfig (tizdemuxerport,
-                                ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_SetConfig (tizdemuxerport,
+                              ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
-  return OMX_ErrorNone;
+  return rc;
 
 }
 
@@ -383,8 +406,8 @@ demuxerport_check_tunnel_compat
  OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
-  assert (ap_this_def);
-  assert (ap_other_def);
+  assert (NULL != ap_this_def);
+  assert (NULL != ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {

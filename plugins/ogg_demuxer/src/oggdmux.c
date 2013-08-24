@@ -31,10 +31,11 @@
 #endif
 
 #include "oggdmuxprc.h"
-#include "tizosal.h"
 #include "tizscheduler.h"
-#include "tizconfigport.h"
-#include "tizbinaryport.h"
+#include "tizdemuxercfgport.h"
+#include "tizdemuxerport.h"
+
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
@@ -65,6 +66,13 @@ static OMX_VERSIONTYPE ogg_demuxer_version = { {1, 0, 0, 0} };
 static OMX_PTR
 instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
 {
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
+  OMX_AUDIO_CONFIG_VOLUMETYPE volume;
+  OMX_AUDIO_CONFIG_MUTETYPE mute;
+  OMX_AUDIO_CODINGTYPE encodings[] = {
+    OMX_AUDIO_CodingUnused,
+    OMX_AUDIO_CodingMax
+  };
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirOutput,
@@ -77,13 +85,55 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  /* The demuxer port expects to receive PCM mode, volume and mute structures
+     when instantiated as an audio domain port */
+
+  /* Initialize the pcm info */
+  pcmmode.nSize              = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+  pcmmode.nVersion.nVersion  = OMX_VERSION;
+  pcmmode.nPortIndex         = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
+  pcmmode.nChannels          = 2;
+  pcmmode.eNumData           = OMX_NumericalDataSigned;
+  pcmmode.eEndian            = OMX_EndianLittle;
+  pcmmode.bInterleaved       = OMX_TRUE;
+  pcmmode.nBitPerSample      = 16;
+  pcmmode.nSamplingRate      = 48000;
+  pcmmode.ePCMMode           = OMX_AUDIO_PCMModeLinear;
+  pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
+  pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
+
+  /* Initialize the pcm struct */
+  volume.nSize             = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
+  volume.nVersion.nVersion = OMX_VERSION;
+  volume.nPortIndex        = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
+  volume.bLinear           = OMX_FALSE;
+  volume.sVolume.nValue    = 50;
+  volume.sVolume.nMin      = 0;
+  volume.sVolume.nMax      = 100;
+
+  /* Initialize the mute struct */
+  mute.nSize             = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
+  mute.nVersion.nVersion = OMX_VERSION;
+  mute.nPortIndex        = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
+  mute.bMute             = OMX_FALSE;
+
+  tiz_check_omx_err_ret_null (tiz_demuxerport_init ());
+  return factory_new (tizdemuxerport, ap_hdl, &port_opts, &encodings,
+                      &pcmmode, &volume, &mute);
 }
 
 static OMX_PTR
 instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
 {
+  OMX_VIDEO_PORTDEFINITIONTYPE portdef;
+  OMX_VIDEO_CODINGTYPE encodings[] = {
+    OMX_VIDEO_CodingUnused,
+    OMX_VIDEO_CodingMax
+  };
+  OMX_COLOR_FORMATTYPE formats[] = {
+    OMX_COLOR_FormatUnused,
+    OMX_COLOR_FormatMax
+  };
   tiz_port_options_t port_opts = {
     OMX_PortDomainVideo,
     OMX_DirOutput,
@@ -96,15 +146,36 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  /* The demuxer port expects to receive raw the same structures as in a normal
+     raw video port when instantiated as a video domain port */
+
+  /* NOTE: No defaults are defined in the standard for the video
+   * output port of the video_reader.demuxer component. So for the
+   * sake of completeness, simply provide some default values
+   * here. */
+
+  portdef.pNativeRender         = NULL;
+  portdef.nFrameWidth           = 176;
+  portdef.nFrameHeight          = 144;
+  portdef.nStride               = 0;
+  portdef.nSliceHeight          = 0;
+  portdef.nBitrate              = 0;
+  portdef.xFramerate            = 15;
+  portdef.bFlagErrorConcealment = OMX_FALSE;
+  portdef.eCompressionFormat    = OMX_VIDEO_CodingUnused;
+  portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
+  portdef.pNativeWindow         = NULL;
+
+  tiz_check_omx_err_ret_null (tiz_demuxerport_init ());
+  return factory_new (tizdemuxerport, ap_hdl, &port_opts, &portdef,
+                      &encodings, &formats);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
+  tiz_check_omx_err_ret_null (tiz_demuxer_cfgport_init ());
+  return factory_new (tizdemuxercfgport, ap_hdl, NULL,   /* this port does not take options */
                       ARATELIA_OGG_DEMUXER_COMPONENT_NAME,
                       ogg_demuxer_version);
 }
