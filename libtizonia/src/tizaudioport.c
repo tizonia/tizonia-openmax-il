@@ -106,7 +106,7 @@ audioport_GetParameter (const void *ap_obj,
 {
   const tiz_audioport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, "GetParameter [%s]...", ap_hdl, tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
 
   switch (a_index)

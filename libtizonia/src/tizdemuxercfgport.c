@@ -40,7 +40,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.file_reader.tizdemuxercfgport"
+#define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.demuxercfgport"
 #endif
 
 
@@ -116,7 +116,7 @@ demuxer_cfgport_GetParameter (const void *ap_obj,
 {
   const tiz_demuxer_cfgport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, "GetParameter [%s]...", ap_hdl, tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   assert (NULL != p_obj);
 
@@ -159,13 +159,12 @@ demuxer_cfgport_GetParameter (const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-demuxer_cfgport_SetParameter (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
+demuxer_cfgport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, "SetParameter [%s]...", ap_hdl, tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   assert (NULL != p_obj);
 
@@ -192,7 +191,7 @@ demuxer_cfgport_SetParameter (const void *ap_obj,
             p_uri->contentURI[uri_size - 1] = '\000';
           }
 
-        TIZ_LOGN (TIZ_TRACE, "Set URI [%s]...", ap_hdl, p_obj->p_uri_);
+        TIZ_LOGN (TIZ_TRACE, ap_hdl, "Set URI [%s]...", p_obj->p_uri_);
       }
       break;
 
@@ -213,8 +212,9 @@ demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_TRACE, "GetConfig [%s]...", ap_hdl, tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
 
   assert (NULL != p_obj);
 
@@ -225,7 +225,6 @@ demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       {
         /* Only the processor knows about current position or seek mode. So
            lets get the processor to fill this info for us. */
-        OMX_ERRORTYPE rc = OMX_ErrorNone;
         void *p_prc = tiz_get_prc (ap_hdl);
         assert (NULL != p_prc);
         if (OMX_ErrorNone != (rc = tiz_api_GetConfig (p_prc, ap_hdl,
@@ -242,12 +241,12 @@ demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     default:
       {
         /* Delegate to the base port */
-        return super_GetParameter (tizdemuxercfgport,
-                                   ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_GetConfig (tizdemuxercfgport,
+                              ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -255,8 +254,9 @@ demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_TRACE, "SetConfig [%s]...", ap_hdl, tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
   assert (NULL != p_obj);
 
@@ -265,7 +265,6 @@ demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     case OMX_IndexConfigTimePosition:
     case OMX_IndexConfigTimeSeekMode:
       {
-        OMX_ERRORTYPE rc = OMX_ErrorNone;
         /* Only the processor knows about current position or seek mode. So
            lets get the processor update this info for us. */
         void *p_prc = tiz_get_prc (ap_hdl);
@@ -284,12 +283,12 @@ demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     default:
       {
         /* Delegate to the base port */
-        return super_SetConfig (tizdemuxercfgport,
-                                ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_SetConfig (tizdemuxercfgport,
+                              ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 /*
