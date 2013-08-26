@@ -21,7 +21,7 @@
  * @file   oggdmuxprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  * 
- * @brief  Tizonia OpenMAX IL - File Reader processor class decls
+ * @brief  Tizonia OpenMAX IL - Ogg demuxer processor class decls
  * 
  * 
  */
@@ -51,8 +51,11 @@ extern "C"
     OMX_PARAM_CONTENTURITYPE *p_uri_param_;
     OGGZ *p_oggz_;
     OggzTable *p_tracks_;
-    OMX_BUFFERHEADERTYPE *pouthdr_;
+    OMX_BUFFERHEADERTYPE *p_aud_hdr_;
+    OMX_BUFFERHEADERTYPE *p_vid_hdr_;
     bool eos_;
+    bool awaiting_buffers_;
+    bool port_disabled_;
   };
 
 #ifdef __cplusplus

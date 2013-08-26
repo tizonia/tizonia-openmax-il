@@ -250,78 +250,78 @@ _ctx_signal (cc_ctx_t * app_ctx)
   return OMX_ErrorNone;
 }
 
-/* static OMX_ERRORTYPE */
-/* _ctx_wait (cc_ctx_t * app_ctx, OMX_U32 a_millis, OMX_BOOL * ap_has_timedout) */
-/* { */
-/*   int retcode; */
-/*   check_common_context_t *p_ctx = NULL; */
-/*   assert (app_ctx); */
-/*   p_ctx = * app_ctx; */
+static OMX_ERRORTYPE
+_ctx_wait (cc_ctx_t * app_ctx, OMX_U32 a_millis, OMX_BOOL * ap_has_timedout)
+{
+  int retcode;
+  check_common_context_t *p_ctx = NULL;
+  assert (app_ctx);
+  p_ctx = * app_ctx;
 
-/*   TIZ_LOG (TIZ_TRACE, "a_millis [%u]", a_millis); */
+  TIZ_LOG (TIZ_TRACE, "a_millis [%u]", a_millis);
 
-/*   * ap_has_timedout = OMX_FALSE; */
+  * ap_has_timedout = OMX_FALSE;
 
-/*   if (tiz_mutex_lock (&p_ctx->mutex)) */
-/*     { */
-/*       return OMX_ErrorBadParameter; */
-/*     } */
+  if (tiz_mutex_lock (&p_ctx->mutex))
+    {
+      return OMX_ErrorBadParameter;
+    }
 
-/*   if (0 == a_millis) */
-/*     { */
-/*       if (!p_ctx->signaled) */
-/*         { */
-/*           * ap_has_timedout = OMX_TRUE; */
-/*         } */
-/*     } */
+  if (0 == a_millis)
+    {
+      if (!p_ctx->signaled)
+        {
+          * ap_has_timedout = OMX_TRUE;
+        }
+    }
 
-/*   else if (INFINITE_WAIT == a_millis) */
-/*     { */
-/*       while (!p_ctx->signaled) */
-/*         { */
-/*           tiz_cond_wait (&p_ctx->cond, &p_ctx->mutex); */
-/*         } */
-/*     } */
+  else if (INFINITE_WAIT == a_millis)
+    {
+      while (!p_ctx->signaled)
+        {
+          tiz_cond_wait (&p_ctx->cond, &p_ctx->mutex);
+        }
+    }
 
-/*   else */
-/*     { */
-/*       while (!p_ctx->signaled) */
-/*         { */
-/*           retcode = tiz_cond_timedwait (&p_ctx->cond, */
-/*                                           &p_ctx->mutex, a_millis); */
+  else
+    {
+      while (!p_ctx->signaled)
+        {
+          retcode = tiz_cond_timedwait (&p_ctx->cond,
+                                          &p_ctx->mutex, a_millis);
 
-/*           /\* TODO: Change this to OMX_ErrorTimeout *\/ */
-/*           if (retcode == OMX_ErrorUndefined && !p_ctx->signaled) */
-/*             { */
-/*               * ap_has_timedout = OMX_TRUE; */
-/*               break; */
-/*             } */
-/*         } */
-/*     } */
+          /* TODO: Change this to OMX_ErrorTimeout */
+          if (retcode == OMX_ErrorUndefined && !p_ctx->signaled)
+            {
+              * ap_has_timedout = OMX_TRUE;
+              break;
+            }
+        }
+    }
 
-/*   tiz_mutex_unlock (&p_ctx->mutex); */
+  tiz_mutex_unlock (&p_ctx->mutex);
 
-/*   return OMX_ErrorNone; */
+  return OMX_ErrorNone;
 
-/* } */
+}
 
-/* static OMX_ERRORTYPE */
-/* _ctx_reset (cc_ctx_t * app_ctx) */
-/* { */
-/*   check_common_context_t *p_ctx = NULL; */
-/*   assert (app_ctx); */
-/*   p_ctx = * app_ctx; */
+static OMX_ERRORTYPE
+_ctx_reset (cc_ctx_t * app_ctx)
+{
+  check_common_context_t *p_ctx = NULL;
+  assert (app_ctx);
+  p_ctx = * app_ctx;
 
-/*   if (tiz_mutex_lock (&p_ctx->mutex)) */
-/*     { */
-/*       return OMX_ErrorBadParameter; */
-/*     } */
+  if (tiz_mutex_lock (&p_ctx->mutex))
+    {
+      return OMX_ErrorBadParameter;
+    }
 
-/*   p_ctx->signaled = OMX_FALSE; */
-/*   tiz_mutex_unlock (&p_ctx->mutex); */
+  p_ctx->signaled = OMX_FALSE;
+  tiz_mutex_unlock (&p_ctx->mutex);
 
-/*   return OMX_ErrorNone; */
-/* } */
+  return OMX_ErrorNone;
+}
 
 
 OMX_ERRORTYPE
@@ -353,6 +353,12 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
           }
 
         case OMX_CommandPortDisable:
+          {
+            TIZ_LOG (TIZ_TRACE, "Port [%d] is now DISABLED", nData2);
+            _ctx_signal (pp_ctx);
+          }
+          break;
+
         case OMX_CommandPortEnable:
         default:
           {
@@ -442,7 +448,7 @@ init_test_data()
   p_testfile2 = tiz_rcfile_get_value("plugins-data",
                                      "OMX.Aratelia.container_demuxer.ogg.testfile2_uri");
 
-  if (!p_testfile1 || !p_testfile1)
+  if (!p_testfile1 || !p_testfile2)
 
     {
       TIZ_LOG(TIZ_TRACE, "Test data not available...");
@@ -451,7 +457,6 @@ init_test_data()
     {
       pg_files[0] = p_testfile1; pg_files[1] = p_testfile2;
       TIZ_LOG(TIZ_TRACE, "Test data available [%s]", pg_files[0]);
-      TIZ_LOG(TIZ_TRACE, "Test data available [%s]", pg_files[1]);
       rv = true;
     }
 
@@ -467,25 +472,26 @@ START_TEST (test_ogg_demuxer)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = 0;
-/*   OMX_COMMANDTYPE cmd = OMX_CommandStateSet; */
-/*   OMX_STATETYPE state = OMX_StateIdle; */
+  OMX_COMMANDTYPE cmd = OMX_CommandStateSet;
+  OMX_STATETYPE state = OMX_StateIdle;
   cc_ctx_t ctx;
-/*   check_common_context_t *p_ctx = NULL; */
-/*   OMX_BOOL timedout = OMX_FALSE; */
-/*   OMX_PARAM_PORTDEFINITIONTYPE port_def; */
-/*   OMX_PARAM_CONTENTURITYPE *p_uri_param = NULL; */
-/*   OMX_BUFFERHEADERTYPE **p_hdrlst; */
-/*   OMX_U32 i; */
-/*   FILE *p_file = 0; */
-/*   int bytes_read = 0, err = 0; */
-/*   char *cmp_cmd = NULL; */
+  check_common_context_t *p_ctx = NULL;
+  OMX_BOOL timedout = OMX_FALSE;
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  OMX_PARAM_CONTENTURITYPE *p_uri_param = NULL;
+  OMX_BUFFERHEADERTYPE **p_hdrlst;
+  OMX_U32 i;
+  FILE *p_file = 0;
+  int bytes_read = 0;
+  int err = 0;
+  char *cmp_cmd = NULL;
 
   fail_if (!init_test_data());
 
   error = _ctx_init (&ctx);
   fail_if (OMX_ErrorNone != error);
 
-/*   p_ctx = (check_common_context_t *) (ctx); */
+  p_ctx = (check_common_context_t *) (ctx);
 
   error = OMX_Init ();
   fail_if (OMX_ErrorNone != error);
@@ -502,239 +508,254 @@ START_TEST (test_ogg_demuxer)
   /* -------------------------------- */
   /* Obtain the port def from port #0 */
   /* -------------------------------- */
-/*   port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE); */
-/*   port_def.nVersion.nVersion = OMX_VERSION; */
-/*   port_def.nPortIndex = 0; */
-/*   error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &port_def); */
-/*   fail_if (OMX_ErrorNone != error); */
+  port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  port_def.nVersion.nVersion = OMX_VERSION;
+  port_def.nPortIndex = 0;
+  error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &port_def);
+  fail_if (OMX_ErrorNone != error);
 
-/*   TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize); */
-/*   TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]", */
-/*              port_def.nBufferCountActual); */
+  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
+             port_def.nBufferCountActual);
 
   /* ---------------------- */
   /* Obtain the current URI */
   /* ---------------------- */
-/*   p_uri_param = tiz_mem_calloc */
-/*     (1, sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE); */
+  p_uri_param = tiz_mem_calloc
+    (1, sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE);
 
-/*   fail_if (!p_uri_param); */
-/*   p_uri_param->nSize = sizeof (OMX_PARAM_CONTENTURITYPE) */
-/*     + OMX_MAX_STRINGNAME_SIZE; */
-/*   p_uri_param->nVersion.nVersion = OMX_VERSION; */
-/*   error = OMX_GetParameter (p_hdl, OMX_IndexParamContentURI, p_uri_param); */
-/*   fail_if (OMX_ErrorNone != error); */
+  fail_if (!p_uri_param);
+  p_uri_param->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
+    + OMX_MAX_STRINGNAME_SIZE;
+  p_uri_param->nVersion.nVersion = OMX_VERSION;
+  error = OMX_GetParameter (p_hdl, OMX_IndexParamContentURI, p_uri_param);
+  fail_if (OMX_ErrorNone != error);
 
-/*   TIZ_LOG (TIZ_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI); */
+  TIZ_LOG (TIZ_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI);
 
   /* ----------------*/
   /* Set the new URI */
   /* ----------------*/
-/*   strcpy ((char*)p_uri_param->contentURI, pg_files[0]); */
-/*   p_uri_param->contentURI[strlen (pg_files[0])] = '\0'; */
-/*   error = OMX_SetParameter (p_hdl, OMX_IndexParamContentURI, p_uri_param); */
-/*   TIZ_LOG (TIZ_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, " */
-/*            "URI [%s]) = [%s]", p_uri_param->contentURI, tiz_err_to_str (error)); */
-/*   fail_if (OMX_ErrorNone != error); */
+  strcpy ((char*)p_uri_param->contentURI, pg_files[0]);
+  p_uri_param->contentURI[strlen (pg_files[0])] = '\0';
+  error = OMX_SetParameter (p_hdl, OMX_IndexParamContentURI, p_uri_param);
+  TIZ_LOG (TIZ_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, "
+           "URI [%s]) = [%s]", p_uri_param->contentURI, tiz_err_to_str (error));
+  fail_if (OMX_ErrorNone != error);
+
+  /* ----------------------------------------- */
+  /* Disable video output port (port index 1)  */
+  /* ----------------------------------------- */
+  cmd = OMX_CommandPortDisable;
+  error = OMX_SendCommand (p_hdl, cmd, 1, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* --------------------------- */
+  /* Await port disable callback */
+  /* --------------------------- */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
 
   /* --------------------------- */
   /* Initiate transition to IDLE */
   /* --------------------------- */
-/*   error = OMX_SendCommand (p_hdl, cmd, state, NULL); */
-/*   fail_if (OMX_ErrorNone != error); */
+  cmd = OMX_CommandStateSet;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
 
   /* ---------------- */
   /* Allocate buffers */
   /* ---------------- */
-/*   p_hdrlst = (OMX_BUFFERHEADERTYPE **) */
-/*     tiz_mem_calloc (port_def.nBufferCountActual, sizeof (OMX_BUFFERHEADERTYPE *)); */
+  p_hdrlst = (OMX_BUFFERHEADERTYPE **)
+    tiz_mem_calloc (port_def.nBufferCountActual, sizeof (OMX_BUFFERHEADERTYPE *));
 
-/*   for (i = 0; i < port_def.nBufferCountActual; ++i) */
-/*     { */
-/*       error = OMX_AllocateBuffer (p_hdl, &p_hdrlst[i], 0,    /\* input port *\/ */
-/*                                   0, port_def.nBufferSize); */
-/*       fail_if (OMX_ErrorNone != error); */
-/*       fail_if (p_hdrlst[i] == NULL); */
-/*       fail_if (port_def.nBufferSize > p_hdrlst[i]->nAllocLen); */
-/*       TIZ_LOG (TIZ_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]); */
-/*       TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i, */
-/*                  p_hdrlst[i]->nAllocLen); */
-/*       TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFilledLen [%d]", i, */
-/*                  p_hdrlst[i]->nFilledLen); */
-/*       TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOffset [%d]", i, */
-/*                  p_hdrlst[i]->nOffset); */
-/*       TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOutputPortIndex [%d]", i, */
-/*                  p_hdrlst[i]->nOutputPortIndex); */
-/*       TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nInputPortIndex [%d]", i, */
-/*                  p_hdrlst[i]->nInputPortIndex); */
-/*       TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFlags [%X]", i, */
-/*                  p_hdrlst[i]->nFlags); */
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
+    {
+      error = OMX_AllocateBuffer (p_hdl, &p_hdrlst[i], 0,    /* input port */
+                                  0, port_def.nBufferSize);
+      fail_if (OMX_ErrorNone != error);
+      fail_if (p_hdrlst[i] == NULL);
+      fail_if (port_def.nBufferSize > p_hdrlst[i]->nAllocLen);
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
+                 p_hdrlst[i]->nAllocLen);
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFilledLen [%d]", i,
+                 p_hdrlst[i]->nFilledLen);
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOffset [%d]", i,
+                 p_hdrlst[i]->nOffset);
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOutputPortIndex [%d]", i,
+                 p_hdrlst[i]->nOutputPortIndex);
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nInputPortIndex [%d]", i,
+                 p_hdrlst[i]->nInputPortIndex);
+      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFlags [%X]", i,
+                 p_hdrlst[i]->nFlags);
 
-/*     } */
+    }
 
   /* ------------------------- */
   /* Await transition callback */
   /* ------------------------- */
-/*   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout); */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   fail_if (OMX_TRUE == timedout); */
-/*   TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]", */
-/*              tiz_state_to_str (p_ctx->state)); */
-/*   fail_if (OMX_StateIdle != p_ctx->state); */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
+             tiz_state_to_str (p_ctx->state));
+  fail_if (OMX_StateIdle != p_ctx->state);
 
   /* ------------------------------ */
   /* Check state transition success */
   /* ------------------------------ */
-/*   error = OMX_GetState (p_hdl, &state); */
-/*   TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_state_to_str (state)); */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   fail_if (OMX_StateIdle != state); */
+  error = OMX_GetState (p_hdl, &state);
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateIdle != state);
 
   /* -------------------------- */
   /* Initiate transition to EXE */
   /* -------------------------- */
-/*   error = _ctx_reset (&ctx); */
-/*   state = OMX_StateExecuting; */
-/*   error = OMX_SendCommand (p_hdl, cmd, state, NULL); */
-/*   fail_if (OMX_ErrorNone != error); */
+  error = _ctx_reset (&ctx);
+  state = OMX_StateExecuting;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
 
   /* ------------------------- */
   /* Await transition callback */
   /* ------------------------- */
-/*   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout); */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   fail_if (OMX_TRUE == timedout); */
-/*   TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]", */
-/*              tiz_state_to_str (p_ctx->state)); */
-/*   fail_if (OMX_StateExecuting != p_ctx->state); */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
+             tiz_state_to_str (p_ctx->state));
+  fail_if (OMX_StateExecuting != p_ctx->state);
 
   /* -------------------- */
   /* buffer transfer loop */
   /* -------------------- */
-/*   fail_if ((p_file = fopen (pg_files[1], "w")) == 0); */
+  fail_if ((p_file = fopen (pg_files[1], "w")) == 0);
 
-/*   i = 0; */
-/*   while (i < port_def.nBufferCountActual) */
-/*     { */
-/*       /\* --------------- *\/ */
-/*       /\* Transfer buffer *\/ */
-/*       /\* --------------- *\/ */
-/*       error = _ctx_reset (&ctx); */
-/*       p_hdrlst[i]->nFilledLen = 0; */
-/*       error = OMX_FillThisBuffer (p_hdl, p_hdrlst[i]); */
-/*       fail_if (OMX_ErrorNone != error); */
+  i = 0;
+  while (i < port_def.nBufferCountActual)
+    {
+      /* --------------- */
+      /* Transfer buffer */
+      /* --------------- */
+      error = _ctx_reset (&ctx);
+      p_hdrlst[i]->nFilledLen = 0;
+      error = OMX_FillThisBuffer (p_hdl, p_hdrlst[i]);
+      fail_if (OMX_ErrorNone != error);
 
-/*       /\* ------------------------- *\/ */
-/*       /\* Await BufferDone callback *\/ */
-/*       /\* ------------------------- *\/ */
-/*       error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout); */
-/*       fail_if (OMX_ErrorNone != error); */
-/*       fail_if (OMX_TRUE == timedout); */
-/*       fail_if (p_ctx->p_hdr != p_hdrlst[i]); */
+      /* ------------------------- */
+      /* Await BufferDone callback */
+      /* ------------------------- */
+      error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+      fail_if (OMX_ErrorNone != error);
+      fail_if (OMX_TRUE == timedout);
+      fail_if (p_ctx->p_hdr != p_hdrlst[i]);
 
-/*       if (p_hdrlst[i]->nFilledLen) */
-/*         { */
-/*           TIZ_LOG (TIZ_TRACE, "Writing [%d] bytes to file [%s]", */
-/*                      p_hdrlst[i]->nFilledLen, pg_files[1]); */
-/*           if (! */
-/*               (err = */
-/*                fwrite (p_hdrlst[i]->pBuffer, 1, p_hdrlst[i]->nFilledLen, */
-/*                        p_file))) */
-/*             { */
-/*               TIZ_LOG (TIZ_TRACE, */
-/*                          "An error occurred while writing to [%s]", */
-/*                          pg_files[1]); */
-/*               fail_if (0); */
-/*             } */
+      if (p_hdrlst[i]->nFilledLen)
+        {
+          TIZ_LOG (TIZ_TRACE, "Writing [%d] bytes to file [%s]",
+                     p_hdrlst[i]->nFilledLen, pg_files[1]);
+          if (!
+              (err =
+               fwrite (p_hdrlst[i]->pBuffer, 1, p_hdrlst[i]->nFilledLen,
+                       p_file)))
+            {
+              TIZ_LOG (TIZ_TRACE,
+                         "An error occurred while writing to [%s]",
+                         pg_files[1]);
+              fail_if (0);
+            }
 
-/*           bytes_read += p_hdrlst[i]->nFilledLen; */
-/*           TIZ_LOG (TIZ_TRACE, "Bytes read [%d]", bytes_read); */
-/*           p_hdrlst[i]->nFilledLen = 0; */
-/*         } */
+          bytes_read += p_hdrlst[i]->nFilledLen;
+          TIZ_LOG (TIZ_TRACE, "Bytes read [%d]", bytes_read);
+          p_hdrlst[i]->nFilledLen = 0;
+        }
 
-/*       if (p_hdrlst[i]->nFlags & OMX_BUFFERFLAG_EOS) */
-/*         { */
-/*           TIZ_LOG (TIZ_TRACE, "End of file reached for [%s]", */
-/*                      pg_files[0]); */
-/*           /\* EOF *\/ */
-/*           break; */
-/*         } */
+      if (p_hdrlst[i]->nFlags & OMX_BUFFERFLAG_EOS)
+        {
+          TIZ_LOG (TIZ_TRACE, "End of file reached for [%s]",
+                     pg_files[0]);
+          /* EOF */
+          break;
+        }
 
-/*       i++; */
-/*       i %= port_def.nBufferCountActual; */
+      i++;
+      i %= port_def.nBufferCountActual;
 
-/*     } */
+    }
 
-/*   fclose (p_file); */
+  fclose (p_file);
 
   /* --------------------------- */
   /* Initiate transition to IDLE */
   /* --------------------------- */
-/*   error = _ctx_reset (&ctx); */
-/*   state = OMX_StateIdle; */
-/*   error = OMX_SendCommand (p_hdl, cmd, state, NULL); */
-/*   fail_if (OMX_ErrorNone != error); */
+  error = _ctx_reset (&ctx);
+  state = OMX_StateIdle;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
 
   /* ------------------------- */
   /* Await transition callback */
   /* ------------------------- */
-/*   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout); */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   fail_if (OMX_TRUE == timedout); */
-/*   TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]", */
-/*              tiz_state_to_str (p_ctx->state)); */
-/*   fail_if (OMX_StateIdle != p_ctx->state); */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
+             tiz_state_to_str (p_ctx->state));
+  fail_if (OMX_StateIdle != p_ctx->state);
 
   /* ----------------------------- */
   /* Initiate transition to LOADED */
   /* ----------------------------- */
-/*   error = _ctx_reset (&ctx); */
-/*   state = OMX_StateLoaded; */
-/*   error = OMX_SendCommand (p_hdl, cmd, state, NULL); */
-/*   fail_if (OMX_ErrorNone != error); */
+  error = _ctx_reset (&ctx);
+  state = OMX_StateLoaded;
+  error = OMX_SendCommand (p_hdl, cmd, state, NULL);
+  fail_if (OMX_ErrorNone != error);
 
   /* ------------------ */
   /* Deallocate buffers */
   /* ------------------ */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   for (i = 0; i < port_def.nBufferCountActual; ++i) */
-/*     { */
-/*       error = OMX_FreeBuffer (p_hdl, 0,      /\* input port *\/ */
-/*                               p_hdrlst[i]); */
-/*       fail_if (OMX_ErrorNone != error); */
-/*     } */
+  fail_if (OMX_ErrorNone != error);
+  for (i = 0; i < port_def.nBufferCountActual; ++i)
+    {
+      error = OMX_FreeBuffer (p_hdl, 0,      /* input port */
+                              p_hdrlst[i]);
+      fail_if (OMX_ErrorNone != error);
+    }
 
   /* ------------------------- */
   /* Await transition callback */
   /* ------------------------- */
-/*   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout); */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   fail_if (OMX_TRUE == timedout); */
-/*   fail_if (OMX_StateLoaded != p_ctx->state); */
+  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_StateLoaded != p_ctx->state);
 
   /* ------------------------------ */
   /* Check state transition success */
   /* ------------------------------ */
-/*   error = OMX_GetState (p_hdl, &state); */
-/*   TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_state_to_str (state)); */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   fail_if (OMX_StateLoaded != state); */
+  error = OMX_GetState (p_hdl, &state);
+  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateLoaded != state);
 
-/*   error = OMX_FreeHandle (p_hdl); */
-/*   fail_if (OMX_ErrorNone != error); */
+  error = OMX_FreeHandle (p_hdl);
+  fail_if (OMX_ErrorNone != error);
 
-/*   cmp_cmd = tiz_mem_calloc (1, strlen ("cmp") + */
-/*                             strlen (pg_files[0]) + */
-/*                             strlen (pg_files[1]) + 3); */
+  cmp_cmd = tiz_mem_calloc (1, strlen ("cmp") +
+                            strlen (pg_files[0]) +
+                            strlen (pg_files[1]) + 3);
 
-/*   sprintf (cmp_cmd, "%s %s %s", "cmp", pg_files[0], pg_files[1]); */
+  sprintf (cmp_cmd, "%s %s %s", "cmp", pg_files[0], pg_files[1]);
 /*   fail_if (system (cmp_cmd) != 0); */
 
-/*   TIZ_LOG (TIZ_TRACE, "File comparison OK: [%s]", cmp_cmd); */
+  TIZ_LOG (TIZ_TRACE, "File comparison OK: [%s]", cmp_cmd);
 
-/*   tiz_mem_free (p_hdrlst); */
-/*   tiz_mem_free (p_uri_param); */
-/*   tiz_mem_free (cmp_cmd); */
+  tiz_mem_free (p_hdrlst);
+  tiz_mem_free (p_uri_param);
+  tiz_mem_free (cmp_cmd);
 
   error = OMX_Deinit ();
   fail_if (OMX_ErrorNone != error);

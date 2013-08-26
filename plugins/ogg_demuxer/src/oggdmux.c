@@ -21,7 +21,7 @@
  * @file   oggdmux.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - File Reader component
+ * @brief  Tizonia OpenMAX IL - Ogg demuxer component
  *
  *
  */
