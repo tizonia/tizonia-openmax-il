@@ -27,13 +27,16 @@ Tizonia OpenMAX IL consists of a number of resources:
   * a C client library,
   * and a D-Bus-based RM server written in C++.
 * A growing number of sample OpenMAX IL plugin implementations, including:
-  * an mp3 decoder (based on libmad),
-  * an mp3 encoder (based on LAME),
-  * an PCM renderer (based on ALSA lib)
+  * a mp3 decoder (based on libmad),
+  * a mp3 encoder (based on LAME),
+  * a PCM renderer (based on ALSA lib)
   * a Vp8 decoder (based on libvpx),
   * a SDL-based YUV renderer
+  * a http renderer (ala icecast)
+  * an ogg demuxer (based on liboggz)
+  * an opus decoder (based on libopus)
   * binary file readers and writers
-  * etc
+  * etc...
 
 Tizonia OpenMAX IL is released under the GNU Lesser General Public License
 version 3
