@@ -58,8 +58,8 @@ extern "C"
 
   void tiz_vector_pop_back (tiz_vector_t * ap_vector);
 
-  OMX_ERRORTYPE tiz_vector_erase (tiz_vector_t * ap_vector,
-                                  OMX_S32 a_pos, OMX_S32 a_len);
+  void tiz_vector_erase (tiz_vector_t * ap_vector,
+                         OMX_S32 a_pos, OMX_S32 a_len);
 
   OMX_PTR tiz_vector_at (const tiz_vector_t * ap_vector, OMX_S32 a_pos);
 

@@ -122,16 +122,13 @@ tiz_vector_pop_back (tiz_vector_t * p_vec)
   return;
 }
 
-OMX_ERRORTYPE
+void
 tiz_vector_erase (tiz_vector_t * p_vec, OMX_S32 a_pos, OMX_S32 a_len)
 {
   assert (p_vec);
   assert (a_pos >= 0);
   assert (a_len >= 0);
-
   utarray_erase (p_vec->p_uta, a_pos, a_len);
-
-  return OMX_ErrorNone;
 }
 
 OMX_PTR

@@ -375,7 +375,7 @@ static OMX_ERRORTYPE
   return OMX_ErrorNone;
 }
 
-static OMX_BOOL
+static bool
 pcmport_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
@@ -391,7 +391,7 @@ pcmport_check_tunnel_compat (const void *ap_obj,
                 "port [%d] check_tunnel_compat : "
                 "Audio domain not found, instead found domain [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
-      return OMX_FALSE;
+      return false;
     }
 
   /* INFO: */
@@ -406,14 +406,14 @@ pcmport_check_tunnel_compat (const void *ap_obj,
                     "port [%d] check_tunnel_compat : "
                     "PCM encoding not found, instead foudn encoding [%d]",
                     p_obj->pid_, ap_other_def->format.audio.eEncoding);
-          return OMX_FALSE;
+          return false;
         }
     }
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
             "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
-  return OMX_TRUE;
+  return true;
 }
 
 static OMX_ERRORTYPE

@@ -302,7 +302,7 @@ binaryport_SetParameter (const void *ap_obj,
 
 }
 
-static OMX_BOOL
+static bool
   binaryport_check_tunnel_compat
   (const void *ap_obj,
    OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -318,10 +318,10 @@ static OMX_BOOL
       TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
                 "port [%d] check_tunnel_compat : Different domain found [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
-      return OMX_FALSE;
+      return false;
     }
 
-  return OMX_TRUE;
+  return true;
 }
 
 /*

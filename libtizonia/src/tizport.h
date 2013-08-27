@@ -91,7 +91,7 @@ extern "C"
 
   OMX_ERRORTYPE tiz_port_init (void);
 
-  OMX_BOOL tiz_port_check_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
+  bool tiz_port_check_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
 
   void tiz_port_set_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
 
@@ -127,9 +127,9 @@ extern "C"
 
   OMX_ERRORTYPE tiz_port_depopulate (const void *ap_obj);
 
-  OMX_BOOL tiz_port_check_tunnel_compat
-    (const void *ap_obj, OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
-     OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def);
+  bool tiz_port_check_tunnel_compat
+  (const void *ap_obj, OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
+   OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def);
 
   OMX_S32 tiz_port_update_claimed_count (void *ap_obj, OMX_S32 a_offset);
 

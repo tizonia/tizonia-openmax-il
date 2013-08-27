@@ -207,23 +207,23 @@ static OMX_ERRORTYPE
   return OMX_ErrorNone;
 }
 
-static OMX_BOOL
+static bool
 mp3port_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (ap_this_def);
-  assert (ap_other_def);
+  assert (NULL != ap_this_def);
+  assert (NULL != ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOG (TIZ_TRACE,
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
                "port [%d] check_tunnel_compat : "
                "Audio domain not found, instead found domain [%d]",
                p_obj->pid_, ap_other_def->eDomain);
-      return OMX_FALSE;
+      return false;
     }
 
   /* INFO: */
@@ -234,16 +234,18 @@ mp3port_check_tunnel_compat (const void *ap_obj,
     {
       if (ap_other_def->format.audio.eEncoding != OMX_AUDIO_CodingMP3)
         {
-          TIZ_LOG (TIZ_TRACE, "port [%d] check_tunnel_compat : "
-                   "MP3 encoding not found, instead found encoding [%d]",
-                   p_obj->pid_, ap_other_def->format.audio.eEncoding);
-          return OMX_FALSE;
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+                    "port [%d] check_tunnel_compat : "
+                    "MP3 encoding not found, instead found encoding [%d]",
+                    p_obj->pid_, ap_other_def->format.audio.eEncoding);
+          return false;
         }
     }
 
-  TIZ_LOG (TIZ_TRACE, "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
-  return OMX_TRUE;
+  return true;
 }
 
 static OMX_ERRORTYPE

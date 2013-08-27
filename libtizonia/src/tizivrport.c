@@ -243,30 +243,31 @@ static OMX_ERRORTYPE
   return OMX_ErrorNone;
 }
 
-static OMX_BOOL
+static bool
 ivrport_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (ap_this_def);
-  assert (ap_other_def);
+  assert (NULL != ap_this_def);
+  assert (NULL != ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOG (TIZ_TRACE,
-               "port [%d] check_tunnel_compat : "
-               "Video domain not found, instead found domain [%d]",
-               p_obj->pid_, ap_other_def->eDomain);
-      return OMX_FALSE;
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+                "port [%d] check_tunnel_compat : "
+                "Video domain not found, instead found domain [%d]",
+                p_obj->pid_, ap_other_def->eDomain);
+      return false;
     }
 
   /* TODO : Review these compatibility checks */
 
-  TIZ_LOG (TIZ_TRACE, "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
-  return OMX_TRUE;
+  return true;
 }
 
 /*

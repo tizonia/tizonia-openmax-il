@@ -76,12 +76,12 @@ extern "C"
   OMX_ERRORTYPE tiz_port_super_depopulate (const void *a_class,
                                            const void *ap_obj);
 
-  OMX_BOOL tiz_port_super_check_tunnel_compat (const void *a_class,
-                                               const void *ap_obj,
-                                               OMX_PARAM_PORTDEFINITIONTYPE *
-                                               ap_this_def,
-                                               OMX_PARAM_PORTDEFINITIONTYPE *
-                                               ap_other_def);
+  bool tiz_port_super_check_tunnel_compat (const void *a_class,
+                                           const void *ap_obj,
+                                           OMX_PARAM_PORTDEFINITIONTYPE *
+                                           ap_this_def,
+                                           OMX_PARAM_PORTDEFINITIONTYPE *
+                                           ap_other_def);
 
   OMX_ERRORTYPE tiz_port_super_apply_slaving_behaviour (void *a_class,
                                                         void *ap_obj,
@@ -111,19 +111,19 @@ extern "C"
     OMX_PORTDOMAINTYPE (*domain) (const void *ap_obj);
     OMX_HANDLETYPE (*get_tunnel_comp) (const void *ap_obj);
     tiz_vector_t *(*get_hdrs_list) (void *ap_obj);
-    OMX_BOOL (*check_flags) (const void *ap_obj, OMX_U32 a_nflags,
-                             va_list * app);
+    bool (*check_flags) (const void *ap_obj, OMX_U32 a_nflags,
+                         va_list * app);
     void (*set_flags) (const void *ap_obj, OMX_U32 a_nflags, va_list * app);
     void (*clear_flags) (const void *ap_obj, OMX_U32 a_nflags, va_list * app);
     OMX_BOOL (*check_tunneled_port_status) (const void *ap_obj,
                                             OMX_U32 a_post_status);
     OMX_ERRORTYPE (*populate) (const void *ap_obj, OMX_HANDLETYPE ap_hdl);
     OMX_ERRORTYPE (*depopulate) (const void *ap_obj);
-    OMX_BOOL (*check_tunnel_compat) (const void *ap_obj,
-                                     OMX_PARAM_PORTDEFINITIONTYPE *
-                                     ap_this_def,
-                                     OMX_PARAM_PORTDEFINITIONTYPE *
-                                     ap_other_def);
+    bool (*check_tunnel_compat) (const void *ap_obj,
+                                 OMX_PARAM_PORTDEFINITIONTYPE *
+                                 ap_this_def,
+                                 OMX_PARAM_PORTDEFINITIONTYPE *
+                                 ap_other_def);
     OMX_S32 (*update_claimed_count) (void *ap_obj, OMX_S32 a_offset);
     OMX_ERRORTYPE (*store_mark) (void *ap_obj,
                                  const OMX_MARKTYPE * ap_mark_info,
