@@ -894,7 +894,7 @@ port_AllocateBuffer (const void *ap_obj,
   assert (a_pid == p_obj->portdef_.nPortIndex);
 
   /* Allocate the buffer header... */
-  if (NULL != (p_hdr = tiz_mem_calloc (sizeof (OMX_BUFFERHEADERTYPE), 1)))
+  if (NULL == (p_hdr = tiz_mem_calloc (sizeof (OMX_BUFFERHEADERTYPE), 1)))
     {
       return OMX_ErrorInsufficientResources;
     }
