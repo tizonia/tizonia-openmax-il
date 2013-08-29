@@ -37,16 +37,16 @@ extern "C"
 #include <sys/types.h>
 #include "OMX_Types.h"
 
-  /*@only@ *//*@null@ *//*@out@ */
+  /*@only@*/ /*@null@*/ /*@out@*/
   OMX_PTR tiz_mem_alloc (size_t size);
 
-  void tiz_mem_free ( /*@only@ *//*@out@ *//*@null@ */ OMX_PTR addr);
+  void tiz_mem_free ( /*@only@*/ /*@out@*/ /*@null@*/ OMX_PTR addr);
 
-  /*@only@ *//*@null@ *//*@out@ */
-  OMX_PTR tiz_mem_realloc (     /*@only@ *//*@out@ *//*@null@ */
+  /*@only@*/ /*@null@*/ /*@out@*/
+  OMX_PTR tiz_mem_realloc (     /*@only@*/ /*@out@*/ /*@null@*/
                             OMX_PTR ptr, size_t size);
 
-  /*@only@ *//*@null@ *//*@out@ */
+  /*@only@*/ /*@null@*/ /*@out@*/
   OMX_PTR tiz_mem_calloc (size_t nmemb, size_t size);
 
   OMX_PTR tiz_mem_set (OMX_PTR ap_dest, OMX_S32 a_orig, size_t a_num_bytes);

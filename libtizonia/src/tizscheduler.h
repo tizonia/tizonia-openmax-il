@@ -72,7 +72,7 @@ extern "C"
   typedef OMX_U8 *(*tiz_alloc_hook_f) (OMX_U32 * ap_size,
                                        OMX_PTR * app_port_priv, void *ap_args);
 
-  typedef void (*tiz_free_hook_f) (OMX_PTR ap_buf, OMX_PTR ap_port_priv,
+  typedef void (*tiz_free_hook_f) (OMX_PTR ap_buf, OMX_PTR /*@null@*/ ap_port_priv,
                                    void *ap_args);
 
   typedef struct tiz_alloc_hooks tiz_alloc_hooks_t;

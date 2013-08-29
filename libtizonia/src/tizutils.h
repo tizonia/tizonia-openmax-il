@@ -55,11 +55,11 @@ extern "C"
 #define TIZ_PDS_BITS(set) ((set)->a_pds_bits)
   };
 
-#define TIZ_PD_ZERO(set)  \
+#define TIZ_PD_ZERO(set)                                                \
   do {                                                                  \
     unsigned int a_i;                                                   \
     tiz_pd_set_t *a_arr = (set);                                        \
-    for (a_i=0; a_i < sizeof(tiz_pd_set_t) / sizeof(_tiz_pd_mask); ++a_i) \
+    for (a_i=0; a_i < (unsigned int) (sizeof(tiz_pd_set_t) / sizeof(_tiz_pd_mask)); ++a_i) \
       TIZ_PDS_BITS (a_arr)[a_i] = 0;                                    \
   } while (0)
 
