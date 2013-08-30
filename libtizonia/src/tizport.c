@@ -1496,59 +1496,20 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
       while (OMX_ErrorIncorrectStateOperation == rc
              && tiz_sleep (TIZ_USEBUFFER_WAIT_MICROSECONDS) == 0);
 
-      assert (NULL != p_hdr);
-
-      if (NULL == p_hdr)
-        {
-          TIZ_LOGN (TIZ_DEBUG, ap_hdl, "[OMX_ErrorInsufficientResources] : "
-                    "OMX_UseBuffer returned NULL header pointer");
-          return OMX_ErrorInsufficientResources;
-        }
-      
-      if ((OMX_ErrorNone != rc) || NULL != p_hdr)
+      if ((OMX_ErrorNone != rc) || NULL == p_hdr)
         {
           free_buffer (p_obj, p_buf, p_port_priv);
-
-          if (p_hdr)
-            {
-              switch (rc)
-                {
-                case OMX_ErrorIncorrectStateOperation:
-                  {
-                    /* Here, the tunnelled component is not ready. Probably, */
-                    /* the IL Client has not commanded yet the component to go */
-                    /* to OMX_StateIdle.  */
-
-                    /* TODO : retry procedure */
-                    TIZ_LOGN (TIZ_ERROR, ap_hdl,
-                              "OMX_ErrorIncorrectStateOperation received");
-                  }
-                  break;
-                default:
-                  {
-                    TIZ_LOGN (TIZ_ERROR, ap_hdl, "OMX_UseBuffer returned [%s]",
-                              tiz_err_to_str (rc));
-
-                  }
-                  break;
-                };
-            }
 
           if (OMX_ErrorInsufficientResources == rc)
             {
               return OMX_ErrorInsufficientResources;
             }
-          /* This is a gotcha. Here there is some problem with the tunnelled */
+          /* Here there is some problem with the tunnelled */
           /* component. If we return the received error, this component may */
           /* be sending back some error code that is not allowed in */
           /* OMX_SendCommand. Example: The component conformance suite */
           /* expects here OMX_ErrorNone if the tunnelled component does not */
-          /* support OMX_UseBuffer or some other problem. Also, we don't send */
-          /* and error event here as there's no appropriate error for this */
-          /* situation (OMX_ErrorPortUnresponsiveDuringAllocation is for */
-          /* non-supplier ports). Therefore, the IL Client should recover */
-          /* from this situation after some time by detecting that this */
-          /* component didn't transition to OMX_StateIdle. */
+          /* support OMX_UseBuffer or some other problem.  */
           return OMX_ErrorNone;
         }
 
