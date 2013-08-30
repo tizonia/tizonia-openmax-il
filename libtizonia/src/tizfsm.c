@@ -38,6 +38,7 @@
 #include "tizport.h"
 #include "tizport-macros.h"
 #include "tizutils.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -47,11 +48,14 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.fsm"
 #endif
 
+#ifndef S_SPLINT_S
 #define TIZ_FSM_INIT_MSG_OOM(obj,hdl,msg,msgtype)                       \
-  do {                                                                  \
-    tiz_ret_val_on_err ( (msg = init_fsm_message (obj, hdl, (msgtype))), \
-                         OMX_ErrorInsufficientResources);               \
-  } while (0)
+  do                                                                    \
+    {                                                                   \
+      tiz_ret_val_on_err ( (msg = init_fsm_message (obj, hdl, (msgtype))), \
+                           OMX_ErrorInsufficientResources);             \
+    } while (0)
+#endif
 
 /* Forward declarations */
 static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg);
@@ -435,6 +439,7 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
             return OMX_ErrorBadParameter;
           }
 
+        assert (NULL != p_port);
         /* Not sure whether OMX_ALL may be used with OMX_CommandMarkBuffer. For
          * for now explicitly disallow it */
         assert (OMX_ALL != a_param1);
@@ -573,8 +578,9 @@ fsm_SendCommand (const void *ap_obj,
       return rc;
     }
 
-  TIZ_FSM_INIT_MSG_OOM (p_obj, ap_hdl, p_msg, ETIZFsmMsgSendCommand);
+  TIZ_FSM_INIT_MSG_OOM(p_obj, ap_hdl, p_msg, ETIZFsmMsgSendCommand);
 
+  assert (NULL != p_msg);
   p_msg_sc = &(p_msg->sc);
   p_msg_sc->cmd = a_cmd;
   p_msg_sc->param1 = a_param1;
@@ -993,7 +999,6 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
 
           TIZ_LOGN (TIZ_TRACE, p_hdl, "in_progress_cmd_ = [%s]...",
                     tiz_cmd_to_str (p_obj->in_progress_cmd_));
-          fflush (stdout);
           assert (OMX_CommandStateSet == p_obj->in_progress_cmd_);
 
           p_obj->in_progress_cmd_ = OMX_CommandMax;
@@ -1035,7 +1040,7 @@ tiz_fsm_set_state (void *ap_obj, tiz_fsm_state_id_t a_new_state,
                    tiz_fsm_state_id_t a_canceled_substate)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (class->set_state);
+  assert (NULL != class->set_state);
   return class->set_state (ap_obj, a_new_state, a_canceled_substate);
 }
 
@@ -1100,7 +1105,7 @@ tiz_fsm_complete_transition (void *ap_obj, const void *ap_servant,
                              OMX_STATETYPE a_new_state)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (class->complete_transition);
+  assert (NULL != class->complete_transition);
   return class->complete_transition (ap_obj, ap_servant, a_new_state);
 }
 
@@ -1164,7 +1169,7 @@ tiz_fsm_complete_command (void *ap_obj, const void *ap_servant,
                           OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (class->complete_command);
+  assert (NULL != class->complete_command);
   return class->complete_command (ap_obj, ap_servant, a_cmd, a_param1);
 }
 
@@ -1172,6 +1177,7 @@ tiz_fsm_state_id_t
 fsm_get_substate (const void *ap_obj)
 {
   const tiz_fsm_t *p_obj = ap_obj;
+  assert (NULL != p_obj);
   return p_obj->cur_state_id_;
 }
 
@@ -1179,7 +1185,7 @@ tiz_fsm_state_id_t
 tiz_fsm_get_substate (const void *ap_obj)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (class->get_substate);
+  assert (NULL != class->get_substate);
   return class->get_substate (ap_obj);
 }
 
@@ -1187,6 +1193,7 @@ OMX_ERRORTYPE
 fsm_tunneled_ports_status_update (void *ap_obj)
 {
   tiz_fsm_t *p_obj = ap_obj;
+  assert (NULL != p_obj);
   /* Delegate to the current state... */
   return tiz_state_tunneled_ports_status_update (p_obj->p_current_state_);
 }
@@ -1195,7 +1202,7 @@ OMX_ERRORTYPE
 tiz_fsm_tunneled_ports_status_update (void *ap_obj)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (class->tunneled_ports_status_update);
+  assert (NULL != class->tunneled_ports_status_update);
   return class->tunneled_ports_status_update (ap_obj);
 }
 
@@ -1212,6 +1219,8 @@ fsm_class_ctor (void *ap_obj, va_list * app)
   va_list ap;
   va_copy (ap, *app);
 
+  /* NOTE: Start ignoring splint warnings in this section of code */
+  /*@ignore@*/
   while ((selector = va_arg (ap, voidf)))
     {
       voidf method = va_arg (ap, voidf);
@@ -1238,6 +1247,8 @@ fsm_class_ctor (void *ap_obj, va_list * app)
         }
 
     }
+  /*@end@*/
+  /* NOTE: Stop ignoring splint warnings in this section  */
 
   va_end (ap);
   return p_obj;
@@ -1267,6 +1278,8 @@ tiz_fsm_init (void)
     {
       tiz_check_omx_err_ret_oom (tiz_state_init_states ());
     }
+
+  assert (NULL != tizstate);
 
   if (!tizfsm)
     {

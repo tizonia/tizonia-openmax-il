@@ -61,7 +61,7 @@ extern "C"
   tiz_api_SendCommand (const void *ap_obj,
                        OMX_HANDLETYPE ap_hdl,
                        OMX_COMMANDTYPE a_cmd,
-                       OMX_U32 a_param1, OMX_PTR ap_cmd_data);
+                       OMX_U32 a_param1, /*@null@*/ OMX_PTR ap_cmd_data);
 
   OMX_ERRORTYPE
   tiz_api_GetParameter (const void *ap_obj,

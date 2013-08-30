@@ -264,7 +264,8 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
            tiz_fsm_state_to_str (ap_msg_sc->param1));
 
   /* Obtain the current state */
-  tiz_api_GetState (tiz_get_fsm (p_hdl), p_hdl, &now);
+  tiz_check_omx_err
+    (tiz_api_GetState (tiz_get_fsm (p_hdl), p_hdl, &now));
 
   switch (ap_msg_sc->param1)
     {
@@ -730,7 +731,7 @@ OMX_ERRORTYPE
 tiz_prc_buffers_ready (const void *ap_obj)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->buffers_ready);
+  assert (NULL != class->buffers_ready);
   return class->buffers_ready (ap_obj);
 }
 
@@ -738,7 +739,7 @@ OMX_ERRORTYPE
 tiz_prc_super_buffers_ready (const void *a_class, const void *ap_obj)
 {
   const tiz_prc_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->buffers_ready);
+  assert (NULL != ap_obj && NULL != superclass->buffers_ready);
   return superclass->buffers_ready (ap_obj);
 }
 
@@ -752,7 +753,7 @@ OMX_ERRORTYPE
 tiz_prc_pause (const void *ap_obj)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->pause);
+  assert (NULL != class->pause);
   return class->pause (ap_obj);
 }
 
@@ -766,7 +767,7 @@ OMX_ERRORTYPE
 tiz_prc_resume (const void *ap_obj)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->resume);
+  assert (NULL != class->resume);
   return class->resume (ap_obj);
 }
 
@@ -780,7 +781,7 @@ OMX_ERRORTYPE
 tiz_prc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->port_flush);
+  assert (NULL != class->port_flush);
   return class->port_flush (ap_obj, a_pid);
 }
 
@@ -794,7 +795,7 @@ OMX_ERRORTYPE
 tiz_prc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->port_disable);
+  assert (NULL != class->port_disable);
   return class->port_disable (ap_obj, a_pid);
 }
 
@@ -808,7 +809,7 @@ OMX_ERRORTYPE
 tiz_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->port_enable);
+  assert (NULL != class->port_enable);
   return class->port_enable (ap_obj, a_pid);
 }
 
@@ -824,7 +825,7 @@ tiz_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
                        OMX_INDEXTYPE a_config_idx)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->config_change);
+  assert (NULL != class->config_change);
   return class->config_change (ap_obj, a_pid, a_config_idx);
 }
 
@@ -842,7 +843,7 @@ tiz_prc_io_ready (void *ap_obj,
                   int a_events)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->io_ready);
+  assert (NULL != class->io_ready);
   return class->io_ready (ap_obj, ap_ev_io, a_fd, a_events);
 }
 
@@ -859,7 +860,7 @@ tiz_prc_timer_ready (void *ap_obj,
                      void *ap_arg)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->timer_ready);
+  assert (NULL != class->timer_ready);
   return class->timer_ready (ap_obj, ap_ev_timer, ap_arg);
 }
 
@@ -877,7 +878,7 @@ tiz_prc_stat_ready (void *ap_obj,
                     int a_events)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (class->stat_ready);
+  assert (NULL != class->stat_ready);
   return class->stat_ready (ap_obj, ap_ev_stat, a_events);
 }
 
@@ -894,6 +895,8 @@ prc_class_ctor (void *ap_obj, va_list * app)
   va_list ap;
   va_copy (ap, *app);
 
+  /* NOTE: Start ignoring splint warnings in this section of code */
+  /*@ignore@*/
   while ((selector = va_arg (ap, voidf)))
     {
       voidf method = va_arg (ap, voidf);
@@ -938,6 +941,8 @@ prc_class_ctor (void *ap_obj, va_list * app)
           *(voidf *) & p_obj->stat_ready = method;
         }
     }
+  /*@end@*/
+  /* NOTE: Stop ignoring splint warnings in this section  */
 
   va_end (ap);
   return p_obj;

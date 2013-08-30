@@ -112,7 +112,7 @@ extern "C"
     OMX_ERRORTYPE (*stop_and_return) (const void *ap_obj);
     void (*issue_event) (const void *ap_obj, OMX_EVENTTYPE a_event,
                          OMX_U32 a_data1, OMX_U32 a_data2,
-                         OMX_PTR ap_eventdata);
+                         /*@null@*/ OMX_PTR ap_eventdata);
     void (*issue_err_event) (const void *ap_obj, OMX_ERRORTYPE a_error);
     void (*issue_cmd_event) (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
                              OMX_U32 a_pid, OMX_ERRORTYPE a_error);

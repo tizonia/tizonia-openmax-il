@@ -32,6 +32,7 @@
 
 #include "tizapi.h"
 #include "tizapi_decls.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -73,7 +74,7 @@ OMX_HANDLETYPE
 tiz_api_get_hdl (const void *ap_obj)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->get_hdl);
+  assert (NULL != class->get_hdl);
   return class->get_hdl (ap_obj);
 }
 
@@ -90,7 +91,7 @@ void
 tiz_api_set_hdl (const void *ap_obj, const OMX_HANDLETYPE ap_hdl)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->set_hdl);
+  assert (NULL != class->set_hdl);
   class->set_hdl (ap_obj, ap_hdl);
 }
 
@@ -114,7 +115,7 @@ tiz_api_GetComponentVersion (const void *ap_obj,
                             OMX_UUIDTYPE * ap_comp_uuid)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->GetComponentVersion);
+  assert (NULL != class->GetComponentVersion);
   return class->GetComponentVersion (ap_obj,
                                      ap_hdl,
                                      ap_comp_name,
@@ -131,7 +132,7 @@ super_GetComponentVersion (const void *a_class,
                            OMX_UUIDTYPE * ap_comp_uuid)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->GetComponentVersion);
+  assert (NULL != ap_obj && NULL != superclass->GetComponentVersion);
   return superclass->GetComponentVersion (ap_obj,
                                           ap_hdl,
                                           ap_comp_name,
@@ -142,7 +143,8 @@ super_GetComponentVersion (const void *a_class,
 static OMX_ERRORTYPE
 api_SendCommand (const void *ap_obj,
                  OMX_HANDLETYPE ap_hdl,
-                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
+                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
+                 /*@null@*/ OMX_PTR ap_cmd_data)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -154,7 +156,7 @@ tiz_api_SendCommand (const void *ap_obj,
                     OMX_PTR ap_cmd_data)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->SendCommand);
+  assert (NULL != class->SendCommand);
   return class->SendCommand (ap_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
@@ -166,7 +168,7 @@ super_SendCommand (const void *a_class,
                    OMX_PTR ap_cmd_data)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->SendCommand);
+  assert (NULL != ap_obj && NULL != superclass->SendCommand);
   return superclass->SendCommand (ap_obj, ap_hdl, a_cmd, a_param1,
                                   ap_cmd_data);
 }
@@ -185,7 +187,7 @@ tiz_api_GetParameter (const void *ap_obj,
                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->GetParameter);
+  assert (NULL != class->GetParameter);
   return class->GetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -196,7 +198,7 @@ super_GetParameter (const void *a_class,
                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->GetParameter);
+  assert (NULL != ap_obj && NULL != superclass->GetParameter);
   return superclass->GetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -215,7 +217,7 @@ tiz_api_SetParameter (const void *ap_obj,
                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->SetParameter);
+  assert (NULL != class->SetParameter);
   return class->SetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -226,7 +228,7 @@ super_SetParameter (const void *a_class,
                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->SetParameter);
+  assert (NULL != ap_obj && NULL != superclass->SetParameter);
   return superclass->SetParameter (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -244,7 +246,7 @@ tiz_api_GetConfig (const void *ap_obj,
                   OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->GetConfig);
+  assert (NULL != class->GetConfig);
   return class->GetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -255,7 +257,7 @@ super_GetConfig (const void *a_class,
                  OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->GetConfig);
+  assert (NULL != ap_obj && NULL != superclass->GetConfig);
   return superclass->GetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -272,7 +274,7 @@ tiz_api_SetConfig (const void *ap_obj,
                   OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->SetConfig);
+  assert (NULL != class->SetConfig);
   return class->SetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -283,7 +285,7 @@ super_SetConfig (const void *a_class,
                  OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->SetConfig);
+  assert (NULL != ap_obj && NULL != superclass->SetConfig);
   return superclass->SetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -302,7 +304,7 @@ tiz_api_GetExtensionIndex (const void *ap_obj,
                           OMX_INDEXTYPE * ap_index_type)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->GetExtensionIndex);
+  assert (NULL != class->GetExtensionIndex);
   return class->GetExtensionIndex (ap_obj,
                                    ap_hdl, a_param_name, ap_index_type);
 }
@@ -315,7 +317,7 @@ super_GetExtensionIndex (const void *a_class,
                          OMX_INDEXTYPE * ap_index_type)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->GetExtensionIndex);
+  assert (NULL != ap_obj && NULL != superclass->GetExtensionIndex);
   return superclass->GetExtensionIndex (ap_obj,
                                         ap_hdl, a_param_name, ap_index_type);
 }
@@ -332,7 +334,7 @@ tiz_api_GetState (const void *ap_obj,
                  OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->GetState);
+  assert (NULL != class->GetState);
   return class->GetState (ap_obj, ap_hdl, ap_state);
 }
 
@@ -342,7 +344,7 @@ super_GetState (const void *a_class,
                 OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->GetState);
+  assert (NULL != ap_obj && NULL != superclass->GetState);
   return superclass->GetState (ap_obj, ap_hdl, ap_state);
 }
 
@@ -366,7 +368,7 @@ tiz_api_ComponentTunnelRequest (const void *ap_obj,
                                OMX_TUNNELSETUPTYPE * ap_tunn_setup)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->ComponentTunnelRequest);
+  assert (NULL != class->ComponentTunnelRequest);
   return class->ComponentTunnelRequest (ap_obj,
                                         ap_hdl,
                                         a_port,
@@ -384,7 +386,7 @@ super_ComponentTunnelRequest (const void *a_class,
                               OMX_TUNNELSETUPTYPE * ap_tunn_setup)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->ComponentTunnelRequest);
+  assert (NULL != ap_obj && NULL != superclass->ComponentTunnelRequest);
   return superclass->ComponentTunnelRequest (ap_obj,
                                              ap_hdl,
                                              a_port,
@@ -410,7 +412,7 @@ tiz_api_UseBuffer (const void *ap_obj,
                   OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->UseBuffer);
+  assert (NULL != class->UseBuffer);
   return class->UseBuffer (ap_obj,
                            ap_hdl, app_hdr, a_pid, ap_apppriv, a_size, ap_buf);
 }
@@ -424,7 +426,7 @@ super_UseBuffer (const void *a_class,
                  OMX_PTR ap_apppriv, OMX_U32 a_size, OMX_U8 * ap_buf)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->UseBuffer);
+  assert (NULL != ap_obj && NULL != superclass->UseBuffer);
   return superclass->UseBuffer (ap_obj,
                                 ap_hdl,
                                 app_hdr, a_pid, ap_apppriv, a_size, ap_buf);
@@ -446,7 +448,7 @@ tiz_api_AllocateBuffer (const void *ap_obj,
                        OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->AllocateBuffer);
+  assert (NULL != class->AllocateBuffer);
   return class->AllocateBuffer (ap_obj,
                                 ap_hdl, app_hdr, a_pid, ap_apppriv, a_size);
 }
@@ -459,7 +461,7 @@ super_AllocateBuffer (const void *a_class,
                       OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->AllocateBuffer);
+  assert (NULL != ap_obj && NULL != superclass->AllocateBuffer);
   return superclass->AllocateBuffer (ap_obj,
                                      ap_hdl,
                                      app_hdr, a_pid, ap_apppriv, a_size);
@@ -479,8 +481,7 @@ tiz_api_FreeBuffer (const void *ap_obj,
                    OMX_U32 a_port_index, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-
-  assert (class->FreeBuffer);
+  assert (NULL != class->FreeBuffer);
   return class->FreeBuffer (ap_obj, ap_hdl, a_port_index, ap_buf);
 }
 
@@ -491,7 +492,7 @@ super_FreeBuffer (const void *a_class,
                   OMX_U32 a_port_index, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->FreeBuffer);
+  assert (NULL != ap_obj && NULL != superclass->FreeBuffer);
   return superclass->FreeBuffer (ap_obj, ap_hdl, a_port_index, ap_buf);
 }
 
@@ -507,7 +508,7 @@ tiz_api_EmptyThisBuffer (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->EmptyThisBuffer);
+  assert (NULL != class->EmptyThisBuffer);
   return class->EmptyThisBuffer (ap_obj, ap_hdl, ap_buf);
 }
 
@@ -517,7 +518,7 @@ super_EmptyThisBuffer (const void *a_class,
                        OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->EmptyThisBuffer);
+  assert (NULL != ap_obj && NULL != superclass->EmptyThisBuffer);
   return superclass->EmptyThisBuffer (ap_obj, ap_hdl, ap_buf);
 }
 
@@ -534,7 +535,7 @@ tiz_api_FillThisBuffer (const void *ap_obj,
                        OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->FillThisBuffer);
+  assert (NULL != class->FillThisBuffer);
   return class->FillThisBuffer (ap_obj, ap_hdl, ap_buf);
 }
 
@@ -544,7 +545,7 @@ super_FillThisBuffer (const void *a_class,
                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->FillThisBuffer);
+  assert (NULL != ap_obj && NULL != superclass->FillThisBuffer);
   return superclass->FillThisBuffer (ap_obj, ap_hdl, ap_buf);
 }
 
@@ -562,7 +563,7 @@ tiz_api_SetCallbacks (const void *ap_obj,
                      OMX_CALLBACKTYPE * ap_callbacks, OMX_PTR ap_app_data)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->SetCallbacks);
+  assert (NULL != class->SetCallbacks);
   return class->SetCallbacks (ap_obj, ap_hdl, ap_callbacks, ap_app_data);
 }
 
@@ -573,7 +574,7 @@ super_SetCallbacks (const void *a_class,
                     OMX_CALLBACKTYPE * ap_callbacks, OMX_PTR ap_app_data)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->SetCallbacks);
+  assert (NULL != ap_obj && NULL != superclass->SetCallbacks);
   return superclass->SetCallbacks (ap_obj, ap_hdl, ap_callbacks, ap_app_data);
 }
 
@@ -588,7 +589,7 @@ OMX_ERRORTYPE
 tiz_api_ComponentDeInit (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-  assert (class->ComponentDeInit);
+  assert (NULL != class->ComponentDeInit);
   return class->ComponentDeInit (ap_obj, ap_hdl);
 }
 
@@ -597,7 +598,7 @@ super_ComponentDeInit (const void *a_class,
                        const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   const tiz_api_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->ComponentDeInit);
+  assert (NULL != ap_obj && NULL != superclass->ComponentDeInit);
   return superclass->ComponentDeInit (ap_obj, ap_hdl);
 }
 
@@ -619,8 +620,7 @@ tiz_api_UseEGLImage (const void *ap_obj,
                     void *eglImage)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-
-  assert (class->UseEGLImage);
+  assert (NULL != class->UseEGLImage);
   return class->UseEGLImage (ap_obj,
                              ap_hdl,
                              app_buf_hdr, a_port_index, ap_app_private,
@@ -636,8 +636,7 @@ super_UseEGLImage (const void *a_class,
                    void *eglImage)
 {
   const tiz_api_class_t *superclass = super (a_class);
-
-  assert (ap_obj && superclass->UseEGLImage);
+  assert (NULL != ap_obj && NULL != superclass->UseEGLImage);
   return superclass->UseEGLImage (ap_obj,
                                   ap_hdl,
                                   app_buf_hdr,
@@ -657,8 +656,7 @@ tiz_api_ComponentRoleEnum (const void *ap_obj,
                           OMX_U8 * a_role, OMX_U32 a_index)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
-
-  assert (class->ComponentRoleEnum);
+  assert (NULL != class->ComponentRoleEnum);
   return class->ComponentRoleEnum (ap_obj, ap_hdl, a_role, a_index);
 }
 
@@ -669,8 +667,7 @@ super_ComponentRoleEnum (const void *a_class,
                          OMX_U8 * a_role, OMX_U32 a_index)
 {
   const tiz_api_class_t *superclass = super (a_class);
-
-  assert (ap_obj && superclass->ComponentRoleEnum);
+  assert (NULL != ap_obj && NULL != superclass->ComponentRoleEnum);
   return superclass->ComponentRoleEnum (ap_obj, ap_hdl, a_role, a_index);
 }
 
@@ -687,6 +684,8 @@ api_class_ctor (void *ap_obj, va_list * app)
   va_list ap;
   va_copy (ap, *app);
 
+  /* NOTE: Start ignoring splint warnings in this section of code */
+  /*@ignore@*/
   while ((selector = va_arg (ap, voidf)))
     {
       voidf method = va_arg (ap, voidf);
@@ -772,9 +771,10 @@ api_class_ctor (void *ap_obj, va_list * app)
         }
 
     }
+  /*@end@*/
+  /* NOTE: Stop ignoring splint warnings in this section  */
 
   va_end (ap);
-
   return p_obj;
 }
 

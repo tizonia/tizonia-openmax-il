@@ -2184,7 +2184,7 @@ port_class_ctor (void *ap_obj, va_list * app)
     }
   /*@end@*/
   /* NOTE: Stop ignoring splint warnings in this section  */
-  
+
   va_end (ap);
   return p_obj;
 }
