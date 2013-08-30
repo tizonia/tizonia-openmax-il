@@ -127,6 +127,7 @@ OMX.Aratelia.audio_decoder.opus.testfile1_uri = @localstatedir@/lib/tizonia/tizo
 
 OMX.Aratelia.container_demuxer.ogg.preannouncements_disabled.port0 = false
 OMX.Aratelia.container_demuxer.ogg.preannouncements_disabled.port1 = false
-OMX.Aratelia.container_demuxer.ogg.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/opus/strum12str_16_441_vbr_20ms.opus
-OMX.Aratelia.container_demuxer.ogg.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/opus/strum12str_16_441_vbr_20ms.opus
+OMX.Aratelia.container_demuxer.ogg.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/riff_rock.ogg
+OMX.Aratelia.container_demuxer.ogg.testfile_uri_original = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/riff_rock.vorbis.original
+OMX.Aratelia.container_demuxer.ogg.testfile_uri_demuxed = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/riff_rock.vorbis.demuxed
 
