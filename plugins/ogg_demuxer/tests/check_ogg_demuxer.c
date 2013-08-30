@@ -30,6 +30,14 @@
 #include <config.h>
 #endif
 
+#include "tizosal.h"
+#include "tizutils.h"
+#include "tizfsm.h"
+#include "tizkernel.h"
+
+#include "OMX_Component.h"
+#include "OMX_Types.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,14 +49,6 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <limits.h>
-
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
-#include "tizosal.h"
-#include "tizutils.h"
-#include "tizfsm.h"
-#include "tizkernel.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -62,11 +62,12 @@ pid_t g_rmd_pid;
 
 static const char *pg_files[] = {
   NULL,
+  NULL,
   NULL
 };
 
-#define OGG_DEMUXER_TEST_TIMEOUT 30
-#define INFINITE_WAIT 0xffffffff
+#define OGG_DEMUXER_TEST_TIMEOUT  30
+#define INFINITE_WAIT             0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
 #define TIMEOUT_EXPECTING_SUCCESS 500
 /* duration of event timeout in msec when we don't expect event to be set */
@@ -179,7 +180,7 @@ static OMX_ERRORTYPE
 _ctx_init (cc_ctx_t * app_ctx)
 {
   check_common_context_t *p_ctx =
-    tiz_mem_alloc (sizeof (check_common_context_t));
+    tiz_mem_calloc (sizeof (check_common_context_t), 1);
 
   if (!p_ctx)
     {
@@ -442,11 +443,14 @@ init_test_data()
   bool rv = false;
   const char *p_testfile1 = NULL;
   const char *p_testfile2 = NULL;
+  const char *p_testfile3 = NULL;
 
   p_testfile1 = tiz_rcfile_get_value("plugins-data",
-                                     "OMX.Aratelia.container_demuxer.ogg.testfile1_uri");
+                                     "OMX.Aratelia.container_demuxer.ogg.default_uri");
   p_testfile2 = tiz_rcfile_get_value("plugins-data",
-                                     "OMX.Aratelia.container_demuxer.ogg.testfile2_uri");
+                                     "OMX.Aratelia.container_demuxer.ogg.testfile_uri_demuxed");
+  p_testfile3 = tiz_rcfile_get_value("plugins-data",
+                                     "OMX.Aratelia.container_demuxer.ogg.testfile_uri_original");
 
   if (!p_testfile1 || !p_testfile2)
 
@@ -455,7 +459,9 @@ init_test_data()
     }
   else
     {
-      pg_files[0] = p_testfile1; pg_files[1] = p_testfile2;
+      pg_files[0] = p_testfile1;
+      pg_files[1] = p_testfile2;
+      pg_files[2] = p_testfile3;
       TIZ_LOG(TIZ_TRACE, "Test data available [%s]", pg_files[0]);
       rv = true;
     }
@@ -599,8 +605,8 @@ START_TEST (test_ogg_demuxer)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
-             tiz_state_to_str (p_ctx->state));
+  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%d] p_ctx->state [%s]", p_ctx->state,
+           tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
   /* ------------------------------ */
@@ -745,11 +751,11 @@ START_TEST (test_ogg_demuxer)
   fail_if (OMX_ErrorNone != error);
 
   cmp_cmd = tiz_mem_calloc (1, strlen ("cmp") +
-                            strlen (pg_files[0]) +
-                            strlen (pg_files[1]) + 3);
+                            strlen (pg_files[1]) +
+                            strlen (pg_files[2]) + 3);
 
-  sprintf (cmp_cmd, "%s %s %s", "cmp", pg_files[0], pg_files[1]);
-/*   fail_if (system (cmp_cmd) != 0); */
+  sprintf (cmp_cmd, "%s %s %s", "cmp", pg_files[1], pg_files[2]);
+  fail_if (system (cmp_cmd) != 0);
 
   TIZ_LOG (TIZ_TRACE, "File comparison OK: [%s]", cmp_cmd);
 
