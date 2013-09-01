@@ -32,6 +32,18 @@
 #ifndef TIZKERNEL_HELPERS_INL
 #define TIZKERNEL_HELPERS_INL
 
+#ifndef S_SPLINT_S
+#define TIZ_KRN_INIT_MSG_OOM(obj,hdl,msg,msgtype) \
+  do                                                                    \
+    {                                                                   \
+      tiz_ret_val_on_err ( (msg = init_krn_message (obj, hdl, (msgtype))), \
+                           OMX_ErrorInsufficientResources);             \
+    } while (0)
+#endif
+
+/* NOTE: Start ignoring splint warnings in this section of code */
+/*@ignore@*/
+
 static void
 rm_callback_hdlr (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                   tiz_event_pluggable_t * ap_event)
@@ -43,22 +55,29 @@ rm_callback_hdlr (void *ap_obj, OMX_HANDLETYPE ap_hdl,
     }
 }
 
+
+/* TODO: Fix return code mess */
 static void
 deliver_pluggable_event (OMX_U32 rid, OMX_HANDLETYPE ap_hdl)
 {
-  tiz_event_pluggable_t *p_event
-    = (tiz_event_pluggable_t *)
+  tiz_event_pluggable_t *p_event = (tiz_event_pluggable_t *)
     tiz_mem_calloc (1, sizeof (tiz_event_pluggable_t));
   OMX_U32 *p_rid = (OMX_U32 *) tiz_mem_calloc (1, sizeof (OMX_U32));
-  *p_rid = rid;
 
-  p_event->p_hdl = ap_hdl;
-  p_event->p_servant = tiz_get_krn (ap_hdl);
-  p_event->p_data = p_rid;
-  p_event->pf_hdlr = &rm_callback_hdlr;
+  if (NULL != p_event && NULL != p_rid)
+    {
+      *p_rid             = rid;
+      p_event->p_hdl     = ap_hdl;
+      p_event->p_servant = tiz_get_krn (ap_hdl);
+      p_event->p_data    = p_rid;
+      p_event->pf_hdlr   = &rm_callback_hdlr;
+      (void) tiz_comp_event_pluggable (ap_hdl, p_event);
+    }
 
-  tiz_comp_event_pluggable (ap_hdl, p_event);
+  /* This should return something */
 }
+/*@end@*/
+/* NOTE: Stop ignoring splint warnings in this section  */
 
 static void
 wait_complete (OMX_U32 rid, OMX_PTR ap_data)
@@ -85,7 +104,7 @@ get_ingress_lst (const tiz_krn_t * ap_obj, OMX_U32 a_pid)
   assert (NULL != ap_obj);
   /* Grab the port's ingress list */
   p_list = tiz_vector_at (ap_obj->p_ingress_, a_pid);
-  assert (p_list && *(tiz_vector_t **) p_list);
+  assert (NULL != p_list && NULL != *(tiz_vector_t **) p_list);
   return (*(tiz_vector_t **) p_list);
 }
 
@@ -96,18 +115,18 @@ get_egress_lst (const tiz_krn_t * ap_obj, OMX_U32 a_pid)
   assert (NULL != ap_obj);
   /* Grab the port's egress list */
   p_list = tiz_vector_at (ap_obj->p_egress_, a_pid);
-  assert (p_list && *(tiz_vector_t **) p_list);
+  assert (NULL != p_list && NULL != *(tiz_vector_t **) p_list);
   return (*(tiz_vector_t **) p_list);
 }
 
 static inline OMX_PTR
-get_port (const tiz_krn_t * ap_obj, OMX_U32 a_pid)
+get_port (const tiz_krn_t * ap_obj, const OMX_U32 a_pid)
 {
   OMX_PTR *pp_port = NULL;
   assert (NULL != ap_obj);
   /* Find the port.. */
   pp_port = tiz_vector_at (ap_obj->p_ports_, a_pid);
-  assert (pp_port && *pp_port);
+  assert (NULL != pp_port && NULL != *pp_port);
   return *pp_port;
 }
 
@@ -118,7 +137,7 @@ get_header (const tiz_vector_t * ap_list, OMX_U32 a_index)
   assert (NULL != ap_list);
   /* Retrieve the header... */
   pp_hdr = tiz_vector_at (ap_list, a_index);
-  assert (pp_hdr && *pp_hdr);
+  assert (NULL != pp_hdr && NULL != *pp_hdr);
   return *pp_hdr;
 }
 
@@ -136,9 +155,9 @@ move_to_ingress (void *ap_obj, OMX_U32 a_pid)
 
   p_elist = tiz_vector_at (p_obj->p_egress_, a_pid);
   p_ilist = tiz_vector_at (p_obj->p_ingress_, a_pid);
-  assert (p_elist && *(tiz_vector_t **) p_elist);
+  assert (NULL != p_elist && NULL != *(tiz_vector_t **) p_elist);
   p_elist = *(tiz_vector_t **) p_elist;
-  assert (p_ilist && *(tiz_vector_t **) p_elist);
+  assert (NULL != p_ilist && NULL != *(tiz_vector_t **) p_elist);
   p_ilist = *(tiz_vector_t **) p_ilist;
   rc = tiz_vector_append (p_ilist, p_elist);
   tiz_vector_clear (p_elist);
@@ -164,9 +183,9 @@ move_to_egress (void *ap_obj, OMX_U32 a_pid)
 
   p_elist = tiz_vector_at (p_obj->p_egress_, a_pid);
   p_ilist = tiz_vector_at (p_obj->p_ingress_, a_pid);
-  assert (p_elist && *(tiz_vector_t **) p_elist);
+  assert (NULL != p_elist && NULL != *(tiz_vector_t **) p_elist);
   p_elist = *(tiz_vector_t **) p_elist;
-  assert (p_ilist && *(tiz_vector_t **) p_ilist);
+  assert (NULL != p_ilist && NULL != *(tiz_vector_t **) p_ilist);
   p_ilist = *(tiz_vector_t **) p_ilist;
   rc = tiz_vector_append (p_elist, p_ilist);
   tiz_vector_clear (p_ilist);
@@ -193,7 +212,7 @@ add_to_buflst (void *ap_obj, tiz_vector_t * ap_dst2darr,
   assert (tiz_vector_length (ap_dst2darr) >= pid);
 
   p_list = tiz_vector_at (ap_dst2darr, pid);
-  assert (p_list && *(tiz_vector_t **) p_list);
+  assert (NULL != p_list && NULL != *(tiz_vector_t **) p_list);
   p_list = *(tiz_vector_t **) p_list;
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
@@ -225,7 +244,7 @@ clear_hdr_contents (tiz_vector_t * ap_hdr_lst, OMX_U32 a_pid)
   assert (tiz_vector_length (ap_hdr_lst) >= a_pid);
 
   p_list = tiz_vector_at (ap_hdr_lst, a_pid);
-  assert (p_list && *(tiz_vector_t **) p_list);
+  assert (NULL != p_list && NULL != *(tiz_vector_t **) p_list);
   p_list = *(tiz_vector_t **) p_list;
 
   hdr_count = tiz_vector_length (p_list);
@@ -248,7 +267,7 @@ append_buflsts (tiz_vector_t * ap_dst2darr,
   assert (tiz_vector_length (ap_dst2darr) >= a_pid);
 
   p_list = tiz_vector_at (ap_dst2darr, a_pid);
-  assert (p_list && *(tiz_vector_t **) p_list);
+  assert (NULL != p_list && NULL != *(tiz_vector_t **) p_list);
   p_list = *(tiz_vector_t **) p_list;
   assert (tiz_vector_length (p_list) == 0);
 
@@ -272,12 +291,12 @@ clear_hdr_lsts (void *ap_obj, const OMX_U32 a_pid)
       pid = ((OMX_ALL != a_pid) ? a_pid : i);
 
       p_list = tiz_vector_at (p_obj->p_ingress_, pid);
-      assert (p_list && *(tiz_vector_t **) p_list);
+      assert (NULL != p_list && NULL != *(tiz_vector_t **) p_list);
       p_list = *(tiz_vector_t **) p_list;
       tiz_vector_clear (p_list);
 
       p_list = tiz_vector_at (p_obj->p_egress_, pid);
-      assert (p_list && *(tiz_vector_t **) p_list);
+      assert (NULL != p_list && NULL != *(tiz_vector_t **) p_list);
       p_list = *(tiz_vector_t **) p_list;
       tiz_vector_clear (p_list);
 
@@ -377,12 +396,12 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
           if (OMX_DirInput == pdir)
             {
               assert (p_hdr->nInputPortIndex == pid);
-              tiz_api_EmptyThisBuffer (p_prc, p_hdl, p_hdr);
+              tiz_check_omx_err (tiz_api_EmptyThisBuffer (p_prc, p_hdl, p_hdr));
             }
           else
             {
               assert (p_hdr->nOutputPortIndex == pid);
-              tiz_api_FillThisBuffer (p_prc, p_hdl, p_hdr);
+              tiz_check_omx_err (tiz_api_FillThisBuffer (p_prc, p_hdl, p_hdr));
             }
 
           /* ... and keep the header in the list. */
@@ -513,7 +532,8 @@ process_marks (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid,
           if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (p_port, ap_hdr)))
             {
               /* Successfully complete here the OMX_CommandMarkBuffer command */
-              complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone);
+              tiz_check_omx_err
+                (complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone));
             }
           else
             {
@@ -542,8 +562,10 @@ flush_marks (void *ap_obj, OMX_PTR ap_port)
   /* Use a dummy header to flush all marks in the port */
   do
     {
+      (void) tiz_mem_set (&hdr, 0, sizeof (OMX_BUFFERHEADERTYPE));
+      hdr.nVersion.nVersion    = (OMX_U32) OMX_VERSION;
       hdr.hMarkTargetComponent = NULL;
-      hdr.pMarkData = NULL;
+      hdr.pMarkData            = NULL;
       /* tiz_port_mark_buffer returns OMX_ErrorNone if the port owned the
        * mark. If the mark is not owned, it returns OMX_ErrorNotReady. When no
        * marks are found, it returns OMX_ErrorNoMore */
@@ -571,7 +593,7 @@ flush_marks (void *ap_obj, OMX_PTR ap_port)
 }
 
 static OMX_ERRORTYPE
-flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
+flush_egress (void *ap_obj, const OMX_U32 a_pid, const OMX_BOOL a_clear)
 {
   tiz_krn_t *p_obj = ap_obj;
   tiz_vector_t *p_list = NULL;
@@ -623,13 +645,13 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
              * if pre-announcements are enabled on the port. */
             if (OMX_DirInput == pdir && TIZ_PORT_IS_ALLOCATOR (p_port))
               {
-                tiz_port_populate_header (p_port, p_hdl, p_hdr);
+                tiz_check_omx_err (tiz_port_populate_header (p_port, p_hdr));
               }
 
             /* Propagate buffer marks... */
-            process_marks (p_obj, p_hdr, pid, p_hdl);
+            tiz_check_omx_err (process_marks (p_obj, p_hdr, pid, p_hdl));
 
-            if (a_clear)
+            if (OMX_TRUE == a_clear)
               {
                 tiz_clear_header (p_hdr);
               }
@@ -637,14 +659,14 @@ flush_egress (void *ap_obj, OMX_U32 a_pid, OMX_BOOL a_clear)
               {
                 /* Automatically report EOS event on output ports, but only
                  * once...  */
-                if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS
-                    && OMX_DirOutput == pdir && p_obj->eos_ == OMX_FALSE)
+                if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) != 0
+                    && OMX_DirOutput == pdir && false == p_obj->eos_)
                   {
                     TIZ_LOGN (TIZ_NOTICE, p_hdl, "OMX_BUFFERFLAG_EOS on "
                               "port [%d]...", pid);
 
                     /* ... flag EOS ... */
-                    p_obj->eos_ = OMX_TRUE;
+                    p_obj->eos_ = true;
                     tiz_srv_issue_event ((OMX_PTR) ap_obj,
                                              OMX_EventBufferFlag,
                                              pid, p_hdr->nFlags, NULL);
@@ -713,8 +735,9 @@ complete_port_disable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   if (p_obj->cmd_completion_count_ == 0)
     {
       OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
-      tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
-                                OMX_CommandPortDisable, a_pid);
+      tiz_check_omx_err
+        (tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
+                                   OMX_CommandPortDisable, a_pid));
     }
 
   /* Flush buffer marks and complete commands as required */
@@ -749,8 +772,9 @@ complete_port_enable (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   if (p_obj->cmd_completion_count_ == 0)
     {
       OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
-      tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
-                                OMX_CommandPortEnable, a_pid);
+      tiz_check_omx_err
+        (tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
+                                OMX_CommandPortEnable, a_pid));
     }
 
   return OMX_ErrorNone;
@@ -775,8 +799,9 @@ complete_port_flush (void *ap_obj, OMX_PTR ap_port, OMX_U32 a_pid,
   if (--p_obj->cmd_completion_count_ == 0)
     {
       OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
-      tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
-                                OMX_CommandFlush, a_pid);
+      tiz_check_omx_err
+        (tiz_fsm_complete_command (tiz_get_fsm (p_hdl), p_obj,
+                                   OMX_CommandFlush, a_pid));
     }
 
   return OMX_ErrorNone;
@@ -931,7 +956,7 @@ process_cbacks_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
           /* Add this buffer to the egress hdr list */
           if (0 < add_to_buflst (p_obj, p_obj->p_egress_, p_hdr, p_port))
             {
-              TIZ_PORT_DEC_CLAIMED_COUNT (p_port);
+              (void) TIZ_PORT_DEC_CLAIMED_COUNT (p_port);
               rc = OMX_TRUE;
             }
           else
@@ -945,9 +970,11 @@ process_cbacks_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   return rc;
 }
 
+/* NOTE: Start ignoring splint warnings in this section of code */
+/*@ignore@*/
 static inline tiz_krn_msg_t *
 init_krn_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                  tiz_krn_msg_class_t a_msg_class)
+                  const tiz_krn_msg_class_t a_msg_class)
 {
   tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
   tiz_krn_msg_t *p_msg = NULL;
@@ -969,11 +996,14 @@ init_krn_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   return p_msg;
 }
+/*@end@*/
+/* NOTE: Stop ignoring splint warnings in this section  */
+
 
 static OMX_ERRORTYPE
 enqueue_callback_msg (const void *ap_obj,
-                      OMX_BUFFERHEADERTYPE * ap_hdr,
-                      OMX_U32 a_pid, OMX_DIRTYPE a_dir)
+                      /*@null@*/ OMX_BUFFERHEADERTYPE * ap_hdr,
+                      const OMX_U32 a_pid, const OMX_DIRTYPE a_dir)
 {
   tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
   tiz_krn_msg_t *p_msg = NULL;
@@ -981,14 +1011,20 @@ enqueue_callback_msg (const void *ap_obj,
 
   assert (NULL != ap_obj);
 
+  /* NOTE: Start ignoring splint warnings in this section of code */
+  /*@ignore@*/
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
-            "callback : HEADER [%p] BUFFER [%p] "
-            "PID [%d] DIR [%s]", ap_hdr, ap_hdr ? ap_hdr->pBuffer : NULL,
-            a_pid, tiz_dir_to_str (a_dir));
+              "callback : HEADER [%p] BUFFER [%p] "
+              "PID [%d] DIR [%s]", ap_hdr != NULL ? ap_hdr : 0,
+              ap_hdr ? ap_hdr->pBuffer : 0,
+              a_pid, tiz_dir_to_str (a_dir));
+  /*@end@*/
+  /* NOTE: Stop ignoring splint warnings in this section  */
 
   TIZ_KRN_INIT_MSG_OOM (p_obj, tiz_api_get_hdl (p_obj), p_msg,
                         ETIZKrnMsgCallback);
 
+  assert (NULL != p_msg);
   p_msg_cb = &(p_msg->cb);
   p_msg_cb->p_hdr = ap_hdr;
   p_msg_cb->pid = a_pid;
@@ -1020,8 +1056,13 @@ init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
       return rc;
     }
 
-  primgmt.nSize = sizeof (OMX_PRIORITYMGMTTYPE);
+  comp_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+
+  primgmt.nSize             = (OMX_U32) sizeof (OMX_PRIORITYMGMTTYPE);
   primgmt.nVersion.nVersion = OMX_VERSION;
+  primgmt.nGroupPriority    = 0;
+  primgmt.nGroupID          = 0;
+
   if (OMX_ErrorNone != (rc = tiz_api_GetConfig (p_obj->p_cport_, ap_hdl,
                                                 OMX_IndexConfigPriorityMgmt,
                                                 &primgmt)))
@@ -1041,7 +1082,11 @@ init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
       return OMX_ErrorInsufficientResources;
     }
 
+  /* NOTE: Start ignoring splint warnings in this section of code */
+  /*@ignore@*/
   TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] [%p] : RM init'ed", comp_name, ap_hdl);
+  /*@end@*/
+  /* NOTE: Stop ignoring splint warnings in this section  */
 
   return OMX_ErrorNone;
 }
@@ -1115,7 +1160,7 @@ release_rm_resources (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   return OMX_ErrorNone;
 }
 
-static OMX_BOOL
+static bool
 all_populated (const void *ap_obj)
 {
   const tiz_krn_t *p_obj = ap_obj;
@@ -1140,17 +1185,17 @@ all_populated (const void *ap_obj)
         {
           TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
                     "ALL ENABLED ports are populated = [OMX_FALSE]");
-          return OMX_FALSE;
+          return false;
         }
     }
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
             "ALL ENABLED ports are populated = [OMX_TRUE]");
 
-  return OMX_TRUE;
+  return true;
 }
 
-static OMX_BOOL
+static bool
 all_depopulated (const void *ap_obj)
 {
   const tiz_krn_t *p_obj = ap_obj;
@@ -1164,21 +1209,21 @@ all_depopulated (const void *ap_obj)
   for (i = 0; i < nports; ++i)
     {
       p_port = get_port (p_obj, i);
-      if (tiz_port_buffer_count (p_port))
+      if (tiz_port_buffer_count (p_port) > 0)
         {
           TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
-                    "ALL DEPOPULATED = [OMX_FALSE]");
-          return OMX_FALSE;
+                    "ALL DEPOPULATED = [FALSE]");
+          return false;
         }
     }
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
-            "ALL DEPOPULATED = [OMX_TRUE]");
+            "ALL DEPOPULATED = [TRUE]");
 
-  return OMX_TRUE;
+  return true;
 }
 
-static OMX_BOOL
+static bool
 all_buffers_returned (void *ap_obj)
 {
   tiz_krn_t *p_obj = ap_obj;
@@ -1197,7 +1242,7 @@ all_buffers_returned (void *ap_obj)
 
       nbuf = tiz_port_buffer_count (p_port);
 
-      if (TIZ_PORT_IS_DISABLED (p_port) || !nbuf)
+      if (TIZ_PORT_IS_DISABLED (p_port) || nbuf <= 0)
         {
           continue;
         }
@@ -1223,7 +1268,7 @@ all_buffers_returned (void *ap_obj)
                             "HEADER [%p] BUFFER [%p]", p_hdr, p_hdr->pBuffer);
                 }
 
-              return OMX_FALSE;
+              return false;
             }
         }
       else
@@ -1234,7 +1279,7 @@ all_buffers_returned (void *ap_obj)
               TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
                         "Port [%d] : still need to "
                         "return [%d] buffers", i, claimed_count);
-              return OMX_FALSE;
+              return false;
             }
         }
 
@@ -1243,9 +1288,9 @@ all_buffers_returned (void *ap_obj)
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
             "ALL BUFFERS returned = [TRUE]...");
 
-  p_obj->eos_ = OMX_FALSE;
+  p_obj->eos_ = false;
 
-  return OMX_TRUE;
+  return true;
 }
 
 /* static OMX_BOOL */

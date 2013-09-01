@@ -96,7 +96,7 @@
 	<appender name="stderr" type="stream" layout="dated"/>
 	<appender name="syslog" type="syslog" layout="dated"/>
 
-	<rollingpolicy name="tizrolling" type="sizewin" maxsize="20971520" maxnum="10" />
+	<rollingpolicy name="tizrolling" type="sizewin" maxsize="20971520" maxnum="3" />
 	<appender name="tizlogfile" type="rollingfile" logdir="@localstatedir@/log/tizonia" prefix="tizonia.log" layout="tiz" rollingpolicy="tizrolling" />
 
 </log4c>

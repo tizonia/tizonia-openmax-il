@@ -62,30 +62,32 @@ extern "C"
     };
 
   OMX_ERRORTYPE tiz_krn_register_port (const void *ap_obj, OMX_PTR ap_port,
-                                       OMX_BOOL ais_config);
+                                       const bool ais_config);
   void tiz_krn_deregister_all_ports (void *ap_obj);
 
-  void *tiz_krn_get_port (const void *ap_obj, OMX_U32 a_pid);
+  void *tiz_krn_get_port (const void *ap_obj, const OMX_U32 a_pid);
 
   OMX_ERRORTYPE tiz_krn_find_managing_port (const void *ap_obj,
-                                            OMX_INDEXTYPE a_index,
-                                            OMX_PTR ap_struct,
+                                            const OMX_INDEXTYPE a_index,
+                                            const OMX_PTR ap_struct,
                                             OMX_PTR * app_port);
 
-  OMX_ERRORTYPE tiz_krn_select (const void *ap_obj, OMX_U32 a_nports,
+  OMX_ERRORTYPE tiz_krn_select (const void *ap_obj, const OMX_U32 a_nports,
                                 /*@out@*/ tiz_pd_set_t * ap_set);
-
-  OMX_ERRORTYPE tiz_krn_claim_buffer (const void *ap_obj, OMX_U32 a_pid,
-                                      OMX_U32 a_pos,
+  
+  OMX_ERRORTYPE tiz_krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,
+                                      const OMX_U32 a_pos,
                                       OMX_BUFFERHEADERTYPE ** p_hdr);
 
-  OMX_ERRORTYPE tiz_krn_release_buffer (const void *ap_obj, OMX_U32 a_pid,
+  OMX_ERRORTYPE tiz_krn_release_buffer (const void *ap_obj, const OMX_U32 a_pid,
                                            OMX_BUFFERHEADERTYPE * ap_hdr);
 
-  void tiz_krn_reset_tunneled_ports_status (void *ap_obj, OMX_U32 a_port_status_flag);
+  void tiz_krn_reset_tunneled_ports_status (void *ap_obj,
+                                            const OMX_U32 a_port_status_flag);
 
   tiz_krn_population_status_t tiz_krn_get_population_status
-  (const void *ap_obj, OMX_U32 a_pid, OMX_BOOL * ap_may_be_fully_unpopulated);
+  (const void *ap_obj, const OMX_U32 a_pid,
+  OMX_BOOL * ap_may_be_fully_unpopulated);
 
   bool tiz_krn_get_restriction_status
   (const void *ap_obj, const tiz_krn_restriction_t a_restriction);
@@ -98,7 +100,7 @@ extern "C"
   
 #define TIZ_KRN_MAY_INIT_EXE_TO_IDLE(_p)                                \
   tiz_krn_get_restriction_status(_p,ETIZKrnMayInitiateExeToIdle)
-
+  
 #ifdef __cplusplus
 }
 #endif

@@ -106,7 +106,7 @@ default_alloc_hook (OMX_U32 * ap_size, OMX_PTR * app_port_priv, void *ap_args)
 {
   OMX_U8 *p = NULL;
   assert (NULL != ap_size && *ap_size > 0);
-  p = tiz_mem_calloc (sizeof (OMX_U8), (size_t) *ap_size);
+  p = tiz_mem_calloc ((size_t) *ap_size, sizeof (OMX_U8));
   TIZ_LOG (TIZ_TRACE, "size [%u] pBuffer [%p]", *ap_size, p);
   return p;
 }
@@ -169,7 +169,7 @@ register_header (const void *ap_obj,
                  OMX_BUFFERHEADERTYPE * ap_hdr, const OMX_BOOL ais_owned)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
-  tiz_port_buf_props_t *p_bps = tiz_mem_calloc (sizeof (tiz_port_buf_props_t), 1);
+  tiz_port_buf_props_t *p_bps = tiz_mem_calloc (1, sizeof (tiz_port_buf_props_t));
 
   if (NULL == p_bps)
     {
@@ -815,7 +815,7 @@ port_UseBuffer (const void *ap_obj,
   assert (a_pid == p_obj->portdef_.nPortIndex);
 
   /* Allocate the buffer header... */
-  p_hdr = tiz_mem_calloc (sizeof (OMX_BUFFERHEADERTYPE), 1);
+  p_hdr = tiz_mem_calloc (1, sizeof (OMX_BUFFERHEADERTYPE));
   if (!p_hdr)
     {
       TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
@@ -908,7 +908,7 @@ port_AllocateBuffer (const void *ap_obj,
   assert (a_pid == p_obj->portdef_.nPortIndex);
 
   /* Allocate the buffer header... */
-  if (NULL == (p_hdr = tiz_mem_calloc (sizeof (OMX_BUFFERHEADERTYPE), 1)))
+  if (NULL == (p_hdr = tiz_mem_calloc (1, sizeof (OMX_BUFFERHEADERTYPE))))
     {
       return OMX_ErrorInsufficientResources;
     }
@@ -1362,8 +1362,8 @@ tiz_port_clear_flags (const void *ap_obj, OMX_U32 a_nflags, ...)
   va_end (ap);
 }
 
-static OMX_BOOL
-port_check_tunneled_port_status (const void *ap_obj, OMX_U32 a_port_status_flag)
+static bool
+port_check_tunneled_port_status (const void *ap_obj, const OMX_U32 a_port_status_flag)
 {
   const tiz_port_t *p_obj = ap_obj;
   assert (NULL != p_obj);
@@ -1371,11 +1371,11 @@ port_check_tunneled_port_status (const void *ap_obj, OMX_U32 a_port_status_flag)
            "port index [%d] peer nTunneledPortStatus [%d] a_port_status_flag [0x%08x] ",
            p_obj->pid_, p_obj->peer_port_status_.nTunneledPortStatus, a_port_status_flag);
   return ((p_obj->peer_port_status_.nTunneledPortStatus & a_port_status_flag) > 0
-          ? OMX_TRUE : OMX_FALSE);
+          ? true : false);
 }
 
-OMX_BOOL
-tiz_port_check_tunneled_port_status (const void *ap_obj, OMX_U32 a_port_status)
+bool
+tiz_port_check_tunneled_port_status (const void *ap_obj, const OMX_U32 a_port_status)
 {
   const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->check_tunneled_port_status);
@@ -1383,7 +1383,7 @@ tiz_port_check_tunneled_port_status (const void *ap_obj, OMX_U32 a_port_status)
 }
 
 static OMX_ERRORTYPE
-port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
+port_populate (const void *ap_obj)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1400,7 +1400,8 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   assert (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_obj));
   assert (p_obj->thdl_);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "port index [%d]...", p_obj->pid_);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "port index [%d]...",
+            p_obj->pid_);
 
   /* Retrieve the port definition from the peer */
   port_def.nPortIndex = p_obj->tpid_;
@@ -1408,13 +1409,13 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
       != (rc = OMX_GetParameter (p_obj->thdl_,
                                  OMX_IndexParamPortDefinition, &port_def)))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] while retrieving the "
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj), "[%s] while retrieving the "
                 "port definition from peer.. ", tiz_err_to_str (rc));
       return OMX_ErrorUndefined;
     }
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Retrieved port definition from peer - "
-            "peer's nBufferCountActual = [%d]...",
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "Retrieved port definition "
+            "from peer - peer's nBufferCountActual = [%d]...",
             port_def.nBufferCountActual);
 
   /* Work out the number of buffers to allocate */
@@ -1428,16 +1429,16 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
       if (p_obj->portdef_.nBufferCountActual < nbufs)
         {
           /* Update own buffer count requirements */
-          TIZ_LOGN (TIZ_TRACE, ap_hdl, "port index [%d] "
-                    "own nBufferCountActual - Old [%d] New [%d]",
-                    p_obj->pid_, p_obj->portdef_.nBufferCountActual, nbufs);
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "port index [%d] own "
+                    "nBufferCountActual - Old [%d] New [%d]", p_obj->pid_,
+                    p_obj->portdef_.nBufferCountActual, nbufs);
           p_obj->portdef_.nBufferCountActual = nbufs;
         }
 
       else
         {
           /* Update peer's buffer count requirements */
-          TIZ_LOGN (TIZ_TRACE, ap_hdl, "Peer port index [%d] "
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "Peer port index [%d] "
                     "peer's nBufferCountActual - Old [%d] New [%d]",
                     p_obj->tpid_, p_obj->portdef_.nBufferCountActual, nbufs);
           port_def.nBufferCountActual = nbufs;
@@ -1446,7 +1447,7 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
                                          OMX_IndexParamPortDefinition,
                                          &port_def)))
             {
-              TIZ_LOGN(TIZ_ERROR, ap_hdl, "[%s] while updating "
+              TIZ_LOGN(TIZ_ERROR, tiz_api_get_hdl (ap_obj), "[%s] while updating "
                        "nBufferCountActual. Peer port index [%d] "
                        "nBufferCountActual - New [%d]",
                        tiz_err_to_str (rc), nbufs);
@@ -1459,7 +1460,7 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   /* Tunnel population... */
   nbytes = MAX (p_obj->portdef_.nBufferSize, port_def.nBufferSize);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl,
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
             "Starting tunnel population : nbufs [%d] nbytes [%d]...",
             nbufs, nbytes);
 
@@ -1472,8 +1473,8 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
           && OMX_ErrorNone != (rc = alloc_buffer (p_obj, &nbytes,
                                                   &p_buf, &p_port_priv)))
         {
-          TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : while allocating a buffer.",
-                    tiz_err_to_str (rc));
+          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj), "[%s] : "
+                    "while allocating a buffer.", tiz_err_to_str (rc));
           return rc;
         }
 
@@ -1488,10 +1489,10 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
                               p_obj->tpid_, p_port_priv, nbytes, p_buf);
           /*@end@*/
 
-          TIZ_LOGN (TIZ_DEBUG, ap_hdl, "OMX_UseBuffer returned [%s] HEADER [%p]"
-                    "will retry [%s]", tiz_err_to_str (rc), p_hdr,
-                    OMX_ErrorIncorrectStateOperation ==
-                    rc ? "YES" : "NO");
+          TIZ_LOGN (TIZ_DEBUG, tiz_api_get_hdl (ap_obj), "OMX_UseBuffer "
+                    "returned [%s] HEADER [%p] will retry [%s]",
+                    tiz_err_to_str (rc), p_hdr,
+                    OMX_ErrorIncorrectStateOperation == rc ? "YES" : "NO");
         }
       while (OMX_ErrorIncorrectStateOperation == rc
              && tiz_sleep (TIZ_USEBUFFER_WAIT_MICROSECONDS) == 0);
@@ -1541,26 +1542,26 @@ port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   assert (tiz_vector_length (p_obj->p_hdrs_info_) ==
           p_obj->portdef_.nBufferCountActual);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "port [%d] populated", p_obj->pid_);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "port [%d] populated",
+            p_obj->pid_);
 
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
+tiz_port_populate (const void *ap_obj)
 {
   const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->populate);
-  return class->populate (ap_obj, ap_hdl);
+  return class->populate (ap_obj);
 }
 
 OMX_ERRORTYPE
-tiz_port_super_populate (const void *a_class, const void *ap_obj,
-                        OMX_HANDLETYPE ap_hdl)
+tiz_port_super_populate (const void *a_class, const void *ap_obj)
 {
   const tiz_port_class_t *superclass = super (a_class);
   assert (NULL != ap_obj && NULL != superclass->populate);
-  return superclass->populate (ap_obj, ap_hdl);
+  return superclass->populate (ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -1685,7 +1686,7 @@ port_store_mark (void *ap_obj, const OMX_MARKTYPE * ap_mark_info,
                  OMX_BOOL a_owned)
 {
   tiz_port_t *p_obj = ap_obj;
-  /*@dependent@*/ tiz_port_mark_info_t *p_mi = tiz_mem_calloc (sizeof (tiz_port_mark_info_t), 1);
+  /*@dependent@*/ tiz_port_mark_info_t *p_mi = tiz_mem_calloc (1, sizeof (tiz_port_mark_info_t));
 
   assert (NULL != ap_obj);
   assert (NULL != ap_mark_info);
@@ -1803,8 +1804,7 @@ tiz_port_set_alloc_hooks (void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                      OMX_BUFFERHEADERTYPE * ap_hdr)
+port_populate_header (const void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1813,10 +1813,10 @@ port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_PTR p_port_priv = NULL;
 
   assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
   assert (NULL != ap_hdr);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "port index [%d] announce_bufs [%s]...",
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "port index [%d] announce_bufs [%s]...",
             p_obj->pid_, p_obj->announce_bufs_ == OMX_TRUE ? "TRUE" : "FALSE");
 
   if (OMX_TRUE == p_obj->announce_bufs_)
@@ -1829,8 +1829,8 @@ port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   /* Call the deallocation hook */
   if (ap_hdr->pBuffer)
     {
-      TIZ_LOGN (TIZ_TRACE, ap_hdl, "Freeing buffer : port index [%d] - "
-                "HEADER [%p] BUFFER [%p]...",
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+                "Freeing buffer : port index [%d] - HEADER [%p] BUFFER [%p]..",
                 p_obj->pid_, ap_hdr, ap_hdr->pBuffer);
       p_port_priv = OMX_DirInput == p_obj->portdef_.eDir ?
         ap_hdr->pInputPortPrivate : ap_hdr->pOutputPortPrivate;
@@ -1845,8 +1845,8 @@ port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   ap_hdr->nAllocLen = size;
   ap_hdr->pBuffer = p_buf;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Allocated buffer : port index [%d] - "
-            "HEADER [%p] BUFFER [%p]...",
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+            "Allocated buffer : port index [%d] - HEADER [%p] BUFFER [%p]...",
             p_obj->pid_, ap_hdr, ap_hdr->pBuffer);
 
   if (OMX_DirInput == p_obj->portdef_.eDir)
@@ -1862,16 +1862,15 @@ port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 OMX_ERRORTYPE
-tiz_port_populate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                         OMX_BUFFERHEADERTYPE * ap_hdr)
+tiz_port_populate_header (const void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   tiz_port_class_t *class = (tiz_port_class_t *) classOf (ap_obj);
   assert (class->populate_header);
-  return class->populate_header (ap_obj, ap_hdl, ap_hdr);
+  return class->populate_header (ap_obj, ap_hdr);
 }
 
 static void
-port_depopulate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
+port_depopulate_header (const void *ap_obj,
                         OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
@@ -1899,15 +1898,15 @@ port_depopulate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 void
-tiz_port_depopulate_header (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
+tiz_port_depopulate_header (const void *ap_obj,
                            OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   tiz_port_class_t *class = (tiz_port_class_t *) classOf (ap_obj);
   assert (class->depopulate_header);
-  class->depopulate_header (ap_obj, ap_hdl, ap_hdr);
+  class->depopulate_header (ap_obj, ap_hdr);
 }
 
-static OMX_BOOL
+static bool
 port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid)
 {
   const tiz_port_t *p_obj = ap_obj;
@@ -1922,7 +1921,7 @@ port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid)
   return (*ap_mos_pid != -1 ? OMX_TRUE : OMX_FALSE);
 }
 
-OMX_BOOL
+bool
 tiz_port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid)
 {
   const tiz_port_class_t *class = classOf (ap_obj);
@@ -1965,15 +1964,13 @@ tiz_port_super_apply_slaving_behaviour (void *a_class, void *ap_obj,
 }
 
 static void
-port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                             OMX_U32 a_port_status)
+port_update_tunneled_status (void *ap_obj, OMX_U32 a_port_status)
 {
   const tiz_port_t *p_obj = ap_obj;
   OMX_CONFIG_TUNNELEDPORTSTATUSTYPE port_status;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
 
   port_status.nSize               = sizeof (OMX_CONFIG_TUNNELEDPORTSTATUSTYPE);
   port_status.nVersion.nVersion   = OMX_VERSION;
@@ -1985,7 +1982,7 @@ port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   if ((a_port_status & OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN) > 0
       && !(TIZ_PORT_IS_ENABLED_TUNNELED_AND_SUPPLIER (p_obj)))
     {
-      TIZ_LOGN (TIZ_NOTICE, ap_hdl,
+      TIZ_LOGN (TIZ_NOTICE, tiz_api_get_hdl (ap_obj),
                 "pid [%d] TIZ_PORT_IS_ENABLED_TUNNELED_AND_SUPPLIER "
                 "== FALSE tpid_ [%d] a_port_status [0x%08X]", p_obj->pid_,
                 p_obj->tpid_, a_port_status);
@@ -1996,7 +1993,7 @@ port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
          || (a_port_status & OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE) > 0)
        && !(TIZ_PORT_IS_ENABLED_TUNNELED_AND_NON_SUPPLIER (p_obj)) )
     {
-      TIZ_LOGN (TIZ_NOTICE, ap_hdl,
+      TIZ_LOGN (TIZ_NOTICE, tiz_api_get_hdl (ap_obj),
                 "pid [%d] TIZ_PORT_IS_ENABLED_TUNNELED_AND_NON_SUPPLIER "
                 "== FALSE  tpid_ [%d] a_port_status [0x%08X]",
                 p_obj->pid_, p_obj->tpid_, a_port_status);
@@ -2005,7 +2002,7 @@ port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   assert (NULL != p_obj->thdl_);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl,
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
             "pid [%d] tpid_ [%d] port_status [0x%08X]", p_obj->pid_,
             p_obj->tpid_, a_port_status);
   /* Inform the tunneled port */
@@ -2014,41 +2011,38 @@ port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (OMX_ErrorNone != rc)
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "WARNING: Tunneled component returned [%s] "
-                "after calling OMX_SetConfig "
-                     "(OMX_IndexConfigTunneledPortStatus)",
-                     tiz_err_to_str (rc));
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj), "WARNING: "
+                "Tunneled component returned [%s] after calling OMX_SetConfig "
+                "(OMX_IndexConfigTunneledPortStatus)", tiz_err_to_str (rc));
     }
 }
 
 void
-tiz_port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                                OMX_U32 a_port_status)
+tiz_port_update_tunneled_status (void *ap_obj, OMX_U32 a_port_status)
 {
   const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->update_tunneled_status);
-  class->update_tunneled_status (ap_obj, ap_hdl, a_port_status);
+  class->update_tunneled_status (ap_obj, a_port_status);
 }
 
 static void
-reset_tunneled_port_status_flag (void *ap_obj, OMX_HANDLETYPE ap_hdl,
+reset_tunneled_port_status_flag (void *ap_obj,
                                  OMX_U32 a_port_status_flag)
 {
   tiz_port_t *p_obj = ap_obj;
   assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
   p_obj->peer_port_status_.nTunneledPortStatus &= ~(a_port_status_flag);
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "peer nTunneledPortStatus = [%d]",
-            p_obj->peer_port_status_.nTunneledPortStatus);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "peer nTunneledPortStatus = "
+            "[%d]", p_obj->peer_port_status_.nTunneledPortStatus);
 }
 
 void
-tiz_port_reset_tunneled_port_status_flag (void *ap_obj, OMX_HANDLETYPE ap_hdl,
+tiz_port_reset_tunneled_port_status_flag (void *ap_obj,
                                          OMX_U32 a_port_status_flag)
 {
   const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->reset_tunneled_port_status_flag);
-  class->reset_tunneled_port_status_flag (ap_obj, ap_hdl, a_port_status_flag);
+  class->reset_tunneled_port_status_flag (ap_obj, a_port_status_flag);
 }
 
 /*

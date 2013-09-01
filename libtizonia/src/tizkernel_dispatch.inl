@@ -69,7 +69,8 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
       /* If port is already disabled, simply notify the command completion */
       if (TIZ_PORT_IS_DISABLED (p_port))
         {
-          complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone);
+          tiz_check_omx_err
+            (complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone));
           ++i;
           continue;
         }
@@ -78,14 +79,16 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
        * kernel's servant queue into the corresponding port ingress list. This
        * guarantees that all buffers received by the component on this port are
        * correctly returned during port stop */
-      tiz_srv_remove_from_queue (ap_obj, &process_efb_from_servant_queue,
-                                 i, p_obj);
+      tiz_check_omx_err
+        (tiz_srv_remove_from_queue (ap_obj, &process_efb_from_servant_queue,
+                                    i, p_obj));
       /* This will move this port's processor callbacks currently queued in the
        * kernel's servant queue into the corresponding port egress list. This
        * guarantees that all buffers held by the component on this port are
        * correctly returned during port stop */
-      tiz_srv_remove_from_queue (ap_obj, &process_cbacks_from_servant_queue,
-                                 i, p_obj);
+      tiz_check_omx_err
+        (tiz_srv_remove_from_queue (ap_obj, &process_cbacks_from_servant_queue,
+                                    i, p_obj));
 
       if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
         {
@@ -107,31 +110,35 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
           else
             {
               tiz_vector_t *p_hdr_lst = tiz_port_get_hdrs_list (p_port);
-              tiz_vector_t *p_hdr_lst_copy;
-              tiz_vector_init (&(p_hdr_lst_copy),
-                               sizeof (OMX_BUFFERHEADERTYPE *));
-              tiz_vector_append (p_hdr_lst_copy, p_hdr_lst);
+              tiz_vector_t *p_hdr_lst_copy = NULL;
+              tiz_check_omx_err
+                (tiz_vector_init (&(p_hdr_lst_copy),
+                                  sizeof (OMX_BUFFERHEADERTYPE *)));
+              assert (NULL != p_hdr_lst_copy);
+              tiz_check_omx_err
+                (tiz_vector_append (p_hdr_lst_copy, p_hdr_lst));
 
               /* Depopulate the tunnel... */
               if (OMX_ErrorNone == (rc = tiz_port_depopulate (p_port)))
                 {
                   const OMX_S32 nhdrs = tiz_vector_length (p_hdr_lst_copy);
-                  OMX_S32 i = 0;
+                  OMX_S32 j = 0;
                   OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
 
-                  for (i = 0; i < nhdrs; ++i)
+                  for (j = 0; j < nhdrs; ++j)
                     {
-                      pp_hdr = tiz_vector_at (p_hdr_lst_copy, i);
-                      assert (pp_hdr && *pp_hdr);
+                      pp_hdr = tiz_vector_at (p_hdr_lst_copy, j);
+                      assert (NULL != pp_hdr && NULL != *pp_hdr);
 
                       TIZ_LOGN (TIZ_TRACE, p_hdl, "port [%d] depopulated - "
                                 "removing leftovers - nhdrs [%d] "
                                 "HEADER [%p] BUFFER [%p]...",
                                 pid, nhdrs, *pp_hdr, (*pp_hdr)->pBuffer);
 
-                      tiz_srv_remove_from_queue
-                        (ap_obj, &remove_buffer_from_servant_queue,
-                         ETIZKrnMsgCallback, *pp_hdr);
+                      tiz_check_omx_err
+                        (tiz_srv_remove_from_queue
+                         (ap_obj, &remove_buffer_from_servant_queue,
+                          ETIZKrnMsgCallback, *pp_hdr));
 
                       {
                         const void *p_prc = tiz_get_prc (p_hdl);
@@ -139,8 +146,8 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                          * processor servant implementation of
                          * 'remove_from_queue' will replace them with the right
                          * values */
-                        tiz_srv_remove_from_queue (p_prc, NULL, 0,
-                                                       *pp_hdr);
+                        tiz_check_omx_err
+                          (tiz_srv_remove_from_queue (p_prc, NULL, 0, *pp_hdr));
                       }
 
                     }
@@ -156,7 +163,8 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                   return rc;
                 }
 
-              complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone);
+              tiz_check_omx_err
+                (complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone));
             }
 
         }
@@ -164,13 +172,13 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
         {
           if (tiz_port_buffer_count (p_port) > 0)
             {
-              TIZ_PORT_SET_GOING_TO_DISABLED (p_port);
-
               /* Move headers from ingress to egress, ... */
               /* ....and clear their contents before doing that... */
               const OMX_S32 count = clear_hdr_contents (p_obj->p_ingress_, pid);
 
-              if (count)
+              TIZ_PORT_SET_GOING_TO_DISABLED (p_port);
+
+              if (count > 0)
                 {
                   if (0 > move_to_egress (p_obj, pid))
                     {
@@ -210,7 +218,8 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
           else
             {
               TIZ_LOGN (TIZ_TRACE, p_hdl, "port [%d] is disabled...", pid);
-              complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone);
+              tiz_check_omx_err
+                (complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone));
             }
 
         }
@@ -264,7 +273,8 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
       if (TIZ_PORT_IS_ENABLED (p_port))
         {
           /* If port is already enabled, must notify the command completion */
-          complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone);
+          tiz_check_omx_err
+            (complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone));
           ++i;
           continue;
         }
@@ -274,7 +284,8 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
           if (EStateWaitForResources == now || EStateLoaded == now)
             {
               /* Complete OMX_CommandPortEnable on this port now */
-              complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone);
+              tiz_check_omx_err
+                (complete_port_enable (p_obj, p_port, pid, OMX_ErrorNone));
             }
           else
             {
@@ -366,22 +377,24 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
       pid = ((OMX_ALL != ap_msg_pf->param1) ? ap_msg_pf->param1 : i);
       p_port = get_port (p_obj, pid);
 
-      if (tiz_port_buffer_count (p_port) && TIZ_PORT_IS_ENABLED (p_port)
+      if ((tiz_port_buffer_count (p_port) > 0) && TIZ_PORT_IS_ENABLED (p_port)
           && (now == EStateExecuting || now == EStatePause))
         {
           /* This will move this port's ETB or FTB messages currently queued in the
            * kernel's servant queue into the corresponding port ingress list. This
            * guarantees that all buffers received by the component on this port are
            * correctly returned during port flush */
-          tiz_srv_remove_from_queue (ap_obj, &process_efb_from_servant_queue, i,
-                                     p_obj);
+          tiz_check_omx_err
+            (tiz_srv_remove_from_queue (ap_obj, &process_efb_from_servant_queue, i,
+                                        p_obj));
 
           /* This will move this port's processor callbacks currently queued in
            * the kernel's servant queue into the corresponding port egress
            * list. This guarantees that all buffers held by the component on
            * this port are correctly returned during port flush */
-          tiz_srv_remove_from_queue (ap_obj, &process_cbacks_from_servant_queue, i,
-                                     p_obj);
+          tiz_check_omx_err
+            (tiz_srv_remove_from_queue (ap_obj, &process_cbacks_from_servant_queue, i,
+                                        p_obj));
 
           if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
             {
@@ -392,7 +405,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                   /* ....and clear their contents before doing that... */
                   const OMX_S32 count = clear_hdr_contents (p_obj->p_ingress_, pid);
 
-                  if (count)
+                  if (count > 0)
                     {
                       nbufs = move_to_egress (p_obj, pid);
                       if (nbufs < 0)
@@ -419,7 +432,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                    * ingress... */
                   /* ....and clear their contents before doing that */
                   const OMX_S32 count = clear_hdr_contents (p_obj->p_egress_, pid);
-                  if (count)
+                  if (count > 0)
                     {
                       nbufs = move_to_ingress (p_obj, pid);
                       if (nbufs < 0)
@@ -441,7 +454,7 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
               /* ....but clear only output headers ... */
               if (OMX_DirInput == tiz_port_dir (p_port))
                 {
-                  clear_hdr_contents (p_obj->p_egress_, pid);
+                  (void) clear_hdr_contents (p_obj->p_egress_, pid);
                 }
 
               nbufs = move_to_egress (p_obj, pid);
@@ -468,7 +481,8 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
           TIZ_LOGN (TIZ_TRACE, ap_hdl,
                     "[%s] : Flush command failed on port [%d]...",
                     tiz_err_to_str (rc), pid);
-          complete_port_flush (p_obj, p_port, pid, rc);
+          tiz_check_omx_err
+            (complete_port_flush (p_obj, p_port, pid, rc));
         }
       else
         {
@@ -482,7 +496,8 @@ dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               /* There are no buffers with the processor, then we can
                * sucessfully complete the OMX_CommandFlush command here. */
-              complete_port_flush (p_obj, p_port, pid, OMX_ErrorNone);
+              tiz_check_omx_err
+                (complete_port_flush (p_obj, p_port, pid, OMX_ErrorNone));
             }
           else
             {
@@ -646,7 +661,8 @@ dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
       if (TIZ_PORT_IS_BEING_FLUSHED (p_port))
         {
           /* Notify flush complete */
-          complete_port_flush (p_obj, p_port, pid, rc);
+          tiz_check_omx_err
+            (complete_port_flush (p_obj, p_port, pid, rc));
         }
 
       if (all_buffers_returned (p_obj))
@@ -729,10 +745,13 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
           if (tiz_port_buffer_count (p_port) == nbufs)
             {
               tiz_vector_t *p_hdr_lst = tiz_port_get_hdrs_list (p_port);
-              tiz_vector_t *p_hdr_lst_copy;
-              tiz_vector_init (&(p_hdr_lst_copy),
-                               sizeof (OMX_BUFFERHEADERTYPE *));
-              tiz_vector_append (p_hdr_lst_copy, p_hdr_lst);
+              tiz_vector_t *p_hdr_lst_copy = NULL;
+              tiz_check_omx_err
+                (tiz_vector_init (&(p_hdr_lst_copy),
+                                  sizeof (OMX_BUFFERHEADERTYPE *)));
+              assert (NULL != p_hdr_lst_copy);
+              tiz_check_omx_err
+                (tiz_vector_append (p_hdr_lst_copy, p_hdr_lst));
 
               /* All buffers are back... now free headers on the other end */
               if (OMX_ErrorNone == (rc = tiz_port_depopulate (p_port)))
@@ -744,16 +763,17 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
                   for (i = 0; i < nhdrs; ++i)
                     {
                       pp_hdr = tiz_vector_at (p_hdr_lst_copy, i);
-                      assert (pp_hdr && *pp_hdr);
+                      assert (NULL != pp_hdr && NULL != *pp_hdr);
 
                       TIZ_LOGN (TIZ_TRACE, p_hdl, "port [%d] depopulated - "
                                 "removing leftovers - nhdrs [%d] "
                                 "HEADER [%p]...", pid, nhdrs, *pp_hdr);
 
-                      tiz_srv_remove_from_queue (p_obj,
-                                                     &remove_buffer_from_servant_queue,
-                                                     ETIZKrnMsgCallback,
-                                                     *pp_hdr);
+                      tiz_check_omx_err
+                        (tiz_srv_remove_from_queue (p_obj,
+                                                    &remove_buffer_from_servant_queue,
+                                                    ETIZKrnMsgCallback,
+                                                    *pp_hdr));
 
                       {
                         const void *p_prc = tiz_get_prc (p_hdl);
@@ -761,8 +781,8 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
                          * processor servant implementation of
                          * 'remove_from_queue' will replace them with the right
                          * values */
-                        tiz_srv_remove_from_queue (p_prc, NULL, 0,
-                                                       *pp_hdr);
+                        tiz_check_omx_err
+                          (tiz_srv_remove_from_queue (p_prc, NULL, 0, *pp_hdr));
                       }
 
                     }
@@ -778,7 +798,8 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
                   return rc;
                 }
 
-              complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone);
+              tiz_check_omx_err
+                (complete_port_disable (p_obj, p_port, pid, OMX_ErrorNone));
             }
 
           /* TODO: */
@@ -805,7 +826,7 @@ dispatch_efb (void *ap_obj, OMX_PTR ap_msg, tiz_krn_msg_class_t a_msg_class)
     }
   else if (TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
-      move_to_egress (ap_obj, pid);
+      (void) move_to_egress (ap_obj, pid);
       return flush_egress (p_obj, pid, OMX_FALSE);
     }
 
@@ -892,7 +913,8 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_msg_sc);
 
   /* Obtain the current state */
-  tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now);
+  tiz_check_omx_err
+    (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
 
   TIZ_LOGN (TIZ_DEBUG, ap_hdl, "Requested transition [%s] -> [%s]",
             tiz_fsm_state_to_str (now),
@@ -973,7 +995,7 @@ dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
             rc   = tiz_srv_stop_and_return (ap_obj);
             done = (OMX_ErrorNone == rc && all_buffers_returned
                     ((tiz_krn_t *) p_obj)) ? OMX_TRUE : OMX_FALSE;
-            if (done)
+            if (OMX_TRUE == done)
               {
                 clear_hdr_lsts (ap_obj, OMX_ALL);
               }

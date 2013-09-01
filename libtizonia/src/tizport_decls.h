@@ -70,8 +70,7 @@ extern "C"
                                            OMX_INDEXTYPE a_index);
 
   OMX_ERRORTYPE tiz_port_super_populate (const void *a_class,
-                                        const void *ap_obj,
-                                        OMX_HANDLETYPE ap_hdl);
+                                        const void *ap_obj);
 
   OMX_ERRORTYPE tiz_port_super_depopulate (const void *a_class,
                                            const void *ap_obj);
@@ -115,9 +114,9 @@ extern "C"
                          va_list * app);
     void (*set_flags) (const void *ap_obj, OMX_U32 a_nflags, va_list * app);
     void (*clear_flags) (const void *ap_obj, OMX_U32 a_nflags, va_list * app);
-    OMX_BOOL (*check_tunneled_port_status) (const void *ap_obj,
-                                            OMX_U32 a_post_status);
-    OMX_ERRORTYPE (*populate) (const void *ap_obj, OMX_HANDLETYPE ap_hdl);
+    bool (*check_tunneled_port_status) (const void *ap_obj,
+                                        const OMX_U32 a_post_status);
+    OMX_ERRORTYPE (*populate) (const void *ap_obj);
     OMX_ERRORTYPE (*depopulate) (const void *ap_obj);
     bool (*check_tunnel_compat) (const void *ap_obj,
                                  OMX_PARAM_PORTDEFINITIONTYPE *
@@ -134,22 +133,19 @@ extern "C"
                              const tiz_alloc_hooks_t * ap_new_hooks,
                              tiz_alloc_hooks_t * ap_old_hooks);
     OMX_ERRORTYPE (*populate_header) (const void *ap_obj,
-                                      OMX_HANDLETYPE ap_hdl,
                                       OMX_BUFFERHEADERTYPE * ap_hdr);
-    void (*depopulate_header) (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
+    void (*depopulate_header) (const void *ap_obj,
                                OMX_BUFFERHEADERTYPE * ap_hdr);
-    OMX_BOOL (*is_master_or_slave) (const void *ap_obj,
-                                    OMX_U32 * ap_mos_pid);
+    bool (*is_master_or_slave) (const void *ap_obj, OMX_U32 * ap_mos_pid);
     OMX_ERRORTYPE (*apply_slaving_behaviour) (void *ap_obj,
                                               void *ap_mos_port,
                                               const OMX_INDEXTYPE a_index,
                                               const OMX_PTR ap_struct,
                                               tiz_vector_t *
                                               ap_changed_idxs);
-    void (*update_tunneled_status) (void *ap_obj, OMX_HANDLETYPE ap_hdl,
+    void (*update_tunneled_status) (void *ap_obj,
                                     OMX_U32 a_port_status);
     void (*reset_tunneled_port_status_flag) (void *ap_obj,
-                                             OMX_HANDLETYPE ap_hdl,
                                              OMX_U32 a_port_status_flag);
   };
 

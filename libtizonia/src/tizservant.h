@@ -58,9 +58,9 @@ extern "C"
                                     OMX_U32 a_priority);
 
   OMX_ERRORTYPE tiz_srv_remove_from_queue (const void *ap_obj,
-                                              tiz_pq_func_f apf_func,
-                                              OMX_S32 a_data1,
-                                              OMX_PTR ap_data2);
+                                           /*@null@*/ tiz_pq_func_f apf_func,
+                                           OMX_S32 a_data1,
+                                           OMX_PTR ap_data2);
 
   OMX_ERRORTYPE tiz_srv_dispatch_msg (const void *ap_obj, OMX_PTR ap_data);
 

@@ -496,7 +496,7 @@ tiz_pqueue_remove_func (tiz_pqueue_t * p_q, tiz_pq_func_f a_pf_func,
         }
     }
 
-  return OMX_ErrorNoMore;
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE

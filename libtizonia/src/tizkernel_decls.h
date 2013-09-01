@@ -118,7 +118,7 @@ extern "C"
     tiz_vector_t *p_egress_;
     OMX_PTR p_cport_;
     OMX_PTR p_proc_;
-    OMX_BOOL eos_;
+    bool eos_;
     tizrm_t rm_;
     tizrm_proxy_callbacks_t rm_cbacks_;
     OMX_PORT_PARAM_TYPE audio_init_;
@@ -126,41 +126,41 @@ extern "C"
     OMX_PORT_PARAM_TYPE video_init_;
     OMX_PORT_PARAM_TYPE other_init_;
     OMX_S32 cmd_completion_count_;
-    OMX_BOOL accept_use_buffer_notified_;
-    OMX_BOOL accept_buffer_exchange_notified_;
-    OMX_BOOL may_transition_exe2idle_notified_;
+    bool accept_use_buffer_notified_;
+    bool accept_buffer_exchange_notified_;
+    bool may_transition_exe2idle_notified_;
   };
 
   OMX_ERRORTYPE
   tiz_krn_super_register_port (const void *a_class, const void *ap_obj,
-                                 OMX_PTR ap_port, OMX_BOOL ais_config);
+                                 OMX_PTR ap_port, const bool ais_config);
 
   tiz_krn_population_status_t
   tiz_krn_super_get_population_status (const void *a_class,
-                                         const void *ap_obj, OMX_U32 a_pid,
+                                         const void *ap_obj, const OMX_U32 a_pid,
                                          OMX_BOOL *
                                          ap_may_be_fully_unpopulated);
 
   OMX_ERRORTYPE
   tiz_krn_super_select (const void *a_class, const void *ap_obj,
-                          OMX_U32 a_nports, tiz_pd_set_t * p_set);
+                          const OMX_U32 a_nports, tiz_pd_set_t * p_set);
 
   OMX_ERRORTYPE
   tiz_krn_super_claim_buffer (const void *a_class, const void *ap_obj,
-                                OMX_U32 a_port_id, OMX_U32 a_pos,
+                                const OMX_U32 a_port_id, const OMX_U32 a_pos,
                                 OMX_BUFFERHEADERTYPE ** p_hdr);
 
   OMX_ERRORTYPE
   tiz_krn_super_release_buffer (const void *a_class,
-                                     const void *ap_obj, OMX_U32 a_port_id,
-                                     OMX_BUFFERHEADERTYPE * ap_hdr);
+                                const void *ap_obj, const OMX_U32 a_port_id,
+                                OMX_BUFFERHEADERTYPE * ap_hdr);
 
   void
   tiz_krn_super_deregister_all_ports (const void *a_class, void *ap_obj);
 
   void tiz_krn_super_reset_tunneled_ports_status (const void *a_class,
                                                     void *ap_obj,
-                                                    OMX_U32 a_port_status_flag);
+                                                    const OMX_U32 a_port_status_flag);
 
   typedef struct tiz_krn_class tiz_krn_class_t;
   struct tiz_krn_class
@@ -169,33 +169,33 @@ extern "C"
     const tiz_srv_class_t _;
 
     OMX_ERRORTYPE (*register_port) (const void *ap_obj, OMX_PTR ap_port,
-                                    OMX_BOOL ais_config);
+                                    const bool ais_config);
 
-    void *(*get_port) (const void *ap_obj, OMX_U32 a_pid);
+    void *(*get_port) (const void *ap_obj, const OMX_U32 a_pid);
 
     OMX_ERRORTYPE (*find_managing_port) (const void *ap_obj,
-                                         OMX_INDEXTYPE a_index,
-                                         OMX_PTR ap_struct,
+                                         const OMX_INDEXTYPE a_index,
+                                         const OMX_PTR ap_struct,
                                          OMX_PTR * app_port);
 
     tiz_krn_population_status_t (*get_population_status)
-    (const void *ap_obj, OMX_U32 a_pid,
+    (const void *ap_obj, const OMX_U32 a_pid,
      OMX_BOOL * ap_may_be_fully_unpopulated);
     
-    OMX_ERRORTYPE (*select) (const void *p_obj, OMX_U32 a_nports,
-                             tiz_pd_set_t * ap_set);
+    OMX_ERRORTYPE (*select) (const void *p_obj, const OMX_U32 a_nports,
+                             /*@out@*/ tiz_pd_set_t * ap_set);
 
-    OMX_ERRORTYPE (*claim_buffer) (const void *ap_obj, OMX_U32 a_port_id,
-                                   OMX_U32 a_pos,
+    OMX_ERRORTYPE (*claim_buffer) (const void *ap_obj, const OMX_U32 a_port_id,
+                                   const OMX_U32 a_pos,
                                    OMX_BUFFERHEADERTYPE ** p_hdr);
 
     OMX_ERRORTYPE (*release_buffer) (const void *ap_obj,
-                                        OMX_U32 a_port_id,
+                                        const OMX_U32 a_port_id,
                                         OMX_BUFFERHEADERTYPE * p_hdr);
     void (*deregister_all_ports) (void *ap_obj);
 
     void (*reset_tunneled_ports_status) (void *ap_obj,
-                                         OMX_U32 a_port_status_flag);
+                                         const OMX_U32 a_port_status_flag);
 
     bool (*get_restriction_status) (const void *ap_obj,
                                     const tiz_krn_restriction_t a_restriction);

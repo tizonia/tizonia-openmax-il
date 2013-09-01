@@ -53,9 +53,9 @@ extern "C"
   tiz_api_GetComponentVersion (const void *ap_obj,
                                OMX_HANDLETYPE ap_hdl,
                                OMX_STRING ap_comp_name,
-                               OMX_VERSIONTYPE * ap_comp_ver,
-                               OMX_VERSIONTYPE * ap_spec_ver,
-                               OMX_UUIDTYPE * ap_comp_uuid);
+                               /*@out@*/ OMX_VERSIONTYPE * ap_comp_ver,
+                               /*@out@*/ OMX_VERSIONTYPE * ap_spec_ver,
+                               /*@out@*/ OMX_UUIDTYPE * ap_comp_uuid);
 
   OMX_ERRORTYPE
   tiz_api_SendCommand (const void *ap_obj,

@@ -79,7 +79,7 @@ extern "C"
                 const char *__p_cat_name, int __priority,
                 /*@null@ */ const char *__p_cname,
                 /*@null@ */ char *__p_cbuf,
-                const char *__p_format, ...);
+                /*@null@ */ const char *__p_format, ...);
 
 #ifdef __cplusplus
 }

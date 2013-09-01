@@ -97,8 +97,8 @@ extern "C"
 
   void tiz_port_clear_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
 
-  OMX_BOOL tiz_port_check_tunneled_port_status (const void *ap_obj,
-                                                OMX_U32 a_port_status);
+  bool tiz_port_check_tunneled_port_status (const void *ap_obj,
+                                            const OMX_U32 a_port_status);
 
   OMX_ERRORTYPE tiz_port_register_index (const void *ap_obj,
                                          OMX_INDEXTYPE a_index);
@@ -123,7 +123,7 @@ extern "C"
 
   tiz_vector_t *tiz_port_get_hdrs_list (void *ap_obj);
 
-  OMX_ERRORTYPE tiz_port_populate (const void *ap_obj, OMX_HANDLETYPE ap_hdl);
+  OMX_ERRORTYPE tiz_port_populate (const void *ap_obj);
 
   OMX_ERRORTYPE tiz_port_depopulate (const void *ap_obj);
 
@@ -138,22 +138,20 @@ extern "C"
                                      OMX_BOOL a_owned);
 
   OMX_ERRORTYPE tiz_port_mark_buffer (void *ap_obj,
-                                      OMX_BUFFERHEADERTYPE * ap_hdr);
+                                      /*@out@*/ OMX_BUFFERHEADERTYPE * ap_hdr);
 
   void tiz_port_set_alloc_hooks (void *ap_obj,
                                  const tiz_alloc_hooks_t * ap_new_hooks,
                                  tiz_alloc_hooks_t * ap_old_hooks);
 
   OMX_ERRORTYPE tiz_port_populate_header (const void *ap_obj,
-                                          OMX_HANDLETYPE ap_hdl,
                                           OMX_BUFFERHEADERTYPE * ap_hdr);
 
+  /* TODO: This function is not being used anywhere */
   void tiz_port_depopulate_header (const void *ap_obj,
-                                   OMX_HANDLETYPE ap_hdl,
                                    OMX_BUFFERHEADERTYPE * ap_hdr);
 
-  OMX_BOOL tiz_port_is_master_or_slave (const void *ap_obj,
-                                        OMX_U32 * ap_mos_pid);
+  bool tiz_port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid);
 
   OMX_ERRORTYPE tiz_port_apply_slaving_behaviour (void *ap_obj,
                                                   void *ap_mos_port,
@@ -162,11 +160,9 @@ extern "C"
                                                   tiz_vector_t *
                                                   ap_changed_idxs);
 
-  void tiz_port_update_tunneled_status (void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                                        OMX_U32 a_port_status);
+  void tiz_port_update_tunneled_status (void *ap_obj, OMX_U32 a_port_status);
 
   void tiz_port_reset_tunneled_port_status_flag (void *ap_obj,
-                                                 OMX_HANDLETYPE ap_hdl,
                                                  OMX_U32 a_port_status_flag);
 
 #ifdef __cplusplus
