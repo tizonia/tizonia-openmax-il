@@ -566,6 +566,7 @@ START_TEST (test_ogg_demuxer)
   /* --------------------------- */
   /* Initiate transition to IDLE */
   /* --------------------------- */
+  error = _ctx_reset (&ctx);
   cmd = OMX_CommandStateSet;
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
