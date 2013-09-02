@@ -1387,7 +1387,7 @@ sched_SendCommand (OMX_HANDLETYPE ap_hdl,
       return OMX_ErrorBadParameter;
     }
 
-  TIZ_LOGN (TIZ_ERROR, ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
+  TIZ_LOGN (TIZ_DEBUG, ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
 
   p_sched = get_sched (ap_hdl);
 
@@ -1919,7 +1919,6 @@ schedule_servants (tiz_scheduler_t * ap_sched,
         {
           break;
         }
-
     }
   while (NULL != p_ready && (OMX_ErrorNone == rc));
 
@@ -1965,7 +1964,8 @@ il_sched_thread_func (void *p_arg)
       schedule_servants (p_sched, p_sched->state);
     }
 
-  TIZ_LOG (TIZ_TRACE, "Tizonia scheduler exiting...");
+  TIZ_LOGN (TIZ_TRACE, p_sched->child.p_hdl,
+            "Tizonia scheduler exiting...");
 
   return NULL;
 }

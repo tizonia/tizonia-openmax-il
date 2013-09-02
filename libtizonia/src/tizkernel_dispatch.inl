@@ -50,7 +50,7 @@ dispatch_port_disable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   assert (NULL != ap_msg_sc);
   pid = ap_msg_sc->param1;
 
-  TIZ_LOGN (TIZ_ERROR, p_hdl, "Port Disable on port [%d] ", pid);
+  TIZ_LOGN (TIZ_TRACE, p_hdl, "Port Disable on port [%d] ", pid);
 
   /* Verify the port index.. */
   if ((OMX_ALL != pid) && (check_pid (p_obj, pid) != OMX_ErrorNone))
