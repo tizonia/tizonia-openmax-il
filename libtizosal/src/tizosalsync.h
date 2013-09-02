@@ -80,7 +80,7 @@ extern "C"
    * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
    * OMX_ErrorUndefined otherwise.
    */
-  OMX_ERRORTYPE tiz_sem_init (tiz_sem_t * ap_sem, OMX_U32 a_value);
+  OMX_ERRORTYPE tiz_sem_init (/*@out@*/ tiz_sem_t * ap_sem, OMX_U32 a_value);
 
   /**
    * Free the resources associated with a semaphore object.
@@ -129,7 +129,7 @@ extern "C"
    * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
    * OMX_ErrorUndefined otherwise.
    */
-  OMX_ERRORTYPE tiz_mutex_init (tiz_mutex_t * ap_mutex);
+  OMX_ERRORTYPE tiz_mutex_init (/*@out@*/ tiz_mutex_t * ap_mutex);
 
   /**
    * Destroy a mutex.
@@ -169,7 +169,7 @@ extern "C"
    * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
    * OMX_ErrorUndefined otherwise.
    */
-  OMX_ERRORTYPE tiz_rwmutex_init (tiz_rwmutex_t * ap_rwmutex);
+  OMX_ERRORTYPE tiz_rwmutex_init (/*@out@*/ tiz_rwmutex_t * ap_rwmutex);
 
   /**
    * Destroy a read-write mutex.

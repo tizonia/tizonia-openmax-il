@@ -214,16 +214,16 @@ extern "C"
     else {                                                              \
       TIZ_LOG (TIZ_ERROR,  "Check '%s' failed",  #expr);                \
       return;                                                           \
-    };                                                                  \
+    }                                                                  \
   } while (0)
 
-#define tiz_ret_val_on_err(expr,val)                                \
+#define tiz_ret_val_on_err(expr,val)                                    \
   do {                                                                  \
-    if TIZ_LIKELY(expr) {}                                              \
+    if TIZ_LIKELY(expr) {}                                            \
     else {                                                              \
       TIZ_LOG (TIZ_ERROR,  "Check '%s' failed",  #expr);                \
-      return (val);                                                     \
-    };                                                                  \
+      return val;                                                       \
+    }                                                                   \
   } while (0)
 
 #else /* !__GNUC__ */
@@ -283,7 +283,7 @@ extern "C"
     else {                                                              \
       TIZ_LOG (TIZ_ERROR,  "Check '%s' failed",  #expr);                \
       return;                                                           \
-    };                                                                  \
+    }                                                                  \
   } while (0)
 
 #define tiz_ret_val_on_err (expr, val)                              \
@@ -292,7 +292,7 @@ extern "C"
     else {                                                              \
       TIZ_LOG (TIZ_ERROR,  "Check '%s' failed",  #expr);                \
       return (val);                                                     \
-    };                                                                  \
+    }                                                                  \
   } while (0)
 
 #endif /* !__GNUC__ */

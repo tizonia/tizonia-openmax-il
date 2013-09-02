@@ -66,7 +66,7 @@ extern "C"
                                                 const void *ap_obj,
                                                 OMX_PTR ap_data);
 
-  OMX_BOOL tiz_srv_super_is_ready (const void *class, const void *ap_obj);
+  bool tiz_srv_super_is_ready (const void *class, const void *ap_obj);
 
   OMX_ERRORTYPE tiz_srv_super_allocate_resources (const void *a_class,
                                                       const void *ap_obj,
@@ -102,7 +102,7 @@ extern "C"
                                         tiz_pq_func_f apf_func,
                                         OMX_S32 a_data1, OMX_PTR ap_data2);
     OMX_ERRORTYPE (*dispatch_msg) (const void *ap_obj, OMX_PTR ap_data);
-    OMX_BOOL (*is_ready) (const void *ap_obj);
+    bool (*is_ready) (const void *ap_obj);
     OMX_ERRORTYPE (*allocate_resources) (const void *ap_obj, OMX_U32 a_pid);
     OMX_ERRORTYPE (*deallocate_resources) (const void *ap_obj);
     OMX_ERRORTYPE (*prepare_to_transfer) (const void *ap_obj,

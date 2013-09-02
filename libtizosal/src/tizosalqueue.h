@@ -67,8 +67,8 @@ extern "C"
    *
    * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources otherwise.
    */
-  OMX_ERRORTYPE tiz_queue_init ( /*@null@ */ tiz_queue_ptr_t * app_q,
-                                OMX_S32 a_capacity);
+  OMX_ERRORTYPE tiz_queue_init ( /*@out@*/ tiz_queue_ptr_t * app_q,
+                                 OMX_S32 a_capacity);
 
   /**
    * Destroy a queue. If ap_q is NULL, or the queue has already been detroyed

@@ -142,7 +142,7 @@ extern "C"
 
   void tiz_port_set_alloc_hooks (void *ap_obj,
                                  const tiz_alloc_hooks_t * ap_new_hooks,
-                                 tiz_alloc_hooks_t * ap_old_hooks);
+                                 /*@null@*/ tiz_alloc_hooks_t * ap_old_hooks);
 
   OMX_ERRORTYPE tiz_port_populate_header (const void *ap_obj,
                                           OMX_BUFFERHEADERTYPE * ap_hdr);

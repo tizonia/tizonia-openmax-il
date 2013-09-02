@@ -295,27 +295,25 @@ tiz_srv_super_dispatch_msg (const void *a_class,
   return superclass->dispatch_msg (ap_obj, ap_data);
 }
 
-static OMX_BOOL
+static bool
 servant_is_ready (const void *ap_obj)
 {
   const tiz_srv_t *p_obj = ap_obj;
   return (tiz_pqueue_length (p_obj->p_pq_) > 0 ? OMX_TRUE : OMX_FALSE);
 }
 
-OMX_BOOL
+bool
 tiz_srv_is_ready (const void *ap_obj)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-
   assert (class->is_ready);
   return class->is_ready (ap_obj);
 }
 
-OMX_BOOL
+bool
 tiz_srv_super_is_ready (const void *a_class, const void *ap_obj)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-
   assert (NULL != ap_obj && NULL != superclass->is_ready);
   return superclass->is_ready (ap_obj);
 }

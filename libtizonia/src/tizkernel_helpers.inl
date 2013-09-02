@@ -999,7 +999,6 @@ init_krn_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 /*@end@*/
 /* NOTE: Stop ignoring splint warnings in this section  */
 
-
 static OMX_ERRORTYPE
 enqueue_callback_msg (const void *ap_obj,
                       /*@null@*/ OMX_BUFFERHEADERTYPE * ap_hdr,

@@ -53,6 +53,7 @@
 
 #define SCHED_OMX_DEFAULT_ROLE "default"
 
+#ifndef S_SPLINT_S
 #define TIZ_COMP_INIT_MSG(hdl,msg,msgtype)                              \
   do {                                                                  \
     tiz_ret_on_err ( (msg = init_scheduler_message (hdl,                \
@@ -65,7 +66,7 @@
                                                         (msgtype))),    \
                          OMX_ErrorInsufficientResources);               \
   } while (0)
-
+#endif
 
 typedef enum tiz_sched_state tiz_sched_state_t;
 enum tiz_sched_state
@@ -533,29 +534,33 @@ store_roles (tiz_scheduler_t * ap_sched,
       rc = OMX_ErrorInsufficientResources;
     }
 
-  for (i = 0; i < ap_msg_regroles->nroles && rc == OMX_ErrorNone; ++i)
+  if (NULL != ap_sched->child.p_role_list)
     {
-      p_rf = tiz_mem_calloc (1, sizeof (tiz_role_factory_t));
-      if (p_rf)
+      for (i = 0; i < ap_msg_regroles->nroles && rc == OMX_ErrorNone; ++i)
         {
-          memcpy (p_rf, ap_msg_regroles->p_role_list[i],
-                  sizeof (tiz_role_factory_t));
-          ap_sched->child.p_role_list[i] = p_rf;
-          ap_sched->child.nroles++;
-        }
-      else
-        {
-          rc = OMX_ErrorInsufficientResources;
-          TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
-                    "[OMX_ErrorInsufficientResources] : list of roles - "
-                    "Failed when making local copy ..");
-        }
-    }
+          p_rf = tiz_mem_calloc (1, sizeof (tiz_role_factory_t));
+          if (NULL != p_rf)
+            {
+              memcpy (p_rf, ap_msg_regroles->p_role_list[i],
+                      sizeof (tiz_role_factory_t));
 
-  if (OMX_ErrorNone != rc)
-    {
-      /* Clean-up */
-      delete_roles (ap_sched);
+              ap_sched->child.p_role_list[i] = p_rf;
+              ap_sched->child.nroles++;
+            }
+          else
+            {
+              rc = OMX_ErrorInsufficientResources;
+              TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+                        "[OMX_ErrorInsufficientResources] : list of roles - "
+                        "Failed when making local copy ..");
+            }
+        }
+
+      if (OMX_ErrorNone != rc)
+        {
+          /* Clean-up */
+          delete_roles (ap_sched);
+        }
     }
 
   return rc;
@@ -621,7 +626,7 @@ static OMX_ERRORTYPE
 do_init (tiz_scheduler_t * ap_sched,
          tiz_sched_state_t * ap_state, tiz_sched_msg_t * ap_msg)
 {
-  assert (ap_state && ETIZSchedStateStarting == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarting == *ap_state);
   *ap_state = ETIZSchedStateStarted;
   return init_servants (ap_sched, ap_msg);
 }
@@ -630,7 +635,7 @@ static OMX_ERRORTYPE
 do_deinit (tiz_scheduler_t * ap_sched,
            tiz_sched_state_t * ap_state, tiz_sched_msg_t * ap_msg)
 {
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   *ap_state = ETIZSchedStateStopped;
   return deinit_servants (ap_sched, ap_msg);
 }
@@ -643,7 +648,7 @@ do_getcv (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_getcv = &(ap_msg->gcv);
   assert (NULL != p_msg_getcv);
 
@@ -663,7 +668,7 @@ do_scmd (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_sc = &(ap_msg->scmd);
   assert (NULL != p_msg_sc);
 
@@ -681,7 +686,7 @@ do_gparam (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_gparam = &(ap_msg->sgpc);
   assert (NULL != p_msg_gparam);
 
@@ -718,8 +723,8 @@ do_set_component_role (tiz_scheduler_t * ap_sched,
     }
   else 
     {
-      OMX_U32 role_pos = 0, nroles = ap_sched->child.nroles;
-      OMX_STRING p_str = NULL;
+      OMX_U32 role_pos = 0;
+      const OMX_U32 nroles = ap_sched->child.nroles;
 
       for (role_pos = 0; role_pos < nroles; ++role_pos)
         {
@@ -729,11 +734,12 @@ do_set_component_role (tiz_scheduler_t * ap_sched,
                             OMX_MAX_STRINGNAME_SIZE))
             {
               TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
-                        "Found role [%s]...", p_str);
+                        "Found role [%s]...", ap_role->cRole);
               break;
             }
         }
 
+      /* TODO: Check this out No need for default role in 1.2 */
       if (role_pos >= nroles)
         {
           /* Check for "default" role */
@@ -778,7 +784,7 @@ do_sparam (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_gparam = &(ap_msg->sgpc);
   assert (NULL != p_msg_gparam);
 
@@ -803,7 +809,7 @@ do_gconfig (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_gconfig = &(ap_msg->sgpc);
   assert (NULL != p_msg_gconfig);
 
@@ -820,7 +826,7 @@ do_sconfig (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_sconfig = &(ap_msg->sgpc);
   assert (NULL != p_msg_sconfig);
 
@@ -846,7 +852,7 @@ do_gei (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_gei = &(ap_msg->gei);
   assert (NULL != p_msg_gei);
 
@@ -863,7 +869,7 @@ do_gs (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_gs = &(ap_msg->gs);
   assert (NULL != p_msg_gs);
 
@@ -879,7 +885,7 @@ do_tr (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_tr = &(ap_msg->tr);
   assert (NULL != p_msg_tr);
 
@@ -898,7 +904,7 @@ do_ub (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_ub = &(ap_msg->ub);
   assert (NULL != p_msg_ub);
 
@@ -918,7 +924,7 @@ do_ab (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_ab = &(ap_msg->ab);
   assert (NULL != p_msg_ab);
 
@@ -937,7 +943,7 @@ do_fb (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_fb = &(ap_msg->fb);
   assert (NULL != p_msg_fb);
 
@@ -953,7 +959,7 @@ do_etb (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_efb = &(ap_msg->efb);
   assert (NULL != p_msg_efb);
 
@@ -969,7 +975,7 @@ do_ftb (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_efb = &(ap_msg->efb);
   assert (NULL != p_msg_efb);
 
@@ -986,7 +992,7 @@ do_scbs (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
 
   p_msg_scbs = &(ap_msg->scbs);
   assert (NULL != p_msg_scbs);
@@ -1021,7 +1027,7 @@ do_cre (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
   p_msg_getcre = &(ap_msg->cre);
   assert (NULL != p_msg_getcre);
 
@@ -1050,7 +1056,7 @@ do_plgevt (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
 
   p_msg_pe = &(ap_msg->pe);
   assert (NULL != p_msg_pe);
@@ -1073,7 +1079,7 @@ do_rr (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
 
   p_msg_rr = &(ap_msg->rr);
   assert (NULL != p_msg_rr);
@@ -1123,7 +1129,7 @@ do_rph (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
 
   p_msg_rph = &(ap_msg->rph);
   assert (NULL != p_msg_rph);
@@ -1179,7 +1185,7 @@ do_eio (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
 
   p_msg_eio = &(ap_msg->eio);
   assert (NULL != p_msg_eio);
@@ -1198,7 +1204,7 @@ do_etmr (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
 
   p_msg_etmr = &(ap_msg->etmr);
   assert (NULL != p_msg_etmr);
@@ -1216,7 +1222,7 @@ do_estat (tiz_scheduler_t * ap_sched,
 
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
-  assert (ap_state && ETIZSchedStateStarted == *ap_state);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
 
   p_msg_estat = &(ap_msg->estat);
   assert (NULL != p_msg_estat);
@@ -1226,6 +1232,8 @@ do_estat (tiz_scheduler_t * ap_sched,
                              p_msg_estat->events);
 }
 
+/* NOTE: Start ignoring splint warnings in this section of code */
+/*@ignore@*/
 static inline tiz_sched_msg_t *
 init_scheduler_message (OMX_HANDLETYPE ap_hdl,
                         tiz_sched_msg_class_t a_msg_class)
@@ -1251,6 +1259,8 @@ init_scheduler_message (OMX_HANDLETYPE ap_hdl,
 
   return p_msg;
 }
+/*@end@*/
+/* NOTE: Stop ignoring splint warnings in this section  */
 
 static OMX_ERRORTYPE
 configure_port_preannouncements (tiz_scheduler_t * ap_sched,
@@ -1263,7 +1273,7 @@ configure_port_preannouncements (tiz_scheduler_t * ap_sched,
   OMX_U32 pid = tiz_port_index (p_port);
 
   /* OMX.component.name.key */
-  sprintf (port_num, "%u", (unsigned int) pid);
+  (void) snprintf (port_num, OMX_MAX_STRINGNAME_SIZE, "%u", (unsigned int) pid);
   strncpy (fqd_key, ap_sched->cname, OMX_MAX_STRINGNAME_SIZE - 1);
   /* Make sure fqd_key is null-terminated */
   fqd_key[OMX_MAX_STRINGNAME_SIZE - 1] = '\0';
@@ -1317,6 +1327,7 @@ sched_ComponentDeInit (OMX_HANDLETYPE ap_hdl)
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgComponentDeInit);
 
+  assert (NULL != p_msg);
   rc = send_msg (p_sched, p_msg);
   delete_scheduler (p_sched);
   return rc;
@@ -1347,6 +1358,7 @@ sched_GetComponentVersion (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgGetComponentVersion);
 
+  assert (NULL != p_msg);
   p_msg_gcv                 = &(p_msg->gcv);
   assert (NULL != p_msg_gcv);
   p_msg_gcv->p_comp_name    = ap_comp_name;
@@ -1381,6 +1393,7 @@ sched_SendCommand (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgSendCommand);
 
+  assert (NULL != p_msg);
   p_msg_scmd             = &(p_msg->scmd);
   assert (NULL != p_msg_scmd);
   p_msg_scmd->cmd        = a_cmd;
@@ -1409,6 +1422,7 @@ sched_GetParameter (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgGetParameter);
 
+  assert (NULL != p_msg);
   p_msg_gparam           = &(p_msg->sgpc);
   assert (NULL != p_msg_gparam);
   p_msg_gparam->index    = a_index;
@@ -1436,6 +1450,7 @@ sched_SetParameter (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgSetParameter);
 
+  assert (NULL != p_msg);
   p_msg_sparam           = &(p_msg->sgpc);
   assert (NULL != p_msg_sparam);
   p_msg_sparam->index    = a_index;
@@ -1463,6 +1478,7 @@ sched_GetConfig (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgGetConfig);
 
+  assert (NULL != p_msg);
   p_msg_gconf           = &(p_msg->sgpc);
   assert (NULL != p_msg_gconf);
   p_msg_gconf->index    = a_index;
@@ -1490,6 +1506,7 @@ sched_SetConfig (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgSetConfig);
 
+  assert (NULL != p_msg);
   p_msg_sconf = &(p_msg->sgpc);
   assert (NULL != p_msg_sconf);
 
@@ -1537,6 +1554,7 @@ sched_GetExtensionIndex (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgGetExtensionIndex);
 
+  assert (NULL != p_msg);
   p_msg_gei             = &(p_msg->gei);
   assert (NULL != p_msg_gei);
   p_msg_gei->p_ext_name = ap_param_name;
@@ -1563,6 +1581,7 @@ sched_GetState (OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgGetState);
 
+  assert (NULL != p_msg);
   p_msg_gs          = &(p_msg->gs);
   assert (NULL != p_msg_gs);
   p_msg_gs->p_state = ap_state;
@@ -1581,7 +1600,7 @@ sched_ComponentTunnelRequest (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_tunnelrequest_t *p_msg_tr = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || (ap_thdl && !ap_tsetup))
+  if (NULL == ap_hdl || (NULL != ap_thdl && NULL == ap_tsetup))
     {
       TIZ_LOG (TIZ_ERROR, "[OMX_ErrorBadParameter] : "
                "(Bad parameter found "
@@ -1593,6 +1612,7 @@ sched_ComponentTunnelRequest (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgComponentTunnelRequest);
 
+  assert (NULL != p_msg);
   p_msg_tr           = &(p_msg->tr);
   assert (NULL != p_msg_tr);
   p_msg_tr->pid      = a_pid;
@@ -1629,6 +1649,7 @@ sched_UseBuffer (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgUseBuffer);
 
+  assert (NULL != p_msg);
   p_msg_ub             = &(p_msg->ub);
   assert (NULL != p_msg_ub);
   p_msg_ub->pp_hdr     = app_hdr;
@@ -1661,6 +1682,7 @@ sched_AllocateBuffer (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgAllocateBuffer);
 
+  assert (NULL != p_msg);
   p_msg_ab = &(p_msg->ab);
   assert (NULL != p_msg_ab);
   p_msg_ab->pp_hdr = app_hdr;
@@ -1690,6 +1712,7 @@ sched_FreeBuffer (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgFreeBuffer);
 
+  assert (NULL != p_msg);
   p_msg_fb        = &(p_msg->fb);
   assert (NULL != p_msg_fb);
   p_msg_fb->pid   = a_pid;
@@ -1717,6 +1740,7 @@ sched_EmptyThisBuffer (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgEmptyThisBuffer);
 
+  assert (NULL != p_msg);
   p_msg_efb = &(p_msg->efb);
   assert (NULL != p_msg_efb);
   p_msg_efb->p_hdr = ap_hdr;
@@ -1742,6 +1766,7 @@ sched_FillThisBuffer (OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_hdr)
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgFillThisBuffer);
 
+  assert (NULL != p_msg);
   p_msg_efb = &(p_msg->efb);
   assert (NULL != p_msg_efb);
   p_msg_efb->p_hdr = ap_hdr;
@@ -1768,6 +1793,7 @@ sched_SetCallbacks (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgSetCallbacks);
 
+  assert (NULL != p_msg);
   p_msg_scbs = &(p_msg->scbs);
   assert (NULL != p_msg_scbs);
   p_msg_scbs->p_cbacks = ap_cbacks;
@@ -1804,6 +1830,7 @@ sched_ComponentRoleEnum (OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgComponentRoleEnum);
 
+  assert (NULL != p_msg);
   p_msg_cre = &(p_msg->cre);
   assert (NULL != p_msg_cre);
   p_msg_cre->p_role = ap_role;
@@ -1888,13 +1915,13 @@ schedule_servants (tiz_scheduler_t * ap_sched,
           rc = tiz_srv_tick (p_ready);
         }
 
-      if (tiz_queue_length (ap_sched->p_queue))
+      if (tiz_queue_length (ap_sched->p_queue) > 0)
         {
           break;
         }
 
     }
-  while (p_ready && (OMX_ErrorNone == rc));
+  while (NULL != p_ready && (OMX_ErrorNone == rc));
 
   if (OMX_ErrorNone != rc)
     {
@@ -1921,12 +1948,13 @@ il_sched_thread_func (void *p_arg)
       tiz_check_omx_err_ret_null
         (tiz_queue_receive (p_sched->p_queue, &p_data));
 
+      assert (NULL != p_data);
       signal_client = dispatch_msg
         (p_sched, &(p_sched->state), (tiz_sched_msg_t *) p_data);
 
-      if (signal_client)
+      if (OMX_TRUE == signal_client)
         {
-          tiz_sem_post (&(p_sched->sem));
+          tiz_check_omx_err_ret_null (tiz_sem_post (&(p_sched->sem)));
         }
 
       if (ETIZSchedStateStopped == p_sched->state)
@@ -1964,10 +1992,10 @@ delete_scheduler (tiz_scheduler_t * ap_sched)
 {
   OMX_PTR p_result = NULL;
   assert (NULL != ap_sched);
-  tiz_thread_join (&(ap_sched->thread), &p_result);
+  (void) tiz_thread_join (&(ap_sched->thread), &p_result);
   delete_roles (ap_sched);
-  tiz_mutex_destroy (&(ap_sched->mutex));
-  tiz_sem_destroy (&(ap_sched->sem));
+  (void) tiz_mutex_destroy (&(ap_sched->mutex));
+  (void) tiz_sem_destroy (&(ap_sched->sem));
   tiz_queue_destroy (ap_sched->p_queue);
   ap_sched->p_queue = NULL;
   tiz_mem_free (ap_sched);
@@ -1981,8 +2009,12 @@ instantiate_scheduler (OMX_HANDLETYPE ap_hdl, const char *ap_cname)
 
   assert (NULL != ap_hdl);
 
-  tiz_ret_val_on_err
-    ((p_sched = tiz_mem_calloc (1, sizeof (tiz_scheduler_t))), NULL);
+  if (NULL == (p_sched = tiz_mem_calloc (1, sizeof (tiz_scheduler_t))))
+    {
+      TIZ_LOG (TIZ_ERROR, "[OMX_ErrorInsufficientResources] : "
+               "(Could not allocate tiz_scheduler_t structure)");
+      return NULL;
+    }
 
   tiz_check_omx_err_ret_null (tiz_mutex_init (&(p_sched->mutex)));
   tiz_check_omx_err_ret_null (tiz_sem_init (&(p_sched->sem), 0));
@@ -2068,12 +2100,24 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   tiz_check_omx_err_ret_oom (tiz_soa_init (&(ap_sched->p_soa)));
 
   /* Init the FSM */
-  tiz_fsm_init ();
+  tiz_check_omx_err_ret_oom (tiz_fsm_init ());
   ap_sched->child.p_fsm = factory_new (tizfsm, p_hdl);
+  if (NULL == ap_sched->child.p_fsm)
+    {
+      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources] : "
+              "While allocating the fsm object.");
+      return OMX_ErrorInsufficientResources;
+    }
 
   /* Init the kernel */
-  tiz_krn_init ();
+  tiz_check_omx_err_ret_oom (tiz_krn_init ());
   ap_sched->child.p_ker = factory_new (tizkrn, p_hdl);
+  if (NULL == ap_sched->child.p_ker)
+    {
+      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources] : "
+              "While allocating the kernel object.");
+      return OMX_ErrorInsufficientResources;
+    }
 
   /* All servants will use the same small object allocator */
   tiz_check_omx_err_ret_oom
@@ -2189,6 +2233,7 @@ tiz_comp_init (const OMX_HANDLETYPE ap_hdl, const char *ap_cname)
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgComponentInit);
 
+  assert (NULL != p_msg);
   return send_msg (p_sched, p_msg);
 }
 
@@ -2202,11 +2247,12 @@ tiz_comp_register_roles (const OMX_HANDLETYPE ap_hdl,
   tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
   assert (NULL != ap_role_list);
-  assert (0 < a_nroles);
+  assert (a_nroles > 0);
   assert (a_nroles <= TIZ_COMP_MAX_ROLES);
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgRegisterRoles);
 
+  assert (NULL != p_msg);
   p_msg_rr = &(p_msg->rr);
   assert (NULL != p_msg_rr);
   p_msg_rr->p_role_list = ap_role_list;
@@ -2227,6 +2273,7 @@ tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgPluggableEvent);
 
+  assert (NULL != p_msg);
   p_msg_pe = &(p_msg->pe);
   assert (NULL != p_msg_pe);
   p_msg_pe->p_event = ap_event;
@@ -2247,6 +2294,7 @@ tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
 
   TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgRegisterPortHooks);
 
+  assert (NULL != p_msg);
   p_msg_rph = &(p_msg->rph);
   assert (NULL != p_msg_rph);
   p_msg_rph->p_hooks     = ap_new_hooks;
@@ -2267,6 +2315,7 @@ tiz_comp_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t * ap_ev_io, int a_fd,
 
   TIZ_COMP_INIT_MSG (ap_hdl, p_msg, ETIZSchedMsgEvIo);
 
+  assert (NULL != p_msg);
   p_msg_eio = &(p_msg->eio);
   assert (NULL != p_msg_eio);
   p_msg_eio->p_ev_io = ap_ev_io;
@@ -2289,6 +2338,7 @@ tiz_comp_event_timer (OMX_HANDLETYPE ap_hdl, tiz_event_timer_t * ap_ev_timer,
 
   TIZ_COMP_INIT_MSG (ap_hdl, p_msg, ETIZSchedMsgEvTimer);
 
+  assert (NULL != p_msg);
   p_msg_etmr = &(p_msg->etmr);
   assert (NULL != p_msg_etmr);
   p_msg_etmr->p_ev_timer = ap_ev_timer;
@@ -2310,6 +2360,7 @@ tiz_comp_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t * ap_ev_stat,
 
   TIZ_COMP_INIT_MSG (ap_hdl, p_msg, ETIZSchedMsgEvStat);
 
+  assert (NULL != p_msg);
   p_msg_estat = &(p_msg->estat);
   assert (NULL != p_msg_estat);
   p_msg_estat->p_ev_stat = ap_ev_stat;
