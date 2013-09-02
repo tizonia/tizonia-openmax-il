@@ -136,6 +136,9 @@ buffer_needed (oggdmux_prc_t *p_obj, const OMX_U32 a_pid)
     {
       if (NULL != *pp_hdr)
         {
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj),
+                    "Returning existing HEADER [%p]...nFilledLen [%d]",
+                    *pp_hdr, (*pp_hdr)->nFilledLen);
           return *pp_hdr;
         }
       else
@@ -245,21 +248,25 @@ read_packet (OGGZ * oggz, oggz_packet * zp, long serialno,
   }
 
   memcpy (p_hdr->pBuffer, op->packet, op->bytes);
-  p_hdr->nFilledLen = op->bytes;
+  p_hdr->nFilledLen += op->bytes;
   if (p_prc->eos_)
     {
       p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
     }
-  buffer_filled (p_prc, a_pid);
 
-  p_hdr = buffer_needed (p_prc, a_pid);
-
-  if (NULL == p_hdr)
+  if (p_prc->eos_ || p_hdr->nFilledLen > 6 * 1024)
     {
-      /* Stop until we have more headers */
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
-                "%010lu: Stop until we have more headers", serialno);
-      return 1;
+      buffer_filled (p_prc, a_pid);
+
+      p_hdr = buffer_needed (p_prc, a_pid);
+
+      if (NULL == p_hdr)
+        {
+          /* Stop until we have more headers */
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
+                    "%010lu: Stop until we have more headers", serialno);
+          return 1;
+        }
     }
 
   return OGGZ_ERR_OK;
@@ -283,6 +290,8 @@ release_buffers (oggdmux_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
 
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc), "release_buffers");
+
   if (ap_prc->p_aud_hdr_)
     {
       void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_prc));
@@ -304,6 +313,7 @@ static inline OMX_ERRORTYPE
 do_flush (oggdmux_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc), "do_flush");
   (void) oggz_purge (ap_prc->p_oggz_);
   /* Release any buffers held  */
   return release_buffers (ap_prc);
@@ -606,6 +616,7 @@ oggdmux_prc_port_disable (const void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
   oggdmux_prc_t *p_prc = (oggdmux_prc_t *) ap_obj;
   assert (NULL != p_prc);
   /* Release any buffers held  */
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc), "port_disable");
   return release_buffers ((oggdmux_prc_t *) ap_obj);
 }
 
