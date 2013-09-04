@@ -34,6 +34,7 @@ extern "C"
 {
 #endif
 
+#include "oggdmux.h"
 #include "oggdmuxprc.h"
 #include "tizprc_decls.h"
 
@@ -56,6 +57,12 @@ extern "C"
     bool eos_;
     bool awaiting_buffers_;
     bool port_disabled_;
+    OMX_U8 *p_aud_store_;
+    OMX_U8 *p_vid_store_;
+    OMX_U32 aud_store_offset_;
+    OMX_U32 vid_store_offset_;
+    OMX_U32 aud_store_size_;
+    OMX_U32 vid_store_size_;
   };
 
 #ifdef __cplusplus

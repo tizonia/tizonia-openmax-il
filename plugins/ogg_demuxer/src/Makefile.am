@@ -18,6 +18,7 @@
 lib_LTLIBRARIES = libtizoggdemux.la
 
 noinst_HEADERS = \
+	oggdmux.h \
 	oggdmuxprc.h \
 	oggdmuxprc_decls.h
 

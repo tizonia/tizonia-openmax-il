@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include "oggdmux.h"
 #include "oggdmuxprc.h"
 #include "tizscheduler.h"
 #include "tizdemuxercfgport.h"
@@ -48,18 +49,6 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.ogg_demuxer"
 #endif
-
-#define ARATELIA_OGG_DEMUXER_DEFAULT_ROLE                   "container_demuxer.ogg"
-#define ARATELIA_OGG_DEMUXER_COMPONENT_NAME                 "OMX.Aratelia.container_demuxer.ogg"
-/* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX               0
-#define ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX               1
-#define ARATELIA_OGG_DEMUXER_PORT_MIN_BUF_COUNT             2
-#define ARATELIA_OGG_DEMUXER_PORT_MIN_AUDIO_OUTPUT_BUF_SIZE 8192
-#define ARATELIA_OGG_DEMUXER_PORT_MIN_VIDEO_OUTPUT_BUF_SIZE 8192
-#define ARATELIA_OGG_DEMUXER_PORT_NONCONTIGUOUS             OMX_FALSE
-#define ARATELIA_OGG_DEMUXER_PORT_ALIGNMENT                 0
-#define ARATELIA_OGG_DEMUXER_PORT_SUPPLIERPREF              OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE ogg_demuxer_version = { {1, 0, 0, 0} };
 

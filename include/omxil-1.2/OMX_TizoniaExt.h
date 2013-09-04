@@ -33,8 +33,11 @@
 #include "OMX_Types.h"
 #include "OMX_Audio.h"
 
-#define OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN   0x00000004
+#define OMX_ROLE_AUDIO_ENCODER_OPUS    "audio_encoder.opus"
+#define OMX_ROLE_AUDIO_DECODER_OPUS    "audio_decoder.opus"
+#define OMX_ROLE_CONTAINER_DEMUXER_OGG "container_demuxer.ogg"
 
+#define OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN   0x00000004
 
 /**
  * Extension index used to select or deselect the buffer pre-announcements
@@ -120,9 +123,6 @@ typedef struct OMX_TIZONIA_ICECASTMETADATATYPE {
  *     Good loss robustness and packet loss concealment (PLC)
  *     Floating point and fixed-point implementation
  */
-
-#define OMX_ROLE_AUDIO_ENCODER_OPUS "audio_encoder.opus"
-#define OMX_ROLE_AUDIO_DECODER_OPUS "audio_decoder.opus"
 
 /**
  * Extension index used to select or deselect the buffer pre-announcements
