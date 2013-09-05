@@ -130,4 +130,7 @@ OMX.Aratelia.container_demuxer.ogg.preannouncements_disabled.port1 = false
 OMX.Aratelia.container_demuxer.ogg.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/riff_rock.ogg
 OMX.Aratelia.container_demuxer.ogg.testfile_uri_original = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/riff_rock.vorbis.original
 OMX.Aratelia.container_demuxer.ogg.testfile_uri_demuxed = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/riff_rock.vorbis.demuxed
+#OMX.Aratelia.container_demuxer.ogg.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.ogg
+#OMX.Aratelia.container_demuxer.ogg.testfile_uri_original = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.vorbis.original
+#OMX.Aratelia.container_demuxer.ogg.testfile_uri_demuxed = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.vorbis.demuxed
 

@@ -54,15 +54,17 @@ extern "C"
     OggzTable *p_tracks_;
     OMX_BUFFERHEADERTYPE *p_aud_hdr_;
     OMX_BUFFERHEADERTYPE *p_vid_hdr_;
-    bool eos_;
     bool awaiting_buffers_;
-    bool port_disabled_;
     OMX_U8 *p_aud_store_;
     OMX_U8 *p_vid_store_;
     OMX_U32 aud_store_offset_;
     OMX_U32 vid_store_offset_;
-    OMX_U32 aud_store_size_;
-    OMX_U32 vid_store_size_;
+    OMX_U32 aud_buf_size_;
+    OMX_U32 vid_buf_size_;
+    bool aud_eos_;
+    bool vid_eos_;
+    bool aud_port_disabled_;
+    bool vid_port_disabled_;
   };
 
 #ifdef __cplusplus
