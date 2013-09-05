@@ -184,7 +184,7 @@ api_GetParameter (const void *ap_obj,
 OMX_ERRORTYPE
 tiz_api_GetParameter (const void *ap_obj,
                      OMX_HANDLETYPE ap_hdl,
-                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                     OMX_INDEXTYPE a_index, /*@out@*/ OMX_PTR ap_struct)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
   assert (NULL != class->GetParameter);
@@ -235,7 +235,8 @@ super_SetParameter (const void *a_class,
 
 static OMX_ERRORTYPE
 api_GetConfig (const void *ap_obj,
-               OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+               OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index,
+               /*@out@*/ OMX_PTR ap_struct)
 {
   return OMX_ErrorNotImplemented;
 }
@@ -243,7 +244,7 @@ api_GetConfig (const void *ap_obj,
 OMX_ERRORTYPE
 tiz_api_GetConfig (const void *ap_obj,
                   OMX_HANDLETYPE ap_hdl,
-                  OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                  OMX_INDEXTYPE a_index, /*@out@*/ OMX_PTR ap_struct)
 {
   const tiz_api_class_t *class = classOf (ap_obj);
   assert (NULL != class->GetConfig);
