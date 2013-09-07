@@ -200,7 +200,6 @@ roles_of_comp (OMX_STRING component)
       {
         printf ("Component [%s] : role #%d -> [%s]\n", component, index++,
                 role.c_str ());
-
       }
     }
 
@@ -209,6 +208,11 @@ roles_of_comp (OMX_STRING component)
   if (ret == OMX_ErrorNoMore)
     {
       ret = OMX_ErrorNone;
+    }
+
+  if (roles.empty ())
+    {
+      printf ("Component [%s] : No roles found.\n", component);
     }
 
   return ret;
@@ -235,6 +239,11 @@ comps_of_role (OMX_STRING role)
   if (ret == OMX_ErrorNoMore)
     {
       ret = OMX_ErrorNone;
+    }
+
+  if (components.empty ())
+    {
+      printf ("Role [%s] : No components found.\n", role);
     }
 
   return ret;
