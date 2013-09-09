@@ -79,9 +79,9 @@ extern "C"
   struct tiz_alloc_hooks
   {
     OMX_U32 pid;
-    tiz_alloc_hook_f pf_alloc;
-    tiz_free_hook_f pf_free;
-    void *p_args;
+    /*@null@*/ tiz_alloc_hook_f pf_alloc;
+    /*@null@*/ tiz_free_hook_f pf_free;
+    /*@null@*/ void *p_args;
   };
 
   /**

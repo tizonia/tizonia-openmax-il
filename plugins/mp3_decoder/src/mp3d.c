@@ -188,9 +188,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_MP3_DECODER_COMPONENT_NAME);
 
-  tiz_comp_init (ap_hdl, ARATELIA_MP3_DECODER_COMPONENT_NAME);
-
-  tiz_comp_register_roles (ap_hdl, rf_list, 1);
+  tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_MP3_DECODER_COMPONENT_NAME));
+  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;
 }
