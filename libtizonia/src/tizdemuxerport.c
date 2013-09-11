@@ -201,7 +201,8 @@ demuxerport_GetParameter (const void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-            "GetParameter [%s]...", tiz_idx_to_str (a_index));
+            "GetParameter [%s]...pid [%d]", tiz_idx_to_str (a_index),
+            tiz_port_index (ap_obj));
 
   switch (a_index)
     {
