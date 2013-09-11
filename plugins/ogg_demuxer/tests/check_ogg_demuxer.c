@@ -63,7 +63,9 @@ pid_t g_rmd_pid;
 static const char *pg_files[] = {
   NULL,
   NULL,
-  NULL
+  NULL,
+  NULL,
+  NULL,
 };
 
 #define OGG_DEMUXER_TEST_TIMEOUT  30
@@ -81,8 +83,9 @@ struct check_common_context
   tiz_mutex_t mutex;
   tiz_cond_t cond;
   OMX_STATETYPE state;
-  OMX_BUFFERHEADERTYPE *p_hdr;
   OMX_BOOL eos;
+  tiz_vector_t *p_aud_hdrs;
+  tiz_vector_t *p_vid_hdrs;
 };
 
 static bool
@@ -129,7 +132,7 @@ refresh_rm_db (void)
             }
           else
             {
-              TIZ_LOG(TIZ_TRACE, 
+              TIZ_LOG(TIZ_TRACE,
                       "Error while executing db init shell script...");
             }
           tiz_mem_free (p_cmd);
@@ -204,10 +207,14 @@ _ctx_init (cc_ctx_t * app_ctx)
 
   p_ctx->eos = OMX_FALSE;
 
+  tiz_check_omx_err
+    (tiz_vector_init (&(p_ctx->p_aud_hdrs), sizeof (OMX_BUFFERHEADERTYPE *)));
+  tiz_check_omx_err
+    (tiz_vector_init (&(p_ctx->p_vid_hdrs), sizeof (OMX_BUFFERHEADERTYPE *)));
+
   * app_ctx = p_ctx;
 
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
@@ -221,6 +228,16 @@ _ctx_destroy (cc_ctx_t * app_ctx)
     {
       return OMX_ErrorBadParameter;
     }
+
+  tiz_vector_clear (p_ctx->p_aud_hdrs);
+  tiz_vector_destroy (p_ctx->p_aud_hdrs);
+  tiz_vector_clear (p_ctx->p_vid_hdrs);
+  tiz_vector_destroy (p_ctx->p_vid_hdrs);
+
+  tiz_vector_clear (p_ctx->p_aud_hdrs);
+  tiz_vector_destroy (p_ctx->p_aud_hdrs);
+  tiz_vector_clear (p_ctx->p_vid_hdrs);
+  tiz_vector_destroy (p_ctx->p_vid_hdrs);
 
   tiz_cond_destroy (&p_ctx->cond);
   tiz_mutex_unlock (&p_ctx->mutex);
@@ -383,28 +400,15 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
     }
 
   return OMX_ErrorNone;
-
 }
 
 OMX_ERRORTYPE check_EmptyBufferDone
   (OMX_HANDLETYPE ap_hdl,
    OMX_PTR ap_app_data, OMX_BUFFERHEADERTYPE * ap_buf)
 {
-  check_common_context_t *p_ctx = NULL;
-  cc_ctx_t *pp_ctx = NULL;
-
   TIZ_LOG (TIZ_TRACE, "EmptyBufferDone: BUFFER [%p]", ap_buf);
-
-  assert (ap_app_data);
-  assert (ap_buf);
-  pp_ctx = (cc_ctx_t *) ap_app_data;
-  p_ctx = *pp_ctx;
-
-  p_ctx->p_hdr = ap_buf;
-  _ctx_signal (pp_ctx);
-
+  fail_if (0);
   return OMX_ErrorNone;
-
 }
 
 OMX_ERRORTYPE check_FillBufferDone
@@ -415,19 +419,42 @@ OMX_ERRORTYPE check_FillBufferDone
   cc_ctx_t *pp_ctx = NULL;
 
   TIZ_LOG (TIZ_TRACE,
-             "FillBufferDone: BUFFER [%p] nFlags [%X]", ap_buf,
-             ap_buf->nFlags);
+           "FillBufferDone: BUFFER [%p] pid [%d] "
+           "nFilledLen [%d] nFlags [%X]",
+           ap_buf, ap_buf->nOutputPortIndex,
+           ap_buf->nFilledLen,
+           ap_buf->nFlags);
 
-  assert (ap_app_data);
-  assert (ap_buf);
+  assert (NULL != ap_app_data);
+  assert (NULL != ap_buf);
   pp_ctx = (cc_ctx_t *) ap_app_data;
   p_ctx = *pp_ctx;
 
-  p_ctx->p_hdr = ap_buf;
+  assert (ap_buf->nOutputPortIndex    == 0
+          || ap_buf->nOutputPortIndex == 1);
+
+  (void) tiz_mutex_lock (&p_ctx->mutex);
+
+  if (ap_buf->nOutputPortIndex == 0) /* Audio port */
+    {
+      tiz_vector_push_back (p_ctx->p_aud_hdrs, &ap_buf);
+      TIZ_LOG (TIZ_TRACE,
+               "FillBufferDone: audio header list size [%d]",
+               tiz_vector_length (p_ctx->p_aud_hdrs));
+    }
+  else
+    {
+      tiz_vector_push_back (p_ctx->p_vid_hdrs, &ap_buf);
+      TIZ_LOG (TIZ_TRACE,
+               "FillBufferDone: video header list size [%d]",
+               tiz_vector_length (p_ctx->p_vid_hdrs));
+    }
+
+  tiz_mutex_unlock (&p_ctx->mutex);
+
   _ctx_signal (pp_ctx);
 
   return OMX_ErrorNone;
-
 }
 
 
@@ -444,31 +471,156 @@ init_test_data()
   const char *p_testfile1 = NULL;
   const char *p_testfile2 = NULL;
   const char *p_testfile3 = NULL;
+  const char *p_testfile4 = NULL;
+  const char *p_testfile5 = NULL;
 
   p_testfile1 = tiz_rcfile_get_value("plugins-data",
                                      "OMX.Aratelia.container_demuxer.ogg.default_uri");
   p_testfile2 = tiz_rcfile_get_value("plugins-data",
-                                     "OMX.Aratelia.container_demuxer.ogg.testfile_uri_demuxed");
+                                     "OMX.Aratelia.container_demuxer.ogg.audio_uri_original");
   p_testfile3 = tiz_rcfile_get_value("plugins-data",
-                                     "OMX.Aratelia.container_demuxer.ogg.testfile_uri_original");
+                                     "OMX.Aratelia.container_demuxer.ogg.audio_uri_demuxed");
+  p_testfile4 = tiz_rcfile_get_value("plugins-data",
+                                     "OMX.Aratelia.container_demuxer.ogg.video_uri_original");
+  p_testfile5 = tiz_rcfile_get_value("plugins-data",
+                                     "OMX.Aratelia.container_demuxer.ogg.video_uri_demuxed");
 
-  if (!p_testfile1 || !p_testfile2)
+  p_testfile1 = access (p_testfile1, R_OK ) != -1 ? p_testfile1 : NULL;
+  p_testfile2 = access (p_testfile2, R_OK ) != -1 ? p_testfile2 : NULL;
+  p_testfile4 = access (p_testfile4, R_OK ) != -1 ? p_testfile4 : NULL;
+
+  if (!p_testfile1 || !p_testfile2
+      ||!p_testfile3 || !p_testfile4 || !p_testfile5)
 
     {
-      TIZ_LOG(TIZ_TRACE, "Test data not available...");
+      TIZ_LOG(TIZ_TRACE, "Some of the test streams are not available...");
     }
   else
     {
       pg_files[0] = p_testfile1;
       pg_files[1] = p_testfile2;
       pg_files[2] = p_testfile3;
-      TIZ_LOG(TIZ_TRACE, "Test data available [%s]", pg_files[0]);
+      pg_files[3] = p_testfile4;
+      pg_files[4] = p_testfile5;
+      TIZ_LOG(TIZ_TRACE, "Test streams available [%s]", pg_files[0]);
       rv = true;
     }
 
   return rv;
 }
 
+static OMX_ERRORTYPE
+transfer_buffers(cc_ctx_t * app_ctx, OMX_HANDLETYPE ap_hdl,
+                 tiz_vector_t *ap_hdrs)
+{
+  check_common_context_t *p_ctx = NULL;
+  OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  int i = 0;
+  int nbufs = 0;
+
+  assert (NULL != app_ctx);
+  assert (NULL != ap_hdrs);
+  assert (NULL != ap_hdl);
+  p_ctx = * app_ctx;
+
+  if (tiz_mutex_lock (&p_ctx->mutex))
+    {
+      return OMX_ErrorBadParameter;
+    }
+
+  nbufs = tiz_vector_length (ap_hdrs);
+  TIZ_LOG (TIZ_TRACE, "header list size [%d]",
+           tiz_vector_length (ap_hdrs));
+
+  for (i = 0; i < nbufs; i++)
+    {
+      pp_hdr = tiz_vector_at (ap_hdrs, i);
+      assert (pp_hdr && *pp_hdr);
+      p_hdr = *pp_hdr;
+      p_hdr->nFilledLen = 0;
+      TIZ_LOG (TIZ_TRACE,
+               "FillThisBuffer: BUFFER [%p] pid [%d] "
+               "nFilledLen [%d] nFlags [%X]",
+               p_hdr, p_hdr->nOutputPortIndex,
+               p_hdr->nFilledLen,
+               p_hdr->nFlags);
+      error = OMX_FillThisBuffer (ap_hdl, p_hdr);
+      fail_if (OMX_ErrorNone != error);
+    }
+
+  tiz_vector_clear (ap_hdrs);
+  tiz_mutex_unlock (&p_ctx->mutex);
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+write_data_to_file(cc_ctx_t * app_ctx, tiz_vector_t *ap_hdrs,
+                   FILE *ap_file, bool *ap_eof, int *ap_bytes_written,
+                   const int file_id)
+{
+  check_common_context_t *p_ctx = NULL;
+  OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  bool eof = false;
+  int i = 0;
+  int err = 0;
+  int nbufs = 0;
+
+  assert (NULL != app_ctx);
+  assert (NULL != ap_hdrs);
+  assert (NULL != ap_file);
+  assert (NULL != ap_eof);
+  assert (NULL != ap_bytes_written);
+  p_ctx = * app_ctx;
+
+  if (tiz_mutex_lock (&p_ctx->mutex))
+    {
+      return OMX_ErrorBadParameter;
+    }
+
+  nbufs = tiz_vector_length (ap_hdrs);
+  TIZ_LOG (TIZ_TRACE, "header list size [%d]",
+           tiz_vector_length (ap_hdrs));
+
+  for (i = 0; i < nbufs; i++)
+    {
+      pp_hdr = tiz_vector_at (ap_hdrs, i);
+      assert (pp_hdr && *pp_hdr);
+      p_hdr = *pp_hdr;
+
+      if (!(*ap_eof) && p_hdr->nFilledLen > 0)
+        {
+          if (!(err = fwrite (p_hdr->pBuffer, 1, p_hdr->nFilledLen,
+                              ap_file)))
+            {
+              TIZ_LOG (TIZ_TRACE, "An error occurred while writing to file [%d].",
+                       pg_files[file_id]);
+              fail_if (0);
+            }
+
+          *ap_bytes_written += p_hdr->nFilledLen;
+          TIZ_LOG (TIZ_TRACE, "[%s] : bytes written [%d]",
+                   pg_files[file_id], (*ap_bytes_written));
+          p_hdr->nFilledLen = 0;
+        }
+
+      if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
+        {
+          TIZ_LOG (TIZ_TRACE, "End of file reached on stream [%s].",
+                   pg_files[file_id]);
+          /* EOF on stream */
+          eof = true;
+        }
+    }
+
+  *ap_eof = eof;
+  tiz_mutex_unlock (&p_ctx->mutex);
+
+  return OMX_ErrorNone;
+}
 
 /*
  * Unit tests
@@ -477,19 +629,24 @@ init_test_data()
 START_TEST (test_ogg_demuxer)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  OMX_HANDLETYPE p_hdl = 0;
+  OMX_HANDLETYPE p_hdl = NULL;
   OMX_COMMANDTYPE cmd = OMX_CommandStateSet;
   OMX_STATETYPE state = OMX_StateIdle;
   cc_ctx_t ctx;
   check_common_context_t *p_ctx = NULL;
   OMX_BOOL timedout = OMX_FALSE;
-  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  OMX_PARAM_PORTDEFINITIONTYPE aud_port_def;
+  OMX_PARAM_PORTDEFINITIONTYPE vid_port_def;
   OMX_PARAM_CONTENTURITYPE *p_uri_param = NULL;
-  OMX_BUFFERHEADERTYPE **p_hdrlst;
-  OMX_U32 i;
-  FILE *p_file = 0;
-  int bytes_read = 0;
-  int err = 0;
+  OMX_BUFFERHEADERTYPE **p_aud_hdrlst = NULL;
+  OMX_BUFFERHEADERTYPE **p_vid_hdrlst = NULL;
+  bool aud_eof = false;
+  bool vid_eof = false;
+  OMX_U32 i = 0;
+  FILE *p_aud_file = NULL;
+  FILE *p_vid_file = NULL;
+  int aud_bytes_written = 0;
+  int vid_bytes_written = 0;
   char *cmp_cmd = NULL;
 
   fail_if (!init_test_data());
@@ -514,15 +671,37 @@ START_TEST (test_ogg_demuxer)
   /* -------------------------------- */
   /* Obtain the port def from port #0 */
   /* -------------------------------- */
-  port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
-  port_def.nVersion.nVersion = OMX_VERSION;
-  port_def.nPortIndex = 0;
-  error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &port_def);
+  aud_port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  aud_port_def.nVersion.nVersion = OMX_VERSION;
+  aud_port_def.nPortIndex = 0;
+  error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &aud_port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_TRACE, "nBufferSize [%d]", port_def.nBufferSize);
-  TIZ_LOG (TIZ_TRACE, "nBufferCountActual [%d]",
-             port_def.nBufferCountActual);
+  TIZ_LOG (TIZ_TRACE, "Audio port nBufferSize [%d]", aud_port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "Audio port nBufferCountActual [%d]",
+             aud_port_def.nBufferCountActual);
+
+  /* -------------------------------- */
+  /* Obtain the port def from port #1 */
+  /* -------------------------------- */
+  vid_port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  vid_port_def.nVersion.nVersion = OMX_VERSION;
+  vid_port_def.nPortIndex = 1;
+  error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &vid_port_def);
+  fail_if (OMX_ErrorNone != error);
+
+  TIZ_LOG (TIZ_TRACE, "Video port nBufferSize [%d]", vid_port_def.nBufferSize);
+  TIZ_LOG (TIZ_TRACE, "Video port nBufferCountActual [%d]",
+             vid_port_def.nBufferCountActual);
+
+  /* --------------------------------------------------------- */
+  /* Set the same nBufferCountActual value for audio and video */
+  /* --------------------------------------------------------- */
+  vid_port_def.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  vid_port_def.nVersion.nVersion = OMX_VERSION;
+  vid_port_def.nBufferCountActual = aud_port_def.nBufferCountActual;
+  error = OMX_SetParameter (p_hdl, OMX_IndexParamPortDefinition, &vid_port_def);
+  fail_if (OMX_ErrorNone != error);
 
   /* ---------------------- */
   /* Obtain the current URI */
@@ -552,16 +731,16 @@ START_TEST (test_ogg_demuxer)
   /* ----------------------------------------- */
   /* Disable video output port (port index 1)  */
   /* ----------------------------------------- */
-  cmd = OMX_CommandPortDisable;
-  error = OMX_SendCommand (p_hdl, cmd, 1, NULL);
-  fail_if (OMX_ErrorNone != error);
+  /*   cmd = OMX_CommandPortDisable; */
+  /*   error = OMX_SendCommand (p_hdl, cmd, 1, NULL); */
+  /*   fail_if (OMX_ErrorNone != error); */
 
   /* --------------------------- */
   /* Await port disable callback */
   /* --------------------------- */
-  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  fail_if (OMX_ErrorNone != error);
-  fail_if (OMX_TRUE == timedout);
+  /*   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout); */
+  /*   fail_if (OMX_ErrorNone != error); */
+  /*   fail_if (OMX_TRUE == timedout); */
 
   /* --------------------------- */
   /* Initiate transition to IDLE */
@@ -571,33 +750,61 @@ START_TEST (test_ogg_demuxer)
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
 
-  /* ---------------- */
-  /* Allocate buffers */
-  /* ---------------- */
-  p_hdrlst = (OMX_BUFFERHEADERTYPE **)
-    tiz_mem_calloc (port_def.nBufferCountActual, sizeof (OMX_BUFFERHEADERTYPE *));
+  /* ---------------------- */
+  /* Allocate audio buffers */
+  /* ---------------------- */
+  p_aud_hdrlst = (OMX_BUFFERHEADERTYPE **)
+    tiz_mem_calloc (aud_port_def.nBufferCountActual, sizeof (OMX_BUFFERHEADERTYPE *));
 
-  for (i = 0; i < port_def.nBufferCountActual; ++i)
+  for (i = 0; i < aud_port_def.nBufferCountActual; ++i)
     {
-      error = OMX_AllocateBuffer (p_hdl, &p_hdrlst[i], 0,    /* input port */
-                                  0, port_def.nBufferSize);
+      error = OMX_AllocateBuffer (p_hdl, &p_aud_hdrlst[i], 0,    /* audio port */
+                                  0, aud_port_def.nBufferSize);
       fail_if (OMX_ErrorNone != error);
-      fail_if (p_hdrlst[i] == NULL);
-      fail_if (port_def.nBufferSize > p_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
-      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
-                 p_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFilledLen [%d]", i,
-                 p_hdrlst[i]->nFilledLen);
-      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOffset [%d]", i,
-                 p_hdrlst[i]->nOffset);
-      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nOutputPortIndex [%d]", i,
-                 p_hdrlst[i]->nOutputPortIndex);
-      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nInputPortIndex [%d]", i,
-                 p_hdrlst[i]->nInputPortIndex);
-      TIZ_LOG (TIZ_TRACE, "p_hdrlst[%d]->nFlags [%X]", i,
-                 p_hdrlst[i]->nFlags);
+      fail_if (p_aud_hdrlst[i] == NULL);
+      fail_if (aud_port_def.nBufferSize > p_aud_hdrlst[i]->nAllocLen);
+      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%i] =  [%p]", i, p_aud_hdrlst[i]);
+      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nAllocLen [%d]", i,
+                 p_aud_hdrlst[i]->nAllocLen);
+      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nFilledLen [%d]", i,
+                 p_aud_hdrlst[i]->nFilledLen);
+      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nOffset [%d]", i,
+                 p_aud_hdrlst[i]->nOffset);
+      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nOutputPortIndex [%d]", i,
+                 p_aud_hdrlst[i]->nOutputPortIndex);
+      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nInputPortIndex [%d]", i,
+                 p_aud_hdrlst[i]->nInputPortIndex);
+      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nFlags [%X]", i,
+                 p_aud_hdrlst[i]->nFlags);
 
+    }
+
+  /* ---------------------- */
+  /* Allocate video buffers */
+  /* ---------------------- */
+  p_vid_hdrlst = (OMX_BUFFERHEADERTYPE **)
+    tiz_mem_calloc (vid_port_def.nBufferCountActual, sizeof (OMX_BUFFERHEADERTYPE *));
+
+  for (i = 0; i < vid_port_def.nBufferCountActual; ++i)
+    {
+      error = OMX_AllocateBuffer (p_hdl, &p_vid_hdrlst[i], 1,    /* video port */
+                                  0, vid_port_def.nBufferSize);
+      fail_if (OMX_ErrorNone != error);
+      fail_if (p_vid_hdrlst[i] == NULL);
+      fail_if (vid_port_def.nBufferSize > p_vid_hdrlst[i]->nAllocLen);
+      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%i] =  [%p]", i, p_vid_hdrlst[i]);
+      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nAllocLen [%d]", i,
+                 p_vid_hdrlst[i]->nAllocLen);
+      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nFilledLen [%d]", i,
+                 p_vid_hdrlst[i]->nFilledLen);
+      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nOffset [%d]", i,
+                 p_vid_hdrlst[i]->nOffset);
+      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nOutputPortIndex [%d]", i,
+                 p_vid_hdrlst[i]->nOutputPortIndex);
+      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nInputPortIndex [%d]", i,
+                 p_vid_hdrlst[i]->nInputPortIndex);
+      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nFlags [%X]", i,
+                 p_vid_hdrlst[i]->nFlags);
     }
 
   /* ------------------------- */
@@ -636,64 +843,67 @@ START_TEST (test_ogg_demuxer)
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateExecuting != p_ctx->state);
 
+  for (i = 0; i < aud_port_def.nBufferCountActual; ++i)
+    {
+      tiz_vector_push_back (p_ctx->p_aud_hdrs, &(p_aud_hdrlst[i]));
+    }
+
+  for (i = 0; i < vid_port_def.nBufferCountActual; ++i)
+    {
+      tiz_vector_push_back (p_ctx->p_vid_hdrs, &(p_vid_hdrlst[i]));
+    }
+
   /* -------------------- */
   /* buffer transfer loop */
   /* -------------------- */
-  fail_if ((p_file = fopen (pg_files[1], "w")) == 0);
+  fail_if ((p_aud_file = fopen (pg_files[2], "w")) == 0);
+  fail_if ((p_vid_file = fopen (pg_files[4], "w")) == 0);
 
   i = 0;
-  while (i < port_def.nBufferCountActual)
+  while (true)
     {
-      /* --------------- */
-      /* Transfer buffer */
-      /* --------------- */
       error = _ctx_reset (&ctx);
-      p_hdrlst[i]->nFilledLen = 0;
-      error = OMX_FillThisBuffer (p_hdl, p_hdrlst[i]);
       fail_if (OMX_ErrorNone != error);
 
-      /* ------------------------- */
-      /* Await BufferDone callback */
-      /* ------------------------- */
+      /* ---------------------- */
+      /* Transfer audio buffers */
+      /* ---------------------- */
+      if (!aud_eof)
+        {
+          error = transfer_buffers (&ctx, p_hdl, p_ctx->p_aud_hdrs);
+          fail_if (OMX_ErrorNone != error);
+        }
+
+      /* --------------------- */
+      /* Transfer video buffer */
+      /* --------------------- */
+      if (!vid_eof)
+        {
+          error = transfer_buffers (&ctx, p_hdl, p_ctx->p_vid_hdrs);
+          fail_if (OMX_ErrorNone != error);
+        }
+
       error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
       fail_if (OMX_ErrorNone != error);
-      fail_if (OMX_TRUE == timedout);
-      fail_if (p_ctx->p_hdr != p_hdrlst[i]);
 
-      if (p_hdrlst[i]->nFilledLen)
+      /* Write audio data to file */
+      write_data_to_file (&ctx, p_ctx->p_aud_hdrs, p_aud_file,
+                          &aud_eof, &aud_bytes_written, 2);
+      /* Write video data to file */
+      write_data_to_file (&ctx, p_ctx->p_vid_hdrs, p_vid_file,
+                          &vid_eof, &vid_bytes_written, 4);
+
+      if (aud_eof && vid_eof)
         {
-          TIZ_LOG (TIZ_TRACE, "Writing [%d] bytes to file [%s]",
-                     p_hdrlst[i]->nFilledLen, pg_files[1]);
-          if (!
-              (err =
-               fwrite (p_hdrlst[i]->pBuffer, 1, p_hdrlst[i]->nFilledLen,
-                       p_file)))
-            {
-              TIZ_LOG (TIZ_TRACE,
-                         "An error occurred while writing to [%s]",
-                         pg_files[1]);
-              fail_if (0);
-            }
-
-          bytes_read += p_hdrlst[i]->nFilledLen;
-          TIZ_LOG (TIZ_TRACE, "Bytes read [%d]", bytes_read);
-          p_hdrlst[i]->nFilledLen = 0;
-        }
-
-      if (p_hdrlst[i]->nFlags & OMX_BUFFERFLAG_EOS)
-        {
-          TIZ_LOG (TIZ_TRACE, "End of file reached for [%s]",
-                     pg_files[0]);
-          /* EOF */
+          TIZ_LOG (TIZ_TRACE, "End of file reached for [%s] file",
+                   pg_files[0]);
+          /* EOF of video stream */
           break;
         }
-
-      i++;
-      i %= port_def.nBufferCountActual;
-
     }
 
-  fclose (p_file);
+  fclose (p_aud_file);
+  fclose (p_vid_file);
 
   /* --------------------------- */
   /* Initiate transition to IDLE */
@@ -721,14 +931,25 @@ START_TEST (test_ogg_demuxer)
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
 
-  /* ------------------ */
-  /* Deallocate buffers */
-  /* ------------------ */
+  /* ------------------------ */
+  /* Deallocate audio buffers */
+  /* ------------------------ */
   fail_if (OMX_ErrorNone != error);
-  for (i = 0; i < port_def.nBufferCountActual; ++i)
+  for (i = 0; i < aud_port_def.nBufferCountActual; ++i)
     {
-      error = OMX_FreeBuffer (p_hdl, 0,      /* input port */
-                              p_hdrlst[i]);
+      error = OMX_FreeBuffer (p_hdl, 0,      /* audio port */
+                              p_aud_hdrlst[i]);
+      fail_if (OMX_ErrorNone != error);
+    }
+
+  /* ------------------------ */
+  /* Deallocate video buffers */
+  /* ------------------------ */
+  fail_if (OMX_ErrorNone != error);
+  for (i = 0; i < vid_port_def.nBufferCountActual; ++i)
+    {
+      error = OMX_FreeBuffer (p_hdl, 1,      /* video port */
+                              p_vid_hdrlst[i]);
       fail_if (OMX_ErrorNone != error);
     }
 
@@ -760,7 +981,7 @@ START_TEST (test_ogg_demuxer)
 
   TIZ_LOG (TIZ_TRACE, "File comparison OK: [%s]", cmp_cmd);
 
-  tiz_mem_free (p_hdrlst);
+  tiz_mem_free (p_aud_hdrlst);
   tiz_mem_free (p_uri_param);
   tiz_mem_free (cmp_cmd);
 

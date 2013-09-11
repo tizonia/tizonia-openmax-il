@@ -51,6 +51,9 @@
 #define TIZ_OGG_DEMUXER_DEFAULT_READ_BLOCKSIZE 2048
 
 #define TIZ_OGG_DEMUXER_DEFAULT_BUFFER_UTILISATION .75
+
+#define ALL_OGG_STREAMS -1
+
 /* Forward declarations */
 static OMX_ERRORTYPE oggdmux_prc_deallocate_resources (void *);
 
@@ -167,15 +170,15 @@ alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
 }
 
 static void
-store_packet (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
-              const ogg_packet * ap_ogg_packet)
+store_data (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
+            const OMX_U8 *ap_data, OMX_U32 a_nbytes)
 {
   OMX_U8 *p_store = NULL;
   OMX_U32 *p_offset = NULL;
 
   assert (NULL != ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
-  assert (NULL != ap_ogg_packet);
+  assert (NULL != ap_data);
 
   p_store = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX
     ? ap_prc->p_aud_store_ : ap_prc->p_vid_store_;
@@ -185,22 +188,21 @@ store_packet (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
   assert (NULL != p_store);
   assert (NULL != p_offset);
 
-  memcpy (p_store + *p_offset, ap_ogg_packet->packet, ap_ogg_packet->bytes);
-  *p_offset += ap_ogg_packet->bytes;
+  memcpy (p_store + *p_offset, ap_data, a_nbytes);
+  *p_offset += a_nbytes;
 }
 
 static void
-dump_into_omx_buffer (oggdmux_prc_t * ap_prc,
-                      const OMX_U32 a_pid,
-                      const ogg_packet * ap_ogg_packet,
-                      OMX_BUFFERHEADERTYPE * ap_hdr)
+dump_temp_store (oggdmux_prc_t * ap_prc,
+                 const OMX_U32 a_pid,
+                 OMX_BUFFERHEADERTYPE * ap_hdr)
 {
-  OMX_U8 *p_store = NULL;
-  OMX_U32 *p_offset = NULL;
+  OMX_U8  *p_store       = NULL;
+  OMX_U32 *p_offset      = NULL;
+  OMX_U32  bytes_to_copy = 0;
 
   assert (NULL != ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
-  assert (NULL != ap_ogg_packet);
   assert (NULL != ap_hdr);
 
   p_store = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX
@@ -213,13 +215,48 @@ dump_into_omx_buffer (oggdmux_prc_t * ap_prc,
 
   if (0 != *p_offset)
     {
-      memcpy (ap_hdr->pBuffer + ap_hdr->nFilledLen, p_store, *p_offset);
-      ap_hdr->nFilledLen += *p_offset;
-      *p_offset = 0;
+      bytes_to_copy = ap_hdr->nAllocLen - ap_hdr->nFilledLen;
+      bytes_to_copy = MIN (*p_offset, bytes_to_copy);
+      if (bytes_to_copy > 0)
+        {
+          memcpy (ap_hdr->pBuffer + ap_hdr->nFilledLen, p_store, bytes_to_copy);
+          ap_hdr->nFilledLen += bytes_to_copy;
+          *p_offset          -= bytes_to_copy;
+          if (*p_offset > 0)
+            {
+              memmove (p_store, p_store + bytes_to_copy, *p_offset);
+            }
+        }
     }
-  memcpy (ap_hdr->pBuffer + ap_hdr->nFilledLen,
-          ap_ogg_packet->packet, ap_ogg_packet->bytes);
-  ap_hdr->nFilledLen += ap_ogg_packet->bytes;
+}
+
+static void
+dump_ogg_packet (oggdmux_prc_t * ap_prc,
+                 const OMX_U32 a_pid,
+                 const ogg_packet * ap_ogg_packet,
+                 OMX_BUFFERHEADERTYPE * ap_hdr)
+{
+  OMX_U32  bytes_to_copy = 0;
+
+  assert (NULL != ap_prc);
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+  assert (NULL != ap_ogg_packet);
+  assert (NULL != ap_hdr);
+
+  bytes_to_copy = ap_hdr->nAllocLen - ap_hdr->nFilledLen;
+  bytes_to_copy = MIN (ap_ogg_packet->bytes, bytes_to_copy);
+  if (bytes_to_copy > 0)
+    {
+      memcpy (ap_hdr->pBuffer + ap_hdr->nFilledLen,
+              ap_ogg_packet->packet, bytes_to_copy);
+      ap_hdr->nFilledLen += bytes_to_copy;
+
+      if (ap_ogg_packet->bytes > bytes_to_copy)
+        {
+          store_data (ap_prc, a_pid, ap_ogg_packet->packet + bytes_to_copy,
+                      ap_ogg_packet->bytes - bytes_to_copy);
+        }
+    }
 }
 
 static inline bool
@@ -364,7 +401,8 @@ buffer_filled (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
     }
 
   /* TODO: Check for OOM error and issue Error Event */
-  (void) tiz_krn_release_buffer (tiz_get_krn (tiz_api_get_hdl (ap_prc)), a_pid, p_hdr);
+  (void) tiz_krn_release_buffer
+    (tiz_get_krn (tiz_api_get_hdl (ap_prc)), a_pid, p_hdr);
   *pp_hdr = NULL;
 }
 
@@ -397,7 +435,7 @@ read_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
       TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
                 "%010lu: no OMX buffers available", serialno);
       /* Temporarily store the data until an omx buffer is ready */
-      store_packet (p_prc, a_pid, p_op);
+      store_data (p_prc, a_pid, p_op->packet, p_op->bytes);
       return OGGZ_STOP_OK;
     }
 
@@ -427,7 +465,8 @@ read_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
 #endif
     }
 
-  dump_into_omx_buffer (p_prc, a_pid, p_op, p_hdr);
+  dump_temp_store (p_prc, a_pid, p_hdr);
+  dump_ogg_packet (p_prc, a_pid, p_op, p_hdr);
 
   if (*p_eos)
     {
@@ -592,20 +631,20 @@ read_page_first_pass (OGGZ * ap_oggz, const ogg_page * ap_og,
 
   if (oggz_get_bos (ap_oggz, a_serialno) > 0)
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc), "serialno = [%d]", a_serialno);
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
+                "serialno = [%d]", a_serialno);
       if (NULL == oggz_table_insert (p_prc->p_tracks_,
                                      a_serialno,
                                      &read_page_first_pass))  /* NULL makes it barf, needs
                                                                * something */
         {
-          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (p_prc),
-                    "serialno = [%d] - Could not insert serialno in oggz table",
-                    a_serialno);
+          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (p_prc), "serialno = [%d] - "
+                    "Could not insert serialno in oggz table", a_serialno);
           rc = OGGZ_STOP_ERR;
         }
     }
 
-  if (oggz_get_bos (ap_oggz, -1) == 0)
+  if (oggz_get_bos (ap_oggz, ALL_OGG_STREAMS) == 0)
     {
       TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
                 "Number of tracks [%d]",
@@ -631,11 +670,13 @@ seek_to_byte_offset (oggdmux_prc_t * ap_prc, const oggz_off_t a_offset)
 }
 
 static inline OMX_ERRORTYPE
-set_read_page_callback (oggdmux_prc_t * ap_prc, OggzReadPage ap_read_cback)
+set_read_page_callback (oggdmux_prc_t * ap_prc,
+                        OggzReadPage ap_read_cback)
 {
   assert (NULL != ap_prc);
   assert (NULL != ap_read_cback);
-  if (oggz_set_read_page (ap_prc->p_oggz_, -1, ap_read_cback, ap_prc) < 0)
+  if (oggz_set_read_page (ap_prc->p_oggz_, ALL_OGG_STREAMS,
+                          ap_read_cback, ap_prc) < 0)
     {
       TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
                 "[OMX_ErrorInsufficientResources] : "
@@ -646,11 +687,13 @@ set_read_page_callback (oggdmux_prc_t * ap_prc, OggzReadPage ap_read_cback)
 }
 
 static inline OMX_ERRORTYPE
-set_read_packet_callback (oggdmux_prc_t * ap_prc, OggzReadPacket ap_read_cback)
+set_read_packet_callback (oggdmux_prc_t * ap_prc, long serialno,
+                          OggzReadPacket ap_read_cback)
 {
   assert (NULL != ap_prc);
   assert (NULL != ap_read_cback);
-  if (oggz_set_read_callback (ap_prc->p_oggz_, -1, ap_read_cback, ap_prc) < 0)
+  if (oggz_set_read_callback (ap_prc->p_oggz_, serialno,
+                              ap_read_cback, ap_prc) < 0)
     {
       TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
                 "[OMX_ErrorInsufficientResources] : "
@@ -721,7 +764,7 @@ set_read_packet_callbacks (oggdmux_prc_t * ap_prc)
           TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                     "Set read_audio_packet callback");
           tiz_check_omx_err
-            (set_read_packet_callback (ap_prc, read_audio_packet));
+            (set_read_packet_callback (ap_prc, serialno, read_audio_packet));
         }
 
       if (is_video_content (content))
@@ -729,7 +772,7 @@ set_read_packet_callbacks (oggdmux_prc_t * ap_prc)
           TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                     "Set read_video_packet callback");
           tiz_check_omx_err
-            (set_read_packet_callback (ap_prc, read_video_packet));
+            (set_read_packet_callback (ap_prc, serialno, read_video_packet));
         }
     }
 
@@ -762,6 +805,17 @@ demux_file (oggdmux_prc_t * ap_prc)
         {
           p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
           buffer_filled (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX);
+        }
+    }
+
+  if (ap_prc->vid_eos_)
+    {
+      OMX_BUFFERHEADERTYPE *p_hdr
+        = buffer_needed (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+      if (NULL != ap_prc->p_vid_hdr_)
+        {
+          p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
+          buffer_filled (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
         }
     }
   return OMX_ErrorNone;
