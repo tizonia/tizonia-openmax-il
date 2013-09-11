@@ -393,7 +393,7 @@ decode_buffer (const void *ap_obj)
           p_obj->stream_.error = 0;
         }
 
-      if (mad_frame_decode (&p_obj->frame_, &p_obj->stream_) > 0)
+      if (mad_frame_decode (&p_obj->frame_, &p_obj->stream_) == -1)
         {
           if (MAD_RECOVERABLE (p_obj->stream_.error))
             {
