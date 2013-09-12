@@ -153,7 +153,7 @@ alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
 
   assert (ap_prc->p_aud_store_ == NULL);
   tiz_check_null_ret_oom ((ap_prc->p_aud_store_ =
-                           tiz_mem_alloc (port_def.nBufferSize)));
+                           tiz_mem_alloc (port_def.nBufferSize * 3)));
   ap_prc->aud_buf_size_ = port_def.nBufferSize;
 
   port_def.nPortIndex = ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX;
@@ -163,7 +163,7 @@ alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
 
   assert (ap_prc->p_vid_store_ == NULL);
   tiz_check_null_ret_oom ((ap_prc->p_vid_store_ =
-                           tiz_mem_alloc (port_def.nBufferSize)));
+                           tiz_mem_alloc (port_def.nBufferSize * 3)));
   ap_prc->vid_buf_size_ = port_def.nBufferSize;
 
   return OMX_ErrorNone;
@@ -212,6 +212,11 @@ dump_temp_store (oggdmux_prc_t * ap_prc,
 
   assert (NULL != p_store);
   assert (NULL != p_offset);
+
+  TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
+            "offset [%d] pid [%d] nFilledLen [%d]"
+            "nAllocLen [%d]",
+            *p_offset, a_pid, ap_hdr->nFilledLen, ap_hdr->nAllocLen);
 
   if (0 != *p_offset)
     {
@@ -296,7 +301,7 @@ enough_room_in_buffer (oggdmux_prc_t * ap_prc,
                        const OMX_U32 a_pid)
 {
   OMX_U32 *p_buf_size = NULL;
-
+  bool rc = false;
   assert (NULL != ap_prc);
   assert (NULL != ap_hdr);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
@@ -305,8 +310,15 @@ enough_room_in_buffer (oggdmux_prc_t * ap_prc,
     ? &(ap_prc->aud_buf_size_) : &(ap_prc->vid_buf_size_);
 
   assert (NULL != p_buf_size);
-  return (ap_hdr->nFilledLen
-          < (*p_buf_size * TIZ_OGG_DEMUXER_DEFAULT_BUFFER_UTILISATION));
+/*   return (ap_hdr->nFilledLen */
+/*           < (*p_buf_size * TIZ_OGG_DEMUXER_DEFAULT_BUFFER_UTILISATION)); */
+
+  rc = (ap_hdr->nFilledLen
+        < (*p_buf_size * TIZ_OGG_DEMUXER_DEFAULT_BUFFER_UTILISATION));
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+            "buf_size [%d] filled len [%d] rc [%s]", *p_buf_size,
+            ap_hdr->nFilledLen, rc ? "TRUE" : "FALSE");
+  return rc;
 }
 
 static OMX_BUFFERHEADERTYPE *
@@ -456,7 +468,7 @@ read_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
 #endif
     }
 
-  if (p_op->e_o_s > 0)
+  if (oggz_get_eos (ap_oggz, serialno) == 1)
     {
       *p_eos = true;
 #ifndef S_SPLINT_S
@@ -465,13 +477,41 @@ read_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
 #endif
     }
 
-  dump_temp_store (p_prc, a_pid, p_hdr);
-  dump_ogg_packet (p_prc, a_pid, p_op, p_hdr);
-
   if (*p_eos)
     {
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
+                "%010lu: Adding EOS flag\n", serialno);
       p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
     }
+
+  
+  if (*p_eos || !enough_room_in_buffer (p_prc, p_hdr, a_pid))
+    {
+      buffer_filled (p_prc, a_pid);
+
+      if (NULL == (p_hdr = buffer_needed (p_prc, a_pid)))
+        {
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
+                    "%010lu: Stop until we get more OMX buffers", serialno);
+          return OGGZ_STOP_OK;
+        }
+    }
+
+  dump_temp_store (p_prc, a_pid, p_hdr);
+
+  if (*p_eos || !enough_room_in_buffer (p_prc, p_hdr, a_pid))
+    {
+      buffer_filled (p_prc, a_pid);
+
+      if (NULL == (p_hdr = buffer_needed (p_prc, a_pid)))
+        {
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
+                    "%010lu: Stop until we get more OMX buffers", serialno);
+          return OGGZ_STOP_OK;
+        }
+    }
+
+  dump_ogg_packet (p_prc, a_pid, p_op, p_hdr);
 
   if (*p_eos || !enough_room_in_buffer (p_prc, p_hdr, a_pid))
     {
@@ -803,6 +843,8 @@ demux_file (oggdmux_prc_t * ap_prc)
         = buffer_needed (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX);
       if (NULL != ap_prc->p_aud_hdr_)
         {
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+                    "Audio: Adding EOS flag\n");
           p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
           buffer_filled (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX);
         }
@@ -814,6 +856,8 @@ demux_file (oggdmux_prc_t * ap_prc)
         = buffer_needed (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
       if (NULL != ap_prc->p_vid_hdr_)
         {
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+                    "Video: Adding EOS flag\n");
           p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
           buffer_filled (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
         }
@@ -989,6 +1033,8 @@ oggdmux_prc_buffers_ready (const void *ap_obj)
       p_prc->awaiting_buffers_ = false;
       if (NULL != p_prc->p_aud_hdr_)
         {
+          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
+                    "Audio: Adding EOS flag\n");
           p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
           buffer_filled (p_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX);
         }
