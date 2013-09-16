@@ -21,7 +21,7 @@ AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
-
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 # 'm4' is the directory where the extra autoconf macros are stored
 AC_CONFIG_MACRO_DIR([m4])

@@ -17,11 +17,12 @@
 
 SUBDIRS = config include libtizosal rm libtizcore libtizonia plugins examples docs
 
-CLEANFILES = cscope.in.out cscope.out cscope.po.out
+# NOTE: A cscope target is included in automake since api 1.12
+#CLEANFILES = cscope.in.out cscope.out cscope.po.out
 
-.PHONY: cscope
-cscope:
-	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizosal -srm -splugins -sexamples;
+#.PHONY: cscope
+#cscope:
+#	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizosal -srm -splugins -sexamples;
 
 # '-nut’ = '--no-tabs’
 #    Use spaces instead of tabs.
