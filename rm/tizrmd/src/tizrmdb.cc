@@ -713,7 +713,7 @@ tizrmdb::run_query (char const *ap_sql)
 int
 tizrmdb::run_query (char const *ap_sql) const
 {
-  const_cast < tizrmdb * >(this)->run_query (ap_sql);
+  return const_cast < tizrmdb * >(this)->run_query (ap_sql);
 }
 
 void

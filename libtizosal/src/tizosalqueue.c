@@ -197,9 +197,13 @@ tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
     {
       /* Clean-up */
       deinit_queue_struct (p_q);
+      p_q = NULL;
+    }
+  else
+    {
+      *app_q = p_q;
     }
 
-  *app_q = p_q;
   return rc;
 }
 

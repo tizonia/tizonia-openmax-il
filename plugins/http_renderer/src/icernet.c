@@ -1615,8 +1615,8 @@ end:
         }
       if (NULL != p_server)
         {
-          tiz_mem_free (p_server);
           tiz_mem_free (p_server->p_ip);
+          tiz_mem_free (p_server);
           p_server = NULL;
         }
       rc = OMX_ErrorInsufficientResources;
@@ -1801,7 +1801,7 @@ icer_net_write_to_listeners (icer_server_t * ap_server)
 
   if (NULL == ap_server)
     {
-      TIZ_LOGN (TIZ_TRACE, p_hdl, "server does not exist yet.");
+      TIZ_LOG (TIZ_TRACE, "server does not exist yet.");
       return OMX_ErrorNotReady;
     }
 

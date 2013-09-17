@@ -215,7 +215,8 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
   char *value = strndup (trimlistseparator (trimwhitespace (value_start)),
                          strlen (str) - (needle - str));
   keyval_t *p_kv = NULL;
-  value_t *p_v = NULL, *p_next_v = NULL;
+  value_t *p_v = NULL;
+  value_t *p_next_v = NULL;
 
   assert (ap_rc);
   assert (str);
@@ -234,9 +235,13 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
       if (!p_kv || !p_v)
         {
           tiz_mem_free (p_kv);
+          p_kv  = NULL;
           tiz_mem_free (p_v);
+          p_v   = NULL;
           tiz_mem_free (value);
+          value = NULL;
           tiz_mem_free (key);
+          key = NULL;
           ret = -1;
         }
       else
@@ -292,7 +297,10 @@ get_node (const tiz_rcfile_t * ap_rc, char *str, keyval_t ** app_kv)
       tiz_mem_free (key);
     }
 
-  *app_kv = p_kv;
+  if (-1 != ret)
+    {
+      *app_kv = p_kv;
+    }
 
   return ret;
 

@@ -95,12 +95,16 @@ class tizcback_handler
 
 public:
 
-  tizcback_handler (const tizgraph &graph);
+  explicit tizcback_handler (const tizgraph &graph);
   ~tizcback_handler () {};
 
-  inline OMX_CALLBACKTYPE *get_omx_cbacks ()
-  { return &cbacks_;}
-  int wait_for_event_list (const waitevent_list_t &event_list);
+  OMX_CALLBACKTYPE *get_omx_cbacks ()
+  {
+    return &cbacks_;
+  }
+  
+  OMX_ERRORTYPE wait_for_event_list (const waitevent_list_t &event_list);
+
   void receive_event (OMX_HANDLETYPE component,
                       OMX_EVENTTYPE event,
                       OMX_U32 ndata1,

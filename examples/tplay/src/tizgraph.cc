@@ -116,6 +116,7 @@ tizgraph_event_handler (OMX_HANDLETYPE hComponent,
                            nData1,
                            nData2,
                            pEventData);
+  return OMX_ErrorNone;
 }
 
 
@@ -222,7 +223,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
   cond_.notify_one();
 }
 
-int
+OMX_ERRORTYPE
 tizcback_handler::wait_for_event_list (const waitevent_list_t &event_list)
 {
   boost::unique_lock<boost::mutex> lock (mutex_);
@@ -255,6 +256,7 @@ tizcback_handler::wait_for_event_list (const waitevent_list_t &event_list)
     }
 
   events_outstanding_ = false;
+  return OMX_ErrorNone;
 }
 
 bool
@@ -352,7 +354,7 @@ OMX_ERRORTYPE
 tizgraph::deinit ()
 {
   void * p_result = NULL;
-  tiz_thread_join (&thread_, &p_result);
+  return tiz_thread_join (&thread_, &p_result);
 }
 
 OMX_ERRORTYPE
@@ -644,7 +646,7 @@ tizgraph::setup_suppliers () const
                                    &supplier);
         }
     }
-
+  return error;
 }
 
 OMX_ERRORTYPE
@@ -696,7 +698,7 @@ tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
                                               to,
                                               (OMX_PTR) OMX_ErrorNone));
         }
-      cback_handler_.wait_for_event_list(event_list);
+      tiz_check_omx_err (cback_handler_.wait_for_event_list(event_list));
       current_graph_state_ = to;
     }
 
@@ -723,7 +725,7 @@ tizgraph::transition_one (const int handle_id, const OMX_STATETYPE to)
                                           OMX_CommandStateSet,
                                           to,
                                           (OMX_PTR) OMX_ErrorNone));
-      cback_handler_.wait_for_event_list(event_list);
+      tiz_check_omx_err (cback_handler_.wait_for_event_list(event_list));
     }
 
   return error;
@@ -763,7 +765,7 @@ tizgraph::modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd)
                                               port_ids[i],
                                               (OMX_PTR) OMX_ErrorNone));
         }
-      cback_handler_.wait_for_event_list(event_list);
+      tiz_check_omx_err (cback_handler_.wait_for_event_list(event_list));
     }
 
   return error;

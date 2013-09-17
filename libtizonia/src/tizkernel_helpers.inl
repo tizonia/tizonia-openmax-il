@@ -73,7 +73,11 @@ deliver_pluggable_event (OMX_U32 rid, OMX_HANDLETYPE ap_hdl)
       p_event->pf_hdlr   = &rm_callback_hdlr;
       (void) tiz_comp_event_pluggable (ap_hdl, p_event);
     }
-
+  else
+    {
+      tiz_mem_free (p_event);
+      tiz_mem_free (p_rid);
+    }
   /* This should return something */
 }
 /*@end@*/
