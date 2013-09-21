@@ -273,7 +273,9 @@ append_buflsts (tiz_vector_t * ap_dst2darr,
   p_list = tiz_vector_at (ap_dst2darr, a_pid);
   assert (NULL != p_list && NULL != *(tiz_vector_t **) p_list);
   p_list = *(tiz_vector_t **) p_list;
-  assert (tiz_vector_length (p_list) == 0);
+
+  /* Make sure the list is empty, before appending anything */
+  tiz_vector_clear (p_list);
 
   return tiz_vector_append (p_list, ap_srclst);
 }
