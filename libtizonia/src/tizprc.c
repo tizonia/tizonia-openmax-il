@@ -647,14 +647,14 @@ prc_SetConfig (const void *ap_obj,
  * from tiz_srv api
  */
 
-static OMX_ERRORTYPE
+static void
 prc_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
                         OMX_S32 a_data1, OMX_PTR ap_data2)
 {
   tiz_srv_t *p_obj = (tiz_srv_t *) ap_obj;
   /* Actual implementation is in the parent class */
   /* Replace dummy parameters apf_func and a_data1 */
-  return tiz_srv_super_remove_from_queue
+  tiz_srv_super_remove_from_queue
     (tizprc, p_obj,
      &remove_buffer_from_servant_queue, ETIZPrcMsgBuffersReady, ap_data2);
 }

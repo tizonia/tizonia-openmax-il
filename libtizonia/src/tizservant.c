@@ -241,32 +241,32 @@ tiz_srv_super_enqueue (const void *a_class,
   return superclass->enqueue (ap_obj, ap_data, a_priority);
 }
 
-static OMX_ERRORTYPE
+static void
 servant_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
                            OMX_S32 a_data1, OMX_PTR ap_data2)
 {
   tiz_srv_t *p_obj = (tiz_srv_t *) ap_obj;
-  return tiz_pqueue_remove_func (p_obj->p_pq_, apf_func, a_data1, ap_data2);
+  tiz_pqueue_remove_func (p_obj->p_pq_, apf_func, a_data1, ap_data2);
 }
 
-OMX_ERRORTYPE
+void
 tiz_srv_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
                               OMX_S32 a_data1, OMX_PTR ap_data2)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
   assert (NULL != class->remove_from_queue);
-  return class->remove_from_queue (ap_obj, apf_func, a_data1, ap_data2);
+  class->remove_from_queue (ap_obj, apf_func, a_data1, ap_data2);
 }
 
-OMX_ERRORTYPE
+void
 tiz_srv_super_remove_from_queue (const void *a_class,
-                                    const void *ap_obj,
-                                    tiz_pq_func_f apf_func,
-                                    OMX_S32 a_data1, OMX_PTR ap_data2)
+                                 const void *ap_obj,
+                                 tiz_pq_func_f apf_func,
+                                 OMX_S32 a_data1, OMX_PTR ap_data2)
 {
   const tiz_srv_class_t *superclass = super (a_class);
   assert (NULL != ap_obj && NULL != superclass->remove_from_queue);
-  return superclass->remove_from_queue (ap_obj, apf_func, a_data1, ap_data2);
+  superclass->remove_from_queue (ap_obj, apf_func, a_data1, ap_data2);
 }
 
 static OMX_ERRORTYPE

@@ -56,11 +56,11 @@ extern "C"
                                            OMX_PTR ap_data,
                                            OMX_U32 a_priority);
 
-  OMX_ERRORTYPE tiz_srv_super_remove_from_queue (const void *class,
-                                                     const void *ap_obj,
-                                                     tiz_pq_func_f apf_func,
-                                                     OMX_S32 a_data1,
-                                                     OMX_PTR ap_data2);
+  void tiz_srv_super_remove_from_queue (const void *class,
+                                        const void *ap_obj,
+                                        tiz_pq_func_f apf_func,
+                                        OMX_S32 a_data1,
+                                        OMX_PTR ap_data2);
 
   OMX_ERRORTYPE tiz_srv_super_dispatch_msg (const void *class,
                                                 const void *ap_obj,
@@ -98,9 +98,9 @@ extern "C"
     OMX_PTR (*init_msg) (void *ap_obj, size_t msg_sz);
     OMX_ERRORTYPE (*enqueue) (const void *ap_obj, OMX_PTR ap_data,
                               OMX_U32 a_priority);
-    OMX_ERRORTYPE (*remove_from_queue) (const void *ap_obj,
-                                        tiz_pq_func_f apf_func,
-                                        OMX_S32 a_data1, OMX_PTR ap_data2);
+    void (*remove_from_queue) (const void *ap_obj,
+                               tiz_pq_func_f apf_func,
+                               OMX_S32 a_data1, OMX_PTR ap_data2);
     OMX_ERRORTYPE (*dispatch_msg) (const void *ap_obj, OMX_PTR ap_data);
     bool (*is_ready) (const void *ap_obj);
     OMX_ERRORTYPE (*allocate_resources) (const void *ap_obj, OMX_U32 a_pid);

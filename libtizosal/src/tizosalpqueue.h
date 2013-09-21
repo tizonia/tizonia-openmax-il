@@ -195,14 +195,12 @@ extern "C"
    * Remove from the queue all the items found using the comparison function
    * apf_func.
    *
-   * @return OMX_ErrorNone if success, OMX_ErrorNoMore if none found
-   *
    * @ingroup pqueue
    *
    */
-  OMX_ERRORTYPE tiz_pqueue_remove_func (tiz_pqueue_t * ap_pq,
-                                        tiz_pq_func_f apf_func,
-                                        OMX_S32 a_data1, void *ap_data2);
+  void tiz_pqueue_remove_func (tiz_pqueue_t * ap_pq,
+                               tiz_pq_func_f apf_func,
+                               OMX_S32 a_data1, void *ap_data2);
 
   /**
    * Return a reference to the first item in the queue.

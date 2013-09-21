@@ -429,7 +429,7 @@ tiz_pqueue_removep (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
   return rc;
 }
 
-OMX_ERRORTYPE
+void
 tiz_pqueue_remove_func (tiz_pqueue_t * p_q, tiz_pq_func_f a_pf_func,
                         OMX_S32 a_data1, void *ap_data2)
 {
@@ -495,8 +495,6 @@ tiz_pqueue_remove_func (tiz_pqueue_t * p_q, tiz_pq_func_f a_pf_func,
           p_cur = p_cur->p_next;
         }
     }
-
-  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
