@@ -49,6 +49,8 @@
 static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_br (void *ap_obj, OMX_PTR ap_msg);
 static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg);
+static OMX_ERRORTYPE dispatch_dr (void *ap_obj, OMX_PTR ap_msg);
+
 typedef struct tiz_prc_msg_sendcommand tiz_prc_msg_sendcommand_t;
 
 static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
@@ -74,6 +76,7 @@ enum tiz_prc_msg_class
     ETIZPrcMsgSendCommand = 0,
     ETIZPrcMsgBuffersReady,
     ETIZPrcMsgConfig,
+    ETIZPrcMsgDeferredResume,
     ETIZPrcMsgMax,
   };
 
@@ -98,6 +101,12 @@ struct tiz_prc_msg_configchange
   OMX_INDEXTYPE index;
 };
 
+typedef struct tiz_prc_msg_deferredresume tiz_prc_msg_deferredresume_t;
+struct tiz_prc_msg_deferredresume
+{
+  OMX_STATETYPE target_state;
+};
+
 typedef struct tiz_prc_msg tiz_prc_msg_t;
 struct tiz_prc_msg
 {
@@ -108,6 +117,7 @@ struct tiz_prc_msg
     tiz_prc_msg_sendcommand_t sc;
     tiz_prc_msg_buffersready_t br;
     tiz_prc_msg_configchange_t cc;
+    tiz_prc_msg_deferredresume_t dr;
   };
 };
 
@@ -118,6 +128,7 @@ static const tiz_prc_msg_dispatch_f tiz_prc_msg_to_fnt_tbl[] = {
   dispatch_sc,
   dispatch_br,
   dispatch_config,
+  dispatch_dr
 };
 
 typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_sc_f)
@@ -130,6 +141,143 @@ static const tiz_prc_msg_dispatch_sc_f tiz_prc_msg_dispatch_sc_to_fnt_tbl[] = {
   dispatch_port_disable,
   dispatch_port_enable
 };
+
+typedef struct tiz_prc_msg_str tiz_prc_msg_str_t;
+struct tiz_prc_msg_str
+{
+  tiz_prc_msg_class_t msg;
+  OMX_STRING str;
+};
+
+tiz_prc_msg_str_t tiz_prc_msg_to_str_tbl[] = {
+  {ETIZPrcMsgSendCommand, "ETIZPrcMsgSendCommand"},
+  {ETIZPrcMsgBuffersReady, "ETIZPrcMsgBuffersReady"},
+  {ETIZPrcMsgConfig,"ETIZPrcMsgConfig"},
+  {ETIZPrcMsgDeferredResume,"ETIZPrcMsgDeferredResume"},
+  {ETIZPrcMsgMax, "ETIZPrcMsgMax"},
+};
+
+static const OMX_STRING
+tiz_prc_msg_to_str (tiz_prc_msg_class_t a_msg)
+{
+  const OMX_S32 count =
+    sizeof (tiz_prc_msg_to_str_tbl) / sizeof (tiz_prc_msg_str_t);
+  OMX_S32 i = 0;
+
+  for (i = 0; i < count; ++i)
+    {
+      if (tiz_prc_msg_to_str_tbl[i].msg == a_msg)
+        {
+          return tiz_prc_msg_to_str_tbl[i].str;
+        }
+    }
+
+  return "Unknown proc message";
+}
+
+static inline tiz_prc_msg_t *
+init_prc_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
+                   tiz_prc_msg_class_t a_msg_class)
+{
+  tiz_prc_t *p_obj = (tiz_prc_t *) ap_obj;
+  tiz_prc_msg_t *p_msg = NULL;
+
+  assert (NULL != p_obj);
+  assert (NULL != ap_hdl);
+  assert (a_msg_class < ETIZPrcMsgMax);
+
+  if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_prc_msg_t))))
+    {
+      TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+                "Could not allocate message [%s]",
+                tiz_prc_msg_to_str (a_msg_class));
+    }
+  else
+    {
+      p_msg->p_hdl = ap_hdl;
+      p_msg->class = a_msg_class;
+    }
+
+  return p_msg;
+
+}
+
+static OMX_ERRORTYPE
+enqueue_buffersready_msg (const void *ap_obj,
+                          OMX_HANDLETYPE ap_hdl,
+                          OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid)
+{
+  const tiz_prc_t *p_obj = ap_obj;
+  tiz_prc_msg_t *p_msg = NULL;
+  tiz_prc_msg_buffersready_t *p_msg_br = NULL;
+
+  TIZ_LOG (TIZ_TRACE, "BuffersReady : HEADER [%p]", ap_hdr);
+
+  if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
+                                          ETIZPrcMsgBuffersReady)))
+    {
+      return OMX_ErrorInsufficientResources;
+    }
+
+  /* Finish-up this message */
+  p_msg_br = &(p_msg->br);
+  p_msg_br->p_buffer = ap_hdr;
+  p_msg_br->pid = a_pid;
+
+  /* Enqueueing with the lowest priority */
+  return tiz_srv_enqueue (ap_obj, p_msg, 1);
+}
+
+static inline OMX_U32
+cmd_to_priority (OMX_COMMANDTYPE a_cmd)
+{
+  OMX_U32 prio = 0;
+
+  switch (a_cmd)
+    {
+    case OMX_CommandStateSet:
+    case OMX_CommandFlush:
+    case OMX_CommandPortDisable:
+    case OMX_CommandPortEnable:
+      {
+        prio = 0;
+      }
+      break;
+
+    case OMX_CommandMarkBuffer:
+      /* NOTE: Mark buffer command is not hdld in this class */
+    default:
+      TIZ_LOG (TIZ_TRACE, "Unknown/unhandled command class [%d]", a_cmd);
+      assert (0);
+      break;
+    };
+
+  return prio;
+}
+
+static OMX_ERRORTYPE
+prc_DeferredResume (const void *ap_obj,
+                    OMX_HANDLETYPE ap_hdl)
+{
+  tiz_prc_t *p_obj = (tiz_prc_t *) ap_obj;
+  tiz_prc_msg_t *p_msg = NULL;
+  tiz_prc_msg_deferredresume_t *p_msg_dr = NULL;
+
+  assert (NULL != ap_obj);
+
+  TIZ_LOG (TIZ_TRACE, "DeferredResume");
+
+  if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
+                                          ETIZPrcMsgDeferredResume)))
+    {
+      return OMX_ErrorInsufficientResources;
+    }
+
+  /* Finish-up this message */
+  p_msg_dr = &(p_msg->dr);
+  p_msg_dr->target_state = OMX_StateExecuting;
+  return tiz_srv_enqueue (ap_obj, p_msg, 1);
+}
 
 static OMX_ERRORTYPE
 dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
@@ -252,6 +400,54 @@ dispatch_config (void *ap_obj, OMX_PTR ap_msg)
 }
 
 static OMX_ERRORTYPE
+dispatch_dr (void *ap_obj, OMX_PTR ap_msg)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_prc_t *p_obj = ap_obj;
+  tiz_prc_msg_t *p_msg = ap_msg;
+  tiz_prc_msg_deferredresume_t *p_msg_dr = NULL;
+  tiz_fsm_state_id_t now = EStateMax;
+
+  assert (NULL != p_obj);
+  assert (NULL != p_msg);
+
+  p_msg_dr = &(p_msg->dr);
+  assert (NULL != p_msg_dr);
+
+  now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
+
+  TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl, "[%s] - [%s]",
+            tiz_prc_msg_to_str (p_msg->class),
+            tiz_fsm_state_to_str (now));
+
+  /* Only notify resume in the following situation:
+   *
+   * - Component in OMX_StateExecuting
+   *
+   * */
+  if (EStateExecuting == now)
+    {
+      /* Now we can ask the processor to resume */
+      rc = tiz_prc_resume (p_obj);
+    }
+  else if (EStatePause == now)
+    {
+      /* Enqueue another deferred resume command  */
+      rc = prc_DeferredResume (p_obj, p_msg->p_hdl);
+    }
+  else
+    {
+      /* the FSM has transitioned to some other state, so we can ignore the
+         resume request. Simply log the fact...
+      */
+      TIZ_LOGN (TIZ_DEBUG, p_msg->p_hdl, "Ignoring deferred resume "
+                "command in [%s]", tiz_fsm_state_to_str (now));
+    }
+
+  return rc;
+}
+
+static OMX_ERRORTYPE
 dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
                     tiz_prc_msg_sendcommand_t * ap_msg_sc)
 {
@@ -329,7 +525,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
           }
         else if (OMX_StatePause == now)
           {
-            rc = tiz_prc_resume (p_obj);
+            rc = prc_DeferredResume (p_obj, p_hdl);
             done = OMX_TRUE;
           }
         else if (OMX_StateExecuting == now)
@@ -397,38 +593,6 @@ dispatch_port_enable (const void *ap_obj, OMX_HANDLETYPE p_hdl,
   return tiz_prc_port_enable (ap_obj, ap_msg_sc->param1);
 }
 
-typedef struct tiz_prc_msg_str tiz_prc_msg_str_t;
-struct tiz_prc_msg_str
-{
-  tiz_prc_msg_class_t msg;
-  OMX_STRING str;
-};
-
-tiz_prc_msg_str_t tiz_prc_msg_to_str_tbl[] = {
-  {ETIZPrcMsgSendCommand, "ETIZPrcMsgSendCommand"},
-  {ETIZPrcMsgBuffersReady, "ETIZPrcMsgBuffersReady"},
-  {ETIZPrcMsgConfig,"ETIZPrcMsgConfig"},
-  {ETIZPrcMsgMax, "ETIZPrcMsgMax"},
-};
-
-static const OMX_STRING
-tiz_prc_msg_to_str (tiz_prc_msg_class_t a_msg)
-{
-  const OMX_S32 count =
-    sizeof (tiz_prc_msg_to_str_tbl) / sizeof (tiz_prc_msg_str_t);
-  OMX_S32 i = 0;
-
-  for (i = 0; i < count; ++i)
-    {
-      if (tiz_prc_msg_to_str_tbl[i].msg == a_msg)
-        {
-          return tiz_prc_msg_to_str_tbl[i].str;
-        }
-    }
-
-  return "Unknown proc message";
-}
-
 static OMX_BOOL
 remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
                                   OMX_PTR ap_data2)
@@ -465,7 +629,6 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   return rc;
 }
 
-
 /*
  * tiz_prc
  */
@@ -481,86 +644,6 @@ static void *
 prc_dtor (void *ap_obj)
 {
   return super_dtor (tizprc, ap_obj);
-}
-
-static inline tiz_prc_msg_t *
-init_prc_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                   tiz_prc_msg_class_t a_msg_class)
-{
-  tiz_prc_t *p_obj = (tiz_prc_t *) ap_obj;
-  tiz_prc_msg_t *p_msg = NULL;
-
-  assert (NULL != p_obj);
-  assert (NULL != ap_hdl);
-  assert (a_msg_class < ETIZPrcMsgMax);
-
-  if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_prc_msg_t))))
-    {
-      TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorInsufficientResources] : "
-                "Could not allocate message [%s]",
-                tiz_prc_msg_to_str (a_msg_class));
-    }
-  else
-    {
-      p_msg->p_hdl = ap_hdl;
-      p_msg->class = a_msg_class;
-    }
-
-  return p_msg;
-
-}
-
-static OMX_ERRORTYPE
-enqueue_buffersready_msg (const void *ap_obj,
-                          OMX_HANDLETYPE ap_hdl,
-                          OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid)
-{
-  const tiz_prc_t *p_obj = ap_obj;
-  tiz_prc_msg_t *p_msg = NULL;
-  tiz_prc_msg_buffersready_t *p_msg_br = NULL;
-
-  TIZ_LOG (TIZ_TRACE, "BuffersReady : HEADER [%p]", ap_hdr);
-
-  if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
-                                          ETIZPrcMsgBuffersReady)))
-    {
-      return OMX_ErrorInsufficientResources;
-    }
-
-  /* Finish-up this message */
-  p_msg_br = &(p_msg->br);
-  p_msg_br->p_buffer = ap_hdr;
-  p_msg_br->pid = a_pid;
-
-  /* Enqueueing with the lowest priority */
-  return tiz_srv_enqueue (ap_obj, p_msg, 1);
-}
-
-static inline OMX_U32
-cmd_to_priority (OMX_COMMANDTYPE a_cmd)
-{
-  OMX_U32 prio = 0;
-
-  switch (a_cmd)
-    {
-    case OMX_CommandStateSet:
-    case OMX_CommandFlush:
-    case OMX_CommandPortDisable:
-    case OMX_CommandPortEnable:
-      {
-        prio = 0;
-      }
-      break;
-
-    case OMX_CommandMarkBuffer:
-      /* NOTE: Mark buffer command is not hdld in this class */
-    default:
-      TIZ_LOG (TIZ_TRACE, "Unknown/unhandled command class [%d]", a_cmd);
-      assert (0);
-      break;
-    };
-
-  return prio;
 }
 
 /*
@@ -623,7 +706,7 @@ prc_SetConfig (const void *ap_obj,
 
   assert (NULL != ap_obj);
   assert (NULL != ap_struct);
-  
+
   TIZ_LOG (TIZ_TRACE, "SetConfig [%s]", tiz_idx_to_str (a_index));
 
   if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
@@ -639,7 +722,7 @@ prc_SetConfig (const void *ap_obj,
                       sizeof (OMX_U32) / sizeof (OMX_U32) +
                       sizeof (OMX_VERSIONTYPE) / sizeof (OMX_U32));
   p_msg_cc->index = a_index;
-  
+
   return tiz_srv_enqueue (ap_obj, p_msg, 1);
 }
 
