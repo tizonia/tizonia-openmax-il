@@ -133,11 +133,12 @@ render_buffer (ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
            "Rendering HEADER [%p]...nFilledLen[%d] !!!", ap_hdr,
            ap_hdr->nFilledLen);
 
-  step = (ap_prc->pcmmode.nBitPerSample / 8) * ap_prc->pcmmode.nChannels;
+  step    = (ap_prc->pcmmode.nBitPerSample / 8) * ap_prc->pcmmode.nChannels;
   assert (ap_hdr->nFilledLen >= ap_hdr->nOffset);
   samples = (ap_hdr->nFilledLen - ap_hdr->nOffset) / step;
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
-    "step [%d], samples [%d]", step, samples);
+            "step [%d], samples [%d] nFilledLen [%d]",
+            step, samples, ap_hdr->nFilledLen);
 
   while (samples > 0)
     {
@@ -145,7 +146,7 @@ render_buffer (ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
                             ap_hdr->pBuffer + ap_hdr->nOffset,
                             samples);
       TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
-               "Rendering HEADER [%p]..." "err [%d] samples [%d] nOffset [%d]",
+               "Rendering HEADER [%p]...err [%d] samples [%d] nOffset [%d]",
                 ap_hdr, err, samples, ap_hdr->nOffset);
 
       if (-EAGAIN == err)
@@ -168,9 +169,8 @@ render_buffer (ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
               break;
             }
         }
-
       ap_hdr->nOffset += err * step;
-      samples -= err;
+      samples         -= err;
     }
 
   ap_hdr->nFilledLen = 0;
@@ -352,7 +352,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
            snd_pcm_open (&p_prc->p_pcm_hdl, p_device,
                          SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK)) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl,
+          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "cannot open audio device %s (%s)",
                    TIZ_AR_ALSA_PCM_DEVICE, snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -360,7 +360,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 
       if ((err = snd_pcm_hw_params_malloc (&p_prc->p_hw_params)) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl,
+          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "cannot allocate hardware parameter structure" " (%s)",
                     snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -369,7 +369,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
       p_prc->descriptor_count_ = snd_pcm_poll_descriptors_count (p_prc->p_pcm_hdl);
       if (p_prc->descriptor_count_ <= 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl,
+          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Invalid poll descriptors count");
           return OMX_ErrorInsufficientResources;
         }
@@ -377,17 +377,18 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
       p_prc->p_fds_ = tiz_mem_alloc (sizeof (struct pollfd) * p_prc->descriptor_count_);
       if (p_prc->p_fds_ == NULL)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl,
+          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Could not allocate poll file descriptors\n");
-          return -ENOMEM;
+          return OMX_ErrorInsufficientResources;
         }
 
       if (OMX_ErrorNone !=
           (rc = tiz_event_io_init (&(p_prc->p_ev_io_), p_hdl,
                                    tiz_comp_event_io)))
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[%s] : Error initializing "
-                    "the PCM io event", tiz_err_to_str (rc));
+          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+                    "Error initializing the PCM io event (was %s)",
+                    tiz_err_to_str (rc));
           return OMX_ErrorInsufficientResources;
         }
     }
@@ -398,8 +399,9 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
   if ((err = snd_pcm_hw_params_any (p_prc->p_pcm_hdl,
                                     p_prc->p_hw_params)) < 0)
     {
-      TIZ_LOGN (TIZ_ERROR, p_hdl, "cannot initialize hardware parameter "
-               "structure (%s)", snd_strerror (err));
+      TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+                "cannot initialize hardware parameter structure (%s)",
+                snd_strerror (err));
       return OMX_ErrorInsufficientResources;
     }
 
@@ -423,12 +425,13 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 
   if (NULL != p_obj->p_pcm_hdl)
     {
-      OMX_ERRORTYPE rc = OMX_ErrorNone;
-      snd_pcm_format_t snd_pcm_format;
-      OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
-      void *p_krn = tiz_get_krn (p_hdl);
-      int err = 0;
-
+      OMX_ERRORTYPE     rc       = OMX_ErrorNone;
+      snd_pcm_format_t  snd_pcm_format;
+      OMX_HANDLETYPE    p_hdl    = tiz_api_get_hdl (p_obj);
+      void             *p_krn    = tiz_get_krn (p_hdl);
+      int               err      = 0;
+      unsigned int snd_sampling_rate = 0;
+        
       /* Retrieve pcm params from port */
       p_obj->pcmmode.nSize = (OMX_U32) sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
       p_obj->pcmmode.nVersion.nVersion = (OMX_U32) OMX_VERSION;
@@ -437,7 +440,8 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
                             (p_krn, p_hdl,
                              OMX_IndexParamAudioPcm, &p_obj->pcmmode)))
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "Error retrieving pcm params from port");
+          TIZ_LOGN (TIZ_ERROR, p_hdl, "[%s] : Error retrieving "
+                    "pcm params from port", tiz_err_to_str (rc));
           return rc;
         }
 
@@ -456,24 +460,30 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
       snd_pcm_format = p_obj->pcmmode.eEndian == OMX_EndianLittle ?
         SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_S16_BE;
 
+      snd_sampling_rate = p_obj->pcmmode.bInterleaved == OMX_TRUE ?
+        p_obj->pcmmode.nSamplingRate
+        : p_obj->pcmmode.nSamplingRate * 2;
+        
       /* This sets the hardware and software parameters in a convenient way. */
       if ((err = snd_pcm_set_params (p_obj->p_pcm_hdl,
                                      snd_pcm_format,
                                      SND_PCM_ACCESS_RW_INTERLEAVED,
                                      (unsigned int) p_obj->pcmmode.nChannels,
-                                     (unsigned int) p_obj->pcmmode.nSamplingRate,
+                                     snd_sampling_rate,
                                      1, /* allow alsa-lib resampling */
-                                     100 * 1000 /* overall latency in us */
+                                     100000 /* overall latency in us */
                                      )) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "Could not set the PCM params!");
+          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+                    "Could not set the PCM params (%s)!",
+                    snd_strerror ((int) err));
           return OMX_ErrorInsufficientResources;
         }
 
       if ((err = snd_pcm_poll_descriptors(p_obj->p_pcm_hdl, p_obj->p_fds_,
                                           p_obj->descriptor_count_)) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl,
+          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Unable to obtain poll descriptors for playback: %s",
                     snd_strerror(err));
           return OMX_ErrorInsufficientResources;
@@ -488,7 +498,7 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
       /* OK, now prepare the PCM for use */
       if ((err = snd_pcm_prepare (p_obj->p_pcm_hdl)) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl,
+          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Could not prepare audio interface for use (%s)",
                     snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -513,8 +523,6 @@ ar_prc_stop_and_return (void * ap_obj)
 {
   ar_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
-            "stop_and_return");
   return do_flush (p_prc);
 }
 

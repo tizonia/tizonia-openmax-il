@@ -244,6 +244,11 @@ tizprobe::probe_file ()
       mp3type_.nChannels     = cc->channels;
       pcmtype_.nChannels     = cc->channels;
 
+      if (1 == pcmtype_.nChannels)
+        {
+          pcmtype_.bInterleaved = OMX_FALSE;
+        }
+
       if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
         {
           pcmtype_.eNumData = OMX_NumericalDataUnsigned;
