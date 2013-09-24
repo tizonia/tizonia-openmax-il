@@ -130,12 +130,12 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
   assert (NULL != ap_hdr);
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
-            "Rendering HEADER [%p]...nFilledLen[%d] !!!", ap_hdr,
-            ap_hdr->nFilledLen);
+            "Rendering HEADER [%p]...nFilledLen[%d] nOffset [%d]!!!", ap_hdr,
+            ap_hdr->nFilledLen, ap_hdr->nOffset);
 
   step = (ap_prc->pcmmode.nBitPerSample / 8) * ap_prc->pcmmode.nChannels;
-  assert (ap_hdr->nFilledLen >= ap_hdr->nOffset);
-  samples = (ap_hdr->nFilledLen - ap_hdr->nOffset) / step;
+  assert (ap_hdr->nFilledLen > 0);
+  samples = ap_hdr->nFilledLen / step;
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
             "step [%d], samples [%d] nFilledLen [%d]",
             step, samples, ap_hdr->nFilledLen);
@@ -150,15 +150,17 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
 
       if (-EAGAIN == err)
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
                     "Ring buffer must be full (got -EAGAIN)");
           return start_io_watcher (ap_prc);
         }
 
       if (err < 0)
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
-                    "Rendering HEADER [%p]...underflow");
+          /* This should handle -EINTR (interrupted system call), -EPIPE
+              (overrun or underrun) and -ESTRPIPE (stream is suspended) */
+          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
+                    "Trying to recover the stream state...");
           err = snd_pcm_recover (ap_prc->p_pcm_hdl, (int) err, 0);
           if (err < 0)
             {
@@ -167,8 +169,9 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
               break;
             }
         }
-      ap_hdr->nOffset += err * step;
-      samples -= err;
+      ap_hdr->nOffset    += err * step;
+      ap_hdr->nFilledLen -= err * step;
+      samples            -= err;
     }
 
   ap_hdr->nFilledLen = 0;
@@ -258,7 +261,7 @@ render_pcm_data (ar_prc_t * ap_prc)
           tiz_check_omx_err (render_buffer (ap_prc, p_hdr));
         }
 
-      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
                 "awaiting_io_ev_ [%s]",
                 ap_prc->awaiting_io_ev_ ? "YES" : "NO");
 
