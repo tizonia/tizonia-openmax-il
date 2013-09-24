@@ -1064,7 +1064,7 @@ krn_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
       /* This function will do nothing if it doesn't have to, e.g. because the
        * port isn't tunneled, or is disabled, etc. */
       tiz_port_update_tunneled_status (p_port, OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
-      tiz_check_omx_err (flush_egress (p_obj, pid, OMX_TRUE));
+      tiz_check_omx_err (flush_egress (p_obj, pid, OMX_FALSE));
       tiz_check_omx_err (propagate_ingress (p_obj, pid));
       i++;
     }

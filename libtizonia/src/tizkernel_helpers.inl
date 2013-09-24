@@ -396,8 +396,6 @@ propagate_ingress (void *ap_obj, OMX_U32 a_pid)
                     "Dispatching HEADER [%p] BUFFER [%p]",
                     p_hdr, p_hdr->pBuffer);
 
-          tiz_clear_header (p_hdr);
-
           /* ... delegate to the processor... */
           if (OMX_DirInput == pdir)
             {
