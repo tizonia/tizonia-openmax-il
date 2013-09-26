@@ -215,7 +215,6 @@ msg_to_priority (tiz_fsm_msg_class_t a_msg_class)
       break;
 
     default:
-      TIZ_LOG (TIZ_ERROR, "Unknown msg class [%d]", a_msg_class);
       assert (0);
       break;
     };
@@ -306,9 +305,9 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl, OMX_U32 a_pid)
   p_krn = tiz_get_krn (ap_hdl);
   assert (NULL != p_krn);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl,
-                 "[OMX_CommandPortDisable] pid [%d] cur_state_id_ [%s]",
-                 a_pid, tiz_fsm_state_to_str (p_obj->cur_state_id_));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_CommandPortDisable] pid [%d] "
+            "cur_state_id_ [%s]",
+            a_pid, tiz_fsm_state_to_str (p_obj->cur_state_id_));
 
   /* If no other command is currently being processed, the go on with this
    * one */
@@ -468,12 +467,11 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
        * cancellation. */
       if (p_obj->in_progress_cmd_ != OMX_CommandMax)
         {
-          TIZ_LOGN (TIZ_TRACE, ap_hdl,
-                         "Unfinished command [%s] - cur_state_id_ [%s] "
-                         "New command [%s]",
-                         tiz_cmd_to_str (p_obj->in_progress_cmd_),
-                         tiz_fsm_state_to_str (p_obj->cur_state_id_),
-                         tiz_cmd_to_str (a_cmd));
+          TIZ_LOGN (TIZ_TRACE, ap_hdl, "Unfinished command [%s] - "
+                    "cur_state_id_ [%s] New command [%s]",
+                    tiz_cmd_to_str (p_obj->in_progress_cmd_),
+                    tiz_fsm_state_to_str (p_obj->cur_state_id_),
+                    tiz_cmd_to_str (a_cmd));
           assert (OMX_CommandMax == p_obj->cancellation_cmd_);
           p_obj->cancellation_cmd_ = a_cmd;
         }
@@ -803,7 +801,7 @@ fsm_EmptyThisBuffer (const void *ap_obj,
   p_krn = tiz_get_krn (ap_hdl);
   p_port = tiz_krn_get_port (p_krn, pid);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "EmptyThisBuffer HEADER = [%p] pid = [%d] "
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "EmptyThisBuffer HEADER = [%p] PORT = [%d] "
             "nAllocLen = [%d] nFilledLen = [%d] nOutputPortIndex  = [%d] "
             "nInputPortIndex = [%d]", ap_hdr, pid, ap_hdr->nAllocLen,
             ap_hdr->nFilledLen, ap_hdr->nOutputPortIndex,

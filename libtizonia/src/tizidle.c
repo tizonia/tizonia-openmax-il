@@ -81,8 +81,7 @@ idle_SetParameter (const void *ap_obj,
       != (ret_val =
           tiz_krn_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl,
-                "Cannot retrieve managing port (%s)...",
+      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : Cannot retrieve managing port...",
                 tiz_err_to_str (ret_val));
       return ret_val;
     }
@@ -95,7 +94,7 @@ idle_SetParameter (const void *ap_obj,
   if (TIZ_PORT_IS_CONFIG_PORT (p_port)
       || (!TIZ_PORT_IS_CONFIG_PORT (p_port) && TIZ_PORT_IS_ENABLED (p_port)))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "Incorrect state op "
+      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
                 "(SetParameter received in Idle state)...");
       return OMX_ErrorIncorrectStateOperation;
     }

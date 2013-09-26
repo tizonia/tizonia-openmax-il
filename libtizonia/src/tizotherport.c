@@ -67,7 +67,6 @@ otherport_ctor (void *ap_obj, va_list * app)
       OMX_U32 i = 0;
       while (OMX_OTHER_FormatMax != p_formats[i])
         {
-          TIZ_LOG (TIZ_TRACE, "p_formats[%u] = [%d]...", i, p_formats[i]);
           tiz_vector_push_back (p_obj->p_formats_, &p_formats[i++]);
         }
     }
@@ -100,7 +99,9 @@ otherport_GetParameter (const void *ap_obj,
 {
   const tiz_otherport_t *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] GetParameter [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+  assert (NULL != p_obj);
 
   switch (a_index)
     {
@@ -117,7 +118,7 @@ otherport_GetParameter (const void *ap_obj,
         p_format = tiz_vector_at (p_obj->p_formats_, p_pft->nIndex);
         assert (p_format && *p_format);
         p_pft->eFormat = *p_format;
-        TIZ_LOG (TIZ_TRACE, "Format [0x%08x]...", *p_format);
+        TIZ_LOGN (TIZ_TRACE, ap_hdl, "Format [0x%08x]...", *p_format);
       }
       break;
 
@@ -139,7 +140,9 @@ otherport_SetParameter (const void *ap_obj,
 {
   tiz_otherport_t *p_obj = (tiz_otherport_t *) ap_obj;
 
-  TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+  assert (NULL != p_obj);
 
   switch (a_index)
     {
@@ -152,21 +155,21 @@ otherport_SetParameter (const void *ap_obj,
 
         if (format >= OMX_OTHER_FormatMax)
           {
-            TIZ_LOG (TIZ_TRACE, "OMX_ErrorBadParameter "
-                     "(Bad format [0x%08x]...)", format);
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : "
+                      "(Bad format [0x%08x]...)", format);
             return OMX_ErrorBadParameter;
           }
 
         if (!tiz_vector_find (p_obj->p_formats_, &format))
           {
-            TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedSetting "
-                     "(Format not supported [0x%08x]...)", format);
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorUnsupportedSetting] : "
+                      "(Format not supported [0x%08x]...)", format);
             return OMX_ErrorUnsupportedSetting;
           }
 
         p_obj->port_format_.eFormat = format;
 
-        TIZ_LOG (TIZ_TRACE, "Set new other format " "[0x%08x]...", format);
+        TIZ_LOGN (TIZ_TRACE, ap_hdl, "Set new other format " "[0x%08x]...", format);
 
       }
       break;

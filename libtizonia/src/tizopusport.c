@@ -88,7 +88,9 @@ opusport_GetParameter (const void *ap_obj,
 {
   const tiz_opusport_t *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] GetParameter [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+  assert (NULL != p_obj);
 
   if (OMX_IndexParamAudioOpus == a_index)
     {
@@ -132,7 +134,7 @@ opusport_SetParameter (const void *ap_obj,
           }
         default:
           {
-            TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s] : OMX_ErrorBadParameter : "
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : OMX_ErrorBadParameter : "
                       "Sample rate not supported [%d]. "
                       "Returning...", tiz_idx_to_str (a_index),
                       p_opustype->nSampleRate);
@@ -216,7 +218,7 @@ opusport_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
                 "port [%d] check_tunnel_compat : "
                 "Audio domain not found, instead found domain [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
@@ -232,8 +234,8 @@ opusport_check_tunnel_compat (const void *ap_obj,
       if (ap_other_def->format.audio.eEncoding
           != (OMX_AUDIO_CODINGTYPE) OMX_AUDIO_CodingOPUS)
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-                    "port [%d] check_tunnel_compat : "
+          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+                    "PORT [%d] check_tunnel_compat : "
                     "OPUS encoding not found, instead found encoding [%d]",
                     p_obj->pid_, ap_other_def->format.audio.eEncoding);
           return false;
@@ -241,7 +243,7 @@ opusport_check_tunnel_compat (const void *ap_obj,
     }
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-            "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
+            "PORT [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return true;
 }

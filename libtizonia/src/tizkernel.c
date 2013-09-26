@@ -293,7 +293,7 @@ krn_GetParameter (const void *ap_obj,
 
       default:
         {
-          TIZ_LOGN (TIZ_TRACE, ap_hdl, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+          TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                     a_index);
           return OMX_ErrorUnsupportedIndex;
         }
@@ -390,8 +390,8 @@ krn_SetParameter (const void *ap_obj,
       /*@fallthrough@*/
     default:
       {
-        TIZ_LOGN (TIZ_TRACE, ap_hdl,
-                  "OMX_ErrorUnsupportedIndex [0x%08x]...", a_index);
+        TIZ_LOGN (TIZ_ERROR, ap_hdl, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+                  a_index);
         rc = OMX_ErrorUnsupportedIndex;
       }
     };
@@ -833,7 +833,7 @@ krn_EmptyThisBuffer (const void *ap_obj,
 
   assert (NULL != ap_obj);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "HEADER [%p] BUFFER [%p] PORT [%d]",
             ap_hdr, ap_hdr->pBuffer, ap_hdr->nInputPortIndex);
 
   TIZ_KRN_INIT_MSG_OOM (ap_obj, ap_hdl, p_msg, ETIZKrnMsgEmptyThisBuffer);
@@ -853,7 +853,7 @@ krn_FillThisBuffer (const void *ap_obj,
 
   assert (NULL != ap_obj);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "HEADER [%p] BUFFER [%p] PID [%d]",
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "HEADER [%p] BUFFER [%p] PORT [%d]",
             ap_hdr, ap_hdr->pBuffer, ap_hdr->nOutputPortIndex);
 
   TIZ_KRN_INIT_MSG_OOM (ap_obj, ap_hdl, p_msg, ETIZKrnMsgFillThisBuffer);
@@ -995,7 +995,7 @@ krn_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   assert (NULL != ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj), "pid [%d]", a_pid);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj), "PORT [%d]", a_pid);
 
   if ((OMX_ALL != a_pid) && (check_pid (p_obj, a_pid) != OMX_ErrorNone))
     {
@@ -1049,7 +1049,7 @@ krn_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
   assert (NULL != ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj), "T&P pid [%d]", a_pid);
+  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_obj), "PORT [%d]", a_pid);
 
   if ((OMX_ALL != a_pid) && (check_pid (p_obj, a_pid) != OMX_ErrorNone))
     {

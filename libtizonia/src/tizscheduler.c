@@ -528,7 +528,7 @@ store_roles (tiz_scheduler_t * ap_sched,
                = tiz_mem_calloc (ap_msg_regroles->nroles,
                                  sizeof (tiz_role_factory_t *))))
     {
-      TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+      TIZ_LOGN (TIZ_ERROR, ap_sched->child.p_hdl,
                 "[OMX_ErrorInsufficientResources] : list of roles - "
                 "Failed when making local copy ..");
       rc = OMX_ErrorInsufficientResources;
@@ -550,7 +550,7 @@ store_roles (tiz_scheduler_t * ap_sched,
           else
             {
               rc = OMX_ErrorInsufficientResources;
-              TIZ_LOGN (TIZ_TRACE, ap_sched->child.p_hdl,
+              TIZ_LOGN (TIZ_ERROR, ap_sched->child.p_hdl,
                         "[OMX_ErrorInsufficientResources] : list of roles - "
                         "Failed when making local copy ..");
             }
@@ -1246,7 +1246,7 @@ init_scheduler_message (OMX_HANDLETYPE ap_hdl,
   if (NULL == (p_msg = (tiz_sched_msg_t *)
                tiz_mem_calloc (1, sizeof (tiz_sched_msg_t))))
     {
-      TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
                 "Creating message [%s]", tiz_sched_msg_to_str (a_msg_class));
     }
   else
@@ -1964,9 +1964,6 @@ il_sched_thread_func (void *p_arg)
       schedule_servants (p_sched, p_sched->state);
     }
 
-  TIZ_LOGN (TIZ_TRACE, p_sched->child.p_hdl,
-            "Tizonia scheduler exiting...");
-
   return NULL;
 }
 
@@ -2223,9 +2220,9 @@ tiz_comp_init (const OMX_HANDLETYPE ap_hdl, const char *ap_cname)
   /* Instantiate the scheduler */
   if (NULL == (p_sched = instantiate_scheduler (ap_hdl, ap_cname)))
     {
-      TIZ_LOG (TIZ_ERROR,
-               "[OMX_ErrorInsufficientResources] : ([%s] - Error Initializing"
-               " component - hdl [%p])...", ap_cname, ap_hdl);
+      TIZ_LOG (TIZ_ERROR, "[OMX_ErrorInsufficientResources] : "
+               "([%s] - Error Initializing component - hdl [%p])...",
+               ap_cname, ap_hdl);
       return OMX_ErrorInsufficientResources;
     }
 

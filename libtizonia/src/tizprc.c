@@ -188,7 +188,7 @@ init_prc_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_prc_msg_t))))
     {
-      TIZ_LOGN (TIZ_TRACE, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
                 "Could not allocate message [%s]",
                 tiz_prc_msg_to_str (a_msg_class));
     }
@@ -211,7 +211,7 @@ enqueue_buffersready_msg (const void *ap_obj,
   tiz_prc_msg_t *p_msg = NULL;
   tiz_prc_msg_buffersready_t *p_msg_br = NULL;
 
-  TIZ_LOG (TIZ_TRACE, "BuffersReady : HEADER [%p]", ap_hdr);
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "BuffersReady : HEADER [%p]", ap_hdr);
 
   if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
                                           ETIZPrcMsgBuffersReady)))
@@ -247,7 +247,6 @@ cmd_to_priority (OMX_COMMANDTYPE a_cmd)
     case OMX_CommandMarkBuffer:
       /* NOTE: Mark buffer command is not hdld in this class */
     default:
-      TIZ_LOG (TIZ_TRACE, "Unknown/unhandled command class [%d]", a_cmd);
       assert (0);
       break;
     };
@@ -265,7 +264,7 @@ prc_DeferredResume (const void *ap_obj,
 
   assert (NULL != ap_obj);
 
-  TIZ_LOG (TIZ_TRACE, "DeferredResume");
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "DeferredResume");
 
   if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
                                           ETIZPrcMsgDeferredResume)))
@@ -448,7 +447,7 @@ dispatch_dr (void *ap_obj, OMX_PTR ap_msg)
 }
 
 static OMX_ERRORTYPE
-dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
+dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                     tiz_prc_msg_sendcommand_t * ap_msg_sc)
 {
   const tiz_prc_t *p_obj = ap_obj;
@@ -456,12 +455,12 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
   OMX_STATETYPE now = OMX_StateMax;
   OMX_BOOL done = OMX_FALSE;
 
-  TIZ_LOG (TIZ_TRACE, "Requested transition to state [%s]",
-           tiz_fsm_state_to_str (ap_msg_sc->param1));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Requested transition to state [%s]",
+            tiz_fsm_state_to_str (ap_msg_sc->param1));
 
   /* Obtain the current state */
   tiz_check_omx_err
-    (tiz_api_GetState (tiz_get_fsm (p_hdl), p_hdl, &now));
+    (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
 
   switch (ap_msg_sc->param1)
     {
@@ -505,7 +504,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
         else if (OMX_StateIdle == now)
           {
             /* TODO : review when this situation would occur  */
-            TIZ_LOGN (TIZ_WARN, p_hdl, "Ignoring transition [%s] -> [%s]",
+            TIZ_LOGN (TIZ_WARN, ap_hdl, "Ignoring transition [%s] -> [%s]",
                       tiz_fsm_state_to_str (now),
                       tiz_fsm_state_to_str (ap_msg_sc->param1));
           }
@@ -525,7 +524,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
           }
         else if (OMX_StatePause == now)
           {
-            rc = prc_DeferredResume (p_obj, p_hdl);
+            rc = prc_DeferredResume (p_obj, ap_hdl);
             done = OMX_TRUE;
           }
         else if (OMX_StateExecuting == now)
@@ -561,10 +560,10 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE p_hdl,
   if (OMX_ErrorNone == rc && OMX_TRUE == done)
     {
       rc = tiz_fsm_complete_transition
-        (tiz_get_fsm (p_hdl), p_obj, ap_msg_sc->param1);
+        (tiz_get_fsm (ap_hdl), p_obj, ap_msg_sc->param1);
     }
 
-  TIZ_LOG (TIZ_TRACE, "rc [%s]", tiz_err_to_str (rc));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "rc [%s]", tiz_err_to_str (rc));
 
   return rc;
 }
@@ -621,7 +620,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   else
     {
       /* Not interested */
-      TIZ_LOG (TIZ_TRACE,
+      TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl,
                "Not interested : class  [%s]",
                tiz_prc_msg_to_str (p_msg->class));
     }
@@ -678,7 +677,7 @@ prc_SendCommand (const void *ap_obj,
   tiz_prc_msg_t *p_msg = NULL;
   tiz_prc_msg_sendcommand_t *p_msg_sc = NULL;
 
-  TIZ_LOG (TIZ_TRACE, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
 
   if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
                                           ETIZPrcMsgSendCommand)))
@@ -707,7 +706,7 @@ prc_SetConfig (const void *ap_obj,
   assert (NULL != ap_obj);
   assert (NULL != ap_struct);
 
-  TIZ_LOG (TIZ_TRACE, "SetConfig [%s]", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SetConfig [%s]", tiz_idx_to_str (a_index));
 
   if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
                                           ETIZPrcMsgConfig)))

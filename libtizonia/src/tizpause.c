@@ -75,8 +75,8 @@ pause_SetParameter (const void *ap_obj,
       != (rc =
           tiz_krn_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
-      TIZ_LOG (TIZ_TRACE, "Cannot retrieve managing port (%s)...",
-               tiz_err_to_str (rc));
+      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : Cannot retrieve managing port...",
+                tiz_err_to_str (rc));
       return rc;
     }
 
@@ -85,8 +85,8 @@ pause_SetParameter (const void *ap_obj,
   if (TIZ_PORT_IS_CONFIG_PORT (p_port)
       || (!TIZ_PORT_IS_CONFIG_PORT (p_port) && TIZ_PORT_IS_ENABLED (p_port)))
     {
-      TIZ_LOG (TIZ_TRACE, "Incorrect state op "
-               "(SetParameter received in Pause state)...");
+      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
+                "(SetParameter received in Pause state)...");
       return OMX_ErrorIncorrectStateOperation;
     }
 
@@ -169,7 +169,7 @@ pause_state_set (const void *ap_obj,
   assert (p_obj);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOG (TIZ_TRACE, "Requested transition to state [%s]...",
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Requested transition to state [%s]...",
            tiz_fsm_state_to_str (a_param1));
 
   /* Allowed transitions are OMX_StateIdle, and OMX_StateExecuting */
@@ -194,7 +194,7 @@ pause_state_set (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_TRACE, "OMX_ErrorIncorrectStateTransition...");
+        TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateTransition]");
         return OMX_ErrorIncorrectStateTransition;
       }
 

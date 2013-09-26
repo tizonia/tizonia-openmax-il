@@ -86,7 +86,6 @@ vp8port_ctor (void *ap_obj, va_list * app)
       OMX_U32 i = 0;
       while (OMX_VIDEO_VP8LevelMax != p_levels[i])
         {
-          TIZ_LOG (TIZ_TRACE, "p_levels[%u] = [%d]...", i, p_levels[i]);
           tiz_vector_push_back (p_obj->p_levels_, &p_levels[i++]);
         }
     }
@@ -146,7 +145,9 @@ vp8port_GetParameter (const void *ap_obj,
   const tiz_vp8port_t *p_obj = ap_obj;
   const tiz_port_t *p_base = ap_obj;
 
-  TIZ_LOG (TIZ_TRACE, "GetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] GetParameter [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+  assert (NULL != p_obj);
 
   switch (a_index)
     {
@@ -166,7 +167,7 @@ vp8port_GetParameter (const void *ap_obj,
         /* This index only applies when this is an output port */
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
-            TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "OMX_ErrorUnsupportedIndex [%s]",
                      tiz_idx_to_str (a_index));
             return OMX_ErrorUnsupportedIndex;
           }
@@ -201,7 +202,7 @@ vp8port_GetParameter (const void *ap_obj,
             p_level = tiz_vector_at (p_obj->p_levels_, index);
             assert (p_level && *p_level);
             p_pltype->eLevel = *p_level;
-            TIZ_LOG (TIZ_TRACE, "Level [0x%08x]...", *p_level);
+            TIZ_LOGN (TIZ_TRACE, ap_hdl, "Level [0x%08x]...", *p_level);
           }
       }
       break;
@@ -224,7 +225,9 @@ vp8port_SetParameter (const void *ap_obj,
 {
   tiz_vp8port_t *p_obj = (tiz_vp8port_t *) ap_obj;
 
-  TIZ_LOG (TIZ_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+  assert (NULL != p_obj);
 
   switch (a_index)
     {
@@ -242,8 +245,8 @@ vp8port_SetParameter (const void *ap_obj,
 
             if (profile > OMX_VIDEO_VP8ProfileMain)
               {
-                TIZ_LOG (TIZ_TRACE, "OMX_ErrorBadParameter "
-                         "(Bad profile [0x%08x]...)", profile);
+                TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : "
+                          "(Bad profile [0x%08x]...)", profile);
                 return OMX_ErrorBadParameter;
               }
 
@@ -251,8 +254,8 @@ vp8port_SetParameter (const void *ap_obj,
 
             if (level > OMX_VIDEO_VP8Level_Version3)
               {
-                TIZ_LOG (TIZ_TRACE, "OMX_ErrorBadParameter "
-                         "(Bad level [0x%08x]...)", level);
+                TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : "
+                          "(Bad level [0x%08x]...)", level);
                 return OMX_ErrorBadParameter;
               }
 
@@ -260,9 +263,9 @@ vp8port_SetParameter (const void *ap_obj,
 
             if (3 < p_vp8type->nDCTPartitions)
               {
-                TIZ_LOG (TIZ_TRACE, "OMX_ErrorBadParameter "
-                         "(Bad DCT Partition [0x%08x]...)",
-                         p_vp8type->nDCTPartitions);
+                TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : "
+                          "(Bad DCT Partition [0x%08x]...)",
+                          p_vp8type->nDCTPartitions);
                 return OMX_ErrorBadParameter;
               }
 
@@ -286,8 +289,8 @@ vp8port_SetParameter (const void *ap_obj,
         const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
-            TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
-                     tiz_idx_to_str (a_index));
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "OMX_ErrorUnsupportedIndex [%s]",
+                      tiz_idx_to_str (a_index));
             return OMX_ErrorUnsupportedIndex;
           }
 
@@ -339,7 +342,9 @@ vp8port_GetConfig (const void *ap_obj,
 {
   const tiz_vp8port_t *p_obj = ap_obj;
 
-  TIZ_LOG (TIZ_TRACE, "GetConfig [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] GetConfig [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+  assert (NULL != p_obj);
 
   switch (a_index)
     {
@@ -351,8 +356,8 @@ vp8port_GetConfig (const void *ap_obj,
         const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
-            TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
-                     tiz_idx_to_str (a_index));
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [%s]",
+                      tiz_idx_to_str (a_index));
             return OMX_ErrorUnsupportedIndex;
           }
 
@@ -368,8 +373,8 @@ vp8port_GetConfig (const void *ap_obj,
         const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
-            TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
-                     tiz_idx_to_str (a_index));
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "OMX_ErrorUnsupportedIndex [%s]",
+                      tiz_idx_to_str (a_index));
             return OMX_ErrorUnsupportedIndex;
           }
 
@@ -395,7 +400,9 @@ vp8port_SetConfig (const void *ap_obj,
 {
   tiz_vp8port_t *p_obj = (tiz_vp8port_t *) ap_obj;
 
-  TIZ_LOG (TIZ_TRACE, "SetConfig [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] SetConfig [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+  assert (NULL != p_obj);
 
   switch (a_index)
     {
@@ -407,8 +414,8 @@ vp8port_SetConfig (const void *ap_obj,
         const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
-            TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
-                     tiz_idx_to_str (a_index));
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [%s]",
+                      tiz_idx_to_str (a_index));
             return OMX_ErrorUnsupportedIndex;
           }
 
@@ -424,8 +431,8 @@ vp8port_SetConfig (const void *ap_obj,
         const tiz_port_t *p_base = ap_obj;
         if (OMX_DirOutput != p_base->portdef_.eDir)
           {
-            TIZ_LOG (TIZ_ERROR, "OMX_ErrorUnsupportedIndex [%s]",
-                     tiz_idx_to_str (a_index));
+            TIZ_LOGN (TIZ_ERROR, ap_hdl, "OMX_ErrorUnsupportedIndex [%s]",
+                      tiz_idx_to_str (a_index));
             return OMX_ErrorUnsupportedIndex;
           }
 
@@ -464,9 +471,8 @@ vp8port_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-                "port [%d] check_tunnel_compat : "
-                "Video domain not found, instead found domain [%d]",
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+                "PORT [%d] : Video domain not found, instead found domain [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
       return false;
     }
@@ -475,16 +481,15 @@ vp8port_check_tunnel_compat (const void *ap_obj,
     {
       if (ap_other_def->format.video.eCompressionFormat != OMX_VIDEO_CodingVP8)
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-                    "port [%d] check_tunnel_compat : "
-                    "VP8 encoding not found, instead found encoding [%d]",
+          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+                    "PORT [%d] : VP8 encoding not found, instead found encoding [%d]",
                     p_obj->pid_, ap_other_def->format.video.eCompressionFormat);
           return false;
         }
     }
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-            "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
+            "PORT [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return true;
 }

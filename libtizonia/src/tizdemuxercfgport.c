@@ -117,7 +117,6 @@ demuxer_cfgport_GetParameter (const void *ap_obj,
   const tiz_demuxer_cfgport_t *p_obj = ap_obj;
 
   TIZ_LOGN (TIZ_TRACE, ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
-
   assert (NULL != p_obj);
 
   switch (a_index)
@@ -165,7 +164,6 @@ demuxer_cfgport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
 
   TIZ_LOGN (TIZ_TRACE, ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
-
   assert (NULL != p_obj);
 
   switch (a_index)
@@ -215,7 +213,6 @@ demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_LOGN (TIZ_TRACE, ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
-
   assert (NULL != p_obj);
 
   switch (a_index)

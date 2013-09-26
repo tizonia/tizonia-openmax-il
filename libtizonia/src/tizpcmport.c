@@ -387,9 +387,8 @@ pcmport_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-                "port [%d] check_tunnel_compat : "
-                "Audio domain not found, instead found domain [%d]",
+      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+                "PORT [%d] : Audio domain not found, instead found domain [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
       return false;
     }
@@ -402,8 +401,8 @@ pcmport_check_tunnel_compat (const void *ap_obj,
     {
       if (ap_other_def->format.audio.eEncoding != OMX_AUDIO_CodingPCM)
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-                    "port [%d] check_tunnel_compat : "
+          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+                    "PORT [%d] : "
                     "PCM encoding not found, instead foudn encoding [%d]",
                     p_obj->pid_, ap_other_def->format.audio.eEncoding);
           return false;
@@ -411,7 +410,7 @@ pcmport_check_tunnel_compat (const void *ap_obj,
     }
 
   TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-            "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
+            "PORT [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return true;
 }
@@ -583,7 +582,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           (tiz_vector_push_back (ap_changed_idxs, &id));
 
         TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-                  " original pid [%d] this pid [%d] : [%s] -> "
+                  "original PORT [%d] this PORT [%d] : [%s] -> "
                   "changed [OMX_IndexParamAudioPcm]...",
                   tiz_port_index (ap_mos_port),
                   p_base->portdef_.nPortIndex, tiz_idx_to_str (a_index));
@@ -599,7 +598,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           (tiz_vector_push_back (ap_changed_idxs, &id));
 
         TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
-                  " original pid [%d] this pid [%d] : [%s] -> "
+                  "original PORT [%d] this PORT [%d] : [%s] -> "
                   "changed [OMX_IndexParamPortDefinition] nBufferSize [%d]...",
                   tiz_port_index (ap_mos_port),
                   p_base->portdef_.nPortIndex,

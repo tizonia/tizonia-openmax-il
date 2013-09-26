@@ -175,7 +175,7 @@ configport_GetParameter (const void *ap_obj,
 
     default:
       {
-        TIZ_LOGN (TIZ_TRACE, ap_hdl, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+        TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                   a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -237,8 +237,8 @@ configport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     default:
       {
-        TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
-                 a_index);
+        TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
+                  a_index);
         return OMX_ErrorUnsupportedIndex;
       }
     };
@@ -270,7 +270,7 @@ configport_GetConfig (const void *ap_obj,
 
     default:
       {
-        TIZ_LOG (TIZ_TRACE, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+        TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                  a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -307,7 +307,7 @@ configport_SetConfig (const void *ap_obj,
 
     default:
       {
-        TIZ_LOGN (TIZ_TRACE, ap_hdl, "OMX_ErrorUnsupportedIndex [0x%08x]...",
+        TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                  a_index);
         return OMX_ErrorUnsupportedIndex;
       }
