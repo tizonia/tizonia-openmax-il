@@ -74,7 +74,7 @@ stream_to_clients (icer_prc_t * ap_obj, OMX_HANDLETYPE ap_hdl)
 
         default:
           {
-            TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[%s]", tiz_err_to_str (rc));
+            TIZ_ERROR (ap_hdl, "[%s]", tiz_err_to_str (rc));
             assert (0);
           }
           break;
@@ -111,7 +111,7 @@ buffer_needed (void *ap_arg)
                   if (OMX_ErrorNone == tiz_krn_claim_buffer
                       (p_krn, 0, 0, &p_obj->p_inhdr_))
                     {
-                      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (p_obj),
+                      TIZ_TRACE (tiz_api_get_hdl (p_obj),
                                 "Claimed HEADER [%p]...nFilledLen [%d]",
                                 p_obj->p_inhdr_, p_obj->p_inhdr_->nFilledLen);
                       return p_obj->p_inhdr_;
@@ -135,7 +135,7 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * ap_hdr, void *ap_arg)
   assert (p_obj->p_inhdr_ == ap_hdr);
   assert (ap_hdr->nFilledLen == 0);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (p_obj), "HEADER [%p] emptied", ap_hdr);
+  TIZ_TRACE (tiz_api_get_hdl (p_obj), "HEADER [%p] emptied", ap_hdr);
 
   ap_hdr->nOffset = 0;
 
@@ -170,7 +170,7 @@ retrieve_mp3_settings (const void *ap_obj,
       != (rc = tiz_api_GetParameter (p_krn, p_hdl, OMX_IndexParamAudioMp3,
                                      ap_mp3type)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "[%s] : Error retrieving "
+      TIZ_TRACE (p_hdl, "[%s] : Error retrieving "
                 "OMX_IndexParamAudioMp3 from port", tiz_err_to_str (rc));
     }
 
@@ -199,7 +199,7 @@ retrieve_mountpoint_settings (const void *ap_obj,
                                      OMX_TizoniaIndexParamIcecastMountpoint,
                                      ap_mountpoint)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "[%s] : Error retrieving "
+      TIZ_TRACE (p_hdl, "[%s] : Error retrieving "
                 "OMX_TizoniaIndexParamIcecastMountpoint from port",
                 tiz_err_to_str (rc));
     }
@@ -254,12 +254,12 @@ icer_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
                                      OMX_TizoniaIndexParamHttpServer,
                                      &p_obj->server_info_)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "[%s] : Error retrieving "
+      TIZ_TRACE (p_hdl, "[%s] : Error retrieving "
                 "HTTPSERVERTYPE from port", tiz_err_to_str (rc));
       return rc;
     }
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "nListeningPort = [%d] nMaxClients = [%d] ",
+  TIZ_TRACE (p_hdl, "nListeningPort = [%d] nMaxClients = [%d] ",
             p_obj->server_info_.nListeningPort,
             p_obj->server_info_.nMaxClients);
 
@@ -306,7 +306,7 @@ icer_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                              p_obj->mp3type_.nChannels,
                              p_obj->mp3type_.nSampleRate);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (p_obj),
+  TIZ_TRACE (tiz_api_get_hdl (p_obj),
             "Server starts listening on port [%d]",
             p_obj->server_info_.nListeningPort);
 
@@ -372,7 +372,7 @@ icer_prc_io_ready (void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "Received io event on socket fd [%d] "
+  TIZ_TRACE (p_hdl, "Received io event on socket fd [%d] "
             "lstn_sockfd_ [%d]", a_fd, p_obj->lstn_sockfd_);
 
   if (a_fd == p_obj->lstn_sockfd_)
@@ -397,7 +397,7 @@ icer_prc_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
 {
   icer_prc_t *p_obj = ap_obj;
   assert (NULL != p_obj);
-  TIZ_LOGN (TIZ_PRIORITY_NOTICE, tiz_api_get_hdl (p_obj), "Received timer event ");
+  TIZ_NOTICE (tiz_api_get_hdl (p_obj), "Received timer event ");
   return stream_to_clients (p_obj, tiz_api_get_hdl (p_obj));
 }
 
@@ -477,7 +477,7 @@ icer_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
                                       OMX_TizoniaIndexConfigIcecastMetadata,
                                       p_metadata)))
         {
-          TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "[%s] : Error retrieving "
+          TIZ_TRACE (p_hdl, "[%s] : Error retrieving "
                     "OMX_TizoniaIndexConfigIcecastMetadata from port",
                     tiz_err_to_str (rc));
         }

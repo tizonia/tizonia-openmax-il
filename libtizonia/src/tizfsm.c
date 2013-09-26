@@ -183,7 +183,7 @@ init_fsm_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_fsm_msg_t))))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorInsufficientResources] : "
                 "(Could not allocate message [%s]...)",
                 tiz_fsm_msg_to_str (a_msg_class));
     }
@@ -235,7 +235,7 @@ validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   p_krn = tiz_get_krn (ap_hdl);
   assert (NULL != p_krn);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Requested transition to [%s] - "
+  TIZ_TRACE (ap_hdl, "Requested transition to [%s] - "
             "cur_state_id_ [%s] in_progress_cmd_ [%s]",
             tiz_state_to_str (a_state),
             tiz_fsm_state_to_str (p_obj->cur_state_id_),
@@ -305,7 +305,7 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl, OMX_U32 a_pid)
   p_krn = tiz_get_krn (ap_hdl);
   assert (NULL != p_krn);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "[OMX_CommandPortDisable] pid [%d] "
+  TIZ_TRACE (ap_hdl, "[OMX_CommandPortDisable] pid [%d] "
             "cur_state_id_ [%s]",
             a_pid, tiz_fsm_state_to_str (p_obj->cur_state_id_));
 
@@ -467,7 +467,7 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
        * cancellation. */
       if (p_obj->in_progress_cmd_ != OMX_CommandMax)
         {
-          TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Unfinished command [%s] - "
+          TIZ_TRACE (ap_hdl, "Unfinished command [%s] - "
                     "cur_state_id_ [%s] New command [%s]",
                     tiz_cmd_to_str (p_obj->in_progress_cmd_),
                     tiz_fsm_state_to_str (p_obj->cur_state_id_),
@@ -570,7 +570,7 @@ fsm_SendCommand (const void *ap_obj,
       (rc = validate_sendcommand (p_obj, ap_hdl, a_cmd,
                                   a_param1, ap_cmd_data)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[%s] : (Invalid command - "
+      TIZ_ERROR (ap_hdl, "[%s] : (Invalid command - "
                 "Command [%s] a_param1 [%d])", tiz_err_to_str (rc),
                 tiz_cmd_to_str (a_cmd), a_param1);
       return rc;
@@ -595,7 +595,7 @@ fsm_GetParameter (const void *ap_obj,
 {
   const tiz_fsm_t *p_obj = ap_obj;
   const void *p_krn = tiz_get_krn (ap_hdl);
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetParameter : [%s] [%s]",
+  TIZ_TRACE (ap_hdl, "GetParameter : [%s] [%s]",
             tiz_fsm_state_to_str (p_obj->cur_state_id_),
             tiz_idx_to_str (a_index));
   return tiz_api_GetParameter (p_krn, ap_hdl, a_index, ap_struct);
@@ -606,7 +606,7 @@ fsm_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                   OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_fsm_t *p_obj = ap_obj;
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SetParameter : [%s] [%s]",
+  TIZ_TRACE (ap_hdl, "SetParameter : [%s] [%s]",
             tiz_fsm_state_to_str (p_obj->cur_state_id_),
             tiz_idx_to_str (a_index));
   return tiz_api_SetParameter (p_obj->p_current_state_,
@@ -641,7 +641,7 @@ fsm_GetState (const void *ap_obj,
   assert (NULL != ap_hdl);
   assert (NULL != ap_state);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetState [%s]",
+  TIZ_TRACE (ap_hdl, "GetState [%s]",
             tiz_fsm_state_to_str (p_obj->cur_state_id_));
 
   assert (p_obj->cur_state_id_ != EStateMax);
@@ -668,14 +668,14 @@ fsm_ComponentTunnelRequest (const void *ap_obj,
 
   if (NULL == p_port)
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : "
                 "(Bad port index found [%d])...", a_pid);
       return OMX_ErrorBadParameter;
     }
 
   if ((EStateLoaded != p_obj->cur_state_id_) && TIZ_PORT_IS_ENABLED (p_port))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
                 "(In state %s, port [%d] enabled)...",
                 tiz_fsm_state_to_str (p_obj->cur_state_id_), a_pid);
       return OMX_ErrorIncorrectStateOperation;
@@ -705,7 +705,7 @@ fsm_UseBuffer (const void *ap_obj,
 
   if (NULL == p_port)
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : "
                 "(Unknown port index [%d]) ...", a_pid);
       return OMX_ErrorBadParameter;
     }
@@ -713,7 +713,7 @@ fsm_UseBuffer (const void *ap_obj,
   if ((ESubStateLoadedToIdle != p_obj->cur_state_id_)
       && TIZ_PORT_IS_ENABLED (p_port) && !TIZ_PORT_IS_BEING_ENABLED (p_port))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : (API "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorIncorrectStateOperation] : (API "
                 "not allowed in the current state - port [%d] state [%d])...",
                 a_pid, tiz_fsm_state_to_str (p_obj->cur_state_id_));
       return OMX_ErrorIncorrectStateOperation;
@@ -741,7 +741,7 @@ fsm_AllocateBuffer (const void *ap_obj,
 
   if (NULL == p_port)
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : "
                 "(Unknown port index [%d]) ...", a_pid);
       return OMX_ErrorBadParameter;
     }
@@ -749,7 +749,7 @@ fsm_AllocateBuffer (const void *ap_obj,
   if ((ESubStateLoadedToIdle != p_obj->cur_state_id_)
       && TIZ_PORT_IS_ENABLED (p_port) && !TIZ_PORT_IS_BEING_ENABLED (p_port))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : (API "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorIncorrectStateOperation] : (API "
                 "not allowed in the current state - port [%d] state [%d])...",
                 a_pid, tiz_fsm_state_to_str (p_obj->cur_state_id_));
       return OMX_ErrorIncorrectStateOperation;
@@ -776,7 +776,7 @@ fsm_FreeBuffer (const void *ap_obj,
 
   if (NULL == p_port)
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : "
                 "(Unknown port index [%d]) ...", a_pid);
       return OMX_ErrorBadPortIndex;
     }
@@ -801,7 +801,7 @@ fsm_EmptyThisBuffer (const void *ap_obj,
   p_krn = tiz_get_krn (ap_hdl);
   p_port = tiz_krn_get_port (p_krn, pid);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "EmptyThisBuffer HEADER = [%p] PORT = [%d] "
+  TIZ_TRACE (ap_hdl, "EmptyThisBuffer HEADER = [%p] PORT = [%d] "
             "nAllocLen = [%d] nFilledLen = [%d] nOutputPortIndex  = [%d] "
             "nInputPortIndex = [%d]", ap_hdr, pid, ap_hdr->nAllocLen,
             ap_hdr->nFilledLen, ap_hdr->nOutputPortIndex,
@@ -811,7 +811,7 @@ fsm_EmptyThisBuffer (const void *ap_obj,
     {
       OMX_ERRORTYPE rc = (p_port ? OMX_ErrorBadParameter
                           : OMX_ErrorBadPortIndex);
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[%s] : (Bad parameter found...%s)",
+      TIZ_ERROR (ap_hdl, "[%s] : (Bad parameter found...%s)",
                 tiz_err_to_str (rc), p_port ? "port dir" : "port index");
       return rc;
     }
@@ -819,7 +819,7 @@ fsm_EmptyThisBuffer (const void *ap_obj,
   if (TIZ_PORT_IS_DISABLED (p_port) && !TIZ_PORT_IS_BEING_ENABLED (p_port)
       && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
                 "(port %d is disabled...)", pid);
       return OMX_ErrorIncorrectStateOperation;
     }
@@ -845,7 +845,7 @@ fsm_FillThisBuffer (const void *ap_obj,
   p_krn = tiz_get_krn (ap_hdl);
   p_port = tiz_krn_get_port (p_krn, pid);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "FillThisBuffer HEADER = [%p] "
+  TIZ_TRACE (ap_hdl, "FillThisBuffer HEADER = [%p] "
             "pid = [%d] nAllocLen = [%d] nFilledLen = [%d] "
             "nOutputPortIndex  = [%d] nInputPortIndex = [%d]",
             ap_hdr, pid, ap_hdr->nAllocLen, ap_hdr->nFilledLen,
@@ -855,7 +855,7 @@ fsm_FillThisBuffer (const void *ap_obj,
     {
       OMX_ERRORTYPE rc = (p_port ? OMX_ErrorBadParameter
                           : OMX_ErrorBadPortIndex);
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl,
+      TIZ_ERROR (ap_hdl,
                 "[%s] : (Bad parameter found...%s)", tiz_err_to_str (rc),
                 p_port ? "port dir" : "port index");
       return rc;
@@ -864,7 +864,7 @@ fsm_FillThisBuffer (const void *ap_obj,
   if (TIZ_PORT_IS_DISABLED (p_port) && !TIZ_PORT_IS_BEING_ENABLED (p_port)
       && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
                 "(port %d is disabled...)", pid);
       return OMX_ErrorIncorrectStateOperation;
     }
@@ -887,7 +887,7 @@ fsm_SetCallbacks (const void *ap_obj,
   /* only allowed in OMX_StateLoaded state */
   if (EStateLoaded != p_obj->cur_state_id_)
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
                 "(API not allowed in %s state...)",
                 tiz_fsm_state_to_str (p_obj->cur_state_id_));
       return OMX_ErrorIncorrectStateOperation;
@@ -918,7 +918,7 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   p_hdl = tiz_api_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "Processing [%s]...",
+  TIZ_TRACE (p_hdl, "Processing [%s]...",
             tiz_fsm_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZFsmMsgMax);
@@ -929,7 +929,7 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
    * case, this error will cancel the in-progress command. */
   if (OMX_ErrorNone != rc)
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[%s] - [%s]...", tiz_err_to_str (rc),
+      TIZ_ERROR (p_hdl, "[%s] - [%s]...", tiz_err_to_str (rc),
                 tiz_fsm_msg_to_str (p_msg->class));
 
       if (OMX_CommandMax != p_obj->in_progress_cmd_)
@@ -975,7 +975,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
 
   if (a_new_state != p_obj->cur_state_id_)
     {
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "New state = [%s]..."
+      TIZ_TRACE (p_hdl, "New state = [%s]..."
                 "cancelled substate = [%s]",
                 tiz_fsm_state_to_str (a_new_state),
                 tiz_fsm_state_to_str (a_canceled_substate));
@@ -995,7 +995,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
              p_obj->canceled_substate_id_ == EStateMax
              ? OMX_ErrorNone : OMX_ErrorCommandCanceled);
 
-          TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "in_progress_cmd_ = [%s]...",
+          TIZ_TRACE (p_hdl, "in_progress_cmd_ = [%s]...",
                     tiz_cmd_to_str (p_obj->in_progress_cmd_));
           assert (OMX_CommandStateSet == p_obj->in_progress_cmd_);
 
@@ -1058,7 +1058,7 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
   p_hdl = tiz_api_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "Servant [%s] notifies transition complete "
+  TIZ_TRACE (p_hdl, "Servant [%s] notifies transition complete "
             "(to state [%s])", nameOf (ap_servant),
             tiz_fsm_state_to_str (a_new_state));
 
@@ -1076,7 +1076,7 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
        && OMX_StateIdle != a_new_state))
     {
       /* Ignore this as this transition is not relevant anymore */
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "[%s] Ignoring Servant [%s] "
+      TIZ_TRACE (p_hdl, "[%s] Ignoring Servant [%s] "
                 "transition complete notification (to state [%s])",
                 tiz_fsm_state_to_str (p_obj->cur_state_id_),
                 nameOf (ap_servant), tiz_fsm_state_to_str (a_new_state));
@@ -1121,7 +1121,7 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
   p_hdl = tiz_api_get_hdl (p_obj);
   assert (NULL != p_hdl);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "Servant [%s] notifies cmd complete (cmd [%s]) "
+  TIZ_TRACE (p_hdl, "Servant [%s] notifies cmd complete (cmd [%s]) "
             "in_progress_cmd_ [%s] cancellation_cmd_ [%s]",
             nameOf (ap_servant), tiz_cmd_to_str (a_cmd),
             tiz_cmd_to_str (p_obj->in_progress_cmd_),

@@ -163,11 +163,11 @@ sdlivr_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
   if (-1 == SDL_Init (SDL_INIT_VIDEO))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_ERROR (tiz_api_get_hdl (ap_obj),
                 "Error while initializing SDL [%s]", SDL_GetError ());
       return OMX_ErrorInsufficientResources;
     }
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                  "Resource allocation complete..." "pid = [%d]", a_pid);
   return OMX_ErrorNone;
 }
@@ -179,7 +179,7 @@ sdlivr_proc_deallocate_resources (void *ap_obj)
   assert (ap_obj);
   (void) p_obj;
   SDL_Quit ();
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
             "Resource deallocation complete...");
   return OMX_ErrorNone;
 }
@@ -192,7 +192,7 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
   OMX_PARAM_PORTDEFINITIONTYPE portdef;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj), "pid [%d]", a_pid);
+  TIZ_TRACE (tiz_api_get_hdl (ap_obj), "pid [%d]", a_pid);
 
   assert (ap_obj);
 
@@ -205,14 +205,14 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                          tiz_api_get_hdl (ap_obj),
                          OMX_IndexParamPortDefinition, &portdef)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                 "Error retrieving the port definition");
       return ret_val;
     }
 
   p_obj->vportdef_ = portdef.format.video;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
             "nFrameWidth = [%d] nFrameHeight = [%d] ",
             /*            "nStride = [%d] nSliceHeight = [%d] nBitrate = [%d] " */
             /*            "xFramerate = [%s] eCompressionFormat = [%d] eColorFormat = [%d]", */
@@ -234,7 +234,7 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   p_obj->p_overlay = SDL_CreateYUVOverlay
     (p_obj->vportdef_.nFrameWidth, p_obj->vportdef_.nFrameHeight,
      SDL_YV12_OVERLAY, p_obj->p_surface);
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
             "Transfering buffers...pid [%d]", a_pid);
   return OMX_ErrorNone;
 }
@@ -279,7 +279,7 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
       tiz_check_omx_err (sdlivr_proc_render_buffer (ap_obj, p_hdr));
       if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                     "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
           tiz_srv_issue_event ((OMX_PTR) ap_obj,
                                   OMX_EventBufferFlag,

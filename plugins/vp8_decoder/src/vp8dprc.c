@@ -245,7 +245,7 @@ get_input_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
               if (OMX_ErrorNone == tiz_krn_claim_buffer
                   (ap_krn, 0, 0, &ap_obj->p_inhdr_))
                 {
-                  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Claimed input HEADER [%p]..."
+                  TIZ_TRACE (ap_hdl, "Claimed input HEADER [%p]..."
                             "nFilledLen [%d]", ap_obj->p_inhdr_,
                             ap_obj->p_inhdr_->nFilledLen);
                   return ap_obj->p_inhdr_;
@@ -264,7 +264,7 @@ get_output_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
   assert (NULL != ap_hdl);
   assert (NULL != ap_krn);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "eos_ = %s", ap_obj->eos_ ? "TRUE" : "FALSE");
+  TIZ_TRACE (ap_hdl, "eos_ = %s", ap_obj->eos_ ? "TRUE" : "FALSE");
 
   if (NULL != ap_obj->p_outhdr_)
     {
@@ -282,7 +282,7 @@ get_output_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
               if (OMX_ErrorNone == tiz_krn_claim_buffer
                   (ap_krn, 1, 0, &ap_obj->p_outhdr_))
                 {
-                  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Claimed output HEADER [%p]..."
+                  TIZ_TRACE (ap_hdl, "Claimed output HEADER [%p]..."
                            "nFilledLen [%d]",
                            ap_obj->p_outhdr_, ap_obj->p_outhdr_->nFilledLen);
                   return ap_obj->p_outhdr_;
@@ -303,7 +303,7 @@ buffer_emptied (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_krn);
   assert (ap_obj->p_inhdr_ == ap_hdr);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "HEADER [%p] emptied ", ap_hdr);
+  TIZ_TRACE (ap_hdl, "HEADER [%p] emptied ", ap_hdr);
 
   assert (ap_hdr->nFilledLen == 0);
   ap_hdr->nOffset = 0;
@@ -326,7 +326,7 @@ buffer_filled (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_krn);
   assert (ap_obj->p_outhdr_ == ap_hdr);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "HEADER [%p] nFilledLen [%d] ", ap_hdr,
+  TIZ_TRACE (ap_hdl, "HEADER [%p] nFilledLen [%d] ", ap_hdr,
            ap_hdr->nFilledLen);
 
   ap_hdr->nOffset = 0;
@@ -353,7 +353,7 @@ obtain_stream_info (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
   find_stream_info (p_inhdr->pBuffer, &(ap_obj->stream_type_),
                     &fourcc, &width, &height, &fps_den, &fps_num);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Stream [%s] fourcc = [%d] width [%d] height [%d] "
+  TIZ_TRACE (ap_hdl, "Stream [%s] fourcc = [%d] width [%d] height [%d] "
             "fps_den [%d] fps_num [%d]",
             ap_obj->stream_type_ == STREAM_RAW ? "RAW" : "IVF",
             fourcc, width, height, fps_den, fps_num);
@@ -389,7 +389,7 @@ read_frame_size (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
                                      ? IVF_FRAME_HDR_SZ : RAW_FRAME_HDR_SZ),
                                     ap_inhdr) != 1))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "Failed to read frame size");
+      TIZ_ERROR (ap_hdl, "Failed to read frame size");
       return 0;
     }
   else
@@ -398,14 +398,14 @@ read_frame_size (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
 
       if (frame_size > 256 * 1024 * 1024)
         {
-          TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "Error: Read invalid frame size [%u]",
+          TIZ_ERROR (ap_hdl, "Error: Read invalid frame size [%u]",
                     (unsigned int) frame_size);
           return 0;
         }
 
       if (ap_obj->stream_type_ == STREAM_RAW && frame_size > 256 * 1024)
         {
-          TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "Warning: Read invalid frame size [%u]",
+          TIZ_ERROR (ap_hdl, "Warning: Read invalid frame size [%u]",
                     (unsigned int) frame_size);
           return 0;
         }
@@ -427,7 +427,7 @@ read_frame (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   p_buf = &(ap_obj->codec_buf_);
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "p_buf->frame_size [%d] p_buf->alloc_len [%d] "
+  TIZ_TRACE (ap_hdl, "p_buf->frame_size [%d] p_buf->alloc_len [%d] "
             "p_buf->filled_len [%d]", p_buf->frame_size,
             p_buf->alloc_len, p_buf->filled_len);
 
@@ -447,7 +447,7 @@ read_frame (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
                 }
               else
                 {
-                  TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl,
+                  TIZ_ERROR (ap_hdl,
                             "Failed to (re)allocate compressed data buffer");
                   p_buf->frame_size = 0;
                 }
@@ -457,7 +457,7 @@ read_frame (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (p_buf->frame_size == 0)
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "frame size = 0");
+      TIZ_ERROR (ap_hdl, "frame size = 0");
       return false;
     }
 
@@ -467,11 +467,11 @@ read_frame (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl,
                              p_buf->frame_size - p_buf->filled_len,
                              ap_obj->p_inhdr_)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "Failed to read a full frame");
+      TIZ_ERROR (ap_hdl, "Failed to read a full frame");
       return false;
     }
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "p_buf->frame_size [%d] p_buf->alloc_len [%d] "
+  TIZ_TRACE (ap_hdl, "p_buf->frame_size [%d] p_buf->alloc_len [%d] "
             "p_buf->filled_len [%d]", p_buf->frame_size, p_buf->alloc_len,
             p_buf->filled_len);
 
@@ -511,7 +511,7 @@ decode_frame (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
                         (unsigned int) (p_buf->filled_len), NULL, 0))
     {
       const char *detail = vpx_codec_error_detail (&(ap_obj->vp8ctx_));
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "Failed to decode frame: %s - %s",
+      TIZ_ERROR (ap_hdl, "Failed to decode frame: %s - %s",
                 vpx_codec_error (&(ap_obj->vp8ctx_)),
                 detail ? detail : "");
     }
@@ -566,7 +566,7 @@ decode_stream (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
       p_outhdr = get_output_buffer (ap_obj, ap_hdl, ap_krn);
       if (!p_inhdr || !p_outhdr)
         {
-          TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "p_inhdr [%p] p_outhdr [%p]",
+          TIZ_TRACE (ap_hdl, "p_inhdr [%p] p_outhdr [%p]",
                     p_inhdr, p_outhdr);
           return OMX_ErrorNone;
         }
@@ -589,7 +589,7 @@ decode_stream (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
         }
 
       /* Step 4: Get rid of input and output buffers, if we can */
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "p_inhdr->nFilledLen [%d]",
+      TIZ_TRACE (ap_hdl, "p_inhdr->nFilledLen [%d]",
                 p_inhdr->nFilledLen);
 
       if (p_inhdr->nFilledLen == 0)
@@ -687,7 +687,7 @@ vp8d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       != (err = vpx_codec_dec_init (&(p_obj->vp8ctx_),
                                     ifaces[0].iface, NULL, flags)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_ERROR (tiz_api_get_hdl (ap_obj),
                 "[OMX_ErrorInsufficientResources] : "
                 "Unable to init the vp8 decoder [%s]...",
                 vpx_codec_err_to_string (err));

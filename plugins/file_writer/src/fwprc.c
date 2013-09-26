@@ -129,7 +129,7 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
       if (NULL == p_obj->p_uri_param_)
         {
-          TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
+          TIZ_ERROR (tiz_api_get_hdl (ap_obj),
                     "Error allocating memory "
                    "for the content uri struct");
           return OMX_ErrorInsufficientResources;
@@ -145,7 +145,7 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
                          tiz_api_get_hdl (ap_obj),
                          OMX_IndexParamContentURI, p_obj->p_uri_param_)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_ERROR (tiz_api_get_hdl (ap_obj),
                 "Error retrieving URI param from port");
       return ret_val;
     }

@@ -94,7 +94,7 @@ executingtoidle_trans_complete (const void *ap_obj,
 {
   const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_DEBUG, tiz_api_get_hdl(ap_servant),
+  TIZ_DEBUG (tiz_api_get_hdl(ap_servant),
             "Trans complete to state [%s]...",
             tiz_fsm_state_to_str (a_new_state));
 
@@ -132,7 +132,7 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
            are ready to receive ETB/FTB calls.  NOTE: This will call the
          * 'tiz_state_state_set' function of the tiz_state_t base class (note
          * we are passing 'tizidle' as 1st parameter */
-        TIZ_LOGN (TIZ_PRIORITY_TRACE, p_hdl, "kernel may initiate exe to idle");
+        TIZ_TRACE (p_hdl, "kernel may initiate exe to idle");
         return tiz_state_super_state_set (tizidle, ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateIdle, NULL);

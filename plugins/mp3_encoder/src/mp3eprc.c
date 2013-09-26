@@ -109,7 +109,7 @@ encode_buffer (const void *ap_obj)
                   / p_obj->pcmmode_.nChannels /
                   p_obj->pcmmode_.nBitPerSample) * 8;
 
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                 "p_inhdr [%p] nsamples [%d] nFilledLen [%d] "
                 "nChannels [%d] nBitPerSample [%d]"
                 "nOffset [%d]", p_obj->p_inhdr_, nsamples,
@@ -128,14 +128,14 @@ encode_buffer (const void *ap_obj)
         {
           if (encoded_bytes == -1)
             {
-              TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+              TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                         "Output buffer is not big enough... [%d]...",
                         p_obj->p_outhdr_->nAllocLen -
                         p_obj->p_outhdr_->nFilledLen);
             }
           else
             {
-              TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+              TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                         "Some error occurred during encoding [%d]...",
                         encoded_bytes);
             }
@@ -227,7 +227,7 @@ claim_output (const void *ap_obj)
     {
       tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 1, 0,
                                                  &p_obj->p_outhdr_));
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                 "Claimed OUTPUT HEADER [%p] BUFFER [%p] nFilledLen [%d]...",
                 p_obj->p_outhdr_,
                 p_obj->p_outhdr_->pBuffer, p_obj->p_outhdr_->nFilledLen);
@@ -392,13 +392,13 @@ mp3e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
   if (NULL == (p_obj->lame_ = lame_init ()))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_ERROR (tiz_api_get_hdl (ap_obj),
                 "[OMX_ErrorInsufficientResources] : "
                 "lame encoder initialization error");
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
             "lame encoder version [%s]", get_lame_version ());
 
   (void) lame_set_errorf (p_obj->lame_, lame_debugf);
@@ -522,7 +522,7 @@ mp3e_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                 "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);
       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
       tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_);

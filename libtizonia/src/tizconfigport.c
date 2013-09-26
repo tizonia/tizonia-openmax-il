@@ -58,7 +58,7 @@ configport_ctor (void *ap_obj, va_list * app)
   str_len = strnlen (p_obj->comp_name_, OMX_MAX_STRINGNAME_SIZE - 1);
   p_obj->comp_name_[str_len] = '\0';
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
             "comp_name_ [%s]...", p_obj->comp_name_);
 
   /* Component version */
@@ -124,7 +124,7 @@ configport_GetComponentVersion (const void *ap_obj,
 {
   const tiz_configport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetComponentVersion...");
+  TIZ_TRACE (ap_hdl, "GetComponentVersion...");
 
   strcpy (ap_comp_name, p_obj->comp_name_);
   *ap_comp_version = p_obj->comp_ver_;
@@ -146,7 +146,7 @@ configport_GetParameter (const void *ap_obj,
 {
   const tiz_configport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
   assert (NULL != p_obj);
 
@@ -175,7 +175,7 @@ configport_GetParameter (const void *ap_obj,
 
     default:
       {
-        TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
+        TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                   a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -191,7 +191,7 @@ configport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 {
   tiz_configport_t *p_obj = (tiz_configport_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
   assert (NULL != p_obj);
 
@@ -237,7 +237,7 @@ configport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     default:
       {
-        TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
+        TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                   a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -254,7 +254,7 @@ configport_GetConfig (const void *ap_obj,
 {
   const tiz_configport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
 
   assert (NULL != p_obj);
 
@@ -270,7 +270,7 @@ configport_GetConfig (const void *ap_obj,
 
     default:
       {
-        TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
+        TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                  a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -287,7 +287,7 @@ configport_SetConfig (const void *ap_obj,
 {
   tiz_configport_t *p_obj = (tiz_configport_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
   assert (NULL != p_obj);
 
@@ -307,7 +307,7 @@ configport_SetConfig (const void *ap_obj,
 
     default:
       {
-        TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
+        TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                  a_index);
         return OMX_ErrorUnsupportedIndex;
       }
@@ -322,7 +322,7 @@ configport_GetExtensionIndex (const void *ap_obj,
                               OMX_STRING ap_param_name,
                               OMX_INDEXTYPE * ap_index_type)
 {
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetExtensionIndex [%s]...", ap_param_name);
+  TIZ_TRACE (ap_hdl, "GetExtensionIndex [%s]...", ap_param_name);
   /* No extensions here. */
   return OMX_ErrorUnsupportedIndex;
 }

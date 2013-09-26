@@ -72,7 +72,7 @@ audioport_ctor (void *ap_obj, va_list * app)
       OMX_U32 i = 0;
       while (OMX_AUDIO_CodingMax != p_encodings[i])
         {
-          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                     "p_encodings[%u] = [%d]...", i, p_encodings[i]);
           tiz_check_omx_err_ret_null
             (tiz_vector_push_back (p_obj->p_encodings_, &p_encodings[i++]));
@@ -106,7 +106,7 @@ audioport_GetParameter (const void *ap_obj,
 {
   const tiz_audioport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "PORT [%d] GetParameter [%s]...",
+  TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
 
@@ -125,7 +125,7 @@ audioport_GetParameter (const void *ap_obj,
         p_encoding = tiz_vector_at (p_obj->p_encodings_, (OMX_S32) p_pft->nIndex);
         assert (NULL != p_encoding);
         p_pft->eEncoding = *p_encoding;
-        TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Encoding [0x%08x]...", *p_encoding);
+        TIZ_TRACE (ap_hdl, "Encoding [0x%08x]...", *p_encoding);
       }
       break;
 
@@ -147,7 +147,7 @@ audioport_SetParameter (const void *ap_obj,
 {
   tiz_audioport_t *p_obj = (tiz_audioport_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
+  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
@@ -162,21 +162,21 @@ audioport_SetParameter (const void *ap_obj,
 
         if (encoding >= OMX_AUDIO_CodingMax)
           {
-            TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : "
+            TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : "
                      "(Bad encoding [0x%08x]...)", encoding);
             return OMX_ErrorBadParameter;
           }
 
         if (!tiz_vector_find (p_obj->p_encodings_, &encoding))
           {
-            TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorUnsupportedSetting] : "
+            TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedSetting] : "
                      "(Encoding not supported [0x%08x]...)", encoding);
             return OMX_ErrorUnsupportedSetting;
           }
 
         p_obj->port_format_.eEncoding = encoding;
 
-        TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Set new audio encoding "
+        TIZ_TRACE (ap_hdl, "Set new audio encoding "
                  "[0x%08x]...", encoding);
 
       }

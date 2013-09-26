@@ -81,7 +81,7 @@ executing_SetParameter (const void *ap_obj,
       != (ret_val =
           tiz_krn_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[%s] : "
+      TIZ_ERROR (ap_hdl, "[%s] : "
                 "(Unable to retrieve managing port for index %d...)",
                 tiz_err_to_str (ret_val), tiz_idx_to_str (a_index));
       return ret_val;
@@ -92,7 +92,7 @@ executing_SetParameter (const void *ap_obj,
   if (TIZ_PORT_IS_CONFIG_PORT (p_port)
       || (!TIZ_PORT_IS_CONFIG_PORT (p_port) && TIZ_PORT_IS_ENABLED (p_port)))
     {
-      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
                 "(SetParameter received in Executing state)...");
       return OMX_ErrorIncorrectStateOperation;
     }
@@ -183,7 +183,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOGN (TIZ_PRIORITY_DEBUG, ap_hdl, "Requested transition to state [%s]...",
+  TIZ_DEBUG (ap_hdl, "Requested transition to state [%s]...",
             tiz_fsm_state_to_str (a_param1));
 
   /* Allowed transitions are OMX_StateIdle and OMX_StateExecuting. */
@@ -208,7 +208,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     default:
       {
-        TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateTransition]");
+        TIZ_ERROR (ap_hdl, "[OMX_ErrorIncorrectStateTransition]");
         return OMX_ErrorIncorrectStateTransition;
       }
 
@@ -227,7 +227,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       {
         if (!TIZ_KRN_MAY_INIT_EXE_TO_IDLE(tiz_get_krn (ap_hdl)))
           {
-            TIZ_LOGN (TIZ_PRIORITY_DEBUG, ap_hdl,
+            TIZ_DEBUG (ap_hdl,
                            "wait until all the tunneled supplier neighbours have "
                            "reported that they have stopped the buffer exchange...");
             return rc;
@@ -257,7 +257,7 @@ executing_trans_complete (const void *ap_obj,
   assert (NULL != ap_obj);
   assert (NULL != ap_servant);
 
-  TIZ_LOGN (TIZ_PRIORITY_DEBUG, tiz_api_get_hdl(ap_servant),
+  TIZ_DEBUG (tiz_api_get_hdl(ap_servant),
             "Trans complete to state [%s]...",
             tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateExecuting == a_new_state || OMX_StatePause == a_new_state

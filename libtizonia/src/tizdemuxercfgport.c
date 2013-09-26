@@ -68,7 +68,7 @@ find_default_uri (tiz_demuxer_cfgport_t *ap_obj)
   assert (NULL != p_uri
           &&
           ".default_uri not found in configuration file...");
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj), "Default URI [%s]...", p_uri);
+  TIZ_TRACE (tiz_api_get_hdl (ap_obj), "Default URI [%s]...", p_uri);
   return strndup (p_uri, PATH_MAX);
 }
 
@@ -116,7 +116,7 @@ demuxer_cfgport_GetParameter (const void *ap_obj,
 {
   const tiz_demuxer_cfgport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
   switch (a_index)
@@ -128,8 +128,8 @@ demuxer_cfgport_GetParameter (const void *ap_obj,
         OMX_U32 uri_buf_size =
           p_uri->nSize - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE);
         OMX_U32 uri_len = strlen (p_obj->p_uri_);
-        TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "uri_buf_size [%d]...", uri_buf_size);
-        TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "p_obj->p_uri_ [%08x]...", p_obj->p_uri_);
+        TIZ_TRACE (ap_hdl, "uri_buf_size [%d]...", uri_buf_size);
+        TIZ_TRACE (ap_hdl, "p_obj->p_uri_ [%08x]...", p_obj->p_uri_);
 
         if (uri_buf_size < (uri_len + 1))
           {
@@ -163,7 +163,7 @@ demuxer_cfgport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 {
   tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
   switch (a_index)
@@ -189,7 +189,7 @@ demuxer_cfgport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
             p_uri->contentURI[uri_size - 1] = '\000';
           }
 
-        TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Set URI [%s]...", p_obj->p_uri_);
+        TIZ_TRACE (ap_hdl, "Set URI [%s]...", p_obj->p_uri_);
       }
       break;
 
@@ -212,7 +212,7 @@ demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
   switch (a_index)
@@ -227,7 +227,7 @@ demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         if (OMX_ErrorNone != (rc = tiz_api_GetConfig (p_prc, ap_hdl,
                                                       a_index, ap_struct)))
           {
-            TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[%s] : Error retrieving [%s] "
+            TIZ_ERROR (ap_hdl, "[%s] : Error retrieving [%s] "
                       "from the processor", tiz_err_to_str (rc),
                       tiz_idx_to_str (a_index));
             return rc;
@@ -253,7 +253,7 @@ demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
   assert (NULL != p_obj);
 
@@ -269,7 +269,7 @@ demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         if (OMX_ErrorNone != (rc = tiz_api_SetConfig (p_prc, ap_hdl,
                                                       a_index, ap_struct)))
           {
-            TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[%s] : Error retrieving [%s] "
+            TIZ_ERROR (ap_hdl, "[%s] : Error retrieving [%s] "
                       "from the processor", tiz_err_to_str (rc),
                       tiz_idx_to_str (a_index));
             return rc;
