@@ -152,7 +152,7 @@ tizstreamsrvgraph::configure_stream ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d]...",
            current_file_index_);
 
   if (current_file_index_ < 0 || current_file_index_ >= file_list_.size ())
@@ -231,7 +231,7 @@ tizstreamsrvgraph::configure_stream ()
   p_metadata->nSize = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE)
     + strlen ((char *) p_metadata->cStreamTitle);
 
-  TIZ_LOG (TIZ_TRACE, "p_metadata->cStreamTitle [%s]...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_metadata->cStreamTitle [%s]...",
            p_metadata->cStreamTitle);
 
   rc = OMX_SetConfig

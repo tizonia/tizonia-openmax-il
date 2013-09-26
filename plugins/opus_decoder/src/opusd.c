@@ -186,7 +186,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 2;
   role_factory.pf_proc    = instantiate_processor;
 
-  TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_OPUS_DECODER_COMPONENT_NAME);
 
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_OPUS_DECODER_COMPONENT_NAME));

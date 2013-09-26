@@ -88,7 +88,7 @@ mp3port_GetParameter (const void *ap_obj,
 {
   const tiz_mp3port_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] GetParameter [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
 
   switch (a_index)
@@ -119,7 +119,7 @@ mp3port_SetParameter (const void *ap_obj,
 {
   tiz_mp3port_t *p_obj = (tiz_mp3port_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
@@ -144,7 +144,7 @@ mp3port_SetParameter (const void *ap_obj,
             }
           default:
             {
-              TIZ_LOGN (TIZ_TRACE, ap_hdl,
+              TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl,
                         "[%s] : OMX_ErrorBadParameter : "
                         "Sample rate not supported [%d]. "
                         "Returning...", tiz_idx_to_str (a_index),
@@ -164,7 +164,7 @@ mp3port_SetParameter (const void *ap_obj,
               && (p_obj->mp3type_.nChannels != p_mp3type->nChannels
                   || p_obj->mp3type_.nSampleRate != p_mp3type->nSampleRate))
             {
-              TIZ_LOGN (TIZ_ERROR, ap_hdl,
+              TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl,
                         "[OMX_ErrorBadParameter] : PORT [%d] "
                         "SetParameter [OMX_IndexParamAudioMp3]... "
                         "Slave port, cannot update sample rate "
@@ -224,7 +224,7 @@ mp3port_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
                "port [%d] check_tunnel_compat : "
                "Audio domain not found, instead found domain [%d]",
                p_obj->pid_, ap_other_def->eDomain);
@@ -239,7 +239,7 @@ mp3port_check_tunnel_compat (const void *ap_obj,
     {
       if (ap_other_def->format.audio.eEncoding != OMX_AUDIO_CodingMP3)
         {
-          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
                     "port [%d] check_tunnel_compat : "
                     "MP3 encoding not found, instead found encoding [%d]",
                     p_obj->pid_, ap_other_def->format.audio.eEncoding);
@@ -247,7 +247,7 @@ mp3port_check_tunnel_compat (const void *ap_obj,
         }
     }
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return true;
@@ -282,7 +282,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_pcmmode->nSamplingRate;
           new_channels = p_pcmmode->nChannels;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "OMX_IndexParamAudioPcm : new sampling rate[%d] "
                     "new num channels[%d]", new_rate, new_channels);
         }
@@ -294,7 +294,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_mp3type->nSampleRate;
           new_channels = p_mp3type->nChannels;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                    "OMX_IndexParamAudioMp3 : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -306,7 +306,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_aactype->nSampleRate;
           new_channels = p_aactype->nChannels;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                    "OMX_IndexParamAudioAac : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -318,7 +318,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_vortype->nSampleRate;
           new_channels = p_vortype->nChannels;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                    "OMX_IndexParamAudioVorbis : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -330,7 +330,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_wmatype->nSamplingRate;
           new_channels = p_wmatype->nChannels;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                    "OMX_IndexParamAudioWma : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -342,7 +342,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_ratype->nSamplingRate;
           new_channels = p_ratype->nChannels;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                    "OMX_IndexParamAudioRa : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -354,7 +354,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_sbctype->nSampleRate;
           new_channels = p_sbctype->nChannels;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                    "OMX_IndexParamAudioSbc : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -366,7 +366,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_adpcmtype->nSampleRate;
           new_channels = p_adpcmtype->nChannels;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
                    "OMX_IndexParamAudioAdpcm : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -386,7 +386,7 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
         p_obj->mp3type_.nChannels = new_channels;
         tiz_vector_push_back (ap_changed_idxs, &id);
 
-        TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+        TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                   " original pid [%d] this pid [%d] : [%s] -> "
                   "changed [OMX_IndexParamAudioMp3]...",
                   tiz_port_index (ap_mos_port),
@@ -419,7 +419,7 @@ tiz_mp3port_init (void)
 {
   if (!tizmp3port_class)
     {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
+      tiz_check_omx_err_ret_oom (tiz_audioport_init ());
       tiz_check_null_ret_oom
         (tizmp3port_class = factory_new (tizaudioport_class,
                                          "tizmp3port_class",

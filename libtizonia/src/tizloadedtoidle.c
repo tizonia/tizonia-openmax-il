@@ -65,7 +65,7 @@ loadedtoidle_SetParameter (const void *ap_obj,
 {
   /* In this transitional state, OMX_SetParameter should only be allowed */
   /* until the first OMX_UseBuffer call is received */
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "[%s]", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "[%s]", tiz_idx_to_str (a_index));
 
   return super_SetParameter (tizloadedtoidle, ap_obj, ap_hdl, a_index,
                              ap_struct);
@@ -124,7 +124,7 @@ loadedtoidle_state_set (const void *ap_obj,
   assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Requested transition "
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Requested transition "
             "[ESubStateLoadedToIdle -> %s]...",
             tiz_fsm_state_to_str (a_param1));
 
@@ -140,7 +140,7 @@ loadedtoidle_state_set (const void *ap_obj,
 
     default:
       {
-        TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateTransition] : "
+        TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateTransition] : "
                   "ESubStateLoadedToIdle -> [%s]",
                   tiz_state_to_str (a_param1));
         return OMX_ErrorIncorrectStateTransition;
@@ -176,7 +176,7 @@ loadedtoidle_trans_complete (const void *ap_obj,
 {
   const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_servant),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_servant),
             "Trans complete to state [%s]...",
             tiz_fsm_state_to_str (a_new_state));
 

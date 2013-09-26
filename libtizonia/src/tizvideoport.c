@@ -90,7 +90,7 @@ videoport_ctor (void *ap_obj, va_list * app)
     {
       while (OMX_VIDEO_CodingMax != p_encodings[i])
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "p_encodings[%u] = [%d]...", i, p_encodings[i]);
           tiz_vector_push_back (p_obj->p_video_encodings_, &p_encodings[i++]);
         }
@@ -103,7 +103,7 @@ videoport_ctor (void *ap_obj, va_list * app)
     {
       while (OMX_COLOR_FormatMax != p_formats[i])
         {
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "p_formats[%u] = [%d]...", i, p_formats[i]);
           tiz_vector_push_back (p_obj->p_color_formats_, &p_formats[i]);
           i++;
@@ -142,7 +142,7 @@ videoport_GetParameter (const void *ap_obj,
 {
   const tiz_videoport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
 
   switch (a_index)
@@ -165,7 +165,7 @@ videoport_GetParameter (const void *ap_obj,
             p_pft->eCompressionFormat = OMX_VIDEO_CodingUnused;
             p_pft->eColorFormat = *p_format;
 
-            TIZ_LOGN (TIZ_TRACE, ap_hdl, "ColorFormat [%x]...", *p_format);
+            TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "ColorFormat [%x]...", *p_format);
           }
         else
           {
@@ -179,7 +179,7 @@ videoport_GetParameter (const void *ap_obj,
             assert (p_encoding);
             p_pft->eCompressionFormat = *p_encoding;
 
-            TIZ_LOGN (TIZ_TRACE, ap_hdl, "CompressionFormat [%x] ", *p_encoding);
+            TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "CompressionFormat [%x] ", *p_encoding);
           }
         p_pft->xFramerate = p_obj->port_format_.xFramerate;
 
@@ -205,7 +205,7 @@ videoport_SetParameter (const void *ap_obj,
   tiz_videoport_t *p_obj = (tiz_videoport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SetParameter [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SetParameter [%s]...",
             tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
@@ -224,7 +224,7 @@ videoport_SetParameter (const void *ap_obj,
               || (p_base->portdef_.format.video.nFrameHeight
                   != p_portdef->format.video.nFrameHeight)))
         {
-          TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
                     "SetParameter [OMX_IndexParamPortDefinition]... "
                     "Slave port, cannot update frame width or height",
                     tiz_port_dir (p_obj));
@@ -252,14 +252,14 @@ videoport_SetParameter (const void *ap_obj,
 
             if (encoding >= OMX_VIDEO_CodingMax)
               {
-                TIZ_LOGN (TIZ_ERROR, ap_hdl, "OMX_ErrorBadParameter "
+                TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "OMX_ErrorBadParameter "
                           "(Bad compression format [0x%08x]...)", encoding);
                 return OMX_ErrorBadParameter;
               }
 
             if (!tiz_vector_find (p_obj->p_color_formats_, &format))
               {
-                TIZ_LOGN (TIZ_TRACE, ap_hdl, "OMX_ErrorUnsupportedSetting "
+                TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "OMX_ErrorUnsupportedSetting "
                          "(Color format not supported [0x%08x]...)", format);
                 return OMX_ErrorUnsupportedSetting;
               }
@@ -267,7 +267,7 @@ videoport_SetParameter (const void *ap_obj,
             p_obj->port_format_.eColorFormat = format;
             p_obj->port_format_.xFramerate = p_video_format->xFramerate;
 
-            TIZ_LOGN (TIZ_TRACE, ap_hdl, "Set color format [0x%08x] "
+            TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Set color format [0x%08x] "
                      "and framerate [0x%08x]...", format,
                      p_video_format->xFramerate);
           }
@@ -285,7 +285,7 @@ videoport_SetParameter (const void *ap_obj,
             else
               {
                 p_obj->port_format_.eCompressionFormat = encoding;
-                TIZ_LOGN (TIZ_TRACE, ap_hdl, "Set video encoding"
+                TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Set video encoding"
                          "[0x%08x]...", encoding);
               }
           }
@@ -330,7 +330,7 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
       const OMX_U32 new_buf_sz = y_sz + u_sz + v_sz;
       OMX_BOOL portdef_changed = OMX_FALSE;
 
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "w[%d] h[%d] y[%d] u[%d] v[%d] ->  new_sz[%d] ",
                 new_width, new_height, y_sz, u_sz, v_sz, new_buf_sz);
 
@@ -355,7 +355,7 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           tiz_vector_push_back (ap_changed_idxs, &id);
         }
 
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 " original pid [%d] this pid [%d] : [%s] -> "
                 "changed [OMX_IndexParamPortDefinition] nBufferSize [%d]...",
                p_portdef->nPortIndex, p_base->portdef_.nPortIndex,

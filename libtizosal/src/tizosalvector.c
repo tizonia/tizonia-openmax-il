@@ -71,7 +71,7 @@ tiz_vector_init (tiz_vector_t ** app_vector, size_t a_elem_size)
   utarray_new (p_vec->p_uta, p_vec->p_icd);
   *app_vector = p_vec;
 
-  TIZ_LOG (TIZ_TRACE, "Initializing vector [%p] with elem size [%d]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Initializing vector [%p] with elem size [%d]",
            p_vec, a_elem_size);
 
   return OMX_ErrorNone;
@@ -80,7 +80,7 @@ tiz_vector_init (tiz_vector_t ** app_vector, size_t a_elem_size)
 void
 tiz_vector_destroy (tiz_vector_t * p_vec)
 {
-  TIZ_LOG (TIZ_TRACE, "Destroying vector [%p]", p_vec);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Destroying vector [%p]", p_vec);
   if (NULL != p_vec)
     {
       utarray_free (p_vec->p_uta);
@@ -103,7 +103,7 @@ OMX_ERRORTYPE
 tiz_vector_push_back (tiz_vector_t * p_vec, OMX_PTR ap_data)
 {
   assert (NULL != p_vec);
-  TIZ_LOG (TIZ_TRACE, "pushing back [%p] in vector [%p]", ap_data, p_vec);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "pushing back [%p] in vector [%p]", ap_data, p_vec);
   utarray_push_back (p_vec->p_uta, ap_data);
   return OMX_ErrorNone;
 }
@@ -113,7 +113,7 @@ tiz_vector_pop_back (tiz_vector_t * p_vec)
 {
   assert (NULL != p_vec);
 
-  TIZ_LOG (TIZ_TRACE, "poping back in vector [%p]", p_vec);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "poping back in vector [%p]", p_vec);
   utarray_pop_back (p_vec->p_uta);
 
   return;

@@ -46,7 +46,7 @@ _pq_dump_item (const char *ap_name, void    *ap_data,
                OMX_S32  a_priority, void    *ap_cur,
                void    *ap_prev, void *ap_next)
 {
-  TIZ_LOG (TIZ_ERROR, "DUMP [%s]: ap_data[%p] a_priority[%d] "
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "DUMP [%s]: ap_data[%p] a_priority[%d] "
            "ap_cur[%p] ap_prev[%p] ap_next[%p]",
            ap_name, ap_data, a_priority, ap_cur, ap_prev, ap_next);
 }
@@ -245,7 +245,7 @@ tiz_pqueue_receive (tiz_pqueue_t * p_q, void * *app_data)
   assert (NULL != p_q);
   assert (NULL != app_data);
 
-  TIZ_LOG (TIZ_TRACE, "[%s], pq[%p] len[%d] fst [%p] lst [%p]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s], pq[%p] len[%d] fst [%p] lst [%p]",
            p_q->name, p_q, p_q->length, p_q->p_first, p_q->p_last);
 
   if (0 >= p_q->length)
@@ -295,7 +295,7 @@ tiz_pqueue_receive (tiz_pqueue_t * p_q, void * *app_data)
               0 ? (NULL != p_q->p_first && NULL != p_q->p_last) : 1);
     }
 
-  TIZ_LOG (TIZ_TRACE, "[%s], pq[%p] len[%d] fst [%p] lst [%p]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s], pq[%p] len[%d] fst [%p] lst [%p]",
            p_q->name, p_q, p_q->length, p_q->p_first, p_q->p_last);
 
   return rc;

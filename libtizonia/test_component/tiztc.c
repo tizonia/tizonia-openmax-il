@@ -60,7 +60,7 @@
   do {                                                          \
     OMX_ERRORTYPE _err = _a;                                    \
     if (OMX_ErrorNone != _err) {                                \
-      TIZ_LOG(TIZ_TRACE, "[%s] : [%s]...",                    \
+      TIZ_LOG(TIZ_PRIORITY_TRACE, "[%s] : [%s]...",                    \
               _COMPONENT_NAME, tiz_err_to_str (_err));          \
       return _err;                                              \
     }                                                           \
@@ -75,7 +75,7 @@ pcm_port_alloc_hook (OMX_U32 * ap_size,
   OMX_U8 *p = NULL;
   assert (ap_size);
   p = tiz_mem_alloc (*ap_size * sizeof (OMX_U8));
-  TIZ_LOG (TIZ_TRACE, "Test Component Alloc Hook :size[%u] p=[%p]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Test Component Alloc Hook :size[%u] p=[%p]",
            *ap_size, p);
   return p;
 }
@@ -83,7 +83,7 @@ pcm_port_alloc_hook (OMX_U32 * ap_size,
 static void
 pcm_port_free_hook (OMX_PTR ap_buf, OMX_PTR ap_port_priv, void *ap_args)
 {
-  TIZ_LOG (TIZ_TRACE, "Test Component Free Hook : ap_buf[%p]", ap_buf);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Test Component Free Hook : ap_buf[%p]", ap_buf);
   assert (ap_buf);
   tiz_mem_free (ap_buf);
 }
@@ -104,7 +104,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
     -1
   };
 
-  TIZ_LOG (TIZ_TRACE, "Inititializing the test component's pcm port");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Inititializing the test component's pcm port");
 
   /* Instantiate a pcm port */
   tiz_pcmport_init ();
@@ -149,7 +149,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory2.nports = 1;
   role_factory2.pf_proc = instantiate_processor;
 
-  TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing the test component");
 
   assert (ap_hdl);

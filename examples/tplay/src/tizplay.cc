@@ -712,7 +712,7 @@ main (int argc, char **argv)
   signal (SIGPIPE, tizplay_sig_pipe_hdlr);
 
   tiz_log_init ();
-  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL player...");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL player...");
 
   if (!streaming_media.empty())
     {

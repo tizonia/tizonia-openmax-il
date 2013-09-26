@@ -55,7 +55,7 @@ GetComponentVersion (OMX_HANDLETYPE ap_hdl,
                      OMX_VERSIONTYPE * ap_spec_ver,
                      OMX_UUIDTYPE * ap_comp_uuid)
 {
-  TIZ_LOG (TIZ_TRACE, "GetComponentVersion");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "GetComponentVersion");
 
   if (!ap_hdl
       || !ap_comp_name || !ap_comp_ver || !ap_spec_ver || !ap_comp_uuid)
@@ -179,7 +179,7 @@ SetCallbacks (OMX_HANDLETYPE ap_hdl,
 static OMX_ERRORTYPE
 ComponentDeInit (OMX_HANDLETYPE ap_hdl)
 {
-  TIZ_LOG (TIZ_TRACE, "ComponentDeInit");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "ComponentDeInit");
   return OMX_ErrorNone;
 }
 
@@ -196,11 +196,11 @@ ComponentRoleEnum (OMX_HANDLETYPE ap_hdl, OMX_U8 * a_role, OMX_U32 a_index)
 {
 
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
-  TIZ_LOG (TIZ_TRACE, "ComponentRoleEnum : a_index [%d]", a_index);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "ComponentRoleEnum : a_index [%d]", a_index);
 
   if (!a_role)
     {
-      TIZ_LOG (TIZ_TRACE, "ComponentRoleEnum: "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "ComponentRoleEnum: "
                "NULL a_role pointer found.");
       return OMX_ErrorBadParameter;
     }
@@ -225,7 +225,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   OMX_COMPONENTTYPE *p_hdl = (OMX_COMPONENTTYPE *) ap_hdl;
 
-  TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing the test component's hdl");
 
   assert (p_hdl);

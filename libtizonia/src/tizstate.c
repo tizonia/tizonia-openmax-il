@@ -80,7 +80,7 @@ state_SendCommand (const void *ap_obj,
     {
     case OMX_CommandStateSet:
       {
-        TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s] [%s]...",
+        TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SendCommand [%s] [%s]...",
                   tiz_cmd_to_str (a_cmd),
                   tiz_fsm_state_to_str (a_param1));
         rc = tiz_state_state_set (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
@@ -89,7 +89,7 @@ state_SendCommand (const void *ap_obj,
 
     case OMX_CommandFlush:
       {
-        TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s] PORT [%d]...",
+        TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SendCommand [%s] PORT [%d]...",
                   tiz_cmd_to_str (a_cmd), a_param1);
         rc = tiz_state_flush (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
@@ -97,7 +97,7 @@ state_SendCommand (const void *ap_obj,
 
     case OMX_CommandPortDisable:
       {
-        TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s] PORT [%d]...",
+        TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SendCommand [%s] PORT [%d]...",
                   tiz_cmd_to_str (a_cmd), a_param1);
         rc = tiz_state_disable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
@@ -105,7 +105,7 @@ state_SendCommand (const void *ap_obj,
 
     case OMX_CommandPortEnable:
       {
-        TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s] PORT [%d]...",
+        TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SendCommand [%s] PORT [%d]...",
                   tiz_cmd_to_str (a_cmd), a_param1);
         rc = tiz_state_enable (p_obj, ap_hdl, a_cmd, a_param1, ap_cmd_data);
       }
@@ -407,7 +407,7 @@ state_trans_complete (const void *ap_obj,
 
   p_obj->servants_count_++;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "Transition to [%s] is NOW complete at [%s]..."
             "Servant count is now [%d]...",
             tiz_fsm_state_to_str (a_new_state), nameOf (ap_servant),

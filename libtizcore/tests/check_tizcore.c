@@ -77,13 +77,13 @@ refresh_rm_db (void)
   if (!p_rmdb_path || !p_sqlite_path || !p_init_path || !p_rmd_path)
 
     {
-      TIZ_LOG(TIZ_TRACE, "Test data not available...");
+      TIZ_LOG(TIZ_PRIORITY_TRACE, "Test data not available...");
     }
   else
     {
       pg_rmd_path = strndup (p_rmd_path, PATH_MAX);
 
-      TIZ_LOG(TIZ_TRACE, "RM daemon [%s] ...", pg_rmd_path);
+      TIZ_LOG(TIZ_PRIORITY_TRACE, "RM daemon [%s] ...", pg_rmd_path);
 
       /* Re-fresh the rm db */
       size_t total_len = strlen (p_init_path)
@@ -96,12 +96,12 @@ refresh_rm_db (void)
                   p_init_path, p_sqlite_path, p_rmdb_path);
           if (-1 != system (p_cmd))
             {
-              TIZ_LOG(TIZ_TRACE, "Successfully run [%s] script...", p_cmd);
+              TIZ_LOG(TIZ_PRIORITY_TRACE, "Successfully run [%s] script...", p_cmd);
               rv = true;
             }
           else
             {
-              TIZ_LOG(TIZ_TRACE, 
+              TIZ_LOG(TIZ_PRIORITY_TRACE, 
                       "Error while executing db init shell script...");
             }
           tiz_mem_free (p_cmd);
@@ -128,7 +128,7 @@ setup (void)
     }
   else
     {
-      TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Starting the RM Daemon");
       const char *arg0 = "";
       error = execlp (pg_rmd_path, arg0, (char *) NULL);
       fail_if (error == -1);
@@ -174,10 +174,10 @@ START_TEST (test_ilcore_init_and_deinit_get_hdl_free_hdl)
   error = OMX_GetHandle (&p_hdl,
                          TIZ_CORE_TEST_COMPONENT_NAME,
                          (OMX_PTR *) (&appData), &callBacks);
-  TIZ_LOG (TIZ_TRACE, "OMX_GetHandle error [%s]", tiz_err_to_str (error));
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_GetHandle error [%s]", tiz_err_to_str (error));
   fail_if (error != OMX_ErrorNone);
 
-  TIZ_LOG (TIZ_TRACE, "p_hdl [%p]", p_hdl);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdl [%p]", p_hdl);
 
   error = OMX_FreeHandle (p_hdl);
   fail_if (error != OMX_ErrorNone);
@@ -200,13 +200,13 @@ START_TEST (test_ilcore_setup_tunnel_tear_down_tunnel)
 
   error = OMX_GetHandle (&p_hdl_in,
                          AUDIO_RENDERER, (OMX_PTR *) (&appData), &callBacks);
-  TIZ_LOG (TIZ_TRACE, "OMX_GetHandle [%s] error [%s]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_GetHandle [%s] error [%s]",
            AUDIO_RENDERER, tiz_err_to_str (error));
   fail_if (error != OMX_ErrorNone);
 
   error = OMX_GetHandle (&p_hdl_out,
                          FILE_READER, (OMX_PTR *) (&appData), &callBacks);
-  TIZ_LOG (TIZ_TRACE, "OMX_GetHandle [%s] error [%s]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_GetHandle [%s] error [%s]",
            FILE_READER, tiz_err_to_str (error));
   fail_if (error != OMX_ErrorNone);
 
@@ -214,14 +214,14 @@ START_TEST (test_ilcore_setup_tunnel_tear_down_tunnel)
   /* Create Tunnel Reader:0 <-> Renderer:0 */
   /* ------------------------------------- */
   error = OMX_SetupTunnel(p_hdl_out, 0, p_hdl_in, 0);
-  TIZ_LOG (TIZ_TRACE, "OMX_SetupTunnel [%s]", tiz_err_to_str(error));
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_SetupTunnel [%s]", tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
   /* ---------------------------------------- */
   /* Tear down Tunnel Reader:0 <-> Renderer:0 */
   /* ---------------------------------------- */
   error = OMX_TeardownTunnel(p_hdl_out, 0, p_hdl_in, 0);
-  TIZ_LOG (TIZ_TRACE, "OMX_TeardownTunnel [%s]", tiz_err_to_str(error));
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_TeardownTunnel [%s]", tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
   error = OMX_FreeHandle (p_hdl_out);
@@ -248,7 +248,7 @@ START_TEST (test_ilcore_comp_of_role_enum)
     {
       error = OMX_ComponentOfRoleEnum ((OMX_STRING) comp_name,
                                        TIZ_CORE_TEST_COMPONENT_ROLE, index++);
-      TIZ_LOG (TIZ_TRACE, "[%s] : component [%s] error [%s]",
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] : component [%s] error [%s]",
                TIZ_CORE_TEST_COMPONENT_ROLE, comp_name, tiz_err_to_str (error));
     } while (OMX_ErrorNone == error);
 
@@ -273,7 +273,7 @@ START_TEST (test_ilcore_role_of_comp_enum)
     {
       error = OMX_RoleOfComponentEnum ((OMX_STRING) role,
                                        TIZ_CORE_TEST_COMPONENT_NAME, index++);
-      TIZ_LOG (TIZ_TRACE, "[%s] : Role [%s] error [%s]",
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] : Role [%s] error [%s]",
                TIZ_CORE_TEST_COMPONENT_NAME, role, tiz_err_to_str (error));
     } while (OMX_ErrorNone == error);
 
@@ -313,7 +313,7 @@ main (void)
 
   tiz_log_init();
 
-  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL - IL core unit tests");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL - IL core unit tests");
 
   /* srunner_set_fork_status (sr, CK_NOFORK); */
 

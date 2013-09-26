@@ -88,7 +88,7 @@ tizmp3graph::configure_mp3_graph (const int file_index)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d]...",
            current_file_index_);
 
   assert (file_index < file_list_.size ());
@@ -189,7 +189,7 @@ tizmp3graph::do_configure (const tizgraphconfig_ptr_t config)
 OMX_ERRORTYPE
 tizmp3graph::do_execute ()
 {
-  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d] list size [%d]...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d] list size [%d]...",
            current_file_index_, file_list_.size ());
 
   assert (OMX_StateLoaded == current_graph_state_);
@@ -270,7 +270,7 @@ tizmp3graph::do_skip (const int jump)
       current_file_index_ = file_list_.size ();
     }
 
-  TIZ_LOG (TIZ_TRACE, "Configure current_file_index_ [%d]...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d]...",
            current_file_index_);
 
   return do_execute ();

@@ -33,7 +33,7 @@ START_TEST (test_rcfile_get_single_value)
   val = tiz_rcfile_get_value("resource-management", "rmdb");
   fail_if (val == NULL);
 
-  TIZ_LOG (TIZ_TRACE, "test_rcfile_get_single_value : "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "test_rcfile_get_single_value : "
              "value [%s]", val);
 }
 END_TEST
@@ -60,7 +60,7 @@ START_TEST (test_rcfile_get_value_list)
 
   for (i=0; i<length; i++)
     {
-      TIZ_LOG (TIZ_TRACE, "test_rcfile_get_value_list : "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "test_rcfile_get_value_list : "
                  "pp_vlst[%d] = [%s]", i , pp_vlst[i]);
       tiz_mem_free(pp_vlst[i]);
     }

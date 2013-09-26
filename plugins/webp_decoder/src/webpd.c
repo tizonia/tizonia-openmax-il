@@ -171,7 +171,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
 
-  TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_WEBP_DECODER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_WEBP_DECODER_DEFAULT_ROLE);

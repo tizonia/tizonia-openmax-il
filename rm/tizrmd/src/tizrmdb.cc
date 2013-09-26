@@ -79,10 +79,10 @@ tizrmdb::connect ()
     {
       int
         rc = open (dbname_.c_str ());
-      TIZ_LOG (TIZ_TRACE, "Connecting db [%s]", dbname_.c_str ());
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Connecting db [%s]", dbname_.c_str ());
       if (rc != SQLITE_OK)
         {
-          TIZ_LOG (TIZ_TRACE, "Could not connect db [%s]", dbname_.c_str ());
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not connect db [%s]", dbname_.c_str ());
           ret_val = TIZRM_DATABASE_OPEN_ERROR;
         }
       else
@@ -90,14 +90,14 @@ tizrmdb::connect ()
           rc = reset_alloc_table ();
           if (rc != SQLITE_OK)
             {
-              TIZ_LOG (TIZ_TRACE, "Could not init db [%s]", dbname_.c_str ());
+              TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not init db [%s]", dbname_.c_str ());
               ret_val = TIZRM_DATABASE_INIT_ERROR;
             }
         }
     }
   else
     {
-      TIZ_LOG (TIZ_TRACE, "Empty db name");
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Empty db name");
       ret_val = TIZRM_DATABASE_OPEN_ERROR;
     }
 
@@ -112,7 +112,7 @@ tizrmdb::disconnect ()
 
   if (SQLITE_OK != rc)
     {
-      TIZ_LOG (TIZ_TRACE, "Could not disconnect db");
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not disconnect db");
       ret_val = TIZRM_DATABASE_CLOSE_ERROR;
     }
 
@@ -152,10 +152,10 @@ tizrmdb::reset_alloc_table ()
     {
       rc = sqlite3_exec (pdb_, TIZ_RM_DB_DROP_ALLOC_TABLE,
                          NULL, NULL, &p_errmsg);
-      TIZ_LOG (TIZ_TRACE, "Dropping allocation table...");
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Dropping allocation table...");
       if (rc != SQLITE_OK)
         {
-          TIZ_LOG (TIZ_TRACE, "Could not drop allocation table [%s]",
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not drop allocation table [%s]",
                    p_errmsg);
         }
 
@@ -163,11 +163,11 @@ tizrmdb::reset_alloc_table ()
                          NULL, NULL, &p_errmsg);
       if (rc != SQLITE_OK)
         {
-          TIZ_LOG (TIZ_TRACE, "Could not create allocation table [%s]",
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not create allocation table [%s]",
                    p_errmsg);
           return rc;
         }
-      TIZ_LOG (TIZ_TRACE, "Created allocation table succesfully");
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Created allocation table succesfully");
     }
 
   return rc;
@@ -181,7 +181,7 @@ tizrmdb::resource_available (const unsigned int &rid,
   int rc = SQLITE_OK;
   char query[255];
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::resource_available : Checking resource "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::resource_available : Checking resource "
            " availability for resid [%d] - quantity [%d]", rid, quantity);
 
   snprintf (query, sizeof (query),
@@ -192,7 +192,7 @@ tizrmdb::resource_available (const unsigned int &rid,
 
   if (SQLITE_OK == rc && !vdata_.empty ())
     {
-      TIZ_LOG (TIZ_TRACE, "tizrmdb::resource_available : "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::resource_available : "
                "Enough resource id [%d] available", rid);
       ret_val = true;
     }
@@ -207,7 +207,7 @@ tizrmdb::resource_provisioned (const unsigned int &rid) const
   int rc = SQLITE_OK;
   char query[255];
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::resource_provisioned");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::resource_provisioned");
 
   snprintf (query, sizeof (query),
             "select * from resources where resid='%d'", rid);
@@ -219,7 +219,7 @@ tizrmdb::resource_provisioned (const unsigned int &rid) const
       ret_val = true;
     }
 
-  TIZ_LOG (TIZ_TRACE, "Resource id [%d] is [%s]", rid,
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Resource id [%d] is [%s]", rid,
            (ret_val == true ? "PROVISIONED" : "NOT PROVISIONED"));
 
   return ret_val;
@@ -237,7 +237,7 @@ tizrmdb::resource_acquired (const std::vector < unsigned char >&uuid,
 
   tiz_uuid_str (&uuid[0], uuid_str);
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::resource_acquired : uuid [%s] - "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::resource_acquired : uuid [%s] - "
            "rid [%d] - quantity [%d]", uuid_str, rid, quantity);
 
   snprintf (query, sizeof (query),
@@ -251,7 +251,7 @@ tizrmdb::resource_acquired (const std::vector < unsigned char >&uuid,
       ret_val = true;
     }
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::resource_acquired : "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::resource_acquired : "
            "'%s' : allocated [%s] units "
            "of resource id [%d] (at least [%d] units were expected)",
            uuid_str, (true == ret_val ? "ENOUGH" : "NOT ENOUGH"),
@@ -266,7 +266,7 @@ tizrmdb::comp_provisioned (const std::string & cname) const
   bool ret_val = false;
   int rc = SQLITE_OK;
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::comp_provisioned : Checking [%s]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::comp_provisioned : Checking [%s]",
            cname.c_str ());
 
   rc = run_query (TIZ_RM_DB_CNAMES_FROM_COMPONENTS);
@@ -283,7 +283,7 @@ tizrmdb::comp_provisioned (const std::string & cname) const
         }
     }
 
-  TIZ_LOG (TIZ_TRACE, "'%s' is [%s]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' is [%s]",
            cname.c_str (),
            (true == ret_val ? "PROVISIONED" : "NOT PROVISIONED"));
 
@@ -298,7 +298,7 @@ tizrmdb::comp_provisioned_with_resid (const std::string & cname,
   int rc = SQLITE_OK;
   char query[255];
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::comp_provisioned_with_resid : "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::comp_provisioned_with_resid : "
            "'%s' : Checking component provisioning for "
            "resource id [%d]", cname.c_str (), rid);
 
@@ -313,7 +313,7 @@ tizrmdb::comp_provisioned_with_resid (const std::string & cname,
       ret_val = true;
     }
 
-  TIZ_LOG (TIZ_TRACE, "'%s' : is [%s] with resource id [%d]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : is [%s] with resource id [%d]",
            cname.c_str (),
            (true == ret_val ? "PROVISIONED" : "NOT PROVISIONED"), rid);
 
@@ -336,7 +336,7 @@ tizrmdb::acquire_resource (const unsigned int &rid,
 
   tiz_uuid_str (&uuid[0], uuid_str);
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::acquire_resource : "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::acquire_resource : "
            "'%s': Acquiring [%d] units of resource [%d] "
            "uuid [%s]", cname.c_str (), quantity, rid, uuid_str);
 
@@ -344,21 +344,21 @@ tizrmdb::acquire_resource (const unsigned int &rid,
   // resource
   if (!comp_provisioned_with_resid (cname, rid))
     {
-      TIZ_LOG (TIZ_TRACE, "tizrmdb::acquire_resource : "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::acquire_resource : "
                "'%s' is not provisioned...", cname.c_str ());
       return TIZRM_COMPONENT_NOT_PROVISIONED;
     }
 
   requirement = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::acquire_resource : "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::acquire_resource : "
            "[%s]: provisioned requirement [%d] units, "
            "actually requested [%d] ...",
            cname.c_str (), requirement, quantity);
 
   if (quantity > requirement)
     {
-      TIZ_LOG (TIZ_TRACE, "tizrmdb::acquire_resource : "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::acquire_resource : "
                "[%s]: requested [%d] units, but provisioned "
                "only [%d]", cname.c_str (), quantity, requirement);
       return TIZRM_NOT_ENOUGH_RESOURCE_PROVISIONED;
@@ -367,14 +367,14 @@ tizrmdb::acquire_resource (const unsigned int &rid,
   // Check that the requested resource is provisioned and there is availability
   if (!resource_available (rid, quantity))
     {
-      TIZ_LOG (TIZ_TRACE, "tizrmdb::acquire_resource : "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::acquire_resource : "
                "Resource [%d] not available...", rid);
       return TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE;
     }
 
   current = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::acquire_resource: "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::acquire_resource: "
            "Resource [%d]: available [%d] units ...", rid, current);
 
   snprintf (query, sizeof (query),
@@ -387,7 +387,7 @@ tizrmdb::acquire_resource (const unsigned int &rid,
 
   if (SQLITE_OK != rc)
     {
-      TIZ_LOG (TIZ_TRACE, "tizrmdb::acquire_resource : "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::acquire_resource : "
                "'%s' : Could not update allocation table", cname.c_str ());
       return TIZRM_DATABASE_ERROR;
     }
@@ -400,12 +400,12 @@ tizrmdb::acquire_resource (const unsigned int &rid,
 
   if (SQLITE_OK != rc)
     {
-      TIZ_LOG (TIZ_TRACE, "tizrmdb::acquire_resource : "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::acquire_resource : "
                "Could not update resource table " "for resource [%s]", rid);
       return TIZRM_DATABASE_ERROR;
     }
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::acquire_resource: "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::acquire_resource: "
            "Succesfully acquired resource [%d] for [%s]", rid, cname.c_str ());
 
   return TIZRM_SUCCESS;
@@ -425,7 +425,7 @@ tizrmdb::release_resource (const unsigned int &rid,
   int current = 0;
   int requirement = 0;
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::release_resource : "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::release_resource : "
            "'%s':  [%d] units of resource [%d]",
            cname.c_str (), quantity, rid);
 
@@ -433,19 +433,19 @@ tizrmdb::release_resource (const unsigned int &rid,
   // resource
   if (!comp_provisioned_with_resid (cname, rid))
     {
-      TIZ_LOG (TIZ_TRACE, "'%s' is not provisioned...", cname.c_str ());
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' is not provisioned...", cname.c_str ());
       return TIZRM_COMPONENT_NOT_PROVISIONED;
     }
 
   requirement = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
 
-  TIZ_LOG (TIZ_TRACE, "'%s': provisioned requirement [%d] units, "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s': provisioned requirement [%d] units, "
            "actually requested [%d] ...",
            cname.c_str (), requirement, quantity);
 
   if (quantity > requirement)
     {
-      TIZ_LOG (TIZ_TRACE, "'%s': releasing [%d] units, "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s': releasing [%d] units, "
                "but provisioned only [%d]",
                cname.c_str (), quantity, requirement);
       return TIZRM_NOT_ENOUGH_RESOURCE_PROVISIONED;
@@ -454,14 +454,14 @@ tizrmdb::release_resource (const unsigned int &rid,
   // Check that the resource was effectively acquired by the component
   if (!resource_acquired (uuid, rid, quantity))
     {
-      TIZ_LOG (TIZ_TRACE, "Resource [%d] cannot be released: "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Resource [%d] cannot be released: "
                "not enough resource previously acquired", rid);
       return TIZRM_NOT_ENOUGH_RESOURCE_ACQUIRED;
     }
 
   current = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
 
-  TIZ_LOG (TIZ_TRACE, "Resource [%d]: current allocation [%d] units ...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Resource [%d]: current allocation [%d] units ...",
            rid, current);
 
   tiz_uuid_str (&uuid[0], uuid_str);
@@ -478,7 +478,7 @@ tizrmdb::release_resource (const unsigned int &rid,
 
   if (SQLITE_OK != rc)
     {
-      TIZ_LOG (TIZ_TRACE, "'%s' : Could not update allocation "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : Could not update allocation "
                "table ", cname.c_str ());
       return TIZRM_DATABASE_ACCESS_ERROR;
     }
@@ -497,7 +497,7 @@ tizrmdb::release_resource (const unsigned int &rid,
 
       if (SQLITE_OK != rc)
         {
-          TIZ_LOG (TIZ_TRACE, "'%s' : Could not update allocation table",
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : Could not update allocation table",
                    cname.c_str ());
           return TIZRM_DATABASE_ACCESS_ERROR;
         }
@@ -506,7 +506,7 @@ tizrmdb::release_resource (const unsigned int &rid,
   // Now, obtain the current resource availability
   if (!resource_available (rid, 0))
     {
-      TIZ_LOG (TIZ_TRACE, "Resource [%d] not available...", rid);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Resource [%d] not available...", rid);
       return TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE;
     }
 
@@ -521,12 +521,12 @@ tizrmdb::release_resource (const unsigned int &rid,
 
   if (SQLITE_OK != rc)
     {
-      TIZ_LOG (TIZ_TRACE, "Could not update resource table "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not update resource table "
                "for resource [%s]", rid);
       return TIZRM_DATABASE_ACCESS_ERROR;
     }
 
-  TIZ_LOG (TIZ_TRACE, "'%s' : Succesfully released [%d] units of "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : Succesfully released [%d] units of "
            "resource id [%d]", cname.c_str (), quantity, rid);
 
   return TIZRM_SUCCESS;
@@ -544,7 +544,7 @@ tizrmdb::release_all (const std::string & cname,
 
   tiz_uuid_str (&uuid[0], uuid_str);
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::release_all : Releasing resources for "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::release_all : Releasing resources for "
            "component with uuid [%s]", uuid_str);
 
   for (int rid = 0; rid < TIZRM_RESOURCE_MAX; ++rid)
@@ -554,7 +554,7 @@ tizrmdb::release_all (const std::string & cname,
           const std::string cname = vdata_[0];
           current = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
 
-          TIZ_LOG (TIZ_TRACE, "'%s' uuid [%s] : Resource [%d] "
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' uuid [%s] : Resource [%d] "
                    "current allocation is "
                    "[%d] units ...", cname.c_str (), uuid_str, rid, current);
 
@@ -568,7 +568,7 @@ tizrmdb::release_all (const std::string & cname,
 
           if (SQLITE_OK != rc)
             {
-              TIZ_LOG (TIZ_TRACE, "'%s' : Could not update allocation "
+              TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : Could not update allocation "
                        "table ", cname.c_str ());
               return TIZRM_DATABASE_ACCESS_ERROR;
             }
@@ -587,12 +587,12 @@ tizrmdb::release_all (const std::string & cname,
 
           if (SQLITE_OK != rc)
             {
-              TIZ_LOG (TIZ_TRACE, "Could not update resource table "
+              TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not update resource table "
                        "for resource [%s]", rid);
               return TIZRM_DATABASE_ACCESS_ERROR;
             }
 
-          TIZ_LOG (TIZ_TRACE, "'%s':  Released [%d] units of "
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s':  Released [%d] units of "
                    "resource  id [%d]", cname.c_str (), current, rid);
         }
     }
@@ -609,7 +609,7 @@ tizrmdb::find_owners (const unsigned int &rid,
   char query[500];
   char uuid_str[129];
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::find_owners : resource id [%d] "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::find_owners : resource id [%d] "
            "pri > [%d]", rid, pri);
 
   owners.clear ();
@@ -642,7 +642,7 @@ tizrmdb::find_owners (const unsigned int &rid,
       int owner_rid = strtol (vdata_[idx + 4].c_str (), NULL, 0);
       int owner_quantity = strtol (vdata_[idx + 5].c_str (), NULL, 0);
 
-      TIZ_LOG (TIZ_TRACE, "tizrmdb::find_owners : owner [%s] "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::find_owners : owner [%s] "
                "uuid [%s] grpid [%d] pri [%d] rid [%d] quantity [%d]",
                vdata_[idx].c_str (), vdata_[idx + 1].c_str (),
                owner_grpid, owner_pri, owner_rid, owner_quantity);
@@ -655,7 +655,7 @@ tizrmdb::find_owners (const unsigned int &rid,
   // operator<
   owners.sort ();
 
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::find_owners : "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::find_owners : "
            "Found [%d] owners with priority > [%d] that have allocated "
            "resource id [%d]", owners.size (), pri, rid);
 
@@ -672,14 +672,14 @@ tizrmdb::run_query (char const *ap_sql)
 
   BOOST_ASSERT (ap_sql);
 
-  TIZ_LOG (TIZ_TRACE, "Running query [%s]", ap_sql);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Running query [%s]", ap_sql);
 
   vcol_head_.clear ();
   vdata_.clear ();
 
   rc = sqlite3_get_table (pdb_, ap_sql, &pp_result, &nrow, &ncol, &p_errmsg);
 
-  TIZ_LOG (TIZ_TRACE, "Running query [%s] rc [%d] nrow [%d] ncol [%d]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Running query [%s] rc [%d] nrow [%d] ncol [%d]",
            ap_sql, rc, nrow, ncol);
 
 
@@ -697,11 +697,11 @@ tizrmdb::run_query (char const *ap_sql)
     }
   else
     {
-      TIZ_LOG (TIZ_TRACE, "Query execution failure: [%s] - [%s]",
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Query execution failure: [%s] - [%s]",
                sqlite_error_str (rc).c_str (), p_errmsg);
     }
 
-  TIZ_LOG (TIZ_TRACE, "Run query [%s] rc [%d]", ap_sql, rc);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Run query [%s] rc [%d]", ap_sql, rc);
 
   sqlite3_free_table (pp_result);
 
@@ -719,7 +719,7 @@ tizrmdb::run_query (char const *ap_sql) const
 void
 tizrmdb::print_query_result () const
 {
-  TIZ_LOG (TIZ_TRACE, "tizrmdb::print_query_result : vdata_.size() [%d]"
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "tizrmdb::print_query_result : vdata_.size() [%d]"
            " vcol_head_.size() [%d]", vdata_.size (), vcol_head_.size ());
 
   if (!vcol_head_.empty ())
@@ -730,7 +730,7 @@ tizrmdb::print_query_result () const
         {
           headings << "[" << vcol_head_[i] << "] \t\t\t ";
         }
-      TIZ_LOG (TIZ_TRACE, "%s", headings.str ().c_str ());
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "%s", headings.str ().c_str ());
 
       int datasize = vdata_.size ();
       std::stringstream data;
@@ -738,7 +738,7 @@ tizrmdb::print_query_result () const
         {
           data << "[" << vdata_[i] << "] \t\t ";
         }
-      TIZ_LOG (TIZ_TRACE, "%s", data.str ().c_str ());
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "%s", data.str ().c_str ());
     }
 }
 

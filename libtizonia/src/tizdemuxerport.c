@@ -82,7 +82,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
       p_opts      = va_arg (app_copy, tiz_port_options_t *);
       assert (NULL != p_opts);
 
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "min_buf_size [%d]",
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj), "min_buf_size [%d]",
                 p_opts->min_buf_size);
 
       switch (p_opts->domain)
@@ -120,7 +120,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
             p_volume = va_arg (app_copy, OMX_AUDIO_CONFIG_VOLUMETYPE *);
             assert (NULL != p_volume);
 
-            TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "p_volume->sVolume.nValue [%d]",
+            TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj), "p_volume->sVolume.nValue [%d]",
                       p_volume->sVolume.nValue);
 
             /* Get the OMX_AUDIO_CONFIG_MUTETYPE structure (mandatory argument) */
@@ -200,7 +200,7 @@ demuxerport_GetParameter (const void *ap_obj,
   const tiz_demuxerport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "PORT [%d] GetParameter [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -217,7 +217,7 @@ demuxerport_GetParameter (const void *ap_obj,
         if (OMX_ErrorNone != (rc = tiz_api_GetParameter (p_prc, ap_hdl,
                                                          a_index, ap_struct)))
           {
-            TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : Error retrieving [%s] "
+            TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[%s] : Error retrieving [%s] "
                       "from the processor", tiz_err_to_str (rc),
                       tiz_idx_to_str (a_index));
             return rc;
@@ -260,7 +260,7 @@ demuxerport_SetParameter (const void *ap_obj,
   tiz_demuxerport_t *p_obj = (tiz_demuxerport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "PORT [%d] SetParameter [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -270,7 +270,7 @@ demuxerport_SetParameter (const void *ap_obj,
     case OMX_IndexParamNumAvailableStreams:
       {
         /* This is a read-only index. Simply ignore it. */
-        TIZ_LOGN (TIZ_NOTICE, ap_hdl, "Ignoring read-only index [%s] ",
+        TIZ_LOGN (TIZ_PRIORITY_NOTICE, ap_hdl, "Ignoring read-only index [%s] ",
                   tiz_idx_to_str (a_index));
       }
       break;
@@ -285,7 +285,7 @@ demuxerport_SetParameter (const void *ap_obj,
             != (rc = tiz_api_SetParameter (p_prc, ap_hdl,
                                            a_index, ap_struct)))
           {
-            TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : Error setting [%s] "
+            TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[%s] : Error setting [%s] "
                       "on the processor", tiz_err_to_str (rc),
                       tiz_idx_to_str (a_index));
             return rc;
@@ -327,7 +327,7 @@ demuxerport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   const tiz_demuxerport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "PORT [%d] GetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -369,7 +369,7 @@ demuxerport_SetConfig (const void *ap_obj,
   tiz_demuxerport_t *p_obj = (tiz_demuxerport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "PORT [%d] SetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -415,7 +415,7 @@ demuxerport_check_tunnel_compat
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
                 "PORT [%d] check_tunnel_compat : Different domain found [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
       return false;

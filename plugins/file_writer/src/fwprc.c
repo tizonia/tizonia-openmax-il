@@ -90,7 +90,7 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
                 = fwrite (p_hdr->pBuffer + p_hdr->nOffset,
                           p_hdr->nFilledLen, 1, p_obj->p_file_)))
         {
-          TIZ_LOG (TIZ_ERROR,
+          TIZ_LOG (TIZ_PRIORITY_ERROR,
                    "elems_written [%d] p_hdr->nFilledLen [%d]: "
                    "An error occurred while writing", elems_written,
                    p_hdr->nFilledLen);
@@ -101,7 +101,7 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
       p_obj->counter_ += p_hdr->nFilledLen;
     }
 
-  TIZ_LOG (TIZ_TRACE, "Writing data from HEADER [%p]...nFilledLen [%d] "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Writing data from HEADER [%p]...nFilledLen [%d] "
            "counter [%d] elems_written [%d]",
            p_hdr, p_hdr->nFilledLen, p_obj->counter_, elems_written);
 
@@ -129,7 +129,7 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
       if (NULL == p_obj->p_uri_param_)
         {
-          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
                     "Error allocating memory "
                    "for the content uri struct");
           return OMX_ErrorInsufficientResources;
@@ -145,18 +145,18 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
                          tiz_api_get_hdl (ap_obj),
                          OMX_IndexParamContentURI, p_obj->p_uri_param_)))
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
                 "Error retrieving URI param from port");
       return ret_val;
     }
 
-  TIZ_LOG (TIZ_NOTICE, "Retrieved URI [%s]",
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "Retrieved URI [%s]",
            p_obj->p_uri_param_->contentURI);
 
   if ((p_obj->p_file_
        = fopen ((const char *) p_obj->p_uri_param_->contentURI, "w")) == 0)
     {
-      TIZ_LOG (TIZ_ERROR, "Error opening file from URI string");
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "Error opening file from URI string");
       return OMX_ErrorInsufficientResources;
     }
 
@@ -228,11 +228,11 @@ fw_proc_buffers_ready (const void *ap_obj)
       if (TIZ_PD_ISSET (0, &ports))
         {
           tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
-          TIZ_LOG (TIZ_TRACE, "Claimed HEADER [%p]...", p_hdr);
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "Claimed HEADER [%p]...", p_hdr);
           tiz_check_omx_err (fw_proc_write_buffer (ap_obj, p_hdr));
           if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
             {
-              TIZ_LOG (TIZ_DEBUG,
+              TIZ_LOG (TIZ_PRIORITY_DEBUG,
                        "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
               tiz_srv_issue_event ((OMX_PTR) ap_obj,
                                       OMX_EventBufferFlag,

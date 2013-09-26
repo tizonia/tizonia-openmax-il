@@ -74,12 +74,12 @@ pcmport_ctor (void *ap_obj, va_list * app)
           p_obj->pcmmode_.eChannelMapping[i] = p_pcmmode->eChannelMapping[i];
         }
 
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "nChannels = [%d]", p_obj->pcmmode_.nChannels);
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "nBitPerSample = [%d]",
                 p_obj->pcmmode_.nBitPerSample);
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "nSamplingRate = [%d]",
                 p_obj->pcmmode_.nSamplingRate);
     }
@@ -124,7 +124,7 @@ pcmport_GetParameter (const void *ap_obj,
 {
   const tiz_pcmport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "GetParameter [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "GetParameter [%s]...",
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
 
@@ -161,7 +161,7 @@ pcmport_SetParameter (const void *ap_obj,
 {
   tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_dir (p_obj), tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
 
@@ -189,7 +189,7 @@ pcmport_SetParameter (const void *ap_obj,
             }
           default:
             {
-              TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+              TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
                         "SetParameter [%s]... Invalid sampling rate [%d]",
                         tiz_port_dir (p_obj), tiz_idx_to_str (a_index),
                         p_pcmmode->nSamplingRate);
@@ -206,7 +206,7 @@ pcmport_SetParameter (const void *ap_obj,
             }
           default:
             {
-              TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+              TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
                         "SetParameter [%s]... Invalid bits per sample [%d]",
                         tiz_port_dir (p_obj), tiz_idx_to_str (a_index),
                         p_pcmmode->nBitPerSample);
@@ -227,7 +227,7 @@ pcmport_SetParameter (const void *ap_obj,
                   || p_obj->pcmmode_.nSamplingRate !=
                   p_pcmmode->nSamplingRate))
             {
-              TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+              TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
                         "SetParameter [OMX_IndexParamAudioPcm]... "
                         "Slave port, cannot update sample rate "
                         "bits per sample or number of channels", tiz_port_dir (p_obj));
@@ -312,7 +312,7 @@ pcmport_SetConfig (const void *ap_obj,
 {
   tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] SetConfig [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "PORT [%d] SetConfig [%s]...",
             tiz_port_dir (p_obj), tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
 
@@ -387,7 +387,7 @@ pcmport_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
                 "PORT [%d] : Audio domain not found, instead found domain [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
       return false;
@@ -401,7 +401,7 @@ pcmport_check_tunnel_compat (const void *ap_obj,
     {
       if (ap_other_def->format.audio.eEncoding != OMX_AUDIO_CodingPCM)
         {
-          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
                     "PORT [%d] : "
                     "PCM encoding not found, instead foudn encoding [%d]",
                     p_obj->pid_, ap_other_def->format.audio.eEncoding);
@@ -409,7 +409,7 @@ pcmport_check_tunnel_compat (const void *ap_obj,
         }
     }
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "PORT [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return true;
@@ -451,7 +451,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           /* min buffer size = At least 5ms or pcm data */
           new_min_buf_sz = ((new_rate * new_bps * new_channels) / 8000) * 5;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "OMX_IndexParamAudioPcm : new sampling rate[%d] "
                     "new num channels[%d] new_bps[%d]", new_rate, new_channels,
                     new_bps);
@@ -466,7 +466,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           /* min buffer size = At least 5ms or pcm data */
           new_min_buf_sz = ((new_rate * new_bps * new_channels) / 8000) * 5;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "OMX_IndexParamAudioMp3 : new sampling rate[%d] "
                     "new num channels[%d] new_bps[%d]", new_rate, new_channels,
                     new_bps);
@@ -481,7 +481,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           /* min buffer size = At least 5ms or pcm data */
           new_min_buf_sz = ((new_rate * new_bps * new_channels) / 8000) * 5;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "OMX_IndexParamAudioAac : new sampling rate[%d] "
                     "new num channels[%d] new_bps[%d]", new_rate, new_channels,
                     new_bps);
@@ -496,7 +496,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           /* min buffer size = At least 5ms or pcm data */
           new_min_buf_sz = ((new_rate * new_bps * new_channels) / 8000) * 5;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "OMX_IndexParamAudioVorbis : new sampling rate[%d] "
                     "new num channels[%d] new_bps[%d]", new_rate, new_channels,
                     new_bps);
@@ -511,7 +511,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           /* min buffer size = At least 5ms or pcm data */
           new_min_buf_sz = ((new_rate * new_bps * new_channels) / 8000) * 5;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "OMX_IndexParamAudioWma : new sampling rate[%d] "
                     "new num channels[%d] new_bps[%d]", new_rate, new_channels,
                     new_bps);
@@ -526,7 +526,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           /* min buffer size = At least 5ms or pcm data */
           new_min_buf_sz = ((new_rate * new_bps * new_channels) / 8000) * 5;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "OMX_IndexParamAudioRa : new sampling rate[%d] "
                     "new num channels[%d] new_bps[%d]", new_rate, new_channels,
                     new_bps);
@@ -541,7 +541,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           /* min buffer size = At least 5ms or pcm data */
           new_min_buf_sz = ((new_rate * new_bps * new_channels) / 8000) * 5;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "OMX_IndexParamAudioSbc : new sampling rate[%d] "
                     "new num channels[%d] new_bps[%d]", new_rate, new_channels,
                     new_bps);
@@ -556,7 +556,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           /* min buffer size = At least 5ms or pcm data */
           new_min_buf_sz = ((new_rate * new_bps * new_channels) / 8000) * 5;
 
-          TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                     "OMX_IndexParamAudioAdpcm : new sampling rate[%d] "
                     "new num channels[%d] new_bps[%d]", new_rate, new_channels,
                     new_bps);
@@ -581,7 +581,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
         tiz_check_omx_err_ret_oom
           (tiz_vector_push_back (ap_changed_idxs, &id));
 
-        TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+        TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                   "original PORT [%d] this PORT [%d] : [%s] -> "
                   "changed [OMX_IndexParamAudioPcm]...",
                   tiz_port_index (ap_mos_port),
@@ -597,7 +597,7 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
         tiz_check_omx_err_ret_oom
           (tiz_vector_push_back (ap_changed_idxs, &id));
 
-        TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+        TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                   "original PORT [%d] this PORT [%d] : [%s] -> "
                   "changed [OMX_IndexParamPortDefinition] nBufferSize [%d]...",
                   tiz_port_index (ap_mos_port),

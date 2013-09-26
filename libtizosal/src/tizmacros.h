@@ -160,7 +160,7 @@ extern "C"
     OMX_ERRORTYPE _err = expr;                                          \
     if TIZ_LIKELY(OMX_ErrorNone == _err) {}                             \
     else {                                                              \
-      TIZ_LOG(TIZ_ERROR, "[%s]...", tiz_err_to_str (_err));             \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[%s]...", tiz_err_to_str (_err));             \
       return _err;                                                      \
     }                                                                   \
   } while(0)
@@ -170,7 +170,7 @@ extern "C"
     OMX_ERRORTYPE _err = expr;                                          \
     if TIZ_LIKELY(OMX_ErrorNone == _err) {}                             \
     else {                                                              \
-      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources] "            \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] "            \
               "was [%s]...", tiz_err_to_str (_err));                    \
       return OMX_ErrorInsufficientResources;                            \
     }                                                                   \
@@ -180,7 +180,7 @@ extern "C"
   do {                                                                  \
     if TIZ_LIKELY(NULL != (expr)){}                                     \
     else {                                                              \
-      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources]");           \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]");           \
       return OMX_ErrorInsufficientResources;                            \
     }                                                                   \
   } while(0)
@@ -190,7 +190,7 @@ extern "C"
     OMX_ERRORTYPE _err = expr;                                          \
     if TIZ_LIKELY(OMX_ErrorNone == _err) {}                             \
     else {                                                              \
-      TIZ_LOG(TIZ_ERROR, "[NULL] : was [%s]...",                        \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[NULL] : was [%s]...",                        \
               tiz_err_to_str (_err));                                   \
       return NULL;                                                      \
     }                                                                   \
@@ -201,7 +201,7 @@ extern "C"
     OMX_ERRORTYPE _err = expr;                                          \
     if TIZ_LIKELY(OMX_ErrorNone == _err) {}                             \
     else {                                                              \
-      TIZ_LOG(TIZ_ERROR, "[%s] : was [%s]",                             \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[%s] : was [%s]",                             \
               tiz_err_to_str (val),                                     \
               tiz_err_to_str (_err));                                   \
       return (val);                                                     \
@@ -212,7 +212,7 @@ extern "C"
   do {                                                                  \
     if TIZ_LIKELY(expr) {}                                              \
     else {                                                              \
-      TIZ_LOG (TIZ_ERROR,  "Check '%s' failed",  #expr);                \
+      TIZ_LOG (TIZ_PRIORITY_ERROR,  "Check '%s' failed",  #expr);                \
       return;                                                           \
     }                                                                  \
   } while (0)
@@ -221,7 +221,7 @@ extern "C"
   do {                                                                  \
     if TIZ_LIKELY(expr) {}                                            \
     else {                                                              \
-      TIZ_LOG (TIZ_ERROR,  "Check '%s' failed",  #expr);                \
+      TIZ_LOG (TIZ_PRIORITY_ERROR,  "Check '%s' failed",  #expr);                \
       return val;                                                       \
     }                                                                   \
   } while (0)
@@ -232,7 +232,7 @@ extern "C"
   do {                                                            \
     OMX_ERRORTYPE _err = expr;                                    \
     if (OMX_ErrorNone != _err) {                                  \
-      TIZ_LOG(TIZ_ERROR, "[%s]...", tiz_err_to_str (_err));       \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[%s]...", tiz_err_to_str (_err));       \
       return _err;                                                \
     }                                                             \
   } while(0)
@@ -241,7 +241,7 @@ extern "C"
   do {                                                             \
     OMX_ERRORTYPE _err = expr;                                     \
     if (OMX_ErrorNone != _err) {                                   \
-      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources] "       \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] "       \
               "was [%s]...", tiz_err_to_str (_err));               \
       return OMX_ErrorInsufficientResources;                       \
     }                                                              \
@@ -251,7 +251,7 @@ extern "C"
   do {                                                                  \
     if (NULL != (expr)) {}                                              \
     else {                                                              \
-      TIZ_LOG(TIZ_ERROR, "[OMX_ErrorInsufficientResources]");           \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]");           \
       return OMX_ErrorInsufficientResources;                            \
     }                                                                   \
   } while(0)
@@ -260,7 +260,7 @@ extern "C"
   do {                                                     \
     OMX_ERRORTYPE _err = expr;                             \
     if (OMX_ErrorNone != _err) {                           \
-      TIZ_LOG(TIZ_ERROR, "[NULL] : was [%s]...",           \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[NULL] : was [%s]...",           \
               tiz_err_to_str (_err));                      \
       return NULL;                                         \
     }                                                      \
@@ -270,7 +270,7 @@ extern "C"
   do {                                             \
     OMX_ERRORTYPE _err = expr;                     \
     if (OMX_ErrorNone != _err) {                   \
-      TIZ_LOG(TIZ_ERROR, "[%s] : was [%s]",        \
+      TIZ_LOG(TIZ_PRIORITY_ERROR, "[%s] : was [%s]",        \
               tiz_err_to_str (val),                \
               tiz_err_to_str (_err));              \
       return (val);                                \
@@ -281,7 +281,7 @@ extern "C"
   do {                                                                  \
     if (expr) {}                                                        \
     else {                                                              \
-      TIZ_LOG (TIZ_ERROR,  "Check '%s' failed",  #expr);                \
+      TIZ_LOG (TIZ_PRIORITY_ERROR,  "Check '%s' failed",  #expr);                \
       return;                                                           \
     }                                                                  \
   } while (0)
@@ -290,7 +290,7 @@ extern "C"
   do {                                                                  \
     if (expr) {}                                                        \
     else {                                                              \
-      TIZ_LOG (TIZ_ERROR,  "Check '%s' failed",  #expr);                \
+      TIZ_LOG (TIZ_PRIORITY_ERROR,  "Check '%s' failed",  #expr);                \
       return (val);                                                     \
     }                                                                  \
   } while (0)

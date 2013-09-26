@@ -188,7 +188,7 @@ init_prc_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_prc_msg_t))))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorInsufficientResources] : "
                 "Could not allocate message [%s]",
                 tiz_prc_msg_to_str (a_msg_class));
     }
@@ -211,7 +211,7 @@ enqueue_buffersready_msg (const void *ap_obj,
   tiz_prc_msg_t *p_msg = NULL;
   tiz_prc_msg_buffersready_t *p_msg_br = NULL;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "BuffersReady : HEADER [%p]", ap_hdr);
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "BuffersReady : HEADER [%p]", ap_hdr);
 
   if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
                                           ETIZPrcMsgBuffersReady)))
@@ -264,7 +264,7 @@ prc_DeferredResume (const void *ap_obj,
 
   assert (NULL != ap_obj);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "DeferredResume");
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "DeferredResume");
 
   if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
                                           ETIZPrcMsgDeferredResume)))
@@ -320,7 +320,7 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
   p_port = tiz_krn_get_port (p_krn, p_msg_br->pid);
   now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
-  TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl, "p_msg->p_hdl [%p] "
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, p_msg->p_hdl, "p_msg->p_hdl [%p] "
             "p_msg_br->pid = [%d] p_port [%p]",
             p_msg->p_hdl, p_msg_br->pid, p_port);
 
@@ -341,7 +341,7 @@ dispatch_br (void *ap_obj, OMX_PTR ap_msg)
       && !TIZ_PORT_IS_DISABLED (p_port)
       && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
-      TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl,
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, p_msg->p_hdl,
                      "p_msg_br->p_buffer [%p] ", p_msg_br->p_buffer);
       rc = tiz_prc_buffers_ready (p_obj);
     }
@@ -370,7 +370,7 @@ dispatch_config (void *ap_obj, OMX_PTR ap_msg)
   p_port = tiz_krn_get_port (p_krn, p_msg_cc->pid);
   now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
-  TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl, "p_msg_cc->pid = [%d] p_port [%p]",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, p_msg->p_hdl, "p_msg_cc->pid = [%d] p_port [%p]",
             p_msg->p_hdl, p_msg_cc->pid, p_port);
 
   assert (NULL != p_port);
@@ -390,7 +390,7 @@ dispatch_config (void *ap_obj, OMX_PTR ap_msg)
       && !TIZ_PORT_IS_DISABLED (p_port)
       && !TIZ_PORT_IS_BEING_DISABLED (p_port))
     {
-      TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl, "index [%s] ",
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, p_msg->p_hdl, "index [%s] ",
                 tiz_idx_to_str (p_msg_cc->index));
       rc = tiz_prc_config_change (p_obj, p_msg_cc->pid, p_msg_cc->index);
     }
@@ -415,7 +415,7 @@ dispatch_dr (void *ap_obj, OMX_PTR ap_msg)
 
   now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
-  TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl, "[%s] - [%s]",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, p_msg->p_hdl, "[%s] - [%s]",
             tiz_prc_msg_to_str (p_msg->class),
             tiz_fsm_state_to_str (now));
 
@@ -439,7 +439,7 @@ dispatch_dr (void *ap_obj, OMX_PTR ap_msg)
       /* the FSM has transitioned to some other state, so we can ignore the
          resume request. Simply log the fact...
       */
-      TIZ_LOGN (TIZ_DEBUG, p_msg->p_hdl, "Ignoring deferred resume "
+      TIZ_LOGN (TIZ_PRIORITY_DEBUG, p_msg->p_hdl, "Ignoring deferred resume "
                 "command in [%s]", tiz_fsm_state_to_str (now));
     }
 
@@ -455,7 +455,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_STATETYPE now = OMX_StateMax;
   OMX_BOOL done = OMX_FALSE;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "Requested transition to state [%s]",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "Requested transition to state [%s]",
             tiz_fsm_state_to_str (ap_msg_sc->param1));
 
   /* Obtain the current state */
@@ -504,7 +504,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         else if (OMX_StateIdle == now)
           {
             /* TODO : review when this situation would occur  */
-            TIZ_LOGN (TIZ_WARN, ap_hdl, "Ignoring transition [%s] -> [%s]",
+            TIZ_LOGN (TIZ_PRIORITY_WARN, ap_hdl, "Ignoring transition [%s] -> [%s]",
                       tiz_fsm_state_to_str (now),
                       tiz_fsm_state_to_str (ap_msg_sc->param1));
           }
@@ -563,7 +563,7 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         (tiz_get_fsm (ap_hdl), p_obj, ap_msg_sc->param1);
     }
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "rc [%s]", tiz_err_to_str (rc));
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "rc [%s]", tiz_err_to_str (rc));
 
   return rc;
 }
@@ -612,7 +612,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
         {
           /* Found, return TRUE so this item will be removed from the servant
            * queue */
-          TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl,
+          TIZ_LOGN (TIZ_PRIORITY_TRACE, p_msg->p_hdl,
                     "tiz_prc_msg_buffersready_t : Found HEADER [%p]", p_hdr);
           rc = OMX_TRUE;
         }
@@ -620,7 +620,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
   else
     {
       /* Not interested */
-      TIZ_LOGN (TIZ_TRACE, p_msg->p_hdl,
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, p_msg->p_hdl,
                "Not interested : class  [%s]",
                tiz_prc_msg_to_str (p_msg->class));
     }
@@ -653,7 +653,7 @@ static OMX_ERRORTYPE
 prc_EmptyThisBuffer (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "pid [%d]", ap_buf->nInputPortIndex);
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "pid [%d]", ap_buf->nInputPortIndex);
   return enqueue_buffersready_msg (ap_obj, ap_hdl, ap_buf,
                                    ap_buf->nInputPortIndex);
 }
@@ -662,7 +662,7 @@ static OMX_ERRORTYPE
 prc_FillThisBuffer (const void *ap_obj,
                      OMX_HANDLETYPE ap_hdl, OMX_BUFFERHEADERTYPE * ap_buf)
 {
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "pid [%d]", ap_buf->nOutputPortIndex);
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "pid [%d]", ap_buf->nOutputPortIndex);
   return enqueue_buffersready_msg (ap_obj, ap_hdl, ap_buf,
                                    ap_buf->nOutputPortIndex);
 }
@@ -677,7 +677,7 @@ prc_SendCommand (const void *ap_obj,
   tiz_prc_msg_t *p_msg = NULL;
   tiz_prc_msg_sendcommand_t *p_msg_sc = NULL;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
 
   if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
                                           ETIZPrcMsgSendCommand)))
@@ -706,7 +706,7 @@ prc_SetConfig (const void *ap_obj,
   assert (NULL != ap_obj);
   assert (NULL != ap_struct);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SetConfig [%s]", tiz_idx_to_str (a_index));
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SetConfig [%s]", tiz_idx_to_str (a_index));
 
   if (NULL == (p_msg = init_prc_message (p_obj, ap_hdl,
                                           ETIZPrcMsgConfig)))
@@ -751,14 +751,14 @@ prc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "Processing [%s]...", tiz_prc_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZPrcMsgMax);
 
   rc = tiz_prc_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) ap_obj, p_msg);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "rc [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj), "rc [%s]...",
             tiz_err_to_str (rc));
 
   return rc;

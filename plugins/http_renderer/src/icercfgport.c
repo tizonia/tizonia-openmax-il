@@ -111,9 +111,9 @@ icer_cfgport_SetParameter (const void *ap_obj,
         = (OMX_TIZONIA_HTTPSERVERTYPE *) ap_struct;
       p_obj->http_conf_ = *p_http_conf;
 
-      TIZ_LOGN (TIZ_TRACE, ap_hdl, "nListeningPort [%d]...",
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "nListeningPort [%d]...",
                 p_obj->http_conf_.nListeningPort);
-      TIZ_LOGN (TIZ_TRACE, ap_hdl, "nMaxClients [%d]...",
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "nMaxClients [%d]...",
                 p_obj->http_conf_.nMaxClients);
     }
   else

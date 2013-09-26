@@ -165,7 +165,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
     &image_role, &other_role
   };
 
-  TIZ_LOG (TIZ_TRACE, "OMX_ComponentInit: Inititializing [%s]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_FILE_WRITER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) audio_role.role,

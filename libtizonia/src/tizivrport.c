@@ -113,7 +113,7 @@ ivrport_GetConfig (const void *ap_obj,
 {
   const tiz_ivrport_t *p_obj = ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "PORT [%d] GetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -176,7 +176,7 @@ ivrport_SetConfig (const void *ap_obj,
 {
   tiz_ivrport_t *p_obj = (tiz_ivrport_t *) ap_obj;
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "PORT [%d] SetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -220,7 +220,7 @@ ivrport_SetConfig (const void *ap_obj,
     case OMX_IndexConfigTimeRenderingDelay:
       {
         /* This is a read-only index. Simply ignore it. */
-        TIZ_LOGN (TIZ_NOTICE, ap_hdl, "Ignoring read-only index [%s] ",
+        TIZ_LOGN (TIZ_PRIORITY_NOTICE, ap_hdl, "Ignoring read-only index [%s] ",
                   tiz_idx_to_str (a_index));
       }
       break;
@@ -261,7 +261,7 @@ ivrport_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
                 "PORT [%d] : Video domain not found, instead found domain [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
       return false;
@@ -269,7 +269,7 @@ ivrport_check_tunnel_compat (const void *ap_obj,
 
   /* TODO : Review these compatibility checks */
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "PORT [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return true;

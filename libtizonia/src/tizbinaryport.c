@@ -233,7 +233,7 @@ binaryport_GetParameter (const void *ap_obj,
   const tiz_binaryport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] GetParameter [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
@@ -275,7 +275,7 @@ binaryport_SetParameter (const void *ap_obj,
   tiz_binaryport_t *p_obj = (tiz_binaryport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
@@ -323,7 +323,7 @@ static bool
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_obj),
                 "port [%d] check_tunnel_compat : Different domain found [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
       return false;

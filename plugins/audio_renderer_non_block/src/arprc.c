@@ -60,13 +60,13 @@ get_alsa_device (ar_prc_t * ap_prc)
 
   if (NULL != p_alsa_pcm)
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_prc),
                 "Using ALSA pcm [%s]...", p_alsa_pcm);
       ap_prc->p_alsa_pcm_ = strndup (p_alsa_pcm, OMX_MAX_STRINGNAME_SIZE);
     }
   else
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_prc),
                 "No alsa device found in config file. Using [%s]...",
                 TIZ_AR_ALSA_PCM_DEVICE);
     }
@@ -129,14 +129,14 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
   assert (NULL != ap_prc);
   assert (NULL != ap_hdr);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_prc),
             "Rendering HEADER [%p]...nFilledLen[%d] nOffset [%d]!!!", ap_hdr,
             ap_hdr->nFilledLen, ap_hdr->nOffset);
 
   step = (ap_prc->pcmmode.nBitPerSample / 8) * ap_prc->pcmmode.nChannels;
   assert (ap_hdr->nFilledLen > 0);
   samples = ap_hdr->nFilledLen / step;
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_prc),
             "step [%d], samples [%d] nFilledLen [%d]",
             step, samples, ap_hdr->nFilledLen);
 
@@ -144,13 +144,13 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
     {
       err = snd_pcm_writei (ap_prc->p_pcm_hdl,
                             ap_hdr->pBuffer + ap_hdr->nOffset, samples);
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_prc),
                 "Rendering HEADER [%p]...err [%d] samples [%d] nOffset [%d]",
                 ap_hdr, err, samples, ap_hdr->nOffset);
 
       if (-EAGAIN == err)
         {
-          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_prc),
                     "Ring buffer must be full (got -EAGAIN)");
           return start_io_watcher (ap_prc);
         }
@@ -159,12 +159,12 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
         {
           /* This should handle -EINTR (interrupted system call), -EPIPE
               (overrun or underrun) and -ESTRPIPE (stream is suspended) */
-          TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_prc),
                     "Trying to recover the stream state...");
           err = snd_pcm_recover (ap_prc->p_pcm_hdl, (int) err, 0);
           if (err < 0)
             {
-              TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
+              TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_prc),
                         "snd_pcm_recover error: %s", snd_strerror ((int) err));
               break;
             }
@@ -205,7 +205,7 @@ buffer_needed (ar_prc_t * ap_prc)
                   if (OMX_ErrorNone == tiz_krn_claim_buffer
                       (p_krn, 0, 0, &ap_prc->p_inhdr_))
                     {
-                      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+                      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_prc),
                                 "Claimed HEADER [%p]...nFilledLen [%d]",
                                 ap_prc->p_inhdr_,
                                 ap_prc->p_inhdr_->nFilledLen);
@@ -226,14 +226,14 @@ buffer_emptied (ar_prc_t * ap_prc)
   assert (NULL != ap_prc);
   assert (ap_prc->p_inhdr_->nFilledLen == 0);
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc), "HEADER [%p] emptied",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_prc), "HEADER [%p] emptied",
             ap_prc->p_inhdr_);
 
   ap_prc->p_inhdr_->nOffset = 0;
 
   if ((ap_prc->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
     {
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_prc),
                 "OMX_BUFFERFLAG_EOS in HEADER [%p]", ap_prc->p_inhdr_);
       tiz_srv_issue_event ((OMX_PTR) ap_prc,
                            OMX_EventBufferFlag, 0,
@@ -261,7 +261,7 @@ render_pcm_data (ar_prc_t * ap_prc)
           tiz_check_omx_err (render_buffer (ap_prc, p_hdr));
         }
 
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_prc),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_prc),
                 "awaiting_io_ev_ [%s]",
                 ap_prc->awaiting_io_ev_ ? "YES" : "NO");
 
@@ -269,7 +269,7 @@ render_pcm_data (ar_prc_t * ap_prc)
         {
           if (OMX_ErrorNone != (rc = buffer_emptied (ap_prc)))
             {
-              TIZ_LOGN (TIZ_ERROR, tiz_api_get_hdl (ap_prc),
+              TIZ_LOGN (TIZ_PRIORITY_ERROR, tiz_api_get_hdl (ap_prc),
                         "[%s] Error while returning bufffer",
                         tiz_err_to_str (rc));
               return rc;
@@ -352,7 +352,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
            snd_pcm_open (&p_prc->p_pcm_hdl, p_device,
                          SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK)) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "cannot open audio device %s (%s)",
                     TIZ_AR_ALSA_PCM_DEVICE, snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -360,7 +360,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 
       if ((err = snd_pcm_hw_params_malloc (&p_prc->p_hw_params)) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "cannot allocate hardware parameter structure" " (%s)",
                     snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -370,7 +370,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
         snd_pcm_poll_descriptors_count (p_prc->p_pcm_hdl);
       if (p_prc->descriptor_count_ <= 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Invalid poll descriptors count");
           return OMX_ErrorInsufficientResources;
         }
@@ -379,7 +379,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
         tiz_mem_alloc (sizeof (struct pollfd) * p_prc->descriptor_count_);
       if (p_prc->p_fds_ == NULL)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Could not allocate poll file descriptors\n");
           return OMX_ErrorInsufficientResources;
         }
@@ -388,7 +388,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
           (rc = tiz_event_io_init (&(p_prc->p_ev_io_), p_hdl,
                                    tiz_comp_event_io)))
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Error initializing the PCM io event (was %s)",
                     tiz_err_to_str (rc));
           return OMX_ErrorInsufficientResources;
@@ -400,17 +400,17 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
   /* Fill params with a full configuration space for the PCM. */
   if ((err = snd_pcm_hw_params_any (p_prc->p_pcm_hdl, p_prc->p_hw_params)) < 0)
     {
-      TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                 "cannot initialize hardware parameter structure (%s)",
                 snd_strerror (err));
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_LOGN (TIZ_DEBUG, p_hdl, "Device can pause [%s] ",
+  TIZ_LOGN (TIZ_PRIORITY_DEBUG, p_hdl, "Device can pause [%s] ",
             snd_pcm_hw_params_can_pause (p_prc->p_hw_params) == 0 ?
             "NO" : "YES");
 
-  TIZ_LOGN (TIZ_DEBUG, p_hdl, "Device can resume [%s] ",
+  TIZ_LOGN (TIZ_PRIORITY_DEBUG, p_hdl, "Device can resume [%s] ",
             snd_pcm_hw_params_can_resume (p_prc->p_hw_params) == 0 ?
             "NO" : "YES");
 
@@ -441,12 +441,12 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
                             (p_krn, p_hdl,
                              OMX_IndexParamAudioPcm, &p_obj->pcmmode)))
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[%s] : Error retrieving "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[%s] : Error retrieving "
                     "pcm params from port", tiz_err_to_str (rc));
           return rc;
         }
 
-      TIZ_LOGN (TIZ_NOTICE, p_hdl, "nChannels = [%d] nBitPerSample = [%d] "
+      TIZ_LOGN (TIZ_PRIORITY_NOTICE, p_hdl, "nChannels = [%d] nBitPerSample = [%d] "
                 "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
                 "bInterleaved = [%s] ePCMMode = [%d]",
                 p_obj->pcmmode.nChannels,
@@ -474,7 +474,7 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
                                      100000     /* overall latency in us */
                                      )) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Could not set the PCM params (%s)!",
                     snd_strerror ((int) err));
           return OMX_ErrorInsufficientResources;
@@ -483,13 +483,13 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
       if ((err = snd_pcm_poll_descriptors (p_obj->p_pcm_hdl, p_obj->p_fds_,
                                            p_obj->descriptor_count_)) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Unable to obtain poll descriptors for playback: %s",
                     snd_strerror (err));
           return OMX_ErrorInsufficientResources;
         }
 
-      TIZ_LOGN (TIZ_DEBUG, p_hdl, "Poll descriptors : %d",
+      TIZ_LOGN (TIZ_PRIORITY_DEBUG, p_hdl, "Poll descriptors : %d",
                 p_obj->descriptor_count_);
 
       tiz_event_io_set (p_obj->p_ev_io_, p_obj->p_fds_->fd,
@@ -498,7 +498,7 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
       /* OK, now prepare the PCM for use */
       if ((err = snd_pcm_prepare (p_obj->p_pcm_hdl)) < 0)
         {
-          TIZ_LOGN (TIZ_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_LOGN (TIZ_PRIORITY_ERROR, p_hdl, "[OMX_ErrorInsufficientResources] : "
                     "Could not prepare audio interface for use (%s)",
                     snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -564,7 +564,7 @@ static OMX_ERRORTYPE
 ar_prc_buffers_ready (const void *ap_obj)
 {
   ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (p_prc),
             "Received buffer ready notification - awaiting_buffers [%s] "
             "awaiting_io_ev [%s]",
             p_prc->awaiting_buffers_ ? "YES" : "NO",
@@ -583,7 +583,7 @@ ar_prc_io_ready (void *ap_obj,
 {
   ar_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (p_prc),
             "Received io event on fd [%d]", a_fd);
   stop_io_watcher (p_prc);
   return render_pcm_data (p_prc);
@@ -596,7 +596,7 @@ ar_prc_pause (const void *ap_obj)
   int pause = 1;
   assert (NULL != p_prc);
   snd_pcm_pause (p_prc->p_pcm_hdl, pause);
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (p_prc),
             "PAUSED ALSA device..."
             "awaiting_io_ev_ [%s]", p_prc->awaiting_io_ev_ ? "YES" : "NO");
   if (p_prc->awaiting_io_ev_ == true)
@@ -612,7 +612,7 @@ ar_prc_resume (const void *ap_obj)
   ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
   int resume = 0;
   assert (NULL != p_prc);
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (p_prc), "RESUMING ALSA device...");
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (p_prc), "RESUMING ALSA device...");
   snd_pcm_pause (p_prc->p_pcm_hdl, resume);
   if (p_prc->awaiting_io_ev_ == true)
     {

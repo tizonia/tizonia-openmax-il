@@ -81,20 +81,20 @@ idle_SetParameter (const void *ap_obj,
       != (ret_val =
           tiz_krn_find_managing_port (p_krn, a_index, a_struct, &p_port)))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[%s] : Cannot retrieve managing port...",
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[%s] : Cannot retrieve managing port...",
                 tiz_err_to_str (ret_val));
       return ret_val;
     }
 
   assert (p_port);
 
-  TIZ_LOGN (TIZ_TRACE, ap_hdl, "SetParameter : ENABLED [%d]",
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, ap_hdl, "SetParameter : ENABLED [%d]",
             TIZ_PORT_IS_ENABLED (p_port) ? 1 : 0);
 
   if (TIZ_PORT_IS_CONFIG_PORT (p_port)
       || (!TIZ_PORT_IS_CONFIG_PORT (p_port) && TIZ_PORT_IS_ENABLED (p_port)))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
                 "(SetParameter received in Idle state)...");
       return OMX_ErrorIncorrectStateOperation;
     }
@@ -142,7 +142,7 @@ idle_EmptyThisBuffer (const void *ap_obj,
 
   if (TIZ_PORT_IS_ENABLED (p_port))
     {
-      TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
+      TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateOperation] : "
                 "(ETB received in Idle state on an enabled port)...");
       return OMX_ErrorIncorrectStateOperation;
     }
@@ -164,7 +164,7 @@ idle_FillThisBuffer (const void *ap_obj,
 
 /*   if (TIZ_PORT_IS_ENABLED(p_port)) */
 /*     { */
-/*       TIZ_LOG(TIZ_TRACE, "Incorrect state op " */
+/*       TIZ_LOG(TIZ_PRIORITY_TRACE, "Incorrect state op " */
 /*                 "(FTB received in Idle state on an enabled port)..."); */
 /*       return OMX_ErrorIncorrectStateOperation; */
 /*     } */
@@ -189,7 +189,7 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   assert (NULL != ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
-  TIZ_LOGN (TIZ_DEBUG, ap_hdl, "Requested transition to state [%s]...",
+  TIZ_LOGN (TIZ_PRIORITY_DEBUG, ap_hdl, "Requested transition to state [%s]...",
             tiz_fsm_state_to_str (a_param1));
 
   p_krn = tiz_get_krn (ap_hdl);
@@ -232,7 +232,7 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     default:
       {
-        TIZ_LOGN (TIZ_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateTransition] : "
+        TIZ_LOGN (TIZ_PRIORITY_ERROR, ap_hdl, "[OMX_ErrorIncorrectStateTransition] : "
                   "(OMX_StateLoaded -> [%s]...)",
                   tiz_state_to_str (a_param1));
         return OMX_ErrorIncorrectStateTransition;
@@ -255,7 +255,7 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       if (!TIZ_KRN_MAY_EXCHANGE_BUFFERS (p_krn))
       {
-        TIZ_LOGN (TIZ_DEBUG, ap_hdl,
+        TIZ_LOGN (TIZ_PRIORITY_DEBUG, ap_hdl,
                   "wait until all the tunneled non-supplier neighbours have "
                   "reported that they are ready to exchange buffers ...");
         return rc;

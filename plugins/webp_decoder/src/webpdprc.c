@@ -85,7 +85,7 @@ webpd_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   struct webpdprc *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                  "Resource allocation complete..." "pid = [%d]", a_pid);
   return OMX_ErrorNone;
 }
@@ -96,7 +96,7 @@ webpd_proc_deallocate_resources (void *ap_obj)
   struct webpdprc *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                  "Resource deallocation complete...");
   return OMX_ErrorNone;
 }
@@ -105,7 +105,7 @@ static OMX_ERRORTYPE
 webpd_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
            "Transfering buffers...pid [%d]", a_pid);
   return OMX_ErrorNone;
 
@@ -146,11 +146,11 @@ claim_input (const void *ap_obj)
     {
       tiz_check_omx_err (tiz_krn_claim_buffer
                          (p_krn, 0, 0, &p_obj->pinhdr_));
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "Claimed INPUT HEADER [%p]...", p_obj->pinhdr_);
       return true;
     }
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "Could not claim an input header...");
   return false;
 }
@@ -170,7 +170,7 @@ claim_output (const void *ap_obj)
     {
       tiz_check_omx_err (tiz_krn_claim_buffer
                          (p_krn, 1, 0, &p_obj->pouthdr_));
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
                 "nFilledLen [%d]...", p_obj->pouthdr_,
                 p_obj->pouthdr_->pBuffer, p_obj->pouthdr_->nFilledLen);
@@ -186,7 +186,7 @@ webpd_proc_buffers_ready (const void *ap_obj)
   struct webpdprc *p_obj = (struct webpdprc *) ap_obj;
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "Buffers ready...");
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj), "Buffers ready...");
 
   while (1)
     {
@@ -220,7 +220,7 @@ webpd_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "p_obj->eos OUTPUT HEADER [%p]...", p_obj->pouthdr_);
       p_obj->pouthdr_->nFlags |= OMX_BUFFERFLAG_EOS;
       tiz_krn_release_buffer (p_krn, 1, p_obj->pouthdr_);

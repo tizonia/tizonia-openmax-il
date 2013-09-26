@@ -71,22 +71,78 @@ extern "C"
   ((TIZ_PDS_BITS (set)[_TIZ_PDELT (d)] & _TIZ_PDMASK (d)) != 0)
 
 
-
-
-#define TIZ_CNAME(hdl) \
+  /* ---------------------------------- */
+  /* libtizonia-specific logging macros */
+  /* ---------------------------------- */
+#define TIZ_CNAME(hdl)                                  \
   (((OMX_COMPONENTTYPE*)hdl)->pComponentPrivate)
-#define TIZ_CBUF(hdl)  \
+#define TIZ_CBUF(hdl)                                                   \
   (((OMX_COMPONENTTYPE*)hdl)->pComponentPrivate + OMX_MAX_STRINGNAME_SIZE)
 
-#define TIZ_LOGN(priority,hdl,format,args...)                   \
-  tiz_log(__FILE__,                                             \
-          __LINE__,                                             \
-          __FUNCTION__,                                         \
-          TIZ_LOG_CATEGORY_NAME,                                \
-          priority,                                             \
-          TIZ_CNAME(hdl),                                       \
-          TIZ_CBUF(hdl),                                        \
-          format,                                               \
+#define TIZ_LOGN(priority,hdl,format,args...)   \
+  tiz_log(__FILE__,                             \
+          __LINE__,                             \
+          __FUNCTION__,                         \
+          TIZ_LOG_CATEGORY_NAME,                \
+          priority,                             \
+          TIZ_CNAME(hdl),                       \
+          TIZ_CBUF(hdl),                        \
+          format,                               \
+          ##args);
+
+#define TIZ_ERROR(hdl,format,args...)           \
+  tiz_log(__FILE__,                             \
+          __LINE__,                             \
+          __FUNCTION__,                         \
+          TIZ_LOG_CATEGORY_NAME,                \
+          TIZ_PRIORITY_ERROR,                   \
+          TIZ_CNAME(hdl),                       \
+          TIZ_CBUF(hdl),                        \
+          format,                               \
+          ##args);
+
+#define TIZ_WARN(hdl,format,args...)            \
+  tiz_log(__FILE__,                             \
+    __LINE__,                                   \
+    __FUNCTION__,                               \
+    TIZ_LOG_CATEGORY_NAME,                      \
+    TIZ_PRIORITY_WARN,                          \
+    TIZ_CNAME(hdl),                             \
+    TIZ_CBUF(hdl),                              \
+    format,                                     \
+    ##args);
+
+#define TIZ_NOTICE(hdl,format,args...)          \
+  tiz_log(__FILE__,                             \
+    __LINE__,                                   \
+    __FUNCTION__,                               \
+    TIZ_LOG_CATEGORY_NAME,                      \
+    TIZ_PRIORITY_NOTICE,                        \
+    TIZ_CNAME(hdl),                             \
+    TIZ_CBUF(hdl),                              \
+    format,                                     \
+    ##args);
+
+#define TIZ_DEBUG(hdl,format,args...)           \
+  tiz_log(__FILE__,                             \
+    __LINE__,                                   \
+    __FUNCTION__,                               \
+    TIZ_LOG_CATEGORY_NAME,                      \
+    TIZ_PRIORITY_DEBUG,                         \
+    TIZ_CNAME(hdl),                             \
+    TIZ_CBUF(hdl),                              \
+    format,                                     \
+    ##args);
+
+#define TIZ_TRACE(hdl,format,args...)           \
+  tiz_log(__FILE__,                             \
+    __LINE__,                                   \
+          __FUNCTION__,                         \
+          TIZ_LOG_CATEGORY_NAME,                \
+          TIZ_PRIORITY_TRACE,                   \
+          TIZ_CNAME(hdl),                       \
+          TIZ_CBUF(hdl),                        \
+          format,                               \
           ##args);
 
   void tiz_clear_header (OMX_BUFFERHEADERTYPE * ap_hdr);

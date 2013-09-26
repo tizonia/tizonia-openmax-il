@@ -184,7 +184,7 @@ insert_kv_pair (tiz_http_parser_t * ap_parser, const char *ap_key,
 static int
 on_message_begin (http_parser * ap_parser)
 {
-  TIZ_LOG (TIZ_TRACE, "*** on message begin ***");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on message begin ***");
   return 0;
 }
 
@@ -197,7 +197,7 @@ on_url (http_parser * ap_parser, const char *ap_at, size_t a_length)
   assert (NULL != p_hp);
   assert (NULL != ap_at);
 
-  TIZ_LOG (TIZ_TRACE, "*** on url [%.*s] ***", (int) a_length, ap_at);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on url [%.*s] ***", (int) a_length, ap_at);
 
   return insert_kv_pair (p_hp, p_url_str, 3, ap_at, a_length);
 }
@@ -205,7 +205,7 @@ on_url (http_parser * ap_parser, const char *ap_at, size_t a_length)
 static int
 on_status_complete (http_parser * ap_parser)
 {
-  TIZ_LOG (TIZ_TRACE, "*** on status complete ***");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on status complete ***");
   return 0;
 }
 
@@ -217,7 +217,7 @@ on_header_field (http_parser * ap_parser, const char *ap_at, size_t a_length)
   assert (NULL != p_hp);
   assert (NULL != ap_at);
 
-  TIZ_LOG (TIZ_TRACE, "*** on header field [%.*s] ***", (int) a_length,
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on header field [%.*s] ***", (int) a_length,
            ap_at);
 
   tiz_mem_free (p_hp->p_last_header);
@@ -237,7 +237,7 @@ on_header_value (http_parser * ap_parser, const char *ap_at, size_t a_length)
   assert (NULL != ap_at);
   assert (NULL != p_hdr);
 
-  TIZ_LOG (TIZ_TRACE, "*** on header value [%.*s] ***", (int) a_length,
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on header value [%.*s] ***", (int) a_length,
            ap_at);
 
   return insert_kv_pair (p_hp, to_lower_case (p_hdr), strlen (p_hdr), ap_at,
@@ -247,21 +247,21 @@ on_header_value (http_parser * ap_parser, const char *ap_at, size_t a_length)
 static int
 on_headers_complete (http_parser * ap_parser)
 {
-  TIZ_LOG (TIZ_TRACE, "*** on headers complete ***");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on headers complete ***");
   return 0;
 }
 
 static int
 on_body (http_parser * ap_parser, const char *ap_at, size_t a_length)
 {
-  TIZ_LOG (TIZ_TRACE, "*** on body ***");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on body ***");
   return 0;
 }
 
 static int
 on_message_complete (http_parser * ap_parser)
 {
-  TIZ_LOG (TIZ_TRACE, "*** on message complete ***");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on message complete ***");
   return 0;
 }
 
@@ -292,14 +292,14 @@ tiz_http_parser_init (tiz_http_parser_ptr_t * app_parser,
   if (NULL == (p_hp = (tiz_http_parser_ptr_t) tiz_mem_calloc
                (1, sizeof (tiz_http_parser_t))))
     {
-      TIZ_LOG (TIZ_ERROR, "Error allocating http parser structure.");
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "Error allocating http parser structure.");
       rc = OMX_ErrorInsufficientResources;
       goto end;
     }
 
   if (NULL == (p_hp->p_dict = avl_new_avl_tree (compare_kv_pairs, NULL)))
     {
-      TIZ_LOG (TIZ_ERROR, "Error allocating avl tree structure.");
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "Error allocating avl tree structure.");
       rc = OMX_ErrorInsufficientResources;
       goto end;
     }

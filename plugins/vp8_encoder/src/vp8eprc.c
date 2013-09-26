@@ -53,7 +53,7 @@ static void *
 vp8e_proc_ctor (void *ap_obj, va_list * app)
 {
   vp8e_prc_t *p_obj = super_ctor (vp8eprc, ap_obj, app);
-  TIZ_LOG (TIZ_TRACE, "Constructing vp8eprc...[%p]", p_obj);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing vp8eprc...[%p]", p_obj);
 
   p_obj->pinhdr_ = 0;
   p_obj->pouthdr_ = 0;
@@ -66,7 +66,7 @@ static void *
 vp8e_proc_dtor (void *ap_obj)
 {
   vp8e_prc_t *p_obj = ap_obj;
-  TIZ_LOG (TIZ_TRACE, "Destructing vp8eprc...[%p]", p_obj);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Destructing vp8eprc...[%p]", p_obj);
   return super_dtor (vp8eprc, ap_obj);
 }
 
@@ -88,7 +88,7 @@ vp8e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   vp8e_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "Resource allocation complete..." "pid = [%d]", a_pid);
   return OMX_ErrorNone;
 }
@@ -99,7 +99,7 @@ vp8e_proc_deallocate_resources (void *ap_obj)
   vp8e_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "Resource deallocation complete...");
   return OMX_ErrorNone;
 }
@@ -108,7 +108,7 @@ static OMX_ERRORTYPE
 vp8e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "Transfering buffers...pid [%d]", a_pid);
   return OMX_ErrorNone;
 }
@@ -148,12 +148,12 @@ claim_input (const void *ap_obj)
     {
       tiz_check_omx_err (tiz_krn_claim_buffer
                          (p_krn, 0, 0, &p_obj->pinhdr_));
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "Claimed INPUT HEADER [%p]...", p_obj->pinhdr_);
       return true;
     }
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
             "COULD NOT CLAIM AN INPUT HEADER...");
   return false;
 }
@@ -173,7 +173,7 @@ claim_output (const void *ap_obj)
     {
       tiz_check_omx_err (tiz_krn_claim_buffer
                          (p_krn, 1, 0, &p_obj->pouthdr_));
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
                 "nFilledLen [%d]...", p_obj->pouthdr_,
                 p_obj->pouthdr_->pBuffer, p_obj->pouthdr_->nFilledLen);
@@ -189,7 +189,7 @@ vp8e_proc_buffers_ready (const void *ap_obj)
   vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
-  TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj), "Buffers ready...");
+  TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj), "Buffers ready...");
 
   while (1)
     {
@@ -223,7 +223,7 @@ vp8e_proc_buffers_ready (const void *ap_obj)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_LOGN (TIZ_TRACE, tiz_api_get_hdl (ap_obj),
+      TIZ_LOGN (TIZ_PRIORITY_TRACE, tiz_api_get_hdl (ap_obj),
                 "p_obj->eos OUTPUT HEADER [%p]...", p_obj->pouthdr_);
       p_obj->pouthdr_->nFlags |= OMX_BUFFERFLAG_EOS;
       tiz_krn_release_buffer (p_krn, 1, p_obj->pouthdr_);

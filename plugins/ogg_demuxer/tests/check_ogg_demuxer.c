@@ -108,13 +108,13 @@ refresh_rm_db (void)
   if (!p_rmdb_path || !p_sqlite_path || !p_init_path || !p_rmd_path)
 
     {
-      TIZ_LOG(TIZ_TRACE, "Test data not available...");
+      TIZ_LOG(TIZ_PRIORITY_TRACE, "Test data not available...");
     }
   else
     {
       pg_rmd_path = strndup (p_rmd_path, PATH_MAX);
 
-      TIZ_LOG(TIZ_TRACE, "RM daemon [%s] ...", pg_rmd_path);
+      TIZ_LOG(TIZ_PRIORITY_TRACE, "RM daemon [%s] ...", pg_rmd_path);
 
       /* Re-fresh the rm db */
       size_t total_len = strlen (p_init_path)
@@ -127,12 +127,12 @@ refresh_rm_db (void)
                   p_init_path, p_sqlite_path, p_rmdb_path);
           if (-1 != system (p_cmd))
             {
-              TIZ_LOG(TIZ_TRACE, "Successfully run [%s] script...", p_cmd);
+              TIZ_LOG(TIZ_PRIORITY_TRACE, "Successfully run [%s] script...", p_cmd);
               rv = true;
             }
           else
             {
-              TIZ_LOG(TIZ_TRACE,
+              TIZ_LOG(TIZ_PRIORITY_TRACE,
                       "Error while executing db init shell script...");
             }
           tiz_mem_free (p_cmd);
@@ -159,7 +159,7 @@ setup (void)
     }
   else
     {
-      TIZ_LOG (TIZ_TRACE, "Starting the RM Daemon");
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Starting the RM Daemon");
       const char *arg0 = "";
       error = execlp (pg_rmd_path, arg0, (char *) NULL);
       fail_if (error == -1);
@@ -276,7 +276,7 @@ _ctx_wait (cc_ctx_t * app_ctx, OMX_U32 a_millis, OMX_BOOL * ap_has_timedout)
   assert (app_ctx);
   p_ctx = * app_ctx;
 
-  TIZ_LOG (TIZ_TRACE, "a_millis [%u]", a_millis);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "a_millis [%u]", a_millis);
 
   * ap_has_timedout = OMX_FALSE;
 
@@ -354,7 +354,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
   pp_ctx = (cc_ctx_t *) ap_app_data;
   p_ctx = *pp_ctx;
 
-  TIZ_LOG (TIZ_TRACE, "Component Event [%s]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Component Event [%s]",
              tiz_evt_to_str (eEvent));
 
   if (OMX_EventCmdComplete == eEvent)
@@ -363,7 +363,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
         {
         case OMX_CommandStateSet:
           {
-            TIZ_LOG (TIZ_TRACE, "Component transitioned to [%s]",
+            TIZ_LOG (TIZ_PRIORITY_TRACE, "Component transitioned to [%s]",
                        tiz_state_to_str ((OMX_STATETYPE) (nData2)));
             p_ctx->state = (OMX_STATETYPE) (nData2);
             _ctx_signal (pp_ctx);
@@ -372,7 +372,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
 
         case OMX_CommandPortDisable:
           {
-            TIZ_LOG (TIZ_TRACE, "Port [%d] is now DISABLED", nData2);
+            TIZ_LOG (TIZ_PRIORITY_TRACE, "Port [%d] is now DISABLED", nData2);
             _ctx_signal (pp_ctx);
           }
           break;
@@ -390,7 +390,7 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
     {
       if (nData2 & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOG (TIZ_TRACE, "Received EOS from [%s] port[%i]",
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "Received EOS from [%s] port[%i]",
                      COMPONENT_NAME, nData1);
         }
       else
@@ -406,7 +406,7 @@ OMX_ERRORTYPE check_EmptyBufferDone
   (OMX_HANDLETYPE ap_hdl,
    OMX_PTR ap_app_data, OMX_BUFFERHEADERTYPE * ap_buf)
 {
-  TIZ_LOG (TIZ_TRACE, "EmptyBufferDone: BUFFER [%p]", ap_buf);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "EmptyBufferDone: BUFFER [%p]", ap_buf);
   fail_if (0);
   return OMX_ErrorNone;
 }
@@ -418,7 +418,7 @@ OMX_ERRORTYPE check_FillBufferDone
   check_common_context_t *p_ctx = NULL;
   cc_ctx_t *pp_ctx = NULL;
 
-  TIZ_LOG (TIZ_TRACE,
+  TIZ_LOG (TIZ_PRIORITY_TRACE,
            "FillBufferDone: BUFFER [%p] pid [%d] "
            "nFilledLen [%d] nFlags [%X]",
            ap_buf, ap_buf->nOutputPortIndex,
@@ -438,14 +438,14 @@ OMX_ERRORTYPE check_FillBufferDone
   if (ap_buf->nOutputPortIndex == 0) /* Audio port */
     {
       tiz_vector_push_back (p_ctx->p_aud_hdrs, &ap_buf);
-      TIZ_LOG (TIZ_TRACE,
+      TIZ_LOG (TIZ_PRIORITY_TRACE,
                "FillBufferDone: audio header list size [%d]",
                tiz_vector_length (p_ctx->p_aud_hdrs));
     }
   else
     {
       tiz_vector_push_back (p_ctx->p_vid_hdrs, &ap_buf);
-      TIZ_LOG (TIZ_TRACE,
+      TIZ_LOG (TIZ_PRIORITY_TRACE,
                "FillBufferDone: video header list size [%d]",
                tiz_vector_length (p_ctx->p_vid_hdrs));
     }
@@ -493,7 +493,7 @@ init_test_data()
       ||!p_testfile3 || !p_testfile4 || !p_testfile5)
 
     {
-      TIZ_LOG(TIZ_TRACE, "Some of the test streams are not available...");
+      TIZ_LOG(TIZ_PRIORITY_TRACE, "Some of the test streams are not available...");
     }
   else
     {
@@ -502,7 +502,7 @@ init_test_data()
       pg_files[2] = p_testfile3;
       pg_files[3] = p_testfile4;
       pg_files[4] = p_testfile5;
-      TIZ_LOG(TIZ_TRACE, "Test streams available [%s]", pg_files[0]);
+      TIZ_LOG(TIZ_PRIORITY_TRACE, "Test streams available [%s]", pg_files[0]);
       rv = true;
     }
 
@@ -531,7 +531,7 @@ transfer_buffers(cc_ctx_t * app_ctx, OMX_HANDLETYPE ap_hdl,
     }
 
   nbufs = tiz_vector_length (ap_hdrs);
-  TIZ_LOG (TIZ_TRACE, "header list size [%d]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "header list size [%d]",
            tiz_vector_length (ap_hdrs));
 
   for (i = 0; i < nbufs; i++)
@@ -540,7 +540,7 @@ transfer_buffers(cc_ctx_t * app_ctx, OMX_HANDLETYPE ap_hdl,
       assert (pp_hdr && *pp_hdr);
       p_hdr = *pp_hdr;
       p_hdr->nFilledLen = 0;
-      TIZ_LOG (TIZ_TRACE,
+      TIZ_LOG (TIZ_PRIORITY_TRACE,
                "FillThisBuffer: BUFFER [%p] pid [%d] "
                "nFilledLen [%d] nFlags [%X]",
                p_hdr, p_hdr->nOutputPortIndex,
@@ -582,7 +582,7 @@ write_data_to_file(cc_ctx_t * app_ctx, tiz_vector_t *ap_hdrs,
     }
 
   nbufs = tiz_vector_length (ap_hdrs);
-  TIZ_LOG (TIZ_TRACE, "header list size [%d]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "header list size [%d]",
            tiz_vector_length (ap_hdrs));
 
   for (i = 0; i < nbufs; i++)
@@ -596,20 +596,20 @@ write_data_to_file(cc_ctx_t * app_ctx, tiz_vector_t *ap_hdrs,
           if (!(err = fwrite (p_hdr->pBuffer, 1, p_hdr->nFilledLen,
                               ap_file)))
             {
-              TIZ_LOG (TIZ_TRACE, "An error occurred while writing to file [%d].",
+              TIZ_LOG (TIZ_PRIORITY_TRACE, "An error occurred while writing to file [%d].",
                        pg_files[file_id]);
               fail_if (0);
             }
 
           *ap_bytes_written += p_hdr->nFilledLen;
-          TIZ_LOG (TIZ_TRACE, "[%s] : bytes written [%d]",
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] : bytes written [%d]",
                    pg_files[file_id], (*ap_bytes_written));
           p_hdr->nFilledLen = 0;
         }
 
       if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
         {
-          TIZ_LOG (TIZ_TRACE, "End of file reached on stream [%s].",
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "End of file reached on stream [%s].",
                    pg_files[file_id]);
           /* EOF on stream */
           eof = true;
@@ -666,7 +666,7 @@ START_TEST (test_ogg_demuxer)
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_TRACE, "p_hdl [%p]", p_hdl);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdl [%p]", p_hdl);
 
   /* -------------------------------- */
   /* Obtain the port def from port #0 */
@@ -677,8 +677,8 @@ START_TEST (test_ogg_demuxer)
   error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &aud_port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_TRACE, "Audio port nBufferSize [%d]", aud_port_def.nBufferSize);
-  TIZ_LOG (TIZ_TRACE, "Audio port nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Audio port nBufferSize [%d]", aud_port_def.nBufferSize);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Audio port nBufferCountActual [%d]",
              aud_port_def.nBufferCountActual);
 
   /* -------------------------------- */
@@ -690,8 +690,8 @@ START_TEST (test_ogg_demuxer)
   error = OMX_GetParameter (p_hdl, OMX_IndexParamPortDefinition, &vid_port_def);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_TRACE, "Video port nBufferSize [%d]", vid_port_def.nBufferSize);
-  TIZ_LOG (TIZ_TRACE, "Video port nBufferCountActual [%d]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Video port nBufferSize [%d]", vid_port_def.nBufferSize);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Video port nBufferCountActual [%d]",
              vid_port_def.nBufferCountActual);
 
   /* --------------------------------------------------------- */
@@ -716,7 +716,7 @@ START_TEST (test_ogg_demuxer)
   error = OMX_GetParameter (p_hdl, OMX_IndexParamContentURI, p_uri_param);
   fail_if (OMX_ErrorNone != error);
 
-  TIZ_LOG (TIZ_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI);
 
   /* ----------------*/
   /* Set the new URI */
@@ -724,7 +724,7 @@ START_TEST (test_ogg_demuxer)
   strcpy ((char*)p_uri_param->contentURI, pg_files[0]);
   p_uri_param->contentURI[strlen (pg_files[0])] = '\0';
   error = OMX_SetParameter (p_hdl, OMX_IndexParamContentURI, p_uri_param);
-  TIZ_LOG (TIZ_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, "
            "URI [%s]) = [%s]", p_uri_param->contentURI, tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
@@ -763,18 +763,18 @@ START_TEST (test_ogg_demuxer)
       fail_if (OMX_ErrorNone != error);
       fail_if (p_aud_hdrlst[i] == NULL);
       fail_if (aud_port_def.nBufferSize > p_aud_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%i] =  [%p]", i, p_aud_hdrlst[i]);
-      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nAllocLen [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_aud_hdrlst[%i] =  [%p]", i, p_aud_hdrlst[i]);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_aud_hdrlst[%d]->nAllocLen [%d]", i,
                  p_aud_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nFilledLen [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_aud_hdrlst[%d]->nFilledLen [%d]", i,
                  p_aud_hdrlst[i]->nFilledLen);
-      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nOffset [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_aud_hdrlst[%d]->nOffset [%d]", i,
                  p_aud_hdrlst[i]->nOffset);
-      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nOutputPortIndex [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_aud_hdrlst[%d]->nOutputPortIndex [%d]", i,
                  p_aud_hdrlst[i]->nOutputPortIndex);
-      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nInputPortIndex [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_aud_hdrlst[%d]->nInputPortIndex [%d]", i,
                  p_aud_hdrlst[i]->nInputPortIndex);
-      TIZ_LOG (TIZ_TRACE, "p_aud_hdrlst[%d]->nFlags [%X]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_aud_hdrlst[%d]->nFlags [%X]", i,
                  p_aud_hdrlst[i]->nFlags);
 
     }
@@ -792,18 +792,18 @@ START_TEST (test_ogg_demuxer)
       fail_if (OMX_ErrorNone != error);
       fail_if (p_vid_hdrlst[i] == NULL);
       fail_if (vid_port_def.nBufferSize > p_vid_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%i] =  [%p]", i, p_vid_hdrlst[i]);
-      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nAllocLen [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_vid_hdrlst[%i] =  [%p]", i, p_vid_hdrlst[i]);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_vid_hdrlst[%d]->nAllocLen [%d]", i,
                  p_vid_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nFilledLen [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_vid_hdrlst[%d]->nFilledLen [%d]", i,
                  p_vid_hdrlst[i]->nFilledLen);
-      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nOffset [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_vid_hdrlst[%d]->nOffset [%d]", i,
                  p_vid_hdrlst[i]->nOffset);
-      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nOutputPortIndex [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_vid_hdrlst[%d]->nOutputPortIndex [%d]", i,
                  p_vid_hdrlst[i]->nOutputPortIndex);
-      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nInputPortIndex [%d]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_vid_hdrlst[%d]->nInputPortIndex [%d]", i,
                  p_vid_hdrlst[i]->nInputPortIndex);
-      TIZ_LOG (TIZ_TRACE, "p_vid_hdrlst[%d]->nFlags [%X]", i,
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_vid_hdrlst[%d]->nFlags [%X]", i,
                  p_vid_hdrlst[i]->nFlags);
     }
 
@@ -813,7 +813,7 @@ START_TEST (test_ogg_demuxer)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%d] p_ctx->state [%s]", p_ctx->state,
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_ctx->state [%d] p_ctx->state [%s]", p_ctx->state,
            tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
@@ -821,7 +821,7 @@ START_TEST (test_ogg_demuxer)
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_state_to_str (state));
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "state [%s]", tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -839,7 +839,7 @@ START_TEST (test_ogg_demuxer)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_ctx->state [%s]",
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateExecuting != p_ctx->state);
 
@@ -895,7 +895,7 @@ START_TEST (test_ogg_demuxer)
 
       if (aud_eof && vid_eof)
         {
-          TIZ_LOG (TIZ_TRACE, "End of file reached for [%s] file",
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "End of file reached for [%s] file",
                    pg_files[0]);
           /* EOF of video stream */
           break;
@@ -919,7 +919,7 @@ START_TEST (test_ogg_demuxer)
   error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_TRACE, "p_ctx->state [%s]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_ctx->state [%s]",
              tiz_state_to_str (p_ctx->state));
   fail_if (OMX_StateIdle != p_ctx->state);
 
@@ -965,7 +965,7 @@ START_TEST (test_ogg_demuxer)
   /* Check state transition success */
   /* ------------------------------ */
   error = OMX_GetState (p_hdl, &state);
-  TIZ_LOG (TIZ_TRACE, "state [%s]", tiz_state_to_str (state));
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "state [%s]", tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -979,7 +979,7 @@ START_TEST (test_ogg_demuxer)
   sprintf (cmp_cmd, "%s %s %s", "cmp", pg_files[1], pg_files[2]);
   fail_if (system (cmp_cmd) != 0);
 
-  TIZ_LOG (TIZ_TRACE, "File comparison OK: [%s]", cmp_cmd);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "File comparison OK: [%s]", cmp_cmd);
 
   tiz_mem_free (p_aud_hdrlst);
   tiz_mem_free (p_uri_param);
@@ -1016,7 +1016,7 @@ main (void)
 
   tiz_log_init();
 
-  TIZ_LOG (TIZ_TRACE, "Tizonia OpenMAX IL - Ogg demuxer component unit tests");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL - Ogg demuxer component unit tests");
 
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);

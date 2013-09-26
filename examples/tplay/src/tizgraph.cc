@@ -92,7 +92,7 @@ g_graph_thread_func (void *p_arg)
       delete p_cmd;
     }
 
-  TIZ_LOG (TIZ_TRACE, "Graph thread exiting...");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Graph thread exiting...");
 
   return NULL;
 }
@@ -145,7 +145,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
   boost::lock_guard<boost::mutex> lock(mutex_);
   if (eEvent == OMX_EventCmdComplete)
     {
-      TIZ_LOG (TIZ_DEBUG, "[%s] : "
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "[%s] : "
                "[%s] [%s] [%s] error [%p]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent),
@@ -155,7 +155,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
     }
   else if (eEvent == OMX_EventPortSettingsChanged)
     {
-      TIZ_LOG (TIZ_DEBUG, "[%s] : "
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "[%s] : "
                "[%s] port [%lu] index [%s] pEventData [%p]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent), nData1,
@@ -164,7 +164,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
     }
   else if (eEvent == OMX_EventBufferFlag)
     {
-      TIZ_LOG (TIZ_DEBUG, "[%s] : "
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "[%s] : "
                "[%s] port [%lu] flags [%lX] pEventData [%p]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent), nData1, nData2,
@@ -174,7 +174,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
     }
   else if (eEvent == OMX_EventError)
     {
-      TIZ_LOG (TIZ_DEBUG, "[%s] : "
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "[%s] : "
                "[%s] error [%s] port [%lu] pEventData [%p]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent), tiz_err_to_str ((OMX_ERRORTYPE)nData1),
@@ -191,7 +191,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
     }
   else if (eEvent == OMX_EventVendorStartUnused)
     {
-      TIZ_LOG (TIZ_DEBUG, "[%s] : [%s]\n",
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "[%s] : [%s]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent));
       expected_list_.clear();
@@ -199,7 +199,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
     }
   else
     {
-      TIZ_LOG (TIZ_DEBUG, "Received from [%s] : "
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "Received from [%s] : "
                "[%s]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent));
@@ -232,13 +232,13 @@ tizcback_handler::wait_for_event_list (const waitevent_list_t &event_list)
   expected_list_ = event_list;
   events_outstanding_ = true;
 
-  TIZ_LOG (TIZ_DEBUG, "events_outstanding_ = [%s] event_list size [%d]",
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "events_outstanding_ = [%s] event_list size [%d]",
            events_outstanding_ ? "true" : "false", event_list.size());
 
   for (waitevent_list_t::const_iterator it = event_list.begin ();
        it != event_list.end (); ++it)
     {
-      TIZ_LOG (TIZ_DEBUG, "[%s] event [%s] ndata1 [%s] ndata2 [%s]",
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "[%s] event [%s] ndata1 [%s] ndata2 [%s]",
                const_cast<tizgraph &>(parent_).h2n_[(*it).component_].c_str (),
                tiz_evt_to_str ((*it).event_),
                (*it).event_ == OMX_EventCmdComplete
@@ -277,7 +277,7 @@ tizcback_handler::all_events_received ()
               char port_str [10];
               snprintf (port_str, 10, "%ld", exp_it->ndata2_);
               port_str[9] = '\0';
-              TIZ_LOG (TIZ_DEBUG, "Erasing [%s:%s(%s)] from [%s] "
+              TIZ_LOG (TIZ_PRIORITY_DEBUG, "Erasing [%s:%s(%s)] from [%s] "
                        "[%d] events remaining\n",
                        tiz_evt_to_str (exp_it->event_),
                        exp_it->event_ == OMX_EventCmdComplete
@@ -323,7 +323,7 @@ tizgraph::tizgraph(int graph_size, tizprobe_ptr_t probe_ptr)
   config_ ()
 {
   assert (probe_ptr);
-  TIZ_LOG (TIZ_TRACE, "Constructing...");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
   tiz_mutex_init (&mutex_);
   tiz_sem_init (&sem_, 0);
   tiz_queue_init (&p_queue_, 10);
@@ -748,7 +748,7 @@ tizgraph::modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd)
 
   for (int i=0; i<2 && error == OMX_ErrorNone; i++)
     {
-      TIZ_LOG (TIZ_DEBUG, "tunnel_id [%d] cmd [%s] comp [%s] port [%d]",
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "tunnel_id [%d] cmd [%s] comp [%s] port [%d]",
                tunnel_id, tiz_cmd_to_str (cmd), h2n_[tunnel_handles[i]].c_str(),
                port_ids[i]);
       error = OMX_SendCommand (tunnel_handles[i], cmd, port_ids[i], NULL);
@@ -804,7 +804,7 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
   assert (NULL != p_graph);
   assert (NULL != p_cmd);
 
-  TIZ_LOG (TIZ_TRACE, "type [%d]...", p_cmd->get_type ());
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "type [%d]...", p_cmd->get_type ());
 
   switch(p_cmd->get_type ())
     {

@@ -141,7 +141,7 @@ tiz_map_destroy (tiz_map_t * p_map)
 {
   if (NULL != p_map)
     {
-      TIZ_LOG (TIZ_TRACE, "Destroying map [%p]", p_map);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Destroying map [%p]", p_map);
 
       assert (NULL != p_map->p_tree);
       assert (p_map->size == 0);
@@ -186,7 +186,7 @@ tiz_map_insert (tiz_map_t * ap_map, OMX_PTR ap_key,
 
   ap_map->size++;
 
-  TIZ_LOG (TIZ_TRACE, "Inserted in map. size [%d]", ap_map->size);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Inserted in map. size [%d]", ap_map->size);
 
   return OMX_ErrorNone;
 }
@@ -208,7 +208,7 @@ tiz_map_find (const tiz_map_t * ap_map, OMX_PTR ap_key)
 
   if (0 == avl_get_item_by_key (ap_map->p_tree, &item, pp_itemf))
     {
-      TIZ_LOG (TIZ_TRACE, "Found value");
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Found value");
       return p_item_found->p_value;
     }
 
@@ -228,7 +228,7 @@ tiz_map_at (const tiz_map_t * ap_map, OMX_S32 a_pos)
   pp_itemf = &p_item_found;
   if (0 == avl_get_item_by_index (ap_map->p_tree, a_pos, pp_itemf))
     {
-      TIZ_LOG (TIZ_TRACE, "Found value");
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Found value");
       return p_item_found->p_value;
     }
 
