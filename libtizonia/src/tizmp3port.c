@@ -421,9 +421,9 @@ tiz_mp3port_init (void)
     {
       tiz_check_omx_err_ret_oom (tiz_port_init ());
       tiz_check_null_ret_oom
-        (tizmp3port_class = factory_new (tizport_class,
+        (tizmp3port_class = factory_new (tizaudioport_class,
                                          "tizmp3port_class",
-                                         tizport_class,
+                                         tizaudioport_class,
                                          sizeof (tiz_mp3port_class_t),
                                          ctor, mp3port_class_ctor, 0));
     }
@@ -434,7 +434,7 @@ tiz_mp3port_init (void)
       tiz_check_null_ret_oom
         (tizmp3port =
          factory_new
-         (tizaudioport_class,
+         (tizmp3port_class,
           "tizmp3port",
           tizaudioport,
           sizeof (tiz_mp3port_t),
