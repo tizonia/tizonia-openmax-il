@@ -31,10 +31,11 @@
 #endif
 
 #include "frprc.h"
-#include "tizosal.h"
-#include "tizscheduler.h"
+#include "tizport.h"
 #include "tizbinaryport.h"
-#include "tizconfigport.h"
+#include "tizscheduler.h"
+
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
@@ -75,15 +76,14 @@ instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* slave port's index, use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl, &port_opts);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, ap_hdl, NULL,       /* this port does not take options */
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+                      NULL,       /* this port does not take options */
                       ARATELIA_FILE_READER_COMPONENT_NAME,
                       file_reader_version);
 }
@@ -91,8 +91,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (fr_prc_init ());
-  return factory_new (frprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "frprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -100,6 +99,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_type_factory_t frprc_type;
+  const tiz_type_factory_t *tf_list[] = { &frprc_type };
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_FILE_READER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;
@@ -107,7 +108,18 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 1;
   role_factory.pf_proc    = instantiate_processor;
 
+  strcpy ((OMX_STRING) frprc_type.class_name, "frprc_class");
+  frprc_type.pf_class_init = fr_prc_class_init;
+  strcpy ((OMX_STRING) frprc_type.object_name, "frprc");
+  frprc_type.pf_object_init = fr_prc_init;
+
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_FILE_READER_COMPONENT_NAME));
+
+  /* Register the "frprc" class */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+
+  /* Register the various roles */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

@@ -67,6 +67,14 @@ extern "C"
     bool vid_port_disabled_;
   };
 
+  typedef struct oggdmux_prc_class oggdmux_prc_class_t;
+  struct oggdmux_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
+
 #ifdef __cplusplus
 }
 #endif

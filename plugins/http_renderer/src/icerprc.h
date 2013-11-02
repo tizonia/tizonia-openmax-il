@@ -34,12 +34,8 @@ extern "C"
 {
 #endif
 
-#include "icerprc.h"
-
-/* factory_new(icerprc, ...) */
-  extern const void *icerprc;
-
-  OMX_ERRORTYPE icer_prc_init (void);
+  void * icer_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * icer_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

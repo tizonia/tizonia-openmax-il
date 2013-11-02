@@ -45,6 +45,14 @@ extern "C"
     OMX_STRING p_uri_;
   };
 
+  typedef struct fw_cfgport_class fw_cfgport_class_t;
+  struct fw_cfgport_class
+  {
+    /* Class */
+    const tiz_configport_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
+
 #ifdef __cplusplus
 }
 #endif

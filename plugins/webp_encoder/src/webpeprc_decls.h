@@ -41,13 +41,22 @@ extern "C"
 
 #include <stdbool.h>
 
-  struct webpeprc
+  typedef struct webpe_prc webpe_prc_t;
+  struct webpe_prc
   {
     /* Object */
     const tiz_prc_t _;
     OMX_BUFFERHEADERTYPE *pinhdr_;
     OMX_BUFFERHEADERTYPE *pouthdr_;
     bool eos_;
+  };
+
+  typedef struct webpe_prc_class webpe_prc_class_t;
+  struct webpe_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

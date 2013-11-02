@@ -50,7 +50,7 @@
 static void *
 fr_prc_ctor (void *ap_obj, va_list * app)
 {
-  fr_prc_t *p_obj = super_ctor (frprc, ap_obj, app);
+  fr_prc_t *p_obj = super_ctor (typeOf (ap_obj, "frprc"), ap_obj, app);
   p_obj->eos_ = false;
   return p_obj;
 }
@@ -58,7 +58,7 @@ fr_prc_ctor (void *ap_obj, va_list * app)
 static void *
 fr_prc_dtor (void *ap_obj)
 {
-  return super_dtor (frprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "frprc"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -112,30 +112,54 @@ fr_prc_buffers_ready (const void *ap_obj)
 }
 
 /*
+ * fr_prc_class
+ */
+
+static void *
+fr_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "frprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *frprc;
-
-void
-init_frprc (void)
+void *
+fr_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!frprc)
-    {
-      tiz_prc_init ();
-      frprc =
-        factory_new
-        (tizprc_class,
-         "frprc",
-         tizprc,
-         sizeof (fr_prc_t),
-         ctor, fr_prc_ctor,
-         dtor, fr_prc_dtor,
-         tiz_prc_buffers_ready, fr_prc_buffers_ready,
-         tiz_srv_allocate_resources, fr_prc_allocate_resources,
-         tiz_srv_deallocate_resources, fr_prc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, fr_prc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, fr_prc_transfer_and_process,
-         tiz_srv_stop_and_return, fr_prc_stop_and_return, 0);
-    }
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * frprc_class = factory_new (classOf (tizprc),
+                                    "frprc_class",
+                                    classOf (tizprc),
+                                    sizeof (fr_prc_class_t),
+                                    ap_tos, ap_hdl,
+                                    ctor, fr_prc_class_ctor, 0);
+  return frprc_class;
+}
+
+void *
+fr_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * frprc_class = tiz_get_type (ap_hdl, "frprc_class");
+  TIZ_LOG_CLASS (frprc_class);
+  void * frprc =
+    factory_new
+    (frprc_class,
+     "frprc",
+     tizprc,
+     sizeof (fr_prc_t),
+     ap_tos, ap_hdl,
+     ctor, fr_prc_ctor,
+     dtor, fr_prc_dtor,
+     tiz_prc_buffers_ready, fr_prc_buffers_ready,
+     tiz_srv_allocate_resources, fr_prc_allocate_resources,
+     tiz_srv_deallocate_resources, fr_prc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, fr_prc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, fr_prc_transfer_and_process,
+     tiz_srv_stop_and_return, fr_prc_stop_and_return, 0);
+
+  return frprc;
 }

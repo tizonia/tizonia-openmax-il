@@ -32,9 +32,10 @@
 
 #include "oggdmux.h"
 #include "oggdmuxprc.h"
-#include "tizscheduler.h"
+#include "tizport.h"
 #include "tizdemuxercfgport.h"
 #include "tizdemuxerport.h"
+#include "tizscheduler.h"
 
 #include "tizosal.h"
 
@@ -106,8 +107,8 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
   mute.nPortIndex        = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
   mute.bMute             = OMX_FALSE;
 
-  tiz_check_omx_err_ret_null (tiz_demuxerport_init ());
-  return factory_new (tizdemuxerport, ap_hdl, &port_opts, &encodings,
+  return factory_new (tiz_get_type (ap_hdl, "tizdemuxerport"), ap_hdl,
+                      &port_opts, &encodings,
                       &pcmmode, &volume, &mute);
 }
 
@@ -155,16 +156,16 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  tiz_check_omx_err_ret_null (tiz_demuxerport_init ());
-  return factory_new (tizdemuxerport, ap_hdl, &port_opts, &portdef,
+  return factory_new (tiz_get_type (ap_hdl, "tizdemuxerport"), ap_hdl,
+                      &port_opts, &portdef,
                       &encodings, &formats);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (tiz_demuxer_cfgport_init ());
-  return factory_new (tizdemuxercfgport, ap_hdl, NULL,   /* this port does not take options */
+  return factory_new (tiz_get_type (ap_hdl, "tizdemuxercfgport"), ap_hdl,
+                      NULL,   /* this port does not take options */
                       ARATELIA_OGG_DEMUXER_COMPONENT_NAME,
                       ogg_demuxer_version);
 }
@@ -172,8 +173,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (oggdmux_prc_init ());
-  return factory_new (oggdmuxprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "oggdmuxprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -181,6 +181,11 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_type_factory_t oggdmuxprc_type;
+  const tiz_type_factory_t *tf_list[] = { &oggdmuxprc_type };
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
+           "Inititializing [%s]", ARATELIA_OGG_DEMUXER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_OGG_DEMUXER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;
@@ -190,10 +195,18 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 2;
   role_factory.pf_proc    = instantiate_processor;
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
-           "Inititializing [%s]", ARATELIA_OGG_DEMUXER_COMPONENT_NAME);
+  strcpy ((OMX_STRING) oggdmuxprc_type.class_name, "oggdmuxprc_class");
+  oggdmuxprc_type.pf_class_init = oggdmux_prc_class_init;
+  strcpy ((OMX_STRING) oggdmuxprc_type.object_name, "oggdmuxprc");
+  oggdmuxprc_type.pf_object_init = oggdmux_prc_init;
 
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_OGG_DEMUXER_COMPONENT_NAME));
+
+  /* Register the "oggdmuxprc" class */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+
+  /* Register the various roles */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

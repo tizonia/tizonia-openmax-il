@@ -34,10 +34,10 @@ extern "C"
 {
 #endif
 
-#include "OMX_Component.h"
+#include "tizport.h"
 #include "tizapi_decls.h"
 #include "tizutils.h"
-#include "tizosal.h"
+#include "OMX_Component.h"
 
   typedef struct tiz_port tiz_port_t;
   struct tiz_port

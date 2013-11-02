@@ -34,6 +34,7 @@
 #include "opusdprc_decls.h"
 #include "tizkernel.h"
 #include "tizscheduler.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -58,7 +59,7 @@ transform_buffer (const void *ap_obj)
 static void *
 opusd_prc_ctor (void *ap_obj, va_list * app)
 {
-  opusd_prc_t *p_prc = super_ctor (opusdprc, ap_obj, app);
+  opusd_prc_t *p_prc = super_ctor (typeOf (ap_obj, "opusdprc"), ap_obj, app);
   assert (NULL != p_prc);
   p_prc->p_opus_dec_ = NULL;
   p_prc->pinhdr_     = NULL;
@@ -79,7 +80,7 @@ opusd_prc_dtor (void *ap_obj)
       opus_decoder_destroy (p_prc->p_opus_dec_);
       p_prc->p_opus_dec_ = NULL;
     }
-  return super_dtor (opusdprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "opusdprc"), ap_obj);
 }
 
 /*
@@ -142,32 +143,53 @@ opusd_prc_buffers_ready (const void *ap_obj)
 }
 
 /*
+ * opusd_prc_class
+ */
+
+static void *
+opusd_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "opusdprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *opusdprc;
-
-OMX_ERRORTYPE
-opusd_prc_init (void)
+void *
+opusd_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!opusdprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (opusdprc =
-         factory_new
-         (tizprc_class,
-          "opusdprc",
-          tizprc,
-          sizeof (opusd_prc_t),
-          ctor, opusd_prc_ctor,
-          dtor, opusd_prc_dtor,
-          tiz_prc_buffers_ready, opusd_prc_buffers_ready,
-          tiz_srv_allocate_resources, opusd_prc_allocate_resources,
-          tiz_srv_deallocate_resources, opusd_prc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, opusd_prc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, opusd_prc_transfer_and_process,
-          tiz_srv_stop_and_return, opusd_prc_stop_and_return, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * opusdprc_class = factory_new (classOf (tizprc),
+                                      "opusdprc_class",
+                                      classOf (tizprc),
+                                      sizeof (opusd_prc_class_t),
+                                      ap_tos, ap_hdl,
+                                      ctor, opusd_prc_class_ctor, 0);
+  return opusdprc_class;
+}
+
+void *
+opusd_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * opusdprc_class = tiz_get_type (ap_hdl, "opusdprc_class");
+  void * opusdprc =
+    factory_new
+    (opusdprc_class,
+     "opusdprc",
+     tizprc,
+     sizeof (opusd_prc_t),
+     ap_tos, ap_hdl,
+     ctor, opusd_prc_ctor,
+     dtor, opusd_prc_dtor,
+     tiz_prc_buffers_ready, opusd_prc_buffers_ready,
+     tiz_srv_allocate_resources, opusd_prc_allocate_resources,
+     tiz_srv_deallocate_resources, opusd_prc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, opusd_prc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, opusd_prc_transfer_and_process,
+     tiz_srv_stop_and_return, opusd_prc_stop_and_return, 0);
+
+  return opusdprc;
 }

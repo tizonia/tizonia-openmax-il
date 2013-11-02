@@ -32,6 +32,7 @@
 
 #include "tizdemuxercfgport.h"
 #include "tizdemuxercfgport_decls.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -45,7 +46,7 @@
 
 
 static char *
-find_default_uri (tiz_demuxer_cfgport_t *ap_obj)
+find_default_uri (tiz_demuxercfgport_t *ap_obj)
 {
   const char       *p_uri  = NULL;
   char              fqd_key[OMX_MAX_STRINGNAME_SIZE];
@@ -79,7 +80,7 @@ find_default_uri (tiz_demuxer_cfgport_t *ap_obj)
 static void *
 demuxer_cfgport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_demuxer_cfgport_t *p_obj = super_ctor (tizdemuxercfgport, ap_obj, app);
+  tiz_demuxercfgport_t *p_obj = super_ctor (typeOf (ap_obj, "tizdemuxercfgport"), ap_obj, app);
   if (NULL == (p_obj->p_uri_ = find_default_uri (p_obj)))
     {
       return NULL;
@@ -100,9 +101,9 @@ demuxer_cfgport_ctor (void *ap_obj, va_list * app)
 static void *
 demuxer_cfgport_dtor (void *ap_obj)
 {
-  tiz_demuxer_cfgport_t *p_obj = ap_obj;
+  tiz_demuxercfgport_t *p_obj = ap_obj;
   tiz_mem_free (p_obj->p_uri_);
-  return super_dtor (tizdemuxercfgport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizdemuxercfgport"), ap_obj);
 }
 
 /*
@@ -114,7 +115,7 @@ demuxer_cfgport_GetParameter (const void *ap_obj,
                          OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const tiz_demuxer_cfgport_t *p_obj = ap_obj;
+  const tiz_demuxercfgport_t *p_obj = ap_obj;
 
   TIZ_TRACE (ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
@@ -148,7 +149,7 @@ demuxer_cfgport_GetParameter (const void *ap_obj,
     default:
       {
         /* Delegate to the base port */
-        return super_GetParameter (tizdemuxercfgport,
+        return super_GetParameter (typeOf (ap_obj, "tizdemuxercfgport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -161,7 +162,7 @@ static OMX_ERRORTYPE
 demuxer_cfgport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
+  tiz_demuxercfgport_t *p_obj = (tiz_demuxercfgport_t *) ap_obj;
 
   TIZ_TRACE (ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
@@ -196,7 +197,7 @@ demuxer_cfgport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     default:
       {
         /* Delegate to the base port */
-        return super_SetParameter (tizdemuxercfgport,
+        return super_SetParameter (typeOf (ap_obj, "tizdemuxercfgport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -209,7 +210,7 @@ static OMX_ERRORTYPE
 demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
+  tiz_demuxercfgport_t *p_obj = (tiz_demuxercfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
@@ -238,7 +239,7 @@ demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     default:
       {
         /* Delegate to the base port */
-        rc = super_GetConfig (tizdemuxercfgport,
+        rc = super_GetConfig (typeOf (ap_obj, "tizdemuxercfgport"),
                               ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -250,7 +251,7 @@ static OMX_ERRORTYPE
 demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  tiz_demuxer_cfgport_t *p_obj = (tiz_demuxer_cfgport_t *) ap_obj;
+  tiz_demuxercfgport_t *p_obj = (tiz_demuxercfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
@@ -280,7 +281,7 @@ demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     default:
       {
         /* Delegate to the base port */
-        rc = super_SetConfig (tizdemuxercfgport,
+        rc = super_SetConfig (typeOf (ap_obj, "tizdemuxercfgport"),
                               ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -289,30 +290,52 @@ demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 /*
+ * tizdemuxercfgport_class
+ */
+
+static void *
+demuxercfgport_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizdemuxercfgport_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *tizdemuxercfgport;
-
-OMX_ERRORTYPE
-tiz_demuxer_cfgport_init (void)
+void *
+tiz_demuxercfgport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizdemuxercfgport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_configport_init ());
-      tiz_check_null_ret_oom
-        (tizdemuxercfgport =
-         factory_new
-         (tizconfigport_class,
-          "tizdemuxercfgport",
-          tizconfigport,
-          sizeof (tiz_demuxer_cfgport_t),
-          ctor, demuxer_cfgport_ctor,
-          dtor, demuxer_cfgport_dtor,
-          tiz_api_GetParameter, demuxer_cfgport_GetParameter,
-          tiz_api_SetParameter, demuxer_cfgport_SetParameter,
-          tiz_api_GetConfig, demuxer_cfgport_GetConfig,
-          tiz_api_SetConfig, demuxer_cfgport_SetConfig, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * tizdemuxercfgport_class = factory_new (classOf (tizconfigport),
+                                                "tizdemuxercfgport_class",
+                                                classOf (tizconfigport),
+                                                sizeof (tiz_demuxercfgport_class_t),
+                                                ap_tos, ap_hdl,
+                                                ctor, demuxercfgport_class_ctor, 0);
+  return tizdemuxercfgport_class;
+}
+
+void *
+tiz_demuxercfgport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * tizdemuxercfgport_class = tiz_get_type (ap_hdl, "tizdemuxercfgport_class");
+  TIZ_LOG_CLASS (tizdemuxercfgport_class);
+  void * tizdemuxercfgport =
+    factory_new
+    (tizdemuxercfgport_class,
+     "tizdemuxercfgport",
+     tizconfigport,
+     sizeof (tiz_demuxercfgport_t),
+     ap_tos, ap_hdl,
+     ctor, demuxer_cfgport_ctor,
+     dtor, demuxer_cfgport_dtor,
+     tiz_api_GetParameter, demuxer_cfgport_GetParameter,
+     tiz_api_SetParameter, demuxer_cfgport_SetParameter,
+     tiz_api_GetConfig, demuxer_cfgport_GetConfig,
+     tiz_api_SetConfig, demuxer_cfgport_SetConfig, 0);
+
+  return tizdemuxercfgport;
 }

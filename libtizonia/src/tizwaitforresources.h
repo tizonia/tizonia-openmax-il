@@ -34,11 +34,8 @@ extern "C"
 {
 #endif
 
-#include "tizstate.h"
-
-  extern const void *tizwaitforresources;
-
-  OMX_ERRORTYPE tiz_waitforresources_init (void);
+  void * tiz_waitforresources_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_waitforresources_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

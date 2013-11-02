@@ -32,8 +32,8 @@
 
 #include "tizopusport.h"
 #include "tizopusport_decls.h"
-
 #include "tizutils.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -50,7 +50,7 @@
 static void *
 opusport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_opusport_t *p_obj = super_ctor (tizopusport, ap_obj, app);
+  tiz_opusport_t *p_obj = super_ctor (typeOf (ap_obj, "tizopusport"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
   OMX_AUDIO_PARAM_OPUSTYPE *p_opusmode = NULL;
   tiz_port_register_index (p_obj, OMX_IndexParamAudioOpus);
@@ -74,7 +74,7 @@ opusport_ctor (void *ap_obj, va_list * app)
 static void *
 opusport_dtor (void *ap_obj)
 {
-  return super_dtor (tizopusport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizopusport"), ap_obj);
 }
 
 /*
@@ -101,7 +101,7 @@ opusport_GetParameter (const void *ap_obj,
   else
     {
       /* Try the parent's indexes */
-      return super_GetParameter (tizopusport,
+      return super_GetParameter (typeOf (ap_obj, "tizopusport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -191,7 +191,7 @@ opusport_SetParameter (const void *ap_obj,
   else
     {
       /* Try the parent's indexes */
-      return super_SetParameter (tizopusport,
+      return super_SetParameter (typeOf (ap_obj, "tizopusport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -400,47 +400,46 @@ static void *
 opusport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (tizopusport_class, ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizopusport_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizopusport, *tizopusport_class;
-
-OMX_ERRORTYPE
-tiz_opusport_init (void)
+void *
+tiz_opusport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizopusport_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizopusport_class = factory_new (tizport_class,
+  void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
+  void * tizopusport_class = factory_new (classOf (tizaudioport),
                                           "tizopusport_class",
-                                          tizport_class,
+                                          classOf (tizaudioport),
                                           sizeof (tiz_opusport_class_t),
-                                          ctor, opusport_class_ctor, 0));
+                                          ap_tos, ap_hdl,
+                                          ctor, opusport_class_ctor, 0);
+  return tizopusport_class; 
+}
 
-    }
+void *
+tiz_opusport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
+  void * tizopusport_class = tiz_get_type (ap_hdl, "tizopusport_class");
+  TIZ_LOG_CLASS (tizopusport_class);
+  void * tizopusport =
+    factory_new
+    (tizopusport_class,
+     "tizopusport",
+     tizaudioport,
+     sizeof (tiz_opusport_t),
+     ap_tos, ap_hdl,
+     ctor, opusport_ctor,
+     dtor, opusport_dtor,
+     tiz_api_GetParameter, opusport_GetParameter,
+     tiz_api_SetParameter, opusport_SetParameter,
+     tiz_port_set_portdef_format, opusport_set_portdef_format,
+     tiz_port_check_tunnel_compat, opusport_check_tunnel_compat,
+     tiz_port_apply_slaving_behaviour, opusport_apply_slaving_behaviour, 0);
 
-  if (!tizopusport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_audioport_init ());
-      tiz_check_null_ret_oom
-        (tizopusport =
-         factory_new
-         (tizaudioport_class,
-          "tizopusport",
-          tizaudioport,
-          sizeof (tiz_opusport_t),
-          ctor, opusport_ctor,
-          dtor, opusport_dtor,
-          tiz_api_GetParameter, opusport_GetParameter,
-          tiz_api_SetParameter, opusport_SetParameter,
-          tiz_port_set_portdef_format, opusport_set_portdef_format,
-          tiz_port_check_tunnel_compat, opusport_check_tunnel_compat,
-          tiz_port_apply_slaving_behaviour, opusport_apply_slaving_behaviour, 0));
-    }
-  return OMX_ErrorNone;
+  return tizopusport;
 }

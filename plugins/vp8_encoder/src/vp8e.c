@@ -30,11 +30,13 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
-#include "tizscheduler.h"
+#include "vp8eprc.h"
+#include "tizport.h"
 #include "tizvp8port.h"
 #include "tizconfigport.h"
-#include "vp8eprc.h"
+#include "tizscheduler.h"
+
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
@@ -103,8 +105,8 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  tiz_check_omx_err_ret_null (tiz_videoport_init ());
-  return factory_new (tizvideoport, ap_hdl, &rawvideo_port_opts, &portdef,
+  return factory_new (tiz_get_type (ap_hdl, "tizvideoport"), ap_hdl,
+                      &rawvideo_port_opts, &portdef,
                       &encodings, &formats);
 }
 
@@ -170,16 +172,16 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   pbrtype.eControlRate      = OMX_Video_ControlRateConstant;
   pbrtype.nTargetBitrate    = 64000;
 
-  tiz_check_omx_err_ret_null (tiz_vp8port_init ());
-  return factory_new (tizvp8port, ap_hdl, &vp8_port_opts, &portdef, &encodings,
+  return factory_new (tiz_get_type (ap_hdl, "tizvp8port"), ap_hdl,
+                      &vp8_port_opts, &portdef, &encodings,
                       &formats, &vp8type, &levels, &pbrtype);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+                      NULL,   /* this port does not take options */
                       ARATELIA_VP8_ENCODER_COMPONENT_NAME,
                       vp8_encoder_version);
 }
@@ -187,8 +189,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (vp8e_prc_init ());
-  return factory_new (vp8eprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "vp8eprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -196,6 +197,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_type_factory_t vp8eprc_type;
+  const tiz_type_factory_t *tf_list[] = { &vp8eprc_type};
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_VP8_ENCODER_COMPONENT_NAME);
@@ -207,7 +210,18 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 2;
   role_factory.pf_proc    = instantiate_processor;
 
+  strcpy ((OMX_STRING) vp8eprc_type.class_name, "vp8eprc_class");
+  vp8eprc_type.pf_class_init = vp8e_prc_class_init;
+  strcpy ((OMX_STRING) vp8eprc_type.object_name, "vp8eprc");
+  vp8eprc_type.pf_object_init = vp8e_prc_init;
+
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_VP8_ENCODER_COMPONENT_NAME));
+
+  /* Register the "vp8eprc" class */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+
+  /* Register the component role */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

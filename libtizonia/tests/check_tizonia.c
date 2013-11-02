@@ -500,30 +500,6 @@ init_fake_comp(OMX_COMPONENTTYPE *p_hdl)
  * Unit tests
  */
 
-START_TEST (test_tizonia_fsm_create_and_destroy)
-{
-  void *p_fsm = 0;
-
-  tiz_fsm_init ();
-  p_fsm = factory_new (tizfsm);
-
-  fail_if (!p_fsm);
-  factory_delete (p_fsm);
-}
-END_TEST
-
-START_TEST (test_tizonia_krn_create_and_destroy)
-{
-  void *p_kernel = 0;
-
-  tiz_krn_init ();
-  p_kernel = factory_new (tizkrn);
-
-  fail_if (!p_kernel);
-  factory_delete (p_kernel);
-}
-END_TEST
-
 START_TEST (test_tizonia_getstate)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
@@ -2087,8 +2063,6 @@ tiz_suite (void)
   tc_tizonia = tcase_create ("tizonia");
   tcase_add_unchecked_fixture (tc_tizonia, setup, teardown);
 
-(void) test_tizonia_fsm_create_and_destroy;
-(void) test_tizonia_krn_create_and_destroy;
 (void) test_tizonia_getstate;
 (void) test_tizonia_gethandle_freehandle;
 (void) test_tizonia_getparameter;
@@ -2103,8 +2077,6 @@ tiz_suite (void)
 (void) test_tizonia_command_cancellation_disabled_to_enabled_no_buffers;
 (void) test_tizonia_command_cancellation_disabled_to_enabled_with_tunneled_supplied_buffers;
 
-  tcase_add_test (tc_tizonia, test_tizonia_fsm_create_and_destroy);
-  tcase_add_test (tc_tizonia, test_tizonia_krn_create_and_destroy);
   tcase_add_test (tc_tizonia, test_tizonia_getstate);
   tcase_add_test (tc_tizonia, test_tizonia_gethandle_freehandle);
   tcase_add_test (tc_tizonia, test_tizonia_getparameter);

@@ -32,6 +32,7 @@
 
 #include "tizconfigport.h"
 #include "tizconfigport_decls.h"
+#include "tizport.h"
 #include "tizosal.h"
 
 #include <assert.h>
@@ -49,7 +50,7 @@
 static void *
 configport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_configport_t *p_obj = super_ctor (tizconfigport, ap_obj, app);
+  tiz_configport_t *p_obj = super_ctor (typeOf (ap_obj, "tizconfigport"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
   size_t str_len = 0;
   
@@ -107,7 +108,7 @@ configport_ctor (void *ap_obj, va_list * app)
 static void *
 configport_dtor (void *ap_obj)
 {
-  return super_dtor (tizconfigport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizconfigport"), ap_obj);
 }
 
 /*
@@ -335,47 +336,47 @@ static void *
 configport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (tizconfigport_class, ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizconfigport_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizconfigport, *tizconfigport_class;
-
-OMX_ERRORTYPE
-tiz_configport_init (void)
+void *
+tiz_configport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizconfigport_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizconfigport_class = factory_new (tizport_class,
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizconfigport_class = factory_new (classOf (tizport),
                                             "tizconfigport_class",
-                                            tizport_class,
+                                            classOf (tizport),
                                             sizeof (tiz_configport_class_t),
-                                            ctor, configport_class_ctor, 0));
-    }
+                                            ap_tos, ap_hdl,
+                                            ctor, configport_class_ctor, 0);
+  return tizconfigport_class;
+}
 
-  if (!tizconfigport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizconfigport =
-         factory_new
-         (tizconfigport_class,
-          "tizconfigport",
-          tizport,
-          sizeof (tiz_configport_t),
-          ctor, configport_ctor,
-          dtor, configport_dtor,
-          tiz_api_GetComponentVersion, configport_GetComponentVersion,
-          tiz_api_GetParameter, configport_GetParameter,
-          tiz_api_SetParameter, configport_SetParameter,
-          tiz_api_GetConfig, configport_GetConfig,
-          tiz_api_SetConfig, configport_SetConfig,
-          tiz_api_GetExtensionIndex, configport_GetExtensionIndex, 0));
-    }
-  return OMX_ErrorNone;
+void *
+tiz_configport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizconfigport_class = tiz_get_type (ap_hdl, "tizconfigport_class");
+  TIZ_LOG_CLASS (tizconfigport_class);
+  void * tizconfigport =
+    factory_new
+    (tizconfigport_class,
+     "tizconfigport",
+     tizport,
+     sizeof (tiz_configport_t),
+     ap_tos, ap_hdl,
+     ctor, configport_ctor,
+     dtor, configport_dtor,
+     tiz_api_GetComponentVersion, configport_GetComponentVersion,
+     tiz_api_GetParameter, configport_GetParameter,
+     tiz_api_SetParameter, configport_SetParameter,
+     tiz_api_GetConfig, configport_GetConfig,
+     tiz_api_SetConfig, configport_SetConfig,
+     tiz_api_GetExtensionIndex, configport_GetExtensionIndex, 0);
+
+  return tizconfigport;
 }

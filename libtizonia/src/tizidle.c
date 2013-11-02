@@ -30,17 +30,18 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
+#include "tizidle.h"
+#include "tizstate.h"
+#include "tizstate_decls.h"
 #include "tizscheduler.h"
 #include "tizfsm.h"
 #include "tizkernel.h"
 #include "tizport.h"
 #include "tizport-macros.h"
-#include "tizidle.h"
-#include "tizstate_decls.h"
 
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -51,14 +52,14 @@
 static void *
 idle_ctor (void *ap_obj, va_list * app)
 {
-  tiz_idle_t *p_obj = super_ctor (tizidle, ap_obj, app);
+  tiz_idle_t *p_obj = super_ctor (typeOf (ap_obj, "tizidle"), ap_obj, app);
   return p_obj;
 }
 
 static void *
 idle_dtor (void *ap_obj)
 {
-  return super_dtor (tizidle, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizidle"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -262,35 +263,59 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       }
     }
 
-  return tiz_state_super_state_set (tizidle, ap_obj, ap_hdl, a_cmd,
+  return tiz_state_super_state_set (typeOf (ap_obj, "tizidle"), ap_obj, ap_hdl, a_cmd,
                                    a_param1, ap_cmd_data);
+}
+
+/*
+ * idle_class
+ */
+
+static void *
+idle_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizidle_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizidle;
-
-OMX_ERRORTYPE
-tiz_idle_init (void)
+void *
+tiz_idle_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizidle)
-    {
-      tiz_check_omx_err_ret_oom (tiz_state_init ());
-      tiz_check_null_ret_oom
-        (tizidle =
-         factory_new
-         (tizstate_class, "tizidle",
-          tizstate, sizeof (tiz_idle_t),
-          ctor, idle_ctor,
-          dtor, idle_dtor,
-          tiz_api_SetParameter, idle_SetParameter,
-          tiz_api_GetState, idle_GetState,
-          tiz_api_UseBuffer, idle_UseBuffer,
-          tiz_api_EmptyThisBuffer, idle_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, idle_FillThisBuffer,
-          tiz_state_state_set, idle_state_set, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizstate = tiz_get_type (ap_hdl, "tizstate");
+  void * tizidle_class = factory_new (classOf (tizstate),
+                                      "tizidle_class",
+                                      classOf (tizstate),
+                                      sizeof (tiz_idle_class_t),
+                                      ap_tos, ap_hdl,
+                                      ctor, idle_class_ctor, 0);
+  return tizidle_class;
+}
+
+void *
+tiz_idle_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizstate = tiz_get_type (ap_hdl, "tizstate");
+  void * tizidle_class = tiz_get_type (ap_hdl, "tizidle_class");
+  TIZ_LOG_CLASS (tizidle_class);
+  void * tizidle =
+    factory_new
+    (tizidle_class,
+     "tizidle",
+     tizstate,
+     sizeof (tiz_idle_t),
+     ap_tos, ap_hdl,
+     ctor, idle_ctor,
+     dtor, idle_dtor,
+     tiz_api_SetParameter, idle_SetParameter,
+     tiz_api_GetState, idle_GetState,
+     tiz_api_UseBuffer, idle_UseBuffer,
+     tiz_api_EmptyThisBuffer, idle_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, idle_FillThisBuffer,
+     tiz_state_state_set, idle_state_set, 0);
+
+  return tizidle;
 }

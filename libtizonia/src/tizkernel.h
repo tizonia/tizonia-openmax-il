@@ -40,9 +40,8 @@ extern "C"
 #include "tizservant.h"
 #include "tizutils.h"
 
-  extern const void *tizkrn;
-  extern const void *tizkrn_class;
-  OMX_ERRORTYPE tiz_krn_init (void);
+  void * tiz_krn_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_krn_init (void * ap_tos, void * ap_hdl);
 
   typedef enum tiz_krn_population_status tiz_krn_population_status_t;
   enum tiz_krn_population_status

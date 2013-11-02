@@ -162,7 +162,7 @@ tiz_map_insert (tiz_map_t * ap_map, OMX_PTR ap_key,
   assert (NULL != ap_map->p_tree);
   assert (NULL != ap_index);
 
-  if (NULL != tiz_map_find (ap_map, ap_key))
+  if (!tiz_map_empty (ap_map) && NULL != tiz_map_find (ap_map, ap_key))
     {
       return OMX_ErrorBadParameter;
     }

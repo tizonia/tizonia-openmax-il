@@ -36,7 +36,6 @@ extern "C"
 
 #include "OMX_Component.h"
 #include "tizvideoport_decls.h"
-#include "tizosal.h"
 
   typedef struct tiz_vp8port tiz_vp8port_t;
   struct tiz_vp8port
@@ -49,6 +48,14 @@ extern "C"
     OMX_VIDEO_PARAM_BITRATETYPE pbrtype_;
     OMX_VIDEO_CONFIG_BITRATETYPE cbrtype_;
     OMX_CONFIG_FRAMERATETYPE frtype_;
+  };
+
+  typedef struct tiz_vp8port_class tiz_vp8port_class_t;
+  struct tiz_vp8port_class
+  {
+    /* Class */
+    const tiz_videoport_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

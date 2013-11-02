@@ -39,9 +39,8 @@ extern "C"
 #include "OMX_Core.h"
 #include "OMX_Types.h"
 
-  extern const void *tizapi;
-  extern const void *tizapi_class;
-  OMX_ERRORTYPE tiz_api_init (void);
+  void * tiz_api_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_api_init (void * ap_tos, void * ap_hdl);
 
   OMX_HANDLETYPE
   tiz_api_get_hdl (const void *ap_obj);

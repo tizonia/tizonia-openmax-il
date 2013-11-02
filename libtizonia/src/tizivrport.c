@@ -32,8 +32,8 @@
 
 #include "tizivrport.h"
 #include "tizivrport_decls.h"
-
 #include "tizutils.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -50,7 +50,7 @@
 static void *
 ivrport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_ivrport_t *p_obj = super_ctor (tizivrport, ap_obj, app);
+  tiz_ivrport_t *p_obj = super_ctor (typeOf (ap_obj, "tizivrport"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
 
   tiz_port_register_index (p_obj, OMX_IndexConfigCommonRotate);
@@ -99,7 +99,7 @@ ivrport_ctor (void *ap_obj, va_list * app)
 static void *
 ivrport_dtor (void *ap_obj)
 {
-  return super_dtor (tizivrport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizivrport"), ap_obj);
 }
 
 /*
@@ -161,7 +161,7 @@ ivrport_GetConfig (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetConfig (tizivrport,
+        return super_GetConfig (typeOf (ap_obj, "tizivrport"),
                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -228,7 +228,7 @@ ivrport_SetConfig (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_SetConfig (tizivrport,
+        return super_SetConfig (typeOf (ap_obj, "tizivrport"),
                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -276,30 +276,52 @@ ivrport_check_tunnel_compat (const void *ap_obj,
 }
 
 /*
+ * tizivrport_class
+ */
+
+static void *
+ivrport_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizivrport_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *tizivrport;
-
-OMX_ERRORTYPE
-tiz_ivrport_init (void)
+void *
+tiz_ivrport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizivrport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_videoport_init ());
-      tiz_check_null_ret_oom
-        (tizivrport =
+  void * tizvideoport = tiz_get_type (ap_hdl, "tizvideoport");
+  void * tizivrport_class = factory_new (classOf (tizvideoport),
+                                         "tizivrport_class",
+                                         classOf (tizvideoport),
+                                         sizeof (tiz_ivrport_class_t),
+                                         ap_tos, ap_hdl,
+                                         ctor, ivrport_class_ctor, 0);
+  return tizivrport_class;
+}
+
+void *
+tiz_ivrport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizvideoport = tiz_get_type (ap_hdl, "tizvideoport");
+  void * tizivrport_class = tiz_get_type (ap_hdl, "tizivrport_class");
+  TIZ_LOG_CLASS (tizivrport_class);
+  void * tizivrport =
          factory_new
-         (tizvideoport_class,
+         (tizivrport_class,
           "tizivrport",
           tizvideoport,
           sizeof (tiz_ivrport_t),
+          ap_tos, ap_hdl,
           ctor, ivrport_ctor,
           dtor, ivrport_dtor,
           tiz_api_GetConfig, ivrport_GetConfig,
           tiz_api_SetConfig, ivrport_SetConfig,
           tiz_port_set_portdef_format, ivrport_set_portdef_format,
-          tiz_port_check_tunnel_compat, ivrport_check_tunnel_compat, 0));
-    }
-  return OMX_ErrorNone;
+          tiz_port_check_tunnel_compat, ivrport_check_tunnel_compat, 0);
+
+  return tizivrport;
 }

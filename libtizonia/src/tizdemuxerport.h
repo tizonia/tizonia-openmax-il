@@ -34,16 +34,8 @@ extern "C"
 {
 #endif
 
-#include "tizport.h"
-
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-
-/* factory_new(tizdemuxerport, ...); */
-  extern const void *tizdemuxerport;
-  extern const void *tizdemuxerport_class;
-
-  OMX_ERRORTYPE tiz_demuxerport_init (void);
+  void * tiz_demuxerport_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_demuxerport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

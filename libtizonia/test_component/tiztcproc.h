@@ -34,12 +34,8 @@ extern "C"
 {
 #endif
 
-#include "tizprc.h"
-
-/* factory_new(tiztcproc, ...) */
-  extern const void *tiztcproc;
-
-  void init_tiztcproc (void);
+  void * tiz_tcprc_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_tcprc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

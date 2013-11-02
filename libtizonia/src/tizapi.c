@@ -32,6 +32,7 @@
 
 #include "tizapi.h"
 #include "tizapi_decls.h"
+#include "tizscheduler.h"
 
 #include "tizosal.h"
 
@@ -49,7 +50,7 @@
 static void *
 api_ctor (void *ap_obj, va_list * app)
 {
-  tiz_api_t *p_obj = super_ctor (tizapi, ap_obj, app);
+  tiz_api_t *p_obj = super_ctor (typeOf (ap_obj, "tizapi"), ap_obj, app);
   assert (NULL != ap_obj);
   p_obj->p_hdl_    = va_arg (*app, OMX_HANDLETYPE);
   assert (NULL != p_obj->p_hdl_);
@@ -59,7 +60,7 @@ api_ctor (void *ap_obj, va_list * app)
 static void *
 api_dtor (void *ap_obj)
 {
-  return super_dtor (tizapi, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizapi"), ap_obj);
 }
 
 static OMX_HANDLETYPE
@@ -679,7 +680,7 @@ super_ComponentRoleEnum (const void *a_class,
 static void *
 api_class_ctor (void *ap_obj, va_list * app)
 {
-  tiz_api_class_t *p_obj = super_ctor (tizapi_class, ap_obj, app);
+  tiz_api_class_t *p_obj = super_ctor (typeOf (ap_obj, "tizapi_class"), ap_obj, app);
   typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
@@ -783,53 +784,54 @@ api_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizapi_class, *tizapi;
-
-OMX_ERRORTYPE
-tiz_api_init (void)
+void *
+tiz_api_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizapi_class)
-    {
-      tiz_check_null_ret_oom
-        (tizapi_class = factory_new (Class,
+  void * tizobject    = tiz_get_type (ap_hdl, "tizobject");
+  void * tizapi_class = factory_new (classOf (tizobject),
                                      "tizapi_class",
-                                     Class,
+                                     classOf (tizobject),
                                      sizeof (tiz_api_class_t),
-                                     ctor, api_class_ctor, 0));
-    }
+                                     ap_tos, ap_hdl,
+                                     ctor, api_class_ctor, 0);
+  return tizapi_class;
+}
 
-  if (!tizapi)
-    {
-      tiz_check_null_ret_oom
-        (tizapi =
-         factory_new
-         (tizapi_class,
-          "tizapi",
-          Object,
-          sizeof (tiz_api_t),
-          ctor, api_ctor,
-          dtor, api_dtor,
-          tiz_api_get_hdl, api_get_hdl,
-          tiz_api_set_hdl, api_set_hdl,
-          tiz_api_GetComponentVersion, api_GetComponentVersion,
-          tiz_api_SendCommand, api_SendCommand,
-          tiz_api_GetParameter, api_GetParameter,
-          tiz_api_SetParameter, api_SetParameter,
-          tiz_api_GetConfig, api_GetConfig,
-          tiz_api_SetConfig, api_SetConfig,
-          tiz_api_GetExtensionIndex, api_GetExtensionIndex,
-          tiz_api_GetState, api_GetState,
-          tiz_api_ComponentTunnelRequest, api_ComponentTunnelRequest,
-          tiz_api_UseBuffer, api_UseBuffer,
-          tiz_api_AllocateBuffer, api_AllocateBuffer,
-          tiz_api_FreeBuffer, api_FreeBuffer,
-          tiz_api_EmptyThisBuffer, api_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, api_FillThisBuffer,
-          tiz_api_SetCallbacks, api_SetCallbacks,
-          tiz_api_ComponentDeInit, api_ComponentDeInit,
-          tiz_api_UseEGLImage, api_UseEGLImage,
-          tiz_api_ComponentRoleEnum, api_ComponentRoleEnum, 0));
-    }
+void *
+tiz_api_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizobject    = tiz_get_type (ap_hdl, "tizobject");
+  void * tizapi_class = tiz_get_type (ap_hdl, "tizapi_class");
+  TIZ_LOG_CLASS (tizapi_class);
+  void * tizapi =
+    factory_new
+    (tizapi_class,
+     "tizapi",
+     tizobject,
+     sizeof (tiz_api_t),
+     ap_tos, ap_hdl,
+     ctor, api_ctor,
+     dtor, api_dtor,
+     tiz_api_get_hdl, api_get_hdl,
+     tiz_api_set_hdl, api_set_hdl,
+     tiz_api_GetComponentVersion, api_GetComponentVersion,
+     tiz_api_SendCommand, api_SendCommand,
+     tiz_api_GetParameter, api_GetParameter,
+     tiz_api_SetParameter, api_SetParameter,
+     tiz_api_GetConfig, api_GetConfig,
+     tiz_api_SetConfig, api_SetConfig,
+     tiz_api_GetExtensionIndex, api_GetExtensionIndex,
+     tiz_api_GetState, api_GetState,
+     tiz_api_ComponentTunnelRequest, api_ComponentTunnelRequest,
+     tiz_api_UseBuffer, api_UseBuffer,
+     tiz_api_AllocateBuffer, api_AllocateBuffer,
+     tiz_api_FreeBuffer, api_FreeBuffer,
+     tiz_api_EmptyThisBuffer, api_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, api_FillThisBuffer,
+     tiz_api_SetCallbacks, api_SetCallbacks,
+     tiz_api_ComponentDeInit, api_ComponentDeInit,
+     tiz_api_UseEGLImage, api_UseEGLImage,
+     tiz_api_ComponentRoleEnum, api_ComponentRoleEnum, 0);
 
-  return OMX_ErrorNone;
+  return tizapi;
 }

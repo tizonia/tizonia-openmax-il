@@ -26,6 +26,9 @@ extern "C"
 {
 #endif
 
+#include <stddef.h>
+#include <stdarg.h>
+
   typedef struct tiz_class  tiz_class_t;
   typedef struct tiz_object tiz_object_t;
 
@@ -45,6 +48,10 @@ extern "C"
     const tiz_class_t *super;
     /* class' object's size */
     size_t size;
+    /* Tizonia object system handle */
+    const void *tos;
+    /* OpenMAX IL component handle */
+    const void *hdl;
     void *(*ctor) (void *p_obj, va_list * app);
     void *(*dtor) (void *p_obj);
   };

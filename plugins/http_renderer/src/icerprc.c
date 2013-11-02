@@ -32,15 +32,13 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
-#include "OMX_Core.h"
-#include "OMX_TizoniaExt.h"
-
+#include "icerprc_decls.h"
 #include "tizkernel.h"
 #include "tizscheduler.h"
 
-#include "icerprc_decls.h"
+#include "OMX_Core.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -214,7 +212,7 @@ retrieve_mountpoint_settings (const void *ap_obj,
 static void *
 icer_prc_ctor (void *ap_obj, va_list * app)
 {
-  icer_prc_t *p_obj = super_ctor (icerprc, ap_obj, app);
+  icer_prc_t *p_obj = super_ctor (typeOf (ap_obj, "icerprc"), ap_obj, app);
   p_obj->mount_name_ = NULL;
   p_obj->awaiting_buffers_ = true;
   p_obj->port_disabled_ = false;
@@ -228,7 +226,7 @@ icer_prc_ctor (void *ap_obj, va_list * app)
 static void *
 icer_prc_dtor (void *ap_obj)
 {
-  return super_dtor (icerprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "icerprc"), ap_obj);
 }
 
 /*
@@ -491,37 +489,59 @@ icer_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
 }
 
 /*
+ * icer_prc_class
+ */
+
+static void *
+icer_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "icerprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *icerprc;
-
-OMX_ERRORTYPE
-icer_prc_init (void)
+void *
+icer_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!icerprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (icerprc =
-         factory_new
-         (tizprc_class,
-          "icerprc",
-          tizprc,
-          sizeof (icer_prc_t),
-          ctor, icer_prc_ctor,
-          dtor, icer_prc_dtor,
-          tiz_srv_allocate_resources, icer_prc_allocate_resources,
-          tiz_srv_deallocate_resources, icer_prc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, icer_prc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, icer_prc_transfer_and_process,
-          tiz_srv_stop_and_return, icer_prc_stop_and_return,
-          tiz_prc_buffers_ready, icer_prc_buffers_ready,
-          tiz_prc_port_enable, icer_prc_port_enable,
-          tiz_prc_port_disable, icer_prc_port_disable,
-          tiz_prc_config_change, icer_prc_config_change,
-          tiz_prc_io_ready, icer_prc_io_ready,
-          tiz_prc_timer_ready, icer_prc_timer_ready, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * icerprc_class = factory_new (classOf (tizprc),
+                                      "icerprc_class",
+                                      classOf (tizprc),
+                                      sizeof (icer_prc_class_t),
+                                      ap_tos, ap_hdl,
+                                      ctor, icer_prc_class_ctor, 0);
+  return icerprc_class;
+}
+
+void *
+icer_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * icerprc_class = tiz_get_type (ap_hdl, "icerprc_class");
+  TIZ_LOG_CLASS (icerprc_class);
+  void * icerprc =
+    factory_new
+    (icerprc_class,
+     "icerprc",
+     tizprc,
+     sizeof (icer_prc_t),
+     ap_tos, ap_hdl,
+     ctor, icer_prc_ctor,
+     dtor, icer_prc_dtor,
+     tiz_srv_allocate_resources, icer_prc_allocate_resources,
+     tiz_srv_deallocate_resources, icer_prc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, icer_prc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, icer_prc_transfer_and_process,
+     tiz_srv_stop_and_return, icer_prc_stop_and_return,
+     tiz_prc_buffers_ready, icer_prc_buffers_ready,
+     tiz_prc_port_enable, icer_prc_port_enable,
+     tiz_prc_port_disable, icer_prc_port_disable,
+     tiz_prc_config_change, icer_prc_config_change,
+     tiz_prc_io_ready, icer_prc_io_ready,
+     tiz_prc_timer_ready, icer_prc_timer_ready, 0);
+
+  return icerprc;
 }

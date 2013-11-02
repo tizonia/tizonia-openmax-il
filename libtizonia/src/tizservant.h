@@ -40,10 +40,8 @@ extern "C"
 #include "OMX_Core.h"
 #include "OMX_Types.h"
 
-
-  extern const void *tizsrv;
-  extern const void *tizsrv_class;
-  OMX_ERRORTYPE tiz_srv_init (void);
+  void * tiz_srv_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_srv_init (void * ap_tos, void * ap_hdl);
 
   OMX_ERRORTYPE tiz_srv_set_allocator (void *ap_obj, tiz_soa_t * p_soa);
 

@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "tizimageport.h"
 #include "tizimageport_decls.h"
+#include "tizutils.h"
 
 #include "tizosal.h"
-#include "tizutils.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -50,7 +50,7 @@
 static void *
 imageport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_imageport_t *p_obj = super_ctor (tizimageport, ap_obj, app);
+  tiz_imageport_t *p_obj = super_ctor (typeOf (ap_obj, "tizimageport"), ap_obj, app);
   OMX_IMAGE_PORTDEFINITIONTYPE *p_portdef = NULL;
   OMX_IMAGE_CODINGTYPE *p_encodings = NULL;
   OMX_COLOR_FORMATTYPE *p_formats = NULL;
@@ -121,7 +121,7 @@ imageport_dtor (void *ap_obj)
   tiz_vector_clear (p_obj->p_color_formats_);
   tiz_vector_destroy (p_obj->p_color_formats_);
 
-  return super_dtor (tizimageport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizimageport"), ap_obj);
 }
 
 /*
@@ -182,7 +182,7 @@ imageport_GetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetParameter (tizimageport,
+        return super_GetParameter (typeOf (ap_obj, "tizimageport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -264,7 +264,7 @@ imageport_SetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_SetParameter (tizimageport,
+        return super_SetParameter (typeOf (ap_obj, "tizimageport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -281,43 +281,43 @@ static void *
 imageport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (tizimageport_class, ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizimageport_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizimageport, *tizimageport_class;
-
-OMX_ERRORTYPE
-tiz_imageport_init (void)
+void *
+tiz_imageport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizimageport_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizimageport_class = factory_new (tizport_class,
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizimageport_class = factory_new (classOf (tizport),
                                            "tizimageport_class",
-                                           tizport_class,
+                                           classOf (tizport),
                                            sizeof (tiz_imageport_class_t),
-                                           ctor, imageport_class_ctor, 0));
-    }
+                                           ap_tos, ap_hdl,
+                                           ctor, imageport_class_ctor, 0);
+  return tizimageport_class;
+}
 
-  if (!tizimageport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizimageport =
-         factory_new
-         (tizimageport_class,
-          "tizimageport",
-          tizport,
-          sizeof (tiz_imageport_t),
-          ctor, imageport_ctor,
-          dtor, imageport_dtor,
-          tiz_api_GetParameter, imageport_GetParameter,
-          tiz_api_SetParameter, imageport_SetParameter, 0));
-    }
-  return OMX_ErrorNone;
+void *
+tiz_imageport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizimageport_class = tiz_get_type (ap_hdl, "tizimageport_class");
+  TIZ_LOG_CLASS (tizimageport_class);
+  void * tizimageport =
+    factory_new
+    (tizimageport_class,
+     "tizimageport",
+     tizport,
+     sizeof (tiz_imageport_t),
+     ap_tos, ap_hdl,
+     ctor, imageport_ctor,
+     dtor, imageport_dtor,
+     tiz_api_GetParameter, imageport_GetParameter,
+     tiz_api_SetParameter, imageport_SetParameter, 0);
+
+  return tizimageport;
 }

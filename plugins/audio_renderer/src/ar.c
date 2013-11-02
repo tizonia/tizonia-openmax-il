@@ -30,19 +30,21 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
+#include "arprc.h"
+#include "tizscheduler.h"
+#include "tizport.h"
+#include "tizpcmport.h"
+#include "tizconfigport.h"
+#include "tizutils.h"
+
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
 
-#include "tizosal.h"
-#include "tizutils.h"
-#include "tizscheduler.h"
-#include "tizpcmport.h"
-#include "tizconfigport.h"
-#include "arprc.h"
+#include <assert.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -111,26 +113,24 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.nPortIndex        = ARATELIA_AUDIO_RENDERER_PORT_INDEX;
   mute.bMute             = OMX_FALSE;
 
-  tiz_check_omx_err_ret_null (tiz_pcmport_init ());
-  return factory_new (tizpcmport, ap_hdl, &port_opts, &encodings,
-                           &pcmmode, &volume, &mute);
+  return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), ap_hdl, &port_opts,
+                      &encodings, &pcmmode, &volume, &mute);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   /* Instantiate the config port */
-  tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
-                         ARATELIA_AUDIO_RENDERER_COMPONENT_NAME,
-                         audio_renderer_version);
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+                      NULL,   /* this port does not take options */
+                      ARATELIA_AUDIO_RENDERER_COMPONENT_NAME,
+                      audio_renderer_version);
 }
 
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (ar_prc_init ());
-  return factory_new (arprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "arprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -138,6 +138,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_type_factory_t type_factory;
+  const tiz_type_factory_t *tf_list[] = { &type_factory};
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_AUDIO_RENDERER_COMPONENT_NAME);
@@ -149,7 +151,18 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 1;
   role_factory.pf_proc    = instantiate_processor;
 
+  strcpy ((OMX_STRING) type_factory.class_name, "arprc_class");
+  type_factory.pf_class_init = ar_prc_class_init;
+  strcpy ((OMX_STRING) type_factory.object_name, "arprc");
+  type_factory.pf_object_init = ar_prc_init;
+
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_AUDIO_RENDERER_COMPONENT_NAME));
+
+  /* Register the ar processor type */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+
+  /* Register pcm renderer role */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

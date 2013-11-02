@@ -42,6 +42,7 @@ extern "C"
 
 #define TIZ_COMP_MAX_PORTS 32
 #define TIZ_COMP_MAX_ROLES 64
+#define TIZ_COMP_MAX_TYPES 5
 
   typedef OMX_PTR (*tiz_role_config_port_init_f) (OMX_HANDLETYPE ap_hdl);
   typedef OMX_PTR (*tiz_role_port_init_f) (OMX_HANDLETYPE ap_hdl);
@@ -84,6 +85,17 @@ extern "C"
     /*@null@*/ void *p_args;
   };
 
+  typedef void * (*tiz_class_init_f) (void *, void *);
+  typedef void * (*tiz_object_init_f) (void *, void *);
+  typedef struct tiz_type_factory tiz_type_factory_t;
+  struct tiz_type_factory
+  {
+    tiz_class_init_f pf_class_init;
+    OMX_U8           class_name[OMX_MAX_STRINGNAME_SIZE];
+    tiz_object_init_f pf_object_init;
+    OMX_U8           object_name[OMX_MAX_STRINGNAME_SIZE];
+  };
+
   /**
    * This function is called by the IL plugin to initialize the base component
    * infrastructure. When this function returns, the component has a 'fsm' and
@@ -111,6 +123,10 @@ extern "C"
                                                tiz_alloc_hooks_t *
                                                ap_old_hooks);
 
+  OMX_ERRORTYPE tiz_comp_register_types (const OMX_HANDLETYPE ap_hdl,
+                                           const tiz_type_factory_t * ap_type_list[],
+                                           const OMX_U32 a_ntypes);
+
   OMX_ERRORTYPE tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
                                           tiz_event_pluggable_t * ap_event);
 
@@ -133,6 +149,7 @@ extern "C"
 
   void *tiz_get_sched (const OMX_HANDLETYPE ap_hdl);
 
+  void *tiz_get_type (const OMX_HANDLETYPE ap_hdl, const char *ap_type_name);
 
 #ifdef __cplusplus
 }

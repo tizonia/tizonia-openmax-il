@@ -84,12 +84,8 @@ extern "C"
     OMX_U32 mos_port;
   };
 
-
-  /* factory_new(tizport, ...); */
-  extern const void *tizport;
-  extern const void *tizport_class;
-
-  OMX_ERRORTYPE tiz_port_init (void);
+  void * tiz_port_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_port_init (void * ap_tos, void * ap_hdl);
 
   bool tiz_port_check_flags (const void *ap_obj, OMX_U32 a_nflags, ...);
 

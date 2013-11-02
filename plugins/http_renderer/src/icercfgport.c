@@ -30,14 +30,14 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <string.h>
-#include <limits.h>
-
 #include "icercfgport.h"
 #include "icercfgport_decls.h"
 
 #include "tizosal.h"
+
+#include <assert.h>
+#include <string.h>
+#include <limits.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -53,7 +53,7 @@
 static void *
 icer_cfgport_ctor (void *ap_obj, va_list * app)
 {
-  icer_cfgport_t *p_obj = super_ctor (icercfgport, ap_obj, app);
+  icer_cfgport_t *p_obj = super_ctor (typeOf (ap_obj, "icercfgport"), ap_obj, app);
 
   tiz_port_register_index (p_obj, OMX_TizoniaIndexParamHttpServer);
   p_obj->http_conf_.nSize             = sizeof (OMX_TIZONIA_HTTPSERVERTYPE);
@@ -67,7 +67,7 @@ icer_cfgport_ctor (void *ap_obj, va_list * app)
 static void *
 icer_cfgport_dtor (void *ap_obj)
 {
-  return super_dtor (icercfgport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "icercfgport"), ap_obj);
 }
 
 /*
@@ -91,7 +91,7 @@ icer_cfgport_GetParameter (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      return super_GetParameter (icercfgport,
+      return super_GetParameter (typeOf (ap_obj, "icercfgport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -119,7 +119,7 @@ icer_cfgport_SetParameter (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      return super_SetParameter (icercfgport,
+      return super_SetParameter (typeOf (ap_obj, "icercfgport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -127,28 +127,50 @@ icer_cfgport_SetParameter (const void *ap_obj,
 }
 
 /*
+ * icer_cfgport_class
+ */
+
+static void *
+icer_cfgport_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "icercfgport_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *icercfgport;
-
-OMX_ERRORTYPE
-icer_cfgport_init (void)
+void *
+icer_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!icercfgport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_configport_init ());
-      tiz_check_null_ret_oom
-        (icercfgport =
-         factory_new
-         (tizconfigport_class,
-          "icercfgport",
-          tizconfigport,
-          sizeof (icer_cfgport_t),
-          ctor, icer_cfgport_ctor,
-          dtor, icer_cfgport_dtor,
-          tiz_api_GetParameter, icer_cfgport_GetParameter,
-          tiz_api_SetParameter, icer_cfgport_SetParameter, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * icercfgport_class = factory_new (classOf (tizconfigport),
+                                          "icercfgport_class",
+                                          classOf (tizconfigport),
+                                          sizeof (icer_cfgport_class_t),
+                                          ap_tos, ap_hdl,
+                                          ctor, icer_cfgport_class_ctor, 0);
+  return icercfgport_class;
+}
+
+void *
+icer_cfgport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * icercfgport_class = tiz_get_type (ap_hdl, "icercfgport_class");
+  TIZ_LOG_CLASS (icercfgport_class);
+  void * icercfgport =
+    factory_new
+    (icercfgport_class,
+     "icercfgport",
+     tizconfigport,
+     sizeof (icer_cfgport_t),
+     ap_tos, ap_hdl,
+     ctor, icer_cfgport_ctor,
+     dtor, icer_cfgport_dtor,
+     tiz_api_GetParameter, icer_cfgport_GetParameter,
+     tiz_api_SetParameter, icer_cfgport_SetParameter, 0);
+
+  return icercfgport;
 }

@@ -72,7 +72,7 @@ find_default_uri ()
 static void *
 fr_cfgport_ctor (void *ap_obj, va_list * app)
 {
-  fr_cfgport_t *p_obj = super_ctor (frcfgport, ap_obj, app);
+  fr_cfgport_t *p_obj = super_ctor (typeOf (ap_obj, "frcfgport"), ap_obj, app);
   p_obj->p_uri_ = find_default_uri ();
   tiz_port_register_index (p_obj, OMX_IndexParamContentURI);
   return p_obj;
@@ -83,7 +83,7 @@ fr_cfgport_dtor (void *ap_obj)
 {
   fr_cfgport_t *p_obj = ap_obj;
   tiz_mem_free (p_obj->p_uri_);
-  return super_dtor (frcfgport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "frcfgport"), ap_obj);
 }
 
 /*
@@ -126,7 +126,7 @@ fr_cfgport_GetParameter (const void *ap_obj,
     default:
       {
         /* Delegate to the base port */
-        return super_GetParameter (frcfgport,
+        return super_GetParameter (typeOf (ap_obj, "frcfgport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -174,7 +174,7 @@ fr_cfgport_SetParameter (const void *ap_obj,
     default:
       {
         /* Delegate to the base port */
-        return super_SetParameter (frcfgport,
+        return super_SetParameter (typeOf (ap_obj, "frcfgport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -184,28 +184,50 @@ fr_cfgport_SetParameter (const void *ap_obj,
 }
 
 /*
+ * fr_cfgport_class
+ */
+
+static void *
+fr_cfgport_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "frcfgport_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *frcfgport;
-
-OMX_ERRORTYPE
-fr_cfgport_init (void)
+void *
+fr_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!frcfgport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_configport_init ());
-      tiz_check_null_ret_oom
-        (frcfgport =
-         factory_new
-         (tizconfigport_class,
-          "frcfgport",
-          tizconfigport,
-          sizeof (fr_cfgport_t),
-          ctor, fr_cfgport_ctor,
-          dtor, fr_cfgport_dtor,
-          tiz_api_GetParameter, fr_cfgport_GetParameter,
-          tiz_api_SetParameter, fr_cfgport_SetParameter, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * frcfgport_class = factory_new (classOf (tizconfigport),
+                                        "frcfgport_class",
+                                        classOf (tizconfigport),
+                                        sizeof (fr_cfgport_class_t),
+                                        ap_tos, ap_hdl,
+                                        ctor, fr_cfgport_class_ctor, 0);
+  return frcfgport_class;
+}
+
+void *
+fr_cfgport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * frcfgport_class = tiz_get_type (ap_hdl, "frcfgport_class");
+  TIZ_LOG_CLASS (frcfgport_class);
+  void * frcfgport =
+    factory_new
+    (frcfgport_class,
+     "frcfgport",
+     tizconfigport,
+     sizeof (fr_cfgport_t),
+     ap_tos, ap_hdl,
+     ctor, fr_cfgport_ctor,
+     dtor, fr_cfgport_dtor,
+     tiz_api_GetParameter, fr_cfgport_GetParameter,
+     tiz_api_SetParameter, fr_cfgport_SetParameter, 0);
+
+  return frcfgport;
 }

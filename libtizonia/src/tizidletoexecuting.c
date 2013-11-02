@@ -30,13 +30,14 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "tizidletoexecuting.h"
+#include "tizstate.h"
 #include "tizstate_decls.h"
 #include "tizutils.h"
 #include "tizosal.h"
 #include "tizkernel.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -48,14 +49,14 @@ static void *
 idletoexecuting_ctor (void *ap_obj, va_list * app)
 {
   tiz_idletoexecuting_t *p_obj =
-    super_ctor (tizidletoexecuting, ap_obj, app);
+    super_ctor (typeOf (ap_obj, "tizidletoexecuting"), ap_obj, app);
   return p_obj;
 }
 
 static void *
 idletoexecuting_dtor (void *ap_obj)
 {
-  return super_dtor (tizidletoexecuting, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizidletoexecuting"), ap_obj);
 }
 
 /*
@@ -144,7 +145,7 @@ idletoexecuting_trans_complete (const void *ap_obj,
   /* NOTE: Resetting of the OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE flag takes
      place in the tiz_state base class */
 
-  return tiz_state_super_trans_complete (tizidletoexecuting, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (typeOf (ap_obj, "tizidletoexecuting"), ap_obj, ap_servant,
                                         a_new_state);
 }
 
@@ -165,7 +166,7 @@ idletoexecuting_tunneled_ports_status_update (void *ap_obj)
          * 'tiz_state_state_set' function of the tiz_state_t base class (note
          * we are passing 'tizidle' as 1st parameter */
         TIZ_TRACE (p_hdl, "kernel ready to exchange buffers");
-        return tiz_state_super_state_set (tizidle, ap_obj, p_hdl,
+        return tiz_state_super_state_set (typeOf (ap_obj, "tizidle"), ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateExecuting, NULL);
       }
@@ -174,36 +175,59 @@ idletoexecuting_tunneled_ports_status_update (void *ap_obj)
   return OMX_ErrorNone;
 }
 
+/*
+ * idletoexecuting_class
+ */
+
+static void *
+idletoexecuting_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizidletoexecuting_class"), ap_obj, app);
+}
 
 /*
  * initialization
  */
 
-const void *tizidletoexecuting;
-
-OMX_ERRORTYPE
-tiz_idletoexecuting_init (void)
+void *
+tiz_idletoexecuting_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizidletoexecuting)
-    {
-      tiz_check_omx_err_ret_oom (tiz_idle_init ());
-      tiz_check_null_ret_oom
-        (tizidletoexecuting =
-         factory_new
-         (tizstate_class, "tizidletoexecuting",
-          tizidle, sizeof (tiz_idletoexecuting_t),
-          ctor, idletoexecuting_ctor,
-          dtor, idletoexecuting_dtor,
-          tiz_api_SetParameter, idletoexecuting_SetParameter,
-          tiz_api_GetState, idletoexecuting_GetState,
-          tiz_api_UseBuffer, idletoexecuting_UseBuffer,
-          tiz_api_AllocateBuffer, idletoexecuting_AllocateBuffer,
-          tiz_api_FreeBuffer, idletoexecuting_FreeBuffer,
-          tiz_api_EmptyThisBuffer, idletoexecuting_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, idletoexecuting_FillThisBuffer,
-          tiz_state_trans_complete, idletoexecuting_trans_complete,
-          tiz_state_tunneled_ports_status_update,
-          idletoexecuting_tunneled_ports_status_update, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizidle = tiz_get_type (ap_hdl, "tizidle");
+  void * tizidletoexecuting_class = factory_new (classOf (tizidle),
+                                                 "tizidletoexecuting_class",
+                                                 classOf (tizidle),
+                                                 sizeof (tiz_idletoexecuting_class_t),
+                                                 ap_tos, ap_hdl,
+                                                 ctor, idletoexecuting_class_ctor, 0);
+  return tizidletoexecuting_class;
+}
+
+void *
+tiz_idletoexecuting_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizidle = tiz_get_type (ap_hdl, "tizidle");
+  void * tizidletoexecuting_class = tiz_get_type (ap_hdl, "tizidletoexecuting_class");
+  TIZ_LOG_CLASS (tizidletoexecuting_class);
+  void * tizidletoexecuting =
+    factory_new
+    (tizidletoexecuting_class,
+     "tizidletoexecuting",
+     tizidle,
+     sizeof (tiz_idletoexecuting_t),
+     ap_tos, ap_hdl,
+     ctor, idletoexecuting_ctor,
+     dtor, idletoexecuting_dtor,
+     tiz_api_SetParameter, idletoexecuting_SetParameter,
+     tiz_api_GetState, idletoexecuting_GetState,
+     tiz_api_UseBuffer, idletoexecuting_UseBuffer,
+     tiz_api_AllocateBuffer, idletoexecuting_AllocateBuffer,
+     tiz_api_FreeBuffer, idletoexecuting_FreeBuffer,
+     tiz_api_EmptyThisBuffer, idletoexecuting_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, idletoexecuting_FillThisBuffer,
+     tiz_state_trans_complete, idletoexecuting_trans_complete,
+     tiz_state_tunneled_ports_status_update,
+     idletoexecuting_tunneled_ports_status_update, 0);
+
+  return tizidletoexecuting;
 }

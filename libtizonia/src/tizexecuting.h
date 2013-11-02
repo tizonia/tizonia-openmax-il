@@ -34,11 +34,8 @@ extern "C"
 {
 #endif
 
-#include "tizstate.h"
-
-  extern const void *tizexecuting;
-
-  OMX_ERRORTYPE tiz_executing_init (void);
+  void * tiz_executing_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_executing_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

@@ -33,6 +33,7 @@
 #include "mp3dprc.h"
 
 #include "tizscheduler.h"
+#include "tizport.h"
 #include "tizmp3port.h"
 #include "tizpcmport.h"
 #include "tizconfigport.h"
@@ -97,8 +98,7 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
   mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
   mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
-  tiz_check_omx_err_ret_null (tiz_mp3port_init ());
-  return factory_new (tizmp3port, ap_hdl, &mp3_port_opts, &encodings, &mp3type);
+  return factory_new (tiz_get_type (ap_hdl, "tizmp3port"), ap_hdl, &mp3_port_opts, &encodings, &mp3type);
 }
 
 static OMX_PTR
@@ -151,16 +151,16 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.nPortIndex = ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX;
   mute.bMute = OMX_FALSE;
 
-  tiz_check_omx_err_ret_null (tiz_pcmport_init ());
-  return factory_new (tizpcmport, ap_hdl, &pcm_port_opts, &encodings,
+  return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), ap_hdl,
+                      &pcm_port_opts, &encodings,
                       &pcmmode, &volume, &mute);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+                      NULL,   /* this port does not take options */
                       ARATELIA_MP3_DECODER_COMPONENT_NAME,
                       mp3_decoder_version);
 }
@@ -168,8 +168,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (mp3d_prc_init ());
-  return factory_new (mp3dprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "mp3dprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -177,6 +176,11 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_type_factory_t mp3dprc_type;
+  const tiz_type_factory_t *tf_list[] = { &mp3dprc_type};
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
+           "Inititializing [%s]", ARATELIA_MP3_DECODER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_MP3_DECODER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;
@@ -185,10 +189,18 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 2;
   role_factory.pf_proc    = instantiate_processor;
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
-           "Inititializing [%s]", ARATELIA_MP3_DECODER_COMPONENT_NAME);
+  strcpy ((OMX_STRING) mp3dprc_type.class_name, "mp3dprc_class");
+  mp3dprc_type.pf_class_init = mp3d_prc_class_init;
+  strcpy ((OMX_STRING) mp3dprc_type.object_name, "mp3dprc");
+  mp3dprc_type.pf_object_init = mp3d_prc_init;
 
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_MP3_DECODER_COMPONENT_NAME));
+
+  /* Register the "mp3dprc" class */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+
+  /* Register the component role */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

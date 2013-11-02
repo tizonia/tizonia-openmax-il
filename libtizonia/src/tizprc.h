@@ -35,10 +35,9 @@ extern "C"
 #endif
 
 #include "tizosal.h"
-  
-  extern const void *tizprc;
-  extern const void *tizprc_class;
-  OMX_ERRORTYPE tiz_prc_init (void);
+
+  void *tiz_prc_class_init (void * ap_tos, void * ap_hdl);
+  void *tiz_prc_init (void * ap_tos, void * ap_hdl);
 
   OMX_ERRORTYPE tiz_prc_buffers_ready (const void *p_obj);
 

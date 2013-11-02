@@ -37,7 +37,8 @@ extern "C"
 #include "tizobject_decls.h"
 
 #include "OMX_Types.h"
-  
+#include "OMX_Core.h"
+
   typedef struct tiz_api tiz_api_t;
   struct tiz_api
   {

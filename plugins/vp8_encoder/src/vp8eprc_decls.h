@@ -33,9 +33,11 @@
 extern "C"
 {
 #endif
-#include "OMX_Core.h"
+
 #include "vp8eprc.h"
 #include "tizprc_decls.h"
+
+#include "OMX_Core.h"
 
 #include <stdbool.h>
 
@@ -47,6 +49,14 @@ extern "C"
     OMX_BUFFERHEADERTYPE *pinhdr_;
     OMX_BUFFERHEADERTYPE *pouthdr_;
     bool eos_;
+  };
+
+  typedef struct vp8e_prc_class vp8e_prc_class_t;
+  struct vp8e_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

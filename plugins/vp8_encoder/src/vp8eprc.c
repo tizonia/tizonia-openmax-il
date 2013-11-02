@@ -34,6 +34,7 @@
 #include "vp8eprc_decls.h"
 #include "tizkernel.h"
 #include "tizscheduler.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -52,8 +53,7 @@
 static void *
 vp8e_proc_ctor (void *ap_obj, va_list * app)
 {
-  vp8e_prc_t *p_obj = super_ctor (vp8eprc, ap_obj, app);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing vp8eprc...[%p]", p_obj);
+  vp8e_prc_t *p_obj = super_ctor (typeOf (ap_obj, "vp8eprc"), ap_obj, app);
 
   p_obj->pinhdr_ = 0;
   p_obj->pouthdr_ = 0;
@@ -65,9 +65,7 @@ vp8e_proc_ctor (void *ap_obj, va_list * app)
 static void *
 vp8e_proc_dtor (void *ap_obj)
 {
-  vp8e_prc_t *p_obj = ap_obj;
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Destructing vp8eprc...[%p]", p_obj);
-  return super_dtor (vp8eprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "vp8eprc"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -88,8 +86,6 @@ vp8e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   vp8e_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
-            "Resource allocation complete..." "pid = [%d]", a_pid);
   return OMX_ErrorNone;
 }
 
@@ -99,8 +95,6 @@ vp8e_proc_deallocate_resources (void *ap_obj)
   vp8e_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
-            "Resource deallocation complete...");
   return OMX_ErrorNone;
 }
 
@@ -108,8 +102,6 @@ static OMX_ERRORTYPE
 vp8e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
-            "Transfering buffers...pid [%d]", a_pid);
   return OMX_ErrorNone;
 }
 
@@ -153,8 +145,6 @@ claim_input (const void *ap_obj)
       return true;
     }
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
-            "COULD NOT CLAIM AN INPUT HEADER...");
   return false;
 }
 
@@ -188,8 +178,6 @@ vp8e_proc_buffers_ready (const void *ap_obj)
 {
   vp8e_prc_t *p_obj = (vp8e_prc_t *) ap_obj;
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
-
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj), "Buffers ready...");
 
   while (1)
     {
@@ -234,32 +222,54 @@ vp8e_proc_buffers_ready (const void *ap_obj)
 }
 
 /*
+ * vp8e_prc_class
+ */
+
+static void *
+vp8e_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "vp8eprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *vp8eprc;
-
-OMX_ERRORTYPE
-vp8e_prc_init (void)
+void *
+vp8e_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!vp8eprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (vp8eprc =
-         factory_new
-         (tizprc_class,
-          "vp8eprc",
-          tizprc,
-          sizeof (vp8e_prc_t),
-          ctor, vp8e_proc_ctor,
-          dtor, vp8e_proc_dtor,
-          tiz_prc_buffers_ready, vp8e_proc_buffers_ready,
-          tiz_srv_allocate_resources, vp8e_proc_allocate_resources,
-          tiz_srv_deallocate_resources, vp8e_proc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, vp8e_proc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, vp8e_proc_transfer_and_process,
-          tiz_srv_stop_and_return, vp8e_proc_stop_and_return, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * vp8eprc_class = factory_new (classOf (tizprc),
+                                      "vp8eprc_class",
+                                      classOf (tizprc),
+                                      sizeof (vp8e_prc_class_t),
+                                      ap_tos, ap_hdl,
+                                      ctor, vp8e_prc_class_ctor, 0);
+  return vp8eprc_class;
+}
+
+void *
+vp8e_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * vp8eprc_class = tiz_get_type (ap_hdl, "vp8eprc_class");
+  TIZ_LOG_CLASS (vp8eprc_class);
+  void * vp8eprc =
+    factory_new
+    (vp8eprc_class,
+     "vp8eprc",
+     tizprc,
+     sizeof (vp8e_prc_t),
+     ap_tos, ap_hdl,
+     ctor, vp8e_proc_ctor,
+     dtor, vp8e_proc_dtor,
+     tiz_prc_buffers_ready, vp8e_proc_buffers_ready,
+     tiz_srv_allocate_resources, vp8e_proc_allocate_resources,
+     tiz_srv_deallocate_resources, vp8e_proc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, vp8e_proc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, vp8e_proc_transfer_and_process,
+     tiz_srv_stop_and_return, vp8e_proc_stop_and_return, 0);
+
+  return vp8eprc;
 }

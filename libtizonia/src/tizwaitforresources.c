@@ -30,15 +30,16 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
+#include "tizwaitforresources.h"
+#include "tizstate.h"
+#include "tizstate_decls.h"
 #include "tizfsm.h"
 #include "tizkernel.h"
 #include "tizscheduler.h"
-#include "tizwaitforresources.h"
-#include "tizstate_decls.h"
 
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -50,14 +51,14 @@ static void *
 waitforresources_ctor (void *ap_obj, va_list * app)
 {
   tiz_waitforresources_t *p_obj =
-    super_ctor (tizwaitforresources, ap_obj, app);
+    super_ctor (typeOf (ap_obj, "tizwaitforresources"), ap_obj, app);
   return p_obj;
 }
 
 static void *
 waitforresources_dtor (void *ap_obj)
 {
-  return super_dtor (tizwaitforresources, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizwaitforresources"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -191,36 +192,61 @@ waitforresources_trans_complete (const void *ap_obj,
                  tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateWaitForResources == a_new_state
           || OMX_StateLoaded == a_new_state);
-  return tiz_state_super_trans_complete (tizwaitforresources, ap_obj,
+  return tiz_state_super_trans_complete (typeOf (ap_obj, "tizwaitforresources"), ap_obj,
                                         ap_servant, a_new_state);
+}
+
+/*
+ * waitforresources_class
+ */
+
+static void *
+waitforresources_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizwaitforresources_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizwaitforresources;
-
-OMX_ERRORTYPE
-tiz_waitforresources_init (void)
+void *
+tiz_waitforresources_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizwaitforresources)
-    {
-      tiz_check_omx_err_ret_oom (tiz_state_init ());
-      tiz_check_null_ret_oom
-        (tizwaitforresources =
-         factory_new
-         (tizstate_class, "tizwaitforresources",
-          tizstate, sizeof (tiz_waitforresources_t),
-          ctor, waitforresources_ctor,
-          dtor, waitforresources_dtor,
-          tiz_api_SetParameter, waitforresources_SetParameter,
-          tiz_api_GetState, waitforresources_GetState,
-          tiz_api_UseBuffer, waitforresources_UseBuffer,
-          tiz_api_EmptyThisBuffer, waitforresources_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, waitforresources_FillThisBuffer,
-          tiz_state_state_set, waitforresources_state_set,
-          tiz_state_trans_complete, waitforresources_trans_complete, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizstate = tiz_get_type (ap_hdl, "tizstate");
+  void * tizwaitforresources_class
+    = factory_new (classOf (tizstate),
+                   "tizwaitforresources_class",
+                   classOf (tizstate),
+                   sizeof (tiz_waitforresources_class_t),
+                   ap_tos, ap_hdl,
+                   ctor, waitforresources_class_ctor, 0);
+  return tizwaitforresources_class;
+}
+
+void *
+tiz_waitforresources_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizstate = tiz_get_type (ap_hdl, "tizstate");
+  void * tizwaitforresources_class = tiz_get_type (ap_hdl, "tizwaitforresources_class");
+  TIZ_LOG_CLASS (tizwaitforresources_class);
+  void * tizwaitforresources =
+    factory_new
+    (tizwaitforresources_class,
+     "tizwaitforresources",
+     tizstate,
+     sizeof (tiz_waitforresources_t),
+     ap_tos, ap_hdl,
+     ctor, waitforresources_ctor,
+     dtor, waitforresources_dtor,
+     tiz_api_SetParameter, waitforresources_SetParameter,
+     tiz_api_GetState, waitforresources_GetState,
+     tiz_api_UseBuffer, waitforresources_UseBuffer,
+     tiz_api_EmptyThisBuffer, waitforresources_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, waitforresources_FillThisBuffer,
+     tiz_state_state_set, waitforresources_state_set,
+     tiz_state_trans_complete, waitforresources_trans_complete, 0);
+
+  return tizwaitforresources;
 }

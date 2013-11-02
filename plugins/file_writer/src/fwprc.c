@@ -52,7 +52,7 @@
 static void *
 fw_proc_ctor (void *ap_obj, va_list * app)
 {
-  fw_prc_t *p_obj     = super_ctor (fwprc, ap_obj, app);
+  fw_prc_t *p_obj     = super_ctor (typeOf (ap_obj, "fwprc"), ap_obj, app);
   p_obj->p_file_      = NULL;
   p_obj->p_uri_param_ = NULL;
   p_obj->counter_     = 0;
@@ -75,7 +75,7 @@ fw_proc_dtor (void *ap_obj)
       tiz_mem_free (p_obj->p_uri_param_);
     }
 
-  return super_dtor (fwprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "fwprc"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -246,32 +246,54 @@ fw_proc_buffers_ready (const void *ap_obj)
 }
 
 /*
+ * fw_prc_class
+ */
+
+static void *
+fw_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "fwprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *fwprc;
-
-OMX_ERRORTYPE
-fw_prc_init (void)
+void *
+fw_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!fwprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (fwprc =
-         factory_new
-         (tizprc_class,
-          "fwprc",
-          tizprc,
-          sizeof (fw_prc_t),
-          ctor, fw_proc_ctor,
-          dtor, fw_proc_dtor,
-          tiz_prc_buffers_ready, fw_proc_buffers_ready,
-          tiz_srv_allocate_resources, fw_proc_allocate_resources,
-          tiz_srv_deallocate_resources, fw_proc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, fw_proc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, fw_proc_transfer_and_process,
-          tiz_srv_stop_and_return, fw_proc_stop_and_return, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * fwprc_class = factory_new (classOf (tizprc),
+                                    "fwprc_class",
+                                    classOf (tizprc),
+                                    sizeof (fw_prc_class_t),
+                                    ap_tos, ap_hdl,
+                                    ctor, fw_prc_class_ctor, 0);
+  return fwprc_class;
+}
+
+void *
+fw_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * fwprc_class = tiz_get_type (ap_hdl, "fwprc_class");
+  TIZ_LOG_CLASS (fwprc_class);
+  void * fwprc =
+    factory_new
+    (fwprc_class,
+     "fwprc",
+     tizprc,
+     sizeof (fw_prc_t),
+     ap_tos, ap_hdl,
+     ctor, fw_proc_ctor,
+     dtor, fw_proc_dtor,
+     tiz_prc_buffers_ready, fw_proc_buffers_ready,
+     tiz_srv_allocate_resources, fw_proc_allocate_resources,
+     tiz_srv_deallocate_resources, fw_proc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, fw_proc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, fw_proc_transfer_and_process,
+     tiz_srv_stop_and_return, fw_proc_stop_and_return, 0);
+
+  return fwprc;
 }

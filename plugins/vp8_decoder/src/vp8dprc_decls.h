@@ -75,6 +75,14 @@ extern "C"
     vp8d_codec_buffer_t codec_buf_;
   };
 
+  typedef struct vp8d_prc_class vp8d_prc_class_t;
+  struct vp8d_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
+
 #ifdef __cplusplus
 }
 #endif

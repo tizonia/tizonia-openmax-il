@@ -34,15 +34,8 @@ extern "C"
 {
 #endif
 
-#include "tizvideoport.h"
-
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-
-/* factory_new(tizivrport, ...); */
-  extern const void *tizivrport;
-
-  OMX_ERRORTYPE tiz_ivrport_init (void);
+  void * tiz_ivrport_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_ivrport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

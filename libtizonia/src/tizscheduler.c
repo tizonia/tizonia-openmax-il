@@ -37,6 +37,7 @@
 #include "tizkernel.h"
 #include "tizprc.h"
 #include "tizport.h"
+#include "tizobjsys.h"
 #include "OMX_TizoniaExt.h"
 
 #include "OMX_Core.h"
@@ -102,6 +103,7 @@ struct tiz_scheduler
   tiz_sem_t sem;
   tiz_queue_t *p_queue;
   tiz_soa_t *p_soa;
+  tiz_os_t *p_objsys;
   OMX_S32 error;
   tiz_srv_group_t child;
   tiz_sched_state_t state;
@@ -131,6 +133,7 @@ enum tiz_sched_msg_class
     ETIZSchedMsgComponentRoleEnum,
     ETIZSchedMsgPluggableEvent,
     ETIZSchedMsgRegisterRoles,
+    ETIZSchedMsgRegisterTypes,
     ETIZSchedMsgRegisterPortHooks,
     ETIZSchedMsgEvIo,
     ETIZSchedMsgEvTimer,
@@ -246,6 +249,13 @@ struct tiz_sched_msg_regroles
   const tiz_role_factory_t **p_role_list;
 };
 
+typedef struct tiz_sched_msg_regclasses tiz_sched_msg_regtypes_t;
+struct tiz_sched_msg_regclasses
+{
+  OMX_U32 ntypes;
+  const tiz_type_factory_t **p_type_list;
+};
+
 typedef struct tiz_sched_msg_regphooks tiz_sched_msg_regphooks_t;
 struct tiz_sched_msg_regphooks
 {
@@ -298,6 +308,7 @@ struct tiz_sched_msg
     tiz_sched_msg_tunnelrequest_t tr;
     tiz_sched_msg_plg_event_t pe;
     tiz_sched_msg_regroles_t rr;
+    tiz_sched_msg_regtypes_t rt;
     tiz_sched_msg_regphooks_t rph;
     tiz_sched_msg_ev_io_t eio;
     tiz_sched_msg_ev_timer_t etmr;
@@ -346,6 +357,8 @@ static OMX_ERRORTYPE do_plgevt (tiz_scheduler_t *, tiz_sched_state_t *,
                                 tiz_sched_msg_t *);
 static OMX_ERRORTYPE do_rr (tiz_scheduler_t *, tiz_sched_state_t *,
                             tiz_sched_msg_t *);
+static OMX_ERRORTYPE do_rt (tiz_scheduler_t *, tiz_sched_state_t *,
+                            tiz_sched_msg_t *);
 static OMX_ERRORTYPE do_rph (tiz_scheduler_t *, tiz_sched_state_t *,
                              tiz_sched_msg_t *);
 static OMX_ERRORTYPE do_eio (tiz_scheduler_t *, tiz_sched_state_t *,
@@ -390,6 +403,7 @@ tiz_sched_msg_dispatch_f tiz_sched_msg_to_fnt_tbl[] = {
   do_cre,
   do_plgevt,
   do_rr,
+  do_rt,
   do_rph,
   do_eio,
   do_etmr,
@@ -429,6 +443,7 @@ static tiz_sched_msg_str_t tiz_sched_msg_to_str_tbl[] = {
   {ETIZSchedMsgComponentRoleEnum, "ETIZSchedMsgComponentRoleEnum"},
   {ETIZSchedMsgPluggableEvent, "ETIZSchedMsgPluggableEvent"},
   {ETIZSchedMsgRegisterRoles, "ETIZSchedMsgRegisterRoles"},
+  {ETIZSchedMsgRegisterTypes, "ETIZSchedMsgRegisterTypes"},
   {ETIZSchedMsgRegisterPortHooks, "ETIZSchedMsgRegisterPortHooks"},
   {ETIZSchedMsgEvIo,"{ETIZSchedMsgEvIo,"},
   {ETIZSchedMsgEvTimer,"ETIZSchedMsgEvTimer"},
@@ -481,6 +496,7 @@ static OMX_BOOL tiz_sched_blocking_apis_tbl[] = {
   OMX_TRUE,                     /* ETIZSchedMsgComponentRoleEnum */
   OMX_FALSE,                    /* ETIZSchedMsgPluggableEvent */
   OMX_TRUE,                     /* ETIZSchedMsgRegisterRoles */
+  OMX_TRUE,                     /* ETIZSchedMsgRegisterTypes */
   OMX_TRUE,                     /* ETIZSchedMsgRegisterPortHooks */
   OMX_FALSE,                    /* ETIZSchedMsgEvIo */
   OMX_FALSE,                    /* ETIZSchedMsgEvTimer */
@@ -1114,6 +1130,57 @@ do_rr (tiz_scheduler_t * ap_sched,
     {
       /* Now instantiate the entities of role #0, the default role */
       rc = init_and_register_role (ap_sched, 0);
+    }
+
+  return rc;
+}
+
+static OMX_ERRORTYPE
+do_rt (tiz_scheduler_t * ap_sched,
+       tiz_sched_state_t * ap_state, tiz_sched_msg_t * ap_msg)
+{
+  tiz_sched_msg_regtypes_t *p_msg_rt = NULL;
+  const tiz_type_factory_t *p_tf = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_U32 i = 0;
+
+  assert (NULL != ap_sched);
+  assert (NULL != ap_msg);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
+
+  p_msg_rt = &(ap_msg->rt);
+  assert (NULL != p_msg_rt);
+  assert (NULL != p_msg_rt->p_type_list);
+  assert (p_msg_rt->ntypes > 0);
+
+  for (i = 0; i < p_msg_rt->ntypes && rc == OMX_ErrorNone; ++i)
+    {
+      p_tf = p_msg_rt->p_type_list[i];
+      assert (NULL != p_tf);
+      if ((NULL == p_tf->pf_class_init)
+          || (NULL == p_tf->pf_object_init)
+          || (strnlen ((const char *)(p_tf->class_name), OMX_MAX_STRINGNAME_SIZE)
+              == OMX_MAX_STRINGNAME_SIZE)
+          || (strnlen ((const char *)(p_tf->object_name), OMX_MAX_STRINGNAME_SIZE)
+              == OMX_MAX_STRINGNAME_SIZE))
+        {
+          assert (0);
+          rc = OMX_ErrorBadParameter;
+        }
+      else
+        {
+          /* First, register the class type... */
+          rc = tiz_os_register_type (ap_sched->p_objsys,
+                                     p_tf->pf_class_init,
+                                     (OMX_STRING) p_tf->class_name);
+          if (OMX_ErrorNone == rc)
+            {
+              /* ...and now, register the object type. */
+              rc = tiz_os_register_type (ap_sched->p_objsys,
+                                         p_tf->pf_object_init,
+                                         (OMX_STRING) p_tf->object_name);
+            }
+        }
     }
 
   return rc;
@@ -2096,9 +2163,15 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   /* Init the small object allocator */
   tiz_check_omx_err_ret_oom (tiz_soa_init (&(ap_sched->p_soa)));
 
+  /* Init the object system */
+  tiz_check_omx_err_ret_oom (tiz_os_init (&(ap_sched->p_objsys),
+                                          p_hdl, ap_sched->p_soa));
+
+  /* Register libtizonia types */
+  tiz_check_omx_err_ret_oom (tiz_os_register_base_types (ap_sched->p_objsys));
+  
   /* Init the FSM */
-  tiz_check_omx_err_ret_oom (tiz_fsm_init ());
-  ap_sched->child.p_fsm = factory_new (tizfsm, p_hdl);
+  ap_sched->child.p_fsm = factory_new (tiz_get_type (p_hdl, "tizfsm"), p_hdl);
   if (NULL == ap_sched->child.p_fsm)
     {
       TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] : "
@@ -2107,8 +2180,7 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
     }
 
   /* Init the kernel */
-  tiz_check_omx_err_ret_oom (tiz_krn_init ());
-  ap_sched->child.p_ker = factory_new (tizkrn, p_hdl);
+  ap_sched->child.p_ker = factory_new (tiz_get_type (p_hdl, "tizkrn"), p_hdl);
   if (NULL == ap_sched->child.p_ker)
     {
       TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] : "
@@ -2259,6 +2331,30 @@ tiz_comp_register_roles (const OMX_HANDLETYPE ap_hdl,
 }
 
 OMX_ERRORTYPE
+tiz_comp_register_types (const OMX_HANDLETYPE ap_hdl,
+                         const tiz_type_factory_t * ap_type_list[],
+                         const OMX_U32 a_ntypes)
+{
+  tiz_sched_msg_t *p_msg = NULL;
+  tiz_sched_msg_regtypes_t *p_msg_rt = NULL;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
+
+  assert (NULL != ap_type_list);
+  assert (a_ntypes > 0);
+  assert (a_ntypes <= TIZ_COMP_MAX_TYPES);
+
+  TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgRegisterTypes);
+
+  assert (NULL != p_msg);
+  p_msg_rt = &(p_msg->rt);
+  assert (NULL != p_msg_rt);
+  p_msg_rt->p_type_list = ap_type_list;
+  p_msg_rt->ntypes = a_ntypes;
+
+  return send_msg (p_sched, p_msg);
+}
+
+OMX_ERRORTYPE
 tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
                           tiz_event_pluggable_t * ap_event)
 {
@@ -2397,4 +2493,13 @@ tiz_get_prc (const OMX_HANDLETYPE ap_hdl)
   assert (NULL != ap_hdl);
   p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
   return p_sched->child.p_prc;
+}
+
+void *
+tiz_get_type (const OMX_HANDLETYPE ap_hdl, const char *ap_type_name)
+{
+  tiz_scheduler_t *p_sched = NULL;
+  assert (NULL != ap_hdl);
+  p_sched = ((OMX_COMPONENTTYPE *) ap_hdl)->pComponentPrivate;
+  return tiz_os_get_type (p_sched->p_objsys, ap_type_name);
 }

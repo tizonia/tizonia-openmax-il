@@ -34,9 +34,10 @@ extern "C"
 {
 #endif
 
+#include "tizconfigport_decls.h"
+
 #include "OMX_Types.h"
 #include "OMX_TizoniaExt.h"
-#include "tizconfigport_decls.h"
 
   typedef struct icer_cfgport icer_cfgport_t;
   struct icer_cfgport
@@ -44,6 +45,14 @@ extern "C"
     /* Object */
     const tiz_configport_t _;
     OMX_TIZONIA_HTTPSERVERTYPE http_conf_;
+  };
+
+  typedef struct icer_cfgport_class icer_cfgport_class_t;
+  struct icer_cfgport_class
+  {
+    /* Class */
+    const tiz_configport_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

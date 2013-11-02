@@ -34,6 +34,7 @@
 #include "arprc_decls.h"
 #include "tizkernel.h"
 #include "tizscheduler.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -53,7 +54,7 @@
 static void *
 ar_prc_ctor (void *ap_obj, va_list * app)
 {
-  ar_prc_t *p_obj = super_ctor (arprc, ap_obj, app);
+  ar_prc_t *p_obj = super_ctor (typeOf (ap_obj, "arprc"), ap_obj, app);
   p_obj->p_playback_hdl = NULL;
   p_obj->p_hw_params = NULL;
   p_obj->p_alsa_pcm_ = NULL;
@@ -77,7 +78,7 @@ ar_prc_dtor (void *ap_obj)
       (void) snd_pcm_close (p_obj->p_playback_hdl);
     }
 
-  return super_dtor (arprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "arprc"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -352,32 +353,54 @@ ar_prc_buffers_ready (const void *ap_obj)
 }
 
 /*
+ * ar_prc_class
+ */
+
+static void *
+ar_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "arprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *arprc;
-
-OMX_ERRORTYPE
-ar_prc_init (void)
+void *
+ar_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!arprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (arprc =
-         factory_new
-         (tizprc_class,
-          "arprc",
-          tizprc,
-          sizeof (ar_prc_t),
-          ctor, ar_prc_ctor,
-          dtor, ar_prc_dtor,
-          tiz_srv_allocate_resources, ar_prc_allocate_resources,
-          tiz_srv_deallocate_resources, ar_prc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, ar_prc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, ar_prc_transfer_and_process,
-          tiz_srv_stop_and_return, ar_prc_stop_and_return,
-          tiz_prc_buffers_ready, ar_prc_buffers_ready, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * arprc_class = factory_new (classOf (tizprc),
+                                       "arprc_class",
+                                       classOf (tizprc),
+                                       sizeof (ar_prc_class_t),
+                                       ap_tos, ap_hdl,
+                                       ctor, ar_prc_class_ctor, 0);
+  return arprc_class;
+}
+
+void *
+ar_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * arprc_class = tiz_get_type (ap_hdl, "arprc_class");
+  TIZ_LOG_CLASS (arprc_class);
+  void * arprc =
+    factory_new
+    (arprc_class,
+     "arprc",
+     tizprc,
+     sizeof (ar_prc_t),
+     ap_tos, ap_hdl,
+     ctor, ar_prc_ctor,
+     dtor, ar_prc_dtor,
+     tiz_srv_allocate_resources, ar_prc_allocate_resources,
+     tiz_srv_deallocate_resources, ar_prc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, ar_prc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, ar_prc_transfer_and_process,
+     tiz_srv_stop_and_return, ar_prc_stop_and_return,
+     tiz_prc_buffers_ready, ar_prc_buffers_ready, 0);
+
+  return arprc;
 }

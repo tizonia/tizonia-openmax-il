@@ -32,8 +32,8 @@
 
 #include "tizvp8port.h"
 #include "tizvp8port_decls.h"
-
 #include "tizutils.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -50,7 +50,7 @@
 static void *
 vp8port_ctor (void *ap_obj, va_list * app)
 {
-  tiz_vp8port_t *p_obj = super_ctor (tizvp8port, ap_obj, app);
+  tiz_vp8port_t *p_obj = super_ctor (typeOf (ap_obj, "tizvp8port"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
   OMX_VIDEO_PARAM_VP8TYPE *p_vp8type = NULL;
   OMX_VIDEO_VP8LEVELTYPE *p_levels = NULL;
@@ -130,7 +130,7 @@ vp8port_dtor (void *ap_obj)
   tiz_vp8port_t *p_obj = ap_obj;
   tiz_vector_clear (p_obj->p_levels_);
   tiz_vector_destroy (p_obj->p_levels_);
-  return super_dtor (tizvp8port, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizvp8port"), ap_obj);
 }
 
 /*
@@ -210,7 +210,7 @@ vp8port_GetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetParameter (tizvp8port,
+        return super_GetParameter (typeOf (ap_obj, "tizvp8port"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -327,7 +327,7 @@ vp8port_SetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_SetParameter (tizvp8port,
+        return super_SetParameter (typeOf (ap_obj, "tizvp8port"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -385,7 +385,7 @@ vp8port_GetConfig (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetConfig (tizvp8port,
+        return super_GetConfig (typeOf (ap_obj, "tizvp8port"),
                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -443,7 +443,7 @@ vp8port_SetConfig (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_SetConfig (tizvp8port,
+        return super_SetConfig (typeOf (ap_obj, "tizvp8port"),
                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -495,32 +495,54 @@ vp8port_check_tunnel_compat (const void *ap_obj,
 }
 
 /*
+ * tizvp8port_class
+ */
+
+static void *
+vp8port_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizvp8port_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *tizvp8port;
-
-OMX_ERRORTYPE
-tiz_vp8port_init (void)
+void *
+tiz_vp8port_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizvp8port)
-    {
-      tiz_check_omx_err_ret_oom (tiz_videoport_init ());
-      tiz_check_null_ret_oom
-        (tizvp8port =
-         factory_new
-         (tizvideoport_class,
-          "tizvp8port",
-          tizvideoport,
-          sizeof (tiz_vp8port_t),
-          ctor, vp8port_ctor,
-          dtor, vp8port_dtor,
-          tiz_api_GetParameter, vp8port_GetParameter,
-          tiz_api_SetParameter, vp8port_SetParameter,
-          tiz_api_GetConfig, vp8port_GetConfig,
-          tiz_api_SetConfig, vp8port_SetConfig,
-          tiz_port_set_portdef_format, vp8port_set_portdef_format,
-          tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizvideoport = tiz_get_type (ap_hdl, "tizvideoport");
+  void * tizvp8port_class = factory_new (classOf (tizvideoport),
+                                         "tizvp8port_class",
+                                         classOf (tizvideoport),
+                                         sizeof (tiz_vp8port_class_t),
+                                         ap_tos, ap_hdl,
+                                         ctor, vp8port_class_ctor, 0);
+  return tizvp8port_class;
+}
+
+void *
+tiz_vp8port_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizvideoport = tiz_get_type (ap_hdl, "tizvideoport");
+  void * tizvp8port_class = tiz_get_type (ap_hdl, "tizvp8port_class");
+  TIZ_LOG_CLASS (tizvp8port_class);
+  void * tizvp8port =
+    factory_new
+    (tizvp8port_class,
+     "tizvp8port",
+     tizvideoport,
+     sizeof (tiz_vp8port_t),
+     ap_tos, ap_hdl,
+     ctor, vp8port_ctor,
+     dtor, vp8port_dtor,
+     tiz_api_GetParameter, vp8port_GetParameter,
+     tiz_api_SetParameter, vp8port_SetParameter,
+     tiz_api_GetConfig, vp8port_GetConfig,
+     tiz_api_SetConfig, vp8port_SetConfig,
+     tiz_port_set_portdef_format, vp8port_set_portdef_format,
+     tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat, 0);
+
+  return tizvp8port;
 }

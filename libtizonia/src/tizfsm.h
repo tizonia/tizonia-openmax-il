@@ -53,9 +53,8 @@ extern "C"
     EStateMax
   };
 
-  extern const void *tizfsm;
-  extern const void *tizfsm_class;
-  OMX_ERRORTYPE tiz_fsm_init (void);
+  void * tiz_fsm_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_fsm_init (void * ap_tos, void * ap_hdl);
 
   OMX_ERRORTYPE tiz_fsm_set_state (void *ap_obj,
                                   tiz_fsm_state_id_t a_new_state,

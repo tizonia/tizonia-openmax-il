@@ -20,23 +20,23 @@
 /**
  * @file   tizmp3port.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  mp3port class implementation
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "tizmp3port.h"
 #include "tizmp3port_decls.h"
-
 #include "tizutils.h"
+
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -50,7 +50,7 @@
 static void *
 mp3port_ctor (void *ap_obj, va_list * app)
 {
-  tiz_mp3port_t *p_obj = super_ctor (tizmp3port, ap_obj, app);
+  tiz_mp3port_t *p_obj = super_ctor (typeOf (ap_obj, "tizmp3port"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
   OMX_AUDIO_PARAM_MP3TYPE *p_mp3mode = NULL;
   tiz_port_register_index (p_obj, OMX_IndexParamAudioMp3);
@@ -74,7 +74,7 @@ mp3port_ctor (void *ap_obj, va_list * app)
 static void *
 mp3port_dtor (void *ap_obj)
 {
-  return super_dtor (tizmp3port, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizmp3port"), ap_obj);
 }
 
 /*
@@ -104,7 +104,7 @@ mp3port_GetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetParameter (tizmp3port,
+        return super_GetParameter (typeOf (ap_obj, "tizmp3port"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -195,7 +195,7 @@ mp3port_SetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_SetParameter (tizmp3port,
+        return super_SetParameter (typeOf (ap_obj, "tizmp3port"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -405,46 +405,46 @@ static void *
 mp3port_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (tizmp3port_class, ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizmp3port_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizmp3port, *tizmp3port_class;
-
-OMX_ERRORTYPE
-tiz_mp3port_init (void)
+void *
+tiz_mp3port_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizmp3port_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_audioport_init ());
-      tiz_check_null_ret_oom
-        (tizmp3port_class = factory_new (tizaudioport_class,
+  void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
+  void * tizmp3port_class = factory_new (classOf (tizaudioport),
                                          "tizmp3port_class",
-                                         tizaudioport_class,
+                                         classOf (tizaudioport),
                                          sizeof (tiz_mp3port_class_t),
-                                         ctor, mp3port_class_ctor, 0));
-    }
+                                         ap_tos, ap_hdl,
+                                         ctor, mp3port_class_ctor, 0);
+  return tizmp3port_class; 
+}
 
-  if (!tizmp3port)
-    {
-      tiz_check_omx_err_ret_oom (tiz_audioport_init ());
-      tiz_check_null_ret_oom
-        (tizmp3port =
-         factory_new
-         (tizmp3port_class,
-          "tizmp3port",
-          tizaudioport,
-          sizeof (tiz_mp3port_t),
-          ctor, mp3port_ctor,
-          dtor, mp3port_dtor,
-          tiz_api_GetParameter, mp3port_GetParameter,
-          tiz_api_SetParameter, mp3port_SetParameter,
-          tiz_port_set_portdef_format, mp3port_set_portdef_format,
-          tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
-          tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour, 0));
-    }
-  return OMX_ErrorNone;
+void *
+tiz_mp3port_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
+  void * tizmp3port_class = tiz_get_type (ap_hdl, "tizmp3port_class");
+  TIZ_LOG_CLASS (tizmp3port_class);
+  void * tizmp3port =
+    factory_new
+    (tizmp3port_class,
+     "tizmp3port",
+     tizaudioport,
+     sizeof (tiz_mp3port_t),
+     ap_tos, ap_hdl,
+     ctor, mp3port_ctor,
+     dtor, mp3port_dtor,
+     tiz_api_GetParameter, mp3port_GetParameter,
+     tiz_api_SetParameter, mp3port_SetParameter,
+     tiz_port_set_portdef_format, mp3port_set_portdef_format,
+     tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
+     tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour, 0);
+
+  return tizmp3port;
 }

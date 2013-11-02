@@ -48,10 +48,12 @@ extern "C"
     OMX_AUDIO_CONFIG_MUTETYPE mute_;
   };
 
-  struct tizpcmport_class
+  typedef struct tiz_pcmport_class tiz_pcmport_class_t;
+  struct tiz_pcmport_class
   {
     /* Class */
     const tiz_audioport_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

@@ -30,17 +30,17 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-#include <limits.h>
-#include <string.h>
+#include "webpdprc.h"
+#include "webpdprc_decls.h"
 
 #include "tizkernel.h"
 #include "tizscheduler.h"
 
-#include "webpdprc.h"
-#include "webpdprc_decls.h"
-
 #include "tizosal.h"
+
+#include <assert.h>
+#include <limits.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -52,9 +52,9 @@
  */
 
 static void *
-webpd_proc_ctor (void *ap_obj, va_list * app)
+webpd_prc_ctor (void *ap_obj, va_list * app)
 {
-  struct webpdprc *p_obj = super_ctor (webpdprc, ap_obj, app);
+  webpd_prc_t *p_obj = super_ctor (typeOf (ap_obj, "webpdprc"), ap_obj, app);
   p_obj->pinhdr_ = 0;
   p_obj->pouthdr_ = 0;
   p_obj->eos_ = false;
@@ -62,15 +62,15 @@ webpd_proc_ctor (void *ap_obj, va_list * app)
 }
 
 static void *
-webpd_proc_dtor (void *ap_obj)
+webpd_prc_dtor (void *ap_obj)
 {
-  return super_dtor (webpdprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "webpdprc"), ap_obj);
 }
 
 static OMX_ERRORTYPE
-webpd_proc_transform_buffer (const void *ap_obj)
+webpd_prc_transform_buffer (const void *ap_obj)
 {
-  struct webpdprc *p_obj = (struct webpdprc *) ap_obj;
+  webpd_prc_t *p_obj = (webpd_prc_t *) ap_obj;
   (void) p_obj;
   return OMX_ErrorNone;
 }
@@ -80,9 +80,9 @@ webpd_proc_transform_buffer (const void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-webpd_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
+webpd_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct webpdprc *p_obj = ap_obj;
+  webpd_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
   TIZ_TRACE (tiz_api_get_hdl (ap_obj),
@@ -91,9 +91,9 @@ webpd_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-webpd_proc_deallocate_resources (void *ap_obj)
+webpd_prc_deallocate_resources (void *ap_obj)
 {
-  struct webpdprc *p_obj = ap_obj;
+  webpd_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
   TIZ_TRACE (tiz_api_get_hdl (ap_obj),
@@ -102,7 +102,7 @@ webpd_proc_deallocate_resources (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-webpd_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+webpd_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
   TIZ_TRACE (tiz_api_get_hdl (ap_obj),
@@ -112,16 +112,16 @@ webpd_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-webpd_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
+webpd_prc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-webpd_proc_stop_and_return (void *ap_obj)
+webpd_prc_stop_and_return (void *ap_obj)
 {
-  struct webpdprc *p_obj = ap_obj;
+  webpd_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
   return OMX_ErrorNone;
@@ -134,7 +134,7 @@ webpd_proc_stop_and_return (void *ap_obj)
 static bool
 claim_input (const void *ap_obj)
 {
-  struct webpdprc *p_obj = (struct webpdprc *) ap_obj;
+  webpd_prc_t *p_obj = (webpd_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
@@ -158,7 +158,7 @@ claim_input (const void *ap_obj)
 static bool
 claim_output (const void *ap_obj)
 {
-  struct webpdprc *p_obj = (struct webpdprc *) ap_obj;
+  webpd_prc_t *p_obj = (webpd_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
@@ -181,9 +181,9 @@ claim_output (const void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-webpd_proc_buffers_ready (const void *ap_obj)
+webpd_prc_buffers_ready (const void *ap_obj)
 {
-  struct webpdprc *p_obj = (struct webpdprc *) ap_obj;
+  webpd_prc_t *p_obj = (webpd_prc_t *) ap_obj;
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
   TIZ_TRACE (tiz_api_get_hdl (ap_obj), "Buffers ready...");
@@ -207,7 +207,7 @@ webpd_proc_buffers_ready (const void *ap_obj)
             }
         }
 
-      tiz_check_omx_err (webpd_proc_transform_buffer (ap_obj));
+      tiz_check_omx_err (webpd_prc_transform_buffer (ap_obj));
       if (p_obj->pinhdr_ && (0 == p_obj->pinhdr_->nFilledLen))
         {
           p_obj->pinhdr_->nOffset = 0;
@@ -231,33 +231,54 @@ webpd_proc_buffers_ready (const void *ap_obj)
 }
 
 /*
+ * webpd_prc_class
+ */
+
+static void *
+webpd_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "webpdprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *webpdprc;
-
-OMX_ERRORTYPE
-init_webpdprc (void)
+void *
+webpd_prc_class_init (void * ap_tos, void * ap_hdl)
 {
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * webpdprc_class = factory_new (classOf (tizprc),
+                                       "webpdprc_class",
+                                       classOf (tizprc),
+                                       sizeof (webpd_prc_class_t),
+                                       ap_tos, ap_hdl,
+                                       ctor, webpd_prc_class_ctor, 0);
+  return webpdprc_class;
+}
 
-  if (!webpdprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (webpdprc =
-         factory_new
-         (tizprc_class,
-          "webpdprc",
-          tizprc,
-          sizeof (struct webpdprc),
-          ctor, webpd_proc_ctor,
-          dtor, webpd_proc_dtor,
-          tiz_prc_buffers_ready, webpd_proc_buffers_ready,
-          tiz_srv_allocate_resources, webpd_proc_allocate_resources,
-          tiz_srv_deallocate_resources, webpd_proc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, webpd_proc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, webpd_proc_transfer_and_process,
-          tiz_srv_stop_and_return, webpd_proc_stop_and_return, 0));
-    }
-  return OMX_ErrorNone;
+void *
+webpd_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * webpdprc_class = tiz_get_type (ap_hdl, "webpdprc_class");
+  TIZ_LOG_CLASS (webpdprc_class);
+  void * webpdprc =
+    factory_new
+    (webpdprc_class,
+     "webpdprc",
+     tizprc,
+     sizeof (webpd_prc_t),
+     ap_tos, ap_hdl,
+     ctor, webpd_prc_ctor,
+     dtor, webpd_prc_dtor,
+     tiz_prc_buffers_ready, webpd_prc_buffers_ready,
+     tiz_srv_allocate_resources, webpd_prc_allocate_resources,
+     tiz_srv_deallocate_resources, webpd_prc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, webpd_prc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, webpd_prc_transfer_and_process,
+     tiz_srv_stop_and_return, webpd_prc_stop_and_return, 0);
+
+  return webpdprc;
 }

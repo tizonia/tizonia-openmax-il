@@ -46,21 +46,8 @@ extern "C"
 #include "tizpause.h"
 #include "tizpausetoidle.h"
 
-  extern const void *tizstate;
-  extern const void *tizstate_class;
-  OMX_ERRORTYPE tiz_state_init (void);
-  OMX_ERRORTYPE tiz_state_init_states (void);
-
-  extern const void *tizloaded;
-  extern const void *tizloadedtoidle;
-  extern const void *tizwaitforresources;
-  extern const void *tizidle;
-  extern const void *tizidletoloaded;
-  extern const void *tizidletoexecuting;
-  extern const void *tizexecuting;
-  extern const void *tizexecutingtoidle;
-  extern const void *tizpause;
-  extern const void *tizpausetoidle;
+  void * tiz_state_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_state_init (void * ap_tos, void * ap_hdl);
 
   OMX_ERRORTYPE tiz_state_state_set (const void *p_obj,
                                      OMX_HANDLETYPE ap_hdl,

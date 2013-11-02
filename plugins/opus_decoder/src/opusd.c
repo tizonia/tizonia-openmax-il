@@ -30,12 +30,13 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
-#include "tizscheduler.h"
+#include "opusdprc.h"
+#include "tizport.h"
 #include "tizopusport.h"
 #include "tizpcmport.h"
 #include "tizconfigport.h"
-#include "opusdprc.h"
+#include "tizscheduler.h"
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
@@ -98,8 +99,8 @@ instantiate_opus_port (OMX_HANDLETYPE ap_hdl)
   opustype.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
   opustype.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
 
-  tiz_check_omx_err_ret_null (tiz_opusport_init ());
-  return factory_new (tizopusport, ap_hdl, &opus_port_opts, &encodings, &opustype);
+  return factory_new (tiz_get_type (ap_hdl, "tizopusport"), ap_hdl,
+                      &opus_port_opts, &encodings, &opustype);
 }
 
 static OMX_PTR
@@ -152,16 +153,16 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.nPortIndex = ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX;
   mute.bMute = OMX_FALSE;
 
-  tiz_check_omx_err_ret_null (tiz_pcmport_init ());
-  return factory_new (tizpcmport, ap_hdl, &pcm_port_opts, &encodings,
-                           &pcmmode, &volume, &mute);
+  return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), ap_hdl,
+                      &pcm_port_opts, &encodings,
+                      &pcmmode, &volume, &mute);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+                      NULL,   /* this port does not take options */
                       ARATELIA_OPUS_DECODER_COMPONENT_NAME,
                       opus_decoder_version);
 }
@@ -169,8 +170,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (opusd_prc_init ());
-  return factory_new (opusdprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "opusdprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -178,6 +178,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_type_factory_t opusdprc_type;
+  const tiz_type_factory_t *tf_list[] = { &opusdprc_type};
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_OPUS_DECODER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;
@@ -189,7 +191,18 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_OPUS_DECODER_COMPONENT_NAME);
 
+  strcpy ((OMX_STRING) opusdprc_type.class_name, "opusdprc_class");
+  opusdprc_type.pf_class_init = opusd_prc_class_init;
+  strcpy ((OMX_STRING) opusdprc_type.object_name, "opusdprc");
+  opusdprc_type.pf_object_init = opusd_prc_init;
+
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_OPUS_DECODER_COMPONENT_NAME));
+
+  /* Register the "opusdprc" class */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+
+  /* Register the component role */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

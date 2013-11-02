@@ -50,7 +50,7 @@
 static void *
 otherport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_otherport_t *p_obj = super_ctor (tizotherport, ap_obj, app);
+  tiz_otherport_t *p_obj = super_ctor (typeOf (ap_obj, "tizotherport"), ap_obj, app);
   OMX_OTHER_FORMATTYPE *p_formats = NULL;
 
   tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat);
@@ -85,7 +85,7 @@ otherport_dtor (void *ap_obj)
   tiz_vector_clear (p_obj->p_formats_);
   tiz_vector_destroy (p_obj->p_formats_);
 
-  return super_dtor (tizotherport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizotherport"), ap_obj);
 }
 
 /*
@@ -125,7 +125,7 @@ otherport_GetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetParameter (tizotherport,
+        return super_GetParameter (typeOf (ap_obj, "tizotherport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -177,7 +177,7 @@ otherport_SetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_SetParameter (tizotherport,
+        return super_SetParameter (typeOf (ap_obj, "tizotherport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -194,43 +194,43 @@ static void *
 otherport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (tizotherport_class, ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizotherport_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizotherport, *tizotherport_class;
-
-OMX_ERRORTYPE
-tiz_otherport_init (void)
+void *
+tiz_otherport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizotherport_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizotherport_class = factory_new (tizport_class,
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizotherport_class = factory_new (classOf (tizport),
                                            "tizotherport_class",
-                                           tizport_class,
+                                           classOf (tizport),
                                            sizeof (tiz_otherport_class_t),
-                                           ctor, otherport_class_ctor, 0));
-    }
+                                           ap_tos, ap_hdl,
+                                           ctor, otherport_class_ctor, 0);
+  return tizotherport_class;
+}
 
-  if (!tizotherport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizotherport =
-         factory_new
-         (tizotherport_class,
-          "tizotherport",
-          tizport,
-          sizeof (tiz_otherport_t),
-          ctor, otherport_ctor,
-          dtor, otherport_dtor,
-          tiz_api_GetParameter, otherport_GetParameter,
-          tiz_api_SetParameter, otherport_SetParameter, 0));
-    }
-  return OMX_ErrorNone;
+void *
+tiz_otherport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizotherport_class = tiz_get_type (ap_hdl, "tizotherport_class");
+  TIZ_LOG_CLASS (tizotherport_class);
+  void * tizotherport =
+    factory_new
+    (tizotherport_class,
+     "tizotherport",
+     tizport,
+     sizeof (tiz_otherport_t),
+     ap_tos, ap_hdl,
+     ctor, otherport_ctor,
+     dtor, otherport_dtor,
+     tiz_api_GetParameter, otherport_GetParameter,
+     tiz_api_SetParameter, otherport_SetParameter, 0);
+
+  return tizotherport;
 }

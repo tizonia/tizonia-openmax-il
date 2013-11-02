@@ -34,6 +34,7 @@
 #include "sdlivrprc_decls.h"
 #include "tizkernel.h"
 #include "tizscheduler.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -137,7 +138,7 @@ sdlivr_proc_render_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 static void *
 sdlivr_proc_ctor (void *ap_obj, va_list * app)
 {
-  sdlivr_prc_t *p_obj = super_ctor (sdlivrprc, ap_obj, app);
+  sdlivr_prc_t *p_obj = super_ctor (typeOf (ap_obj, "sdlivrprc"), ap_obj, app);
   p_obj->pinhdr_ = 0;
   p_obj->pouthdr_ = 0;
   p_obj->eos_ = false;
@@ -147,7 +148,7 @@ sdlivr_proc_ctor (void *ap_obj, va_list * app)
 static void *
 sdlivr_proc_dtor (void *ap_obj)
 {
-  return super_dtor (sdlivrprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "sdlivrprc"), ap_obj);
 }
 
 /*
@@ -291,33 +292,56 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
   return OMX_ErrorNone;
 }
 
+
+/*
+ * sdlivr_prc_class
+ */
+
+static void *
+sdlivr_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "sdlivrprc_class"), ap_obj, app);
+}
+
 /*
  * initialization
  */
 
-const void *sdlivrprc;
-
-OMX_ERRORTYPE
-sdlivr_prc_init (void)
+void *
+sdlivr_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!sdlivrprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (sdlivrprc =
-         factory_new
-         (tizprc_class,
-          "sdlivrprc",
-          tizprc,
-          sizeof (sdlivr_prc_t),
-          ctor, sdlivr_proc_ctor,
-          dtor, sdlivr_proc_dtor,
-          tiz_prc_buffers_ready, sdlivr_proc_buffers_ready,
-          tiz_srv_allocate_resources, sdlivr_proc_allocate_resources,
-          tiz_srv_deallocate_resources, sdlivr_proc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, sdlivr_proc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, sdlivr_proc_transfer_and_process,
-          tiz_srv_stop_and_return, sdlivr_proc_stop_and_return, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * sdlivrprc_class = factory_new (classOf (tizprc),
+                                       "sdlivrprc_class",
+                                        classOf (tizprc),
+                                        sizeof (sdlivr_prc_class_t),
+                                        ap_tos, ap_hdl,
+                                        ctor, sdlivr_prc_class_ctor, 0);
+  return sdlivrprc_class;
+}
+
+void *
+sdlivr_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * sdlivrprc_class = tiz_get_type (ap_hdl, "sdlivrprc_class");
+  TIZ_LOG_CLASS (sdlivrprc_class);
+  void * sdlivrprc =
+    factory_new
+    (sdlivrprc_class,
+     "sdlivrprc",
+     tizprc,
+     sizeof (sdlivr_prc_t),
+     ap_tos, ap_hdl,
+     ctor, sdlivr_proc_ctor,
+     dtor, sdlivr_proc_dtor,
+     tiz_prc_buffers_ready, sdlivr_proc_buffers_ready,
+     tiz_srv_allocate_resources, sdlivr_proc_allocate_resources,
+     tiz_srv_deallocate_resources, sdlivr_proc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, sdlivr_proc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, sdlivr_proc_transfer_and_process,
+     tiz_srv_stop_and_return, sdlivr_proc_stop_and_return, 0);
+
+  return sdlivrprc;
 }

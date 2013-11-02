@@ -65,6 +65,14 @@ extern "C"
     bool eos_;
   };
 
+  typedef struct mp3d_prc_class mp3d_prc_class_t;
+  struct mp3d_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
+
 #ifdef __cplusplus
 }
 #endif

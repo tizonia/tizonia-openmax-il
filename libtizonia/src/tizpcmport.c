@@ -32,8 +32,8 @@
 
 #include "tizpcmport.h"
 #include "tizpcmport_decls.h"
-
 #include "tizutils.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -50,7 +50,7 @@
 static void *
 pcmport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_pcmport_t *p_obj = super_ctor (tizpcmport, ap_obj, app);
+  tiz_pcmport_t *p_obj = super_ctor (typeOf (ap_obj, "tizpcmport"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
   OMX_AUDIO_PARAM_PCMMODETYPE *p_pcmmode = NULL;
   OMX_AUDIO_CONFIG_VOLUMETYPE *p_volume = NULL;
@@ -110,7 +110,7 @@ pcmport_ctor (void *ap_obj, va_list * app)
 static void *
 pcmport_dtor (void *ap_obj)
 {
-  return super_dtor (tizpcmport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizpcmport"), ap_obj);
 }
 
 /*
@@ -146,7 +146,7 @@ pcmport_GetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetParameter (tizpcmport,
+        return super_GetParameter (typeOf (ap_obj, "tizpcmport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -256,7 +256,7 @@ pcmport_SetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_SetParameter (tizpcmport,
+        return super_SetParameter (typeOf (ap_obj, "tizpcmport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -296,7 +296,7 @@ pcmport_GetConfig (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetConfig (tizpcmport,
+        return super_GetConfig (typeOf (ap_obj, "tizpcmport"),
                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -358,7 +358,7 @@ pcmport_SetConfig (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_SetConfig (tizpcmport,
+        return super_SetConfig (typeOf (ap_obj, "tizpcmport"),
                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -610,33 +610,55 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 }
 
 /*
+ * tizpcmport_class
+ */
+
+static void *
+pcmport_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizpcmport_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *tizpcmport;
-
-OMX_ERRORTYPE
-tiz_pcmport_init (void)
+void *
+tiz_pcmport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizpcmport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_audioport_init ());
-      tiz_check_null_ret_oom
-        (tizpcmport =
-         factory_new
-         (tizaudioport_class,
-          "tizpcmport",
-          tizaudioport,
-          sizeof (tiz_pcmport_t),
-          ctor, pcmport_ctor,
-          dtor, pcmport_dtor,
-          tiz_api_GetParameter, pcmport_GetParameter,
-          tiz_api_SetParameter, pcmport_SetParameter,
-          tiz_api_GetConfig, pcmport_GetConfig,
-          tiz_api_SetConfig, pcmport_SetConfig,
-          tiz_port_set_portdef_format, pcmport_set_portdef_format,
-          tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
-          tiz_port_apply_slaving_behaviour, pcmport_apply_slaving_behaviour, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
+  void * tizpcmport_class = factory_new (classOf (tizaudioport),
+                                         "tizpcmport_class",
+                                         classOf (tizaudioport),
+                                         sizeof (tiz_pcmport_class_t),
+                                         ap_tos, ap_hdl,
+                                         ctor, pcmport_class_ctor, 0);
+  return tizpcmport_class; 
+}
+
+void *
+tiz_pcmport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
+  void * tizpcmport_class = tiz_get_type (ap_hdl, "tizpcmport_class");
+  TIZ_LOG_CLASS (tizpcmport_class);
+  void * tizpcmport =
+    factory_new
+    (tizpcmport_class,
+     "tizpcmport",
+     tizaudioport,
+     sizeof (tiz_pcmport_t),
+     ap_tos, ap_hdl,
+     ctor, pcmport_ctor,
+     dtor, pcmport_dtor,
+     tiz_api_GetParameter, pcmport_GetParameter,
+     tiz_api_SetParameter, pcmport_SetParameter,
+     tiz_api_GetConfig, pcmport_GetConfig,
+     tiz_api_SetConfig, pcmport_SetConfig,
+     tiz_port_set_portdef_format, pcmport_set_portdef_format,
+     tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
+     tiz_port_apply_slaving_behaviour, pcmport_apply_slaving_behaviour, 0);
+
+  return tizpcmport;
 }

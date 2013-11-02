@@ -23,6 +23,8 @@
 
 #include "tizobject.h"
 #include "tizobject_decls.h"
+#include "tizobjsys.h"
+#include "tizutils.h"
 #include "tizosal.h"
 
 #include <assert.h>
@@ -39,13 +41,13 @@
  */
 
 static void *
-Object_ctor (void *ap_obj, va_list * app)
+object_ctor (void *ap_obj, va_list * app)
 {
   return ap_obj;
 }
 
 static void *
-Object_dtor (void *ap_obj)
+object_dtor (void *ap_obj)
 {
   return ap_obj;
 }
@@ -54,7 +56,7 @@ const void *
 classOf (const void *ap_obj)
 {
   const tiz_object_t *p_obj = ap_obj;
-  assert (p_obj && p_obj->class);
+  assert (NULL != p_obj && NULL != p_obj->class);
   return p_obj->class;
 }
 
@@ -72,21 +74,51 @@ nameOf (const void *ap_obj)
   return class->name;
 }
 
+const void *
+handleOf (const void *ap_obj)
+{
+  const tiz_class_t *class = classOf (ap_obj);
+  return class->hdl;
+}
+
+const void *
+typeOf (const void *ap_obj, const char *ap_type_name)
+{
+  const tiz_class_t *p_class = classOf (ap_obj);
+  return tiz_os_get_type (p_class->tos, ap_type_name);
+}
+
+void
+print_class (const void * ap_class, const char *file, int line,
+             const char *func)
+{
+  const tiz_class_t *p_class = ap_class;
+  assert (NULL != p_class);
+  tiz_log(file, line, func, TIZ_LOG_CATEGORY_NAME, TIZ_PRIORITY_TRACE,
+          TIZ_CNAME(p_class->hdl), TIZ_CBUF(p_class->hdl),
+          "[%p] - name [%s] - super [%p] - super name [%s] - "
+          "size [%d] - tos [%p] - hdl [%p]",
+          p_class, p_class->name, p_class->super, p_class->super->name,
+          p_class->size, p_class->tos, p_class->hdl);
+}
+
 /*
  * Class
  */
 
 static void *
-Class_ctor (void *ap_obj, va_list * app)
+class_ctor (void *ap_obj, va_list * app)
 {
   tiz_class_t *p_obj = ap_obj;
   const size_t offset = offsetof (tiz_class_t, ctor);
 
-  p_obj->name = va_arg (*app, char *);
+  p_obj->name  = va_arg (*app, char *);
   p_obj->super = va_arg (*app, tiz_class_t *);
-  p_obj->size = va_arg (*app, size_t);
+  p_obj->size  = va_arg (*app, size_t);
+  p_obj->tos   = va_arg (*app, void *);
+  p_obj->hdl   = va_arg (*app, void *);
 
-  assert (p_obj->super);
+  assert (NULL != p_obj->super);
 
   memcpy ((char *) p_obj + offset, (char *) p_obj->super
           + offset, sizeOf (p_obj->super) - offset);
@@ -112,16 +144,16 @@ Class_ctor (void *ap_obj, va_list * app)
 }
 
 static void *
-Class_dtor (void *ap_obj)
+class_dtor (void *ap_obj)
 {
-  return 0;
+  return NULL;
 }
 
 const void *
 super (const void *ap_obj)
 {
   const tiz_class_t *p_obj = ap_obj;
-  assert (p_obj && p_obj->super);
+  assert (NULL != p_obj && NULL != p_obj->super);
   return p_obj->super;
 }
 
@@ -129,38 +161,26 @@ super (const void *ap_obj)
  * initialization
  */
 
-static const tiz_class_t object[] = {
-  {{object + 1},
-   "Object", object, sizeof (tiz_object_t),
-   Object_ctor, Object_dtor},
-  {{object + 1},
-   "Class", object, sizeof (tiz_class_t),
-   Class_ctor, Class_dtor}
-};
-
-const void *Object = object;
-const void *Class = object + 1;
-
 /*
  * object management and selectors
  */
 
 void *
-factory_new (const void *a_class, ...)
+factory_new (const void *ap_class, ...)
 {
-  const tiz_class_t *class = a_class;
-  tiz_object_t *object = NULL;
+  const tiz_class_t *p_class = ap_class;
+  tiz_object_t *p_obj = NULL;
   va_list ap;
 
-  assert (class && class->size);
-  if (NULL != (object = tiz_mem_calloc (1, class->size)))
+  assert (NULL != p_class && p_class->size > 0);
+  if (NULL != (p_obj = tiz_mem_calloc (1, p_class->size)))
   {
-    object->class = class;
-    va_start (ap, a_class);
-    object        = ctor (object, &ap);
+    p_obj->class = p_class;
+    va_start (ap, ap_class);
+    p_obj = ctor (p_obj, &ap);
     va_end (ap);
   }
-  return object;
+  return p_obj;
 }
 
 void
@@ -175,31 +195,71 @@ factory_delete (void *ap_obj)
 void *
 ctor (void *ap_obj, va_list * app)
 {
-  const tiz_class_t *class = classOf (ap_obj);
-  assert (class->ctor);
-  return class->ctor (ap_obj, app);
+  const tiz_class_t *p_class = classOf (ap_obj);
+/*   TIZ_LOG_CLASS (p_class); */
+  assert (NULL != p_class->ctor);
+  return p_class->ctor (ap_obj, app);
 }
 
 void *
-super_ctor (const void *a_class, void *ap_obj, va_list * app)
+super_ctor (const void *ap_class, void *ap_obj, va_list * app)
 {
-  const tiz_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->ctor);
-  return superclass->ctor (ap_obj, app);
+  const tiz_class_t *p_super = super (ap_class);
+  assert (NULL != ap_obj && NULL != p_super->ctor);
+/*   TIZ_LOG_CLASS (p_super); */
+  return p_super->ctor (ap_obj, app);
 }
 
 void *
 dtor (void *ap_obj)
 {
-  const tiz_class_t *class = classOf (ap_obj);
-  assert (class->dtor);
-  return class->dtor (ap_obj);
+  tiz_class_t *p_class = (tiz_class_t *) classOf (ap_obj);
+  assert (NULL != p_class && NULL != p_class->dtor);
+  return p_class->dtor (ap_obj);
 }
 
 void *
-super_dtor (const void *a_class, void *ap_obj)
+super_dtor (const void *ap_class, void *ap_obj)
 {
-  const tiz_class_t *superclass = super (a_class);
-  assert (ap_obj && superclass->dtor);
-  return superclass->dtor (ap_obj);
+  const tiz_class_t *p_super = super (ap_class);
+  assert (NULL != ap_obj && NULL != p_super->dtor);
+  return p_super->dtor (ap_obj);
+}
+
+static const tiz_class_t templates[] = {
+  {{templates + 1},
+   "tizobject", templates, sizeof (tiz_object_t), NULL, NULL,
+   object_ctor, object_dtor},
+  {{templates + 1},
+   "tizclass", templates, sizeof (tiz_class_t), NULL, NULL,
+   class_ctor, class_dtor}
+};
+
+void *
+tiz_class_init (void * ap_tos, void * ap_hdl)
+{
+  tiz_class_t *tizclass = tiz_mem_calloc (1, sizeof (tiz_class_t));
+  memcpy ((char *) tizclass, (char *) (templates + 1), sizeof (tiz_class_t));
+  memcpy ((char *) tizclass, (char *) &tizclass, sizeof (tiz_class_t*));
+  tizclass->tos = ap_tos;
+  tizclass->hdl = ap_hdl;
+  TIZ_TRACE (ap_hdl, "class name [%s]->[%p]",
+             tizclass->name, tizclass);
+  return tizclass;
+}
+
+void *
+tiz_object_init (void * ap_tos, void * ap_hdl)
+{
+  tiz_class_t *tizclass = tiz_get_type (ap_hdl, "tizclass");
+  TIZ_LOG_CLASS (tizclass);
+  tiz_class_t *tizobject = tiz_mem_calloc (1, sizeof (tiz_class_t));
+  const size_t super_offset = offsetof (tiz_class_t, super);
+  memcpy ((char *) tizobject, (char *) templates, sizeof (tiz_class_t));
+  memcpy ((char *) tizobject, (char *) &tizclass, sizeof (tiz_class_t*));
+  memcpy ((char *) tizobject + super_offset, (char *) &tizobject, sizeof (tiz_class_t*));
+  memcpy ((char *) tizclass + super_offset, (char *) &tizobject, sizeof (tiz_class_t*));
+  TIZ_TRACE (ap_hdl, "object name [%s]->[%p]",
+             tizobject->name, tizobject);
+  return tizobject;
 }

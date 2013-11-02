@@ -237,7 +237,7 @@ unregister_header (const void *ap_obj, OMX_S32 hdr_pos)
 static void *
 port_ctor (void *ap_obj, va_list * app)
 {
-  tiz_port_t *p_obj = super_ctor (tizport, ap_obj, app);
+  tiz_port_t *p_obj = super_ctor (typeOf (ap_obj, "tizport"), ap_obj, app);
   tiz_port_options_t *p_opts = NULL;
   OMX_BOOL supplier = OMX_FALSE;
   OMX_INDEXTYPE id1 = OMX_IndexParamPortDefinition;
@@ -363,7 +363,7 @@ port_dtor (void *ap_obj)
   tiz_vector_clear (p_obj->p_marks_);
   tiz_vector_destroy (p_obj->p_marks_);
 
-  return super_dtor (tizport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizport"), ap_obj);
 }
 
 /*
@@ -2050,7 +2050,7 @@ tiz_port_reset_tunneled_port_status_flag (void *ap_obj,
 static void *
 port_class_ctor (void *ap_obj, va_list * app)
 {
-  tiz_port_class_t *p_obj = super_ctor (tizport_class, ap_obj, app);
+  tiz_port_class_t *p_obj = super_ctor (typeOf (ap_obj, "tizport_class"), ap_obj, app);
   typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
@@ -2185,73 +2185,71 @@ port_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizport, *tizport_class;
-
-OMX_ERRORTYPE
-tiz_port_init (void)
+void *
+tiz_port_class_init (void * ap_tos, void * ap_hdl)
 {
-
-  if (!tizport_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_api_init ());
-      tiz_check_null_ret_oom
-        (tizport_class = factory_new (tizapi_class,
+  void * tizapi = tiz_get_type (ap_hdl, "tizapi");
+  void * tizport_class = factory_new (classOf (tizapi),
                                       "tizport_class",
-                                      tizapi_class,
+                                      classOf (tizapi),
                                       sizeof (tiz_port_class_t),
-                                      ctor, port_class_ctor, 0));
+                                      ap_tos, ap_hdl,
+                                      ctor, port_class_ctor, 0);
+  return tizport_class; 
+}
 
-    }
+void *
+tiz_port_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizapi = tiz_get_type (ap_hdl, "tizapi");
+  void * tizport_class = tiz_get_type (ap_hdl, "tizport_class");
+  TIZ_LOG_CLASS (tizport_class);
+  void * tizport =
+    factory_new
+    (tizport_class,
+     "tizport",
+     tizapi,
+     sizeof (tiz_port_t),
+     ap_tos, ap_hdl,
+     ctor, port_ctor,
+     dtor, port_dtor,
+     tiz_api_GetParameter, port_GetParameter,
+     tiz_api_SetParameter, port_SetParameter,
+     tiz_api_GetConfig, port_GetConfig,
+     tiz_api_SetConfig, port_SetConfig,
+     tiz_api_GetExtensionIndex, port_GetExtensionIndex,
+     tiz_api_ComponentTunnelRequest, port_ComponentTunnelRequest,
+     tiz_api_UseBuffer, port_UseBuffer,
+     tiz_api_AllocateBuffer, port_AllocateBuffer,
+     tiz_api_FreeBuffer, port_FreeBuffer,
+     tiz_port_register_index, port_register_index,
+     tiz_port_find_index, port_find_index,
+     tiz_port_index, port_index,
+     tiz_port_set_index, port_set_index,
+     tiz_port_set_portdef_format, port_set_portdef_format,
+     tiz_port_buffer_count, port_buffer_count,
+     tiz_port_dir, port_dir,
+     tiz_port_domain, port_domain,
+     tiz_port_get_tunnel_comp, port_get_tunnel_comp,
+     tiz_port_get_hdrs_list, port_get_hdrs_list,
+     tiz_port_check_flags, port_check_flags,
+     tiz_port_set_flags, port_set_flags,
+     tiz_port_clear_flags, port_clear_flags,
+     tiz_port_check_tunneled_port_status, port_check_tunneled_port_status,
+     tiz_port_populate, port_populate,
+     tiz_port_depopulate, port_depopulate,
+     tiz_port_check_tunnel_compat, port_check_tunnel_compat,
+     tiz_port_update_claimed_count, port_update_claimed_count,
+     tiz_port_store_mark, port_store_mark,
+     tiz_port_mark_buffer, port_mark_buffer,
+     tiz_port_set_alloc_hooks, port_set_alloc_hooks,
+     tiz_port_populate_header, port_populate_header,
+     tiz_port_depopulate_header, port_depopulate_header,
+     tiz_port_is_master_or_slave, port_is_master_or_slave,
+     tiz_port_apply_slaving_behaviour, port_apply_slaving_behaviour,
+     tiz_port_update_tunneled_status, port_update_tunneled_status,
+     tiz_port_reset_tunneled_port_status_flag, reset_tunneled_port_status_flag,
+     0);
 
-  if (!tizport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_api_init ());
-      tiz_check_null_ret_oom
-        (tizport =
-         factory_new
-         (tizport_class,
-          "tizport",
-          tizapi,
-          sizeof (tiz_port_t),
-          ctor, port_ctor,
-          dtor, port_dtor,
-          tiz_api_GetParameter, port_GetParameter,
-          tiz_api_SetParameter, port_SetParameter,
-          tiz_api_GetConfig, port_GetConfig,
-          tiz_api_SetConfig, port_SetConfig,
-          tiz_api_GetExtensionIndex, port_GetExtensionIndex,
-          tiz_api_ComponentTunnelRequest, port_ComponentTunnelRequest,
-          tiz_api_UseBuffer, port_UseBuffer,
-          tiz_api_AllocateBuffer, port_AllocateBuffer,
-          tiz_api_FreeBuffer, port_FreeBuffer,
-          tiz_port_register_index, port_register_index,
-          tiz_port_find_index, port_find_index,
-          tiz_port_index, port_index,
-          tiz_port_set_index, port_set_index,
-          tiz_port_set_portdef_format, port_set_portdef_format,
-          tiz_port_buffer_count, port_buffer_count,
-          tiz_port_dir, port_dir,
-          tiz_port_domain, port_domain,
-          tiz_port_get_tunnel_comp, port_get_tunnel_comp,
-          tiz_port_get_hdrs_list, port_get_hdrs_list,
-          tiz_port_check_flags, port_check_flags,
-          tiz_port_set_flags, port_set_flags,
-          tiz_port_clear_flags, port_clear_flags,
-          tiz_port_check_tunneled_port_status, port_check_tunneled_port_status,
-          tiz_port_populate, port_populate,
-          tiz_port_depopulate, port_depopulate,
-          tiz_port_check_tunnel_compat, port_check_tunnel_compat,
-          tiz_port_update_claimed_count, port_update_claimed_count,
-          tiz_port_store_mark, port_store_mark,
-          tiz_port_mark_buffer, port_mark_buffer,
-          tiz_port_set_alloc_hooks, port_set_alloc_hooks,
-          tiz_port_populate_header, port_populate_header,
-          tiz_port_depopulate_header, port_depopulate_header,
-          tiz_port_is_master_or_slave, port_is_master_or_slave,
-          tiz_port_apply_slaving_behaviour, port_apply_slaving_behaviour,
-          tiz_port_update_tunneled_status, port_update_tunneled_status,
-          tiz_port_reset_tunneled_port_status_flag, reset_tunneled_port_status_flag,
-          0));
-    }
-  return OMX_ErrorNone;
+  return tizport;
 }

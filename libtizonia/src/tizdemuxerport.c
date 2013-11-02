@@ -67,7 +67,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
   va_copy (app_copy, *app);
 
   /* Now give the original to the base class */
-  if (NULL !=  (p_obj = super_ctor (tizdemuxerport, ap_obj, app)))
+  if (NULL !=  (p_obj = super_ctor (typeOf (ap_obj, "tizdemuxerport"), ap_obj, app)))
     {
       /* Register the demuxer-specific indexes  */
       tiz_check_omx_err_ret_null
@@ -127,9 +127,8 @@ demuxerport_ctor (void *ap_obj, va_list * app)
             p_mute = va_arg (app_copy, OMX_AUDIO_CONFIG_MUTETYPE *);
             assert (NULL != p_mute);
 
-            tiz_check_omx_err_ret_null (tiz_pcmport_init ());
             p_obj->p_port_
-              = factory_new (tizpcmport, tiz_api_get_hdl (ap_obj),
+              = factory_new (typeOf (ap_obj, "tizpcmport"), tiz_api_get_hdl (ap_obj),
                              p_opts, &encodings, p_pcmmode, p_volume, p_mute);
             if (NULL == p_obj->p_port_)
               {
@@ -161,9 +160,8 @@ demuxerport_ctor (void *ap_obj, va_list * app)
             p_formats = va_arg (app_copy, OMX_COLOR_FORMATTYPE *);
             assert (NULL != p_formats);
 
-            tiz_check_omx_err_ret_null (tiz_videoport_init ());
             if (NULL == (p_obj->p_port_
-                         = factory_new (tizvideoport, tiz_api_get_hdl (ap_obj),
+                         = factory_new (typeOf (ap_obj, "tizvideoport"), tiz_api_get_hdl (ap_obj),
                                         p_opts, p_portdef, p_encodings, p_formats)))
               {
                 return NULL;
@@ -186,7 +184,7 @@ demuxerport_dtor (void *ap_obj)
   tiz_demuxerport_t *p_obj = ap_obj;
   assert (NULL != p_obj);
   factory_delete (p_obj->p_port_);
-  return super_dtor (tizdemuxerport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizdemuxerport"), ap_obj);
 }
 
 /*
@@ -243,7 +241,7 @@ demuxerport_GetParameter (const void *ap_obj,
     default:
       {
         /* Delegate to the base port */
-        return super_GetParameter (tizdemuxerport,
+        return super_GetParameter (typeOf (ap_obj, "tizdemuxerport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -312,7 +310,7 @@ demuxerport_SetParameter (const void *ap_obj,
     default:
       {
         /* Delegate to the base port */
-        return super_SetParameter (tizdemuxerport,
+        return super_SetParameter (typeOf (ap_obj, "tizdemuxerport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -352,7 +350,7 @@ demuxerport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     default:
       {
         /* Try the parent's indexes */
-        rc = super_GetConfig (tizdemuxerport,
+        rc = super_GetConfig (typeOf (ap_obj, "tizdemuxerport"),
                               ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -394,7 +392,7 @@ demuxerport_SetConfig (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        rc = super_SetConfig (tizdemuxerport,
+        rc = super_SetConfig (typeOf (ap_obj, "tizdemuxerport"),
                               ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -432,46 +430,46 @@ static void *
 demuxerport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (tizdemuxerport_class, ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizdemuxerport_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizdemuxerport, *tizdemuxerport_class;
-
-OMX_ERRORTYPE
-tiz_demuxerport_init (void)
+void *
+tiz_demuxerport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizdemuxerport_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizdemuxerport_class = factory_new (tizport_class,
-                                            "tizdemuxerport_class",
-                                            tizport_class,
-                                            sizeof (tiz_demuxerport_class_t),
-                                            ctor, demuxerport_class_ctor, 0));
-    }
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizdemuxerport_class = factory_new (classOf (tizport),
+                                             "tizdemuxerport_class",
+                                             classOf (tizport),
+                                             sizeof (tiz_demuxerport_class_t),
+                                             ap_tos, ap_hdl,
+                                             ctor, demuxerport_class_ctor, 0);
+  return tizdemuxerport_class;
+}
 
-  if (!tizdemuxerport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizdemuxerport =
-         factory_new
-         (tizdemuxerport_class,
-          "tizdemuxerport",
-          tizport,
-          sizeof (tiz_demuxerport_t),
-          ctor, demuxerport_ctor,
-          dtor, demuxerport_dtor,
-          tiz_api_GetParameter, demuxerport_GetParameter,
-          tiz_api_SetParameter, demuxerport_SetParameter,
-          tiz_api_GetConfig, demuxerport_GetConfig,
-          tiz_api_SetConfig, demuxerport_SetConfig,
-          tiz_port_check_tunnel_compat, demuxerport_check_tunnel_compat, 0));
-    }
-  return OMX_ErrorNone;
+void *
+tiz_demuxerport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizdemuxerport_class = tiz_get_type (ap_hdl, "tizdemuxerport_class");
+  TIZ_LOG_CLASS (tizdemuxerport_class);
+  void * tizdemuxerport =
+    factory_new
+    (tizdemuxerport_class,
+     "tizdemuxerport",
+     tizport,
+     sizeof (tiz_demuxerport_t),
+     ap_tos, ap_hdl,
+     ctor, demuxerport_ctor,
+     dtor, demuxerport_dtor,
+     tiz_api_GetParameter, demuxerport_GetParameter,
+     tiz_api_SetParameter, demuxerport_SetParameter,
+     tiz_api_GetConfig, demuxerport_GetConfig,
+     tiz_api_SetConfig, demuxerport_SetConfig,
+     tiz_port_check_tunnel_compat, demuxerport_check_tunnel_compat, 0);
+
+  return tizdemuxerport;
 }

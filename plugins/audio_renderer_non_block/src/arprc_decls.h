@@ -36,7 +36,6 @@ extern "C"
 
 #include "arprc.h"
 #include "tizprc_decls.h"
-#include "tizosal.h"
 
 #include "OMX_Core.h"
 
@@ -60,6 +59,14 @@ extern "C"
     bool port_disabled_;
     bool awaiting_buffers_;
     bool awaiting_io_ev_;
+  };
+
+  typedef struct ar_prc_class ar_prc_class_t;
+  struct ar_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

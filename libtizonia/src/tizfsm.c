@@ -499,7 +499,7 @@ static void *
 fsm_ctor (void *ap_obj, va_list * app)
 {
   OMX_U32 i;
-  tiz_fsm_t *p_obj = super_ctor (tizfsm, ap_obj, app);
+  tiz_fsm_t *p_obj = super_ctor (typeOf (ap_obj, "tizfsm"), ap_obj, app);
 
   for (i = 0; i < EStateMax; ++i)
     {
@@ -508,32 +508,34 @@ fsm_ctor (void *ap_obj, va_list * app)
 
   /* Add the standard states... */
   p_obj->p_states_[EStateLoaded]
-    = factory_new (tizloaded, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizloaded"), handleOf (ap_obj), p_obj);
   p_obj->p_states_[EStateIdle]
-    = factory_new (tizidle, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizidle"), handleOf (ap_obj), p_obj);
   p_obj->p_states_[EStateExecuting]
-    = factory_new (tizexecuting, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizexecuting"), handleOf (ap_obj), p_obj);
   p_obj->p_states_[EStatePause]
-    = factory_new (tizpause, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizpause"), handleOf (ap_obj), p_obj);
   p_obj->p_states_[EStateWaitForResources]
-    = factory_new (tizwaitforresources, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizwaitforresources"), handleOf (ap_obj), p_obj);
   p_obj->p_states_[ESubStateLoadedToIdle]
-    = factory_new (tizloadedtoidle, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizloadedtoidle"), handleOf (ap_obj), p_obj);
   p_obj->p_states_[ESubStateIdleToLoaded]
-    = factory_new (tizidletoloaded, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizidletoloaded"), handleOf (ap_obj), p_obj);
   p_obj->p_states_[ESubStateIdleToExecuting]
-    = factory_new (tizidletoexecuting, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizidletoexecuting"), handleOf (ap_obj), p_obj);
   p_obj->p_states_[ESubStateExecutingToIdle]
-    = factory_new (tizexecutingtoidle, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizexecutingtoidle"), handleOf (ap_obj), p_obj);
   p_obj->p_states_[ESubStatePauseToIdle]
-    = factory_new (tizpausetoidle, tiz_api_get_hdl (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizpausetoidle"), handleOf (ap_obj), p_obj);
 
-  p_obj->cur_state_id_ = EStateLoaded;
+  /* TODO : Check p_states_ pointers  */
+
+  p_obj->cur_state_id_         = EStateLoaded;
   p_obj->canceled_substate_id_ = EStateMax;
-  p_obj->p_current_state_ = p_obj->p_states_[p_obj->cur_state_id_];
-  p_obj->in_progress_cmd_ = OMX_CommandMax;
-  p_obj->in_progress_param1_ = 0;
-  p_obj->cancellation_cmd_ = OMX_CommandMax;
+  p_obj->p_current_state_      = p_obj->p_states_[p_obj->cur_state_id_];
+  p_obj->in_progress_cmd_      = OMX_CommandMax;
+  p_obj->in_progress_param1_   = 0;
+  p_obj->cancellation_cmd_     = OMX_CommandMax;
 
   return p_obj;
 }
@@ -553,7 +555,7 @@ fsm_dtor (void *ap_obj)
       p_obj->p_states_[i] = NULL;
     }
 
-  return super_dtor (tizfsm, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizfsm"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -1211,7 +1213,7 @@ tiz_fsm_tunneled_ports_status_update (void *ap_obj)
 static void *
 fsm_class_ctor (void *ap_obj, va_list * app)
 {
-  tiz_fsm_class_t *p_obj = super_ctor (tizfsm_class, ap_obj, app);
+  tiz_fsm_class_t *p_obj = super_ctor (typeOf (ap_obj, "tizfsm_class"), ap_obj, app);
   typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
@@ -1256,61 +1258,54 @@ fsm_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizfsm, *tizfsm_class;
-
-OMX_ERRORTYPE
-tiz_fsm_init (void)
+void *
+tiz_fsm_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizfsm_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_srv_init ());
-      tiz_check_null_ret_oom
-        (tizfsm_class = factory_new (tizsrv_class,
+  void * tizsrv = tiz_get_type (ap_hdl, "tizsrv");
+  void * tizfsm_class = factory_new (classOf (tizsrv),
                                      "tizfsm_class",
-                                     tizsrv_class,
+                                     classOf (tizsrv),
                                      sizeof (tiz_fsm_class_t),
-                                     ctor, fsm_class_ctor, 0));
-    }
+                                     ap_tos, ap_hdl,
+                                     ctor, fsm_class_ctor, 0);
+  return tizfsm_class;
+}
 
-  if (!tizstate)
-    {
-      tiz_check_omx_err_ret_oom (tiz_state_init_states ());
-    }
+void *
+tiz_fsm_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizsrv       = tiz_get_type (ap_hdl, "tizsrv");
+  void * tizfsm_class = tiz_get_type (ap_hdl, "tizfsm_class");
+  TIZ_LOG_CLASS (tizfsm_class);
+  void * tizfsm =
+    factory_new
+    (tizfsm_class,
+     "tizfsm",
+     tizsrv,
+     sizeof (tiz_fsm_t),
+     ap_tos, ap_hdl,
+     ctor, fsm_ctor,
+     dtor, fsm_dtor,
+     tiz_api_SendCommand, fsm_SendCommand,
+     tiz_api_SetParameter, fsm_SetParameter,
+     tiz_api_GetParameter, fsm_GetParameter,
+     tiz_api_SetConfig, fsm_SetConfig,
+     tiz_api_GetConfig, fsm_GetConfig,
+     tiz_api_GetState, fsm_GetState,
+     tiz_api_ComponentTunnelRequest, fsm_ComponentTunnelRequest,
+     tiz_api_UseBuffer, fsm_UseBuffer,
+     tiz_api_AllocateBuffer, fsm_AllocateBuffer,
+     tiz_api_FreeBuffer, fsm_FreeBuffer,
+     tiz_api_EmptyThisBuffer, fsm_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, fsm_FillThisBuffer,
+     tiz_api_SetCallbacks, fsm_SetCallbacks,
+     tiz_srv_dispatch_msg, fsm_dispatch_msg,
+     tiz_fsm_set_state, fsm_set_state,
+     tiz_fsm_complete_transition, fsm_complete_transition,
+     tiz_fsm_complete_command, fsm_complete_command,
+     tiz_fsm_get_substate, fsm_get_substate,
+     tiz_fsm_tunneled_ports_status_update,
+     fsm_tunneled_ports_status_update, 0);
 
-  assert (NULL != tizstate);
-
-  if (!tizfsm)
-    {
-      tiz_check_omx_err_ret_oom (tiz_srv_init ());
-      tiz_check_null_ret_oom
-        (tizfsm =
-         factory_new
-         (tizfsm_class,
-          "tizfsm",
-          tizsrv,
-          sizeof (tiz_fsm_t),
-          ctor, fsm_ctor,
-          dtor, fsm_dtor,
-          tiz_api_SendCommand, fsm_SendCommand,
-          tiz_api_SetParameter, fsm_SetParameter,
-          tiz_api_GetParameter, fsm_GetParameter,
-          tiz_api_SetConfig, fsm_SetConfig,
-          tiz_api_GetConfig, fsm_GetConfig,
-          tiz_api_GetState, fsm_GetState,
-          tiz_api_ComponentTunnelRequest, fsm_ComponentTunnelRequest,
-          tiz_api_UseBuffer, fsm_UseBuffer,
-          tiz_api_AllocateBuffer, fsm_AllocateBuffer,
-          tiz_api_FreeBuffer, fsm_FreeBuffer,
-          tiz_api_EmptyThisBuffer, fsm_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, fsm_FillThisBuffer,
-          tiz_api_SetCallbacks, fsm_SetCallbacks,
-          tiz_srv_dispatch_msg, fsm_dispatch_msg,
-          tiz_fsm_set_state, fsm_set_state,
-          tiz_fsm_complete_transition, fsm_complete_transition,
-          tiz_fsm_complete_command, fsm_complete_command,
-          tiz_fsm_get_substate, fsm_get_substate,
-          tiz_fsm_tunneled_ports_status_update,
-          fsm_tunneled_ports_status_update, 0));
-    }
-  return OMX_ErrorNone;
+  return tizfsm;
 }

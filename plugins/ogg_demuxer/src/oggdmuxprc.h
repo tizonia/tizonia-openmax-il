@@ -34,14 +34,8 @@ extern "C"
 {
 #endif
 
-#include "oggdmuxprc.h"
-
-#include "OMX_Core.h"
-
-/* factory_new(oggdmuxprc, ...) */
-  extern const void *oggdmuxprc;
-
-  OMX_ERRORTYPE oggdmux_prc_init (void);
+  void * oggdmux_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * oggdmux_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

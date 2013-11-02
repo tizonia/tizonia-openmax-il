@@ -51,7 +51,7 @@
 static void *
 state_ctor (void *ap_obj, va_list * app)
 {
-  tiz_state_t *p_obj = super_ctor (tizstate, ap_obj, app);
+  tiz_state_t *p_obj = super_ctor (typeOf (ap_obj, "tizstate"), ap_obj, app);
   p_obj->p_fsm_ = va_arg (*app, void *);
   p_obj->servants_count_ = 0;
   return p_obj;
@@ -60,7 +60,7 @@ state_ctor (void *ap_obj, va_list * app)
 static void *
 state_dtor (void *ap_obj)
 {
-  return super_dtor (tizstate, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizstate"), ap_obj);
 }
 
 /*
@@ -472,7 +472,7 @@ tiz_state_tunneled_ports_status_update (void *ap_obj)
 static void *
 state_class_ctor (void *ap_obj, va_list * app)
 {
-  tiz_state_class_t *p_obj = super_ctor (tizstate_class, ap_obj, app);
+  tiz_state_class_t *p_obj = super_ctor (typeOf (ap_obj, "tizstate_class"), ap_obj, app);
   typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
@@ -520,113 +520,53 @@ state_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizstate, *tizstate_class;
-
-
-OMX_ERRORTYPE
-tiz_state_init (void)
+void *
+tiz_state_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizstate_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_api_init ());
-      tiz_check_null_ret_oom
-        (tizstate_class = factory_new (tizapi_class,
+  void * tizapi = tiz_get_type (ap_hdl, "tizapi");
+  void * tizstate_class = factory_new (classOf (tizapi),
                                        "tizstate_class",
-                                       tizapi_class,
+                                       classOf (tizapi),
                                        sizeof (tiz_state_class_t),
-                                       ctor, state_class_ctor, 0));
-
-    }
-
-  if (!tizstate)
-    {
-      tiz_check_omx_err_ret_oom (tiz_api_init ());
-      tiz_check_null_ret_oom
-        (tizstate =
-         factory_new
-         (tizstate_class, "tizstate",
-          tizapi, sizeof (tiz_state_t),
-          ctor, state_ctor,
-          dtor, state_dtor,
-          tiz_api_SendCommand, state_SendCommand,
-          tiz_api_SetParameter, state_SetParameter,
-          tiz_api_SetConfig, state_SetConfig,
-          tiz_api_GetState, state_GetState,
-          tiz_api_ComponentTunnelRequest, state_ComponentTunnelRequest,
-          tiz_api_UseBuffer, state_UseBuffer,
-          tiz_api_AllocateBuffer, state_AllocateBuffer,
-          tiz_api_FreeBuffer, state_FreeBuffer,
-          tiz_api_EmptyThisBuffer, state_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, state_FillThisBuffer,
-          tiz_api_SetCallbacks, state_SetCallbacks,
-          tiz_state_state_set, state_state_set,
-          tiz_state_flush, state_flush,
-          tiz_state_disable, state_disable,
-          tiz_state_enable, state_enable,
-          tiz_state_mark, state_mark,
-          tiz_state_trans_complete, state_trans_complete,
-          tiz_state_tunneled_ports_status_update,
-          state_tunneled_ports_status_update, 0));
-    }
-  return OMX_ErrorNone;
+                                       ap_tos, ap_hdl,
+                                       ctor, state_class_ctor, 0);
+  return tizstate_class;
 }
 
-OMX_ERRORTYPE
-tiz_state_init_states (void)
+void *
+tiz_state_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizstate)
-    {
-      tiz_check_omx_err_ret_oom (tiz_state_init ());
-    }
+  void * tizapi = tiz_get_type (ap_hdl, "tizapi");
+  void * tizstate_class = tiz_get_type (ap_hdl, "tizstate_class");
+  TIZ_LOG_CLASS (tizstate_class);
+  void * tizstate =
+    factory_new
+    (tizstate_class,
+     "tizstate",
+     tizapi,
+     sizeof (tiz_state_t),
+     ap_tos, ap_hdl,
+     ctor, state_ctor,
+     dtor, state_dtor,
+     tiz_api_SendCommand, state_SendCommand,
+     tiz_api_SetParameter, state_SetParameter,
+     tiz_api_SetConfig, state_SetConfig,
+     tiz_api_GetState, state_GetState,
+     tiz_api_ComponentTunnelRequest, state_ComponentTunnelRequest,
+     tiz_api_UseBuffer, state_UseBuffer,
+     tiz_api_AllocateBuffer, state_AllocateBuffer,
+     tiz_api_FreeBuffer, state_FreeBuffer,
+     tiz_api_EmptyThisBuffer, state_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, state_FillThisBuffer,
+     tiz_api_SetCallbacks, state_SetCallbacks,
+     tiz_state_state_set, state_state_set,
+     tiz_state_flush, state_flush,
+     tiz_state_disable, state_disable,
+     tiz_state_enable, state_enable,
+     tiz_state_mark, state_mark,
+     tiz_state_trans_complete, state_trans_complete,
+     tiz_state_tunneled_ports_status_update,
+     state_tunneled_ports_status_update, 0);
 
-  if (!tizloaded)
-    {
-      tiz_check_omx_err_ret_oom (tiz_loaded_init ());
-    }
-
-  if (!tizloadedtoidle)
-    {
-      tiz_check_omx_err_ret_oom (tiz_loadedtoidle_init ());
-    }
-
-  if (!tizwaitforresources)
-    {
-      tiz_check_omx_err_ret_oom (tiz_waitforresources_init ());
-    }
-
-  if (!tizidle)
-    {
-      tiz_check_omx_err_ret_oom (tiz_idle_init ());
-    }
-
-  if (!tizidletoloaded)
-    {
-      tiz_check_omx_err_ret_oom (tiz_idletoloaded_init ());
-    }
-
-  if (!tizidletoexecuting)
-    {
-      tiz_check_omx_err_ret_oom (tiz_idletoexecuting_init ());
-    }
-
-  if (!tizexecuting)
-    {
-      tiz_check_omx_err_ret_oom (tiz_executing_init ());
-    }
-
-  if (!tizexecutingtoidle)
-    {
-      tiz_check_omx_err_ret_oom (tiz_executingtoidle_init ());
-    }
-
-  if (!tizpause)
-    {
-      tiz_check_omx_err_ret_oom (tiz_pause_init ());
-    }
-
-  if (!tizpausetoidle)
-    {
-      tiz_check_omx_err_ret_oom (tiz_pausetoidle_init ());
-    }
-  return OMX_ErrorNone;
+  return tizstate;
 }

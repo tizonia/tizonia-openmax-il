@@ -34,14 +34,8 @@ extern "C"
 {
 #endif
 
-#include "sdlivrprc.h"
-
-#include "OMX_Core.h"
-
-/* factory_new(sdlivrprc, ...) */
-  extern const void *sdlivrprc;
-
-  OMX_ERRORTYPE sdlivr_prc_init (void);
+  void * sdlivr_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * sdlivr_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

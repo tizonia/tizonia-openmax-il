@@ -30,11 +30,13 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
+#include "fwprc.h"
+#include "fwcfgport.h"
+#include "tizport.h"
 #include "tizscheduler.h"
 #include "tizbinaryport.h"
-#include "fwcfgport.h"
-#include "fwprc.h"
+
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
@@ -77,8 +79,7 @@ instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl, &port_opts);
 }
 
 static OMX_PTR
@@ -96,8 +97,7 @@ instantiate_video_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl, &port_opts);
 }
 
 static OMX_PTR
@@ -115,8 +115,7 @@ instantiate_image_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl, &port_opts);
 }
 
 static OMX_PTR
@@ -134,15 +133,14 @@ instantiate_other_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl, &port_opts);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (fw_cfgport_init ());
-  return factory_new (fwcfgport, ap_hdl, NULL,       /* this port does not take options */
+  return factory_new (tiz_get_type (ap_hdl, "fwcfgport"), ap_hdl,
+                      NULL,       /* this port does not take options */
                       ARATELIA_FILE_WRITER_COMPONENT_NAME,
                       file_writer_version);
 }
@@ -150,8 +148,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (fw_prc_init ());
-  return factory_new (fwprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "fwprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -164,6 +161,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t *rf_list[] = { &audio_role, &video_role,
     &image_role, &other_role
   };
+  tiz_type_factory_t fwprc_type;
+  tiz_type_factory_t fwcfgport_type;
+  const tiz_type_factory_t *tf_list[] = { &fwprc_type, &fwcfgport_type};
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_FILE_WRITER_COMPONENT_NAME);
@@ -196,7 +196,23 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   other_role.nports     = 1;
   other_role.pf_proc    = instantiate_processor;
 
+  strcpy ((OMX_STRING) fwprc_type.class_name, "fwprc_class");
+  fwprc_type.pf_class_init = fw_prc_class_init;
+  strcpy ((OMX_STRING) fwprc_type.object_name, "fwprc");
+  fwprc_type.pf_object_init = fw_prc_init;
+
+  strcpy ((OMX_STRING) fwcfgport_type.class_name, "fwcfgport_class");
+  fwcfgport_type.pf_class_init = fw_cfgport_class_init;
+  strcpy ((OMX_STRING) fwcfgport_type.object_name, "fwcfgport");
+  fwcfgport_type.pf_object_init = fw_cfgport_init;
+
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_FILE_WRITER_COMPONENT_NAME));
+
+  /* Register the "fwprc" and "fwcfgport" classes */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 2));
+
+  /* Register the various roles */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 4));
 
   return OMX_ErrorNone;

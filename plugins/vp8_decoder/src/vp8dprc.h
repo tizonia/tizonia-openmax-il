@@ -34,12 +34,8 @@ extern "C"
 {
 #endif
 
-#include <OMX_Core.h>
-
-/* factory_new(vp8dprc, ...) */
-  extern const void *vp8dprc;
-
-  OMX_ERRORTYPE vp8d_prc_init (void);
+  void * vp8d_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * vp8d_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

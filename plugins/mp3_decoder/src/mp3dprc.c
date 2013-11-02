@@ -278,7 +278,7 @@ synthesize_samples (const void *ap_obj, int next_sample)
 static void *
 mp3d_proc_ctor (void *ap_obj, va_list * app)
 {
-  mp3d_prc_t *p_obj = super_ctor (mp3dprc, ap_obj, app);
+  mp3d_prc_t *p_obj = super_ctor (typeOf (ap_obj, "mp3dprc"), ap_obj, app);
   p_obj->remaining_ = 0;
   p_obj->frame_count_ = 0;
   p_obj->p_inhdr_ = 0;
@@ -291,7 +291,7 @@ mp3d_proc_ctor (void *ap_obj, va_list * app)
 static void *
 mp3d_proc_dtor (void *ap_obj)
 {
-  return super_dtor (mp3dprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "mp3dprc"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -666,35 +666,57 @@ mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 }
 
 /*
+ * mp3d_prc_class
+ */
+
+static void *
+mp3d_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "mp3dprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *mp3dprc;
-
-OMX_ERRORTYPE
-mp3d_prc_init (void)
+void *
+mp3d_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!mp3dprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (mp3dprc =
-         factory_new
-         (tizprc_class,
-          "mp3dprc",
-          tizprc,
-          sizeof (mp3d_prc_t),
-          ctor, mp3d_proc_ctor,
-          dtor, mp3d_proc_dtor,
-          tiz_srv_allocate_resources, mp3d_proc_allocate_resources,
-          tiz_srv_deallocate_resources, mp3d_proc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, mp3d_proc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, mp3d_proc_transfer_and_process,
-          tiz_srv_stop_and_return, mp3d_proc_stop_and_return,
-          tiz_prc_buffers_ready, mp3d_proc_buffers_ready,
-          tiz_prc_port_flush, mp3d_proc_port_flush,
-          tiz_prc_port_disable, mp3d_proc_port_disable,
-          tiz_prc_port_enable, mp3d_proc_port_enable, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * mp3dprc_class = factory_new (classOf (tizprc),
+                                      "mp3dprc_class",
+                                      classOf (tizprc),
+                                      sizeof (mp3d_prc_class_t),
+                                      ap_tos, ap_hdl,
+                                      ctor, mp3d_prc_class_ctor, 0);
+  return mp3dprc_class;
+}
+
+void *
+mp3d_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * mp3dprc_class = tiz_get_type (ap_hdl, "mp3dprc_class");
+  TIZ_LOG_CLASS (mp3dprc_class);
+  void * mp3dprc =
+    factory_new
+    (mp3dprc_class,
+     "mp3dprc",
+     tizprc,
+     sizeof (mp3d_prc_t),
+     ap_tos, ap_hdl,
+     ctor, mp3d_proc_ctor,
+     dtor, mp3d_proc_dtor,
+     tiz_srv_allocate_resources, mp3d_proc_allocate_resources,
+     tiz_srv_deallocate_resources, mp3d_proc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, mp3d_proc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, mp3d_proc_transfer_and_process,
+     tiz_srv_stop_and_return, mp3d_proc_stop_and_return,
+     tiz_prc_buffers_ready, mp3d_proc_buffers_ready,
+     tiz_prc_port_flush, mp3d_proc_port_flush,
+     tiz_prc_port_disable, mp3d_proc_port_disable,
+     tiz_prc_port_enable, mp3d_proc_port_enable, 0);
+
+  return mp3dprc;
 }

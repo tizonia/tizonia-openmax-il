@@ -39,6 +39,7 @@ libtizonia_include_HEADERS = \
 	tizkernel.h \
 	tizloaded.h \
 	tizloadedtoidle.h \
+	tizobjsys.h \
 	tizobject_decls.h \
 	tizobject.h \
 	tizotherport_decls.h \
@@ -80,6 +81,7 @@ libtizonia_include_HEADERS = \
 
 libtizonia_la_SOURCES = \
 	tizscheduler.c \
+	tizobjsys.c \
 	tizobject.c \
 	tizapi.c \
 	tizservant.c \

@@ -32,8 +32,8 @@
 
 #include "tizvideoport.h"
 #include "tizvideoport_decls.h"
-
 #include "tizosal.h"
+
 #include "tizutils.h"
 
 #include <assert.h>
@@ -50,7 +50,7 @@
 static void *
 videoport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_videoport_t *p_obj = super_ctor (tizvideoport, ap_obj, app);
+  tiz_videoport_t *p_obj = super_ctor (typeOf (ap_obj, "tizvideoport"), ap_obj, app);
   OMX_VIDEO_PORTDEFINITIONTYPE *p_portdef = NULL;
   OMX_VIDEO_CODINGTYPE *p_encodings = NULL;
   OMX_COLOR_FORMATTYPE *p_formats = NULL;
@@ -128,7 +128,7 @@ videoport_dtor (void *ap_obj)
   tiz_vector_clear (p_obj->p_color_formats_);
   tiz_vector_destroy (p_obj->p_color_formats_);
 
-  return super_dtor (tizvideoport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizvideoport"), ap_obj);
 }
 
 /*
@@ -189,7 +189,7 @@ videoport_GetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetParameter (tizvideoport,
+        return super_GetParameter (typeOf (ap_obj, "tizvideoport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -296,7 +296,7 @@ videoport_SetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        rc = super_SetParameter (tizvideoport,
+        rc = super_SetParameter (typeOf (ap_obj, "tizvideoport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -373,45 +373,45 @@ static void *
 videoport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (tizvideoport_class, ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizvideoport_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizvideoport, *tizvideoport_class;
-
-OMX_ERRORTYPE
-tiz_videoport_init (void)
+void *
+tiz_videoport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizvideoport_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizvideoport_class = factory_new (tizport_class,
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizvideoport_class = factory_new (classOf (tizport),
                                            "tizvideoport_class",
-                                           tizport_class,
+                                           classOf (tizport),
                                            sizeof (tiz_videoport_class_t),
-                                           ctor, videoport_class_ctor, 0));
-    }
+                                           ap_tos, ap_hdl,
+                                           ctor, videoport_class_ctor, 0);
+  return tizvideoport_class; 
+}
 
-  if (!tizvideoport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizvideoport =
-         factory_new
-         (tizvideoport_class,
-          "tizvideoport",
-          tizport,
-          sizeof (tiz_videoport_t),
-          ctor, videoport_ctor,
-          dtor, videoport_dtor,
-          tiz_api_GetParameter, videoport_GetParameter,
-          tiz_api_SetParameter, videoport_SetParameter,
-          tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
-          0));
-    }
-  return OMX_ErrorNone;
+void *
+tiz_videoport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizvideoport_class = tiz_get_type (ap_hdl, "tizvideoport_class");
+  TIZ_LOG_CLASS (tizvideoport_class);
+  void * tizvideoport =
+    factory_new
+    (tizvideoport_class,
+     "tizvideoport",
+     tizport,
+     sizeof (tiz_videoport_t),
+     ap_tos, ap_hdl,
+     ctor, videoport_ctor,
+     dtor, videoport_dtor,
+     tiz_api_GetParameter, videoport_GetParameter,
+     tiz_api_SetParameter, videoport_SetParameter,
+     tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
+     0);
+
+  return tizvideoport;
 }

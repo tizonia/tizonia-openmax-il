@@ -34,11 +34,8 @@ extern "C"
 {
 #endif
 
-#include "tizstate.h"
-
-  extern const void *tizloadedtoidle;
-
-  OMX_ERRORTYPE tiz_loadedtoidle_init (void);
+  void * tiz_loadedtoidle_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_loadedtoidle_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

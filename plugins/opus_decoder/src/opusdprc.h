@@ -34,14 +34,8 @@ extern "C"
 {
 #endif
 
-#include "opusdprc.h"
-
-#include <OMX_Core.h>
-
-/* factory_new(opusdprc, ...) */
-  extern const void *opusdprc;
-
-  OMX_ERRORTYPE opusd_prc_init (void);
+  void * opusd_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * opusd_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

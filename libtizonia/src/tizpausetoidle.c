@@ -30,11 +30,12 @@
 #include <config.h>
 #endif
 
-#include "OMX_TizoniaExt.h"
-
 #include "tizpausetoidle.h"
+#include "tizstate.h"
 #include "tizstate_decls.h"
 #include "tizkernel.h"
+#include "OMX_TizoniaExt.h"
+
 #include "tizosal.h"
 
 #include <assert.h>
@@ -47,14 +48,14 @@
 static void *
 pausetoidle_ctor (void *ap_obj, va_list * app)
 {
-  tiz_pausetoidle_t *p_obj = super_ctor (tizpausetoidle, ap_obj, app);
+  tiz_pausetoidle_t *p_obj = super_ctor (typeOf (ap_obj, "tizpausetoidle"), ap_obj, app);
   return p_obj;
 }
 
 static void *
 pausetoidle_dtor (void *ap_obj)
 {
-  return super_dtor (tizpausetoidle, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizpausetoidle"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -104,7 +105,7 @@ pausetoidle_trans_complete (const void *ap_obj,
          OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
     }
 
-  return tiz_state_super_trans_complete (tizpausetoidle, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (typeOf (ap_obj, "tizpausetoidle"), ap_obj, ap_servant,
                                         a_new_state);
 }
 
@@ -126,7 +127,7 @@ pausetoidle_tunneled_ports_status_update (void *ap_obj)
          * 'tiz_state_state_set' function of the tiz_state_t base class (note
          * we are passing 'tizidle' as 1st parameter */
         TIZ_TRACE (p_hdl, "kernel may initiate pause to idle");
-        return tiz_state_super_state_set (tizidle, ap_obj, p_hdl,
+        return tiz_state_super_state_set (typeOf (ap_obj, "tizidle"), ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateIdle, NULL);
       }
@@ -136,29 +137,53 @@ pausetoidle_tunneled_ports_status_update (void *ap_obj)
 }
 
 /*
+ * pausetoidle_class
+ */
+
+static void *
+pausetoidle_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizpausetoidle_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *tizpausetoidle;
-
-OMX_ERRORTYPE
-tiz_pausetoidle_init (void)
+void *
+tiz_pausetoidle_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizpausetoidle)
-    {
-      tiz_check_omx_err_ret_oom (tiz_pause_init ());
-      tiz_check_null_ret_oom
-        (tizpausetoidle = 
-         factory_new
-         (tizstate_class, "tizpausetoidle",
-          tizpause, sizeof (tiz_pausetoidle_t),
-          ctor, pausetoidle_ctor,
-          dtor, pausetoidle_dtor,
-          tiz_api_GetState, pausetoidle_GetState,
-          tiz_api_UseBuffer, pausetoidle_UseBuffer,
-          tiz_state_trans_complete, pausetoidle_trans_complete,
-          tiz_state_tunneled_ports_status_update, pausetoidle_tunneled_ports_status_update,
-          0));
-    }
-  return OMX_ErrorNone;
+  void * tizpause = tiz_get_type (ap_hdl, "tizpause");
+  void * tizpausetoidle_class
+    = factory_new (classOf (tizpause),
+                   "tizpausetoidle_class",
+                   classOf (tizpause),
+                   sizeof (tiz_pausetoidle_class_t),
+                   ap_tos, ap_hdl,
+                   ctor, pausetoidle_class_ctor, 0);
+  return tizpausetoidle_class;
+}
+void *
+tiz_pausetoidle_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizpause = tiz_get_type (ap_hdl, "tizpause");
+  void * tizpausetoidle_class = tiz_get_type (ap_hdl, "tizpausetoidle_class");
+  TIZ_LOG_CLASS (tizpausetoidle_class);
+  void * tizpausetoidle =
+    factory_new
+    (tizpausetoidle_class,
+     "tizpausetoidle",
+     tizpause,
+     sizeof (tiz_pausetoidle_t),
+     ap_tos, ap_hdl,
+     ctor, pausetoidle_ctor,
+     dtor, pausetoidle_dtor,
+     tiz_api_GetState, pausetoidle_GetState,
+     tiz_api_UseBuffer, pausetoidle_UseBuffer,
+     tiz_state_trans_complete, pausetoidle_trans_complete,
+     tiz_state_tunneled_ports_status_update, pausetoidle_tunneled_ports_status_update,
+     0);
+
+  return tizpausetoidle;
 }

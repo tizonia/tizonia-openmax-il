@@ -34,8 +34,9 @@ extern "C"
 {
 #endif
 
-#include "OMX_Types.h"
 #include "tizconfigport_decls.h"
+
+#include "OMX_Types.h"
 
   typedef struct fr_cfgport fr_cfgport_t;
   struct fr_cfgport
@@ -43,6 +44,14 @@ extern "C"
     /* Object */
     const tiz_configport_t _;
     OMX_STRING p_uri_;
+  };
+
+  typedef struct fr_cfgport_class fr_cfgport_class_t;
+  struct fr_cfgport_class
+  {
+    /* Class */
+    const tiz_configport_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

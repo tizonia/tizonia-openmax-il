@@ -34,16 +34,23 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-
 #include "tiztcproc.h"
 #include "tizprc_decls.h"
 
-  struct tiztcproc
+  typedef struct tiz_tcprc tiz_tcprc_t;
+  struct tiz_tcprc
   {
     /* Object */
     const tiz_prc_t _;
 
+  };
+
+  typedef struct tiz_tcprc_class tiz_tcprc_class_t;
+  struct tiz_tcprc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

@@ -34,16 +34,8 @@ extern "C"
 {
 #endif
 
-#include "tizaudioport.h"
-
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-
-/* factory_new(tizopusport, ...); */
-  extern const void *tizopusport;
-  extern const void *tizopusport_class;
-
-  OMX_ERRORTYPE tiz_opusport_init (void);
+  void * tiz_opusport_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_opusport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

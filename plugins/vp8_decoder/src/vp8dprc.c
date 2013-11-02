@@ -645,7 +645,7 @@ release_buffers (const void *ap_obj)
 static void *
 vp8d_proc_ctor (void *ap_obj, va_list * app)
 {
-  vp8d_prc_t *p_obj = super_ctor (vp8dprc, ap_obj, app);
+  vp8d_prc_t *p_obj = super_ctor (typeOf (ap_obj, "vp8dprc"), ap_obj, app);
 
   p_obj->p_inhdr_     = 0;
   p_obj->p_outhdr_    = 0;
@@ -662,7 +662,7 @@ vp8d_proc_dtor (void *ap_obj)
 {
   vp8d_prc_t *p_obj = ap_obj;
   free_codec_buffer (p_obj);
-  return super_dtor (vp8dprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "vp8dprc"), ap_obj);
 }
 
 /*
@@ -770,35 +770,57 @@ vp8d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 }
 
 /*
+ * vp8d_prc_class
+ */
+
+static void *
+vp8d_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "vp8dprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *vp8dprc;
-
-OMX_ERRORTYPE
-vp8d_prc_init (void)
+void *
+vp8d_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!vp8dprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (vp8dprc =
-         factory_new
-         (tizprc_class,
-          "vp8dprc",
-          tizprc,
-          sizeof (vp8d_prc_t),
-          ctor, vp8d_proc_ctor,
-          dtor, vp8d_proc_dtor,
-          tiz_srv_allocate_resources, vp8d_proc_allocate_resources,
-          tiz_srv_deallocate_resources, vp8d_proc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, vp8d_proc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, vp8d_proc_transfer_and_process,
-          tiz_srv_stop_and_return, vp8d_proc_stop_and_return,
-          tiz_prc_buffers_ready, vp8d_proc_buffers_ready,
-          tiz_prc_port_flush, vp8d_proc_port_flush,
-          tiz_prc_port_disable, vp8d_proc_port_disable,
-          tiz_prc_port_enable, vp8d_proc_port_enable, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * vp8dprc_class = factory_new (classOf (tizprc),
+                                      "vp8dprc_class",
+                                      classOf (tizprc),
+                                      sizeof (vp8d_prc_class_t),
+                                      ap_tos, ap_hdl,
+                                      ctor, vp8d_prc_class_ctor, 0);
+  return vp8dprc_class;
+}
+
+void *
+vp8d_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * vp8dprc_class = tiz_get_type (ap_hdl, "vp8dprc_class");
+  TIZ_LOG_CLASS (vp8dprc_class);
+  void * vp8dprc =
+    factory_new
+    (vp8dprc_class,
+     "vp8dprc",
+     tizprc,
+     sizeof (vp8d_prc_t),
+     ap_tos, ap_hdl,
+     ctor, vp8d_proc_ctor,
+     dtor, vp8d_proc_dtor,
+     tiz_srv_allocate_resources, vp8d_proc_allocate_resources,
+     tiz_srv_deallocate_resources, vp8d_proc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, vp8d_proc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, vp8d_proc_transfer_and_process,
+     tiz_srv_stop_and_return, vp8d_proc_stop_and_return,
+     tiz_prc_buffers_ready, vp8d_proc_buffers_ready,
+     tiz_prc_port_flush, vp8d_proc_port_flush,
+     tiz_prc_port_disable, vp8d_proc_port_disable,
+     tiz_prc_port_enable, vp8d_proc_port_enable, 0);
+
+  return vp8dprc;
 }

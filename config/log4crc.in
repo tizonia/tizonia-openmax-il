@@ -36,6 +36,7 @@
 <!--         <category name="tiz.tizonia.servant" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.fsm" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.krn" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.objsys" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.object" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.api" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.prc" priority="trace" appender="tizlogfile" /> -->

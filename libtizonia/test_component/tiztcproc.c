@@ -30,15 +30,14 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
+#include "tiztcproc.h"
+#include "tiztcproc_decls.h"
 #include "tizkernel.h"
 #include "tizscheduler.h"
 
-#include "tiztcproc.h"
-#include "tiztcproc_decls.h"
-
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -46,20 +45,20 @@
 #endif
 
 /*
- * tiztcproc
+ * tiztcprc
  */
 
 static void *
-tiztc_proc_ctor (void *ap_obj, va_list * app)
+tcprc_ctor (void *ap_obj, va_list * app)
 {
-  struct tiztcproc *p_obj = super_ctor (tiztcproc, ap_obj, app);
+  tiz_tcprc_t *p_obj = super_ctor (typeOf (ap_obj, "tiztcprc"), ap_obj, app);
   return p_obj;
 }
 
 static void *
-tiztc_proc_dtor (void *ap_obj)
+tcprc_dtor (void *ap_obj)
 {
-  return super_dtor (tiztcproc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tiztcprc"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -73,31 +72,31 @@ tiztc_proc_render_buffer (OMX_BUFFERHEADERTYPE * p_hdr)
  */
 
 static OMX_ERRORTYPE
-tiztc_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
+tcprc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-tiztc_proc_deallocate_resources (void *ap_obj)
+tcprc_deallocate_resources (void *ap_obj)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-tiztc_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+tcprc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-tiztc_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
+tcprc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-tiztc_proc_stop_and_return (void *ap_obj)
+tcprc_stop_and_return (void *ap_obj)
 {
   return OMX_ErrorNone;
 }
@@ -107,13 +106,11 @@ tiztc_proc_stop_and_return (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-tiztc_proc_buffers_ready (const void *ap_obj)
+tcprc_buffers_ready (const void *ap_obj)
 {
   tiz_pd_set_t ports;
   void *p_ker = tiz_get_krn (tiz_api_get_hdl (ap_obj));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Buffers ready...");
 
   TIZ_PD_ZERO (&ports);
 
@@ -130,30 +127,54 @@ tiztc_proc_buffers_ready (const void *ap_obj)
 }
 
 /*
+ * tiztcprc_class
+ */
+
+static void *
+tcprc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tiztcprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *tiztcproc;
-
-void
-init_tiztcproc (void)
+void *
+tiz_tcprc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tiztcproc)
-    {
-      tiz_prc_init ();
-      tiztcproc =
-        factory_new
-        (tizprc_class,
-         "tiztcproc",
-         tizprc,
-         sizeof (struct tiztcproc),
-         ctor, tiztc_proc_ctor,
-         dtor, tiztc_proc_dtor,
-         tiz_prc_buffers_ready, tiztc_proc_buffers_ready,
-         tiz_srv_allocate_resources, tiztc_proc_allocate_resources,
-         tiz_srv_deallocate_resources, tiztc_proc_deallocate_resources,
-         tiz_srv_prepare_to_transfer, tiztc_proc_prepare_to_transfer,
-         tiz_srv_transfer_and_process, tiztc_proc_transfer_and_process,
-         tiz_srv_stop_and_return, tiztc_proc_stop_and_return, 0);
-    }
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * tiztcprc_class = factory_new (classOf (tizprc),
+                                         "tiztcprc_class",
+                                         classOf (tizprc),
+                                         sizeof (tiz_tcprc_class_t),
+                                         ap_tos, ap_hdl,
+                                         ctor, tcprc_class_ctor, 0);
+  return tiztcprc_class;
+}
+
+void *
+tiz_tcprc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * tiztcprc_class = tiz_get_type (ap_hdl, "tiztcprc_class");
+  TIZ_LOG_CLASS (tiztcprc_class);
+  void * tiztcprc =
+    factory_new
+    (tiztcprc_class,
+     "tiztcprc",
+     tizprc,
+     sizeof (tiz_tcprc_t),
+     ap_tos, ap_hdl,
+     ctor, tcprc_ctor,
+     dtor, tcprc_dtor,
+     tiz_prc_buffers_ready, tcprc_buffers_ready,
+     tiz_srv_allocate_resources, tcprc_allocate_resources,
+     tiz_srv_deallocate_resources, tcprc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, tcprc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, tcprc_transfer_and_process,
+     tiz_srv_stop_and_return, tcprc_stop_and_return, 0);
+
+  return tiztcprc;
 }

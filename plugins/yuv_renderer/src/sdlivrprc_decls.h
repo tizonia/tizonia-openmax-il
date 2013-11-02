@@ -55,6 +55,14 @@ extern "C"
     bool eos_;
   };
 
+  typedef struct sdlivr_prc_class sdlivr_prc_class_t;
+  struct sdlivr_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
+
 #ifdef __cplusplus
 }
 #endif

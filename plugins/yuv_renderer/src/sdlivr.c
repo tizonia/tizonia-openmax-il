@@ -30,10 +30,11 @@
 #include <config.h>
 #endif
 
+#include "sdlivrprc.h"
 #include "tizscheduler.h"
+#include "tizport.h"
 #include "tizivrport.h"
 #include "tizconfigport.h"
-#include "sdlivrprc.h"
 
 #include "tizosal.h"
 
@@ -99,25 +100,24 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  tiz_check_omx_err_ret_null (tiz_ivrport_init ());
-  return factory_new (tizivrport, ap_hdl, &rawvideo_port_opts, &portdef,
-                           &encodings, &formats);
+  return factory_new (tiz_get_type (ap_hdl, "tizivrport"), ap_hdl,
+                      &rawvideo_port_opts, &portdef,
+                      &encodings, &formats);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
-                         ARATELIA_YUV_RENDERER_COMPONENT_NAME,
-                         yuv_renderer_version);
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+                      NULL,   /* this port does not take options */
+                      ARATELIA_YUV_RENDERER_COMPONENT_NAME,
+                      yuv_renderer_version);
 }
 
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (sdlivr_prc_init ());
-  return factory_new (sdlivrprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "sdlivrprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -125,6 +125,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_type_factory_t sdlivrprc_type;
+  const tiz_type_factory_t *tf_list[] = { &sdlivrprc_type};
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_YUV_RENDERER_COMPONENT_NAME);
@@ -135,7 +137,18 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 1;
   role_factory.pf_proc    = instantiate_processor;
 
+  strcpy ((OMX_STRING) sdlivrprc_type.class_name, "sdlivrprc_class");
+  sdlivrprc_type.pf_class_init = sdlivr_prc_class_init;
+  strcpy ((OMX_STRING) sdlivrprc_type.object_name, "sdlivrprc");
+  sdlivrprc_type.pf_object_init = sdlivr_prc_init;
+
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_YUV_RENDERER_COMPONENT_NAME));
+
+  /* Register the "sdlivrprc" class */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+
+  /* Register the component role */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

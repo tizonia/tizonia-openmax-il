@@ -39,6 +39,8 @@ extern "C"
 #include "icernet.h"
 #include "tizosal.h"
 
+#include "OMX_TizoniaExt.h"
+
 #include <stdbool.h>
 
   typedef struct icer_prc icer_prc_t;
@@ -56,6 +58,14 @@ extern "C"
     OMX_AUDIO_PARAM_MP3TYPE mp3type_;
     OMX_TIZONIA_HTTPSERVERTYPE server_info_;
     OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mountpoint_;
+  };
+
+  typedef struct icer_prc_class icer_prc_class_t;
+  struct icer_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

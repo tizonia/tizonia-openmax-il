@@ -50,7 +50,7 @@
 static void *
 audioport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_audioport_t *p_obj = super_ctor (tizaudioport, ap_obj, app);
+  tiz_audioport_t *p_obj = super_ctor (typeOf (ap_obj, "tizaudioport"), ap_obj, app);
   OMX_AUDIO_CODINGTYPE *p_encodings = NULL;
 
   assert (NULL != p_obj);
@@ -92,7 +92,7 @@ audioport_dtor (void *ap_obj)
   assert (NULL != p_obj);
   tiz_vector_clear (p_obj->p_encodings_);
   tiz_vector_destroy (p_obj->p_encodings_);
-  return super_dtor (tizaudioport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizaudioport"), ap_obj);
 }
 
 /*
@@ -132,7 +132,7 @@ audioport_GetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetParameter (tizaudioport,
+        return super_GetParameter (typeOf (ap_obj, "tizaudioport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -185,7 +185,7 @@ audioport_SetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_SetParameter (tizaudioport,
+        return super_SetParameter (typeOf (ap_obj, "tizaudioport"),
                                    ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -202,44 +202,42 @@ static void *
 audioport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (tizaudioport_class, ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizaudioport_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizaudioport, *tizaudioport_class;
-
-OMX_ERRORTYPE
-tiz_audioport_init (void)
+void *
+tiz_audioport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizaudioport_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizaudioport_class = factory_new (tizport_class,
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizaudioport_class = factory_new (classOf (tizport),
                                            "tizaudioport_class",
-                                           tizport_class,
+                                           classOf (tizport),
                                            sizeof (tiz_audioport_class_t),
-                                           ctor, audioport_class_ctor, 0));
+                                           ap_tos, ap_hdl,
+                                           ctor, audioport_class_ctor, 0);
+  return tizaudioport_class;
+}
 
-    }
+void *
+tiz_audioport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizaudioport_class = tiz_get_type (ap_hdl, "tizaudioport_class");
+  void * tizaudioport =
+    factory_new
+    (tizaudioport_class,
+     "tizaudioport",
+     tizport,
+     sizeof (tiz_audioport_t),
+     ap_tos, ap_hdl,
+     ctor, audioport_ctor,
+     dtor, audioport_dtor,
+     tiz_api_GetParameter, audioport_GetParameter,
+     tiz_api_SetParameter, audioport_SetParameter, 0);
 
-  if (!tizaudioport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizaudioport =
-         factory_new
-         (tizaudioport_class,
-          "tizaudioport",
-          tizport,
-          sizeof (tiz_audioport_t),
-          ctor, audioport_ctor,
-          dtor, audioport_dtor,
-          tiz_api_GetParameter, audioport_GetParameter,
-          tiz_api_SetParameter, audioport_SetParameter, 0));
-    }
-  return OMX_ErrorNone;
+  return tizaudioport;
 }

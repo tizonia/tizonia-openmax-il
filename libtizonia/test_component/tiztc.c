@@ -28,43 +28,34 @@
 #include <config.h>
 #endif
 
+#include "tiztcproc.h"
+#include "tizscheduler.h"
+#include "tizport.h"
+#include "tizpcmport.h"
+#include "tizconfigport.h"
 
-#include <assert.h>
-#include <string.h>
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
 
-#include "tizosal.h"
-#include "tizscheduler.h"
-#include "tizpcmport.h"
-#include "tizconfigport.h"
-#include "tiztcproc.h"
+#include <assert.h>
+#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.test_comp"
 #endif
 
-#define _DEFAULT_ROLE1 "tizonia_test_component.role1"
-#define _DEFAULT_ROLE2 "tizonia_test_component.role2"
-#define _COMPONENT_NAME "OMX.Aratelia.tizonia.test_component"
-#define _PORT_MIN_BUF_COUNT 1
-#define _PORT_MIN_BUF_SIZE 1024
-#define _PORT_NONCONTIGUOUS OMX_FALSE
-#define _PORT_ALIGNMENT 0
-#define _PORT_SUPPLIERPREF OMX_BufferSupplyInput
-
-#define RETURN_ON_IL_ERR(_a)                                    \
-  do {                                                          \
-    OMX_ERRORTYPE _err = _a;                                    \
-    if (OMX_ErrorNone != _err) {                                \
-      TIZ_LOG(TIZ_PRIORITY_TRACE, "[%s] : [%s]...",                    \
-              _COMPONENT_NAME, tiz_err_to_str (_err));          \
-      return _err;                                              \
-    }                                                           \
-  } while(0)
+#define TC_DEFAULT_ROLE1 "tizonia_test_component.role1"
+#define TC_DEFAULT_ROLE2 "tizonia_test_component.role2"
+#define TC_COMPONENT_NAME "OMX.Aratelia.tizonia.test_component"
+#define TC_PORT_MIN_BUF_COUNT 1
+#define TC_PORT_MIN_BUF_SIZE 1024
+#define TC_PORT_NONCONTIGUOUS OMX_FALSE
+#define TC_PORT_ALIGNMENT 0
+#define TC_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE tc_comp_version = { {1, 0, 0, 0} };
 
@@ -95,11 +86,11 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
-    _PORT_MIN_BUF_COUNT,
-    _PORT_MIN_BUF_SIZE,
-    _PORT_NONCONTIGUOUS,
-    _PORT_ALIGNMENT,
-    _PORT_SUPPLIERPREF,
+    TC_PORT_MIN_BUF_COUNT,
+    TC_PORT_MIN_BUF_SIZE,
+    TC_PORT_NONCONTIGUOUS,
+    TC_PORT_ALIGNMENT,
+    TC_PORT_SUPPLIERPREF,
     {0, pcm_port_alloc_hook, pcm_port_free_hook, NULL},
     -1
   };
@@ -107,25 +98,22 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Inititializing the test component's pcm port");
 
   /* Instantiate a pcm port */
-  tiz_pcmport_init ();
-  return factory_new (tizpcmport, ap_hdl, &port_opts,
+  return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), ap_hdl, &port_opts,
                       NULL, NULL, NULL, NULL);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_configport_init ();
-  return factory_new (tizconfigport, ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
                       NULL,   /* this port does not take options */
-                      _COMPONENT_NAME, tc_comp_version);
+                      TC_COMPONENT_NAME, tc_comp_version);
 }
 
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  init_tiztcproc ();
-  return factory_new (tiztcproc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "tiztcprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -133,40 +121,50 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory1, role_factory2;
   const tiz_role_factory_t *rf_list[] = { &role_factory1, &role_factory2 };
+  tiz_type_factory_t type_factory;
+  const tiz_type_factory_t *tf_list[] = { &type_factory};
   const tiz_alloc_hooks_t new_hooks =
     { 0, pcm_port_alloc_hook, pcm_port_free_hook, NULL };
   tiz_alloc_hooks_t old_hooks = { 0, NULL, NULL, NULL };
 
-  strcpy ((OMX_STRING) role_factory1.role, _DEFAULT_ROLE1);
+  strcpy ((OMX_STRING) role_factory1.role, TC_DEFAULT_ROLE1);
   role_factory1.pf_cport = instantiate_config_port;
   role_factory1.pf_port[0] = instantiate_pcm_port;
   role_factory1.nports = 1;
   role_factory1.pf_proc = instantiate_processor;
 
-  strcpy ((OMX_STRING) role_factory2.role, _DEFAULT_ROLE2);
+  strcpy ((OMX_STRING) role_factory2.role, TC_DEFAULT_ROLE2);
   role_factory2.pf_cport = instantiate_config_port;
   role_factory2.pf_port[0] = instantiate_pcm_port;
   role_factory2.nports = 1;
   role_factory2.pf_proc = instantiate_processor;
 
+  strcpy ((OMX_STRING) type_factory.class_name, "tiztcprc_class");
+  type_factory.pf_class_init = tiz_tcprc_class_init;
+  strcpy ((OMX_STRING) type_factory.object_name, "tiztcprc");
+  type_factory.pf_object_init = tiz_tcprc_init;
+
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing the test component");
 
-  assert (ap_hdl);
+  assert (NULL != ap_hdl);
 
   /* Initialize the component infrastructure */
-  RETURN_ON_IL_ERR (tiz_comp_init (ap_hdl, _COMPONENT_NAME));
+  tiz_check_omx_err (tiz_comp_init (ap_hdl, TC_COMPONENT_NAME));
+
+  /* Register the "tiztcprc" class */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
   /* Register two roles */
-  RETURN_ON_IL_ERR (tiz_comp_register_roles (ap_hdl, rf_list, 2));
+  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 2));
 
   /* Register alloc hooks */
-  RETURN_ON_IL_ERR (tiz_comp_register_alloc_hooks
-                    (ap_hdl, &new_hooks, &old_hooks));
+  tiz_check_omx_err (tiz_comp_register_alloc_hooks
+                     (ap_hdl, &new_hooks, &old_hooks));
 
   /* Verify that the old hooks have been returned */
-  assert (old_hooks.pf_alloc);
-  assert (old_hooks.pf_free);
+  assert (NULL != old_hooks.pf_alloc);
+  assert (NULL != old_hooks.pf_free);
 
   return OMX_ErrorNone;
 }

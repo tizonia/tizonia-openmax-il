@@ -34,11 +34,8 @@ extern "C"
 {
 #endif
 
-#include "tizexecuting.h"
-
-  extern const void *tizexecutingtoidle;
-
-  OMX_ERRORTYPE tiz_executingtoidle_init (void);
+  void * tiz_executingtoidle_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_executingtoidle_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

@@ -30,14 +30,15 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
 #include "tizloadedtoidle.h"
+#include "tizstate.h"
 #include "tizstate_decls.h"
 #include "tizutils.h"
 #include "tizkernel.h"
 
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -48,14 +49,14 @@
 static void *
 loadedtoidle_ctor (void *ap_obj, va_list * app)
 {
-  tiz_loadedtoidle_t *p_obj = super_ctor (tizloadedtoidle, ap_obj, app);
+  tiz_loadedtoidle_t *p_obj = super_ctor (typeOf (ap_obj, "tizloadedtoidle"), ap_obj, app);
   return p_obj;
 }
 
 static void *
 loadedtoidle_dtor (void *ap_obj)
 {
-  return super_dtor (tizloadedtoidle, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizloadedtoidle"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -67,7 +68,7 @@ loadedtoidle_SetParameter (const void *ap_obj,
   /* until the first OMX_UseBuffer call is received */
   TIZ_TRACE (ap_hdl, "[%s]", tiz_idx_to_str (a_index));
 
-  return super_SetParameter (tizloadedtoidle, ap_obj, ap_hdl, a_index,
+  return super_SetParameter (typeOf (ap_obj, "tizloadedtoidle"), ap_obj, ap_hdl, a_index,
                              ap_struct);
 }
 
@@ -166,7 +167,7 @@ loadedtoidle_state_set (const void *ap_obj,
   /* NOTE: This will call the 'tiz_state_state_set' function and not
    * 'tizloaded_state_set' (we are passing 'tizloaded' as the 1st
    * parameter  */
-  return tiz_state_super_state_set (tizloaded, ap_obj, ap_hdl, a_cmd,
+  return tiz_state_super_state_set (typeOf (ap_obj, "tizloaded"), ap_obj, ap_hdl, a_cmd,
                                    a_param1, ap_cmd_data);
 }
 
@@ -193,7 +194,7 @@ loadedtoidle_trans_complete (const void *ap_obj,
                                              OMX_PORTSTATUS_ACCEPTUSEBUFFER);
     }
 
-  return tiz_state_super_trans_complete (tizloadedtoidle, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (typeOf (ap_obj, "tizloadedtoidle"), ap_obj, ap_servant,
                                         a_new_state);
 }
 
@@ -215,7 +216,7 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
          * will take place now */
         /* NOTE: This will call the 'tiz_state_state_set' function of the base
          * class (we are passing 'tizloaded' as the 1st parameter */
-        return tiz_state_super_state_set (tizloaded, ap_obj, p_hdl,
+        return tiz_state_super_state_set (typeOf (ap_obj, "tizloaded"), ap_obj, p_hdl,
                                          OMX_CommandStateSet,
                                          OMX_StateIdle, NULL);
       }
@@ -224,35 +225,58 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
   return OMX_ErrorNone;
 }
 
+/*
+ * loadedtoidle_class
+ */
+
+static void *
+loadedtoidle_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizloadedtoidle_class"), ap_obj, app);
+}
 
 /*
  * initialization
  */
 
-const void *tizloadedtoidle;
-
-OMX_ERRORTYPE
-tiz_loadedtoidle_init (void)
+void *
+tiz_loadedtoidle_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizloadedtoidle)
-    {
-      tiz_check_omx_err_ret_oom (tiz_loaded_init ());
-      tiz_check_null_ret_oom
-        (tizloadedtoidle =
-         factory_new
-         (tizstate_class, "tizloadedtoidle",
-          tizloaded, sizeof (tiz_loadedtoidle_t),
-          ctor, loadedtoidle_ctor,
-          dtor, loadedtoidle_dtor,
-          tiz_api_SetParameter, loadedtoidle_SetParameter,
-          tiz_api_GetState, loadedtoidle_GetState,
-          tiz_api_UseBuffer, loadedtoidle_UseBuffer,
-          tiz_api_EmptyThisBuffer, loadedtoidle_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, loadedtoidle_FillThisBuffer,
-          tiz_state_state_set, loadedtoidle_state_set,
-          tiz_state_trans_complete, loadedtoidle_trans_complete,
-          tiz_state_tunneled_ports_status_update,
-          loadedtoidle_tunneled_ports_status_update, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizloaded = tiz_get_type (ap_hdl, "tizloaded");
+  void * tizloadedtoidle_class = factory_new (classOf (tizloaded),
+                                              "tizloadedtoidle_class",
+                                              classOf (tizloaded),
+                                              sizeof (tiz_loadedtoidle_class_t),
+                                              ap_tos, ap_hdl,
+                                              ctor, loadedtoidle_class_ctor, 0);
+  return tizloadedtoidle_class;
+}
+
+void *
+tiz_loadedtoidle_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizloaded = tiz_get_type (ap_hdl, "tizloaded");
+  void * tizloadedtoidle_class = tiz_get_type (ap_hdl, "tizloadedtoidle_class");
+  TIZ_LOG_CLASS (tizloadedtoidle_class);
+  void * tizloadedtoidle =
+    factory_new
+    (tizloadedtoidle_class,
+     "tizloadedtoidle",
+     tizloaded,
+     sizeof (tiz_loadedtoidle_t),
+     ap_tos, ap_hdl,
+     ctor, loadedtoidle_ctor,
+     dtor, loadedtoidle_dtor,
+     tiz_api_SetParameter, loadedtoidle_SetParameter,
+     tiz_api_GetState, loadedtoidle_GetState,
+     tiz_api_UseBuffer, loadedtoidle_UseBuffer,
+     tiz_api_EmptyThisBuffer, loadedtoidle_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, loadedtoidle_FillThisBuffer,
+     tiz_state_state_set, loadedtoidle_state_set,
+     tiz_state_trans_complete, loadedtoidle_trans_complete,
+     tiz_state_tunneled_ports_status_update,
+     loadedtoidle_tunneled_ports_status_update, 0);
+
+  return tizloadedtoidle;
 }

@@ -30,17 +30,18 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
+#include "tizexecuting.h"
+#include "tizstate.h"
+#include "tizstate_decls.h"
 #include "tizfsm.h"
 #include "tizport.h"
 #include "tizport-macros.h"
 #include "tizscheduler.h"
 #include "tizkernel.h"
-#include "tizexecuting.h"
-#include "tizstate_decls.h"
 
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -51,14 +52,14 @@
 static void *
 executing_ctor (void *ap_obj, va_list * app)
 {
-  tiz_executing_t *p_obj = super_ctor (tizexecuting, ap_obj, app);
+  tiz_executing_t *p_obj = super_ctor (typeOf (ap_obj, "tizexecuting"), ap_obj, app);
   return p_obj;
 }
 
 static void *
 executing_dtor (void *ap_obj)
 {
-  return super_dtor (tizexecuting, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizexecuting"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -235,7 +236,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       }
     }
 
-  return tiz_state_super_state_set (tizexecuting, ap_obj, ap_hdl, a_cmd,
+  return tiz_state_super_state_set (typeOf (ap_obj, "tizexecuting"), ap_obj, ap_hdl, a_cmd,
                                    a_param1, ap_cmd_data);
 }
 
@@ -262,37 +263,61 @@ executing_trans_complete (const void *ap_obj,
             tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateExecuting == a_new_state || OMX_StatePause == a_new_state
           || OMX_StateIdle == a_new_state);
-  return tiz_state_super_trans_complete (tizexecuting, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (typeOf (ap_obj, "tizexecuting"), ap_obj, ap_servant,
                                         a_new_state);
+}
+
+/*
+ * executing_class
+ */
+
+static void *
+executing_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizexecuting_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizexecuting;
-
-OMX_ERRORTYPE
-tiz_executing_init (void)
+void *
+tiz_executing_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizexecuting)
-    {
-      tiz_check_omx_err_ret_oom (tiz_state_init ());
-      tiz_check_null_ret_oom
-        (tizexecuting =
-         factory_new
-         (tizstate_class, "tizexecuting",
-          tizstate, sizeof (tiz_executing_t),
-          ctor, executing_ctor,
-          dtor, executing_dtor,
-          tiz_api_SetParameter, executing_SetParameter,
-          tiz_api_GetState, executing_GetState,
-          tiz_api_UseBuffer, executing_UseBuffer,
-          tiz_api_EmptyThisBuffer, executing_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, executing_FillThisBuffer,
-          tiz_state_state_set, executing_state_set,
-          tiz_state_mark, executing_state_mark,
-          tiz_state_trans_complete, executing_trans_complete, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizstate           = tiz_get_type (ap_hdl, "tizstate");
+  void * tizexecuting_class = factory_new (classOf (tizstate),
+                                           "tizexecuting_class",
+                                           classOf (tizstate),
+                                           sizeof (tiz_executing_class_t),
+                                           ap_tos, ap_hdl,
+                                           ctor, executing_class_ctor, 0);
+  return tizexecuting_class;
+}
+
+void *
+tiz_executing_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizstate           = tiz_get_type (ap_hdl, "tizstate");
+  void * tizexecuting_class = tiz_get_type (ap_hdl, "tizexecuting_class");
+  TIZ_LOG_CLASS (tizexecuting_class);
+  void * tizexecuting =
+    factory_new
+    (tizexecuting_class,
+     "tizexecuting",
+     tizstate,
+     sizeof (tiz_executing_t),
+     ap_tos, ap_hdl,
+     ctor, executing_ctor,
+     dtor, executing_dtor,
+     tiz_api_SetParameter, executing_SetParameter,
+     tiz_api_GetState, executing_GetState,
+     tiz_api_UseBuffer, executing_UseBuffer,
+     tiz_api_EmptyThisBuffer, executing_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, executing_FillThisBuffer,
+     tiz_state_state_set, executing_state_set,
+     tiz_state_mark, executing_state_mark,
+     tiz_state_trans_complete, executing_trans_complete, 0);
+
+  return tizexecuting;
 }

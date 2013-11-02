@@ -30,17 +30,18 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
+#include "tizloaded.h"
+#include "tizstate.h"
+#include "tizstate_decls.h"
 #include "tizfsm.h"
 #include "tizkernel.h"
 #include "tizscheduler.h"
 #include "tizport.h"
 #include "tizport-macros.h"
-#include "tizloaded.h"
-#include "tizstate_decls.h"
 
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -50,14 +51,14 @@
 static void *
 loaded_ctor (void *ap_obj, va_list * app)
 {
-  tiz_loaded_t *p_obj = super_ctor (tizloaded, ap_obj, app);
+  tiz_loaded_t *p_obj = super_ctor (typeOf (ap_obj, "tizloaded"), ap_obj, app);
   return p_obj;
 }
 
 static void *
 loaded_dtor (void *ap_obj)
 {
-  return super_dtor (tizloaded, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizloaded"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -201,7 +202,7 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
     }
 
   /* IL resource allocation takes place now */
-  return tiz_state_super_state_set (tizloaded, ap_obj, ap_hdl, a_cmd,
+  return tiz_state_super_state_set (typeOf (ap_obj, "tizloaded"), ap_obj, ap_hdl, a_cmd,
                                    a_param1, ap_cmd_data);
 }
 
@@ -214,37 +215,60 @@ loaded_trans_complete (const void *ap_obj,
             tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateWaitForResources == a_new_state
           || OMX_StateIdle == a_new_state);
-  return tiz_state_super_trans_complete (tizloaded, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (typeOf (ap_obj, "tizloaded"), ap_obj, ap_servant,
                                         a_new_state);
 }
 
+/*
+ * loaded_class
+ */
+
+static void *
+loaded_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizloaded_class"), ap_obj, app);
+}
 
 /*
  * initialization
  */
 
-const void *tizloaded;
-
-OMX_ERRORTYPE
-tiz_loaded_init (void)
+void *
+tiz_loaded_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizloaded)
-    {
-      tiz_check_omx_err_ret_oom (tiz_state_init ());
-      tiz_check_null_ret_oom
-        (tizloaded =
-         factory_new
-         (tizstate_class, "tizloaded",
-          tizstate, sizeof (tiz_loaded_t),
-          ctor, loaded_ctor,
-          dtor, loaded_dtor,
-          tiz_api_SetParameter, loaded_SetParameter,
-          tiz_api_GetState, loaded_GetState,
-          tiz_api_UseBuffer, loaded_UseBuffer,
-          tiz_api_EmptyThisBuffer, loaded_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, loaded_FillThisBuffer,
-          tiz_state_state_set, loaded_state_set,
-          tiz_state_trans_complete, loaded_trans_complete, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizstate = tiz_get_type (ap_hdl, "tizstate");
+  void * tizloaded_class = factory_new (classOf (tizstate),
+                                        "tizloaded_class",
+                                        classOf (tizstate),
+                                        sizeof (tiz_loaded_class_t),
+                                        ap_tos, ap_hdl,
+                                        ctor, loaded_class_ctor, 0);
+  return tizloaded_class;
+}
+
+void *
+tiz_loaded_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizstate = tiz_get_type (ap_hdl, "tizstate");
+  void * tizloaded_class = tiz_get_type (ap_hdl, "tizloaded_class");
+  TIZ_LOG_CLASS (tizloaded_class);
+  void * tizloaded =
+    factory_new
+    (tizloaded_class,
+     "tizloaded",
+     tizstate,
+     sizeof (tiz_loaded_t),
+     ap_tos, ap_hdl,
+     ctor, loaded_ctor,
+     dtor, loaded_dtor,
+     tiz_api_SetParameter, loaded_SetParameter,
+     tiz_api_GetState, loaded_GetState,
+     tiz_api_UseBuffer, loaded_UseBuffer,
+     tiz_api_EmptyThisBuffer, loaded_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, loaded_FillThisBuffer,
+     tiz_state_state_set, loaded_state_set,
+     tiz_state_trans_complete, loaded_trans_complete, 0);
+
+  return tizloaded;
 }

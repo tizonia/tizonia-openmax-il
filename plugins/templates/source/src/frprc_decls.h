@@ -48,6 +48,14 @@ extern "C"
     bool eos_;
   };
 
+  typedef struct fr_prc_class fr_prc_class_t;
+  struct fr_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
+
 #ifdef __cplusplus
 }
 #endif

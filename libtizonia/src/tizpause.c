@@ -30,16 +30,17 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
-
+#include "tizpause.h"
+#include "tizstate.h"
+#include "tizstate_decls.h"
 #include "tizscheduler.h"
 #include "tizkernel.h"
 #include "tizport.h"
 #include "tizport-macros.h"
-#include "tizpause.h"
-#include "tizstate_decls.h"
 
 #include "tizosal.h"
+
+#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -50,14 +51,14 @@
 static void *
 pause_ctor (void *ap_obj, va_list * app)
 {
-  tiz_pause_t *p_obj = super_ctor (tizpause, ap_obj, app);
+  tiz_pause_t *p_obj = super_ctor (typeOf (ap_obj, "tizpause"), ap_obj, app);
   return p_obj;
 }
 
 static void *
 pause_dtor (void *ap_obj)
 {
-  return super_dtor (tizpause, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizpause"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -221,7 +222,7 @@ pause_state_set (const void *ap_obj,
       }
     }
 
-  return tiz_state_super_state_set (tizpause, ap_obj, ap_hdl, a_cmd,
+  return tiz_state_super_state_set (typeOf (ap_obj, "tizpause"), ap_obj, ap_hdl, a_cmd,
                                    a_param1, ap_cmd_data);
 }
 
@@ -244,37 +245,61 @@ pause_trans_complete (const void *ap_obj,
             tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StatePause == a_new_state || OMX_StateIdle == a_new_state
           || OMX_StateExecuting == a_new_state);
-  return tiz_state_super_trans_complete (tizpause, ap_obj, ap_servant,
+  return tiz_state_super_trans_complete (typeOf (ap_obj, "tizpause"), ap_obj, ap_servant,
                                         a_new_state);
+}
+
+/*
+ * pause_class
+ */
+
+static void *
+pause_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "tizpause_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizpause;
-
-OMX_ERRORTYPE
-tiz_pause_init (void)
+void *
+tiz_pause_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizpause)
-    {
-      tiz_check_omx_err_ret_oom (tiz_state_init ());
-      tiz_check_null_ret_oom
-        (tizpause =
-         factory_new
-         (tizstate_class, "tizpause",
-          tizstate, sizeof (tiz_pause_t),
-          ctor, pause_ctor,
-          dtor, pause_dtor,
-          tiz_api_SetParameter, pause_SetParameter,
-          tiz_api_GetState, pause_GetState,
-          tiz_api_UseBuffer, pause_UseBuffer,
-          tiz_api_EmptyThisBuffer, pause_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, pause_FillThisBuffer,
-          tiz_state_state_set, pause_state_set,
-          tiz_state_mark, pause_state_mark,
-          tiz_state_trans_complete, pause_trans_complete, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizstate = tiz_get_type (ap_hdl, "tizstate");
+  void * tizpause_class = factory_new (classOf (tizstate),
+                                       "tizpause_class",
+                                       classOf (tizstate),
+                                       sizeof (tiz_pause_class_t),
+                                       ap_tos, ap_hdl,
+                                       ctor, pause_class_ctor, 0);
+  return tizpause_class;
+}
+
+void *
+tiz_pause_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizstate = tiz_get_type (ap_hdl, "tizstate");
+  void * tizpause_class = tiz_get_type (ap_hdl, "tizpause_class");
+  TIZ_LOG_CLASS (tizpause_class);
+  void * tizpause =
+    factory_new
+    (tizpause_class,
+     "tizpause",
+     tizstate,
+     sizeof (tiz_pause_t),
+     ap_tos, ap_hdl,
+     ctor, pause_ctor,
+     dtor, pause_dtor,
+     tiz_api_SetParameter, pause_SetParameter,
+     tiz_api_GetState, pause_GetState,
+     tiz_api_UseBuffer, pause_UseBuffer,
+     tiz_api_EmptyThisBuffer, pause_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, pause_FillThisBuffer,
+     tiz_state_state_set, pause_state_set,
+     tiz_state_mark, pause_state_mark,
+     tiz_state_trans_complete, pause_trans_complete, 0);
+
+  return tizpause;
 }

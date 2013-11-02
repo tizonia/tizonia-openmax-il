@@ -30,12 +30,14 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
+#include "webpdprc.h"
 #include "tizscheduler.h"
+#include "tizport.h"
 #include "tizimageport.h"
 #include "tizvideoport.h"
 #include "tizconfigport.h"
-#include "webpdprc.h"
+
+#include "tizosal.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"
@@ -100,8 +102,8 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatUnused;
   portdef.pNativeWindow         = NULL;
 
-  tiz_check_omx_err_ret_null (tiz_imageport_init ());
-  return factory_new (tizimageport, ap_hdl, &image_port_opts, &portdef,
+  return factory_new (tiz_get_type (ap_hdl, "tizimageport"), ap_hdl,
+                      &image_port_opts, &portdef,
                       &encodings, &formats);
 }
 
@@ -144,16 +146,16 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  tiz_check_omx_err_ret_null (tiz_videoport_init ());
-  return  factory_new (tizvideoport, ap_hdl, &video_port_opts, &portdef,
+  return  factory_new (tiz_get_type (ap_hdl, "tizvideoport"), ap_hdl,
+                       &video_port_opts, &portdef,
                        &encodings, &formats);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (tiz_configport_init ());
-  return factory_new (tizconfigport, ap_hdl, NULL,   /* this port does not take options */
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+                      NULL,   /* this port does not take options */
                       ARATELIA_WEBP_DECODER_COMPONENT_NAME,
                       webp_decoder_version);
 }
@@ -161,8 +163,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (init_webpdprc ());
-  return factory_new (webpdprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "webpdprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -170,6 +171,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_type_factory_t webpdprc_type;
+  const tiz_type_factory_t *tf_list[] = { &webpdprc_type};
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing [%s]", ARATELIA_WEBP_DECODER_COMPONENT_NAME);
@@ -181,7 +184,18 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 2;
   role_factory.pf_proc    = instantiate_processor;
 
+  strcpy ((OMX_STRING) webpdprc_type.class_name, "webpdprc_class");
+  webpdprc_type.pf_class_init = webpd_prc_class_init;
+  strcpy ((OMX_STRING) webpdprc_type.object_name, "webpdprc");
+  webpdprc_type.pf_object_init = webpd_prc_init;
+
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_WEBP_DECODER_COMPONENT_NAME));
+
+  /* Register the "webpdprc" class */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+
+  /* Register the component role */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

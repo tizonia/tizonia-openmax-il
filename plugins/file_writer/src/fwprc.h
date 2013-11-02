@@ -34,12 +34,8 @@ extern "C"
 {
 #endif
 
-#include "fwprc.h"
-
-/* factory_new(fwprc, ...) */
-  extern const void *fwprc;
-
-  OMX_ERRORTYPE fw_prc_init (void);
+  void * fw_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * fw_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

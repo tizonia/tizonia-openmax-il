@@ -34,14 +34,8 @@ extern "C"
 {
 #endif
 
-#include "arprc.h"
-
-#include "OMX_Core.h"
-
-/* factory_new(arprc, ...) */
-  extern const void *arprc;
-
-  OMX_ERRORTYPE ar_prc_init (void);
+  void * ar_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * ar_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

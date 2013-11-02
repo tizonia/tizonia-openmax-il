@@ -37,8 +37,6 @@ extern "C"
 #include "frprc.h"
 #include "tizprc_decls.h"
 
-#include "OMX_Core.h"
-
 #include <stdbool.h>
 
   typedef struct fr_prc fr_prc_t;
@@ -46,9 +44,15 @@ extern "C"
   {
     /* Object */
     const tiz_prc_t _;
-    OMX_BUFFERHEADERTYPE *pinhdr_;
-    OMX_BUFFERHEADERTYPE *pouthdr_;
     bool eos_;
+  };
+
+  typedef struct fr_prc_class fr_prc_class_t;
+  struct fr_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

@@ -52,10 +52,9 @@
  */
 
 static void *
-webpe_proc_ctor (void *ap_obj, va_list * app)
+webpe_prc_ctor (void *ap_obj, va_list * app)
 {
-  struct webpeprc *p_obj = super_ctor (webpeprc, ap_obj, app);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing webpeprc...[%p]", p_obj);
+  webpe_prc_t *p_obj = super_ctor (typeOf (ap_obj, "webpeprc"), ap_obj, app);
 
   p_obj->pinhdr_ = 0;
   p_obj->pouthdr_ = 0;
@@ -65,17 +64,15 @@ webpe_proc_ctor (void *ap_obj, va_list * app)
 }
 
 static void *
-webpe_proc_dtor (void *ap_obj)
+webpe_prc_dtor (void *ap_obj)
 {
-  struct webpeprc *p_obj = ap_obj;
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Destructing webpeprc...[%p]", p_obj);
-  return super_dtor (webpeprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "webpeprc"), ap_obj);
 }
 
 static OMX_ERRORTYPE
-webpe_proc_transform_buffer (const void *ap_obj)
+webpe_prc_transform_buffer (const void *ap_obj)
 {
-  struct webpeprc *p_obj = (struct webpeprc *) ap_obj;
+  webpe_prc_t *p_obj = (webpe_prc_t *) ap_obj;
   (void) p_obj;
   return OMX_ErrorNone;
 }
@@ -85,9 +82,9 @@ webpe_proc_transform_buffer (const void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-webpe_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
+webpe_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  struct webpeprc *p_obj = ap_obj;
+  webpe_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
   TIZ_TRACE (tiz_api_get_hdl (ap_obj),
@@ -96,9 +93,9 @@ webpe_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-webpe_proc_deallocate_resources (void *ap_obj)
+webpe_prc_deallocate_resources (void *ap_obj)
 {
-  struct webpeprc *p_obj = ap_obj;
+  webpe_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
   TIZ_TRACE (tiz_api_get_hdl (ap_obj),
@@ -107,7 +104,7 @@ webpe_proc_deallocate_resources (void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-webpe_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+webpe_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
   TIZ_TRACE (tiz_api_get_hdl (ap_obj),
@@ -116,16 +113,16 @@ webpe_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-webpe_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
+webpe_prc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-webpe_proc_stop_and_return (void *ap_obj)
+webpe_prc_stop_and_return (void *ap_obj)
 {
-  struct webpeprc *p_obj = ap_obj;
+  webpe_prc_t *p_obj = ap_obj;
   assert (ap_obj);
   (void) p_obj;
   return OMX_ErrorNone;
@@ -138,7 +135,7 @@ webpe_proc_stop_and_return (void *ap_obj)
 static bool
 claim_input (const void *ap_obj)
 {
-  struct webpeprc *p_obj = (struct webpeprc *) ap_obj;
+  webpe_prc_t *p_obj = (webpe_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
@@ -162,7 +159,7 @@ claim_input (const void *ap_obj)
 static bool
 claim_output (const void *ap_obj)
 {
-  struct webpeprc *p_obj = (struct webpeprc *) ap_obj;
+  webpe_prc_t *p_obj = (webpe_prc_t *) ap_obj;
   tiz_pd_set_t ports;
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
@@ -185,9 +182,9 @@ claim_output (const void *ap_obj)
 }
 
 static OMX_ERRORTYPE
-webpe_proc_buffers_ready (const void *ap_obj)
+webpe_prc_buffers_ready (const void *ap_obj)
 {
-  struct webpeprc *p_obj = (struct webpeprc *) ap_obj;
+  webpe_prc_t *p_obj = (webpe_prc_t *) ap_obj;
   void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_obj));
 
   TIZ_TRACE (tiz_api_get_hdl (ap_obj), "Buffers ready...");
@@ -211,7 +208,7 @@ webpe_proc_buffers_ready (const void *ap_obj)
             }
         }
 
-      tiz_check_omx_err (webpe_proc_transform_buffer (ap_obj));
+      tiz_check_omx_err (webpe_prc_transform_buffer (ap_obj));
       if (p_obj->pinhdr_ && (0 == p_obj->pinhdr_->nFilledLen))
         {
           p_obj->pinhdr_->nOffset = 0;
@@ -235,32 +232,54 @@ webpe_proc_buffers_ready (const void *ap_obj)
 }
 
 /*
+ * webpe_prc_class
+ */
+
+static void *
+webpe_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "webpeprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *webpeprc;
-
-OMX_ERRORTYPE
-init_webpeprc (void)
+void *
+webpe_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!webpeprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (webpeprc =
-         factory_new
-         (tizprc_class,
-          "webpeprc",
-          tizprc,
-          sizeof (struct webpeprc),
-          ctor, webpe_proc_ctor,
-          dtor, webpe_proc_dtor,
-          tiz_prc_buffers_ready, webpe_proc_buffers_ready,
-          tiz_srv_allocate_resources, webpe_proc_allocate_resources,
-          tiz_srv_deallocate_resources, webpe_proc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, webpe_proc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, webpe_proc_transfer_and_process,
-          tiz_srv_stop_and_return, webpe_proc_stop_and_return, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * webpeprc_class = factory_new (classOf (tizprc),
+                                       "webpeprc_class",
+                                       classOf (tizprc),
+                                       sizeof (webpe_prc_class_t),
+                                       ap_tos, ap_hdl,
+                                       ctor, webpe_prc_class_ctor, 0);
+  return webpeprc_class;
+}
+
+void *
+webpe_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * webpeprc_class = tiz_get_type (ap_hdl, "webpeprc_class");
+  TIZ_LOG_CLASS (webpeprc_class);
+  void * webpeprc =
+    factory_new
+    (webpeprc_class,
+     "webpeprc",
+     tizprc,
+     sizeof (webpe_prc_t),
+     ap_tos, ap_hdl,
+     ctor, webpe_prc_ctor,
+     dtor, webpe_prc_dtor,
+     tiz_prc_buffers_ready, webpe_prc_buffers_ready,
+     tiz_srv_allocate_resources, webpe_prc_allocate_resources,
+     tiz_srv_deallocate_resources, webpe_prc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, webpe_prc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, webpe_prc_transfer_and_process,
+     tiz_srv_stop_and_return, webpe_prc_stop_and_return, 0);
+
+  return webpeprc;
 }

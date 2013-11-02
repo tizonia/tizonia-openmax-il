@@ -196,7 +196,7 @@ deinit_ports_and_lists (void *ap_obj)
 static void *
 krn_ctor (void *ap_obj, va_list * app)
 {
-  tiz_krn_t *p_obj = super_ctor (tizkrn, ap_obj, app);
+  tiz_krn_t *p_obj = super_ctor (typeOf (ap_obj, "tizkrn"), ap_obj, app);
   tiz_check_omx_err_ret_null (init_ports_and_lists (p_obj));
   return p_obj;
 }
@@ -205,7 +205,7 @@ static void *
 krn_dtor (void *ap_obj)
 {
   deinit_ports_and_lists (ap_obj);
-  return super_dtor (tizkrn, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizkrn"), ap_obj);
 }
 
 /*
@@ -1958,7 +1958,7 @@ tiz_krn_get_restriction_status (const void *ap_obj,
 static void *
 krn_class_ctor (void *ap_obj, va_list * app)
 {
-  tiz_krn_class_t *p_obj = super_ctor (tizkrn_class, ap_obj, app);
+  tiz_krn_class_t *p_obj = super_ctor (typeOf (ap_obj, "tizkrn_class"), ap_obj, app);
   typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
@@ -2022,67 +2022,67 @@ krn_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizkrn, *tizkrn_class;
-
-OMX_ERRORTYPE
-tiz_krn_init (void)
+void *
+tiz_krn_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizkrn_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_srv_init ());
-      tiz_check_null_ret_oom
-        (tizkrn_class = factory_new (tizsrv_class,
+  void * tizsrv = tiz_get_type (ap_hdl, "tizsrv");
+  void * tizkrn_class = factory_new (classOf (tizsrv),
                                      "tizkrn_class",
-                                     tizsrv_class,
+                                     classOf (tizsrv),
                                      sizeof (tiz_krn_class_t),
-                                     ctor, krn_class_ctor, 0));
-    }
+                                     ap_tos, ap_hdl,
+                                     ctor, krn_class_ctor, 0);
+  return tizkrn_class;
+}
 
-  if (!tizkrn)
-    {
-      tiz_check_omx_err_ret_oom (tiz_srv_init ());
-      tiz_check_null_ret_oom
-        (tizkrn =
-         factory_new
-         (tizkrn_class,
-          "tizkrn",
-          tizsrv,
-          sizeof (tiz_krn_t),
-          ctor, krn_ctor,
-          dtor, krn_dtor,
-          tiz_api_GetComponentVersion, krn_GetComponentVersion,
-          tiz_api_GetParameter, krn_GetParameter,
-          tiz_api_SetParameter, krn_SetParameter,
-          tiz_api_GetConfig, krn_GetConfig,
-          tiz_api_SetConfig, krn_SetConfig,
-          tiz_api_GetExtensionIndex, krn_GetExtensionIndex,
-          tiz_api_SendCommand, krn_SendCommand,
-          tiz_api_ComponentTunnelRequest, krn_ComponentTunnelRequest,
-          tiz_api_UseBuffer, krn_UseBuffer,
-          tiz_api_AllocateBuffer, krn_AllocateBuffer,
-          tiz_api_FreeBuffer, krn_FreeBuffer,
-          tiz_api_EmptyThisBuffer, krn_EmptyThisBuffer,
-          tiz_api_FillThisBuffer, krn_FillThisBuffer,
-          tiz_srv_dispatch_msg, krn_dispatch_msg,
-          tiz_srv_allocate_resources, krn_allocate_resources,
-          tiz_srv_deallocate_resources, krn_deallocate_resources,
-          tiz_srv_prepare_to_transfer, krn_prepare_to_transfer,
-          tiz_srv_transfer_and_process, krn_transfer_and_process,
-          tiz_srv_stop_and_return, krn_stop_and_return,
-          tiz_srv_receive_pluggable_event,
-          krn_receive_pluggable_event, tiz_krn_register_port,
-          krn_register_port, tiz_krn_get_port, krn_get_port,
-          tiz_krn_find_managing_port, krn_find_managing_port,
-          tiz_krn_get_population_status, krn_get_population_status,
-          tiz_krn_select, krn_select,
-          tiz_krn_claim_buffer, krn_claim_buffer,
-          tiz_krn_release_buffer, krn_release_buffer,
-          tiz_krn_deregister_all_ports, krn_deregister_all_ports,
-          tiz_krn_reset_tunneled_ports_status,
-          krn_reset_tunneled_ports_status,
-          tiz_krn_get_restriction_status,
-          krn_get_restriction_status,
-          0));
-    }
-  return OMX_ErrorNone;
+void *
+tiz_krn_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizsrv       = tiz_get_type (ap_hdl, "tizsrv");
+  void * tizkrn_class = tiz_get_type (ap_hdl, "tizkrn_class");
+  TIZ_LOG_CLASS (tizkrn_class);
+  void * tizkrn =
+    factory_new
+    (tizkrn_class,
+     "tizkrn",
+     tizsrv,
+     sizeof (tiz_krn_t),
+     ap_tos, ap_hdl,
+     ctor, krn_ctor,
+     dtor, krn_dtor,
+     tiz_api_GetComponentVersion, krn_GetComponentVersion,
+     tiz_api_GetParameter, krn_GetParameter,
+     tiz_api_SetParameter, krn_SetParameter,
+     tiz_api_GetConfig, krn_GetConfig,
+     tiz_api_SetConfig, krn_SetConfig,
+     tiz_api_GetExtensionIndex, krn_GetExtensionIndex,
+     tiz_api_SendCommand, krn_SendCommand,
+     tiz_api_ComponentTunnelRequest, krn_ComponentTunnelRequest,
+     tiz_api_UseBuffer, krn_UseBuffer,
+     tiz_api_AllocateBuffer, krn_AllocateBuffer,
+     tiz_api_FreeBuffer, krn_FreeBuffer,
+     tiz_api_EmptyThisBuffer, krn_EmptyThisBuffer,
+     tiz_api_FillThisBuffer, krn_FillThisBuffer,
+     tiz_srv_dispatch_msg, krn_dispatch_msg,
+     tiz_srv_allocate_resources, krn_allocate_resources,
+     tiz_srv_deallocate_resources, krn_deallocate_resources,
+     tiz_srv_prepare_to_transfer, krn_prepare_to_transfer,
+     tiz_srv_transfer_and_process, krn_transfer_and_process,
+     tiz_srv_stop_and_return, krn_stop_and_return,
+     tiz_srv_receive_pluggable_event,
+     krn_receive_pluggable_event, tiz_krn_register_port,
+     krn_register_port, tiz_krn_get_port, krn_get_port,
+     tiz_krn_find_managing_port, krn_find_managing_port,
+     tiz_krn_get_population_status, krn_get_population_status,
+     tiz_krn_select, krn_select,
+     tiz_krn_claim_buffer, krn_claim_buffer,
+     tiz_krn_release_buffer, krn_release_buffer,
+     tiz_krn_deregister_all_ports, krn_deregister_all_ports,
+     tiz_krn_reset_tunneled_ports_status,
+     krn_reset_tunneled_ports_status,
+     tiz_krn_get_restriction_status,
+     krn_get_restriction_status,
+     0);
+
+  return tizkrn;
 }

@@ -872,7 +872,7 @@ demux_file (oggdmux_prc_t * ap_prc)
 static void *
 oggdmux_prc_ctor (void *ap_obj, va_list * app)
 {
-  oggdmux_prc_t *p_prc      = super_ctor (oggdmuxprc, ap_obj, app);
+  oggdmux_prc_t *p_prc      = super_ctor (typeOf (ap_obj, "oggdmuxprc"), ap_obj, app);
   assert (NULL != p_prc);
   p_prc->p_file_            = NULL;
   p_prc->p_uri_param_       = NULL;
@@ -898,7 +898,7 @@ static void *
 oggdmux_prc_dtor (void *ap_obj)
 {
   (void) oggdmux_prc_deallocate_resources (ap_obj);
-  return super_dtor (oggdmuxprc, ap_obj);
+  return super_dtor (typeOf (ap_obj, "oggdmuxprc"), ap_obj);
 }
 
 /*
@@ -1078,35 +1078,56 @@ oggdmux_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 }
 
 /*
+ * oggdmux_prc_class
+ */
+
+static void *
+oggdmux_prc_class_ctor (void *ap_obj, va_list * app)
+{
+  /* NOTE: Class methods might be added in the future. None for now. */
+  return super_ctor (typeOf (ap_obj, "oggdmuxprc_class"), ap_obj, app);
+}
+
+/*
  * initialization
  */
 
-const void *oggdmuxprc;
-
-OMX_ERRORTYPE
-oggdmux_prc_init (void)
+void *
+oggdmux_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!oggdmuxprc)
-    {
-      tiz_check_omx_err_ret_oom (tiz_prc_init ());
-      tiz_check_null_ret_oom
-        (oggdmuxprc =
-         factory_new
-         (tizprc_class,
-          "oggdmuxprc",
-          tizprc,
-          sizeof (oggdmux_prc_t),
-          ctor, oggdmux_prc_ctor,
-          dtor, oggdmux_prc_dtor,
-          tiz_prc_buffers_ready, oggdmux_prc_buffers_ready,
-          tiz_srv_allocate_resources, oggdmux_prc_allocate_resources,
-          tiz_srv_deallocate_resources, oggdmux_prc_deallocate_resources,
-          tiz_srv_prepare_to_transfer, oggdmux_prc_prepare_to_transfer,
-          tiz_srv_transfer_and_process, oggdmux_prc_transfer_and_process,
-          tiz_srv_stop_and_return, oggdmux_prc_stop_and_return,
-          tiz_prc_port_flush, oggdmux_prc_port_flush,
-          tiz_prc_port_disable, oggdmux_prc_port_disable,
-          tiz_prc_port_enable, oggdmux_prc_port_enable, 0));
-    }
-  return OMX_ErrorNone;
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * oggdmuxprc_class = factory_new (classOf (tizprc),
+                                         "oggdmuxprc_class",
+                                         classOf (tizprc),
+                                         sizeof (oggdmux_prc_class_t),
+                                         ap_tos, ap_hdl,
+                                         ctor, oggdmux_prc_class_ctor, 0);
+  return oggdmuxprc_class;
+}
+
+void *
+oggdmux_prc_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * oggdmuxprc_class = tiz_get_type (ap_hdl, "oggdmuxprc_class");
+  void * oggdmuxprc =
+    factory_new
+    (oggdmuxprc_class,
+     "oggdmuxprc",
+     tizprc,
+     sizeof (oggdmux_prc_t),
+     ap_tos, ap_hdl,
+     ctor, oggdmux_prc_ctor,
+     dtor, oggdmux_prc_dtor,
+     tiz_prc_buffers_ready, oggdmux_prc_buffers_ready,
+     tiz_srv_allocate_resources, oggdmux_prc_allocate_resources,
+     tiz_srv_deallocate_resources, oggdmux_prc_deallocate_resources,
+     tiz_srv_prepare_to_transfer, oggdmux_prc_prepare_to_transfer,
+     tiz_srv_transfer_and_process, oggdmux_prc_transfer_and_process,
+     tiz_srv_stop_and_return, oggdmux_prc_stop_and_return,
+     tiz_prc_port_flush, oggdmux_prc_port_flush,
+     tiz_prc_port_disable, oggdmux_prc_port_disable,
+     tiz_prc_port_enable, oggdmux_prc_port_enable, 0);
+
+  return oggdmuxprc;
 }

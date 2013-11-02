@@ -34,15 +34,8 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-
-#include "tizaudioport.h"
-
-/* factory_new(tizpcmport, ...); */
-  extern const void *tizpcmport;
-
-  OMX_ERRORTYPE tiz_pcmport_init (void);
+  void * tiz_pcmport_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_pcmport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

@@ -71,7 +71,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
   va_copy (app_copy, *app);
 
   /* Now give the original to the base class */
-  if (NULL == (p_obj = super_ctor (tizbinaryport, ap_obj, app)))
+  if (NULL == (p_obj = super_ctor (typeOf (ap_obj, "tizbinaryport"), ap_obj, app)))
     {
       return NULL;
     }
@@ -95,8 +95,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
         tiz_check_omx_err_ret_null
           (tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat));
 
-        tiz_check_omx_err_ret_null (tiz_audioport_init ());
-        p_obj->p_port_ = factory_new (tizaudioport, tiz_api_get_hdl (ap_obj),
+        p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizaudioport"),
+                                      tiz_api_get_hdl (ap_obj),
                                       p_opts, &encodings);
         if (NULL == p_obj->p_port_)
           {
@@ -134,8 +134,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
         tiz_check_omx_err_ret_null
           (tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat));
 
-        tiz_check_omx_err_ret_null (tiz_videoport_init ());
-        p_obj->p_port_ = factory_new (tizvideoport, tiz_api_get_hdl (ap_obj),
+        p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizvideoport"),
+                                      tiz_api_get_hdl (ap_obj),
                                       p_opts, &portdef,
                                       &encodings, &formats);
         if (NULL == p_obj->p_port_)
@@ -172,8 +172,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
         tiz_check_omx_err_ret_null
           (tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat));
 
-        tiz_check_omx_err_ret_null (tiz_imageport_init ());
-        p_obj->p_port_ = factory_new (tizimageport, tiz_api_get_hdl (ap_obj),
+        p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizimageport"),
+                                      tiz_api_get_hdl (ap_obj),
                                       p_opts, &portdef,
                                       &encodings, &formats);
         if (NULL == p_obj->p_port_)
@@ -193,8 +193,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
         tiz_check_omx_err_ret_null
           (tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat));
 
-        tiz_check_omx_err_ret_null (tiz_otherport_init ());
-        p_obj->p_port_ = factory_new (tizotherport, tiz_api_get_hdl (ap_obj),
+        p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizotherport"),
+                                      tiz_api_get_hdl (ap_obj),
                                       p_opts, &formats);
         if (NULL == p_obj->p_port_)
           {
@@ -218,7 +218,7 @@ binaryport_dtor (void *ap_obj)
   tiz_binaryport_t *p_obj = ap_obj;
   assert (NULL != p_obj);
   factory_delete (p_obj->p_port_);
-  return super_dtor (tizbinaryport, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizbinaryport"), ap_obj);
 }
 
 /*
@@ -258,7 +258,7 @@ binaryport_GetParameter (const void *ap_obj,
     default:
       {
         /* Delegate to the base port */
-        rc = super_GetParameter (tizbinaryport,
+        rc = super_GetParameter (typeOf (ap_obj, "tizbinaryport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -301,7 +301,7 @@ binaryport_SetParameter (const void *ap_obj,
     default:
       {
         /* Delegate to the base port */
-        rc = super_SetParameter (tizbinaryport,
+        rc = super_SetParameter (typeOf (ap_obj, "tizbinaryport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
@@ -340,44 +340,44 @@ static void *
 binaryport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (tizbinaryport_class, ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizbinaryport_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-const void *tizbinaryport, *tizbinaryport_class;
-
-OMX_ERRORTYPE
-tiz_binaryport_init (void)
+void *
+tiz_binaryport_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizbinaryport_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizbinaryport_class = factory_new (tizport_class,
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizbinaryport_class = factory_new (classOf (tizport),
                                             "tizbinaryport_class",
-                                            tizport_class,
+                                            classOf (tizport),
                                             sizeof (tiz_binaryport_class_t),
-                                            ctor, binaryport_class_ctor, 0));
-    }
+                                            ap_tos, ap_hdl,
+                                            ctor, binaryport_class_ctor, 0);
+  return tizbinaryport_class;
+}
 
-  if (!tizbinaryport)
-    {
-      tiz_check_omx_err_ret_oom (tiz_port_init ());
-      tiz_check_null_ret_oom
-        (tizbinaryport =
-         factory_new
-         (tizbinaryport_class,
-          "tizbinaryport",
-          tizport,
-          sizeof (tiz_binaryport_t),
-          ctor, binaryport_ctor,
-          dtor, binaryport_dtor,
-          tiz_api_GetParameter, binaryport_GetParameter,
-          tiz_api_SetParameter, binaryport_SetParameter,
-          tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat, 0));
-    }
-  return OMX_ErrorNone;
+void *
+tiz_binaryport_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizport = tiz_get_type (ap_hdl, "tizport");
+  void * tizbinaryport_class = tiz_get_type (ap_hdl, "tizbinaryport_class");
+  TIZ_LOG_CLASS (tizbinaryport_class);
+  void * tizbinaryport =
+    factory_new
+    (tizbinaryport_class,
+     "tizbinaryport",
+     tizport,
+     sizeof (tiz_binaryport_t),
+     ap_tos, ap_hdl,
+     ctor, binaryport_ctor,
+     dtor, binaryport_dtor,
+     tiz_api_GetParameter, binaryport_GetParameter,
+     tiz_api_SetParameter, binaryport_SetParameter,
+     tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat, 0);
+
+  return tizbinaryport;
 }

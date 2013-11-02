@@ -35,14 +35,8 @@ extern "C"
 {
 #endif
 
-#include "mp3dprc.h"
-
-#include "OMX_Core.h"
-
-/* factory_new(mp3dprc, ...) */
-  extern const void *mp3dprc;
-
-  OMX_ERRORTYPE mp3d_prc_init (void);
+  void * mp3d_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * mp3d_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

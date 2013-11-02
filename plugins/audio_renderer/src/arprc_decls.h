@@ -52,6 +52,14 @@ extern "C"
     char *p_alsa_pcm_;
   };
 
+  typedef struct ar_prc_class ar_prc_class_t;
+  struct ar_prc_class
+  {
+    /* Class */
+    const tiz_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
+
 #ifdef __cplusplus
 }
 #endif

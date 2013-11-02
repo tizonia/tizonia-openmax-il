@@ -59,7 +59,7 @@ pqueue_cmp (OMX_PTR ap_left, OMX_PTR ap_right)
 static void *
 servant_ctor (void *ap_obj, va_list * app)
 {
-  tiz_srv_t *p_obj = super_ctor (tizsrv, ap_obj, app);
+  tiz_srv_t *p_obj = super_ctor (typeOf (ap_obj, "tizsrv"), ap_obj, app);
   /* NOTE: The priority queue is initialised only when the allocator is set via
    * set_allocator */
   p_obj->p_pq_ = NULL;
@@ -92,7 +92,7 @@ servant_dtor (void *ap_obj)
       tiz_pqueue_destroy (p_obj->p_pq_);
     }
 
-  return super_dtor (tizsrv, ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizsrv"), ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -596,7 +596,7 @@ tiz_srv_receive_pluggable_event (const void *ap_obj,
 static void *
 servant_class_ctor (void *ap_obj, va_list * app)
 {
-  tiz_srv_class_t *p_obj = super_ctor (tizsrv_class, ap_obj, app);
+  tiz_srv_class_t *p_obj = super_ctor (typeOf (ap_obj, "tizsrv_class"), ap_obj, app);
   typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
@@ -696,55 +696,54 @@ servant_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-const void *tizsrv, *tizsrv_class;
-
-OMX_ERRORTYPE
-tiz_srv_init (void)
+void *
+tiz_srv_class_init (void * ap_tos, void * ap_hdl)
 {
-  if (!tizsrv_class)
-    {
-      tiz_check_omx_err_ret_oom (tiz_api_init ());
-      tiz_check_null_ret_oom
-        (tizsrv_class = factory_new (tizapi_class,
+  void * tizapi = tiz_get_type (ap_hdl, "tizapi");
+  void * tizsrv_class = factory_new (classOf (tizapi),
                                      "tizsrv_class",
-                                     tizapi_class,
+                                     classOf (tizapi),
                                      sizeof (tiz_srv_class_t),
-                                     ctor, servant_class_ctor, 0));
+                                     ap_tos, ap_hdl,
+                                     ctor, servant_class_ctor, 0);
+  return tizsrv_class;
+}
 
-    }
+void *
+tiz_srv_init (void * ap_tos, void * ap_hdl)
+{
+  void * tizapi       = tiz_get_type (ap_hdl, "tizapi");
+  void * tizsrv_class = tiz_get_type (ap_hdl, "tizsrv_class");
+  TIZ_LOG_CLASS (tizsrv_class);
+  void * tizsrv =
+    factory_new
+    (tizsrv_class,
+     "tizsrv",
+     tizapi,
+     sizeof (tiz_srv_t),
+     ap_tos, ap_hdl,
+     ctor, servant_ctor,
+     dtor, servant_dtor,
+     tiz_srv_set_allocator, servant_set_allocator,
+     tiz_srv_set_callbacks, servant_set_callbacks,
+     tiz_srv_tick, servant_tick,
+     tiz_srv_init_msg, servant_init_msg,
+     tiz_srv_enqueue, servant_enqueue,
+     tiz_srv_remove_from_queue, servant_remove_from_queue,
+     tiz_srv_dispatch_msg, servant_dispatch_msg,
+     tiz_srv_is_ready, servant_is_ready,
+     tiz_srv_allocate_resources, servant_allocate_resources,
+     tiz_srv_deallocate_resources, servant_deallocate_resources,
+     tiz_srv_prepare_to_transfer, servant_prepare_to_transfer,
+     tiz_srv_transfer_and_process, servant_transfer_and_process,
+     tiz_srv_stop_and_return, servant_stop_and_return,
+     tiz_srv_issue_event, servant_issue_event,
+     tiz_srv_issue_err_event, servant_issue_err_event,
+     tiz_srv_issue_cmd_event, servant_issue_cmd_event,
+     tiz_srv_issue_trans_event, servant_issue_trans_event,
+     tiz_srv_issue_buf_callback, servant_issue_buf_callback,
+     tiz_srv_receive_pluggable_event,
+     servant_receive_pluggable_event, 0);
 
-  if (!tizsrv)
-    {
-      tiz_check_omx_err_ret_oom (tiz_api_init ());
-      tiz_check_null_ret_oom
-        (tizsrv =
-         factory_new
-         (tizsrv_class,
-          "tizsrv",
-          tizapi,
-          sizeof (tiz_srv_t),
-          ctor, servant_ctor,
-          dtor, servant_dtor,
-          tiz_srv_set_allocator, servant_set_allocator,
-          tiz_srv_set_callbacks, servant_set_callbacks,
-          tiz_srv_tick, servant_tick,
-          tiz_srv_init_msg, servant_init_msg,
-          tiz_srv_enqueue, servant_enqueue,
-          tiz_srv_remove_from_queue, servant_remove_from_queue,
-          tiz_srv_dispatch_msg, servant_dispatch_msg,
-          tiz_srv_is_ready, servant_is_ready,
-          tiz_srv_allocate_resources, servant_allocate_resources,
-          tiz_srv_deallocate_resources, servant_deallocate_resources,
-          tiz_srv_prepare_to_transfer, servant_prepare_to_transfer,
-          tiz_srv_transfer_and_process, servant_transfer_and_process,
-          tiz_srv_stop_and_return, servant_stop_and_return,
-          tiz_srv_issue_event, servant_issue_event,
-          tiz_srv_issue_err_event, servant_issue_err_event,
-          tiz_srv_issue_cmd_event, servant_issue_cmd_event,
-          tiz_srv_issue_trans_event, servant_issue_trans_event,
-          tiz_srv_issue_buf_callback, servant_issue_buf_callback,
-          tiz_srv_receive_pluggable_event,
-          servant_receive_pluggable_event, 0));
-    }
-  return OMX_ErrorNone;
+  return tizsrv;
 }

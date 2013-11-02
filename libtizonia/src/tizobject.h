@@ -30,8 +30,8 @@ extern "C"
 #include <stddef.h>
 #include <stdio.h>
 
-/* factory_new(Object); */
-  extern const void *Object;
+  void *tiz_class_init (void * ap_tos, void * ap_hdl);
+  void *tiz_object_init (void * ap_tos, void * ap_hdl);
 
   void *factory_new (const void *class, ...);
   void factory_delete (void *p_obj);
@@ -39,16 +39,24 @@ extern "C"
   const void *classOf (const void *p_obj);
   size_t sizeOf (const void *p_obj);
   const char *nameOf (const void *p_obj);
+  const void *handleOf (const void *ap_obj);
+  const void *typeOf (const void *ap_obj, const char *ap_class_name);
 
   void *ctor (void *p_obj, va_list * app);
   void *dtor (void *p_obj);
 
-/* factory_new(Class, "name", super, size sel, meth, ... 0); */
-  extern const void *Class;
-
-/* class' superclass */
+  /* class' superclass */
   const void *super (const void *p_obj);
 
+  void print_class (const void * ap_class, const char *file, int line, const char *func);
+
+#define TIZ_LOG_CLASS(ap_class)                     \
+  print_class(ap_class,                             \
+              __FILE__,                             \
+              __LINE__,                             \
+              __FUNCTION__);
+
+  
 #ifdef __cplusplus
 }
 #endif

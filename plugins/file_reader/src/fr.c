@@ -32,9 +32,9 @@
 
 #include "frcfgport.h"
 #include "frprc.h"
-
-#include "tizscheduler.h"
+#include "tizport.h"
 #include "tizbinaryport.h"
+#include "tizscheduler.h"
 
 #include "tizosal.h"
 
@@ -79,8 +79,8 @@ instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl,
+                      &port_opts);
 }
 
 static OMX_PTR
@@ -98,8 +98,8 @@ instantiate_video_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl,
+                      &port_opts);
 }
 
 static OMX_PTR
@@ -117,8 +117,8 @@ instantiate_image_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl,
+                      &port_opts);
 }
 
 static OMX_PTR
@@ -136,16 +136,16 @@ instantiate_other_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  tiz_check_omx_err_ret_null (tiz_binaryport_init ());
-  return factory_new (tizbinaryport, ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl,
+                      &port_opts);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   /* Instantiate the config port */
-  tiz_check_omx_err_ret_null (fr_cfgport_init ());
-  return factory_new (frcfgport, ap_hdl, NULL,       /* this port does not take options */
+  return factory_new (tiz_get_type (ap_hdl, "frcfgport"), ap_hdl,
+                      NULL,       /* this port does not take options */
                       ARATELIA_FILE_READER_COMPONENT_NAME,
                       file_reader_version);
 }
@@ -153,8 +153,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_check_omx_err_ret_null (fr_prc_init ());
-  return factory_new (frprc, ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "frprc"), ap_hdl);
 }
 
 OMX_ERRORTYPE
@@ -167,6 +166,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t *rf_list[] = { &audio_role, &video_role,
     &image_role, &other_role
   };
+  tiz_type_factory_t frprc_type;
+  tiz_type_factory_t frcfgport_type;
+  const tiz_type_factory_t *tf_list[] = { &frprc_type, &frcfgport_type};
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_FILE_READER_COMPONENT_NAME);
@@ -178,14 +180,12 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   audio_role.nports     = 1;
   audio_role.pf_proc    = instantiate_processor;
 
-
   strcpy ((OMX_STRING) video_role.role,
           ARATELIA_FILE_READER_VIDEO_READER_ROLE);
   video_role.pf_cport   = instantiate_config_port;
   video_role.pf_port[0] = instantiate_video_port;
   video_role.nports     = 1;
   video_role.pf_proc    = instantiate_processor;
-
 
   strcpy ((OMX_STRING) image_role.role,
           ARATELIA_FILE_READER_IMAGE_READER_ROLE);
@@ -194,7 +194,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   image_role.nports     = 1;
   image_role.pf_proc    = instantiate_processor;
 
-
   strcpy ((OMX_STRING) other_role.role,
           ARATELIA_FILE_READER_OTHER_READER_ROLE);
   other_role.pf_cport   = instantiate_config_port;
@@ -202,7 +201,23 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   other_role.nports     = 1;
   other_role.pf_proc    = instantiate_processor;
 
+  strcpy ((OMX_STRING) frprc_type.class_name, "frprc_class");
+  frprc_type.pf_class_init = fr_prc_class_init;
+  strcpy ((OMX_STRING) frprc_type.object_name, "frprc");
+  frprc_type.pf_object_init = fr_prc_init;
+
+  strcpy ((OMX_STRING) frcfgport_type.class_name, "frcfgport_class");
+  frcfgport_type.pf_class_init = fr_cfgport_class_init;
+  strcpy ((OMX_STRING) frcfgport_type.object_name, "frcfgport");
+  frcfgport_type.pf_object_init = fr_cfgport_init;
+
+  /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_FILE_READER_COMPONENT_NAME));
+
+  /* Register the "frprc" and "frcfgport" classes */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 2));
+
+  /* Register the various roles */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 4));
 
   return OMX_ErrorNone;

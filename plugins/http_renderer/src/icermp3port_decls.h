@@ -34,9 +34,10 @@ extern "C"
 {
 #endif
 
+#include "tizmp3port_decls.h"
+
 #include "OMX_Types.h"
 #include "OMX_TizoniaExt.h"
-#include "tizmp3port_decls.h"
 
   typedef struct icer_mp3port icer_mp3port_t;
   struct icer_mp3port
@@ -45,6 +46,14 @@ extern "C"
     const tiz_mp3port_t               _;
     OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mountpoint_;
     OMX_STRING p_stream_title_;
+  };
+
+  typedef struct icer_mp3port_class icer_mp3port_class_t;
+  struct icer_mp3port_class
+  {
+    /* Class */
+    const tiz_mp3port_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

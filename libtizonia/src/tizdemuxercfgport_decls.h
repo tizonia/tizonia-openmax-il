@@ -34,15 +34,23 @@ extern "C"
 {
 #endif
 
-#include "OMX_Types.h"
 #include "tizconfigport_decls.h"
+#include "OMX_Types.h"
 
-  typedef struct tiz_demuxer_cfgport tiz_demuxer_cfgport_t;
-  struct tiz_demuxer_cfgport
+  typedef struct tiz_demuxercfgport tiz_demuxercfgport_t;
+  struct tiz_demuxercfgport
   {
     /* Object */
     const tiz_configport_t _;
     OMX_STRING p_uri_;
+  };
+
+  typedef struct tiz_demuxercfgport_class tiz_demuxercfgport_class_t;
+  struct tiz_demuxercfgport_class
+  {
+    /* Class */
+    const tiz_configport_class_t _;
+    /* NOTE: Class methods might be added in the future */
   };
 
 #ifdef __cplusplus

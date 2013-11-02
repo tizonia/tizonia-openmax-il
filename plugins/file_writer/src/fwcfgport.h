@@ -34,15 +34,8 @@ extern "C"
 {
 #endif
 
-#include "tizconfigport.h"
-
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-
-/* factory_new(fwcfgport, ...); */
-  extern const void *fwcfgport;
-
-  OMX_ERRORTYPE fw_cfgport_init (void);
+  void * fw_cfgport_class_init (void * ap_tos, void * ap_hdl);
+  void * fw_cfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
