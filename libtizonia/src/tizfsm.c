@@ -911,16 +911,12 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 {
   tiz_fsm_t *p_obj = (tiz_fsm_t *) ap_obj;
   tiz_fsm_msg_t *p_msg = ap_msg;
-  OMX_HANDLETYPE p_hdl = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  p_hdl = tiz_api_get_hdl (p_obj);
-  assert (NULL != p_hdl);
-
-  TIZ_TRACE (p_hdl, "Processing [%s]...",
+  TIZ_TRACE (handleOf (p_obj), "Processing [%s]...",
             tiz_fsm_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZFsmMsgMax);
@@ -931,7 +927,7 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
    * case, this error will cancel the in-progress command. */
   if (OMX_ErrorNone != rc)
     {
-      TIZ_ERROR (p_hdl, "[%s] - [%s]...", tiz_err_to_str (rc),
+      TIZ_ERROR (handleOf (p_obj), "[%s] - [%s]...", tiz_err_to_str (rc),
                 tiz_fsm_msg_to_str (p_msg->class));
 
       if (OMX_CommandMax != p_obj->in_progress_cmd_)
@@ -961,23 +957,19 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
                tiz_fsm_state_id_t a_canceled_substate)
 {
   tiz_fsm_t *p_obj = (tiz_fsm_t *) ap_obj;
-  OMX_HANDLETYPE p_hdl = NULL;
   void *p_prc = NULL;
   void *p_krn = NULL;
 
   assert (NULL != ap_obj);
 
-  p_hdl = tiz_api_get_hdl (p_obj);
-  assert (NULL != p_hdl);
-
-  p_prc = tiz_get_prc (p_hdl);
-  p_krn = tiz_get_krn (p_hdl);
+  p_prc = tiz_get_prc (handleOf (p_obj));
+  p_krn = tiz_get_krn (handleOf (p_obj));
 
   assert (a_new_state < EStateMax);
 
   if (a_new_state != p_obj->cur_state_id_)
     {
-      TIZ_TRACE (p_hdl, "New state = [%s]..."
+      TIZ_TRACE (handleOf (p_obj), "New state = [%s]..."
                 "cancelled substate = [%s]",
                 tiz_fsm_state_to_str (a_new_state),
                 tiz_fsm_state_to_str (a_canceled_substate));
@@ -997,7 +989,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
              p_obj->canceled_substate_id_ == EStateMax
              ? OMX_ErrorNone : OMX_ErrorCommandCanceled);
 
-          TIZ_TRACE (p_hdl, "in_progress_cmd_ = [%s]...",
+          TIZ_TRACE (handleOf (p_obj), "in_progress_cmd_ = [%s]...",
                     tiz_cmd_to_str (p_obj->in_progress_cmd_));
           assert (OMX_CommandStateSet == p_obj->in_progress_cmd_);
 
@@ -1011,7 +1003,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
               OMX_ERRORTYPE rc = OMX_ErrorNone;
               /* First notify the kernel servant */
               if (OMX_ErrorNone
-                  != (rc = tiz_api_SendCommand (p_krn, p_hdl,
+                  != (rc = tiz_api_SendCommand (p_krn, handleOf (p_obj),
                                                 OMX_CommandStateSet,
                                                 a_new_state, NULL)))
                 {
@@ -1020,7 +1012,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
 
               /* Now notify the processor servant */
               if (OMX_ErrorNone
-                  != (rc = tiz_api_SendCommand (p_prc, p_hdl,
+                  != (rc = tiz_api_SendCommand (p_prc, handleOf (p_obj),
                                                 OMX_CommandStateSet,
                                                 a_new_state, NULL)))
                 {
@@ -1057,7 +1049,7 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
   assert (NULL != p_obj);
   assert (NULL != p_servant);
 
-  p_hdl = tiz_api_get_hdl (p_obj);
+  p_hdl = handleOf (p_obj);
   assert (NULL != p_hdl);
 
   TIZ_TRACE (p_hdl, "Servant [%s] notifies transition complete "
@@ -1120,7 +1112,7 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
   assert (NULL != p_obj);
   assert (NULL != p_servant);
 
-  p_hdl = tiz_api_get_hdl (p_obj);
+  p_hdl = handleOf (p_obj);
   assert (NULL != p_hdl);
 
   TIZ_TRACE (p_hdl, "Servant [%s] notifies cmd complete (cmd [%s]) "

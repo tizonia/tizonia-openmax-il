@@ -177,7 +177,7 @@ loadedtoidle_trans_complete (const void *ap_obj,
 {
   const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_servant),
+  TIZ_TRACE (handleOf (ap_servant),
             "Trans complete to state [%s]...",
             tiz_fsm_state_to_str (a_new_state));
 
@@ -190,7 +190,7 @@ loadedtoidle_trans_complete (const void *ap_obj,
       /* Reset the OMX_PORTSTATUS_ACCEPTUSEBUFFER flag in all ports where this
        * has been set */
       tiz_krn_reset_tunneled_ports_status (tiz_get_krn
-                                             (tiz_api_get_hdl (ap_servant)),
+                                             (handleOf (ap_servant)),
                                              OMX_PORTSTATUS_ACCEPTUSEBUFFER);
     }
 
@@ -206,7 +206,7 @@ loadedtoidle_tunneled_ports_status_update (void *ap_obj)
   assert (NULL != ap_obj);
 
   {
-    OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_base->p_fsm_);
+    OMX_HANDLETYPE p_hdl = handleOf (p_base->p_fsm_);
     void *p_krn = tiz_get_krn (p_hdl);
 
     if (TIZ_KRN_MAY_INIT_ALLOC_PHASE (p_krn))

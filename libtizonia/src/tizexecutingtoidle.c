@@ -94,7 +94,7 @@ executingtoidle_trans_complete (const void *ap_obj,
 {
   const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
-  TIZ_DEBUG (tiz_api_get_hdl(ap_servant),
+  TIZ_DEBUG (handleOf(ap_servant),
             "Trans complete to state [%s]...",
             tiz_fsm_state_to_str (a_new_state));
 
@@ -107,7 +107,7 @@ executingtoidle_trans_complete (const void *ap_obj,
       /* Reset the OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN flag in all ports
          where this has been set */
       tiz_krn_reset_tunneled_ports_status
-        (tiz_get_krn (tiz_api_get_hdl(ap_servant)),
+        (tiz_get_krn (handleOf(ap_servant)),
          OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN);
     }
 
@@ -123,7 +123,7 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
   assert (NULL != ap_obj);
 
   {
-    OMX_HANDLETYPE p_hdl = tiz_api_get_hdl(p_base->p_fsm_);
+    OMX_HANDLETYPE p_hdl = handleOf(p_base->p_fsm_);
     void *p_krn = tiz_get_krn (p_hdl);
 
     if (TIZ_KRN_MAY_INIT_EXE_TO_IDLE (p_krn))

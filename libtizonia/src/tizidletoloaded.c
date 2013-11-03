@@ -130,7 +130,7 @@ static OMX_ERRORTYPE
 idletoloaded_trans_complete (const void *ap_obj,
                              OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_TRACE (tiz_api_get_hdl (ap_servant),
+  TIZ_TRACE (handleOf (ap_servant),
             "Trans complete to state [%s]...",
             tiz_fsm_state_to_str (a_new_state));
   assert (OMX_StateLoaded == a_new_state);

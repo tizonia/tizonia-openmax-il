@@ -26,6 +26,8 @@ extern "C"
 {
 #endif
 
+#include <OMX_Types.h>
+
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -39,7 +41,7 @@ extern "C"
   const void *classOf (const void *p_obj);
   size_t sizeOf (const void *p_obj);
   const char *nameOf (const void *p_obj);
-  const void *handleOf (const void *ap_obj);
+  const OMX_HANDLETYPE handleOf (const void *ap_obj);
   const void *typeOf (const void *ap_obj, const char *ap_class_name);
 
   void *ctor (void *p_obj, va_list * app);

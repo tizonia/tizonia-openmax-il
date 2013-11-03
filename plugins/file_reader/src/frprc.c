@@ -74,7 +74,7 @@ static OMX_ERRORTYPE
 obtain_uri (fr_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  void *p_krn = tiz_get_krn (tiz_api_get_hdl (ap_prc));
+  void *p_krn = tiz_get_krn (handleOf (ap_prc));
   assert (NULL != ap_prc);
   assert (NULL == ap_prc->p_uri_param_);
 
@@ -83,7 +83,7 @@ obtain_uri (fr_prc_t *ap_prc)
 
   if (NULL == ap_prc->p_uri_param_)
     {
-      TIZ_ERROR (tiz_api_get_hdl (ap_prc),
+      TIZ_ERROR (handleOf (ap_prc),
                 "Error allocating memory for the content uri struct");
       return OMX_ErrorInsufficientResources;
     }
@@ -93,16 +93,16 @@ obtain_uri (fr_prc_t *ap_prc)
   ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
   if (OMX_ErrorNone != (rc = tiz_api_GetParameter
-                        (p_krn, tiz_api_get_hdl (ap_prc),
+                        (p_krn, handleOf (ap_prc),
                          OMX_IndexParamContentURI, ap_prc->p_uri_param_)))
     {
-      TIZ_ERROR (tiz_api_get_hdl (ap_prc),
+      TIZ_ERROR (handleOf (ap_prc),
                 "[%s] : Error retrieving URI param from port",
                 tiz_err_to_str (rc));
       return rc;
     }
 
-  TIZ_NOTICE (tiz_api_get_hdl (ap_prc), "URI [%s]",
+  TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
             ap_prc->p_uri_param_->contentURI);
 
   return OMX_ErrorNone;
@@ -121,14 +121,14 @@ read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
         {
           if (feof (p_prc->p_file_))
             {
-              TIZ_NOTICE (tiz_api_get_hdl (p_prc),
+              TIZ_NOTICE (handleOf (p_prc),
                        "End of file reached bytes_read=[%d]", bytes_read);
               p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
               p_prc->eos_ = true;
             }
           else
             {
-              TIZ_ERROR (tiz_api_get_hdl (p_prc),
+              TIZ_ERROR (handleOf (p_prc),
                        "An error occurred while reading");
               return OMX_ErrorInsufficientResources;
             }
@@ -138,7 +138,7 @@ read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
       p_prc->counter_ += p_hdr->nFilledLen;
     }
 
-  TIZ_TRACE (tiz_api_get_hdl (p_prc),
+  TIZ_TRACE (handleOf (p_prc),
            "Reading into HEADER [%p]...nFilledLen[%d] "
            "counter [%d] bytes_read[%d]",
            p_hdr, p_hdr->nFilledLen, p_prc->counter_, bytes_read);
@@ -183,13 +183,13 @@ fr_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 
   tiz_check_omx_err (obtain_uri (p_prc));
 
-  TIZ_NOTICE (tiz_api_get_hdl (p_prc), "URI [%s]",
+  TIZ_NOTICE (handleOf (p_prc), "URI [%s]",
             p_prc->p_uri_param_->contentURI);
 
   if ((p_prc->p_file_
        = fopen ((const char *) p_prc->p_uri_param_->contentURI, "r")) == 0)
     {
-      TIZ_ERROR (tiz_api_get_hdl (p_prc),
+      TIZ_ERROR (handleOf (p_prc),
                 "Error opening file from URI (%s)", strerror (errno));
       return OMX_ErrorInsufficientResources;
     }
@@ -240,7 +240,7 @@ fr_prc_buffers_ready (const void *ap_obj)
 {
   const fr_prc_t *p_prc = ap_obj;
   tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (tiz_api_get_hdl (p_prc));
+  void *p_krn = tiz_get_krn (handleOf (p_prc));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
   assert (NULL != ap_obj);
@@ -254,7 +254,7 @@ fr_prc_buffers_ready (const void *ap_obj)
       if (TIZ_PD_ISSET (0, &ports))
         {
           tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
-          TIZ_TRACE (tiz_api_get_hdl (p_prc),
+          TIZ_TRACE (handleOf (p_prc),
                     "Claimed HEADER [%p]...nFilledLen [%d]", p_hdr,
                     p_hdr->nFilledLen);
           tiz_check_omx_err (read_buffer (p_prc, p_hdr));

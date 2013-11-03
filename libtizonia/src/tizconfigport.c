@@ -59,7 +59,7 @@ configport_ctor (void *ap_obj, va_list * app)
   str_len = strnlen (p_obj->comp_name_, OMX_MAX_STRINGNAME_SIZE - 1);
   p_obj->comp_name_[str_len] = '\0';
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (handleOf (ap_obj),
             "comp_name_ [%s]...", p_obj->comp_name_);
 
   /* Component version */

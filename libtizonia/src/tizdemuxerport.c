@@ -82,7 +82,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
       p_opts      = va_arg (app_copy, tiz_port_options_t *);
       assert (NULL != p_opts);
 
-      TIZ_TRACE (tiz_api_get_hdl (ap_obj), "min_buf_size [%d]",
+      TIZ_TRACE (handleOf (ap_obj), "min_buf_size [%d]",
                 p_opts->min_buf_size);
 
       switch (p_opts->domain)
@@ -120,7 +120,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
             p_volume = va_arg (app_copy, OMX_AUDIO_CONFIG_VOLUMETYPE *);
             assert (NULL != p_volume);
 
-            TIZ_TRACE (tiz_api_get_hdl (ap_obj), "p_volume->sVolume.nValue [%d]",
+            TIZ_TRACE (handleOf (ap_obj), "p_volume->sVolume.nValue [%d]",
                       p_volume->sVolume.nValue);
 
             /* Get the OMX_AUDIO_CONFIG_MUTETYPE structure (mandatory argument) */
@@ -128,7 +128,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
             assert (NULL != p_mute);
 
             p_obj->p_port_
-              = factory_new (typeOf (ap_obj, "tizpcmport"), tiz_api_get_hdl (ap_obj),
+              = factory_new (typeOf (ap_obj, "tizpcmport"), handleOf (ap_obj),
                              p_opts, &encodings, p_pcmmode, p_volume, p_mute);
             if (NULL == p_obj->p_port_)
               {
@@ -161,7 +161,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
             assert (NULL != p_formats);
 
             if (NULL == (p_obj->p_port_
-                         = factory_new (typeOf (ap_obj, "tizvideoport"), tiz_api_get_hdl (ap_obj),
+                         = factory_new (typeOf (ap_obj, "tizvideoport"), handleOf (ap_obj),
                                         p_opts, p_portdef, p_encodings, p_formats)))
               {
                 return NULL;
@@ -198,7 +198,7 @@ demuxerport_GetParameter (const void *ap_obj,
   const tiz_demuxerport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] GetParameter [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -258,7 +258,7 @@ demuxerport_SetParameter (const void *ap_obj,
   tiz_demuxerport_t *p_obj = (tiz_demuxerport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] SetParameter [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -325,7 +325,7 @@ demuxerport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   const tiz_demuxerport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] GetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -367,7 +367,7 @@ demuxerport_SetConfig (const void *ap_obj,
   tiz_demuxerport_t *p_obj = (tiz_demuxerport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] SetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
   assert (NULL != ap_obj);
@@ -413,7 +413,7 @@ demuxerport_check_tunnel_compat
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+      TIZ_ERROR (handleOf (ap_obj),
                 "PORT [%d] check_tunnel_compat : Different domain found [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
       return false;

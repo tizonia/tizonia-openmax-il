@@ -72,7 +72,7 @@ audioport_ctor (void *ap_obj, va_list * app)
       OMX_U32 i = 0;
       while (OMX_AUDIO_CodingMax != p_encodings[i])
         {
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                     "p_encodings[%u] = [%d]...", i, p_encodings[i]);
           tiz_check_omx_err_ret_null
             (tiz_vector_push_back (p_obj->p_encodings_, &p_encodings[i++]));

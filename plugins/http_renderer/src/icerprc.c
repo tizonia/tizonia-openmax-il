@@ -99,7 +99,7 @@ buffer_needed (void *ap_arg)
           tiz_pd_set_t ports;
           void *p_krn = NULL;
 
-          p_krn = tiz_get_krn (tiz_api_get_hdl (p_obj));
+          p_krn = tiz_get_krn (handleOf (p_obj));
 
           TIZ_PD_ZERO (&ports);
           if (OMX_ErrorNone == tiz_krn_select (p_krn, 1, &ports))
@@ -109,7 +109,7 @@ buffer_needed (void *ap_arg)
                   if (OMX_ErrorNone == tiz_krn_claim_buffer
                       (p_krn, 0, 0, &p_obj->p_inhdr_))
                     {
-                      TIZ_TRACE (tiz_api_get_hdl (p_obj),
+                      TIZ_TRACE (handleOf (p_obj),
                                 "Claimed HEADER [%p]...nFilledLen [%d]",
                                 p_obj->p_inhdr_, p_obj->p_inhdr_->nFilledLen);
                       return p_obj->p_inhdr_;
@@ -133,7 +133,7 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * ap_hdr, void *ap_arg)
   assert (p_obj->p_inhdr_ == ap_hdr);
   assert (ap_hdr->nFilledLen == 0);
 
-  TIZ_TRACE (tiz_api_get_hdl (p_obj), "HEADER [%p] emptied", ap_hdr);
+  TIZ_TRACE (handleOf (p_obj), "HEADER [%p] emptied", ap_hdr);
 
   ap_hdr->nOffset = 0;
 
@@ -144,7 +144,7 @@ buffer_emptied (OMX_BUFFERHEADERTYPE * ap_hdr, void *ap_arg)
                            OMX_EventBufferFlag, 0, ap_hdr->nFlags, NULL);
     }
 
-  tiz_krn_release_buffer (tiz_get_krn (tiz_api_get_hdl (p_obj)), 0, ap_hdr);
+  tiz_krn_release_buffer (tiz_get_krn (handleOf (p_obj)), 0, ap_hdr);
   p_obj->p_inhdr_ = NULL;
 }
 
@@ -153,7 +153,7 @@ retrieve_mp3_settings (const void *ap_obj,
                        OMX_AUDIO_PARAM_MP3TYPE * ap_mp3type)
 {
   const icer_prc_t *p_obj = ap_obj;
-  OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
+  OMX_HANDLETYPE p_hdl = handleOf (p_obj);
   void *p_krn = tiz_get_krn (p_hdl);
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -181,7 +181,7 @@ retrieve_mountpoint_settings (const void *ap_obj,
                               ap_mountpoint)
 {
   const icer_prc_t *p_obj = ap_obj;
-  OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
+  OMX_HANDLETYPE p_hdl = handleOf (p_obj);
   void *p_krn = tiz_get_krn (p_hdl);
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -237,7 +237,7 @@ static OMX_ERRORTYPE
 icer_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   icer_prc_t *p_obj = ap_obj;
-  OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
+  OMX_HANDLETYPE p_hdl = handleOf (p_obj);
   void *p_krn = tiz_get_krn (p_hdl);
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -304,7 +304,7 @@ icer_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
                              p_obj->mp3type_.nChannels,
                              p_obj->mp3type_.nSampleRate);
 
-  TIZ_TRACE (tiz_api_get_hdl (p_obj),
+  TIZ_TRACE (handleOf (p_obj),
             "Server starts listening on port [%d]",
             p_obj->server_info_.nListeningPort);
 
@@ -356,7 +356,7 @@ icer_prc_buffers_ready (const void *ap_obj)
   if (p_obj->awaiting_buffers_)
     {
       p_obj->awaiting_buffers_ = false;
-      return stream_to_clients (p_obj, tiz_api_get_hdl (p_obj));
+      return stream_to_clients (p_obj, handleOf (p_obj));
     }
   return OMX_ErrorNone;
 }
@@ -366,7 +366,7 @@ icer_prc_io_ready (void *ap_obj,
                    tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
   icer_prc_t *p_obj = ap_obj;
-  OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
+  OMX_HANDLETYPE p_hdl = handleOf (p_obj);
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
@@ -395,15 +395,15 @@ icer_prc_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
 {
   icer_prc_t *p_obj = ap_obj;
   assert (NULL != p_obj);
-  TIZ_NOTICE (tiz_api_get_hdl (p_obj), "Received timer event ");
-  return stream_to_clients (p_obj, tiz_api_get_hdl (p_obj));
+  TIZ_NOTICE (handleOf (p_obj), "Received timer event ");
+  return stream_to_clients (p_obj, handleOf (p_obj));
 }
 
 static OMX_ERRORTYPE
 icer_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 {
   icer_prc_t *p_obj = (icer_prc_t *) ap_obj;
-  OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
+  OMX_HANDLETYPE p_hdl = handleOf (p_obj);
   void *p_krn = tiz_get_krn (p_hdl);
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -453,7 +453,7 @@ icer_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
   if (OMX_TizoniaIndexConfigIcecastMetadata == a_config_idx
       && 0 == a_pid)
     {
-      OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_obj);
+      OMX_HANDLETYPE p_hdl = handleOf (p_obj);
       void *p_krn = tiz_get_krn (p_hdl);
       OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata = NULL;
 

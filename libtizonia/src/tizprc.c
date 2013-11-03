@@ -751,14 +751,14 @@ prc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_obj);
   assert (NULL != p_msg);
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (handleOf (ap_obj),
             "Processing [%s]...", tiz_prc_msg_to_str (p_msg->class));
 
   assert (p_msg->class < ETIZPrcMsgMax);
 
   rc = tiz_prc_msg_to_fnt_tbl[p_msg->class] ((OMX_PTR) ap_obj, p_msg);
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj), "rc [%s]...",
+  TIZ_TRACE (handleOf (ap_obj), "rc [%s]...",
             tiz_err_to_str (rc));
 
   return rc;

@@ -69,7 +69,7 @@ find_default_uri (tiz_demuxercfgport_t *ap_obj)
   assert (NULL != p_uri
           &&
           ".default_uri not found in configuration file...");
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj), "Default URI [%s]...", p_uri);
+  TIZ_TRACE (handleOf (ap_obj), "Default URI [%s]...", p_uri);
   return strndup (p_uri, PATH_MAX);
 }
 

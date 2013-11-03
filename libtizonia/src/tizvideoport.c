@@ -90,7 +90,7 @@ videoport_ctor (void *ap_obj, va_list * app)
     {
       while (OMX_VIDEO_CodingMax != p_encodings[i])
         {
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                     "p_encodings[%u] = [%d]...", i, p_encodings[i]);
           tiz_vector_push_back (p_obj->p_video_encodings_, &p_encodings[i++]);
         }
@@ -103,7 +103,7 @@ videoport_ctor (void *ap_obj, va_list * app)
     {
       while (OMX_COLOR_FormatMax != p_formats[i])
         {
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                     "p_formats[%u] = [%d]...", i, p_formats[i]);
           tiz_vector_push_back (p_obj->p_color_formats_, &p_formats[i]);
           i++;
@@ -330,7 +330,7 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
       const OMX_U32 new_buf_sz = y_sz + u_sz + v_sz;
       OMX_BOOL portdef_changed = OMX_FALSE;
 
-      TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+      TIZ_TRACE (handleOf (ap_obj),
                 "w[%d] h[%d] y[%d] u[%d] v[%d] ->  new_sz[%d] ",
                 new_width, new_height, y_sz, u_sz, v_sz, new_buf_sz);
 
@@ -355,7 +355,7 @@ videoport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           tiz_vector_push_back (ap_changed_idxs, &id);
         }
 
-      TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+      TIZ_TRACE (handleOf (ap_obj),
                 " original pid [%d] this pid [%d] : [%s] -> "
                 "changed [OMX_IndexParamPortDefinition] nBufferSize [%d]...",
                p_portdef->nPortIndex, p_base->portdef_.nPortIndex,

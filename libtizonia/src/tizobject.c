@@ -74,11 +74,11 @@ nameOf (const void *ap_obj)
   return class->name;
 }
 
-const void *
+const OMX_HANDLETYPE
 handleOf (const void *ap_obj)
 {
   const tiz_class_t *class = classOf (ap_obj);
-  return class->hdl;
+  return (OMX_HANDLETYPE) class->hdl;
 }
 
 const void *

@@ -218,7 +218,7 @@ opusport_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+      TIZ_ERROR (handleOf (ap_obj),
                 "port [%d] check_tunnel_compat : "
                 "Audio domain not found, instead found domain [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
@@ -234,7 +234,7 @@ opusport_check_tunnel_compat (const void *ap_obj,
       if (ap_other_def->format.audio.eEncoding
           != (OMX_AUDIO_CODINGTYPE) OMX_AUDIO_CodingOPUS)
         {
-          TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+          TIZ_ERROR (handleOf (ap_obj),
                     "PORT [%d] check_tunnel_compat : "
                     "OPUS encoding not found, instead found encoding [%d]",
                     p_obj->pid_, ap_other_def->format.audio.eEncoding);
@@ -242,7 +242,7 @@ opusport_check_tunnel_compat (const void *ap_obj,
         }
     }
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return true;
@@ -277,7 +277,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_pcmmode->nSamplingRate;
           new_channels = p_pcmmode->nChannels;
 
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                    "OMX_IndexParamAudioPcm : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -289,7 +289,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_mp3type->nSampleRate;
           new_channels = p_mp3type->nChannels;
 
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                    "OMX_IndexParamAudioMp3 : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -301,7 +301,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_aactype->nSampleRate;
           new_channels = p_aactype->nChannels;
 
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                    "OMX_IndexParamAudioAac : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -313,7 +313,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_vortype->nSampleRate;
           new_channels = p_vortype->nChannels;
 
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                    "OMX_IndexParamAudioVorbis : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -325,7 +325,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_wmatype->nSamplingRate;
           new_channels = p_wmatype->nChannels;
 
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                    "OMX_IndexParamAudioWma : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -337,7 +337,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_ratype->nSamplingRate;
           new_channels = p_ratype->nChannels;
 
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                    "OMX_IndexParamAudioRa : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -349,7 +349,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_sbctype->nSampleRate;
           new_channels = p_sbctype->nChannels;
 
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                    "OMX_IndexParamAudioSbc : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -361,7 +361,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
           new_rate = p_adpcmtype->nSampleRate;
           new_channels = p_adpcmtype->nChannels;
 
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+          TIZ_TRACE (handleOf (ap_obj),
                    "OMX_IndexParamAudioAdpcm : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
@@ -381,7 +381,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
         p_obj->opustype_.nChannels = new_channels;
         tiz_vector_push_back (ap_changed_idxs, &id);
 
-        TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+        TIZ_TRACE (handleOf (ap_obj),
                   " original pid [%d] this pid [%d] : [%s] -> "
                   "changed [OMX_IndexParamAudioOpus]...",
                   tiz_port_index (ap_mos_port),

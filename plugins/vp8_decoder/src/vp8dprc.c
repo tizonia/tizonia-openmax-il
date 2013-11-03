@@ -616,7 +616,7 @@ static void
 release_buffers (const void *ap_obj)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
-  void *p_krn = tiz_get_krn (tiz_api_get_hdl (p_obj));
+  void *p_krn = tiz_get_krn (handleOf (p_obj));
 
   assert (NULL != ap_obj);
 
@@ -687,7 +687,7 @@ vp8d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       != (err = vpx_codec_dec_init (&(p_obj->vp8ctx_),
                                     ifaces[0].iface, NULL, flags)))
     {
-      TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+      TIZ_ERROR (handleOf (ap_obj),
                 "[OMX_ErrorInsufficientResources] : "
                 "Unable to init the vp8 decoder [%s]...",
                 vpx_codec_err_to_string (err));
@@ -741,8 +741,8 @@ vp8d_proc_buffers_ready (const void *ap_obj)
 {
   vp8d_prc_t *p_obj = (vp8d_prc_t *) ap_obj;
 
-  return decode_stream (p_obj, tiz_api_get_hdl (ap_obj),
-                        tiz_get_krn (tiz_api_get_hdl (ap_obj)));
+  return decode_stream (p_obj, handleOf (ap_obj),
+                        tiz_get_krn (handleOf (ap_obj)));
 }
 
 static OMX_ERRORTYPE

@@ -471,7 +471,7 @@ vp8port_check_tunnel_compat (const void *ap_obj,
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+      TIZ_ERROR (handleOf (ap_obj),
                 "PORT [%d] : Video domain not found, instead found domain [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
       return false;
@@ -481,14 +481,14 @@ vp8port_check_tunnel_compat (const void *ap_obj,
     {
       if (ap_other_def->format.video.eCompressionFormat != OMX_VIDEO_CodingVP8)
         {
-          TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+          TIZ_ERROR (handleOf (ap_obj),
                     "PORT [%d] : VP8 encoding not found, instead found encoding [%d]",
                     p_obj->pid_, ap_other_def->format.video.eCompressionFormat);
           return false;
         }
     }
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] check_tunnel_compat [OK]", p_obj->pid_);
 
   return true;

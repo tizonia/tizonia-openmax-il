@@ -65,7 +65,7 @@ opusd_prc_ctor (void *ap_obj, va_list * app)
   p_prc->pinhdr_     = NULL;
   p_prc->pouthdr_    = NULL;
   p_prc->eos_        = false;
-  TIZ_TRACE (tiz_api_get_hdl (p_prc),
+  TIZ_TRACE (handleOf (p_prc),
             "Opus library vesion [%]", opus_get_version_string());
   return p_prc;
 }

@@ -407,7 +407,7 @@ state_trans_complete (const void *ap_obj,
 
   p_obj->servants_count_++;
 
-  TIZ_TRACE (tiz_api_get_hdl (ap_obj),
+  TIZ_TRACE (handleOf (ap_obj),
             "Transition to [%s] is NOW complete at [%s]..."
             "Servant count is now [%d]...",
             tiz_fsm_state_to_str (a_new_state), nameOf (ap_servant),
@@ -421,7 +421,7 @@ state_trans_complete (const void *ap_obj,
           /* Reset the OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE flag in all ports where this
            * has been set */
           tiz_krn_reset_tunneled_ports_status (tiz_get_krn
-                                               (tiz_api_get_hdl (ap_obj)),
+                                               (handleOf (ap_obj)),
                                                OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
         }
       tiz_fsm_set_state (p_obj->p_fsm_, a_new_state, EStateMax);

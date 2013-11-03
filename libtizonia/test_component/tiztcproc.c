@@ -109,7 +109,7 @@ static OMX_ERRORTYPE
 tcprc_buffers_ready (const void *ap_obj)
 {
   tiz_pd_set_t ports;
-  void *p_ker = tiz_get_krn (tiz_api_get_hdl (ap_obj));
+  void *p_ker = tiz_get_krn (handleOf (ap_obj));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
   TIZ_PD_ZERO (&ports);

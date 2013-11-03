@@ -249,7 +249,7 @@ dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   assert (NULL != ap_msg_pe);
   pid = ap_msg_pe->param1;
 
-  TIZ_TRACE (tiz_api_get_hdl (p_obj),
+  TIZ_TRACE (handleOf (p_obj),
             "Requested port enable for PORT [%d]", pid);
 
   /* Verify the port index.. */
@@ -703,7 +703,7 @@ depopulate_port (tiz_krn_t *ap_krn, OMX_PTR ap_port,
               pp_hdr = tiz_vector_at (p_hdr_lst_copy, i);
               assert (NULL != pp_hdr && NULL != *pp_hdr);
 
-              TIZ_TRACE (tiz_api_get_hdl (ap_krn),
+              TIZ_TRACE (handleOf (ap_krn),
                         "port [%d] depopulated - "
                         "removing leftovers - nhdrs [%d] "
                         "HEADER [%p]...", a_pid, nhdrs, *pp_hdr);
@@ -717,7 +717,7 @@ depopulate_port (tiz_krn_t *ap_krn, OMX_PTR ap_port,
                * processor servant implementation of
                * 'remove_from_queue' will replace them with the right
                * values */
-              tiz_srv_remove_from_queue (tiz_get_prc (tiz_api_get_hdl (ap_krn)),
+              tiz_srv_remove_from_queue (tiz_get_prc (handleOf (ap_krn)),
                                          NULL, 0, *pp_hdr);
             }
         }
@@ -754,7 +754,7 @@ dispatch_efb_port_disable_in_progress (tiz_krn_t *ap_krn, OMX_PTR ap_port,
       /* Bounce this buffer back */
       if (move_to_egress (ap_krn, a_pid) < 0)
         {
-          TIZ_ERROR (tiz_api_get_hdl (ap_krn),
+          TIZ_ERROR (handleOf (ap_krn),
                     "[OMX_ErrorInsufficientResources] : "
                     "on port [%d]...", a_pid);
           rc = OMX_ErrorInsufficientResources;
@@ -908,7 +908,7 @@ dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_sc);
   assert (p_msg_sc->cmd <= OMX_CommandMarkBuffer);
 
-  TIZ_TRACE (tiz_api_get_hdl (p_obj), "Processing [%s]...",
+  TIZ_TRACE (handleOf (p_obj), "Processing [%s]...",
             tiz_cmd_to_str (p_msg_sc->cmd));
 
   return tiz_krn_msg_dispatch_sc_to_fnt_tbl[p_msg_sc->cmd] (p_obj,

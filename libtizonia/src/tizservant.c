@@ -144,7 +144,7 @@ servant_tick (const void *ap_obj)
       if (OMX_ErrorNone !=
           (ret_val = tiz_pqueue_receive (p_obj->p_pq_, &p_msg)))
         {
-          TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+          TIZ_ERROR (handleOf (ap_obj),
                     "tiz_pqueue_receive error [%s]...",
                     tiz_err_to_str (ret_val));
           break;
@@ -159,7 +159,7 @@ servant_tick (const void *ap_obj)
 
       if (OMX_ErrorNone != ret_val)
         {
-          TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+          TIZ_ERROR (handleOf (ap_obj),
                     "tiz_srv_dispatch_msg error [%s]...",
                     tiz_err_to_str (ret_val));
           break;
@@ -443,7 +443,7 @@ servant_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
   assert (NULL != p_obj->p_cbacks_->EventHandler);
   /* NOTE: Start ignoring splint warnings in this section of code */
   /*@ignore@*/
-  (void) p_obj->p_cbacks_->EventHandler (tiz_api_get_hdl (ap_obj),
+  (void) p_obj->p_cbacks_->EventHandler (handleOf (ap_obj),
                                          p_obj->p_appdata_,
                                          a_event, a_data1, a_data2, ap_eventdata);
   /*@end@*/
@@ -464,7 +464,7 @@ servant_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error)
 {
   tiz_srv_t *p_obj = (tiz_srv_t *) ap_obj;
   assert (NULL != p_obj);
-  TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+  TIZ_ERROR (handleOf (ap_obj),
             "OMX_EventError...[%s]", tiz_err_to_str (a_error));
   servant_issue_event (ap_obj, OMX_EventError, a_error, 0, 0);
 }
@@ -483,7 +483,7 @@ servant_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
 {
   tiz_srv_t *p_obj = (tiz_srv_t *) ap_obj;
   assert (NULL != p_obj);
-  TIZ_NOTICE (tiz_api_get_hdl (ap_obj),
+  TIZ_NOTICE (handleOf (ap_obj),
             "OMX_EventCmdComplete...[%s] pid [%d] error [%s]",
             tiz_cmd_to_str (a_cmd), a_pid, tiz_err_to_str (a_error));
   servant_issue_event (ap_obj, OMX_EventCmdComplete, a_cmd, a_pid,
@@ -505,7 +505,7 @@ servant_issue_trans_event (void *ap_obj, OMX_STATETYPE a_state,
 {
   tiz_srv_t *p_obj = (tiz_srv_t *) ap_obj;
   assert (NULL != p_obj);
-  TIZ_NOTICE (tiz_api_get_hdl (ap_obj),
+  TIZ_NOTICE (handleOf (ap_obj),
             "OMX_EventCmdComplete...[OMX_CommandStateSet] [%s]",
             tiz_fsm_state_to_str (a_state));
   servant_issue_event (ap_obj, OMX_EventCmdComplete, OMX_CommandStateSet,
@@ -531,19 +531,19 @@ servant_issue_buf_callback (const void *ap_obj,
   assert (NULL != p_obj);
   assert (NULL != p_obj->p_cbacks_);
   assert (NULL != p_obj->p_cbacks_->EventHandler);
-  TIZ_DEBUG (tiz_api_get_hdl (ap_obj),
+  TIZ_DEBUG (handleOf (ap_obj),
             "HEADER [%p] BUFFER [%p] ap_tcomp [%p]",
             p_hdr, p_hdr->pBuffer, ap_tcomp);
   if (ap_tcomp)
     {
       if (OMX_DirInput == dir)
         {
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj), "OMX_FillThisBuffer");
+          TIZ_TRACE (handleOf (ap_obj), "OMX_FillThisBuffer");
           (void) OMX_FillThisBuffer (ap_tcomp, p_hdr);
         }
       else
         {
-          TIZ_TRACE (tiz_api_get_hdl (ap_obj), "OMX_EmptyThisBuffer");
+          TIZ_TRACE (handleOf (ap_obj), "OMX_EmptyThisBuffer");
           (void) OMX_EmptyThisBuffer (ap_tcomp, p_hdr);
         }
     }
@@ -555,7 +555,7 @@ servant_issue_buf_callback (const void *ap_obj,
         (dir == OMX_DirInput ?
          p_obj->p_cbacks_->EmptyBufferDone : p_obj->p_cbacks_->FillBufferDone);
 
-      (void) fp_buf_done (tiz_api_get_hdl (ap_obj), p_obj->p_appdata_, p_hdr);
+      (void) fp_buf_done (handleOf (ap_obj), p_obj->p_appdata_, p_hdr);
     }
 
 }

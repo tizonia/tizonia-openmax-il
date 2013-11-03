@@ -96,7 +96,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
           (tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat));
 
         p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizaudioport"),
-                                      tiz_api_get_hdl (ap_obj),
+                                      handleOf (ap_obj),
                                       p_opts, &encodings);
         if (NULL == p_obj->p_port_)
           {
@@ -135,7 +135,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
           (tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat));
 
         p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizvideoport"),
-                                      tiz_api_get_hdl (ap_obj),
+                                      handleOf (ap_obj),
                                       p_opts, &portdef,
                                       &encodings, &formats);
         if (NULL == p_obj->p_port_)
@@ -173,7 +173,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
           (tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat));
 
         p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizimageport"),
-                                      tiz_api_get_hdl (ap_obj),
+                                      handleOf (ap_obj),
                                       p_opts, &portdef,
                                       &encodings, &formats);
         if (NULL == p_obj->p_port_)
@@ -194,7 +194,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
           (tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat));
 
         p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizotherport"),
-                                      tiz_api_get_hdl (ap_obj),
+                                      handleOf (ap_obj),
                                       p_opts, &formats);
         if (NULL == p_obj->p_port_)
           {
@@ -323,7 +323,7 @@ static bool
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
-      TIZ_ERROR (tiz_api_get_hdl (ap_obj),
+      TIZ_ERROR (handleOf (ap_obj),
                 "port [%d] check_tunnel_compat : Different domain found [%d]",
                 p_obj->pid_, ap_other_def->eDomain);
       return false;

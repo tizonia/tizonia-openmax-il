@@ -134,7 +134,7 @@ static OMX_ERRORTYPE
 idletoexecuting_trans_complete (const void *ap_obj,
                                 OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_TRACE (tiz_api_get_hdl (ap_servant),
+  TIZ_TRACE (handleOf (ap_servant),
             "Trans complete to state [%s]...",
             tiz_fsm_state_to_str (a_new_state));
 
@@ -157,7 +157,7 @@ idletoexecuting_tunneled_ports_status_update (void *ap_obj)
   assert (NULL != ap_obj);
 
   {
-    OMX_HANDLETYPE p_hdl = tiz_api_get_hdl (p_base->p_fsm_);
+    OMX_HANDLETYPE p_hdl = handleOf (p_base->p_fsm_);
 
     if (TIZ_KRN_MAY_EXCHANGE_BUFFERS (tiz_get_krn (p_hdl)))
       {
