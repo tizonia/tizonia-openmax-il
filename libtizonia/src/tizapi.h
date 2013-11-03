@@ -150,9 +150,6 @@ extern "C"
                              OMX_HANDLETYPE ap_hdl,
                              OMX_U8 * a_role, OMX_U32 a_index);
 
-  OMX_HANDLETYPE
-  tiz_api_get_hdl (const void *ap_obj);
-
 #ifdef __cplusplus
 }
 #endif
