@@ -234,11 +234,6 @@ _ctx_destroy (cc_ctx_t * app_ctx)
   tiz_vector_clear (p_ctx->p_vid_hdrs);
   tiz_vector_destroy (p_ctx->p_vid_hdrs);
 
-  tiz_vector_clear (p_ctx->p_aud_hdrs);
-  tiz_vector_destroy (p_ctx->p_aud_hdrs);
-  tiz_vector_clear (p_ctx->p_vid_hdrs);
-  tiz_vector_destroy (p_ctx->p_vid_hdrs);
-
   tiz_cond_destroy (&p_ctx->cond);
   tiz_mutex_unlock (&p_ctx->mutex);
   tiz_mutex_destroy (&p_ctx->mutex);
@@ -576,6 +571,11 @@ write_data_to_file(cc_ctx_t * app_ctx, tiz_vector_t *ap_hdrs,
   assert (NULL != ap_bytes_written);
   p_ctx = * app_ctx;
 
+  if (*ap_eof)
+    {
+      return OMX_ErrorNone;
+    }
+
   if (tiz_mutex_lock (&p_ctx->mutex))
     {
       return OMX_ErrorBadParameter;
@@ -622,6 +622,61 @@ write_data_to_file(cc_ctx_t * app_ctx, tiz_vector_t *ap_hdrs,
   return OMX_ErrorNone;
 }
 
+static bool
+ready_to_stop(cc_ctx_t * app_ctx,
+              const OMX_U32 aud_actual, const OMX_U32 vid_actual)
+{
+  check_common_context_t *p_ctx = NULL;
+  bool ready_to_go = false;;
+  OMX_U32 aud_count = 0;
+  OMX_U32 vid_count = 0;
+
+  assert (NULL != app_ctx);
+  p_ctx = * app_ctx;
+
+  if (tiz_mutex_lock (&p_ctx->mutex))
+    {
+      return OMX_ErrorBadParameter;
+    }
+
+  aud_count = tiz_vector_length (p_ctx->p_aud_hdrs);
+  vid_count = tiz_vector_length (p_ctx->p_vid_hdrs);
+
+  tiz_mutex_unlock (&p_ctx->mutex);
+
+  if ((aud_actual + vid_actual) == (aud_count + vid_count))
+    {
+      ready_to_go = true;
+    }
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "ready_to_go [%s]",
+           ready_to_go ? "YES" : "NO");
+  return ready_to_go;
+}
+
+static bool
+compare_files(const char *ap_file1, const char *ap_file2)
+{
+  char *cmp_cmd = NULL;
+  bool  rc      = false;
+
+  assert (NULL != ap_file1);
+  assert (NULL != ap_file2);
+
+  cmp_cmd = tiz_mem_calloc (1, strlen ("cmp") +
+                            strlen (ap_file1) +
+                            strlen (ap_file2) + 3);
+
+  sprintf (cmp_cmd, "%s %s %s", "cmp", ap_file1, ap_file2);
+  rc = (system (cmp_cmd) == 0);
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "File comparison %s : [%s]", cmp_cmd,
+           rc ? "OK" : "NOT OK");
+  tiz_mem_free (cmp_cmd);
+
+  return rc;
+}
+
 /*
  * Unit tests
  */
@@ -647,7 +702,6 @@ START_TEST (test_ogg_demuxer)
   FILE *p_vid_file = NULL;
   int aud_bytes_written = 0;
   int vid_bytes_written = 0;
-  char *cmp_cmd = NULL;
 
   fail_if (!init_test_data());
 
@@ -892,12 +946,8 @@ START_TEST (test_ogg_demuxer)
       /* Write video data to file */
       write_data_to_file (&ctx, p_ctx->p_vid_hdrs, p_vid_file,
                           &vid_eof, &vid_bytes_written, 4);
-
       if (aud_eof && vid_eof)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "End of file reached for [%s] file",
-                   pg_files[0]);
-          /* EOF of video stream */
           break;
         }
     }
@@ -912,6 +962,22 @@ START_TEST (test_ogg_demuxer)
   state = OMX_StateIdle;
   error = OMX_SendCommand (p_hdl, cmd, state, NULL);
   fail_if (OMX_ErrorNone != error);
+
+  /* Wait until all buffers are returned */
+  while (true)
+    {
+      error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+      fail_if (OMX_ErrorNone != error);
+      if (ready_to_stop (&ctx,
+                         aud_port_def.nBufferCountActual,
+                         vid_port_def.nBufferCountActual))
+        {
+          break;
+        }
+      error = _ctx_reset (&ctx);
+      fail_if (OMX_ErrorNone != error);
+    }
+
 
   /* ------------------------- */
   /* Await transition callback */
@@ -972,18 +1038,12 @@ START_TEST (test_ogg_demuxer)
   error = OMX_FreeHandle (p_hdl);
   fail_if (OMX_ErrorNone != error);
 
-  cmp_cmd = tiz_mem_calloc (1, strlen ("cmp") +
-                            strlen (pg_files[1]) +
-                            strlen (pg_files[2]) + 3);
-
-  sprintf (cmp_cmd, "%s %s %s", "cmp", pg_files[1], pg_files[2]);
-  fail_if (system (cmp_cmd) != 0);
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "File comparison OK: [%s]", cmp_cmd);
+  fail_if (!compare_files (pg_files[1], pg_files[2]));
+  fail_if (!compare_files (pg_files[3], pg_files[4]));
 
   tiz_mem_free (p_aud_hdrlst);
+  tiz_mem_free (p_vid_hdrlst);
   tiz_mem_free (p_uri_param);
-  tiz_mem_free (cmp_cmd);
 
   error = OMX_Deinit ();
   fail_if (OMX_ErrorNone != error);
@@ -1026,3 +1086,10 @@ main (void)
 
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */
