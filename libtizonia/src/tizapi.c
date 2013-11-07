@@ -50,50 +50,13 @@
 static void *
 api_ctor (void *ap_obj, va_list * app)
 {
-  tiz_api_t *p_obj = super_ctor (typeOf (ap_obj, "tizapi"), ap_obj, app);
-  assert (NULL != ap_obj);
-  p_obj->p_hdl_    = va_arg (*app, OMX_HANDLETYPE);
-  assert (NULL != p_obj->p_hdl_);
-  return p_obj;
+  return super_ctor (typeOf (ap_obj, "tizapi"), ap_obj, app);
 }
 
 static void *
 api_dtor (void *ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "tizapi"), ap_obj);
-}
-
-static OMX_HANDLETYPE
-api_get_hdl (const void *ap_obj)
-{
-  tiz_api_t *p_obj = (tiz_api_t *) ap_obj;
-  assert (NULL != ap_obj);
-  return p_obj->p_hdl_;
-}
-
-OMX_HANDLETYPE
-tiz_api_get_hdl (const void *ap_obj)
-{
-  const tiz_api_class_t *class = classOf (ap_obj);
-  assert (NULL != class->get_hdl);
-  return class->get_hdl (ap_obj);
-}
-
-static void
-api_set_hdl (const void *ap_obj, const OMX_HANDLETYPE ap_hdl)
-{
-  tiz_api_t *p_obj = (tiz_api_t *) ap_obj;
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
-  p_obj->p_hdl_ = ap_hdl;
-}
-
-void
-tiz_api_set_hdl (const void *ap_obj, const OMX_HANDLETYPE ap_hdl)
-{
-  const tiz_api_class_t *class = classOf (ap_obj);
-  assert (NULL != class->set_hdl);
-  class->set_hdl (ap_obj, ap_hdl);
 }
 
 static OMX_ERRORTYPE
@@ -691,15 +654,7 @@ api_class_ctor (void *ap_obj, va_list * app)
   while ((selector = va_arg (ap, voidf)))
     {
       voidf method = va_arg (ap, voidf);
-      if (selector == (voidf) tiz_api_get_hdl)
-        {
-          *(voidf *) & p_obj->get_hdl = method;
-        }
-      else if (selector == (voidf) tiz_api_set_hdl)
-        {
-          *(voidf *) & p_obj->set_hdl = method;
-        }
-      else if (selector == (voidf) tiz_api_GetComponentVersion)
+      if (selector == (voidf) tiz_api_GetComponentVersion)
         {
           *(voidf *) & p_obj->GetComponentVersion = method;
         }
@@ -812,8 +767,6 @@ tiz_api_init (void * ap_tos, void * ap_hdl)
      ap_tos, ap_hdl,
      ctor, api_ctor,
      dtor, api_dtor,
-     tiz_api_get_hdl, api_get_hdl,
-     tiz_api_set_hdl, api_set_hdl,
      tiz_api_GetComponentVersion, api_GetComponentVersion,
      tiz_api_SendCommand, api_SendCommand,
      tiz_api_GetParameter, api_GetParameter,

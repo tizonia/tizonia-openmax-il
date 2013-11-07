@@ -2171,7 +2171,7 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
   tiz_check_omx_err_ret_oom (tiz_os_register_base_types (ap_sched->p_objsys));
   
   /* Init the FSM */
-  ap_sched->child.p_fsm = factory_new (tiz_get_type (p_hdl, "tizfsm"), p_hdl);
+  ap_sched->child.p_fsm = factory_new (tiz_get_type (p_hdl, "tizfsm"));
   if (NULL == ap_sched->child.p_fsm)
     {
       TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] : "
@@ -2180,7 +2180,7 @@ init_servants (tiz_scheduler_t * ap_sched, tiz_sched_msg_t * ap_msg)
     }
 
   /* Init the kernel */
-  ap_sched->child.p_ker = factory_new (tiz_get_type (p_hdl, "tizkrn"), p_hdl);
+  ap_sched->child.p_ker = factory_new (tiz_get_type (p_hdl, "tizkrn"));
   if (NULL == ap_sched->child.p_ker)
     {
       TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] : "

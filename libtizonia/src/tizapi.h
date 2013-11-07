@@ -42,12 +42,6 @@ extern "C"
   void * tiz_api_class_init (void * ap_tos, void * ap_hdl);
   void * tiz_api_init (void * ap_tos, void * ap_hdl);
 
-  OMX_HANDLETYPE
-  tiz_api_get_hdl (const void *ap_obj);
-
-  void
-  tiz_api_set_hdl (const void *ap_obj, const OMX_HANDLETYPE ap_hdl);
-
   OMX_ERRORTYPE
   tiz_api_GetComponentVersion (const void *ap_obj,
                                OMX_HANDLETYPE ap_hdl,

@@ -508,25 +508,25 @@ fsm_ctor (void *ap_obj, va_list * app)
 
   /* Add the standard states... */
   p_obj->p_states_[EStateLoaded]
-    = factory_new (typeOf (ap_obj, "tizloaded"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizloaded"), p_obj);
   p_obj->p_states_[EStateIdle]
-    = factory_new (typeOf (ap_obj, "tizidle"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizidle"), p_obj);
   p_obj->p_states_[EStateExecuting]
-    = factory_new (typeOf (ap_obj, "tizexecuting"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizexecuting"), p_obj);
   p_obj->p_states_[EStatePause]
-    = factory_new (typeOf (ap_obj, "tizpause"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizpause"), p_obj);
   p_obj->p_states_[EStateWaitForResources]
-    = factory_new (typeOf (ap_obj, "tizwaitforresources"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizwaitforresources"), p_obj);
   p_obj->p_states_[ESubStateLoadedToIdle]
-    = factory_new (typeOf (ap_obj, "tizloadedtoidle"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizloadedtoidle"), p_obj);
   p_obj->p_states_[ESubStateIdleToLoaded]
-    = factory_new (typeOf (ap_obj, "tizidletoloaded"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizidletoloaded"), p_obj);
   p_obj->p_states_[ESubStateIdleToExecuting]
-    = factory_new (typeOf (ap_obj, "tizidletoexecuting"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizidletoexecuting"), p_obj);
   p_obj->p_states_[ESubStateExecutingToIdle]
-    = factory_new (typeOf (ap_obj, "tizexecutingtoidle"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizexecutingtoidle"), p_obj);
   p_obj->p_states_[ESubStatePauseToIdle]
-    = factory_new (typeOf (ap_obj, "tizpausetoidle"), handleOf (ap_obj), p_obj);
+    = factory_new (typeOf (ap_obj, "tizpausetoidle"), p_obj);
 
   /* TODO : Check p_states_ pointers  */
 

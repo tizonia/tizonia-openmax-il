@@ -100,7 +100,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizivrport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizivrport"),
                       &rawvideo_port_opts, &portdef,
                       &encodings, &formats);
 }
@@ -108,7 +108,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
                       NULL,   /* this port does not take options */
                       ARATELIA_YUV_RENDERER_COMPONENT_NAME,
                       yuv_renderer_version);
@@ -117,7 +117,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "sdlivrprc"), ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "sdlivrprc"));
 }
 
 OMX_ERRORTYPE

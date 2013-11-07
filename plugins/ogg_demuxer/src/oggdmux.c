@@ -107,7 +107,7 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
   mute.nPortIndex        = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
   mute.bMute             = OMX_FALSE;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizdemuxerport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizdemuxerport"),
                       &port_opts, &encodings,
                       &pcmmode, &volume, &mute);
 }
@@ -156,7 +156,7 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizdemuxerport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizdemuxerport"),
                       &port_opts, &portdef,
                       &encodings, &formats);
 }
@@ -164,7 +164,7 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizdemuxercfgport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizdemuxercfgport"),
                       NULL,   /* this port does not take options */
                       ARATELIA_OGG_DEMUXER_COMPONENT_NAME,
                       ogg_demuxer_version);
@@ -173,7 +173,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "oggdmuxprc"), ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "oggdmuxprc"));
 }
 
 OMX_ERRORTYPE

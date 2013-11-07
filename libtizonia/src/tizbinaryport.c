@@ -64,7 +64,6 @@ binaryport_ctor (void *ap_obj, va_list * app)
   /* Make a copy of the incoming va_list before it gets parsed by the parent
      class:
      The expected arguments are:
-     ap_hdl,
      port_opts
 
      */
@@ -75,9 +74,6 @@ binaryport_ctor (void *ap_obj, va_list * app)
     {
       return NULL;
     }
-
-  /* Pop the component handle */
-  (void) va_arg (app_copy, OMX_HANDLETYPE);
 
   /* Now, grab the port options structure */
   p_opts = va_arg (app_copy, tiz_port_options_t *);
@@ -96,7 +92,6 @@ binaryport_ctor (void *ap_obj, va_list * app)
           (tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat));
 
         p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizaudioport"),
-                                      handleOf (ap_obj),
                                       p_opts, &encodings);
         if (NULL == p_obj->p_port_)
           {
@@ -135,7 +130,6 @@ binaryport_ctor (void *ap_obj, va_list * app)
           (tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat));
 
         p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizvideoport"),
-                                      handleOf (ap_obj),
                                       p_opts, &portdef,
                                       &encodings, &formats);
         if (NULL == p_obj->p_port_)
@@ -173,7 +167,6 @@ binaryport_ctor (void *ap_obj, va_list * app)
           (tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat));
 
         p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizimageport"),
-                                      handleOf (ap_obj),
                                       p_opts, &portdef,
                                       &encodings, &formats);
         if (NULL == p_obj->p_port_)
@@ -194,7 +187,6 @@ binaryport_ctor (void *ap_obj, va_list * app)
           (tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat));
 
         p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizotherport"),
-                                      handleOf (ap_obj),
                                       p_opts, &formats);
         if (NULL == p_obj->p_port_)
           {

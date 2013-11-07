@@ -635,8 +635,7 @@ remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
 static void *
 prc_ctor (void *ap_obj, va_list * app)
 {
-  tiz_prc_t *p_obj = super_ctor (typeOf (ap_obj, "tizprc"), ap_obj, app);
-  return p_obj;
+  return super_ctor (typeOf (ap_obj, "tizprc"), ap_obj, app);
 }
 
 static void *

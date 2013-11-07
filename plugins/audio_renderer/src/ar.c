@@ -113,7 +113,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   mute.nPortIndex        = ARATELIA_AUDIO_RENDERER_PORT_INDEX;
   mute.bMute             = OMX_FALSE;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), ap_hdl, &port_opts,
+  return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), &port_opts,
                       &encodings, &pcmmode, &volume, &mute);
 }
 
@@ -121,7 +121,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   /* Instantiate the config port */
-  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
                       NULL,   /* this port does not take options */
                       ARATELIA_AUDIO_RENDERER_COMPONENT_NAME,
                       audio_renderer_version);
@@ -130,7 +130,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "arprc"), ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "arprc"));
 }
 
 OMX_ERRORTYPE

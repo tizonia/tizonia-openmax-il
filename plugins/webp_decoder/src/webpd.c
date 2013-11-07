@@ -102,7 +102,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatUnused;
   portdef.pNativeWindow         = NULL;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizimageport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizimageport"),
                       &image_port_opts, &portdef,
                       &encodings, &formats);
 }
@@ -146,7 +146,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  return  factory_new (tiz_get_type (ap_hdl, "tizvideoport"), ap_hdl,
+  return  factory_new (tiz_get_type (ap_hdl, "tizvideoport"),
                        &video_port_opts, &portdef,
                        &encodings, &formats);
 }
@@ -154,7 +154,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
                       NULL,   /* this port does not take options */
                       ARATELIA_WEBP_DECODER_COMPONENT_NAME,
                       webp_decoder_version);
@@ -163,7 +163,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "webpdprc"), ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "webpdprc"));
 }
 
 OMX_ERRORTYPE

@@ -98,14 +98,14 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Inititializing the test component's pcm port");
 
   /* Instantiate a pcm port */
-  return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), ap_hdl, &port_opts,
+  return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), &port_opts,
                       NULL, NULL, NULL, NULL);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
                       NULL,   /* this port does not take options */
                       TC_COMPONENT_NAME, tc_comp_version);
 }
@@ -113,7 +113,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tiztcprc"), ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "tiztcprc"));
 }
 
 OMX_ERRORTYPE

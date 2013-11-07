@@ -123,7 +123,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   vp8type.nDCTPartitions      = 0; /* 1 DCP partitiion */
   vp8type.bErrorResilientMode = OMX_FALSE;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizvp8port"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizvp8port"),
                       &vp8_port_opts, &portdef,
                       &encodings, &formats, &vp8type, &levels,
                       NULL  /* OMX_VIDEO_PARAM_BITRATETYPE */);
@@ -167,7 +167,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   portdef.eColorFormat          = OMX_COLOR_FormatYUV420Planar;
   portdef.pNativeWindow         = NULL;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizvideoport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizvideoport"),
                       &rawvideo_port_opts, &portdef,
                       &encodings, &formats);
 }
@@ -175,7 +175,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
                       NULL,   /* this port does not take options */
                       ARATELIA_VP8_DECODER_COMPONENT_NAME,
                       vp8_decoder_version);
@@ -184,7 +184,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "vp8dprc"), ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "vp8dprc"));
 }
 
 OMX_ERRORTYPE

@@ -44,7 +44,6 @@ extern "C"
   {
     /* Object */
     const tiz_object_t _;
-    OMX_HANDLETYPE p_hdl_;
   };
 
   typedef struct tiz_api_class tiz_api_class_t;
@@ -52,10 +51,6 @@ extern "C"
   {
     /* Class */
     const tiz_class_t _;
-    OMX_HANDLETYPE (*get_hdl) (const void *ap_obj);
-
-    void (*set_hdl) (const void *ap_obj, const OMX_HANDLETYPE ap_hdl);
-
     OMX_ERRORTYPE (*GetComponentVersion) (const void *ap_obj,
                                           OMX_HANDLETYPE ap_hdl,
                                           OMX_STRING ap_comp_name,

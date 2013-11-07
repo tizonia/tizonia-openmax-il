@@ -92,13 +92,13 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
   mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
   return factory_new (tiz_get_type (ap_hdl, "icermp3port"),
-                      ap_hdl, &mp3_port_opts, &encodings, &mp3type);
+                      &mp3_port_opts, &encodings, &mp3type);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "icercfgport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "icercfgport"),
                       NULL,     /* this port does not take options */
                       ARATELIA_HTTP_RENDERER_COMPONENT_NAME,
                       http_renderer_version);
@@ -107,7 +107,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "icerprc"), ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "icerprc"));
 }
 
 OMX_ERRORTYPE

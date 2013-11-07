@@ -76,13 +76,13 @@ instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* slave port's index, use -1 for now */
   };
 
-  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl, &port_opts);
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), &port_opts);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
                       NULL,       /* this port does not take options */
                       ARATELIA_FILE_READER_COMPONENT_NAME,
                       file_reader_version);
@@ -91,7 +91,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "frprc"), ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "frprc"));
 }
 
 OMX_ERRORTYPE

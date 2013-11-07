@@ -60,7 +60,6 @@ demuxerport_ctor (void *ap_obj, va_list * app)
   /* Make a copy of the incoming va_list before it gets parsed by the parent
      class:
      The expected arguments are:
-     ap_hdl,
      port_opts
 
      */
@@ -74,9 +73,6 @@ demuxerport_ctor (void *ap_obj, va_list * app)
         (tiz_port_register_index (p_obj, OMX_IndexParamNumAvailableStreams));
       tiz_check_omx_err_ret_null
         (tiz_port_register_index (p_obj, OMX_IndexParamActiveStream));
-
-      /* Do not forget to pop the component handle (its needed in a base class) */
-      (void) va_arg (app_copy, OMX_HANDLETYPE);
 
       /* Grab the port options structure (mandatory argument) */
       p_opts      = va_arg (app_copy, tiz_port_options_t *);
@@ -128,7 +124,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
             assert (NULL != p_mute);
 
             p_obj->p_port_
-              = factory_new (typeOf (ap_obj, "tizpcmport"), handleOf (ap_obj),
+              = factory_new (typeOf (ap_obj, "tizpcmport"),
                              p_opts, &encodings, p_pcmmode, p_volume, p_mute);
             if (NULL == p_obj->p_port_)
               {
@@ -161,7 +157,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
             assert (NULL != p_formats);
 
             if (NULL == (p_obj->p_port_
-                         = factory_new (typeOf (ap_obj, "tizvideoport"), handleOf (ap_obj),
+                         = factory_new (typeOf (ap_obj, "tizvideoport"),
                                         p_opts, p_portdef, p_encodings, p_formats)))
               {
                 return NULL;

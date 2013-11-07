@@ -79,7 +79,7 @@ instantiate_audio_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"),
                       &port_opts);
 }
 
@@ -98,7 +98,7 @@ instantiate_video_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"),
                       &port_opts);
 }
 
@@ -117,7 +117,7 @@ instantiate_image_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"),
                       &port_opts);
 }
 
@@ -136,7 +136,7 @@ instantiate_other_port (OMX_HANDLETYPE ap_hdl)
     -1                          /* use -1 for now */
   };
 
-  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "tizbinaryport"),
                       &port_opts);
 }
 
@@ -144,7 +144,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   /* Instantiate the config port */
-  return factory_new (tiz_get_type (ap_hdl, "frcfgport"), ap_hdl,
+  return factory_new (tiz_get_type (ap_hdl, "frcfgport"),
                       NULL,       /* this port does not take options */
                       ARATELIA_FILE_READER_COMPONENT_NAME,
                       file_reader_version);
@@ -153,7 +153,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "frprc"), ap_hdl);
+  return factory_new (tiz_get_type (ap_hdl, "frprc"));
 }
 
 OMX_ERRORTYPE
