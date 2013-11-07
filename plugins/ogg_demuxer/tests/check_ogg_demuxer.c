@@ -659,7 +659,6 @@ compare_files(const char *ap_file1, const char *ap_file2)
 {
   char *cmp_cmd = NULL;
   bool  rc      = false;
-
   assert (NULL != ap_file1);
   assert (NULL != ap_file2);
 
@@ -702,6 +701,7 @@ START_TEST (test_ogg_demuxer)
   FILE *p_vid_file = NULL;
   int aud_bytes_written = 0;
   int vid_bytes_written = 0;
+  int idle_trasition_wait_count = 0;
 
   fail_if (!init_test_data());
 
@@ -978,15 +978,25 @@ START_TEST (test_ogg_demuxer)
       fail_if (OMX_ErrorNone != error);
     }
 
-
   /* ------------------------- */
   /* Await transition callback */
   /* ------------------------- */
-  error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  fail_if (OMX_ErrorNone != error);
-  fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_ctx->state [%s]",
-             tiz_state_to_str (p_ctx->state));
+  /* Lets poll for the event, to workaround the race condition that apperas
+     with the context wait mechanism */
+  idle_trasition_wait_count = 3;
+  while (idle_trasition_wait_count--)
+    {
+      error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
+      fail_if (OMX_ErrorNone != error);
+      fail_if (OMX_TRUE == timedout);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_ctx->state [%s]",
+               tiz_state_to_str (p_ctx->state));
+      error = _ctx_reset (&ctx);
+      if (OMX_StateIdle == p_ctx->state)
+        {
+          break;
+        }
+    }
   fail_if (OMX_StateIdle != p_ctx->state);
 
   /* ----------------------------- */
@@ -1038,8 +1048,8 @@ START_TEST (test_ogg_demuxer)
   error = OMX_FreeHandle (p_hdl);
   fail_if (OMX_ErrorNone != error);
 
-  fail_if (!compare_files (pg_files[1], pg_files[2]));
-  fail_if (!compare_files (pg_files[3], pg_files[4]));
+  fail_if (!compare_files (pg_files[1], pg_files[2]) || "Audio");
+  fail_if (!compare_files (pg_files[3], pg_files[4]) || "Video");
 
   tiz_mem_free (p_aud_hdrlst);
   tiz_mem_free (p_vid_hdrlst);
