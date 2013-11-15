@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include "opusd.h"
 #include "opusdprc.h"
 #include "tizport.h"
 #include "tizopusport.h"
@@ -50,18 +51,6 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.opus_decoder"
 #endif
-
-#define ARATELIA_OPUS_DECODER_DEFAULT_ROLE   OMX_ROLE_AUDIO_DECODER_OPUS
-#define ARATELIA_OPUS_DECODER_COMPONENT_NAME "OMX.Aratelia.audio_decoder.opus"
-/* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX         0
-#define ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX        1
-#define ARATELIA_OPUS_DECODER_PORT_MIN_BUF_COUNT       2
-#define ARATELIA_OPUS_DECODER_PORT_MIN_INPUT_BUF_SIZE  8192
-#define ARATELIA_OPUS_DECODER_PORT_MIN_OUTPUT_BUF_SIZE 8192
-#define ARATELIA_OPUS_DECODER_PORT_NONCONTIGUOUS       OMX_FALSE
-#define ARATELIA_OPUS_DECODER_PORT_ALIGNMENT           0
-#define ARATELIA_OPUS_DECODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE opus_decoder_version = { {1, 0, 0, 0} };
 

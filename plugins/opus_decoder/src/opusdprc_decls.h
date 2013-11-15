@@ -48,9 +48,12 @@ extern "C"
     /* Object */
     const tiz_prc_t _;
     OpusDecoder *p_opus_dec_;
-    OMX_BUFFERHEADERTYPE *pinhdr_;
-    OMX_BUFFERHEADERTYPE *pouthdr_;
+    OMX_BUFFERHEADERTYPE *p_in_hdr_;
+    OMX_BUFFERHEADERTYPE *p_out_hdr_;
     bool eos_;
+    bool in_port_disabled_;
+    bool out_port_disabled_;
+    bool awaiting_buffers_;
   };
 
   typedef struct opusd_prc_class opusd_prc_class_t;

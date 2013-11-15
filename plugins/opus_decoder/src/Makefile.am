@@ -18,6 +18,7 @@
 lib_LTLIBRARIES = libtizopusd.la
 
 noinst_HEADERS = \
+	opusd.h \
 	opusdprc.h \
 	opusdprc_decls.h
 
