@@ -36,13 +36,13 @@
 <!--         <category name="tiz.tizonia.servant" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.fsm" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.krn" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.tizonia.objsys" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.object" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.objsys" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.api" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.arprc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.port" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.tizonia.confiport" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.configport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.audioport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.pcmport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.mp3port" priority="trace" appender="tizlogfile" /> -->
@@ -72,6 +72,9 @@
 <!--         <category name="tiz.vp8_decoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.vp8_decoder.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.vp8_decoder.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.webp_decoder" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.webp_decoder.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.webp_decoder.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.http_renderer" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.http_renderer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.http_renderer.prc.net" priority="trace" appender="tizlogfile" /> -->
@@ -97,7 +100,7 @@
 	<appender name="stderr" type="stream" layout="dated"/>
 	<appender name="syslog" type="syslog" layout="dated"/>
 
-	<rollingpolicy name="tizrolling" type="sizewin" maxsize="20971520" maxnum="3" />
+	<rollingpolicy name="tizrolling" type="sizewin" maxsize="100000000" maxnum="1" />
 	<appender name="tizlogfile" type="rollingfile" logdir="@localstatedir@/log/tizonia" prefix="tizonia.log" layout="tiz" rollingpolicy="tizrolling" />
 
 </log4c>
