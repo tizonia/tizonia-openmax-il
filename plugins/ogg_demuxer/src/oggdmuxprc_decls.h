@@ -63,6 +63,7 @@ extern "C"
     OMX_U32 vid_store_size_;
     OMX_U32 aud_store_offset_;
     OMX_U32 vid_store_offset_;
+    bool file_eos_;
     bool aud_eos_;
     bool vid_eos_;
     bool aud_port_disabled_;

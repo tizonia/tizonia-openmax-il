@@ -1058,7 +1058,8 @@ START_TEST (test_ogg_demuxer)
   error = OMX_Deinit ();
   fail_if (OMX_ErrorNone != error);
 
-/*   fail_if (!cmp_outcome); */
+  /* TODO: Do not enable this check for NOW */
+  /*   fail_if (!cmp_outcome); */
 
   _ctx_destroy (&ctx);
 }
