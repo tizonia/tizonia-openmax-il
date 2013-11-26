@@ -50,7 +50,8 @@ fi
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 tests/Makefile])
 
 # End the configure script.
 AC_OUTPUT

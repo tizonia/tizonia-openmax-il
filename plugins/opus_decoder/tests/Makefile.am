@@ -15,29 +15,21 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizopusd.la
+TESTS = check_opus_decoder
 
-noinst_HEADERS = \
-	opusd.h \
-	opusutils.h \
-	opusdprc.h \
-	opusdprc_decls.h
+check_PROGRAMS = check_opus_decoder
 
-libtizopusd_la_SOURCES = \
-	opusd.c \
-	opusutils.c \
-	opusdprc.c
+check_opus_decoder_SOURCES = check_opus_decoder.c
 
-libtizopusd_la_CFLAGS = \
+check_opus_decoder_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizosal/src \
-	-I$(top_srcdir)/../../libtizonia/src \
-	@OPUS_CFLAGS@
+	-I$(top_srcdir)/../../libtizonia/src/ \
+	@CHECK_CFLAGS@
 
-libtizopusd_la_LIBADD = \
+check_opus_decoder_LDADD = \
 	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizcore/src/libtizcore.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
-	-lm \
-	@OPUS_LIBS@
-
+	@CHECK_LIBS@
 

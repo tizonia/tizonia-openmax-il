@@ -41,15 +41,22 @@ extern "C"
 
 #include <stdbool.h>
 #include <opus.h>
+#include <opus_multistream.h>
 
   typedef struct opusd_prc opusd_prc_t;
   struct opusd_prc
   {
     /* Object */
     const tiz_prc_t _;
-    OpusDecoder *p_opus_dec_;
+    OpusMSDecoder *p_opus_dec_;
     OMX_BUFFERHEADERTYPE *p_in_hdr_;
     OMX_BUFFERHEADERTYPE *p_out_hdr_;
+    float *p_out_buf_;
+    opus_int64 packet_count_;
+    int rate_;
+    int mapping_family_;
+    int channels_;
+    int preskip_;
     bool eos_;
     bool in_port_disabled_;
     bool out_port_disabled_;
