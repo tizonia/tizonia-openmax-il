@@ -80,7 +80,8 @@ find_default_uri (tiz_demuxercfgport_t *ap_obj)
 static void *
 demuxer_cfgport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_demuxercfgport_t *p_obj = super_ctor (typeOf (ap_obj, "tizdemuxercfgport"), ap_obj, app);
+  tiz_demuxercfgport_t *p_obj
+    = super_ctor (typeOf (ap_obj, "tizdemuxercfgport"), ap_obj, app);
   if (NULL == (p_obj->p_uri_ = find_default_uri (p_obj)))
     {
       return NULL;

@@ -443,6 +443,7 @@ servant_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
   assert (NULL != p_obj->p_cbacks_->EventHandler);
   /* NOTE: Start ignoring splint warnings in this section of code */
   /*@ignore@*/
+  TIZ_NOTICE (handleOf (ap_obj), "[%s]", tiz_evt_to_str (a_event));
   (void) p_obj->p_cbacks_->EventHandler (handleOf (ap_obj),
                                          p_obj->p_appdata_,
                                          a_event, a_data1, a_data2, ap_eventdata);
@@ -531,19 +532,20 @@ servant_issue_buf_callback (const void *ap_obj,
   assert (NULL != p_obj);
   assert (NULL != p_obj->p_cbacks_);
   assert (NULL != p_obj->p_cbacks_->EventHandler);
-  TIZ_DEBUG (handleOf (ap_obj),
-            "HEADER [%p] BUFFER [%p] ap_tcomp [%p]",
-            p_hdr, p_hdr->pBuffer, ap_tcomp);
   if (ap_tcomp)
     {
       if (OMX_DirInput == dir)
         {
-          TIZ_TRACE (handleOf (ap_obj), "OMX_FillThisBuffer");
+          TIZ_DEBUG (handleOf (ap_obj), "[OMX_FillThisBuffer] : "
+                     "HEADER [%p] BUFFER [%p] ap_tcomp [%p]",
+                     p_hdr, p_hdr->pBuffer, ap_tcomp);
           (void) OMX_FillThisBuffer (ap_tcomp, p_hdr);
         }
       else
         {
-          TIZ_TRACE (handleOf (ap_obj), "OMX_EmptyThisBuffer");
+          TIZ_DEBUG (handleOf (ap_obj), "[OMX_EmptyThisBuffer] : "
+                     "HEADER [%p] BUFFER [%p] ap_tcomp [%p]",
+                     p_hdr, p_hdr->pBuffer, ap_tcomp);
           (void) OMX_EmptyThisBuffer (ap_tcomp, p_hdr);
         }
     }
@@ -554,6 +556,10 @@ servant_issue_buf_callback (const void *ap_obj,
         (OMX_HANDLETYPE, OMX_PTR, OMX_BUFFERHEADERTYPE *) =
         (dir == OMX_DirInput ?
          p_obj->p_cbacks_->EmptyBufferDone : p_obj->p_cbacks_->FillBufferDone);
+
+      TIZ_DEBUG (handleOf (ap_obj), "[%] : HEADER [%p] BUFFER [%p]",
+                 dir == OMX_DirInput ? "EmptyBufferDone" : "FillBufferDone",
+                 p_hdr, p_hdr->pBuffer);
 
       (void) fp_buf_done (handleOf (ap_obj), p_obj->p_appdata_, p_hdr);
     }
