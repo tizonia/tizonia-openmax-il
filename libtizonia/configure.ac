@@ -23,6 +23,9 @@ AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
+# 'm4' is the directory where the extra autoconf macros are stored
+AC_CONFIG_MACRO_DIR([m4])
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
@@ -68,5 +71,38 @@ AC_DEFINE([EFB_FTB_SHOULD_BLOCK], 1, [ Blocking behaviour of ETB and FTB APIS is
 fi
 
 
-# End the configure script.
 AC_OUTPUT
+
+AS_AC_EXPAND(LIBDIR, ${libdir})
+AS_AC_EXPAND(INCLUDEDIR, ${includedir})
+AS_AC_EXPAND(BINDIR, ${bindir})
+AS_AC_EXPAND(DOCDIR, ${docdir})
+
+AC_MSG_RESULT([
+------------------------------------------------------------------------
+  $PACKAGE $VERSION:  Automatic configuration OK.
+
+  General configuration:
+
+    Blocking ETB/FTB: ........... ${blocking_etb_ftb}
+
+  Installation paths:
+
+    libraries: ................... ${LIBDIR}
+    tplay: ....................... ${BINDIR}
+    Header files: ................ ${INCLUDEDIR}/libtizonia, ${INCLUDEDIR}/libtizosal
+    Documentation: ............... ${DOCDIR}
+
+  Building:
+
+    Type 'make' to compile $PACKAGE.
+
+    Type 'make install' to install $PACKAGE.
+
+    Type 'make check' to test $PACKAGE using the unit and functional tests
+    contained in the src/tests directory.
+    ${TESTS_INFO}
+
+  Example programs will be built and installed.
+------------------------------------------------------------------------
+])
