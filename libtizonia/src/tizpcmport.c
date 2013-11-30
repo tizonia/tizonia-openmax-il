@@ -98,8 +98,8 @@ pcmport_ctor (void *ap_obj, va_list * app)
 
   /* TODO: Extract this from the va_list */
   p_base->portdef_.eDomain = OMX_PortDomainAudio;
+  /* NOTE: MIME type is gone in 1.2 */
   p_base->portdef_.format.audio.pNativeRender = 0;
-  /* TODO: MIME type */
   p_base->portdef_.format.audio.bFlagErrorConcealment = OMX_FALSE;
   p_base->portdef_.format.audio.eEncoding = OMX_AUDIO_CodingPCM;
 

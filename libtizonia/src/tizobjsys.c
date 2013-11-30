@@ -56,6 +56,7 @@
 #include "tizpcmport.h"
 #include "tizmp3port.h"
 #include "tizopusport.h"
+#include "tizflacport.h"
 #include "tizvideoport.h"
 #include "tizimageport.h"
 #include "tizotherport.h"
@@ -131,6 +132,8 @@ enum tiz_os_type
   ETIZMp3port,
   ETIZOpusport_class,
   ETIZOpusport,
+  ETIZFlacport_class,
+  ETIZFlacport,
   ETIZVideoport_class,
   ETIZVideoport,
   ETIZImageport_class,
@@ -199,6 +202,8 @@ tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
   tiz_mp3port_init,
   tiz_opusport_class_init,
   tiz_opusport_init,
+  tiz_flacport_class_init,
+  tiz_flacport_init,
   tiz_videoport_class_init,
   tiz_videoport_init,
   tiz_imageport_class_init,
@@ -271,6 +276,8 @@ static tiz_os_type_str_t tiz_os_type_to_str_tbl[] = {
   {ETIZMp3port, "tizmp3port"},
   {ETIZOpusport_class, "tizopusport_class"},
   {ETIZOpusport, "tizopusport"},
+  {ETIZFlacport_class, "tizflacport_class"},
+  {ETIZFlacport, "tizflacport"},
   {ETIZVideoport_class, "tizvideoport_class"},
   {ETIZVideoport, "tizvideoport"},
   {ETIZImageport_class, "tizimageport_class"},

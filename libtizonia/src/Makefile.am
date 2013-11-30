@@ -68,6 +68,8 @@ libtizonia_include_HEADERS = \
 	tizmp3port.h \
 	tizopusport_decls.h \
 	tizopusport.h \
+	tizflacport_decls.h \
+	tizflacport.h \
 	tizvp8port_decls.h \
 	tizvp8port.h \
 	tizivrport_decls.h \
@@ -110,6 +112,7 @@ libtizonia_la_SOURCES = \
 	tizutils.c \
 	tizmp3port.c \
 	tizopusport.c \
+	tizflacport.c \
 	tizvp8port.c \
 	tizivrport.c \
 	tizdemuxerport.c \

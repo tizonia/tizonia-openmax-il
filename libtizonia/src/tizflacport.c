@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizopusport.c
+ * @file   tizflacport.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  * 
- * @brief  opusport class implementation
+ * @brief  flacport class implementation
  * 
  * 
  */
@@ -30,8 +30,8 @@
 #include <config.h>
 #endif
 
-#include "tizopusport.h"
-#include "tizopusport_decls.h"
+#include "tizflacport.h"
+#include "tizflacport_decls.h"
 #include "tizutils.h"
 
 #include "tizosal.h"
@@ -40,25 +40,25 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.opusport"
+#define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.flacport"
 #endif
 
 /*
- * tizopusport class
+ * tizflacport class
  */
 
 static void *
-opusport_ctor (void *ap_obj, va_list * app)
+flacport_ctor (void *ap_obj, va_list * app)
 {
-  tiz_opusport_t *p_obj = super_ctor (typeOf (ap_obj, "tizopusport"), ap_obj, app);
+  tiz_flacport_t *p_obj = super_ctor (typeOf (ap_obj, "tizflacport"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
-  OMX_AUDIO_PARAM_OPUSTYPE *p_opusmode = NULL;
-  tiz_port_register_index (p_obj, OMX_IndexParamAudioOpus);
+  OMX_AUDIO_PARAM_FLACTYPE *p_flactype = NULL;
+  tiz_port_register_index (p_obj, OMX_IndexParamAudioFlac);
 
-  /* Initialize the OMX_AUDIO_PARAM_OPUSTYPE structure */
-  if ((p_opusmode = va_arg (*app, OMX_AUDIO_PARAM_OPUSTYPE *)))
+  /* Initialize the OMX_AUDIO_PARAM_FLACTYPE structure */
+  if ((p_flactype = va_arg (*app, OMX_AUDIO_PARAM_FLACTYPE *)))
     {
-      p_obj->opustype_ = *p_opusmode;
+      p_obj->flactype_ = *p_flactype;
     }
 
   p_base->portdef_.eDomain                            = OMX_PortDomainAudio;
@@ -66,15 +66,15 @@ opusport_ctor (void *ap_obj, va_list * app)
   p_base->portdef_.format.audio.pNativeRender         = 0;
   p_base->portdef_.format.audio.bFlagErrorConcealment = OMX_FALSE;
   p_base->portdef_.format.audio.eEncoding             = (OMX_AUDIO_CODINGTYPE)
-    OMX_AUDIO_CodingOPUS;
+    OMX_AUDIO_CodingFLAC;
 
   return p_obj;
 }
 
 static void *
-opusport_dtor (void *ap_obj)
+flacport_dtor (void *ap_obj)
 {
-  return super_dtor (typeOf (ap_obj, "tizopusport"), ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizflacport"), ap_obj);
 }
 
 /*
@@ -82,26 +82,26 @@ opusport_dtor (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-opusport_GetParameter (const void *ap_obj,
+flacport_GetParameter (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const tiz_opusport_t *p_obj = ap_obj;
+  const tiz_flacport_t *p_obj = ap_obj;
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
-  if (OMX_IndexParamAudioOpus == a_index)
+  if (OMX_IndexParamAudioFlac == a_index)
     {
-      OMX_AUDIO_PARAM_OPUSTYPE *p_opusmode
-        = (OMX_AUDIO_PARAM_OPUSTYPE *) ap_struct;
-      *p_opusmode = p_obj->opustype_;
+      OMX_AUDIO_PARAM_FLACTYPE *p_flactype
+        = (OMX_AUDIO_PARAM_FLACTYPE *) ap_struct;
+      *p_flactype = p_obj->flactype_;
     }
   else
     {
       /* Try the parent's indexes */
-      return super_GetParameter (typeOf (ap_obj, "tizopusport"),
+      return super_GetParameter (typeOf (ap_obj, "tizflacport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -109,38 +109,28 @@ opusport_GetParameter (const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-opusport_SetParameter (const void *ap_obj,
+flacport_SetParameter (const void *ap_obj,
                       OMX_HANDLETYPE ap_hdl,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  tiz_opusport_t *p_obj = (tiz_opusport_t *) ap_obj;
+  tiz_flacport_t *p_obj = (tiz_flacport_t *) ap_obj;
 
-  if (OMX_IndexParamAudioOpus == a_index)
+  if (OMX_IndexParamAudioFlac == a_index)
     {
-      const OMX_AUDIO_PARAM_OPUSTYPE *p_opustype
-        = (OMX_AUDIO_PARAM_OPUSTYPE *) ap_struct;
+      const OMX_AUDIO_PARAM_FLACTYPE *p_flactype
+        = (OMX_AUDIO_PARAM_FLACTYPE *) ap_struct;
 
-      switch (p_opustype->nSampleRate)
+#define FLAC_MAX_SAMPLE_RATE (655350u)
+
+      if (p_flactype->nSampleRate == 0 ||
+          p_flactype->nSampleRate > FLAC_MAX_SAMPLE_RATE)
         {
-        case 8000:
-        case 16000:
-        case 24000:
-        case 22050:
-        case 32000:
-        case 44100:
-        case 48000:
-          {
-            break;
-          }
-        default:
-          {
-            TIZ_ERROR (ap_hdl, "[%s] : OMX_ErrorBadParameter : "
-                      "Sample rate not supported [%d]. "
-                      "Returning...", tiz_idx_to_str (a_index),
-                      p_opustype->nSampleRate);
-            return OMX_ErrorBadParameter;
-          }
-        };
+          TIZ_ERROR (ap_hdl, "[%s] : OMX_ErrorBadParameter : "
+                     "Sample rate not supported [%d]. "
+                     "Returning...", tiz_idx_to_str (a_index),
+                     p_flactype->nSampleRate);
+          return OMX_ErrorBadParameter;
+        }
 
       /* Do now allow changes to sampling rate or num of channels if this is
        * a slave output port */
@@ -150,12 +140,12 @@ opusport_SetParameter (const void *ap_obj,
         if ((OMX_DirOutput == p_base->portdef_.eDir)
             && (p_base->opts_.mos_port != -1)
             && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
-            && (p_obj->opustype_.nChannels != p_opustype->nChannels
-                || p_obj->opustype_.nSampleRate != p_opustype->nSampleRate))
+            && (p_obj->flactype_.nChannels != p_flactype->nChannels
+                || p_obj->flactype_.nSampleRate != p_flactype->nSampleRate))
           {
             TIZ_ERROR (ap_hdl,
                       "[OMX_ErrorBadParameter] : PORT [%d] "
-                      "SetParameter [OMX_IndexParamAudioOpus]... "
+                      "SetParameter [OMX_IndexParamAudioFlac]... "
                       "Slave port, cannot update sample rate "
                       "or number of channels", tiz_port_dir (p_obj));
             return OMX_ErrorBadParameter;
@@ -163,35 +153,28 @@ opusport_SetParameter (const void *ap_obj,
       }
 
       /* Apply the new default values */
-      if (p_obj->opustype_.nChannels               != p_opustype->nChannels               ||
-          p_obj->opustype_.nBitRate                != p_opustype->nBitRate                ||
-          p_obj->opustype_.nSampleRate             != p_opustype->nSampleRate             ||
-          p_obj->opustype_.nFrameDuration          != p_opustype->nFrameDuration          ||
-          p_obj->opustype_.nEncoderComplexity      != p_opustype->nEncoderComplexity      ||
-          p_obj->opustype_.bPacketLossResilience   != p_opustype->bPacketLossResilience   ||
-          p_obj->opustype_.bForwardErrorCorrection != p_opustype->bForwardErrorCorrection ||
-          p_obj->opustype_.bDtx                    != p_opustype->bDtx                    ||
-          p_obj->opustype_.eChannelMode            != p_opustype->eChannelMode            ||
-          p_obj->opustype_.eFormat                 != p_opustype->eFormat)
-          
+      if (p_obj->flactype_.nChannels             != p_flactype->nChannels             ||
+          p_obj->flactype_.nBitsPerSample        != p_flactype->nBitsPerSample        ||
+          p_obj->flactype_.nSampleRate           != p_flactype->nSampleRate           ||
+          p_obj->flactype_.nCompressionLevel     != p_flactype->nCompressionLevel     ||
+          p_obj->flactype_.nBlockSize            != p_flactype->nBlockSize            ||
+          p_obj->flactype_.nTotalSamplesEstimate != p_flactype->nTotalSamplesEstimate ||
+          p_obj->flactype_.eChannelMode          != p_flactype->eChannelMode)
         {
-          p_obj->opustype_.nChannels               = p_opustype->nChannels;
-          p_obj->opustype_.nBitRate                = p_opustype->nBitRate;
-          p_obj->opustype_.nSampleRate             = p_opustype->nSampleRate;
-          p_obj->opustype_.nFrameDuration          = p_opustype->nFrameDuration;
-          p_obj->opustype_.nEncoderComplexity      = p_opustype->nEncoderComplexity;
-          p_obj->opustype_.bPacketLossResilience   = p_opustype->bPacketLossResilience;
-          p_obj->opustype_.bForwardErrorCorrection = p_opustype->bForwardErrorCorrection;
-          p_obj->opustype_.bDtx                    = p_opustype->bDtx;
-          p_obj->opustype_.eChannelMode            = p_opustype->eChannelMode;
-          p_obj->opustype_.eFormat                 = p_opustype->eFormat;
+          p_obj->flactype_.nChannels               = p_flactype->nChannels;
+          p_obj->flactype_.nBitsPerSample          = p_flactype->nBitsPerSample;
+          p_obj->flactype_.nSampleRate             = p_flactype->nSampleRate;
+          p_obj->flactype_.nCompressionLevel       = p_flactype->nCompressionLevel;
+          p_obj->flactype_.nBlockSize              = p_flactype->nBlockSize;
+          p_obj->flactype_.nTotalSamplesEstimate   = p_flactype->nTotalSamplesEstimate;
+          p_obj->flactype_.eChannelMode            = p_flactype->eChannelMode;
         }
 
     }
   else
     {
       /* Try the parent's indexes */
-      return super_SetParameter (typeOf (ap_obj, "tizopusport"),
+      return super_SetParameter (typeOf (ap_obj, "tizflacport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -199,7 +182,7 @@ opusport_SetParameter (const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-  opusport_set_portdef_format
+  flacport_set_portdef_format
   (void *ap_obj, const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
 {
   /* TODO */
@@ -207,7 +190,7 @@ static OMX_ERRORTYPE
 }
 
 static bool
-opusport_check_tunnel_compat (const void *ap_obj,
+flacport_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
@@ -232,11 +215,11 @@ opusport_check_tunnel_compat (const void *ap_obj,
   if (ap_other_def->format.audio.eEncoding != OMX_AUDIO_CodingUnused)
     {
       if (ap_other_def->format.audio.eEncoding
-          != (OMX_AUDIO_CODINGTYPE) OMX_AUDIO_CodingOPUS)
+          != (OMX_AUDIO_CODINGTYPE) OMX_AUDIO_CodingFLAC)
         {
           TIZ_ERROR (handleOf (ap_obj),
                     "PORT [%d] check_tunnel_compat : "
-                    "OPUS encoding not found, instead found encoding [%d]",
+                    "FLAC encoding not found, instead found encoding [%d]",
                     p_obj->pid_, ap_other_def->format.audio.eEncoding);
           return false;
         }
@@ -249,25 +232,25 @@ opusport_check_tunnel_compat (const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
+flacport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
                                  const OMX_INDEXTYPE a_index,
                                  const OMX_PTR ap_struct,
                                  tiz_vector_t * ap_changed_idxs)
 {
-  tiz_opusport_t *p_obj = ap_obj;
+  tiz_flacport_t *p_obj = ap_obj;
   tiz_port_t *p_base = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* OpenMAX IL 1.2 Section 3.5 : Slaving behaviour for nSamplingRate and
-   * nChannels, both in OMX_AUDIO_PARAM_OPUSTYPE */
+   * nChannels, both in OMX_AUDIO_PARAM_FLACTYPE */
 
   assert (p_obj);
   assert (ap_struct);
   assert (ap_changed_idxs);
 
   {
-    OMX_U32 new_rate = p_obj->opustype_.nSampleRate;
-    OMX_U32 new_channels = p_obj->opustype_.nChannels;
+    OMX_U32 new_rate = p_obj->flactype_.nSampleRate;
+    OMX_U32 new_channels = p_obj->flactype_.nChannels;
 
     switch (a_index)
       {
@@ -369,21 +352,42 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
       default:
         {
+          if (OMX_IndexParamAudioOpus == a_index)
+            {
+              const OMX_AUDIO_PARAM_OPUSTYPE *p_opustype = ap_struct;
+              new_rate = p_opustype->nSampleRate;
+              new_channels = p_opustype->nChannels;
+              
+              TIZ_TRACE (handleOf (ap_obj),
+                         "OMX_IndexParamAudioOpus : new sampling rate[%d] "
+                         "new num channels[%d]", new_rate, new_channels);
+            }
+
+          else if (OMX_IndexParamAudioFlac == a_index)
+            {
+              const OMX_AUDIO_PARAM_FLACTYPE *p_flactype = ap_struct;
+              new_rate = p_flactype->nSampleRate;
+              new_channels = p_flactype->nChannels;
+              
+              TIZ_TRACE (handleOf (ap_obj),
+                         "OMX_IndexParamAudioFlac : new sampling rate[%d] "
+                         "new num channels[%d]", new_rate, new_channels);
+            }
         }
       };
 
-    if ((p_obj->opustype_.nSampleRate != new_rate)
-        || (p_obj->opustype_.nChannels != new_channels))
+    if ((p_obj->flactype_.nSampleRate != new_rate)
+        || (p_obj->flactype_.nChannels != new_channels))
       {
-        OMX_INDEXTYPE id = OMX_IndexParamAudioOpus;
+        OMX_INDEXTYPE id = OMX_IndexParamAudioFlac;
 
-        p_obj->opustype_.nSampleRate = new_rate;
-        p_obj->opustype_.nChannels = new_channels;
+        p_obj->flactype_.nSampleRate = new_rate;
+        p_obj->flactype_.nChannels = new_channels;
         tiz_vector_push_back (ap_changed_idxs, &id);
 
         TIZ_TRACE (handleOf (ap_obj),
                   " original pid [%d] this pid [%d] : [%s] -> "
-                  "changed [OMX_IndexParamAudioOpus]...",
+                  "changed [OMX_IndexParamAudioFlac]...",
                   tiz_port_index (ap_mos_port),
                   p_base->portdef_.nPortIndex, tiz_idx_to_str (a_index));
       }
@@ -393,14 +397,14 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 }
 
 /*
- * tizopusport_class
+ * tizflacport_class
  */
 
 static void *
-opusport_class_ctor (void *ap_obj, va_list * app)
+flacport_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "tizopusport_class"), ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizflacport_class"), ap_obj, app);
 }
 
 /*
@@ -408,38 +412,38 @@ opusport_class_ctor (void *ap_obj, va_list * app)
  */
 
 void *
-tiz_opusport_class_init (void * ap_tos, void * ap_hdl)
+tiz_flacport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
-  void * tizopusport_class = factory_new (classOf (tizaudioport),
-                                          "tizopusport_class",
+  void * tizflacport_class = factory_new (classOf (tizaudioport),
+                                          "tizflacport_class",
                                           classOf (tizaudioport),
-                                          sizeof (tiz_opusport_class_t),
+                                          sizeof (tiz_flacport_class_t),
                                           ap_tos, ap_hdl,
-                                          ctor, opusport_class_ctor, 0);
-  return tizopusport_class; 
+                                          ctor, flacport_class_ctor, 0);
+  return tizflacport_class; 
 }
 
 void *
-tiz_opusport_init (void * ap_tos, void * ap_hdl)
+tiz_flacport_init (void * ap_tos, void * ap_hdl)
 {
   void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
-  void * tizopusport_class = tiz_get_type (ap_hdl, "tizopusport_class");
-  TIZ_LOG_CLASS (tizopusport_class);
-  void * tizopusport =
+  void * tizflacport_class = tiz_get_type (ap_hdl, "tizflacport_class");
+  TIZ_LOG_CLASS (tizflacport_class);
+  void * tizflacport =
     factory_new
-    (tizopusport_class,
-     "tizopusport",
+    (tizflacport_class,
+     "tizflacport",
      tizaudioport,
-     sizeof (tiz_opusport_t),
+     sizeof (tiz_flacport_t),
      ap_tos, ap_hdl,
-     ctor, opusport_ctor,
-     dtor, opusport_dtor,
-     tiz_api_GetParameter, opusport_GetParameter,
-     tiz_api_SetParameter, opusport_SetParameter,
-     tiz_port_set_portdef_format, opusport_set_portdef_format,
-     tiz_port_check_tunnel_compat, opusport_check_tunnel_compat,
-     tiz_port_apply_slaving_behaviour, opusport_apply_slaving_behaviour, 0);
+     ctor, flacport_ctor,
+     dtor, flacport_dtor,
+     tiz_api_GetParameter, flacport_GetParameter,
+     tiz_api_SetParameter, flacport_SetParameter,
+     tiz_port_set_portdef_format, flacport_set_portdef_format,
+     tiz_port_check_tunnel_compat, flacport_check_tunnel_compat,
+     tiz_port_apply_slaving_behaviour, flacport_apply_slaving_behaviour, 0);
 
-  return tizopusport;
+  return tizflacport;
 }

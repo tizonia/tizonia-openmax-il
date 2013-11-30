@@ -125,13 +125,12 @@ typedef struct OMX_TIZONIA_ICECASTMETADATATYPE {
  */
 
 /**
- * Extension index used to select or deselect the buffer pre-announcements
- * feature on a particular port.
+ * OMX_IndexParamAudioOpus extension index.
  */
 #define OMX_IndexParamAudioOpus OMX_IndexVendorStartUnused + 2 /**< reference: OMX_AUDIO_PARAM_OPUSTYPE */
 
 /**
- * OMX_AUDIO_CODINGTYPE extension
+ * OMX_AUDIO_CodingOPUS : OMX_AUDIO_CODINGTYPE extension
  */
 #define OMX_AUDIO_CodingOPUS OMX_AUDIO_CodingVendorStartUnused + 1
 
@@ -141,7 +140,7 @@ typedef enum OMX_AUDIO_OPUSSTREAMFORMATTYPE {
     OMX_AUDIO_OPUSStreamFormatConstrainedVBR,
     OMX_AUDIO_OPUSStreamFormatHardCBR,
     OMX_AUDIO_OPUSStreamFormatUnknown           = 0x6EFFFFFF,
-    OMX_AUDIO_OPUSStreamFormatKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */ 
+    OMX_AUDIO_OPUSStreamFormatKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_OPUSStreamFormatVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_OPUSStreamFormatMax = 0x7FFFFFFF
 } OMX_AUDIO_OPUSSTREAMFORMATTYPE;
@@ -161,5 +160,61 @@ typedef struct OMX_AUDIO_PARAM_OPUSTYPE {
     OMX_AUDIO_CHANNELMODETYPE eChannelMode;
     OMX_AUDIO_OPUSSTREAMFORMATTYPE eFormat;
 } OMX_AUDIO_PARAM_OPUSTYPE;
+
+/**
+ * FLAC encoder/decoder components
+ * References:
+ * - https://xiph.org/flac/
+ */
+
+/**
+ * OMX_IndexParamAudioFlac extension index.
+ */
+#define OMX_IndexParamAudioFlac OMX_IndexVendorStartUnused + 3 /**< reference: OMX_AUDIO_PARAM_FLACTYPE */
+
+/**
+ * OMX_AUDIO_CodingFLAC: OMX_AUDIO_CODINGTYPE extension
+ */
+#define OMX_AUDIO_CodingFLAC OMX_AUDIO_CodingVendorStartUnused + 2
+
+
+/* TODO: Add a struct to configure the following encoding parameters:
+ * - do_mid_side_stereo
+ * - loose_mid_side_stereo
+ * - apodization
+ * - max_lpc_order
+ * - qlp_coeff_precision
+ * - do_qlp_coeff_prec_search
+ * - do_escape_coding
+ * - do_exhaustive_model_search
+ * - min_residual_partition_order
+ * - max_residual_partition_order
+ * - rice_parameter_search_dist
+ *
+ * NOTE: nCompressionLevel: is a convenience parameter that sets all of the above.
+ *
+ */
+
+/*
+ * TODO: Add a struct to set FLAC metadata
+ */
+
+typedef struct OMX_AUDIO_PARAM_FLACTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U32 nChannels; /** Up to 8 channels. Default 2.  */
+    OMX_U32 nBitsPerSample; /** 4-32 bits per sample. Default 16. */
+    OMX_U32 nSampleRate; /** From 1Hz to 655350Hz. Default 44100Hz */
+    OMX_U32 nCompressionLevel; /** From 0 (fastest, least compression) to 8
+                                   (slowest, most compression). Default 5. For
+                                   more info see
+                                   https://xiph.org/flac/api/group__flac__stream__encoder.html#ga20*/
+    OMX_U32 nBlockSize; /** Block size in samples. From 16 to 65535. Default 0
+                            (let encoder estimate blocksize). */
+    OMX_U64 nTotalSamplesEstimate; /** An estimate of the total samples that
+                                       will be encoded. Set to 0 if unknown. */
+    OMX_AUDIO_CHANNELMODETYPE eChannelMode;
+} OMX_AUDIO_PARAM_FLACTYPE;
 
 #endif /* OMX_TizoniaExt_h */
