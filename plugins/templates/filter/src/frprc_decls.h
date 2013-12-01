@@ -44,6 +44,8 @@ extern "C"
   {
     /* Object */
     const tiz_prc_t _;
+    OMX_BUFFERHEADERTYPE *p_in_hdr_;
+    OMX_BUFFERHEADERTYPE *p_out_hdr_;
     bool eos_;
   };
 

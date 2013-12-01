@@ -34,8 +34,6 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-
   void * fr_prc_class_init (void * ap_tos, void * ap_hdl);
   void * fr_prc_init (void * ap_tos, void * ap_hdl);
 

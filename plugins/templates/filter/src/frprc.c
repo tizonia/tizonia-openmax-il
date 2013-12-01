@@ -58,10 +58,10 @@ transform_buffer (const void *ap_obj)
 static void *
 fr_prc_ctor (void *ap_obj, va_list * app)
 {
-  fr_prc_t *p_obj = super_ctor (typeOf (ap_obj, "frprc"), ap_obj, app);
-  p_obj->pinhdr_  = false;
-  p_obj->pouthdr_ = false;
-  p_obj->eos_     = false;
+  fr_prc_t *p_obj   = super_ctor (typeOf (ap_obj, "frprc"), ap_obj, app);
+  p_obj->p_in_hdr_  = false;
+  p_obj->p_out_hdr_ = false;
+  p_obj->eos_       = false;
   return p_obj;
 }
 
