@@ -23,18 +23,18 @@ use Tie::File;
 use Getopt::Long;
 use vars qw/ %opt /;
 use version;
+use Term::ANSIColor;
+use Term::ANSIColor qw(:constants);
 
+local $Term::ANSIColor::AUTORESET = 1;
 our $VERSION = qv('0.1.0');
 
 sub usage() {
-    print("\nCopyright (C) 2012 Aratelia Limited - Juan A. Rubio\n");
-    print("Creation of skeleton components from a template.\n");
-    print
-"\nUsage: $0 -l <library_name> -n <comp_name> -r <comp_role> -a <component_acronym>\n\n";
-    print
-"\nE.g.: perl $0 -l libtizvp8d -n \"VP8 Decoder\" -r video_decoder.vp8 -a vp8d\n\n";
-    print
-"\nE.g.: perl $0 -l libtizsdlivr -n \"SDL Video Renderer\" -r iv_renderer.yuv.overlay -a sdlivr\n\n";
+    print BOLD GREEN, "Copyright (C) 2011-2013 Aratelia Limited - Juan A. Rubio\n";
+    print BOLD BRIGHT_RED, "Produce skeleton components from a template.\n";
+    print WHITE, "Usage: $0 -l <library_name> -n <comp_name> -r <comp_role> -a <component_acronym>\n";
+    print BRIGHT_YELLOW, "Example : cp -R filter template && perl $0 -l libtizvp8d -n \"VP8 Decoder\" -r video_decoder.vp8 -a vp8d\n";
+    print BRIGHT_YELLOW, "Example : cp -R filter template && perl $0 -l libtizsdlivr -n \"SDL Video Renderer\" -r iv_renderer.yuv.overlay -a sdlivr\n";
     exit;
 }
 
@@ -51,16 +51,26 @@ sub init() {
     #         print "$key => $opt{$key}\n";
     #}
     usage() if $opt{h};
-    process_configure_ac( $opt{l} );
-    process_top_makefile_am( $opt{l} );
-    process_src_makefile_am( $opt{l}, $opt{a} );
-    rename_src_files( $opt{a} );
-    process_src_fr_c( $opt{n}, $opt{r}, $opt{a} );
-    process_src_frprc_c( $opt{n}, $opt{r}, $opt{a} );
-    process_src_frprc_decls_h( $opt{n}, $opt{r}, $opt{a} );
-    process_src_frprc_h( $opt{n}, $opt{r}, $opt{a} );
-    create_m4_folder();
-    rename_folder( $opt{r} );
+    print BOLD RED, "Copyright (C) 2011-2013 Aratelia Limited - Juan A. Rubio\n";
+    print BOLD WHITE, "Creating skeleton component: $opt{n}\n";
+    if (-d "template") {
+        process_configure_ac( $opt{l} );
+        process_top_makefile_am( $opt{l} );
+        process_src_makefile_am( $opt{l}, $opt{a} );
+        rename_src_files( $opt{a} );
+        process_src_fr_c( $opt{n}, $opt{r}, $opt{a} );
+        process_src_frprc_c( $opt{n}, $opt{r}, $opt{a} );
+        process_src_frprc_decls_h( $opt{n}, $opt{r}, $opt{a} );
+        process_src_frprc_h( $opt{n}, $opt{r}, $opt{a} );
+        create_m4_folder();
+        rename_folder( $opt{r} );
+        print BOLD YELLOW, "The skeleton component is ready.\n";
+    }
+    else {
+        print BOLD BRIGHT_RED, "Error: directory './template' not found. ",
+        "Please provide a 'template' folder by copying one of ",
+        "the existing template folders.\n";
+    }
 
     return;
 }
@@ -76,13 +86,13 @@ sub process_configure_ac {
     }
     untie @lines;
 
-    print "configure.ac : \t\tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " configure.ac\n";
 
     return;
 }
 
 sub process_top_makefile_am {
-    print "Makefile.am : \t\tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " Makefile.am\n";
     return;
 }
 
@@ -102,7 +112,7 @@ sub process_src_makefile_am {
     }
     untie @lines;
 
-    print "src/Makefile.am : \tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " src/Makefile.am\n";
     return;
 }
 
@@ -136,7 +146,7 @@ sub rename_src_files {
         rename $frprc_h => $new_frprc_h;
     }
 
-    print "src files rename : \tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " src files rename\n";
     return;
 }
 
@@ -156,22 +166,23 @@ sub process_src_fr_c {
     my @lines = ();
     tie @lines, 'Tie::File', "$file" or die "Can't read file: $!\n";
 
-    my $acrprc = $acr . "prc";
-
+    my $acrprc      = $acr . "prc";
     my $category_uc = uc $category;
+    my $fr_         = $acr . "_";
 
     foreach (@lines) {
         s/fr.c/$acr.c/gxm;
+        s/fr_/$fr_/gxm;
         s/frprc/$acrprc/gxm;
         s/file_reader.binary/$role/gxm;
         s/file_reader/$category/gxm;
         s/FILE_READER/$category_uc/gxm;
-        s/File Reader/$name/gxm;
+        s/File\ Reader/$name/gxm;
     }
     untie @lines;
 
     $file = "src/" . "$acr" . "c";
-    print "$file : \t\tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " $file\n";
     return;
 }
 
@@ -202,12 +213,12 @@ sub process_src_frprc_c {
         s/file_reader.binary/$role/gxm;
         s/file_reader/$category/gxm;
         s/FILE_READER/$category_uc/gxm;
-        s/File Reader/$name/gxm;
+        s/File\ Reader/$name/gxm;
     }
     untie @lines;
 
     $file = "src/" . "$acr" . "prc.c";
-    print "$file : \t\tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " $file\n";
     return;
 }
 
@@ -240,12 +251,12 @@ sub process_src_frprc_decls_h {
         s/file_reader/$category/gxm;
         s/FILE_READER/$category_uc/gxm;
         s/FRPRC/$acrprc_uc/gxm;
-        s/File Reader/$name/gxm;
+        s/File\ Reader/$name/gxm;
     }
     untie @lines;
 
     $file = "src/" . "$acr" . "prc_decls.h";
-    print "$file : \t\tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " $file\n";
     return;
 }
 
@@ -278,13 +289,12 @@ sub process_src_frprc_h {
         s/file_reader/$category/gxm;
         s/FILE_READER/$category_uc/gxm;
         s/FRPRC/$acrprc_uc/gxm;
-        s/File Reader/$name/gxm;
-        s/File Reader/$name/gxm;
+        s/File\ Reader/$name/gxm;
     }
     untie @lines;
 
     $file = "src/" . "$acr" . "prc.h";
-    print "$file : \t\tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " $file\n";
     return;
 }
 
@@ -301,13 +311,13 @@ sub rename_folder {
         rename "template" => $new_folder_name;
     }
 
-    print "Folder rename : \tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " Folder rename\n";
     return;
 }
 
 sub create_m4_folder {
     mkdir "template/m4", 0755;
-    print "create m4 folder : \tDone.\n";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " create m4 folder\n";
     return;
 }
 
