@@ -17,6 +17,7 @@ insert into components values('OMX.Aratelia.file_writer.binary',100,1,0,1);
 insert into components values('OMX.Aratelia.file_writer.binary',100,1,2,1);
 insert into components values('OMX.Aratelia.audio_decoder.mp3',100,1,0,1);
 insert into components values('OMX.Aratelia.audio_decoder.opus',100,1,0,1);
+insert into components values('OMX.Aratelia.audio_decoder.flac',100,1,0,1);
 insert into components values('OMX.Aratelia.audio_encoder.mp3',100,1,0,1);
 insert into components values('OMX.Aratelia.video_decoder.vp8',100,1,0,1);
 insert into components values('OMX.Aratelia.video_encoder.vp8',100,1,0,1);
