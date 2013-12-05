@@ -44,7 +44,7 @@ extern "C"
   {
     /* Object */
     const tiz_audioport_t _;
-    OMX_AUDIO_PARAM_FLACTYPE flactype_;
+    OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_;
   };
 
   typedef struct tiz_flacport_class tiz_flacport_class_t;

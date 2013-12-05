@@ -18,6 +18,7 @@
 lib_LTLIBRARIES = libtizflacd.la
 
 noinst_HEADERS = \
+	flacd.h \
 	flacdprc.h \
 	flacdprc_decls.h
 
@@ -28,10 +29,12 @@ libtizflacd_la_SOURCES = \
 libtizflacd_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizosal/src \
-	-I$(top_srcdir)/../../libtizonia/src
+	-I$(top_srcdir)/../../libtizonia/src \
+	@FLAC_CFLAGS@
 
 libtizflacd_la_LIBADD = \
 	$(top_builddir)/../../libtizosal/src/libtizosal.la \
-	$(top_builddir)/../../libtizonia/src/libtizonia.la
+	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	@FLAC_LIBS@
 
 

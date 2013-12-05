@@ -38,15 +38,23 @@ extern "C"
 #include "tizprc_decls.h"
 
 #include <stdbool.h>
+#include <FLAC/all.h>                /* flac header */
 
   typedef struct flacd_prc flacd_prc_t;
   struct flacd_prc
   {
     /* Object */
-    const tiz_prc_t _;
+    const tiz_prc_t   _;
+    FLAC__StreamDecoder *p_flac_dec_;
     OMX_BUFFERHEADERTYPE *p_in_hdr_;
     OMX_BUFFERHEADERTYPE *p_out_hdr_;
     bool eos_;
+    bool in_port_disabled_;
+    bool out_port_disabled_;
+    FLAC__uint64 total_samples_;
+    unsigned sample_rate_;
+    unsigned channels_;
+    unsigned bps_;
   };
 
   typedef struct flacd_prc_class flacd_prc_class_t;

@@ -20,10 +20,10 @@
 /**
  * @file   tizflacport.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  flacport class implementation
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -52,11 +52,11 @@ flacport_ctor (void *ap_obj, va_list * app)
 {
   tiz_flacport_t *p_obj = super_ctor (typeOf (ap_obj, "tizflacport"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
-  OMX_AUDIO_PARAM_FLACTYPE *p_flactype = NULL;
-  tiz_port_register_index (p_obj, OMX_IndexParamAudioFlac);
+  OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *p_flactype = NULL;
+  tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioFlac);
 
-  /* Initialize the OMX_AUDIO_PARAM_FLACTYPE structure */
-  if ((p_flactype = va_arg (*app, OMX_AUDIO_PARAM_FLACTYPE *)))
+  /* Initialize the OMX_TIZONIA_AUDIO_PARAM_FLACTYPE structure */
+  if ((p_flactype = va_arg (*app, OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *)))
     {
       p_obj->flactype_ = *p_flactype;
     }
@@ -92,10 +92,10 @@ flacport_GetParameter (const void *ap_obj,
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
-  if (OMX_IndexParamAudioFlac == a_index)
+  if (OMX_TizoniaIndexParamAudioFlac == a_index)
     {
-      OMX_AUDIO_PARAM_FLACTYPE *p_flactype
-        = (OMX_AUDIO_PARAM_FLACTYPE *) ap_struct;
+      OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *p_flactype
+        = (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *) ap_struct;
       *p_flactype = p_obj->flactype_;
     }
   else
@@ -115,10 +115,10 @@ flacport_SetParameter (const void *ap_obj,
 {
   tiz_flacport_t *p_obj = (tiz_flacport_t *) ap_obj;
 
-  if (OMX_IndexParamAudioFlac == a_index)
+  if (OMX_TizoniaIndexParamAudioFlac == a_index)
     {
-      const OMX_AUDIO_PARAM_FLACTYPE *p_flactype
-        = (OMX_AUDIO_PARAM_FLACTYPE *) ap_struct;
+      const OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *p_flactype
+        = (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *) ap_struct;
 
 #define FLAC_MAX_SAMPLE_RATE (655350u)
 
@@ -145,7 +145,7 @@ flacport_SetParameter (const void *ap_obj,
           {
             TIZ_ERROR (ap_hdl,
                       "[OMX_ErrorBadParameter] : PORT [%d] "
-                      "SetParameter [OMX_IndexParamAudioFlac]... "
+                      "SetParameter [OMX_TizoniaIndexParamAudioFlac]... "
                       "Slave port, cannot update sample rate "
                       "or number of channels", tiz_port_dir (p_obj));
             return OMX_ErrorBadParameter;
@@ -242,7 +242,7 @@ flacport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* OpenMAX IL 1.2 Section 3.5 : Slaving behaviour for nSamplingRate and
-   * nChannels, both in OMX_AUDIO_PARAM_FLACTYPE */
+   * nChannels, both in OMX_TIZONIA_AUDIO_PARAM_FLACTYPE */
 
   assert (p_obj);
   assert (ap_struct);
@@ -352,25 +352,25 @@ flacport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
       default:
         {
-          if (OMX_IndexParamAudioOpus == a_index)
+          if (OMX_TizoniaIndexParamAudioOpus == a_index)
             {
-              const OMX_AUDIO_PARAM_OPUSTYPE *p_opustype = ap_struct;
+              const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opustype = ap_struct;
               new_rate = p_opustype->nSampleRate;
               new_channels = p_opustype->nChannels;
-              
+
               TIZ_TRACE (handleOf (ap_obj),
                          "OMX_IndexParamAudioOpus : new sampling rate[%d] "
                          "new num channels[%d]", new_rate, new_channels);
             }
 
-          else if (OMX_IndexParamAudioFlac == a_index)
+          else if (OMX_TizoniaIndexParamAudioFlac == a_index)
             {
-              const OMX_AUDIO_PARAM_FLACTYPE *p_flactype = ap_struct;
+              const OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *p_flactype = ap_struct;
               new_rate = p_flactype->nSampleRate;
               new_channels = p_flactype->nChannels;
-              
+
               TIZ_TRACE (handleOf (ap_obj),
-                         "OMX_IndexParamAudioFlac : new sampling rate[%d] "
+                         "OMX_TizoniaIndexParamAudioFlac : new sampling rate[%d] "
                          "new num channels[%d]", new_rate, new_channels);
             }
         }
@@ -379,7 +379,7 @@ flacport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
     if ((p_obj->flactype_.nSampleRate != new_rate)
         || (p_obj->flactype_.nChannels != new_channels))
       {
-        OMX_INDEXTYPE id = OMX_IndexParamAudioFlac;
+        OMX_INDEXTYPE id = OMX_TizoniaIndexParamAudioFlac;
 
         p_obj->flactype_.nSampleRate = new_rate;
         p_obj->flactype_.nChannels = new_channels;
@@ -387,7 +387,7 @@ flacport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
         TIZ_TRACE (handleOf (ap_obj),
                   " original pid [%d] this pid [%d] : [%s] -> "
-                  "changed [OMX_IndexParamAudioFlac]...",
+                  "changed [OMX_TizoniaIndexParamAudioFlac]...",
                   tiz_port_index (ap_mos_port),
                   p_base->portdef_.nPortIndex, tiz_idx_to_str (a_index));
       }
@@ -421,7 +421,7 @@ tiz_flacport_class_init (void * ap_tos, void * ap_hdl)
                                           sizeof (tiz_flacport_class_t),
                                           ap_tos, ap_hdl,
                                           ctor, flacport_class_ctor, 0);
-  return tizflacport_class; 
+  return tizflacport_class;
 }
 
 void *

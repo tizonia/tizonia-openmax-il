@@ -36,6 +36,12 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
+PKG_CHECK_MODULES([FLAC], [flac >= 1.3.0], [HAVE_FLAC=yes], [HAVE_FLAC=no])
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
+
+if test "x$HAVE_FLAC" = "xno"; then
+   AC_MSG_ERROR([Please install libflac version 1.3.0 or later.])
+fi
 
 # Checks for header files.
 
@@ -44,7 +50,8 @@ PKG_PROG_PKG_CONFIG()
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 tests/Makefile])
 
 # End the configure script.
 AC_OUTPUT

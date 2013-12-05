@@ -33,17 +33,39 @@
 #include "OMX_Types.h"
 #include "OMX_Audio.h"
 
-#define OMX_ROLE_AUDIO_ENCODER_OPUS    "audio_encoder.opus"
-#define OMX_ROLE_AUDIO_DECODER_OPUS    "audio_decoder.opus"
-#define OMX_ROLE_CONTAINER_DEMUXER_OGG "container_demuxer.ogg"
+#define OMX_ROLE_AUDIO_ENCODER_OPUS            "audio_encoder.opus"
+#define OMX_ROLE_AUDIO_DECODER_OPUS            "audio_decoder.opus"
+#define OMX_ROLE_AUDIO_ENCODER_FLAC            "audio_encoder.flac"
+#define OMX_ROLE_AUDIO_DECODER_FLAC            "audio_decoder.flac"
+#define OMX_ROLE_CONTAINER_DEMUXER_OGG         "container_demuxer.ogg"
+#define OMX_ROLE_AUDIO_RENDERER_ICECAST_MP3    "audio_renderer.icecast.mp3"
+#define OMX_ROLE_AUDIO_RENDERER_ICECAST_VORBIS "audio_renderer.icecast.vorbis"
+#define OMX_ROLE_AUDIO_RENDERER_ICECAST_OPUS   "audio_renderer.icecast.opus"
+
 
 #define OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN   0x00000004
 
 /**
+ * OMX_TizoniaIndexParamBufferPreAnnouncementsMode
+ *
  * Extension index used to select or deselect the buffer pre-announcements
  * feature on a particular port.
  */
 #define OMX_TizoniaIndexParamBufferPreAnnouncementsMode OMX_IndexVendorStartUnused + 1
+
+#define OMX_TizoniaIndexParamHttpServer        OMX_IndexVendorStartUnused + 2 /**< reference: OMX_TIZONIA_HTTPSERVERTYPE */
+#define OMX_TizoniaIndexParamIcecastMountpoint OMX_IndexVendorStartUnused + 3 /**< reference: OMX_TIZONIA_ICECASTMOUNTPOINTTYPE */
+#define OMX_TizoniaIndexConfigIcecastMetadata  OMX_IndexVendorStartUnused + 4 /**< reference: OMX_TIZONIA_ICECASTMETADATATYPE */
+#define OMX_TizoniaIndexParamAudioOpus         OMX_IndexVendorStartUnused + 5 /**< reference: OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE */
+#define OMX_TizoniaIndexParamAudioFlac         OMX_IndexVendorStartUnused + 6 /**< reference: OMX_TIZONIA_AUDIO_PARAM_FLACTYPE */
+
+
+/**
+ * OMX_AUDIO_CODINGTYPE extensions
+ */
+
+#define OMX_AUDIO_CodingOPUS OMX_AUDIO_CodingVendorStartUnused + 1
+#define OMX_AUDIO_CodingFLAC OMX_AUDIO_CodingVendorStartUnused + 2
 
 /**
  * The name of the pre-announcements mode extension.
@@ -62,14 +84,6 @@ typedef struct OMX_TIZONIA_PARAM_BUFFER_PREANNOUNCEMENTSMODETYPE
 /**
  * Icecast-like audio renderer components
  */
-
-#define OMX_ROLE_AUDIO_RENDERER_ICECAST_MP3    "audio_renderer.icecast.mp3"
-#define OMX_ROLE_AUDIO_RENDERER_ICECAST_VORBIS "audio_renderer.icecast.vorbis"
-#define OMX_ROLE_AUDIO_RENDERER_ICECAST_OPUS   "audio_renderer.icecast.opus"
-
-#define OMX_TizoniaIndexParamHttpServer 0x7F000002           /**< reference: OMX_TIZONIA_HTTPSERVERTYPE */
-#define OMX_TizoniaIndexParamIcecastMountpoint 0x7F000003    /**< reference: OMX_TIZONIA_ICECASTMOUNTPOINTTYPE */
-#define OMX_TizoniaIndexConfigIcecastMetadata 0x7F000004     /**< reference: OMX_TIZONIA_ICECASTMETADATATYPE */
 
 typedef struct OMX_TIZONIA_HTTPSERVERTYPE {
     OMX_U32 nSize;
@@ -124,17 +138,7 @@ typedef struct OMX_TIZONIA_ICECASTMETADATATYPE {
  *     Floating point and fixed-point implementation
  */
 
-/**
- * OMX_IndexParamAudioOpus extension index.
- */
-#define OMX_IndexParamAudioOpus OMX_IndexVendorStartUnused + 2 /**< reference: OMX_AUDIO_PARAM_OPUSTYPE */
-
-/**
- * OMX_AUDIO_CodingOPUS : OMX_AUDIO_CODINGTYPE extension
- */
-#define OMX_AUDIO_CodingOPUS OMX_AUDIO_CodingVendorStartUnused + 1
-
-typedef enum OMX_AUDIO_OPUSSTREAMFORMATTYPE {
+typedef enum OMX_TIZONIA_AUDIO_OPUSSTREAMFORMATTYPE {
     OMX_AUDIO_OPUSStreamFormatVBR = 0,
     OMX_AUDIO_OPUSStreamFormatCBR,
     OMX_AUDIO_OPUSStreamFormatConstrainedVBR,
@@ -143,9 +147,9 @@ typedef enum OMX_AUDIO_OPUSSTREAMFORMATTYPE {
     OMX_AUDIO_OPUSStreamFormatKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_OPUSStreamFormatVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_OPUSStreamFormatMax = 0x7FFFFFFF
-} OMX_AUDIO_OPUSSTREAMFORMATTYPE;
+} OMX_TIZONIA_AUDIO_OPUSSTREAMFORMATTYPE;
 
-typedef struct OMX_AUDIO_PARAM_OPUSTYPE {
+typedef struct OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
@@ -158,25 +162,14 @@ typedef struct OMX_AUDIO_PARAM_OPUSTYPE {
     OMX_BOOL bForwardErrorCorrection; /** default, false  */
     OMX_BOOL bDtx; /** default, false  */
     OMX_AUDIO_CHANNELMODETYPE eChannelMode;
-    OMX_AUDIO_OPUSSTREAMFORMATTYPE eFormat;
-} OMX_AUDIO_PARAM_OPUSTYPE;
+    OMX_TIZONIA_AUDIO_OPUSSTREAMFORMATTYPE eFormat;
+} OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE;
 
 /**
  * FLAC encoder/decoder components
  * References:
  * - https://xiph.org/flac/
  */
-
-/**
- * OMX_IndexParamAudioFlac extension index.
- */
-#define OMX_IndexParamAudioFlac OMX_IndexVendorStartUnused + 3 /**< reference: OMX_AUDIO_PARAM_FLACTYPE */
-
-/**
- * OMX_AUDIO_CodingFLAC: OMX_AUDIO_CODINGTYPE extension
- */
-#define OMX_AUDIO_CodingFLAC OMX_AUDIO_CodingVendorStartUnused + 2
-
 
 /* TODO: Add a struct to configure the following encoding parameters:
  * - do_mid_side_stereo
@@ -199,7 +192,7 @@ typedef struct OMX_AUDIO_PARAM_OPUSTYPE {
  * TODO: Add a struct to set FLAC metadata
  */
 
-typedef struct OMX_AUDIO_PARAM_FLACTYPE {
+typedef struct OMX_TIZONIA_AUDIO_PARAM_FLACTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U32 nPortIndex;
@@ -215,6 +208,6 @@ typedef struct OMX_AUDIO_PARAM_FLACTYPE {
     OMX_U64 nTotalSamplesEstimate; /** An estimate of the total samples that
                                        will be encoded. Set to 0 if unknown. */
     OMX_AUDIO_CHANNELMODETYPE eChannelMode;
-} OMX_AUDIO_PARAM_FLACTYPE;
+} OMX_TIZONIA_AUDIO_PARAM_FLACTYPE;
 
 #endif /* OMX_TizoniaExt_h */

@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include "flacd.h"
 #include "flacdprc.h"
 #include "tizport.h"
 #include "tizbinaryport.h"
@@ -40,6 +41,7 @@
 #include "OMX_Core.h"
 #include "OMX_Component.h"
 #include "OMX_Types.h"
+#include "OMX_TizoniaExt.h"
 
 #include <assert.h>
 #include <string.h>
@@ -49,29 +51,17 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.flac_decoder"
 #endif
 
-#define ARATELIA_FLAC_DECODER_DEFAULT_ROLE   "audio_decoder.flac"
-#define ARATELIA_FLAC_DECODER_COMPONENT_NAME "OMX.Aratelia.audio_decoder.flac"
-/* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_FILE_DECODER_INPUT_PORT_INDEX        0
-#define ARATELIA_FILE_DECODER_OUTPUT_PORT_INDEX       1
-#define ARATELIA_FLAC_DECODER_PORT_MIN_BUF_COUNT       2
-#define ARATELIA_FLAC_DECODER_PORT_MIN_INPUT_BUF_SIZE  8192
-#define ARATELIA_FLAC_DECODER_PORT_MIN_OUTPUT_BUF_SIZE 8192
-#define ARATELIA_FLAC_DECODER_PORT_NONCONTIGUOUS       OMX_FALSE
-#define ARATELIA_FLAC_DECODER_PORT_ALIGNMENT           0
-#define ARATELIA_FLAC_DECODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
-
 static OMX_VERSIONTYPE flac_decoder_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
 instantiate_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_AUDIO_PARAM_MP3TYPE mp3type;
+  OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype;
   OMX_AUDIO_CODINGTYPE encodings[] = {
-    OMX_AUDIO_CodingMP3,
+    (OMX_AUDIO_CODINGTYPE) OMX_AUDIO_CodingFLAC,
     OMX_AUDIO_CodingMax
   };
-  tiz_port_options_t mp3_port_opts = {
+  tiz_port_options_t flac_port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
     ARATELIA_FLAC_DECODER_PORT_MIN_BUF_COUNT,
@@ -79,22 +69,23 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_FLAC_DECODER_PORT_NONCONTIGUOUS,
     ARATELIA_FLAC_DECODER_PORT_ALIGNMENT,
     ARATELIA_FLAC_DECODER_PORT_SUPPLIERPREF,
-    {ARATELIA_FILE_DECODER_INPUT_PORT_INDEX, NULL, NULL, NULL},
+    {ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX, NULL, NULL, NULL},
     1                           /* slave port's index  */
   };
 
-  mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
-  mp3type.nVersion.nVersion = OMX_VERSION;
-  mp3type.nPortIndex        = 0;
-  mp3type.nChannels         = 2;
-  mp3type.nBitRate          = 0;
-  mp3type.nSampleRate       = 0;
-  mp3type.nAudioBandWidth   = 0;
-  mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
-  mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
+  flactype.nSize                 = sizeof (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE);
+  flactype.nVersion.nVersion     = OMX_VERSION;
+  flactype.nPortIndex            = 0;
+  flactype.nChannels             = 2;
+  flactype.nBitsPerSample        = 16;
+  flactype.nSampleRate           = 44100;
+  flactype.nCompressionLevel     = 5;
+  flactype.nBlockSize            = 0;
+  flactype.nTotalSamplesEstimate = 0;
+  flactype.eChannelMode          = OMX_AUDIO_ChannelModeStereo;
 
-  return factory_new (tiz_get_type (ap_hdl, "tizmp3port"),
-                      &mp3_port_opts, &encodings, &mp3type);
+  return factory_new (tiz_get_type (ap_hdl, "tizflacport"),
+                      &flac_port_opts, &encodings, &flactype);
 }
 
 static OMX_PTR
@@ -115,7 +106,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_FLAC_DECODER_PORT_NONCONTIGUOUS,
     ARATELIA_FLAC_DECODER_PORT_ALIGNMENT,
     ARATELIA_FLAC_DECODER_PORT_SUPPLIERPREF,
-    {ARATELIA_FILE_DECODER_OUTPUT_PORT_INDEX, NULL, NULL, NULL},
+    {ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX, NULL, NULL, NULL},
     0                           /* Master port */
   };
 
@@ -145,7 +136,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   mute.nVersion.nVersion = OMX_VERSION;
   mute.nPortIndex        = 1;
   mute.bMute             = OMX_FALSE;
-  
+
   return factory_new (tiz_get_type (ap_hdl, "tizpcmport"),
                       &pcm_port_opts, &encodings,
                       &pcmmode, &volume, &mute);
@@ -195,7 +186,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   /* Register the "flacdprc" class */
   tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
-  /* Register the various roles */
+  /* Register the component roles */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

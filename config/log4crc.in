@@ -48,6 +48,7 @@
 <!--         <category name="tiz.tizonia.mp3port" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.binaryport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.opusport" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.flacport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.videoport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.demuxerport" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.demuxercfgport" priority="trace" appender="tizlogfile" /> -->
@@ -82,6 +83,9 @@
 <!--         <category name="tiz.opus_decoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.opus_decoder.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.opus_decoder.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.flac_decoder" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.flac_decoder.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.flac_decoder.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_demuxer" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_demuxer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_demuxer.check" priority="trace" appender="tizlogfile" /> -->
