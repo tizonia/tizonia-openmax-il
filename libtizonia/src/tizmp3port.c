@@ -374,6 +374,27 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
       default:
         {
+          if (OMX_TizoniaIndexParamAudioOpus == a_index)
+            {
+              const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opustype = ap_struct;
+              new_rate = p_opustype->nSampleRate;
+              new_channels = p_opustype->nChannels;
+
+              TIZ_TRACE (handleOf (ap_obj),
+                         "OMX_IndexParamAudioOpus : new sampling rate[%d] "
+                         "new num channels[%d]", new_rate, new_channels);
+            }
+
+          else if (OMX_TizoniaIndexParamAudioFlac == a_index)
+            {
+              const OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *p_flactype = ap_struct;
+              new_rate = p_flactype->nSampleRate;
+              new_channels = p_flactype->nChannels;
+
+              TIZ_TRACE (handleOf (ap_obj),
+                         "OMX_TizoniaIndexParamAudioFlac : new sampling rate[%d] "
+                         "new num channels[%d]", new_rate, new_channels);
+            }
         }
       };
 

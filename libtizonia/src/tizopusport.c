@@ -52,11 +52,11 @@ opusport_ctor (void *ap_obj, va_list * app)
 {
   tiz_opusport_t *p_obj = super_ctor (typeOf (ap_obj, "tizopusport"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
-  OMX_AUDIO_PARAM_OPUSTYPE *p_opusmode = NULL;
-  tiz_port_register_index (p_obj, OMX_IndexParamAudioOpus);
+  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opusmode = NULL;
+  tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioOpus);
 
-  /* Initialize the OMX_AUDIO_PARAM_OPUSTYPE structure */
-  if ((p_opusmode = va_arg (*app, OMX_AUDIO_PARAM_OPUSTYPE *)))
+  /* Initialize the OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE structure */
+  if ((p_opusmode = va_arg (*app, OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *)))
     {
       p_obj->opustype_ = *p_opusmode;
     }
@@ -92,10 +92,10 @@ opusport_GetParameter (const void *ap_obj,
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
   assert (NULL != p_obj);
 
-  if (OMX_IndexParamAudioOpus == a_index)
+  if (OMX_TizoniaIndexParamAudioOpus == a_index)
     {
-      OMX_AUDIO_PARAM_OPUSTYPE *p_opusmode
-        = (OMX_AUDIO_PARAM_OPUSTYPE *) ap_struct;
+      OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opusmode
+        = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;
       *p_opusmode = p_obj->opustype_;
     }
   else
@@ -115,10 +115,10 @@ opusport_SetParameter (const void *ap_obj,
 {
   tiz_opusport_t *p_obj = (tiz_opusport_t *) ap_obj;
 
-  if (OMX_IndexParamAudioOpus == a_index)
+  if (OMX_TizoniaIndexParamAudioOpus == a_index)
     {
-      const OMX_AUDIO_PARAM_OPUSTYPE *p_opustype
-        = (OMX_AUDIO_PARAM_OPUSTYPE *) ap_struct;
+      const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opustype
+        = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;
 
       switch (p_opustype->nSampleRate)
         {
@@ -155,7 +155,7 @@ opusport_SetParameter (const void *ap_obj,
           {
             TIZ_ERROR (ap_hdl,
                       "[OMX_ErrorBadParameter] : PORT [%d] "
-                      "SetParameter [OMX_IndexParamAudioOpus]... "
+                      "SetParameter [OMX_TizoniaIndexParamAudioOpus]... "
                       "Slave port, cannot update sample rate "
                       "or number of channels", tiz_port_dir (p_obj));
             return OMX_ErrorBadParameter;
@@ -259,7 +259,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* OpenMAX IL 1.2 Section 3.5 : Slaving behaviour for nSamplingRate and
-   * nChannels, both in OMX_AUDIO_PARAM_OPUSTYPE */
+   * nChannels, both in OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE */
 
   assert (p_obj);
   assert (ap_struct);
@@ -375,7 +375,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
     if ((p_obj->opustype_.nSampleRate != new_rate)
         || (p_obj->opustype_.nChannels != new_channels))
       {
-        OMX_INDEXTYPE id = OMX_IndexParamAudioOpus;
+        OMX_INDEXTYPE id = OMX_TizoniaIndexParamAudioOpus;
 
         p_obj->opustype_.nSampleRate = new_rate;
         p_obj->opustype_.nChannels = new_channels;
@@ -383,7 +383,7 @@ opusport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
         TIZ_TRACE (handleOf (ap_obj),
                   " original pid [%d] this pid [%d] : [%s] -> "
-                  "changed [OMX_IndexParamAudioOpus]...",
+                  "changed [OMX_TizoniaIndexParamAudioOpus]...",
                   tiz_port_index (ap_mos_port),
                   p_base->portdef_.nPortIndex, tiz_idx_to_str (a_index));
       }

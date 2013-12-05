@@ -479,6 +479,10 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
    "OMX_TizoniaIndexParamIcecastMountpoint"},
   {OMX_TizoniaIndexConfigIcecastMetadata,
    "OMX_TizoniaIndexConfigIcecastMetadata"},
+  {OMX_TizoniaIndexParamAudioOpus,
+   "OMX_TizoniaIndexParamAudioOpus"},
+  {OMX_TizoniaIndexParamAudioFlac,
+   "OMX_TizoniaIndexParamAudioFlac"},
 
   {OMX_IndexKhronosExtensions, "OMX_IndexKhronosExtensions"},
   {OMX_IndexVendorStartUnused, "OMX_IndexVendorStartUnused"},

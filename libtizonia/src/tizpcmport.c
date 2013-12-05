@@ -221,11 +221,11 @@ pcmport_SetParameter (const void *ap_obj,
 
           if ((OMX_DirOutput == p_base->portdef_.eDir)
               && (p_base->opts_.mos_port != (OMX_U32) -1)
-              && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
-              && (p_obj->pcmmode_.nChannels != p_pcmmode->nChannels
-                  || p_obj->pcmmode_.nBitPerSample != p_pcmmode->nBitPerSample
-                  || p_obj->pcmmode_.nSamplingRate !=
-                  p_pcmmode->nSamplingRate))
+              && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex))
+/*               && (p_obj->pcmmode_.nChannels != p_pcmmode->nChannels */
+/*                   || p_obj->pcmmode_.nBitPerSample != p_pcmmode->nBitPerSample */
+/*                   || p_obj->pcmmode_.nSamplingRate != */
+/*                   p_pcmmode->nSamplingRate)) */
             {
               TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
                         "SetParameter [OMX_IndexParamAudioPcm]... "
@@ -565,6 +565,27 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
       default:
         {
+          if (OMX_TizoniaIndexParamAudioOpus == a_index)
+            {
+              const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opustype = ap_struct;
+              new_rate = p_opustype->nSampleRate;
+              new_channels = p_opustype->nChannels;
+
+              TIZ_TRACE (handleOf (ap_obj),
+                         "OMX_IndexParamAudioOpus : new sampling rate[%d] "
+                         "new num channels[%d]", new_rate, new_channels);
+            }
+
+          else if (OMX_TizoniaIndexParamAudioFlac == a_index)
+            {
+              const OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *p_flactype = ap_struct;
+              new_rate = p_flactype->nSampleRate;
+              new_channels = p_flactype->nChannels;
+
+              TIZ_TRACE (handleOf (ap_obj),
+                         "OMX_TizoniaIndexParamAudioFlac : new sampling rate[%d] "
+                         "new num channels[%d]", new_rate, new_channels);
+            }
         }
       };
 

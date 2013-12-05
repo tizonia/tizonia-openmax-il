@@ -44,7 +44,7 @@ extern "C"
   {
     /* Object */
     const tiz_audioport_t _;
-    OMX_AUDIO_PARAM_OPUSTYPE opustype_;
+    OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
   };
 
   typedef struct tiz_opusport_class tiz_opusport_class_t;

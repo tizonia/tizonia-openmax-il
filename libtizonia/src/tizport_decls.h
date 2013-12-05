@@ -38,6 +38,7 @@ extern "C"
 #include "tizapi_decls.h"
 #include "tizutils.h"
 #include "OMX_Component.h"
+#include "OMX_TizoniaExt.h"
 
   typedef struct tiz_port tiz_port_t;
   struct tiz_port
