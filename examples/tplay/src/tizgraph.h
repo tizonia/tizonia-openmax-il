@@ -215,7 +215,7 @@ protected:
   OMX_ERRORTYPE instantiate_list (const component_names_t &comp_list);
   void destroy_list();
 
-  OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
+  virtual OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
   
   OMX_ERRORTYPE setup_tunnels () const;
   OMX_ERRORTYPE tear_down_tunnels () const;

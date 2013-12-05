@@ -36,8 +36,10 @@
 #include "OMX_Component.h"
 #include "OMX_Audio.h"
 #include "OMX_Video.h"
+#include "OMX_TizoniaExt.h"
 
 class tizprobe;
+class AVCodecContext;
 typedef boost::shared_ptr<tizprobe> tizprobe_ptr_t;
 
 class tizprobe
@@ -60,6 +62,7 @@ public:
 
   void get_pcm_codec_info(OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
   void get_mp3_codec_info(OMX_AUDIO_PARAM_MP3TYPE &mp3type);
+  void get_opus_codec_info(OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);
   void get_vp8_codec_info(OMX_VIDEO_PARAM_VP8TYPE &vp8type);
   std::string get_stream_title ();
   std::string get_stream_genre ();
@@ -67,6 +70,8 @@ public:
 private:
 
   int probe_file();
+  void set_mp3_codec_info (const AVCodecContext *cc);
+  void set_opus_codec_info ();
 
 private:
 
@@ -78,6 +83,7 @@ private:
   OMX_VIDEO_CODINGTYPE video_coding_type_;
   OMX_AUDIO_PARAM_PCMMODETYPE pcmtype_;
   OMX_AUDIO_PARAM_MP3TYPE mp3type_;
+  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
   OMX_VIDEO_PARAM_VP8TYPE vp8type_;
   std::string stream_title_;
   std::string stream_genre_;

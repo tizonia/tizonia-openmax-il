@@ -33,6 +33,7 @@
 #include "tizprobe.h"
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/filesystem.hpp>
 
 extern "C"
 {
@@ -160,6 +161,7 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   video_coding_type_ (OMX_VIDEO_CodingUnused),
   pcmtype_ (),
   mp3type_ (),
+  opustype_ (),
   vp8type_ (),
   stream_title_ (),
   stream_genre_ ()
@@ -212,73 +214,108 @@ tizprobe::probe_file ()
   AVStream *st = NULL;
   AVCodecContext *cc = NULL;
   CodecID codec_id = CODEC_ID_PROBE;
+  std::string extension (boost::filesystem::path (uri_).extension ().
+                         string ());
 
-  if ((ret = open_input_file (&fmt_ctx, uri_,
-                              stream_title_, stream_genre_,
-                              quiet_)))
+  // For now, simply rely on the file extension for opus files.
+  if (extension.compare (".opus") == 0)
     {
-      return ret;
+      set_opus_codec_info ();
     }
-
-  if (NULL == (st = fmt_ctx->streams[0]))
+  else
     {
-      close_input_file (&fmt_ctx);
-      return 1;
-    }
-
-  if (NULL == (cc = st->codec))
-    {
-      close_input_file (&fmt_ctx);
-      return 1;
-    }
-
-  codec_id = cc->codec_id;
-
-  if (codec_id == CODEC_ID_MP3)
-    {
-      domain_                = OMX_PortDomainAudio;
-      audio_coding_type_     = OMX_AUDIO_CodingMP3;
-      mp3type_.nSampleRate   = cc->sample_rate;
-      pcmtype_.nSamplingRate = cc->sample_rate;
-      mp3type_.nBitRate      = cc->bit_rate;
-      mp3type_.nChannels     = cc->channels;
-      pcmtype_.nChannels     = cc->channels;
-
-      if (1 == pcmtype_.nChannels)
+      if (0 == (ret = open_input_file (&fmt_ctx, uri_,
+                                       stream_title_, stream_genre_,
+                                       quiet_)))
         {
-          pcmtype_.bInterleaved = OMX_FALSE;
-        }
+          if (NULL == (st = fmt_ctx->streams[0]))
+            {
+              close_input_file (&fmt_ctx);
+              return 1;
+            }
 
-      if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
-        {
-          pcmtype_.eNumData = OMX_NumericalDataUnsigned;
-          pcmtype_.nBitPerSample = 8;
-        }
-      else if (AV_SAMPLE_FMT_S16 == cc->sample_fmt)
-        {
-          pcmtype_.eNumData = OMX_NumericalDataSigned;
-          pcmtype_.nBitPerSample = 16;
-        }
-      else if (AV_SAMPLE_FMT_S32 == cc->sample_fmt)
-        {
-          pcmtype_.eNumData = OMX_NumericalDataSigned;
-          pcmtype_.nBitPerSample = 32;
+          if (NULL == (cc = st->codec))
+            {
+              close_input_file (&fmt_ctx);
+              return 1;
+            }
+
+          codec_id = cc->codec_id;
+
+          if (codec_id == CODEC_ID_MP3)
+            {
+              set_mp3_codec_info (cc);
+            }
+          else if (codec_id == CODEC_ID_VP8)
+            {
+              domain_ = OMX_PortDomainVideo;
+              video_coding_type_ = OMX_VIDEO_CodingVP8;
+            }
+          close_input_file (&fmt_ctx);
         }
       else
         {
-          pcmtype_.eNumData = OMX_NumericalDataSigned;
-          pcmtype_.nBitPerSample = 16;
+          // Unknown format
+          return 1;
         }
     }
-  else if (codec_id == CODEC_ID_VP8)
+  return 0;
+}
+
+void
+tizprobe::set_mp3_codec_info (const AVCodecContext *cc)
+{
+  assert (NULL != cc);
+
+  domain_                = OMX_PortDomainAudio;
+  audio_coding_type_     = OMX_AUDIO_CodingMP3;
+  mp3type_.nSampleRate   = cc->sample_rate;
+  pcmtype_.nSamplingRate = cc->sample_rate;
+  mp3type_.nBitRate      = cc->bit_rate;
+  mp3type_.nChannels     = cc->channels;
+  pcmtype_.nChannels     = cc->channels;
+
+  if (1 == pcmtype_.nChannels)
     {
-      domain_ = OMX_PortDomainVideo;
-      video_coding_type_ = OMX_VIDEO_CodingVP8;
+      pcmtype_.bInterleaved = OMX_FALSE;
     }
 
-  close_input_file (&fmt_ctx);
+  if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataUnsigned;
+      pcmtype_.nBitPerSample = 8;
+    }
+  else if (AV_SAMPLE_FMT_S16 == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 16;
+    }
+  else if (AV_SAMPLE_FMT_S32 == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 32;
+    }
+  else
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 16;
+    }
+}
 
-  return 0;
+void
+tizprobe::set_opus_codec_info ()
+{
+  domain_                = OMX_PortDomainAudio;
+  audio_coding_type_     = static_cast<OMX_AUDIO_CODINGTYPE>(OMX_AUDIO_CodingOPUS);
+  opustype_.nSampleRate  = 48000;
+  pcmtype_.nSamplingRate = 48000;
+  mp3type_.nChannels     = 2;
+  pcmtype_.nChannels     = 2;
+
+  pcmtype_.bInterleaved  = OMX_TRUE;
+  pcmtype_.eNumData      = OMX_NumericalDataSigned;
+  pcmtype_.nBitPerSample = 16;
+  pcmtype_.eEndian       = OMX_EndianLittle;
 }
 
 void
@@ -304,6 +341,17 @@ tizprobe::get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE & mp3type)
       (void) probe_file ();
     }
   mp3type = mp3type_;
+  return;
+}
+
+void
+tizprobe::get_opus_codec_info (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype)
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file ();
+    }
+  opustype = opustype_;
   return;
 }
 

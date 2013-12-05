@@ -271,7 +271,9 @@ filter_unknown_media (uri_list_t &file_list)
     {
       std::string extension (boost::filesystem::path (*it).extension ().
                              string ());
-      if (extension.compare (".mp3") != 0)
+      if (extension.compare (".mp3") != 0
+          &&
+          extension.compare (".opus") != 0)
         //&&
         // extension.compare (".ivf") != 0)
         {
