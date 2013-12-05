@@ -45,6 +45,9 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_reader.prc"
 #endif
 
+/* Forward declarations */
+static OMX_ERRORTYPE fr_prc_deallocate_resources (void *);
+
 static OMX_ERRORTYPE
 transform_buffer (const void *ap_obj)
 {
@@ -58,16 +61,20 @@ transform_buffer (const void *ap_obj)
 static void *
 fr_prc_ctor (void *ap_obj, va_list * app)
 {
-  fr_prc_t *p_obj   = super_ctor (typeOf (ap_obj, "frprc"), ap_obj, app);
-  p_obj->p_in_hdr_  = false;
-  p_obj->p_out_hdr_ = false;
-  p_obj->eos_       = false;
-  return p_obj;
+  fr_prc_t *p_prc           = super_ctor (typeOf (ap_obj, "frprc"), ap_obj, app);
+  assert (NULL != p_prc);
+  p_prc->p_in_hdr_          = NULL;
+  p_prc->p_out_hdr_         = NULL;
+  p_prc->eos_               = false;
+  p_prc->in_port_disabled_  = false;
+  p_prc->out_port_disabled_ = false;
+  return p_prc;
 }
 
 static void *
 fr_prc_dtor (void *ap_obj)
 {
+  (void) fr_prc_deallocate_resources (ap_obj);
   return super_dtor (typeOf (ap_obj, "frprc"), ap_obj);
 }
 

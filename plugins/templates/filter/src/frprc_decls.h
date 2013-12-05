@@ -47,6 +47,8 @@ extern "C"
     OMX_BUFFERHEADERTYPE *p_in_hdr_;
     OMX_BUFFERHEADERTYPE *p_out_hdr_;
     bool eos_;
+    bool in_port_disabled_;
+    bool out_port_disabled_;
   };
 
   typedef struct fr_prc_class fr_prc_class_t;
