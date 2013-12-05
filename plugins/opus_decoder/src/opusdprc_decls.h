@@ -60,7 +60,6 @@ extern "C"
     bool eos_;
     bool in_port_disabled_;
     bool out_port_disabled_;
-    bool awaiting_buffers_;
   };
 
   typedef struct opusd_prc_class opusd_prc_class_t;

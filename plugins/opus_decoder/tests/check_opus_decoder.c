@@ -615,14 +615,10 @@ START_TEST (test_opus_playback)
   check_common_context_t *p_dmux_ctx = NULL, *p_dec_ctx = NULL, *p_rend_ctx = NULL;
   OMX_BOOL timedout = OMX_FALSE;
   OMX_PARAM_PORTDEFINITIONTYPE dmux_port_def0, dec_port_def0, dec_port_def1, rend_port_def;
-  OMX_AUDIO_PARAM_OPUSTYPE dec_opus_type;
+  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE dec_opus_type;
   OMX_AUDIO_PARAM_PCMMODETYPE dec_pcm_mode, rend_pcm_mode;
   OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
   OMX_PARAM_CONTENTURITYPE *p_uri_param = NULL;
-/*   OMX_BUFFERHEADERTYPE **p_hdrlst = NULL; */
-/*   OMX_U32 i; */
-/*   int p_file = 0; */
-/*   int err = 0; */
 
   fail_if (!init_test_data());
 
@@ -742,10 +738,10 @@ START_TEST (test_opus_playback)
   /* -------------------------------------------------- */
   /* Obtain the opus settings from the decoder's port #0 */
   /* -------------------------------------------------- */
-  dec_opus_type.nSize = sizeof (OMX_AUDIO_PARAM_OPUSTYPE);
+  dec_opus_type.nSize = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
   dec_opus_type.nVersion.nVersion = OMX_VERSION;
   dec_opus_type.nPortIndex = 0;
-  error = OMX_GetParameter (p_opusdec, OMX_IndexParamAudioOpus, &dec_opus_type);
+  error = OMX_GetParameter (p_opusdec, OMX_TizoniaIndexParamAudioOpus, &dec_opus_type);
   fail_if (OMX_ErrorNone != error);
 
   /* --------------------------------------------------- */
@@ -770,20 +766,20 @@ START_TEST (test_opus_playback)
   /* Attempt to set the sampling rate on decoder's port #1 */
   /* ----------------------------------------------------- */
   /* NOTE : This must fail as the port #1 is configured as slave */
-/*   dec_pcm_mode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE); */
-/*   dec_pcm_mode.nVersion.nVersion = OMX_VERSION; */
-/*   dec_pcm_mode.nPortIndex = 1; */
-/*   dec_pcm_mode.nChannels = 2; */
-/*   dec_pcm_mode.nBitPerSample = 16; */
-/*   dec_pcm_mode.nSamplingRate = pg_rates[_i]; */
-/*   error = OMX_SetParameter (p_opusdec, OMX_IndexParamAudioPcm, &dec_pcm_mode); */
-/*   fail_if (OMX_ErrorBadParameter != error); */
+  dec_pcm_mode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+  dec_pcm_mode.nVersion.nVersion = OMX_VERSION;
+  dec_pcm_mode.nPortIndex = 1;
+  dec_pcm_mode.nChannels = 2;
+  dec_pcm_mode.nBitPerSample = 16;
+  dec_pcm_mode.nSamplingRate = pg_rates[_i];
+  error = OMX_SetParameter (p_opusdec, OMX_IndexParamAudioPcm, &dec_pcm_mode);
+  fail_if (OMX_ErrorBadParameter != error);
 
   /* ------------------------------------------ */
   /* Set the opus settings on decoder's port #0  */
   /* ------------------------------------------ */
   error = _ctx_reset (&dec_ctx, OMX_EventPortSettingsChanged);
-  dec_opus_type.nSize = sizeof (OMX_AUDIO_PARAM_OPUSTYPE);
+  dec_opus_type.nSize = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
   dec_opus_type.nVersion.nVersion = OMX_VERSION;
   dec_opus_type.nPortIndex = 0;
   dec_opus_type.nChannels = 2;
@@ -791,21 +787,29 @@ START_TEST (test_opus_playback)
   dec_opus_type.nSampleRate = pg_rates[_i];
   dec_opus_type.eChannelMode = OMX_AUDIO_ChannelModeStereo;
   dec_opus_type.eFormat = OMX_AUDIO_OPUSStreamFormatCBR;
-  error = OMX_SetParameter (p_opusdec, OMX_IndexParamAudioOpus, &dec_opus_type);
+  error = OMX_SetParameter (p_opusdec, OMX_TizoniaIndexParamAudioOpus, &dec_opus_type);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] : OMX_SetParameter(port #0, "
-           "OMX_IndexParamAudioOpus) = [%s]", OPUS_DEC_COMPONENT_NAME,
+           "OMX_TizoniaIndexParamAudioOpus) = [%s]", OPUS_DEC_COMPONENT_NAME,
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
-  /* ------------------------------------------------------- */
-  /* Await port settings change event on decoders's port #1  */
-  /* ------------------------------------------------------- */
-/*   error = _ctx_wait (&dec_ctx, OMX_EventPortSettingsChanged, */
-/*                      TIMEOUT_EXPECTING_SUCCESS, &timedout); */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   fail_if (OMX_TRUE == timedout); */
-/*   fail_if (1 != p_dec_ctx->port); */
-/*   fail_if (OMX_IndexParamAudioPcm != p_dec_ctx->index); */
+  /* If the sampling rate of the input stream is different from the default
+     pcm sampling rate of the output port (i.e. 48000hz), then an event
+     shall be received from the output port */
+
+  if (48000 != pg_rates[_i])
+    {
+      /* ------------------------------------------------------- */
+      /* Await port settings change event on decoders's port #1  */
+      /* ------------------------------------------------------- */
+
+      error = _ctx_wait (&dec_ctx, OMX_EventPortSettingsChanged,
+                         TIMEOUT_EXPECTING_SUCCESS, &timedout);
+      fail_if (OMX_ErrorNone != error);
+      fail_if (OMX_TRUE == timedout);
+      fail_if (1 != p_dec_ctx->port);
+      fail_if (OMX_IndexParamAudioPcm != p_dec_ctx->index);
+    }
 
   /* -------------------------------------------------- */
   /* Verify the new sampling rate on decoder's port #1 */
@@ -960,35 +964,6 @@ START_TEST (test_opus_playback)
              PCM_RND_COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
-  /* -------------------------------------- */
-  /* Allocate buffers for decoder's port #0 */
-  /* -------------------------------------- */
-/*   p_hdrlst = (OMX_BUFFERHEADERTYPE **) */
-/*     tiz_mem_calloc (dec_port_def0.nBufferCountActual, */
-/*                     sizeof (OMX_BUFFERHEADERTYPE *)); */
-
-/*   for (i = 0; i < dec_port_def0.nBufferCountActual; ++i) */
-/*     { */
-/*       error = OMX_AllocateBuffer (p_opusdec, &p_hdrlst[i], 0,    /\* input port *\/ */
-/*                                   0, dec_port_def0.nBufferSize); */
-/*       fail_if (OMX_ErrorNone != error); */
-/*       fail_if (p_hdrlst[i] == NULL); */
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]); */
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i, */
-/*                  p_hdrlst[i]->nAllocLen); */
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nFilledLen [%d]", i, */
-/*                  p_hdrlst[i]->nFilledLen); */
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nOffset [%d]", i, */
-/*                  p_hdrlst[i]->nOffset); */
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nOutputPortIndex [%d]", i, */
-/*                  p_hdrlst[i]->nOutputPortIndex); */
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nInputPortIndex [%d]", i, */
-/*                  p_hdrlst[i]->nInputPortIndex); */
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nFlags [%X]", i, */
-/*                  p_hdrlst[i]->nFlags); */
-/*       fail_if (dec_port_def0.nBufferSize > p_hdrlst[i]->nAllocLen); */
-/*     } */
-
   /* -------------------------------------------------- */
   /* Await renderer's transition callback OMX_StateIdle */
   /* -------------------------------------------------- */
@@ -1137,70 +1112,6 @@ START_TEST (test_opus_playback)
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateExecuting != state);
 
-  /* ---------------------------------------- */
-  /* buffer transfer loop - decoder's port #0 */
-  /* ---------------------------------------- */
-/*   fail_if ((p_file = open (pg_files[_i], O_RDONLY)) == 0); */
-
-/*   i = 0; */
-/*   while (i < dec_port_def0.nBufferCountActual) */
-/*     { */
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, "Reading from file [%s]", pg_files[_i]); */
-/*       if (! */
-/*           (err = */
-/*            read (p_file, p_hdrlst[i]->pBuffer, dec_port_def0.nBufferSize))) */
-/*         { */
-/*           if (0 == err) */
-/*             { */
-/*               TIZ_LOG (TIZ_PRIORITY_TRACE, "End of file reached for [%s]", */
-/*                          pg_files[_i]); */
-/*             } */
-/*           else */
-/*             { */
-/*               TIZ_LOG (TIZ_PRIORITY_TRACE, */
-/*                          "An error occurred while reading [%s]", */
-/*                          pg_files[_i]); */
-/*               fail_if (0); */
-/*             } */
-/*         } */
-
-/*       /\* Transfer buffer *\/ */
-/*       p_hdrlst[i]->nFilledLen = err; /\* dec_port_def0.nBufferSize; *\/ */
-/*       if (err < 1) */
-/*         { */
-/*           p_hdrlst[i]->nFlags |= OMX_BUFFERFLAG_EOS; */
-/*         } */
-
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, "Emptying header #%d -> [%p] " */
-/*                  "nFilledLen [%d] nFlags [%X]", */
-/*                  i, p_hdrlst[i], err, */
-/*                  p_hdrlst[i]->nFlags); */
-
-/*       _ctx_reset(&dec_ctx, OMX_EventVendorStartUnused); */
-/*       error = OMX_EmptyThisBuffer (p_opusdec, p_hdrlst[i]); */
-/*       fail_if (OMX_ErrorNone != error); */
-
-/*       /\* Await BufferDone callback *\/ */
-/*       error = _ctx_wait (&dec_ctx, OMX_EventVendorStartUnused, */
-/*                          TIMEOUT_EXPECTING_SUCCESS_BUFFER_TRANSFER, */
-/*                          &timedout); */
-/*       fail_if (OMX_ErrorNone != error); */
-/*       fail_if (timedout); */
-/*       fail_if (p_dec_ctx->p_hdr != p_hdrlst[i]); */
-
-/*       i++; */
-/*       i %= dec_port_def0.nBufferCountActual; */
-
-/*       if (0 == err) */
-/*         { */
-/*           /\* EOF *\/ */
-/*           break; */
-/*         } */
-
-/*     } */
-
-/*   close (p_file); */
-
   /* -------------------------------------- */
   /* Wait for EOS flag from opus decoder     */
   /* -------------------------------------- */
@@ -1342,17 +1253,6 @@ START_TEST (test_opus_playback)
                            OMX_StateLoaded, NULL);
   fail_if (OMX_ErrorNone != error);
 
-/*   /\* --------------------------------------- *\/ */
-/*   /\* Deallocate buffers on decoder's port #0 *\/ */
-/*   /\* --------------------------------------- *\/ */
-/*   fail_if (OMX_ErrorNone != error); */
-/*   for (i = 0; i < dec_port_def0.nBufferCountActual; ++i) */
-/*     { */
-/*       error = OMX_FreeBuffer (p_opusdec, 0,      /\* input port *\/ */
-/*                               p_hdrlst[i]); */
-/*       fail_if (OMX_ErrorNone != error); */
-/*     } */
-
   /* ------------------------------------ */
   /* Await renderer's transition callback */
   /* ------------------------------------ */
@@ -1423,7 +1323,6 @@ START_TEST (test_opus_playback)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_TeardownTunnel [%s]", tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
-/*   tiz_mem_free (p_hdrlst); */
   tiz_mem_free (p_uri_param);
 
   /* ------------------ */

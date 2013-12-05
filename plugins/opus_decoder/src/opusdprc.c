@@ -130,7 +130,6 @@ get_buffer (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
                 }
             }
         }
-      ap_prc->awaiting_buffers_ = true;
     }
 
   return NULL;
@@ -162,6 +161,17 @@ release_buffer (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
   (void) tiz_krn_release_buffer
     (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr);
   *pp_hdr = NULL;
+}
+
+static inline bool
+buffers_available (opusd_prc_t * ap_prc)
+{
+  bool rc = true;
+  rc &=
+    (NULL != get_buffer (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
+  rc &=
+    (NULL != get_buffer (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -260,8 +270,6 @@ release_all_buffers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
       ap_prc->p_out_hdr_ = NULL;
     }
 
-  ap_prc->awaiting_buffers_ = true;
-
   return OMX_ErrorNone;
 }
 
@@ -285,6 +293,8 @@ transform_buffer (const opusd_prc_t * ap_prc)
 
   if (NULL == p_in || NULL == p_out)
     {
+      TIZ_TRACE (handleOf (ap_prc), "IN HEADER [%p] OUT HEADER [%p]",
+                 p_in, p_out);
       return OMX_ErrorNone;
     }
 
@@ -352,6 +362,17 @@ transform_buffer (const opusd_prc_t * ap_prc)
   return OMX_ErrorNone;
 }
 
+static void
+clear_stream_parameters (opusd_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  ap_prc->packet_count_   = 0;
+  ap_prc->rate_           = 0;
+  ap_prc->mapping_family_ = 0;
+  ap_prc->channels_       = 0;
+  ap_prc->preskip_        = 0;
+}
+
 /*
  * opusdprc
  */
@@ -359,21 +380,16 @@ transform_buffer (const opusd_prc_t * ap_prc)
 static void *
 opusd_prc_ctor (void *ap_obj, va_list * app)
 {
-  opusd_prc_t *p_prc = super_ctor (typeOf (ap_obj, "opusdprc"), ap_obj, app);
+  opusd_prc_t *p_prc        = super_ctor (typeOf (ap_obj, "opusdprc"), ap_obj, app);
   assert (NULL != p_prc);
-  p_prc->p_opus_dec_ = NULL;
-  p_prc->p_in_hdr_ = NULL;
-  p_prc->p_out_hdr_ = NULL;
-  p_prc->p_out_buf_ = NULL;
-  p_prc->packet_count_ = 0;
-  p_prc->rate_ = 0;
-  p_prc->mapping_family_ = 0;
-  p_prc->channels_ = 0;
-  p_prc->preskip_ = 0;
-  p_prc->eos_ = false;
-  p_prc->in_port_disabled_ = false;
+  p_prc->p_opus_dec_        = NULL;
+  p_prc->p_in_hdr_          = NULL;
+  p_prc->p_out_hdr_         = NULL;
+  p_prc->p_out_buf_         = NULL;
+  clear_stream_parameters (p_prc);
+  p_prc->eos_               = false;
+  p_prc->in_port_disabled_  = false;
   p_prc->out_port_disabled_ = false;
-  p_prc->awaiting_buffers_ = true;
   TIZ_TRACE (handleOf (p_prc), "Opus library vesion [%%]",
              opus_get_version_string ());
   return p_prc;
@@ -394,7 +410,6 @@ static OMX_ERRORTYPE
 opusd_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   opusd_prc_t *p_prc = ap_obj;
-/*   int error = 0; */
   assert (NULL != ap_obj);
   if (NULL == (p_prc->p_out_buf_
                =
@@ -422,6 +437,9 @@ opusd_prc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 opusd_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
+  opusd_prc_t *p_prc = ap_obj;
+  assert (NULL != p_prc);
+  clear_stream_parameters (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -450,14 +468,10 @@ opusd_prc_buffers_ready (const void *ap_obj)
   opusd_prc_t *p_prc = (opusd_prc_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_obj);
-  TIZ_TRACE (handleOf (p_prc),
-             "awaiting_buffers [%s] eos [%s] packet_count [%d]",
-             p_prc->awaiting_buffers_ ? "YES" : "NO",
+  TIZ_TRACE (handleOf (p_prc), "eos [%s] packet_count [%d]",
              p_prc->eos_ ? "YES" : "NO", p_prc->packet_count_);
-  if (p_prc->awaiting_buffers_ && !p_prc->eos_)
+  if (!p_prc->eos_)
     {
-      p_prc->awaiting_buffers_ = false;
-
       if (0 == p_prc->packet_count_)
         {
           /* If first packet in the logical stream, process the Opus header and
@@ -471,7 +485,6 @@ opusd_prc_buffers_ready (const void *ap_obj)
             {
               p_prc->packet_count_++;
             }
-          p_prc->awaiting_buffers_ = true;
         }
       else if (1 == p_prc->packet_count_)
         {
@@ -484,13 +497,17 @@ opusd_prc_buffers_ready (const void *ap_obj)
             {
               p_prc->packet_count_++;
             }
-          p_prc->awaiting_buffers_ = true;
         }
       else
         {
-          rc = transform_buffer (ap_obj);
-          p_prc->packet_count_++;
-          p_prc->awaiting_buffers_ = true;
+          while (buffers_available (p_prc) && OMX_ErrorNone == rc)
+            {
+              rc = transform_buffer (p_prc);
+              if (OMX_ErrorNone)
+                {
+                  p_prc->packet_count_++;
+                }
+            }
         }
     }
 

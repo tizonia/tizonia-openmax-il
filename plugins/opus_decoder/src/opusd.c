@@ -57,7 +57,7 @@ static OMX_VERSIONTYPE opus_decoder_version = { {1, 0, 0, 0} };
 static OMX_PTR
 instantiate_opus_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_AUDIO_PARAM_OPUSTYPE opustype;
+  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype;
   OMX_AUDIO_CODINGTYPE encodings[] = {
     (OMX_AUDIO_CODINGTYPE) OMX_AUDIO_CodingOPUS,
     OMX_AUDIO_CodingMax
@@ -74,7 +74,7 @@ instantiate_opus_port (OMX_HANDLETYPE ap_hdl)
     1                           /* slave port's index  */
   };
 
-  opustype.nSize                   = sizeof (OMX_AUDIO_PARAM_OPUSTYPE);
+  opustype.nSize                   = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
   opustype.nVersion.nVersion       = OMX_VERSION;
   opustype.nPortIndex              = ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX;
   opustype.nChannels               = 2;

@@ -18,15 +18,15 @@
  */
 
 /**
- * @file   opusdmux.h
+ * @file   opusd.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia OpenMAX IL - Opus decoder component constants
  *
  *
  */
-#ifndef OPUSDMUX_H
-#define OPUSDMUX_H
+#ifndef OPUSD_H
+#define OPUSD_H
 
 #ifdef __cplusplus
 extern "C"
@@ -56,4 +56,4 @@ extern "C"
 }
 #endif
 
-#endif                          /* OPUSDMUX_H */
+#endif                          /* OPUSD_H */
