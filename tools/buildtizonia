@@ -33,6 +33,11 @@ mkdir -p $INSTALL_DIR
 echo "Changing dir to $TIZ_DIR"
 cd $TIZ_DIR
 
+LIB_DIR="$INSTALL_DIR"/lib
+PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
+
+export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
+export LD_LIBRARY_PATH="$LIB_DIR"
 
 if [ "$1" == "debug" ]; then
     echo "Reconfiguring Tizonia for [DEBUG] build - Install dir [$INSTALL_DIR]..."
@@ -70,6 +75,16 @@ elif [ "$1" == "deps" ];  then
         libsdl1.2-dev libvpx-dev libavcodec-dev \
         libavformat-dev libavdevice-dev libmp3lame-dev \
         libev-dev python-sphinx curl
+    exit_status=$?
+elif [ "$1" == "srcdeps" ];  then
+    echo "Installing source-based project dependencies..."
+    repos=( https://git.xiph.org/mirrors/ogg.git https://git.xiph.org/liboggz.git https://git.xiph.org/opus.git https://git.xiph.org/flac.git )
+    folders=( ogg liboggz opus flac )
+    total=${#repos[*]}
+    for (( i=0; i<=$(( $total -1 )); i++ ))
+    do
+        cd $TIZ_DIR && git clone ${repos[$i]} && cd ${folders[$i]} && ./autogen.sh && ./configure --prefix=$INSTALL_DIR && make install
+    done
     exit_status=$?
 elif [ "$1" == "media" ];  then
     echo "Downloading test media files..."
