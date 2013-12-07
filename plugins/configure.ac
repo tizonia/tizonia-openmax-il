@@ -53,10 +53,13 @@ AC_CONFIG_FILES([Makefile])
 
 AC_CONFIG_SUBDIRS([audio_renderer
                    audio_renderer_non_block
+                   flac_decoder
                    file_reader
                    file_writer
                    mp3_decoder
                    mp3_encoder
+                   ogg_demuxer
+                   opus_decoder
                    vp8_decoder
                    vp8_encoder
                    webp_decoder
