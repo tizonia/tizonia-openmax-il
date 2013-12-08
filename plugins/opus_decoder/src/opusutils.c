@@ -45,7 +45,6 @@
 #endif
 
 #include "opusutils.h"
-#include <ogg/ogg.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -83,7 +82,7 @@ typedef struct {
    int version;
    int channels; /* Number of channels: 1..255 */
    int preskip;
-   ogg_uint32_t input_sample_rate;
+   uint32_t input_sample_rate;
    int gain; /* in dB S7.8 should be zero whenever possible */
    int channel_mapping;
    /* The rest is only used if channel_mapping != 0 */
@@ -104,24 +103,24 @@ typedef struct {
    int pos;
 } ROPacket;
 
-static int read_uint32(ROPacket *p, ogg_uint32_t *val)
+static int read_uint32(ROPacket *p, uint32_t *val)
 {
    if (p->pos>p->maxlen-4)
       return 0;
-   *val =  (ogg_uint32_t)p->data[p->pos  ];
-   *val |= (ogg_uint32_t)p->data[p->pos+1]<< 8;
-   *val |= (ogg_uint32_t)p->data[p->pos+2]<<16;
-   *val |= (ogg_uint32_t)p->data[p->pos+3]<<24;
+   *val =  (uint32_t)p->data[p->pos  ];
+   *val |= (uint32_t)p->data[p->pos+1]<< 8;
+   *val |= (uint32_t)p->data[p->pos+2]<<16;
+   *val |= (uint32_t)p->data[p->pos+3]<<24;
    p->pos += 4;
    return 1;
 }
 
-static int read_uint16(ROPacket *p, ogg_uint16_t *val)
+static int read_uint16(ROPacket *p, uint16_t *val)
 {
    if (p->pos>p->maxlen-2)
       return 0;
-   *val =  (ogg_uint16_t)p->data[p->pos  ];
-   *val |= (ogg_uint16_t)p->data[p->pos+1]<<8;
+   *val =  (uint16_t)p->data[p->pos  ];
+   *val |= (uint16_t)p->data[p->pos+1]<<8;
    p->pos += 2;
    return 1;
 }
@@ -143,7 +142,7 @@ opus_header_parse(const unsigned char *packet, int len, OpusHeader *h)
    char str[9];
    ROPacket p;
    unsigned char ch;
-   ogg_uint16_t shortval;
+   uint16_t shortval;
 
    p.data = packet;
    p.maxlen = len;
