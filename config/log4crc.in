@@ -92,8 +92,11 @@
 
 <!--         <category name="tiz.play" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.play.omxutil" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.play.playlist" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.play.graphmgr" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.play.graph" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.play.graph.mp3" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.play.graph.opus" priority="trace" appender="tizlogfile" /> -->
 
 
 	<layout name="basic" type="basic"/>

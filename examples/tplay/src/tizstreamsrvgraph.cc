@@ -30,12 +30,14 @@
 #endif
 
 #include "tizstreamsrvgraph.h"
+#include "tizstreamsrvconfig.h"
 #include "tizprobe.h"
-#include "tizosal.h"
 
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_TizoniaExt.h"
+#include <tizosal.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_TizoniaExt.h>
 
 #include <boost/foreach.hpp>
 
@@ -245,7 +247,7 @@ tizstreamsrvgraph::configure_stream ()
 }
 
 OMX_ERRORTYPE
-tizstreamsrvgraph::do_configure (const tizgraphconfig_ptr_t config)
+tizstreamsrvgraph::do_configure (const tizgraphconfig_ptr_t &config)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 

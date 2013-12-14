@@ -20,19 +20,24 @@ bin_PROGRAMS = tplay
 noinst_HEADERS = \
 	tizomxutil.h \
 	tizprobe.h \
+	tizplaylist.h \
 	tizgraphfactory.h \
 	tizgraphtypes.h \
 	tizgraphconfig.h \
+	tizgraphmgr.h \
 	tizgraph.h \
 	tizmp3graph.h \
 	tizopusgraph.h \
+	tizstreamsrvconfig.h \
 	tizstreamsrvgraph.h
 
 tplay_SOURCES = \
 	tizplay.cc \
 	tizomxutil.cc \
 	tizprobe.cc \
+	tizplaylist.cc \
 	tizgraphfactory.cc \
+	tizgraphmgr.cc \
 	tizgraph.cc \
 	tizmp3graph.cc \
 	tizopusgraph.cc \

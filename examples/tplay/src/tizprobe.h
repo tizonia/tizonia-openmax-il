@@ -29,14 +29,14 @@
 #ifndef TIZPROBE_H
 #define TIZPROBE_H
 
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Audio.h>
+#include <OMX_Video.h>
+#include <OMX_TizoniaExt.h>
+
 #include <string>
 #include <boost/shared_ptr.hpp>
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Audio.h"
-#include "OMX_Video.h"
-#include "OMX_TizoniaExt.h"
 
 class tizprobe;
 class AVCodecContext;

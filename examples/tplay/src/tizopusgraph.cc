@@ -30,16 +30,16 @@
 #endif
 
 #include "tizopusgraph.h"
+#include "tizgraphconfig.h"
 #include "tizprobe.h"
-#include "tizosal.h"
 
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_TizoniaExt.h"
+#include <tizosal.h>
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_TizoniaExt.h>
 
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
-
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -203,11 +203,12 @@ tizopusgraph::configure_opus_graph (const int file_index)
 }
 
 OMX_ERRORTYPE
-tizopusgraph::do_configure (const tizgraphconfig_ptr_t config)
+tizopusgraph::do_configure (const tizgraphconfig_ptr_t &config)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
-  file_list_ = config->get_uris ();
+  config_ = config;
+  file_list_ = config_->get_uris ();
   current_file_index_ = 0;
 
   tiz_check_omx_err (setup_suppliers ());
@@ -324,11 +325,18 @@ tizopusgraph::do_unload ()
 void
 tizopusgraph::do_eos (const OMX_HANDLETYPE handle)
 {
-  if (handle == handles_[2])
+  if (config_->continuous_playback ())
     {
-      (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
-      (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
-      (void) do_execute ();
+      if (handle == handles_[2])
+        {
+          (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
+          (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
+          (void) do_execute ();
+        }
+    }
+  else
+    {
+      notify_graph_end_of_play ();
     }
 }
 

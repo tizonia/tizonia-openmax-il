@@ -35,12 +35,16 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play"
 #endif
 
-#include "OMX_Core.h"
-#include "tizomxutil.h"
+#include "tizplaylist.h"
 #include "tizgraph.h"
+#include "tizgraphmgr.h"
 #include "tizgraphfactory.h"
 #include "tizstreamsrvgraph.h"
-#include "tizosal.h"
+#include "tizstreamsrvconfig.h"
+#include "tizomxutil.h"
+
+#include <tizosal.h>
+#include <OMX_Core.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -57,7 +61,6 @@
 #include <arpa/inet.h>
 
 #include <boost/foreach.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/make_shared.hpp>
 #include <ostream>
 #include <termios.h>
@@ -67,7 +70,7 @@ static tizgraph *gp_running_graph = NULL;
 
 static struct termios old_term, new_term;
 
-void
+static void
 init_termios(int echo)
 {
   tcgetattr(0, &old_term); /* grab old terminal i/o settings */
@@ -77,13 +80,13 @@ init_termios(int echo)
   tcsetattr(0, TCSANOW, &new_term); /* use these new terminal i/o settings now */
 }
 
-void
+static void
 reset_termios(void)
 {
   tcsetattr(0, TCSANOW, &old_term);
 }
 
-char
+static char
 getch_(int echo)
 {
   char ch;
@@ -93,14 +96,14 @@ getch_(int echo)
   return ch;
 }
 
-char
+static char
 getch (void)
 {
   /* Read 1 character without echo */
   return getch_(0);
 }
 
-void
+static void
 tizplay_sig_term_hdlr (int sig)
 {
   if (!gb_daemon_mode)
@@ -110,19 +113,19 @@ tizplay_sig_term_hdlr (int sig)
   exit (EXIT_FAILURE);
 }
 
-void
+static void
 tizplay_sig_stp_hdlr (int sig)
 {
   raise (SIGSTOP);
 }
 
-void
+static void
 tizplay_sig_pipe_hdlr (int sig)
 {
   // Simply ignore this one
 }
 
-void
+static void
 print_usage (void)
 {
   printf ("Tizonia OpenMAX IL player version %s\n\n", PACKAGE_VERSION);
@@ -157,7 +160,7 @@ print_usage (void)
   printf ("\n");
 }
 
-OMX_ERRORTYPE
+static OMX_ERRORTYPE
 list_comps ()
 {
   std::vector < std::string > components;
@@ -185,7 +188,7 @@ list_comps ()
   return ret;
 }
 
-OMX_ERRORTYPE
+static OMX_ERRORTYPE
 roles_of_comp (OMX_STRING component)
 {
   std::vector < std::string > roles;
@@ -218,7 +221,7 @@ roles_of_comp (OMX_STRING component)
   return ret;
 }
 
-OMX_ERRORTYPE
+static OMX_ERRORTYPE
 comps_of_role (OMX_STRING role)
 {
   std::vector < std::string > components;
@@ -249,81 +252,6 @@ comps_of_role (OMX_STRING role)
   return ret;
 }
 
-
-struct pathname_of
-{
-  pathname_of (uri_list_t &file_list):file_list_ (file_list)
-  {
-  }
-
-  void operator () (const boost::filesystem::directory_entry & p) const
-  {
-    file_list_.push_back (p.path ().string ());
-  }
-  uri_list_t &file_list_;
-};
-
-static OMX_ERRORTYPE
-filter_unknown_media (uri_list_t &file_list)
-{
-  uri_list_t::iterator it = file_list.begin ();
-  while (it != file_list.end ())
-    {
-      std::string extension (boost::filesystem::path (*it).extension ().
-                             string ());
-      if (extension.compare (".mp3") != 0
-          &&
-          extension.compare (".opus") != 0)
-        //&&
-        // extension.compare (".ivf") != 0)
-        {
-          file_list.erase (it);
-          // Restart the loop
-          it = file_list.begin ();
-        }
-      else
-        {
-          ++it;
-        }
-    }
-
-  return file_list.empty () ? OMX_ErrorContentURIError : OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-process_uri (const std::string & uri, uri_list_t &file_list, bool recurse = false)
-{
-  if (boost::filesystem::exists (uri)
-      && boost::filesystem::is_regular_file (uri))
-    {
-      file_list.push_back (uri);
-      return OMX_ErrorNone;
-    }
-
-  if (boost::filesystem::exists (uri)
-      && boost::filesystem::is_directory (uri))
-    {
-      if (!recurse)
-        {
-          std::for_each (boost::filesystem::directory_iterator
-                         (boost::filesystem::path (uri)),
-                         boost::filesystem::directory_iterator (),
-                         pathname_of (file_list));
-          return file_list.empty () ? OMX_ErrorContentURIError : OMX_ErrorNone;
-        }
-      else
-        {
-          std::for_each (boost::filesystem::recursive_directory_iterator
-                         (boost::filesystem::path (uri)),
-                         boost::filesystem::recursive_directory_iterator (),
-                         pathname_of (file_list));
-          return file_list.empty () ? OMX_ErrorContentURIError : OMX_ErrorNone;
-        }
-    }
-
-  return OMX_ErrorContentURIError;
-}
-
 enum ETIZPlayUserInput
 {
   ETIZPlayUserStop,
@@ -333,7 +261,7 @@ enum ETIZPlayUserInput
 };
 
 static ETIZPlayUserInput
-wait_for_user_input (tizgraph_ptr_t graph_ptr)
+wait_for_user_input (tizgraphmgr_ptr_t graphmgr_ptr)
 {
   while (1)
     {
@@ -373,15 +301,15 @@ wait_for_user_input (tizgraph_ptr_t graph_ptr)
               break;
 
             case ' ':
-              graph_ptr->pause ();
+              graphmgr_ptr->pause ();
               break;
 
             case 'n':
-              graph_ptr->skip (1);
+              graphmgr_ptr->next ();
               break;
 
             case 'p':
-              graph_ptr->skip (-2);
+              graphmgr_ptr->prev ();
               break;
 
             case '-':
@@ -432,32 +360,6 @@ wait_for_user_input_while_streaming (tizgraph_ptr_t graph_ptr)
 
 }
 
-static void
-assemble_play_list (const std::string &uri, const bool shuffle_playlist,
-                    const bool recurse, uri_list_t &file_list)
-{
-  if (OMX_ErrorNone != process_uri (uri, file_list, recurse))
-    {
-      fprintf (stderr, "File not found.\n");
-      exit (EXIT_FAILURE);
-    }
-
-  if (OMX_ErrorNone != filter_unknown_media (file_list))
-    {
-      fprintf (stderr, "No supported media types found.\n");
-      exit (EXIT_FAILURE);
-    }
-
-  if (shuffle_playlist)
-    {
-      std::random_shuffle (file_list.begin (), file_list.end ());
-    }
-  else
-    {
-      std::sort (file_list.begin (), file_list.end ());
-    }
-}
-
 static OMX_ERRORTYPE
 decode (const std::string & uri, const bool shuffle_playlist,
         const bool recurse)
@@ -465,45 +367,23 @@ decode (const std::string & uri, const bool shuffle_playlist,
   OMX_ERRORTYPE ret = OMX_ErrorNone;
   uri_list_t file_list;
 
-  assemble_play_list (uri, shuffle_playlist, recurse, file_list);
-
-  tizgraph_ptr_t g_ptr (tizgraphfactory::create_graph (file_list[0].c_str ()));
-  if (!g_ptr)
+  if (OMX_ErrorNone != tizplaylist_t::assemble_play_list
+      (uri, shuffle_playlist, recurse, file_list))
     {
-      // At this point we have removed all unsupported media, so we should
-      // always have a graph object.
-      fprintf (stderr, "Could not create a graph. Unsupported format.\n");
+      fprintf (stderr, "File or directory not found [%s].\n", uri.c_str ());
       exit (EXIT_FAILURE);
     }
 
-  gp_running_graph = g_ptr.get ();
+  tizgraphmgr_ptr_t p_graph_mgr = boost::make_shared < tizgraphmgr > (file_list);
 
-  if (OMX_ErrorNone != (ret = g_ptr->load ()))
-    {
-      fprintf (stderr, "Found error %s while loading the graph.\n",
-               tiz_err_to_str (ret));
-      exit (EXIT_FAILURE);
-    }
+  p_graph_mgr->init ();
+  p_graph_mgr->start ();
 
-  tizgraphconfig_ptr_t config
-    = boost::make_shared < tizgraphconfig > (file_list);
-  if (OMX_ErrorNone != (ret = g_ptr->configure (config)))
-    {
-      fprintf (stderr, "Could not configure a graph. Skipping file.\n");
-      exit (EXIT_FAILURE);
-    }
-
-  if (OMX_ErrorNone != (ret = g_ptr->execute ()))
-    {
-      fprintf (stderr, "Found error %s while executing the graph.\n",
-               tiz_err_to_str (ret));
-      exit (EXIT_FAILURE);
-    }
-
-  while (ETIZPlayUserStop != wait_for_user_input (g_ptr))
+  while (ETIZPlayUserStop != wait_for_user_input (p_graph_mgr))
     {}
 
-  g_ptr->unload ();
+  p_graph_mgr->stop ();
+  p_graph_mgr->deinit ();
 
   return ret;
 }
@@ -517,7 +397,14 @@ stream (const std::string & uri, const long int port, const bool shuffle_playlis
   char hostname[120] = "";
   std::string ip_address;
 
-  assemble_play_list (uri, shuffle_playlist, recurse, file_list);
+  if (OMX_ErrorNone != tizplaylist_t::assemble_play_list
+      (uri, shuffle_playlist, recurse, file_list))
+    {
+      fprintf (stderr, "File or directory not found [%s].\n", uri.c_str ());
+      exit (EXIT_FAILURE);
+    }
+
+  tizomxutil::init ();
 
   tizprobe_ptr_t p = boost::make_shared < tizprobe > (file_list[0],
                                                       /* quiet = */ true);
@@ -567,6 +454,8 @@ stream (const std::string & uri, const long int port, const bool shuffle_playlis
     {}
 
   g_ptr->unload ();
+
+  tizomxutil::deinit();
 
   return ret;
 }

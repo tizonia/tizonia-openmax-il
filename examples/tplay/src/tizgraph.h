@@ -31,18 +31,17 @@
 #define TIZGRAPH_H
 
 #include "tizgraphtypes.h"
-#include "tizgraphconfig.h"
-#include "tizosal.h"
 #include "tizprobe.h"
-#include "OMX_Core.h"
+#include "tizplaylist.h"
+
+#include <tizosal.h>
+
+#include <OMX_Core.h>
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
 void * g_graph_thread_func (void *p_arg);
-
-class tizgraph;
-typedef boost::shared_ptr<tizgraph> tizgraph_ptr_t;
 
 struct waitevent_info;
 typedef std::list<waitevent_info> waitevent_list_t;
@@ -189,10 +188,14 @@ public:
   OMX_ERRORTYPE volume ();
   void unload();
 
+  void set_manager (tizgraphmgr_t *ap_graph_mgr);
+  bool at_beginning_of_play () const;
+  bool at_end_of_play () const;
+  
 protected:
 
   virtual OMX_ERRORTYPE do_load ()                                                = 0;
-  virtual OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t config)            = 0;
+  virtual OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t &config)            = 0;
   virtual OMX_ERRORTYPE do_execute ()                                             = 0;
   virtual OMX_ERRORTYPE do_pause ()                                               = 0;
   virtual OMX_ERRORTYPE do_seek ()                                                = 0;
@@ -237,6 +240,8 @@ protected:
                           const OMX_HANDLETYPE handle = NULL,
                           const int jump = 0);
 
+  OMX_ERRORTYPE notify_graph_end_of_play ();
+
   static void dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd);
 
 protected:
@@ -251,10 +256,11 @@ protected:
   tiz_sem_t             sem_;
   tiz_queue_t          *p_queue_;
   OMX_STATETYPE         current_graph_state_;
+  tizplaylist_t         playlist_;
   uri_list_t            file_list_;
   int                   current_file_index_;
   tizgraphconfig_ptr_t  config_;
-
+  tizgraphmgr_t     *     p_mgr_;
 };
 
 #endif // TIZGRAPH_H

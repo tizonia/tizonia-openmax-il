@@ -19,44 +19,43 @@
  */
 
 /**
- * @file   tizmp3graph.h
+ * @file   tizstreamsrvconfig.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL mp3 graph class
+ * @brief  OpenMAX IL HTTP Streaming Server graph config class
  *
  *
  */
 
-#ifndef TIZMP3GRAPH_H
-#define TIZMP3GRAPH_H
+#ifndef TIZSTREAMSRVCONFIG_H
+#define TIZSTREAMSRVCONFIG_H
 
-#include "tizgraph.h"
-#include "tizprobe.h"
+#include "tizgraphconfig.h"
 
-class tizmp3graph : public tizgraph
+class tizstreamsrvconfig : public tizgraphconfig
 {
 
 public:
 
-  tizmp3graph (tizprobe_ptr_t probe_ptr);
+  tizstreamsrvconfig (const uri_list_t & uris,
+                      const std::string &host,
+                      const std::string &ip_address,
+                      const long int port)
+    : tizgraphconfig (uris), host_ (host), addr_ (ip_address), port_ (port)
+  {}
+
+  ~tizstreamsrvconfig () {}
+
+  std::string get_addr () const {return addr_;}
+  std::string get_host_name () const {return host_;}
+  long int get_port () const {return port_;}
 
 protected:
 
-  OMX_ERRORTYPE do_load ();
-  OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t &config);
-  OMX_ERRORTYPE do_execute ();
-  OMX_ERRORTYPE do_pause ();
-  OMX_ERRORTYPE do_seek ();
-  OMX_ERRORTYPE do_skip (const int jump);
-  OMX_ERRORTYPE do_volume ();
-  void              do_eos (const OMX_HANDLETYPE handle);
-  void              do_unload ();
-
-private:
-
-  OMX_ERRORTYPE configure_mp3_graph (const int file_index);
+  std::string host_;
+  std::string addr_;
+  long int port_;
 
 };
 
-#endif // TIZMP3GRAPH_H
-
+#endif // TIZSTREAMSRVCONFIG_H

@@ -30,10 +30,11 @@
 #ifndef TIZGRAPHTYPES_H
 #define TIZGRAPHTYPES_H
 
-#include "OMX_Core.h"
+#include <OMX_Core.h>
 #include <vector>
 #include <string>
 #include <map>
+#include <boost/shared_ptr.hpp>
 
 typedef std::vector < std::string > component_names_t;
 typedef std::vector < OMX_HANDLETYPE > component_handles_t;
@@ -41,6 +42,20 @@ typedef std::vector < std::string > component_roles_t;
 typedef std::vector < OMX_EVENTTYPE > component_events_t;
 typedef std::map < OMX_HANDLETYPE, std::string > handle_to_name_t;
 typedef std::vector < std::string > uri_list_t;
+
+class tizgraph;
+typedef boost::shared_ptr<tizgraph> tizgraph_ptr_t;
+typedef std::map<std::string, tizgraph_ptr_t> tizgraph_ptr_map_t;
+
+class tizgraphmgr;
+typedef class tizgraphmgr tizgraphmgr_t;
+typedef boost::shared_ptr<tizgraphmgr> tizgraphmgr_ptr_t;
+
+class tizgraphconfig;
+typedef boost::shared_ptr<tizgraphconfig> tizgraphconfig_ptr_t;
+
+class tizstreamsrvconfig;
+typedef boost::shared_ptr<tizstreamsrvconfig> tizstreamsrvconfig_ptr_t;
 
 
 #endif // TIZGRAPHTYPES_H

@@ -30,23 +30,29 @@
 #endif
 
 #include "tizgraph.h"
-#include "tizomxutil.h"
-#include "tizosal.h"
-#include "tizmacros.h"
-#include "OMX_Component.h"
+#include "tizgraphmgr.h"
+
+#include <tizomxutil.h>
+#include <tizosal.h>
+#include <tizmacros.h>
+#include <OMX_Component.h>
 
 #include <assert.h>
 #include <algorithm>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/assign/list_of.hpp>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graph"
 #endif
 
-struct transition_to
+namespace // Unnamed namespace
 {
+
+  struct transition_to
+  {
   transition_to(const OMX_STATETYPE to_state, const OMX_U32 useconds = 0)
     : to_state_(to_state), delay_(useconds), error_(OMX_ErrorNone) {}
   void operator()(const OMX_HANDLETYPE &handle)
@@ -60,7 +66,83 @@ struct transition_to
   const OMX_STATETYPE to_state_;
   OMX_U32 delay_;
   OMX_ERRORTYPE error_;
-};
+  };
+
+  typedef struct graph_cmd_str graph_cmd_str_t;
+  struct graph_cmd_str
+  {
+    graph_cmd_str (tizgraphcmd::cmd_type a_cmd, std::string a_str)
+      : cmd (a_cmd), str (a_str)
+    {}
+    tizgraphcmd::cmd_type cmd;
+    const std::string str;
+  };
+
+  const std::vector<graph_cmd_str_t> graph_cmd_to_str_tbl
+  = boost::assign::list_of
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdLoad, "ETIZGraphCmdLoad"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdConfig, "ETIZGraphCmdConfig"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdExecute, "ETIZGraphCmdExecute"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdPause, "ETIZGraphCmdPause"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdSeek, "ETIZGraphCmdSeek"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdSkip, "ETIZGraphCmdSkip"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdVolume, "ETIZGraphCmdVolume"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdUnload, "ETIZGraphCmdUnload"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdEos, "ETIZGraphCmdEos"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdMax, "ETIZGraphCmdMax"));
+
+  /*@observer@*/ const char *
+  graph_cmd_to_str (tizgraphcmd::cmd_type a_cmd)
+  {
+    const size_t count = graph_cmd_to_str_tbl.size ();
+    size_t i = 0;
+
+    for (i = 0; i < count; ++i)
+      {
+        if (graph_cmd_to_str_tbl[i].cmd == a_cmd)
+          {
+            return graph_cmd_to_str_tbl[i].str.c_str ();
+          }
+      }
+    return "Unknown Graph command";
+  }
+
+  typedef struct graph_state_str graph_state_str_t;
+  struct graph_state_str
+  {
+    graph_state_str (OMX_STATETYPE a_state, std::string a_str)
+      : state (a_state), str (a_str)
+    {}
+    OMX_STATETYPE state;
+    const std::string str;
+  };
+
+  const std::vector<graph_state_str_t> graph_state_to_str_tbl
+  = boost::assign::list_of
+    (graph_state_str_t (OMX_StateLoaded, "OMX_StateLoaded"))
+    (graph_state_str_t (OMX_StateIdle, "OMX_StateIdle"))
+    (graph_state_str_t (OMX_StateExecuting, "OMX_StateExecuting"))
+    (graph_state_str_t (OMX_StatePause, "OMX_StatePause"))
+    (graph_state_str_t (OMX_StateWaitForResources, "OMX_StateWaitForResources"))
+    (graph_state_str_t (OMX_StateMax, "OMX_StateMax"));
+
+  /*@observer@*/ const char *
+  graph_state_to_str (OMX_STATETYPE a_state)
+  {
+    const size_t count = graph_state_to_str_tbl.size ();
+    size_t i = 0;
+
+    for (i = 0; i < count; ++i)
+      {
+        if (graph_state_to_str_tbl[i].state == a_state)
+          {
+            return graph_state_to_str_tbl[i].str.c_str ();
+          }
+      }
+    return "Unknown Graph state";
+  }
+
+}
 
 void *
 g_graph_thread_func (void *p_arg)
@@ -318,9 +400,11 @@ tizgraph::tizgraph(int graph_size, tizprobe_ptr_t probe_ptr)
   sem_ (),
   p_queue_ (NULL),
   current_graph_state_ (OMX_StateLoaded),
+  playlist_ (),
   file_list_ (),
   current_file_index_ (0),
-  config_ ()
+  config_ (),
+  p_mgr_ (NULL)
 {
   assert (probe_ptr);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
@@ -328,12 +412,14 @@ tizgraph::tizgraph(int graph_size, tizprobe_ptr_t probe_ptr)
   tiz_sem_init (&sem_, 0);
   tiz_queue_init (&p_queue_, 10);
 
-  tizomxutil::init ();
+  // TODO: Do not uncomment this. IL Core init/deinit from multiple threads do not work at the moment.
+  //   tizomxutil::init ();
 }
 
 tizgraph::~tizgraph()
 {
-  tizomxutil::deinit();
+  // TODO: Do not uncomment this. IL Core init/deinit from multiple threads do not work at the moment.
+//   tizomxutil::deinit();
   tiz_mutex_destroy (&mutex_);
   tiz_sem_destroy (&sem_);
   tiz_queue_destroy (p_queue_);
@@ -420,6 +506,26 @@ tizgraph::unload ()
   send_msg (tizgraphcmd::ETIZGraphCmdUnload, null_config);
   deinit ();
 }
+
+void
+tizgraph::set_manager (tizgraphmgr *ap_graph_mgr)
+{
+  assert (NULL != ap_graph_mgr);
+  p_mgr_ = ap_graph_mgr;
+}
+
+bool
+tizgraph::at_beginning_of_play () const
+{
+  return (current_file_index_ == 0);
+}
+
+bool
+tizgraph::at_end_of_play () const
+{
+  return (current_file_index_ >= file_list_.size ());
+}
+
 
 OMX_ERRORTYPE
 tizgraph::verify_existence (const component_names_t &comp_list) const
@@ -798,13 +904,26 @@ tizgraph::send_msg (const tizgraphcmd::cmd_type type,
   return OMX_ErrorNone;
 }
 
+OMX_ERRORTYPE
+tizgraph::notify_graph_end_of_play ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  if (NULL != p_mgr_)
+    {
+      rc = p_mgr_->graph_end_of_play ();
+    }
+  return rc;
+}
+
 void
 tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
 {
   assert (NULL != p_graph);
   assert (NULL != p_cmd);
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "type [%d]...", p_cmd->get_type ());
+  TIZ_LOG (TIZ_PRIORITY_NOTICE, "Dispatching [%s] in [%s]...",
+           graph_cmd_to_str (p_cmd->get_type ()),
+           graph_state_to_str (p_graph->current_graph_state_));
 
   switch(p_cmd->get_type ())
     {

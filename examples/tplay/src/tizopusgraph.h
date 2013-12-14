@@ -32,7 +32,6 @@
 
 #include "tizgraph.h"
 #include "tizprobe.h"
-#include "OMX_Audio.h"
 
 class tizopusgraph : public tizgraph
 {
@@ -44,7 +43,7 @@ public:
 protected:
 
   OMX_ERRORTYPE do_load ();
-  OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t config);
+  OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t &config);
   OMX_ERRORTYPE do_execute ();
   OMX_ERRORTYPE do_pause ();
   OMX_ERRORTYPE do_seek ();

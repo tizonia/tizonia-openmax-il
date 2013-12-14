@@ -29,10 +29,11 @@
 #ifndef TIZGRAPHFACTORY_H
 #define TIZGRAPHFACTORY_H
 
-#include <string>
-
-#include "OMX_Types.h"
 #include "tizgraph.h"
+
+#include <OMX_Types.h>
+
+#include <string>
 
 class tizgraphfactory
 {
@@ -40,6 +41,7 @@ class tizgraphfactory
 public:
 
   static tizgraph_ptr_t create_graph(const std::string &uri);
+  static std::string coding_type(const std::string &uri);
 
 protected:
 
