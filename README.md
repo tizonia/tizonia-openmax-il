@@ -1,4 +1,4 @@
-tizonia-openmax-il
+Tizonia Openmax IL
 ==================
 
 An experimental implementation for Linux of the OpenMAX IL 1.2 provisional
@@ -35,6 +35,7 @@ Tizonia OpenMAX IL consists of a number of resources:
   * a http renderer (ala icecast)
   * an ogg demuxer (based on liboggz)
   * an opus decoder (based on libopus)
+  * a flac decoder (based on libflac)
   * binary file readers and writers
   * etc...
 
