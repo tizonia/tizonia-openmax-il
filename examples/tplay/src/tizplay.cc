@@ -66,399 +66,414 @@
 #include <termios.h>
 
 static bool gb_daemon_mode = false;
-static tizgraph *gp_running_graph = NULL;
 
 static struct termios old_term, new_term;
 
-static void
-init_termios(int echo)
+namespace                       // unnamed namespace
 {
-  tcgetattr(0, &old_term); /* grab old terminal i/o settings */
-  new_term = old_term; /* make new settings same as old settings */
-  new_term.c_lflag &= ~ICANON; /* disable buffered i/o */
-  new_term.c_lflag &= echo ? ECHO : ~ECHO; /* set echo mode */
-  tcsetattr(0, TCSANOW, &new_term); /* use these new terminal i/o settings now */
-}
 
-static void
-reset_termios(void)
-{
-  tcsetattr(0, TCSANOW, &old_term);
-}
+  void
+  init_termios(int echo)
+  {
+    tcgetattr(0, &old_term); /* grab old terminal i/o settings */
+    new_term = old_term; /* make new settings same as old settings */
+    new_term.c_lflag &= ~ICANON; /* disable buffered i/o */
+    new_term.c_lflag &= echo ? ECHO : ~ECHO; /* set echo mode */
+    tcsetattr(0, TCSANOW, &new_term); /* use these new terminal i/o settings now */
+  }
 
-static char
-getch_(int echo)
-{
-  char ch;
-  init_termios (echo);
-  ch = getchar();
-  reset_termios ();
-  return ch;
-}
+  void
+  reset_termios(void)
+  {
+    tcsetattr(0, TCSANOW, &old_term);
+  }
 
-static char
-getch (void)
-{
-  /* Read 1 character without echo */
-  return getch_(0);
-}
+  char
+  getch_(int echo)
+  {
+    char ch;
+    init_termios (echo);
+    ch = getchar();
+    reset_termios ();
+    return ch;
+  }
 
-static void
-tizplay_sig_term_hdlr (int sig)
-{
-  if (!gb_daemon_mode)
-    {
-      reset_termios ();
-    }
-  exit (EXIT_FAILURE);
-}
+  char
+  getch (void)
+  {
+    /* Read 1 character without echo */
+    return getch_(0);
+  }
 
-static void
-tizplay_sig_stp_hdlr (int sig)
-{
-  raise (SIGSTOP);
-}
-
-static void
-tizplay_sig_pipe_hdlr (int sig)
-{
-  // Simply ignore this one
-}
-
-static void
-print_usage (void)
-{
-  printf ("Tizonia OpenMAX IL player version %s\n\n", PACKAGE_VERSION);
-  printf ("usage: %s [-c] [-d] [-h] [-l] [-p port] [-r] [-s] [--shuffle] [-v] [FILE/DIR]\n",
-          PACKAGE_NAME);
-  printf ("options:\n");
-  printf
-    ("\t-c --comps-of-role <role>\t\tDisplay the components that implement <role>.\n");
-  printf ("\t-d --daemon\t\t\t\tRun in the background.\n");
-  printf ("\t-h --help\t\t\t\tDisplay help.\n");
-  printf ("\t-l --list-components\t\t\tEnumerate all OpenMAX IL components.\n");
-  printf ("\t-p --port\t\t\t\tPort to be used for http streaming.\n");
-  printf
-    ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>.\n");
-  printf ("\t-R --recurse\t\t\t\tRecursively process DIR.\n");
-  printf ("\t   --shuffle\t\t\t\tShuffle the playlist.\n");
-  printf ("\t-s --stream\t\t\t\tStream media via http. Default port is 8010.\n");
-  printf ("\t-v --version\t\t\t\tDisplay version info.\n");
-  printf ("\n");
-  printf ("Examples:\n");
-  printf
-    ("\t tplay ~/Music (decodes every supported file in the '~/Music' folder)\n");
-  printf ("\t    * Press [p] to skip to previous file.\n");
-  printf ("\t    * Press [n] to skip to next file.\n");
-  printf ("\t    * Press [SPACE] to pause playback.\n");
-  printf ("\t    * Press [q] to quit.\n");
-  printf ("\t    * Press [Ctrl-c] to terminate the player at any time.\n");
-  printf
-    ("\n\t tplay -p 8011 -s ~/Music (streams supported files in the '~/Music' folder)\n");
-  printf ("\t    * Press [q] to quit.\n");
-  printf ("\t    * Press [Ctrl-c] to terminate the player at any time.\n");
-  printf ("\n");
-}
-
-static OMX_ERRORTYPE
-list_comps ()
-{
-  std::vector < std::string > components;
-  OMX_ERRORTYPE ret = OMX_ErrorNone;
-
-  tizomxutil::init ();
-
-  if (OMX_ErrorNoMore == (ret = tizomxutil::list_comps (components)))
-    {
-      int index = 0;
-      BOOST_FOREACH (std::string component, components)
+  void
+  tizplay_sig_term_hdlr (int sig)
+  {
+    if (!gb_daemon_mode)
       {
-        printf ("Component at index [%d] -> [%s]\n", index++,
-                component.c_str ());
+        reset_termios ();
       }
-    }
+    exit (EXIT_FAILURE);
+  }
 
-  tizomxutil::deinit ();
+  void
+  tizplay_sig_stp_hdlr (int sig)
+  {
+    raise (SIGSTOP);
+  }
 
-  if (ret == OMX_ErrorNoMore)
-    {
-      ret = OMX_ErrorNone;
-    }
+  static void
+  tizplay_sig_pipe_hdlr (int sig)
+  {
+    // Simply ignore this one
+  }
 
-  return ret;
-}
+  void
+  print_usage (void)
+  {
+    printf ("Tizonia OpenMAX IL player version %s\n\n", PACKAGE_VERSION);
+    printf ("usage: %s [-c] [-d] [-h] [-l] [-p port] [-r] [-s] [--shuffle] [-v] [FILE/DIR]\n",
+            PACKAGE_NAME);
+    printf ("options:\n");
+    printf
+      ("\t-c --comps-of-role <role>\t\tDisplay the components that implement <role>.\n");
+    printf ("\t-d --daemon\t\t\t\tRun in the background.\n");
+    printf ("\t-h --help\t\t\t\tDisplay help.\n");
+    printf ("\t-l --list-components\t\t\tEnumerate all OpenMAX IL components.\n");
+    printf ("\t-p --port\t\t\t\tPort to be used for http streaming.\n");
+    printf
+      ("\t-r --roles-of-comp <component>\t\tDisplay the roles found in <component>.\n");
+    printf ("\t-R --recurse\t\t\t\tRecursively process DIR.\n");
+    printf ("\t   --shuffle\t\t\t\tShuffle the playlist.\n");
+    printf ("\t-s --stream\t\t\t\tStream media via http. Default port is 8010.\n");
+    printf ("\t-v --version\t\t\t\tDisplay version info.\n");
+    printf ("\n");
+    printf ("Examples:\n");
+    printf
+      ("\t tplay ~/Music (decodes every supported file in the '~/Music' folder)\n");
+    printf ("\t    * Currently supported formats for playback: mp3, opus.\n");
+    printf ("\t    * Press [p] to skip to previous file.\n");
+    printf ("\t    * Press [n] to skip to next file.\n");
+    printf ("\t    * Press [SPACE] to pause playback.\n");
+    printf ("\t    * Press [q] to quit.\n");
+    printf ("\t    * Press [Ctrl-c] to terminate the application at any time.\n");
+    printf
+      ("\n\t tplay -p 8011 -s ~/Music (streams supported files in the '~/Music' folder)\n");
+    printf ("\t    * Currently supported formats for streaming: mp3.\n");
+    printf ("\t    * Press [q] to quit.\n");
+    printf ("\t    * Press [Ctrl-c] to terminate the application at any time.\n");
+    printf ("\n");
+  }
 
-static OMX_ERRORTYPE
-roles_of_comp (OMX_STRING component)
-{
-  std::vector < std::string > roles;
-  OMX_ERRORTYPE ret = OMX_ErrorNone;
+  OMX_ERRORTYPE
+  list_comps ()
+  {
+    std::vector < std::string > components;
+    OMX_ERRORTYPE ret = OMX_ErrorNone;
 
-  tizomxutil::init ();
+    tizomxutil::init ();
 
-  if (OMX_ErrorNoMore == (ret = tizomxutil::roles_of_comp (component, roles)))
-    {
-      int index = 0;
-      BOOST_FOREACH (std::string role, roles)
+    if (OMX_ErrorNoMore == (ret = tizomxutil::list_comps (components)))
       {
-        printf ("Component [%s] : role #%d -> [%s]\n", component, index++,
-                role.c_str ());
+        int index = 0;
+        BOOST_FOREACH (std::string component, components)
+          {
+            printf ("Component at index [%d] -> [%s]\n", index++,
+                    component.c_str ());
+          }
       }
-    }
 
-  tizomxutil::deinit ();
+    tizomxutil::deinit ();
 
-  if (ret == OMX_ErrorNoMore)
-    {
-      ret = OMX_ErrorNone;
-    }
-
-  if (roles.empty ())
-    {
-      printf ("Component [%s] : No roles found.\n", component);
-    }
-
-  return ret;
-}
-
-static OMX_ERRORTYPE
-comps_of_role (OMX_STRING role)
-{
-  std::vector < std::string > components;
-  OMX_ERRORTYPE ret = OMX_ErrorNone;
-
-  tizomxutil::init ();
-
-  if (OMX_ErrorNoMore == (ret = tizomxutil::comps_of_role (role, components)))
-    {
-      BOOST_FOREACH (std::string component, components)
+    if (ret == OMX_ErrorNoMore)
       {
-        printf ("Role [%s] found in [%s]\n", role, component.c_str ());
+        ret = OMX_ErrorNone;
       }
-    }
 
-  tizomxutil::deinit ();
+    return ret;
+  }
 
-  if (ret == OMX_ErrorNoMore)
+  OMX_ERRORTYPE
+  roles_of_comp (OMX_STRING component)
+  {
+    std::vector < std::string > roles;
+    OMX_ERRORTYPE ret = OMX_ErrorNone;
+
+    tizomxutil::init ();
+
+    if (OMX_ErrorNoMore == (ret = tizomxutil::roles_of_comp (component, roles)))
+      {
+        int index = 0;
+        BOOST_FOREACH (std::string role, roles)
+          {
+            printf ("Component [%s] : role #%d -> [%s]\n", component, index++,
+                    role.c_str ());
+          }
+      }
+
+    tizomxutil::deinit ();
+
+    if (ret == OMX_ErrorNoMore)
+      {
+        ret = OMX_ErrorNone;
+      }
+
+    if (roles.empty ())
+      {
+        printf ("Component [%s] : No roles found.\n", component);
+      }
+
+    return ret;
+  }
+
+  OMX_ERRORTYPE
+  comps_of_role (OMX_STRING role)
+  {
+    std::vector < std::string > components;
+    OMX_ERRORTYPE ret = OMX_ErrorNone;
+
+    tizomxutil::init ();
+
+    if (OMX_ErrorNoMore == (ret = tizomxutil::comps_of_role (role, components)))
+      {
+        BOOST_FOREACH (std::string component, components)
+          {
+            printf ("Role [%s] found in [%s]\n", role, component.c_str ());
+          }
+      }
+
+    tizomxutil::deinit ();
+
+    if (ret == OMX_ErrorNoMore)
+      {
+        ret = OMX_ErrorNone;
+      }
+
+    if (components.empty ())
+      {
+        printf ("Role [%s] : No components found.\n", role);
+      }
+
+    return ret;
+  }
+
+  enum ETIZPlayUserInput
     {
-      ret = OMX_ErrorNone;
-    }
+      ETIZPlayUserStop,
+      ETIZPlayUserNextFile,
+      ETIZPlayUserPrevFile,
+      ETIZPlayUserMax,
+    };
 
-  if (components.empty ())
+  ETIZPlayUserInput
+  wait_for_user_input (tizgraphmgr_ptr_t graphmgr_ptr)
+  {
+    while (1)
+      {
+        if (gb_daemon_mode)
+          {
+            sleep (5000);
+          }
+        else
+          {
+            int ch[2];
+
+            ch[0] = getch ();
+
+            switch (ch[0])
+              {
+              case 'q':
+                return ETIZPlayUserStop;
+
+              case 68:            // key left
+                // seek
+                printf ("Seek (left key) - not implemented\n");
+                break;
+
+              case 67:            // key right
+                // seek
+                printf ("Seek (right key) - not implemented\n");
+                break;
+
+              case 65: // key up
+                // seek
+                printf ("Seek (up key) - not implemented\n");
+                break;
+
+              case 66: // key down
+                // seek
+                printf ("Seek (down key) - not implemented\n");
+                break;
+
+              case ' ':
+                graphmgr_ptr->pause ();
+                break;
+
+              case 'n':
+                graphmgr_ptr->next ();
+                break;
+
+              case 'p':
+                graphmgr_ptr->prev ();
+                break;
+
+              case '-':
+                printf ("Vol down - not implemented\n");
+                //Volume
+                break;
+
+              case '+':
+                printf ("Vol up - not implemented\n");
+                //Volume
+                break;
+
+              default:
+                //           printf ("%d - not implemented\n", ch[0]);
+                break;
+              };
+          }
+      }
+
+  }
+
+  ETIZPlayUserInput
+  wait_for_user_input_while_streaming (tizgraph_ptr_t graph_ptr)
+  {
+    while (1)
+      {
+        if (gb_daemon_mode)
+          {
+            sleep (5000);
+          }
+        else
+          {
+            int ch[2];
+
+            ch[0] = getch ();
+
+            switch (ch[0])
+              {
+              case 'q':
+                return ETIZPlayUserStop;
+
+              default:
+                //           printf ("%d - not implemented\n", ch[0]);
+                break;
+              };
+          }
+      }
+
+  }
+
+  struct graph_error_functor
+  {
+    void operator() (OMX_ERRORTYPE a, std::string b) const
     {
-      printf ("Role [%s] : No components found.\n", role);
-    }
-
-  return ret;
-}
-
-enum ETIZPlayUserInput
-{
-  ETIZPlayUserStop,
-  ETIZPlayUserNextFile,
-  ETIZPlayUserPrevFile,
-  ETIZPlayUserMax,
-};
-
-static ETIZPlayUserInput
-wait_for_user_input (tizgraphmgr_ptr_t graphmgr_ptr)
-{
-  while (1)
-    {
-      if (gb_daemon_mode)
-        {
-          sleep (5000);
-        }
-      else
-        {
-          int ch[2];
-
-          ch[0] = getch ();
-
-          switch (ch[0])
-            {
-            case 'q':
-              return ETIZPlayUserStop;
-
-            case 68:            // key left
-              // seek
-              printf ("Seek (left key) - not implemented\n");
-              break;
-
-            case 67:            // key right
-              // seek
-              printf ("Seek (right key) - not implemented\n");
-              break;
-
-            case 65: // key up
-              // seek
-              printf ("Seek (up key) - not implemented\n");
-              break;
-
-            case 66: // key down
-              // seek
-              printf ("Seek (down key) - not implemented\n");
-              break;
-
-            case ' ':
-              graphmgr_ptr->pause ();
-              break;
-
-            case 'n':
-              graphmgr_ptr->next ();
-              break;
-
-            case 'p':
-              graphmgr_ptr->prev ();
-              break;
-
-            case '-':
-              printf ("Vol down - not implemented\n");
-              //Volume
-              break;
-
-            case '+':
-              printf ("Vol up - not implemented\n");
-              //Volume
-              break;
-
-            default:
-              //           printf ("%d - not implemented\n", ch[0]);
-              break;
-            };
-        }
-    }
-
-}
-
-static ETIZPlayUserInput
-wait_for_user_input_while_streaming (tizgraph_ptr_t graph_ptr)
-{
-  while (1)
-    {
-      if (gb_daemon_mode)
-        {
-          sleep (5000);
-        }
-      else
-        {
-          int ch[2];
-
-          ch[0] = getch ();
-
-          switch (ch[0])
-            {
-            case 'q':
-              return ETIZPlayUserStop;
-
-            default:
-              //           printf ("%d - not implemented\n", ch[0]);
-              break;
-            };
-        }
-    }
-
-}
-
-static OMX_ERRORTYPE
-decode (const std::string & uri, const bool shuffle_playlist,
-        const bool recurse)
-{
-  OMX_ERRORTYPE ret = OMX_ErrorNone;
-  uri_list_t file_list;
-
-  if (OMX_ErrorNone != tizplaylist_t::assemble_play_list
-      (uri, shuffle_playlist, recurse, file_list))
-    {
-      fprintf (stderr, "File or directory not found [%s].\n", uri.c_str ());
+      fprintf (stderr, "Graph error found [%s:%s]. Terminating.\n",
+               tiz_err_to_str (a), b.c_str ());
       exit (EXIT_FAILURE);
     }
+  };
 
-  tizgraphmgr_ptr_t p_graph_mgr = boost::make_shared < tizgraphmgr > (file_list);
+  OMX_ERRORTYPE
+  decode (const std::string & uri, const bool shuffle_playlist,
+          const bool recurse)
+  {
+    OMX_ERRORTYPE ret = OMX_ErrorNone;
+    uri_list_t file_list;
 
-  p_graph_mgr->init ();
-  p_graph_mgr->start ();
+    if (OMX_ErrorNone != tizplaylist_t::assemble_play_list
+        (uri, shuffle_playlist, recurse, file_list))
+      {
+        fprintf (stderr, "File or directory not found [%s].\n", uri.c_str ());
+        exit (EXIT_FAILURE);
+      }
 
-  while (ETIZPlayUserStop != wait_for_user_input (p_graph_mgr))
-    {}
+    tizgraphmgr_ptr_t p_graph_mgr
+      = boost::make_shared < tizgraphmgr > (file_list, graph_error_functor ());
 
-  p_graph_mgr->stop ();
-  p_graph_mgr->deinit ();
+    p_graph_mgr->init ();
+    p_graph_mgr->start ();
 
-  return ret;
-}
+    while (ETIZPlayUserStop != wait_for_user_input (p_graph_mgr))
+      {}
 
-static OMX_ERRORTYPE
-stream (const std::string & uri, const long int port, const bool shuffle_playlist,
-        const bool recurse)
-{
-  OMX_ERRORTYPE ret = OMX_ErrorNone;
-  uri_list_t    file_list;
-  char hostname[120] = "";
-  std::string ip_address;
+    p_graph_mgr->stop ();
+    p_graph_mgr->deinit ();
 
-  if (OMX_ErrorNone != tizplaylist_t::assemble_play_list
-      (uri, shuffle_playlist, recurse, file_list))
-    {
-      fprintf (stderr, "File or directory not found [%s].\n", uri.c_str ());
-      exit (EXIT_FAILURE);
-    }
+    return ret;
+  }
 
-  tizomxutil::init ();
+  OMX_ERRORTYPE
+  stream (const std::string & uri, const long int port, const bool shuffle_playlist,
+          const bool recurse)
+  {
+    OMX_ERRORTYPE ret = OMX_ErrorNone;
+    uri_list_t    file_list;
+    char hostname[120] = "";
+    std::string ip_address;
 
-  tizprobe_ptr_t p = boost::make_shared < tizprobe > (file_list[0],
-                                                      /* quiet = */ true);
-  tizgraph_ptr_t g_ptr = boost::make_shared < tizstreamsrvgraph > (p);
-  if (!g_ptr)
-    {
-      // At this point we have removed all unsupported media, so we should
-      // always have a graph object.
-      fprintf (stderr, "Could not create a graph. Unsupported format.\n");
-      exit (EXIT_FAILURE);
-    }
+    if (OMX_ErrorNone != tizplaylist_t::assemble_play_list
+        (uri, shuffle_playlist, recurse, file_list))
+      {
+        fprintf (stderr, "File or directory not found [%s].\n", uri.c_str ());
+        exit (EXIT_FAILURE);
+      }
 
-  if (0 == gethostname (hostname, sizeof(hostname)))
-    {
-      struct hostent *p_hostent = gethostbyname(hostname);
-      struct in_addr  ip_addr   = *(struct in_addr *)(p_hostent->h_addr);
-      ip_address = inet_ntoa(ip_addr);
-      fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
-    }
+    tizomxutil::init ();
 
-  gp_running_graph = g_ptr.get ();
+    tizprobe_ptr_t p = boost::make_shared < tizprobe > (file_list[0],
+                                                        /* quiet = */ true);
+    tizgraph_ptr_t g_ptr = boost::make_shared < tizstreamsrvgraph > (p);
+    if (!g_ptr)
+      {
+        // At this point we have removed all unsupported media, so we should
+        // always have a graph object.
+        fprintf (stderr, "Could not create a graph. Unsupported format.\n");
+        exit (EXIT_FAILURE);
+      }
 
-  if (OMX_ErrorNone != (ret = g_ptr->load ()))
-    {
-      fprintf (stderr, "Found error %s while loading the graph.\n",
-               tiz_err_to_str (ret));
-      exit (EXIT_FAILURE);
-    }
+    if (0 == gethostname (hostname, sizeof(hostname)))
+      {
+        struct hostent *p_hostent = gethostbyname(hostname);
+        struct in_addr  ip_addr   = *(struct in_addr *)(p_hostent->h_addr);
+        ip_address = inet_ntoa(ip_addr);
+        fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
+      }
 
-  tizgraphconfig_ptr_t config
-    = boost::make_shared < tizstreamsrvconfig > (file_list, hostname,
-                                                 ip_address, port);
-  if (OMX_ErrorNone != (ret = g_ptr->configure (config)))
-    {
-      fprintf (stderr, "Could not configure a graph. Skipping file.\n");
-      exit (EXIT_FAILURE);
-    }
+    if (OMX_ErrorNone != (ret = g_ptr->load ()))
+      {
+        fprintf (stderr, "Found error %s while loading the graph.\n",
+                 tiz_err_to_str (ret));
+        exit (EXIT_FAILURE);
+      }
 
-  if (OMX_ErrorNone != (ret = g_ptr->execute ()))
-    {
-      fprintf (stderr, "Found error %s while executing the graph.\n",
-               tiz_err_to_str (ret));
-      exit (EXIT_FAILURE);
-    }
+    tizgraphconfig_ptr_t config
+      = boost::make_shared < tizstreamsrvconfig > (file_list, hostname,
+                                                   ip_address, port);
+    if (OMX_ErrorNone != (ret = g_ptr->configure (config)))
+      {
+        fprintf (stderr, "Could not configure a graph. Skipping file.\n");
+        exit (EXIT_FAILURE);
+      }
 
-  while (ETIZPlayUserStop != wait_for_user_input_while_streaming (g_ptr))
-    {}
+    if (OMX_ErrorNone != (ret = g_ptr->execute ()))
+      {
+        fprintf (stderr, "Found error %s while executing the graph.\n",
+                 tiz_err_to_str (ret));
+        exit (EXIT_FAILURE);
+      }
 
-  g_ptr->unload ();
+    while (ETIZPlayUserStop != wait_for_user_input_while_streaming (g_ptr))
+      {}
 
-  tizomxutil::deinit();
+    g_ptr->unload ();
 
-  return ret;
-}
+    tizomxutil::deinit();
+
+    return ret;
+  }
+
+}                               // unnamed namespace
 
 int
 main (int argc, char **argv)

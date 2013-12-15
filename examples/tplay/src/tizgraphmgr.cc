@@ -34,8 +34,8 @@
 #include "tizgraphfactory.h"
 #include "tizgraph.h"
 #include "tizgraphconfig.h"
+#include "tizomxutil.h"
 
-#include <tizomxutil.h>
 #include <tizosal.h>
 #include <tizmacros.h>
 #include <OMX_Component.h>
@@ -168,7 +168,8 @@ g_graphmgr_thread_func (void *p_arg)
 //
 // tizgraphmgr
 //
-tizgraphmgr::tizgraphmgr(const uri_list_t &file_list)
+tizgraphmgr::tizgraphmgr(const uri_list_t &file_list,
+                         const error_callback_t &error_cback)
   :
   mgr_state_ (ETIZGraphMgrStateNull),
   thread_ (),
@@ -176,7 +177,8 @@ tizgraphmgr::tizgraphmgr(const uri_list_t &file_list)
   sem_ (),
   p_queue_ (NULL),
   playlist_ (file_list),
-  running_graph_ptr_ ()
+  running_graph_ptr_ (),
+  error_cback_ (error_cback)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
   tiz_mutex_init (&mutex_);
@@ -216,42 +218,42 @@ tizgraphmgr::start ()
 OMX_ERRORTYPE
 tizgraphmgr::next ()
 {
-  assert (ETIZGraphMgrStateStarted == mgr_state_);
+  assert (ETIZGraphMgrStateInited <= mgr_state_);
   return send_msg (tizgraphmgrcmd::ETIZGraphMgrCmdNext);
 }
 
 OMX_ERRORTYPE
 tizgraphmgr::prev ()
 {
-  assert (ETIZGraphMgrStateStarted == mgr_state_);
+  assert (ETIZGraphMgrStateInited <= mgr_state_);
   return send_msg (tizgraphmgrcmd::ETIZGraphMgrCmdPrev);
 }
 
 OMX_ERRORTYPE
 tizgraphmgr::fwd ()
 {
-  assert (ETIZGraphMgrStateStarted == mgr_state_);
+  assert (ETIZGraphMgrStateInited <= mgr_state_);
   return send_msg (tizgraphmgrcmd::ETIZGraphMgrCmdFwd);
 }
 
 OMX_ERRORTYPE
 tizgraphmgr::rwd ()
 {
-  assert (ETIZGraphMgrStateStarted == mgr_state_);
+  assert (ETIZGraphMgrStateInited <= mgr_state_);
   return send_msg (tizgraphmgrcmd::ETIZGraphMgrCmdRwd);
 }
 
 OMX_ERRORTYPE
 tizgraphmgr::volume ()
 {
-  assert (ETIZGraphMgrStateStarted == mgr_state_);
+  assert (ETIZGraphMgrStateInited <= mgr_state_);
   return send_msg (tizgraphmgrcmd::ETIZGraphMgrCmdVolume);
 }
 
 OMX_ERRORTYPE
 tizgraphmgr::pause ()
 {
-  assert (ETIZGraphMgrStateStarted == mgr_state_);
+  assert (ETIZGraphMgrStateInited <= mgr_state_);
   return send_msg (tizgraphmgrcmd::ETIZGraphMgrCmdPause);
 }
 
@@ -259,7 +261,7 @@ OMX_ERRORTYPE
 tizgraphmgr::stop ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (ETIZGraphMgrStateStarted == mgr_state_);
+  assert (ETIZGraphMgrStateInited <= mgr_state_);
   rc = send_msg (tizgraphmgrcmd::ETIZGraphMgrCmdStop);
   return rc;
 }
@@ -304,65 +306,64 @@ tizgraphmgr::dispatch (tizgraphmgr *p_graph_mgr, const tizgraphmgrcmd *p_cmd)
                "in mgr state [%s]. Discarding...",
                graph_mgr_cmd_to_str (p_cmd->get_type ()),
                graph_mgr_state_to_str (p_graph_mgr->mgr_state_));
-      return;
     }
-
-  switch(p_cmd->get_type ())
+  else
     {
-    case tizgraphmgrcmd::ETIZGraphMgrCmdStart:
-      {
-        p_graph_mgr->do_start ();
-        break;
-      }
-    case tizgraphmgrcmd::ETIZGraphMgrCmdNext:
-      {
-        p_graph_mgr->do_next ();
-        break;
-      }
-    case tizgraphmgrcmd::ETIZGraphMgrCmdPrev:
-      {
-        p_graph_mgr->do_prev ();
-        break;
-      }
-    case tizgraphmgrcmd::ETIZGraphMgrCmdFwd:
-      {
-        p_graph_mgr->do_fwd ();
-        break;
-      }
-    case tizgraphmgrcmd::ETIZGraphMgrCmdRwd:
-      {
-        p_graph_mgr->do_rwd ();
-        break;
-      }
-    case tizgraphmgrcmd::ETIZGraphMgrCmdVolume:
-      {
-        p_graph_mgr->do_vol ();
-        break;
-      }
-    case tizgraphmgrcmd::ETIZGraphMgrCmdPause:
-      {
-        p_graph_mgr->do_pause ();
-        break;
-      }
-    case tizgraphmgrcmd::ETIZGraphMgrCmdStop:
-      {
-        p_graph_mgr->do_stop ();
-        break;
-      }
-    case tizgraphmgrcmd::ETIZGraphMgrCmdGraphEop:
-      {
-        p_graph_mgr->do_graph_end_of_play ();
-        break;
-      }
-    case tizgraphmgrcmd::ETIZGraphMgrCmdGraphError:
-      {
-        p_graph_mgr->do_graph_error ();
-        break;
-      }
-    default:
-      assert (0);
-    };
-
+      switch(p_cmd->get_type ())
+        {
+        case tizgraphmgrcmd::ETIZGraphMgrCmdStart:
+          {
+            p_graph_mgr->do_start ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdNext:
+          {
+            p_graph_mgr->do_next ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdPrev:
+          {
+            p_graph_mgr->do_prev ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdFwd:
+          {
+            p_graph_mgr->do_fwd ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdRwd:
+          {
+            p_graph_mgr->do_rwd ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdVolume:
+          {
+            p_graph_mgr->do_vol ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdPause:
+          {
+            p_graph_mgr->do_pause ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdStop:
+          {
+            p_graph_mgr->do_stop ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdGraphEop:
+          {
+            p_graph_mgr->do_graph_end_of_play ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdGraphError:
+          {
+            break;
+          }
+        default:
+          assert (0);
+        };
+    }
 }
 
 tizgraph_ptr_t
@@ -448,8 +449,9 @@ tizgraphmgr::graph_end_of_play ()
 }
 
 OMX_ERRORTYPE
-tizgraphmgr::graph_error ()
+tizgraphmgr::graph_error (OMX_ERRORTYPE error, std::string msg)
 {
+  error_cback_ (error, msg);
   return OMX_ErrorNone;
 }
 
@@ -581,11 +583,4 @@ tizgraphmgr::do_graph_end_of_play ()
 {
   running_graph_ptr_->unload ();
   return do_start ();
-}
-
-OMX_ERRORTYPE
-tizgraphmgr::do_graph_error ()
-{
-  // TODO:
-  return OMX_ErrorNone;
 }

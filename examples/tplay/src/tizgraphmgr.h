@@ -37,7 +37,9 @@
 #include <OMX_Core.h>
 
 #include <assert.h>
+#include <boost/function.hpp>
 
+// TODO: This class is an implementation detail. Move this out of the header file.
 class tizgraphmgrcmd
 {
 
@@ -77,6 +79,11 @@ class tizgraphmgr
   friend       void* ::g_graphmgr_thread_func (void *);
 
 public:
+
+  typedef boost::function<void (OMX_ERRORTYPE, std::string)> error_callback_t;
+
+public:
+
   enum mgr_state
     {
       ETIZGraphMgrStateNull,
@@ -87,7 +94,7 @@ public:
 
 public:
 
-  tizgraphmgr(const uri_list_t &file_list);
+  tizgraphmgr(const uri_list_t &file_list, const error_callback_t &error_cback);
   virtual ~tizgraphmgr ();
 
   OMX_ERRORTYPE init ();
@@ -104,7 +111,9 @@ public:
 protected:
 
   OMX_ERRORTYPE graph_end_of_play ();
-  OMX_ERRORTYPE graph_error ();
+  OMX_ERRORTYPE graph_error (OMX_ERRORTYPE error, std::string msg);
+
+protected:
 
   OMX_ERRORTYPE do_start ();
   OMX_ERRORTYPE do_next ();
@@ -115,25 +124,24 @@ protected:
   OMX_ERRORTYPE do_pause ();
   OMX_ERRORTYPE do_stop ();
   OMX_ERRORTYPE do_graph_end_of_play ();
-  OMX_ERRORTYPE do_graph_error ();
 
   OMX_ERRORTYPE send_msg (const tizgraphmgrcmd::cmd_type type);
   static void dispatch (tizgraphmgr *p_graph_mgr, const tizgraphmgrcmd *p_cmd);
   tizgraph_ptr_t get_graph (const std::string & uri);
-
-
   bool verify_mgr_state (tizgraphmgrcmd::cmd_type cmd);
 
 protected:
 
-  mgr_state  mgr_state_;
-  tiz_thread_t   thread_;
-  tiz_mutex_t    mutex_;
-  tiz_sem_t      sem_;
-  tiz_queue_t   *p_queue_;
-  tizplaylist_t playlist_;
-  tizgraph_ptr_map_t graph_registry_;
-  tizgraph_ptr_t running_graph_ptr_;
+  mgr_state           mgr_state_;
+  tiz_thread_t        thread_;
+  tiz_mutex_t         mutex_;
+  tiz_sem_t           sem_;
+  tiz_queue_t        *p_queue_;
+  tizplaylist_t       playlist_;
+  tizgraph_ptr_map_t  graph_registry_;
+  tizgraph_ptr_t      running_graph_ptr_;
+  error_callback_t    error_cback_;
+
 };
 
 #endif // TIZGRAPHMGR_H

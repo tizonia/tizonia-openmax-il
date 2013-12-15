@@ -125,6 +125,7 @@ protected:
   waitevent_list_t expected_list_;
 };
 
+// TODO: This class is an implementation detail. Move this out of the header file.
 class tizgraphcmd
 {
 
@@ -241,6 +242,8 @@ protected:
                           const int jump = 0);
 
   OMX_ERRORTYPE notify_graph_end_of_play ();
+  OMX_ERRORTYPE notify_graph_error (const OMX_ERRORTYPE error,
+                                    const std::string &msg);
 
   static void dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd);
 

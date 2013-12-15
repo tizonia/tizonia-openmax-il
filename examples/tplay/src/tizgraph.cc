@@ -224,6 +224,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                                 OMX_U32 nData2,
                                 OMX_PTR pEventData)
 {
+  bool done = false;
   boost::lock_guard<boost::mutex> lock(mutex_);
   if (eEvent == OMX_EventCmdComplete)
     {
@@ -252,24 +253,29 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                tiz_evt_to_str (eEvent), nData1, nData2,
                pEventData);
       const_cast<tizgraph &>(parent_).eos (hComponent);
-      return;
+      // We are done here
+      done = true;
     }
   else if (eEvent == OMX_EventError)
     {
       TIZ_LOG (TIZ_PRIORITY_DEBUG, "[%s] : "
                "[%s] error [%s] port [%lu] pEventData [%p]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
-               tiz_evt_to_str (eEvent), tiz_err_to_str ((OMX_ERRORTYPE)nData1),
+               tiz_evt_to_str (eEvent), tiz_err_to_str
+               (static_cast<OMX_ERRORTYPE>(nData1)),
                nData2, pEventData);
       if (OMX_ErrorPortUnpopulated != nData1)
         {
           // Ok, this is serious enough, let's get it fixed....
-          fprintf (stderr, "Aborting after receiving a [%s] from [%s]\n",
-                   tiz_err_to_str ((OMX_ERRORTYPE)nData1),
+          fprintf (stderr, "[%s] : Received from [%s]\n",
+                   tiz_err_to_str (static_cast<OMX_ERRORTYPE>(nData1)),
                    const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str());
-          abort ();
+          const_cast<tizgraph &>(parent_).notify_graph_error
+            (static_cast<OMX_ERRORTYPE> (nData1),
+             const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str());
         }
-      return;
+      // We are done here
+      done = true;
     }
   else if (eEvent == OMX_EventVendorStartUnused)
     {
@@ -285,24 +291,28 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                "[%s]\n",
                const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str(),
                tiz_evt_to_str (eEvent));
-      return;
+      // We are done here
+      done = true;
     }
 
-  if (OMX_EventVendorStartUnused != eEvent)
+  if (!done)
     {
-      received_queue_.push_back (waitevent_info(hComponent,
-                                                eEvent,
-                                                nData1,
-                                                nData2,
-                                                pEventData));
-    }
+      if (OMX_EventVendorStartUnused != eEvent)
+        {
+          received_queue_.push_back (waitevent_info(hComponent,
+                                                    eEvent,
+                                                    nData1,
+                                                    nData2,
+                                                    pEventData));
+        }
 
-  if (all_events_received ())
-    {
-      assert (expected_list_.empty());
-      events_outstanding_ = false;
+      if (all_events_received ())
+        {
+          assert (expected_list_.empty());
+          events_outstanding_ = false;
+        }
+      cond_.notify_one();
     }
-  cond_.notify_one();
 }
 
 OMX_ERRORTYPE
@@ -902,6 +912,17 @@ tizgraph::send_msg (const tizgraphcmd::cmd_type type,
     (tiz_queue_send (p_queue_, new tizgraphcmd (type, config, handle, jump)));
   tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
   return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+tizgraph::notify_graph_error (const OMX_ERRORTYPE error, const std::string &msg)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  if (NULL != p_mgr_)
+    {
+      rc = p_mgr_->graph_error (error, msg);
+    }
+  return rc;
 }
 
 OMX_ERRORTYPE
