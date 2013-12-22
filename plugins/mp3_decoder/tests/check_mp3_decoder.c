@@ -781,7 +781,7 @@ START_TEST (test_mp3_playback)
   rend_pcm_mode.nSamplingRate = pg_rates[_i];
   rend_pcm_mode.ePCMMode = OMX_AUDIO_PCMModeMULaw;
   rend_pcm_mode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
-  rend_pcm_mode.eChannelMapping[0] = OMX_AUDIO_ChannelRF;
+  rend_pcm_mode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
   error = OMX_SetParameter (p_pcmrnd, OMX_IndexParamAudioPcm, &rend_pcm_mode);
   fail_if (OMX_ErrorNone != error);
 
