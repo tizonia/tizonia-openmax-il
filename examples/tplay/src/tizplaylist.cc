@@ -59,8 +59,9 @@ namespace                       // unnamed namespace
   bool
   verify_uri (const std::string & uri)
   {
-    return (boost::filesystem::portable_directory_name (uri) ||
-            boost::filesystem::portable_file_name (uri));
+    return (boost::filesystem::portable_directory_name (uri)
+            || boost::filesystem::portable_name (uri)
+            || boost::filesystem::windows_name (uri));
   }
 
   OMX_ERRORTYPE
@@ -107,7 +108,11 @@ namespace                       // unnamed namespace
                                string ());
         if (extension.compare (".mp3") != 0
             &&
-            extension.compare (".opus") != 0)
+            extension.compare (".opus") != 0
+            &&
+            extension.compare (".flac") != 0
+            &&
+            extension.compare (".ogg") != 0)
           //&&
           // extension.compare (".ivf") != 0)
           {
@@ -252,7 +257,7 @@ tizplaylist::assemble_play_list (const std::string &base_uri,
 {
   if (!verify_uri (base_uri))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "Invalid base uri.");
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "Invalid base uri [%s].", base_uri.c_str ());
       return OMX_ErrorContentURIError;
     }
 

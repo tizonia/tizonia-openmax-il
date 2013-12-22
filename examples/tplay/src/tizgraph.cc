@@ -266,10 +266,7 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                nData2, pEventData);
       if (OMX_ErrorPortUnpopulated != nData1)
         {
-          // Ok, this is serious enough, let's get it fixed....
-          fprintf (stderr, "[%s] : Received from [%s]\n",
-                   tiz_err_to_str (static_cast<OMX_ERRORTYPE>(nData1)),
-                   const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str());
+          // Ok, this is serious enough, let's get this fixed....
           const_cast<tizgraph &>(parent_).notify_graph_error
             (static_cast<OMX_ERRORTYPE> (nData1),
              const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str());

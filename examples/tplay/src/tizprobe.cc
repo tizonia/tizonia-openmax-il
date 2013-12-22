@@ -163,6 +163,7 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   pcmtype_ (),
   mp3type_ (),
   opustype_ (),
+  flactype_ (),
   vp8type_ (),
   stream_title_ (),
   stream_genre_ ()
@@ -192,6 +193,33 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   mp3type_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
   mp3type_.eFormat = OMX_AUDIO_MP3StreamFormatMP2Layer3;
 
+  // Defaults for the flac decoder
+  flactype_.nSize                 = sizeof (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE);
+  flactype_.nVersion.nVersion     = OMX_VERSION;
+  flactype_.nPortIndex            = 0;
+  flactype_.nChannels             = 2;
+  flactype_.nBitsPerSample        = 16;
+  flactype_.nSampleRate           = 48000;
+  flactype_.nCompressionLevel     = 5;
+  flactype_.nBlockSize            = 0;
+  flactype_.nTotalSamplesEstimate = 0;
+  flactype_.eChannelMode          = OMX_AUDIO_ChannelModeStereo;
+
+  // Defaults for the opsu decoder
+  opustype_.nSize                   = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
+  opustype_.nVersion.nVersion       = OMX_VERSION;
+  opustype_.nPortIndex              = 0;
+  opustype_.nChannels               = 2;
+  opustype_.nBitRate                = 256;
+  opustype_.nSampleRate             = 48000;
+  opustype_.nFrameDuration          = 2.5;
+  opustype_.nEncoderComplexity      = 0;
+  opustype_.bPacketLossResilience   = OMX_FALSE;
+  opustype_.bForwardErrorCorrection = OMX_FALSE;
+  opustype_.bDtx                    = OMX_FALSE;
+  opustype_.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
+  opustype_.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
+
   av_register_all ();
 
 }
@@ -218,7 +246,7 @@ tizprobe::probe_file ()
   std::string extension (boost::filesystem::path (uri_).extension ().
                          string ());
 
-  // For now, simply rely on the file extension for opus files.
+  // For now, for opus files simply rely on the file extension.
   if (extension.compare (".opus") == 0)
     {
       set_opus_codec_info ();
@@ -247,6 +275,10 @@ tizprobe::probe_file ()
             {
               set_mp3_codec_info (cc);
             }
+          else if (codec_id == CODEC_ID_FLAC)
+            {
+              set_flac_codec_info (cc);
+            }
           else if (codec_id == CODEC_ID_VP8)
             {
               domain_ = OMX_PortDomainVideo;
@@ -269,7 +301,7 @@ tizprobe::set_mp3_codec_info (const AVCodecContext *cc)
   assert (NULL != cc);
 
   domain_                = OMX_PortDomainAudio;
-  audio_coding_type_     = OMX_AUDIO_CodingMP3;
+  audio_coding_type_     = static_cast<OMX_AUDIO_CODINGTYPE>(OMX_AUDIO_CodingMP3);
   mp3type_.nSampleRate   = cc->sample_rate;
   pcmtype_.nSamplingRate = cc->sample_rate;
   mp3type_.nBitRate      = cc->bit_rate;
@@ -320,6 +352,49 @@ tizprobe::set_opus_codec_info ()
 }
 
 void
+tizprobe::set_flac_codec_info (const AVCodecContext *cc)
+{
+  assert (NULL != cc);
+
+  domain_                = OMX_PortDomainAudio;
+  audio_coding_type_     = static_cast<OMX_AUDIO_CODINGTYPE>(OMX_AUDIO_CodingFLAC);
+  flactype_.nSampleRate  = cc->sample_rate;
+  pcmtype_.nSamplingRate = cc->sample_rate;
+//   flactype_.nBitRate     = cc->bit_rate;
+  flactype_.nChannels    = cc->channels;
+  pcmtype_.nChannels     = cc->channels;
+
+  if (1 == pcmtype_.nChannels)
+    {
+      pcmtype_.bInterleaved = OMX_FALSE;
+    }
+
+  if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataUnsigned;
+      pcmtype_.nBitPerSample = 8;
+    }
+  else if (AV_SAMPLE_FMT_S16 == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 16;
+    }
+  else if (AV_SAMPLE_FMT_S32 == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 32;
+    }
+  else
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 16;
+    }
+
+  pcmtype_.eEndian       = OMX_EndianLittle;
+
+}
+
+void
 tizprobe::get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE & pcmtype)
 {
   if (OMX_PortDomainMax == domain_)
@@ -353,6 +428,17 @@ tizprobe::get_opus_codec_info (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype)
       (void) probe_file ();
     }
   opustype = opustype_;
+  return;
+}
+
+void
+tizprobe::get_flac_codec_info (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE & flactype)
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file ();
+    }
+  flactype = flactype_;
   return;
 }
 

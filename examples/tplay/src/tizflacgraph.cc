@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizmp3graph.cc
+ * @file   tizflacgraph.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL mp3 graph impl
+ * @brief  OpenMAX IL flac graph impl
  *
  */
 
@@ -29,37 +29,36 @@
 #include <config.h>
 #endif
 
-#include "tizmp3graph.h"
+#include "tizflacgraph.h"
 #include "tizgraphconfig.h"
 #include "tizprobe.h"
 
 #include <tizosal.h>
-
 #include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_TizoniaExt.h>
 
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 
-
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.mp3"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.flac"
 #endif
 
-tizmp3graph::tizmp3graph (tizprobe_ptr_t probe_ptr)
+tizflacgraph::tizflacgraph (tizprobe_ptr_t probe_ptr)
   : tizgraph (3, probe_ptr)
 {
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_load ()
+tizflacgraph::do_load ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
   component_names_t comp_list;
-  comp_list.push_back ("OMX.Aratelia.file_reader.binary");
-  comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
+  comp_list.push_back ("OMX.Aratelia.container_demuxer.ogg");
+  comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
   comp_list.push_back ("OMX.Aratelia.audio_renderer_nb.pcm");
 
   if (OMX_ErrorNone != (ret = verify_existence (comp_list)))
@@ -68,8 +67,8 @@ tizmp3graph::do_load ()
     }
 
   component_roles_t role_list;
-  role_list.push_back ("audio_reader.binary");
-  role_list.push_back ("audio_decoder.mp3");
+  role_list.push_back ("container_demuxer.ogg");
+  role_list.push_back ("audio_decoder.flac");
   role_list.push_back ("audio_renderer.pcm");
 
   if (OMX_ErrorNone != (ret = verify_role_list (comp_list, role_list)))
@@ -86,7 +85,29 @@ tizmp3graph::do_load ()
 }
 
 OMX_ERRORTYPE
-tizmp3graph::configure_mp3_graph (const int file_index)
+tizflacgraph::disable_demuxer_video_port ()
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  const OMX_COMMANDTYPE cmd = OMX_CommandPortDisable;
+  // Port 1 = video port
+  OMX_U32 port_id = 1;
+  error = OMX_SendCommand (handles_[0], cmd, port_id, NULL);
+
+  if (error == OMX_ErrorNone)
+    {
+      waitevent_list_t event_list;
+      event_list.push_back(waitevent_info(handles_[0],
+                                          OMX_EventCmdComplete,
+                                          cmd,
+                                          port_id,
+                                          (OMX_PTR) OMX_ErrorNone));
+      tiz_check_omx_err (cback_handler_.wait_for_event_list(event_list));
+    }
+  return error;
+}
+
+OMX_ERRORTYPE
+tizflacgraph::configure_flac_graph (const int file_index)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
@@ -96,7 +117,10 @@ tizmp3graph::configure_mp3_graph (const int file_index)
   assert (file_index < file_list_.size ());
   assert (OMX_StateLoaded == current_graph_state_);
 
-  tiz_check_omx_err (probe_uri (file_index));
+  tiz_check_omx_err (disable_demuxer_video_port ());
+
+  bool quiet = true;            // Current version of libav doesn't support flac
+  tiz_check_omx_err (probe_uri (file_index, true));
 
   // Set the new URI
   OMX_PARAM_CONTENTURITYPE *p_uritype = NULL;
@@ -127,26 +151,30 @@ tizmp3graph::configure_mp3_graph (const int file_index)
       return ret;
     }
 
-  // Retrive the current mp3 settings from the decoder's port #0
-  OMX_AUDIO_PARAM_MP3TYPE mp3type, mp3type_orig;;
+  // Retrive the current flac settings from the decoder's port #0
+  OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype, flactype_orig;;
 
-  mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
-  mp3type.nVersion.nVersion = OMX_VERSION;
-  mp3type.nPortIndex        = 0;
+  flactype.nSize             = sizeof (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE);
+  flactype.nVersion.nVersion = OMX_VERSION;
+  flactype.nPortIndex        = 0;
 
-  tiz_check_omx_err (OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3,
-                                       &mp3type));
-  mp3type_orig = mp3type;
-  
-  // Set the mp3 settings on decoder's port #0
+  tiz_check_omx_err (OMX_GetParameter (handles_[1],
+                                       static_cast<OMX_INDEXTYPE>
+                                       (OMX_TizoniaIndexParamAudioFlac),
+                                       &flactype));
+  flactype_orig = flactype;
 
-  probe_ptr_->get_mp3_codec_info (mp3type);
-  mp3type.nPortIndex = 0;
-  tiz_check_omx_err (OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
-                                       &mp3type));
+  // Set the flac settings on decoder's port #0
 
-  if (mp3type_orig.nSampleRate != mp3type.nSampleRate
-      || mp3type_orig.nChannels != mp3type.nChannels)
+  probe_ptr_->get_flac_codec_info (flactype);
+  flactype.nPortIndex = 0;
+  tiz_check_omx_err (OMX_SetParameter (handles_[1],
+                                       static_cast<OMX_INDEXTYPE>
+                                       (OMX_TizoniaIndexParamAudioFlac),
+                                       &flactype));
+
+  if (flactype_orig.nSampleRate != flactype.nSampleRate
+      || flactype_orig.nChannels != flactype.nChannels)
     {
       // Await port settings change event on decoders's port #1
       waitevent_list_t event_list
@@ -175,7 +203,7 @@ tizmp3graph::configure_mp3_graph (const int file_index)
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_configure (const tizgraphconfig_ptr_t &config)
+tizflacgraph::do_configure (const tizgraphconfig_ptr_t &config)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
@@ -190,7 +218,7 @@ tizmp3graph::do_configure (const tizgraphconfig_ptr_t &config)
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_execute ()
+tizflacgraph::do_execute ()
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d] list size [%d]...",
            current_file_index_, file_list_.size ());
@@ -202,7 +230,7 @@ tizmp3graph::do_execute ()
       current_file_index_ = 0;
     }
 
-  tiz_check_omx_err (configure_mp3_graph (current_file_index_++));
+  tiz_check_omx_err (configure_flac_graph (current_file_index_++));
   tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateLoaded));
   tiz_check_omx_err (transition_all (OMX_StateExecuting, OMX_StateIdle));
 
@@ -210,7 +238,7 @@ tizmp3graph::do_execute ()
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_pause ()
+tizflacgraph::do_pause ()
 {
   if (OMX_StateExecuting == current_graph_state_)
     {
@@ -224,13 +252,13 @@ tizmp3graph::do_pause ()
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_seek ()
+tizflacgraph::do_seek ()
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_skip (const int jump)
+tizflacgraph::do_skip (const int jump)
 {
   if (jump == 0)
     {
@@ -244,7 +272,7 @@ tizmp3graph::do_skip (const int jump)
       // pause states.
       return OMX_ErrorNone;
     }
-  
+
   if (OMX_StateExecuting == current_graph_state_)
     {
       tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateExecuting));
@@ -280,13 +308,13 @@ tizmp3graph::do_skip (const int jump)
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_volume ()
+tizflacgraph::do_volume ()
 {
   return OMX_ErrorNone;
 }
 
 void
-tizmp3graph::do_unload ()
+tizflacgraph::do_unload ()
 {
   (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
   (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
@@ -295,7 +323,7 @@ tizmp3graph::do_unload ()
 }
 
 void
-tizmp3graph::do_eos (const OMX_HANDLETYPE handle)
+tizflacgraph::do_eos (const OMX_HANDLETYPE handle)
 {
   if (config_->continuous_playback ())
     {
@@ -310,4 +338,25 @@ tizmp3graph::do_eos (const OMX_HANDLETYPE handle)
     {
       notify_graph_end_of_play ();
     }
+}
+
+OMX_ERRORTYPE
+tizflacgraph::probe_uri (const int uri_index, const bool quiet)
+{
+  assert (uri_index < file_list_.size ());
+
+  const std::string &uri = file_list_[uri_index];
+
+  if (!uri.empty ())
+    {
+      // Probe a new uri
+      probe_ptr_.reset ();
+      probe_ptr_ = boost::make_shared < tizprobe > (uri, quiet);
+      if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
+          || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingFLAC)
+        {
+          return OMX_ErrorContentURIError;
+        }
+    }
+  return OMX_ErrorNone;
 }

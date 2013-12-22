@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizgraph.cc
+ * @file   tizopusgraph.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL graph base class impl
+ * @brief  OpenMAX IL opus graph impl
  *
  */
 

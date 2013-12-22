@@ -28,6 +28,7 @@ noinst_HEADERS = \
 	tizgraph.h \
 	tizmp3graph.h \
 	tizopusgraph.h \
+	tizflacgraph.h \
 	tizstreamsrvconfig.h \
 	tizstreamsrvgraph.h
 
@@ -41,6 +42,7 @@ tplay_SOURCES = \
 	tizgraph.cc \
 	tizmp3graph.cc \
 	tizopusgraph.cc \
+	tizflacgraph.cc \
 	tizstreamsrvgraph.cc
 
 tplay_CPPFLAGS = \

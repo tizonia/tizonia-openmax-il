@@ -121,7 +121,7 @@ namespace                       // unnamed namespace
     raise (SIGSTOP);
   }
 
-  static void
+  void
   tizplay_sig_pipe_hdlr (int sig)
   {
     // Simply ignore this one
@@ -150,7 +150,7 @@ namespace                       // unnamed namespace
     printf ("Examples:\n");
     printf
       ("\t tplay ~/Music (decodes every supported file in the '~/Music' folder)\n");
-    printf ("\t    * Currently supported formats for playback: mp3, opus.\n");
+    printf ("\t    * Currently supported formats for playback: mp3, flac, opus.\n");
     printf ("\t    * Press [p] to skip to previous file.\n");
     printf ("\t    * Press [n] to skip to next file.\n");
     printf ("\t    * Press [SPACE] to pause playback.\n");
@@ -369,7 +369,7 @@ namespace                       // unnamed namespace
     void operator() (OMX_ERRORTYPE a, std::string b) const
     {
       fprintf (stderr, "Graph error found [%s:%s]. Terminating.\n",
-               tiz_err_to_str (a), b.c_str ());
+               b.c_str (), tiz_err_to_str (a));
       exit (EXIT_FAILURE);
     }
   };

@@ -34,6 +34,7 @@
 #include "tizprobe.h"
 #include "tizmp3graph.h"
 #include "tizopusgraph.h"
+#include "tizflacgraph.h"
 
 #include <assert.h>
 #include <boost/make_shared.hpp>
@@ -60,6 +61,11 @@ tizgraphfactory::create_graph (const std::string & uri)
     {
       return boost::make_shared < tizopusgraph > (p);
     }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio
+           && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
+    {
+      return boost::make_shared < tizflacgraph > (p);
+    }
   //   else if (p->get_omx_domain () == OMX_PortDomainVideo
   //            && p->get_video_coding_type () == OMX_VIDEO_CodingVP8)
   //     {
@@ -83,6 +89,11 @@ tizgraphfactory::coding_type (const std::string & uri)
            && p->get_audio_coding_type () == OMX_AUDIO_CodingOPUS)
     {
       return std::string ("opus");
+    }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio
+           && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
+    {
+      return std::string ("flac");
     }
   return std::string ();
 }
