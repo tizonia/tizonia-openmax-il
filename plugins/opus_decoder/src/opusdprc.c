@@ -363,7 +363,7 @@ transform_buffer (const opusd_prc_t * ap_prc)
 }
 
 static void
-clear_stream_parameters (opusd_prc_t *ap_prc)
+reset_stream_parameters (opusd_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   ap_prc->packet_count_   = 0;
@@ -386,7 +386,7 @@ opusd_prc_ctor (void *ap_obj, va_list * app)
   p_prc->p_in_hdr_          = NULL;
   p_prc->p_out_hdr_         = NULL;
   p_prc->p_out_buf_         = NULL;
-  clear_stream_parameters (p_prc);
+  reset_stream_parameters (p_prc);
   p_prc->eos_               = false;
   p_prc->in_port_disabled_  = false;
   p_prc->out_port_disabled_ = false;
@@ -439,7 +439,7 @@ opusd_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   opusd_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
-  clear_stream_parameters (p_prc);
+  reset_stream_parameters (p_prc);
   return OMX_ErrorNone;
 }
 

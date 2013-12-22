@@ -82,9 +82,9 @@ instantiate_opus_port (OMX_HANDLETYPE ap_hdl)
   opustype.nSampleRate             = 48000;
   opustype.nFrameDuration          = 2.5;
   opustype.nEncoderComplexity      = 0;
-  opustype.bPacketLossResilience   = false;
-  opustype.bForwardErrorCorrection = false;
-  opustype.bDtx                    = false;
+  opustype.bPacketLossResilience   = OMX_FALSE;
+  opustype.bForwardErrorCorrection = OMX_FALSE;
+  opustype.bDtx                    = OMX_FALSE;
   opustype.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
   opustype.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
 
