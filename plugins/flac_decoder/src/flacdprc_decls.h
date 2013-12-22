@@ -55,6 +55,9 @@ extern "C"
     unsigned sample_rate_;
     unsigned channels_;
     unsigned bps_;
+    OMX_U8 *p_store_;
+    OMX_U32 store_offset_;
+    OMX_U32 store_size_;
   };
 
   typedef struct flacd_prc_class flacd_prc_class_t;

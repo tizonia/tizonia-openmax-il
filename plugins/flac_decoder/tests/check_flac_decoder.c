@@ -64,8 +64,8 @@ static char FLAC_DEC_COMPONENT_NAME[] = "OMX.Aratelia.audio_decoder.flac";
 static char PCM_RND_COMPONENT_NAME[] = "OMX.Aratelia.audio_renderer.pcm";
 
 /* TODO: Move these two to the rc file */
-#define RATE_FILE1 48000
-#define RATE_FILE2 48000
+#define RATE_FILE1 44100
+#define RATE_FILE2 44100
 
 #define FLAC_DECODER_TEST_TIMEOUT 360
 #define INFINITE_WAIT 0xffffffff
@@ -826,14 +826,14 @@ START_TEST (test_flac_playback)
   rend_pcm_mode.nVersion.nVersion = OMX_VERSION;
   rend_pcm_mode.nPortIndex = 0;
   rend_pcm_mode.nChannels = 2;
-  rend_pcm_mode.eNumData = OMX_NumericalDataSigned;
-  rend_pcm_mode.eEndian = OMX_EndianBig;
+  rend_pcm_mode.eNumData = OMX_NumericalDataUnsigned;
+  rend_pcm_mode.eEndian = OMX_EndianLittle;
   rend_pcm_mode.bInterleaved = OMX_TRUE;
   rend_pcm_mode.nBitPerSample = 16;
   rend_pcm_mode.nSamplingRate = pg_rates[_i];
   rend_pcm_mode.ePCMMode = OMX_AUDIO_PCMModeMULaw;
   rend_pcm_mode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
-  rend_pcm_mode.eChannelMapping[0] = OMX_AUDIO_ChannelRF;
+  rend_pcm_mode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
   error = OMX_SetParameter (p_pcmrnd, OMX_IndexParamAudioPcm, &rend_pcm_mode);
   fail_if (OMX_ErrorNone != error);
 
@@ -1386,7 +1386,7 @@ main (void)
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL - Flac Decoder unit tests");
 
-/*   srunner_run_all (sr, CK_VERBOSE); */
+  srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);
   srunner_free (sr);
 

@@ -46,8 +46,74 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.flac_decoder.prc"
 #endif
 
+#define ARATELIA_FLAC_DECODER_BUFFER_THRESHOLD 8192 * 2
+
 /* Forward declarations */
 static OMX_ERRORTYPE flacd_prc_deallocate_resources (void *);
+
+static OMX_ERRORTYPE
+alloc_temp_data_store (flacd_prc_t * ap_prc)
+{
+  void *p_krn = tiz_get_krn (handleOf (ap_prc));
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+
+  assert (NULL != ap_prc);
+
+  port_def.nSize = (OMX_U32) sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  port_def.nVersion.nVersion = OMX_VERSION;
+  port_def.nPortIndex = ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX;
+
+  tiz_check_omx_err
+    (tiz_api_GetParameter (p_krn, handleOf (ap_prc),
+                           OMX_IndexParamPortDefinition, &port_def));
+
+  assert (ap_prc->p_store_ == NULL);
+  ap_prc->store_size_ = port_def.nBufferSize;
+  tiz_check_null_ret_oom ((ap_prc->p_store_ =
+                           tiz_mem_alloc (ap_prc->store_size_)));
+
+  return OMX_ErrorNone;
+}
+
+static inline void
+dealloc_temp_data_store ( /*@special@ */ flacd_prc_t * ap_prc)
+  /*@releases ap_prc->p_store_ @ */
+  /*@ensures isnull ap_prc->p_store_ @ */
+{
+  assert (NULL != ap_prc);
+  tiz_mem_free (ap_prc->p_store_);
+  ap_prc->p_store_ = NULL;
+  ap_prc->store_size_ = 0;
+  ap_prc->store_offset_ = 0;
+}
+
+static inline OMX_U8 **
+get_store_ptr (flacd_prc_t * ap_prc)
+{
+  OMX_U8 **pp_store = NULL;
+  assert (NULL != ap_prc);
+  pp_store = &(ap_prc->p_store_);
+  return pp_store;
+}
+
+static inline OMX_U32 *
+get_store_size_ptr (flacd_prc_t * ap_prc)
+{
+  OMX_U32 *p_size = NULL;
+  assert (NULL != ap_prc);
+  p_size = &(ap_prc->store_size_);
+  return p_size;
+}
+
+static inline OMX_U32 *
+get_store_offset_ptr (flacd_prc_t * ap_prc)
+{
+  OMX_U32 *p_offset = NULL;
+  assert (NULL != ap_prc);
+  p_offset = &(ap_prc->store_offset_);
+  assert (NULL != p_offset);
+  return p_offset;
+}
 
 static inline OMX_BUFFERHEADERTYPE **
 get_header_ptr (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
@@ -146,15 +212,95 @@ release_buffer (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
   *pp_hdr = NULL;
 }
 
-static inline bool
-buffers_available (flacd_prc_t * ap_prc)
+static int
+store_data (flacd_prc_t * ap_prc, const OMX_U8 * ap_data, OMX_U32 a_nbytes)
 {
-  bool rc = true;
-  rc &=
-    (NULL != get_buffer (ap_prc, ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX));
-  rc &=
-    (NULL != get_buffer (ap_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX));
-  return rc;
+  OMX_U8 **pp_store = NULL;
+  OMX_U32 *p_offset = NULL;
+  OMX_U32 *p_size = NULL;
+  OMX_U32 nbytes_to_copy = 0;
+  OMX_U32 nbytes_avail = 0;
+
+  assert (NULL != ap_prc);
+  assert (NULL != ap_data);
+
+  pp_store = get_store_ptr (ap_prc);
+  p_size = get_store_size_ptr (ap_prc);
+  p_offset = get_store_offset_ptr (ap_prc);
+
+  assert (NULL != pp_store && NULL != *pp_store);
+  assert (NULL != p_size);
+  assert (NULL != p_offset);
+
+  nbytes_avail = *p_size - *p_offset;
+
+  if (a_nbytes > nbytes_avail)
+    {
+      /* need to re-alloc */
+      OMX_U8 *p_new_store = NULL;
+      p_new_store = tiz_mem_realloc (*pp_store, *p_offset + a_nbytes);
+      if (NULL != p_new_store)
+        {
+          *pp_store = p_new_store;
+          *p_size = *p_offset + a_nbytes;
+          nbytes_avail = *p_size - *p_offset;
+          TIZ_TRACE (handleOf (ap_prc), "Realloc'd data store "
+                     "to new size [%d]", *p_size);
+        }
+    }
+  nbytes_to_copy = MIN (nbytes_avail, a_nbytes);
+  memcpy (*pp_store + *p_offset, ap_data, nbytes_to_copy);
+  *p_offset += nbytes_to_copy;
+
+  TIZ_TRACE (handleOf (ap_prc), "bytes currently stored [%d]", *p_offset);
+
+  return nbytes_to_copy;
+}
+
+static inline bool
+input_data_available (flacd_prc_t * ap_prc)
+{
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  bool done = false;
+
+  assert (NULL != ap_prc);
+
+  if (ap_prc->store_offset_ < ARATELIA_FLAC_DECODER_BUFFER_THRESHOLD)
+    {
+      while (!done
+             &&
+             (NULL !=
+              (p_hdr =
+               get_buffer (ap_prc, ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX))))
+        {
+          int bytes_stored =
+            store_data (ap_prc, p_hdr->pBuffer + p_hdr->nOffset,
+                        p_hdr->nFilledLen);
+          p_hdr->nFilledLen -= bytes_stored;
+
+          if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0)
+            {
+              ap_prc->eos_ = true;
+              done = true;
+            }
+
+          /* TODO: Replace assert with a check for when nFilledLen != 0 */
+          assert (0 == p_hdr->nFilledLen);
+          release_buffer (ap_prc, ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX);
+        }
+    }
+
+  TIZ_TRACE (handleOf (ap_prc), "bytes available [%d]", ap_prc->store_offset_);
+
+  return (ap_prc->store_offset_ > ARATELIA_FLAC_DECODER_BUFFER_THRESHOLD
+          || (ap_prc->eos_ && ap_prc->store_offset_ > 0));
+}
+
+static inline bool
+output_buffers_available (flacd_prc_t * ap_prc)
+{
+  return (NULL !=
+          get_buffer (ap_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX));
 }
 
 static OMX_ERRORTYPE
@@ -197,23 +343,200 @@ do_flush (flacd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-transform_buffers (const flacd_prc_t * ap_prc)
+transform_stream (const flacd_prc_t * ap_prc)
 {
   flacd_prc_t *p_prc = (flacd_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  FLAC__bool decode_outcome = 1;
+  FLAC__bool decode_ok = 1;
 
   assert (NULL != p_prc);
   assert (NULL != p_prc->p_flac_dec_);
 
-  while (buffers_available (p_prc) && decode_outcome > 0)
-  {
-    TIZ_TRACE (handleOf (ap_prc), "Buffers available");
-    decode_outcome = FLAC__stream_decoder_process_single (p_prc->p_flac_dec_);
-    TIZ_TRACE (handleOf (ap_prc), "Buffers available : decode_outcome [%d]", decode_outcome);
-  }
+  while (decode_ok
+         && input_data_available (p_prc) && output_buffers_available (p_prc))
+    {
+      decode_ok = FLAC__stream_decoder_process_single (p_prc->p_flac_dec_);
+      TIZ_TRACE (handleOf (ap_prc), "decode_ok [%d]", decode_ok);
+      if (!decode_ok)
+        {
+          TIZ_ERROR (handleOf (ap_prc), "error [%s]",
+                     FLAC__stream_decoder_get_resolved_state_string
+                     (p_prc->p_flac_dec_));
+          rc = OMX_ErrorStreamCorrupt;
+          break;
+        }
+    }
 
   return rc;
+}
+
+static int
+dump_temp_store (flacd_prc_t * ap_prc, OMX_U8 * ap_buffer, size_t nbytes_avail)
+{
+  OMX_U8 *p_store = NULL;
+  OMX_U32 *p_offset = NULL;
+  OMX_U32 nbytes_to_copy = 0;
+
+  assert (NULL != ap_prc);
+  assert (NULL != ap_buffer);
+
+  p_store = *(get_store_ptr (ap_prc));
+  p_offset = get_store_offset_ptr (ap_prc);
+
+  assert (NULL != p_store);
+  assert (NULL != p_offset);
+
+  nbytes_to_copy = MIN (*p_offset, nbytes_avail);
+
+  if (nbytes_to_copy > 0)
+    {
+      memcpy (ap_buffer, p_store, nbytes_to_copy);
+      *p_offset -= nbytes_to_copy;
+      if (*p_offset > 0)
+        {
+          memmove (p_store, p_store + nbytes_to_copy, *p_offset);
+        }
+      TIZ_TRACE (handleOf (ap_prc), "nbytes_to_copy [%d]"
+                 "offset [%d]", nbytes_to_copy, *p_offset);
+    }
+
+  return nbytes_to_copy;
+}
+
+static FLAC__StreamDecoderReadStatus
+read_cb (const FLAC__StreamDecoder * ap_decoder,
+         FLAC__byte buffer[], size_t * ap_bytes, void *ap_client_data)
+{
+  flacd_prc_t *p_prc = (flacd_prc_t *) ap_client_data;
+  FLAC__StreamDecoderReadStatus rc = FLAC__STREAM_DECODER_READ_STATUS_CONTINUE;
+
+  (void) ap_decoder;
+  assert (NULL != p_prc);
+  assert (NULL != ap_bytes);
+
+  TIZ_TRACE (handleOf (p_prc), "bytes requested : [%d]", *ap_bytes);
+
+  if (*ap_bytes <= 0)
+    {
+      rc = FLAC__STREAM_DECODER_READ_STATUS_ABORT;
+      *ap_bytes = 0;
+    }
+  else if (p_prc->store_offset_ == 0)
+    {
+      rc = FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
+      *ap_bytes = 0;
+    }
+  else
+    {
+      rc = FLAC__STREAM_DECODER_READ_STATUS_CONTINUE;
+      *ap_bytes = dump_temp_store (p_prc, buffer, *ap_bytes);
+    }
+
+  TIZ_TRACE (handleOf (p_prc), "bytes delivered [%d] rc [%d]", *ap_bytes, rc);
+
+  return rc;
+}
+
+static FLAC__StreamDecoderWriteStatus
+write_cb (const FLAC__StreamDecoder * ap_decoder, const FLAC__Frame * ap_frame,
+          const FLAC__int32 * const ap_buffer[], void *ap_client_data)
+{
+  flacd_prc_t *p_prc = (flacd_prc_t *) ap_client_data;
+  OMX_BUFFERHEADERTYPE *p_out = NULL;
+  FLAC__StreamDecoderWriteStatus rc =
+    FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
+
+  (void) ap_decoder;
+  assert (NULL != p_prc);
+  assert (NULL != ap_frame);
+  assert (NULL != ap_buffer);
+
+  TIZ_TRACE (handleOf (p_prc), "blocksize : [%d] channels [%d] bps [%d]",
+             ap_frame->header.blocksize, ap_frame->header.channels,
+             ap_frame->header.bits_per_sample);
+
+  p_out = get_buffer (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
+  assert (NULL != p_out);
+
+  if (p_prc->channels_ != 2 || p_prc->bps_ != 16)
+    {
+      TIZ_ERROR (handleOf (p_prc), "Only support for 16bit stereo streams");
+      rc = FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+    }
+  else
+    {
+      /* write decoded PCM samples */
+      size_t i = 0;
+      size_t j = 0;
+      size_t nbytes = ap_frame->header.blocksize * p_prc->channels_;
+      for (i = 0; i < nbytes;)
+        {
+          short *out = (short *) (p_out->pBuffer + p_out->nOffset) + i;
+          out[0] = (FLAC__int16) ap_buffer[0][j];       /* left channel */
+          out[1] = (FLAC__int16) ap_buffer[1][j];       /* right channel */
+          j++;
+          i += 2;
+        }
+      p_out->nFilledLen =
+        ap_frame->header.blocksize * p_prc->channels_ * (p_prc->bps_ / 8);
+      if ((p_prc->eos_ && p_prc->store_offset_ == 0))
+        {
+          /* Propagate EOS flag to output */
+          p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+          p_prc->eos_ = false;
+        }
+      release_buffer (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
+    }
+
+  return rc;
+}
+
+static void
+metadata_cb (const FLAC__StreamDecoder * ap_decoder,
+             const FLAC__StreamMetadata * ap_metadata, void *ap_client_data)
+{
+  flacd_prc_t *p_prc = (flacd_prc_t *) ap_client_data;
+
+  (void) ap_decoder;
+  assert (NULL != p_prc);
+  assert (NULL != ap_metadata);
+
+  if (ap_metadata->type == FLAC__METADATA_TYPE_STREAMINFO)
+    {
+      /* save for later */
+      p_prc->total_samples_ = ap_metadata->data.stream_info.total_samples;
+      p_prc->sample_rate_ = ap_metadata->data.stream_info.sample_rate;
+      p_prc->channels_ = ap_metadata->data.stream_info.channels;
+      p_prc->bps_ = ap_metadata->data.stream_info.bits_per_sample;
+
+      TIZ_TRACE (handleOf (p_prc), "sample rate     : [%u] Hz",
+                 p_prc->sample_rate_);
+      TIZ_TRACE (handleOf (p_prc), "channels        : [%u]", p_prc->channels_);
+      TIZ_TRACE (handleOf (p_prc), "bits per sample : [%u]", p_prc->bps_);
+      TIZ_TRACE (handleOf (p_prc), "total samples   : [%llu]",
+                 p_prc->total_samples_);
+    }
+}
+
+static void
+error_cb (const FLAC__StreamDecoder * ap_decoder,
+          FLAC__StreamDecoderErrorStatus status, void *ap_client_data)
+{
+  flacd_prc_t *p_prc = (flacd_prc_t *) ap_client_data;
+  (void) ap_decoder;
+  assert (NULL != p_prc);
+  TIZ_ERROR (handleOf (p_prc), "Got error callback: %s",
+             FLAC__StreamDecoderErrorStatusString[status]);
+}
+
+static void
+reset_stream_parameters (flacd_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  ap_prc->total_samples_ = 0;
+  ap_prc->sample_rate_   = 0;
+  ap_prc->channels_      = 0;
+  ap_prc->bps_           = 0;
 }
 
 /*
@@ -231,10 +554,10 @@ flacd_prc_ctor (void *ap_obj, va_list * app)
   p_prc->eos_               = false;
   p_prc->in_port_disabled_  = false;
   p_prc->out_port_disabled_ = false;
-  p_prc->total_samples_     = 0;
-  p_prc->sample_rate_       = 0;
-  p_prc->channels_          = 0;
-  p_prc->bps_               = 0;
+  p_prc->p_store_           = NULL;
+  p_prc->store_offset_      = 0;
+  p_prc->store_size_        = 0;
+  reset_stream_parameters (p_prc);
   return p_prc;
 }
 
@@ -243,139 +566,6 @@ flacd_prc_dtor (void *ap_obj)
 {
   (void) flacd_prc_deallocate_resources (ap_obj);
   return super_dtor (typeOf (ap_obj, "flacdprc"), ap_obj);
-}
-
-static FLAC__StreamDecoderReadStatus
-read_cb (const FLAC__StreamDecoder *ap_decoder,
-         FLAC__byte buffer[], size_t *ap_bytes,
-         void *ap_client_data)
-{
-  flacd_prc_t *p_prc = (flacd_prc_t *) ap_client_data;
-  OMX_BUFFERHEADERTYPE *p_in = NULL;
-  FLAC__StreamDecoderReadStatus rc = FLAC__STREAM_DECODER_READ_STATUS_CONTINUE;
-
-  (void) ap_decoder;
-  assert (NULL != p_prc);
-  assert (NULL != ap_bytes);
-
-  TIZ_TRACE (handleOf (p_prc), "bytes : [%d]", *ap_bytes);
-
-  p_in = get_buffer (p_prc, ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX);
-
-  if (NULL == p_in)
-    {
-      rc = FLAC__STREAM_DECODER_READ_STATUS_ABORT;
-      *ap_bytes = 0;
-    }
-  else if (p_in->nFilledLen == 0)
-    {
-      rc        = FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
-      *ap_bytes = 0;
-    }
-  else
-    {
-      OMX_U32 nbytes_to_copy = MIN (*ap_bytes, p_in->nFilledLen);
-
-      memcpy (buffer, p_in->pBuffer + p_in->nOffset, nbytes_to_copy);
-
-      p_in->nFilledLen -= nbytes_to_copy;
-      p_in->nOffset    += nbytes_to_copy;
-      *ap_bytes           = nbytes_to_copy;
-    }
-
-  if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
-    {
-      /* Propagate EOS flag to output */
-      OMX_BUFFERHEADERTYPE *p_out
-        = get_buffer (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
-      assert (NULL != p_out);
-      p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-      p_in->nFlags = 0;
-      rc = FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
-    }
-
-  release_buffer (p_prc, ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX);
-
-  return rc;
-}
-
-static FLAC__StreamDecoderWriteStatus
-write_cb (const FLAC__StreamDecoder *ap_decoder, const FLAC__Frame *ap_frame,
-          const FLAC__int32 *const ap_buffer[], void *ap_client_data)
-{
-  flacd_prc_t *p_prc = (flacd_prc_t *) ap_client_data;
-  OMX_BUFFERHEADERTYPE *p_out = NULL;
-  FLAC__StreamDecoderWriteStatus rc = FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
-
-  (void) ap_decoder;
-  assert (NULL != p_prc);
-  assert (NULL != ap_frame);
-  assert (NULL != ap_buffer);
-
-  TIZ_TRACE (handleOf (p_prc), "blocksize : [%d]",
-             ap_frame->header.blocksize);
-
-  p_out = get_buffer (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
-  assert (NULL != p_out);
-
-  if(p_prc->channels_ != 2 || p_prc->bps_ != 16)
-    {
-      TIZ_ERROR (handleOf (p_prc), "Only support for 16bit stereo streams");
-      rc = FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
-    }
-  else
-    {
-      /* write decoded PCM samples */
-      int i = 0;
-      for (i = 0; i < ap_frame->header.blocksize; ++i)
-        {
-          short *out = (short *) (p_out->pBuffer + p_out->nOffset) + i;
-          out[0] = (FLAC__int16) ap_buffer[0][i]; /* left channel */
-          out[1] = (FLAC__int16) ap_buffer[1][i]; /* right channel */
-        }
-      p_out->nFilledLen = ap_frame->header.blocksize
-        * ap_frame->header.channels
-        * ap_frame->header.bits_per_sample;
-      release_buffer (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
-    }
-
-  return rc;
-}
-
-static void
-metadata_cb(const FLAC__StreamDecoder *ap_decoder,
-            const FLAC__StreamMetadata *ap_metadata, void *ap_client_data)
-{
-  flacd_prc_t *p_prc = (flacd_prc_t *) ap_client_data;
-
-  (void) ap_decoder;
-  assert (NULL != p_prc);
-  assert (NULL != ap_metadata);
-
-  if(ap_metadata->type == FLAC__METADATA_TYPE_STREAMINFO)
-    {
-      /* save for later */
-      p_prc->total_samples_ = ap_metadata->data.stream_info.total_samples;
-      p_prc->sample_rate_   = ap_metadata->data.stream_info.sample_rate;
-      p_prc->channels_      = ap_metadata->data.stream_info.channels;
-      p_prc->bps_           = ap_metadata->data.stream_info.bits_per_sample;
-
-      TIZ_TRACE (handleOf (p_prc), "sample rate     : [%u] Hz", p_prc->sample_rate_);
-      TIZ_TRACE (handleOf (p_prc), "channels        : [%u]", p_prc->channels_);
-      TIZ_TRACE (handleOf (p_prc), "bits per sample : [%u]", p_prc->bps_);
-      TIZ_TRACE (handleOf (p_prc), "total samples   : [%llu]", p_prc->total_samples_);
-    }
-}
-
-static void
-error_cb (const FLAC__StreamDecoder *ap_decoder,
-          FLAC__StreamDecoderErrorStatus status, void *ap_client_data)
-{
-  flacd_prc_t *p_prc = (flacd_prc_t *) ap_client_data;
-  (void) ap_decoder;
-  assert (NULL != p_prc);
-  TIZ_ERROR (handleOf (p_prc), "Got error callback: %s",
-             FLAC__StreamDecoderErrorStatusString[status]);
 }
 
 /*
@@ -387,7 +577,10 @@ flacd_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   flacd_prc_t *p_prc = ap_obj;
   assert (NULL != ap_obj);
-  if(NULL == (p_prc->p_flac_dec_ = FLAC__stream_decoder_new ()))
+
+  tiz_check_omx_err (alloc_temp_data_store (p_prc));
+
+  if (NULL == (p_prc->p_flac_dec_ = FLAC__stream_decoder_new ()))
     {
       TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                  "Unable to create a FLAC stream decoder instance.");
@@ -407,6 +600,7 @@ flacd_prc_deallocate_resources (void *ap_obj)
       FLAC__stream_decoder_delete (p_prc->p_flac_dec_);
       p_prc->p_flac_dec_ = NULL;
     }
+  dealloc_temp_data_store (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -418,26 +612,24 @@ flacd_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   assert (NULL != ap_obj);
 
   if (NULL != p_prc->p_flac_dec_)
-  {
-    result = FLAC__stream_decoder_init_stream (p_prc->p_flac_dec_,
-                                               read_cb,
-                                               NULL, /* seek_callback */
-                                               NULL, /* tell_callback */
-                                               NULL, /* length_callback */
-                                               NULL, /* eof_callback */
-                                               write_cb,
-                                               metadata_cb,
-                                               error_cb,
-                                               p_prc);
-  }
+    {
+      result = FLAC__stream_decoder_init_stream (p_prc->p_flac_dec_, read_cb, NULL,     /* seek_callback */
+                                                 NULL,  /* tell_callback */
+                                                 NULL,  /* length_callback */
+                                                 NULL,  /* eof_callback */
+                                                 write_cb,
+                                                 metadata_cb, error_cb, p_prc);
+    }
 
-  if (FLAC__STREAM_DECODER_INIT_STATUS_OK !=  result)
+  if (FLAC__STREAM_DECODER_INIT_STATUS_OK != result)
     {
       TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                  "While initializing the FLAC stream decoder instance.");
       return OMX_ErrorInsufficientResources;
     }
 
+  reset_stream_parameters (p_prc);
+  p_prc->store_offset_  = 0;
   return OMX_ErrorNone;
 }
 
@@ -455,9 +647,9 @@ flacd_prc_stop_and_return (void *ap_obj)
   TIZ_TRACE (handleOf (p_prc), "stop_and_return");
 
   if (NULL != p_prc->p_flac_dec_)
-  {
-    (void) FLAC__stream_decoder_finish(p_prc->p_flac_dec_);
-  }
+    {
+      (void) FLAC__stream_decoder_finish (p_prc->p_flac_dec_);
+    }
   return do_flush (p_prc);
 }
 
@@ -468,7 +660,7 @@ flacd_prc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 flacd_prc_buffers_ready (const void *ap_obj)
 {
-  return transform_buffers (ap_obj);
+  return transform_stream (ap_obj);
 }
 
 /*
@@ -487,39 +679,42 @@ flacd_prc_class_ctor (void *ap_obj, va_list * app)
  */
 
 void *
-flacd_prc_class_init (void * ap_tos, void * ap_hdl)
+flacd_prc_class_init (void *ap_tos, void *ap_hdl)
 {
-  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * flacdprc_class = factory_new (classOf (tizprc),
-                                    "flacdprc_class",
-                                    classOf (tizprc),
-                                    sizeof (flacd_prc_class_t),
-                                    ap_tos, ap_hdl,
-                                    ctor, flacd_prc_class_ctor, 0);
+  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void *flacdprc_class = factory_new (classOf (tizprc),
+                                      "flacdprc_class",
+                                      classOf (tizprc),
+                                      sizeof (flacd_prc_class_t),
+                                      ap_tos, ap_hdl,
+                                      ctor, flacd_prc_class_ctor, 0);
   return flacdprc_class;
 }
 
 void *
-flacd_prc_init (void * ap_tos, void * ap_hdl)
+flacd_prc_init (void *ap_tos, void *ap_hdl)
 {
-  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * flacdprc_class = tiz_get_type (ap_hdl, "flacdprc_class");
+  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void *flacdprc_class = tiz_get_type (ap_hdl, "flacdprc_class");
   TIZ_LOG_CLASS (flacdprc_class);
-  void * flacdprc =
-    factory_new
-    (flacdprc_class,
-     "flacdprc",
-     tizprc,
-     sizeof (flacd_prc_t),
-     ap_tos, ap_hdl,
-     ctor, flacd_prc_ctor,
-     dtor, flacd_prc_dtor,
-     tiz_prc_buffers_ready, flacd_prc_buffers_ready,
-     tiz_srv_allocate_resources, flacd_prc_allocate_resources,
-     tiz_srv_deallocate_resources, flacd_prc_deallocate_resources,
-     tiz_srv_prepare_to_transfer, flacd_prc_prepare_to_transfer,
-     tiz_srv_transfer_and_process, flacd_prc_transfer_and_process,
-     tiz_srv_stop_and_return, flacd_prc_stop_and_return, 0);
+  void *flacdprc = factory_new (flacdprc_class,
+                                "flacdprc",
+                                tizprc,
+                                sizeof (flacd_prc_t),
+                                ap_tos, ap_hdl,
+                                ctor, flacd_prc_ctor,
+                                dtor, flacd_prc_dtor,
+                                tiz_prc_buffers_ready, flacd_prc_buffers_ready,
+                                tiz_srv_allocate_resources,
+                                flacd_prc_allocate_resources,
+                                tiz_srv_deallocate_resources,
+                                flacd_prc_deallocate_resources,
+                                tiz_srv_prepare_to_transfer,
+                                flacd_prc_prepare_to_transfer,
+                                tiz_srv_transfer_and_process,
+                                flacd_prc_transfer_and_process,
+                                tiz_srv_stop_and_return,
+                                flacd_prc_stop_and_return, 0);
 
   return flacdprc;
 }
