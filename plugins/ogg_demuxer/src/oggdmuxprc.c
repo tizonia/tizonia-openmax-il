@@ -905,6 +905,7 @@ print_codec_name (oggdmux_prc_t * ap_prc, long serialno)
 static OMX_ERRORTYPE
 set_read_packet_callbacks (oggdmux_prc_t * ap_prc)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   long serialno = 0;
   int n = 0;
   int i = 0;
@@ -936,7 +937,12 @@ set_read_packet_callbacks (oggdmux_prc_t * ap_prc)
         }
     }
 
-  return OMX_ErrorNone;
+  if (0 == n)
+    {
+      rc = OMX_ErrorFormatNotDetected;
+    }
+
+  return rc;
 }
 
 static inline bool

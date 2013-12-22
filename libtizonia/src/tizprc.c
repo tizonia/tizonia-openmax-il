@@ -563,6 +563,16 @@ dispatch_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         (tiz_get_fsm (ap_hdl), p_obj, ap_msg_sc->param1);
     }
 
+  /* TODO: Move this logic to its own function in the servant class. Will also
+     be used by the kernel and fsm servants.  */
+  if (OMX_ErrorFormatNotDetected == rc)
+    {
+      TIZ_ERROR (ap_hdl, "[%s] : Signalling processor error via event handler.",
+                 tiz_err_to_str (rc));
+      tiz_srv_issue_event (p_obj, OMX_EventError, rc, 0, NULL);
+      rc = OMX_ErrorNone;
+    }
+  
   TIZ_TRACE (ap_hdl, "rc [%s]", tiz_err_to_str (rc));
 
   return rc;
