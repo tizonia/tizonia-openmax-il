@@ -49,8 +49,9 @@ protected:
   OMX_ERRORTYPE do_seek ();
   OMX_ERRORTYPE do_skip (const int jump);
   OMX_ERRORTYPE do_volume ();
-  void do_eos (const OMX_HANDLETYPE handle);
-  void do_unload ();
+  void          do_error (const OMX_ERRORTYPE error);
+  void          do_eos (const OMX_HANDLETYPE handle);
+  void          do_unload ();
 
   OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
 
@@ -58,7 +59,13 @@ private:
 
   OMX_ERRORTYPE disable_demuxer_video_port ();
   OMX_ERRORTYPE configure_flac_graph (const int file_index);
+  void unload_flac_graph ();
 
+private:
+
+  int demuxer_index_;
+  int demux_attempts_;
+  
 };
 
 #endif // TIZFLACGRAPH_H

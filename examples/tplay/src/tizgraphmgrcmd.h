@@ -19,45 +19,49 @@
  */
 
 /**
- * @file   tizmp3graph.h
+ * @file   tizgraphmgrcmd.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL mp3 graph class
+ * @brief  Graph manager command class.
  *
  *
  */
 
-#ifndef TIZMP3GRAPH_H
-#define TIZMP3GRAPH_H
+#ifndef TIZGRAPHMGRCMD_H
+#define TIZGRAPHMGRCMD_H
 
-#include "tizgraph.h"
-#include "tizprobe.h"
-
-class tizmp3graph : public tizgraph
+class tizgraphmgrcmd
 {
 
-public:
+ public:
 
-  tizmp3graph (tizprobe_ptr_t probe_ptr);
+  enum cmd_type
+  {
+    ETIZGraphMgrCmdStart,
+    ETIZGraphMgrCmdNext,
+    ETIZGraphMgrCmdPrev,
+    ETIZGraphMgrCmdFwd,
+    ETIZGraphMgrCmdRwd,
+    ETIZGraphMgrCmdVolume,
+    ETIZGraphMgrCmdPause,
+    ETIZGraphMgrCmdStop,
+    ETIZGraphMgrCmdGraphEop,
+    ETIZGraphMgrCmdGraphError,
+    ETIZGraphMgrCmdMax
+  };
 
-protected:
+ public:
 
-  OMX_ERRORTYPE do_load ();
-  OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t &config);
-  OMX_ERRORTYPE do_execute ();
-  OMX_ERRORTYPE do_pause ();
-  OMX_ERRORTYPE do_seek ();
-  OMX_ERRORTYPE do_skip (const int jump);
-  OMX_ERRORTYPE do_volume ();
-  void          do_error (const OMX_ERRORTYPE error);
-  void          do_eos (const OMX_HANDLETYPE handle);
-  void          do_unload ();
+  tizgraphmgrcmd (const cmd_type type);
 
-private:
+  cmd_type get_type () const {return type_;}
 
-  OMX_ERRORTYPE configure_mp3_graph (const int file_index);
+  const char * c_str () const;
+
+ private:
+
+  const cmd_type type_;
 
 };
 
-#endif // TIZMP3GRAPH_H
-
+#endif // TIZGRAPHMGRCMD_H

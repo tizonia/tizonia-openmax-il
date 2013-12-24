@@ -46,8 +46,15 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.flac"
 #endif
 
+
+namespace                       // unnamed namespace
+{
+  // Two demuxers to try, ogg demuxer and binary file reader
+  const int kMaxAvailableDemuxers = 2;
+}
+
 tizflacgraph::tizflacgraph (tizprobe_ptr_t probe_ptr)
-  : tizgraph (3, probe_ptr)
+  : tizgraph (3, probe_ptr), demuxer_index_ (0), demux_attempts_ (0)
 {
 }
 
@@ -56,8 +63,19 @@ tizflacgraph::do_load ()
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
+  assert (OMX_StateLoaded == current_graph_state_);
+
   component_names_t comp_list;
-  comp_list.push_back ("OMX.Aratelia.container_demuxer.ogg");
+  assert (demuxer_index_ < kMaxAvailableDemuxers);
+  if (demuxer_index_ == 0)
+    {
+      comp_list.push_back ("OMX.Aratelia.container_demuxer.ogg");
+    }
+  else
+    {
+      comp_list.push_back ("OMX.Aratelia.file_reader.binary");
+    }
+
   comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
   comp_list.push_back ("OMX.Aratelia.audio_renderer_nb.pcm");
 
@@ -67,7 +85,14 @@ tizflacgraph::do_load ()
     }
 
   component_roles_t role_list;
-  role_list.push_back ("container_demuxer.ogg");
+  if (demuxer_index_ == 0)
+    {
+      role_list.push_back ("container_demuxer.ogg");
+    }
+  else
+    {
+      role_list.push_back ("audio_reader.binary");
+    }
   role_list.push_back ("audio_decoder.flac");
   role_list.push_back ("audio_renderer.pcm");
 
@@ -88,6 +113,13 @@ OMX_ERRORTYPE
 tizflacgraph::disable_demuxer_video_port ()
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
+
+  // There is no video port in the binary file reader.
+  if (demuxer_index_ ==  1)
+    {
+      return OMX_ErrorNone;
+    }
+  
   const OMX_COMMANDTYPE cmd = OMX_CommandPortDisable;
   // Port 1 = video port
   OMX_U32 port_id = 1;
@@ -202,6 +234,15 @@ tizflacgraph::configure_flac_graph (const int file_index)
   return OMX_ErrorNone;
 }
 
+void
+tizflacgraph::unload_flac_graph ()
+{
+  (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
+  (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
+  tear_down_tunnels ();
+  destroy_list ();
+}
+
 OMX_ERRORTYPE
 tizflacgraph::do_configure (const tizgraphconfig_ptr_t &config)
 {
@@ -220,8 +261,9 @@ tizflacgraph::do_configure (const tizgraphconfig_ptr_t &config)
 OMX_ERRORTYPE
 tizflacgraph::do_execute ()
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d] list size [%d]...",
-           current_file_index_, file_list_.size ());
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "current_file_index_ [%d] list size [%d]..."
+           " demux_attempts_ [%d]",
+           current_file_index_, file_list_.size (), demux_attempts_);
 
   assert (OMX_StateLoaded == current_graph_state_);
 
@@ -233,6 +275,9 @@ tizflacgraph::do_execute ()
   tiz_check_omx_err (configure_flac_graph (current_file_index_++));
   tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateLoaded));
   tiz_check_omx_err (transition_all (OMX_StateExecuting, OMX_StateIdle));
+
+  // Increment the number of times we are attempting to demux this file
+  demux_attempts_++;
 
   return OMX_ErrorNone;
 }
@@ -304,6 +349,9 @@ tizflacgraph::do_skip (const int jump)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d]...",
            current_file_index_);
 
+  // This count as a successful playback, reset the demuxing count.
+  demux_attempts_ = 0;
+
   return do_execute ();
 }
 
@@ -316,15 +364,49 @@ tizflacgraph::do_volume ()
 void
 tizflacgraph::do_unload ()
 {
-  (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
-  (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
-  tear_down_tunnels ();
-  destroy_list ();
+  unload_flac_graph ();
+  demuxer_index_ = 0;
+  demux_attempts_ = 0;
+}
+
+void
+tizflacgraph::do_error (const OMX_ERRORTYPE error)
+{
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] - demux_attempts_ [%d]..."
+           " current_file_index_ [%d]", tiz_err_to_str (error),
+           demux_attempts_, current_file_index_);
+  
+  if ((error == OMX_ErrorFormatNotDetected
+       || error == OMX_ErrorStreamCorrupt)
+      && demux_attempts_ < kMaxAvailableDemuxers)
+    {
+      // Tear down the current graph...
+      unload_flac_graph ();
+      assert (OMX_StateLoaded == current_graph_state_);
+
+      // ... and re-try the same file with an alternative demuxer.
+      demuxer_index_ = (demuxer_index_ + 1 == kMaxAvailableDemuxers ? 0 : demuxer_index_ + 1);
+      if (current_file_index_ > 0)
+        {
+          current_file_index_--;
+        }
+      (void) do_load ();
+      (void) setup_suppliers ();
+      (void) setup_tunnels ();
+      (void) do_execute ();
+    }
+  else
+    {
+      notify_graph_error (error, "");
+    }
 }
 
 void
 tizflacgraph::do_eos (const OMX_HANDLETYPE handle)
 {
+  // This was a pretty successful playback, reset the demuxing count.
+  demux_attempts_ = 0;
+
   if (config_->continuous_playback ())
     {
       if (handle == handles_[2])
@@ -338,6 +420,7 @@ tizflacgraph::do_eos (const OMX_HANDLETYPE handle)
     {
       notify_graph_end_of_play ();
     }
+
 }
 
 OMX_ERRORTYPE

@@ -56,14 +56,6 @@ namespace                       // unnamed namespace
     uri_list_t &file_list_;
   };
 
-  bool
-  verify_uri (const std::string & uri)
-  {
-    return (boost::filesystem::portable_directory_name (uri)
-            || boost::filesystem::portable_name (uri)
-            || boost::filesystem::windows_name (uri));
-  }
-
   OMX_ERRORTYPE
   process_base_uri (const std::string & uri, uri_list_t &file_list, bool recurse = false)
   {
@@ -249,28 +241,35 @@ tizplaylist::is_single_format_playlist () const
   return is_single_format;
 }
 
-OMX_ERRORTYPE
+bool
 tizplaylist::assemble_play_list (const std::string &base_uri,
                                  const bool shuffle_playlist,
                                  const bool recurse,
-                                 uri_list_t &file_list)
+                                 uri_list_t &file_list,
+                                 std::string &error_msg)
 {
-  if (!verify_uri (base_uri))
-    {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "Invalid base uri [%s].", base_uri.c_str ());
-      return OMX_ErrorContentURIError;
-    }
+  bool list_assembled = true;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
+  if (base_uri.empty ())
+    {
+      error_msg.assign ("Empty media uri.");
+      rc = OMX_ErrorContentURIError;
+      goto end;
+    }
+  
   if (OMX_ErrorNone != process_base_uri (base_uri, file_list, recurse))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "File not found.");
-      return OMX_ErrorContentURIError;
+      error_msg.assign ("File not found.");
+      rc = OMX_ErrorContentURIError;
+      goto end;
     }
 
   if (OMX_ErrorNone != filter_unknown_media (file_list))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "No supported media types found.");
-      return OMX_ErrorContentURIError;
+      error_msg.assign ("No supported media types found.");
+      rc = OMX_ErrorFormatNotDetected;
+      goto end;
     }
 
   if (shuffle_playlist)
@@ -282,5 +281,13 @@ tizplaylist::assemble_play_list (const std::string &base_uri,
       std::sort (file_list.begin (), file_list.end ());
     }
 
-  return OMX_ErrorNone;
+ end:
+
+  if (OMX_ErrorNone != rc)
+    {
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]", error_msg.c_str ());
+      list_assembled = false;
+    }
+
+  return list_assembled;
 }

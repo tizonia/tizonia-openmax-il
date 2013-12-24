@@ -50,10 +50,11 @@ class tizplaylist
   int size () const;
   bool is_single_format_playlist () const;
 
-  static OMX_ERRORTYPE assemble_play_list (const std::string &base_uri,
-                                           const bool shuffle_playlist,
-                                           const bool recurse,
-                                           uri_list_t &file_list);
+  static bool assemble_play_list (const std::string &base_uri,
+                                  const bool shuffle_playlist,
+                                  const bool recurse,
+                                  uri_list_t &file_list,
+                                  std::string &error_msg);
 
  private:
 

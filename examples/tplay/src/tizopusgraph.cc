@@ -323,6 +323,14 @@ tizopusgraph::do_unload ()
 }
 
 void
+tizopusgraph::do_error (const OMX_ERRORTYPE error)
+{
+  // For now, simply notify the graph manager via the helper class in the
+  // parent.
+  notify_graph_error (error, "");
+}
+
+void
 tizopusgraph::do_eos (const OMX_HANDLETYPE handle)
 {
   if (config_->continuous_playback ())

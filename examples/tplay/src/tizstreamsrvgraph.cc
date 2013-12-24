@@ -312,6 +312,14 @@ tizstreamsrvgraph::do_unload ()
 }
 
 void
+tizstreamsrvgraph::do_error (const OMX_ERRORTYPE error)
+{
+  // For now, simply notify the graph manager via the helper class in the
+  // parent.
+  notify_graph_error (error, "");
+}
+
+void
 tizstreamsrvgraph::do_eos (const OMX_HANDLETYPE handle)
 {
   if (handle == handles_[1])

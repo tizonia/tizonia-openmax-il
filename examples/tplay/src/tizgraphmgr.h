@@ -22,7 +22,7 @@
  * @file   tizgraphmgr.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OMX IL graph manager
+ * @brief  OpenMAX IL graph manager
  *
  *
  */
@@ -36,42 +36,20 @@
 #include <tizosal.h>
 #include <OMX_Core.h>
 
-#include <assert.h>
+#include <string>
 #include <boost/function.hpp>
 
-// TODO: This class is an implementation detail. Move this out of the header file.
-class tizgraphmgrcmd
-{
+// Forward declarations
+class tizgraphmgrcmd;
 
-public:
-
-  enum cmd_type
-  {
-    ETIZGraphMgrCmdStart,
-    ETIZGraphMgrCmdNext,
-    ETIZGraphMgrCmdPrev,
-    ETIZGraphMgrCmdFwd,
-    ETIZGraphMgrCmdRwd,
-    ETIZGraphMgrCmdVolume,
-    ETIZGraphMgrCmdPause,
-    ETIZGraphMgrCmdStop,
-    ETIZGraphMgrCmdGraphEop,
-    ETIZGraphMgrCmdGraphError,
-    ETIZGraphMgrCmdMax
-  };
-
-  tizgraphmgrcmd (const cmd_type type)
-    : type_ (type)
-  {assert (type_ < ETIZGraphMgrCmdMax);}
-
-  cmd_type get_type () const {return type_;}
-
-private:
-
-  const cmd_type type_;
-
-};
-
+/**
+ *  @class tizgraphmgr
+ *  @brief The graph manager class.
+ *
+ *  A graph manager instantiates OpenMAX IL graphs according to the media types
+ *  of the elements found in a play list. The graph manager runs in its own
+ *  thread and will manage the lifetime of the graphs that it creates.
+ */
 class tizgraphmgr
 {
 
@@ -97,15 +75,109 @@ public:
   tizgraphmgr(const uri_list_t &file_list, const error_callback_t &error_cback);
   virtual ~tizgraphmgr ();
 
+  /**
+   * Initialises the graph manager thread.
+   *
+   * @pre This method must be called only once, before any call is made to the
+   * other APIs.
+   *
+   * @post The graph manager thread is ready to process requests.
+   *
+   * @return OMX_ErrorNone if initialisation was
+   * successful. OMX_ErrorInsuficientResources otherwise.
+   */
   OMX_ERRORTYPE init ();
+
+  /**
+   * Start processing the play list from the beginning.
+   *
+   * @pre init() has been called on this manager.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
   OMX_ERRORTYPE start ();
+
+  /**
+   * Process the next item in the playlist.
+   *
+   * @pre init() has been called on this manager.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
   OMX_ERRORTYPE next ();
+
+  /**
+   * Process the previous item in the playlist.
+   *
+   * @pre init() has been called on this manager.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
   OMX_ERRORTYPE prev ();
+
+  /**
+   * NOT IMPLEMENTED YET
+   *
+   * @pre init() has been called on this manager.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
   OMX_ERRORTYPE fwd ();
+
+  /**
+   * NOT IMPLEMENTED YET
+   *
+   * @pre init() has been called on this manager.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
   OMX_ERRORTYPE rwd ();
+
+  /**
+   * NOT IMPLEMENTED YET
+   *
+   * @pre init() has been called on this manager.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
   OMX_ERRORTYPE volume ();
+
+  /**
+   * Pause the processing of the current item in the playlist.
+   *
+   * @pre init() has been called on this manager.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
   OMX_ERRORTYPE pause ();
+
+  /**
+   * Halts processing of the playlist.
+   *
+   * @pre init() has been called on this manager.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
   OMX_ERRORTYPE stop ();
+
+  /**
+   * Destroy the manager thread and releases all resources.
+   *
+   * @pre stop() has been called on this manager.
+   *
+   * @post Only init() can be called at this point.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
   OMX_ERRORTYPE deinit ();
 
 protected:
@@ -125,22 +197,21 @@ protected:
   OMX_ERRORTYPE do_stop ();
   OMX_ERRORTYPE do_graph_end_of_play ();
 
-  OMX_ERRORTYPE send_msg (const tizgraphmgrcmd::cmd_type type);
+  OMX_ERRORTYPE send_msg (tizgraphmgrcmd *p_cmd);
   static void dispatch (tizgraphmgr *p_graph_mgr, const tizgraphmgrcmd *p_cmd);
   tizgraph_ptr_t get_graph (const std::string & uri);
-  bool verify_mgr_state (tizgraphmgrcmd::cmd_type cmd);
 
 protected:
 
-  mgr_state           mgr_state_;
-  tiz_thread_t        thread_;
-  tiz_mutex_t         mutex_;
-  tiz_sem_t           sem_;
-  tiz_queue_t        *p_queue_;
-  tizplaylist_t       playlist_;
-  tizgraph_ptr_map_t  graph_registry_;
-  tizgraph_ptr_t      running_graph_ptr_;
-  error_callback_t    error_cback_;
+  mgr_state mgr_state_;
+  tiz_thread_t thread_;
+  tiz_mutex_t mutex_;
+  tiz_sem_t sem_;
+  tiz_queue_t *p_queue_;
+  tizplaylist_t playlist_;
+  tizgraph_ptr_map_t graph_registry_;
+  tizgraph_ptr_t running_graph_ptr_;
+  error_callback_t error_cback_;
 
 };
 

@@ -295,6 +295,14 @@ tizmp3graph::do_unload ()
 }
 
 void
+tizmp3graph::do_error (const OMX_ERRORTYPE error)
+{
+  // For now, simply notify the graph manager via the helper class in the
+  // parent.
+  notify_graph_error (error, "");
+}
+
+void
 tizmp3graph::do_eos (const OMX_HANDLETYPE handle)
 {
   if (config_->continuous_playback ())

@@ -149,18 +149,20 @@ namespace                       // unnamed namespace
     printf ("\n");
     printf ("Examples:\n");
     printf
-      ("\t tplay ~/Music (decodes every supported file in the '~/Music' folder)\n");
+      ("\t tplay ~/Music (decodes every supported file in the '~/Music' directory)\n");
     printf ("\t    * Currently supported formats for playback: mp3, flac, opus.\n");
-    printf ("\t    * Press [p] to skip to previous file.\n");
-    printf ("\t    * Press [n] to skip to next file.\n");
-    printf ("\t    * Press [SPACE] to pause playback.\n");
-    printf ("\t    * Press [q] to quit.\n");
-    printf ("\t    * Press [Ctrl-c] to terminate the application at any time.\n");
+    printf ("\t    * Key bindings:\n");
+    printf ("\t      * [p] to skip to previous file.\n");
+    printf ("\t      * [n] to skip to next file.\n");
+    printf ("\t      * [SPACE] to pause playback.\n");
+    printf ("\t      * [q] to quit.\n");
+    printf ("\t      * [Ctrl-c] to terminate the application at any time.\n");
     printf
-      ("\n\t tplay -p 8011 -s ~/Music (streams supported files in the '~/Music' folder)\n");
+      ("\n\t tplay -p 8011 -s ~/Music (streams every supported file in the '~/Music' directory)\n");
     printf ("\t    * Currently supported formats for streaming: mp3.\n");
-    printf ("\t    * Press [q] to quit.\n");
-    printf ("\t    * Press [Ctrl-c] to terminate the application at any time.\n");
+    printf ("\t    * Key bindings:\n");
+    printf ("\t      * [q] to quit.\n");
+    printf ("\t      * [Ctrl-c] to terminate the application at any time.\n");
     printf ("\n");
   }
 
@@ -378,13 +380,14 @@ namespace                       // unnamed namespace
   decode (const std::string & uri, const bool shuffle_playlist,
           const bool recurse)
   {
-    OMX_ERRORTYPE ret = OMX_ErrorNone;
-    uri_list_t file_list;
+    OMX_ERRORTYPE rc = OMX_ErrorNone;
+    uri_list_t    file_list;
+    std::string error_msg;
 
-    if (OMX_ErrorNone != tizplaylist_t::assemble_play_list
-        (uri, shuffle_playlist, recurse, file_list))
+    if (!tizplaylist_t::assemble_play_list
+        (uri, shuffle_playlist, recurse, file_list, error_msg))
       {
-        fprintf (stderr, "File or directory not found [%s].\n", uri.c_str ());
+        fprintf (stderr, "%s (%s).\n", error_msg.c_str (), uri.c_str ());
         exit (EXIT_FAILURE);
       }
 
@@ -400,22 +403,23 @@ namespace                       // unnamed namespace
     p_graph_mgr->stop ();
     p_graph_mgr->deinit ();
 
-    return ret;
+    return rc;
   }
 
   OMX_ERRORTYPE
   stream (const std::string & uri, const long int port, const bool shuffle_playlist,
           const bool recurse)
   {
-    OMX_ERRORTYPE ret = OMX_ErrorNone;
+    OMX_ERRORTYPE rc = OMX_ErrorNone;
     uri_list_t    file_list;
     char hostname[120] = "";
     std::string ip_address;
+    std::string error_msg;
 
-    if (OMX_ErrorNone != tizplaylist_t::assemble_play_list
-        (uri, shuffle_playlist, recurse, file_list))
+    if (!tizplaylist_t::assemble_play_list
+        (uri, shuffle_playlist, recurse, file_list, error_msg))
       {
-        fprintf (stderr, "File or directory not found [%s].\n", uri.c_str ());
+        fprintf (stderr, "%s (%s).\n", error_msg.c_str (), uri.c_str ());
         exit (EXIT_FAILURE);
       }
 
@@ -440,26 +444,26 @@ namespace                       // unnamed namespace
         fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
       }
 
-    if (OMX_ErrorNone != (ret = g_ptr->load ()))
+    if (OMX_ErrorNone != (rc = g_ptr->load ()))
       {
         fprintf (stderr, "Found error %s while loading the graph.\n",
-                 tiz_err_to_str (ret));
+                 tiz_err_to_str (rc));
         exit (EXIT_FAILURE);
       }
 
     tizgraphconfig_ptr_t config
       = boost::make_shared < tizstreamsrvconfig > (file_list, hostname,
                                                    ip_address, port);
-    if (OMX_ErrorNone != (ret = g_ptr->configure (config)))
+    if (OMX_ErrorNone != (rc = g_ptr->configure (config)))
       {
         fprintf (stderr, "Could not configure a graph. Skipping file.\n");
         exit (EXIT_FAILURE);
       }
 
-    if (OMX_ErrorNone != (ret = g_ptr->execute ()))
+    if (OMX_ErrorNone != (rc = g_ptr->execute ()))
       {
         fprintf (stderr, "Found error %s while executing the graph.\n",
-                 tiz_err_to_str (ret));
+                 tiz_err_to_str (rc));
         exit (EXIT_FAILURE);
       }
 
@@ -470,7 +474,7 @@ namespace                       // unnamed namespace
 
     tizomxutil::deinit();
 
-    return ret;
+    return rc;
   }
 
 }                               // unnamed namespace
@@ -481,7 +485,7 @@ main (int argc, char **argv)
   OMX_ERRORTYPE error            = OMX_ErrorMax;
   int           opt;
   long int      srv_port         = 8010; // default port for http streaming
-  std::string   streaming_media;
+  std::string   media;
   bool          shuffle_playlist = false;
   bool          recurse   = false;
 
@@ -563,7 +567,7 @@ main (int argc, char **argv)
 
         case 's':
           {
-            streaming_media = optarg;
+            media = optarg;
           }
           break;
 
@@ -620,15 +624,16 @@ main (int argc, char **argv)
   tiz_log_init ();
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL player...");
 
-  if (!streaming_media.empty())
+  if (!media.empty())
     {
-      error = stream (streaming_media.c_str (), srv_port,
+      error = stream (media.c_str (), srv_port,
                       shuffle_playlist, recurse);
     }
 
   if (OMX_ErrorMax == error)
     {
-      error = decode (argv[optind], shuffle_playlist, recurse);
+      media = argv[optind] == NULL ? "" : argv[optind];
+      error = decode (media, shuffle_playlist, recurse);
     }
 
   (void) tiz_log_deinit ();

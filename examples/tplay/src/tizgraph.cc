@@ -89,6 +89,7 @@ namespace // Unnamed namespace
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdVolume, "ETIZGraphCmdVolume"))
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdUnload, "ETIZGraphCmdUnload"))
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdEos, "ETIZGraphCmdEos"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdError, "ETIZGraphCmdError"))
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdMax, "ETIZGraphCmdMax"));
 
   /*@observer@*/ const char *
@@ -266,13 +267,14 @@ tizcback_handler::receive_event(OMX_HANDLETYPE hComponent,
                nData2, pEventData);
       if (OMX_ErrorPortUnpopulated != nData1)
         {
-          // Ok, this is serious enough, let's get this fixed....
-          const_cast<tizgraph &>(parent_).notify_graph_error
-            (static_cast<OMX_ERRORTYPE> (nData1),
-             const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str());
+          const_cast<tizgraph &>(parent_).error
+            (static_cast<OMX_ERRORTYPE> (nData1));
+//           const_cast<tizgraph &>(parent_).notify_graph_error
+//             (static_cast<OMX_ERRORTYPE> (nData1),
+//              const_cast<tizgraph &>(parent_).h2n_[hComponent].c_str());
         }
-      // We are done here
-      done = true;
+      expected_list_.clear();
+      events_outstanding_ = false;
     }
   else if (eEvent == OMX_EventVendorStartUnused)
     {
@@ -504,6 +506,13 @@ tizgraph::eos (OMX_HANDLETYPE handle)
 {
   tizgraphconfig_ptr_t null_config;
   send_msg (tizgraphcmd::ETIZGraphCmdEos, null_config, handle);
+}
+
+void
+tizgraph::error (const OMX_ERRORTYPE error)
+{
+  tizgraphconfig_ptr_t null_config;
+  send_msg (tizgraphcmd::ETIZGraphCmdError, null_config, NULL, 0, error);
 }
 
 void
@@ -812,8 +821,12 @@ tizgraph::transition_all (const OMX_STATETYPE to, const OMX_STATETYPE from)
                                               (OMX_PTR) OMX_ErrorNone));
         }
       tiz_check_omx_err (cback_handler_.wait_for_event_list(event_list));
-      current_graph_state_ = to;
     }
+
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "to [%s] from [%s] error [%s]",
+           tiz_state_to_str (to), tiz_state_to_str (from), tiz_err_to_str (error));
+
+  current_graph_state_ = to;
 
   return error;
 }
@@ -900,13 +913,14 @@ OMX_ERRORTYPE
 tizgraph::send_msg (const tizgraphcmd::cmd_type type,
                     const tizgraphconfig_ptr_t config,
                     const OMX_HANDLETYPE   handle /* = NULL */,
-                    const int jump /* = 0 */)
+                    const int jump /* = 0 */,
+                    const OMX_ERRORTYPE error /* = OMX_ErrorNone */)
 {
   assert (type < tizgraphcmd::ETIZGraphCmdMax);
 
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_err_ret_oom
-    (tiz_queue_send (p_queue_, new tizgraphcmd (type, config, handle, jump)));
+    (tiz_queue_send (p_queue_, new tizgraphcmd (type, config, handle, jump, error)));
   tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
   return OMX_ErrorNone;
 }
@@ -988,6 +1002,11 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
     case tizgraphcmd::ETIZGraphCmdEos:
       {
         p_graph->do_eos (p_cmd->get_handle ());
+        break;
+      }
+    case tizgraphcmd::ETIZGraphCmdError:
+      {
+        p_graph->do_error (p_cmd->get_error ());
         break;
       }
     default:

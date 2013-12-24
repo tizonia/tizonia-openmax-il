@@ -125,7 +125,11 @@ protected:
   waitevent_list_t expected_list_;
 };
 
-// TODO: This class is an implementation detail. Move this out of the header file.
+// TODO: This class is an implementation detail. Move this out of the header
+// file.
+//
+// TODO: Consider refactoring this class to something nicer, perhaps
+// using sub-command classes.
 class tizgraphcmd
 {
 
@@ -142,23 +146,27 @@ public:
     ETIZGraphCmdVolume,
     ETIZGraphCmdUnload,
     ETIZGraphCmdEos,
+    ETIZGraphCmdError,
     ETIZGraphCmdMax
   };
 
   tizgraphcmd (const cmd_type type,
-                 const tizgraphconfig_ptr_t config,
-                 const OMX_HANDLETYPE handle = NULL,
-                 const int jump = 0)
+               const tizgraphconfig_ptr_t config,
+               const OMX_HANDLETYPE handle = NULL,
+               const int jump = 0,
+               const OMX_ERRORTYPE error = OMX_ErrorNone)
     : type_ (type),
       config_ (config),
       handle_ (handle),
-      jump_ (jump)
+      jump_ (jump),
+      error_ (error)
   {assert (type_ < ETIZGraphCmdMax);}
 
   cmd_type get_type () const {return type_;}
   tizgraphconfig_ptr_t get_config () const {return config_;}
   OMX_HANDLETYPE get_handle () const {return handle_;}
   int get_jump () const {return jump_;};
+  OMX_ERRORTYPE get_error () const {return error_;};
 
 private:
 
@@ -166,7 +174,7 @@ private:
   tizgraphconfig_ptr_t config_;
   OMX_HANDLETYPE handle_;
   int jump_;
-
+  OMX_ERRORTYPE error_;
 };
 
 class tizgraph
@@ -195,18 +203,24 @@ public:
   
 protected:
 
-  virtual OMX_ERRORTYPE do_load ()                                                = 0;
-  virtual OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t &config)            = 0;
-  virtual OMX_ERRORTYPE do_execute ()                                             = 0;
-  virtual OMX_ERRORTYPE do_pause ()                                               = 0;
-  virtual OMX_ERRORTYPE do_seek ()                                                = 0;
-  virtual OMX_ERRORTYPE do_skip (const int jump)                                  = 0;
-  virtual OMX_ERRORTYPE do_volume ()                                              = 0;
-  virtual void do_eos (const OMX_HANDLETYPE handle)                               = 0;
-  virtual void do_unload ()                                                       = 0;
+  virtual OMX_ERRORTYPE do_load ()                                        = 0;
+  virtual OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t &config) = 0;
+  virtual OMX_ERRORTYPE do_execute ()                                     = 0;
+  virtual OMX_ERRORTYPE do_pause ()                                       = 0;
+  virtual OMX_ERRORTYPE do_seek ()                                        = 0;
+  virtual OMX_ERRORTYPE do_skip (const int jump)                          = 0;
+  virtual OMX_ERRORTYPE do_volume ()                                      = 0;
+  virtual void do_error (const OMX_ERRORTYPE error)                       = 0;
+  virtual void do_eos (const OMX_HANDLETYPE handle)                       = 0;
+  virtual void do_unload ()                                               = 0;
 
   virtual OMX_ERRORTYPE init ();
   virtual OMX_ERRORTYPE deinit ();
+
+protected:
+  
+  void eos (OMX_HANDLETYPE handle);
+  void error (const OMX_ERRORTYPE error);
 
   OMX_ERRORTYPE verify_existence (const component_names_t &comp_list) const;
   OMX_ERRORTYPE verify_role (const std::string &comp,
@@ -235,11 +249,11 @@ protected:
   OMX_ERRORTYPE disable_tunnel (const int tunnel_id);
   OMX_ERRORTYPE enable_tunnel (const int tunnel_id);
 
-  void eos (OMX_HANDLETYPE handle);
   OMX_ERRORTYPE send_msg (const tizgraphcmd::cmd_type type,
                           const tizgraphconfig_ptr_t config,
                           const OMX_HANDLETYPE handle = NULL,
-                          const int jump = 0);
+                          const int jump = 0,
+                          const OMX_ERRORTYPE error = OMX_ErrorNone);
 
   OMX_ERRORTYPE notify_graph_end_of_play ();
   OMX_ERRORTYPE notify_graph_error (const OMX_ERRORTYPE error,
