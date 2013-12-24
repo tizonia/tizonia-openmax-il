@@ -46,8 +46,6 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.flac_decoder.prc"
 #endif
 
-#define ARATELIA_FLAC_DECODER_BUFFER_THRESHOLD 8192 * 2
-
 /* Forward declarations */
 static OMX_ERRORTYPE flacd_prc_deallocate_resources (void *);
 
@@ -292,7 +290,7 @@ input_data_available (flacd_prc_t * ap_prc)
 
   TIZ_TRACE (handleOf (ap_prc), "bytes available [%d]", ap_prc->store_offset_);
 
-  return (ap_prc->store_offset_ > ARATELIA_FLAC_DECODER_BUFFER_THRESHOLD
+  return (ap_prc->store_offset_ >= ARATELIA_FLAC_DECODER_BUFFER_THRESHOLD
           || (ap_prc->eos_ && ap_prc->store_offset_ > 0));
 }
 
@@ -352,9 +350,12 @@ transform_stream (const flacd_prc_t * ap_prc)
   assert (NULL != p_prc);
   assert (NULL != p_prc->p_flac_dec_);
 
-  while (decode_ok
+  TIZ_TRACE (handleOf (ap_prc), "output buffers avail [%s]",
+             output_buffers_available (p_prc) ? "YES" : "NO");
+  while (decode_ok > 0
          && input_data_available (p_prc) && output_buffers_available (p_prc))
     {
+      TIZ_TRACE (handleOf (ap_prc), "decoding");
       decode_ok = FLAC__stream_decoder_process_single (p_prc->p_flac_dec_);
       TIZ_TRACE (handleOf (ap_prc), "decode_ok [%d]", decode_ok);
       if (!decode_ok)
