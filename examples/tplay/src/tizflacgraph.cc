@@ -272,7 +272,7 @@ tizflacgraph::do_execute ()
       current_file_index_ = 0;
     }
 
-  tiz_check_omx_err (configure_flac_graph (current_file_index_++));
+  tiz_check_omx_err (configure_flac_graph (current_file_index_));
   tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateLoaded));
   tiz_check_omx_err (transition_all (OMX_StateExecuting, OMX_StateIdle));
 
@@ -331,11 +331,6 @@ tizflacgraph::do_skip (const int jump)
 
   current_file_index_ += jump;
 
-  if (jump > 0)
-    {
-      current_file_index_--;
-    }
-
   if (current_file_index_ < 0)
     {
       current_file_index_ = 0;
@@ -386,10 +381,6 @@ tizflacgraph::do_error (const OMX_ERRORTYPE error)
 
       // ... and re-try the same file with an alternative demuxer.
       demuxer_index_ = (demuxer_index_ + 1 == kMaxAvailableDemuxers ? 0 : demuxer_index_ + 1);
-      if (current_file_index_ > 0)
-        {
-          current_file_index_--;
-        }
       (void) do_load ();
       (void) setup_suppliers ();
       (void) setup_tunnels ();
@@ -405,9 +396,13 @@ void
 tizflacgraph::do_eos (const OMX_HANDLETYPE handle)
 {
   // This was a pretty successful playback, reset the demuxing count.
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "demux_attempts_ [%d]..."
+           " current_file_index_ [%d]",
+           demux_attempts_, current_file_index_);
   demux_attempts_ = 0;
-
-  if (config_->continuous_playback ())
+  current_file_index_++;
+  if (config_->continuous_playback ()
+      || current_file_index_ < file_list_.size ())
     {
       if (handle == handles_[2])
         {

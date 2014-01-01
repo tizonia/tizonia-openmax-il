@@ -31,6 +31,7 @@
 
 #include "tizgraph.h"
 #include "tizgraphmgr.h"
+#include "tizgraphcmd.h"
 
 #include <tizomxutil.h>
 #include <tizosal.h>
@@ -67,46 +68,6 @@ namespace // Unnamed namespace
   OMX_U32 delay_;
   OMX_ERRORTYPE error_;
   };
-
-  typedef struct graph_cmd_str graph_cmd_str_t;
-  struct graph_cmd_str
-  {
-    graph_cmd_str (tizgraphcmd::cmd_type a_cmd, std::string a_str)
-      : cmd (a_cmd), str (a_str)
-    {}
-    tizgraphcmd::cmd_type cmd;
-    const std::string str;
-  };
-
-  const std::vector<graph_cmd_str_t> graph_cmd_to_str_tbl
-  = boost::assign::list_of
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdLoad, "ETIZGraphCmdLoad"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdConfig, "ETIZGraphCmdConfig"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdExecute, "ETIZGraphCmdExecute"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdPause, "ETIZGraphCmdPause"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdSeek, "ETIZGraphCmdSeek"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdSkip, "ETIZGraphCmdSkip"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdVolume, "ETIZGraphCmdVolume"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdUnload, "ETIZGraphCmdUnload"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdEos, "ETIZGraphCmdEos"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdError, "ETIZGraphCmdError"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdMax, "ETIZGraphCmdMax"));
-
-  /*@observer@*/ const char *
-  graph_cmd_to_str (tizgraphcmd::cmd_type a_cmd)
-  {
-    const size_t count = graph_cmd_to_str_tbl.size ();
-    size_t i = 0;
-
-    for (i = 0; i < count; ++i)
-      {
-        if (graph_cmd_to_str_tbl[i].cmd == a_cmd)
-          {
-            return graph_cmd_to_str_tbl[i].str.c_str ();
-          }
-      }
-    return "Unknown Graph command";
-  }
 
   typedef struct graph_state_str graph_state_str_t;
   struct graph_state_str
@@ -329,7 +290,7 @@ tizcback_handler::wait_for_event_list (const waitevent_list_t &event_list)
   for (waitevent_list_t::const_iterator it = event_list.begin ();
        it != event_list.end (); ++it)
     {
-      TIZ_LOG (TIZ_PRIORITY_DEBUG, "[%s] event [%s] ndata1 [%s] ndata2 [%s]",
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "Awaiting --> [%s] event [%s] ndata1 [%s] ndata2 [%s]",
                const_cast<tizgraph &>(parent_).h2n_[(*it).component_].c_str (),
                tiz_evt_to_str ((*it).event_),
                (*it).event_ == OMX_EventCmdComplete
@@ -457,69 +418,69 @@ tizgraph::load ()
 {
   tiz_check_omx_err (init ());
   tizgraphconfig_ptr_t null_config;
-  return send_msg (tizgraphcmd::ETIZGraphCmdLoad, null_config);
+  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdLoad, null_config));
 }
 
 OMX_ERRORTYPE
 tizgraph::configure (const tizgraphconfig_ptr_t config)
 {
-  return send_msg (tizgraphcmd::ETIZGraphCmdConfig, config);
+  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdConfig, config));
 }
 
 OMX_ERRORTYPE
 tizgraph::execute ()
 {
   tizgraphconfig_ptr_t null_config;
-  return send_msg (tizgraphcmd::ETIZGraphCmdExecute, null_config);
+  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdExecute, null_config));
 }
 
 OMX_ERRORTYPE
 tizgraph::pause ()
 {
   tizgraphconfig_ptr_t null_config;
-  return send_msg (tizgraphcmd::ETIZGraphCmdPause, null_config);
+  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdPause, null_config));
 }
 
 OMX_ERRORTYPE
 tizgraph::seek ()
 {
   tizgraphconfig_ptr_t null_config;
-  return send_msg (tizgraphcmd::ETIZGraphCmdSeek, null_config);
+  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdSeek, null_config));
 }
 
 OMX_ERRORTYPE
 tizgraph::skip (const int jump)
 {
   tizgraphconfig_ptr_t null_config;
-  return send_msg (tizgraphcmd::ETIZGraphCmdSkip, null_config, NULL, jump);
+  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdSkip, null_config, NULL, jump));
 }
 
 OMX_ERRORTYPE
 tizgraph::volume ()
 {
   tizgraphconfig_ptr_t null_config;
-  return send_msg (tizgraphcmd::ETIZGraphCmdVolume, null_config);
+  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdVolume, null_config));
 }
 
 void
 tizgraph::eos (OMX_HANDLETYPE handle)
 {
   tizgraphconfig_ptr_t null_config;
-  send_msg (tizgraphcmd::ETIZGraphCmdEos, null_config, handle);
+  send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdEos, null_config, handle));
 }
 
 void
 tizgraph::error (const OMX_ERRORTYPE error)
 {
   tizgraphconfig_ptr_t null_config;
-  send_msg (tizgraphcmd::ETIZGraphCmdError, null_config, NULL, 0, error);
+  send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdError, null_config, NULL, 0, error));
 }
 
 void
 tizgraph::unload ()
 {
   tizgraphconfig_ptr_t null_config;
-  send_msg (tizgraphcmd::ETIZGraphCmdUnload, null_config);
+  send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdUnload, null_config));
   deinit ();
 }
 
@@ -910,17 +871,14 @@ tizgraph::enable_tunnel (const int tunnel_id)
 }
 
 OMX_ERRORTYPE
-tizgraph::send_msg (const tizgraphcmd::cmd_type type,
-                    const tizgraphconfig_ptr_t config,
-                    const OMX_HANDLETYPE   handle /* = NULL */,
-                    const int jump /* = 0 */,
-                    const OMX_ERRORTYPE error /* = OMX_ErrorNone */)
+tizgraph::send_cmd (tizgraphcmd * p_cmd)
 {
-  assert (type < tizgraphcmd::ETIZGraphCmdMax);
-
+  assert (NULL != p_cmd);
+  assert (p_cmd->get_type () < tizgraphcmd::ETIZGraphCmdMax);
+  assert (NULL != p_queue_);
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_err_ret_oom
-    (tiz_queue_send (p_queue_, new tizgraphcmd (type, config, handle, jump, error)));
+    (tiz_queue_send (p_queue_, p_cmd));
   tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
   return OMX_ErrorNone;
 }
@@ -954,7 +912,7 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
   assert (NULL != p_cmd);
 
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Dispatching [%s] in [%s]...",
-           graph_cmd_to_str (p_cmd->get_type ()),
+           p_cmd->c_str (),
            graph_state_to_str (p_graph->current_graph_state_));
 
   switch(p_cmd->get_type ())

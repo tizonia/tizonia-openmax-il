@@ -26,6 +26,7 @@ noinst_HEADERS = \
 	tizgraphconfig.h \
 	tizgraphmgrcmd.h \
 	tizgraphmgr.h \
+	tizgraphcmd.h \
 	tizgraph.h \
 	tizmp3graph.h \
 	tizopusgraph.h \
@@ -41,6 +42,7 @@ tplay_SOURCES = \
 	tizgraphfactory.cc \
 	tizgraphmgrcmd.cc \
 	tizgraphmgr.cc \
+	tizgraphcmd.cc \
 	tizgraph.cc \
 	tizmp3graph.cc \
 	tizopusgraph.cc \

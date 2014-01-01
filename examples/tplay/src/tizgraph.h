@@ -41,7 +41,9 @@
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
+// Forward declarations
 void * g_graph_thread_func (void *p_arg);
+class  tizgraphcmd;
 
 struct waitevent_info;
 typedef std::list<waitevent_info> waitevent_list_t;
@@ -72,10 +74,12 @@ struct waitevent_info
   bool operator==(const waitevent_info& b)
   {
     if (component_ == b.component_
-        && event_ == b.event_
+        && event_  == b.event_
         && ndata1_ == b.ndata1_
-        && ndata2_ == b.ndata2_
-        && pEventData_ == b.pEventData_)
+        && ndata2_ == b.ndata2_)
+      // TODO: Ignore pEventData for now. This is to make events like this pass the comparison:
+      // e.g.: [tizgraph.cc:receive_event:238] --- [OMX.Aratelia.file_reader.binary] : [OMX_EventCmdComplete] [OMX_CommandStateSet] [OMX_StateLoaded] error [0x80001017]
+      //       && pEventData_ == b.pEventData_)
       {
         return true;
       }
@@ -123,58 +127,6 @@ protected:
   OMX_CALLBACKTYPE cbacks_;
   waitevent_list_t received_queue_;
   waitevent_list_t expected_list_;
-};
-
-// TODO: This class is an implementation detail. Move this out of the header
-// file.
-//
-// TODO: Consider refactoring this class to something nicer, perhaps
-// using sub-command classes.
-class tizgraphcmd
-{
-
-public:
-
-  enum cmd_type
-  {
-    ETIZGraphCmdLoad,
-    ETIZGraphCmdConfig,
-    ETIZGraphCmdExecute,
-    ETIZGraphCmdPause,
-    ETIZGraphCmdSeek,
-    ETIZGraphCmdSkip,
-    ETIZGraphCmdVolume,
-    ETIZGraphCmdUnload,
-    ETIZGraphCmdEos,
-    ETIZGraphCmdError,
-    ETIZGraphCmdMax
-  };
-
-  tizgraphcmd (const cmd_type type,
-               const tizgraphconfig_ptr_t config,
-               const OMX_HANDLETYPE handle = NULL,
-               const int jump = 0,
-               const OMX_ERRORTYPE error = OMX_ErrorNone)
-    : type_ (type),
-      config_ (config),
-      handle_ (handle),
-      jump_ (jump),
-      error_ (error)
-  {assert (type_ < ETIZGraphCmdMax);}
-
-  cmd_type get_type () const {return type_;}
-  tizgraphconfig_ptr_t get_config () const {return config_;}
-  OMX_HANDLETYPE get_handle () const {return handle_;}
-  int get_jump () const {return jump_;};
-  OMX_ERRORTYPE get_error () const {return error_;};
-
-private:
-
-  const cmd_type type_;
-  tizgraphconfig_ptr_t config_;
-  OMX_HANDLETYPE handle_;
-  int jump_;
-  OMX_ERRORTYPE error_;
 };
 
 class tizgraph
@@ -249,11 +201,7 @@ protected:
   OMX_ERRORTYPE disable_tunnel (const int tunnel_id);
   OMX_ERRORTYPE enable_tunnel (const int tunnel_id);
 
-  OMX_ERRORTYPE send_msg (const tizgraphcmd::cmd_type type,
-                          const tizgraphconfig_ptr_t config,
-                          const OMX_HANDLETYPE handle = NULL,
-                          const int jump = 0,
-                          const OMX_ERRORTYPE error = OMX_ErrorNone);
+  OMX_ERRORTYPE send_cmd (tizgraphcmd *p_cmd);
 
   OMX_ERRORTYPE notify_graph_end_of_play ();
   OMX_ERRORTYPE notify_graph_error (const OMX_ERRORTYPE error,

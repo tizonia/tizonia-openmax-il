@@ -230,7 +230,7 @@ tizopusgraph::do_execute ()
       current_file_index_ = 0;
     }
 
-  tiz_check_omx_err (configure_opus_graph (current_file_index_++));
+  tiz_check_omx_err (configure_opus_graph (current_file_index_));
   tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateLoaded));
   tiz_check_omx_err (transition_all (OMX_StateExecuting, OMX_StateIdle));
 
@@ -286,11 +286,6 @@ tizopusgraph::do_skip (const int jump)
 
   current_file_index_ += jump;
 
-  if (jump > 0)
-    {
-      current_file_index_--;
-    }
-
   if (current_file_index_ < 0)
     {
       current_file_index_ = 0;
@@ -333,7 +328,9 @@ tizopusgraph::do_error (const OMX_ERRORTYPE error)
 void
 tizopusgraph::do_eos (const OMX_HANDLETYPE handle)
 {
-  if (config_->continuous_playback ())
+  current_file_index_++;
+  if (config_->continuous_playback ()
+      || current_file_index_ < file_list_.size ())
     {
       if (handle == handles_[2])
         {

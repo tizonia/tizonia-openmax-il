@@ -383,9 +383,13 @@ namespace                       // unnamed namespace
     OMX_ERRORTYPE rc = OMX_ErrorNone;
     uri_list_t    file_list;
     std::string error_msg;
+    extension_list_t extension_list;
+    extension_list.push_back (".mp3");
+    extension_list.push_back (".flac");
+    extension_list.push_back (".ogg");
 
     if (!tizplaylist_t::assemble_play_list
-        (uri, shuffle_playlist, recurse, file_list, error_msg))
+        (uri, shuffle_playlist, recurse, extension_list, file_list, error_msg))
       {
         fprintf (stderr, "%s (%s).\n", error_msg.c_str (), uri.c_str ());
         exit (EXIT_FAILURE);
@@ -415,9 +419,11 @@ namespace                       // unnamed namespace
     char hostname[120] = "";
     std::string ip_address;
     std::string error_msg;
+    extension_list_t extension_list;
+    extension_list.push_back (".mp3");
 
     if (!tizplaylist_t::assemble_play_list
-        (uri, shuffle_playlist, recurse, file_list, error_msg))
+        (uri, shuffle_playlist, recurse, extension_list, file_list, error_msg))
       {
         fprintf (stderr, "%s (%s).\n", error_msg.c_str (), uri.c_str ());
         exit (EXIT_FAILURE);

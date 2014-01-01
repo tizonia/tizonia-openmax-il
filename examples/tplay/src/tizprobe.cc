@@ -131,22 +131,21 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const std::string &filename,
       return AVERROR_OPTION_NOT_FOUND;
     }
 
-  /* fill the streams in the format context */
-  if ((err = avformat_find_stream_info (fmt_ctx, NULL)) < 0)
-    {
-      close_input_file (&fmt_ctx);
-      return err;
-    }
-
-  dump_stream_info_to_string (fmt_ctx->metadata, stream_title, stream_genre);
-  if (stream_title.empty ())
-    {
-      stream_title.assign (filename.c_str ());
-    }
-  boost::replace_all (stream_title, "_", " ");
-
   if (!quiet)
     {
+      /* fill the streams in the format context */
+      if ((err = avformat_find_stream_info (fmt_ctx, NULL)) < 0)
+        {
+          close_input_file (&fmt_ctx);
+          return err;
+        }
+
+      dump_stream_info_to_string (fmt_ctx->metadata, stream_title, stream_genre);
+      if (stream_title.empty ())
+        {
+          stream_title.assign (filename.c_str ());
+        }
+      boost::replace_all (stream_title, "_", " ");
       av_dump_format (fmt_ctx, 0, filename.c_str (), 0);
     }
 

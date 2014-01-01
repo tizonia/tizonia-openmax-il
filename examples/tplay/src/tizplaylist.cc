@@ -35,6 +35,7 @@
 #include <tizosal.h>
 
 #include <boost/filesystem.hpp>
+#include <algorithm>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -57,7 +58,8 @@ namespace                       // unnamed namespace
   };
 
   OMX_ERRORTYPE
-  process_base_uri (const std::string & uri, uri_list_t &file_list, bool recurse = false)
+  process_base_uri (const std::string & uri, uri_list_t &file_list,
+                      bool recurse = false)
   {
     if (boost::filesystem::exists (uri)
         && boost::filesystem::is_regular_file (uri))
@@ -91,33 +93,33 @@ namespace                       // unnamed namespace
   }
 
   OMX_ERRORTYPE
-  filter_unknown_media (uri_list_t &file_list)
+  filter_unknown_media (const extension_list_t &extension_list,
+                          uri_list_t &file_list)
   {
-    uri_list_t::iterator it = file_list.begin ();
+    uri_list_t::iterator it (file_list.begin ());
+    std::vector<uri_list_t::iterator> iter_list;
+    extension_list_t ext_lst_cpy (extension_list);
+    uri_list_t filtered_file_list;
+
+    std::sort (ext_lst_cpy.begin (), ext_lst_cpy.end ());
+
     while (it != file_list.end ())
       {
         std::string extension (boost::filesystem::path (*it).extension ().
                                string ());
-        if (extension.compare (".mp3") != 0
-            &&
-            extension.compare (".opus") != 0
-            &&
-            extension.compare (".flac") != 0
-            &&
-            extension.compare (".ogg") != 0)
-          //&&
-          // extension.compare (".ivf") != 0)
+        extension_list_t::const_iterator low
+          = std::lower_bound (ext_lst_cpy.begin(),
+                              ext_lst_cpy.end(), extension);
+        if (! (low == ext_lst_cpy.end () || (*low).compare (extension) != 0))
           {
-            file_list.erase (it);
-            // Restart the loop
-            it = file_list.begin ();
+            TIZ_LOG (TIZ_PRIORITY_TRACE, "%s", (*it).c_str ());
+            filtered_file_list.push_back (*it);
           }
-        else
-          {
-            ++it;
-          }
+        ++it;
       }
 
+    file_list = filtered_file_list;
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "%d elements in playlist", file_list.size ());
     return file_list.empty () ? OMX_ErrorContentURIError : OMX_ErrorNone;
   }
 
@@ -125,7 +127,7 @@ namespace                       // unnamed namespace
 
 //
 // tizplaylist
-// 
+//
 tizplaylist::tizplaylist(const uri_list_t &uri_list /* = uri_list_t () */ )
   : uri_list_ (uri_list), current_index_ (0), single_format_list_ (Unknown)
 {
@@ -245,6 +247,7 @@ bool
 tizplaylist::assemble_play_list (const std::string &base_uri,
                                  const bool shuffle_playlist,
                                  const bool recurse,
+                                 const extension_list_t &extension_list,
                                  uri_list_t &file_list,
                                  std::string &error_msg)
 {
@@ -257,7 +260,7 @@ tizplaylist::assemble_play_list (const std::string &base_uri,
       rc = OMX_ErrorContentURIError;
       goto end;
     }
-  
+
   if (OMX_ErrorNone != process_base_uri (base_uri, file_list, recurse))
     {
       error_msg.assign ("File not found.");
@@ -265,7 +268,7 @@ tizplaylist::assemble_play_list (const std::string &base_uri,
       goto end;
     }
 
-  if (OMX_ErrorNone != filter_unknown_media (file_list))
+  if (OMX_ErrorNone != filter_unknown_media (extension_list, file_list))
     {
       error_msg.assign ("No supported media types found.");
       rc = OMX_ErrorFormatNotDetected;

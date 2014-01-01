@@ -42,6 +42,7 @@ typedef std::vector < std::string > component_roles_t;
 typedef std::vector < OMX_EVENTTYPE > component_events_t;
 typedef std::map < OMX_HANDLETYPE, std::string > handle_to_name_t;
 typedef std::vector < std::string > uri_list_t;
+typedef std::vector < std::string > extension_list_t;
 
 class tizgraph;
 typedef boost::shared_ptr<tizgraph> tizgraph_ptr_t;

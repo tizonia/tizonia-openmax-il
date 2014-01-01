@@ -97,6 +97,7 @@
 <!--         <category name="tiz.play.graph" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.play.graph.mp3" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.play.graph.opus" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.play.graph.flac" priority="trace" appender="tizlogfile" /> -->
 
 
 	<layout name="basic" type="basic"/>

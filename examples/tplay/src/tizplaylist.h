@@ -53,6 +53,7 @@ class tizplaylist
   static bool assemble_play_list (const std::string &base_uri,
                                   const bool shuffle_playlist,
                                   const bool recurse,
+                                  const extension_list_t &extension_list,
                                   uri_list_t &file_list,
                                   std::string &error_msg);
 

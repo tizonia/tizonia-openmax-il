@@ -202,7 +202,7 @@ tizmp3graph::do_execute ()
       current_file_index_ = 0;
     }
 
-  tiz_check_omx_err (configure_mp3_graph (current_file_index_++));
+  tiz_check_omx_err (configure_mp3_graph (current_file_index_));
   tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateLoaded));
   tiz_check_omx_err (transition_all (OMX_StateExecuting, OMX_StateIdle));
 
@@ -258,11 +258,6 @@ tizmp3graph::do_skip (const int jump)
 
   current_file_index_ += jump;
 
-  if (jump > 0)
-    {
-      current_file_index_--;
-    }
-
   if (current_file_index_ < 0)
     {
       current_file_index_ = 0;
@@ -305,7 +300,9 @@ tizmp3graph::do_error (const OMX_ERRORTYPE error)
 void
 tizmp3graph::do_eos (const OMX_HANDLETYPE handle)
 {
-  if (config_->continuous_playback ())
+  current_file_index_++;
+  if (config_->continuous_playback ()
+      || current_file_index_ < file_list_.size ())
     {
       if (handle == handles_[2])
         {

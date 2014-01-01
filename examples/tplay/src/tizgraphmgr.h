@@ -197,7 +197,7 @@ protected:
   OMX_ERRORTYPE do_stop ();
   OMX_ERRORTYPE do_graph_end_of_play ();
 
-  OMX_ERRORTYPE send_msg (tizgraphmgrcmd *p_cmd);
+  OMX_ERRORTYPE send_cmd (tizgraphmgrcmd *p_cmd);
   static void dispatch (tizgraphmgr *p_graph_mgr, const tizgraphmgrcmd *p_cmd);
   tizgraph_ptr_t get_graph (const std::string & uri);
 

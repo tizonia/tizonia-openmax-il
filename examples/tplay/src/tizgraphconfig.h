@@ -41,7 +41,7 @@ class tizgraphconfig
 
 public:
 
-  tizgraphconfig (const uri_list_t & uris, const bool continuous_playback = true)
+  explicit tizgraphconfig (const uri_list_t & uris, const bool continuous_playback = true)
     : uris_ (uris), continuous_playback_ (continuous_playback)
   {}
 
