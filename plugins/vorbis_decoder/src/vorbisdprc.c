@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include "vorbisd.h"
 #include "vorbisdprc.h"
 #include "vorbisdprc_decls.h"
 #include "tizkernel.h"
@@ -48,10 +49,194 @@
 /* Forward declarations */
 static OMX_ERRORTYPE vorbisd_prc_deallocate_resources (void *);
 
+static inline OMX_BUFFERHEADERTYPE **
+get_header_ptr (vorbisd_prc_t * ap_prc, const OMX_U32 a_pid)
+{
+  OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
+  assert (NULL != ap_prc);
+  assert (a_pid <= ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+  pp_hdr = (a_pid == ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX
+            ? &(ap_prc->p_in_hdr_) : &(ap_prc->p_out_hdr_));
+  assert (NULL != pp_hdr);
+  return pp_hdr;
+}
+
+static inline bool *
+get_port_disabled_ptr (vorbisd_prc_t * ap_prc, const OMX_U32 a_pid)
+{
+  bool *p_port_disabled = NULL;
+  assert (NULL != ap_prc);
+  assert (a_pid <= ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+  p_port_disabled = (a_pid == ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX
+                     ? &(ap_prc->in_port_disabled_)
+                     : &(ap_prc->out_port_disabled_));
+  assert (NULL != p_port_disabled);
+  return p_port_disabled;
+}
+
+static OMX_BUFFERHEADERTYPE *
+get_buffer (vorbisd_prc_t * ap_prc, const OMX_U32 a_pid)
+{
+  OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
+  bool *p_port_disabled = get_port_disabled_ptr (ap_prc, a_pid);
+  assert (NULL != ap_prc);
+
+  if (false == *p_port_disabled)
+    {
+      if (NULL != *pp_hdr)
+        {
+          TIZ_TRACE (handleOf (ap_prc),
+                     "HEADER [%p] pid [%d] nFilledLen [%d] ", *pp_hdr, a_pid,
+                     (*pp_hdr)->nFilledLen);
+          return *pp_hdr;
+        }
+      else
+        {
+          tiz_pd_set_t ports;
+          void *p_krn = NULL;
+
+          p_krn = tiz_get_krn (handleOf (ap_prc));
+
+          TIZ_PD_ZERO (&ports);
+          if (OMX_ErrorNone == tiz_krn_select (p_krn, 2, &ports))
+            {
+              if (TIZ_PD_ISSET (a_pid, &ports))
+                {
+                  if (OMX_ErrorNone == tiz_krn_claim_buffer
+                      (p_krn, a_pid, 0, pp_hdr))
+                    {
+                      TIZ_TRACE (handleOf (ap_prc),
+                                 "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
+                                 *pp_hdr, a_pid, (*pp_hdr)->nFilledLen);
+                      return *pp_hdr;
+                    }
+                }
+            }
+        }
+    }
+
+  return NULL;
+}
+
+/* TODO: Change void to a int for OOM errors */
+static void
+release_buffer (vorbisd_prc_t * ap_prc, const OMX_U32 a_pid)
+{
+  OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  bool *p_eos = NULL;
+
+  assert (NULL != ap_prc);
+
+  p_eos = &(ap_prc->eos_);
+  assert (NULL != p_eos);
+
+  p_hdr = *pp_hdr;
+  assert (NULL != p_hdr);
+
+  p_hdr->nOffset = 0;
+
+  TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] pid [%d] "
+             "nFilledLen [%d] nFlags [%d]", p_hdr, a_pid, p_hdr->nFilledLen,
+             p_hdr->nFlags);
+
+  /* TODO: Check for OOM error and issue Error Event */
+  (void) tiz_krn_release_buffer
+    (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr);
+  *pp_hdr = NULL;
+}
+
+static inline bool
+buffers_available (vorbisd_prc_t * ap_prc)
+{
+  bool rc = true;
+  rc &=
+    (NULL != get_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX));
+  rc &=
+    (NULL != get_buffer (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX));
+  return rc;
+}
+
+OMX_ERRORTYPE
+init_vorbis_decoder (vorbisd_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_BUFFERHEADERTYPE *p_in
+    = get_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
+
+  if (NULL == p_in)
+    {
+      return OMX_ErrorNoMore;
+    }
+
+/*   { */
+/*     OMX_U8 *p_ogg_data = p_in->pBuffer + p_in->nOffset; */
+/*     const OMX_U32 nbytes = p_in->nFilledLen; */
+/*     /\*If playing to audio out, default the rate to 48000 */
+/*      * instead of the original rate. The original rate is */
+/*      * only important for minimizing surprise about the rate */
+/*      * of output files and preserving length, which aren't */
+/*      * relevant for playback. Many audio devices sound */
+/*      * better at 48kHz and not resampling also saves CPU. *\/ */
+/*     ap_prc->rate_ = 48000; */
+/*     ap_prc->channels_ = -1; */
+/*     float gain = 1; */
+/*     float manual_gain = 0; */
+/*     int streams = 0; */
+/*     int quiet = 0; */
+/*     if (NULL == (ap_prc->p_vorbis_dec_ */
+/*                  = process_vorbis_header (handleOf (ap_prc), p_ogg_data, */
+/*                                         nbytes, &(ap_prc->rate_), */
+/*                                         &(ap_prc->mapping_family_), */
+/*                                         &(ap_prc->channels_), */
+/*                                         &(ap_prc->preskip_), &gain, */
+/*                                         manual_gain, &streams, quiet))) */
+/*       { */
+/*         rc = OMX_ErrorInsufficientResources; */
+/*       } */
+/*     TIZ_TRACE (handleOf (ap_prc), */
+/*                "rate [%d] mapping_family [%d] channels [%d] " */
+/*                "preskip [%d] gain [%d] streams [%d]", ap_prc->rate_, */
+/*                ap_prc->mapping_family_, ap_prc->channels_, ap_prc->preskip_, */
+/*                gain, streams); */
+/*   } */
+/*   p_in->nFilledLen = 0; */
+/*   release_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX); */
+  return rc;
+}
+
+static OMX_ERRORTYPE
+print_vorbis_comments (vorbisd_prc_t * ap_prc)
+{
+  OMX_BUFFERHEADERTYPE *p_in
+    = get_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
+
+  if (NULL == p_in)
+    {
+      return OMX_ErrorNoMore;
+    }
+
+/*   process_vorbis_comments (handleOf (ap_prc), */
+/*                          (char *) (p_in->pBuffer + p_in->nOffset), */
+/*                          p_in->nFilledLen); */
+  p_in->nFilledLen = 0;
+  release_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
+  return OMX_ErrorNone;
+}
+
 static OMX_ERRORTYPE
 transform_buffer (const void *ap_obj)
 {
   return OMX_ErrorNone;
+}
+
+static void
+reset_stream_parameters (vorbisd_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  ap_prc->packet_count_   = 0;
+  ap_prc->rate_           = 0;
+  ap_prc->channels_       = 0;
 }
 
 /*
@@ -65,6 +250,7 @@ vorbisd_prc_ctor (void *ap_obj, va_list * app)
   assert (NULL != p_prc);
   p_prc->p_in_hdr_          = NULL;
   p_prc->p_out_hdr_         = NULL;
+  reset_stream_parameters (p_prc);
   p_prc->eos_               = false;
   p_prc->in_port_disabled_  = false;
   p_prc->out_port_disabled_ = false;
@@ -119,7 +305,53 @@ vorbisd_prc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 vorbisd_prc_buffers_ready (const void *ap_obj)
 {
-  return transform_buffer (ap_obj);
+  vorbisd_prc_t *p_prc = (vorbisd_prc_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_obj);
+  TIZ_TRACE (handleOf (p_prc), "eos [%s] packet_count [%d]",
+             p_prc->eos_ ? "YES" : "NO", p_prc->packet_count_);
+  if (!p_prc->eos_)
+    {
+      if (0 == p_prc->packet_count_)
+        {
+          /* If first packet in the logical stream, process the Vorbis header and
+           * instantiate an vorbis decoder with the right settings */
+          rc = init_vorbis_decoder (p_prc);
+          if (OMX_ErrorNoMore == rc)
+            {
+              rc = OMX_ErrorNone;
+            }
+          else
+            {
+              p_prc->packet_count_++;
+            }
+        }
+      else if (1 == p_prc->packet_count_)
+        {
+          rc = print_vorbis_comments (p_prc);
+          if (OMX_ErrorNoMore == rc)
+            {
+              rc = OMX_ErrorNone;
+            }
+          else
+            {
+              p_prc->packet_count_++;
+            }
+        }
+      else
+        {
+          while (buffers_available (p_prc) && OMX_ErrorNone == rc)
+            {
+              rc = transform_buffer (p_prc);
+              if (OMX_ErrorNone)
+                {
+                  p_prc->packet_count_++;
+                }
+            }
+        }
+    }
+
+  return rc;
 }
 
 /*

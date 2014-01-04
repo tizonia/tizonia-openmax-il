@@ -44,8 +44,12 @@ extern "C"
   {
     /* Object */
     const tiz_prc_t _;
+    void *p_opus_dec_;
     OMX_BUFFERHEADERTYPE *p_in_hdr_;
     OMX_BUFFERHEADERTYPE *p_out_hdr_;
+    int packet_count_;
+    int rate_;
+    int channels_;
     bool eos_;
     bool in_port_disabled_;
     bool out_port_disabled_;

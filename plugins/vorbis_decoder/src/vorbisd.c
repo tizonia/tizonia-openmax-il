@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include "vorbisd.h"
 #include "vorbisdprc.h"
 #include "tizport.h"
 #include "tizbinaryport.h"
@@ -49,18 +50,6 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.vorbis_decoder"
 #endif
 
-#define ARATELIA_VORBIS_DECODER_DEFAULT_ROLE   "audio_decoder.vorbis"
-#define ARATELIA_VORBIS_DECODER_COMPONENT_NAME "OMX.Aratelia.audio_decoder.vorbis"
-/* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_FILE_DECODER_INPUT_PORT_INDEX        0
-#define ARATELIA_FILE_DECODER_OUTPUT_PORT_INDEX       1
-#define ARATELIA_VORBIS_DECODER_PORT_MIN_BUF_COUNT       2
-#define ARATELIA_VORBIS_DECODER_PORT_MIN_INPUT_BUF_SIZE  8192
-#define ARATELIA_VORBIS_DECODER_PORT_MIN_OUTPUT_BUF_SIZE 8192
-#define ARATELIA_VORBIS_DECODER_PORT_NONCONTIGUOUS       OMX_FALSE
-#define ARATELIA_VORBIS_DECODER_PORT_ALIGNMENT           0
-#define ARATELIA_VORBIS_DECODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
-
 static OMX_VERSIONTYPE vorbis_decoder_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
@@ -79,7 +68,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_VORBIS_DECODER_PORT_NONCONTIGUOUS,
     ARATELIA_VORBIS_DECODER_PORT_ALIGNMENT,
     ARATELIA_VORBIS_DECODER_PORT_SUPPLIERPREF,
-    {ARATELIA_FILE_DECODER_INPUT_PORT_INDEX, NULL, NULL, NULL},
+    {ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX, NULL, NULL, NULL},
     1                           /* slave port's index  */
   };
 
@@ -115,7 +104,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_VORBIS_DECODER_PORT_NONCONTIGUOUS,
     ARATELIA_VORBIS_DECODER_PORT_ALIGNMENT,
     ARATELIA_VORBIS_DECODER_PORT_SUPPLIERPREF,
-    {ARATELIA_FILE_DECODER_OUTPUT_PORT_INDEX, NULL, NULL, NULL},
+    {ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX, NULL, NULL, NULL},
     0                           /* Master port */
   };
 

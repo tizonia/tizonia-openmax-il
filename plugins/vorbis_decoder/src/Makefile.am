@@ -18,6 +18,7 @@
 lib_LTLIBRARIES = libtizvorbisd.la
 
 noinst_HEADERS = \
+	vorbisd.h \
 	vorbisdprc.h \
 	vorbisdprc_decls.h
 
