@@ -185,8 +185,12 @@ protected:
   OMX_ERRORTYPE instantiate_list (const component_names_t &comp_list);
   void destroy_list();
 
-  virtual OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
-  
+  virtual OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false) = 0;
+  virtual void dump_graph_info (const char *ap_coding_type_str,
+                                const char *ap_graph_type_str,
+                                const std::string &uri) const;
+  virtual void dump_pcm_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const;
+
   OMX_ERRORTYPE setup_tunnels () const;
   OMX_ERRORTYPE tear_down_tunnels () const;
 

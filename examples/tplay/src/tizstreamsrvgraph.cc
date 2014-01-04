@@ -40,6 +40,7 @@
 #include <OMX_TizoniaExt.h>
 
 #include <boost/foreach.hpp>
+#include <boost/make_shared.hpp>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -334,4 +335,30 @@ tizstreamsrvgraph::do_eos (const OMX_HANDLETYPE handle)
       (void) transition_one (file_reader_id, OMX_StateExecuting);
       (void) enable_tunnel (tunnel_id);
     }
+}
+
+OMX_ERRORTYPE
+tizstreamsrvgraph::probe_uri (const int uri_index, const bool quiet)
+{
+  assert (uri_index < file_list_.size ());
+
+  const std::string &uri = file_list_[uri_index];
+
+  if (!uri.empty ())
+    {
+      // Probe a new uri
+      probe_ptr_.reset ();
+      bool quiet_probing = true;
+      probe_ptr_ = boost::make_shared < tizprobe > (uri, quiet_probing);
+      if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
+          || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
+        {
+          return OMX_ErrorContentURIError;
+        }
+      if (!quiet)
+        {
+          dump_graph_info ("mp3/http", "stream", uri);
+        }
+    }
+  return OMX_ErrorNone;
 }

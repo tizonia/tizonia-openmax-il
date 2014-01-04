@@ -54,6 +54,8 @@ protected:
   void          do_eos (const OMX_HANDLETYPE handle);
   void          do_unload ();
 
+  OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
+
 private:
 
   OMX_ERRORTYPE configure_server ();

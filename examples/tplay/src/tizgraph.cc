@@ -41,7 +41,6 @@
 #include <assert.h>
 #include <algorithm>
 #include <boost/foreach.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/assign/list_of.hpp>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -500,7 +499,7 @@ tizgraph::at_beginning_of_play () const
 bool
 tizgraph::at_end_of_play () const
 {
-  return (current_file_index_ >= file_list_.size ());
+  return (current_file_index_ >= file_list_.size () - 1);
 }
 
 
@@ -656,25 +655,34 @@ tizgraph::destroy_list ()
     }
 }
 
-OMX_ERRORTYPE
-tizgraph::probe_uri (const int uri_index, const bool quiet)
+void 
+tizgraph::dump_graph_info (const char *ap_coding_type_str,
+                           const char *ap_graph_type_str,
+                           const std::string &uri) const
 {
-  assert (uri_index < file_list_.size ());
+#define KNRM "\x1B[0m"
+#define KGRN "\x1B[32m"
+  fprintf (stdout, "%s[%s] [%s] graph : processing '%s'.%s\n",
+           KGRN,
+           ap_coding_type_str,
+           ap_graph_type_str,
+           uri.c_str (),
+           KNRM);
+}
 
-  const std::string &uri = file_list_[uri_index];
-
-  if (!uri.empty ())
-    {
-      // Probe a new uri
-      probe_ptr_.reset ();
-      probe_ptr_ = boost::make_shared < tizprobe > (uri, quiet);
-      if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
-          || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
-        {
-          return OMX_ErrorContentURIError;
-        }
-    }
-  return OMX_ErrorNone;
+void 
+tizgraph::dump_pcm_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const
+{
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+  fprintf (stdout, "  %s%s, %ld Hz, %lu:%s:%s %s\n",
+           KYEL,
+           pcmtype.nChannels == 2 ? "stereo" : "mono",
+           pcmtype.nSamplingRate,
+           pcmtype.nBitPerSample,
+           pcmtype.eNumData  == OMX_NumericalDataSigned ? "s" : "u",
+           pcmtype.eEndian   == OMX_EndianBig ? "b" : "l",
+           KNRM);
 }
 
 OMX_ERRORTYPE

@@ -385,6 +385,7 @@ namespace                       // unnamed namespace
     std::string error_msg;
     extension_list_t extension_list;
     extension_list.push_back (".mp3");
+    extension_list.push_back (".opus");
     extension_list.push_back (".flac");
     extension_list.push_back (".ogg");
 

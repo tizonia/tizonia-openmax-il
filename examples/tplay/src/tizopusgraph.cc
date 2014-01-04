@@ -119,8 +119,8 @@ tizopusgraph::configure_opus_graph (const int file_index)
 
   tiz_check_omx_err (disable_demuxer_video_port ());
 
-  bool quiet = true;            // Current version of libav doesn't support opus
-  tiz_check_omx_err (probe_uri (file_index, true));
+  bool quiet = false;
+  tiz_check_omx_err (probe_uri (file_index, quiet));
 
   // Set the new URI
   OMX_PARAM_CONTENTURITYPE *p_uritype = NULL;
@@ -198,6 +198,7 @@ tizopusgraph::configure_opus_graph (const int file_index)
 
   tiz_check_omx_err (OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
                                        &pcmtype));
+  dump_pcm_info (pcmtype);
 
   return OMX_ErrorNone;
 }
@@ -328,20 +329,20 @@ tizopusgraph::do_error (const OMX_ERRORTYPE error)
 void
 tizopusgraph::do_eos (const OMX_HANDLETYPE handle)
 {
-  current_file_index_++;
-  if (config_->continuous_playback ()
-      || current_file_index_ < file_list_.size ())
+  if (handle == handles_[2])
     {
-      if (handle == handles_[2])
+      current_file_index_++;
+      if (config_->continuous_playback ()
+          || current_file_index_ < file_list_.size ())
         {
           (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
           (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
           (void) do_execute ();
         }
-    }
-  else
-    {
-      notify_graph_end_of_play ();
+      else
+        {
+          notify_graph_end_of_play ();
+        }
     }
 }
 
@@ -356,11 +357,16 @@ tizopusgraph::probe_uri (const int uri_index, const bool quiet)
     {
       // Probe a new uri
       probe_ptr_.reset ();
-      probe_ptr_ = boost::make_shared < tizprobe > (uri, quiet);
+      bool quiet_probing = true;
+      probe_ptr_ = boost::make_shared < tizprobe > (uri, quiet_probing);
       if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
           || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingOPUS)
         {
           return OMX_ErrorContentURIError;
+        }
+      if (!quiet)
+        {
+          dump_graph_info ("opus", "decode", uri);
         }
     }
   return OMX_ErrorNone;

@@ -131,14 +131,15 @@ open_input_file (AVFormatContext ** fmt_ctx_ptr, const std::string &filename,
       return AVERROR_OPTION_NOT_FOUND;
     }
 
+  /* fill the streams in the format context */
+  if ((err = avformat_find_stream_info (fmt_ctx, NULL)) < 0)
+    {
+      close_input_file (&fmt_ctx);
+      return err;
+    }
+
   if (!quiet)
     {
-      /* fill the streams in the format context */
-      if ((err = avformat_find_stream_info (fmt_ctx, NULL)) < 0)
-        {
-          close_input_file (&fmt_ctx);
-          return err;
-        }
 
       dump_stream_info_to_string (fmt_ctx->metadata, stream_title, stream_genre);
       if (stream_title.empty ())
@@ -219,8 +220,9 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   opustype_.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
   opustype_.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
 
+  
   av_register_all ();
-
+  av_log_set_level (AV_LOG_QUIET);
 }
 
 OMX_PORTDOMAINTYPE
@@ -458,6 +460,11 @@ tizprobe::get_stream_title ()
   if (OMX_PortDomainMax == domain_)
     {
       (void) probe_file ();
+    }
+  if (stream_title_.empty ())
+    {
+      stream_title_.assign (uri_.c_str ());
+      boost::replace_all (stream_title_, "_", " ");
     }
   return stream_title_;
 }

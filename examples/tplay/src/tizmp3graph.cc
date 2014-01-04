@@ -41,7 +41,6 @@
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 
-
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.mp3"
@@ -90,7 +89,7 @@ tizmp3graph::configure_mp3_graph (const int file_index)
 {
   OMX_ERRORTYPE ret = OMX_ErrorNone;
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d]...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "current_file_index_ [%d]...",
            current_file_index_);
 
   assert (file_index < file_list_.size ());
@@ -128,22 +127,28 @@ tizmp3graph::configure_mp3_graph (const int file_index)
     }
 
   // Retrive the current mp3 settings from the decoder's port #0
-  OMX_AUDIO_PARAM_MP3TYPE mp3type, mp3type_orig;;
+  OMX_AUDIO_PARAM_MP3TYPE mp3type_orig;
+  mp3type_orig.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
+  mp3type_orig.nVersion.nVersion = OMX_VERSION;
+  mp3type_orig.nPortIndex        = 0;
 
+  tiz_check_omx_err (OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3,
+                                       &mp3type_orig));
+
+  // Set the mp3 settings on decoder's port #0
+  OMX_AUDIO_PARAM_MP3TYPE mp3type;
   mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
   mp3type.nVersion.nVersion = OMX_VERSION;
   mp3type.nPortIndex        = 0;
 
-  tiz_check_omx_err (OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3,
-                                       &mp3type));
-  mp3type_orig = mp3type;
-  
-  // Set the mp3 settings on decoder's port #0
-
   probe_ptr_->get_mp3_codec_info (mp3type);
-  mp3type.nPortIndex = 0;
   tiz_check_omx_err (OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
                                        &mp3type));
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "mp3type_orig.nSampleRate [%d] mp3type.nSampleRate [%d]..."
+           "mp3type_orig.nChannels [%d] mp3type.nChannels [%d]",
+           mp3type_orig.nSampleRate, mp3type.nSampleRate, mp3type_orig.nChannels,
+           mp3type.nChannels);
 
   if (mp3type_orig.nSampleRate != mp3type.nSampleRate
       || mp3type_orig.nChannels != mp3type.nChannels)
@@ -171,6 +176,8 @@ tizmp3graph::configure_mp3_graph (const int file_index)
   tiz_check_omx_err (OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
                                        &pcmtype));
 
+  dump_pcm_info (pcmtype);
+
   return OMX_ErrorNone;
 }
 
@@ -192,7 +199,7 @@ tizmp3graph::do_configure (const tizgraphconfig_ptr_t &config)
 OMX_ERRORTYPE
 tizmp3graph::do_execute ()
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d] list size [%d]...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "current_file_index_ [%d] list size [%d]...",
            current_file_index_, file_list_.size ());
 
   assert (OMX_StateLoaded == current_graph_state_);
@@ -244,7 +251,7 @@ tizmp3graph::do_skip (const int jump)
       // pause states.
       return OMX_ErrorNone;
     }
-  
+
   if (OMX_StateExecuting == current_graph_state_)
     {
       tiz_check_omx_err (transition_all (OMX_StateIdle, OMX_StateExecuting));
@@ -268,7 +275,7 @@ tizmp3graph::do_skip (const int jump)
       current_file_index_ = file_list_.size ();
     }
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Configure current_file_index_ [%d]...",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "current_file_index_ [%d]...",
            current_file_index_);
 
   return do_execute ();
@@ -300,19 +307,45 @@ tizmp3graph::do_error (const OMX_ERRORTYPE error)
 void
 tizmp3graph::do_eos (const OMX_HANDLETYPE handle)
 {
-  current_file_index_++;
-  if (config_->continuous_playback ()
-      || current_file_index_ < file_list_.size ())
+  if (handle == handles_[2])
     {
-      if (handle == handles_[2])
+      current_file_index_++;
+      if (config_->continuous_playback ()
+          || current_file_index_ < file_list_.size ())
         {
           (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
           (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
           (void) do_execute ();
         }
+      else
+        {
+          notify_graph_end_of_play ();
+        }
     }
-  else
+}
+
+OMX_ERRORTYPE
+tizmp3graph::probe_uri (const int uri_index, const bool quiet)
+{
+  assert (uri_index < file_list_.size ());
+
+  const std::string &uri = file_list_[uri_index];
+
+  if (!uri.empty ())
     {
-      notify_graph_end_of_play ();
+      // Probe a new uri
+      probe_ptr_.reset ();
+      bool quiet_probing = true;
+      probe_ptr_ = boost::make_shared < tizprobe > (uri, quiet_probing);
+      if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
+          || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
+        {
+          return OMX_ErrorContentURIError;
+        }
+      if (!quiet)
+        {
+          dump_graph_info ("mp3", "decode", uri);
+        }
     }
+  return OMX_ErrorNone;
 }

@@ -151,8 +151,8 @@ tizflacgraph::configure_flac_graph (const int file_index)
 
   tiz_check_omx_err (disable_demuxer_video_port ());
 
-  bool quiet = true;            // Current version of libav doesn't support flac
-  tiz_check_omx_err (probe_uri (file_index, true));
+  bool quiet = false;            // Current version of libav doesn't support flac
+  tiz_check_omx_err (probe_uri (file_index, quiet));
 
   // Set the new URI
   OMX_PARAM_CONTENTURITYPE *p_uritype = NULL;
@@ -183,8 +183,9 @@ tizflacgraph::configure_flac_graph (const int file_index)
       return ret;
     }
 
-  // Retrive the current flac settings from the decoder's port #0
-  OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype, flactype_orig;;
+  // Retrieve the current flac settings from the decoder's port #0
+  OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype;
+  OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_orig;
 
   flactype.nSize             = sizeof (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE);
   flactype.nVersion.nVersion = OMX_VERSION;
@@ -231,6 +232,13 @@ tizflacgraph::configure_flac_graph (const int file_index)
   tiz_check_omx_err (OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
                                        &pcmtype));
 
+  // Only output the pcm banner the first time we attempt the demuxing of the
+  // current item in the playlist
+  if (demux_attempts_ != 0)
+    {
+      dump_pcm_info (pcmtype);
+    }
+  
   return OMX_ErrorNone;
 }
 
@@ -395,27 +403,25 @@ tizflacgraph::do_error (const OMX_ERRORTYPE error)
 void
 tizflacgraph::do_eos (const OMX_HANDLETYPE handle)
 {
-  // This was a pretty successful playback, reset the demuxing count.
   TIZ_LOG (TIZ_PRIORITY_TRACE, "demux_attempts_ [%d]..."
-           " current_file_index_ [%d]",
-           demux_attempts_, current_file_index_);
-  demux_attempts_ = 0;
-  current_file_index_++;
-  if (config_->continuous_playback ()
-      || current_file_index_ < file_list_.size ())
+           " current_file_index_ [%d]", demux_attempts_, current_file_index_);
+  if (handle == handles_[2])
     {
-      if (handle == handles_[2])
+      // This was a successful playback, reset the demuxing count.
+      demux_attempts_ = 0;
+      current_file_index_++;
+      if (config_->continuous_playback ()
+          || current_file_index_ < file_list_.size ())
         {
           (void) transition_all (OMX_StateIdle, OMX_StateExecuting);
           (void) transition_all (OMX_StateLoaded, OMX_StateIdle);
           (void) do_execute ();
         }
+      else
+        {
+          notify_graph_end_of_play ();
+        }
     }
-  else
-    {
-      notify_graph_end_of_play ();
-    }
-
 }
 
 OMX_ERRORTYPE
@@ -423,17 +429,29 @@ tizflacgraph::probe_uri (const int uri_index, const bool quiet)
 {
   assert (uri_index < file_list_.size ());
 
+  // Only do probing the first time we attempt the demuxing of the
+  // current item in the playlist
+  if (demux_attempts_ != 0)
+    {
+      return OMX_ErrorNone;
+    }
+  
   const std::string &uri = file_list_[uri_index];
 
   if (!uri.empty ())
     {
       // Probe a new uri
       probe_ptr_.reset ();
-      probe_ptr_ = boost::make_shared < tizprobe > (uri, quiet);
+      bool quiet_probing = true;
+      probe_ptr_ = boost::make_shared < tizprobe > (uri, quiet_probing);
       if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
           || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingFLAC)
         {
           return OMX_ErrorContentURIError;
+        }
+      if (!quiet)
+        {
+          dump_graph_info ("flac", "decode", uri);
         }
     }
   return OMX_ErrorNone;
