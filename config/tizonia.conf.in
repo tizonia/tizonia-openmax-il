@@ -128,8 +128,8 @@ OMX.Aratelia.audio_decoder.opus.testfile2_uri = @localstatedir@/lib/tizonia/tizo
 
 OMX.Aratelia.audio_decoder.flac.preannouncements_disabled.port0 = false
 OMX.Aratelia.audio_decoder.flac.preannouncements_disabled.port1 = false
-OMX.Aratelia.audio_decoder.flac.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.flac
-OMX.Aratelia.audio_decoder.flac.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.flac
+OMX.Aratelia.audio_decoder.flac.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.oga
+OMX.Aratelia.audio_decoder.flac.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.oga
 
 ###############
 # Ogg Demuxer #
