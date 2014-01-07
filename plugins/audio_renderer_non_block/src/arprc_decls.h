@@ -59,6 +59,9 @@ extern "C"
     bool port_disabled_;
     bool awaiting_buffers_;
     bool awaiting_io_ev_;
+    float gain_;
+    long initial_volume_;
+    long volume_;
   };
 
   typedef struct ar_prc_class ar_prc_class_t;

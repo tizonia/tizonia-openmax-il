@@ -146,7 +146,7 @@ public:
    * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
    * success.
    */
-  OMX_ERRORTYPE volume ();
+  OMX_ERRORTYPE volume (const int step);
 
   /**
    * Pause the processing of the current item in the playlist.
@@ -192,7 +192,8 @@ protected:
   OMX_ERRORTYPE do_prev ();
   OMX_ERRORTYPE do_fwd ();
   OMX_ERRORTYPE do_rwd ();
-  OMX_ERRORTYPE do_vol ();
+  OMX_ERRORTYPE do_vol_up ();
+  OMX_ERRORTYPE do_vol_down ();
   OMX_ERRORTYPE do_pause ();
   OMX_ERRORTYPE do_stop ();
   OMX_ERRORTYPE do_graph_end_of_play ();

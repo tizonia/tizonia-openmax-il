@@ -48,7 +48,7 @@ protected:
   OMX_ERRORTYPE do_pause ();
   OMX_ERRORTYPE do_seek ();
   OMX_ERRORTYPE do_skip (const int jump);
-  OMX_ERRORTYPE do_volume ();
+  OMX_ERRORTYPE do_volume (const int step);
   void          do_error (const OMX_ERRORTYPE error);
   void          do_eos (const OMX_HANDLETYPE handle);
   void          do_unload ();

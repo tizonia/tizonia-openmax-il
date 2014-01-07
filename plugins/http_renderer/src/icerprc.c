@@ -475,9 +475,9 @@ icer_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
                                       OMX_TizoniaIndexConfigIcecastMetadata,
                                       p_metadata)))
         {
-          TIZ_TRACE (p_hdl, "[%s] : Error retrieving "
-                    "OMX_TizoniaIndexConfigIcecastMetadata from port",
-                    tiz_err_to_str (rc));
+          TIZ_ERROR (p_hdl, "[%s] : Error retrieving "
+                     "OMX_TizoniaIndexConfigIcecastMetadata from port",
+                     tiz_err_to_str (rc));
         }
       else
         {

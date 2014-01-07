@@ -18,6 +18,7 @@
 lib_LTLIBRARIES = libtizarnb.la
 
 noinst_HEADERS = \
+	ar.h \
 	arprc.h \
 	arprc_decls.h
 
@@ -34,6 +35,7 @@ libtizarnb_la_CFLAGS = \
 libtizarnb_la_LIBADD = \
 	$(top_builddir)/../../libtizosal/src/libtizosal.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	-lm \
 	@ALSA_LIBS@
 
 

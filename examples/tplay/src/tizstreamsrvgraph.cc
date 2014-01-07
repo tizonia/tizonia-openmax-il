@@ -298,7 +298,7 @@ tizstreamsrvgraph::do_skip (const int jump)
 }
 
 OMX_ERRORTYPE
-tizstreamsrvgraph::do_volume ()
+tizstreamsrvgraph::do_volume (const int step)
 {
   return OMX_ErrorNone;
 }

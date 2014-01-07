@@ -155,6 +155,7 @@ namespace                       // unnamed namespace
     printf ("\t      * [p] to skip to previous file.\n");
     printf ("\t      * [n] to skip to next file.\n");
     printf ("\t      * [SPACE] to pause playback.\n");
+    printf ("\t      * [+/-] to increase/decrease volume.\n");
     printf ("\t      * [q] to quit.\n");
     printf ("\t      * [Ctrl-c] to terminate the application at any time.\n");
     printf
@@ -319,13 +320,11 @@ namespace                       // unnamed namespace
                 break;
 
               case '-':
-                printf ("Vol down - not implemented\n");
-                //Volume
+                graphmgr_ptr->volume (-1);
                 break;
 
               case '+':
-                printf ("Vol up - not implemented\n");
-                //Volume
+                graphmgr_ptr->volume (1);
                 break;
 
               default:

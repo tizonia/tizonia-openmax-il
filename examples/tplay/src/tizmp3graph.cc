@@ -282,9 +282,11 @@ tizmp3graph::do_skip (const int jump)
 }
 
 OMX_ERRORTYPE
-tizmp3graph::do_volume ()
+tizmp3graph::do_volume (const int step)
 {
-  return OMX_ErrorNone;
+  // Use helper method in base class
+  OMX_U32 renderers_input_port = 0;
+  return apply_volume (handles_[2], renderers_input_port, step);
 }
 
 void

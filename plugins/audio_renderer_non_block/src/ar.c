@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include "ar.h"
 #include "arprc.h"
 #include "tizscheduler.h"
 #include "tizport.h"
@@ -50,15 +51,6 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.audio_renderer"
 #endif
-
-#define ARATELIA_AUDIO_RENDERER_DEFAULT_ROLE "audio_renderer.pcm"
-#define ARATELIA_AUDIO_RENDERER_COMPONENT_NAME "OMX.Aratelia.audio_renderer_nb.pcm"
-#define ARATELIA_AUDIO_RENDERER_PORT_INDEX 0 /* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_AUDIO_RENDERER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_AUDIO_RENDERER_PORT_MIN_BUF_SIZE 1024
-#define ARATELIA_AUDIO_RENDERER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_AUDIO_RENDERER_PORT_ALIGNMENT 0
-#define ARATELIA_AUDIO_RENDERER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE audio_renderer_version = { {1, 0, 0, 0} };
 
@@ -103,9 +95,9 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   volume.nVersion.nVersion = OMX_VERSION;
   volume.nPortIndex        = ARATELIA_AUDIO_RENDERER_PORT_INDEX;
   volume.bLinear           = OMX_FALSE;
-  volume.sVolume.nValue    = 50;
-  volume.sVolume.nMin      = 0;
-  volume.sVolume.nMax      = 100;
+  volume.sVolume.nValue    = ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE;
+  volume.sVolume.nMin      = ARATELIA_AUDIO_RENDERER_MIN_VOLUME_VALUE;
+  volume.sVolume.nMax      = ARATELIA_AUDIO_RENDERER_MAX_VOLUME_VALUE;
   
 
   mute.nSize             = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);

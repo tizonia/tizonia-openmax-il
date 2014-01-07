@@ -455,10 +455,10 @@ tizgraph::skip (const int jump)
 }
 
 OMX_ERRORTYPE
-tizgraph::volume ()
+tizgraph::volume (const int step)
 {
   tizgraphconfig_ptr_t null_config;
-  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdVolume, null_config));
+  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdVolume, null_config, NULL, step));
 }
 
 void
@@ -827,6 +827,35 @@ tizgraph::transition_one (const int handle_id, const OMX_STATETYPE to)
 }
 
 OMX_ERRORTYPE
+tizgraph::apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid, const int step)
+{
+  #define VOL_STEP 5
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  if (OMX_StateExecuting == current_graph_state_)
+    {
+      bool new_volume = false;
+      OMX_AUDIO_CONFIG_VOLUMETYPE volume;
+      TIZ_INIT_OMX_PORT_STRUCT (volume, pid);
+      tiz_check_omx_err (OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+      if (volume.sVolume.nValue <= (volume.sVolume.nMax - VOL_STEP) && step > 0)
+        {
+          volume.sVolume.nValue += VOL_STEP;
+          new_volume = true;
+        }
+      else if (volume.sVolume.nValue >= (volume.sVolume.nMin + VOL_STEP) && step < 0)
+        {
+          volume.sVolume.nValue -= VOL_STEP;
+          new_volume = true;
+        }
+      if (new_volume)
+        {
+          tiz_check_omx_err (OMX_SetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+        }
+    }
+  return rc;
+}
+
+OMX_ERRORTYPE
 tizgraph::modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
@@ -957,7 +986,7 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
       }
     case tizgraphcmd::ETIZGraphCmdVolume:
       {
-        p_graph->do_volume ();
+        p_graph->do_volume (p_cmd->get_jump ());
         break;
       }
     case tizgraphcmd::ETIZGraphCmdUnload:
