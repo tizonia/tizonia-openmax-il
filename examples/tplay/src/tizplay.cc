@@ -150,20 +150,21 @@ namespace                       // unnamed namespace
     printf ("Examples:\n");
     printf
       ("\t tplay ~/Music (decodes every supported file in the '~/Music' directory)\n");
-    printf ("\t    * Currently supported formats for playback: mp3, flac, opus.\n");
+    printf ("\t    * Currently supported formats for playback:\n");
+    printf ("\t      * mp3, flac (.flac, .ogg, .oga), opus (.ogg, .oga).\n");
     printf ("\t    * Key bindings:\n");
-    printf ("\t      * [p] to skip to previous file.\n");
-    printf ("\t      * [n] to skip to next file.\n");
-    printf ("\t      * [SPACE] to pause playback.\n");
-    printf ("\t      * [+/-] to increase/decrease volume.\n");
-    printf ("\t      * [q] to quit.\n");
-    printf ("\t      * [Ctrl-c] to terminate the application at any time.\n");
+    printf ("\t      * [p] skip to previous file.\n");
+    printf ("\t      * [n] skip to next file.\n");
+    printf ("\t      * [SPACE] pause playback.\n");
+    printf ("\t      * [+/-] increase/decrease volume.\n");
+    printf ("\t      * [q] quit.\n");
+    printf ("\t      * [Ctrl-c] terminate the application at any time.\n");
     printf
       ("\n\t tplay -p 8011 -s ~/Music (streams every supported file in the '~/Music' directory)\n");
     printf ("\t    * Currently supported formats for streaming: mp3.\n");
     printf ("\t    * Key bindings:\n");
-    printf ("\t      * [q] to quit.\n");
-    printf ("\t      * [Ctrl-c] to terminate the application at any time.\n");
+    printf ("\t      * [q] quit.\n");
+    printf ("\t      * [Ctrl-c] terminate the application at any time.\n");
     printf ("\n");
   }
 
@@ -387,6 +388,7 @@ namespace                       // unnamed namespace
     extension_list.push_back (".opus");
     extension_list.push_back (".flac");
     extension_list.push_back (".ogg");
+    extension_list.push_back (".oga");
 
     if (!tizplaylist_t::assemble_play_list
         (uri, shuffle_playlist, recurse, extension_list, file_list, error_msg))
