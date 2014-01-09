@@ -186,17 +186,12 @@ adjust_volume (const ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr,
 }
 
 static OMX_ERRORTYPE
-get_master_volume (const ar_prc_t * ap_prc, long *ap_volume)
+get_alsa_master_volume (const ar_prc_t * ap_prc, long *ap_volume)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_prc);
   assert (NULL != ap_volume);
 
-  if (NULL != ap_prc->p_alsa_pcm_)
-    {
-      /* Simply ignore */
-      return rc;
-    }
   {
     const char *selem_name = "Master";
     long min, max, volume;
@@ -222,7 +217,6 @@ get_master_volume (const ar_prc_t * ap_prc, long *ap_volume)
 
     *ap_volume = volume * 100 / max;
     bail_on_alsa_error (snd_mixer_close (handle));
-    fprintf (stderr, "volume = %ld\n", volume);
 
     /* Everything well, restore the error code. */
     rc = OMX_ErrorNone;
@@ -233,15 +227,13 @@ end:
 }
 
 static OMX_ERRORTYPE
-store_alsa_volume (ar_prc_t * ap_prc)
+set_component_volume (ar_prc_t * ap_prc)
 {
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
 
   assert (NULL != ap_prc);
 
-  tiz_check_omx_err (get_master_volume (ap_prc, &(ap_prc->initial_volume_)));
-
-  ap_prc->volume_ = ap_prc->initial_volume_;
+  tiz_check_omx_err (get_alsa_master_volume (ap_prc, &(ap_prc->volume_)));
 
   volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
   volume.nVersion.nVersion = OMX_VERSION;
@@ -261,7 +253,7 @@ store_alsa_volume (ar_prc_t * ap_prc)
 }
 
 static void
-set_master_volume (ar_prc_t * ap_prc, long volume)
+set_alsa_master_volume (ar_prc_t * ap_prc, long volume)
 {
   assert (NULL != ap_prc);
 
@@ -485,7 +477,6 @@ ar_prc_ctor (void *ap_obj, va_list * app)
   p_obj->awaiting_buffers_ = true;
   p_obj->awaiting_io_ev_ = false;
   p_obj->gain_ = ARATELIA_AUDIO_RENDERER_DEFAULT_GAIN_VALUE;
-  p_obj->initial_volume_ = ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE;
   p_obj->volume_ = ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE;
   return p_obj;
 }
@@ -692,9 +683,9 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
           return OMX_ErrorInsufficientResources;
         }
 
-      /* Store the initial volume, so that it can be restored during transition
-       * to Idle */
-      tiz_check_omx_err (store_alsa_volume (p_prc));
+      /* Internally store the initial volume, so that the internal OMX volume
+         struct reflects the current value of ALSA's master volume. */
+      tiz_check_omx_err (set_component_volume (p_prc));
     }
 
   return OMX_ErrorNone;
@@ -722,9 +713,6 @@ ar_prc_deallocate_resources (void *ap_obj)
 {
   ar_prc_t *p_prc = ap_obj;
   assert (NULL != ap_obj);
-
-  /* Restore the initial volume value */
-  set_master_volume (p_prc, p_prc->initial_volume_);
 
   p_prc->descriptor_count_ = 0;
   tiz_mem_free (p_prc->p_fds_);
@@ -875,7 +863,7 @@ ar_prc_config_change (void *ap_obj, OMX_U32 a_pid, OMX_INDEXTYPE a_config_idx)
             {
               /* TODO: Volume should be done by adjusting the gain, not ALSA's
                * master volume! */
-              set_master_volume (p_prc, volume.sVolume.nValue);
+              set_alsa_master_volume (p_prc, volume.sVolume.nValue);
             }
         }
     }

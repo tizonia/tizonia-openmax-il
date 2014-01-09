@@ -60,7 +60,6 @@ extern "C"
     bool awaiting_buffers_;
     bool awaiting_io_ev_;
     float gain_;
-    long initial_volume_;
     long volume_;
   };
 
