@@ -38,6 +38,7 @@ extern "C"
 #include "tizprc_decls.h"
 
 #include <stdbool.h>
+#include <fishsound/fishsound.h>
 
   typedef struct vorbisd_prc vorbisd_prc_t;
   struct vorbisd_prc
@@ -47,6 +48,7 @@ extern "C"
     void *p_opus_dec_;
     OMX_BUFFERHEADERTYPE *p_in_hdr_;
     OMX_BUFFERHEADERTYPE *p_out_hdr_;
+    FishSound *p_fsnd_;
     int packet_count_;
     int rate_;
     int channels_;

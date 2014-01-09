@@ -157,76 +157,79 @@ buffers_available (vorbisd_prc_t * ap_prc)
   return rc;
 }
 
-OMX_ERRORTYPE
+static int
+decoded_cback (FishSound *ap_fsound, float **app_pcm, long frames, void *ap_user_data)
+{
+  return 1;
+}
+
+static OMX_ERRORTYPE
 init_vorbis_decoder (vorbisd_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_BUFFERHEADERTYPE *p_in
-    = get_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
 
-  if (NULL == p_in)
+  assert (NULL != ap_prc);
+
+  tiz_check_null_ret_oom (ap_prc->p_fsnd_
+                          = fish_sound_new (FISH_SOUND_DECODE, NULL));
+
+  if (0 != fish_sound_set_interleave (ap_prc->p_fsnd_, 1))
     {
-      return OMX_ErrorNoMore;
+      TIZ_ERROR (handleOf (ap_prc), "[OMX_ErrorInsufficientResources] : "
+                 "Could not set interleaved.");
+      return OMX_ErrorInsufficientResources;
     }
 
-/*   { */
-/*     OMX_U8 *p_ogg_data = p_in->pBuffer + p_in->nOffset; */
-/*     const OMX_U32 nbytes = p_in->nFilledLen; */
-/*     /\*If playing to audio out, default the rate to 48000 */
-/*      * instead of the original rate. The original rate is */
-/*      * only important for minimizing surprise about the rate */
-/*      * of output files and preserving length, which aren't */
-/*      * relevant for playback. Many audio devices sound */
-/*      * better at 48kHz and not resampling also saves CPU. *\/ */
-/*     ap_prc->rate_ = 48000; */
-/*     ap_prc->channels_ = -1; */
-/*     float gain = 1; */
-/*     float manual_gain = 0; */
-/*     int streams = 0; */
-/*     int quiet = 0; */
-/*     if (NULL == (ap_prc->p_vorbis_dec_ */
-/*                  = process_vorbis_header (handleOf (ap_prc), p_ogg_data, */
-/*                                         nbytes, &(ap_prc->rate_), */
-/*                                         &(ap_prc->mapping_family_), */
-/*                                         &(ap_prc->channels_), */
-/*                                         &(ap_prc->preskip_), &gain, */
-/*                                         manual_gain, &streams, quiet))) */
-/*       { */
-/*         rc = OMX_ErrorInsufficientResources; */
-/*       } */
-/*     TIZ_TRACE (handleOf (ap_prc), */
-/*                "rate [%d] mapping_family [%d] channels [%d] " */
-/*                "preskip [%d] gain [%d] streams [%d]", ap_prc->rate_, */
-/*                ap_prc->mapping_family_, ap_prc->channels_, ap_prc->preskip_, */
-/*                gain, streams); */
-/*   } */
-/*   p_in->nFilledLen = 0; */
-/*   release_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX); */
+
+  if (0 != fish_sound_set_decoded_float_ilv (ap_prc->p_fsnd_,
+                                             decoded_cback,
+                                             ap_prc))
+    {
+      TIZ_ERROR (handleOf (ap_prc), "[OMX_ErrorInsufficientResources] : "
+                 "Could not set 'decoded' callback.");
+      return OMX_ErrorInsufficientResources;
+    }
+
   return rc;
 }
 
 static OMX_ERRORTYPE
-print_vorbis_comments (vorbisd_prc_t * ap_prc)
+transform_buffer (vorbisd_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_in
     = get_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
+  OMX_BUFFERHEADERTYPE *p_out
+    = get_buffer (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
 
-  if (NULL == p_in)
+  if (NULL == p_in || NULL == p_out)
     {
-      return OMX_ErrorNoMore;
+      TIZ_TRACE (handleOf (ap_prc), "IN HEADER [%p] OUT HEADER [%p]",
+                 p_in, p_out);
+      return OMX_ErrorNone;
     }
 
-/*   process_vorbis_comments (handleOf (ap_prc), */
-/*                          (char *) (p_in->pBuffer + p_in->nOffset), */
-/*                          p_in->nFilledLen); */
-  p_in->nFilledLen = 0;
-  release_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
-  return OMX_ErrorNone;
-}
+  assert (NULL != ap_prc);
 
-static OMX_ERRORTYPE
-transform_buffer (const void *ap_obj)
-{
+  if (0 == p_in->nFilledLen)
+    {
+      TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty",
+                 p_in, p_in->nFlags);
+      if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
+        {
+          /* Propagate EOS flag to output */
+          p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+          p_in->nFlags = 0;
+          release_buffer (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+        }
+      release_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
+      return OMX_ErrorNone;
+    }
+
+  {
+    unsigned char *p_data = p_in->pBuffer + p_in->nOffset;
+    const long len = p_in->nFilledLen;
+    fish_sound_decode(ap_prc->p_fsnd_, p_data, len);
+  }
   return OMX_ErrorNone;
 }
 
@@ -271,7 +274,7 @@ vorbisd_prc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 vorbisd_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  return OMX_ErrorNone;
+  return init_vorbis_decoder (ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -312,41 +315,12 @@ vorbisd_prc_buffers_ready (const void *ap_obj)
              p_prc->eos_ ? "YES" : "NO", p_prc->packet_count_);
   if (!p_prc->eos_)
     {
-      if (0 == p_prc->packet_count_)
+      while (buffers_available (p_prc) && OMX_ErrorNone == rc)
         {
-          /* If first packet in the logical stream, process the Vorbis header and
-           * instantiate an vorbis decoder with the right settings */
-          rc = init_vorbis_decoder (p_prc);
-          if (OMX_ErrorNoMore == rc)
-            {
-              rc = OMX_ErrorNone;
-            }
-          else
+          rc = transform_buffer (p_prc);
+          if (OMX_ErrorNone)
             {
               p_prc->packet_count_++;
-            }
-        }
-      else if (1 == p_prc->packet_count_)
-        {
-          rc = print_vorbis_comments (p_prc);
-          if (OMX_ErrorNoMore == rc)
-            {
-              rc = OMX_ErrorNone;
-            }
-          else
-            {
-              p_prc->packet_count_++;
-            }
-        }
-      else
-        {
-          while (buffers_available (p_prc) && OMX_ErrorNone == rc)
-            {
-              rc = transform_buffer (p_prc);
-              if (OMX_ErrorNone)
-                {
-                  p_prc->packet_count_++;
-                }
             }
         }
     }

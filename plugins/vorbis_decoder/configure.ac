@@ -36,6 +36,8 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
+PKG_CHECK_MODULES([FISHSOUND], [fishsound >= 1.0.0], [HAVE_FISHSOUND=yes], [HAVE_FISHSOUND=no])
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 # Checks for header files.
 
