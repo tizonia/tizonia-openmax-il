@@ -86,6 +86,9 @@
 <!--         <category name="tiz.flac_decoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.flac_decoder.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.flac_decoder.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.vorbis_decoder" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.vorbis_decoder.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.vorbis_decoder.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_demuxer" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_demuxer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_demuxer.check" priority="trace" appender="tizlogfile" /> -->

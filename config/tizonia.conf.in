@@ -131,6 +131,15 @@ OMX.Aratelia.audio_decoder.flac.preannouncements_disabled.port1 = false
 OMX.Aratelia.audio_decoder.flac.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.oga
 OMX.Aratelia.audio_decoder.flac.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.oga
 
+##################
+# Vorbis Decoder #
+##################
+
+OMX.Aratelia.audio_decoder.vorbis.preannouncements_disabled.port0 = false
+OMX.Aratelia.audio_decoder.vorbis.preannouncements_disabled.port1 = false
+OMX.Aratelia.audio_decoder.vorbis.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/vorbis/strum12str_16_441_vbr_20ms.oga
+OMX.Aratelia.audio_decoder.vorbis.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/vorbis/strum12str_16_441_vbr_20ms.oga
+
 ###############
 # Ogg Demuxer #
 ###############
