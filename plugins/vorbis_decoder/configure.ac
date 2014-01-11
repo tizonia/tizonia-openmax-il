@@ -46,7 +46,8 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 tests/Makefile])
 
 # End the configure script.
 AC_OUTPUT
