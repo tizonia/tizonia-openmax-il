@@ -38,15 +38,15 @@ extern "C"
 #include "OMX_Types.h"
 #include "OMX_Core.h"
 
-#define TIZ_INIT_OMX_STRUCT(struct_storage, struct_name)             \
-  tiz_mem_set(&(struct_storage), 0x0, sizeof(struct_name));          \
-  (struct_storage).nSize             = sizeof(struct_name);          \
+#define TIZ_INIT_OMX_STRUCT(struct_storage)                     \
+  tiz_mem_set(&(struct_storage), 0x0, sizeof(struct_storage));  \
+  (struct_storage).nSize             = sizeof(struct_storage);  \
   (struct_storage).nVersion.nVersion = OMX_VERSION;
   
-#define TIZ_INIT_OMX_PORT_STRUCT(struct_storage, port_id)               \
-  memset(&(struct_storage), 0x0, sizeof(struct_storage));               \
-  (struct_storage).nSize             = sizeof(struct_storage);          \
-  (struct_storage).nVersion.nVersion = OMX_VERSION;                     \
+#define TIZ_INIT_OMX_PORT_STRUCT(struct_storage, port_id)       \
+  memset(&(struct_storage), 0x0, sizeof(struct_storage));       \
+  (struct_storage).nSize             = sizeof(struct_storage);  \
+  (struct_storage).nVersion.nVersion = OMX_VERSION;             \
   (struct_storage).nPortIndex        = port_id;
 
   /*@observer@ */ const OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd);
