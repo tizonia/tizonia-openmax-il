@@ -49,6 +49,7 @@ extern "C"
     OMX_BUFFERHEADERTYPE *p_in_hdr_;
     OMX_BUFFERHEADERTYPE *p_out_hdr_;
     FishSound *p_fsnd_;
+    FishSoundInfo fsinfo_;
     int packet_count_;
     int rate_;
     int channels_;

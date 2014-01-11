@@ -35,13 +35,12 @@ extern "C"
 
 #include "OMX_Core.h"
 #include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
 
-#define ARATELIA_VORBIS_DECODER_DEFAULT_ROLE   "audio_decoder.vorbis"
-#define ARATELIA_VORBIS_DECODER_COMPONENT_NAME "OMX.Aratelia.audio_decoder.vorbis"
+#define ARATELIA_VORBIS_DECODER_DEFAULT_ROLE             "audio_decoder.vorbis"
+#define ARATELIA_VORBIS_DECODER_COMPONENT_NAME           "OMX.Aratelia.audio_decoder.vorbis"
 /* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX        0
-#define ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX       1
+#define ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX         0
+#define ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX        1
 #define ARATELIA_VORBIS_DECODER_PORT_MIN_BUF_COUNT       2
 #define ARATELIA_VORBIS_DECODER_PORT_MIN_INPUT_BUF_SIZE  8192
 #define ARATELIA_VORBIS_DECODER_PORT_MIN_OUTPUT_BUF_SIZE 8192

@@ -33,7 +33,6 @@
 #include "vorbisd.h"
 #include "vorbisdprc.h"
 #include "tizport.h"
-#include "tizbinaryport.h"
 #include "tizscheduler.h"
 
 #include "tizosal.h"
@@ -55,12 +54,12 @@ static OMX_VERSIONTYPE vorbis_decoder_version = { {1, 0, 0, 0} };
 static OMX_PTR
 instantiate_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_AUDIO_PARAM_MP3TYPE mp3type;
+  OMX_AUDIO_PARAM_VORBISTYPE vorbistype;
   OMX_AUDIO_CODINGTYPE encodings[] = {
-    OMX_AUDIO_CodingMP3,
+    OMX_AUDIO_CodingVORBIS,
     OMX_AUDIO_CodingMax
   };
-  tiz_port_options_t mp3_port_opts = {
+  tiz_port_options_t vorbis_port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
     ARATELIA_VORBIS_DECODER_PORT_MIN_BUF_COUNT,
@@ -72,18 +71,20 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     1                           /* slave port's index  */
   };
 
-  mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
-  mp3type.nVersion.nVersion = OMX_VERSION;
-  mp3type.nPortIndex        = 0;
-  mp3type.nChannels         = 2;
-  mp3type.nBitRate          = 0;
-  mp3type.nSampleRate       = 0;
-  mp3type.nAudioBandWidth   = 0;
-  mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
-  mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
-
-  return factory_new (tiz_get_type (ap_hdl, "tizmp3port"),
-                      &mp3_port_opts, &encodings, &mp3type);
+  vorbistype.nSize             = sizeof (OMX_AUDIO_PARAM_VORBISTYPE);
+  vorbistype.nVersion.nVersion = OMX_VERSION;
+  vorbistype.nPortIndex        = 0;
+  vorbistype.nChannels         = 2;
+  vorbistype.nBitRate          = 0;
+  vorbistype.nMinBitRate       = 0;
+  vorbistype.nMaxBitRate       = 0;
+  vorbistype.nSampleRate       = 0;
+  vorbistype.nAudioBandWidth   = 0;
+  vorbistype.nQuality          = 0;
+  vorbistype.bManaged          = 0;
+  vorbistype.bDownmix          = 0;
+  return factory_new (tiz_get_type (ap_hdl, "tizvorbisport"),
+                      &vorbis_port_opts, &encodings, &vorbistype);
 }
 
 static OMX_PTR

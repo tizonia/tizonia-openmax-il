@@ -41,6 +41,8 @@
 #include <limits.h>
 #include <string.h>
 
+#include <fishsound/constants.h>
+
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.vorbis_decoder.prc"
@@ -160,13 +162,72 @@ buffers_available (vorbisd_prc_t * ap_prc)
 static int
 decoded_cback (FishSound *ap_fsound, float **app_pcm, long frames, void *ap_user_data)
 {
-  return 1;
+  int rc = FISH_SOUND_CONTINUE;
+  vorbisd_prc_t * p_prc = ap_user_data;
+
+  (void) ap_fsound;
+  assert (NULL != app_pcm);
+  assert (NULL != ap_user_data);
+
+  if (0 == p_prc->packet_count_)
+    {
+      fish_sound_command (p_prc->p_fsnd_, FISH_SOUND_GET_INFO, &(p_prc->fsinfo_),
+                          sizeof (FishSoundInfo));
+      if (p_prc->fsinfo_.channels > 2 || p_prc->fsinfo_.format != FISH_SOUND_VORBIS)
+        {
+          TIZ_ERROR (handleOf (p_prc), "Only support for vorbis "
+                     "streams with 1 or 2 channels.");
+          rc = FISH_SOUND_STOP_ERR;
+        }
+    }
+
+  if (FISH_SOUND_STOP_ERR == rc)
+    {
+      /* write decoded PCM samples */
+      size_t i = 0;
+      size_t j = 0;
+      size_t nbytes = frames * sizeof(float) * p_prc->channels_;
+      OMX_BUFFERHEADERTYPE *p_out
+        = get_buffer (p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+      assert (NULL != p_out);
+
+      for (i = 0; i < nbytes;)
+        {
+          float *out = (float *) (p_out->pBuffer + p_out->nOffset) + i;
+          out[0] = (float) app_pcm[0][j];       /* left channel */
+          out[1] = (float) app_pcm[1][j];       /* right channel */
+          j++;
+          i += sizeof(float);
+        }
+/*       p_out->nFilledLen = */
+/*         frames * p_prc->channels_ * (p_prc->bps_ / 8); */
+/*       if ((p_prc->eos_ && p_prc->store_offset_ == 0)) */
+/*         { */
+/*           /\* Propagate EOS flag to output *\/ */
+/*           p_out->nFlags |= OMX_BUFFERFLAG_EOS; */
+/*           p_prc->eos_ = false; */
+/*         } */
+      release_buffer (p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+    }
+
+/* Parameters: */
+/*     	fsound 	The FishSound* handle */
+/*     	pcm 	The decoded audio */
+/*     	frames 	The count of frames decoded */
+/*     	user_data 	Arbitrary user data */
+
+/* Return values: */
+/*     	FISH_SOUND_CONTINUE 	Continue decoding */
+/*     	FISH_SOUND_STOP_OK 	Stop decoding immediately and return control to the fish_sound_decode() caller */
+/*     	FISH_SOUND_STOP_ERR 	Stop decoding immediately, purge buffered data, and return control to the fish_sound_decode() caller  */
+  /* Continue decoding */
+  return FISH_SOUND_CONTINUE;
 }
 
 static OMX_ERRORTYPE
 init_vorbis_decoder (vorbisd_prc_t * ap_prc)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
   assert (NULL != ap_prc);
 
@@ -177,7 +238,7 @@ init_vorbis_decoder (vorbisd_prc_t * ap_prc)
     {
       TIZ_ERROR (handleOf (ap_prc), "[OMX_ErrorInsufficientResources] : "
                  "Could not set interleaved.");
-      return OMX_ErrorInsufficientResources;
+      goto end;
     }
 
 
@@ -187,7 +248,15 @@ init_vorbis_decoder (vorbisd_prc_t * ap_prc)
     {
       TIZ_ERROR (handleOf (ap_prc), "[OMX_ErrorInsufficientResources] : "
                  "Could not set 'decoded' callback.");
-      return OMX_ErrorInsufficientResources;
+      goto end;
+    }
+
+  rc = OMX_ErrorNone;
+
+ end:
+  if (OMX_ErrorInsufficientResources == rc)
+    {
+      fish_sound_delete (ap_prc->p_fsnd_);
     }
 
   return rc;
@@ -210,6 +279,43 @@ transform_buffer (vorbisd_prc_t *ap_prc)
 
   assert (NULL != ap_prc);
 
+  if (p_in->nFilledLen > 0)
+  {
+    unsigned char *p_data = p_in->pBuffer + p_in->nOffset;
+    const long     len    = p_in->nFilledLen;
+    long bytes_decoded = fish_sound_decode(ap_prc->p_fsnd_, p_data, len);
+
+    if (bytes_decoded > 0)
+      {
+        assert (p_in->nFilledLen >= bytes_decoded);
+        p_in->nFilledLen -= bytes_decoded;
+        p_in->nOffset += bytes_decoded;
+      }
+    else
+      {
+        switch (bytes_decoded)
+          {
+          case FISH_SOUND_STOP_ERR:
+            {
+              TIZ_ERROR (handleOf (ap_prc), "[FISH_SOUND_STOP_ERR] : "
+                         "While decoding the input stream.");
+            }
+            break;
+          case FISH_SOUND_ERR_OUT_OF_MEMORY:
+            {
+              TIZ_ERROR (handleOf (ap_prc), "[OMX_ErrorInsufficientResources] : "
+                         "While decoding the input stream.");
+            }
+            break;
+          case FISH_SOUND_ERR_BAD:
+          default:
+            {
+              assert (0);
+            }
+          };
+      }
+  }
+
   if (0 == p_in->nFilledLen)
     {
       TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty",
@@ -222,14 +328,8 @@ transform_buffer (vorbisd_prc_t *ap_prc)
           release_buffer (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
         }
       release_buffer (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
-      return OMX_ErrorNone;
     }
-
-  {
-    unsigned char *p_data = p_in->pBuffer + p_in->nOffset;
-    const long len = p_in->nFilledLen;
-    fish_sound_decode(ap_prc->p_fsnd_, p_data, len);
-  }
+      
   return OMX_ErrorNone;
 }
 
@@ -249,10 +349,11 @@ reset_stream_parameters (vorbisd_prc_t *ap_prc)
 static void *
 vorbisd_prc_ctor (void *ap_obj, va_list * app)
 {
-  vorbisd_prc_t *p_prc           = super_ctor (typeOf (ap_obj, "vorbisdprc"), ap_obj, app);
+  vorbisd_prc_t *p_prc      = super_ctor (typeOf (ap_obj, "vorbisdprc"), ap_obj, app);
   assert (NULL != p_prc);
   p_prc->p_in_hdr_          = NULL;
   p_prc->p_out_hdr_         = NULL;
+  p_prc->p_fsnd_            = NULL;
   reset_stream_parameters (p_prc);
   p_prc->eos_               = false;
   p_prc->in_port_disabled_  = false;
