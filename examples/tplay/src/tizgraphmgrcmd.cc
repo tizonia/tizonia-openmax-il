@@ -61,6 +61,7 @@ namespace // Unnamed namespace
     (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdRwd, "ETIZGraphMgrCmdRwd"))
     (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdVolumeUp, "ETIZGraphMgrCmdVolumeUp"))
     (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdVolumeDown, "ETIZGraphMgrCmdVolumeDown"))
+    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdMuteUnmute, "ETIZGraphMgrCmdMuteUnmute"))
     (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdPause, "ETIZGraphMgrCmdPause"))
     (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdStop, "ETIZGraphMgrCmdStop"))
     (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdGraphEop, "ETIZGraphMgrCmdGraphEop"))

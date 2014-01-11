@@ -303,6 +303,12 @@ tizstreamsrvgraph::do_volume (const int step)
   return OMX_ErrorNone;
 }
 
+OMX_ERRORTYPE
+tizstreamsrvgraph::do_mute ()
+{
+  return OMX_ErrorNone;
+}
+
 void
 tizstreamsrvgraph::do_unload ()
 {

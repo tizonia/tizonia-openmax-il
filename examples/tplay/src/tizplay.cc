@@ -157,6 +157,7 @@ namespace                       // unnamed namespace
     printf ("\t      * [n] skip to next file.\n");
     printf ("\t      * [SPACE] pause playback.\n");
     printf ("\t      * [+/-] increase/decrease volume.\n");
+    printf ("\t      * [m] mute.\n");
     printf ("\t      * [q] quit.\n");
     printf ("\t      * [Ctrl-c] terminate the application at any time.\n");
     printf
@@ -310,6 +311,10 @@ namespace                       // unnamed namespace
 
               case ' ':
                 graphmgr_ptr->pause ();
+                break;
+
+              case 'm':
+                graphmgr_ptr->mute ();
                 break;
 
               case 'n':

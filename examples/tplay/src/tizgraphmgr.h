@@ -139,7 +139,7 @@ public:
   OMX_ERRORTYPE rwd ();
 
   /**
-   * NOT IMPLEMENTED YET
+   * Change the volume.
    *
    * @pre init() has been called on this manager.
    *
@@ -147,6 +147,16 @@ public:
    * success.
    */
   OMX_ERRORTYPE volume (const int step);
+
+  /**
+   * Mute/unmute toggle.
+   *
+   * @pre init() has been called on this manager.
+   *
+   * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+   * success.
+   */
+  OMX_ERRORTYPE mute ();
 
   /**
    * Pause the processing of the current item in the playlist.
@@ -194,6 +204,7 @@ protected:
   OMX_ERRORTYPE do_rwd ();
   OMX_ERRORTYPE do_vol_up ();
   OMX_ERRORTYPE do_vol_down ();
+  OMX_ERRORTYPE do_mute ();
   OMX_ERRORTYPE do_pause ();
   OMX_ERRORTYPE do_stop ();
   OMX_ERRORTYPE do_graph_end_of_play ();

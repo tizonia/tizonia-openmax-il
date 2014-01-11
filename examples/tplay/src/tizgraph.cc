@@ -461,6 +461,13 @@ tizgraph::volume (const int step)
   return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdVolume, null_config, NULL, step));
 }
 
+OMX_ERRORTYPE
+tizgraph::mute ()
+{
+  tizgraphconfig_ptr_t null_config;
+  return send_cmd (new tizgraphcmd (tizgraphcmd::ETIZGraphCmdMute, null_config));
+}
+
 void
 tizgraph::eos (OMX_HANDLETYPE handle)
 {
@@ -856,6 +863,21 @@ tizgraph::apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid, const in
 }
 
 OMX_ERRORTYPE
+tizgraph::apply_mute (const OMX_HANDLETYPE handle, const OMX_U32 pid)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  if (OMX_StateExecuting == current_graph_state_)
+    {
+      OMX_AUDIO_CONFIG_MUTETYPE mute;
+      TIZ_INIT_OMX_PORT_STRUCT (mute, pid);
+      tiz_check_omx_err (OMX_GetConfig (handle, OMX_IndexConfigAudioMute, &mute));
+      mute.bMute = (mute.bMute == OMX_FALSE ? OMX_TRUE : (mute.bMute == OMX_TRUE ? OMX_FALSE : OMX_TRUE));
+      tiz_check_omx_err (OMX_SetConfig (handle, OMX_IndexConfigAudioMute, &mute));
+    }
+  return rc;
+}
+
+OMX_ERRORTYPE
 tizgraph::modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
@@ -987,6 +1009,11 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
     case tizgraphcmd::ETIZGraphCmdVolume:
       {
         p_graph->do_volume (p_cmd->get_jump ());
+        break;
+      }
+    case tizgraphcmd::ETIZGraphCmdMute:
+      {
+        p_graph->do_mute ();
         break;
       }
     case tizgraphcmd::ETIZGraphCmdUnload:

@@ -44,6 +44,7 @@ class tizgraphmgrcmd
     ETIZGraphMgrCmdRwd,
     ETIZGraphMgrCmdVolumeUp,
     ETIZGraphMgrCmdVolumeDown,
+    ETIZGraphMgrCmdMuteUnmute,
     ETIZGraphMgrCmdPause,
     ETIZGraphMgrCmdStop,
     ETIZGraphMgrCmdGraphEop,

@@ -108,6 +108,7 @@ namespace // Unnamed namespace
       case tizgraphmgrcmd::ETIZGraphMgrCmdRwd:
       case tizgraphmgrcmd::ETIZGraphMgrCmdVolumeUp:
       case tizgraphmgrcmd::ETIZGraphMgrCmdVolumeDown:
+      case tizgraphmgrcmd::ETIZGraphMgrCmdMuteUnmute:
       case tizgraphmgrcmd::ETIZGraphMgrCmdPause:
       case tizgraphmgrcmd::ETIZGraphMgrCmdGraphEop:
         {
@@ -273,6 +274,13 @@ tizgraphmgr::volume (const int step)
 }
 
 OMX_ERRORTYPE
+tizgraphmgr::mute ()
+{
+  assert (ETIZGraphMgrStateInited <= mgr_state_);
+  return send_cmd (new tizgraphmgrcmd (tizgraphmgrcmd::ETIZGraphMgrCmdMuteUnmute));
+}
+
+OMX_ERRORTYPE
 tizgraphmgr::pause ()
 {
   assert (ETIZGraphMgrStateInited <= mgr_state_);
@@ -366,6 +374,11 @@ tizgraphmgr::dispatch (tizgraphmgr *p_graph_mgr, const tizgraphmgrcmd *p_cmd)
         case tizgraphmgrcmd::ETIZGraphMgrCmdVolumeDown:
           {
             p_graph_mgr->do_vol_down ();
+            break;
+          }
+        case tizgraphmgrcmd::ETIZGraphMgrCmdMuteUnmute:
+          {
+            p_graph_mgr->do_mute ();
             break;
           }
         case tizgraphmgrcmd::ETIZGraphMgrCmdPause:
@@ -545,6 +558,12 @@ OMX_ERRORTYPE
 tizgraphmgr::do_vol_down ()
 {
   return running_graph_ptr_->volume (-1);
+}
+
+OMX_ERRORTYPE
+tizgraphmgr::do_mute ()
+{
+  return running_graph_ptr_->mute ();
 }
 
 OMX_ERRORTYPE

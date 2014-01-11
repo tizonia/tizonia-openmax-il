@@ -59,6 +59,7 @@ namespace // Unnamed namespace
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdSeek, "ETIZGraphCmdSeek"))
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdSkip, "ETIZGraphCmdSkip"))
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdVolume, "ETIZGraphCmdVolume"))
+    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdVolume, "ETIZGraphCmdMute"))
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdUnload, "ETIZGraphCmdUnload"))
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdEos, "ETIZGraphCmdEos"))
     (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdError, "ETIZGraphCmdError"))

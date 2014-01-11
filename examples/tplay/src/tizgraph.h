@@ -147,6 +147,7 @@ public:
   OMX_ERRORTYPE seek ();
   OMX_ERRORTYPE skip (const int jump);
   OMX_ERRORTYPE volume (const int step);
+  OMX_ERRORTYPE mute ();
   void unload();
 
   void set_manager (tizgraphmgr_t *ap_graph_mgr);
@@ -162,6 +163,7 @@ protected:
   virtual OMX_ERRORTYPE do_seek ()                                        = 0;
   virtual OMX_ERRORTYPE do_skip (const int jump)                          = 0;
   virtual OMX_ERRORTYPE do_volume (const int step)                        = 0;
+  virtual OMX_ERRORTYPE do_mute ()                                        = 0;
   virtual void do_error (const OMX_ERRORTYPE error)                       = 0;
   virtual void do_eos (const OMX_HANDLETYPE handle)                       = 0;
   virtual void do_unload ()                                               = 0;
@@ -201,6 +203,7 @@ protected:
   OMX_ERRORTYPE transition_one (const int handle_id,
                                 const OMX_STATETYPE to);
   OMX_ERRORTYPE apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid, const int step);
+  OMX_ERRORTYPE apply_mute (const OMX_HANDLETYPE handle, const OMX_U32 pid);
   OMX_ERRORTYPE modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd);
   OMX_ERRORTYPE disable_tunnel (const int tunnel_id);
   OMX_ERRORTYPE enable_tunnel (const int tunnel_id);

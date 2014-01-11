@@ -51,6 +51,7 @@ public:
     ETIZGraphCmdSeek,
     ETIZGraphCmdSkip,
     ETIZGraphCmdVolume,
+    ETIZGraphCmdMute,
     ETIZGraphCmdUnload,
     ETIZGraphCmdEos,
     ETIZGraphCmdError,

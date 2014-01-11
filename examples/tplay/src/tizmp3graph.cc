@@ -289,6 +289,14 @@ tizmp3graph::do_volume (const int step)
   return apply_volume (handles_[2], renderers_input_port, step);
 }
 
+OMX_ERRORTYPE
+tizmp3graph::do_mute ()
+{
+  // Use helper method in base class
+  OMX_U32 renderers_input_port = 0;
+  return apply_mute (handles_[2], renderers_input_port);
+}
+
 void
 tizmp3graph::do_unload ()
 {
