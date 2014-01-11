@@ -443,7 +443,6 @@ write_cb (const FLAC__StreamDecoder * ap_decoder, const FLAC__Frame * ap_frame,
           const FLAC__int32 * const ap_buffer[], void *ap_client_data)
 {
   flacd_prc_t *p_prc = (flacd_prc_t *) ap_client_data;
-  OMX_BUFFERHEADERTYPE *p_out = NULL;
   FLAC__StreamDecoderWriteStatus rc =
     FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 
@@ -456,9 +455,6 @@ write_cb (const FLAC__StreamDecoder * ap_decoder, const FLAC__Frame * ap_frame,
              ap_frame->header.blocksize, ap_frame->header.channels,
              ap_frame->header.bits_per_sample);
 
-  p_out = get_buffer (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
-  assert (NULL != p_out);
-
   if (p_prc->channels_ != 2 || p_prc->bps_ != 16)
     {
       TIZ_ERROR (handleOf (p_prc), "Only support for 16bit stereo streams");
@@ -470,6 +466,10 @@ write_cb (const FLAC__StreamDecoder * ap_decoder, const FLAC__Frame * ap_frame,
       size_t i = 0;
       size_t j = 0;
       size_t nbytes = ap_frame->header.blocksize * p_prc->channels_;
+      OMX_BUFFERHEADERTYPE *p_out
+        = get_buffer (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
+      assert (NULL != p_out);
+
       for (i = 0; i < nbytes;)
         {
           short *out = (short *) (p_out->pBuffer + p_out->nOffset) + i;
