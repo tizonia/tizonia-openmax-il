@@ -157,8 +157,8 @@ float_to_sint (const float sample)
 }
 
 static void
-adjust_volume (const ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr,
-               const snd_pcm_uframes_t a_num_samples)
+adjust_gain (const ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr,
+             const snd_pcm_uframes_t a_num_samples)
 {
   assert (NULL != ap_prc);
   assert (NULL != ap_hdr);
@@ -252,16 +252,11 @@ set_component_volume (ar_prc_t * ap_prc)
   return OMX_ErrorNone;
 }
 
-static void
-set_alsa_master_volume (ar_prc_t * ap_prc, long volume)
+static bool
+set_alsa_master_volume (const ar_prc_t * ap_prc, const long volume)
 {
+  bool rc = false;
   assert (NULL != ap_prc);
-
-  if (ap_prc->p_alsa_pcm_ && volume == ap_prc->volume_)
-    {
-      /* Simply ignore */
-      return;
-    }
 
   {
     const char *selem_name = "Master";
@@ -270,7 +265,7 @@ set_alsa_master_volume (ar_prc_t * ap_prc, long volume)
     snd_mixer_selem_id_t *sid = NULL;
     snd_mixer_elem_t *elem = NULL;
 
-    TIZ_TRACE (handleOf (ap_prc), "set volume = %ld\n", volume);
+    TIZ_TRACE (handleOf (ap_prc), "volume = %ld\n", volume);
     bail_on_alsa_error (snd_mixer_open (&handle, 0));
     bail_on_alsa_error (snd_mixer_attach (handle, ap_prc->p_alsa_pcm_));
     bail_on_alsa_error (snd_mixer_selem_register (handle, NULL, NULL));
@@ -288,11 +283,34 @@ set_alsa_master_volume (ar_prc_t * ap_prc, long volume)
 
     bail_on_alsa_error (snd_mixer_close (handle));
 
-    ap_prc->volume_ = volume;
+    /* Everything went well */
+    rc = true;
   }
 
 end:
-  return;
+
+  return rc;
+}
+
+static void
+toggle_mute (ar_prc_t * ap_prc, const bool a_mute)
+{
+  assert (NULL != ap_prc);
+  {
+    long new_volume = (a_mute ? 0 : ap_prc->volume_);
+    TIZ_TRACE (handleOf (ap_prc), "volume = %ld\n", new_volume);
+    set_alsa_master_volume (ap_prc, new_volume);
+  }
+}
+
+static void
+set_volume (ar_prc_t * ap_prc, const long volume)
+{
+  if (set_alsa_master_volume (ap_prc, volume))
+    {
+      assert (NULL != ap_prc);
+      ap_prc->volume_ = volume;
+    }
 }
 
 static OMX_ERRORTYPE
@@ -316,7 +334,7 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
              "step [%d], samples [%d] nFilledLen [%d]",
              step, samples, ap_hdr->nFilledLen);
 
-  adjust_volume (ap_prc, ap_hdr, samples);
+  adjust_gain (ap_prc, ap_hdr, samples);
 
   while (samples > 0)
     {
@@ -836,34 +854,57 @@ ar_prc_config_change (void *ap_obj, OMX_U32 a_pid, OMX_INDEXTYPE a_config_idx)
 
   assert (NULL != ap_obj);
 
-  if (OMX_IndexConfigAudioVolume == a_config_idx
-      && ARATELIA_AUDIO_RENDERER_PORT_INDEX == a_pid)
+  if (ARATELIA_AUDIO_RENDERER_PORT_INDEX == a_pid)
     {
-      OMX_AUDIO_CONFIG_VOLUMETYPE volume;
-      volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
-      volume.nVersion.nVersion = OMX_VERSION;
-      volume.nPortIndex = 0;
-      if (OMX_ErrorNone
-          != (rc =
-              tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)),
-                                 handleOf (p_prc), OMX_IndexConfigAudioVolume,
-                                 &volume)))
+      if (OMX_IndexConfigAudioVolume == a_config_idx)
         {
-          TIZ_ERROR (handleOf (p_prc), "[%s] : Error retrieving "
-                     "OMX_IndexConfigAudioVolume from port",
-                     tiz_err_to_str (rc));
+          OMX_AUDIO_CONFIG_VOLUMETYPE volume;
+          TIZ_INIT_OMX_PORT_STRUCT (volume, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
+          if (OMX_ErrorNone
+              != (rc =
+                  tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)),
+                                     handleOf (p_prc), OMX_IndexConfigAudioVolume,
+                                     &volume)))
+            {
+              TIZ_ERROR (handleOf (p_prc), "[%s] : Error retrieving "
+                         "OMX_IndexConfigAudioVolume from port",
+                         tiz_err_to_str (rc));
+            }
+          else
+            {
+              TIZ_TRACE (handleOf (p_prc), "volume.sVolume.nValue = %ld\n",
+                         volume.sVolume.nValue);
+              if (volume.sVolume.nValue <= ARATELIA_AUDIO_RENDERER_MAX_VOLUME_VALUE
+                  && volume.sVolume.nValue >=
+                  ARATELIA_AUDIO_RENDERER_MIN_VOLUME_VALUE)
+                {
+                  /* TODO: Volume should be done by adjusting the gain, not ALSA's
+                   * master volume! */
+                  set_volume (p_prc, volume.sVolume.nValue);
+                }
+            }
         }
-      else
+      else if (OMX_IndexConfigAudioMute == a_config_idx)
         {
-          TIZ_TRACE (handleOf (p_prc), "volume.sVolume.nValue = %ld\n",
-                     volume.sVolume.nValue);
-          if (volume.sVolume.nValue <= ARATELIA_AUDIO_RENDERER_MAX_VOLUME_VALUE
-              && volume.sVolume.nValue >=
-              ARATELIA_AUDIO_RENDERER_MIN_VOLUME_VALUE)
+          OMX_AUDIO_CONFIG_MUTETYPE mute;
+          TIZ_INIT_OMX_PORT_STRUCT (mute, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
+          if (OMX_ErrorNone
+              != (rc =
+                  tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)),
+                                     handleOf (p_prc), OMX_IndexConfigAudioMute,
+                                     &mute)))
+            {
+              TIZ_ERROR (handleOf (p_prc), "[%s] : Error retrieving "
+                         "OMX_IndexConfigAudioMute from port",
+                         tiz_err_to_str (rc));
+            }
+          else
             {
               /* TODO: Volume should be done by adjusting the gain, not ALSA's
                * master volume! */
-              set_alsa_master_volume (p_prc, volume.sVolume.nValue);
+              TIZ_TRACE (handleOf (p_prc), "bMute = [%s]\n",
+                         (mute.bMute == OMX_FALSE ? "FALSE" : "TRUE"));
+              toggle_mute (p_prc, mute.bMute == OMX_TRUE ? true : false);
             }
         }
     }
