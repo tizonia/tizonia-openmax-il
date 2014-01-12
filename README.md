@@ -1,4 +1,4 @@
-Tizonia Openmax IL
+Tizonia OpenMAX IL
 ==================
 
 An experimental implementation for Linux of the OpenMAX IL 1.2 provisional
@@ -26,16 +26,17 @@ Tizonia OpenMAX IL consists of a number of resources:
 * A Resource Management (RM) framework, including
   * a C client library,
   * and a D-Bus-based RM server written in C++.
-* A growing number of sample OpenMAX IL plugin implementations, including:
+* A growing number of OpenMAX IL plugin implementations, including:
   * a mp3 decoder (based on libmad),
   * a mp3 encoder (based on LAME),
   * a PCM renderer (based on ALSA lib)
-  * a Vp8 decoder (based on libvpx),
-  * a SDL-based YUV renderer
   * a http renderer (ala icecast)
   * an ogg demuxer (based on liboggz)
   * an opus decoder (based on libopus)
   * a flac decoder (based on libflac)
+  * a vorbis decoder (based on libfishsound)
+  * a Vp8 decoder (based on libvpx),
+  * a SDL-based YUV renderer
   * binary file readers and writers
   * etc...
 
