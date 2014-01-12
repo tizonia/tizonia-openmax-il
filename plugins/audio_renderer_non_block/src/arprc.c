@@ -552,7 +552,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
         {
           TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
                      "cannot open audio device %s (%s)",
-                     ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_DEVICE,
+                     p_device,
                      snd_strerror (err));
           return OMX_ErrorInsufficientResources;
         }
