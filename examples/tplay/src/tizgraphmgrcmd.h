@@ -1,6 +1,6 @@
 /* -*-Mode: c++; -*- */
 /**
- * Copyright (C) 2011-2013 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
  * This file is part of Tizonia
  *
