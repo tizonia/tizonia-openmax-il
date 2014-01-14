@@ -67,11 +67,11 @@ elif [ "$1" == "deps" ];  then
     echo "Installing project dependencies..."
     sudo apt-get update -qq && sudo apt-get install -qq autoconf automake autotools-dev build-essential \
         libtool check cscope doxygen indent wget \
-        libmad0 libmad0-dev liblog4c3 liblog4c-dev \
-        libasound2 libasound2-dev libdbus-1-dev \
-        libdbus-c++-1-0 libdbus-c++-dev libsqlite3-0 \
+        libmad0-dev liblog4c-dev \
+        libasound2-dev libdbus-1-dev \
+        libdbus-c++-dev \
         libsqlite3-dev libboost-all-dev \
-        uuid uuid-dev libsdl1.2debian \
+        uuid-dev \
         libsdl1.2-dev libvpx-dev libavcodec-dev \
         libavformat-dev libavdevice-dev libmp3lame-dev \
         libev-dev python-sphinx curl
