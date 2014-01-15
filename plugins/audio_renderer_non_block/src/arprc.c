@@ -703,7 +703,12 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 
       /* Internally store the initial volume, so that the internal OMX volume
          struct reflects the current value of ALSA's master volume. */
-      tiz_check_omx_err (set_component_volume (p_prc));
+      if (OMX_ErrorNone != set_component_volume (p_prc))
+        {
+          /* Volume control might not be supported by the current alsa device,
+             not a big deal, simply log a message. */
+          TIZ_NOTICE (p_hdl, "Could not set the component's volume");
+        }
     }
 
   return OMX_ErrorNone;
