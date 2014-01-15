@@ -78,9 +78,9 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   vorbistype.nBitRate          = 0;
   vorbistype.nMinBitRate       = 0;
   vorbistype.nMaxBitRate       = 0;
-  vorbistype.nSampleRate       = 0;
+  vorbistype.nSampleRate       = 48000;
   vorbistype.nAudioBandWidth   = 0;
-  vorbistype.nQuality          = 0;
+  vorbistype.nQuality          = 5;
   vorbistype.bManaged          = 0;
   vorbistype.bDownmix          = 0;
   return factory_new (tiz_get_type (ap_hdl, "tizvorbisport"),
