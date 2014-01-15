@@ -470,6 +470,12 @@ write_cb (const FLAC__StreamDecoder * ap_decoder, const FLAC__Frame * ap_frame,
         = get_buffer (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
       assert (NULL != p_out);
 
+      assert (nbytes <= p_out->nAllocLen);
+      if (nbytes > p_out->nAllocLen)
+        {
+          nbytes = p_out->nAllocLen;
+        }
+
       for (i = 0; i < nbytes;)
         {
           short *out = (short *) (p_out->pBuffer + p_out->nOffset) + i;
