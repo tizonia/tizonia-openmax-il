@@ -375,8 +375,12 @@ namespace                       // unnamed namespace
   {
     void operator() (OMX_ERRORTYPE a, std::string b) const
     {
-      fprintf (stderr, "Graph error found [%s:%s]. Terminating.\n",
-               b.c_str (), tiz_err_to_str (a));
+#define KNRM "\x1B[0m"
+#define KRED "\x1B[31m"
+      fprintf (stderr, "%s%s (%s).%s\n",
+               KRED,
+               b.c_str (), tiz_err_to_str (a),
+               KNRM);
       exit (EXIT_FAILURE);
     }
   };

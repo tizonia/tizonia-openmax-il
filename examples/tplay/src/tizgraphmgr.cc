@@ -460,18 +460,21 @@ tizgraphmgr::do_start ()
   tizgraphconfig_ptr_t config
     = boost::make_shared < tizgraphconfig > (sub_urilist, continuous_play);
   bool graph_loaded = false;
+  std::string error;
 
   if (!g_ptr)
     {
       // At this point we have removed all unsupported media, so we should
       // always have a graph object.
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "Could not create a graph.");
+      error.assign ("Could not create a graph. Format not supported.");
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]", error.c_str ());
       ret = OMX_ErrorInsufficientResources;
       goto end;
     }
 
   if (OMX_ErrorNone != (ret = g_ptr->load ()))
     {
+      error.assign ("Error while loading the graph.");
       TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : While loading the graph.",
                tiz_err_to_str (ret));
       goto end;
@@ -479,14 +482,16 @@ tizgraphmgr::do_start ()
 
   if (OMX_ErrorNone != (ret = g_ptr->configure (config)))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "Could not configure a graph.");
+      error.assign ("Error while configuring the graph.");
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : While configuring the graph.",
+               tiz_err_to_str (ret));
       goto end;
     }
 
   if (OMX_ErrorNone != (ret = g_ptr->execute ()))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR,
-               "Found error %s while executing the graph.",
+      error.assign ("Error while executing the graph.");
+      TIZ_LOG (TIZ_PRIORITY_ERROR,"[%s] : While executing the graph.",
                tiz_err_to_str (ret));
       goto end;
     }
@@ -499,6 +504,8 @@ tizgraphmgr::do_start ()
         {
           g_ptr->unload ();
         }
+      // This is bad enough, we are finishing here
+      graph_error (ret, error);
     }
   else
     {
