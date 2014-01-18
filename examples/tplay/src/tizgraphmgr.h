@@ -193,7 +193,7 @@ public:
 protected:
 
   OMX_ERRORTYPE graph_end_of_play ();
-  OMX_ERRORTYPE graph_error (OMX_ERRORTYPE error, std::string msg);
+  void graph_error (OMX_ERRORTYPE error, std::string msg);
 
 protected:
 

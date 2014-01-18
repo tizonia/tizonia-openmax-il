@@ -438,11 +438,10 @@ tizgraphmgr::graph_end_of_play ()
   return send_cmd (new tizgraphmgrcmd (tizgraphmgrcmd::ETIZGraphMgrCmdGraphEop));
 }
 
-OMX_ERRORTYPE
+void
 tizgraphmgr::graph_error (OMX_ERRORTYPE error, std::string msg)
 {
   error_cback_ (error, msg);
-  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE

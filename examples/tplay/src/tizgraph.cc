@@ -696,7 +696,7 @@ OMX_ERRORTYPE
 tizgraph::setup_tunnels () const
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  int handle_lst_size = handles_.size();
+  const int handle_lst_size = handles_.size();
 
   for (int i=0; i<handle_lst_size-1 && OMX_ErrorNone == error; i++)
     {
@@ -710,7 +710,7 @@ OMX_ERRORTYPE
 tizgraph::tear_down_tunnels () const
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  int handle_lst_size = handles_.size();
+  const int handle_lst_size = handles_.size();
 
   for (int i=0; i<handle_lst_size-1 && OMX_ErrorNone == error; i++)
     {
@@ -725,7 +725,7 @@ tizgraph::setup_suppliers () const
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
-  int handle_lst_size = handles_.size();
+  const int handle_lst_size = handles_.size();
 
   supplier.nSize = sizeof (OMX_PARAM_BUFFERSUPPLIERTYPE);
   supplier.nVersion.nVersion = OMX_VERSION;
@@ -871,7 +871,8 @@ tizgraph::apply_mute (const OMX_HANDLETYPE handle, const OMX_U32 pid)
       OMX_AUDIO_CONFIG_MUTETYPE mute;
       TIZ_INIT_OMX_PORT_STRUCT (mute, pid);
       tiz_check_omx_err (OMX_GetConfig (handle, OMX_IndexConfigAudioMute, &mute));
-      mute.bMute = (mute.bMute == OMX_FALSE ? OMX_TRUE : (mute.bMute == OMX_TRUE ? OMX_FALSE : OMX_TRUE));
+      mute.bMute = (mute.bMute == OMX_FALSE ? OMX_TRUE
+                    : (mute.bMute == OMX_TRUE ? OMX_FALSE : OMX_TRUE));
       tiz_check_omx_err (OMX_SetConfig (handle, OMX_IndexConfigAudioMute, &mute));
     }
   return rc;
@@ -881,7 +882,7 @@ OMX_ERRORTYPE
 tizgraph::modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  int handle_lst_size = handles_.size();
+  const int handle_lst_size = handles_.size();
   assert (tunnel_id < handle_lst_size - 1);
 
   component_handles_t tunnel_handles;
@@ -942,15 +943,13 @@ tizgraph::send_cmd (tizgraphcmd * p_cmd)
   return OMX_ErrorNone;
 }
 
-OMX_ERRORTYPE
+void
 tizgraph::notify_graph_error (const OMX_ERRORTYPE error, const std::string &msg)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
   if (NULL != p_mgr_)
     {
-      rc = p_mgr_->graph_error (error, msg);
+      p_mgr_->graph_error (error, msg);
     }
-  return rc;
 }
 
 OMX_ERRORTYPE
@@ -967,6 +966,7 @@ tizgraph::notify_graph_end_of_play ()
 void
 tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != p_graph);
   assert (NULL != p_cmd);
 
@@ -978,42 +978,42 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
     {
     case tizgraphcmd::ETIZGraphCmdLoad:
       {
-        p_graph->do_load ();
+        rc = p_graph->do_load ();
         break;
       }
     case tizgraphcmd::ETIZGraphCmdConfig:
       {
-        p_graph->do_configure (p_cmd->get_config ());
+        rc = p_graph->do_configure (p_cmd->get_config ());
         break;
       }
     case tizgraphcmd::ETIZGraphCmdExecute:
       {
-        p_graph->do_execute ();
+        rc = p_graph->do_execute ();
         break;
       }
     case tizgraphcmd::ETIZGraphCmdPause:
       {
-        p_graph->do_pause ();
+        rc = p_graph->do_pause ();
         break;
       }
     case tizgraphcmd::ETIZGraphCmdSeek:
       {
-        p_graph->do_seek ();
+        rc = p_graph->do_seek ();
         break;
       }
     case tizgraphcmd::ETIZGraphCmdSkip:
       {
-        p_graph->do_skip (p_cmd->get_jump ());
+        rc = p_graph->do_skip (p_cmd->get_jump ());
         break;
       }
     case tizgraphcmd::ETIZGraphCmdVolume:
       {
-        p_graph->do_volume (p_cmd->get_jump ());
+        rc = p_graph->do_volume (p_cmd->get_jump ());
         break;
       }
     case tizgraphcmd::ETIZGraphCmdMute:
       {
-        p_graph->do_mute ();
+        rc = p_graph->do_mute ();
         break;
       }
     case tizgraphcmd::ETIZGraphCmdUnload:
@@ -1035,4 +1035,8 @@ tizgraph::dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd)
       assert (0);
     };
 
+  if (OMX_ErrorNone != rc)
+    {
+      p_graph->notify_graph_error (rc, std::string ());
+    }
 }

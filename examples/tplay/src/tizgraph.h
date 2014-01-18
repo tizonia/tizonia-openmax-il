@@ -202,7 +202,8 @@ protected:
                                 const OMX_STATETYPE from);
   OMX_ERRORTYPE transition_one (const int handle_id,
                                 const OMX_STATETYPE to);
-  OMX_ERRORTYPE apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid, const int step);
+  OMX_ERRORTYPE apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid,
+                              const int step);
   OMX_ERRORTYPE apply_mute (const OMX_HANDLETYPE handle, const OMX_U32 pid);
   OMX_ERRORTYPE modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd);
   OMX_ERRORTYPE disable_tunnel (const int tunnel_id);
@@ -211,8 +212,7 @@ protected:
   OMX_ERRORTYPE send_cmd (tizgraphcmd *p_cmd);
 
   OMX_ERRORTYPE notify_graph_end_of_play ();
-  OMX_ERRORTYPE notify_graph_error (const OMX_ERRORTYPE error,
-                                    const std::string &msg);
+  void notify_graph_error (const OMX_ERRORTYPE error, const std::string &msg);
 
   static void dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd);
 
