@@ -192,6 +192,11 @@ protected:
                                 const char *ap_graph_type_str,
                                 const std::string &uri) const;
   virtual void dump_pcm_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const;
+  virtual void dump_mp3_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type) const;
+  void dump_mp3_and_pcm_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type,
+                              const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const;
+  virtual void dump_stream_info (const std::string &title, const std::string &genre,
+                                 const std::string &file_path) const;
 
   OMX_ERRORTYPE setup_tunnels () const;
   OMX_ERRORTYPE tear_down_tunnels () const;

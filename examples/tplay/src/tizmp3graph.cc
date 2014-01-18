@@ -128,18 +128,14 @@ tizmp3graph::configure_mp3_graph (const int file_index)
 
   // Retrive the current mp3 settings from the decoder's port #0
   OMX_AUDIO_PARAM_MP3TYPE mp3type_orig;
-  mp3type_orig.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
-  mp3type_orig.nVersion.nVersion = OMX_VERSION;
-  mp3type_orig.nPortIndex        = 0;
+  TIZ_INIT_OMX_PORT_STRUCT (mp3type_orig, 0 /* port id */);
 
   tiz_check_omx_err (OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3,
                                        &mp3type_orig));
 
   // Set the mp3 settings on decoder's port #0
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
-  mp3type.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
-  mp3type.nVersion.nVersion = OMX_VERSION;
-  mp3type.nPortIndex        = 0;
+  TIZ_INIT_OMX_PORT_STRUCT (mp3type, 0 /* port id */);
 
   probe_ptr_->get_mp3_codec_info (mp3type);
   tiz_check_omx_err (OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
@@ -167,17 +163,11 @@ tizmp3graph::configure_mp3_graph (const int file_index)
 
   // Set the pcm settings on renderer's port #0
   OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
+  TIZ_INIT_OMX_PORT_STRUCT (pcmtype, 0 /* port id */);
 
   probe_ptr_->get_pcm_codec_info (pcmtype);
-  pcmtype.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  pcmtype.nVersion.nVersion = OMX_VERSION;
-  pcmtype.nPortIndex = 0;
-
   tiz_check_omx_err (OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
                                        &pcmtype));
-
-  dump_pcm_info (pcmtype);
-
   return OMX_ErrorNone;
 }
 
@@ -355,6 +345,15 @@ tizmp3graph::probe_uri (const int uri_index, const bool quiet)
       if (!quiet)
         {
           dump_graph_info ("mp3", "decode", uri);
+          dump_stream_info (probe_ptr_->get_stream_title (),
+                            probe_ptr_->get_stream_genre (),
+                            uri);
+
+          OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
+          probe_ptr_->get_pcm_codec_info (pcmtype);
+          OMX_AUDIO_PARAM_MP3TYPE mp3type;
+          probe_ptr_->get_mp3_codec_info (mp3type);
+          dump_mp3_and_pcm_info (mp3type, pcmtype);
         }
     }
   return OMX_ErrorNone;

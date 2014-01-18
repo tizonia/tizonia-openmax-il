@@ -185,11 +185,9 @@ tizflacgraph::configure_flac_graph (const int file_index)
 
   // Retrieve the current flac settings from the decoder's port #0
   OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype;
+  TIZ_INIT_OMX_PORT_STRUCT (flactype, 0 /* port id */);
   OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_orig;
-
-  flactype.nSize             = sizeof (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE);
-  flactype.nVersion.nVersion = OMX_VERSION;
-  flactype.nPortIndex        = 0;
+  TIZ_INIT_OMX_PORT_STRUCT (flactype_orig, 0 /* port id */);
 
   tiz_check_omx_err (OMX_GetParameter (handles_[1],
                                        static_cast<OMX_INDEXTYPE>
@@ -223,22 +221,11 @@ tizflacgraph::configure_flac_graph (const int file_index)
 
   // Set the pcm settings on renderer's port #0
   OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
+  TIZ_INIT_OMX_PORT_STRUCT (pcmtype, 0 /* port id */);
 
   probe_ptr_->get_pcm_codec_info (pcmtype);
-  pcmtype.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  pcmtype.nVersion.nVersion = OMX_VERSION;
-  pcmtype.nPortIndex = 0;
-
   tiz_check_omx_err (OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
                                        &pcmtype));
-
-  // Only output the pcm banner the first time we attempt the demuxing of the
-  // current item in the playlist
-  if (demux_attempts_ != 0)
-    {
-      dump_pcm_info (pcmtype);
-    }
-  
   return OMX_ErrorNone;
 }
 
@@ -462,6 +449,12 @@ tizflacgraph::probe_uri (const int uri_index, const bool quiet)
       if (!quiet)
         {
           dump_graph_info ("flac", "decode", uri);
+          dump_stream_info (probe_ptr_->get_stream_title (),
+                            probe_ptr_->get_stream_genre (),
+                            uri);
+          OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
+          probe_ptr_->get_pcm_codec_info (pcmtype);
+          dump_pcm_info (pcmtype);
         }
     }
   return OMX_ErrorNone;

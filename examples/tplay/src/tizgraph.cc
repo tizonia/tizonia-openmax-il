@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/filesystem.hpp>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -662,14 +663,14 @@ tizgraph::destroy_list ()
     }
 }
 
-void 
+void
 tizgraph::dump_graph_info (const char *ap_coding_type_str,
                            const char *ap_graph_type_str,
                            const std::string &uri) const
 {
 #define KNRM "\x1B[0m"
 #define KGRN "\x1B[32m"
-  fprintf (stdout, "%s[%s] [%s] graph : processing '%s'.%s\n",
+  fprintf (stdout, "%s[%s] [%s] : '%s'.%s\n",
            KGRN,
            ap_coding_type_str,
            ap_graph_type_str,
@@ -677,18 +678,62 @@ tizgraph::dump_graph_info (const char *ap_coding_type_str,
            KNRM);
 }
 
-void 
+void
 tizgraph::dump_pcm_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const
 {
 #define KNRM "\x1B[0m"
 #define KYEL "\x1B[33m"
-  fprintf (stdout, "  %s%s, %ld Hz, %lu:%s:%s %s\n",
+  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu:%s:%s %s\n",
            KYEL,
-           pcmtype.nChannels == 2 ? "stereo" : "mono",
-           pcmtype.nSamplingRate,
+           pcmtype.nChannels,
+           ((float)pcmtype.nSamplingRate)/1000,
            pcmtype.nBitPerSample,
            pcmtype.eNumData  == OMX_NumericalDataSigned ? "s" : "u",
            pcmtype.eEndian   == OMX_EndianBig ? "b" : "l",
+           KNRM);
+}
+
+void 
+tizgraph::dump_mp3_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type) const
+{
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps %s\n",
+           KYEL,
+           mp3type.nChannels,
+           ((float)mp3type.nSampleRate)/1000,
+           mp3type.nBitRate/1000,
+           KNRM);
+}
+
+void 
+tizgraph::dump_mp3_and_pcm_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type,
+                                 const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const
+{
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps, %lu:%s:%s %s\n",
+           KYEL,
+           mp3type.nChannels,
+           ((float)mp3type.nSampleRate)/1000,
+           mp3type.nBitRate/1000,
+           pcmtype.nBitPerSample,
+           pcmtype.eNumData  == OMX_NumericalDataSigned ? "s" : "u",
+           pcmtype.eEndian   == OMX_EndianBig ? "b" : "l",
+           KNRM);
+}
+
+void 
+tizgraph::dump_stream_info (const std::string &title, const std::string &genre,
+                            const std::string &file_path) const
+{
+#define KNRM "\x1B[0m"
+#define KCYN "\x1B[36m"
+  fprintf (stdout, "   %s%s, %s %.2g MiB %s\n",
+           KCYN,
+           title.c_str (),
+           genre.c_str (),
+           ((float)boost::filesystem::file_size (file_path.c_str ()) / (1024 * 1024)),
            KNRM);
 }
 

@@ -363,7 +363,13 @@ tizstreamsrvgraph::probe_uri (const int uri_index, const bool quiet)
         }
       if (!quiet)
         {
+          OMX_AUDIO_PARAM_MP3TYPE mp3type;
+          probe_ptr_->get_mp3_codec_info (mp3type);
           dump_graph_info ("mp3/http", "stream", uri);
+          dump_stream_info (probe_ptr_->get_stream_title (),
+                            probe_ptr_->get_stream_genre (),
+                            uri);
+          dump_mp3_info (mp3type);
         }
     }
   return OMX_ErrorNone;
