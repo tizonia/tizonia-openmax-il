@@ -184,6 +184,7 @@ pcmport_SetParameter (const void *ap_obj,
           case 32000:
           case 44100:
           case 48000:
+          case 96000:
             {
               break;
             }
@@ -201,6 +202,7 @@ pcmport_SetParameter (const void *ap_obj,
           {
           case 8:
           case 16:
+          case 32:
             {
               break;
             }
