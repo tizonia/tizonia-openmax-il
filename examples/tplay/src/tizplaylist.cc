@@ -35,7 +35,7 @@
 #include <tizosal.h>
 
 #include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <algorithm>
 
@@ -109,10 +109,12 @@ namespace                       // unnamed namespace
       {
         std::string extension (boost::filesystem::path (*it).extension ().
                                string ());
+        boost::algorithm::to_lower(extension);
         extension_list_t::const_iterator low
           = std::lower_bound (ext_lst_cpy.begin(),
                               ext_lst_cpy.end(), extension);
-        if (! (low == ext_lst_cpy.end () || boost::iequals ((*low), extension)))
+
+        if (low == ext_lst_cpy.end () || boost::iequals ((*low), extension))
           {
             TIZ_LOG (TIZ_PRIORITY_TRACE, "%s", (*it).c_str ());
             filtered_file_list.push_back (*it);
