@@ -35,6 +35,8 @@
 #include <tizosal.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
 #include <algorithm>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -110,7 +112,7 @@ namespace                       // unnamed namespace
         extension_list_t::const_iterator low
           = std::lower_bound (ext_lst_cpy.begin(),
                               ext_lst_cpy.end(), extension);
-        if (! (low == ext_lst_cpy.end () || (*low).compare (extension) != 0))
+        if (! (low == ext_lst_cpy.end () || boost::iequals ((*low), extension)))
           {
             TIZ_LOG (TIZ_PRIORITY_TRACE, "%s", (*it).c_str ());
             filtered_file_list.push_back (*it);
