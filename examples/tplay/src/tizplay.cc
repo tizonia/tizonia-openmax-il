@@ -305,22 +305,22 @@ namespace                       // unnamed namespace
 
               case 68:            // key left
                 // seek
-                printf ("Seek (left key) - not implemented\n");
+                // printf ("Seek (left key) - not implemented\n");
                 break;
 
               case 67:            // key right
                 // seek
-                printf ("Seek (right key) - not implemented\n");
+                // printf ("Seek (right key) - not implemented\n");
                 break;
 
               case 65: // key up
                 // seek
-                printf ("Seek (up key) - not implemented\n");
+                // printf ("Seek (up key) - not implemented\n");
                 break;
 
               case 66: // key down
                 // seek
-                printf ("Seek (down key) - not implemented\n");
+                // printf ("Seek (down key) - not implemented\n");
                 break;
 
               case ' ':
