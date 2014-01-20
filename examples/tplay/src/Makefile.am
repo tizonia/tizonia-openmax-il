@@ -52,6 +52,7 @@ tplay_SOURCES = \
 tplay_CPPFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizosal/src \
+	-I/usr/include/taglib
 	-D__STDC_CONSTANT_MACROS
 
 tplay_LDADD = \
@@ -61,5 +62,6 @@ tplay_LDADD = \
 	-lavformat \
 	-lavcodec \
 	-lavutil \
+	-ltag \
 	$(top_builddir)/../../libtizosal/src/libtizosal.la \
 	$(top_builddir)/../../libtizcore/src/libtizcore.la

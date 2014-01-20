@@ -35,6 +35,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 extern "C"
 {
@@ -165,6 +166,7 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   opustype_ (),
   flactype_ (),
   vp8type_ (),
+  meta_file_ (uri.c_str ()),
   stream_title_ (),
   stream_genre_ ()
 {
@@ -220,7 +222,7 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   opustype_.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
   opustype_.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
 
-  
+
   av_register_all ();
   av_log_set_level (AV_LOG_QUIET);
 }
@@ -477,4 +479,76 @@ tizprobe::get_stream_genre ()
       (void) probe_file ();
     }
   return stream_genre_;
+}
+
+std::string
+tizprobe::retrieve_meta_data_str (TagLib::String (TagLib::Tag::*TagFunction)() const) const
+{
+  assert (NULL != TagFunction);
+  if(!meta_file_.isNull() && meta_file_.tag())
+    {
+      TagLib::Tag *tag = meta_file_.tag();
+      return (tag->*TagFunction)().to8Bit ();
+    }
+  return std::string ();
+}
+
+unsigned int
+tizprobe::retrieve_meta_data_uint (TagLib::uint (TagLib::Tag::*TagFunction)() const) const
+{
+  assert (NULL != TagFunction);
+  if(!meta_file_.isNull() && meta_file_.tag())
+    {
+      TagLib::Tag *tag = meta_file_.tag();
+      return (tag->*TagFunction)();
+    }
+  return 0;
+}
+
+std::string
+tizprobe::title () const
+{
+  return retrieve_meta_data_str (&TagLib::Tag::title);
+}
+
+std::string
+tizprobe::artist () const
+{
+  return retrieve_meta_data_str (&TagLib::Tag::artist);
+}
+
+std::string
+tizprobe::album () const
+{
+  return retrieve_meta_data_str (&TagLib::Tag::album);
+}
+
+std::string
+tizprobe::year () const
+{
+  return boost::lexical_cast<std::string>(retrieve_meta_data_uint (&TagLib::Tag::year));
+}
+
+std::string
+tizprobe::comment () const
+{
+  return retrieve_meta_data_str (&TagLib::Tag::comment);
+}
+
+std::string
+tizprobe::track () const
+{
+  return boost::lexical_cast<std::string>(retrieve_meta_data_uint (&TagLib::Tag::track));
+}
+
+std::string
+tizprobe::genre () const
+{
+  return retrieve_meta_data_str (&TagLib::Tag::genre);
+}
+
+std::string
+tizprobe::length () const
+{
+  return std::string ();
 }

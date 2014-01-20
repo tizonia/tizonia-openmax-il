@@ -195,7 +195,7 @@ protected:
   virtual void dump_mp3_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type) const;
   void dump_mp3_and_pcm_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type,
                               const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const;
-  virtual void dump_stream_info (const std::string &title, const std::string &genre,
+  virtual void dump_stream_info (const std::string &title, const std::string &artist,
                                  const std::string &file_path) const;
 
   OMX_ERRORTYPE setup_tunnels () const;

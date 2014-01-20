@@ -74,7 +74,8 @@ elif [ "$1" == "deps" ];  then
         uuid-dev \
         libsdl1.2-dev libvpx-dev libavcodec-dev \
         libavformat-dev libavdevice-dev libmp3lame-dev \
-        libev-dev python-sphinx curl
+        libev-dev libtag1-dev \
+        python-sphinx curl
     exit_status=$?
 elif [ "$1" == "srcdeps" ];  then
     echo "Installing source-based project dependencies..."

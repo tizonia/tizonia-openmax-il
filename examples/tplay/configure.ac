@@ -42,7 +42,9 @@ AC_CHECK_LIB([boost_filesystem], [main])
 AC_CHECK_LIB([boost_system], [main])
 # FIXME: Replace `main' with a function in `-lboost_thread':
 AC_CHECK_LIB([boost_thread], [main])
+AC_CHECK_LIB([boost_thread], [main])
 
+PKG_CHECK_MODULES([TAGLIB], [taglib >= 1.7.0])
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
 #PKG_CHECK_MODULES([TIZ], [libtizosal])
 

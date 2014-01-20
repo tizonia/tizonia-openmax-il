@@ -38,6 +38,9 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
+#include <fileref.h>
+#include <tag.h>
+
 class tizprobe;
 class AVCodecContext;
 typedef boost::shared_ptr<tizprobe> tizprobe_ptr_t;
@@ -65,8 +68,22 @@ public:
   void get_opus_codec_info(OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);
   void get_flac_codec_info(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype);
   void get_vp8_codec_info(OMX_VIDEO_PARAM_VP8TYPE &vp8type);
+
+  /* Meta-data information */
+  std::string title () const;
+  std::string artist () const;
+  std::string album () const;
+  std::string year () const;
+  std::string comment () const;
+  std::string track () const;
+  std::string genre () const;
+
+  /* Meta-data information. These methods are currently used for streaming. */
   std::string get_stream_title ();
   std::string get_stream_genre ();
+
+  /* Duration */
+  std::string length () const;
 
 private:
 
@@ -74,6 +91,8 @@ private:
   void set_mp3_codec_info (const AVCodecContext *cc);
   void set_opus_codec_info ();
   void set_flac_codec_info (const AVCodecContext *cc);
+  std::string retrieve_meta_data_str (TagLib::String (TagLib::Tag::*TagFunction)() const) const;
+  unsigned int retrieve_meta_data_uint (TagLib::uint (TagLib::Tag::*TagFunction)() const) const;
 
 private:
 
@@ -88,6 +107,7 @@ private:
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
   OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_;
   OMX_VIDEO_PARAM_VP8TYPE vp8type_;
+  TagLib::FileRef meta_file_;
   std::string stream_title_;
   std::string stream_genre_;
 };

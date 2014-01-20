@@ -724,15 +724,15 @@ tizgraph::dump_mp3_and_pcm_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type,
 }
 
 void 
-tizgraph::dump_stream_info (const std::string &title, const std::string &genre,
+tizgraph::dump_stream_info (const std::string &title, const std::string &artist,
                             const std::string &file_path) const
 {
 #define KNRM "\x1B[0m"
 #define KCYN "\x1B[36m"
-  fprintf (stdout, "   %s%s, %s %.2g MiB %s\n",
+  fprintf (stdout, "   %s%s, %s - %.2g MiB %s\n",
            KCYN,
            title.c_str (),
-           genre.c_str (),
+           artist.c_str (),
            ((float)boost::filesystem::file_size (file_path.c_str ()) / (1024 * 1024)),
            KNRM);
 }

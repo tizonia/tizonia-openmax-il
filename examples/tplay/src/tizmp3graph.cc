@@ -345,8 +345,8 @@ tizmp3graph::probe_uri (const int uri_index, const bool quiet)
       if (!quiet)
         {
           dump_graph_info ("mp3", "decode", uri);
-          dump_stream_info (probe_ptr_->get_stream_title (),
-                            probe_ptr_->get_stream_genre (),
+          dump_stream_info (probe_ptr_->title (),
+                            probe_ptr_->artist (),
                             uri);
 
           OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
