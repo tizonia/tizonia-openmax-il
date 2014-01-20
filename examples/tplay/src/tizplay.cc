@@ -169,11 +169,21 @@ namespace                       // unnamed namespace
     printf ("\n");
   }
 
+  void
+  print_banner (void)
+  {
+    printf ("Tizonia OpenMAX IL player (v. %s).\n"
+            "Copyright (C) 2011-2014 Juan A. Rubio\n\n",
+            PACKAGE_VERSION);
+  }
+
   OMX_ERRORTYPE
   list_comps ()
   {
     std::vector < std::string > components;
     OMX_ERRORTYPE ret = OMX_ErrorNone;
+
+    print_banner ();
 
     tizomxutil::init ();
 
@@ -202,6 +212,8 @@ namespace                       // unnamed namespace
   {
     std::vector < std::string > roles;
     OMX_ERRORTYPE ret = OMX_ErrorNone;
+
+    print_banner ();
 
     tizomxutil::init ();
 
@@ -235,6 +247,8 @@ namespace                       // unnamed namespace
   {
     std::vector < std::string > components;
     OMX_ERRORTYPE ret = OMX_ErrorNone;
+
+    print_banner ();
 
     tizomxutil::init ();
 
@@ -393,11 +407,13 @@ namespace                       // unnamed namespace
     uri_list_t    file_list;
     std::string error_msg;
     extension_list_t extension_list;
-    extension_list.push_back (".mp3");
-    extension_list.push_back (".opus");
-    extension_list.push_back (".flac");
-    extension_list.push_back (".ogg");
-    extension_list.push_back (".oga");
+    extension_list.insert (".mp3");
+    extension_list.insert (".opus");
+    extension_list.insert (".flac");
+    extension_list.insert (".ogg");
+    extension_list.insert (".oga");
+
+    print_banner ();
 
     if (!tizplaylist_t::assemble_play_list
         (uri, shuffle_playlist, recurse, extension_list, file_list, error_msg))
@@ -431,7 +447,9 @@ namespace                       // unnamed namespace
     std::string ip_address;
     std::string error_msg;
     extension_list_t extension_list;
-    extension_list.push_back (".mp3");
+    extension_list.insert (".mp3");
+
+    print_banner ();
 
     if (!tizplaylist_t::assemble_play_list
         (uri, shuffle_playlist, recurse, extension_list, file_list, error_msg))
@@ -597,8 +615,7 @@ main (int argc, char **argv)
         case 'v':
           {
             error = OMX_ErrorNone;
-            printf ("Tizonia OpenMAX IL player version %s\n",
-                    PACKAGE_VERSION);
+            print_banner ();
           }
           break;
 

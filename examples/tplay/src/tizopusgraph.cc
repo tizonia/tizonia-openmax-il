@@ -47,7 +47,7 @@
 #endif
 
 tizopusgraph::tizopusgraph (tizprobe_ptr_t probe_ptr)
-  : tizgraph (3, probe_ptr)
+  : tizgraph ("tizopusgraph", 3, probe_ptr)
 {
 }
 
@@ -371,12 +371,8 @@ tizopusgraph::probe_uri (const int uri_index, const bool quiet)
       if (!quiet)
         {
           dump_graph_info ("opus", "decode", uri);
-          dump_stream_info (probe_ptr_->title (),
-                            probe_ptr_->artist (),
-                            uri);
-          OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
-          probe_ptr_->get_pcm_codec_info (pcmtype);
-          dump_pcm_info (pcmtype);
+          probe_ptr_->dump_stream_metadata ();
+          probe_ptr_->dump_pcm_info ();
         }
     }
   return OMX_ErrorNone;

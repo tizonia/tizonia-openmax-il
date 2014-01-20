@@ -47,7 +47,7 @@
 #endif
 
 tizmp3graph::tizmp3graph (tizprobe_ptr_t probe_ptr)
-  : tizgraph (3, probe_ptr)
+: tizgraph ("tizmp3graph", 3, probe_ptr)
 {
 }
 
@@ -345,15 +345,8 @@ tizmp3graph::probe_uri (const int uri_index, const bool quiet)
       if (!quiet)
         {
           dump_graph_info ("mp3", "decode", uri);
-          dump_stream_info (probe_ptr_->title (),
-                            probe_ptr_->artist (),
-                            uri);
-
-          OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
-          probe_ptr_->get_pcm_codec_info (pcmtype);
-          OMX_AUDIO_PARAM_MP3TYPE mp3type;
-          probe_ptr_->get_mp3_codec_info (mp3type);
-          dump_mp3_and_pcm_info (mp3type, pcmtype);
+          probe_ptr_->dump_stream_metadata ();
+          probe_ptr_->dump_mp3_and_pcm_info ();
         }
     }
   return OMX_ErrorNone;

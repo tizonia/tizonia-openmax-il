@@ -83,7 +83,12 @@ public:
   std::string get_stream_genre ();
 
   /* Duration */
-  std::string length () const;
+  std::string stream_length () const;
+
+  void dump_pcm_info ();
+  void dump_mp3_info ();
+  void dump_mp3_and_pcm_info ();
+  void dump_stream_metadata ();
 
 private:
 

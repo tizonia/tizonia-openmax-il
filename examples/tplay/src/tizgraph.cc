@@ -114,7 +114,8 @@ g_graph_thread_func (void *p_arg)
 
   assert (NULL != p_graph);
 
-  (void) tiz_thread_setname (&(p_graph->thread_), (char *) "tizgraph");
+  (void) tiz_thread_setname (&(p_graph->thread_),
+                             (char *) p_graph->get_graph_name ().c_str ());
 
   tiz_check_omx_err_ret_null (tiz_sem_post (&(p_graph->sem_)));
 
@@ -359,8 +360,9 @@ tizcback_handler::all_events_received ()
 //
 // tizgraph
 //
-tizgraph::tizgraph(int graph_size, tizprobe_ptr_t probe_ptr)
+tizgraph::tizgraph(const std::string & graph_name, int graph_size, tizprobe_ptr_t probe_ptr)
   :
+  graph_name_ (graph_name),
   h2n_(),
   handles_(graph_size, OMX_HANDLETYPE(NULL)),
   cback_handler_(*this),
@@ -675,65 +677,6 @@ tizgraph::dump_graph_info (const char *ap_coding_type_str,
            ap_coding_type_str,
            ap_graph_type_str,
            uri.c_str (),
-           KNRM);
-}
-
-void
-tizgraph::dump_pcm_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const
-{
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu:%s:%s %s\n",
-           KYEL,
-           pcmtype.nChannels,
-           ((float)pcmtype.nSamplingRate)/1000,
-           pcmtype.nBitPerSample,
-           pcmtype.eNumData  == OMX_NumericalDataSigned ? "s" : "u",
-           pcmtype.eEndian   == OMX_EndianBig ? "b" : "l",
-           KNRM);
-}
-
-void 
-tizgraph::dump_mp3_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type) const
-{
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps %s\n",
-           KYEL,
-           mp3type.nChannels,
-           ((float)mp3type.nSampleRate)/1000,
-           mp3type.nBitRate/1000,
-           KNRM);
-}
-
-void 
-tizgraph::dump_mp3_and_pcm_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type,
-                                 const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const
-{
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps, %lu:%s:%s %s\n",
-           KYEL,
-           mp3type.nChannels,
-           ((float)mp3type.nSampleRate)/1000,
-           mp3type.nBitRate/1000,
-           pcmtype.nBitPerSample,
-           pcmtype.eNumData  == OMX_NumericalDataSigned ? "s" : "u",
-           pcmtype.eEndian   == OMX_EndianBig ? "b" : "l",
-           KNRM);
-}
-
-void 
-tizgraph::dump_stream_info (const std::string &title, const std::string &artist,
-                            const std::string &file_path) const
-{
-#define KNRM "\x1B[0m"
-#define KCYN "\x1B[36m"
-  fprintf (stdout, "   %s%s, %s - %.2g MiB %s\n",
-           KCYN,
-           title.c_str (),
-           artist.c_str (),
-           ((float)boost::filesystem::file_size (file_path.c_str ()) / (1024 * 1024)),
            KNRM);
 }
 

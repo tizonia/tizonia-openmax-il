@@ -32,6 +32,8 @@
 
 #include "tizprobe.h"
 
+#include <string>
+
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
@@ -488,7 +490,7 @@ tizprobe::retrieve_meta_data_str (TagLib::String (TagLib::Tag::*TagFunction)() c
   if(!meta_file_.isNull() && meta_file_.tag())
     {
       TagLib::Tag *tag = meta_file_.tag();
-      return (tag->*TagFunction)().to8Bit ();
+      return (tag->*TagFunction)().stripWhiteSpace ().to8Bit ();
     }
   return std::string ();
 }
@@ -548,7 +550,156 @@ tizprobe::genre () const
 }
 
 std::string
-tizprobe::length () const
+tizprobe::stream_length () const
 {
-  return std::string ();
+  std::string length_str;
+  
+  if(!meta_file_.isNull() && meta_file_.audioProperties())
+    {
+      TagLib::AudioProperties *properties = meta_file_.audioProperties();
+      int seconds = properties->length() % 60;
+      int minutes = (properties->length() - seconds) / 60;
+      int hours = 0;
+      if (minutes >= 60)
+        {
+          int total_minutes = minutes;
+          minutes = total_minutes % 60;
+          hours = (total_minutes - minutes) / 60;
+        }
+
+      if (hours > 0)
+        {
+          length_str.append (boost::lexical_cast<std::string>(hours));
+          length_str.append ("h:");
+        }
+
+      if (minutes > 0)
+        {
+          length_str.append (boost::lexical_cast<std::string>(minutes));
+          length_str.append ("m:");
+        }
+
+      char seconds_str[3];
+      sprintf(seconds_str, "%02i", seconds);
+      length_str.append (seconds_str);
+      length_str.append ("s");
+    }
+
+  return length_str;
+}
+
+void
+tizprobe::dump_pcm_info ()
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file ();
+    }
+
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu:%s:%s %s\n",
+           KYEL,
+           pcmtype_.nChannels,
+           ((float)pcmtype_.nSamplingRate)/1000,
+           pcmtype_.nBitPerSample,
+           pcmtype_.eNumData  == OMX_NumericalDataSigned ? "s" : "u",
+           pcmtype_.eEndian   == OMX_EndianBig ? "b" : "l",
+           KNRM);
+}
+
+void
+tizprobe::dump_mp3_info ()
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file ();
+    }
+
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps %s\n",
+           KYEL,
+           mp3type_.nChannels,
+           ((float)mp3type_.nSampleRate)/1000,
+           mp3type_.nBitRate/1000,
+           KNRM);
+}
+
+void
+tizprobe::dump_mp3_and_pcm_info ()
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file ();
+    }
+
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps, %lu:%s:%s %s\n",
+           KYEL,
+           mp3type_.nChannels,
+           ((float)mp3type_.nSampleRate)/1000,
+           mp3type_.nBitRate/1000,
+           pcmtype_.nBitPerSample,
+           pcmtype_.eNumData  == OMX_NumericalDataSigned ? "s" : "u",
+           pcmtype_.eEndian   == OMX_EndianBig ? "b" : "l",
+           KNRM);
+}
+
+void 
+tizprobe::dump_stream_metadata ()
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file ();
+    }
+
+  std::string the_title = title ().empty () ? get_stream_title () : title ();
+  std::string the_artist = artist ().empty () ? get_stream_genre () : artist ();
+  
+#define KNRM "\x1B[0m"
+#define KCYN "\x1B[36m"
+  fprintf (stdout, "   %s%s, %s - [%s, %.2g MiB] %s\n",
+           KCYN,
+           the_title.c_str (),
+           the_artist.c_str (),
+           stream_length ().c_str (),
+           ((float)boost::filesystem::file_size (uri_.c_str ()) / (1024 * 1024)),
+           KNRM);
+  if (!album ().empty ())
+    {
+      fprintf (stdout, "     %sAlbum   : %s%s\n",
+               KCYN,
+               album ().c_str (),
+               KNRM);
+    }
+  if (!year ().empty () && year ().compare ("0") != 0)
+    {
+      fprintf (stdout, "     %sYear    : %s%s\n",
+               KCYN,
+               year ().c_str (),
+               KNRM);
+    }
+  if (!track ().empty () && track ().compare ("0") != 0)
+    {
+      fprintf (stdout, "     %sTrack   : %s%s\n",
+               KCYN,
+               track ().c_str (),
+               KNRM);
+    }
+  if (!genre ().empty ())
+    {
+      fprintf (stdout, "     %sGenre   : %s%s\n",
+               KCYN,
+               genre ().c_str (),
+               KNRM);
+    }
+  if (!comment ().empty ())
+    {
+      fprintf (stdout, "     %sComment : %s%s\n",
+               KCYN,
+               comment ().c_str (),
+               KNRM);
+    }
 }

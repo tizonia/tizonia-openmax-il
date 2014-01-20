@@ -96,14 +96,12 @@ namespace                       // unnamed namespace
 
   OMX_ERRORTYPE
   filter_unknown_media (const extension_list_t &extension_list,
-                          uri_list_t &file_list)
+                        uri_list_t &file_list, extension_list_t &extension_list_filtered)
   {
     uri_list_t::iterator it (file_list.begin ());
     std::vector<uri_list_t::iterator> iter_list;
     extension_list_t ext_lst_cpy (extension_list);
     uri_list_t filtered_file_list;
-
-    std::sort (ext_lst_cpy.begin (), ext_lst_cpy.end ());
 
     while (it != file_list.end ())
       {
@@ -114,10 +112,15 @@ namespace                       // unnamed namespace
           = std::lower_bound (ext_lst_cpy.begin(),
                               ext_lst_cpy.end(), extension);
 
-        if (low == ext_lst_cpy.end () || boost::iequals ((*low), extension))
+        TIZ_LOG (TIZ_PRIORITY_TRACE, "ext [%s] it [%s]",
+                 extension.c_str (), (*it).c_str ());
+
+        if (!(low == ext_lst_cpy.end ()) && boost::iequals ((*low), extension))
           {
-            TIZ_LOG (TIZ_PRIORITY_TRACE, "%s", (*it).c_str ());
+            TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] added to playlist low [%s]", (*it).c_str (),
+                     (*low).c_str ());
             filtered_file_list.push_back (*it);
+            extension_list_filtered.insert (extension);
           }
         ++it;
       }
@@ -255,45 +258,65 @@ tizplaylist::assemble_play_list (const std::string &base_uri,
                                  uri_list_t &file_list,
                                  std::string &error_msg)
 {
-  bool list_assembled = true;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  bool list_assembled = false;
+  extension_list_t extension_list_filtered;
 
-  if (base_uri.empty ())
+  try
     {
-      error_msg.assign ("Empty media uri.");
-      rc = OMX_ErrorContentURIError;
-      goto end;
-    }
+      if (base_uri.empty ())
+        {
+          error_msg.assign ("Empty media uri.");
+          goto end;
+        }
 
-  if (OMX_ErrorNone != process_base_uri (base_uri, file_list, recurse))
-    {
-      error_msg.assign ("File not found.");
-      rc = OMX_ErrorContentURIError;
-      goto end;
-    }
+      if (OMX_ErrorNone != process_base_uri (base_uri, file_list, recurse))
+        {
+          error_msg.assign ("File not found.");
+          goto end;
+        }
 
-  if (OMX_ErrorNone != filter_unknown_media (extension_list, file_list))
-    {
-      error_msg.assign ("No supported media types found.");
-      rc = OMX_ErrorFormatNotDetected;
-      goto end;
-    }
+      if (OMX_ErrorNone != filter_unknown_media (extension_list, file_list,
+                                                 extension_list_filtered))
+        {
+          error_msg.assign ("No supported media types found.");
+          goto end;
+        }
 
-  if (shuffle_playlist)
-    {
-      std::random_shuffle (file_list.begin (), file_list.end ());
+      if (shuffle_playlist)
+        {
+          std::random_shuffle (file_list.begin (), file_list.end ());
+        }
+      else
+        {
+          std::sort (file_list.begin (), file_list.end ());
+        }
+
+      list_assembled = true;
     }
-  else
+  catch(std::exception const& e)
     {
-      std::sort (file_list.begin (), file_list.end ());
+      error_msg.assign (e.what ());
+    }
+  catch(...)
+    {
+      error_msg.assign ("Undefined file system error.");
     }
 
  end:
 
-  if (OMX_ErrorNone != rc)
+  if (!list_assembled)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]", error_msg.c_str ());
-      list_assembled = false;
+    }
+  else
+    {
+#define KNRM "\x1B[0m"
+#define KBLU "\x1B[34m"
+  fprintf (stdout, "%sPlaylist length: %lu. File extensions in playlist: %s%s\n\n",
+           KBLU,
+           file_list.size (),
+           boost::algorithm::join(extension_list_filtered, ", ").c_str (),
+           KNRM);
     }
 
   return list_assembled;

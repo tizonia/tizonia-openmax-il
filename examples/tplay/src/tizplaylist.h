@@ -68,10 +68,9 @@ class tizplaylist
   
 private:
 
-  uri_list_t    uri_list_;
-  int           current_index_;
+  uri_list_t            uri_list_;
+  int                   current_index_;
   mutable single_format single_format_list_;
-
 };
 
 #endif // TIZPLAYLIST_H

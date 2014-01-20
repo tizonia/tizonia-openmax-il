@@ -137,7 +137,7 @@ class tizgraph
 
 public:
 
-  tizgraph(int graph_size, tizprobe_ptr_t probe);
+  tizgraph(const std::string & graph_name, int graph_size, tizprobe_ptr_t probe);
   virtual ~tizgraph();
 
   OMX_ERRORTYPE load ();
@@ -191,12 +191,6 @@ protected:
   virtual void dump_graph_info (const char *ap_coding_type_str,
                                 const char *ap_graph_type_str,
                                 const std::string &uri) const;
-  virtual void dump_pcm_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const;
-  virtual void dump_mp3_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type) const;
-  void dump_mp3_and_pcm_info (const OMX_AUDIO_PARAM_MP3TYPE &mp3type,
-                              const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype) const;
-  virtual void dump_stream_info (const std::string &title, const std::string &artist,
-                                 const std::string &file_path) const;
 
   OMX_ERRORTYPE setup_tunnels () const;
   OMX_ERRORTYPE tear_down_tunnels () const;
@@ -221,9 +215,15 @@ protected:
 
   static void dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd);
 
+  std::string get_graph_name () const
+  {
+    return graph_name_;
+  }
+  
 protected:
 
-  handle_to_name_t      h2n_;
+  std::string graph_name_;
+  handle_to_name_t h2n_;
   component_handles_t   handles_;
   tizcback_handler      cback_handler_;
   std::string           uri_;
