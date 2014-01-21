@@ -977,6 +977,26 @@ START_TEST (test_flac_playback)
   fail_if (OMX_ErrorNone != error);
 
   /* -------------------------------------------------- */
+  /* Await demuxer's transition callback OMX_StateIdle */
+  /* -------------------------------------------------- */
+  error = _ctx_wait (&dmux_ctx, OMX_EventCmdComplete,
+                     TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_dmux_ctx->state [%s]",
+             tiz_state_to_str (p_dmux_ctx->state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_StateIdle != p_dmux_ctx->state);
+
+  /* ----------------------------------------- */
+  /* Check demuxer's state transition success */
+  /* ----------------------------------------- */
+  error = OMX_GetState (p_oggdmux, &state);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
+             OGG_DMUX_COMPONENT_NAME, tiz_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateIdle != state);
+
+  /* -------------------------------------------------- */
   /* Await renderer's transition callback OMX_StateIdle */
   /* -------------------------------------------------- */
   error = _ctx_wait (&rend_ctx, OMX_EventCmdComplete,
@@ -1013,26 +1033,6 @@ START_TEST (test_flac_playback)
   error = OMX_GetState (p_flacdec, &state);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
              FLAC_DEC_COMPONENT_NAME, tiz_state_to_str (state));
-  fail_if (OMX_ErrorNone != error);
-  fail_if (OMX_StateIdle != state);
-
-  /* -------------------------------------------------- */
-  /* Await demuxer's transition callback OMX_StateIdle */
-  /* -------------------------------------------------- */
-  error = _ctx_wait (&dmux_ctx, OMX_EventCmdComplete,
-                     TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_dmux_ctx->state [%s]",
-             tiz_state_to_str (p_dmux_ctx->state));
-  fail_if (OMX_ErrorNone != error);
-  fail_if (OMX_TRUE == timedout);
-  fail_if (OMX_StateIdle != p_dmux_ctx->state);
-
-  /* ----------------------------------------- */
-  /* Check demuxer's state transition success */
-  /* ----------------------------------------- */
-  error = OMX_GetState (p_oggdmux, &state);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
-             OGG_DMUX_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateIdle != state);
 
@@ -1269,22 +1269,22 @@ START_TEST (test_flac_playback)
   fail_if (OMX_ErrorNone != error);
 
   /* ------------------------------------ */
-  /* Await renderer's transition callback */
+  /* Await demuxer's transition callback */
   /* ------------------------------------ */
-  error = _ctx_wait (&rend_ctx, OMX_EventCmdComplete,
+  error = _ctx_wait (&dmux_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_rend_ctx->state [%s]",
-             tiz_state_to_str (p_rend_ctx->state));
-  fail_if (OMX_StateLoaded != p_rend_ctx->state);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_dmux_ctx->state [%s]",
+             tiz_state_to_str (p_dmux_ctx->state));
+  fail_if (OMX_StateLoaded != p_dmux_ctx->state);
 
   /* ----------------------------------------- */
-  /* Check renderer's state transition success */
+  /* Check demuxer's state transition success */
   /* ----------------------------------------- */
-  error = OMX_GetState (p_pcmrnd, &state);
+  error = OMX_GetState (p_oggdmux, &state);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
-             PCM_RND_COMPONENT_NAME, tiz_state_to_str (state));
+           OGG_DMUX_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
@@ -1309,22 +1309,22 @@ START_TEST (test_flac_playback)
   fail_if (OMX_StateLoaded != state);
 
   /* ------------------------------------ */
-  /* Await demuxer's transition callback */
+  /* Await renderer's transition callback */
   /* ------------------------------------ */
-  error = _ctx_wait (&dmux_ctx, OMX_EventCmdComplete,
+  error = _ctx_wait (&rend_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_dmux_ctx->state [%s]",
-             tiz_state_to_str (p_dmux_ctx->state));
-  fail_if (OMX_StateLoaded != p_dmux_ctx->state);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_rend_ctx->state [%s]",
+             tiz_state_to_str (p_rend_ctx->state));
+  fail_if (OMX_StateLoaded != p_rend_ctx->state);
 
   /* ----------------------------------------- */
-  /* Check demuxer's state transition success */
+  /* Check renderer's state transition success */
   /* ----------------------------------------- */
-  error = OMX_GetState (p_oggdmux, &state);
+  error = OMX_GetState (p_pcmrnd, &state);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
-           OGG_DMUX_COMPONENT_NAME, tiz_state_to_str (state));
+             PCM_RND_COMPONENT_NAME, tiz_state_to_str (state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateLoaded != state);
 
