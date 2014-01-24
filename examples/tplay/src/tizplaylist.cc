@@ -314,7 +314,7 @@ tizplaylist::assemble_play_list (const std::string &base_uri,
 #define KBLU "\x1B[34m"
   fprintf (stdout, "%sPlaylist length: %lu. File extensions in playlist: %s%s\n\n",
            KBLU,
-           file_list.size (),
+           (long) file_list.size (),
            boost::algorithm::join(extension_list_filtered, ", ").c_str (),
            KNRM);
     }
