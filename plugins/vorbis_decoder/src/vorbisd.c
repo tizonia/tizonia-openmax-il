@@ -81,8 +81,8 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   vorbistype.nSampleRate       = 48000;
   vorbistype.nAudioBandWidth   = 0;
   vorbistype.nQuality          = 5;
-  vorbistype.bManaged          = 0;
-  vorbistype.bDownmix          = 0;
+  vorbistype.bManaged          = OMX_FALSE;
+  vorbistype.bDownmix          = OMX_FALSE;
   return factory_new (tiz_get_type (ap_hdl, "tizvorbisport"),
                       &vorbis_port_opts, &encodings, &vorbistype);
 }

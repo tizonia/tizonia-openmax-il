@@ -45,6 +45,7 @@
 
 #include "OMX_Component.h"
 #include "OMX_Types.h"
+#include "OMX_TizoniaExt.h"
 
 #include "tizosal.h"
 #include "tizfsm.h"
@@ -58,8 +59,9 @@
 char *pg_rmd_path;
 pid_t g_rmd_pid;
 
+static char OGG_DMUX_COMPONENT_NAME[] = "OMX.Aratelia.container_demuxer.ogg";
 static char VORBIS_DEC_COMPONENT_NAME[] = "OMX.Aratelia.audio_decoder.vorbis";
-static char PCM_RND_COMPONENT_NAME[] = "OMX.Aratelia.audio_renderer.pcm";
+static char PCM_RND_COMPONENT_NAME[] = "OMX.Aratelia.audio_renderer_nb.pcm";
 
 /* TODO: Move these two to the rc file */
 #define RATE_FILE1 44100
@@ -68,11 +70,12 @@ static char PCM_RND_COMPONENT_NAME[] = "OMX.Aratelia.audio_renderer.pcm";
 #define VORBIS_DECODER_TEST_TIMEOUT 360
 #define INFINITE_WAIT 0xffffffff
 /* duration of event timeout in msec when we expect event to be set */
-#define TIMEOUT_EXPECTING_SUCCESS 1000
+#define TIMEOUT_EXPECTING_SUCCESS 2000
 /* duration of event timeout in msec when we expect buffer to be consumed */
 #define TIMEOUT_EXPECTING_SUCCESS_BUFFER_TRANSFER 5000
 /* duration of event timeout in msec when we don't expect event to be set */
 #define TIMEOUT_EXPECTING_FAILURE 2000
+#define TIMEOUT_EXPECTING_STREAM_TRANSFER 7000
 
 typedef void *cc_ctx_t;
 
@@ -87,15 +90,15 @@ static const OMX_U32 pg_rates[] = {
 };
 
 static const char *pg_cnames[] = {
-  VORBIS_DEC_COMPONENT_NAME, PCM_RND_COMPONENT_NAME
+  OGG_DMUX_COMPONENT_NAME, VORBIS_DEC_COMPONENT_NAME, PCM_RND_COMPONENT_NAME
 };
 
 static OMX_HANDLETYPE pg_hdls[] = {
-  NULL, NULL
+  NULL, NULL, NULL
 };
 
 static cc_ctx_t pg_ctxs[] = {
-  NULL, NULL
+  NULL, NULL, NULL
 };
 
 #define MAX_EVENTS 4
@@ -489,6 +492,12 @@ check_EventHandler (OMX_HANDLETYPE ap_hdl,
           }
 
         case OMX_CommandPortDisable:
+          {
+            TIZ_LOG (TIZ_PRIORITY_TRACE, "Port [%d] is now DISABLED", nData2);
+            _ctx_signal (pp_ctx, OMX_EventCmdComplete);
+          }
+          break;
+
         case OMX_CommandPortEnable:
         default:
           {
@@ -600,21 +609,21 @@ init_test_data()
 START_TEST (test_vorbis_playback)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  OMX_HANDLETYPE p_vorbisdec = 0, p_pcmrnd;
+  OMX_HANDLETYPE p_oggdmux = NULL, p_vorbisdec = NULL, p_pcmrnd = NULL;
   OMX_STATETYPE state = OMX_StateMax;
-  cc_ctx_t dec_ctx, rend_ctx;
-  check_common_context_t *p_dec_ctx = NULL, *p_rend_ctx = NULL;
+  cc_ctx_t dmux_ctx, dec_ctx, rend_ctx;
+  check_common_context_t *p_dmux_ctx = NULL, *p_dec_ctx = NULL, *p_rend_ctx = NULL;
   OMX_BOOL timedout = OMX_FALSE;
-  OMX_PARAM_PORTDEFINITIONTYPE dec_port_def0, dec_port_def1, rend_port_def;
+  OMX_PARAM_PORTDEFINITIONTYPE dmux_port_def0, dec_port_def0, dec_port_def1, rend_port_def;
   OMX_AUDIO_PARAM_VORBISTYPE dec_vorbis_type;
   OMX_AUDIO_PARAM_PCMMODETYPE dec_pcm_mode, rend_pcm_mode;
   OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
-  OMX_BUFFERHEADERTYPE **p_hdrlst = NULL;
-  OMX_U32 i;
-  int p_file = 0;
-  int err = 0;
+  OMX_PARAM_CONTENTURITYPE *p_uri_param = NULL;
 
   fail_if (!init_test_data());
+
+  error = _ctx_init (&dmux_ctx);
+  fail_if (OMX_ErrorNone != error);
 
   error = _ctx_init (&dec_ctx);
   fail_if (OMX_ErrorNone != error);
@@ -622,14 +631,25 @@ START_TEST (test_vorbis_playback)
   error = _ctx_init (&rend_ctx);
   fail_if (OMX_ErrorNone != error);
 
+  p_dmux_ctx = (check_common_context_t *) (dmux_ctx);
   p_dec_ctx = (check_common_context_t *) (dec_ctx);
   p_rend_ctx = (check_common_context_t *) (rend_ctx);
 
-  pg_ctxs[0] = p_dec_ctx;
-  pg_ctxs[1] = p_rend_ctx;
+  pg_ctxs[0] = p_dmux_ctx;
+  pg_ctxs[1] = p_dec_ctx;
+  pg_ctxs[2] = p_rend_ctx;
 
   error = OMX_Init ();
   fail_if (OMX_ErrorNone != error);
+
+  /* --------------------------- */
+  /* Instantiate the ogg demuxer */
+  /* --------------------------- */
+  error = OMX_GetHandle (&p_oggdmux, OGG_DMUX_COMPONENT_NAME, (OMX_PTR *) (&dmux_ctx),
+                         &_check_cbacks);
+  fail_if (OMX_ErrorNone != error);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] hdl [%p]", OGG_DMUX_COMPONENT_NAME, p_oggdmux);
+  pg_hdls[0] = p_oggdmux;
 
   /* --------------------------- */
   /* Instantiate the vorbis decoder */
@@ -638,7 +658,7 @@ START_TEST (test_vorbis_playback)
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] hdl [%p]", VORBIS_DEC_COMPONENT_NAME, p_vorbisdec);
-  pg_hdls[0] = p_vorbisdec;
+  pg_hdls[1] = p_vorbisdec;
 
   /* ---------------------------- */
   /* Instantiate the pcm renderer */
@@ -647,7 +667,21 @@ START_TEST (test_vorbis_playback)
                          &_check_cbacks);
   fail_if (OMX_ErrorNone != error);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] hdl [%p]", PCM_RND_COMPONENT_NAME, p_pcmrnd);
-  pg_hdls[1] = p_pcmrnd;;
+  pg_hdls[2] = p_pcmrnd;;
+
+  /* ---------------------------------------------- */
+  /* Obtain the port def from the demuxer's port #0 */
+  /* ---------------------------------------------- */
+  dmux_port_def0.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  dmux_port_def0.nVersion.nVersion = OMX_VERSION;
+  dmux_port_def0.nPortIndex = 0;
+  error = OMX_GetParameter (p_oggdmux, OMX_IndexParamPortDefinition, &dmux_port_def0);
+  fail_if (OMX_ErrorNone != error);
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] port #0 nBufferSize [%d]",
+             OGG_DMUX_COMPONENT_NAME, dmux_port_def0.nBufferSize);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] port #0 nBufferCountActual [%d]",
+             OGG_DMUX_COMPONENT_NAME, dmux_port_def0.nBufferCountActual);
 
   /* ---------------------------------------------- */
   /* Obtain the port def from the decoder's port #0 */
@@ -662,6 +696,15 @@ START_TEST (test_vorbis_playback)
              VORBIS_DEC_COMPONENT_NAME, dec_port_def0.nBufferSize);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] port #0 nBufferCountActual [%d]",
              VORBIS_DEC_COMPONENT_NAME, dec_port_def0.nBufferCountActual);
+
+  /* --------------------------------------------------------- */
+  /* Set the same nBufferCountActual value for dmux and decoder */
+  /* --------------------------------------------------------- */
+  dmux_port_def0.nSize = sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
+  dmux_port_def0.nVersion.nVersion = OMX_VERSION;
+  dmux_port_def0.nBufferCountActual = dec_port_def0.nBufferCountActual;
+  error = OMX_SetParameter (p_oggdmux, OMX_IndexParamPortDefinition, &dmux_port_def0);
+  fail_if (OMX_ErrorNone != error);
 
   /* ---------------------------------------------- */
   /* Obtain the port def from the decoder's port #1 */
@@ -741,25 +784,36 @@ START_TEST (test_vorbis_playback)
   dec_vorbis_type.nPortIndex = 0;
   dec_vorbis_type.nChannels = 2;
   dec_vorbis_type.nBitRate = 0;
+  dec_vorbis_type.nMinBitRate = 0;
+  dec_vorbis_type.nMaxBitRate = 0;
   dec_vorbis_type.nSampleRate = pg_rates[_i];
   dec_vorbis_type.nAudioBandWidth = 0;
-  dec_vorbis_type.eChannelMode = OMX_AUDIO_ChannelModeStereo;
-  dec_vorbis_type.eFormat = OMX_AUDIO_VORBISStreamFormatMP1Layer3;
+  dec_vorbis_type.nQuality = 0;
+  dec_vorbis_type.bManaged = OMX_FALSE;
+  dec_vorbis_type.bDownmix = OMX_FALSE;
   error = OMX_SetParameter (p_vorbisdec, OMX_IndexParamAudioVorbis, &dec_vorbis_type);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] : OMX_SetParameter(port #0, "
            "OMX_IndexParamAudioVorbis) = [%s]", VORBIS_DEC_COMPONENT_NAME,
            tiz_err_to_str (error));
   fail_if (OMX_ErrorNone != error);
 
-  /* ------------------------------------------------------- */
-  /* Await port settings change event on decoders's port #1  */
-  /* ------------------------------------------------------- */
-  error = _ctx_wait (&dec_ctx, OMX_EventPortSettingsChanged,
-                     TIMEOUT_EXPECTING_SUCCESS, &timedout);
-  fail_if (OMX_ErrorNone != error);
-  fail_if (OMX_TRUE == timedout);
-  fail_if (1 != p_dec_ctx->port);
-  fail_if (OMX_IndexParamAudioPcm != p_dec_ctx->index);
+  /* If the sampling rate of the input stream is different from the default
+     pcm sampling rate of the output port (i.e. 48000hz), then an event
+     shall be received from the output port */
+
+  if (48000 != pg_rates[_i])
+    {
+      /* ------------------------------------------------------- */
+      /* Await port settings change event on decoders's port #1  */
+      /* ------------------------------------------------------- */
+
+      error = _ctx_wait (&dec_ctx, OMX_EventPortSettingsChanged,
+                         TIMEOUT_EXPECTING_SUCCESS, &timedout);
+      fail_if (OMX_ErrorNone != error);
+      fail_if (OMX_TRUE == timedout);
+      fail_if (1 != p_dec_ctx->port);
+      fail_if (OMX_IndexParamAudioPcm != p_dec_ctx->index);
+    }
 
   /* -------------------------------------------------- */
   /* Verify the new sampling rate on decoder's port #1 */
@@ -775,14 +829,38 @@ START_TEST (test_vorbis_playback)
   rend_pcm_mode.nPortIndex = 0;
   rend_pcm_mode.nChannels = 2;
   rend_pcm_mode.eNumData = OMX_NumericalDataSigned;
-  rend_pcm_mode.eEndian = OMX_EndianBig;
+  rend_pcm_mode.eEndian = OMX_EndianLittle;
   rend_pcm_mode.bInterleaved = OMX_TRUE;
-  rend_pcm_mode.nBitPerSample = 16;
+  rend_pcm_mode.nBitPerSample = 32;
   rend_pcm_mode.nSamplingRate = pg_rates[_i];
   rend_pcm_mode.ePCMMode = OMX_AUDIO_PCMModeMULaw;
   rend_pcm_mode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
   rend_pcm_mode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
   error = OMX_SetParameter (p_pcmrnd, OMX_IndexParamAudioPcm, &rend_pcm_mode);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------------------------ */
+  /* Set supplier settings on decoder's port #0 */
+  /* ------------------------------------------ */
+  supplier.nSize = sizeof (OMX_PARAM_BUFFERSUPPLIERTYPE);
+  supplier.nVersion.nVersion = OMX_VERSION;
+  supplier.nPortIndex = 0;
+  supplier.eBufferSupplier = OMX_BufferSupplyInput;
+  error = OMX_SetParameter (p_vorbisdec, OMX_IndexParamCompBufferSupplier, &supplier);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+             VORBIS_DEC_COMPONENT_NAME, tiz_err_to_str(error));
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------------------------ */
+  /* Set supplier settings on demuxers's port #0 */
+  /* ------------------------------------------ */
+  supplier.nSize = sizeof (OMX_PARAM_BUFFERSUPPLIERTYPE);
+  supplier.nVersion.nVersion = OMX_VERSION;
+  supplier.nPortIndex = 0;
+  supplier.eBufferSupplier = OMX_BufferSupplyInput;
+  error = OMX_SetParameter (p_oggdmux, OMX_IndexParamCompBufferSupplier, &supplier);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] OMX_BufferSupplyInput [%s]",
+             OGG_DMUX_COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
   /* ------------------------------------------ */
@@ -809,11 +887,67 @@ START_TEST (test_vorbis_playback)
              VORBIS_DEC_COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
+  /* ---------------------- */
+  /* Obtain the current URI */
+  /* ---------------------- */
+  p_uri_param = tiz_mem_calloc
+    (1, sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE);
+
+  fail_if (!p_uri_param);
+  p_uri_param->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
+    + OMX_MAX_STRINGNAME_SIZE;
+  p_uri_param->nVersion.nVersion = OMX_VERSION;
+  error = OMX_GetParameter (p_oggdmux, OMX_IndexParamContentURI, p_uri_param);
+  fail_if (OMX_ErrorNone != error);
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Retrieved URI [%s]", p_uri_param->contentURI);
+
+  /* ----------------*/
+  /* Set the new URI */
+  /* ----------------*/
+  strcpy ((char*)p_uri_param->contentURI, pg_files[0]);
+  p_uri_param->contentURI[strlen (pg_files[0])] = '\0';
+  error = OMX_SetParameter (p_oggdmux, OMX_IndexParamContentURI, p_uri_param);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_SetParameter(OMX_IndexParamContentURI, "
+           "URI [%s]) = [%s]", p_uri_param->contentURI, tiz_err_to_str (error));
+  fail_if (OMX_ErrorNone != error);
+
+  /* --------------------------------- */
+  /* Create Tunnel Demuxer <-> Decoder */
+  /* --------------------------------- */
+  error = OMX_SetupTunnel(p_oggdmux, 0, p_vorbisdec, 0);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_SetupTunnel [%s]", tiz_err_to_str(error));
+  fail_if (OMX_ErrorNone != error);
+
   /* ----------------------------------- */
   /* Create Tunnel Decoder <-> Renderer*/
   /* ----------------------------------- */
   error = OMX_SetupTunnel(p_vorbisdec, 1, p_pcmrnd, 0);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_SetupTunnel [%s]", tiz_err_to_str(error));
+  fail_if (OMX_ErrorNone != error);
+
+  /* ----------------------------------------- */
+  /* Disable video output port (port index 1)  */
+  /* ----------------------------------------- */
+  error = _ctx_reset (&dmux_ctx, OMX_EventCmdComplete);
+  error = OMX_SendCommand (p_oggdmux, OMX_CommandPortDisable, 1, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* --------------------------- */
+  /* Await port disable callback */
+  /* --------------------------- */
+  error = _ctx_wait (&dmux_ctx, OMX_EventCmdComplete,
+                     TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+
+  /* ------------------------------------- */
+  /* Initiate demuxer's transition to IDLE */
+  /* ------------------------------------- */
+  error = _ctx_reset (&dmux_ctx, OMX_EventCmdComplete);
+  error = OMX_SendCommand (p_oggdmux, OMX_CommandStateSet, OMX_StateIdle, NULL);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] OMX_StateIdle [%s]",
+             OGG_DMUX_COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
   /* ------------------------------------- */
@@ -834,34 +968,25 @@ START_TEST (test_vorbis_playback)
              PCM_RND_COMPONENT_NAME, tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
-  /* -------------------------------------- */
-  /* Allocate buffers for decoder's port #0 */
-  /* -------------------------------------- */
-  p_hdrlst = (OMX_BUFFERHEADERTYPE **)
-    tiz_mem_calloc (dec_port_def0.nBufferCountActual,
-                    sizeof (OMX_BUFFERHEADERTYPE *));
+  /* -------------------------------------------------- */
+  /* Await demuxer's transition callback OMX_StateIdle */
+  /* -------------------------------------------------- */
+  error = _ctx_wait (&dmux_ctx, OMX_EventCmdComplete,
+                     TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_dmux_ctx->state [%s]",
+             tiz_state_to_str (p_dmux_ctx->state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_StateIdle != p_dmux_ctx->state);
 
-  for (i = 0; i < dec_port_def0.nBufferCountActual; ++i)
-    {
-      error = OMX_AllocateBuffer (p_vorbisdec, &p_hdrlst[i], 0,    /* input port */
-                                  0, dec_port_def0.nBufferSize);
-      fail_if (OMX_ErrorNone != error);
-      fail_if (p_hdrlst[i] == NULL);
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%i] =  [%p]", i, p_hdrlst[i]);
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nAllocLen [%d]", i,
-                 p_hdrlst[i]->nAllocLen);
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nFilledLen [%d]", i,
-                 p_hdrlst[i]->nFilledLen);
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nOffset [%d]", i,
-                 p_hdrlst[i]->nOffset);
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nOutputPortIndex [%d]", i,
-                 p_hdrlst[i]->nOutputPortIndex);
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nInputPortIndex [%d]", i,
-                 p_hdrlst[i]->nInputPortIndex);
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "p_hdrlst[%d]->nFlags [%X]", i,
-                 p_hdrlst[i]->nFlags);
-      fail_if (dec_port_def0.nBufferSize > p_hdrlst[i]->nAllocLen);
-    }
+  /* ----------------------------------------- */
+  /* Check demuxer's state transition success */
+  /* ----------------------------------------- */
+  error = OMX_GetState (p_oggdmux, &state);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
+             OGG_DMUX_COMPONENT_NAME, tiz_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateIdle != state);
 
   /* -------------------------------------------------- */
   /* Await renderer's transition callback OMX_StateIdle */
@@ -869,7 +994,7 @@ START_TEST (test_vorbis_playback)
   error = _ctx_wait (&rend_ctx, OMX_EventCmdComplete,
                      TIMEOUT_EXPECTING_SUCCESS, &timedout);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "p_rend_ctx->state [%s]",
-             tiz_state_to_str (p_rend_ctx->state));
+           tiz_state_to_str (p_rend_ctx->state));
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_TRUE == timedout);
   fail_if (OMX_StateIdle != p_rend_ctx->state);
@@ -904,6 +1029,14 @@ START_TEST (test_vorbis_playback)
   fail_if (OMX_StateIdle != state);
 
   /* ------------------------------------ */
+  /* Initiate demuxer's transition to EXE */
+  /* ------------------------------------ */
+  error = _ctx_reset (&dmux_ctx, OMX_EventCmdComplete);
+  error = OMX_SendCommand (p_oggdmux, OMX_CommandStateSet,
+                           OMX_StateExecuting, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------------------ */
   /* Initiate decoder's transition to EXE */
   /* ------------------------------------ */
   error = _ctx_reset (&dec_ctx, OMX_EventCmdComplete);
@@ -918,6 +1051,27 @@ START_TEST (test_vorbis_playback)
   error = OMX_SendCommand (p_pcmrnd, OMX_CommandStateSet,
                            OMX_StateExecuting, NULL);
   fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------------------------------------ */
+  /* Await demuxer's transition callback OMX_StateExecuting */
+  /* ------------------------------------------------------ */
+  error = _ctx_wait (&dmux_ctx, OMX_EventCmdComplete,
+                     TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_dmux_ctx->state [%s]",
+             tiz_state_to_str (p_dmux_ctx->state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_StateExecuting != p_dmux_ctx->state);
+
+  /* ----------------------------------------- */
+  /* Check demuxer's state transition success */
+  /* ----------------------------------------- */
+  state = OMX_StateMax;
+  error = OMX_GetState (p_oggdmux, &state);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
+             OGG_DMUX_COMPONENT_NAME, tiz_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateExecuting != state);
 
   /* ------------------------------------------------------ */
   /* Await decoder's transition callback OMX_StateExecuting */
@@ -955,74 +1109,12 @@ START_TEST (test_vorbis_playback)
   /* Check renderer's state transition success */
   /* ----------------------------------------- */
   error = OMX_GetState (p_pcmrnd, &state);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
-             PCM_RND_COMPONENT_NAME, tiz_state_to_str (state));
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s] [%s]",
+           PCM_RND_COMPONENT_NAME, tiz_state_to_str (state),
+           tiz_err_to_str (error));
+  fflush (stdout);
   fail_if (OMX_ErrorNone != error);
   fail_if (OMX_StateExecuting != state);
-
-  /* ---------------------------------------- */
-  /* buffer transfer loop - decoder's port #0 */
-  /* ---------------------------------------- */
-  fail_if ((p_file = open (pg_files[_i], O_RDONLY)) == 0);
-
-  i = 0;
-  while (i < dec_port_def0.nBufferCountActual)
-    {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Reading from file [%s]", pg_files[_i]);
-      if (!
-          (err =
-           read (p_file, p_hdrlst[i]->pBuffer, dec_port_def0.nBufferSize)))
-        {
-          if (0 == err)
-            {
-              TIZ_LOG (TIZ_PRIORITY_TRACE, "End of file reached for [%s]",
-                         pg_files[_i]);
-            }
-          else
-            {
-              TIZ_LOG (TIZ_PRIORITY_TRACE,
-                         "An error occurred while reading [%s]",
-                         pg_files[_i]);
-              fail_if (0);
-            }
-        }
-
-      /* Transfer buffer */
-      p_hdrlst[i]->nFilledLen = err; /* dec_port_def0.nBufferSize; */
-      if (err < 1)
-        {
-          p_hdrlst[i]->nFlags |= OMX_BUFFERFLAG_EOS;
-        }
-
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Emptying header #%d -> [%p] "
-                 "nFilledLen [%d] nFlags [%X]",
-                 i, p_hdrlst[i], err,
-                 p_hdrlst[i]->nFlags);
-
-      _ctx_reset(&dec_ctx, OMX_EventVendorStartUnused);
-      error = OMX_EmptyThisBuffer (p_vorbisdec, p_hdrlst[i]);
-      fail_if (OMX_ErrorNone != error);
-
-      /* Await BufferDone callback */
-      error = _ctx_wait (&dec_ctx, OMX_EventVendorStartUnused,
-                         TIMEOUT_EXPECTING_SUCCESS_BUFFER_TRANSFER,
-                         &timedout);
-      fail_if (OMX_ErrorNone != error);
-      fail_if (timedout);
-      fail_if (p_dec_ctx->p_hdr != p_hdrlst[i]);
-
-      i++;
-      i %= dec_port_def0.nBufferCountActual;
-
-      if (0 == err)
-        {
-          /* EOF */
-          break;
-        }
-
-    }
-
-  close (p_file);
 
   /* -------------------------------------- */
   /* Wait for EOS flag from vorbis decoder     */
@@ -1030,7 +1122,7 @@ START_TEST (test_vorbis_playback)
   if (!p_dec_ctx->flags)
     {
       error = _ctx_wait (&dec_ctx, OMX_EventBufferFlag,
-                         TIMEOUT_EXPECTING_SUCCESS_BUFFER_TRANSFER,
+                         TIMEOUT_EXPECTING_STREAM_TRANSFER,
                          &timedout);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "p_dec_ctx->flags [%X]",
                  p_dec_ctx->flags);
@@ -1060,6 +1152,13 @@ START_TEST (test_vorbis_playback)
         }
     }
 
+  /* ------------------------------------- */
+  /* Initiate demuxer's transition to IDLE */
+  /* ------------------------------------- */
+  error = _ctx_reset (&dmux_ctx, OMX_EventCmdComplete);
+  error = OMX_SendCommand (p_oggdmux, OMX_CommandStateSet, OMX_StateIdle, NULL);
+  fail_if (OMX_ErrorNone != error);
+
   /* -------------------------------------- */
   /* Initiate renderer's transition to IDLE */
   /* -------------------------------------- */
@@ -1073,6 +1172,26 @@ START_TEST (test_vorbis_playback)
   error = _ctx_reset (&dec_ctx, OMX_EventCmdComplete);
   error = OMX_SendCommand (p_vorbisdec, OMX_CommandStateSet, OMX_StateIdle, NULL);
   fail_if (OMX_ErrorNone != error);
+
+  /* ------------------------------------------- */
+  /* Await demuxer's transition callback to IDLE */
+  /* ------------------------------------------- */
+  error = _ctx_wait (&dmux_ctx, OMX_EventCmdComplete,
+                     TIMEOUT_EXPECTING_SUCCESS, &timedout);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_dmux_ctx->state [%s]",
+             tiz_state_to_str (p_dmux_ctx->state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_TRUE == timedout);
+  fail_if (OMX_StateIdle != p_dmux_ctx->state);
+
+  /* ----------------------------------------- */
+  /* Check demuxer's state transition success  */
+  /* ----------------------------------------- */
+  error = OMX_GetState (p_oggdmux, &state);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
+             OGG_DMUX_COMPONENT_NAME, tiz_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateIdle != state);
 
   /* ------------------------------------------- */
   /* Await decoder's transition callback to IDLE */
@@ -1115,6 +1234,14 @@ START_TEST (test_vorbis_playback)
   fail_if (OMX_StateIdle != state);
 
   /* --------------------------------------- */
+  /* Initiate demuxer's transition to LOADED */
+  /* --------------------------------------- */
+  error = _ctx_reset (&dmux_ctx, OMX_EventCmdComplete);
+  error = OMX_SendCommand (p_oggdmux, OMX_CommandStateSet,
+                           OMX_StateLoaded, NULL);
+  fail_if (OMX_ErrorNone != error);
+
+  /* --------------------------------------- */
   /* Initiate decoder's transition to LOADED */
   /* --------------------------------------- */
   error = _ctx_reset (&dec_ctx, OMX_EventCmdComplete);
@@ -1130,16 +1257,25 @@ START_TEST (test_vorbis_playback)
                            OMX_StateLoaded, NULL);
   fail_if (OMX_ErrorNone != error);
 
-  /* --------------------------------------- */
-  /* Deallocate buffers on decoder's port #0 */
-  /* --------------------------------------- */
+  /* ------------------------------------ */
+  /* Await demuxer's transition callback */
+  /* ------------------------------------ */
+  error = _ctx_wait (&dmux_ctx, OMX_EventCmdComplete,
+                     TIMEOUT_EXPECTING_SUCCESS, &timedout);
   fail_if (OMX_ErrorNone != error);
-  for (i = 0; i < dec_port_def0.nBufferCountActual; ++i)
-    {
-      error = OMX_FreeBuffer (p_vorbisdec, 0,      /* input port */
-                              p_hdrlst[i]);
-      fail_if (OMX_ErrorNone != error);
-    }
+  fail_if (OMX_TRUE == timedout);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "p_dmux_ctx->state [%s]",
+             tiz_state_to_str (p_dmux_ctx->state));
+  fail_if (OMX_StateLoaded != p_dmux_ctx->state);
+
+  /* ----------------------------------------- */
+  /* Check demuxer's state transition success */
+  /* ----------------------------------------- */
+  error = OMX_GetState (p_oggdmux, &state);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] state [%s]",
+           OGG_DMUX_COMPONENT_NAME, tiz_state_to_str (state));
+  fail_if (OMX_ErrorNone != error);
+  fail_if (OMX_StateLoaded != state);
 
   /* ------------------------------------ */
   /* Await renderer's transition callback */
@@ -1182,15 +1318,22 @@ START_TEST (test_vorbis_playback)
   fail_if (OMX_StateLoaded != state);
 
   /* ---------------- */
-  /* Teardown tunnel */
+  /* Teardown tunnels */
   /* ---------------- */
+  error = OMX_TeardownTunnel(p_oggdmux, 0, p_vorbisdec, 0);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_TeardownTunnel [%s]", tiz_err_to_str(error));
+  fail_if (OMX_ErrorNone != error);
   error = OMX_TeardownTunnel(p_vorbisdec, 1, p_pcmrnd, 0);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_TeardownTunnel [%s]", tiz_err_to_str(error));
   fail_if (OMX_ErrorNone != error);
 
+  tiz_mem_free (p_uri_param);
+
   /* ------------------ */
   /* Destroy components */
   /* ------------------ */
+  error = OMX_FreeHandle (p_oggdmux);
+  fail_if (OMX_ErrorNone != error);
   error = OMX_FreeHandle (p_vorbisdec);
   fail_if (OMX_ErrorNone != error);
   error = OMX_FreeHandle (p_pcmrnd);
@@ -1199,6 +1342,7 @@ START_TEST (test_vorbis_playback)
   error = OMX_Deinit ();
   fail_if (OMX_ErrorNone != error);
 
+  _ctx_destroy (&dmux_ctx);
   _ctx_destroy (&dec_ctx);
   _ctx_destroy (&rend_ctx);
 }
@@ -1237,3 +1381,10 @@ main (void)
 
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
+/* Local Variables: */
+/* c-default-style: gnu */
+/* fill-column: 79 */
+/* indent-tabs-mode: nil */
+/* compile-command: "make check" */
+/* End: */

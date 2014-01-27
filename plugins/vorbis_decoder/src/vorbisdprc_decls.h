@@ -50,12 +50,13 @@ extern "C"
     OMX_BUFFERHEADERTYPE *p_out_hdr_;
     FishSound *p_fsnd_;
     FishSoundInfo fsinfo_;
-    int packet_count_;
-    int rate_;
-    int channels_;
+    bool started_;
     bool eos_;
     bool in_port_disabled_;
     bool out_port_disabled_;
+    OMX_U8 *p_store_;
+    OMX_U32 store_size_;
+    OMX_U32 store_offset_;
   };
 
   typedef struct vorbisd_prc_class vorbisd_prc_class_t;

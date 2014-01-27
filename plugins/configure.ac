@@ -55,17 +55,18 @@ AC_CONFIG_SUBDIRS([audio_renderer
                    audio_renderer_non_block
                    file_reader
                    file_writer
+                   flac_decoder
+                   http_renderer
                    mp3_decoder
                    mp3_encoder
                    ogg_demuxer
                    opus_decoder
-                   flac_decoder
+                   vorbis_decoder
                    vp8_decoder
                    vp8_encoder
                    webp_decoder
                    webp_encoder
-                   yuv_renderer
-                   http_renderer])
+                   yuv_renderer])
 
 # End the configure script.
 AC_OUTPUT
