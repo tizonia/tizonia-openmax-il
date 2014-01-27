@@ -657,9 +657,20 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
                   OMX_TRUE ? "OMX_TRUE" : "OMX_FALSE",
                   p_prc->pcmmode.ePCMMode);
 
-      /* TODO : Add function to properly encode snd_pcm_format */
-      snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle ?
-        SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_S16_BE;
+      /* TODO : Add a function to properly encode snd_pcm_format */
+      if (p_prc->pcmmode.nBitPerSample == 16)
+        {
+          snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle ?
+            SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_S16_BE;
+
+        }
+      /* NOTE: this is a hack to allow the float pcm stream coming from the the
+         vorbis decoder */
+      else if (p_prc->pcmmode.nBitPerSample == 32)
+        {
+          snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle ?
+            SND_PCM_FORMAT_FLOAT_LE : SND_PCM_FORMAT_FLOAT_BE;
+        }
 
       snd_sampling_rate = p_prc->pcmmode.bInterleaved == OMX_TRUE ?
         p_prc->pcmmode.nSamplingRate : p_prc->pcmmode.nSamplingRate * 2;
