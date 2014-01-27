@@ -151,7 +151,7 @@ namespace                       // unnamed namespace
     printf
       ("\t tplay ~/Music (decodes every supported file in the '~/Music' directory)\n");
     printf ("\t    * Currently supported formats for playback:\n");
-    printf ("\t      * mp3, flac (.flac, .ogg, .oga), opus (.ogg, .oga).\n");
+    printf ("\t      * mp3, flac (.flac, .ogg, .oga), opus (.opus, .ogg, .oga), vorbis (.ogg, .oga).\n");
     printf ("\t    * Key bindings:\n");
     printf ("\t      * [p] skip to previous file.\n");
     printf ("\t      * [n] skip to next file.\n");

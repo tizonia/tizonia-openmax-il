@@ -31,6 +31,7 @@ noinst_HEADERS = \
 	tizmp3graph.h \
 	tizopusgraph.h \
 	tizflacgraph.h \
+	tizvorbisgraph.h \
 	tizstreamsrvconfig.h \
 	tizstreamsrvgraph.h
 
@@ -46,6 +47,7 @@ tplay_SOURCES = \
 	tizgraph.cc \
 	tizmp3graph.cc \
 	tizopusgraph.cc \
+	tizvorbisgraph.cc \
 	tizflacgraph.cc \
 	tizstreamsrvgraph.cc
 

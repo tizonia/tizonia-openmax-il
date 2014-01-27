@@ -67,6 +67,7 @@ public:
   void get_mp3_codec_info(OMX_AUDIO_PARAM_MP3TYPE &mp3type);
   void get_opus_codec_info(OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);
   void get_flac_codec_info(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype);
+  void get_vorbis_codec_info(OMX_AUDIO_PARAM_VORBISTYPE &vorbistype);
   void get_vp8_codec_info(OMX_VIDEO_PARAM_VP8TYPE &vp8type);
 
   /* Meta-data information */
@@ -96,6 +97,7 @@ private:
   void set_mp3_codec_info (const AVCodecContext *cc);
   void set_opus_codec_info ();
   void set_flac_codec_info (const AVCodecContext *cc);
+  void set_vorbis_codec_info (const AVCodecContext *cc);
   std::string retrieve_meta_data_str (TagLib::String (TagLib::Tag::*TagFunction)() const) const;
   unsigned int retrieve_meta_data_uint (TagLib::uint (TagLib::Tag::*TagFunction)() const) const;
 
@@ -111,6 +113,7 @@ private:
   OMX_AUDIO_PARAM_MP3TYPE mp3type_;
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
   OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_;
+  OMX_AUDIO_PARAM_VORBISTYPE vorbistype_;
   OMX_VIDEO_PARAM_VP8TYPE vp8type_;
   TagLib::FileRef meta_file_;
   std::string stream_title_;

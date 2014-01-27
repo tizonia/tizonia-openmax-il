@@ -167,6 +167,7 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   mp3type_ (),
   opustype_ (),
   flactype_ (),
+  vorbistype_ (),
   vp8type_ (),
   meta_file_ (uri.c_str ()),
   stream_title_ (),
@@ -197,19 +198,7 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   mp3type_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
   mp3type_.eFormat = OMX_AUDIO_MP3StreamFormatMP2Layer3;
 
-  // Defaults for the flac decoder
-  flactype_.nSize                 = sizeof (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE);
-  flactype_.nVersion.nVersion     = OMX_VERSION;
-  flactype_.nPortIndex            = 0;
-  flactype_.nChannels             = 2;
-  flactype_.nBitsPerSample        = 16;
-  flactype_.nSampleRate           = 48000;
-  flactype_.nCompressionLevel     = 5;
-  flactype_.nBlockSize            = 0;
-  flactype_.nTotalSamplesEstimate = 0;
-  flactype_.eChannelMode          = OMX_AUDIO_ChannelModeStereo;
-
-  // Defaults for the opsu decoder
+  // Defaults for the opus decoder
   opustype_.nSize                   = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
   opustype_.nVersion.nVersion       = OMX_VERSION;
   opustype_.nPortIndex              = 0;
@@ -224,6 +213,32 @@ tizprobe::tizprobe (const std::string & uri, const bool quiet):
   opustype_.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
   opustype_.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
 
+  // Defaults for the flac decoder
+  flactype_.nSize                 = sizeof (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE);
+  flactype_.nVersion.nVersion     = OMX_VERSION;
+  flactype_.nPortIndex            = 0;
+  flactype_.nChannels             = 2;
+  flactype_.nBitsPerSample        = 16;
+  flactype_.nSampleRate           = 48000;
+  flactype_.nCompressionLevel     = 5;
+  flactype_.nBlockSize            = 0;
+  flactype_.nTotalSamplesEstimate = 0;
+  flactype_.eChannelMode          = OMX_AUDIO_ChannelModeStereo;
+
+  // Defaults for the vorbis decoder
+  vorbistype_.nSize             = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
+  vorbistype_.nVersion.nVersion = OMX_VERSION;
+  vorbistype_.nPortIndex        = 0;
+  vorbistype_.nPortIndex        = 0;
+  vorbistype_.nChannels         = 2;
+  vorbistype_.nBitRate          = 0;
+  vorbistype_.nMinBitRate       = 0;
+  vorbistype_.nMaxBitRate       = 0;
+  vorbistype_.nSampleRate       = 48000;
+  vorbistype_.nAudioBandWidth   = 0;
+  vorbistype_.nQuality          = 5;
+  vorbistype_.bManaged          = OMX_FALSE;
+  vorbistype_.bDownmix          = OMX_FALSE;
 
   av_register_all ();
   av_log_set_level (AV_LOG_QUIET);
@@ -283,6 +298,10 @@ tizprobe::probe_file ()
           else if (codec_id == CODEC_ID_FLAC)
             {
               set_flac_codec_info (cc);
+            }
+          else if (codec_id == CODEC_ID_VORBIS)
+            {
+              set_vorbis_codec_info (cc);
             }
           else if (codec_id == CODEC_ID_VP8)
             {
@@ -396,6 +415,54 @@ tizprobe::set_flac_codec_info (const AVCodecContext *cc)
     }
 
   pcmtype_.eEndian       = OMX_EndianLittle;
+}
+
+void
+tizprobe::set_vorbis_codec_info (const AVCodecContext *cc)
+{
+  assert (NULL != cc);
+
+  domain_                 = OMX_PortDomainAudio;
+  audio_coding_type_      = static_cast<OMX_AUDIO_CODINGTYPE>(OMX_AUDIO_CodingVORBIS);
+  vorbistype_.nSampleRate = cc->sample_rate;
+  pcmtype_.nSamplingRate  = cc->sample_rate;
+  vorbistype_.nChannels   = cc->channels;
+  pcmtype_.nChannels      = cc->channels;
+
+  if (1 == pcmtype_.nChannels)
+    {
+      pcmtype_.bInterleaved = OMX_FALSE;
+    }
+
+  if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataUnsigned;
+      pcmtype_.nBitPerSample = 8;
+    }
+  else if (AV_SAMPLE_FMT_S16 == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 16;
+    }
+  else if (AV_SAMPLE_FMT_S32 == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 32;
+    }
+  else if (AV_SAMPLE_FMT_FLT == cc->sample_fmt)
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 32;
+    }
+  else
+    {
+      pcmtype_.eNumData = OMX_NumericalDataSigned;
+      pcmtype_.nBitPerSample = 16;
+    }
+
+  // This is a hack, not sure why libav says this is a 16 bit format
+  pcmtype_.nBitPerSample = 32;
+  pcmtype_.eEndian       = OMX_EndianLittle;
 
 }
 
@@ -444,6 +511,17 @@ tizprobe::get_flac_codec_info (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE & flactype)
       (void) probe_file ();
     }
   flactype = flactype_;
+  return;
+}
+
+void
+tizprobe::get_vorbis_codec_info (OMX_AUDIO_PARAM_VORBISTYPE &vorbistype)
+{
+  if (OMX_PortDomainMax == domain_)
+    {
+      (void) probe_file ();
+    }
+  vorbistype = vorbistype_;
   return;
 }
 
