@@ -1011,6 +1011,14 @@ namespace tiz
                                  <skipping_
                                   ::skip_exit>, skipped_evt    , unloaded                , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
+                                                                                               do_error,
+                                                                                               do_tear_down_tunnels,
+                                                                                               do_destroy_graph> > , is_fatal_error       >,
+        boost::msm::front::Row < skipping
+                                 ::exit_pt
+                                 <skipping_
+                                  ::skip_exit>, skipped_evt    , unloaded                , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
                                                                                                do_end_of_play,
                                                                                                do_tear_down_tunnels,
                                                                                                do_destroy_graph> > , is_end_of_play       >,
@@ -1019,14 +1027,6 @@ namespace tiz
                                  <skipping_
                                   ::skip_exit>, skipped_evt    , configuring             , boost::msm::front::none , boost::msm::front::euml::Not_<
                                                                                                                        is_end_of_play>   >,
-        boost::msm::front::Row < skipping
-                                 ::exit_pt
-                                 <skipping_
-                                  ::skip_exit>, skipped_evt    , unloaded                , boost::msm::front::ActionSequence_<
-                                                                                             boost::mpl::vector<
-                                                                                               do_error,
-                                                                                               do_tear_down_tunnels,
-                                                                                               do_destroy_graph> > , is_fatal_error       >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < exe2pause   , omx_trans_evt   , pause                   , boost::msm::front::none , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
