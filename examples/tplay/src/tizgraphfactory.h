@@ -1,3 +1,4 @@
+/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
@@ -29,24 +30,29 @@
 #ifndef TIZGRAPHFACTORY_H
 #define TIZGRAPHFACTORY_H
 
-#include "tizgraph.h"
+#include <string>
+
+#include <boost/utility.hpp>
 
 #include <OMX_Types.h>
 
-#include <string>
+#include "tizgraphtypes.h"
+/* #include "tizgraph.h" */
 
-class tizgraphfactory
+namespace tiz
 {
+  namespace graph
+  {
+    class factory : boost::noncopyable
+    {
 
-public:
+   public:
 
-  static tizgraph_ptr_t create_graph(const std::string &uri);
-  static std::string coding_type(const std::string &uri);
+      static tizgraph_ptr_t create_graph(const std::string &uri);
+      static std::string coding_type(const std::string &uri);
 
-protected:
-
-   tizgraphfactory(int graph_size);
-
-};
+    };
+  } // namespace graph
+} // namespace tiz
 
 #endif // TIZGRAPHFACTORY_H

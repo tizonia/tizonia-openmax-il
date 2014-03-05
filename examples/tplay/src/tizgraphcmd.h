@@ -30,55 +30,36 @@
 #ifndef TIZGRAPHCMD_H
 #define TIZGRAPHCMD_H
 
-#include "tizgraphtypes.h"
+#include <boost/any.hpp>
 
-#include <boost/assign/list_of.hpp>
+#include "tizgraphfsm.h"
 
-// TODO: Consider refactoring this class to something nicer, perhaps
-// using sub-command classes.
-
-class tizgraphcmd
+namespace tiz
 {
-
-public:
-
-  enum cmd_type
+  namespace graph
   {
-    ETIZGraphCmdLoad,
-    ETIZGraphCmdConfig,
-    ETIZGraphCmdExecute,
-    ETIZGraphCmdPause,
-    ETIZGraphCmdSeek,
-    ETIZGraphCmdSkip,
-    ETIZGraphCmdVolume,
-    ETIZGraphCmdMute,
-    ETIZGraphCmdUnload,
-    ETIZGraphCmdEos,
-    ETIZGraphCmdError,
-    ETIZGraphCmdMax
-  };
 
-  tizgraphcmd (const cmd_type type,
-               const tizgraphconfig_ptr_t config,
-               const OMX_HANDLETYPE handle = NULL,
-               const int jump = 0,
-               const OMX_ERRORTYPE error = OMX_ErrorNone);
+    class cmd
+    {
 
-  cmd_type get_type () const {return type_;}
-  tizgraphconfig_ptr_t get_config () const {return config_;}
-  OMX_HANDLETYPE get_handle () const {return handle_;}
-  int get_jump () const {return jump_;};
-  OMX_ERRORTYPE get_error () const {return error_;};
+    public:
 
-  const char * c_str () const;
+      explicit cmd (boost::any any_event, bool kill_thread = false);
 
-private:
+    public:
 
-  const cmd_type type_;
-  tizgraphconfig_ptr_t config_;
-  OMX_HANDLETYPE handle_;
-  int jump_;
-  OMX_ERRORTYPE error_;
-};
+      const boost::any evt () const;
+      const char * c_str () const;
+      bool kill_thread () const;
+      void inject (fsm&) const;
+    private:
+
+      const boost::any evt_;
+      const bool kill_thread_;
+
+    };
+
+  }// namespace graph
+}  // namespace tiz
 
 #endif // TIZGRAPHCMD_H

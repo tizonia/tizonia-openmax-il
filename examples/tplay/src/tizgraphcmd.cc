@@ -22,7 +22,7 @@
  * @file   tizgraphcmd.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Graph manager command class impl
+ * @brief  Graph command class impl
  *
  */
 
@@ -30,69 +30,63 @@
 #include <config.h>
 #endif
 
-#include "tizgraphcmd.h"
-
-#include <string>
-#include <vector>
-
 #include <assert.h>
 
-namespace // Unnamed namespace
-{
+#include <string>
 
-  typedef struct graph_cmd_str graph_cmd_str_t;
-  struct graph_cmd_str
+#include "tizgraphcmd.h"
+
+namespace
+{
+  template <typename T>
+  bool is_type (const boost::any& operand)
   {
-    graph_cmd_str (tizgraphcmd::cmd_type a_cmd, std::string a_str)
-      : cmd (a_cmd), str (a_str)
-    {}
-    tizgraphcmd::cmd_type cmd;
-    const std::string str;
-  };
-
-  const std::vector<graph_cmd_str_t> graph_cmd_to_str_tbl
-  = boost::assign::list_of
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdLoad, "ETIZGraphCmdLoad"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdConfig, "ETIZGraphCmdConfig"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdExecute, "ETIZGraphCmdExecute"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdPause, "ETIZGraphCmdPause"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdSeek, "ETIZGraphCmdSeek"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdSkip, "ETIZGraphCmdSkip"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdVolume, "ETIZGraphCmdVolume"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdVolume, "ETIZGraphCmdMute"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdUnload, "ETIZGraphCmdUnload"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdEos, "ETIZGraphCmdEos"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdError, "ETIZGraphCmdError"))
-    (graph_cmd_str_t (tizgraphcmd::ETIZGraphCmdMax, "ETIZGraphCmdMax"));
-
+    return operand.type () == typeid(T);
+  }
 }
 
-tizgraphcmd::tizgraphcmd (const cmd_type type,
-                          const tizgraphconfig_ptr_t config,
-                          const OMX_HANDLETYPE handle, /* = NULL */
-                          const int jump, /* = 0 */
-                          const OMX_ERRORTYPE error /* = OMX_ErrorNone */)
-  : type_ (type),
-    config_ (config),
-    handle_ (handle),
-    jump_ (jump),
-    error_ (error)
+namespace graph = tiz::graph;
+
+graph::cmd::cmd (boost::any any_event, bool kill_thread /* = false */)
+  : evt_ (any_event), kill_thread_ (kill_thread)
 {
-  assert (type_ < ETIZGraphCmdMax);
 }
 
-/*@observer@*/ const char *
-tizgraphcmd::c_str () const
+const boost::any graph::cmd::evt () const
 {
-  const size_t count = graph_cmd_to_str_tbl.size ();
-  size_t i = 0;
-  
-  for (i = 0; i < count; ++i)
-    {
-      if (graph_cmd_to_str_tbl[i].cmd == type_)
-        {
-          return graph_cmd_to_str_tbl[i].str.c_str ();
-        }
-    }
-  return "Unknown Graph command";
+  return evt_;
+}
+
+/*@observer@*/ const char* graph::cmd::c_str () const
+{
+  std::string cmd_name ("CMD [");
+  cmd_name.append (typeid(evt ()).name ());
+  cmd_name.append ("]");
+  return cmd_name.c_str ();
+}
+
+bool graph::cmd::kill_thread () const
+{
+  return kill_thread_;
+}
+
+void graph::cmd::inject (fsm& machine) const
+{
+#define INJECT_EVENT(the_evt)                               \
+  if (is_type<the_evt>(evt_))                               \
+  {                                                         \
+    std::string arg (#the_evt);                             \
+    TIZ_LOG (TIZ_PRIORITY_NOTICE,                           \
+             "GRAPH : Injecting "                           \
+             "CMD [%s] in STATE [%s]...",                   \
+             arg.c_str (), tiz::graph::pstate (machine));   \
+    machine.process_event (boost::any_cast<the_evt>(evt_)); \
+  }
+
+  INJECT_EVENT (load_evt)
+  else INJECT_EVENT (execute_evt) else INJECT_EVENT (configured_evt) else INJECT_EVENT (
+      omx_trans_evt) else INJECT_EVENT (skip_evt) else INJECT_EVENT (skipped_evt) else INJECT_EVENT (seek_evt) else INJECT_EVENT (volume_evt) else INJECT_EVENT (mute_evt) else INJECT_EVENT (pause_evt) else INJECT_EVENT (omx_evt) else INJECT_EVENT (omx_eos_evt) else INJECT_EVENT (unload_evt) else INJECT_EVENT (omx_port_disabled_evt) else INJECT_EVENT (omx_port_settings_evt) else INJECT_EVENT (omx_err_evt) else INJECT_EVENT (err_evt) else
+  {
+    assert (0);
+  }
 }

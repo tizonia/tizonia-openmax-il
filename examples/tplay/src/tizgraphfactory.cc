@@ -30,81 +30,81 @@
 #include <config.h>
 #endif
 
-#include "tizgraphfactory.h"
+#include <assert.h>
+
+#include <boost/make_shared.hpp>
+
 #include "tizprobe.h"
 #include "tizmp3graph.h"
 #include "tizopusgraph.h"
-#include "tizflacgraph.h"
 #include "tizvorbisgraph.h"
-
-#include <assert.h>
-#include <boost/make_shared.hpp>
-
+// #include "tizflacgraph.h"
+#include "tizgraphfactory.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.graph.factory"
 #endif
 
-tizgraph_ptr_t
-tizgraphfactory::create_graph (const std::string & uri)
+namespace graph = tiz::graph;
+
+tizgraph_ptr_t graph::factory::create_graph (const std::string &uri)
 {
-  tizprobe_ptr_t p = boost::make_shared < tizprobe > (uri,
-                                                      /* quiet = */ true);
+  tizprobe_ptr_t p = boost::make_shared<tiz::probe>(uri,
+                                                    /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
-  if (p->get_omx_domain () == OMX_PortDomainAudio
-      && p->get_audio_coding_type () == OMX_AUDIO_CodingMP3)
-    {
-      return boost::make_shared < tizmp3graph > (p);
-    }
+  if (p->get_omx_domain () == OMX_PortDomainAudio && p->get_audio_coding_type ()
+                                                     == OMX_AUDIO_CodingMP3)
+  {
+    return boost::make_shared<tiz::graph::mp3decoder>();
+  }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingOPUS)
-    {
-      return boost::make_shared < tizopusgraph > (p);
-    }
-  else if (p->get_omx_domain () == OMX_PortDomainAudio
-           && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
-    {
-      return boost::make_shared < tizflacgraph > (p);
-    }
+  {
+    return boost::make_shared<tiz::graph::opusdecoder>();
+  }
+  //   else if (p->get_omx_domain () == OMX_PortDomainAudio
+  //            && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
+  //     {
+  //       return boost::make_shared < graph::flacdecoder > ();
+  //     }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingVORBIS)
-    {
-      return boost::make_shared < tizvorbisgraph > (p);
-    }
+  {
+    return boost::make_shared<tiz::graph::vorbisdecoder>();
+  }
   //   else if (p->get_omx_domain () == OMX_PortDomainVideo
   //            && p->get_video_coding_type () == OMX_VIDEO_CodingVP8)
   //     {
-  //       return boost::make_shared < tizmp3graph > (p);
+  //       return boost::make_shared < graph::vp8decoder > ();
   //     }
   return null_ptr;
 }
 
-std::string
-tizgraphfactory::coding_type (const std::string & uri)
+std::string graph::factory::coding_type (const std::string &uri)
 {
-  tizprobe_ptr_t p = boost::make_shared < tizprobe > (uri,
-                                                      /* quiet = */ true);
+  tizprobe_ptr_t p = boost::make_shared<tiz::probe>(uri,
+                                                    /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
-  if (p->get_omx_domain () == OMX_PortDomainAudio
-      && p->get_audio_coding_type () == OMX_AUDIO_CodingMP3)
-    {
-      return std::string ("mp3");
-    }
+  if (p->get_omx_domain () == OMX_PortDomainAudio && p->get_audio_coding_type ()
+                                                     == OMX_AUDIO_CodingMP3)
+  {
+    return std::string ("mp3");
+  }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingOPUS)
-    {
-      return std::string ("opus");
-    }
-  else if (p->get_omx_domain () == OMX_PortDomainAudio
-           && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
-    {
-      return std::string ("flac");
-    }
+  {
+    return std::string ("opus");
+  }
+  //   else if (p->get_omx_domain () == OMX_PortDomainAudio
+  //            && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
+  //     {
+  //       return std::string ("flac");
+  //     }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingVORBIS)
-    {
-      return std::string ("vorbis");
-    }
+  {
+    return std::string ("vorbis");
+  }
   return std::string ();
 }

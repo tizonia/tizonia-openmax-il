@@ -30,40 +30,34 @@
 #ifndef TIZGRAPHMGRCMD_H
 #define TIZGRAPHMGRCMD_H
 
-class tizgraphmgrcmd
+#include <boost/any.hpp>
+
+#include "tizgraphmgrfsm.h"
+
+namespace tiz
 {
-
- public:
-
-  enum cmd_type
+  namespace graphmgr
   {
-    ETIZGraphMgrCmdStart,
-    ETIZGraphMgrCmdNext,
-    ETIZGraphMgrCmdPrev,
-    ETIZGraphMgrCmdFwd,
-    ETIZGraphMgrCmdRwd,
-    ETIZGraphMgrCmdVolumeUp,
-    ETIZGraphMgrCmdVolumeDown,
-    ETIZGraphMgrCmdMuteUnmute,
-    ETIZGraphMgrCmdPause,
-    ETIZGraphMgrCmdStop,
-    ETIZGraphMgrCmdGraphEop,
-    ETIZGraphMgrCmdGraphError,
-    ETIZGraphMgrCmdMax
-  };
+    class cmd
+    {
 
- public:
+    public:
 
-  tizgraphmgrcmd (const cmd_type type);
+      explicit cmd (boost::any any_event);
 
-  cmd_type get_type () const {return type_;}
+    public:
 
-  const char * c_str () const;
+      const boost::any evt () const;
+      const char * c_str () const;
+      void inject (fsm&) const;
 
- private:
+    private:
 
-  const cmd_type type_;
+      const boost::any evt_;
 
-};
+    };
+
+  }// namespace graphmgr
+}  // namespace tiz
 
 #endif // TIZGRAPHMGRCMD_H

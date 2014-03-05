@@ -33,29 +33,34 @@
 #include "tizgraphtypes.h"
 #include <boost/shared_ptr.hpp>
 
-// class tizgraphconfig;
-// typedef boost::shared_ptr<tizgraphconfig> tizgraphconfig_ptr_t;
-
-class tizgraphconfig
+namespace tiz
 {
+  namespace graph
+  {
 
-public:
+    class config
+    {
 
-  explicit tizgraphconfig (const uri_list_t & uris, const bool continuous_playback = true)
-    : uris_ (uris), continuous_playback_ (continuous_playback)
-  {}
+    public:
 
-  virtual ~tizgraphconfig () {}
+      explicit config (const uri_lst_t & uris, const bool continuous_playback = true)
+        : uris_ (uris), continuous_playback_ (continuous_playback)
+      {}
 
-  uri_list_t get_uris () const {return uris_;}
-  void set_uris (const uri_list_t & uris)  {uris_ = uris;}
+      virtual ~config () {}
 
-  bool continuous_playback () const {return continuous_playback_;}
+      uri_lst_t get_uris () const {return uris_;}
+      void set_uris (const uri_lst_t & uris)  {uris_ = uris;}
 
-protected:
+      bool continuous_playback () const {return continuous_playback_;}
 
-  uri_list_t uris_;
-  bool continuous_playback_;
-};
+    protected:
+
+      uri_lst_t uris_;
+      bool continuous_playback_;
+    };
+
+  } // namespace graph
+} // namespace tiz
 
 #endif // TIZGRAPHCONFIG_H

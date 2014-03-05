@@ -22,7 +22,7 @@
  * @file   tizmp3graph.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL mp3 graph class
+ * @brief  OpenMAX IL mp3 decoder graph
  *
  *
  */
@@ -31,36 +31,52 @@
 #define TIZMP3GRAPH_H
 
 #include "tizgraph.h"
-#include "tizprobe.h"
+#include "tizgraphops.h"
 
-class tizmp3graph : public tizgraph
+namespace tiz
 {
+  namespace graph
+  {
+    class mp3decoder : public graph
+    {
 
-public:
+    public:
 
-  tizmp3graph (tizprobe_ptr_t probe_ptr);
+      mp3decoder ();
 
-protected:
+    protected:
 
-  OMX_ERRORTYPE do_load ();
-  OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t &config);
-  OMX_ERRORTYPE do_execute ();
-  OMX_ERRORTYPE do_pause ();
-  OMX_ERRORTYPE do_seek ();
-  OMX_ERRORTYPE do_skip (const int jump);
-  OMX_ERRORTYPE do_volume (const int step);
-  OMX_ERRORTYPE do_mute ();
-  void          do_error (const OMX_ERRORTYPE error);
-  void          do_eos (const OMX_HANDLETYPE handle);
-  void          do_unload ();
+      ops * do_init ();
 
-  OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
+    };
 
-private:
+    class mp3decops : public ops
+    {
+    public:
 
-  OMX_ERRORTYPE configure_mp3_graph (const int file_index);
+      mp3decops (graph *p_graph,
+                 const omx_comp_name_lst_t & comp_lst,
+                 const omx_comp_role_lst_t & role_lst);
 
-};
+    public:
+
+      void do_probe ();
+      bool is_port_settings_evt_required () const;
+      bool is_disabled_evt_required () const;
+      void do_configure ();
+
+    protected:
+
+      OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
+      OMX_ERRORTYPE set_mp3_settings ();
+
+    protected:
+
+      bool need_port_settings_changed_evt_;
+
+    };
+  } // namespace graph
+} // namespace tiz
 
 #endif // TIZMP3GRAPH_H
 

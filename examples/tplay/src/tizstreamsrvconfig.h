@@ -37,7 +37,7 @@ class tizstreamsrvconfig : public tizgraphconfig
 
 public:
 
-  tizstreamsrvconfig (const uri_list_t & uris,
+  tizstreamsrvconfig (const uri_lst_t & uris,
                       const std::string &host,
                       const std::string &ip_address,
                       const long int port)

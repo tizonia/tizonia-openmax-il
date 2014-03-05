@@ -19,37 +19,48 @@ bin_PROGRAMS = tplay
 
 noinst_HEADERS = \
 	tizomxutil.h \
+	tizgraphutil.h \
+	tizgraphcback.h \
 	tizprobe.h \
 	tizplaylist.h \
 	tizgraphfactory.h \
 	tizgraphtypes.h \
 	tizgraphconfig.h \
 	tizgraphmgrcmd.h \
+	tizgraphmgrops.h \
+	tizgraphmgrfsm.h \
 	tizgraphmgr.h \
+	tizgraphmgrfsm.h \
+	tizgraphfsm.h \
 	tizgraphcmd.h \
+	tizgraphops.h \
 	tizgraph.h \
 	tizmp3graph.h \
 	tizopusgraph.h \
-	tizflacgraph.h \
-	tizvorbisgraph.h \
-	tizstreamsrvconfig.h \
-	tizstreamsrvgraph.h
+	tizvorbisgraph.h
+# 	tizflacgraph.h \
+# 	tizstreamsrvconfig.h \
+# 	tizstreamsrvgraph.h
 
 tplay_SOURCES = \
 	tizplay.cc \
 	tizomxutil.cc \
+	tizgraphutil.cc \
+	tizgraphcback.cc \
 	tizprobe.cc \
 	tizplaylist.cc \
 	tizgraphfactory.cc \
 	tizgraphmgrcmd.cc \
+	tizgraphmgrops.cc \
 	tizgraphmgr.cc \
+	tizgraphops.cc \
 	tizgraphcmd.cc \
 	tizgraph.cc \
 	tizmp3graph.cc \
 	tizopusgraph.cc \
-	tizvorbisgraph.cc \
-	tizflacgraph.cc \
-	tizstreamsrvgraph.cc
+	tizvorbisgraph.cc 
+# 	tizflacgraph.cc \
+# 	tizstreamsrvgraph.cc
 
 tplay_CPPFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \

@@ -22,7 +22,7 @@
  * @file   tizgraphmgrcmd.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Graph manager command class impl
+ * @brief  Graph manager command class
  *
  */
 
@@ -30,65 +30,58 @@
 #include <config.h>
 #endif
 
-#include "tizgraphmgrcmd.h"
-
-#include <boost/assign/list_of.hpp>
-
-#include <string>
-#include <vector>
-
 #include <assert.h>
 
-namespace // Unnamed namespace
-{
+#include <string>
 
-  typedef struct graph_mgr_cmd_str graph_mgr_cmd_str_t;
-  struct graph_mgr_cmd_str
+#include "tizgraphmgrcmd.h"
+
+namespace
+{
+  template <typename T>
+  bool is_type (const boost::any& operand)
   {
-    graph_mgr_cmd_str (tizgraphmgrcmd::cmd_type a_cmd, std::string a_str)
-      : cmd (a_cmd), str (a_str)
-    {}
-    tizgraphmgrcmd::cmd_type cmd;
-    const std::string str;
-  };
-
-  const std::vector<graph_mgr_cmd_str_t> graph_mgr_cmd_to_str_tbl
-  = boost::assign::list_of
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdStart, "ETIZGraphMgrCmdStart"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdNext, "ETIZGraphMgrCmdNext"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdPrev, "ETIZGraphMgrCmdPrev"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdFwd, "ETIZGraphMgrCmdFwd"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdRwd, "ETIZGraphMgrCmdRwd"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdVolumeUp, "ETIZGraphMgrCmdVolumeUp"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdVolumeDown, "ETIZGraphMgrCmdVolumeDown"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdMuteUnmute, "ETIZGraphMgrCmdMuteUnmute"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdPause, "ETIZGraphMgrCmdPause"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdStop, "ETIZGraphMgrCmdStop"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdGraphEop, "ETIZGraphMgrCmdGraphEop"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdGraphError, "ETIZGraphMgrCmdGraphError"))
-    (graph_mgr_cmd_str_t (tizgraphmgrcmd::ETIZGraphMgrCmdMax, "ETIZGraphMgrCmdMax"));
-
+    return operand.type () == typeid(T);
+  }
 }
 
-tizgraphmgrcmd::tizgraphmgrcmd (const cmd_type type)
-  : type_ (type)
+namespace graphmgr = tiz::graphmgr;
+
+graphmgr::cmd::cmd (boost::any any_event) : evt_ (any_event)
 {
-  assert (type_ < ETIZGraphMgrCmdMax);
 }
 
-/*@observer@*/ const char *
-tizgraphmgrcmd::c_str () const
+const boost::any graphmgr::cmd::evt () const
 {
-  const size_t count = graph_mgr_cmd_to_str_tbl.size ();
-  size_t i = 0;
+  return evt_;
+}
 
-  for (i = 0; i < count; ++i)
-    {
-      if (graph_mgr_cmd_to_str_tbl[i].cmd == type_)
-        {
-          return graph_mgr_cmd_to_str_tbl[i].str.c_str ();
-        }
-    }
+/*@observer@*/ const char* graphmgr::cmd::c_str () const
+{
+  if (is_type<start_evt>(evt_))
+  {
+    return "start_evt";
+  }
   return "Unknown Graph Manager command";
 }
 
+void graphmgr::cmd::inject (fsm& machine) const
+{
+#define INJECT_EVENT(the_evt)                                \
+  if (is_type<the_evt>(evt_))                                \
+  {                                                          \
+    std::string arg (#the_evt);                              \
+    TIZ_LOG (TIZ_PRIORITY_NOTICE,                            \
+             "GRAPH MGR : Injecting "                        \
+             "CMD [%s] in STATE [%s]...",                    \
+             arg.c_str (), tiz::graphmgr::pstate (machine)); \
+    machine.process_event (boost::any_cast<the_evt>(evt_));  \
+  }
+
+  INJECT_EVENT (start_evt)
+  else INJECT_EVENT (next_evt) else INJECT_EVENT (prev_evt) else INJECT_EVENT (fwd_evt) else INJECT_EVENT (rwd_evt) else INJECT_EVENT (vol_up_evt) else INJECT_EVENT (vol_down_evt) else INJECT_EVENT (mute_evt) else INJECT_EVENT (
+      pause_evt) else INJECT_EVENT (stop_evt) else INJECT_EVENT (graph_eop_evt) else INJECT_EVENT (err_evt) else INJECT_EVENT (graph_loaded_evt) else INJECT_EVENT (graph_execd_evt) else INJECT_EVENT (graph_unlded_evt) else
+  {
+    assert (0);
+  }
+}

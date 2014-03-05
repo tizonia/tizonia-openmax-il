@@ -40,12 +40,12 @@ class tizplaylist
 
  public:
 
-  explicit tizplaylist(const uri_list_t &uri_list = uri_list_t ());
+  explicit tizplaylist(const uri_lst_t &uri_list = uri_lst_t ());
   tizplaylist(const tizplaylist &playlist, const int from, const int to);
 
   tizplaylist get_next_sub_playlist ();
-  uri_list_t get_sublist (const int from, const int to) const;
-  const uri_list_t & get_uri_list () const ;
+  uri_lst_t get_sublist (const int from, const int to) const;
+  const uri_lst_t & get_uri_list () const ;
 
   int size () const;
   bool is_single_format_playlist () const;
@@ -53,8 +53,8 @@ class tizplaylist
   static bool assemble_play_list (const std::string &base_uri,
                                   const bool shuffle_playlist,
                                   const bool recurse,
-                                  const extension_list_t &extension_list,
-                                  uri_list_t &file_list,
+                                  const file_extension_lst_t &extension_list,
+                                  uri_lst_t &file_list,
                                   std::string &error_msg);
 
  private:
@@ -68,7 +68,7 @@ class tizplaylist
   
 private:
 
-  uri_list_t            uri_list_;
+  uri_lst_t            uri_list_;
   int                   current_index_;
   mutable single_format single_format_list_;
 };

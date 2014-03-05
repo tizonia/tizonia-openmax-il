@@ -30,214 +30,101 @@
 #ifndef TIZGRAPH_H
 #define TIZGRAPH_H
 
-#include "tizgraphtypes.h"
-#include "tizprobe.h"
-#include "tizplaylist.h"
-
-#include <tizosal.h>
-
-#include <OMX_Core.h>
-
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
-// Forward declarations
-void * g_graph_thread_func (void *p_arg);
-class  tizgraphcmd;
+#include <OMX_Core.h>
+#include <tizosal.h>
 
-struct waitevent_info;
-typedef std::list<waitevent_info> waitevent_list_t;
+#include "tizgraphtypes.h"
+#include "tizplaylist.h"
+#include "tizgraphfsm.h"
+#include "tizgraphcback.h"
 
-OMX_ERRORTYPE
-tizgraph_event_handler (OMX_HANDLETYPE hComponent,
-                        OMX_PTR pAppData,
-                        OMX_EVENTTYPE eEvent,
-                        OMX_U32 nData1,
-                        OMX_U32 nData2,
-                        OMX_PTR pEventData);
-
-struct waitevent_info
+namespace tiz
 {
-  waitevent_info(OMX_HANDLETYPE component,
-                 OMX_EVENTTYPE event,
-                 OMX_U32 ndata1,
-                 OMX_U32 ndata2,
-                 OMX_PTR pEventData)
-    :
-    component_ (component),
-    event_ (event),
-    ndata1_ (ndata1),
-    ndata2_ (ndata2),
-    pEventData_ (pEventData)
-  {}
-
-  bool operator==(const waitevent_info& b)
+  namespace graphmgr
   {
-    if (component_ == b.component_
-        && event_  == b.event_
-        && ndata1_ == b.ndata1_
-        && ndata2_ == b.ndata2_)
-      // TODO: Ignore pEventData for now. This is to make events like this pass the comparison:
-      // e.g.: [tizgraph.cc:receive_event:238] --- [OMX.Aratelia.file_reader.binary] : [OMX_EventCmdComplete] [OMX_CommandStateSet] [OMX_StateLoaded] error [0x80001017]
-      //       && pEventData_ == b.pEventData_)
-      {
-        return true;
-      }
-    return false;
+    // Forward declaration
+    class mgr;
   }
 
-  OMX_HANDLETYPE component_;
-  OMX_EVENTTYPE event_;
-  OMX_U32 ndata1_;
-  OMX_U32 ndata2_;
-  OMX_PTR pEventData_;
-};
-
-class tizcback_handler
-{
-
-public:
-
-  explicit tizcback_handler (const tizgraph &graph);
-  ~tizcback_handler () {};
-
-  OMX_CALLBACKTYPE *get_omx_cbacks ()
+  namespace graph
   {
-    return &cbacks_;
-  }
-  
-  OMX_ERRORTYPE wait_for_event_list (const waitevent_list_t &event_list);
 
-  void receive_event (OMX_HANDLETYPE component,
-                      OMX_EVENTTYPE event,
-                      OMX_U32 ndata1,
-                      OMX_U32 ndata2,
-                      OMX_PTR pEventData);
+    // Forward declarations
+    void * thread_func (void *p_arg);
+    class  cmd;
+    class  cbackhandler;
+    class  ops;
 
-protected:
+    class graph
+    {
 
-  bool all_events_received ();
+      friend class cbackhandler;
+      friend class ops;
+      friend       void* thread_func (void *);
 
-protected:
+    public:
 
-  const tizgraph &parent_;
-  boost::mutex mutex_;
-  boost::condition_variable cond_;
-  bool events_outstanding_;
-  OMX_CALLBACKTYPE cbacks_;
-  waitevent_list_t received_queue_;
-  waitevent_list_t expected_list_;
-};
+      graph (const std::string & graph_name);
+      virtual ~graph();
 
-class tizgraph
-{
+      OMX_ERRORTYPE init ();
+      OMX_ERRORTYPE load ();
+      OMX_ERRORTYPE execute (const tizgraphconfig_ptr_t config);
+      OMX_ERRORTYPE pause ();
+      OMX_ERRORTYPE seek ();
+      OMX_ERRORTYPE skip (const int jump);
+      OMX_ERRORTYPE volume (const int step);
+      OMX_ERRORTYPE mute ();
+      void unload ();
+      void deinit ();
 
-  friend class tizcback_handler;
-  friend       void* ::g_graph_thread_func (void *);
+      void omx_evt (const omx_event_info & evt);
 
-public:
+      void set_manager (tiz::graphmgr::mgr *ap_mgr);
 
-  tizgraph(const std::string & graph_name, int graph_size, tizprobe_ptr_t probe);
-  virtual ~tizgraph();
+    protected:
 
-  OMX_ERRORTYPE load ();
-  OMX_ERRORTYPE configure (const tizgraphconfig_ptr_t config);
-  OMX_ERRORTYPE execute ();
-  OMX_ERRORTYPE pause ();
-  OMX_ERRORTYPE seek ();
-  OMX_ERRORTYPE skip (const int jump);
-  OMX_ERRORTYPE volume (const int step);
-  OMX_ERRORTYPE mute ();
-  void unload();
+      virtual ops * do_init () = 0;
+      virtual void do_fsm_override ();
 
-  void set_manager (tizgraphmgr_t *ap_graph_mgr);
-  bool at_beginning_of_play () const;
-  bool at_end_of_play () const;
-  
-protected:
+    protected:
 
-  virtual OMX_ERRORTYPE do_load ()                                        = 0;
-  virtual OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t &config) = 0;
-  virtual OMX_ERRORTYPE do_execute ()                                     = 0;
-  virtual OMX_ERRORTYPE do_pause ()                                       = 0;
-  virtual OMX_ERRORTYPE do_seek ()                                        = 0;
-  virtual OMX_ERRORTYPE do_skip (const int jump)                          = 0;
-  virtual OMX_ERRORTYPE do_volume (const int step)                        = 0;
-  virtual OMX_ERRORTYPE do_mute ()                                        = 0;
-  virtual void do_error (const OMX_ERRORTYPE error)                       = 0;
-  virtual void do_eos (const OMX_HANDLETYPE handle)                       = 0;
-  virtual void do_unload ()                                               = 0;
+      void graph_loaded ();
+      void graph_execd ();
+      void graph_unloaded ();
+      void graph_end_of_play ();
+      void graph_error (const OMX_ERRORTYPE error, const std::string &msg);
 
-  virtual OMX_ERRORTYPE init ();
-  virtual OMX_ERRORTYPE deinit ();
+      std::string get_graph_name () const;
 
-protected:
-  
-  void eos (OMX_HANDLETYPE handle);
-  void error (const OMX_ERRORTYPE error);
+    protected:
 
-  OMX_ERRORTYPE verify_existence (const component_names_t &comp_list) const;
-  OMX_ERRORTYPE verify_role (const std::string &comp,
-                            const std::string &role) const;
-  OMX_ERRORTYPE verify_role_list (const component_names_t &comp_list,
-                                  const component_roles_t &role_list) const;
+      std::string graph_name_;
+      cbackhandler cback_handler_;
+      tiz::graphmgr::mgr *p_mgr_;
+      ops * p_ops_;
+      fsm fsm_;
 
-  OMX_ERRORTYPE instantiate_component (const std::string &comp,
-                                      int graph_position);
-  OMX_ERRORTYPE instantiate_list (const component_names_t &comp_list);
-  void destroy_list();
+    private:
 
-  virtual OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false) = 0;
-  virtual void dump_graph_info (const char *ap_coding_type_str,
-                                const char *ap_graph_type_str,
-                                const std::string &uri) const;
+      OMX_ERRORTYPE init_cmd_queue ();
+      void deinit_cmd_queue ();
 
-  OMX_ERRORTYPE setup_tunnels () const;
-  OMX_ERRORTYPE tear_down_tunnels () const;
+      OMX_ERRORTYPE post_cmd (tiz::graph::cmd *p_cmd);
+      static bool dispatch_cmd (tiz::graph::graph *p_graph, const tiz::graph::cmd *p_cmd);
 
-  OMX_ERRORTYPE setup_suppliers () const;
+    private:
 
-  OMX_ERRORTYPE transition_all (const OMX_STATETYPE to,
-                                const OMX_STATETYPE from);
-  OMX_ERRORTYPE transition_one (const int handle_id,
-                                const OMX_STATETYPE to);
-  OMX_ERRORTYPE apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid,
-                              const int step);
-  OMX_ERRORTYPE apply_mute (const OMX_HANDLETYPE handle, const OMX_U32 pid);
-  OMX_ERRORTYPE modify_tunnel (const int tunnel_id, const OMX_COMMANDTYPE cmd);
-  OMX_ERRORTYPE disable_tunnel (const int tunnel_id);
-  OMX_ERRORTYPE enable_tunnel (const int tunnel_id);
+      tiz_thread_t thread_;
+      tiz_mutex_t mutex_;
+      tiz_sem_t sem_;
+      tiz_queue_t *p_queue_;
 
-  OMX_ERRORTYPE send_cmd (tizgraphcmd *p_cmd);
-
-  OMX_ERRORTYPE notify_graph_end_of_play ();
-  void notify_graph_error (const OMX_ERRORTYPE error, const std::string &msg);
-
-  static void dispatch (tizgraph *p_graph, const tizgraphcmd *p_cmd);
-
-  std::string get_graph_name () const
-  {
-    return graph_name_;
-  }
-  
-protected:
-
-  std::string graph_name_;
-  handle_to_name_t h2n_;
-  component_handles_t   handles_;
-  tizcback_handler      cback_handler_;
-  std::string           uri_;
-  tizprobe_ptr_t        probe_ptr_;
-  tiz_thread_t          thread_;
-  tiz_mutex_t           mutex_;
-  tiz_sem_t             sem_;
-  tiz_queue_t          *p_queue_;
-  OMX_STATETYPE         current_graph_state_;
-  tizplaylist_t         playlist_;
-  uri_list_t            file_list_;
-  int                   current_file_index_;
-  tizgraphconfig_ptr_t  config_;
-  tizgraphmgr_t     *     p_mgr_;
-};
+    };
+  } // namespace graph
+} // namespace tiz
 
 #endif // TIZGRAPH_H

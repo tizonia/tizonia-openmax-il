@@ -21,7 +21,7 @@
  * @file   tizprobe.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  File probing utility
+ * @brief  File probing utilities
  *
  *
  */
@@ -29,95 +29,98 @@
 #ifndef TIZPROBE_H
 #define TIZPROBE_H
 
-#include <OMX_Core.h>
-#include <OMX_Component.h>
-#include <OMX_Audio.h>
-#include <OMX_Video.h>
-#include <OMX_TizoniaExt.h>
-
 #include <string>
 #include <boost/shared_ptr.hpp>
 
 #include <fileref.h>
 #include <tag.h>
 
-class tizprobe;
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Audio.h>
+#include <OMX_Video.h>
+#include <OMX_TizoniaExt.h>
+
 class AVCodecContext;
-typedef boost::shared_ptr<tizprobe> tizprobe_ptr_t;
 
-class tizprobe
+namespace tiz
 {
+  class probe
+  {
 
-public:
+  public:
 
-  tizprobe(const std::string &uri, const bool quiet = false);
+    probe(const std::string &uri, const bool quiet = false);
 
-  std::string get_uri ()
-  { return uri_; }
+    std::string get_uri ()
+      { return uri_; }
 
-  OMX_PORTDOMAINTYPE get_omx_domain ();
+    OMX_PORTDOMAINTYPE get_omx_domain ();
 
-  OMX_AUDIO_CODINGTYPE get_audio_coding_type () const
-  { return audio_coding_type_; }
+    OMX_AUDIO_CODINGTYPE get_audio_coding_type () const
+    { return audio_coding_type_; }
 
-  OMX_VIDEO_CODINGTYPE get_video_coding_type () const
-  { return video_coding_type_; }
+    OMX_VIDEO_CODINGTYPE get_video_coding_type () const
+    { return video_coding_type_; }
 
-  void get_pcm_codec_info(OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
-  void get_mp3_codec_info(OMX_AUDIO_PARAM_MP3TYPE &mp3type);
-  void get_opus_codec_info(OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);
-  void get_flac_codec_info(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype);
-  void get_vorbis_codec_info(OMX_AUDIO_PARAM_VORBISTYPE &vorbistype);
-  void get_vp8_codec_info(OMX_VIDEO_PARAM_VP8TYPE &vp8type);
+    void get_pcm_codec_info(OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
+    void get_mp3_codec_info(OMX_AUDIO_PARAM_MP3TYPE &mp3type);
+    void get_opus_codec_info(OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);
+    void get_flac_codec_info(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype);
+    void get_vorbis_codec_info(OMX_AUDIO_PARAM_VORBISTYPE &vorbistype);
+    void get_vp8_codec_info(OMX_VIDEO_PARAM_VP8TYPE &vp8type);
 
-  /* Meta-data information */
-  std::string title () const;
-  std::string artist () const;
-  std::string album () const;
-  std::string year () const;
-  std::string comment () const;
-  std::string track () const;
-  std::string genre () const;
+    /* Meta-data information */
+    std::string title () const;
+    std::string artist () const;
+    std::string album () const;
+    std::string year () const;
+    std::string comment () const;
+    std::string track () const;
+    std::string genre () const;
 
-  /* Meta-data information. These methods are currently used for streaming. */
-  std::string get_stream_title ();
-  std::string get_stream_genre ();
+    /* Meta-data information. These methods are currently used by the http
+       streaming use case. */
+    std::string get_stream_title ();
+    std::string get_stream_genre ();
 
-  /* Duration */
-  std::string stream_length () const;
+    /* Duration */
+    std::string stream_length () const;
 
-  void dump_pcm_info ();
-  void dump_mp3_info ();
-  void dump_mp3_and_pcm_info ();
-  void dump_stream_metadata ();
+    void dump_pcm_info ();
+    void dump_mp3_info ();
+    void dump_mp3_and_pcm_info ();
+    void dump_stream_metadata ();
 
-private:
+  private:
 
-  int probe_file();
-  void set_mp3_codec_info (const AVCodecContext *cc);
-  void set_opus_codec_info ();
-  void set_flac_codec_info (const AVCodecContext *cc);
-  void set_vorbis_codec_info (const AVCodecContext *cc);
-  std::string retrieve_meta_data_str (TagLib::String (TagLib::Tag::*TagFunction)() const) const;
-  unsigned int retrieve_meta_data_uint (TagLib::uint (TagLib::Tag::*TagFunction)() const) const;
+    int probe_file();
+    void set_mp3_codec_info (const AVCodecContext *cc);
+    void set_opus_codec_info ();
+    void set_flac_codec_info (const AVCodecContext *cc);
+    void set_vorbis_codec_info (const AVCodecContext *cc);
+    std::string retrieve_meta_data_str (TagLib::String (TagLib::Tag::*TagFunction)() const) const;
+    unsigned int retrieve_meta_data_uint (TagLib::uint (TagLib::Tag::*TagFunction)() const) const;
 
-private:
+  private:
 
-  std::string uri_;
-  bool quiet_; // this is to control whether the probe object should dump any
-               // format info to the stdout
-  OMX_PORTDOMAINTYPE domain_;
-  OMX_AUDIO_CODINGTYPE audio_coding_type_;
-  OMX_VIDEO_CODINGTYPE video_coding_type_;
-  OMX_AUDIO_PARAM_PCMMODETYPE pcmtype_;
-  OMX_AUDIO_PARAM_MP3TYPE mp3type_;
-  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
-  OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_;
-  OMX_AUDIO_PARAM_VORBISTYPE vorbistype_;
-  OMX_VIDEO_PARAM_VP8TYPE vp8type_;
-  TagLib::FileRef meta_file_;
-  std::string stream_title_;
-  std::string stream_genre_;
-};
+    std::string uri_;
+    bool quiet_; // this is to control whether the probe object should dump any
+    // format info to the stdout
+    OMX_PORTDOMAINTYPE domain_;
+    OMX_AUDIO_CODINGTYPE audio_coding_type_;
+    OMX_VIDEO_CODINGTYPE video_coding_type_;
+    OMX_AUDIO_PARAM_PCMMODETYPE pcmtype_;
+    OMX_AUDIO_PARAM_MP3TYPE mp3type_;
+    OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
+    OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_;
+    OMX_AUDIO_PARAM_VORBISTYPE vorbistype_;
+    OMX_VIDEO_PARAM_VP8TYPE vp8type_;
+    TagLib::FileRef meta_file_;
+    std::string stream_title_;
+    std::string stream_genre_;
+
+  };
+} // namespace tiz
 
 #endif // TIZPROBE_H
