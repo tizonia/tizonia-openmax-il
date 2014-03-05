@@ -1,0 +1,49 @@
+---
+Language:        Cpp
+# BasedOnStyle:  Google
+AccessModifierOffset: -1
+ConstructorInitializerIndentWidth: 2
+AlignEscapedNewlinesLeft: true
+AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: true
+AlwaysBreakBeforeMultilineStrings: true
+BreakBeforeBinaryOperators: true
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializersBeforeComma: false
+BinPackParameters: true
+ColumnLimit:     80
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+DerivePointerBinding: true
+ExperimentalAutoDetectBinPacking: false
+IndentCaseLabels: true
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: All
+ObjCSpaceBeforeProtocolList: false
+PenaltyBreakBeforeFirstCallParameter: 1
+PenaltyBreakComment: 60
+PenaltyBreakString: 1000
+PenaltyBreakFirstLessLess: 120
+PenaltyExcessCharacter: 1000000
+PenaltyReturnTypeOnItsOwnLine: 200
+PointerBindsToType: false
+SpacesBeforeTrailingComments: 2
+Cpp11BracedListStyle: false
+Standard:        Auto
+IndentWidth:     2
+TabWidth:        8
+UseTab:          Never
+BreakBeforeBraces: Allman
+IndentFunctionDeclarationAfterType: true
+SpacesInParentheses: false
+SpacesInAngles:  false
+SpaceInEmptyParentheses: false
+SpacesInCStyleCastParentheses: false
+SpaceBeforeAssignmentOperators: true
+ContinuationIndentWidth: 4
+SpaceBeforeParens: Always
+...
+
