@@ -20,7 +20,7 @@
 /**
  * @file   tizosalutils.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief Tizonia OpenMAX IL - OpenMAX IL types utility functions
  *
  *
@@ -42,7 +42,7 @@ extern "C"
   tiz_mem_set(&(struct_storage), 0x0, sizeof(struct_storage));  \
   (struct_storage).nSize             = sizeof(struct_storage);  \
   (struct_storage).nVersion.nVersion = OMX_VERSION;
-  
+
 #define TIZ_INIT_OMX_PORT_STRUCT(struct_storage, port_id)       \
   memset(&(struct_storage), 0x0, sizeof(struct_storage));       \
   (struct_storage).nSize             = sizeof(struct_storage);  \

@@ -67,7 +67,7 @@ END_TEST
 START_TEST (test_mutex_destroy_null)
 {
   OMX_ERRORTYPE error = tiz_mutex_destroy (0);
-  (void)error;
+  fail_if (OMX_ErrorNone != error);
 }
 END_TEST
 

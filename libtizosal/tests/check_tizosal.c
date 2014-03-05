@@ -76,13 +76,13 @@ osal_sync_suite (void)
   tcase_add_test (tc_sem, test_sem_init_and_destroy);
   tcase_add_test (tc_sem, test_sem_post_and_wait);
   tcase_add_test_raise_signal (tc_sem, test_sem_init_null, SIGABRT);
-  tcase_add_test_raise_signal (tc_sem, test_sem_destroy_null, SIGABRT);
+  tcase_add_test (tc_sem, test_sem_destroy_null);
   tcase_add_test_raise_signal (tc_sem, test_sem_wait_null, SIGABRT);
   tcase_add_test_raise_signal (tc_sem, test_sem_post_null, SIGABRT);
   tcase_add_test (tc_sem, test_mutex_init_and_destroy);
   tcase_add_test (tc_sem, test_mutex_lock_and_unlock);
   tcase_add_test_raise_signal (tc_sem, test_mutex_init_null, SIGABRT);
-  tcase_add_test_raise_signal (tc_sem, test_mutex_destroy_null, SIGABRT);
+  tcase_add_test (tc_sem, test_mutex_destroy_null);
   tcase_add_test_raise_signal (tc_sem, test_mutex_lock_null, SIGABRT);
   tcase_add_test_raise_signal (tc_sem, test_mutex_unlock_null, SIGABRT);
   suite_add_tcase (s, tc_sem);

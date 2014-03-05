@@ -75,21 +75,24 @@ tiz_sem_init (tiz_sem_t * app_sem, OMX_U32 a_value)
 OMX_ERRORTYPE
 tiz_sem_destroy (tiz_sem_t * app_sem)
 {
-  sem_t *p_sem;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (app_sem);
-  p_sem = *app_sem;
-
-  if (p_sem && (SEM_SUCCESS != sem_destroy (p_sem)))
+  if (NULL != app_sem)
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
-      return OMX_ErrorUndefined;
+      sem_t *p_sem = *app_sem;
+
+      if (p_sem && (SEM_SUCCESS != sem_destroy (p_sem)))
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s",
+                   strerror (errno));
+          rc = OMX_ErrorUndefined;
+        }
+
+      tiz_mem_free (p_sem);
+      *app_sem = 0;
     }
 
-  tiz_mem_free (p_sem);
-  *app_sem = 0;
-
-  return OMX_ErrorNone;
+  return rc;
 }
 
 OMX_ERRORTYPE
@@ -178,23 +181,26 @@ tiz_mutex_init (tiz_mutex_t * app_mutex)
 OMX_ERRORTYPE
 tiz_mutex_destroy (tiz_mutex_t * app_mutex)
 {
-  pthread_mutex_t *p_mutex;
-  int error = 0;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != app_mutex);
-  p_mutex = *app_mutex;
-
-  if (p_mutex
-      && (PTHREAD_SUCCESS != (error = pthread_mutex_destroy (p_mutex))))
+  if (NULL != app_mutex)
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
-      return OMX_ErrorUndefined;
+      int error = 0;
+      pthread_mutex_t *p_mutex = *app_mutex;
+
+      if (p_mutex
+          && (PTHREAD_SUCCESS != (error = pthread_mutex_destroy (p_mutex))))
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s",
+                   strerror (error));
+          rc = OMX_ErrorUndefined;
+        }
+
+      tiz_mem_free (p_mutex);
+      *app_mutex = 0;
     }
 
-  tiz_mem_free (p_mutex);
-  *app_mutex = 0;
-
-  return OMX_ErrorNone;
+  return rc;
 }
 
 OMX_ERRORTYPE
