@@ -35,16 +35,6 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play"
 #endif
 
-#include "tizplaylist.h"
-#include "tizgraph.h"
-#include "tizgraphmgr.h"
-#include "tizgraphfactory.h"
-// #include "tizstreamsrvgraph.h"
-// #include "tizstreamsrvconfig.h"
-#include "tizomxutil.h"
-
-#include <tizosal.h>
-#include <OMX_Core.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -59,14 +49,25 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <termios.h>
+
+#include <ostream>
 
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
-#include <ostream>
-#include <termios.h>
+
+#include <tizosal.h>
+#include <OMX_Core.h>
+
+#include "tizomxutil.h"
+#include "tizplaylist.h"
+#include "tizgraph.h"
+#include "tizgraphmgr.h"
+#include "tizgraphfactory.h"
+// #include "tizhttpservgraph.h"
+// #include "tizhttpservconfig.h"
 
 static bool gb_daemon_mode = false;
-
 static struct termios old_term, new_term;
 
 namespace  // unnamed namespace
@@ -412,7 +413,7 @@ namespace  // unnamed namespace
     extension_list.insert (".opus");
     extension_list.insert (".ogg");
     extension_list.insert (".oga");
-    //     extension_list.insert (".flac");
+    extension_list.insert (".flac");
 
     print_banner ();
 
@@ -468,7 +469,7 @@ namespace  // unnamed namespace
   //     tizprobe_ptr_t p = boost::make_shared < tizprobe > (file_list[0],
   //                                                         /* quiet = */
   // true);
-  //     tizgraph_ptr_t g_ptr = boost::make_shared < tizstreamsrvgraph > (p);
+  //     tizgraph_ptr_t g_ptr = boost::make_shared < tizhttpservgraph > (p);
   //     if (!g_ptr)
   //       {
   //         // At this point we have removed all unsupported media, so we
@@ -496,7 +497,7 @@ namespace  // unnamed namespace
   //       }
 
   //     tizgraphconfig_ptr_t config
-  //       = boost::make_shared < tizstreamsrvconfig > (file_list, hostname,
+  //       = boost::make_shared < tizhttpservconfig > (file_list, hostname,
   //                                                    ip_address, port);
   //     if (OMX_ErrorNone != (rc = g_ptr->configure (config)))
   //       {
@@ -673,6 +674,8 @@ int main (int argc, char **argv)
   {
     //       error = stream (media.c_str (), srv_port,
     //                       shuffle_playlist, recurse);
+    printf ("Streaming use case is disabled at the moment.\n");
+    exit (EXIT_SUCCESS);
   }
 
   if (OMX_ErrorMax == error)

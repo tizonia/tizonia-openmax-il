@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizvorbisgraph.cc
+ * @file   tizflacgraph.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL vorbis decoder graph implementation
+ * @brief  OpenMAX IL oggflac decoder graph implementation
  *
  */
 
@@ -34,51 +34,52 @@
 
 #include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_TizoniaExt.h>
 #include <tizosal.h>
 
 #include "tizgraphutil.h"
 #include "tizgraphconfig.h"
 #include "tizprobe.h"
-#include "tizvorbisgraph.h"
+#include "tizoggflacgraph.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.vorbisdecoder"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.oggflacdecoder"
 #endif
 
 namespace graph = tiz::graph;
 
-graph::vorbisdecoder::vorbisdecoder () : graph::graph ("vorbisdecodergraph")
+graph::oggflacdecoder::oggflacdecoder () : graph::graph ("oggflacdecoder")
 {
 }
 
-graph::ops *graph::vorbisdecoder::do_init ()
+graph::ops *graph::oggflacdecoder::do_init ()
 {
   omx_comp_name_lst_t comp_list;
   comp_list.push_back ("OMX.Aratelia.container_demuxer.ogg");
-  comp_list.push_back ("OMX.Aratelia.audio_decoder.vorbis");
+  comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
   comp_list.push_back ("OMX.Aratelia.audio_renderer_nb.pcm");
 
   omx_comp_role_lst_t role_list;
   role_list.push_back ("container_demuxer.ogg");
-  role_list.push_back ("audio_decoder.vorbis");
+  role_list.push_back ("audio_decoder.flac");
   role_list.push_back ("audio_renderer.pcm");
 
-  return new vorbisdecops (this, comp_list, role_list);
+  return new oggflacdecops (this, comp_list, role_list);
 }
 
 //
-// vorbisdecops
+// oggflacdecops
 //
-graph::vorbisdecops::vorbisdecops (graph *p_graph,
-                                   const omx_comp_name_lst_t &comp_lst,
-                                   const omx_comp_role_lst_t &role_lst)
+graph::oggflacdecops::oggflacdecops (graph *p_graph,
+                             const omx_comp_name_lst_t &comp_lst,
+                             const omx_comp_role_lst_t &role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     need_port_settings_changed_evt_ (false)
 {
 }
 
-void graph::vorbisdecops::do_disable_ports ()
+void graph::oggflacdecops::do_disable_ports ()
 {
   OMX_U32 demuxers_video_port = 1;
   G_OPS_BAIL_IF_ERROR (util::disable_port (handles_[0], demuxers_video_port),
@@ -88,30 +89,34 @@ void graph::vorbisdecops::do_disable_ports ()
                                 OMX_CommandPortDisable);
 }
 
-void graph::vorbisdecops::do_probe ()
+void graph::oggflacdecops::do_probe ()
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "current_file_index_ [%d]...",
            current_file_index_);
   assert (current_file_index_ < file_list_.size ());
   G_OPS_BAIL_IF_ERROR (probe_uri (current_file_index_), "Unable to probe uri.");
-  G_OPS_BAIL_IF_ERROR (set_vorbis_settings (),
-                       "Unable to set OMX_IndexParamAudioVorbis");
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_flac_type (
+          handles_[1], 0,
+          boost::bind (&tiz::probe::get_flac_codec_info, probe_ptr_, _1),
+          need_port_settings_changed_evt_),
+      "Unable to set OMX_TizoniaIndexParamAudioFlac");
 }
 
-bool graph::vorbisdecops::is_port_settings_evt_required () const
+bool graph::oggflacdecops::is_port_settings_evt_required () const
 {
   return need_port_settings_changed_evt_;
 }
 
-bool graph::vorbisdecops::is_disabled_evt_required () const
+bool graph::oggflacdecops::is_disabled_evt_required () const
 {
   return true;
 }
 
-void graph::vorbisdecops::do_configure ()
+void graph::oggflacdecops::do_configure ()
 {
   G_OPS_BAIL_IF_ERROR (
-      tiz::graph::util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
+      util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
       "Unable to set OMX_IndexParamContentURI");
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_pcm_mode (
@@ -121,7 +126,7 @@ void graph::vorbisdecops::do_configure ()
 }
 
 OMX_ERRORTYPE
-graph::vorbisdecops::probe_uri (const int uri_index, const bool quiet)
+graph::oggflacdecops::probe_uri (const int uri_index, const bool quiet)
 {
   assert (uri_index < file_list_.size ());
 
@@ -134,43 +139,16 @@ graph::vorbisdecops::probe_uri (const int uri_index, const bool quiet)
     bool quiet_probing = true;
     probe_ptr_ = boost::make_shared<tiz::probe>(uri, quiet_probing);
     if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
-        || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingVORBIS)
+        || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingFLAC)
     {
       return OMX_ErrorContentURIError;
     }
     if (!quiet)
     {
-      tiz::graph::util::dump_graph_info ("vorbis", "decode", uri);
+      tiz::graph::util::dump_graph_info ("OggFLAC", "decode", uri);
       probe_ptr_->dump_stream_metadata ();
       probe_ptr_->dump_pcm_info ();
     }
   }
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-graph::vorbisdecops::set_vorbis_settings ()
-{
-  // Retrieve the current vorbis settings from the decoder's port #0
-  OMX_AUDIO_PARAM_VORBISTYPE vorbistype_orig;
-  TIZ_INIT_OMX_PORT_STRUCT (vorbistype_orig, 0 /* port id */);
-
-  tiz_check_omx_err (OMX_GetParameter (handles_[1], OMX_IndexParamAudioVorbis,
-                                       &vorbistype_orig));
-
-  // Set the vorbis settings on decoder's port #0
-  OMX_AUDIO_PARAM_VORBISTYPE vorbistype;
-  TIZ_INIT_OMX_PORT_STRUCT (vorbistype, 0 /* port id */);
-
-  probe_ptr_->get_vorbis_codec_info (vorbistype);
-  vorbistype.nPortIndex = 0;
-  tiz_check_omx_err (
-      OMX_SetParameter (handles_[1], OMX_IndexParamAudioVorbis, &vorbistype));
-
-  // Record whether we need to wait for a port settings change event or not
-  // (the decoder output port implements the "slaving" behaviour)
-  need_port_settings_changed_evt_ = ((vorbistype_orig.nSampleRate != vorbistype.nSampleRate)
-                                     || (vorbistype_orig.nChannels != vorbistype.nChannels));
-
   return OMX_ErrorNone;
 }

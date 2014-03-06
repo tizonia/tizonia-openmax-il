@@ -22,7 +22,7 @@
  * @file   tizflacgraph.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL flac graph class
+ * @brief  OpenMAX IL flac decoder graph
  *
  *
  */
@@ -31,43 +31,51 @@
 #define TIZFLACGRAPH_H
 
 #include "tizgraph.h"
-#include "tizprobe.h"
+#include "tizgraphops.h"
 
-class tizflacgraph : public tizgraph
+namespace tiz
 {
+  namespace graph
+  {
+    class flacdecoder : public graph
+    {
 
-public:
+    public:
 
-  tizflacgraph (tizprobe_ptr_t probe_ptr);
+      flacdecoder ();
 
-protected:
+    protected:
 
-  OMX_ERRORTYPE do_load ();
-  OMX_ERRORTYPE do_configure (const tizgraphconfig_ptr_t &config);
-  OMX_ERRORTYPE do_execute ();
-  OMX_ERRORTYPE do_pause ();
-  OMX_ERRORTYPE do_seek ();
-  OMX_ERRORTYPE do_skip (const int jump);
-  OMX_ERRORTYPE do_volume (const int step);
-  OMX_ERRORTYPE do_mute ();
-  void          do_error (const OMX_ERRORTYPE error);
-  void          do_eos (const OMX_HANDLETYPE handle);
-  void          do_unload ();
+      ops * do_init ();
 
-  OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
+    };
 
-private:
+    class flacdecops : public ops
+    {
+    public:
 
-  OMX_ERRORTYPE disable_demuxer_video_port ();
-  OMX_ERRORTYPE configure_flac_graph (const int file_index);
-  void unload_flac_graph ();
+      flacdecops (graph *p_graph,
+                 const omx_comp_name_lst_t & comp_lst,
+                 const omx_comp_role_lst_t & role_lst);
 
-private:
+    public:
 
-  int demuxer_index_;
-  int demux_attempts_;
-  
-};
+      void do_probe ();
+      bool is_port_settings_evt_required () const;
+      bool is_disabled_evt_required () const;
+      void do_configure ();
+
+    protected:
+
+      OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
+
+    protected:
+
+      bool need_port_settings_changed_evt_;
+
+    };
+  } // namespace graph
+} // namespace tiz
 
 #endif // TIZFLACGRAPH_H
 

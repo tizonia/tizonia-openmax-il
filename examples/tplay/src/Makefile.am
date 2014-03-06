@@ -38,9 +38,10 @@ noinst_HEADERS = \
 	tizmp3graph.h \
 	tizopusgraph.h \
 	tizvorbisgraph.h
-# 	tizflacgraph.h \
-# 	tizstreamsrvconfig.h \
-# 	tizstreamsrvgraph.h
+	tizflacgraph.h \
+	tizoggflacgraph.h 
+# 	tizhttpservconfig.h \
+# 	tizhttpservgraph.h
 
 tplay_SOURCES = \
 	tizplay.cc \
@@ -58,9 +59,10 @@ tplay_SOURCES = \
 	tizgraph.cc \
 	tizmp3graph.cc \
 	tizopusgraph.cc \
-	tizvorbisgraph.cc 
-# 	tizflacgraph.cc \
-# 	tizstreamsrvgraph.cc
+	tizvorbisgraph.cc \
+	tizflacgraph.cc \
+	tizoggflacgraph.cc 
+# 	tizhttpservgraph.cc
 
 tplay_CPPFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \

@@ -33,12 +33,14 @@
 #include <assert.h>
 
 #include <boost/make_shared.hpp>
+#include <boost/filesystem.hpp>
 
 #include "tizprobe.h"
 #include "tizmp3graph.h"
 #include "tizopusgraph.h"
 #include "tizvorbisgraph.h"
-// #include "tizflacgraph.h"
+#include "tizflacgraph.h"
+#include "tizoggflacgraph.h"
 #include "tizgraphfactory.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -63,11 +65,19 @@ tizgraph_ptr_t graph::factory::create_graph (const std::string &uri)
   {
     return boost::make_shared<tiz::graph::opusdecoder>();
   }
-  //   else if (p->get_omx_domain () == OMX_PortDomainAudio
-  //            && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
-  //     {
-  //       return boost::make_shared < graph::flacdecoder > ();
-  //     }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio
+           && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
+    {
+      std::string extension (boost::filesystem::path (uri).extension ().string ());
+      if (extension.compare (".oga") == 0 || extension.compare (".ogg") == 0)
+        {
+          return boost::make_shared < tiz::graph::oggflacdecoder > ();
+        }
+      else
+        {
+          return boost::make_shared < tiz::graph::flacdecoder > ();
+        }
+    }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingVORBIS)
   {
@@ -96,11 +106,19 @@ std::string graph::factory::coding_type (const std::string &uri)
   {
     return std::string ("opus");
   }
-  //   else if (p->get_omx_domain () == OMX_PortDomainAudio
-  //            && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
-  //     {
-  //       return std::string ("flac");
-  //     }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio
+           && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
+    {
+      std::string extension (boost::filesystem::path (uri).extension ().string ());
+      if (extension.compare (".oga") == 0 || extension.compare (".ogg") == 0)
+        {
+          return std::string ("oggflac");
+        }
+      else
+        {
+          return std::string ("flac");
+        }
+    }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingVORBIS)
   {

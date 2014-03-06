@@ -19,16 +19,16 @@
  */
 
 /**
- * @file   tizmp3graph.h
+ * @file   tizhttpservgraph.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL mp3 decoder graph
+ * @brief  OpenMAX IL HTTP Streaming Server graph
  *
  *
  */
 
-#ifndef TIZMP3GRAPH_H
-#define TIZMP3GRAPH_H
+#ifndef TIZHTTPSERVGRAPH_H
+#define TIZHTTPSERVGRAPH_H
 
 #include "tizgraph.h"
 #include "tizgraphops.h"
@@ -37,12 +37,12 @@ namespace tiz
 {
   namespace graph
   {
-    class mp3decoder : public graph
+    class httpserver : public graph
     {
 
     public:
 
-      mp3decoder ();
+      httpserver ();
 
     protected:
 
@@ -50,13 +50,13 @@ namespace tiz
 
     };
 
-    class mp3decops : public ops
+    class httpservops : public ops
     {
     public:
 
-      mp3decops (graph *p_graph,
-                 const omx_comp_name_lst_t & comp_lst,
-                 const omx_comp_role_lst_t & role_lst);
+      httpservops (graph *p_graph,
+                   const omx_comp_name_lst_t & comp_lst,
+                   const omx_comp_role_lst_t & role_lst);
 
     public:
 
@@ -64,18 +64,25 @@ namespace tiz
       bool is_port_settings_evt_required () const;
       bool is_disabled_evt_required () const;
       void do_configure ();
+      void do_omx_exe2pause ();
+      void do_omx_pause2exe ();
 
     protected:
 
       OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
+      OMX_ERRORTYPE configure_server ();
+      OMX_ERRORTYPE configure_station ();
+      OMX_ERRORTYPE configure_stream ();
 
     protected:
 
-      bool need_port_settings_changed_evt_;
+      OMX_ERRORTYPE configure_server ();
+      OMX_ERRORTYPE configure_station ();
+      OMX_ERRORTYPE configure_stream ();
 
     };
   } // namespace graph
 } // namespace tiz
 
-#endif // TIZMP3GRAPH_H
+#endif // TIZHTTPSERVGRAPH_H
 

@@ -52,7 +52,7 @@ namespace graph = tiz::graph;
 //
 // opusdecoder
 //
-graph::opusdecoder::opusdecoder () : graph::graph ("tizopusgraph")
+graph::opusdecoder::opusdecoder () : graph::graph ("opusdecgraph")
 {
 }
 
@@ -175,15 +175,8 @@ graph::opusdecops::set_opus_settings ()
 
   // Record whether we need to wait for a port settings change event or not
   // (the decoder output port implements the "slaving" behaviour)
-  if (opustype_orig.nSampleRate != opustype.nSampleRate
-      || opustype_orig.nChannels != opustype.nChannels)
-  {
-    need_port_settings_changed_evt_ = true;
-  }
-  else
-  {
-    need_port_settings_changed_evt_ = false;
-  }
+  need_port_settings_changed_evt_ = ((opustype_orig.nSampleRate != opustype.nSampleRate)
+                                     || (opustype_orig.nChannels != opustype.nChannels));
 
   return OMX_ErrorNone;
 }

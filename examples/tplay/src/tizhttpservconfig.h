@@ -19,43 +19,52 @@
  */
 
 /**
- * @file   tizstreamsrvconfig.h
+ * @file   tizhttpservconfig.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL HTTP Streaming Server graph config class
+ * @brief  OpenMAX IL HTTP Streaming Server graph configuration
  *
  *
  */
 
-#ifndef TIZSTREAMSRVCONFIG_H
-#define TIZSTREAMSRVCONFIG_H
+#ifndef TIZHTTPSERVCONFIG_H
+#define TIZHTTPSERVCONFIG_H
 
+#include <string>
+
+#include "tizgraphtypes.h"
 #include "tizgraphconfig.h"
 
-class tizstreamsrvconfig : public tizgraphconfig
+namespace tiz
 {
+  namespace graph
+  {
+    class httpservconfig : public config
+    {
 
-public:
+    public:
 
-  tizstreamsrvconfig (const uri_lst_t & uris,
+      httpservconfig (const uri_lst_t & uris,
                       const std::string &host,
                       const std::string &ip_address,
                       const long int port)
-    : tizgraphconfig (uris), host_ (host), addr_ (ip_address), port_ (port)
-  {}
+        : config (uris), host_ (host), addr_ (ip_address), port_ (port)
+      {}
 
-  ~tizstreamsrvconfig () {}
+      ~httpservconfig () {}
 
-  std::string get_addr () const {return addr_;}
-  std::string get_host_name () const {return host_;}
-  long int get_port () const {return port_;}
+      std::string get_addr () const {return addr_;}
+      std::string get_host_name () const {return host_;}
+      long int get_port () const {return port_;}
 
-protected:
+    protected:
 
-  std::string host_;
-  std::string addr_;
-  long int port_;
+      std::string host_;
+      std::string addr_;
+      long int port_;
 
-};
+    };
+  } // namespace graph
+} // namespace tiz
 
-#endif // TIZSTREAMSRVCONFIG_H
+#endif // TIZHTTPSERVCONFIG_H

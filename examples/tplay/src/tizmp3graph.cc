@@ -43,7 +43,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.mp3"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.mp3decoder"
 #endif
 
 namespace graph = tiz::graph;
@@ -51,7 +51,7 @@ namespace graph = tiz::graph;
 //
 // mp3decoder
 //
-graph::mp3decoder::mp3decoder () : graph::graph ("tizmp3graph")
+graph::mp3decoder::mp3decoder () : graph::graph ("mp3decodergraph")
 {
 }
 
@@ -87,8 +87,12 @@ void graph::mp3decops::do_probe ()
            current_file_index_);
   assert (current_file_index_ < file_list_.size ());
   G_OPS_BAIL_IF_ERROR (probe_uri (current_file_index_), "Unable to probe uri.");
-  G_OPS_BAIL_IF_ERROR (set_mp3_settings (),
-                       "Unable to set OMX_IndexParamAudioMp3");
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::set_mp3_type (
+          handles_[1], 0,
+          boost::bind (&tiz::probe::get_mp3_codec_info, probe_ptr_, _1),
+          need_port_settings_changed_evt_),
+      "Unable to set OMX_IndexParamAudioMp3");
 }
 
 bool graph::mp3decops::is_port_settings_evt_required () const
@@ -138,44 +142,5 @@ graph::mp3decops::probe_uri (const int uri_index, const bool quiet)
       probe_ptr_->dump_mp3_and_pcm_info ();
     }
   }
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-graph::mp3decops::set_mp3_settings ()
-{
-  // Retrieve the current mp3 settings from the decoder's port #0
-  OMX_AUDIO_PARAM_MP3TYPE mp3type_orig;
-  TIZ_INIT_OMX_PORT_STRUCT (mp3type_orig, 0 /* port id */);
-
-  tiz_check_omx_err (
-      OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3, &mp3type_orig));
-
-  // Set the new mp3 settings on decoder's port #0
-  OMX_AUDIO_PARAM_MP3TYPE mp3type;
-  TIZ_INIT_OMX_PORT_STRUCT (mp3type, 0 /* port id */);
-
-  probe_ptr_->get_mp3_codec_info (mp3type);
-  tiz_check_omx_err (
-      OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3, &mp3type));
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE,
-           "mp3type_orig.nSampleRate [%d] mp3type.nSampleRate [%d]..."
-           "mp3type_orig.nChannels [%d] mp3type.nChannels [%d]",
-           mp3type_orig.nSampleRate, mp3type.nSampleRate,
-           mp3type_orig.nChannels, mp3type.nChannels);
-
-  // Record whether we need to wait for a port settings change event or not
-  // (the decoder output port implements the "slaving" behaviour)
-  if (mp3type_orig.nSampleRate != mp3type.nSampleRate || mp3type_orig.nChannels
-                                                         != mp3type.nChannels)
-  {
-    need_port_settings_changed_evt_ = true;
-  }
-  else
-  {
-    need_port_settings_changed_evt_ = false;
-  }
-
   return OMX_ErrorNone;
 }

@@ -63,6 +63,6 @@ typedef std::vector<tiz::graph::omx_event_info> omx_event_info_lst_t;
 typedef boost::shared_ptr<tiz::graph::graph> tizgraph_ptr_t;
 typedef std::map<std::string, tizgraph_ptr_t> tizgraph_ptr_map_t;
 typedef boost::shared_ptr<tiz::graph::config> tizgraphconfig_ptr_t;
-typedef boost::shared_ptr<tiz::graph::srvconfig> tizstreamsrvconfig_ptr_t;
+typedef boost::shared_ptr<tiz::graph::srvconfig> tizhttpservconfig_ptr_t;
 
 #endif // TIZGRAPHTYPES_H

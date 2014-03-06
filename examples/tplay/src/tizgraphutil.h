@@ -37,6 +37,8 @@
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
+#include <OMX_TizoniaExt.h>
+
 #include "tizgraphtypes.h"
 
 namespace tiz
@@ -117,6 +119,18 @@ namespace tiz
                                          const OMX_U32        port_id,
                                          boost::function<
                                          void (OMX_AUDIO_PARAM_PCMMODETYPE &pcmmode) > getter);
+
+      static OMX_ERRORTYPE set_mp3_type (const OMX_HANDLETYPE handle,
+                                         const OMX_U32        port_id,
+                                         boost::function<
+                                         void (OMX_AUDIO_PARAM_MP3TYPE &mp3type) > getter,
+                                         bool &need_port_settings_changed_evt);
+
+      static OMX_ERRORTYPE set_flac_type (const OMX_HANDLETYPE handle,
+                                          const OMX_U32        port_id,
+                                          boost::function<
+                                          void (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) > getter,
+                                          bool &need_port_settings_changed_evt);
 
       static void dump_graph_info (const char *ap_coding_type_str,
                                    const char *ap_graph_type_str,
