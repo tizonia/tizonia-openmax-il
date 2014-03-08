@@ -165,6 +165,18 @@ namespace tiz
       OMX_U32 port_;
       OMX_ERRORTYPE error_;
     };
+    struct omx_port_enabled_evt
+    {
+      omx_port_enabled_evt(const OMX_HANDLETYPE a_handle, const OMX_U32 port, const OMX_ERRORTYPE error)
+        :
+        handle_ (a_handle),
+        port_ (port),
+        error_ (error)
+      {}
+      OMX_HANDLETYPE handle_;
+      OMX_U32 port_;
+      OMX_ERRORTYPE error_;
+    };
     struct omx_port_settings_evt
     {
       omx_port_settings_evt(const OMX_HANDLETYPE a_handle, const OMX_U32 port, const OMX_INDEXTYPE index)
@@ -208,10 +220,15 @@ namespace tiz
     {
       // no need for exception handling
       typedef int no_exception_thrown;
+
       /* Forward declarations */
-      struct do_omx_idle2loaded;
+      struct config2idle;
       struct idle2loaded;
+      struct idle2exe;
       struct is_trans_complete;
+      struct do_omx_loaded2idle;
+      struct do_omx_idle2loaded;
+      struct do_omx_idle2exe;
 
       // data members
       ops ** pp_ops_;
@@ -376,6 +393,21 @@ namespace tiz
           }
         };
 
+        struct is_port_enabling_complete
+        {
+          template <class EVT, class FSM, class SourceState, class TargetState>
+          bool operator()(EVT const & evt, FSM & fsm, SourceState & source, TargetState & target)
+          {
+            bool rc = false;
+            if (fsm.pp_ops_ && *(fsm.pp_ops_))
+              {
+                rc = (*(fsm.pp_ops_))->is_port_enabling_complete (evt.handle_, evt.port_);
+              }
+            TIZ_LOG (TIZ_PRIORITY_TRACE, " is_port_enabling_complete [%s]", rc ? "YES" : "NO");
+            return rc;
+          }
+        };
+
         struct is_port_settings_evt_required
         {
           template <class EVT, class FSM, class SourceState, class TargetState>
@@ -393,17 +425,30 @@ namespace tiz
 
         // Transition table for configuring
         struct transition_table : boost::mpl::vector<
-          //                       Start                       Event                      Next                         Action                    Guard
-          //    +-----------------+----------------------------+--------------------------+----------------------------+-------------------------+----------------------------------------+
-          boost::msm::front::Row < disabling_ports             , boost::msm::front::none  , awaiting_port_disabled_evt , boost::msm::front::none , is_disabled_evt_required               >,
-          boost::msm::front::Row < disabling_ports             , boost::msm::front::none  , probing                    , do_probe                , boost::msm::front::euml::Not_<
-                                                                                                                                                     is_disabled_evt_required >           >,
-          boost::msm::front::Row < awaiting_port_disabled_evt  , omx_port_disabled_evt    , probing                    , do_probe                , is_port_disabling_complete             >,
-          boost::msm::front::Row < probing                     , boost::msm::front::none  , awaiting_port_settings_evt , boost::msm::front::none , is_port_settings_evt_required          >,
-          boost::msm::front::Row < probing                     , boost::msm::front::none  , conf_exit                  , do_configure            , boost::msm::front::euml::Not_<
-                                                                                                                                                     is_port_settings_evt_required >      >,
-          boost::msm::front::Row < awaiting_port_settings_evt  , omx_port_settings_evt    , conf_exit                  , do_configure                                                     >
-          //    +-----------------+----------------------------+--------------------------+----------------------------+-------------------------+----------------------------------------+
+          //                       Start                       Event                      Next                         Action                                 Guard
+          //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
+          boost::msm::front::Row < disabling_ports             , boost::msm::front::none  , awaiting_port_disabled_evt , boost::msm::front::none              , is_disabled_evt_required               >,
+          boost::msm::front::Row < disabling_ports             , boost::msm::front::none  , probing                    , do_probe                             , boost::msm::front::euml::Not_<
+                                                                                                                                                                  is_disabled_evt_required >           >,
+          //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
+          boost::msm::front::Row < awaiting_port_disabled_evt  , omx_port_disabled_evt    , probing                    , do_probe                             , is_port_disabling_complete             >,
+          //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
+          boost::msm::front::Row < probing                     , boost::msm::front::none  , awaiting_port_settings_evt , boost::msm::front::none              , is_port_settings_evt_required          >,
+          boost::msm::front::Row < probing                     , boost::msm::front::none  , fsm_::config2idle          , boost::msm::front::ActionSequence_<
+                                                                                                                           boost::mpl::vector<
+                                                                                                                             do_configure,
+                                                                                                                             fsm_::do_omx_loaded2idle > >     , boost::msm::front::euml::Not_<
+                                                                                                                                                                  is_port_settings_evt_required >      >,
+          //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
+          boost::msm::front::Row < awaiting_port_settings_evt  , omx_port_settings_evt    , fsm_::config2idle          , boost::msm::front::ActionSequence_<
+                                                                                                                           boost::mpl::vector<
+                                                                                                                             do_configure,
+                                                                                                                             fsm_::do_omx_loaded2idle > >                                              >,
+          //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
+          boost::msm::front::Row < fsm_::config2idle           , omx_trans_evt            , fsm_::idle2exe             , fsm_::do_omx_idle2exe                , fsm_::is_trans_complete                >,
+          //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
+          boost::msm::front::Row < fsm_::idle2exe              , omx_trans_evt            , conf_exit                  , boost::msm::front::none              , fsm_::is_trans_complete                >
+          //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
           > {};
 
         // Replaces the default no-transition response.
@@ -952,7 +997,7 @@ namespace tiz
           bool rc = false;
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              rc = (*(fsm.pp_ops_))->last_op_succeeded ();
+              rc = !(*(fsm.pp_ops_))->last_op_succeeded ();
             }
           TIZ_LOG (TIZ_PRIORITY_TRACE, "is_fatal_error [%s]", rc ? "YES" : "NO");
           return rc;
@@ -989,15 +1034,12 @@ namespace tiz
         boost::msm::front::Row < configuring
                                  ::exit_pt
                                  <configuring_
-                                  ::conf_exit>, configured_evt , config2idle             , do_omx_loaded2idle                             >,
-        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
-        boost::msm::front::Row < config2idle , omx_trans_evt   , idle2exe                , do_omx_idle2exe         , is_trans_complete    >,
-        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
-        boost::msm::front::Row < idle2exe    , omx_trans_evt   , executing               , do_ack_execd            , is_trans_complete    >,
+                                  ::conf_exit>, configured_evt , executing               , do_ack_execd                                   >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < executing   , skip_evt        , skipping                , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
-                                                                                               do_store_skip, do_omx_exe2idle > >         >,
+                                                                                               do_store_skip,
+                                                                                               do_omx_exe2idle > >                        >,
         boost::msm::front::Row < executing   , seek_evt        , boost::msm::front::none , do_seek                                        >,
         boost::msm::front::Row < executing   , volume_evt      , boost::msm::front::none , do_volume                                      >,
         boost::msm::front::Row < executing   , mute_evt        , boost::msm::front::none , do_mute                                        >,

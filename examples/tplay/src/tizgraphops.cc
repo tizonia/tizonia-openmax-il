@@ -22,7 +22,7 @@
  * @file   tizgraphops.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL graph fsm operations base class implementation
+ * @brief  OpenMAX IL graph fsm operations base class - implementation
  *
  */
 
@@ -319,6 +319,17 @@ void graph::ops::do_ack_unloaded ()
   }
 }
 
+OMX_ERRORTYPE
+graph::ops::get_internal_error () const
+{
+  return error_code_;
+}
+
+std::string graph::ops::get_internal_error_msg () const
+{
+  return error_msg_;
+}
+
 bool graph::ops::is_last_component (const OMX_HANDLETYPE handle) const
 {
   bool rc = false;
@@ -351,6 +362,39 @@ bool graph::ops::is_trans_complete (const OMX_HANDLETYPE handle,
       expected_transitions_lst_.erase (it);
       assert (util::verify_transition_one (handle, to_state));
       if (expected_transitions_lst_.empty ())
+      {
+        rc = true;
+      }
+    }
+  }
+  return rc;
+}
+
+bool graph::ops::is_port_disabling_complete (const OMX_HANDLETYPE handle,
+                                             const OMX_U32 port_id)
+{
+  bool rc = false;
+
+  assert (std::find (handles_.begin (), handles_.end (), handle)
+          != handles_.end ());
+  assert (!expected_port_transitions_lst_.empty ());
+
+  if (!handles_.empty () && !expected_port_transitions_lst_.empty ())
+  {
+    omx_event_info_lst_t::iterator it
+        = std::find (expected_port_transitions_lst_.begin (),
+                     expected_port_transitions_lst_.end (),
+                     omx_event_info (handle, port_id, OMX_CommandPortDisable,
+                                     OMX_ErrorNone));
+    assert (expected_port_transitions_lst_.end () != it);
+
+    if (expected_port_transitions_lst_.end () != it)
+    {
+      expected_port_transitions_lst_.erase (it);
+      // TODO: Assert that the port is disabled
+      // assert (util::verify_port_transition (handle, port_id,
+      // OMX_CommandPortDisable));
+      if (expected_port_transitions_lst_.empty ())
       {
         rc = true;
       }
@@ -476,13 +520,36 @@ void graph::ops::add_expected_port_transition (
       omx_event_info (handle, port_id, disable_or_enable, error));
 }
 
-OMX_ERRORTYPE
-graph::ops::get_internal_error () const
+bool graph::ops::is_port_transition_complete (const OMX_HANDLETYPE  handle,
+                                              const OMX_U32         port_id,
+                                              const OMX_COMMANDTYPE disable_or_enable)
 {
-  return error_code_;
-}
+  bool rc = false;
 
-std::string graph::ops::get_internal_error_msg () const
-{
-  return error_msg_;
+  assert (std::find (handles_.begin (), handles_.end (), handle)
+          != handles_.end ());
+  assert (!expected_port_transitions_lst_.empty ());
+
+  if (!handles_.empty () && !expected_port_transitions_lst_.empty ())
+  {
+    omx_event_info_lst_t::iterator it
+        = std::find (expected_port_transitions_lst_.begin (),
+                     expected_port_transitions_lst_.end (),
+                     omx_event_info (handle, port_id, disable_or_enable,
+                                     OMX_ErrorNone));
+    assert (expected_port_transitions_lst_.end () != it);
+
+    if (expected_port_transitions_lst_.end () != it)
+    {
+      expected_port_transitions_lst_.erase (it);
+      // TODO: Assert that the port is disabled/enabled
+      // assert (util::verify_port_transition (handle, port_id,
+      // disable_or_enable));
+      if (expected_port_transitions_lst_.empty ())
+      {
+        rc = true;
+      }
+    }
+  }
+  return rc;
 }

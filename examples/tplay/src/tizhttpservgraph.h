@@ -31,12 +31,13 @@
 #define TIZHTTPSERVGRAPH_H
 
 #include "tizgraph.h"
-#include "tizgraphops.h"
 
 namespace tiz
 {
   namespace graph
   {
+    class ops;
+
     class httpserver : public graph
     {
 
@@ -47,38 +48,7 @@ namespace tiz
     protected:
 
       ops * do_init ();
-
-    };
-
-    class httpservops : public ops
-    {
-    public:
-
-      httpservops (graph *p_graph,
-                   const omx_comp_name_lst_t & comp_lst,
-                   const omx_comp_role_lst_t & role_lst);
-
-    public:
-
-      void do_probe ();
-      bool is_port_settings_evt_required () const;
-      bool is_disabled_evt_required () const;
-      void do_configure ();
-      void do_omx_exe2pause ();
-      void do_omx_pause2exe ();
-
-    protected:
-
-      OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
-      OMX_ERRORTYPE configure_server ();
-      OMX_ERRORTYPE configure_station ();
-      OMX_ERRORTYPE configure_stream ();
-
-    protected:
-
-      OMX_ERRORTYPE configure_server ();
-      OMX_ERRORTYPE configure_station ();
-      OMX_ERRORTYPE configure_stream ();
+      void do_fsm_override ();
 
     };
   } // namespace graph

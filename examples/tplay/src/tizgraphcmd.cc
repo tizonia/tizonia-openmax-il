@@ -84,8 +84,24 @@ void graph::cmd::inject (fsm& machine) const
   }
 
   INJECT_EVENT (load_evt)
-  else INJECT_EVENT (execute_evt) else INJECT_EVENT (configured_evt) else INJECT_EVENT (
-      omx_trans_evt) else INJECT_EVENT (skip_evt) else INJECT_EVENT (skipped_evt) else INJECT_EVENT (seek_evt) else INJECT_EVENT (volume_evt) else INJECT_EVENT (mute_evt) else INJECT_EVENT (pause_evt) else INJECT_EVENT (omx_evt) else INJECT_EVENT (omx_eos_evt) else INJECT_EVENT (unload_evt) else INJECT_EVENT (omx_port_disabled_evt) else INJECT_EVENT (omx_port_settings_evt) else INJECT_EVENT (omx_err_evt) else INJECT_EVENT (err_evt) else
+  else INJECT_EVENT (execute_evt)
+  else INJECT_EVENT (configured_evt)
+  else INJECT_EVENT (omx_trans_evt)
+  else INJECT_EVENT (skip_evt)
+  else INJECT_EVENT (skipped_evt)
+  else INJECT_EVENT (seek_evt)
+  else INJECT_EVENT (volume_evt)
+  else INJECT_EVENT (mute_evt)
+  else INJECT_EVENT (pause_evt)
+  else INJECT_EVENT (omx_evt)
+  else INJECT_EVENT (omx_eos_evt)
+  else INJECT_EVENT (unload_evt)
+  else INJECT_EVENT (omx_port_disabled_evt)
+  else INJECT_EVENT (omx_port_enabled_evt)
+  else INJECT_EVENT (omx_port_settings_evt)
+  else INJECT_EVENT (omx_err_evt)
+  else INJECT_EVENT (err_evt)
+  else
   {
     assert (0);
   }

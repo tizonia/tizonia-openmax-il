@@ -41,7 +41,9 @@ noinst_HEADERS = \
 	tizflacgraph.h \
 	tizoggflacgraph.h 
 # 	tizhttpservconfig.h \
-# 	tizhttpservgraph.h
+# 	tizhttpservgraph.h \
+# 	tizhttpservgraphfsm.h \
+# 	tizhttpservgraphops.h
 
 tplay_SOURCES = \
 	tizplay.cc \
@@ -62,7 +64,8 @@ tplay_SOURCES = \
 	tizvorbisgraph.cc \
 	tizflacgraph.cc \
 	tizoggflacgraph.cc 
-# 	tizhttpservgraph.cc
+# 	tizhttpservgraph.cc \
+# 	tizhttpservgraphops.cc
 
 tplay_CPPFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \

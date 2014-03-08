@@ -113,6 +113,8 @@ namespace tiz
                               const OMX_STATETYPE to_state);
       bool is_port_disabling_complete (const OMX_HANDLETYPE handle,
                                        const OMX_U32 port_id);
+      bool is_port_enabling_complete (const OMX_HANDLETYPE handle,
+                                      const OMX_U32 port_id);
       bool last_op_succeeded () const;
       bool is_end_of_play () const;
       std::string handle2name (const OMX_HANDLETYPE handle) const;
@@ -133,6 +135,10 @@ namespace tiz
                                          const OMX_U32 port_id,
                                          const OMX_COMMANDTYPE disable_or_enable,
                                          const OMX_ERRORTYPE error = OMX_ErrorNone);
+
+      bool is_port_transition_complete (const OMX_HANDLETYPE handle,
+                                        const OMX_U32        port_id,
+                                        const OMX_COMMANDTYPE disable_or_enable);
 
     protected:
 

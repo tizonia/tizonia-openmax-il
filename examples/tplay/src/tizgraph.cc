@@ -218,6 +218,14 @@ void graph::graph::omx_evt (const omx_event_info &evt_info)
     post_cmd (new tiz::graph::cmd (tiz::graph::omx_port_disabled_evt (
         evt_info.component_, evt_info.ndata2_, error)));
   }
+  else if (evt_info.event_ == OMX_EventCmdComplete && evt_info.ndata1_
+                                                      == OMX_CommandPortEnable)
+  {
+    OMX_ERRORTYPE error
+        = static_cast<OMX_ERRORTYPE>(*((int *)&((evt_info.pEventData_))));
+    post_cmd (new tiz::graph::cmd (tiz::graph::omx_port_enabled_evt (
+        evt_info.component_, evt_info.ndata2_, error)));
+  }
   else if (evt_info.event_ == OMX_EventError)
   {
     post_cmd (new tiz::graph::cmd (tiz::graph::omx_err_evt (
