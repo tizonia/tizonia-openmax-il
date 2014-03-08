@@ -81,10 +81,10 @@ namespace tiz
       virtual void do_ack_loaded ();
       virtual void do_store_config (const tizgraphconfig_ptr_t &config);
       virtual void do_disable_ports ();
-      virtual void do_probe ()                            = 0;
-      virtual bool is_port_settings_evt_required () const = 0;
-      virtual bool is_disabled_evt_required () const      = 0;
-      virtual void do_configure ()                        = 0;
+      virtual void do_probe ();
+      virtual bool is_port_settings_evt_required () const;
+      virtual bool is_disabled_evt_required () const;
+      virtual void do_configure ();
       virtual void do_omx_loaded2idle ();
       virtual void do_omx_idle2exe ();
       virtual void do_ack_execd ();

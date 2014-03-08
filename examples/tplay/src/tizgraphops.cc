@@ -131,6 +131,28 @@ void graph::ops::do_disable_ports ()
   // This is a no-op in the base class.
 }
 
+void graph::ops::do_probe ()
+{
+  // This is a no-op in the base class.
+}
+
+bool graph::ops::is_port_settings_evt_required () const
+{
+  // To be overriden in child classes when needed.
+  return false;
+}
+
+bool graph::ops::is_disabled_evt_required () const
+{
+  // To be overriden in child classes when needed.
+  return false;
+}
+
+void graph::ops::do_configure ()
+{
+  // This is a no-op in the base class.
+}
+
 void graph::ops::do_omx_loaded2idle ()
 {
   if (last_op_succeeded ())
@@ -247,11 +269,11 @@ void graph::ops::do_store_skip (const int jump)
 }
 
 /**
- * Base class default implementation (applies volume on port #0 of the last
- * element in the graph)
+ * Default implementation of do_volume () operation. It applies a volume
+ * increment or decrement on port #0 of the last element of the graph.
  *
- * @param step The number of "units" by which the volume will be increased or
- * decreased
+ * @param step The number of "units" by which the volume will be increased (if
+ * positive) or decreased (negative).
  */
 void graph::ops::do_volume (const int step)
 {
@@ -266,8 +288,8 @@ void graph::ops::do_volume (const int step)
 }
 
 /**
- * Base class default implementation (applies mute on port #0 of the last
- * element in the graph)
+ * Default implementation of do_mute () operation. It applies mute/unmute on
+ * port #0 of the last element of the graph.
  *
  */
 void graph::ops::do_mute ()
@@ -373,67 +395,13 @@ bool graph::ops::is_trans_complete (const OMX_HANDLETYPE handle,
 bool graph::ops::is_port_disabling_complete (const OMX_HANDLETYPE handle,
                                              const OMX_U32 port_id)
 {
-  bool rc = false;
-
-  assert (std::find (handles_.begin (), handles_.end (), handle)
-          != handles_.end ());
-  assert (!expected_port_transitions_lst_.empty ());
-
-  if (!handles_.empty () && !expected_port_transitions_lst_.empty ())
-  {
-    omx_event_info_lst_t::iterator it
-        = std::find (expected_port_transitions_lst_.begin (),
-                     expected_port_transitions_lst_.end (),
-                     omx_event_info (handle, port_id, OMX_CommandPortDisable,
-                                     OMX_ErrorNone));
-    assert (expected_port_transitions_lst_.end () != it);
-
-    if (expected_port_transitions_lst_.end () != it)
-    {
-      expected_port_transitions_lst_.erase (it);
-      // TODO: Assert that the port is disabled
-      // assert (util::verify_port_transition (handle, port_id,
-      // OMX_CommandPortDisable));
-      if (expected_port_transitions_lst_.empty ())
-      {
-        rc = true;
-      }
-    }
-  }
-  return rc;
+  return is_port_transition_complete (handle, port_id, OMX_CommandPortDisable);
 }
 
-bool graph::ops::is_port_disabling_complete (const OMX_HANDLETYPE handle,
+bool graph::ops::is_port_enabling_complete (const OMX_HANDLETYPE handle,
                                              const OMX_U32 port_id)
 {
-  bool rc = false;
-
-  assert (std::find (handles_.begin (), handles_.end (), handle)
-          != handles_.end ());
-  assert (!expected_port_transitions_lst_.empty ());
-
-  if (!handles_.empty () && !expected_port_transitions_lst_.empty ())
-  {
-    omx_event_info_lst_t::iterator it
-        = std::find (expected_port_transitions_lst_.begin (),
-                     expected_port_transitions_lst_.end (),
-                     omx_event_info (handle, port_id, OMX_CommandPortDisable,
-                                     OMX_ErrorNone));
-    assert (expected_port_transitions_lst_.end () != it);
-
-    if (expected_port_transitions_lst_.end () != it)
-    {
-      expected_port_transitions_lst_.erase (it);
-      // TODO: Assert that the port is disabled
-      // assert (util::verify_port_transition (handle, port_id,
-      // OMX_CommandPortDisable));
-      if (expected_port_transitions_lst_.empty ())
-      {
-        rc = true;
-      }
-    }
-  }
-  return rc;
+  return is_port_transition_complete (handle, port_id, OMX_CommandPortEnable);
 }
 
 bool graph::ops::last_op_succeeded () const

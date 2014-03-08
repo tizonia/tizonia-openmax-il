@@ -51,6 +51,8 @@ namespace tiz
       void do_probe ();
       void do_omx_exe2pause ();
       void do_omx_pause2exe ();
+      void do_volume (const int step);
+      void do_mute ();
 
       void do_configure_server ();
       void do_configure_station ();
@@ -60,7 +62,6 @@ namespace tiz
       void do_enable_tunnel ();
       bool is_initial_configuration () const;
       bool is_tunnel_enabling_complete () const;
-
 
     protected:
 

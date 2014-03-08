@@ -71,12 +71,22 @@ void graph::httpservops::do_probe ()
 
 void graph::httpservops::do_omx_exe2pause ()
 {
-  // This is to disable pause in this graph
+  // No-op. This is to disable pause in this graph
 }
 
 void graph::httpservops::do_omx_pause2exe ()
 {
-  // This is to disable pause in this graph
+  // No-op. This is to disable pause in this graph
+}
+
+void graph::httpservops::do_volume (const int step)
+{
+  // No-op. This is to disable volume in this graph
+}
+
+void graph::httpservops::do_mute ()
+{
+  // No-op. This is to disable mute in this graph
 }
 
 void graph::httpservops::do_configure_server ()

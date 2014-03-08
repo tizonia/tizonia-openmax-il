@@ -134,7 +134,8 @@ void graph::graph::deinit ()
 
   // Kill the graph thread
   const bool kill_thread = true;
-  static_cast<void>(post_cmd (new tiz::graph::cmd (NULL, kill_thread)));
+  const int anyvalue = 0;
+  static_cast<void>(post_cmd (new tiz::graph::cmd (anyvalue, kill_thread)));
 
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] Waiting for thread exit...",
            get_graph_name ().c_str ());
@@ -364,10 +365,8 @@ bool graph::graph::dispatch_cmd (tiz::graph::graph *p_graph,
 
     if (p_graph->fsm_.terminated_)
     {
-      TIZ_LOG (TIZ_PRIORITY_NOTICE, "Stopping [%s] fsm...",
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] fsm terminated...",
                p_graph->get_graph_name ().c_str ());
-      // TODO: Check if this is needed at all.
-      p_graph->fsm_.stop ();
     }
   }
 
