@@ -39,7 +39,7 @@ noinst_HEADERS = \
 	tizopusgraph.h \
 	tizvorbisgraph.h
 	tizflacgraph.h \
-	tizoggflacgraph.h 
+	tizoggflacgraph.h
 # 	tizhttpservconfig.h \
 # 	tizhttpservgraph.h \
 # 	tizhttpservgraphfsm.h \

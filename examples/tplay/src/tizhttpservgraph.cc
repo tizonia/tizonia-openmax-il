@@ -70,7 +70,8 @@ graph::ops *graph::httpserver::do_init ()
   return new httpservops (this, comp_list, role_list);
 }
 
-graph::httpserver::do_fsm_override ()
+
+void graph::httpserver::do_fsm_override ()
 {
   // In this graph, we need to override two submachines: 'configuring' and
   // 'skipping'
