@@ -32,6 +32,10 @@ noinst_HEADERS = \
 	tizgraphmgr.h \
 	tizgraphmgrfsm.h \
 	tizgraphfsm.h \
+	tizgraphevt.h \
+	tizgraphguard.h \
+	tizgraphaction.h \
+	tizgraphstate.h \
 	tizgraphcmd.h \
 	tizgraphops.h \
 	tizgraph.h \

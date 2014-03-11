@@ -31,12 +31,16 @@
 #define TIZOPUSGRAPH_H
 
 #include "tizgraph.h"
+#include "tizgraphfsm.h"
 #include "tizgraphops.h"
 
 namespace tiz
 {
   namespace graph
   {
+    // Forward declarations
+    class  cmd;
+
     class opusdecoder : public graph
     {
 
@@ -47,6 +51,11 @@ namespace tiz
     protected:
 
       ops * do_init ();
+      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
+
+    protected:
+
+      fsm fsm_;
 
     };
 

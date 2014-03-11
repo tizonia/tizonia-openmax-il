@@ -34,6 +34,7 @@
 
 #include <string>
 
+#include "tizgraphevt.h"
 #include "tizgraphcmd.h"
 
 namespace

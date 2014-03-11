@@ -38,9 +38,9 @@
 #include <tizosal.h>
 
 #include "tizgraphutil.h"
+#include "tizgraphcmd.h"
 #include "tizprobe.h"
 #include "tizhttpservconfig.h"
-#include "tizhttpservgraphfsm.h"
 #include "tizhttpservgraph.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -53,7 +53,12 @@ namespace graph = tiz::graph;
 //
 // httpserver
 //
-graph::httpserver::httpserver () : graph::graph ("httpservergraph")
+graph::httpserver::httpserver ()
+  :
+  graph::graph ("httpservgraph"),
+  fsm_ (boost::msm::back::states_ << tiz::graph::httpserver::fsm::configuring (&p_ops_)
+        << tiz::graph::httpserver::fsm::skipping (&p_ops_),
+        &p_ops_)
 {
 }
 
@@ -70,12 +75,39 @@ graph::ops *graph::httpserver::do_init ()
   return new httpservops (this, comp_list, role_list);
 }
 
-
-void graph::httpserver::do_fsm_override ()
+bool
+graph::httpserver::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 {
-  // In this graph, we need to override two submachines: 'configuring' and
-  // 'skipping'
-  fsm_.set_states (boost::msm::back::states_
-                   << tiz::graph::httpserverfsm::configuring (&p_ops_)
-                   << tiz::graph::httpserverfsm::skipping (&p_ops_));
+  assert (NULL != p_cmd);
+
+  if (!p_cmd->kill_thread ())
+  {
+    if (p_cmd->evt ().type () == typeid(tiz::graph::load_evt))
+    {
+      // Time to start the FSM
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "Starting [%s] fsm...",
+               get_graph_name ().c_str ());
+      fsm_.start ();
+    }
+
+    p_cmd->inject (fsm_);
+
+    // Check for internal errors produced during the processing of the last
+    // event. If any, inject an "internal" error event. This is fatal and shall
+    // produce the termination of the state machine.
+    if (OMX_ErrorNone != p_ops_->get_internal_error ())
+    {
+      fsm_.process_event (
+          tiz::graph::err_evt (p_ops_->get_internal_error (),
+                               p_ops_->get_internal_error_msg ()));
+    }
+
+    if (fsm_.terminated_)
+    {
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] fsm terminated...",
+               get_graph_name ().c_str ());
+    }
+  }
+
+  return p_cmd->kill_thread ();
 }

@@ -52,6 +52,7 @@ namespace tiz
       const char * c_str () const;
       bool kill_thread () const;
       void inject (fsm&) const;
+
     private:
 
       const boost::any evt_;

@@ -68,7 +68,7 @@ void *graph::thread_func (void *p_arg)
     assert (NULL != p_data);
 
     cmd *p_cmd = static_cast<cmd *>(p_data);
-    done = graph::dispatch_cmd (p_graph, p_cmd);
+    done = p_graph->dispatch_cmd (p_cmd);
 
     delete p_cmd;
   }
@@ -88,9 +88,6 @@ graph::graph::graph (const std::string &graph_name)
     cback_handler_ (this),
     p_mgr_ (NULL),
     p_ops_ (NULL),
-    fsm_ (boost::msm::back::states_ << tiz::graph::fsm::configuring (&p_ops_)
-                                    << tiz::graph::fsm::skipping (&p_ops_),
-          &p_ops_),
     thread_ (0),
     mutex_ (),
     sem_ (),
@@ -112,9 +109,6 @@ graph::graph::init ()
 
   // Init this graph's operations using the do_init template method
   tiz_check_null_ret_oom ((p_ops_ = do_init ()));
-
-  // allow fsm overrides, if needed, using the do_fsm_override template method
-  do_fsm_override ();
 
   // Create the graph's thread
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
@@ -258,10 +252,6 @@ void graph::graph::set_manager (tiz::graphmgr::mgr *ap_mgr)
   p_mgr_ = ap_mgr;
 }
 
-void graph::graph::do_fsm_override ()
-{
-}
-
 void graph::graph::graph_loaded ()
 {
   if (p_mgr_)
@@ -335,40 +325,3 @@ graph::graph::post_cmd (tiz::graph::cmd *p_cmd)
   return OMX_ErrorNone;
 }
 
-bool graph::graph::dispatch_cmd (tiz::graph::graph *p_graph,
-                                 const tiz::graph::cmd *p_cmd)
-{
-  assert (NULL != p_graph);
-  assert (NULL != p_cmd);
-
-  if (!p_cmd->kill_thread ())
-  {
-    if (p_cmd->evt ().type () == typeid(tiz::graph::load_evt))
-    {
-      // Time to start the FSM
-      TIZ_LOG (TIZ_PRIORITY_NOTICE, "Starting [%s] fsm...",
-               p_graph->get_graph_name ().c_str ());
-      p_graph->fsm_.start ();
-    }
-
-    p_cmd->inject (p_graph->fsm_);
-
-    // Check for internal errors produced during the processing of the last
-    // event. If any, inject an "internal" error event. This is fatal and shall
-    // produce the termination of the state machine.
-    if (OMX_ErrorNone != p_graph->p_ops_->get_internal_error ())
-    {
-      p_graph->fsm_.process_event (
-          tiz::graph::err_evt (p_graph->p_ops_->get_internal_error (),
-                               p_graph->p_ops_->get_internal_error_msg ()));
-    }
-
-    if (p_graph->fsm_.terminated_)
-    {
-      TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] fsm terminated...",
-               p_graph->get_graph_name ().c_str ());
-    }
-  }
-
-  return p_cmd->kill_thread ();
-}

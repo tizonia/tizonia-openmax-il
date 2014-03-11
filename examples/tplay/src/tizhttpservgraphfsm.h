@@ -49,6 +49,10 @@
 #include <tizosal.h>
 
 #include "tizgraphfsm.h"
+#include "tizgraphevt.h"
+#include "tizgraphguard.h"
+#include "tizgraphaction.h"
+#include "tizgraphstate.h"
 #include "tizhttpservgraphops.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -67,7 +71,7 @@ namespace tiz
 {
   namespace graph
   {
-    namespace httpserverfsm
+    namespace httpserver
     {
 
       // Some common guard conditions
@@ -87,7 +91,48 @@ namespace tiz
         }
       };
 
-      /* 'configuring' is a submachine of tiz::graph::fsm_ */
+    // Concrete FSM implementation
+    struct fsm_ : public boost::msm::front::state_machine_def<fsm_>
+    {
+      // no need for exception handling
+      typedef int no_exception_thrown;
+
+      /* Forward declarations */
+      struct config2idle;
+      struct idle2loaded;
+      struct idle2exe;
+      struct is_trans_complete;
+      struct do_omx_loaded2idle;
+      struct do_omx_idle2loaded;
+      struct do_omx_idle2exe;
+
+      // data members
+      ops ** pp_ops_;
+      bool terminated_;
+
+      fsm_(ops **pp_ops)
+        :
+        pp_ops_(pp_ops),
+        terminated_ (false)
+      {
+        assert (NULL != pp_ops);
+      }
+
+      // states
+      struct inited : public boost::msm::front::state<>
+      {
+        // optional entry/exit methods
+        template <class Event,class FSM>
+        void on_entry(Event const & evt, FSM & fsm)
+        {
+          G_FSM_LOG();
+          fsm.terminated_ = false;
+        }
+        template <class Event,class FSM>
+        void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+      };
+
+      /* 'configuring' is a submachine */
       struct configuring_ : public boost::msm::front::state_machine_def<configuring_>
       {
         // no need for exception handling
@@ -243,7 +288,7 @@ namespace tiz
                                                                                                                                          do_configure_station,
                                                                                                                                          do_probe,
                                                                                                                                          do_configure_stream,
-                                                                                                                                         tiz::graph::fsm_::
+                                                                                                                                         tiz::graph::
                                                                                                                                          do_omx_loaded2idle > >        , is_initial_configuration      >,
           boost::msm::front::Row < probing                       , boost::msm::front::none         , tiz::graph::fsm_::config2idle , boost::msm::front::ActionSequence_<
                                                                                                                                        boost::mpl::vector<
@@ -252,19 +297,19 @@ namespace tiz
                                                                                                                                          do_source_omx_loaded2idle > > , boost::msm::front::euml::Not_<
                                                                                                                                                                            is_initial_configuration>   >,
           //    +-----------------+------------------------------+---------------------------------+----------------------------+--------------------------------------+-------------------------------+
-          boost::msm::front::Row < tiz::graph::fsm_::config2idle , tiz::graph::omx_trans_evt , tiz::graph::fsm_::idle2exe , tiz::graph::fsm_::do_omx_idle2exe    , boost::msm::front::euml::And_<
-                                                                                                                                                                     tiz::graph::fsm_::is_trans_complete,
+          boost::msm::front::Row < tiz::graph::fsm_::config2idle , tiz::graph::omx_trans_evt , tiz::graph::fsm_::idle2exe , tiz::graph::do_omx_idle2exe    , boost::msm::front::euml::And_<
+                                                                                                                                                                     tiz::graph::is_trans_complete,
                                                                                                                                                                      is_initial_configuration >  >,
           boost::msm::front::Row < tiz::graph::fsm_::config2idle , tiz::graph::omx_trans_evt , tiz::graph::fsm_::idle2exe , do_source_omx_idle2exe               , boost::msm::front::euml::And_<
-                                                                                                                                                                     tiz::graph::fsm_::is_trans_complete,
+                                                                                                                                                                     tiz::graph::is_trans_complete,
                                                                                                                                                                      boost::msm::front::euml::Not_<
                                                                                                                                                                        is_initial_configuration> >     >,
           //    +-----------------+------------------------------+---------------------------------+----------------------------+--------------------------------------+-------------------------------+
           boost::msm::front::Row < tiz::graph::fsm_::idle2exe    , tiz::graph::omx_trans_evt , conf_exit                  , boost::msm::front::none              , boost::msm::front::euml::And_<
-                                                                                                                                                                     tiz::graph::fsm_::is_trans_complete,
+                                                                                                                                                                     tiz::graph::is_trans_complete,
                                                                                                                                                                      is_initial_configuration >  >,
           boost::msm::front::Row < tiz::graph::fsm_::idle2exe    , tiz::graph::omx_trans_evt , enabling_tunnel            , do_enable_tunnel                     , boost::msm::front::euml::And_<
-                                                                                                                                                                     tiz::graph::fsm_::is_trans_complete,
+                                                                                                                                                                     tiz::graph::is_trans_complete,
                                                                                                                                                                      boost::msm::front::euml::Not_<
                                                                                                                                                                        is_initial_configuration> >     >,
           //    +-----------------+------------------------------+---------------------------------+----------------------------+--------------------------------------+-------------------------------+
@@ -409,8 +454,8 @@ namespace tiz
           //    +-----------------+------------------------------+-----------------------------------+------------------------------+---------------------------+---------------------------+
           boost::msm::front::Row < skipping_initial              , boost::msm::front::none           , disabling_tunnel             , do_disable_tunnel                                      >,
           boost::msm::front::Row < disabling_tunnel              , tiz::graph::omx_port_disabled_evt , to_idle                      , do_source_omx_exe2idle    , tiz::graph::is_port_disabling_complete >,
-          boost::msm::front::Row < to_idle                       , tiz::graph::omx_trans_evt         , tiz::graph::fsm_::idle2loaded, do_source_omx_idle2loaded , tiz::graph::fsm_::is_trans_complete >,
-          boost::msm::front::Row < tiz::graph::fsm_::idle2loaded , tiz::graph::omx_trans_evt         , skip_exit                    , do_skip                   , tiz::graph::fsm_::is_trans_complete >
+          boost::msm::front::Row < to_idle                       , tiz::graph::omx_trans_evt         , tiz::graph::fsm_::idle2loaded, do_source_omx_idle2loaded , tiz::graph::is_trans_complete >,
+          boost::msm::front::Row < tiz::graph::fsm_::idle2loaded , tiz::graph::omx_trans_evt         , skip_exit                    , do_skip                   , tiz::graph::is_trans_complete >
           //    +-----------------+------------------------------+-----------------------------------+------------------------------+---------------------------+---------------------------+
           > {};
 
@@ -425,6 +470,90 @@ namespace tiz
       };
       // typedef boost::msm::back::state_machine<skipping_, boost::msm::back::mpl_graph_fsm_check> skipping;
       typedef boost::msm::back::state_machine<skipping_> skipping;
+
+      // The initial state of the SM. Must be defined
+      typedef inited initial_state;
+
+      // transition actions
+
+
+      // guard conditions
+
+      // Transition table for the httpserver graph fsm
+      struct transition_table : boost::mpl::vector<
+        //                       Start       Event             Next                      Action                    Guard
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < inited      , load_evt        , loaded                  , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               do_load,
+                                                                                               do_setup,
+                                                                                               do_ack_loaded> >                           >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < loaded      , execute_evt     , configuring             , do_store_config         , last_op_succeeded    >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < configuring
+                                 ::exit_pt
+                                 <configuring_
+                                  ::conf_exit>, configured_evt , executing               , do_ack_execd                                   >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < executing   , skip_evt        , skipping                , do_store_skip                                  >,
+        boost::msm::front::Row < executing   , seek_evt        , boost::msm::front::none , do_seek                                        >,
+        boost::msm::front::Row < executing   , volume_evt      , boost::msm::front::none , do_volume                                      >,
+        boost::msm::front::Row < executing   , mute_evt        , boost::msm::front::none , do_mute                                        >,
+        boost::msm::front::Row < executing   , pause_evt       , exe2pause               , do_omx_exe2pause                               >,
+        boost::msm::front::Row < executing   , unload_evt      , exe2idle                , do_omx_exe2idle                                >,
+        boost::msm::front::Row < executing   , omx_err_evt     , skipping                , boost::msm::front::none                        >,
+        boost::msm::front::Row < executing   , omx_eos_evt     , skipping                , boost::msm::front::none , is_last_eos          >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < skipping
+                                 ::exit_pt
+                                 <skipping_
+                                  ::skip_exit>, skipped_evt    , unloaded                , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               do_error,
+                                                                                               do_tear_down_tunnels,
+                                                                                               do_destroy_graph> > , is_fatal_error       >,
+        boost::msm::front::Row < skipping
+                                 ::exit_pt
+                                 <skipping_
+                                  ::skip_exit>, skipped_evt    , unloaded                , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               do_end_of_play,
+                                                                                               do_tear_down_tunnels,
+                                                                                               do_destroy_graph> > , is_end_of_play       >,
+        boost::msm::front::Row < skipping
+                                 ::exit_pt
+                                 <skipping_
+                                  ::skip_exit>, skipped_evt    , configuring             , boost::msm::front::none , boost::msm::front::euml::Not_<
+                                                                                                                       is_end_of_play>   >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < exe2pause   , omx_trans_evt   , pause                   , boost::msm::front::none , is_trans_complete    >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < pause       , pause_evt       , pause2exe               , do_omx_pause2exe                               >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < pause2exe   , omx_trans_evt   , executing               , boost::msm::front::none , is_trans_complete    >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < exe2idle    , omx_trans_evt   , idle2loaded             , do_omx_idle2loaded      , is_trans_complete    >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < idle2loaded , omx_trans_evt   , unloaded                , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               do_tear_down_tunnels,
+                                                                                               do_destroy_graph> > , is_trans_complete    >
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        > {};
+
+      // Replaces the default no-transition response.
+      template <class FSM,class Event>
+      void no_transition(Event const& e, FSM&,int state)
+      {
+        TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+                 state, typeid(e).name());
+      }
+    };
+    // typedef boost::msm::back::state_machine<fsm_, boost::msm::back::mpl_graph_fsm_check> fsm;
+    typedef boost::msm::back::state_machine<fsm_> fsm;
+
+
     } // namespace httpserverfsm
   } // namespace graph
 } // namespace tiz

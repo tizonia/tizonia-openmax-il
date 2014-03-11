@@ -38,6 +38,7 @@
 
 #include "tizgraphutil.h"
 #include "tizgraphconfig.h"
+#include "tizgraphcmd.h"
 #include "tizprobe.h"
 #include "tizvorbisgraph.h"
 
@@ -48,7 +49,12 @@
 
 namespace graph = tiz::graph;
 
-graph::vorbisdecoder::vorbisdecoder () : graph::graph ("vorbisdecodergraph")
+graph::vorbisdecoder::vorbisdecoder ()
+    :
+    graph::graph ("vorbisdecgraph"),
+    fsm_ (boost::msm::back::states_ << tiz::graph::fsm::configuring (&p_ops_)
+    << tiz::graph::fsm::skipping (&p_ops_),
+       &p_ops_)
 {
 }
 
@@ -65,6 +71,43 @@ graph::ops *graph::vorbisdecoder::do_init ()
   role_list.push_back ("audio_renderer.pcm");
 
   return new vorbisdecops (this, comp_list, role_list);
+}
+
+bool
+graph::vorbisdecoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
+{
+  assert (NULL != p_cmd);
+
+  if (!p_cmd->kill_thread ())
+  {
+    if (p_cmd->evt ().type () == typeid(tiz::graph::load_evt))
+    {
+      // Time to start the FSM
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "Starting [%s] fsm...",
+               get_graph_name ().c_str ());
+      fsm_.start ();
+    }
+
+    p_cmd->inject (fsm_);
+
+    // Check for internal errors produced during the processing of the last
+    // event. If any, inject an "internal" error event. This is fatal and shall
+    // produce the termination of the state machine.
+    if (OMX_ErrorNone != p_ops_->get_internal_error ())
+    {
+      fsm_.process_event (
+          tiz::graph::err_evt (p_ops_->get_internal_error (),
+                               p_ops_->get_internal_error_msg ()));
+    }
+
+    if (fsm_.terminated_)
+    {
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] fsm terminated...",
+               get_graph_name ().c_str ());
+    }
+  }
+
+  return p_cmd->kill_thread ();
 }
 
 //

@@ -38,7 +38,6 @@
 
 #include "tizgraphtypes.h"
 #include "tizplaylist.h"
-#include "tizgraphfsm.h"
 #include "tizgraphcback.h"
 
 namespace tiz
@@ -82,13 +81,12 @@ namespace tiz
       void deinit ();
 
       void omx_evt (const omx_event_info & evt);
-
       void set_manager (tiz::graphmgr::mgr *ap_mgr);
 
     protected:
 
       virtual ops * do_init () = 0;
-      virtual void do_fsm_override ();
+      virtual bool dispatch_cmd (const tiz::graph::cmd *p_cmd) = 0;
 
     protected:
 
@@ -106,7 +104,7 @@ namespace tiz
       cbackhandler cback_handler_;
       tiz::graphmgr::mgr *p_mgr_;
       ops * p_ops_;
-      fsm fsm_;
+//       fsm fsm_;
 
     private:
 
@@ -114,7 +112,6 @@ namespace tiz
       void deinit_cmd_queue ();
 
       OMX_ERRORTYPE post_cmd (tiz::graph::cmd *p_cmd);
-      static bool dispatch_cmd (tiz::graph::graph *p_graph, const tiz::graph::cmd *p_cmd);
 
     private:
 

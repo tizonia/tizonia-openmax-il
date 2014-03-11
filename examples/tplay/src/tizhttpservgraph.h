@@ -31,6 +31,7 @@
 #define TIZHTTPSERVGRAPH_H
 
 #include "tizgraph.h"
+#include "tizhttpservgraphfsm.h"
 
 namespace tiz
 {
@@ -48,7 +49,11 @@ namespace tiz
     protected:
 
       ops * do_init ();
-      void do_fsm_override ();
+      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
+
+    protected:
+
+      httpserverfsm::fsm fsm_;
 
     };
   } // namespace graph
