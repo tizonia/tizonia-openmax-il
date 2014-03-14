@@ -43,21 +43,16 @@ namespace tiz
     {
 
     public:
-
       httpserver ();
 
     protected:
-
-      ops * do_init ();
+      ops *do_init ();
       bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
 
     protected:
-
       hsfsm::fsm fsm_;
-
     };
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZHTTPSERVGRAPH_H
-
+#endif  // TIZHTTPSERVGRAPH_H

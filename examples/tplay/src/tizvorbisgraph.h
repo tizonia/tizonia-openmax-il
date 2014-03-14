@@ -39,36 +39,29 @@ namespace tiz
   namespace graph
   {
     // Forward declarations
-    class  cmd;
+    class cmd;
 
     class vorbisdecoder : public graph
     {
 
     public:
-
       vorbisdecoder ();
 
     protected:
-
-      ops * do_init ();
+      ops *do_init ();
       bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
 
     protected:
-
       fsm fsm_;
-
     };
 
     class vorbisdecops : public ops
     {
     public:
-
-      vorbisdecops (graph *p_graph,
-                    const omx_comp_name_lst_t & comp_lst,
-                    const omx_comp_role_lst_t & role_lst);
+      vorbisdecops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+                    const omx_comp_role_lst_t &role_lst);
 
     public:
-
       void do_disable_ports ();
       void do_probe ();
       bool is_port_settings_evt_required () const;
@@ -76,17 +69,13 @@ namespace tiz
       void do_configure ();
 
     protected:
-
       OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
       OMX_ERRORTYPE set_vorbis_settings ();
 
     protected:
-
       bool need_port_settings_changed_evt_;
-
     };
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZVORBISGRAPH_H
-
+#endif  // TIZVORBISGRAPH_H

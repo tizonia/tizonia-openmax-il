@@ -38,14 +38,14 @@
 
 #include <OMX_Core.h>
 
-typedef std::map < OMX_HANDLETYPE, std::string > omx_hdl2name_map_t;
-typedef std::vector < std::string > omx_comp_name_lst_t;
-typedef std::vector < OMX_HANDLETYPE > omx_comp_handle_lst_t;
-typedef std::vector < std::string > omx_comp_role_lst_t;
-typedef std::vector < OMX_EVENTTYPE > omx_event_lst_t;
-typedef std::vector < OMX_STATETYPE > omx_state_lst_t;
-typedef std::vector < std::string > uri_lst_t;
-typedef std::set < std::string > file_extension_lst_t;
+typedef std::map< OMX_HANDLETYPE, std::string > omx_hdl2name_map_t;
+typedef std::vector< std::string > omx_comp_name_lst_t;
+typedef std::vector< OMX_HANDLETYPE > omx_comp_handle_lst_t;
+typedef std::vector< std::string > omx_comp_role_lst_t;
+typedef std::vector< OMX_EVENTTYPE > omx_event_lst_t;
+typedef std::vector< OMX_STATETYPE > omx_state_lst_t;
+typedef std::vector< std::string > uri_lst_t;
+typedef std::set< std::string > file_extension_lst_t;
 
 namespace tiz
 {
@@ -58,11 +58,11 @@ namespace tiz
     struct omx_event_info;
   }
 }
-typedef boost::shared_ptr<tiz::probe> tizprobe_ptr_t;
-typedef std::vector<tiz::graph::omx_event_info> omx_event_info_lst_t;
-typedef boost::shared_ptr<tiz::graph::graph> tizgraph_ptr_t;
-typedef std::map<std::string, tizgraph_ptr_t> tizgraph_ptr_map_t;
-typedef boost::shared_ptr<tiz::graph::config> tizgraphconfig_ptr_t;
-typedef boost::shared_ptr<tiz::graph::httpservconfig> tizhttpservconfig_ptr_t;
+typedef boost::shared_ptr< tiz::probe > tizprobe_ptr_t;
+typedef std::vector< tiz::graph::omx_event_info > omx_event_info_lst_t;
+typedef boost::shared_ptr< tiz::graph::graph > tizgraph_ptr_t;
+typedef std::map< std::string, tizgraph_ptr_t > tizgraph_ptr_map_t;
+typedef boost::shared_ptr< tiz::graph::config > tizgraphconfig_ptr_t;
+typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
 
-#endif // TIZGRAPHTYPES_H
+#endif  // TIZGRAPHTYPES_H

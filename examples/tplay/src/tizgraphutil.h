@@ -49,43 +49,44 @@ namespace tiz
     {
 
     public:
-
-      static OMX_ERRORTYPE verify_comp_list (const omx_comp_name_lst_t &comp_list);
+      static OMX_ERRORTYPE verify_comp_list (
+          const omx_comp_name_lst_t &comp_list);
 
       static OMX_ERRORTYPE verify_role (const std::string &comp,
                                         const std::string &role);
 
-      static OMX_ERRORTYPE verify_role_list (const omx_comp_name_lst_t &comp_list,
-                                             const omx_comp_role_lst_t &role_list);
+      static OMX_ERRORTYPE verify_role_list (
+          const omx_comp_name_lst_t &comp_list,
+          const omx_comp_role_lst_t &role_list);
 
-      static OMX_ERRORTYPE instantiate_component (const std::string &comp_name,
-                                                  const int graph_position,
-                                                  OMX_PTR ap_app_data,
-                                                  OMX_CALLBACKTYPE * ap_callbacks,
-                                                  omx_comp_handle_lst_t &hdl_list,
-                                                  omx_hdl2name_map_t &h2n_map);
+      static OMX_ERRORTYPE instantiate_component (
+          const std::string &comp_name, const int graph_position,
+          OMX_PTR ap_app_data, OMX_CALLBACKTYPE *ap_callbacks,
+          omx_comp_handle_lst_t &hdl_list, omx_hdl2name_map_t &h2n_map);
 
-      static OMX_ERRORTYPE instantiate_comp_list (const omx_comp_name_lst_t &comp_list,
-                                                  omx_comp_handle_lst_t &hdl_list,
-                                                  omx_hdl2name_map_t &h2n_map,
-                                                  OMX_PTR ap_app_data,
-                                                  OMX_CALLBACKTYPE * ap_callbacks);
+      static OMX_ERRORTYPE instantiate_comp_list (
+          const omx_comp_name_lst_t &comp_list, omx_comp_handle_lst_t &hdl_list,
+          omx_hdl2name_map_t &h2n_map, OMX_PTR ap_app_data,
+          OMX_CALLBACKTYPE *ap_callbacks);
 
       static void destroy_list (omx_comp_handle_lst_t &hdl_list);
 
-      static OMX_ERRORTYPE setup_suppliers (const omx_comp_handle_lst_t &hdl_list);
+      static OMX_ERRORTYPE setup_suppliers (
+          const omx_comp_handle_lst_t &hdl_list);
 
-      static OMX_ERRORTYPE setup_tunnels (const omx_comp_handle_lst_t &hdl_list);
+      static OMX_ERRORTYPE setup_tunnels (
+          const omx_comp_handle_lst_t &hdl_list);
 
-      static OMX_ERRORTYPE tear_down_tunnels (const omx_comp_handle_lst_t &hdl_list);
+      static OMX_ERRORTYPE tear_down_tunnels (
+          const omx_comp_handle_lst_t &hdl_list);
 
-      static OMX_ERRORTYPE transition_one (const omx_comp_handle_lst_t &hdl_list,
-                                           const int handle_id,
-                                           const OMX_STATETYPE to);
+      static OMX_ERRORTYPE transition_one (
+          const omx_comp_handle_lst_t &hdl_list, const int handle_id,
+          const OMX_STATETYPE to);
 
-      static OMX_ERRORTYPE transition_all (const omx_comp_handle_lst_t &hdl_list,
-                                           const OMX_STATETYPE to,
-                                           const OMX_STATETYPE from);
+      static OMX_ERRORTYPE transition_all (
+          const omx_comp_handle_lst_t &hdl_list, const OMX_STATETYPE to,
+          const OMX_STATETYPE from);
 
       static bool verify_transition_all (const omx_comp_handle_lst_t &hdl_list,
                                          const OMX_STATETYPE to);
@@ -106,37 +107,34 @@ namespace tiz
                                           const int tunnel_id,
                                           const OMX_COMMANDTYPE cmd);
 
-      static OMX_ERRORTYPE disable_tunnel (const omx_comp_handle_lst_t &hdl_list,
-                                           const int tunnel_id);
+      static OMX_ERRORTYPE disable_tunnel (
+          const omx_comp_handle_lst_t &hdl_list, const int tunnel_id);
 
       static OMX_ERRORTYPE enable_tunnel (const omx_comp_handle_lst_t &hdl_list,
                                           const int tunnel_id);
 
       static OMX_ERRORTYPE set_content_uri (const OMX_HANDLETYPE handle,
-                                            const std::string &  uri);
+                                            const std::string &uri);
 
-      static OMX_ERRORTYPE set_pcm_mode (const OMX_HANDLETYPE handle,
-                                         const OMX_U32        port_id,
-                                         boost::function<
-                                         void (OMX_AUDIO_PARAM_PCMMODETYPE &pcmmode) > getter);
+      static OMX_ERRORTYPE set_pcm_mode (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          boost::function< void(OMX_AUDIO_PARAM_PCMMODETYPE &pcmmode) > getter);
 
-      static OMX_ERRORTYPE set_mp3_type (const OMX_HANDLETYPE handle,
-                                         const OMX_U32        port_id,
-                                         boost::function<
-                                         void (OMX_AUDIO_PARAM_MP3TYPE &mp3type) > getter,
-                                         bool &need_port_settings_changed_evt);
+      static OMX_ERRORTYPE set_mp3_type (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          boost::function< void(OMX_AUDIO_PARAM_MP3TYPE &mp3type) > getter,
+          bool &need_port_settings_changed_evt);
 
-      static OMX_ERRORTYPE set_flac_type (const OMX_HANDLETYPE handle,
-                                          const OMX_U32        port_id,
-                                          boost::function<
-                                          void (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) > getter,
-                                          bool &need_port_settings_changed_evt);
+      static OMX_ERRORTYPE set_flac_type (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          boost::function< void(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) >
+              getter, bool &need_port_settings_changed_evt);
 
       static void dump_graph_info (const char *ap_coding_type_str,
                                    const char *ap_graph_type_str,
                                    const std::string &uri);
     };
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZGRAPHUTIL_H
+#endif  // TIZGRAPHUTIL_H

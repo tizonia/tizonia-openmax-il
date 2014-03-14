@@ -49,38 +49,31 @@ namespace tiz
       friend class httpservmgrops;
 
     public:
-
       httpservmgr (tizgraphconfig_ptr_t config);
       virtual ~httpservmgr ();
 
     private:
-
-      ops * do_init (const uri_lst_t &file_list,
-                     const error_callback_t &error_cback);
+      ops *do_init (const uri_lst_t &file_list,
+                    const error_callback_t &error_cback);
 
     private:
-
       tizgraphconfig_ptr_t config_;
-
     };
 
-    typedef boost::shared_ptr<httpservmgr> httpservmgr_ptr_t;
+    typedef boost::shared_ptr< httpservmgr > httpservmgr_ptr_t;
 
     class httpservmgrops : public ops
     {
     public:
-
-      httpservmgrops (mgr * p_mgr, const uri_lst_t &file_list,
+      httpservmgrops (mgr *p_mgr, const uri_lst_t &file_list,
                       const error_callback_t &error_cback);
 
       void do_load ();
 
     private:
-
-      tizgraph_ptr_t get_graph (const std::string & uri);
-
+      tizgraph_ptr_t get_graph (const std::string &uri);
     };
-  } // namespace graphmgr
-} // namespace tiz
+  }  // namespace graphmgr
+}  // namespace tiz
 
-#endif // TIZHTTPSERVMGR_H
+#endif  // TIZHTTPSERVMGR_H

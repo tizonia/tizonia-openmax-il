@@ -45,14 +45,15 @@ namespace tiz
   {
 
     // Forward declarations
-    void * thread_func (void *p_arg);
+    void *thread_func (void *p_arg);
     class cmd;
 
     /**
      *  @class mgr
      *  @brief The graph manager class.
      *
-     *  A graph manager instantiates OpenMAX IL graphs according to the media types
+     *  A graph manager instantiates OpenMAX IL graphs according to the media
+     *types
      *  of the elements found in a play list. The graph manager runs in its own
      *  thread and will manage the lifetime of the graphs that it creates.
      */
@@ -60,21 +61,21 @@ namespace tiz
     {
 
       friend class tiz::graph::graph;
-      friend       void* thread_func (void *);
+      friend void *thread_func (void *);
 
     public:
-
-      typedef boost::function<void (OMX_ERRORTYPE, std::string)> error_callback_t;
+      typedef boost::function< void(OMX_ERRORTYPE, std::string) >
+          error_callback_t;
 
     public:
-
-      mgr();
+      mgr ();
       virtual ~mgr ();
 
       /**
        * Initialise the graph manager thread.
        *
-       * @pre This method must be called only once, before any call is made to the
+       * @pre This method must be called only once, before any call is made to
+       *the
        * other APIs.
        *
        * @post The graph manager thread is ready to process requests.
@@ -82,7 +83,8 @@ namespace tiz
        * @return OMX_ErrorNone if initialisation was
        * successful. OMX_ErrorInsuficientResources otherwise.
        */
-      OMX_ERRORTYPE init (const uri_lst_t &file_list, const error_callback_t &error_cback);
+      OMX_ERRORTYPE init (const uri_lst_t &file_list,
+                          const error_callback_t &error_cback);
 
       /**
        * Destroy the manager thread and release all resources.
@@ -187,42 +189,37 @@ namespace tiz
       OMX_ERRORTYPE stop ();
 
     protected:
-
-      virtual ops * do_init (const uri_lst_t &file_list, const error_callback_t &error_cback) = 0;
+      virtual ops *do_init (const uri_lst_t &file_list,
+                            const error_callback_t &error_cback) = 0;
 
     protected:
-
       OMX_ERRORTYPE graph_loaded ();
       OMX_ERRORTYPE graph_execd ();
       OMX_ERRORTYPE graph_unloaded ();
       OMX_ERRORTYPE graph_end_of_play ();
       OMX_ERRORTYPE graph_error (const OMX_ERRORTYPE error,
-                                 const std::string & msg);
+                                 const std::string &msg);
 
     protected:
-
-      ops * p_ops_;
+      ops *p_ops_;
       fsm fsm_;
 
     private:
-
       OMX_ERRORTYPE init_cmd_queue ();
       void deinit_cmd_queue ();
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
       static bool dispatch_cmd (mgr *p_mgr, const cmd *p_cmd);
 
     private:
-
       tiz_thread_t thread_;
       tiz_mutex_t mutex_;
       tiz_sem_t sem_;
       tiz_queue_t *p_queue_;
-
     };
 
-    typedef boost::shared_ptr<mgr> mgr_ptr_t;
+    typedef boost::shared_ptr< mgr > mgr_ptr_t;
 
-  } // namespace graphmgr
-} // namespace tiz
+  }  // namespace graphmgr
+}  // namespace tiz
 
-#endif // TIZGRAPHMGR_H
+#endif  // TIZGRAPHMGR_H

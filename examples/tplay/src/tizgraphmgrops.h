@@ -38,7 +38,6 @@
 #include "tizgraphtypes.h"
 #include "tizplaylist.h"
 
-
 #define GMGR_OPS_RECORD_ERROR(err, str)                                     \
   do                                                                        \
   {                                                                         \
@@ -49,16 +48,16 @@
   } while (0)
 
 #define GMGR_OPS_BAIL_IF_ERROR(ptr, exp, str) \
-  do                                            \
-  {                                             \
-    if (ptr)                                    \
-    {                                           \
-      OMX_ERRORTYPE rc_ = OMX_ErrorNone;        \
-      if (OMX_ErrorNone != (rc_ = (exp)))       \
-      {                                         \
-        GMGR_OPS_RECORD_ERROR (rc_, str);       \
-      }                                         \
-    }                                           \
+  do                                          \
+  {                                           \
+    if (ptr)                                  \
+    {                                         \
+      OMX_ERRORTYPE rc_ = OMX_ErrorNone;      \
+      if (OMX_ErrorNone != (rc_ = (exp)))     \
+      {                                       \
+        GMGR_OPS_RECORD_ERROR (rc_, str);     \
+      }                                       \
+    }                                         \
   } while (0)
 
 namespace tiz
@@ -77,20 +76,17 @@ namespace tiz
     {
 
     public:
-
-      typedef boost::function<
-      void (OMX_ERRORTYPE, std::string)> error_callback_t;
+      typedef boost::function< void(OMX_ERRORTYPE, std::string) >
+          error_callback_t;
 
     public:
-
-      ops (mgr * p_mgr, const uri_lst_t &file_list,
+      ops (mgr *p_mgr, const uri_lst_t &file_list,
            const error_callback_t &error_cback);
       virtual ~ops ();
 
       void deinit ();
 
     public:
-
       virtual void do_load ();
       virtual void do_execute ();
       virtual void do_unload ();
@@ -109,11 +105,9 @@ namespace tiz
       std::string get_internal_error_msg () const;
 
     protected:
-
-      virtual tizgraph_ptr_t get_graph (const std::string & uri);
+      virtual tizgraph_ptr_t get_graph (const std::string &uri);
 
     protected:
-
       mgr *p_mgr_;
       tizplaylist_t playlist_;
       tizgraphconfig_ptr_t graph_config_;
@@ -122,9 +116,8 @@ namespace tiz
       error_callback_t error_cback_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;
-
     };
-  } // namespace graphmgr
-} // namespace tiz
+  }  // namespace graphmgr
+}  // namespace tiz
 
-#endif // TIZGRAPHMGROPS_H
+#endif  // TIZGRAPHMGROPS_H

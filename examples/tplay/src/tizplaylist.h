@@ -38,14 +38,13 @@ typedef tizplaylist tizplaylist_t;
 class tizplaylist
 {
 
- public:
-
-  explicit tizplaylist(const uri_lst_t &uri_list = uri_lst_t ());
-  tizplaylist(const tizplaylist &playlist, const int from, const int to);
+public:
+  explicit tizplaylist (const uri_lst_t &uri_list = uri_lst_t ());
+  tizplaylist (const tizplaylist &playlist, const int from, const int to);
 
   tizplaylist get_next_sub_playlist ();
   uri_lst_t get_sublist (const int from, const int to) const;
-  const uri_lst_t & get_uri_list () const ;
+  const uri_lst_t &get_uri_list () const;
 
   int size () const;
   bool is_single_format_playlist () const;
@@ -54,23 +53,20 @@ class tizplaylist
                                   const bool shuffle_playlist,
                                   const bool recurse,
                                   const file_extension_lst_t &extension_list,
-                                  uri_lst_t &file_list,
-                                  std::string &error_msg);
+                                  uri_lst_t &file_list, std::string &error_msg);
 
- private:
-
-  enum single_format
-    {
-      Unknown,
-      Yes,
-      No
-    };
-  
 private:
+  enum single_format
+  {
+    Unknown,
+    Yes,
+    No
+  };
 
-  uri_lst_t            uri_list_;
-  int                   current_index_;
+private:
+  uri_lst_t uri_list_;
+  int current_index_;
   mutable single_format single_format_list_;
 };
 
-#endif // TIZPLAYLIST_H
+#endif  // TIZPLAYLIST_H

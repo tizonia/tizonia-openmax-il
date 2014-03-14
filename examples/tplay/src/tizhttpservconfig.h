@@ -43,28 +43,35 @@ namespace tiz
     {
 
     public:
-
-      httpservconfig (const uri_lst_t & uris,
-                      const std::string &host,
-                      const std::string &ip_address,
-                      const long int port)
+      httpservconfig (const uri_lst_t &uris, const std::string &host,
+                      const std::string &ip_address, const long int port)
         : config (uris), host_ (host), addr_ (ip_address), port_ (port)
-      {}
+      {
+      }
 
-      ~httpservconfig () {}
+      ~httpservconfig ()
+      {
+      }
 
-      std::string get_addr () const {return addr_;}
-      std::string get_host_name () const {return host_;}
-      long int get_port () const {return port_;}
+      std::string get_addr () const
+      {
+        return addr_;
+      }
+      std::string get_host_name () const
+      {
+        return host_;
+      }
+      long int get_port () const
+      {
+        return port_;
+      }
 
     protected:
-
       std::string host_;
       std::string addr_;
       long int port_;
-
     };
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZHTTPSERVCONFIG_H
+#endif  // TIZHTTPSERVCONFIG_H

@@ -42,22 +42,18 @@ namespace tiz
     {
 
     public:
-
       explicit cmd (boost::any any_event);
 
     public:
-
       const boost::any evt () const;
-      const char * c_str () const;
-      void inject (fsm&) const;
+      const char *c_str () const;
+      void inject (fsm &) const;
 
     private:
-
       const boost::any evt_;
-
     };
 
-  }// namespace graphmgr
+  }  // namespace graphmgr
 }  // namespace tiz
 
-#endif // TIZGRAPHMGRCMD_H
+#endif  // TIZGRAPHMGRCMD_H

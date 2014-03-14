@@ -52,22 +52,21 @@ namespace tiz
   {
 
     // Forward declarations
-    void * thread_func (void *p_arg);
-    class  cmd;
-    class  cbackhandler;
-    class  ops;
+    void *thread_func (void *p_arg);
+    class cmd;
+    class cbackhandler;
+    class ops;
 
     class graph
     {
 
       friend class cbackhandler;
       friend class ops;
-      friend       void* thread_func (void *);
+      friend void *thread_func (void *);
 
     public:
-
-      graph (const std::string & graph_name);
-      virtual ~graph();
+      graph (const std::string &graph_name);
+      virtual ~graph ();
 
       OMX_ERRORTYPE init ();
       OMX_ERRORTYPE load ();
@@ -80,16 +79,14 @@ namespace tiz
       void unload ();
       void deinit ();
 
-      void omx_evt (const omx_event_info & evt);
+      void omx_evt (const omx_event_info &evt);
       void set_manager (tiz::graphmgr::mgr *ap_mgr);
 
     protected:
-
-      virtual ops * do_init () = 0;
+      virtual ops *do_init () = 0;
       virtual bool dispatch_cmd (const tiz::graph::cmd *p_cmd) = 0;
 
     protected:
-
       void graph_loaded ();
       void graph_execd ();
       void graph_unloaded ();
@@ -99,27 +96,23 @@ namespace tiz
       std::string get_graph_name () const;
 
     protected:
-
       std::string graph_name_;
       cbackhandler cback_handler_;
       tiz::graphmgr::mgr *p_mgr_;
-      ops * p_ops_;
+      ops *p_ops_;
 
     private:
-
       OMX_ERRORTYPE init_cmd_queue ();
       void deinit_cmd_queue ();
       OMX_ERRORTYPE post_cmd (tiz::graph::cmd *p_cmd);
 
     private:
-
       tiz_thread_t thread_;
       tiz_mutex_t mutex_;
       tiz_sem_t sem_;
       tiz_queue_t *p_queue_;
-
     };
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZGRAPH_H
+#endif  // TIZGRAPH_H

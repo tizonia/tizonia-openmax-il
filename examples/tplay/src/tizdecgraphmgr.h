@@ -45,28 +45,23 @@ namespace tiz
     class decodemgr : public mgr
     {
     public:
-
       decodemgr ();
       virtual ~decodemgr ();
 
     protected:
-
-      ops * do_init (const uri_lst_t &file_list,
-                     const error_callback_t &error_cback);
-
+      ops *do_init (const uri_lst_t &file_list,
+                    const error_callback_t &error_cback);
     };
 
-    typedef boost::shared_ptr<decodemgr> decodemgr_ptr_t;
+    typedef boost::shared_ptr< decodemgr > decodemgr_ptr_t;
 
     class decodemgrops : public ops
     {
     public:
-
-      decodemgrops (mgr * p_mgr, const uri_lst_t &file_list,
+      decodemgrops (mgr *p_mgr, const uri_lst_t &file_list,
                     const error_callback_t &error_cback);
-
     };
-  } // namespace graphmgr
-} // namespace tiz
+  }  // namespace graphmgr
+}  // namespace tiz
 
-#endif // TIZDECGRAPHMGR_H
+#endif  // TIZDECGRAPHMGR_H

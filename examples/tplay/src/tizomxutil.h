@@ -35,23 +35,20 @@
 
 #include "OMX_Core.h"
 
-
 namespace tiz
 {
   class omxutil
   {
 
   public:
-
-    static void init();
-    static void deinit();
-    static OMX_ERRORTYPE list_comps(std::vector<std::string>& components);
-    static OMX_ERRORTYPE roles_of_comp(const OMX_STRING comp,
-                                       std::vector<std::string>& roles);
-    static OMX_ERRORTYPE comps_of_role(const OMX_STRING role,
-                                       std::vector<std::string>& components);
-
+    static void init ();
+    static void deinit ();
+    static OMX_ERRORTYPE list_comps (std::vector< std::string >& components);
+    static OMX_ERRORTYPE roles_of_comp (const OMX_STRING comp,
+                                        std::vector< std::string >& roles);
+    static OMX_ERRORTYPE comps_of_role (const OMX_STRING role,
+                                        std::vector< std::string >& components);
   };
-} // namespace tiz
+}  // namespace tiz
 
-#endif // TIZOMXUTIL_H
+#endif  // TIZOMXUTIL_H

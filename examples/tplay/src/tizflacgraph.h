@@ -39,52 +39,41 @@ namespace tiz
   namespace graph
   {
     // Forward declarations
-    class  cmd;
+    class cmd;
 
     class flacdecoder : public graph
     {
 
     public:
-
       flacdecoder ();
 
     protected:
-
-      ops * do_init ();
+      ops *do_init ();
       bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
 
     protected:
-
       fsm fsm_;
-
     };
 
     class flacdecops : public ops
     {
     public:
-
-      flacdecops (graph *p_graph,
-                 const omx_comp_name_lst_t & comp_lst,
-                 const omx_comp_role_lst_t & role_lst);
+      flacdecops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+                  const omx_comp_role_lst_t &role_lst);
 
     public:
-
       void do_probe ();
       bool is_port_settings_evt_required () const;
       bool is_disabled_evt_required () const;
       void do_configure ();
 
     protected:
-
       OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
 
     protected:
-
       bool need_port_settings_changed_evt_;
-
     };
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZFLACGRAPH_H
-
+#endif  // TIZFLACGRAPH_H

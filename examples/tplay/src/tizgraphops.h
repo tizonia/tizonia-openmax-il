@@ -40,16 +40,17 @@
 #include "tizprobe.h"
 #include "tizplaylist.h"
 
-#define G_OPS_BAIL_IF_ERROR(exp,str)                                    \
-  do {                                                                  \
-    OMX_ERRORTYPE rc_ = OMX_ErrorNone;                                  \
-    if (OMX_ErrorNone != (rc_ = (exp)))                                 \
-      {                                                                 \
-        record_error (rc_, str);                                        \
-        TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s",                       \
-                 tiz_err_to_str (error_code_), error_msg_.c_str ());    \
-        return;                                                         \
-      }                                                                 \
+#define G_OPS_BAIL_IF_ERROR(exp, str)                                         \
+  do                                                                          \
+  {                                                                           \
+    OMX_ERRORTYPE rc_ = OMX_ErrorNone;                                        \
+    if (OMX_ErrorNone != (rc_ = (exp)))                                       \
+    {                                                                         \
+      record_error (rc_, str);                                                \
+      TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error_code_), \
+               error_msg_.c_str ());                                          \
+      return;                                                                 \
+    }                                                                         \
   } while (0)
 
 namespace tiz
@@ -66,16 +67,13 @@ namespace tiz
     {
 
     public:
-
-      ops (graph *p_graph,
-           const omx_comp_name_lst_t & comp_lst,
-           const omx_comp_role_lst_t & role_lst);
-      virtual ~ops();
+      ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+           const omx_comp_role_lst_t &role_lst);
+      virtual ~ops ();
 
       void set_manager (graphmgr::mgr *ap_mgr);
 
     public:
-
       virtual void do_load ();
       virtual void do_setup ();
       virtual void do_ack_loaded ();
@@ -107,7 +105,6 @@ namespace tiz
       std::string get_internal_error_msg () const;
 
     public:
-
       bool is_last_component (const OMX_HANDLETYPE handle) const;
       bool is_trans_complete (const OMX_HANDLETYPE handle,
                               const OMX_STATETYPE to_state);
@@ -120,9 +117,8 @@ namespace tiz
       std::string handle2name (const OMX_HANDLETYPE handle) const;
 
     protected:
-
       void record_error (const OMX_ERRORTYPE err_code,
-                         const std::string & err_msg);
+                         const std::string &err_msg);
 
       void clear_expected_transitions ();
       void record_expected_transitions (const OMX_STATETYPE to_state);
@@ -131,17 +127,16 @@ namespace tiz
                                     const OMX_ERRORTYPE error = OMX_ErrorNone);
 
       void clear_expected_port_transitions ();
-      void add_expected_port_transition (const OMX_HANDLETYPE handle,
-                                         const OMX_U32 port_id,
-                                         const OMX_COMMANDTYPE disable_or_enable,
-                                         const OMX_ERRORTYPE error = OMX_ErrorNone);
+      void add_expected_port_transition (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          const OMX_COMMANDTYPE disable_or_enable,
+          const OMX_ERRORTYPE error = OMX_ErrorNone);
 
-      bool is_port_transition_complete (const OMX_HANDLETYPE handle,
-                                        const OMX_U32        port_id,
-                                        const OMX_COMMANDTYPE disable_or_enable);
+      bool is_port_transition_complete (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          const OMX_COMMANDTYPE disable_or_enable);
 
     protected:
-
       graph *p_graph_;
       tizprobe_ptr_t probe_ptr_;
       const omx_comp_name_lst_t comp_lst_;
@@ -156,10 +151,9 @@ namespace tiz
       int jump_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;
-
     };
 
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZGRAPHOPS_H
+#endif  // TIZGRAPHOPS_H

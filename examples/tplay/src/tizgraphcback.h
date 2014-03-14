@@ -45,24 +45,18 @@ namespace tiz
     struct omx_event_info
     {
       // general purpose constructor
-      omx_event_info(OMX_HANDLETYPE component,
-                     OMX_EVENTTYPE event,
-                     OMX_U32 ndata1,
-                     OMX_U32 ndata2,
-                     OMX_PTR pEventData);
+      omx_event_info (OMX_HANDLETYPE component, OMX_EVENTTYPE event,
+                      OMX_U32 ndata1, OMX_U32 ndata2, OMX_PTR pEventData);
 
       // state transition constructor
-      omx_event_info(OMX_HANDLETYPE component,
-                     OMX_STATETYPE state,
-                     OMX_ERRORTYPE error);
+      omx_event_info (OMX_HANDLETYPE component, OMX_STATETYPE state,
+                      OMX_ERRORTYPE error);
 
       // port transition constructor
-      omx_event_info(OMX_HANDLETYPE component,
-                     OMX_U32 port_id,
-                     OMX_COMMANDTYPE disable_or_enable,
-                     OMX_ERRORTYPE error);
+      omx_event_info (OMX_HANDLETYPE component, OMX_U32 port_id,
+                      OMX_COMMANDTYPE disable_or_enable, OMX_ERRORTYPE error);
 
-      bool operator==(const omx_event_info& b);
+      bool operator==(const omx_event_info &b);
       std::string to_string () const;
 
       OMX_HANDLETYPE component_;
@@ -76,35 +70,24 @@ namespace tiz
     {
 
     public:
-
-      explicit cbackhandler (graph * p_graph);
+      explicit cbackhandler (graph *p_graph);
 
     public:
+      static OMX_ERRORTYPE event_handler_wrapper (
+          OMX_HANDLETYPE hComponent, OMX_PTR pAppData, OMX_EVENTTYPE eEvent,
+          OMX_U32 nData1, OMX_U32 nData2, OMX_PTR pEventData);
 
-      static OMX_ERRORTYPE event_handler_wrapper (OMX_HANDLETYPE hComponent,
-                                                  OMX_PTR pAppData,
-                                                  OMX_EVENTTYPE eEvent,
-                                                  OMX_U32 nData1,
-                                                  OMX_U32 nData2,
-                                                  OMX_PTR pEventData);
-
-      OMX_CALLBACKTYPE * get_omx_cbacks ();
+      OMX_CALLBACKTYPE *get_omx_cbacks ();
 
     private:
-
-      void event_handler (OMX_HANDLETYPE component,
-                          OMX_EVENTTYPE event,
-                          OMX_U32 ndata1,
-                          OMX_U32 ndata2,
-                          OMX_PTR pEventData);
+      void event_handler (OMX_HANDLETYPE component, OMX_EVENTTYPE event,
+                          OMX_U32 ndata1, OMX_U32 ndata2, OMX_PTR pEventData);
 
     private:
-
       const graph *p_graph_;
       OMX_CALLBACKTYPE cbacks_;
-
     };
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZGRAPHCBACK_H
+#endif  // TIZGRAPHCBACK_H

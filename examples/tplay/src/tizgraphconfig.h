@@ -42,25 +42,36 @@ namespace tiz
     {
 
     public:
-
-      explicit config (const uri_lst_t & uris, const bool continuous_playback = true)
+      explicit config (const uri_lst_t &uris,
+                       const bool continuous_playback = true)
         : uris_ (uris), continuous_playback_ (continuous_playback)
-      {}
+      {
+      }
 
-      virtual ~config () {}
+      virtual ~config ()
+      {
+      }
 
-      uri_lst_t get_uris () const {return uris_;}
-      void set_uris (const uri_lst_t & uris)  {uris_ = uris;}
+      uri_lst_t get_uris () const
+      {
+        return uris_;
+      }
+      void set_uris (const uri_lst_t &uris)
+      {
+        uris_ = uris;
+      }
 
-      bool continuous_playback () const {return continuous_playback_;}
+      bool continuous_playback () const
+      {
+        return continuous_playback_;
+      }
 
     protected:
-
       uri_lst_t uris_;
       bool continuous_playback_;
     };
 
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZGRAPHCONFIG_H
+#endif  // TIZGRAPHCONFIG_H

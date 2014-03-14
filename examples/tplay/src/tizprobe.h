@@ -49,26 +49,31 @@ namespace tiz
   {
 
   public:
-
-    probe(const std::string &uri, const bool quiet = false);
+    probe (const std::string &uri, const bool quiet = false);
 
     std::string get_uri ()
-      { return uri_; }
+    {
+      return uri_;
+    }
 
     OMX_PORTDOMAINTYPE get_omx_domain ();
 
     OMX_AUDIO_CODINGTYPE get_audio_coding_type () const
-    { return audio_coding_type_; }
+    {
+      return audio_coding_type_;
+    }
 
     OMX_VIDEO_CODINGTYPE get_video_coding_type () const
-    { return video_coding_type_; }
+    {
+      return video_coding_type_;
+    }
 
-    void get_pcm_codec_info(OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
-    void get_mp3_codec_info(OMX_AUDIO_PARAM_MP3TYPE &mp3type);
-    void get_opus_codec_info(OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);
-    void get_flac_codec_info(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype);
-    void get_vorbis_codec_info(OMX_AUDIO_PARAM_VORBISTYPE &vorbistype);
-    void get_vp8_codec_info(OMX_VIDEO_PARAM_VP8TYPE &vp8type);
+    void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
+    void get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE &mp3type);
+    void get_opus_codec_info (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);
+    void get_flac_codec_info (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype);
+    void get_vorbis_codec_info (OMX_AUDIO_PARAM_VORBISTYPE &vorbistype);
+    void get_vp8_codec_info (OMX_VIDEO_PARAM_VP8TYPE &vp8type);
 
     /* Meta-data information */
     std::string title () const;
@@ -93,19 +98,19 @@ namespace tiz
     void dump_stream_metadata ();
 
   private:
-
-    int probe_file();
+    int probe_file ();
     void set_mp3_codec_info (const AVCodecContext *cc);
     void set_opus_codec_info ();
     void set_flac_codec_info (const AVCodecContext *cc);
     void set_vorbis_codec_info (const AVCodecContext *cc);
-    std::string retrieve_meta_data_str (TagLib::String (TagLib::Tag::*TagFunction)() const) const;
-    unsigned int retrieve_meta_data_uint (TagLib::uint (TagLib::Tag::*TagFunction)() const) const;
+    std::string retrieve_meta_data_str (
+        TagLib::String (TagLib::Tag::*TagFunction)() const) const;
+    unsigned int retrieve_meta_data_uint (
+        TagLib::uint (TagLib::Tag::*TagFunction)() const) const;
 
   private:
-
     std::string uri_;
-    bool quiet_; // this is to control whether the probe object should dump any
+    bool quiet_;  // this is to control whether the probe object should dump any
     // format info to the stdout
     OMX_PORTDOMAINTYPE domain_;
     OMX_AUDIO_CODINGTYPE audio_coding_type_;
@@ -119,8 +124,7 @@ namespace tiz
     TagLib::FileRef meta_file_;
     std::string stream_title_;
     std::string stream_genre_;
-
   };
-} // namespace tiz
+}  // namespace tiz
 
-#endif // TIZPROBE_H
+#endif  // TIZPROBE_H

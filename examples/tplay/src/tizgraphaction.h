@@ -40,8 +40,7 @@
   do                                                                    \
   {                                                                     \
     TIZ_LOG (TIZ_PRIORITY_TRACE, "ACTION [%s]", typeid(*this).name ()); \
-  }                                                                     \
-  while(0)
+  } while (0)
 
 namespace tiz
 {
@@ -50,305 +49,305 @@ namespace tiz
 
     struct do_probe
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_probe ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_probe ();
+        }
       }
     };
 
     struct do_configure
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_configure ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_configure ();
+        }
       }
     };
 
     struct do_skip
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_skip ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_skip ();
+        }
       }
     };
 
-    
     struct do_load
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_load ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_load ();
+        }
       }
     };
 
     struct do_setup
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_setup ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_setup ();
+        }
       }
     };
 
     struct do_ack_loaded
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_ack_loaded ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_ack_loaded ();
+        }
       }
     };
 
     struct do_store_config
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_store_config (evt.config_);
-          }
+        {
+          (*(fsm.pp_ops_))->do_store_config (evt.config_);
+        }
       }
     };
 
     struct do_omx_loaded2idle
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const&, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_omx_loaded2idle ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_omx_loaded2idle ();
+        }
       }
     };
 
     struct do_omx_idle2exe
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_omx_idle2exe ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_omx_idle2exe ();
+        }
       }
     };
 
     struct do_ack_execd
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_ack_execd ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_ack_execd ();
+        }
       }
     };
 
     struct do_seek
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_seek ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_seek ();
+        }
       }
     };
 
     struct do_volume
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_volume (evt.step_);
-          }
+        {
+          (*(fsm.pp_ops_))->do_volume (evt.step_);
+        }
       }
     };
 
     struct do_mute
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_mute ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_mute ();
+        }
       }
     };
 
     struct do_omx_exe2pause
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_omx_exe2pause ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_omx_exe2pause ();
+        }
       }
     };
 
     struct do_omx_pause2exe
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_omx_pause2exe ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_omx_pause2exe ();
+        }
       }
     };
 
     struct do_omx_exe2idle
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_omx_exe2idle ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_omx_exe2idle ();
+        }
       }
     };
 
     struct do_store_skip
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_store_skip (evt.jump_);
-          }
+        {
+          (*(fsm.pp_ops_))->do_store_skip (evt.jump_);
+        }
       }
     };
 
     struct do_omx_idle2loaded
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_omx_idle2loaded ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_omx_idle2loaded ();
+        }
       }
     };
 
     struct do_end_of_play
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_end_of_play ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_end_of_play ();
+        }
       }
     };
 
     struct do_error
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_error ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_error ();
+        }
       }
     };
 
     struct do_tear_down_tunnels
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_tear_down_tunnels ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_tear_down_tunnels ();
+        }
       }
     };
 
     struct do_destroy_graph
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_destroy_graph ();
-          }
+        {
+          (*(fsm.pp_ops_))->do_destroy_graph ();
+        }
       }
     };
 
     struct do_report_fatal_error
     {
-      template <class FSM, class EVT, class SourceState, class TargetState>
-      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
       {
-        G_ACTION_LOG();
+        G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            (*(fsm.pp_ops_))->do_report_fatal_error (evt.error_code_, evt.error_str_);
-          }
+        {
+          (*(fsm.pp_ops_))
+              ->do_report_fatal_error (evt.error_code_, evt.error_str_);
+        }
       }
     };
 
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZGRAPHACTION_H
+#endif  // TIZGRAPHACTION_H

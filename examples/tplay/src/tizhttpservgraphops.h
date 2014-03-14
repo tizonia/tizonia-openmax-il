@@ -41,13 +41,10 @@ namespace tiz
     class httpservops : public ops
     {
     public:
-
-      httpservops (graph *p_graph,
-                   const omx_comp_name_lst_t & comp_lst,
-                   const omx_comp_role_lst_t & role_lst);
+      httpservops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+                   const omx_comp_role_lst_t &role_lst);
 
     public:
-
       void do_probe ();
       void do_omx_exe2pause ();
       void do_omx_pause2exe ();
@@ -67,21 +64,18 @@ namespace tiz
       void do_flag_initial_config_done ();
 
     private:
-
       OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
       OMX_ERRORTYPE configure_server ();
       OMX_ERRORTYPE configure_station ();
       OMX_ERRORTYPE configure_stream_metadata ();
       OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
-      OMX_ERRORTYPE transition_tunnel (const OMX_COMMANDTYPE to_disabled_or_enabled);
+      OMX_ERRORTYPE transition_tunnel (
+          const OMX_COMMANDTYPE to_disabled_or_enabled);
 
     private:
-
       bool is_initial_configuration_;
-
     };
-  } // namespace graph
-} // namespace tiz
+  }  // namespace graph
+}  // namespace tiz
 
-#endif // TIZHTTPSERVOPS_H
-
+#endif  // TIZHTTPSERVOPS_H
