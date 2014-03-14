@@ -38,7 +38,7 @@
 
 namespace
 {
-  template <typename T>
+  template < typename T >
   bool is_type (const boost::any& operand)
   {
     return operand.type () == typeid(T);
@@ -58,7 +58,7 @@ const boost::any graphmgr::cmd::evt () const
 
 /*@observer@*/ const char* graphmgr::cmd::c_str () const
 {
-  if (is_type<start_evt>(evt_))
+  if (is_type< start_evt >(evt_))
   {
     return "start_evt";
   }
@@ -67,15 +67,15 @@ const boost::any graphmgr::cmd::evt () const
 
 void graphmgr::cmd::inject (fsm& machine) const
 {
-#define INJECT_EVENT(the_evt)                                \
-  if (is_type<the_evt>(evt_))                                \
-  {                                                          \
-    std::string arg (#the_evt);                              \
-    TIZ_LOG (TIZ_PRIORITY_NOTICE,                            \
-             "GRAPH MGR : Injecting "                        \
-             "CMD [%s] in STATE [%s]...",                    \
-             arg.c_str (), tiz::graphmgr::pstate (machine)); \
-    machine.process_event (boost::any_cast<the_evt>(evt_));  \
+#define INJECT_EVENT(the_evt)                                 \
+  if (is_type< the_evt >(evt_))                               \
+  {                                                           \
+    std::string arg (#the_evt);                               \
+    TIZ_LOG (TIZ_PRIORITY_NOTICE,                             \
+             "GRAPH MGR : Injecting "                         \
+             "CMD [%s] in STATE [%s]...",                     \
+             arg.c_str (), tiz::graphmgr::pstate (machine));  \
+    machine.process_event (boost::any_cast< the_evt >(evt_)); \
   }
 
   INJECT_EVENT (start_evt)

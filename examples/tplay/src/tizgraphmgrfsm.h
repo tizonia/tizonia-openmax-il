@@ -37,8 +37,6 @@
 
 #include <sys/time.h>
 
-#include <iostream>
-
 #include <boost/msm/back/state_machine.hpp>
 #include <boost/msm/back/mpl_graph_fsm_check.hpp>
 #include <boost/msm/front/state_machine_def.hpp>
@@ -54,6 +52,13 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graphmgr.fsm"
 #endif
+
+#define GMGR_FSM_LOG()                                                  \
+  do                                                                    \
+    {                                                                   \
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());      \
+    }                                                                   \
+  while(0)
 
 namespace tiz
 {
@@ -104,12 +109,12 @@ namespace tiz
       struct do_report_fatal_error;
 
       // data members
-      ops * p_ops_;
+      ops ** pp_ops_;
       bool terminated_;
 
-      fsm_(ops *p_ops)
+      fsm_(ops **pp_ops)
         :
-        p_ops_(p_ops),
+        pp_ops_(pp_ops),
         terminated_ (false)
       {}
 
@@ -118,9 +123,9 @@ namespace tiz
       {
         // optional entry/exit methods
         template <class Event,class FSM>
-        void on_entry(Event const&,FSM& ) { TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ()); }
+        void on_entry(Event const&,FSM& ) { GMGR_FSM_LOG (); }
         template <class Event,class FSM>
-        void on_exit(Event const&,FSM& ) { TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ()); }
+        void on_exit(Event const&,FSM& ) { GMGR_FSM_LOG (); }
       };
 
       /* 'starting' is a submachine */
@@ -130,37 +135,39 @@ namespace tiz
         typedef int no_exception_thrown;
 
         // data members
-        ops * p_ops_;
+        ops ** pp_ops_;
 
         starting_()
           :
-          p_ops_(NULL)
+          pp_ops_(NULL)
         {}
-        starting_(ops *p_ops)
+        starting_(ops **pp_ops)
           :
-          p_ops_(p_ops)
-        {}
+          pp_ops_(pp_ops)
+        {
+          assert (NULL != pp_ops);
+        }
 
         // submachine states
         struct loading_graph : public boost::msm::front::state<>
         {
           typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
           template <class Event,class FSM>
-          void on_entry(Event const&, FSM& fsm) {TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());}
+          void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         };
 
         struct executing_graph : public boost::msm::front::state<>
         {
           typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
           template <class Event,class FSM>
-          void on_entry(Event const&,FSM& ) {TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());}
+          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
 
         struct starting_exit : public boost::msm::front::exit_pseudo_state<graph_execd_evt>
         {
           typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
           template <class Event,class FSM>
-          void on_entry(Event const&,FSM& ) {TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());}
+          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
 
         // the initial state. Must be defined
@@ -172,11 +179,11 @@ namespace tiz
           template <class FSM,class EVT,class SourceState,class TargetState>
           void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
           {
-            TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
+            GMGR_FSM_LOG ();
             /* STEP: issue 'execute' graph command */
-            if (fsm.p_ops_)
+            if (fsm.pp_ops_ && *(fsm.pp_ops_))
               {
-                fsm.p_ops_->do_execute ();
+                (*(fsm.pp_ops_))->do_execute ();
               }
           }
         };
@@ -196,7 +203,7 @@ namespace tiz
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                    state, typeid(e).name());
         }
 
@@ -207,9 +214,9 @@ namespace tiz
       struct running : public boost::msm::front::state<>
       {
         template <class Event,class FSM>
-        void on_entry(Event const&,FSM& ) {TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());}
+        void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         template <class Event,class FSM>
-        void on_exit(Event const&,FSM& ) {TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());}
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
 
       /* restarting is a submachine */
@@ -219,23 +226,25 @@ namespace tiz
         typedef int no_exception_thrown;
 
         // data members
-        ops * p_ops_;
+        ops ** pp_ops_;
 
         restarting_()
           :
-          p_ops_(NULL)
+          pp_ops_(NULL)
         {}
 
-        restarting_(ops * p_ops)
+        restarting_(ops **pp_ops)
           :
-          p_ops_(p_ops)
-        {}
+          pp_ops_(pp_ops)
+        {
+          assert (NULL != pp_ops);
+        }
 
         struct restarting_exit : public boost::msm::front::exit_pseudo_state<graph_unlded_evt>
         {
           typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
           template <class Event,class FSM>
-          void on_entry(Event const&,FSM& ) {TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());}
+          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
 
         // the initial state. Must be defined
@@ -257,7 +266,7 @@ namespace tiz
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                    state, typeid(e).name());
         }
       };
@@ -271,23 +280,25 @@ namespace tiz
         typedef int no_exception_thrown;
 
         // data members
-        ops * p_ops_;
+        ops ** pp_ops_;
 
         stopping_ ()
           :
-          p_ops_(NULL)
+          pp_ops_(NULL)
         {}
 
-        stopping_ (ops * p_ops)
+        stopping_ (ops **pp_ops)
           :
-          p_ops_(p_ops)
-        {}
+          pp_ops_(pp_ops)
+        {
+          assert (NULL != pp_ops);
+        }
 
         // The list of FSM states
         struct stopping_exit : public boost::msm::front::exit_pseudo_state<graph_unlded_evt>
         {
           template <class Event,class FSM>
-          void on_entry(Event const&,FSM& ) {TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());}
+          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
 
         // the initial state. Must be defined
@@ -309,7 +320,7 @@ namespace tiz
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                    state, typeid(e).name());
         }
       };
@@ -322,18 +333,18 @@ namespace tiz
         template <class Event,class FSM>
         void on_entry(Event const&,FSM& fsm)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
+          GMGR_FSM_LOG ();
           fsm.terminated_ = true;
         }
         template <class Event,class FSM>
-        void on_exit(Event const&,FSM& ) {TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());}
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
 
       struct unloading_graph : public boost::msm::front::state<>
       {
         typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
         template <class Event,class FSM>
-        void on_entry(Event const&, FSM& fsm) {TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());}
+        void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
       };
 
       // The initial state of the SM. Must be defined
@@ -345,10 +356,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_load ();
+              (*(fsm.pp_ops_))->do_load ();
             }
         }
       };
@@ -358,10 +369,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_next ();
+              (*(fsm.pp_ops_))->do_next ();
             }
         }
       };
@@ -371,10 +382,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_prev ();
+              (*(fsm.pp_ops_))->do_prev ();
             }
         }
       };
@@ -384,10 +395,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const&, FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_fwd ();
+              (*(fsm.pp_ops_))->do_fwd ();
             }
         }
       };
@@ -397,10 +408,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_rwd ();
+              (*(fsm.pp_ops_))->do_rwd ();
             }
         }
       };
@@ -410,10 +421,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_vol_up ();
+              (*(fsm.pp_ops_))->do_vol_up ();
             }
         }
       };
@@ -423,10 +434,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_vol_down ();
+              (*(fsm.pp_ops_))->do_vol_down ();
             }
         }
       };
@@ -436,10 +447,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& ,FSM& fsm, SourceState& , TargetState&)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_mute ();
+              (*(fsm.pp_ops_))->do_mute ();
             }
         }
       };
@@ -449,10 +460,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_pause ();
+              (*(fsm.pp_ops_))->do_pause ();
             }
         }
       };
@@ -462,10 +473,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_unload ();
+              (*(fsm.pp_ops_))->do_unload ();
             }
         }
       };
@@ -475,10 +486,10 @@ namespace tiz
         template <class FSM,class EVT,class SourceState,class TargetState>
         void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());
-          if (fsm.p_ops_)
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
-              fsm.p_ops_->do_report_fatal_error (evt.error_code_, evt.error_str_);
+              (*(fsm.pp_ops_))->do_report_fatal_error (evt.error_code_, evt.error_str_);
             }
         }
       };
@@ -550,7 +561,7 @@ namespace tiz
       template <class FSM,class Event>
       void no_transition(Event const& e, FSM&,int state)
       {
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                  state, typeid(e).name());
       }
     };

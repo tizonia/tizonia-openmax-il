@@ -64,15 +64,18 @@ namespace tiz
       void do_disable_tunnel ();
       void do_enable_tunnel ();
       bool is_initial_configuration () const;
+      void do_flag_initial_config_done ();
 
-    protected:
+    private:
 
       OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
       OMX_ERRORTYPE configure_server ();
       OMX_ERRORTYPE configure_station ();
       OMX_ERRORTYPE configure_stream_metadata ();
+      OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
+      OMX_ERRORTYPE transition_tunnel (const OMX_COMMANDTYPE to_disabled_or_enabled);
 
-    protected:
+    private:
 
       bool is_initial_configuration_;
 

@@ -36,8 +36,6 @@
 
 #include <sys/time.h>
 
-#include <iostream>
-
 #include <boost/msm/back/state_machine.hpp>
 #include <boost/msm/back/mpl_graph_fsm_check.hpp>
 #include <boost/msm/front/state_machine_def.hpp>
@@ -195,7 +193,7 @@ namespace tiz
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                    state, typeid(e).name());
         }
 
@@ -272,7 +270,7 @@ namespace tiz
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                    state, typeid(e).name());
         }
 
@@ -354,7 +352,7 @@ namespace tiz
       template <class FSM,class Event>
       void no_transition(Event const& e, FSM&,int state)
       {
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                  state, typeid(e).name());
       }
     };

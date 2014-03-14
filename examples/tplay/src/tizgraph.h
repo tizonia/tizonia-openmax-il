@@ -104,13 +104,11 @@ namespace tiz
       cbackhandler cback_handler_;
       tiz::graphmgr::mgr *p_mgr_;
       ops * p_ops_;
-//       fsm fsm_;
 
     private:
 
       OMX_ERRORTYPE init_cmd_queue ();
       void deinit_cmd_queue ();
-
       OMX_ERRORTYPE post_cmd (tiz::graph::cmd *p_cmd);
 
     private:

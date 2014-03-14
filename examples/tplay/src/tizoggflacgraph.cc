@@ -54,11 +54,10 @@ namespace graph = tiz::graph;
 // oggflacdecoder
 //
 graph::oggflacdecoder::oggflacdecoder ()
-  :
-  graph::graph ("oggflacdecgraph"),
-  fsm_ (boost::msm::back::states_ << tiz::graph::fsm::configuring (&p_ops_)
-        << tiz::graph::fsm::skipping (&p_ops_),
-        &p_ops_)
+  : graph::graph ("oggflacdecgraph"),
+    fsm_ (boost::msm::back::states_ << tiz::graph::fsm::configuring (&p_ops_)
+                                    << tiz::graph::fsm::skipping (&p_ops_),
+          &p_ops_)
 {
 }
 
@@ -77,8 +76,7 @@ graph::ops *graph::oggflacdecoder::do_init ()
   return new oggflacdecops (this, comp_list, role_list);
 }
 
-bool
-graph::oggflacdecoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
+bool graph::oggflacdecoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 {
   assert (NULL != p_cmd);
 
@@ -92,16 +90,15 @@ graph::oggflacdecoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
       fsm_.start ();
     }
 
-    p_cmd->inject (fsm_);
+    p_cmd->inject< fsm >(fsm_, tiz::graph::pstate);
 
     // Check for internal errors produced during the processing of the last
     // event. If any, inject an "internal" error event. This is fatal and shall
-    // produce the termination of the state machine.
+    // terminate the state machine.
     if (OMX_ErrorNone != p_ops_->get_internal_error ())
     {
-      fsm_.process_event (
-          tiz::graph::err_evt (p_ops_->get_internal_error (),
-                               p_ops_->get_internal_error_msg ()));
+      fsm_.process_event (tiz::graph::err_evt (
+          p_ops_->get_internal_error (), p_ops_->get_internal_error_msg ()));
     }
 
     if (fsm_.terminated_)
@@ -118,8 +115,8 @@ graph::oggflacdecoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 // oggflacdecops
 //
 graph::oggflacdecops::oggflacdecops (graph *p_graph,
-                             const omx_comp_name_lst_t &comp_lst,
-                             const omx_comp_role_lst_t &role_lst)
+                                     const omx_comp_name_lst_t &comp_lst,
+                                     const omx_comp_role_lst_t &role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     need_port_settings_changed_evt_ (false)
 {
@@ -183,7 +180,7 @@ graph::oggflacdecops::probe_uri (const int uri_index, const bool quiet)
     // Probe a new uri
     probe_ptr_.reset ();
     bool quiet_probing = true;
-    probe_ptr_ = boost::make_shared<tiz::probe>(uri, quiet_probing);
+    probe_ptr_ = boost::make_shared< tiz::probe >(uri, quiet_probing);
     if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
         || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingFLAC)
     {

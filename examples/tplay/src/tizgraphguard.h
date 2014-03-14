@@ -36,6 +36,14 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.guard"
 #endif
 
+#define G_GUARD_LOG(bool_result)                                        \
+  do                                                                    \
+    {                                                                   \
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "GUARD [%s] -> [%s]",                \
+               typeid(*this).name (), bool_result ? "YES" : "NO");      \
+    }                                                                   \
+  while(0)
+
 namespace tiz
 {
   namespace graph
@@ -52,7 +60,7 @@ namespace tiz
         {
           rc = (*(fsm.pp_ops_))->is_port_disabling_complete (evt.handle_, evt.port_);
         }
-        TIZ_LOG (TIZ_PRIORITY_TRACE, " is_port_disabling_complete [%s]", rc ? "YES" : "NO");
+        G_GUARD_LOG (rc);
         return rc;
       }
     };
@@ -67,7 +75,7 @@ namespace tiz
         {
           rc = (*(fsm.pp_ops_))->is_port_enabling_complete (evt.handle_, evt.port_);
         }
-        TIZ_LOG (TIZ_PRIORITY_TRACE, " is_port_enabling_complete [%s]", rc ? "YES" : "NO");
+        G_GUARD_LOG (rc);
         return rc;
       }
     };
@@ -82,7 +90,7 @@ namespace tiz
         {
           rc = (*(fsm.pp_ops_))->is_disabled_evt_required ();
         }
-        TIZ_LOG (TIZ_PRIORITY_TRACE, " is_disabled_evt_required [%s]", rc ? "YES" : "NO");
+        G_GUARD_LOG (rc);
         return rc;
       }
     };
@@ -97,7 +105,7 @@ namespace tiz
         {
           rc = (*(fsm.pp_ops_))->is_port_settings_evt_required ();
         }
-        TIZ_LOG (TIZ_PRIORITY_TRACE, " is_port_settings_evt_required [%s]", rc ? "YES" : "NO");
+        G_GUARD_LOG (rc);
         return rc;
       }
     };
@@ -112,7 +120,7 @@ namespace tiz
         {
           rc = (*(fsm.pp_ops_))->last_op_succeeded ();
         }
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "last_op_succeeded [%s]", rc ? "YES" : "NO");
+        G_GUARD_LOG (rc);
         return rc;
       }
     };
@@ -133,7 +141,7 @@ namespace tiz
             rc = true;
           }
         }
-        TIZ_LOG (TIZ_PRIORITY_NOTICE, "is_trans_complete [%s]...", rc ? "YES" : "NO");
+        G_GUARD_LOG (rc);
         return rc;
       }
     };
@@ -148,7 +156,7 @@ namespace tiz
         {
           rc = (*(fsm.pp_ops_))->is_last_component (evt.handle_);
         }
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "is_last_eos [%s]", rc ? "YES" : "NO");
+        G_GUARD_LOG (rc);
         return rc;
       }
     };
@@ -164,7 +172,7 @@ namespace tiz
           rc = !(*(fsm.pp_ops_))->last_op_succeeded ();
         }
         // TODO: decide what else is a fatal error
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "is_fatal_error [%s]", rc ? "YES" : "NO");
+        G_GUARD_LOG (rc);
         return rc;
       }
     };
@@ -179,7 +187,7 @@ namespace tiz
         {
           rc = (*(fsm.pp_ops_))->is_end_of_play ();
         }
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "is_end_of_play [%s]", rc ? "YES" : "NO");
+        G_GUARD_LOG (rc);
         return rc;
       }
     };

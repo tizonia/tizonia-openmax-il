@@ -19,45 +19,54 @@
  */
 
 /**
- * @file   tizhttpservgraph.h
+ * @file   tizdecgraphmgr.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL HTTP Streaming Server graph
+ * @brief  A manager for decoding graphs
  *
  *
  */
 
-#ifndef TIZHTTPSERVGRAPH_H
-#define TIZHTTPSERVGRAPH_H
+#ifndef TIZDECGRAPHMGR_H
+#define TIZDECGRAPHMGR_H
 
-#include "tizgraph.h"
-#include "tizhttpservgraphfsm.h"
+#include "tizgraphtypes.h"
+#include "tizgraphmgr.h"
 
 namespace tiz
 {
-  namespace graph
+  namespace graphmgr
   {
-    class ops;
-
-    class httpserver : public graph
+    /**
+     *  @class decodemgr
+     *  @brief A manager for decoding graphs.
+     *
+     */
+    class decodemgr : public mgr
     {
-
     public:
 
-      httpserver ();
+      decodemgr ();
+      virtual ~decodemgr ();
 
     protected:
 
-      ops * do_init ();
-      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
-
-    protected:
-
-      hsfsm::fsm fsm_;
+      ops * do_init (const uri_lst_t &file_list,
+                     const error_callback_t &error_cback);
 
     };
-  } // namespace graph
+
+    typedef boost::shared_ptr<decodemgr> decodemgr_ptr_t;
+
+    class decodemgrops : public ops
+    {
+    public:
+
+      decodemgrops (mgr * p_mgr, const uri_lst_t &file_list,
+                    const error_callback_t &error_cback);
+
+    };
+  } // namespace graphmgr
 } // namespace tiz
 
-#endif // TIZHTTPSERVGRAPH_H
-
+#endif // TIZDECGRAPHMGR_H

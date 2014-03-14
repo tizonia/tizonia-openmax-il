@@ -98,7 +98,7 @@ OMX_ERRORTYPE
 graph::util::verify_comp_list (const omx_comp_name_lst_t &comp_list)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  std::vector<std::string> components;
+  std::vector< std::string > components;
 
   if (OMX_ErrorNoMore == (error = tiz::omxutil::list_comps (components)))
   {
@@ -134,7 +134,7 @@ OMX_ERRORTYPE
 graph::util::verify_role (const std::string &comp, const std::string &comp_role)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  std::vector<std::string> roles;
+  std::vector< std::string > roles;
 
   if (OMX_ErrorNoMore == (error = tiz::omxutil::roles_of_comp (
                               (OMX_STRING)comp.c_str (), roles)))
@@ -167,7 +167,7 @@ graph::util::verify_role_list (const omx_comp_name_lst_t &comp_list,
                                const omx_comp_role_lst_t &role_list)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  std::vector<std::string> roles;
+  std::vector< std::string > roles;
   int role_lst_size = role_list.size ();
 
   assert (comp_list.size () == role_lst_size);
@@ -446,7 +446,7 @@ graph::util::modify_tunnel (const omx_comp_handle_lst_t &hdl_list,
   tunnel_handles.push_back (hdl_list[tunnel_id]);
   tunnel_handles.push_back (hdl_list[tunnel_id + 1]);
 
-  std::vector<int> port_ids;
+  std::vector< int > port_ids;
   port_ids.push_back (tunnel_id == 0 ? 0 : 1);
   port_ids.push_back (tunnel_id + 1 == handle_lst_size - 1 ? 0 : 1);
 
@@ -509,7 +509,7 @@ graph::util::set_content_uri (const OMX_HANDLETYPE handle,
 OMX_ERRORTYPE
 graph::util::set_pcm_mode (
     const OMX_HANDLETYPE handle, const OMX_U32 port_id,
-    boost::function<void(OMX_AUDIO_PARAM_PCMMODETYPE &pcmmode)> getter)
+    boost::function< void(OMX_AUDIO_PARAM_PCMMODETYPE &pcmmode) > getter)
 {
   // Set the pcm settings
   OMX_AUDIO_PARAM_PCMMODETYPE pcmtype;
@@ -520,11 +520,10 @@ graph::util::set_pcm_mode (
 }
 
 OMX_ERRORTYPE
-graph::util::set_mp3_type (const OMX_HANDLETYPE  handle,
-                           const OMX_U32         port_id,
-                           boost::function<
-                           void (OMX_AUDIO_PARAM_MP3TYPE &mp3type) > getter,
-                           bool                 &need_port_settings_changed_evt)
+graph::util::set_mp3_type (
+    const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+    boost::function< void(OMX_AUDIO_PARAM_MP3TYPE &mp3type) > getter,
+    bool &need_port_settings_changed_evt)
 {
   // Retrieve the current mp3 settings
   OMX_AUDIO_PARAM_MP3TYPE mp3type_orig;
@@ -543,26 +542,25 @@ graph::util::set_mp3_type (const OMX_HANDLETYPE  handle,
 
   // Record whether we need to wait for a port settings change event or not
   // (i.e. the decoder output port implements the "slaving" behaviour)
-  need_port_settings_changed_evt = ((mp3type_orig.nSampleRate != mp3type.nSampleRate)
-                                    || (mp3type_orig.nChannels != mp3type.nChannels));
+  need_port_settings_changed_evt
+      = ((mp3type_orig.nSampleRate != mp3type.nSampleRate)
+         || (mp3type_orig.nChannels != mp3type.nChannels));
 
   return OMX_ErrorNone;
-
 }
 
 OMX_ERRORTYPE
-graph::util::set_flac_type (const OMX_HANDLETYPE  handle,
-                            const OMX_U32         port_id,
-                            boost::function<
-                            void (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) > getter,
-                            bool                 &need_port_settings_changed_evt)
+graph::util::set_flac_type (
+    const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+    boost::function< void(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) > getter,
+    bool &need_port_settings_changed_evt)
 {
   // Retrieve the current flac settings
   OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_orig;
   TIZ_INIT_OMX_PORT_STRUCT (flactype_orig, port_id);
 
   tiz_check_omx_err (OMX_GetParameter (
-      handle, static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamAudioFlac),
+      handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
       &flactype_orig));
 
   OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype;
@@ -572,16 +570,16 @@ graph::util::set_flac_type (const OMX_HANDLETYPE  handle,
   getter (flactype);
   flactype.nPortIndex = 0;
   tiz_check_omx_err (OMX_SetParameter (
-      handle, static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamAudioFlac),
+      handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
       &flactype));
 
   // Record whether we need to wait for a port settings change event or not
   // (i.e the decoder output port implements the "slaving" behaviour)
-  need_port_settings_changed_evt = ((flactype_orig.nSampleRate != flactype.nSampleRate)
-                                    || (flactype_orig.nChannels != flactype.nChannels));
+  need_port_settings_changed_evt
+      = ((flactype_orig.nSampleRate != flactype.nSampleRate)
+         || (flactype_orig.nChannels != flactype.nChannels));
 
   return OMX_ErrorNone;
-
 }
 
 void graph::util::dump_graph_info (const char *ap_coding_type_str,

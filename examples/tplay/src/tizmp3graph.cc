@@ -53,11 +53,10 @@ namespace graph = tiz::graph;
 // mp3decoder
 //
 graph::mp3decoder::mp3decoder ()
-    :
-    graph::graph ("mp3decgraph"),
+  : graph::graph ("mp3decgraph"),
     fsm_ (boost::msm::back::states_ << tiz::graph::fsm::configuring (&p_ops_)
-    << tiz::graph::fsm::skipping (&p_ops_),
-       &p_ops_)
+                                    << tiz::graph::fsm::skipping (&p_ops_),
+          &p_ops_)
 {
 }
 
@@ -76,8 +75,7 @@ graph::ops *graph::mp3decoder::do_init ()
   return new mp3decops (this, comp_list, role_list);
 }
 
-bool
-graph::mp3decoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
+bool graph::mp3decoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 {
   assert (NULL != p_cmd);
 
@@ -91,16 +89,15 @@ graph::mp3decoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
       fsm_.start ();
     }
 
-    p_cmd->inject (fsm_);
+    p_cmd->inject< fsm >(fsm_, tiz::graph::pstate);
 
     // Check for internal errors produced during the processing of the last
     // event. If any, inject an "internal" error event. This is fatal and shall
-    // produce the termination of the state machine.
+    // terminate the state machine.
     if (OMX_ErrorNone != p_ops_->get_internal_error ())
     {
-      fsm_.process_event (
-          tiz::graph::err_evt (p_ops_->get_internal_error (),
-                               p_ops_->get_internal_error_msg ()));
+      fsm_.process_event (tiz::graph::err_evt (
+          p_ops_->get_internal_error (), p_ops_->get_internal_error_msg ()));
     }
 
     if (fsm_.terminated_)
@@ -172,7 +169,7 @@ graph::mp3decops::probe_uri (const int uri_index, const bool quiet)
     // Probe a new uri
     probe_ptr_.reset ();
     bool quiet_probing = true;
-    probe_ptr_ = boost::make_shared<tiz::probe>(uri, quiet_probing);
+    probe_ptr_ = boost::make_shared< tiz::probe >(uri, quiet_probing);
     if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
         || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
     {

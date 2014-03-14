@@ -35,7 +35,6 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play"
 #endif
 
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -62,10 +61,10 @@
 #include "tizomxutil.h"
 #include "tizplaylist.h"
 #include "tizgraph.h"
-#include "tizgraphmgr.h"
+#include "tizdecgraphmgr.h"
 #include "tizgraphfactory.h"
-// #include "tizhttpservgraph.h"
-// #include "tizhttpservconfig.h"
+#include "tizhttpservmgr.h"
+#include "tizhttpservconfig.h"
 
 static bool gb_daemon_mode = false;
 static struct termios old_term, new_term;
@@ -184,7 +183,7 @@ namespace  // unnamed namespace
   OMX_ERRORTYPE
   list_comps ()
   {
-    std::vector<std::string> components;
+    std::vector< std::string > components;
     OMX_ERRORTYPE ret = OMX_ErrorNone;
 
     print_banner ();
@@ -214,7 +213,7 @@ namespace  // unnamed namespace
   OMX_ERRORTYPE
   roles_of_comp (OMX_STRING component)
   {
-    std::vector<std::string> roles;
+    std::vector< std::string > roles;
     OMX_ERRORTYPE ret = OMX_ErrorNone;
 
     print_banner ();
@@ -250,7 +249,7 @@ namespace  // unnamed namespace
   OMX_ERRORTYPE
   comps_of_role (OMX_STRING role)
   {
-    std::vector<std::string> components;
+    std::vector< std::string > components;
     OMX_ERRORTYPE ret = OMX_ErrorNone;
 
     print_banner ();
@@ -360,34 +359,32 @@ namespace  // unnamed namespace
     }
   }
 
-  // ETIZPlayUserInput
-  //   wait_for_user_input_while_streaming (tizgraph_ptr_t graph_ptr)
-  //   {
-  //     while (1)
-  //       {
-  //         if (gb_daemon_mode)
-  //           {
-  //             sleep (5000);
-  //           }
-  //         else
-  //           {
-  //             int ch[2];
+  ETIZPlayUserInput wait_for_user_input_while_streaming ()
+  {
+    while (1)
+    {
+      if (gb_daemon_mode)
+      {
+        sleep (5000);
+      }
+      else
+      {
+        int ch[2];
 
-  //             ch[0] = getch ();
+        ch[0] = getch ();
 
-  //             switch (ch[0])
-  //               {
-  //               case 'q':
-  //                 return ETIZPlayUserStop;
+        switch (ch[0])
+        {
+          case 'q':
+            return ETIZPlayUserStop;
 
-  //               default:
-  //                 //           printf ("%d - not implemented\n", ch[0]);
-  //                 break;
-  //               };
-  //           }
-  //       }
-
-  //   }
+          default:
+            //           printf ("%d - not implemented\n", ch[0]);
+            break;
+        };
+      }
+    }
+  }
 
   struct graph_error_functor
   {
@@ -417,6 +414,7 @@ namespace  // unnamed namespace
 
     print_banner ();
 
+    // Create a playlist
     if (!tizplaylist_t::assemble_play_list (uri, shuffle_playlist, recurse,
                                             extension_list, file_list,
                                             error_msg))
@@ -425,10 +423,12 @@ namespace  // unnamed namespace
       exit (EXIT_FAILURE);
     }
 
-    tiz::graphmgr::mgr_ptr_t p_mgr = boost::make_shared<tiz::graphmgr::mgr>(
-        file_list, graph_error_functor ());
+    // Instantiate the decode manager
+    tiz::graphmgr::mgr_ptr_t p_mgr
+        = boost::make_shared< tiz::graphmgr::decodemgr >();
 
-    p_mgr->init ();
+    // TODO: Check return codes
+    p_mgr->init (file_list, graph_error_functor ());
     p_mgr->start ();
 
     while (ETIZPlayUserStop != wait_for_user_input (p_mgr))
@@ -441,86 +441,59 @@ namespace  // unnamed namespace
     return rc;
   }
 
-  //   OMX_ERRORTYPE
-  //   stream (const std::string & uri, const long int port, const bool
-  // shuffle_playlist,
-  //           const bool recurse)
-  //   {
-  //     OMX_ERRORTYPE rc = OMX_ErrorNone;
-  //     uri_lst_t    file_list;
-  //     char hostname[120] = "";
-  //     std::string ip_address;
-  //     std::string error_msg;
-  //     file_extension_lst_t extension_list;
-  //     extension_list.insert (".mp3");
+  OMX_ERRORTYPE
+  stream (const std::string &uri, const long int port,
+          const bool shuffle_playlist, const bool recurse)
+  {
+    OMX_ERRORTYPE rc = OMX_ErrorNone;
+    uri_lst_t file_list;
+    char hostname[120] = "";
+    std::string ip_address;
+    std::string error_msg;
+    file_extension_lst_t extension_list;
+    extension_list.insert (".mp3");
 
-  //     print_banner ();
+    print_banner ();
 
-  //     if (!tizplaylist_t::assemble_play_list
-  //         (uri, shuffle_playlist, recurse, extension_list, file_list,
-  // error_msg))
-  //       {
-  //         fprintf (stderr, "%s (%s).\n", error_msg.c_str (), uri.c_str ());
-  //         exit (EXIT_FAILURE);
-  //       }
+    if (!tizplaylist_t::assemble_play_list (uri, shuffle_playlist, recurse,
+                                            extension_list, file_list,
+                                            error_msg))
+    {
+      fprintf (stderr, "%s (%s).\n", error_msg.c_str (), uri.c_str ());
+      exit (EXIT_FAILURE);
+    }
 
-  //     tiz::omxutil::init ();
+    // Retrieve teh hostname
+    // TODO: Error handling
+    if (0 == gethostname (hostname, sizeof(hostname)))
+    {
+      struct hostent *p_hostent = gethostbyname (hostname);
+      struct in_addr ip_addr = *(struct in_addr *)(p_hostent->h_addr);
+      ip_address = inet_ntoa (ip_addr);
+      fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
+    }
 
-  //     tizprobe_ptr_t p = boost::make_shared < tizprobe > (file_list[0],
-  //                                                         /* quiet = */
-  // true);
-  //     tizgraph_ptr_t g_ptr = boost::make_shared < tizhttpservgraph > (p);
-  //     if (!g_ptr)
-  //       {
-  //         // At this point we have removed all unsupported media, so we
-  // should
-  //         // always have a graph object.
-  //         fprintf (stderr, "Could not create a graph. Unsupported
-  // format.\n");
-  //         exit (EXIT_FAILURE);
-  //       }
+    tizgraphconfig_ptr_t config
+        = boost::make_shared< tiz::graph::httpservconfig >(file_list, hostname,
+                                                           ip_address, port);
 
-  //     if (0 == gethostname (hostname, sizeof(hostname)))
-  //       {
-  //         struct hostent *p_hostent = gethostbyname(hostname);
-  //         struct in_addr  ip_addr   = *(struct in_addr *)(p_hostent->h_addr);
-  //         ip_address = inet_ntoa(ip_addr);
-  //         fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname,
-  // port);
-  //       }
+    // Instantiate the http streaming manager
+    tiz::graphmgr::mgr_ptr_t p_mgr
+        = boost::make_shared< tiz::graphmgr::httpservmgr >(config);
 
-  //     if (OMX_ErrorNone != (rc = g_ptr->load ()))
-  //       {
-  //         fprintf (stderr, "Found error %s while loading the graph.\n",
-  //                  tiz_err_to_str (rc));
-  //         exit (EXIT_FAILURE);
-  //       }
+    // TODO: Check return codes
+    p_mgr->init (file_list, graph_error_functor ());
+    p_mgr->start ();
 
-  //     tizgraphconfig_ptr_t config
-  //       = boost::make_shared < tizhttpservconfig > (file_list, hostname,
-  //                                                    ip_address, port);
-  //     if (OMX_ErrorNone != (rc = g_ptr->configure (config)))
-  //       {
-  //         fprintf (stderr, "Could not configure a graph. Skipping file.\n");
-  //         exit (EXIT_FAILURE);
-  //       }
+    while (ETIZPlayUserStop != wait_for_user_input_while_streaming ())
+    {
+    }
 
-  //     if (OMX_ErrorNone != (rc = g_ptr->execute ()))
-  //       {
-  //         fprintf (stderr, "Found error %s while executing the graph.\n",
-  //                  tiz_err_to_str (rc));
-  //         exit (EXIT_FAILURE);
-  //       }
+    p_mgr->stop ();
+    p_mgr->deinit ();
 
-  //     while (ETIZPlayUserStop != wait_for_user_input_while_streaming (g_ptr))
-  //       {}
-
-  //     g_ptr->unload ();
-
-  //     tiz::omxutil::deinit();
-
-  //     return rc;
-  //   }
+    return rc;
+  }
 
 }  // unnamed namespace
 
@@ -672,9 +645,7 @@ int main (int argc, char **argv)
 
   if (!media.empty ())
   {
-    //       error = stream (media.c_str (), srv_port,
-    //                       shuffle_playlist, recurse);
-    printf ("Streaming use case is disabled at the moment.\n");
+    error = stream (media.c_str (), srv_port, shuffle_playlist, recurse);
     exit (EXIT_SUCCESS);
   }
 

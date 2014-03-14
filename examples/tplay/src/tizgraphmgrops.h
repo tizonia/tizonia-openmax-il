@@ -30,13 +30,36 @@
 #ifndef TIZGRAPHMGROPS_H
 #define TIZGRAPHMGROPS_H
 
-#include "tizgraphtypes.h"
-#include "tizplaylist.h"
+#include <string>
+#include <boost/function.hpp>
 
 #include <OMX_Core.h>
 
-#include <string>
-#include <boost/function.hpp>
+#include "tizgraphtypes.h"
+#include "tizplaylist.h"
+
+
+#define GMGR_OPS_RECORD_ERROR(err, str)                                     \
+  do                                                                        \
+  {                                                                         \
+    error_msg_.assign (str);                                                \
+    error_code_ = err;                                                      \
+    TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error_code_), \
+             error_msg_.c_str ());                                          \
+  } while (0)
+
+#define GMGR_OPS_BAIL_IF_ERROR(ptr, exp, str) \
+  do                                            \
+  {                                             \
+    if (ptr)                                    \
+    {                                           \
+      OMX_ERRORTYPE rc_ = OMX_ErrorNone;        \
+      if (OMX_ErrorNone != (rc_ = (exp)))       \
+      {                                         \
+        GMGR_OPS_RECORD_ERROR (rc_, str);       \
+      }                                         \
+    }                                           \
+  } while (0)
 
 namespace tiz
 {
@@ -68,27 +91,26 @@ namespace tiz
 
     public:
 
-      void do_load ();
-      void do_execute ();
-      void do_unload ();
-
-      void do_next ();
-      void do_prev ();
-      void do_fwd ();
-      void do_rwd ();
-      void do_vol_up ();
-      void do_vol_down ();
-      void do_mute ();
-      void do_pause ();
-      void do_report_fatal_error (const OMX_ERRORTYPE error,
-                                  const std::string &msg);
+      virtual void do_load ();
+      virtual void do_execute ();
+      virtual void do_unload ();
+      virtual void do_next ();
+      virtual void do_prev ();
+      virtual void do_fwd ();
+      virtual void do_rwd ();
+      virtual void do_vol_up ();
+      virtual void do_vol_down ();
+      virtual void do_mute ();
+      virtual void do_pause ();
+      virtual void do_report_fatal_error (const OMX_ERRORTYPE error,
+                                          const std::string &msg);
 
       OMX_ERRORTYPE get_internal_error () const;
       std::string get_internal_error_msg () const;
 
     protected:
 
-      tizgraph_ptr_t get_graph (const std::string & uri);
+      virtual tizgraph_ptr_t get_graph (const std::string & uri);
 
     protected:
 

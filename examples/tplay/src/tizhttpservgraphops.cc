@@ -53,11 +53,11 @@ namespace graph = tiz::graph;
 //
 // httpservops
 //
-graph::httpservops::httpservops (graph                     *p_graph,
+graph::httpservops::httpservops (graph *p_graph,
                                  const omx_comp_name_lst_t &comp_lst,
                                  const omx_comp_role_lst_t &role_lst)
-    : tiz::graph::ops (p_graph, comp_lst, role_lst),
-      is_initial_configuration_ (true)
+  : tiz::graph::ops (p_graph, comp_lst, role_lst),
+    is_initial_configuration_ (true)
 {
 }
 
@@ -91,15 +91,14 @@ void graph::httpservops::do_mute ()
 
 void graph::httpservops::do_configure_server ()
 {
-  G_OPS_BAIL_IF_ERROR (
-      configure_server (), "Unable to set OMX_TizoniaIndexParamHttpServer");
-
+  G_OPS_BAIL_IF_ERROR (configure_server (),
+                       "Unable to set OMX_TizoniaIndexParamHttpServer");
 }
 
 void graph::httpservops::do_configure_station ()
 {
-  G_OPS_BAIL_IF_ERROR (
-      configure_station (), "Unable to set OMX_TizoniaIndexParamIcecastMountpoint");
+  G_OPS_BAIL_IF_ERROR (configure_station (),
+                       "Unable to set OMX_TizoniaIndexParamIcecastMountpoint");
 }
 
 void graph::httpservops::do_configure_stream ()
@@ -107,28 +106,23 @@ void graph::httpservops::do_configure_stream ()
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
       "Unable to set OMX_IndexParamContentURI");
-  need_port_settings_changed_evt = false;  // not needed here
+  bool need_port_settings_changed_evt = false;  // not needed here
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_mp3_type (
           handles_[1], 0,
           boost::bind (&tiz::probe::get_mp3_codec_info, probe_ptr_, _1),
           need_port_settings_changed_evt),
       "Unable to set OMX_IndexParamAudioMp3");
-  G_OPS_BAIL_IF_ERROR (
-      configure_stream_metadata (), "Unable to set OMX_TizoniaIndexConfigIcecastMetadata");
+  G_OPS_BAIL_IF_ERROR (configure_stream_metadata (),
+                       "Unable to set OMX_TizoniaIndexConfigIcecastMetadata");
 }
 
 void graph::httpservops::do_source_omx_loaded2idle ()
 {
   if (last_op_succeeded ())
   {
-    const int file_reader_index = 0;
-    G_OPS_BAIL_IF_ERROR (
-        util::transition_one (file_reader_index, OMX_StateIdle),
-        "Unable to transition file reader from Loaded->Idle");
-    clear_expected_transitions ();
-    add_expected_transition (handles_[file_reader_index],
-                             OMX_StateIdle);
+    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateIdle),
+                         "Unable to transition file reader from Loaded->Idle");
   }
 }
 
@@ -136,13 +130,35 @@ void graph::httpservops::do_source_omx_idle2exe ()
 {
   if (last_op_succeeded ())
   {
-    const int file_reader_index = 0;
-    G_OPS_BAIL_IF_ERROR (
-        util::transition_one (file_reader_index, OMX_StateExecuting),
-        "Unable to transition file reader from Loaded->Idle");
-    clear_expected_transitions ();
-    add_expected_transition (handles_[file_reader_index],
-                             OMX_StateExecuting);
+    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateExecuting),
+                         "Unable to transition file reader from Idle->Exe");
+  }
+}
+
+void graph::httpservops::do_source_omx_exe2idle ()
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateIdle),
+                         "Unable to transition file reader from Exe->Idle");
+  }
+}
+
+void graph::httpservops::do_source_omx_idle2loaded ()
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateLoaded),
+                         "Unable to transition file reader from Idle->Loaded");
+  }
+}
+
+void graph::httpservops::do_disable_tunnel ()
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (transition_tunnel (OMX_CommandPortDisable),
+                         "Unable to disable tunnel file reader->http renderer");
   }
 }
 
@@ -150,21 +166,8 @@ void graph::httpservops::do_enable_tunnel ()
 {
   if (last_op_succeeded ())
   {
-    const int tunnel_id              = 0; // there is only one tunnel in this graph
-    G_OPS_BAIL_IF_ERROR (
-        util::enable_tunnel (handles_, tunnel_id),
-        "Unable to enable tunnel file reader->http renderer");
-    clear_expected_port_transitions ();
-    const int file_reader_index = 0;
-    const int file_reader_input_port = 0;
-    add_expected_port_transition (handles_[file_reader_index],
-                                  file_reader_input_port,
-                                  OMX_CommandPortEnable);
-    const int http_renderer_index = 1;
-    const int http_renderer_input_port = 0;
-    add_expected_port_transition (handles_[http_renderer_index],
-                                  http_renderer_input_port,
-                                  OMX_CommandPortEnable);
+    G_OPS_BAIL_IF_ERROR (transition_tunnel (OMX_CommandPortEnable),
+                         "Unable to enable tunnel file reader->http renderer");
   }
 }
 
@@ -173,9 +176,12 @@ bool graph::httpservops::is_initial_configuration () const
   return is_initial_configuration_;
 }
 
-bool graph::httpservops::is_tunnel_enabling_complete () const
+void graph::httpservops::do_flag_initial_config_done ()
 {
-
+  // At this point, both the server and station have been configured. Will
+  // switch this flag, so that this won't happen again during the lifetime of
+  // this graph.
+  is_initial_configuration_ = false;
 }
 
 OMX_ERRORTYPE
@@ -190,7 +196,7 @@ graph::httpservops::probe_uri (const int uri_index, const bool quiet)
     // Probe a new uri
     probe_ptr_.reset ();
     bool quiet_probing = true;
-    probe_ptr_ = boost::make_shared<tiz::probe>(uri, quiet_probing);
+    probe_ptr_ = boost::make_shared< tiz::probe >(uri, quiet_probing);
     if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
         || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
     {
@@ -214,19 +220,19 @@ graph::httpservops::configure_server ()
   httpsrv.nVersion.nVersion = OMX_VERSION;
 
   tiz_check_omx_err (OMX_GetParameter (
-      handles_[1], static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamHttpServer),
-      &httpsrv));
+      handles_[1],
+      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamHttpServer), &httpsrv));
 
   tizhttpservconfig_ptr_t srv_config
-      = boost::dynamic_pointer_cast<tizhttpservconfig>(config_);
+      = boost::dynamic_pointer_cast< httpservconfig >(config_);
   assert (srv_config);
   httpsrv.nListeningPort = srv_config->get_port ();
   httpsrv.nMaxClients = 1;  // the http renderer component supports only one
   // client, for now
 
   return OMX_SetParameter (
-      handles_[1], static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamHttpServer),
-      &httpsrv);
+      handles_[1],
+      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamHttpServer), &httpsrv);
 }
 
 OMX_ERRORTYPE
@@ -241,12 +247,12 @@ graph::httpservops::configure_station ()
   tiz_check_omx_err (probe_uri (0, quiet));
 
   tizhttpservconfig_ptr_t srv_config
-      = boost::dynamic_pointer_cast<tizhttpservconfig>(config_);
+      = boost::dynamic_pointer_cast< httpservconfig >(config_);
   assert (srv_config);
 
   tiz_check_omx_err (OMX_GetParameter (
       handles_[1],
-      static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamIcecastMountpoint),
+      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamIcecastMountpoint),
       &mount));
 
   snprintf ((char *)mount.cMountName, sizeof(mount.cMountName), "/");
@@ -264,7 +270,7 @@ graph::httpservops::configure_station ()
   mount.nMaxClients = 1;
   return OMX_SetParameter (
       handles_[1],
-      static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamIcecastMountpoint),
+      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamIcecastMountpoint),
       &mount);
 }
 
@@ -276,8 +282,8 @@ graph::httpservops::configure_stream_metadata ()
   // Set the stream title on to the renderer's input port
   OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata = NULL;
   if (NULL == (p_metadata = (OMX_TIZONIA_ICECASTMETADATATYPE *)tiz_mem_calloc (
-          1, sizeof(OMX_TIZONIA_ICECASTMETADATATYPE)
-          + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)))
+                   1, sizeof(OMX_TIZONIA_ICECASTMETADATATYPE)
+                      + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)))
   {
     rc = OMX_ErrorInsufficientResources;
   }
@@ -297,8 +303,8 @@ graph::httpservops::configure_stream_metadata ()
     TIZ_LOG (TIZ_PRIORITY_TRACE, "p_metadata->cStreamTitle [%s]...",
              p_metadata->cStreamTitle);
 
-    rc = OMX_SetConfig (handles_[1], static_cast<OMX_INDEXTYPE>(
-        OMX_TizoniaIndexConfigIcecastMetadata),
+    rc = OMX_SetConfig (handles_[1], static_cast< OMX_INDEXTYPE >(
+                                         OMX_TizoniaIndexConfigIcecastMetadata),
                         p_metadata);
 
     tiz_mem_free (p_metadata);
@@ -308,19 +314,52 @@ graph::httpservops::configure_stream_metadata ()
   return rc;
 }
 
+OMX_ERRORTYPE
+graph::httpservops::transition_source (const OMX_STATETYPE to_state)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const int file_reader_index = 0;
+  rc = tiz::graph::util::transition_one (handles_, file_reader_index, to_state);
+  if (OMX_ErrorNone == rc)
+  {
+    clear_expected_transitions ();
+    add_expected_transition (handles_[file_reader_index], to_state);
+  }
+  return rc;
+}
 
-// void graph::httpservops::do_eos (const OMX_HANDLETYPE handle)
-// {
-//   if (handle == handles_[1])
-//   {
-//     int tunnel_id = 0;       // there is only one tunnel in this graph
-//     int file_reader_id = 0;  // here we are interested in the file reader
-//     (void)disable_tunnel (tunnel_id);
-//     (void)transition_one (file_reader_id, OMX_StateIdle);
-//     (void)transition_one (file_reader_id, OMX_StateLoaded);
-//     (void)configure_stream ();
-//     (void)transition_one (file_reader_id, OMX_StateIdle);
-//     (void)transition_one (file_reader_id, OMX_StateExecuting);
-//     (void)enable_tunnel (tunnel_id);
-//   }
-// }
+OMX_ERRORTYPE
+graph::httpservops::transition_tunnel (
+    const OMX_COMMANDTYPE to_disabled_or_enabled)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const int tunnel_id = 0;  // there is only one tunnel in this graph
+
+  assert (to_disabled_or_enabled == OMX_CommandPortDisable
+          || to_disabled_or_enabled == OMX_CommandPortEnable);
+
+  if (to_disabled_or_enabled == OMX_CommandPortDisable)
+  {
+    rc = tiz::graph::util::disable_tunnel (handles_, tunnel_id);
+  }
+  else
+  {
+    rc = tiz::graph::util::enable_tunnel (handles_, tunnel_id);
+  }
+
+  if (OMX_ErrorNone == rc)
+  {
+    clear_expected_port_transitions ();
+    const int file_reader_index = 0;
+    const int file_reader_input_port = 0;
+    add_expected_port_transition (handles_[file_reader_index],
+                                  file_reader_input_port,
+                                  to_disabled_or_enabled);
+    const int http_renderer_index = 1;
+    const int http_renderer_input_port = 0;
+    add_expected_port_transition (handles_[http_renderer_index],
+                                  http_renderer_input_port,
+                                  to_disabled_or_enabled);
+  }
+  return rc;
+}

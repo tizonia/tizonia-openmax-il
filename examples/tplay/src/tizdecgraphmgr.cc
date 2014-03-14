@@ -19,10 +19,10 @@
  */
 
 /**
- * @file   tizgraphcmd.cc
+ * @file   tizdecgraphmgr.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Graph command class impl
+ * @brief  Decode graph manager implementation
  *
  */
 
@@ -30,33 +30,40 @@
 #include <config.h>
 #endif
 
-#include <assert.h>
+#include <tizosal.h>
 
-#include <string>
+#include "tizdecgraphmgr.h"
 
-#include "tizgraphcmd.h"
+#ifdef TIZ_LOG_CATEGORY_NAME
+#undef TIZ_LOG_CATEGORY_NAME
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.decodemgr"
+#endif
 
-namespace graph = tiz::graph;
+namespace graphmgr = tiz::graphmgr;
 
-graph::cmd::cmd (boost::any any_event, bool kill_thread /* = false */)
-  : evt_ (any_event), kill_thread_ (kill_thread)
+//
+// mgr
+//
+graphmgr::decodemgr::decodemgr () : graphmgr::mgr ()
+{
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
+}
+
+graphmgr::decodemgr::~decodemgr ()
 {
 }
 
-const boost::any graph::cmd::evt () const
+graphmgr::ops *graphmgr::decodemgr::do_init (
+    const uri_lst_t &file_list, const error_callback_t &error_cback)
 {
-  return evt_;
+  return new decodemgrops (this, file_list, error_cback);
 }
 
-/*@observer@*/ const char* graph::cmd::c_str () const
+//
+// decodemgrops
+//
+graphmgr::decodemgrops::decodemgrops (mgr *p_mgr, const uri_lst_t &file_list,
+                                      const error_callback_t &error_cback)
+  : tiz::graphmgr::ops (p_mgr, file_list, error_cback)
 {
-  std::string cmd_name ("CMD [");
-  cmd_name.append (typeid(evt ()).name ());
-  cmd_name.append ("]");
-  return cmd_name.c_str ();
-}
-
-bool graph::cmd::kill_thread () const
-{
-  return kill_thread_;
 }

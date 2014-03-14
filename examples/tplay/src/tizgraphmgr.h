@@ -68,7 +68,7 @@ namespace tiz
 
     public:
 
-      mgr(const uri_lst_t &file_list, const error_callback_t &error_cback);
+      mgr();
       virtual ~mgr ();
 
       /**
@@ -82,7 +82,7 @@ namespace tiz
        * @return OMX_ErrorNone if initialisation was
        * successful. OMX_ErrorInsuficientResources otherwise.
        */
-      OMX_ERRORTYPE init ();
+      OMX_ERRORTYPE init (const uri_lst_t &file_list, const error_callback_t &error_cback);
 
       /**
        * Destroy the manager thread and release all resources.
@@ -94,7 +94,7 @@ namespace tiz
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE deinit ();
+      void deinit ();
 
       /**
        * Start processing the play list from the beginning.
@@ -188,6 +188,10 @@ namespace tiz
 
     protected:
 
+      virtual ops * do_init (const uri_lst_t &file_list, const error_callback_t &error_cback) = 0;
+
+    protected:
+
       OMX_ERRORTYPE graph_loaded ();
       OMX_ERRORTYPE graph_execd ();
       OMX_ERRORTYPE graph_unloaded ();
@@ -197,17 +201,22 @@ namespace tiz
 
     protected:
 
+      ops * p_ops_;
+      fsm fsm_;
+
+    private:
+
+      OMX_ERRORTYPE init_cmd_queue ();
+      void deinit_cmd_queue ();
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
       static bool dispatch_cmd (mgr *p_mgr, const cmd *p_cmd);
 
-    protected:
+    private:
 
       tiz_thread_t thread_;
       tiz_mutex_t mutex_;
       tiz_sem_t sem_;
       tiz_queue_t *p_queue_;
-      ops ops_;
-      fsm fsm_;
 
     };
 

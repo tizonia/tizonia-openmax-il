@@ -100,7 +100,7 @@ namespace  // unnamed namespace
                         file_extension_lst_t &extension_list_filtered)
   {
     uri_lst_t::iterator it (file_list.begin ());
-    std::vector<uri_lst_t::iterator> iter_list;
+    std::vector< uri_lst_t::iterator > iter_list;
     file_extension_lst_t ext_lst_cpy (extension_list);
     uri_lst_t filtered_file_list;
 

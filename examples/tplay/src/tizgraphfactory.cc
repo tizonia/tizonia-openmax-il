@@ -21,7 +21,7 @@
  * @file   tizgraphfactory.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL graph factory impl
+ * @brief  OpenMAX IL graph factory implementation
  *
  *
  */
@@ -52,47 +52,48 @@ namespace graph = tiz::graph;
 
 tizgraph_ptr_t graph::factory::create_graph (const std::string &uri)
 {
-  tizprobe_ptr_t p = boost::make_shared<tiz::probe>(uri,
-                                                    /* quiet = */ true);
+  tizprobe_ptr_t p = boost::make_shared< tiz::probe >(uri,
+                                                      /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
   if (p->get_omx_domain () == OMX_PortDomainAudio && p->get_audio_coding_type ()
-      == OMX_AUDIO_CodingMP3)
+                                                     == OMX_AUDIO_CodingMP3)
   {
-    return boost::make_shared<tiz::graph::mp3decoder>();
+    return boost::make_shared< tiz::graph::mp3decoder >();
   }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingOPUS)
   {
-    return boost::make_shared<tiz::graph::opusdecoder>();
+    return boost::make_shared< tiz::graph::opusdecoder >();
   }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
   {
-    std::string extension (boost::filesystem::path (uri).extension ().string ());
+    std::string extension (
+        boost::filesystem::path (uri).extension ().string ());
     if (extension.compare (".oga") == 0 || extension.compare (".ogg") == 0)
     {
-      return boost::make_shared < tiz::graph::oggflacdecoder > ();
+      return boost::make_shared< tiz::graph::oggflacdecoder >();
     }
     else
     {
-      return boost::make_shared < tiz::graph::flacdecoder > ();
+      return boost::make_shared< tiz::graph::flacdecoder >();
     }
   }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingVORBIS)
   {
-    return boost::make_shared<tiz::graph::vorbisdecoder>();
+    return boost::make_shared< tiz::graph::vorbisdecoder >();
   }
   return null_ptr;
 }
 
 std::string graph::factory::coding_type (const std::string &uri)
 {
-  tizprobe_ptr_t p = boost::make_shared<tiz::probe>(uri,
-                                                    /* quiet = */ true);
+  tizprobe_ptr_t p = boost::make_shared< tiz::probe >(uri,
+                                                      /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
   if (p->get_omx_domain () == OMX_PortDomainAudio && p->get_audio_coding_type ()
-      == OMX_AUDIO_CodingMP3)
+                                                     == OMX_AUDIO_CodingMP3)
   {
     return std::string ("mp3");
   }
@@ -104,7 +105,8 @@ std::string graph::factory::coding_type (const std::string &uri)
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
   {
-    std::string extension (boost::filesystem::path (uri).extension ().string ());
+    std::string extension (
+        boost::filesystem::path (uri).extension ().string ());
     if (extension.compare (".oga") == 0 || extension.compare (".ogg") == 0)
     {
       return std::string ("oggflac");

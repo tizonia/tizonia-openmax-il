@@ -54,10 +54,11 @@ namespace graph = tiz::graph;
 // httpserver
 //
 graph::httpserver::httpserver ()
-  :
-  graph::graph ("httpservgraph"),
-  fsm_ (boost::msm::back::states_ << tiz::graph::httpserver::fsm::configuring (&p_ops_)
-        << tiz::graph::httpserver::fsm::skipping (&p_ops_),
+  : graph::graph ("httpservgraph"),
+    fsm_ (
+        boost::msm::back::states_ << tiz::graph::hsfsm::fsm::configuring (
+                                         &p_ops_)
+                                  << tiz::graph::hsfsm::fsm::skipping (&p_ops_),
         &p_ops_)
 {
 }
@@ -69,14 +70,13 @@ graph::ops *graph::httpserver::do_init ()
   comp_list.push_back ("OMX.Aratelia.ice_renderer.http");
 
   omx_comp_role_lst_t role_list;
-  comp_list.push_back ("OMX.Aratelia.file_reader.binary");
-  comp_list.push_back ("OMX.Aratelia.ice_renderer.http");
+  role_list.push_back ("audio_reader.binary");
+  role_list.push_back ("ice_renderer.http");
 
   return new httpservops (this, comp_list, role_list);
 }
 
-bool
-graph::httpserver::dispatch_cmd (const tiz::graph::cmd *p_cmd)
+bool graph::httpserver::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 {
   assert (NULL != p_cmd);
 
@@ -90,16 +90,15 @@ graph::httpserver::dispatch_cmd (const tiz::graph::cmd *p_cmd)
       fsm_.start ();
     }
 
-    p_cmd->inject (fsm_);
+    p_cmd->inject< hsfsm::fsm >(fsm_, tiz::graph::hsfsm::pstate);
 
     // Check for internal errors produced during the processing of the last
     // event. If any, inject an "internal" error event. This is fatal and shall
-    // produce the termination of the state machine.
+    // terminate the state machine.
     if (OMX_ErrorNone != p_ops_->get_internal_error ())
     {
-      fsm_.process_event (
-          tiz::graph::err_evt (p_ops_->get_internal_error (),
-                               p_ops_->get_internal_error_msg ()));
+      fsm_.process_event (tiz::graph::err_evt (
+          p_ops_->get_internal_error (), p_ops_->get_internal_error_msg ()));
     }
 
     if (fsm_.terminated_)

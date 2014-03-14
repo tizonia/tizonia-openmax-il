@@ -47,28 +47,6 @@
 
 namespace graphmgr = tiz::graphmgr;
 
-#define GMGR_OPS_RECORD_ERROR(err, str)                                     \
-  do                                                                        \
-  {                                                                         \
-    error_msg_.assign (str);                                                \
-    error_code_ = err;                                                      \
-    TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error_code_), \
-             error_msg_.c_str ());                                          \
-  } while (0)
-
-#define GMGR_OPS_CHECK_FOR_ERROR(ptr, exp, str) \
-  do                                            \
-  {                                             \
-    if (ptr)                                    \
-    {                                           \
-      OMX_ERRORTYPE rc_ = OMX_ErrorNone;        \
-      if (OMX_ErrorNone != (rc_ = (exp)))       \
-      {                                         \
-        GMGR_OPS_RECORD_ERROR (rc_, str);       \
-      }                                         \
-    }                                           \
-  } while (0)
-
 //
 // ops
 //
@@ -117,9 +95,9 @@ tizgraph_ptr_t graphmgr::ops::get_graph (const std::string &uri)
     if (g_ptr)
     {
       // TODO: Check rc
-      std::pair<tizgraph_ptr_map_t::iterator, bool> rc
+      std::pair< tizgraph_ptr_map_t::iterator, bool > rc
           = graph_registry_.insert (
-              std::make_pair<std::string, tizgraph_ptr_t>(encoding, g_ptr));
+              std::make_pair< std::string, tizgraph_ptr_t >(encoding, g_ptr));
       if (rc.second)
       {
         // TODO: Check rc
@@ -150,8 +128,6 @@ tizgraph_ptr_t graphmgr::ops::get_graph (const std::string &uri)
 
 void graphmgr::ops::do_load ()
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-
   tizplaylist_t sub_playlist = playlist_.get_next_sub_playlist ();
   const uri_lst_t &sub_urilist = sub_playlist.get_uri_list ();
   TIZ_LOG (TIZ_PRIORITY_TRACE, "sub_urilist size %d", sub_urilist.size ());
@@ -164,11 +140,10 @@ void graphmgr::ops::do_load ()
         = (tizplaylist (sub_urilist).is_single_format_playlist ()
            && sub_urilist.size () > 1);
     graph_config_.reset ();
-    graph_config_
-        = boost::make_shared<tiz::graph::config>(sub_urilist, continuous_play);
+    graph_config_ = boost::make_shared< tiz::graph::config >(sub_urilist,
+                                                             continuous_play);
 
-    GMGR_OPS_CHECK_FOR_ERROR (g_ptr, g_ptr->load (),
-                              "Unable to load the graph.");
+    GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (), "Unable to load the graph.");
   }
 
   p_managed_graph_ = g_ptr;
@@ -176,9 +151,9 @@ void graphmgr::ops::do_load ()
 
 void graphmgr::ops::do_execute ()
 {
-  GMGR_OPS_CHECK_FOR_ERROR (p_managed_graph_,
-                            p_managed_graph_->execute (graph_config_),
-                            "Unable to execute the graph.");
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_,
+                          p_managed_graph_->execute (graph_config_),
+                          "Unable to execute the graph.");
 }
 
 void graphmgr::ops::do_unload ()
@@ -191,14 +166,14 @@ void graphmgr::ops::do_unload ()
 
 void graphmgr::ops::do_next ()
 {
-  GMGR_OPS_CHECK_FOR_ERROR (p_managed_graph_, p_managed_graph_->skip (1),
-                            "Unable to skip to next song.");
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->skip (1),
+                          "Unable to skip to next song.");
 }
 
 void graphmgr::ops::do_prev ()
 {
-  GMGR_OPS_CHECK_FOR_ERROR (p_managed_graph_, p_managed_graph_->skip (-1),
-                            "Unable to skip to prev song.");
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->skip (-1),
+                          "Unable to skip to prev song.");
 }
 
 void graphmgr::ops::do_fwd ()
@@ -213,26 +188,26 @@ void graphmgr::ops::do_rwd ()
 
 void graphmgr::ops::do_vol_up ()
 {
-  GMGR_OPS_CHECK_FOR_ERROR (p_managed_graph_, p_managed_graph_->volume (1),
-                            "Unable to inc. volume.");
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->volume (1),
+                          "Unable to inc. volume.");
 }
 
 void graphmgr::ops::do_vol_down ()
 {
-  GMGR_OPS_CHECK_FOR_ERROR (p_managed_graph_, p_managed_graph_->volume (-1),
-                            "Unable to dec. volume.");
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->volume (-1),
+                          "Unable to dec. volume.");
 }
 
 void graphmgr::ops::do_mute ()
 {
-  GMGR_OPS_CHECK_FOR_ERROR (p_managed_graph_, p_managed_graph_->mute (),
-                            "Unable to mute/unmute.");
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->mute (),
+                          "Unable to mute/unmute.");
 }
 
 void graphmgr::ops::do_pause ()
 {
-  GMGR_OPS_CHECK_FOR_ERROR (p_managed_graph_, p_managed_graph_->pause (),
-                            "Unable to pause.");
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->pause (),
+                          "Unable to pause.");
 }
 
 void graphmgr::ops::do_report_fatal_error (const OMX_ERRORTYPE error,

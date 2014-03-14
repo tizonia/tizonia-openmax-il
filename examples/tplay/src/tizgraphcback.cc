@@ -100,25 +100,25 @@ bool graph::omx_event_info::operator==(const omx_event_info &b)
 std::string graph::omx_event_info::to_string () const
 {
   std::string info ("[");
-  info.append (tiz_evt_to_str (static_cast<OMX_EVENTTYPE>(event_)));
+  info.append (tiz_evt_to_str (static_cast< OMX_EVENTTYPE >(event_)));
   info.append ("]");
   switch (event_)
   {
     case OMX_EventCmdComplete:
     {
       info.append (" [");
-      info.append (tiz_cmd_to_str (static_cast<OMX_COMMANDTYPE>(ndata1_)));
+      info.append (tiz_cmd_to_str (static_cast< OMX_COMMANDTYPE >(ndata1_)));
       info.append ("]");
       if (OMX_CommandStateSet == ndata1_)
       {
         info.append (" [");
-        info.append (tiz_state_to_str (static_cast<OMX_STATETYPE>(ndata2_)));
+        info.append (tiz_state_to_str (static_cast< OMX_STATETYPE >(ndata2_)));
         info.append ("]");
       }
       else
       {
         info.append (" PORT [");
-        info.append (boost::lexical_cast<std::string>(ndata2_));
+        info.append (boost::lexical_cast< std::string >(ndata2_));
         info.append ("]");
       }
     }
@@ -127,10 +127,10 @@ std::string graph::omx_event_info::to_string () const
     case OMX_EventError:
     {
       info.append (" [");
-      info.append (tiz_err_to_str (static_cast<OMX_ERRORTYPE>(ndata1_)));
+      info.append (tiz_err_to_str (static_cast< OMX_ERRORTYPE >(ndata1_)));
       info.append ("]");
       info.append (" [");
-      info.append (boost::lexical_cast<std::string>(ndata2_));
+      info.append (boost::lexical_cast< std::string >(ndata2_));
       info.append ("]");
     }
     break;
@@ -138,10 +138,10 @@ std::string graph::omx_event_info::to_string () const
     case OMX_EventPortSettingsChanged:
     {
       info.append (" PORT [");
-      info.append (boost::lexical_cast<std::string>(ndata1_));
+      info.append (boost::lexical_cast< std::string >(ndata1_));
       info.append ("]");
       info.append (" [");
-      info.append (tiz_idx_to_str (static_cast<OMX_INDEXTYPE>(ndata2_)));
+      info.append (tiz_idx_to_str (static_cast< OMX_INDEXTYPE >(ndata2_)));
       info.append ("]");
     }
     break;
@@ -149,10 +149,10 @@ std::string graph::omx_event_info::to_string () const
     case OMX_EventBufferFlag:
     {
       info.append (" PORT [");
-      info.append (boost::lexical_cast<std::string>(ndata1_));
+      info.append (boost::lexical_cast< std::string >(ndata1_));
       info.append ("]");
       info.append (" nFlags [");
-      info.append (boost::lexical_cast<std::string>(ndata2_));
+      info.append (boost::lexical_cast< std::string >(ndata2_));
       info.append ("]");
     }
     break;
@@ -185,7 +185,7 @@ graph::cbackhandler::event_handler_wrapper (OMX_HANDLETYPE hComponent,
                                             OMX_U32 nData1, OMX_U32 nData2,
                                             OMX_PTR pEventData)
 {
-  cbackhandler *p_handler = static_cast<cbackhandler *>(pAppData);
+  cbackhandler *p_handler = static_cast< cbackhandler * >(pAppData);
   assert (NULL != p_handler);
   p_handler->event_handler (hComponent, eEvent, nData1, nData2, pEventData);
   return OMX_ErrorNone;
@@ -200,6 +200,6 @@ void graph::cbackhandler::event_handler (OMX_HANDLETYPE hComponent,
                                          OMX_EVENTTYPE eEvent, OMX_U32 nData1,
                                          OMX_U32 nData2, OMX_PTR pEventData)
 {
-  const_cast<graph *>(p_graph_)->omx_evt (
+  const_cast< graph * >(p_graph_)->omx_evt (
       omx_event_info (hComponent, eEvent, nData1, nData2, pEventData));
 }

@@ -39,7 +39,7 @@ UseTab:          Never
 BreakBeforeBraces: Allman
 IndentFunctionDeclarationAfterType: true
 SpacesInParentheses: false
-SpacesInAngles:  false
+SpacesInAngles:  true
 SpaceInEmptyParentheses: false
 SpacesInCStyleCastParentheses: false
 SpaceBeforeAssignmentOperators: true

@@ -321,7 +321,7 @@ void tiz::probe::set_mp3_codec_info (const AVCodecContext *cc)
   assert (NULL != cc);
 
   domain_ = OMX_PortDomainAudio;
-  audio_coding_type_ = static_cast<OMX_AUDIO_CODINGTYPE>(OMX_AUDIO_CodingMP3);
+  audio_coding_type_ = static_cast< OMX_AUDIO_CODINGTYPE >(OMX_AUDIO_CodingMP3);
   mp3type_.nSampleRate = cc->sample_rate;
   pcmtype_.nSamplingRate = cc->sample_rate;
   mp3type_.nBitRate = cc->bit_rate;
@@ -358,7 +358,8 @@ void tiz::probe::set_mp3_codec_info (const AVCodecContext *cc)
 void tiz::probe::set_opus_codec_info ()
 {
   domain_ = OMX_PortDomainAudio;
-  audio_coding_type_ = static_cast<OMX_AUDIO_CODINGTYPE>(OMX_AUDIO_CodingOPUS);
+  audio_coding_type_
+      = static_cast< OMX_AUDIO_CODINGTYPE >(OMX_AUDIO_CodingOPUS);
   opustype_.nSampleRate = 48000;
   pcmtype_.nSamplingRate = 48000;
   mp3type_.nChannels = 2;
@@ -375,7 +376,8 @@ void tiz::probe::set_flac_codec_info (const AVCodecContext *cc)
   assert (NULL != cc);
 
   domain_ = OMX_PortDomainAudio;
-  audio_coding_type_ = static_cast<OMX_AUDIO_CODINGTYPE>(OMX_AUDIO_CodingFLAC);
+  audio_coding_type_
+      = static_cast< OMX_AUDIO_CODINGTYPE >(OMX_AUDIO_CodingFLAC);
   flactype_.nSampleRate = cc->sample_rate;
   pcmtype_.nSamplingRate = cc->sample_rate;
   //   flactype_.nBitRate     = cc->bit_rate;
@@ -417,7 +419,7 @@ void tiz::probe::set_vorbis_codec_info (const AVCodecContext *cc)
 
   domain_ = OMX_PortDomainAudio;
   audio_coding_type_
-      = static_cast<OMX_AUDIO_CODINGTYPE>(OMX_AUDIO_CodingVORBIS);
+      = static_cast< OMX_AUDIO_CODINGTYPE >(OMX_AUDIO_CodingVORBIS);
   vorbistype_.nSampleRate = cc->sample_rate;
   pcmtype_.nSamplingRate = cc->sample_rate;
   vorbistype_.nChannels = cc->channels;
@@ -589,7 +591,7 @@ std::string tiz::probe::album () const
 
 std::string tiz::probe::year () const
 {
-  return boost::lexical_cast<std::string>(
+  return boost::lexical_cast< std::string >(
       retrieve_meta_data_uint (&TagLib::Tag::year));
 }
 
@@ -600,7 +602,7 @@ std::string tiz::probe::comment () const
 
 std::string tiz::probe::track () const
 {
-  return boost::lexical_cast<std::string>(
+  return boost::lexical_cast< std::string >(
       retrieve_meta_data_uint (&TagLib::Tag::track));
 }
 
@@ -628,13 +630,13 @@ std::string tiz::probe::stream_length () const
 
     if (hours > 0)
     {
-      length_str.append (boost::lexical_cast<std::string>(hours));
+      length_str.append (boost::lexical_cast< std::string >(hours));
       length_str.append ("h:");
     }
 
     if (minutes > 0)
     {
-      length_str.append (boost::lexical_cast<std::string>(minutes));
+      length_str.append (boost::lexical_cast< std::string >(minutes));
       length_str.append ("m:");
     }
 

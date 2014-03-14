@@ -42,7 +42,6 @@
 
 #include "tizgraphmgrcmd.h"
 #include "tizgraph.h"
-#include "tizgraphconfig.h"
 #include "tizomxutil.h"
 #include "tizgraphmgr.h"
 
@@ -55,7 +54,7 @@ namespace graphmgr = tiz::graphmgr;
 
 void *graphmgr::thread_func (void *p_arg)
 {
-  mgr *p_mgr = static_cast<mgr *>(p_arg);
+  mgr *p_mgr = static_cast< mgr * >(p_arg);
   void *p_data = NULL;
   bool done = false;
 
@@ -70,7 +69,7 @@ void *graphmgr::thread_func (void *p_arg)
 
     assert (NULL != p_data);
 
-    cmd *p_cmd = static_cast<cmd *>(p_data);
+    cmd *p_cmd = static_cast< cmd * >(p_data);
     done = mgr::dispatch_cmd (p_mgr, p_cmd);
 
     delete p_cmd;
@@ -85,17 +84,16 @@ void *graphmgr::thread_func (void *p_arg)
 //
 // mgr
 //
-graphmgr::mgr::mgr (const uri_lst_t &file_list,
-                    const error_callback_t &error_cback)
-  : thread_ (),
+graphmgr::mgr::mgr ()
+  : p_ops_ (NULL),  // this, file_list, error_cback
+    fsm_ (boost::msm::back::states_ << graphmgr::fsm::starting (&p_ops_)
+                                    << graphmgr::fsm::restarting (&p_ops_)
+                                    << graphmgr::fsm::stopping (&p_ops_),
+          &p_ops_),
+    thread_ (),
     mutex_ (),
     sem_ (),
-    p_queue_ (NULL),
-    ops_ (this, file_list, error_cback),
-    fsm_ (boost::msm::back::states_ << graphmgr::fsm::starting (&ops_)
-                                    << graphmgr::fsm::restarting (&ops_)
-                                    << graphmgr::fsm::stopping (&ops_),
-          &ops_)
+    p_queue_ (NULL)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 }
@@ -105,39 +103,45 @@ graphmgr::mgr::~mgr ()
 }
 
 OMX_ERRORTYPE
-graphmgr::mgr::init ()
+graphmgr::mgr::init (const uri_lst_t &file_list,
+                     const error_callback_t &error_cback)
 {
-  tiz_mutex_init (&mutex_);
-  tiz_sem_init (&sem_, 0);
-  tiz_queue_init (&p_queue_, 10);
-  tiz::omxutil::init ();
+  // Init command queue infrastructure
+  tiz_check_omx_err_ret_oom (init_cmd_queue ());
 
-  fsm_.start ();
-
-  /* Create the manager's thread */
+  // Create the manager's thread
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_err_ret_oom (
       tiz_thread_create (&thread_, 0, 0, thread_func, this));
   tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
 
+  // Init this mgr's operations using the do_init template method
+  tiz_check_null_ret_oom ((p_ops_ = do_init (file_list, error_cback)));
+
   // Let's wait until the manager's thread is ready to receive requests
   tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+
+  // Init OpenMAX IL
+  tiz::omxutil::init ();
+
+  // Init the manager's fsm
+  fsm_.start ();
 
   return OMX_ErrorNone;
 }
 
-OMX_ERRORTYPE
-graphmgr::mgr::deinit ()
+void graphmgr::mgr::deinit ()
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
-  tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+  static_cast< void >(tiz_sem_wait (&sem_));
   void *p_result = NULL;
-  tiz_thread_join (&thread_, &p_result);
+  static_cast< void >(tiz_thread_join (&thread_, &p_result));
+
   tiz::omxutil::deinit ();
-  tiz_mutex_destroy (&mutex_);
-  tiz_sem_destroy (&sem_);
-  tiz_queue_destroy (p_queue_);
-  return OMX_ErrorNone;
+  deinit_cmd_queue ();
+
+  delete p_ops_;
+  p_ops_ = NULL;
 }
 
 OMX_ERRORTYPE
@@ -239,6 +243,22 @@ graphmgr::mgr::graph_error (const OMX_ERRORTYPE error, const std::string &msg)
 }
 
 OMX_ERRORTYPE
+graphmgr::mgr::init_cmd_queue ()
+{
+  tiz_check_omx_err_ret_oom (tiz_mutex_init (&mutex_));
+  tiz_check_omx_err_ret_oom (tiz_sem_init (&sem_, 0));
+  tiz_check_omx_err_ret_oom (tiz_queue_init (&p_queue_, 10));
+  return OMX_ErrorNone;
+}
+
+void graphmgr::mgr::deinit_cmd_queue ()
+{
+  tiz_mutex_destroy (&mutex_);
+  tiz_sem_destroy (&sem_);
+  tiz_queue_destroy (p_queue_);
+}
+
+OMX_ERRORTYPE
 graphmgr::mgr::post_cmd (graphmgr::cmd *p_cmd)
 {
   assert (NULL != p_cmd);
@@ -255,26 +275,27 @@ bool graphmgr::mgr::dispatch_cmd (graphmgr::mgr *p_mgr,
                                   const graphmgr::cmd *p_cmd)
 {
   assert (NULL != p_mgr);
+  assert (NULL != p_mgr->p_ops_);
   assert (NULL != p_cmd);
 
   p_cmd->inject (p_mgr->fsm_);
 
   // Check for internal errors produced during the processing of the last
   // event. If any, inject an "internal" error event. This is fatal and shall
-  // produce the termination of the state machine.
-  if (OMX_ErrorNone != p_mgr->ops_.get_internal_error ())
+  // terminate the state machine.
+  if (OMX_ErrorNone != p_mgr->p_ops_->get_internal_error ())
   {
     TIZ_LOG (TIZ_PRIORITY_ERROR,
              "MGR error detected. Injecting err_evt (this is fatal)");
     bool is_internal_error = true;
     p_mgr->fsm_.process_event (graphmgr::err_evt (
-        p_mgr->ops_.get_internal_error (),
-        p_mgr->ops_.get_internal_error_msg (), is_internal_error));
+        p_mgr->p_ops_->get_internal_error (),
+        p_mgr->p_ops_->get_internal_error_msg (), is_internal_error));
   }
   if (p_mgr->fsm_.terminated_)
   {
     TIZ_LOG (TIZ_PRIORITY_NOTICE, "MGR fsm terminated");
-    p_mgr->ops_.deinit ();
+    p_mgr->p_ops_->deinit ();
   }
   return p_mgr->fsm_.terminated_;
 }

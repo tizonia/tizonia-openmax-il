@@ -54,11 +54,10 @@ namespace graph = tiz::graph;
 // opusdecoder
 //
 graph::opusdecoder::opusdecoder ()
-  :
-  graph::graph ("opusdecgraph"),
-  fsm_ (boost::msm::back::states_ << tiz::graph::fsm::configuring (&p_ops_)
-        << tiz::graph::fsm::skipping (&p_ops_),
-        &p_ops_)
+  : graph::graph ("opusdecgraph"),
+    fsm_ (boost::msm::back::states_ << tiz::graph::fsm::configuring (&p_ops_)
+                                    << tiz::graph::fsm::skipping (&p_ops_),
+          &p_ops_)
 {
 }
 
@@ -77,8 +76,7 @@ graph::ops *graph::opusdecoder::do_init ()
   return new opusdecops (this, comp_list, role_list);
 }
 
-bool
-graph::opusdecoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
+bool graph::opusdecoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 {
   assert (NULL != p_cmd);
 
@@ -92,16 +90,15 @@ graph::opusdecoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
       fsm_.start ();
     }
 
-    p_cmd->inject (fsm_);
+    p_cmd->inject< fsm >(fsm_, tiz::graph::pstate);
 
     // Check for internal errors produced during the processing of the last
     // event. If any, inject an "internal" error event. This is fatal and shall
-    // produce the termination of the state machine.
+    // terminate the state machine.
     if (OMX_ErrorNone != p_ops_->get_internal_error ())
     {
-      fsm_.process_event (
-          tiz::graph::err_evt (p_ops_->get_internal_error (),
-                               p_ops_->get_internal_error_msg ()));
+      fsm_.process_event (tiz::graph::err_evt (
+          p_ops_->get_internal_error (), p_ops_->get_internal_error_msg ()));
     }
 
     if (fsm_.terminated_)
@@ -179,7 +176,7 @@ graph::opusdecops::probe_uri (const int uri_index, const bool quiet)
     // Probe a new uri
     probe_ptr_.reset ();
     bool quiet_probing = true;
-    probe_ptr_ = boost::make_shared<tiz::probe>(uri, quiet_probing);
+    probe_ptr_ = boost::make_shared< tiz::probe >(uri, quiet_probing);
     if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
         || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingOPUS)
     {
@@ -203,7 +200,7 @@ graph::opusdecops::set_opus_settings ()
   TIZ_INIT_OMX_PORT_STRUCT (opustype_orig, 0 /* port id */);
 
   tiz_check_omx_err (OMX_GetParameter (
-      handles_[1], static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamAudioOpus),
+      handles_[1], static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
       &opustype_orig));
 
   // Set the opus settings on decoder's port #0
@@ -213,13 +210,14 @@ graph::opusdecops::set_opus_settings ()
   probe_ptr_->get_opus_codec_info (opustype);
   opustype.nPortIndex = 0;
   tiz_check_omx_err (OMX_SetParameter (
-      handles_[1], static_cast<OMX_INDEXTYPE>(OMX_TizoniaIndexParamAudioOpus),
+      handles_[1], static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
       &opustype));
 
   // Record whether we need to wait for a port settings change event or not
   // (the decoder output port implements the "slaving" behaviour)
-  need_port_settings_changed_evt_ = ((opustype_orig.nSampleRate != opustype.nSampleRate)
-                                     || (opustype_orig.nChannels != opustype.nChannels));
+  need_port_settings_changed_evt_
+      = ((opustype_orig.nSampleRate != opustype.nSampleRate)
+         || (opustype_orig.nChannels != opustype.nChannels));
 
   return OMX_ErrorNone;
 }

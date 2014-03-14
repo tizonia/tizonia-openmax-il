@@ -372,6 +372,9 @@ bool graph::ops::is_trans_complete (const OMX_HANDLETYPE handle,
   assert (to_state <= OMX_StateWaitForResources);
   assert (!expected_transitions_lst_.empty ());
 
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "handle [%p] to_state [%s]...", handle,
+           tiz_state_to_str (to_state));
+
   if (!handles_.empty () && !expected_transitions_lst_.empty ())
   {
     omx_event_info_lst_t::iterator it = std::find (
@@ -399,7 +402,7 @@ bool graph::ops::is_port_disabling_complete (const OMX_HANDLETYPE handle,
 }
 
 bool graph::ops::is_port_enabling_complete (const OMX_HANDLETYPE handle,
-                                             const OMX_U32 port_id)
+                                            const OMX_U32 port_id)
 {
   return is_port_transition_complete (handle, port_id, OMX_CommandPortEnable);
 }
@@ -488,9 +491,9 @@ void graph::ops::add_expected_port_transition (
       omx_event_info (handle, port_id, disable_or_enable, error));
 }
 
-bool graph::ops::is_port_transition_complete (const OMX_HANDLETYPE  handle,
-                                              const OMX_U32         port_id,
-                                              const OMX_COMMANDTYPE disable_or_enable)
+bool graph::ops::is_port_transition_complete (
+    const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+    const OMX_COMMANDTYPE disable_or_enable)
 {
   bool rc = false;
 
@@ -500,11 +503,10 @@ bool graph::ops::is_port_transition_complete (const OMX_HANDLETYPE  handle,
 
   if (!handles_.empty () && !expected_port_transitions_lst_.empty ())
   {
-    omx_event_info_lst_t::iterator it
-        = std::find (expected_port_transitions_lst_.begin (),
-                     expected_port_transitions_lst_.end (),
-                     omx_event_info (handle, port_id, disable_or_enable,
-                                     OMX_ErrorNone));
+    omx_event_info_lst_t::iterator it = std::find (
+        expected_port_transitions_lst_.begin (),
+        expected_port_transitions_lst_.end (),
+        omx_event_info (handle, port_id, disable_or_enable, OMX_ErrorNone));
     assert (expected_port_transitions_lst_.end () != it);
 
     if (expected_port_transitions_lst_.end () != it)

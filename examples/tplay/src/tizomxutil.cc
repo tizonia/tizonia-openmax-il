@@ -60,7 +60,7 @@ void tiz::omxutil::deinit ()
 }
 
 OMX_ERRORTYPE
-tiz::omxutil::list_comps (std::vector<std::string> &components)
+tiz::omxutil::list_comps (std::vector< std::string > &components)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_U32 index = 0;
@@ -81,7 +81,7 @@ tiz::omxutil::list_comps (std::vector<std::string> &components)
 
 OMX_ERRORTYPE
 tiz::omxutil::roles_of_comp (const OMX_STRING arg,
-                             std::vector<std::string> &roles)
+                             std::vector< std::string > &roles)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_U32 index = 0;
@@ -101,7 +101,7 @@ tiz::omxutil::roles_of_comp (const OMX_STRING arg,
 
 OMX_ERRORTYPE
 tiz::omxutil::comps_of_role (const OMX_STRING arg,
-                             std::vector<std::string> &components)
+                             std::vector< std::string > &components)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_U32 index = 0;
