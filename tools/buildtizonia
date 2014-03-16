@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#
+# Travis-ci build script
+#
+
 TIZ_DIR="/home/$USER/tizonia-openmax-il"
 INSTALL_DIR="/home/$USER/build"
 CWD=`pwd`
@@ -74,7 +78,7 @@ elif [ "$1" == "deps" ];  then
         uuid-dev \
         libsdl1.2-dev libvpx-dev libavcodec-dev \
         libavformat-dev libavdevice-dev libmp3lame-dev \
-        libev-dev libtag1-dev \
+        libev-dev libtag1-dev libfishsound-dev \
         python-sphinx curl
     exit_status=$?
 elif [ "$1" == "srcdeps" ];  then
