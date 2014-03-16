@@ -480,23 +480,24 @@ graph::util::set_content_uri (const OMX_HANDLETYPE handle,
 
   // Set the URI
   OMX_PARAM_CONTENTURITYPE *p_uritype = NULL;
+  const long pathname_max = tiz_pathname_max (uri.c_str ());
+  const int uri_len = uri.length();
 
   if (NULL
       == (p_uritype = (OMX_PARAM_CONTENTURITYPE *)tiz_mem_calloc (
-              1, sizeof(OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE)))
+          1, sizeof(OMX_PARAM_CONTENTURITYPE) + uri_len + 1))
+      || uri_len > pathname_max)
   {
     rc = OMX_ErrorInsufficientResources;
   }
   else
   {
-    p_uritype->nSize = sizeof(OMX_PARAM_CONTENTURITYPE)
-                       + OMX_MAX_STRINGNAME_SIZE;
+    p_uritype->nSize = sizeof(OMX_PARAM_CONTENTURITYPE) + uri_len + 1;
     p_uritype->nVersion.nVersion = OMX_VERSION;
 
     const size_t uri_offset = offsetof (OMX_PARAM_CONTENTURITYPE, contentURI);
-    strncpy ((char *)p_uritype + uri_offset, uri.c_str (),
-             OMX_MAX_STRINGNAME_SIZE);
-    p_uritype->contentURI[strlen (uri.c_str ())] = '\0';
+    strncpy ((char *)p_uritype + uri_offset, uri.c_str (), uri_len);
+    p_uritype->contentURI[uri_len] = '\0';
 
     rc = OMX_SetParameter (handle, OMX_IndexParamContentURI, p_uritype);
 

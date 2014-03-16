@@ -30,20 +30,67 @@
 #include <config.h>
 #endif
 
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <limits.h>
+#include <assert.h>
+
 #include "OMX_Core.h"
-#include "fwprc.h"
-#include "fwprc_decls.h"
+
 #include "tizkernel.h"
 #include "tizscheduler.h"
 #include "tizosal.h"
 
-#include <assert.h>
-#include <stdio.h>
+#include "fwprc_decls.h"
+#include "fwprc.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_writer.prc"
 #endif
+
+static OMX_ERRORTYPE
+obtain_uri (fw_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const long pathname_max = PATH_MAX + NAME_MAX;
+
+  assert (NULL != ap_prc);
+  assert (NULL == ap_prc->p_uri_param_);
+
+  ap_prc->p_uri_param_ = tiz_mem_calloc
+    (1, sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
+
+  if (NULL == ap_prc->p_uri_param_)
+    {
+      TIZ_ERROR (handleOf (ap_prc),
+                "Error allocating memory for the content uri struct");
+      rc = OMX_ErrorInsufficientResources;
+    }
+  else
+    {
+      ap_prc->p_uri_param_->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
+        + pathname_max + 1;
+      ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
+
+      if (OMX_ErrorNone != (rc = tiz_api_GetParameter
+                            (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                             OMX_IndexParamContentURI, ap_prc->p_uri_param_)))
+        {
+          TIZ_ERROR (handleOf (ap_prc),
+                     "[%s] : Error retrieving URI param from port",
+                     tiz_err_to_str (rc));
+        }
+      else
+        {
+          TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
+                      ap_prc->p_uri_param_->contentURI);
+        }
+    }
+
+  return rc;
+}
 
 /*
  * fwprc
@@ -116,47 +163,17 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 static OMX_ERRORTYPE
 fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  fw_prc_t *p_obj = ap_obj;
-  OMX_ERRORTYPE ret_val = OMX_ErrorNone;
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
+  fw_prc_t *p_prc = ap_obj;
 
-  assert (ap_obj);
+  assert (NULL != ap_obj);
 
-  if (!(p_obj->p_uri_param_))
+  tiz_check_omx_err (obtain_uri (p_prc));
+
+  if ((p_prc->p_file_
+       = fopen ((const char *) p_prc->p_uri_param_->contentURI, "w")) == 0)
     {
-      p_obj->p_uri_param_ = tiz_mem_calloc
-        (1, sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE);
-
-      if (NULL == p_obj->p_uri_param_)
-        {
-          TIZ_ERROR (handleOf (ap_obj),
-                    "Error allocating memory "
-                   "for the content uri struct");
-          return OMX_ErrorInsufficientResources;
-        }
-
-      p_obj->p_uri_param_->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
-        + OMX_MAX_STRINGNAME_SIZE - 1;
-      p_obj->p_uri_param_->nVersion.nVersion = OMX_VERSION;
-    }
-
-  if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
-                        (p_krn,
-                         handleOf (ap_obj),
-                         OMX_IndexParamContentURI, p_obj->p_uri_param_)))
-    {
-      TIZ_ERROR (handleOf (ap_obj),
-                "Error retrieving URI param from port");
-      return ret_val;
-    }
-
-  TIZ_LOG (TIZ_PRIORITY_NOTICE, "Retrieved URI [%s]",
-           p_obj->p_uri_param_->contentURI);
-
-  if ((p_obj->p_file_
-       = fopen ((const char *) p_obj->p_uri_param_->contentURI, "w")) == 0)
-    {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "Error opening file from URI string");
+      TIZ_ERROR (handleOf (p_prc),
+                "Error opening file from URI (%s)", strerror (errno));
       return OMX_ErrorInsufficientResources;
     }
 

@@ -41,7 +41,8 @@ libtizosal_include_HEADERS = \
 	tizosalsoa.h \
 	tizosalev.h \
 	tizosalmap.h \
-	tizosalhttp.h
+	tizosalhttp.h \
+	tizosallimits.h
 
 libtizosal_la_SOURCES = \
 	http-parser/http_parser.c \
@@ -60,7 +61,8 @@ libtizosal_la_SOURCES = \
 	tizosalsoa.c \
 	tizosalev.c \
 	tizosalmap.c \
-	tizosalhttp.c
+	tizosalhttp.c \
+	tizosallimits.c
 
 libtizosal_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \

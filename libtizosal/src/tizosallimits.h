@@ -17,43 +17,27 @@
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /**
- * @file   tizosal.h
+ * @file   tizosallimits.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL OSAL - Main OSAL include file
+ * @brief Tizonia OpenMAX IL - OS-related limits utils
  *
  *
  */
 
-#ifndef TIZOSAL_H
-#define TIZOSAL_H
+#ifndef TIZOSALLIMITS_H
+#define TIZOSALLIMITS_H
 
-/**
- * @defgroup Tizonia-OSAL OS Abstraction Layer and Utilities
- *
- * @{
- * 
- */
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-#include "tizmacros.h"
-#include "tizosallog.h"
-#include "tizosalmem.h"
-#include "tizosalqueue.h"
-#include "tizosalpqueue.h"
-#include "tizosalvector.h"
-#include "tizosalsync.h"
-#include "tizosalthread.h"
-#include "tizosaluuid.h"
-#include "tizosalutils.h"
-#include "tizosalrc.h"
-#include "tizosalsoa.h"
-#include "tizosalev.h"
-#include "tizosalhttp.h"
-#include "tizosalmap.h"
-#include "tizosallimits.h"
+  long tiz_pathname_max (const char * file);
 
-/** @} */
+#ifdef __cplusplus
+}
+#endif
 
-#endif /* TIZOSAL_H */
+#endif                          /* TIZOSALLIMITS_H */

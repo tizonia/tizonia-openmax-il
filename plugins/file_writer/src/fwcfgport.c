@@ -30,41 +30,40 @@
 #include <config.h>
 #endif
 
-#include "fwcfgport.h"
-#include "fwcfgport_decls.h"
-#include "tizosal.h"
-
 #include <assert.h>
 #include <string.h>
 #include <limits.h>
+
+#include <tizosal.h>
+
+#include "fwcfgport_decls.h"
+#include "fwcfgport.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_writer.fwcfgport"
 #endif
 
-#define TIZ_FILE_WRITER_DEFAULT_AUDIO_URI "OMX.Aratelia.file_writer.binary.default_audio_uri"
+#define TIZ_FW_DEFAULT_AUDIO_URI                \
+  "OMX.Aratelia.file_writer.binary.default_audio_uri"
 
 static char *
-find_default_uri ()
+retrieve_default_uri_from_config ()
 {
-  char *p_rv = NULL;
-  const char *p_uri = NULL;
+  char       *p_rv         = NULL;
+  const char *p_uri        = NULL;
+  long        pathname_max = -1;
 
-  p_uri = tiz_rcfile_get_value ("plugins-data",
-                                TIZ_FILE_WRITER_DEFAULT_AUDIO_URI);
-
-  assert (NULL != p_uri
-          &&
-          "OMX.Aratelia.file_writer.binary.default_audio_uri not present in tizrc...");
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Default URI [%s]...", p_uri);
-
-  p_rv = strndup (p_uri, PATH_MAX);
-
+  p_uri = tiz_rcfile_get_value (TIZ_RCFILE_PLUGINS_DATA_SECTION,
+                                TIZ_FW_DEFAULT_AUDIO_URI);
+  assert (NULL != p_uri && TIZ_FW_DEFAULT_AUDIO_URI);
+  if ((pathname_max = tiz_pathname_max (p_uri)) > 0)
+    {
+      p_rv = strndup (p_uri, pathname_max); /* A terminating \0 is added by
+                                               strndup*/
+    }
   return p_rv;
 }
-
 
 /*
  * fwcfgport class
@@ -74,7 +73,9 @@ static void *
 fw_cfgport_ctor (void *ap_obj, va_list * app)
 {
   fw_cfgport_t *p_obj = super_ctor (typeOf (ap_obj, "fwcfgport"), ap_obj, app);
-  p_obj->p_uri_ = find_default_uri ();
+  assert (NULL != p_obj);
+  p_obj->p_uri_ = retrieve_default_uri_from_config ();
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Default URI [%s]...", p_obj->p_uri_);
   tiz_port_register_index (p_obj, OMX_IndexParamContentURI);
   return p_obj;
 }
@@ -83,6 +84,7 @@ static void *
 fw_cfgport_dtor (void *ap_obj)
 {
   fw_cfgport_t *p_obj = (fw_cfgport_t *) ap_obj;
+  assert (NULL != p_obj);
   tiz_mem_free (p_obj->p_uri_);
   return super_dtor (typeOf (ap_obj, "fwcfgport"), ap_obj);
 }
@@ -97,6 +99,7 @@ fw_cfgport_GetParameter (const void *ap_obj,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const fw_cfgport_t *p_obj = ap_obj;
+  assert (NULL != p_obj);
 
   switch (a_index)
     {
@@ -116,9 +119,9 @@ fw_cfgport_GetParameter (const void *ap_obj,
           }
 
         p_uri->nVersion.nVersion = OMX_VERSION;
-        strncpy ((char *) p_uri->contentURI, p_obj->p_uri_, uri_len + 1);
         if (p_uri->contentURI)
           {
+            strncpy ((char *) p_uri->contentURI, p_obj->p_uri_, uri_len + 1);
             p_uri->contentURI[uri_len] = '\0';
           }
 
@@ -134,7 +137,6 @@ fw_cfgport_GetParameter (const void *ap_obj,
     };
 
   return OMX_ErrorNone;
-
 }
 
 static OMX_ERRORTYPE
@@ -143,6 +145,7 @@ fw_cfgport_SetParameter (const void *ap_obj,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   fw_cfgport_t *p_obj = (fw_cfgport_t *) ap_obj;
+  assert (NULL != p_obj);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
@@ -155,10 +158,12 @@ fw_cfgport_SetParameter (const void *ap_obj,
           = (OMX_PARAM_CONTENTURITYPE *) ap_struct;
         OMX_U32 uri_size =
           p_uri->nSize - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE);
+        const long pathname_max
+          = tiz_pathname_max ((const char * ) p_uri->contentURI);
 
-        if (uri_size > PATH_MAX)
+        if (pathname_max > 0 && uri_size > pathname_max)
         {
-          uri_size = PATH_MAX;
+          uri_size = pathname_max;
         }
 
         tiz_mem_free (p_obj->p_uri_);
@@ -169,7 +174,7 @@ fw_cfgport_SetParameter (const void *ap_obj,
             p_uri->contentURI[uri_size - 1] = '\000';
           }
 
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "Set URI [%s]...", p_obj->p_uri_);
+        TIZ_LOG (TIZ_PRIORITY_TRACE, "New URI [%s]...", p_obj->p_uri_);
       }
       break;
 
@@ -182,7 +187,6 @@ fw_cfgport_SetParameter (const void *ap_obj,
     };
 
   return OMX_ErrorNone;
-
 }
 
 /*

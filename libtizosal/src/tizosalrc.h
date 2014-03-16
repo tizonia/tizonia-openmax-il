@@ -21,7 +21,7 @@
  * @file   tizosalrc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL  - Configuration file utility functions
+ * @brief  Tizonia OpenMAX IL  - Functions to retrieve data from config file
  *
  *
  */
@@ -41,6 +41,8 @@ extern "C"
 
 #include <OMX_Core.h>
 #include <OMX_Types.h>
+
+#define TIZ_RCFILE_PLUGINS_DATA_SECTION "plugins-data"
 
   /**
    * Returns a value string from a give section using the value's key
@@ -62,7 +64,7 @@ extern "C"
    * @param section String indicating the section where the key-value pair is located
    * @param key The key to use to search for the value
    * @param length Return location for the number of returned strings
-   * 
+   *
    * @return An array of NULL-terminated strings or NULL if the specified key cannot
    * be found. The array should be freed by the caller.
    */

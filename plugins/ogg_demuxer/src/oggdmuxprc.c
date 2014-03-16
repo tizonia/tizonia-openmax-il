@@ -30,17 +30,18 @@
 #include <config.h>
 #endif
 
-#include "oggdmuxprc.h"
-#include "oggdmuxprc_decls.h"
+#include <assert.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <limits.h>
 
 #include "tizkernel.h"
 #include "tizscheduler.h"
 #include "tizosal.h"
 
-#include <assert.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
+#include "oggdmuxprc_decls.h"
+#include "oggdmuxprc.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -97,36 +98,46 @@ is_video_content (const OggzStreamContent content)
 static OMX_ERRORTYPE
 obtain_uri (oggdmux_prc_t * ap_prc)
 {
-  void *p_krn = tiz_get_krn (handleOf (ap_prc));
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const long pathname_max = PATH_MAX + NAME_MAX;
+
   assert (NULL != ap_prc);
   assert (NULL == ap_prc->p_uri_param_);
 
   if (NULL == (ap_prc->p_uri_param_ = tiz_mem_calloc
                (1,
-                sizeof (OMX_PARAM_CONTENTURITYPE) + OMX_MAX_STRINGNAME_SIZE)))
+                sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1)))
     {
       TIZ_ERROR (handleOf (ap_prc),
                  "Error allocating memory for the content uri struct");
-      return OMX_ErrorInsufficientResources;
+      rc = OMX_ErrorInsufficientResources;
     }
+  else
+    {
+      ap_prc->p_uri_param_->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
+        + pathname_max + 1;
+      ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
-  ap_prc->p_uri_param_->nSize = sizeof (OMX_PARAM_CONTENTURITYPE)
-    + OMX_MAX_STRINGNAME_SIZE - 1;
-  ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
-
-  tiz_check_omx_err
-    (tiz_api_GetParameter (p_krn, handleOf (ap_prc),
-                           OMX_IndexParamContentURI, ap_prc->p_uri_param_));
-
-  TIZ_NOTICE (handleOf (ap_prc), "URI [%s]", ap_prc->p_uri_param_->contentURI);
-
-  return OMX_ErrorNone;
+      if (OMX_ErrorNone != (rc = tiz_api_GetParameter
+                            (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                             OMX_IndexParamContentURI, ap_prc->p_uri_param_)))
+        {
+          TIZ_ERROR (handleOf (ap_prc),
+                     "[%s] : Error retrieving the URI param from port",
+                     tiz_err_to_str (rc));
+        }
+      else
+        {
+          TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
+                      ap_prc->p_uri_param_->contentURI);
+        }
+    }
+  return rc;
 }
 
 static OMX_ERRORTYPE
 alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
 {
-  void *p_krn = tiz_get_krn (handleOf (ap_prc));
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
 
   assert (NULL != ap_prc);
@@ -136,7 +147,7 @@ alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
   port_def.nPortIndex = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
 
   tiz_check_omx_err
-    (tiz_api_GetParameter (p_krn, handleOf (ap_prc),
+    (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                            OMX_IndexParamPortDefinition, &port_def));
   ap_prc->aud_buf_size_ = port_def.nBufferSize;
 
@@ -147,7 +158,7 @@ alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
 
   port_def.nPortIndex = ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX;
   tiz_check_omx_err
-    (tiz_api_GetParameter (p_krn, handleOf (ap_prc),
+    (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                            OMX_IndexParamPortDefinition, &port_def));
   ap_prc->vid_buf_size_ = port_def.nBufferSize;
 
@@ -420,17 +431,15 @@ get_buffer (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
       else
         {
           tiz_pd_set_t ports;
-          void *p_krn = NULL;
-
-          p_krn = tiz_get_krn (handleOf (ap_prc));
 
           TIZ_PD_ZERO (&ports);
-          if (OMX_ErrorNone == tiz_krn_select (p_krn, 2, &ports))
+          if (OMX_ErrorNone == tiz_krn_select (tiz_get_krn (handleOf (ap_prc)),
+                                               2, &ports))
             {
               if (TIZ_PD_ISSET (a_pid, &ports))
                 {
                   if (OMX_ErrorNone == tiz_krn_claim_buffer
-                      (p_krn, a_pid, 0, pp_hdr))
+                      (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
                     {
                       TIZ_TRACE (handleOf (ap_prc), "Claimed HEADER [%p] "
                                  "pid [%d] nFilledLen [%d]",

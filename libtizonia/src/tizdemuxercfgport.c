@@ -170,17 +170,18 @@ demuxer_cfgport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   switch (a_index)
     {
-
     case OMX_IndexParamContentURI:
       {
         OMX_PARAM_CONTENTURITYPE *p_uri
           = (OMX_PARAM_CONTENTURITYPE *) ap_struct;
         OMX_U32 uri_size =
           p_uri->nSize - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE);
+        const long pathname_max
+          = tiz_pathname_max ((const char * ) p_uri->contentURI);
 
-        if (uri_size > PATH_MAX)
+        if (pathname_max > 0 && uri_size > pathname_max)
         {
-          uri_size = PATH_MAX;
+          uri_size = pathname_max;
         }
 
         tiz_mem_free (p_obj->p_uri_);
