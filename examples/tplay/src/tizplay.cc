@@ -423,12 +423,15 @@ namespace  // unnamed namespace
       exit (EXIT_FAILURE);
     }
 
+    tizplaylist_ptr_t playlist
+        = boost::make_shared< tiz::playlist >(tiz::playlist (file_list));
+
     // Instantiate the decode manager
     tiz::graphmgr::mgr_ptr_t p_mgr
         = boost::make_shared< tiz::graphmgr::decodemgr >();
 
     // TODO: Check return codes
-    p_mgr->init (file_list, graph_error_functor ());
+    p_mgr->init (playlist, graph_error_functor ());
     p_mgr->start ();
 
     while (ETIZPlayUserStop != wait_for_user_input (p_mgr))
@@ -473,8 +476,10 @@ namespace  // unnamed namespace
       fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
     }
 
+    tizplaylist_ptr_t playlist
+        = boost::make_shared< tiz::playlist >(tiz::playlist (file_list));
     tizgraphconfig_ptr_t config
-        = boost::make_shared< tiz::graph::httpservconfig >(file_list, hostname,
+        = boost::make_shared< tiz::graph::httpservconfig >(playlist, hostname,
                                                            ip_address, port);
 
     // Instantiate the http streaming manager
@@ -482,7 +487,7 @@ namespace  // unnamed namespace
         = boost::make_shared< tiz::graphmgr::httpservmgr >(config);
 
     // TODO: Check return codes
-    p_mgr->init (file_list, graph_error_functor ());
+    p_mgr->init (playlist, graph_error_functor ());
     p_mgr->start ();
 
     while (ETIZPlayUserStop != wait_for_user_input_while_streaming ())

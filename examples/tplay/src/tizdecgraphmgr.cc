@@ -54,16 +54,17 @@ graphmgr::decodemgr::~decodemgr ()
 }
 
 graphmgr::ops *graphmgr::decodemgr::do_init (
-    const uri_lst_t &file_list, const error_callback_t &error_cback)
+    const tizplaylist_ptr_t &playlist, const error_callback_t &error_cback)
 {
-  return new decodemgrops (this, file_list, error_cback);
+  return new decodemgrops (this, playlist, error_cback);
 }
 
 //
 // decodemgrops
 //
-graphmgr::decodemgrops::decodemgrops (mgr *p_mgr, const uri_lst_t &file_list,
+graphmgr::decodemgrops::decodemgrops (mgr *p_mgr,
+                                      const tizplaylist_ptr_t &playlist,
                                       const error_callback_t &error_cback)
-  : tiz::graphmgr::ops (p_mgr, file_list, error_cback)
+  : tiz::graphmgr::ops (p_mgr, playlist, error_cback)
 {
 }

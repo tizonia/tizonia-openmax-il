@@ -80,7 +80,7 @@ namespace tiz
           error_callback_t;
 
     public:
-      ops (mgr *p_mgr, const uri_lst_t &file_list,
+      ops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
            const error_callback_t &error_cback);
       virtual ~ops ();
 
@@ -104,12 +104,15 @@ namespace tiz
       OMX_ERRORTYPE get_internal_error () const;
       std::string get_internal_error_msg () const;
 
+      tizplaylist_ptr_t find_next_sub_list () const;
+
     protected:
       virtual tizgraph_ptr_t get_graph (const std::string &uri);
 
     protected:
       mgr *p_mgr_;
-      tizplaylist_t playlist_;
+      tizplaylist_ptr_t playlist_;
+      tizplaylist_ptr_t next_playlist_;
       tizgraphconfig_ptr_t graph_config_;
       tizgraph_ptr_map_t graph_registry_;
       tizgraph_ptr_t p_managed_graph_;

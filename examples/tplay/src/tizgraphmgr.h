@@ -83,7 +83,7 @@ namespace tiz
        * @return OMX_ErrorNone if initialisation was
        * successful. OMX_ErrorInsuficientResources otherwise.
        */
-      OMX_ERRORTYPE init (const uri_lst_t &file_list,
+      OMX_ERRORTYPE init (const tizplaylist_ptr_t &playlist,
                           const error_callback_t &error_cback);
 
       /**
@@ -189,7 +189,7 @@ namespace tiz
       OMX_ERRORTYPE stop ();
 
     protected:
-      virtual ops *do_init (const uri_lst_t &file_list,
+      virtual ops *do_init (const tizplaylist_ptr_t &playlist,
                             const error_callback_t &error_cback) = 0;
 
     protected:

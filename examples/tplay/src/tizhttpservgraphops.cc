@@ -63,10 +63,7 @@ graph::httpservops::httpservops (graph *p_graph,
 
 void graph::httpservops::do_probe ()
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "current_file_index_ [%d]...",
-           current_file_index_);
-  assert (current_file_index_ < file_list_.size ());
-  G_OPS_BAIL_IF_ERROR (probe_uri (current_file_index_), "Unable to probe uri.");
+  G_OPS_BAIL_IF_ERROR (probe_uri (), "Unable to probe uri.");
 }
 
 void graph::httpservops::do_omx_exe2pause ()
@@ -185,11 +182,9 @@ void graph::httpservops::do_flag_initial_config_done ()
 }
 
 OMX_ERRORTYPE
-graph::httpservops::probe_uri (const int uri_index, const bool quiet)
+graph::httpservops::probe_uri (const bool quiet)
 {
-  assert (uri_index < file_list_.size ());
-
-  const std::string &uri = file_list_[uri_index];
+  const std::string &uri = playlist_->get_current_uri ();
 
   if (!uri.empty ())
   {
@@ -244,7 +239,7 @@ graph::httpservops::configure_station ()
   mount.nPortIndex = 0;
 
   bool quiet = true;
-  tiz_check_omx_err (probe_uri (0, quiet));
+  tiz_check_omx_err (probe_uri (quiet));
 
   tizhttpservconfig_ptr_t srv_config
       = boost::dynamic_pointer_cast< httpservconfig >(config_);

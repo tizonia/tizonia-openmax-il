@@ -134,10 +134,7 @@ void graph::opusdecops::do_disable_ports ()
 
 void graph::opusdecops::do_probe ()
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "current_file_index_ [%d]...",
-           current_file_index_);
-  assert (current_file_index_ < file_list_.size ());
-  G_OPS_BAIL_IF_ERROR (probe_uri (current_file_index_), "Unable to probe uri.");
+  G_OPS_BAIL_IF_ERROR (probe_uri (), "Unable to probe uri.");
   G_OPS_BAIL_IF_ERROR (set_opus_settings (),
                        "Unable to set OMX_TizoniaIndexParamAudioOpus");
 }
@@ -165,11 +162,9 @@ void graph::opusdecops::do_configure ()
 }
 
 OMX_ERRORTYPE
-graph::opusdecops::probe_uri (const int uri_index, const bool quiet)
+graph::opusdecops::probe_uri (const bool quiet)
 {
-  assert (uri_index < file_list_.size ());
-
-  const std::string &uri = file_list_[uri_index];
+  const std::string &uri = playlist_->get_current_uri ();
 
   if (!uri.empty ())
   {

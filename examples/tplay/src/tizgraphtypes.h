@@ -32,8 +32,10 @@
 
 #include <set>
 #include <vector>
+#include <deque>
 #include <string>
 #include <map>
+
 #include <boost/shared_ptr.hpp>
 
 #include <OMX_Core.h>
@@ -44,12 +46,13 @@ typedef std::vector< OMX_HANDLETYPE > omx_comp_handle_lst_t;
 typedef std::vector< std::string > omx_comp_role_lst_t;
 typedef std::vector< OMX_EVENTTYPE > omx_event_lst_t;
 typedef std::vector< OMX_STATETYPE > omx_state_lst_t;
-typedef std::vector< std::string > uri_lst_t;
+typedef std::deque< std::string > uri_lst_t;
 typedef std::set< std::string > file_extension_lst_t;
 
 namespace tiz
 {
   class probe;
+  class playlist;
   namespace graph
   {
     class graph;
@@ -64,5 +67,7 @@ typedef boost::shared_ptr< tiz::graph::graph > tizgraph_ptr_t;
 typedef std::map< std::string, tizgraph_ptr_t > tizgraph_ptr_map_t;
 typedef boost::shared_ptr< tiz::graph::config > tizgraphconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
+typedef tiz::playlist tizplaylist_t;
+typedef boost::shared_ptr< tiz::playlist > tizplaylist_ptr_t;
 
 #endif  // TIZGRAPHTYPES_H

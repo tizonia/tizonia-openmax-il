@@ -32,41 +32,50 @@
 
 #include "tizgraphtypes.h"
 
-class tizplaylist;
-typedef tizplaylist tizplaylist_t;
-
-class tizplaylist
+namespace tiz
 {
-
-public:
-  explicit tizplaylist (const uri_lst_t &uri_list = uri_lst_t ());
-  tizplaylist (const tizplaylist &playlist, const int from, const int to);
-
-  tizplaylist get_next_sub_playlist ();
-  uri_lst_t get_sublist (const int from, const int to) const;
-  const uri_lst_t &get_uri_list () const;
-
-  int size () const;
-  bool is_single_format_playlist () const;
-
-  static bool assemble_play_list (const std::string &base_uri,
-                                  const bool shuffle_playlist,
-                                  const bool recurse,
-                                  const file_extension_lst_t &extension_list,
-                                  uri_lst_t &file_list, std::string &error_msg);
-
-private:
-  enum single_format
+  class playlist
   {
-    Unknown,
-    Yes,
-    No
-  };
 
-private:
-  uri_lst_t uri_list_;
-  int current_index_;
-  mutable single_format single_format_list_;
-};
+  public:
+    playlist (const uri_lst_t &uri_list = uri_lst_t ());
+    playlist (const playlist &playlist);
+
+    static bool assemble_play_list (const std::string &base_uri,
+                                    const bool shuffle_playlist,
+                                    const bool recurse,
+                                    const file_extension_lst_t &extension_list,
+                                    uri_lst_t &file_list, std::string &error_msg);
+
+    void skip (const int jump);
+
+    playlist find_next_sub_playlist ();
+    playlist find_previous_sub_playlist ();
+
+    const std::string & get_current_uri () const;
+    uri_lst_t get_sublist (const int from, const int to) const;
+    const uri_lst_t &get_uri_list () const;
+    int size () const;
+    bool is_single_format () const;
+    bool is_last_uri () const;
+
+  private:
+    enum single_format
+      {
+        Unknown,
+        Yes,
+        No
+      };
+
+  private:
+
+    // TODO: Possibly use a shared pointer here to make copy a less expensive
+    // operation
+    uri_lst_t uri_list_;
+    int current_index_;
+    bool is_moving_forward_;
+    mutable single_format is_single_format_;
+  };
+}  // namespace tiz
 
 #endif  // TIZPLAYLIST_H

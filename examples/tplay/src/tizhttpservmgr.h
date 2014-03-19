@@ -53,7 +53,7 @@ namespace tiz
       virtual ~httpservmgr ();
 
     private:
-      ops *do_init (const uri_lst_t &file_list,
+      ops *do_init (const tizplaylist_ptr_t &playlist,
                     const error_callback_t &error_cback);
 
     private:
@@ -65,7 +65,7 @@ namespace tiz
     class httpservmgrops : public ops
     {
     public:
-      httpservmgrops (mgr *p_mgr, const uri_lst_t &file_list,
+      httpservmgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
                       const error_callback_t &error_cback);
 
       void do_load ();

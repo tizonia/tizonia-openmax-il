@@ -481,11 +481,10 @@ graph::util::set_content_uri (const OMX_HANDLETYPE handle,
   // Set the URI
   OMX_PARAM_CONTENTURITYPE *p_uritype = NULL;
   const long pathname_max = tiz_pathname_max (uri.c_str ());
-  const int uri_len = uri.length();
+  const int uri_len = uri.length ();
 
-  if (NULL
-      == (p_uritype = (OMX_PARAM_CONTENTURITYPE *)tiz_mem_calloc (
-          1, sizeof(OMX_PARAM_CONTENTURITYPE) + uri_len + 1))
+  if (NULL == (p_uritype = (OMX_PARAM_CONTENTURITYPE *)tiz_mem_calloc (
+                   1, sizeof(OMX_PARAM_CONTENTURITYPE) + uri_len + 1))
       || uri_len > pathname_max)
   {
     rc = OMX_ErrorInsufficientResources;

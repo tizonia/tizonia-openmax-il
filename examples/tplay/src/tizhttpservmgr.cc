@@ -60,18 +60,18 @@ graphmgr::httpservmgr::~httpservmgr ()
 }
 
 graphmgr::ops *graphmgr::httpservmgr::do_init (
-    const uri_lst_t &file_list, const error_callback_t &error_cback)
+    const tizplaylist_ptr_t &playlist, const error_callback_t &error_cback)
 {
-  return new httpservmgrops (this, file_list, error_cback);
+  return new httpservmgrops (this, playlist, error_cback);
 }
 
 //
 // decodemgrops
 //
 graphmgr::httpservmgrops::httpservmgrops (mgr *p_mgr,
-                                          const uri_lst_t &file_list,
+                                          const tizplaylist_ptr_t &playlist,
                                           const error_callback_t &error_cback)
-  : tiz::graphmgr::ops (p_mgr, file_list, error_cback)
+  : tiz::graphmgr::ops (p_mgr, playlist, error_cback)
 {
 }
 
@@ -124,7 +124,7 @@ void graphmgr::httpservmgrops::do_load ()
   tizgraph_ptr_t g_ptr (get_graph (std::string ()));
   if (g_ptr)
   {
-    const bool continuous_play = true;
+    const bool loop_playback = true;
     assert (p_mgr_);
 
     httpservmgr *p_servermgr = dynamic_cast< httpservmgr * >(p_mgr_);

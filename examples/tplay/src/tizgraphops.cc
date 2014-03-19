@@ -66,8 +66,7 @@ graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
     config_ (),
     expected_transitions_lst_ (),
     expected_port_transitions_lst_ (),
-    file_list_ (),
-    current_file_index_ (0),
+    playlist_ (),
     jump_ (1),
     error_code_ (OMX_ErrorNone),
     error_msg_ ()
@@ -122,8 +121,7 @@ void graph::ops::do_ack_loaded ()
 void graph::ops::do_store_config (const tizgraphconfig_ptr_t &config)
 {
   config_ = config;
-  file_list_ = config_->get_uris ();
-  current_file_index_ = 0;
+  playlist_ = config_->get_playlist ();
 }
 
 void graph::ops::do_disable_ports ()
@@ -244,22 +242,7 @@ void graph::ops::do_skip ()
 {
   if (last_op_succeeded () && 0 != jump_ && !is_end_of_play ())
   {
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "jump_ [%d] current_file_index_ [%d]...",
-             jump_, current_file_index_);
-    current_file_index_ += jump_;
-
-    if (current_file_index_ < 0)
-    {
-      current_file_index_ = file_list_.size () - abs (current_file_index_);
-    }
-
-    if (current_file_index_ >= file_list_.size ())
-    {
-      current_file_index_ %= file_list_.size ();
-    }
-
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "jump_ [%d] new current_file_index_ [%d]...",
-             jump_, current_file_index_);
+    playlist_->skip (jump_);
   }
 }
 
@@ -423,13 +406,9 @@ bool graph::ops::is_end_of_play () const
 {
   bool rc = true;
 
-  if (!file_list_.empty ())
+  if (config_->loop_playback () || !playlist_->is_last_uri ())
   {
-    if (config_->continuous_playback () || current_file_index_
-                                           < file_list_.size () - 1)
-    {
-      rc = false;
-    }
+    rc = false;
   }
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "is_end_of_play [%s]...", rc ? "YES" : "NO");

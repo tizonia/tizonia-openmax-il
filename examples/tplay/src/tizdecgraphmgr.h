@@ -49,7 +49,7 @@ namespace tiz
       virtual ~decodemgr ();
 
     protected:
-      ops *do_init (const uri_lst_t &file_list,
+      ops *do_init (const tizplaylist_ptr_t &playlist,
                     const error_callback_t &error_cback);
     };
 
@@ -58,7 +58,7 @@ namespace tiz
     class decodemgrops : public ops
     {
     public:
-      decodemgrops (mgr *p_mgr, const uri_lst_t &file_list,
+      decodemgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
                     const error_callback_t &error_cback);
     };
   }  // namespace graphmgr

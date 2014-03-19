@@ -43,9 +43,9 @@ namespace tiz
     {
 
     public:
-      httpservconfig (const uri_lst_t &uris, const std::string &host,
+      httpservconfig (const tizplaylist_ptr_t &playlist, const std::string &host,
                       const std::string &ip_address, const long int port)
-        : config (uris), host_ (host), addr_ (ip_address), port_ (port)
+        : config (playlist), host_ (host), addr_ (ip_address), port_ (port)
       {
       }
 

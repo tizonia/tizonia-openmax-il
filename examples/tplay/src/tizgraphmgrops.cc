@@ -22,7 +22,7 @@
  * @file   tizgraphmgrops.cc
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL graph manager operations impl
+ * @brief  Graph manager operations
  *
  */
 
@@ -50,10 +50,11 @@ namespace graphmgr = tiz::graphmgr;
 //
 // ops
 //
-graphmgr::ops::ops (graphmgr::mgr *p_mgr, const uri_lst_t &file_list,
+graphmgr::ops::ops (graphmgr::mgr *p_mgr, const tizplaylist_ptr_t &playlist,
                     const error_callback_t &error_cback)
   : p_mgr_ (p_mgr),
-    playlist_ (file_list),
+    playlist_ (playlist),
+    next_playlist_ (),
     graph_config_ (),
     graph_registry_ (),
     p_managed_graph_ (),
@@ -112,7 +113,7 @@ tizgraph_ptr_t graphmgr::ops::get_graph (const std::string &uri)
     }
     else
     {
-      std::string msg ("Unable to create graph for encoding [");
+      std::string msg ("Unable to create a graph for [");
       msg.append (encoding.c_str ());
       msg.append ("].");
       GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources, msg);
@@ -128,32 +129,47 @@ tizgraph_ptr_t graphmgr::ops::get_graph (const std::string &uri)
 
 void graphmgr::ops::do_load ()
 {
-  tizplaylist_t sub_playlist = playlist_.get_next_sub_playlist ();
-  const uri_lst_t &sub_urilist = sub_playlist.get_uri_list ();
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "sub_urilist size %d", sub_urilist.size ());
+  next_playlist_ = find_next_sub_list ();
 
-  tizgraph_ptr_t g_ptr (get_graph (sub_urilist[0]));
-
-  if (g_ptr)
+  if (next_playlist_)
   {
-    const bool continuous_play
-        = (tizplaylist (sub_urilist).is_single_format_playlist ()
-           && sub_urilist.size () > 1);
-    graph_config_.reset ();
-    graph_config_ = boost::make_shared< tiz::graph::config >(sub_urilist,
-                                                             continuous_play);
+    const uri_lst_t &next_urilist = next_playlist_->get_uri_list ();
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "next_urilist size %d", next_urilist.size ());
 
-    GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (), "Unable to load the graph.");
+    tizgraph_ptr_t g_ptr (get_graph (next_urilist[0]));
+    if (g_ptr)
+    {
+      GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (),
+                              "Unable to load the graph.");
+    }
+    p_managed_graph_ = g_ptr;
   }
-
-  p_managed_graph_ = g_ptr;
+  else
+  {
+    GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources,
+                           "Unable to allocate the next playlist.");
+  }
 }
 
 void graphmgr::ops::do_execute ()
 {
-  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_,
-                          p_managed_graph_->execute (graph_config_),
-                          "Unable to execute the graph.");
+  const bool loop_playback = playlist_->is_single_format ();
+  graph_config_.reset ();
+  graph_config_
+      = boost::make_shared< tiz::graph::config >(next_playlist_, loop_playback);
+
+  if (graph_config_)
+  {
+    GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_,
+                            p_managed_graph_->execute (graph_config_),
+                            "Unable to execute the graph.");
+  }
+  else
+  {
+    GMGR_OPS_RECORD_ERROR (
+        OMX_ErrorInsufficientResources,
+        "Unable to allocate the graph configuration object.");
+  }
 }
 
 void graphmgr::ops::do_unload ()
@@ -227,4 +243,30 @@ graphmgr::ops::get_internal_error () const
 std::string graphmgr::ops::get_internal_error_msg () const
 {
   return error_msg_;
+}
+
+tizplaylist_ptr_t graphmgr::ops::find_next_sub_list () const
+{
+  tizplaylist_ptr_t next_lst;
+  if (playlist_->is_single_format ())
+  {
+    next_lst = playlist_;
+  }
+  else
+  {
+    if (next_playlist_ && next_playlist_->size () > 0)
+    {
+      next_lst = next_playlist_->is_last_uri ()
+                     ? boost::make_shared< tiz::playlist >(
+                           playlist_->find_next_sub_playlist ())
+                     : boost::make_shared< tiz::playlist >(
+                           playlist_->find_previous_sub_playlist ());
+    }
+    else
+    {
+      next_lst = boost::make_shared< tiz::playlist >(
+          playlist_->find_next_sub_playlist ());
+    }
+  }
+  return next_lst;
 }

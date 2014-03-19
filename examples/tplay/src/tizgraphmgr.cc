@@ -85,7 +85,7 @@ void *graphmgr::thread_func (void *p_arg)
 // mgr
 //
 graphmgr::mgr::mgr ()
-  : p_ops_ (NULL),  // this, file_list, error_cback
+  : p_ops_ (NULL),
     fsm_ (boost::msm::back::states_ << graphmgr::fsm::starting (&p_ops_)
                                     << graphmgr::fsm::restarting (&p_ops_)
                                     << graphmgr::fsm::stopping (&p_ops_),
@@ -103,7 +103,7 @@ graphmgr::mgr::~mgr ()
 }
 
 OMX_ERRORTYPE
-graphmgr::mgr::init (const uri_lst_t &file_list,
+graphmgr::mgr::init (const tizplaylist_ptr_t &playlist,
                      const error_callback_t &error_cback)
 {
   // Init command queue infrastructure
@@ -116,7 +116,7 @@ graphmgr::mgr::init (const uri_lst_t &file_list,
   tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
 
   // Init this mgr's operations using the do_init template method
-  tiz_check_null_ret_oom ((p_ops_ = do_init (file_list, error_cback)));
+  tiz_check_null_ret_oom ((p_ops_ = do_init (playlist, error_cback)));
 
   // Let's wait until the manager's thread is ready to receive requests
   tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));

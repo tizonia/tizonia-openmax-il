@@ -146,8 +146,7 @@ namespace tiz
       tizgraphconfig_ptr_t config_;
       omx_event_info_lst_t expected_transitions_lst_;
       omx_event_info_lst_t expected_port_transitions_lst_;
-      uri_lst_t file_list_;
-      int current_file_index_;
+      tizplaylist_ptr_t playlist_;
       int jump_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;

@@ -22,7 +22,7 @@
  * @file   tizgraphconfig.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL graph configuration base class
+ * @brief  Graph configuration base class
  *
  *
  */
@@ -30,8 +30,9 @@
 #ifndef TIZGRAPHCONFIG_H
 #define TIZGRAPHCONFIG_H
 
-#include "tizgraphtypes.h"
 #include <boost/shared_ptr.hpp>
+
+#include "tizgraphtypes.h"
 
 namespace tiz
 {
@@ -42,9 +43,9 @@ namespace tiz
     {
 
     public:
-      explicit config (const uri_lst_t &uris,
-                       const bool continuous_playback = true)
-        : uris_ (uris), continuous_playback_ (continuous_playback)
+      explicit config (const tizplaylist_ptr_t &playlist,
+                       const bool loop_playback = true)
+        : playlist_ (playlist), loop_playback_ (loop_playback)
       {
       }
 
@@ -52,23 +53,19 @@ namespace tiz
       {
       }
 
-      uri_lst_t get_uris () const
+      tizplaylist_ptr_t get_playlist () const
       {
-        return uris_;
-      }
-      void set_uris (const uri_lst_t &uris)
-      {
-        uris_ = uris;
+        return playlist_;
       }
 
-      bool continuous_playback () const
+      bool loop_playback () const
       {
-        return continuous_playback_;
+        return loop_playback_;
       }
 
     protected:
-      uri_lst_t uris_;
-      bool continuous_playback_;
+      tizplaylist_ptr_t playlist_;
+      bool loop_playback_;
     };
 
   }  // namespace graph

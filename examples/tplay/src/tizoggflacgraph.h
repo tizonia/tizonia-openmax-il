@@ -69,7 +69,7 @@ namespace tiz
       void do_configure ();
 
     protected:
-      OMX_ERRORTYPE probe_uri (const int uri_index, const bool quiet = false);
+      OMX_ERRORTYPE probe_uri (const bool quiet = false);
 
     protected:
       bool need_port_settings_changed_evt_;
