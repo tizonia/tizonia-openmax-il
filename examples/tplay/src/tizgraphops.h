@@ -65,6 +65,8 @@ namespace tiz
   {
     class ops
     {
+    public:
+      static const int SKIP_DEFAULT_VALUE = 1;
 
     public:
       ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,

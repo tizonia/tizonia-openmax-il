@@ -67,7 +67,7 @@ graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
     expected_transitions_lst_ (),
     expected_port_transitions_lst_ (),
     playlist_ (),
-    jump_ (1),
+    jump_ (SKIP_DEFAULT_VALUE),
     error_code_ (OMX_ErrorNone),
     error_msg_ ()
 {
@@ -243,6 +243,8 @@ void graph::ops::do_skip ()
   if (last_op_succeeded () && 0 != jump_ && !is_end_of_play ())
   {
     playlist_->skip (jump_);
+    // Reset the jump value, to its default value
+    jump_ = SKIP_DEFAULT_VALUE;
   }
 }
 
