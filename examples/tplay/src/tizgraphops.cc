@@ -406,7 +406,10 @@ bool graph::ops::is_end_of_play () const
 {
   bool rc = true;
 
-  if (config_->loop_playback () || !playlist_->is_last_uri ())
+  assert (playlist_);
+
+  if (playlist_->loop_playback ()
+      || !(playlist_->before_begin () || playlist_->past_end ()))
   {
     rc = false;
   }

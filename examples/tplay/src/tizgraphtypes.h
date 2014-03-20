@@ -46,7 +46,7 @@ typedef std::vector< OMX_HANDLETYPE > omx_comp_handle_lst_t;
 typedef std::vector< std::string > omx_comp_role_lst_t;
 typedef std::vector< OMX_EVENTTYPE > omx_event_lst_t;
 typedef std::vector< OMX_STATETYPE > omx_state_lst_t;
-typedef std::deque< std::string > uri_lst_t;
+typedef std::vector< std::string > uri_lst_t;
 typedef std::set< std::string > file_extension_lst_t;
 
 namespace tiz

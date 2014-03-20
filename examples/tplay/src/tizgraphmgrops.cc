@@ -153,7 +153,8 @@ void graphmgr::ops::do_load ()
 
 void graphmgr::ops::do_execute ()
 {
-  const bool loop_playback = playlist_->is_single_format ();
+  const bool loop_playback = playlist_->single_format ();
+  next_playlist_->set_loop_playback (loop_playback);
   graph_config_.reset ();
   graph_config_
       = boost::make_shared< tiz::graph::config >(next_playlist_, loop_playback);
@@ -248,25 +249,25 @@ std::string graphmgr::ops::get_internal_error_msg () const
 tizplaylist_ptr_t graphmgr::ops::find_next_sub_list () const
 {
   tizplaylist_ptr_t next_lst;
-  if (playlist_->is_single_format ())
+
+  assert (playlist_);
+
+  tiz::playlist::list_direction_t dir = tiz::playlist::DirUp;
+  if (next_playlist_ && next_playlist_->size () > 0)
   {
-    next_lst = playlist_;
+    dir = next_playlist_->past_end () ? tiz::playlist::DirUp
+                                      : tiz::playlist::DirDown;
   }
-  else
+
+  next_lst = boost::make_shared< tiz::playlist >(
+      playlist_->obtain_next_sub_playlist (dir));
+  if (next_playlist_ && next_playlist_->before_begin ())
   {
-    if (next_playlist_ && next_playlist_->size () > 0)
+    if (next_lst)
     {
-      next_lst = next_playlist_->is_last_uri ()
-                     ? boost::make_shared< tiz::playlist >(
-                           playlist_->find_next_sub_playlist ())
-                     : boost::make_shared< tiz::playlist >(
-                           playlist_->find_previous_sub_playlist ());
-    }
-    else
-    {
-      next_lst = boost::make_shared< tiz::playlist >(
-          playlist_->find_next_sub_playlist ());
+      next_lst->set_playback_index (next_lst->size () - 1);
     }
   }
+
   return next_lst;
 }

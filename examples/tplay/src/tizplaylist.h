@@ -38,6 +38,14 @@ namespace tiz
   {
 
   public:
+    enum list_direction_t
+      {
+        DirUp,
+        DirDown,
+        DirMax
+      };
+
+  public:
     playlist (const uri_lst_t &uri_list = uri_lst_t ());
     playlist (const playlist &playlist);
 
@@ -48,19 +56,21 @@ namespace tiz
                                     uri_lst_t &file_list, std::string &error_msg);
 
     void skip (const int jump);
-
-    playlist find_next_sub_playlist ();
-    playlist find_previous_sub_playlist ();
-
+    playlist obtain_next_sub_playlist (const list_direction_t up_or_down);
     const std::string & get_current_uri () const;
     uri_lst_t get_sublist (const int from, const int to) const;
     const uri_lst_t &get_uri_list () const;
+    int current_index () const;
     int size () const;
-    bool is_single_format () const;
-    bool is_last_uri () const;
+    bool single_format () const;
+    bool before_begin () const;
+    bool past_end () const;
+    bool loop_playback () const;
+    void set_loop_playback (const bool loop_playback);
+    void set_playback_index (const int index);
 
   private:
-    enum single_format
+    enum single_format_t
       {
         Unknown,
         Yes,
@@ -69,12 +79,19 @@ namespace tiz
 
   private:
 
+  private:
+
+    void scan_list ();
+    int find_next_sub_list (const int index) const;
+
     // TODO: Possibly use a shared pointer here to make copy a less expensive
     // operation
     uri_lst_t uri_list_;
     int current_index_;
-    bool is_moving_forward_;
-    mutable single_format is_single_format_;
+    bool loop_playback_;
+    std::vector<size_t> sub_list_indexes_;
+    int current_sub_list_;
+    mutable single_format_t single_format_;
   };
 }  // namespace tiz
 

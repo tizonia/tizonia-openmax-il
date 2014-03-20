@@ -136,17 +136,39 @@ namespace  // unnamed namespace
 // playlist
 //
 tiz::playlist::playlist (const uri_lst_t &uri_list /* = uri_lst_t () */)
-  : uri_list_ (uri_list), current_index_ (0), is_single_format_ (Unknown)
+  : uri_list_ (uri_list),
+    current_index_ (0),
+    loop_playback_ (false),
+    sub_list_indexes_ (),
+    current_sub_list_ (-1),
+    single_format_ (Unknown)
 {
-  TIZ_LOG (TIZ_PRIORITY_ERROR, "uri length [%d]", uri_list_.size ());
+  const int list_size = uri_list_.size ();
+  if (list_size)
+  {
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "first uri [%s]", uri_list_[0].c_str ());
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "last list [%s]",
+             uri_list_[uri_list_.size () - 1].c_str ());
+  }
+  scan_list ();
 }
 
 tiz::playlist::playlist (const playlist &copy_from)
   : uri_list_ (copy_from.uri_list_),
     current_index_ (copy_from.current_index_),
-    is_single_format_ (copy_from.is_single_format_)
+    loop_playback_ (copy_from.loop_playback_),
+    sub_list_indexes_ (copy_from.sub_list_indexes_),
+    current_sub_list_ (copy_from.current_sub_list_),
+    single_format_ (copy_from.single_format_)
 {
-  TIZ_LOG (TIZ_PRIORITY_ERROR, "uri length [%d]", uri_list_.size ());
+  const int list_size = uri_list_.size ();
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "uri list size [%d]", list_size);
+  if (list_size)
+  {
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "first uri [%s]", uri_list_[0].c_str ());
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "last list [%s]",
+             uri_list_[uri_list_.size () - 1].c_str ());
+  }
 }
 
 bool tiz::playlist::assemble_play_list (
@@ -219,123 +241,88 @@ end:
 
 void tiz::playlist::skip (const int jump)
 {
+  const int list_size = uri_list_.size ();
   TIZ_LOG (TIZ_PRIORITY_TRACE, "jump [%d] current_index_ [%d]...", jump,
            current_index_);
   current_index_ += jump;
 
-  if (current_index_ < 0)
+  if (loop_playback ())
   {
-    current_index_ = uri_list_.size () - abs (current_index_);
+    if (current_index_ < 0)
+    {
+      current_index_ = list_size - abs (current_index_);
+    }
+    else if (current_index_ >= list_size)
+    {
+      current_index_ %= list_size;
+    }
   }
 
-  if (current_index_ >= uri_list_.size ())
-  {
-    current_index_ %= uri_list_.size ();
-  }
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "jump [%d] new current_index_ [%d]...", jump,
-           current_index_);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "jump [%d] new index [%d]... [%s]", jump,
+           current_index_, current_index_ < list_size && current_index_ >= 0
+                               ? uri_list_[current_index_].c_str ()
+                               : "");
 }
 
 const std::string &tiz::playlist::get_current_uri () const
 {
+  const int list_size = uri_list_.size ();
   TIZ_LOG (TIZ_PRIORITY_TRACE, "uri list size [%d] current_index_ [%d]...",
-           uri_list_.size (), current_index_);
-  assert (current_index_ >= 0 && current_index_ < uri_list_.size ());
+           list_size, current_index_);
+  assert (current_index_ >= 0 && current_index_ < list_size);
   return uri_list_[current_index_];
 }
 
-tiz::playlist tiz::playlist::find_next_sub_playlist ()
+tiz::playlist tiz::playlist::obtain_next_sub_playlist (
+    const list_direction_t up_or_down)
 {
-  if (is_single_format ())
+  if (uri_list_.empty () || single_format ())
   {
     return playlist (get_uri_list ());
   }
   else
   {
-    const size_t list_size = uri_list_.size ();
-    assert (current_index_ < list_size);
-    uri_lst_t new_uri_list;
-    std::string current_extension (
-        boost::filesystem::path (uri_list_[current_index_])
-            .extension ()
-            .string ());
-    for (; current_index_ < list_size; ++current_index_)
+    assert (up_or_down < DirMax);
+    if (up_or_down == DirUp)
     {
-      std::string extension (boost::filesystem::path (uri_list_[current_index_])
-                                 .extension ()
-                                 .string ());
-      if (extension.compare (current_extension) == 0)
+      const int sub_lists = sub_list_indexes_.size () - 1;
+      current_sub_list_++;
+      if (current_sub_list_ >= sub_lists)
       {
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "Adding %s",
-                 uri_list_[current_index_].c_str ());
-        new_uri_list.push_back (uri_list_[current_index_]);
-      }
-      else
-      {
-        break;
+        current_sub_list_ = 0;
       }
     }
-
-    if (current_index_ >= list_size)
+    else
     {
-      current_index_ = 0;
-    }
-
-    playlist new_list (new_uri_list);
-    assert (new_list.is_single_format ());
-    return new_list;
-  }
-}
-
-tiz::playlist tiz::playlist::find_previous_sub_playlist ()
-{
-  if (is_single_format ())
-  {
-    return playlist (get_uri_list ());
-  }
-  else
-  {
-    const size_t list_size = uri_list_.size ();
-    assert (current_index_ < list_size);
-    uri_lst_t new_uri_list;
-    std::string current_extension (
-        boost::filesystem::path (uri_list_[current_index_])
-            .extension ()
-            .string ());
-    for (; current_index_ >= 0; --current_index_)
-    {
-      std::string extension (boost::filesystem::path (uri_list_[current_index_])
-                                 .extension ()
-                                 .string ());
-      if (extension.compare (current_extension) == 0)
+      if (current_sub_list_ <= 0)
       {
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "Adding %s",
-                 uri_list_[current_index_].c_str ());
-        // Insert at the front
-        new_uri_list.push_front (uri_list_[current_index_]);
+        current_sub_list_ = sub_list_indexes_.size () - 1;
       }
-      else
-      {
-        break;
-      }
+      --current_sub_list_;
     }
 
-    if (current_index_ < 0)
-    {
-      current_index_ = 0;
-    }
+    size_t index1 = sub_list_indexes_[current_sub_list_];
+    size_t index2 = sub_list_indexes_[current_sub_list_ + 1];
+    uri_lst_t::const_iterator first = uri_list_.begin () + index1;
+    uri_lst_t::const_iterator last = uri_list_.begin () + index2;
 
-    playlist new_list (new_uri_list);
-    assert (new_list.is_single_format ());
+    TIZ_LOG (TIZ_PRIORITY_TRACE,
+             "current_sub_list_ [%d] index1 [%d] index2_ [%d]...",
+             current_sub_list_, index1, index2);
+
+    playlist new_list (uri_lst_t (first, last));
+    assert (new_list.single_format ());
+    current_index_ = index1;
+
     return new_list;
   }
 }
 
 uri_lst_t tiz::playlist::get_sublist (const int from, const int to) const
 {
+  const int list_size = uri_list_.size ();
   uri_lst_t new_list;
-  if (from >= 0 && to < uri_list_.size () && from < to)
+  if (from >= 0 && to < list_size && from < to)
   {
     // .assign: Replaces the vector contents with copies of those in the
     // range [first, last)
@@ -349,42 +336,163 @@ const uri_lst_t &tiz::playlist::get_uri_list () const
   return uri_list_;
 }
 
+int tiz::playlist::current_index () const
+{
+  return current_index_;
+}
+
 int tiz::playlist::size () const
 {
   return uri_list_.size ();
 }
 
-bool tiz::playlist::is_single_format () const
+bool tiz::playlist::single_format () const
 {
-  if (Unknown == is_single_format_)
+  if (!uri_list_.empty ())
   {
-    is_single_format_ = Yes;
+    if (Unknown == single_format_)
+    {
+      single_format_ = Yes;
+      try
+      {
+        const int list_size = uri_list_.size ();
+        std::string current_extension (
+            boost::filesystem::path (uri_list_[0]).extension ().string ());
+        boost::algorithm::to_lower (current_extension);
 
-    const size_t list_size = uri_list_.size ();
+        for (int i = 0; i < list_size; ++i)
+        {
+          std::string extension (
+              boost::filesystem::path (uri_list_[i]).extension ().string ());
+          boost::algorithm::to_lower (extension);
+          if (extension.compare (current_extension) != 0)
+          {
+            single_format_ = No;
+            break;
+          }
+        }
+        assert (Yes == single_format_ || No == single_format_);
+
+        TIZ_LOG (TIZ_PRIORITY_TRACE, "Is single format? [%s]",
+                 single_format_ == Yes ? "YES" : "NO");
+      }
+      catch (std::exception const &e)
+      {
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]", e.what ());
+      }
+      catch (...)
+      {
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "[Unknown exception]");
+      }
+    }
+  }
+  return (single_format_ == Yes);
+}
+
+bool tiz::playlist::before_begin () const
+{
+  bool before_begin = (current_index_ < 0);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "current_index_ [%d] before begin? [%s]",
+           current_index_, before_begin ? "YES" : "NO");
+  return before_begin;
+}
+
+bool tiz::playlist::past_end () const
+{
+  const int list_size = uri_list_.size ();
+  bool past_end = false;
+  if (current_index_ >= list_size)
+  {
+    past_end = true;
+  }
+  TIZ_LOG (TIZ_PRIORITY_TRACE,
+           "current_index_ [%d] uri_list_.size () [%d] past end? [%s]",
+           current_index_, list_size, past_end ? "YES" : "NO");
+  return past_end;
+}
+
+bool tiz::playlist::loop_playback () const
+{
+  return loop_playback_;
+}
+
+void tiz::playlist::set_loop_playback (const bool loop_playback)
+{
+  loop_playback_ = loop_playback;
+}
+
+void tiz::playlist::set_playback_index (const int index)
+{
+  if (!uri_list_.empty ())
+  {
+    const int list_size = uri_list_.size ();
+    int capped_index = index;
+    if (capped_index >= list_size)
+    {
+      capped_index %= list_size;
+    }
+    else if (capped_index < 0)
+    {
+      capped_index = list_size - abs (capped_index);
+    }
+
+    assert (capped_index >= 0 && capped_index < list_size);
+    TIZ_LOG (TIZ_PRIORITY_TRACE,
+             "current_index_ [%d] index [%d] new index [%d]", current_index_,
+             index, capped_index);
+    current_index_ = capped_index;
+  }
+}
+
+void tiz::playlist::scan_list ()
+{
+  if (!uri_list_.empty ())
+  {
+    int index = 0;
+    while (index < size ())
+    {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "new sub list at index [%d]", index);
+      sub_list_indexes_.push_back (index);
+      index = find_next_sub_list (index);
+    }
+    // For convenience, push one more index, a "last" index...
+    sub_list_indexes_.push_back (uri_list_.size ());
+  }
+}
+
+int tiz::playlist::find_next_sub_list (const int index) const
+{
+  const int list_size = uri_list_.size ();
+  int cur_idx = index;
+  assert (cur_idx < list_size);
+
+  try
+  {
     std::string current_extension (
-        boost::filesystem::path (uri_list_[0]).extension ().string ());
-    for (int i = 0; i < list_size; ++i)
+        boost::filesystem::path (uri_list_[cur_idx]).extension ().string ());
+    boost::algorithm::to_lower (current_extension);
+
+    for (; cur_idx < list_size; ++cur_idx)
     {
       std::string extension (
-          boost::filesystem::path (uri_list_[i]).extension ().string ());
-      if (extension.compare (current_extension) != 0)
+          boost::filesystem::path (uri_list_[cur_idx]).extension ().string ());
+      boost::algorithm::to_lower (extension);
+      if (!extension.compare (current_extension) == 0)
       {
-        is_single_format_ = No;
         break;
       }
     }
   }
+  catch (std::exception const &e)
+  {
+    cur_idx = list_size;
+    TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]", e.what ());
+  }
+  catch (...)
+  {
+    cur_idx = list_size;
+    TIZ_LOG (TIZ_PRIORITY_ERROR, "[Unknown exception]");
+  }
 
-  assert (Yes == is_single_format_ || No == is_single_format_);
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Is single format? [%s]",
-           is_single_format_ == Yes ? "YES" : "NO");
-
-  return (is_single_format_ == Yes);
-}
-
-bool tiz::playlist::is_last_uri () const
-{
-  assert (uri_list_.size () > 0);
-  return current_index_ == (uri_list_.size () - 1);
+  return cur_idx;
 }
