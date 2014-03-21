@@ -195,6 +195,7 @@ graph::httpservops::probe_uri (const bool quiet)
     if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
         || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
     {
+      tiz::graph::util::dump_graph_info ("Unknown format", "skip", uri);
       return OMX_ErrorContentURIError;
     }
     if (!quiet)

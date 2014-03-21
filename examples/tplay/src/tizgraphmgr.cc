@@ -283,14 +283,14 @@ bool graphmgr::mgr::dispatch_cmd (graphmgr::mgr *p_mgr,
   // Check for internal errors produced during the processing of the last
   // event. If any, inject an "internal" error event. This is fatal and shall
   // terminate the state machine.
-  if (OMX_ErrorNone != p_mgr->p_ops_->get_internal_error ())
+  if (OMX_ErrorNone != p_mgr->p_ops_->internal_error ())
   {
     TIZ_LOG (TIZ_PRIORITY_ERROR,
              "MGR error detected. Injecting err_evt (this is fatal)");
     bool is_internal_error = true;
     p_mgr->fsm_.process_event (graphmgr::err_evt (
-        p_mgr->p_ops_->get_internal_error (),
-        p_mgr->p_ops_->get_internal_error_msg (), is_internal_error));
+        p_mgr->p_ops_->internal_error (), p_mgr->p_ops_->internal_error_msg (),
+        is_internal_error));
   }
   if (p_mgr->fsm_.terminated_)
   {

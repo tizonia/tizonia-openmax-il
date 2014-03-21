@@ -101,8 +101,8 @@ namespace tiz
       virtual void do_report_fatal_error (const OMX_ERRORTYPE error,
                                           const std::string &msg);
 
-      OMX_ERRORTYPE get_internal_error () const;
-      std::string get_internal_error_msg () const;
+      OMX_ERRORTYPE internal_error () const;
+      std::string internal_error_msg () const;
 
       tizplaylist_ptr_t find_next_sub_list () const;
 

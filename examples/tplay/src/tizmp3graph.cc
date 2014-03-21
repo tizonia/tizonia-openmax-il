@@ -94,10 +94,10 @@ bool graph::mp3decoder::dispatch_cmd (const tiz::graph::cmd *p_cmd)
     // Check for internal errors produced during the processing of the last
     // event. If any, inject an "internal" error event. This is fatal and shall
     // terminate the state machine.
-    if (OMX_ErrorNone != p_ops_->get_internal_error ())
+    if (OMX_ErrorNone != p_ops_->internal_error ())
     {
-      fsm_.process_event (tiz::graph::err_evt (
-          p_ops_->get_internal_error (), p_ops_->get_internal_error_msg ()));
+      fsm_.process_event (tiz::graph::err_evt (p_ops_->internal_error (),
+                                               p_ops_->internal_error_msg ()));
     }
 
     if (fsm_.terminated_)
@@ -168,6 +168,7 @@ graph::mp3decops::probe_uri (const bool quiet)
     if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
         || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
     {
+      tiz::graph::util::dump_graph_info ("Unknown format", "skip", uri);
       return OMX_ErrorContentURIError;
     }
     if (!quiet)

@@ -236,12 +236,12 @@ void graphmgr::ops::do_report_fatal_error (const OMX_ERRORTYPE error,
 }
 
 OMX_ERRORTYPE
-graphmgr::ops::get_internal_error () const
+graphmgr::ops::internal_error () const
 {
   return error_code_;
 }
 
-std::string graphmgr::ops::get_internal_error_msg () const
+std::string graphmgr::ops::internal_error_msg () const
 {
   return error_msg_;
 }

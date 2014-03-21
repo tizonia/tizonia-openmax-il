@@ -326,13 +326,19 @@ void graph::ops::do_ack_unloaded ()
   }
 }
 
+void graph::ops::do_reset_internal_error ()
+{
+  error_code_ = OMX_ErrorNone;
+  error_msg_.clear ();
+}
+
 OMX_ERRORTYPE
-graph::ops::get_internal_error () const
+graph::ops::internal_error () const
 {
   return error_code_;
 }
 
-std::string graph::ops::get_internal_error_msg () const
+std::string graph::ops::internal_error_msg () const
 {
   return error_msg_;
 }
@@ -417,6 +423,20 @@ bool graph::ops::is_end_of_play () const
   }
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "is_end_of_play [%s]...", rc ? "YES" : "NO");
+  return rc;
+}
+
+bool graph::ops::is_probing_result_ok () const
+{
+  bool rc = true;
+  const OMX_ERRORTYPE int_error = internal_error ();
+  if (OMX_ErrorNone != int_error)
+  {
+    rc = false;
+  }
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] : is_probing_result_ok [%s]...",
+           tiz_err_to_str (int_error), rc ? "YES" : "NO");
   return rc;
 }
 

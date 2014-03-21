@@ -347,6 +347,19 @@ namespace tiz
       }
     };
 
+    struct do_reset_internal_error
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_reset_internal_error ();
+        }
+      }
+    };
+
   }  // namespace graph
 }  // namespace tiz
 

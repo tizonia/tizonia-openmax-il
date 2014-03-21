@@ -177,6 +177,16 @@ namespace tiz
                                                                                                                              do_configure,
                                                                                                                              do_omx_loaded2idle > >           , boost::msm::front::euml::Not_<
                                                                                                                                                                   is_port_settings_evt_required >      >,
+          boost::msm::front::Row < probing                     , boost::msm::front::none  , conf_exit                  , boost::msm::front::none              , is_end_of_play                         >,
+          boost::msm::front::Row < probing                     , boost::msm::front::none  , probing                    , boost::msm::front::ActionSequence_<
+                                                                                                                           boost::mpl::vector<
+                                                                                                                             do_reset_internal_error,
+                                                                                                                             do_skip,
+                                                                                                                             do_probe > >                     , boost::msm::front::euml::And_<
+                                                                                                                                                                  boost::msm::front::euml::Not_<
+                                                                                                                                                                    is_end_of_play >,
+                                                                                                                                                                  boost::msm::front::euml::Not_<
+                                                                                                                                                                    is_probing_result_ok > >           >,
           //    +-----------------+----------------------------+--------------------------+----------------------------+--------------------------------------+----------------------------------------+
           boost::msm::front::Row < awaiting_port_settings_evt  , omx_port_settings_evt    , config2idle                , boost::msm::front::ActionSequence_<
                                                                                                                            boost::mpl::vector<
@@ -301,6 +311,14 @@ namespace tiz
                                  ::exit_pt
                                  <configuring_
                                   ::conf_exit>, configured_evt , executing               , do_ack_execd                                   >,
+        boost::msm::front::Row < configuring
+                                 ::exit_pt
+                                 <configuring_
+                                  ::conf_exit>, configured_evt , unloaded                , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               do_end_of_play,
+                                                                                               do_tear_down_tunnels,
+                                                                                               do_destroy_graph> > , is_end_of_play       >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < executing   , skip_evt        , skipping                , do_store_skip                                  >,
         boost::msm::front::Row < executing   , seek_evt        , boost::msm::front::none , do_seek                                        >,
