@@ -466,7 +466,7 @@ namespace  // unnamed namespace
       exit (EXIT_FAILURE);
     }
 
-    // Retrieve teh hostname
+    // Retrieve the hostname
     // TODO: Error handling
     if (0 == gethostname (hostname, sizeof(hostname)))
     {

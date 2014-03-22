@@ -69,6 +69,7 @@ namespace tiz
                       const error_callback_t &error_cback);
 
       void do_load ();
+      void do_execute ();
 
     private:
       tizgraph_ptr_t get_graph (const std::string &uri);

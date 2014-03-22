@@ -119,20 +119,52 @@ tizgraph_ptr_t graphmgr::httpservmgrops::get_graph (
 
 void graphmgr::httpservmgrops::do_load ()
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  next_playlist_ = find_next_sub_list ();
 
-  tizgraph_ptr_t g_ptr (get_graph (std::string ()));
-  if (g_ptr)
+  if (next_playlist_)
   {
-    const bool loop_playback = true;
-    assert (p_mgr_);
+    const uri_lst_t &next_urilist = next_playlist_->get_uri_list ();
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "next_urilist size %d", next_urilist.size ());
 
-    httpservmgr *p_servermgr = dynamic_cast< httpservmgr * >(p_mgr_);
-    assert (p_servermgr);
-    graph_config_.reset ();
-    graph_config_ = p_servermgr->config_;
-    GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (), "Unable to load the graph.");
+    tizgraph_ptr_t g_ptr (get_graph (std::string ()));
+    if (g_ptr)
+    {
+      GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (),
+                              "Unable to load the graph.");
+    }
+    p_managed_graph_ = g_ptr;
   }
+  else
+  {
+    GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources,
+                           "Unable to allocate the next playlist.");
+  }
+}
 
-  p_managed_graph_ = g_ptr;
+void graphmgr::httpservmgrops::do_execute ()
+{
+  assert (playlist_);
+  assert (next_playlist_);
+
+  const bool loop_playback = playlist_->single_format ();
+  next_playlist_->set_loop_playback (loop_playback);
+
+  assert (p_mgr_);
+  httpservmgr *p_servermgr = dynamic_cast< httpservmgr * >(p_mgr_);
+  assert (p_servermgr);
+  graph_config_.reset ();
+  graph_config_ = p_servermgr->config_;
+
+  if (graph_config_)
+  {
+    GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_,
+                            p_managed_graph_->execute (graph_config_),
+                            "Unable to execute the graph.");
+  }
+  else
+  {
+    GMGR_OPS_RECORD_ERROR (
+        OMX_ErrorInsufficientResources,
+        "Unable to allocate the graph configuration object.");
+  }
 }

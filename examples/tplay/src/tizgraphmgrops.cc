@@ -153,6 +153,9 @@ void graphmgr::ops::do_load ()
 
 void graphmgr::ops::do_execute ()
 {
+  assert (playlist_);
+  assert (next_playlist_);
+
   const bool loop_playback = playlist_->single_format ();
   next_playlist_->set_loop_playback (loop_playback);
   graph_config_.reset ();
