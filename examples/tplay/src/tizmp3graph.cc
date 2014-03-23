@@ -157,6 +157,7 @@ void graph::mp3decops::do_configure ()
 OMX_ERRORTYPE
 graph::mp3decops::probe_uri (const bool quiet)
 {
+  assert (playlist_);
   const std::string &uri = playlist_->get_current_uri ();
 
   if (!uri.empty ())
@@ -169,6 +170,8 @@ graph::mp3decops::probe_uri (const bool quiet)
         || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
     {
       tiz::graph::util::dump_graph_info ("Unknown format", "skip", uri);
+      playlist_->erase_uri (playlist_->current_index ());
+      playlist_->set_index (playlist_->current_index () - 1);
       return OMX_ErrorContentURIError;
     }
     if (!quiet)

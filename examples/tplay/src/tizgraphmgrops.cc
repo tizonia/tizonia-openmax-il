@@ -268,7 +268,7 @@ tizplaylist_ptr_t graphmgr::ops::find_next_sub_list () const
   {
     if (next_lst)
     {
-      next_lst->set_playback_index (next_lst->size () - 1);
+      next_lst->set_index (next_lst->size () - 1);
     }
   }
 

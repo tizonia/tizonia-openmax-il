@@ -67,7 +67,8 @@ namespace tiz
     bool past_end () const;
     bool loop_playback () const;
     void set_loop_playback (const bool loop_playback);
-    void set_playback_index (const int index);
+    void set_index (const int index);
+    void erase_uri (const int index);
 
   private:
     enum single_format_t

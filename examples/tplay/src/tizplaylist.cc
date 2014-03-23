@@ -421,11 +421,11 @@ void tiz::playlist::set_loop_playback (const bool loop_playback)
   loop_playback_ = loop_playback;
 }
 
-void tiz::playlist::set_playback_index (const int index)
+void tiz::playlist::set_index (const int index)
 {
   if (!uri_list_.empty ())
   {
-    const int list_size = uri_list_.size ();
+    const int list_size = size ();
     int capped_index = index;
     if (capped_index >= list_size)
     {
@@ -442,6 +442,16 @@ void tiz::playlist::set_playback_index (const int index)
              index, capped_index);
     current_index_ = capped_index;
   }
+}
+
+void tiz::playlist::erase_uri (const int index)
+{
+  const int list_size = size ();
+  assert (index < list_size);
+  if (index < list_size)
+    {
+      uri_list_.erase (uri_list_.begin () + index);
+    }
 }
 
 void tiz::playlist::scan_list ()
