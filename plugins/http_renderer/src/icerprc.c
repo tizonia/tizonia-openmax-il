@@ -32,13 +32,13 @@
 #include <config.h>
 #endif
 
-#include "icerprc_decls.h"
-#include "tizkernel.h"
-#include "tizscheduler.h"
+#include <assert.h>
 
 #include "OMX_Core.h"
 
-#include <assert.h>
+#include "icerprc_decls.h"
+#include "tizkernel.h"
+#include "tizscheduler.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -49,14 +49,29 @@ static OMX_ERRORTYPE
 icer_prc_config_change (const void    *ap_obj, OMX_U32 a_pid,
                         OMX_INDEXTYPE  a_config_idx);
 
+OMX_ERRORTYPE
+release_buffers (icer_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+
+  if (NULL != ap_prc->p_inhdr_)
+    {
+      tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), 0,
+                                                 ap_prc->p_inhdr_));
+      ap_prc->p_inhdr_ = NULL;
+    }
+
+  return OMX_ErrorNone;
+}
+
 static OMX_ERRORTYPE
-stream_to_clients (icer_prc_t * ap_obj, OMX_HANDLETYPE ap_hdl)
+stream_to_clients (icer_prc_t * ap_prc, OMX_HANDLETYPE ap_hdl)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_obj);
-  if (ap_obj->p_server_)
+  assert (NULL != ap_prc);
+  if (ap_prc->p_server_)
     {
-      rc = icer_net_write_to_listeners (ap_obj->p_server_);
+      rc = icer_net_write_to_listeners (ap_prc->p_server_);
       switch (rc)
         {
         case OMX_ErrorNoMore:
@@ -340,9 +355,10 @@ icer_prc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 icer_prc_stop_and_return (void *ap_obj)
 {
-  icer_prc_t *p_obj = ap_obj;
-  assert (NULL != ap_obj);
-  return icer_net_stop_listening (p_obj->p_server_);
+  icer_prc_t *p_prc = ap_obj;
+  assert (NULL != p_prc);
+  (void) release_buffers (p_prc);
+  return icer_net_stop_listening (p_prc->p_server_);
 }
 
 /*
@@ -359,6 +375,95 @@ icer_prc_buffers_ready (const void *ap_obj)
       return stream_to_clients (p_obj, handleOf (p_obj));
     }
   return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+icer_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
+{
+  icer_prc_t *p_obj = (icer_prc_t *) ap_obj;
+  OMX_HANDLETYPE p_hdl = handleOf (p_obj);
+  void *p_krn = tiz_get_krn (p_hdl);
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
+  assert (NULL != p_krn);
+  assert (0 == a_pid);
+
+  p_obj->port_disabled_ = false;
+
+  if (OMX_ErrorNone !=
+      (rc = retrieve_mp3_settings (p_obj, &(p_obj->mp3type_))))
+    {
+      return rc;
+    }
+
+  icer_net_set_mp3_settings (p_obj->p_server_, p_obj->mp3type_.nBitRate,
+                             p_obj->mp3type_.nChannels,
+                             p_obj->mp3type_.nSampleRate);
+
+  icer_prc_config_change (p_obj, 0, OMX_TizoniaIndexConfigIcecastMetadata);
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+icer_prc_port_disable (const void *ap_obj, OMX_U32 a_pid)
+{
+  icer_prc_t *p_prc = (icer_prc_t *) ap_obj;
+  p_prc->port_disabled_ = true;
+  return release_buffers (p_prc);
+}
+
+static OMX_ERRORTYPE
+icer_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
+                        OMX_INDEXTYPE a_config_idx)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const icer_prc_t *p_obj = ap_obj;
+
+  assert (NULL != ap_obj);
+
+  if (NULL == p_obj->p_server_)
+    {
+      return OMX_ErrorNone;
+    }
+
+  if (OMX_TizoniaIndexConfigIcecastMetadata == a_config_idx
+      && 0 == a_pid)
+    {
+      OMX_HANDLETYPE p_hdl = handleOf (p_obj);
+      void *p_krn = tiz_get_krn (p_hdl);
+      OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata = NULL;
+
+      if (NULL == (p_metadata
+                   = (OMX_TIZONIA_ICECASTMETADATATYPE *) tiz_mem_calloc
+                   (1, sizeof (OMX_TIZONIA_ICECASTMETADATATYPE)
+                    + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)))
+        {
+          return OMX_ErrorInsufficientResources;
+        }
+
+      /* Retrieve the updated icecast metadata from the input port */
+      p_metadata->nSize = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE)
+        + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE;
+      p_metadata->nVersion.nVersion = OMX_VERSION;
+      p_metadata->nPortIndex = 0;
+      if (OMX_ErrorNone
+          != (rc = tiz_api_GetConfig (p_krn, p_hdl,
+                                      OMX_TizoniaIndexConfigIcecastMetadata,
+                                      p_metadata)))
+        {
+          TIZ_ERROR (p_hdl, "[%s] : Error retrieving "
+                     "OMX_TizoniaIndexConfigIcecastMetadata from port",
+                     tiz_err_to_str (rc));
+        }
+      else
+        {
+          icer_net_set_icecast_metadata (p_obj->p_server_,
+                                         p_metadata->cStreamTitle);
+        }
+    }
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -397,95 +502,6 @@ icer_prc_timer_ready (void *ap_obj, tiz_event_timer_t * ap_ev_timer,
   assert (NULL != p_obj);
   TIZ_NOTICE (handleOf (p_obj), "Received timer event ");
   return stream_to_clients (p_obj, handleOf (p_obj));
-}
-
-static OMX_ERRORTYPE
-icer_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
-{
-  icer_prc_t *p_obj = (icer_prc_t *) ap_obj;
-  OMX_HANDLETYPE p_hdl = handleOf (p_obj);
-  void *p_krn = tiz_get_krn (p_hdl);
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-
-  assert (NULL != ap_obj);
-  assert (NULL != p_krn);
-  assert (0 == a_pid);
-
-  p_obj->port_disabled_ = false;
-
-  if (OMX_ErrorNone !=
-      (rc = retrieve_mp3_settings (p_obj, &(p_obj->mp3type_))))
-    {
-      return rc;
-    }
-
-  icer_net_set_mp3_settings (p_obj->p_server_, p_obj->mp3type_.nBitRate,
-                             p_obj->mp3type_.nChannels,
-                             p_obj->mp3type_.nSampleRate);
-
-  icer_prc_config_change (p_obj, 0, OMX_TizoniaIndexConfigIcecastMetadata);
-  
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-icer_prc_port_disable (const void *ap_obj, OMX_U32 a_pid)
-{
-  icer_prc_t *p_obj = (icer_prc_t *) ap_obj;
-  p_obj->port_disabled_ = true;
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-icer_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
-                        OMX_INDEXTYPE a_config_idx)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const icer_prc_t *p_obj = ap_obj;
-
-  assert (NULL != ap_obj);
-
-  if (NULL == p_obj->p_server_)
-    {
-      return OMX_ErrorNone;
-    }
-  
-  if (OMX_TizoniaIndexConfigIcecastMetadata == a_config_idx
-      && 0 == a_pid)
-    {
-      OMX_HANDLETYPE p_hdl = handleOf (p_obj);
-      void *p_krn = tiz_get_krn (p_hdl);
-      OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata = NULL;
-
-      if (NULL == (p_metadata
-                   = (OMX_TIZONIA_ICECASTMETADATATYPE *) tiz_mem_calloc
-                   (1, sizeof (OMX_TIZONIA_ICECASTMETADATATYPE)
-                    + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)))
-        {
-          return OMX_ErrorInsufficientResources;
-        }
-
-      /* Retrieve the updated icecast metadata from the input port */
-      p_metadata->nSize = sizeof (OMX_TIZONIA_ICECASTMETADATATYPE)
-        + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE;
-      p_metadata->nVersion.nVersion = OMX_VERSION;
-      p_metadata->nPortIndex = 0;
-      if (OMX_ErrorNone
-          != (rc = tiz_api_GetConfig (p_krn, p_hdl,
-                                      OMX_TizoniaIndexConfigIcecastMetadata,
-                                      p_metadata)))
-        {
-          TIZ_ERROR (p_hdl, "[%s] : Error retrieving "
-                     "OMX_TizoniaIndexConfigIcecastMetadata from port",
-                     tiz_err_to_str (rc));
-        }
-      else
-        {
-          icer_net_set_icecast_metadata (p_obj->p_server_,
-                                         p_metadata->cStreamTitle);
-        }
-    }
-  return rc;
 }
 
 /*
