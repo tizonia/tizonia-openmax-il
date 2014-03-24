@@ -34,6 +34,7 @@
 #include <stdlib.h>
 
 #include <boost/make_shared.hpp>
+#include <boost/mem_fn.hpp>
 
 #include <tizosal.h>
 #include <tizmacros.h>
@@ -525,5 +526,77 @@ bool graph::ops::is_port_transition_complete (
       }
     }
   }
+  return rc;
+}
+
+OMX_ERRORTYPE
+graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
+                          const int omx_coding, const std::string &graph_id,
+                          const std::string &graph_action,
+                          stream_info_dump_func_t stream_info_dump_f,
+                          const bool quiet  // = false
+                          )
+{
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
+  assert (playlist_);
+
+  const std::string &uri = playlist_->get_current_uri ();
+  assert (!uri.empty ());
+
+  // Probe a new uri
+  probe_ptr_.reset ();
+  bool quiet_probing = true;
+  probe_ptr_ = boost::make_shared< tiz::probe >(uri, quiet_probing);
+
+  if (probe_ptr_)
+  {
+    bool omx_coding_found = false;
+    switch (omx_domain)
+    {
+      case OMX_PortDomainAudio:
+      {
+        const int coding = probe_ptr_->get_audio_coding_type ();
+        omx_coding_found = coding == omx_coding;
+      }
+      break;
+      case OMX_PortDomainVideo:
+      {
+        const int coding = probe_ptr_->get_video_coding_type ();
+        omx_coding_found = coding == omx_coding;
+      }
+      break;
+      case OMX_PortDomainImage:
+      case OMX_PortDomainOther:
+      default:
+      {
+        assert (0);
+      }
+      break;
+    };
+
+    if (probe_ptr_->get_omx_domain () != omx_domain || !omx_coding_found)
+    {
+      // The current uri is not what we expected. So skip it and erase it from
+      // the playlist so that we don't attempt the playback again.
+      tiz::graph::util::dump_graph_info ("Unknown format", "skip", uri);
+      playlist_->erase_uri (playlist_->current_index ());
+      playlist_->set_index (playlist_->current_index () - 1);
+      rc = OMX_ErrorContentURIError;
+    }
+    else
+    {
+      if (!quiet)
+      {
+        tiz::graph::util::dump_graph_info (graph_id.c_str (),
+                                           graph_action.c_str (), uri);
+        probe_ptr_->dump_stream_metadata ();
+        boost::bind (boost::mem_fn (stream_info_dump_f), probe_ptr_)();
+      }
+
+      // Everything went well..
+      rc = OMX_ErrorNone;
+    }
+  }
+
   return rc;
 }

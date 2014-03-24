@@ -32,6 +32,9 @@
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
+
+#include <string>
 
 #include <tizosal.h>
 #include <OMX_Core.h>
@@ -140,6 +143,14 @@ namespace tiz
       bool is_port_transition_complete (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           const OMX_COMMANDTYPE disable_or_enable);
+
+      typedef void (tiz::probe::*stream_info_dump_func_t) (void);
+      OMX_ERRORTYPE probe_stream (const OMX_PORTDOMAINTYPE   omx_domain,
+                                  const int                  omx_coding,
+                                  const std::string        & graph_id,
+                                  const std::string        & graph_action,
+                                  stream_info_dump_func_t stream_info_dump_f,
+                                  const bool quiet = false);
 
     protected:
       graph *p_graph_;

@@ -64,7 +64,6 @@ namespace tiz
       void do_flag_initial_config_done ();
 
     private:
-      OMX_ERRORTYPE probe_uri (const bool quiet = false);
       OMX_ERRORTYPE configure_server ();
       OMX_ERRORTYPE configure_station ();
       OMX_ERRORTYPE configure_stream_metadata ();

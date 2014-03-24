@@ -63,7 +63,10 @@ graph::httpservops::httpservops (graph *p_graph,
 
 void graph::httpservops::do_probe ()
 {
-  G_OPS_BAIL_IF_ERROR (probe_uri (), "Unable to probe uri.");
+  G_OPS_BAIL_IF_ERROR (
+      probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingMP3, "mp3/http",
+                    "stream", &tiz::probe::dump_mp3_info),
+      "Unable to probe the stream.");
 }
 
 void graph::httpservops::do_omx_exe2pause ()
@@ -182,33 +185,6 @@ void graph::httpservops::do_flag_initial_config_done ()
 }
 
 OMX_ERRORTYPE
-graph::httpservops::probe_uri (const bool quiet)
-{
-  const std::string &uri = playlist_->get_current_uri ();
-
-  if (!uri.empty ())
-  {
-    // Probe a new uri
-    probe_ptr_.reset ();
-    bool quiet_probing = true;
-    probe_ptr_ = boost::make_shared< tiz::probe >(uri, quiet_probing);
-    if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
-        || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
-    {
-      tiz::graph::util::dump_graph_info ("Unknown format", "skip", uri);
-      return OMX_ErrorContentURIError;
-    }
-    if (!quiet)
-    {
-      tiz::graph::util::dump_graph_info ("mp3/http", "stream", uri);
-      probe_ptr_->dump_stream_metadata ();
-      probe_ptr_->dump_mp3_info ();
-    }
-  }
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
 graph::httpservops::configure_server ()
 {
   OMX_TIZONIA_HTTPSERVERTYPE httpsrv;
@@ -240,7 +216,9 @@ graph::httpservops::configure_station ()
   mount.nPortIndex = 0;
 
   bool quiet = true;
-  tiz_check_omx_err (probe_uri (quiet));
+  tiz_check_omx_err (probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingMP3,
+                                   "mp3/http", "stream",
+                                   &tiz::probe::dump_mp3_info, quiet));
 
   tizhttpservconfig_ptr_t srv_config
       = boost::dynamic_pointer_cast< httpservconfig >(config_);

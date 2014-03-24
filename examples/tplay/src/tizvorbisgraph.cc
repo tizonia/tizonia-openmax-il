@@ -130,7 +130,10 @@ void graph::vorbisdecops::do_disable_ports ()
 
 void graph::vorbisdecops::do_probe ()
 {
-  G_OPS_BAIL_IF_ERROR (probe_uri (), "Unable to probe uri.");
+  G_OPS_BAIL_IF_ERROR (
+      probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingVORBIS, "vorbis",
+                    "decode", &tiz::probe::dump_pcm_info),
+      "Unable to probe the stream.");
   G_OPS_BAIL_IF_ERROR (set_vorbis_settings (),
                        "Unable to set OMX_IndexParamAudioVorbis");
 }
@@ -155,33 +158,6 @@ void graph::vorbisdecops::do_configure ()
           handles_[2], 0,
           boost::bind (&tiz::probe::get_pcm_codec_info, probe_ptr_, _1)),
       "Unable to set OMX_IndexParamAudioPcm");
-}
-
-OMX_ERRORTYPE
-graph::vorbisdecops::probe_uri (const bool quiet)
-{
-  const std::string &uri = playlist_->get_current_uri ();
-
-  if (!uri.empty ())
-  {
-    // Probe a new uri
-    probe_ptr_.reset ();
-    bool quiet_probing = true;
-    probe_ptr_ = boost::make_shared< tiz::probe >(uri, quiet_probing);
-    if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
-        || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingVORBIS)
-    {
-      tiz::graph::util::dump_graph_info ("Unknown format", "skip", uri);
-      return OMX_ErrorContentURIError;
-    }
-    if (!quiet)
-    {
-      tiz::graph::util::dump_graph_info ("vorbis", "decode", uri);
-      probe_ptr_->dump_stream_metadata ();
-      probe_ptr_->dump_pcm_info ();
-    }
-  }
-  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE

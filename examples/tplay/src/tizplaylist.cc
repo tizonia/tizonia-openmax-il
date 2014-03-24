@@ -449,9 +449,9 @@ void tiz::playlist::erase_uri (const int index)
   const int list_size = size ();
   assert (index < list_size);
   if (index < list_size)
-    {
-      uri_list_.erase (uri_list_.begin () + index);
-    }
+  {
+    uri_list_.erase (uri_list_.begin () + index);
+  }
 }
 
 void tiz::playlist::scan_list ()

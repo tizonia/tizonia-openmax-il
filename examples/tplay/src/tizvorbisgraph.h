@@ -69,7 +69,6 @@ namespace tiz
       void do_configure ();
 
     protected:
-      OMX_ERRORTYPE probe_uri (const bool quiet = false);
       OMX_ERRORTYPE set_vorbis_settings ();
 
     protected:

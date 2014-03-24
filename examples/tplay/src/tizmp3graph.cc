@@ -123,7 +123,10 @@ graph::mp3decops::mp3decops (graph *p_graph,
 
 void graph::mp3decops::do_probe ()
 {
-  G_OPS_BAIL_IF_ERROR (probe_uri (), "Unable to probe uri.");
+  G_OPS_BAIL_IF_ERROR (
+      probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingMP3, "mp3", "decode",
+                    &tiz::probe::dump_mp3_and_pcm_info),
+      "Unable to probe the stream.");
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_mp3_type (
           handles_[1], 0,
@@ -152,34 +155,4 @@ void graph::mp3decops::do_configure ()
           handles_[2], 0,
           boost::bind (&tiz::probe::get_pcm_codec_info, probe_ptr_, _1)),
       "Unable to set OMX_IndexParamAudioPcm");
-}
-
-OMX_ERRORTYPE
-graph::mp3decops::probe_uri (const bool quiet)
-{
-  assert (playlist_);
-  const std::string &uri = playlist_->get_current_uri ();
-
-  if (!uri.empty ())
-  {
-    // Probe a new uri
-    probe_ptr_.reset ();
-    bool quiet_probing = true;
-    probe_ptr_ = boost::make_shared< tiz::probe >(uri, quiet_probing);
-    if (probe_ptr_->get_omx_domain () != OMX_PortDomainAudio
-        || probe_ptr_->get_audio_coding_type () != OMX_AUDIO_CodingMP3)
-    {
-      tiz::graph::util::dump_graph_info ("Unknown format", "skip", uri);
-      playlist_->erase_uri (playlist_->current_index ());
-      playlist_->set_index (playlist_->current_index () - 1);
-      return OMX_ErrorContentURIError;
-    }
-    if (!quiet)
-    {
-      tiz::graph::util::dump_graph_info ("mp3", "decode", uri);
-      probe_ptr_->dump_stream_metadata ();
-      probe_ptr_->dump_mp3_and_pcm_info ();
-    }
-  }
-  return OMX_ErrorNone;
 }

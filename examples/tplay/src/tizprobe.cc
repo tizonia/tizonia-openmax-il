@@ -244,6 +244,11 @@ tiz::probe::probe (const std::string &uri, const bool quiet)
   av_log_set_level (AV_LOG_QUIET);
 }
 
+std::string tiz::probe::get_uri () const
+{
+  return uri_;
+}
+
 OMX_PORTDOMAINTYPE
 tiz::probe::get_omx_domain ()
 {
@@ -253,6 +258,26 @@ tiz::probe::get_omx_domain ()
   }
 
   return domain_;
+}
+
+OMX_AUDIO_CODINGTYPE
+tiz::probe::get_audio_coding_type ()
+{
+  if (OMX_AUDIO_CodingUnused == audio_coding_type_)
+  {
+    (void)probe_file ();
+  }
+  return audio_coding_type_;
+}
+
+OMX_VIDEO_CODINGTYPE
+tiz::probe::get_video_coding_type ()
+{
+  if (OMX_VIDEO_CodingUnused == video_coding_type_)
+  {
+    (void)probe_file ();
+  }
+  return video_coding_type_;
 }
 
 int tiz::probe::probe_file ()
