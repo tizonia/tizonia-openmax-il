@@ -109,6 +109,10 @@ elif [ "$1" == "tizrc" ];  then
     fi
 elif [ "$1" == "bldonly" ];  then
     echo "Build only..."
+elif [ "$1" == "skema" ];  then
+    echo "Cloning skema's repo..."
+    git clone https://github.com/tizonia/skema
+    exit_status=$?
 else
    CMD=`basename $0`
    echo "Usage: $CMD <debug|release|conf|deps|media|tizrc|bldonly|>"
