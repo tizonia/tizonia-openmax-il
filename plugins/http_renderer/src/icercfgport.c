@@ -30,21 +30,20 @@
 #include <config.h>
 #endif
 
-#include "icercfgport.h"
-#include "icercfgport_decls.h"
-
-#include "tizosal.h"
-
 #include <assert.h>
 #include <string.h>
 #include <limits.h>
+
+#include <tizosal.h>
+
+#include "icer.h"
+#include "icercfgport.h"
+#include "icercfgport_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.cfgport"
 #endif
-
-#define ARATELIA_HTTP_RENDERER_DEFAULT_HTTP_SERVER_PORT 8010
 
 /*
  * icercfgport class
@@ -54,6 +53,8 @@ static void *
 icer_cfgport_ctor (void *ap_obj, va_list * app)
 {
   icer_cfgport_t *p_obj = super_ctor (typeOf (ap_obj, "icercfgport"), ap_obj, app);
+
+  assert (NULL != p_obj);
 
   tiz_port_register_index (p_obj, OMX_TizoniaIndexParamHttpServer);
   p_obj->http_conf_.nSize             = sizeof (OMX_TIZONIA_HTTPSERVERTYPE);
@@ -80,6 +81,11 @@ icer_cfgport_GetParameter (const void *ap_obj,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const icer_cfgport_t *p_obj = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
+
+  assert (NULL != p_obj);
 
   if (OMX_TizoniaIndexParamHttpServer == a_index)
     {
@@ -91,11 +97,11 @@ icer_cfgport_GetParameter (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      return super_GetParameter (typeOf (ap_obj, "icercfgport"),
-                                 ap_obj, ap_hdl, a_index, ap_struct);
+      rc = super_GetParameter (typeOf (ap_obj, "icercfgport"),
+                               ap_obj, ap_hdl, a_index, ap_struct);
     }
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -104,6 +110,11 @@ icer_cfgport_SetParameter (const void *ap_obj,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   icer_cfgport_t *p_obj = (icer_cfgport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
+
+  assert (NULL != p_obj);
 
   if (OMX_TizoniaIndexParamHttpServer == a_index)
     {
@@ -119,11 +130,11 @@ icer_cfgport_SetParameter (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      return super_SetParameter (typeOf (ap_obj, "icercfgport"),
-                                 ap_obj, ap_hdl, a_index, ap_struct);
+      rc = super_SetParameter (typeOf (ap_obj, "icercfgport"),
+                               ap_obj, ap_hdl, a_index, ap_struct);
     }
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 /*

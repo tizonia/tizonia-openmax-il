@@ -34,8 +34,8 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
+#include <OMX_Core.h>
+#include <OMX_Types.h>
 
 #define ICE_RENDERER_SOCK_ERROR (int)-1
 
@@ -65,10 +65,12 @@ extern "C"
 
   int icer_net_get_server_fd (const icer_server_t * ap_server);
 
+  void icer_net_release_buffers (icer_server_t * ap_server);
+
   void icer_net_set_mp3_settings (icer_server_t * ap_server,
-                                  OMX_U32 a_bitrate,
-                                  OMX_U32 a_num_channels,
-                                  OMX_U32 a_sample_rate);
+                                  const OMX_U32 a_bitrate,
+                                  const OMX_U32 a_num_channels,
+                                  const OMX_U32 a_sample_rate);
 
   void icer_net_set_mountpoint_settings (icer_server_t * ap_server,
                                          OMX_U8 *ap_mount_name,
@@ -76,9 +78,9 @@ extern "C"
                                          OMX_U8 *ap_station_description,
                                          OMX_U8 *ap_station_genre,
                                          OMX_U8 *ap_station_url,
-                                         OMX_U32 metadata_period,
-                                         OMX_U32 burst_size,
-                                         OMX_U32 max_clients);
+                                         const OMX_U32 metadata_period,
+                                         const OMX_U32 burst_size,
+                                         const OMX_U32 max_clients);
 
   void icer_net_set_icecast_metadata (icer_server_t * ap_server,
                                       OMX_U8 *ap_stream_title);

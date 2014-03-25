@@ -23,6 +23,7 @@ noinst_HEADERS = \
 	icermp3port.h \
 	icermp3port_decls.h \
 	icernet.h \
+	icer.h \
 	icerprc.h \
 	icerprc_decls.h
 

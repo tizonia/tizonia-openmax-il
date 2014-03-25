@@ -30,34 +30,26 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+#include <string.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+
+#include <tizport.h>
+#include <tizscheduler.h>
+#include <tizosal.h>
+
 #include "icerprc.h"
 #include "icermp3port.h"
 #include "icercfgport.h"
-#include "tizport.h"
-#include "tizscheduler.h"
-
-#include "tizosal.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
-#include <assert.h>
-#include <string.h>
+#include "icer.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer"
 #endif
-
-#define ARATELIA_HTTP_RENDERER_DEFAULT_ROLE       "ice_renderer.http"
-#define ARATELIA_HTTP_RENDERER_COMPONENT_NAME     "OMX.Aratelia.ice_renderer.http"
-#define ARATELIA_HTTP_RENDERER_PORT_INDEX         0 /* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_SIZE  (8*1024)
-#define ARATELIA_HTTP_RENDERER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_HTTP_RENDERER_PORT_ALIGNMENT     0
-#define ARATELIA_HTTP_RENDERER_PORT_SUPPLIERPREF  OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE http_renderer_version = { {1, 0, 0, 0} };
 

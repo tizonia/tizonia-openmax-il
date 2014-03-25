@@ -34,11 +34,6 @@
 #include <config.h>
 #endif
 
-#include "icernet.h"
-#include "tizosal.h"
-#include "tizutils.h"
-#include "OMX_TizoniaExt.h"
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -53,25 +48,18 @@
 #include <time.h>
 #include <sys/ioctl.h>
 
+#include <tizosal.h>
+#include <tizutils.h>
+
+#include <OMX_TizoniaExt.h>
+
+#include "icer.h"
+#include "icernet.h"
+
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer.prc.net"
 #endif
-
-#define ICE_DEFAULT_HEADER_TIMEOUT 10
-#define ICE_LISTEN_QUEUE           5
-#define ICE_INITIAL_BURST_SIZE     80000
-#define ICE_MIN_BURST_SIZE         1400
-#define ICE_MEDIUM_BURST_SIZE      2800
-#define ICE_MAX_BURST_SIZE         4200
-#define ICE_MIN_PACKETS_PER_SECOND 6
-#define ICE_MAX_PACKETS_PER_SECOND 12
-#define ICE_LISTENER_BUF_SIZE      (ICE_MAX_BURST_SIZE + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)
-
-/* TODO: There is a duplicate of this macro in icermp3port.c. Move to a common
-   header. */
-#define ICE_DEFAULT_METADATA_INTERVAL  16000
-
 
 #ifdef INET6_ADDRSTRLEN
 #define ICE_RENDERER_MAX_ADDR_LEN INET6_ADDRSTRLEN
@@ -224,7 +212,7 @@ valid_socket (int a_sockfd)
 }
 
 static inline int
-get_socket_buffer_size (int a_sockfd)
+get_socket_buffer_size (const int a_sockfd)
 {
   int optval;
   socklen_t optlen = sizeof (int);
@@ -233,7 +221,7 @@ get_socket_buffer_size (int a_sockfd)
 }
 
 static inline int
-get_socket_buffer_utilization (int a_sockfd)
+get_socket_buffer_utilization (const int a_sockfd)
 {
   int remaining = -1;
   ioctl (a_sockfd, TIOCOUTQ, &remaining);
@@ -251,7 +239,7 @@ get_listeners_count (const icer_server_t * ap_server)
 }
 
 static OMX_ERRORTYPE
-set_non_blocking (int sockfd)
+set_non_blocking (const int sockfd)
 {
   int rc, flags;
 
@@ -270,7 +258,7 @@ set_non_blocking (int sockfd)
 }
 
 static inline int
-set_nolinger (int sock)
+set_nolinger (const int sock)
 {
   struct linger lin = { 0, 0 };
   /* linger inactive. close call will return immediately to the caller, and any
@@ -280,7 +268,7 @@ set_nolinger (int sock)
 }
 
 static inline int
-set_nodelay (int sock)
+set_nodelay (const int sock)
 {
   int nodelay = 1;
   return setsockopt (sock, IPPROTO_TCP, TCP_NODELAY, (void *) &nodelay,
@@ -288,7 +276,7 @@ set_nodelay (int sock)
 }
 
 static inline int
-set_keepalive (int sock)
+set_keepalive (const int sock)
 {
   int keepalive = 1;
   return setsockopt (sock, SOL_SOCKET, SO_KEEPALIVE, (void *) &keepalive,
@@ -296,7 +284,7 @@ set_keepalive (int sock)
 }
 
 static int
-accept_socket (icer_server_t * ap_server, char *ap_ip, size_t a_ip_len,
+accept_socket (icer_server_t * ap_server, char *ap_ip, const size_t a_ip_len,
                unsigned short *ap_port)
 {
   struct sockaddr_storage sa;
@@ -349,7 +337,7 @@ accept_socket (icer_server_t * ap_server, char *ap_ip, size_t a_ip_len,
 }
 
 static inline int
-create_server_socket (icer_server_t *ap_server, int a_port,
+create_server_socket (icer_server_t *ap_server, const int a_port,
                       const char *a_interface)
 {
   struct sockaddr_storage sa;
@@ -485,7 +473,7 @@ stop_listener_io_watcher (icer_listener_t * ap_lstnr)
 }
 
 static OMX_ERRORTYPE
-start_listener_timer_watcher (icer_listener_t * ap_lstnr, double a_wait_time)
+start_listener_timer_watcher (icer_listener_t * ap_lstnr, const double a_wait_time)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_lstnr);
@@ -578,8 +566,8 @@ remove_listener (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
 
 static icer_connection_t *
 create_connection (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
-                   int connected_sockfd, char *ap_ip,
-                   unsigned short ap_port, double a_wait_time)
+                   const int connected_sockfd, char *ap_ip,
+                   const unsigned short ap_port, const double a_wait_time)
 {
   icer_connection_t *p_con = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
@@ -644,8 +632,8 @@ create_connection (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 
 static OMX_ERRORTYPE
 create_listener (icer_server_t * ap_server, icer_listener_t ** app_lstnr,
-                 int a_connected_sockfd,
-                 char *ap_ip, unsigned short ap_port)
+                 const int a_connected_sockfd,
+                 char *ap_ip, const unsigned short ap_port)
 {
   icer_listener_t *p_lstnr = NULL;
   icer_connection_t *p_con = NULL;
@@ -686,7 +674,7 @@ create_listener (icer_server_t * ap_server, icer_listener_t ** app_lstnr,
   p_lstnr->need_response      = true;
   p_lstnr->timer_started      = false;
   p_lstnr->want_metadata      = false;
- 
+
   if (NULL ==
       (p_lstnr->buf.p_data = (char *) tiz_mem_alloc (ICE_LISTENER_BUF_SIZE)))
     {
@@ -1210,7 +1198,7 @@ arrange_metadata (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 
   len         = *ap_len;
   p_lstnr_buf = &ap_lstnr->buf;
-  
+
   if (0 == len || !ap_lstnr->want_metadata
       || 0 == ap_server->mountpoint.metadata_period
       || !is_time_to_send_metadata (ap_server, ap_lstnr))
@@ -1560,7 +1548,7 @@ icer_net_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
   p_server->sample_rate     = 0;
   p_server->bytes_per_frame = 144 * 128000 / 44100;
   p_server->burst_size      = ICE_MEDIUM_BURST_SIZE;
-  p_server->pkts_per_sec    = 
+  p_server->pkts_per_sec    =
     (((double) p_server->bytes_per_frame * (double) (1000 / 26) /
       (double) p_server->burst_size));
   p_server->wait_time       = (1 / p_server->pkts_per_sec);
@@ -1867,7 +1855,7 @@ icer_net_write_to_listeners (icer_server_t * ap_server)
         {
           break;
         }
-      
+
       if (p_con->full || p_con->not_ready
           || (((p_con->initial_burst_bytes <= 0))
               && (p_con->burst_bytes >= ap_server->burst_size)))
@@ -1875,13 +1863,13 @@ icer_net_write_to_listeners (icer_server_t * ap_server)
           rc = OMX_ErrorNoMore;
           break;
         }
-      
+
       if (p_lstnr->pos == ap_server->p_hdr->nFilledLen)
         {
           TIZ_TRACE (p_hdl, "Buffer emptied : sent_total "
                     "[%llu] sent_last [%u] burst [%u]",
                     p_con->sent_total, p_con->sent_last, p_con->burst_bytes);
-          
+
           /* Buffer emptied */
           release_empty_buffer (ap_server, p_lstnr, &p_hdr);
         }
@@ -1902,9 +1890,22 @@ icer_net_get_server_fd (const icer_server_t * ap_server)
 }
 
 void
+icer_net_release_buffers (icer_server_t * ap_server)
+{
+  assert (NULL != ap_server);
+  if (NULL != ap_server->p_hdr)
+    {
+      ap_server->p_hdr->nFilledLen = 0;
+      ap_server->pf_emptied (ap_server->p_hdr, ap_server->p_arg);
+      ap_server->p_hdr = NULL;
+    }
+}
+
+void
 icer_net_set_mp3_settings (icer_server_t * ap_server,
-                           OMX_U32 a_bitrate,
-                           OMX_U32 a_num_channels, OMX_U32 a_sample_rate)
+                           const OMX_U32   a_bitrate,
+                           const OMX_U32   a_num_channels,
+                           const OMX_U32 a_sample_rate)
 {
 #define ICE_RATE_ADJUSTMENT_32KH     0.731
 #define ICE_RATE_ADJUSTMENT_44dot1KH 1.013
@@ -1995,13 +1996,14 @@ icer_net_set_mp3_settings (icer_server_t * ap_server,
 
 void
 icer_net_set_mountpoint_settings (icer_server_t * ap_server,
-                                  OMX_U8 * ap_mount_name,
-                                  OMX_U8 * ap_station_name,
-                                  OMX_U8 * ap_station_description,
-                                  OMX_U8 * ap_station_genre,
-                                  OMX_U8 * ap_station_url,
-                                  OMX_U32 a_metadata_period,
-                                  OMX_U32 a_burst_size, OMX_U32 a_max_clients)
+                                  OMX_U8 *        ap_mount_name,
+                                  OMX_U8 *        ap_station_name,
+                                  OMX_U8 *        ap_station_description,
+                                  OMX_U8 *        ap_station_genre,
+                                  OMX_U8 *        ap_station_url,
+                                  const OMX_U32   a_metadata_period,
+                                  const OMX_U32   a_burst_size,
+                                  const OMX_U32   a_max_clients)
 {
   icer_mount_t *p_mount = NULL;
 
