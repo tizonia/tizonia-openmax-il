@@ -34,3 +34,4 @@ before_script:
 script:
  - ./tools/buildtizonia debug "$HOME/build/tizonia/tizonia-openmax-il"
  - ./tools/buildtizonia tizrc "$HOME/build/tizonia/tizonia-openmax-il"
+ - ./tools/buildtizonia skema "$HOME/build"
