@@ -254,6 +254,7 @@ void graph::util::destroy_list (omx_comp_handle_lst_t &hdl_list)
   }
 }
 
+// TODO: Replace magic numbers in this function
 OMX_ERRORTYPE
 graph::util::setup_tunnels (const omx_comp_handle_lst_t &hdl_list)
 {
@@ -268,6 +269,7 @@ graph::util::setup_tunnels (const omx_comp_handle_lst_t &hdl_list)
   return error;
 }
 
+// TODO: Replace magic numbers in this function
 OMX_ERRORTYPE
 graph::util::tear_down_tunnels (const omx_comp_handle_lst_t &hdl_list)
 {
@@ -283,6 +285,7 @@ graph::util::tear_down_tunnels (const omx_comp_handle_lst_t &hdl_list)
   return error;
 }
 
+// TODO: Replace magic numbers in this function
 OMX_ERRORTYPE
 graph::util::setup_suppliers (const omx_comp_handle_lst_t &hdl_list)
 {
@@ -434,6 +437,7 @@ graph::util::disable_port (const OMX_HANDLETYPE handle, const OMX_U32 port_id)
   return OMX_SendCommand (handle, OMX_CommandPortDisable, port_id, NULL);
 }
 
+// TODO: Replace magic numbers in this function
 OMX_ERRORTYPE
 graph::util::modify_tunnel (const omx_comp_handle_lst_t &hdl_list,
                             const int tunnel_id, const OMX_COMMANDTYPE cmd)
