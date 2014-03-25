@@ -18,62 +18,61 @@
 bin_PROGRAMS = tplay
 
 noinst_HEADERS = \
-	tizomxutil.h \
-	tizgraphutil.h \
-	tizgraphcback.h \
-	tizprobe.h \
-	tizplaylist.h \
-	tizgraphfactory.h \
-	tizgraphtypes.h \
-	tizgraphconfig.h \
-	tizgraphmgrcmd.h \
-	tizgraphmgrops.h \
-	tizgraphmgrfsm.h \
-	tizgraphmgr.h \
-	tizgraphmgrfsm.h \
-	tizdecgraphmgr.h \
-	tizhttpservmgr.h \
-	tizgraphfsm.h \
-	tizgraphevt.h \
-	tizgraphguard.h \
-	tizgraphaction.h \
-	tizgraphstate.h \
-	tizgraphcmd.h \
-	tizgraphops.h \
-	tizgraph.h \
-	tizmp3graph.h \
-	tizopusgraph.h \
-	tizvorbisgraph.h
-	tizflacgraph.h \
-	tizoggflacgraph.h \
-	tizhttpservconfig.h \
-	tizhttpservgraph.h \
-	tizhttpservgraphfsm.h \
-	tizhttpservgraphops.h
+	tizomxutil.hpp \
+	tizgraphutil.hpp \
+	tizgraphcback.hpp \
+	tizprobe.hpp \
+	tizplaylist.hpp \
+	tizgraphfactory.hpp \
+	tizgraphtypes.hpp \
+	tizgraphconfig.hpp \
+	tizgraphmgrcmd.hpp \
+	tizgraphmgrops.hpp \
+	tizgraphmgrfsm.hpp \
+	tizgraphmgr.hpp \
+	tizdecgraphmgr.hpp \
+	tizhttpservmgr.hpp \
+	tizgraphfsm.hpp \
+	tizgraphevt.hpp \
+	tizgraphguard.hpp \
+	tizgraphaction.hpp \
+	tizgraphstate.hpp \
+	tizgraphcmd.hpp \
+	tizgraphops.hpp \
+	tizgraph.hpp \
+	tizmp3graph.hpp \
+	tizopusgraph.hpp \
+	tizvorbisgraph.hpp
+	tizflacgraph.hpp \
+	tizoggflacgraph.hpp \
+	tizhttpservconfig.hpp \
+	tizhttpservgraph.hpp \
+	tizhttpservgraphfsm.hpp \
+	tizhttpservgraphops.hpp
 
 tplay_SOURCES = \
-	tizplay.cc \
-	tizomxutil.cc \
-	tizgraphutil.cc \
-	tizgraphcback.cc \
-	tizprobe.cc \
-	tizplaylist.cc \
-	tizgraphfactory.cc \
-	tizgraphmgrcmd.cc \
-	tizgraphmgrops.cc \
-	tizgraphmgr.cc \
-	tizdecgraphmgr.cc \
-	tizhttpservmgr.cc \
-	tizgraphops.cc \
-	tizgraphcmd.cc \
-	tizgraph.cc \
-	tizmp3graph.cc \
-	tizopusgraph.cc \
-	tizvorbisgraph.cc \
-	tizflacgraph.cc \
-	tizoggflacgraph.cc \
-	tizhttpservgraph.cc \
-	tizhttpservgraphops.cc
+	tizplay.cpp \
+	tizomxutil.cpp \
+	tizgraphutil.cpp \
+	tizgraphcback.cpp \
+	tizprobe.cpp \
+	tizplaylist.cpp \
+	tizgraphfactory.cpp \
+	tizgraphmgrcmd.cpp \
+	tizgraphmgrops.cpp \
+	tizgraphmgr.cpp \
+	tizdecgraphmgr.cpp \
+	tizhttpservmgr.cpp \
+	tizgraphops.cpp \
+	tizgraphcmd.cpp \
+	tizgraph.cpp \
+	tizmp3graph.cpp \
+	tizopusgraph.cpp \
+	tizvorbisgraph.cpp \
+	tizflacgraph.cpp \
+	tizoggflacgraph.cpp \
+	tizhttpservgraph.cpp \
+	tizhttpservgraphops.cpp
 
 tplay_CPPFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
