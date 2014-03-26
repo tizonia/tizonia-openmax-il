@@ -15,9 +15,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = config include libtizosal rm libtizcore libtizonia plugins examples docs
+
+# NOTE: 'docs' folders is not currently being processed by the top Makefile.
+# The Doxygen/Sphinx documentation can still be manually generated, whenever is needed.
+
+# SUBDIRS = config include libtizosal rm libtizcore libtizonia plugins examples docs
+SUBDIRS = config include libtizosal rm libtizcore libtizonia plugins examples
+
 
 # NOTE: A cscope target is included in automake since api 1.12
+
 #CLEANFILES = cscope.in.out cscope.out cscope.po.out
 
 #.PHONY: cscope
@@ -33,13 +40,16 @@ SUBDIRS = config include libtizosal rm libtizcore libtizonia plugins examples do
 #  '-l79' = '--line-lengthn'
 #    Set maximum line length for non-comment lines to 79.
 
-.PHONY: indent
-indent:
-	find . -path ./include -prune \
-	-o -path "*tests*" -prune \
-	-o -path ./docs -prune \
-	-o -iname "config.h" -prune \
-	-o -iname "utarray.h" -prune \
-	-o -iname "*.[ch]" \
-	-exec indent --gnu-style -pmt -sc -nut -l79 "{}" \;
+
+# NOTE: The indent target is disabled for now. Currently experimenting with clang-format for C++.
+
+# .PHONY: indent
+# indent:
+# 	find . -path ./include -prune \
+# 	-o -path "*tests*" -prune \
+# 	-o -path ./docs -prune \
+# 	-o -iname "config.h" -prune \
+# 	-o -iname "utarray.h" -prune \
+# 	-o -iname "*.[ch]" \
+# 	-exec indent --gnu-style -pmt -sc -nut -l79 "{}" \;
 
