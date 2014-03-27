@@ -30,6 +30,11 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+#include <string.h>
+
+#include <tizosal.h>
+
 #include "tizobjsys.h"
 
 #include "tizobject.h"
@@ -65,12 +70,8 @@
 #include "tizivrport.h"
 #include "tizbinaryport.h"
 #include "tizdemuxerport.h"
+#include "tizuricfgport.h"
 #include "tizdemuxercfgport.h"
-
-#include "tizosal.h"
-
-#include <assert.h>
-#include <string.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -151,6 +152,8 @@ enum tiz_os_type
   ETIZBinaryport,
   ETIZDemuxerport_class,
   ETIZDemuxerport,
+  ETIZUricfgport_class,
+  ETIZUricfgport,
   ETIZDemuxercfgport_class,
   ETIZDemuxercfgport,
   };
@@ -223,6 +226,8 @@ tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
   tiz_binaryport_init,
   tiz_demuxerport_class_init,
   tiz_demuxerport_init,
+  tiz_uricfgport_class_init,
+  tiz_uricfgport_init,
   tiz_demuxercfgport_class_init,
   tiz_demuxercfgport_init,
 };
@@ -299,6 +304,8 @@ static tiz_os_type_str_t tiz_os_type_to_str_tbl[] = {
   {ETIZBinaryport, "tizbinaryport"},
   {ETIZDemuxerport_class, "tizdemuxerport_class"},
   {ETIZDemuxerport, "tizdemuxerport"},
+  {ETIZUricfgport_class, "tizuricfgport_class"},
+  {ETIZUricfgport, "tizuricfgport"},
   {ETIZDemuxercfgport_class, "tizdemuxercfgport_class"},
   {ETIZDemuxercfgport, "tizdemuxercfgport"},
 };

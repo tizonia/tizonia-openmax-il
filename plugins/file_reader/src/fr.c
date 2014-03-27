@@ -30,37 +30,27 @@
 #include <config.h>
 #endif
 
-#include "frcfgport.h"
-#include "frprc.h"
-#include "tizport.h"
-#include "tizbinaryport.h"
-#include "tizscheduler.h"
-
-#include "tizosal.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+
+#include <tizosal.h>
+
+#include <tizport.h>
+#include <tizuricfgport.h>
+#include <tizbinaryport.h>
+#include <tizscheduler.h>
+
+#include "frprc.h"
+#include "fr.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_reader"
 #endif
-
-#define ARATELIA_FILE_READER_AUDIO_READER_ROLE  "audio_reader.binary"
-#define ARATELIA_FILE_READER_VIDEO_READER_ROLE  "video_reader.binary"
-#define ARATELIA_FILE_READER_IMAGE_READER_ROLE  "image_reader.binary"
-#define ARATELIA_FILE_READER_OTHER_READER_ROLE  "other_reader.binary"
-#define ARATELIA_FILE_READER_COMPONENT_NAME     "OMX.Aratelia.file_reader.binary"
-#define ARATELIA_FILE_READER_PORT_INDEX         0 /* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE  1024
-#define ARATELIA_FILE_READER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_FILE_READER_PORT_ALIGNMENT     0
-#define ARATELIA_FILE_READER_PORT_SUPPLIERPREF  OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE file_reader_version = { {1, 0, 0, 0} };
 
@@ -144,7 +134,7 @@ static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   /* Instantiate the config port */
-  return factory_new (tiz_get_type (ap_hdl, "frcfgport"),
+  return factory_new (tiz_get_type (ap_hdl, "tizuricfgport"),
                       NULL,       /* this port does not take options */
                       ARATELIA_FILE_READER_COMPONENT_NAME,
                       file_reader_version);
@@ -167,10 +157,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
     &image_role, &other_role
   };
   tiz_type_factory_t frprc_type;
-  tiz_type_factory_t frcfgport_type;
-  const tiz_type_factory_t *tf_list[] = { &frprc_type, &frcfgport_type};
+  const tiz_type_factory_t *tf_list[] = { &frprc_type };
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: Inititializing [%s]",
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: [%s]",
            ARATELIA_FILE_READER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) audio_role.role,
@@ -206,16 +195,11 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   strcpy ((OMX_STRING) frprc_type.object_name, "frprc");
   frprc_type.pf_object_init = fr_prc_init;
 
-  strcpy ((OMX_STRING) frcfgport_type.class_name, "frcfgport_class");
-  frcfgport_type.pf_class_init = fr_cfgport_class_init;
-  strcpy ((OMX_STRING) frcfgport_type.object_name, "frcfgport");
-  frcfgport_type.pf_object_init = fr_cfgport_init;
-
   /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_FILE_READER_COMPONENT_NAME));
 
-  /* Register the "frprc" and "frcfgport" classes */
-  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 2));
+  /* Register the "frprc" class */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
   /* Register the various roles */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 4));

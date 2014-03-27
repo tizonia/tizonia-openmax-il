@@ -46,7 +46,7 @@ rmdb.dbdump_script = @bindir@/tizrm_dumpdb.sh
 # File Reader #
 ###############
 
-OMX.Aratelia.file_reader.binary.default_audio_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
+OMX.Aratelia.file_reader.binary.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
 OMX.Aratelia.file_reader.binary.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
 OMX.Aratelia.file_reader.binary.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
 
@@ -54,7 +54,7 @@ OMX.Aratelia.file_reader.binary.testfile2_uri = @localstatedir@/lib/tizonia/tizo
 # File Writer #
 ###############
 
-OMX.Aratelia.file_writer.binary.default_audio_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
+OMX.Aratelia.file_writer.binary.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
 OMX.Aratelia.file_writer.binary.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
 OMX.Aratelia.file_writer.binary.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
 

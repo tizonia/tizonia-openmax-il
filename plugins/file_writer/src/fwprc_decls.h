@@ -34,10 +34,10 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
+
 #include "fwprc.h"
 #include "tizprc_decls.h"
-
-#include <stdbool.h>
 
   typedef struct fw_prc fw_prc_t;
   struct fw_prc

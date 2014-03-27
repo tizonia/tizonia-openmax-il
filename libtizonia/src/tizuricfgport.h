@@ -18,27 +18,27 @@
  */
 
 /**
- * @file   fwcfgport.h
+ * @file   tizuricfgport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Binary Writer config port class
+ * @brief  Tizonia OpenMAX IL - URI config port class
  *
  *
  */
 
-#ifndef FRCFGPORT_H
-#define FRCFGPORT_H
+#ifndef TIZURICFGPORT_H
+#define TIZURICFGPORT_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  void * fw_cfgport_class_init (void * ap_tos, void * ap_hdl);
-  void * fw_cfgport_init (void * ap_tos, void * ap_hdl);
+  void * tiz_uricfgport_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_uricfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* FRCFGPORT_H */
+#endif                          /* TIZURICFGPORT_H */

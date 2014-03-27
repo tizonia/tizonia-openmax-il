@@ -34,10 +34,10 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
+
 #include "frprc.h"
 #include "tizprc_decls.h"
-
-#include <stdbool.h>
 
   typedef struct fr_prc fr_prc_t;
   struct fr_prc

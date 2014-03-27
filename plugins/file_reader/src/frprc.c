@@ -36,13 +36,16 @@
 #include <limits.h>
 #include <assert.h>
 
-#include "OMX_Core.h"
+#include <OMX_Core.h>
 
-#include "frprc.h"
+#include <tizosal.h>
+
+#include <tizkernel.h>
+#include <tizscheduler.h>
+
+#include "fr.h"
 #include "frprc_decls.h"
-#include "tizkernel.h"
-#include "tizscheduler.h"
-#include "tizosal.h"
+#include "frprc.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -117,10 +120,11 @@ static OMX_ERRORTYPE
 read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
   fr_prc_t *p_prc = (fr_prc_t *) ap_obj;
-  int bytes_read = 0;
+  assert (NULL != p_prc);
 
   if (p_prc->p_file_ && !(p_prc->eos_))
     {
+      int bytes_read = 0;
       if (!(bytes_read
             = fread (p_hdr->pBuffer, 1, p_hdr->nAllocLen, p_prc->p_file_)))
         {
@@ -141,12 +145,12 @@ read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 
       p_hdr->nFilledLen = bytes_read;
       p_prc->counter_ += p_hdr->nFilledLen;
-    }
 
-  TIZ_TRACE (handleOf (p_prc),
-           "Reading into HEADER [%p]...nFilledLen[%d] "
-           "counter [%d] bytes_read[%d]",
-           p_hdr, p_hdr->nFilledLen, p_prc->counter_, bytes_read);
+      TIZ_TRACE (handleOf (p_prc),
+                 "Reading into HEADER [%p]...nFilledLen[%d] "
+                 "counter [%d] bytes_read[%d]",
+                 p_hdr, p_hdr->nFilledLen, p_prc->counter_, bytes_read);
+    }
 
   return OMX_ErrorNone;
 
@@ -160,6 +164,7 @@ static void *
 fr_prc_ctor (void *ap_obj, va_list * app)
 {
   fr_prc_t *p_prc     = super_ctor (typeOf (ap_obj, "frprc"), ap_obj, app);
+  assert (NULL != p_prc);
   p_prc->p_file_      = NULL;
   p_prc->p_uri_param_ = NULL;
   p_prc->counter_     = 0;
@@ -241,26 +246,29 @@ static OMX_ERRORTYPE
 fr_prc_buffers_ready (const void *ap_obj)
 {
   const fr_prc_t *p_prc = ap_obj;
-  tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (handleOf (p_prc));
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
   assert (NULL != ap_obj);
 
   if (p_prc->eos_ == false)
     {
+      OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+      tiz_pd_set_t ports;
       TIZ_PD_ZERO (&ports);
 
-      tiz_check_omx_err (tiz_krn_select (p_krn, 1, &ports));
+      tiz_check_omx_err (tiz_krn_select (tiz_get_krn (handleOf (p_prc)), 1, &ports));
 
       if (TIZ_PD_ISSET (0, &ports))
         {
-          tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
+          tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
+                                                   ARATELIA_FILE_READER_PORT_INDEX,
+                                                   0, &p_hdr));
           TIZ_TRACE (handleOf (p_prc),
                     "Claimed HEADER [%p]...nFilledLen [%d]", p_hdr,
                     p_hdr->nFilledLen);
           tiz_check_omx_err (read_buffer (p_prc, p_hdr));
-          tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, p_hdr));
+          tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
+                                                     ARATELIA_FILE_READER_PORT_INDEX,
+                                                     p_hdr));
         }
     }
 

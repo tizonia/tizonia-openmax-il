@@ -18,27 +18,44 @@
  */
 
 /**
- * @file   frcfgport.h
+ * @file   tizuricfgport_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Binary Reader config port class
+ * @brief  Tizonia OpenMAX IL - URI config port class decls
  *
  *
  */
 
-#ifndef FRCFGPORT_H
-#define FRCFGPORT_H
+#ifndef TIZURICFGPORT_DECLS_H
+#define TIZURICFGPORT_DECLS_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  void * fr_cfgport_class_init (void * ap_tos, void * ap_hdl);
-  void * fr_cfgport_init (void * ap_tos, void * ap_hdl);
+#include <OMX_Types.h>
+
+#include "tizconfigport_decls.h"
+
+  typedef struct tiz_uricfgport tiz_uricfgport_t;
+  struct tiz_uricfgport
+  {
+    /* Object */
+    const tiz_configport_t _;
+    OMX_STRING p_uri_;
+  };
+
+  typedef struct tiz_uricfgport_class tiz_uricfgport_class_t;
+  struct tiz_uricfgport_class
+  {
+    /* Class */
+    const tiz_configport_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* FRCFGPORT_H */
+#endif                          /* TIZURICFGPORT_DECLS_H */

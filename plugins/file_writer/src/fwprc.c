@@ -36,12 +36,14 @@
 #include <limits.h>
 #include <assert.h>
 
-#include "OMX_Core.h"
+#include <OMX_Core.h>
 
-#include "tizkernel.h"
-#include "tizscheduler.h"
-#include "tizosal.h"
+#include <tizosal.h>
 
+#include <tizkernel.h>
+#include <tizscheduler.h>
+
+#include "fw.h"
 #include "fwprc_decls.h"
 #include "fwprc.h"
 
@@ -99,27 +101,29 @@ obtain_uri (fw_prc_t *ap_prc)
 static void *
 fw_proc_ctor (void *ap_obj, va_list * app)
 {
-  fw_prc_t *p_obj     = super_ctor (typeOf (ap_obj, "fwprc"), ap_obj, app);
-  p_obj->p_file_      = NULL;
-  p_obj->p_uri_param_ = NULL;
-  p_obj->counter_     = 0;
-  p_obj->eos_         = false;
-  return p_obj;
+  fw_prc_t *p_prc     = super_ctor (typeOf (ap_obj, "fwprc"), ap_obj, app);
+  assert (NULL != p_prc);
+  p_prc->p_file_      = NULL;
+  p_prc->p_uri_param_ = NULL;
+  p_prc->counter_     = 0;
+  p_prc->eos_         = false;
+  return p_prc;
 }
 
 static void *
 fw_proc_dtor (void *ap_obj)
 {
-  fw_prc_t *p_obj = ap_obj;
+  fw_prc_t *p_prc = ap_obj;
+  assert (NULL != p_prc);
 
-  if (p_obj->p_file_)
+  if (p_prc->p_file_)
     {
-      fclose (p_obj->p_file_);
+      fclose (p_prc->p_file_);
     }
 
-  if (p_obj->p_uri_param_)
+  if (p_prc->p_uri_param_)
     {
-      tiz_mem_free (p_obj->p_uri_param_);
+      tiz_mem_free (p_prc->p_uri_param_);
     }
 
   return super_dtor (typeOf (ap_obj, "fwprc"), ap_obj);
@@ -128,14 +132,15 @@ fw_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
-  fw_prc_t *p_obj = (fw_prc_t *) ap_obj;
-  int elems_written = 0;
+  fw_prc_t *p_prc = (fw_prc_t *) ap_obj;
+  assert (NULL != p_prc);
 
-  if (p_obj->p_file_ && !(p_obj->eos_) && p_hdr->nFilledLen > 0)
+  if (p_prc->p_file_ && !(p_prc->eos_) && p_hdr->nFilledLen > 0)
     {
+      int elems_written = 0;
       if (1 != (elems_written
                 = fwrite (p_hdr->pBuffer + p_hdr->nOffset,
-                          p_hdr->nFilledLen, 1, p_obj->p_file_)))
+                          p_hdr->nFilledLen, 1, p_prc->p_file_)))
         {
           TIZ_LOG (TIZ_PRIORITY_ERROR,
                    "elems_written [%d] p_hdr->nFilledLen [%d]: "
@@ -145,15 +150,14 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
         }
 
       p_hdr->nFilledLen = 0;
-      p_obj->counter_ += p_hdr->nFilledLen;
+      p_prc->counter_ += p_hdr->nFilledLen;
+
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Writing data from HEADER [%p]...nFilledLen [%d] "
+               "counter [%d] elems_written [%d]",
+               p_hdr, p_hdr->nFilledLen, p_prc->counter_, elems_written);
     }
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Writing data from HEADER [%p]...nFilledLen [%d] "
-           "counter [%d] elems_written [%d]",
-           p_hdr, p_hdr->nFilledLen, p_obj->counter_, elems_written);
-
   return OMX_ErrorNone;
-
 }
 
 /*
@@ -164,7 +168,6 @@ static OMX_ERRORTYPE
 fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   fw_prc_t *p_prc = ap_obj;
-
   assert (NULL != ap_obj);
 
   tiz_check_omx_err (obtain_uri (p_prc));
@@ -183,17 +186,17 @@ fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 fw_proc_deallocate_resources (void *ap_obj)
 {
-  fw_prc_t *p_obj = ap_obj;
+  fw_prc_t *p_prc = ap_obj;
   assert (ap_obj);
 
-  if (p_obj->p_file_)
+  if (p_prc->p_file_)
     {
-      fclose (p_obj->p_file_);
-      p_obj->p_file_ = NULL;
+      fclose (p_prc->p_file_);
+      p_prc->p_file_ = NULL;
     }
 
-  tiz_mem_free (p_obj->p_uri_param_);
-  p_obj->p_uri_param_ = NULL;
+  tiz_mem_free (p_prc->p_uri_param_);
+  p_prc->p_uri_param_ = NULL;
 
   return OMX_ErrorNone;
 }
@@ -201,20 +204,20 @@ fw_proc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 fw_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
-  fw_prc_t *p_obj = ap_obj;
+  fw_prc_t *p_prc = ap_obj;
   assert (ap_obj);
-  p_obj->counter_ = 0;
-  p_obj->eos_ = false;
+  p_prc->counter_ = 0;
+  p_prc->eos_ = false;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 fw_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
-  fw_prc_t *p_obj = ap_obj;
+  fw_prc_t *p_prc = ap_obj;
   assert (ap_obj);
-  p_obj->counter_ = 0;
-  p_obj->eos_ = false;
+  p_prc->counter_ = 0;
+  p_prc->eos_ = false;
   return OMX_ErrorNone;
 }
 
@@ -232,19 +235,20 @@ static OMX_ERRORTYPE
 fw_proc_buffers_ready (const void *ap_obj)
 {
   const fw_prc_t *p_obj = ap_obj;
-  tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  if (p_obj->eos_ == false)
+  if (!p_obj->eos_)
     {
+      OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+      tiz_pd_set_t ports;
       TIZ_PD_ZERO (&ports);
 
-      tiz_check_omx_err (tiz_krn_select (p_krn, 1, &ports));
+      tiz_check_omx_err (tiz_krn_select (tiz_get_krn (handleOf (ap_obj)), 1, &ports));
 
       if (TIZ_PD_ISSET (0, &ports))
         {
-          tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
+          tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                                   ARATELIA_FILE_WRITER_PORT_INDEX,
+                                                   0, &p_hdr));
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Claimed HEADER [%p]...", p_hdr);
           tiz_check_omx_err (fw_proc_write_buffer (ap_obj, p_hdr));
           if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
@@ -252,10 +256,13 @@ fw_proc_buffers_ready (const void *ap_obj)
               TIZ_LOG (TIZ_PRIORITY_DEBUG,
                        "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
               tiz_srv_issue_event ((OMX_PTR) ap_obj,
-                                      OMX_EventBufferFlag,
-                                      0, p_hdr->nFlags, NULL);
+                                   OMX_EventBufferFlag,
+                                   ARATELIA_FILE_WRITER_PORT_INDEX,
+                                   p_hdr->nFlags, NULL);
             }
-          tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, p_hdr));
+          tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                                     ARATELIA_FILE_WRITER_PORT_INDEX,
+                                                     p_hdr));
         }
     }
 

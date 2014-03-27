@@ -18,14 +18,12 @@
 lib_LTLIBRARIES = libtizfw.la
 
 noinst_HEADERS = \
-	fwcfgport.h \
-	fwcfgport_decls.h \
+	fw.h \
 	fwprc.h \
 	fwprc_decls.h
 
 libtizfw_la_SOURCES = \
 	fw.c \
-	fwcfgport.c \
 	fwprc.c
 
 libtizfw_la_CFLAGS = \

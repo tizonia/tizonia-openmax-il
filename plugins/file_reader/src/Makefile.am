@@ -18,14 +18,12 @@
 lib_LTLIBRARIES = libtizfr.la
 
 noinst_HEADERS = \
-	frcfgport.h \
-	frcfgport_decls.h \
+	fr.h \
 	frprc.h \
 	frprc_decls.h
 
 libtizfr_la_SOURCES = \
 	fr.c \
-	frcfgport.c \
 	frprc.c
 
 libtizfr_la_CFLAGS = \
