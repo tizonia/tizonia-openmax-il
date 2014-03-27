@@ -497,10 +497,6 @@ namespace tiz
                                                                                                                        tiz::graph::do_destroy_graph> > , tiz::graph::is_end_of_play  >,
         //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
         boost::msm::front::Row < tiz::graph::executing   , tiz::graph::skip_evt        , skipping                , tiz::graph::do_store_skip                                  >,
-        boost::msm::front::Row < tiz::graph::executing   , tiz::graph::seek_evt        , boost::msm::front::none , tiz::graph::do_seek                                        >,
-        boost::msm::front::Row < tiz::graph::executing   , tiz::graph::volume_evt      , boost::msm::front::none , tiz::graph::do_volume                                      >,
-        boost::msm::front::Row < tiz::graph::executing   , tiz::graph::mute_evt        , boost::msm::front::none , tiz::graph::do_mute                                        >,
-        boost::msm::front::Row < tiz::graph::executing   , tiz::graph::pause_evt       , tiz::graph::exe2pause   , tiz::graph::do_omx_exe2pause                               >,
         boost::msm::front::Row < tiz::graph::executing   , tiz::graph::unload_evt      , tiz::graph::exe2idle    , tiz::graph::do_omx_exe2idle                                >,
         boost::msm::front::Row < tiz::graph::executing   , tiz::graph::omx_err_evt     , skipping                , boost::msm::front::none                                    >,
         boost::msm::front::Row < tiz::graph::executing   , tiz::graph::omx_eos_evt     , skipping                , boost::msm::front::none     , tiz::graph::is_last_eos      >,
@@ -527,18 +523,12 @@ namespace tiz
                                   ::skip_exit>           , skipped_evt                 , configuring             , boost::msm::front::none , boost::msm::front::euml::Not_<
                                                                                                                                                tiz::graph::is_end_of_play>   >,
         //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
-        boost::msm::front::Row < tiz::graph::exe2pause   , tiz::graph::omx_trans_evt   , tiz::graph::pause       , boost::msm::front::none , tiz::graph::is_trans_complete    >,
-        //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
-        boost::msm::front::Row < tiz::graph::pause       , tiz::graph::pause_evt       , tiz::graph::pause2exe   , tiz::graph::do_omx_pause2exe                               >,
-        //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
-        boost::msm::front::Row < tiz::graph::pause2exe   , tiz::graph::omx_trans_evt   , tiz::graph::executing   , boost::msm::front::none , tiz::graph::is_trans_complete    >,
-        //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
         boost::msm::front::Row < tiz::graph::exe2idle    , tiz::graph::omx_trans_evt   , tiz::graph::idle2loaded , tiz::graph::do_omx_idle2loaded , tiz::graph::is_trans_complete    >,
         //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
-        boost::msm::front::Row < tiz::graph::idle2loaded , tiz::graph::omx_trans_evt   , tiz::graph::unloaded                , boost::msm::front::ActionSequence_<
-                                                                                                                                 boost::mpl::vector<
-                                                                                                                                   tiz::graph::do_tear_down_tunnels,
-                                                                                                                                   tiz::graph::do_destroy_graph> > , tiz::graph::is_trans_complete    >
+        boost::msm::front::Row < tiz::graph::idle2loaded , tiz::graph::omx_trans_evt   , tiz::graph::unloaded    , boost::msm::front::ActionSequence_<
+                                                                                                                     boost::mpl::vector<
+                                                                                                                       tiz::graph::do_tear_down_tunnels,
+                                                                                                                       tiz::graph::do_destroy_graph> > , tiz::graph::is_trans_complete    >
         //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
         > {};
 
@@ -556,19 +546,14 @@ namespace tiz
     static char const* const state_names[] = { "inited",
                                                "loaded",
                                                "configuring",
-                                               "config2idle",
-                                               "idle2exe",
                                                "executing",
                                                "skipping",
-                                               "exe2pause",
-                                               "pause",
-                                               "pause2exe",
                                                "exe2idle",
                                                "idle2loaded",
                                                "unloaded"};
     static char const* const pstate(fsm const& p)
     {
-      return tiz::graph::state_names[p.current_state()[0]];
+      return tiz::graph::hsfsm::state_names[p.current_state()[0]];
     }
 
     } // namespace hsfsm
