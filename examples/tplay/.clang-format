@@ -16,8 +16,8 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# clang-format configuration file, GNU style.
-# This is for C projects (C++ projects use Allman style).
+# clang-format configuration file, Allman style.
+# This is for C++ projects (C projects use GNU style).
 #
 
 ---
@@ -58,7 +58,7 @@ Standard:        Auto
 IndentWidth:     2
 TabWidth:        8
 UseTab:          Never
-BreakBeforeBraces: GNU
+BreakBeforeBraces: Allman
 IndentFunctionDeclarationAfterType: true
 SpacesInParentheses: false
 SpacesInAngles:  true
