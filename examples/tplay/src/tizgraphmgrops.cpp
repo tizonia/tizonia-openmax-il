@@ -156,11 +156,10 @@ void graphmgr::ops::do_execute ()
   assert (playlist_);
   assert (next_playlist_);
 
-  const bool loop_playback = playlist_->single_format ();
-  next_playlist_->set_loop_playback (loop_playback);
+  next_playlist_->set_loop_playback (playlist_->single_format ());
   graph_config_.reset ();
   graph_config_
-      = boost::make_shared< tiz::graph::config >(next_playlist_, loop_playback);
+      = boost::make_shared< tiz::graph::config >(next_playlist_);
 
   if (graph_config_)
   {

@@ -43,9 +43,8 @@ namespace tiz
     {
 
     public:
-      explicit config (const tizplaylist_ptr_t &playlist,
-                       const bool loop_playback = true)
-        : playlist_ (playlist), loop_playback_ (loop_playback)
+      explicit config (const tizplaylist_ptr_t &playlist)
+        : playlist_ (playlist)
       {
       }
 
@@ -58,14 +57,8 @@ namespace tiz
         return playlist_;
       }
 
-      bool loop_playback () const
-      {
-        return loop_playback_;
-      }
-
     protected:
       tizplaylist_ptr_t playlist_;
-      bool loop_playback_;
     };
 
   }  // namespace graph

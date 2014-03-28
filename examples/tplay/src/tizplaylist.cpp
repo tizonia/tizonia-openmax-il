@@ -242,8 +242,9 @@ end:
 void tiz::playlist::skip (const int jump)
 {
   const int list_size = uri_list_.size ();
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "jump [%d] current_index_ [%d]...", jump,
-           current_index_);
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "jump [%d] current_index_ [%d]"
+           " loop_playback [%s]", jump, current_index_,
+           loop_playback_ ? "YES" : "NO");
   current_index_ += jump;
 
   if (loop_playback ())
@@ -467,6 +468,9 @@ void tiz::playlist::scan_list ()
     }
     // For convenience, push one more index, a "last" index...
     sub_list_indexes_.push_back (uri_list_.size ());
+
+    // Find out whether this is a single-format playlist.
+    (void) single_format ();
   }
 }
 

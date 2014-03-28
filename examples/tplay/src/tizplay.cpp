@@ -478,6 +478,10 @@ namespace  // unnamed namespace
 
     tizplaylist_ptr_t playlist
         = boost::make_shared< tiz::playlist >(tiz::playlist (file_list));
+    // Here we'll only process one encoding, that is mp3... so enable loop
+    // playback to ensure that the graph does not stop to get back to the
+    // manager at the end of the playlist.
+    playlist->set_loop_playback (true);
     tizgraphconfig_ptr_t config
         = boost::make_shared< tiz::graph::httpservconfig >(playlist, hostname,
                                                            ip_address, port);

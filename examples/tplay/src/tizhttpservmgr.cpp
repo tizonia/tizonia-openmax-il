@@ -105,8 +105,8 @@ tizgraph_ptr_t graphmgr::httpservmgrops::get_graph (
     }
     else
     {
-      std::string msg ("Unable to create the http server graph.");
-      GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources, msg);
+      GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources,
+                             "Unable to create the http server graph.");
     }
   }
   else
@@ -119,52 +119,28 @@ tizgraph_ptr_t graphmgr::httpservmgrops::get_graph (
 
 void graphmgr::httpservmgrops::do_load ()
 {
-  next_playlist_ = find_next_sub_list ();
-
-  if (next_playlist_)
+  tizgraph_ptr_t g_ptr (get_graph (std::string ()));
+  if (g_ptr)
   {
-    const uri_lst_t &next_urilist = next_playlist_->get_uri_list ();
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "next_urilist size %d", next_urilist.size ());
-
-    tizgraph_ptr_t g_ptr (get_graph (std::string ()));
-    if (g_ptr)
-    {
-      GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (),
-                              "Unable to load the graph.");
-    }
-    p_managed_graph_ = g_ptr;
+    GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (),
+                            "Unable to load the graph.");
   }
-  else
-  {
-    GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources,
-                           "Unable to allocate the next playlist.");
-  }
+  p_managed_graph_ = g_ptr;
 }
 
 void graphmgr::httpservmgrops::do_execute ()
 {
   assert (playlist_);
-  assert (next_playlist_);
-
-  const bool loop_playback = playlist_->single_format ();
-  next_playlist_->set_loop_playback (loop_playback);
-
   assert (p_mgr_);
+
   httpservmgr *p_servermgr = dynamic_cast< httpservmgr * >(p_mgr_);
   assert (p_servermgr);
+
   graph_config_.reset ();
   graph_config_ = p_servermgr->config_;
+  assert (graph_config_);
 
-  if (graph_config_)
-  {
-    GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_,
-                            p_managed_graph_->execute (graph_config_),
-                            "Unable to execute the graph.");
-  }
-  else
-  {
-    GMGR_OPS_RECORD_ERROR (
-        OMX_ErrorInsufficientResources,
-        "Unable to allocate the graph configuration object.");
-  }
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_,
+                          p_managed_graph_->execute (graph_config_),
+                          "Unable to execute the graph.");
 }
