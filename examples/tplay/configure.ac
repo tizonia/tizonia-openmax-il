@@ -22,6 +22,9 @@ AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 
+# 'm4' is the directory where the extra autoconf macros are stored
+AC_CONFIG_MACRO_DIR([m4])
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
@@ -36,13 +39,10 @@ LT_INIT
 AC_CHECK_LIB([avcodec], [avcodec_init])
 AC_CHECK_LIB([avformat], [avformat_open_input])
 AC_CHECK_LIB([avutil], [av_dict_get])
-# FIXME: Replace `main' with a function in `-lboost_filesystem':
-AC_CHECK_LIB([boost_filesystem], [main])
-# FIXME: Replace `main' with a function in `-lboost_system':
-AC_CHECK_LIB([boost_system], [main])
-# FIXME: Replace `main' with a function in `-lboost_thread':
-AC_CHECK_LIB([boost_thread], [main])
-AC_CHECK_LIB([boost_thread], [main])
+AX_BOOST_BASE([1.46],, [AC_MSG_ERROR([tplay needs Boost 1.46])])
+AX_BOOST_SYSTEM
+AX_BOOST_FILESYSTEM
+AX_BOOST_THREAD
 
 PKG_CHECK_MODULES([TAGLIB], [taglib >= 1.7.0])
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
@@ -50,11 +50,6 @@ PKG_CHECK_MODULES([TAGLIB], [taglib >= 1.7.0])
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stdlib.h string.h termios.h unistd.h])
-
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADERS([boost/foreach.hpp], [],
-    [AC_MSG_ERROR(You need the Boost libraries.)])
-AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL

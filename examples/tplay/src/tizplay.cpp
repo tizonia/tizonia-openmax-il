@@ -52,6 +52,7 @@
 
 #include <ostream>
 
+#include <boost/version.hpp>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 
@@ -169,6 +170,8 @@ namespace  // unnamed namespace
     printf ("\t    * Key bindings:\n");
     printf ("\t      * [q] quit.\n");
     printf ("\t      * [Ctrl-c] terminate the application at any time.\n");
+    printf ("\n");
+    printf ("Boost Version [%s]\n", BOOST_LIB_VERSION);
     printf ("\n");
   }
 

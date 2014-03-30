@@ -75,18 +75,23 @@ tplay_SOURCES = \
 	tizhttpservgraphops.cpp
 
 tplay_CPPFLAGS = \
+	@BOOST_CPPFLAGS@ \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizosal/src \
-	-I/usr/include/taglib
+	-I/usr/include/taglib \
 	-D__STDC_CONSTANT_MACROS
 
 tplay_LDADD = \
-	-lboost_thread \
-	-lboost_system \
-	-lboost_filesystem \
+	@BOOST_SYSTEM_LIB@ \
+	@BOOST_FILESYSTEM_LIB@ \
+	@BOOST_THREAD_LIB@ \
 	-lavformat \
 	-lavcodec \
 	-lavutil \
 	-ltag \
 	$(top_builddir)/../../libtizosal/src/libtizosal.la \
 	$(top_builddir)/../../libtizcore/src/libtizcore.la
+
+# 	-lboost_thread
+# 	-lboost_system
+# 	-lboost_filesystem
