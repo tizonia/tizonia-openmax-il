@@ -30,16 +30,17 @@
 #include <config.h>
 #endif
 
-#include "vp8dprc.h"
-#include "vp8dprc_decls.h"
-#include "tizkernel.h"
-#include "tizscheduler.h"
-#include "tizosal.h"
-
 #include <stdlib.h>
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
+
+#include <tizosal.h>
+
+#include <tizkernel.h>
+
+#include "vp8dprc.h"
+#include "vp8dprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -235,21 +236,15 @@ get_input_buffer (vp8d_prc_t *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
     }
   else
     {
-      tiz_pd_set_t ports;
-
-      TIZ_PD_ZERO (&ports);
-      if (OMX_ErrorNone == tiz_krn_select (ap_krn, 1, &ports))
+      if (OMX_ErrorNone == tiz_krn_claim_buffer
+          (ap_krn, 0, 0, &ap_obj->p_inhdr_))
         {
-          if (TIZ_PD_ISSET (0, &ports))
+          if (NULL != ap_obj->p_inhdr_)
             {
-              if (OMX_ErrorNone == tiz_krn_claim_buffer
-                  (ap_krn, 0, 0, &ap_obj->p_inhdr_))
-                {
-                  TIZ_TRACE (ap_hdl, "Claimed input HEADER [%p]..."
-                            "nFilledLen [%d]", ap_obj->p_inhdr_,
-                            ap_obj->p_inhdr_->nFilledLen);
-                  return ap_obj->p_inhdr_;
-                }
+              TIZ_TRACE (ap_hdl, "Claimed input HEADER [%p]..."
+                         "nFilledLen [%d]", ap_obj->p_inhdr_,
+                         ap_obj->p_inhdr_->nFilledLen);
+              return ap_obj->p_inhdr_;
             }
         }
     }

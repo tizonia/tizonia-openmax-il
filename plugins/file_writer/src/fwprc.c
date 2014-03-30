@@ -142,7 +142,7 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
                 = fwrite (p_hdr->pBuffer + p_hdr->nOffset,
                           p_hdr->nFilledLen, 1, p_prc->p_file_)))
         {
-          TIZ_LOG (TIZ_PRIORITY_ERROR,
+          TIZ_ERROR (handleOf (p_prc),
                    "elems_written [%d] p_hdr->nFilledLen [%d]: "
                    "An error occurred while writing", elems_written,
                    p_hdr->nFilledLen);
@@ -152,9 +152,9 @@ fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
       p_hdr->nFilledLen = 0;
       p_prc->counter_ += p_hdr->nFilledLen;
 
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Writing data from HEADER [%p]...nFilledLen [%d] "
-               "counter [%d] elems_written [%d]",
-               p_hdr, p_hdr->nFilledLen, p_prc->counter_, elems_written);
+      TIZ_TRACE (handleOf (p_prc), "Writing data from HEADER [%p]...nFilledLen [%d] "
+                 "counter [%d] elems_written [%d]",
+                 p_hdr, p_hdr->nFilledLen, p_prc->counter_, elems_written);
     }
 
   return OMX_ErrorNone;
@@ -234,33 +234,28 @@ fw_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 fw_proc_buffers_ready (const void *ap_obj)
 {
-  const fw_prc_t *p_obj = ap_obj;
+  const fw_prc_t *p_prc = ap_obj;
 
-  if (!p_obj->eos_)
+  if (!p_prc->eos_)
     {
       OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-      tiz_pd_set_t ports;
-      TIZ_PD_ZERO (&ports);
-
-      tiz_check_omx_err (tiz_krn_select (tiz_get_krn (handleOf (ap_obj)), 1, &ports));
-
-      if (TIZ_PD_ISSET (0, &ports))
+      tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
+                                               ARATELIA_FILE_WRITER_PORT_INDEX,
+                                               0, &p_hdr));
+      if (NULL != p_hdr)
         {
-          tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_obj)),
-                                                   ARATELIA_FILE_WRITER_PORT_INDEX,
-                                                   0, &p_hdr));
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "Claimed HEADER [%p]...", p_hdr);
-          tiz_check_omx_err (fw_proc_write_buffer (ap_obj, p_hdr));
+          TIZ_TRACE (handleOf (p_prc), "Claimed HEADER [%p]...", p_hdr);
+          tiz_check_omx_err (fw_proc_write_buffer (p_prc, p_hdr));
           if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
             {
-              TIZ_LOG (TIZ_PRIORITY_DEBUG,
-                       "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
-              tiz_srv_issue_event ((OMX_PTR) ap_obj,
+              TIZ_DEBUG (handleOf (p_prc),
+                         "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
+              tiz_srv_issue_event ((OMX_PTR) p_prc,
                                    OMX_EventBufferFlag,
                                    ARATELIA_FILE_WRITER_PORT_INDEX,
                                    p_hdr->nFlags, NULL);
             }
-          tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
+          tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
                                                      ARATELIA_FILE_WRITER_PORT_INDEX,
                                                      p_hdr));
         }

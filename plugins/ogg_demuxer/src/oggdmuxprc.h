@@ -20,10 +20,10 @@
 /**
  * @file   oggdmuxprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - Ogg demuxer processor class
- * 
- * 
+ *
+ *
  */
 
 #ifndef OGGDMUXPRC_H

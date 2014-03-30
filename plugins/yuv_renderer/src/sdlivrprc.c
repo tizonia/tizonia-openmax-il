@@ -30,16 +30,16 @@
 #include <config.h>
 #endif
 
-#include "sdlivrprc.h"
-#include "sdlivrprc_decls.h"
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
-#include "tizosal.h"
-
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
+
+#include <tizosal.h>
+
+#include <tizkernel.h>
+
+#include "sdlivrprc.h"
+#include "sdlivrprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -190,7 +190,6 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   sdlivr_prc_t *p_obj = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
   OMX_PARAM_PORTDEFINITIONTYPE portdef;
 
   TIZ_TRACE (handleOf (ap_obj), "pid [%d]", a_pid);
@@ -202,7 +201,7 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   portdef.nVersion.nVersion = OMX_VERSION;
   portdef.nPortIndex = 0;       /* port index */
   if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
-                        (p_krn,
+                        (tiz_get_krn (handleOf (ap_obj)),
                          handleOf (ap_obj),
                          OMX_IndexParamPortDefinition, &portdef)))
     {
@@ -266,27 +265,24 @@ sdlivr_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 sdlivr_proc_buffers_ready (const void *ap_obj)
 {
-  tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  TIZ_PD_ZERO (&ports);
-
-  tiz_check_omx_err (tiz_krn_select (p_krn, 1, &ports));
-
-  if (TIZ_PD_ISSET (0, &ports))
+  if (OMX_ErrorNone == tiz_krn_claim_buffer
+      (tiz_get_krn (handleOf (ap_obj)), 0, 0, &p_hdr))
     {
-      tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
-      tiz_check_omx_err (sdlivr_proc_render_buffer (ap_obj, p_hdr));
-      if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
+      if (NULL != p_hdr)
         {
-          TIZ_TRACE (handleOf (ap_obj),
-                    "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
-          tiz_srv_issue_event ((OMX_PTR) ap_obj,
-                                  OMX_EventBufferFlag,
-                                  0, p_hdr->nFlags, NULL);
+          tiz_check_omx_err (sdlivr_proc_render_buffer (ap_obj, p_hdr));
+          if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)
+            {
+              TIZ_TRACE (handleOf (ap_obj),
+                         "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
+              tiz_srv_issue_event ((OMX_PTR) ap_obj,
+                                   OMX_EventBufferFlag,
+                                   0, p_hdr->nFlags, NULL);
+            }
+          tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 0, p_hdr);
         }
-      tiz_krn_release_buffer (p_krn, 0, p_hdr);
     }
 
   return OMX_ErrorNone;

@@ -133,6 +133,7 @@ static inline OMX_BUFFERHEADERTYPE *get_header (const tiz_vector_t *ap_list,
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
   assert (NULL != ap_list);
+  assert (a_index < tiz_vector_length (ap_list));
   /* Retrieve the header... */
   pp_hdr = tiz_vector_at (ap_list, a_index);
   assert (NULL != pp_hdr && NULL != *pp_hdr);

@@ -30,15 +30,16 @@
 #include <config.h>
 #endif
 
-#include "arprc.h"
-#include "arprc_decls.h"
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
-#include "tizosal.h"
-
 #include <assert.h>
 #include <errno.h>
+
+#include <tizosal.h>
+
+#include <tizkernel.h>
+#include <tizscheduler.h>
+
+#include "arprc_decls.h"
+#include "arprc.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -323,31 +324,27 @@ ar_prc_stop_and_return (/*@unused@*/ void * ap_obj)
 static OMX_ERRORTYPE
 ar_prc_buffers_ready (const void *ap_obj)
 {
-  tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  assert (NULL != ap_obj);
 
-  TIZ_PD_ZERO (&ports);
-
-  tiz_check_omx_err (tiz_krn_select (p_krn, 1, &ports));
-
-  if (TIZ_PD_ISSET (0, &ports))
-    {
-      tiz_check_omx_err (tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr));
-      assert (NULL != p_hdr);
-      TIZ_TRACE (handleOf (ap_obj), "Claimed HEADER [%p]...", p_hdr);
-      tiz_check_omx_err (ar_prc_render_buffer (ap_obj, p_hdr));
-      if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0)
-        {
-          OMX_PTR event_data = NULL; 
-          TIZ_DEBUG (handleOf (ap_obj),
-                    "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
-          tiz_srv_issue_event ((OMX_PTR) ap_obj,
-                                  OMX_EventBufferFlag,
-                                  0, p_hdr->nFlags, event_data);
-        }
-      tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, p_hdr));
-    }
+  tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                           0, 0, &p_hdr));
+  if (NULL != p_hdr)
+  {
+    TIZ_TRACE (handleOf (ap_obj), "Claimed HEADER [%p]...", p_hdr);
+    tiz_check_omx_err (ar_prc_render_buffer (ap_obj, p_hdr));
+    if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) > 0)
+      {
+        OMX_PTR event_data = NULL;
+        TIZ_DEBUG (handleOf (ap_obj),
+                   "OMX_BUFFERFLAG_EOS in HEADER [%p]", p_hdr);
+        tiz_srv_issue_event ((OMX_PTR) ap_obj,
+                             OMX_EventBufferFlag,
+                             0, p_hdr->nFlags, event_data);
+      }
+    tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                               0, p_hdr));
+  }
 
   return OMX_ErrorNone;
 }

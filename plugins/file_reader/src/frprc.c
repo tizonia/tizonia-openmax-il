@@ -249,22 +249,17 @@ fr_prc_buffers_ready (const void *ap_obj)
 
   assert (NULL != ap_obj);
 
-  if (p_prc->eos_ == false)
+  if (!p_prc->eos_)
     {
       OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-      tiz_pd_set_t ports;
-      TIZ_PD_ZERO (&ports);
-
-      tiz_check_omx_err (tiz_krn_select (tiz_get_krn (handleOf (p_prc)), 1, &ports));
-
-      if (TIZ_PD_ISSET (0, &ports))
+      tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
+                                               ARATELIA_FILE_READER_PORT_INDEX,
+                                               0, &p_hdr));
+      if (NULL != p_hdr)
         {
-          tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
-                                                   ARATELIA_FILE_READER_PORT_INDEX,
-                                                   0, &p_hdr));
           TIZ_TRACE (handleOf (p_prc),
-                    "Claimed HEADER [%p]...nFilledLen [%d]", p_hdr,
-                    p_hdr->nFilledLen);
+                     "Claimed HEADER [%p]...nFilledLen [%d]", p_hdr,
+                     p_hdr->nFilledLen);
           tiz_check_omx_err (read_buffer (p_prc, p_hdr));
           tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
                                                      ARATELIA_FILE_READER_PORT_INDEX,

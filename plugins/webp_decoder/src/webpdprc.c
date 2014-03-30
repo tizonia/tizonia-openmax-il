@@ -30,17 +30,16 @@
 #include <config.h>
 #endif
 
-#include "webpdprc.h"
-#include "webpdprc_decls.h"
-
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
-#include "tizosal.h"
-
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
+
+#include <tizosal.h>
+
+#include <tizkernel.h>
+
+#include "webpdprc.h"
+#include "webpdprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -134,57 +133,51 @@ webpd_prc_stop_and_return (void *ap_obj)
 static bool
 claim_input (const void *ap_obj)
 {
-  webpd_prc_t *p_obj = (webpd_prc_t *) ap_obj;
-  tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
+  webpd_prc_t *p_prc = (webpd_prc_t *) ap_obj;
+  bool rc = false;
+  assert (NULL != p_prc);
 
-  TIZ_PD_ZERO (&ports);
-  tiz_check_omx_err (tiz_krn_select (p_krn, 2, &ports));
-
-  /* We need one input buffers */
-  if (TIZ_PD_ISSET (0, &ports))
+  if (OMX_ErrorNone == tiz_krn_claim_buffer
+      (tiz_get_krn (handleOf (p_prc)), 0, 0, &p_prc->pinhdr_))
     {
-      tiz_check_omx_err (tiz_krn_claim_buffer
-                         (p_krn, 0, 0, &p_obj->pinhdr_));
-      TIZ_TRACE (handleOf (ap_obj),
-                "Claimed INPUT HEADER [%p]...", p_obj->pinhdr_);
-      return true;
+      if (NULL != p_prc->pinhdr_)
+        {
+          TIZ_TRACE (handleOf (p_prc),
+                     "Claimed INPUT HEADER [%p]...", p_prc->pinhdr_);
+          rc = true;
+        }
     }
-  TIZ_TRACE (handleOf (ap_obj),
-            "Could not claim an input header...");
-  return false;
+
+  return rc;
 }
 
 static bool
 claim_output (const void *ap_obj)
 {
-  webpd_prc_t *p_obj = (webpd_prc_t *) ap_obj;
-  tiz_pd_set_t ports;
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
+  webpd_prc_t *p_prc = (webpd_prc_t *) ap_obj;
+  bool rc = false;
+  assert (NULL != p_prc);
 
-  TIZ_PD_ZERO (&ports);
-  tiz_check_omx_err (tiz_krn_select (p_krn, 2, &ports));
-
-  /* We need one output buffers */
-  if (TIZ_PD_ISSET (1, &ports))
+  if (OMX_ErrorNone == tiz_krn_claim_buffer
+      (tiz_get_krn (handleOf (p_prc)), 1, 0, &p_prc->pouthdr_))
     {
-      tiz_check_omx_err (tiz_krn_claim_buffer
-                         (p_krn, 1, 0, &p_obj->pouthdr_));
-      TIZ_TRACE (handleOf (ap_obj),
-                "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
-                "nFilledLen [%d]...", p_obj->pouthdr_,
-                p_obj->pouthdr_->pBuffer, p_obj->pouthdr_->nFilledLen);
-      return true;
+      if (NULL != p_prc->pouthdr_)
+        {
+          TIZ_TRACE (handleOf (p_prc),
+                     "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
+                     "nFilledLen [%d]...", p_prc->pouthdr_,
+                     p_prc->pouthdr_->pBuffer, p_prc->pouthdr_->nFilledLen);
+          rc = true;
+        }
     }
 
-  return false;
+  return rc;
 }
 
 static OMX_ERRORTYPE
 webpd_prc_buffers_ready (const void *ap_obj)
 {
   webpd_prc_t *p_obj = (webpd_prc_t *) ap_obj;
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
 
   TIZ_TRACE (handleOf (ap_obj), "Buffers ready...");
 
@@ -211,7 +204,7 @@ webpd_prc_buffers_ready (const void *ap_obj)
       if (p_obj->pinhdr_ && (0 == p_obj->pinhdr_->nFilledLen))
         {
           p_obj->pinhdr_->nOffset = 0;
-          tiz_krn_release_buffer (p_krn, 0, p_obj->pinhdr_);
+          tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 0, p_obj->pinhdr_);
           p_obj->pinhdr_ = NULL;
         }
     }
@@ -223,7 +216,7 @@ webpd_prc_buffers_ready (const void *ap_obj)
       TIZ_TRACE (handleOf (ap_obj),
                 "p_obj->eos OUTPUT HEADER [%p]...", p_obj->pouthdr_);
       p_obj->pouthdr_->nFlags |= OMX_BUFFERFLAG_EOS;
-      tiz_krn_release_buffer (p_krn, 1, p_obj->pouthdr_);
+      tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->pouthdr_);
       p_obj->pouthdr_ = NULL;
     }
 

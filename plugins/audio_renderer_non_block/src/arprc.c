@@ -30,16 +30,18 @@
 #include <config.h>
 #endif
 
-#include "ar.h"
-#include "arprc.h"
-#include "arprc_decls.h"
-#include "tizkernel.h"
-#include "tizscheduler.h"
-#include "tizosal.h"
-
 #include <assert.h>
 #include <errno.h>
 #include <math.h>
+
+#include <tizosal.h>
+
+#include <tizutils.h>
+#include <tizkernel.h>
+
+#include "ar.h"
+#include "arprc.h"
+#include "arprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -381,7 +383,7 @@ buffer_needed (ar_prc_t * ap_prc)
 {
   assert (NULL != ap_prc);
 
-  if (false == ap_prc->port_disabled_)
+  if (!ap_prc->port_disabled_)
     {
       if (NULL != ap_prc->p_inhdr_ && ap_prc->p_inhdr_->nFilledLen > 0)
         {
@@ -389,25 +391,16 @@ buffer_needed (ar_prc_t * ap_prc)
         }
       else
         {
-          tiz_pd_set_t ports;
-          void *p_krn = NULL;
-
-          p_krn = tiz_get_krn (handleOf (ap_prc));
-
-          TIZ_PD_ZERO (&ports);
-          if (OMX_ErrorNone == tiz_krn_select (p_krn, 1, &ports))
+          if (OMX_ErrorNone == (tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                                      ARATELIA_AUDIO_RENDERER_PORT_INDEX,
+                                                      0, &ap_prc->p_inhdr_)))
             {
-              if (TIZ_PD_ISSET (0, &ports))
+              if (NULL != ap_prc->p_inhdr_)
                 {
-                  if (OMX_ErrorNone == tiz_krn_claim_buffer
-                      (p_krn, 0, 0, &ap_prc->p_inhdr_))
-                    {
-                      TIZ_TRACE (handleOf (ap_prc),
-                                 "Claimed HEADER [%p]...nFilledLen [%d]",
-                                 ap_prc->p_inhdr_,
-                                 ap_prc->p_inhdr_->nFilledLen);
-                      return ap_prc->p_inhdr_;
-                    }
+                  TIZ_TRACE (handleOf (ap_prc),
+                             "Claimed HEADER [%p]...nFilledLen [%d]",
+                             ap_prc->p_inhdr_, ap_prc->p_inhdr_->nFilledLen);
+                  return ap_prc->p_inhdr_;
                 }
             }
         }
@@ -438,7 +431,8 @@ buffer_emptied (ar_prc_t * ap_prc)
 
   tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn
                                              (handleOf (ap_prc)),
-                                             0, ap_prc->p_inhdr_));
+                                             ARATELIA_AUDIO_RENDERER_PORT_INDEX,
+                                             ap_prc->p_inhdr_));
   ap_prc->p_inhdr_ = NULL;
   return OMX_ErrorNone;
 }

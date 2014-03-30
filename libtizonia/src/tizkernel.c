@@ -1512,80 +1512,91 @@ static OMX_ERRORTYPE krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,
 {
   tiz_krn_t *p_obj = (tiz_krn_t *)ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_vector_t *p_list = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  tiz_vector_t *p_list = NULL;
   OMX_PTR p_port = NULL;
-  OMX_HANDLETYPE hdl = handleOf (p_obj);
-  OMX_DIRTYPE pdir = OMX_DirMax;
 
   assert (NULL != ap_obj);
-  assert (NULL != app_hdr);
   assert (check_pid (p_obj, a_pid) == OMX_ErrorNone);
-
-  /* Buffers can't be claimed in OMX_StatePause state */
-  assert (EStatePause != tiz_fsm_get_substate (tiz_get_fsm (hdl)));
+  assert (NULL != app_hdr);
 
   /* Find the port.. */
   p_port = get_port (p_obj, a_pid);
 
-  TIZ_TRACE (hdl, "port's [%d] a_pos [%d] buf count [%d]...", a_pid, a_pos,
-             tiz_port_buffer_count (p_port));
+  TIZ_TRACE (handleOf (p_obj), "port's [%d] a_pos [%d] buf count [%d]...",
+             a_pid, a_pos, tiz_port_buffer_count (p_port));
+
+  /* Buffers can't be claimed in OMX_StatePause state */
+  assert (EStatePause != tiz_fsm_get_substate (tiz_get_fsm (handleOf (p_obj))));
 
   /* Buffers can't be claimed on an disabled port */
   assert (TIZ_PORT_IS_ENABLED (p_port));
 
+  /* Buffer position shall not be larger or equal than the buffer count */
   assert (a_pos < tiz_port_buffer_count (p_port));
 
   /* Grab the port's ingress list  */
   p_list = get_ingress_lst (p_obj, a_pid);
+
+  /* Ingress list's size shall not be larger than the port's buffer count */
   assert (tiz_vector_length (p_list) <= tiz_port_buffer_count (p_port));
 
-  /* Retrieve the header... */
-  p_hdr = get_header (p_list, a_pos);
-  *app_hdr = p_hdr;
-
-  TIZ_TRACE (hdl,
-             "port's [%d] HEADER [%p] BUFFER [%p] ingress "
-             "list length [%d]...",
-             a_pid, p_hdr, p_hdr->pBuffer, tiz_vector_length (p_list));
-
-  pdir = tiz_port_dir (p_port);
-  /* If it's an output port and allocator, ask the port to allocate the actual
-   * buffer, in case pre-announcements have been disabled on this port. This
-   * function call has no effect if pre-announcements are enabled on the
-   * port. */
-  if (OMX_DirOutput == pdir && TIZ_PORT_IS_ALLOCATOR (p_port))
+  /* Only try to retrieve the buffer if that position exists in the list */
+  if (a_pos < tiz_vector_length (p_list))
     {
-      tiz_check_omx_err (tiz_port_populate_header (p_port, p_hdr));
-    }
+      OMX_DIRTYPE pdir = OMX_DirMax;
 
-  /* ... and delete it from the list */
-  tiz_vector_erase (p_list, a_pos, 1);
+      /* Retrieve the header from the port's ingress list... */
+      p_hdr = get_header (p_list, a_pos);
+      assert (NULL != p_hdr);
 
-  /* Now increment by one the claimed buffers count on this port */
-  (void)TIZ_PORT_INC_CLAIMED_COUNT (p_port);
+      TIZ_TRACE (handleOf (p_obj),
+                 "port's [%d] HEADER [%p] BUFFER [%p] ingress "
+                 "list length [%d]...",
+                 a_pid, p_hdr, p_hdr->pBuffer, tiz_vector_length (p_list));
 
-  /* ...and if its an input buffer, mark the header, if any marks
-   * available... */
-  if (OMX_DirInput == pdir)
-    {
-      /* NOTE: tiz_port_mark_buffer returns OMX_ErrorNone if the port marked the
-       * buffer with one of its own marks */
-      if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (p_port, p_hdr)))
+      pdir = tiz_port_dir (p_port);
+      /* If it's an output port and allocator, ask the port to allocate the
+       * actual
+       * buffer, in case pre-announcements have been disabled on this port. This
+       * function call has no effect if pre-announcements are enabled on the
+       * port. */
+      if (OMX_DirOutput == pdir && TIZ_PORT_IS_ALLOCATOR (p_port))
         {
-          /* Successfully complete here the OMX_CommandMarkBuffer command */
-          tiz_check_omx_err (
-              complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone));
+          tiz_check_omx_err (tiz_port_populate_header (p_port, p_hdr));
         }
-      else
+
+      /* ... and delete it from the list */
+      tiz_vector_erase (p_list, a_pos, 1);
+
+      /* Now increment by one the claimed buffers count on this port */
+      (void)TIZ_PORT_INC_CLAIMED_COUNT (p_port);
+
+      /* ...and if its an input buffer, mark the header, if any marks
+       * available... */
+      if (OMX_DirInput == pdir)
         {
-          /* These two return codes are not actual errors. */
-          if (OMX_ErrorNoMore == rc || OMX_ErrorNotReady == rc)
+          /* NOTE: tiz_port_mark_buffer returns OMX_ErrorNone if the port marked
+           * the
+           * buffer with one of its own marks */
+          if (OMX_ErrorNone == (rc = tiz_port_mark_buffer (p_port, p_hdr)))
             {
-              rc = OMX_ErrorNone;
+              /* Successfully complete here the OMX_CommandMarkBuffer command */
+              tiz_check_omx_err (
+                  complete_mark_buffer (p_obj, p_port, a_pid, OMX_ErrorNone));
+            }
+          else
+            {
+              /* These two return codes are not actual errors. */
+              if (OMX_ErrorNoMore == rc || OMX_ErrorNotReady == rc)
+                {
+                  rc = OMX_ErrorNone;
+                }
             }
         }
     }
+
+  *app_hdr = p_hdr;
 
   if (OMX_ErrorNone != rc)
     {

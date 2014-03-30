@@ -67,6 +67,9 @@ OMX_ERRORTYPE tiz_krn_find_managing_port (const void *ap_obj,
                                           const OMX_INDEXTYPE a_index,
                                           const OMX_PTR ap_struct,
                                           OMX_PTR *app_port);
+
+/** \deprecated
+ */
 OMX_ERRORTYPE tiz_krn_select (const void *ap_obj, const OMX_U32 a_nports,
                               /*@out@*/ tiz_pd_set_t *ap_set);
 OMX_ERRORTYPE tiz_krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,

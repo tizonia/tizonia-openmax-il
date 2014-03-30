@@ -30,15 +30,16 @@
 #include <config.h>
 #endif
 
-#include "mp3dprc.h"
-#include "mp3dprc_decls.h"
-#include "tizkernel.h"
-#include "tizscheduler.h"
-#include "tizosal.h"
-
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
+
+#include <tizosal.h>
+
+#include <tizkernel.h>
+
+#include "mp3dprc.h"
+#include "mp3dprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -49,13 +50,12 @@ static OMX_ERRORTYPE
 release_buffers (const void *ap_obj)
 {
   mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
-  void *p_krn = tiz_get_krn (handleOf (p_obj));
 
   assert (NULL != ap_obj);
 
   if (NULL != p_obj->p_inhdr_)
     {
-      tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, p_obj->p_inhdr_));
+      tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 0, p_obj->p_inhdr_));
       p_obj->p_inhdr_ = NULL;
       p_obj->remaining_ = 0;
     }
@@ -65,7 +65,7 @@ release_buffers (const void *ap_obj)
       TIZ_TRACE (handleOf (p_obj),
                 "Releasing output HEADER [%p] nFilledLen [%d]",
                 p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen);
-      tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_));
+      tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->p_outhdr_));
       p_obj->p_outhdr_ = NULL;
     }
   return OMX_ErrorNone;
@@ -247,13 +247,12 @@ synthesize_samples (const void *ap_obj, int next_sample)
       /* release the output buffer if it is full. */
       if (p_output == p_bufend)
         {
-          void *p_krn = tiz_get_krn (handleOf (p_obj));
           p_output    = p_obj->p_outhdr_->pBuffer;
           TIZ_TRACE (handleOf (p_obj),
                     "Releasing output HEADER [%p] nFilledLen [%d]",
                     p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen);
           p_obj->p_outhdr_->nFilledLen = p_obj->p_outhdr_->nAllocLen;
-          tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_);
+          tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->p_outhdr_);
           p_obj->p_outhdr_ = NULL;
           buffer_full = true;
         }
@@ -474,7 +473,7 @@ decode_buffer (const void *ap_obj)
 /*                        "Releasing output buffer [%p] ..." */
 /*                        "nFilledLen = [%d] OMX_BUFFERFLAG_EOS", */
 /*                        p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen); */
-/*       tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_); */
+/*       tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->p_outhdr_); */
 /*       /\* p_obj->p_outhdr_ = NULL; *\/ */
 /*     } */
 
@@ -543,58 +542,49 @@ mp3d_proc_stop_and_return (void *ap_obj)
 static bool
 mp3d_claim_input (mp3d_prc_t *ap_obj)
 {
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
-  tiz_pd_set_t ports;
-
+  bool rc = false;
   assert (NULL != ap_obj);
 
-  TIZ_PD_ZERO (&ports);
-  tiz_check_omx_err (tiz_krn_select (p_krn, 2, &ports));
-
-  /* We need one input buffers */
-  if (TIZ_PD_ISSET (0, &ports))
+  if (OMX_ErrorNone == tiz_krn_claim_buffer
+      (tiz_get_krn (handleOf (ap_obj)), 0, 0, &ap_obj->p_inhdr_))
     {
-      tiz_check_omx_err (tiz_krn_claim_buffer
-                         (p_krn, 0, 0, &ap_obj->p_inhdr_));
-      TIZ_TRACE (handleOf (ap_obj),
-                "Claimed INPUT HEADER [%p]...", ap_obj->p_inhdr_);
-      return true;
+      if (NULL != ap_obj->p_inhdr_)
+        {
+          TIZ_TRACE (handleOf (ap_obj),
+                     "Claimed INPUT HEADER [%p]...", ap_obj->p_inhdr_);
+          rc = true;
+        }
     }
 
-  return false;
+  return rc;
 }
 
 static bool
 mp3d_claim_output (mp3d_prc_t *ap_obj)
 {
-  void *p_krn = tiz_get_krn (handleOf (ap_obj));
-  tiz_pd_set_t ports;
-
+  bool rc = false;
   assert (NULL != ap_obj);
 
-  TIZ_PD_ZERO (&ports);
-  tiz_check_omx_err (tiz_krn_select (p_krn, 2, &ports));
-
-  /* We need one output buffers */
-  if (TIZ_PD_ISSET (1, &ports))
+  if (OMX_ErrorNone == tiz_krn_claim_buffer
+      (tiz_get_krn (handleOf (ap_obj)), 1, 0, &ap_obj->p_outhdr_))
     {
-      tiz_check_omx_err (tiz_krn_claim_buffer
-                         (p_krn, 1, 0, &ap_obj->p_outhdr_));
-      TIZ_TRACE (handleOf (ap_obj),
-                "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
-                "nFilledLen [%d]...", ap_obj->p_outhdr_,
-                ap_obj->p_outhdr_->pBuffer, ap_obj->p_outhdr_->nFilledLen);
-      return true;
+      if (NULL != ap_obj->p_outhdr_)
+        {
+          TIZ_TRACE (handleOf (ap_obj),
+                     "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
+                     "nFilledLen [%d]...", ap_obj->p_outhdr_,
+                     ap_obj->p_outhdr_->pBuffer, ap_obj->p_outhdr_->nFilledLen);
+          rc = true;
+        }
     }
 
-  return false;
+  return rc;
 }
 
 static OMX_ERRORTYPE
 mp3d_proc_buffers_ready (const void *ap_obj)
 {
   mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
-  void *p_krn = tiz_get_krn (handleOf (p_obj));
 
   assert (NULL != ap_obj);
 
@@ -623,7 +613,8 @@ mp3d_proc_buffers_ready (const void *ap_obj)
       if (p_obj->p_inhdr_ != NULL && (0 == p_obj->p_inhdr_->nFilledLen))
         {
           p_obj->p_inhdr_->nOffset = 0;
-          tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, p_obj->p_inhdr_));
+          tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                                     0, p_obj->p_inhdr_));
           p_obj->p_inhdr_ = NULL;
         }
     }
@@ -635,7 +626,8 @@ mp3d_proc_buffers_ready (const void *ap_obj)
       TIZ_TRACE (handleOf (p_obj),
                 "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);
       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
-      tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 1, p_obj->p_outhdr_));
+      tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                                 1, p_obj->p_outhdr_));
       p_obj->p_outhdr_ = NULL;
       p_obj->eos_ = false;
     }

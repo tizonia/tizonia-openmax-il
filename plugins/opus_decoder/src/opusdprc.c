@@ -30,19 +30,20 @@
 #include <config.h>
 #endif
 
-#include "opusd.h"
-#include "opusutils.h"
-#include "opusdprc.h"
-#include "opusdprc_decls.h"
-#include "tizkernel.h"
-#include "tizscheduler.h"
-
-#include "tizosal.h"
 
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
 #include <math.h>
+
+#include <tizosal.h>
+
+#include <tizkernel.h>
+
+#include "opusd.h"
+#include "opusutils.h"
+#include "opusdprc.h"
+#include "opusdprc_decls.h"
 
 #ifdef HAVE_LRINTF
 #define float2int(x) lrintf(x)
@@ -109,24 +110,15 @@ get_buffer (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
         }
       else
         {
-          tiz_pd_set_t ports;
-          void *p_krn = NULL;
-
-          p_krn = tiz_get_krn (handleOf (ap_prc));
-
-          TIZ_PD_ZERO (&ports);
-          if (OMX_ErrorNone == tiz_krn_select (p_krn, 2, &ports))
+          if (OMX_ErrorNone == tiz_krn_claim_buffer
+              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
             {
-              if (TIZ_PD_ISSET (a_pid, &ports))
+              if (NULL != *pp_hdr)
                 {
-                  if (OMX_ErrorNone == tiz_krn_claim_buffer
-                      (p_krn, a_pid, 0, pp_hdr))
-                    {
-                      TIZ_TRACE (handleOf (ap_prc),
-                                 "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
-                                 *pp_hdr, a_pid, (*pp_hdr)->nFilledLen);
-                      return *pp_hdr;
-                    }
+                  TIZ_TRACE (handleOf (ap_prc),
+                             "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
+                             *pp_hdr, a_pid, (*pp_hdr)->nFilledLen);
+                  return *pp_hdr;
                 }
             }
         }
@@ -251,9 +243,8 @@ release_all_buffers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
   if ((a_pid == ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX
        || a_pid == OMX_ALL) && (NULL != ap_prc->p_in_hdr_))
     {
-      void *p_krn = tiz_get_krn (handleOf (ap_prc));
       tiz_check_omx_err
-        (tiz_krn_release_buffer (p_krn,
+        (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                  ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX,
                                  ap_prc->p_in_hdr_));
       ap_prc->p_in_hdr_ = NULL;
@@ -262,9 +253,8 @@ release_all_buffers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
   if ((a_pid == ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX
        || a_pid == OMX_ALL) && (NULL != ap_prc->p_out_hdr_))
     {
-      void *p_krn = tiz_get_krn (handleOf (ap_prc));
       tiz_check_omx_err
-        (tiz_krn_release_buffer (p_krn,
+        (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                  ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX,
                                  ap_prc->p_out_hdr_));
       ap_prc->p_out_hdr_ = NULL;

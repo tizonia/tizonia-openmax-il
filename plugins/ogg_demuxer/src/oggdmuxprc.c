@@ -36,9 +36,9 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "tizkernel.h"
-#include "tizscheduler.h"
-#include "tizosal.h"
+#include <tizosal.h>
+
+#include <tizkernel.h>
 
 #include "oggdmuxprc_decls.h"
 #include "oggdmuxprc.h"
@@ -430,22 +430,15 @@ get_buffer (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
         }
       else
         {
-          tiz_pd_set_t ports;
-
-          TIZ_PD_ZERO (&ports);
-          if (OMX_ErrorNone == tiz_krn_select (tiz_get_krn (handleOf (ap_prc)),
-                                               2, &ports))
+          if (OMX_ErrorNone == tiz_krn_claim_buffer
+              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
             {
-              if (TIZ_PD_ISSET (a_pid, &ports))
+              if (NULL != *pp_hdr)
                 {
-                  if (OMX_ErrorNone == tiz_krn_claim_buffer
-                      (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
-                    {
-                      TIZ_TRACE (handleOf (ap_prc), "Claimed HEADER [%p] "
-                                 "pid [%d] nFilledLen [%d]",
-                                 *pp_hdr, a_pid, (*pp_hdr)->nFilledLen);
-                      return *pp_hdr;
-                    }
+                  TIZ_TRACE (handleOf (ap_prc), "Claimed HEADER [%p] "
+                             "pid [%d] nFilledLen [%d]",
+                             *pp_hdr, a_pid, (*pp_hdr)->nFilledLen);
+                  return *pp_hdr;
                 }
             }
         }

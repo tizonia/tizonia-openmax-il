@@ -37,7 +37,6 @@
 #include <OMX_Core.h>
 
 #include <tizkernel.h>
-#include <tizscheduler.h>
 
 #include "icer.h"
 #include "icerprc_decls.h"
@@ -102,7 +101,7 @@ buffer_needed (void *ap_arg)
 
   assert (NULL != p_prc);
 
-  if (false == p_prc->port_disabled_)
+  if (!(p_prc->port_disabled_))
     {
       if (NULL != p_prc->p_inhdr_ && p_prc->p_inhdr_->nFilledLen > 0)
         {
@@ -110,23 +109,16 @@ buffer_needed (void *ap_arg)
         }
       else
         {
-          tiz_pd_set_t ports;
-
-          TIZ_PD_ZERO (&ports);
-          if (OMX_ErrorNone == tiz_krn_select (tiz_get_krn (handleOf (p_prc)),
-                                               1, &ports))
+          if (OMX_ErrorNone == tiz_krn_claim_buffer
+              (tiz_get_krn (handleOf (p_prc)), ARATELIA_HTTP_RENDERER_PORT_INDEX,
+               0, &p_prc->p_inhdr_))
             {
-              if (TIZ_PD_ISSET (0, &ports))
+              if (NULL != p_prc->p_inhdr_)
                 {
-                  if (OMX_ErrorNone == tiz_krn_claim_buffer
-                      (tiz_get_krn (handleOf (p_prc)), ARATELIA_HTTP_RENDERER_PORT_INDEX,
-                       0, &p_prc->p_inhdr_))
-                    {
-                      TIZ_TRACE (handleOf (p_prc),
-                                "Claimed HEADER [%p]...nFilledLen [%d]",
-                                p_prc->p_inhdr_, p_prc->p_inhdr_->nFilledLen);
-                      return p_prc->p_inhdr_;
-                    }
+                  TIZ_TRACE (handleOf (p_prc),
+                             "Claimed HEADER [%p]...nFilledLen [%d]",
+                             p_prc->p_inhdr_, p_prc->p_inhdr_->nFilledLen);
+                  return p_prc->p_inhdr_;
                 }
             }
         }

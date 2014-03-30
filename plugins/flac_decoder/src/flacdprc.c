@@ -30,16 +30,17 @@
 #include <config.h>
 #endif
 
-#include "flacd.h"
-#include "flacdprc.h"
-#include "flacdprc_decls.h"
-#include "tizkernel.h"
-#include "tizscheduler.h"
-#include "tizosal.h"
-
 #include <assert.h>
 #include <limits.h>
 #include <string.h>
+
+#include <tizosal.h>
+
+#include <tizkernel.h>
+
+#include "flacd.h"
+#include "flacdprc.h"
+#include "flacdprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -141,12 +142,12 @@ get_port_disabled_ptr (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
 static OMX_BUFFERHEADERTYPE *
 get_buffer (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
 {
-  OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
   bool *p_port_disabled = get_port_disabled_ptr (ap_prc, a_pid);
   assert (NULL != ap_prc);
 
-  if (false == *p_port_disabled)
+  if (!(*p_port_disabled))
     {
+      OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
       if (NULL != *pp_hdr)
         {
           TIZ_TRACE (handleOf (ap_prc),
@@ -156,24 +157,15 @@ get_buffer (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
         }
       else
         {
-          tiz_pd_set_t ports;
-          void *p_krn = NULL;
-
-          p_krn = tiz_get_krn (handleOf (ap_prc));
-
-          TIZ_PD_ZERO (&ports);
-          if (OMX_ErrorNone == tiz_krn_select (p_krn, 2, &ports))
+          if (OMX_ErrorNone == tiz_krn_claim_buffer
+              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
             {
-              if (TIZ_PD_ISSET (a_pid, &ports))
+              if (NULL != *pp_hdr)
                 {
-                  if (OMX_ErrorNone == tiz_krn_claim_buffer
-                      (p_krn, a_pid, 0, pp_hdr))
-                    {
-                      TIZ_TRACE (handleOf (ap_prc),
-                                 "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
-                                 *pp_hdr, a_pid, (*pp_hdr)->nFilledLen);
-                      return *pp_hdr;
-                    }
+                  TIZ_TRACE (handleOf (ap_prc),
+                             "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
+                             *pp_hdr, a_pid, (*pp_hdr)->nFilledLen);
+                  return *pp_hdr;
                 }
             }
         }
