@@ -36,6 +36,7 @@ AC_PROG_MAKE_SET
 LT_INIT
 
 # Checks for libraries.
+AC_LANG([C++])
 AC_CHECK_LIB([avcodec], [avcodec_init])
 AC_CHECK_LIB([avformat], [avformat_open_input])
 AC_CHECK_LIB([avutil], [av_dict_get])
