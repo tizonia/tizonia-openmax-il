@@ -30,11 +30,11 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
-#include "avl/avl.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include "tizosal.h"
+#include "avl/avl.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -59,13 +59,25 @@ struct tiz_map_item
   tiz_map_t *p_map;
 };
 
+static /*@null@ */ void *
+map_calloc ( /*@null@ */ tiz_soa_t * p_soa, size_t a_size)
+{
+  return NULL != p_soa
+    ? tiz_soa_calloc (p_soa, a_size) : tiz_mem_calloc (1, a_size);
+}
+
+static inline void
+map_free (tiz_soa_t * p_soa, void *ap_addr)
+{
+  NULL != p_soa ? tiz_soa_free (p_soa, ap_addr) : tiz_mem_free (ap_addr);
+}
+
 static int
 map_compare (void *compare_arg, void *a, void *b)
 {
   tiz_map_t *p_map = (tiz_map_t *) compare_arg;
   tiz_map_item_t *p_item1 = (tiz_map_item_t *) a;
   tiz_map_item_t *p_item2 = (tiz_map_item_t *) b;
-
   return p_map->pf_cmp (p_item1->p_key, p_item2->p_key);
 }
 
@@ -90,17 +102,18 @@ map_iter_function (void *key, void *iter_arg)
   return p_item->p_map->pf_for_each (p_item->p_key, p_item->p_value, iter_arg);
 }
 
-static /*@null@ */ void *
-map_calloc ( /*@null@ */ tiz_soa_t * p_soa, size_t a_size)
+static void
+map_erase_item (tiz_map_t * ap_map, tiz_map_item_t *ap_item)
 {
-  return NULL != p_soa
-    ? tiz_soa_calloc (p_soa, a_size) : tiz_mem_calloc (1, a_size);
-}
+  assert (NULL != ap_map);
+  assert (NULL != ap_map->p_tree);
+  assert (NULL != ap_item);
 
-static inline void
-map_free (tiz_soa_t * p_soa, void *ap_addr)
-{
-  NULL != p_soa ? tiz_soa_free (p_soa, ap_addr) : tiz_mem_free (ap_addr);
+  if (0 == avl_remove_by_key (ap_map->p_tree, (void *) ap_item, map_free_key))
+    {
+      map_free (ap_map->p_soa, ap_item);
+      ap_map->size--;
+    }
 }
 
 OMX_ERRORTYPE
@@ -205,6 +218,7 @@ tiz_map_find (const tiz_map_t * ap_map, OMX_PTR ap_key)
   pp_itemf = &p_item_found;
   item.p_key = (char *) ap_key;
   item.p_value = NULL;
+  item.p_map   = (tiz_map_t *) ap_map;
 
   if (0 == avl_get_item_by_key (ap_map->p_tree, &item, pp_itemf))
     {
@@ -255,18 +269,40 @@ tiz_map_for_each (tiz_map_t * ap_map,
 void
 tiz_map_erase (tiz_map_t * ap_map, OMX_PTR ap_key)
 {
-  tiz_map_item_t item = { ap_key, NULL, ap_map };
+  tiz_map_item_t item;
+  tiz_map_item_t *p_item_found = NULL;
+  void *pp_itemf = NULL;
 
   assert (NULL != ap_map);
-  assert (NULL != ap_map->pf_free);
+  assert (NULL != ap_map->p_tree);
   assert (NULL != ap_key);
 
-  if (0 != avl_remove_by_key (ap_map->p_tree, (void *) &item, map_free_key))
-    {
-      return;
-    }
+  pp_itemf     = &p_item_found;
+  item.p_key   = (char *) ap_key;
+  item.p_value = NULL;
+  item.p_map   = ap_map;
 
-  ap_map->size--;
+  if (0 == avl_get_item_by_key (ap_map->p_tree, &item, pp_itemf))
+    {
+      map_erase_item (ap_map, p_item_found);
+    }
+}
+
+void
+tiz_map_erase_at (tiz_map_t * ap_map, OMX_S32 a_pos)
+{
+  tiz_map_item_t *p_item_found = NULL;
+  void *pp_itemf = NULL;
+
+  assert (NULL != ap_map);
+  assert (a_pos < ap_map->size);
+  assert (a_pos >= 0);
+
+  pp_itemf = &p_item_found;
+  if (0 == avl_get_item_by_index (ap_map->p_tree, a_pos, pp_itemf))
+    {
+      map_erase_item (ap_map, p_item_found);
+    }
 }
 
 OMX_ERRORTYPE

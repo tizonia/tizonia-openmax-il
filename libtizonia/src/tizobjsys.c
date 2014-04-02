@@ -488,10 +488,11 @@ tiz_os_destroy (tiz_os_t * ap_os)
 {
   if (NULL != ap_os)
     {
-      if (NULL != ap_os->p_map)
+      while (!tiz_map_empty (ap_os->p_map))
         {
-          tiz_map_destroy (ap_os->p_map);
-        }
+          tiz_map_erase_at (ap_os->p_map, 0);
+        };
+      tiz_map_destroy (ap_os->p_map);
       os_free (ap_os->p_soa, ap_os);
     }
 }

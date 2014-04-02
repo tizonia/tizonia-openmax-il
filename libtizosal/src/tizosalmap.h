@@ -66,6 +66,8 @@ extern "C"
 
   void tiz_map_erase (tiz_map_t * ap_map, OMX_PTR ap_key);
 
+  void tiz_map_erase_at (tiz_map_t * ap_map, OMX_S32 a_pos);
+
   OMX_ERRORTYPE tiz_map_clear (tiz_map_t * ap_map);
 
   bool tiz_map_empty (const tiz_map_t * ap_map);

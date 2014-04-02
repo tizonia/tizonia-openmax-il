@@ -2156,19 +2156,23 @@ static OMX_ERRORTYPE deinit_servants (tiz_scheduler_t *ap_sched,
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
 
-  /* delete the processor servant */
+  /* Delete the processor servant */
   factory_delete (ap_sched->child.p_prc);
   ap_sched->child.p_prc = NULL;
 
-  /* delete the kernel servant */
+  /* Delete the kernel servant */
   factory_delete (ap_sched->child.p_ker);
   ap_sched->child.p_ker = NULL;
 
-  /* delete the FSM servant */
+  /* Delete the FSM servant */
   factory_delete (ap_sched->child.p_fsm);
   ap_sched->child.p_fsm = NULL;
 
-  /* Destroy the object allocator used by the servants */
+  /* Destroy the object system */
+  tiz_os_destroy (ap_sched->p_objsys);
+  ap_sched->p_objsys = NULL;
+
+  /* Destroy the small object allocator used by the servants */
   tiz_soa_destroy (ap_sched->p_soa);
   ap_sched->p_soa = NULL;
 
