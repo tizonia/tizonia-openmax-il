@@ -100,6 +100,8 @@ namespace tiz
       virtual void do_pause ();
       virtual void do_report_fatal_error (const OMX_ERRORTYPE error,
                                           const std::string &msg);
+      virtual bool is_fatal_error (const OMX_ERRORTYPE error,
+                                   const std::string &msg) const;
 
       OMX_ERRORTYPE internal_error () const;
       std::string internal_error_msg () const;

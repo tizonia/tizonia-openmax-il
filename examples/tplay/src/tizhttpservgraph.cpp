@@ -55,11 +55,10 @@ namespace graph = tiz::graph;
 //
 graph::httpserver::httpserver ()
   : graph::graph ("httpservgraph"),
-    fsm_ (
-        boost::msm::back::states_ << tiz::graph::hsfsm::fsm::configuring (
-                                         &p_ops_)
-                                  << tiz::graph::hsfsm::fsm::skipping (&p_ops_),
-        &p_ops_)
+    fsm_ (boost::msm::back::states_
+          << tiz::graph::hsfsm::fsm::configuring (&p_ops_)
+          << tiz::graph::hsfsm::fsm::skipping (&p_ops_),
+          &p_ops_)
 {
 }
 

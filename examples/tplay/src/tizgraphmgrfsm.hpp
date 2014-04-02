@@ -498,7 +498,7 @@ namespace tiz
       struct is_fatal_error
       {
         template <class EVT,class FSM,class SourceState,class TargetState>
-        bool operator()(EVT const& evt ,FSM&,SourceState& ,TargetState& )
+        bool operator()(EVT const& evt ,FSM& fsm, SourceState& , TargetState& )
         {
           bool rc = false;
           if (evt.is_internal_)
@@ -507,8 +507,13 @@ namespace tiz
               // the application will be terminated.
               rc = true;
             }
-
-          // TODO: Decide what external errors need to be considered fatal.
+          else
+            {
+              if (fsm.pp_ops_ && *(fsm.pp_ops_))
+                {
+                  rc = (*(fsm.pp_ops_))->is_fatal_error (evt.error_code_, evt.error_str_);
+                }
+            }
 
           TIZ_LOG (TIZ_PRIORITY_ERROR, "is_fatal_error [%s]", rc ? "YES" : "NO");
           return rc;

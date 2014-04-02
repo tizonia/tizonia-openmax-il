@@ -259,6 +259,13 @@ namespace tiz
       }
     };
 
+    struct AllOk : public boost::msm::front::state<>
+    {
+      template <class Event,class FSM>
+      void on_entry(Event const&,FSM& ) {G_STATE_LOG ();}
+      template <class Event,class FSM>
+      void on_exit(Event const&,FSM& ) {G_STATE_LOG ();}
+    };
   }  // namespace graph
 }  // namespace tiz
 

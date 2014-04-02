@@ -464,7 +464,7 @@ namespace tiz
       typedef boost::msm::back::state_machine<skipping_> skipping;
 
       // The initial state of the SM. Must be defined
-      typedef tiz::graph::inited initial_state;
+      typedef boost::mpl::vector<tiz::graph::inited, tiz::graph::AllOk> initial_state;
 
       // transition actions
 
@@ -528,7 +528,9 @@ namespace tiz
         boost::msm::front::Row < tiz::graph::idle2loaded , tiz::graph::omx_trans_evt   , tiz::graph::unloaded    , boost::msm::front::ActionSequence_<
                                                                                                                      boost::mpl::vector<
                                                                                                                        tiz::graph::do_tear_down_tunnels,
-                                                                                                                       tiz::graph::do_destroy_graph> > , tiz::graph::is_trans_complete    >
+                                                                                                                       tiz::graph::do_destroy_graph> > , tiz::graph::is_trans_complete >,
+        //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
+        boost::msm::front::Row < tiz::graph::AllOk       , tiz::graph::err_evt         , tiz::graph::unloaded    , tiz::graph::do_error                                       >
         //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
         > {};
 
@@ -550,6 +552,7 @@ namespace tiz
                                                "skipping",
                                                "exe2idle",
                                                "idle2loaded",
+                                               "AllOk"
                                                "unloaded"};
     static char const* const pstate(fsm const& p)
     {

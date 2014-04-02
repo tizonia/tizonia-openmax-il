@@ -87,7 +87,8 @@ bool graph::omx_event_info::operator==(const omx_event_info &b)
       && ndata2_ == b.ndata2_)
   // TODO: Ignore pEventData for now. This is to make events like this pass the
   // comparison:
-  // e.g.: [tizgraph.cpp:receive_event:238] --- [OMX.Aratelia.file_reader.binary]
+  // e.g.: [tizgraph.cpp:receive_event:238] ---
+  // [OMX.Aratelia.file_reader.binary]
   // : [OMX_EventCmdComplete] [OMX_CommandStateSet] [OMX_StateLoaded] error
   // [0x80001017]
   //       && pEventData_ == b.pEventData_)

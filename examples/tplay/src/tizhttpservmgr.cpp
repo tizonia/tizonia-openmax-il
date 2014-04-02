@@ -122,8 +122,7 @@ void graphmgr::httpservmgrops::do_load ()
   tizgraph_ptr_t g_ptr (get_graph (std::string ()));
   if (g_ptr)
   {
-    GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (),
-                            "Unable to load the graph.");
+    GMGR_OPS_BAIL_IF_ERROR (g_ptr, g_ptr->load (), "Unable to load the graph.");
   }
   p_managed_graph_ = g_ptr;
 }

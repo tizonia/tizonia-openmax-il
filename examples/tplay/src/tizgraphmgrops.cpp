@@ -158,8 +158,7 @@ void graphmgr::ops::do_execute ()
 
   next_playlist_->set_loop_playback (playlist_->single_format ());
   graph_config_.reset ();
-  graph_config_
-      = boost::make_shared< tiz::graph::config >(next_playlist_);
+  graph_config_ = boost::make_shared< tiz::graph::config >(next_playlist_);
 
   if (graph_config_)
   {
@@ -235,6 +234,30 @@ void graphmgr::ops::do_report_fatal_error (const OMX_ERRORTYPE error,
   TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error),
            msg.c_str ());
   error_cback_ (error, msg);
+}
+
+bool graphmgr::ops::is_fatal_error (const OMX_ERRORTYPE error,
+                                    const std::string &msg) const
+{
+  bool rc = false;
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error),
+           msg.c_str ());
+  switch (error)
+  {
+    // Some pretty major OMX IL errors
+    case OMX_ErrorInsufficientResources:
+    case OMX_ErrorUndefined:
+    case OMX_ErrorInvalidComponentName:
+    case OMX_ErrorComponentNotFound:
+    case OMX_ErrorNotImplemented:
+    case OMX_ErrorPortsNotCompatible:
+    case OMX_ErrorVersionMismatch:
+      rc = true;
+      break;
+    default:
+      break;
+  };
+  return rc;
 }
 
 OMX_ERRORTYPE

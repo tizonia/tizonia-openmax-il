@@ -289,7 +289,7 @@ namespace tiz
       typedef boost::msm::back::state_machine<skipping_> skipping;
 
       // The initial state of the SM. Must be defined
-      typedef inited initial_state;
+      typedef boost::mpl::vector<inited, AllOk> initial_state;
 
       // transition actions
 
@@ -362,7 +362,9 @@ namespace tiz
         boost::msm::front::Row < idle2loaded , omx_trans_evt   , unloaded                , boost::msm::front::ActionSequence_<
                                                                                              boost::mpl::vector<
                                                                                                do_tear_down_tunnels,
-                                                                                               do_destroy_graph> > , is_trans_complete    >
+                                                                                               do_destroy_graph> > , is_trans_complete    >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < AllOk       , err_evt         , unloaded                , do_error                                       >
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         > {};
 
@@ -389,6 +391,7 @@ namespace tiz
                                                "pause2exe",
                                                "exe2idle",
                                                "idle2loaded",
+                                               "AllOk"
                                                "unloaded"};
     static char const* const pstate(fsm const& p)
     {
