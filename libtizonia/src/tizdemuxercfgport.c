@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include "tizdemuxercfgport.h"
 #include "tizdemuxercfgport_decls.h"

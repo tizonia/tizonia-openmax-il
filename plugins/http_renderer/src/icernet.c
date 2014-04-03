@@ -48,7 +48,7 @@
 #include <time.h>
 #include <sys/ioctl.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 #include <tizutils.h>
 
 #include <OMX_TizoniaExt.h>

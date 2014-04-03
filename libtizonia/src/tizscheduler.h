@@ -36,7 +36,7 @@ extern "C" {
 #include "OMX_Core.h"
 #include "OMX_Types.h"
 #include "OMX_Component.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #define TIZ_COMP_MAX_PORTS 32
 #define TIZ_COMP_MAX_ROLES 64

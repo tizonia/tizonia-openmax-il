@@ -37,7 +37,7 @@
 #include <sys/types.h>
 #include <limits.h>
 
-#include "tizosal.h"
+#include "tizplatform.h"
 #include "OMX_Core.h"
 #include "OMX_Types.h"
 

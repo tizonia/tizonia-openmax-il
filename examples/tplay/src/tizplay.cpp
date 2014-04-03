@@ -56,7 +56,7 @@
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 #include <OMX_Core.h>
 
 #include "tizomxutil.hpp"

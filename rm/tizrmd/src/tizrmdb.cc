@@ -30,7 +30,7 @@
 #endif
 
 #include "./tizrmdb.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include <sqlite3.h>
 #include <stdlib.h>

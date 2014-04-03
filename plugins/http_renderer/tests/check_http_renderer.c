@@ -45,7 +45,7 @@
 #include "OMX_Types.h"
 #include "OMX_TizoniaExt.h"
 
-#include "tizosal.h"
+#include "tizplatform.h"
 #include "tizfsm.h"
 #include "tizkernel.h"
 

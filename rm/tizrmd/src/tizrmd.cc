@@ -30,7 +30,7 @@
 #endif
 
 #include "./tizrmd.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include <unistd.h>
 #include <stdlib.h>

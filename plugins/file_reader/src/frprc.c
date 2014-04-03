@@ -38,7 +38,7 @@
 
 #include <OMX_Core.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include <tizkernel.h>
 #include <tizscheduler.h>

@@ -34,7 +34,7 @@
 #include <string.h>
 #include <limits.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include "icer.h"
 #include "icermp3port.h"

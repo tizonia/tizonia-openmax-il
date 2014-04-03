@@ -40,7 +40,7 @@
 #include "tizport.h"
 #include "tizport-macros.h"
 #include "tizutils.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

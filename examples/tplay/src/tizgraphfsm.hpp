@@ -43,7 +43,7 @@
 #include <boost/msm/front/euml/operator.hpp>
 #include <boost/msm/back/tools.hpp>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include "tizgraphops.hpp"
 #include "tizgraphevt.hpp"

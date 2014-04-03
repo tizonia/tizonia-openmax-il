@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <string>
 
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include "tizomxutil.hpp"
 

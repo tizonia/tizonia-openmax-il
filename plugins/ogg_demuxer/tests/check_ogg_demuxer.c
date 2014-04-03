@@ -30,7 +30,7 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
+#include "tizplatform.h"
 #include "tizutils.h"
 #include "tizfsm.h"
 #include "tizkernel.h"

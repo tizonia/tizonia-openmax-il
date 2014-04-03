@@ -36,7 +36,7 @@
 #include "tizpcmport.h"
 #include "tizvideoport.h"
 
-#include "tizosal.h"
+#include "tizplatform.h"
 #include "tizutils.h"
 
 #include <assert.h>

@@ -37,7 +37,7 @@ extern "C"
 #include "OMX_Component.h"
 
 #include "tizport_decls.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
   typedef struct tiz_imageport tiz_imageport_t;
   struct tiz_imageport

@@ -36,7 +36,7 @@
 
 #include <fishsound/constants.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include <tizkernel.h>
 

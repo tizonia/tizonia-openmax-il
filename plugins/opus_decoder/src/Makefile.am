@@ -30,12 +30,12 @@ libtizopusd_la_SOURCES = \
 
 libtizopusd_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizosal/src \
+	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../../libtizonia/src \
 	@OPUS_CFLAGS@
 
 libtizopusd_la_LIBADD = \
-	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
 	-lm \
 	@OPUS_LIBS@

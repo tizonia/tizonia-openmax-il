@@ -51,7 +51,7 @@ PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
 PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
 
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
-#PKG_CHECK_MODULES([TIZ], [libtizosal])
+#PKG_CHECK_MODULES([TIZ], [libtizplatform])
 
 # Checks for header files.
 AC_CHECK_HEADERS([syslog.h unistd.h])

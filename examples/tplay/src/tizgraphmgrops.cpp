@@ -32,7 +32,7 @@
 
 #include <boost/make_shared.hpp>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 #include <tizmacros.h>
 
 #include "tizgraphfactory.hpp"

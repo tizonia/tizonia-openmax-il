@@ -33,7 +33,7 @@
 
 #include "tizrmtypes.h"
 #include "tizrmproxy.hh"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

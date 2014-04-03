@@ -126,12 +126,12 @@ libtizonia_la_SOURCES = \
 
 libtizonia_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
-	-I$(top_srcdir)/../libtizosal/src \
+	-I$(top_srcdir)/../libtizplatform/src \
 	-I$(top_srcdir)/../rm/libtizrmproxy/src \
 	-I$(top_srcdir)/../rm/dbus \
 	-I$(top_srcdir)/src
 
 libtizonia_la_LIBADD = \
-	$(top_builddir)/../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../rm/libtizrmproxy/src/libtizrmproxy.la
 

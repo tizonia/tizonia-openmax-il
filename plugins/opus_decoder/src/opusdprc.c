@@ -36,7 +36,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include <tizkernel.h>
 

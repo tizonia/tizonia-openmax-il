@@ -39,7 +39,7 @@
 #include "tizotherport.h"
 #include "tizutils.h"
 
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include <assert.h>
 

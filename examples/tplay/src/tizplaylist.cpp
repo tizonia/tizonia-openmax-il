@@ -35,7 +35,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include "tizplaylist.hpp"
 

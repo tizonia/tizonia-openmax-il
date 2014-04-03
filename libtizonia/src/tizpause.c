@@ -38,7 +38,7 @@
 #include "tizport.h"
 #include "tizport-macros.h"
 
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include <assert.h>
 

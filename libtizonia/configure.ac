@@ -41,7 +41,7 @@ PKG_PROG_PKG_CONFIG()
 # Checks for libraries.
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
-#PKG_CHECK_MODULES([TIZ], [libtizosal])
+#PKG_CHECK_MODULES([TIZ], [libtizplatform])
 #PKG_CHECK_MODULES([ILRMPROXY], [libtizrmproxy])
 #PKG_CHECK_MODULES([TIZCORE], [libtizcore])
 
@@ -52,7 +52,7 @@ AC_CHECK_HEADERS([stdlib.h])
 AC_C_INLINE
 
 # Checks for library functions.
-# TODO: Move this to OSAL
+# TODO: Move this to libtizplatform
 AC_CHECK_FUNCS([strdup])
 
 AC_CONFIG_FILES([Makefile
@@ -90,7 +90,7 @@ AC_MSG_RESULT([
 
     libraries: ................... ${LIBDIR}
     tplay: ....................... ${BINDIR}
-    Header files: ................ ${INCLUDEDIR}/libtizonia, ${INCLUDEDIR}/libtizosal
+    Header files: ................ ${INCLUDEDIR}/libtizonia, ${INCLUDEDIR}/libtizplatform
     Documentation: ............... ${DOCDIR}
 
   Building:

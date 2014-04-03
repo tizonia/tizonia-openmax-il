@@ -35,7 +35,7 @@
 #include "tizstate_decls.h"
 #include "OMX_TizoniaExt.h"
 #include "tizkernel.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include <assert.h>
 

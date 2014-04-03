@@ -33,7 +33,7 @@
 #include <string>
 #include <boost/function.hpp>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 #include <OMX_Core.h>
 
 #include "tizgraphtypes.hpp"

@@ -24,11 +24,11 @@ check_tizcore_SOURCES = check_tizcore.c
 check_tizcore_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
 	-I$(top_srcdir)/src \
-	-I$(top_srcdir)/../libtizosal/src \
+	-I$(top_srcdir)/../libtizplatform/src \
 	@CHECK_CFLAGS@
 
 check_tizcore_LDADD = \
 	$(top_builddir)/src/libtizcore.la \
-	$(top_builddir)/../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
 	@CHECK_LIBS@
 

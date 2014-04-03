@@ -33,7 +33,7 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include <tizkernel.h>
 #include <tizscheduler.h>

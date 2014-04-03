@@ -36,7 +36,7 @@
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 #include <tizmacros.h>
 #include <OMX_Component.h>
 

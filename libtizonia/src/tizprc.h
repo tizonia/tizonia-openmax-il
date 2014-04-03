@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 void *tiz_prc_class_init (void *ap_tos, void *ap_hdl);
 void *tiz_prc_init (void *ap_tos, void *ap_hdl);

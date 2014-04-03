@@ -28,12 +28,12 @@ libtizoggdemux_la_SOURCES = \
 
 libtizoggdemux_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizosal/src \
+	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../../libtizonia/src \
 	@OGGZ_CFLAGS@
 
 libtizoggdemux_la_LIBADD = \
-	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
 	@OGGZ_LIBS@
 

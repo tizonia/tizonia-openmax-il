@@ -36,7 +36,7 @@ extern "C"
 
 #include "tizconfigport.h"
 #include "tizport_decls.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include "OMX_Component.h"
 #include "OMX_Core.h"

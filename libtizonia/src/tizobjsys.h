@@ -37,7 +37,7 @@ extern "C"
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#include <tizosalsoa.h>
+#include <tizplatform.h>
 
   typedef struct tiz_os tiz_os_t;
 

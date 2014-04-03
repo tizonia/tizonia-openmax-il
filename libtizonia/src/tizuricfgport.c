@@ -34,7 +34,7 @@
 #include <string.h>
 #include <limits.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include "tizuricfgport.h"
 #include "tizuricfgport_decls.h"

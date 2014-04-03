@@ -49,7 +49,7 @@
 #include "OMX_Types.h"
 
 #include "tizrmproxy_c.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

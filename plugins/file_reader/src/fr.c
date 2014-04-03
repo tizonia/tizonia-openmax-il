@@ -37,7 +37,7 @@
 #include <OMX_Component.h>
 #include <OMX_Types.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include <tizport.h>
 #include <tizuricfgport.h>

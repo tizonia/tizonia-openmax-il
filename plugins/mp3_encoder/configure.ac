@@ -40,7 +40,7 @@ PKG_PROG_PKG_CONFIG()
 AC_CHECK_LIB([mp3lame], [get_lame_version])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
-#PKG_CHECK_MODULES([TIZ], [libtizosal])
+#PKG_CHECK_MODULES([TIZ], [libtizplatform])
 #PKG_CHECK_MODULES([TIZCORE], [libtizilcore])
 
 # Checks for header files.

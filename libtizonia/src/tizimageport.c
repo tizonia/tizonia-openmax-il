@@ -34,7 +34,7 @@
 #include "tizimageport_decls.h"
 #include "tizutils.h"
 
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include <assert.h>
 

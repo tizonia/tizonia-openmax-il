@@ -36,7 +36,7 @@
 
 #include <string>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 #include <OMX_Core.h>
 
 #include "tizgraphtypes.hpp"

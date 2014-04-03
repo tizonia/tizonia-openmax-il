@@ -21,8 +21,8 @@ libtizcoretc_la_SOURCES = tizcoretc.c
 
 libtizcoretc_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
-	-I$(top_srcdir)/../libtizosal/src
+	-I$(top_srcdir)/../libtizplatform/src
 
 libtizcoretc_la_LIBADD = \
-	$(top_builddir)/../libtizosal/src/libtizosal.la
+	$(top_builddir)/../libtizplatform/src/libtizplatform.la
 

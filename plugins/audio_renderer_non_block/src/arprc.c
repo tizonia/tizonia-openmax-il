@@ -34,7 +34,7 @@
 #include <errno.h>
 #include <math.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include <tizutils.h>
 #include <tizkernel.h>

@@ -1,0 +1,15 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+toolsdir=@bindir@
+pluginsdir=@plugindir@
+
+Name: libtizplatform
+Description: Tizonia Platform library
+Version: @VERSION@
+Require.private: check
+Cflags: -I${includedir} -I${includedir}/libtizplatform
+Libs: -L${libdir} -lpthread -ltizplatform
+
+

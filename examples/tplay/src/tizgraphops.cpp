@@ -36,7 +36,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/mem_fn.hpp>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 #include <tizmacros.h>
 
 #include "tizgraphfactory.hpp"

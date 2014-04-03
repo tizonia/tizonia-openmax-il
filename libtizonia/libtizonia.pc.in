@@ -10,5 +10,5 @@ Description: Aratelia OpenMAX IL Component library
 Version: @VERSION@
 Require.private: check
 Cflags: -I${includedir} -I${includedir}/libtizonia
-Libs: -L${libdir} -ltizosal -ltizonia
+Libs: -L${libdir} -ltizplatform -ltizonia
 

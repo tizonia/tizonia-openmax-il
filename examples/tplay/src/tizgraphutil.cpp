@@ -35,8 +35,7 @@
 #include <OMX_Core.h>
 #include <OMX_Component.h>
 
-#include <tizosal.h>
-#include <tizmacros.h>
+#include <tizplatform.h>
 
 #include "tizomxutil.hpp"
 #include "tizgraphutil.hpp"

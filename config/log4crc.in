@@ -15,18 +15,18 @@
 <!--         <category name="tiz.rm.proxy" priority="trace" appender="tizlogfile"/> -->
 <!--         <category name="tiz.rm.proxy_c" priority="trace" appender="tizlogfile"/> -->
 <!--         <category name="tiz.rm.proxy_c.check" priority="trace" appender="tizlogfile"/> -->
-<!--         <category name="tiz.osal" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.osal.mem" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.osal.thread" priority="error" appender="tizlogfile" /> -->
-<!--         <category name="tiz.osal.vector" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.osal.pqueue" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.osal.sync" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.osal.rc" priority="trace" appender="tizlogfile"/> -->
-<!--         <category name="tiz.osal.soa" priority="trace" appender="tizlogfile"/> -->
-<!--         <category name="tiz.osal.event" priority="trace" appender="tizlogfile"/> -->
-<!--         <category name="tiz.osal.http" priority="trace" appender="tizlogfile"/> -->
-<!--         <category name="tiz.osal.map" priority="trace" appender="tizlogfile"/> -->
-<!--         <category name="tiz.osal.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.platform" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.platform.mem" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.platform.thread" priority="error" appender="tizlogfile" /> -->
+<!--         <category name="tiz.platform.vector" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.platform.pqueue" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.platform.sync" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.platform.rc" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.platform.soa" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.platform.event" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.platform.http" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.platform.map" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.platform.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ilcore" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ilcore.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia" priority="trace" appender="tizlogfile" /> -->

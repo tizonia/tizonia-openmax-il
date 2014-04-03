@@ -36,7 +36,7 @@
 #include "tizivrport.h"
 #include "tizconfigport.h"
 
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include "OMX_Core.h"
 #include "OMX_Component.h"

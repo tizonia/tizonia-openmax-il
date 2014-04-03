@@ -32,7 +32,7 @@
 #include <assert.h>
 
 #include <tizomxutil.hpp>
-#include <tizosal.h>
+#include <tizplatform.h>
 #include <tizmacros.h>
 #include <OMX_Core.h>
 #include <OMX_Component.h>

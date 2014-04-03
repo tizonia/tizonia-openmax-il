@@ -36,7 +36,7 @@ extern "C"
 
 #include "tizapi_decls.h"
 #include "tizscheduler.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
   typedef struct tiz_srv tiz_srv_t;
   struct tiz_srv

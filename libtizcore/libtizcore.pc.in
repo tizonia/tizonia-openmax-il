@@ -9,6 +9,6 @@ Name: tizcore
 Description: Aratelia OpenMAX IL Core library
 Version: @VERSION@
 Require.private: check
-Libs: -L${libdir} -ltizosal -ltizcore
+Libs: -L${libdir} -ltizplatform -ltizcore
 Cflags: -I${includedir}
 

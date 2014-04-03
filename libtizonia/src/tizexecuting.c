@@ -39,7 +39,7 @@
 #include "tizscheduler.h"
 #include "tizkernel.h"
 
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include <assert.h>
 

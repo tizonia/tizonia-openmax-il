@@ -41,7 +41,7 @@
 #include <signal.h>
 #include <limits.h>
 
-#include "tizosal.h"
+#include "tizplatform.h"
 
 
 #ifdef TIZ_LOG_CATEGORY_NAME

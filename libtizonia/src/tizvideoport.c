@@ -32,7 +32,7 @@
 
 #include "tizvideoport.h"
 #include "tizvideoport_decls.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include "tizutils.h"
 

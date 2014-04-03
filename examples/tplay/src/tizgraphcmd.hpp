@@ -33,7 +33,7 @@
 #include <boost/any.hpp>
 #include <boost/function.hpp>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include "tizgraphevt.hpp"
 

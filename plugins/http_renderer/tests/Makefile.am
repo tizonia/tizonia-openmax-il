@@ -23,12 +23,12 @@ check_http_renderer_SOURCES = check_http_renderer.c
 
 check_http_renderer_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizosal/src \
+	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../../libtizonia/src/ \
 	@CHECK_CFLAGS@
 
 check_http_renderer_LDADD = \
-	$(top_builddir)/../../libtizosal/src/libtizosal.la \
+	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../../libtizcore/src/libtizcore.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
 	@CHECK_LIBS@

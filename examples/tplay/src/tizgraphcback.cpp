@@ -31,7 +31,7 @@
 #include <config.h>
 #endif
 
-#include <tizosal.h>
+#include <tizplatform.h>
 #include <tizmacros.h>
 
 #include <tizgraph.hpp>

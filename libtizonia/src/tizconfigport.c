@@ -33,7 +33,7 @@
 #include "tizconfigport.h"
 #include "tizconfigport_decls.h"
 #include "tizport.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include <assert.h>
 #include <string.h>

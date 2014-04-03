@@ -36,7 +36,7 @@
 #include "tizkernel.h"
 #include "OMX_TizoniaExt.h"
 
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include <assert.h>
 

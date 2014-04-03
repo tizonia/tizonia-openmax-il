@@ -39,7 +39,7 @@
 
 #include <tizport.h>
 #include <tizscheduler.h>
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include "icerprc.h"
 #include "icermp3port.h"

@@ -30,7 +30,7 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
+#include "tizplatform.h"
 #include "tizport.h"
 #include "tizscheduler.h"
 #include "tizvp8port.h"

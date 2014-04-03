@@ -36,7 +36,7 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include <tizkernel.h>
 

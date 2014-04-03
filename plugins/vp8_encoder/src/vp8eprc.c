@@ -35,7 +35,7 @@
 #include <limits.h>
 #include <string.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include <tizkernel.h>
 

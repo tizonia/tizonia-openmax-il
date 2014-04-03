@@ -36,7 +36,7 @@ extern "C"
 
 #include "tizfsm.h"
 #include "tizservant_decls.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
   typedef struct tiz_fsm tiz_fsm_t;
   struct tiz_fsm

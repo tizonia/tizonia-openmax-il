@@ -38,7 +38,7 @@
 #include <OMX_Types.h>
 #include <OMX_TizoniaExt.h>
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include "tizutils.h"
 #include "tizfsm.h"

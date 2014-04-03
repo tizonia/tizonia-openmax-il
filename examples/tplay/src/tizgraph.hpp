@@ -34,7 +34,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <OMX_Core.h>
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #include "tizgraphtypes.hpp"
 #include "tizplaylist.hpp"

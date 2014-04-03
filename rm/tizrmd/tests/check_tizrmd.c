@@ -33,7 +33,7 @@
 
 #include <check.h>
 #include <stdlib.h>
-#include "tizosal.h"
+#include "tizplatform.h"
 
 int
 main (void)

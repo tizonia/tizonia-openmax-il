@@ -42,7 +42,7 @@ AM_CONDITIONAL([HAVE_DOXYGEN],
 
 AC_CONFIG_FILES([Makefile config/Makefile docs/Makefile])
 AC_CONFIG_SUBDIRS([include
-                   libtizosal
+                   libtizplatform
                    rm
                    libtizcore
                    libtizonia

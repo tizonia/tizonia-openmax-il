@@ -29,7 +29,7 @@
 #ifndef TIZGRAPHGUARD_H
 #define TIZGRAPHGUARD_H
 
-#include <tizosal.h>
+#include <tizplatform.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

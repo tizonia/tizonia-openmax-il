@@ -37,7 +37,7 @@ extern "C"
 #include "icerprc.h"
 #include "tizprc_decls.h"
 #include "icernet.h"
-#include "tizosal.h"
+#include "tizplatform.h"
 
 #include "OMX_TizoniaExt.h"
 
