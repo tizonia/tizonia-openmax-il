@@ -30,14 +30,13 @@
 #define TIZOSALLIMITS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  long tiz_pathname_max (const char * file);
+long tiz_pathname_max (const char *file);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALLIMITS_H */
+#endif /* TIZOSALLIMITS_H */

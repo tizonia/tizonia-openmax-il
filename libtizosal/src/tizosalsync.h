@@ -30,8 +30,7 @@
 #define TIZOSALSYNC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -43,233 +42,229 @@ extern "C"
 #include <OMX_Types.h>
 
 #define TIZ_STATIC_MUTEX NULL
-#define TIZ_STATIC_CONDITION  NULL
+#define TIZ_STATIC_CONDITION NULL
 
-  /**
-   * Mutex hdl
-   * @ingroup sync
-   */
-  typedef void *tiz_mutex_t;
+/**
+ * Mutex hdl
+ * @ingroup sync
+ */
+typedef void *tiz_mutex_t;
 
-  /**
-   * Semaphore hdl
-   * @ingroup sync
-   */
-  typedef void *tiz_sem_t;
+/**
+ * Semaphore hdl
+ * @ingroup sync
+ */
+typedef void *tiz_sem_t;
 
-  /**
-   * Handle to a conditional variable
-   * @ingroup sync
-   */
-  typedef void *tiz_cond_t;
+/**
+ * Handle to a conditional variable
+ * @ingroup sync
+ */
+typedef void *tiz_cond_t;
 
-  /**
-   * Read-write mutex
-   * @ingroup sync
-   */
-  typedef void *tiz_rwmutex_t;
+/**
+ * Read-write mutex
+ * @ingroup sync
+ */
+typedef void *tiz_rwmutex_t;
 
+/* Semaphore handling */
 
-  /* Semaphore handling */
+/**
+ * Initialize a semaphore object using the given value.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
+ * OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_sem_init (/*@out@*/ tiz_sem_t *ap_sem, OMX_U32 a_value);
 
-  /**
-   * Initialize a semaphore object using the given value.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
-   * OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_sem_init (/*@out@*/ tiz_sem_t * ap_sem, OMX_U32 a_value);
+/**
+ * Free the resources associated with a semaphore object.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_sem_destroy (tiz_sem_t *ap_sem);
 
-  /**
-   * Free the resources associated with a semaphore object.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_sem_destroy (tiz_sem_t * ap_sem);
+/**
+ * Wait for a semaphore being posted.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_sem_wait (tiz_sem_t *ap_sem);
 
-  /**
-   * Wait for a semaphore being posted.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_sem_wait (tiz_sem_t * ap_sem);
+/**
+ * Post semaphore.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_sem_post (tiz_sem_t *ap_sem);
 
-  /**
-   * Post semaphore.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_sem_post (tiz_sem_t * ap_sem);
+/**
+ * Get the current value of a semaphore object stored it in *ap_sval.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_sem_getvalue (tiz_sem_t *ap_sem, OMX_S32 *ap_sval);
 
-  /**
-   * Get the current value of a semaphore object stored it in *ap_sval.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_sem_getvalue (tiz_sem_t * ap_sem, OMX_S32 * ap_sval);
+/* Mutex handling APIs */
 
+/**
+ * Initialize a mutex.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
+ * OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_mutex_init (/*@out@*/ tiz_mutex_t *ap_mutex);
 
-  /* Mutex handling APIs */
+/**
+ * Destroy a mutex.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_mutex_destroy (tiz_mutex_t *ap_mutex);
 
-  /**
-   * Initialize a mutex.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
-   * OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_mutex_init (/*@out@*/ tiz_mutex_t * ap_mutex);
+/**
+ * Lock a mutex.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_mutex_lock (tiz_mutex_t *ap_mutex);
 
-  /**
-   * Destroy a mutex.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_mutex_destroy (tiz_mutex_t * ap_mutex);
+/**
+ * Unlock a mutex.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_mutex_unlock (tiz_mutex_t *ap_mutex);
 
-  /**
-   * Lock a mutex.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_mutex_lock (tiz_mutex_t * ap_mutex);
+/* Read-write mutex handling APIs */
 
-  /**
-   * Unlock a mutex.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_mutex_unlock (tiz_mutex_t * ap_mutex);
+/**
+ * Initialize a read-write mutex.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
+ * OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_rwmutex_init (/*@out@*/ tiz_rwmutex_t *ap_rwmutex);
 
+/**
+ * Destroy a read-write mutex.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_rwmutex_destroy (tiz_rwmutex_t *ap_rwmutex);
 
-  /* Read-write mutex handling APIs */
+/**
+ * Lock a read-write mutex for reading.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_rwmutex_rdlock (tiz_rwmutex_t *ap_rwmutex);
 
-  /**
-   * Initialize a read-write mutex.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
-   * OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_rwmutex_init (/*@out@*/ tiz_rwmutex_t * ap_rwmutex);
+/**
+ * Lock a read-write mutex for writing.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_rwmutex_rwlock (tiz_rwmutex_t *ap_rwmutex);
 
-  /**
-   * Destroy a read-write mutex.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_rwmutex_destroy (tiz_rwmutex_t * ap_rwmutex);
+/**
+ * Unlock a read-write mutex.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_rwmutex_unlock (tiz_rwmutex_t *ap_rwmutex);
 
-  /**
-   * Lock a read-write mutex for reading.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_rwmutex_rdlock (tiz_rwmutex_t * ap_rwmutex);
+/* Conditional variables handling */
 
-  /**
-   * Lock a read-write mutex for writing.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_rwmutex_rwlock (tiz_rwmutex_t * ap_rwmutex);
+/**
+ * Initialize a condition variable.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
+ * OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_cond_init (tiz_cond_t *ap_cond);
 
-  /**
-   * Unlock a read-write mutex.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_rwmutex_unlock (tiz_rwmutex_t * ap_rwmutex);
+/**
+ * Destroy a condition variable.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_cond_destroy (tiz_cond_t *ap_cond);
 
+/**
+ * Wake up one thread waiting for a condition variable.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_cond_signal (tiz_cond_t *ap_cond);
 
-  /* Conditional variables handling */
+/**
+ * Wait for a condition variable to be signaled or broadcast. ap_mutex is
+ * assumed to be locked before.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_cond_wait (tiz_cond_t *ap_cond, tiz_mutex_t *ap_mutex);
 
-  /**
-   * Initialize a condition variable.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources or
-   * OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_cond_init (tiz_cond_t * ap_cond);
+/**
+ * Wait for a condition variable to be signaled or broadcast until a_millis
+ * milliseconds. ap_mutex is assumed to be locked before.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_cond_timedwait (tiz_cond_t *ap_cond, tiz_mutex_t *ap_mutex,
+                                  OMX_U32 a_millis);
 
-  /**
-   * Destroy a condition variable.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_cond_destroy (tiz_cond_t * ap_cond);
-
-  /**
-   * Wake up one thread waiting for a condition variable.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_cond_signal (tiz_cond_t * ap_cond);
-
-  /**
-   * Wait for a condition variable to be signaled or broadcast. ap_mutex is
-   * assumed to be locked before.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_cond_wait (tiz_cond_t * ap_cond, tiz_mutex_t * ap_mutex);
-
-  /**
-   * Wait for a condition variable to be signaled or broadcast until a_millis
-   * milliseconds. ap_mutex is assumed to be locked before.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_cond_timedwait (tiz_cond_t * ap_cond,
-                                    tiz_mutex_t * ap_mutex, OMX_U32 a_millis);
-
-  /**
-   * Wake up all threads waiting for a condition variable.
-   *
-   * @ingroup sync
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_cond_broadcast (tiz_cond_t * ap_cond);
+/**
+ * Wake up all threads waiting for a condition variable.
+ *
+ * @ingroup sync
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_cond_broadcast (tiz_cond_t *ap_cond);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALSYNC_H */
+#endif /* TIZOSALSYNC_H */

@@ -30,87 +30,85 @@
 #define TIZOSALTHREAD_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  /**
-   * @defgroup thread Thread/task management
-   * @ingroup Tizonia-OSAL
-   */
+/**
+ * @defgroup thread Thread/task management
+ * @ingroup Tizonia-OSAL
+ */
 
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
 #include "tizosalsync.h"
 
-  /**
-   * Thread hdl
-   * @ingroup thread
-   */
-  typedef OMX_U32 tiz_thread_t;
+/**
+ * Thread hdl
+ * @ingroup thread
+ */
+typedef OMX_U32 tiz_thread_t;
 
-  /**
-   * Create a new thread, starting with execution of a_pf_routine getting
-   * passed ap_arg.  The new hdl is stored in *ap_thread.
-   *
-   * @ingroup thread
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_thread_create (tiz_thread_t * ap_thread,
-                                   size_t a_stack_size,
-                                   OMX_U32 a_priority,
-                                   OMX_PTR (*a_pf_routine)
-                                   (OMX_PTR), OMX_PTR ap_arg);
+/**
+ * Create a new thread, starting with execution of a_pf_routine getting
+ * passed ap_arg.  The new hdl is stored in *ap_thread.
+ *
+ * @ingroup thread
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_thread_create (tiz_thread_t *ap_thread, size_t a_stack_size,
+                                 OMX_U32 a_priority,
+                                 OMX_PTR (*a_pf_routine)(OMX_PTR),
+                                 OMX_PTR ap_arg);
 
-  /**
-   * Make the calling thread wait for the termination of the thread ap_thread.
-   * The exit status of the thread is stored in *app_result.
-   *
-   * @ingroup thread
-   *
-   * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
-   */
-  OMX_ERRORTYPE tiz_thread_join (tiz_thread_t * ap_thread, void **app_result);
+/**
+ * Make the calling thread wait for the termination of the thread ap_thread.
+ * The exit status of the thread is stored in *app_result.
+ *
+ * @ingroup thread
+ *
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_thread_join (tiz_thread_t *ap_thread, void **app_result);
 
-  /**
-   * Set the name of a thread.
-   *
-   * @ingroup thread
-   *
-   * @return 0 if success, -1 otherwise.
-   */
-  OMX_ERRORTYPE tiz_thread_setname (tiz_thread_t * ap_thread,
-                                    const OMX_STRING a_name);
+/**
+ * Set the name of a thread.
+ *
+ * @ingroup thread
+ *
+ * @return 0 if success, -1 otherwise.
+ */
+OMX_ERRORTYPE tiz_thread_setname (tiz_thread_t *ap_thread,
+                                  const OMX_STRING a_name);
 
-  /**
-   * Terminate the calling thread.
-   *
-   * @ingroup thread
-   */
-  void tiz_thread_exit (OMX_PTR a_status);
+/**
+ * Terminate the calling thread.
+ *
+ * @ingroup thread
+ */
+void tiz_thread_exit (OMX_PTR a_status);
 
-  /**
-   * Get the thread id of the calling thread.
-   *
-   * @ingroup thread
-   *
-   * @return The thread id
-   */
-  OMX_S32 tiz_thread_id (void);
+/**
+ * Get the thread id of the calling thread.
+ *
+ * @ingroup thread
+ *
+ * @return The thread id
+ */
+OMX_S32 tiz_thread_id (void);
 
-  /**
-   * Sleep for the specified number of micro seconds.
-   *
-   * @ingroup thread
-   *
-   * @return 0 if success, -1 otherwise.
-   */
-  OMX_S32 tiz_sleep (OMX_U32 a_usec);
+/**
+ * Sleep for the specified number of micro seconds.
+ *
+ * @ingroup thread
+ *
+ * @return 0 if success, -1 otherwise.
+ */
+OMX_S32 tiz_sleep (OMX_U32 a_usec);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALTHREAD_H */
+#endif /* TIZOSALTHREAD_H */

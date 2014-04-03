@@ -30,8 +30,7 @@
 #define TIZOSALLOG_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "log4c.h"
@@ -40,49 +39,40 @@ extern "C"
 #define TIZ_LOG_CATEGORY_NAME "root"
 #endif
 
-  /* #define WITHOUT_LOG4C 1 */
+/* #define WITHOUT_LOG4C 1 */
 
-#define TIZ_LOG(priority,format,args...)      \
-  tiz_log(__FILE__,                           \
-            __LINE__,                           \
-            __FUNCTION__,                       \
-            TIZ_LOG_CATEGORY_NAME,            \
-            priority,                           \
-            NULL,                                              \
-            NULL,                                               \
-            format,                             \
-            ##args);
+#define TIZ_LOG(priority, format, args...)                                    \
+  tiz_log (__FILE__, __LINE__, __FUNCTION__, TIZ_LOG_CATEGORY_NAME, priority, \
+           NULL, NULL, format, ##args);
 
 #ifndef WITHOUT_LOG4C
-#define TIZ_PRIORITY_ERROR  LOG4C_PRIORITY_ERROR
-#define TIZ_PRIORITY_WARN   LOG4C_PRIORITY_WARN
+#define TIZ_PRIORITY_ERROR LOG4C_PRIORITY_ERROR
+#define TIZ_PRIORITY_WARN LOG4C_PRIORITY_WARN
 #define TIZ_PRIORITY_NOTICE LOG4C_PRIORITY_NOTICE
-#define TIZ_PRIORITY_DEBUG  LOG4C_PRIORITY_DEBUG
-#define TIZ_PRIORITY_TRACE  LOG4C_PRIORITY_TRACE
+#define TIZ_PRIORITY_DEBUG LOG4C_PRIORITY_DEBUG
+#define TIZ_PRIORITY_TRACE LOG4C_PRIORITY_TRACE
 #else
-#define TIZ_PRIORITY_ERROR  1
-#define TIZ_PRIORITY_WARN   2
+#define TIZ_PRIORITY_ERROR 1
+#define TIZ_PRIORITY_WARN 2
 #define TIZ_PRIORITY_NOTICE 3
-#define TIZ_PRIORITY_DEBUG  4
-#define TIZ_PRIORITY_TRACE  5
+#define TIZ_PRIORITY_DEBUG 4
+#define TIZ_PRIORITY_TRACE 5
 #endif
 
-  int tiz_log_init ();
+int tiz_log_init ();
 
-  int tiz_log_deinit ();
+int tiz_log_deinit ();
 
-  int tiz_log_setappender (const char *catName, const char *appName);
+int tiz_log_setappender (const char *catName, const char *appName);
 
-  void tiz_log (const char *__p_file,
-                int __line,
-                const char *__p_func,
-                const char *__p_cat_name, int __priority,
-                /*@null@ */ const char *__p_cname,
-                /*@null@ */ char *__p_cbuf,
-                /*@null@ */ const char *__p_format, ...);
+void tiz_log (const char *__p_file, int __line, const char *__p_func,
+              const char *__p_cat_name, int __priority,
+              /*@null@ */ const char *__p_cname,
+              /*@null@ */ char *__p_cbuf,
+              /*@null@ */ const char *__p_format, ...);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALLOG_H */
+#endif /* TIZOSALLOG_H */

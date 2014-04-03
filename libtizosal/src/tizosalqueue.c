@@ -40,7 +40,6 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.osal.queue"
 #endif
 
-
 typedef struct tiz_queue_item tiz_queue_item_t;
 struct tiz_queue_item
 {
@@ -59,27 +58,25 @@ struct tiz_queue
   tiz_cond_t cond_empty;
 };
 
-static inline void
-deinit_queue_struct ( /*@null@ */ tiz_queue_t * ap_q)
+static inline void deinit_queue_struct (/*@null@ */ tiz_queue_t *ap_q)
 {
   /* Clean-up */
   if (ap_q)
     {
-      (void) tiz_cond_destroy (&(ap_q->cond_empty));
-      (void) tiz_cond_destroy (&(ap_q->cond_full));
-      (void) tiz_mutex_destroy (&(ap_q->mutex));
+      (void)tiz_cond_destroy (&(ap_q->cond_empty));
+      (void)tiz_cond_destroy (&(ap_q->cond_full));
+      (void)tiz_mutex_destroy (&(ap_q->mutex));
       tiz_mem_free (ap_q);
     }
 }
 
-/*@null@*/ static tiz_queue_t *
-init_queue_struct ()
+/*@null@*/ static tiz_queue_t *init_queue_struct ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_queue_t *p_q = NULL;
   bool init_failed = false;
 
-  if ((p_q = (tiz_queue_t *) tiz_mem_calloc (1, sizeof (tiz_queue_t))))
+  if ((p_q = (tiz_queue_t *)tiz_mem_calloc (1, sizeof(tiz_queue_t))))
     {
       if ((rc = tiz_mutex_init (&(p_q->mutex))) == OMX_ErrorNone)
         {
@@ -87,12 +84,12 @@ init_queue_struct ()
             {
               if ((rc = tiz_cond_init (&(p_q->cond_empty))) == OMX_ErrorNone)
                 {
-                  p_q->p_first =
-                    (tiz_queue_item_t *)
-                    tiz_mem_calloc (1, sizeof (tiz_queue_item_t));
+                  p_q->p_first = (tiz_queue_item_t *)tiz_mem_calloc (
+                      1, sizeof(tiz_queue_item_t));
                   if (!(p_q->p_first))
                     {
-                      TIZ_LOG (TIZ_PRIORITY_ERROR, "Could not create first item.");
+                      TIZ_LOG (TIZ_PRIORITY_ERROR,
+                               "Could not create first item.");
                       init_failed = true;
                     }
                 }
@@ -105,7 +102,8 @@ init_queue_struct ()
             }
           else
             {
-              TIZ_LOG (TIZ_PRIORITY_ERROR, "Could not create full cond variable.");
+              TIZ_LOG (TIZ_PRIORITY_ERROR,
+                       "Could not create full cond variable.");
               init_failed = true;
             }
         }
@@ -131,7 +129,7 @@ init_queue_struct ()
 }
 
 OMX_ERRORTYPE
-tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
+tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_queue_item_t *p_new_item = NULL;
@@ -155,16 +153,16 @@ tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
 
       for (i = 0; i < (TIZ_QUEUE_MAX_ITEMS - 2); i++)
         {
-          if (NULL != (p_new_item =
-                       (tiz_queue_item_t *)
-                       tiz_mem_calloc (1, sizeof (tiz_queue_item_t))))
+          if (NULL != (p_new_item = (tiz_queue_item_t *)tiz_mem_calloc (
+                           1, sizeof(tiz_queue_item_t))))
             {
               p_cur_item->p_next = p_new_item;
               p_cur_item = p_new_item;
             }
           else
             {
-              TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]: "
+              TIZ_LOG (TIZ_PRIORITY_ERROR,
+                       "[OMX_ErrorInsufficientResources]: "
                        "Could not instantiate queue items.");
               rc = OMX_ErrorInsufficientResources;
 
@@ -172,13 +170,13 @@ tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
               while (NULL != p_q->p_first)
                 {
                   p_cur_item = p_q->p_first->p_next;
-                  tiz_mem_free ((OMX_PTR) p_q->p_first);
+                  tiz_mem_free ((OMX_PTR)p_q->p_first);
                   p_q->p_first = p_cur_item;
                 }
               /* end loop  */
               break;
             }
-        }                       /* for */
+        } /* for */
 
       if (OMX_ErrorNone == rc)
         {
@@ -188,7 +186,8 @@ tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
     }
   else
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorInsufficientResources: "
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "OMX_ErrorInsufficientResources: "
                "Could not instantiate queue struct.");
       rc = OMX_ErrorInsufficientResources;
     }
@@ -207,8 +206,7 @@ tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
   return rc;
 }
 
-void
-tiz_queue_destroy ( /*@null@ */ tiz_queue_t * p_q)
+void tiz_queue_destroy (/*@null@ */ tiz_queue_t *p_q)
 {
   if (p_q)
     {
@@ -233,7 +231,7 @@ tiz_queue_destroy ( /*@null@ */ tiz_queue_t * p_q)
 }
 
 OMX_ERRORTYPE
-tiz_queue_send (tiz_queue_t * p_q, OMX_PTR ap_data)
+tiz_queue_send (tiz_queue_t *p_q, OMX_PTR ap_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -264,7 +262,7 @@ tiz_queue_send (tiz_queue_t * p_q, OMX_PTR ap_data)
 }
 
 OMX_ERRORTYPE
-tiz_queue_receive (tiz_queue_t * p_q, OMX_PTR * app_data)
+tiz_queue_receive (tiz_queue_t *p_q, OMX_PTR *app_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -297,7 +295,7 @@ tiz_queue_receive (tiz_queue_t * p_q, OMX_PTR * app_data)
 }
 
 OMX_S32
-tiz_queue_length (tiz_queue_t * p_q)
+tiz_queue_length (tiz_queue_t *p_q)
 {
   OMX_S32 length = 0;
 

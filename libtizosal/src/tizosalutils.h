@@ -30,39 +30,34 @@
 #define TIZOSALUTILS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
+#include <OMX_Types.h>
+#include <OMX_Core.h>
+
 #include "tizosalmem.h"
-#include "OMX_Types.h"
-#include "OMX_Core.h"
 
 #define TIZ_INIT_OMX_STRUCT(struct_storage)                     \
-  tiz_mem_set(&(struct_storage), 0x0, sizeof(struct_storage));  \
-  (struct_storage).nSize             = sizeof(struct_storage);  \
+  tiz_mem_set (&(struct_storage), 0x0, sizeof(struct_storage)); \
+  (struct_storage).nSize = sizeof(struct_storage);              \
   (struct_storage).nVersion.nVersion = OMX_VERSION;
 
 #define TIZ_INIT_OMX_PORT_STRUCT(struct_storage, port_id)       \
-  tiz_mem_set(&(struct_storage), 0x0, sizeof(struct_storage));  \
-  (struct_storage).nSize             = sizeof(struct_storage);  \
+  tiz_mem_set (&(struct_storage), 0x0, sizeof(struct_storage)); \
+  (struct_storage).nSize = sizeof(struct_storage);              \
   (struct_storage).nVersion.nVersion = OMX_VERSION;             \
-  (struct_storage).nPortIndex        = port_id;
+  (struct_storage).nPortIndex = port_id;
 
-  /*@observer@ */ const OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd);
-
-  /*@observer@ */ const OMX_STRING tiz_state_to_str (OMX_STATETYPE a_id);
-
-  /*@observer@ */ const OMX_STRING tiz_evt_to_str (OMX_EVENTTYPE a_evt);
-
-  /*@observer@ */ const OMX_STRING tiz_err_to_str (OMX_ERRORTYPE a_err);
-
-  /*@observer@ */ const OMX_STRING tiz_dir_to_str (OMX_DIRTYPE a_dir);
-
-  /*@observer@ */ const OMX_STRING tiz_idx_to_str (OMX_INDEXTYPE a_idx);
+/*@observer@ */ const OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd);
+/*@observer@ */ const OMX_STRING tiz_state_to_str (OMX_STATETYPE a_id);
+/*@observer@ */ const OMX_STRING tiz_evt_to_str (OMX_EVENTTYPE a_evt);
+/*@observer@ */ const OMX_STRING tiz_err_to_str (OMX_ERRORTYPE a_err);
+/*@observer@ */ const OMX_STRING tiz_dir_to_str (OMX_DIRTYPE a_dir);
+/*@observer@ */ const OMX_STRING tiz_idx_to_str (OMX_INDEXTYPE a_idx);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALUTILS_H */
+#endif /* TIZOSALUTILS_H */

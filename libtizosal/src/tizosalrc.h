@@ -30,8 +30,7 @@
 #define TIZOSALRC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -44,35 +43,39 @@ extern "C"
 
 #define TIZ_RCFILE_PLUGINS_DATA_SECTION "plugins-data"
 
-  /**
-   * Returns a value string from a give section using the value's key
-   *
-   * @ingroup rcfile
-   *
-   * @param section String indicating the section where the key-value pair is located
-   * @param key The key to use to search for the value
-   *
-   * @return A newly allocated string or NULL if the specified key cannot be found.
-   */
-  const char *tiz_rcfile_get_value (const char *section, const char *key);
+/**
+ * Returns a value string from a give section using the value's key
+ *
+ * @ingroup rcfile
+ *
+ * @param section String indicating the section where the key-value pair is
+ *located
+ * @param key The key to use to search for the value
+ *
+ * @return A newly allocated string or NULL if the specified key cannot be
+ *found.
+ */
+const char *tiz_rcfile_get_value (const char *section, const char *key);
 
-  /**
-   * Returns a value string from a give section using the value's key
-   *
-   * @ingroup rcfile
-   *
-   * @param section String indicating the section where the key-value pair is located
-   * @param key The key to use to search for the value
-   * @param length Return location for the number of returned strings
-   *
-   * @return An array of NULL-terminated strings or NULL if the specified key cannot
-   * be found. The array should be freed by the caller.
-   */
-  char **tiz_rcfile_get_value_list (const char *section, const char *key,
-                                    unsigned long *length);
+/**
+ * Returns a value string from a give section using the value's key
+ *
+ * @ingroup rcfile
+ *
+ * @param section String indicating the section where the key-value pair is
+ *located
+ * @param key The key to use to search for the value
+ * @param length Return location for the number of returned strings
+ *
+ * @return An array of NULL-terminated strings or NULL if the specified key
+ *cannot
+ * be found. The array should be freed by the caller.
+ */
+char **tiz_rcfile_get_value_list (const char *section, const char *key,
+                                  unsigned long *length);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALRC_H */
+#endif /* TIZOSALRC_H */

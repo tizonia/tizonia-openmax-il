@@ -30,39 +30,38 @@
 #include <config.h>
 #endif
 
-#include "tizosal.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "tizosal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.osal.mem"
 #endif
 
-                                                                                       /*@only@ *//*@null@ *//*@out@ */
+/*@only@ */ /*@null@ */ /*@out@ */
 OMX_PTR
 tiz_mem_alloc (size_t a_size)
 {
   return malloc (a_size);
 }
 
-void
-tiz_mem_free ( /*@only@ *//*@out@ *//*@null@ */ OMX_PTR a_ptr)
+void tiz_mem_free (/*@only@ */ /*@out@ */ /*@null@ */ OMX_PTR a_ptr)
 {
   free (a_ptr);
 }
 
-                                                                                       /*@only@ *//*@null@ *//*@out@ */
+/*@only@ */ /*@null@ */ /*@out@ */
 OMX_PTR
-tiz_mem_realloc ( /*@only@ *//*@out@ *//*@null@ */ OMX_PTR a_ptr,
+tiz_mem_realloc (/*@only@ */ /*@out@ */ /*@null@ */ OMX_PTR a_ptr,
                  size_t a_size)
 {
   return realloc (a_ptr, a_size);
 }
 
-                                                                                       /*@only@ *//*@null@ *//*@out@ */
+/*@only@ */ /*@null@ */ /*@out@ */
 OMX_PTR
 tiz_mem_calloc (size_t a_num_elem, size_t a_elem_size)
 {
@@ -72,5 +71,5 @@ tiz_mem_calloc (size_t a_num_elem, size_t a_elem_size)
 OMX_PTR
 tiz_mem_set (OMX_PTR ap_dest, OMX_S32 a_orig, size_t a_num_bytes)
 {
-  return memset (ap_dest, (int) a_orig, a_num_bytes);
+  return memset (ap_dest, (int)a_orig, a_num_bytes);
 }

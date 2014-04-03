@@ -30,8 +30,7 @@
 #define TIZMACROS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "tizosalutils.h"
@@ -39,12 +38,11 @@ extern "C"
 
 #include <stddef.h>
 
-#undef  MAX
-#define MAX(a, b)  (((a) > (b)) ? (a) : (b))
+#undef MAX
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-#undef  MIN
-#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
-
+#undef MIN
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 #if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
 #define TIZ_LIKELY(expr) (__builtin_expect (expr, 1))
@@ -70,7 +68,12 @@ extern "C"
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_omx_err (expr) do { (void) (expr); } while (0)
+#define tiz_check_omx_err \
+  (expr) do               \
+  {                       \
+    (void)(expr);         \
+  }                       \
+  while (0)
 
 /**
  * tiz_check_omx_err_ret_oom:
@@ -83,7 +86,12 @@ extern "C"
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_omx_err_ret_oom (expr) do { (void) (expr); } while (0)
+#define tiz_check_omx_err_ret_oom \
+  (expr) do                       \
+  {                               \
+    (void)(expr);                 \
+  }                               \
+  while (0)
 
 /**
  * tiz_check_null_ret_oom:
@@ -96,7 +104,12 @@ extern "C"
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_omx_err_ret_oom (expr) do { (void) (expr); } while (0)
+#define tiz_check_omx_err_ret_oom \
+  (expr) do                       \
+  {                               \
+    (void)(expr);                 \
+  }                               \
+  while (0)
 
 /**
  * tiz_check_omx_err_ret_null:
@@ -108,7 +121,12 @@ extern "C"
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_omx_err_ret_null (expr) do { (void) (expr); } while (0)
+#define tiz_check_omx_err_ret_null \
+  (expr) do                        \
+  {                                \
+    (void)(expr);                  \
+  }                                \
+  while (0)
 
 /**
  * tiz_check_omx_err_ret_val:
@@ -121,7 +139,12 @@ extern "C"
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_omx_err_ret_val (expr) do { (void) (expr); } while (0)
+#define tiz_check_omx_err_ret_val \
+  (expr) do                       \
+  {                               \
+    (void)(expr);                 \
+  }                               \
+  while (0)
 
 /**
  * tiz_check_err:
@@ -134,7 +157,12 @@ extern "C"
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_err (expr) do { (void) (expr); } while (0)
+#define tiz_check_err \
+  (expr) do           \
+  {                   \
+    (void)(expr);     \
+  }                   \
+  while (0)
 
 /**
  * tiz_ret_val_on_err:
@@ -148,152 +176,227 @@ extern "C"
  * If TIZ_DISABLE_CHECKS is defined then the check is not performed but the
  * expression is still evaluated.
  */
-#define tiz_check_ret_ret_val (expr,val) do { (void) (expr); } while (0)
-
+#define tiz_check_ret_ret_val \
+  (expr, val) do              \
+  {                           \
+    (void)(expr);             \
+  }                           \
+  while (0)
 
 #else /* !TIZ_DISABLE_CHECKS */
 
 #ifdef __GNUC__
 
-#define tiz_check_omx_err(expr)                                    \
-  do {                                                                  \
-    OMX_ERRORTYPE _err = expr;                                          \
-    if TIZ_LIKELY(OMX_ErrorNone == _err) {}                             \
-    else {                                                              \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[%s]...", tiz_err_to_str (_err));             \
-      return _err;                                                      \
-    }                                                                   \
-  } while(0)
+#define tiz_check_omx_err(expr)                                           \
+  do                                                                      \
+    {                                                                     \
+      OMX_ERRORTYPE _err = expr;                                          \
+      if                                                                  \
+        TIZ_LIKELY (OMX_ErrorNone == _err)                                \
+        {                                                                 \
+        }                                                                 \
+      else                                                                \
+        {                                                                 \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]...", tiz_err_to_str (_err)); \
+          return _err;                                                    \
+        }                                                                 \
+    }                                                                     \
+  while (0)
 
-#define tiz_check_omx_err_ret_oom(expr)                                  \
-  do {                                                                  \
-    OMX_ERRORTYPE _err = expr;                                          \
-    if TIZ_LIKELY(OMX_ErrorNone == _err) {}                             \
-    else {                                                              \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] "            \
-              "was [%s]...", tiz_err_to_str (_err));                    \
-      return OMX_ErrorInsufficientResources;                            \
-    }                                                                   \
-  } while(0)
+#define tiz_check_omx_err_ret_oom(expr)                \
+  do                                                   \
+    {                                                  \
+      OMX_ERRORTYPE _err = expr;                       \
+      if                                               \
+        TIZ_LIKELY (OMX_ErrorNone == _err)             \
+        {                                              \
+        }                                              \
+      else                                             \
+        {                                              \
+          TIZ_LOG (TIZ_PRIORITY_ERROR,                 \
+                   "[OMX_ErrorInsufficientResources] " \
+                   "was [%s]...",                      \
+                   tiz_err_to_str (_err));             \
+          return OMX_ErrorInsufficientResources;       \
+        }                                              \
+    }                                                  \
+  while (0)
 
-#define tiz_check_null_ret_oom(expr)                                    \
-  do {                                                                  \
-    if TIZ_LIKELY(NULL != (expr)){}                                     \
-    else {                                                              \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]");           \
-      return OMX_ErrorInsufficientResources;                            \
-    }                                                                   \
-  } while(0)
+#define tiz_check_null_ret_oom(expr)                                        \
+  do                                                                        \
+    {                                                                       \
+      if                                                                    \
+        TIZ_LIKELY (NULL != (expr))                                         \
+        {                                                                   \
+        }                                                                   \
+      else                                                                  \
+        {                                                                   \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]"); \
+          return OMX_ErrorInsufficientResources;                            \
+        }                                                                   \
+    }                                                                       \
+  while (0)
 
-#define tiz_check_omx_err_ret_null(expr)                                 \
-  do {                                                                  \
-    OMX_ERRORTYPE _err = expr;                                          \
-    if TIZ_LIKELY(OMX_ErrorNone == _err) {}                             \
-    else {                                                              \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[NULL] : was [%s]...",                        \
-              tiz_err_to_str (_err));                                   \
-      return NULL;                                                      \
-    }                                                                   \
-  } while(0)
+#define tiz_check_omx_err_ret_null(expr)                       \
+  do                                                           \
+    {                                                          \
+      OMX_ERRORTYPE _err = expr;                               \
+      if                                                       \
+        TIZ_LIKELY (OMX_ErrorNone == _err)                     \
+        {                                                      \
+        }                                                      \
+      else                                                     \
+        {                                                      \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[NULL] : was [%s]...", \
+                   tiz_err_to_str (_err));                     \
+          return NULL;                                         \
+        }                                                      \
+    }                                                          \
+  while (0)
 
-#define tiz_check_omx_err_ret_val(expr,val)                              \
-  do {                                                                  \
-    OMX_ERRORTYPE _err = expr;                                          \
-    if TIZ_LIKELY(OMX_ErrorNone == _err) {}                             \
-    else {                                                              \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[%s] : was [%s]",                             \
-              tiz_err_to_str (val),                                     \
-              tiz_err_to_str (_err));                                   \
-      return (val);                                                     \
-    }                                                                   \
-  } while(0)
+#define tiz_check_omx_err_ret_val(expr, val)                     \
+  do                                                             \
+    {                                                            \
+      OMX_ERRORTYPE _err = expr;                                 \
+      if                                                         \
+        TIZ_LIKELY (OMX_ErrorNone == _err)                       \
+        {                                                        \
+        }                                                        \
+      else                                                       \
+        {                                                        \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : was [%s]",        \
+                   tiz_err_to_str (val), tiz_err_to_str (_err)); \
+          return (val);                                          \
+        }                                                        \
+    }                                                            \
+  while (0)
 
 #define tiz_ret_on_err(expr)                                        \
-  do {                                                                  \
-    if TIZ_LIKELY(expr) {}                                              \
-    else {                                                              \
-      TIZ_LOG (TIZ_PRIORITY_ERROR,  "Check '%s' failed",  #expr);                \
-      return;                                                           \
-    }                                                                  \
-  } while (0)
+  do                                                                \
+    {                                                               \
+      if                                                            \
+        TIZ_LIKELY (expr)                                           \
+        {                                                           \
+        }                                                           \
+      else                                                          \
+        {                                                           \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
+          return;                                                   \
+        }                                                           \
+    }                                                               \
+  while (0)
 
-#define tiz_ret_val_on_err(expr,val)                                    \
-  do {                                                                  \
-    if TIZ_LIKELY(expr) {}                                            \
-    else {                                                              \
-      TIZ_LOG (TIZ_PRIORITY_ERROR,  "Check '%s' failed",  #expr);                \
-      return val;                                                       \
-    }                                                                   \
-  } while (0)
+#define tiz_ret_val_on_err(expr, val)                               \
+  do                                                                \
+    {                                                               \
+      if                                                            \
+        TIZ_LIKELY (expr)                                           \
+        {                                                           \
+        }                                                           \
+      else                                                          \
+        {                                                           \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
+          return val;                                               \
+        }                                                           \
+    }                                                               \
+  while (0)
 
 #else /* !__GNUC__ */
 
-#define tiz_check_omx_err(expr)                                  \
-  do {                                                            \
-    OMX_ERRORTYPE _err = expr;                                    \
-    if (OMX_ErrorNone != _err) {                                  \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[%s]...", tiz_err_to_str (_err));       \
-      return _err;                                                \
-    }                                                             \
-  } while(0)
+#define tiz_check_omx_err(expr)                                           \
+  do                                                                      \
+    {                                                                     \
+      OMX_ERRORTYPE _err = expr;                                          \
+      if (OMX_ErrorNone != _err)                                          \
+        {                                                                 \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]...", tiz_err_to_str (_err)); \
+          return _err;                                                    \
+        }                                                                 \
+    }                                                                     \
+  while (0)
 
-#define tiz_check_omx_err_ret_oom(expr)                            \
-  do {                                                             \
-    OMX_ERRORTYPE _err = expr;                                     \
-    if (OMX_ErrorNone != _err) {                                   \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] "       \
-              "was [%s]...", tiz_err_to_str (_err));               \
-      return OMX_ErrorInsufficientResources;                       \
-    }                                                              \
-  } while(0)
+#define tiz_check_omx_err_ret_oom(expr)                \
+  do                                                   \
+    {                                                  \
+      OMX_ERRORTYPE _err = expr;                       \
+      if (OMX_ErrorNone != _err)                       \
+        {                                              \
+          TIZ_LOG (TIZ_PRIORITY_ERROR,                 \
+                   "[OMX_ErrorInsufficientResources] " \
+                   "was [%s]...",                      \
+                   tiz_err_to_str (_err));             \
+          return OMX_ErrorInsufficientResources;       \
+        }                                              \
+    }                                                  \
+  while (0)
 
-#define tiz_check_null_ret_oom(expr)                                    \
-  do {                                                                  \
-    if (NULL != (expr)) {}                                              \
-    else {                                                              \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]");           \
-      return OMX_ErrorInsufficientResources;                            \
-    }                                                                   \
-  } while(0)
+#define tiz_check_null_ret_oom(expr)                                        \
+  do                                                                        \
+    {                                                                       \
+      if (NULL != (expr))                                                   \
+        {                                                                   \
+        }                                                                   \
+      else                                                                  \
+        {                                                                   \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]"); \
+          return OMX_ErrorInsufficientResources;                            \
+        }                                                                   \
+    }                                                                       \
+  while (0)
 
-#define tiz_check_omx_err_ret_null(expr)                   \
-  do {                                                     \
-    OMX_ERRORTYPE _err = expr;                             \
-    if (OMX_ErrorNone != _err) {                           \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[NULL] : was [%s]...",           \
-              tiz_err_to_str (_err));                      \
-      return NULL;                                         \
-    }                                                      \
-  } while(0)
+#define tiz_check_omx_err_ret_null(expr)                       \
+  do                                                           \
+    {                                                          \
+      OMX_ERRORTYPE _err = expr;                               \
+      if (OMX_ErrorNone != _err)                               \
+        {                                                      \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[NULL] : was [%s]...", \
+                   tiz_err_to_str (_err));                     \
+          return NULL;                                         \
+        }                                                      \
+    }                                                          \
+  while (0)
 
-#define tiz_check_omx_err_ret_val(expr,val)        \
-  do {                                             \
-    OMX_ERRORTYPE _err = expr;                     \
-    if (OMX_ErrorNone != _err) {                   \
-      TIZ_LOG(TIZ_PRIORITY_ERROR, "[%s] : was [%s]",        \
-              tiz_err_to_str (val),                \
-              tiz_err_to_str (_err));              \
-      return (val);                                \
-    }                                              \
-  } while(0)
+#define tiz_check_omx_err_ret_val(expr, val)                     \
+  do                                                             \
+    {                                                            \
+      OMX_ERRORTYPE _err = expr;                                 \
+      if (OMX_ErrorNone != _err)                                 \
+        {                                                        \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : was [%s]",        \
+                   tiz_err_to_str (val), tiz_err_to_str (_err)); \
+          return (val);                                          \
+        }                                                        \
+    }                                                            \
+  while (0)
 
-#define tiz_ret_on_err (expr)                                       \
-  do {                                                                  \
-    if (expr) {}                                                        \
-    else {                                                              \
-      TIZ_LOG (TIZ_PRIORITY_ERROR,  "Check '%s' failed",  #expr);                \
-      return;                                                           \
-    }                                                                  \
-  } while (0)
+#define tiz_ret_on_err                                            \
+  (expr) do                                                       \
+  {                                                               \
+    if (expr)                                                     \
+      {                                                           \
+      }                                                           \
+    else                                                          \
+      {                                                           \
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
+        return;                                                   \
+      }                                                           \
+  }                                                               \
+  while (0)
 
-#define tiz_ret_val_on_err (expr, val)                              \
-  do {                                                                  \
-    if (expr) {}                                                        \
-    else {                                                              \
-      TIZ_LOG (TIZ_PRIORITY_ERROR,  "Check '%s' failed",  #expr);                \
-      return (val);                                                     \
-    }                                                                  \
-  } while (0)
+#define tiz_ret_val_on_err                                        \
+  (expr, val) do                                                  \
+  {                                                               \
+    if (expr)                                                     \
+      {                                                           \
+      }                                                           \
+    else                                                          \
+      {                                                           \
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "Check '%s' failed", #expr); \
+        return (val);                                             \
+      }                                                           \
+  }                                                               \
+  while (0)
 
 #endif /* !__GNUC__ */
 
@@ -301,18 +404,17 @@ extern "C"
 
 #ifdef TIZ_UNUSED
 #elif defined(__GNUC__)
-# define TIZ_UNUSED(x) UNUSED_ ## x __attribute__((unused))
+#define TIZ_UNUSED(x) UNUSED_##x __attribute__ ((unused))
 #elif defined(__LCLINT__)
-# define TIZ_UNUSED(x) /*@unused@*/ x
+#define TIZ_UNUSED(x) /*@unused@*/ x
 #elif defined(__cplusplus)
-# define TIZ_UNUSED(x)
+#define TIZ_UNUSED(x)
 #else
-#                  define TIZ_UNUSED(x) x
+#define TIZ_UNUSED(x) x
 #endif
-
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZMACROS_H */
+#endif /* TIZMACROS_H */

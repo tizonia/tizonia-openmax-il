@@ -21,7 +21,7 @@
  * @file   tizosalmap.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Associative array API
+ * @brief  Associative array
  *
  *
  */
@@ -30,9 +30,8 @@
 #define TIZOSALMAP_H
 
 #ifdef __cplusplus
-extern "C"
-{
-#endif                          /* __cplusplus */
+extern "C" {
+#endif /* __cplusplus */
 
 #include <stdbool.h>
 
@@ -41,42 +40,31 @@ extern "C"
 
 #include <tizosalsoa.h>
 
-  typedef struct tiz_map tiz_map_t;
+typedef struct tiz_map tiz_map_t;
 
-  typedef OMX_S32 (*tiz_map_cmp_f) (OMX_PTR ap_key1, OMX_PTR ap_key2);
-  typedef void (*tiz_map_free_f) (OMX_PTR ap_key, OMX_PTR ap_value);
-  typedef OMX_S32 (*tiz_map_for_each_f) (OMX_PTR ap_key, OMX_PTR ap_value,
-                                         OMX_PTR ap_arg);
+typedef OMX_S32 (*tiz_map_cmp_f)(OMX_PTR ap_key1, OMX_PTR ap_key2);
+typedef void (*tiz_map_free_f)(OMX_PTR ap_key, OMX_PTR ap_value);
+typedef OMX_S32 (*tiz_map_for_each_f)(OMX_PTR ap_key, OMX_PTR ap_value,
+                                      OMX_PTR ap_arg);
 
-  OMX_ERRORTYPE tiz_map_init (tiz_map_t ** app_map, tiz_map_cmp_f a_pf_cmp,
-                              tiz_map_free_f a_pf_free, tiz_soa_t * ap_soa);
-
-  void tiz_map_destroy (tiz_map_t * ap_map);
-
-  OMX_ERRORTYPE tiz_map_insert (tiz_map_t * ap_map, OMX_PTR ap_key,
-                                OMX_PTR ap_value, OMX_U32 * ap_index);
-
-  OMX_PTR tiz_map_find (const tiz_map_t * ap_map, OMX_PTR ap_key);
-
-  OMX_PTR tiz_map_at (const tiz_map_t * ap_map, OMX_S32 a_pos);
-
-  OMX_ERRORTYPE tiz_map_for_each (tiz_map_t * ap_map,
-                                  tiz_map_for_each_f a_pf_for_each,
-                                  OMX_PTR ap_arg);
-
-  void tiz_map_erase (tiz_map_t * ap_map, OMX_PTR ap_key);
-
-  void tiz_map_erase_at (tiz_map_t * ap_map, OMX_S32 a_pos);
-
-  OMX_ERRORTYPE tiz_map_clear (tiz_map_t * ap_map);
-
-  bool tiz_map_empty (const tiz_map_t * ap_map);
-
-  OMX_S32 tiz_map_size (const tiz_map_t * ap_map);
-
+OMX_ERRORTYPE tiz_map_init (tiz_map_t **app_map, tiz_map_cmp_f a_pf_cmp,
+                            tiz_map_free_f a_pf_free, tiz_soa_t *ap_soa);
+void tiz_map_destroy (tiz_map_t *ap_map);
+OMX_ERRORTYPE tiz_map_insert (tiz_map_t *ap_map, OMX_PTR ap_key,
+                              OMX_PTR ap_value, OMX_U32 *ap_index);
+OMX_PTR tiz_map_find (const tiz_map_t *ap_map, OMX_PTR ap_key);
+OMX_PTR tiz_map_at (const tiz_map_t *ap_map, OMX_S32 a_pos);
+OMX_ERRORTYPE tiz_map_for_each (tiz_map_t *ap_map,
+                                tiz_map_for_each_f a_pf_for_each,
+                                OMX_PTR ap_arg);
+void tiz_map_erase (tiz_map_t *ap_map, OMX_PTR ap_key);
+void tiz_map_erase_at (tiz_map_t *ap_map, OMX_S32 a_pos);
+OMX_ERRORTYPE tiz_map_clear (tiz_map_t *ap_map);
+bool tiz_map_empty (const tiz_map_t *ap_map);
+OMX_S32 tiz_map_size (const tiz_map_t *ap_map);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALMAP_H */
+#endif /* TIZOSALMAP_H */

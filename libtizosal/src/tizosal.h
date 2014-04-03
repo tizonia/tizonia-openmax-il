@@ -17,7 +17,6 @@
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /**
  * @file   tizosal.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
@@ -34,7 +33,7 @@
  * @defgroup Tizonia-OSAL OS Abstraction Layer and Utilities
  *
  * @{
- * 
+ *
  */
 
 #include "tizmacros.h"

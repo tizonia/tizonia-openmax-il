@@ -30,29 +30,24 @@
 #define TIZOSALMEM_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <sys/types.h>
-#include "OMX_Types.h"
+#include <OMX_Types.h>
 
-  /*@only@*/ /*@null@*/ /*@out@*/
-  OMX_PTR tiz_mem_alloc (size_t size);
-
-  void tiz_mem_free ( /*@only@*/ /*@out@*/ /*@null@*/ OMX_PTR addr);
-
-  /*@only@*/ /*@null@*/ /*@out@*/
-  OMX_PTR tiz_mem_realloc (     /*@only@*/ /*@out@*/ /*@null@*/
-                            OMX_PTR ptr, size_t size);
-
-  /*@only@*/ /*@null@*/ /*@out@*/
-  OMX_PTR tiz_mem_calloc (size_t nmemb, size_t size);
-
-  OMX_PTR tiz_mem_set (OMX_PTR ap_dest, OMX_S32 a_orig, size_t a_num_bytes);
+/*@only@*/ /*@null@*/ /*@out@*/
+OMX_PTR tiz_mem_alloc (size_t size);
+void tiz_mem_free (/*@only@*/ /*@out@*/ /*@null@*/ OMX_PTR addr);
+/*@only@*/ /*@null@*/ /*@out@*/
+OMX_PTR tiz_mem_realloc (/*@only@*/ /*@out@*/ /*@null@*/
+                         OMX_PTR ptr, size_t size);
+/*@only@*/ /*@null@*/ /*@out@*/
+OMX_PTR tiz_mem_calloc (size_t nmemb, size_t size);
+OMX_PTR tiz_mem_set (OMX_PTR ap_dest, OMX_S32 a_orig, size_t a_num_bytes);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALMEM_H */
+#endif /* TIZOSALMEM_H */

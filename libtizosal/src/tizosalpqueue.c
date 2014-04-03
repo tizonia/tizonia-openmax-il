@@ -64,8 +64,8 @@ struct tiz_pqueue_item
 struct tiz_pqueue
 {
   /*@dependent@ */ tiz_pqueue_item_t **pp_store;
-  /*@dependent@ *//*@null@ */ tiz_pqueue_item_t *p_first;
-  /*@dependent@ *//*@null@ */ tiz_pqueue_item_t *p_last;
+  /*@dependent@ */ /*@null@ */ tiz_pqueue_item_t *p_first;
+  /*@dependent@ */ /*@null@ */ tiz_pqueue_item_t *p_last;
   OMX_S32 length;
   OMX_S32 max_prio;
   tiz_pq_cmp_f pf_cmp;
@@ -73,22 +73,20 @@ struct tiz_pqueue
   char name[TIZ_PQUEUE_MAX_NAME_LEN];
 };
 
-static /*@null@ */ void *
-pqueue_calloc ( /*@null@ */ tiz_soa_t * p_soa, size_t a_size)
+static /*@null@ */ void *pqueue_calloc (/*@null@ */ tiz_soa_t *p_soa,
+                                        size_t a_size)
 {
-  return NULL != p_soa
-    ? tiz_soa_calloc (p_soa, a_size) : tiz_mem_calloc (1, a_size);
+  return NULL != p_soa ? tiz_soa_calloc (p_soa, a_size)
+                       : tiz_mem_calloc (1, a_size);
 }
 
-static inline void
-pqueue_free (tiz_soa_t * p_soa, void *ap_addr)
+static inline void pqueue_free (tiz_soa_t *p_soa, void *ap_addr)
 {
   NULL != p_soa ? tiz_soa_free (p_soa, ap_addr) : tiz_mem_free (ap_addr);
 }
 
-static inline void
-hook_before (tiz_pqueue_t * p_q,
-             tiz_pqueue_item_t * p_cur, tiz_pqueue_item_t * p_new)
+static inline void hook_before (tiz_pqueue_t *p_q, tiz_pqueue_item_t *p_cur,
+                                tiz_pqueue_item_t *p_new)
 {
   tiz_pqueue_item_t *p_tmp = p_cur->p_prev;
   p_cur->p_prev = p_new;
@@ -104,8 +102,7 @@ hook_before (tiz_pqueue_t * p_q,
     }
 }
 
-static inline void
-hook_last (tiz_pqueue_t * p_q, tiz_pqueue_item_t * p_new)
+static inline void hook_last (tiz_pqueue_t *p_q, tiz_pqueue_item_t *p_new)
 {
   tiz_pqueue_item_t *p_tmp = NULL;
 
@@ -126,9 +123,8 @@ hook_last (tiz_pqueue_t * p_q, tiz_pqueue_item_t * p_new)
 }
 
 OMX_ERRORTYPE
-tiz_pqueue_init (tiz_pqueue_t ** pp_q,
-                 OMX_S32 a_max_prio, tiz_pq_cmp_f a_pf_cmp,
-                 tiz_soa_t * ap_soa, const char *ap_name)
+tiz_pqueue_init (tiz_pqueue_t **pp_q, OMX_S32 a_max_prio, tiz_pq_cmp_f a_pf_cmp,
+                 tiz_soa_t *ap_soa, const char *ap_name)
 {
   tiz_pqueue_t *p_q = NULL;
 
@@ -136,29 +132,29 @@ tiz_pqueue_init (tiz_pqueue_t ** pp_q,
   assert (a_max_prio >= 0);
   assert (a_pf_cmp != NULL);
 
-  if (NULL == (p_q = (tiz_pqueue_t *)
-               pqueue_calloc (ap_soa, sizeof (tiz_pqueue_t))))
+  if (NULL
+      == (p_q = (tiz_pqueue_t *)pqueue_calloc (ap_soa, sizeof(tiz_pqueue_t))))
     {
       return OMX_ErrorInsufficientResources;
     }
 
   /* There is one pointer per priority category */
-  if (NULL == (p_q->pp_store = (tiz_pqueue_item_t **)
-               pqueue_calloc (ap_soa, (size_t) (a_max_prio + 1) *
-                              sizeof (tiz_pqueue_item_t *))))
+  if (NULL
+      == (p_q->pp_store = (tiz_pqueue_item_t **)pqueue_calloc (
+              ap_soa, (size_t)(a_max_prio + 1) * sizeof(tiz_pqueue_item_t *))))
     {
       pqueue_free (ap_soa, p_q);
       p_q = NULL;
       return OMX_ErrorInsufficientResources;
     }
 
-  p_q->p_first  = NULL;
-  p_q->p_last   = NULL;
-  p_q->length   = 0;
+  p_q->p_first = NULL;
+  p_q->p_last = NULL;
+  p_q->length = 0;
   p_q->max_prio = a_max_prio;
-  p_q->pf_cmp   = a_pf_cmp;
-  p_q->p_soa    = ap_soa;
-  
+  p_q->pf_cmp = a_pf_cmp;
+  p_q->p_soa = ap_soa;
+
   if (NULL != ap_name)
     {
       strncpy (p_q->name, ap_name, TIZ_PQUEUE_MAX_NAME_LEN);
@@ -170,8 +166,7 @@ tiz_pqueue_init (tiz_pqueue_t ** pp_q,
   return OMX_ErrorNone;
 }
 
-void
-tiz_pqueue_destroy (tiz_pqueue_t * p_q)
+void tiz_pqueue_destroy (tiz_pqueue_t *p_q)
 {
   if (p_q)
     {
@@ -185,7 +180,7 @@ tiz_pqueue_destroy (tiz_pqueue_t * p_q)
 }
 
 OMX_ERRORTYPE
-tiz_pqueue_send (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
+tiz_pqueue_send (tiz_pqueue_t *p_q, void *ap_data, OMX_S32 a_priority)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_pqueue_item_t *p_new = NULL;
@@ -194,9 +189,8 @@ tiz_pqueue_send (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
   assert (a_priority >= 0);
   assert (a_priority <= p_q->max_prio);
 
-  if (NULL
-      == (p_new = (tiz_pqueue_item_t *)
-          pqueue_calloc (p_q->p_soa, sizeof (tiz_pqueue_item_t))))
+  if (NULL == (p_new = (tiz_pqueue_item_t *)pqueue_calloc (
+                   p_q->p_soa, sizeof(tiz_pqueue_item_t))))
     {
       rc = OMX_ErrorInsufficientResources;
     }
@@ -205,8 +199,7 @@ tiz_pqueue_send (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
       OMX_S32 next_prio = a_priority + 1;
       /* Find the next priority upwards. This will make next_prio equal to next
        * prio up or max+1 if none */
-      while ((next_prio <= p_q->max_prio)
-             && (NULL == p_q->pp_store[next_prio]))
+      while ((next_prio <= p_q->max_prio) && (NULL == p_q->pp_store[next_prio]))
         {
           next_prio++;
         }
@@ -216,8 +209,7 @@ tiz_pqueue_send (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
           p_q->pp_store[a_priority] = p_new;
         }
 
-      if ((next_prio <= p_q->max_prio)
-          && (NULL != p_q->pp_store[next_prio]))
+      if ((next_prio <= p_q->max_prio) && (NULL != p_q->pp_store[next_prio]))
         {
           hook_before (p_q, p_q->pp_store[next_prio], p_new);
         }
@@ -226,7 +218,7 @@ tiz_pqueue_send (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
           hook_last (p_q, p_new);
         }
 
-      p_new->p_data   = ap_data;
+      p_new->p_data = ap_data;
       p_new->priority = a_priority;
       p_q->length++;
 
@@ -238,7 +230,7 @@ tiz_pqueue_send (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
 }
 
 OMX_ERRORTYPE
-tiz_pqueue_receive (tiz_pqueue_t * p_q, void * *app_data)
+tiz_pqueue_receive (tiz_pqueue_t *p_q, void **app_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -291,8 +283,8 @@ tiz_pqueue_receive (tiz_pqueue_t * p_q, void * *app_data)
       pqueue_free (p_q->p_soa, p_cur);
 
       assert (p_q->length >= 0);
-      assert (p_q->length >
-              0 ? (NULL != p_q->p_first && NULL != p_q->p_last) : 1);
+      assert (p_q->length > 0 ? (NULL != p_q->p_first && NULL != p_q->p_last)
+                              : 1);
     }
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s], pq[%p] len[%d] fst [%p] lst [%p]",
@@ -302,7 +294,7 @@ tiz_pqueue_receive (tiz_pqueue_t * p_q, void * *app_data)
 }
 
 OMX_ERRORTYPE
-tiz_pqueue_remove (tiz_pqueue_t * p_q, void *ap_data)
+tiz_pqueue_remove (tiz_pqueue_t *p_q, void *ap_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNoMore;
   tiz_pqueue_item_t *p_cur = NULL;
@@ -365,7 +357,7 @@ tiz_pqueue_remove (tiz_pqueue_t * p_q, void *ap_data)
 }
 
 OMX_ERRORTYPE
-tiz_pqueue_removep (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
+tiz_pqueue_removep (tiz_pqueue_t *p_q, void *ap_data, OMX_S32 a_priority)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNoMore;
   tiz_pqueue_item_t *p_cur = NULL;
@@ -429,9 +421,8 @@ tiz_pqueue_removep (tiz_pqueue_t * p_q, void *ap_data, OMX_S32 a_priority)
   return rc;
 }
 
-void
-tiz_pqueue_remove_func (tiz_pqueue_t * p_q, tiz_pq_func_f a_pf_func,
-                        OMX_S32 a_data1, void *ap_data2)
+void tiz_pqueue_remove_func (tiz_pqueue_t *p_q, tiz_pq_func_f a_pf_func,
+                             OMX_S32 a_data1, void *ap_data2)
 {
   tiz_pqueue_item_t *p_cur = NULL;
   tiz_pqueue_item_t *p_next = NULL;
@@ -498,7 +489,7 @@ tiz_pqueue_remove_func (tiz_pqueue_t * p_q, tiz_pq_func_f a_pf_func,
 }
 
 OMX_ERRORTYPE
-tiz_pqueue_first (tiz_pqueue_t * p_q, void * *app_data)
+tiz_pqueue_first (tiz_pqueue_t *p_q, void **app_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -520,14 +511,14 @@ tiz_pqueue_first (tiz_pqueue_t * p_q, void * *app_data)
 }
 
 OMX_S32
-tiz_pqueue_length (const tiz_pqueue_t * p_q)
+tiz_pqueue_length (const tiz_pqueue_t *p_q)
 {
   assert (NULL != p_q);
   return p_q->length;
 }
 
 OMX_S32
-tiz_pqueue_dump (tiz_pqueue_t * p_q, tiz_pq_dump_item_f a_pf_dump)
+tiz_pqueue_dump (tiz_pqueue_t *p_q, tiz_pq_dump_item_f a_pf_dump)
 {
   tiz_pqueue_item_t *p_current = NULL;
   OMX_S32 count = 0;
@@ -538,8 +529,8 @@ tiz_pqueue_dump (tiz_pqueue_t * p_q, tiz_pq_dump_item_f a_pf_dump)
   p_current = p_q->p_first;
   while (NULL != p_current)
     {
-      a_pf_dump (p_q->name, p_current->p_data, p_current->priority,
-                 p_current, p_current->p_prev, p_current->p_next);
+      a_pf_dump (p_q->name, p_current->p_data, p_current->priority, p_current,
+                 p_current->p_prev, p_current->p_next);
       p_current = p_current->p_next;
       count++;
     }

@@ -47,7 +47,6 @@
 #include <log4c.h>
 #include <alloca.h>
 
-
 typedef struct user_locinfo user_locinfo_t;
 struct user_locinfo
 {
@@ -57,9 +56,8 @@ struct user_locinfo
   char *cbuf;
 };
 
-static const char *
-tiz_log_layout_format (const log4c_layout_t * a_layout,
-                       const log4c_logging_event_t * a_event)
+static const char *tiz_log_layout_format (const log4c_layout_t *a_layout,
+                                          const log4c_logging_event_t *a_event)
 {
   static char buffer[4096];
   user_locinfo_t *uloc = NULL;
@@ -68,23 +66,20 @@ tiz_log_layout_format (const log4c_layout_t * a_layout,
     {
       struct tm tm;
       gmtime_r (&a_event->evt_timestamp.tv_sec, &tm);
-      uloc = (user_locinfo_t *) a_event->evt_loc->loc_data;
+      uloc = (user_locinfo_t *)a_event->evt_loc->loc_data;
 
       if (NULL == uloc->cname)
         {
-          snprintf (buffer, sizeof (buffer),
+          snprintf (buffer, sizeof(buffer),
                     "%02d-%02d-%04d %02d:%02d:%02d.%03ld - "
                     "[PID:%i][TID:%i] [%s] [%s] [%s:%s:%i] --- %s\n",
-                    tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900,
-                    tm.tm_hour, tm.tm_min, tm.tm_sec,
-                    a_event->evt_timestamp.tv_usec / 1000,
-                    uloc->pid,
-                    uloc->tid,
+                    tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, tm.tm_hour,
+                    tm.tm_min, tm.tm_sec, a_event->evt_timestamp.tv_usec / 1000,
+                    uloc->pid, uloc->tid,
                     log4c_priority_to_string (a_event->evt_priority),
-                    a_event->evt_category,
-                    a_event->evt_loc->loc_file,
-                    a_event->evt_loc->loc_function,
-                    a_event->evt_loc->loc_line, a_event->evt_msg);
+                    a_event->evt_category, a_event->evt_loc->loc_file,
+                    a_event->evt_loc->loc_function, a_event->evt_loc->loc_line,
+                    a_event->evt_msg);
         }
       else
         {
@@ -93,50 +88,38 @@ tiz_log_layout_format (const log4c_layout_t * a_layout,
           snprintf (uloc->cbuf, 4096,
                     "%02d-%02d-%04d %02d:%02d:%02d.%03ld - "
                     "[PID:%i][TID:%i] [%s] [%s] [%s:%s:%i] --- %s\n",
-                    tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900,
-                    tm.tm_hour, tm.tm_min, tm.tm_sec,
-                    a_event->evt_timestamp.tv_usec / 1000,
-                    uloc->pid,
-                    uloc->tid,
+                    tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, tm.tm_hour,
+                    tm.tm_min, tm.tm_sec, a_event->evt_timestamp.tv_usec / 1000,
+                    uloc->pid, uloc->tid,
                     log4c_priority_to_string (a_event->evt_priority),
-                    uloc->cname,
-                    a_event->evt_loc->loc_file,
-                    a_event->evt_loc->loc_function,
-                    a_event->evt_loc->loc_line, a_event->evt_msg);
+                    uloc->cname, a_event->evt_loc->loc_file,
+                    a_event->evt_loc->loc_function, a_event->evt_loc->loc_line,
+                    a_event->evt_msg);
 
           return uloc->cbuf;
         }
-
     }
   else
     {
       sprintf (buffer, "[%s] [%s] [%s:%s:%i] --- %s\n",
                log4c_priority_to_string (a_event->evt_priority),
-               a_event->evt_category,
-               a_event->evt_loc->loc_file,
-               a_event->evt_loc->loc_function,
-               a_event->evt_loc->loc_line, a_event->evt_msg);
+               a_event->evt_category, a_event->evt_loc->loc_file,
+               a_event->evt_loc->loc_function, a_event->evt_loc->loc_line,
+               a_event->evt_msg);
     }
 
   return buffer;
 }
 
+const log4c_layout_type_t tiz_log_layout
+    = { "tiz_layout", tiz_log_layout_format, };
 
-const log4c_layout_type_t tiz_log_layout = {
-  "tiz_layout",
-  tiz_log_layout_format,
-};
+static const log4c_layout_type_t *const layout_types[] = { &tiz_log_layout };
 
-static const log4c_layout_type_t *const layout_types[] = {
-  &tiz_log_layout
-};
+static int nlayout_types
+    = (int)(sizeof(layout_types) / sizeof(layout_types[0]));
 
-static int nlayout_types =
-  (int) (sizeof (layout_types) / sizeof (layout_types[0]));
-
-
-static int
-log_formatters_init ()
+static int log_formatters_init ()
 {
   int rc = 0;
   int i = 0;
@@ -149,8 +132,7 @@ log_formatters_init ()
   return rc;
 }
 
-int
-tiz_log_init ()
+int tiz_log_init ()
 {
 #ifndef WITHOUT_LOG4C
   log_formatters_init ();
@@ -160,8 +142,7 @@ tiz_log_init ()
 #endif
 }
 
-int
-tiz_log_deinit ()
+int tiz_log_deinit ()
 {
 #ifndef WITHOUT_LOG4C
   return (log4c_fini ());
@@ -170,8 +151,7 @@ tiz_log_deinit ()
 #endif
 }
 
-int
-tiz_log_setappender (const char *catName, const char *appName)
+int tiz_log_setappender (const char *catName, const char *appName)
 {
 #ifndef WITHOUT_LOG4C
   log4c_category_set_appender (log4c_category_get (catName),
@@ -182,13 +162,9 @@ tiz_log_setappender (const char *catName, const char *appName)
 #endif
 }
 
-void
-tiz_log (const char *ap_file,
-         int a_line,
-         const char *ap_func,
-         const char *ap_cat_name,
-         int a_priority,
-         const char *ap_cname, char *ap_cbuf, const char *ap_format, ...)
+void tiz_log (const char *ap_file, int a_line, const char *ap_func,
+              const char *ap_cat_name, int a_priority, const char *ap_cname,
+              char *ap_cbuf, const char *ap_format, ...)
 {
 #ifndef WITHOUT_LOG4C
   log4c_location_info_t locinfo;
@@ -214,8 +190,8 @@ tiz_log (const char *ap_file,
       va_start (va, ap_format);
       vsprintf (buffer, ap_format, va);
       va_end (va);
-      log4c_category_log_locinfo (p_category,
-                                  &locinfo, a_priority, "%s", buffer);
+      log4c_category_log_locinfo (p_category, &locinfo, a_priority, "%s",
+                                  buffer);
     }
 #else
 
@@ -226,5 +202,4 @@ tiz_log (const char *ap_file,
   printf ("\n");
 
 #endif
-
 }

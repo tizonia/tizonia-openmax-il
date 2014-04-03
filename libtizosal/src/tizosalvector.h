@@ -30,60 +30,42 @@
 #define TIZOSALVECTOR_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-  typedef struct tiz_vector tiz_vector_t;
+typedef struct tiz_vector tiz_vector_t;
 
-  /* debug function to print an item */
-  typedef void (*tiz_pv_print_item_f) (OMX_PTR ap_data);
+/* debug function to print an item */
+typedef void (*tiz_pv_print_item_f)(OMX_PTR ap_data);
 
-  /* debug function to dump an item */
-  typedef void (*tiz_pv_dump_item_f) (OMX_PTR ap_data);
+/* debug function to dump an item */
+typedef void (*tiz_pv_dump_item_f)(OMX_PTR ap_data);
 
-  OMX_ERRORTYPE tiz_vector_init (tiz_vector_t ** app_vector,
-                                 size_t a_elem_size);
-
-  void tiz_vector_destroy (tiz_vector_t * ap_vector);
-
-  OMX_ERRORTYPE tiz_vector_insert (tiz_vector_t * ap_vector,
-                                   OMX_PTR ap_data, OMX_S32 a_pos);
-
-  OMX_ERRORTYPE tiz_vector_push_back (tiz_vector_t * ap_vector,
-                                      OMX_PTR ap_data);
-
-  void tiz_vector_pop_back (tiz_vector_t * ap_vector);
-
-  void tiz_vector_erase (tiz_vector_t * ap_vector,
-                         OMX_S32 a_pos, OMX_S32 a_len);
-
-  OMX_PTR tiz_vector_at (const tiz_vector_t * ap_vector, OMX_S32 a_pos);
-
-  OMX_PTR tiz_vector_front (tiz_vector_t * ap_vector);
-
-  OMX_PTR tiz_vector_back (tiz_vector_t * ap_vector);
-
-  OMX_S32 tiz_vector_length (const tiz_vector_t * ap_vector);
-
-  void tiz_vector_clear (tiz_vector_t * ap_vector);
-
-  OMX_PTR tiz_vector_find (const tiz_vector_t * ap_vector, OMX_PTR ap_data);
-
-  OMX_ERRORTYPE tiz_vector_append (tiz_vector_t * app_dst,
-                                   const tiz_vector_t * app_src);
-
-  OMX_ERRORTYPE tiz_vector_print (tiz_vector_t * ap_vector,
-                                  tiz_pv_print_item_f apf_print);
-
-  OMX_ERRORTYPE tiz_vector_dump (tiz_vector_t * ap_vector,
-                                 tiz_pv_dump_item_f apf_dump);
+OMX_ERRORTYPE tiz_vector_init (tiz_vector_t **app_vector, size_t a_elem_size);
+void tiz_vector_destroy (tiz_vector_t *ap_vector);
+OMX_ERRORTYPE tiz_vector_insert (tiz_vector_t *ap_vector, OMX_PTR ap_data,
+                                 OMX_S32 a_pos);
+OMX_ERRORTYPE tiz_vector_push_back (tiz_vector_t *ap_vector, OMX_PTR ap_data);
+void tiz_vector_pop_back (tiz_vector_t *ap_vector);
+void tiz_vector_erase (tiz_vector_t *ap_vector, OMX_S32 a_pos, OMX_S32 a_len);
+OMX_PTR tiz_vector_at (const tiz_vector_t *ap_vector, OMX_S32 a_pos);
+OMX_PTR tiz_vector_front (tiz_vector_t *ap_vector);
+OMX_PTR tiz_vector_back (tiz_vector_t *ap_vector);
+OMX_S32 tiz_vector_length (const tiz_vector_t *ap_vector);
+void tiz_vector_clear (tiz_vector_t *ap_vector);
+OMX_PTR tiz_vector_find (const tiz_vector_t *ap_vector, OMX_PTR ap_data);
+OMX_ERRORTYPE tiz_vector_append (tiz_vector_t *app_dst,
+                                 const tiz_vector_t *app_src);
+OMX_ERRORTYPE tiz_vector_print (tiz_vector_t *ap_vector,
+                                tiz_pv_print_item_f apf_print);
+OMX_ERRORTYPE tiz_vector_dump (tiz_vector_t *ap_vector,
+                               tiz_pv_dump_item_f apf_dump);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALVECTOR_H */
+#endif /* TIZOSALVECTOR_H */

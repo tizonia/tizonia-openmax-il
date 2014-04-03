@@ -21,7 +21,7 @@
  * @file   tizosalhttp.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP parser API
+ * @brief  HTTP parser
  *
  *
  */
@@ -30,48 +30,39 @@
 #define TIZOSALHTTP_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-  typedef struct tiz_http_parser tiz_http_parser_t;
-  typedef struct tiz_http_parser *tiz_http_parser_ptr_t;
+typedef struct tiz_http_parser tiz_http_parser_t;
+typedef struct tiz_http_parser *tiz_http_parser_ptr_t;
 
-  typedef enum tiz_http_parser_type
-  {
-    ETIZHttpParserTypeRequest,
-    ETIZHttpParserTypeResponse,
-    ETIZHttpParserTypeBoth,
-    ETIZHttpParserTypeMax,
-  } tiz_http_parser_type_t;
+typedef enum tiz_http_parser_type
+{
+  ETIZHttpParserTypeRequest,
+  ETIZHttpParserTypeResponse,
+  ETIZHttpParserTypeBoth,
+  ETIZHttpParserTypeMax,
+} tiz_http_parser_type_t;
 
-  OMX_ERRORTYPE tiz_http_parser_init (tiz_http_parser_ptr_t * app_parser,
-                                      tiz_http_parser_type_t type);
-
-  void tiz_http_parser_destroy (tiz_http_parser_t * ap_parser);
-
-  int tiz_http_parser_parse (tiz_http_parser_t * ap_parser,
-                             const char *ap_data, unsigned long a_len);
-
-  const char *tiz_http_parser_get_header (tiz_http_parser_t * ap_parser,
-                                          const char *ap_hdr_name);
-
-  const char *tiz_http_parser_get_url (tiz_http_parser_t * ap_parser);
-
-  const char *tiz_http_parser_get_method (tiz_http_parser_t * ap_parser);
-
-  /* Return a string name of the last parser error */
-  const char *tiz_http_parser_errno_name (tiz_http_parser_t * ap_parser);
-
-  /* Return a string description of the last parser error */
-  const char *tiz_http_parser_errno_description (tiz_http_parser_t *
-                                                 ap_parser);
+OMX_ERRORTYPE tiz_http_parser_init (tiz_http_parser_ptr_t *app_parser,
+                                    tiz_http_parser_type_t type);
+void tiz_http_parser_destroy (tiz_http_parser_t *ap_parser);
+int tiz_http_parser_parse (tiz_http_parser_t *ap_parser, const char *ap_data,
+                           unsigned long a_len);
+const char *tiz_http_parser_get_header (tiz_http_parser_t *ap_parser,
+                                        const char *ap_hdr_name);
+const char *tiz_http_parser_get_url (tiz_http_parser_t *ap_parser);
+const char *tiz_http_parser_get_method (tiz_http_parser_t *ap_parser);
+/* Return a string name of the last parser error */
+const char *tiz_http_parser_errno_name (tiz_http_parser_t *ap_parser);
+/* Return a string description of the last parser error */
+const char *tiz_http_parser_errno_description (tiz_http_parser_t *ap_parser);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALHTTP_H */
+#endif /* TIZOSALHTTP_H */

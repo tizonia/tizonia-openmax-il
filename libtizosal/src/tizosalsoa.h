@@ -30,9 +30,8 @@
 #define TIZOSALSOA_H
 
 #ifdef __cplusplus
-extern "C"
-{
-#endif                          /* __cplusplus */
+extern "C" {
+#endif /* __cplusplus */
 
 #include <stddef.h>
 #include <stdint.h>
@@ -42,35 +41,34 @@ extern "C"
 
 #define TIZ_SOA_NUM_CHUNK_CLASSES 5
 
-  typedef struct tiz_soa tiz_soa_t;
-  typedef /*@null@ */ tiz_soa_t *tiz_soa_ptr_t;
+typedef struct tiz_soa tiz_soa_t;
+typedef /*@null@ */ tiz_soa_t *tiz_soa_ptr_t;
 
-  OMX_ERRORTYPE tiz_soa_init ( /*@null@ */ tiz_soa_ptr_t * app_soa);
+OMX_ERRORTYPE tiz_soa_init (/*@null@ */ tiz_soa_ptr_t *app_soa);
 
-  void tiz_soa_destroy (tiz_soa_t * p_soa);
+void tiz_soa_destroy (tiz_soa_t *p_soa);
 
-  OMX_ERRORTYPE tiz_soa_reserve_chunk (tiz_soa_t * p_soa,
-                                       int32_t chunk_class);
+OMX_ERRORTYPE tiz_soa_reserve_chunk (tiz_soa_t *p_soa, int32_t chunk_class);
 
-  /*@null@ */ void *tiz_soa_calloc (tiz_soa_t * p_soa, size_t a_size);
+/*@null@ */ void *tiz_soa_calloc (tiz_soa_t *p_soa, size_t a_size);
 
-  void tiz_soa_free (tiz_soa_t * p_soa, void *ap_addr);
+void tiz_soa_free (tiz_soa_t *p_soa, void *ap_addr);
 
-  typedef struct tiz_soa_info tiz_soa_info_t;
-  struct tiz_soa_info
-  {
-    /* Total number of chunks allocated */
-    int32_t chunks;
-    /* Total number of slices currently in use across all chunks */
-    int32_t objects;
-    /* Number of slices currently in use in each chunk class */
-    int32_t slices[TIZ_SOA_NUM_CHUNK_CLASSES];
-  };
+typedef struct tiz_soa_info tiz_soa_info_t;
+struct tiz_soa_info
+{
+  /* Total number of chunks allocated */
+  int32_t chunks;
+  /* Total number of slices currently in use across all chunks */
+  int32_t objects;
+  /* Number of slices currently in use in each chunk class */
+  int32_t slices[TIZ_SOA_NUM_CHUNK_CLASSES];
+};
 
-  void tiz_soa_info (tiz_soa_t * p_soa, tiz_soa_info_t * p_info);
+void tiz_soa_info (tiz_soa_t *p_soa, tiz_soa_info_t *p_info);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALSOA_H */
+#endif /* TIZOSALSOA_H */

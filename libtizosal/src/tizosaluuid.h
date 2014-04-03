@@ -20,7 +20,7 @@
 /**
  * @file   tizosaluuid.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief Tizonia OpenMAX IL - Universally unique identifier utility functions
  *
  *
@@ -30,23 +30,18 @@
 #define TIZOSALUUID_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#include "OMX_Types.h"
+#include <OMX_Types.h>
 
-  void tiz_uuid_generate (OMX_UUIDTYPE * ap_uuid);
-
-  void tiz_uuid_copy (OMX_UUIDTYPE * ap_uuid_dst,
-                      const OMX_UUIDTYPE * ap_uuid_src);
-
-  void tiz_uuid_str (const OMX_U8 * ap_uuid, OMX_STRING ap_str);
-
-  void tiz_str_uuid (const char *ap_str, OMX_UUIDTYPE * ap_uuid);
+void tiz_uuid_generate (OMX_UUIDTYPE *ap_uuid);
+void tiz_uuid_copy (OMX_UUIDTYPE *ap_uuid_dst, const OMX_UUIDTYPE *ap_uuid_src);
+void tiz_uuid_str (const OMX_U8 *ap_uuid, OMX_STRING ap_str);
+void tiz_str_uuid (const char *ap_str, OMX_UUIDTYPE *ap_uuid);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOSALUUID_H */
+#endif /* TIZOSALUUID_H */
