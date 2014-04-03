@@ -212,6 +212,27 @@ void graph::ops::do_omx_pause2exe ()
   }
 }
 
+void graph::ops::do_omx_pause2idle ()
+{
+  assert (!handles_.empty ());
+  if (last_op_succeeded ())
+  {
+    const int renderer_handle_index = handles_.size () - 1;
+    G_OPS_BAIL_IF_ERROR (util::transition_one (handles_, renderer_handle_index,
+                                               OMX_StateIdle),
+                         "Unable to transition renderer from Pause->Idle");
+    clear_expected_transitions ();
+    add_expected_transition (handles_[renderer_handle_index], OMX_StateIdle);
+
+    for (int i = renderer_handle_index - 1; i >= 0 ; --i)
+      {
+        G_OPS_BAIL_IF_ERROR (util::transition_one (handles_, i, OMX_StateIdle),
+                             "Unable to transition from Idle->Exe");
+        add_expected_transition (handles_[i], OMX_StateIdle);
+      }
+  }
+}
+
 void graph::ops::do_omx_exe2idle ()
 {
   if (last_op_succeeded ())

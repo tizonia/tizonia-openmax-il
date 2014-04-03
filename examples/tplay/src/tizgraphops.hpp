@@ -93,6 +93,7 @@ namespace tiz
       virtual void do_ack_execd ();
       virtual void do_omx_exe2pause ();
       virtual void do_omx_pause2exe ();
+      virtual void do_omx_pause2idle ();
       virtual void do_omx_exe2idle ();
       virtual void do_omx_idle2loaded ();
       virtual void do_seek ();

@@ -67,6 +67,20 @@ namespace tiz
 {
   namespace graph
   {
+    static char const* const state_names[] = { "inited",
+                                               "loaded",
+                                               "configuring",
+                                               "executing",
+                                               "skipping",
+                                               "exe2pause",
+                                               "pause",
+                                               "pause2exe",
+                                               "pause2idle",
+                                               "exe2idle",
+                                               "idle2loaded",
+                                               "AllOk",
+                                               "unloaded"};
+
 
     // Concrete FSM implementation
     struct fsm_ : public boost::msm::front::state_machine_def<fsm_>
@@ -354,8 +368,11 @@ namespace tiz
         boost::msm::front::Row < exe2pause   , omx_trans_evt   , pause                   , boost::msm::front::none , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < pause       , pause_evt       , pause2exe               , do_omx_pause2exe                               >,
+        boost::msm::front::Row < pause       , unload_evt      , pause2idle              , do_omx_pause2idle                              >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < pause2exe   , omx_trans_evt   , executing               , boost::msm::front::none , is_trans_complete    >,
+        //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < pause2idle  , omx_trans_evt   , idle2loaded             , do_omx_idle2loaded      , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < exe2idle    , omx_trans_evt   , idle2loaded             , do_omx_idle2loaded      , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
@@ -372,27 +389,13 @@ namespace tiz
       template <class FSM,class Event>
       void no_transition(Event const& e, FSM&,int state)
       {
-        TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
-                 state, typeid(e).name());
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state [%s] on event [%s]",
+                 tiz::graph::state_names[state], typeid(e).name());
       }
     };
     // typedef boost::msm::back::state_machine<fsm_, boost::msm::back::mpl_graph_fsm_check> fsm;
     typedef boost::msm::back::state_machine<fsm_> fsm;
 
-    static char const* const state_names[] = { "inited",
-                                               "loaded",
-                                               "configuring",
-                                               "config2idle",
-                                               "idle2exe",
-                                               "executing",
-                                               "skipping",
-                                               "exe2pause",
-                                               "pause",
-                                               "pause2exe",
-                                               "exe2idle",
-                                               "idle2loaded",
-                                               "AllOk"
-                                               "unloaded"};
     static char const* const pstate(fsm const& p)
     {
       return tiz::graph::state_names[p.current_state()[0]];

@@ -72,6 +72,16 @@ namespace tiz
     namespace hsfsm
     {
 
+      static char const* const state_names[] = { "inited",
+                                                 "loaded",
+                                                 "configuring",
+                                                 "executing",
+                                                 "skipping",
+                                                 "exe2idle",
+                                                 "idle2loaded",
+                                                 "AllOk",
+                                                 "unloaded"};
+
       // Some common guard conditions
       struct is_initial_configuration
       {
@@ -323,7 +333,7 @@ namespace tiz
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                    state, typeid(e).name());
         }
 
@@ -455,7 +465,7 @@ namespace tiz
         template <class FSM,class Event>
         void no_transition(Event const& e, FSM&,int state)
         {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
                    state, typeid(e).name());
         }
 
@@ -538,22 +548,13 @@ namespace tiz
       template <class FSM,class Event>
       void no_transition(Event const& e, FSM&,int state)
       {
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "no transition from state %d on event %s",
-                 state, typeid(e).name());
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state [%s] on event [%s]",
+                 tiz::graph::hsfsm::state_names[state], typeid(e).name());
       }
     };
     // typedef boost::msm::back::state_machine<fsm_, boost::msm::back::mpl_graph_fsm_check> fsm;
     typedef boost::msm::back::state_machine<fsm_> fsm;
 
-    static char const* const state_names[] = { "inited",
-                                               "loaded",
-                                               "configuring",
-                                               "executing",
-                                               "skipping",
-                                               "exe2idle",
-                                               "idle2loaded",
-                                               "AllOk"
-                                               "unloaded"};
     static char const* const pstate(fsm const& p)
     {
       return tiz::graph::hsfsm::state_names[p.current_state()[0]];

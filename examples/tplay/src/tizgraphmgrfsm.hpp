@@ -64,6 +64,13 @@ namespace tiz
 {
   namespace graphmgr
   {
+    static char const* const state_names[] = { "inited",
+                                               "starting",
+                                               "running",
+                                               "restarting",
+                                               "stopping",
+                                               "stopped"};
+
     // main fsm events
     struct start_evt {};
     struct next_evt {};
@@ -566,19 +573,12 @@ namespace tiz
       template <class FSM,class Event>
       void no_transition(Event const& e, FSM&,int state)
       {
-        TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
-                 state, typeid(e).name());
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state [%s] on event [%s]",
+                 tiz::graphmgr::state_names[state], typeid(e).name());
       }
     };
     // typedef boost::msm::back::state_machine<fsm_, boost::msm::back::mpl_graph_fsm_check> fsm;
     typedef boost::msm::back::state_machine<fsm_> fsm;
-
-    static char const* const state_names[] = { "inited",
-                                               "starting",
-                                               "running",
-                                               "restarting",
-                                               "stopping",
-                                               "stopped"};
 
     static char const* const pstate(fsm const& p)
     {

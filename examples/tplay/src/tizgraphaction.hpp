@@ -242,6 +242,19 @@ namespace tiz
       }
     };
 
+    struct do_omx_pause2idle
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_omx_pause2idle ();
+        }
+      }
+    };
+
     struct do_omx_exe2idle
     {
       template < class FSM, class EVT, class SourceState, class TargetState >

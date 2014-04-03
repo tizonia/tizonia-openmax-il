@@ -202,6 +202,24 @@ namespace tiz
       }
     };
 
+    struct pause2idle : public boost::msm::front::state<>
+    {
+      template < class Event, class FSM >
+      void on_entry (Event const &evt, FSM &fsm)
+      {
+        G_STATE_LOG ();
+      }
+      template < class Event, class FSM >
+      void on_exit (Event const &evt, FSM &fsm)
+      {
+        G_STATE_LOG ();
+      }
+      OMX_STATETYPE target_omx_state () const
+      {
+        return OMX_StateIdle;
+      }
+    };
+
     struct exe2idle : public boost::msm::front::state<>
     {
       template < class Event, class FSM >
