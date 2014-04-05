@@ -40,7 +40,7 @@ AC_LANG([C++])
 AC_CHECK_LIB([avcodec], [avcodec_init])
 AC_CHECK_LIB([avformat], [avformat_open_input])
 AC_CHECK_LIB([avutil], [av_dict_get])
-AX_BOOST_BASE([1.46],, [AC_MSG_ERROR([tplay needs Boost 1.46])])
+AX_BOOST_BASE([1.54],, [AC_MSG_ERROR([tplay needs Boost 1.54])])
 AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_THREAD

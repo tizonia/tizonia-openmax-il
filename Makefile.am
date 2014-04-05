@@ -19,8 +19,12 @@
 # NOTE: 'docs' folders is not currently being processed by the top Makefile.
 # The Doxygen/Sphinx documentation can still be manually generated, whenever is needed.
 
+# NOTE: 'tplay' folder is not currently being processed by the top Makefile.
+# This is to disable tplay compilation when building from top. This is because
+# tplay's FSMs require a very recent version of Boost.msm (currently >= 1.54).
+
 # SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tplay docs
-SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tplay
+SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins
 
 
 # NOTE: A cscope target is included in automake since api 1.12
