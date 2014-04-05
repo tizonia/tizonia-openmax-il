@@ -76,8 +76,8 @@ tplay_SOURCES = \
 
 tplay_CPPFLAGS = \
 	@BOOST_CPPFLAGS@ \
-	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizplatform/src \
+	-I$(top_srcdir)/../include/omxil-1.2 \
+	-I$(top_srcdir)/../libtizplatform/src \
 	-I/usr/include/taglib \
 	-D__STDC_CONSTANT_MACROS
 
@@ -89,8 +89,8 @@ tplay_LDADD = \
 	-lavcodec \
 	-lavutil \
 	-ltag \
-	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
-	$(top_builddir)/../../libtizcore/src/libtizcore.la
+	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
+	$(top_builddir)/../libtizcore/src/libtizcore.la
 
 # 	-lboost_thread
 # 	-lboost_system
