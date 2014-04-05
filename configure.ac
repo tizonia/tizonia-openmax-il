@@ -47,5 +47,5 @@ AC_CONFIG_SUBDIRS([include
                    libtizcore
                    libtizonia
                    plugins
-                   examples])
+                   tplay])
 AC_OUTPUT

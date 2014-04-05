@@ -19,8 +19,8 @@
 # NOTE: 'docs' folders is not currently being processed by the top Makefile.
 # The Doxygen/Sphinx documentation can still be manually generated, whenever is needed.
 
-# SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins examples docs
-SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins examples
+# SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tplay docs
+SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tplay
 
 
 # NOTE: A cscope target is included in automake since api 1.12
@@ -29,7 +29,7 @@ SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins example
 
 #.PHONY: cscope
 #cscope:
-#	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizplatform -srm -splugins -sexamples;
+#	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizplatform -srm -splugins -stplay;
 
 # '-nut’ = '--no-tabs’
 #    Use spaces instead of tabs.
