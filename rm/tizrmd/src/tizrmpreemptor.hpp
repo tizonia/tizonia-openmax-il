@@ -18,36 +18,31 @@
  */
 
 /**
- * @file   tizrmpreemptor.hh
+ * @file   tizrmpreemptor.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - RM preemptor utility class
+ * @brief  Tizonia OpenMAX IL - RM preemptor utility
  *
  *
  */
 
-#ifndef TIZRMPREEMPTOR_HH
-#define TIZRMPREEMPTOR_HH
+#ifndef TIZRMPREEMPTOR_HPP
+#define TIZRMPREEMPTOR_HPP
 
-#include "tizrmowner.h"
+#include "tizrmowner.hpp"
 
 class tizrmpreemptor
 {
 
 public:
-
-  tizrmpreemptor(const tizrmowner &next_owner,
-                 tizrm_owners_list_t *p_owners) :
-    preemptor_(next_owner),
-    p_owners_(p_owners)
+  tizrmpreemptor (const tizrmowner &next_owner, tizrm_owners_list_t *p_owners)
+    : preemptor_ (next_owner), p_owners_ (p_owners)
   {
   }
 
 public:
-
   tizrmowner preemptor_;
   tizrm_owners_list_t *p_owners_;
-
 };
 
-#endif // TIZRMPREEMPTOR_HH
+#endif  // TIZRMPREEMPTOR_HPP

@@ -15,13 +15,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_PREREQ([2.67])
-AC_INIT([tizrmd], [0.1.0], [juan.rubio@aratelia.com])
+AC_PREREQ([2.69])
+AC_INIT([tizrmd],[0.1.0],[juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
-
 
 # 'm4' is the directory where the extra autoconf macros are stored
 AC_CONFIG_MACRO_DIR([m4])
@@ -49,6 +48,8 @@ PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
 	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
 	[http://www.freedesktop.org/wiki/Software_2fdbus]))
 PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
+AX_BOOST_BASE([1.46],, [AC_MSG_ERROR([tizrmd needs Boost 1.46])])
+AX_LIB_SQLITE3([3.7.1])
 
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
 #PKG_CHECK_MODULES([TIZ], [libtizplatform])
@@ -66,6 +67,13 @@ AC_TYPE_PID_T
 AC_C_RESTRICT
 
 # Checks for library functions.
+AC_CHECK_FUNCS([strtol])
+AC_CHECK_HEADERS([limits.h])
+AC_CHECK_HEADER_STDBOOL
+AC_PROG_RANLIB
+AC_TYPE_INT32_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
 
 # DBus
 AS_AC_EXPAND(DATADIR, $datadir)
@@ -74,8 +82,11 @@ AC_SUBST(DBUS_SERVICES_DIR)
 AC_DEFINE_UNQUOTED(DBUS_SERVICES_DIR, "$DBUS_SERVICES_DIR",
                                       [Where services dir for DBUS is])
 
-# SQLite
-AX_LIB_SQLITE3([3.7.1])
+# sqlite3
+AC_CHECK_PROG(HAVE_SQLITE3, sqlite3, true, false)
+if test "x$HAVE_SQLITE3" = "xfalse"; then
+   AC_MSG_ERROR([Program sqlite3 not found. Please install sqlite3.])
+fi
 
 AC_CONFIG_FILES([Makefile
                 data/Makefile

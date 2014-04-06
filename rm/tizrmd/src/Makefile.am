@@ -18,15 +18,15 @@
 bin_PROGRAMS = tizrmd
 
 noinst_HEADERS = \
-	tizrmowner.h \
-	tizrmpreemptor.h \
-	tizrmwaiter.h \
-        tizrmd.h \
-	tizrmdb.h
+	tizrmowner.hpp \
+	tizrmpreemptor.hpp \
+	tizrmwaiter.hpp \
+	tizrmd.hpp \
+	tizrmdb.hpp
 
 tizrmd_SOURCES = \
-	tizrmd.cc \
-	tizrmdb.cc
+	tizrmd.cpp \
+	tizrmdb.cpp
 
 tizrmd_CPPFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \

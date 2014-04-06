@@ -18,40 +18,40 @@
  */
 
 /**
- * @file   tizrmd.hh
+ * @file   tizrmd.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Resource Manager Daemon class
+ * @brief  Resource Manager Daemon
  *
  *
  */
 
-#ifndef TIZRMD_HH
-#define TIZRMD_HH
+#ifndef TIZRMD_HPP
+#define TIZRMD_HPP
 
-#include <dbus-c++/dbus.h>
 #include <string.h>
 #include <deque>
 #include <map>
 #include <string>
 
-#include "tizrmd-dbus.hh"
-#include "tizrmdb.h"
-#include "tizrmwaiter.h"
-#include "tizrmpreemptor.h"
-#include "tizrmowner.h"
+#include <dbus-c++/dbus.h>
 
-class tizrmd :
-  public com::aratelia::tiz::tizrmif_adaptor,
-  public DBus::IntrospectableAdaptor,
-  public DBus::ObjectAdaptor
+#include <tizrmd-dbus.hh>
+
+#include "tizrmdb.hpp"
+#include "tizrmwaiter.hpp"
+#include "tizrmpreemptor.hpp"
+#include "tizrmowner.hpp"
+
+class tizrmd : public com::aratelia::tiz::tizrmif_adaptor,
+               public DBus::IntrospectableAdaptor,
+               public DBus::ObjectAdaptor
 
 {
 
 public:
-
-  tizrmd(DBus::Connection &connection, char const * ap_dbname);
-  ~tizrmd();
+  tizrmd (DBus::Connection &connection, char const *ap_dbname);
+  ~tizrmd ();
 
   /**
    * \brief RM API for OMX_StateLoaded to OMX_StateIdle transitions where RM is
@@ -66,9 +66,9 @@ public:
    *
    * @return An tizrm_error_t error code
    */
-  int32_t acquire(const uint32_t &rid, const uint32_t &quantity,
-                  const std::string &cname, const std::vector< uint8_t > &uuid,
-                  const uint32_t& grpid, const uint32_t &pri);
+  int32_t acquire (const uint32_t &rid, const uint32_t &quantity,
+                   const std::string &cname, const std::vector< uint8_t > &uuid,
+                   const uint32_t &grpid, const uint32_t &pri);
 
   /**
    * \brief RM API for OMX_StateIdle to OMX_StateLoaded transitions where RM is
@@ -83,10 +83,9 @@ public:
    *
    * @return An tizrm_error_t error code
    */
-  int32_t release(const uint32_t &rid, const uint32_t &quantity,
-                  const std::string &cname,
-                  const std::vector< uint8_t > &uuid,
-                  const uint32_t &grpid, const uint32_t &pri);
+  int32_t release (const uint32_t &rid, const uint32_t &quantity,
+                   const std::string &cname, const std::vector< uint8_t > &uuid,
+                   const uint32_t &grpid, const uint32_t &pri);
 
   /**
    * \brief RM API for OMX_StateWaitForResources
@@ -100,9 +99,9 @@ public:
    *
    * @return An tizrm_error_t error code
    */
-  int32_t wait(const uint32_t &rid, const uint32_t &quantity,
-               const std::string &cname, const std::vector< uint8_t > &uuid,
-               const uint32_t &grpid, const uint32_t &pri);
+  int32_t wait (const uint32_t &rid, const uint32_t &quantity,
+                const std::string &cname, const std::vector< uint8_t > &uuid,
+                const uint32_t &grpid, const uint32_t &pri);
 
   /**
    * \brief RM API for
@@ -116,10 +115,10 @@ public:
    *
    * @return An tizrm_error_t error code
    */
-  int32_t cancel_wait(const uint32_t &rid, const uint32_t &quantity,
-                      const std::string &cname,
-                      const std::vector< uint8_t > &uuid,
-                      const uint32_t &grpid, const uint32_t &pri);
+  int32_t cancel_wait (const uint32_t &rid, const uint32_t &quantity,
+                       const std::string &cname,
+                       const std::vector< uint8_t > &uuid,
+                       const uint32_t &grpid, const uint32_t &pri);
 
   /**
    * \brief RM API for
@@ -133,10 +132,10 @@ public:
    *
    * @return An tizrm_error_t error code
    */
-  int32_t preemption_conf(const uint32_t &rid, const uint32_t &quantity,
-                          const std::string &cname,
-                          const std::vector< uint8_t > &uuid,
-                          const uint32_t &grpid, const uint32_t &pri);
+  int32_t preemption_conf (const uint32_t &rid, const uint32_t &quantity,
+                           const std::string &cname,
+                           const std::vector< uint8_t > &uuid,
+                           const uint32_t &grpid, const uint32_t &pri);
 
   /**
    * \brief Release all currently allocated resources and cancel all allocation
@@ -147,20 +146,17 @@ public:
    *
    * @return A tizrm_error_t error code
    */
-  int32_t relinquish_all(const std::string &cname,
-                         const std::vector<unsigned char> &uuid);
+  int32_t relinquish_all (const std::string &cname,
+                          const std::vector< unsigned char > &uuid);
 
 private:
-
-  typedef std::deque<tizrmwaiter> waitlist_t;
-  typedef std::map<tizrmowner, tizrmpreemptor> preemptlist_t;
+  typedef std::deque< tizrmwaiter > waitlist_t;
+  typedef std::map< tizrmowner, tizrmpreemptor > preemptlist_t;
 
 private:
-
   tizrmdb rmdb_;
   waitlist_t waiters_;
   preemptlist_t preemptions_;
-
 };
 
-#endif // TIZRMD_HH
+#endif  // TIZRMD_HPP
