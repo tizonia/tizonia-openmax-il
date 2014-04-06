@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZHTTPSERVGRAPHFSM_H
-#define TIZHTTPSERVGRAPHFSM_H
+#ifndef TIZHTTPSERVGRAPHFSM_HPP
+#define TIZHTTPSERVGRAPHFSM_HPP
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 #define BOOST_MPL_LIMIT_VECTOR_SIZE 30
@@ -564,4 +564,4 @@ namespace tiz
   } // namespace graph
 } // namespace tiz
 
-#endif // TIZHTTPSERVGRAPHFSM_H
+#endif // TIZHTTPSERVGRAPHFSM_HPP

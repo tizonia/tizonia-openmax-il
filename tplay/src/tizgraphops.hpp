@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZGRAPHOPS_H
-#define TIZGRAPHOPS_H
+#ifndef TIZGRAPHOPS_HPP
+#define TIZGRAPHOPS_HPP
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
@@ -172,4 +172,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHOPS_H
+#endif  // TIZGRAPHOPS_HPP

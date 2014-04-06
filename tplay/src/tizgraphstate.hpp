@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZGRAPHSTATE_H
-#define TIZGRAPHSTATE_H
+#ifndef TIZGRAPHSTATE_HPP
+#define TIZGRAPHSTATE_HPP
 
 #include <boost/msm/front/states.hpp>
 
@@ -287,4 +287,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHSTATE_H
+#endif  // TIZGRAPHSTATE_HPP

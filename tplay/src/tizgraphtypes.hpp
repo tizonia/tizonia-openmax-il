@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZGRAPHTYPES_H
-#define TIZGRAPHTYPES_H
+#ifndef TIZGRAPHTYPES_HPP
+#define TIZGRAPHTYPES_HPP
 
 #include <set>
 #include <vector>
@@ -70,4 +70,4 @@ typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
 typedef tiz::playlist tizplaylist_t;
 typedef boost::shared_ptr< tiz::playlist > tizplaylist_ptr_t;
 
-#endif  // TIZGRAPHTYPES_H
+#endif  // TIZGRAPHTYPES_HPP

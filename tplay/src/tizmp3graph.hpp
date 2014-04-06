@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZMP3GRAPH_H
-#define TIZMP3GRAPH_H
+#ifndef TIZMP3GRAPH_HPP
+#define TIZMP3GRAPH_HPP
 
 #include "tizgraph.hpp"
 #include "tizgraphfsm.hpp"
@@ -73,4 +73,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZMP3GRAPH_H
+#endif  // TIZMP3GRAPH_HPP

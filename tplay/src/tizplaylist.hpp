@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZPLAYLIST_H
-#define TIZPLAYLIST_H
+#ifndef TIZPLAYLIST_HPP
+#define TIZPLAYLIST_HPP
 
 #include "tizgraphtypes.hpp"
 
@@ -96,4 +96,4 @@ namespace tiz
   };
 }  // namespace tiz
 
-#endif  // TIZPLAYLIST_H
+#endif  // TIZPLAYLIST_HPP

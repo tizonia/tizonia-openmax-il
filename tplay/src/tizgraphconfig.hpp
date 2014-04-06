@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZGRAPHCONFIG_H
-#define TIZGRAPHCONFIG_H
+#ifndef TIZGRAPHCONFIG_HPP
+#define TIZGRAPHCONFIG_HPP
 
 #include <boost/shared_ptr.hpp>
 
@@ -64,4 +64,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHCONFIG_H
+#endif  // TIZGRAPHCONFIG_HPP

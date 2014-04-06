@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZGRAPHCMD_H
-#define TIZGRAPHCMD_H
+#ifndef TIZGRAPHCMD_HPP
+#define TIZGRAPHCMD_HPP
 
 #include <boost/any.hpp>
 #include <boost/function.hpp>
@@ -97,4 +97,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHCMD_H
+#endif  // TIZGRAPHCMD_HPP

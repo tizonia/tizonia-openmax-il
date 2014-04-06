@@ -22,13 +22,13 @@
  * @file   tizgraphcback.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL callback handler class
+ * @brief  OpenMAX IL callback handler
  *
  *
  */
 
-#ifndef TIZGRAPHCBACK_H
-#define TIZGRAPHCBACK_H
+#ifndef TIZGRAPHCBACK_HPP
+#define TIZGRAPHCBACK_HPP
 
 #include <string>
 
@@ -90,4 +90,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHCBACK_H
+#endif  // TIZGRAPHCBACK_HPP

@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZHTTPSERVCONFIG_H
-#define TIZHTTPSERVCONFIG_H
+#ifndef TIZHTTPSERVCONFIG_HPP
+#define TIZHTTPSERVCONFIG_HPP
 
 #include <string>
 
@@ -74,4 +74,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZHTTPSERVCONFIG_H
+#endif  // TIZHTTPSERVCONFIG_HPP

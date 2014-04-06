@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZGRAPHFACTORY_H
-#define TIZGRAPHFACTORY_H
+#ifndef TIZGRAPHFACTORY_HPP
+#define TIZGRAPHFACTORY_HPP
 
 #include <string>
 
@@ -53,4 +53,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHFACTORY_H
+#endif  // TIZGRAPHFACTORY_HPP

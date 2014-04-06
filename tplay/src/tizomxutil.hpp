@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZOMXUTIL_H
-#define TIZOMXUTIL_H
+#ifndef TIZOMXUTIL_HPP
+#define TIZOMXUTIL_HPP
 
 #include <vector>
 #include <string>
@@ -51,4 +51,4 @@ namespace tiz
   };
 }  // namespace tiz
 
-#endif  // TIZOMXUTIL_H
+#endif  // TIZOMXUTIL_HPP

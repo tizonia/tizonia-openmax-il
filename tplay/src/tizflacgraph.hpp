@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZFLACGRAPH_H
-#define TIZFLACGRAPH_H
+#ifndef TIZFLACGRAPH_HPP
+#define TIZFLACGRAPH_HPP
 
 #include "tizgraph.hpp"
 #include "tizgraphfsm.hpp"
@@ -73,4 +73,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZFLACGRAPH_H
+#endif  // TIZFLACGRAPH_HPP

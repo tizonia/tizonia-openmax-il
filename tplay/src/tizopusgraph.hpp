@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZOPUSGRAPH_H
-#define TIZOPUSGRAPH_H
+#ifndef TIZOPUSGRAPH_HPP
+#define TIZOPUSGRAPH_HPP
 
 #include "tizgraph.hpp"
 #include "tizgraphfsm.hpp"
@@ -77,4 +77,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZOPUSGRAPH_H
+#endif  // TIZOPUSGRAPH_HPP

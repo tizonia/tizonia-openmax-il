@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZGRAPHMGROPS_H
-#define TIZGRAPHMGROPS_H
+#ifndef TIZGRAPHMGROPS_HPP
+#define TIZGRAPHMGROPS_HPP
 
 #include <string>
 #include <boost/function.hpp>
@@ -125,4 +125,4 @@ namespace tiz
   }  // namespace graphmgr
 }  // namespace tiz
 
-#endif  // TIZGRAPHMGROPS_H
+#endif  // TIZGRAPHMGROPS_HPP

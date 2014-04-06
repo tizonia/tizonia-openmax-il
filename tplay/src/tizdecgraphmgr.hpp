@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZDECGRAPHMGR_H
-#define TIZDECGRAPHMGR_H
+#ifndef TIZDECGRAPHMGR_HPP
+#define TIZDECGRAPHMGR_HPP
 
 #include "tizgraphtypes.hpp"
 #include "tizgraphmgr.hpp"
@@ -64,4 +64,4 @@ namespace tiz
   }  // namespace graphmgr
 }  // namespace tiz
 
-#endif  // TIZDECGRAPHMGR_H
+#endif  // TIZDECGRAPHMGR_HPP

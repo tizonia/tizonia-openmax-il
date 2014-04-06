@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZPROBE_H
-#define TIZPROBE_H
+#ifndef TIZPROBE_HPP
+#define TIZPROBE_HPP
 
 #include <string>
 #include <boost/shared_ptr.hpp>
@@ -115,4 +115,4 @@ namespace tiz
   };
 }  // namespace tiz
 
-#endif  // TIZPROBE_H
+#endif  // TIZPROBE_HPP

@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZGRAPHACTION_H
-#define TIZGRAPHACTION_H
+#ifndef TIZGRAPHACTION_HPP
+#define TIZGRAPHACTION_HPP
 
 #include <tizplatform.h>
 
@@ -376,4 +376,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHACTION_H
+#endif  // TIZGRAPHACTION_HPP

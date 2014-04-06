@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZGRAPHMGRCMD_H
-#define TIZGRAPHMGRCMD_H
+#ifndef TIZGRAPHMGRCMD_HPP
+#define TIZGRAPHMGRCMD_HPP
 
 #include <boost/any.hpp>
 
@@ -56,4 +56,4 @@ namespace tiz
   }  // namespace graphmgr
 }  // namespace tiz
 
-#endif  // TIZGRAPHMGRCMD_H
+#endif  // TIZGRAPHMGRCMD_HPP

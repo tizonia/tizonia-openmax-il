@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZGRAPHUTIL_H
-#define TIZGRAPHUTIL_H
+#ifndef TIZGRAPHUTIL_HPP
+#define TIZGRAPHUTIL_HPP
 
 #include <string>
 
@@ -137,4 +137,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHUTIL_H
+#endif  // TIZGRAPHUTIL_HPP

@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZGRAPHMGR_H
-#define TIZGRAPHMGR_H
+#ifndef TIZGRAPHMGR_HPP
+#define TIZGRAPHMGR_HPP
 
 #include <string>
 #include <boost/function.hpp>
@@ -222,4 +222,4 @@ namespace tiz
   }  // namespace graphmgr
 }  // namespace tiz
 
-#endif  // TIZGRAPHMGR_H
+#endif  // TIZGRAPHMGR_HPP

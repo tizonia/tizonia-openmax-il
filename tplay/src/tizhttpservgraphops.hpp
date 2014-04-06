@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZHTTPSERVOPS_H
-#define TIZHTTPSERVOPS_H
+#ifndef TIZHTTPSERVOPS_HPP
+#define TIZHTTPSERVOPS_HPP
 
 #include "tizgraphops.hpp"
 
@@ -77,4 +77,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZHTTPSERVOPS_H
+#endif  // TIZHTTPSERVOPS_HPP

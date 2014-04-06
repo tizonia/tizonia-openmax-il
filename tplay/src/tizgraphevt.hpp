@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZGRAPHEVT_H
-#define TIZGRAPHEVT_H
+#ifndef TIZGRAPHEVT_HPP
+#define TIZGRAPHEVT_HPP
 
 #include <OMX_Core.h>
 #include <OMX_Component.h>
@@ -200,4 +200,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHEVT_H
+#endif  // TIZGRAPHEVT_HPP

@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZGRAPHGUARD_H
-#define TIZGRAPHGUARD_H
+#ifndef TIZGRAPHGUARD_HPP
+#define TIZGRAPHGUARD_HPP
 
 #include <tizplatform.h>
 
@@ -219,4 +219,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHGUARD_H
+#endif  // TIZGRAPHGUARD_HPP

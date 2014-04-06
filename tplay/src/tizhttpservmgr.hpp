@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TIZHTTPSERVMGR_H
-#define TIZHTTPSERVMGR_H
+#ifndef TIZHTTPSERVMGR_HPP
+#define TIZHTTPSERVMGR_HPP
 
 #include "tizgraphtypes.hpp"
 #include "tizgraphmgr.hpp"
@@ -77,4 +77,4 @@ namespace tiz
   }  // namespace graphmgr
 }  // namespace tiz
 
-#endif  // TIZHTTPSERVMGR_H
+#endif  // TIZHTTPSERVMGR_HPP
