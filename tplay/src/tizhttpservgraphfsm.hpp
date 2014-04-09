@@ -509,6 +509,7 @@ namespace tiz
         boost::msm::front::Row < tiz::graph::executing   , tiz::graph::skip_evt        , skipping                , tiz::graph::do_store_skip                                  >,
         boost::msm::front::Row < tiz::graph::executing   , tiz::graph::unload_evt      , tiz::graph::exe2idle    , tiz::graph::do_omx_exe2idle                                >,
         boost::msm::front::Row < tiz::graph::executing   , tiz::graph::omx_err_evt     , skipping                , boost::msm::front::none                                    >,
+        boost::msm::front::Row < tiz::graph::executing   , tiz::graph::omx_err_evt     , skipping                , tiz::graph::do_record_fatal_error , tiz::graph::is_fatal_error   >,
         boost::msm::front::Row < tiz::graph::executing   , tiz::graph::omx_eos_evt     , skipping                , boost::msm::front::none     , tiz::graph::is_last_eos      >,
         //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
         boost::msm::front::Row < skipping
@@ -518,7 +519,7 @@ namespace tiz
                                                                                                                      boost::mpl::vector<
                                                                                                                        tiz::graph::do_error,
                                                                                                                        tiz::graph::do_tear_down_tunnels,
-                                                                                                                       tiz::graph::do_destroy_graph> > , tiz::graph::is_fatal_error >,
+                                                                                                                       tiz::graph::do_destroy_graph> > , tiz::graph::is_internal_error >,
         boost::msm::front::Row < skipping
                                  ::exit_pt
                                  <skipping_

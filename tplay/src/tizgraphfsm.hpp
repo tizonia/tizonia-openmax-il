@@ -341,6 +341,7 @@ namespace tiz
         boost::msm::front::Row < executing   , pause_evt       , exe2pause               , do_omx_exe2pause                               >,
         boost::msm::front::Row < executing   , unload_evt      , exe2idle                , do_omx_exe2idle                                >,
         boost::msm::front::Row < executing   , omx_err_evt     , skipping                , boost::msm::front::none                        >,
+        boost::msm::front::Row < executing   , omx_err_evt     , skipping                , do_record_fatal_error   , is_fatal_error       >,
         boost::msm::front::Row < executing   , omx_eos_evt     , skipping                , boost::msm::front::none , is_last_eos          >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < skipping
@@ -350,7 +351,7 @@ namespace tiz
                                                                                              boost::mpl::vector<
                                                                                                do_error,
                                                                                                do_tear_down_tunnels,
-                                                                                               do_destroy_graph> > , is_fatal_error       >,
+                                                                                               do_destroy_graph> > , is_internal_error    >,
         boost::msm::front::Row < skipping
                                  ::exit_pt
                                  <skipping_

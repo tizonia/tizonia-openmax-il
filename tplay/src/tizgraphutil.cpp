@@ -594,3 +594,24 @@ void graph::util::dump_graph_info (const char *ap_coding_type_str,
   fprintf (stdout, "%s[%s] [%s] : '%s'.%s\n", KGRN, ap_coding_type_str,
            ap_graph_type_str, uri.c_str (), KNRM);
 }
+
+bool graph::util::is_fatal_error (const OMX_ERRORTYPE error)
+{
+  bool rc = false;
+  switch (error)
+  {
+    // Some pretty major OMX IL errors
+    case OMX_ErrorInsufficientResources:
+    case OMX_ErrorUndefined:
+    case OMX_ErrorInvalidComponentName:
+    case OMX_ErrorComponentNotFound:
+    case OMX_ErrorNotImplemented:
+    case OMX_ErrorPortsNotCompatible:
+    case OMX_ErrorVersionMismatch:
+      rc = true;
+      break;
+    default:
+      break;
+  };
+  return rc;
+}

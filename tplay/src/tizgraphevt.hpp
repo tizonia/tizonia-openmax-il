@@ -174,11 +174,11 @@ namespace tiz
     // NOTE: This is an error produced by an omx component
     struct omx_err_evt
     {
-      omx_err_evt (const OMX_HANDLETYPE a_handle, const OMX_ERRORTYPE a_error,
+      omx_err_evt (const OMX_HANDLETYPE handle, const OMX_ERRORTYPE error,
                    const OMX_U32 port
                    = OMX_ALL)  // OMX_ALL here means "no port id"
-          : handle_ (a_handle),
-            error_ (a_error),
+          : handle_ (handle),
+            error_ (error),
             port_ (port)
       {
       }

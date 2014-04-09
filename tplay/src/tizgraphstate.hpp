@@ -263,12 +263,15 @@ namespace tiz
       void on_entry (Event const &evt, FSM &fsm)
       {
         TIZ_LOG (TIZ_PRIORITY_TRACE, "ack unload");
-        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        if (!fsm.terminated_)
         {
-          (*(fsm.pp_ops_))->do_ack_unloaded ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            (*(fsm.pp_ops_))->do_ack_unloaded ();
+          }
+          TIZ_LOG (TIZ_PRIORITY_TRACE, "terminating");
+          fsm.terminated_ = true;
         }
-        TIZ_LOG (TIZ_PRIORITY_TRACE, "terminating");
-        fsm.terminated_ = true;
       }
       template < class Event, class FSM >
       void on_exit (Event const &evt, FSM &fsm)

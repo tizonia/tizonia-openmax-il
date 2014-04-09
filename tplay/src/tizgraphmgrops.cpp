@@ -39,6 +39,7 @@
 #include "tizgraph.hpp"
 #include "tizgraphconfig.hpp"
 #include "tizgraphmgrops.hpp"
+#include "tizgraphutil.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -242,22 +243,7 @@ bool graphmgr::ops::is_fatal_error (const OMX_ERRORTYPE error,
   bool rc = false;
   TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error),
            msg.c_str ());
-  switch (error)
-  {
-    // Some pretty major OMX IL errors
-    case OMX_ErrorInsufficientResources:
-    case OMX_ErrorUndefined:
-    case OMX_ErrorInvalidComponentName:
-    case OMX_ErrorComponentNotFound:
-    case OMX_ErrorNotImplemented:
-    case OMX_ErrorPortsNotCompatible:
-    case OMX_ErrorVersionMismatch:
-      rc = true;
-      break;
-    default:
-      break;
-  };
-  return rc;
+  return tiz::graph::util::is_fatal_error (error);
 }
 
 OMX_ERRORTYPE

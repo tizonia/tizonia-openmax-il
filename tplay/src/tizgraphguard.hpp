@@ -170,6 +170,23 @@ namespace tiz
       }
     };
 
+    struct is_internal_error
+    {
+      template < class EVT, class FSM, class SourceState, class TargetState >
+      bool operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        bool rc = false;
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          // If the last operation didn't succeed, that will be fatal.
+          rc = !(*(fsm.pp_ops_))->last_op_succeeded ();
+        }
+
+        G_GUARD_LOG (rc);
+        return rc;
+      }
+    };
+
     struct is_fatal_error
     {
       template < class EVT, class FSM, class SourceState, class TargetState >
@@ -178,9 +195,9 @@ namespace tiz
         bool rc = false;
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          rc = !(*(fsm.pp_ops_))->last_op_succeeded ();
+          rc = (*(fsm.pp_ops_))->is_fatal_error (evt.error_);
         }
-        // TODO: decide what else is a fatal error
+
         G_GUARD_LOG (rc);
         return rc;
       }

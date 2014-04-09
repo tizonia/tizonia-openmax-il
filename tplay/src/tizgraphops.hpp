@@ -107,6 +107,8 @@ namespace tiz
       virtual void do_destroy_graph ();
       virtual void do_ack_unloaded ();
       virtual void do_reset_internal_error ();
+      virtual void do_record_fatal_error (const OMX_HANDLETYPE handle, const OMX_ERRORTYPE error,
+                                          const OMX_U32 port);
 
       OMX_ERRORTYPE internal_error () const;
       std::string internal_error_msg () const;
@@ -122,6 +124,7 @@ namespace tiz
       bool last_op_succeeded () const;
       bool is_end_of_play () const;
       bool is_probing_result_ok () const;
+      bool is_fatal_error (const OMX_ERRORTYPE error) const;
 
       std::string handle2name (const OMX_HANDLETYPE handle) const;
 

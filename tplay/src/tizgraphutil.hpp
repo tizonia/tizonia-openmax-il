@@ -133,6 +133,9 @@ namespace tiz
       static void dump_graph_info (const char *ap_coding_type_str,
                                    const char *ap_graph_type_str,
                                    const std::string &uri);
+
+      static bool is_fatal_error (const OMX_ERRORTYPE error);
+
     };
   }  // namespace graph
 }  // namespace tiz

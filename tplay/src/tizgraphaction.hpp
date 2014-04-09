@@ -346,7 +346,7 @@ namespace tiz
       }
     };
 
-    struct do_report_fatal_error
+    struct do_record_fatal_error
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
@@ -355,7 +355,7 @@ namespace tiz
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
           (*(fsm.pp_ops_))
-              ->do_report_fatal_error (evt.error_code_, evt.error_str_);
+            ->do_record_fatal_error (evt.handle_, evt.error_, evt.port_);
         }
       }
     };

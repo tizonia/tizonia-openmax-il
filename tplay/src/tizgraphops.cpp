@@ -35,6 +35,7 @@
 
 #include <boost/make_shared.hpp>
 #include <boost/mem_fn.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <tizplatform.h>
 #include <tizmacros.h>
@@ -354,6 +355,20 @@ void graph::ops::do_reset_internal_error ()
   error_msg_.clear ();
 }
 
+void graph::ops::do_record_fatal_error (const OMX_HANDLETYPE handle, const OMX_ERRORTYPE error,
+                                        const OMX_U32 port)
+{
+  std::string msg ("Error reported by : [");
+  msg.append(handle2name(handle));
+  if (port != OMX_ALL)
+  {
+    msg.append(":port:");
+    msg.append (boost::lexical_cast< std::string >(port));
+  }
+  msg.append("].");
+  record_error (error, msg);
+}
+
 OMX_ERRORTYPE
 graph::ops::internal_error () const
 {
@@ -460,6 +475,12 @@ bool graph::ops::is_probing_result_ok () const
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] : is_probing_result_ok [%s]...",
            tiz_err_to_str (int_error), rc ? "YES" : "NO");
   return rc;
+}
+
+bool graph::ops::is_fatal_error (const OMX_ERRORTYPE error) const
+{
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] ", tiz_err_to_str (error));
+  return tiz::graph::util::is_fatal_error (error);
 }
 
 std::string graph::ops::handle2name (const OMX_HANDLETYPE handle) const
