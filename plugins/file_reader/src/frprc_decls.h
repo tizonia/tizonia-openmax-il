@@ -36,8 +36,9 @@ extern "C"
 
 #include <stdbool.h>
 
+#include <tizprc_decls.h>
+
 #include "frprc.h"
-#include "tizprc_decls.h"
 
   typedef struct fr_prc fr_prc_t;
   struct fr_prc
