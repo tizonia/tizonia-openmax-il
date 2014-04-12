@@ -20,18 +20,17 @@
 /**
  * @file   vorbisdprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - Vorbis Decoder processor class decls
- * 
- * 
+ *
+ *
  */
 
 #ifndef VORBISDPRC_DECLS_H
 #define VORBISDPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "vorbisdprc.h"
@@ -40,35 +39,35 @@ extern "C"
 #include <stdbool.h>
 #include <fishsound/fishsound.h>
 
-  typedef struct vorbisd_prc vorbisd_prc_t;
-  struct vorbisd_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    void *p_opus_dec_;
-    OMX_BUFFERHEADERTYPE *p_in_hdr_;
-    OMX_BUFFERHEADERTYPE *p_out_hdr_;
-    FishSound *p_fsnd_;
-    FishSoundInfo fsinfo_;
-    bool started_;
-    bool eos_;
-    bool in_port_disabled_;
-    bool out_port_disabled_;
-    OMX_U8 *p_store_;
-    OMX_U32 store_size_;
-    OMX_U32 store_offset_;
-  };
+typedef struct vorbisd_prc vorbisd_prc_t;
+struct vorbisd_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  void *p_opus_dec_;
+  OMX_BUFFERHEADERTYPE *p_in_hdr_;
+  OMX_BUFFERHEADERTYPE *p_out_hdr_;
+  FishSound *p_fsnd_;
+  FishSoundInfo fsinfo_;
+  bool started_;
+  bool eos_;
+  bool in_port_disabled_;
+  bool out_port_disabled_;
+  OMX_U8 *p_store_;
+  OMX_U32 store_size_;
+  OMX_U32 store_offset_;
+};
 
-  typedef struct vorbisd_prc_class vorbisd_prc_class_t;
-  struct vorbisd_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct vorbisd_prc_class vorbisd_prc_class_t;
+struct vorbisd_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* VORBISDPRC_DECLS_H */
+#endif /* VORBISDPRC_DECLS_H */
