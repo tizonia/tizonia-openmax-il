@@ -15,23 +15,23 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+lib_LTLIBRARIES = libtizmp3meta.la
 
-SUBDIRS = \
-	audio_renderer \
-	audio_renderer_non_block \
-	file_reader \
-	file_writer \
-	flac_decoder \
-	http_renderer \
-	mp3_decoder \
-	mp3_encoder \
-	mp3_metadata \
-	ogg_demuxer \
-	opus_decoder \
-	vorbis_decoder \
-	vp8_decoder \
-	vp8_encoder \
-	webp_decoder \
-	webp_encoder \
-	yuv_renderer
+noinst_HEADERS = \
+	mp3metaprc.h \
+	mp3metaprc_decls.h
+
+libtizmp3meta_la_SOURCES = \
+	mp3meta.c \
+	mp3metaprc.c
+
+libtizmp3meta_la_CFLAGS = \
+	-I$(top_srcdir)/../../include/omxil-1.2 \
+	-I$(top_srcdir)/../../libtizplatform/src \
+	-I$(top_srcdir)/../../libtizonia/src
+
+libtizmp3meta_la_LIBADD = \
+	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
+	$(top_builddir)/../../libtizonia/src/libtizonia.la
+
 

@@ -16,13 +16,12 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizonia-plugins], [0.1.0], [juan.rubio@aratelia.com])
+AC_INIT([libtizmp3meta], [0.1.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
-
-
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -37,10 +36,6 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
-#PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
-#PKG_CHECK_MODULES([TIZ], [libtizplatform])
-#PKG_CHECK_MODULES([TIZCORE], [libtizcore])
 
 # Checks for header files.
 
@@ -48,26 +43,8 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 # Checks for library functions.
 
-
-AC_CONFIG_FILES([Makefile])
-
-AC_CONFIG_SUBDIRS([audio_renderer
-                   audio_renderer_non_block
-                   file_reader
-                   file_writer
-                   flac_decoder
-                   http_renderer
-                   mp3_decoder
-                   mp3_encoder
-                   mp3_metadata
-                   ogg_demuxer
-                   opus_decoder
-                   vorbis_decoder
-                   vp8_decoder
-                   vp8_encoder
-                   webp_decoder
-                   webp_encoder
-                   yuv_renderer])
+AC_CONFIG_FILES([Makefile
+                 src/Makefile])
 
 # End the configure script.
 AC_OUTPUT

@@ -64,6 +64,9 @@
 <!--         <category name="tiz.mp3_decoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_decoder.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_decoder.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp3_metadata" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp3_metadata.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.mp3_metadata.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_encoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_encoder.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_encoder.check" priority="trace" appender="tizlogfile" /> -->
