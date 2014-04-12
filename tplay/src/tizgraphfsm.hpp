@@ -321,6 +321,12 @@ namespace tiz
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < loaded      , execute_evt     , configuring             , do_store_config         , last_op_succeeded    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
+        boost::msm::front::Row < configuring , omx_err_evt     , unloaded                , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               do_record_fatal_error,
+                                                                                               do_error,
+                                                                                               do_tear_down_tunnels,
+                                                                                               do_destroy_graph> > , is_fatal_error       >,
         boost::msm::front::Row < configuring
                                  ::exit_pt
                                  <configuring_

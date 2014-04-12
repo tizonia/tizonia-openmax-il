@@ -493,6 +493,12 @@ namespace tiz
         //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
         boost::msm::front::Row < tiz::graph::loaded      , tiz::graph::execute_evt     , configuring             , tiz::graph::do_store_config , tiz::graph::last_op_succeeded>,
         //    +------------------------------------------+-----------------------------+-------------------------+-----------------------------+------------------------------+
+        boost::msm::front::Row < configuring             , tiz::graph::omx_err_evt     , tiz::graph::unloaded    , boost::msm::front::ActionSequence_<
+                                                                                                                     boost::mpl::vector<
+                                                                                                                       tiz::graph::do_record_fatal_error,
+                                                                                                                       tiz::graph::do_error,
+                                                                                                                       tiz::graph::do_tear_down_tunnels,
+                                                                                                                       tiz::graph::do_destroy_graph> > , tiz::graph::is_fatal_error >,
         boost::msm::front::Row < configuring
                                  ::exit_pt
                                  <configuring_
