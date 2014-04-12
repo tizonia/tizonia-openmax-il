@@ -152,3 +152,11 @@ OMX.Aratelia.container_demuxer.ogg.audio_uri_demuxed = @localstatedir@/lib/tizon
 OMX.Aratelia.container_demuxer.ogg.video_uri_original = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.theora.original
 OMX.Aratelia.container_demuxer.ogg.video_uri_demuxed = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.theora.demuxed
 
+
+#######################
+# MP3 Metadata Eraser #
+#######################
+
+OMX.Aratelia.audio_metadata_eraser.mp3.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
+OMX.Aratelia.audio_metadata_eraser.mp3.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
+OMX.Aratelia.audio_metadata_eraser.mp3.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/strum12str.mp3

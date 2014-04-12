@@ -36,6 +36,7 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
+PKG_CHECK_MODULES([LIBMPG123], [libmpg123 >= 1.12.0])
 
 # Checks for header files.
 

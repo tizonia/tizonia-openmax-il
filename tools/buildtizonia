@@ -75,7 +75,7 @@ elif [ "$1" == "deps" ];  then
         libdbus-c++-dev libsqlite3-dev libboost-all-dev \
         uuid-dev libsdl1.2-dev libvpx-dev libavcodec-dev \
         libavformat-dev libavdevice-dev libmp3lame-dev \
-        libev-dev libtag1-dev libfishsound-dev \
+        libev-dev libtag1-dev libfishsound-dev libmpg123-dev \
         curl check wget sqlite3
     exit_status=$?
 elif [ "$1" == "srcdeps" ];  then

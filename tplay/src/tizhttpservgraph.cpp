@@ -65,11 +65,11 @@ graph::httpserver::httpserver ()
 graph::ops *graph::httpserver::do_init ()
 {
   omx_comp_name_lst_t comp_list;
-  comp_list.push_back ("OMX.Aratelia.file_reader.binary");
+  comp_list.push_back ("OMX.Aratelia.audio_metadata_eraser.mp3");
   comp_list.push_back ("OMX.Aratelia.ice_renderer.http");
 
   omx_comp_role_lst_t role_list;
-  role_list.push_back ("audio_reader.binary");
+  role_list.push_back ("audio_metadata_eraser.mp3");
   role_list.push_back ("ice_renderer.http");
 
   return new httpservops (this, comp_list, role_list);
