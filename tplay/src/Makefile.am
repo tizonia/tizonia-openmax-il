@@ -79,6 +79,7 @@ tplay_CPPFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
 	-I$(top_srcdir)/../libtizplatform/src \
 	-I/usr/include/taglib \
+	@LIBMEDIAINFO_CFLAGS@ \
 	-D__STDC_CONSTANT_MACROS
 
 tplay_LDADD = \
@@ -89,6 +90,7 @@ tplay_LDADD = \
 	-lavcodec \
 	-lavutil \
 	-ltag \
+	@LIBMEDIAINFO_LIBS@ \
 	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../libtizcore/src/libtizcore.la
 

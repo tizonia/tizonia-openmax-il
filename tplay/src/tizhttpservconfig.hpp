@@ -44,8 +44,11 @@ namespace tiz
 
     public:
       httpservconfig (const tizplaylist_ptr_t &playlist, const std::string &host,
-                      const std::string &ip_address, const long int port)
-        : config (playlist), host_ (host), addr_ (ip_address), port_ (port)
+                      const std::string &ip_address, const long int port,
+                      const std::vector<int> &sampling_rate_list,
+                      const std::string &station_name)
+        : config (playlist), host_ (host), addr_ (ip_address), port_ (port),
+          sampling_rate_list_ (sampling_rate_list), station_name_ (station_name)
       {
       }
 
@@ -57,19 +60,33 @@ namespace tiz
       {
         return addr_;
       }
+
       std::string get_host_name () const
       {
         return host_;
       }
+
       long int get_port () const
       {
         return port_;
       }
 
+      const std::vector<int> &get_sampling_rates () const
+      {
+        return sampling_rate_list_;
+      }
+
+      std::string get_station_name () const
+      {
+        return station_name_;
+      }
+
     protected:
-      std::string host_;
-      std::string addr_;
-      long int port_;
+      const std::string host_;
+      const std::string addr_;
+      const long int port_;
+      const std::vector<int> sampling_rate_list_;
+      const std::string station_name_;
     };
   }  // namespace graph
 }  // namespace tiz

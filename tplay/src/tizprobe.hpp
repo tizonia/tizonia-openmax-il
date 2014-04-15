@@ -76,6 +76,7 @@ namespace tiz
        streaming use case. */
     std::string get_stream_title ();
     std::string get_stream_genre ();
+    bool is_cbr_stream ();
 
     /* Duration */
     std::string stream_length () const;
@@ -112,6 +113,7 @@ namespace tiz
     TagLib::FileRef meta_file_;
     std::string stream_title_;
     std::string stream_genre_;
+    bool stream_is_cbr_;
   };
 }  // namespace tiz
 

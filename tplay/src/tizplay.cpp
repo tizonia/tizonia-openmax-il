@@ -30,6 +30,11 @@
 #include <config.h>
 #endif
 
+#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+#define BOOST_MPL_LIMIT_VECTOR_SIZE 30
+#define FUSION_MAX_VECTOR_SIZE 20
+#define SPIRIT_ARGUMENTS_LIMIT 20
+
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.play"
@@ -55,6 +60,12 @@
 #include <boost/version.hpp>
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <taglib/taglib.h>
 
 #include <tizplatform.h>
 #include <OMX_Core.h>
@@ -72,6 +83,47 @@ static struct termios old_term, new_term;
 
 namespace  // unnamed namespace
 {
+
+  bool valid_sampling_rate (int sampling_rate)
+  {
+    bool rc = false;
+    switch (sampling_rate)
+    {
+      case 8000:
+      case 11025:
+      case 12000:
+      case 16000:
+      case 22050:
+      case 24000:
+      case 32000:
+      case 44100:
+      case 48000:
+      case 96000:
+      {
+        rc = true;
+        break;
+      }
+      default:
+      {
+        break;
+      }
+    };
+    return rc;
+  }
+
+  bool valid_sampling_rate_list (const std::vector< std::string > &rate_strings,
+                                 std::vector< int > &rates)
+  {
+    bool rc = true;
+    rates.clear ();
+    for (int i = 0; i < rate_strings.size () && rc; ++i)
+    {
+      rates.push_back (boost::lexical_cast< int >(rate_strings[i]));
+      rc = valid_sampling_rate (rates[i]);
+    }
+    rc &= !rates.empty ();
+    return rc;
+  }
 
   void init_termios (int echo)
   {
@@ -126,7 +178,10 @@ namespace  // unnamed namespace
   {
     printf ("Tizonia OpenMAX IL player version %s\n\n", PACKAGE_VERSION);
     printf (
-        "usage: %s [-c] [-d] [-h] [-l] [-p port] [-r] [-s] [--shuffle] [-v] "
+        "usage: %s [-c role] [-d] [-h] [-l] [-p port] [-r component] [-s] "
+        "[--shuffle] \n"
+        "\t     [--sampling-rates=command-separated-list] "
+        "[--station-name=string] [-v] "
         "[FILE/DIR]\n",
         PACKAGE_NAME);
     printf ("options:\n");
@@ -137,21 +192,31 @@ namespace  // unnamed namespace
     printf ("\t-h --help\t\t\t\tDisplay help.\n");
     printf (
         "\t-l --list-components\t\t\tEnumerate all OpenMAX IL components.\n");
-    printf ("\t-p --port\t\t\t\tPort to be used for http streaming.\n");
+    printf (
+        "\t-p --port\t\t\t\tPort to be used for http streaming. Default: "
+        "8010.\n");
     printf (
         "\t-r --roles-of-comp <component>\t\tDisplay the roles found in "
         "<component>.\n");
     printf ("\t-R --recurse\t\t\t\tRecursively process DIR.\n");
+    printf (
+        "\t   --sampling-rates\t\t\tA list of sampling rates that will be\n"
+        "\t\t\t\t\t\tallowed in the playlist (http streaming only). Default: "
+        "any.\n");
     printf ("\t   --shuffle\t\t\t\tShuffle the playlist.\n");
     printf (
-        "\t-s --stream\t\t\t\tStream media via http. Default port is 8010.\n");
+        "\t   --station-name\t\t\tSHOUTcast/ICEcast station name "
+        "(http streaming only).\n");
+    printf (
+        "\t-s --stream\t\t\t\tStream media via http using the\n"
+        "\t\t\t\t\t\tSHOUTcast/ICEcast protocol.\n");
     printf ("\t-v --version\t\t\t\tDisplay version info.\n");
     printf ("\n");
     printf ("Examples:\n");
+    printf ("\t tplay ~/Music\n\n");
     printf (
-        "\t tplay ~/Music (decodes every supported file in the '~/Music' "
-        "directory)\n");
-    printf ("\t    * Currently supported formats for playback:\n");
+        "\t    * Decodes every supported file in the '~/Music' directory)\n");
+    printf ("\t    * File formats currently supported for playback:\n");
     printf (
         "\t      * mp3, flac (.flac, .ogg, .oga), opus (.opus, .ogg, .oga), "
         "vorbis (.ogg, .oga).\n");
@@ -163,15 +228,19 @@ namespace  // unnamed namespace
     printf ("\t      * [m] mute.\n");
     printf ("\t      * [q] quit.\n");
     printf ("\t      * [Ctrl-c] terminate the application at any time.\n");
-    printf (
-        "\n\t tplay -p 8011 -s ~/Music (streams every supported file in the "
-        "'~/Music' directory)\n");
-    printf ("\t    * Currently supported formats for streaming: mp3.\n");
+    printf ("\n\t tplay --sampling-rates=44100,48000 -p 8011 -s ~/Music\n\n");
+    printf ("\t    * This streams files from the '~/Music' folder.\n");
+    printf ("\t    * File formats currently supported for streaming: mp3.\n");
+    printf ("\t    * Sampling rates other than [44100,4800] are ignored.\n");
+    printf ("\t    * NOTE: Non-CBR mp3s are also currently ignored.\n");
     printf ("\t    * Key bindings:\n");
     printf ("\t      * [q] quit.\n");
     printf ("\t      * [Ctrl-c] terminate the application at any time.\n");
     printf ("\n");
-    printf ("Boost Version [%s]\n", BOOST_LIB_VERSION);
+    printf ("Debug Info:\n");
+    printf ("\t    * Boost [%s]\n", BOOST_LIB_VERSION);
+    printf ("\t    * TagLib [%d.%d.%d]\n", TAGLIB_MAJOR_VERSION,
+            TAGLIB_MINOR_VERSION, TAGLIB_PATCH_VERSION);
     printf ("\n");
   }
 
@@ -449,7 +518,10 @@ namespace  // unnamed namespace
 
   OMX_ERRORTYPE
   stream (const std::string &uri, const long int port,
-          const bool shuffle_playlist, const bool recurse)
+          const bool shuffle_playlist, const bool recurse,
+          const std::vector< std::string > &sampling_rate_str_list,
+          const std::vector< int > &sampling_rate_list,
+          const std::string &station_name)
   {
     OMX_ERRORTYPE rc = OMX_ErrorNone;
     uri_lst_t file_list;
@@ -458,6 +530,8 @@ namespace  // unnamed namespace
     std::string error_msg;
     file_extension_lst_t extension_list;
     extension_list.insert (".mp3");
+
+    assert (sampling_rate_list.size () == sampling_rate_str_list.size ());
 
     print_banner ();
 
@@ -476,7 +550,15 @@ namespace  // unnamed namespace
       struct hostent *p_hostent = gethostbyname (hostname);
       struct in_addr ip_addr = *(struct in_addr *)(p_hostent->h_addr);
       ip_address = inet_ntoa (ip_addr);
-      fprintf (stdout, "Streaming from http://%s:%ld\n\n", hostname, port);
+      fprintf (stdout, "[%s] streaming from http://%s:%ld\n",
+               station_name.c_str (), hostname, port);
+      fprintf (stdout, "NOTE: Will skip non-CBR files");
+      if (!sampling_rate_str_list.empty ())
+      {
+        fprintf (stdout, " or files with sampling rates other than [%s]",
+                 boost::join (sampling_rate_str_list, ", ").c_str ());
+      }
+      fprintf (stdout, ".\n\n");
     }
 
     tizplaylist_ptr_t playlist
@@ -486,8 +568,9 @@ namespace  // unnamed namespace
     // manager at the end of the playlist.
     playlist->set_loop_playback (true);
     tizgraphconfig_ptr_t config
-        = boost::make_shared< tiz::graph::httpservconfig >(playlist, hostname,
-                                                           ip_address, port);
+        = boost::make_shared< tiz::graph::httpservconfig >(
+            playlist, hostname, ip_address, port, sampling_rate_list,
+            station_name);
 
     // Instantiate the http streaming manager
     tiz::graphmgr::mgr_ptr_t p_mgr
@@ -514,7 +597,10 @@ int main (int argc, char **argv)
   OMX_ERRORTYPE error = OMX_ErrorMax;
   int opt;
   long int srv_port = 8010;  // default port for http streaming
+  std::vector< int > sampling_rate_list;
+  std::vector< std::string > sampling_rate_str_list;
   std::string media;
+  std::string station_name ("Tizonia Radio");
   bool shuffle_playlist = false;
   bool recurse = false;
 
@@ -533,6 +619,8 @@ int main (int argc, char **argv)
             { "comps-of-role", required_argument, 0, 'c' },
             { "daemon", no_argument, 0, 'd' },
             { "shuffle", no_argument, 0, 1 },
+            { "sampling-rates", required_argument, 0, 2 },
+            { "station-name", required_argument, 0, 3 },
             { "stream", required_argument, 0, 's' },
             { "port", required_argument, 0, 'p' },
             { "recurse", no_argument, 0, 'R' },
@@ -540,7 +628,7 @@ int main (int argc, char **argv)
             { "help", no_argument, 0, 'h' },
             { 0, 0, 0, 0 } };
 
-    opt = getopt_long (argc, argv, "lr:c:d1p:s:Rvh", long_options,
+    opt = getopt_long (argc, argv, "lr:c:d123p:s:Rvh", long_options,
                        &option_index);
     if (opt == -1)
       break;
@@ -554,6 +642,32 @@ int main (int argc, char **argv)
       case 1:
       {
         shuffle_playlist = true;
+      }
+      break;
+
+      case 2:
+      {
+        char *p_end = NULL;
+        std::string sampling_rates_str (optarg);
+        sampling_rate_str_list.clear ();
+        boost::split (sampling_rate_str_list, sampling_rates_str,
+                      boost::is_any_of (","));
+        if (!valid_sampling_rate_list (sampling_rate_str_list,
+                                       sampling_rate_list))
+        {
+          fprintf (
+              stderr,
+              "Invalid argument : %s .\nValid sampling rates values :\n"
+              "[8000,11025,12000,16000,22050,24000,32000,44100,48000,96000]\n",
+              optarg);
+          exit (EXIT_FAILURE);
+        }
+      }
+      break;
+
+      case 3:
+      {
+        station_name = optarg;
       }
       break;
 
@@ -589,8 +703,8 @@ int main (int argc, char **argv)
         {
           fprintf (stderr,
                    "Please provide a port number in the range "
-                   "[1024-65535] - %ld\n",
-                   srv_port);
+                   "[1024-65535] - (%s)\n",
+                   optarg);
           exit (EXIT_FAILURE);
         }
       }
@@ -657,7 +771,8 @@ int main (int argc, char **argv)
 
   if (!media.empty ())
   {
-    error = stream (media.c_str (), srv_port, shuffle_playlist, recurse);
+    error = stream (media.c_str (), srv_port, shuffle_playlist, recurse,
+                    sampling_rate_str_list, sampling_rate_list, station_name);
     exit (EXIT_SUCCESS);
   }
 

@@ -219,18 +219,18 @@ void graph::ops::do_omx_pause2idle ()
   if (last_op_succeeded ())
   {
     const int renderer_handle_index = handles_.size () - 1;
-    G_OPS_BAIL_IF_ERROR (util::transition_one (handles_, renderer_handle_index,
-                                               OMX_StateIdle),
-                         "Unable to transition renderer from Pause->Idle");
+    G_OPS_BAIL_IF_ERROR (
+        util::transition_one (handles_, renderer_handle_index, OMX_StateIdle),
+        "Unable to transition renderer from Pause->Idle");
     clear_expected_transitions ();
     add_expected_transition (handles_[renderer_handle_index], OMX_StateIdle);
 
-    for (int i = renderer_handle_index - 1; i >= 0 ; --i)
-      {
-        G_OPS_BAIL_IF_ERROR (util::transition_one (handles_, i, OMX_StateIdle),
-                             "Unable to transition from Idle->Exe");
-        add_expected_transition (handles_[i], OMX_StateIdle);
-      }
+    for (int i = renderer_handle_index - 1; i >= 0; --i)
+    {
+      G_OPS_BAIL_IF_ERROR (util::transition_one (handles_, i, OMX_StateIdle),
+                           "Unable to transition from Idle->Exe");
+      add_expected_transition (handles_[i], OMX_StateIdle);
+    }
   }
 }
 
@@ -355,17 +355,18 @@ void graph::ops::do_reset_internal_error ()
   error_msg_.clear ();
 }
 
-void graph::ops::do_record_fatal_error (const OMX_HANDLETYPE handle, const OMX_ERRORTYPE error,
+void graph::ops::do_record_fatal_error (const OMX_HANDLETYPE handle,
+                                        const OMX_ERRORTYPE error,
                                         const OMX_U32 port)
 {
   std::string msg ("Error reported by : [");
-  msg.append(handle2name(handle));
+  msg.append (handle2name (handle));
   if (port != OMX_ALL)
   {
-    msg.append(":port:");
+    msg.append (":port:");
     msg.append (boost::lexical_cast< std::string >(port));
   }
-  msg.append("].");
+  msg.append ("].");
   record_error (error, msg);
 }
 
@@ -620,7 +621,17 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
     {
       // The current uri is not what we expected. So skip it and erase it from
       // the playlist so that we don't attempt the playback again.
-      tiz::graph::util::dump_graph_info ("Unknown format", "skip", uri);
+      tiz::graph::util::dump_graph_info ("Unknown/unexpected format", "skip",
+                                         uri);
+      playlist_->erase_uri (playlist_->current_index ());
+      playlist_->set_index (playlist_->current_index () - 1);
+      rc = OMX_ErrorContentURIError;
+    }
+    else if (!probe_stream_hook ())
+    {
+      // The graph hook indicated that the current uri should be silently
+      // ignored. Skip it and remove it from the playlist and don't put any
+      // message out in the console.
       playlist_->erase_uri (playlist_->current_index ());
       playlist_->set_index (playlist_->current_index () - 1);
       rc = OMX_ErrorContentURIError;
@@ -641,4 +652,11 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
   }
 
   return rc;
+}
+
+bool graph::ops::probe_stream_hook ()
+{
+  // Default implementation. May be overriden by derived classes to do
+  // specialised checks on the stream.
+  return true;
 }

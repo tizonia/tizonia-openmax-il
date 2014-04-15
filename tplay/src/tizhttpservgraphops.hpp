@@ -72,6 +72,10 @@ namespace tiz
           const OMX_COMMANDTYPE to_disabled_or_enabled);
 
     private:
+      // re-implemented from the base class
+      bool probe_stream_hook ();
+
+    private:
       bool is_initial_configuration_;
     };
   }  // namespace graph

@@ -46,8 +46,10 @@ AX_BOOST_FILESYSTEM
 AX_BOOST_THREAD
 
 PKG_CHECK_MODULES([TAGLIB], [taglib >= 1.7.0])
+PKG_CHECK_MODULES([LIBMEDIAINFO], [libmediainfo >= 0.7.67])
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
 #PKG_CHECK_MODULES([TIZ], [libtizplatform])
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stdlib.h string.h termios.h unistd.h])

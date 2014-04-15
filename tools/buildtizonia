@@ -75,7 +75,7 @@ elif [ "$1" == "deps" ];  then
         libdbus-c++-dev libsqlite3-dev libboost-all-dev \
         uuid-dev libsdl1.2-dev libvpx-dev libavcodec-dev \
         libavformat-dev libavdevice-dev libmp3lame-dev \
-        libev-dev libtag1-dev libfishsound-dev libmpg123-dev \
+        libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
         curl check wget sqlite3
     exit_status=$?
 elif [ "$1" == "srcdeps" ];  then
@@ -88,6 +88,12 @@ elif [ "$1" == "srcdeps" ];  then
         cd $TIZ_DIR && git clone ${repos[$i]} && cd ${folders[$i]} && ./autogen.sh && ./configure --prefix=$INSTALL_DIR && make install
     done
     exit_status=$?
+    if [ $exit_status -eq 0 ] ; then
+        cd $TIZ_DIR
+        # Build libmpg123 1.19 from source
+        wget http://www.juanrubio.me/tizonia/mpg123-1.16.0.tgz && tar zxvf mpg123-1.16.0.tgz
+        cd mpg123-1.16.0 && ./configure --prefix=$INSTALL_DIR && make install
+    fi
 elif [ "$1" == "media" ];  then
     echo "Downloading test media files..."
     wget http://www.juanrubio.me/tizonia/tizonia-test-media.tgz && tar zxvf tizonia-test-media.tgz

@@ -29,6 +29,8 @@
 #include <config.h>
 #endif
 
+#include <algorithm>
+
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
@@ -231,7 +233,7 @@ graph::httpservops::configure_station ()
 
   snprintf ((char *)mount.cMountName, sizeof(mount.cMountName), "/");
   snprintf ((char *)mount.cStationName, sizeof(mount.cStationName),
-            "Tizonia Radio Station (%s:%ld)",
+            "%s (%s:%ld)", srv_config->get_station_name ().c_str (),
             srv_config->get_host_name ().c_str (), srv_config->get_port ());
   snprintf ((char *)mount.cStationDescription,
             sizeof(mount.cStationDescription),
@@ -240,6 +242,10 @@ graph::httpservops::configure_station ()
             probe_ptr_->get_stream_genre ().c_str ());
   snprintf ((char *)mount.cStationUrl, sizeof(mount.cStationUrl),
             "http://tizonia.org");
+
+  // Disable ICY metadata for now
+  mount.nIcyMetadataPeriod = 0;
+
   mount.eEncoding = OMX_AUDIO_CodingMP3;
   mount.nMaxClients = 1;
   return OMX_SetParameter (
@@ -335,5 +341,42 @@ graph::httpservops::transition_tunnel (
                                   http_renderer_input_port,
                                   to_disabled_or_enabled);
   }
+  return rc;
+}
+
+bool graph::httpservops::probe_stream_hook ()
+{
+  bool rc = false;
+  if (probe_ptr_ && config_)
+  {
+    tizhttpservconfig_ptr_t srv_config
+        = boost::dynamic_pointer_cast< httpservconfig >(config_);
+    assert (srv_config);
+
+    OMX_AUDIO_PARAM_MP3TYPE mp3type;
+    probe_ptr_->get_mp3_codec_info (mp3type);
+
+    // Skip streams with sampling rates different to the ones received in the
+    // server configuration, or process all if the list is empty.
+    const std::vector< int > &rates = srv_config->get_sampling_rates ();
+
+    rc = true;
+    if (!rates.empty ())
+    {
+      rc &= std::find (rates.begin (), rates.end (), mp3type.nSampleRate)
+            != rates.end ();
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "nSampleRate [%d] found [%s]...",
+               mp3type.nSampleRate, rc ? "YES" : "NOT");
+    }
+
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "is_cbr_stream () [%s]...",
+             probe_ptr_->is_cbr_stream () ? "YES" : "NO");
+
+    // Skip all non-CBR streams
+    rc &= probe_ptr_->is_cbr_stream ();
+  }
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "return () [%s]...", rc ? "YES" : "NO");
+
   return rc;
 }

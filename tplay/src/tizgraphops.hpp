@@ -156,6 +156,8 @@ namespace tiz
                                   stream_info_dump_func_t stream_info_dump_f,
                                   const bool quiet = false);
 
+      virtual bool probe_stream_hook ();
+
     protected:
       graph *p_graph_;
       tizprobe_ptr_t probe_ptr_;

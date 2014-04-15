@@ -37,6 +37,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <ZenLib/Ztring.h>
+#include <MediaInfo/MediaInfo.h>
+
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
@@ -171,7 +174,8 @@ tiz::probe::probe (const std::string &uri, const bool quiet)
     vp8type_ (),
     meta_file_ (uri.c_str ()),
     stream_title_ (),
-    stream_genre_ ()
+    stream_genre_ (),
+    stream_is_cbr_ (false)
 {
   // Defaults are the same as in the standard pcm renderer
   pcmtype_.nSize = sizeof(OMX_AUDIO_PARAM_PCMMODETYPE);
@@ -331,6 +335,17 @@ int tiz::probe::probe_file ()
         video_coding_type_ = OMX_VIDEO_CodingVP8;
       }
       close_input_file (&fmt_ctx);
+
+      // Use mediainfo to check CBR or VBR property
+      MediaInfoLib::MediaInfo MI;
+      ZenLib::Ztring file_uri = uri_.c_str ();
+      MI.Open (file_uri);
+      ZenLib::Ztring cbr_or_vbr
+          = MI.Get (MediaInfoLib::Stream_General, 0,
+                    __T ("OverallBitRate_Mode"), MediaInfoLib::Info_Text,
+                    MediaInfoLib::Info_Name).c_str ();
+      stream_is_cbr_ = (cbr_or_vbr == ZenLib::Ztring (__T ("CBR")));
+      MI.Close ();
     }
     else
     {
@@ -573,6 +588,15 @@ std::string tiz::probe::get_stream_genre ()
     (void)probe_file ();
   }
   return stream_genre_;
+}
+
+bool tiz::probe::is_cbr_stream ()
+{
+  if (OMX_PortDomainMax == domain_)
+  {
+    (void)probe_file ();
+  }
+  return stream_is_cbr_;
 }
 
 std::string tiz::probe::retrieve_meta_data_str (
