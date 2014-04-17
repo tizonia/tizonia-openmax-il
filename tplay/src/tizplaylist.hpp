@@ -62,6 +62,7 @@ namespace tiz
     const uri_lst_t &get_uri_list () const;
     int current_index () const;
     int size () const;
+    bool empty () const;
     bool single_format () const;
     bool before_begin () const;
     bool past_end () const;

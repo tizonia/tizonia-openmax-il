@@ -348,6 +348,11 @@ int tiz::playlist::size () const
   return uri_list_.size ();
 }
 
+bool tiz::playlist::empty () const
+{
+  return uri_list_.empty ();
+}
+
 bool tiz::playlist::single_format () const
 {
   if (!uri_list_.empty ())

@@ -501,6 +501,19 @@ namespace tiz
         }
       };
 
+      struct do_end_of_play
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_end_of_play ();
+            }
+        }
+      };
+
       // guard conditions
       struct is_fatal_error
       {
@@ -540,6 +553,7 @@ namespace tiz
         boost::msm::front::Row < starting                , err_evt                 , restarting              , boost::msm::front::none, boost::msm::front::euml::Not_<
                                                                                                                                           is_fatal_error>  >,
         boost::msm::front::Row < starting                , err_evt                 , stopped                 , do_report_fatal_error  , is_fatal_error     >,
+        boost::msm::front::Row < starting                , graph_unlded_evt        , stopped                 , do_end_of_play                              >,
         //    +------------------------------------------+-------------------------+-------------------------+------------------------+--------------------+
         boost::msm::front::Row < running                 , next_evt                , boost::msm::front::none , do_next                                     >,
         boost::msm::front::Row < running                 , prev_evt                , boost::msm::front::none , do_prev                                     >,

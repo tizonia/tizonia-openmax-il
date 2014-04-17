@@ -454,11 +454,14 @@ bool graph::ops::is_end_of_play () const
 
   assert (playlist_);
 
-  if (playlist_->loop_playback ()
-      || !(playlist_->before_begin () || playlist_->past_end ()))
-  {
-    rc = false;
-  }
+  if (!playlist_->empty ())
+    {
+      if (playlist_->loop_playback ()
+          || !(playlist_->before_begin () || playlist_->past_end ()))
+        {
+          rc = false;
+        }
+    }
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "is_end_of_play [%s]...", rc ? "YES" : "NO");
   return rc;

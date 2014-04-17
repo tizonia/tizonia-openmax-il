@@ -237,6 +237,11 @@ void graphmgr::ops::do_report_fatal_error (const OMX_ERRORTYPE error,
   error_cback_ (error, msg);
 }
 
+void graphmgr::ops::do_end_of_play ()
+{
+  error_cback_ (OMX_ErrorNoMore, "Playlist exhausted.");
+}
+
 bool graphmgr::ops::is_fatal_error (const OMX_ERRORTYPE error,
                                     const std::string &msg) const
 {
