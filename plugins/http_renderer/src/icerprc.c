@@ -186,6 +186,10 @@ retrieve_mountpoint_settings (const void *ap_prc,
   tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
                                            OMX_TizoniaIndexParamIcecastMountpoint,
                                            ap_mountpoint));
+  TIZ_TRACE (handleOf (p_prc), "StationName = [%s] IcyMetadataPeriod = [%d] ",
+            p_prc->mountpoint_.cStationName,
+            p_prc->mountpoint_.nIcyMetadataPeriod);
+
   return OMX_ErrorNone;
 }
 

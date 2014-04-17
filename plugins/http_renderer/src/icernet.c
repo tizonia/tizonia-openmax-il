@@ -189,6 +189,7 @@ error_recoverable (icer_server_t * ap_server, int sockfd, int error)
     {
     case 0:
     case EAGAIN:
+    case EPIPE:
 #if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
     case EWOULDBLOCK:
 #endif
@@ -927,7 +928,7 @@ send_http_response (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
   ap_lstnr->buf.len = strnlen (ap_lstnr->buf.p_data, ICE_LISTENER_BUF_SIZE);
 
   sent_bytes = send (ap_lstnr->p_con->sockfd, ap_lstnr->buf.p_data,
-                     ap_lstnr->buf.len, 0);
+                     ap_lstnr->buf.len, MSG_NOSIGNAL);
   ap_lstnr->buf.len = 0;
   return sent_bytes;
 }
@@ -1403,7 +1404,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
   if (len > 0)
     {
       errno = 0;
-      bytes = send (sock, (const void *) p_buffer, len, 0);
+      bytes = send (sock, (const void *) p_buffer, len, MSG_NOSIGNAL);
 
       if (bytes < 0)
         {
@@ -2044,6 +2045,9 @@ icer_net_set_mountpoint_settings (icer_server_t * ap_server,
   p_mount->metadata_period = a_metadata_period;
   p_mount->initial_burst_size = a_burst_size;
   p_mount->max_clients = a_max_clients;
+
+  TIZ_TRACE (ap_server->p_hdl, "StationName [%s] IcyMetadataPeriod [%d]",
+             p_mount->station_name, p_mount->metadata_period);
 }
 
 void
