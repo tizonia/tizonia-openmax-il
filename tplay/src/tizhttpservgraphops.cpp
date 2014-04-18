@@ -217,11 +217,6 @@ graph::httpservops::configure_station ()
   mount.nVersion.nVersion = OMX_VERSION;
   mount.nPortIndex = 0;
 
-  bool quiet = true;
-  tiz_check_omx_err (probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingMP3,
-                                   "mp3/http", "stream",
-                                   &tiz::probe::dump_mp3_info, quiet));
-
   tizhttpservconfig_ptr_t srv_config
       = boost::dynamic_pointer_cast< httpservconfig >(config_);
   assert (srv_config);
@@ -237,12 +232,15 @@ graph::httpservops::configure_station ()
             srv_config->get_host_name ().c_str (), srv_config->get_port ());
   snprintf ((char *)mount.cStationDescription,
             sizeof(mount.cStationDescription),
-            "Audio Streaming with OpenMAX IL");
+            "Tizonia Audio Streaming Server");
+  // TODO: Will fix this when a command line option is added to properly
+  // configure the genre (see github's issue #49).
   snprintf ((char *)mount.cStationGenre, sizeof(mount.cStationGenre), "%s",
-            probe_ptr_->get_stream_genre ().c_str ());
+            "Unknown Genre");
   snprintf ((char *)mount.cStationUrl, sizeof(mount.cStationUrl),
             "http://tizonia.org");
 
+  // TODO: Will re-enable this when github's issue #44 is closed.
   // Disable ICY metadata for now
   mount.nIcyMetadataPeriod = 0;
 
