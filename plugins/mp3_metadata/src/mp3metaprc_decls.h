@@ -47,6 +47,7 @@ struct mp3meta_prc
   /* Object */
   const tiz_prc_t _;
   mpg123_handle *p_mpg123_;
+  OMX_BUFFERHEADERTYPE *p_out_hdr_;
   OMX_PARAM_CONTENTURITYPE *p_uri_param_;
   OMX_U32 counter_;
   bool eos_;

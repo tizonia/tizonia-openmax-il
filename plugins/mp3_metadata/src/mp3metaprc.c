@@ -100,22 +100,86 @@ static OMX_ERRORTYPE obtain_uri (mp3meta_prc_t *ap_prc)
   return rc;
 }
 
-static OMX_ERRORTYPE transform_buffer (mp3meta_prc_t *p_prc,
-                                       OMX_BUFFERHEADERTYPE *p_out)
+static OMX_ERRORTYPE release_out_buffer (mp3meta_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  if (NULL != ap_prc->p_out_hdr_)
+    {
+      tiz_check_omx_err (tiz_krn_release_buffer (
+          tiz_get_krn (handleOf (ap_prc)),
+          ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX, ap_prc->p_out_hdr_));
+      ap_prc->p_out_hdr_ = NULL;
+    }
+  return OMX_ErrorNone;
+}
+
+static inline OMX_BUFFERHEADERTYPE **get_header_ptr (mp3meta_prc_t *ap_prc)
+{
+  OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
+  assert (NULL != ap_prc);
+  pp_hdr = &(ap_prc->p_out_hdr_);
+  assert (NULL != pp_hdr);
+  return pp_hdr;
+}
+
+static inline bool *get_port_disabled_ptr (mp3meta_prc_t *ap_prc)
+{
+  bool *p_port_disabled = NULL;
+  assert (NULL != ap_prc);
+  p_port_disabled = &(ap_prc->out_port_disabled_);
+  assert (NULL != p_port_disabled);
+  return p_port_disabled;
+}
+
+static OMX_BUFFERHEADERTYPE *get_header (mp3meta_prc_t *ap_prc)
+{
+  OMX_BUFFERHEADERTYPE *p_hdr = *(get_header_ptr (ap_prc));
+
+  if (NULL == p_hdr)
+    {
+      if (OMX_ErrorNone
+          == tiz_krn_claim_buffer (
+                 tiz_get_krn (handleOf (ap_prc)),
+                 ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX, 0, &p_hdr))
+        {
+          if (NULL != p_hdr)
+            {
+              TIZ_TRACE (handleOf (ap_prc),
+                         "Claimed HEADER [%p] nFilledLen [%d]", p_hdr,
+                         p_hdr->nFilledLen);
+              ap_prc->p_out_hdr_ = p_hdr;
+            }
+        }
+    }
+
+  return p_hdr;
+}
+
+static inline bool buffers_available (mp3meta_prc_t *ap_prc)
+{
+  return (NULL != get_header (ap_prc));
+}
+
+static OMX_ERRORTYPE remove_metadata (mp3meta_prc_t *ap_prc)
 {
   int ret = MPG123_OK;
+  OMX_BUFFERHEADERTYPE *p_out = NULL;
 
-  assert (NULL != p_prc);
-  assert (NULL != p_prc->p_mpg123_);
+  assert (NULL != ap_prc);
+  assert (NULL != ap_prc->p_mpg123_);
+
+  p_out = get_header (ap_prc);
   assert (NULL != p_out);
+  p_out->nFilledLen = 0;
+  p_out->nFlags = 0;
 
-  if (((ret = mpg123_framebyframe_next (p_prc->p_mpg123_)) == MPG123_OK
-       || ret == MPG123_NEW_FORMAT))
+  if (((ret = mpg123_framebyframe_next (ap_prc->p_mpg123_)) == MPG123_OK
+       || MPG123_NEW_FORMAT == ret))
     {
       unsigned long header;
       unsigned char *bodydata;
       size_t bodybytes;
-      if (mpg123_framedata (p_prc->p_mpg123_, &header, &bodydata, &bodybytes)
+      if (mpg123_framedata (ap_prc->p_mpg123_, &header, &bodydata, &bodybytes)
           == MPG123_OK)
         {
           /* Need to extract the 4 header bytes from the native storage in the
@@ -131,21 +195,29 @@ static OMX_ERRORTYPE transform_buffer (mp3meta_prc_t *p_prc,
           memcpy (p_out->pBuffer, hbuf, 4);
           memcpy (p_out->pBuffer + 4, bodydata, bodybytes);
           p_out->nFilledLen = 4 + bodybytes;
-          TIZ_TRACE (handleOf (p_prc), "%zu: header 0x%08x, %zu body bytes",
-                     ++p_prc->counter_, header, bodybytes);
-          tiz_check_omx_err (tiz_krn_release_buffer (
-              tiz_get_krn (handleOf (p_prc)),
-              ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX, p_out));
+          TIZ_TRACE (handleOf (ap_prc), "%zu: header 0x%08x, %zu body bytes",
+                     ++ap_prc->counter_, header, bodybytes);
         }
     }
-
-  if (ret == MPG123_DONE && NULL != p_out)
+  else if (MPG123_DONE == ret)
     {
+      TIZ_NOTICE (handleOf (ap_prc), "HEADER [%p] Adding OMX_BUFFERFLAG_EOS",
+                  p_out);
       p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-      p_prc->eos_ = true;
-      tiz_check_omx_err (tiz_krn_release_buffer (
-          tiz_get_krn (handleOf (p_prc)),
-          ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX, p_out));
+      ap_prc->eos_ = true;
+    }
+  else if (MPG123_NEED_MORE == ret)
+    {
+      TIZ_WARN (handleOf (ap_prc), "ret=[MPG123_NEED_MORE] HEADER [%p]", p_out);
+    }
+  else
+    {
+      TIZ_ERROR (handleOf (ap_prc), "ret=[%d] HEADER [%p]", ret, p_out);
+    }
+
+  if (p_out->nFilledLen > 0 || ap_prc->eos_)
+    {
+      tiz_check_omx_err (release_out_buffer (ap_prc));
     }
 
   return OMX_ErrorNone;
@@ -161,16 +233,25 @@ static void *mp3meta_prc_ctor (void *ap_obj, va_list *app)
       = super_ctor (typeOf (ap_obj, "mp3metaprc"), ap_obj, app);
   assert (NULL != p_prc);
   p_prc->p_mpg123_ = NULL;
+  p_prc->p_out_hdr_ = NULL;
   p_prc->p_uri_param_ = NULL;
   p_prc->counter_ = 0;
   p_prc->eos_ = false;
   p_prc->out_port_disabled_ = false;
+
+  if (MPG123_OK != mpg123_init ())
+    {
+      TIZ_ERROR (handleOf (p_prc), "[%s] : initialising libmpg123.",
+                 tiz_err_to_str (OMX_ErrorInsufficientResources));
+    }
+
   return p_prc;
 }
 
 static void *mp3meta_prc_dtor (void *ap_obj)
 {
   (void)mp3meta_prc_deallocate_resources (ap_obj);
+  mpg123_exit ();
   return super_dtor (typeOf (ap_obj, "mp3metaprc"), ap_obj);
 }
 
@@ -191,13 +272,6 @@ static OMX_ERRORTYPE mp3meta_prc_allocate_resources (void *ap_obj,
   tiz_check_omx_err (obtain_uri (p_prc));
 
   assert (NULL != p_prc->p_uri_param_);
-
-  if (MPG123_OK != mpg123_init ())
-    {
-      TIZ_ERROR (handleOf (p_prc), "[%s] : initialising libmpg123.",
-                 tiz_err_to_str (rc));
-      goto end;
-    }
 
   if (NULL == (p_prc->p_mpg123_ = mpg123_new (NULL, &ret)))
     {
@@ -244,7 +318,6 @@ static OMX_ERRORTYPE mp3meta_prc_deallocate_resources (void *ap_obj)
   delete_uri (ap_obj);
   mpg123_delete (p_prc->p_mpg123_); /* Closes, too. */
   p_prc->p_mpg123_ = NULL;
-  mpg123_exit ();
   return OMX_ErrorNone;
 }
 
@@ -270,7 +343,7 @@ static OMX_ERRORTYPE mp3meta_prc_transfer_and_process (void *ap_obj,
 
 static OMX_ERRORTYPE mp3meta_prc_stop_and_return (void *ap_obj)
 {
-  return OMX_ErrorNone;
+  return release_out_buffer (ap_obj);
 }
 
 /*
@@ -280,23 +353,38 @@ static OMX_ERRORTYPE mp3meta_prc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE mp3meta_prc_buffers_ready (const void *ap_obj)
 {
   mp3meta_prc_t *p_prc = (mp3meta_prc_t *)ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_prc);
 
-  if (!p_prc->eos_)
+  while (buffers_available (p_prc) && OMX_ErrorNone == rc && !p_prc->eos_
+         && !p_prc->out_port_disabled_)
     {
-      OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-      tiz_check_omx_err (tiz_krn_claim_buffer (
-          tiz_get_krn (handleOf (p_prc)),
-          ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX, 0, &p_hdr));
-      if (NULL != p_hdr)
-        {
-          TIZ_TRACE (handleOf (p_prc), "Claimed HEADER [%p]...nFilledLen [%d]",
-                     p_hdr, p_hdr->nFilledLen);
-          tiz_check_omx_err (transform_buffer (p_prc, p_hdr));
-        }
+      rc = remove_metadata (p_prc);
     }
 
+  return rc;
+}
+
+static OMX_ERRORTYPE mp3meta_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
+{
+  mp3meta_prc_t *p_prc = (mp3meta_prc_t *)ap_prc;
+  assert (NULL != p_prc);
+  assert (ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX == a_pid || OMX_ALL
+                                                                     == a_pid);
+  p_prc->out_port_disabled_ = false;
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE mp3meta_prc_port_disable (const void *ap_prc,
+                                               OMX_U32 a_pid)
+{
+  mp3meta_prc_t *p_prc = (mp3meta_prc_t *)ap_prc;
+  assert (NULL != p_prc);
+  assert (ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX == a_pid || OMX_ALL
+                                                                     == a_pid);
+  p_prc->out_port_disabled_ = true;
+  release_out_buffer (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -339,8 +427,6 @@ void *mp3meta_prc_init (void *ap_tos, void *ap_hdl)
        /* TIZ_CLASS_COMMENT: class destructor */
        dtor, mp3meta_prc_dtor,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, mp3meta_prc_buffers_ready,
-       /* TIZ_CLASS_COMMENT: */
        tiz_srv_allocate_resources, mp3meta_prc_allocate_resources,
        /* TIZ_CLASS_COMMENT: */
        tiz_srv_deallocate_resources, mp3meta_prc_deallocate_resources,
@@ -350,6 +436,12 @@ void *mp3meta_prc_init (void *ap_tos, void *ap_hdl)
        tiz_srv_transfer_and_process, mp3meta_prc_transfer_and_process,
        /* TIZ_CLASS_COMMENT: */
        tiz_srv_stop_and_return, mp3meta_prc_stop_and_return,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_buffers_ready, mp3meta_prc_buffers_ready,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_port_enable, mp3meta_prc_port_enable,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_port_disable, mp3meta_prc_port_disable,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
 
