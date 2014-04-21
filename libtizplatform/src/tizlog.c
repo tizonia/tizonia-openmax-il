@@ -56,7 +56,7 @@ struct user_locinfo
   char *cbuf;
 };
 
-static const char *tiz_log_layout_format (const log4c_layout_t *a_layout,
+static const char *log_layout_format (const log4c_layout_t *a_layout,
                                           const log4c_logging_event_t *a_event)
 {
   static char buffer[4096];
@@ -111,10 +111,10 @@ static const char *tiz_log_layout_format (const log4c_layout_t *a_layout,
   return buffer;
 }
 
-const log4c_layout_type_t tiz_log_layout
-    = { "tiz_layout", tiz_log_layout_format, };
+const log4c_layout_type_t tizonia_log_layout
+    = { "tiz_layout", log_layout_format, };
 
-static const log4c_layout_type_t *const layout_types[] = { &tiz_log_layout };
+static const log4c_layout_type_t *const layout_types[] = { &tizonia_log_layout };
 
 static int nlayout_types
     = (int)(sizeof(layout_types) / sizeof(layout_types[0]));
@@ -148,17 +148,6 @@ int tiz_log_deinit ()
   return (log4c_fini ());
 #else
   return 0;
-#endif
-}
-
-int tiz_log_setappender (const char *catName, const char *appName)
-{
-#ifndef WITHOUT_LOG4C
-  log4c_category_set_appender (log4c_category_get (catName),
-                               log4c_appender_get (appName));
-  return (0);
-#else
-  return (0);
 #endif
 }
 
