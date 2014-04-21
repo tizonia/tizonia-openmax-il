@@ -50,7 +50,7 @@ static OMX_ERRORTYPE
 icer_prc_config_change (const void    *ap_prc, OMX_U32 a_pid,
                         OMX_INDEXTYPE  a_config_idx);
 
-void
+static void
 release_buffers (icer_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
