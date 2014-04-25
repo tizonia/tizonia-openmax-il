@@ -34,11 +34,10 @@ extern "C"
 {
 #endif
 
-#include "flacdprc.h"
-#include "tizprc_decls.h"
-
 #include <stdbool.h>
 #include <FLAC/all.h>                /* flac header */
+
+#include "tizprc_decls.h"
 
   typedef struct flacd_prc flacd_prc_t;
   struct flacd_prc

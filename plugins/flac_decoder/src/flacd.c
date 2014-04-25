@@ -30,21 +30,21 @@
 #include <config.h>
 #endif
 
-#include "flacd.h"
-#include "flacdprc.h"
-#include "tizport.h"
-#include "tizbinaryport.h"
-#include "tizscheduler.h"
-
-#include "tizplatform.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
+
+#include <tizplatform.h>
+
+#include <tizport.h>
+#include <tizscheduler.h>
+
+#include "flacdprc.h"
+#include "flacd.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

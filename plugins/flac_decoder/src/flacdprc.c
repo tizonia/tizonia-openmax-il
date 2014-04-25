@@ -53,17 +53,13 @@ static OMX_ERRORTYPE flacd_prc_deallocate_resources (void *);
 static OMX_ERRORTYPE
 alloc_temp_data_store (flacd_prc_t * ap_prc)
 {
-  void *p_krn = tiz_get_krn (handleOf (ap_prc));
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX);
 
   assert (NULL != ap_prc);
 
-  port_def.nSize = (OMX_U32) sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
-  port_def.nVersion.nVersion = OMX_VERSION;
-  port_def.nPortIndex = ARATELIA_FLAC_DECODER_INPUT_PORT_INDEX;
-
   tiz_check_omx_err
-    (tiz_api_GetParameter (p_krn, handleOf (ap_prc),
+    (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                            OMX_IndexParamPortDefinition, &port_def));
 
   assert (ap_prc->p_store_ == NULL);
@@ -142,63 +138,55 @@ get_port_disabled_ptr (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
 static OMX_BUFFERHEADERTYPE *
 get_buffer (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
 {
-  bool *p_port_disabled = get_port_disabled_ptr (ap_prc, a_pid);
-  assert (NULL != ap_prc);
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  bool port_disabled = *(get_port_disabled_ptr (ap_prc, a_pid));
 
-  if (!(*p_port_disabled))
+  if (!port_disabled)
     {
-      OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
-      if (NULL != *pp_hdr)
-        {
-          TIZ_TRACE (handleOf (ap_prc),
-                     "HEADER [%p] pid [%d] nFilledLen [%d] ", *pp_hdr, a_pid,
-                     (*pp_hdr)->nFilledLen);
-          return *pp_hdr;
-        }
-      else
+      p_hdr = *(get_header_ptr (ap_prc, a_pid));
+      if (NULL == p_hdr)
         {
           if (OMX_ErrorNone == tiz_krn_claim_buffer
-              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
+              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, &p_hdr))
             {
-              if (NULL != *pp_hdr)
+              if (NULL != p_hdr)
                 {
                   TIZ_TRACE (handleOf (ap_prc),
                              "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
-                             *pp_hdr, a_pid, (*pp_hdr)->nFilledLen);
-                  return *pp_hdr;
+                             p_hdr, a_pid, p_hdr->nFilledLen);
                 }
             }
         }
     }
 
-  return NULL;
+  return p_hdr;
 }
 
-/* TODO: Change void to a int for OOM errors */
 static void
 release_buffer (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  bool *p_eos = NULL;
-
-  assert (NULL != ap_prc);
-
-  p_eos = &(ap_prc->eos_);
-  assert (NULL != p_eos);
 
   p_hdr = *pp_hdr;
   assert (NULL != p_hdr);
-
-  p_hdr->nOffset = 0;
 
   TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] pid [%d] "
              "nFilledLen [%d] nFlags [%d]", p_hdr, a_pid, p_hdr->nFilledLen,
              p_hdr->nFlags);
 
-  /* TODO: Check for OOM error and issue Error Event */
-  (void) tiz_krn_release_buffer
-    (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr);
+  {
+    OMX_ERRORTYPE rc = OMX_ErrorNone;
+    p_hdr->nOffset = 0;
+    if (OMX_ErrorNone != (rc = tiz_krn_release_buffer
+                          (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr)))
+      {
+        TIZ_ERROR (handleOf (ap_prc), "[%s] : Releasing HEADER [%p] pid [%d] "
+                   "nFilledLen [%d] nFlags [%d]", tiz_err_to_str (rc),
+                   p_hdr, a_pid, p_hdr->nFilledLen, p_hdr->nFlags);
+        assert (0); 
+      }
+  }
   *pp_hdr = NULL;
 }
 
@@ -326,7 +314,6 @@ release_all_buffers (flacd_prc_t * ap_prc, const OMX_U32 a_pid)
 static inline OMX_ERRORTYPE
 do_flush (flacd_prc_t * ap_prc)
 {
-  assert (NULL != ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "do_flush");
   /* Release any buffers held  */
   return release_all_buffers (ap_prc, OMX_ALL);
@@ -575,7 +562,7 @@ static OMX_ERRORTYPE
 flacd_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   flacd_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
+  assert (NULL != p_prc);
 
   tiz_check_omx_err (alloc_temp_data_store (p_prc));
 
@@ -593,7 +580,7 @@ static OMX_ERRORTYPE
 flacd_prc_deallocate_resources (void *ap_obj)
 {
   flacd_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
+  assert (NULL != p_prc);
   if (NULL != p_prc->p_flac_dec_)
     {
       FLAC__stream_decoder_delete (p_prc->p_flac_dec_);
@@ -608,7 +595,7 @@ flacd_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   flacd_prc_t *p_prc = ap_obj;
   FLAC__StreamDecoderInitStatus result = FLAC__STREAM_DECODER_INIT_STATUS_OK;
-  assert (NULL != ap_obj);
+  assert (NULL != p_prc);
 
   if (NULL != p_prc->p_flac_dec_)
     {
@@ -681,12 +668,15 @@ void *
 flacd_prc_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *flacdprc_class = factory_new (classOf (tizprc),
-                                      "flacdprc_class",
-                                      classOf (tizprc),
-                                      sizeof (flacd_prc_class_t),
-                                      ap_tos, ap_hdl,
-                                      ctor, flacd_prc_class_ctor, 0);
+  void *flacdprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "flacdprc_class", classOf (tizprc), sizeof (flacd_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, flacd_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
   return flacdprc_class;
 }
 
@@ -696,24 +686,29 @@ flacd_prc_init (void *ap_tos, void *ap_hdl)
   void *tizprc = tiz_get_type (ap_hdl, "tizprc");
   void *flacdprc_class = tiz_get_type (ap_hdl, "flacdprc_class");
   TIZ_LOG_CLASS (flacdprc_class);
-  void *flacdprc = factory_new (flacdprc_class,
-                                "flacdprc",
-                                tizprc,
-                                sizeof (flacd_prc_t),
-                                ap_tos, ap_hdl,
-                                ctor, flacd_prc_ctor,
-                                dtor, flacd_prc_dtor,
-                                tiz_prc_buffers_ready, flacd_prc_buffers_ready,
-                                tiz_srv_allocate_resources,
-                                flacd_prc_allocate_resources,
-                                tiz_srv_deallocate_resources,
-                                flacd_prc_deallocate_resources,
-                                tiz_srv_prepare_to_transfer,
-                                flacd_prc_prepare_to_transfer,
-                                tiz_srv_transfer_and_process,
-                                flacd_prc_transfer_and_process,
-                                tiz_srv_stop_and_return,
-                                flacd_prc_stop_and_return, 0);
+  void *flacdprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (flacdprc_class, "flacdprc", tizprc, sizeof (flacd_prc_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, flacd_prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, flacd_prc_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, flacd_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, flacd_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, flacd_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, flacd_prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, flacd_prc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, flacd_prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return flacdprc;
 }

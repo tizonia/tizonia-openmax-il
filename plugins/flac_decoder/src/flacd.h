@@ -33,9 +33,9 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
+#include <OMX_Core.h>
+#include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
 
 #define ARATELIA_FLAC_DECODER_DEFAULT_ROLE             OMX_ROLE_AUDIO_DECODER_FLAC
 #define ARATELIA_FLAC_DECODER_COMPONENT_NAME           "OMX.Aratelia.audio_decoder.flac"
