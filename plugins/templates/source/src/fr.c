@@ -40,7 +40,6 @@
 #include <tizplatform.h>
 
 #include <tizport.h>
-#include <tizbinaryport.h>
 #include <tizscheduler.h>
 
 #include "frprc.h"

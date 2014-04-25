@@ -38,6 +38,7 @@
 
 #include <tizkernel.h>
 
+#include "mp3d.h"
 #include "mp3dprc.h"
 #include "mp3dprc_decls.h"
 
@@ -55,7 +56,10 @@ release_buffers (const void *ap_obj)
 
   if (NULL != p_obj->p_inhdr_)
     {
-      tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 0, p_obj->p_inhdr_));
+      tiz_check_omx_err
+        (tiz_krn_release_buffer
+         (tiz_get_krn (handleOf (ap_obj)),
+          ARATELIA_MP3_DECODER_INPUT_PORT_INDEX, p_obj->p_inhdr_));
       p_obj->p_inhdr_ = NULL;
       p_obj->remaining_ = 0;
     }
@@ -65,7 +69,10 @@ release_buffers (const void *ap_obj)
       TIZ_TRACE (handleOf (p_obj),
                 "Releasing output HEADER [%p] nFilledLen [%d]",
                 p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen);
-      tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->p_outhdr_));
+      tiz_check_omx_err
+        (tiz_krn_release_buffer
+         (tiz_get_krn (handleOf (ap_obj)),
+          ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX, p_obj->p_outhdr_));
       p_obj->p_outhdr_ = NULL;
     }
   return OMX_ErrorNone;
@@ -252,7 +259,9 @@ synthesize_samples (const void *ap_obj, int next_sample)
                     "Releasing output HEADER [%p] nFilledLen [%d]",
                     p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen);
           p_obj->p_outhdr_->nFilledLen = p_obj->p_outhdr_->nAllocLen;
-          tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->p_outhdr_);
+          tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                  ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX,
+                                  p_obj->p_outhdr_);
           p_obj->p_outhdr_ = NULL;
           buffer_full = true;
         }
@@ -614,7 +623,8 @@ mp3d_proc_buffers_ready (const void *ap_obj)
         {
           p_obj->p_inhdr_->nOffset = 0;
           tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
-                                                     0, p_obj->p_inhdr_));
+                                                     ARATELIA_MP3_DECODER_INPUT_PORT_INDEX,
+                                                     p_obj->p_inhdr_));
           p_obj->p_inhdr_ = NULL;
         }
     }
@@ -627,7 +637,8 @@ mp3d_proc_buffers_ready (const void *ap_obj)
                 "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);
       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
       tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
-                                                 1, p_obj->p_outhdr_));
+                                                 ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX,
+                                                 p_obj->p_outhdr_));
       p_obj->p_outhdr_ = NULL;
       p_obj->eos_ = false;
     }
@@ -676,12 +687,16 @@ void *
 mp3d_prc_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * mp3dprc_class = factory_new (classOf (tizprc),
-                                      "mp3dprc_class",
-                                      classOf (tizprc),
-                                      sizeof (mp3d_prc_class_t),
-                                      ap_tos, ap_hdl,
-                                      ctor, mp3d_prc_class_ctor, 0);
+  void * mp3dprc_class =
+    factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "mp3dprc_class", classOf (tizprc), sizeof (mp3d_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, mp3d_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
   return mp3dprc_class;
 }
 
@@ -693,22 +708,34 @@ mp3d_prc_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (mp3dprc_class);
   void * mp3dprc =
     factory_new
-    (mp3dprc_class,
-     "mp3dprc",
-     tizprc,
-     sizeof (mp3d_prc_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (mp3dprc_class, "mp3dprc", tizprc, sizeof (mp3d_prc_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, mp3d_proc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, mp3d_proc_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_allocate_resources, mp3d_proc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_deallocate_resources, mp3d_proc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_prepare_to_transfer, mp3d_proc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_transfer_and_process, mp3d_proc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_stop_and_return, mp3d_proc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_buffers_ready, mp3d_proc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_port_flush, mp3d_proc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_port_disable, mp3d_proc_port_disable,
-     tiz_prc_port_enable, mp3d_proc_port_enable, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, mp3d_proc_port_enable,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return mp3dprc;
 }

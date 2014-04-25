@@ -34,13 +34,12 @@ extern "C"
 {
 #endif
 
-#include "mp3dprc.h"
-#include "tizprc_decls.h"
-
-#include "OMX_Core.h"
-
 #include <stdbool.h>
 #include <mad.h>
+
+#include <OMX_Core.h>
+
+#include <tizprc_decls.h>
 
 #define INPUT_BUFFER_SIZE   (5*8192)
 #define OUTPUT_BUFFER_SIZE  8192        /* Must be an integer multiple of 4. */

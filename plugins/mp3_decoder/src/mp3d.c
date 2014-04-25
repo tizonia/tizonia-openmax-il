@@ -30,41 +30,25 @@
 #include <config.h>
 #endif
 
-#include "mp3dprc.h"
-
-#include "tizscheduler.h"
-#include "tizport.h"
-#include "tizmp3port.h"
-#include "tizpcmport.h"
-#include "tizconfigport.h"
-
-#include "tizplatform.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include <assert.h>
 #include <string.h>
-#include <mad.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+
+#include <tizplatform.h>
+
+#include <tizport.h>
+#include <tizscheduler.h>
+
+#include "mp3dprc.h"
+#include "mp3d.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.mp3_decoder"
 #endif
-
-#define ARATELIA_MP3_DECODER_DEFAULT_ROLE     "audio_decoder.mp3"
-#define ARATELIA_MP3_DECODER_COMPONENT_NAME   "OMX.Aratelia.audio_decoder.mp3"
-
-/* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_MP3_DECODER_INPUT_PORT_INDEX         0
-#define ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX        1
-#define ARATELIA_MP3_DECODER_PORT_MIN_BUF_COUNT       2
-#define ARATELIA_MP3_DECODER_PORT_MIN_INPUT_BUF_SIZE  (5*8192)
-#define ARATELIA_MP3_DECODER_PORT_MIN_OUTPUT_BUF_SIZE (2*8192)
-#define ARATELIA_MP3_DECODER_PORT_NONCONTIGUOUS       OMX_FALSE
-#define ARATELIA_MP3_DECODER_PORT_ALIGNMENT           0
-#define ARATELIA_MP3_DECODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE mp3_decoder_version = { {1, 0, 0, 0} };
 
@@ -178,9 +162,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t *rf_list[] = { &role_factory };
   tiz_type_factory_t mp3dprc_type;
   const tiz_type_factory_t *tf_list[] = { &mp3dprc_type};
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
-           "Inititializing [%s]", ARATELIA_MP3_DECODER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_MP3_DECODER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;
