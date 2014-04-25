@@ -63,6 +63,9 @@
       }                                                                 \
   } while (0)
 
+/* Forward declaration */
+static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj);
+
 /*@null@*/ static char *
 get_alsa_device (ar_prc_t * ap_prc)
 {
@@ -72,7 +75,7 @@ get_alsa_device (ar_prc_t * ap_prc)
   assert (NULL == ap_prc->p_alsa_pcm_);
 
   p_alsa_pcm
-    = tiz_rcfile_get_value ("plugins-data",
+    = tiz_rcfile_get_value (TIZ_RCFILE_PLUGINS_DATA_SECTION,
                             "OMX.Aratelia.audio_renderer_nb.pcm.alsa_device");
 
   if (NULL != p_alsa_pcm)
@@ -136,21 +139,21 @@ do_flush (ar_prc_t * ap_prc)
 }
 
 static float
-sint_to_float (const int sample)
+sint_to_float (const int a_sample)
 {
   float f;
-  if (sample >= 0)
-    f = sample / 32767.0;
+  if (a_sample >= 0)
+    f = a_sample / 32767.0;
   else
-    f = sample / 32768.0;
+    f = a_sample / 32768.0;
   return f;
 }
 
 static int
-float_to_sint (const float sample)
+float_to_sint (const float a_sample)
 {
   float f;
-  f = sample * 32767;
+  f = a_sample * 32767;
   if (f < -32768)
     f = -32768;
   if (f > 32767)
@@ -255,7 +258,7 @@ set_component_volume (ar_prc_t * ap_prc)
 }
 
 static bool
-set_alsa_master_volume (const ar_prc_t * ap_prc, const long volume)
+set_alsa_master_volume (const ar_prc_t * ap_prc, const long a_volume)
 {
   bool rc = false;
   assert (NULL != ap_prc);
@@ -267,7 +270,7 @@ set_alsa_master_volume (const ar_prc_t * ap_prc, const long volume)
     snd_mixer_selem_id_t *sid = NULL;
     snd_mixer_elem_t *elem = NULL;
 
-    TIZ_TRACE (handleOf (ap_prc), "volume = %ld\n", volume);
+    TIZ_TRACE (handleOf (ap_prc), "volume = %ld\n", a_volume);
     bail_on_alsa_error (snd_mixer_open (&handle, 0));
     bail_on_alsa_error (snd_mixer_attach (handle, ap_prc->p_alsa_pcm_));
     bail_on_alsa_error (snd_mixer_selem_register (handle, NULL, NULL));
@@ -281,7 +284,7 @@ set_alsa_master_volume (const ar_prc_t * ap_prc, const long volume)
     bail_on_alsa_error (snd_mixer_selem_get_playback_volume_range
                         (elem, &min, &max));
     bail_on_alsa_error (snd_mixer_selem_set_playback_volume_all
-                        (elem, volume * max / 100));
+                        (elem, a_volume * max / 100));
 
     bail_on_alsa_error (snd_mixer_close (handle));
 
@@ -306,12 +309,12 @@ toggle_mute (ar_prc_t * ap_prc, const bool a_mute)
 }
 
 static void
-set_volume (ar_prc_t * ap_prc, const long volume)
+set_volume (ar_prc_t * ap_prc, const long a_volume)
 {
-  if (set_alsa_master_volume (ap_prc, volume))
+  if (set_alsa_master_volume (ap_prc, a_volume))
     {
       assert (NULL != ap_prc);
-      ap_prc->volume_ = volume;
+      ap_prc->volume_ = a_volume;
     }
 }
 
@@ -414,6 +417,7 @@ static OMX_ERRORTYPE
 buffer_emptied (ar_prc_t * ap_prc)
 {
   assert (NULL != ap_prc);
+  assert (NULL != ap_prc->p_inhdr_);
   assert (ap_prc->p_inhdr_->nFilledLen == 0);
 
   TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] emptied", ap_prc->p_inhdr_);
@@ -496,27 +500,7 @@ ar_prc_ctor (void *ap_obj, va_list * app)
 static void *
 ar_prc_dtor (void *ap_obj)
 {
-  ar_prc_t *p_obj = ap_obj;
-
-  tiz_mem_free (p_obj->p_alsa_pcm_);
-
-  if (NULL != p_obj->p_hw_params)
-    {
-      snd_pcm_hw_params_free (p_obj->p_hw_params);
-    }
-
-  if (NULL != p_obj->p_pcm_hdl)
-    {
-      (void) snd_pcm_close (p_obj->p_pcm_hdl);
-    }
-
-  tiz_mem_free (p_obj->p_fds_);
-
-  if (NULL != p_obj->p_ev_io_)
-    {
-      tiz_event_io_destroy (p_obj->p_ev_io_);
-    }
-
+  (void) ar_prc_deallocate_resources (ap_obj);
   return super_dtor (typeOf (ap_obj, "arprc"), ap_obj);
 }
 
@@ -528,7 +512,6 @@ static OMX_ERRORTYPE
 ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
   ar_prc_t *p_prc = ap_obj;
-  OMX_HANDLETYPE p_hdl = handleOf (p_prc);
   int err = 0;
 
   assert (NULL != ap_obj);
@@ -544,7 +527,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
            snd_pcm_open (&p_prc->p_pcm_hdl, p_device,
                          SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK)) < 0)
         {
-          TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                      "cannot open audio device %s (%s)",
                      p_device,
                      snd_strerror (err));
@@ -553,7 +536,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 
       if ((err = snd_pcm_hw_params_malloc (&p_prc->p_hw_params)) < 0)
         {
-          TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                      "cannot allocate hardware parameter structure" " (%s)",
                      snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -563,7 +546,7 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
         snd_pcm_poll_descriptors_count (p_prc->p_pcm_hdl);
       if (p_prc->descriptor_count_ <= 0)
         {
-          TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                      "Invalid poll descriptors count");
           return OMX_ErrorInsufficientResources;
         }
@@ -572,16 +555,16 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
         tiz_mem_alloc (sizeof (struct pollfd) * p_prc->descriptor_count_);
       if (p_prc->p_fds_ == NULL)
         {
-          TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                      "Could not allocate poll file descriptors\n");
           return OMX_ErrorInsufficientResources;
         }
 
       if (OMX_ErrorNone !=
-          (rc = tiz_event_io_init (&(p_prc->p_ev_io_), p_hdl,
+          (rc = tiz_event_io_init (&(p_prc->p_ev_io_), handleOf (p_prc),
                                    tiz_comp_event_io)))
         {
-          TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                      "Error initializing the PCM io event (was %s)",
                      tiz_err_to_str (rc));
           return OMX_ErrorInsufficientResources;
@@ -593,17 +576,17 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
   /* Fill params with a full configuration space for the PCM. */
   if ((err = snd_pcm_hw_params_any (p_prc->p_pcm_hdl, p_prc->p_hw_params)) < 0)
     {
-      TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
+      TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                  "cannot initialize hardware parameter structure (%s)",
                  snd_strerror (err));
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_DEBUG (p_hdl, "Device can pause [%s] ",
+  TIZ_DEBUG (handleOf (p_prc), "Device can pause [%s] ",
              snd_pcm_hw_params_can_pause (p_prc->p_hw_params) == 0 ?
              "NO" : "YES");
 
-  TIZ_DEBUG (p_hdl, "Device can resume [%s] ",
+  TIZ_DEBUG (handleOf (p_prc), "Device can resume [%s] ",
              snd_pcm_hw_params_can_resume (p_prc->p_hw_params) == 0 ?
              "NO" : "YES");
 
@@ -614,8 +597,7 @@ static OMX_ERRORTYPE
 ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
   ar_prc_t *p_prc = ap_obj;
-
-  assert (NULL != ap_obj);
+  assert (NULL != p_prc);
 
   if (NULL != p_prc->p_pcm_hdl)
     {
@@ -731,16 +713,14 @@ ar_prc_transfer_and_process (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 static OMX_ERRORTYPE
 ar_prc_stop_and_return (void *ap_obj)
 {
-  ar_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
-  return do_flush (p_prc);
+  return do_flush (ap_obj);
 }
 
 static OMX_ERRORTYPE
 ar_prc_deallocate_resources (void *ap_obj)
 {
   ar_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
+  assert (NULL != p_prc);
 
   p_prc->descriptor_count_ = 0;
   tiz_mem_free (p_prc->p_fds_);
@@ -774,29 +754,29 @@ ar_prc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 ar_prc_buffers_ready (const void *ap_obj)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
+  assert (NULL != p_prc);
   TIZ_TRACE (handleOf (p_prc),
              "Received buffer ready notification - awaiting_buffers [%s] "
              "awaiting_io_ev [%s]",
              p_prc->awaiting_buffers_ ? "YES" : "NO",
              p_prc->awaiting_io_ev_ ? "YES" : "NO");
-  if (p_prc->awaiting_buffers_ == true && p_prc->awaiting_io_ev_ == false)
+  if (p_prc->awaiting_buffers_ && !p_prc->awaiting_io_ev_)
     {
       p_prc->awaiting_buffers_ = false;
-      return render_pcm_data (p_prc);
+      rc = render_pcm_data (p_prc);
     }
-  return OMX_ErrorNone;
+  return rc;
 }
 
 static OMX_ERRORTYPE
 ar_prc_io_ready (void *ap_obj,
                  tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
-  ar_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Received io event on fd [%d]", a_fd);
-  stop_io_watcher (p_prc);
-  return render_pcm_data (p_prc);
+  TIZ_TRACE (handleOf (ap_obj), "Received io event on fd [%d]", a_fd);
+  stop_io_watcher (ap_obj);
+  return render_pcm_data (ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -809,7 +789,7 @@ ar_prc_pause (const void *ap_obj)
   TIZ_TRACE (handleOf (p_prc),
              "PAUSED ALSA device..."
              "awaiting_io_ev_ [%s]", p_prc->awaiting_io_ev_ ? "YES" : "NO");
-  if (p_prc->awaiting_io_ev_ == true)
+  if (p_prc->awaiting_io_ev_)
     {
       tiz_event_io_stop (p_prc->p_ev_io_);
     }
@@ -824,7 +804,7 @@ ar_prc_resume (const void *ap_obj)
   assert (NULL != p_prc);
   TIZ_TRACE (handleOf (p_prc), "RESUMING ALSA device...");
   snd_pcm_pause (p_prc->p_pcm_hdl, resume);
-  if (p_prc->awaiting_io_ev_ == true)
+  if (p_prc->awaiting_io_ev_)
     {
       start_io_watcher (p_prc);
     }
@@ -850,7 +830,7 @@ ar_prc_port_disable (const void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 }
 
 static OMX_ERRORTYPE
-ar_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
+ar_prc_port_enable (const void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
   /* TODO */
   return OMX_ErrorNone;
@@ -955,31 +935,42 @@ ar_prc_init (void *ap_tos, void *ap_hdl)
   void *tizprc = tiz_get_type (ap_hdl, "tizprc");
   void *arprc_class = tiz_get_type (ap_hdl, "arprc_class");
   TIZ_LOG_CLASS (arprc_class);
-  void *arprc = factory_new (arprc_class,
-                             "arprc",
-                             tizprc,
-                             sizeof (ar_prc_t),
-                             ap_tos, ap_hdl,
-                             ctor, ar_prc_ctor,
-                             dtor, ar_prc_dtor,
-                             tiz_srv_allocate_resources,
-                             ar_prc_allocate_resources,
-                             tiz_srv_deallocate_resources,
-                             ar_prc_deallocate_resources,
-                             tiz_srv_prepare_to_transfer,
-                             ar_prc_prepare_to_transfer,
-                             tiz_srv_transfer_and_process,
-                             ar_prc_transfer_and_process,
-                             tiz_srv_stop_and_return, ar_prc_stop_and_return,
-                             tiz_prc_buffers_ready, ar_prc_buffers_ready,
-                             tiz_prc_io_ready, ar_prc_io_ready,
-                             tiz_prc_pause, ar_prc_pause,
-                             tiz_prc_resume, ar_prc_resume,
-                             tiz_prc_port_flush, ar_prc_port_flush,
-                             tiz_prc_port_disable, ar_prc_port_disable,
-                             tiz_prc_port_enable, ar_prc_port_enable,
-                             tiz_prc_config_change, ar_prc_config_change,
-                             0);
+  void *arprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (arprc_class, "arprc", tizprc, sizeof (ar_prc_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, ar_prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, ar_prc_dtor,
+     tiz_srv_allocate_resources, ar_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, ar_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, ar_prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, ar_prc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, ar_prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, ar_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_io_ready, ar_prc_io_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_pause, ar_prc_pause,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_resume, ar_prc_resume,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_flush, ar_prc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_disable, ar_prc_port_disable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, ar_prc_port_enable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_config_change, ar_prc_config_change,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return arprc;
 }

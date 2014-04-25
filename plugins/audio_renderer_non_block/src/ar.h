@@ -33,8 +33,8 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
+#include <OMX_Core.h>
+#include <OMX_Types.h>
 
 #define ARATELIA_AUDIO_RENDERER_DEFAULT_ROLE         "audio_renderer.pcm"
 #define ARATELIA_AUDIO_RENDERER_COMPONENT_NAME       "OMX.Aratelia.audio_renderer_nb.pcm"

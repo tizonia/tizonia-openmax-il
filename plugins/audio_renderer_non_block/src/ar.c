@@ -30,22 +30,20 @@
 #include <config.h>
 #endif
 
-#include "ar.h"
-#include "arprc.h"
-#include "tizscheduler.h"
-#include "tizport.h"
-#include "tizpcmport.h"
-#include "tizconfigport.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+
+#include <tizplatform.h>
+
+#include <tizport.h>
+#include <tizscheduler.h>
+
+#include "arprc.h"
+#include "ar.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -89,7 +87,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   pcmmode.ePCMMode           = OMX_AUDIO_PCMModeLinear;
   pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
   pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
-  
+
 
   volume.nSize             = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
   volume.nVersion.nVersion = OMX_VERSION;
@@ -98,7 +96,6 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   volume.sVolume.nValue    = ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE;
   volume.sVolume.nMin      = ARATELIA_AUDIO_RENDERER_MIN_VOLUME_VALUE;
   volume.sVolume.nMax      = ARATELIA_AUDIO_RENDERER_MAX_VOLUME_VALUE;
-  
 
   mute.nSize             = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
   mute.nVersion.nVersion = OMX_VERSION;
@@ -132,9 +129,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t *rf_list[] = { &role_factory };
   tiz_type_factory_t type_factory;
   const tiz_type_factory_t *tf_list[] = { &type_factory};
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: Inititializing [%s]",
-           ARATELIA_AUDIO_RENDERER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role,
           ARATELIA_AUDIO_RENDERER_DEFAULT_ROLE);
