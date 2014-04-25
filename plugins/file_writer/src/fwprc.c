@@ -187,7 +187,7 @@ static OMX_ERRORTYPE
 fw_proc_deallocate_resources (void *ap_obj)
 {
   fw_prc_t *p_prc = ap_obj;
-  assert (ap_obj);
+  assert (NULL != ap_obj);
 
   if (p_prc->p_file_)
     {
@@ -205,7 +205,7 @@ static OMX_ERRORTYPE
 fw_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   fw_prc_t *p_prc = ap_obj;
-  assert (ap_obj);
+  assert (NULL != ap_obj);
   p_prc->counter_ = 0;
   p_prc->eos_ = false;
   return OMX_ErrorNone;
@@ -215,7 +215,7 @@ static OMX_ERRORTYPE
 fw_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
   fw_prc_t *p_prc = ap_obj;
-  assert (ap_obj);
+  assert (NULL != ap_obj);
   p_prc->counter_ = 0;
   p_prc->eos_ = false;
   return OMX_ErrorNone;
@@ -298,21 +298,29 @@ fw_prc_init (void * ap_tos, void * ap_hdl)
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
   void * fwprc_class = tiz_get_type (ap_hdl, "fwprc_class");
   TIZ_LOG_CLASS (fwprc_class);
-  void * fwprc =
-    factory_new
-    (fwprc_class,
-     "fwprc",
-     tizprc,
-     sizeof (fw_prc_t),
+  void * fwprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (fwprc_class, "fwprc", tizprc, sizeof (fw_prc_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, fw_proc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, fw_proc_dtor,
-     tiz_prc_buffers_ready, fw_proc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_allocate_resources, fw_proc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_deallocate_resources, fw_proc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_prepare_to_transfer, fw_proc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_transfer_and_process, fw_proc_transfer_and_process,
-     tiz_srv_stop_and_return, fw_proc_stop_and_return, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, fw_proc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, fw_proc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return fwprc;
 }

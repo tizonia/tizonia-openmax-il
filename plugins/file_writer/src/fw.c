@@ -40,8 +40,6 @@
 #include <tizplatform.h>
 
 #include <tizport.h>
-#include <tizuricfgport.h>
-#include <tizbinaryport.h>
 #include <tizscheduler.h>
 
 #include "fw.h"
