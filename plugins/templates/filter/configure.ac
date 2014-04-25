@@ -33,13 +33,17 @@ LT_INIT
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+AC_PROG_RANLIB
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
 
 # Checks for header files.
+AC_CHECK_HEADERS([limits.h string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
 
 # Checks for library functions.
 

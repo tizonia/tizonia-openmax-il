@@ -20,46 +20,36 @@
 /**
  * @file   fr.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - File Reader component
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include "frprc.h"
-#include "tizport.h"
-#include "tizbinaryport.h"
-#include "tizscheduler.h"
-
-#include "tizplatform.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+
+#include <tizplatform.h>
+
+#include <tizport.h>
+#include <tizbinaryport.h>
+#include <tizscheduler.h>
+
+#include "frprc.h"
+#include "fr.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_reader"
 #endif
-
-#define ARATELIA_FILE_READER_DEFAULT_ROLE   "file_reader.binary"
-#define ARATELIA_FILE_READER_COMPONENT_NAME "OMX.Aratelia.file_reader.binary"
-/* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_FILE_DECODER_INPUT_PORT_INDEX        0
-#define ARATELIA_FILE_DECODER_OUTPUT_PORT_INDEX       1
-#define ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT       2
-#define ARATELIA_FILE_READER_PORT_MIN_INPUT_BUF_SIZE  8192
-#define ARATELIA_FILE_READER_PORT_MIN_OUTPUT_BUF_SIZE 8192
-#define ARATELIA_FILE_READER_PORT_NONCONTIGUOUS       OMX_FALSE
-#define ARATELIA_FILE_READER_PORT_ALIGNMENT           0
-#define ARATELIA_FILE_READER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE file_reader_version = { {1, 0, 0, 0} };
 
@@ -79,7 +69,7 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_FILE_READER_PORT_NONCONTIGUOUS,
     ARATELIA_FILE_READER_PORT_ALIGNMENT,
     ARATELIA_FILE_READER_PORT_SUPPLIERPREF,
-    {ARATELIA_FILE_DECODER_INPUT_PORT_INDEX, NULL, NULL, NULL},
+    {ARATELIA_FILE_READER_INPUT_PORT_INDEX, NULL, NULL, NULL},
     1                           /* slave port's index  */
   };
 
@@ -115,7 +105,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_FILE_READER_PORT_NONCONTIGUOUS,
     ARATELIA_FILE_READER_PORT_ALIGNMENT,
     ARATELIA_FILE_READER_PORT_SUPPLIERPREF,
-    {ARATELIA_FILE_DECODER_OUTPUT_PORT_INDEX, NULL, NULL, NULL},
+    {ARATELIA_FILE_READER_OUTPUT_PORT_INDEX, NULL, NULL, NULL},
     0                           /* Master port */
   };
 
@@ -145,7 +135,7 @@ instantiate_output_port (OMX_HANDLETYPE ap_hdl)
   mute.nVersion.nVersion = OMX_VERSION;
   mute.nPortIndex        = 1;
   mute.bMute             = OMX_FALSE;
-  
+
   return factory_new (tiz_get_type (ap_hdl, "tizpcmport"),
                       &pcm_port_opts, &encodings,
                       &pcmmode, &volume, &mute);
@@ -173,9 +163,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t *rf_list[] = { &role_factory };
   tiz_type_factory_t frprc_type;
   const tiz_type_factory_t *tf_list[] = { &frprc_type};
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
-           "Inititializing [%s]", ARATELIA_FILE_READER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_FILE_READER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;

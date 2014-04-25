@@ -59,6 +59,7 @@ sub init() {
         process_src_makefile_am( $opt{l}, $opt{a} );
         rename_src_files( $opt{a} );
         process_src_fr_c( $opt{n}, $opt{r}, $opt{a} );
+        process_src_fr_h( $opt{n}, $opt{r}, $opt{a} );
         process_src_frprc_c( $opt{n}, $opt{r}, $opt{a} );
         process_src_frprc_decls_h( $opt{n}, $opt{r}, $opt{a} );
         process_src_frprc_h( $opt{n}, $opt{r}, $opt{a} );
@@ -109,6 +110,7 @@ sub process_src_makefile_am {
         s/libtizfr/$lib/gm;
         s/frprc/$acrprc/gm;
         s/fr.c/$acr.c/gxm;
+        s/fr.h/$acr.h/gxm;
     }
     untie @lines;
 
@@ -123,6 +125,13 @@ sub rename_src_files {
 
     if ( -e $fr_c ) {
         rename $fr_c => $new_fr_c;
+    }
+
+    my $fr_h     = "template/src/fr.h";
+    my $new_fr_h = "template/src/" . "$acr" . ".h";
+
+    if ( -e $fr_h ) {
+        rename $fr_h => $new_fr_h;
     }
 
     my $frprc_c     = "template/src/frprc.c";
@@ -171,6 +180,7 @@ sub process_src_fr_c {
     my $fr_         = $acr . "_";
 
     foreach (@lines) {
+        s/fr.h/$acr.h/gxm;
         s/fr.c/$acr.c/gxm;
         s/fr_/$fr_/gxm;
         s/frprc/$acrprc/gxm;
@@ -181,7 +191,45 @@ sub process_src_fr_c {
     }
     untie @lines;
 
-    $file = "src/" . "$acr" . "c";
+    $file = "src/" . "$acr" . ".c";
+    print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " $file\n";
+    return;
+}
+
+sub process_src_fr_h {
+    my $name = $_[0];
+    my $role = $_[1];
+    my $acr  = $_[2];
+    my @data = ();
+
+    @data = split( /\./xm, $role );
+    my $category = $data[1];
+    @data = split( /_/xm, $data[0] );
+    $category = $category . "_" . "$data[1]";
+
+    my $file = "template/src/" . "$acr" . ".h";
+
+    my @lines = ();
+    tie @lines, 'Tie::File', "$file" or die "Can't read file: $!\n";
+
+    my $acr_uc      = uc $acr;
+    my $acrprc      = $acr . "prc";
+    my $category_uc = uc $category;
+    my $fr_         = $acr . "_";
+
+    foreach (@lines) {
+        s/fr.h/$acr.h/gxm;
+        s/fr_/$fr_/gxm;
+        s/frprc/$acrprc/gxm;
+        s/file_reader.binary/$role/gxm;
+        s/file_reader/$category/gxm;
+        s/FILE_READER/$category_uc/gxm;
+        s/FR/$acr_uc/gxm;
+        s/File\ Reader/$name/gxm;
+    }
+    untie @lines;
+
+    $file = "src/" . "$acr" . ".h";
     print BOLD GREEN, "[DONE]", BOLD BRIGHT_BLUE, " $file\n";
     return;
 }
@@ -207,6 +255,7 @@ sub process_src_frprc_c {
     my $fr_         = $acr . "_";
 
     foreach (@lines) {
+        s/fr.h/$acr.h/gxm;
         s/fr.c/$acr.c/gxm;
         s/fr_/$fr_/gxm;
         s/frprc/$acrprc/gxm;

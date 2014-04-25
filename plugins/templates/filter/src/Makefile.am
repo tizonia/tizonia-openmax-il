@@ -18,6 +18,7 @@
 lib_LTLIBRARIES = libtizfr.la
 
 noinst_HEADERS = \
+	fr.h \
 	frprc.h \
 	frprc_decls.h
 

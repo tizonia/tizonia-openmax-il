@@ -33,12 +33,14 @@ extern "C"
 {
 #endif
 
-#include "frprc.h"
-#include "tizprc_decls.h"
-
-#include "OMX_Core.h"
-
 #include <stdbool.h>
+
+#include <OMX_Core.h>
+
+#include <tizprc_decls.h>
+
+#include "frprc.h"
+
 
   typedef struct fr_prc fr_prc_t;
   struct frprc
