@@ -33,9 +33,9 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
+#include <OMX_Core.h>
+#include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
 
 /* 120ms at 48000 */
 #define OPUS_MAX_FRAME_SIZE (960*6)

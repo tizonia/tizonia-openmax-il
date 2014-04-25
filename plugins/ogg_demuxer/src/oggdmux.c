@@ -183,9 +183,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_type_factory_t oggdmuxprc_type;
   const tiz_type_factory_t *tf_list[] = { &oggdmuxprc_type };
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
-           "Inititializing [%s]", ARATELIA_OGG_DEMUXER_COMPONENT_NAME);
-
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_OGG_DEMUXER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;
   role_factory.pf_port[0] = instantiate_audio_output_port;

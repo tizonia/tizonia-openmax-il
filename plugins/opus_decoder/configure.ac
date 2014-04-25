@@ -38,16 +38,26 @@ PKG_PROG_PKG_CONFIG()
 # Checks for libraries.
 PKG_CHECK_MODULES([OPUS], [opus >= 1.1], [HAVE_OPUS=yes], [HAVE_OPUS=no])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
+AC_CHECK_LIB([m], [pow])
 
 if test "x$HAVE_OPUS" = "xno"; then
    AC_MSG_ERROR([Please install libopus version 1.1 or later.])
 fi
 
 # Checks for header files.
+AC_CHECK_HEADERS([fcntl.h limits.h stdlib.h string.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
 
 # Checks for library functions.
+AC_FUNC_FORK
+AC_CHECK_FUNCS([pow strndup])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile

@@ -30,22 +30,21 @@
 #include <config.h>
 #endif
 
-#include "opusd.h"
-#include "opusdprc.h"
-#include "tizport.h"
-#include "tizopusport.h"
-#include "tizpcmport.h"
-#include "tizconfigport.h"
-#include "tizscheduler.h"
-#include "tizplatform.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
+
+#include <tizplatform.h>
+
+#include <tizport.h>
+#include <tizscheduler.h>
+
+#include "opusdprc.h"
+#include "opusd.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -176,9 +175,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.pf_port[1] = instantiate_pcm_port;
   role_factory.nports     = 2;
   role_factory.pf_proc    = instantiate_processor;
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
-           "Inititializing [%s]", ARATELIA_OPUS_DECODER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) opusdprc_type.class_name, "opusdprc_class");
   opusdprc_type.pf_class_init = opusd_prc_class_init;

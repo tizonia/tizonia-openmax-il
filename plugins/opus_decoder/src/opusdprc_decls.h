@@ -34,14 +34,11 @@ extern "C"
 {
 #endif
 
-#include "opusdprc.h"
-#include "tizprc_decls.h"
-
-#include "OMX_Core.h"
-
 #include <stdbool.h>
 #include <opus.h>
 #include <opus_multistream.h>
+
+#include <tizprc_decls.h>
 
   typedef struct opusd_prc opusd_prc_t;
   struct opusd_prc
