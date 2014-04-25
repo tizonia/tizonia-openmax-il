@@ -300,24 +300,33 @@ fr_prc_class_init (void * ap_tos, void * ap_hdl)
 void *
 fr_prc_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * tizprc      = tiz_get_type (ap_hdl, "tizprc");
   void * frprc_class = tiz_get_type (ap_hdl, "frprc_class");
   TIZ_LOG_CLASS (frprc_class);
-  void * frprc =
+  void * frprc       = 
     factory_new
-    (frprc_class,
-     "frprc",
-     tizprc,
-     sizeof (fr_prc_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (frprc_class, "frprc", tizprc, sizeof (fr_prc_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, fr_prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, fr_prc_dtor,
-     tiz_prc_buffers_ready, fr_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_allocate_resources, fr_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_deallocate_resources, fr_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_prepare_to_transfer, fr_prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_transfer_and_process, fr_prc_transfer_and_process,
-     tiz_srv_stop_and_return, fr_prc_stop_and_return, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, fr_prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, fr_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return frprc;
 }
