@@ -30,21 +30,20 @@
 #include <config.h>
 #endif
 
-#include "oggdmux.h"
-#include "oggdmuxprc.h"
-#include "tizport.h"
-#include "tizdemuxercfgport.h"
-#include "tizdemuxerport.h"
-#include "tizscheduler.h"
-
-#include "tizplatform.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+
+#include <tizplatform.h>
+
+#include <tizport.h>
+#include <tizscheduler.h>
+
+#include "oggdmuxprc.h"
+#include "oggdmux.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

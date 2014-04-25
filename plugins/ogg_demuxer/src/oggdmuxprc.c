@@ -40,6 +40,7 @@
 
 #include <tizkernel.h>
 
+#include "oggdmux.h"
 #include "oggdmuxprc_decls.h"
 #include "oggdmuxprc.h"
 
@@ -47,13 +48,6 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.ogg_demuxer.prc"
 #endif
-
-#define TIZ_OGG_DEMUXER_INITIAL_READ_BLOCKSIZE 16384
-#define TIZ_OGG_DEMUXER_DEFAULT_READ_BLOCKSIZE 512
-
-#define TIZ_OGG_DEMUXER_DEFAULT_BUFFER_UTILISATION .75
-
-#define ALL_OGG_STREAMS -1
 
 #ifdef _DEBUG
 static int g_total_read = 0;
@@ -1241,13 +1235,16 @@ oggdmux_prc_class_ctor (void *ap_obj, va_list * app)
 void *
 oggdmux_prc_class_init (void *ap_tos, void *ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *oggdmuxprc_class = factory_new (classOf (tizprc),
-                                        "oggdmuxprc_class",
-                                        classOf (tizprc),
-                                        sizeof (oggdmux_prc_class_t),
-                                        ap_tos, ap_hdl,
-                                        ctor, oggdmux_prc_class_ctor, 0);
+  void *tizprc           = tiz_get_type (ap_hdl, "tizprc");
+  void *oggdmuxprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "oggdmuxprc_class", classOf (tizprc), sizeof (oggdmux_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, oggdmux_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return oggdmuxprc_class;
 }
 
@@ -1256,23 +1253,35 @@ oggdmux_prc_init (void *ap_tos, void *ap_hdl)
 {
   void *tizprc = tiz_get_type (ap_hdl, "tizprc");
   void *oggdmuxprc_class = tiz_get_type (ap_hdl, "oggdmuxprc_class");
-  void *oggdmuxprc = factory_new (oggdmuxprc_class,
-                                  "oggdmuxprc",
-                                  tizprc,
-                                  sizeof (oggdmux_prc_t),
-                                  ap_tos, ap_hdl,
-                                  ctor, oggdmux_prc_ctor,
-                                  dtor, oggdmux_prc_dtor,
-                                  tiz_prc_buffers_ready, oggdmux_prc_buffers_ready,
-                                  tiz_srv_allocate_resources, oggdmux_prc_allocate_resources,
-                                  tiz_srv_deallocate_resources, oggdmux_prc_deallocate_resources,
-                                  tiz_srv_prepare_to_transfer, oggdmux_prc_prepare_to_transfer,
-                                  tiz_srv_transfer_and_process, oggdmux_prc_transfer_and_process,
-                                  tiz_srv_stop_and_return, oggdmux_prc_stop_and_return,
-                                  tiz_prc_port_flush, oggdmux_prc_port_flush,
-                                  tiz_prc_port_disable, oggdmux_prc_port_disable,
-                                  tiz_prc_port_enable, oggdmux_prc_port_enable,
-                                  0);
+  void *oggdmuxprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (oggdmuxprc_class, "oggdmuxprc", tizprc, sizeof (oggdmux_prc_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, oggdmux_prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, oggdmux_prc_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, oggdmux_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, oggdmux_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, oggdmux_prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, oggdmux_prc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, oggdmux_prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_flush, oggdmux_prc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_disable, oggdmux_prc_port_disable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, oggdmux_prc_port_enable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, oggdmux_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return oggdmuxprc;
 }

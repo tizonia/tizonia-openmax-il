@@ -33,9 +33,9 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
+#include <OMX_Core.h>
+#include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
 
 #define ARATELIA_OGG_DEMUXER_DEFAULT_ROLE                   OMX_ROLE_CONTAINER_DEMUXER_OGG
 #define ARATELIA_OGG_DEMUXER_COMPONENT_NAME                 "OMX.Aratelia.container_demuxer.ogg"
@@ -48,6 +48,10 @@ extern "C"
 #define ARATELIA_OGG_DEMUXER_PORT_NONCONTIGUOUS             OMX_FALSE
 #define ARATELIA_OGG_DEMUXER_PORT_ALIGNMENT                 0
 #define ARATELIA_OGG_DEMUXER_PORT_SUPPLIERPREF              OMX_BufferSupplyInput
+#define TIZ_OGG_DEMUXER_INITIAL_READ_BLOCKSIZE              16384
+#define TIZ_OGG_DEMUXER_DEFAULT_READ_BLOCKSIZE              512
+#define TIZ_OGG_DEMUXER_DEFAULT_BUFFER_UTILISATION          .75
+#define ALL_OGG_STREAMS                                     -1
 
 #ifdef __cplusplus
 }

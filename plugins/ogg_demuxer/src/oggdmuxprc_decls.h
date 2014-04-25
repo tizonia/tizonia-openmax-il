@@ -34,14 +34,10 @@ extern "C"
 {
 #endif
 
-#include "oggdmux.h"
-#include "oggdmuxprc.h"
-#include "tizprc_decls.h"
-
-#include "OMX_Core.h"
-
 #include <stdbool.h>
 #include <oggz/oggz.h>
+
+#include <tizprc_decls.h>
 
   typedef struct oggdmux_prc oggdmux_prc_t;
   struct oggdmux_prc

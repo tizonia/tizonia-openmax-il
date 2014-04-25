@@ -425,32 +425,32 @@ void *mp3meta_prc_init (void *ap_tos, void *ap_hdl)
   void *mp3metaprc_class = tiz_get_type (ap_hdl, "mp3metaprc_class");
   TIZ_LOG_CLASS (mp3metaprc_class);
   void *mp3metaprc = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (mp3metaprc_class, "mp3metaprc", tizprc, sizeof(mp3meta_prc_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, mp3meta_prc_ctor,
-       /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, mp3meta_prc_dtor,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_allocate_resources, mp3meta_prc_allocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_deallocate_resources, mp3meta_prc_deallocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_prepare_to_transfer, mp3meta_prc_prepare_to_transfer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_transfer_and_process, mp3meta_prc_transfer_and_process,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stop_and_return, mp3meta_prc_stop_and_return,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, mp3meta_prc_buffers_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_enable, mp3meta_prc_port_enable,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_disable, mp3meta_prc_port_disable,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (mp3metaprc_class, "mp3metaprc", tizprc, sizeof(mp3meta_prc_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, mp3meta_prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, mp3meta_prc_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, mp3meta_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, mp3meta_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, mp3meta_prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, mp3meta_prc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, mp3meta_prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, mp3meta_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, mp3meta_prc_port_enable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_disable, mp3meta_prc_port_disable,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return mp3metaprc;
 }
