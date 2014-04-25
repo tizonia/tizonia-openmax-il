@@ -38,8 +38,6 @@ extern "C"
 
 #include <tizprc_decls.h>
 
-#include "frprc.h"
-
   typedef struct fr_prc fr_prc_t;
   struct fr_prc
   {

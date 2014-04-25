@@ -41,7 +41,6 @@
 #include <tizplatform.h>
 
 #include <tizkernel.h>
-#include <tizscheduler.h>
 
 #include "fr.h"
 #include "frprc_decls.h"
