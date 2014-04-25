@@ -39,8 +39,12 @@ PKG_PROG_PKG_CONFIG()
 PKG_CHECK_MODULES([LIBMPG123], [libmpg123 >= 1.16.0])
 
 # Checks for header files.
+AC_CHECK_HEADERS([limits.h string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_SIZE_T
 
 # Checks for library functions.
 

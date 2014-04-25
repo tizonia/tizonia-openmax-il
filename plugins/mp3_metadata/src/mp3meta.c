@@ -40,7 +40,6 @@
 #include <tizplatform.h>
 
 #include <tizport.h>
-#include <tizmp3port.h>
 #include <tizscheduler.h>
 
 #include "mp3metaprc.h"
@@ -104,11 +103,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t *rf_list[] = { &role_factory };
   tiz_type_factory_t mp3metaprc_type;
   const tiz_type_factory_t *tf_list[] = { &mp3metaprc_type };
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE,
-           "OMX_ComponentInit: "
-           "Inititializing [%s]",
-           ARATELIA_MP3_METADATA_ERASER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING)role_factory.role,
           ARATELIA_MP3_METADATA_ERASER_DEFAULT_ROLE);

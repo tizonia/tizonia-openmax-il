@@ -35,9 +35,10 @@
 #include <limits.h>
 #include <string.h>
 
+#include <tizplatform.h>
+
 #include <tizkernel.h>
 #include <tizscheduler.h>
-#include <tizplatform.h>
 
 #include "mp3meta.h"
 #include "mp3metaprc.h"
@@ -406,9 +407,15 @@ void *mp3meta_prc_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizprc = tiz_get_type (ap_hdl, "tizprc");
   void *mp3metaprc_class
-      = factory_new (classOf (tizprc), "mp3metaprc_class", classOf (tizprc),
-                     sizeof(mp3meta_prc_class_t), ap_tos, ap_hdl, ctor,
-                     mp3meta_prc_class_ctor, 0);
+    = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "mp3metaprc_class", classOf (tizprc), sizeof(mp3meta_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl, ctor,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     mp3meta_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return mp3metaprc_class;
 }
 
