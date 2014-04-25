@@ -159,7 +159,6 @@ retrieve_mp3_settings (const void *ap_prc,
                        OMX_AUDIO_PARAM_MP3TYPE * ap_mp3type)
 {
   const icer_prc_t *p_prc = ap_prc;
-
   assert (NULL != ap_prc);
   assert (NULL != ap_mp3type);
 
@@ -177,8 +176,7 @@ retrieve_mountpoint_settings (const void *ap_prc,
                               ap_mountpoint)
 {
   const icer_prc_t *p_prc = ap_prc;
-
-  assert (NULL != ap_prc);
+  assert (NULL != p_prc);
   assert (NULL != ap_mountpoint);
 
   /* Retrieve the mountpoint settings from the input port */
@@ -201,6 +199,7 @@ static void *
 icer_prc_ctor (void *ap_prc, va_list * app)
 {
   icer_prc_t *p_prc = super_ctor (typeOf (ap_prc, "icerprc"), ap_prc, app);
+  assert (NULL != p_prc);
   p_prc->mount_name_ = NULL;
   p_prc->awaiting_buffers_ = true;
   p_prc->port_disabled_ = false;
@@ -225,8 +224,7 @@ static OMX_ERRORTYPE
 icer_prc_allocate_resources (void *ap_prc, OMX_U32 a_pid)
 {
   icer_prc_t *p_prc = ap_prc;
-
-  assert (NULL != ap_prc);
+  assert (NULL != p_prc);
 
   /* Retrieve http server configuration from the component's config port */
   TIZ_INIT_OMX_STRUCT (p_prc->server_info_);
@@ -254,7 +252,7 @@ static OMX_ERRORTYPE
 icer_prc_deallocate_resources (void *ap_prc)
 {
   icer_prc_t *p_prc = ap_prc;
-  assert (NULL != ap_prc);
+  assert (NULL != p_prc);
   icer_net_server_destroy (p_prc->p_server_);
   p_prc->p_server_ = NULL;
   return OMX_ErrorNone;
@@ -265,7 +263,7 @@ icer_prc_prepare_to_transfer (void *ap_prc, OMX_U32 a_pid)
 {
   icer_prc_t *p_prc = ap_prc;
 
-  assert (NULL != ap_prc);
+  assert (NULL != p_prc);
 
   p_prc->lstn_sockfd_ = icer_net_get_server_fd (p_prc->p_server_);
 
@@ -446,10 +444,8 @@ static OMX_ERRORTYPE
 icer_prc_timer_ready (void *ap_prc, tiz_event_timer_t * ap_ev_timer,
                       void *ap_arg)
 {
-  icer_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
-  TIZ_NOTICE (handleOf (p_prc), "Received timer event ");
-  return stream_to_clients (p_prc);
+  TIZ_NOTICE (handleOf (ap_prc), "Received timer event ");
+  return stream_to_clients (ap_prc);
 }
 
 /*
@@ -471,12 +467,15 @@ void *
 icer_prc_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * icerprc_class = factory_new (classOf (tizprc),
-                                      "icerprc_class",
-                                      classOf (tizprc),
-                                      sizeof (icer_prc_class_t),
-                                      ap_tos, ap_hdl,
-                                      ctor, icer_prc_class_ctor, 0);
+  void * icerprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "icerprc_class", classOf (tizprc), sizeof (icer_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, icer_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
   return icerprc_class;
 }
 
@@ -488,24 +487,38 @@ icer_prc_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (icerprc_class);
   void * icerprc =
     factory_new
-    (icerprc_class,
-     "icerprc",
-     tizprc,
-     sizeof (icer_prc_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (icerprc_class, "icerprc", tizprc, sizeof (icer_prc_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, icer_prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, icer_prc_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_allocate_resources, icer_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_deallocate_resources, icer_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_prepare_to_transfer, icer_prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_transfer_and_process, icer_prc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_stop_and_return, icer_prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_buffers_ready, icer_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_port_enable, icer_prc_port_enable,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_port_disable, icer_prc_port_disable,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_config_change, icer_prc_config_change,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_io_ready, icer_prc_io_ready,
-     tiz_prc_timer_ready, icer_prc_timer_ready, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_timer_ready, icer_prc_timer_ready,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return icerprc;
 }

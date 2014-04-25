@@ -34,14 +34,17 @@ extern "C"
 {
 #endif
 
-#include "icerprc.h"
-#include "tizprc_decls.h"
-#include "icernet.h"
-#include "tizplatform.h"
-
-#include "OMX_TizoniaExt.h"
-
 #include <stdbool.h>
+
+#include <OMX_TizoniaExt.h>
+
+#include <tizplatform.h>
+
+#include <tizprc_decls.h>
+
+#include "icerprc.h"
+#include "icernet.h"
+
 
   typedef struct icer_prc icer_prc_t;
   struct icer_prc

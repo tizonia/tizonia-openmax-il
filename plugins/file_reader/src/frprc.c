@@ -300,10 +300,10 @@ fr_prc_class_init (void * ap_tos, void * ap_hdl)
 void *
 fr_prc_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizprc      = tiz_get_type (ap_hdl, "tizprc");
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
   void * frprc_class = tiz_get_type (ap_hdl, "frprc_class");
   TIZ_LOG_CLASS (frprc_class);
-  void * frprc       = 
+  void * frprc =
     factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
     (frprc_class, "frprc", tizprc, sizeof (fr_prc_t),

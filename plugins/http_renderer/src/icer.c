@@ -37,9 +37,10 @@
 #include <OMX_Component.h>
 #include <OMX_Types.h>
 
+#include <tizplatform.h>
+
 #include <tizport.h>
 #include <tizscheduler.h>
-#include <tizplatform.h>
 
 #include "icerprc.h"
 #include "icermp3port.h"

@@ -34,10 +34,10 @@ extern "C"
 {
 #endif
 
-#include "tizmp3port_decls.h"
+#include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
 
-#include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
+#include <tizmp3port_decls.h>
 
   typedef struct icer_mp3port icer_mp3port_t;
   struct icer_mp3port

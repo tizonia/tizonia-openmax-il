@@ -34,10 +34,10 @@ extern "C"
 {
 #endif
 
-#include "tizconfigport_decls.h"
+#include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
 
-#include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
+#include <tizconfigport_decls.h>
 
   typedef struct icer_cfgport icer_cfgport_t;
   struct icer_cfgport
