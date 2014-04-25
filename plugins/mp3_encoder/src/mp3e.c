@@ -30,44 +30,27 @@
 #include <config.h>
 #endif
 
-#include "mp3eprc.h"
-#include "tizport.h"
-#include "tizmp3port.h"
-#include "tizpcmport.h"
-#include "tizconfigport.h"
-#include "tizscheduler.h"
-
-#include "tizplatform.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include <assert.h>
 #include <string.h>
+
 #include <mad.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+
+#include <tizplatform.h>
+
+#include <tizport.h>
+#include <tizscheduler.h>
+
+#include "mp3eprc.h"
+#include "mp3e.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.mp3_encoder"
 #endif
-
-#define ARATELIA_MP3_ENCODER_DEFAULT_ROLE "audio_encoder.mp3"
-#define ARATELIA_MP3_ENCODER_COMPONENT_NAME "OMX.Aratelia.audio_encoder.mp3"
-
-/* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_MP3_ENCODER_INPUT_PORT_INDEX  0
-#define ARATELIA_MP3_ENCODER_OUTPUT_PORT_INDEX 1
-
-#define ARATELIA_MP3_ENCODER_PORT_MIN_BUF_COUNT       2
-/* Assuming worst case of 16 bit per sample per channel adn 48khz, lets try to
-   fit 25ms of audio (1200 samples per channel) */
-#define ARATELIA_MP3_ENCODER_PORT_MIN_INPUT_BUF_SIZE  (2*4800)
-/* output buffer size in bytes = 1.25*num_samples + 7200 */
-#define ARATELIA_MP3_ENCODER_PORT_MIN_OUTPUT_BUF_SIZE 10200
-#define ARATELIA_MP3_ENCODER_PORT_NONCONTIGUOUS       OMX_FALSE
-#define ARATELIA_MP3_ENCODER_PORT_ALIGNMENT           0
-#define ARATELIA_MP3_ENCODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE mp3_encoder_version = { {1, 0, 0, 0} };
 

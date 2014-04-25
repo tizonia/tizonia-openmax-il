@@ -38,6 +38,7 @@
 
 #include <tizkernel.h>
 
+#include "mp3e.h"
 #include "mp3eprc.h"
 #include "mp3eprc_decls.h"
 
@@ -55,18 +56,24 @@ release_buffers (const void *ap_obj)
 
   if (p_obj->p_inhdr_)
     {
-      tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 0, p_obj->p_inhdr_);
+      tiz_check_omx_err
+        (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                 ARATELIA_MP3_ENCODER_INPUT_PORT_INDEX,
+                                 p_obj->p_inhdr_));
       p_obj->p_inhdr_ = NULL;
     }
 
   if (p_obj->p_outhdr_)
     {
-      tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->p_outhdr_);
+      tiz_check_omx_err
+        (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                 ARATELIA_MP3_ENCODER_OUTPUT_PORT_INDEX,
+                                 p_obj->p_outhdr_));
       p_obj->p_outhdr_ = NULL;
     }
 
   p_obj->frame_size_ = 0;
-  if (false == p_obj->lame_flushed_)
+  if (!p_obj->lame_flushed_)
     {
       if (NULL != p_obj->lame_)
         {
@@ -158,7 +165,9 @@ encode_buffer (const void *ap_obj)
           || encoded_bytes == -1)
         {
           p_obj->p_outhdr_->nOffset = 0;
-          tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->p_outhdr_);
+          tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
+                                  ARATELIA_MP3_ENCODER_OUTPUT_PORT_INDEX,
+                                  p_obj->p_outhdr_);
           p_obj->p_outhdr_ = NULL;
         }
 
@@ -239,36 +248,36 @@ claim_output (const void *ap_obj)
 static OMX_ERRORTYPE
 set_lame_pcm_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
 {
-  mp3e_prc_t *p_obj = ap_obj;
+  mp3e_prc_t *p_prc = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
-  assert (ap_obj);
-  assert (ap_hdl);
-  assert (ap_krn);
+  assert (NULL != p_prc);
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_krn);
 
   /* Retrieve pcm params from port */
-  p_obj->pcmmode_.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  p_obj->pcmmode_.nVersion.nVersion = OMX_VERSION;
-  p_obj->pcmmode_.nPortIndex = 0;
+  p_prc->pcmmode_.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+  p_prc->pcmmode_.nVersion.nVersion = OMX_VERSION;
+  p_prc->pcmmode_.nPortIndex = ARATELIA_MP3_ENCODER_INPUT_PORT_INDEX;
   if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                         (ap_krn, ap_hdl,
-                         OMX_IndexParamAudioPcm, &p_obj->pcmmode_)))
+                         OMX_IndexParamAudioPcm, &p_prc->pcmmode_)))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : Error retrieving pcm params from port",
-               tiz_err_to_str (ret_val));
+      TIZ_ERROR (handleOf (p_prc), "[%s] : Error retrieving pcm params from port",
+                 tiz_err_to_str (ret_val));
       return ret_val;
     }
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "nChannels = [%d] nBitPerSample = [%d] "
-           "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
-           "bInterleaved = [%s] ePCMMode = [%d]",
-           p_obj->pcmmode_.nChannels,
-           p_obj->pcmmode_.nBitPerSample,
-           p_obj->pcmmode_.nSamplingRate,
-           p_obj->pcmmode_.eNumData,
-           p_obj->pcmmode_.eEndian,
-           p_obj->pcmmode_.bInterleaved ? "OMX_TRUE" : "OMX_FALSE",
-           p_obj->pcmmode_.ePCMMode);
+  TIZ_TRACE (handleOf (p_prc), "nChannels = [%d] nBitPerSample = [%d] "
+             "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
+             "bInterleaved = [%s] ePCMMode = [%d]",
+             p_prc->pcmmode_.nChannels,
+             p_prc->pcmmode_.nBitPerSample,
+             p_prc->pcmmode_.nSamplingRate,
+             p_prc->pcmmode_.eNumData,
+             p_prc->pcmmode_.eEndian,
+             p_prc->pcmmode_.bInterleaved ? "OMX_TRUE" : "OMX_FALSE",
+             p_prc->pcmmode_.ePCMMode);
 
   return ret_val;
 }
@@ -276,41 +285,41 @@ set_lame_pcm_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
 static OMX_ERRORTYPE
 set_lame_mp3_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
 {
-  mp3e_prc_t *p_obj = ap_obj;
+  mp3e_prc_t *p_prc = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   int lame_mode = 0;
 
-  assert (ap_obj);
-  assert (ap_hdl);
-  assert (ap_krn);
+  assert (NULL != p_prc);
+  assert (NULL != ap_hdl);
+  assert (NULL != ap_krn);
 
   /* Retrieve mp3 params from port */
-  p_obj->mp3type_.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
-  p_obj->mp3type_.nVersion.nVersion = OMX_VERSION;
-  p_obj->mp3type_.nPortIndex = 1;
+  p_prc->mp3type_.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
+  p_prc->mp3type_.nVersion.nVersion = OMX_VERSION;
+  p_prc->mp3type_.nPortIndex = 1;
   if (OMX_ErrorNone != (ret_val = tiz_api_GetParameter
                         (ap_krn, ap_hdl,
-                         OMX_IndexParamAudioMp3, &p_obj->mp3type_)))
+                         OMX_IndexParamAudioMp3, &p_prc->mp3type_)))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : Error retrieving mp3 params from port",
-               tiz_err_to_str (ret_val));
+      TIZ_ERROR (handleOf (p_prc), "[%s] : Error retrieving mp3 params from port",
+                 tiz_err_to_str (ret_val));
       return ret_val;
     }
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "nChannels = [%d] nBitRate = [%d] "
-           "nSampleRate = [%d] nAudioBandWidth = [%d] eChannelMode = [%d] "
-           "eFormat = [%d]",
-           p_obj->mp3type_.nChannels,
-           p_obj->mp3type_.nBitRate,
-           p_obj->mp3type_.nSampleRate,
-           p_obj->mp3type_.nAudioBandWidth,
-           p_obj->mp3type_.eChannelMode, p_obj->mp3type_.eFormat);
+  TIZ_ERROR (handleOf (p_prc), "nChannels = [%d] nBitRate = [%d] "
+             "nSampleRate = [%d] nAudioBandWidth = [%d] eChannelMode = [%d] "
+             "eFormat = [%d]",
+             p_prc->mp3type_.nChannels,
+             p_prc->mp3type_.nBitRate,
+             p_prc->mp3type_.nSampleRate,
+             p_prc->mp3type_.nAudioBandWidth,
+             p_prc->mp3type_.eChannelMode, p_prc->mp3type_.eFormat);
 
-  (void) lame_set_num_channels (p_obj->lame_, p_obj->mp3type_.nChannels);
-  (void) lame_set_in_samplerate (p_obj->lame_, p_obj->mp3type_.nSampleRate);
-  (void) lame_set_brate (p_obj->lame_, p_obj->mp3type_.nBitRate);
+  (void) lame_set_num_channels (p_prc->lame_, p_prc->mp3type_.nChannels);
+  (void) lame_set_in_samplerate (p_prc->lame_, p_prc->mp3type_.nSampleRate);
+  (void) lame_set_brate (p_prc->lame_, p_prc->mp3type_.nBitRate);
 
-  switch (p_obj->mp3type_.eChannelMode)
+  switch (p_prc->mp3type_.eChannelMode)
     {
     case OMX_AUDIO_ChannelModeStereo:
       {
@@ -340,8 +349,8 @@ set_lame_mp3_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
       }
     };
 
-  (void) lame_set_mode (p_obj->lame_, lame_mode);
-  (void) lame_set_quality (p_obj->lame_, 2);    /* 2=high  5 = medium  7=low */
+  (void) lame_set_mode (p_prc->lame_, lame_mode);
+  (void) lame_set_quality (p_prc->lame_, 2);    /* 2=high  5 = medium  7=low */
 
   return ret_val;
 }
@@ -353,25 +362,27 @@ set_lame_mp3_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
 static void *
 mp3e_proc_ctor (void *ap_obj, va_list * app)
 {
-  mp3e_prc_t *p_obj = super_ctor (typeOf (ap_obj, "mp3eprc"), ap_obj, app);
-  p_obj->lame_ = NULL;
-  p_obj->frame_size_ = 0;
-  p_obj->p_inhdr_ = 0;
-  p_obj->p_outhdr_ = 0;
-  p_obj->eos_ = false;
-  p_obj->lame_flushed_ = true;
-  return p_obj;
+  mp3e_prc_t *p_prc = super_ctor (typeOf (ap_obj, "mp3eprc"), ap_obj, app);
+  assert (NULL != p_prc);
+  p_prc->lame_ = NULL;
+  p_prc->frame_size_ = 0;
+  p_prc->p_inhdr_ = 0;
+  p_prc->p_outhdr_ = 0;
+  p_prc->eos_ = false;
+  p_prc->lame_flushed_ = true;
+  return p_prc;
 }
 
 static void *
 mp3e_proc_dtor (void *ap_obj)
 {
-  mp3e_prc_t *p_obj = ap_obj;
+  mp3e_prc_t *p_prc = ap_obj;
+  assert (NULL != p_prc);
 
-  if (NULL != p_obj->lame_)
+  if (NULL != p_prc->lame_)
     {
-      lame_close (p_obj->lame_);
-      p_obj->lame_ = NULL;
+      lame_close (p_prc->lame_);
+      p_prc->lame_ = NULL;
     }
 
   return super_dtor (typeOf (ap_obj, "mp3eprc"), ap_obj);
@@ -384,23 +395,23 @@ mp3e_proc_dtor (void *ap_obj)
 static OMX_ERRORTYPE
 mp3e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  mp3e_prc_t *p_obj = ap_obj;
-  assert (ap_obj);
+  mp3e_prc_t *p_prc = ap_obj;
+  assert (NULL != p_prc);
 
-  if (NULL == (p_obj->lame_ = lame_init ()))
+  if (NULL == (p_prc->lame_ = lame_init ()))
     {
-      TIZ_ERROR (handleOf (ap_obj),
+      TIZ_ERROR (handleOf (p_prc),
                 "[OMX_ErrorInsufficientResources] : "
                 "lame encoder initialization error");
       return OMX_ErrorInsufficientResources;
     }
 
-  TIZ_TRACE (handleOf (ap_obj),
+  TIZ_TRACE (handleOf (p_prc),
             "lame encoder version [%s]", get_lame_version ());
 
-  (void) lame_set_errorf (p_obj->lame_, lame_debugf);
-  (void) lame_set_debugf (p_obj->lame_, lame_debugf);
-  (void) lame_set_msgf (p_obj->lame_, lame_debugf);
+  (void) lame_set_errorf (p_prc->lame_, lame_debugf);
+  (void) lame_set_debugf (p_prc->lame_, lame_debugf);
+  (void) lame_set_msgf (p_prc->lame_, lame_debugf);
 
   return OMX_ErrorNone;
 }
@@ -408,73 +419,67 @@ mp3e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 mp3e_proc_deallocate_resources (void *ap_obj)
 {
-  mp3e_prc_t *p_obj = ap_obj;
-  assert (ap_obj);
+  mp3e_prc_t *p_prc = ap_obj;
+  assert (NULL != p_prc);
 
-  if (NULL != p_obj->lame_)
+  if (NULL != p_prc->lame_)
     {
-      lame_close (p_obj->lame_);
-      p_obj->lame_ = NULL;
+      lame_close (p_prc->lame_);
+      p_prc->lame_ = NULL;
     }
 
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-mp3e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+mp3e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  mp3e_prc_t *p_obj = ap_obj;
-  void *p_krn = NULL;
+  mp3e_prc_t *p_prc = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
-  assert (ap_obj);
+  assert (NULL != p_prc);
 
-  p_krn = tiz_get_krn (handleOf (ap_obj));
-  assert (p_krn);
-
-  if (NULL == p_obj->lame_)
+  if (NULL == p_prc->lame_)
     {
       return OMX_ErrorNone;
     }
 
-  if (OMX_ErrorNone != (ret_val = set_lame_mp3_settings (p_obj,
-                                                         handleOf (ap_obj),
-                                                         tiz_get_krn (handleOf (ap_obj)))))
+  if (OMX_ErrorNone != (ret_val = set_lame_mp3_settings (p_prc,
+                                                         handleOf (p_prc),
+                                                         tiz_get_krn (handleOf (p_prc)))))
     {
       return ret_val;
     }
 
-  if (OMX_ErrorNone != (ret_val = set_lame_pcm_settings (p_obj,
-                                                         handleOf (ap_obj),
-                                                         tiz_get_krn (handleOf (ap_obj)))))
+  if (OMX_ErrorNone != (ret_val = set_lame_pcm_settings (p_prc,
+                                                         handleOf (p_prc),
+                                                         tiz_get_krn (handleOf (p_prc)))))
     {
       return ret_val;
     }
 
-  if (-1 == lame_init_params (p_obj->lame_))
+  if (-1 == lame_init_params (p_prc->lame_))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] : "
-               "Error returned by lame during initialization.");
+      TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
+                 "Error returned by lame during initialization.");
       return OMX_ErrorInsufficientResources;
     }
 
-  p_obj->lame_flushed_ = false;
+  p_prc->lame_flushed_ = false;
 
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-mp3e_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
+mp3e_proc_transfer_and_process (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  assert (ap_obj);
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 mp3e_proc_stop_and_return (void *ap_obj)
 {
-  mp3e_prc_t *p_obj = ap_obj;
-  return release_buffers (p_obj);
+  return release_buffers (ap_obj);
 }
 
 /*
@@ -484,64 +489,67 @@ mp3e_proc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 mp3e_proc_buffers_ready (const void *ap_obj)
 {
-  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
+  mp3e_prc_t *p_prc = (mp3e_prc_t *) ap_obj;
+  assert (NULL != p_prc);
 
   while (1)
     {
 
-      if (!p_obj->p_inhdr_)
+      if (!p_prc->p_inhdr_)
         {
-          if (!claim_input (ap_obj) || (!p_obj->p_inhdr_))
+          if (!claim_input (p_prc) || (!p_prc->p_inhdr_))
             {
               break;
             }
         }
 
-      if (!p_obj->p_outhdr_)
+      if (!p_prc->p_outhdr_)
         {
-          if (!claim_output (ap_obj))
+          if (!claim_output (p_prc))
             {
               break;
             }
         }
 
-      tiz_check_omx_err (encode_buffer (ap_obj));
-      if (p_obj->p_inhdr_ && (0 == p_obj->p_inhdr_->nFilledLen))
+      tiz_check_omx_err (encode_buffer (p_prc));
+      if (p_prc->p_inhdr_ && (0 == p_prc->p_inhdr_->nFilledLen))
         {
-          p_obj->p_inhdr_->nOffset = 0;
-          tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 0, p_obj->p_inhdr_);
-          p_obj->p_inhdr_ = NULL;
+          p_prc->p_inhdr_->nOffset = 0;
+          tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
+                                  ARATELIA_MP3_ENCODER_INPUT_PORT_INDEX,
+                                  p_prc->p_inhdr_);
+          p_prc->p_inhdr_ = NULL;
         }
     }
 
-  if (p_obj->eos_ && p_obj->lame_flushed_ && p_obj->p_outhdr_)
+  if (p_prc->eos_ && p_prc->lame_flushed_ && p_prc->p_outhdr_)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_TRACE (handleOf (ap_obj),
-                "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);
-      p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
-      tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->p_outhdr_);
-      p_obj->p_outhdr_ = NULL;
+      TIZ_TRACE (handleOf (p_prc),
+                "p_prc->eos OUTPUT HEADER [%p]...", p_prc->p_outhdr_);
+      p_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
+      tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
+                              ARATELIA_MP3_ENCODER_OUTPUT_PORT_INDEX,
+                              p_prc->p_outhdr_);
+      p_prc->p_outhdr_ = NULL;
     }
 
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-mp3e_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
+mp3e_proc_port_flush (const void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   /* Release all buffers, regardless of the port this is received on */
-  return release_buffers (p_obj);
+  return release_buffers (ap_obj);
 }
 
 static OMX_ERRORTYPE
-mp3e_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
+mp3e_proc_port_disable (const void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  mp3e_prc_t *p_obj = (mp3e_prc_t *) ap_obj;
   /* Release all buffers, regardless of the port this is received on */
-  return release_buffers (p_obj);
+  return release_buffers (ap_obj);
 }
 
 static OMX_ERRORTYPE
@@ -569,12 +577,15 @@ void *
 mp3e_prc_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * mp3eprc_class = factory_new (classOf (tizprc),
-                                      "mp3eprc_class",
-                                      classOf (tizprc),
-                                      sizeof (mp3e_prc_class_t),
-                                      ap_tos, ap_hdl,
-                                      ctor, mp3e_prc_class_ctor, 0);
+  void * mp3eprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "mp3eprc_class", classOf (tizprc), sizeof (mp3e_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, mp3e_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
   return mp3eprc_class;
 }
 
@@ -584,24 +595,35 @@ mp3e_prc_init (void * ap_tos, void * ap_hdl)
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
   void * mp3eprc_class = tiz_get_type (ap_hdl, "mp3eprc_class");
   TIZ_LOG_CLASS (mp3eprc_class);
-  void * mp3eprc =
-    factory_new
-    (mp3eprc_class,
-     "mp3eprc",
-     tizprc,
-     sizeof (mp3e_prc_t),
+  void * mp3eprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (mp3eprc_class, "mp3eprc", tizprc, sizeof (mp3e_prc_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, mp3e_proc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, mp3e_proc_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_allocate_resources, mp3e_proc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_deallocate_resources, mp3e_proc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_prepare_to_transfer, mp3e_proc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_transfer_and_process, mp3e_proc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_stop_and_return, mp3e_proc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_buffers_ready, mp3e_proc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_port_flush, mp3e_proc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_port_disable, mp3e_proc_port_disable,
-     tiz_prc_port_enable, mp3e_proc_port_enable, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, mp3e_proc_port_enable,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return mp3eprc;
 }

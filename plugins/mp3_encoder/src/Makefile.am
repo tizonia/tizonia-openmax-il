@@ -18,6 +18,7 @@
 lib_LTLIBRARIES = libtizmp3enc.la
 
 noinst_HEADERS = \
+	mp3e.h \
 	mp3eprc.h \
 	mp3eprc_decls.h
 

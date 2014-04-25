@@ -18,16 +18,15 @@
  */
 
 /**
- * @file   mp3d.h
+ * @file   mp3e.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Mp3 decoder component constants
+ * @brief  Tizonia OpenMAX IL - Mp3 encoder component constants
  *
  *
  */
-
-#ifndef MP3D_H
-#define MP3D_H
+#ifndef MP3E_H
+#define MP3E_H
 
 #ifdef __cplusplus
 extern "C"
@@ -37,20 +36,23 @@ extern "C"
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#define ARATELIA_MP3_DECODER_DEFAULT_ROLE             "audio_decoder.mp3"
-#define ARATELIA_MP3_DECODER_COMPONENT_NAME           "OMX.Aratelia.audio_decoder.mp3"
+#define ARATELIA_MP3_ENCODER_DEFAULT_ROLE             "audio_encoder.mp3"
+#define ARATELIA_MP3_ENCODER_COMPONENT_NAME           "OMX.Aratelia.audio_encoder.mp3"
 /* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_MP3_DECODER_INPUT_PORT_INDEX         0
-#define ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX        1
-#define ARATELIA_MP3_DECODER_PORT_MIN_BUF_COUNT       2
-#define ARATELIA_MP3_DECODER_PORT_MIN_INPUT_BUF_SIZE  (5*8192)
-#define ARATELIA_MP3_DECODER_PORT_MIN_OUTPUT_BUF_SIZE (2*8192)
-#define ARATELIA_MP3_DECODER_PORT_NONCONTIGUOUS       OMX_FALSE
-#define ARATELIA_MP3_DECODER_PORT_ALIGNMENT           0
-#define ARATELIA_MP3_DECODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
+#define ARATELIA_MP3_ENCODER_INPUT_PORT_INDEX         0
+#define ARATELIA_MP3_ENCODER_OUTPUT_PORT_INDEX        1
+#define ARATELIA_MP3_ENCODER_PORT_MIN_BUF_COUNT       2
+/* Assuming worst case of 16 bit per sample per channel adn 48khz, lets try to
+   fit 25ms of audio (1200 samples per channel) */
+#define ARATELIA_MP3_ENCODER_PORT_MIN_INPUT_BUF_SIZE  (2*4800)
+/* output buffer size in bytes = 1.25*num_samples + 7200 */
+#define ARATELIA_MP3_ENCODER_PORT_MIN_OUTPUT_BUF_SIZE 10200
+#define ARATELIA_MP3_ENCODER_PORT_NONCONTIGUOUS       OMX_FALSE
+#define ARATELIA_MP3_ENCODER_PORT_ALIGNMENT           0
+#define ARATELIA_MP3_ENCODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* MP3D_H */
+#endif                          /* MP3E_H */
