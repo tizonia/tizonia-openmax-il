@@ -33,9 +33,9 @@
 #include <assert.h>
 #include <string.h>
 
-#include <tizport.h>
-
 #include <tizplatform.h>
+
+#include <tizport.h>
 
 #include "vorbisd.h"
 #include "vorbisdprc.h"
@@ -150,11 +150,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t *rf_list[] = { &role_factory };
   tiz_type_factory_t vorbisdprc_type;
   const tiz_type_factory_t *tf_list[] = { &vorbisdprc_type };
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE,
-           "OMX_ComponentInit: "
-           "Inititializing [%s]",
-           ARATELIA_VORBIS_DECODER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING)role_factory.role, ARATELIA_VORBIS_DECODER_DEFAULT_ROLE);
   role_factory.pf_cport = instantiate_config_port;

@@ -93,7 +93,7 @@ get_port_disabled_ptr (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 }
 
 static OMX_BUFFERHEADERTYPE *
-get_buffer (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
+get_header (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   bool port_disabled = *(get_port_disabled_ptr (ap_prc, a_pid));
@@ -120,7 +120,7 @@ get_buffer (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-release_buffer (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
+release_header (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -141,13 +141,13 @@ release_buffer (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 }
 
 static inline bool
-buffers_available (opusd_prc_t * ap_prc)
+headers_available (opusd_prc_t * ap_prc)
 {
   bool rc = true;
   rc &=
-    (NULL != get_buffer (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
+    (NULL != get_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
   rc &=
-    (NULL != get_buffer (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
+    (NULL != get_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
   return rc;
 }
 
@@ -155,7 +155,7 @@ static OMX_ERRORTYPE
 init_opus_decoder (opusd_prc_t * ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_in
-    = get_buffer (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
+    = get_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
 
   if (NULL == p_in)
     {
@@ -199,14 +199,14 @@ init_opus_decoder (opusd_prc_t * ap_prc)
                gain, streams);
   }
   p_in->nFilledLen = 0;
-  return release_buffer (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
+  return release_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
 }
 
 static OMX_ERRORTYPE
 print_opus_comments (opusd_prc_t * ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_in
-    = get_buffer (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
+    = get_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
 
   if (NULL == p_in)
     {
@@ -217,7 +217,7 @@ print_opus_comments (opusd_prc_t * ap_prc)
                          (char *) (p_in->pBuffer + p_in->nOffset),
                          p_in->nFilledLen);
   p_in->nFilledLen = 0;
-  return release_buffer (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
+  return release_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
 }
 
 static OMX_ERRORTYPE
@@ -259,9 +259,9 @@ static OMX_ERRORTYPE
 transform_buffer (opusd_prc_t * ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_in
-    = get_buffer (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
+    = get_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
   OMX_BUFFERHEADERTYPE *p_out
-    = get_buffer (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
+    = get_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
 
   if (NULL == p_in || NULL == p_out)
     {
@@ -280,10 +280,10 @@ transform_buffer (opusd_prc_t * ap_prc)
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
           p_in->nFlags = 0;
           tiz_check_omx_err
-            (release_buffer (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
+            (release_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
         }
       tiz_check_omx_err
-        (release_buffer (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
+        (release_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
       return OMX_ErrorNone;
     }
 
@@ -331,9 +331,9 @@ transform_buffer (opusd_prc_t * ap_prc)
                frame_size, len, opus_strerror (frame_size), p_out->nFilledLen);
     p_in->nFilledLen = 0;
     tiz_check_omx_err
-      (release_buffer (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
+      (release_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
     tiz_check_omx_err
-      (release_buffer (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
+      (release_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
   }
   return OMX_ErrorNone;
 }
@@ -470,7 +470,7 @@ opusd_prc_buffers_ready (const void *ap_obj)
         }
       else
         {
-          while (buffers_available (p_prc) && OMX_ErrorNone == rc)
+          while (headers_available (p_prc) && OMX_ErrorNone == rc)
             {
               rc = transform_buffer (p_prc);
               if (OMX_ErrorNone)

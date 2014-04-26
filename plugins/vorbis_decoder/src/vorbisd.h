@@ -33,8 +33,8 @@ extern "C"
 {
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
+#include <OMX_Core.h>
+#include <OMX_Types.h>
 
 #define ARATELIA_VORBIS_DECODER_DEFAULT_ROLE             "audio_decoder.vorbis"
 #define ARATELIA_VORBIS_DECODER_COMPONENT_NAME           "OMX.Aratelia.audio_decoder.vorbis"
