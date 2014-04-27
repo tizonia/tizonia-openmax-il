@@ -46,11 +46,12 @@ namespace tiz
       httpservconfig (const tizplaylist_ptr_t &playlist, const std::string &host,
                       const std::string &ip_address, const long int port,
                       const std::vector<int> &sampling_rate_list,
+                      const std::vector< std::string > &bitrate_mode_list,
                       const std::string &station_name,
                       const std::string &station_genre)
         : config (playlist), host_ (host), addr_ (ip_address), port_ (port),
-          sampling_rate_list_ (sampling_rate_list), station_name_ (station_name),
-          station_genre_ (station_genre)
+          sampling_rate_list_ (sampling_rate_list), bitrate_mode_list_ (bitrate_mode_list),
+          station_name_ (station_name), station_genre_ (station_genre)
       {
       }
 
@@ -78,6 +79,11 @@ namespace tiz
         return sampling_rate_list_;
       }
 
+      const std::vector< std::string > &get_bitrate_modes () const
+      {
+        return bitrate_mode_list_;
+      }
+
       std::string get_station_name () const
       {
         return station_name_;
@@ -93,6 +99,7 @@ namespace tiz
       const std::string addr_;
       const long int port_;
       const std::vector<int> sampling_rate_list_;
+      const std::vector< std::string > bitrate_mode_list_;
       const std::string station_name_;
       const std::string station_genre_;
     };

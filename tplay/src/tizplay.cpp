@@ -84,6 +84,7 @@ static struct termios old_term, new_term;
 
 namespace  // unnamed namespace
 {
+  const int TIZ_MAX_BITRATE_MODES = 2;
 
   bool valid_sampling_rate (int sampling_rate)
   {
@@ -123,6 +124,23 @@ namespace  // unnamed namespace
       rc = valid_sampling_rate (rates[i]);
     }
     rc &= !rates.empty ();
+    return rc;
+  }
+
+  bool valid_bitrate_list (const std::vector< std::string > &rate_strings)
+  {
+    bool rc = true;
+    for (int i = 0; i < rate_strings.size (); ++i)
+    {
+      if (!(0 == rate_strings[i].compare ("CBR")
+            || 0 == rate_strings[i].compare ("VBR")))
+        {
+          rc = false;
+          break;
+        }
+    }
+    rc &= !rate_strings.empty ();
+    rc &= (rate_strings.size () <= TIZ_MAX_BITRATE_MODES);
     return rc;
   }
 
@@ -174,11 +192,14 @@ namespace  // unnamed namespace
   {
     printf ("Tizonia OpenMAX IL player version %s\n\n", PACKAGE_VERSION);
     printf (
-        "usage: %s [-c role] [-d] [-h] [-l] [-p port] [-r component] [-s] "
-        "[--shuffle] \n"
-        "\t     [--sampling-rates=command-separated-list] "
-        "[--station-name=string] [--station-genre=string] [-v] "
-        "[FILE/DIR]\n",
+        "usage: %s [-c role] [-d] [-h] [-l] [-v]\n"
+        "\t     [-p port] [-r component] [-s]\n"
+        "\t     [--shuffle]\n"
+        "\t     [--bitrate-modes=comma-separated-list]\n"
+        "\t     [--sampling-rates=comma-separated-list]\n"
+        "\t     [--station-name=string]\n"
+        "\t     [--station-genre=string]\n"
+        "\t     <FILE/DIR>\n",
         PACKAGE_NAME);
     printf ("options:\n");
     printf (
@@ -196,19 +217,23 @@ namespace  // unnamed namespace
         "<component>.\n");
     printf ("\t-R --recurse\t\t\t\tRecursively process DIR.\n");
     printf (
+        "\t   --bitrate-modes\t\t\tA list of bitrate modes (CBR, VBR) that will be\n"
+        "\t\t\t\t\t\tallowed in the playlist (http streaming only). Default: "
+        "any.\n");
+    printf (
         "\t   --sampling-rates\t\t\tA list of sampling rates that will be\n"
         "\t\t\t\t\t\tallowed in the playlist (http streaming only). Default: "
         "any.\n");
     printf ("\t   --shuffle\t\t\t\tShuffle the playlist.\n");
     printf (
-        "\t   --station-name\t\t\tSHOUTcast/ICEcast station name "
-        "(http streaming only).\n");
-    printf (
         "\t   --station-genre\t\t\tSHOUTcast/ICEcast station genre "
         "(http streaming only).\n");
     printf (
-        "\t-s --stream\t\t\t\tStream media via http using the\n"
-        "\t\t\t\t\t\tSHOUTcast/ICEcast protocol.\n");
+        "\t   --station-name\t\t\tSHOUTcast/ICEcast station name "
+        "(http streaming only).\n");
+    printf (
+        "\t-s --stream\t\t\t\tStream media via http using the "
+        "SHOUTcast/ICEcast protocol.\n");
     printf ("\t-v --version\t\t\t\tDisplay version info.\n");
     printf ("\n");
     printf ("Examples:\n");
@@ -228,10 +253,9 @@ namespace  // unnamed namespace
     printf ("\t      * [q] quit.\n");
     printf ("\t      * [Ctrl-c] terminate the application at any time.\n");
     printf ("\n\t tplay --sampling-rates=44100,48000 -p 8011 -s ~/Music\n\n");
-    printf ("\t    * This streams files from the '~/Music' folder.\n");
+    printf ("\t    * This streams files from the '~/Music' directory.\n");
     printf ("\t    * File formats currently supported for streaming: mp3.\n");
     printf ("\t    * Sampling rates other than [44100,4800] are ignored.\n");
-    printf ("\t    * NOTE: Non-CBR mp3s are also currently ignored.\n");
     printf ("\t    * Key bindings:\n");
     printf ("\t      * [q] quit.\n");
     printf ("\t      * [Ctrl-c] terminate the application at any time.\n");
@@ -520,6 +544,7 @@ namespace  // unnamed namespace
           const bool shuffle_playlist, const bool recurse,
           const std::vector< std::string > &sampling_rate_str_list,
           const std::vector< int > &sampling_rate_list,
+          const std::vector< std::string > &bitrate_mode_list,
           const std::string &station_name,
           const std::string &station_genre)
   {
@@ -552,11 +577,15 @@ namespace  // unnamed namespace
       ip_address = inet_ntoa (ip_addr);
       fprintf (stdout, "[%s] streaming from http://%s:%ld\n",
                station_name.c_str (), hostname, port);
-      fprintf (stdout, "NOTE: Will skip non-CBR files");
       if (!sampling_rate_str_list.empty ())
       {
-        fprintf (stdout, " or files with sampling rates other than [%s]",
+        fprintf (stdout, "NOTE: Will skip files with sampling rates other than [%s]",
                  boost::join (sampling_rate_str_list, ", ").c_str ());
+      }
+      if (!bitrate_mode_list.empty () || bitrate_mode_list.size () == TIZ_MAX_BITRATE_MODES)
+      {
+        fprintf (stdout, "NOTE: Will skip files with bitrate types other than [%s]",
+                 boost::join (bitrate_mode_list, ", ").c_str ());
       }
       fprintf (stdout, ".\n\n");
     }
@@ -570,7 +599,7 @@ namespace  // unnamed namespace
     tizgraphconfig_ptr_t config
         = boost::make_shared< tiz::graph::httpservconfig >(
             playlist, hostname, ip_address, port, sampling_rate_list,
-            station_name, station_genre);
+            bitrate_mode_list, station_name, station_genre);
 
     // Instantiate the http streaming manager
     tiz::graphmgr::mgr_ptr_t p_mgr
@@ -599,6 +628,7 @@ int main (int argc, char **argv)
   long int srv_port = 8010;  // default port for http streaming
   std::vector< int > sampling_rate_list;
   std::vector< std::string > sampling_rate_str_list;
+  std::vector< std::string > bitrate_mode_list;
   std::string media;
   std::string station_name ("Tizonia Radio");
   std::string station_genre ("Unknown Genre");
@@ -623,6 +653,7 @@ int main (int argc, char **argv)
             { "sampling-rates", required_argument, 0, 2 },
             { "station-name", required_argument, 0, 3 },
             { "station-genre", required_argument, 0, 4 },
+            { "bitrate-modes", required_argument, 0, 5 },
             { "stream", required_argument, 0, 's' },
             { "port", required_argument, 0, 'p' },
             { "recurse", no_argument, 0, 'R' },
@@ -651,7 +682,6 @@ int main (int argc, char **argv)
       {
         char *p_end = NULL;
         std::string sampling_rates_str (optarg);
-        sampling_rate_str_list.clear ();
         boost::split (sampling_rate_str_list, sampling_rates_str,
                       boost::is_any_of (","));
         if (!valid_sampling_rate_list (sampling_rate_str_list,
@@ -676,6 +706,24 @@ int main (int argc, char **argv)
       case 4:
       {
         station_genre = optarg;
+      }
+      break;
+
+      case 5:
+      {
+        char *p_end = NULL;
+        std::string bitrates_str (optarg);
+        boost::split (bitrate_mode_list, bitrates_str,
+                      boost::is_any_of (","));
+        if (!valid_bitrate_list (bitrate_mode_list))
+        {
+          fprintf (
+              stderr,
+              "Invalid argument : %s .\nValid bitrate type values :\n"
+              "[CBR,VBR]\n",
+              optarg);
+          exit (EXIT_FAILURE);
+        }
       }
       break;
 
@@ -784,8 +832,8 @@ int main (int argc, char **argv)
   if (!media.empty ())
   {
     error = stream (media.c_str (), srv_port, shuffle_playlist, recurse,
-                    sampling_rate_str_list, sampling_rate_list, station_name,
-                    station_genre);
+                    sampling_rate_str_list, sampling_rate_list, bitrate_mode_list,
+                    station_name, station_genre);
     exit (EXIT_SUCCESS);
   }
 

@@ -365,11 +365,17 @@ bool graph::httpservops::probe_stream_hook ()
                mp3type.nSampleRate, rc ? "YES" : "NOT");
     }
 
+    // Skip streams with bitrate types different to the ones received in the
+    // server configuration, or process all if the list is empty.
     TIZ_LOG (TIZ_PRIORITY_TRACE, "is_cbr_stream () [%s]...",
              probe_ptr_->is_cbr_stream () ? "YES" : "NO");
-
-    // Skip all non-CBR streams
-    rc &= probe_ptr_->is_cbr_stream ();
+    const std::vector< std::string > &bitrate_types = srv_config->get_bitrate_modes ();
+    if (!bitrate_types.empty ())
+    {
+      rc &= std::find (bitrate_types.begin (), bitrate_types.end (),
+                       probe_ptr_->is_cbr_stream () ? "CBR" : "VBR")
+        != bitrate_types.end ();
+    }
   }
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "return () [%s]...", rc ? "YES" : "NO");
