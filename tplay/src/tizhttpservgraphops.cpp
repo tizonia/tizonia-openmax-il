@@ -233,10 +233,8 @@ graph::httpservops::configure_station ()
   snprintf ((char *)mount.cStationDescription,
             sizeof(mount.cStationDescription),
             "Tizonia Audio Streaming Server");
-  // TODO: Will fix this when a command line option is added to properly
-  // configure the genre (see github's issue #49).
   snprintf ((char *)mount.cStationGenre, sizeof(mount.cStationGenre), "%s",
-            "Unknown Genre");
+            srv_config->get_station_genre ().c_str ());
   snprintf ((char *)mount.cStationUrl, sizeof(mount.cStationUrl),
             "http://tizonia.org");
 

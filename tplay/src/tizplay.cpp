@@ -177,7 +177,7 @@ namespace  // unnamed namespace
         "usage: %s [-c role] [-d] [-h] [-l] [-p port] [-r component] [-s] "
         "[--shuffle] \n"
         "\t     [--sampling-rates=command-separated-list] "
-        "[--station-name=string] [-v] "
+        "[--station-name=string] [--station-genre=string] [-v] "
         "[FILE/DIR]\n",
         PACKAGE_NAME);
     printf ("options:\n");
@@ -202,6 +202,9 @@ namespace  // unnamed namespace
     printf ("\t   --shuffle\t\t\t\tShuffle the playlist.\n");
     printf (
         "\t   --station-name\t\t\tSHOUTcast/ICEcast station name "
+        "(http streaming only).\n");
+    printf (
+        "\t   --station-genre\t\t\tSHOUTcast/ICEcast station genre "
         "(http streaming only).\n");
     printf (
         "\t-s --stream\t\t\t\tStream media via http using the\n"
@@ -517,7 +520,8 @@ namespace  // unnamed namespace
           const bool shuffle_playlist, const bool recurse,
           const std::vector< std::string > &sampling_rate_str_list,
           const std::vector< int > &sampling_rate_list,
-          const std::string &station_name)
+          const std::string &station_name,
+          const std::string &station_genre)
   {
     OMX_ERRORTYPE rc = OMX_ErrorNone;
     uri_lst_t file_list;
@@ -566,7 +570,7 @@ namespace  // unnamed namespace
     tizgraphconfig_ptr_t config
         = boost::make_shared< tiz::graph::httpservconfig >(
             playlist, hostname, ip_address, port, sampling_rate_list,
-            station_name);
+            station_name, station_genre);
 
     // Instantiate the http streaming manager
     tiz::graphmgr::mgr_ptr_t p_mgr
@@ -597,6 +601,7 @@ int main (int argc, char **argv)
   std::vector< std::string > sampling_rate_str_list;
   std::string media;
   std::string station_name ("Tizonia Radio");
+  std::string station_genre ("Unknown Genre");
   bool shuffle_playlist = false;
   bool recurse = false;
 
@@ -617,6 +622,7 @@ int main (int argc, char **argv)
             { "shuffle", no_argument, 0, 1 },
             { "sampling-rates", required_argument, 0, 2 },
             { "station-name", required_argument, 0, 3 },
+            { "station-genre", required_argument, 0, 4 },
             { "stream", required_argument, 0, 's' },
             { "port", required_argument, 0, 'p' },
             { "recurse", no_argument, 0, 'R' },
@@ -664,6 +670,12 @@ int main (int argc, char **argv)
       case 3:
       {
         station_name = optarg;
+      }
+      break;
+
+      case 4:
+      {
+        station_genre = optarg;
       }
       break;
 
@@ -772,7 +784,8 @@ int main (int argc, char **argv)
   if (!media.empty ())
   {
     error = stream (media.c_str (), srv_port, shuffle_playlist, recurse,
-                    sampling_rate_str_list, sampling_rate_list, station_name);
+                    sampling_rate_str_list, sampling_rate_list, station_name,
+                    station_genre);
     exit (EXIT_SUCCESS);
   }
 
