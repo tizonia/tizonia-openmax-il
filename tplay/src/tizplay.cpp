@@ -22,7 +22,8 @@
  * @file   tizplay.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - A sample decoder program
+ * @brief Tizonia OpenMAX IL - tplay: an audio player and streaming server
+ * program
  *
  */
 
@@ -40,7 +41,6 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play"
 #endif
 
-#include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <stdio.h>
@@ -71,6 +71,7 @@
 #include <OMX_Core.h>
 
 #include "tizomxutil.hpp"
+#include "tizdaemon.hpp"
 #include "tizplaylist.hpp"
 #include "tizgraph.hpp"
 #include "tizdecgraphmgr.hpp"
@@ -161,17 +162,12 @@ namespace  // unnamed namespace
     {
       reset_termios ();
     }
-    exit (EXIT_FAILURE);
+    exit (EXIT_SUCCESS);
   }
 
   void tizplay_sig_stp_hdlr (int sig)
   {
     raise (SIGSTOP);
-  }
-
-  void tizplay_sig_pipe_hdlr (int sig)
-  {
-    // Simply ignore this one
   }
 
   void print_usage (void)
@@ -750,21 +746,25 @@ int main (int argc, char **argv)
   if (gb_daemon_mode)
   {
     fprintf (stdout,
-             "Tizonia OpenMAX IL player version %s "
-             "running as a daemon (PID %d).\n",
-             PACKAGE_VERSION, getpid ());
-    if (-1 == daemon (1, 0))
+             "Tizonia OpenMAX IL player version %s. "
+             "Starting daemon.\n",
+             PACKAGE_VERSION);
+    if (-1 == tiz::daemon::daemonize ())
     {
-      fprintf (stderr, "Could not daemon.\n");
+      fprintf (stderr, "Could not daemonize.\n");
       exit (EXIT_FAILURE);
     }
   }
 
   signal (SIGTERM, tizplay_sig_term_hdlr);
-  signal (SIGINT, tizplay_sig_term_hdlr);
-  signal (SIGTSTP, tizplay_sig_stp_hdlr);
-  signal (SIGQUIT, tizplay_sig_term_hdlr);
-  signal (SIGPIPE, tizplay_sig_pipe_hdlr);
+
+  if (!gb_daemon_mode)
+  {
+    signal (SIGINT, tizplay_sig_term_hdlr);
+    signal (SIGTSTP, tizplay_sig_stp_hdlr);
+    signal (SIGQUIT, tizplay_sig_term_hdlr);
+  }
+  signal (SIGPIPE, SIG_IGN);
 
   tiz_log_init ();
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL player...");

@@ -21,6 +21,7 @@ noinst_HEADERS = \
 	tizomxutil.hpp \
 	tizgraphutil.hpp \
 	tizgraphcback.hpp \
+	tizdaemon.hpp \
 	tizprobe.hpp \
 	tizplaylist.hpp \
 	tizgraphfactory.hpp \
@@ -55,6 +56,7 @@ tplay_SOURCES = \
 	tizomxutil.cpp \
 	tizgraphutil.cpp \
 	tizgraphcback.cpp \
+	tizdaemon.cpp \
 	tizprobe.cpp \
 	tizplaylist.cpp \
 	tizgraphfactory.cpp \
