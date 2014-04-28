@@ -133,7 +133,10 @@ do_flush (ar_prc_t * ap_prc)
 {
   assert (NULL != ap_prc);
   tiz_check_omx_err (stop_io_watcher (ap_prc));
-  (void) snd_pcm_drop (ap_prc->p_pcm_hdl);
+  if (NULL != p_prc->p_pcm_hdl)
+    {
+      (void) snd_pcm_drop (ap_prc->p_pcm_hdl);
+    }
   /* Release any buffers held  */
   return release_buffers (ap_prc);
 }
@@ -824,7 +827,10 @@ ar_prc_port_disable (const void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
   ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
   assert (NULL != p_prc);
-  snd_pcm_drop (p_prc->p_pcm_hdl);
+  if (NULL != p_prc->p_pcm_hdl)
+    {
+      (void) snd_pcm_drop (p_prc->p_pcm_hdl);
+    }
   /* Release any buffers held  */
   return release_buffers ((ar_prc_t *) ap_obj);
 }
