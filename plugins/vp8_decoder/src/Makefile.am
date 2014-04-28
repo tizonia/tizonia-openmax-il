@@ -18,6 +18,7 @@
 lib_LTLIBRARIES = libtizvp8d.la
 
 noinst_HEADERS = \
+	vp8d.h \
 	vp8dprc.h \
 	vp8dprc_decls.h
 

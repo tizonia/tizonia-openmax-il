@@ -20,52 +20,31 @@
 /**
  * @file   vp8d.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - VP8 Decoder component
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include "tizplatform.h"
-#include "tizport.h"
-#include "tizscheduler.h"
-#include "tizvp8port.h"
-#include "tizconfigport.h"
-#include "vp8dprc.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include <tizplatform.h>
+
+#include <tizscheduler.h>
+#include <tizport.h>
+
+#include "vp8dprc.h"
+#include "vp8d.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.vp8_decoder"
 #endif
-
-#define ARATELIA_VP8_DECODER_DEFAULT_FRAME_WIDTH  176
-#define ARATELIA_VP8_DECODER_DEFAULT_FRAME_HEIGHT 144
-
-#define ARATELIA_VP8_DECODER_DEFAULT_ROLE "video_decoder.vp8"
-#define ARATELIA_VP8_DECODER_COMPONENT_NAME "OMX.Aratelia.video_decoder.vp8"
-
-/* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_VP8_DECODER_INPUT_PORT_INDEX  0
-#define ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX 1
-
-#define ARATELIA_VP8_DECODER_PORT_MIN_BUF_COUNT       2
-/* 38016 = (width * height) + ((width * height)/2) */
-#define ARATELIA_VP8_DECODER_PORT_MIN_INPUT_BUF_SIZE  38016
-#define ARATELIA_VP8_DECODER_PORT_MIN_OUTPUT_BUF_SIZE 345600
-#define ARATELIA_VP8_DECODER_PORT_NONCONTIGUOUS       OMX_FALSE
-#define ARATELIA_VP8_DECODER_PORT_ALIGNMENT           0
-#define ARATELIA_VP8_DECODER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
 
 static OMX_VERSIONTYPE vp8_decoder_version = { {1, 0, 0, 0} };
 
@@ -194,9 +173,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_role_factory_t *rf_list[] = { &role_factory };
   tiz_type_factory_t vp8dprc_type;
   const tiz_type_factory_t *tf_list[] = { &vp8dprc_type};
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
-           "Inititializing [%s]", ARATELIA_VP8_DECODER_COMPONENT_NAME);
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_VP8_DECODER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;

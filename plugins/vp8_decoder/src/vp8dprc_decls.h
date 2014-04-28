@@ -20,10 +20,10 @@
 /**
  * @file   vp8dprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - VP8 Decoder processor class decls
- * 
- * 
+ *
+ *
  */
 
 #ifndef VP8DPRC_DECLS_H
@@ -34,16 +34,13 @@ extern "C"
 {
 #endif
 
-#include "vp8dprc.h"
-#include "tizprc_decls.h"
-
-#include "OMX_Core.h"
-
 #include <stdbool.h>
 
 #define VPX_CODEC_DISABLE_COMPAT 1
 #include <vpx_decoder.h>
 #include <vp8dx.h>
+
+#include <tizprc_decls.h>
 
   typedef enum vp8dprc_stream_type vp8dprc_stream_type_t;
   enum vp8dprc_stream_type
@@ -60,7 +57,7 @@ extern "C"
     size_t  filled_len;
     size_t  alloc_len;
   };
-  
+
   typedef struct vp8d_prc vp8d_prc_t;
   struct vp8d_prc
   {
