@@ -407,78 +407,73 @@ dump_ogg_data (oggdmux_prc_t * ap_prc,
 }
 
 static OMX_BUFFERHEADERTYPE *
-get_buffer (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
+get_header (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
-  OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
-  bool *p_port_disabled = get_port_disabled_ptr (ap_prc, a_pid);
-  assert (NULL != ap_prc);
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  bool port_disabled = *(get_port_disabled_ptr (ap_prc, a_pid));
 
-  if (false == *p_port_disabled)
+  if (!port_disabled)
     {
-      if (NULL != *pp_hdr)
-        {
-          TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] pid [%d] "
-                     "nFilledLen [%d] ", *pp_hdr, a_pid,
-                     (*pp_hdr)->nFilledLen);
-          return *pp_hdr;
-        }
-      else
+      OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
+      p_hdr = *pp_hdr;
+      if (NULL == p_hdr)
         {
           if (OMX_ErrorNone == tiz_krn_claim_buffer
               (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
             {
-              if (NULL != *pp_hdr)
+              p_hdr = *pp_hdr;
+              if (NULL != p_hdr)
                 {
-                  TIZ_TRACE (handleOf (ap_prc), "Claimed HEADER [%p] "
-                             "pid [%d] nFilledLen [%d]",
-                             *pp_hdr, a_pid, (*pp_hdr)->nFilledLen);
-                  return *pp_hdr;
+                  TIZ_TRACE (handleOf (ap_prc),
+                             "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
+                             p_hdr, a_pid, p_hdr->nFilledLen);
                 }
             }
         }
-      ap_prc->awaiting_buffers_ = true;
+      if (NULL == p_hdr)
+        {
+          ap_prc->awaiting_buffers_ = true;
+        }
     }
 
-  return NULL;
+  return p_hdr;
 }
 
 /* TODO: Change void to a int for OOM errors */
 static void
-release_buffer (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
+release_header (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  assert (NULL != ap_prc);
-
   p_hdr = *pp_hdr;
   assert (NULL != p_hdr);
-
-  p_hdr->nOffset = 0;
 
   TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] pid [%d] "
              "nFilledLen [%d] nFlags [%d]", p_hdr, a_pid, p_hdr->nFilledLen,
              p_hdr->nFlags);
 
   /* TODO: Check for OOM error and issue Error Event */
+  p_hdr->nOffset = 0;
   (void) tiz_krn_release_buffer
     (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr);
   *pp_hdr = NULL;
 
+  assert (NULL != ap_prc);
   ap_prc->awaiting_buffers_ = true;
 }
 
 static bool
-release_buffer_with_eos (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
+release_header_with_eos (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   bool eos_released = false;
-  OMX_BUFFERHEADERTYPE *p_hdr = get_buffer (ap_prc, a_pid);
+  OMX_BUFFERHEADERTYPE *p_hdr = get_header (ap_prc, a_pid);
 
   if (NULL != p_hdr)
     {
       TIZ_TRACE (handleOf (ap_prc), "Adding EOS flag - PID [%d]", a_pid);
       p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
-      release_buffer (ap_prc, a_pid);
+      release_header (ap_prc, a_pid);
       eos_released = true;
     }
   return eos_released;
@@ -499,7 +494,7 @@ flush_temp_store (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
       return 0;
     }
 
-  while (NULL != (p_hdr = get_buffer (ap_prc, a_pid)))
+  while (NULL != (p_hdr = get_header (ap_prc, a_pid)))
     {
       ds_offset = dump_temp_store (ap_prc, a_pid, p_hdr);
 #ifdef _DEBUG
@@ -524,7 +519,7 @@ flush_temp_store (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
               *p_eos = true;
             }
         }
-      release_buffer (ap_prc, a_pid);
+      release_header (ap_prc, a_pid);
       p_hdr = 0;
       if (0 == ds_offset)
         {
@@ -543,7 +538,7 @@ flush_ogg_packet (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
   OMX_U32 nbytes_copied = 0;
   OMX_U32 op_offset = 0;
 
-  while (NULL != (p_hdr = get_buffer (ap_prc, a_pid)))
+  while (NULL != (p_hdr = get_header (ap_prc, a_pid)))
     {
       nbytes_copied
         = dump_ogg_data (ap_prc, a_pid, ap_ogg_data + op_offset,
@@ -563,7 +558,7 @@ flush_ogg_packet (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
                      g_total_read - (g_total_released + nbytes_remaining));
         }
 #endif
-      release_buffer (ap_prc, a_pid);
+      release_header (ap_prc, a_pid);
       p_hdr = 0;
       if (0 == nbytes_remaining)
         {
@@ -634,7 +629,7 @@ read_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
 
   if (0 == op_offset)
     {
-      if (*p_eos || !get_buffer (p_prc, a_pid) ||
+      if (*p_eos || !get_header (p_prc, a_pid) ||
           (*get_store_offset_ptr (p_prc, a_pid)) > 0)
         {
           rc = OGGZ_STOP_OK;
@@ -952,12 +947,12 @@ buffers_available (oggdmux_prc_t * ap_prc)
   if (aud_port_enabled)
     {
       rc |=
-        (NULL != get_buffer (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX));
+        (NULL != get_header (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX));
     }
   if (vid_port_enabled)
     {
       rc |=
-        (NULL != get_buffer (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX));
+        (NULL != get_header (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX));
     }
   return rc;
 }
@@ -978,8 +973,8 @@ demux_file (oggdmux_prc_t * ap_prc)
 
   if (0 == run_status)          /* This indicates end of file */
     {
-      int                   remaining = 0;
-      ap_prc->file_eos_               = true;
+      int remaining = 0;
+      ap_prc->file_eos_ = true;
       /* Try to empty the temp stores out to an omx buffer */
       remaining                       = flush_stores (ap_prc);
       TIZ_TRACE (handleOf (ap_prc),
@@ -989,12 +984,12 @@ demux_file (oggdmux_prc_t * ap_prc)
 
       if (!ap_prc->aud_eos_)
         {
-          ap_prc->aud_eos_ = release_buffer_with_eos
+          ap_prc->aud_eos_ = release_header_with_eos
             (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX);
         }
       if (!ap_prc->vid_eos_)
         {
-          ap_prc->vid_eos_ = release_buffer_with_eos
+          ap_prc->vid_eos_ = release_header_with_eos
             (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
         }
     }
