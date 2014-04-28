@@ -35,6 +35,7 @@
 
 #include <tizplatform.h>
 
+#include <tizscheduler.h>
 #include <tizport.h>
 
 #include "vorbisd.h"

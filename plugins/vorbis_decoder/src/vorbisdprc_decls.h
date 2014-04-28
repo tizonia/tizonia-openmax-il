@@ -33,11 +33,10 @@
 extern "C" {
 #endif
 
-#include "vorbisdprc.h"
-#include "tizprc_decls.h"
-
 #include <stdbool.h>
 #include <fishsound/fishsound.h>
+
+#include <tizprc_decls.h>
 
 typedef struct vorbisd_prc vorbisd_prc_t;
 struct vorbisd_prc
