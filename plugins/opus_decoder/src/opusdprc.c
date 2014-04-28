@@ -100,12 +100,14 @@ get_header (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 
   if (!port_disabled)
     {
-      p_hdr = *(get_header_ptr (ap_prc, a_pid));
+      OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
+      p_hdr = *pp_hdr;
       if (NULL == p_hdr)
         {
           if (OMX_ErrorNone == tiz_krn_claim_buffer
-              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, &p_hdr))
+              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
             {
+              p_hdr = *pp_hdr;
               if (NULL != p_hdr)
                 {
                   TIZ_TRACE (handleOf (ap_prc),
