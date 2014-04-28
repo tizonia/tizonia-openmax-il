@@ -50,10 +50,21 @@ PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
 #PKG_CHECK_MODULES([TIZ], [libtizplatform])
 
 # Checks for header files.
+AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+# This one was introduced in 2.69
+# AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_INT32_T
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
 
 # Checks for library functions.
+AC_FUNC_FORK
+AC_CHECK_FUNCS([strndup strstr strtol])
 
 # DBus
 AS_AC_EXPAND(DATADIR, $datadir)

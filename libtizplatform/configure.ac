@@ -49,16 +49,28 @@ PKG_CHECK_MODULES([uuid], [uuid >= 2.19.0])
 AM_PATH_LOG4C([1.2.1])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h stddef.h string.h unistd.h sys/time.h uuid/uuid.h ev.h])
+AC_FUNC_ALLOCA
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h malloc.h stddef.h stdint.h stdlib.h string.h strings.h sys/socket.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+# This one was introduced in 2.69
+# AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_INT8_T
 AC_TYPE_SIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
 
 # Checks for library functions.
+AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([memset gettimeofday memmove strdup])
+AC_CHECK_FUNCS([bzero gettimeofday memmove memset pathconf socket strdup strerror strndup strstr strtoul])
 
 AC_CONFIG_FILES([Makefile
                  libtizplatform.pc

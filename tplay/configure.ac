@@ -50,15 +50,18 @@ PKG_CHECK_MODULES([LIBMEDIAINFO], [libmediainfo >= 0.7.67])
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
 #PKG_CHECK_MODULES([TIZ], [libtizplatform])
 
-
 # Checks for header files.
-AC_CHECK_HEADERS([limits.h stdlib.h string.h termios.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h termios.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
-AC_C_INLINE
+# This one was introduced in 2.69
+# AC_CHECK_HEADER_STDBOOL
+AC_TYPE_SIZE_T
 
 # Checks for library functions.
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_FORK
+AC_CHECK_FUNCS([dup2 gethostbyname gethostname inet_ntoa strtol])
 
 AC_CONFIG_FILES([Makefile
                 src/Makefile])

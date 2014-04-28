@@ -69,7 +69,7 @@ AC_C_RESTRICT
 # Checks for library functions.
 AC_CHECK_FUNCS([strtol])
 AC_CHECK_HEADERS([limits.h])
-# This was introduced in 2.69
+# This one was introduced in 2.69
 # AC_CHECK_HEADER_STDBOOL
 AC_TYPE_INT32_T
 AC_TYPE_UINT32_T

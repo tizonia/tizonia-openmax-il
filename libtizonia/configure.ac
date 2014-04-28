@@ -46,14 +46,19 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 #PKG_CHECK_MODULES([TIZCORE], [libtizcore])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h])
+AC_CHECK_HEADERS([limits.h stddef.h stdlib.h string.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+# This one was introduced in 2.69
+# AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
 
 # Checks for library functions.
-# TODO: Move this to libtizplatform
-AC_CHECK_FUNCS([strdup])
+# TODO: Move some of these to libtizplatform
+AC_FUNC_FORK
+AC_CHECK_FUNCS([select strndup strstr])
 
 AC_CONFIG_FILES([Makefile
                  libtizonia.pc
