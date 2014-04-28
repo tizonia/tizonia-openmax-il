@@ -20,10 +20,10 @@
 /**
  * @file   sdlivrprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - SDL Video Renderer processor class decls
- * 
- * 
+ *
+ *
  */
 
 #ifndef SDLIVRPRC_DECLS_H
@@ -34,13 +34,10 @@ extern "C"
 {
 #endif
 
-#include "sdlivrprc.h"
-#include "tizprc_decls.h"
-
-#include "OMX_Core.h"
-
 #include <stdbool.h>
 #include <SDL.h>
+
+#include <tizprc_decls.h>
 
   typedef struct sdlivr_prc sdlivr_prc_t;
   struct sdlivr_prc

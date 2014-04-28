@@ -40,10 +40,18 @@ PKG_CHECK_MODULES([SDL], [sdl])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 # Checks for header files.
+AC_CHECK_HEADERS([limits.h stdlib.h string.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+# This one was introduced in 2.69
+# AC_CHECK_HEADER_STDBOOL
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_UINT8_T
 
 # Checks for library functions.
+AC_FUNC_FORK
+AC_CHECK_FUNCS([strndup])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile

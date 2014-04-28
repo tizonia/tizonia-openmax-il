@@ -18,6 +18,7 @@
 lib_LTLIBRARIES = libtizsdlivr.la
 
 noinst_HEADERS = \
+	sdlivr.h \
 	sdlivrprc.h \
 	sdlivrprc_decls.h
 
