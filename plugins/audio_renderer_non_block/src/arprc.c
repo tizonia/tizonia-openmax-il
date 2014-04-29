@@ -133,7 +133,7 @@ do_flush (ar_prc_t * ap_prc)
 {
   assert (NULL != ap_prc);
   tiz_check_omx_err (stop_io_watcher (ap_prc));
-  if (NULL != p_prc->p_pcm_hdl)
+  if (NULL != ap_prc->p_pcm_hdl)
     {
       (void) snd_pcm_drop (ap_prc->p_pcm_hdl);
     }
