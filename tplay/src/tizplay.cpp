@@ -54,6 +54,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <termios.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include <ostream>
 
@@ -194,11 +196,12 @@ namespace  // unnamed namespace
     printf (
         "usage: %s [-c role] [-d] [-h] [-l] [-v]\n"
         "\t     [-p port] [-r component] [-s]\n"
-        "\t     [--shuffle]\n"
         "\t     [--bitrate-modes=comma-separated-list]\n"
+        "\t     [--log-directory=DIR]\n"
         "\t     [--sampling-rates=comma-separated-list]\n"
-        "\t     [--station-name=string]\n"
         "\t     [--station-genre=string]\n"
+        "\t     [--station-name=string]\n"
+        "\t     [--shuffle]\n"
         "\t     <FILE/DIR>\n",
         PACKAGE_NAME);
     printf ("options:\n");
@@ -216,6 +219,8 @@ namespace  // unnamed namespace
         "\t-r --roles-of-comp <component>\t\tDisplay the roles found in "
         "<component>.\n");
     printf ("\t-R --recurse\t\t\t\tRecursively process DIR.\n");
+    printf (
+        "\t   --log-directory\t\t\tA directory to be used for debug logging.\n");
     printf (
         "\t   --bitrate-modes\t\t\tA list of bitrate modes (CBR, VBR) that will be\n"
         "\t\t\t\t\t\tallowed in the playlist (http streaming only). Default: "
@@ -632,6 +637,7 @@ int main (int argc, char **argv)
   std::string media;
   std::string station_name ("Tizonia Radio");
   std::string station_genre ("Unknown Genre");
+  std::string log_dir;
   bool shuffle_playlist = false;
   bool recurse = false;
 
@@ -654,6 +660,7 @@ int main (int argc, char **argv)
             { "station-name", required_argument, 0, 3 },
             { "station-genre", required_argument, 0, 4 },
             { "bitrate-modes", required_argument, 0, 5 },
+            { "log-directory", required_argument, 0, 6 },
             { "stream", required_argument, 0, 's' },
             { "port", required_argument, 0, 'p' },
             { "recurse", no_argument, 0, 'R' },
@@ -723,6 +730,24 @@ int main (int argc, char **argv)
               "[CBR,VBR]\n",
               optarg);
           exit (EXIT_FAILURE);
+        }
+      }
+      break;
+
+      case 6:
+      {
+        DIR* dir = opendir (optarg);
+        if (NULL == dir)
+        {
+          fprintf (stderr, "Invalid argument : %s (%s).\n",
+                   optarg, strerror (errno));
+          exit (EXIT_FAILURE);
+        }
+        else
+        {
+          closedir (dir);
+          dir = NULL;
+          log_dir = optarg;
         }
       }
       break;
@@ -827,6 +852,10 @@ int main (int argc, char **argv)
   signal (SIGPIPE, SIG_IGN);
 
   tiz_log_init ();
+  if (log_dir.length () > 0)
+  {
+      tiz_log_set_unique_rolling_file (log_dir.c_str(), PACKAGE_NAME);
+  }
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL player...");
 
   if (!media.empty ())
