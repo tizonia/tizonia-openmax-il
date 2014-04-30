@@ -32,18 +32,18 @@
 
 #include <stdlib.h>
 #include <string.h>
-
+#include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
 #include <sys/syscall.h>
 #include <time.h>
-#include <log4c.h>
 #include <alloca.h>
+
+#include <log4c.h>
+#include <log4c/appender.h>
+#include <log4c/appender_type_rollingfile.h>
+#include <log4c/rollingpolicy.h>
 
 #include "tizlog.h"
 
@@ -142,6 +142,47 @@ int tiz_log_init ()
 #endif
 }
 
+void tiz_log_set_unique_rolling_file (const char* ap_logdir, const char * ap_file_prefix)
+{
+  assert (NULL != ap_logdir);
+  assert (NULL != ap_file_prefix);
+
+  if (NULL == ap_logdir || NULL == ap_file_prefix)
+    {
+      return;
+    }
+
+  {
+    log4c_appender_t *app = log4c_appender_get ("tizlogfile");
+
+    if (NULL != app)
+      {
+        rollingfile_udata_t *rfup = log4c_appender_get_udata(app);
+        if (NULL != rfup)
+          {
+            char buffer[128];
+            pid_t pid = getpid ();
+            rollingfile_udata_set_logdir(rfup, (char *) ap_logdir);
+            snprintf (buffer, 128, "%s.%i.%s", ap_file_prefix, pid, "log");
+            rollingfile_udata_set_files_prefix(rfup, buffer);
+
+            /* recover a rollingpolicy instance with this name */
+            log4c_rollingpolicy_t *rollingpolicyp
+              = log4c_rollingpolicy_get("tizrolling");
+            if (NULL != rollingpolicyp)
+              {
+                /* connect that policy to this rollingfile appender conf */
+                rollingfile_udata_set_policy(rfup, rollingpolicyp);
+                log4c_appender_set_udata(app, rfup);
+
+                /* allow the policy to initialize itself */
+                log4c_rollingpolicy_init(rollingpolicyp, rfup);
+              }
+          }
+      }
+  }
+}
+
 int tiz_log_deinit ()
 {
 #ifndef WITHOUT_LOG4C
@@ -162,8 +203,7 @@ void tiz_log (const char *ap_file, int a_line, const char *ap_func,
   const log4c_category_t *p_category = log4c_category_get (ap_cat_name);
   if (log4c_category_is_priority_enabled (p_category, a_priority))
     {
-      /* TODO: 4096 - this value needs be received at project configuration
-       * time */
+      /* TODO: 4096 - this value should to be obtained at config time */
       char *buffer = alloca (4096);
       user_locinfo.pid = getpid ();
       user_locinfo.tid = syscall (SYS_gettid);
@@ -192,3 +232,8 @@ void tiz_log (const char *ap_file, int a_line, const char *ap_func,
 
 #endif
 }
+
+/*  TODO: Allow override the logging configuration via command line */
+/*        const int overwrite = 1; */
+/*        setenv("LOG4C_PRIORITY", "error", overwrite); */
+/*        setenv("LOG4C_APPENDER", "stderr", overwrite); */
