@@ -125,7 +125,7 @@ static OMX_BUFFERHEADERTYPE *get_header (vorbisd_prc_t *ap_prc,
       if (NULL == p_hdr)
         {
           if (OMX_ErrorNone == tiz_krn_claim_buffer
-              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, &p_hdr))
+              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
             {
               p_hdr = *pp_hdr;
               if (NULL != p_hdr)
