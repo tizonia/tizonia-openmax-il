@@ -368,8 +368,7 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
 
       if (-EAGAIN == err)
         {
-          TIZ_ERROR (handleOf (ap_prc),
-                     "Ring buffer must be full (got -EAGAIN)");
+          /* got -EAGAIN, alsa's buffers must be full, start the watcher */
           return start_io_watcher (ap_prc);
         }
 
