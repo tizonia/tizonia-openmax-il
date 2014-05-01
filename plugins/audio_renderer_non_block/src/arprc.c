@@ -345,16 +345,12 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
   assert (NULL != ap_prc);
   assert (NULL != ap_hdr);
 
-  TIZ_TRACE (handleOf (ap_prc),
-             "Rendering HEADER [%p]...nFilledLen[%d] nOffset [%d]!!!", ap_hdr,
-             ap_hdr->nFilledLen, ap_hdr->nOffset);
-
   step = (ap_prc->pcmmode.nBitPerSample / 8) * ap_prc->pcmmode.nChannels;
   assert (ap_hdr->nFilledLen > 0);
   samples = ap_hdr->nFilledLen / step;
   TIZ_TRACE (handleOf (ap_prc),
-             "step [%d], samples [%d] nFilledLen [%d]",
-             step, samples, ap_hdr->nFilledLen);
+             "Rendering HEADER [%p]... step [%d], samples [%d] nFilledLen [%d]",
+             ap_hdr, step, samples, ap_hdr->nFilledLen);
 
   adjust_gain (ap_prc, ap_hdr, samples);
 
@@ -362,9 +358,6 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
     {
       err = snd_pcm_writei (ap_prc->p_pcm_hdl,
                             ap_hdr->pBuffer + ap_hdr->nOffset, samples);
-      TIZ_TRACE (handleOf (ap_prc),
-                 "Rendering HEADER [%p]...err [%d] samples [%d] nOffset [%d]",
-                 ap_hdr, err, samples, ap_hdr->nOffset);
 
       if (-EAGAIN == err)
         {
@@ -442,7 +435,7 @@ buffer_emptied (ar_prc_t * ap_prc)
 
   if ((ap_prc->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
     {
-      TIZ_TRACE (handleOf (ap_prc),
+      TIZ_DEBUG (handleOf (ap_prc),
                  "OMX_BUFFERFLAG_EOS in HEADER [%p]", ap_prc->p_inhdr_);
       tiz_srv_issue_event ((OMX_PTR) ap_prc,
                            OMX_EventBufferFlag, 0,
@@ -470,10 +463,6 @@ render_pcm_data (ar_prc_t * ap_prc)
         {
           tiz_check_omx_err (render_buffer (ap_prc, p_hdr));
         }
-
-      TIZ_TRACE (handleOf (ap_prc),
-                 "awaiting_io_ev_ [%s]",
-                 ap_prc->awaiting_io_ev_ ? "YES" : "NO");
 
       if (0 == p_hdr->nFilledLen)
         {
