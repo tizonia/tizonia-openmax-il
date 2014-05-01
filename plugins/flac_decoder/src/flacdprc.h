@@ -20,25 +20,24 @@
 /**
  * @file   flacdprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - FLAC Decoder processor class
- * 
- * 
+ *
+ *
  */
 
 #ifndef FLACDPRC_H
 #define FLACDPRC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * flacd_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * flacd_prc_init (void * ap_tos, void * ap_hdl);
+void *flacd_prc_class_init (void *ap_tos, void *ap_hdl);
+void *flacd_prc_init (void *ap_tos, void *ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* FLACDPRC_H */
+#endif /* FLACDPRC_H */

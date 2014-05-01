@@ -20,55 +20,54 @@
 /**
  * @file   flacdprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - FLAC Decoder processor class decls
- * 
- * 
+ *
+ *
  */
 
 #ifndef FLACDPRC_DECLS_H
 #define FLACDPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
-#include <FLAC/all.h>                /* flac header */
+#include <FLAC/all.h> /* flac header */
 
 #include "tizprc_decls.h"
 
-  typedef struct flacd_prc flacd_prc_t;
-  struct flacd_prc
-  {
-    /* Object */
-    const tiz_prc_t   _;
-    FLAC__StreamDecoder *p_flac_dec_;
-    OMX_BUFFERHEADERTYPE *p_in_hdr_;
-    OMX_BUFFERHEADERTYPE *p_out_hdr_;
-    bool eos_;
-    bool in_port_disabled_;
-    bool out_port_disabled_;
-    FLAC__uint64 total_samples_;
-    unsigned sample_rate_;
-    unsigned channels_;
-    unsigned bps_;
-    OMX_U8 *p_store_;
-    OMX_U32 store_offset_;
-    OMX_U32 store_size_;
-  };
+typedef struct flacd_prc flacd_prc_t;
+struct flacd_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  FLAC__StreamDecoder *p_flac_dec_;
+  OMX_BUFFERHEADERTYPE *p_in_hdr_;
+  OMX_BUFFERHEADERTYPE *p_out_hdr_;
+  bool eos_;
+  bool in_port_disabled_;
+  bool out_port_disabled_;
+  FLAC__uint64 total_samples_;
+  unsigned sample_rate_;
+  unsigned channels_;
+  unsigned bps_;
+  OMX_U8 *p_store_;
+  OMX_U32 store_offset_;
+  OMX_U32 store_size_;
+};
 
-  typedef struct flacd_prc_class flacd_prc_class_t;
-  struct flacd_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct flacd_prc_class flacd_prc_class_t;
+struct flacd_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* FLACDPRC_DECLS_H */
+#endif /* FLACDPRC_DECLS_H */
