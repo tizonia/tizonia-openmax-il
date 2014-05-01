@@ -36,11 +36,6 @@
 #define FUSION_MAX_VECTOR_SIZE 20
 #define SPIRIT_ARGUMENTS_LIMIT 20
 
-#ifdef TIZ_LOG_CATEGORY_NAME
-#undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play"
-#endif
-
 #include <stdlib.h>
 #include <signal.h>
 #include <stdio.h>
@@ -80,6 +75,11 @@
 #include "tizgraphfactory.hpp"
 #include "tizhttpservmgr.hpp"
 #include "tizhttpservconfig.hpp"
+
+#ifdef TIZ_LOG_CATEGORY_NAME
+#undef TIZ_LOG_CATEGORY_NAME
+#define TIZ_LOG_CATEGORY_NAME "tiz.play"
+#endif
 
 static bool gb_daemon_mode = false;
 static struct termios old_term, new_term;
@@ -843,13 +843,14 @@ int main (int argc, char **argv)
 
   signal (SIGTERM, tizplay_sig_term_hdlr);
 
+  signal (SIGPIPE, SIG_IGN);
+  signal (SIGINT, tizplay_sig_term_hdlr);
+  signal (SIGTERM, tizplay_sig_term_hdlr);
   if (!gb_daemon_mode)
   {
-    signal (SIGINT, tizplay_sig_term_hdlr);
     signal (SIGTSTP, tizplay_sig_stp_hdlr);
     signal (SIGQUIT, tizplay_sig_term_hdlr);
   }
-  signal (SIGPIPE, SIG_IGN);
 
   tiz_log_init ();
   if (log_dir.length () > 0)
@@ -872,7 +873,7 @@ int main (int argc, char **argv)
     error = decode (media, shuffle_playlist, recurse);
   }
 
-  (void)tiz_log_deinit ();
+  (void) tiz_log_deinit ();
 
   if (OMX_ErrorNone != error)
   {

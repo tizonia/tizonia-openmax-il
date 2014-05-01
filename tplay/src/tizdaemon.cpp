@@ -23,10 +23,7 @@
  *
  * @brief  Daemonize utility
  *
- * NOTE: This is work-in-progress.
- * TODO: Clear file mode creation mask
- * TODO: Change process' current directory
- *
+ * TODO: catch SIGHUP to reload configuration
  */
 
 #ifdef HAVE_CONFIG_H
@@ -100,14 +97,12 @@ int tiz::daemon::daemonize ()
     }
   };
 
-  // TODO: Clear file mode creation mask
   umask (027);
 
-  // TODO: Change the process' current directory
-  //   if (-1 == chdir("/"))
-  //   {
-  //     return TIZ_DAEMON_FAILURE;
-  //   }
+  if (-1 == chdir("/"))
+  {
+    return TIZ_DAEMON_FAILURE;
+  }
 
   // Close all open files
   int maxfd = sysconf (_SC_OPEN_MAX);
@@ -146,8 +141,9 @@ int tiz::daemon::daemonize ()
   signal (SIGTSTP, SIG_IGN); /* ignore tty signals */
   signal (SIGTTOU, SIG_IGN);
   signal (SIGTTIN, SIG_IGN);
+
+  // TODO:
   //     signal(SIGHUP,signal_handler); /* catch hangup signal */
-  //     signal(SIGTERM,signal_handler); /* catch kill signal */
 
   return TIZ_DAEMON_SUCCESS;
 }
