@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <math.h>
+#include <string.h>
 
 #include <tizplatform.h>
 
@@ -69,29 +70,35 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj);
 /*@null@*/ static char *
 get_alsa_device (ar_prc_t * ap_prc)
 {
-  const char *p_alsa_pcm = NULL;
-
   assert (NULL != ap_prc);
-  assert (NULL == ap_prc->p_alsa_pcm_);
 
-  p_alsa_pcm
-    = tiz_rcfile_get_value (TIZ_RCFILE_PLUGINS_DATA_SECTION,
-                            "OMX.Aratelia.audio_renderer_nb.pcm.alsa_device");
-
-  if (NULL != p_alsa_pcm)
+  if (NULL == ap_prc->p_alsa_pcm_)
     {
-      TIZ_TRACE (handleOf (ap_prc), "Using ALSA pcm [%s]...", p_alsa_pcm);
-      ap_prc->p_alsa_pcm_ = strndup (p_alsa_pcm, OMX_MAX_STRINGNAME_SIZE);
-    }
-  else
-    {
-      TIZ_TRACE (handleOf (ap_prc),
-                 "No alsa device found in config file. Using [%s]...",
-                 ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_DEVICE);
-    }
+      const char *p_alsa_pcm
+        = tiz_rcfile_get_value (TIZ_RCFILE_PLUGINS_DATA_SECTION,
+                                "OMX.Aratelia.audio_renderer_nb.pcm.alsa_device");
 
+      if (NULL != p_alsa_pcm)
+        {
+          TIZ_TRACE (handleOf (ap_prc), "Using ALSA pcm [%s]...", p_alsa_pcm);
+          ap_prc->p_alsa_pcm_ = strndup (p_alsa_pcm, OMX_MAX_STRINGNAME_SIZE);
+        }
+      else
+        {
+          TIZ_TRACE (handleOf (ap_prc),
+                     "No alsa device found in config file. Using [%s]...",
+                     ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_DEVICE);
+        }
+    }
   return (NULL != ap_prc->p_alsa_pcm_) ? ap_prc->p_alsa_pcm_
     : ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_DEVICE;
+}
+
+static bool using_null_alsa_device (ar_prc_t * ap_prc)
+{
+  return (0 == strncmp (get_alsa_device (ap_prc),
+                        ARATELIA_AUDIO_RENDERER_NULL_ALSA_DEVICE,
+                        OMX_MAX_STRINGNAME_SIZE));
 }
 
 static inline OMX_ERRORTYPE
@@ -241,22 +248,24 @@ set_component_volume (ar_prc_t * ap_prc)
 
   assert (NULL != ap_prc);
 
-  tiz_check_omx_err (get_alsa_master_volume (ap_prc, &(ap_prc->volume_)));
+  if (!using_null_alsa_device (ap_prc))
+    {
+      tiz_check_omx_err (get_alsa_master_volume (ap_prc, &(ap_prc->volume_)));
 
-  volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
-  volume.nVersion.nVersion = OMX_VERSION;
-  volume.nPortIndex = 0;
+      volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
+      volume.nVersion.nVersion = OMX_VERSION;
+      volume.nPortIndex = 0;
 
-  tiz_check_omx_err (tiz_api_GetConfig (tiz_get_krn (handleOf (ap_prc)),
-                                        handleOf (ap_prc),
-                                        OMX_IndexConfigAudioVolume, &volume));
+      tiz_check_omx_err (tiz_api_GetConfig (tiz_get_krn (handleOf (ap_prc)),
+                                            handleOf (ap_prc),
+                                            OMX_IndexConfigAudioVolume, &volume));
 
-  volume.sVolume.nValue = ap_prc->volume_;
+      volume.sVolume.nValue = ap_prc->volume_;
 
-  tiz_check_omx_err (tiz_api_SetConfig (tiz_get_krn (handleOf (ap_prc)),
-                                        handleOf (ap_prc),
-                                        OMX_IndexConfigAudioVolume, &volume));
-
+      tiz_check_omx_err (tiz_api_SetConfig (tiz_get_krn (handleOf (ap_prc)),
+                                            handleOf (ap_prc),
+                                            OMX_IndexConfigAudioVolume, &volume));
+    }
   return OMX_ErrorNone;
 }
 
@@ -304,6 +313,8 @@ static void
 toggle_mute (ar_prc_t * ap_prc, const bool a_mute)
 {
   assert (NULL != ap_prc);
+
+  if (!using_null_alsa_device (ap_prc))
   {
     long new_volume = (a_mute ? 0 : ap_prc->volume_);
     TIZ_TRACE (handleOf (ap_prc), "volume = %ld\n", new_volume);
@@ -314,10 +325,13 @@ toggle_mute (ar_prc_t * ap_prc, const bool a_mute)
 static void
 set_volume (ar_prc_t * ap_prc, const long a_volume)
 {
-  if (set_alsa_master_volume (ap_prc, a_volume))
+  if (!using_null_alsa_device (ap_prc))
     {
-      assert (NULL != ap_prc);
-      ap_prc->volume_ = a_volume;
+      if (set_alsa_master_volume (ap_prc, a_volume))
+        {
+          assert (NULL != ap_prc);
+          ap_prc->volume_ = a_volume;
+        }
     }
 }
 
