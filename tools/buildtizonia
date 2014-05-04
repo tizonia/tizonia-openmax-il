@@ -22,6 +22,7 @@
 # Globals
 WORKING_DIR="$HOME/tizonia-openmax-il" # Default value for working directory
 INSTALL_DIR="$HOME/build" # Default value for install directory
+TIZRMD_PID=-1
 
 if [ "$2" != "" ]; then
     WORKING_DIR="$2"
@@ -111,70 +112,6 @@ function exists_in_array {
 }
 
 ##################################################################
-# Clones skema's git repo and installs all skema's tags and suites
-#
-# Globals
-#   None
-# Arguments:
-#   None
-# Returns:
-#   None
-##################################################################
-function install_skema {
-
-    cd_to_working_dir
-
-    # Step #1 : Clone repo
-    echo "Cloning skema's repo..."
-    git clone $SKEMA_GIT_REPO $SKEMA_DIR
-    local exit_status=$?
-    if [[ "$exit_status" -ne 0 ]]; then
-        err "Unable to clone skema's repo: $SKEMA_GIT_REPO" >&2
-        exit "${E_BAD_CLONE}"
-    fi
-
-    # Step #2: Install skema's tags
-    cd $SKEMA_BIN_DIR
-
-    local tags=( `./skema list_tags` )
-    local tag_count="${#tags[@]}"
-    echo "Installing all $tag_count tags..."
-    for t in "${tags[@]}"; do
-        echo "Installing [$t]"
-        ./skema uninstall_tag "$t"
-        ./skema install_tag "$t"
-    done
-
-    # This is to verify that the tags are installed
-    local installed_tags=( `./skema list_installed_tags` )
-    local installed_tag_count="${#installed_tags[@]}"
-    if [[ "$installed_tag_count" -ne "$tag_count" ]]; then
-        err "Error while installing tags" >&2
-        exit 1
-    fi
-
-    # Step #3: Install skema's test suites
-    echo
-    local suites=( `./skema list_suites` )
-    local suite_count="${#suites[@]}"
-    echo "Installing all $suite_count suites..."
-    for s in "${suites[@]}"; do
-        echo "Installing [$s]"
-        ./skema uninstall_suite "$s"
-        ./skema install_suite "$s"
-    done
-
-    # This is to verify that the suites are installed
-    local installed_suites=( `./skema list_installed_suites` )
-    local installed_suite_count="${#installed_suites[@]}"
-    if [[ "$installed_suite_count" -ne "$suite_count" ]]; then
-        err "Error while installing suites" >&2
-        exit 1
-    fi
-    return "$exit_status"
-}
-
-##################################################################
 # Run all the installed skema suites
 #
 # Globals
@@ -184,36 +121,26 @@ function install_skema {
 # Returns:
 #   None
 ##################################################################
-function run_tests {
+function start_dbus {
+    ## test for an existing bus daemon, just to be safe
+    if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
+        ## if not found, launch a new one
+        export `dbus-launch --exit-with-session`
+        echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
+        echo "D-Bus per-session daemon PID is    : $DBUS_SESSION_BUS_PID"
+    fi
 
-    cd "$SKEMA_BIN_DIR"
-
-    # Step #1: Retrieve the list of installed suites
-    local installed_suites=( `./skema list_installed_suites` )
-    local installed_suite_count="${#installed_suite_count[@]}"
-    local exit_status=0
-    for s in "${installed_suites[@]}"; do
-        # Check if the suite is exempt
-        exists_in_array "$s" "${SKEMA_EXEMPT_SUITES[@]}"
-        exit_status=$?
-        if [[ "$exit_status" -eq 0 ]]; then
-            err "Skipping suite : $s" >&2
-            continue
-        fi
-
-        echo "Running [$s]"
-        ./skema run_suite "$s"
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]]; then
-            err "Error in suite: $s" >&2
-            exit 1
-        fi
-    done
-    return "$exit_status"
+    "$INSTALL_DIR"/bin/tizrmd &
+    TIZRMD_PID=$(pidof tizrmd)
+    if [[ -z "$TIZRMD_PID" ]] ; then
+        err "Unable to start the resource manager deamon"
+        exit 1
+    fi
+    echo "Tizonia RM daemon instantiated: pid $ltrmdpid."
 }
 
 ##################################################################
-# Installs the binray dependencies
+# Installs the binary dependencies
 #
 # Globals
 #   None
@@ -232,12 +159,12 @@ function install_deps {
         uuid-dev libsdl1.2-dev libvpx-dev libavcodec-dev \
         libavformat-dev libavdevice-dev libmp3lame-dev \
         libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
-        curl check wget sqlite3
+        curl check wget sqlite3 dbus-x11
     return $?
 }
 
 ##################################################################
-# Installs the binray dependencies
+# Installs the source-based dependencies
 #
 # Globals
 #   WORKING_DIR
@@ -283,7 +210,7 @@ function install_src_deps {
 }
 
 ##################################################################
-# Installs the binary dependencies
+# Installs the config files
 #
 # Globals
 #   INSTALL_DIR
@@ -306,6 +233,14 @@ function copy_config_files {
         cp "$WORKING_DIR/config/tizonia.conf" "$HOME/.tizonia.conf"
         exit_status=$?
     fi
+
+    # Modify tizonia config to make the ALSA renderers use the null pcm
+    if [[ "$exit_status" -eq 0 ]] ; then
+        echo "Preparing the $HOME/.tizrc config file..."
+        perl -pi -e 's/\bdefault\b/null/' "$HOME/.tizonia.conf"
+        exit_status=$?
+    fi
+
     return $exit_status
 }
 
@@ -380,6 +315,110 @@ function build_conformace {
 }
 
 ##################################################################
+# Clones skema's git repo and installs all skema tags and suites
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function install_skema {
+
+    cd_to_working_dir
+
+    # Step #1 : Clone repo
+    echo "Cloning skema's repo..."
+    git clone $SKEMA_GIT_REPO $SKEMA_DIR
+    local exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Unable to clone skema's repo: $SKEMA_GIT_REPO"
+        exit "${E_BAD_CLONE}"
+    fi
+
+    # Step #2: Install skema's tags
+    cd $SKEMA_BIN_DIR
+
+    local tags=( `./skema list_tags` )
+    local tag_count="${#tags[@]}"
+    echo "Installing all $tag_count tags..."
+    for t in "${tags[@]}"; do
+        echo "Installing [$t]"
+        ./skema uninstall_tag "$t"
+        ./skema install_tag "$t"
+    done
+
+    # This is to verify that the tags are installed
+    local installed_tags=( `./skema list_installed_tags` )
+    local installed_tag_count="${#installed_tags[@]}"
+    if [[ "$installed_tag_count" -ne "$tag_count" ]]; then
+        err "Error while installing tags"
+        exit 1
+    fi
+
+    # Step #3: Install skema's test suites
+    echo
+    local suites=( `./skema list_suites` )
+    local suite_count="${#suites[@]}"
+    echo "Installing all $suite_count suites..."
+    for s in "${suites[@]}"; do
+        echo "Installing [$s]"
+        ./skema uninstall_suite "$s"
+        ./skema install_suite "$s"
+    done
+
+    # This is to verify that the suites are installed
+    local installed_suites=( `./skema list_installed_suites` )
+    local installed_suite_count="${#installed_suites[@]}"
+    if [[ "$installed_suite_count" -ne "$suite_count" ]]; then
+        err "Error while installing suites"
+        exit 1
+    fi
+    return "$exit_status"
+}
+
+##################################################################
+# Run all the installed skema suites
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function run_tests {
+
+    start_dbus
+
+    cd "$SKEMA_BIN_DIR"
+
+    # Retrieve the list of installed suites
+    local installed_suites=( `./skema list_installed_suites` )
+    local installed_suite_count="${#installed_suite_count[@]}"
+    local exit_status=0
+    for s in "${installed_suites[@]}"; do
+        # Check if the suite is exempt
+        exists_in_array "$s" "${SKEMA_EXEMPT_SUITES[@]}"
+        exit_status=$?
+        if [[ "$exit_status" -eq 0 ]]; then
+            err "Skipping suite : $s"
+            continue
+        fi
+
+        echo "Running [$s]"
+        ./skema run_suite "$s"
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]]; then
+            err "Error in suite: $s"
+            exit 1
+        fi
+    done
+    return "$exit_status"
+}
+
+##################################################################
 # Main function
 #
 # Globals
@@ -432,7 +471,7 @@ function main {
     if [ "$1" == "debug" ] || [ "$1" == "release" ] || [ "$1" == "conf" ] || [ "$1" == "bldonly" ] ; then
         cd_to_working_dir
         if [[ "$exit_status" -eq 0 ]] ; then
-            make -j2
+            make -j8
             exit_status=$?
         fi
 
