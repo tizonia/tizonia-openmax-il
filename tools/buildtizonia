@@ -490,4 +490,3 @@ function main {
 }
 
 main "$@"
-
