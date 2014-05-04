@@ -27,7 +27,7 @@ before_install:
  - ./tools/buildtizonia deps "$HOME"
  - ./tools/buildtizonia srcdeps "$HOME"
 before_script:
- - ./tools/buildtizonia media "$HOME/build"
+ - ./tools/buildtizonia media "$HOME" "$HOME/temp"
 script:
  - ./tools/buildtizonia debug "$HOME/build/tizonia/tizonia-openmax-il"
  - ./tools/buildtizonia tizrc "$HOME/build/tizonia/tizonia-openmax-il"

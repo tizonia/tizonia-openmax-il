@@ -447,8 +447,10 @@ function main {
         exit_status=$?
     elif [ "$1" == "media" ];  then
         cd_to_working_dir
-        echo "Downloading test media files..."
-        wget http://www.juanrubio.me/tizonia/tizonia-test-media.tgz \
+        echo "Downloading test media files to $INSTALL_DIR..."
+        mkdir -p "$INSTALL_DIR" \
+            && cd "$INSTALL_DIR" \
+            && wget http://www.juanrubio.me/tizonia/tizonia-test-media.tgz \
             && tar zxvf tizonia-test-media.tgz
         exit_status=$?
     elif [ "$1" == "tizrc" ];  then
