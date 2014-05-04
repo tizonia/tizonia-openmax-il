@@ -18,9 +18,7 @@
 #
 # Travis-ci configuration file (see http://travis-ci.org)
 #
-# NOTE: This file is work in progress
-#
-# TODO: Add step to run Tizonia's unit tests
+# TODO: Enable the skema unit tests
 #
 
 language: c
@@ -35,3 +33,4 @@ script:
  - ./tools/buildtizonia debug "$HOME/build/tizonia/tizonia-openmax-il"
  - ./tools/buildtizonia tizrc "$HOME/build/tizonia/tizonia-openmax-il"
  - ./tools/buildtizonia skema "$HOME/build"
+# - ./tools/buildtizonia tests "$HOME/build"

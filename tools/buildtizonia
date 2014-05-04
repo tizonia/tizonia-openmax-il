@@ -19,57 +19,213 @@
 # Travis-ci build script
 #
 
-TIZ_DIR="/home/$USER/tizonia-openmax-il"
-INSTALL_DIR="/home/$USER/build"
-CWD=`pwd`
+# Globals
+WORKING_DIR="$HOME/tizonia-openmax-il" # Default value for working directory
+INSTALL_DIR="$HOME/build" # Default value for install directory
 
 if [ "$2" != "" ]; then
-    TIZ_DIR="$2"
+    WORKING_DIR="$2"
 fi
 
 if [ "$3" != "" ]; then
     INSTALL_DIR="$3"
 fi
 
+# Constants
+readonly E_BADARGS=85
+readonly E_NOFILE=86
+readonly E_BAD_CLONE=87
+readonly CWD=$(pwd)
 
-mkdir -p $INSTALL_DIR
+readonly SKEMA_GIT_REPO=https://github.com/tizonia/skema
+readonly SKEMA_DIR="$INSTALL_DIR"/skema
+readonly SKEMA_BIN_DIR="$SKEMA_DIR"/bin
+declare -ar SKEMA_EXEMPT_SUITES=("Mp3Streaming" "FlacPlayback") # A list of
+                                                                # skema test
+                                                                # suites that
+                                                                # should not be
+                                                                # executed
+#
+# Pre-requisites
+#
 
-echo "Changing dir to $TIZ_DIR"
-cd $TIZ_DIR
+# Create directories
+if [ ! -d "$INSTALL_DIR" ]; then
+    echo "Creating the install directory: $INSTALL_DIR"
+    mkdir -p $INSTALL_DIR
+fi
 
+echo "Changing dir to working directory: $WORKING_DIR"
+cd $WORKING_DIR
+
+# Export important variables
 LIB_DIR="$INSTALL_DIR"/lib
 PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
-
 export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
 export LD_LIBRARY_PATH="$LIB_DIR"
 
-if [ "$1" == "debug" ]; then
-    echo "Reconfiguring Tizonia for [DEBUG] build - Install dir [$INSTALL_DIR]..."
-    autoreconf -ifs
-    exit_status=$?
-    if [ $exit_status -eq 0 ] ; then
-	./configure --prefix=$INSTALL_DIR CFLAGS="-ggdb -Wall -Werror"
-	exit_status=$?
+##################################################################
+# Simple function to print a debug/error message with some extra info
+#
+# Globals
+#   WORKING_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function err {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+}
+
+##################################################################
+# Simple function to go to the working directory
+#
+# Globals
+#   WORKING_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function cd_to_working_dir {
+    echo "Changing dir to working directory: $WORKING_DIR"
+    cd $WORKING_DIR
+}
+
+##################################################################
+# Simple function to check if a string exists in an array
+#
+# Globals
+#   none
+# Arguments:
+#   The search string is the first argument
+#   The array is the second argument
+# Returns:
+#   0 if success, 1 on error
+##################################################################
+function exists_in_array {
+    local e
+    for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
+    return 1
+}
+
+##################################################################
+# Clones skema's git repo and installs all skema's tags and suites
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function install_skema {
+
+    cd_to_working_dir
+
+    # Step #1 : Clone repo
+    echo "Cloning skema's repo..."
+    git clone $SKEMA_GIT_REPO $SKEMA_DIR
+    local exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        err "Unable to clone skema's repo: $SKEMA_GIT_REPO" >&2
+        exit "${E_BAD_CLONE}"
     fi
-elif [ "$1" == "release" ];  then
-    echo "Reconfiguring Tizonia for [RELEASE] build - Install dir [$INSTALL_DIR]..."
-    autoreconf -ifs
-    exit_status=$?
-    if [ $exit_status -eq 0 ] ; then
-	./configure --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
-	exit_status=$?
+
+    # Step #2: Install skema's tags
+    cd $SKEMA_BIN_DIR
+
+    local tags=( `./skema list_tags` )
+    local tag_count="${#tags[@]}"
+    echo "Installing all $tag_count tags..."
+    for t in "${tags[@]}"; do
+        echo "Installing [$t]"
+        ./skema uninstall_tag "$t"
+        ./skema install_tag "$t"
+    done
+
+    # This is to verify that the tags are installed
+    local installed_tags=( `./skema list_installed_tags` )
+    local installed_tag_count="${#installed_tags[@]}"
+    if [[ "$installed_tag_count" -ne "$tag_count" ]]; then
+        err "Error while installing tags" >&2
+        exit 1
     fi
-elif [ "$1" == "conf" ];  then
-    echo "Reconfiguring Tizonia for [CONFORMANCE TESTING] build - Install dir [$INSTALL_DIR]..."
-    autoreconf -ifs
-    exit_status=$?
-    if [ $exit_status -eq 0 ] ; then
-	./configure --enable-silent-rules --enable-blocking-etb-ftb --prefix=$INSTALL_DIR CFLAGS="-ggdb -Wall -Werror"
-	exit_status=$?
+
+    # Step #3: Install skema's test suites
+    echo
+    local suites=( `./skema list_suites` )
+    local suite_count="${#suites[@]}"
+    echo "Installing all $suite_count suites..."
+    for s in "${suites[@]}"; do
+        echo "Installing [$s]"
+        ./skema uninstall_suite "$s"
+        ./skema install_suite "$s"
+    done
+
+    # This is to verify that the suites are installed
+    local installed_suites=( `./skema list_installed_suites` )
+    local installed_suite_count="${#installed_suites[@]}"
+    if [[ "$installed_suite_count" -ne "$suite_count" ]]; then
+        err "Error while installing suites" >&2
+        exit 1
     fi
-elif [ "$1" == "deps" ];  then
-    echo "Installing project dependencies..."
-    sudo apt-get update -qq && sudo apt-get install -qq autoconf automake autotools-dev build-essential \
+    return "$exit_status"
+}
+
+##################################################################
+# Run all the installed skema suites
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function run_tests {
+
+    cd "$SKEMA_BIN_DIR"
+
+    # Step #1: Retrieve the list of installed suites
+    local installed_suites=( `./skema list_installed_suites` )
+    local installed_suite_count="${#installed_suite_count[@]}"
+    local exit_status=0
+    for s in "${installed_suites[@]}"; do
+        # Check if the suite is exempt
+        exists_in_array "$s" "${SKEMA_EXEMPT_SUITES[@]}"
+        exit_status=$?
+        if [[ "$exit_status" -eq 0 ]]; then
+            err "Skipping suite : $s" >&2
+            continue
+        fi
+
+        echo "Running [$s]"
+        ./skema run_suite "$s"
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]]; then
+            err "Error in suite: $s" >&2
+            exit 1
+        fi
+    done
+    return "$exit_status"
+}
+
+##################################################################
+# Installs the binray dependencies
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function install_deps {
+    echo "Installing project dependencies (binaries)..."
+    sudo apt-get update -qq && sudo apt-get install -qq \
+        autoconf automake autotools-dev build-essential \
         libtool libmad0-dev liblog4c-dev \
         libasound2-dev libdbus-1-dev \
         libdbus-c++-dev libsqlite3-dev libboost-all-dev \
@@ -77,63 +233,222 @@ elif [ "$1" == "deps" ];  then
         libavformat-dev libavdevice-dev libmp3lame-dev \
         libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
         curl check wget sqlite3
-    exit_status=$?
-elif [ "$1" == "srcdeps" ];  then
+    return $?
+}
+
+##################################################################
+# Installs the binray dependencies
+#
+# Globals
+#   WORKING_DIR
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function install_src_deps {
+    cd_to_working_dir
+
     echo "Installing source-based project dependencies..."
-    repos=( https://git.xiph.org/mirrors/ogg.git https://git.xiph.org/liboggz.git https://git.xiph.org/opus.git https://git.xiph.org/flac.git )
-    folders=( ogg liboggz opus flac )
-    total=${#repos[*]}
+    local repos=( \
+        https://git.xiph.org/mirrors/ogg.git \
+        https://git.xiph.org/liboggz.git \
+        https://git.xiph.org/opus.git \
+        https://git.xiph.org/flac.git )
+    local folders=( ogg liboggz opus flac )
+    local total=${#repos[*]}
+    local exit_status=$?
     for (( i=0; i<=$(( $total -1 )); i++ ))
     do
-        cd $TIZ_DIR && git clone ${repos[$i]} && cd ${folders[$i]} && ./autogen.sh && ./configure --prefix=$INSTALL_DIR && make install
+        cd $WORKING_DIR \
+            && git clone ${repos[$i]} \
+            && cd ${folders[$i]} \
+            && ./autogen.sh \
+            && ./configure --prefix=$INSTALL_DIR \
+            && make install
+        exit_status=$?
     done
-    exit_status=$?
-    if [ $exit_status -eq 0 ] ; then
-        cd $TIZ_DIR
+    if [[ "$exit_status" -eq 0 ]] ; then
+        cd $WORKING_DIR
         # Build libmpg123 1.19 from source
-        wget http://www.juanrubio.me/tizonia/mpg123-1.16.0.tgz && tar zxvf mpg123-1.16.0.tgz
-        cd mpg123-1.16.0 && ./configure --prefix=$INSTALL_DIR && make install
+        wget http://www.juanrubio.me/tizonia/mpg123-1.16.0.tgz \
+            && tar zxvf mpg123-1.16.0.tgz \
+            && cd mpg123-1.16.0 \
+            && ./configure --prefix=$INSTALL_DIR \
+            && make install
+        exit_status=$?
     fi
-elif [ "$1" == "media" ];  then
-    echo "Downloading test media files..."
-    wget http://www.juanrubio.me/tizonia/tizonia-test-media.tgz && tar zxvf tizonia-test-media.tgz
-    exit_status=$?
-elif [ "$1" == "tizrc" ];  then
-    echo "Copy the Resource Manager's D-bus service file to the user's local D-Bus search path"
+    return $exit_status
+}
+
+##################################################################
+# Installs the binary dependencies
+#
+# Globals
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function copy_config_files {
+    cd_to_working_dir
+    echo "Copy the Resource Manager's D-bus service file " \
+         "to the user's local D-Bus search path"
     echo ${INSTALL_DIR}
-    DBUS_SERVICE_FILE=${INSTALL_DIR}"/share/dbus-1/services/com.aratelia.tiz.rm.service"
-    DBUS_DIR="$HOME/.local/share/dbus-1/services"
+    local DBUS_SERVICE_FILE=${INSTALL_DIR}"/share/dbus-1/services/com.aratelia.tiz.rm.service"
+    local DBUS_DIR="$HOME/.local/share/dbus-1/services"
     mkdir -p "$DBUS_DIR" && cp "$DBUS_SERVICE_FILE" "$DBUS_DIR"
-    exit_status=$?
-    if [ $exit_status -eq 0 ] ; then
+    local exit_status=$?
+    if [[ "$exit_status" -eq 0 ]] ; then
         echo "Preparing the $HOME/.tizrc config file..."
-        cp "$TIZ_DIR/config/tizonia.conf" "$HOME/.tizonia.conf"
+        cp "$WORKING_DIR/config/tizonia.conf" "$HOME/.tizonia.conf"
         exit_status=$?
     fi
-elif [ "$1" == "bldonly" ];  then
-    echo "Build only..."
-elif [ "$1" == "skema" ];  then
-    echo "Cloning skema's repo..."
-    git clone https://github.com/tizonia/skema
-    exit_status=$?
-else
-   CMD=`basename $0`
-   echo "Usage: $CMD <debug|release|conf|deps|media|tizrc|bldonly|>"
-   exit 1
-fi
+    return $exit_status
+}
 
-if [ "$1" == "debug" ] || [ "$1" == "release" ] || [ "$1" == "conf" ] || [ "$1" == "bldonly" ] ; then
+##################################################################
+# Debug build
+#
+# Globals
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function build_debug {
+    cd_to_working_dir
+    echo "Reconfiguring Tizonia for [DEBUG] build - Install dir [$INSTALL_DIR]..."
+    autoreconf -ifs
+    local exit_status=$?
+    if [[ "$exit_status" -eq 0 ]] ; then
+        ./configure --prefix=$INSTALL_DIR CFLAGS="-ggdb -Wall -Werror"
+        exit_status=$?
+    fi
+    return $exit_status
+}
+
+##################################################################
+# Release build
+#
+# Globals
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function build_release {
+    cd_to_working_dir
+    echo "Reconfiguring Tizonia for [RELEASE] build - Install dir [$INSTALL_DIR]..."
+    autoreconf -ifs
+    local exit_status=$?
     if [ $exit_status -eq 0 ] ; then
-        make -j2
+        ./configure --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
         exit_status=$?
     fi
+    return $exit_status
+}
 
-    if [ $exit_status -eq 0 ] ; then
-        make install
+##################################################################
+# Conformance testing build
+#
+# Globals
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function build_conformace {
+    cd_to_working_dir
+    echo "Reconfiguring Tizonia for [CONFORMANCE TESTING] build - Install dir [$INSTALL_DIR]..."
+    autoreconf -ifs
+    local exit_status=$?
+    if [[ "$exit_status" -eq 0 ]] ; then
+        ./configure \
+            --enable-silent-rules \
+            --enable-blocking-etb-ftb \
+            --prefix=$INSTALL_DIR \
+            CFLAGS="-ggdb -Wall -Werror"
         exit_status=$?
     fi
-fi
+    return $exit_status
+}
 
-cd $CWD
+##################################################################
+# Main function
+#
+# Globals
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function main {
 
-exit $exit_status
+    if [ "$1" == "deps" ];  then
+        install_deps
+        exit_status=$?
+    elif [ "$1" == "srcdeps" ];  then
+        install_src_deps
+        exit_status=$?
+    elif [ "$1" == "debug" ]; then
+        build_debug
+        exit_status=$?
+    elif [ "$1" == "release" ];  then
+        build_release
+        exit_status=$?
+    elif [ "$1" == "conf" ];  then
+        build_conformace
+        exit_status=$?
+    elif [ "$1" == "media" ];  then
+        cd_to_working_dir
+        echo "Downloading test media files..."
+        wget http://www.juanrubio.me/tizonia/tizonia-test-media.tgz \
+            && tar zxvf tizonia-test-media.tgz
+        exit_status=$?
+    elif [ "$1" == "tizrc" ];  then
+        copy_config_files
+        exit_status=$?
+    elif [ "$1" == "bldonly" ];  then
+        echo "Build only..."
+    elif [ "$1" == "skema" ];  then
+        install_skema
+        exit_status=$?
+    elif [ "$1" == "tests" ];  then
+        run_tests
+        exit_status=$?
+    else
+        CMD=`basename $0`
+        echo "Usage: $CMD <debug|release|conf|deps|media|tizrc|skema|tests|bldonly|>"
+        exit 1
+    fi
+
+    if [ "$1" == "debug" ] || [ "$1" == "release" ] || [ "$1" == "conf" ] || [ "$1" == "bldonly" ] ; then
+        cd_to_working_dir
+        if [[ "$exit_status" -eq 0 ]] ; then
+            make -j2
+            exit_status=$?
+        fi
+
+        if [ ! "$1" == "bldonly" ] ; then
+            if [[ "$exit_status" -eq 0 ]] ; then
+                make install
+                exit_status=$?
+            fi
+        fi
+    fi
+
+    cd "$CWD"
+
+    exit $exit_status
+
+}
+
+main "$@"
+
