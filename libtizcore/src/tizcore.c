@@ -1543,6 +1543,11 @@ OMX_Init (void)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tizcore_msg_t *p_msg = NULL;
 
+  if (NULL != getenv("TIZONIA_CORE_STARTS_LOG"))
+    {
+      tiz_log_init ();
+    }
+
   if (OMX_ErrorNone != (rc = start_core ()))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
@@ -1582,6 +1587,8 @@ OMX_Deinit (void)
   (void)tiz_sem_destroy (&(p_core->sem));
   tiz_mem_free (pg_core);
   pg_core = NULL;
+
+  (void) tiz_log_deinit ();
 
   return OMX_ErrorNone;
 }
