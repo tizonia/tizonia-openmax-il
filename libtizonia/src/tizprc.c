@@ -514,7 +514,7 @@ static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
 
       case OMX_StatePause:
         {
-          if (OMX_StateExecuting == now)
+          if (OMX_StateExecuting == now || OMX_StateIdle == now)
             {
               rc = tiz_prc_pause (p_obj);
               done = OMX_TRUE;
