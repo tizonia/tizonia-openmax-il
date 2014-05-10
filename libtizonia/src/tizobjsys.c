@@ -42,6 +42,7 @@
 #include "tizapi.h"
 #include "tizservant.h"
 #include "tizprc.h"
+#include "tizfilterprc.h"
 #include "tizkernel.h"
 #include "tizfsm.h"
 #include "tizstate.h"
@@ -96,6 +97,8 @@ enum tiz_os_type
   ETIZSrv,
   ETIZPrc_class,
   ETIZPrc,
+  ETIZFilterprc_class,
+  ETIZFilterprc,
   ETIZKrn_class,
   ETIZKrn,
   ETIZFsm_class,
@@ -170,6 +173,8 @@ tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
   tiz_srv_init,
   tiz_prc_class_init,
   tiz_prc_init,
+  tiz_filter_prc_class_init,
+  tiz_filter_prc_init,
   tiz_krn_class_init,
   tiz_krn_init,
   tiz_fsm_class_init,
@@ -248,6 +253,8 @@ static tiz_os_type_str_t tiz_os_type_to_str_tbl[] = {
   {ETIZSrv, "tizsrv"},
   {ETIZPrc_class, "tizprc_class"},
   {ETIZPrc, "tizprc"},
+  {ETIZFilterprc_class, "tizfilterprc_class"},
+  {ETIZFilterprc, "tizfilterprc"},
   {ETIZKrn_class, "tizkrn_class"},
   {ETIZKrn, "tizkrn"},
   {ETIZFsm_class, "tizfsm_class"},

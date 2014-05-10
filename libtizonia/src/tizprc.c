@@ -984,9 +984,15 @@ static void *prc_class_ctor (void *ap_obj, va_list *app)
 void *tiz_prc_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizsrv = tiz_get_type (ap_hdl, "tizsrv");
-  void *tizprc_class = factory_new (classOf (tizsrv), "tizprc_class",
-                                    classOf (tizsrv), sizeof(tiz_prc_class_t),
-                                    ap_tos, ap_hdl, ctor, prc_class_ctor, 0);
+  void *tizprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizsrv), "tizprc_class", classOf (tizsrv), sizeof(tiz_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizprc_class;
 }
 

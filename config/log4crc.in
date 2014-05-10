@@ -40,6 +40,7 @@
 <!--         <category name="tiz.tizonia.objsys" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.api" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.tizonia.filterprc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.arprc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.port" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.tizonia.configport" priority="trace" appender="tizlogfile" /> -->
