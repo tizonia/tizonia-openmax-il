@@ -86,92 +86,6 @@ static inline void dealloc_temp_data_store (
   ap_prc->store_offset_ = 0;
 }
 
-static inline OMX_BUFFERHEADERTYPE **get_header_ptr (vorbisd_prc_t *ap_prc,
-                                                     const OMX_U32 a_pid)
-{
-  OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
-  assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
-  pp_hdr = (a_pid == ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX
-                ? &(ap_prc->p_in_hdr_)
-                : &(ap_prc->p_out_hdr_));
-  assert (NULL != pp_hdr);
-  return pp_hdr;
-}
-
-static inline bool *get_port_disabled_ptr (vorbisd_prc_t *ap_prc,
-                                           const OMX_U32 a_pid)
-{
-  bool *p_port_disabled = NULL;
-  assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
-  p_port_disabled = (a_pid == ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX
-                         ? &(ap_prc->in_port_disabled_)
-                         : &(ap_prc->out_port_disabled_));
-  assert (NULL != p_port_disabled);
-  return p_port_disabled;
-}
-
-static OMX_BUFFERHEADERTYPE *get_header (vorbisd_prc_t *ap_prc,
-                                         const OMX_U32 a_pid)
-{
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  bool port_disabled = *(get_port_disabled_ptr (ap_prc, a_pid));
-
-  if (!port_disabled)
-    {
-      OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
-      p_hdr = *pp_hdr;
-      if (NULL == p_hdr)
-        {
-          if (OMX_ErrorNone == tiz_krn_claim_buffer
-              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
-            {
-              p_hdr = *pp_hdr;
-              if (NULL != p_hdr)
-                {
-                  TIZ_TRACE (handleOf (ap_prc),
-                             "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
-                             p_hdr, a_pid, p_hdr->nFilledLen);
-                }
-            }
-        }
-    }
-
-  return p_hdr;
-}
-
-static OMX_ERRORTYPE
-release_header (vorbisd_prc_t *ap_prc, const OMX_U32 a_pid)
-{
-  OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-
-  p_hdr = *pp_hdr;
-  assert (NULL != p_hdr);
-
-  TIZ_TRACE (handleOf (ap_prc),
-             "Releasing HEADER [%p] pid [%d] "
-             "nFilledLen [%d] nFlags [%d]",
-             p_hdr, a_pid, p_hdr->nFilledLen, p_hdr->nFlags);
-
-  p_hdr->nOffset = 0;
-  tiz_check_omx_err
-    (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr));
-  *pp_hdr = NULL;
-
-  return OMX_ErrorNone;
-}
-
-static inline bool headers_available (vorbisd_prc_t *ap_prc)
-{
-  bool rc = true;
-  rc &= (NULL != get_header (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX));
-  rc &= (NULL
-         != get_header (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX));
-  return rc;
-}
-
 static inline OMX_U8 **get_store_ptr (vorbisd_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
@@ -288,7 +202,7 @@ static int fishsound_decoded_callback (FishSound *ap_fsound, float *app_pcm[],
                   p_prc->fsinfo_.channels, p_prc->fsinfo_.samplerate);
     }
 
-  p_out = get_header (p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+  p_out = tiz_filter_prc_get_header (p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
   if (NULL == p_out)
     {
       TIZ_TRACE (handleOf (p_prc),
@@ -330,15 +244,16 @@ static int fishsound_decoded_callback (FishSound *ap_fsound, float *app_pcm[],
             nbytes_remaining);
       }
 
-    if (p_prc->eos_)
+    if (tiz_filter_prc_is_eos (p_prc))
       {
         /* Propagate EOS flag to output */
         p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-        p_prc->eos_ = false;
+        tiz_filter_prc_update_eos_flag (p_prc, false);
         TIZ_TRACE (handleOf (p_prc), "Propagating EOS flag to output");
       }
     /* TODO: Shouldn't ignore this rc */
-    (void)release_header (p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+    (void)tiz_filter_prc_release_header
+      (p_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
     /* Let's process one input buffer at a time, for now */
     rc = FISH_SOUND_STOP_OK;
   }
@@ -386,45 +301,15 @@ end:
   return rc;
 }
 
-static OMX_ERRORTYPE release_all_buffers (vorbisd_prc_t *ap_prc,
-                                          const OMX_U32 a_pid)
-{
-  assert (NULL != ap_prc);
-
-  if ((a_pid == ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX || a_pid == OMX_ALL)
-      && (NULL != ap_prc->p_in_hdr_))
-    {
-      tiz_check_omx_err (tiz_krn_release_buffer (
-          tiz_get_krn (handleOf (ap_prc)),
-          ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX, ap_prc->p_in_hdr_));
-      ap_prc->p_in_hdr_ = NULL;
-    }
-
-  if ((a_pid == ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX || a_pid == OMX_ALL)
-      && (NULL != ap_prc->p_out_hdr_))
-    {
-      tiz_check_omx_err (tiz_krn_release_buffer (
-          tiz_get_krn (handleOf (ap_prc)),
-          ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX, ap_prc->p_out_hdr_));
-      ap_prc->p_out_hdr_ = NULL;
-    }
-
-  return OMX_ErrorNone;
-}
-
-static inline OMX_ERRORTYPE do_flush (vorbisd_prc_t *ap_prc)
-{
-  /* Release any buffers held  */
-  return release_all_buffers (ap_prc, OMX_ALL);
-}
-
 static OMX_ERRORTYPE transform_buffer (vorbisd_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE *p_in
-      = get_header (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
+    = tiz_filter_prc_get_header
+    (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
   OMX_BUFFERHEADERTYPE *p_out
-      = get_header (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
+    = tiz_filter_prc_get_header
+    (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX);
 
   if (NULL == p_in || NULL == p_out)
     {
@@ -446,7 +331,8 @@ static OMX_ERRORTYPE transform_buffer (vorbisd_prc_t *ap_prc)
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
           p_in->nFlags = 0;
           tiz_check_omx_err
-            (release_header (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX));
+            (tiz_filter_prc_release_header
+            (ap_prc, ARATELIA_VORBIS_DECODER_OUTPUT_PORT_INDEX));
         }
     }
 
@@ -521,10 +407,11 @@ static OMX_ERRORTYPE transform_buffer (vorbisd_prc_t *ap_prc)
         {
           /* Let's propagate EOS flag to output */
           TIZ_TRACE (handleOf (ap_prc), "Let's propagate EOS flag to output");
-          ap_prc->eos_ = true;
+          tiz_filter_prc_update_eos_flag (ap_prc, true);
           p_in->nFlags = 0;
         }
-      rc = release_header (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
+      rc = tiz_filter_prc_release_header
+        (ap_prc, ARATELIA_VORBIS_DECODER_INPUT_PORT_INDEX);
     }
 
   return rc;
@@ -535,7 +422,7 @@ static void reset_stream_parameters (vorbisd_prc_t *ap_prc)
   assert (NULL != ap_prc);
   ap_prc->started_ = false;
   tiz_mem_set (&(ap_prc->fsinfo_), 0, sizeof(FishSoundInfo));
-  ap_prc->eos_ = false;
+  tiz_filter_prc_update_eos_flag (ap_prc, false);
 }
 
 /*
@@ -547,12 +434,8 @@ static void *vorbisd_prc_ctor (void *ap_obj, va_list *app)
   vorbisd_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "vorbisdprc"), ap_obj, app);
   assert (NULL != p_prc);
-  p_prc->p_in_hdr_ = NULL;
-  p_prc->p_out_hdr_ = NULL;
   p_prc->p_fsnd_ = NULL;
   reset_stream_parameters (p_prc);
-  p_prc->in_port_disabled_ = false;
-  p_prc->out_port_disabled_ = false;
   p_prc->p_store_ = NULL;
   p_prc->store_size_ = 0;
   p_prc->store_offset_ = 0;
@@ -607,7 +490,7 @@ static OMX_ERRORTYPE vorbisd_prc_transfer_and_process (void *ap_obj,
 
 static OMX_ERRORTYPE vorbisd_prc_stop_and_return (void *ap_obj)
 {
-  return do_flush (ap_obj);
+  return tiz_filter_prc_release_all_headers (ap_obj);
 }
 
 /*
@@ -621,8 +504,9 @@ static OMX_ERRORTYPE vorbisd_prc_buffers_ready (const void *ap_obj)
 
   assert (NULL != p_prc);
 
-  TIZ_TRACE (handleOf (p_prc), "eos [%s] ", p_prc->eos_ ? "YES" : "NO");
-  while (headers_available (p_prc) && OMX_ErrorNone == rc)
+  TIZ_TRACE (handleOf (p_prc), "eos [%s] ",
+             tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO");
+  while (tiz_filter_prc_headers_available (p_prc) && OMX_ErrorNone == rc)
     {
       rc = transform_buffer (p_prc);
     }
@@ -646,14 +530,14 @@ static void *vorbisd_prc_class_ctor (void *ap_obj, va_list *app)
 
 void *vorbisd_prc_class_init (void *ap_tos, void *ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void *tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
   void *vorbisdprc_class = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizprc), "vorbisdprc_class", classOf (tizprc), sizeof(vorbisd_prc_class_t),
+    (classOf (tizfilterprc), "vorbisdprc_class", classOf (tizfilterprc), sizeof(vorbisd_prc_class_t),
      /* TIZ_CLASS_COMMENT: */
-     ap_tos, ap_hdl, ctor,
+     ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     vorbisd_prc_class_ctor,
+     ctor,vorbisd_prc_class_ctor,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
   return vorbisdprc_class;
@@ -661,12 +545,12 @@ void *vorbisd_prc_class_init (void *ap_tos, void *ap_hdl)
 
 void *vorbisd_prc_init (void *ap_tos, void *ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void *tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
   void *vorbisdprc_class = tiz_get_type (ap_hdl, "vorbisdprc_class");
   TIZ_LOG_CLASS (vorbisdprc_class);
   void *vorbisdprc = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (vorbisdprc_class, "vorbisdprc", tizprc, sizeof(vorbisd_prc_t),
+      (vorbisdprc_class, "vorbisdprc", tizfilterprc, sizeof(vorbisd_prc_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
        /* TIZ_CLASS_COMMENT: class constructor */
