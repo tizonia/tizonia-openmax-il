@@ -2285,7 +2285,6 @@ tiz_comp_register_roles (const OMX_HANDLETYPE ap_hdl,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_regroles_t *p_msg_rr = NULL;
-  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
   assert (NULL != ap_role_list);
   assert (a_nroles > 0);
@@ -2299,7 +2298,7 @@ tiz_comp_register_roles (const OMX_HANDLETYPE ap_hdl,
   p_msg_rr->p_role_list = ap_role_list;
   p_msg_rr->nroles = a_nroles;
 
-  return send_msg (p_sched, p_msg);
+  return send_msg (get_sched (ap_hdl), p_msg);
 }
 
 OMX_ERRORTYPE
@@ -2309,7 +2308,6 @@ tiz_comp_register_types (const OMX_HANDLETYPE ap_hdl,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_regtypes_t *p_msg_rt = NULL;
-  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
   assert (NULL != ap_type_list);
   assert (a_ntypes > 0);
@@ -2323,7 +2321,7 @@ tiz_comp_register_types (const OMX_HANDLETYPE ap_hdl,
   p_msg_rt->p_type_list = ap_type_list;
   p_msg_rt->ntypes = a_ntypes;
 
-  return send_msg (p_sched, p_msg);
+  return send_msg (get_sched (ap_hdl), p_msg);
 }
 
 OMX_ERRORTYPE
@@ -2332,7 +2330,6 @@ tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_plg_event_t *p_msg_pe = NULL;
-  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
   assert (NULL != ap_event);
 
@@ -2343,7 +2340,7 @@ tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
   assert (NULL != p_msg_pe);
   p_msg_pe->p_event = ap_event;
 
-  return send_msg (p_sched, p_msg);
+  return send_msg (get_sched (ap_hdl), p_msg);
 }
 
 OMX_ERRORTYPE
@@ -2353,7 +2350,6 @@ tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_regphooks_t *p_msg_rph = NULL;
-  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
   assert (NULL != ap_new_hooks);
 
@@ -2365,7 +2361,7 @@ tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
   p_msg_rph->p_hooks = ap_new_hooks;
   p_msg_rph->p_old_hooks = ap_old_hooks;
 
-  return send_msg (p_sched, p_msg);
+  return send_msg (get_sched (ap_hdl), p_msg);
 }
 
 void tiz_comp_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
@@ -2373,7 +2369,6 @@ void tiz_comp_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_ev_io_t *p_msg_eio = NULL;
-  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
   assert (NULL != ap_ev_io);
 
@@ -2387,7 +2382,7 @@ void tiz_comp_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
   p_msg_eio->events = a_events;
 
   /* TODO: Shouldn't mask this return code */
-  (void)send_msg (p_sched, p_msg);
+  (void)send_msg (get_sched (ap_hdl), p_msg);
 }
 
 void tiz_comp_event_timer (OMX_HANDLETYPE ap_hdl,
@@ -2395,7 +2390,6 @@ void tiz_comp_event_timer (OMX_HANDLETYPE ap_hdl,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_ev_timer_t *p_msg_etmr = NULL;
-  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
   assert (NULL != ap_ev_timer);
 
@@ -2408,7 +2402,7 @@ void tiz_comp_event_timer (OMX_HANDLETYPE ap_hdl,
   p_msg_etmr->p_arg = ap_arg;
 
   /* TODO: Shouldn't mask this return code */
-  (void)send_msg (p_sched, p_msg);
+  (void)send_msg (get_sched (ap_hdl), p_msg);
 }
 
 void tiz_comp_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_stat,
@@ -2416,7 +2410,6 @@ void tiz_comp_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_stat,
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_ev_stat_t *p_msg_estat = NULL;
-  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
 
   assert (NULL != ap_ev_stat);
 
@@ -2428,42 +2421,38 @@ void tiz_comp_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_stat,
   p_msg_estat->p_ev_stat = ap_ev_stat;
 
   /* TODO: Shouldn't mask this return code */
-  (void)send_msg (p_sched, p_msg);
+  (void)send_msg (get_sched (ap_hdl), p_msg);
 }
 
 void *tiz_get_sched (const OMX_HANDLETYPE ap_hdl)
 {
-  return ((OMX_COMPONENTTYPE *)ap_hdl)->pComponentPrivate;
+  return get_sched (ap_hdl);
 }
 
 void *tiz_get_fsm (const OMX_HANDLETYPE ap_hdl)
 {
-  tiz_scheduler_t *p_sched = NULL;
-  assert (NULL != ap_hdl);
-  p_sched = ((OMX_COMPONENTTYPE *)ap_hdl)->pComponentPrivate;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
+  assert (NULL != p_sched);
   return p_sched->child.p_fsm;
 }
 
 void *tiz_get_krn (const OMX_HANDLETYPE ap_hdl)
 {
-  tiz_scheduler_t *p_sched = NULL;
-  assert (NULL != ap_hdl);
-  p_sched = ((OMX_COMPONENTTYPE *)ap_hdl)->pComponentPrivate;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
+  assert (NULL != p_sched);
   return p_sched->child.p_ker;
 }
 
 void *tiz_get_prc (const OMX_HANDLETYPE ap_hdl)
 {
-  tiz_scheduler_t *p_sched = NULL;
-  assert (NULL != ap_hdl);
-  p_sched = ((OMX_COMPONENTTYPE *)ap_hdl)->pComponentPrivate;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
+  assert (NULL != p_sched);
   return p_sched->child.p_prc;
 }
 
 void *tiz_get_type (const OMX_HANDLETYPE ap_hdl, const char *ap_type_name)
 {
-  tiz_scheduler_t *p_sched = NULL;
-  assert (NULL != ap_hdl);
-  p_sched = ((OMX_COMPONENTTYPE *)ap_hdl)->pComponentPrivate;
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
+  assert (NULL != p_sched);
   return tiz_os_get_type (p_sched->p_objsys, ap_type_name);
 }
