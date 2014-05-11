@@ -56,6 +56,7 @@ libtizonia_include_HEADERS = \
 	tizport.h \
 	tizport-macros.h \
 	tizprc_decls.h \
+	tizprc_internal.h \
 	tizprc.h \
 	tizfilterprc_decls.h \
 	tizfilterprc.h \
