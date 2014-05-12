@@ -4,6 +4,8 @@ Tizonia OpenMAX IL
 An experimental implementation for Linux of the OpenMAX IL 1.2 provisional
 specification.
 
+[![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
+
 _This is a highly experimental, rapidly-changing project. APIs might change overnight._
 
 Tizonia OpenMAX IL consists of a number of resources:
@@ -39,12 +41,13 @@ Tizonia OpenMAX IL consists of a number of resources:
   * a SDL-based YUV renderer
   * binary file readers and writers
   * etc...
+* `tplay`
+  * A command line application that reproduces or streams a number of audio
+    formats (mp3, vorbis, opus, flac) using graphs of tunneled OpenMAX IL
+    components.
 
 Tizonia OpenMAX IL is released under the GNU Lesser General Public License
-version 3
+version 3.
 
 For more information, please visit the project web site at http://tizonia.org
-
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/4770c19ac3ef04585d85aa79020c42c8 "githalytics.com")](http://githalytics.com/tizonia/tizonia-openmax-il)
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/tizonia/tizonia-openmax-il/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
