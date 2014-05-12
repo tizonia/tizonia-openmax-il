@@ -62,6 +62,7 @@ struct tiz_filter_prc_class
   bool * (*get_port_disabled_ptr) (void *ap_obj, const OMX_U32 a_pid);
   bool (*is_eos) (const void *ap_obj);
   void (*update_eos_flag) (void *ap_obj, const bool flag);
+  void (*update_port_disabled_flag) (void *ap_obj, const OMX_U32 a_pid, const bool flag);
 };
 
 #ifdef __cplusplus

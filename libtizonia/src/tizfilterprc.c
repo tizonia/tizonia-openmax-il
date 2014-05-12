@@ -245,6 +245,23 @@ tiz_filter_prc_update_eos_flag (void *ap_obj, const bool flag)
   class->update_eos_flag (ap_obj, flag);
 }
 
+static void
+filter_prc_update_port_disabled_flag (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid, const bool flag)
+{
+  bool *p_port_disabled = tiz_filter_prc_get_port_disabled_ptr (ap_prc, a_pid);
+  assert (NULL != ap_prc);
+  assert (NULL != p_port_disabled);
+  *p_port_disabled = flag;
+}
+
+void
+tiz_filter_prc_update_port_disabled_flag (void *ap_obj, const OMX_U32 a_pid, const bool flag)
+{
+  const tiz_filter_prc_class_t *class = classOf (ap_obj);
+  assert (NULL != class->update_port_disabled_flag);
+  class->update_port_disabled_flag (ap_obj, a_pid, flag);
+}
+
 /*
  * filter_prc_class
  */
@@ -294,6 +311,10 @@ static void *filter_prc_class_ctor (void *ap_obj, va_list *app)
       else if (selector == (voidf)tiz_filter_prc_update_eos_flag)
         {
           *(voidf *)&p_obj->update_eos_flag = method;
+        }
+      else if (selector == (voidf)tiz_filter_prc_update_port_disabled_flag)
+        {
+          *(voidf *)&p_obj->update_port_disabled_flag = method;
         }
     }
   /*@end@*/
@@ -352,6 +373,8 @@ void *tiz_filter_prc_init (void *ap_tos, void *ap_hdl)
        tiz_filter_prc_is_eos, filter_prc_is_eos,
        /* TIZ_CLASS_COMMENT: */
        tiz_filter_prc_update_eos_flag, filter_prc_update_eos_flag,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_filter_prc_update_port_disabled_flag, filter_prc_update_port_disabled_flag,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
 
