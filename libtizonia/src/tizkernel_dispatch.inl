@@ -900,13 +900,154 @@ static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
                                                            p_msg_sc);
 }
 
+static OMX_ERRORTYPE dispatch_idle_to_loaded (tiz_krn_t *ap_krn,
+                                              bool * ap_done)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_done);
+
+  rc = tiz_srv_deallocate_resources (ap_krn);
+
+  if (OMX_ErrorNone == rc)
+    {
+      rc = release_rm_resources (ap_krn, handleOf(ap_krn));
+    }
+
+  if (OMX_ErrorNone == rc)
+    {
+      /* Uninitialize the Resource Manager hdl */
+      rc = deinit_rm (ap_krn, handleOf(ap_krn));
+    }
+
+  *ap_done = (OMX_ErrorNone == rc && all_depopulated (ap_krn))
+    ? true
+    : false;
+
+  /* TODO: If all ports are depopulated, kick off removal of buffer
+   * callbacks from kernel and proc servants queues  */
+
+  return rc;
+}
+
+static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_krn_t *ap_krn,
+                                              bool * ap_done)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_done);
+
+  /* Before allocating any resources, we need to initialize the
+   * Resource Manager hdl */
+  rc = init_rm (ap_krn, handleOf(ap_krn));
+
+  if (OMX_ErrorNone == rc)
+    {
+      rc = acquire_rm_resources (ap_krn, handleOf(ap_krn));
+    }
+
+  if (OMX_ErrorNone == rc)
+    {
+      rc = tiz_srv_allocate_resources (ap_krn, OMX_ALL);
+    }
+
+  *ap_done = (OMX_ErrorNone == rc && all_populated (ap_krn)) ? OMX_TRUE
+    : false;
+
+  return rc;
+}
+
+static OMX_ERRORTYPE dispatch_exe_or_pause_to_idle (tiz_krn_t *ap_krn,
+                                              bool * ap_done)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_done);
+
+  rc = tiz_srv_stop_and_return (ap_krn);
+  *ap_done = (OMX_ErrorNone == rc
+          && all_buffers_returned ((tiz_krn_t *)ap_krn))
+    ? true
+    : false;
+  if (*ap_done)
+    {
+      clear_hdr_lsts (ap_krn, OMX_ALL);
+    }
+
+  return rc;
+}
+
+static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_krn_t *ap_krn,
+                                           bool * ap_done)
+{
+  assert (NULL != ap_done);
+  *ap_done = true;
+  return tiz_srv_prepare_to_transfer (ap_krn, OMX_ALL);
+}
+
+static OMX_ERRORTYPE dispatch_pause_to_exe (tiz_krn_t *ap_krn,
+                                            bool * ap_done)
+{
+  assert (NULL != ap_done);
+  *ap_done = true;
+  /* Enqueue a dummy callback msg to be processed ...   */
+  /* ...in case there are headers present in the egress lists... */
+  return enqueue_callback_msg (ap_krn, NULL, 0, OMX_DirMax);
+}
+
+static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_krn_t *ap_krn,
+                                          bool * ap_done)
+{
+  assert (NULL != ap_done);
+  /* NOTE: not done yet here */
+  *ap_done = false;
+  return tiz_srv_transfer_and_process (ap_krn, OMX_ALL);
+}
+
+static OMX_ERRORTYPE dispatch_exe_or_idle_to_pause (tiz_krn_t *ap_krn,
+                                                    bool * ap_done)
+{
+  assert (NULL != ap_done);
+  *ap_done = true;
+  /* TODO: Consider to add here the removal of buffer indications from the
+   * processor queue */
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE dispatch_true (tiz_krn_t *ap_krn,
+                                    bool * ap_done)
+{
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE dispatch_false (tiz_krn_t *ap_krn,
+                                    bool * ap_done)
+{
+  return OMX_ErrorIncorrectStateTransition;
+}
+
+static inline tiz_krn_msg_dispatch_state_set_f
+lookup_state_set_transition (const void *ap_obj,
+                             const OMX_STATETYPE a_current_state,
+                             const OMX_STATETYPE a_next_state)
+{
+  assert (a_current_state >= OMX_StateLoaded);
+  assert (a_current_state <= OMX_StateWaitForResources);
+  assert (a_next_state >= OMX_StateLoaded);
+  assert (a_next_state <= OMX_StateWaitForResources);
+
+  TIZ_TRACE (handleOf (ap_obj), "Requested transition [%s] -> [%s]",
+             tiz_state_to_str (a_current_state), tiz_state_to_str (a_next_state));
+
+  return tiz_krn_state_set_dispatch_tbl[a_current_state][a_next_state];
+}
+
 static OMX_ERRORTYPE dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
                                          tiz_krn_msg_sendcommand_t *ap_msg_sc)
 {
-  tiz_krn_t *p_obj = ap_obj;
+  tiz_krn_t *p_krn = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_STATETYPE now = OMX_StateMax;
-  OMX_BOOL done = OMX_FALSE;
+  OMX_STATETYPE next = OMX_StateMax;
+  bool done = false;
+  tiz_krn_msg_dispatch_state_set_f p_action_f = NULL;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_msg_sc);
@@ -914,152 +1055,22 @@ static OMX_ERRORTYPE dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   /* Obtain the current state */
   tiz_check_omx_err (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
 
-  TIZ_DEBUG (ap_hdl, "Requested transition [%s] -> [%s]",
-             tiz_fsm_state_to_str (now),
-             tiz_fsm_state_to_str (ap_msg_sc->param1));
+  /* ...and this is the next state */
+  next =  ap_msg_sc->param1;
 
-  switch (ap_msg_sc->param1)
+  /* find the action */
+  p_action_f = lookup_state_set_transition (p_krn, now, next);
+  assert (NULL != p_action_f);
+  rc = p_action_f (p_krn, &done);
+
+  if (OMX_ErrorIncorrectStateTransition == rc)
     {
-      case OMX_StateLoaded:
-        {
-          if (OMX_StateIdle == now)
-            {
-              rc = tiz_srv_deallocate_resources (ap_obj);
+      TIZ_ERROR (ap_hdl, "unhandled transition : [%s] -> [%s]",
+                 tiz_state_to_str (now), tiz_state_to_str (next));
+      assert (false && ("Unhandled transition in kernel servant"));
+    }
 
-              if (OMX_ErrorNone == rc)
-                {
-                  rc = release_rm_resources (p_obj, ap_hdl);
-                }
-
-              if (OMX_ErrorNone == rc)
-                {
-                  /* Uninitialize the Resource Manager hdl */
-                  rc = deinit_rm (p_obj, ap_hdl);
-                }
-
-              done = (OMX_ErrorNone == rc && all_depopulated (p_obj))
-                         ? OMX_TRUE
-                         : OMX_FALSE;
-
-              /* TODO: If all ports are depopulated, kick off removal of buffer
-               * callbacks from kernel and proc servants queues  */
-            }
-          else if (OMX_StateWaitForResources == now)
-            {
-              done = OMX_TRUE;
-            }
-          else if (OMX_StateLoaded == now)
-            {
-              /* TODO : Need to review whe this situation would occur  */
-              assert (0);
-            }
-          else
-            {
-              assert (0);
-            }
-          break;
-        }
-
-      case OMX_StateWaitForResources:
-        {
-          done = OMX_TRUE;
-          break;
-        }
-
-      case OMX_StateIdle:
-        {
-          if (OMX_StateLoaded == now)
-            {
-              /* Before allocating any resources, we need to initialize the
-               * Resource Manager hdl */
-              rc = init_rm (p_obj, ap_hdl);
-
-              if (OMX_ErrorNone == rc)
-                {
-                  rc = acquire_rm_resources (p_obj, ap_hdl);
-                }
-
-              if (OMX_ErrorNone == rc)
-                {
-                  rc = tiz_srv_allocate_resources (ap_obj, OMX_ALL);
-                }
-
-              done = (OMX_ErrorNone == rc && all_populated (p_obj)) ? OMX_TRUE
-                                                                    : OMX_FALSE;
-            }
-          else if (OMX_StateExecuting == now || OMX_StatePause == now)
-            {
-              rc = tiz_srv_stop_and_return (ap_obj);
-              done = (OMX_ErrorNone == rc
-                      && all_buffers_returned ((tiz_krn_t *)p_obj))
-                         ? OMX_TRUE
-                         : OMX_FALSE;
-              if (OMX_TRUE == done)
-                {
-                  clear_hdr_lsts (ap_obj, OMX_ALL);
-                }
-            }
-          else if (OMX_StateIdle == now)
-            {
-              /* TODO : review when this situation would occur  */
-              TIZ_WARN (ap_hdl, "Ignoring transition [%s] -> [%s]",
-                        tiz_fsm_state_to_str (now),
-                        tiz_fsm_state_to_str (ap_msg_sc->param1));
-              assert (0);
-            }
-          else
-            {
-              assert (0);
-            }
-          break;
-        }
-
-      case OMX_StateExecuting:
-        {
-          if (OMX_StateIdle == now)
-            {
-              rc = tiz_srv_prepare_to_transfer (ap_obj, OMX_ALL);
-
-              done = OMX_TRUE;
-            }
-          else if (OMX_StatePause == now)
-            {
-              /* Enqueue a dummy callback msg to be processed ...   */
-              /* ...in case there are headers present in the egress lists... */
-              rc = enqueue_callback_msg (p_obj, NULL, 0, OMX_DirMax);
-              done = OMX_TRUE;
-            }
-          else if (OMX_StateExecuting == now)
-            {
-              rc = tiz_srv_transfer_and_process (ap_obj, OMX_ALL);
-              done = OMX_FALSE;
-            }
-          else
-            {
-              assert (0);
-            }
-          break;
-        }
-
-      case OMX_StatePause:
-        {
-          /* TODO: Consider the removal of buffer indications from the processor
-           * queue */
-          done = OMX_TRUE;
-          break;
-        }
-
-      default:
-        {
-          TIZ_ERROR (ap_hdl, "Unknown state [%s] [%d]",
-                     tiz_fsm_state_to_str (ap_msg_sc->param1),
-                     ap_msg_sc->param1);
-          assert (0);
-          break;
-        }
-    };
-
-  if (OMX_ErrorNone == rc && (OMX_TRUE == done))
+  if (OMX_ErrorNone == rc && done)
     {
       rc = tiz_fsm_complete_transition (tiz_get_fsm (ap_hdl), ap_obj,
                                         ap_msg_sc->param1);

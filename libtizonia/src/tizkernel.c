@@ -40,8 +40,10 @@
 #include "tizport.h"
 #include "tizport-macros.h"
 #include "tizutils.h"
-#include "tizkernel_decls.h"
+
 #include "tizkernel.h"
+#include "tizkernel_decls.h"
+#include "tizkernel_internal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -1966,9 +1968,15 @@ static void *krn_class_ctor (void *ap_obj, va_list *app)
 void *tiz_krn_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizsrv = tiz_get_type (ap_hdl, "tizsrv");
-  void *tizkrn_class = factory_new (classOf (tizsrv), "tizkrn_class",
-                                    classOf (tizsrv), sizeof(tiz_krn_class_t),
-                                    ap_tos, ap_hdl, ctor, krn_class_ctor, 0);
+  void *tizkrn_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizsrv), "tizkrn_class", classOf (tizsrv), sizeof(tiz_krn_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, krn_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizkrn_class;
 }
 
