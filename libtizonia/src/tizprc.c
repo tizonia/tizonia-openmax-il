@@ -414,10 +414,10 @@ static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
 {
   tiz_prc_t *p_prc = (tiz_prc_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_prc_msg_dispatch_state_set_f p_action_f = NULL;
   OMX_STATETYPE now = OMX_StateMax;
   OMX_STATETYPE next = OMX_StateMax;
   bool done = false;
+  tiz_prc_msg_dispatch_state_set_f p_action_f = NULL;
 
   assert (NULL != ap_msg_sc);
 
@@ -436,7 +436,7 @@ static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
     {
       TIZ_ERROR (ap_hdl, "unhandled transition : [%s] -> [%s]",
                  tiz_state_to_str (now), tiz_state_to_str (next));
-      assert (false && ("Unhandled transition in tizprc"));
+      assert (false && ("Unhandled transition in processor servant"));
     }
 
   if (OMX_ErrorNone == rc && done)

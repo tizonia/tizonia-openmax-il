@@ -151,14 +151,14 @@ static const tiz_prc_msg_str_t tiz_prc_msg_to_str_tbl[]
     { ETIZPrcMsgMax, "ETIZPrcMsgMax" }, };
 
 
-  
-  /*
-   * OMX_CommandStateSet dispatching
-   */
+
+/*
+ * OMX_CommandStateSet dispatching
+ */
 
 typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_state_set_f)(tiz_prc_t *ap_prc,
                                                           bool * ap_done);
-  /* Forward declarations */
+/* Forward declarations */
 static OMX_ERRORTYPE dispatch_idle_to_loaded (tiz_prc_t *ap_prc,
                                                 bool * ap_done);
 static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_prc_t *ap_prc,
@@ -190,7 +190,7 @@ static const tiz_prc_msg_dispatch_state_set_f tiz_prc_state_set_dispatch_tbl[][O
 
     /* From Loaded */
     /* reserved , OMX_StateLoaded , OMX_StateIdle , OMX_StateExecuting , OMX_StatePause , OMX_StateWaitForResources */
-    {dispatch_false, dispatch_false, dispatch_loaded_to_idle , dispatch_false, dispatch_false, dispatch_false},
+    {dispatch_false, dispatch_false, dispatch_loaded_to_idle , dispatch_false, dispatch_false, dispatch_true},
 
     /* From Idle */
     /* reserved , OMX_StateLoaded , OMX_StateIdle , OMX_StateExecuting , OMX_StatePause , OMX_StateWaitForResources */
