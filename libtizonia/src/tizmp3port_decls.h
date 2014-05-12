@@ -20,10 +20,10 @@
 /**
  * @file   tizmp3port_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  mp3port class declarations
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZMP3PORT_DECLS_H
@@ -33,8 +33,6 @@
 extern "C"
 {
 #endif
-
-#include "OMX_Component.h"
 
 #include "tizaudioport_decls.h"
 

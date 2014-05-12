@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizmp3port.h"
 #include "tizmp3port_decls.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -437,13 +437,16 @@ void *
 tiz_mp3port_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
-  void * tizmp3port_class = factory_new (classOf (tizaudioport),
-                                         "tizmp3port_class",
-                                         classOf (tizaudioport),
-                                         sizeof (tiz_mp3port_class_t),
-                                         ap_tos, ap_hdl,
-                                         ctor, mp3port_class_ctor, 0);
-  return tizmp3port_class; 
+  void * tizmp3port_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizaudioport), "tizmp3port_class", classOf (tizaudioport), sizeof (tiz_mp3port_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, mp3port_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
+  return tizmp3port_class;
 }
 
 void *
@@ -454,18 +457,26 @@ tiz_mp3port_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizmp3port_class);
   void * tizmp3port =
     factory_new
-    (tizmp3port_class,
-     "tizmp3port",
-     tizaudioport,
-     sizeof (tiz_mp3port_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizmp3port_class, "tizmp3port", tizaudioport, sizeof (tiz_mp3port_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, mp3port_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, mp3port_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, mp3port_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, mp3port_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_portdef_format, mp3port_set_portdef_format,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
-     tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_apply_slaving_behaviour, mp3port_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizmp3port;
 }

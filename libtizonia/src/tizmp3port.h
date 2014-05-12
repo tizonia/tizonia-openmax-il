@@ -20,10 +20,10 @@
 /**
  * @file   tizmp3port.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  MP3 port class
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZMP3PORT_H
