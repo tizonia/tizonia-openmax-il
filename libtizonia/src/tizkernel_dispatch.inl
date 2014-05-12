@@ -1014,6 +1014,8 @@ static OMX_ERRORTYPE dispatch_exe_or_idle_to_pause (tiz_krn_t *ap_krn,
 static OMX_ERRORTYPE dispatch_true (tiz_krn_t *ap_krn,
                                     bool * ap_done)
 {
+  assert (NULL != ap_done);
+  *ap_done = true;
   return OMX_ErrorNone;
 }
 

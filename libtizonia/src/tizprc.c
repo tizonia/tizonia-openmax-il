@@ -124,6 +124,8 @@ static OMX_ERRORTYPE dispatch_exe_or_idle_to_pause (tiz_prc_t *ap_prc,
 static OMX_ERRORTYPE dispatch_true (tiz_prc_t *ap_prc,
                                     bool * ap_done)
 {
+  assert (NULL != ap_done);
+  *ap_done = true;
   return OMX_ErrorNone;
 }
 
