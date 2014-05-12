@@ -30,38 +30,31 @@
 #define FRPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
 
-#include <tizprc_decls.h>
+#include <tizfilterprc.h>
+#include <tizfilterprc_decls.h>
 
-#include "frprc.h"
+typedef struct fr_prc fr_prc_t;
+struct fr_prc
+{
+  /* Object */
+  const tiz_filter_prc_t _;
+};
 
-  typedef struct fr_prc fr_prc_t;
-  struct fr_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    OMX_BUFFERHEADERTYPE *p_in_hdr_;
-    OMX_BUFFERHEADERTYPE *p_out_hdr_;
-    bool eos_;
-    bool in_port_disabled_;
-    bool out_port_disabled_;
-  };
-
-  typedef struct fr_prc_class fr_prc_class_t;
-  struct fr_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct fr_prc_class fr_prc_class_t;
+struct fr_prc_class
+{
+  /* Class */
+  const tiz_filter_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* FRPRC_DECLS_H */
+#endif /* FRPRC_DECLS_H */
