@@ -41,7 +41,7 @@ extern "C"
   {
     /* Object */
     const tiz_audioport_t _;
-    OMX_AUDIO_PARAM_AACTYPE aactype_;
+    OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
   };
 
   typedef struct tiz_aacport_class tiz_aacport_class_t;

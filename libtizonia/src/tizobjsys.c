@@ -61,6 +61,7 @@
 #include "tizaudioport.h"
 #include "tizpcmport.h"
 #include "tizmp3port.h"
+#include "tizaacport.h"
 #include "tizvorbisport.h"
 #include "tizopusport.h"
 #include "tizflacport.h"
@@ -135,6 +136,8 @@ enum tiz_os_type
   ETIZPcmport,
   ETIZMp3port_class,
   ETIZMp3port,
+  ETIZAacport_class,
+  ETIZAacport,
   ETIZVorbisport_class,
   ETIZVorbisport,
   ETIZOpusport_class,
@@ -211,6 +214,8 @@ tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
   tiz_pcmport_init,
   tiz_mp3port_class_init,
   tiz_mp3port_init,
+  tiz_aacport_class_init,
+  tiz_aacport_init,
   tiz_vorbisport_class_init,
   tiz_vorbisport_init,
   tiz_opusport_class_init,
@@ -291,6 +296,8 @@ static tiz_os_type_str_t tiz_os_type_to_str_tbl[] = {
   {ETIZPcmport, "tizpcmport"},
   {ETIZMp3port_class, "tizmp3port_class"},
   {ETIZMp3port, "tizmp3port"},
+  {ETIZAacport_class, "tizaacport_class"},
+  {ETIZAacport, "tizaacport"},
   {ETIZVorbisport_class, "tizvorbisport_class"},
   {ETIZVorbisport, "tizvorbisport"},
   {ETIZOpusport_class, "tizopusport_class"},

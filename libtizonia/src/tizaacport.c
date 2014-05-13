@@ -52,11 +52,11 @@ aacport_ctor (void *ap_obj, va_list * app)
 {
   tiz_aacport_t *p_obj = super_ctor (typeOf (ap_obj, "tizaacport"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
-  OMX_AUDIO_PARAM_AACTYPE *p_aacmode = NULL;
+  OMX_AUDIO_PARAM_AACPROFILETYPE *p_aacmode = NULL;
   tiz_port_register_index (p_obj, OMX_IndexParamAudioAac);
 
-  /* Initialize the OMX_AUDIO_PARAM_AACTYPE structure */
-  if ((p_aacmode = va_arg (*app, OMX_AUDIO_PARAM_AACTYPE *)))
+  /* Initialize the OMX_AUDIO_PARAM_AACPROFILETYPE structure */
+  if ((p_aacmode = va_arg (*app, OMX_AUDIO_PARAM_AACPROFILETYPE *)))
     {
       p_obj->aactype_ = *p_aacmode;
     }
@@ -95,8 +95,8 @@ aacport_GetParameter (const void *ap_obj,
     {
     case OMX_IndexParamAudioAac:
       {
-        OMX_AUDIO_PARAM_AACTYPE *p_aacmode
-          = (OMX_AUDIO_PARAM_AACTYPE *) ap_struct;
+        OMX_AUDIO_PARAM_AACPROFILETYPE *p_aacmode
+          = (OMX_AUDIO_PARAM_AACPROFILETYPE *) ap_struct;
         *p_aacmode = p_obj->aactype_;
         break;
       }
@@ -128,27 +128,29 @@ aacport_SetParameter (const void *ap_obj,
 
     case OMX_IndexParamAudioAac:
       {
-        const OMX_AUDIO_PARAM_AACTYPE *p_aactype
-          = (OMX_AUDIO_PARAM_AACTYPE *) ap_struct;
+        const OMX_AUDIO_PARAM_AACPROFILETYPE *p_aactype
+          = (OMX_AUDIO_PARAM_AACPROFILETYPE *) ap_struct;
 
         switch (p_aactype->nSampleRate)
           {
-          case 16000:           /* MPEG-2 */
-          case 24000:           /* MPEG-2 */
-          case 22050:           /* MPEG-2 */
-          case 32000:           /* MPEG-1 */
-          case 44100:           /* MPEG-1 */
-          case 48000:           /* MPEG-1 */
+          case 8000:
+          case 11025:
+          case 12000:
+          case 16000:
+          case 22050:
+          case 24000:
+          case 32000:
+          case 44100:
+          case 48000:
             {
               break;
             }
           default:
             {
-              TIZ_TRACE (ap_hdl,
-                        "[%s] : OMX_ErrorBadParameter : "
-                        "Sample rate not supported [%d]. "
-                        "Returning...", tiz_idx_to_str (a_index),
-                        p_aactype->nSampleRate);
+              TIZ_TRACE (ap_hdl, "[%s] : OMX_ErrorBadParameter : "
+                         "Sample rate not supported [%d]. "
+                         "Returning...", tiz_idx_to_str (a_index),
+                         p_aactype->nSampleRate);
               return OMX_ErrorBadParameter;
             }
           };
@@ -164,8 +166,7 @@ aacport_SetParameter (const void *ap_obj,
               && (p_obj->aactype_.nChannels != p_aactype->nChannels
                   || p_obj->aactype_.nSampleRate != p_aactype->nSampleRate))
             {
-              TIZ_ERROR (ap_hdl,
-                        "[OMX_ErrorBadParameter] : PORT [%d] "
+              TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
                         "SetParameter [OMX_IndexParamAudioAac]... "
                         "Slave port, cannot update sample rate "
                         "or number of channels", tiz_port_dir (p_obj));
@@ -174,21 +175,16 @@ aacport_SetParameter (const void *ap_obj,
         }
 
         /* Apply the new default values */
-        if (p_obj->aactype_.nChannels != p_aactype->nChannels ||
-            p_obj->aactype_.nBitRate != p_aactype->nBitRate ||
-            p_obj->aactype_.nSampleRate != p_aactype->nSampleRate ||
-            p_obj->aactype_.nAudioBandWidth != p_aactype->nAudioBandWidth ||
-            p_obj->aactype_.eChannelMode != p_aactype->eChannelMode ||
-            p_obj->aactype_.eFormat != p_aactype->eFormat)
-          {
-            p_obj->aactype_.nChannels = p_aactype->nChannels;
-            p_obj->aactype_.nBitRate = p_aactype->nBitRate;
-            p_obj->aactype_.nSampleRate = p_aactype->nSampleRate;
-            p_obj->aactype_.nAudioBandWidth = p_aactype->nAudioBandWidth;
-            p_obj->aactype_.eChannelMode = p_aactype->eChannelMode;
-            p_obj->aactype_.eFormat = p_aactype->eFormat;
-          }
-
+        p_obj->aactype_.nChannels        = p_aactype->nChannels;
+        p_obj->aactype_.nSampleRate      = p_aactype->nSampleRate;
+        p_obj->aactype_.nBitRate         = p_aactype->nBitRate;
+        p_obj->aactype_.nAudioBandWidth  = p_aactype->nAudioBandWidth;
+        p_obj->aactype_.nFrameLength     = p_aactype->nFrameLength;
+        p_obj->aactype_.nAACtools        = p_aactype->nAACtools;
+        p_obj->aactype_.nAACERtools      = p_aactype->nAACERtools;
+        p_obj->aactype_.eAACProfile      = p_aactype->eAACProfile;
+        p_obj->aactype_.eAACStreamFormat = p_aactype->eAACStreamFormat;
+        p_obj->aactype_.eChannelMode     = p_aactype->eChannelMode;
       }
       break;
 
@@ -264,11 +260,11 @@ aacport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* OpenMAX IL 1.2 Section 3.5 : Slaving behaviour for nSamplingRate and
-   * nChannels, both in OMX_AUDIO_PARAM_AACTYPE */
+   * nChannels, both in OMX_AUDIO_PARAM_AACPROFILETYPE */
 
-  assert (p_obj);
-  assert (ap_struct);
-  assert (ap_changed_idxs);
+  assert (NULL != p_obj);
+  assert (NULL != ap_struct);
+  assert (NULL != ap_changed_idxs);
 
   {
     OMX_U32 new_rate = p_obj->aactype_.nSampleRate;
@@ -288,14 +284,14 @@ aacport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
         }
         break;
 
-      case OMX_IndexParamAudioAac:
+      case OMX_IndexParamAudioMp3:
         {
-          const OMX_AUDIO_PARAM_AACTYPE *p_aactype = ap_struct;
-          new_rate = p_aactype->nSampleRate;
-          new_channels = p_aactype->nChannels;
+          const OMX_AUDIO_PARAM_MP3TYPE *p_mp3type = ap_struct;
+          new_rate = p_mp3type->nSampleRate;
+          new_channels = p_mp3type->nChannels;
 
           TIZ_TRACE (handleOf (ap_obj),
-                   "OMX_IndexParamAudioAac : new sampling rate[%d] "
+                   "OMX_IndexParamAudioMp3 : new sampling rate[%d] "
                    "new num channels[%d]", new_rate, new_channels);
         }
         break;
