@@ -20,10 +20,10 @@
 /**
  * @file   tizvorbisport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  VORBIS port class
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZVORBISPORT_H

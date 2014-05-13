@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
-#include "tizvideoport.h"
-#include "tizvideoport_decls.h"
-#include "tizplatform.h"
+#include <assert.h>
+
+#include <tizplatform.h>
 
 #include "tizutils.h"
-
-#include <assert.h>
+#include "tizvideoport.h"
+#include "tizvideoport_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -384,13 +384,16 @@ void *
 tiz_videoport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizport = tiz_get_type (ap_hdl, "tizport");
-  void * tizvideoport_class = factory_new (classOf (tizport),
-                                           "tizvideoport_class",
-                                           classOf (tizport),
-                                           sizeof (tiz_videoport_class_t),
-                                           ap_tos, ap_hdl,
-                                           ctor, videoport_class_ctor, 0);
-  return tizvideoport_class; 
+  void * tizvideoport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizport), "tizvideoport_class", classOf (tizport), sizeof (tiz_videoport_class_t),
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: */
+     ctor, videoport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
+  return tizvideoport_class;
 }
 
 void *
@@ -401,16 +404,21 @@ tiz_videoport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizvideoport_class);
   void * tizvideoport =
     factory_new
-    (tizvideoport_class,
-     "tizvideoport",
-     tizport,
-     sizeof (tiz_videoport_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizvideoport_class, "tizvideoport", tizport, sizeof (tiz_videoport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, videoport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, videoport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, videoport_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, videoport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_apply_slaving_behaviour, videoport_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: stop value*/
      0);
 
   return tizvideoport;

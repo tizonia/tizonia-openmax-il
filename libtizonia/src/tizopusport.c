@@ -20,23 +20,23 @@
 /**
  * @file   tizopusport.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  opusport class implementation
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizopusport.h"
 #include "tizopusport_decls.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -163,30 +163,16 @@ opusport_SetParameter (const void *ap_obj,
       }
 
       /* Apply the new default values */
-      if (p_obj->opustype_.nChannels               != p_opustype->nChannels               ||
-          p_obj->opustype_.nBitRate                != p_opustype->nBitRate                ||
-          p_obj->opustype_.nSampleRate             != p_opustype->nSampleRate             ||
-          p_obj->opustype_.nFrameDuration          != p_opustype->nFrameDuration          ||
-          p_obj->opustype_.nEncoderComplexity      != p_opustype->nEncoderComplexity      ||
-          p_obj->opustype_.bPacketLossResilience   != p_opustype->bPacketLossResilience   ||
-          p_obj->opustype_.bForwardErrorCorrection != p_opustype->bForwardErrorCorrection ||
-          p_obj->opustype_.bDtx                    != p_opustype->bDtx                    ||
-          p_obj->opustype_.eChannelMode            != p_opustype->eChannelMode            ||
-          p_obj->opustype_.eFormat                 != p_opustype->eFormat)
-          
-        {
-          p_obj->opustype_.nChannels               = p_opustype->nChannels;
-          p_obj->opustype_.nBitRate                = p_opustype->nBitRate;
-          p_obj->opustype_.nSampleRate             = p_opustype->nSampleRate;
-          p_obj->opustype_.nFrameDuration          = p_opustype->nFrameDuration;
-          p_obj->opustype_.nEncoderComplexity      = p_opustype->nEncoderComplexity;
-          p_obj->opustype_.bPacketLossResilience   = p_opustype->bPacketLossResilience;
-          p_obj->opustype_.bForwardErrorCorrection = p_opustype->bForwardErrorCorrection;
-          p_obj->opustype_.bDtx                    = p_opustype->bDtx;
-          p_obj->opustype_.eChannelMode            = p_opustype->eChannelMode;
-          p_obj->opustype_.eFormat                 = p_opustype->eFormat;
-        }
-
+      p_obj->opustype_.nChannels               = p_opustype->nChannels;
+      p_obj->opustype_.nBitRate                = p_opustype->nBitRate;
+      p_obj->opustype_.nSampleRate             = p_opustype->nSampleRate;
+      p_obj->opustype_.nFrameDuration          = p_opustype->nFrameDuration;
+      p_obj->opustype_.nEncoderComplexity      = p_opustype->nEncoderComplexity;
+      p_obj->opustype_.bPacketLossResilience   = p_opustype->bPacketLossResilience;
+      p_obj->opustype_.bForwardErrorCorrection = p_opustype->bForwardErrorCorrection;
+      p_obj->opustype_.bDtx                    = p_opustype->bDtx;
+      p_obj->opustype_.eChannelMode            = p_opustype->eChannelMode;
+      p_obj->opustype_.eFormat                 = p_opustype->eFormat;
     }
   else
     {
@@ -411,13 +397,16 @@ void *
 tiz_opusport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
-  void * tizopusport_class = factory_new (classOf (tizaudioport),
-                                          "tizopusport_class",
-                                          classOf (tizaudioport),
-                                          sizeof (tiz_opusport_class_t),
-                                          ap_tos, ap_hdl,
-                                          ctor, opusport_class_ctor, 0);
-  return tizopusport_class; 
+  void * tizopusport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizaudioport), "tizopusport_class", classOf (tizaudioport), sizeof (tiz_opusport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, opusport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
+  return tizopusport_class;
 }
 
 void *
@@ -428,18 +417,26 @@ tiz_opusport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizopusport_class);
   void * tizopusport =
     factory_new
-    (tizopusport_class,
-     "tizopusport",
-     tizaudioport,
-     sizeof (tiz_opusport_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizopusport_class, "tizopusport", tizaudioport, sizeof (tiz_opusport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, opusport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, opusport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, opusport_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, opusport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_portdef_format, opusport_set_portdef_format,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, opusport_check_tunnel_compat,
-     tiz_port_apply_slaving_behaviour, opusport_apply_slaving_behaviour, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_apply_slaving_behaviour, opusport_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizopusport;
 }

@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizpcmport.h"
 #include "tizpcmport_decls.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -651,13 +651,16 @@ void *
 tiz_pcmport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
-  void * tizpcmport_class = factory_new (classOf (tizaudioport),
-                                         "tizpcmport_class",
-                                         classOf (tizaudioport),
-                                         sizeof (tiz_pcmport_class_t),
-                                         ap_tos, ap_hdl,
-                                         ctor, pcmport_class_ctor, 0);
-  return tizpcmport_class; 
+  void * tizpcmport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizaudioport), "tizpcmport_class", classOf (tizaudioport), sizeof (tiz_pcmport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, pcmport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
+  return tizpcmport_class;
 }
 
 void *
@@ -668,20 +671,30 @@ tiz_pcmport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizpcmport_class);
   void * tizpcmport =
     factory_new
-    (tizpcmport_class,
-     "tizpcmport",
-     tizaudioport,
-     sizeof (tiz_pcmport_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizpcmport_class, "tizpcmport", tizaudioport, sizeof (tiz_pcmport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, pcmport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, pcmport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, pcmport_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, pcmport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetConfig, pcmport_GetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, pcmport_SetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_portdef_format, pcmport_set_portdef_format,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
-     tiz_port_apply_slaving_behaviour, pcmport_apply_slaving_behaviour, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_apply_slaving_behaviour, pcmport_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizpcmport;
 }

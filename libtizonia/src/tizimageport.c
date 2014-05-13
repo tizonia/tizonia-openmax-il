@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizimageport.h"
 #include "tizimageport_decls.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -292,12 +292,15 @@ void *
 tiz_imageport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizport = tiz_get_type (ap_hdl, "tizport");
-  void * tizimageport_class = factory_new (classOf (tizport),
-                                           "tizimageport_class",
-                                           classOf (tizport),
-                                           sizeof (tiz_imageport_class_t),
-                                           ap_tos, ap_hdl,
-                                           ctor, imageport_class_ctor, 0);
+  void * tizimageport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizport), "tizimageport_class", classOf (tizport), sizeof (tiz_imageport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, imageport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizimageport_class;
 }
 
@@ -309,15 +312,20 @@ tiz_imageport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizimageport_class);
   void * tizimageport =
     factory_new
-    (tizimageport_class,
-     "tizimageport",
-     tizport,
-     sizeof (tiz_imageport_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizimageport_class, "tizimageport", tizport, sizeof (tiz_imageport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, imageport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, imageport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, imageport_GetParameter,
-     tiz_api_SetParameter, imageport_SetParameter, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_SetParameter, imageport_SetParameter,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizimageport;
 }

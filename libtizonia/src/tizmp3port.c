@@ -174,21 +174,12 @@ mp3port_SetParameter (const void *ap_obj,
         }
 
         /* Apply the new default values */
-        if (p_obj->mp3type_.nChannels != p_mp3type->nChannels ||
-            p_obj->mp3type_.nBitRate != p_mp3type->nBitRate ||
-            p_obj->mp3type_.nSampleRate != p_mp3type->nSampleRate ||
-            p_obj->mp3type_.nAudioBandWidth != p_mp3type->nAudioBandWidth ||
-            p_obj->mp3type_.eChannelMode != p_mp3type->eChannelMode ||
-            p_obj->mp3type_.eFormat != p_mp3type->eFormat)
-          {
-            p_obj->mp3type_.nChannels = p_mp3type->nChannels;
-            p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
-            p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
-            p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
-            p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
-            p_obj->mp3type_.eFormat = p_mp3type->eFormat;
-          }
-
+        p_obj->mp3type_.nChannels = p_mp3type->nChannels;
+        p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
+        p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
+        p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
+        p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
+        p_obj->mp3type_.eFormat = p_mp3type->eFormat;
       }
       break;
 

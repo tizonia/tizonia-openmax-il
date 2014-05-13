@@ -41,12 +41,14 @@
 #include <assert.h>
 #include <limits.h>
 
-#include "OMX_Component.h"
+#include <OMX_Component.h>
+#include <OMX_TizoniaExt.h>
 
-#include "tizplatform.h"
+#include <tizplatform.h>
+
+#include "tizscheduler.h"
 #include "tizfsm.h"
 #include "tizkernel.h"
-#include "OMX_TizoniaExt.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

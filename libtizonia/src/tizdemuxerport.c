@@ -30,16 +30,15 @@
 #include <config.h>
 #endif
 
-#include "tizdemuxerport.h"
-#include "tizdemuxerport_decls.h"
+#include <assert.h>
 
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizpcmport.h"
 #include "tizvideoport.h"
-
-#include "tizplatform.h"
-#include "tizutils.h"
-
-#include <assert.h>
+#include "tizdemuxerport.h"
+#include "tizdemuxerport_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -437,12 +436,15 @@ void *
 tiz_demuxerport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizport = tiz_get_type (ap_hdl, "tizport");
-  void * tizdemuxerport_class = factory_new (classOf (tizport),
-                                             "tizdemuxerport_class",
-                                             classOf (tizport),
-                                             sizeof (tiz_demuxerport_class_t),
-                                             ap_tos, ap_hdl,
-                                             ctor, demuxerport_class_ctor, 0);
+  void * tizdemuxerport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizport), "tizdemuxerport_class", classOf (tizport), sizeof (tiz_demuxerport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, demuxerport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizdemuxerport_class;
 }
 
@@ -452,20 +454,27 @@ tiz_demuxerport_init (void * ap_tos, void * ap_hdl)
   void * tizport = tiz_get_type (ap_hdl, "tizport");
   void * tizdemuxerport_class = tiz_get_type (ap_hdl, "tizdemuxerport_class");
   TIZ_LOG_CLASS (tizdemuxerport_class);
-  void * tizdemuxerport =
-    factory_new
-    (tizdemuxerport_class,
-     "tizdemuxerport",
-     tizport,
-     sizeof (tiz_demuxerport_t),
+  void * tizdemuxerport = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizdemuxerport_class, "tizdemuxerport", tizport, sizeof (tiz_demuxerport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, demuxerport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, demuxerport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, demuxerport_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, demuxerport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetConfig, demuxerport_GetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, demuxerport_SetConfig,
-     tiz_port_check_tunnel_compat, demuxerport_check_tunnel_compat, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_check_tunnel_compat, demuxerport_check_tunnel_compat,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizdemuxerport;
 }

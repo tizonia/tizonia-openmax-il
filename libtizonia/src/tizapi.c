@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizscheduler.h"
 #include "tizapi.h"
 #include "tizapi_decls.h"
-#include "tizscheduler.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -743,12 +743,15 @@ void *
 tiz_api_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizobject    = tiz_get_type (ap_hdl, "tizobject");
-  void * tizapi_class = factory_new (classOf (tizobject),
-                                     "tizapi_class",
-                                     classOf (tizobject),
-                                     sizeof (tiz_api_class_t),
-                                     ap_tos, ap_hdl,
-                                     ctor, api_class_ctor, 0);
+  void * tizapi_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+     (classOf (tizobject), "tizapi_class", classOf (tizobject), sizeof (tiz_api_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, api_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizapi_class;
 }
 
@@ -767,24 +770,44 @@ tiz_api_init (void * ap_tos, void * ap_hdl)
      ap_tos, ap_hdl,
      ctor, api_ctor,
      dtor, api_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetComponentVersion, api_GetComponentVersion,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SendCommand, api_SendCommand,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, api_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, api_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetConfig, api_GetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, api_SetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetExtensionIndex, api_GetExtensionIndex,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetState, api_GetState,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_ComponentTunnelRequest, api_ComponentTunnelRequest,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_UseBuffer, api_UseBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_AllocateBuffer, api_AllocateBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_FreeBuffer, api_FreeBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_EmptyThisBuffer, api_EmptyThisBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_FillThisBuffer, api_FillThisBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetCallbacks, api_SetCallbacks,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_ComponentDeInit, api_ComponentDeInit,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_UseEGLImage, api_UseEGLImage,
-     tiz_api_ComponentRoleEnum, api_ComponentRoleEnum, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_ComponentRoleEnum, api_ComponentRoleEnum,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizapi;
 }

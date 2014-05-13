@@ -34,10 +34,9 @@ extern "C"
 {
 #endif
 
-#include "tizobject.h"
+#include <OMX_Core.h>
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
+#include "tizobject.h"
 
   void * tiz_api_class_init (void * ap_tos, void * ap_hdl);
   void * tiz_api_init (void * ap_tos, void * ap_hdl);

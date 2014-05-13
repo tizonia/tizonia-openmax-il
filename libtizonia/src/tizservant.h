@@ -34,11 +34,12 @@ extern "C"
 {
 #endif
 
-#include "tizapi.h"
-#include "tizscheduler.h"
+#include <OMX_Core.h>
 
-#include "OMX_Core.h"
-#include "OMX_Types.h"
+#include <tizplatform.h>
+
+#include "tizscheduler.h"
+#include "tizapi.h"
 
   void * tiz_srv_class_init (void * ap_tos, void * ap_hdl);
   void * tiz_srv_init (void * ap_tos, void * ap_hdl);

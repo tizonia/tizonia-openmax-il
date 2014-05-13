@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizaudioport.h"
 #include "tizaudioport_decls.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -213,12 +213,15 @@ void *
 tiz_audioport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizport = tiz_get_type (ap_hdl, "tizport");
-  void * tizaudioport_class = factory_new (classOf (tizport),
-                                           "tizaudioport_class",
-                                           classOf (tizport),
-                                           sizeof (tiz_audioport_class_t),
-                                           ap_tos, ap_hdl,
-                                           ctor, audioport_class_ctor, 0);
+  void * tizaudioport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizport), "tizaudioport_class", classOf (tizport), sizeof (tiz_audioport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, audioport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizaudioport_class;
 }
 
@@ -229,15 +232,20 @@ tiz_audioport_init (void * ap_tos, void * ap_hdl)
   void * tizaudioport_class = tiz_get_type (ap_hdl, "tizaudioport_class");
   void * tizaudioport =
     factory_new
-    (tizaudioport_class,
-     "tizaudioport",
-     tizport,
-     sizeof (tiz_audioport_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizaudioport_class, "tizaudioport", tizport, sizeof (tiz_audioport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, audioport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, audioport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, audioport_GetParameter,
-     tiz_api_SetParameter, audioport_SetParameter, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_SetParameter, audioport_SetParameter,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizaudioport;
 }

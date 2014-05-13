@@ -173,12 +173,15 @@ void *
 tiz_demuxercfgport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizuricfgport = tiz_get_type (ap_hdl, "tizuricfgport");
-  void * tizdemuxercfgport_class = factory_new (classOf (tizuricfgport),
-                                                "tizdemuxercfgport_class",
-                                                classOf (tizuricfgport),
-                                                sizeof (tiz_demuxercfgport_class_t),
-                                                ap_tos, ap_hdl,
-                                                ctor, demuxercfgport_class_ctor, 0);
+  void * tizdemuxercfgport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizuricfgport), "tizdemuxercfgport_class", classOf (tizuricfgport), sizeof (tiz_demuxercfgport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, demuxercfgport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+                                                0);
   return tizdemuxercfgport_class;
 }
 
@@ -190,15 +193,20 @@ tiz_demuxercfgport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizdemuxercfgport_class);
   void * tizdemuxercfgport =
     factory_new
-    (tizdemuxercfgport_class,
-     "tizdemuxercfgport",
-     tizuricfgport,
-     sizeof (tiz_demuxercfgport_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizdemuxercfgport_class, "tizdemuxercfgport", tizuricfgport, sizeof (tiz_demuxercfgport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, demuxer_cfgport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, demuxer_cfgport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetConfig, demuxer_cfgport_GetConfig,
-     tiz_api_SetConfig, demuxer_cfgport_SetConfig, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_SetConfig, demuxer_cfgport_SetConfig,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizdemuxercfgport;
 }

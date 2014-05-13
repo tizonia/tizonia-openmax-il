@@ -30,18 +30,18 @@
 #include <config.h>
 #endif
 
-#include "tizbinaryport.h"
-#include "tizbinaryport_decls.h"
+#include <assert.h>
 
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizaudioport.h"
 #include "tizvideoport.h"
 #include "tizimageport.h"
 #include "tizotherport.h"
-#include "tizutils.h"
 
-#include "tizplatform.h"
-
-#include <assert.h>
+#include "tizbinaryport.h"
+#include "tizbinaryport_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -343,12 +343,15 @@ void *
 tiz_binaryport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizport = tiz_get_type (ap_hdl, "tizport");
-  void * tizbinaryport_class = factory_new (classOf (tizport),
-                                            "tizbinaryport_class",
-                                            classOf (tizport),
-                                            sizeof (tiz_binaryport_class_t),
-                                            ap_tos, ap_hdl,
-                                            ctor, binaryport_class_ctor, 0);
+  void * tizbinaryport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizport), "tizbinaryport_class", classOf (tizport), sizeof (tiz_binaryport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, binaryport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizbinaryport_class;
 }
 
@@ -360,16 +363,22 @@ tiz_binaryport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizbinaryport_class);
   void * tizbinaryport =
     factory_new
-    (tizbinaryport_class,
-     "tizbinaryport",
-     tizport,
-     sizeof (tiz_binaryport_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizbinaryport_class, "tizbinaryport", tizport, sizeof (tiz_binaryport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, binaryport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, binaryport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, binaryport_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, binaryport_SetParameter,
-     tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_check_tunnel_compat, binaryport_check_tunnel_compat,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizbinaryport;
 }

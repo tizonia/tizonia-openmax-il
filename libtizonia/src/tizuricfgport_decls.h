@@ -34,8 +34,6 @@ extern "C"
 {
 #endif
 
-#include <OMX_Types.h>
-
 #include "tizconfigport_decls.h"
 
   typedef struct tiz_uricfgport tiz_uricfgport_t;

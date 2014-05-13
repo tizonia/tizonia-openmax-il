@@ -30,14 +30,11 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include "tizutils.h"
 #include "tizservant.h"
 #include "tizservant_decls.h"
-#include "tizscheduler.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -706,50 +703,73 @@ void *
 tiz_srv_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizapi = tiz_get_type (ap_hdl, "tizapi");
-  void * tizsrv_class = factory_new (classOf (tizapi),
-                                     "tizsrv_class",
-                                     classOf (tizapi),
-                                     sizeof (tiz_srv_class_t),
-                                     ap_tos, ap_hdl,
-                                     ctor, servant_class_ctor, 0);
+  void * tizsrv_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizapi), "tizsrv_class", classOf (tizapi), sizeof (tiz_srv_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, servant_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizsrv_class;
 }
 
 void *
 tiz_srv_init (void * ap_tos, void * ap_hdl)
 {
-  void * tizapi       = tiz_get_type (ap_hdl, "tizapi");
+  void * tizapi = tiz_get_type (ap_hdl, "tizapi");
   void * tizsrv_class = tiz_get_type (ap_hdl, "tizsrv_class");
   TIZ_LOG_CLASS (tizsrv_class);
-  void * tizsrv =
-    factory_new
-    (tizsrv_class,
-     "tizsrv",
-     tizapi,
-     sizeof (tiz_srv_t),
+  void * tizsrv = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizsrv_class, "tizsrv", tizapi, sizeof (tiz_srv_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, servant_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, servant_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_set_allocator, servant_set_allocator,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_set_callbacks, servant_set_callbacks,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_tick, servant_tick,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_init_msg, servant_init_msg,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_enqueue, servant_enqueue,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_remove_from_queue, servant_remove_from_queue,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_dispatch_msg, servant_dispatch_msg,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_is_ready, servant_is_ready,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_allocate_resources, servant_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_deallocate_resources, servant_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_prepare_to_transfer, servant_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_transfer_and_process, servant_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_stop_and_return, servant_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_issue_event, servant_issue_event,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_issue_err_event, servant_issue_err_event,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_issue_cmd_event, servant_issue_cmd_event,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_issue_trans_event, servant_issue_trans_event,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_issue_buf_callback, servant_issue_buf_callback,
-     tiz_srv_receive_pluggable_event,
-     servant_receive_pluggable_event, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_receive_pluggable_event, servant_receive_pluggable_event,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizsrv;
 }

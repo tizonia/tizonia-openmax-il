@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
-#include "tizconfigport.h"
-#include "tizconfigport_decls.h"
-#include "tizport.h"
-#include "tizplatform.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include <tizplatform.h>
+
+#include "tizconfigport.h"
+#include "tizconfigport_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -53,7 +53,7 @@ configport_ctor (void *ap_obj, va_list * app)
   tiz_configport_t *p_obj = super_ctor (typeOf (ap_obj, "tizconfigport"), ap_obj, app);
   tiz_port_t *p_base = ap_obj;
   size_t str_len = 0;
-  
+
   /* Make an internal copy of the component name */
   strncpy (p_obj->comp_name_, va_arg (*app, char *), OMX_MAX_STRINGNAME_SIZE - 1);
   str_len = strnlen (p_obj->comp_name_, OMX_MAX_STRINGNAME_SIZE - 1);
@@ -347,12 +347,15 @@ void *
 tiz_configport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizport = tiz_get_type (ap_hdl, "tizport");
-  void * tizconfigport_class = factory_new (classOf (tizport),
-                                            "tizconfigport_class",
-                                            classOf (tizport),
-                                            sizeof (tiz_configport_class_t),
-                                            ap_tos, ap_hdl,
-                                            ctor, configport_class_ctor, 0);
+  void * tizconfigport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizport), "tizconfigport_class", classOf (tizport), sizeof (tiz_configport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, configport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizconfigport_class;
 }
 
@@ -364,19 +367,28 @@ tiz_configport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizconfigport_class);
   void * tizconfigport =
     factory_new
-    (tizconfigport_class,
-     "tizconfigport",
-     tizport,
-     sizeof (tiz_configport_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizconfigport_class, "tizconfigport", tizport, sizeof (tiz_configport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, configport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, configport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetComponentVersion, configport_GetComponentVersion,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, configport_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, configport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetConfig, configport_GetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, configport_SetConfig,
-     tiz_api_GetExtensionIndex, configport_GetExtensionIndex, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_GetExtensionIndex, configport_GetExtensionIndex,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizconfigport;
 }

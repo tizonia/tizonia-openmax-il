@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizotherport.h"
 #include "tizotherport_decls.h"
-
-#include "tizplatform.h"
-#include "tizutils.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -205,12 +205,15 @@ void *
 tiz_otherport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizport = tiz_get_type (ap_hdl, "tizport");
-  void * tizotherport_class = factory_new (classOf (tizport),
-                                           "tizotherport_class",
-                                           classOf (tizport),
-                                           sizeof (tiz_otherport_class_t),
-                                           ap_tos, ap_hdl,
-                                           ctor, otherport_class_ctor, 0);
+  void * tizotherport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizport), "tizotherport_class", classOf (tizport), sizeof (tiz_otherport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, otherport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizotherport_class;
 }
 
@@ -220,17 +223,21 @@ tiz_otherport_init (void * ap_tos, void * ap_hdl)
   void * tizport = tiz_get_type (ap_hdl, "tizport");
   void * tizotherport_class = tiz_get_type (ap_hdl, "tizotherport_class");
   TIZ_LOG_CLASS (tizotherport_class);
-  void * tizotherport =
-    factory_new
-    (tizotherport_class,
-     "tizotherport",
-     tizport,
-     sizeof (tiz_otherport_t),
+  void * tizotherport = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizotherport_class, "tizotherport", tizport, sizeof (tiz_otherport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, otherport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, otherport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, otherport_GetParameter,
-     tiz_api_SetParameter, otherport_SetParameter, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_SetParameter, otherport_SetParameter,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizotherport;
 }

@@ -20,10 +20,10 @@
 /**
  * @file   tizopusport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  OPUS port class
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZOPUSPORT_H

@@ -34,10 +34,7 @@ extern "C"
 {
 #endif
 
-#include "OMX_Component.h"
-
 #include "tizport_decls.h"
-#include "tizplatform.h"
 
   typedef struct tiz_videoport tiz_videoport_t;
   struct tiz_videoport

@@ -20,10 +20,10 @@
 /**
  * @file   tizivrport_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  i/v renderer port class declarations
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZIVRPORT_DECLS_H
@@ -34,7 +34,6 @@ extern "C"
 {
 #endif
 
-#include "OMX_Component.h"
 #include "tizvideoport_decls.h"
 
   typedef struct tiz_ivrport tiz_ivrport_t;

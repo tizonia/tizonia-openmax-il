@@ -20,10 +20,10 @@
 /**
  * @file   tizapi_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - Main OMX IL api base class
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZAPI_DECLS_H
@@ -35,9 +35,6 @@ extern "C"
 #endif
 
 #include "tizobject_decls.h"
-
-#include "OMX_Types.h"
-#include "OMX_Core.h"
 
   typedef struct tiz_api tiz_api_t;
   struct tiz_api

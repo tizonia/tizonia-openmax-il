@@ -35,8 +35,6 @@ extern "C" {
 
 #include <OMX_Core.h>
 
-#include "tizscheduler.h"
-#include "tizservant.h"
 #include "tizutils.h"
 
 void *tiz_krn_class_init (void *ap_tos, void *ap_hdl);

@@ -20,10 +20,10 @@
 /**
  * @file   tizflacport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  FLAC port class
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZFLACPORT_H

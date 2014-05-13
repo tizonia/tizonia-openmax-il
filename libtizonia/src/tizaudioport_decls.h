@@ -34,10 +34,7 @@ extern "C"
 {
 #endif
 
-#include "OMX_Component.h"
-
 #include "tizport_decls.h"
-#include "tizplatform.h"
 
   typedef struct tiz_audioport tiz_audioport_t;
   struct tiz_audioport

@@ -37,7 +37,6 @@ extern "C" {
 
 #include <tizrmproxy_c.h>
 
-#include "tizkernel.h"
 #include "tizservant_decls.h"
 
 typedef struct tiz_krn_msg_sendcommand tiz_krn_msg_sendcommand_t;

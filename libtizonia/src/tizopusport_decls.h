@@ -20,10 +20,10 @@
 /**
  * @file   tizopusport_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  opusport class declarations
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZOPUSPORT_DECLS_H
@@ -34,8 +34,7 @@ extern "C"
 {
 #endif
 
-#include "OMX_Component.h"
-#include "OMX_TizoniaExt.h"
+#include <OMX_TizoniaExt.h>
 
 #include "tizaudioport_decls.h"
 

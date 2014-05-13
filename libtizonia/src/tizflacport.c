@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizflacport.h"
 #include "tizflacport_decls.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -153,23 +153,13 @@ flacport_SetParameter (const void *ap_obj,
       }
 
       /* Apply the new default values */
-      if (p_obj->flactype_.nChannels             != p_flactype->nChannels             ||
-          p_obj->flactype_.nBitsPerSample        != p_flactype->nBitsPerSample        ||
-          p_obj->flactype_.nSampleRate           != p_flactype->nSampleRate           ||
-          p_obj->flactype_.nCompressionLevel     != p_flactype->nCompressionLevel     ||
-          p_obj->flactype_.nBlockSize            != p_flactype->nBlockSize            ||
-          p_obj->flactype_.nTotalSamplesEstimate != p_flactype->nTotalSamplesEstimate ||
-          p_obj->flactype_.eChannelMode          != p_flactype->eChannelMode)
-        {
-          p_obj->flactype_.nChannels               = p_flactype->nChannels;
-          p_obj->flactype_.nBitsPerSample          = p_flactype->nBitsPerSample;
-          p_obj->flactype_.nSampleRate             = p_flactype->nSampleRate;
-          p_obj->flactype_.nCompressionLevel       = p_flactype->nCompressionLevel;
-          p_obj->flactype_.nBlockSize              = p_flactype->nBlockSize;
-          p_obj->flactype_.nTotalSamplesEstimate   = p_flactype->nTotalSamplesEstimate;
-          p_obj->flactype_.eChannelMode            = p_flactype->eChannelMode;
-        }
-
+      p_obj->flactype_.nChannels               = p_flactype->nChannels;
+      p_obj->flactype_.nBitsPerSample          = p_flactype->nBitsPerSample;
+      p_obj->flactype_.nSampleRate             = p_flactype->nSampleRate;
+      p_obj->flactype_.nCompressionLevel       = p_flactype->nCompressionLevel;
+      p_obj->flactype_.nBlockSize              = p_flactype->nBlockSize;
+      p_obj->flactype_.nTotalSamplesEstimate   = p_flactype->nTotalSamplesEstimate;
+      p_obj->flactype_.eChannelMode            = p_flactype->eChannelMode;
     }
   else
     {
@@ -415,12 +405,15 @@ void *
 tiz_flacport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
-  void * tizflacport_class = factory_new (classOf (tizaudioport),
-                                          "tizflacport_class",
-                                          classOf (tizaudioport),
-                                          sizeof (tiz_flacport_class_t),
-                                          ap_tos, ap_hdl,
-                                          ctor, flacport_class_ctor, 0);
+  void * tizflacport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizaudioport), "tizflacport_class", classOf (tizaudioport), sizeof (tiz_flacport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, flacport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizflacport_class;
 }
 
@@ -432,18 +425,26 @@ tiz_flacport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizflacport_class);
   void * tizflacport =
     factory_new
-    (tizflacport_class,
-     "tizflacport",
-     tizaudioport,
-     sizeof (tiz_flacport_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizflacport_class, "tizflacport", tizaudioport, sizeof (tiz_flacport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, flacport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, flacport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, flacport_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, flacport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_portdef_format, flacport_set_portdef_format,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, flacport_check_tunnel_compat,
-     tiz_port_apply_slaving_behaviour, flacport_apply_slaving_behaviour, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_apply_slaving_behaviour, flacport_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizflacport;
 }

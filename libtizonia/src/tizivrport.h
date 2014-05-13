@@ -20,10 +20,10 @@
 /**
  * @file   tizivrport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  i/v renderer port class
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZIVRPORT_H

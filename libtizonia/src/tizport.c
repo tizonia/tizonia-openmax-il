@@ -30,20 +30,19 @@
 #include <config.h>
 #endif
 
-#include "tizport.h"
-#include "tizport-macros.h"
-#include "tizport_decls.h"
-#include "tizfsm.h"
-
-#include "tizutils.h"
-#include "tizplatform.h"
-
-#include "OMX_Types.h"
-#include "OMX_TizoniaExt.h"
-
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
+
+#include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
+#include "tizport-macros.h"
+#include "tizport.h"
+#include "tizport_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -2189,13 +2188,16 @@ void *
 tiz_port_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizapi = tiz_get_type (ap_hdl, "tizapi");
-  void * tizport_class = factory_new (classOf (tizapi),
-                                      "tizport_class",
-                                      classOf (tizapi),
-                                      sizeof (tiz_port_class_t),
-                                      ap_tos, ap_hdl,
-                                      ctor, port_class_ctor, 0);
-  return tizport_class; 
+  void * tizport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizapi), "tizport_class", classOf (tizapi), sizeof (tiz_port_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, port_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
+  return tizport_class;
 }
 
 void *
@@ -2206,49 +2208,87 @@ tiz_port_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizport_class);
   void * tizport =
     factory_new
-    (tizport_class,
-     "tizport",
-     tizapi,
-     sizeof (tiz_port_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizport_class, "tizport", tizapi, sizeof (tiz_port_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, port_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, port_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, port_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, port_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetConfig, port_GetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, port_SetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetExtensionIndex, port_GetExtensionIndex,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_ComponentTunnelRequest, port_ComponentTunnelRequest,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_UseBuffer, port_UseBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_AllocateBuffer, port_AllocateBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_FreeBuffer, port_FreeBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_register_index, port_register_index,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_find_index, port_find_index,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_index, port_index,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_index, port_set_index,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_portdef_format, port_set_portdef_format,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_buffer_count, port_buffer_count,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_dir, port_dir,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_domain, port_domain,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_get_tunnel_comp, port_get_tunnel_comp,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_get_hdrs_list, port_get_hdrs_list,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_check_flags, port_check_flags,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_flags, port_set_flags,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_clear_flags, port_clear_flags,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunneled_port_status, port_check_tunneled_port_status,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_populate, port_populate,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_depopulate, port_depopulate,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, port_check_tunnel_compat,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_update_claimed_count, port_update_claimed_count,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_store_mark, port_store_mark,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_mark_buffer, port_mark_buffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_alloc_hooks, port_set_alloc_hooks,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_populate_header, port_populate_header,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_depopulate_header, port_depopulate_header,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_is_master_or_slave, port_is_master_or_slave,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_apply_slaving_behaviour, port_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_update_tunneled_status, port_update_tunneled_status,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_reset_tunneled_port_status_flag, reset_tunneled_port_status_flag,
+     /* TIZ_CLASS_COMMENT: stop value*/
      0);
 
   return tizport;

@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizvorbisport.h"
 #include "tizvorbisport_decls.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -133,12 +133,12 @@ vorbisport_SetParameter (const void *ap_obj,
 
         switch (p_vorbistype->nSampleRate)
           {
-          case 16000:           /* MPEG-2 */
-          case 24000:           /* MPEG-2 */
-          case 22050:           /* MPEG-2 */
-          case 32000:           /* MPEG-1 */
-          case 44100:           /* MPEG-1 */
-          case 48000:           /* MPEG-1 */
+          case 16000:
+          case 24000:
+          case 22050:
+          case 32000:
+          case 44100:
+          case 48000:
             {
               break;
             }
@@ -174,27 +174,15 @@ vorbisport_SetParameter (const void *ap_obj,
         }
 
         /* Apply the new default values */
-        if (p_obj->vorbistype_.nChannels       != p_vorbistype->nChannels       ||
-            p_obj->vorbistype_.nBitRate        != p_vorbistype->nBitRate        ||
-            p_obj->vorbistype_.nMinBitRate     != p_vorbistype->nMinBitRate     ||
-            p_obj->vorbistype_.nMaxBitRate     != p_vorbistype->nMaxBitRate     ||
-            p_obj->vorbistype_.nSampleRate     != p_vorbistype->nSampleRate     ||
-            p_obj->vorbistype_.nAudioBandWidth != p_vorbistype->nAudioBandWidth ||
-            p_obj->vorbistype_.nQuality        != p_vorbistype->nQuality        ||
-            p_obj->vorbistype_.bManaged        != p_vorbistype->bManaged        ||
-            p_obj->vorbistype_.bDownmix        != p_vorbistype->bDownmix)
-          {
-            p_obj->vorbistype_.nChannels       = p_vorbistype->nChannels;
-            p_obj->vorbistype_.nBitRate        = p_vorbistype->nBitRate;
-            p_obj->vorbistype_.nMinBitRate     = p_vorbistype->nMinBitRate;
-            p_obj->vorbistype_.nMaxBitRate     = p_vorbistype->nMaxBitRate;
-            p_obj->vorbistype_.nSampleRate     = p_vorbistype->nSampleRate;
-            p_obj->vorbistype_.nAudioBandWidth = p_vorbistype->nAudioBandWidth;
-            p_obj->vorbistype_.nQuality        = p_vorbistype->nQuality;
-            p_obj->vorbistype_.bManaged        = p_vorbistype->bManaged;
-            p_obj->vorbistype_.bDownmix        = p_vorbistype->bDownmix;
-          }
-
+        p_obj->vorbistype_.nChannels       = p_vorbistype->nChannels;
+        p_obj->vorbistype_.nBitRate        = p_vorbistype->nBitRate;
+        p_obj->vorbistype_.nMinBitRate     = p_vorbistype->nMinBitRate;
+        p_obj->vorbistype_.nMaxBitRate     = p_vorbistype->nMaxBitRate;
+        p_obj->vorbistype_.nSampleRate     = p_vorbistype->nSampleRate;
+        p_obj->vorbistype_.nAudioBandWidth = p_vorbistype->nAudioBandWidth;
+        p_obj->vorbistype_.nQuality        = p_vorbistype->nQuality;
+        p_obj->vorbistype_.bManaged        = p_vorbistype->bManaged;
+        p_obj->vorbistype_.bDownmix        = p_vorbistype->bDownmix;
       }
       break;
 
@@ -272,9 +260,9 @@ vorbisport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
   /* OpenMAX IL 1.2 Section 3.5 : Slaving behaviour for nSamplingRate and
    * nChannels, both in OMX_AUDIO_PARAM_VORBISTYPE */
 
-  assert (p_obj);
-  assert (ap_struct);
-  assert (ap_changed_idxs);
+  assert (NULL != p_obj);
+  assert (NULL != ap_struct);
+  assert (NULL != ap_changed_idxs);
 
   {
     OMX_U32 new_rate = p_obj->vorbistype_.nSampleRate;
@@ -296,9 +284,9 @@ vorbisport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
       case OMX_IndexParamAudioMp3:
         {
-          const OMX_AUDIO_PARAM_VORBISTYPE *p_vorbistype = ap_struct;
-          new_rate = p_vorbistype->nSampleRate;
-          new_channels = p_vorbistype->nChannels;
+          const OMX_AUDIO_PARAM_MP3TYPE *p_mp3type = ap_struct;
+          new_rate = p_mp3type->nSampleRate;
+          new_channels = p_mp3type->nChannels;
 
           TIZ_TRACE (handleOf (ap_obj),
                    "OMX_IndexParamAudioMp3 : new sampling rate[%d] "
@@ -443,13 +431,16 @@ void *
 tiz_vorbisport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
-  void * tizvorbisport_class = factory_new (classOf (tizaudioport),
-                                         "tizvorbisport_class",
-                                         classOf (tizaudioport),
-                                         sizeof (tiz_vorbisport_class_t),
-                                         ap_tos, ap_hdl,
-                                         ctor, vorbisport_class_ctor, 0);
-  return tizvorbisport_class; 
+  void * tizvorbisport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizaudioport), "tizvorbisport_class", classOf (tizaudioport), sizeof (tiz_vorbisport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, vorbisport_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
+  return tizvorbisport_class;
 }
 
 void *
@@ -458,20 +449,27 @@ tiz_vorbisport_init (void * ap_tos, void * ap_hdl)
   void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
   void * tizvorbisport_class = tiz_get_type (ap_hdl, "tizvorbisport_class");
   TIZ_LOG_CLASS (tizvorbisport_class);
-  void * tizvorbisport =
-    factory_new
-    (tizvorbisport_class,
-     "tizvorbisport",
-     tizaudioport,
-     sizeof (tiz_vorbisport_t),
+  void * tizvorbisport = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizvorbisport_class, "tizvorbisport", tizaudioport, sizeof (tiz_vorbisport_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, vorbisport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, vorbisport_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, vorbisport_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, vorbisport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_portdef_format, vorbisport_set_portdef_format,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, vorbisport_check_tunnel_compat,
-     tiz_port_apply_slaving_behaviour, vorbisport_apply_slaving_behaviour, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_apply_slaving_behaviour, vorbisport_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizvorbisport;
 }

@@ -30,13 +30,13 @@
 #include <config.h>
 #endif
 
+#include <assert.h>
+
+#include <tizplatform.h>
+
+#include "tizutils.h"
 #include "tizvp8port.h"
 #include "tizvp8port_decls.h"
-#include "tizutils.h"
-
-#include "tizplatform.h"
-
-#include <assert.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -513,12 +513,15 @@ void *
 tiz_vp8port_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizvideoport = tiz_get_type (ap_hdl, "tizvideoport");
-  void * tizvp8port_class = factory_new (classOf (tizvideoport),
-                                         "tizvp8port_class",
-                                         classOf (tizvideoport),
-                                         sizeof (tiz_vp8port_class_t),
-                                         ap_tos, ap_hdl,
-                                         ctor, vp8port_class_ctor, 0);
+  void * tizvp8port_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizvideoport), "tizvp8port_class", classOf (tizvideoport), sizeof (tiz_vp8port_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, vp8port_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizvp8port_class;
 }
 
@@ -530,19 +533,28 @@ tiz_vp8port_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizvp8port_class);
   void * tizvp8port =
     factory_new
-    (tizvp8port_class,
-     "tizvp8port",
-     tizvideoport,
-     sizeof (tiz_vp8port_t),
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizvp8port_class, "tizvp8port", tizvideoport, sizeof (tiz_vp8port_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, vp8port_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, vp8port_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetParameter, vp8port_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, vp8port_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetConfig, vp8port_GetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, vp8port_SetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_port_set_portdef_format, vp8port_set_portdef_format,
-     tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_check_tunnel_compat, vp8port_check_tunnel_compat,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizvp8port;
 }
