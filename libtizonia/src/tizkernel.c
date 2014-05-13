@@ -1238,7 +1238,12 @@ static OMX_ERRORTYPE krn_register_port (void *ap_obj, OMX_PTR ap_port,
             assert (0);
           }
       };
-
+    TIZ_TRACE (handleOf (p_obj), "audio ports [%d], video ports [%d], "
+               "image ports [%d], other ports [%d]",
+               p_obj->audio_init_.nPorts,
+               p_obj->video_init_.nPorts,
+               p_obj->image_init_.nPorts,
+               p_obj->other_init_.nPorts);
     /* TODO Assert that this port is not repeated in the array */
     return tiz_vector_push_back (p_obj->p_ports_, &ap_port);
   }

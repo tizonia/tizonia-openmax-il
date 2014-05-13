@@ -84,7 +84,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
     case OMX_PortDomainAudio:
       {
         OMX_AUDIO_CODINGTYPE encodings[] = {
-          OMX_AUDIO_CodingMP3,
+          OMX_AUDIO_CodingUnused,
           OMX_AUDIO_CodingMax
         };
 
