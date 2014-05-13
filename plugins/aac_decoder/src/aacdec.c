@@ -77,14 +77,14 @@ instantiate_input_port (OMX_HANDLETYPE ap_hdl)
   aactype.nVersion.nVersion = OMX_VERSION;
   aactype.nPortIndex        = 0;
   aactype.nChannels         = 2;
-  aactype.nSampleRate       = 0;
+  aactype.nSampleRate       = 48000;
   aactype.nBitRate          = 0;
   aactype.nAudioBandWidth   = 0;
   aactype.nFrameLength      = 0;
-  aactype.nAACtools         = 0;
-  aactype.nAACERtools       = 0;
+  aactype.nAACtools         = OMX_AUDIO_AACToolAll;
+  aactype.nAACERtools       = OMX_AUDIO_AACERAll;
   aactype.eAACProfile       = OMX_AUDIO_AACObjectLC;
-  aactype.eAACStreamFormat  = OMX_AUDIO_AACStreamFormatMP4FF;
+  aactype.eAACStreamFormat  = OMX_AUDIO_AACStreamFormatMP2ADTS;
   aactype.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
 
   return factory_new (tiz_get_type (ap_hdl, "tizaacport"),

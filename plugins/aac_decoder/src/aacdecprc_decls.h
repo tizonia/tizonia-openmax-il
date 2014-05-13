@@ -35,6 +35,8 @@ extern "C" {
 
 #include <stdbool.h>
 
+#include <neaacdec.h>
+
 #include <tizfilterprc.h>
 #include <tizfilterprc_decls.h>
 
@@ -43,6 +45,7 @@ struct aacdec_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
+  NeAACDecHandle p_aac_dec_;
 };
 
 typedef struct aacdec_prc_class aacdec_prc_class_t;

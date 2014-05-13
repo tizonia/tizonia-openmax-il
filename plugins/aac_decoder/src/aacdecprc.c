@@ -50,6 +50,31 @@
 /* Forward declarations */
 static OMX_ERRORTYPE aacdec_prc_deallocate_resources (void *);
 
+static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
+  /*   Open the library */
+  tiz_check_null_ret_oom
+    ((ap_prc->p_aac_dec_ = NeAACDecOpen()));
+
+  /*   Get the current config */
+  /* NeAACDecConfigurationPtr conf = NeAACDecGetCurrentConfiguration(hAac); */
+
+
+  /*   If needed change some of the values in conf */
+
+  /*   Set the new configuration */
+  /*   NeAACDecSetConfiguration(hAac, conf); */
+
+  /*   Initialise the library using one of the initialization functions */
+/*   char err = NeAACDecInit2(hAac, asc, asc_size, &samplerate, */
+/*                            &channels); */
+/*   if (err != 0) */
+/*     { */
+/*     } */
+  return rc;
+}
+
 static OMX_ERRORTYPE
 transform_buffer (aacdec_prc_t *ap_prc)
 {
@@ -103,6 +128,8 @@ aacdec_prc_ctor (void *ap_obj, va_list * app)
 {
   aacdec_prc_t *p_prc = super_ctor (typeOf (ap_obj, "aacdecprc"), ap_obj, app);
   assert (NULL != p_prc);
+  unsigned long cap = NeAACDecGetCapabilities();
+  TIZ_INFO (handleOf (ap_obj), "libfaad2 caps: %X", cap);
   return p_prc;
 }
 
