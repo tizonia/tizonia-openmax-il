@@ -113,10 +113,14 @@ start_io_watcher (ar_prc_t * ap_prc)
 static inline OMX_ERRORTYPE
 stop_io_watcher (ar_prc_t * ap_prc)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_ev_io_);
+  if (NULL != ap_prc->p_ev_io_)
+  {
+    rc = tiz_event_io_stop (ap_prc->p_ev_io_);
+  }
   ap_prc->awaiting_io_ev_ = false;
-  return tiz_event_io_stop (ap_prc->p_ev_io_);
+  return rc;
 }
 
 static OMX_ERRORTYPE
