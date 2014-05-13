@@ -236,12 +236,15 @@ void *
 vp8e_prc_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * vp8eprc_class = factory_new (classOf (tizprc),
-                                      "vp8eprc_class",
-                                      classOf (tizprc),
-                                      sizeof (vp8e_prc_class_t),
-                                      ap_tos, ap_hdl,
-                                      ctor, vp8e_prc_class_ctor, 0);
+  void * vp8eprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "vp8eprc_class", classOf (tizprc), sizeof (vp8e_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     ctor, vp8e_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return vp8eprc_class;
 }
 
@@ -251,21 +254,29 @@ vp8e_prc_init (void * ap_tos, void * ap_hdl)
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
   void * vp8eprc_class = tiz_get_type (ap_hdl, "vp8eprc_class");
   TIZ_LOG_CLASS (vp8eprc_class);
-  void * vp8eprc =
-    factory_new
-    (vp8eprc_class,
-     "vp8eprc",
-     tizprc,
-     sizeof (vp8e_prc_t),
+  void * vp8eprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (vp8eprc_class, "vp8eprc", tizprc, sizeof (vp8e_prc_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, vp8e_proc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, vp8e_proc_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_buffers_ready, vp8e_proc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_allocate_resources, vp8e_proc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_deallocate_resources, vp8e_proc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_prepare_to_transfer, vp8e_proc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_srv_transfer_and_process, vp8e_proc_transfer_and_process,
-     tiz_srv_stop_and_return, vp8e_proc_stop_and_return, 0);
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, vp8e_proc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return vp8eprc;
 }

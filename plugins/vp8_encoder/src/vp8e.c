@@ -20,30 +20,29 @@
 /**
  * @file   vp8e.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - VP8 Encoder component
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include "vp8eprc.h"
-#include "tizport.h"
-#include "tizvp8port.h"
-#include "tizconfigport.h"
-#include "tizscheduler.h"
-
-#include "tizplatform.h"
-
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
-
 #include <assert.h>
 #include <string.h>
+
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
+
+#include <tizplatform.h>
+
+#include "tizport.h"
+#include "tizscheduler.h"
+
+#include "vp8eprc.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
