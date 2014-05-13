@@ -37,6 +37,7 @@ PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
+AC_CHECK_LIB([vpx], [vpx_codec_codec_version])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h stdlib.h string.h sys/time.h unistd.h])
