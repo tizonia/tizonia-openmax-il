@@ -42,7 +42,7 @@ readonly SKEMA_GIT_REPO=https://github.com/tizonia/skema
 readonly SKEMA_DIR="$INSTALL_DIR"/skema
 readonly SKEMA_BIN_DIR="$SKEMA_DIR"/bin
 # A list of skema test suites that should not be executed
-declare -ar SKEMA_EXEMPT_SUITES=("Mp3Streaming" "Vp8Playback" "VorbisDecodeBaseProfile")
+declare -ar SKEMA_EXEMPT_SUITES=("Mp3Streaming" "Vp8Playback" "VorbisDecodeBaseProfile" "AacPlayback")
 
 #
 # Pre-requisites
@@ -155,7 +155,7 @@ function install_deps {
         libasound2-dev libdbus-1-dev \
         libdbus-c++-dev libsqlite3-dev libboost-all-dev \
         uuid-dev libsdl1.2-dev libvpx-dev libavcodec-dev \
-        libavformat-dev libavdevice-dev libmp3lame-dev \
+        libavformat-dev libavdevice-dev libmp3lame-dev libfaad-dev \
         libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
         curl check wget sqlite3 dbus-x11
     return $?
