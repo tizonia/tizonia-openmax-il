@@ -46,6 +46,11 @@ struct aacdec_prc
   /* Object */
   const tiz_filter_prc_t _;
   NeAACDecHandle p_aac_dec_;
+  NeAACDecFrameInfo aac_info_;
+  unsigned long samplerate_;
+  unsigned char channels_;
+  long nbytes_read_;
+  bool first_buffer_read_;
 };
 
 typedef struct aacdec_prc_class aacdec_prc_class_t;

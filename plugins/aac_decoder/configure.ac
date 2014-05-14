@@ -36,7 +36,7 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
-AC_CHECK_LIB([faad2], [NeAACDecGetCapabilities])
+AC_CHECK_LIB([faad], [NeAACDecGetCapabilities])
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h string.h])
