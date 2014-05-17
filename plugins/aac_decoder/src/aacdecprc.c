@@ -50,6 +50,109 @@
 /* Forward declarations */
 static OMX_ERRORTYPE aacdec_prc_deallocate_resources (void *);
 
+static OMX_ERRORTYPE alloc_temp_data_store (aacdec_prc_t *ap_prc)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+
+  assert (NULL != ap_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_AAC_DECODER_INPUT_PORT_INDEX);
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_IndexParamPortDefinition, &port_def));
+
+  assert (ap_prc->p_store_ == NULL);
+  tiz_check_omx_err
+    (tiz_buffer_init (&(ap_prc->p_store_), port_def.nBufferSize));
+
+  return OMX_ErrorNone;
+}
+
+static inline void dealloc_temp_data_store (
+    /*@special@ */ aacdec_prc_t *ap_prc)
+/*@releases ap_prc->p_store_@ */
+/*@ensures isnull ap_prc->p_store_@ */
+{
+  assert (NULL != ap_prc);
+  tiz_buffer_destroy (ap_prc->p_store_);
+  ap_prc->p_store_ = NULL;
+}
+
+static void skip_id3_tag (aacdec_prc_t *ap_prc)
+{
+  OMX_U8 *p_buffer = tiz_buffer_get_data (ap_prc->p_store_);
+
+  assert (NULL != ap_prc);
+
+  if (!memcmp (p_buffer, "ID3", 3))
+    {
+      int tagsize = 0;
+      /* high bit is not used */
+      tagsize = (p_buffer[6] << 21) | (p_buffer[7] << 14)
+        | (p_buffer[8] <<  7) | (p_buffer[9] <<  0);
+      tagsize += 10;
+      tiz_buffer_advance (ap_prc->p_store_, tagsize);
+    }
+}
+
+static inline OMX_ERRORTYPE
+retrieve_aac_settings (const void *ap_prc,
+                       OMX_AUDIO_PARAM_AACPROFILETYPE * ap_aactype)
+{
+  const aacdec_prc_t *p_prc = ap_prc;
+  assert (NULL != ap_prc);
+  assert (NULL != ap_aactype);
+
+  /* Retrieve the aac settings from the input port */
+  TIZ_INIT_OMX_PORT_STRUCT (*ap_aactype, ARATELIA_AAC_DECODER_INPUT_PORT_INDEX);
+  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
+                                           handleOf (p_prc), OMX_IndexParamAudioAac,
+                                           ap_aactype));
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE set_decoder_config (aacdec_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
+  NeAACDecConfigurationPtr p_config;
+  OMX_AUDIO_PARAM_AACPROFILETYPE aactype;
+
+  assert (NULL != ap_prc);
+  assert (NULL != ap_prc->p_aac_dec_);
+
+  /* Retrieve the aac settings from the input port */
+  tiz_check_omx_err (retrieve_aac_settings (ap_prc, &aactype));
+
+  /* Set the default object type and samplerate */
+  /* This is useful for RAW AAC files */
+  p_config = NeAACDecGetCurrentConfiguration(ap_prc->p_aac_dec_);
+  if (NULL != p_config)
+    {
+      p_config->defSampleRate    = aactype.nSampleRate;
+      p_config->defObjectType    = aactype.eAACProfile;
+      p_config->outputFormat     = FAAD_FMT_16BIT; /* we making this fixed for now */
+      p_config->downMatrix       = 1; /* Down matrix 5.1 to 2 channels */
+      p_config->useOldADTSFormat = 0; /* we making this fixed for now */
+      /* config->dontUpSampleImplicitSBR = 1; */
+
+      /* 0 == not OK */
+      if (!NeAACDecSetConfiguration(ap_prc->p_aac_dec_, p_config))
+        {
+          TIZ_ERROR (handleOf (ap_prc),
+                     "[%s] : While setting the decoder config (%s).",
+                     tiz_err_to_str (rc),
+                     NeAACDecGetErrorMessage (ap_prc->aac_info_.error));
+        }
+      else
+        {
+          /* all good */
+          rc = OMX_ErrorNone;
+        }
+    }
+
+  return rc;
+}
+
 static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
@@ -61,28 +164,40 @@ static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
   assert (NULL != ap_prc->p_aac_dec_);
   assert (NULL != p_in);
 
-  TIZ_DEBUG (handleOf (ap_prc), "");
+  if (tiz_buffer_store_data (ap_prc->p_store_,
+                             p_in->pBuffer + p_in->nOffset,
+                             p_in->nFilledLen) < p_in->nFilledLen)
+    {
+      TIZ_ERROR (handleOf (ap_prc), "[%s] : Unable to store all the data.",
+                 tiz_err_to_str (rc));
+      return rc;
+    }
+  p_in->nFilledLen = 0;
 
-  /* Get the current config */
-  /* NeAACDecConfigurationPtr conf = NeAACDecGetCurrentConfiguration(hAac); */
+  /* Skip the ID3 tag */
+  skip_id3_tag (ap_prc);
 
-  /* If needed change some of the values in conf */
-  /* Set the new configuration */
-  /* NeAACDecSetConfiguration(hAac, conf); */
+  /* Set the decoder configuration according to the configuration found on the input port
+     (useful in case of raw aac files) */
+  tiz_check_omx_err (set_decoder_config (ap_prc));
+
+  /* Retrieve againg the pointer to the current position in the buffer
+     (skip_id3_tag may have modified it */
 
   /* Initialise the library using one of the initialization functions */
-  nbytes = NeAACDecInit(ap_prc->p_aac_dec_, p_in->pBuffer, p_in->nFilledLen,
+  nbytes = NeAACDecInit(ap_prc->p_aac_dec_, tiz_buffer_get_data (ap_prc->p_store_),
+                        tiz_buffer_bytes_available (ap_prc->p_store_),
                         &(ap_prc->samplerate_), &(ap_prc->channels_));
 
   if (nbytes < 0)
     {
-      TIZ_ERROR (handleOf (ap_prc), "[%s] : libfaad decoder initialisation failure",
-                 tiz_err_to_str (rc));
+      TIZ_ERROR (handleOf (ap_prc), "[%s] : libfaad decoder initialisation failure (%s)",
+                 tiz_err_to_str (rc), NeAACDecGetErrorMessage (nbytes));
     }
   else
     {
       /* We will skip this many bytes the next time we read from this buffer */
-      p_in->nOffset = nbytes;
+      tiz_buffer_advance (ap_prc->p_store_, nbytes);
       TIZ_DEBUG (handleOf (ap_prc), "samplerate [%d] channels [%d]",
                  ap_prc->samplerate_, (int) ap_prc->channels_);
       rc = OMX_ErrorNone;
@@ -109,7 +224,7 @@ transform_buffer (aacdec_prc_t *ap_prc)
   assert (NULL != ap_prc);
   assert (NULL != ap_prc->p_aac_dec_);
 
-  if (0 == p_in->nFilledLen)
+  if (0 == p_in->nFilledLen && tiz_buffer_bytes_available (ap_prc->p_store_) == 0)
     {
       TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty", p_in,
                  p_in->nFlags);
@@ -126,7 +241,21 @@ transform_buffer (aacdec_prc_t *ap_prc)
         }
     }
 
-  if (p_in->nFilledLen > 0)
+    if (p_in->nFilledLen > 0)
+      {
+        if (tiz_buffer_store_data (ap_prc->p_store_,
+                                   p_in->pBuffer + p_in->nOffset,
+                                   p_in->nFilledLen) < p_in->nFilledLen)
+          {
+            rc = OMX_ErrorInsufficientResources;
+            TIZ_ERROR (handleOf (ap_prc), "[%s] : Unable to store all the data.",
+                       tiz_err_to_str (rc));
+            return rc;
+          }
+        p_in->nFilledLen = 0;
+      }
+
+  if (tiz_buffer_bytes_available (ap_prc->p_store_) > 0)
     {
       /* Decode the AAC data passed in the buffer. Returns a pointer to a
          sample buffer or NULL. Info about the decoded frame is filled in the
@@ -134,14 +263,28 @@ transform_buffer (aacdec_prc_t *ap_prc)
          errors during decoding, number of sample, number of channels and
          samplerate. The returned buffer contains the channel interleaved
          samples of the frame. */
-      void * p_buf = p_out->pBuffer + p_out->nOffset;
-      (void) NeAACDecDecode2(ap_prc->p_aac_dec_, &(ap_prc->aac_info_),
-                             p_in->pBuffer + p_in->nOffset, p_in->nFilledLen,
-                             &p_buf, p_out->nAllocLen - p_out->nOffset);
+      short *p_sample_buf = NeAACDecDecode(ap_prc->p_aac_dec_, &(ap_prc->aac_info_),
+                                           tiz_buffer_get_data (ap_prc->p_store_),
+                                           tiz_buffer_bytes_available (ap_prc->p_store_));
+
+      TIZ_TRACE (handleOf (ap_prc), "bytes_available = [%d] bytesconsumed = [%d] "
+                 "samples = [%d] error [%d]",
+                 tiz_buffer_bytes_available (ap_prc->p_store_),
+                 ap_prc->aac_info_.bytesconsumed,
+                 ap_prc->aac_info_.samples, ap_prc->aac_info_.error);
+
+      tiz_buffer_advance (ap_prc->p_store_, ap_prc->aac_info_.bytesconsumed);
+
       if ((ap_prc->aac_info_.error == 0) && (ap_prc->aac_info_.samples > 0))
         {
-          p_in->nOffset    += ap_prc->aac_info_.bytesconsumed;
-          p_in->nFilledLen -= ap_prc->aac_info_.bytesconsumed;
+          int i = 0;
+          char *p_data = (char *)(p_out->pBuffer + p_out->nOffset);
+          for (i = 0; i < ap_prc->aac_info_.samples; ++i)
+            {
+              p_data[i*2] = (char)(p_sample_buf[i] & 0xFF);
+              p_data[i*2+1] = (char)((p_sample_buf[i] >> 8) & 0xFF);
+            }
+          p_out->nFilledLen = ap_prc->aac_info_.samples * ap_prc->channels_ * 1;
         }
       else if (ap_prc->aac_info_.error != 0)
         {
@@ -154,12 +297,8 @@ transform_buffer (aacdec_prc_t *ap_prc)
         }
     }
 
-  assert (p_in->nFilledLen >= 0);
-
-  TIZ_TRACE (handleOf (ap_prc), "p_in->nFilledLen = [%d] consumed = [%d]",
-             p_in->nFilledLen, ap_prc->aac_info_.bytesconsumed);
-
-  if (OMX_ErrorNone == rc && 0 == p_in->nFilledLen)
+  if (OMX_ErrorNone == rc && 0 == p_in->nFilledLen
+      && tiz_buffer_bytes_available (ap_prc->p_store_) < FAAD_MIN_STREAMSIZE * ap_prc->channels_)
     {
       TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty", p_in,
                  p_in->nFlags);
@@ -182,8 +321,10 @@ transform_buffer (aacdec_prc_t *ap_prc)
       TIZ_TRACE (handleOf (ap_prc), "Propagating EOS flag to output");
     }
 
-  if (OMX_ErrorNone == rc)
+  if (OMX_ErrorNone == rc && p_out->nFilledLen > 0)
     {
+      TIZ_TRACE (handleOf (ap_prc), "Releasing output HEADER [%p] nFilledLen [%d]",
+                 p_out, p_out->nFilledLen);
       rc = tiz_filter_prc_release_header
         (ap_prc, ARATELIA_AAC_DECODER_OUTPUT_PORT_INDEX);
     }
@@ -216,6 +357,9 @@ aacdec_prc_ctor (void *ap_obj, va_list * app)
   /*   Open the faad library */
   p_prc->p_aac_dec_ = NeAACDecOpen();
   reset_stream_parameters (p_prc);
+  p_prc->p_store_ = NULL;
+  p_prc->store_size_ = 0;
+  p_prc->store_offset_ = 0;
   return p_prc;
 }
 
@@ -242,6 +386,7 @@ aacdec_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   aacdec_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
+  tiz_check_omx_err (alloc_temp_data_store (p_prc));
   /* Check that the library has been successfully inited */
   tiz_check_null_ret_oom ((p_prc->p_aac_dec_));
   return OMX_ErrorNone;
@@ -250,6 +395,7 @@ aacdec_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 aacdec_prc_deallocate_resources (void *ap_obj)
 {
+  dealloc_temp_data_store (ap_obj);
   return OMX_ErrorNone;
 }
 

@@ -51,6 +51,9 @@ struct aacdec_prc
   unsigned char channels_;
   long nbytes_read_;
   bool first_buffer_read_;
+  tiz_buffer_t *p_store_;
+  OMX_U32 store_size_;
+  OMX_U32 store_offset_;
 };
 
 typedef struct aacdec_prc_class aacdec_prc_class_t;
