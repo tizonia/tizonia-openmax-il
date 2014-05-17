@@ -26,6 +26,7 @@
 <!--         <category name="tiz.platform.event" priority="trace" appender="tizlogfile"/> -->
 <!--         <category name="tiz.platform.http" priority="trace" appender="tizlogfile"/> -->
 <!--         <category name="tiz.platform.map" priority="trace" appender="tizlogfile"/> -->
+<!--         <category name="tiz.platform.buffer" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.platform.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ilcore" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ilcore.check" priority="trace" appender="tizlogfile" /> -->

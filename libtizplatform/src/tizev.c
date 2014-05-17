@@ -30,15 +30,15 @@
 #include <config.h>
 #endif
 
-#include "tizplatform.h"
-#include "tizplatform_internal.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <pthread.h>
 #include <ev.h>
+
+#include "tizplatform.h"
+#include "tizplatform_internal.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

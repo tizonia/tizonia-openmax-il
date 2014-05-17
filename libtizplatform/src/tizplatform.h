@@ -41,6 +41,7 @@
 #include "tizmem.h"
 #include "tizqueue.h"
 #include "tizpqueue.h"
+#include "tizbuffer.h"
 #include "tizvector.h"
 #include "tizsync.h"
 #include "tizthread.h"

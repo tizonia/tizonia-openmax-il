@@ -34,6 +34,7 @@ libtizplatform_include_HEADERS = \
 	tizpqueue.h \
 	tizqueue.h \
 	tizsync.h \
+	tizbuffer.h \
 	tizvector.h \
 	tizthread.h \
 	tizuuid.h \
@@ -54,6 +55,7 @@ libtizplatform_la_SOURCES = \
 	tizsync.c \
 	tizqueue.c \
 	tizpqueue.c \
+	tizbuffer.c \
 	tizvector.c \
 	tizthread.c \
 	tizuuid.c \
