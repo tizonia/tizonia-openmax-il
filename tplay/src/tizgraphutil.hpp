@@ -125,6 +125,11 @@ namespace tiz
           boost::function< void(OMX_AUDIO_PARAM_MP3TYPE &mp3type) > getter,
           bool &need_port_settings_changed_evt);
 
+      static OMX_ERRORTYPE set_aac_type (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          boost::function< void(OMX_AUDIO_PARAM_AACPROFILETYPE &aactype) > getter,
+          bool &need_port_settings_changed_evt);
+
       static OMX_ERRORTYPE set_flac_type (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           boost::function< void(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) >

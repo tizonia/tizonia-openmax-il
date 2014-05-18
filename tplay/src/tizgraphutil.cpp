@@ -553,6 +553,36 @@ graph::util::set_mp3_type (
 }
 
 OMX_ERRORTYPE
+graph::util::set_aac_type (
+    const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+    boost::function< void(OMX_AUDIO_PARAM_AACPROFILETYPE &aactype) > getter,
+    bool &need_port_settings_changed_evt)
+{
+  // Retrieve the current aac settings
+  OMX_AUDIO_PARAM_AACPROFILETYPE aactype_orig;
+  TIZ_INIT_OMX_PORT_STRUCT (aactype_orig, port_id);
+
+  tiz_check_omx_err (
+      OMX_GetParameter (handle, OMX_IndexParamAudioAac, &aactype_orig));
+
+  // Set the new aac settings
+  OMX_AUDIO_PARAM_AACPROFILETYPE aactype;
+  TIZ_INIT_OMX_PORT_STRUCT (aactype, port_id);
+
+  getter (aactype);
+  tiz_check_omx_err (
+      OMX_SetParameter (handle, OMX_IndexParamAudioAac, &aactype));
+
+  // Record whether we need to wait for a port settings change event or not
+  // (i.e. the decoder output port implements the "slaving" behaviour)
+  need_port_settings_changed_evt
+      = ((aactype_orig.nSampleRate != aactype.nSampleRate)
+         || (aactype_orig.nChannels != aactype.nChannels));
+
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
 graph::util::set_flac_type (
     const OMX_HANDLETYPE handle, const OMX_U32 port_id,
     boost::function< void(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) > getter,

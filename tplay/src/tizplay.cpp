@@ -247,7 +247,7 @@ namespace  // unnamed namespace
         "\t    * Decodes every supported file in the '~/Music' directory)\n");
     printf ("\t    * File formats currently supported for playback:\n");
     printf (
-        "\t      * mp3, flac (.flac, .ogg, .oga), opus (.opus, .ogg, .oga), "
+        "\t      * mp3, aac, (.aac only) flac (.flac, .ogg, .oga), opus (.opus, .ogg, .oga), "
         "vorbis (.ogg, .oga).\n");
     printf ("\t    * Key bindings:\n");
     printf ("\t      * [p] skip to previous file.\n");
@@ -506,11 +506,13 @@ namespace  // unnamed namespace
     uri_lst_t file_list;
     std::string error_msg;
     file_extension_lst_t extension_list;
+    // Add here the list of file extensions currently supported for playback
     extension_list.insert (".mp3");
     extension_list.insert (".opus");
     extension_list.insert (".ogg");
     extension_list.insert (".oga");
     extension_list.insert (".flac");
+    extension_list.insert (".aac");
 
     print_banner ();
 

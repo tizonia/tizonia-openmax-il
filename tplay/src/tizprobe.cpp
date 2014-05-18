@@ -321,6 +321,10 @@ int tiz::probe::probe_file ()
       {
         set_mp3_codec_info (cc);
       }
+      else if (codec_id == CODEC_ID_AAC)
+      {
+        set_aac_codec_info (cc);
+      }
       else if (codec_id == CODEC_ID_FLAC)
       {
         set_flac_codec_info (cc);
@@ -371,6 +375,54 @@ void tiz::probe::set_mp3_codec_info (const AVCodecContext *cc)
   if (1 == pcmtype_.nChannels)
   {
     pcmtype_.bInterleaved = OMX_FALSE;
+  }
+
+  if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
+  {
+    pcmtype_.eNumData = OMX_NumericalDataUnsigned;
+    pcmtype_.nBitPerSample = 8;
+  }
+  else if (AV_SAMPLE_FMT_S16 == cc->sample_fmt)
+  {
+    pcmtype_.eNumData = OMX_NumericalDataSigned;
+    pcmtype_.nBitPerSample = 16;
+  }
+  else if (AV_SAMPLE_FMT_S32 == cc->sample_fmt)
+  {
+    pcmtype_.eNumData = OMX_NumericalDataSigned;
+    pcmtype_.nBitPerSample = 32;
+  }
+  else
+  {
+    pcmtype_.eNumData = OMX_NumericalDataSigned;
+    pcmtype_.nBitPerSample = 16;
+  }
+}
+
+void tiz::probe::set_aac_codec_info (const AVCodecContext *cc)
+{
+  assert (NULL != cc);
+
+  domain_ = OMX_PortDomainAudio;
+  audio_coding_type_ = static_cast< OMX_AUDIO_CODINGTYPE >(OMX_AUDIO_CodingAAC);
+  aactype_.nSampleRate = cc->sample_rate;
+  aactype_.nSampleRate = cc->sample_rate;
+  pcmtype_.nSamplingRate = cc->sample_rate;
+  aactype_.nBitRate = cc->bit_rate;
+  aactype_.nChannels = cc->channels;
+  pcmtype_.nChannels = cc->channels;
+  pcmtype_.eEndian = OMX_EndianLittle;
+
+  aactype_.nAACtools         = OMX_AUDIO_AACToolAll;
+  aactype_.nAACERtools       = OMX_AUDIO_AACERAll;
+  aactype_.eAACProfile       = OMX_AUDIO_AACObjectLC;
+  aactype_.eAACStreamFormat  = OMX_AUDIO_AACStreamFormatMP2ADTS;
+  aactype_.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
+
+  if (1 == pcmtype_.nChannels)
+  {
+    pcmtype_.bInterleaved = OMX_FALSE;
+    aactype_.eChannelMode = OMX_AUDIO_ChannelModeMono;
   }
 
   if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
@@ -522,6 +574,16 @@ void tiz::probe::get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE &mp3type)
     (void)probe_file ();
   }
   mp3type = mp3type_;
+  return;
+}
+
+void tiz::probe::get_aac_codec_info (OMX_AUDIO_PARAM_AACPROFILETYPE &aactype)
+{
+  if (OMX_PortDomainMax == domain_)
+  {
+    (void)probe_file ();
+  }
+  aactype = aactype_;
   return;
 }
 
@@ -740,6 +802,22 @@ void tiz::probe::dump_mp3_and_pcm_info ()
   fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps, %lu:%s:%s %s\n", KYEL,
            mp3type_.nChannels, ((float)mp3type_.nSampleRate) / 1000,
            mp3type_.nBitRate / 1000, pcmtype_.nBitPerSample,
+           pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+           pcmtype_.eEndian == OMX_EndianBig ? "b" : "l", KNRM);
+}
+
+void tiz::probe::dump_aac_and_pcm_info ()
+{
+  if (OMX_PortDomainMax == domain_)
+  {
+    (void)probe_file ();
+  }
+
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps, %lu:%s:%s %s\n", KYEL,
+           aactype_.nChannels, ((float)aactype_.nSampleRate) / 1000,
+           aactype_.nBitRate / 1000, pcmtype_.nBitPerSample,
            pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
            pcmtype_.eEndian == OMX_EndianBig ? "b" : "l", KNRM);
 }

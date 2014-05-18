@@ -37,6 +37,7 @@
 
 #include "tizprobe.hpp"
 #include "tizmp3graph.hpp"
+#include "tizaacgraph.hpp"
 #include "tizopusgraph.hpp"
 #include "tizvorbisgraph.hpp"
 #include "tizflacgraph.hpp"
@@ -55,10 +56,15 @@ tizgraph_ptr_t graph::factory::create_graph (const std::string &uri)
   tizprobe_ptr_t p = boost::make_shared< tiz::probe >(uri,
                                                       /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
-  if (p->get_omx_domain () == OMX_PortDomainAudio && p->get_audio_coding_type ()
-                                                     == OMX_AUDIO_CodingMP3)
+  if (p->get_omx_domain () == OMX_PortDomainAudio
+      && p->get_audio_coding_type () == OMX_AUDIO_CodingMP3)
   {
     return boost::make_shared< tiz::graph::mp3decoder >();
+  }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio
+           && p->get_audio_coding_type () == OMX_AUDIO_CodingAAC)
+  {
+    return boost::make_shared< tiz::graph::aacdecoder >();
   }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingOPUS)
@@ -96,6 +102,11 @@ std::string graph::factory::coding_type (const std::string &uri)
                                                      == OMX_AUDIO_CodingMP3)
   {
     return std::string ("mp3");
+  }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio
+           && p->get_audio_coding_type () == OMX_AUDIO_CodingAAC)
+  {
+    return std::string ("aac");
   }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingOPUS)

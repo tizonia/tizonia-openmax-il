@@ -58,6 +58,7 @@ namespace tiz
 
     void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
     void get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE &mp3type);
+    void get_aac_codec_info (OMX_AUDIO_PARAM_AACPROFILETYPE &aactype);
     void get_opus_codec_info (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);
     void get_flac_codec_info (OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype);
     void get_vorbis_codec_info (OMX_AUDIO_PARAM_VORBISTYPE &vorbistype);
@@ -84,11 +85,13 @@ namespace tiz
     void dump_pcm_info ();
     void dump_mp3_info ();
     void dump_mp3_and_pcm_info ();
+    void dump_aac_and_pcm_info ();
     void dump_stream_metadata ();
 
   private:
     int probe_file ();
     void set_mp3_codec_info (const AVCodecContext *cc);
+    void set_aac_codec_info (const AVCodecContext *cc);
     void set_opus_codec_info ();
     void set_flac_codec_info (const AVCodecContext *cc);
     void set_vorbis_codec_info (const AVCodecContext *cc);
@@ -109,6 +112,7 @@ namespace tiz
     OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
     OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_;
     OMX_AUDIO_PARAM_VORBISTYPE vorbistype_;
+    OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
     OMX_VIDEO_PARAM_VP8TYPE vp8type_;
     TagLib::FileRef meta_file_;
     std::string stream_title_;
