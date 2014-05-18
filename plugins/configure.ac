@@ -65,9 +65,6 @@ AC_CONFIG_SUBDIRS([aac_decoder
                    opus_decoder
                    vorbis_decoder
                    vp8_decoder
-                   vp8_encoder
-                   webp_decoder
-                   webp_encoder
                    yuv_renderer])
 
 # End the configure script.

@@ -31,8 +31,5 @@ SUBDIRS = \
 	opus_decoder \
 	vorbis_decoder \
 	vp8_decoder \
-	vp8_encoder \
-	webp_decoder \
-	webp_encoder \
 	yuv_renderer
 
