@@ -51,7 +51,8 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 AC_CONFIG_FILES([Makefile])
 
-AC_CONFIG_SUBDIRS([audio_renderer
+AC_CONFIG_SUBDIRS([aac_decoder
+                   audio_renderer
                    audio_renderer_non_block
                    file_reader
                    file_writer

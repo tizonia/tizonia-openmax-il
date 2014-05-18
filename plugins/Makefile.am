@@ -17,6 +17,7 @@
 
 
 SUBDIRS = \
+	aac_decoder \
 	audio_renderer \
 	audio_renderer_non_block \
 	file_reader \
