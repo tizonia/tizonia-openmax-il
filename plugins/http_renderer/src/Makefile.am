@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizicesink.la
+lib_LTLIBRARIES = libtizhttpr.la
 
 noinst_HEADERS = \
 	icercfgport.h \
@@ -27,19 +27,19 @@ noinst_HEADERS = \
 	icerprc.h \
 	icerprc_decls.h
 
-libtizicesink_la_SOURCES = \
+libtizhttpr_la_SOURCES = \
 	icer.c \
 	icercfgport.c \
 	icermp3port.c \
 	icernet.c \
 	icerprc.c
 
-libtizicesink_la_CFLAGS = \
+libtizhttpr_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../../libtizonia/src
 
-libtizicesink_la_LIBADD = \
+libtizhttpr_la_LIBADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la
 
