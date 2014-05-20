@@ -85,6 +85,10 @@
 <!--         <category name="tiz.http_renderer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.http_renderer.prc.net" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.http_renderer.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.http_source" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.http_source.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.http_source.prc.net" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.http_source.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.opus_decoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.opus_decoder.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.opus_decoder.check" priority="trace" appender="tizlogfile" /> -->
