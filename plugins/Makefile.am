@@ -18,7 +18,7 @@
 
 SUBDIRS = \
 	aac_decoder \
-	audio_renderer_non_block \
+	audio_renderer_alsa \
 	file_reader \
 	file_writer \
 	flac_decoder \

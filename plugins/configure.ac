@@ -52,7 +52,7 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 AC_CONFIG_FILES([Makefile])
 
 AC_CONFIG_SUBDIRS([aac_decoder
-                   audio_renderer_non_block
+                   audio_renderer_alsa
                    file_reader
                    file_writer
                    flac_decoder
