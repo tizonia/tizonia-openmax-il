@@ -961,7 +961,7 @@ static inline tiz_krn_msg_t *init_krn_message (
 
   if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof(tiz_krn_msg_t))))
     {
-      TIZ_TRACE (ap_hdl,
+      TIZ_ERROR (ap_hdl,
                  "[OMX_ErrorInsufficientResources] : "
                  "Could not allocate message [%s]",
                  krn_msg_to_str (a_msg_class));
@@ -1083,7 +1083,7 @@ static OMX_ERRORTYPE deinit_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   if (TIZRM_SUCCESS != (rmrc = tizrm_proxy_destroy (&p_obj->rm_)))
     {
       /* TODO: Translate into a proper error code, especially OOM error  */
-      TIZ_TRACE (ap_hdl, "RM proxy deinitialization failed...");
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorUndefined] : RM proxy deinitialization failed...");
       return OMX_ErrorUndefined;
     }
 
@@ -1116,7 +1116,7 @@ static OMX_ERRORTYPE acquire_rm_resources (const void *ap_obj,
             }
         };
 
-      TIZ_TRACE (ap_hdl,
+      TIZ_ERROR (ap_hdl,
                  "[%s] : While acquiring resource - "
                  "RM error [%d]...",
                  tiz_err_to_str (rc), rmrc);
