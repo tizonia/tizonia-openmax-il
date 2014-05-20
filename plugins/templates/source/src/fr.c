@@ -55,7 +55,7 @@ static OMX_VERSIONTYPE file_reader_version = { {1, 0, 0, 0} };
 static OMX_PTR
 instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
 {
-  tizport_options_t port_opts = {
+  tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirOutput,
     ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT,
@@ -63,7 +63,7 @@ instantiate_binary_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_FILE_READER_PORT_NONCONTIGUOUS,
     ARATELIA_FILE_READER_PORT_ALIGNMENT,
     ARATELIA_FILE_READER_PORT_SUPPLIERPREF,
-    {ARATELIA_FILE_READER_INPUT_PORT_INDEX, NULL, NULL, NULL},
+    {ARATELIA_FILE_READER_PORT_INDEX, NULL, NULL, NULL},
     -1                          /* slave port's index, use -1 for now */
   };
 
@@ -110,7 +110,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   /* Register the "frprc" class */
   tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
-  /* Register the various roles */
+  /* Register the component role(s) */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

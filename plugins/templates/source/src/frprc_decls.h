@@ -20,7 +20,7 @@
  * @file   frprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - File Reader processor class decls
+ * @brief  Tizonia OpenMAX IL - File Reader processor declarations
  *
  *
  */
@@ -39,11 +39,8 @@ extern "C"
 
 #include <tizprc_decls.h>
 
-#include "frprc.h"
-
-
   typedef struct fr_prc fr_prc_t;
-  struct frprc
+  struct fr_prc
   {
     /* Object */
     const tiz_prc_t _;
