@@ -589,7 +589,7 @@ instantiate_comp_lib (const OMX_STRING ap_path,
    * function names. */
   if (NULL == (* app_entry_point = dlsym (* app_dl_hdl, ap_entry_point_name)))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorUndefined] : "
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "[OMX_ErrorUndefined] : "
                "Default entry point [%s] not found in [%s]",
                ap_entry_point_name, ap_name);
       dlclose (* app_dl_hdl);
