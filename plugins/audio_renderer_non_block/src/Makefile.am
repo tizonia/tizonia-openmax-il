@@ -15,24 +15,24 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizarnb.la
+lib_LTLIBRARIES = libtizalsaar.la
 
 noinst_HEADERS = \
 	ar.h \
 	arprc.h \
 	arprc_decls.h
 
-libtizarnb_la_SOURCES = \
+libtizalsaar_la_SOURCES = \
 	ar.c \
 	arprc.c
 
-libtizarnb_la_CFLAGS = \
+libtizalsaar_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../../libtizonia/src \
 	@ALSA_CFLAGS@
 
-libtizarnb_la_LIBADD = \
+libtizalsaar_la_LIBADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
 	-lm \

@@ -61,7 +61,7 @@ pid_t g_rmd_pid;
 
 static char OGG_DMUX_COMPONENT_NAME[] = "OMX.Aratelia.container_demuxer.ogg";
 static char VORBIS_DEC_COMPONENT_NAME[] = "OMX.Aratelia.audio_decoder.vorbis";
-static char PCM_RND_COMPONENT_NAME[] = "OMX.Aratelia.audio_renderer_nb.pcm";
+static char PCM_RND_COMPONENT_NAME[] = "OMX.Aratelia.audio_renderer.pcm";
 
 /* TODO: Move these two to the rc file */
 #define RATE_FILE1 44100

@@ -65,7 +65,7 @@ graph::ops *graph::mp3decoder::do_init ()
   omx_comp_name_lst_t comp_list;
   comp_list.push_back ("OMX.Aratelia.file_reader.binary");
   comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
-  comp_list.push_back ("OMX.Aratelia.audio_renderer_nb.pcm");
+  comp_list.push_back ("OMX.Aratelia.audio_renderer.pcm");
 
   omx_comp_role_lst_t role_list;
   role_list.push_back ("audio_reader.binary");

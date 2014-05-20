@@ -76,7 +76,7 @@ get_alsa_device (ar_prc_t * ap_prc)
     {
       const char *p_alsa_pcm
         = tiz_rcfile_get_value (TIZ_RCFILE_PLUGINS_DATA_SECTION,
-                                "OMX.Aratelia.audio_renderer_nb.pcm.alsa_device");
+                                "OMX.Aratelia.audio_renderer.pcm.alsa_device");
 
       if (NULL != p_alsa_pcm)
         {

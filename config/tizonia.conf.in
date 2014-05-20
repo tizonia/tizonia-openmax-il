@@ -67,15 +67,6 @@ OMX.Aratelia.audio_renderer.pcm.alsa_device = default
 OMX.Aratelia.audio_renderer.pcm.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_48_stereo.raw
 OMX.Aratelia.audio_renderer.pcm.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
 
-###############################
-# Audio Renderer non-blocking #
-###############################
-
-OMX.Aratelia.audio_renderer_nb.pcm.preannouncements_disabled.port0 = false
-OMX.Aratelia.audio_renderer_nb.pcm.alsa_device = default
-OMX.Aratelia.audio_renderer_nb.pcm.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_48_stereo.raw
-OMX.Aratelia.audio_renderer_nb.pcm.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
-
 ###############
 # MP3 Decoder #
 ###############
