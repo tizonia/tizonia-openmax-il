@@ -932,12 +932,15 @@ void *
 ar_prc_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *arprc_class = factory_new (classOf (tizprc),
-                                   "arprc_class",
-                                   classOf (tizprc),
-                                   sizeof (ar_prc_class_t),
-                                   ap_tos, ap_hdl,
-                                   ctor, ar_prc_class_ctor, 0);
+  void *arprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "arprc_class", classOf (tizprc), sizeof (ar_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, ar_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
   return arprc_class;
 }
 

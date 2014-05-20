@@ -88,7 +88,6 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
   pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
 
-
   volume.nSize             = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
   volume.nVersion.nVersion = OMX_VERSION;
   volume.nPortIndex        = ARATELIA_AUDIO_RENDERER_PORT_INDEX;
