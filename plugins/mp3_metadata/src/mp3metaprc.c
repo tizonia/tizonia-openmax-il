@@ -108,7 +108,7 @@ static OMX_ERRORTYPE release_out_buffer (mp3meta_prc_t *ap_prc)
     {
       tiz_check_omx_err (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)),
-          ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX, ap_prc->p_out_hdr_));
+          ARATELIA_MP3_METADATA_ERASER_PORT_INDEX, ap_prc->p_out_hdr_));
       ap_prc->p_out_hdr_ = NULL;
     }
   return OMX_ErrorNone;
@@ -141,7 +141,7 @@ static OMX_BUFFERHEADERTYPE *get_header (mp3meta_prc_t *ap_prc)
       if (OMX_ErrorNone
           == tiz_krn_claim_buffer (
                  tiz_get_krn (handleOf (ap_prc)),
-                 ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX, 0, &p_hdr))
+                 ARATELIA_MP3_METADATA_ERASER_PORT_INDEX, 0, &p_hdr))
         {
           if (NULL != p_hdr)
             {
@@ -371,7 +371,7 @@ static OMX_ERRORTYPE mp3meta_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
   mp3meta_prc_t *p_prc = (mp3meta_prc_t *)ap_prc;
   assert (NULL != p_prc);
-  assert (ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX == a_pid || OMX_ALL
+  assert (ARATELIA_MP3_METADATA_ERASER_PORT_INDEX == a_pid || OMX_ALL
                                                                      == a_pid);
   p_prc->out_port_disabled_ = false;
   return OMX_ErrorNone;
@@ -382,7 +382,7 @@ static OMX_ERRORTYPE mp3meta_prc_port_disable (const void *ap_prc,
 {
   mp3meta_prc_t *p_prc = (mp3meta_prc_t *)ap_prc;
   assert (NULL != p_prc);
-  assert (ARATELIA_MP3_METADATA_ERASER_OUTPUT_PORT_INDEX == a_pid || OMX_ALL
+  assert (ARATELIA_MP3_METADATA_ERASER_PORT_INDEX == a_pid || OMX_ALL
                                                                      == a_pid);
   p_prc->out_port_disabled_ = true;
   release_out_buffer (p_prc);
