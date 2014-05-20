@@ -40,7 +40,6 @@
 #include <tizplatform.h>
 
 #include <tizport.h>
-#include <tizbinaryport.h>
 #include <tizscheduler.h>
 
 #include "frprc.h"
@@ -182,7 +181,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   /* Register the "frprc" class */
   tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
-  /* Register the various roles */
+  /* Register the component role(s) */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

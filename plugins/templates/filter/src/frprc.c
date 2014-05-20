@@ -39,8 +39,8 @@
 #include <tizkernel.h>
 
 #include "fr.h"
-#include "frprc_decls.h"
 #include "frprc.h"
+#include "frprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
