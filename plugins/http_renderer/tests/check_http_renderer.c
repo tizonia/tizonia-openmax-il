@@ -59,7 +59,7 @@ pid_t g_rmd_pid;
 pid_t g_mplayer_pid;
 bool g_manual_run = false;
 
-#define COMPONENT_NAME "OMX.Aratelia.ice_renderer.http"
+#define COMPONENT_NAME "OMX.Aratelia.audio_renderer.http"
 #define CHECK_HTTP_RENDERER_CURL_CMD "/bin/bash -c \"/usr/bin/curl -vs http://localhost:8011/ 2>&1 > /dev/null\""
 
 
@@ -430,9 +430,9 @@ init_test_data()
   const char *p_testfile2 = NULL;
 
   p_testfile1 = tiz_rcfile_get_value("plugins-data",
-                                     "OMX.Aratelia.ice_renderer.http.testfile1_uri");
+                                     "OMX.Aratelia.audio_renderer.http.testfile1_uri");
   p_testfile2 = tiz_rcfile_get_value("plugins-data",
-                                     "OMX.Aratelia.ice_renderer.http.testfile2_uri");
+                                     "OMX.Aratelia.audio_renderer.http.testfile2_uri");
 
   if (!p_testfile1 || !p_testfile2)
 

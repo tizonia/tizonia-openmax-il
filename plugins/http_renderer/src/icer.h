@@ -38,8 +38,8 @@ extern "C"
 #include <OMX_Types.h>
 #include <OMX_TizoniaExt.h>
 
-#define ARATELIA_HTTP_RENDERER_DEFAULT_ROLE       "ice_renderer.http"
-#define ARATELIA_HTTP_RENDERER_COMPONENT_NAME     "OMX.Aratelia.ice_renderer.http"
+#define ARATELIA_HTTP_RENDERER_DEFAULT_ROLE       "audio_renderer.http"
+#define ARATELIA_HTTP_RENDERER_COMPONENT_NAME     "OMX.Aratelia.audio_renderer.http"
 #define ARATELIA_HTTP_RENDERER_PORT_INDEX         0 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_HTTP_RENDERER_PORT_MIN_BUF_SIZE  (8*1024)
