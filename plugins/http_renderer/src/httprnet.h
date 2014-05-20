@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   icernet.h
+ * @file   httprnet.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief Tizonia OpenMAX IL - HTTP renderer's net functions
@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef ICERNET_H
-#define ICERNET_H
+#ifndef HTTPRNET_H
+#define HTTPRNET_H
 
 #ifdef __cplusplus
 extern "C"
@@ -39,40 +39,40 @@ extern "C"
 
 #define ICE_RENDERER_SOCK_ERROR (int)-1
 
-  typedef struct icer_server icer_server_t;
+  typedef struct httpr_server httpr_server_t;
 
-  typedef void (*icer_buffer_emptied_f) (OMX_BUFFERHEADERTYPE * ap_hdr,
+  typedef void (*httpr_buffer_emptied_f) (OMX_BUFFERHEADERTYPE * ap_hdr,
                                          OMX_PTR ap_arg);
-  typedef OMX_BUFFERHEADERTYPE *(*icer_buffer_needed_f) (OMX_PTR ap_arg);
+  typedef OMX_BUFFERHEADERTYPE *(*httpr_buffer_needed_f) (OMX_PTR ap_arg);
 
-  OMX_ERRORTYPE icer_net_server_init (icer_server_t ** app_server,
+  OMX_ERRORTYPE httpr_net_server_init (httpr_server_t ** app_server,
                                       OMX_HANDLETYPE ap_hdl,
                                       OMX_STRING a_address, OMX_U32 a_port,
                                       OMX_U32 a_max_clients,
-                                      icer_buffer_emptied_f a_pf_emptied,
-                                      icer_buffer_needed_f a_pf_needed,
+                                      httpr_buffer_emptied_f a_pf_emptied,
+                                      httpr_buffer_needed_f a_pf_needed,
                                       OMX_PTR ap_arg);
 
-  void icer_net_server_destroy (icer_server_t * ap_server);
+  void httpr_net_server_destroy (httpr_server_t * ap_server);
 
-  OMX_ERRORTYPE icer_net_start_listening (icer_server_t * ap_server);
+  OMX_ERRORTYPE httpr_net_start_listening (httpr_server_t * ap_server);
 
-  OMX_ERRORTYPE icer_net_accept_connection (icer_server_t * ap_server);
+  OMX_ERRORTYPE httpr_net_accept_connection (httpr_server_t * ap_server);
 
-  OMX_ERRORTYPE icer_net_stop_listening (icer_server_t * ap_server);
+  OMX_ERRORTYPE httpr_net_stop_listening (httpr_server_t * ap_server);
 
-  OMX_ERRORTYPE icer_net_write_to_listeners (icer_server_t * ap_server);
+  OMX_ERRORTYPE httpr_net_write_to_listeners (httpr_server_t * ap_server);
 
-  int icer_net_get_server_fd (const icer_server_t * ap_server);
+  int httpr_net_get_server_fd (const httpr_server_t * ap_server);
 
-  void icer_net_release_buffers (icer_server_t * ap_server);
+  void httpr_net_release_buffers (httpr_server_t * ap_server);
 
-  void icer_net_set_mp3_settings (icer_server_t * ap_server,
+  void httpr_net_set_mp3_settings (httpr_server_t * ap_server,
                                   const OMX_U32 a_bitrate,
                                   const OMX_U32 a_num_channels,
                                   const OMX_U32 a_sample_rate);
 
-  void icer_net_set_mountpoint_settings (icer_server_t * ap_server,
+  void httpr_net_set_mountpoint_settings (httpr_server_t * ap_server,
                                          OMX_U8 *ap_mount_name,
                                          OMX_U8 *ap_station_name,
                                          OMX_U8 *ap_station_description,
@@ -82,11 +82,11 @@ extern "C"
                                          const OMX_U32 burst_size,
                                          const OMX_U32 max_clients);
 
-  void icer_net_set_icecast_metadata (icer_server_t * ap_server,
+  void httpr_net_set_icecast_metadata (httpr_server_t * ap_server,
                                       OMX_U8 *ap_stream_title);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* ICERNET_H */
+#endif                          /* HTTPRNET_H */

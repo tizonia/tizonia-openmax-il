@@ -18,41 +18,53 @@
  */
 
 /**
- * @file   icermp3port_decls.h
+ * @file   httprprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Http renderer mp3 input port class decls
+ * @brief  Tizonia OpenMAX IL - HTTP renderer processor declarations
+ * declarations
  *
  *
  */
 
-#ifndef ICERMP3PORT_DECLS_H
-#define ICERMP3PORT_DECLS_H
+#ifndef HTTPRPRC_DECLS_H
+#define HTTPRPRC_DECLS_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include <OMX_Types.h>
+#include <stdbool.h>
+
 #include <OMX_TizoniaExt.h>
 
-#include <tizmp3port_decls.h>
+#include <tizprc_decls.h>
 
-  typedef struct icer_mp3port icer_mp3port_t;
-  struct icer_mp3port
+#include "httprnet.h"
+
+  typedef struct httpr_prc httpr_prc_t;
+  struct httpr_prc
   {
     /* Object */
-    const tiz_mp3port_t               _;
+    const tiz_prc_t _;
+    OMX_STRING bind_address_;
+    OMX_STRING mount_name_;
+    bool awaiting_buffers_;
+    bool port_disabled_;
+    int lstn_sockfd_;
+    httpr_server_t *p_server_;
+    OMX_BUFFERHEADERTYPE *p_inhdr_;
+    OMX_AUDIO_PARAM_MP3TYPE mp3type_;
+    OMX_TIZONIA_HTTPSERVERTYPE server_info_;
     OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mountpoint_;
-    OMX_STRING p_stream_title_;
   };
 
-  typedef struct icer_mp3port_class icer_mp3port_class_t;
-  struct icer_mp3port_class
+  typedef struct httpr_prc_class httpr_prc_class_t;
+  struct httpr_prc_class
   {
     /* Class */
-    const tiz_mp3port_class_t _;
+    const tiz_prc_class_t _;
     /* NOTE: Class methods might be added in the future */
   };
 
@@ -60,4 +72,4 @@ extern "C"
 }
 #endif
 
-#endif                          /* ICERMP3PORT_DECLS_H */
+#endif                          /* HTTPRPRC_DECLS_H */

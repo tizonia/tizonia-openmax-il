@@ -18,21 +18,21 @@
 lib_LTLIBRARIES = libtizhttpr.la
 
 noinst_HEADERS = \
-	icercfgport.h \
-	icercfgport_decls.h \
-	icermp3port.h \
-	icermp3port_decls.h \
-	icernet.h \
-	icer.h \
-	icerprc.h \
-	icerprc_decls.h
+	httprcfgport.h \
+	httprcfgport_decls.h \
+	httprmp3port.h \
+	httprmp3port_decls.h \
+	httprnet.h \
+	httpr.h \
+	httprprc.h \
+	httprprc_decls.h
 
 libtizhttpr_la_SOURCES = \
-	icer.c \
-	icercfgport.c \
-	icermp3port.c \
-	icernet.c \
-	icerprc.c
+	httpr.c \
+	httprcfgport.c \
+	httprmp3port.c \
+	httprnet.c \
+	httprprc.c
 
 libtizhttpr_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \

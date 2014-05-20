@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   icermp3port.c
+ * @file   httprmp3port.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief Tizonia OpenMAX IL - Http renderer's specialised mp3 port
@@ -36,9 +36,9 @@
 
 #include <tizplatform.h>
 
-#include "icer.h"
-#include "icermp3port.h"
-#include "icermp3port_decls.h"
+#include "httpr.h"
+#include "httprmp3port.h"
+#include "httprmp3port_decls.h"
 
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -47,13 +47,13 @@
 #endif
 
 /*
- * icermp3port class
+ * httprmp3port class
  */
 
 static void *
-icer_mp3port_ctor (void *ap_obj, va_list * app)
+httpr_mp3port_ctor (void *ap_obj, va_list * app)
 {
-  icer_mp3port_t *p_obj = super_ctor (typeOf (ap_obj, "icermp3port"), ap_obj, app);
+  httpr_mp3port_t *p_obj = super_ctor (typeOf (ap_obj, "httprmp3port"), ap_obj, app);
   assert (NULL != p_obj);
 
   tiz_port_register_index (p_obj, OMX_TizoniaIndexParamIcecastMountpoint);
@@ -88,12 +88,12 @@ icer_mp3port_ctor (void *ap_obj, va_list * app)
 }
 
 static void *
-icer_mp3port_dtor (void *ap_obj)
+httpr_mp3port_dtor (void *ap_obj)
 {
-  icer_mp3port_t *p_obj = ap_obj;
+  httpr_mp3port_t *p_obj = ap_obj;
   assert (NULL != p_obj);
   tiz_mem_free (p_obj->p_stream_title_);
-  return super_dtor (typeOf (ap_obj, "icermp3port"), ap_obj);
+  return super_dtor (typeOf (ap_obj, "httprmp3port"), ap_obj);
 }
 
 /*
@@ -101,11 +101,11 @@ icer_mp3port_dtor (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-icer_mp3port_GetParameter (const void *ap_obj,
+httpr_mp3port_GetParameter (const void *ap_obj,
                            OMX_HANDLETYPE ap_hdl,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const icer_mp3port_t *p_obj = ap_obj;
+  const httpr_mp3port_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
@@ -120,7 +120,7 @@ icer_mp3port_GetParameter (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      rc = super_GetParameter (typeOf (ap_obj, "icermp3port"),
+      rc = super_GetParameter (typeOf (ap_obj, "httprmp3port"),
                                ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -128,11 +128,11 @@ icer_mp3port_GetParameter (const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-icer_mp3port_SetParameter (const void *ap_obj,
+httpr_mp3port_SetParameter (const void *ap_obj,
                            OMX_HANDLETYPE ap_hdl,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  icer_mp3port_t *p_obj = (icer_mp3port_t *) ap_obj;
+  httpr_mp3port_t *p_obj = (httpr_mp3port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
@@ -157,7 +157,7 @@ icer_mp3port_SetParameter (const void *ap_obj,
   else
     {
       /* Try the parent's indexes */
-      rc = super_SetParameter (typeOf (ap_obj, "icermp3port"),
+      rc = super_SetParameter (typeOf (ap_obj, "httprmp3port"),
                                ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -165,11 +165,11 @@ icer_mp3port_SetParameter (const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-icer_mp3port_GetConfig (const void *ap_obj,
+httpr_mp3port_GetConfig (const void *ap_obj,
                         OMX_HANDLETYPE ap_hdl,
                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const icer_mp3port_t *p_obj = ap_obj;
+  const httpr_mp3port_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
@@ -215,7 +215,7 @@ icer_mp3port_GetConfig (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      rc = super_GetConfig (typeOf (ap_obj, "icermp3port"),
+      rc = super_GetConfig (typeOf (ap_obj, "httprmp3port"),
                             ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -223,11 +223,11 @@ icer_mp3port_GetConfig (const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
-icer_mp3port_SetConfig (const void *ap_obj,
+httpr_mp3port_SetConfig (const void *ap_obj,
                            OMX_HANDLETYPE ap_hdl,
                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  icer_mp3port_t *p_obj = (icer_mp3port_t *) ap_obj;
+  httpr_mp3port_t *p_obj = (httpr_mp3port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
@@ -266,7 +266,7 @@ icer_mp3port_SetConfig (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      rc = super_SetConfig (typeOf (ap_obj, "icermp3port"),
+      rc = super_SetConfig (typeOf (ap_obj, "httprmp3port"),
                             ap_obj, ap_hdl, a_index, ap_struct);
     }
 
@@ -274,14 +274,14 @@ icer_mp3port_SetConfig (const void *ap_obj,
 }
 
 /*
- * icer_mp3port_class
+ * httpr_mp3port_class
  */
 
 static void *
-icer_mp3port_class_ctor (void *ap_obj, va_list * app)
+httpr_mp3port_class_ctor (void *ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "icermp3port_class"), ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "httprmp3port_class"), ap_obj, app);
 }
 
 /*
@@ -289,38 +289,38 @@ icer_mp3port_class_ctor (void *ap_obj, va_list * app)
  */
 
 void *
-icer_mp3port_class_init (void * ap_tos, void * ap_hdl)
+httpr_mp3port_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizmp3port = tiz_get_type (ap_hdl, "tizmp3port");
-  void * icermp3port_class = factory_new (classOf (tizmp3port),
-                                          "icermp3port_class",
+  void * httprmp3port_class = factory_new (classOf (tizmp3port),
+                                          "httprmp3port_class",
                                           classOf (tizmp3port),
-                                          sizeof (icer_mp3port_class_t),
+                                          sizeof (httpr_mp3port_class_t),
                                           ap_tos, ap_hdl,
-                                          ctor, icer_mp3port_class_ctor, 0);
-  return icermp3port_class;
+                                          ctor, httpr_mp3port_class_ctor, 0);
+  return httprmp3port_class;
 }
 
 void *
-icer_mp3port_init (void * ap_tos, void * ap_hdl)
+httpr_mp3port_init (void * ap_tos, void * ap_hdl)
 {
   void * tizmp3port = tiz_get_type (ap_hdl, "tizmp3port");
-  void * icermp3port_class = tiz_get_type (ap_hdl, "icermp3port_class");
-  TIZ_LOG_CLASS (icermp3port_class);
-  void * icermp3port =
+  void * httprmp3port_class = tiz_get_type (ap_hdl, "httprmp3port_class");
+  TIZ_LOG_CLASS (httprmp3port_class);
+  void * httprmp3port =
     factory_new
-    (icermp3port_class,
-     "icermp3port",
+    (httprmp3port_class,
+     "httprmp3port",
      tizmp3port,
-     sizeof (icer_mp3port_t),
+     sizeof (httpr_mp3port_t),
      ap_tos, ap_hdl,
-     ctor, icer_mp3port_ctor,
-     dtor, icer_mp3port_dtor,
-     tiz_api_GetParameter, icer_mp3port_GetParameter,
-     tiz_api_SetParameter, icer_mp3port_SetParameter,
-     tiz_api_GetConfig, icer_mp3port_GetConfig,
-     tiz_api_SetConfig, icer_mp3port_SetConfig,
+     ctor, httpr_mp3port_ctor,
+     dtor, httpr_mp3port_dtor,
+     tiz_api_GetParameter, httpr_mp3port_GetParameter,
+     tiz_api_SetParameter, httpr_mp3port_SetParameter,
+     tiz_api_GetConfig, httpr_mp3port_GetConfig,
+     tiz_api_SetConfig, httpr_mp3port_SetConfig,
      0);
 
-  return icermp3port;
+  return httprmp3port;
 }

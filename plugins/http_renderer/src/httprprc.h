@@ -16,63 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /**
- * @file   icerprc_decls.h
+ * @file   httprprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia OpenMAX IL - HTTP renderer processor class
- * declarations
  *
  *
  */
 
-#ifndef ICERPRC_DECLS_H
-#define ICERPRC_DECLS_H
+#ifndef HTTPRPRC_H
+#define HTTPRPRC_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include <stdbool.h>
-
-#include <OMX_TizoniaExt.h>
-
-#include <tizplatform.h>
-
-#include <tizprc_decls.h>
-
-#include "icerprc.h"
-#include "icernet.h"
-
-
-  typedef struct icer_prc icer_prc_t;
-  struct icer_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    OMX_STRING bind_address_;
-    OMX_STRING mount_name_;
-    bool awaiting_buffers_;
-    bool port_disabled_;
-    int lstn_sockfd_;
-    icer_server_t *p_server_;
-    OMX_BUFFERHEADERTYPE *p_inhdr_;
-    OMX_AUDIO_PARAM_MP3TYPE mp3type_;
-    OMX_TIZONIA_HTTPSERVERTYPE server_info_;
-    OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mountpoint_;
-  };
-
-  typedef struct icer_prc_class icer_prc_class_t;
-  struct icer_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+  void * httpr_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * httpr_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* ICERPRC_DECLS_H */
+#endif                          /* HTTPRPRC_H */

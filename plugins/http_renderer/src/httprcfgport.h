@@ -18,45 +18,27 @@
  */
 
 /**
- * @file   icercfgport_decls.h
+ * @file   httprcfgport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Http renderer config port class decls
+ * @brief  Tizonia OpenMAX IL - Http renderer config port class
  *
  *
  */
 
-#ifndef ICERCFGPORT_DECLS_H
-#define ICERCFGPORT_DECLS_H
+#ifndef HTTPRCFGPORT_H
+#define HTTPRCFGPORT_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include <OMX_Types.h>
-#include <OMX_TizoniaExt.h>
-
-#include <tizconfigport_decls.h>
-
-  typedef struct icer_cfgport icer_cfgport_t;
-  struct icer_cfgport
-  {
-    /* Object */
-    const tiz_configport_t _;
-    OMX_TIZONIA_HTTPSERVERTYPE http_conf_;
-  };
-
-  typedef struct icer_cfgport_class icer_cfgport_class_t;
-  struct icer_cfgport_class
-  {
-    /* Class */
-    const tiz_configport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+  void * httpr_cfgport_class_init (void * ap_tos, void * ap_hdl);
+  void * httpr_cfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* ICERCFGPORT_DECLS_H */
+#endif                          /* HTTPRCFGPORT_H */

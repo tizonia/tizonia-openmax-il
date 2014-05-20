@@ -803,18 +803,18 @@ START_TEST (test_http_streaming)
 END_TEST
 
 Suite *
-ar_suite (void)
+httpr_suite (void)
 {
 
-  TCase *tc_icer;
-  Suite *s = suite_create ("libtizicesink");
+  TCase *tc_httpr;
+  Suite *s = suite_create ("libtizhttpr");
 
   /* test case */
-  tc_icer = tcase_create ("HTTP Streaming");
-  tcase_add_unchecked_fixture (tc_icer, setup, teardown);
-  tcase_set_timeout (tc_icer, HTTP_RENDERER_TEST_TIMEOUT);
-  tcase_add_loop_test (tc_icer, test_http_streaming, 0, 1);
-  suite_add_tcase (s, tc_icer);
+  tc_httpr = tcase_create ("HTTP Renderer");
+  tcase_add_unchecked_fixture (tc_httpr, setup, teardown);
+  tcase_set_timeout (tc_httpr, HTTP_RENDERER_TEST_TIMEOUT);
+  tcase_add_loop_test (tc_httpr, test_http_streaming, 0, 1);
+  suite_add_tcase (s, tc_httpr);
 
   return s;
 
@@ -824,7 +824,7 @@ int
 main (int argc, char **argv)
 {
   int number_failed;
-  SRunner *sr = srunner_create (ar_suite ());
+  SRunner *sr = srunner_create (httpr_suite ());
 
   if (argc > 1)
     {

@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   icer.c
+ * @file   httpr.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia OpenMAX IL - Icecast-like HTTP renderer
@@ -42,10 +42,10 @@
 #include <tizport.h>
 #include <tizscheduler.h>
 
-#include "icerprc.h"
-#include "icermp3port.h"
-#include "icercfgport.h"
-#include "icer.h"
+#include "httprprc.h"
+#include "httprmp3port.h"
+#include "httprcfgport.h"
+#include "httpr.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -84,14 +84,14 @@ instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
   mp3type.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
   mp3type.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
-  return factory_new (tiz_get_type (ap_hdl, "icermp3port"),
+  return factory_new (tiz_get_type (ap_hdl, "httprmp3port"),
                       &mp3_port_opts, &encodings, &mp3type);
 }
 
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "icercfgport"),
+  return factory_new (tiz_get_type (ap_hdl, "httprcfgport"),
                       NULL,     /* this port does not take options */
                       ARATELIA_HTTP_RENDERER_COMPONENT_NAME,
                       http_renderer_version);
@@ -100,7 +100,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "icerprc"));
+  return factory_new (tiz_get_type (ap_hdl, "httprprc"));
 }
 
 OMX_ERRORTYPE
@@ -108,10 +108,10 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
-  tiz_type_factory_t icerprc_type;
-  tiz_type_factory_t icermp3port_type;
-  tiz_type_factory_t icercfgport_type;
-  const tiz_type_factory_t *tf_list[] = { &icerprc_type, &icermp3port_type, &icercfgport_type};
+  tiz_type_factory_t httprprc_type;
+  tiz_type_factory_t httprmp3port_type;
+  tiz_type_factory_t httprcfgport_type;
+  const tiz_type_factory_t *tf_list[] = { &httprprc_type, &httprmp3port_type, &httprcfgport_type};
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: Inititializing [%s]",
            ARATELIA_HTTP_RENDERER_COMPONENT_NAME);
@@ -122,25 +122,25 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 1;
   role_factory.pf_proc    = instantiate_processor;
 
-  strcpy ((OMX_STRING) icerprc_type.class_name, "icerprc_class");
-  icerprc_type.pf_class_init = icer_prc_class_init;
-  strcpy ((OMX_STRING) icerprc_type.object_name, "icerprc");
-  icerprc_type.pf_object_init = icer_prc_init;
+  strcpy ((OMX_STRING) httprprc_type.class_name, "httprprc_class");
+  httprprc_type.pf_class_init = httpr_prc_class_init;
+  strcpy ((OMX_STRING) httprprc_type.object_name, "httprprc");
+  httprprc_type.pf_object_init = httpr_prc_init;
 
-  strcpy ((OMX_STRING) icermp3port_type.class_name, "icermp3port_class");
-  icermp3port_type.pf_class_init = icer_mp3port_class_init;
-  strcpy ((OMX_STRING) icermp3port_type.object_name, "icermp3port");
-  icermp3port_type.pf_object_init = icer_mp3port_init;
+  strcpy ((OMX_STRING) httprmp3port_type.class_name, "httprmp3port_class");
+  httprmp3port_type.pf_class_init = httpr_mp3port_class_init;
+  strcpy ((OMX_STRING) httprmp3port_type.object_name, "httprmp3port");
+  httprmp3port_type.pf_object_init = httpr_mp3port_init;
 
-  strcpy ((OMX_STRING) icercfgport_type.class_name, "icercfgport_class");
-  icercfgport_type.pf_class_init = icer_cfgport_class_init;
-  strcpy ((OMX_STRING) icercfgport_type.object_name, "icercfgport");
-  icercfgport_type.pf_object_init = icer_cfgport_init;
+  strcpy ((OMX_STRING) httprcfgport_type.class_name, "httprcfgport_class");
+  httprcfgport_type.pf_class_init = httpr_cfgport_class_init;
+  strcpy ((OMX_STRING) httprcfgport_type.object_name, "httprcfgport");
+  httprcfgport_type.pf_object_init = httpr_cfgport_init;
 
   /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_HTTP_RENDERER_COMPONENT_NAME));
 
-  /* Register the "icerprc", "icermp3port" and "icercfgport" classes */
+  /* Register the "httprprc", "httprmp3port" and "httprcfgport" classes */
   tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 3));
 
   /* Register this component's role */

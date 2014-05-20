@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   icer.h
+ * @file   httpr.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief   Tizonia OpenMAX IL - HTTP renderer constants
@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef ICER_H
-#define ICER_H
+#ifndef HTTPR_H
+#define HTTPR_H
 
 #ifdef __cplusplus
 extern "C"
@@ -66,4 +66,4 @@ extern "C"
 }
 #endif
 
-#endif                          /* ICER_H */
+#endif                          /* HTTPR_H */

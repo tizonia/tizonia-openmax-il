@@ -18,27 +18,27 @@
  */
 
 /**
- * @file   icercfgport.h
+ * @file   httprmp3port.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Http renderer config port class
+ * @brief Tizonia OpenMAX IL - Http renderer's specialised mp3 port class
  *
  *
  */
 
-#ifndef ICERCFGPORT_H
-#define ICERCFGPORT_H
+#ifndef HTTPRMP3PORT_H
+#define HTTPRMP3PORT_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  void * icer_cfgport_class_init (void * ap_tos, void * ap_hdl);
-  void * icer_cfgport_init (void * ap_tos, void * ap_hdl);
+  void * httpr_mp3port_class_init (void * ap_tos, void * ap_hdl);
+  void * httpr_mp3port_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* ICERCFGPORT_H */
+#endif                          /* HTTPRMP3PORT_H */

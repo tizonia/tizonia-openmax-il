@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   icernet.c
+ * @file   httprnet.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief Tizonia OpenMAX IL - HTTP renderer's networking functions
@@ -53,8 +53,8 @@
 
 #include <OMX_TizoniaExt.h>
 
-#include "icer.h"
-#include "icernet.h"
+#include "httpr.h"
+#include "httprnet.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -67,16 +67,16 @@
 #define ICE_RENDERER_MAX_ADDR_LEN 46
 #endif
 
-typedef struct icer_listener_buffer icer_listener_buffer_t;
-struct icer_listener_buffer
+typedef struct httpr_listener_buffer httpr_listener_buffer_t;
+struct httpr_listener_buffer
 {
   unsigned int len;
   unsigned int metadata_bytes;
   char *p_data;
 };
 
-typedef struct icer_mount icer_mount_t;
-struct icer_mount
+typedef struct httpr_mount httpr_mount_t;
+struct httpr_mount
 {
   OMX_U8 mount_name[OMX_MAX_STRINGNAME_SIZE];
   OMX_U8 station_name[OMX_MAX_STRINGNAME_SIZE];
@@ -89,8 +89,8 @@ struct icer_mount
   OMX_U32 max_clients;
 };
 
-typedef struct icer_connection icer_connection_t;
-struct icer_connection
+typedef struct httpr_connection httpr_connection_t;
+struct httpr_connection
 {
   time_t con_time;
   uint64_t sent_total;
@@ -109,21 +109,21 @@ struct icer_connection
   tiz_event_timer_t *p_ev_timer;
 };
 
-typedef struct icer_listener icer_listener_t;
-struct icer_listener
+typedef struct httpr_listener httpr_listener_t;
+struct httpr_listener
 {
-  icer_connection_t *p_con;
+  httpr_connection_t *p_con;
   int respcode;
   long intro_offset;
   unsigned long pos;
-  icer_listener_buffer_t buf;
+  httpr_listener_buffer_t buf;
   tiz_http_parser_t *p_parser;
   bool need_response;
   bool timer_started;
   bool want_metadata;
 };
 
-struct icer_server
+struct httpr_server
 {
   OMX_HANDLETYPE p_hdl;
   int lstn_sockfd;
@@ -132,8 +132,8 @@ struct icer_server
   OMX_U32 max_clients;
   tiz_map_t *p_lstnrs;
   OMX_BUFFERHEADERTYPE *p_hdr;
-  icer_buffer_emptied_f pf_emptied;
-  icer_buffer_needed_f pf_needed;
+  httpr_buffer_emptied_f pf_emptied;
+  httpr_buffer_needed_f pf_needed;
   OMX_PTR p_arg;
   OMX_U32 bitrate;
   OMX_U32 num_channels;
@@ -142,10 +142,10 @@ struct icer_server
   OMX_U32 burst_size;
   double wait_time;
   double pkts_per_sec;
-  icer_mount_t mountpoint;
+  httpr_mount_t mountpoint;
 };
 
-static void destroy_listener (icer_listener_t * ap_lstnr);
+static void destroy_listener (httpr_listener_t * ap_lstnr);
 
 static OMX_S32
 listeners_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
@@ -173,13 +173,13 @@ listeners_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
 static void
 listeners_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 {
-  icer_listener_t *p_lstnr = (icer_listener_t *) ap_value;
+  httpr_listener_t *p_lstnr = (httpr_listener_t *) ap_value;
   assert (NULL != p_lstnr);
   destroy_listener (p_lstnr);
 }
 
 static bool
-error_recoverable (icer_server_t * ap_server, int sockfd, int error)
+error_recoverable (httpr_server_t * ap_server, int sockfd, int error)
 {
   assert (NULL != ap_server);
   TIZ_TRACE (ap_server->p_hdl, "Socket [%d] error [%s]", sockfd,
@@ -230,7 +230,7 @@ get_socket_buffer_utilization (const int a_sockfd)
 }
 
 static inline int
-get_listeners_count (const icer_server_t * ap_server)
+get_listeners_count (const httpr_server_t * ap_server)
 {
   if (NULL != ap_server && NULL != ap_server->p_lstnrs)
     {
@@ -285,7 +285,7 @@ set_keepalive (const int sock)
 }
 
 static int
-accept_socket (icer_server_t * ap_server, char *ap_ip, const size_t a_ip_len,
+accept_socket (httpr_server_t * ap_server, char *ap_ip, const size_t a_ip_len,
                unsigned short *ap_port)
 {
   struct sockaddr_storage sa;
@@ -338,7 +338,7 @@ accept_socket (icer_server_t * ap_server, char *ap_ip, const size_t a_ip_len,
 }
 
 static inline int
-create_server_socket (icer_server_t *ap_server, const int a_port,
+create_server_socket (httpr_server_t *ap_server, const int a_port,
                       const char *a_interface)
 {
   struct sockaddr_storage sa;
@@ -397,7 +397,7 @@ create_server_socket (icer_server_t *ap_server, const int a_port,
 }
 
 static void
-destroy_server_io_watcher (icer_server_t * ap_server)
+destroy_server_io_watcher (httpr_server_t * ap_server)
 {
 
   assert (NULL != ap_server);
@@ -411,7 +411,7 @@ destroy_server_io_watcher (icer_server_t * ap_server)
 }
 
 static OMX_ERRORTYPE
-allocate_server_io_watcher (icer_server_t * ap_server)
+allocate_server_io_watcher (httpr_server_t * ap_server)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_server);
@@ -440,7 +440,7 @@ end:
 }
 
 static OMX_ERRORTYPE
-start_server_io_watcher (icer_server_t * ap_server)
+start_server_io_watcher (httpr_server_t * ap_server)
 {
   assert (NULL != ap_server);
   TIZ_TRACE (ap_server->p_hdl, "Starting server io watcher "
@@ -449,7 +449,7 @@ start_server_io_watcher (icer_server_t * ap_server)
 }
 
 static inline OMX_ERRORTYPE
-stop_server_io_watcher (icer_server_t * ap_server)
+stop_server_io_watcher (httpr_server_t * ap_server)
 {
   assert (NULL != ap_server);
   TIZ_TRACE (ap_server->p_hdl, "stopping io watcher on fd [%d] ",
@@ -458,7 +458,7 @@ stop_server_io_watcher (icer_server_t * ap_server)
 }
 
 static OMX_ERRORTYPE
-start_listener_io_watcher (icer_listener_t * ap_lstnr)
+start_listener_io_watcher (httpr_listener_t * ap_lstnr)
 {
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_con);
@@ -466,7 +466,7 @@ start_listener_io_watcher (icer_listener_t * ap_lstnr)
 }
 
 static OMX_ERRORTYPE
-stop_listener_io_watcher (icer_listener_t * ap_lstnr)
+stop_listener_io_watcher (httpr_listener_t * ap_lstnr)
 {
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_con);
@@ -474,7 +474,7 @@ stop_listener_io_watcher (icer_listener_t * ap_lstnr)
 }
 
 static OMX_ERRORTYPE
-start_listener_timer_watcher (icer_listener_t * ap_lstnr, const double a_wait_time)
+start_listener_timer_watcher (httpr_listener_t * ap_lstnr, const double a_wait_time)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_lstnr);
@@ -498,7 +498,7 @@ start_listener_timer_watcher (icer_listener_t * ap_lstnr, const double a_wait_ti
 }
 
 static OMX_ERRORTYPE
-stop_listener_timer_watcher (icer_listener_t * ap_lstnr)
+stop_listener_timer_watcher (httpr_listener_t * ap_lstnr)
 {
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_con);
@@ -512,7 +512,7 @@ stop_listener_timer_watcher (icer_listener_t * ap_lstnr)
 }
 
 static void
-destroy_connection (icer_connection_t * ap_con)
+destroy_connection (httpr_connection_t * ap_con)
 {
   if (NULL != ap_con)
     {
@@ -529,7 +529,7 @@ destroy_connection (icer_connection_t * ap_con)
 }
 
 static void
-destroy_listener (icer_listener_t * ap_lstnr)
+destroy_listener (httpr_listener_t * ap_lstnr)
 {
   if (NULL != ap_lstnr)
     {
@@ -545,7 +545,7 @@ destroy_listener (icer_listener_t * ap_lstnr)
 }
 
 static void
-remove_listener (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
+remove_listener (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr)
 {
   int nlstnrs = 0;
 
@@ -565,20 +565,20 @@ remove_listener (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
    * the map's listeners_map_free_func */
 }
 
-static icer_connection_t *
-create_connection (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
+static httpr_connection_t *
+create_connection (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr,
                    const int connected_sockfd, char *ap_ip,
                    const unsigned short ap_port, const double a_wait_time)
 {
-  icer_connection_t *p_con = NULL;
+  httpr_connection_t *p_con = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
 
   assert (NULL != ap_server);
   assert (NULL != ap_lstnr);
   p_hdl = ap_server->p_hdl;
 
-  if (NULL != (p_con = (icer_connection_t *)
-               tiz_mem_calloc (1, sizeof (icer_connection_t))))
+  if (NULL != (p_con = (httpr_connection_t *)
+               tiz_mem_calloc (1, sizeof (httpr_connection_t))))
   {
     OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -632,12 +632,12 @@ create_connection (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 }
 
 static OMX_ERRORTYPE
-create_listener (icer_server_t * ap_server, icer_listener_t ** app_lstnr,
+create_listener (httpr_server_t * ap_server, httpr_listener_t ** app_lstnr,
                  const int a_connected_sockfd,
                  char *ap_ip, const unsigned short ap_port)
 {
-  icer_listener_t *p_lstnr = NULL;
-  icer_connection_t *p_con = NULL;
+  httpr_listener_t *p_lstnr = NULL;
+  httpr_connection_t *p_con = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   OMX_HANDLETYPE p_hdl = NULL;
 
@@ -647,8 +647,8 @@ create_listener (icer_server_t * ap_server, icer_listener_t ** app_lstnr,
   assert (NULL != ap_ip);
   p_hdl = ap_server->p_hdl;
 
-  if (NULL == (p_lstnr = (icer_listener_t *)
-               tiz_mem_calloc (1, sizeof (icer_listener_t))))
+  if (NULL == (p_lstnr = (httpr_listener_t *)
+               tiz_mem_calloc (1, sizeof (httpr_listener_t))))
     {
       TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
                 "allocating the listener structure.");
@@ -713,10 +713,10 @@ end:
 }
 
 static int
-read_from_listener (icer_listener_t * ap_lstnr)
+read_from_listener (httpr_listener_t * ap_lstnr)
 {
-  icer_connection_t *p_con = NULL;
-  icer_listener_buffer_t *p_buf = NULL;
+  httpr_connection_t *p_con = NULL;
+  httpr_listener_buffer_t *p_buf = NULL;
 
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_con);
@@ -799,7 +799,7 @@ build_http_negative_response (char *ap_buf, size_t len, int status,
 }
 
 static void
-send_http_error (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
+send_http_error (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr,
                  int a_error, const char *ap_err_msg)
 {
   ssize_t resp_size = 0;
@@ -827,7 +827,7 @@ send_http_error (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 }
 
 static ssize_t
-build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
+build_http_positive_response (httpr_server_t * ap_server, char *ap_buf,
                               size_t len, OMX_U32 a_bitrate,
                               OMX_U32 a_num_channels, OMX_U32 a_sample_rate,
                               bool a_want_metadata)
@@ -916,7 +916,7 @@ build_http_positive_response (icer_server_t * ap_server, char *ap_buf,
 }
 
 static int
-send_http_response (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
+send_http_response (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr)
 {
   ssize_t sent_bytes = 0;
 
@@ -935,8 +935,8 @@ send_http_response (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
 
 
 static OMX_ERRORTYPE
-handle_listeners_request (icer_server_t * ap_server,
-                          icer_listener_t * ap_lstnr)
+handle_listeners_request (httpr_server_t * ap_server,
+                          httpr_listener_t * ap_lstnr)
 {
   int nparsed = 0;
   int nread = -1;
@@ -1052,14 +1052,14 @@ end:
 static OMX_S32
 remove_existing_listener (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 {
-  icer_server_t *p_server = ap_arg;
-  icer_listener_t *p_lstnr = NULL;
+  httpr_server_t *p_server = ap_arg;
+  httpr_listener_t *p_lstnr = NULL;
 
   assert (NULL != p_server);
   assert (NULL != ap_key);
   assert (NULL != ap_value);
 
-  p_lstnr = (icer_listener_t *) ap_value;
+  p_lstnr = (httpr_listener_t *) ap_value;
 
   remove_listener (p_server, p_lstnr);
 
@@ -1069,14 +1069,14 @@ remove_existing_listener (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 static OMX_S32
 remove_failed_listener (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 {
-  icer_server_t *p_server = ap_arg;
-  icer_listener_t *p_lstnr = NULL;
+  httpr_server_t *p_server = ap_arg;
+  httpr_listener_t *p_lstnr = NULL;
 
   assert (NULL != p_server);
   assert (NULL != ap_key);
   assert (NULL != ap_value);
 
-  p_lstnr = (icer_listener_t *) ap_value;
+  p_lstnr = (httpr_listener_t *) ap_value;
 
   if (NULL != p_lstnr->p_con && true == p_lstnr->p_con->error)
     {
@@ -1087,7 +1087,7 @@ remove_failed_listener (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 }
 
 inline static void
-release_empty_buffer (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
+release_empty_buffer (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr,
                       OMX_BUFFERHEADERTYPE ** app_hdr)
 {
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -1106,7 +1106,7 @@ release_empty_buffer (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 }
 
 static bool
-listener_ready (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
+listener_ready (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr)
 {
   bool lstnr_ready = true;
   OMX_HANDLETYPE p_hdl = NULL;
@@ -1139,8 +1139,8 @@ listener_ready (icer_server_t * ap_server, icer_listener_t * ap_lstnr)
 }
 
 static inline bool
-is_time_to_send_metadata (icer_server_t * ap_server,
-                          icer_listener_t * ap_lstnr)
+is_time_to_send_metadata (httpr_server_t * ap_server,
+                          httpr_listener_t * ap_lstnr)
 {
   if (ap_lstnr->p_con->sent_total == 0)
     {
@@ -1157,8 +1157,8 @@ is_time_to_send_metadata (icer_server_t * ap_server,
 }
 
 static inline size_t
-get_metadata_offset (const icer_server_t * ap_server,
-                     const icer_listener_t * ap_lstnr)
+get_metadata_offset (const httpr_server_t * ap_server,
+                     const httpr_listener_t * ap_lstnr)
 {
   if (ap_lstnr->p_con->sent_total == 0)
     {
@@ -1172,8 +1172,8 @@ get_metadata_offset (const icer_server_t * ap_server,
 }
 
 static inline size_t
-get_metadata_length (const icer_server_t * ap_server,
-                     const icer_listener_t * ap_lstnr)
+get_metadata_length (const httpr_server_t * ap_server,
+                     const httpr_listener_t * ap_lstnr)
 {
   if (ap_lstnr->p_con->sent_total == 0
       || ap_lstnr->p_con->metadata_delivered)
@@ -1186,11 +1186,11 @@ get_metadata_length (const icer_server_t * ap_server,
 }
 
 static void
-arrange_metadata (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
+arrange_metadata (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr,
                   OMX_U8 ** app_buffer, size_t * ap_len)
 {
   size_t len = 0;
-  icer_listener_buffer_t *p_lstnr_buf = NULL;
+  httpr_listener_buffer_t *p_lstnr_buf = NULL;
 
   assert (NULL != ap_server);
   assert (NULL != ap_lstnr);
@@ -1289,12 +1289,12 @@ arrange_metadata (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 }
 
 static void
-arrange_data (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
+arrange_data (httpr_server_t * ap_server, httpr_listener_t * ap_lstnr,
               OMX_U8 ** app_buffer, size_t * ap_len)
 {
   OMX_U8 *p_buffer = NULL;
   size_t len = 0;
-  icer_listener_buffer_t *p_lstnr_buf = NULL;
+  httpr_listener_buffer_t *p_lstnr_buf = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
@@ -1359,10 +1359,10 @@ arrange_data (icer_server_t * ap_server, icer_listener_t * ap_lstnr,
 static OMX_S32
 write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 {
-  icer_server_t *p_server = ap_arg;
-  icer_listener_t *p_lstnr = NULL;
-  icer_listener_buffer_t *p_lstnr_buf = NULL;
-  icer_connection_t *p_con = NULL;
+  httpr_server_t *p_server = ap_arg;
+  httpr_listener_t *p_lstnr = NULL;
+  httpr_listener_buffer_t *p_lstnr_buf = NULL;
+  httpr_connection_t *p_con = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   OMX_U8 *p_buffer = NULL;
   int sock = ICE_RENDERER_SOCK_ERROR;
@@ -1375,7 +1375,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
   assert (NULL != ap_value);
 
   p_hdr = p_server->p_hdr;
-  p_lstnr = (icer_listener_t *) ap_value;
+  p_lstnr = (httpr_listener_t *) ap_value;
   assert (NULL != p_lstnr->p_con);
   p_con = p_lstnr->p_con;
   p_lstnr_buf = &p_lstnr->buf;
@@ -1506,17 +1506,17 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 }
 
 /*               */
-/* icer con APIs */
+/* httpr con APIs */
 /*               */
 
 OMX_ERRORTYPE
-icer_net_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
+httpr_net_server_init (httpr_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
                       OMX_STRING a_address, OMX_U32 a_port,
                       OMX_U32 a_max_clients,
-                      icer_buffer_emptied_f a_pf_emptied,
-                      icer_buffer_needed_f a_pf_needed, OMX_PTR ap_arg)
+                      httpr_buffer_emptied_f a_pf_emptied,
+                      httpr_buffer_needed_f a_pf_needed, OMX_PTR ap_arg)
 {
-  icer_server_t *p_server = NULL;
+  httpr_server_t *p_server = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int sockfd = ICE_RENDERER_SOCK_ERROR;;
   bool some_error = true;
@@ -1526,11 +1526,11 @@ icer_net_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
   assert (NULL != a_pf_emptied);
   assert (NULL != a_pf_needed);
 
-  if (NULL == (p_server = (icer_server_t *)
-               tiz_mem_calloc (1, sizeof (icer_server_t))))
+  if (NULL == (p_server = (httpr_server_t *)
+               tiz_mem_calloc (1, sizeof (httpr_server_t))))
     {
       TIZ_TRACE (ap_hdl, "[OMX_ErrorInsufficientResources] : "
-                "allocating the icer_server_t struct.");
+                "allocating the httpr_server_t struct.");
       return OMX_ErrorInsufficientResources;
     }
 
@@ -1554,7 +1554,7 @@ icer_net_server_init (icer_server_t ** app_server, OMX_HANDLETYPE ap_hdl,
       (double) p_server->burst_size));
   p_server->wait_time       = (1 / p_server->pkts_per_sec);
 
-  tiz_mem_set (&(p_server->mountpoint), 0, sizeof (icer_mount_t));
+  tiz_mem_set (&(p_server->mountpoint), 0, sizeof (httpr_mount_t));
   p_server->mountpoint.metadata_period        = ICE_DEFAULT_METADATA_INTERVAL;
   p_server->mountpoint.initial_burst_size     = ICE_INITIAL_BURST_SIZE;;
   p_server->mountpoint.max_clients            = 1;
@@ -1619,7 +1619,7 @@ end:
 }
 
 void
-icer_net_server_destroy (icer_server_t * ap_server)
+httpr_net_server_destroy (httpr_server_t * ap_server)
 {
   assert (NULL != ap_server);
 
@@ -1638,7 +1638,7 @@ icer_net_server_destroy (icer_server_t * ap_server)
 }
 
 OMX_ERRORTYPE
-icer_net_start_listening (icer_server_t * ap_server)
+httpr_net_start_listening (httpr_server_t * ap_server)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = NULL;
@@ -1665,11 +1665,11 @@ icer_net_start_listening (icer_server_t * ap_server)
 }
 
 OMX_ERRORTYPE
-icer_net_accept_connection (icer_server_t * ap_server)
+httpr_net_accept_connection (httpr_server_t * ap_server)
 {
   char *p_ip = NULL;
-  icer_listener_t *p_lstnr = NULL;
-  icer_connection_t *p_con = NULL;
+  httpr_listener_t *p_lstnr = NULL;
+  httpr_connection_t *p_con = NULL;
   int connected_sockfd = ICE_RENDERER_SOCK_ERROR;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   bool some_error = true;
@@ -1770,7 +1770,7 @@ end:
 }
 
 OMX_ERRORTYPE
-icer_net_stop_listening (icer_server_t * ap_server)
+httpr_net_stop_listening (httpr_server_t * ap_server)
 {
   if (NULL != ap_server)
     {
@@ -1780,12 +1780,12 @@ icer_net_stop_listening (icer_server_t * ap_server)
 }
 
 OMX_ERRORTYPE
-icer_net_write_to_listeners (icer_server_t * ap_server)
+httpr_net_write_to_listeners (httpr_server_t * ap_server)
 {
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  icer_listener_t *p_lstnr = NULL;
-  icer_connection_t *p_con = NULL;
+  httpr_listener_t *p_lstnr = NULL;
+  httpr_connection_t *p_con = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
 
   if (NULL == ap_server)
@@ -1880,7 +1880,7 @@ icer_net_write_to_listeners (icer_server_t * ap_server)
 }
 
 int
-icer_net_get_server_fd (const icer_server_t * ap_server)
+httpr_net_get_server_fd (const httpr_server_t * ap_server)
 {
   assert (NULL != ap_server);
   if (NULL == ap_server)
@@ -1891,7 +1891,7 @@ icer_net_get_server_fd (const icer_server_t * ap_server)
 }
 
 void
-icer_net_release_buffers (icer_server_t * ap_server)
+httpr_net_release_buffers (httpr_server_t * ap_server)
 {
   assert (NULL != ap_server);
   if (NULL != ap_server->p_hdr)
@@ -1903,7 +1903,7 @@ icer_net_release_buffers (icer_server_t * ap_server)
 }
 
 void
-icer_net_set_mp3_settings (icer_server_t * ap_server,
+httpr_net_set_mp3_settings (httpr_server_t * ap_server,
                            const OMX_U32   a_bitrate,
                            const OMX_U32   a_num_channels,
                            const OMX_U32 a_sample_rate)
@@ -1982,7 +1982,7 @@ icer_net_set_mp3_settings (icer_server_t * ap_server,
 
   if (get_listeners_count (ap_server) > 0)
     {
-      icer_listener_t *p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
+      httpr_listener_t *p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
       assert (NULL != p_lstnr);
       stop_listener_timer_watcher (p_lstnr);
       start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
@@ -1996,7 +1996,7 @@ icer_net_set_mp3_settings (icer_server_t * ap_server,
 }
 
 void
-icer_net_set_mountpoint_settings (icer_server_t * ap_server,
+httpr_net_set_mountpoint_settings (httpr_server_t * ap_server,
                                   OMX_U8 *        ap_mount_name,
                                   OMX_U8 *        ap_station_name,
                                   OMX_U8 *        ap_station_description,
@@ -2006,7 +2006,7 @@ icer_net_set_mountpoint_settings (icer_server_t * ap_server,
                                   const OMX_U32   a_burst_size,
                                   const OMX_U32   a_max_clients)
 {
-  icer_mount_t *p_mount = NULL;
+  httpr_mount_t *p_mount = NULL;
 
   assert (NULL != ap_server);
   assert (NULL != ap_mount_name);
@@ -2051,10 +2051,10 @@ icer_net_set_mountpoint_settings (icer_server_t * ap_server,
 }
 
 void
-icer_net_set_icecast_metadata (icer_server_t * ap_server,
+httpr_net_set_icecast_metadata (httpr_server_t * ap_server,
                                OMX_U8 * ap_stream_title)
 {
-  icer_mount_t *p_mount = NULL;
+  httpr_mount_t *p_mount = NULL;
 
   assert (NULL != ap_server);
   assert (NULL != ap_stream_title);
@@ -2075,7 +2075,7 @@ icer_net_set_icecast_metadata (icer_server_t * ap_server,
 
   if (get_listeners_count (ap_server) > 0)
     {
-      icer_listener_t *p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
+      httpr_listener_t *p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
       assert (NULL != p_lstnr);
       assert (NULL != p_lstnr->p_con);
       p_lstnr->p_con->metadata_delivered = false;
