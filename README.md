@@ -6,6 +6,8 @@ specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
 
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)
+
 _This is a highly experimental, rapidly-changing project. APIs might change overnight._
 
 Tizonia OpenMAX IL consists of a number of resources:
