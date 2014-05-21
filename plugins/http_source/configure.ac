@@ -36,7 +36,10 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
-PKG_CHECK_MODULES([LIBMPG123], [libmpg123 >= 1.16.0])
+
+# NOTE: Look for libcurl 7.18.0. Before this version, there was no explicit
+# support for pausing transfers.
+PKG_CHECK_MODULES([LIBCURL], [libcurl >= 7.18.0])
 
 # Checks for header files.
 

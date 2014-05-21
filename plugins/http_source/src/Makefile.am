@@ -30,9 +30,9 @@ libtizhttpsrc_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../../libtizonia/src \
-	@LIBMPG123_CFLAGS@
+	@LIBCURL_CFLAGS@
 
 libtizhttpsrc_la_LIBADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
-	@LIBMPG123_LIBS@
+	@LIBCURL_LIBS@

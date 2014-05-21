@@ -35,6 +35,8 @@ extern "C"
 
 #include <stdbool.h>
 
+#include <curl/curl.h>
+
 #include <OMX_Core.h>
 
 #include <tizprc_decls.h>
@@ -46,6 +48,10 @@ extern "C"
     const tiz_prc_t _;
     OMX_BUFFERHEADERTYPE *p_outhdr_;
     bool eos_;
+    CURL *p_curl_;
+    struct curl_slist *p_http_ok_aliases_;
+    struct curl_slist *p_http_headers_;
+    char curl_err[CURL_ERROR_SIZE];
   };
 
   typedef struct httpsrc_prc_class httpsrc_prc_class_t;

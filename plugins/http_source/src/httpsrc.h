@@ -33,6 +33,8 @@ extern "C"
 {
 #endif
 
+#include <curl/curl.h>
+
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
@@ -41,7 +43,7 @@ extern "C"
 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_HTTP_SOURCE_PORT_INDEX           0
 #define ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_COUNT   2
-#define ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE    8192
+#define ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE    CURL_MAX_WRITE_SIZE
 #define ARATELIA_HTTP_SOURCE_PORT_NONCONTIGUOUS   OMX_FALSE
 #define ARATELIA_HTTP_SOURCE_PORT_ALIGNMENT       0
 #define ARATELIA_HTTP_SOURCE_PORT_SUPPLIERPREF    OMX_BufferSupplyInput
