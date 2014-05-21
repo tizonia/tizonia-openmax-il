@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 #
 # Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
 #
@@ -464,7 +464,7 @@ function main {
         exit_status=$?
     else
         CMD=`basename $0`
-        echo "Usage: $CMD <debug|release|conf|deps|media|tizrc|skema|tests|bldonly|>"
+        echo "Usage: $CMD <debug|release|conf|deps|media|tizrc|skema|tests|bldonly> <working_dir> <install_dir>"
         exit 1
     fi
 
