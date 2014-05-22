@@ -48,7 +48,8 @@ extern "C"
     const tiz_prc_t _;
     OMX_BUFFERHEADERTYPE *p_outhdr_;
     bool eos_;
-    CURL *p_curl_;
+    CURL *p_curl_;              /* curl easy */
+    CURLM *p_curl_multi_;        /* curl multi */
     struct curl_slist *p_http_ok_aliases_;
     struct curl_slist *p_http_headers_;
     char curl_err[CURL_ERROR_SIZE];

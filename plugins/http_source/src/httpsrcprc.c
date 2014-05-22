@@ -46,19 +46,39 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_source.prc"
 #endif
 
+/* forward declaration */
+static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *);
+
+
 /* These macros assume the existence of an "ap_prc" local variable */
-#define bail_on_curl_error(expr)                                              \
-  do                                                                          \
-    {                                                                         \
-      CURLcode curl_error = CURLE_OK;                                         \
-      if (CURLE_OK != (curl_error = (expr)))                                  \
-        {                                                                     \
-          OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;                  \
-          TIZ_ERROR (handleOf (ap_prc), "[%s] : error while using curl (%s)", \
-                     tiz_err_to_str (rc), curl_easy_strerror (curl_error));   \
-          goto end;                                                           \
-        }                                                                     \
-    }                                                                         \
+#define bail_on_curl_error(expr)                                             \
+  do                                                                         \
+    {                                                                        \
+      CURLcode curl_error = CURLE_OK;                                        \
+      if (CURLE_OK != (curl_error = (expr)))                                 \
+        {                                                                    \
+          TIZ_ERROR (handleOf (ap_prc),                                      \
+                     "[OMX_ErrorInsufficientResources] : error while using " \
+                     "curl (%s)",                                            \
+                     curl_easy_strerror (curl_error));                       \
+          goto end;                                                          \
+        }                                                                    \
+    }                                                                        \
+  while (0)
+
+#define bail_on_curl_multi_error(expr)                                       \
+  do                                                                         \
+    {                                                                        \
+      CURLMcode curl_error = CURLM_OK;                                       \
+      if (CURLM_OK != (curl_error = (expr)))                                 \
+        {                                                                    \
+          TIZ_ERROR (handleOf (ap_prc),                                      \
+                     "[OMX_ErrorInsufficientResources] : error while using " \
+                     "curl multi (%s)",                                      \
+                     curl_multi_strerror (curl_error));                      \
+          goto end;                                                          \
+        }                                                                    \
+    }                                                                        \
   while (0)
 
 #define bail_on_oom(expr)                                                    \
@@ -66,7 +86,6 @@
     {                                                                        \
       if (NULL == (expr))                                                    \
         {                                                                    \
-          OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;                 \
           TIZ_ERROR (handleOf (ap_prc), "[OMX_ErrorInsufficientResources]"); \
           goto end;                                                          \
         }                                                                    \
@@ -140,11 +159,23 @@ static void destroy_curl_resources (httpsrc_prc_t *ap_prc)
   ap_prc->p_http_ok_aliases_ = NULL;
   curl_slist_free_all (ap_prc->p_http_headers_);
   ap_prc->p_http_headers_ = NULL;
+  curl_multi_cleanup (ap_prc->p_curl_multi_);
+  ap_prc->p_curl_multi_ = NULL;
   curl_easy_cleanup (ap_prc->p_curl_);
   ap_prc->p_curl_ = NULL;
 }
 
-static OMX_ERRORTYPE init_curl_resources (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE init_curl_global_resources (httpsrc_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
+  bail_on_curl_error (curl_global_init (CURL_GLOBAL_ALL));
+  /* All well */
+  rc = OMX_ErrorNone;
+ end:
+  return rc;
+}
+
+static OMX_ERRORTYPE allocate_curl_resources (httpsrc_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
@@ -152,9 +183,13 @@ static OMX_ERRORTYPE init_curl_resources (httpsrc_prc_t *ap_prc)
 
   TIZ_DEBUG (handleOf (ap_prc), "%s", curl_version ());
 
+  /* Init the curl easy handle */
   tiz_check_null_ret_oom ((ap_prc->p_curl_ = curl_easy_init ()));
 
-  /* Tell libcurl that should accept ICY OK headers*/
+  /* Now init the curl multi handle */
+  bail_on_oom ((ap_prc->p_curl_multi_ = curl_multi_init ()));
+
+  /* Tell libcurl that it should accept ICY OK headers*/
   bail_on_oom ((ap_prc->p_http_ok_aliases_ = curl_slist_append (
                     ap_prc->p_http_ok_aliases_, "ICY 200 OK")));
 
@@ -225,6 +260,10 @@ static OMX_ERRORTYPE init_curl_resources (httpsrc_prc_t *ap_prc)
   curl_easy_setopt (ap_prc->p_curl_, CURLOPT_DEBUGFUNCTION, curl_debug_cback);
 #endif
 
+  /* Add the easy handle to the multi */
+  bail_on_curl_multi_error (
+      curl_multi_add_handle (ap_prc->p_curl_multi_, ap_prc->p_curl_));
+
   /* all ok */
   rc = OMX_ErrorNone;
 
@@ -263,14 +302,22 @@ static inline OMX_ERRORTYPE do_flush (httpsrc_prc_t *ap_prc)
 
 static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
 {
-  httpsrc_prc_t *p_obj
+  httpsrc_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "httpsrcprc"), ap_obj, app);
-  p_obj->eos_ = false;
-  return p_obj;
+  p_prc->p_outhdr_ = NULL;
+  p_prc->eos_ = false;
+  p_prc->p_curl_ = NULL;
+  p_prc->p_curl_multi_ = NULL;
+  p_prc->p_http_ok_aliases_ = NULL;
+  p_prc->p_http_headers_ = NULL;
+  init_curl_global_resources (p_prc);
+  return p_prc;
 }
 
 static void *httpsrc_prc_dtor (void *ap_obj)
 {
+  (void) httpsrc_prc_deallocate_resources (ap_obj);
+  curl_global_cleanup ();
   return super_dtor (typeOf (ap_obj, "httpsrcprc"), ap_obj);
 }
 
@@ -287,18 +334,13 @@ static OMX_ERRORTYPE httpsrc_prc_read_buffer (const void *ap_obj,
 static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
                                                      OMX_U32 a_pid)
 {
-  httpsrc_prc_t *p_prc = ap_obj;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-
-  assert (NULL != p_prc);
-
-  tiz_check_omx_err (init_curl_resources (p_prc));
-
+  tiz_check_omx_err (allocate_curl_resources (ap_obj));
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *ap_obj)
 {
+  destroy_curl_resources (ap_obj);
   return OMX_ErrorNone;
 }
 
