@@ -399,15 +399,9 @@ create_server_socket (httpr_server_t *ap_server, const int a_port,
 static void
 destroy_server_io_watcher (httpr_server_t * ap_server)
 {
-
   assert (NULL != ap_server);
-
-  if (NULL != ap_server->p_srv_ev_io)
-    {
-      tiz_event_io_destroy (ap_server->p_srv_ev_io);
-      ap_server->p_srv_ev_io = NULL;
-    }
-
+  tiz_event_io_destroy (ap_server->p_srv_ev_io);
+  ap_server->p_srv_ev_io = NULL;
 }
 
 static OMX_ERRORTYPE

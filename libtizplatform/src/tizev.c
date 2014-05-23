@@ -444,11 +444,12 @@ tiz_event_io_stop (tiz_event_io_t *ap_ev_io)
 
 void tiz_event_io_destroy (tiz_event_io_t *ap_ev_io)
 {
-  (void)get_loop_thread ();
-  assert (NULL != ap_ev_io);
-
-  tiz_event_io_stop (ap_ev_io);
-  tiz_mem_free (ap_ev_io);
+  if (NULL != ap_ev_io)
+    {
+      (void)get_loop_thread ();
+      tiz_event_io_stop (ap_ev_io);
+      tiz_mem_free (ap_ev_io);
+    }
 }
 
 /*
@@ -534,11 +535,12 @@ tiz_event_timer_stop (tiz_event_timer_t *ap_ev_timer)
 
 void tiz_event_timer_destroy (tiz_event_timer_t *ap_ev_timer)
 {
-  (void)get_loop_thread ();
-  assert (NULL != ap_ev_timer);
-
-  tiz_event_timer_stop (ap_ev_timer);
-  tiz_mem_free (ap_ev_timer);
+  if (NULL != ap_ev_timer)
+    {
+      (void)get_loop_thread ();
+      tiz_event_timer_stop (ap_ev_timer);
+      tiz_mem_free (ap_ev_timer);
+    }
 }
 
 /*

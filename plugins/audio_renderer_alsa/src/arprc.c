@@ -735,11 +735,8 @@ ar_prc_deallocate_resources (void *ap_obj)
   tiz_mem_free (p_prc->p_fds_);
   p_prc->p_fds_ = NULL;
 
-  if (NULL != p_prc->p_ev_io_)
-    {
-      tiz_event_io_destroy (p_prc->p_ev_io_);
-      p_prc->p_ev_io_ = NULL;
-    }
+  tiz_event_io_destroy (p_prc->p_ev_io_);
+  p_prc->p_ev_io_ = NULL;
 
   if (NULL != p_prc->p_hw_params)
     {
