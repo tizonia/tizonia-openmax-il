@@ -42,7 +42,7 @@ readonly SKEMA_GIT_REPO=https://github.com/tizonia/skema
 readonly SKEMA_DIR="$INSTALL_DIR"/skema
 readonly SKEMA_BIN_DIR="$SKEMA_DIR"/bin
 # A list of skema test suites that should not be executed
-declare -ar SKEMA_EXEMPT_SUITES=("Mp3Streaming" "Vp8Playback" "VorbisDecodeBaseProfile" "AacPlayback")
+declare -ar SKEMA_EXEMPT_SUITES=("Mp3Streaming" "Vp8Playback" "VorbisDecodeBaseProfile" "AacPlayback" "Mp3StreamingClient")
 
 #
 # Pre-requisites
