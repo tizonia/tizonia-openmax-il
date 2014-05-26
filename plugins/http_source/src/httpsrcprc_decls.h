@@ -47,7 +47,16 @@ extern "C"
     /* Object */
     const tiz_prc_t _;
     OMX_BUFFERHEADERTYPE *p_outhdr_;
+    OMX_PARAM_CONTENTURITYPE *p_uri_param_;
     bool eos_;
+    bool port_disabled_;
+    bool first_buffer_;
+    tiz_event_io_t *p_ev_io_;
+    int sockfd_;
+    bool awaiting_io_ev_;
+    tiz_event_timer_t *p_ev_timer_;
+    bool awaiting_timer_ev_;
+    double curl_timeout_;
     CURL *p_curl_;              /* curl easy */
     CURLM *p_curl_multi_;        /* curl multi */
     struct curl_slist *p_http_ok_aliases_;
