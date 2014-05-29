@@ -293,6 +293,8 @@ mp3d_proc_ctor (void *ap_obj, va_list * app)
   p_obj->p_outhdr_ = 0;
   p_obj->next_synth_sample_ = 0;
   p_obj->eos_ = false;
+  p_obj->in_port_disabled_ = false;
+  p_obj->out_port_disabled_ = false;
   return p_obj;
 }
 
@@ -554,14 +556,17 @@ mp3d_claim_input (mp3d_prc_t *ap_obj)
   bool rc = false;
   assert (NULL != ap_obj);
 
-  if (OMX_ErrorNone == tiz_krn_claim_buffer
-      (tiz_get_krn (handleOf (ap_obj)), 0, 0, &ap_obj->p_inhdr_))
+  if (!ap_obj->in_port_disabled_)
     {
-      if (NULL != ap_obj->p_inhdr_)
+      if (OMX_ErrorNone == tiz_krn_claim_buffer
+          (tiz_get_krn (handleOf (ap_obj)), 0, 0, &ap_obj->p_inhdr_))
         {
-          TIZ_TRACE (handleOf (ap_obj),
-                     "Claimed INPUT HEADER [%p]...", ap_obj->p_inhdr_);
-          rc = true;
+          if (NULL != ap_obj->p_inhdr_)
+            {
+              TIZ_TRACE (handleOf (ap_obj),
+                         "Claimed INPUT HEADER [%p]...", ap_obj->p_inhdr_);
+              rc = true;
+            }
         }
     }
 
@@ -574,19 +579,21 @@ mp3d_claim_output (mp3d_prc_t *ap_obj)
   bool rc = false;
   assert (NULL != ap_obj);
 
-  if (OMX_ErrorNone == tiz_krn_claim_buffer
-      (tiz_get_krn (handleOf (ap_obj)), 1, 0, &ap_obj->p_outhdr_))
+  if (!ap_obj->out_port_disabled_)
     {
-      if (NULL != ap_obj->p_outhdr_)
+      if (OMX_ErrorNone == tiz_krn_claim_buffer
+          (tiz_get_krn (handleOf (ap_obj)), 1, 0, &ap_obj->p_outhdr_))
         {
-          TIZ_TRACE (handleOf (ap_obj),
-                     "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
-                     "nFilledLen [%d]...", ap_obj->p_outhdr_,
-                     ap_obj->p_outhdr_->pBuffer, ap_obj->p_outhdr_->nFilledLen);
-          rc = true;
+          if (NULL != ap_obj->p_outhdr_)
+            {
+              TIZ_TRACE (handleOf (ap_obj),
+                         "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
+                         "nFilledLen [%d]...", ap_obj->p_outhdr_,
+                         ap_obj->p_outhdr_->pBuffer, ap_obj->p_outhdr_->nFilledLen);
+              rc = true;
+            }
         }
     }
-
   return rc;
 }
 
@@ -658,6 +665,15 @@ static OMX_ERRORTYPE
 mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
   mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
+  assert (NULL != p_obj);
+  if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
+    {
+      p_obj->in_port_disabled_ = true;
+    }
+  if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX == a_pid)
+    {
+      p_obj->out_port_disabled_ = true;
+    }
   /* Release all buffers, regardless of the port this is received on */
   return release_buffers (p_obj);
 }
@@ -665,6 +681,16 @@ mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 {
+  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
+  assert (NULL != p_obj);
+  if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
+    {
+      p_obj->in_port_disabled_ = false;
+    }
+  if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX == a_pid)
+    {
+      p_obj->out_port_disabled_ = false;
+    }
   return OMX_ErrorNone;
 }
 

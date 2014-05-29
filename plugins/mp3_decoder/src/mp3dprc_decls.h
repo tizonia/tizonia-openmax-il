@@ -62,6 +62,8 @@ extern "C"
     OMX_BUFFERHEADERTYPE *p_outhdr_;
     int next_synth_sample_;
     bool eos_;
+    bool in_port_disabled_;
+    bool out_port_disabled_;
   };
 
   typedef struct mp3d_prc_class mp3d_prc_class_t;
