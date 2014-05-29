@@ -97,6 +97,12 @@ OMX.Aratelia.yuv_renderer.overlay.testfile1_uri = @localstatedir@/lib/tizonia/ti
 
 OMX.Aratelia.video_decoder.vp8.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/ivf/bbb_640x360_25fps_vp8_yuv420p.ivf
 
+###############
+# HTTP Source #
+###############
+
+OMX.Aratelia.audio_source.http.default_uri = http://localhost:80150
+
 #################
 # HTTP Renderer #
 #################
