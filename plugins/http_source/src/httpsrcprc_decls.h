@@ -50,7 +50,8 @@ extern "C"
     OMX_PARAM_CONTENTURITYPE *p_uri_param_;
     bool eos_;
     bool port_disabled_;
-    bool first_buffer_;
+    OMX_S32 audio_coding_type_;
+    bool auto_detect_on_;
     tiz_event_io_t *p_ev_io_;
     int sockfd_;
     bool awaiting_io_ev_;
@@ -61,6 +62,9 @@ extern "C"
     CURLM *p_curl_multi_;        /* curl multi */
     struct curl_slist *p_http_ok_aliases_;
     struct curl_slist *p_http_headers_;
+    bool curl_stopped_;
+    bool curl_paused_;
+    unsigned int curl_version_;
     char curl_err[CURL_ERROR_SIZE];
   };
 
