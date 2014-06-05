@@ -32,7 +32,6 @@ noinst_HEADERS = \
 	tizgraphmgrfsm.hpp \
 	tizgraphmgr.hpp \
 	tizdecgraphmgr.hpp \
-	tizhttpservmgr.hpp \
 	tizgraphfsm.hpp \
 	tizgraphevt.hpp \
 	tizgraphguard.hpp \
@@ -50,7 +49,13 @@ noinst_HEADERS = \
 	tizhttpservconfig.hpp \
 	tizhttpservgraph.hpp \
 	tizhttpservgraphfsm.hpp \
-	tizhttpservgraphops.hpp
+	tizhttpservgraphops.hpp \
+	tizhttpservmgr.hpp \
+	tizhttpclntmgr.hpp \
+	tizhttpclntgraph.hpp \
+	tizhttpclntgraphfsm.hpp \
+	tizhttpclntgraphops.hpp
+
 
 tplay_SOURCES = \
 	tizplay.cpp \
@@ -76,7 +81,10 @@ tplay_SOURCES = \
 	tizflacgraph.cpp \
 	tizoggflacgraph.cpp \
 	tizhttpservgraph.cpp \
-	tizhttpservgraphops.cpp
+	tizhttpservgraphops.cpp \
+	tizhttpclntmgr.cpp \
+	tizhttpclntgraph.cpp \
+	tizhttpclntgraphops.cpp
 
 tplay_CPPFLAGS = \
 	@BOOST_CPPFLAGS@ \
@@ -97,7 +105,3 @@ tplay_LDADD = \
 	@LIBMEDIAINFO_LIBS@ \
 	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../libtizcore/src/libtizcore.la
-
-# 	-lboost_thread
-# 	-lboost_system
-# 	-lboost_filesystem

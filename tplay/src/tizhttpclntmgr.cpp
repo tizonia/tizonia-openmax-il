@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizhttpservmgr.cpp
+ * @file   tizhttpclntmgr.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Implementation of a Manager for the HTTP server graph
+ * @brief  Implementation of a Manager for the HTTP client graph
  *
  */
 
@@ -35,12 +35,12 @@
 
 #include <tizplatform.h>
 
-#include "tizhttpservgraph.hpp"
-#include "tizhttpservmgr.hpp"
+#include "tizhttpclntgraph.hpp"
+#include "tizhttpclntmgr.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.httpservmgr"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.httpclntmgr"
 #endif
 
 namespace graphmgr = tiz::graphmgr;
@@ -48,33 +48,33 @@ namespace graphmgr = tiz::graphmgr;
 //
 // mgr
 //
-graphmgr::httpservmgr::httpservmgr (tizgraphconfig_ptr_t config)
+graphmgr::httpclntmgr::httpclntmgr (tizgraphconfig_ptr_t config)
   : graphmgr::mgr (), config_ (config)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 }
 
-graphmgr::httpservmgr::~httpservmgr ()
+graphmgr::httpclntmgr::~httpclntmgr ()
 {
 }
 
-graphmgr::ops *graphmgr::httpservmgr::do_init (
+graphmgr::ops *graphmgr::httpclntmgr::do_init (
     const tizplaylist_ptr_t &playlist, const error_callback_t &error_cback)
 {
-  return new httpservmgrops (this, playlist, error_cback);
+  return new httpclntmgrops (this, playlist, error_cback);
 }
 
 //
 // decodemgrops
 //
-graphmgr::httpservmgrops::httpservmgrops (mgr *p_mgr,
+graphmgr::httpclntmgrops::httpclntmgrops (mgr *p_mgr,
                                           const tizplaylist_ptr_t &playlist,
                                           const error_callback_t &error_cback)
   : tiz::graphmgr::ops (p_mgr, playlist, error_cback)
 {
 }
 
-tizgraph_ptr_t graphmgr::httpservmgrops::get_graph (
+tizgraph_ptr_t graphmgr::httpclntmgrops::get_graph (
     const std::string & /* uri */)
 {
   tizgraph_ptr_t g_ptr;
@@ -82,7 +82,7 @@ tizgraph_ptr_t graphmgr::httpservmgrops::get_graph (
   tizgraph_ptr_map_t::const_iterator it = graph_registry_.find (encoding);
   if (it == graph_registry_.end ())
   {
-    g_ptr = boost::make_shared< tiz::graph::httpserver >();
+    g_ptr = boost::make_shared< tiz::graph::httpclient >();
     if (g_ptr)
     {
       // TODO: Check rc
@@ -104,7 +104,7 @@ tizgraph_ptr_t graphmgr::httpservmgrops::get_graph (
     else
     {
       GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources,
-                             "Unable to create the http server graph.");
+                             "Unable to create the http client graph.");
     }
   }
   else
@@ -115,7 +115,7 @@ tizgraph_ptr_t graphmgr::httpservmgrops::get_graph (
   return g_ptr;
 }
 
-void graphmgr::httpservmgrops::do_load ()
+void graphmgr::httpclntmgrops::do_load ()
 {
   tizgraph_ptr_t g_ptr (get_graph (std::string ()));
   if (g_ptr)
@@ -125,16 +125,16 @@ void graphmgr::httpservmgrops::do_load ()
   p_managed_graph_ = g_ptr;
 }
 
-void graphmgr::httpservmgrops::do_execute ()
+void graphmgr::httpclntmgrops::do_execute ()
 {
   assert (playlist_);
   assert (p_mgr_);
 
-  httpservmgr *p_servermgr = dynamic_cast< httpservmgr * >(p_mgr_);
-  assert (p_servermgr);
+  httpclntmgr *p_clientmgr = dynamic_cast< httpclntmgr * >(p_mgr_);
+  assert (p_clientmgr);
 
   graph_config_.reset ();
-  graph_config_ = p_servermgr->config_;
+  graph_config_ = p_clientmgr->config_;
   assert (graph_config_);
 
   GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_,

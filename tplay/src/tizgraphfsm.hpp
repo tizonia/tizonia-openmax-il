@@ -123,38 +123,7 @@ namespace tiz
         }
 
         // submachine states
-        struct disabling_ports : public boost::msm::front::state<>
-        {
-          template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm)
-          {
-            G_FSM_LOG();
-            if (fsm.pp_ops_ && *(fsm.pp_ops_))
-              {
-                (*(fsm.pp_ops_))->do_disable_ports ();
-              }
-          }
-          template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
-        };
-
         struct probing : public boost::msm::front::state<>
-        {
-          template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
-          template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
-        };
-
-        struct awaiting_port_disabled_evt : public boost::msm::front::state<>
-        {
-          template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
-          template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
-        };
-
-        struct awaiting_port_settings_evt : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
           void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}

@@ -66,6 +66,9 @@ namespace tiz
 
   namespace graph
   {
+    // Forward declaration
+    class cbackhandler;
+
     class ops
     {
     public:
@@ -84,11 +87,15 @@ namespace tiz
       virtual void do_ack_loaded ();
       virtual void do_store_config (const tizgraphconfig_ptr_t &config);
       virtual void do_disable_ports ();
+      virtual void do_disable_tunnel ();
+      virtual void do_enable_tunnel ();
       virtual void do_probe ();
       virtual bool is_port_settings_evt_required () const;
       virtual bool is_disabled_evt_required () const;
       virtual void do_configure ();
       virtual void do_omx_loaded2idle ();
+      virtual void do_source_omx_loaded2idle ();
+      virtual void do_source_omx_idle2exe ();
       virtual void do_omx_idle2exe ();
       virtual void do_ack_execd ();
       virtual void do_omx_exe2pause ();
@@ -129,27 +136,27 @@ namespace tiz
       std::string handle2name (const OMX_HANDLETYPE handle) const;
 
     protected:
-      void record_error (const OMX_ERRORTYPE err_code,
+      virtual void record_error (const OMX_ERRORTYPE err_code,
                          const std::string &err_msg);
 
-      void clear_expected_transitions ();
-      void record_expected_transitions (const OMX_STATETYPE to_state);
-      void add_expected_transition (const OMX_HANDLETYPE handle,
+      virtual void clear_expected_transitions ();
+      virtual void record_expected_transitions (const OMX_STATETYPE to_state);
+      virtual void add_expected_transition (const OMX_HANDLETYPE handle,
                                     const OMX_STATETYPE to_state,
                                     const OMX_ERRORTYPE error = OMX_ErrorNone);
 
-      void clear_expected_port_transitions ();
-      void add_expected_port_transition (
+      virtual void clear_expected_port_transitions ();
+      virtual void add_expected_port_transition (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           const OMX_COMMANDTYPE disable_or_enable,
           const OMX_ERRORTYPE error = OMX_ErrorNone);
 
-      bool is_port_transition_complete (
+      virtual bool is_port_transition_complete (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           const OMX_COMMANDTYPE disable_or_enable);
 
       typedef void (tiz::probe::*stream_info_dump_func_t) (void);
-      OMX_ERRORTYPE probe_stream (const OMX_PORTDOMAINTYPE   omx_domain,
+      virtual OMX_ERRORTYPE probe_stream (const OMX_PORTDOMAINTYPE   omx_domain,
                                   const int                  omx_coding,
                                   const std::string        & graph_id,
                                   const std::string        & graph_action,
@@ -157,12 +164,16 @@ namespace tiz
                                   const bool quiet = false);
 
       virtual bool probe_stream_hook ();
+      virtual OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
+      virtual OMX_ERRORTYPE transition_tunnel (const OMX_COMMANDTYPE to_disabled_or_enabled);
+
+      cbackhandler & get_cback_handler () const;
 
     protected:
       graph *p_graph_;
       tizprobe_ptr_t probe_ptr_;
-      const omx_comp_name_lst_t comp_lst_;
-      const omx_comp_role_lst_t role_lst_;
+      omx_comp_name_lst_t comp_lst_;
+      omx_comp_role_lst_t role_lst_;
       omx_comp_handle_lst_t handles_;
       omx_hdl2name_map_t h2n_;
       tizgraphconfig_ptr_t config_;

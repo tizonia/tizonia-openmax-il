@@ -1,4 +1,3 @@
-/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
@@ -63,7 +62,7 @@ graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
     probe_ptr_ (),
     comp_lst_ (comp_lst),
     role_lst_ (role_lst),
-    handles_ (comp_lst.size (), OMX_HANDLETYPE (NULL)),
+    handles_ (),
     h2n_ (),
     config_ (),
     expected_transitions_lst_ (),
@@ -131,6 +130,16 @@ void graph::ops::do_disable_ports ()
   // This is a no-op in the base class.
 }
 
+void graph::ops::do_disable_tunnel ()
+{
+  // This is a no-op in the base class.
+}
+
+void graph::ops::do_enable_tunnel ()
+{
+  // This is a no-op in the base class.
+}
+
 void graph::ops::do_probe ()
 {
   // This is a no-op in the base class.
@@ -161,6 +170,24 @@ void graph::ops::do_omx_loaded2idle ()
         util::transition_all (handles_, OMX_StateIdle, OMX_StateLoaded),
         "Unable to transition from Loaded->Idle");
     record_expected_transitions (OMX_StateIdle);
+  }
+}
+
+void graph::ops::do_source_omx_loaded2idle ()
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateIdle),
+                         "Unable to transition source component from Loaded->Idle");
+  }
+}
+
+void graph::ops::do_source_omx_idle2exe ()
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateExecuting),
+                         "Unable to transition source component from Idle->Exe");
   }
 }
 
@@ -659,7 +686,35 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
 
 bool graph::ops::probe_stream_hook ()
 {
-  // Default implementation. May be overriden by derived classes to do
+  // Default implementation. To be overriden by derived classes to do
   // specialised checks on the stream.
   return true;
 }
+
+OMX_ERRORTYPE
+graph::ops::transition_source (const OMX_STATETYPE to_state)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const int source_component_index = 0;
+  rc = tiz::graph::util::transition_one (handles_, source_component_index, to_state);
+  if (OMX_ErrorNone == rc)
+  {
+    clear_expected_transitions ();
+    add_expected_transition (handles_[source_component_index], to_state);
+  }
+  return rc;
+}
+
+OMX_ERRORTYPE
+graph::ops::transition_tunnel (const OMX_COMMANDTYPE to_disabled_or_enabled)
+{
+  // Default implementation. To be overriden by derived classes.
+  return OMX_ErrorNone;
+}
+
+graph::cbackhandler &
+graph::ops::get_cback_handler () const
+{
+  return p_graph_->cback_handler_;
+}
+

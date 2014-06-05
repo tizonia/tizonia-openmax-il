@@ -119,15 +119,6 @@ void graph::httpservops::do_configure_stream ()
                        "Unable to set OMX_TizoniaIndexConfigIcecastMetadata");
 }
 
-void graph::httpservops::do_source_omx_loaded2idle ()
-{
-  if (last_op_succeeded ())
-  {
-    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateIdle),
-                         "Unable to transition file reader from Loaded->Idle");
-  }
-}
-
 void graph::httpservops::do_source_omx_idle2exe ()
 {
   if (last_op_succeeded ())
@@ -287,20 +278,6 @@ graph::httpservops::configure_stream_metadata ()
     p_metadata = NULL;
   }
 
-  return rc;
-}
-
-OMX_ERRORTYPE
-graph::httpservops::transition_source (const OMX_STATETYPE to_state)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const int file_reader_index = 0;
-  rc = tiz::graph::util::transition_one (handles_, file_reader_index, to_state);
-  if (OMX_ErrorNone == rc)
-  {
-    clear_expected_transitions ();
-    add_expected_transition (handles_[file_reader_index], to_state);
-  }
   return rc;
 }
 

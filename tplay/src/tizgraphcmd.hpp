@@ -69,21 +69,38 @@ namespace tiz
           Fsm& machine,
           boost::function< char const* const(Fsm const& machine) > pstate) const
       {
-#define INJECT_EVENT(the_evt)                                 \
-  if (is_type< the_evt >(evt_))                               \
-  {                                                           \
-    std::string arg (#the_evt);                               \
-    TIZ_LOG (TIZ_PRIORITY_NOTICE,                             \
-             "GRAPH : Injecting "                             \
-             "CMD [%s] in STATE [%s]...",                     \
-             arg.c_str (), pstate (machine));                 \
-    machine.process_event (boost::any_cast< the_evt >(evt_)); \
-  }
+#define INJECT_EVENT(the_evt)                                           \
+        if (is_type< the_evt >(evt_))                                   \
+          {                                                             \
+            std::string arg (#the_evt);                                 \
+            TIZ_LOG (TIZ_PRIORITY_NOTICE,                               \
+                     "GRAPH : Injecting "                               \
+                     "CMD [%s] in STATE [%s]...",                       \
+                     arg.c_str (), pstate (machine));                   \
+            machine.process_event (boost::any_cast< the_evt >(evt_));   \
+          }
         //                    tiz::graph::pstate (machine));                       \
 
         INJECT_EVENT (load_evt)
-        else INJECT_EVENT (execute_evt) else INJECT_EVENT (configured_evt) else INJECT_EVENT (
-            omx_trans_evt) else INJECT_EVENT (skip_evt) else INJECT_EVENT (skipped_evt) else INJECT_EVENT (seek_evt) else INJECT_EVENT (volume_evt) else INJECT_EVENT (mute_evt) else INJECT_EVENT (pause_evt) else INJECT_EVENT (omx_evt) else INJECT_EVENT (omx_eos_evt) else INJECT_EVENT (unload_evt) else INJECT_EVENT (omx_port_disabled_evt) else INJECT_EVENT (omx_port_enabled_evt) else INJECT_EVENT (omx_port_settings_evt) else INJECT_EVENT (omx_err_evt) else INJECT_EVENT (err_evt) else
+        else INJECT_EVENT (execute_evt)
+          else INJECT_EVENT (configured_evt)
+            else INJECT_EVENT (omx_trans_evt)
+              else INJECT_EVENT (skip_evt)
+                else INJECT_EVENT (skipped_evt)
+                  else INJECT_EVENT (seek_evt)
+                    else INJECT_EVENT (volume_evt)
+                      else INJECT_EVENT (mute_evt)
+                        else INJECT_EVENT (pause_evt)
+                          else INJECT_EVENT (omx_evt)
+                            else INJECT_EVENT (omx_eos_evt)
+                              else INJECT_EVENT (unload_evt)
+                                else INJECT_EVENT (omx_port_disabled_evt)
+                                  else INJECT_EVENT (omx_port_enabled_evt)
+                                    else INJECT_EVENT (omx_port_settings_evt)
+                                      else INJECT_EVENT (omx_format_detected_evt)
+                                        else INJECT_EVENT (omx_err_evt)
+                                          else INJECT_EVENT (err_evt)
+                                            else
         {
           assert (0);
         }

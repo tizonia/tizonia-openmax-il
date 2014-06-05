@@ -1,4 +1,3 @@
-/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
@@ -36,9 +35,10 @@
 #include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 
+#include <OMX_Component.h>
+
 #include <tizplatform.h>
 #include <tizmacros.h>
-#include <OMX_Component.h>
 
 #include "tizgraphmgrcmd.hpp"
 #include "tizgraph.hpp"

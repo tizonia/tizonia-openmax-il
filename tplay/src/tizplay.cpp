@@ -1,4 +1,3 @@
-/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
@@ -75,6 +74,7 @@
 #include "tizgraphfactory.hpp"
 #include "tizhttpservmgr.hpp"
 #include "tizhttpservconfig.hpp"
+#include "tizhttpclntmgr.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -626,6 +626,36 @@ namespace  // unnamed namespace
     return rc;
   }
 
+  OMX_ERRORTYPE
+  decode_stream (const std::string &uri)
+  {
+    OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+    print_banner ();
+
+    tizplaylist_ptr_t playlist;
+    playlist->set_loop_playback (true);
+
+    tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::config >(playlist);
+
+    // Instantiate the streaming client manager
+    tiz::graphmgr::mgr_ptr_t p_mgr
+        = boost::make_shared< tiz::graphmgr::httpclntmgr >(config);
+
+    // TODO: Check return codes
+    p_mgr->init (playlist, graph_error_functor ());
+    p_mgr->start ();
+
+    while (ETIZPlayUserStop != wait_for_user_input_while_streaming ())
+    {
+    }
+
+    p_mgr->stop ();
+    p_mgr->deinit ();
+
+    return rc;
+  }
 }  // unnamed namespace
 
 int main (int argc, char **argv)
@@ -782,11 +812,11 @@ int main (int argc, char **argv)
       {
         char *p_end = NULL;
         srv_port = strtol (optarg, &p_end, 10);
-        if ((p_end != NULL && *p_end != '\0') || srv_port < 1024)
+        if ((p_end != NULL && *p_end != '\0') || srv_port <= 1024)
         {
           fprintf (stderr,
                    "Please provide a port number in the range "
-                   "[1024-65535] - (%s)\n",
+                   "[1025-65535] - (%s)\n",
                    optarg);
           exit (EXIT_FAILURE);
         }
@@ -872,7 +902,17 @@ int main (int argc, char **argv)
   if (OMX_ErrorMax == error)
   {
     media = argv[optind] == NULL ? "" : argv[optind];
-    error = decode (media, shuffle_playlist, recurse);
+
+    // TODO: This WIP
+    //     std::string uri_scheme = media.substr (0, 7);
+    //     if (uri_scheme.size () >= 7 && uri_scheme.compare ("http://") == 0)
+    //       {
+    //         error = decode_stream (media);
+    //       }
+    //     else
+      {
+        error = decode (media, shuffle_playlist, recurse);
+      }
   }
 
   (void) tiz_log_deinit ();

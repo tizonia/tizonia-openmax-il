@@ -151,6 +151,32 @@ namespace tiz
       }
     };
 
+    struct do_source_omx_loaded2idle
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_source_omx_loaded2idle ();
+        }
+      }
+    };
+
+    struct do_source_omx_idle2exe
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_source_omx_idle2exe ();
+        }
+      }
+    };
+
     struct do_omx_idle2exe
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
@@ -291,6 +317,32 @@ namespace tiz
         {
           (*(fsm.pp_ops_))->do_omx_idle2loaded ();
         }
+      }
+    };
+
+    struct do_disable_tunnel
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_disable_tunnel ();
+        }
+      }
+    };
+
+    struct do_enable_tunnel
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            (*(fsm.pp_ops_))->do_enable_tunnel ();
+          }
       }
     };
 

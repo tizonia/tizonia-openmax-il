@@ -135,6 +135,10 @@ namespace tiz
           boost::function< void(OMX_TIZONIA_AUDIO_PARAM_FLACTYPE &flactype) >
               getter, bool &need_port_settings_changed_evt);
 
+      static OMX_ERRORTYPE enable_port_format_auto_detection (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          const OMX_PORTDOMAINTYPE domain);
+
       static void dump_graph_info (const char *ap_coding_type_str,
                                    const char *ap_graph_type_str,
                                    const std::string &uri);

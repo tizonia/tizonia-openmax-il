@@ -19,16 +19,16 @@
  */
 
 /**
- * @file   tizhttpservgraph.hpp
+ * @file   tizhttpclntgraphops.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL HTTP Streaming Server - graph operations
+ * @brief  HTTP client graph actions / operations
  *
  *
  */
 
-#ifndef TIZHTTPSERVOPS_HPP
-#define TIZHTTPSERVOPS_HPP
+#ifndef TIZHTTPCLNTGRAPHOPS_HPP
+#define TIZHTTPCLNTGRAPHOPS_HPP
 
 #include "tizgraphops.hpp"
 
@@ -38,45 +38,37 @@ namespace tiz
   {
     class graph;
 
-    class httpservops : public ops
+    class httpclntops : public ops
     {
     public:
-      httpservops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+      httpclntops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
                    const omx_comp_role_lst_t &role_lst);
 
     public:
-      void do_probe ();
+      void do_load_source ();
+      void do_enable_auto_detection ();
+      void do_disable_ports ();
+      void do_configure_source ();
+      void do_load ();
+      void do_configure ();
       void do_omx_exe2pause ();
       void do_omx_pause2exe ();
       void do_volume (const int step);
       void do_mute ();
-
-      void do_configure_server ();
-      void do_configure_station ();
-      void do_configure_stream ();
-      void do_source_omx_idle2exe ();
-      void do_source_omx_exe2idle ();
-      void do_source_omx_idle2loaded ();
       void do_disable_tunnel ();
       void do_enable_tunnel ();
-      bool is_initial_configuration () const;
-      void do_flag_initial_config_done ();
 
     private:
       OMX_ERRORTYPE configure_server ();
-      OMX_ERRORTYPE configure_station ();
-      OMX_ERRORTYPE configure_stream_metadata ();
+      OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
       OMX_ERRORTYPE transition_tunnel (
           const OMX_COMMANDTYPE to_disabled_or_enabled);
 
     private:
       // re-implemented from the base class
       bool probe_stream_hook ();
-
-    private:
-      bool is_initial_configuration_;
     };
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZHTTPSERVOPS_HPP
+#endif  // TIZHTTPCLNTGRAPHOPS_HPP

@@ -43,6 +43,7 @@ namespace tiz
     struct load_evt
     {
     };
+
     struct execute_evt
     {
       execute_evt (const tizgraphconfig_ptr_t config) : config_ (config)
@@ -50,7 +51,8 @@ namespace tiz
       }
       const tizgraphconfig_ptr_t config_;
     };
-    // Make this state convertible from any state (this exists a sub-machine)
+
+    // Make this state convertible from any state (this exits a sub-machine)
     struct configured_evt
     {
       configured_evt ()
@@ -61,6 +63,7 @@ namespace tiz
       {
       }
     };
+
     struct omx_trans_evt
     {
       omx_trans_evt (const OMX_HANDLETYPE a_handle, const OMX_STATETYPE a_state,
@@ -72,6 +75,7 @@ namespace tiz
       OMX_STATETYPE state_;
       OMX_ERRORTYPE error_;
     };
+
     struct skip_evt
     {
       skip_evt (const int a_jump) : jump_ (a_jump)
@@ -79,7 +83,8 @@ namespace tiz
       }
       int jump_;
     };
-    // Make this state convertible from any state (this exists a sub-machine)
+
+    // Make this state convertible from any state (this exits a sub-machine)
     struct skipped_evt
     {
       skipped_evt ()
@@ -90,9 +95,11 @@ namespace tiz
       {
       }
     };
+
     struct seek_evt
     {
     };
+
     struct volume_evt
     {
       volume_evt (const int step) : step_ (step)
@@ -100,12 +107,15 @@ namespace tiz
       }
       int step_;
     };
+
     struct mute_evt
     {
     };
+
     struct pause_evt
     {
     };
+
     struct omx_evt
     {
       omx_evt (const OMX_HANDLETYPE a_handle, const OMX_EVENTTYPE a_event,
@@ -124,6 +134,7 @@ namespace tiz
       OMX_U32 data2_;
       OMX_PTR p_eventdata_;
     };
+
     struct omx_eos_evt
     {
       omx_eos_evt (const OMX_HANDLETYPE a_handle, const OMX_U32 port,
@@ -135,9 +146,11 @@ namespace tiz
       OMX_U32 port_;
       OMX_U32 flags_;
     };
+
     struct unload_evt
     {
     };
+
     struct omx_port_disabled_evt
     {
       omx_port_disabled_evt (const OMX_HANDLETYPE a_handle, const OMX_U32 port,
@@ -149,6 +162,7 @@ namespace tiz
       OMX_U32 port_;
       OMX_ERRORTYPE error_;
     };
+
     struct omx_port_enabled_evt
     {
       omx_port_enabled_evt (const OMX_HANDLETYPE a_handle, const OMX_U32 port,
@@ -160,6 +174,7 @@ namespace tiz
       OMX_U32 port_;
       OMX_ERRORTYPE error_;
     };
+
     struct omx_port_settings_evt
     {
       omx_port_settings_evt (const OMX_HANDLETYPE a_handle, const OMX_U32 port,
@@ -171,6 +186,16 @@ namespace tiz
       OMX_U32 port_;
       OMX_INDEXTYPE index_;
     };
+
+    struct omx_format_detected_evt
+    {
+      omx_format_detected_evt (const OMX_HANDLETYPE a_handle)
+        : handle_ (a_handle)
+      {
+      }
+      OMX_HANDLETYPE handle_;
+    };
+
     // NOTE: This is an error produced by an omx component
     struct omx_err_evt
     {
@@ -186,6 +211,7 @@ namespace tiz
       OMX_ERRORTYPE error_;
       OMX_U32 port_;
     };
+
     // NOTE: This is an internal error (some internal operation failed)
     struct err_evt
     {
@@ -195,6 +221,30 @@ namespace tiz
       }
       OMX_ERRORTYPE error_code_;
       std::string error_str_;
+    };
+
+    // Make this state convertible from any state (this exits a sub-machine)
+    struct auto_detect_evt
+    {
+      auto_detect_evt ()
+      {
+      }
+      template < class Event >
+      auto_detect_evt (Event const &)
+      {
+      }
+    };
+
+    // Make this state convertible from any state (this exits a sub-machine)
+    struct update_graph_evt
+    {
+      update_graph_evt ()
+      {
+      }
+      template < class Event >
+      update_graph_evt (Event const &)
+      {
+      }
     };
 
   }  // namespace graph

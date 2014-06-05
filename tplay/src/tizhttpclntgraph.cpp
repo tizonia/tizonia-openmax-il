@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizhttpservgraph.cpp
+ * @file   tizhttpclntgraph.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL HTTP Streaming Server graph implementation
+ * @brief  HTTP streaming client graph implementation
  *
  */
 
@@ -34,50 +34,47 @@
 
 #include <OMX_Core.h>
 #include <OMX_Component.h>
-#include <OMX_TizoniaExt.h>
 #include <tizplatform.h>
 
 #include "tizgraphutil.hpp"
+#include "tizgraphconfig.hpp"
 #include "tizgraphcmd.hpp"
 #include "tizprobe.hpp"
-#include "tizhttpservconfig.hpp"
-#include "tizhttpservgraph.hpp"
+#include "tizhttpclntgraph.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.httpserver"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.httpclient"
 #endif
 
 namespace graph = tiz::graph;
 
 //
-// httpserver
+// httpclient
 //
-graph::httpserver::httpserver ()
-  : graph::graph ("httpservgraph"),
+graph::httpclient::httpclient ()
+  : graph::graph ("httpclntgraph"),
     fsm_ (boost::msm::back::states_
-          << tiz::graph::hsfsm::fsm::configuring (&p_ops_)
-          << tiz::graph::hsfsm::fsm::skipping (&p_ops_),
+          << tiz::graph::hcfsm::fsm::auto_detecting (&p_ops_)
+          << tiz::graph::hcfsm::fsm::updating_graph (&p_ops_),
           &p_ops_)
 {
 }
 
-graph::ops *graph::httpserver::do_init ()
+graph::ops *graph::httpclient::do_init ()
 {
+  // Initially, this graph will only have one component. The audio decoder and
+  // the audio renderer are added once the audio codec is detected.
   omx_comp_name_lst_t comp_list;
-  comp_list.push_back ("OMX.Aratelia.file_reader.binary");
-//   comp_list.push_back ("OMX.Aratelia.audio_metadata_eraser.mp3");
-  comp_list.push_back ("OMX.Aratelia.audio_renderer.http");
+  comp_list.push_back ("OMX.Aratelia.audio_source.http");
 
   omx_comp_role_lst_t role_list;
-  role_list.push_back ("audio_reader.binary");
-//   role_list.push_back ("audio_metadata_eraser.mp3");
-  role_list.push_back ("audio_renderer.http");
+  role_list.push_back ("audio_source.http");
 
-  return new httpservops (this, comp_list, role_list);
+  return new httpclntops (this, comp_list, role_list);
 }
 
-bool graph::httpserver::dispatch_cmd (const tiz::graph::cmd *p_cmd)
+bool graph::httpclient::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 {
   assert (NULL != p_cmd);
 
@@ -91,7 +88,7 @@ bool graph::httpserver::dispatch_cmd (const tiz::graph::cmd *p_cmd)
       fsm_.start ();
     }
 
-    p_cmd->inject< hsfsm::fsm >(fsm_, tiz::graph::hsfsm::pstate);
+    p_cmd->inject< hcfsm::fsm >(fsm_, tiz::graph::hcfsm::pstate);
 
     // Check for internal errors produced during the processing of the last
     // event. If any, inject an "internal" error event. This is fatal and shall

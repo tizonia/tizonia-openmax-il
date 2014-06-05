@@ -1,4 +1,3 @@
-/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
@@ -19,19 +18,19 @@
  */
 
 /**
- * @file   tizhttpservgraph.hpp
+ * @file   tizhttpclntgraph.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP Streaming Server graph
+ * @brief  HTTP streaming client graph
  *
  *
  */
 
-#ifndef TIZHTTPSERVGRAPH_HPP
-#define TIZHTTPSERVGRAPH_HPP
+#ifndef TIZHTTPCLNTGRAPH_HPP
+#define TIZHTTPCLNTGRAPH_HPP
 
 #include "tizgraph.hpp"
-#include "tizhttpservgraphfsm.hpp"
+#include "tizhttpclntgraphfsm.hpp"
 
 namespace tiz
 {
@@ -41,20 +40,20 @@ namespace tiz
     class cmd;
     class ops;
 
-    class httpserver : public graph
+    class httpclient : public graph
     {
 
     public:
-      httpserver ();
+      httpclient ();
 
     protected:
       ops *do_init ();
       bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
 
     protected:
-      hsfsm::fsm fsm_;
+      hcfsm::fsm fsm_;
     };
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZHTTPSERVGRAPH_HPP
+#endif  // TIZHTTPCLNTGRAPH_HPP

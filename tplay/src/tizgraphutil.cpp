@@ -213,14 +213,13 @@ graph::util::instantiate_comp_list (const omx_comp_name_lst_t &comp_list,
                                     OMX_CALLBACKTYPE *ap_callbacks)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  int position = 0;
+  int position = hdl_list.size ();
   bool graph_instantiated = true;
-
-  assert (comp_list.size () == hdl_list.size ());
-  assert (h2n_map.empty ());
 
   BOOST_FOREACH (std::string comp, comp_list)
   {
+    // Grow the handle list by one element before calling 'instantiate_component'
+    hdl_list.push_back (OMX_HANDLETYPE (NULL));
     if (OMX_ErrorNone
         != (error = instantiate_component (comp, position++, ap_app_data,
                                            ap_callbacks, hdl_list, h2n_map)))
@@ -601,7 +600,7 @@ graph::util::set_flac_type (
 
   // Set the new flac settings
   getter (flactype);
-  flactype.nPortIndex = 0;
+  flactype.nPortIndex = port_id;
   tiz_check_omx_err (OMX_SetParameter (
       handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
       &flactype));
@@ -611,6 +610,50 @@ graph::util::set_flac_type (
   need_port_settings_changed_evt
       = ((flactype_orig.nSampleRate != flactype.nSampleRate)
          || (flactype_orig.nChannels != flactype.nChannels));
+
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+graph::util::enable_port_format_auto_detection (const OMX_HANDLETYPE handle,
+                                                const OMX_U32 port_id,
+                                                const OMX_PORTDOMAINTYPE domain)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE portdef;
+  TIZ_INIT_OMX_PORT_STRUCT (portdef, port_id);
+  tiz_check_omx_err (OMX_GetParameter (
+      handle, OMX_IndexParamPortDefinition,
+      &portdef));
+  switch (domain)
+    {
+    case OMX_PortDomainAudio:
+      {
+        assert (OMX_PortDomainAudio == portdef.eDomain);
+        portdef.format.audio.eEncoding = OMX_AUDIO_CodingAutoDetect;
+      }
+      break;
+    case OMX_PortDomainVideo:
+      {
+        assert (OMX_PortDomainVideo == portdef.eDomain);
+        portdef.format.video.eCompressionFormat = OMX_VIDEO_CodingAutoDetect;
+      }
+      break;
+    case OMX_PortDomainImage:
+      {
+        assert (OMX_PortDomainImage == portdef.eDomain);
+        portdef.format.image.eCompressionFormat = OMX_IMAGE_CodingAutoDetect;
+      }
+      break;
+    case OMX_PortDomainOther:
+      // 'Other' domain does not have an "autodetection" encoding type
+    default:
+      assert (0);
+        break;
+    };
+
+  tiz_check_omx_err (OMX_SetParameter (
+      handle, OMX_IndexParamPortDefinition,
+      &portdef));
 
   return OMX_ErrorNone;
 }
