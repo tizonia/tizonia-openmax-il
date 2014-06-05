@@ -1,4 +1,3 @@
-/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
