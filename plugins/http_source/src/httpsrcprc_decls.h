@@ -51,6 +51,8 @@ extern "C"
     bool eos_;
     bool port_disabled_;
     OMX_S32 audio_coding_type_;
+    OMX_U32 num_channels_;
+    OMX_U32 samplerate_;
     bool auto_detect_on_;
     tiz_event_io_t *p_ev_io_;
     int sockfd_;

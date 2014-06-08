@@ -30,7 +30,9 @@
 #include <config.h>
 #endif
 
+#include <stdlib.h>
 #include <assert.h>
+#include <errno.h>
 #include <string.h>
 
 #include <OMX_TizoniaExt.h>
@@ -222,9 +224,139 @@ static inline bool is_valid_character (const char c)
   return (unsigned char)c > 0x20;
 }
 
-static void obtain_audio_coding_from_header (httpsrc_prc_t *ap_prc,
-                                             const char *ap_header,
-                                             const size_t a_size)
+static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
+{
+  assert (NULL != ap_prc);
+  assert (NULL != ap_info);
+
+  TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", ap_info);
+
+  if (memcmp (ap_info, "audio/mpeg", 10) == 0
+      || memcmp (ap_info, "audio/mpg", 9) == 0
+      || memcmp (ap_info, "audio/mp3", 9) == 0)
+    {
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
+    }
+  else if (memcmp (ap_info, "audio/aac", 9) == 0)
+    {
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
+    }
+  else if (memcmp (ap_info, "audio/ogg", 9) == 0)
+    {
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingVORBIS;
+    }
+  else if (memcmp (ap_info, "audio/flac", 10) == 0)
+    {
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingFLAC;
+    }
+  else if (memcmp (ap_info, "audio/opus", 10) == 0)
+    {
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOPUS;
+    }
+  else
+    {
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
+    }
+}
+
+static int convert_str_to_int (httpsrc_prc_t *ap_prc, const char *ap_start,
+                               char **ap_end)
+{
+  long val = -1;
+  assert (NULL != ap_prc);
+  assert (NULL != ap_start);
+  assert (NULL != ap_end);
+
+  errno = 0;
+  val = strtol (ap_start, ap_end, 0);
+
+  if ((errno == ERANGE && (val == LONG_MAX || val == LONG_MIN))
+      || (errno != 0 && val == 0))
+    {
+      TIZ_ERROR (handleOf (ap_prc),
+                 "Error retrieving the number of channels : [%s]",
+                 strerror (errno));
+    }
+  else if (*ap_end == ap_start)
+    {
+      TIZ_ERROR (handleOf (ap_prc),
+                 "Error retrieving the number of channels : "
+                 "[No digits were found]");
+    }
+
+  TIZ_ERROR (handleOf (ap_prc), "Value : [%d]", val);
+  return val;
+}
+
+static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
+{
+  const char *channels = "channels";
+  const char *samplerate = "samplerate";
+  const char *p_start = NULL;
+  char *p_end = NULL;
+  const char *p_value = NULL;
+  assert (NULL != ap_prc);
+  assert (NULL != ap_info);
+
+  TIZ_TRACE (handleOf (ap_prc), "audio info  : [%s]", ap_info);
+
+  /* Find the number of channels */
+  p_value = (const char *)strstr (ap_info, channels);
+  p_start = (const char *)strchr (p_value, '=');
+  /* skip the equal sign */
+  p_start++;
+  ap_prc->num_channels_ = convert_str_to_int (ap_prc, p_start, &p_end);
+
+  /* Find the sampling rate */
+  p_value = (const char *)strstr (p_start, samplerate);
+  p_start = (const char *)strchr (p_value, '=');
+  /* skip the equal sign */
+  p_start++;
+  ap_prc->samplerate_ = convert_str_to_int (ap_prc, p_start, &p_end);
+}
+
+static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  assert (NULL != ap_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_IndexParamPortDefinition, &port_def));
+
+  /* Set the new value */
+  port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
+
+  tiz_check_omx_err (
+      tiz_api_SetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_IndexParamPortDefinition, &port_def));
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
+{
+  OMX_AUDIO_PARAM_MP3TYPE mp3type;
+  assert (NULL != ap_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (mp3type, ARATELIA_HTTP_SOURCE_PORT_INDEX);
+  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
+                                           handleOf (ap_prc),
+                                           OMX_IndexParamAudioMp3, &mp3type));
+
+  /* Set the new values */
+  mp3type.nChannels = ap_prc->num_channels_;
+  mp3type.nSampleRate = ap_prc->samplerate_;
+
+  tiz_check_omx_err (tiz_api_SetParameter (tiz_get_krn (handleOf (ap_prc)),
+                                           handleOf (ap_prc),
+                                           OMX_IndexParamAudioMp3, &mp3type));
+  return OMX_ErrorNone;
+}
+
+static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
+                                                const char *ap_header,
+                                                const size_t a_size)
 {
   const char *p_end = ap_header + a_size;
   const char *p_value = (const char *)memchr (ap_header, ':', a_size);
@@ -259,57 +391,19 @@ static void obtain_audio_coding_from_header (httpsrc_prc_t *ap_prc,
         if (memcmp (name, "Content-Type", 12) == 0
             || memcmp (name, "content-type", 12) == 0)
           {
-            assert (NULL != ap_prc);
-            TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", p_info);
-            if (memcmp (p_info, "audio/mpeg", 10) == 0
-                || memcmp (p_info, "audio/mpg", 9) == 0
-                || memcmp (p_info, "audio/mp3", 9) == 0)
-              {
-                ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
-              }
-            else if (memcmp (p_info, "audio/aac", 9) == 0)
-              {
-                ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
-              }
-            else if (memcmp (p_info, "audio/ogg", 9) == 0)
-              {
-                ap_prc->audio_coding_type_ = OMX_AUDIO_CodingVORBIS;
-              }
-            else if (memcmp (p_info, "audio/flac", 10) == 0)
-              {
-                ap_prc->audio_coding_type_ = OMX_AUDIO_CodingFLAC;
-              }
-            else if (memcmp (p_info, "audio/opus", 10) == 0)
-              {
-                ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOPUS;
-              }
-            else
-              {
-                ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
-              }
+            obtain_coding_type (ap_prc, p_info);
+            /* Now set the new coding type value on the output port */
+            (void)set_audio_coding_on_port (ap_prc);
+          }
+        else if (memcmp (name, "ice-audio-info", 14) == 0)
+          {
+            obtain_audio_info (ap_prc, p_info);
+            /* Now set the pcm info on the output port */
+            (void)set_audio_info_on_port (ap_prc);
           }
         tiz_mem_free (p_info);
       }
     }
-}
-
-static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
-{
-  OMX_PARAM_PORTDEFINITIONTYPE port_def;
-  assert (NULL != ap_prc);
-
-  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
-      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                            OMX_IndexParamPortDefinition, &port_def));
-
-  /* Set the new value */
-  port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
-
-  tiz_check_omx_err (
-      tiz_api_SetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                            OMX_IndexParamPortDefinition, &port_def));
-  return OMX_ErrorNone;
 }
 
 static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
@@ -345,9 +439,7 @@ static size_t curl_header_cback (void *ptr, size_t size, size_t nmemb,
 
   if (p_prc->auto_detect_on_)
     {
-      obtain_audio_coding_from_header (p_prc, ptr, nbytes);
-      /* Now set the new coding type value on the output port */
-      (void)set_audio_coding_on_port (p_prc);
+      obtain_audio_encoding_from_headers (p_prc, ptr, nbytes);
     }
 
   return nbytes;
@@ -824,6 +916,8 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
+  p_prc->num_channels_ = 2;
+  p_prc->samplerate_ = 48000;
   p_prc->auto_detect_on_ = false;
   p_prc->p_ev_io_ = NULL;
   p_prc->sockfd_ = -1;
@@ -970,9 +1064,11 @@ static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
       tiz_check_omx_err (restart_timer_watcher (ap_prc));
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
           p_prc->p_curl_multi_, a_fd, curl_ev_bitmask, &running_handles));
-      TIZ_TRACE (handleOf (ap_prc), "Received io event on fd [%d] events [%d] running handles [%d]",
-                 a_fd, a_events, running_handles);
-      if (!p_prc->curl_paused_ )
+      TIZ_TRACE (
+          handleOf (ap_prc),
+          "Received io event on fd [%d] events [%d] running handles [%d]", a_fd,
+          a_events, running_handles);
+      if (!p_prc->curl_paused_)
         {
           tiz_check_omx_err (start_io_watcher (ap_prc));
         }
@@ -993,7 +1089,9 @@ static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
       tiz_check_omx_err (restart_timer_watcher (ap_arg));
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
           p_prc->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
-      TIZ_NOTICE (handleOf (p_prc), "Received timer event : running handles [%d]", running_handles);
+      TIZ_NOTICE (handleOf (p_prc),
+                  "Received timer event : running handles [%d]",
+                  running_handles);
     }
   return OMX_ErrorNone;
 }
