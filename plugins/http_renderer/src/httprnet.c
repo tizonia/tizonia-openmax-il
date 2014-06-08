@@ -179,7 +179,7 @@ listeners_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 }
 
 static bool
-error_recoverable (httpr_server_t * ap_server, int sockfd, int error)
+recoverable_error (httpr_server_t * ap_server, int sockfd, int error)
 {
   assert (NULL != ap_server);
   TIZ_TRACE (ap_server->p_hdl, "Socket [%d] error [%s]", sockfd,
@@ -189,7 +189,6 @@ error_recoverable (httpr_server_t * ap_server, int sockfd, int error)
     {
     case 0:
     case EAGAIN:
-    case EPIPE:
 #if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
     case EWOULDBLOCK:
 #endif
@@ -968,7 +967,7 @@ handle_listeners_request (httpr_server_t * ap_server,
       TIZ_ERROR (ap_server->p_hdl, "Could not read from socket "
                 "(nread = %d errno = [%s]).", nread, strerror (errno));
 
-      if (error_recoverable (ap_server, ap_lstnr->p_con->sockfd, errno))
+      if (recoverable_error (ap_server, ap_lstnr->p_con->sockfd, errno))
         {
           /* This could be due to a connection time out or to the peer having
            * closed the connection already */
@@ -1402,7 +1401,7 @@ write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 
       if (bytes < 0)
         {
-          if (!error_recoverable (p_server, sock, errno))
+          if (!recoverable_error (p_server, sock, errno))
             {
               TIZ_WARN (p_server->p_hdl, "Destroying listener "
                         "(non-recoverable error while writing to socket ");
