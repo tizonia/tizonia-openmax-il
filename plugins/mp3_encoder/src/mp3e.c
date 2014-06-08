@@ -20,10 +20,10 @@
 /**
  * @file   mp3e.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - Mp3 Encoder based on MAD
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
