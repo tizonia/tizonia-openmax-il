@@ -706,7 +706,8 @@ graph::ops::transition_source (const OMX_STATETYPE to_state)
 }
 
 OMX_ERRORTYPE
-graph::ops::transition_tunnel (const OMX_COMMANDTYPE to_disabled_or_enabled)
+graph::ops::transition_tunnel (const int tunnel_id,
+                               const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   // Default implementation. To be overriden by derived classes.
   return OMX_ErrorNone;

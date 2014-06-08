@@ -238,7 +238,7 @@ namespace tiz
                                                                                                                         tg::do_setup,
                                                                                                                         tg::do_disable_tunnel > > , bmf::none                  >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+----------------------------+
-          bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_omx_loaded2idle        , bmf::none                  >,
+          bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_omx_loaded2idle        , tg::is_port_disabling_complete >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+----------------------------+
           bmf::Row < tg::config2idle                , tg::omx_trans_evt         , tg::idle2exe                    , tg::do_omx_idle2exe           , tg::is_trans_complete      >,
           //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+----------------------------+
@@ -303,7 +303,10 @@ namespace tiz
                                                                                                do_load_source,
                                                                                                tg::do_ack_loaded> >                                   >,
         //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::loaded            , tg::execute_evt     , auto_detecting          , do_enable_auto_detection    , tg::last_op_succeeded        >,
+        bmf::Row < tg::loaded            , tg::execute_evt     , auto_detecting          , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               tg::do_store_config,
+                                                                                               do_enable_auto_detection> > , tg::last_op_succeeded    >,
         //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < auto_detecting
                    ::exit_pt

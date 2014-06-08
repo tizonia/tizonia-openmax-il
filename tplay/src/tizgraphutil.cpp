@@ -444,16 +444,21 @@ graph::util::modify_tunnel (const omx_comp_handle_lst_t &hdl_list,
   const int handle_lst_size = hdl_list.size ();
   assert (tunnel_id < handle_lst_size - 1);
 
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "handle lst size [%d] - tunnel id [%d]",
+           handle_lst_size, tunnel_id);
+
   omx_comp_handle_lst_t tunnel_handles;
   tunnel_handles.push_back (hdl_list[tunnel_id]);
   tunnel_handles.push_back (hdl_list[tunnel_id + 1]);
 
   std::vector< int > port_ids;
   port_ids.push_back (tunnel_id == 0 ? 0 : 1);
-  port_ids.push_back (tunnel_id + 1 == handle_lst_size - 1 ? 0 : 1);
+  port_ids.push_back (0);
 
   for (int i = 0; i < 2 && error == OMX_ErrorNone; i++)
   {
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "handle index [%d] - port id [%d]",
+             i, port_ids[i]);
     error = OMX_SendCommand (tunnel_handles[i], cmd, port_ids[i], NULL);
   }
 
@@ -487,7 +492,7 @@ graph::util::set_content_uri (const OMX_HANDLETYPE handle,
 
   if (NULL == (p_uritype = (OMX_PARAM_CONTENTURITYPE *)tiz_mem_calloc (
                    1, sizeof(OMX_PARAM_CONTENTURITYPE) + uri_len + 1))
-      || uri_len > pathname_max)
+      || (pathname_max > 0 && uri_len > pathname_max))
   {
     rc = OMX_ErrorInsufficientResources;
   }

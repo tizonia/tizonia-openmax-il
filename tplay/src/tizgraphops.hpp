@@ -165,7 +165,8 @@ namespace tiz
 
       virtual bool probe_stream_hook ();
       virtual OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
-      virtual OMX_ERRORTYPE transition_tunnel (const OMX_COMMANDTYPE to_disabled_or_enabled);
+      virtual OMX_ERRORTYPE transition_tunnel (const int tunnel_id,
+                                               const OMX_COMMANDTYPE to_disabled_or_enabled);
 
       cbackhandler & get_cback_handler () const;
 

@@ -150,7 +150,9 @@ void graph::httpservops::do_disable_tunnel ()
 {
   if (last_op_succeeded ())
   {
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (OMX_CommandPortDisable),
+    // there is only one tunnel in this graph
+    const int tunnel_id = 0;
+    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortDisable),
                          "Unable to disable tunnel file reader->http renderer");
   }
 }
@@ -159,7 +161,9 @@ void graph::httpservops::do_enable_tunnel ()
 {
   if (last_op_succeeded ())
   {
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (OMX_CommandPortEnable),
+    // there is only one tunnel in this graph
+    const int tunnel_id = 0;
+    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortEnable),
                          "Unable to enable tunnel file reader->http renderer");
   }
 }
@@ -282,11 +286,10 @@ graph::httpservops::configure_stream_metadata ()
 }
 
 OMX_ERRORTYPE
-graph::httpservops::transition_tunnel (
+graph::httpservops::transition_tunnel (const int tunnel_id,
     const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const int tunnel_id = 0;  // there is only one tunnel in this graph
 
   assert (to_disabled_or_enabled == OMX_CommandPortDisable
           || to_disabled_or_enabled == OMX_CommandPortEnable);

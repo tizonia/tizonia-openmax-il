@@ -633,7 +633,10 @@ namespace  // unnamed namespace
 
     print_banner ();
 
-    tizplaylist_ptr_t playlist;
+    uri_lst_t uri_list;
+    uri_list.push_back (uri);
+    tizplaylist_ptr_t playlist =
+      boost::make_shared< tiz::playlist >(tiz::playlist (uri_list));
     playlist->set_loop_playback (true);
 
     tizgraphconfig_ptr_t config
@@ -672,6 +675,7 @@ int main (int argc, char **argv)
   std::string log_dir;
   bool shuffle_playlist = false;
   bool recurse = false;
+  bool streaming_server = false;
 
   if (argc < 2)
   {
@@ -826,6 +830,7 @@ int main (int argc, char **argv)
       case 's':
       {
         media = optarg;
+        streaming_server = true;
       }
       break;
 
@@ -891,7 +896,7 @@ int main (int argc, char **argv)
   }
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL player...");
 
-  if (!media.empty ())
+  if (streaming_server && !media.empty ())
   {
     error = stream (media.c_str (), srv_port, shuffle_playlist, recurse,
                     sampling_rate_str_list, sampling_rate_list, bitrate_mode_list,

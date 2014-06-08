@@ -95,7 +95,7 @@ void graph::httpclntops::do_disable_ports ()
 void graph::httpclntops::do_configure_source ()
 {
   G_OPS_BAIL_IF_ERROR (
-      util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
+      util::set_content_uri (handles_[0], playlist_->get_current_uri ()),
       "Unable to set OMX_IndexParamContentURI");
 }
 
@@ -131,9 +131,9 @@ void graph::httpclntops::do_load ()
 
 void graph::httpclntops::do_configure ()
 {
-//   G_OPS_BAIL_IF_ERROR (
-//       util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
-//       "Unable to set OMX_IndexParamContentURI");
+  G_OPS_BAIL_IF_ERROR (
+      apply_pcm_codec_info_from_http_source (),
+      "Unable to set OMX_IndexParamAudioPcm");
 }
 
 void graph::httpclntops::do_omx_exe2pause ()
@@ -160,8 +160,43 @@ void graph::httpclntops::do_disable_tunnel ()
 {
   if (last_op_succeeded ())
   {
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (OMX_CommandPortDisable),
-                         "Unable to disable tunnel file reader->http renderer");
+    const int tunnel_id = 0;  // this is the tunnel source <=> decoder
+    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortDisable),
+                         "Unable to disable tunnel source <=> decoder");
+  }
+}
+
+void graph::httpclntops::do_omx_loaded2idle ()
+{
+  if (last_op_succeeded ())
+  {
+    // Transition the decoder and the renderer components to Idle
+    omx_comp_handle_lst_t decoder_and_renderer_handles;
+    decoder_and_renderer_handles.push_back (handles_[1]); // the decoder
+    decoder_and_renderer_handles.push_back (handles_[2]); // the renderer
+    G_OPS_BAIL_IF_ERROR (
+        util::transition_all (decoder_and_renderer_handles, OMX_StateIdle, OMX_StateLoaded),
+        "Unable to transition decoder and renderer from Loaded->Idle");
+    clear_expected_transitions ();
+    add_expected_transition (handles_[1], OMX_StateIdle);
+    add_expected_transition (handles_[2], OMX_StateIdle);
+  }
+}
+
+void graph::httpclntops::do_omx_idle2exe ()
+{
+  if (last_op_succeeded ())
+  {
+    // Transition the decoder and the renderer components to Exe
+    omx_comp_handle_lst_t decoder_and_renderer_handles;
+    decoder_and_renderer_handles.push_back (handles_[1]); // the decoder
+    decoder_and_renderer_handles.push_back (handles_[2]); // the renderer
+    G_OPS_BAIL_IF_ERROR (
+        util::transition_all (decoder_and_renderer_handles, OMX_StateExecuting, OMX_StateIdle),
+        "Unable to transition decoder and renderer from Idle->Exe");
+    clear_expected_transitions ();
+    add_expected_transition (handles_[1], OMX_StateExecuting);
+    add_expected_transition (handles_[2], OMX_StateExecuting);
   }
 }
 
@@ -169,11 +204,13 @@ void graph::httpclntops::do_enable_tunnel ()
 {
   if (last_op_succeeded ())
   {
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (OMX_CommandPortEnable),
-                         "Unable to enable tunnel file reader->http renderer");
+    const int tunnel_id = 0;  // this is the tunnel source <=> decoder
+    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortEnable),
+                         "Unable to enable tunnel source <=> decoder");
   }
 }
 
+// TODO: Move this implementation to the base class (and remove also from httpservops)
 OMX_ERRORTYPE
 graph::httpclntops::transition_source (const OMX_STATETYPE to_state)
 {
@@ -188,12 +225,12 @@ graph::httpclntops::transition_source (const OMX_STATETYPE to_state)
   return rc;
 }
 
+// TODO: Move this implementation to the base class (and remove also from httpservops)
 OMX_ERRORTYPE
-graph::httpclntops::transition_tunnel (
+graph::httpclntops::transition_tunnel (const int tunnel_id,
     const OMX_COMMANDTYPE to_disabled_or_enabled)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const int tunnel_id = 0;  // there is only one tunnel in this graph
 
   assert (to_disabled_or_enabled == OMX_CommandPortDisable
           || to_disabled_or_enabled == OMX_CommandPortEnable);
@@ -215,10 +252,10 @@ graph::httpclntops::transition_tunnel (
     add_expected_port_transition (handles_[http_source_index],
                                   http_source_input_port,
                                   to_disabled_or_enabled);
-    const int http_renderer_index = 1;
-    const int http_renderer_input_port = 0;
-    add_expected_port_transition (handles_[http_renderer_index],
-                                  http_renderer_input_port,
+    const int decoder_index = 1;
+    const int decoder_input_port = 0;
+    add_expected_port_transition (handles_[decoder_index],
+                                  decoder_input_port,
                                   to_disabled_or_enabled);
   }
   return rc;
@@ -227,4 +264,28 @@ graph::httpclntops::transition_tunnel (
 bool graph::httpclntops::probe_stream_hook ()
 {
   return true;
+}
+
+OMX_ERRORTYPE
+graph::httpclntops::apply_pcm_codec_info_from_http_source ()
+{
+  // Retrieve the current mp3 settings from the http source component input port
+  OMX_AUDIO_PARAM_MP3TYPE mp3type;
+  const OMX_U32 port_id = 0;
+  TIZ_INIT_OMX_PORT_STRUCT (mp3type, port_id);
+  tiz_check_omx_err (OMX_GetParameter (handles_[0], OMX_IndexParamAudioMp3, &mp3type));
+
+  // Retrieve the pcm settings from the renderer component
+  OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
+  TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype, port_id);
+  tiz_check_omx_err (
+      OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype));
+
+  // Now assign the actual settings to the pcmtype structure
+  renderer_pcmtype.nChannels = mp3type.nChannels;
+  renderer_pcmtype.nSamplingRate = mp3type.nSampleRate;
+
+  // Set the new pcm settings
+  tiz_check_omx_err (
+      OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype));
 }

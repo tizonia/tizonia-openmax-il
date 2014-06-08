@@ -66,7 +66,7 @@ namespace tiz
       OMX_ERRORTYPE configure_server ();
       OMX_ERRORTYPE configure_station ();
       OMX_ERRORTYPE configure_stream_metadata ();
-      OMX_ERRORTYPE transition_tunnel (
+      OMX_ERRORTYPE transition_tunnel (const int tunnel_id,
           const OMX_COMMANDTYPE to_disabled_or_enabled);
 
     private:

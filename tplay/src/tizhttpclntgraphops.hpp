@@ -56,17 +56,19 @@ namespace tiz
       void do_volume (const int step);
       void do_mute ();
       void do_disable_tunnel ();
+      void do_omx_loaded2idle ();
+      void do_omx_idle2exe ();
       void do_enable_tunnel ();
 
     private:
-      OMX_ERRORTYPE configure_server ();
       OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
-      OMX_ERRORTYPE transition_tunnel (
+      OMX_ERRORTYPE transition_tunnel (const int tunnel_id,
           const OMX_COMMANDTYPE to_disabled_or_enabled);
 
     private:
       // re-implemented from the base class
       bool probe_stream_hook ();
+      OMX_ERRORTYPE apply_pcm_codec_info_from_http_source ();
     };
   }  // namespace graph
 }  // namespace tiz
