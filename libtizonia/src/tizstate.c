@@ -32,15 +32,16 @@
 
 #include <assert.h>
 
-#include "tizstate.h"
-#include "tizstate_decls.h"
+#include <tizplatform.h>
 
 #include "tizscheduler.h"
 #include "tizkernel.h"
 #include "tizport.h"
 #include "tizport-macros.h"
 #include "tizutils.h"
-#include "tizplatform.h"
+
+#include "tizstate.h"
+#include "tizstate_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -218,35 +219,16 @@ state_state_set (const void *ap_obj,
                  OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
   /* NOTE: This is a default implementation, to be overriden as/when needed */
-  tiz_state_t *p_obj = (tiz_state_t *) ap_obj;
-  assert (NULL != p_obj);
 
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-
-  assert (NULL != ap_hdl);
-
-  {
-    void *p_prc = tiz_get_prc (ap_hdl);
-    void *p_krn = tiz_get_krn (ap_hdl);
-
-    /* First notify the kernel servant */
-    if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_krn, ap_hdl,
-                                                   a_cmd, a_param1,
-                                                   ap_cmd_data)))
-      {
-        return rc;
-      }
-
-    /* Now notify the processor servant */
-    if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_prc, ap_hdl,
-                                                   a_cmd, a_param1,
-                                                   ap_cmd_data)))
-      {
-        return rc;
-      }
-  }
-
-  return rc;
+  /* First notify the kernel servant */
+  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_krn (ap_hdl), ap_hdl,
+                                          a_cmd, a_param1,
+                                          ap_cmd_data));
+  /* Now notify the processor servant */
+  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_prc (ap_hdl), ap_hdl,
+                                          a_cmd, a_param1,
+                                          ap_cmd_data));
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
@@ -276,11 +258,9 @@ state_flush (const void *ap_obj,
              OMX_HANDLETYPE ap_hdl,
              OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  void *p_krn = tiz_get_krn (ap_hdl);
-
   /* Notify the kernel servant, which will in turn notify the processor
    * servant, if needed */
-  return tiz_api_SendCommand (p_krn, ap_hdl, a_cmd, a_param1, ap_cmd_data);
+  return tiz_api_SendCommand (tiz_get_krn (ap_hdl), ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 OMX_ERRORTYPE
@@ -297,28 +277,15 @@ static OMX_ERRORTYPE
 state_disable (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
                OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  void *p_prc = tiz_get_prc (ap_hdl);
-  void *p_krn = tiz_get_krn (ap_hdl);
-
   /* First notify the kernel servant */
-  if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_krn, ap_hdl,
-                                                 a_cmd, a_param1,
-                                                 ap_cmd_data)))
-    {
-      return rc;
-    }
-
-  /* Notify now the processor servant */
-  if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_prc, ap_hdl,
-                                                 a_cmd, a_param1,
-                                                 ap_cmd_data)))
-    {
-      return rc;
-    }
-
+  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_krn (ap_hdl), ap_hdl,
+                                          a_cmd, a_param1,
+                                          ap_cmd_data));
+  /* Now notify the processor servant */
+  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_prc (ap_hdl), ap_hdl,
+                                          a_cmd, a_param1,
+                                          ap_cmd_data));
   return OMX_ErrorNone;
-
 }
 
 OMX_ERRORTYPE
@@ -336,28 +303,9 @@ state_enable (const void *ap_obj,
               OMX_HANDLETYPE ap_hdl,
               OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  void *p_prc = tiz_get_prc (ap_hdl);
-  void *p_krn = tiz_get_krn (ap_hdl);
-
-  /* First notify the kernel servant */
-  if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_krn, ap_hdl,
-                                                 a_cmd, a_param1,
-                                                 ap_cmd_data)))
-    {
-      return rc;
-    }
-
-  /* Now notify the processor servant */
-  if (OMX_ErrorNone != (rc = tiz_api_SendCommand (p_prc, ap_hdl,
-                                                 a_cmd, a_param1,
-                                                 ap_cmd_data)))
-    {
-      return rc;
-    }
-
-  return OMX_ErrorNone;
-
+  /* Notify the kernel servant, which will in turn notify the processor
+   * servant, if needed */
+  return tiz_api_SendCommand (tiz_get_krn (ap_hdl), ap_hdl, a_cmd, a_param1, ap_cmd_data);
 }
 
 OMX_ERRORTYPE
@@ -377,7 +325,6 @@ state_mark (const void *ap_obj,
 {
   /* This is the default implementation for states in which this command is not
    * allowed */
-  assert (NULL != ap_hdl);
   void *p_krn = tiz_get_krn (ap_hdl);
 
   /* The port must be disabled at this point */
@@ -413,6 +360,7 @@ state_trans_complete (const void *ap_obj,
             tiz_fsm_state_to_str (a_new_state), nameOf (ap_servant),
             p_obj->servants_count_);
 
+  /* Check that the two servats are complete */
   if (2 == p_obj->servants_count_)
     {
 
@@ -524,12 +472,15 @@ void *
 tiz_state_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizapi = tiz_get_type (ap_hdl, "tizapi");
-  void * tizstate_class = factory_new (classOf (tizapi),
-                                       "tizstate_class",
-                                       classOf (tizapi),
-                                       sizeof (tiz_state_class_t),
-                                       ap_tos, ap_hdl,
-                                       ctor, state_class_ctor, 0);
+  void * tizstate_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizapi), "tizstate_class", classOf (tizapi), sizeof (tiz_state_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, state_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizstate_class;
 }
 
@@ -539,34 +490,55 @@ tiz_state_init (void * ap_tos, void * ap_hdl)
   void * tizapi = tiz_get_type (ap_hdl, "tizapi");
   void * tizstate_class = tiz_get_type (ap_hdl, "tizstate_class");
   TIZ_LOG_CLASS (tizstate_class);
-  void * tizstate =
-    factory_new
-    (tizstate_class,
-     "tizstate",
-     tizapi,
-     sizeof (tiz_state_t),
+  void * tizstate = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizstate_class, "tizstate", tizapi, sizeof (tiz_state_t),
+     /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
      ctor, state_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
      dtor, state_dtor,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SendCommand, state_SendCommand,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, state_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, state_SetConfig,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_GetState, state_GetState,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_ComponentTunnelRequest, state_ComponentTunnelRequest,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_UseBuffer, state_UseBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_AllocateBuffer, state_AllocateBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_FreeBuffer, state_FreeBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_EmptyThisBuffer, state_EmptyThisBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_FillThisBuffer, state_FillThisBuffer,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_SetCallbacks, state_SetCallbacks,
+     /* TIZ_CLASS_COMMENT: */
      tiz_state_state_set, state_state_set,
+     /* TIZ_CLASS_COMMENT: */
      tiz_state_flush, state_flush,
+     /* TIZ_CLASS_COMMENT: */
      tiz_state_disable, state_disable,
+     /* TIZ_CLASS_COMMENT: */
      tiz_state_enable, state_enable,
+     /* TIZ_CLASS_COMMENT: */
      tiz_state_mark, state_mark,
+     /* TIZ_CLASS_COMMENT: */
      tiz_state_trans_complete, state_trans_complete,
+     /* TIZ_CLASS_COMMENT: */
      tiz_state_tunneled_ports_status_update,
-     state_tunneled_ports_status_update, 0);
+     /* TIZ_CLASS_COMMENT: */
+     state_tunneled_ports_status_update,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizstate;
 }

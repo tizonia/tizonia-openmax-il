@@ -732,6 +732,15 @@ static OMX_ERRORTYPE complete_port_enable (void *ap_obj, OMX_PTR ap_port,
   /* Set enabled flag */
   TIZ_PORT_SET_ENABLED (ap_port);
 
+  /* Now it is time to notify the processor servant that a port is being
+     enabled (telling the processor should be the last thing we do during the
+     port enable sequence). */
+  tiz_check_omx_err (tiz_api_SendCommand (tiz_get_prc (handleOf (p_obj)),
+                                          handleOf (p_obj),
+                                          OMX_CommandPortEnable,
+                                          a_pid,
+                                          NULL));
+
   /* Decrement the completion counter */
   assert (p_obj->cmd_completion_count_ > 0);
   p_obj->cmd_completion_count_--;
