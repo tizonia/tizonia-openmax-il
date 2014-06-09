@@ -316,7 +316,7 @@ namespace tiz
         bmf::Row < updating_graph
                    ::exit_pt
                    <updating_graph_
-                    ::update_graph_exit> , tg::update_graph_evt, tg::executing           , bmf::none                                                  >,
+                    ::update_graph_exit> , tg::update_graph_evt, tg::executing           , tg::do_ack_execd                                           >,
         //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::executing         , tg::omx_err_evt     , tg::exe2idle            , bmf::ActionSequence_<
                                                                                              boost::mpl::vector<

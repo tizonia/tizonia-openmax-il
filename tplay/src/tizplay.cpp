@@ -909,12 +909,12 @@ int main (int argc, char **argv)
     media = argv[optind] == NULL ? "" : argv[optind];
 
     // TODO: This WIP
-    //     std::string uri_scheme = media.substr (0, 7);
-    //     if (uri_scheme.size () >= 7 && uri_scheme.compare ("http://") == 0)
-    //       {
-    //         error = decode_stream (media);
-    //       }
-    //     else
+    std::string uri_scheme = media.substr (0, 7);
+    if (uri_scheme.size () >= 7 && uri_scheme.compare ("http://") == 0)
+      {
+        error = decode_stream (media);
+      }
+    else
       {
         error = decode (media, shuffle_playlist, recurse);
       }

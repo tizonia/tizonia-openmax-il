@@ -284,8 +284,13 @@ graph::httpclntops::apply_pcm_codec_info_from_http_source ()
   // Now assign the actual settings to the pcmtype structure
   renderer_pcmtype.nChannels = mp3type.nChannels;
   renderer_pcmtype.nSamplingRate = mp3type.nSampleRate;
+  renderer_pcmtype.eNumData = OMX_NumericalDataSigned;
+  renderer_pcmtype.eEndian = OMX_EndianBig;
 
   // Set the new pcm settings
   tiz_check_omx_err (
       OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype));
+
+  tiz::graph::util::dump_graph_info ("http/mp3", "client",
+                                     playlist_->get_current_uri ().c_str ());
 }
