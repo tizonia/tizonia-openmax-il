@@ -1571,7 +1571,10 @@ port_depopulate (const void *ap_obj)
   OMX_PTR p_port_priv = NULL;
 
   nbufs = tiz_vector_length (p_obj->p_hdrs_info_);
-  assert (nbufs == p_obj->portdef_.nBufferCountActual);
+  if (nbufs > 0)
+    {
+      assert (nbufs == p_obj->portdef_.nBufferCountActual);
+    }
   assert (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_obj));
 
   for (i = 0; i < nbufs; ++i)
