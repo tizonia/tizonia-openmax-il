@@ -171,14 +171,6 @@ flacport_SetParameter (const void *ap_obj,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-  flacport_set_portdef_format
-  (void *ap_obj, const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
-{
-  /* TODO */
-  return OMX_ErrorNone;
-}
-
 static bool
 flacport_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -437,8 +429,6 @@ tiz_flacport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetParameter, flacport_GetParameter,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, flacport_SetParameter,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_port_set_portdef_format, flacport_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, flacport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: */

@@ -195,14 +195,6 @@ mp3port_SetParameter (const void *ap_obj,
 
 }
 
-static OMX_ERRORTYPE
-  mp3port_set_portdef_format
-  (void *ap_obj, const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
-{
-  /* TODO */
-  return OMX_ErrorNone;
-}
-
 static bool
 mp3port_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -460,8 +452,6 @@ tiz_mp3port_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetParameter, mp3port_GetParameter,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, mp3port_SetParameter,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_port_set_portdef_format, mp3port_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: */

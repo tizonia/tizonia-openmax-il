@@ -198,14 +198,6 @@ vorbisport_SetParameter (const void *ap_obj,
 
 }
 
-static OMX_ERRORTYPE
-  vorbisport_set_portdef_format
-  (void *ap_obj, const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
-{
-  /* TODO */
-  return OMX_ErrorNone;
-}
-
 static bool
 vorbisport_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -462,8 +454,6 @@ tiz_vorbisport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetParameter, vorbisport_GetParameter,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, vorbisport_SetParameter,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_port_set_portdef_format, vorbisport_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, vorbisport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: */

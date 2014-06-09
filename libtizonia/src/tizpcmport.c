@@ -369,14 +369,6 @@ pcmport_SetConfig (const void *ap_obj,
 
 }
 
-static OMX_ERRORTYPE
-  pcmport_set_portdef_format
-  (void *ap_obj, const OMX_PARAM_PORTDEFINITIONTYPE * ap_pdef)
-{
-  /* TODO */
-  return OMX_ErrorNone;
-}
-
 static bool
 pcmport_check_tunnel_compat (const void *ap_obj,
                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
@@ -687,8 +679,6 @@ tiz_pcmport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetConfig, pcmport_GetConfig,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, pcmport_SetConfig,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_port_set_portdef_format, pcmport_set_portdef_format,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: */
