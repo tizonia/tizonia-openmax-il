@@ -259,11 +259,13 @@ graph::util::setup_tunnels (const omx_comp_handle_lst_t &hdl_list)
   OMX_ERRORTYPE error = OMX_ErrorNone;
   const int handle_lst_size = hdl_list.size ();
 
-  for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; i++)
-  {
-    error = OMX_SetupTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
-  }
-
+  if (handle_lst_size > 0)
+    {
+      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; i++)
+        {
+          error = OMX_SetupTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
+        }
+    }
   return error;
 }
 
@@ -274,12 +276,14 @@ graph::util::tear_down_tunnels (const omx_comp_handle_lst_t &hdl_list)
   OMX_ERRORTYPE error = OMX_ErrorNone;
   const int handle_lst_size = hdl_list.size ();
 
-  for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; i++)
-  {
-    error
-        = OMX_TeardownTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
-  }
-
+  if (handle_lst_size > 0)
+    {
+      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; i++)
+        {
+          error
+            = OMX_TeardownTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
+        }
+    }
   return error;
 }
 
@@ -291,21 +295,24 @@ graph::util::setup_suppliers (const omx_comp_handle_lst_t &hdl_list)
   OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
   const int handle_lst_size = hdl_list.size ();
 
-  TIZ_INIT_OMX_PORT_STRUCT (supplier, 0);
-  supplier.eBufferSupplier = OMX_BufferSupplyInput;
-
-  for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; i++)
-  {
-    supplier.nPortIndex = i == 0 ? 0 : 1;
-    error = OMX_SetParameter (hdl_list[i], OMX_IndexParamCompBufferSupplier,
-                              &supplier);
-    if (OMX_ErrorNone == error)
+  if (handle_lst_size > 0)
     {
-      supplier.nPortIndex = 0;
-      error = OMX_SetParameter (hdl_list[i + 1],
-                                OMX_IndexParamCompBufferSupplier, &supplier);
+      TIZ_INIT_OMX_PORT_STRUCT (supplier, 0);
+      supplier.eBufferSupplier = OMX_BufferSupplyInput;
+
+      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; i++)
+        {
+          supplier.nPortIndex = i == 0 ? 0 : 1;
+          error = OMX_SetParameter (hdl_list[i], OMX_IndexParamCompBufferSupplier,
+                              &supplier);
+          if (OMX_ErrorNone == error)
+            {
+              supplier.nPortIndex = 0;
+              error = OMX_SetParameter (hdl_list[i + 1],
+                                        OMX_IndexParamCompBufferSupplier, &supplier);
+            }
+        }
     }
-  }
   return error;
 }
 

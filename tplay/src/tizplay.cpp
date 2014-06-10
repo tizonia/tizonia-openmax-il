@@ -582,19 +582,19 @@ namespace  // unnamed namespace
       struct hostent *p_hostent = gethostbyname (hostname);
       struct in_addr ip_addr = *(struct in_addr *)(p_hostent->h_addr);
       ip_address = inet_ntoa (ip_addr);
-      fprintf (stdout, "[%s] streaming from http://%s:%ld\n",
+      fprintf (stdout, "[%s] - Server streaming on http://%s:%ld\n",
                station_name.c_str (), hostname, port);
       if (!sampling_rate_str_list.empty ())
       {
-        fprintf (stdout, "NOTE: Will skip files with sampling rates other than [%s]",
+        fprintf (stdout, "NOTE: Streaming media with sampling rates [%s].\n",
                  boost::join (sampling_rate_str_list, ", ").c_str ());
       }
       if (!bitrate_mode_list.empty () || bitrate_mode_list.size () == TIZ_MAX_BITRATE_MODES)
       {
-        fprintf (stdout, "NOTE: Will skip files with bitrate types other than [%s]",
+        fprintf (stdout, "NOTE: Streaming media with bitrates [%s].\n",
                  boost::join (bitrate_mode_list, ", ").c_str ());
       }
-      fprintf (stdout, ".\n\n");
+      fprintf (stdout, "\n");
     }
 
     tizplaylist_ptr_t playlist

@@ -66,6 +66,7 @@
 
 namespace tg = tiz::graph;
 namespace bmf = boost::msm::front;
+
 namespace tiz
 {
   namespace graph
@@ -308,6 +309,7 @@ namespace tiz
                                                                                                tg::do_store_config,
                                                                                                do_enable_auto_detection> > , tg::last_op_succeeded    >,
         //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < auto_detecting        , tg::unload_evt      , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
         bmf::Row < auto_detecting
                    ::exit_pt
                    <auto_detecting_

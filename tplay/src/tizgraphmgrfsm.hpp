@@ -60,6 +60,8 @@
     }                                                                   \
   while(0)
 
+namespace bmf = boost::msm::front;
+
 namespace tiz
 {
   namespace graphmgr
@@ -201,8 +203,8 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //                       Start              Event               Next                Action             Guard
           //    +-----------------+------------------+-------------------+-------------------+-----------------------+
-          boost::msm::front::Row < loading_graph     , graph_loaded_evt  , executing_graph   , do_execute_graph      >,
-          boost::msm::front::Row < executing_graph   , graph_execd_evt   , starting_exit                      >
+          bmf::Row < loading_graph     , graph_loaded_evt  , executing_graph   , do_execute_graph      >,
+          bmf::Row < executing_graph   , graph_execd_evt   , starting_exit                      >
           //    +-----------------+------------------+-------------------+-------------------+-----------------------+
           > {};
 
@@ -265,7 +267,7 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //                       Start            Event                Next              Action                   Guard
           //    +-----------------+----------------+--------------------+------------------+------------------------+--------+
-          boost::msm::front::Row < unloading_graph , graph_unlded_evt   , restarting_exit                                    >
+          bmf::Row < unloading_graph , graph_unlded_evt   , restarting_exit                                    >
           //    +-----------------+----------------+--------------------+------------------+------------------------+--------+
           > {};
 
@@ -319,7 +321,7 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //                       Start            Event                Next           Action                   Guard
           //    +-----------------+----------------+-------=------------+---------------+------------------------+--------+
-          boost::msm::front::Row < unloading_graph , graph_unlded_evt   , stopping_exit                                   >
+          bmf::Row < unloading_graph , graph_unlded_evt   , stopping_exit                                   >
           //    +-----------------+----------------+--------------------+---------------+------------------------+--------+
           > {};
 
@@ -349,7 +351,7 @@ namespace tiz
 
       struct unloading_graph : public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
+        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
       };
@@ -542,45 +544,46 @@ namespace tiz
 
       // Transition table for the graph mgr fsm
       struct transition_table : boost::mpl::vector<
-        //                       Start                   Event                     Next                      Action                   Guard
-        //    +------------------------------------------+-------------------------+-------------------------+------------------------+--------------------+
-        boost::msm::front::Row < inited                  , start_evt               , starting                , do_load                                     >,
-        //    +------------------------------------------+-------------------------+-------------------------+------------------------+--------------------+
-        boost::msm::front::Row < starting
-                                 ::exit_pt
-                                 <starting_
-                                  ::starting_exit >      , graph_execd_evt         , running                                                               >,
-        boost::msm::front::Row < starting                , err_evt                 , restarting              , boost::msm::front::none, boost::msm::front::euml::Not_<
-                                                                                                                                          is_fatal_error>  >,
-        boost::msm::front::Row < starting                , err_evt                 , stopped                 , do_report_fatal_error  , is_fatal_error     >,
-        boost::msm::front::Row < starting                , graph_unlded_evt        , stopped                 , do_end_of_play                              >,
-        //    +------------------------------------------+-------------------------+-------------------------+------------------------+--------------------+
-        boost::msm::front::Row < running                 , next_evt                , boost::msm::front::none , do_next                                     >,
-        boost::msm::front::Row < running                 , prev_evt                , boost::msm::front::none , do_prev                                     >,
-        boost::msm::front::Row < running                 , fwd_evt                 , boost::msm::front::none , do_fwd                                      >,
-        boost::msm::front::Row < running                 , rwd_evt                 , boost::msm::front::none , do_rwd                                      >,
-        boost::msm::front::Row < running                 , vol_up_evt              , boost::msm::front::none , do_vol_up                                   >,
-        boost::msm::front::Row < running                 , vol_down_evt            , boost::msm::front::none , do_vol_down                                 >,
-        boost::msm::front::Row < running                 , mute_evt                , boost::msm::front::none , do_mute                                     >,
-        boost::msm::front::Row < running                 , pause_evt               , boost::msm::front::none , do_pause                                    >,
-        boost::msm::front::Row < running                 , stop_evt                , stopping                , do_unload                                   >,
-        boost::msm::front::Row < running                 , graph_eop_evt           , restarting              , boost::msm::front::none                     >,
-        boost::msm::front::Row < running                 , err_evt                 , restarting              , boost::msm::front::none, boost::msm::front::euml::Not_<
-                                                                                                                                          is_fatal_error>  >,
-        boost::msm::front::Row < running                 , err_evt                 , stopped                 , do_report_fatal_error  , is_fatal_error     >,
-        //    +------------------------------------------+-------------------------+-------------------------+---------------------------------------------+
-        boost::msm::front::Row < restarting
-                                 ::exit_pt
-                                 <restarting_
-                                  ::restarting_exit >    , graph_unlded_evt        , starting                , do_load                                     >,
-        boost::msm::front::Row < restarting              , err_evt                 , stopped                 , do_report_fatal_error                       >,
-        //    +------------------------------------------+-------------------------+----------------+------------------------------------------------------+
-        boost::msm::front::Row < stopping
-                                 ::exit_pt
-                                 <stopping_
-                                  ::stopping_exit >      , graph_unlded_evt        , stopped                                                               >,
-        boost::msm::front::Row < stopping                , err_evt                 , stopped                 , do_report_fatal_error                       >
-        //    +------------------------------------------+-------------------------+----------------+------------------------------------------------------+
+        //         Start                 Event              Next          Action                   Guard
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < inited                , start_evt        , starting    , do_load                                     >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < starting
+                   ::exit_pt
+                   <starting_
+                    ::starting_exit >    , graph_execd_evt  , running                                                   >,
+        bmf::Row < starting              , err_evt          , restarting  , bmf::none              , bmf::euml::Not_<
+                                                                                                       is_fatal_error>  >,
+        bmf::Row < starting              , stop_evt         , stopping    , do_unload                                   >,
+        bmf::Row < starting              , err_evt          , stopped     , do_report_fatal_error  , is_fatal_error     >,
+        bmf::Row < starting              , graph_unlded_evt , stopped     , do_end_of_play                              >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < running               , next_evt         , bmf::none   , do_next                                     >,
+        bmf::Row < running               , prev_evt         , bmf::none   , do_prev                                     >,
+        bmf::Row < running               , fwd_evt          , bmf::none   , do_fwd                                      >,
+        bmf::Row < running               , rwd_evt          , bmf::none   , do_rwd                                      >,
+        bmf::Row < running               , vol_up_evt       , bmf::none   , do_vol_up                                   >,
+        bmf::Row < running               , vol_down_evt     , bmf::none   , do_vol_down                                 >,
+        bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
+        bmf::Row < running               , pause_evt        , bmf::none   , do_pause                                    >,
+        bmf::Row < running               , stop_evt         , stopping    , do_unload                                   >,
+        bmf::Row < running               , graph_eop_evt    , restarting  , bmf::none                                   >,
+        bmf::Row < running               , err_evt          , restarting  , bmf::none              , bmf::euml::Not_<
+                                                                                                        is_fatal_error> >,
+        bmf::Row < running               , err_evt          , stopped     , do_report_fatal_error  , is_fatal_error     >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < restarting
+                   ::exit_pt
+                   <restarting_
+                    ::restarting_exit >  , graph_unlded_evt , starting    , do_load                                     >,
+        bmf::Row < restarting            , err_evt          , stopped     , do_report_fatal_error                       >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < stopping
+                   ::exit_pt
+                   <stopping_
+                    ::stopping_exit >    , graph_unlded_evt , stopped                                                   >,
+        bmf::Row < stopping              , err_evt          , stopped     , do_report_fatal_error                       >
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         > {};
 
       // Replaces the default no-transition response.

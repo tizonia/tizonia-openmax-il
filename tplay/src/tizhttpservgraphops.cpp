@@ -66,8 +66,8 @@ graph::httpservops::httpservops (graph *p_graph,
 void graph::httpservops::do_probe ()
 {
   G_OPS_BAIL_IF_ERROR (
-      probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingMP3, "mp3/http",
-                    "stream", &tiz::probe::dump_mp3_info),
+      probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingMP3, "http/mp3",
+                    "server", &tiz::probe::dump_mp3_info),
       "Unable to probe the stream.");
 }
 
