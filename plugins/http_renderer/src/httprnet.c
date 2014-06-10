@@ -2072,6 +2072,7 @@ httpr_net_set_icecast_metadata (httpr_server_t * ap_server,
       assert (NULL != p_lstnr);
       assert (NULL != p_lstnr->p_con);
       p_lstnr->p_con->metadata_delivered = false;
+      p_lstnr->p_con->initial_burst_bytes = ap_server->mountpoint.initial_burst_size;
       stop_listener_timer_watcher (p_lstnr);
       start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
     }
