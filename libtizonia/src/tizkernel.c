@@ -1643,6 +1643,7 @@ static OMX_ERRORTYPE krn_release_buffer (const void *ap_obj,
   assert (NULL != ap_obj);
   assert (NULL != ap_hdr);
   assert (check_pid (p_obj, a_pid) == OMX_ErrorNone);
+  assert ((ap_hdr->nOffset + ap_hdr->nFilledLen) <= ap_hdr->nAllocLen);
 
   /* Find the port.. */
   p_port = get_port (p_obj, a_pid);
