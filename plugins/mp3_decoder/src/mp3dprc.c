@@ -564,7 +564,8 @@ mp3d_claim_input (mp3d_prc_t *ap_obj)
           if (NULL != ap_obj->p_inhdr_)
             {
               TIZ_TRACE (handleOf (ap_obj),
-                         "Claimed INPUT HEADER [%p]...", ap_obj->p_inhdr_);
+                         "Claimed INPUT HEADER [%p]...nFilledLen [%d]",
+                         ap_obj->p_inhdr_, ap_obj->p_inhdr_->nFilledLen);
               rc = true;
             }
         }
