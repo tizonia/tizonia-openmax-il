@@ -112,7 +112,7 @@ void graph::httpservops::do_configure_stream ()
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::set_mp3_type (
           handles_[1], 0,
-          boost::bind (&tiz::probe::get_mp3_codec_info, probe_ptr_, _1),
+          boost::bind (&tiz::graph::httpservops::get_mp3_codec_info, this, _1),
           need_port_settings_changed_evt),
       "Unable to set OMX_IndexParamAudioMp3");
   G_OPS_BAIL_IF_ERROR (configure_stream_metadata (),
@@ -318,6 +318,22 @@ graph::httpservops::transition_tunnel (const int tunnel_id,
                                   to_disabled_or_enabled);
   }
   return rc;
+}
+
+void graph::httpservops::get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE &mp3type)
+{
+  if (probe_ptr_)
+    {
+      // Retrieve the mp3 settings from the probe
+      probe_ptr_->get_mp3_codec_info (mp3type);
+      // Now make sure that the bitrate is set to 0 if we are streaming a variable
+      // bitrate media file. This will hint the http renderer to use an appropriate
+      // burst size.
+      if (!probe_ptr_->is_cbr_stream ())
+        {
+          mp3type.nBitRate = 0;
+        }
+    }
 }
 
 bool graph::httpservops::probe_stream_hook ()

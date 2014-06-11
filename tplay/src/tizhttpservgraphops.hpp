@@ -70,6 +70,7 @@ namespace tiz
           const OMX_COMMANDTYPE to_disabled_or_enabled);
 
     private:
+      void get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE &mp3type);
       // re-implemented from the base class
       bool probe_stream_hook ();
 
