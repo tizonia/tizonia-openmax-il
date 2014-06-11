@@ -50,7 +50,7 @@
 /* Forward declarations */
 static OMX_ERRORTYPE aacdec_prc_deallocate_resources (void *);
 
-static OMX_ERRORTYPE alloc_temp_data_store (aacdec_prc_t *ap_prc)
+static OMX_ERRORTYPE allocate_temp_data_store (aacdec_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
 
@@ -68,7 +68,7 @@ static OMX_ERRORTYPE alloc_temp_data_store (aacdec_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
-static inline void dealloc_temp_data_store (
+static inline void deallocate_temp_data_store (
     /*@special@ */ aacdec_prc_t *ap_prc)
 /*@releases ap_prc->p_store_@ */
 /*@ensures isnull ap_prc->p_store_@ */
@@ -364,8 +364,6 @@ static void *aacdec_prc_ctor (void *ap_obj, va_list *app)
   p_prc->p_aac_dec_ = NeAACDecOpen ();
   reset_stream_parameters (p_prc);
   p_prc->p_store_ = NULL;
-  p_prc->store_size_ = 0;
-  p_prc->store_offset_ = 0;
   return p_prc;
 }
 
@@ -390,7 +388,7 @@ static OMX_ERRORTYPE aacdec_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   aacdec_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
-  tiz_check_omx_err (alloc_temp_data_store (p_prc));
+  tiz_check_omx_err (allocate_temp_data_store (p_prc));
   /* Check that the library has been successfully inited */
   tiz_check_null_ret_oom ((p_prc->p_aac_dec_));
   return OMX_ErrorNone;
@@ -398,7 +396,7 @@ static OMX_ERRORTYPE aacdec_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 
 static OMX_ERRORTYPE aacdec_prc_deallocate_resources (void *ap_obj)
 {
-  dealloc_temp_data_store (ap_obj);
+  deallocate_temp_data_store (ap_obj);
   return OMX_ErrorNone;
 }
 
