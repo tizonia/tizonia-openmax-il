@@ -80,7 +80,7 @@ void graph::httpclntops::do_enable_auto_detection ()
                                                                             http_source_index,
                                                                             OMX_PortDomainAudio),
                        "Unable to set OMX_IndexParamPortDefinition (port auto detection)");
-  tiz::graph::util::dump_graph_info ("http/mp3", "Trying to connect to server",
+  tiz::graph::util::dump_graph_info ("http/mp3", "Connecting to server",
                                      playlist_->get_current_uri ().c_str ());
 
 }
