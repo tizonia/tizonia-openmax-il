@@ -194,7 +194,8 @@ mad_fixed_to_sshort (mad_fixed_t fixed)
 }
 
 static size_t
-read_from_omx_buffer (void *ap_dst, size_t bytes, OMX_BUFFERHEADERTYPE * ap_hdr)
+read_from_omx_buffer (const mp3d_prc_t *ap_prc, void *ap_dst,
+                      size_t bytes, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
   size_t to_read = bytes;
 
@@ -211,6 +212,9 @@ read_from_omx_buffer (void *ap_dst, size_t bytes, OMX_BUFFERHEADERTYPE * ap_hdr)
       if (to_read > 0)
         {
           memcpy (ap_dst, ap_hdr->pBuffer + ap_hdr->nOffset, to_read);
+          TIZ_TRACE (handleOf (ap_prc),
+                     "bytes [%d] to_read [%d] nOffset [%d] nFilledLen [%d] nAllocLen [%d]", bytes, to_read,
+                     ap_hdr->nOffset, ap_hdr->nFilledLen, ap_hdr->nAllocLen);
         }
 
       ap_hdr->nFilledLen -= to_read;
@@ -367,7 +371,7 @@ decode_buffer (const void *ap_obj)
            * reached we also leave the loop but the return status is
            * left untouched.
            */
-          read_size = read_from_omx_buffer (p_read_start, read_size,
+          read_size = read_from_omx_buffer (p_obj, p_read_start, read_size,
                                             p_obj->p_inhdr_);
           if (read_size == 0)
             {
