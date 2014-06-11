@@ -1901,9 +1901,13 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
                            const OMX_U32   a_num_channels,
                            const OMX_U32 a_sample_rate)
 {
-#define ICE_RATE_ADJUSTMENT_32KH     0.731
-#define ICE_RATE_ADJUSTMENT_44dot1KH 1.013
-#define ICE_RATE_ADJUSTMENT_48KH     1.093
+/* #define ICE_RATE_ADJUSTMENT_32KH     0.731 */
+/* #define ICE_RATE_ADJUSTMENT_44dot1KH 1.013 */
+/* #define ICE_RATE_ADJUSTMENT_48KH     1.093 */
+
+#define ICE_RATE_ADJUSTMENT_32KH     1
+#define ICE_RATE_ADJUSTMENT_44dot1KH 1
+#define ICE_RATE_ADJUSTMENT_48KH     1
 
   double pkts_per_sec_med_burst = 0;
   double pkts_per_sec_max_burst = 0;
@@ -1916,11 +1920,11 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
       return;
     }
 
-  ap_server->bitrate      = (a_bitrate != 0 ? a_bitrate : 128000);
+  ap_server->bitrate      = (a_bitrate != 0 ? a_bitrate : 448000);
   ap_server->num_channels = (a_num_channels != 0 ? a_num_channels : 2);
   ap_server->sample_rate  = (a_sample_rate != 0 ? a_sample_rate : 44100);
   assert (0 != a_sample_rate);
-  ap_server->bytes_per_frame = (144 * a_bitrate / a_sample_rate) + 1;
+  ap_server->bytes_per_frame = (144 * ap_server->bitrate / a_sample_rate) + 1;
   ap_server->burst_size      = ICE_MIN_BURST_SIZE;
 
   rate_adjustment = (a_sample_rate == 0 ? ICE_RATE_ADJUSTMENT_44dot1KH : 0);
@@ -1960,11 +1964,16 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
     {
       ap_server->burst_size = ICE_MEDIUM_BURST_SIZE;
     }
-  else if (pkts_per_sec_max_burst >= ICE_MIN_PACKETS_PER_SECOND
+  else if ((pkts_per_sec_max_burst >= ICE_MIN_PACKETS_PER_SECOND
            && pkts_per_sec_max_burst <= ICE_MAX_PACKETS_PER_SECOND)
+           || pkts_per_sec_max_burst >= ICE_MAX_PACKETS_PER_SECOND)
     {
       ap_server->burst_size = ICE_MAX_BURST_SIZE;
     }
+
+  TIZ_TRACE (ap_server->p_hdl, "pkts_per_sec_max_burst [%f] pkts_per_sec_med_burst [%f] "
+             "burst_size [%d]", pkts_per_sec_max_burst, pkts_per_sec_med_burst,
+             ap_server->burst_size);
 
   /* Increase the rate by a certain % to mitigate decay */
   ap_server->pkts_per_sec = rate_adjustment
