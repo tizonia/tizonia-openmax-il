@@ -128,6 +128,25 @@ static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *);
     }                                                                        \
   while (0)
 
+static OMX_ERRORTYPE allocate_temp_data_store (httpsrc_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  assert (ap_prc->p_store_ == NULL);
+  tiz_check_omx_err (tiz_buffer_init (&(ap_prc->p_store_),
+                                      ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE));
+  return OMX_ErrorNone;
+}
+
+static inline void deallocate_temp_data_store (
+    /*@special@ */ httpsrc_prc_t *ap_prc)
+/*@releases ap_prc->p_store_@ */
+/*@ensures isnull ap_prc->p_store_@ */
+{
+  assert (NULL != ap_prc);
+  tiz_buffer_destroy (ap_prc->p_store_);
+  ap_prc->p_store_ = NULL;
+}
+
 static inline OMX_ERRORTYPE start_io_watcher (httpsrc_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
@@ -388,6 +407,10 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
         TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
         TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+        fprintf (stdout, "   %s[%s] : [%s]%s\n", KYEL, name, p_info, KNRM);
+
         if (memcmp (name, "Content-Type", 12) == 0
             || memcmp (name, "content-type", 12) == 0)
           {
@@ -484,12 +507,45 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
         }
       else
         {
+          int nbytes_stored = tiz_buffer_bytes_available (p_prc->p_store_);
+          if (nbytes_stored > 0)
+            {
+              p_out = buffer_needed (p_prc);
+              if (NULL != p_out)
+                {
+                  int nbytes_to_copy = MIN (
+                      nbytes_stored, p_out->nAllocLen - p_out->nFilledLen);
+                  memcpy (p_out->pBuffer + p_out->nOffset,
+                          tiz_buffer_get_data (p_prc->p_store_),
+                          nbytes_to_copy);
+                  p_out->nFilledLen += nbytes_to_copy;
+                  release_buffer (p_prc);
+                  p_out = NULL;
+                  tiz_buffer_advance (p_prc->p_store_, nbytes_to_copy);
+                }
+            }
           p_out = buffer_needed (p_prc);
           if (NULL != p_out)
             {
-              memcpy (p_out->pBuffer + p_out->nOffset, ptr, nbytes);
-              p_out->nFilledLen = nbytes;
+              int nbytes_to_copy
+                  = MIN (nbytes, p_out->nAllocLen - p_out->nFilledLen);
+              memcpy (p_out->pBuffer + p_out->nOffset, ptr, nbytes_to_copy);
+              p_out->nFilledLen += nbytes_to_copy;
               release_buffer (p_prc);
+            }
+          else
+            {
+              int nbytes_stored = 0;
+              TIZ_TRACE (handleOf (p_prc),
+                         "Unable to get an omx buffer, using the temp store.");
+              if ((nbytes_stored = tiz_buffer_store_data (p_prc->p_store_, ptr,
+                                                          nbytes)) < nbytes)
+                {
+                  TIZ_ERROR (
+                      handleOf (p_prc),
+                      "Unable to store all the data (wanted %d, stored %d).",
+                      nbytes, nbytes_stored);
+                }
             }
         }
     }
@@ -924,6 +980,7 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
   p_prc->awaiting_io_ev_ = false;
   p_prc->p_ev_timer_ = NULL;
   p_prc->awaiting_timer_ev_ = false;
+  p_prc->p_store_ = NULL;
   p_prc->curl_timeout_ = 0;
   p_prc->p_curl_ = NULL;
   p_prc->p_curl_multi_ = NULL;
@@ -951,16 +1008,16 @@ static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
   httpsrc_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
   assert (NULL == p_prc->p_uri_param_);
-
+  tiz_check_omx_err (allocate_temp_data_store (p_prc));
   tiz_check_omx_err (obtain_uri (p_prc));
   tiz_check_omx_err (allocate_events (p_prc));
   tiz_check_omx_err (allocate_curl_resources (p_prc));
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *ap_obj)
 {
+  deallocate_temp_data_store (ap_obj);
   destroy_events (ap_obj);
   destroy_curl_resources (ap_obj);
   delete_uri (ap_obj);

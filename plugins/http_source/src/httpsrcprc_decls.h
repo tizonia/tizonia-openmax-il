@@ -59,6 +59,7 @@ extern "C"
     bool awaiting_io_ev_;
     tiz_event_timer_t *p_ev_timer_;
     bool awaiting_timer_ev_;
+    tiz_buffer_t *p_store_;
     double curl_timeout_;
     CURL *p_curl_;              /* curl easy */
     CURLM *p_curl_multi_;        /* curl multi */
