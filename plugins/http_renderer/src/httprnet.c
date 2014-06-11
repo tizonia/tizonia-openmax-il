@@ -112,6 +112,7 @@ struct httpr_connection
 typedef struct httpr_listener httpr_listener_t;
 struct httpr_listener
 {
+  OMX_HANDLETYPE p_hdl;
   httpr_connection_t *p_con;
   int respcode;
   long intro_offset;
@@ -445,7 +446,7 @@ static inline OMX_ERRORTYPE
 stop_server_io_watcher (httpr_server_t * ap_server)
 {
   assert (NULL != ap_server);
-  TIZ_TRACE (ap_server->p_hdl, "stopping io watcher on fd [%d] ",
+  TIZ_TRACE (ap_server->p_hdl, "Stopping server io watcher on fd [%d] ",
             ap_server->lstn_sockfd);
   return tiz_event_io_stop (ap_server->p_srv_ev_io);
 }
@@ -455,6 +456,7 @@ start_listener_io_watcher (httpr_listener_t * ap_lstnr)
 {
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_con);
+  TIZ_TRACE (ap_lstnr->p_hdl, "Starting listener io watcher");
   return tiz_event_io_start (ap_lstnr->p_con->p_ev_io);
 }
 
@@ -463,6 +465,7 @@ stop_listener_io_watcher (httpr_listener_t * ap_lstnr)
 {
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_con);
+  TIZ_TRACE (ap_lstnr->p_hdl, "Stopping listener io watcher");
   return tiz_event_io_stop (ap_lstnr->p_con->p_ev_io);
 }
 
@@ -478,6 +481,7 @@ start_listener_timer_watcher (httpr_listener_t * ap_lstnr, const double a_wait_t
       return OMX_ErrorNone;
     }
 
+  TIZ_TRACE (ap_lstnr->p_hdl, "Starting listener timer watcher");
   tiz_event_timer_set (ap_lstnr->p_con->p_ev_timer, a_wait_time, a_wait_time);
 
   if (OMX_ErrorNone
@@ -500,6 +504,7 @@ stop_listener_timer_watcher (httpr_listener_t * ap_lstnr)
     {
       return OMX_ErrorNone;
     }
+  TIZ_TRACE (ap_lstnr->p_hdl, "Stopping listener timer watcher");
   ap_lstnr->timer_started = false;
   return tiz_event_timer_stop (ap_lstnr->p_con->p_ev_timer);
 }
@@ -658,6 +663,7 @@ create_listener (httpr_server_t * ap_server, httpr_listener_t ** app_lstnr,
       goto end;
     }
 
+  p_lstnr->p_hdl              = ap_server->p_hdl;
   p_lstnr->p_con              = p_con;
   p_lstnr->respcode           = 200;
   p_lstnr->intro_offset       = 0;
