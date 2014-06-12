@@ -256,7 +256,8 @@ static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
     }
-  else if (memcmp (ap_info, "audio/aac", 9) == 0)
+  else if (memcmp (ap_info, "audio/aac", 9) == 0
+           || memcmp (ap_info, "audio/aacp", 10) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
     }
@@ -303,7 +304,7 @@ static int convert_str_to_int (httpsrc_prc_t *ap_prc, const char *ap_start,
                  "[No digits were found]");
     }
 
-  TIZ_ERROR (handleOf (ap_prc), "Value : [%d]", val);
+  TIZ_TRACE (handleOf (ap_prc), "Value : [%d]", val);
   return val;
 }
 
@@ -353,7 +354,7 @@ static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE set_mp3_audio_info_on_port (httpsrc_prc_t *ap_prc)
 {
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
   assert (NULL != ap_prc);
@@ -371,6 +372,49 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
                                            handleOf (ap_prc),
                                            OMX_IndexParamAudioMp3, &mp3type));
   return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE set_aac_audio_info_on_port (httpsrc_prc_t *ap_prc)
+{
+  OMX_AUDIO_PARAM_AACPROFILETYPE aactype;
+  assert (NULL != ap_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (aactype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
+  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
+                                           handleOf (ap_prc),
+                                           OMX_IndexParamAudioAac, &aactype));
+
+  /* Set the new values */
+  aactype.nChannels = ap_prc->num_channels_;
+  aactype.nSampleRate = ap_prc->samplerate_;
+
+  tiz_check_omx_err (tiz_api_SetParameter (tiz_get_krn (handleOf (ap_prc)),
+                                           handleOf (ap_prc),
+                                           OMX_IndexParamAudioAac, &aactype));
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_prc);
+  switch (ap_prc->audio_coding_type_)
+    {
+    case OMX_AUDIO_CodingMP3:
+      {
+        rc = set_mp3_audio_info_on_port (ap_prc);
+      }
+      break;
+    case OMX_AUDIO_CodingAAC:
+      {
+        rc = set_aac_audio_info_on_port (ap_prc);
+      }
+      break;
+    default:
+      assert (0);
+      break;
+    };
+  return rc;
 }
 
 static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
@@ -536,8 +580,6 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
           else
             {
               int nbytes_stored = 0;
-              TIZ_TRACE (handleOf (p_prc),
-                         "Unable to get an omx buffer, using the temp store.");
               if ((nbytes_stored = tiz_buffer_store_data (p_prc->p_store_, ptr,
                                                           nbytes)) < nbytes)
                 {
@@ -546,6 +588,10 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
                       "Unable to store all the data (wanted %d, stored %d).",
                       nbytes, nbytes_stored);
                 }
+              TIZ_TRACE (handleOf (p_prc),
+                         "Unable to get an omx buffer, using the temp store : [%d] bytes stored.",
+                         tiz_buffer_bytes_available (p_prc->p_store_));
+
             }
         }
     }

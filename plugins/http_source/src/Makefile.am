@@ -19,11 +19,14 @@ lib_LTLIBRARIES = libtizhttpsrc.la
 
 noinst_HEADERS = \
 	httpsrc.h \
+	httpsrcport.h \
+	httpsrcport_decls.h
 	httpsrcprc.h \
 	httpsrcprc_decls.h
 
 libtizhttpsrc_la_SOURCES = \
 	httpsrc.c \
+	httpsrcport.c \
 	httpsrcprc.c
 
 libtizhttpsrc_la_CFLAGS = \

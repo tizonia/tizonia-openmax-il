@@ -44,6 +44,7 @@
 #include <tizscheduler.h>
 
 #include "httpsrcprc.h"
+#include "httpsrcport.h"
 #include "httpsrc.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -53,15 +54,14 @@
 
 static OMX_VERSIONTYPE http_source_version = { { 1, 0, 0, 0 } };
 
-static OMX_PTR instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
+static OMX_PTR instantiate_output_port (OMX_HANDLETYPE ap_hdl)
 {
-  OMX_AUDIO_PARAM_MP3TYPE mp3type;
   OMX_AUDIO_CODINGTYPE encodings[]
       = { OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingAutoDetect,
           OMX_AUDIO_CodingMP3,    OMX_AUDIO_CodingAAC,
           OMX_AUDIO_CodingFLAC,   OMX_AUDIO_CodingVORBIS,
           OMX_AUDIO_CodingOPUS,   OMX_AUDIO_CodingMax };
-  tiz_port_options_t mp3_port_opts
+  tiz_port_options_t port_opts
       = { OMX_PortDomainAudio,
           OMX_DirOutput,
           ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_COUNT,
@@ -73,18 +73,8 @@ static OMX_PTR instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
           -1 /* use -1 for now */
       };
 
-  mp3type.nSize = sizeof(OMX_AUDIO_PARAM_MP3TYPE);
-  mp3type.nVersion.nVersion = OMX_VERSION;
-  mp3type.nPortIndex = ARATELIA_HTTP_SOURCE_PORT_INDEX;
-  mp3type.nChannels = 2;
-  mp3type.nBitRate = 0;
-  mp3type.nSampleRate = 44100;
-  mp3type.nAudioBandWidth = 0;
-  mp3type.eChannelMode = OMX_AUDIO_ChannelModeStereo;
-  mp3type.eFormat = OMX_AUDIO_MP3StreamFormatMP1Layer3;
-
-  return factory_new (tiz_get_type (ap_hdl, "tizmp3port"), &mp3_port_opts,
-                      &encodings, &mp3type);
+  return factory_new (tiz_get_type (ap_hdl, "httpsrcport"), &port_opts,
+                      &encodings);
 }
 
 static OMX_PTR instantiate_config_port (OMX_HANDLETYPE ap_hdl)
@@ -105,11 +95,12 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
   tiz_type_factory_t httpsrcprc_type;
-  const tiz_type_factory_t *tf_list[] = { &httpsrcprc_type };
+  tiz_type_factory_t httpsrcport_type;
+  const tiz_type_factory_t *tf_list[] = { &httpsrcprc_type,  &httpsrcport_type};
 
   strcpy ((OMX_STRING)role_factory.role, ARATELIA_HTTP_SOURCE_DEFAULT_ROLE);
   role_factory.pf_cport = instantiate_config_port;
-  role_factory.pf_port[0] = instantiate_mp3_port;
+  role_factory.pf_port[0] = instantiate_output_port;
   role_factory.nports = 1;
   role_factory.pf_proc = instantiate_processor;
 
@@ -118,12 +109,17 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   strcpy ((OMX_STRING)httpsrcprc_type.object_name, "httpsrcprc");
   httpsrcprc_type.pf_object_init = httpsrc_prc_init;
 
+  strcpy ((OMX_STRING) httpsrcport_type.class_name, "httpsrcport_class");
+  httpsrcport_type.pf_class_init = httpsrc_port_class_init;
+  strcpy ((OMX_STRING) httpsrcport_type.object_name, "httpsrcport");
+  httpsrcport_type.pf_object_init = httpsrc_port_init;
+
   /* Initialize the component infrastructure */
   tiz_check_omx_err (
       tiz_comp_init (ap_hdl, ARATELIA_HTTP_SOURCE_COMPONENT_NAME));
 
   /* Register the "httpsrcprc" class */
-  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 2));
 
   /* Register the component role(s) */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
