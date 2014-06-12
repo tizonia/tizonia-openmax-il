@@ -87,6 +87,9 @@ mp3port_GetParameter (const void *ap_obj,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_mp3port_t *p_obj = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
@@ -104,12 +107,12 @@ mp3port_GetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetParameter (typeOf (ap_obj, "tizmp3port"),
-                                   ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_GetParameter (typeOf (ap_obj, "tizmp3port"),
+                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -118,6 +121,7 @@ mp3port_SetParameter (const void *ap_obj,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_mp3port_t *p_obj = (tiz_mp3port_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
@@ -145,54 +149,56 @@ mp3port_SetParameter (const void *ap_obj,
           default:
             {
               TIZ_TRACE (ap_hdl,
-                        "[%s] : OMX_ErrorBadParameter : "
-                        "Sample rate not supported [%d]. "
-                        "Returning...", tiz_idx_to_str (a_index),
-                        p_mp3type->nSampleRate);
-              return OMX_ErrorBadParameter;
+                         "[%s] : OMX_ErrorBadParameter : "
+                         "Sample rate not supported [%d]. "
+                         "Returning...", tiz_idx_to_str (a_index),
+                         p_mp3type->nSampleRate);
+              rc = OMX_ErrorBadParameter;
             }
           };
 
-        /* Do now allow changes to sampling rate or num of channels if this is
-         * a slave output port */
-        {
-          const tiz_port_t *p_base = ap_obj;
+        if (OMX_ErrorNone == rc)
+          {
+            /* Do now allow changes to sampling rate or num of channels if this is
+             * a slave output port */
+            const tiz_port_t *p_base = ap_obj;
 
-          if ((OMX_DirOutput == p_base->portdef_.eDir)
-              && (p_base->opts_.mos_port != -1)
-              && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
-              && (p_obj->mp3type_.nChannels != p_mp3type->nChannels
-                  || p_obj->mp3type_.nSampleRate != p_mp3type->nSampleRate))
-            {
-              TIZ_ERROR (ap_hdl,
-                        "[OMX_ErrorBadParameter] : PORT [%d] "
-                        "SetParameter [OMX_IndexParamAudioMp3]... "
-                        "Slave port, cannot update sample rate "
-                        "or number of channels", tiz_port_dir (p_obj));
-              return OMX_ErrorBadParameter;
-            }
-        }
-
-        /* Apply the new default values */
-        p_obj->mp3type_.nChannels = p_mp3type->nChannels;
-        p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
-        p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
-        p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
-        p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
-        p_obj->mp3type_.eFormat = p_mp3type->eFormat;
+            if ((OMX_DirOutput == p_base->portdef_.eDir)
+                && (p_base->opts_.mos_port != -1)
+                && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
+                && (p_obj->mp3type_.nChannels != p_mp3type->nChannels
+                    || p_obj->mp3type_.nSampleRate != p_mp3type->nSampleRate))
+              {
+                TIZ_ERROR (ap_hdl,
+                           "[OMX_ErrorBadParameter] : PORT [%d] "
+                           "SetParameter [OMX_IndexParamAudioMp3]... "
+                           "Slave port, cannot update sample rate "
+                           "or number of channels", tiz_port_dir (p_obj));
+                rc = OMX_ErrorBadParameter;
+              }
+            else
+              {
+                /* Apply the new default values */
+                p_obj->mp3type_.nChannels = p_mp3type->nChannels;
+                p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
+                p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
+                p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
+                p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
+                p_obj->mp3type_.eFormat = p_mp3type->eFormat;
+              }
+          }
       }
       break;
 
     default:
       {
         /* Try the parent's indexes */
-        return super_SetParameter (typeOf (ap_obj, "tizmp3port"),
-                                   ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_SetParameter (typeOf (ap_obj, "tizmp3port"),
+                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
-  return OMX_ErrorNone;
-
+  return rc;
 }
 
 static bool
