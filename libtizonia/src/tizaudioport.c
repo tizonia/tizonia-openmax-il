@@ -45,7 +45,7 @@
 
 static inline OMX_ERRORTYPE
 update_audio_coding_type (void *ap_obj,
-                          OMX_AUDIO_CODINGTYPE a_encoding)
+                          const OMX_AUDIO_CODINGTYPE a_encoding)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_audioport_t *p_obj = ap_obj;
@@ -195,7 +195,6 @@ audioport_SetParameter (const void *ap_obj,
     {
     case OMX_IndexParamAudioPortFormat:
       {
-
         const OMX_AUDIO_PARAM_PORTFORMATTYPE *p_audio_format
           = (OMX_AUDIO_PARAM_PORTFORMATTYPE *) ap_struct;
         OMX_AUDIO_CODINGTYPE encoding = p_audio_format->eEncoding;

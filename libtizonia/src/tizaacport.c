@@ -87,6 +87,9 @@ aacport_GetParameter (const void *ap_obj,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_aacport_t *p_obj = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
@@ -104,12 +107,12 @@ aacport_GetParameter (const void *ap_obj,
     default:
       {
         /* Try the parent's indexes */
-        return super_GetParameter (typeOf (ap_obj, "tizaacport"),
-                                   ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_GetParameter (typeOf (ap_obj, "tizaacport"),
+                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -118,10 +121,12 @@ aacport_SetParameter (const void *ap_obj,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_aacport_t *p_obj = (tiz_aacport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
 
   switch (a_index)
     {
@@ -151,13 +156,14 @@ aacport_SetParameter (const void *ap_obj,
                          "Sample rate not supported [%d]. "
                          "Returning...", tiz_idx_to_str (a_index),
                          p_aactype->nSampleRate);
-              return OMX_ErrorBadParameter;
+              rc = OMX_ErrorBadParameter;
             }
           };
 
-        /* Do now allow changes to sampling rate or num of channels if this is
-         * a slave output port */
-        {
+        if (OMX_ErrorNone == rc)
+          {
+          /* Do now allow changes to sampling rate or num of channels if this is
+           * a slave output port */
           const tiz_port_t *p_base = ap_obj;
 
           if ((OMX_DirOutput == p_base->portdef_.eDir)
@@ -170,33 +176,35 @@ aacport_SetParameter (const void *ap_obj,
                         "SetParameter [OMX_IndexParamAudioAac]... "
                         "Slave port, cannot update sample rate "
                         "or number of channels", tiz_port_dir (p_obj));
-              return OMX_ErrorBadParameter;
+              rc = OMX_ErrorBadParameter;
             }
-        }
-
-        /* Apply the new default values */
-        p_obj->aactype_.nChannels        = p_aactype->nChannels;
-        p_obj->aactype_.nSampleRate      = p_aactype->nSampleRate;
-        p_obj->aactype_.nBitRate         = p_aactype->nBitRate;
-        p_obj->aactype_.nAudioBandWidth  = p_aactype->nAudioBandWidth;
-        p_obj->aactype_.nFrameLength     = p_aactype->nFrameLength;
-        p_obj->aactype_.nAACtools        = p_aactype->nAACtools;
-        p_obj->aactype_.nAACERtools      = p_aactype->nAACERtools;
-        p_obj->aactype_.eAACProfile      = p_aactype->eAACProfile;
-        p_obj->aactype_.eAACStreamFormat = p_aactype->eAACStreamFormat;
-        p_obj->aactype_.eChannelMode     = p_aactype->eChannelMode;
+          else
+            {
+              /* Apply the new default values */
+              p_obj->aactype_.nChannels        = p_aactype->nChannels;
+              p_obj->aactype_.nSampleRate      = p_aactype->nSampleRate;
+              p_obj->aactype_.nBitRate         = p_aactype->nBitRate;
+              p_obj->aactype_.nAudioBandWidth  = p_aactype->nAudioBandWidth;
+              p_obj->aactype_.nFrameLength     = p_aactype->nFrameLength;
+              p_obj->aactype_.nAACtools        = p_aactype->nAACtools;
+              p_obj->aactype_.nAACERtools      = p_aactype->nAACERtools;
+              p_obj->aactype_.eAACProfile      = p_aactype->eAACProfile;
+              p_obj->aactype_.eAACStreamFormat = p_aactype->eAACStreamFormat;
+              p_obj->aactype_.eChannelMode     = p_aactype->eChannelMode;
+            }
+          }
       }
       break;
 
     default:
       {
         /* Try the parent's indexes */
-        return super_SetParameter (typeOf (ap_obj, "tizaacport"),
-                                   ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_SetParameter (typeOf (ap_obj, "tizaacport"),
+                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
-  return OMX_ErrorNone;
+  return rc;
 
 }
 
