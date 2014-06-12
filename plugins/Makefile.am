@@ -23,6 +23,7 @@ SUBDIRS = \
 	file_writer \
 	flac_decoder \
 	http_renderer \
+	http_source \
 	mp3_decoder \
 	mp3_encoder \
 	mp3_metadata \
