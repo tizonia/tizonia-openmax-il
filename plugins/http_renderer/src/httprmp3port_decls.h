@@ -43,7 +43,7 @@ extern "C"
   struct httpr_mp3port
   {
     /* Object */
-    const tiz_mp3port_t               _;
+    const tiz_mp3port_t _;
     OMX_TIZONIA_ICECASTMOUNTPOINTTYPE mountpoint_;
     OMX_STRING p_stream_title_;
   };
