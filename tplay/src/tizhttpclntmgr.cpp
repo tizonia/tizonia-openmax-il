@@ -141,3 +141,23 @@ void graphmgr::httpclntmgrops::do_execute ()
                           p_managed_graph_->execute (graph_config_),
                           "Unable to execute the graph.");
 }
+
+bool graphmgr::httpclntmgrops::is_fatal_error (const OMX_ERRORTYPE error,
+                                               const std::string &msg)
+{
+  bool rc = false;
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error),
+           msg.c_str ());
+  if (error == OMX_ErrorStreamCorruptFatal)
+    {
+      // If the decoder component reports this error, it means we can't decode
+      // the incoming stream. So this is fatal for this graph.
+      error_msg_.assign ("Unable to decode the input stream.");
+      rc = true;
+    }
+  else
+    {
+      rc = graphmgr::ops::is_fatal_error (error, msg);
+    }
+  return rc;
+}

@@ -102,7 +102,7 @@ namespace tiz
                                           const std::string &msg);
       virtual void do_end_of_play ();
       virtual bool is_fatal_error (const OMX_ERRORTYPE error,
-                                   const std::string &msg) const;
+                                   const std::string &msg);
 
       OMX_ERRORTYPE internal_error () const;
       std::string internal_error_msg () const;

@@ -242,11 +242,14 @@ void graphmgr::ops::do_end_of_play ()
 }
 
 bool graphmgr::ops::is_fatal_error (const OMX_ERRORTYPE error,
-                                    const std::string &msg) const
+                                    const std::string &msg)
 {
   bool rc = false;
   TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error),
            msg.c_str ());
+  // This is a generic implementation. We use here some common understanding of
+  // fatal errors. Each manager graph may decide to use its own list of fatal
+  // errors.
   return tiz::graph::util::is_fatal_error (error);
 }
 

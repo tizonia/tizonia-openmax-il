@@ -72,6 +72,8 @@ namespace tiz
       void do_execute ();
 
     private:
+      bool is_fatal_error (const OMX_ERRORTYPE error,
+                           const std::string &msg);
       tizgraph_ptr_t get_graph (const std::string &uri);
     };
   }  // namespace graphmgr
