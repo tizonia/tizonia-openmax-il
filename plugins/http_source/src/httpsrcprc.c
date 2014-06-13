@@ -321,18 +321,26 @@ static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
   TIZ_TRACE (handleOf (ap_prc), "audio info  : [%s]", ap_info);
 
   /* Find the number of channels */
-  p_value = (const char *)strstr (ap_info, channels);
-  p_start = (const char *)strchr (p_value, '=');
-  /* skip the equal sign */
-  p_start++;
-  ap_prc->num_channels_ = convert_str_to_int (ap_prc, p_start, &p_end);
+  if (NULL != (p_value = (const char *)strstr (ap_info, channels)))
+    {
+      if (NULL != (p_start = (const char *)strchr (p_value, '=')))
+        {
+          /* skip the equal sign */
+          p_start++;
+          ap_prc->num_channels_ = convert_str_to_int (ap_prc, p_start, &p_end);
+        }
+    }
 
   /* Find the sampling rate */
-  p_value = (const char *)strstr (p_start, samplerate);
-  p_start = (const char *)strchr (p_value, '=');
-  /* skip the equal sign */
-  p_start++;
-  ap_prc->samplerate_ = convert_str_to_int (ap_prc, p_start, &p_end);
+  if (NULL != (p_value = (const char *)strstr (ap_info, samplerate)))
+    {
+      if (NULL != (p_start = (const char *)strchr (p_value, '=')))
+        {
+          /* skip the equal sign */
+          p_start++;
+          ap_prc->samplerate_ = convert_str_to_int (ap_prc, p_start, &p_end);
+        }
+    }
 }
 
 static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
@@ -1019,7 +1027,7 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
   p_prc->port_disabled_ = false;
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->num_channels_ = 2;
-  p_prc->samplerate_ = 48000;
+  p_prc->samplerate_ = 44100;
   p_prc->auto_detect_on_ = false;
   p_prc->p_ev_io_ = NULL;
   p_prc->sockfd_ = -1;
