@@ -61,7 +61,7 @@ update_audio_coding_type (void *ap_obj,
       goto end;
     }
 
-  if (!tiz_vector_find (p_obj->p_encodings_, &a_encoding))
+  if (!tiz_vector_find (p_obj->p_encodings_, (const OMX_PTR)(&a_encoding)))
     {
       TIZ_ERROR (handleOf (ap_obj), "[OMX_ErrorUnsupportedSetting] : "
                  "(Encoding not supported [0x%08x]...)", a_encoding);

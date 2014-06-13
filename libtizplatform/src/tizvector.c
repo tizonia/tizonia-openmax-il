@@ -165,7 +165,7 @@ void tiz_vector_clear (tiz_vector_t *p_vec)
 }
 
 OMX_PTR
-tiz_vector_find (const tiz_vector_t *p_vec, OMX_PTR ap_data)
+tiz_vector_find (const tiz_vector_t *p_vec, const OMX_PTR ap_data)
 {
   OMX_PTR p_next = NULL, p_cur = NULL;
 

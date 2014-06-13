@@ -56,7 +56,7 @@ OMX_PTR tiz_vector_front (tiz_vector_t *ap_vector);
 OMX_PTR tiz_vector_back (tiz_vector_t *ap_vector);
 OMX_S32 tiz_vector_length (const tiz_vector_t *ap_vector);
 void tiz_vector_clear (tiz_vector_t *ap_vector);
-OMX_PTR tiz_vector_find (const tiz_vector_t *ap_vector, OMX_PTR ap_data);
+OMX_PTR tiz_vector_find (const tiz_vector_t *ap_vector, const OMX_PTR ap_data);
 OMX_ERRORTYPE tiz_vector_append (tiz_vector_t *app_dst,
                                  const tiz_vector_t *app_src);
 OMX_ERRORTYPE tiz_vector_print (tiz_vector_t *ap_vector,
