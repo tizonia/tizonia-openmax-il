@@ -75,6 +75,66 @@ static char *retrieve_default_uri_from_config (tiz_uricfgport_t *ap_obj)
   return p_rv;
 }
 
+static OMX_S32
+metadata_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+{
+  return strncmp((const char *) ap_key1, (const char *) ap_key2,
+                 OMX_MAX_STRINGNAME_SIZE);
+}
+
+static void
+metadata_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
+{
+  tiz_mem_free (ap_key);
+  tiz_mem_free (ap_value);
+}
+
+static OMX_ERRORTYPE adjust_metadata_map (tiz_uricfgport_t *ap_obj)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_obj);
+
+  {
+    const OMX_U32 new_count = ap_obj->metadata_count_.nMetadataItemCount;
+    OMX_U32 current_count = tiz_map_size (ap_obj->p_metadata_map_);
+    if (current_count > new_count)
+      {
+        /* Delete excess */
+        while (tiz_map_size (ap_obj->p_metadata_map_) < current_count)
+          {
+            tiz_map_erase_at (ap_obj->p_metadata_map_, current_count - 1);
+            --current_count;
+          }
+      }
+    if (current_count < new_count && OMX_ErrorNone == rc)
+      {
+        /* Insert remaining (*empty items*) */
+        const char *p_empty_key = "empty_key";
+        const char *p_empty_value = "empty_value";
+        tiz_check_omx_err (tiz_map_insert (ap_obj->p_metadata_map_,
+                                           strndup (p_empty_key, OMX_MAX_STRINGNAME_SIZE),
+                                           strndup (p_empty_value, OMX_MAX_STRINGNAME_SIZE),
+                                           &current_count));
+        current_count++;
+      }
+  }
+  return rc;
+}
+
+static OMX_ERRORTYPE store_metadata (tiz_uricfgport_t *ap_obj,
+                                     const OMX_CONFIG_METADATAITEMTYPE *ap_meta)
+{
+  OMX_U32 current_count = 0;
+  assert (NULL != ap_obj);
+  assert (NULL != ap_meta);
+  current_count = tiz_map_size (ap_obj->p_metadata_map_);
+  tiz_check_omx_err (tiz_map_insert (ap_obj->p_metadata_map_,
+                                     strndup ((const char *)ap_meta->nKey, OMX_MAX_STRINGNAME_SIZE),
+                                     strndup ((const char *)ap_meta->nValue, ap_meta->nValueSizeUsed),
+                                     &current_count));
+  return OMX_ErrorNone;
+}
+
 /*
  * tizuricfgport class
  */
@@ -89,7 +149,19 @@ static void *uri_cfgport_ctor (void *ap_obj, va_list *app)
      this port's specific ones */
   tiz_check_omx_err_ret_null (
       tiz_port_register_index (p_obj, OMX_IndexParamContentURI)); /* r/w */
+  tiz_check_omx_err_ret_null (
+      tiz_port_register_index (p_obj, OMX_IndexConfigMetadataItemCount)); /* r/w */
+  tiz_check_omx_err_ret_null (
+      tiz_port_register_index (p_obj, OMX_IndexConfigMetadataItem)); /* r/w */
 
+  p_obj->metadata_count_.nSize              = sizeof (OMX_CONFIG_METADATAITEMCOUNTTYPE);
+  p_obj->metadata_count_.nVersion.nVersion  = OMX_VERSION;
+  p_obj->metadata_count_.eScopeMode         = OMX_MetadataScopeAllLevels;
+  p_obj->metadata_count_.nScopeSpecifier    = 0;
+  p_obj->metadata_count_.nMetadataItemCount = 0;
+
+  tiz_map_init (&(p_obj->p_metadata_map_), metadata_map_compare_func,
+                metadata_map_free_func, NULL);
   return p_obj;
 }
 
@@ -97,6 +169,11 @@ static void *uri_cfgport_dtor (void *ap_obj)
 {
   tiz_uricfgport_t *p_obj = ap_obj;
   tiz_mem_free (p_obj->p_uri_);
+  while (!tiz_map_empty (p_obj->p_metadata_map_))
+    {
+      tiz_map_erase_at (p_obj->p_metadata_map_, 0);
+    };
+  tiz_map_destroy (p_obj->p_metadata_map_);
   return super_dtor (typeOf (ap_obj, "tizuricfgport"), ap_obj);
 }
 
@@ -213,6 +290,102 @@ static OMX_ERRORTYPE uri_cfgport_SetParameter (const void *ap_obj,
   return rc;
 }
 
+static OMX_ERRORTYPE
+uri_cfgport_GetConfig (const void *ap_obj,
+                      OMX_HANDLETYPE ap_hdl,
+                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  const tiz_uricfgport_t *p_obj = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
+
+  TIZ_TRACE (ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
+
+  switch (a_index)
+    {
+
+    case OMX_IndexConfigMetadataItemCount:
+      {
+        OMX_CONFIG_METADATAITEMCOUNTTYPE *p_meta_count = ap_struct;
+        *p_meta_count = p_obj->metadata_count_;
+      }
+      break;
+
+    case OMX_IndexConfigMetadataItem:
+      {
+        OMX_CONFIG_METADATAITEMTYPE *p_meta             = ap_struct;
+        assert (tiz_map_size (p_obj->p_metadata_map_) == p_obj->metadata_count_.nMetadataItemCount);
+        if (p_meta->nMetadataItemIndex >= p_obj->metadata_count_.nMetadataItemCount)
+          {
+            rc = OMX_ErrorNoMore;
+          }
+        else
+          {
+            OMX_PTR p_value = tiz_map_at (p_obj->p_metadata_map_, p_meta->nMetadataItemIndex);
+            assert (NULL != p_value);
+            strncpy ((char *)p_meta->nValue, p_value, p_meta->nValueMaxSize);
+            p_meta->nValueSizeUsed = strnlen ((char *)p_meta->nValue, p_meta->nValueMaxSize);
+          }
+      }
+      break;
+
+    default:
+      {
+        /* Try the parent's indexes */
+        rc = super_GetConfig (typeOf (ap_obj, "tizuricfgport"),
+                              ap_obj, ap_hdl, a_index, ap_struct);
+      }
+    };
+
+  return rc;
+
+}
+
+static OMX_ERRORTYPE
+uri_cfgport_SetConfig (const void *ap_obj,
+                      OMX_HANDLETYPE ap_hdl,
+                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_uricfgport_t *p_obj = (tiz_uricfgport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
+
+  TIZ_TRACE (ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
+
+  switch (a_index)
+    {
+
+    case OMX_IndexConfigMetadataItemCount:
+      {
+        OMX_CONFIG_METADATAITEMCOUNTTYPE *p_meta_count = ap_struct;
+        p_obj->metadata_count_ = *p_meta_count;
+        rc = adjust_metadata_map (p_obj);
+      }
+      break;
+
+    case OMX_IndexConfigMetadataItem:
+      {
+        rc = store_metadata (p_obj, ap_struct);
+        if (OMX_ErrorNone != rc)
+          {
+            p_obj->metadata_count_.nMetadataItemCount = tiz_map_size (p_obj->p_metadata_map_);
+          }
+      }
+      break;
+
+    default:
+      {
+        /* Try the parent's indexes */
+        rc = super_SetConfig (typeOf (ap_obj, "tizuricfgport"),
+                              ap_obj, ap_hdl, a_index, ap_struct);
+      }
+    };
+
+  return rc;
+}
+
 /*
  * tizuricfgport_class
  */
@@ -262,6 +435,10 @@ void *tiz_uricfgport_init (void *ap_tos, void *ap_hdl)
        tiz_api_GetParameter, uri_cfgport_GetParameter,
        /* TIZ_CLASS_COMMENT: */
        tiz_api_SetParameter, uri_cfgport_SetParameter,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_GetConfig, uri_cfgport_GetConfig,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_SetConfig, uri_cfgport_SetConfig,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
 

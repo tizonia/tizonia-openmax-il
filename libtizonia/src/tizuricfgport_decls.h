@@ -34,6 +34,10 @@ extern "C"
 {
 #endif
 
+#include <OMX_Component.h>
+
+#include <tizplatform.h>
+
 #include "tizconfigport_decls.h"
 
   typedef struct tiz_uricfgport tiz_uricfgport_t;
@@ -42,6 +46,8 @@ extern "C"
     /* Object */
     const tiz_configport_t _;
     OMX_STRING p_uri_;
+    OMX_CONFIG_METADATAITEMCOUNTTYPE metadata_count_;
+    tiz_map_t *p_metadata_map_;
   };
 
   typedef struct tiz_uricfgport_class tiz_uricfgport_class_t;
