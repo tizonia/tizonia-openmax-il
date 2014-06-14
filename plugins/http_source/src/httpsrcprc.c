@@ -533,8 +533,8 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
   size_t nbytes = size * nmemb;
   size_t rc = nbytes;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "size [%d] nmemb [%d] sockfd [%d]", size, nmemb,
-             p_prc->sockfd_);
+  TIZ_TRACE (handleOf (p_prc), "size [%d] nmemb [%d] sockfd [%d] store [%d]", size, nmemb,
+             p_prc->sockfd_, tiz_buffer_bytes_available (p_prc->p_store_));
 
   if (nbytes > 0)
     {
