@@ -44,7 +44,7 @@ PKG_CHECK_MODULES([LIBCURL], [libcurl >= 7.18.0])
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
+# AC_CHECK_HEADER_STDBOOL
 
 # Checks for library functions.
 
