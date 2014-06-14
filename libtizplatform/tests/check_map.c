@@ -123,7 +123,7 @@ START_TEST (test_map_insert_find_erase_size_empty_at_for_each)
   i = 5;
   fail_if (5 != *(p_item = tiz_map_find (p_map, &i)));
 
-  fail_if (5 != *(p_item = tiz_map_at (p_map, i)));
+  fail_if (5 != *(p_item = tiz_map_value_at (p_map, i)));
 
   fail_if (OMX_ErrorNone != tiz_map_for_each (p_map,
                                               check_map_for_each_f,

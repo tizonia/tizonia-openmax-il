@@ -248,7 +248,7 @@ tiz_map_find (const tiz_map_t *ap_map, OMX_PTR ap_key)
 }
 
 OMX_PTR
-tiz_map_at (const tiz_map_t *ap_map, OMX_S32 a_pos)
+tiz_map_value_at (const tiz_map_t *ap_map, OMX_S32 a_pos)
 {
   tiz_map_item_t *p_item_found = NULL;
   void *pp_itemf = NULL;
@@ -262,6 +262,26 @@ tiz_map_at (const tiz_map_t *ap_map, OMX_S32 a_pos)
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Found value");
       return p_item_found->p_value;
+    }
+
+  return NULL;
+}
+
+OMX_PTR
+tiz_map_key_at (const tiz_map_t *ap_map, OMX_S32 a_pos)
+{
+  tiz_map_item_t *p_item_found = NULL;
+  void *pp_itemf = NULL;
+
+  assert (NULL != ap_map);
+  assert (a_pos < ap_map->size);
+  assert (a_pos >= 0);
+
+  pp_itemf = &p_item_found;
+  if (0 == avl_get_item_by_index (ap_map->p_tree, a_pos, pp_itemf))
+    {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Found value");
+      return p_item_found->p_key;
     }
 
   return NULL;

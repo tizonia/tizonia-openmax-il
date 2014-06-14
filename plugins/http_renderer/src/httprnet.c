@@ -1803,7 +1803,7 @@ httpr_net_write_to_listeners (httpr_server_t * ap_server)
     }
 
   /* Do like this for now until support for multiple listeners is implemented */
-  p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
+  p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
   assert (NULL != p_lstnr);
   p_con = p_lstnr->p_con;
   assert (NULL != p_con);
@@ -1990,7 +1990,7 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
 
   if (get_listeners_count (ap_server) > 0)
     {
-      httpr_listener_t *p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
+      httpr_listener_t *p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
       assert (NULL != p_lstnr);
       stop_listener_timer_watcher (p_lstnr);
       start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
@@ -2083,7 +2083,7 @@ httpr_net_set_icecast_metadata (httpr_server_t * ap_server,
 
   if (get_listeners_count (ap_server) > 0)
     {
-      httpr_listener_t *p_lstnr = tiz_map_at (ap_server->p_lstnrs, 0);
+      httpr_listener_t *p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
       assert (NULL != p_lstnr);
       assert (NULL != p_lstnr->p_con);
       p_lstnr->p_con->metadata_delivered = false;

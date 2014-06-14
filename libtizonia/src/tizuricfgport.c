@@ -322,7 +322,7 @@ uri_cfgport_GetConfig (const void *ap_obj,
           }
         else
           {
-            OMX_PTR p_value = tiz_map_at (p_obj->p_metadata_map_, p_meta->nMetadataItemIndex);
+            OMX_PTR p_value = tiz_map_value_at (p_obj->p_metadata_map_, p_meta->nMetadataItemIndex);
             assert (NULL != p_value);
             strncpy ((char *)p_meta->nValue, p_value, p_meta->nValueMaxSize);
             p_meta->nValueSizeUsed = strnlen ((char *)p_meta->nValue, p_meta->nValueMaxSize);

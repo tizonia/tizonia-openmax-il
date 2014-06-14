@@ -53,7 +53,8 @@ void tiz_map_destroy (tiz_map_t *ap_map);
 OMX_ERRORTYPE tiz_map_insert (tiz_map_t *ap_map, OMX_PTR ap_key,
                               OMX_PTR ap_value, OMX_U32 *ap_index);
 OMX_PTR tiz_map_find (const tiz_map_t *ap_map, OMX_PTR ap_key);
-OMX_PTR tiz_map_at (const tiz_map_t *ap_map, OMX_S32 a_pos);
+OMX_PTR tiz_map_key_at (const tiz_map_t *ap_map, OMX_S32 a_pos);
+OMX_PTR tiz_map_value_at (const tiz_map_t *ap_map, OMX_S32 a_pos);
 OMX_ERRORTYPE tiz_map_for_each (tiz_map_t *ap_map,
                                 tiz_map_for_each_f a_pf_for_each,
                                 OMX_PTR ap_arg);
