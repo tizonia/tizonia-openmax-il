@@ -43,6 +43,51 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.configport"
 #endif
 
+static OMX_S32
+metadata_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+{
+  return strncmp((const char *) ap_key1, (const char *) ap_key2,
+                 OMX_MAX_STRINGNAME_SIZE);
+}
+
+static void
+metadata_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
+{
+  tiz_mem_free (ap_value);
+}
+
+static void clear_metadata_map (tiz_configport_t *ap_obj)
+{
+  assert (NULL != ap_obj);
+  while (!tiz_map_empty (ap_obj->p_metadata_map_))
+    {
+      tiz_map_erase_at (ap_obj->p_metadata_map_, 0);
+    };
+}
+
+static OMX_ERRORTYPE store_metadata (tiz_configport_t *ap_obj,
+                                     const OMX_CONFIG_METADATAITEMTYPE *ap_meta)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_obj);
+  assert (NULL != ap_meta);
+
+  {
+    const OMX_U32 current_count = tiz_map_size (ap_obj->p_metadata_map_);
+    assert (current_count == ap_obj->metadata_count_.nMetadataItemCount);
+    tiz_check_omx_err (tiz_map_insert (ap_obj->p_metadata_map_,
+                                       (OMX_PTR)ap_meta->nKey,
+                                       (OMX_PTR)ap_meta,
+                                       (OMX_U32 *)&current_count));
+    ap_obj->metadata_count_.nMetadataItemCount++;
+    TIZ_TRACE (handleOf (ap_obj),
+               "storing metadata [%d] [%s]...", ap_obj->metadata_count_.nMetadataItemCount,
+               ap_meta->nKey);
+
+  }
+  return rc;
+}
+
 /*
  * tizconfigport class
  */
@@ -85,8 +130,8 @@ configport_ctor (void *ap_obj, va_list * app)
   p_obj->config_pm_.nGroupPriority = 0;
   p_obj->config_pm_.nGroupID = 0;
 
-  /* This is a bit ugly... */
-  /* ... we clear the indexes added by the base port class */
+  /* Clear the indexes added by the base port class. They are of no interest
+     here and won't be handled in this class.  */
   tiz_vector_clear (p_base->p_indexes_);
 
   /* Now register the indexes we are interested in */
@@ -98,9 +143,23 @@ configport_ctor (void *ap_obj, va_list * app)
     (tiz_port_register_index (p_obj, OMX_IndexParamPriorityMgmt));
   tiz_check_omx_err_ret_null
     (tiz_port_register_index (p_obj, OMX_IndexConfigPriorityMgmt));
+  tiz_check_omx_err_ret_null (
+      tiz_port_register_index (p_obj, OMX_IndexConfigMetadataItemCount)); /* read-only */
+  tiz_check_omx_err_ret_null (
+      tiz_port_register_index (p_obj, OMX_IndexConfigMetadataItem)); /* read-only */
 
   /* Generate the uuid */
   tiz_uuid_generate (&p_obj->uuid_);
+
+  p_obj->metadata_count_.nSize              = sizeof (OMX_CONFIG_METADATAITEMCOUNTTYPE);
+  p_obj->metadata_count_.nVersion.nVersion  = OMX_VERSION;
+  p_obj->metadata_count_.eScopeMode         = OMX_MetadataScopeAllLevels;
+  p_obj->metadata_count_.nScopeSpecifier    = 0;
+  p_obj->metadata_count_.nMetadataItemCount = 0;
+
+  tiz_check_omx_err_ret_null
+    (tiz_map_init (&(p_obj->p_metadata_map_), metadata_map_compare_func,
+                   metadata_map_free_func, NULL));
 
   return p_obj;
 }
@@ -108,6 +167,9 @@ configport_ctor (void *ap_obj, va_list * app)
 static void *
 configport_dtor (void *ap_obj)
 {
+  tiz_configport_t *p_obj = ap_obj;
+  clear_metadata_map (p_obj);
+  tiz_map_destroy (p_obj->p_metadata_map_);
   return super_dtor (typeOf (ap_obj, "tizconfigport"), ap_obj);
 }
 
@@ -254,14 +316,14 @@ configport_GetConfig (const void *ap_obj,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_configport_t *p_obj = ap_obj;
-
-  TIZ_TRACE (ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
 
+  TIZ_TRACE (ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
+
   switch (a_index)
     {
-
     case OMX_IndexConfigPriorityMgmt:
       {
         OMX_PRIORITYMGMTTYPE *p_pm = ap_struct;
@@ -269,16 +331,46 @@ configport_GetConfig (const void *ap_obj,
       }
       break;
 
+    case OMX_IndexConfigMetadataItemCount:
+      {
+        OMX_CONFIG_METADATAITEMCOUNTTYPE *p_meta_count = ap_struct;
+        *p_meta_count = p_obj->metadata_count_;
+      }
+      break;
+
+    case OMX_IndexConfigMetadataItem:
+      {
+        OMX_CONFIG_METADATAITEMTYPE *p_meta = ap_struct;
+        assert (tiz_map_size (p_obj->p_metadata_map_) == p_obj->metadata_count_.nMetadataItemCount);
+        if (p_meta->nMetadataItemIndex >= p_obj->metadata_count_.nMetadataItemCount)
+          {
+            rc = OMX_ErrorNoMore;
+          }
+        else
+          {
+            OMX_CONFIG_METADATAITEMTYPE *p_value
+              = tiz_map_value_at (p_obj->p_metadata_map_, p_meta->nMetadataItemIndex);
+            assert (NULL != p_value);
+            strncpy ((char *)p_meta->nKey, (char *)p_value->nKey, 128);
+            p_meta->nKeySizeUsed = strnlen ((char *)p_meta->nKey, 128);
+            strncpy ((char *)p_meta->nValue, (char *)p_value->nValue, p_meta->nValueMaxSize);
+            p_meta->nValueSizeUsed = strnlen ((char *)p_meta->nValue, p_meta->nValueMaxSize);
+            TIZ_TRACE (handleOf (ap_obj),
+                       "key at [%d] = [%s]...", p_meta->nMetadataItemIndex, p_value->nKey);
+          }
+      }
+      break;
+
     default:
       {
         TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                  a_index);
-        return OMX_ErrorUnsupportedIndex;
+        rc = OMX_ErrorUnsupportedIndex;
       }
+      break;
     };
 
-  return OMX_ErrorNone;
-
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -287,22 +379,27 @@ configport_SetConfig (const void *ap_obj,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_configport_t *p_obj = (tiz_configport_t *) ap_obj;
-
-  TIZ_TRACE (ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
 
+  TIZ_TRACE (ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
+
   switch (a_index)
     {
-
     case OMX_IndexConfigPriorityMgmt:
       {
-
-        const OMX_PRIORITYMGMTTYPE *p_prio
-          = (OMX_PRIORITYMGMTTYPE *) ap_struct;
-
+        const OMX_PRIORITYMGMTTYPE *p_prio = (OMX_PRIORITYMGMTTYPE *) ap_struct;
         p_obj->config_pm_ = *p_prio;
+      }
+      break;
 
+    case OMX_IndexConfigMetadataItemCount:
+    case OMX_IndexConfigMetadataItem:
+      {
+        /* These are read-only indexes. Simply ignore them. */
+        TIZ_NOTICE (ap_hdl, "Ignoring read-only index [%s] ",
+                  tiz_idx_to_str (a_index));
       }
       break;
 
@@ -310,11 +407,11 @@ configport_SetConfig (const void *ap_obj,
       {
         TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
                  a_index);
-        return OMX_ErrorUnsupportedIndex;
+        rc = OMX_ErrorUnsupportedIndex;
       }
     };
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -328,6 +425,34 @@ configport_GetExtensionIndex (const void *ap_obj,
   return OMX_ErrorUnsupportedIndex;
 }
 
+static void
+configport_clear_metadata (void *ap_obj)
+{
+  clear_metadata_map (ap_obj);
+}
+
+void
+tiz_configport_clear_metadata (void *ap_obj)
+{
+  const tiz_configport_class_t *class = classOf (ap_obj);
+  assert (NULL != class->clear_metadata);
+  return class->clear_metadata (ap_obj);
+}
+
+static OMX_ERRORTYPE
+configport_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item)
+{
+  return store_metadata (ap_obj, ap_meta_item);
+}
+
+OMX_ERRORTYPE
+tiz_configport_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item)
+{
+  const tiz_configport_class_t *class = classOf (ap_obj);
+  assert (NULL != class->store_metadata);
+  return class->store_metadata (ap_obj, ap_meta_item);
+}
+
 /*
  * tizconfigport_class
  */
@@ -335,8 +460,32 @@ configport_GetExtensionIndex (const void *ap_obj,
 static void *
 configport_class_ctor (void *ap_obj, va_list * app)
 {
-  /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "tizconfigport_class"), ap_obj, app);
+  tiz_configport_class_t *p_obj
+      = super_ctor (typeOf (ap_obj, "tizconfigport_class"), ap_obj, app);
+  typedef void (*voidf)();
+  voidf selector = NULL;
+  va_list ap;
+  va_copy (ap, *app);
+
+  /* NOTE: Start ignoring splint warnings in this section of code */
+  /*@ignore@*/
+  while ((selector = va_arg (ap, voidf)))
+    {
+      voidf method = va_arg (ap, voidf);
+      if (selector == (voidf)tiz_configport_clear_metadata)
+        {
+          *(voidf *)&p_obj->clear_metadata = method;
+        }
+      else if (selector == (voidf)tiz_configport_store_metadata)
+        {
+          *(voidf *)&p_obj->store_metadata = method;
+        }
+    }
+  /*@end@*/
+  /* NOTE: Stop ignoring splint warnings in this section  */
+
+  va_end (ap);
+  return p_obj;
 }
 
 /*
@@ -387,6 +536,10 @@ tiz_configport_init (void * ap_tos, void * ap_hdl)
      tiz_api_SetConfig, configport_SetConfig,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_GetExtensionIndex, configport_GetExtensionIndex,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_configport_clear_metadata, configport_clear_metadata,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_configport_store_metadata, configport_store_metadata,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
 
