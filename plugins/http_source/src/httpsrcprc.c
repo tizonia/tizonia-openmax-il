@@ -425,6 +425,53 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
   return rc;
 }
 
+static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
+                                     const char *ap_header_name,
+                                     const char *ap_header_info)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
+  size_t metadata_len = 0;
+  size_t info_len = 0;
+
+  assert (NULL != ap_prc);
+  assert (NULL != ap_header_name);
+  assert (NULL != ap_header_info);
+
+  info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+  metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
+
+  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (1, metadata_len)))
+  {
+    rc = OMX_ErrorInsufficientResources;
+  }
+  else
+  {
+    const size_t name_len = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+    strncpy ((char *)p_meta->nKey, ap_header_name, name_len - 1);
+    p_meta->nKey[name_len - 1] = '\0';
+    p_meta->nKeySizeUsed = name_len;
+
+    strncpy ((char *)p_meta->nValue, ap_header_info, info_len - 1);
+    p_meta->nValue[info_len - 1] = '\0';
+    p_meta->nValueMaxSize = info_len;
+    p_meta->nValueSizeUsed = info_len;
+
+    p_meta->nSize = metadata_len;
+    p_meta->nVersion.nVersion = OMX_VERSION;
+    p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+    p_meta->nScopeSpecifier = 0;
+    p_meta->nMetadataItemIndex = 0;
+    p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+    p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+    p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+
+    rc = tiz_krn_store_metadata (tiz_get_krn (handleOf (ap_prc)), p_meta);
+  }
+
+  return rc;
+}
+
 static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
                                                 const char *ap_header,
                                                 const size_t a_size)
@@ -459,9 +506,7 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
         TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
         TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-        fprintf (stdout, "   %s[%s] : [%s]%s\n", KYEL, name, p_info, KNRM);
+        (void)store_metadata (ap_prc, name, p_info);
 
         if (memcmp (name, "Content-Type", 12) == 0
             || memcmp (name, "content-type", 12) == 0)
