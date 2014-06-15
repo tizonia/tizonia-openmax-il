@@ -21,7 +21,7 @@
  * @file   tizkernel_internal.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - kernel class - private types
+ * @brief  Tizonia OpenMAX IL - kernel class - private types and declarations
  *
  *
  */

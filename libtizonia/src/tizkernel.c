@@ -38,6 +38,7 @@
 
 #include "tizfsm.h"
 #include "tizport.h"
+#include "tizconfigport.h"
 #include "tizport-macros.h"
 #include "tizutils.h"
 
@@ -1901,6 +1902,38 @@ bool tiz_krn_get_restriction_status (const void *ap_obj,
   return class->get_restriction_status (ap_obj, a_restriction);
 }
 
+static void
+krn_clear_metadata (void *ap_obj)
+{
+  tiz_krn_t *p_obj = ap_obj;
+  assert (NULL != p_obj);
+  tiz_configport_clear_metadata (p_obj->p_cport_);
+}
+
+void
+tiz_krn_clear_metadata (void *ap_obj)
+{
+  const tiz_krn_class_t *class = classOf (ap_obj);
+  assert (NULL != class->clear_metadata);
+  return class->clear_metadata (ap_obj);
+}
+
+static OMX_ERRORTYPE
+krn_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item)
+{
+  tiz_krn_t *p_obj = ap_obj;
+  assert (NULL != p_obj);
+  return tiz_configport_store_metadata (p_obj->p_cport_, ap_meta_item);
+}
+
+OMX_ERRORTYPE
+tiz_krn_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item)
+{
+  const tiz_krn_class_t *class = classOf (ap_obj);
+  assert (NULL != class->store_metadata);
+  return class->store_metadata (ap_obj, ap_meta_item);
+}
+
 /*
  * tiz_krn_class
  */
@@ -1958,6 +1991,14 @@ static void *krn_class_ctor (void *ap_obj, va_list *app)
       else if (selector == (voidf)tiz_krn_get_restriction_status)
         {
           *(voidf *)&p_obj->get_restriction_status = method;
+        }
+      else if (selector == (voidf)tiz_krn_clear_metadata)
+        {
+          *(voidf *)&p_obj->clear_metadata = method;
+        }
+      else if (selector == (voidf)tiz_krn_store_metadata)
+        {
+          *(voidf *)&p_obj->store_metadata = method;
         }
     }
   /*@end@*/
@@ -2060,6 +2101,10 @@ void *tiz_krn_init (void *ap_tos, void *ap_hdl)
        tiz_krn_reset_tunneled_ports_status, krn_reset_tunneled_ports_status,
        /* TIZ_CLASS_COMMENT: restriction_status */
        tiz_krn_get_restriction_status, krn_get_restriction_status,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_krn_clear_metadata, krn_clear_metadata,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_krn_store_metadata, krn_store_metadata,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
 

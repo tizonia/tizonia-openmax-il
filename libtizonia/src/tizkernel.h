@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 #include <OMX_Core.h>
+#include <OMX_Component.h>
 
 #include "tizutils.h"
 
@@ -75,6 +76,9 @@ OMX_ERRORTYPE tiz_krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,
                                     OMX_BUFFERHEADERTYPE **p_hdr);
 OMX_ERRORTYPE tiz_krn_release_buffer (const void *ap_obj, const OMX_U32 a_pid,
                                       OMX_BUFFERHEADERTYPE *ap_hdr);
+void tiz_krn_clear_metadata (void *ap_obj);
+OMX_ERRORTYPE tiz_krn_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item);
+
 void tiz_krn_reset_tunneled_ports_status (void *ap_obj,
                                           const OMX_U32 a_port_status_flag);
 tiz_krn_population_status_t tiz_krn_get_population_status (

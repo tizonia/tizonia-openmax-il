@@ -177,6 +177,8 @@ struct tiz_krn_class
                                       const OMX_U32 a_port_status_flag);
   bool (*get_restriction_status)(const void *ap_obj,
                                  const tiz_krn_restriction_t a_restriction);
+  void (*clear_metadata)(void *ap_obj);
+  OMX_ERRORTYPE (*store_metadata)(void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item);
 };
 
 #ifdef __cplusplus
