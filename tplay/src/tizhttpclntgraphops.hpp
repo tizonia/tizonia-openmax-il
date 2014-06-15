@@ -68,6 +68,8 @@ namespace tiz
     private:
       // re-implemented from the base class
       bool probe_stream_hook ();
+      void dump_stream_metadata ();
+      OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index);
       OMX_ERRORTYPE get_encoding_type_from_http_source ();
       OMX_ERRORTYPE apply_pcm_codec_info_from_http_source ();
       OMX_ERRORTYPE get_pcm_info_from_mp3_port (OMX_U32 &channels, OMX_U32 &sampling_rate,

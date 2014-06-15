@@ -113,6 +113,8 @@ void graph::httpclntops::do_load ()
 
   assert (comp_lst_.size () == 1);
 
+  dump_stream_metadata ();
+
   G_OPS_BAIL_IF_ERROR (
       get_encoding_type_from_http_source (),
       "Unable to retrieve the audio encoding from the http source.");
@@ -291,6 +293,57 @@ bool graph::httpclntops::probe_stream_hook ()
   return true;
 }
 
+void graph::httpclntops::dump_stream_metadata ()
+{
+  OMX_U32 index = 0;
+  while (OMX_ErrorNone == dump_metadata_item (index++))
+    {};
+}
+
+OMX_ERRORTYPE graph::httpclntops::dump_metadata_item (const OMX_U32 index)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
+  size_t metadata_len = 0;
+  size_t value_len = 0;
+
+  value_len = OMX_MAX_STRINGNAME_SIZE;
+  metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + value_len;
+
+  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (1, metadata_len)))
+  {
+    rc = OMX_ErrorInsufficientResources;
+  }
+  else
+  {
+    p_meta->nSize = metadata_len;
+    p_meta->nVersion.nVersion = OMX_VERSION;
+    p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+    p_meta->nScopeSpecifier = 0;
+    p_meta->nMetadataItemIndex = index;
+    p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+    p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+    p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+    p_meta->nKeySizeUsed = 0;
+    p_meta->nValue[0] = '\0';
+    p_meta->nValueMaxSize = OMX_MAX_STRINGNAME_SIZE;
+    p_meta->nValueSizeUsed = 0;
+
+    rc = OMX_GetConfig (handles_[0], OMX_IndexConfigMetadataItem,
+                           p_meta);
+    if (OMX_ErrorNone == rc)
+      {
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+        fprintf (stdout, "   %s[%s] : [%s]%s\n", KYEL, p_meta->nKey, p_meta->nValue, KNRM);
+      }
+
+    tiz_mem_free (p_meta);
+    p_meta = NULL;
+  }
+  return rc;
+}
+
 OMX_ERRORTYPE graph::httpclntops::get_encoding_type_from_http_source ()
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
@@ -299,15 +352,6 @@ OMX_ERRORTYPE graph::httpclntops::get_encoding_type_from_http_source ()
   tiz_check_omx_err (
       OMX_GetParameter (handles_[0], OMX_IndexParamPortDefinition, &port_def));
   encoding_ = port_def.format.audio.eEncoding;
-
-  // Retrieve the current encoding type from the http source component input
-  // port
-  //   OMX_AUDIO_PARAM_PORTFORMATTYPE audio_format;
-  //   const OMX_U32 port_id = 0;
-  //   TIZ_INIT_OMX_PORT_STRUCT (audio_format, port_id);
-  //   tiz_check_omx_err (OMX_GetParameter (
-  //       handles_[0], OMX_IndexParamAudioPortFormat, &audio_format));
-  //   encoding_ = audio_format.eEncoding;
   return OMX_ErrorNone;
 }
 
