@@ -43,6 +43,61 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.mp3port"
 #endif
 
+static OMX_ERRORTYPE
+mp3port_SetParameter_common (const void *ap_obj,
+                      OMX_HANDLETYPE ap_hdl,
+                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_mp3port_t *p_obj = (tiz_mp3port_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
+  assert (OMX_IndexParamAudioMp3 == a_index);
+
+  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+
+  if (a_index == OMX_IndexParamAudioMp3)
+    {
+      const OMX_AUDIO_PARAM_MP3TYPE *p_mp3type
+        = (OMX_AUDIO_PARAM_MP3TYPE *) ap_struct;
+
+      switch (p_mp3type->nSampleRate)
+        {
+        case 16000:           /* MPEG-2 */
+        case 24000:           /* MPEG-2 */
+        case 22050:           /* MPEG-2 */
+        case 32000:           /* MPEG-1 */
+        case 44100:           /* MPEG-1 */
+        case 48000:           /* MPEG-1 */
+          {
+            break;
+          }
+        default:
+          {
+            TIZ_TRACE (ap_hdl,
+                       "[OMX_ErrorBadParameter] : "
+                       "Unsupported sample rate [%d]. ",
+                       p_mp3type->nSampleRate);
+            rc = OMX_ErrorBadParameter;
+          }
+        };
+
+      if (OMX_ErrorNone == rc)
+        {
+          /* Apply the new default values */
+          p_obj->mp3type_.nChannels = p_mp3type->nChannels;
+          p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
+          p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
+          p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
+          p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
+          p_obj->mp3type_.eFormat = p_mp3type->eFormat;
+        }
+    }
+
+  return rc;
+}
+
 /*
  * tizmp3port class
  */
@@ -134,58 +189,26 @@ mp3port_SetParameter (const void *ap_obj,
       {
         const OMX_AUDIO_PARAM_MP3TYPE *p_mp3type
           = (OMX_AUDIO_PARAM_MP3TYPE *) ap_struct;
+        /* Do now allow changes to sampling rate or num of channels if this is
+         * a slave output port */
+        const tiz_port_t *p_base = ap_obj;
 
-        switch (p_mp3type->nSampleRate)
+        if ((OMX_DirOutput == p_base->portdef_.eDir)
+            && (p_base->opts_.mos_port != -1)
+            && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
+            && (p_obj->mp3type_.nChannels != p_mp3type->nChannels
+                || p_obj->mp3type_.nSampleRate != p_mp3type->nSampleRate))
           {
-          case 16000:           /* MPEG-2 */
-          case 24000:           /* MPEG-2 */
-          case 22050:           /* MPEG-2 */
-          case 32000:           /* MPEG-1 */
-          case 44100:           /* MPEG-1 */
-          case 48000:           /* MPEG-1 */
-            {
-              break;
-            }
-          default:
-            {
-              TIZ_TRACE (ap_hdl,
-                         "[%s] : OMX_ErrorBadParameter : "
-                         "Sample rate not supported [%d]. "
-                         "Returning...", tiz_idx_to_str (a_index),
-                         p_mp3type->nSampleRate);
-              rc = OMX_ErrorBadParameter;
-            }
-          };
-
-        if (OMX_ErrorNone == rc)
+            TIZ_ERROR (ap_hdl,
+                       "[OMX_ErrorBadParameter] : PORT [%d] "
+                       "SetParameter [OMX_IndexParamAudioMp3]... "
+                       "Slave port, cannot update sample rate "
+                       "or number of channels", tiz_port_dir (p_obj));
+            rc = OMX_ErrorBadParameter;
+          }
+        else
           {
-            /* Do now allow changes to sampling rate or num of channels if this is
-             * a slave output port */
-            const tiz_port_t *p_base = ap_obj;
-
-            if ((OMX_DirOutput == p_base->portdef_.eDir)
-                && (p_base->opts_.mos_port != -1)
-                && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
-                && (p_obj->mp3type_.nChannels != p_mp3type->nChannels
-                    || p_obj->mp3type_.nSampleRate != p_mp3type->nSampleRate))
-              {
-                TIZ_ERROR (ap_hdl,
-                           "[OMX_ErrorBadParameter] : PORT [%d] "
-                           "SetParameter [OMX_IndexParamAudioMp3]... "
-                           "Slave port, cannot update sample rate "
-                           "or number of channels", tiz_port_dir (p_obj));
-                rc = OMX_ErrorBadParameter;
-              }
-            else
-              {
-                /* Apply the new default values */
-                p_obj->mp3type_.nChannels = p_mp3type->nChannels;
-                p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
-                p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
-                p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
-                p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
-                p_obj->mp3type_.eFormat = p_mp3type->eFormat;
-              }
+            rc = mp3port_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
           }
       }
       break;
@@ -196,6 +219,36 @@ mp3port_SetParameter (const void *ap_obj,
         rc = super_SetParameter (typeOf (ap_obj, "tizmp3port"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
       }
+    };
+
+  return rc;
+}
+
+static OMX_ERRORTYPE
+mp3port_SetParameter_internal (const void *ap_obj,
+                               OMX_HANDLETYPE ap_hdl,
+                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_mp3port_t *p_obj = (tiz_mp3port_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
+
+  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+
+  switch (a_index)
+    {
+    case OMX_IndexParamAudioMp3:
+      {
+        rc = mp3port_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
+      }
+      break;
+    default:
+      {
+        assert (0);
+      }
+      break;
     };
 
   return rc;
@@ -458,6 +511,8 @@ tiz_mp3port_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetParameter, mp3port_GetParameter,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, mp3port_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_SetParameter_internal, mp3port_SetParameter_internal,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, mp3port_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: */
