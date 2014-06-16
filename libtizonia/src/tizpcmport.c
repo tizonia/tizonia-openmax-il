@@ -224,15 +224,12 @@ pcmport_SetParameter (const void *ap_obj,
           if ((OMX_DirOutput == p_base->portdef_.eDir)
               && (p_base->opts_.mos_port != (OMX_U32) -1)
               && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex))
-/*               && (p_obj->pcmmode_.nChannels != p_pcmmode->nChannels */
-/*                   || p_obj->pcmmode_.nBitPerSample != p_pcmmode->nBitPerSample */
-/*                   || p_obj->pcmmode_.nSamplingRate != */
-/*                   p_pcmmode->nSamplingRate)) */
             {
               TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
-                        "SetParameter [OMX_IndexParamAudioPcm]... "
-                        "Slave port, cannot update sample rate "
-                        "bits per sample or number of channels", tiz_port_dir (p_obj));
+                         "SetParameter [OMX_IndexParamAudioPcm]... "
+                         "Slave port, cannot allow external updates of port properties "
+                         "like sample rate, bits per sample or number of channels",
+                         tiz_port_dir (p_obj));
               return OMX_ErrorBadParameter;
             }
         }

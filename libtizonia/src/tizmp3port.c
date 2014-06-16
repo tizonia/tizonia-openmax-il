@@ -255,9 +255,9 @@ mp3port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
   /* OpenMAX IL 1.2 Section 3.5 : Slaving behaviour for nSamplingRate and
    * nChannels, both in OMX_AUDIO_PARAM_MP3TYPE */
 
-  assert (p_obj);
-  assert (ap_struct);
-  assert (ap_changed_idxs);
+  assert (NULL != p_obj);
+  assert (NULL != ap_struct);
+  assert (NULL != ap_changed_idxs);
 
   {
     OMX_U32 new_rate = p_obj->mp3type_.nSampleRate;
