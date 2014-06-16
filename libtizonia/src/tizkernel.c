@@ -1934,6 +1934,72 @@ tiz_krn_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta
   return class->store_metadata (ap_obj, ap_meta_item);
 }
 
+static OMX_ERRORTYPE
+krn_SetParameter_internal (const void *ap_obj,
+                           OMX_HANDLETYPE ap_hdl,
+                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  const tiz_krn_t *p_obj = ap_obj;
+  OMX_PTR p_port = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
+
+  TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
+
+  /* Find the port that holds the data */
+  if (OMX_ErrorNone
+      == (rc = tiz_krn_find_managing_port (p_obj, a_index, ap_struct, &p_port)))
+    {
+      assert (NULL != p_port);
+      /* Delegate to the port */
+      rc = tiz_port_SetParameter_internal (p_port, ap_hdl, a_index, ap_struct);
+    }
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz_krn_SetParameter_internal (const void *ap_obj,
+                               OMX_HANDLETYPE ap_hdl,
+                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  const tiz_krn_class_t *class = classOf (ap_obj);
+  assert (NULL != class->SetParameter_internal);
+  return class->SetParameter_internal (ap_obj, ap_hdl, a_index, ap_struct);
+}
+
+static OMX_ERRORTYPE
+krn_SetConfig_internal (const void *ap_obj,
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_krn_t *p_obj = (tiz_krn_t *)ap_obj;
+  OMX_PTR p_port = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
+
+  /* Find the port that holds the data */
+  if (OMX_ErrorNone
+      == (rc = tiz_krn_find_managing_port (p_obj, a_index, ap_struct, &p_port)))
+    {
+      /* Delegate to that port */
+      assert (NULL != p_port);
+      rc = tiz_port_SetConfig_internal (p_port, ap_hdl, a_index, ap_struct);
+    }
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz_krn_SetConfig_internal (const void *ap_obj,
+                            OMX_HANDLETYPE ap_hdl,
+                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  const tiz_krn_class_t *class = classOf (ap_obj);
+  assert (NULL != class->SetConfig_internal);
+  return class->SetConfig_internal (ap_obj, ap_hdl, a_index, ap_struct);
+}
+
 /*
  * tiz_krn_class
  */
@@ -1999,6 +2065,14 @@ static void *krn_class_ctor (void *ap_obj, va_list *app)
       else if (selector == (voidf)tiz_krn_store_metadata)
         {
           *(voidf *)&p_obj->store_metadata = method;
+        }
+      else if (selector == (voidf)tiz_krn_SetParameter_internal)
+        {
+          *(voidf *)&p_obj->SetParameter_internal = method;
+        }
+      else if (selector == (voidf)tiz_krn_SetConfig_internal)
+        {
+          *(voidf *)&p_obj->SetConfig_internal = method;
         }
     }
   /*@end@*/
@@ -2105,6 +2179,10 @@ void *tiz_krn_init (void *ap_tos, void *ap_hdl)
        tiz_krn_clear_metadata, krn_clear_metadata,
        /* TIZ_CLASS_COMMENT: */
        tiz_krn_store_metadata, krn_store_metadata,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_krn_SetParameter_internal, krn_SetParameter_internal,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_krn_SetConfig_internal, krn_SetConfig_internal,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
 

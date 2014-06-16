@@ -2026,7 +2026,7 @@ tiz_port_update_tunneled_status (void *ap_obj, OMX_U32 a_port_status)
 }
 
 static void
-reset_tunneled_port_status_flag (void *ap_obj,
+port_reset_tunneled_port_status_flag (void *ap_obj,
                                  OMX_U32 a_port_status_flag)
 {
   tiz_port_t *p_obj = ap_obj;
@@ -2043,6 +2043,46 @@ tiz_port_reset_tunneled_port_status_flag (void *ap_obj,
   const tiz_port_class_t *class = classOf (ap_obj);
   assert (class->reset_tunneled_port_status_flag);
   class->reset_tunneled_port_status_flag (ap_obj, a_port_status_flag);
+}
+
+static OMX_ERRORTYPE
+port_SetParameter_internal (const void *ap_obj,
+                           OMX_HANDLETYPE ap_hdl,
+                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  /* Default implementation is to call the normal SetParameter. Derived classes
+     may override this behaviour. */
+  return tiz_api_SetParameter (ap_obj, ap_hdl, a_index, ap_struct);
+}
+
+OMX_ERRORTYPE
+tiz_port_SetParameter_internal (const void *ap_obj,
+                               OMX_HANDLETYPE ap_hdl,
+                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  const tiz_port_class_t *class = classOf (ap_obj);
+  assert (NULL != class->SetParameter_internal);
+  return class->SetParameter_internal (ap_obj, ap_hdl, a_index, ap_struct);
+}
+
+static OMX_ERRORTYPE
+port_SetConfig_internal (const void *ap_obj,
+                        OMX_HANDLETYPE ap_hdl,
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  /* Default implementation is to call the normal SetConfig. Derived classes
+     may override this behaviour. */
+  return tiz_api_SetConfig (ap_obj, ap_hdl, a_index, ap_struct);
+}
+
+OMX_ERRORTYPE
+tiz_port_SetConfig_internal (const void *ap_obj,
+                            OMX_HANDLETYPE ap_hdl,
+                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  const tiz_port_class_t *class = classOf (ap_obj);
+  assert (NULL != class->SetConfig_internal);
+  return class->SetConfig_internal (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 /*
@@ -2174,7 +2214,14 @@ port_class_ctor (void *ap_obj, va_list * app)
         {
           *(voidf *) & p_obj->reset_tunneled_port_status_flag = method;
         }
-
+      else if (selector == (voidf)tiz_port_SetParameter_internal)
+        {
+          *(voidf *)&p_obj->SetParameter_internal = method;
+        }
+      else if (selector == (voidf)tiz_port_SetConfig_internal)
+        {
+          *(voidf *)&p_obj->SetConfig_internal = method;
+        }
     }
   /*@end@*/
   /* NOTE: Stop ignoring splint warnings in this section  */
@@ -2290,7 +2337,11 @@ tiz_port_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      tiz_port_update_tunneled_status, port_update_tunneled_status,
      /* TIZ_CLASS_COMMENT: */
-     tiz_port_reset_tunneled_port_status_flag, reset_tunneled_port_status_flag,
+     tiz_port_reset_tunneled_port_status_flag, port_reset_tunneled_port_status_flag,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_SetParameter_internal, port_SetParameter_internal,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_SetConfig_internal, port_SetConfig_internal,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
 

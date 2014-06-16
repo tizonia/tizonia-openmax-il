@@ -160,6 +160,12 @@ extern "C"
 
   void tiz_port_reset_tunneled_port_status_flag (void *ap_obj,
                                                  OMX_U32 a_port_status_flag);
+  OMX_ERRORTYPE  tiz_port_SetParameter_internal (const void *ap_obj,
+                                                OMX_HANDLETYPE ap_hdl,
+                                                OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
+  OMX_ERRORTYPE tiz_port_SetConfig_internal (const void *ap_obj,
+                                             OMX_HANDLETYPE ap_hdl,
+                                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
 
 #ifdef __cplusplus
 }

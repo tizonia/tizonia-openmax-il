@@ -148,6 +148,12 @@ extern "C"
                                     OMX_U32 a_port_status);
     void (*reset_tunneled_port_status_flag) (void *ap_obj,
                                              OMX_U32 a_port_status_flag);
+    OMX_ERRORTYPE (*SetParameter_internal) (const void *ap_obj,
+                                            OMX_HANDLETYPE ap_hdl,
+                                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
+    OMX_ERRORTYPE (*SetConfig_internal) (const void *ap_obj,
+                                         OMX_HANDLETYPE ap_hdl,
+                                         OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
   };
 
 #ifdef __cplusplus

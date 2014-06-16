@@ -179,6 +179,12 @@ struct tiz_krn_class
                                  const tiz_krn_restriction_t a_restriction);
   void (*clear_metadata)(void *ap_obj);
   OMX_ERRORTYPE (*store_metadata)(void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item);
+  OMX_ERRORTYPE (*SetParameter_internal) (const void *ap_obj,
+                                          OMX_HANDLETYPE ap_hdl,
+                                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
+  OMX_ERRORTYPE (*SetConfig_internal) (const void *ap_obj,
+                                       OMX_HANDLETYPE ap_hdl,
+                                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
 };
 
 #ifdef __cplusplus
