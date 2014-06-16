@@ -132,8 +132,9 @@ release_buffers (ar_prc_t * ap_prc)
 
   if (ap_prc->p_inhdr_)
     {
-      void *p_krn = tiz_get_krn (handleOf (ap_prc));
-      tiz_check_omx_err (tiz_krn_release_buffer (p_krn, 0, ap_prc->p_inhdr_));
+      tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                                 ARATELIA_AUDIO_RENDERER_PORT_INDEX,
+                                                 ap_prc->p_inhdr_));
       ap_prc->p_inhdr_ = NULL;
     }
   return OMX_ErrorNone;
@@ -256,10 +257,7 @@ set_component_volume (ar_prc_t * ap_prc)
     {
       tiz_check_omx_err (get_alsa_master_volume (ap_prc, &(ap_prc->volume_)));
 
-      volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
-      volume.nVersion.nVersion = OMX_VERSION;
-      volume.nPortIndex = 0;
-
+      TIZ_INIT_OMX_PORT_STRUCT (volume, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
       tiz_check_omx_err (tiz_api_GetConfig (tiz_get_krn (handleOf (ap_prc)),
                                             handleOf (ap_prc),
                                             OMX_IndexConfigAudioVolume, &volume));
@@ -610,27 +608,17 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 
   if (NULL != p_prc->p_pcm_hdl)
     {
-      OMX_ERRORTYPE rc = OMX_ErrorNone;
       snd_pcm_format_t snd_pcm_format;
-      OMX_HANDLETYPE p_hdl = handleOf (p_prc);
-      void *p_krn = tiz_get_krn (p_hdl);
       int err = 0;
       unsigned int snd_sampling_rate = 0;
 
       /* Retrieve pcm params from port */
-      p_prc->pcmmode.nSize = (OMX_U32) sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-      p_prc->pcmmode.nVersion.nVersion = (OMX_U32) OMX_VERSION;
-      p_prc->pcmmode.nPortIndex = 0;    /* port index */
-      if (OMX_ErrorNone != (rc = tiz_api_GetParameter
-                            (p_krn, p_hdl,
-                             OMX_IndexParamAudioPcm, &p_prc->pcmmode)))
-        {
-          TIZ_ERROR (p_hdl, "[%s] : Error retrieving "
-                     "pcm params from port", tiz_err_to_str (rc));
-          return rc;
-        }
+      TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
+      tiz_check_omx_err (tiz_api_GetParameter
+                         (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+                          OMX_IndexParamAudioPcm, &p_prc->pcmmode));
 
-      TIZ_NOTICE (p_hdl, "nChannels = [%d] nBitPerSample = [%d] "
+      TIZ_NOTICE (handleOf (p_prc), "nChannels = [%d] nBitPerSample = [%d] "
                   "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
                   "bInterleaved = [%s] ePCMMode = [%d]",
                   p_prc->pcmmode.nChannels,
@@ -668,7 +656,7 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
                                      100000     /* overall latency in us */
            )) < 0)
         {
-          TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                      "Could not set the PCM params (%s)!",
                      snd_strerror ((int) err));
           return OMX_ErrorInsufficientResources;
@@ -677,13 +665,13 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
       if ((err = snd_pcm_poll_descriptors (p_prc->p_pcm_hdl, p_prc->p_fds_,
                                            p_prc->descriptor_count_)) < 0)
         {
-          TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                      "Unable to obtain poll descriptors for playback: %s",
                      snd_strerror (err));
           return OMX_ErrorInsufficientResources;
         }
 
-      TIZ_DEBUG (p_hdl, "Poll descriptors : %d", p_prc->descriptor_count_);
+      TIZ_DEBUG (handleOf (p_prc), "Poll descriptors : %d", p_prc->descriptor_count_);
 
       tiz_event_io_set (p_prc->p_ev_io_, p_prc->p_fds_->fd,
                         TIZ_EVENT_READ_OR_WRITE, true);
@@ -691,7 +679,7 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
       /* OK, now prepare the PCM for use */
       if ((err = snd_pcm_prepare (p_prc->p_pcm_hdl)) < 0)
         {
-          TIZ_ERROR (p_hdl, "[OMX_ErrorInsufficientResources] : "
+          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
                      "Could not prepare audio interface for use (%s)",
                      snd_strerror (err));
           return OMX_ErrorInsufficientResources;
@@ -703,7 +691,7 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
         {
           /* Volume control might not be supported by the current alsa device,
              not a big deal, simply log a message. */
-          TIZ_NOTICE (p_hdl, "Could not set the component's volume");
+          TIZ_NOTICE (handleOf (p_prc), "Could not set the component's volume");
         }
     }
 
