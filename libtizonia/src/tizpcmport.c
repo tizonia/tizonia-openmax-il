@@ -43,6 +43,99 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.pcmport"
 #endif
 
+static OMX_ERRORTYPE
+pcmport_SetParameter_common (const void *ap_obj,
+                             OMX_HANDLETYPE ap_hdl,
+                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
+
+  assert (NULL != ap_obj);
+
+  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
+            tiz_port_dir (p_obj), tiz_idx_to_str (a_index));
+
+  switch (a_index)
+    {
+    case OMX_IndexParamAudioPcm:
+      {
+        OMX_S32 i = 0;
+        const OMX_AUDIO_PARAM_PCMMODETYPE *p_pcmmode
+          = (OMX_AUDIO_PARAM_PCMMODETYPE *) ap_struct;
+
+        switch (p_pcmmode->nSamplingRate)
+          {
+          case 8000:
+          case 11025:
+          case 12000:
+          case 16000:
+          case 22050:
+          case 24000:
+          case 32000:
+          case 44100:
+          case 48000:
+          case 96000:
+            {
+              break;
+            }
+          default:
+            {
+              TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+                        "SetParameter [%s]... Invalid sampling rate [%d]",
+                        tiz_port_dir (p_obj), tiz_idx_to_str (a_index),
+                        p_pcmmode->nSamplingRate);
+              return OMX_ErrorBadParameter;
+            }
+          };
+
+        switch (p_pcmmode->nBitPerSample)
+          {
+          case 8:
+          case 16:
+          case 32:
+            {
+              break;
+            }
+          default:
+            {
+              TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+                        "SetParameter [%s]... Invalid bits per sample [%d]",
+                        tiz_port_dir (p_obj), tiz_idx_to_str (a_index),
+                        p_pcmmode->nBitPerSample);
+              return OMX_ErrorBadParameter;
+            }
+          };
+
+        /* Apply the new default values */
+        p_obj->pcmmode_.nChannels     = p_pcmmode->nChannels;
+        p_obj->pcmmode_.eNumData      = p_pcmmode->eNumData;
+        p_obj->pcmmode_.eEndian       = p_pcmmode->eEndian;
+        p_obj->pcmmode_.bInterleaved  = p_pcmmode->bInterleaved;
+        p_obj->pcmmode_.nBitPerSample = p_pcmmode->nBitPerSample;
+        p_obj->pcmmode_.nSamplingRate = p_pcmmode->nSamplingRate;
+        p_obj->pcmmode_.ePCMMode      = p_pcmmode->ePCMMode;
+
+        for (i = 0; i < OMX_AUDIO_MAXCHANNELS; ++i)
+          {
+            p_obj->pcmmode_.eChannelMapping[i]
+              = p_pcmmode->eChannelMapping[i];
+          }
+
+      }
+      break;
+
+    default:
+      {
+        /* Try the parent's indexes */
+        return super_SetParameter (typeOf (ap_obj, "tizpcmport"),
+                                   ap_obj, ap_hdl, a_index, ap_struct);
+      }
+    };
+
+  return OMX_ErrorNone;
+
+}
+
 /*
  * tizpcmport class
  */
@@ -160,107 +253,49 @@ pcmport_SetParameter (const void *ap_obj,
                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
+  OMX_ERRORTYPE  rc    = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_dir (p_obj), tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
 
   switch (a_index)
     {
     case OMX_IndexParamAudioPcm:
       {
-        OMX_S32 i = 0;
-        const OMX_AUDIO_PARAM_PCMMODETYPE *p_pcmmode
-          = (OMX_AUDIO_PARAM_PCMMODETYPE *) ap_struct;
-
-        switch (p_pcmmode->nSamplingRate)
-          {
-          case 8000:
-          case 11025:
-          case 12000:
-          case 16000:
-          case 22050:
-          case 24000:
-          case 32000:
-          case 44100:
-          case 48000:
-          case 96000:
-            {
-              break;
-            }
-          default:
-            {
-              TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
-                        "SetParameter [%s]... Invalid sampling rate [%d]",
-                        tiz_port_dir (p_obj), tiz_idx_to_str (a_index),
-                        p_pcmmode->nSamplingRate);
-              return OMX_ErrorBadParameter;
-            }
-          };
-
-        switch (p_pcmmode->nBitPerSample)
-          {
-          case 8:
-          case 16:
-          case 32:
-            {
-              break;
-            }
-          default:
-            {
-              TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
-                        "SetParameter [%s]... Invalid bits per sample [%d]",
-                        tiz_port_dir (p_obj), tiz_idx_to_str (a_index),
-                        p_pcmmode->nBitPerSample);
-              return OMX_ErrorBadParameter;
-            }
-          };
+        const tiz_port_t *p_base = ap_obj;
 
         /* Do now allow changes to sampling rate, num of channels or bits per
          * sample if this is a slave output port */
-        {
-          const tiz_port_t *p_base = ap_obj;
 
-          if ((OMX_DirOutput == p_base->portdef_.eDir)
-              && (p_base->opts_.mos_port != (OMX_U32) -1)
-              && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex))
-            {
-              TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
-                         "SetParameter [OMX_IndexParamAudioPcm]... "
-                         "Slave port, cannot allow external updates of port properties "
-                         "like sample rate, bits per sample or number of channels",
-                         tiz_port_dir (p_obj));
-              return OMX_ErrorBadParameter;
-            }
-        }
-
-        /* Apply the new default values */
-        p_obj->pcmmode_.nChannels     = p_pcmmode->nChannels;
-        p_obj->pcmmode_.eNumData      = p_pcmmode->eNumData;
-        p_obj->pcmmode_.eEndian       = p_pcmmode->eEndian;
-        p_obj->pcmmode_.bInterleaved  = p_pcmmode->bInterleaved;
-        p_obj->pcmmode_.nBitPerSample = p_pcmmode->nBitPerSample;
-        p_obj->pcmmode_.nSamplingRate = p_pcmmode->nSamplingRate;
-        p_obj->pcmmode_.ePCMMode      = p_pcmmode->ePCMMode;
-
-        for (i = 0; i < OMX_AUDIO_MAXCHANNELS; ++i)
+        if ((OMX_DirOutput == p_base->portdef_.eDir)
+            && (p_base->opts_.mos_port != (OMX_U32) -1)
+            && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex))
           {
-            p_obj->pcmmode_.eChannelMapping[i]
-              = p_pcmmode->eChannelMapping[i];
+            TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
+                       "SetParameter [OMX_IndexParamAudioPcm]... "
+                       "Slave port, cannot allow external updates of port properties "
+                       "like sample rate, bits per sample or number of channels",
+                       tiz_port_dir (p_obj));
+            rc = OMX_ErrorBadParameter;
           }
-
+        else
+          {
+            pcmport_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
+          }
       }
       break;
 
     default:
       {
         /* Try the parent's indexes */
-        return super_SetParameter (typeOf (ap_obj, "tizpcmport"),
-                                   ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_SetParameter (typeOf (ap_obj, "tizpcmport"),
+                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
     };
 
-  return OMX_ErrorNone;
+  return rc;
 
 }
 
@@ -364,6 +399,36 @@ pcmport_SetConfig (const void *ap_obj,
 
   return OMX_ErrorNone;
 
+}
+
+static OMX_ERRORTYPE
+pcmport_SetParameter_internal (const void *ap_obj,
+                               OMX_HANDLETYPE ap_hdl,
+                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
+
+  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
+             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+
+  switch (a_index)
+    {
+    case OMX_IndexParamAudioPcm:
+      {
+        rc = pcmport_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
+      }
+      break;
+    default:
+      {
+        assert (0);
+      }
+      break;
+    };
+
+  return rc;
 }
 
 static bool
@@ -676,6 +741,8 @@ tiz_pcmport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetConfig, pcmport_GetConfig,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetConfig, pcmport_SetConfig,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_SetParameter_internal, pcmport_SetParameter_internal,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: */
