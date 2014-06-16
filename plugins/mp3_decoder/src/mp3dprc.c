@@ -227,14 +227,27 @@ static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc, const OMX_U32 a_sample
                                       const OMX_U32 a_channels)
 {
   assert (NULL != ap_prc);
-  ap_prc->pcmmode_.nSamplingRate = a_samplerate;
-  ap_prc->pcmmode_.nChannels = a_channels;
-  TIZ_DEBUG (handleOf (ap_prc),
-             "Updating pcm mode : samplerate [%d] channels [%d]",
-             a_samplerate, a_channels);
-  tiz_check_omx_err (tiz_api_SetParameter
-                     (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                      OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
+  if (a_samplerate  != ap_prc->pcmmode_.nSamplingRate
+      || a_channels != ap_prc->pcmmode_.nChannels)
+    {
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating pcm mode : old samplerate [%d] new samplerate [%d]",
+                 ap_prc->pcmmode_.nSamplingRate, a_samplerate);
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating pcm mode : old channels [%d] new channels [%d]",
+                 ap_prc->pcmmode_.nChannels, a_channels);
+      ap_prc->pcmmode_.nSamplingRate = a_samplerate;
+      ap_prc->pcmmode_.nChannels     = a_channels;
+      tiz_check_omx_err (tiz_krn_SetParameter_internal
+                         (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
+      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
+                           ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX,
+                           OMX_IndexParamAudioPcm, /* the index of the
+                                                      struct that has
+                                                      been modififed */
+                           NULL);
+    }
   return OMX_ErrorNone;
 }
 
