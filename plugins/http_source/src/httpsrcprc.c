@@ -357,8 +357,8 @@ static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
   tiz_check_omx_err (
-      tiz_api_SetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                            OMX_IndexParamPortDefinition, &port_def));
+      tiz_krn_SetParameter_internal (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                                     OMX_IndexParamPortDefinition, &port_def));
   return OMX_ErrorNone;
 }
 
@@ -376,9 +376,9 @@ static OMX_ERRORTYPE set_mp3_audio_info_on_port (httpsrc_prc_t *ap_prc)
   mp3type.nChannels = ap_prc->num_channels_;
   mp3type.nSampleRate = ap_prc->samplerate_;
 
-  tiz_check_omx_err (tiz_api_SetParameter (tiz_get_krn (handleOf (ap_prc)),
-                                           handleOf (ap_prc),
-                                           OMX_IndexParamAudioMp3, &mp3type));
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (tiz_get_krn (handleOf (ap_prc)),
+                                                    handleOf (ap_prc),
+                                                    OMX_IndexParamAudioMp3, &mp3type));
   return OMX_ErrorNone;
 }
 
@@ -396,9 +396,9 @@ static OMX_ERRORTYPE set_aac_audio_info_on_port (httpsrc_prc_t *ap_prc)
   aactype.nChannels = ap_prc->num_channels_;
   aactype.nSampleRate = ap_prc->samplerate_;
 
-  tiz_check_omx_err (tiz_api_SetParameter (tiz_get_krn (handleOf (ap_prc)),
-                                           handleOf (ap_prc),
-                                           OMX_IndexParamAudioAac, &aactype));
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (tiz_get_krn (handleOf (ap_prc)),
+                                                    handleOf (ap_prc),
+                                                    OMX_IndexParamAudioAac, &aactype));
   return OMX_ErrorNone;
 }
 
@@ -533,7 +533,7 @@ static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
                        NULL);
   TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged");
   tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
-                       0,                            /* port 0 */
+                       ARATELIA_HTTP_SOURCE_PORT_INDEX,                            /* port 0 */
                        OMX_IndexParamPortDefinition, /* the index of the
                                                         struct that has
                                                         been modififed */
