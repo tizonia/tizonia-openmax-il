@@ -55,10 +55,9 @@ namespace tiz
       void do_omx_pause2exe ();
       void do_volume (const int step);
       void do_mute ();
-      void do_disable_tunnel ();
       void do_omx_loaded2idle ();
       void do_omx_idle2exe ();
-      void do_enable_tunnel ();
+      void do_reconfigure_tunnel ();
 
     private:
       OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);

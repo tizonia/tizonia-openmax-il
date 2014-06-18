@@ -130,12 +130,31 @@ void graph::ops::do_disable_ports ()
   // This is a no-op in the base class.
 }
 
-void graph::ops::do_disable_tunnel ()
+void graph::ops::do_disable_tunnel (const int tunnel_id)
 {
-  // This is a no-op in the base class.
+  if (last_op_succeeded ())
+  {
+    std::string err_msg ("Unable to disable tunnel id [");
+    err_msg.append (boost::lexical_cast< std::string >(tunnel_id));
+    err_msg.append ("]");
+    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortDisable),
+                         err_msg);
+  }
 }
 
-void graph::ops::do_enable_tunnel ()
+void graph::ops::do_enable_tunnel (const int tunnel_id)
+{
+  if (last_op_succeeded ())
+  {
+    std::string err_msg ("Unable to enable tunnel id [");
+    err_msg.append (boost::lexical_cast< std::string >(tunnel_id));
+    err_msg.append ("]");
+    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortEnable),
+                         err_msg);
+  }
+}
+
+void graph::ops::do_reconfigure_tunnel ()
 {
   // This is a no-op in the base class.
 }

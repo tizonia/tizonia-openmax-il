@@ -224,25 +224,37 @@ namespace tiz
     };
 
     // Make this state convertible from any state (this exits a sub-machine)
-    struct auto_detect_evt
+    struct auto_detected_evt
     {
-      auto_detect_evt ()
+      auto_detected_evt ()
       {
       }
       template < class Event >
-      auto_detect_evt (Event const &)
+      auto_detected_evt (Event const &)
       {
       }
     };
 
     // Make this state convertible from any state (this exits a sub-machine)
-    struct update_graph_evt
+    struct graph_updated_evt
     {
-      update_graph_evt ()
+      graph_updated_evt ()
       {
       }
       template < class Event >
-      update_graph_evt (Event const &)
+      graph_updated_evt (Event const &)
+      {
+      }
+    };
+
+    // Make this state convertible from any state (this exits a sub-machine)
+    struct graph_reconfigured_evt
+    {
+      graph_reconfigured_evt ()
+      {
+      }
+      template < class Event >
+      graph_reconfigured_evt (Event const &)
       {
       }
     };

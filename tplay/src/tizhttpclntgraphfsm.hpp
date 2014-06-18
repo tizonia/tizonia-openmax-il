@@ -78,6 +78,7 @@ namespace tiz
                                                  "auto_detecting",
                                                  "updating_graph",
                                                  "executing",
+                                                 "reconfiguring_graph",
                                                  "exe2idle",
                                                  "idle2loaded",
                                                  "AllOk",
@@ -124,7 +125,7 @@ namespace tiz
         }
 
         // submachine states
-        struct auto_detect_exit : public boost::msm::front::exit_pseudo_state<tg::auto_detect_evt>
+        struct auto_detecting_exit : public boost::msm::front::exit_pseudo_state<tg::auto_detected_evt>
         {
           template <class Event,class FSM>
           void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
@@ -168,9 +169,9 @@ namespace tiz
           bmf::Row < tg::executing                    , tg::omx_port_settings_evt   , tg::awaiting_format_detected_evt, bmf::none              , bmf::none                  >,
           bmf::Row < tg::executing                    , tg::omx_format_detected_evt , tg::awaiting_port_settings_evt  , bmf::none              , bmf::none                  >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::awaiting_format_detected_evt , tg::omx_format_detected_evt , auto_detect_exit                , bmf::none              , bmf::none                  >,
+          bmf::Row < tg::awaiting_format_detected_evt , tg::omx_format_detected_evt , auto_detecting_exit             , bmf::none              , bmf::none                  >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
-          bmf::Row < tg::awaiting_port_settings_evt   , tg::omx_port_settings_evt   , auto_detect_exit                , bmf::none              , bmf::none                  >
+          bmf::Row < tg::awaiting_port_settings_evt   , tg::omx_port_settings_evt   , auto_detecting_exit             , bmf::none              , bmf::none                  >
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
           > {};
 
@@ -207,7 +208,7 @@ namespace tiz
         }
 
         // submachine states
-        struct updating_initial : public boost::msm::front::state<>
+        struct updating_graph_initial : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
           void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
@@ -215,14 +216,14 @@ namespace tiz
           void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
         };
 
-        struct update_graph_exit : public boost::msm::front::exit_pseudo_state<tg::update_graph_evt>
+        struct updating_graph_exit : public boost::msm::front::exit_pseudo_state<tg::graph_updated_evt>
         {
           template <class Event,class FSM>
           void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
         };
 
         // the initial state. Must be defined
-        typedef updating_initial initial_state;
+        typedef updating_graph_initial initial_state;
 
         // transition actions
 
@@ -231,22 +232,22 @@ namespace tiz
         // Transition table for updating_graph
         struct transition_table : boost::mpl::vector<
           //       Start                            Event                         Next                              Action                          Guard
-          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+----------------------------+
-          bmf::Row < updating_initial               , bmf::none                 , tg::awaiting_port_disabled_evt  , bmf::ActionSequence_<
+          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
+          bmf::Row < updating_graph_initial         , bmf::none                 , tg::awaiting_port_disabled_evt  , bmf::ActionSequence_<
                                                                                                                       boost::mpl::vector<
                                                                                                                         tg::do_load,
                                                                                                                         tg::do_configure,
                                                                                                                         tg::do_setup,
-                                                                                                                        tg::do_disable_tunnel > > , bmf::none                  >,
-          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+----------------------------+
+                                                                                                                        tg::do_disable_tunnel<0> > > , bmf::none                      >,
+          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::config2idle                 , tg::do_omx_loaded2idle        , tg::is_port_disabling_complete >,
-          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+----------------------------+
-          bmf::Row < tg::config2idle                , tg::omx_trans_evt         , tg::idle2exe                    , tg::do_omx_idle2exe           , tg::is_trans_complete      >,
-          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+----------------------------+
-          bmf::Row < tg::idle2exe                   , tg::omx_trans_evt         , tg::enabling_tunnel             , tg::do_enable_tunnel          , tg::is_trans_complete      >,
-          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+----------------------------+
-          bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , update_graph_exit               , bmf::none                     , tg::is_port_enabling_complete >
-          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+----------------------------+
+          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
+          bmf::Row < tg::config2idle                , tg::omx_trans_evt         , tg::idle2exe                    , tg::do_omx_idle2exe           , tg::is_trans_complete          >,
+          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
+          bmf::Row < tg::idle2exe                   , tg::omx_trans_evt         , tg::enabling_tunnel             , tg::do_enable_tunnel<0>       , tg::is_trans_complete          >,
+          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
+          bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , updating_graph_exit             , bmf::none                     , tg::is_port_enabling_complete  >
+          //    +--+--------------------------------+---------------------------+---------------------------------+-------------------------------+--------------------------------+
           > {};
 
         // Replaces the default no-transition response.
@@ -260,6 +261,77 @@ namespace tiz
       };
       // typedef boost::msm::back::state_machine<updating_graph_, boost::msm::back::mpl_graph_fsm_check> updating_graph;
       typedef boost::msm::back::state_machine<updating_graph_> updating_graph;
+
+      /* 'reconfiguring_graph' is a submachine */
+      struct reconfiguring_graph_ : public boost::msm::front::state_machine_def<reconfiguring_graph_>
+      {
+        // no need for exception handling
+        typedef int no_exception_thrown;
+
+        // data members
+        ops ** pp_ops_;
+
+        reconfiguring_graph_()
+          :
+          pp_ops_(NULL)
+        {}
+        reconfiguring_graph_(ops **pp_ops)
+          :
+          pp_ops_(pp_ops)
+        {
+          assert (NULL != pp_ops);
+        }
+
+        // submachine states
+        struct reconfiguring_graph_initial : public boost::msm::front::state<>
+        {
+          template <class Event,class FSM>
+          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          template <class Event,class FSM>
+          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+        };
+
+        struct reconfiguring_graph_exit : public boost::msm::front::exit_pseudo_state<tg::graph_reconfigured_evt>
+        {
+          template <class Event,class FSM>
+          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+        };
+
+        // the initial state. Must be defined
+        typedef reconfiguring_graph_initial initial_state;
+
+        // transition actions
+
+        // guard conditions
+
+        // Transition table for reconfiguring_graph
+        struct transition_table : boost::mpl::vector<
+          //       Start                            Event                         Next                              Action                           Guard
+          //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
+          bmf::Row < reconfiguring_graph_initial    , bmf::none                 , tg::awaiting_port_disabled_evt  , bmf::ActionSequence_<
+                                                                                                                      boost::mpl::vector<
+                                                                                                                        tg::do_disable_tunnel<1> > > , bmf::none                      >,
+          //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
+          bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::enabling_tunnel             , bmf::ActionSequence_<
+                                                                                                                      boost::mpl::vector<
+                                                                                                                        tg::do_reconfigure_tunnel,
+                                                                                                                        tg::do_enable_tunnel<1> > >  , tg::is_port_disabling_complete >,
+          //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
+          bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , reconfiguring_graph_exit        , bmf::none                        , tg::is_port_enabling_complete  >
+          //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
+          > {};
+
+        // Replaces the default no-transition response.
+        template <class FSM,class Event>
+        void no_transition(Event const& e, FSM&,int state)
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
+                   state, typeid(e).name());
+        }
+
+      };
+      // typedef boost::msm::back::state_machine<reconfiguring_graph_, boost::msm::back::mpl_graph_fsm_check> reconfiguring_graph;
+      typedef boost::msm::back::state_machine<reconfiguring_graph_> reconfiguring_graph;
 
       // The initial state of the SM. Must be defined
       typedef boost::mpl::vector<tg::inited, tg::AllOk> initial_state;
@@ -297,44 +369,50 @@ namespace tiz
 
       // Transition table for the http client graph fsm
       struct transition_table : boost::mpl::vector<
-        //       Start                   Event                 Next                      Action                        Guard
-        //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::inited            , tg::load_evt        , tg::loaded              , bmf::ActionSequence_<
-                                                                                             boost::mpl::vector<
-                                                                                               do_load_source,
-                                                                                               tg::do_ack_loaded> >                                   >,
-        //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::loaded            , tg::execute_evt     , auto_detecting          , boost::msm::front::ActionSequence_<
-                                                                                             boost::mpl::vector<
-                                                                                               tg::do_store_config,
-                                                                                               do_enable_auto_detection> > , tg::last_op_succeeded    >,
-        //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < auto_detecting        , tg::unload_evt      , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
+        //       Start                          Event                       Next                      Action                        Guard
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::inited                   , tg::load_evt              , tg::loaded              , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            do_load_source,
+                                                                                                            tg::do_ack_loaded> >                                   >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::loaded                   , tg::execute_evt           , auto_detecting          , boost::msm::front::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_store_config,
+                                                                                                            do_enable_auto_detection> > , tg::last_op_succeeded    >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < auto_detecting               , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
         bmf::Row < auto_detecting
                    ::exit_pt
                    <auto_detecting_
-                    ::auto_detect_exit>  , tg::auto_detect_evt , updating_graph          , bmf::none                                                  >,
-        //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
+                    ::auto_detecting_exit>      , tg::auto_detected_evt     , updating_graph          , bmf::none                                                  >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < updating_graph
                    ::exit_pt
                    <updating_graph_
-                    ::update_graph_exit> , tg::update_graph_evt, tg::executing           , tg::do_ack_execd                                           >,
-        //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::executing         , tg::omx_err_evt     , tg::exe2idle            , bmf::ActionSequence_<
-                                                                                             boost::mpl::vector<
-                                                                                               tg::do_record_fatal_error,
-                                                                                               tg::do_omx_exe2idle> >                                 >,
-        bmf::Row < tg::executing         , tg::unload_evt      , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
-        //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::exe2idle          , tg::omx_trans_evt   , tg::idle2loaded         , tg::do_omx_idle2loaded      , tg::is_trans_complete        >,
-        //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::idle2loaded       , tg::omx_trans_evt   , tg::unloaded            , bmf::ActionSequence_<
-                                                                                             boost::mpl::vector<
-                                                                                               tg::do_tear_down_tunnels,
-                                                                                               tg::do_destroy_graph> > , tg::is_trans_complete        >,
-        //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::AllOk             , tg::err_evt         , tg::unloaded            , tg::do_error                                               >
-        //    +--+-----------------------+---------------------+-------------------------+-----------------------------+------------------------------+
+                    ::updating_graph_exit>      , tg::graph_updated_evt     , tg::executing           , tg::do_ack_execd                                           >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::executing                , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_record_fatal_error,
+                                                                                                            tg::do_omx_exe2idle> >                                 >,
+        bmf::Row < tg::executing                , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
+        bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_graph     , bmf::none                                                  >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < reconfiguring_graph
+                   ::exit_pt
+                   <reconfiguring_graph_
+                    ::reconfiguring_graph_exit> , tg::graph_reconfigured_evt, tg::executing           , bmf::none                                                  >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::exe2idle                 , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_omx_idle2loaded      , tg::is_trans_complete        >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::idle2loaded              , tg::omx_trans_evt         , tg::unloaded            , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_tear_down_tunnels,
+                                                                                                            tg::do_destroy_graph> > , tg::is_trans_complete        >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::AllOk                    , tg::err_evt               , tg::unloaded            , tg::do_error                                               >
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         > {};
 
       // Replaces the default no-transition response.

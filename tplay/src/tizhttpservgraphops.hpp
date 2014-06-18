@@ -57,8 +57,6 @@ namespace tiz
       void do_source_omx_idle2exe ();
       void do_source_omx_exe2idle ();
       void do_source_omx_idle2loaded ();
-      void do_disable_tunnel ();
-      void do_enable_tunnel ();
       bool is_initial_configuration () const;
       void do_flag_initial_config_done ();
 

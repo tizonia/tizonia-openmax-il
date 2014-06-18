@@ -146,28 +146,6 @@ void graph::httpservops::do_source_omx_idle2loaded ()
   }
 }
 
-void graph::httpservops::do_disable_tunnel ()
-{
-  if (last_op_succeeded ())
-  {
-    // there is only one tunnel in this graph
-    const int tunnel_id = 0;
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortDisable),
-                         "Unable to disable tunnel file reader->http renderer");
-  }
-}
-
-void graph::httpservops::do_enable_tunnel ()
-{
-  if (last_op_succeeded ())
-  {
-    // there is only one tunnel in this graph
-    const int tunnel_id = 0;
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortEnable),
-                         "Unable to enable tunnel file reader->http renderer");
-  }
-}
-
 bool graph::httpservops::is_initial_configuration () const
 {
   return is_initial_configuration_;

@@ -56,7 +56,8 @@ graph::httpclient::httpclient ()
   : graph::graph ("httpclntgraph"),
     fsm_ (boost::msm::back::states_
           << tiz::graph::hcfsm::fsm::auto_detecting (&p_ops_)
-          << tiz::graph::hcfsm::fsm::updating_graph (&p_ops_),
+          << tiz::graph::hcfsm::fsm::updating_graph (&p_ops_)
+          << tiz::graph::hcfsm::fsm::reconfiguring_graph (&p_ops_),
           &p_ops_)
 {
 }

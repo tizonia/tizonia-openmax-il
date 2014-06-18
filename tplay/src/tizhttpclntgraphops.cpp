@@ -180,16 +180,6 @@ void graph::httpclntops::do_mute ()
   // No-op. This is to disable mute in this graph
 }
 
-void graph::httpclntops::do_disable_tunnel ()
-{
-  if (last_op_succeeded ())
-  {
-    const int tunnel_id = 0;  // this is the tunnel source <=> decoder
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortDisable),
-                         "Unable to disable tunnel source <=> decoder");
-  }
-}
-
 void graph::httpclntops::do_omx_loaded2idle ()
 {
   if (last_op_succeeded ())
@@ -226,13 +216,46 @@ void graph::httpclntops::do_omx_idle2exe ()
   }
 }
 
-void graph::httpclntops::do_enable_tunnel ()
+void graph::httpclntops::do_reconfigure_tunnel ()
 {
   if (last_op_succeeded ())
   {
-    const int tunnel_id = 0;  // this is the tunnel source <=> decoder
-    G_OPS_BAIL_IF_ERROR (transition_tunnel (tunnel_id, OMX_CommandPortEnable),
-                         "Unable to enable tunnel source <=> decoder");
+    // Retrieve the pcm settings from the decoder component
+    OMX_AUDIO_PARAM_PCMMODETYPE decoder_pcmtype;
+    const OMX_U32 decoder_port_id = 1;
+    TIZ_INIT_OMX_PORT_STRUCT (decoder_pcmtype, decoder_port_id);
+    G_OPS_BAIL_IF_ERROR (
+        OMX_GetParameter (handles_[1], OMX_IndexParamAudioPcm,
+                          &decoder_pcmtype),
+        "Unable to retrieve the PCM settings from the audio decoder");
+
+    // Retrieve the pcm settings from the renderer component
+    OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
+    const OMX_U32 renderer_port_id = 0;
+    TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype, renderer_port_id);
+    G_OPS_BAIL_IF_ERROR (
+        OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm,
+                          &renderer_pcmtype),
+        "Unable to retrieve the PCM settings from the pcm renderer");
+
+    // Now assign the current settings to the renderer structure
+    renderer_pcmtype.nChannels = decoder_pcmtype.nChannels;
+    renderer_pcmtype.nSamplingRate = decoder_pcmtype.nSamplingRate;
+
+    // Set the new pcm settings
+    G_OPS_BAIL_IF_ERROR (
+        OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
+                          &renderer_pcmtype),
+        "Unable to set the PCM settings on the audio renderer");
+
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+    fprintf (stdout, "   %s%ld Ch, %g KHz, %lu:%s:%s %s\n", KYEL,
+             renderer_pcmtype.nChannels,
+             ((float)renderer_pcmtype.nSamplingRate) / 1000,
+             renderer_pcmtype.nBitPerSample,
+             renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+             renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l", KNRM);
   }
 }
 
@@ -272,17 +295,30 @@ graph::httpclntops::transition_tunnel (
     rc = tiz::graph::util::enable_tunnel (handles_, tunnel_id);
   }
 
-  if (OMX_ErrorNone == rc)
+  if (OMX_ErrorNone == rc && 0 == tunnel_id)
   {
     clear_expected_port_transitions ();
     const int http_source_index = 0;
-    const int http_source_input_port = 0;
+    const int http_source_output_port = 0;
     add_expected_port_transition (handles_[http_source_index],
-                                  http_source_input_port,
+                                  http_source_output_port,
                                   to_disabled_or_enabled);
     const int decoder_index = 1;
     const int decoder_input_port = 0;
     add_expected_port_transition (handles_[decoder_index], decoder_input_port,
+                                  to_disabled_or_enabled);
+  }
+  else if (OMX_ErrorNone == rc && 1 == tunnel_id)
+  {
+    clear_expected_port_transitions ();
+    const int decoder_index = 1;
+    const int decoder_output_port = 1;
+    add_expected_port_transition (handles_[decoder_index],
+                                  decoder_output_port,
+                                  to_disabled_or_enabled);
+    const int renderer_index = 2;
+    const int renderer_input_port = 0;
+    add_expected_port_transition (handles_[renderer_index], renderer_input_port,
                                   to_disabled_or_enabled);
   }
   return rc;
@@ -297,7 +333,8 @@ void graph::httpclntops::dump_stream_metadata ()
 {
   OMX_U32 index = 0;
   while (OMX_ErrorNone == dump_metadata_item (index++))
-    {};
+  {
+  };
 }
 
 OMX_ERRORTYPE graph::httpclntops::dump_metadata_item (const OMX_U32 index)
@@ -310,7 +347,8 @@ OMX_ERRORTYPE graph::httpclntops::dump_metadata_item (const OMX_U32 index)
   value_len = OMX_MAX_STRINGNAME_SIZE;
   metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + value_len;
 
-  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (1, metadata_len)))
+  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
+                   1, metadata_len)))
   {
     rc = OMX_ErrorInsufficientResources;
   }
@@ -329,14 +367,14 @@ OMX_ERRORTYPE graph::httpclntops::dump_metadata_item (const OMX_U32 index)
     p_meta->nValueMaxSize = OMX_MAX_STRINGNAME_SIZE;
     p_meta->nValueSizeUsed = 0;
 
-    rc = OMX_GetConfig (handles_[0], OMX_IndexConfigMetadataItem,
-                           p_meta);
+    rc = OMX_GetConfig (handles_[0], OMX_IndexConfigMetadataItem, p_meta);
     if (OMX_ErrorNone == rc)
-      {
+    {
 #define KNRM "\x1B[0m"
 #define KYEL "\x1B[33m"
-        fprintf (stdout, "   %s[%s] : [%s]%s\n", KYEL, p_meta->nKey, p_meta->nValue, KNRM);
-      }
+      fprintf (stdout, "   %s[%s] : [%s]%s\n", KYEL, p_meta->nKey,
+               p_meta->nValue, KNRM);
+    }
 
     tiz_mem_free (p_meta);
     p_meta = NULL;
@@ -396,7 +434,8 @@ graph::httpclntops::apply_pcm_codec_info_from_http_source ()
     renderer_pcmtype.nChannels = channels;
     renderer_pcmtype.nSamplingRate = sampling_rate;
     renderer_pcmtype.eNumData = OMX_NumericalDataSigned;
-    renderer_pcmtype.eEndian = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
+    renderer_pcmtype.eEndian
+        = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
 
     // Set the new pcm settings
     tiz_check_omx_err (OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,

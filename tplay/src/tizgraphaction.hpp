@@ -320,6 +320,7 @@ namespace tiz
       }
     };
 
+    template<int tunnel_id>
     struct do_disable_tunnel
     {
       template <class FSM, class EVT, class SourceState, class TargetState>
@@ -328,11 +329,12 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_disable_tunnel ();
+          (*(fsm.pp_ops_))->do_disable_tunnel (tunnel_id);
         }
       }
     };
 
+    template<int tunnel_id>
     struct do_enable_tunnel
     {
       template <class FSM, class EVT, class SourceState, class TargetState>
@@ -341,7 +343,20 @@ namespace tiz
         G_ACTION_LOG();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
           {
-            (*(fsm.pp_ops_))->do_enable_tunnel ();
+            (*(fsm.pp_ops_))->do_enable_tunnel (tunnel_id);
+          }
+      }
+    };
+
+    struct do_reconfigure_tunnel
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            (*(fsm.pp_ops_))->do_reconfigure_tunnel ();
           }
       }
     };

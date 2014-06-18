@@ -87,8 +87,9 @@ namespace tiz
       virtual void do_ack_loaded ();
       virtual void do_store_config (const tizgraphconfig_ptr_t &config);
       virtual void do_disable_ports ();
-      virtual void do_disable_tunnel ();
-      virtual void do_enable_tunnel ();
+      virtual void do_disable_tunnel (const int tunnel_id);
+      virtual void do_enable_tunnel (const int tunnel_id);
+      virtual void do_reconfigure_tunnel ();
       virtual void do_probe ();
       virtual bool is_port_settings_evt_required () const;
       virtual bool is_disabled_evt_required () const;
