@@ -49,23 +49,48 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.audio_renderer.prc"
 #endif
 
-/* This is for convenience. This macro assumes the existence of an "
+/* This is for convenience. This macro assumes the existence of an
    "ap_prc" local variable */
-#define bail_on_alsa_error(expr)                                        \
+#define bail_on_snd_mixer_error(expr)                                   \
   do {                                                                  \
     int alsa_error = 0;                                                 \
     if (0 != (alsa_error = (expr)))                                     \
       {                                                                 \
-        OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;              \
         TIZ_ERROR (handleOf (ap_prc),                                   \
-                   "[%s] Error while accessing alsa master volume (%s)", \
-                   tiz_err_to_str (rc), snd_strerror (alsa_error));     \
+                   "[OMX_ErrorInsufficientResources] : "                \
+                   "while accessing alsa master volume (%s)",           \
+                   snd_strerror (alsa_error));                          \
         goto end;                                                       \
       }                                                                 \
   } while (0)
 
+/* This is for convenience. This macro assumes the existence of an
+   "ap_prc" local variable */
+#define bail_on_snd_pcm_error(expr)                             \
+  do {                                                          \
+    int alsa_error = 0;                                         \
+    if ((alsa_error = (expr)) < 0)                              \
+      {                                                         \
+        TIZ_ERROR (handleOf (ap_prc),                           \
+                   "[OMX_ErrorInsufficientResources] : "        \
+                   "%s",  snd_strerror (alsa_error));           \
+        return OMX_ErrorInsufficientResources;;                 \
+      }                                                         \
+  } while (0)
+
 /* Forward declaration */
 static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj);
+
+static void log_alsa_pcm_state (ar_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+
+  if (NULL != ap_prc->p_pcm_hdl)
+    {
+      snd_pcm_state_t state = snd_pcm_state(ap_prc->p_pcm_hdl);
+      TIZ_DEBUG (handleOf (ap_prc), "ALSA PCM state : [%s]", snd_pcm_state_name (state));
+    }
+}
 
 /*@null@*/ static char *
 get_alsa_device (ar_prc_t * ap_prc)
@@ -124,11 +149,11 @@ stop_io_watcher (ar_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-release_buffers (ar_prc_t * ap_prc)
+release_headers (ar_prc_t * ap_prc)
 {
   assert (NULL != ap_prc);
 
-  stop_io_watcher (ap_prc);
+  tiz_check_omx_err (stop_io_watcher (ap_prc));
 
   if (ap_prc->p_inhdr_)
     {
@@ -150,7 +175,7 @@ do_flush (ar_prc_t * ap_prc)
       (void) snd_pcm_drop (ap_prc->p_pcm_hdl);
     }
   /* Release any buffers held  */
-  return release_buffers (ap_prc);
+  return release_headers (ap_prc);
 }
 
 static float
@@ -220,23 +245,23 @@ get_alsa_master_volume (const ar_prc_t * ap_prc, long *ap_volume)
     snd_mixer_elem_t *elem = NULL;
 
     rc = OMX_ErrorInsufficientResources;
-    bail_on_alsa_error (snd_mixer_open (&handle, 0));
-    bail_on_alsa_error (snd_mixer_attach (handle, ap_prc->p_alsa_pcm_));
-    bail_on_alsa_error (snd_mixer_selem_register (handle, NULL, NULL));
-    bail_on_alsa_error (snd_mixer_load (handle));
+    bail_on_snd_mixer_error (snd_mixer_open (&handle, 0));
+    bail_on_snd_mixer_error (snd_mixer_attach (handle, ap_prc->p_alsa_pcm_));
+    bail_on_snd_mixer_error (snd_mixer_selem_register (handle, NULL, NULL));
+    bail_on_snd_mixer_error (snd_mixer_load (handle));
 
     snd_mixer_selem_id_alloca (&sid);
     snd_mixer_selem_id_set_index (sid, 0);
     snd_mixer_selem_id_set_name (sid, selem_name);
     elem = snd_mixer_find_selem (handle, sid);
 
-    bail_on_alsa_error (snd_mixer_selem_get_playback_volume_range
+    bail_on_snd_mixer_error (snd_mixer_selem_get_playback_volume_range
                         (elem, &min, &max));
-    bail_on_alsa_error (snd_mixer_selem_get_playback_volume
+    bail_on_snd_mixer_error (snd_mixer_selem_get_playback_volume
                         (elem, SND_MIXER_SCHN_FRONT_LEFT, &volume));
 
     *ap_volume = volume * 100 / max;
-    bail_on_alsa_error (snd_mixer_close (handle));
+    bail_on_snd_mixer_error (snd_mixer_close (handle));
 
     /* Everything well, restore the error code. */
     rc = OMX_ErrorNone;
@@ -285,22 +310,22 @@ set_alsa_master_volume (const ar_prc_t * ap_prc, const long a_volume)
     snd_mixer_elem_t *elem = NULL;
 
     TIZ_TRACE (handleOf (ap_prc), "volume = %ld\n", a_volume);
-    bail_on_alsa_error (snd_mixer_open (&handle, 0));
-    bail_on_alsa_error (snd_mixer_attach (handle, ap_prc->p_alsa_pcm_));
-    bail_on_alsa_error (snd_mixer_selem_register (handle, NULL, NULL));
-    bail_on_alsa_error (snd_mixer_load (handle));
+    bail_on_snd_mixer_error (snd_mixer_open (&handle, 0));
+    bail_on_snd_mixer_error (snd_mixer_attach (handle, ap_prc->p_alsa_pcm_));
+    bail_on_snd_mixer_error (snd_mixer_selem_register (handle, NULL, NULL));
+    bail_on_snd_mixer_error (snd_mixer_load (handle));
 
     snd_mixer_selem_id_alloca (&sid);
     snd_mixer_selem_id_set_index (sid, 0);
     snd_mixer_selem_id_set_name (sid, selem_name);
     elem = snd_mixer_find_selem (handle, sid);
 
-    bail_on_alsa_error (snd_mixer_selem_get_playback_volume_range
+    bail_on_snd_mixer_error (snd_mixer_selem_get_playback_volume_range
                         (elem, &min, &max));
-    bail_on_alsa_error (snd_mixer_selem_set_playback_volume_all
+    bail_on_snd_mixer_error (snd_mixer_selem_set_playback_volume_all
                         (elem, a_volume * max / 100));
 
-    bail_on_alsa_error (snd_mixer_close (handle));
+    bail_on_snd_mixer_error (snd_mixer_close (handle));
 
     /* Everything went well */
     rc = true;
@@ -516,39 +541,24 @@ ar_prc_dtor (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
+ar_prc_allocate_resources (void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  ar_prc_t *p_prc = ap_obj;
-  int err = 0;
+  ar_prc_t *p_prc = ap_prc;
 
-  assert (NULL != ap_obj);
+  assert (NULL != p_prc);
 
   if (NULL == p_prc->p_pcm_hdl)
     {
-      OMX_ERRORTYPE rc = OMX_ErrorNone;
       char *p_device = get_alsa_device (p_prc);
       assert (NULL != p_device);
 
       /* Open a PCM in non-blocking mode */
-      if ((err =
-           snd_pcm_open (&p_prc->p_pcm_hdl, p_device,
-                         SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK)) < 0)
-        {
-          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
-                     "cannot open audio device %s (%s)",
-                     p_device,
-                     snd_strerror (err));
-          return OMX_ErrorInsufficientResources;
-        }
+      bail_on_snd_pcm_error (snd_pcm_open (&p_prc->p_pcm_hdl, p_device,
+                                           SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK));
+      /* Allocate alsa's hardware parameter structure */
+      bail_on_snd_pcm_error (snd_pcm_hw_params_malloc (&p_prc->p_hw_params));
 
-      if ((err = snd_pcm_hw_params_malloc (&p_prc->p_hw_params)) < 0)
-        {
-          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
-                     "cannot allocate hardware parameter structure" " (%s)",
-                     snd_strerror (err));
-          return OMX_ErrorInsufficientResources;
-        }
-
+      /* Get the alsa descriptors count */
       p_prc->descriptor_count_ =
         snd_pcm_poll_descriptors_count (p_prc->p_pcm_hdl);
       if (p_prc->descriptor_count_ <= 0)
@@ -558,59 +568,42 @@ ar_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
           return OMX_ErrorInsufficientResources;
         }
 
+      /* Allocate space for the list of alsa fds */
       p_prc->p_fds_ =
         tiz_mem_alloc (sizeof (struct pollfd) * p_prc->descriptor_count_);
-      if (p_prc->p_fds_ == NULL)
-        {
-          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
-                     "Could not allocate poll file descriptors\n");
-          return OMX_ErrorInsufficientResources;
-        }
+      tiz_check_null_ret_oom (p_prc->p_fds_);
 
-      if (OMX_ErrorNone !=
-          (rc = tiz_event_io_init (&(p_prc->p_ev_io_), handleOf (p_prc),
-                                   tiz_comp_event_io)))
-        {
-          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
-                     "Error initializing the PCM io event (was %s)",
-                     tiz_err_to_str (rc));
-          return OMX_ErrorInsufficientResources;
-        }
+      /* Init the io watcher */
+      tiz_check_omx_err (tiz_event_io_init (&(p_prc->p_ev_io_), handleOf (p_prc),
+                                            tiz_comp_event_io));
     }
 
   assert (NULL != p_prc->p_pcm_hdl);
-
-  /* Fill params with a full configuration space for the PCM. */
-  if ((err = snd_pcm_hw_params_any (p_prc->p_pcm_hdl, p_prc->p_hw_params)) < 0)
-    {
-      TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
-                 "cannot initialize hardware parameter structure (%s)",
-                 snd_strerror (err));
-      return OMX_ErrorInsufficientResources;
-    }
-
-  TIZ_DEBUG (handleOf (p_prc), "Device can pause [%s] ",
-             snd_pcm_hw_params_can_pause (p_prc->p_hw_params) == 0 ?
-             "NO" : "YES");
-
-  TIZ_DEBUG (handleOf (p_prc), "Device can resume [%s] ",
-             snd_pcm_hw_params_can_resume (p_prc->p_hw_params) == 0 ?
-             "NO" : "YES");
 
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
+ar_prc_prepare_to_transfer (void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  ar_prc_t *p_prc = ap_obj;
+  ar_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
 
   if (NULL != p_prc->p_pcm_hdl)
     {
       snd_pcm_format_t snd_pcm_format;
-      int err = 0;
       unsigned int snd_sampling_rate = 0;
+
+      /* Fill params with a full configuration space for the PCM. */
+      bail_on_snd_pcm_error (snd_pcm_hw_params_any (p_prc->p_pcm_hdl, p_prc->p_hw_params));
+
+      TIZ_DEBUG (handleOf (p_prc), "Device can pause [%s] ",
+                 snd_pcm_hw_params_can_pause (p_prc->p_hw_params) == 0 ?
+                 "NO" : "YES");
+
+      TIZ_DEBUG (handleOf (p_prc), "Device can resume [%s] ",
+                 snd_pcm_hw_params_can_resume (p_prc->p_hw_params) == 0 ?
+                 "NO" : "YES");
 
       /* Retrieve pcm params from port */
       TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
@@ -649,27 +642,15 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
         p_prc->pcmmode.nSamplingRate : p_prc->pcmmode.nSamplingRate * 2;
 
       /* This sets the hardware and software parameters in a convenient way. */
-      if ((err = snd_pcm_set_params (p_prc->p_pcm_hdl,
-                                     snd_pcm_format, SND_PCM_ACCESS_RW_INTERLEAVED,
-                                     (unsigned int) p_prc->pcmmode.nChannels,
-                                     snd_sampling_rate, 1,    /* allow alsa-lib resampling */
-                                     100000     /* overall latency in us */
-           )) < 0)
-        {
-          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
-                     "Could not set the PCM params (%s)!",
-                     snd_strerror ((int) err));
-          return OMX_ErrorInsufficientResources;
-        }
+      bail_on_snd_pcm_error (snd_pcm_set_params (p_prc->p_pcm_hdl,
+                                                 snd_pcm_format, SND_PCM_ACCESS_RW_INTERLEAVED,
+                                                 (unsigned int) p_prc->pcmmode.nChannels,
+                                                 snd_sampling_rate, 1,    /* allow alsa-lib resampling */
+                                                 100000     /* overall latency in us */
+                                                 ));
 
-      if ((err = snd_pcm_poll_descriptors (p_prc->p_pcm_hdl, p_prc->p_fds_,
-                                           p_prc->descriptor_count_)) < 0)
-        {
-          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
-                     "Unable to obtain poll descriptors for playback: %s",
-                     snd_strerror (err));
-          return OMX_ErrorInsufficientResources;
-        }
+      bail_on_snd_pcm_error (snd_pcm_poll_descriptors (p_prc->p_pcm_hdl, p_prc->p_fds_,
+                                                       p_prc->descriptor_count_));
 
       TIZ_DEBUG (handleOf (p_prc), "Poll descriptors : %d", p_prc->descriptor_count_);
 
@@ -677,13 +658,7 @@ ar_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
                         TIZ_EVENT_READ_OR_WRITE, true);
 
       /* OK, now prepare the PCM for use */
-      if ((err = snd_pcm_prepare (p_prc->p_pcm_hdl)) < 0)
-        {
-          TIZ_ERROR (handleOf (p_prc), "[OMX_ErrorInsufficientResources] : "
-                     "Could not prepare audio interface for use (%s)",
-                     snd_strerror (err));
-          return OMX_ErrorInsufficientResources;
-        }
+      bail_on_snd_pcm_error (snd_pcm_prepare (p_prc->p_pcm_hdl));
 
       /* Internally store the initial volume, so that the internal OMX volume
          struct reflects the current value of ALSA's master volume. */
@@ -769,38 +744,39 @@ ar_prc_io_ready (void *ap_obj,
                  tiz_event_io_t * ap_ev_io, int a_fd, int a_events)
 {
   TIZ_TRACE (handleOf (ap_obj), "Received io event on fd [%d]", a_fd);
-  stop_io_watcher (ap_obj);
+  tiz_check_omx_err (stop_io_watcher (ap_obj));
   return render_pcm_data (ap_obj);
 }
 
 static OMX_ERRORTYPE
-ar_prc_pause (const void *ap_obj)
+ar_prc_pause (const void *ap_prc)
 {
-  ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
+  ar_prc_t *p_prc = (ar_prc_t *) ap_prc;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   int pause = 1;
   assert (NULL != p_prc);
-  snd_pcm_pause (p_prc->p_pcm_hdl, pause);
+  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_hdl, pause));
   TIZ_TRACE (handleOf (p_prc),
              "PAUSED ALSA device..."
              "awaiting_io_ev_ [%s]", p_prc->awaiting_io_ev_ ? "YES" : "NO");
   if (p_prc->awaiting_io_ev_)
     {
-      tiz_event_io_stop (p_prc->p_ev_io_);
+      rc = tiz_event_io_stop (p_prc->p_ev_io_);
     }
-  return OMX_ErrorNone;
+  return rc;
 }
 
 static OMX_ERRORTYPE
-ar_prc_resume (const void *ap_obj)
+ar_prc_resume (const void *ap_prc)
 {
-  ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
+  ar_prc_t *p_prc = (ar_prc_t *) ap_prc;
   int resume = 0;
   assert (NULL != p_prc);
   TIZ_TRACE (handleOf (p_prc), "RESUMING ALSA device...");
-  snd_pcm_pause (p_prc->p_pcm_hdl, resume);
+  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_hdl, resume));
   if (p_prc->awaiting_io_ev_)
     {
-      start_io_watcher (p_prc);
+      tiz_check_omx_err (stop_io_watcher (p_prc));
     }
   return OMX_ErrorNone;
 }
@@ -809,27 +785,36 @@ static OMX_ERRORTYPE
 ar_prc_port_flush (const void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
   ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
-  assert (NULL != p_prc);
   return do_flush (p_prc);
 }
 
 static OMX_ERRORTYPE
-ar_prc_port_disable (const void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
+ar_prc_port_disable (const void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
+  ar_prc_t *p_prc = (ar_prc_t *) ap_prc;
   assert (NULL != p_prc);
   if (NULL != p_prc->p_pcm_hdl)
     {
-      (void) snd_pcm_drop (p_prc->p_pcm_hdl);
+      bail_on_snd_pcm_error (snd_pcm_drain (p_prc->p_pcm_hdl));
+      tiz_check_omx_err (stop_io_watcher (p_prc));
     }
+  p_prc->port_disabled_ = true;
   /* Release any buffers held  */
-  return release_buffers ((ar_prc_t *) ap_obj);
+  return release_headers ((ar_prc_t *) ap_prc);
 }
 
 static OMX_ERRORTYPE
 ar_prc_port_enable (const void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  /* TODO */
+  ar_prc_t *p_prc = (ar_prc_t *) ap_obj;
+  assert (NULL != p_prc);
+  p_prc->port_disabled_ = false;
+  log_alsa_pcm_state (p_prc);
+  if (NULL != p_prc->p_pcm_hdl)
+    {
+      tiz_check_omx_err (ar_prc_prepare_to_transfer (p_prc, OMX_ALL));
+      tiz_check_omx_err (ar_prc_transfer_and_process (p_prc, OMX_ALL));
+    }
   return OMX_ErrorNone;
 }
 
@@ -847,52 +832,32 @@ ar_prc_config_change (void *ap_obj, OMX_U32 a_pid, OMX_INDEXTYPE a_config_idx)
         {
           OMX_AUDIO_CONFIG_VOLUMETYPE volume;
           TIZ_INIT_OMX_PORT_STRUCT (volume, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
-          if (OMX_ErrorNone
-              != (rc =
-                  tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)),
-                                     handleOf (p_prc), OMX_IndexConfigAudioVolume,
-                                     &volume)))
+          tiz_check_omx_err (tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)),
+                                                handleOf (p_prc), OMX_IndexConfigAudioVolume,
+                                                &volume));
+          TIZ_TRACE (handleOf (p_prc), "volume.sVolume.nValue = %ld\n",
+                     volume.sVolume.nValue);
+          if (volume.sVolume.nValue <= ARATELIA_AUDIO_RENDERER_MAX_VOLUME_VALUE
+              && volume.sVolume.nValue >=
+              ARATELIA_AUDIO_RENDERER_MIN_VOLUME_VALUE)
             {
-              TIZ_ERROR (handleOf (p_prc), "[%s] : Error retrieving "
-                         "OMX_IndexConfigAudioVolume from port",
-                         tiz_err_to_str (rc));
-            }
-          else
-            {
-              TIZ_TRACE (handleOf (p_prc), "volume.sVolume.nValue = %ld\n",
-                         volume.sVolume.nValue);
-              if (volume.sVolume.nValue <= ARATELIA_AUDIO_RENDERER_MAX_VOLUME_VALUE
-                  && volume.sVolume.nValue >=
-                  ARATELIA_AUDIO_RENDERER_MIN_VOLUME_VALUE)
-                {
-                  /* TODO: Volume should be done by adjusting the gain, not ALSA's
-                   * master volume! */
-                  set_volume (p_prc, volume.sVolume.nValue);
-                }
+              /* TODO: Volume should be done by adjusting the gain, not ALSA's
+               * master volume! */
+              set_volume (p_prc, volume.sVolume.nValue);
             }
         }
       else if (OMX_IndexConfigAudioMute == a_config_idx)
         {
           OMX_AUDIO_CONFIG_MUTETYPE mute;
           TIZ_INIT_OMX_PORT_STRUCT (mute, ARATELIA_AUDIO_RENDERER_PORT_INDEX);
-          if (OMX_ErrorNone
-              != (rc =
-                  tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)),
-                                     handleOf (p_prc), OMX_IndexConfigAudioMute,
-                                     &mute)))
-            {
-              TIZ_ERROR (handleOf (p_prc), "[%s] : Error retrieving "
-                         "OMX_IndexConfigAudioMute from port",
-                         tiz_err_to_str (rc));
-            }
-          else
-            {
-              /* TODO: Volume should be done by adjusting the gain, not ALSA's
-               * master volume! */
-              TIZ_TRACE (handleOf (p_prc), "bMute = [%s]\n",
-                         (mute.bMute == OMX_FALSE ? "FALSE" : "TRUE"));
-              toggle_mute (p_prc, mute.bMute == OMX_TRUE ? true : false);
-            }
+          tiz_check_omx_err (tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)),
+                                                handleOf (p_prc), OMX_IndexConfigAudioMute,
+                                                &mute));
+          /* TODO: Volume should be done by adjusting the gain, not ALSA's
+           * master volume! */
+          TIZ_TRACE (handleOf (p_prc), "bMute = [%s]\n",
+                     (mute.bMute == OMX_FALSE ? "FALSE" : "TRUE"));
+          toggle_mute (p_prc, mute.bMute == OMX_TRUE ? true : false);
         }
     }
   return rc;
