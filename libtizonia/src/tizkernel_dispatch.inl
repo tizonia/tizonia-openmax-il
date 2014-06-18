@@ -294,7 +294,7 @@ static OMX_ERRORTYPE dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
                   else if (EStateExecuting == now)
                     {
                       if (OMX_ErrorNone == (rc = tiz_srv_prepare_to_transfer (
-                                                ap_obj, OMX_ALL)))
+                                                ap_obj, pid)))
                         {
                           rc = tiz_srv_transfer_and_process (ap_obj, pid);
                         }
