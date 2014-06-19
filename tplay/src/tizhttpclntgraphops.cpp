@@ -121,24 +121,7 @@ void graph::httpclntops::do_load ()
 
   omx_comp_name_lst_t comp_list;
   omx_comp_role_lst_t role_list;
-  switch (encoding_)
-  {
-    case OMX_AUDIO_CodingMP3:
-    {
-      comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
-      role_list.push_back ("audio_decoder.mp3");
-    }
-    break;
-    case OMX_AUDIO_CodingAAC:
-    {
-      comp_list.push_back ("OMX.Aratelia.audio_decoder.aac");
-      role_list.push_back ("audio_decoder.aac");
-    }
-    break;
-    default:
-      assert (0);
-      break;
-  }
+  add_decoder_to_component_list (comp_list, role_list);
 
   comp_list.push_back ("OMX.Aratelia.audio_renderer.pcm");
   role_list.push_back ("audio_renderer.pcm");
@@ -168,16 +151,6 @@ void graph::httpclntops::do_omx_exe2pause ()
 void graph::httpclntops::do_omx_pause2exe ()
 {
   // No-op. This is to disable pause in this graph
-}
-
-void graph::httpclntops::do_volume (const int step)
-{
-  // No-op. This is to disable volume in this graph
-}
-
-void graph::httpclntops::do_mute ()
-{
-  // No-op. This is to disable mute in this graph
 }
 
 void graph::httpclntops::do_omx_loaded2idle ()
@@ -313,8 +286,7 @@ graph::httpclntops::transition_tunnel (
     clear_expected_port_transitions ();
     const int decoder_index = 1;
     const int decoder_output_port = 1;
-    add_expected_port_transition (handles_[decoder_index],
-                                  decoder_output_port,
+    add_expected_port_transition (handles_[decoder_index], decoder_output_port,
                                   to_disabled_or_enabled);
     const int renderer_index = 2;
     const int renderer_input_port = 0;
@@ -322,6 +294,47 @@ graph::httpclntops::transition_tunnel (
                                   to_disabled_or_enabled);
   }
   return rc;
+}
+
+void graph::httpclntops::add_decoder_to_component_list (
+    omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list)
+{
+  switch (encoding_)
+  {
+    case OMX_AUDIO_CodingMP3:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
+      role_list.push_back ("audio_decoder.mp3");
+    }
+    break;
+    case OMX_AUDIO_CodingAAC:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.aac");
+      role_list.push_back ("audio_decoder.aac");
+    }
+    break;
+    case OMX_AUDIO_CodingFLAC:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
+      role_list.push_back ("audio_decoder.flac");
+    }
+    break;
+    case OMX_AUDIO_CodingVORBIS:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.vorbis");
+      role_list.push_back ("audio_decoder.vorbis");
+    }
+    break;
+    case OMX_AUDIO_CodingOPUS:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.opus");
+      role_list.push_back ("audio_decoder.opus");
+    }
+    break;
+    default:
+      assert (0);
+      break;
+  }
 }
 
 bool graph::httpclntops::probe_stream_hook ()
@@ -397,6 +410,8 @@ OMX_ERRORTYPE
 graph::httpclntops::apply_pcm_codec_info_from_http_source ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const OMX_HANDLETYPE handle = handles_[0];  // http source's handle
+  const OMX_U32 port_id = 0;                  // http source's output port
   OMX_U32 channels = 2;
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
@@ -405,17 +420,49 @@ graph::httpclntops::apply_pcm_codec_info_from_http_source ()
   {
     case OMX_AUDIO_CodingMP3:
     {
-      rc = get_pcm_info_from_mp3_port (channels, sampling_rate, encoding_str);
+      encoding_str = "mp3";
+      rc = tiz::graph::util::
+          get_channels_and_rate_from_audio_port< OMX_AUDIO_PARAM_MP3TYPE >(
+              handle, port_id, OMX_IndexParamAudioMp3, channels, sampling_rate);
     }
     break;
     case OMX_AUDIO_CodingAAC:
     {
-      rc = get_pcm_info_from_aac_port (channels, sampling_rate, encoding_str);
+      encoding_str = "aac";
+      rc = tiz::graph::util::
+          get_channels_and_rate_from_audio_port< OMX_AUDIO_PARAM_AACPROFILETYPE >(
+              handle, port_id, OMX_IndexParamAudioAac, channels, sampling_rate);
     }
     break;
     case OMX_AUDIO_CodingFLAC:
+    {
+      encoding_str = "flac";
+      rc = tiz::graph::util::
+          get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_FLACTYPE >(
+              handle, port_id,
+              static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
+              channels, sampling_rate);
+    }
+    break;
     case OMX_AUDIO_CodingVORBIS:
+    {
+      encoding_str = "flac";
+      rc = tiz::graph::util::
+          get_channels_and_rate_from_audio_port< OMX_AUDIO_PARAM_VORBISTYPE >(
+              handle, port_id, OMX_IndexParamAudioVorbis, channels,
+              sampling_rate);
+    }
+    break;
     case OMX_AUDIO_CodingOPUS:
+    {
+      encoding_str = "flac";
+      rc = tiz::graph::util::
+          get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE >(
+              handle, port_id,
+              static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
+              channels, sampling_rate);
+    }
+    break;
     default:
       assert (0);
       break;
@@ -448,40 +495,4 @@ graph::httpclntops::apply_pcm_codec_info_from_http_source ()
                                        playlist_->get_current_uri ().c_str ());
   }
   return rc;
-}
-
-OMX_ERRORTYPE
-graph::httpclntops::get_pcm_info_from_mp3_port (OMX_U32 &channels,
-                                                OMX_U32 &sampling_rate,
-                                                std::string &encoding_str)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const OMX_U32 port_id = 0;
-  // Retrieve the current mp3 settings from the http source component input port
-  OMX_AUDIO_PARAM_MP3TYPE mp3type;
-  TIZ_INIT_OMX_PORT_STRUCT (mp3type, port_id);
-  tiz_check_omx_err (
-      OMX_GetParameter (handles_[0], OMX_IndexParamAudioMp3, &mp3type));
-  channels = mp3type.nChannels;
-  sampling_rate = mp3type.nSampleRate;
-  encoding_str = "mp3";
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-graph::httpclntops::get_pcm_info_from_aac_port (OMX_U32 &channels,
-                                                OMX_U32 &sampling_rate,
-                                                std::string &encoding_str)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const OMX_U32 port_id = 0;
-  // Retrieve the current aac settings from the http source component input port
-  OMX_AUDIO_PARAM_AACPROFILETYPE aactype;
-  TIZ_INIT_OMX_PORT_STRUCT (aactype, port_id);
-  tiz_check_omx_err (
-      OMX_GetParameter (handles_[0], OMX_IndexParamAudioAac, &aactype));
-  channels = aactype.nChannels;
-  sampling_rate = aactype.nSampleRate;
-  encoding_str = "aac";
-  return OMX_ErrorNone;
 }

@@ -20,6 +20,7 @@ bin_PROGRAMS = tplay
 noinst_HEADERS = \
 	tizomxutil.hpp \
 	tizgraphutil.hpp \
+	tizgraphutil.inl \
 	tizgraphcback.hpp \
 	tizdaemon.hpp \
 	tizprobe.hpp \

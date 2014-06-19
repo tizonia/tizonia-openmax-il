@@ -113,6 +113,13 @@ namespace tiz
       static OMX_ERRORTYPE enable_tunnel (const omx_comp_handle_lst_t &hdl_list,
                                           const int tunnel_id);
 
+      template<typename ParamT>
+      static OMX_ERRORTYPE get_channels_and_rate_from_audio_port (const OMX_HANDLETYPE handle,
+                                                                  const OMX_U32 port_id,
+                                                                  const OMX_INDEXTYPE param_index,
+                                                                  OMX_U32 &channels,
+                                                                  OMX_U32 &sampling_rate);
+
       static OMX_ERRORTYPE set_content_uri (const OMX_HANDLETYPE handle,
                                             const std::string &uri);
 
@@ -148,5 +155,7 @@ namespace tiz
     };
   }  // namespace graph
 }  // namespace tiz
+
+#include "tizgraphutil.inl"
 
 #endif  // TIZGRAPHUTIL_HPP

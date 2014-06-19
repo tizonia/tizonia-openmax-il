@@ -136,10 +136,10 @@ namespace  // unnamed namespace
     {
       if (!(0 == rate_strings[i].compare ("CBR")
             || 0 == rate_strings[i].compare ("VBR")))
-        {
-          rc = false;
-          break;
-        }
+      {
+        rc = false;
+        break;
+      }
     }
     rc &= !rate_strings.empty ();
     rc &= (rate_strings.size () <= TIZ_MAX_BITRATE_MODES);
@@ -220,9 +220,11 @@ namespace  // unnamed namespace
         "<component>.\n");
     printf ("\t-R --recurse\t\t\t\tRecursively process DIR.\n");
     printf (
-        "\t   --log-directory\t\t\tA directory to be used for debug logging.\n");
+        "\t   --log-directory\t\t\tA directory to be used for debug "
+        "logging.\n");
     printf (
-        "\t   --bitrate-modes\t\t\tA list of bitrate modes (CBR, VBR) that will be\n"
+        "\t   --bitrate-modes\t\t\tA list of bitrate modes (CBR, VBR) that "
+        "will be\n"
         "\t\t\t\t\t\tallowed in the playlist (http streaming only). Default: "
         "any.\n");
     printf (
@@ -247,7 +249,8 @@ namespace  // unnamed namespace
         "\t    * Decodes every supported file in the '~/Music' directory)\n");
     printf ("\t    * File formats currently supported for playback:\n");
     printf (
-        "\t      * mp3, aac, (.aac only) flac (.flac, .ogg, .oga), opus (.opus, .ogg, .oga), "
+        "\t      * mp3, aac, (.aac only) flac (.flac, .ogg, .oga), opus "
+        "(.opus, .ogg, .oga), "
         "vorbis (.ogg, .oga).\n");
     printf ("\t    * Key bindings:\n");
     printf ("\t      * [p] skip to previous file.\n");
@@ -459,7 +462,8 @@ namespace  // unnamed namespace
     }
   }
 
-  ETIZPlayUserInput wait_for_user_input_while_streaming ()
+  ETIZPlayUserInput wait_for_user_input_while_streaming (
+      tiz::graphmgr::mgr_ptr_t mgr_ptr)
   {
     while (1)
     {
@@ -477,6 +481,18 @@ namespace  // unnamed namespace
         {
           case 'q':
             return ETIZPlayUserStop;
+
+          case 'm':
+            mgr_ptr->mute ();
+            break;
+
+          case '-':
+            mgr_ptr->volume (-1);
+            break;
+
+          case '+':
+            mgr_ptr->volume (1);
+            break;
 
           default:
             //           printf ("%d - not implemented\n", ch[0]);
@@ -552,8 +568,7 @@ namespace  // unnamed namespace
           const std::vector< std::string > &sampling_rate_str_list,
           const std::vector< int > &sampling_rate_list,
           const std::vector< std::string > &bitrate_mode_list,
-          const std::string &station_name,
-          const std::string &station_genre)
+          const std::string &station_name, const std::string &station_genre)
   {
     OMX_ERRORTYPE rc = OMX_ErrorNone;
     uri_lst_t file_list;
@@ -589,7 +604,8 @@ namespace  // unnamed namespace
         fprintf (stdout, "NOTE: Streaming media with sampling rates [%s].\n",
                  boost::join (sampling_rate_str_list, ", ").c_str ());
       }
-      if (!bitrate_mode_list.empty () || bitrate_mode_list.size () == TIZ_MAX_BITRATE_MODES)
+      if (!bitrate_mode_list.empty () || bitrate_mode_list.size ()
+                                         == TIZ_MAX_BITRATE_MODES)
       {
         fprintf (stdout, "NOTE: Streaming media with bitrates [%s].\n",
                  boost::join (bitrate_mode_list, ", ").c_str ());
@@ -616,7 +632,7 @@ namespace  // unnamed namespace
     p_mgr->init (playlist, graph_error_functor ());
     p_mgr->start ();
 
-    while (ETIZPlayUserStop != wait_for_user_input_while_streaming ())
+    while (ETIZPlayUserStop != wait_for_user_input_while_streaming (p_mgr))
     {
     }
 
@@ -635,12 +651,12 @@ namespace  // unnamed namespace
 
     uri_lst_t uri_list;
     uri_list.push_back (uri);
-    tizplaylist_ptr_t playlist =
-      boost::make_shared< tiz::playlist >(tiz::playlist (uri_list));
+    tizplaylist_ptr_t playlist
+        = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list));
     playlist->set_loop_playback (true);
 
     tizgraphconfig_ptr_t config
-      = boost::make_shared< tiz::graph::config >(playlist);
+        = boost::make_shared< tiz::graph::config >(playlist);
 
     // Instantiate the streaming client manager
     tiz::graphmgr::mgr_ptr_t p_mgr
@@ -650,7 +666,7 @@ namespace  // unnamed namespace
     p_mgr->init (playlist, graph_error_functor ());
     p_mgr->start ();
 
-    while (ETIZPlayUserStop != wait_for_user_input_while_streaming ())
+    while (ETIZPlayUserStop != wait_for_user_input_while_streaming (p_mgr))
     {
     }
 
@@ -756,15 +772,13 @@ int main (int argc, char **argv)
       {
         char *p_end = NULL;
         std::string bitrates_str (optarg);
-        boost::split (bitrate_mode_list, bitrates_str,
-                      boost::is_any_of (","));
+        boost::split (bitrate_mode_list, bitrates_str, boost::is_any_of (","));
         if (!valid_bitrate_list (bitrate_mode_list))
         {
-          fprintf (
-              stderr,
-              "Invalid argument : %s .\nValid bitrate type values :\n"
-              "[CBR,VBR]\n",
-              optarg);
+          fprintf (stderr,
+                   "Invalid argument : %s .\nValid bitrate type values :\n"
+                   "[CBR,VBR]\n",
+                   optarg);
           exit (EXIT_FAILURE);
         }
       }
@@ -772,11 +786,11 @@ int main (int argc, char **argv)
 
       case 6:
       {
-        DIR* dir = opendir (optarg);
+        DIR *dir = opendir (optarg);
         if (NULL == dir)
         {
-          fprintf (stderr, "Invalid argument : %s (%s).\n",
-                   optarg, strerror (errno));
+          fprintf (stderr, "Invalid argument : %s (%s).\n", optarg,
+                   strerror (errno));
           exit (EXIT_FAILURE);
         }
         else
@@ -892,15 +906,15 @@ int main (int argc, char **argv)
   tiz_log_init ();
   if (log_dir.length () > 0)
   {
-      tiz_log_set_unique_rolling_file (log_dir.c_str(), PACKAGE_NAME);
+    tiz_log_set_unique_rolling_file (log_dir.c_str (), PACKAGE_NAME);
   }
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL player...");
 
   if (streaming_server && !media.empty ())
   {
     error = stream (media.c_str (), srv_port, shuffle_playlist, recurse,
-                    sampling_rate_str_list, sampling_rate_list, bitrate_mode_list,
-                    station_name, station_genre);
+                    sampling_rate_str_list, sampling_rate_list,
+                    bitrate_mode_list, station_name, station_genre);
     exit (EXIT_SUCCESS);
   }
 
@@ -911,16 +925,16 @@ int main (int argc, char **argv)
     // TODO: This WIP
     std::string uri_scheme = media.substr (0, 7);
     if (uri_scheme.size () >= 7 && uri_scheme.compare ("http://") == 0)
-      {
-        error = decode_stream (media);
-      }
+    {
+      error = decode_stream (media);
+    }
     else
-      {
-        error = decode (media, shuffle_playlist, recurse);
-      }
+    {
+      error = decode (media, shuffle_playlist, recurse);
+    }
   }
 
-  (void) tiz_log_deinit ();
+  (void)tiz_log_deinit ();
 
   if (OMX_ErrorNone != error)
   {
