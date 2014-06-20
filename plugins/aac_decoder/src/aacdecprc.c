@@ -21,7 +21,7 @@
  * @file   aacdecprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - AAC Decoder processor class implementation
+ * @brief  Tizonia OpenMAX IL - AAC Decoder processor class
  *
  *
  */
@@ -154,6 +154,34 @@ static OMX_ERRORTYPE set_decoder_config (aacdec_prc_t *ap_prc)
   return rc;
 }
 
+static OMX_ERRORTYPE update_pcm_mode (aacdec_prc_t *ap_prc, const OMX_U32 a_samplerate,
+                                      const OMX_U32 a_channels)
+{
+  assert (NULL != ap_prc);
+  if (a_samplerate  != ap_prc->pcmmode_.nSamplingRate
+      || a_channels != ap_prc->pcmmode_.nChannels)
+    {
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating pcm mode : old samplerate [%d] new samplerate [%d]",
+                 ap_prc->pcmmode_.nSamplingRate, a_samplerate);
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "Updating pcm mode : old channels [%d] new channels [%d]",
+                 ap_prc->pcmmode_.nChannels, a_channels);
+      ap_prc->pcmmode_.nSamplingRate = a_samplerate;
+      ap_prc->pcmmode_.nChannels     = a_channels;
+      tiz_check_omx_err (tiz_krn_SetParameter_internal
+                         (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
+      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
+                           ARATELIA_AAC_DECODER_OUTPUT_PORT_INDEX,
+                           OMX_IndexParamAudioPcm, /* the index of the
+                                                      struct that has
+                                                      been modififed */
+                           NULL);
+    }
+  return OMX_ErrorNone;
+}
+
 static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
@@ -199,6 +227,9 @@ static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
     }
   else
     {
+      /* Make sure the the output port parameters are up to date */
+      tiz_check_omx_err (update_pcm_mode (ap_prc, ap_prc->samplerate_,
+                                          ap_prc->channels_));
       /* We will skip this many bytes the next time we read from this buffer */
       tiz_buffer_advance (ap_prc->p_store_, nbytes);
       TIZ_DEBUG (handleOf (ap_prc), "samplerate [%d] channels [%d]",
@@ -406,6 +437,10 @@ static OMX_ERRORTYPE aacdec_prc_prepare_to_transfer (void *ap_obj,
   aacdec_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
   reset_stream_parameters (p_prc);
+  TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_, ARATELIA_AAC_DECODER_OUTPUT_PORT_INDEX);
+  tiz_check_omx_err (tiz_api_GetParameter
+                     (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+                      OMX_IndexParamAudioPcm, &(p_prc->pcmmode_)));
   return OMX_ErrorNone;
 }
 

@@ -45,6 +45,7 @@ struct aacdec_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
   NeAACDecHandle p_aac_dec_;
   NeAACDecFrameInfo aac_info_;
   unsigned long samplerate_;
