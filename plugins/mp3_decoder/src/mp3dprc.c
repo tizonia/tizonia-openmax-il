@@ -710,7 +710,6 @@ static OMX_ERRORTYPE
 mp3d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
   mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
-  /* Release all buffers, regardless of the port this is received on */
   return release_headers (p_obj, a_pid);
 }
 
@@ -727,7 +726,6 @@ mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
     {
       p_obj->out_port_disabled_ = true;
     }
-  /* Release all buffers, regardless of the port this is received on */
   return release_headers (p_obj, a_pid);
 }
 
