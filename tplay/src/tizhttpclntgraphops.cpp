@@ -446,7 +446,7 @@ graph::httpclntops::apply_pcm_codec_info_from_http_source ()
     break;
     case OMX_AUDIO_CodingVORBIS:
     {
-      encoding_str = "flac";
+      encoding_str = "vorbis";
       rc = tiz::graph::util::
           get_channels_and_rate_from_audio_port< OMX_AUDIO_PARAM_VORBISTYPE >(
               handle, port_id, OMX_IndexParamAudioVorbis, channels,
@@ -455,7 +455,7 @@ graph::httpclntops::apply_pcm_codec_info_from_http_source ()
     break;
     case OMX_AUDIO_CodingOPUS:
     {
-      encoding_str = "flac";
+      encoding_str = "opus";
       rc = tiz::graph::util::
           get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE >(
               handle, port_id,
