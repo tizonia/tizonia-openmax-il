@@ -223,7 +223,7 @@ print_opus_comments (opusd_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-release_all_buffers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
+release_headers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   assert (NULL != ap_prc);
 
@@ -248,13 +248,6 @@ release_all_buffers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
     }
 
   return OMX_ErrorNone;
-}
-
-static inline OMX_ERRORTYPE
-do_flush (opusd_prc_t * ap_prc)
-{
-  /* Release any buffers held  */
-  return release_all_buffers (ap_prc, OMX_ALL);
 }
 
 static OMX_ERRORTYPE
@@ -368,7 +361,7 @@ opusd_prc_ctor (void *ap_obj, va_list * app)
   p_prc->eos_               = false;
   p_prc->in_port_disabled_  = false;
   p_prc->out_port_disabled_ = false;
-  TIZ_TRACE (handleOf (p_prc), "Opus library vesion [%%]",
+  TIZ_TRACE (handleOf (p_prc), "Opus library vesion [%s]",
              opus_get_version_string ());
   return p_prc;
 }
@@ -427,7 +420,8 @@ opusd_prc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE
 opusd_prc_stop_and_return (void *ap_obj)
 {
-  return do_flush (ap_obj);
+  opusd_prc_t *p_obj = (opusd_prc_t *) ap_obj;
+  return release_headers (p_obj, OMX_ALL);
 }
 
 /*
@@ -484,6 +478,43 @@ opusd_prc_buffers_ready (const void *ap_obj)
     }
 
   return rc;
+}
+
+static OMX_ERRORTYPE
+opusd_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
+{
+  opusd_prc_t *p_obj = (opusd_prc_t *) ap_obj;
+  return release_headers (p_obj, a_pid);
+}
+
+static OMX_ERRORTYPE opusd_prc_port_disable (const void *ap_prc, OMX_U32 a_pid)
+{
+  opusd_prc_t *p_prc = (opusd_prc_t *) ap_prc;
+  assert (NULL != p_prc);
+  if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX == a_pid)
+    {
+      p_prc->in_port_disabled_ = true;
+    }
+  if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX == a_pid)
+    {
+      p_prc->out_port_disabled_ = true;
+    }
+  return release_headers (p_prc, a_pid);
+}
+
+static OMX_ERRORTYPE opusd_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
+{
+  opusd_prc_t *p_prc = (opusd_prc_t *) ap_prc;
+  assert (NULL != p_prc);
+  if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX == a_pid)
+    {
+      p_prc->in_port_disabled_ = false;
+    }
+  if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX == a_pid)
+    {
+      p_prc->out_port_disabled_ = false;
+    }
+  return OMX_ErrorNone;
 }
 
 /*
@@ -543,8 +574,14 @@ opusd_prc_init (void *ap_tos, void *ap_hdl)
      tiz_srv_stop_and_return, opusd_prc_stop_and_return,
      /* TIZ_CLASS_COMMENT: */
      tiz_prc_buffers_ready, opusd_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_flush, opusd_proc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_disable, opusd_prc_port_disable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, opusd_prc_port_enable,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
-  
+
   return opusdprc;
 }

@@ -20,10 +20,10 @@
 /**
  * @file   opusdprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia OpenMAX IL - Opus decoder processor class decls
- * 
- * 
+ *
+ *
  */
 
 #ifndef OPUSDPRC_DECLS_H
