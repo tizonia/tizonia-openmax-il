@@ -57,6 +57,7 @@ static void *httpsrc_port_ctor (void *ap_obj, va_list *app)
 
   tiz_port_register_index (p_obj, OMX_IndexParamAudioMp3);
   tiz_port_register_index (p_obj, OMX_IndexParamAudioAac);
+  tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioOpus);
 
   p_obj->mp3type_.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
   p_obj->mp3type_.nVersion.nVersion = OMX_VERSION;
@@ -81,6 +82,20 @@ static void *httpsrc_port_ctor (void *ap_obj, va_list *app)
   p_obj->aactype_.eAACProfile = OMX_AUDIO_AACObjectLC;
   p_obj->aactype_.eAACStreamFormat = OMX_AUDIO_AACStreamFormatMP2ADTS;
   p_obj->aactype_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
+
+  p_obj->opustype_.nSize                   = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
+  p_obj->opustype_.nVersion.nVersion       = OMX_VERSION;
+  p_obj->opustype_.nPortIndex              = ARATELIA_HTTP_SOURCE_PORT_INDEX;
+  p_obj->opustype_.nChannels               = 2;
+  p_obj->opustype_.nBitRate                = 256;
+  p_obj->opustype_.nSampleRate             = 48000;
+  p_obj->opustype_.nFrameDuration          = 2.5;
+  p_obj->opustype_.nEncoderComplexity      = 0;
+  p_obj->opustype_.bPacketLossResilience   = OMX_FALSE;
+  p_obj->opustype_.bForwardErrorCorrection = OMX_FALSE;
+  p_obj->opustype_.bDtx                    = OMX_FALSE;
+  p_obj->opustype_.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
+  p_obj->opustype_.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
 
   return p_obj;
 }
@@ -117,23 +132,33 @@ static OMX_ERRORTYPE httpsrc_port_GetParameter (const void *ap_obj,
         OMX_AUDIO_PARAM_MP3TYPE *p_mp3mode
           = (OMX_AUDIO_PARAM_MP3TYPE *) ap_struct;
         *p_mp3mode = p_obj->mp3type_;
-        break;
       }
+      break;
 
     case OMX_IndexParamAudioAac:
       {
         OMX_AUDIO_PARAM_AACPROFILETYPE *p_aacmode
           = (OMX_AUDIO_PARAM_AACPROFILETYPE *) ap_struct;
         *p_aacmode = p_obj->aactype_;
-        break;
       }
+      break;
 
     default:
       {
-        /* Try the parent's indexes */
-        rc = super_GetParameter (typeOf (ap_obj, "httpsrcport"),
-                                 ap_obj, ap_hdl, a_index, ap_struct);
+        if (OMX_TizoniaIndexParamAudioOpus == a_index)
+          {
+            OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opusmode
+              = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;
+            *p_opusmode = p_obj->opustype_;
+          }
+        else
+          {
+            /* Try the parent's indexes */
+            rc = super_GetParameter (typeOf (ap_obj, "httpsrcport"),
+                                     ap_obj, ap_hdl, a_index, ap_struct);
+          }
       }
+      break;
     };
 
   return rc;
@@ -182,33 +207,13 @@ static OMX_ERRORTYPE httpsrc_port_SetParameter (const void *ap_obj,
 
         if (OMX_ErrorNone == rc)
           {
-            /* Do now allow changes to sampling rate or num of channels if this is
-             * a slave output port */
-            const tiz_port_t *p_base = ap_obj;
-
-            if ((OMX_DirOutput == p_base->portdef_.eDir)
-                && (p_base->opts_.mos_port != -1)
-                && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
-                && (p_obj->mp3type_.nChannels != p_mp3type->nChannels
-                    || p_obj->mp3type_.nSampleRate != p_mp3type->nSampleRate))
-              {
-                TIZ_ERROR (ap_hdl,
-                           "[OMX_ErrorBadParameter] : PORT [%d] "
-                           "SetParameter [OMX_IndexParamAudioMp3]... "
-                           "Slave port, cannot update sample rate "
-                           "or number of channels", tiz_port_dir (p_obj));
-                rc = OMX_ErrorBadParameter;
-              }
-            else
-              {
-                /* Apply the new default values */
-                p_obj->mp3type_.nChannels = p_mp3type->nChannels;
-                p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
-                p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
-                p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
-                p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
-                p_obj->mp3type_.eFormat = p_mp3type->eFormat;
-              }
+            /* Apply the new default values */
+            p_obj->mp3type_.nChannels = p_mp3type->nChannels;
+            p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
+            p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
+            p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
+            p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
+            p_obj->mp3type_.eFormat = p_mp3type->eFormat;
           }
       }
       break;
@@ -244,45 +249,72 @@ static OMX_ERRORTYPE httpsrc_port_SetParameter (const void *ap_obj,
 
         if (OMX_ErrorNone == rc)
           {
-          /* Do now allow changes to sampling rate or num of channels if this is
-           * a slave output port */
-          const tiz_port_t *p_base = ap_obj;
-
-          if ((OMX_DirOutput == p_base->portdef_.eDir)
-              && (p_base->opts_.mos_port != -1)
-              && (p_base->opts_.mos_port != p_base->portdef_.nPortIndex)
-              && (p_obj->aactype_.nChannels != p_aactype->nChannels
-                  || p_obj->aactype_.nSampleRate != p_aactype->nSampleRate))
-            {
-              TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : PORT [%d] "
-                        "SetParameter [OMX_IndexParamAudioAac]... "
-                        "Slave port, cannot update sample rate "
-                        "or number of channels", tiz_port_dir (p_obj));
-              rc = OMX_ErrorBadParameter;
-            }
-          else
-            {
-              /* Apply the new default values */
-              p_obj->aactype_.nChannels        = p_aactype->nChannels;
-              p_obj->aactype_.nSampleRate      = p_aactype->nSampleRate;
-              p_obj->aactype_.nBitRate         = p_aactype->nBitRate;
-              p_obj->aactype_.nAudioBandWidth  = p_aactype->nAudioBandWidth;
-              p_obj->aactype_.nFrameLength     = p_aactype->nFrameLength;
-              p_obj->aactype_.nAACtools        = p_aactype->nAACtools;
-              p_obj->aactype_.nAACERtools      = p_aactype->nAACERtools;
-              p_obj->aactype_.eAACProfile      = p_aactype->eAACProfile;
-              p_obj->aactype_.eAACStreamFormat = p_aactype->eAACStreamFormat;
-              p_obj->aactype_.eChannelMode     = p_aactype->eChannelMode;
-            }
+            /* Apply the new default values */
+            p_obj->aactype_.nChannels        = p_aactype->nChannels;
+            p_obj->aactype_.nSampleRate      = p_aactype->nSampleRate;
+            p_obj->aactype_.nBitRate         = p_aactype->nBitRate;
+            p_obj->aactype_.nAudioBandWidth  = p_aactype->nAudioBandWidth;
+            p_obj->aactype_.nFrameLength     = p_aactype->nFrameLength;
+            p_obj->aactype_.nAACtools        = p_aactype->nAACtools;
+            p_obj->aactype_.nAACERtools      = p_aactype->nAACERtools;
+            p_obj->aactype_.eAACProfile      = p_aactype->eAACProfile;
+            p_obj->aactype_.eAACStreamFormat = p_aactype->eAACStreamFormat;
+            p_obj->aactype_.eChannelMode     = p_aactype->eChannelMode;
           }
       }
       break;
 
     default:
       {
-        /* Try the parent's indexes */
-        rc = super_SetParameter (typeOf (ap_obj, "httpsrcport"),
-                                 ap_obj, ap_hdl, a_index, ap_struct);
+
+        if (OMX_TizoniaIndexParamAudioOpus == a_index)
+          {
+            const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opustype
+              = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;
+
+            switch (p_opustype->nSampleRate)
+              {
+              case 8000:
+              case 16000:
+              case 24000:
+              case 22050:
+              case 32000:
+              case 44100:
+              case 48000:
+                {
+                  break;
+                }
+              default:
+                {
+                  TIZ_ERROR (ap_hdl, "[%s] : OMX_ErrorBadParameter : "
+                             "Sample rate not supported [%d]. "
+                             "Returning...", tiz_idx_to_str (a_index),
+                             p_opustype->nSampleRate);
+                  rc = OMX_ErrorBadParameter;
+                }
+              };
+
+            if (OMX_ErrorNone == rc)
+              {
+                /* Apply the new default values */
+                p_obj->opustype_.nChannels               = p_opustype->nChannels;
+                p_obj->opustype_.nBitRate                = p_opustype->nBitRate;
+                p_obj->opustype_.nSampleRate             = p_opustype->nSampleRate;
+                p_obj->opustype_.nFrameDuration          = p_opustype->nFrameDuration;
+                p_obj->opustype_.nEncoderComplexity      = p_opustype->nEncoderComplexity;
+                p_obj->opustype_.bPacketLossResilience   = p_opustype->bPacketLossResilience;
+                p_obj->opustype_.bForwardErrorCorrection = p_opustype->bForwardErrorCorrection;
+                p_obj->opustype_.bDtx                    = p_opustype->bDtx;
+                p_obj->opustype_.eChannelMode            = p_opustype->eChannelMode;
+                p_obj->opustype_.eFormat                 = p_opustype->eFormat;
+              }
+          }
+        else
+          {
+            /* Try the parent's indexes */
+            rc = super_SetParameter (typeOf (ap_obj, "httpsrcport"),
+                                     ap_obj, ap_hdl, a_index, ap_struct);
+          }
       }
     };
   return rc;

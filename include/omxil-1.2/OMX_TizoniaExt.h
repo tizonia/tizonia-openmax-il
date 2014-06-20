@@ -37,8 +37,10 @@
 #define OMX_ROLE_AUDIO_DECODER_OPUS            "audio_decoder.opus"
 #define OMX_ROLE_AUDIO_ENCODER_FLAC            "audio_encoder.flac"
 #define OMX_ROLE_AUDIO_DECODER_FLAC            "audio_decoder.flac"
-#define OMX_ROLE_CONTAINER_DEMUXER_OGG         "container_demuxer.ogg"
+#define OMX_ROLE_SOURCE_CONTAINER_DEMUXER_OGG  "source.container_demuxer.ogg"
+#define OMX_ROLE_FILTER_CONTAINER_DEMUXER_OGG  "filter.container_demuxer.ogg"
 #define OMX_ROLE_AUDIO_RENDERER_ICECAST_MP3    "audio_renderer.icecast.mp3"
+#define OMX_ROLE_AUDIO_RENDERER_ICECAST_AAC    "audio_renderer.icecast.aac"
 #define OMX_ROLE_AUDIO_RENDERER_ICECAST_VORBIS "audio_renderer.icecast.vorbis"
 #define OMX_ROLE_AUDIO_RENDERER_ICECAST_OPUS   "audio_renderer.icecast.opus"
 
@@ -66,6 +68,8 @@
 
 #define OMX_AUDIO_CodingOPUS OMX_AUDIO_CodingVendorStartUnused + 1
 #define OMX_AUDIO_CodingFLAC OMX_AUDIO_CodingVendorStartUnused + 2
+#define OMX_AUDIO_CodingSPEEX OMX_AUDIO_CodingVendorStartUnused + 3
+#define OMX_AUDIO_CodingOGA OMX_AUDIO_CodingVendorStartUnused + 4 /** this for audio in an ogg container */
 
 /**
  * The name of the pre-announcements mode extension.

@@ -47,6 +47,7 @@ extern "C"
     const tiz_audioport_t _;
     OMX_AUDIO_PARAM_MP3TYPE mp3type_;
     OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
+    OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
   };
 
   typedef struct httpsrc_port_class httpsrc_port_class_t;

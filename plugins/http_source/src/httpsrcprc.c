@@ -261,17 +261,32 @@ static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
     }
-  else if (memcmp (ap_info, "audio/ogg", 9) == 0)
+  else if (memcmp (ap_info, "audio/vorbis", 12) == 0)
     {
+      /* This is vorbis without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingVORBIS;
+    }
+  else if (memcmp (ap_info, "audio/speex", 11) == 0)
+    {
+      /* This is speex without container */
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingSPEEX;
     }
   else if (memcmp (ap_info, "audio/flac", 10) == 0)
     {
+      /* This is flac without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingFLAC;
     }
   else if (memcmp (ap_info, "audio/opus", 10) == 0)
     {
+      /* This is opus without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOPUS;
+    }
+  else if (memcmp (ap_info, "application/ogg", 15) == 0
+           || memcmp (ap_info, "audio/ogg", 9) == 0)
+    {
+      /* This is for audio with ogg container (may be OPUS, Vorbis, Opus,
+         etc) */
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOGA;
     }
   else
     {
@@ -402,6 +417,26 @@ static OMX_ERRORTYPE set_aac_audio_info_on_port (httpsrc_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
+static OMX_ERRORTYPE set_opus_audio_info_on_port (httpsrc_prc_t *ap_prc)
+{
+  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype;
+  assert (NULL != ap_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (opustype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
+  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
+                                           handleOf (ap_prc),
+                                           OMX_TizoniaIndexParamAudioOpus, &opustype));
+
+  /* Set the new values */
+  opustype.nChannels = ap_prc->num_channels_;
+  opustype.nSampleRate = ap_prc->samplerate_;
+
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (tiz_get_krn (handleOf (ap_prc)),
+                                                    handleOf (ap_prc),
+                                                    OMX_TizoniaIndexParamAudioOpus, &opustype));
+  return OMX_ErrorNone;
+}
+
 static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -416,6 +451,11 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
     case OMX_AUDIO_CodingAAC:
       {
         rc = set_aac_audio_info_on_port (ap_prc);
+      }
+      break;
+    case OMX_AUDIO_CodingOPUS:
+      {
+        rc = set_opus_audio_info_on_port (ap_prc);
       }
       break;
     default:
