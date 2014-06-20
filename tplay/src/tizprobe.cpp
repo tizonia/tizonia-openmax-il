@@ -166,6 +166,7 @@ tiz::probe::probe (const std::string &uri, const bool quiet)
     domain_ (OMX_PortDomainMax),
     audio_coding_type_ (OMX_AUDIO_CodingUnused),
     video_coding_type_ (OMX_VIDEO_CodingUnused),
+    container_type_ (OMX_FORMATMax),
     pcmtype_ (),
     mp3type_ (),
     opustype_ (),
@@ -284,6 +285,16 @@ tiz::probe::get_video_coding_type ()
   return video_coding_type_;
 }
 
+OMX_MEDIACONTAINER_FORMATTYPE
+tiz::probe::get_container_type ()
+{
+  if (OMX_FORMATMax == container_type_)
+  {
+    (void)probe_file ();
+  }
+  return container_type_;
+}
+
 int tiz::probe::probe_file ()
 {
   int ret = 0;
@@ -293,15 +304,8 @@ int tiz::probe::probe_file ()
   CodecID codec_id = CODEC_ID_PROBE;
   std::string extension (boost::filesystem::path (uri_).extension ().string ());
 
-  // For now, for opus files simply rely on the file extension.
-  if (extension.compare (".opus") == 0)
-  {
-    set_opus_codec_info ();
-  }
-  else
-  {
-    if (0 == (ret = open_input_file (&fmt_ctx, uri_, stream_title_,
-                                     stream_genre_, quiet_)))
+  if (0 == (ret = open_input_file (&fmt_ctx, uri_, stream_title_,
+                                   stream_genre_, quiet_)))
     {
       if (NULL == (st = fmt_ctx->streams[0]))
       {
@@ -333,11 +337,22 @@ int tiz::probe::probe_file ()
       {
         set_vorbis_codec_info (cc);
       }
+      // TODO:
+      //       else if (codec_id == AV_CODEC_ID_OPUS)
+      //       {
+      //         set_opus_codec_info ();
+      //       }
       else if (codec_id == CODEC_ID_VP8)
       {
         domain_ = OMX_PortDomainVideo;
         video_coding_type_ = OMX_VIDEO_CodingVP8;
       }
+      // For now, for opus files simply rely on the file extension.
+      else if (extension.compare (".opus") == 0)
+        {
+          set_opus_codec_info ();
+        }
+
       close_input_file (&fmt_ctx);
 
       // Use mediainfo to check CBR or VBR property
@@ -349,6 +364,24 @@ int tiz::probe::probe_file ()
                     __T ("OverallBitRate_Mode"), MediaInfoLib::Info_Text,
                     MediaInfoLib::Info_Name).c_str ();
       stream_is_cbr_ = (cbr_or_vbr == ZenLib::Ztring (__T ("CBR")));
+
+      // Use mediainfo to get an idea of the container format
+      ZenLib::Ztring format
+          = MI.Get (MediaInfoLib::Stream_General, 0,
+                    __T ("Format"), MediaInfoLib::Info_Text,
+                    MediaInfoLib::Info_Name).c_str ();
+      if (format == ZenLib::Ztring (__T ("OGG")))
+        {
+          container_type_ = OMX_FORMAT_OGG;
+        }
+      else if (format == ZenLib::Ztring (__T ("MPEG AUDIO")))
+        {
+          container_type_ = OMX_FORMAT_MP3;
+        }
+      else
+        {
+          container_type_ = OMX_FORMAT_RAW;
+        }
       MI.Close ();
     }
     else
@@ -356,7 +389,6 @@ int tiz::probe::probe_file ()
       // Unknown format
       return 1;
     }
-  }
   return 0;
 }
 

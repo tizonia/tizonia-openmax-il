@@ -55,6 +55,7 @@ namespace tiz
     OMX_PORTDOMAINTYPE get_omx_domain ();
     OMX_AUDIO_CODINGTYPE get_audio_coding_type ();
     OMX_VIDEO_CODINGTYPE get_video_coding_type ();
+    OMX_MEDIACONTAINER_FORMATTYPE get_container_type ();
 
     void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
     void get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE &mp3type);
@@ -107,6 +108,7 @@ namespace tiz
     OMX_PORTDOMAINTYPE domain_;
     OMX_AUDIO_CODINGTYPE audio_coding_type_;
     OMX_VIDEO_CODINGTYPE video_coding_type_;
+    OMX_MEDIACONTAINER_FORMATTYPE container_type_;
     OMX_AUDIO_PARAM_PCMMODETYPE pcmtype_;
     OMX_AUDIO_PARAM_MP3TYPE mp3type_;
     OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
