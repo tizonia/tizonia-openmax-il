@@ -43,6 +43,68 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.aacport"
 #endif
 
+static OMX_ERRORTYPE
+aacport_SetParameter_common (const void *ap_obj,
+                      OMX_HANDLETYPE ap_hdl,
+                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_aacport_t *p_obj = (tiz_aacport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
+  assert (OMX_IndexParamAudioMp3 == a_index);
+
+  TIZ_TRACE (ap_hdl, "PORT [%d] [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+
+  if (a_index == OMX_IndexParamAudioAac)
+    {
+      const OMX_AUDIO_PARAM_AACPROFILETYPE *p_aactype
+        = (OMX_AUDIO_PARAM_AACPROFILETYPE *) ap_struct;
+
+        switch (p_aactype->nSampleRate)
+          {
+          case 8000:
+          case 11025:
+          case 12000:
+          case 16000:
+          case 22050:
+          case 24000:
+          case 32000:
+          case 44100:
+          case 48000:
+            {
+              break;
+            }
+          default:
+            {
+              TIZ_TRACE (ap_hdl, "[%s] : OMX_ErrorBadParameter : "
+                         "Sample rate not supported [%d]. "
+                         "Returning...", tiz_idx_to_str (a_index),
+                         p_aactype->nSampleRate);
+              rc = OMX_ErrorBadParameter;
+            }
+          };
+
+        if (OMX_ErrorNone == rc)
+          {
+            /* Apply the new default values */
+            p_obj->aactype_.nChannels        = p_aactype->nChannels;
+            p_obj->aactype_.nSampleRate      = p_aactype->nSampleRate;
+            p_obj->aactype_.nBitRate         = p_aactype->nBitRate;
+            p_obj->aactype_.nAudioBandWidth  = p_aactype->nAudioBandWidth;
+            p_obj->aactype_.nFrameLength     = p_aactype->nFrameLength;
+            p_obj->aactype_.nAACtools        = p_aactype->nAACtools;
+            p_obj->aactype_.nAACERtools      = p_aactype->nAACERtools;
+            p_obj->aactype_.eAACProfile      = p_aactype->eAACProfile;
+            p_obj->aactype_.eAACStreamFormat = p_aactype->eAACStreamFormat;
+            p_obj->aactype_.eChannelMode     = p_aactype->eChannelMode;
+          }
+      }
+
+  return rc;
+}
+
 /*
  * tizaacport class
  */
@@ -180,17 +242,7 @@ aacport_SetParameter (const void *ap_obj,
             }
           else
             {
-              /* Apply the new default values */
-              p_obj->aactype_.nChannels        = p_aactype->nChannels;
-              p_obj->aactype_.nSampleRate      = p_aactype->nSampleRate;
-              p_obj->aactype_.nBitRate         = p_aactype->nBitRate;
-              p_obj->aactype_.nAudioBandWidth  = p_aactype->nAudioBandWidth;
-              p_obj->aactype_.nFrameLength     = p_aactype->nFrameLength;
-              p_obj->aactype_.nAACtools        = p_aactype->nAACtools;
-              p_obj->aactype_.nAACERtools      = p_aactype->nAACERtools;
-              p_obj->aactype_.eAACProfile      = p_aactype->eAACProfile;
-              p_obj->aactype_.eAACStreamFormat = p_aactype->eAACStreamFormat;
-              p_obj->aactype_.eChannelMode     = p_aactype->eChannelMode;
+              rc = aacport_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
             }
           }
       }
@@ -206,6 +258,36 @@ aacport_SetParameter (const void *ap_obj,
 
   return rc;
 
+}
+
+static OMX_ERRORTYPE
+aacport_SetParameter_internal (const void *ap_obj,
+                               OMX_HANDLETYPE ap_hdl,
+                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  tiz_aacport_t *p_obj = (tiz_aacport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_obj);
+
+  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
+            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+
+  switch (a_index)
+    {
+    case OMX_IndexParamAudioAac:
+      {
+        rc = aacport_SetParameter_common (ap_obj, ap_hdl, a_index, ap_struct);
+      }
+      break;
+    default:
+      {
+        assert (0);
+      }
+      break;
+    };
+
+  return rc;
 }
 
 static bool
@@ -464,6 +546,8 @@ tiz_aacport_init (void * ap_tos, void * ap_hdl)
      tiz_api_GetParameter, aacport_GetParameter,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_SetParameter, aacport_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_SetParameter_internal, aacport_SetParameter_internal,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, aacport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: */
