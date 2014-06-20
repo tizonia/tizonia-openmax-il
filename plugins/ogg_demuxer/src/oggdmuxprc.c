@@ -138,7 +138,7 @@ alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
 
   port_def.nSize = (OMX_U32) sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
   port_def.nVersion.nVersion = OMX_VERSION;
-  port_def.nPortIndex = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
+  port_def.nPortIndex = ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX;
 
   tiz_check_omx_err
     (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
@@ -150,7 +150,7 @@ alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
   tiz_check_null_ret_oom ((ap_prc->p_aud_store_ =
                            tiz_mem_alloc (ap_prc->aud_store_size_)));
 
-  port_def.nPortIndex = ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX;
+  port_def.nPortIndex = ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX;
   tiz_check_omx_err
     (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                            OMX_IndexParamPortDefinition, &port_def));
@@ -220,8 +220,8 @@ get_store_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_U8 **pp_store = NULL;
   assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
-  pp_store = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
+  pp_store = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
     ? &(ap_prc->p_aud_store_) : &(ap_prc->p_vid_store_);
   return pp_store;
 }
@@ -231,8 +231,8 @@ get_store_size_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_U32 *p_size = NULL;
   assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
-  p_size = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
+  p_size = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
     ? &(ap_prc->aud_store_size_) : &(ap_prc->vid_store_size_);
   return p_size;
 }
@@ -242,8 +242,8 @@ get_store_offset_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_U32 *p_offset = NULL;
   assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
-  p_offset = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
+  p_offset = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
     ? &(ap_prc->aud_store_offset_) : &(ap_prc->vid_store_offset_);
   assert (NULL != p_offset);
   return p_offset;
@@ -254,8 +254,8 @@ get_port_disabled_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   bool *p_port_disabled = NULL;
   assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
-  p_port_disabled = (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
+  p_port_disabled = (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
                      ? &(ap_prc->aud_port_disabled_)
                      : &(ap_prc->vid_port_disabled_));
   assert (NULL != p_port_disabled);
@@ -267,8 +267,8 @@ get_header_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
   assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
-  pp_hdr = (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
+  pp_hdr = (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
             ? &(ap_prc->p_aud_hdr_) : &(ap_prc->p_vid_hdr_));
   assert (NULL != pp_hdr);
   return pp_hdr;
@@ -279,8 +279,8 @@ get_eos_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   bool *p_eos = NULL;
   assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
-  p_eos = (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
+  p_eos = (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
            ? &(ap_prc->aud_eos_) : &(ap_prc->vid_eos_));
   assert (NULL != p_eos);
   return p_eos;
@@ -297,7 +297,7 @@ store_data (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
   OMX_U32 nbytes_avail = 0;
 
   assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   assert (NULL != ap_data);
 
   pp_store = get_store_ptr (ap_prc, a_pid);
@@ -344,7 +344,7 @@ dump_temp_store (oggdmux_prc_t * ap_prc,
   OMX_U32 nbytes_avail = 0;
 
   assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   assert (NULL != ap_hdr);
 
   p_store = *(get_store_ptr (ap_prc, a_pid));
@@ -383,7 +383,7 @@ dump_ogg_data (oggdmux_prc_t * ap_prc,
   OMX_U32 nbytes_avail = 0;
 
   assert (NULL != ap_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   assert (NULL != ap_ogg_data);
   assert (NULL != ap_hdr);
 
@@ -498,7 +498,7 @@ flush_temp_store (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
     {
       ds_offset = dump_temp_store (ap_prc, a_pid, p_hdr);
 #ifdef _DEBUG
-      if (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX)
+      if (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX)
         {
           g_total_released += p_hdr->nFilledLen;
           OMX_U32 *p_offset = get_store_offset_ptr (ap_prc, a_pid);
@@ -546,7 +546,7 @@ flush_ogg_packet (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
       nbytes_remaining -= nbytes_copied;
       op_offset += nbytes_copied;
 #ifdef _DEBUG
-      if (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX)
+      if (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX)
         {
           g_total_released += p_hdr->nFilledLen;
           OMX_U32 *p_offset = get_store_offset_ptr (ap_prc, a_pid);
@@ -583,9 +583,9 @@ static inline int
 flush_stores (oggdmux_prc_t * ap_prc)
 {
   int remaining = 0;
-  remaining = flush_temp_store (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX);
+  remaining = flush_temp_store (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX);
   remaining +=
-    flush_temp_store (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+    flush_temp_store (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   return remaining;
 }
 
@@ -602,7 +602,7 @@ read_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
   assert (NULL != ap_oggz);
   assert (NULL != ap_zp);
   assert (NULL != p_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
 
   p_op = &(ap_zp->op);
   p_eos = get_eos_ptr (p_prc, a_pid);
@@ -611,7 +611,7 @@ read_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
              serialno, a_pid, p_op->bytes);
 
 #ifdef _DEBUG
-  if (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX)
+  if (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX)
     {
       g_total_read += p_op->bytes;
       g_last_read = p_op->bytes;
@@ -662,7 +662,7 @@ read_audio_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
       && is_audio_content (oggz_stream_get_content (p_prc->p_oggz_, serialno)))
     {
       rc = read_packet (ap_oggz, ap_zp, serialno, ap_user_data,
-                        ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX);
+                        ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX);
     }
   TIZ_TRACE (handleOf (p_prc), "%010lu: rc [%d]", serialno, rc);
   return rc;
@@ -681,7 +681,7 @@ read_video_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
     {
       TIZ_TRACE (handleOf (p_prc), "Called read_video_packet callback");
       rc = read_packet (ap_oggz, ap_zp, serialno, ap_user_data,
-                        ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+                        ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
     }
   TIZ_TRACE (handleOf (p_prc), "%010lu: rc [%d]", serialno, rc);
   return rc;
@@ -692,24 +692,24 @@ release_all_buffers (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   assert (NULL != ap_prc);
 
-  if ((a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX
+  if ((a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
        || a_pid == OMX_ALL) && (NULL != ap_prc->p_aud_hdr_))
     {
       void *p_krn = tiz_get_krn (handleOf (ap_prc));
       tiz_check_omx_err
         (tiz_krn_release_buffer (p_krn,
-                                 ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX,
+                                 ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX,
                                  ap_prc->p_aud_hdr_));
       ap_prc->p_aud_hdr_ = NULL;
     }
 
-  if ((a_pid == ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX
+  if ((a_pid == ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX
        || a_pid == OMX_ALL) && (NULL != ap_prc->p_vid_hdr_))
     {
       void *p_krn = tiz_get_krn (handleOf (ap_prc));
       tiz_check_omx_err
         (tiz_krn_release_buffer (p_krn,
-                                 ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX,
+                                 ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX,
                                  ap_prc->p_vid_hdr_));
       ap_prc->p_vid_hdr_ = NULL;
     }
@@ -941,18 +941,18 @@ buffers_available (oggdmux_prc_t * ap_prc)
 {
   bool rc = false;
   bool aud_port_enabled =
-    !(*get_port_disabled_ptr (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX));
+    !(*get_port_disabled_ptr (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX));
   bool vid_port_enabled =
-    !(*get_port_disabled_ptr (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX));
+    !(*get_port_disabled_ptr (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX));
   if (aud_port_enabled)
     {
       rc |=
-        (NULL != get_header (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX));
+        (NULL != get_header (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX));
     }
   if (vid_port_enabled)
     {
       rc |=
-        (NULL != get_header (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX));
+        (NULL != get_header (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX));
     }
   return rc;
 }
@@ -985,12 +985,12 @@ demux_file (oggdmux_prc_t * ap_prc)
       if (!ap_prc->aud_eos_)
         {
           ap_prc->aud_eos_ = release_header_with_eos
-            (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX);
+            (ap_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX);
         }
       if (!ap_prc->vid_eos_)
         {
           ap_prc->vid_eos_ = release_header_with_eos
-            (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+            (ap_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
         }
     }
 
@@ -1185,13 +1185,13 @@ oggdmux_prc_port_disable (const void *ap_obj, OMX_U32 a_pid)
   oggdmux_prc_t *p_prc = (oggdmux_prc_t *) ap_obj;
   bool *p_port_disabled = NULL;
   assert (NULL != p_prc);
-  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+  assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
 
   if (OMX_ALL == a_pid)
     {
-      p_port_disabled = get_port_disabled_ptr (p_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX);
+      p_port_disabled = get_port_disabled_ptr (p_prc, ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX);
       *p_port_disabled = true;
-      p_port_disabled = get_port_disabled_ptr (p_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX);
+      p_port_disabled = get_port_disabled_ptr (p_prc, ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
       *p_port_disabled = true;
     }
   else

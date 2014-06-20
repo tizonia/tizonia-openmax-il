@@ -53,7 +53,30 @@
 static OMX_VERSIONTYPE ogg_demuxer_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
-instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
+instantiate_ogg_input_port (OMX_HANDLETYPE ap_hdl)
+{
+  OMX_AUDIO_CODINGTYPE encodings[] = {
+    OMX_AUDIO_CodingUnused,
+    OMX_AUDIO_CodingMax
+  };
+  tiz_port_options_t port_opts = {
+    OMX_PortDomainAudio,
+    OMX_DirOutput,
+    ARATELIA_OGG_DEMUXER_PORT_MIN_BUF_COUNT,
+    ARATELIA_OGG_DEMUXER_PORT_MIN_AUDIO_OUTPUT_BUF_SIZE,
+    ARATELIA_OGG_DEMUXER_PORT_NONCONTIGUOUS,
+    ARATELIA_OGG_DEMUXER_PORT_ALIGNMENT,
+    ARATELIA_OGG_DEMUXER_PORT_SUPPLIERPREF,
+    {ARATELIA_OGG_DEMUXER_INPUT_PORT_INDEX, NULL, NULL, NULL},
+    -1                          /* use -1 for now */
+  };
+
+  return factory_new (tiz_get_type (ap_hdl, "tizaudioport"),
+                      &port_opts, &encodings);
+}
+
+static OMX_PTR
+instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 {
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
@@ -70,7 +93,7 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_OGG_DEMUXER_PORT_NONCONTIGUOUS,
     ARATELIA_OGG_DEMUXER_PORT_ALIGNMENT,
     ARATELIA_OGG_DEMUXER_PORT_SUPPLIERPREF,
-    {ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX, NULL, NULL, NULL},
+    {port_id, NULL, NULL, NULL},
     -1                          /* use -1 for now */
   };
 
@@ -80,7 +103,7 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
   /* Initialize the pcm info */
   pcmmode.nSize              = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
   pcmmode.nVersion.nVersion  = OMX_VERSION;
-  pcmmode.nPortIndex         = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
+  pcmmode.nPortIndex         = port_id;
   pcmmode.nChannels          = 2;
   pcmmode.eNumData           = OMX_NumericalDataSigned;
   pcmmode.eEndian            = OMX_EndianLittle;
@@ -94,7 +117,7 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
   /* Initialize the pcm struct */
   volume.nSize             = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
   volume.nVersion.nVersion = OMX_VERSION;
-  volume.nPortIndex        = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
+  volume.nPortIndex        = port_id;
   volume.bLinear           = OMX_FALSE;
   volume.sVolume.nValue    = 50;
   volume.sVolume.nMin      = 0;
@@ -103,7 +126,7 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
   /* Initialize the mute struct */
   mute.nSize             = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
   mute.nVersion.nVersion = OMX_VERSION;
-  mute.nPortIndex        = ARATELIA_OGG_DEMUXER_AUDIO_PORT_INDEX;
+  mute.nPortIndex        = port_id;
   mute.bMute             = OMX_FALSE;
 
   return factory_new (tiz_get_type (ap_hdl, "tizdemuxerport"),
@@ -112,7 +135,19 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl)
 }
 
 static OMX_PTR
-instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
+instantiate_source_audio_output_port (OMX_HANDLETYPE ap_hdl)
+{
+  return instantiate_audio_output_port (ap_hdl, ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX);
+}
+
+static OMX_PTR
+instantiate_filter_audio_output_port (OMX_HANDLETYPE ap_hdl)
+{
+  return instantiate_audio_output_port (ap_hdl, ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX + 1);
+}
+
+static OMX_PTR
+instantiate_video_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 {
   OMX_VIDEO_PORTDEFINITIONTYPE portdef;
   OMX_VIDEO_CODINGTYPE encodings[] = {
@@ -131,7 +166,7 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
     ARATELIA_OGG_DEMUXER_PORT_NONCONTIGUOUS,
     ARATELIA_OGG_DEMUXER_PORT_ALIGNMENT,
     ARATELIA_OGG_DEMUXER_PORT_SUPPLIERPREF,
-    {ARATELIA_OGG_DEMUXER_VIDEO_PORT_INDEX, NULL, NULL, NULL},
+    {port_id, NULL, NULL, NULL},
     -1                          /* use -1 for now */
   };
 
@@ -161,6 +196,18 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl)
 }
 
 static OMX_PTR
+instantiate_source_video_output_port (OMX_HANDLETYPE ap_hdl)
+{
+  return instantiate_video_output_port (ap_hdl, ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
+}
+
+static OMX_PTR
+instantiate_filter_video_output_port (OMX_HANDLETYPE ap_hdl)
+{
+  return instantiate_video_output_port (ap_hdl, ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX + 1);
+}
+
+static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   return factory_new (tiz_get_type (ap_hdl, "tizdemuxercfgport"),
@@ -178,18 +225,28 @@ instantiate_processor (OMX_HANDLETYPE ap_hdl)
 OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_role_factory_t role_factory;
-  const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_role_factory_t source_demuxer_role;
+  tiz_role_factory_t filter_demuxer_role;
+  const tiz_role_factory_t *rf_list[] = { &source_demuxer_role, &filter_demuxer_role };
   tiz_type_factory_t oggdmuxprc_type;
   const tiz_type_factory_t *tf_list[] = { &oggdmuxprc_type };
 
-  strcpy ((OMX_STRING) role_factory.role, ARATELIA_OGG_DEMUXER_DEFAULT_ROLE);
-  role_factory.pf_cport   = instantiate_config_port;
-  role_factory.pf_port[0] = instantiate_audio_output_port;
-  role_factory.pf_port[1] = instantiate_video_output_port;
+  strcpy ((OMX_STRING) source_demuxer_role.role, ARATELIA_OGG_DEMUXER_DEFAULT_ROLE);
+  source_demuxer_role.pf_cport   = instantiate_config_port;
+  source_demuxer_role.pf_port[0] = instantiate_source_audio_output_port;
+  source_demuxer_role.pf_port[1] = instantiate_source_video_output_port;
   /* TODO : Add clock output port */
-  role_factory.nports     = 2;
-  role_factory.pf_proc    = instantiate_processor;
+  source_demuxer_role.nports     = 2;
+  source_demuxer_role.pf_proc    = instantiate_processor;
+
+  strcpy ((OMX_STRING) filter_demuxer_role.role, ARATELIA_OGG_DEMUXER_FILTER_ROLE);
+  filter_demuxer_role.pf_cport   = instantiate_config_port;
+  filter_demuxer_role.pf_port[0] = instantiate_ogg_input_port;
+  filter_demuxer_role.pf_port[1] = instantiate_filter_audio_output_port;
+  filter_demuxer_role.pf_port[2] = instantiate_filter_video_output_port;
+  /* TODO : Add clock output port */
+  filter_demuxer_role.nports     = 3;
+  filter_demuxer_role.pf_proc    = instantiate_processor;
 
   strcpy ((OMX_STRING) oggdmuxprc_type.class_name, "oggdmuxprc_class");
   oggdmuxprc_type.pf_class_init = oggdmux_prc_class_init;
