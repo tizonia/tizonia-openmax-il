@@ -54,7 +54,7 @@ mp3port_SetParameter_common (const void *ap_obj,
   assert (NULL != p_obj);
   assert (OMX_IndexParamAudioMp3 == a_index);
 
-  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
+  TIZ_TRACE (ap_hdl, "PORT [%d] [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
 
   if (a_index == OMX_IndexParamAudioMp3)
@@ -178,9 +178,10 @@ mp3port_SetParameter (const void *ap_obj,
   tiz_mp3port_t *p_obj = (tiz_mp3port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
+  assert (NULL != p_obj);
+
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
 
   switch (a_index)
     {
