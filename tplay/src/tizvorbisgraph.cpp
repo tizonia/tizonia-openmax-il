@@ -65,7 +65,7 @@ graph::ops *graph::vorbisdecoder::do_init ()
   comp_list.push_back ("OMX.Aratelia.audio_renderer.pcm");
 
   omx_comp_role_lst_t role_list;
-  role_list.push_back ("container_demuxer.ogg");
+  role_list.push_back ("source.container_demuxer.ogg");
   role_list.push_back ("audio_decoder.vorbis");
   role_list.push_back ("audio_renderer.pcm");
 
