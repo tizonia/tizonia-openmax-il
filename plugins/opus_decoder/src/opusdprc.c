@@ -258,6 +258,8 @@ transform_buffer (opusd_prc_t * ap_prc)
   OMX_BUFFERHEADERTYPE *p_out
     = get_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
 
+  assert (NULL != ap_prc);
+
   if (NULL == p_in || NULL == p_out)
     {
       TIZ_TRACE (handleOf (ap_prc), "IN HEADER [%p] OUT HEADER [%p]",
@@ -283,8 +285,6 @@ transform_buffer (opusd_prc_t * ap_prc)
     }
 
   {
-    assert (NULL != ap_prc);
-
     const unsigned char *p_data = p_in->pBuffer + p_in->nOffset;
     opus_int32 len = p_in->nFilledLen;
     int fec = 0;
@@ -297,38 +297,46 @@ transform_buffer (opusd_prc_t * ap_prc)
                                                     len, ap_prc->p_out_buf_,
                                                     OPUS_MAX_FRAME_SIZE, fec);
 
-    assert (frame_size >= 0);
-
-    tmp_skip = (ap_prc->preskip_ > frame_size) ? frame_size : ap_prc->preskip_;
-    ap_prc->preskip_ -= tmp_skip;
-    output = ap_prc->p_out_buf_ + ap_prc->channels_ * tmp_skip;
-    out_len = frame_size - tmp_skip;
-
-    /* Convert to short and save to output file */
-    out = (short *) (p_out->pBuffer + p_out->nOffset);
-    for (i = 0; i < (int) out_len * ap_prc->channels_; ++i)
+    if (frame_size < 0)
       {
-        out[i] =
-          (short)
-          float2int (fmaxf (-32768, fminf (output[i] * 32768.f, 32767)));
+        TIZ_ERROR (handleOf (ap_prc),
+                   "[OMX_ErrorInsufficientResources] : [%s]",
+                   opus_strerror (frame_size));
+        return OMX_ErrorInsufficientResources;
       }
-
-    if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
+    else
       {
-        /* Propagate EOS flag to output */
-        p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-        p_in->nFlags = 0;
-      }
+        tmp_skip = (ap_prc->preskip_ > frame_size) ? frame_size : ap_prc->preskip_;
+        ap_prc->preskip_ -= tmp_skip;
+        output = ap_prc->p_out_buf_ + ap_prc->channels_ * tmp_skip;
+        out_len = frame_size - tmp_skip;
 
-    p_out->nFilledLen = out_len * ap_prc->channels_ * 2;
-    TIZ_TRACE (handleOf (ap_prc),
-               "frame_size [%d] len [%d] - error [%s] nFilledLen [%d]",
-               frame_size, len, opus_strerror (frame_size), p_out->nFilledLen);
-    p_in->nFilledLen = 0;
-    tiz_check_omx_err
-      (release_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
-    tiz_check_omx_err
-      (release_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
+        /* Convert to short and save to output file */
+        out = (short *) (p_out->pBuffer + p_out->nOffset);
+        for (i = 0; i < (int) out_len * ap_prc->channels_; ++i)
+          {
+            out[i] =
+              (short)
+              float2int (fmaxf (-32768, fminf (output[i] * 32768.f, 32767)));
+          }
+
+        if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
+          {
+            /* Propagate EOS flag to output */
+            p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+            p_in->nFlags = 0;
+          }
+
+        p_out->nFilledLen = out_len * ap_prc->channels_ * 2;
+        TIZ_TRACE (handleOf (ap_prc),
+                   "frame_size [%d] len [%d] - error [%s] nFilledLen [%d]",
+                   frame_size, len, opus_strerror (frame_size), p_out->nFilledLen);
+        p_in->nFilledLen = 0;
+        tiz_check_omx_err
+          (release_header (ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX));
+        tiz_check_omx_err
+          (release_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
+      }
   }
   return OMX_ErrorNone;
 }
