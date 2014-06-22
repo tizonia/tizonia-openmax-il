@@ -52,7 +52,7 @@ aacport_SetParameter_common (const void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_obj);
-  assert (OMX_IndexParamAudioMp3 == a_index);
+  assert (OMX_IndexParamAudioAac == a_index);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
