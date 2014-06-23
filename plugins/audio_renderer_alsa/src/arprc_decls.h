@@ -54,12 +54,15 @@ extern "C"
     int descriptor_count_;
     struct pollfd *p_fds_;
     tiz_event_io_t *p_ev_io_;
+    tiz_event_timer_t *p_ev_timer_;
     OMX_BUFFERHEADERTYPE *p_inhdr_;
     bool port_disabled_;
-    bool awaiting_buffers_;
     bool awaiting_io_ev_;
     float gain_;
     long volume_;
+    long ramp_step_;
+    long ramp_step_count_;
+    long ramp_volume_;
   };
 
   typedef struct ar_prc_class ar_prc_class_t;
