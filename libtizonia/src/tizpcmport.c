@@ -345,17 +345,18 @@ pcmport_SetConfig (const void *ap_obj,
                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetConfig [%s]...",
             tiz_port_dir (p_obj), tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
 
   switch (a_index)
     {
 
     case OMX_IndexConfigAudioVolume:
       {
-        /* TODO: Delegate this to the processor */
         const OMX_AUDIO_CONFIG_VOLUMETYPE *p_volume
           = (OMX_AUDIO_CONFIG_VOLUMETYPE *) ap_struct;
 
@@ -370,14 +371,11 @@ pcmport_SetConfig (const void *ap_obj,
             p_obj->volume_.sVolume.nMin = p_volume->sVolume.nMin;
             p_obj->volume_.sVolume.nMax = p_volume->sVolume.nMax;
           }
-
       }
       break;
 
     case OMX_IndexConfigAudioMute:
       {
-
-        /* TODO: Delegate this to the processor */
         const OMX_AUDIO_CONFIG_MUTETYPE *p_mute
           = (OMX_AUDIO_CONFIG_MUTETYPE *) ap_struct;
 
@@ -385,20 +383,19 @@ pcmport_SetConfig (const void *ap_obj,
           {
             p_obj->mute_.bMute = p_mute->bMute;
           }
-
       }
       break;
 
     default:
       {
         /* Try the parent's indexes */
-        return super_SetConfig (typeOf (ap_obj, "tizpcmport"),
-                                ap_obj, ap_hdl, a_index, ap_struct);
+        rc = super_SetConfig (typeOf (ap_obj, "tizpcmport"),
+                              ap_obj, ap_hdl, a_index, ap_struct);
       }
+      break;
     };
 
-  return OMX_ErrorNone;
-
+  return rc;
 }
 
 static OMX_ERRORTYPE
@@ -429,6 +426,14 @@ pcmport_SetParameter_internal (const void *ap_obj,
     };
 
   return rc;
+}
+
+static OMX_ERRORTYPE
+pcmport_SetConfig_internal (const void *ap_obj,
+                               OMX_HANDLETYPE ap_hdl,
+                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+{
+  return pcmport_SetConfig (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
 static bool
@@ -743,6 +748,8 @@ tiz_pcmport_init (void * ap_tos, void * ap_hdl)
      tiz_api_SetConfig, pcmport_SetConfig,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_SetParameter_internal, pcmport_SetParameter_internal,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_SetConfig_internal, pcmport_SetConfig_internal,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_check_tunnel_compat, pcmport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: */
