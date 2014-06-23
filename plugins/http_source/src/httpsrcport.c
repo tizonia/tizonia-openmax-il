@@ -64,7 +64,7 @@ static void *httpsrc_port_ctor (void *ap_obj, va_list *app)
   p_obj->mp3type_.nPortIndex        = ARATELIA_HTTP_SOURCE_PORT_INDEX;
   p_obj->mp3type_.nChannels         = 2;
   p_obj->mp3type_.nBitRate          = 0;
-  p_obj->mp3type_.nSampleRate       = 48000;
+  p_obj->mp3type_.nSampleRate       = 44100;
   p_obj->mp3type_.nAudioBandWidth   = 0;
   p_obj->mp3type_.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
   p_obj->mp3type_.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
