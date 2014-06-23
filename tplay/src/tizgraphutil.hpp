@@ -120,6 +120,13 @@ namespace tiz
                                                                   OMX_U32 &channels,
                                                                   OMX_U32 &sampling_rate);
 
+      template<typename ParamT>
+      static OMX_ERRORTYPE set_channels_and_rate_on_audio_port (const OMX_HANDLETYPE handle,
+                                                                const OMX_U32 port_id,
+                                                                const OMX_INDEXTYPE param_index,
+                                                                const OMX_U32 channels,
+                                                                const OMX_U32 sampling_rate);
+
       static OMX_ERRORTYPE set_content_uri (const OMX_HANDLETYPE handle,
                                             const std::string &uri);
 

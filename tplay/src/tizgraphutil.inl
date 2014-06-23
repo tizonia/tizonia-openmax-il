@@ -50,6 +50,26 @@ namespace tiz
         sampling_rate = param_type.nSampleRate;
         return OMX_ErrorNone;
       }
+
+      template<typename ParamT>
+      OMX_ERRORTYPE util::set_channels_and_rate_on_audio_port (const OMX_HANDLETYPE  handle,
+                                                               const OMX_U32         port_id,
+                                                               const OMX_INDEXTYPE   param_index,
+                                                               const OMX_U32         channels,
+                                                               const OMX_U32         sampling_rate)
+
+      {
+        OMX_ERRORTYPE rc = OMX_ErrorNone;
+        // Retrieve the current settings from the component port
+        ParamT param_type;
+        TIZ_INIT_OMX_PORT_STRUCT (param_type, port_id);
+        tiz_check_omx_err (OMX_GetParameter (handle, param_index, &param_type));
+        param_type.nChannels = channels;
+        param_type.nSampleRate = sampling_rate;
+        tiz_check_omx_err (OMX_SetParameter (handle, param_index, &param_type));
+        return OMX_ErrorNone;
+      }
+
   }  // namespace graph
 }  // namespace tiz
 

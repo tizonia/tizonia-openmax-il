@@ -385,7 +385,7 @@ OMX_ERRORTYPE graph::httpclntops::dump_metadata_item (const OMX_U32 index)
     {
 #define KNRM "\x1B[0m"
 #define KYEL "\x1B[33m"
-      fprintf (stdout, "   %s[%s] : [%s]%s\n", KYEL, p_meta->nKey,
+      fprintf (stdout, "   %s%s : %s%s\n", KYEL, p_meta->nKey,
                p_meta->nValue, KNRM);
     }
 
@@ -410,8 +410,8 @@ OMX_ERRORTYPE
 graph::httpclntops::apply_pcm_codec_info_from_http_source ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const OMX_HANDLETYPE handle = handles_[0];  // http source's handle
-  const OMX_U32 port_id = 0;                  // http source's output port
+  OMX_HANDLETYPE handle = handles_[0];  // http source's handle
+  OMX_U32 port_id = 0;                  // http source's output port
   OMX_U32 channels = 2;
   OMX_U32 sampling_rate = 44100;
   std::string encoding_str;
@@ -470,29 +470,87 @@ graph::httpclntops::apply_pcm_codec_info_from_http_source ()
 
   if (OMX_ErrorNone == rc)
   {
-    // Retrieve the pcm settings from the renderer component
-    OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
-    const OMX_U32 port_id = 0;
-    TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype, port_id);
-    tiz_check_omx_err (OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm,
-                                         &renderer_pcmtype));
+    handle = handles_[1];  // decoder
+    port_id = 0;           // decoder's input port
 
-    // Now assign the actual settings to the pcmtype structure
-    renderer_pcmtype.nChannels = channels;
-    renderer_pcmtype.nSamplingRate = sampling_rate;
-    renderer_pcmtype.eNumData = OMX_NumericalDataSigned;
-    renderer_pcmtype.eEndian
-        = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
+    switch (encoding_)
+    {
+      case OMX_AUDIO_CodingMP3:
+      {
+        TIZ_LOG (TIZ_PRIORITY_TRACE, "channels = [%d] sampling_rate = [%d]", channels, sampling_rate);
+        rc = tiz::graph::util::
+            set_channels_and_rate_on_audio_port< OMX_AUDIO_PARAM_MP3TYPE >(
+                handle, port_id, OMX_IndexParamAudioMp3, channels,
+                sampling_rate);
+      }
+      break;
+      case OMX_AUDIO_CodingAAC:
+      {
+        rc = tiz::graph::util::
+            set_channels_and_rate_on_audio_port< OMX_AUDIO_PARAM_AACPROFILETYPE >(
+                handle, port_id, OMX_IndexParamAudioAac, channels,
+                sampling_rate);
+      }
+      break;
+      case OMX_AUDIO_CodingFLAC:
+      {
+        rc = tiz::graph::util::
+            set_channels_and_rate_on_audio_port< OMX_TIZONIA_AUDIO_PARAM_FLACTYPE >(
+                handle, port_id,
+                static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
+                channels, sampling_rate);
+      }
+      break;
+      case OMX_AUDIO_CodingVORBIS:
+      {
+        rc = tiz::graph::util::
+            set_channels_and_rate_on_audio_port< OMX_AUDIO_PARAM_VORBISTYPE >(
+                handle, port_id, OMX_IndexParamAudioVorbis, channels,
+                sampling_rate);
+      }
+      break;
+      case OMX_AUDIO_CodingOPUS:
+      {
+        rc = tiz::graph::util::
+            set_channels_and_rate_on_audio_port< OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE >(
+                handle, port_id,
+                static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
+                channels, sampling_rate);
+      }
+      break;
+      default:
+        assert (0);
+        break;
+    };
 
-    // Set the new pcm settings
-    tiz_check_omx_err (OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm,
-                                         &renderer_pcmtype));
+    if (OMX_ErrorNone == rc)
+    {
+      // Retrieve the pcm settings from the renderer component
+      OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
+      handle = handles_[2];
+      port_id = 0;
+      TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype, port_id);
+      tiz_check_omx_err (
+          OMX_GetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype));
 
-    std::string coding_type_str ("http/");
-    coding_type_str.append (encoding_str);
-    tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                       "Connection established",
-                                       playlist_->get_current_uri ().c_str ());
+      // Now assign the actual settings to the pcmtype structure
+      renderer_pcmtype.nChannels = channels;
+      renderer_pcmtype.nSamplingRate = sampling_rate;
+      renderer_pcmtype.eNumData = OMX_NumericalDataSigned;
+      renderer_pcmtype.eEndian
+          = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig
+                                              : OMX_EndianLittle);
+
+      // Set the new pcm settings
+      tiz_check_omx_err (
+          OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype));
+
+      std::string coding_type_str ("http/");
+      coding_type_str.append (encoding_str);
+      tiz::graph::util::dump_graph_info (
+          coding_type_str.c_str (), "Connection established",
+          playlist_->get_current_uri ().c_str ());
+    }
   }
   return rc;
 }
