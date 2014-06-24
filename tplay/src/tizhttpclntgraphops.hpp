@@ -71,6 +71,14 @@ namespace tiz
       OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index);
       OMX_ERRORTYPE get_encoding_type_from_http_source ();
       OMX_ERRORTYPE apply_pcm_codec_info_from_http_source ();
+      OMX_ERRORTYPE get_channels_and_rate_from_http_source (OMX_U32 &channels,
+                                                            OMX_U32 &sampling_rate,
+                                                            std::string &encoding_str) const;
+      OMX_ERRORTYPE set_channels_and_rate_on_decoder (const OMX_U32 channels,
+                                                      const OMX_U32 sampling_rate);
+      OMX_ERRORTYPE set_channels_and_rate_on_renderer (const OMX_U32 channels,
+                                                       const OMX_U32 sampling_rate,
+                                                       const std::string encoding_str);
 
     private:
       OMX_AUDIO_CODINGTYPE encoding_;
