@@ -393,10 +393,10 @@ static OMX_ERRORTYPE start_volume_ramp (ar_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   assert (NULL != ap_prc->p_ev_timer_);
-  tiz_check_omx_err (tiz_event_timer_start (ap_prc->p_ev_timer_));
   ap_prc->ramp_volume_ = 0;
   TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
              ap_prc->ramp_volume_);
+  tiz_check_omx_err (tiz_event_timer_start (ap_prc->p_ev_timer_));
   return OMX_ErrorNone;
 }
 
@@ -758,6 +758,7 @@ ar_prc_transfer_and_process (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
   assert (NULL != p_prc);
   prepare_volume_ramp (p_prc);
   tiz_check_omx_err (start_volume_ramp (p_prc));
+  tiz_check_omx_err (apply_ramp_step (p_prc));
   return OMX_ErrorNone;
 }
 
@@ -884,7 +885,6 @@ ar_prc_port_disable (const void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
       tiz_check_omx_err (stop_io_watcher (p_prc));
     }
   stop_volume_ramp (p_prc);
-/*   prepare_volume_ramp (p_prc); */
   p_prc->port_disabled_ = true;
   /* Release any buffers held  */
   return release_headers ((ar_prc_t *) ap_prc);
