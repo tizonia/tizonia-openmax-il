@@ -156,12 +156,14 @@ stop_io_watcher (ar_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-release_headers (ar_prc_t * ap_prc)
+release_header (ar_prc_t * ap_prc)
 {
   assert (NULL != ap_prc);
 
   if (ap_prc->p_inhdr_)
     {
+      TIZ_PRINTF_DBG_YEL ("Releasing buffer [%p] with size [%u].",
+                          ap_prc->p_inhdr_, (unsigned int)ap_prc->p_inhdr_->nFilledLen);
       tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
                                                  ARATELIA_AUDIO_RENDERER_PORT_INDEX,
                                                  ap_prc->p_inhdr_));
@@ -180,7 +182,7 @@ do_flush (ar_prc_t * ap_prc)
       (void) snd_pcm_drop (ap_prc->p_pcm_hdl);
     }
   /* Release any buffers held  */
-  return release_headers (ap_prc);
+  return release_header (ap_prc);
 }
 
 static float
@@ -536,11 +538,7 @@ buffer_emptied (ar_prc_t * ap_prc)
                            ap_prc->p_inhdr_->nFlags, NULL);
     }
 
-  tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn
-                                             (handleOf (ap_prc)),
-                                             ARATELIA_AUDIO_RENDERER_PORT_INDEX,
-                                             ap_prc->p_inhdr_));
-  ap_prc->p_inhdr_ = NULL;
+  tiz_check_omx_err (release_header (ap_prc));
   return OMX_ErrorNone;
 }
 
@@ -887,7 +885,7 @@ ar_prc_port_disable (const void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
   stop_volume_ramp (p_prc);
   p_prc->port_disabled_ = true;
   /* Release any buffers held  */
-  return release_headers ((ar_prc_t *) ap_prc);
+  return release_header ((ar_prc_t *) ap_prc);
 }
 
 static OMX_ERRORTYPE
