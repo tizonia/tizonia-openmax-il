@@ -50,11 +50,10 @@ extern "C"
 
 
 #define ICE_DEFAULT_METADATA_INTERVAL  16000
-#define ICE_INITIAL_BURST_SIZE         80000
+#define ICE_INITIAL_BURST_SIZE         128000
 #define ICE_MAX_CLIENTS_PER_MOUNTPOINT 10
 #define ICE_DEFAULT_HEADER_TIMEOUT     10
 #define ICE_LISTEN_QUEUE               5
-#define ICE_INITIAL_BURST_SIZE         80000
 #define ICE_MIN_BURST_SIZE             1400
 #define ICE_MEDIUM_BURST_SIZE          2800
 #define ICE_MAX_BURST_SIZE             4200

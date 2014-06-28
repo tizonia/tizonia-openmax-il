@@ -1765,6 +1765,17 @@ end:
   /* Always restart the server's watcher, even if an error occurred */
   start_server_io_watcher (ap_server);
 
+  TIZ_PRINTF_YEL ("burst [%d] sample rate [%u] bitrate [%u] "
+                  "burst_size [%u] bytes per frame [%u] wait_time [%f] "
+                  "pkts/s [%f].",
+                  (unsigned int)p_con->initial_burst_bytes,
+                  (unsigned int)ap_server->sample_rate,
+                  (unsigned int)ap_server->bitrate,
+                  (unsigned int)ap_server->burst_size,
+                  (unsigned int)ap_server->bytes_per_frame,
+                  ap_server->wait_time,
+                  ap_server->pkts_per_sec);
+
   return rc;
 }
 
@@ -1907,17 +1918,8 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
                            const OMX_U32   a_num_channels,
                            const OMX_U32 a_sample_rate)
 {
-/* #define ICE_RATE_ADJUSTMENT_32KH     0.731 */
-/* #define ICE_RATE_ADJUSTMENT_44dot1KH 1.013 */
-/* #define ICE_RATE_ADJUSTMENT_48KH     1.093 */
-
-#define ICE_RATE_ADJUSTMENT_32KH     1
-#define ICE_RATE_ADJUSTMENT_44dot1KH 1
-#define ICE_RATE_ADJUSTMENT_48KH     1
-
   double pkts_per_sec_med_burst = 0;
   double pkts_per_sec_max_burst = 0;
-  double rate_adjustment = 0;
 
   assert (NULL != ap_server);
 
@@ -1932,33 +1934,6 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
   assert (0 != a_sample_rate);
   ap_server->bytes_per_frame = (144 * ap_server->bitrate / a_sample_rate) + 1;
   ap_server->burst_size      = ICE_MIN_BURST_SIZE;
-
-  rate_adjustment = (a_sample_rate == 0 ? ICE_RATE_ADJUSTMENT_44dot1KH : 0);
-  if (0 == rate_adjustment)
-    {
-      if (a_sample_rate < 32000)
-        {
-          rate_adjustment =
-            a_sample_rate * ICE_RATE_ADJUSTMENT_44dot1KH / 44100;
-        }
-      else
-        {
-          switch (a_sample_rate)
-            {
-            case 32000:
-              rate_adjustment = ICE_RATE_ADJUSTMENT_32KH;
-              break;
-            case 44100:
-              rate_adjustment = ICE_RATE_ADJUSTMENT_44dot1KH;
-              break;
-            case 48000:
-              rate_adjustment = ICE_RATE_ADJUSTMENT_48KH;
-              break;
-            default:
-              assert (0);
-            }
-        }
-    }
 
   pkts_per_sec_med_burst
     = (double) ap_server->bytes_per_frame * 38 / ICE_MEDIUM_BURST_SIZE;
@@ -1981,10 +1956,9 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
              "burst_size [%d]", pkts_per_sec_max_burst, pkts_per_sec_med_burst,
              ap_server->burst_size);
 
-  /* Increase the rate by a certain % to mitigate decay */
-  ap_server->pkts_per_sec = rate_adjustment
-    * (((double) ap_server->bytes_per_frame * (double) (1000 / 26)
-        / (double) ap_server->burst_size));
+  ap_server->pkts_per_sec =
+    (((double) ap_server->bytes_per_frame * (double) (1000 / 26)
+      / (double) ap_server->burst_size));
 
   ap_server->wait_time = (1 / ap_server->pkts_per_sec);
 
@@ -1995,6 +1969,17 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
       stop_listener_timer_watcher (p_lstnr);
       start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
     }
+
+  TIZ_PRINTF_YEL ("burst [%d] sample rate [%u] bitrate [%u] "
+                  "burst_size [%u] bytes per frame [%u] wait_time [%f] "
+                  "pkts/s [%f].%s\n",
+                  (unsigned int)ap_server->mountpoint.initial_burst_size,
+                  (unsigned int)ap_server->sample_rate,
+                  (unsigned int)ap_server->bitrate,
+                  (unsigned int)ap_server->burst_size,
+                  (unsigned int)ap_server->bytes_per_frame,
+                  ap_server->wait_time,
+                  ap_server->pkts_per_sec);
 
   TIZ_TRACE (ap_server->p_hdl, "sample rate [%d] bitrate [%d] "
             "burst_size " "[%d] bytes per frame [%d] wait_time [%f] "
@@ -2087,7 +2072,7 @@ httpr_net_set_icecast_metadata (httpr_server_t * ap_server,
       assert (NULL != p_lstnr);
       assert (NULL != p_lstnr->p_con);
       p_lstnr->p_con->metadata_delivered = false;
-      p_lstnr->p_con->initial_burst_bytes = ap_server->mountpoint.initial_burst_size;
+      p_lstnr->p_con->initial_burst_bytes = ap_server->mountpoint.initial_burst_size * 0.1;
       stop_listener_timer_watcher (p_lstnr);
       start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
     }
