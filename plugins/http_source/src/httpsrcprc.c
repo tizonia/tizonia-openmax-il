@@ -55,6 +55,7 @@
 static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *);
 static OMX_BUFFERHEADERTYPE *buffer_needed (httpsrc_prc_t *);
 static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *);
+static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc);
 
 /* These macros assume the existence of an "ap_prc" local variable */
 #define bail_on_curl_error(expr)                                             \
@@ -169,34 +170,82 @@ static inline OMX_ERRORTYPE stop_io_watcher (httpsrc_prc_t *ap_prc)
   return rc;
 }
 
-static inline OMX_ERRORTYPE start_timer_watcher (httpsrc_prc_t *ap_prc)
-{
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_ev_timer_);
-  ap_prc->awaiting_timer_ev_ = true;
-  TIZ_DEBUG (handleOf (ap_prc), "awaiting_timer_ev [%s]", "TRUE");
-  tiz_event_timer_set (ap_prc->p_ev_timer_, ap_prc->curl_timeout_, 0.);
-  return tiz_event_timer_start (ap_prc->p_ev_timer_);
-}
-
-static inline OMX_ERRORTYPE restart_timer_watcher (httpsrc_prc_t *ap_prc)
-{
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_ev_timer_);
-  ap_prc->awaiting_timer_ev_ = true;
-  TIZ_DEBUG (handleOf (ap_prc), "awaiting_timer_ev [%s]", "TRUE");
-  return tiz_event_timer_restart (ap_prc->p_ev_timer_);
-}
-
-static inline OMX_ERRORTYPE stop_timer_watcher (httpsrc_prc_t *ap_prc)
+static inline OMX_ERRORTYPE start_curl_timer_watcher (httpsrc_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_prc);
-  ap_prc->awaiting_timer_ev_ = false;
-  TIZ_DEBUG (handleOf (ap_prc), "awaiting_timer_ev [%s]", "FALSE");
-  if (NULL != ap_prc->p_ev_timer_)
+  assert (NULL != ap_prc->p_ev_curl_timer_);
+  if (!ap_prc->awaiting_curl_timer_ev_)
     {
-      rc = tiz_event_timer_stop (ap_prc->p_ev_timer_);
+      ap_prc->awaiting_curl_timer_ev_ = true;
+      TIZ_DEBUG (handleOf (ap_prc), "awaiting_curl_timer_ev [%p] [TRUE]",
+                 ap_prc->p_ev_curl_timer_);
+      tiz_event_timer_set (ap_prc->p_ev_curl_timer_, ap_prc->curl_timeout_, 0.);
+      rc = tiz_event_timer_start (ap_prc->p_ev_curl_timer_);
+    }
+  return rc;
+}
+
+static inline OMX_ERRORTYPE restart_curl_timer_watcher (httpsrc_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  assert (NULL != ap_prc->p_ev_curl_timer_);
+  ap_prc->awaiting_curl_timer_ev_ = true;
+  TIZ_DEBUG (handleOf (ap_prc), "awaiting_curl_timer_ev [TRUE]");
+  return tiz_event_timer_restart (ap_prc->p_ev_curl_timer_);
+}
+
+static inline OMX_ERRORTYPE stop_curl_timer_watcher (httpsrc_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_prc);
+  ap_prc->awaiting_curl_timer_ev_ = false;
+  TIZ_DEBUG (handleOf (ap_prc), "awaiting_curl_timer_ev [FALSE]");
+  if (NULL != ap_prc->p_ev_curl_timer_)
+    {
+      rc = tiz_event_timer_stop (ap_prc->p_ev_curl_timer_);
+    }
+  return rc;
+}
+
+static inline OMX_ERRORTYPE start_reconnect_timer_watcher (
+    httpsrc_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_prc);
+  assert (NULL != ap_prc->p_ev_reconnect_timer_);
+  if (!ap_prc->awaiting_reconnect_timer_ev_)
+    {
+      ap_prc->awaiting_reconnect_timer_ev_ = true;
+      TIZ_DEBUG (handleOf (ap_prc), "awaiting_reconnect_timer_ev_ [%p] [TRUE]",
+                 ap_prc->p_ev_reconnect_timer_);
+      tiz_event_timer_set (ap_prc->p_ev_reconnect_timer_,
+                           ap_prc->reconnect_timeout_,
+                           ap_prc->reconnect_timeout_);
+      rc = tiz_event_timer_start (ap_prc->p_ev_reconnect_timer_);
+    }
+  return rc;
+}
+
+static inline OMX_ERRORTYPE restart_reconnect_timer_watcher (
+    httpsrc_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  assert (NULL != ap_prc->p_ev_reconnect_timer_);
+  ap_prc->awaiting_reconnect_timer_ev_ = true;
+  TIZ_DEBUG (handleOf (ap_prc), "awaiting_reconnect_timer_ev [TRUE]");
+  return tiz_event_timer_restart (ap_prc->p_ev_reconnect_timer_);
+}
+
+static inline OMX_ERRORTYPE stop_reconnect_timer_watcher (httpsrc_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_prc);
+  ap_prc->awaiting_reconnect_timer_ev_ = false;
+  TIZ_DEBUG (handleOf (ap_prc), "awaiting_reconnect_timer_ev [FALSE]");
+  if (NULL != ap_prc->p_ev_reconnect_timer_)
+    {
+      rc = tiz_event_timer_stop (ap_prc->p_ev_reconnect_timer_);
     }
   return rc;
 }
@@ -206,12 +255,12 @@ static OMX_ERRORTYPE resume_curl (httpsrc_prc_t *ap_prc)
   assert (NULL != ap_prc);
 
   TIZ_NOTICE (handleOf (ap_prc), "Resuming curl. Was paused [%s]",
-              ap_prc->curl_paused_ ? "YES" : "NO");
+              ECurlStatePaused == ap_prc->curl_state_ ? "YES" : "NO");
 
-  if (ap_prc->curl_paused_)
+  if (ECurlStatePaused == ap_prc->curl_state_)
     {
       int running_handles = 0;
-      ap_prc->curl_paused_ = false;
+      ap_prc->curl_state_ = ECurlStateTransfering;
       on_curl_error_ret_omx_oom (
           curl_easy_pause (ap_prc->p_curl_, CURLPAUSE_CONT));
       if (ap_prc->curl_version_ < 0x072000)
@@ -371,9 +420,9 @@ static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
   /* Set the new value */
   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
-  tiz_check_omx_err (
-      tiz_krn_SetParameter_internal (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                                     OMX_IndexParamPortDefinition, &port_def));
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+      OMX_IndexParamPortDefinition, &port_def));
   return OMX_ErrorNone;
 }
 
@@ -391,9 +440,9 @@ static OMX_ERRORTYPE set_mp3_audio_info_on_port (httpsrc_prc_t *ap_prc)
   mp3type.nChannels = ap_prc->num_channels_;
   mp3type.nSampleRate = ap_prc->samplerate_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (tiz_get_krn (handleOf (ap_prc)),
-                                                    handleOf (ap_prc),
-                                                    OMX_IndexParamAudioMp3, &mp3type));
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+      OMX_IndexParamAudioMp3, &mp3type));
   return OMX_ErrorNone;
 }
 
@@ -411,9 +460,9 @@ static OMX_ERRORTYPE set_aac_audio_info_on_port (httpsrc_prc_t *ap_prc)
   aactype.nChannels = ap_prc->num_channels_;
   aactype.nSampleRate = ap_prc->samplerate_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (tiz_get_krn (handleOf (ap_prc)),
-                                                    handleOf (ap_prc),
-                                                    OMX_IndexParamAudioAac, &aactype));
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+      OMX_IndexParamAudioAac, &aactype));
   return OMX_ErrorNone;
 }
 
@@ -423,17 +472,17 @@ static OMX_ERRORTYPE set_opus_audio_info_on_port (httpsrc_prc_t *ap_prc)
   assert (NULL != ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (opustype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
-                                           handleOf (ap_prc),
-                                           OMX_TizoniaIndexParamAudioOpus, &opustype));
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_TizoniaIndexParamAudioOpus, &opustype));
 
   /* Set the new values */
   opustype.nChannels = ap_prc->num_channels_;
   opustype.nSampleRate = ap_prc->samplerate_;
 
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (tiz_get_krn (handleOf (ap_prc)),
-                                                    handleOf (ap_prc),
-                                                    OMX_TizoniaIndexParamAudioOpus, &opustype));
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+      OMX_TizoniaIndexParamAudioOpus, &opustype));
   return OMX_ErrorNone;
 }
 
@@ -443,24 +492,24 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
   assert (NULL != ap_prc);
   switch (ap_prc->audio_coding_type_)
     {
-    case OMX_AUDIO_CodingMP3:
-      {
-        rc = set_mp3_audio_info_on_port (ap_prc);
-      }
-      break;
-    case OMX_AUDIO_CodingAAC:
-      {
-        rc = set_aac_audio_info_on_port (ap_prc);
-      }
-      break;
-    case OMX_AUDIO_CodingOPUS:
-      {
-        rc = set_opus_audio_info_on_port (ap_prc);
-      }
-      break;
-    default:
-      assert (0);
-      break;
+      case OMX_AUDIO_CodingMP3:
+        {
+          rc = set_mp3_audio_info_on_port (ap_prc);
+        }
+        break;
+      case OMX_AUDIO_CodingAAC:
+        {
+          rc = set_aac_audio_info_on_port (ap_prc);
+        }
+        break;
+      case OMX_AUDIO_CodingOPUS:
+        {
+          rc = set_opus_audio_info_on_port (ap_prc);
+        }
+        break;
+      default:
+        assert (0);
+        break;
     };
   return rc;
 }
@@ -481,33 +530,35 @@ static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
   info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
   metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (1, metadata_len)))
-  {
-    rc = OMX_ErrorInsufficientResources;
-  }
+  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
+                   1, metadata_len)))
+    {
+      rc = OMX_ErrorInsufficientResources;
+    }
   else
-  {
-    const size_t name_len = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
-    strncpy ((char *)p_meta->nKey, ap_header_name, name_len - 1);
-    p_meta->nKey[name_len - 1] = '\0';
-    p_meta->nKeySizeUsed = name_len;
+    {
+      const size_t name_len
+          = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+      strncpy ((char *)p_meta->nKey, ap_header_name, name_len - 1);
+      p_meta->nKey[name_len - 1] = '\0';
+      p_meta->nKeySizeUsed = name_len;
 
-    strncpy ((char *)p_meta->nValue, ap_header_info, info_len - 1);
-    p_meta->nValue[info_len - 1] = '\0';
-    p_meta->nValueMaxSize = info_len;
-    p_meta->nValueSizeUsed = info_len;
+      strncpy ((char *)p_meta->nValue, ap_header_info, info_len - 1);
+      p_meta->nValue[info_len - 1] = '\0';
+      p_meta->nValueMaxSize = info_len;
+      p_meta->nValueSizeUsed = info_len;
 
-    p_meta->nSize = metadata_len;
-    p_meta->nVersion.nVersion = OMX_VERSION;
-    p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
-    p_meta->nScopeSpecifier = 0;
-    p_meta->nMetadataItemIndex = 0;
-    p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
-    p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
-    p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+      p_meta->nSize = metadata_len;
+      p_meta->nVersion.nVersion = OMX_VERSION;
+      p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+      p_meta->nScopeSpecifier = 0;
+      p_meta->nMetadataItemIndex = 0;
+      p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+      p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+      p_meta->eValueCharset = OMX_MetadataCharsetASCII;
 
-    rc = tiz_krn_store_metadata (tiz_get_krn (handleOf (ap_prc)), p_meta);
-  }
+      rc = tiz_krn_store_metadata (tiz_get_krn (handleOf (ap_prc)), p_meta);
+    }
 
   return rc;
 }
@@ -573,8 +624,8 @@ static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
                        NULL);
   TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged");
   tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
-                       ARATELIA_HTTP_SOURCE_PORT_INDEX,                            /* port 0 */
-                       OMX_IndexParamPortDefinition, /* the index of the
+                       ARATELIA_HTTP_SOURCE_PORT_INDEX, /* port 0 */
+                       OMX_IndexParamPortDefinition,    /* the index of the
                                                         struct that has
                                                         been modififed */
                        NULL);
@@ -597,6 +648,8 @@ static size_t curl_header_cback (void *ptr, size_t size, size_t nmemb,
   size_t nbytes = size * nmemb;
   assert (NULL != p_prc);
 
+  stop_reconnect_timer_watcher (p_prc);
+
   if (p_prc->auto_detect_on_)
     {
       obtain_audio_encoding_from_headers (p_prc, ptr, nbytes);
@@ -618,11 +671,13 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
   size_t nbytes = size * nmemb;
   size_t rc = nbytes;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "size [%d] nmemb [%d] sockfd [%d] store [%d]", size, nmemb,
-             p_prc->sockfd_, tiz_buffer_bytes_available (p_prc->p_store_));
+  TIZ_TRACE (handleOf (p_prc), "size [%d] nmemb [%d] sockfd [%d] store [%d]",
+             size, nmemb, p_prc->sockfd_,
+             tiz_buffer_bytes_available (p_prc->p_store_));
 
   if (nbytes > 0)
     {
+      p_prc->curl_state_ = ECurlStateTransfering;
       OMX_BUFFERHEADERTYPE *p_out = NULL;
 
       if (p_prc->auto_detect_on_)
@@ -632,11 +687,11 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
           /* This is to pause curl */
           TIZ_TRACE (handleOf (p_prc), "Pausing curl");
           rc = CURL_WRITEFUNC_PAUSE;
-          p_prc->curl_paused_ = true;
+          p_prc->curl_state_ = ECurlStatePaused;
 
           /* Also stop the watchers */
           stop_io_watcher (p_prc);
-          stop_timer_watcher (p_prc);
+          stop_curl_timer_watcher (p_prc);
 
           /* And now trigger the OMX_EventPortFormatDetected and
              OMX_EventPortSettingsChanged events */
@@ -644,12 +699,14 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
         }
       else
         {
-          int nbytes_stored = tiz_buffer_bytes_available (p_prc->p_store_);
-          if (nbytes_stored > 0)
+          int nbytes_stored = 0;
+
+          if (tiz_buffer_bytes_available (p_prc->p_store_) > p_prc->cache_bytes_)
             {
-              p_out = buffer_needed (p_prc);
-              if (NULL != p_out)
-                {
+              p_prc->cache_bytes_ = 0;
+          while ((nbytes_stored = tiz_buffer_bytes_available (p_prc->p_store_)) > 0
+                 && (p_out = buffer_needed (p_prc)) != NULL)
+            {
                   int nbytes_to_copy = MIN (
                       nbytes_stored, p_out->nAllocLen - p_out->nFilledLen);
                   memcpy (p_out->pBuffer + p_out->nOffset,
@@ -657,34 +714,42 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
                           nbytes_to_copy);
                   p_out->nFilledLen += nbytes_to_copy;
                   release_buffer (p_prc);
-                  p_out = NULL;
                   tiz_buffer_advance (p_prc->p_store_, nbytes_to_copy);
-                }
+                  TIZ_PRINTF_DBG_MAG ("Releasing buffer with size [%u] available [%u].",
+                                  (unsigned int)p_out->nFilledLen,
+                                  tiz_buffer_bytes_available (p_prc->p_store_));
+                  p_out = NULL;
             }
-          p_out = buffer_needed (p_prc);
-          if (NULL != p_out)
+
+          while (nbytes > 0 && (p_out = buffer_needed (p_prc)) != NULL)
             {
-              int nbytes_to_copy
+                int nbytes_to_copy
                   = MIN (nbytes, p_out->nAllocLen - p_out->nFilledLen);
-              memcpy (p_out->pBuffer + p_out->nOffset, ptr, nbytes_to_copy);
-              p_out->nFilledLen += nbytes_to_copy;
-              release_buffer (p_prc);
+                memcpy (p_out->pBuffer + p_out->nOffset, ptr, nbytes_to_copy);
+                p_out->nFilledLen += nbytes_to_copy;
+                TIZ_PRINTF_DBG_CYN ("Releasing buffer with size [%u]",
+                                 (unsigned int)p_out->nFilledLen);
+                release_buffer (p_prc);
+                nbytes -= nbytes_to_copy;
+                ptr += nbytes_to_copy;
             }
-          else
+            }
+          if (nbytes > 0)
             {
               int nbytes_stored = 0;
               if ((nbytes_stored = tiz_buffer_store_data (p_prc->p_store_, ptr,
                                                           nbytes)) < nbytes)
                 {
-                  TIZ_ERROR (
-                      handleOf (p_prc),
-                      "Unable to store all the data (wanted %d, stored %d).",
-                      nbytes, nbytes_stored);
+                  TIZ_ERROR (handleOf (p_prc),
+                             "Unable to store all the data (wanted %d, stored %d).",
+                             nbytes, nbytes_stored);
                 }
+              TIZ_PRINTF_DBG_BLU ("No more omx buffers, using the store : [%u] bytes cached.",
+                              tiz_buffer_bytes_available (p_prc->p_store_));
               TIZ_TRACE (handleOf (p_prc),
-                         "Unable to get an omx buffer, using the temp store : [%d] bytes stored.",
+                         "Unable to get an omx buffer, using the temp store : "
+                         "[%d] bytes stored.",
                          tiz_buffer_bytes_available (p_prc->p_store_));
-
             }
         }
     }
@@ -773,7 +838,7 @@ static int curl_socket_cback (CURL *easy, curl_socket_t s, int action,
   else if (CURL_POLL_REMOVE == action)
     {
       (void)stop_io_watcher (p_prc);
-      (void)stop_timer_watcher (p_prc);
+      (void)stop_curl_timer_watcher (p_prc);
     }
   return 0;
 }
@@ -793,19 +858,24 @@ static int curl_timer_cback (CURLM *multi, long timeout_ms, void *userp)
   httpsrc_prc_t *p_prc = userp;
   assert (NULL != p_prc);
 
-  TIZ_DEBUG (handleOf (p_prc), "timeout_ms : %d", timeout_ms);
+  TIZ_DEBUG (handleOf (p_prc), "timeout_ms : %d - curl_state_ [%d]", timeout_ms,
+             p_prc->curl_state_);
 
-  if (timeout_ms < 0)
+  if (timeout_ms < 0 && ECurlStateTransfering == p_prc->curl_state_)
     {
-      stop_timer_watcher (p_prc);
+      stop_curl_timer_watcher (p_prc);
       p_prc->curl_timeout_ = 0;
     }
-  else
+  else if (timeout_ms > 0)
     {
+      if (timeout_ms < 10)
+        {
+          timeout_ms = 10;
+        }
       p_prc->curl_timeout_ = ((double)timeout_ms / (double)1000);
-      stop_timer_watcher (p_prc);
-      (void)start_timer_watcher (p_prc);
-      if (p_prc->curl_paused_)
+      stop_curl_timer_watcher (p_prc);
+      (void)start_curl_timer_watcher (p_prc);
+      if (ECurlStatePaused == p_prc->curl_state_)
         {
           (void)resume_curl (p_prc);
         }
@@ -883,8 +953,15 @@ static OMX_ERRORTYPE start_curl (httpsrc_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
+  TIZ_NOTICE (handleOf (ap_prc), "starting curl : curl_state_ [%d]",
+              ap_prc->curl_state_);
+
   assert (NULL != ap_prc->p_curl_);
   assert (NULL != ap_prc->p_curl_multi_);
+  assert (ECurlStateStopped == ap_prc->curl_state_ || ECurlStateConnecting
+                                                      == ap_prc->curl_state_);
+
+  ap_prc->curl_state_ = ECurlStateConnecting;
 
   /* associate the processor with the curl handle */
   bail_on_curl_error (
@@ -1010,14 +1087,21 @@ static OMX_ERRORTYPE allocate_events (httpsrc_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   assert (NULL == ap_prc->p_ev_io_);
-  assert (NULL == ap_prc->p_ev_timer_);
+  assert (NULL == ap_prc->p_ev_curl_timer_);
 
   /* Allocate the io event */
   tiz_check_omx_err (tiz_event_io_init (&(ap_prc->p_ev_io_), handleOf (ap_prc),
                                         tiz_comp_event_io));
-  /* Allocate the timer event */
-  tiz_check_omx_err (tiz_event_timer_init (
-      &(ap_prc->p_ev_timer_), handleOf (ap_prc), tiz_comp_event_timer, ap_prc));
+
+  /* Allocate the reconnect timer event */
+  tiz_check_omx_err (tiz_event_timer_init (&(ap_prc->p_ev_reconnect_timer_),
+                                           handleOf (ap_prc),
+                                           tiz_comp_event_timer, ap_prc));
+
+  /* Allocate the curl timer event */
+  tiz_check_omx_err (tiz_event_timer_init (&(ap_prc->p_ev_curl_timer_),
+                                           handleOf (ap_prc),
+                                           tiz_comp_event_timer, ap_prc));
 
   return OMX_ErrorNone;
 }
@@ -1027,8 +1111,10 @@ static void destroy_events (httpsrc_prc_t *ap_prc)
   assert (NULL != ap_prc);
   tiz_event_io_destroy (ap_prc->p_ev_io_);
   ap_prc->p_ev_io_ = NULL;
-  tiz_event_timer_destroy (ap_prc->p_ev_timer_);
-  ap_prc->p_ev_timer_ = NULL;
+  tiz_event_timer_destroy (ap_prc->p_ev_curl_timer_);
+  ap_prc->p_ev_curl_timer_ = NULL;
+  tiz_event_timer_destroy (ap_prc->p_ev_reconnect_timer_);
+  ap_prc->p_ev_reconnect_timer_ = NULL;
 }
 
 static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
@@ -1039,7 +1125,6 @@ static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
     {
       TIZ_NOTICE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]",
                   ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
-
       tiz_check_omx_err (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)), 0, ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
@@ -1117,16 +1202,19 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
   p_prc->p_ev_io_ = NULL;
   p_prc->sockfd_ = -1;
   p_prc->awaiting_io_ev_ = false;
-  p_prc->p_ev_timer_ = NULL;
-  p_prc->awaiting_timer_ev_ = false;
-  p_prc->p_store_ = NULL;
+  p_prc->p_ev_curl_timer_ = NULL;
+  p_prc->awaiting_curl_timer_ev_ = false;
   p_prc->curl_timeout_ = 0;
+  p_prc->p_ev_reconnect_timer_ = NULL;
+  p_prc->cache_bytes_ = ((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+  p_prc->awaiting_reconnect_timer_ev_ = false;
+  p_prc->reconnect_timeout_ = ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT;
+  p_prc->p_store_ = NULL;
   p_prc->p_curl_ = NULL;
   p_prc->p_curl_multi_ = NULL;
   p_prc->p_http_ok_aliases_ = NULL;
   p_prc->p_http_headers_ = NULL;
-  p_prc->curl_stopped_ = true;
-  p_prc->curl_paused_ = false;
+  p_prc->curl_state_ = ECurlStateStopped;
   p_prc->curl_version_ = 0;
   return p_prc;
 }
@@ -1171,10 +1259,9 @@ static OMX_ERRORTYPE httpsrc_prc_prepare_to_transfer (void *ap_obj,
   assert (NULL != ap_obj);
 
   p_prc->eos_ = false;
-  p_prc->curl_stopped_ = true;
   p_prc->sockfd_ = -1;
   p_prc->awaiting_io_ev_ = false;
-  p_prc->awaiting_timer_ev_ = false;
+  p_prc->awaiting_curl_timer_ev_ = false;
   p_prc->curl_timeout_ = 0;
 
   return prepare_for_port_auto_detection (p_prc);
@@ -1186,7 +1273,7 @@ static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
   httpsrc_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
 
-  if (p_prc->auto_detect_on_ && p_prc->curl_stopped_)
+  if (p_prc->auto_detect_on_ && ECurlStateStopped == p_prc->curl_state_)
     {
       int running_handles = 0;
       tiz_check_omx_err (start_curl (p_prc));
@@ -1195,7 +1282,6 @@ static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
           p_prc->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
       TIZ_NOTICE (handleOf (p_prc), "running handles [%d]", running_handles);
-      p_prc->curl_stopped_ = false;
     }
 
   return OMX_ErrorNone;
@@ -1204,7 +1290,8 @@ static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
 static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_obj)
 {
   stop_io_watcher (ap_obj);
-  stop_timer_watcher (ap_obj);
+  stop_curl_timer_watcher (ap_obj);
+  stop_reconnect_timer_watcher (ap_obj);
   return release_buffer (ap_obj);
 }
 
@@ -1214,23 +1301,25 @@ static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_obj)
 
 static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
-  assert (NULL != p_prc);
+  /*  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc; */
+  /*   assert (NULL != p_prc); */
 
-  TIZ_TRACE (handleOf (ap_prc), "Received buffer event : curl_stopped [%s]",
-             p_prc->curl_stopped_ ? "TRUE" : "FALSE");
+  /*   TIZ_TRACE (handleOf (ap_prc), "Received buffer event : curl_state_ [%d]",
+   */
+  /*              p_prc->curl_state_); */
 
-  if (p_prc->curl_stopped_)
-    {
-      int running_handles = 0;
-      tiz_check_omx_err (start_curl (p_prc));
-      assert (NULL != p_prc->p_curl_multi_);
-      /* Kickstart curl to get one or more callbacks called. */
-      on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
-          p_prc->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
-      TIZ_NOTICE (handleOf (p_prc), "running handles [%d]", running_handles);
-      p_prc->curl_stopped_ = false;
-    }
+  /*   if (ECurlStateStopped == p_prc->curl_state_) */
+  /*     { */
+  /*       int running_handles = 0; */
+  /*       tiz_check_omx_err (start_curl (p_prc)); */
+  /*       assert (NULL != p_prc->p_curl_multi_); */
+  /*       /\* Kickstart curl to get one or more callbacks called. *\/ */
+  /*       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action ( */
+  /*           p_prc->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
+   */
+  /*       TIZ_NOTICE (handleOf (p_prc), "running handles [%d]",
+   * running_handles); */
+  /*     } */
   return OMX_ErrorNone;
 }
 
@@ -1257,16 +1346,23 @@ static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
           curl_ev_bitmask |= CURL_CSELECT_OUT;
         }
       tiz_check_omx_err (stop_io_watcher (ap_prc));
-      tiz_check_omx_err (restart_timer_watcher (ap_prc));
+      tiz_check_omx_err (restart_curl_timer_watcher (ap_prc));
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
           p_prc->p_curl_multi_, a_fd, curl_ev_bitmask, &running_handles));
       TIZ_TRACE (
           handleOf (ap_prc),
           "Received io event on fd [%d] events [%d] running handles [%d]", a_fd,
           a_events, running_handles);
-      if (!p_prc->curl_paused_)
+      if (ECurlStatePaused != p_prc->curl_state_ && running_handles > 0)
         {
           tiz_check_omx_err (start_io_watcher (ap_prc));
+        }
+      else if (0 == running_handles)
+        {
+          prepare_for_port_auto_detection (p_prc);
+          p_prc->curl_state_ = ECurlStateStopped;
+          p_prc->cache_bytes_ = ((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+          (void)start_reconnect_timer_watcher (p_prc);
         }
     }
   return OMX_ErrorNone;
@@ -1277,32 +1373,69 @@ static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
                                               void *ap_arg)
 {
   httpsrc_prc_t *p_prc = ap_prc;
+  int running_handles = 0;
+
   assert (NULL != p_prc);
 
-  if (p_prc->awaiting_timer_ev_)
+  TIZ_NOTICE (
+      handleOf (p_prc),
+      "01 - Received timer event [%p] : curl_state_ [%d] curl_timeout_ [%f]",
+      ap_ev_timer, p_prc->curl_state_, p_prc->curl_timeout_);
+
+  if (p_prc->awaiting_curl_timer_ev_ && ap_ev_timer == p_prc->p_ev_curl_timer_)
     {
-      int running_handles = 0;
-      tiz_check_omx_err (restart_timer_watcher (ap_arg));
+      TIZ_NOTICE (handleOf (p_prc),
+                  "01 - Received curl timer event [%p] : curl_state_ [%d] "
+                  "curl_timeout_ [%f]",
+                  ap_ev_timer, p_prc->curl_state_, p_prc->curl_timeout_);
+
+      if (ECurlStateTransfering == p_prc->curl_state_ || ECurlStateConnecting
+                                                         == p_prc->curl_state_)
+        {
+          tiz_check_omx_err (restart_curl_timer_watcher (ap_arg));
+          /* stop_curl_timer_watcher (p_prc); */
+          /* start_curl_timer_watcher (p_prc); */
+          on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
+              p_prc->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
+          TIZ_NOTICE (handleOf (p_prc),
+                      "02 - running handles [%d] curl_timeout_ [%f]",
+                      running_handles, p_prc->curl_timeout_);
+          if (0 == running_handles)
+            {
+              p_prc->curl_state_ = ECurlStateStopped;
+              stop_curl_timer_watcher (p_prc);
+              p_prc->cache_bytes_ = ((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+              start_reconnect_timer_watcher (p_prc);
+            }
+        }
+    }
+  else if (p_prc->awaiting_reconnect_timer_ev_
+           && ap_ev_timer == p_prc->p_ev_reconnect_timer_)
+    {
+      TIZ_NOTICE (handleOf (p_prc),
+                  "01 - Received reconnect timer event [%p] : curl_state_ [%d] "
+                  "reconnect_timeout_ [%f]",
+                  ap_ev_timer, p_prc->curl_state_, p_prc->reconnect_timeout_);
+      TIZ_PRINTF_RED ("\rFailed to connect to '%s'.",
+                      p_prc->p_uri_param_->contentURI);
+      TIZ_PRINTF_RED ("Re-connecting radio station in %.1f seconds.\n",
+                      p_prc->reconnect_timeout_);
+      curl_multi_remove_handle (p_prc->p_curl_multi_, p_prc->p_curl_);
+      start_curl (p_prc);
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
           p_prc->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
-      TIZ_NOTICE (handleOf (p_prc),
-                  "Received timer event : running handles [%d]",
-                  running_handles);
     }
+
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE httpsrc_prc_pause (const void *ap_obj)
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_obj;
-  assert (NULL != p_prc);
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE httpsrc_prc_resume (const void *ap_obj)
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_obj;
-  assert (NULL != p_prc);
   return OMX_ErrorNone;
 }
 
@@ -1334,7 +1467,7 @@ static OMX_ERRORTYPE httpsrc_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
     {
       int running_handles = 0;
       p_prc->port_disabled_ = false;
-      tiz_check_omx_err (restart_timer_watcher (p_prc));
+      tiz_check_omx_err (restart_curl_timer_watcher (p_prc));
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
           p_prc->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
       TIZ_NOTICE (handleOf (p_prc), "running handles [%d]", running_handles);

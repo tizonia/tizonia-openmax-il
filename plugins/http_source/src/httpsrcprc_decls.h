@@ -41,6 +41,15 @@ extern "C"
 
 #include <tizprc_decls.h>
 
+  typedef enum httpsrc_curl_state_id httpsrc_curl_state_id_t;
+  enum httpsrc_curl_state_id
+  {
+    ECurlStateStopped,
+    ECurlStateConnecting,
+    ECurlStateTransfering,
+    ECurlStatePaused
+  };
+
   typedef struct httpsrc_prc httpsrc_prc_t;
   struct httpsrc_prc
   {
@@ -57,16 +66,19 @@ extern "C"
     tiz_event_io_t *p_ev_io_;
     int sockfd_;
     bool awaiting_io_ev_;
-    tiz_event_timer_t *p_ev_timer_;
-    bool awaiting_timer_ev_;
-    tiz_buffer_t *p_store_;
+    tiz_event_timer_t *p_ev_curl_timer_;
+    bool awaiting_curl_timer_ev_;
     double curl_timeout_;
+    tiz_event_timer_t *p_ev_reconnect_timer_;
+    bool awaiting_reconnect_timer_ev_;
+    double reconnect_timeout_;
+    int cache_bytes_;
+    tiz_buffer_t *p_store_;
     CURL *p_curl_;              /* curl easy */
     CURLM *p_curl_multi_;        /* curl multi */
     struct curl_slist *p_http_ok_aliases_;
     struct curl_slist *p_http_headers_;
-    bool curl_stopped_;
-    bool curl_paused_;
+    httpsrc_curl_state_id_t curl_state_;
     unsigned int curl_version_;
     char curl_err[CURL_ERROR_SIZE];
   };
