@@ -1918,9 +1918,6 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
                            const OMX_U32   a_num_channels,
                            const OMX_U32 a_sample_rate)
 {
-  double pkts_per_sec_med_burst = 0;
-  double pkts_per_sec_max_burst = 0;
-
   assert (NULL != ap_server);
 
   if (NULL == ap_server)
@@ -1934,27 +1931,6 @@ httpr_net_set_mp3_settings (httpr_server_t * ap_server,
   assert (0 != a_sample_rate);
   ap_server->bytes_per_frame = (144 * ap_server->bitrate / a_sample_rate) + 1;
   ap_server->burst_size      = ICE_MIN_BURST_SIZE;
-
-  pkts_per_sec_med_burst
-    = (double) ap_server->bytes_per_frame * 38 / ICE_MEDIUM_BURST_SIZE;
-  pkts_per_sec_max_burst
-    = (double) ap_server->bytes_per_frame * 38 / ICE_MAX_BURST_SIZE;
-
-  if (pkts_per_sec_med_burst >= ICE_MIN_PACKETS_PER_SECOND
-      && pkts_per_sec_med_burst <= ICE_MAX_PACKETS_PER_SECOND)
-    {
-      ap_server->burst_size = ICE_MEDIUM_BURST_SIZE;
-    }
-  else if ((pkts_per_sec_max_burst >= ICE_MIN_PACKETS_PER_SECOND
-           && pkts_per_sec_max_burst <= ICE_MAX_PACKETS_PER_SECOND)
-           || pkts_per_sec_max_burst >= ICE_MAX_PACKETS_PER_SECOND)
-    {
-      ap_server->burst_size = ICE_MAX_BURST_SIZE;
-    }
-
-  TIZ_TRACE (ap_server->p_hdl, "pkts_per_sec_max_burst [%f] pkts_per_sec_med_burst [%f] "
-             "burst_size [%d]", pkts_per_sec_max_burst, pkts_per_sec_med_burst,
-             ap_server->burst_size);
 
   ap_server->pkts_per_sec =
     (((double) ap_server->bytes_per_frame * (double) (1000 / 26)

@@ -55,10 +55,8 @@ extern "C"
 #define ICE_DEFAULT_HEADER_TIMEOUT     10
 #define ICE_LISTEN_QUEUE               5
 #define ICE_MIN_BURST_SIZE             1400
-#define ICE_MEDIUM_BURST_SIZE          2800
-#define ICE_MAX_BURST_SIZE             4200
-#define ICE_MIN_PACKETS_PER_SECOND     6
-#define ICE_MAX_PACKETS_PER_SECOND     12
+#define ICE_MEDIUM_BURST_SIZE          2800 /* Not used for now */
+#define ICE_MAX_BURST_SIZE             4200 /* Not used for now */
 #define ICE_LISTENER_BUF_SIZE          (ICE_MAX_BURST_SIZE + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)
 
 #ifdef __cplusplus
