@@ -43,7 +43,8 @@ libtizplatform_include_HEADERS = \
 	tizev.h \
 	tizmap.h \
 	tizhttp.h \
-	tizlimits.h
+	tizlimits.h \
+	tizprintf.h
 
 libtizplatform_la_SOURCES = \
 	http-parser/http_parser.c \
@@ -64,7 +65,8 @@ libtizplatform_la_SOURCES = \
 	tizev.c \
 	tizmap.c \
 	tizhttp.c \
-	tizlimits.c
+	tizlimits.c \
+	tizprintf.c
 
 libtizplatform_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
