@@ -281,8 +281,8 @@ static OMX_ERRORTYPE mp3meta_prc_allocate_resources (void *ap_obj,
       goto end;
     }
 
-  if (MPG123_OK != mpg123_param (p_prc->p_mpg123_, MPG123_REMOVE_FLAGS,
-                                 MPG123_IGNORE_INFOFRAME, 0.))
+  if (MPG123_OK != mpg123_param (p_prc->p_mpg123_, MPG123_ADD_FLAGS,
+                                 MPG123_IGNORE_INFOFRAME | MPG123_SKIP_ID3V2, 0.))
     {
       TIZ_ERROR (handleOf (p_prc), "[%s] : setting mpg123 handle params.",
                  tiz_err_to_str (rc));
