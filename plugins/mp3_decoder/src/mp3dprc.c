@@ -304,6 +304,8 @@ synthesize_samples (const void *ap_obj, int next_sample)
                     "Releasing output HEADER [%p] nFilledLen [%d]",
                     p_prc->p_outhdr_, p_prc->p_outhdr_->nFilledLen);
           p_prc->p_outhdr_->nFilledLen = p_prc->p_outhdr_->nAllocLen;
+          TIZ_PRINTF_DBG_GRN ("Releasing buffer [%p] with size [%u].",
+                              p_prc->p_outhdr_, (unsigned int)p_prc->p_outhdr_->nFilledLen);
           tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
                                   ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX,
                                   p_prc->p_outhdr_);
@@ -433,6 +435,8 @@ decode_buffer (const void *ap_obj)
                   TIZ_TRACE (handleOf (p_obj),
                             "recoverable frame level error (%s)",
                             mad_stream_errorstr (&p_obj->stream_));
+                  TIZ_PRINTF_DBG_RED ("recoverable frame level error [%s].",
+                                      mad_stream_errorstr (&p_obj->stream_));
                 }
               continue;
             }
@@ -445,6 +449,8 @@ decode_buffer (const void *ap_obj)
                       TIZ_TRACE (handleOf (p_obj),
                                 "p_obj->stream_.error==MAD_ERROR_BUFLEN "
                                 "p_obj->p_inhdr_=[NULL]");
+                      TIZ_PRINTF_DBG_RED ("[%s].", mad_stream_errorstr (&p_obj->stream_));
+
                       break;
                     }
                   else
@@ -525,8 +531,11 @@ mp3d_claim_input (mp3d_prc_t *ap_obj)
           if (NULL != ap_obj->p_inhdr_)
             {
               TIZ_TRACE (handleOf (ap_obj),
-                         "Claimed INPUT HEADER [%p]...nFilledLen [%d]",
-                         ap_obj->p_inhdr_, ap_obj->p_inhdr_->nFilledLen);
+                         "Claimed INPUT HEADER [%p]...nFilledLen [%d] "
+                         "OUTPUT HEADER [%p]...nFilledLen [%d]",
+                         ap_obj->p_inhdr_, ap_obj->p_inhdr_->nFilledLen,
+                         ap_obj->p_outhdr_,
+                         ap_obj->p_outhdr_ ? ap_obj->p_outhdr_->nFilledLen : 0);
               rc = true;
             }
         }
@@ -615,14 +624,31 @@ static OMX_ERRORTYPE
 mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   mp3d_prc_t *p_prc = ap_obj;
+  OMX_AUDIO_PARAM_MP3TYPE mp3type;
+
   assert (NULL != p_prc);
 
-  p_prc->eos_ = false;
+  TIZ_INIT_OMX_PORT_STRUCT (mp3type, ARATELIA_MP3_DECODER_INPUT_PORT_INDEX);
+  tiz_check_omx_err (tiz_api_GetParameter
+                     (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+                      OMX_IndexParamAudioMp3, &mp3type));
 
   TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
   tiz_check_omx_err (tiz_api_GetParameter
                      (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
                       OMX_IndexParamAudioPcm, &(p_prc->pcmmode_)));
+
+  TIZ_TRACE (handleOf (p_prc),
+             "sample rate decoder = [%d] channels decoder = [%d]",
+             mp3type.nSampleRate, mp3type.nChannels);
+
+    TIZ_TRACE (handleOf (p_prc),
+             "sample rate renderer = [%d] channels renderer = [%d]",
+             p_prc->pcmmode_.nSamplingRate, p_prc->pcmmode_.nChannels);
+
+/*   tiz_check_omx_err (update_pcm_mode (p_prc, mp3type.nSampleRate, mp3type.nChannels)); */
+
+  p_prc->eos_ = false;
 
   return OMX_ErrorNone;
 }
@@ -642,7 +668,7 @@ mp3d_proc_stop_and_return (void *ap_obj)
   mad_timer_string (p_obj->timer_, buffer, "%lu:%02lu.%03u",
                     MAD_UNITS_MINUTES, MAD_UNITS_MILLISECONDS, 0);
   TIZ_TRACE (handleOf (p_obj),
-            "%lu frames decoded (%s).\n", p_obj->frame_count_, buffer);
+            "%lu frames decoded (%s)", p_obj->frame_count_, buffer);
   return release_headers (p_obj, OMX_ALL);
 }
 
@@ -656,6 +682,9 @@ mp3d_proc_buffers_ready (const void *ap_obj)
   mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
 
   assert (NULL != ap_obj);
+
+  TIZ_TRACE (handleOf (p_obj),
+            "buffers ready");
 
   while (true)
     {
@@ -696,6 +725,10 @@ mp3d_proc_buffers_ready (const void *ap_obj)
       TIZ_TRACE (handleOf (p_obj),
                 "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);
       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
+
+      TIZ_PRINTF_DBG_GRN ("Releasing buffer [%p] with size [%u].",
+                          p_obj->p_outhdr_, (unsigned int)p_obj->p_outhdr_->nFilledLen);
+
       tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
                                                  ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX,
                                                  p_obj->p_outhdr_));
