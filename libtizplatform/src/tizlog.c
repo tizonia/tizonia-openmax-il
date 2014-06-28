@@ -203,7 +203,7 @@ void tiz_log (const char *ap_file, int a_line, const char *ap_func,
   const log4c_category_t *p_category = log4c_category_get (ap_cat_name);
   if (log4c_category_is_priority_enabled (p_category, a_priority))
     {
-      /* TODO: 4096 - this value should to be obtained at config time */
+      /* TODO: 4096 - this value should be obtained at config time */
       char *buffer = alloca (4096);
       user_locinfo.pid = getpid ();
       user_locinfo.tid = syscall (SYS_gettid);
