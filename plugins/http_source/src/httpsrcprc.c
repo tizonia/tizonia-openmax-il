@@ -658,6 +658,30 @@ static size_t curl_header_cback (void *ptr, size_t size, size_t nmemb,
   return nbytes;
 }
 
+OMX_ERRORTYPE process_cache (httpsrc_prc_t *p_prc)
+{
+  OMX_BUFFERHEADERTYPE *p_out = NULL;
+  int nbytes_stored = 0;
+  assert (NULL != p_prc);
+
+  while ((nbytes_stored = tiz_buffer_bytes_available (p_prc->p_store_)) > 0
+         && (p_out = buffer_needed (p_prc)) != NULL)
+    {
+      int nbytes_to_copy = MIN (nbytes_stored, p_out->nAllocLen - p_out->nFilledLen);
+      memcpy (p_out->pBuffer + p_out->nOffset,
+              tiz_buffer_get_data (p_prc->p_store_),
+              nbytes_to_copy);
+      p_out->nFilledLen += nbytes_to_copy;
+      TIZ_PRINTF_DBG_MAG ("Releasing buffer with size [%u] available [%u].",
+                          (unsigned int)p_out->nFilledLen,
+                          tiz_buffer_bytes_available (p_prc->p_store_) - nbytes_to_copy);
+      release_buffer (p_prc);
+      tiz_buffer_advance (p_prc->p_store_, nbytes_to_copy);
+      p_out = NULL;
+    }
+  return OMX_ErrorNone;
+}
+
 /* This function gets called by libcurl as soon as there is data received that
    needs to be saved. The size of the data pointed to by ptr is size multiplied
    with nmemb, it will not be zero terminated. Return the number of bytes
@@ -699,57 +723,59 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
         }
       else
         {
-          int nbytes_stored = 0;
 
           if (tiz_buffer_bytes_available (p_prc->p_store_) > p_prc->cache_bytes_)
             {
               p_prc->cache_bytes_ = 0;
-          while ((nbytes_stored = tiz_buffer_bytes_available (p_prc->p_store_)) > 0
-                 && (p_out = buffer_needed (p_prc)) != NULL)
-            {
-                  int nbytes_to_copy = MIN (
-                      nbytes_stored, p_out->nAllocLen - p_out->nFilledLen);
-                  memcpy (p_out->pBuffer + p_out->nOffset,
-                          tiz_buffer_get_data (p_prc->p_store_),
-                          nbytes_to_copy);
+
+              process_cache (p_prc);
+
+              while (nbytes > 0 && (p_out = buffer_needed (p_prc)) != NULL)
+                {
+                  int nbytes_to_copy
+                    = MIN (nbytes, p_out->nAllocLen - p_out->nFilledLen);
+                  memcpy (p_out->pBuffer + p_out->nOffset, ptr, nbytes_to_copy);
                   p_out->nFilledLen += nbytes_to_copy;
+                  TIZ_PRINTF_DBG_CYN ("Releasing buffer with size [%u]",
+                                      (unsigned int)p_out->nFilledLen);
                   release_buffer (p_prc);
-                  tiz_buffer_advance (p_prc->p_store_, nbytes_to_copy);
-                  TIZ_PRINTF_DBG_MAG ("Releasing buffer with size [%u] available [%u].",
-                                  (unsigned int)p_out->nFilledLen,
-                                  tiz_buffer_bytes_available (p_prc->p_store_));
-                  p_out = NULL;
+                  nbytes -= nbytes_to_copy;
+                  ptr += nbytes_to_copy;
+                }
             }
 
-          while (nbytes > 0 && (p_out = buffer_needed (p_prc)) != NULL)
-            {
-                int nbytes_to_copy
-                  = MIN (nbytes, p_out->nAllocLen - p_out->nFilledLen);
-                memcpy (p_out->pBuffer + p_out->nOffset, ptr, nbytes_to_copy);
-                p_out->nFilledLen += nbytes_to_copy;
-                TIZ_PRINTF_DBG_CYN ("Releasing buffer with size [%u]",
-                                 (unsigned int)p_out->nFilledLen);
-                release_buffer (p_prc);
-                nbytes -= nbytes_to_copy;
-                ptr += nbytes_to_copy;
-            }
-            }
           if (nbytes > 0)
             {
-              int nbytes_stored = 0;
-              if ((nbytes_stored = tiz_buffer_store_data (p_prc->p_store_, ptr,
-                                                          nbytes)) < nbytes)
+              if (tiz_buffer_bytes_available (p_prc->p_store_) >
+                  ((2 * (320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
                 {
-                  TIZ_ERROR (handleOf (p_prc),
-                             "Unable to store all the data (wanted %d, stored %d).",
-                             nbytes, nbytes_stored);
+                  /* This is to pause curl */
+                  TIZ_PRINTF_DBG_GRN ("Pausing curl - cache size [%d]", tiz_buffer_bytes_available (p_prc->p_store_));
+                  rc = CURL_WRITEFUNC_PAUSE;
+                  p_prc->curl_state_ = ECurlStatePaused;
+
+                  /* Also stop the watchers */
+                  stop_io_watcher (p_prc);
+                  stop_curl_timer_watcher (p_prc);
                 }
-              TIZ_PRINTF_DBG_BLU ("No more omx buffers, using the store : [%u] bytes cached.",
-                              tiz_buffer_bytes_available (p_prc->p_store_));
-              TIZ_TRACE (handleOf (p_prc),
-                         "Unable to get an omx buffer, using the temp store : "
-                         "[%d] bytes stored.",
-                         tiz_buffer_bytes_available (p_prc->p_store_));
+              else
+                {
+                  int nbytes_stored = 0;
+                  if ((nbytes_stored = tiz_buffer_store_data (p_prc->p_store_, ptr,
+                                                              nbytes)) < nbytes)
+                    {
+                      TIZ_ERROR (handleOf (p_prc),
+                                 "Unable to store all the data (wanted %d, stored %d).",
+                                 nbytes, nbytes_stored);
+                    }
+                  nbytes -= nbytes_stored;
+                  TIZ_PRINTF_DBG_BLU ("No more omx buffers, using the store : [%u] bytes cached.",
+                                      tiz_buffer_bytes_available (p_prc->p_store_));
+                  TIZ_TRACE (handleOf (p_prc),
+                             "Unable to get an omx buffer, using the temp store : "
+                             "[%d] bytes stored.",
+                             tiz_buffer_bytes_available (p_prc->p_store_));
+                }
             }
         }
     }
@@ -1301,25 +1327,24 @@ static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_obj)
 
 static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
 {
-  /*  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc; */
-  /*   assert (NULL != p_prc); */
+   httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
+   assert (NULL != p_prc);
 
-  /*   TIZ_TRACE (handleOf (ap_prc), "Received buffer event : curl_state_ [%d]",
-   */
-  /*              p_prc->curl_state_); */
+   TIZ_TRACE (handleOf (ap_prc), "Received buffer event : curl_state_ [%d]",
+              p_prc->curl_state_);
 
-  /*   if (ECurlStateStopped == p_prc->curl_state_) */
-  /*     { */
-  /*       int running_handles = 0; */
-  /*       tiz_check_omx_err (start_curl (p_prc)); */
-  /*       assert (NULL != p_prc->p_curl_multi_); */
-  /*       /\* Kickstart curl to get one or more callbacks called. *\/ */
-  /*       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action ( */
-  /*           p_prc->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
-   */
-  /*       TIZ_NOTICE (handleOf (p_prc), "running handles [%d]",
-   * running_handles); */
-  /*     } */
+   if (ECurlStatePaused == p_prc->curl_state_)
+     {
+       if (tiz_buffer_bytes_available (p_prc->p_store_) >
+           (((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
+         {
+           process_cache (p_prc);
+         }
+       else
+         {
+           tiz_check_omx_err (resume_curl (p_prc));
+         }
+     }
   return OMX_ErrorNone;
 }
 
