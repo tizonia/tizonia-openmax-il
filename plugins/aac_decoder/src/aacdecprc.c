@@ -363,6 +363,8 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
       TIZ_TRACE (handleOf (ap_prc),
                  "Releasing output HEADER [%p] nFilledLen [%d]", p_out,
                  p_out->nFilledLen);
+      TIZ_PRINTF_DBG_GRN ("Releasing buffer [%p] with size [%u].",
+                          p_out, (unsigned int)p_out->nFilledLen);
       rc = tiz_filter_prc_release_header (
           ap_prc, ARATELIA_AAC_DECODER_OUTPUT_PORT_INDEX);
     }
