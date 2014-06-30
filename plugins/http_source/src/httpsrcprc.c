@@ -129,6 +129,15 @@ static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc);
     }                                                                        \
   while (0)
 
+static inline int copy_to_omx_buffer (OMX_BUFFERHEADERTYPE *ap_hdr,
+                                      void *ap_src, const int nbytes)
+{
+  int n = MIN (nbytes, ap_hdr->nAllocLen - ap_hdr->nFilledLen);
+  (void)memcpy (ap_hdr->pBuffer + ap_hdr->nOffset, ap_src, n);
+  ap_hdr->nFilledLen += n;
+  return n;
+}
+
 static OMX_ERRORTYPE allocate_temp_data_store (httpsrc_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
@@ -626,8 +635,8 @@ static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
   tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
                        ARATELIA_HTTP_SOURCE_PORT_INDEX, /* port 0 */
                        OMX_IndexParamPortDefinition,    /* the index of the
-                                                        struct that has
-                                                        been modififed */
+                                                     struct that has
+                                                     been modififed */
                        NULL);
 }
 
@@ -667,16 +676,14 @@ OMX_ERRORTYPE process_cache (httpsrc_prc_t *p_prc)
   while ((nbytes_stored = tiz_buffer_bytes_available (p_prc->p_store_)) > 0
          && (p_out = buffer_needed (p_prc)) != NULL)
     {
-      int nbytes_to_copy = MIN (nbytes_stored, p_out->nAllocLen - p_out->nFilledLen);
-      memcpy (p_out->pBuffer + p_out->nOffset,
-              tiz_buffer_get_data (p_prc->p_store_),
-              nbytes_to_copy);
-      p_out->nFilledLen += nbytes_to_copy;
-      TIZ_PRINTF_DBG_MAG ("Releasing buffer with size [%u] available [%u].",
-                          (unsigned int)p_out->nFilledLen,
-                          tiz_buffer_bytes_available (p_prc->p_store_) - nbytes_to_copy);
-      release_buffer (p_prc);
-      tiz_buffer_advance (p_prc->p_store_, nbytes_to_copy);
+      int nbytes_copied = copy_to_omx_buffer (
+          p_out, tiz_buffer_get_data (p_prc->p_store_), nbytes_stored);
+      TIZ_PRINTF_DBG_MAG (
+          "Releasing buffer with size [%u] available [%u].",
+          (unsigned int)p_out->nFilledLen,
+          tiz_buffer_bytes_available (p_prc->p_store_) - nbytes_copied);
+      tiz_check_omx_err (release_buffer (p_prc));
+      (void)tiz_buffer_advance (p_prc->p_store_, nbytes_copied);
       p_out = NULL;
     }
   return OMX_ErrorNone;
@@ -724,7 +731,8 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
       else
         {
 
-          if (tiz_buffer_bytes_available (p_prc->p_store_) > p_prc->cache_bytes_)
+          if (tiz_buffer_bytes_available (p_prc->p_store_)
+              > p_prc->cache_bytes_)
             {
               p_prc->cache_bytes_ = 0;
 
@@ -732,25 +740,25 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
 
               while (nbytes > 0 && (p_out = buffer_needed (p_prc)) != NULL)
                 {
-                  int nbytes_to_copy
-                    = MIN (nbytes, p_out->nAllocLen - p_out->nFilledLen);
-                  memcpy (p_out->pBuffer + p_out->nOffset, ptr, nbytes_to_copy);
-                  p_out->nFilledLen += nbytes_to_copy;
+                  int nbytes_copied = copy_to_omx_buffer (p_out, ptr, nbytes);
                   TIZ_PRINTF_DBG_CYN ("Releasing buffer with size [%u]",
                                       (unsigned int)p_out->nFilledLen);
-                  release_buffer (p_prc);
-                  nbytes -= nbytes_to_copy;
-                  ptr += nbytes_to_copy;
+                  tiz_check_omx_err (release_buffer (p_prc));
+                  nbytes -= nbytes_copied;
+                  ptr += nbytes_copied;
                 }
             }
 
           if (nbytes > 0)
             {
-              if (tiz_buffer_bytes_available (p_prc->p_store_) >
-                  ((2 * (320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
+              if (tiz_buffer_bytes_available (p_prc->p_store_)
+                  > ((2 * (320 * 1000) / 8)
+                     * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
                 {
                   /* This is to pause curl */
-                  TIZ_PRINTF_DBG_GRN ("Pausing curl - cache size [%d]", tiz_buffer_bytes_available (p_prc->p_store_));
+                  TIZ_PRINTF_DBG_GRN (
+                      "Pausing curl - cache size [%d]",
+                      tiz_buffer_bytes_available (p_prc->p_store_));
                   rc = CURL_WRITEFUNC_PAUSE;
                   p_prc->curl_state_ = ECurlStatePaused;
 
@@ -761,20 +769,24 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
               else
                 {
                   int nbytes_stored = 0;
-                  if ((nbytes_stored = tiz_buffer_store_data (p_prc->p_store_, ptr,
-                                                              nbytes)) < nbytes)
+                  if ((nbytes_stored = tiz_buffer_store_data (
+                           p_prc->p_store_, ptr, nbytes)) < nbytes)
                     {
                       TIZ_ERROR (handleOf (p_prc),
-                                 "Unable to store all the data (wanted %d, stored %d).",
+                                 "Unable to store all the data (wanted %d, "
+                                 "stored %d).",
                                  nbytes, nbytes_stored);
                     }
                   nbytes -= nbytes_stored;
-                  TIZ_PRINTF_DBG_BLU ("No more omx buffers, using the store : [%u] bytes cached.",
-                                      tiz_buffer_bytes_available (p_prc->p_store_));
-                  TIZ_TRACE (handleOf (p_prc),
-                             "Unable to get an omx buffer, using the temp store : "
-                             "[%d] bytes stored.",
-                             tiz_buffer_bytes_available (p_prc->p_store_));
+                  TIZ_PRINTF_DBG_BLU (
+                      "No more omx buffers, using the store : [%u] bytes "
+                      "cached.",
+                      tiz_buffer_bytes_available (p_prc->p_store_));
+                  TIZ_TRACE (
+                      handleOf (p_prc),
+                      "Unable to get an omx buffer, using the temp store : "
+                      "[%d] bytes stored.",
+                      tiz_buffer_bytes_available (p_prc->p_store_));
                 }
             }
         }
@@ -1084,25 +1096,16 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
                                     + pathname_max + 1;
       ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
-      if (OMX_ErrorNone
-          != (rc = tiz_api_GetParameter (
-                  tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                  OMX_IndexParamContentURI, ap_prc->p_uri_param_)))
+      tiz_check_omx_err (tiz_api_GetParameter (
+          tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+          OMX_IndexParamContentURI, ap_prc->p_uri_param_));
+      TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
+                  ap_prc->p_uri_param_->contentURI);
+      /* Verify we are getting an http scheme */
+      if (memcmp (ap_prc->p_uri_param_->contentURI, "http://", 7) != 0
+          && memcmp (ap_prc->p_uri_param_->contentURI, "https://", 8) != 0)
         {
-          TIZ_ERROR (handleOf (ap_prc),
-                     "[%s] : Error retrieving the URI param from port",
-                     tiz_err_to_str (rc));
-        }
-      else
-        {
-          TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
-                      ap_prc->p_uri_param_->contentURI);
-          /* Verify we are getting an http scheme */
-          if (memcmp (ap_prc->p_uri_param_->contentURI, "http://", 7) != 0
-              && memcmp (ap_prc->p_uri_param_->contentURI, "https://", 8) != 0)
-            {
-              rc = OMX_ErrorContentURIError;
-            }
+          rc = OMX_ErrorContentURIError;
         }
     }
 
@@ -1232,7 +1235,8 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
   p_prc->awaiting_curl_timer_ev_ = false;
   p_prc->curl_timeout_ = 0;
   p_prc->p_ev_reconnect_timer_ = NULL;
-  p_prc->cache_bytes_ = ((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+  p_prc->cache_bytes_ = ((320 * 1000) / 8)
+                        * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
   p_prc->awaiting_reconnect_timer_ev_ = false;
   p_prc->reconnect_timeout_ = ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT;
   p_prc->p_store_ = NULL;
@@ -1327,24 +1331,24 @@ static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_obj)
 
 static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
 {
-   httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
-   assert (NULL != p_prc);
+  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
+  assert (NULL != p_prc);
 
-   TIZ_TRACE (handleOf (ap_prc), "Received buffer event : curl_state_ [%d]",
-              p_prc->curl_state_);
+  TIZ_TRACE (handleOf (ap_prc), "Received buffer event : curl_state_ [%d]",
+             p_prc->curl_state_);
 
-   if (ECurlStatePaused == p_prc->curl_state_)
-     {
-       if (tiz_buffer_bytes_available (p_prc->p_store_) >
-           (((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
-         {
-           process_cache (p_prc);
-         }
-       else
-         {
-           tiz_check_omx_err (resume_curl (p_prc));
-         }
-     }
+  if (ECurlStatePaused == p_prc->curl_state_)
+    {
+      if (tiz_buffer_bytes_available (p_prc->p_store_)
+          > (((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
+        {
+          process_cache (p_prc);
+        }
+      else
+        {
+          tiz_check_omx_err (resume_curl (p_prc));
+        }
+    }
   return OMX_ErrorNone;
 }
 
@@ -1386,7 +1390,8 @@ static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
         {
           prepare_for_port_auto_detection (p_prc);
           p_prc->curl_state_ = ECurlStateStopped;
-          p_prc->cache_bytes_ = ((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+          p_prc->cache_bytes_ = ((320 * 1000) / 8)
+                                * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
           (void)start_reconnect_timer_watcher (p_prc);
         }
     }
@@ -1429,7 +1434,9 @@ static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
             {
               p_prc->curl_state_ = ECurlStateStopped;
               stop_curl_timer_watcher (p_prc);
-              p_prc->cache_bytes_ = ((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+              p_prc->cache_bytes_
+                  = ((320 * 1000) / 8)
+                    * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
               start_reconnect_timer_watcher (p_prc);
             }
         }
