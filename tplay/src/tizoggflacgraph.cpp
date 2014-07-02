@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizflacgraph.cpp
+ * @file   tizoggflacgraph.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  OpenMAX IL oggflac decoder graph implementation
