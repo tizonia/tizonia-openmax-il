@@ -416,6 +416,18 @@ static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
     }
 }
 
+static void obtain_bit_rate (httpsrc_prc_t *ap_prc, char *ap_info)
+{
+  char *p_end = NULL;
+
+  assert (NULL != ap_prc);
+  assert (NULL != ap_info);
+
+  TIZ_TRACE (handleOf (ap_prc), "bit rate  : [%s]", ap_info);
+
+  ap_prc->bitrate_ = convert_str_to_int (ap_prc, ap_info, &p_end);
+}
+
 static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
@@ -523,6 +535,14 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
   return rc;
 }
 
+static void update_cache_size (httpsrc_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  assert (ap_prc->bitrate_ > 0);
+  ap_prc->cache_bytes_ = ((ap_prc->bitrate_ * 1000) / 8)
+    * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+}
+
 static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
                                      const char *ap_header_name,
                                      const char *ap_header_info)
@@ -620,6 +640,14 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
             obtain_audio_info (ap_prc, p_info);
             /* Now set the pcm info on the output port */
             (void)set_audio_info_on_port (ap_prc);
+            /* Sometimes, the bitrate is provided in the ice-audio-info
+               header */
+            update_cache_size (ap_prc);
+          }
+        else if (memcmp (name, "icy-br", 6) == 0)
+          {
+            obtain_bit_rate (ap_prc, p_info);
+            update_cache_size (ap_prc);
           }
         tiz_mem_free (p_info);
       }
@@ -734,6 +762,7 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
           if (tiz_buffer_bytes_available (p_prc->p_store_)
               > p_prc->cache_bytes_)
             {
+              /* Reset the cache size */
               p_prc->cache_bytes_ = 0;
 
               process_cache (p_prc);
@@ -752,7 +781,7 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
           if (nbytes > 0)
             {
               if (tiz_buffer_bytes_available (p_prc->p_store_)
-                  > ((2 * (320 * 1000) / 8)
+                  > ((2 * (p_prc->bitrate_ * 1000) / 8)
                      * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
                 {
                   /* This is to pause curl */
@@ -1163,13 +1192,14 @@ static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
 
 static OMX_BUFFERHEADERTYPE *buffer_needed (httpsrc_prc_t *ap_prc)
 {
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   assert (NULL != ap_prc);
 
   if (!ap_prc->port_disabled_)
     {
       if (NULL != ap_prc->p_outhdr_)
         {
-          return ap_prc->p_outhdr_;
+          p_hdr = ap_prc->p_outhdr_;
         }
       else
         {
@@ -1183,12 +1213,12 @@ static OMX_BUFFERHEADERTYPE *buffer_needed (httpsrc_prc_t *ap_prc)
                   TIZ_TRACE (handleOf (ap_prc),
                              "Claimed HEADER [%p]...nFilledLen [%d]",
                              ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
-                  return ap_prc->p_outhdr_;
+                  p_hdr = ap_prc->p_outhdr_;
                 }
             }
         }
     }
-  return NULL;
+  return p_hdr;
 }
 
 static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc)
@@ -1235,7 +1265,8 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
   p_prc->awaiting_curl_timer_ev_ = false;
   p_prc->curl_timeout_ = 0;
   p_prc->p_ev_reconnect_timer_ = NULL;
-  p_prc->cache_bytes_ = ((320 * 1000) / 8)
+  p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
+  p_prc->cache_bytes_ = ((ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS * 1000) / 8)
                         * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
   p_prc->awaiting_reconnect_timer_ev_ = false;
   p_prc->reconnect_timeout_ = ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT;
@@ -1340,7 +1371,7 @@ static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
   if (ECurlStatePaused == p_prc->curl_state_)
     {
       if (tiz_buffer_bytes_available (p_prc->p_store_)
-          > (((320 * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
+          > (((p_prc->bitrate_ * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
         {
           process_cache (p_prc);
         }
@@ -1349,6 +1380,10 @@ static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
           tiz_check_omx_err (resume_curl (p_prc));
         }
     }
+  else if (ECurlStateTransfering == p_prc->curl_state_)
+     {
+       process_cache (p_prc);
+     }
   return OMX_ErrorNone;
 }
 
@@ -1390,8 +1425,7 @@ static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
         {
           prepare_for_port_auto_detection (p_prc);
           p_prc->curl_state_ = ECurlStateStopped;
-          p_prc->cache_bytes_ = ((320 * 1000) / 8)
-                                * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+          update_cache_size (p_prc);
           (void)start_reconnect_timer_watcher (p_prc);
         }
     }
@@ -1434,9 +1468,7 @@ static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
             {
               p_prc->curl_state_ = ECurlStateStopped;
               stop_curl_timer_watcher (p_prc);
-              p_prc->cache_bytes_
-                  = ((320 * 1000) / 8)
-                    * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+              update_cache_size (p_prc);
               start_reconnect_timer_watcher (p_prc);
             }
         }

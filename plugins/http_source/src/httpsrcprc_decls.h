@@ -72,6 +72,7 @@ extern "C"
     tiz_event_timer_t *p_ev_reconnect_timer_;
     bool awaiting_reconnect_timer_ev_;
     double reconnect_timeout_;
+    int bitrate_;
     int cache_bytes_;
     tiz_buffer_t *p_store_;
     CURL *p_curl_;              /* curl easy */
