@@ -47,6 +47,12 @@ AX_BOOST_THREAD
 
 PKG_CHECK_MODULES([TAGLIB], [taglib >= 1.7.0])
 PKG_CHECK_MODULES([LIBMEDIAINFO], [libmediainfo >= 0.7.67])
+DBUS_REQUIRED_VERSION=0.60
+PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
+	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
+	[http://www.freedesktop.org/wiki/Software_2fdbus]))
+PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
+
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
 #PKG_CHECK_MODULES([TIZ], [libtizplatform])
 
@@ -64,6 +70,7 @@ AC_FUNC_FORK
 AC_CHECK_FUNCS([dup2 gethostbyname gethostname inet_ntoa strtol])
 
 AC_CONFIG_FILES([Makefile
+                dbus/Makefile
                 src/Makefile])
 
 # End the configure script.

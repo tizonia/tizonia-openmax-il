@@ -1,0 +1,91 @@
+<?xml version="1.0" ?>
+
+<!-- Copyright (c) 2011-2014 Aratelia Limited - Juan A. Rubio -->
+
+<!-- This file is part of Tizonia -->
+
+<!-- Tizonia is free software: you can redistribute it and/or modify it under the -->
+<!-- terms of the GNU Lesser General Public License as published by the Free -->
+<!-- Software Foundation, either version 3 of the License, or (at your option) -->
+<!-- any later version. -->
+
+<!-- Tizonia is distributed in the hope that it will be useful, but WITHOUT ANY -->
+<!-- WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS -->
+<!-- FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for -->
+<!-- more details. -->
+
+<!-- You should have received a copy of the GNU Lesser General Public License -->
+<!-- along with Tizonia.  If not, see <http://www.gnu.org/licenses/>. -->
+
+<node name="/com/aratelia/tiz/tplay">
+
+  <interface name="org.mpris.MediaPlayer2">
+
+    <method name="Raise">
+    </method>
+
+    <method name="Quit">
+    </method>
+
+    <property name="CanQuit" type="b" access="read" />
+    <property name="CanRaise" type="b" access="read" />
+    <property name="HasTrackList" type="b" access="read" />
+    <property name="Identity" type="s" access="read" />
+    <property name="SupportedUriSchemes" type="as" access="read" />
+    <property name="SupportedMimeTypes" type="as" access="read" />
+
+  </interface>
+
+  <interface name="org.mpris.MediaPlayer2.Player">
+
+    <method name="Next">
+    </method>
+    <method name="Previous">
+    </method>
+    <method name="Pause">
+    </method>
+    <method name="PlayPause">
+    </method>
+    <method name="Stop">
+    </method>
+    <method name="Play">
+    </method>
+
+    <method name="Seek">
+      <arg type="x" name="Offset" direction="in"/>
+    </method>
+
+    <method name="SetPosition">
+      <arg type="o" name="TrackId" direction="in"/>
+      <arg type="x" name="Position" direction="in"/>
+    </method>
+
+    <method name="OpenUri">
+      <arg type="s" name="Uri" direction="in"/>
+    </method>
+
+    <!-- Signals -->
+    <signal name="Seeked">
+      <arg name="Position" type="x"/>
+    </signal>
+
+    <!-- Properties -->
+    <property name="PlaybackStatus" type="s" access="read"/>
+    <property name="LoopStatus" type="s" access="readwrite"/> <!-- optional -->
+    <property name="Rate" type="d" access="readwrite"/>
+    <property name="Shuffle" type="b" access="readwrite"/> <!-- optional -->
+    <property name="Metadata" type="a{sv}" access="read"/>
+    <property name="Volume" type="d" access="readwrite"/>
+    <property name="Position" type="x" access="read"/>
+    <property name="MinimumRate" type="d" access="read"/>
+    <property name="MaximumRate" type="d" access="read"/>
+    <property name="CanGoNext" type="b" access="read"/>
+    <property name="CanGoPrevious" type="b" access="read"/>
+    <property name="CanPlay" type="b" access="read"/>
+    <property name="CanPause" type="b" access="read"/>
+    <property name="CanSeek" type="b" access="read"/>
+    <property name="CanControl" type="b" access="read"/>
+
+  </interface>
+
+</node>

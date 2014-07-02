@@ -15,11 +15,20 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+# Correctly clean any generated headers...
+BUILT_SOURCES = mpris_dbus.hh
+CLEANFILES = $(BUILT_SOURCES)
 
-SUBDIRS= dbus src
+# but keep the xml description
+EXTRA_DIST = $(xml_files)
 
-ACLOCAL_AMFLAGS = -I m4
+DISTCLEANFILES = \
+	Makefile.in
 
-#pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = tplay.pc
+noinst_HEADERS = \
+	mpris_dbus.hh
 
+xml_files = mpris_introspect.xml
+
+mpris_dbus.hh: $(xml_files)
+	dbusxx-xml2cpp $^ --adaptor=$@
