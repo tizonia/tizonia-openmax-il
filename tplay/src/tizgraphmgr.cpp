@@ -43,6 +43,9 @@
 #include "tizgraphmgrcmd.hpp"
 #include "tizgraph.hpp"
 #include "tizomxutil.hpp"
+#include "mpris/tizmprisprops.hpp"
+#include "mpris/tizmpriscbacks.hpp"
+#include "tizgraphmgrcaps.hpp"
 #include "tizgraphmgr.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -90,6 +93,7 @@ graphmgr::mgr::mgr ()
                                     << graphmgr::fsm::restarting (&p_ops_)
                                     << graphmgr::fsm::stopping (&p_ops_),
           &p_ops_),
+    mpris_ptr_ (),
     thread_ (),
     mutex_ (),
     sem_ (),
@@ -115,16 +119,22 @@ graphmgr::mgr::init (const tizplaylist_ptr_t &playlist,
       tiz_thread_create (&thread_, 0, 0, thread_func, this));
   tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
 
+  graphmgr_capabilities_t graphmgr_caps;
   // Init this mgr's operations using the do_init template method
-  tiz_check_null_ret_oom ((p_ops_ = do_init (playlist, error_cback)));
+  tiz_check_null_ret_oom (
+      (p_ops_ = do_init (playlist, error_cback, graphmgr_caps)));
 
-  // Let's wait until the manager's thread is ready to receive requests
+  // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+
+  // Init the MPRIS interface and pass this manager's capabilities to it
+  // (a.k.a. MPRIS properties).
+  tiz_check_omx_err_ret_oom (start_mpris (graphmgr_caps));
 
   // Init OpenMAX IL
   tiz::omxutil::init ();
 
-  // Init the manager's fsm
+  // Init this manager's fsm
   fsm_.start ();
 
   return OMX_ErrorNone;
@@ -132,6 +142,12 @@ graphmgr::mgr::init (const tizplaylist_ptr_t &playlist,
 
 void graphmgr::mgr::deinit ()
 {
+  // Stop the MPRIS interface
+  //
+  // TODO: This is done too late here. Need do this right before the stop event
+  // is processed by the thread.
+  (void)stop_mpris ();
+
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
   static_cast< void >(tiz_sem_wait (&sem_));
   void *p_result = NULL;
@@ -240,6 +256,56 @@ graphmgr::mgr::graph_error (const OMX_ERRORTYPE error, const std::string &msg)
   bool is_internal_error = false;
   return post_cmd (
       new graphmgr::cmd (graphmgr::err_evt (error, msg, is_internal_error)));
+}
+
+OMX_ERRORTYPE
+graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  if (!mpris_ptr_)
+  {
+    control::mpris_callbacks_t mpris_cbacks (
+        boost::bind (&tiz::graphmgr::mgr::next, this),
+        boost::bind (&tiz::graphmgr::mgr::prev, this),
+        boost::bind (&tiz::graphmgr::mgr::pause, this),
+        boost::bind (&tiz::graphmgr::mgr::pause, this));
+
+    control::mpris_mediaplayer2_props_t props (
+        graphmgr_caps.can_quit_, graphmgr_caps.can_raise_,
+        graphmgr_caps.has_track_list_, graphmgr_caps.identity_,
+        graphmgr_caps.uri_schemes_, graphmgr_caps.mime_types_);
+    control::mpris_mediaplayer2_player_props_t player_props (
+        "Stopped",                               // plaback status
+        "Playlist",                              // loop status
+        1.0,                                     // rate
+        false,                                   // shuffle
+        std::map< std::string, std::string >(),  // metadata
+        80,                                      // volumen
+        0,                                       // position
+        graphmgr_caps.minimum_rate_, graphmgr_caps.maximum_rate_,
+        graphmgr_caps.can_go_next_, graphmgr_caps.can_go_previous_,
+        graphmgr_caps.can_play_, graphmgr_caps.can_pause_,
+        graphmgr_caps.can_seek_, graphmgr_caps.can_control_);
+    mpris_ptr_ = boost::make_shared< tiz::control::mprismgr >(
+        tiz::control::mprismgr (props, player_props, mpris_cbacks));
+    tiz_check_null_ret_oom (mpris_ptr_);
+
+    tiz_check_omx_err (mpris_ptr_->init ());
+    tiz_check_omx_err (mpris_ptr_->start ());
+  }
+  return rc;
+}
+
+OMX_ERRORTYPE
+graphmgr::mgr::stop_mpris ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  if (mpris_ptr_)
+  {
+    tiz_check_omx_err (mpris_ptr_->stop ());
+    mpris_ptr_->deinit ();
+  }
+  return rc;
 }
 
 OMX_ERRORTYPE

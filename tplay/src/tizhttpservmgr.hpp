@@ -38,6 +38,7 @@ namespace tiz
   namespace graphmgr
   {
     class httpservmgrops;
+    class graphmgr_capabilities;
 
     /**
      *  @class httpservmgr
@@ -54,7 +55,8 @@ namespace tiz
 
     private:
       ops *do_init (const tizplaylist_ptr_t &playlist,
-                    const error_callback_t &error_cback);
+                    const error_callback_t &error_cback,
+                    graphmgr_capabilities &graphmgr_caps);
 
     private:
       tizgraphconfig_ptr_t config_;

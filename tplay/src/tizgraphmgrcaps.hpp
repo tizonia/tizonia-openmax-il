@@ -19,52 +19,49 @@
  */
 
 /**
- * @file   tizdecgraphmgr.hpp
+ * @file   tizgraphmgrcaps.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A manager for decoding graphs
+ * @brief  Graph Manager capabilities
  *
  *
  */
 
-#ifndef TIZDECGRAPHMGR_HPP
-#define TIZDECGRAPHMGR_HPP
+#ifndef TIZGRAPHMGRCAPS_HPP
+#define TIZGRAPHMGRCAPS_HPP
 
-#include "tizgraphtypes.hpp"
-#include "tizgraphmgr.hpp"
+#include <string>
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 namespace tiz
 {
   namespace graphmgr
   {
-    class graphmgr_capabilities;
-
-    /**
-     *  @class decodemgr
-     *  @brief A manager for decoding graphs.
-     *
-     */
-    class decodemgr : public mgr
+    class graphmgr_capabilities
     {
     public:
-      decodemgr ();
-      virtual ~decodemgr ();
-
-    protected:
-      ops *do_init (const tizplaylist_ptr_t &playlist,
-                    const error_callback_t &error_cback,
-                    graphmgr_capabilities &graphmgr_caps);
+      bool can_quit_;
+      bool can_raise_;
+      bool has_track_list_;
+      std::string identity_;
+      std::vector< std::string > uri_schemes_;
+      std::vector< std::string > mime_types_;
+      double minimum_rate_;
+      double maximum_rate_;
+      bool can_go_next_;
+      bool can_go_previous_;
+      bool can_play_;
+      bool can_pause_;
+      bool can_seek_;
+      bool can_control_;
     };
 
-    typedef boost::shared_ptr< decodemgr > decodemgr_ptr_t;
+    typedef class graphmgr_capabilities graphmgr_capabilities_t;
+    typedef boost::shared_ptr< graphmgr_capabilities > graphmgr_capabilities_ptr_t;
 
-    class decodemgrops : public ops
-    {
-    public:
-      decodemgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
-                    const error_callback_t &error_cback);
-    };
   }  // namespace graphmgr
 }  // namespace tiz
 
-#endif  // TIZDECGRAPHMGR_HPP
+#endif  // TIZGRAPHMGRCAPS_HPP

@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 # Correctly clean any generated headers...
-BUILT_SOURCES = mpris_dbus.hh
+BUILT_SOURCES = mpris_dbus.hpp
 CLEANFILES = $(BUILT_SOURCES)
 
 # but keep the xml description
@@ -26,9 +26,9 @@ DISTCLEANFILES = \
 	Makefile.in
 
 noinst_HEADERS = \
-	mpris_dbus.hh
+	mpris_dbus.hpp
 
 xml_files = mpris_introspect.xml
 
-mpris_dbus.hh: $(xml_files)
+mpris_dbus.hpp: $(xml_files)
 	dbusxx-xml2cpp $^ --adaptor=$@

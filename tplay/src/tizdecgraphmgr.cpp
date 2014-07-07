@@ -29,8 +29,11 @@
 #include <config.h>
 #endif
 
+#include <boost/assign/list_of.hpp> // for 'list_of()'
+
 #include <tizplatform.h>
 
+#include "tizgraphmgrcaps.hpp"
 #include "tizdecgraphmgr.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -53,8 +56,27 @@ graphmgr::decodemgr::~decodemgr ()
 }
 
 graphmgr::ops *graphmgr::decodemgr::do_init (
-    const tizplaylist_ptr_t &playlist, const error_callback_t &error_cback)
+    const tizplaylist_ptr_t &playlist, const error_callback_t &error_cback,
+    graphmgr_capabilities_t &graphmgr_caps)
 {
+  // Fill this graph manager capabilities
+  graphmgr_caps.can_quit_ = false;
+  graphmgr_caps.can_raise_ = false;
+  graphmgr_caps.has_track_list_ = true;
+  graphmgr_caps.identity_.assign ("Tizonia OpenMAX IL player version ");
+  graphmgr_caps.identity_.append (PACKAGE_VERSION);
+  graphmgr_caps.uri_schemes_ = boost::assign::list_of("file");
+  graphmgr_caps.mime_types_ = boost::assign::list_of
+    ("audio/mpg")("audio/mp3")("audio/aac")("audio/aacp")("audio/vorbis")("audio/opus")("audio/flac");
+  graphmgr_caps.minimum_rate_ = 1.0;
+  graphmgr_caps.maximum_rate_ = 1.0;
+  graphmgr_caps.can_go_next_ = true;
+  graphmgr_caps.can_go_previous_ = true;
+  graphmgr_caps.can_play_ = true;
+  graphmgr_caps.can_pause_ = true;
+  graphmgr_caps.can_seek_ = false;
+  graphmgr_caps.can_control_ = false;
+
   return new decodemgrops (this, playlist, error_cback);
 }
 

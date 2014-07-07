@@ -35,6 +35,7 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include <tizplatform.h>
 
@@ -42,15 +43,15 @@ namespace tiz
 {
   namespace control
   {
-    typedef struct mpris_mediaplayer2_props mpris_mediaplayer2_props_t;
+    typedef class mpris_mediaplayer2_props mpris_mediaplayer2_props_t;
     class mpris_mediaplayer2_props
     {
     public:
-      mpris_mediaplayer2_props ();
-      ~mpris_mediaplayer2_props ();
-
-    private:
-      tiz_mutex_t mutex_;
+      mpris_mediaplayer2_props (bool can_quit, bool can_raise,
+                                bool has_track_list, std::string identity,
+                                std::vector< std::string > uri_schemes,
+                                std::vector< std::string > mime_types);
+    public:
       bool can_quit_;
       bool can_raise_;
       bool has_track_list_;
@@ -59,22 +60,29 @@ namespace tiz
       std::vector< std::string > mime_types_;
     };
 
-    typedef boost::shared_ptr< mpris_mediaplayer2_props_t > mpris_mediaplayer2_props_ptr_t;
+    typedef boost::shared_ptr< mpris_mediaplayer2_props_t >
+        mpris_mediaplayer2_props_ptr_t;
+    typedef boost::scoped_ptr< mpris_mediaplayer2_props_t >
+        mpris_mediaplayer2_props_scoped_ptr_t;
 
-    typedef struct mpris_mediaplayer2_player_props mpris_mediaplayer2_player_props_t;
+    typedef class mpris_mediaplayer2_player_props
+        mpris_mediaplayer2_player_props_t;
     class mpris_mediaplayer2_player_props
     {
     public:
-      mpris_mediaplayer2_player_props ();
-      ~mpris_mediaplayer2_player_props ();
+      mpris_mediaplayer2_player_props (
+          std::string playback_status, std::string loop_status, double rate,
+          bool shuffle, std::map< std::string, std::string > metadata,
+          double volume, int64_t position, double minimum_rate,
+          double maximum_rate, bool can_go_next, bool can_go_previous,
+          bool can_play, bool can_pause, bool can_seek, bool can_control);
 
-    private:
-      tiz_mutex_t mutex_;
+    public:
       std::string playback_status_;
       std::string loop_status_;
-      double std::string rate_;
+      double rate_;
       bool shuffle_;
-      std::map<std::string, std::string> metadata_;
+      std::map< std::string, std::string > metadata_;
       double volume_;
       int64_t position_;
       double minimum_rate_;
@@ -87,7 +95,10 @@ namespace tiz
       bool can_control_;
     };
 
-    typedef boost::shared_ptr< mpris_mediaplayer2_player_props_t > mpris_mediaplayer2_player_props_ptr_t;
+    typedef boost::shared_ptr< mpris_mediaplayer2_player_props_t >
+        mpris_mediaplayer2_player_props_ptr_t;
+    typedef boost::scoped_ptr< mpris_mediaplayer2_player_props_t >
+        mpris_mediaplayer2_player_props_scoped_ptr_t;
 
   }  // namespace control
 }  // namespace tiz

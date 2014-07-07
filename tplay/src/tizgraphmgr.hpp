@@ -37,6 +37,7 @@
 #include <OMX_Core.h>
 
 #include "tizgraphtypes.hpp"
+#include "mpris/tizmprismgr.hpp"
 #include "tizgraphmgrfsm.hpp"
 
 namespace tiz
@@ -47,6 +48,7 @@ namespace tiz
     // Forward declarations
     void *thread_func (void *p_arg);
     class cmd;
+    class graphmgr_capabilities;
 
     /**
      *  @class mgr
@@ -190,7 +192,8 @@ namespace tiz
 
     protected:
       virtual ops *do_init (const tizplaylist_ptr_t &playlist,
-                            const error_callback_t &error_cback) = 0;
+                            const error_callback_t &error_cback,
+                            graphmgr_capabilities &graphmgr_caps) = 0;
 
     protected:
       OMX_ERRORTYPE graph_loaded ();
@@ -199,10 +202,13 @@ namespace tiz
       OMX_ERRORTYPE graph_end_of_play ();
       OMX_ERRORTYPE graph_error (const OMX_ERRORTYPE error,
                                  const std::string &msg);
+      OMX_ERRORTYPE start_mpris (const graphmgr_capabilities &graphmgr_caps);
+      OMX_ERRORTYPE stop_mpris ();
 
     protected:
       ops *p_ops_;
       fsm fsm_;
+      control::mprismgr_ptr_t mpris_ptr_;
 
     private:
       OMX_ERRORTYPE init_cmd_queue ();

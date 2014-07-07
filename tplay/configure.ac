@@ -18,7 +18,7 @@
 AC_PREREQ([2.68])
 AC_INIT([tplay], [0.1.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
+AM_INIT_AUTOMAKE([foreign color-tests silent-rules subdir-objects -Wextra -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 
@@ -45,14 +45,13 @@ AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_THREAD
 
-PKG_CHECK_MODULES([TAGLIB], [taglib >= 1.7.0])
-PKG_CHECK_MODULES([LIBMEDIAINFO], [libmediainfo >= 0.7.67])
 DBUS_REQUIRED_VERSION=0.60
 PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
 	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
 	[http://www.freedesktop.org/wiki/Software_2fdbus]))
 PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
-
+PKG_CHECK_MODULES([TAGLIB], [taglib >= 1.7.0])
+PKG_CHECK_MODULES([LIBMEDIAINFO], [libmediainfo >= 0.7.65])
 #PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
 #PKG_CHECK_MODULES([TIZ], [libtizplatform])
 

@@ -434,13 +434,13 @@ int32_t tizrmd::relinquish_all (const std::string &cname,
 
 DBus::BusDispatcher dispatcher;
 
-void tizrmd_sig_hdlr (int sig)
+static void tizrmd_sig_hdlr (int sig)
 {
   dispatcher.leave ();
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia IL RM daemon exiting...");
 }
 
-bool find_rmdb_path (std::string &a_dbpath)
+static bool find_rmdb_path (std::string &a_dbpath)
 {
   bool rv = false;
   const char *p_rm_enabled = NULL;

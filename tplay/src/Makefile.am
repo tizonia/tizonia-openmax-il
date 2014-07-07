@@ -55,7 +55,11 @@ noinst_HEADERS = \
 	tizhttpclntmgr.hpp \
 	tizhttpclntgraph.hpp \
 	tizhttpclntgraphfsm.hpp \
-	tizhttpclntgraphops.hpp
+	tizhttpclntgraphops.hpp \
+	mpris/tizmpriscbacks.hpp \
+	mpris/tizmprisprops.hpp \
+	mpris/tizmprisif.hpp \
+	mpris/tizmprismgr.hpp
 
 
 tplay_SOURCES = \
@@ -85,14 +89,19 @@ tplay_SOURCES = \
 	tizhttpservgraphops.cpp \
 	tizhttpclntmgr.cpp \
 	tizhttpclntgraph.cpp \
-	tizhttpclntgraphops.cpp
+	tizhttpclntgraphops.cpp \
+	mpris/tizmprismgr.cpp \
+	mpris/tizmprisprops.cpp \
+	mpris/tizmprisif.cpp
 
 tplay_CPPFLAGS = \
 	@BOOST_CPPFLAGS@ \
 	-I$(top_srcdir)/../include/omxil-1.2 \
 	-I$(top_srcdir)/../libtizplatform/src \
+	-I$(top_srcdir)/dbus \
 	-I/usr/include/taglib \
 	@LIBMEDIAINFO_CFLAGS@ \
+	@DBUS_CFLAGS@ \
 	-D__STDC_CONSTANT_MACROS
 
 tplay_LDADD = \
@@ -104,5 +113,6 @@ tplay_LDADD = \
 	-lavutil \
 	-ltag \
 	@LIBMEDIAINFO_LIBS@ \
+	@DBUS_LIBS@ \
 	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../libtizcore/src/libtizcore.la

@@ -21,7 +21,7 @@
  * @file   tizmprismgr.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  MPRIS interface manager implementation
+ * @brief  MPRIS interface manager - implementation
  *
  */
 
@@ -30,17 +30,18 @@
 #endif
 
 #include <assert.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#include <algorithm>
-#include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <OMX_Component.h>
 
 #include <tizplatform.h>
 #include <tizmacros.h>
 
-#include "tizmprismgrcmd.hpp"
+#include "tizmprisif.hpp"
 #include "tizmprismgr.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -50,9 +51,36 @@
 
 namespace control = tiz::control;
 
+namespace
+{
+  // Bus name
+  const char *TPLAY_MPRIS_BUS_NAME = "org.mpris.MediaPlayer2.tplay";
+
+  std::string get_unique_bus_name ()
+  {
+    std::string bus_name (TPLAY_MPRIS_BUS_NAME);
+    // Append the process id to make a unique bus name
+//     bus_name.append (".");
+//     bus_name.append (boost::lexical_cast< std::string >(getpid ()));
+    return bus_name;
+  }
+
+  void player_props_pipe_handler (const void *p_arg, void *p_buffer,
+                                  unsigned int nbyte)
+  {
+    tiz::control::mprisif * p_mif = static_cast< tiz::control::mprisif * >(const_cast<void *>(p_arg));
+    tiz::control::mpris_mediaplayer2_player_props_t *p_props
+      = static_cast< tiz::control::mpris_mediaplayer2_player_props_t * >(p_buffer);
+    assert (NULL != p_mif);
+    assert (NULL != p_props);
+    p_mif->UpdatePlayerProps (*p_props);
+  }
+
+}
+
 void *control::thread_func (void *p_arg)
 {
-  mgr *p_mgr = static_cast< mgr * >(p_arg);
+  mprismgr *p_mgr = static_cast< mprismgr * >(p_arg);
   void *p_data = NULL;
   bool done = false;
 
@@ -68,7 +96,7 @@ void *control::thread_func (void *p_arg)
     assert (NULL != p_data);
 
     cmd *p_cmd = static_cast< cmd * >(p_data);
-    done = mgr::dispatch_cmd (p_mgr, p_cmd);
+    done = mprismgr::dispatch_cmd (p_mgr, p_cmd);
 
     delete p_cmd;
   }
@@ -82,7 +110,14 @@ void *control::thread_func (void *p_arg)
 //
 // mprismgr
 //
-control::mprismgr::mprismgr ()
+control::mprismgr::mprismgr (const mpris_mediaplayer2_props_t &props,
+                             const mpris_mediaplayer2_player_props_t &player_props,
+                             const mpris_callbacks_t &cbacks)
+  : props_ (props),
+    player_props_ (player_props),
+    cbacks_ (cbacks),
+    dispatcher_ (),
+    p_player_props_pipe_ (NULL),
     thread_ (),
     mutex_ (),
     sem_ (),
@@ -96,8 +131,7 @@ control::mprismgr::~mprismgr ()
 }
 
 OMX_ERRORTYPE
-control::mprismgr::init (const tizplaylist_ptr_t &playlist,
-                     const error_callback_t &error_cback)
+control::mprismgr::init ()
 {
   // Init command queue infrastructure
   tiz_check_omx_err_ret_oom (init_cmd_queue ());
@@ -114,6 +148,32 @@ control::mprismgr::init (const tizplaylist_ptr_t &playlist,
   return OMX_ErrorNone;
 }
 
+OMX_ERRORTYPE
+control::mprismgr::start ()
+{
+  return post_cmd (new control::cmd (control::cmd::ETIZMprisMgrCmdStart));
+}
+
+void
+control::mprismgr::update_player_properties (
+    const mpris_mediaplayer2_player_props_t &player_props)
+{
+  if (NULL != p_player_props_pipe_)
+    {
+      // TODO: Serialise the properties structure
+      p_player_props_pipe_->write('\0', 1);
+    }
+}
+
+OMX_ERRORTYPE
+control::mprismgr::stop ()
+{
+  // Before sending the command to stop the thread, we have to make the DBUS
+  // dispatcher leave its event loop.
+  dispatcher_.leave ();
+  return post_cmd (new control::cmd (control::cmd::ETIZMprisMgrCmdStop));
+}
+
 void control::mprismgr::deinit ()
 {
   TIZ_LOG (TIZ_PRIORITY_NOTICE, "Waiting until stopped...");
@@ -121,18 +181,6 @@ void control::mprismgr::deinit ()
   void *p_result = NULL;
   static_cast< void >(tiz_thread_join (&thread_, &p_result));
   deinit_cmd_queue ();
-}
-
-OMX_ERRORTYPE
-control::mprismgr::start ()
-{
-  return post_cmd (new graphmgr::cmd (graphmgr::pause_evt ()));
-}
-
-OMX_ERRORTYPE
-control::mprismgr::stop ()
-{
-  return post_cmd (new graphmgr::cmd (graphmgr::start_evt ()));
 }
 
 OMX_ERRORTYPE
@@ -164,10 +212,28 @@ control::mprismgr::post_cmd (control::cmd *p_cmd)
   return OMX_ErrorNone;
 }
 
-bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mprismgr,
-                                  const control::cmd *p_cmd)
+bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mgr,
+                                      const control::cmd *p_cmd)
 {
-  assert (NULL != p_mprismgr);
+  bool terminated = false;
+  assert (NULL != p_mgr);
   assert (NULL != p_cmd);
-  return true;
+
+  DBus::BusDispatcher &dispatcher = p_mgr->dispatcher_;
+  if (p_cmd->is_start ())
+  {
+    DBus::default_dispatcher = &(dispatcher);
+    DBus::Connection conn = DBus::Connection::SessionBus ();
+    conn.request_name (get_unique_bus_name ().c_str ());
+    mprisif mif (conn, p_mgr->props_, p_mgr->player_props_, p_mgr->cbacks_);
+    p_mgr->p_player_props_pipe_ = dispatcher.add_pipe (player_props_pipe_handler, &mif);
+    dispatcher.enter ();
+  }
+  else if (p_cmd->is_stop ())
+  {
+    dispatcher.del_pipe (p_mgr->p_player_props_pipe_);
+    p_mgr->p_player_props_pipe_ = 0;
+    terminated = true;
+  }
+  return terminated;
 }
