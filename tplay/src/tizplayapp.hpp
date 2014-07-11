@@ -19,36 +19,52 @@
  */
 
 /**
- * @file   tizomxutil.hpp
+ * @file   tizplayapp.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL Core wrapper functions
+ * @brief  tplay app wrapper
  *
  *
  */
 
-#ifndef TIZOMXUTIL_HPP
-#define TIZOMXUTIL_HPP
+#ifndef TIZPLAYAPP_HPP
+#define TIZPLAYAPP_HPP
 
+#include <string.h>
 #include <vector>
-#include <string>
 
 #include <OMX_Core.h>
 
+#include "tizprogramopts.hpp"
+
 namespace tiz
 {
-  class omxutil
+  class playapp
   {
-
   public:
-    static void init ();
-    static void deinit ();
-    static OMX_ERRORTYPE list_comps (std::vector< std::string >& components);
-    static OMX_ERRORTYPE roles_of_comp (const std::string &comp,
-                                        std::vector< std::string >& roles);
-    static OMX_ERRORTYPE comps_of_role (const std::string &role,
-                                        std::vector< std::string >& components);
-  };
-}  // namespace tiz
+    playapp (int argc, char* argv[]);
+    ~playapp ();
 
-#endif  // TIZOMXUTIL_HPP
+    int run ();
+
+  private:
+    void set_option_handlers ();
+
+    OMX_ERRORTYPE check_daemon_mode () const;
+
+    OMX_ERRORTYPE unique_log_file () const;
+    OMX_ERRORTYPE print_debug_info () const;
+    OMX_ERRORTYPE list_of_comps () const;
+    OMX_ERRORTYPE roles_of_comp () const;
+    OMX_ERRORTYPE comp_of_role () const;
+    OMX_ERRORTYPE decode_local ();
+    OMX_ERRORTYPE serve_stream ();
+    OMX_ERRORTYPE decode_stream ();
+
+    void print_banner () const;
+
+  private:
+    programopts popts_;
+  };
+}
+#endif  // TIZPLAYAPP_HPP

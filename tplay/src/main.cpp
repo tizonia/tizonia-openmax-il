@@ -1,4 +1,3 @@
-/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
@@ -19,36 +18,23 @@
  */
 
 /**
- * @file   tizomxutil.hpp
+ * @file   tizplay.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL Core wrapper functions
- *
+ * @brief Tizonia OpenMAX IL - tplay: an audio player and streaming server
+ * program
  *
  */
 
-#ifndef TIZOMXUTIL_HPP
-#define TIZOMXUTIL_HPP
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-#include <vector>
-#include <string>
+#include "tizplayapp.hpp"
 
-#include <OMX_Core.h>
-
-namespace tiz
+int main (int argc, char **argv)
 {
-  class omxutil
-  {
-
-  public:
-    static void init ();
-    static void deinit ();
-    static OMX_ERRORTYPE list_comps (std::vector< std::string >& components);
-    static OMX_ERRORTYPE roles_of_comp (const std::string &comp,
-                                        std::vector< std::string >& roles);
-    static OMX_ERRORTYPE comps_of_role (const std::string &role,
-                                        std::vector< std::string >& components);
-  };
-}  // namespace tiz
-
-#endif  // TIZOMXUTIL_HPP
+  OMX_ERRORTYPE error = OMX_ErrorMax;
+  tiz::playapp app (argc, argv);
+  return app.run ();
+}

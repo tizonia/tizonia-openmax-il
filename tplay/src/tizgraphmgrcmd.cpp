@@ -78,9 +78,22 @@ void graphmgr::cmd::inject (fsm& machine) const
   }
 
   INJECT_EVENT (start_evt)
-  else INJECT_EVENT (next_evt) else INJECT_EVENT (prev_evt) else INJECT_EVENT (fwd_evt) else INJECT_EVENT (rwd_evt) else INJECT_EVENT (vol_up_evt) else INJECT_EVENT (vol_down_evt) else INJECT_EVENT (mute_evt) else INJECT_EVENT (
-      pause_evt) else INJECT_EVENT (stop_evt) else INJECT_EVENT (graph_eop_evt) else INJECT_EVENT (err_evt) else INJECT_EVENT (graph_loaded_evt) else INJECT_EVENT (graph_execd_evt) else INJECT_EVENT (graph_unlded_evt) else
-  {
-    assert (0);
-  }
+  else INJECT_EVENT (next_evt)
+    else INJECT_EVENT (prev_evt)
+      else INJECT_EVENT (fwd_evt)
+        else INJECT_EVENT (rwd_evt)
+          else INJECT_EVENT (vol_up_evt)
+            else INJECT_EVENT (vol_down_evt)
+              else INJECT_EVENT (mute_evt)
+                else INJECT_EVENT (pause_evt)
+                  else INJECT_EVENT (stop_evt)
+                    else INJECT_EVENT (graph_eop_evt)
+                      else INJECT_EVENT (err_evt)
+                        else INJECT_EVENT (graph_loaded_evt)
+                          else INJECT_EVENT (graph_execd_evt)
+                            else INJECT_EVENT (graph_unlded_evt)
+                              else
+                                {
+                                  assert (0);
+                                }
 }

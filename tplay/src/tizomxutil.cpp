@@ -80,7 +80,7 @@ tiz::omxutil::list_comps (std::vector< std::string > &components)
 }
 
 OMX_ERRORTYPE
-tiz::omxutil::roles_of_comp (const OMX_STRING arg,
+tiz::omxutil::roles_of_comp (const std::string &comp,
                              std::vector< std::string > &roles)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
@@ -89,7 +89,8 @@ tiz::omxutil::roles_of_comp (const OMX_STRING arg,
 
   do
   {
-    error = OMX_RoleOfComponentEnum ((OMX_STRING)role, arg, index++);
+    error = OMX_RoleOfComponentEnum (
+        (OMX_STRING)role, const_cast< OMX_STRING >(comp.c_str ()), index++);
     if (OMX_ErrorNone == error)
     {
       roles.push_back (std::string (role));
@@ -100,7 +101,7 @@ tiz::omxutil::roles_of_comp (const OMX_STRING arg,
 }
 
 OMX_ERRORTYPE
-tiz::omxutil::comps_of_role (const OMX_STRING arg,
+tiz::omxutil::comps_of_role (const std::string &role,
                              std::vector< std::string > &components)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
@@ -109,7 +110,9 @@ tiz::omxutil::comps_of_role (const OMX_STRING arg,
 
   do
   {
-    error = OMX_ComponentOfRoleEnum ((OMX_STRING)comp_name, arg, index++);
+    error = OMX_ComponentOfRoleEnum ((OMX_STRING)comp_name,
+                                     const_cast< OMX_STRING >(role.c_str ()),
+                                     index++);
     if (OMX_ErrorNone == error)
     {
       components.push_back (std::string (comp_name));

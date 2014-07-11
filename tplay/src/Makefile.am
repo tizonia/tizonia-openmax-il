@@ -19,6 +19,8 @@ bin_PROGRAMS = tplay
 
 noinst_HEADERS = \
 	tizomxutil.hpp \
+	tizplayapp.hpp \
+	tizprogramopts.hpp \
 	tizgraphutil.hpp \
 	tizgraphutil.inl \
 	tizgraphcback.hpp \
@@ -63,7 +65,9 @@ noinst_HEADERS = \
 
 
 tplay_SOURCES = \
-	tizplay.cpp \
+	main.cpp \
+	tizplayapp.cpp \
+	tizprogramopts.cpp \
 	tizomxutil.cpp \
 	tizgraphutil.cpp \
 	tizgraphcback.cpp \
@@ -105,6 +109,7 @@ tplay_CPPFLAGS = \
 	-D__STDC_CONSTANT_MACROS
 
 tplay_LDADD = \
+	@BOOST_PROGRAM_OPTIONS_LIB@ \
 	@BOOST_SYSTEM_LIB@ \
 	@BOOST_FILESYSTEM_LIB@ \
 	@BOOST_THREAD_LIB@ \

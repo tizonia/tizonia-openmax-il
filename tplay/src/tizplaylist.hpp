@@ -46,7 +46,7 @@ namespace tiz
       };
 
   public:
-    playlist (const uri_lst_t &uri_list = uri_lst_t ());
+    explicit playlist (const uri_lst_t &uri_list = uri_lst_t ());
     playlist (const playlist &playlist);
 
     static bool assemble_play_list (const std::string &base_uri,
