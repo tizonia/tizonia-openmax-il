@@ -161,7 +161,8 @@ namespace tiz
       const mpris_mediaplayer2_player_props_t player_props_;
       const mpris_callbacks_t cbacks_;
       DBus::BusDispatcher dispatcher_;
-      DBus::Pipe *p_player_props_pipe_;
+      DBus::Pipe *p_player_props_pipe_; // Not owned
+      DBus::Connection *p_connection_;
 
     private:
       OMX_ERRORTYPE init_cmd_queue ();
