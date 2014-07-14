@@ -156,7 +156,7 @@ tiz::programopts::programopts (int argc, char *argv[])
 
 int tiz::programopts::consume ()
 {
-#define TIZ_PROGRAM_OPTS_RETURN_IF_TRUE(expr) \
+#define PROGRAMOPTS_RETURN_IF_TRUE(expr) \
   do                                          \
   {                                           \
     if ((expr))                               \
@@ -173,22 +173,22 @@ int tiz::programopts::consume ()
     parse_command_line (argc_, argv_);
 
     rc = consume_debug_options (done);
-    TIZ_PROGRAM_OPTS_RETURN_IF_TRUE (done);
+    PROGRAMOPTS_RETURN_IF_TRUE (done);
 
     rc = consume_general_options (done);
-    TIZ_PROGRAM_OPTS_RETURN_IF_TRUE (done);
+    PROGRAMOPTS_RETURN_IF_TRUE (done);
 
     rc = consume_omx_options (done);
-    TIZ_PROGRAM_OPTS_RETURN_IF_TRUE (done);
+    PROGRAMOPTS_RETURN_IF_TRUE (done);
 
     rc = consume_streaming_server_options (done);
-    TIZ_PROGRAM_OPTS_RETURN_IF_TRUE (done);
+    PROGRAMOPTS_RETURN_IF_TRUE (done);
 
     rc = consume_streaming_client_options (done);
-    TIZ_PROGRAM_OPTS_RETURN_IF_TRUE (done);
+    PROGRAMOPTS_RETURN_IF_TRUE (done);
 
     rc = consume_local_decode_options (done);
-    TIZ_PROGRAM_OPTS_RETURN_IF_TRUE (done);
+    PROGRAMOPTS_RETURN_IF_TRUE (done);
 
     print_usage ();
   }
