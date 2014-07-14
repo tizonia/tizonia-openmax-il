@@ -162,6 +162,7 @@ release_header (ar_prc_t * ap_prc)
 
   if (ap_prc->p_inhdr_)
     {
+      ap_prc->p_inhdr_->nOffset = 0;
       TIZ_PRINTF_DBG_YEL ("Releasing buffer [%p] with size [%u].",
                           ap_prc->p_inhdr_, (unsigned int)ap_prc->p_inhdr_->nFilledLen);
       tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
@@ -527,7 +528,6 @@ buffer_emptied (ar_prc_t * ap_prc)
 
   TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] emptied", ap_prc->p_inhdr_);
 
-  ap_prc->p_inhdr_->nOffset = 0;
 
   if ((ap_prc->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
     {
@@ -538,8 +538,7 @@ buffer_emptied (ar_prc_t * ap_prc)
                            ap_prc->p_inhdr_->nFlags, NULL);
     }
 
-  tiz_check_omx_err (release_header (ap_prc));
-  return OMX_ErrorNone;
+  return release_header (ap_prc);
 }
 
 static OMX_ERRORTYPE
