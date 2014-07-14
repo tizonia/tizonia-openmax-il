@@ -47,10 +47,35 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.mp3_decoder.prc"
 #endif
 
-static OMX_ERRORTYPE
-release_headers (const void *ap_obj, OMX_U32 a_pid)
+static void reset_stream_parameters (mp3d_prc_t *ap_prc)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
+  assert (NULL != ap_prc);
+  ap_prc->remaining_ = 0;
+  ap_prc->frame_count_ = 0;
+  ap_prc->next_synth_sample_ = 0;
+  ap_prc->eos_ = false;
+}
+
+static void init_mad_decoder (mp3d_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  mad_stream_init (&ap_prc->stream_);
+  mad_frame_init (&ap_prc->frame_);
+  mad_synth_init (&ap_prc->synth_);
+  mad_timer_reset (&ap_prc->timer_);
+}
+
+static void deinit_mad_decoder (mp3d_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  mad_synth_finish (&ap_prc->synth_);
+  mad_frame_finish (&ap_prc->frame_);
+  mad_stream_finish (&ap_prc->stream_);
+}
+
+static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
+{
+  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
 
   assert (NULL != ap_obj);
 
@@ -58,10 +83,10 @@ release_headers (const void *ap_obj, OMX_U32 a_pid)
     {
       if (NULL != p_obj->p_inhdr_)
         {
-          tiz_check_omx_err
-            (tiz_krn_release_buffer
-         (tiz_get_krn (handleOf (ap_obj)),
-          ARATELIA_MP3_DECODER_INPUT_PORT_INDEX, p_obj->p_inhdr_));
+          p_obj->p_inhdr_->nOffset = 0;
+          tiz_check_omx_err (tiz_krn_release_buffer (
+              tiz_get_krn (handleOf (ap_obj)),
+              ARATELIA_MP3_DECODER_INPUT_PORT_INDEX, p_obj->p_inhdr_));
           p_obj->p_inhdr_ = NULL;
           p_obj->remaining_ = 0;
         }
@@ -74,9 +99,8 @@ release_headers (const void *ap_obj, OMX_U32 a_pid)
           TIZ_TRACE (handleOf (p_obj),
                      "Releasing output HEADER [%p] nFilledLen [%d]",
                      p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen);
-          tiz_check_omx_err
-            (tiz_krn_release_buffer
-             (tiz_get_krn (handleOf (ap_obj)),
+          tiz_check_omx_err (tiz_krn_release_buffer (
+              tiz_get_krn (handleOf (ap_obj)),
               ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX, p_obj->p_outhdr_));
           p_obj->p_outhdr_ = NULL;
         }
@@ -84,46 +108,49 @@ release_headers (const void *ap_obj, OMX_U32 a_pid)
   return OMX_ErrorNone;
 }
 
-static void
-print_frame_info (struct mad_header *Header)
+static void print_frame_info (const mp3d_prc_t *ap_prc,
+                              struct mad_header *Header)
 {
   const char *Layer, *Mode, *Emphasis;
+
+  assert (NULL != ap_prc);
+  assert (NULL != Header);
 
   /* Convert the layer number to it's printed representation. */
   switch (Header->layer)
     {
-    case MAD_LAYER_I:
-      Layer = "I";
-      break;
-    case MAD_LAYER_II:
-      Layer = "II";
-      break;
-    case MAD_LAYER_III:
-      Layer = "III";
-      break;
-    default:
-      Layer = "(unexpected layer value)";
-      break;
+      case MAD_LAYER_I:
+        Layer = "I";
+        break;
+      case MAD_LAYER_II:
+        Layer = "II";
+        break;
+      case MAD_LAYER_III:
+        Layer = "III";
+        break;
+      default:
+        Layer = "(unexpected layer value)";
+        break;
     }
 
   /* Convert the audio mode to it's printed representation. */
   switch (Header->mode)
     {
-    case MAD_MODE_SINGLE_CHANNEL:
-      Mode = "single channel";
-      break;
-    case MAD_MODE_DUAL_CHANNEL:
-      Mode = "dual channel";
-      break;
-    case MAD_MODE_JOINT_STEREO:
-      Mode = "joint (MS/intensity) stereo";
-      break;
-    case MAD_MODE_STEREO:
-      Mode = "normal LR stereo";
-      break;
-    default:
-      Mode = "(unexpected mode value)";
-      break;
+      case MAD_MODE_SINGLE_CHANNEL:
+        Mode = "single channel";
+        break;
+      case MAD_MODE_DUAL_CHANNEL:
+        Mode = "dual channel";
+        break;
+      case MAD_MODE_JOINT_STEREO:
+        Mode = "joint (MS/intensity) stereo";
+        break;
+      case MAD_MODE_STEREO:
+        Mode = "normal LR stereo";
+        break;
+      default:
+        Mode = "(unexpected mode value)";
+        break;
     }
 
   /* Convert the emphasis to it's printed representation. Note that
@@ -132,35 +159,35 @@ print_frame_info (struct mad_header *Header)
    */
   switch (Header->emphasis)
     {
-    case MAD_EMPHASIS_NONE:
-      Emphasis = "no";
-      break;
-    case MAD_EMPHASIS_50_15_US:
-      Emphasis = "50/15 us";
-      break;
-    case MAD_EMPHASIS_CCITT_J_17:
-      Emphasis = "CCITT J.17";
-      break;
-#if (MAD_VERSION_MAJOR>=1) ||                           \
-  ((MAD_VERSION_MAJOR==0) && (MAD_VERSION_MINOR>=15))
-    case MAD_EMPHASIS_RESERVED:
-      Emphasis = "reserved(!)";
-      break;
+      case MAD_EMPHASIS_NONE:
+        Emphasis = "no";
+        break;
+      case MAD_EMPHASIS_50_15_US:
+        Emphasis = "50/15 us";
+        break;
+      case MAD_EMPHASIS_CCITT_J_17:
+        Emphasis = "CCITT J.17";
+        break;
+#if (MAD_VERSION_MAJOR >= 1) \
+    || ((MAD_VERSION_MAJOR == 0) && (MAD_VERSION_MINOR >= 15))
+      case MAD_EMPHASIS_RESERVED:
+        Emphasis = "reserved(!)";
+        break;
 #endif
-    default:
-      Emphasis = "(unexpected emphasis value)";
-      break;
+      default:
+        Emphasis = "(unexpected emphasis value)";
+        break;
     }
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "%lu kb/s audio MPEG layer %s stream %s CRC, "
-           "%s with %s emphasis at %d Hz sample rate\n",
-           Header->bitrate, Layer,
-           Header->flags & MAD_FLAG_PROTECTION ? "with" : "without",
-           Mode, Emphasis, Header->samplerate);
+  TIZ_TRACE (handleOf (ap_prc),
+             "%lu kb/s audio MPEG layer %s stream %s CRC, "
+             "%s with %s emphasis at %d Hz sample rate\n",
+             Header->bitrate, Layer,
+             Header->flags & MAD_FLAG_PROTECTION ? "with" : "without", Mode,
+             Emphasis, Header->samplerate);
 }
 
-static signed short
-mad_fixed_to_sshort (mad_fixed_t fixed)
+static signed short mad_fixed_to_sshort (mad_fixed_t fixed)
 {
   /* A fixed point number is formed of the following bit pattern:
    *
@@ -196,12 +223,11 @@ mad_fixed_to_sshort (mad_fixed_t fixed)
   /* Conversion. */
   fixed = fixed >> (MAD_F_FRACBITS - 15);
 
-  return (signed short) fixed;
+  return (signed short)fixed;
 }
 
-static size_t
-read_from_omx_buffer (const mp3d_prc_t *ap_prc, void *ap_dst,
-                      size_t bytes, OMX_BUFFERHEADERTYPE * ap_hdr)
+static size_t read_from_omx_buffer (const mp3d_prc_t *ap_prc, void *ap_dst,
+                                    size_t bytes, OMX_BUFFERHEADERTYPE *ap_hdr)
 {
   size_t to_read = bytes;
 
@@ -219,8 +245,10 @@ read_from_omx_buffer (const mp3d_prc_t *ap_prc, void *ap_dst,
         {
           memcpy (ap_dst, ap_hdr->pBuffer + ap_hdr->nOffset, to_read);
           TIZ_TRACE (handleOf (ap_prc),
-                     "bytes [%d] to_read [%d] nOffset [%d] nFilledLen [%d] nAllocLen [%d]", bytes, to_read,
-                     ap_hdr->nOffset, ap_hdr->nFilledLen, ap_hdr->nAllocLen);
+                     "bytes [%d] to_read [%d] nOffset [%d] nFilledLen [%d] "
+                     "nAllocLen [%d]",
+                     bytes, to_read, ap_hdr->nOffset, ap_hdr->nFilledLen,
+                     ap_hdr->nAllocLen);
         }
 
       ap_hdr->nFilledLen -= to_read;
@@ -229,11 +257,12 @@ read_from_omx_buffer (const mp3d_prc_t *ap_prc, void *ap_dst,
   return to_read;
 }
 
-static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc, const OMX_U32 a_samplerate,
+static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc,
+                                      const OMX_U32 a_samplerate,
                                       const OMX_U32 a_channels)
 {
   assert (NULL != ap_prc);
-  if (a_samplerate  != ap_prc->pcmmode_.nSamplingRate
+  if (a_samplerate != ap_prc->pcmmode_.nSamplingRate
       || a_channels != ap_prc->pcmmode_.nChannels)
     {
       TIZ_DEBUG (handleOf (ap_prc),
@@ -243,10 +272,10 @@ static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc, const OMX_U32 a_sample
                  "Updating pcm mode : old channels [%d] new channels [%d]",
                  ap_prc->pcmmode_.nChannels, a_channels);
       ap_prc->pcmmode_.nSamplingRate = a_samplerate;
-      ap_prc->pcmmode_.nChannels     = a_channels;
-      tiz_check_omx_err (tiz_krn_SetParameter_internal
-                         (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                          OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
+      ap_prc->pcmmode_.nChannels = a_channels;
+      tiz_check_omx_err (tiz_krn_SetParameter_internal (
+          tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+          OMX_IndexParamAudioPcm, &(ap_prc->pcmmode_)));
       tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
                            ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX,
                            OMX_IndexParamAudioPcm, /* the index of the
@@ -257,14 +286,13 @@ static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc, const OMX_U32 a_sample
   return OMX_ErrorNone;
 }
 
-static int
-synthesize_samples (const void *ap_obj, int next_sample)
+static int synthesize_samples (const void *ap_obj, int next_sample)
 {
-  mp3d_prc_t *p_prc = (mp3d_prc_t *) ap_obj;
+  mp3d_prc_t *p_prc = (mp3d_prc_t *)ap_obj;
   const unsigned char *p_bufend = p_prc->p_outhdr_->pBuffer
-    + p_prc->p_outhdr_->nAllocLen;
-  unsigned char *p_output =
-    p_prc->p_outhdr_->pBuffer + p_prc->p_outhdr_->nFilledLen;
+                                  + p_prc->p_outhdr_->nAllocLen;
+  unsigned char *p_output = p_prc->p_outhdr_->pBuffer
+                            + p_prc->p_outhdr_->nFilledLen;
   bool buffer_full = (p_bufend == p_output);
   int i;
 
@@ -299,17 +327,12 @@ synthesize_samples (const void *ap_obj, int next_sample)
       /* release the output buffer if it is full. */
       if (p_output == p_bufend)
         {
-          p_output    = p_prc->p_outhdr_->pBuffer;
-          TIZ_TRACE (handleOf (p_prc),
-                    "Releasing output HEADER [%p] nFilledLen [%d]",
-                    p_prc->p_outhdr_, p_prc->p_outhdr_->nFilledLen);
+          p_output = p_prc->p_outhdr_->pBuffer;
           p_prc->p_outhdr_->nFilledLen = p_prc->p_outhdr_->nAllocLen;
           TIZ_PRINTF_DBG_GRN ("Releasing buffer [%p] with size [%u].",
-                              p_prc->p_outhdr_, (unsigned int)p_prc->p_outhdr_->nFilledLen);
-          tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
-                                  ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX,
-                                  p_prc->p_outhdr_);
-          p_prc->p_outhdr_ = NULL;
+                              p_prc->p_outhdr_,
+                              (unsigned int)p_prc->p_outhdr_->nFilledLen);
+          (void)release_headers (p_prc, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
           buffer_full = true;
         }
     }
@@ -323,13 +346,11 @@ synthesize_samples (const void *ap_obj, int next_sample)
   /* Otherwise return 0 */
 
   return 0;
-
 }
 
-static OMX_ERRORTYPE
-decode_buffer (const void *ap_obj)
+static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
   unsigned char *p_guardzone = NULL;
   int status = 0;
 
@@ -345,12 +366,12 @@ decode_buffer (const void *ap_obj)
 
   /* Check if there is any remaining PCM data from a previous run of the
    * decoding loop that needs to be synthesised */
-  if ((0 != p_obj->next_synth_sample_ &&
-       p_obj->next_synth_sample_ < p_obj->synth_.pcm.length)
+  if ((0 != p_obj->next_synth_sample_ && p_obj->next_synth_sample_
+                                         < p_obj->synth_.pcm.length)
       && (p_obj->p_outhdr_->nFilledLen < p_obj->p_outhdr_->nAllocLen))
     {
       p_obj->next_synth_sample_
-        = synthesize_samples (p_obj, p_obj->next_synth_sample_);
+          = synthesize_samples (p_obj, p_obj->next_synth_sample_);
     }
 
   while (NULL != p_obj->p_outhdr_)
@@ -361,8 +382,8 @@ decode_buffer (const void *ap_obj)
        */
 
       if ((NULL == p_obj->stream_.buffer
-           || MAD_ERROR_BUFLEN == p_obj->stream_.error)
-          && p_obj->p_inhdr_ != NULL)
+           || MAD_ERROR_BUFLEN == p_obj->stream_.error) && p_obj->p_inhdr_
+                                                           != NULL)
         {
           size_t read_size = 0;
           unsigned char *p_read_start = NULL;
@@ -371,7 +392,7 @@ decode_buffer (const void *ap_obj)
           if (p_obj->stream_.next_frame != NULL)
             {
               p_obj->remaining_ = p_obj->stream_.bufend
-                - p_obj->stream_.next_frame;
+                                  - p_obj->stream_.next_frame;
               memmove (p_obj->in_buff_, p_obj->stream_.next_frame,
                        p_obj->remaining_);
               p_read_start = p_obj->in_buff_ + p_obj->remaining_;
@@ -395,19 +416,16 @@ decode_buffer (const void *ap_obj)
             {
               if ((p_obj->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
                 {
-                  TIZ_TRACE (handleOf (p_obj),
-                            "end of input stream");
+                  TIZ_TRACE (handleOf (p_obj), "end of input stream");
                   status = 2;
                 }
               else
                 {
-                  TIZ_TRACE (handleOf (p_obj),
-                            "read_size <= 0");
+                  TIZ_TRACE (handleOf (p_obj), "read_size <= 0");
                   status = 1;
                 }
               break;
             }
-
 
           /* TODO */
           /*       if(BstdFileEofP (BstdFile)) */
@@ -420,8 +438,8 @@ decode_buffer (const void *ap_obj)
           /* Pipe the new buffer content to libmad's stream decoder
            * facility.
            */
-          mad_stream_buffer (&p_obj->stream_, p_obj->in_buff_, read_size
-                             + p_obj->remaining_);
+          mad_stream_buffer (&p_obj->stream_, p_obj->in_buff_,
+                             read_size + p_obj->remaining_);
           p_obj->stream_.error = 0;
         }
 
@@ -433,8 +451,8 @@ decode_buffer (const void *ap_obj)
                   || p_obj->stream_.this_frame != p_guardzone)
                 {
                   TIZ_TRACE (handleOf (p_obj),
-                            "recoverable frame level error (%s)",
-                            mad_stream_errorstr (&p_obj->stream_));
+                             "recoverable frame level error (%s)",
+                             mad_stream_errorstr (&p_obj->stream_));
                   TIZ_PRINTF_DBG_RED ("recoverable frame level error [%s].",
                                       mad_stream_errorstr (&p_obj->stream_));
                 }
@@ -447,26 +465,27 @@ decode_buffer (const void *ap_obj)
                   if (!p_obj->p_inhdr_)
                     {
                       TIZ_TRACE (handleOf (p_obj),
-                                "p_obj->stream_.error==MAD_ERROR_BUFLEN "
-                                "p_obj->p_inhdr_=[NULL]");
-                      TIZ_PRINTF_DBG_RED ("[%s].", mad_stream_errorstr (&p_obj->stream_));
+                                 "p_obj->stream_.error==MAD_ERROR_BUFLEN "
+                                 "p_obj->p_inhdr_=[NULL]");
+                      TIZ_PRINTF_DBG_RED (
+                          "[%s].", mad_stream_errorstr (&p_obj->stream_));
 
                       break;
                     }
                   else
                     {
                       TIZ_TRACE (handleOf (p_obj),
-                                "p_obj->stream_.error==MAD_ERROR_BUFLEN "
-                                "p_obj->p_inhdr_=[%p] nFilledLen [%d]",
-                                p_obj->p_inhdr_, p_obj->p_inhdr_->nFilledLen);
+                                 "p_obj->stream_.error==MAD_ERROR_BUFLEN "
+                                 "p_obj->p_inhdr_=[%p] nFilledLen [%d]",
+                                 p_obj->p_inhdr_, p_obj->p_inhdr_->nFilledLen);
                       continue;
                     }
                 }
               else
                 {
                   TIZ_TRACE (handleOf (p_obj),
-                            "unrecoverable frame level error (%s).",
-                            mad_stream_errorstr (&p_obj->stream_));
+                             "unrecoverable frame level error (%s).",
+                             mad_stream_errorstr (&p_obj->stream_));
                   status = 2;
                   break;
                 }
@@ -479,7 +498,7 @@ decode_buffer (const void *ap_obj)
        */
       if (0 == p_obj->frame_count_)
         {
-          print_frame_info (&p_obj->frame_.header);
+          print_frame_info (p_obj, &(p_obj->frame_.header));
         }
 
       p_obj->frame_count_++;
@@ -491,51 +510,51 @@ decode_buffer (const void *ap_obj)
       mad_synth_frame (&p_obj->synth_, &p_obj->frame_);
 
       p_obj->next_synth_sample_
-        = synthesize_samples (p_obj, p_obj->next_synth_sample_);
-
+          = synthesize_samples (p_obj, p_obj->next_synth_sample_);
     }
 
-  (void) status;
+  (void)status;
   /* TODO */
-/*   if (p_obj->p_outhdr_ != NULL */
-/*       && p_obj->p_outhdr_->nFilledLen != 0 */
-/*       && status == 2) */
-/*     { */
-/*       const tiz_srv_t *p_parent = ap_obj; */
-/*       void *p_krn = tiz_get_krn (p_parent->p_hdl_); */
+  /*   if (p_obj->p_outhdr_ != NULL */
+  /*       && p_obj->p_outhdr_->nFilledLen != 0 */
+  /*       && status == 2) */
+  /*     { */
+  /*       const tiz_srv_t *p_parent = ap_obj; */
+  /*       void *p_krn = tiz_get_krn (p_parent->p_hdl_); */
 
-/*       p_obj->eos_ = true; */
-/*       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS; */
-/*       TIZ_LOG (TIZ_PRIORITY_TRACE, handleOf (p_obj), */
-/*                        "Releasing output buffer [%p] ..." */
-/*                        "nFilledLen = [%d] OMX_BUFFERFLAG_EOS", */
-/*                        p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen); */
-/*       tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1, p_obj->p_outhdr_); */
-/*       /\* p_obj->p_outhdr_ = NULL; *\/ */
-/*     } */
+  /*       p_obj->eos_ = true; */
+  /*       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS; */
+  /*       TIZ_LOG (TIZ_PRIORITY_TRACE, handleOf (p_obj), */
+  /*                        "Releasing output buffer [%p] ..." */
+  /*                        "nFilledLen = [%d] OMX_BUFFERFLAG_EOS", */
+  /*                        p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen); */
+  /*       tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)), 1,
+   * p_obj->p_outhdr_); */
+  /*       /\* p_obj->p_outhdr_ = NULL; *\/ */
+  /*     } */
 
   return OMX_ErrorNone;
 }
 
-static bool
-mp3d_claim_input (mp3d_prc_t *ap_obj)
+static bool claim_input_buffer (mp3d_prc_t *ap_prc)
 {
   bool rc = false;
-  assert (NULL != ap_obj);
+  assert (NULL != ap_prc);
 
-  if (!ap_obj->in_port_disabled_)
+  if (!ap_prc->in_port_disabled_)
     {
-      if (OMX_ErrorNone == tiz_krn_claim_buffer
-          (tiz_get_krn (handleOf (ap_obj)), 0, 0, &ap_obj->p_inhdr_))
+      if (OMX_ErrorNone
+          == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)), 0, 0,
+                                   &ap_prc->p_inhdr_))
         {
-          if (NULL != ap_obj->p_inhdr_)
+          if (NULL != ap_prc->p_inhdr_)
             {
-              TIZ_TRACE (handleOf (ap_obj),
+              TIZ_TRACE (handleOf (ap_prc),
                          "Claimed INPUT HEADER [%p]...nFilledLen [%d] "
                          "OUTPUT HEADER [%p]...nFilledLen [%d]",
-                         ap_obj->p_inhdr_, ap_obj->p_inhdr_->nFilledLen,
-                         ap_obj->p_outhdr_,
-                         ap_obj->p_outhdr_ ? ap_obj->p_outhdr_->nFilledLen : 0);
+                         ap_prc->p_inhdr_, ap_prc->p_inhdr_->nFilledLen,
+                         ap_prc->p_outhdr_,
+                         ap_prc->p_outhdr_ ? ap_prc->p_outhdr_->nFilledLen : 0);
               rc = true;
             }
         }
@@ -544,23 +563,24 @@ mp3d_claim_input (mp3d_prc_t *ap_obj)
   return rc;
 }
 
-static bool
-mp3d_claim_output (mp3d_prc_t *ap_obj)
+static bool claim_output_buffer (mp3d_prc_t *ap_prc)
 {
   bool rc = false;
-  assert (NULL != ap_obj);
+  assert (NULL != ap_prc);
 
-  if (!ap_obj->out_port_disabled_)
+  if (!ap_prc->out_port_disabled_)
     {
-      if (OMX_ErrorNone == tiz_krn_claim_buffer
-          (tiz_get_krn (handleOf (ap_obj)), 1, 0, &ap_obj->p_outhdr_))
+      if (OMX_ErrorNone
+          == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)), 1, 0,
+                                   &ap_prc->p_outhdr_))
         {
-          if (NULL != ap_obj->p_outhdr_)
+          if (NULL != ap_prc->p_outhdr_)
             {
-              TIZ_TRACE (handleOf (ap_obj),
+              TIZ_TRACE (handleOf (ap_prc),
                          "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
-                         "nFilledLen [%d]...", ap_obj->p_outhdr_,
-                         ap_obj->p_outhdr_->pBuffer, ap_obj->p_outhdr_->nFilledLen);
+                         "nFilledLen [%d]...",
+                         ap_prc->p_outhdr_, ap_prc->p_outhdr_->pBuffer,
+                         ap_prc->p_outhdr_->nFilledLen);
               rc = true;
             }
         }
@@ -572,8 +592,7 @@ mp3d_claim_output (mp3d_prc_t *ap_obj)
  * mp3dprc
  */
 
-static void *
-mp3d_proc_ctor (void *ap_obj, va_list * app)
+static void *mp3d_proc_ctor (void *ap_obj, va_list *app)
 {
   mp3d_prc_t *p_obj = super_ctor (typeOf (ap_obj, "mp3dprc"), ap_obj, app);
   p_obj->remaining_ = 0;
@@ -587,8 +606,7 @@ mp3d_proc_ctor (void *ap_obj, va_list * app)
   return p_obj;
 }
 
-static void *
-mp3d_proc_dtor (void *ap_obj)
+static void *mp3d_proc_dtor (void *ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "mp3dprc"), ap_obj);
 }
@@ -597,78 +615,74 @@ mp3d_proc_dtor (void *ap_obj)
  * from tiz_srv class
  */
 
-static OMX_ERRORTYPE
-mp3d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE mp3d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  mp3d_prc_t *p_obj = ap_obj;
-  assert (NULL != ap_obj);
-  mad_stream_init (&p_obj->stream_);
-  mad_frame_init (&p_obj->frame_);
-  mad_synth_init (&p_obj->synth_);
-  mad_timer_reset (&p_obj->timer_);
+  /* NOTE: Initialisation of the decoder is delayed until Idle->Exe */
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-mp3d_proc_deallocate_resources (void *ap_obj)
+static OMX_ERRORTYPE mp3d_proc_deallocate_resources (void *ap_obj)
 {
-  mp3d_prc_t *p_obj = ap_obj;
-  assert (NULL != ap_obj);
-  mad_synth_finish (&p_obj->synth_);
-  mad_frame_finish (&p_obj->frame_);
-  mad_stream_finish (&p_obj->stream_);
+  /* NOTE: De-initialisation of the decoder is done in Exe->Idle */
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   mp3d_prc_t *p_prc = ap_obj;
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
 
   assert (NULL != p_prc);
 
-  TIZ_INIT_OMX_PORT_STRUCT (mp3type, ARATELIA_MP3_DECODER_INPUT_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter
-                     (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-                      OMX_IndexParamAudioMp3, &mp3type));
+  /* NOTE: init the decoder here, as it might have been de-inited in a
+     transition Exe->Idle */
+  init_mad_decoder (ap_obj);
 
-  TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter
-                     (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-                      OMX_IndexParamAudioPcm, &(p_prc->pcmmode_)));
+  TIZ_INIT_OMX_PORT_STRUCT (mp3type, ARATELIA_MP3_DECODER_INPUT_PORT_INDEX);
+  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)),
+                                           handleOf (p_prc),
+                                           OMX_IndexParamAudioMp3, &mp3type));
+
+  TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_,
+                            ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+                            OMX_IndexParamAudioPcm, &(p_prc->pcmmode_)));
 
   TIZ_TRACE (handleOf (p_prc),
              "sample rate decoder = [%d] channels decoder = [%d]",
              mp3type.nSampleRate, mp3type.nChannels);
 
-    TIZ_TRACE (handleOf (p_prc),
+  TIZ_TRACE (handleOf (p_prc),
              "sample rate renderer = [%d] channels renderer = [%d]",
              p_prc->pcmmode_.nSamplingRate, p_prc->pcmmode_.nChannels);
 
-/*   tiz_check_omx_err (update_pcm_mode (p_prc, mp3type.nSampleRate, mp3type.nChannels)); */
+  /*   tiz_check_omx_err (update_pcm_mode (p_prc, mp3type.nSampleRate,
+   * mp3type.nChannels)); */
 
-  p_prc->eos_ = false;
+  reset_stream_parameters (ap_obj);
 
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-mp3d_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE mp3d_proc_transfer_and_process (void *ap_obj,
+                                                     OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-mp3d_proc_stop_and_return (void *ap_obj)
+static OMX_ERRORTYPE mp3d_proc_stop_and_return (void *ap_obj)
 {
   mp3d_prc_t *p_obj = ap_obj;
   char buffer[80];
   assert (NULL != ap_obj);
-  mad_timer_string (p_obj->timer_, buffer, "%lu:%02lu.%03u",
-                    MAD_UNITS_MINUTES, MAD_UNITS_MILLISECONDS, 0);
-  TIZ_TRACE (handleOf (p_obj),
-            "%lu frames decoded (%s)", p_obj->frame_count_, buffer);
+  mad_timer_string (p_obj->timer_, buffer, "%lu:%02lu.%03u", MAD_UNITS_MINUTES,
+                    MAD_UNITS_MILLISECONDS, 0);
+  TIZ_TRACE (handleOf (p_obj), "%lu frames decoded (%s)", p_obj->frame_count_,
+             buffer);
+  /* NOTE: de-init the decoder here, as there seems to be no obvious flush
+     functionality that could be used instead */
+  deinit_mad_decoder (ap_obj);
   return release_headers (p_obj, OMX_ALL);
 }
 
@@ -676,24 +690,20 @@ mp3d_proc_stop_and_return (void *ap_obj)
  * from tiz_prc class
  */
 
-static OMX_ERRORTYPE
-mp3d_proc_buffers_ready (const void *ap_obj)
+static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
 
   assert (NULL != ap_obj);
 
-  TIZ_TRACE (handleOf (p_obj),
-            "buffers ready");
+  TIZ_TRACE (handleOf (p_obj), "buffers ready");
 
   while (true)
     {
       if (!p_obj->p_inhdr_)
         {
-          if ((!mp3d_claim_input (p_obj)
-               && p_obj->stream_.next_frame == NULL)
-              || (!p_obj->p_inhdr_
-                  && p_obj->stream_.error == MAD_ERROR_BUFLEN))
+          if ((!claim_input_buffer (p_obj) && p_obj->stream_.next_frame == NULL)
+              || (!p_obj->p_inhdr_ && p_obj->stream_.error == MAD_ERROR_BUFLEN))
             {
               break;
             }
@@ -701,7 +711,7 @@ mp3d_proc_buffers_ready (const void *ap_obj)
 
       if (!p_obj->p_outhdr_)
         {
-          if (!mp3d_claim_output (p_obj))
+          if (!claim_output_buffer (p_obj))
             {
               break;
             }
@@ -710,46 +720,39 @@ mp3d_proc_buffers_ready (const void *ap_obj)
       tiz_check_omx_err (decode_buffer (ap_obj));
       if (p_obj->p_inhdr_ != NULL && (0 == p_obj->p_inhdr_->nFilledLen))
         {
-          p_obj->p_inhdr_->nOffset = 0;
-          tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
-                                                     ARATELIA_MP3_DECODER_INPUT_PORT_INDEX,
-                                                     p_obj->p_inhdr_));
-          p_obj->p_inhdr_ = NULL;
+          tiz_check_omx_err (
+              release_headers (p_obj, ARATELIA_MP3_DECODER_INPUT_PORT_INDEX));
         }
     }
 
-  if (p_obj->eos_ && p_obj->p_outhdr_ != NULL)
+  if (p_obj->eos_ && NULL != p_obj->p_outhdr_)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
-      TIZ_TRACE (handleOf (p_obj),
-                "p_obj->eos OUTPUT HEADER [%p]...", p_obj->p_outhdr_);
+      TIZ_TRACE (handleOf (p_obj), "p_obj->eos OUTPUT HEADER [%p]...",
+                 p_obj->p_outhdr_);
       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
 
       TIZ_PRINTF_DBG_GRN ("Releasing buffer [%p] with size [%u].",
-                          p_obj->p_outhdr_, (unsigned int)p_obj->p_outhdr_->nFilledLen);
-
-      tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_obj)),
-                                                 ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX,
-                                                 p_obj->p_outhdr_));
-      p_obj->p_outhdr_ = NULL;
+                          p_obj->p_outhdr_,
+                          (unsigned int)p_obj->p_outhdr_->nFilledLen);
+      tiz_check_omx_err (
+          release_headers (p_obj, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX));
       p_obj->eos_ = false;
     }
 
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-mp3d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE mp3d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
   return release_headers (p_obj, a_pid);
 }
 
-static OMX_ERRORTYPE
-mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
   assert (NULL != p_obj);
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
@@ -762,10 +765,9 @@ mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
   return release_headers (p_obj, a_pid);
 }
 
-static OMX_ERRORTYPE
-mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 {
-  mp3d_prc_t *p_obj = (mp3d_prc_t *) ap_obj;
+  mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
   assert (NULL != p_obj);
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
@@ -782,8 +784,7 @@ mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
  * mp3d_prc_class
  */
 
-static void *
-mp3d_prc_class_ctor (void *ap_obj, va_list * app)
+static void *mp3d_prc_class_ctor (void *ap_obj, va_list *app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "mp3dprc_class"), ap_obj, app);
@@ -793,59 +794,56 @@ mp3d_prc_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-void *
-mp3d_prc_class_init (void * ap_tos, void * ap_hdl)
+void *mp3d_prc_class_init (void *ap_tos, void *ap_hdl)
 {
-  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * mp3dprc_class =
-    factory_new
-    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizprc), "mp3dprc_class", classOf (tizprc), sizeof (mp3d_prc_class_t),
-     /* TIZ_CLASS_COMMENT: */
-     ap_tos, ap_hdl,
-     /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, mp3d_prc_class_ctor,
-     /* TIZ_CLASS_COMMENT: stop value */
-     0);
+  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void *mp3dprc_class = factory_new
+      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+      (classOf (tizprc), "mp3dprc_class", classOf (tizprc),
+       sizeof(mp3d_prc_class_t),
+       /* TIZ_CLASS_COMMENT: */
+       ap_tos, ap_hdl,
+       /* TIZ_CLASS_COMMENT: class constructor */
+       ctor, mp3d_prc_class_ctor,
+       /* TIZ_CLASS_COMMENT: stop value */
+       0);
   return mp3dprc_class;
 }
 
-void *
-mp3d_prc_init (void * ap_tos, void * ap_hdl)
+void *mp3d_prc_init (void *ap_tos, void *ap_hdl)
 {
-  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * mp3dprc_class = tiz_get_type (ap_hdl, "mp3dprc_class");
+  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void *mp3dprc_class = tiz_get_type (ap_hdl, "mp3dprc_class");
   TIZ_LOG_CLASS (mp3dprc_class);
-  void * mp3dprc =
-    factory_new
-    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (mp3dprc_class, "mp3dprc", tizprc, sizeof (mp3d_prc_t),
-     /* TIZ_CLASS_COMMENT: */
-     ap_tos, ap_hdl,
-     /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, mp3d_proc_ctor,
-     /* TIZ_CLASS_COMMENT: class destructor */
-     dtor, mp3d_proc_dtor,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_srv_allocate_resources, mp3d_proc_allocate_resources,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_srv_deallocate_resources, mp3d_proc_deallocate_resources,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_srv_prepare_to_transfer, mp3d_proc_prepare_to_transfer,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_srv_transfer_and_process, mp3d_proc_transfer_and_process,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_srv_stop_and_return, mp3d_proc_stop_and_return,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_prc_buffers_ready, mp3d_proc_buffers_ready,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_flush, mp3d_proc_port_flush,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_disable, mp3d_proc_port_disable,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_enable, mp3d_proc_port_enable,
-     /* TIZ_CLASS_COMMENT: stop value */
-     0);
+  void *mp3dprc = factory_new
+      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+      (mp3dprc_class, "mp3dprc", tizprc, sizeof(mp3d_prc_t),
+       /* TIZ_CLASS_COMMENT: */
+       ap_tos, ap_hdl,
+       /* TIZ_CLASS_COMMENT: class constructor */
+       ctor, mp3d_proc_ctor,
+       /* TIZ_CLASS_COMMENT: class destructor */
+       dtor, mp3d_proc_dtor,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_allocate_resources, mp3d_proc_allocate_resources,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_deallocate_resources, mp3d_proc_deallocate_resources,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_prepare_to_transfer, mp3d_proc_prepare_to_transfer,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_transfer_and_process, mp3d_proc_transfer_and_process,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_stop_and_return, mp3d_proc_stop_and_return,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_buffers_ready, mp3d_proc_buffers_ready,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_port_flush, mp3d_proc_port_flush,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_port_disable, mp3d_proc_port_disable,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_port_enable, mp3d_proc_port_enable,
+       /* TIZ_CLASS_COMMENT: stop value */
+       0);
 
   return mp3dprc;
 }
