@@ -55,7 +55,7 @@
 static OMX_ERRORTYPE fr_prc_deallocate_resources (void *);
 
 static inline void
-delete_file (fr_prc_t *ap_prc)
+close_file (fr_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   if (NULL != ap_prc->p_file_)
@@ -71,6 +71,18 @@ delete_uri (fr_prc_t *ap_prc)
   assert (NULL != ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
   ap_prc->p_uri_param_ = NULL;
+}
+
+static inline void
+reset_stream_parameters (fr_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  ap_prc->counter_ = 0;
+  ap_prc->eos_     = false;
+  if (NULL != ap_prc->p_file_)
+    {
+      rewind (ap_prc->p_file_);
+    }
 }
 
 static OMX_ERRORTYPE
@@ -206,7 +218,7 @@ fr_prc_allocate_resources (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 static OMX_ERRORTYPE
 fr_prc_deallocate_resources (void *ap_obj)
 {
-  delete_file (ap_obj);
+  close_file (ap_obj);
   delete_uri (ap_obj);
   return OMX_ErrorNone;
 }
@@ -214,20 +226,13 @@ fr_prc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE
 fr_prc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
-  fr_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
-  p_prc->counter_ = 0;
-  p_prc->eos_     = false;
+  reset_stream_parameters (ap_obj);
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
 fr_prc_transfer_and_process (void *ap_obj, OMX_U32 TIZ_UNUSED(a_pid))
 {
-  fr_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
-  p_prc->counter_ = 0;
-  p_prc->eos_     = false;
   return OMX_ErrorNone;
 }
 
@@ -259,6 +264,8 @@ fr_prc_buffers_ready (const void *ap_obj)
           TIZ_TRACE (handleOf (p_prc),
                      "Claimed HEADER [%p]...nFilledLen [%d]", p_hdr,
                      p_hdr->nFilledLen);
+          p_hdr->nOffset = 0;
+          p_hdr->nFilledLen = 0;
           tiz_check_omx_err (read_buffer (p_prc, p_hdr));
           tiz_check_omx_err (tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
                                                      ARATELIA_FILE_READER_PORT_INDEX,
