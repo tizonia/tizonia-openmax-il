@@ -447,11 +447,10 @@ tiz::playapp::decode_local ()
   const bool shuffle = popts_.shuffle ();
   const bool recurse = popts_.recurse ();
 
-  (void)check_daemon_mode ();
-  print_banner ();
-
   uri_lst_t file_list;
   std::string error_msg;
+
+  print_banner ();
 
   file_extension_lst_t extension_list;
   // Add here the list of file extensions currently supported for playback
@@ -472,6 +471,8 @@ tiz::playapp::decode_local ()
       exit (EXIT_FAILURE);
     }
   }
+
+  (void)check_daemon_mode ();
 
   tizplaylist_ptr_t playlist
       = boost::make_shared< tiz::playlist >(tiz::playlist (file_list));
@@ -509,7 +510,6 @@ tiz::playapp::serve_stream ()
   const std::string &station_name = popts_.station_name ();
   const std::string &station_genre = popts_.station_genre ();
 
-  (void)check_daemon_mode ();
   print_banner ();
 
   uri_lst_t file_list;
@@ -529,6 +529,8 @@ tiz::playapp::serve_stream ()
       exit (EXIT_FAILURE);
     }
   }
+
+  (void)check_daemon_mode ();
 
   // Retrieve the hostname
   // TODO: Error handling

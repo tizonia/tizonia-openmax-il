@@ -32,6 +32,7 @@
 
 #include <algorithm>
 
+#include <boost/system/error_code.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -187,7 +188,16 @@ bool tiz::playlist::assemble_play_list (
       goto end;
     }
 
-    if (OMX_ErrorNone != process_base_uri (base_uri, uri_list, recurse))
+    boost::system::error_code errcode;
+    std::string canonical_base_uri = boost::filesystem::canonical (base_uri,
+                                                                   errcode).string ();
+    if (errcode.value () != 0)
+    {
+      error_msg.assign (errcode.message ());
+      goto end;
+    }
+
+    if (OMX_ErrorNone != process_base_uri (canonical_base_uri, uri_list, recurse))
     {
       error_msg.assign ("File not found.");
       goto end;
