@@ -1564,14 +1564,21 @@ static OMX_ERRORTYPE krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,
                  a_pid, p_hdr, p_hdr->pBuffer, tiz_vector_length (p_list));
 
       pdir = tiz_port_dir (p_port);
-      /* If it's an output port and allocator, ask the port to allocate the
-       * actual
-       * buffer, in case pre-announcements have been disabled on this port. This
-       * function call has no effect if pre-announcements are enabled on the
-       * port. */
-      if (OMX_DirOutput == pdir && TIZ_PORT_IS_ALLOCATOR (p_port))
+
+      if (OMX_DirOutput == pdir)
         {
-          tiz_check_omx_err (tiz_port_populate_header (p_port, p_hdr));
+          /* If it's an output port and allocator, ask the port to allocate the
+           * actual
+           * buffer, in case pre-announcements have been disabled on this port. This
+           * function call has no effect if pre-announcements are enabled on the
+           * port. */
+          if (TIZ_PORT_IS_ALLOCATOR (p_port))
+            {
+              tiz_check_omx_err (tiz_port_populate_header (p_port, p_hdr));
+            }
+          /* Make sure there is no data from a previous transition into
+             OMX_StateExecuting */
+          tiz_clear_header (p_hdr);
         }
 
       /* ... and delete it from the list */

@@ -63,6 +63,7 @@ tiz_clear_header (OMX_BUFFERHEADERTYPE * ap_hdr)
   assert (ap_hdr);
 
   ap_hdr->nFilledLen = 0;
+  ap_hdr->nOffset = 0;
   ap_hdr->hMarkTargetComponent = 0;
   ap_hdr->pMarkData = 0;
   ap_hdr->nTickCount = 0;

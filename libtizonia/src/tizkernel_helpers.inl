@@ -392,6 +392,10 @@ static OMX_ERRORTYPE propagate_ingress (void *ap_obj, OMX_U32 a_pid)
           else
             {
               assert (p_hdr->nOutputPortIndex == pid);
+              /* Make sure there is no data from a previous transition into
+                 OMX_StateExecuting */
+              tiz_clear_header (p_hdr);
+              /* TOOD: Do we need to reset any other header fields? */
               tiz_check_omx_err (tiz_api_FillThisBuffer (p_prc, p_hdl, p_hdr));
             }
 
