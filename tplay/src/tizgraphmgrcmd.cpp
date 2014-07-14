@@ -87,13 +87,15 @@ void graphmgr::cmd::inject (fsm& machine) const
               else INJECT_EVENT (mute_evt)
                 else INJECT_EVENT (pause_evt)
                   else INJECT_EVENT (stop_evt)
-                    else INJECT_EVENT (graph_eop_evt)
-                      else INJECT_EVENT (err_evt)
-                        else INJECT_EVENT (graph_loaded_evt)
-                          else INJECT_EVENT (graph_execd_evt)
-                            else INJECT_EVENT (graph_unlded_evt)
-                              else
-                                {
-                                  assert (0);
-                                }
+                    else INJECT_EVENT (quit_evt)
+                      else INJECT_EVENT (graph_eop_evt)
+                        else INJECT_EVENT (err_evt)
+                          else INJECT_EVENT (graph_loaded_evt)
+                            else INJECT_EVENT (graph_execd_evt)
+                              else INJECT_EVENT (graph_stopped_evt)
+                                else INJECT_EVENT (graph_unlded_evt)
+                                  else
+                                    {
+                                      assert (0);
+                                    }
 }

@@ -69,6 +69,7 @@ graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
     expected_port_transitions_lst_ (),
     playlist_ (),
     jump_ (SKIP_DEFAULT_VALUE),
+    destination_state_ (OMX_StateMax),
     error_code_ (OMX_ErrorNone),
     error_msg_ ()
 {
@@ -196,8 +197,9 @@ void graph::ops::do_source_omx_loaded2idle ()
 {
   if (last_op_succeeded ())
   {
-    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateIdle),
-                         "Unable to transition source component from Loaded->Idle");
+    G_OPS_BAIL_IF_ERROR (
+        transition_source (OMX_StateIdle),
+        "Unable to transition source component from Loaded->Idle");
   }
 }
 
@@ -205,8 +207,9 @@ void graph::ops::do_source_omx_idle2exe ()
 {
   if (last_op_succeeded ())
   {
-    G_OPS_BAIL_IF_ERROR (transition_source (OMX_StateExecuting),
-                         "Unable to transition source component from Idle->Exe");
+    G_OPS_BAIL_IF_ERROR (
+        transition_source (OMX_StateExecuting),
+        "Unable to transition source component from Idle->Exe");
   }
 }
 
@@ -226,6 +229,14 @@ void graph::ops::do_ack_execd ()
   if (last_op_succeeded () && NULL != p_graph_)
   {
     p_graph_->graph_execd ();
+  }
+}
+
+void graph::ops::do_ack_stopped ()
+{
+  if (last_op_succeeded () && NULL != p_graph_)
+  {
+    p_graph_->graph_stopped ();
   }
 }
 
@@ -395,6 +406,11 @@ void graph::ops::do_ack_unloaded ()
   }
 }
 
+void graph::ops::do_record_destination (const OMX_STATETYPE destination_state)
+{
+  destination_state_ = destination_state;
+}
+
 void graph::ops::do_reset_internal_error ()
 {
   error_code_ = OMX_ErrorNone;
@@ -447,27 +463,35 @@ bool graph::ops::is_trans_complete (const OMX_HANDLETYPE handle,
   assert (to_state <= OMX_StateWaitForResources);
   assert (!expected_transitions_lst_.empty ());
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "handle [%p] to_state [%s]...", handle,
-           tiz_state_to_str (to_state));
+  TIZ_LOG (TIZ_PRIORITY_TRACE,
+           "[%s] to_state [%s] expected transitions [%d] handles [%d]...",
+           handle2name (handle).c_str (), tiz_state_to_str (to_state),
+           expected_transitions_lst_.size (), handles_.size ());
 
   if (!handles_.empty () && !expected_transitions_lst_.empty ())
   {
     omx_event_info_lst_t::iterator it = std::find (
         expected_transitions_lst_.begin (), expected_transitions_lst_.end (),
         omx_event_info (handle, to_state, OMX_ErrorNone));
-    assert (expected_transitions_lst_.end () != it);
 
     if (expected_transitions_lst_.end () != it)
     {
       expected_transitions_lst_.erase (it);
       assert (util::verify_transition_one (handle, to_state));
-      if (expected_transitions_lst_.empty ())
-      {
-        rc = true;
-      }
     }
   }
+
+  if (expected_transitions_lst_.empty ())
+  {
+    rc = true;
+  }
+
   return rc;
+}
+
+bool graph::ops::is_destination_state (const OMX_STATETYPE to_state)
+{
+  return (destination_state_ == to_state);
 }
 
 bool graph::ops::is_port_disabling_complete (const OMX_HANDLETYPE handle,
@@ -715,7 +739,8 @@ graph::ops::transition_source (const OMX_STATETYPE to_state)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const int source_component_index = 0;
-  rc = tiz::graph::util::transition_one (handles_, source_component_index, to_state);
+  rc = tiz::graph::util::transition_one (handles_, source_component_index,
+                                         to_state);
   if (OMX_ErrorNone == rc)
   {
     clear_expected_transitions ();
@@ -732,9 +757,7 @@ graph::ops::transition_tunnel (const int tunnel_id,
   return OMX_ErrorNone;
 }
 
-graph::cbackhandler &
-graph::ops::get_cback_handler () const
+graph::cbackhandler &graph::ops::get_cback_handler () const
 {
   return p_graph_->cback_handler_;
 }
-

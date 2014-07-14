@@ -227,6 +227,12 @@ graphmgr::mgr::stop ()
 }
 
 OMX_ERRORTYPE
+graphmgr::mgr::quit ()
+{
+  return post_cmd (new graphmgr::cmd (graphmgr::quit_evt ()));
+}
+
+OMX_ERRORTYPE
 graphmgr::mgr::graph_loaded ()
 {
   return post_cmd (new graphmgr::cmd (graphmgr::graph_loaded_evt ()));
@@ -236,6 +242,12 @@ OMX_ERRORTYPE
 graphmgr::mgr::graph_execd ()
 {
   return post_cmd (new graphmgr::cmd (graphmgr::graph_execd_evt ()));
+}
+
+OMX_ERRORTYPE
+graphmgr::mgr::graph_stopped ()
+{
+  return post_cmd (new graphmgr::cmd (graphmgr::graph_stopped_evt ()));
 }
 
 OMX_ERRORTYPE
@@ -265,10 +277,12 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
   if (!mpris_ptr_)
   {
     control::mpris_callbacks_t mpris_cbacks (
+        boost::bind (&tiz::graphmgr::mgr::start, this),
         boost::bind (&tiz::graphmgr::mgr::next, this),
         boost::bind (&tiz::graphmgr::mgr::prev, this),
         boost::bind (&tiz::graphmgr::mgr::pause, this),
-        boost::bind (&tiz::graphmgr::mgr::pause, this));
+        boost::bind (&tiz::graphmgr::mgr::pause, this),
+        boost::bind (&tiz::graphmgr::mgr::stop, this));
 
     control::mpris_mediaplayer2_props_t props (
         graphmgr_caps.can_quit_, graphmgr_caps.can_raise_,

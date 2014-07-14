@@ -155,6 +155,23 @@ namespace tiz
       }
     };
 
+    template<OMX_STATETYPE state_id>
+    struct is_destination_state
+    {
+      template < class EVT, class FSM, class SourceState, class TargetState >
+      bool operator()(EVT const& evt, FSM& fsm, SourceState& source,
+                      TargetState& target)
+      {
+        bool rc = false;
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          rc = (*(fsm.pp_ops_))->is_destination_state (state_id);
+        }
+        G_GUARD_LOG (rc);
+        return rc;
+      }
+    };
+
     struct is_last_eos
     {
       template < class EVT, class FSM, class SourceState, class TargetState >

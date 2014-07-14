@@ -147,6 +147,10 @@ namespace tiz
       OMX_U32 flags_;
     };
 
+    struct stop_evt
+    {
+    };
+
     struct unload_evt
     {
     };

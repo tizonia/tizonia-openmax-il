@@ -174,6 +174,19 @@ void graphmgr::ops::do_execute ()
   }
 }
 
+void graphmgr::ops::do_stop ()
+{
+  if (p_managed_graph_)
+  {
+    p_managed_graph_->stop ();
+    if (next_playlist_)
+      {
+        TIZ_LOG (TIZ_PRIORITY_NOTICE, "current playlist item [%d]", next_playlist_->current_index ());
+//         next_playlist_->set_index (playlist_->single_format ());
+      }
+  }
+}
+
 void graphmgr::ops::do_unload ()
 {
   if (p_managed_graph_)

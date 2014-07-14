@@ -48,22 +48,28 @@ namespace tiz
       typedef boost::function< OMX_ERRORTYPE() > cback_func_t;
 
     public:
-      mpris_callbacks (cback_func_t next,
+      mpris_callbacks (cback_func_t play,
+                       cback_func_t next,
                        cback_func_t previous,
                        cback_func_t pause,
-                       cback_func_t playpause)
+                       cback_func_t playpause,
+                       cback_func_t stop)
         :
+        play_ (play),
         next_ (next),
         previous_ (previous),
         pause_ (pause),
-        playpause_ (playpause)
+        playpause_ (playpause),
+        stop_ (stop)
       {}
 
     public:
+      cback_func_t play_;
       cback_func_t next_;
       cback_func_t previous_;
       cback_func_t pause_;
       cback_func_t playpause_;
+      cback_func_t stop_;
     };
 
     typedef class mpris_callbacks mpris_callbacks_t;

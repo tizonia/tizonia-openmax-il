@@ -105,12 +105,12 @@ void control::mprisif::PlayPause ()
 
 void control::mprisif::Stop ()
 {
-  // No-op for now
+  cbacks_.stop_ ();
 }
 
 void control::mprisif::Play ()
 {
-  // No-op for now
+  cbacks_.play_ ();
 }
 
 void control::mprisif::Seek (const int64_t& Offset)

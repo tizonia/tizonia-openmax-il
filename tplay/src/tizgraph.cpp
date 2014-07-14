@@ -185,6 +185,12 @@ graph::graph::mute ()
   return post_cmd (new tiz::graph::cmd (tiz::graph::mute_evt ()));
 }
 
+OMX_ERRORTYPE
+graph::graph::stop ()
+{
+  post_cmd (new tiz::graph::cmd (tiz::graph::stop_evt ()));
+}
+
 void graph::graph::unload ()
 {
   post_cmd (new tiz::graph::cmd (tiz::graph::unload_evt ()));
@@ -270,6 +276,14 @@ void graph::graph::graph_execd ()
   if (p_mgr_)
   {
     p_mgr_->graph_execd ();
+  }
+}
+
+void graph::graph::graph_stopped ()
+{
+  if (p_mgr_)
+  {
+    p_mgr_->graph_stopped ();
   }
 }
 

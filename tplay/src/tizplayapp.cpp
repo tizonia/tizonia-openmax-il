@@ -72,7 +72,7 @@ namespace
 
   enum ETIZPlayUserInput
   {
-    ETIZPlayUserStop,
+    ETIZPlayUserQuit,
     ETIZPlayUserNextFile,
     ETIZPlayUserPrevFile,
     ETIZPlayUserMax,
@@ -139,7 +139,7 @@ namespace
         switch (ch[0])
         {
           case 'q':
-            return ETIZPlayUserStop;
+            return ETIZPlayUserQuit;
 
           case 68:  // key left
             // seek
@@ -211,7 +211,7 @@ namespace
         switch (ch[0])
         {
           case 'q':
-            return ETIZPlayUserStop;
+            return ETIZPlayUserQuit;
 
           case 'm':
             mgr_ptr->mute ();
@@ -484,11 +484,11 @@ tiz::playapp::decode_local ()
   p_mgr->init (playlist, graph_error_functor ());
   p_mgr->start ();
 
-  while (ETIZPlayUserStop != wait_for_user_input (p_mgr))
+  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
   {
   }
 
-  p_mgr->stop ();
+  p_mgr->quit ();
   p_mgr->deinit ();
 
   return rc;
@@ -571,11 +571,11 @@ tiz::playapp::serve_stream ()
   p_mgr->init (playlist, graph_error_functor ());
   p_mgr->start ();
 
-  while (ETIZPlayUserStop != wait_for_user_input_while_streaming (p_mgr))
+  while (ETIZPlayUserQuit != wait_for_user_input_while_streaming (p_mgr))
   {
   }
 
-  p_mgr->stop ();
+  p_mgr->quit ();
   p_mgr->deinit ();
 
   return rc;
@@ -606,11 +606,11 @@ tiz::playapp::decode_stream ()
   p_mgr->init (playlist, graph_error_functor ());
   p_mgr->start ();
 
-  while (ETIZPlayUserStop != wait_for_user_input_while_streaming (p_mgr))
+  while (ETIZPlayUserQuit != wait_for_user_input_while_streaming (p_mgr))
   {
   }
 
-  p_mgr->stop ();
+  p_mgr->quit ();
   p_mgr->deinit ();
 
   return rc;

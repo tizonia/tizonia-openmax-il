@@ -99,6 +99,7 @@ namespace tiz
       virtual void do_source_omx_idle2exe ();
       virtual void do_omx_idle2exe ();
       virtual void do_ack_execd ();
+      virtual void do_ack_stopped ();
       virtual void do_omx_exe2pause ();
       virtual void do_omx_pause2exe ();
       virtual void do_omx_pause2idle ();
@@ -114,6 +115,7 @@ namespace tiz
       virtual void do_tear_down_tunnels ();
       virtual void do_destroy_graph ();
       virtual void do_ack_unloaded ();
+      virtual void do_record_destination (const OMX_STATETYPE destination_state);
       virtual void do_reset_internal_error ();
       virtual void do_record_fatal_error (const OMX_HANDLETYPE handle, const OMX_ERRORTYPE error,
                                           const OMX_U32 port);
@@ -125,6 +127,7 @@ namespace tiz
       bool is_last_component (const OMX_HANDLETYPE handle) const;
       bool is_trans_complete (const OMX_HANDLETYPE handle,
                               const OMX_STATETYPE to_state);
+      bool is_destination_state (const OMX_STATETYPE to_state);
       bool is_port_disabling_complete (const OMX_HANDLETYPE handle,
                                        const OMX_U32 port_id);
       bool is_port_enabling_complete (const OMX_HANDLETYPE handle,
@@ -183,6 +186,7 @@ namespace tiz
       omx_event_info_lst_t expected_port_transitions_lst_;
       tizplaylist_ptr_t playlist_;
       int jump_;
+      OMX_STATETYPE destination_state_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;
     };

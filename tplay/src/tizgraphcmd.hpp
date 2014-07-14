@@ -79,7 +79,6 @@ namespace tiz
                      arg.c_str (), pstate (machine));                   \
             machine.process_event (boost::any_cast< the_evt >(evt_));   \
           }
-        //                    tiz::graph::pstate (machine));                       \
 
         INJECT_EVENT (load_evt)
         else INJECT_EVENT (execute_evt)
@@ -93,14 +92,18 @@ namespace tiz
                         else INJECT_EVENT (pause_evt)
                           else INJECT_EVENT (omx_evt)
                             else INJECT_EVENT (omx_eos_evt)
-                              else INJECT_EVENT (unload_evt)
-                                else INJECT_EVENT (omx_port_disabled_evt)
-                                  else INJECT_EVENT (omx_port_enabled_evt)
-                                    else INJECT_EVENT (omx_port_settings_evt)
-                                      else INJECT_EVENT (omx_format_detected_evt)
-                                        else INJECT_EVENT (omx_err_evt)
-                                          else INJECT_EVENT (err_evt)
-                                            else
+                              else INJECT_EVENT (stop_evt)
+                                else INJECT_EVENT (unload_evt)
+                                  else INJECT_EVENT (omx_port_disabled_evt)
+                                    else INJECT_EVENT (omx_port_enabled_evt)
+                                      else INJECT_EVENT (omx_port_settings_evt)
+                                        else INJECT_EVENT (omx_format_detected_evt)
+                                          else INJECT_EVENT (omx_err_evt)
+                                            else INJECT_EVENT (err_evt)
+                                              else INJECT_EVENT (auto_detected_evt)
+                                                else INJECT_EVENT (graph_updated_evt)
+                                                  else INJECT_EVENT (graph_reconfigured_evt)
+                                                    else
         {
           assert (0);
         }

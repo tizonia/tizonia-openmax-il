@@ -30,7 +30,7 @@
 #define TIZHTTPCLNTGRAPHFSM_HPP
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#define BOOST_MPL_LIMIT_VECTOR_SIZE 30
+#define BOOST_MPL_LIMIT_VECTOR_SIZE 40
 #define FUSION_MAX_VECTOR_SIZE      20
 #define SPIRIT_ARGUMENTS_LIMIT      20
 
@@ -308,9 +308,7 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //       Start                            Event                         Next                              Action                           Guard
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
-          bmf::Row < reconfiguring_graph_initial    , bmf::none                 , tg::awaiting_port_disabled_evt  , bmf::ActionSequence_<
-                                                                                                                      boost::mpl::vector<
-                                                                                                                        tg::do_disable_tunnel<1> > > , bmf::none                      >,
+          bmf::Row < reconfiguring_graph_initial    , bmf::none                 , tg::awaiting_port_disabled_evt  , tg::do_disable_tunnel<1>         , bmf::none                      >,
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::enabling_tunnel             , bmf::ActionSequence_<
                                                                                                                       boost::mpl::vector<
@@ -398,8 +396,8 @@ namespace tiz
                                                                                                             tg::do_omx_exe2idle> >                                 >,
         bmf::Row < tg::executing                , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
         bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_graph     , tg::do_mute                                                >,
-        bmf::Row < executing                    , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
-        bmf::Row < executing                    , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
+        bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
+        bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < reconfiguring_graph
                    ::exit_pt

@@ -31,7 +31,7 @@
 #define TIZGRAPHMGRFSM_HPP
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#define BOOST_MPL_LIMIT_VECTOR_SIZE 30
+#define BOOST_MPL_LIMIT_VECTOR_SIZE 40
 #define FUSION_MAX_VECTOR_SIZE      20
 #define SPIRIT_ARGUMENTS_LIMIT      20
 
@@ -71,7 +71,9 @@ namespace tiz
                                                "running",
                                                "restarting",
                                                "stopping",
-                                               "stopped"};
+                                               "stopped",
+                                               "quitting",
+                                               "quitted"};
 
     // main fsm events
     struct start_evt {};
@@ -84,6 +86,7 @@ namespace tiz
     struct mute_evt {};
     struct pause_evt {};
     struct stop_evt {};
+    struct quit_evt {};
     struct graph_eop_evt {};
     struct err_evt
     {
@@ -101,6 +104,7 @@ namespace tiz
     // 'starting/restarting' submachine events
     struct graph_loaded_evt {};
     struct graph_execd_evt {};
+    struct graph_stopped_evt {};
     struct graph_unlded_evt {};
 
     // Concrete FSM implementation
@@ -112,9 +116,12 @@ namespace tiz
       /* Forward declarations */
       struct running;
       struct stopped;
+      struct quitted;
       struct loading_graph;
       struct executing_graph;
+      struct stopping_graph;
       struct unloading_graph;
+      struct do_execute_graph;
       struct do_report_fatal_error;
 
       // data members
@@ -160,21 +167,14 @@ namespace tiz
         // submachine states
         struct loading_graph : public boost::msm::front::state<>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
+          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         };
 
-        struct executing_graph : public boost::msm::front::state<>
-        {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
-          template <class Event,class FSM>
-          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-        };
-
         struct starting_exit : public boost::msm::front::exit_pseudo_state<graph_execd_evt>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
+          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
@@ -183,29 +183,17 @@ namespace tiz
         typedef loading_graph initial_state;
 
         // transition actions
-        struct do_execute_graph
-        {
-          template <class FSM,class EVT,class SourceState,class TargetState>
-          void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
-          {
-            GMGR_FSM_LOG ();
-            /* STEP: issue 'execute' graph command */
-            if (fsm.pp_ops_ && *(fsm.pp_ops_))
-              {
-                (*(fsm.pp_ops_))->do_execute ();
-              }
-          }
-        };
 
         // guard conditions
 
         // Transition table for starting
         struct transition_table : boost::mpl::vector<
-          //                       Start              Event               Next                Action             Guard
-          //    +-----------------+------------------+-------------------+-------------------+-----------------------+
-          bmf::Row < loading_graph     , graph_loaded_evt  , executing_graph   , do_execute_graph      >,
-          bmf::Row < executing_graph   , graph_execd_evt   , starting_exit                      >
-          //    +-----------------+------------------+-------------------+-------------------+-----------------------+
+          //       Start               Event               Next                Action             Guard
+          //    +--+-------------------+-------------------+-------------------+------------------+-----+
+          bmf::Row < loading_graph     , graph_loaded_evt  , executing_graph   , do_execute_graph       >,
+          bmf::Row < loading_graph     , graph_execd_evt   , starting_exit                              >,
+          bmf::Row < executing_graph   , graph_execd_evt   , starting_exit                              >
+          //    +--+-------------------+-------------------+-------------------+------------------+-----+
           > {};
 
         // Replaces the default no-transition response.
@@ -219,14 +207,6 @@ namespace tiz
       };
       // typedef boost::msm::back::state_machine<starting_, boost::msm::back::mpl_graph_fsm_check> starting;
       typedef boost::msm::back::state_machine<starting_> starting;
-
-      struct running : public boost::msm::front::state<>
-      {
-        template <class Event,class FSM>
-        void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-        template <class Event,class FSM>
-        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
-      };
 
       /* restarting is a submachine */
       struct restarting_ : public boost::msm::front::state_machine_def<restarting_>
@@ -251,7 +231,7 @@ namespace tiz
 
         struct restarting_exit : public boost::msm::front::exit_pseudo_state<graph_unlded_evt>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt> deferred_events;
+          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
@@ -304,14 +284,14 @@ namespace tiz
         }
 
         // The list of FSM states
-        struct stopping_exit : public boost::msm::front::exit_pseudo_state<graph_unlded_evt>
+        struct stopping_exit : public boost::msm::front::exit_pseudo_state<graph_stopped_evt>
         {
           template <class Event,class FSM>
           void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
 
         // the initial state. Must be defined
-        typedef unloading_graph initial_state;
+        typedef stopping_graph initial_state;
 
         // transition actions
 
@@ -319,10 +299,10 @@ namespace tiz
 
         // Transition table for stopping
         struct transition_table : boost::mpl::vector<
-          //                       Start            Event                Next           Action                   Guard
-          //    +-----------------+----------------+-------=------------+---------------+------------------------+--------+
-          bmf::Row < unloading_graph , graph_unlded_evt   , stopping_exit                                   >
-          //    +-----------------+----------------+--------------------+---------------+------------------------+--------+
+          //       Start             Event                Next             Action                   Guard
+          //    +--+-----------------+--------------------+----------------+------------------------+--------+
+          bmf::Row < stopping_graph , graph_stopped_evt   , stopping_exit                                    >
+          //    +--+-----------------+--------------------+----------------+------------------------+--------+
           > {};
 
         // Replaces the default no-transition response.
@@ -336,15 +316,88 @@ namespace tiz
       // typedef boost::msm::back::state_machine<stopping_, boost::msm::back::mpl_graph_fsm_check> stopping;
       typedef boost::msm::back::state_machine<stopping_> stopping;
 
-      // terminate state
-      struct stopped : public boost::msm::front::terminate_state<>
+      /* quitting is a submachine */
+      struct quitting_ : public boost::msm::front::state_machine_def<quitting_>
+      {
+        // no need for exception handling
+        typedef int no_exception_thrown;
+
+        // data members
+        ops ** pp_ops_;
+
+        quitting_ ()
+          :
+          pp_ops_(NULL)
+        {}
+
+        quitting_ (ops **pp_ops)
+          :
+          pp_ops_(pp_ops)
+        {
+          assert (NULL != pp_ops);
+        }
+
+        // The list of FSM states
+        struct quitting_exit : public boost::msm::front::exit_pseudo_state<graph_unlded_evt>
+        {
+          template <class Event,class FSM>
+          void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
+        };
+
+        // the initial state. Must be defined
+        typedef unloading_graph initial_state;
+
+        // transition actions
+
+        // guard conditions
+
+        // Transition table for quitting
+        struct transition_table : boost::mpl::vector<
+          //       Start             Event                Next             Action                   Guard
+          //    +--+-----------------+--------------------+----------------+------------------------+--------+
+          bmf::Row < unloading_graph , graph_unlded_evt   , quitting_exit                                    >
+          //    +--+-----------------+--------------------+----------------+------------------------+--------+
+          > {};
+
+        // Replaces the default no-transition response.
+        template <class FSM,class Event>
+        void no_transition(Event const& e, FSM&,int state)
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state %d on event %s",
+                   state, typeid(e).name());
+        }
+      };
+      // typedef boost::msm::back::state_machine<quitting_, boost::msm::back::mpl_graph_fsm_check> quitting;
+      typedef boost::msm::back::state_machine<quitting_> quitting;
+
+      struct executing_graph : public boost::msm::front::state<>
+      {
+        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
+        template <class Event,class FSM>
+        void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
+      };
+
+      struct running : public boost::msm::front::state<>
       {
         template <class Event,class FSM>
-        void on_entry(Event const&,FSM& fsm)
-        {
-          GMGR_FSM_LOG ();
-          fsm.terminated_ = true;
-        }
+        void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
+        template <class Event,class FSM>
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
+      };
+
+
+      struct stopping_graph : public boost::msm::front::state<>
+      {
+        template <class Event,class FSM>
+        void on_entry(Event const&,FSM& fsm) {GMGR_FSM_LOG ();}
+        template <class Event,class FSM>
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
+      };
+
+      struct stopped : public boost::msm::front::state<>
+      {
+        template <class Event,class FSM>
+        void on_entry(Event const&,FSM& fsm) {GMGR_FSM_LOG ();}
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
@@ -354,6 +407,19 @@ namespace tiz
         typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
+      };
+
+      // terminate state
+      struct quitted : public boost::msm::front::terminate_state<>
+      {
+        template <class Event,class FSM>
+        void on_entry(Event const&,FSM& fsm)
+        {
+          GMGR_FSM_LOG ();
+          fsm.terminated_ = true;
+        }
+        template <class Event,class FSM>
+        void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
 
       // The initial state of the SM. Must be defined
@@ -369,6 +435,19 @@ namespace tiz
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
               (*(fsm.pp_ops_))->do_load ();
+            }
+        }
+      };
+
+      struct do_execute_graph
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_execute ();
             }
         }
       };
@@ -477,6 +556,19 @@ namespace tiz
         }
       };
 
+      struct do_stop
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_stop ();
+            }
+        }
+      };
+
       struct do_unload
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
@@ -554,9 +646,9 @@ namespace tiz
                     ::starting_exit >    , graph_execd_evt  , running                                                   >,
         bmf::Row < starting              , err_evt          , restarting  , bmf::none              , bmf::euml::Not_<
                                                                                                        is_fatal_error>  >,
-        bmf::Row < starting              , stop_evt         , stopping    , do_unload                                   >,
-        bmf::Row < starting              , err_evt          , stopped     , do_report_fatal_error  , is_fatal_error     >,
-        bmf::Row < starting              , graph_unlded_evt , stopped     , do_end_of_play                              >,
+        bmf::Row < starting              , quit_evt         , quitting    , do_unload                                   >,
+        bmf::Row < starting              , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
+        bmf::Row < starting              , graph_unlded_evt , quitted     , do_end_of_play                              >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < running               , next_evt         , bmf::none   , do_next                                     >,
         bmf::Row < running               , prev_evt         , bmf::none   , do_prev                                     >,
@@ -566,23 +658,34 @@ namespace tiz
         bmf::Row < running               , vol_down_evt     , bmf::none   , do_vol_down                                 >,
         bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
         bmf::Row < running               , pause_evt        , bmf::none   , do_pause                                    >,
-        bmf::Row < running               , stop_evt         , stopping    , do_unload                                   >,
+        bmf::Row < running               , start_evt        , bmf::none   , do_pause                                    >,
+        bmf::Row < running               , stop_evt         , stopping    , do_stop                                     >,
+        bmf::Row < running               , quit_evt         , quitting    , do_unload                                   >,
         bmf::Row < running               , graph_eop_evt    , restarting  , bmf::none                                   >,
         bmf::Row < running               , err_evt          , restarting  , bmf::none              , bmf::euml::Not_<
                                                                                                         is_fatal_error> >,
-        bmf::Row < running               , err_evt          , stopped     , do_report_fatal_error  , is_fatal_error     >,
+        bmf::Row < running               , err_evt          , quitted     , do_report_fatal_error  , is_fatal_error     >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < restarting
                    ::exit_pt
                    <restarting_
                     ::restarting_exit >  , graph_unlded_evt , starting    , do_load                                     >,
-        bmf::Row < restarting            , err_evt          , stopped     , do_report_fatal_error                       >,
+        bmf::Row < restarting            , err_evt          , quitted     , do_report_fatal_error                       >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < stopping
                    ::exit_pt
                    <stopping_
-                    ::stopping_exit >    , graph_unlded_evt , stopped                                                   >,
-        bmf::Row < stopping              , err_evt          , stopped     , do_report_fatal_error                       >
+                    ::stopping_exit >    , graph_stopped_evt, stopped                                                   >,
+        bmf::Row < stopping              , err_evt          , quitted     , do_report_fatal_error                       >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < stopped               , start_evt        , starting    , do_execute_graph                            >,
+        bmf::Row < stopped               , quit_evt         , quitting    , do_unload                                   >,
+        //    +----+---------------------+------------------+-------------+------------------------+--------------------+
+        bmf::Row < quitting
+                   ::exit_pt
+                   <quitting_
+                    ::quitting_exit >    , graph_unlded_evt , quitted                                                   >,
+        bmf::Row < quitting              , err_evt          , quitted     , do_report_fatal_error                       >
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         > {};
 

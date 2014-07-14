@@ -76,6 +76,7 @@ namespace tiz
       OMX_ERRORTYPE skip (const int jump);
       OMX_ERRORTYPE volume (const int step);
       OMX_ERRORTYPE mute ();
+      OMX_ERRORTYPE stop ();
       void unload ();
       void deinit ();
 
@@ -89,6 +90,7 @@ namespace tiz
     protected:
       void graph_loaded ();
       void graph_execd ();
+      void graph_stopped ();
       void graph_unloaded ();
       void graph_end_of_play ();
       void graph_error (const OMX_ERRORTYPE error, const std::string &msg);

@@ -181,7 +181,7 @@ namespace tiz
       OMX_ERRORTYPE pause ();
 
       /**
-       * Halts processing of the playlist.
+       * Halt processing of the playlist.
        *
        * @pre init() has been called on this manager.
        *
@@ -189,6 +189,16 @@ namespace tiz
        * success.
        */
       OMX_ERRORTYPE stop ();
+
+      /**
+       * Exit the manager thread.
+       *
+       * @pre init() has been called on this manager.
+       *
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE quit ();
 
     protected:
       virtual ops *do_init (const tizplaylist_ptr_t &playlist,
@@ -198,6 +208,7 @@ namespace tiz
     protected:
       OMX_ERRORTYPE graph_loaded ();
       OMX_ERRORTYPE graph_execd ();
+      OMX_ERRORTYPE graph_stopped ();
       OMX_ERRORTYPE graph_unloaded ();
       OMX_ERRORTYPE graph_end_of_play ();
       OMX_ERRORTYPE graph_error (const OMX_ERRORTYPE error,

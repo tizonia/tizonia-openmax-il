@@ -29,6 +29,7 @@
 #ifndef TIZGRAPHACTION_HPP
 #define TIZGRAPHACTION_HPP
 
+#include <OMX_Core.h>
 #include <tizplatform.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -199,6 +200,19 @@ namespace tiz
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
           (*(fsm.pp_ops_))->do_ack_execd ();
+        }
+      }
+    };
+
+    struct do_ack_stopped
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_ack_stopped ();
         }
       }
     };
@@ -437,6 +451,20 @@ namespace tiz
         {
           (*(fsm.pp_ops_))->do_reset_internal_error ();
         }
+      }
+    };
+
+    template<OMX_STATETYPE state_id>
+    struct do_record_destination
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            (*(fsm.pp_ops_))->do_record_destination (state_id);
+          }
       }
     };
 

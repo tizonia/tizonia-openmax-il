@@ -89,6 +89,7 @@ namespace tiz
     public:
       virtual void do_load ();
       virtual void do_execute ();
+      virtual void do_stop ();
       virtual void do_unload ();
       virtual void do_next ();
       virtual void do_prev ();
