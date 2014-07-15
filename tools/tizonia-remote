@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Simple MPRIS2-based remote control for tplay
+#
+
+function usage {
+    echo "tizonia-remote. Copyright (C) 2014 Juan A. Rubio"
+    echo "This software is part of Tizonia <http://tizonia.org>"
+    echo
+    echo "Usage : $0 <play|pause|stop|next|prev|quit|kill>"
+}
+
+function start_dbus {
+    ## test for an existing bus daemon, just to be safe
+    if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
+        ## if not found, launch a new one
+        export `dbus-launch --exit-with-session`
+        echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
+        echo "D-Bus per-session daemon PID is    : $DBUS_SESSION_BUS_PID"
+    fi
+}
+
+if [[ $# -ne 1 ]]
+then
+    usage
+    exit 1
+fi
+
+# Constants
+readonly playcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Play   &> /dev/null'
+readonly pausecmd="dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Pause &> /dev/null"
+readonly stopcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Stop   &> /dev/null'
+readonly nextcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Next   &> /dev/null'
+readonly prevcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Previous   &> /dev/null'
+readonly quitcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Quit   &> /dev/null'
+
+start_dbus
+
+function main {
+    case "$1" in
+        play)
+            eval "$playcmd"
+            ;;
+        pause)
+            eval "$pausecmd"
+            ;;
+        stop)
+            eval "$stopcmd"
+            ;;
+        prev)
+            eval "$prevcmd"
+            ;;
+        next)
+            eval "$nextcmd"
+            ;;
+        quit)
+            eval "$quitcmd"
+            ;;
+        kill) echo  "Sending SIGKILL signal"
+            killall -TERM tplay
+            ;;
+        *) echo "Unknonw command"
+            usage
+            exit 1
+            ;;
+    esac
+
+    exit $$
+}
+
+main "$@"

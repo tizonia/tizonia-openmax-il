@@ -486,7 +486,6 @@ function main {
     cd "$CWD"
 
     exit $exit_status
-
 }
 
 main "$@"
