@@ -66,8 +66,8 @@ namespace tiz
       friend void *thread_func (void *);
 
     public:
-      typedef boost::function< void(OMX_ERRORTYPE, std::string) >
-          error_callback_t;
+      typedef boost::function< void(const OMX_ERRORTYPE error_code, const std::string error_msg) >
+          termination_callback_t;
 
     public:
       mgr ();
@@ -77,8 +77,7 @@ namespace tiz
        * Initialise the graph manager thread.
        *
        * @pre This method must be called only once, before any call is made to
-       *the
-       * other APIs.
+       * the other APIs.
        *
        * @post The graph manager thread is ready to process requests.
        *
@@ -86,7 +85,7 @@ namespace tiz
        * successful. OMX_ErrorInsuficientResources otherwise.
        */
       OMX_ERRORTYPE init (const tizplaylist_ptr_t &playlist,
-                          const error_callback_t &error_cback);
+                          const termination_callback_t &termination_cback);
 
       /**
        * Destroy the manager thread and release all resources.
@@ -202,7 +201,7 @@ namespace tiz
 
     protected:
       virtual ops *do_init (const tizplaylist_ptr_t &playlist,
-                            const error_callback_t &error_cback,
+                            const termination_callback_t &termination_cback,
                             graphmgr_capabilities &graphmgr_caps) = 0;
 
     protected:

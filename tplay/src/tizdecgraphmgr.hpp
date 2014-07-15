@@ -52,7 +52,7 @@ namespace tiz
 
     protected:
       ops *do_init (const tizplaylist_ptr_t &playlist,
-                    const error_callback_t &error_cback,
+                    const termination_callback_t &termination_cback,
                     graphmgr_capabilities &graphmgr_caps);
     };
 
@@ -62,7 +62,7 @@ namespace tiz
     {
     public:
       decodemgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
-                    const error_callback_t &error_cback);
+                    const termination_callback_t &termination_cback);
     };
   }  // namespace graphmgr
 }  // namespace tiz

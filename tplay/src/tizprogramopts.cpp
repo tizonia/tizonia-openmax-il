@@ -38,7 +38,14 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 
+#include <tizplatform.h>
+
 #include "tizprogramopts.hpp"
+
+#ifdef TIZ_LOG_CATEGORY_NAME
+#undef TIZ_LOG_CATEGORY_NAME
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.programopts"
+#endif
 
 namespace po = boost::program_options;
 
@@ -202,9 +209,8 @@ int tiz::programopts::consume ()
 
 void tiz::programopts::print_version () const
 {
-  printf ("tplay %s. Copyright (C) 2014 Juan A. Rubio\n", PACKAGE_VERSION);
-  printf (
-      "This software is part of Tizonia <http://tizonia.org>\n\n");
+  TIZ_PRINTF_BLU ("tplay %s. Copyright (C) 2014 Juan A. Rubio\n", PACKAGE_VERSION);
+  TIZ_PRINTF_BLU ("This software is part of Tizonia <http://tizonia.org>\n\n");
 }
 
 void tiz::programopts::print_usage () const
@@ -552,7 +558,7 @@ int tiz::programopts::consume_streaming_server_options (bool &done)
     result = consume_input_file_uris_option ();
     if (EXIT_SUCCESS == result)
     {
-      result = call_handler (option_handlers_map_.find ("server"));
+      result = call_handler (option_handlers_map_.find ("serve-stream"));
     }
   }
   return result;
@@ -566,7 +572,7 @@ int tiz::programopts::consume_streaming_client_options (bool &done)
   if (EXIT_SUCCESS == result)
   {
     done = true;
-    result = call_handler (option_handlers_map_.find ("client"));
+    result = call_handler (option_handlers_map_.find ("decode-stream"));
   }
   return result;
 }

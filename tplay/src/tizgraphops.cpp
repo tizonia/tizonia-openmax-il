@@ -461,7 +461,6 @@ bool graph::ops::is_trans_complete (const OMX_HANDLETYPE handle,
   assert (std::find (handles_.begin (), handles_.end (), handle)
           != handles_.end ());
   assert (to_state <= OMX_StateWaitForResources);
-  assert (!expected_transitions_lst_.empty ());
 
   TIZ_LOG (TIZ_PRIORITY_TRACE,
            "[%s] to_state [%s] expected transitions [%d] handles [%d]...",

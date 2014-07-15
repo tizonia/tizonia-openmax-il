@@ -77,11 +77,11 @@ namespace tiz
 
     public:
       typedef boost::function< void(OMX_ERRORTYPE, std::string) >
-          error_callback_t;
+          termination_callback_t;
 
     public:
       ops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
-           const error_callback_t &error_cback);
+           const termination_callback_t &termination_cback);
       virtual ~ops ();
 
       void deinit ();
@@ -120,7 +120,7 @@ namespace tiz
       tizgraphconfig_ptr_t graph_config_;
       tizgraph_ptr_map_t graph_registry_;
       tizgraph_ptr_t p_managed_graph_;
-      error_callback_t error_cback_;
+      termination_callback_t termination_cback_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;
     };

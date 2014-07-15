@@ -53,14 +53,16 @@ namespace tiz
                        cback_func_t previous,
                        cback_func_t pause,
                        cback_func_t playpause,
-                       cback_func_t stop)
+                       cback_func_t stop,
+                       cback_func_t quit)
         :
         play_ (play),
         next_ (next),
         previous_ (previous),
         pause_ (pause),
         playpause_ (playpause),
-        stop_ (stop)
+        stop_ (stop),
+        quit_ (quit)
       {}
 
     public:
@@ -70,6 +72,7 @@ namespace tiz
       cback_func_t pause_;
       cback_func_t playpause_;
       cback_func_t stop_;
+      cback_func_t quit_;
     };
 
     typedef class mpris_callbacks mpris_callbacks_t;

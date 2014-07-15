@@ -51,14 +51,14 @@ namespace graphmgr = tiz::graphmgr;
 // ops
 //
 graphmgr::ops::ops (graphmgr::mgr *p_mgr, const tizplaylist_ptr_t &playlist,
-                    const error_callback_t &error_cback)
+                    const termination_callback_t &termination_cback)
   : p_mgr_ (p_mgr),
     playlist_ (playlist),
     next_playlist_ (),
     graph_config_ (),
     graph_registry_ (),
     p_managed_graph_ (),
-    error_cback_ (error_cback),
+    termination_cback_ (termination_cback),
     error_code_ (OMX_ErrorNone),
     error_msg_ ()
 {
@@ -83,6 +83,8 @@ void graphmgr::ops::deinit ()
     }
   }
   graph_registry_.clear ();
+
+  termination_cback_ (OMX_ErrorNone, "");
 }
 
 tizgraph_ptr_t graphmgr::ops::get_graph (const std::string &uri)
@@ -246,12 +248,12 @@ void graphmgr::ops::do_report_fatal_error (const OMX_ERRORTYPE error,
 {
   TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error),
            msg.c_str ());
-  error_cback_ (error, msg);
+  termination_cback_ (error, msg);
 }
 
 void graphmgr::ops::do_end_of_play ()
 {
-  error_cback_ (OMX_ErrorNoMore, "Playlist exhausted.");
+  termination_cback_ (OMX_ErrorNone, "End of playlist.");
 }
 
 bool graphmgr::ops::is_fatal_error (const OMX_ERRORTYPE error,

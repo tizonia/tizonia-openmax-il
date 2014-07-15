@@ -108,7 +108,7 @@ graphmgr::mgr::~mgr ()
 
 OMX_ERRORTYPE
 graphmgr::mgr::init (const tizplaylist_ptr_t &playlist,
-                     const error_callback_t &error_cback)
+                     const termination_callback_t &termination_cback)
 {
   // Init command queue infrastructure
   tiz_check_omx_err_ret_oom (init_cmd_queue ());
@@ -122,7 +122,7 @@ graphmgr::mgr::init (const tizplaylist_ptr_t &playlist,
   graphmgr_capabilities_t graphmgr_caps;
   // Init this mgr's operations using the do_init template method
   tiz_check_null_ret_oom (
-      (p_ops_ = do_init (playlist, error_cback, graphmgr_caps)));
+      (p_ops_ = do_init (playlist, termination_cback, graphmgr_caps)));
 
   // Let's wait until this manager's thread is ready to receive requests
   tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
@@ -282,7 +282,8 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
         boost::bind (&tiz::graphmgr::mgr::prev, this),
         boost::bind (&tiz::graphmgr::mgr::pause, this),
         boost::bind (&tiz::graphmgr::mgr::pause, this),
-        boost::bind (&tiz::graphmgr::mgr::stop, this));
+        boost::bind (&tiz::graphmgr::mgr::stop, this),
+        boost::bind (&tiz::graphmgr::mgr::quit, this));
 
     control::mpris_mediaplayer2_props_t props (
         graphmgr_caps.can_quit_, graphmgr_caps.can_raise_,
@@ -377,5 +378,6 @@ bool graphmgr::mgr::dispatch_cmd (graphmgr::mgr *p_mgr,
     TIZ_LOG (TIZ_PRIORITY_NOTICE, "MGR fsm terminated");
     p_mgr->p_ops_->deinit ();
   }
+
   return p_mgr->fsm_.terminated_;
 }

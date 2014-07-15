@@ -80,7 +80,7 @@ void control::mprisif::Raise ()
 
 void control::mprisif::Quit ()
 {
-  // No-op for now
+  cbacks_.quit_ ();
 }
 
 void control::mprisif::Next ()

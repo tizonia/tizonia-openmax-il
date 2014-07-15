@@ -61,7 +61,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.playapp"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.app"
 #endif
 
 namespace
@@ -114,6 +114,7 @@ namespace
     {
       reset_termios ();
     }
+    TIZ_PRINTF_BLU ("\n%s exiting (Ctrl-C).\n", PACKAGE_NAME);
     exit (EXIT_SUCCESS);
   }
 
@@ -233,15 +234,20 @@ namespace
     }
   }
 
-  struct graph_error_functor
+  struct graphmgr_termination_cback
   {
-    void operator()(OMX_ERRORTYPE a, std::string b) const
+    void operator()(OMX_ERRORTYPE code, std::string msg) const
     {
-#define KNRM "\x1B[0m"
-#define KRED "\x1B[31m"
-      fprintf (stderr, "%s%s (%s).%s\n", KRED, b.c_str (), tiz_err_to_str (a),
-               KNRM);
-      exit (EXIT_FAILURE);
+      if (OMX_ErrorNone != code)
+        {
+          TIZ_PRINTF_RED ("\n%s (%s).\n", KRED, msg.c_str (), tiz_err_to_str (code));
+          exit (EXIT_FAILURE);
+        }
+      else
+        {
+          TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n", PACKAGE_NAME);
+          exit (EXIT_SUCCESS);
+        }
     }
   };
 }
@@ -280,10 +286,10 @@ void tiz::playapp::set_option_handlers ()
   popts_.set_option_handler ("decode-local",
                              boost::bind (&tiz::playapp::decode_local, this));
   // streaming audio server program options
-  popts_.set_option_handler ("server",
+  popts_.set_option_handler ("serve-stream",
                              boost::bind (&tiz::playapp::serve_stream, this));
   // streaming audio client program options
-  popts_.set_option_handler ("client",
+  popts_.set_option_handler ("decode-stream",
                              boost::bind (&tiz::playapp::decode_stream, this));
 }
 
@@ -294,10 +300,7 @@ tiz::playapp::check_daemon_mode () const
 
   if (gb_daemon_mode)
   {
-    fprintf (stdout,
-             "Tizonia OpenMAX IL player version %s. "
-             "Starting daemon.\n",
-             PACKAGE_VERSION);
+    TIZ_PRINTF_BLU ("Starting daemon.\n");
     if (-1 == tiz::daemon::daemonize ())
     {
       fprintf (stderr, "Could not daemonize.\n");
@@ -482,7 +485,7 @@ tiz::playapp::decode_local ()
       = boost::make_shared< tiz::graphmgr::decodemgr >();
 
   // TODO: Check return codes
-  p_mgr->init (playlist, graph_error_functor ());
+  p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
   while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
@@ -570,7 +573,7 @@ tiz::playapp::serve_stream ()
       = boost::make_shared< tiz::graphmgr::httpservmgr >(config);
 
   // TODO: Check return codes
-  p_mgr->init (playlist, graph_error_functor ());
+  p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
   while (ETIZPlayUserQuit != wait_for_user_input_while_streaming (p_mgr))
@@ -605,7 +608,7 @@ tiz::playapp::decode_stream ()
       = boost::make_shared< tiz::graphmgr::httpclntmgr >(config);
 
   // TODO: Check return codes
-  p_mgr->init (playlist, graph_error_functor ());
+  p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
   while (ETIZPlayUserQuit != wait_for_user_input_while_streaming (p_mgr))

@@ -55,7 +55,7 @@ namespace tiz
 
     private:
       ops *do_init (const tizplaylist_ptr_t &playlist,
-                    const error_callback_t &error_cback,
+                    const termination_callback_t &termination_cback,
                     graphmgr_capabilities &graphmgr_caps);
 
     private:
@@ -68,7 +68,7 @@ namespace tiz
     {
     public:
       httpservmgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
-                      const error_callback_t &error_cback);
+                      const termination_callback_t &termination_cback);
 
       void do_load ();
       void do_execute ();

@@ -56,7 +56,7 @@ graphmgr::decodemgr::~decodemgr ()
 }
 
 graphmgr::ops *graphmgr::decodemgr::do_init (
-    const tizplaylist_ptr_t &playlist, const error_callback_t &error_cback,
+    const tizplaylist_ptr_t &playlist, const termination_callback_t &termination_cback,
     graphmgr_capabilities_t &graphmgr_caps)
 {
   // Fill this graph manager capabilities
@@ -77,7 +77,7 @@ graphmgr::ops *graphmgr::decodemgr::do_init (
   graphmgr_caps.can_seek_ = false;
   graphmgr_caps.can_control_ = false;
 
-  return new decodemgrops (this, playlist, error_cback);
+  return new decodemgrops (this, playlist, termination_cback);
 }
 
 //
@@ -85,7 +85,7 @@ graphmgr::ops *graphmgr::decodemgr::do_init (
 //
 graphmgr::decodemgrops::decodemgrops (mgr *p_mgr,
                                       const tizplaylist_ptr_t &playlist,
-                                      const error_callback_t &error_cback)
-  : tiz::graphmgr::ops (p_mgr, playlist, error_cback)
+                                      const termination_callback_t &termination_cback)
+  : tiz::graphmgr::ops (p_mgr, playlist, termination_cback)
 {
 }
