@@ -36,6 +36,7 @@
 #include <OMX_Core.h>
 
 #include "tizgraphtypes.hpp"
+#include "tizgraphmgrstatus.hpp"
 #include "tizplaylist.hpp"
 
 #define GMGR_OPS_RECORD_ERROR(err, str)                                     \
@@ -102,6 +103,7 @@ namespace tiz
       virtual void do_report_fatal_error (const OMX_ERRORTYPE error,
                                           const std::string &msg);
       virtual void do_end_of_play ();
+      virtual void do_update_control_ifcs (const PlaybackStatus status);
       virtual bool is_fatal_error (const OMX_ERRORTYPE error,
                                    const std::string &msg);
 
@@ -114,7 +116,7 @@ namespace tiz
       virtual tizgraph_ptr_t get_graph (const std::string &uri);
 
     protected:
-      mgr *p_mgr_;
+      mgr *p_mgr_;              // Not owned
       tizplaylist_ptr_t playlist_;
       tizplaylist_ptr_t next_playlist_;
       tizgraphconfig_ptr_t graph_config_;

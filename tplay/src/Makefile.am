@@ -58,6 +58,8 @@ noinst_HEADERS = \
 	tizhttpclntgraph.hpp \
 	tizhttpclntgraphfsm.hpp \
 	tizhttpclntgraphops.hpp \
+	tizgraphmgrcaps.hpp \
+	tizgraphmgrstatus.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \

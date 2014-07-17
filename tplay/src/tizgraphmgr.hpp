@@ -37,6 +37,7 @@
 #include <OMX_Core.h>
 
 #include "tizgraphtypes.hpp"
+#include "tizgraphmgrstatus.hpp"
 #include "mpris/tizmprismgr.hpp"
 #include "tizgraphmgrfsm.hpp"
 
@@ -62,6 +63,7 @@ namespace tiz
     class mgr
     {
 
+      friend class ops;
       friend class tiz::graph::graph;
       friend void *thread_func (void *);
 
@@ -212,8 +214,11 @@ namespace tiz
       OMX_ERRORTYPE graph_end_of_play ();
       OMX_ERRORTYPE graph_error (const OMX_ERRORTYPE error,
                                  const std::string &msg);
+
       OMX_ERRORTYPE start_mpris (const graphmgr_capabilities &graphmgr_caps);
       OMX_ERRORTYPE stop_mpris ();
+      OMX_ERRORTYPE do_update_control_ifcs (const PlaybackStatus status,
+                                              const std::string &current_song = std::string ());
 
     protected:
       ops *p_ops_;

@@ -324,6 +324,16 @@ graphmgr::mgr::stop_mpris ()
 }
 
 OMX_ERRORTYPE
+graphmgr::mgr::do_update_control_ifcs (const PlaybackStatus status,
+                                       const std::string &current_song)
+{
+  if (mpris_ptr_)
+  {
+    // mpris_ptr_->
+  }
+}
+
+OMX_ERRORTYPE
 graphmgr::mgr::init_cmd_queue ()
 {
   tiz_check_omx_err_ret_oom (tiz_mutex_init (&mutex_));

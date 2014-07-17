@@ -36,6 +36,7 @@
 
 #include "tizgraphfactory.hpp"
 #include "tizgraph.hpp"
+#include "tizgraphmgr.hpp"
 #include "tizgraphconfig.hpp"
 #include "tizgraphmgrops.hpp"
 #include "tizgraphutil.hpp"
@@ -181,11 +182,6 @@ void graphmgr::ops::do_stop ()
   if (p_managed_graph_)
   {
     p_managed_graph_->stop ();
-    if (next_playlist_)
-      {
-        TIZ_LOG (TIZ_PRIORITY_NOTICE, "current playlist item [%d]", next_playlist_->current_index ());
-//         next_playlist_->set_index (playlist_->single_format ());
-      }
   }
 }
 
@@ -254,6 +250,15 @@ void graphmgr::ops::do_report_fatal_error (const OMX_ERRORTYPE error,
 void graphmgr::ops::do_end_of_play ()
 {
   termination_cback_ (OMX_ErrorNone, "End of playlist.");
+}
+
+void graphmgr::ops::do_update_control_ifcs (const PlaybackStatus status)
+{
+  if (p_mgr_ && next_playlist_)
+    {
+      std::string current_stream = next_playlist_->get_current_uri ();
+      p_mgr_->do_update_control_ifcs (status, current_stream);
+    }
 }
 
 bool graphmgr::ops::is_fatal_error (const OMX_ERRORTYPE error,

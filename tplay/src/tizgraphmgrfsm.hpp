@@ -46,6 +46,7 @@
 
 #include <tizplatform.h>
 
+#include "tizgraphmgrstatus.hpp"
 #include "tizgraphmgrops.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -380,7 +381,14 @@ namespace tiz
       struct running : public boost::msm::front::state<>
       {
         template <class Event,class FSM>
-        void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
+        void on_entry(Event const&, FSM& fsm)
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            (*(fsm.pp_ops_))->do_update_control_ifcs (Playing);
+          }
+        }
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
@@ -397,7 +405,14 @@ namespace tiz
       struct stopped : public boost::msm::front::state<>
       {
         template <class Event,class FSM>
-        void on_entry(Event const&,FSM& fsm) {GMGR_FSM_LOG ();}
+        void on_entry(Event const&,FSM& fsm)
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            (*(fsm.pp_ops_))->do_update_control_ifcs (Stopped);
+          }
+        }
         template <class Event,class FSM>
         void on_exit(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };

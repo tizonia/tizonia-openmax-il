@@ -31,25 +31,45 @@
 
 #include <assert.h>
 
+#include <boost/foreach.hpp>
+
 #include <tizplatform.h>
 
 #include "tizmprisif.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.control.mprisif"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.mprisif"
 #endif
 
 namespace control = tiz::control;
 
-// Object path, a.k.a. node
-const char *control::mprisif::TPLAY_MPRIS_OBJECT_PATH = "/com/aratelia/tiz/tplay";
+namespace
+{
 
-control::mprisif::mprisif (
-    DBus::Connection& connection,
-    mpris_mediaplayer2_props_t props,
-    mpris_mediaplayer2_player_props_t player_props,
-    mpris_callbacks_t cbacks)
+  std::map< std::string, DBus::Variant > toDbusMetadata (
+      const std::map< std::string, std::string > &meta)
+  {
+    std::map< std::string, DBus::Variant > dbus_meta;
+    typedef std::map< std::string, std::string >::value_type dbus_meta_t;
+    BOOST_FOREACH (dbus_meta_t val, meta)
+    {
+      DBus::MessageIter it;
+      dbus_meta.insert (std::make_pair< std::string, DBus::Variant >(
+          val.first, DBus::Variant ((it << val.second))));
+    }
+    return dbus_meta;
+  }
+}
+
+// Object path, a.k.a. node
+const char *control::mprisif::TPLAY_MPRIS_OBJECT_PATH
+    = "/com/aratelia/tiz/tplay";
+
+control::mprisif::mprisif (DBus::Connection &connection,
+                           mpris_mediaplayer2_props_t props,
+                           mpris_mediaplayer2_player_props_t player_props,
+                           mpris_callbacks_t cbacks)
   : DBus::ObjectAdaptor (connection, TPLAY_MPRIS_OBJECT_PATH),
     props_ (props),
     player_props_ (player_props),
@@ -60,16 +80,25 @@ control::mprisif::mprisif (
   UpdatePlayerProps (player_props_);
 }
 
-void control::mprisif::on_set_property
-(DBus::InterfaceAdaptor &interface, const std::string &property, const DBus::Variant &value)
+void control::mprisif::on_set_property (DBus::InterfaceAdaptor &interface,
+                                        const std::string &property,
+                                        const DBus::Variant &value)
 {
-  if (property == "Volumen")
+  if (property == "Volume")
   {
-    std::cout << "'Message' has been changed\n";
+    double vol = value;
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "Volume has changed : %f", vol);
   }
-  if (property == "Data")
+  else if (property == "Shuffle")
   {
-    std::cout << "'Data' has been changed\n";
+    bool shuffle = value;
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "Shuffle has changed : %s",
+             shuffle ? "YES" : "NO");
+  }
+  else if (property == "LoopStatus")
+  {
+    std::string loop = value;
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "Shuffle has changed : %s", loop.c_str ());
   }
 }
 
@@ -113,18 +142,18 @@ void control::mprisif::Play ()
   cbacks_.play_ ();
 }
 
-void control::mprisif::Seek (const int64_t& Offset)
+void control::mprisif::Seek (const int64_t &Offset)
 {
   // No-op for now
 }
 
-void control::mprisif::SetPosition (const ::DBus::Path& TrackId,
-                                    const int64_t& Position)
+void control::mprisif::SetPosition (const ::DBus::Path &TrackId,
+                                    const int64_t &Position)
 {
   // No-op for now
 }
 
-void control::mprisif::OpenUri (const std::string& Uri)
+void control::mprisif::OpenUri (const std::string &Uri)
 {
   // No-op for now
 }
@@ -146,7 +175,7 @@ void control::mprisif::UpdatePlayerProps (
   LoopStatus = props.loop_status_;
   Rate = props.rate_;
   Shuffle = props.shuffle_;
-  // Metadata = props.metadata_;
+  Metadata = toDbusMetadata (props.metadata_);
   Volume = props.volume_;
   Position = props.position_;
   MinimumRate = props.minimum_rate_;
