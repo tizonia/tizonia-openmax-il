@@ -19,11 +19,47 @@
 # Simple MPRIS2-based remote control for tplay
 #
 
+if [[ $# -gt 2 ]]
+then
+    usage
+    exit 1
+fi
+
+# Constants
+readonly dbuscmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay'
+readonly mediaifc='org.mpris.MediaPlayer2'
+readonly playerifc='org.mpris.MediaPlayer2.Player'
+readonly propgetifc='org.freedesktop.DBus.Properties.Get'
+readonly propsetifc='org.freedesktop.DBus.Properties.Set'
+
+readonly canquitcmd='$dbuscmd $propgetifc string:"$mediaifc" string:"CanQuit"'
+readonly canraisecmd='$dbuscmd $propgetifc string:"$mediaifc" string:"CanRaise"'
+readonly hastracklistcmd='$dbuscmd $propgetifc string:"$mediaifc" string:"HasTrackList"'
+readonly identitycmd='$dbuscmd $propgetifc string:"$mediaifc" string:"Identity"'
+readonly urischemescmd='$dbuscmd $propgetifc string:"$mediaifc" string:"SupportedUriSchemes"'
+readonly mimetypescmd='$dbuscmd $propgetifc string:"$mediaifc" string:"SupportedMimeTypes"'
+
+readonly playstatuscmd='$dbuscmd $propgetifc string:"$playerifc" string:"PlaybackStatus"'
+readonly loopstatusgetcmd='$dbuscmd $propgetifc string:"$playerifc" string:"LoopStatus"'
+readonly ratecmd='$dbuscmd $propgetifc string:"$playerifc" string:"Rate"'
+readonly shufflecmd='$dbuscmd $propgetifc string:"$playerifc" string:"Shuffle"'
+readonly metadatacmd='$dbuscmd $propgetifc string:"$playerifc" string:"Metadata"'
+readonly volumegetcmd='$dbuscmd $propgetifc string:"$playerifc" string:"Volume"'
+readonly volumesetcmd='$dbuscmd $propsetifc string:"$playerifc" string:"Volume" variant:double:$2 &> /dev/null'
+
+readonly playcmd='$dbuscmd $playerifc.Play   &> /dev/null'
+readonly pausecmd="$dbuscmd $playerifc.Pause &> /dev/null"
+readonly stopcmd='$dbuscmd $playerifc.Stop   &> /dev/null'
+readonly nextcmd='$dbuscmd $playerifc.Next   &> /dev/null'
+readonly prevcmd='$dbuscmd $playerifc.Previous   &> /dev/null'
+readonly quitcmd='$dbuscmd $mediaifc.Quit   &> /dev/null'
+
 function usage {
     echo "tizonia-remote. Copyright (C) 2014 Juan A. Rubio"
     echo "This software is part of Tizonia <http://tizonia.org>"
     echo
-    echo "Usage : $0 <play|pause|stop|next|prev|quit|kill>"
+    echo "Usage : $0 <canquit|canraise|hastracklist|identity|urischemes|mimetypes..."
+    echo "...|playstatus|loopstatus|rate|shuffle|metadata|volume|play|pause|stop|prev|next|quit|kill>"
 }
 
 function start_dbus {
@@ -36,24 +72,51 @@ function start_dbus {
     fi
 }
 
-if [[ $# -ne 1 ]]
-then
-    usage
-    exit 1
-fi
-
-# Constants
-readonly playcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Play   &> /dev/null'
-readonly pausecmd="dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Pause &> /dev/null"
-readonly stopcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Stop   &> /dev/null'
-readonly nextcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Next   &> /dev/null'
-readonly prevcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Player.Previous   &> /dev/null'
-readonly quitcmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay org.mpris.MediaPlayer2.Quit   &> /dev/null'
-
-start_dbus
-
 function main {
+    start_dbus
+
     case "$1" in
+        canquit)
+            eval "$canquitcmd"  | sed 1d | cut -c26-
+            ;;
+        canraise)
+            eval "$canraisecmd"  | sed 1d | cut -c26-
+            ;;
+        hastracklist)
+            eval "$hastracklistcmd" | sed 1d | cut -c26-
+            ;;
+        identity)
+            eval "$identitycmd" | sed 1d | cut -c25-
+            ;;
+        urischemes)
+            eval "$urischemescmd" | sed 1,2d | sed '$ d' | cut -c17-
+            ;;
+        mimetypes)
+            eval "$mimetypescmd" | sed 1,2d | sed '$ d' | cut -c17-
+            ;;
+        playstatus)
+            eval "$playstatuscmd" | sed 1d | cut -c25-
+            ;;
+        loopstatus)
+            eval "$loopstatusgetcmd" | sed 1d | cut -c25-
+            ;;
+        rate)
+            eval "$ratecmd" | sed 1d | cut -c25-
+            ;;
+        shuffle)
+            eval "$shufflecmd" | sed 1d | cut -c26-
+            ;;
+        metadata)
+            eval "$metadatacmd" #| sed 1d | cut -c26-
+            ;;
+        volume)
+            if [[ $# -eq 2 ]]
+            then
+                eval "$volumesetcmd"
+            else
+                eval "$volumegetcmd" | sed 1d | cut -c25-
+            fi
+            ;;
         play)
             eval "$playcmd"
             ;;
@@ -75,7 +138,7 @@ function main {
         kill) echo  "Sending SIGKILL signal"
             killall -TERM tplay
             ;;
-        *) echo "Unknonw command"
+        *) echo "Unknown command"
             usage
             exit 1
             ;;
