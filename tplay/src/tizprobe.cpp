@@ -337,7 +337,8 @@ int tiz::probe::probe_file ()
       {
         set_vorbis_codec_info (cc);
       }
-      // TODO:
+      // TODO: This won't work on Ubuntu 12.04, so it's commented out for now
+      //
       //       else if (codec_id == AV_CODEC_ID_OPUS)
       //       {
       //         set_opus_codec_info ();
@@ -486,7 +487,7 @@ void tiz::probe::set_opus_codec_info ()
       = static_cast< OMX_AUDIO_CODINGTYPE >(OMX_AUDIO_CodingOPUS);
   opustype_.nSampleRate = 48000;
   pcmtype_.nSamplingRate = 48000;
-  mp3type_.nChannels = 2;
+  opustype_.nChannels = 2;
   pcmtype_.nChannels = 2;
 
   pcmtype_.bInterleaved = OMX_TRUE;
@@ -599,6 +600,12 @@ void tiz::probe::get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
   return;
 }
 
+void tiz::probe::set_pcm_codec_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
+{
+  pcmtype_ = pcmtype;
+  return;
+}
+
 void tiz::probe::get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE &mp3type)
 {
   if (OMX_PortDomainMax == domain_)
@@ -627,6 +634,7 @@ void tiz::probe::get_opus_codec_info (
     (void)probe_file ();
   }
   opustype = opustype_;
+
   return;
 }
 

@@ -58,6 +58,7 @@ namespace tiz
     OMX_MEDIACONTAINER_FORMATTYPE get_container_type ();
 
     void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
+    void set_pcm_codec_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
     void get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE &mp3type);
     void get_aac_codec_info (OMX_AUDIO_PARAM_AACPROFILETYPE &aactype);
     void get_opus_codec_info (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);

@@ -46,6 +46,7 @@ noinst_HEADERS = \
 	tizmp3graph.hpp \
 	tizaacgraph.hpp \
 	tizopusgraph.hpp \
+	tizoggopusgraph.hpp \
 	tizvorbisgraph.hpp
 	tizflacgraph.hpp \
 	tizoggflacgraph.hpp \
@@ -88,6 +89,7 @@ tplay_SOURCES = \
 	tizmp3graph.cpp \
 	tizaacgraph.cpp \
 	tizopusgraph.cpp \
+	tizoggopusgraph.cpp \
 	tizvorbisgraph.cpp \
 	tizflacgraph.cpp \
 	tizoggflacgraph.cpp \

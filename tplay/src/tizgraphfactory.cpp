@@ -39,6 +39,7 @@
 #include "tizmp3graph.hpp"
 #include "tizaacgraph.hpp"
 #include "tizopusgraph.hpp"
+#include "tizoggopusgraph.hpp"
 #include "tizvorbisgraph.hpp"
 #include "tizflacgraph.hpp"
 #include "tizoggflacgraph.hpp"
@@ -69,7 +70,14 @@ tizgraph_ptr_t graph::factory::create_graph (const std::string &uri)
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingOPUS)
   {
-    return boost::make_shared< tiz::graph::opusdecoder >();
+    if (p->get_container_type () == OMX_FORMAT_RAW)
+      {
+        return boost::make_shared< tiz::graph::oggopusdecoder >();
+      }
+    else if (p->get_container_type () == OMX_FORMAT_OGG)
+      {
+        return boost::make_shared< tiz::graph::oggopusdecoder >();
+      }
   }
   else if (p->get_omx_domain () == OMX_PortDomainAudio
            && p->get_audio_coding_type () == OMX_AUDIO_CodingFLAC)
