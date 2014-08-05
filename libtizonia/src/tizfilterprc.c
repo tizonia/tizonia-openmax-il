@@ -47,6 +47,9 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.filterprc"
 #endif
 
+/* Forward declaration */
+static OMX_ERRORTYPE filter_prc_release_all_headers (tiz_filter_prc_t *ap_prc);
+
 /*
  * filterprc
  */
@@ -146,26 +149,33 @@ tiz_filter_prc_headers_available (const void *ap_obj)
 static OMX_ERRORTYPE
 filter_prc_release_header (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
 {
-  OMX_BUFFERHEADERTYPE **pp_hdr = tiz_filter_prc_get_header_ptr (ap_prc, a_pid);
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != pp_hdr);
-  p_hdr = *pp_hdr;
+  if (OMX_ALL == a_pid)
+    {
+      rc = filter_prc_release_all_headers (ap_prc);
+    }
+  else
+    {
+      OMX_BUFFERHEADERTYPE **pp_hdr = tiz_filter_prc_get_header_ptr (ap_prc, a_pid);
+      OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  if (NULL != p_hdr)
-  {
-    TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] pid [%d] "
-               "nFilledLen [%d] nFlags [%d]",
-               p_hdr, a_pid, p_hdr->nFilledLen, p_hdr->nFlags);
+      assert (NULL != pp_hdr);
+      p_hdr = *pp_hdr;
 
-    p_hdr->nOffset = 0;
-    tiz_check_omx_err
-      (tiz_krn_release_buffer
-      (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr));
-    *pp_hdr = NULL;
-  }
+      if (NULL != p_hdr)
+        {
+          TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] pid [%d] "
+                     "nFilledLen [%d] nFlags [%d]",
+                     p_hdr, a_pid, p_hdr->nFilledLen, p_hdr->nFlags);
 
-  return OMX_ErrorNone;
+          p_hdr->nOffset = 0;
+          rc = tiz_krn_release_buffer
+             (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr);
+          *pp_hdr = NULL;
+        }
+    }
+  return rc;
 }
 
 OMX_ERRORTYPE
