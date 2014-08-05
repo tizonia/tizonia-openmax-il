@@ -421,14 +421,16 @@ void graph::ops::do_record_fatal_error (const OMX_HANDLETYPE handle,
                                         const OMX_ERRORTYPE error,
                                         const OMX_U32 port)
 {
-  std::string msg ("Error reported by : [");
+  std::string msg ("Fatal error reported by : [");
   msg.append (handle2name (handle));
   if (port != OMX_ALL)
   {
     msg.append (":port:");
     msg.append (boost::lexical_cast< std::string >(port));
   }
-  msg.append ("].");
+  msg.append ("] - [");
+  msg.append (std::string (tiz_err_to_str (error)));
+  msg.append ("]");
   record_error (error, msg);
 }
 
