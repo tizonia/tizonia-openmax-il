@@ -477,10 +477,6 @@ opusd_prc_buffers_ready (const void *ap_obj)
           while (headers_available (p_prc) && OMX_ErrorNone == rc)
             {
               rc = transform_buffer (p_prc);
-              if (OMX_ErrorNone)
-                {
-                  p_prc->packet_count_++;
-                }
             }
         }
     }
