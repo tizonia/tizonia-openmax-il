@@ -102,6 +102,8 @@
 <!--         <category name="tiz.aac_decoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.aac_decoder.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.aac_decoder.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.opusfile_decoder" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.opusfile_decoder.prc" priority="trace" appender="tizlogfile" /> -->
 
 <!--         <category name="tiz.play" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.play.omxutil" priority="trace" appender="tizlogfile" /> -->
