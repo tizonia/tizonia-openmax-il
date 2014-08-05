@@ -340,8 +340,8 @@ static OMX_ERRORTYPE transform_buffer (vorbisd_prc_t *ap_prc)
     {
       unsigned char *p_data = p_in->pBuffer + p_in->nOffset;
       const long len = p_in->nFilledLen;
-      TIZ_TRACE (handleOf (ap_prc), "p_in->nFilledLen [%d] ", p_in->nFilledLen);
       long bytes_consumed = fish_sound_decode (ap_prc->p_fsnd_, p_data, len);
+      TIZ_TRACE (handleOf (ap_prc), "p_in->nFilledLen [%d] ", p_in->nFilledLen);
       TIZ_TRACE (handleOf (ap_prc), "bytes_consumed [%d] ", bytes_consumed);
 
       if (bytes_consumed >= 0)
