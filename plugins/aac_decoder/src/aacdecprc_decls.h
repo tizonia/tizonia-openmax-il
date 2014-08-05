@@ -37,6 +37,8 @@ extern "C" {
 
 #include <neaacdec.h>
 
+#include <tizplatform.h>
+
 #include <tizfilterprc.h>
 #include <tizfilterprc_decls.h>
 

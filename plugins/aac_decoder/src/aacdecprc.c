@@ -62,10 +62,7 @@ static OMX_ERRORTYPE allocate_temp_data_store (aacdec_prc_t *ap_prc)
                             OMX_IndexParamPortDefinition, &port_def));
 
   assert (ap_prc->p_store_ == NULL);
-  tiz_check_omx_err (
-      tiz_buffer_init (&(ap_prc->p_store_), port_def.nBufferSize));
-
-  return OMX_ErrorNone;
+  return tiz_buffer_init (&(ap_prc->p_store_), port_def.nBufferSize);
 }
 
 static inline void deallocate_temp_data_store (
@@ -499,15 +496,7 @@ static OMX_ERRORTYPE aacdec_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 static OMX_ERRORTYPE aacdec_prc_port_disable (const void *ap_prc, OMX_U32 a_pid)
 {
   aacdec_prc_t *p_prc = (aacdec_prc_t *)ap_prc;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  if (OMX_ALL == a_pid)
-    {
-      rc = tiz_filter_prc_release_all_headers (p_prc);
-    }
-  else
-    {
-      rc = tiz_filter_prc_release_header (p_prc, a_pid);
-    }
+  OMX_ERRORTYPE rc = tiz_filter_prc_release_header (p_prc, a_pid);
   tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, true);
   return rc;
 }
