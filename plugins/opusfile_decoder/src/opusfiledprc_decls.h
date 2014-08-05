@@ -16,29 +16,53 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 /**
- * @file   opusdv2prc.h
+ * @file   opusfiledprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Opus Decoder (libopusfile-based) processor
+ * @brief  Opus Decoder (libopusfile-based) processor declarations
  *
  *
  */
 
-#ifndef OPUSDV2PRC_H
-#define OPUSDV2PRC_H
+#ifndef OPUSDV2PRC_DECLS_H
+#define OPUSDV2PRC_DECLS_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  void * opusdv2_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * opusdv2_prc_init (void * ap_tos, void * ap_hdl);
+#include <stdbool.h>
+
+#include <opusfile.h>
+
+#include <OMX_Core.h>
+#include <tizplatform.h>
+
+#include <tizfilterprc.h>
+#include <tizfilterprc_decls.h>
+
+  typedef struct opusfiled_prc opusfiled_prc_t;
+  struct opusfiled_prc
+  {
+    /* Object */
+    const tiz_filter_prc_t _;
+    OggOpusFile *p_opus_dec_;
+    bool decoder_inited_;
+    tiz_buffer_t *p_store_;
+  };
+
+  typedef struct opusfiled_prc_class opusfiled_prc_class_t;
+  struct opusfiled_prc_class
+  {
+    /* Class */
+    const tiz_filter_prc_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* OPUSDV2PRC_H */
+#endif                          /* OPUSDV2PRC_DECLS_H */

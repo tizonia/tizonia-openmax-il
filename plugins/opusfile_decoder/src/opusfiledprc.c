@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   opusdv2prc.c
+ * @file   opusfiledprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Opus Decoder (libopusfile-based) processor
@@ -36,9 +36,9 @@
 #include <tizkernel.h>
 #include <tizscheduler.h>
 
-#include "opusdv2.h"
-#include "opusdv2prc.h"
-#include "opusdv2prc_decls.h"
+#include "opusfiled.h"
+#include "opusfiledprc.h"
+#include "opusfiledprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -46,9 +46,9 @@
 #endif
 
 /* Forward declarations */
-static OMX_ERRORTYPE opusdv2_prc_deallocate_resources (void *);
+static OMX_ERRORTYPE opusfiled_prc_deallocate_resources (void *);
 
-static OMX_ERRORTYPE allocate_temp_data_store (opusdv2_prc_t *ap_prc)
+static OMX_ERRORTYPE allocate_temp_data_store (opusfiled_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
 
@@ -64,7 +64,7 @@ static OMX_ERRORTYPE allocate_temp_data_store (opusdv2_prc_t *ap_prc)
 }
 
 static inline void deallocate_temp_data_store (
-    /*@special@ */ opusdv2_prc_t *ap_prc)
+    /*@special@ */ opusfiled_prc_t *ap_prc)
 /*@releases ap_prc->p_store_@ */
 /*@ensures isnull ap_prc->p_store_@ */
 {
@@ -75,7 +75,7 @@ static inline void deallocate_temp_data_store (
 
 static int read_cback (void *ap_private, unsigned char *ap_ptr, int a_nbytes)
 {
-  opusdv2_prc_t *p_prc = ap_private;
+  opusfiled_prc_t *p_prc = ap_private;
   int bytes_to_read = 0;
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
       p_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
@@ -112,7 +112,7 @@ static int read_cback (void *ap_private, unsigned char *ap_ptr, int a_nbytes)
   return bytes_to_read;
 }
 
-static OMX_ERRORTYPE init_opus_decoder (opusdv2_prc_t *ap_prc)
+static OMX_ERRORTYPE init_opus_decoder (opusfiled_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != tiz_filter_prc_get_header (
@@ -138,7 +138,7 @@ static OMX_ERRORTYPE init_opus_decoder (opusdv2_prc_t *ap_prc)
   return rc;
 }
 
-static OMX_ERRORTYPE transform_buffer (opusdv2_prc_t *ap_prc)
+static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
@@ -209,7 +209,7 @@ static OMX_ERRORTYPE transform_buffer (opusdv2_prc_t *ap_prc)
   return rc;
 }
 
-static void reset_stream_parameters (opusdv2_prc_t *ap_prc)
+static void reset_stream_parameters (opusfiled_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   ap_prc->decoder_inited_ = false;
@@ -217,40 +217,40 @@ static void reset_stream_parameters (opusdv2_prc_t *ap_prc)
 }
 
 /*
- * opusdv2prc
+ * opusfiledprc
  */
 
-static void *opusdv2_prc_ctor (void *ap_obj, va_list *app)
+static void *opusfiled_prc_ctor (void *ap_obj, va_list *app)
 {
-  opusdv2_prc_t *p_prc
-      = super_ctor (typeOf (ap_obj, "opusdv2prc"), ap_obj, app);
+  opusfiled_prc_t *p_prc
+      = super_ctor (typeOf (ap_obj, "opusfiledprc"), ap_obj, app);
   assert (NULL != p_prc);
   reset_stream_parameters (p_prc);
   return p_prc;
 }
 
-static void *opusdv2_prc_dtor (void *ap_obj)
+static void *opusfiled_prc_dtor (void *ap_obj)
 {
-  (void)opusdv2_prc_deallocate_resources (ap_obj);
-  return super_dtor (typeOf (ap_obj, "opusdv2prc"), ap_obj);
+  (void)opusfiled_prc_deallocate_resources (ap_obj);
+  return super_dtor (typeOf (ap_obj, "opusfiledprc"), ap_obj);
 }
 
 /*
  * from tizsrv class
  */
 
-static OMX_ERRORTYPE opusdv2_prc_allocate_resources (void *ap_obj,
+static OMX_ERRORTYPE opusfiled_prc_allocate_resources (void *ap_obj,
                                                      OMX_U32 a_pid)
 {
-  opusdv2_prc_t *p_prc = ap_obj;
+  opusfiled_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
   tiz_check_omx_err (allocate_temp_data_store (p_prc));
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE opusdv2_prc_deallocate_resources (void *ap_obj)
+static OMX_ERRORTYPE opusfiled_prc_deallocate_resources (void *ap_obj)
 {
-  opusdv2_prc_t *p_prc = ap_obj;
+  opusfiled_prc_t *p_prc = ap_obj;
   deallocate_temp_data_store (p_prc);
   assert (NULL != p_prc);
   op_free (p_prc->p_opus_dec_);
@@ -258,20 +258,20 @@ static OMX_ERRORTYPE opusdv2_prc_deallocate_resources (void *ap_obj)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE opusdv2_prc_prepare_to_transfer (void *ap_obj,
+static OMX_ERRORTYPE opusfiled_prc_prepare_to_transfer (void *ap_obj,
                                                       OMX_U32 a_pid)
 {
   reset_stream_parameters (ap_obj);
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE opusdv2_prc_transfer_and_process (void *ap_obj,
+static OMX_ERRORTYPE opusfiled_prc_transfer_and_process (void *ap_obj,
                                                        OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE opusdv2_prc_stop_and_return (void *ap_obj)
+static OMX_ERRORTYPE opusfiled_prc_stop_and_return (void *ap_obj)
 {
   return tiz_filter_prc_release_all_headers (ap_obj);
 }
@@ -280,9 +280,9 @@ static OMX_ERRORTYPE opusdv2_prc_stop_and_return (void *ap_obj)
  * from tizprc class
  */
 
-static OMX_ERRORTYPE opusdv2_prc_buffers_ready (const void *ap_obj)
+static OMX_ERRORTYPE opusfiled_prc_buffers_ready (const void *ap_obj)
 {
-  opusdv2_prc_t *p_prc = (opusdv2_prc_t *)ap_obj;
+  opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != ap_obj);
@@ -312,92 +312,92 @@ static OMX_ERRORTYPE opusdv2_prc_buffers_ready (const void *ap_obj)
   return rc;
 }
 
-static OMX_ERRORTYPE opusdv2_proc_port_flush (const void *ap_prc, OMX_U32 a_pid)
+static OMX_ERRORTYPE opusfiled_proc_port_flush (const void *ap_prc, OMX_U32 a_pid)
 {
-  opusdv2_prc_t *p_prc = (opusdv2_prc_t *)ap_prc;
+  opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_prc;
   return tiz_filter_prc_release_header (p_prc, a_pid);
 }
 
-static OMX_ERRORTYPE opusdv2_prc_port_disable (const void *ap_prc,
+static OMX_ERRORTYPE opusfiled_prc_port_disable (const void *ap_prc,
                                                OMX_U32 a_pid)
 {
-  opusdv2_prc_t *p_prc = (opusdv2_prc_t *)ap_prc;
+  opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = tiz_filter_prc_release_header (p_prc, a_pid);
   tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, true);
   return rc;
 }
 
-static OMX_ERRORTYPE opusdv2_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
+static OMX_ERRORTYPE opusfiled_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
-  opusdv2_prc_t *p_prc = (opusdv2_prc_t *)ap_prc;
+  opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_prc;
   tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, false);
   return OMX_ErrorNone;
 }
 
 /*
- * opusdv2_prc_class
+ * opusfiled_prc_class
  */
 
-static void *opusdv2_prc_class_ctor (void *ap_obj, va_list *app)
+static void *opusfiled_prc_class_ctor (void *ap_obj, va_list *app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "opusdv2prc_class"), ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "opusfiledprc_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-void *opusdv2_prc_class_init (void *ap_tos, void *ap_hdl)
+void *opusfiled_prc_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
-  void *opusdv2prc_class = factory_new
+  void *opusfiledprc_class = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizfilterprc), "opusdv2prc_class", classOf (tizfilterprc),
-       sizeof(opusdv2_prc_class_t),
+      (classOf (tizfilterprc), "opusfiledprc_class", classOf (tizfilterprc),
+       sizeof(opusfiled_prc_class_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
        /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, opusdv2_prc_class_ctor,
+       ctor, opusfiled_prc_class_ctor,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
-  return opusdv2prc_class;
+  return opusfiledprc_class;
 }
 
-void *opusdv2_prc_init (void *ap_tos, void *ap_hdl)
+void *opusfiled_prc_init (void *ap_tos, void *ap_hdl)
 {
   void *tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
-  void *opusdv2prc_class = tiz_get_type (ap_hdl, "opusdv2prc_class");
-  TIZ_LOG_CLASS (opusdv2prc_class);
-  void *opusdv2prc = factory_new
+  void *opusfiledprc_class = tiz_get_type (ap_hdl, "opusfiledprc_class");
+  TIZ_LOG_CLASS (opusfiledprc_class);
+  void *opusfiledprc = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (opusdv2prc_class, "opusdv2prc", tizfilterprc, sizeof(opusdv2_prc_t),
+      (opusfiledprc_class, "opusfiledprc", tizfilterprc, sizeof(opusfiled_prc_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
        /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, opusdv2_prc_ctor,
+       ctor, opusfiled_prc_ctor,
        /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, opusdv2_prc_dtor,
+       dtor, opusfiled_prc_dtor,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_allocate_resources, opusdv2_prc_allocate_resources,
+       tiz_srv_allocate_resources, opusfiled_prc_allocate_resources,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_deallocate_resources, opusdv2_prc_deallocate_resources,
+       tiz_srv_deallocate_resources, opusfiled_prc_deallocate_resources,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_prepare_to_transfer, opusdv2_prc_prepare_to_transfer,
+       tiz_srv_prepare_to_transfer, opusfiled_prc_prepare_to_transfer,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_transfer_and_process, opusdv2_prc_transfer_and_process,
+       tiz_srv_transfer_and_process, opusfiled_prc_transfer_and_process,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stop_and_return, opusdv2_prc_stop_and_return,
+       tiz_srv_stop_and_return, opusfiled_prc_stop_and_return,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, opusdv2_prc_buffers_ready,
+       tiz_prc_buffers_ready, opusfiled_prc_buffers_ready,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_flush, opusdv2_proc_port_flush,
+       tiz_prc_port_flush, opusfiled_proc_port_flush,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_disable, opusdv2_prc_port_disable,
+       tiz_prc_port_disable, opusfiled_prc_port_disable,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_enable, opusdv2_prc_port_enable,
+       tiz_prc_port_enable, opusfiled_prc_port_enable,
        /* TIZ_CLASS_COMMENT: stop value */
        0);
 
-  return opusdv2prc;
+  return opusfiledprc;
 }

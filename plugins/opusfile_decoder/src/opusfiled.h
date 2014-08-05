@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   opusdv2.h
+ * @file   opusfiled.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Opus Decoder (libopusfile-based) component constants

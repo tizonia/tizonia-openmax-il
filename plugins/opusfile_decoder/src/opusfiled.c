@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   opusdv2.c
+ * @file   opusfiled.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Opus Decoder (libopusfile-based) component
@@ -43,8 +43,8 @@
 #include <tizport.h>
 #include <tizscheduler.h>
 
-#include "opusdv2prc.h"
-#include "opusdv2.h"
+#include "opusfiledprc.h"
+#include "opusfiled.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -158,7 +158,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "opusdv2prc"));
+  return factory_new (tiz_get_type (ap_hdl, "opusfiledprc"));
 }
 
 OMX_ERRORTYPE
@@ -166,8 +166,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
-  tiz_type_factory_t opusdv2prc_type;
-  const tiz_type_factory_t *tf_list[] = { &opusdv2prc_type };
+  tiz_type_factory_t opusfiledprc_type;
+  const tiz_type_factory_t *tf_list[] = { &opusfiledprc_type };
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_OPUS_DECODER_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;
@@ -176,15 +176,15 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   role_factory.nports     = 2;
   role_factory.pf_proc    = instantiate_processor;
 
-  strcpy ((OMX_STRING) opusdv2prc_type.class_name, "opusdv2prc_class");
-  opusdv2prc_type.pf_class_init = opusdv2_prc_class_init;
-  strcpy ((OMX_STRING) opusdv2prc_type.object_name, "opusdv2prc");
-  opusdv2prc_type.pf_object_init = opusdv2_prc_init;
+  strcpy ((OMX_STRING) opusfiledprc_type.class_name, "opusfiledprc_class");
+  opusfiledprc_type.pf_class_init = opusfiled_prc_class_init;
+  strcpy ((OMX_STRING) opusfiledprc_type.object_name, "opusfiledprc");
+  opusfiledprc_type.pf_object_init = opusfiled_prc_init;
 
   /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_OPUS_DECODER_COMPONENT_NAME));
 
-  /* Register the "opusdv2prc" class */
+  /* Register the "opusfiledprc" class */
   tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
   /* Register the component role(s) */

@@ -15,24 +15,24 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizopusdv2.la
+lib_LTLIBRARIES = libtizopusfiled.la
 
 noinst_HEADERS = \
-	opusdv2.h \
-	opusdv2prc.h \
-	opusdv2prc_decls.h
+	opusfiled.h \
+	opusfiledprc.h \
+	opusfiledprc_decls.h
 
-libtizopusdv2_la_SOURCES = \
-	opusdv2.c \
-	opusdv2prc.c
+libtizopusfiled_la_SOURCES = \
+	opusfiled.c \
+	opusfiledprc.c
 
-libtizopusdv2_la_CFLAGS = \
+libtizopusfiled_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../../libtizonia/src \
 	@OPUSFILE_CFLAGS@
 
-libtizopusdv2_la_LIBADD = \
+libtizopusfiled_la_LIBADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
 	@OPUSFILE_LIBS@
