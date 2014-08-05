@@ -69,7 +69,6 @@ is_audio_content (const OggzStreamContent content)
     case OGGZ_CONTENT_FLAC0:
     case OGGZ_CONTENT_FLAC:
     case OGGZ_CONTENT_CELT:
-    case OGGZ_CONTENT_OPUS:
       return true;
     default:
       return false;
@@ -82,7 +81,6 @@ is_video_content (const OggzStreamContent content)
   switch (content)
     {
     case OGGZ_CONTENT_THEORA:
-    case OGGZ_CONTENT_VP8:
       return true;
     default:
       return false;
