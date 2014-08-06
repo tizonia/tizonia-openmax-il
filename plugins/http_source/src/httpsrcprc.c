@@ -540,7 +540,7 @@ static void update_cache_size (httpsrc_prc_t *ap_prc)
   assert (NULL != ap_prc);
   assert (ap_prc->bitrate_ > 0);
   ap_prc->cache_bytes_ = ((ap_prc->bitrate_ * 1000) / 8)
-    * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+                         * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
 }
 
 static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
@@ -656,16 +656,26 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
 
 static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
 {
-  TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortFormatDetected");
-  tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortFormatDetected, 0, 0,
-                       NULL);
-  TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged");
-  tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
-                       ARATELIA_HTTP_SOURCE_PORT_INDEX, /* port 0 */
-                       OMX_IndexParamPortDefinition,    /* the index of the
-                                                     struct that has
-                                                     been modififed */
-                       NULL);
+
+  if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
+      || ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
+    {
+      TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortFormatDetected");
+      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortFormatDetected, 0, 0,
+                           NULL);
+      TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged");
+      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
+                           ARATELIA_HTTP_SOURCE_PORT_INDEX, /* port 0 */
+                           OMX_IndexParamPortDefinition,    /* the index of the
+                                                            struct that has
+                                                            been modififed */
+                           NULL);
+    }
+  else
+    {
+      /* Oops... could not detect the stream format */
+      tiz_srv_issue_err_event ((OMX_PTR)ap_prc, OMX_ErrorFormatNotDetected);
+    }
 }
 
 /* This function gets called by libcurl as soon as it has received header
@@ -753,7 +763,8 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
           stop_curl_timer_watcher (p_prc);
 
           /* And now trigger the OMX_EventPortFormatDetected and
-             OMX_EventPortSettingsChanged events */
+             OMX_EventPortSettingsChanged events or a
+             OMX_ErrorFormatNotDetected event */
           send_port_auto_detect_events (p_prc);
         }
       else
@@ -1266,8 +1277,8 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
   p_prc->curl_timeout_ = 0;
   p_prc->p_ev_reconnect_timer_ = NULL;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
-  p_prc->cache_bytes_ = ((ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS * 1000) / 8)
-                        * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
+  p_prc->cache_bytes_ = ((ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS * 1000)
+                         / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
   p_prc->awaiting_reconnect_timer_ev_ = false;
   p_prc->reconnect_timeout_ = ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT;
   p_prc->p_store_ = NULL;
@@ -1371,7 +1382,8 @@ static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
   if (ECurlStatePaused == p_prc->curl_state_)
     {
       if (tiz_buffer_bytes_available (p_prc->p_store_)
-          > (((p_prc->bitrate_ * 1000) / 8) * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
+          > (((p_prc->bitrate_ * 1000) / 8)
+             * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS))
         {
           process_cache (p_prc);
         }
@@ -1381,9 +1393,9 @@ static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
         }
     }
   else if (ECurlStateTransfering == p_prc->curl_state_)
-     {
-       process_cache (p_prc);
-     }
+    {
+      process_cache (p_prc);
+    }
   return OMX_ErrorNone;
 }
 
