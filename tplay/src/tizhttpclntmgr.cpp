@@ -177,6 +177,12 @@ bool graphmgr::httpclntmgrops::is_fatal_error (const OMX_ERRORTYPE error,
     error_msg_.assign ("Unable to decode the input stream.");
     rc = true;
   }
+  else if (error == OMX_ErrorFormatNotDetected)
+  {
+    // If the source component reports this error, it means we don't know how
+    // to handle the incoming stream So this is fatal for this graph.
+    rc = true;
+  }
   else
   {
     rc = graphmgr::ops::is_fatal_error (error, msg);

@@ -121,7 +121,8 @@ void graph::httpclntops::do_load ()
 
   omx_comp_name_lst_t comp_list;
   omx_comp_role_lst_t role_list;
-  add_decoder_to_component_list (comp_list, role_list);
+  G_OPS_BAIL_IF_ERROR (add_decoder_to_component_list (comp_list, role_list),
+                       "Unknown/unhandled stream format.");
 
   comp_list.push_back ("OMX.Aratelia.audio_renderer.pcm");
   role_list.push_back ("audio_renderer.pcm");
@@ -139,8 +140,11 @@ void graph::httpclntops::do_load ()
 
 void graph::httpclntops::do_configure ()
 {
-  G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_http_source (),
-                       "Unable to set OMX_IndexParamAudioPcm");
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (apply_pcm_codec_info_from_http_source (),
+                         "Unable to set OMX_IndexParamAudioPcm");
+  }
 }
 
 void graph::httpclntops::do_omx_exe2pause ()
@@ -296,9 +300,11 @@ graph::httpclntops::transition_tunnel (
   return rc;
 }
 
-void graph::httpclntops::add_decoder_to_component_list (
+OMX_ERRORTYPE
+graph::httpclntops::add_decoder_to_component_list (
     omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   switch (encoding_)
   {
     case OMX_AUDIO_CodingMP3:
@@ -327,14 +333,18 @@ void graph::httpclntops::add_decoder_to_component_list (
     break;
     case OMX_AUDIO_CodingOPUS:
     {
-      comp_list.push_back ("OMX.Aratelia.audio_decoder.opus");
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.opusfile.opus");
       role_list.push_back ("audio_decoder.opus");
     }
     break;
     default:
-      assert (0);
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+               encoding_);
+      rc = OMX_ErrorFormatNotDetected;
       break;
   }
+  return rc;
 }
 
 bool graph::httpclntops::probe_stream_hook ()
@@ -479,7 +489,10 @@ graph::httpclntops::get_channels_and_rate_from_http_source (
     }
     break;
     default:
-      assert (0);
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+               encoding_);
+      rc = OMX_ErrorFormatNotDetected;
       break;
   };
 
@@ -540,7 +553,10 @@ graph::httpclntops::set_channels_and_rate_on_decoder (
     }
     break;
     default:
-      assert (0);
+      TIZ_LOG (TIZ_PRIORITY_ERROR,
+               "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+               encoding_);
+      rc = OMX_ErrorFormatNotDetected;
       break;
   };
 
