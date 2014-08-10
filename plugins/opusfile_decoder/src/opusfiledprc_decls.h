@@ -51,6 +51,7 @@ extern "C"
     OggOpusFile *p_opus_dec_;
     bool decoder_inited_;
     tiz_buffer_t *p_store_;
+    OMX_U32 store_offset_;
   };
 
   typedef struct opusfiled_prc_class opusfiled_prc_class_t;

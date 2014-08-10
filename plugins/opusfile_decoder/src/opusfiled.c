@@ -121,7 +121,7 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
   pcmmode.eNumData           = OMX_NumericalDataSigned;
   pcmmode.eEndian            = OMX_EndianBig;
   pcmmode.bInterleaved       = OMX_TRUE;
-  pcmmode.nBitPerSample      = 16;
+  pcmmode.nBitPerSample      = 32; /* This component will output 32-bit float samples */
   pcmmode.nSamplingRate      = 48000;
   pcmmode.ePCMMode           = OMX_AUDIO_PCMModeLinear;
   pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
