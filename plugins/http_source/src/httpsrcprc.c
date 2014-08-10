@@ -129,6 +129,61 @@ static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc);
     }                                                                        \
   while (0)
 
+typedef struct ogg_codec_id ogg_codec_id_t;
+struct ogg_codec_id
+{
+  const char *p_bos_str;
+  int bos_str_len;
+  const char *p_coding_type;
+  OMX_S32 omx_coding_type;
+};
+
+const ogg_codec_id_t ogg_codec_type_tbl[] = {
+  {"\200theora", 7, "Theora", OMX_AUDIO_CodingUnused},
+  {"\001vorbis", 7, "Vorbis", OMX_AUDIO_CodingVORBIS},
+  {"Speex", 5, "Speex", OMX_AUDIO_CodingSPEEX},
+  {"PCM     ", 8, "PCM", OMX_AUDIO_CodingPCM},
+  {"CMML\0\0\0\0", 8, "CMML", OMX_AUDIO_CodingUnused},
+  {"Annodex", 7, "Annodex", OMX_AUDIO_CodingUnused},
+  {"fishead", 7, "Skeleton", OMX_AUDIO_CodingUnused},
+  {"fLaC", 4, "Flac0", OMX_AUDIO_CodingFLAC},
+  {"\177FLAC", 5, "Flac", OMX_AUDIO_CodingFLAC},
+  {"AnxData", 7, "AnxData", OMX_VIDEO_CodingUnused},
+  {"CELT    ", 8, "CELT", OMX_AUDIO_CodingUnused},
+  {"\200kate\0\0\0", 8, "Kate", OMX_AUDIO_CodingUnused},
+  {"BBCD\0", 5, "Dirac", OMX_AUDIO_CodingUnused},
+  {"OpusHead", 8, "Opus", OMX_AUDIO_CodingOPUS},
+  {"\x4fVP80", 5, "VP8", OMX_VIDEO_CodingVP8},
+  {"", 0, "Unknown", OMX_AUDIO_CodingUnused}
+};
+
+static OMX_S32
+identify_ogg_codec (httpsrc_prc_t *ap_prc, unsigned char * ap_data, long a_len)
+{
+  OMX_S32 rc = OMX_AUDIO_CodingUnused;
+  const size_t id_count = sizeof(ogg_codec_type_tbl) / sizeof(ogg_codec_id_t);
+  size_t i = 0;
+
+  assert (NULL != ap_prc);
+
+  TIZ_TRACE (handleOf (ap_prc), "len [%d] data [%s]", a_len, ap_data);
+
+  for (i = 0; i < id_count; ++i)
+  {
+    const ogg_codec_id_t *p_id = ogg_codec_type_tbl + i;
+
+    if (a_len >= p_id->bos_str_len
+        && memcmp (ap_data + 28, p_id->p_bos_str, p_id->bos_str_len) == 0)
+      {
+        rc = p_id->omx_coding_type;
+        TIZ_TRACE (handleOf (ap_prc), "Identified codec : [%s]", p_id->p_coding_type);
+        break;
+      }
+  }
+  TIZ_TRACE (handleOf (ap_prc), "coding type  : [%X]", rc);
+  return rc;
+}
+
 static inline int copy_to_omx_buffer (OMX_BUFFERHEADERTYPE *ap_hdr,
                                       void *ap_src, const int nbytes)
 {
@@ -342,8 +397,9 @@ static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
   else if (memcmp (ap_info, "application/ogg", 15) == 0
            || memcmp (ap_info, "audio/ogg", 9) == 0)
     {
-      /* This is for audio with ogg container (may be OPUS, Vorbis, Opus,
-         etc) */
+      /* This is for audio with ogg container (may be FLAC, Vorbis, Opus,
+         etc). We'll have to identify the actual codec when the first bytes
+         from the stream arrive */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOGA;
     }
   else
@@ -523,9 +579,24 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
           rc = set_aac_audio_info_on_port (ap_prc);
         }
         break;
+      case OMX_AUDIO_CodingFLAC:
+        {
+          /* TODO */
+        }
+        break;
+      case OMX_AUDIO_CodingVORBIS:
+        {
+          /* TODO */
+        }
+        break;
       case OMX_AUDIO_CodingOPUS:
         {
           rc = set_opus_audio_info_on_port (ap_prc);
+        }
+        break;
+      case OMX_AUDIO_CodingOGA:
+        {
+          /* Nothing to do here */
         }
         break;
       default:
@@ -762,6 +833,16 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
           stop_io_watcher (p_prc);
           stop_curl_timer_watcher (p_prc);
 
+          if (OMX_AUDIO_CodingOGA == p_prc->audio_coding_type_)
+            {
+              /* Try to identify the actual codec from the ogg stream */
+              p_prc->audio_coding_type_ = identify_ogg_codec (p_prc, ptr, nbytes);
+              if (OMX_AUDIO_CodingUnused != p_prc->audio_coding_type_)
+                {
+                  set_audio_coding_on_port (p_prc);
+                  set_audio_info_on_port (p_prc);
+                }
+            }
           /* And now trigger the OMX_EventPortFormatDetected and
              OMX_EventPortSettingsChanged events or a
              OMX_ErrorFormatNotDetected event */
