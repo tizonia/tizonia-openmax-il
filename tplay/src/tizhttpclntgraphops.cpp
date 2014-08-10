@@ -587,6 +587,12 @@ graph::httpclntops::set_channels_and_rate_on_renderer (
   renderer_pcmtype.eEndian
       = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
 
+  if (OMX_AUDIO_CodingOPUS == encoding_ || OMX_AUDIO_CodingVORBIS == encoding_)
+  {
+    // Opus and Vorbis decoders output 32 bit samples (floats)
+    renderer_pcmtype.nBitPerSample = 32;
+  }
+
   // Set the new pcm settings
   tiz_check_omx_err (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype));
