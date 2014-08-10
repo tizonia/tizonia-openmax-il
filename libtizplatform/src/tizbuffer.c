@@ -141,6 +141,9 @@ int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
   assert (NULL != ap_buf);
   assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
 
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "filled_len [%d] offset [%d]",
+           ap_buf->filled_len, ap_buf->offset);
+
   if (NULL != ap_data && a_nbytes > 0)
     {
       size_t avail = 0;
@@ -178,16 +181,15 @@ int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
                ap_buf->filled_len);
     }
 
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "filled_len [%d] offset [%d]",
+           ap_buf->filled_len, ap_buf->offset);
+
   return nbytes_to_copy;
 }
 
 int tiz_buffer_bytes_available (const tiz_buffer_t *ap_buf)
 {
   assert (NULL != ap_buf);
-  TIZ_LOG (TIZ_PRIORITY_TRACE,
-           "alloc_len = [%d] offset = [%d] "
-           "filled_len = [%d]",
-           ap_buf->alloc_len, ap_buf->offset, ap_buf->filled_len);
   assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
   return ap_buf->filled_len;
 }
@@ -215,4 +217,13 @@ int tiz_buffer_advance (tiz_buffer_t *ap_buf, const int nbytes)
            nbytes, min_nbytes, ap_buf->alloc_len, ap_buf->offset,
            ap_buf->filled_len);
   return min_nbytes;
+}
+
+void tiz_buffer_clear (tiz_buffer_t *ap_buf)
+{
+  if (NULL != ap_buf)
+    {
+      ap_buf->offset = 0;
+      ap_buf->filled_len = 0;
+    }
 }

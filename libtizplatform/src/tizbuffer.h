@@ -48,6 +48,7 @@ extern "C"
   int tiz_buffer_bytes_available (const tiz_buffer_t *ap_buf);
   void * tiz_buffer_get_data (const tiz_buffer_t *ap_buf);
   int tiz_buffer_advance (tiz_buffer_t *ap_buf, const int nbytes);
+  void tiz_buffer_clear (tiz_buffer_t *ap_buf);
 
 #ifdef __cplusplus
 }
