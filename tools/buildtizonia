@@ -49,8 +49,8 @@ declare -ar SKEMA_EXEMPT_SUITES=\
     "VorbisDecodeBaseProfile" \
     "AacPlayback" \
     "Mp3StreamingClient" \
-    "Mp3StreamingClientPortAutoDetect"\
-    "OpusPlayback"
+    "Mp3StreamingClientPortAutoDetect" \
+    "OpusPlayback" \
 )
 
 #
@@ -189,6 +189,7 @@ function install_src_deps {
         https://git.xiph.org/mirrors/ogg.git \
         https://git.xiph.org/liboggz.git \
         https://git.xiph.org/opus.git \
+        https://git.xiph.org/opusfile.git \
         https://git.xiph.org/flac.git )
     local folders=( ogg liboggz opus flac )
     local total=${#repos[*]}
