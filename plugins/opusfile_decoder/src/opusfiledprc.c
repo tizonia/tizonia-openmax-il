@@ -210,19 +210,19 @@ static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
   OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
 
-  if (tiz_buffer_bytes_available (ap_prc->p_store_) == 0 || NULL == p_out)
-    {
-      TIZ_TRACE (handleOf (ap_prc), "store bytes [%d] OUT HEADER [%p]",
-                 tiz_buffer_bytes_available (ap_prc->p_store_), p_out);
-      return OMX_ErrorNotReady;
-    }
-
   if (!store_data (ap_prc))
     {
       TIZ_ERROR (handleOf (ap_prc),
                  "[OMX_ErrorInsufficientResources] : "
                  "Could not store all the incoming data");
       return OMX_ErrorInsufficientResources;
+    }
+
+  if (tiz_buffer_bytes_available (ap_prc->p_store_) == 0 || NULL == p_out)
+    {
+      TIZ_TRACE (handleOf (ap_prc), "store bytes [%d] OUT HEADER [%p]",
+                 tiz_buffer_bytes_available (ap_prc->p_store_), p_out);
+      return OMX_ErrorNotReady;
     }
 
   assert (NULL != ap_prc);
@@ -352,7 +352,8 @@ static OMX_ERRORTYPE opusfiled_prc_buffers_ready (const void *ap_obj)
         {
           rc = init_opus_decoder (p_prc);
         }
-      else
+
+      if (p_prc->decoder_inited_ && OMX_ErrorNone == rc)
         {
           while (OMX_ErrorNone == rc)
             {
