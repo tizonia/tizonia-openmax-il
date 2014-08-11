@@ -63,6 +63,7 @@ AC_CONFIG_SUBDIRS([aac_decoder
                    mp3_metadata
                    ogg_demuxer
                    opus_decoder
+                   opusfile_decoder
                    vorbis_decoder
                    vp8_decoder
                    yuv_renderer])
