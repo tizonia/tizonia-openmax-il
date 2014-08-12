@@ -476,7 +476,7 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
         }
       else
         {
-          ap_hdr->nOffset    += err *    step;
+          ap_hdr->nOffset    += err * step;
           ap_hdr->nFilledLen -= err * step;
           samples            -= err;
         }
@@ -705,22 +705,23 @@ ar_prc_prepare_to_transfer (void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
             SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_S16_BE;
 
         }
-      /* NOTE: this is a hack to allow the float pcm stream coming from the the
-         vorbis decoder */
+      /* NOTE: this is a hack to allow float pcm streams coming from the the
+         vorbis or opusfile decoders */
       else if (p_prc->pcmmode.nBitPerSample == 32)
         {
           snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle ?
             SND_PCM_FORMAT_FLOAT_LE : SND_PCM_FORMAT_FLOAT_BE;
         }
 
-      snd_sampling_rate = p_prc->pcmmode.bInterleaved == OMX_TRUE ?
-        p_prc->pcmmode.nSamplingRate : p_prc->pcmmode.nSamplingRate * 2;
+      /*       snd_sampling_rate = p_prc->pcmmode.bInterleaved == OMX_TRUE ? */
+      /*         p_prc->pcmmode.nSamplingRate : p_prc->pcmmode.nSamplingRate * 2; */
+      snd_sampling_rate = p_prc->pcmmode.nSamplingRate;
 
       /* This sets the hardware and software parameters in a convenient way. */
       bail_on_snd_pcm_error (snd_pcm_set_params (p_prc->p_pcm_hdl,
                                                  snd_pcm_format, SND_PCM_ACCESS_RW_INTERLEAVED,
                                                  (unsigned int) p_prc->pcmmode.nChannels,
-                                                 snd_sampling_rate, 1,    /* allow alsa-lib resampling */
+                                                 snd_sampling_rate, 0,    /* allow alsa-lib resampling */
                                                  100000     /* overall latency in us */
                                                  ));
 
