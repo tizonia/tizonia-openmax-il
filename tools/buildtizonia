@@ -191,7 +191,7 @@ function install_src_deps {
         https://git.xiph.org/opus.git \
         https://git.xiph.org/opusfile.git \
         https://git.xiph.org/flac.git )
-    local folders=( ogg liboggz opus flac )
+    local folders=( ogg liboggz opus opusfile flac )
     local total=${#repos[*]}
     local exit_status=$?
     for (( i=0; i<=$(( $total -1 )); i++ ))
