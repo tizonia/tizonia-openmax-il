@@ -105,7 +105,7 @@ typedef enum tiz_event_io_event
  * otherwise.
  *
  */
-OMX_ERRORTYPE tiz_event_loop_init ();
+OMX_ERRORTYPE tiz_event_loop_init (void);
 
 /**
  * Explicit destruction of the global event loop. WARNING: After this
@@ -116,7 +116,7 @@ OMX_ERRORTYPE tiz_event_loop_init ();
  * @ingroup event
  *
  */
-void tiz_event_loop_destroy ();
+void tiz_event_loop_destroy (void);
 
 OMX_ERRORTYPE tiz_event_io_init (tiz_event_io_t **app_ev_io,
                                  OMX_HANDLETYPE ap_hdl,

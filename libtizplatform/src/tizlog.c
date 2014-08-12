@@ -61,6 +61,7 @@ static const char *log_layout_format (const log4c_layout_t *a_layout,
 {
   static char buffer[4096];
   user_locinfo_t *uloc = NULL;
+  (void) a_layout;
 
   if (a_event->evt_loc->loc_data != NULL)
     {
@@ -119,7 +120,7 @@ static const log4c_layout_type_t *const layout_types[] = { &tizonia_log_layout }
 static int nlayout_types
     = (int)(sizeof(layout_types) / sizeof(layout_types[0]));
 
-static int log_formatters_init ()
+static int log_formatters_init (void)
 {
   int rc = 0;
   int i = 0;
@@ -132,7 +133,7 @@ static int log_formatters_init ()
   return rc;
 }
 
-int tiz_log_init ()
+int tiz_log_init (void)
 {
 #ifndef WITHOUT_LOG4C
   log_formatters_init ();
@@ -183,7 +184,7 @@ void tiz_log_set_unique_rolling_file (const char* ap_logdir, const char * ap_fil
   }
 }
 
-int tiz_log_deinit ()
+int tiz_log_deinit (void)
 {
 #ifndef WITHOUT_LOG4C
   return (log4c_fini ());

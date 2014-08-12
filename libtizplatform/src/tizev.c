@@ -45,6 +45,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.platform.event"
 #endif
 
+#define TIZ_EV_THREAD_NAME "tizevloop"
+
 struct tiz_event_io
 {
   ev_io io;
@@ -96,6 +98,10 @@ static tiz_loop_thread_t *gp_event_thread = NULL;
 static void async_watcher_cback (struct ev_loop *ap_loop, ev_async *ap_watcher,
                                  int a_revents)
 {
+  (void) ap_loop;
+  (void) ap_watcher;
+  (void) a_revents;
+
   if (NULL == gp_event_thread)
     {
       return;
@@ -111,6 +117,7 @@ static void io_watcher_cback (struct ev_loop *ap_loop, ev_io *ap_watcher,
                               int a_revents)
 {
   tiz_event_io_t *p_io_event = (tiz_event_io_t *)ap_watcher;
+  (void) ap_loop;
 
   if (NULL == gp_event_thread)
     {
@@ -135,6 +142,8 @@ static void timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher,
                                  int a_revents)
 {
   tiz_event_timer_t *p_timer_event = (tiz_event_timer_t *)ap_watcher;
+  (void) ap_loop;
+  (void) a_revents;
 
   if (NULL == gp_event_thread)
     {
@@ -154,6 +163,7 @@ static void stat_watcher_cback (struct ev_loop *ap_loop, ev_stat *ap_watcher,
                                 int a_revents)
 {
   tiz_event_stat_t *p_stat_event = (tiz_event_stat_t *)ap_watcher;
+  (void) ap_loop;
 
   if (NULL == gp_event_thread)
     {
@@ -178,7 +188,7 @@ static void *event_loop_thread_func (void *p_arg)
   p_loop = p_loop_thread->p_loop;
   assert (NULL != p_loop);
 
-  (void)tiz_thread_setname (&(p_loop_thread->thread), "tizevloop");
+  (void)tiz_thread_setname (&(p_loop_thread->thread), (const OMX_STRING ) TIZ_EV_THREAD_NAME);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Entering the dispatcher...");
   tiz_sem_post (&(p_loop_thread->sem));
@@ -231,7 +241,7 @@ static void child_event_loop_reset (void)
   gp_event_thread = NULL;
 }
 
-static void init_loop_thread ()
+static void init_loop_thread (void)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -323,14 +333,14 @@ end:
     }
 }
 
-static inline tiz_loop_thread_t *get_loop_thread ()
+static inline tiz_loop_thread_t *get_loop_thread (void)
 {
   (void)pthread_once (&g_event_thread_once, init_loop_thread);
   return gp_event_thread;
 }
 
 OMX_ERRORTYPE
-tiz_event_loop_init ()
+tiz_event_loop_init (void)
 {
   if (NULL == get_loop_thread ())
     {
@@ -343,7 +353,7 @@ tiz_event_loop_init ()
   return OMX_ErrorNone;
 }
 
-void tiz_event_loop_destroy ()
+void tiz_event_loop_destroy (void)
 {
   /* NOTE: If the thread is destroyed, it can't be recreated in the same
      process as it's been instantiated with pthread_once. */

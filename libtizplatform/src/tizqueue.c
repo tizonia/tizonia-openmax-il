@@ -70,7 +70,7 @@ static inline void deinit_queue_struct (/*@null@ */ tiz_queue_t *ap_q)
     }
 }
 
-/*@null@*/ static tiz_queue_t *init_queue_struct ()
+/*@null@*/ static tiz_queue_t *init_queue_struct (void)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_queue_t *p_q = NULL;

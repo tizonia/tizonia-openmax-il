@@ -455,7 +455,7 @@ tiz_rwmutex_rdlock (tiz_rwmutex_t *app_rwmutex)
 }
 
 OMX_ERRORTYPE
-tiz_rwmutex_wrlock (tiz_rwmutex_t *app_rwmutex)
+tiz_rwmutex_rwlock (tiz_rwmutex_t *app_rwmutex)
 {
   pthread_rwlock_t *p_mutex;
   int error;

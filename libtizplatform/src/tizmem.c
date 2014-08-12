@@ -36,11 +36,6 @@
 
 #include "tizplatform.h"
 
-#ifdef TIZ_LOG_CATEGORY_NAME
-#undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.platform.mem"
-#endif
-
 /*@only@ */ /*@null@ */ /*@out@ */
 OMX_PTR
 tiz_mem_alloc (size_t a_size)

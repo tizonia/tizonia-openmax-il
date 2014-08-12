@@ -17,6 +17,8 @@
 
 #SUBDIRS = http-parser
 
+AM_CFLAGS = $(WARN_CFLAGS)
+
 lib_LTLIBRARIES = libtizplatform.la
 
 libtizplatform_includedir = $(includedir)/libtizplatform
@@ -70,10 +72,8 @@ libtizplatform_la_SOURCES = \
 
 libtizplatform_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
-	@LOG4C_CFLAGS@ \
-	@uuid_CFLAGS@
-
-libtizplatform_la_CPPFLAGS = -DSYSCONFDIR="\"${sysconfdir}/tizonia\""
+	$(AM_CFLAGS) \
+	@LOG4C_CFLAGS@
 
 libtizplatform_la_LIBADD = \
 	-lpthread \

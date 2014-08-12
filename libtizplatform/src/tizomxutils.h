@@ -49,12 +49,12 @@ extern "C" {
   (struct_storage).nVersion.nVersion = OMX_VERSION;             \
   (struct_storage).nPortIndex = port_id;
 
-/*@observer@ */ const OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd);
-/*@observer@ */ const OMX_STRING tiz_state_to_str (OMX_STATETYPE a_id);
-/*@observer@ */ const OMX_STRING tiz_evt_to_str (OMX_EVENTTYPE a_evt);
-/*@observer@ */ const OMX_STRING tiz_err_to_str (OMX_ERRORTYPE a_err);
-/*@observer@ */ const OMX_STRING tiz_dir_to_str (OMX_DIRTYPE a_dir);
-/*@observer@ */ const OMX_STRING tiz_idx_to_str (OMX_INDEXTYPE a_idx);
+/*@observer@ */ OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd);
+/*@observer@ */ OMX_STRING tiz_state_to_str (OMX_STATETYPE a_id);
+/*@observer@ */ OMX_STRING tiz_evt_to_str (OMX_EVENTTYPE a_evt);
+/*@observer@ */ OMX_STRING tiz_err_to_str (OMX_ERRORTYPE a_err);
+/*@observer@ */ OMX_STRING tiz_dir_to_str (OMX_DIRTYPE a_dir);
+/*@observer@ */ OMX_STRING tiz_idx_to_str (OMX_INDEXTYPE a_idx);
 
 #ifdef __cplusplus
 }

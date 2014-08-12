@@ -41,42 +41,42 @@ typedef struct tiz_cmd_str tiz_cmd_str_t;
 struct tiz_cmd_str
 {
   OMX_COMMANDTYPE cmd;
-  OMX_STRING str;
+  const OMX_STRING str;
 };
 
 static const tiz_cmd_str_t tiz_cmd_to_str_tbl[]
-    = { { OMX_CommandStateSet, "OMX_CommandStateSet" },
-        { OMX_CommandFlush, "OMX_CommandFlush" },
-        { OMX_CommandPortDisable, "OMX_CommandPortDisable" },
-        { OMX_CommandPortEnable, "OMX_CommandPortEnable" },
-        { OMX_CommandMarkBuffer, "OMX_CommandMarkBuffer" },
-        { OMX_CommandKhronosExtensions, "OMX_CommandKhronosExtensions" },
-        { OMX_CommandVendorStartUnused, "OMX_CommandVendorStartUnused" },
-        { OMX_CommandMax, "OMX_CommandMax" } };
+    = { { OMX_CommandStateSet, (const OMX_STRING) "OMX_CommandStateSet" },
+        { OMX_CommandFlush, (const OMX_STRING) "OMX_CommandFlush" },
+        { OMX_CommandPortDisable, (const OMX_STRING) "OMX_CommandPortDisable" },
+        { OMX_CommandPortEnable, (const OMX_STRING) "OMX_CommandPortEnable" },
+        { OMX_CommandMarkBuffer, (const OMX_STRING) "OMX_CommandMarkBuffer" },
+        { OMX_CommandKhronosExtensions, (const OMX_STRING) "OMX_CommandKhronosExtensions" },
+        { OMX_CommandVendorStartUnused, (const OMX_STRING) "OMX_CommandVendorStartUnused" },
+        { OMX_CommandMax, (const OMX_STRING) "OMX_CommandMax" } };
 
 typedef struct tiz_evt_str tiz_evt_str_t;
 struct tiz_evt_str
 {
   OMX_EVENTTYPE evt;
-  OMX_STRING str;
+  const OMX_STRING str;
 };
 
 static const tiz_evt_str_t tiz_evt_to_str_tbl[] = {
-  { OMX_EventCmdComplete, "OMX_EventCmdComplete" },
-  { OMX_EventError, "OMX_EventError" },
-  { OMX_EventMark, "OMX_EventMark" },
-  { OMX_EventPortSettingsChanged, "OMX_EventPortSettingsChanged" },
-  { OMX_EventBufferFlag, "OMX_EventBufferFlag" },
-  { OMX_EventResourcesAcquired, "OMX_EventResourcesAcquired" },
-  { OMX_EventComponentResumed, "OMX_EventComponentResumed" },
-  { OMX_EventDynamicResourcesAvailable, "OMX_EventDynamicResourcesAvailable" },
-  { OMX_EventPortFormatDetected, "OMX_EventPortFormatDetected" },
-  { OMX_EventIndexSettingChanged, "OMX_EventIndexSettingChanged" },
-  { OMX_EventPortNeedsDisable, "OMX_EventPortNeedsDisable" },
-  { OMX_EventPortNeedsFlush, "OMX_EventPortNeedsFlush" },
-  { OMX_EventKhronosExtensions, "OMX_EventKhronosExtensions" },
-  { OMX_EventVendorStartUnused, "OMX_EventVendorStartUnused" },
-  { OMX_EventMax, "OMX_EventMax" }
+  { OMX_EventCmdComplete, (const OMX_STRING) "OMX_EventCmdComplete" },
+  { OMX_EventError, (const OMX_STRING) "OMX_EventError" },
+  { OMX_EventMark, (const OMX_STRING) "OMX_EventMark" },
+  { OMX_EventPortSettingsChanged, (const OMX_STRING) "OMX_EventPortSettingsChanged" },
+  { OMX_EventBufferFlag, (const OMX_STRING) "OMX_EventBufferFlag" },
+  { OMX_EventResourcesAcquired, (const OMX_STRING) "OMX_EventResourcesAcquired" },
+  { OMX_EventComponentResumed, (const OMX_STRING) "OMX_EventComponentResumed" },
+  { OMX_EventDynamicResourcesAvailable, (const OMX_STRING) "OMX_EventDynamicResourcesAvailable" },
+  { OMX_EventPortFormatDetected, (const OMX_STRING) "OMX_EventPortFormatDetected" },
+  { OMX_EventIndexSettingChanged, (const OMX_STRING) "OMX_EventIndexSettingChanged" },
+  { OMX_EventPortNeedsDisable, (const OMX_STRING) "OMX_EventPortNeedsDisable" },
+  { OMX_EventPortNeedsFlush, (const OMX_STRING) "OMX_EventPortNeedsFlush" },
+  { OMX_EventKhronosExtensions, (const OMX_STRING) "OMX_EventKhronosExtensions" },
+  { OMX_EventVendorStartUnused, (const OMX_STRING) "OMX_EventVendorStartUnused" },
+  { OMX_EventMax, (const OMX_STRING) "OMX_EventMax" }
 };
 
 typedef struct tiz_state_str tiz_state_str_t;
@@ -84,396 +84,396 @@ typedef struct tiz_state_str tiz_state_str_t;
 struct tiz_state_str
 {
   OMX_STATETYPE state;
-  OMX_STRING str;
+  const OMX_STRING str;
 };
 
 static const tiz_state_str_t tiz_state_to_str_tbl[]
-    = { { OMX_StateReserved_0x00000000, "OMX_StateReserved_0x00000000" },
-        { OMX_StateLoaded, "OMX_StateLoaded" },
-        { OMX_StateIdle, "OMX_StateIdle" },
-        { OMX_StateExecuting, "OMX_StateExecuting" },
-        { OMX_StatePause, "OMX_StatePause" },
-        { OMX_StateWaitForResources, "OMX_StateWaitForResources" },
-        { OMX_StateKhronosExtensions, "OMX_StateKhronosExtensions" },
-        { OMX_StateVendorStartUnused, "OMX_StateVendorStartUnused" },
-        { OMX_StateMax, "OMX_StateMax" } };
+    = { { OMX_StateReserved_0x00000000, (const OMX_STRING) "OMX_StateReserved_0x00000000" },
+        { OMX_StateLoaded, (const OMX_STRING) "OMX_StateLoaded" },
+        { OMX_StateIdle, (const OMX_STRING) "OMX_StateIdle" },
+        { OMX_StateExecuting, (const OMX_STRING) "OMX_StateExecuting" },
+        { OMX_StatePause, (const OMX_STRING) "OMX_StatePause" },
+        { OMX_StateWaitForResources, (const OMX_STRING) "OMX_StateWaitForResources" },
+        { OMX_StateKhronosExtensions, (const OMX_STRING) "OMX_StateKhronosExtensions" },
+        { OMX_StateVendorStartUnused, (const OMX_STRING) "OMX_StateVendorStartUnused" },
+        { OMX_StateMax, (const OMX_STRING) "OMX_StateMax" } };
 
 typedef struct tiz_dir_str tiz_dir_str_t;
 struct tiz_dir_str
 {
   OMX_DIRTYPE dir;
-  OMX_STRING str;
+  const OMX_STRING str;
 };
 
 static const tiz_dir_str_t tiz_dir_to_str_tbl[]
-    = { { OMX_DirInput, "OMX_DirInput" },
-        { OMX_DirOutput, "OMX_DirOutput" },
-        { OMX_DirMax, "OMX_DirMax" } };
+    = { { OMX_DirInput, (const OMX_STRING) "OMX_DirInput" },
+        { OMX_DirOutput, (const OMX_STRING) "OMX_DirOutput" },
+        { OMX_DirMax, (const OMX_STRING) "OMX_DirMax" } };
 
 typedef struct tiz_err_str tiz_err_str_t;
 struct tiz_err_str
 {
   OMX_ERRORTYPE err;
-  OMX_STRING str;
+  const OMX_STRING str;
 };
 
 static const tiz_err_str_t tiz_err_to_str_tbl[] = {
-  { OMX_ErrorNone, "OMX_ErrorNone" },
-  { OMX_ErrorInsufficientResources, "OMX_ErrorInsufficientResources" },
-  { OMX_ErrorUndefined, "OMX_ErrorUndefined" },
-  { OMX_ErrorInvalidComponentName, "OMX_ErrorInvalidComponentName" },
-  { OMX_ErrorComponentNotFound, "OMX_ErrorComponentNotFound" },
-  { OMX_ErrorReserved_0x80001004, "OMX_ErrorReserved_0x80001004" },
-  { OMX_ErrorBadParameter, "OMX_ErrorBadParameter" },
-  { OMX_ErrorNotImplemented, "OMX_ErrorNotImplemented" },
-  { OMX_ErrorUnderflow, "OMX_ErrorUnderflow" },
-  { OMX_ErrorOverflow, "OMX_ErrorOverflow" },
-  { OMX_ErrorHardware, "OMX_ErrorHardware" },
-  { OMX_ErrorReserved_0x8000100A, "OMX_ErrorReserved_0x8000100A" },
-  { OMX_ErrorStreamCorrupt, "OMX_ErrorStreamCorrupt" },
-  { OMX_ErrorPortsNotCompatible, "OMX_ErrorPortsNotCompatible" },
-  { OMX_ErrorResourcesLost, "OMX_ErrorResourcesLost" },
-  { OMX_ErrorNoMore, "OMX_ErrorNoMore" },
-  { OMX_ErrorVersionMismatch, "OMX_ErrorVersionMismatch" },
-  { OMX_ErrorNotReady, "OMX_ErrorNotReady" },
-  { OMX_ErrorTimeout, "OMX_ErrorTimeout" },
-  { OMX_ErrorSameState, "OMX_ErrorSameState" },
-  { OMX_ErrorResourcesPreempted, "OMX_ErrorResourcesPreempted" },
-  { OMX_ErrorReserved_0x80001014, "OMX_ErrorReserved_0x80001014" },
-  { OMX_ErrorReserved_0x80001015, "OMX_ErrorReserved_0x80001015" },
-  { OMX_ErrorReserved_0x80001016, "OMX_ErrorReserved_0x80001016" },
-  { OMX_ErrorIncorrectStateTransition, "OMX_ErrorIncorrectStateTransition" },
-  { OMX_ErrorIncorrectStateOperation, "OMX_ErrorIncorrectStateOperation" },
-  { OMX_ErrorUnsupportedSetting, "OMX_ErrorUnsupportedSetting" },
-  { OMX_ErrorUnsupportedIndex, "OMX_ErrorUnsupportedIndex" },
-  { OMX_ErrorBadPortIndex, "OMX_ErrorBadPortIndex" },
-  { OMX_ErrorPortUnpopulated, "OMX_ErrorPortUnpopulated" },
-  { OMX_ErrorComponentSuspended, "OMX_ErrorComponentSuspended" },
+  { OMX_ErrorNone, (const OMX_STRING) "OMX_ErrorNone" },
+  { OMX_ErrorInsufficientResources, (const OMX_STRING) "OMX_ErrorInsufficientResources" },
+  { OMX_ErrorUndefined, (const OMX_STRING) "OMX_ErrorUndefined" },
+  { OMX_ErrorInvalidComponentName, (const OMX_STRING) "OMX_ErrorInvalidComponentName" },
+  { OMX_ErrorComponentNotFound, (const OMX_STRING) "OMX_ErrorComponentNotFound" },
+  { OMX_ErrorReserved_0x80001004, (const OMX_STRING) "OMX_ErrorReserved_0x80001004" },
+  { OMX_ErrorBadParameter, (const OMX_STRING) "OMX_ErrorBadParameter" },
+  { OMX_ErrorNotImplemented, (const OMX_STRING) "OMX_ErrorNotImplemented" },
+  { OMX_ErrorUnderflow, (const OMX_STRING) "OMX_ErrorUnderflow" },
+  { OMX_ErrorOverflow, (const OMX_STRING) "OMX_ErrorOverflow" },
+  { OMX_ErrorHardware, (const OMX_STRING) "OMX_ErrorHardware" },
+  { OMX_ErrorReserved_0x8000100A, (const OMX_STRING) "OMX_ErrorReserved_0x8000100A" },
+  { OMX_ErrorStreamCorrupt, (const OMX_STRING) "OMX_ErrorStreamCorrupt" },
+  { OMX_ErrorPortsNotCompatible, (const OMX_STRING) "OMX_ErrorPortsNotCompatible" },
+  { OMX_ErrorResourcesLost, (const OMX_STRING) "OMX_ErrorResourcesLost" },
+  { OMX_ErrorNoMore, (const OMX_STRING) "OMX_ErrorNoMore" },
+  { OMX_ErrorVersionMismatch, (const OMX_STRING) "OMX_ErrorVersionMismatch" },
+  { OMX_ErrorNotReady, (const OMX_STRING) "OMX_ErrorNotReady" },
+  { OMX_ErrorTimeout, (const OMX_STRING) "OMX_ErrorTimeout" },
+  { OMX_ErrorSameState, (const OMX_STRING) "OMX_ErrorSameState" },
+  { OMX_ErrorResourcesPreempted, (const OMX_STRING) "OMX_ErrorResourcesPreempted" },
+  { OMX_ErrorReserved_0x80001014, (const OMX_STRING) "OMX_ErrorReserved_0x80001014" },
+  { OMX_ErrorReserved_0x80001015, (const OMX_STRING) "OMX_ErrorReserved_0x80001015" },
+  { OMX_ErrorReserved_0x80001016, (const OMX_STRING) "OMX_ErrorReserved_0x80001016" },
+  { OMX_ErrorIncorrectStateTransition, (const OMX_STRING) "OMX_ErrorIncorrectStateTransition" },
+  { OMX_ErrorIncorrectStateOperation, (const OMX_STRING) "OMX_ErrorIncorrectStateOperation" },
+  { OMX_ErrorUnsupportedSetting, (const OMX_STRING) "OMX_ErrorUnsupportedSetting" },
+  { OMX_ErrorUnsupportedIndex, (const OMX_STRING) "OMX_ErrorUnsupportedIndex" },
+  { OMX_ErrorBadPortIndex, (const OMX_STRING) "OMX_ErrorBadPortIndex" },
+  { OMX_ErrorPortUnpopulated, (const OMX_STRING) "OMX_ErrorPortUnpopulated" },
+  { OMX_ErrorComponentSuspended, (const OMX_STRING) "OMX_ErrorComponentSuspended" },
   { OMX_ErrorDynamicResourcesUnavailable,
-    "OMX_ErrorDynamicResourcesUnavailable" },
-  { OMX_ErrorMbErrorsInFrame, "OMX_ErrorMbErrorsInFrame" },
-  { OMX_ErrorFormatNotDetected, "OMX_ErrorFormatNotDetected" },
-  { OMX_ErrorReserved_0x80001021, "OMX_ErrorReserved_0x80001021" },
-  { OMX_ErrorReserved_0x80001022, "OMX_ErrorReserved_0x80001022" },
-  { OMX_ErrorSeperateTablesUsed, "OMX_ErrorSeperateTablesUsed" },
-  { OMX_ErrorTunnelingUnsupported, "OMX_ErrorTunnelingUnsupported" },
-  { OMX_ErrorInvalidMode, "OMX_ErrorInvalidMode" },
-  { OMX_ErrorStreamCorruptStalled, "OMX_ErrorStreamCorruptStalled" },
-  { OMX_ErrorStreamCorruptFatal, "OMX_ErrorStreamCorruptFatal" },
-  { OMX_ErrorPortsNotConnected, "OMX_ErrorPortsNotConnected" },
-  { OMX_ErrorContentURINotSpecified, "OMX_ErrorContentURINotSpecified" },
-  { OMX_ErrorContentURIError, "OMX_ErrorContentURIError" },
-  { OMX_ErrorCommandCanceled, "OMX_ErrorCommandCanceled" },
-  { OMX_ErrorKhronosExtensions, "OMX_ErrorKhronosExtensions" },
-  { OMX_ErrorVendorStartUnused, "OMX_ErrorVendorStartUnused" },
-  { OMX_ErrorMax, "OMX_ErrorMax" }
+    (const OMX_STRING) "OMX_ErrorDynamicResourcesUnavailable" },
+  { OMX_ErrorMbErrorsInFrame, (const OMX_STRING) "OMX_ErrorMbErrorsInFrame" },
+  { OMX_ErrorFormatNotDetected, (const OMX_STRING) "OMX_ErrorFormatNotDetected" },
+  { OMX_ErrorReserved_0x80001021, (const OMX_STRING) "OMX_ErrorReserved_0x80001021" },
+  { OMX_ErrorReserved_0x80001022, (const OMX_STRING) "OMX_ErrorReserved_0x80001022" },
+  { OMX_ErrorSeperateTablesUsed, (const OMX_STRING) "OMX_ErrorSeperateTablesUsed" },
+  { OMX_ErrorTunnelingUnsupported, (const OMX_STRING) "OMX_ErrorTunnelingUnsupported" },
+  { OMX_ErrorInvalidMode, (const OMX_STRING) "OMX_ErrorInvalidMode" },
+  { OMX_ErrorStreamCorruptStalled, (const OMX_STRING) "OMX_ErrorStreamCorruptStalled" },
+  { OMX_ErrorStreamCorruptFatal, (const OMX_STRING) "OMX_ErrorStreamCorruptFatal" },
+  { OMX_ErrorPortsNotConnected, (const OMX_STRING) "OMX_ErrorPortsNotConnected" },
+  { OMX_ErrorContentURINotSpecified, (const OMX_STRING) "OMX_ErrorContentURINotSpecified" },
+  { OMX_ErrorContentURIError, (const OMX_STRING) "OMX_ErrorContentURIError" },
+  { OMX_ErrorCommandCanceled, (const OMX_STRING) "OMX_ErrorCommandCanceled" },
+  { OMX_ErrorKhronosExtensions, (const OMX_STRING) "OMX_ErrorKhronosExtensions" },
+  { OMX_ErrorVendorStartUnused, (const OMX_STRING) "OMX_ErrorVendorStartUnused" },
+  { OMX_ErrorMax, (const OMX_STRING) "OMX_ErrorMax" }
 };
 
 typedef struct tiz_idx_str tiz_idx_str_t;
 struct tiz_idx_str
 {
   OMX_INDEXTYPE idx;
-  OMX_STRING str;
+  const OMX_STRING str;
 };
 
 static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
-  { OMX_IndexComponentStartUnused, "OMX_IndexComponentStartUnused" },
-  { OMX_IndexParamPriorityMgmt, "OMX_IndexParamPriorityMgmt" },
-  { OMX_IndexParamAudioInit, "OMX_IndexParamAudioInit" },
-  { OMX_IndexParamImageInit, "OMX_IndexParamImageInit" },
-  { OMX_IndexParamVideoInit, "OMX_IndexParamVideoInit" },
-  { OMX_IndexParamOtherInit, "OMX_IndexParamOtherInit" },
-  { OMX_IndexParamNumAvailableStreams, "OMX_IndexParamNumAvailableStreams" },
-  { OMX_IndexParamActiveStream, "OMX_IndexParamActiveStream" },
-  { OMX_IndexParamSuspensionPolicy, "OMX_IndexParamSuspensionPolicy" },
-  { OMX_IndexParamComponentSuspended, "OMX_IndexParamComponentSuspended" },
-  { OMX_IndexConfigCapturing, "OMX_IndexConfigCapturing" },
-  { OMX_IndexConfigCaptureMode, "OMX_IndexConfigCaptureMode" },
-  { OMX_IndexAutoPauseAfterCapture, "OMX_IndexAutoPauseAfterCapture" },
-  { OMX_IndexParamContentURI, "OMX_IndexParamContentURI" },
-  { OMX_IndexReserved_0x0100000E, "OMX_IndexReserved_0x0100000E" },
+  { OMX_IndexComponentStartUnused, (const OMX_STRING) "OMX_IndexComponentStartUnused" },
+  { OMX_IndexParamPriorityMgmt, (const OMX_STRING) "OMX_IndexParamPriorityMgmt" },
+  { OMX_IndexParamAudioInit, (const OMX_STRING) "OMX_IndexParamAudioInit" },
+  { OMX_IndexParamImageInit, (const OMX_STRING) "OMX_IndexParamImageInit" },
+  { OMX_IndexParamVideoInit, (const OMX_STRING) "OMX_IndexParamVideoInit" },
+  { OMX_IndexParamOtherInit, (const OMX_STRING) "OMX_IndexParamOtherInit" },
+  { OMX_IndexParamNumAvailableStreams, (const OMX_STRING) "OMX_IndexParamNumAvailableStreams" },
+  { OMX_IndexParamActiveStream, (const OMX_STRING) "OMX_IndexParamActiveStream" },
+  { OMX_IndexParamSuspensionPolicy, (const OMX_STRING) "OMX_IndexParamSuspensionPolicy" },
+  { OMX_IndexParamComponentSuspended, (const OMX_STRING) "OMX_IndexParamComponentSuspended" },
+  { OMX_IndexConfigCapturing, (const OMX_STRING) "OMX_IndexConfigCapturing" },
+  { OMX_IndexConfigCaptureMode, (const OMX_STRING) "OMX_IndexConfigCaptureMode" },
+  { OMX_IndexAutoPauseAfterCapture, (const OMX_STRING) "OMX_IndexAutoPauseAfterCapture" },
+  { OMX_IndexParamContentURI, (const OMX_STRING) "OMX_IndexParamContentURI" },
+  { OMX_IndexReserved_0x0100000E, (const OMX_STRING) "OMX_IndexReserved_0x0100000E" },
   { OMX_IndexParamDisableResourceConcealment,
-    "OMX_IndexParamDisableResourceConcealment" },
-  { OMX_IndexConfigMetadataItemCount, "OMX_IndexConfigMetadataItemCount" },
-  { OMX_IndexConfigContainerNodeCount, "OMX_IndexConfigContainerNodeCount" },
-  { OMX_IndexConfigMetadataItem, "OMX_IndexConfigMetadataItem" },
-  { OMX_IndexConfigCounterNodeID, "OMX_IndexConfigCounterNodeID" },
-  { OMX_IndexParamMetadataFilterType, "OMX_IndexParamMetadataFilterType" },
-  { OMX_IndexParamMetadataKeyFilter, "OMX_IndexParamMetadataKeyFilter" },
-  { OMX_IndexConfigPriorityMgmt, "OMX_IndexConfigPriorityMgmt" },
+    (const OMX_STRING) "OMX_IndexParamDisableResourceConcealment" },
+  { OMX_IndexConfigMetadataItemCount, (const OMX_STRING) "OMX_IndexConfigMetadataItemCount" },
+  { OMX_IndexConfigContainerNodeCount, (const OMX_STRING) "OMX_IndexConfigContainerNodeCount" },
+  { OMX_IndexConfigMetadataItem, (const OMX_STRING) "OMX_IndexConfigMetadataItem" },
+  { OMX_IndexConfigCounterNodeID, (const OMX_STRING) "OMX_IndexConfigCounterNodeID" },
+  { OMX_IndexParamMetadataFilterType, (const OMX_STRING) "OMX_IndexParamMetadataFilterType" },
+  { OMX_IndexParamMetadataKeyFilter, (const OMX_STRING) "OMX_IndexParamMetadataKeyFilter" },
+  { OMX_IndexConfigPriorityMgmt, (const OMX_STRING) "OMX_IndexConfigPriorityMgmt" },
   { OMX_IndexParamStandardComponentRole,
-    "OMX_IndexParamStandardComponentRole" },
-  { OMX_IndexConfigContentURI, "OMX_IndexConfigContentURI" },
-  { OMX_IndexConfigCommonPortCapturing, "OMX_IndexConfigCommonPortCapturing" },
-  { OMX_IndexConfigTunneledPortStatus, "OMX_IndexConfigTunneledPortStatus" },
-  { OMX_IndexPortStartUnused, "OMX_IndexPortStartUnused" },
-  { OMX_IndexParamPortDefinition, "OMX_IndexParamPortDefinition" },
-  { OMX_IndexParamCompBufferSupplier, "OMX_IndexParamCompBufferSupplier" },
-  { OMX_IndexReservedStartUnused, "OMX_IndexReservedStartUnused" },
+    (const OMX_STRING) "OMX_IndexParamStandardComponentRole" },
+  { OMX_IndexConfigContentURI, (const OMX_STRING) "OMX_IndexConfigContentURI" },
+  { OMX_IndexConfigCommonPortCapturing, (const OMX_STRING) "OMX_IndexConfigCommonPortCapturing" },
+  { OMX_IndexConfigTunneledPortStatus, (const OMX_STRING) "OMX_IndexConfigTunneledPortStatus" },
+  { OMX_IndexPortStartUnused, (const OMX_STRING) "OMX_IndexPortStartUnused" },
+  { OMX_IndexParamPortDefinition, (const OMX_STRING) "OMX_IndexParamPortDefinition" },
+  { OMX_IndexParamCompBufferSupplier, (const OMX_STRING) "OMX_IndexParamCompBufferSupplier" },
+  { OMX_IndexReservedStartUnused, (const OMX_STRING) "OMX_IndexReservedStartUnused" },
 
   /* Audio parameters and configurations */
-  { OMX_IndexAudioStartUnused, "OMX_IndexAudioStartUnused" },
-  { OMX_IndexParamAudioPortFormat, "OMX_IndexParamAudioPortFormat" },
-  { OMX_IndexParamAudioPcm, "OMX_IndexParamAudioPcm" },
-  { OMX_IndexParamAudioAac, "OMX_IndexParamAudioAac" },
-  { OMX_IndexParamAudioRa, "OMX_IndexParamAudioRa" },
-  { OMX_IndexParamAudioMp3, "OMX_IndexParamAudioMp3" },
-  { OMX_IndexParamAudioAdpcm, "OMX_IndexParamAudioAdpcm" },
-  { OMX_IndexParamAudioG723, "OMX_IndexParamAudioG723" },
-  { OMX_IndexParamAudioG729, "OMX_IndexParamAudioG729" },
-  { OMX_IndexParamAudioAmr, "OMX_IndexParamAudioAmr" },
-  { OMX_IndexParamAudioWma, "OMX_IndexParamAudioWma" },
-  { OMX_IndexParamAudioSbc, "OMX_IndexParamAudioSbc" },
-  { OMX_IndexParamAudioMidi, "OMX_IndexParamAudioMidi" },
-  { OMX_IndexParamAudioGsm_FR, "OMX_IndexParamAudioGsm_FR" },
+  { OMX_IndexAudioStartUnused, (const OMX_STRING) "OMX_IndexAudioStartUnused" },
+  { OMX_IndexParamAudioPortFormat, (const OMX_STRING) "OMX_IndexParamAudioPortFormat" },
+  { OMX_IndexParamAudioPcm, (const OMX_STRING) "OMX_IndexParamAudioPcm" },
+  { OMX_IndexParamAudioAac, (const OMX_STRING) "OMX_IndexParamAudioAac" },
+  { OMX_IndexParamAudioRa, (const OMX_STRING) "OMX_IndexParamAudioRa" },
+  { OMX_IndexParamAudioMp3, (const OMX_STRING) "OMX_IndexParamAudioMp3" },
+  { OMX_IndexParamAudioAdpcm, (const OMX_STRING) "OMX_IndexParamAudioAdpcm" },
+  { OMX_IndexParamAudioG723, (const OMX_STRING) "OMX_IndexParamAudioG723" },
+  { OMX_IndexParamAudioG729, (const OMX_STRING) "OMX_IndexParamAudioG729" },
+  { OMX_IndexParamAudioAmr, (const OMX_STRING) "OMX_IndexParamAudioAmr" },
+  { OMX_IndexParamAudioWma, (const OMX_STRING) "OMX_IndexParamAudioWma" },
+  { OMX_IndexParamAudioSbc, (const OMX_STRING) "OMX_IndexParamAudioSbc" },
+  { OMX_IndexParamAudioMidi, (const OMX_STRING) "OMX_IndexParamAudioMidi" },
+  { OMX_IndexParamAudioGsm_FR, (const OMX_STRING) "OMX_IndexParamAudioGsm_FR" },
   { OMX_IndexParamAudioMidiLoadUserSound,
-    "OMX_IndexParamAudioMidiLoadUserSound" },
-  { OMX_IndexParamAudioG726, "OMX_IndexParamAudioG726" },
-  { OMX_IndexParamAudioGsm_EFR, "OMX_IndexParamAudioGsm_EFR" },
-  { OMX_IndexParamAudioGsm_HR, "OMX_IndexParamAudioGsm_HR" },
-  { OMX_IndexParamAudioPdc_FR, "OMX_IndexParamAudioPdc_FR" },
-  { OMX_IndexParamAudioPdc_EFR, "OMX_IndexParamAudioPdc_EFR" },
-  { OMX_IndexParamAudioPdc_HR, "OMX_IndexParamAudioPdc_HR" },
-  { OMX_IndexParamAudioTdma_FR, "OMX_IndexParamAudioTdma_FR" },
-  { OMX_IndexParamAudioTdma_EFR, "OMX_IndexParamAudioTdma_EFR" },
-  { OMX_IndexParamAudioQcelp8, "OMX_IndexParamAudioQcelp8" },
-  { OMX_IndexParamAudioQcelp13, "OMX_IndexParamAudioQcelp13" },
-  { OMX_IndexParamAudioEvrc, "OMX_IndexParamAudioEvrc" },
-  { OMX_IndexParamAudioSmv, "OMX_IndexParamAudioSmv" },
-  { OMX_IndexParamAudioVorbis, "OMX_IndexParamAudioVorbis" },
+    (const OMX_STRING) "OMX_IndexParamAudioMidiLoadUserSound" },
+  { OMX_IndexParamAudioG726, (const OMX_STRING) "OMX_IndexParamAudioG726" },
+  { OMX_IndexParamAudioGsm_EFR, (const OMX_STRING) "OMX_IndexParamAudioGsm_EFR" },
+  { OMX_IndexParamAudioGsm_HR, (const OMX_STRING) "OMX_IndexParamAudioGsm_HR" },
+  { OMX_IndexParamAudioPdc_FR, (const OMX_STRING) "OMX_IndexParamAudioPdc_FR" },
+  { OMX_IndexParamAudioPdc_EFR, (const OMX_STRING) "OMX_IndexParamAudioPdc_EFR" },
+  { OMX_IndexParamAudioPdc_HR, (const OMX_STRING) "OMX_IndexParamAudioPdc_HR" },
+  { OMX_IndexParamAudioTdma_FR, (const OMX_STRING) "OMX_IndexParamAudioTdma_FR" },
+  { OMX_IndexParamAudioTdma_EFR, (const OMX_STRING) "OMX_IndexParamAudioTdma_EFR" },
+  { OMX_IndexParamAudioQcelp8, (const OMX_STRING) "OMX_IndexParamAudioQcelp8" },
+  { OMX_IndexParamAudioQcelp13, (const OMX_STRING) "OMX_IndexParamAudioQcelp13" },
+  { OMX_IndexParamAudioEvrc, (const OMX_STRING) "OMX_IndexParamAudioEvrc" },
+  { OMX_IndexParamAudioSmv, (const OMX_STRING) "OMX_IndexParamAudioSmv" },
+  { OMX_IndexParamAudioVorbis, (const OMX_STRING) "OMX_IndexParamAudioVorbis" },
   { OMX_IndexConfigAudioMidiImmediateEvent,
-    "OMX_IndexConfigAudioMidiImmediateEvent" },
-  { OMX_IndexConfigAudioMidiControl, "OMX_IndexConfigAudioMidiControl" },
+    (const OMX_STRING) "OMX_IndexConfigAudioMidiImmediateEvent" },
+  { OMX_IndexConfigAudioMidiControl, (const OMX_STRING) "OMX_IndexConfigAudioMidiControl" },
   { OMX_IndexConfigAudioMidiSoundBankProgram,
-    "OMX_IndexConfigAudioMidiSoundBankProgram" },
-  { OMX_IndexConfigAudioMidiStatus, "OMX_IndexConfigAudioMidiStatus" },
-  { OMX_IndexConfigAudioMidiMetaEvent, "OMX_IndexConfigAudioMidiMetaEvent" },
+    (const OMX_STRING) "OMX_IndexConfigAudioMidiSoundBankProgram" },
+  { OMX_IndexConfigAudioMidiStatus, (const OMX_STRING) "OMX_IndexConfigAudioMidiStatus" },
+  { OMX_IndexConfigAudioMidiMetaEvent, (const OMX_STRING) "OMX_IndexConfigAudioMidiMetaEvent" },
   { OMX_IndexConfigAudioMidiMetaEventData,
-    "OMX_IndexConfigAudioMidiMetaEventData" },
-  { OMX_IndexConfigAudioVolume, "OMX_IndexConfigAudioVolume" },
-  { OMX_IndexConfigAudioBalance, "OMX_IndexConfigAudioBalance" },
-  { OMX_IndexConfigAudioChannelMute, "OMX_IndexConfigAudioChannelMute" },
-  { OMX_IndexConfigAudioMute, "OMX_IndexConfigAudioMute" },
-  { OMX_IndexConfigAudioLoudness, "OMX_IndexConfigAudioLoudness" },
+    (const OMX_STRING) "OMX_IndexConfigAudioMidiMetaEventData" },
+  { OMX_IndexConfigAudioVolume, (const OMX_STRING) "OMX_IndexConfigAudioVolume" },
+  { OMX_IndexConfigAudioBalance, (const OMX_STRING) "OMX_IndexConfigAudioBalance" },
+  { OMX_IndexConfigAudioChannelMute, (const OMX_STRING) "OMX_IndexConfigAudioChannelMute" },
+  { OMX_IndexConfigAudioMute, (const OMX_STRING) "OMX_IndexConfigAudioMute" },
+  { OMX_IndexConfigAudioLoudness, (const OMX_STRING) "OMX_IndexConfigAudioLoudness" },
   { OMX_IndexConfigAudioEchoCancelation,
-    "OMX_IndexConfigAudioEchoCancelation" },
-  { OMX_IndexConfigAudioNoiseReduction, "OMX_IndexConfigAudioNoiseReduction" },
-  { OMX_IndexConfigAudioBass, "OMX_IndexConfigAudioBass" },
-  { OMX_IndexConfigAudioTreble, "OMX_IndexConfigAudioTreble" },
-  { OMX_IndexConfigAudioStereoWidening, "OMX_IndexConfigAudioStereoWidening" },
-  { OMX_IndexConfigAudioChorus, "OMX_IndexConfigAudioChorus" },
-  { OMX_IndexConfigAudioEqualizer, "OMX_IndexConfigAudioEqualizer" },
-  { OMX_IndexConfigAudioReverberation, "OMX_IndexConfigAudioReverberation" },
-  { OMX_IndexConfigAudioChannelVolume, "OMX_IndexConfigAudioChannelVolume" },
-  { OMX_IndexConfigAudio3DOutput, "OMX_IndexConfigAudio3DOutput" },
-  { OMX_IndexConfigAudio3DLocation, "OMX_IndexConfigAudio3DLocation" },
-  { OMX_IndexParamAudio3DDopplerMode, "OMX_IndexParamAudio3DDopplerMode" },
+    (const OMX_STRING) "OMX_IndexConfigAudioEchoCancelation" },
+  { OMX_IndexConfigAudioNoiseReduction, (const OMX_STRING) "OMX_IndexConfigAudioNoiseReduction" },
+  { OMX_IndexConfigAudioBass, (const OMX_STRING) "OMX_IndexConfigAudioBass" },
+  { OMX_IndexConfigAudioTreble, (const OMX_STRING) "OMX_IndexConfigAudioTreble" },
+  { OMX_IndexConfigAudioStereoWidening, (const OMX_STRING) "OMX_IndexConfigAudioStereoWidening" },
+  { OMX_IndexConfigAudioChorus, (const OMX_STRING) "OMX_IndexConfigAudioChorus" },
+  { OMX_IndexConfigAudioEqualizer, (const OMX_STRING) "OMX_IndexConfigAudioEqualizer" },
+  { OMX_IndexConfigAudioReverberation, (const OMX_STRING) "OMX_IndexConfigAudioReverberation" },
+  { OMX_IndexConfigAudioChannelVolume, (const OMX_STRING) "OMX_IndexConfigAudioChannelVolume" },
+  { OMX_IndexConfigAudio3DOutput, (const OMX_STRING) "OMX_IndexConfigAudio3DOutput" },
+  { OMX_IndexConfigAudio3DLocation, (const OMX_STRING) "OMX_IndexConfigAudio3DLocation" },
+  { OMX_IndexParamAudio3DDopplerMode, (const OMX_STRING) "OMX_IndexParamAudio3DDopplerMode" },
   { OMX_IndexConfigAudio3DDopplerSettings,
-    "OMX_IndexConfigAudio3DDopplerSettings" },
-  { OMX_IndexConfigAudio3DLevels, "OMX_IndexConfigAudio3DLevels" },
+    (const OMX_STRING) "OMX_IndexConfigAudio3DDopplerSettings" },
+  { OMX_IndexConfigAudio3DLevels, (const OMX_STRING) "OMX_IndexConfigAudio3DLevels" },
   { OMX_IndexConfigAudio3DDistanceAttenuation,
-    "OMX_IndexConfigAudio3DDistanceAttenuation" },
+    (const OMX_STRING) "OMX_IndexConfigAudio3DDistanceAttenuation" },
   { OMX_IndexConfigAudio3DDirectivitySettings,
-    "OMX_IndexConfigAudio3DDirectivitySettings" },
+    (const OMX_STRING) "OMX_IndexConfigAudio3DDirectivitySettings" },
   { OMX_IndexConfigAudio3DDirectivityOrientation,
-    "OMX_IndexConfigAudio3DDirectivityOrientation" },
+    (const OMX_STRING) "OMX_IndexConfigAudio3DDirectivityOrientation" },
   { OMX_IndexConfigAudio3DMacroscopicOrientation,
-    "OMX_IndexConfigAudio3DMacroscopicOrientation" },
+    (const OMX_STRING) "OMX_IndexConfigAudio3DMacroscopicOrientation" },
   { OMX_IndexConfigAudio3DMacroscopicSize,
-    "OMX_IndexConfigAudio3DMacroscopicSize" },
+    (const OMX_STRING) "OMX_IndexConfigAudio3DMacroscopicSize" },
   { OMX_IndexParamAudioQueryChannelMapping,
-    "OMX_IndexParamAudioQueryChannelMapping" },
-  { OMX_IndexConfigAudioSbcBitpool, "OMX_IndexConfigAudioSbcBitpool" },
-  { OMX_IndexConfigAudioAmrMode, "OMX_IndexConfigAudioAmrMode" },
-  { OMX_IndexConfigAudioBitrate, "OMX_IndexConfigAudioBitrate" },
-  { OMX_IndexConfigAudioAMRISFIndex, "OMX_IndexConfigAudioAMRISFIndex" },
-  { OMX_IndexParamAudioFixedPoint, "OMX_IndexParamAudioFixedPoint" },
+    (const OMX_STRING) "OMX_IndexParamAudioQueryChannelMapping" },
+  { OMX_IndexConfigAudioSbcBitpool, (const OMX_STRING) "OMX_IndexConfigAudioSbcBitpool" },
+  { OMX_IndexConfigAudioAmrMode, (const OMX_STRING) "OMX_IndexConfigAudioAmrMode" },
+  { OMX_IndexConfigAudioBitrate, (const OMX_STRING) "OMX_IndexConfigAudioBitrate" },
+  { OMX_IndexConfigAudioAMRISFIndex, (const OMX_STRING) "OMX_IndexConfigAudioAMRISFIndex" },
+  { OMX_IndexParamAudioFixedPoint, (const OMX_STRING) "OMX_IndexParamAudioFixedPoint" },
 
   /* Image specific parameters and configurations */
-  { OMX_IndexImageStartUnused, "OMX_IndexImageStartUnused" },
-  { OMX_IndexParamImagePortFormat, "OMX_IndexParamImagePortFormat" },
-  { OMX_IndexParamFlashControl, "OMX_IndexParamFlashControl" },
-  { OMX_IndexConfigFocusControl, "OMX_IndexConfigFocusControl" },
-  { OMX_IndexParamQFactor, "OMX_IndexParamQFactor" },
-  { OMX_IndexParamQuantizationTable, "OMX_IndexParamQuantizationTable" },
-  { OMX_IndexParamHuffmanTable, "OMX_IndexParamHuffmanTable" },
-  { OMX_IndexConfigFlashControl, "OMX_IndexConfigFlashControl" },
-  { OMX_IndexConfigFlickerRejection, "OMX_IndexConfigFlickerRejection" },
-  { OMX_IndexConfigImageHistogram, "OMX_IndexConfigImageHistogram" },
-  { OMX_IndexConfigImageHistogramData, "OMX_IndexConfigImageHistogramData" },
-  { OMX_IndexConfigImageHistogramInfo, "OMX_IndexConfigImageHistogramInfo" },
-  { OMX_IndexConfigImageCaptureStarted, "OMX_IndexConfigImageCaptureStarted" },
-  { OMX_IndexConfigImageCaptureEnded, "OMX_IndexConfigImageCaptureEnded" },
+  { OMX_IndexImageStartUnused, (const OMX_STRING) "OMX_IndexImageStartUnused" },
+  { OMX_IndexParamImagePortFormat, (const OMX_STRING) "OMX_IndexParamImagePortFormat" },
+  { OMX_IndexParamFlashControl, (const OMX_STRING) "OMX_IndexParamFlashControl" },
+  { OMX_IndexConfigFocusControl, (const OMX_STRING) "OMX_IndexConfigFocusControl" },
+  { OMX_IndexParamQFactor, (const OMX_STRING) "OMX_IndexParamQFactor" },
+  { OMX_IndexParamQuantizationTable, (const OMX_STRING) "OMX_IndexParamQuantizationTable" },
+  { OMX_IndexParamHuffmanTable, (const OMX_STRING) "OMX_IndexParamHuffmanTable" },
+  { OMX_IndexConfigFlashControl, (const OMX_STRING) "OMX_IndexConfigFlashControl" },
+  { OMX_IndexConfigFlickerRejection, (const OMX_STRING) "OMX_IndexConfigFlickerRejection" },
+  { OMX_IndexConfigImageHistogram, (const OMX_STRING) "OMX_IndexConfigImageHistogram" },
+  { OMX_IndexConfigImageHistogramData, (const OMX_STRING) "OMX_IndexConfigImageHistogramData" },
+  { OMX_IndexConfigImageHistogramInfo, (const OMX_STRING) "OMX_IndexConfigImageHistogramInfo" },
+  { OMX_IndexConfigImageCaptureStarted, (const OMX_STRING) "OMX_IndexConfigImageCaptureStarted" },
+  { OMX_IndexConfigImageCaptureEnded, (const OMX_STRING) "OMX_IndexConfigImageCaptureEnded" },
 
   /* Video specific parameters and configurations */
-  { OMX_IndexVideoStartUnused, "OMX_IndexVideoStartUnused" },
-  { OMX_IndexParamVideoPortFormat, "OMX_IndexParamVideoPortFormat" },
-  { OMX_IndexParamVideoQuantization, "OMX_IndexParamVideoQuantization" },
-  { OMX_IndexParamVideoFastUpdate, "OMX_IndexParamVideoFastUpdate" },
-  { OMX_IndexParamVideoBitrate, "OMX_IndexParamVideoBitrate" },
-  { OMX_IndexParamVideoMotionVector, "OMX_IndexParamVideoMotionVector" },
-  { OMX_IndexParamVideoIntraRefresh, "OMX_IndexParamVideoIntraRefresh" },
-  { OMX_IndexParamVideoErrorCorrection, "OMX_IndexParamVideoErrorCorrection" },
-  { OMX_IndexParamVideoVBSMC, "OMX_IndexParamVideoVBSMC" },
-  { OMX_IndexParamVideoMpeg2, "OMX_IndexParamVideoMpeg2" },
-  { OMX_IndexParamVideoMpeg4, "OMX_IndexParamVideoMpeg4" },
-  { OMX_IndexParamVideoWmv, "OMX_IndexParamVideoWmv" },
-  { OMX_IndexParamVideoRv, "OMX_IndexParamVideoRv" },
-  { OMX_IndexParamVideoAvc, "OMX_IndexParamVideoAvc" },
-  { OMX_IndexParamVideoH263, "OMX_IndexParamVideoH263" },
+  { OMX_IndexVideoStartUnused, (const OMX_STRING) "OMX_IndexVideoStartUnused" },
+  { OMX_IndexParamVideoPortFormat, (const OMX_STRING) "OMX_IndexParamVideoPortFormat" },
+  { OMX_IndexParamVideoQuantization, (const OMX_STRING) "OMX_IndexParamVideoQuantization" },
+  { OMX_IndexParamVideoFastUpdate, (const OMX_STRING) "OMX_IndexParamVideoFastUpdate" },
+  { OMX_IndexParamVideoBitrate, (const OMX_STRING) "OMX_IndexParamVideoBitrate" },
+  { OMX_IndexParamVideoMotionVector, (const OMX_STRING) "OMX_IndexParamVideoMotionVector" },
+  { OMX_IndexParamVideoIntraRefresh, (const OMX_STRING) "OMX_IndexParamVideoIntraRefresh" },
+  { OMX_IndexParamVideoErrorCorrection, (const OMX_STRING) "OMX_IndexParamVideoErrorCorrection" },
+  { OMX_IndexParamVideoVBSMC, (const OMX_STRING) "OMX_IndexParamVideoVBSMC" },
+  { OMX_IndexParamVideoMpeg2, (const OMX_STRING) "OMX_IndexParamVideoMpeg2" },
+  { OMX_IndexParamVideoMpeg4, (const OMX_STRING) "OMX_IndexParamVideoMpeg4" },
+  { OMX_IndexParamVideoWmv, (const OMX_STRING) "OMX_IndexParamVideoWmv" },
+  { OMX_IndexParamVideoRv, (const OMX_STRING) "OMX_IndexParamVideoRv" },
+  { OMX_IndexParamVideoAvc, (const OMX_STRING) "OMX_IndexParamVideoAvc" },
+  { OMX_IndexParamVideoH263, (const OMX_STRING) "OMX_IndexParamVideoH263" },
   { OMX_IndexParamVideoProfileLevelQuerySupported,
-    "OMX_IndexParamVideoProfileLevelQuerySupported" },
+    (const OMX_STRING) "OMX_IndexParamVideoProfileLevelQuerySupported" },
   { OMX_IndexParamVideoProfileLevelCurrent,
-    "OMX_IndexParamVideoProfileLevelCurrent" },
-  { OMX_IndexConfigVideoBitrate, "OMX_IndexConfigVideoBitrate" },
-  { OMX_IndexConfigVideoFramerate, "OMX_IndexConfigVideoFramerate" },
+    (const OMX_STRING) "OMX_IndexParamVideoProfileLevelCurrent" },
+  { OMX_IndexConfigVideoBitrate, (const OMX_STRING) "OMX_IndexConfigVideoBitrate" },
+  { OMX_IndexConfigVideoFramerate, (const OMX_STRING) "OMX_IndexConfigVideoFramerate" },
   { OMX_IndexConfigVideoIntraVOPRefresh,
-    "OMX_IndexConfigVideoIntraVOPRefresh" },
-  { OMX_IndexConfigVideoIntraMBRefresh, "OMX_IndexConfigVideoIntraMBRefresh" },
+    (const OMX_STRING) "OMX_IndexConfigVideoIntraVOPRefresh" },
+  { OMX_IndexConfigVideoIntraMBRefresh, (const OMX_STRING) "OMX_IndexConfigVideoIntraMBRefresh" },
   { OMX_IndexConfigVideoMBErrorReporting,
-    "OMX_IndexConfigVideoMBErrorReporting" },
+    (const OMX_STRING) "OMX_IndexConfigVideoMBErrorReporting" },
   { OMX_IndexParamVideoMacroblocksPerFrame,
-    "OMX_IndexParamVideoMacroblocksPerFrame" },
+    (const OMX_STRING) "OMX_IndexParamVideoMacroblocksPerFrame" },
   { OMX_IndexConfigVideoMacroBlockErrorMap,
-    "OMX_IndexConfigVideoMacroBlockErrorMap" },
-  { OMX_IndexParamVideoSliceFMO, "OMX_IndexParamVideoSliceFMO" },
-  { OMX_IndexConfigVideoAVCIntraPeriod, "OMX_IndexConfigVideoAVCIntraPeriod" },
-  { OMX_IndexConfigVideoNalSize, "OMX_IndexConfigVideoNalSize" },
+    (const OMX_STRING) "OMX_IndexConfigVideoMacroBlockErrorMap" },
+  { OMX_IndexParamVideoSliceFMO, (const OMX_STRING) "OMX_IndexParamVideoSliceFMO" },
+  { OMX_IndexConfigVideoAVCIntraPeriod, (const OMX_STRING) "OMX_IndexConfigVideoAVCIntraPeriod" },
+  { OMX_IndexConfigVideoNalSize, (const OMX_STRING) "OMX_IndexConfigVideoNalSize" },
   { OMX_IndexParamNalStreamFormatSupported,
-    "OMX_IndexParamNalStreamFormatSupported" },
-  { OMX_IndexParamNalStreamFormat, "OMX_IndexParamNalStreamFormat" },
+    (const OMX_STRING) "OMX_IndexParamNalStreamFormatSupported" },
+  { OMX_IndexParamNalStreamFormat, (const OMX_STRING) "OMX_IndexParamNalStreamFormat" },
   { OMX_IndexParamNalStreamFormatSelect,
-    "OMX_IndexParamNalStreamFormatSelect" },
-  { OMX_IndexParamVideoVC1, "OMX_IndexParamVideoVC1" },
-  { OMX_IndexConfigVideoIntraPeriod, "OMX_IndexConfigVideoIntraPeriod" },
-  { OMX_IndexConfigVideoIntraRefresh, "OMX_IndexConfigVideoIntraRefresh" },
-  { OMX_IndexParamVideoVp8, "OMX_IndexParamVideoVp8" },
+    (const OMX_STRING) "OMX_IndexParamNalStreamFormatSelect" },
+  { OMX_IndexParamVideoVC1, (const OMX_STRING) "OMX_IndexParamVideoVC1" },
+  { OMX_IndexConfigVideoIntraPeriod, (const OMX_STRING) "OMX_IndexConfigVideoIntraPeriod" },
+  { OMX_IndexConfigVideoIntraRefresh, (const OMX_STRING) "OMX_IndexConfigVideoIntraRefresh" },
+  { OMX_IndexParamVideoVp8, (const OMX_STRING) "OMX_IndexParamVideoVp8" },
   { OMX_IndexConfigVideoVp8ReferenceFrame,
-    "OMX_IndexConfigVideoVp8ReferenceFrame" },
+    (const OMX_STRING) "OMX_IndexConfigVideoVp8ReferenceFrame" },
   { OMX_IndexConfigVideoVp8ReferenceFrameType,
-    "MX_IndexConfigVideoVp8ReferenceFrameType" },
+    (const OMX_STRING) "OMX_IndexConfigVideoVp8ReferenceFrameType" },
 
   /* Image & Video common Configurations */
-  { OMX_IndexCommonStartUnused, "OMX_IndexCommonStartUnused" },
-  { OMX_IndexParamCommonDeblocking, "OMX_IndexParamCommonDeblocking" },
-  { OMX_IndexParamCommonSensorMode, "OMX_IndexParamCommonSensorMode" },
-  { OMX_IndexParamCommonInterleave, "OMX_IndexParamCommonInterleave" },
+  { OMX_IndexCommonStartUnused, (const OMX_STRING) "OMX_IndexCommonStartUnused" },
+  { OMX_IndexParamCommonDeblocking, (const OMX_STRING) "OMX_IndexParamCommonDeblocking" },
+  { OMX_IndexParamCommonSensorMode, (const OMX_STRING) "OMX_IndexParamCommonSensorMode" },
+  { OMX_IndexParamCommonInterleave, (const OMX_STRING) "OMX_IndexParamCommonInterleave" },
   { OMX_IndexConfigCommonColorFormatConversion,
-    "OMX_IndexConfigCommonColorFormatConversion" },
-  { OMX_IndexConfigCommonScale, "OMX_IndexConfigCommonScale" },
-  { OMX_IndexConfigCommonImageFilter, "OMX_IndexConfigCommonImageFilter" },
+    (const OMX_STRING) "OMX_IndexConfigCommonColorFormatConversion" },
+  { OMX_IndexConfigCommonScale, (const OMX_STRING) "OMX_IndexConfigCommonScale" },
+  { OMX_IndexConfigCommonImageFilter, (const OMX_STRING) "OMX_IndexConfigCommonImageFilter" },
   { OMX_IndexConfigCommonColorEnhancement,
-    "OMX_IndexConfigCommonColorEnhancement" },
-  { OMX_IndexConfigCommonColorKey, "OMX_IndexConfigCommonColorKey" },
-  { OMX_IndexConfigCommonColorBlend, "OMX_IndexConfigCommonColorBlend" },
+    (const OMX_STRING) "OMX_IndexConfigCommonColorEnhancement" },
+  { OMX_IndexConfigCommonColorKey, (const OMX_STRING) "OMX_IndexConfigCommonColorKey" },
+  { OMX_IndexConfigCommonColorBlend, (const OMX_STRING) "OMX_IndexConfigCommonColorBlend" },
   { OMX_IndexConfigCommonFrameStabilisation,
-    "OMX_IndexConfigCommonFrameStabilisation" },
-  { OMX_IndexConfigCommonRotate, "OMX_IndexConfigCommonRotate" },
-  { OMX_IndexConfigCommonMirror, "OMX_IndexConfigCommonMirror" },
+    (const OMX_STRING) "OMX_IndexConfigCommonFrameStabilisation" },
+  { OMX_IndexConfigCommonRotate, (const OMX_STRING) "OMX_IndexConfigCommonRotate" },
+  { OMX_IndexConfigCommonMirror, (const OMX_STRING) "OMX_IndexConfigCommonMirror" },
   { OMX_IndexConfigCommonOutputPosition,
-    "OMX_IndexConfigCommonOutputPosition" },
-  { OMX_IndexConfigCommonInputCrop, "OMX_IndexConfigCommonInputCrop" },
-  { OMX_IndexConfigCommonOutputCrop, "OMX_IndexConfigCommonOutputCrop" },
-  { OMX_IndexConfigCommonDigitalZoom, "OMX_IndexConfigCommonDigitalZoom" },
-  { OMX_IndexConfigCommonOpticalZoom, "OMX_IndexConfigCommonOpticalZoom" },
-  { OMX_IndexConfigCommonWhiteBalance, "OMX_IndexConfigCommonWhiteBalance" },
-  { OMX_IndexConfigCommonExposure, "OMX_IndexConfigCommonExposure" },
-  { OMX_IndexConfigCommonContrast, "OMX_IndexConfigCommonContrast" },
-  { OMX_IndexConfigCommonBrightness, "OMX_IndexConfigCommonBrightness" },
-  { OMX_IndexConfigCommonBacklight, "OMX_IndexConfigCommonBacklight" },
-  { OMX_IndexConfigCommonGamma, "OMX_IndexConfigCommonGamma" },
-  { OMX_IndexConfigCommonSaturation, "OMX_IndexConfigCommonSaturation" },
-  { OMX_IndexConfigCommonLightness, "OMX_IndexConfigCommonLightness" },
-  { OMX_IndexConfigCommonExclusionRect, "OMX_IndexConfigCommonExclusionRect" },
-  { OMX_IndexConfigCommonDithering, "OMX_IndexConfigCommonDithering" },
-  { OMX_IndexConfigCommonPlaneBlend, "OMX_IndexConfigCommonPlaneBlend" },
-  { OMX_IndexConfigCommonExposureValue, "OMX_IndexConfigCommonExposureValue" },
-  { OMX_IndexConfigCommonOutputSize, "OMX_IndexConfigCommonOutputSize" },
-  { OMX_IndexParamCommonExtraQuantData, "OMX_IndexParamCommonExtraQuantData" },
-  { OMX_IndexReserved_0x0700002A, "OMX_IndexReserved_0x0700002A" },
-  { OMX_IndexReserved_0x0700002B, "OMX_IndexReserved_0x0700002B" },
+    (const OMX_STRING) "OMX_IndexConfigCommonOutputPosition" },
+  { OMX_IndexConfigCommonInputCrop, (const OMX_STRING) "OMX_IndexConfigCommonInputCrop" },
+  { OMX_IndexConfigCommonOutputCrop, (const OMX_STRING) "OMX_IndexConfigCommonOutputCrop" },
+  { OMX_IndexConfigCommonDigitalZoom, (const OMX_STRING) "OMX_IndexConfigCommonDigitalZoom" },
+  { OMX_IndexConfigCommonOpticalZoom, (const OMX_STRING) "OMX_IndexConfigCommonOpticalZoom" },
+  { OMX_IndexConfigCommonWhiteBalance, (const OMX_STRING) "OMX_IndexConfigCommonWhiteBalance" },
+  { OMX_IndexConfigCommonExposure, (const OMX_STRING) "OMX_IndexConfigCommonExposure" },
+  { OMX_IndexConfigCommonContrast, (const OMX_STRING) "OMX_IndexConfigCommonContrast" },
+  { OMX_IndexConfigCommonBrightness, (const OMX_STRING) "OMX_IndexConfigCommonBrightness" },
+  { OMX_IndexConfigCommonBacklight, (const OMX_STRING) "OMX_IndexConfigCommonBacklight" },
+  { OMX_IndexConfigCommonGamma, (const OMX_STRING) "OMX_IndexConfigCommonGamma" },
+  { OMX_IndexConfigCommonSaturation, (const OMX_STRING) "OMX_IndexConfigCommonSaturation" },
+  { OMX_IndexConfigCommonLightness, (const OMX_STRING) "OMX_IndexConfigCommonLightness" },
+  { OMX_IndexConfigCommonExclusionRect, (const OMX_STRING) "OMX_IndexConfigCommonExclusionRect" },
+  { OMX_IndexConfigCommonDithering, (const OMX_STRING) "OMX_IndexConfigCommonDithering" },
+  { OMX_IndexConfigCommonPlaneBlend, (const OMX_STRING) "OMX_IndexConfigCommonPlaneBlend" },
+  { OMX_IndexConfigCommonExposureValue, (const OMX_STRING) "OMX_IndexConfigCommonExposureValue" },
+  { OMX_IndexConfigCommonOutputSize, (const OMX_STRING) "OMX_IndexConfigCommonOutputSize" },
+  { OMX_IndexParamCommonExtraQuantData, (const OMX_STRING) "OMX_IndexParamCommonExtraQuantData" },
+  { OMX_IndexReserved_0x0700002A, (const OMX_STRING) "OMX_IndexReserved_0x0700002A" },
+  { OMX_IndexReserved_0x0700002B, (const OMX_STRING) "OMX_IndexReserved_0x0700002B" },
   { OMX_IndexConfigCommonTransitionEffect,
-    "OMX_IndexConfigCommonTransitionEffect" },
-  { OMX_IndexConfigSharpness, "OMX_IndexConfigSharpness" },
+    (const OMX_STRING) "OMX_IndexConfigCommonTransitionEffect" },
+  { OMX_IndexConfigSharpness, (const OMX_STRING) "OMX_IndexConfigSharpness" },
   { OMX_IndexConfigCommonExtDigitalZoom,
-    "OMX_IndexConfigCommonExtDigitalZoom" },
+    (const OMX_STRING) "OMX_IndexConfigCommonExtDigitalZoom" },
   { OMX_IndexConfigCommonExtOpticalZoom,
-    "OMX_IndexConfigCommonExtOpticalZoom" },
+    (const OMX_STRING) "OMX_IndexConfigCommonExtOpticalZoom" },
   { OMX_IndexConfigCommonCenterFieldOfView,
-    "OMX_IndexConfigCommonCenterFieldOfView" },
-  { OMX_IndexConfigImageExposureLock, "OMX_IndexConfigImageExposureLock" },
+    (const OMX_STRING) "OMX_IndexConfigCommonCenterFieldOfView" },
+  { OMX_IndexConfigImageExposureLock, (const OMX_STRING) "OMX_IndexConfigImageExposureLock" },
   { OMX_IndexConfigImageWhiteBalanceLock,
-    "OMX_IndexConfigImageWhiteBalanceLock" },
-  { OMX_IndexConfigImageFocusLock, "OMX_IndexConfigImageFocusLock" },
-  { OMX_IndexConfigCommonFocusRange, "OMX_IndexConfigCommonFocusRange" },
-  { OMX_IndexConfigImageFlashStatus, "OMX_IndexConfigImageFlashStatus" },
+    (const OMX_STRING) "OMX_IndexConfigImageWhiteBalanceLock" },
+  { OMX_IndexConfigImageFocusLock, (const OMX_STRING) "OMX_IndexConfigImageFocusLock" },
+  { OMX_IndexConfigCommonFocusRange, (const OMX_STRING) "OMX_IndexConfigCommonFocusRange" },
+  { OMX_IndexConfigImageFlashStatus, (const OMX_STRING) "OMX_IndexConfigImageFlashStatus" },
   { OMX_IndexConfigCommonExtCaptureMode,
-    "OMX_IndexConfigCommonExtCaptureMode" },
+    (const OMX_STRING) "OMX_IndexConfigCommonExtCaptureMode" },
   { OMX_IndexConfigCommonNDFilterControl,
-    "OMX_IndexConfigCommonNDFilterControl" },
+    (const OMX_STRING) "OMX_IndexConfigCommonNDFilterControl" },
   { OMX_IndexConfigCommonAFAssistantLight,
-    "OMX_IndexConfigCommonAFAssistantLight" },
+    (const OMX_STRING) "OMX_IndexConfigCommonAFAssistantLight" },
   { OMX_IndexConfigCommonFocusRegionStatus,
-    "OMX_IndexConfigCommonFocusRegionStatus" },
+    (const OMX_STRING) "OMX_IndexConfigCommonFocusRegionStatus" },
   { OMX_IndexConfigCommonFocusRegionControl,
-    "OMX_IndexConfigCommonFocusRegionControl" },
-  { OMX_IndexParamInterlaceFormat, "OMX_IndexParamInterlaceFormat" },
-  { OMX_IndexConfigDeInterlace, "OMX_IndexConfigDeInterlace" },
+    (const OMX_STRING) "OMX_IndexConfigCommonFocusRegionControl" },
+  { OMX_IndexParamInterlaceFormat, (const OMX_STRING) "OMX_IndexParamInterlaceFormat" },
+  { OMX_IndexConfigDeInterlace, (const OMX_STRING) "OMX_IndexConfigDeInterlace" },
   { OMX_IndexConfigStreamInterlaceFormats,
-    "OMX_IndexConfigStreamInterlaceFormats" },
+    (const OMX_STRING) "OMX_IndexConfigStreamInterlaceFormats" },
 
   /* Reserved Configuration range */
-  { OMX_IndexOtherStartUnused, "OMX_IndexOtherStartUnused" },
-  { OMX_IndexParamOtherPortFormat, "OMX_IndexParamOtherPortFormat" },
-  { OMX_IndexConfigOtherPower, "OMX_IndexConfigOtherPower" },
-  { OMX_IndexConfigOtherStats, "OMX_IndexConfigOtherStats" },
+  { OMX_IndexOtherStartUnused, (const OMX_STRING) "OMX_IndexOtherStartUnused" },
+  { OMX_IndexParamOtherPortFormat, (const OMX_STRING) "OMX_IndexParamOtherPortFormat" },
+  { OMX_IndexConfigOtherPower, (const OMX_STRING) "OMX_IndexConfigOtherPower" },
+  { OMX_IndexConfigOtherStats, (const OMX_STRING) "OMX_IndexConfigOtherStats" },
 
   /* Reserved Time range */
-  { OMX_IndexTimeStartUnused, "OMX_IndexTimeStartUnused" },
-  { OMX_IndexConfigTimeScale, "OMX_IndexConfigTimeScale" },
-  { OMX_IndexConfigTimeClockState, "OMX_IndexConfigTimeClockState" },
-  { OMX_IndexReserved_0x90000003, "OMX_IndexReserved_0x90000003" },
+  { OMX_IndexTimeStartUnused, (const OMX_STRING) "OMX_IndexTimeStartUnused" },
+  { OMX_IndexConfigTimeScale, (const OMX_STRING) "OMX_IndexConfigTimeScale" },
+  { OMX_IndexConfigTimeClockState, (const OMX_STRING) "OMX_IndexConfigTimeClockState" },
+  { OMX_IndexReserved_0x90000003, (const OMX_STRING) "OMX_IndexReserved_0x90000003" },
   { OMX_IndexConfigTimeCurrentMediaTime,
-    "OMX_IndexConfigTimeCurrentMediaTime" },
-  { OMX_IndexConfigTimeCurrentWallTime, "OMX_IndexConfigTimeCurrentWallTime" },
-  { OMX_IndexReserved_0x09000006, "OMX_IndexReserved_0x09000006" },
-  { OMX_IndexReserved_0x09000007, "OMX_IndexReserved_0x09000007" },
+    (const OMX_STRING) "OMX_IndexConfigTimeCurrentMediaTime" },
+  { OMX_IndexConfigTimeCurrentWallTime, (const OMX_STRING) "OMX_IndexConfigTimeCurrentWallTime" },
+  { OMX_IndexReserved_0x09000006, (const OMX_STRING) "OMX_IndexReserved_0x09000006" },
+  { OMX_IndexReserved_0x09000007, (const OMX_STRING) "OMX_IndexReserved_0x09000007" },
   { OMX_IndexConfigTimeMediaTimeRequest,
-    "OMX_IndexConfigTimeMediaTimeRequest" },
-  { OMX_IndexConfigTimeClientStartTime, "OMX_IndexConfigTimeClientStartTime" },
-  { OMX_IndexConfigTimePosition, "OMX_IndexConfigTimePosition" },
-  { OMX_IndexConfigTimeSeekMode, "OMX_IndexConfigTimeSeekMode" },
+    (const OMX_STRING) "OMX_IndexConfigTimeMediaTimeRequest" },
+  { OMX_IndexConfigTimeClientStartTime, (const OMX_STRING) "OMX_IndexConfigTimeClientStartTime" },
+  { OMX_IndexConfigTimePosition, (const OMX_STRING) "OMX_IndexConfigTimePosition" },
+  { OMX_IndexConfigTimeSeekMode, (const OMX_STRING) "OMX_IndexConfigTimeSeekMode" },
   { OMX_IndexConfigTimeCurrentReference,
-    "OMX_IndexConfigTimeCurrentReference" },
+    (const OMX_STRING) "OMX_IndexConfigTimeCurrentReference" },
   { OMX_IndexConfigTimeActiveRefClockUpdate,
-    "OMX_IndexConfigTimeActiveRefClockUpdate" },
-  { OMX_IndexConfigTimeRenderingDelay, "OMX_IndexConfigTimeRenderingDelay" },
-  { OMX_IndexConfigTimeUpdate, "OMX_IndexConfigTimeUpdate" },
+    (const OMX_STRING) "OMX_IndexConfigTimeActiveRefClockUpdate" },
+  { OMX_IndexConfigTimeRenderingDelay, (const OMX_STRING) "OMX_IndexConfigTimeRenderingDelay" },
+  { OMX_IndexConfigTimeUpdate, (const OMX_STRING) "OMX_IndexConfigTimeUpdate" },
 
   /* Common or Domain Independent Time range */
   { OMX_IndexCommonIndependentStartUnused,
-    "OMX_IndexCommonIndependentStartUnused" },
-  { OMX_IndexConfigCommitMode, "OMX_IndexConfigCommitMode" },
-  { OMX_IndexConfigCommit, "OMX_IndexConfigCommit" },
-  { OMX_IndexConfigCallbackRequest, "OMX_IndexConfigCallbackRequest" },
-  { OMX_IndexParamMediaContainer, "OMX_IndexParamMediaContainer" },
-  { OMX_IndexParamReadOnlyBuffers, "OMX_IndexParamReadOnlyBuffers" },
-  { OMX_IndexVendorStartUnused, "OMX_IndexVendorStartUnused" },
+    (const OMX_STRING) "OMX_IndexCommonIndependentStartUnused" },
+  { OMX_IndexConfigCommitMode, (const OMX_STRING) "OMX_IndexConfigCommitMode" },
+  { OMX_IndexConfigCommit, (const OMX_STRING) "OMX_IndexConfigCommit" },
+  { OMX_IndexConfigCallbackRequest, (const OMX_STRING) "OMX_IndexConfigCallbackRequest" },
+  { OMX_IndexParamMediaContainer, (const OMX_STRING) "OMX_IndexParamMediaContainer" },
+  { OMX_IndexParamReadOnlyBuffers, (const OMX_STRING) "OMX_IndexParamReadOnlyBuffers" },
+  { OMX_IndexVendorStartUnused, (const OMX_STRING) "OMX_IndexVendorStartUnused" },
   { OMX_TizoniaIndexParamBufferPreAnnouncementsMode,
-    "OMX_TizoniaIndexParamBufferPreAnnouncementsMode" },
-  { OMX_TizoniaIndexParamHttpServer, "OMX_TizoniaIndexParamHttpServer" },
+    (const OMX_STRING) "OMX_TizoniaIndexParamBufferPreAnnouncementsMode" },
+  { OMX_TizoniaIndexParamHttpServer, (const OMX_STRING) "OMX_TizoniaIndexParamHttpServer" },
   { OMX_TizoniaIndexParamIcecastMountpoint,
-    "OMX_TizoniaIndexParamIcecastMountpoint" },
+    (const OMX_STRING) "OMX_TizoniaIndexParamIcecastMountpoint" },
   { OMX_TizoniaIndexConfigIcecastMetadata,
-    "OMX_TizoniaIndexConfigIcecastMetadata" },
-  { OMX_TizoniaIndexParamAudioOpus, "OMX_TizoniaIndexParamAudioOpus" },
-  { OMX_TizoniaIndexParamAudioFlac, "OMX_TizoniaIndexParamAudioFlac" },
-  { OMX_IndexKhronosExtensions, "OMX_IndexKhronosExtensions" },
-  { OMX_IndexVendorStartUnused, "OMX_IndexVendorStartUnused" },
-  { OMX_IndexMax, "OMX_IndexMax" }
+    (const OMX_STRING) "OMX_TizoniaIndexConfigIcecastMetadata" },
+  { OMX_TizoniaIndexParamAudioOpus, (const OMX_STRING) "OMX_TizoniaIndexParamAudioOpus" },
+  { OMX_TizoniaIndexParamAudioFlac, (const OMX_STRING) "OMX_TizoniaIndexParamAudioFlac" },
+  { OMX_IndexKhronosExtensions, (const OMX_STRING) "OMX_IndexKhronosExtensions" },
+  { OMX_IndexVendorStartUnused, (const OMX_STRING) "OMX_IndexVendorStartUnused" },
+  { OMX_IndexMax, (const OMX_STRING) "OMX_IndexMax" }
 };
 
-/*@observer@*/ const OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd)
+/*@observer@*/ OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd)
 {
   const size_t count = sizeof(tiz_cmd_to_str_tbl) / sizeof(tiz_cmd_str_t);
   size_t i = 0;
@@ -486,10 +486,10 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
         }
     }
 
-  return "Unknown OpenMAX IL command";
+  return (OMX_STRING) "Unknown OpenMAX IL command";
 }
 
-/*@observer@*/ const OMX_STRING tiz_state_to_str (OMX_STATETYPE a_id)
+/*@observer@*/ OMX_STRING tiz_state_to_str (OMX_STATETYPE a_id)
 {
   const size_t count = sizeof(tiz_state_to_str_tbl) / sizeof(tiz_state_str_t);
   size_t i = 0;
@@ -502,10 +502,10 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
         }
     }
 
-  return "Unknown OpenMAX IL state";
+  return (OMX_STRING) "Unknown OpenMAX IL state";
 }
 
-/*@observer@*/ const OMX_STRING tiz_evt_to_str (OMX_EVENTTYPE a_evt)
+/*@observer@*/ OMX_STRING tiz_evt_to_str (OMX_EVENTTYPE a_evt)
 {
   const size_t count = sizeof(tiz_evt_to_str_tbl) / sizeof(tiz_evt_str_t);
   size_t i = 0;
@@ -518,10 +518,10 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
         }
     }
 
-  return "Unknown OpenMAX IL event";
+  return (OMX_STRING) "Unknown OpenMAX IL event";
 }
 
-/*@observer@*/ const OMX_STRING tiz_err_to_str (OMX_ERRORTYPE a_err)
+/*@observer@*/ OMX_STRING tiz_err_to_str (OMX_ERRORTYPE a_err)
 {
   const size_t count = sizeof(tiz_err_to_str_tbl) / sizeof(tiz_err_str_t);
   size_t i = 0;
@@ -534,10 +534,10 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
         }
     }
 
-  return "Unknown OpenMAX IL error";
+  return (OMX_STRING) "Unknown OpenMAX IL error";
 }
 
-/*@observer@*/ const OMX_STRING tiz_dir_to_str (OMX_DIRTYPE a_dir)
+/*@observer@*/ OMX_STRING tiz_dir_to_str (OMX_DIRTYPE a_dir)
 {
   const size_t count = sizeof(tiz_dir_to_str_tbl) / sizeof(tiz_dir_str_t);
   size_t i = 0;
@@ -550,10 +550,10 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
         }
     }
 
-  return "Unknown OpenMAX IL port direction";
+  return (OMX_STRING) "Unknown OpenMAX IL port direction";
 }
 
-/*@observer@*/ const OMX_STRING tiz_idx_to_str (OMX_INDEXTYPE a_idx)
+/*@observer@*/ OMX_STRING tiz_idx_to_str (OMX_INDEXTYPE a_idx)
 {
   const size_t count = sizeof(tiz_idx_to_str_tbl) / sizeof(tiz_idx_str_t);
   size_t i = 0;
@@ -566,5 +566,5 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
         }
     }
 
-  return "Unknown OpenMAX IL index";
+  return (OMX_STRING) "Unknown OpenMAX IL index";
 }
