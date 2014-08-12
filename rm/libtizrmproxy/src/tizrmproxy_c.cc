@@ -83,7 +83,7 @@ il_rmproxy_thread_func(void *p_arg)
   assert(p_rm);
 
   (void) tiz_thread_setname (&(p_rm->thread), (const OMX_STRING) "tizrmproxy");
-  
+
   TIZ_LOG(TIZ_PRIORITY_TRACE, "Entering the dispatcher...");
 
   p_rm->p_dispatcher->enter();
@@ -183,10 +183,10 @@ stop_proxy()
 }
 
 extern "C" tizrm_error_t
-tizrm_proxy_init(tizrm_t * ap_rm, const OMX_STRING ap_name,
+tiz_rm_proxy_init(tizrm_t * ap_rm, const OMX_STRING ap_name,
                  const OMX_UUIDTYPE * ap_uuid,
                  const OMX_PRIORITYMGMTTYPE * ap_pri,
-                 const tizrm_proxy_callbacks_t * ap_cbacks,
+                 const tiz_rm_proxy_callbacks_t * ap_cbacks,
                  OMX_PTR ap_data)
 {
   tizrm_error_t rc = TIZRM_SUCCESS;
@@ -213,7 +213,7 @@ tizrm_proxy_init(tizrm_t * ap_rm, const OMX_STRING ap_name,
     {
 
       DBus::_init_threading();
-      
+
       p_rm->p_dispatcher    = new DBus::BusDispatcher();
       DBus::default_dispatcher = p_rm->p_dispatcher;
 
@@ -261,7 +261,7 @@ tizrm_proxy_init(tizrm_t * ap_rm, const OMX_STRING ap_name,
 }
 
 extern "C" tizrm_error_t
-tizrm_proxy_destroy(tizrm_t * ap_rm)
+tiz_rm_proxy_destroy(tizrm_t * ap_rm)
 {
   tizrm_error_t rc = TIZRM_SUCCESS;
   tizrm_int_t *p_rm = NULL;
@@ -303,7 +303,7 @@ tizrm_proxy_destroy(tizrm_t * ap_rm)
 }
 
 extern "C" OMX_S32
-tizrm_proxy_version(const tizrm_t * ap_rm)
+tiz_rm_proxy_version(const tizrm_t * ap_rm)
 {
   tizrm_int_t *p_rm = NULL;
   if (!ap_rm)
@@ -318,7 +318,7 @@ tizrm_proxy_version(const tizrm_t * ap_rm)
 }
 
 extern "C" tizrm_error_t
-tizrm_proxy_acquire(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+tiz_rm_proxy_acquire(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
   tizrm_int_t *p_rm = NULL;
   if (!ap_rm)
@@ -329,13 +329,13 @@ tizrm_proxy_acquire(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
   p_rm = get_rm();
   assert(p_rm);
 
-  TIZ_LOG(TIZ_PRIORITY_TRACE, "tizrm_proxy_acquire");
+  TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_acquire");
 
   return (tizrm_error_t)p_rm->p_proxy->acquire(ap_rm, a_rid, a_quantity);
 }
 
 extern "C" tizrm_error_t
-tizrm_proxy_release(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+tiz_rm_proxy_release(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
   tizrm_int_t *p_rm = NULL;
   if (!ap_rm)
@@ -346,12 +346,12 @@ tizrm_proxy_release(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
   p_rm = get_rm();
   assert(p_rm);
 
-  TIZ_LOG(TIZ_PRIORITY_TRACE, "tizrm_proxy_release");
+  TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_release");
   return (tizrm_error_t)p_rm->p_proxy->release(ap_rm, a_rid, a_quantity);
 }
 
 extern "C" tizrm_error_t
-tizrm_proxy_wait(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+tiz_rm_proxy_wait(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
   tizrm_int_t *p_rm = NULL;
   if (!ap_rm)
@@ -362,12 +362,12 @@ tizrm_proxy_wait(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
   p_rm = get_rm();
   assert(p_rm);
 
-  TIZ_LOG(TIZ_PRIORITY_TRACE, "tizrm_proxy_wait");
+  TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_wait");
   return (tizrm_error_t)p_rm->p_proxy->wait(ap_rm, a_rid, a_quantity);
 }
 
 extern "C" tizrm_error_t
-tizrm_proxy_cancel_wait(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+tiz_rm_proxy_cancel_wait(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
   tizrm_int_t *p_rm = NULL;
   if (!ap_rm)
@@ -378,12 +378,12 @@ tizrm_proxy_cancel_wait(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity
   p_rm = get_rm();
   assert(p_rm);
 
-  TIZ_LOG(TIZ_PRIORITY_TRACE, "tizrm_proxy_cancel_wait");
+  TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_cancel_wait");
   return (tizrm_error_t)p_rm->p_proxy->cancel_wait(ap_rm, a_rid, a_quantity);
 }
 
 extern "C" tizrm_error_t
-tizrm_proxy_preemption_conf(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+tiz_rm_proxy_preemption_conf(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
   tizrm_int_t *p_rm = NULL;
   if (!ap_rm)
@@ -394,6 +394,6 @@ tizrm_proxy_preemption_conf(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quan
   p_rm = get_rm();
   assert(p_rm);
 
-  TIZ_LOG(TIZ_PRIORITY_TRACE, "tizrm_proxy_preemption_conf");
+  TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_preemption_conf");
   return (tizrm_error_t)p_rm->p_proxy->preemption_conf(ap_rm, a_rid, a_quantity);
 }

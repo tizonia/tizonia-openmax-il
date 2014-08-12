@@ -227,7 +227,7 @@ struct tizcore
   tizcore_state_t state;
   tizcore_registry_t p_registry;
   tizrm_t rm;
-  tizrm_proxy_callbacks_t rmcbacks;
+  tiz_rm_proxy_callbacks_t rmcbacks;
   OMX_UUIDTYPE uuid;
 };
 
@@ -988,7 +988,7 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 
   if (TIZRM_SUCCESS !=
       (rc =
-       tizrm_proxy_init (&p_core->rm, (const OMX_STRING) TIZ_IL_CORE_RM_NAME,
+       tiz_rm_proxy_init (&p_core->rm, (const OMX_STRING) TIZ_IL_CORE_RM_NAME,
                          (const OMX_UUIDTYPE *) &p_core->uuid, &primgmt,
                          &p_core->rmcbacks, NULL)))
     {
@@ -1018,7 +1018,7 @@ do_deinit (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   * ap_state = ETIZCoreStateStopped;
 
   /* Deinit the RM hdl */
-  if (TIZRM_SUCCESS != (rc = tizrm_proxy_destroy (&p_core->rm)))
+  if (TIZRM_SUCCESS != (rc = tiz_rm_proxy_destroy (&p_core->rm)))
     {
       /* TODO: Translate into a proper error code, especially OOM error  */
       TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorUndefined] : "

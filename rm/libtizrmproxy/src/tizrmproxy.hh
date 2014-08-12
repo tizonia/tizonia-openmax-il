@@ -49,9 +49,9 @@ public:
 
   void *register_client(const char * ap_cname, const uint8_t uuid[],
                         const uint32_t &grp_id, const uint32_t &grp_pri,
-                        tizrm_proxy_wait_complete_f apf_waitend,
-                        tizrm_proxy_preemption_req_f apf_preempt,
-                        tizrm_proxy_preemption_complete_f apf_preempt_end,
+                        tiz_rm_proxy_wait_complete_f apf_waitend,
+                        tiz_rm_proxy_preemption_req_f apf_preempt,
+                        tiz_rm_proxy_preemption_complete_f apf_preempt_end,
                         void * ap_data);
 
   void unregister_client(const tizrm_t * ap_rm);
@@ -103,9 +103,9 @@ private:
 
     client_data(const char * ap_cname, std::vector<unsigned char> uuid,
                 const uint32_t &a_grp_id, const uint32_t &a_pri,
-                tizrm_proxy_wait_complete_f apf_waitend,
-                tizrm_proxy_preemption_req_f apf_preempt,
-                tizrm_proxy_preemption_complete_f apf_preempt_end,
+                tiz_rm_proxy_wait_complete_f apf_waitend,
+                tiz_rm_proxy_preemption_req_f apf_preempt,
+                tiz_rm_proxy_preemption_complete_f apf_preempt_end,
                 void * ap_data)
       :
       cname_(ap_cname),
@@ -134,9 +134,9 @@ private:
     std::vector<unsigned char> uuid_;
     uint32_t grp_id_;
     uint32_t pri_;
-    tizrm_proxy_wait_complete_f pf_waitend_;
-    tizrm_proxy_preemption_req_f pf_preempt_;
-    tizrm_proxy_preemption_complete_f pf_preempt_end_;
+    tiz_rm_proxy_wait_complete_f pf_waitend_;
+    tiz_rm_proxy_preemption_req_f pf_preempt_;
+    tiz_rm_proxy_preemption_complete_f pf_preempt_end_;
     void *p_data_;
   };
 

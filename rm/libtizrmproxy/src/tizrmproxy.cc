@@ -53,9 +53,9 @@ tizrmproxy::~tizrmproxy ()
 
 void *tizrmproxy::register_client (
     const char *ap_cname, const uint8_t uuid[], const uint32_t &grp_id,
-    const uint32_t &grp_pri, tizrm_proxy_wait_complete_f apf_waitend,
-    tizrm_proxy_preemption_req_f apf_preempt,
-    tizrm_proxy_preemption_complete_f apf_preempt_end, void *ap_data)
+    const uint32_t &grp_pri, tiz_rm_proxy_wait_complete_f apf_waitend,
+    tiz_rm_proxy_preemption_req_f apf_preempt,
+    tiz_rm_proxy_preemption_complete_f apf_preempt_end, void *ap_data)
 {
   char uuid_str[128];
   std::vector< unsigned char > uuid_vec;

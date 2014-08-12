@@ -1065,7 +1065,7 @@ static OMX_ERRORTYPE init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
     }
 
   if (TIZRM_SUCCESS
-      != (rmrc = tizrm_proxy_init (&p_obj->rm_, (OMX_STRING)(&comp_name),
+      != (rmrc = tiz_rm_proxy_init (&p_obj->rm_, (OMX_STRING)(&comp_name),
                                    (const OMX_UUIDTYPE *)&uuid, &primgmt,
                                    &p_obj->rm_cbacks_, ap_hdl)))
     {
@@ -1093,7 +1093,7 @@ static OMX_ERRORTYPE deinit_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
 
-  if (TIZRM_SUCCESS != (rmrc = tizrm_proxy_destroy (&p_obj->rm_)))
+  if (TIZRM_SUCCESS != (rmrc = tiz_rm_proxy_destroy (&p_obj->rm_)))
     {
       /* TODO: Translate into a proper error code, especially OOM error  */
       TIZ_ERROR (ap_hdl, "[OMX_ErrorUndefined] : RM proxy deinitialization failed...");
@@ -1112,7 +1112,7 @@ static OMX_ERRORTYPE acquire_rm_resources (const void *ap_obj,
 
   /* Request permission to use the RM-based resources */
   if (TIZRM_SUCCESS
-      != (rmrc = tizrm_proxy_acquire (&p_obj->rm_, TIZRM_RESOURCE_DUMMY, 1)))
+      != (rmrc = tiz_rm_proxy_acquire (&p_obj->rm_, TIZRM_RESOURCE_DUMMY, 1)))
     {
       switch (rmrc)
         {
@@ -1145,7 +1145,7 @@ static OMX_ERRORTYPE release_rm_resources (const void *ap_obj,
   tizrm_error_t rmrc = TIZRM_SUCCESS;
 
   if (TIZRM_SUCCESS
-      != (rmrc = tizrm_proxy_release (&p_obj->rm_, TIZRM_RESOURCE_DUMMY, 1)))
+      != (rmrc = tiz_rm_proxy_release (&p_obj->rm_, TIZRM_RESOURCE_DUMMY, 1)))
     {
       TIZ_TRACE (ap_hdl, "Resource release failed - RM error [%d]...", rmrc);
     }
