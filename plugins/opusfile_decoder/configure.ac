@@ -43,9 +43,11 @@ if test "x$HAVE_OPUSFILE" = "xno"; then
 fi
 
 # Checks for header files.
+AC_CHECK_HEADERS([string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
+# AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
 
 # Checks for library functions.
 
