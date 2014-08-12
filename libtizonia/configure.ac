@@ -67,6 +67,41 @@ AC_CONFIG_FILES([Makefile
                  tests/Makefile])
 
 # Checks for command-line options
+# Additional GCC warnings option
+AC_ARG_ENABLE([gcc-warnings],
+[AS_HELP_STRING([--enable-gcc-warnings],
+[turn on lots of GCC warnings (for developers)])],
+[case $enableval in
+yes|no) ;;
+*) AC_MSG_ERROR([bad value $enableval for gcc-warnings option]) ;;
+esac
+gl_gcc_warnings=$enableval],
+[gl_gcc_warnings=no]
+)
+
+if test "$gl_gcc_warnings" = yes; then
+   gl_MANYWARN_ALL_GCC([warnings])
+   # Set up the list of the pointless, undesired warnings.
+   nw=
+   nw="$nw -Wsystem-headers"       # Don't let system headers trigger warnings
+   nw="$nw -Wundef"                # All compiler preprocessors support #if UNDEF
+   nw="$nw -Wtraditional"          # All compilers nowadays support ANSI C
+   # nw="$nw -Wconversion"           # These warnings usually don't point to mistakes.
+   # nw="$nw -Wsign-conversion"      # Likewise.
+   nw="$nw -Wsuggest-attribute=pure"  # Is it worth using attributes?
+   nw="$nw -Wsuggest-attribute=const" # Is it worth using attributes?
+   nw="$nw -Wsuggest-attribute=format" # Is it worth using attributes?
+   nw="$nw -Wsuggest-attribute=noreturn" # Is it worth using attributes?
+   #nw="$nw -Wsign-conversion"      # Likewise.
+   # Enable all GCC warnings not in this list.
+   gl_MANYWARN_COMPLEMENT([warnings], [$warnings], [$nw])
+   for w in $warnings; do
+     gl_WARN_ADD([$w])
+     done
+
+   gl_WARN_ADD([-fdiagnostics-show-option])
+fi
+
 AC_ARG_ENABLE([blocking-etb-ftb],
  [  --enable-blocking-etb-ftb   Enable fully conformant blocking behaviour of ETB and FTB APIs],
  [blocking_etb_ftb=${enableval}], [blocking_etb_ftb=no])
