@@ -56,18 +56,11 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.ilcore"
 #endif
 
+#define TIZ_IL_CORE_THREAD_NAME "tizilcore"
+#define TIZ_IL_CORE_RM_NAME "OMX.Aratelia.ilcore"
 #define TIZ_DEFAULT_COMP_ENTRY_POINT_NAME "OMX_ComponentInit"
 #define TIZ_SHARED_LIB_SONAME_STRING ".so.0.0.0"
 #define TIZ_SHARED_LIB_SONAMET_STRING ".so.0.0.0T"
-
-static OMX_VERSIONTYPE tc_spec_version = {
-  {
-    (OMX_U8)OMX_VERSION_MAJOR,
-    (OMX_U8)OMX_VERSION_MINOR,
-    (OMX_U8)OMX_VERSION_REVISION,
-    (OMX_U8)OMX_VERSION_STEP
-  }
-};
 
 typedef struct role_list_item role_list_item_t;
 typedef role_list_item_t *role_list_t;
@@ -104,23 +97,23 @@ typedef struct tizcore_msg_str tizcore_msg_str_t;
 struct tizcore_msg_str
 {
   tizcore_msg_class_t msg;
-  OMX_STRING str;
+  const OMX_STRING str;
 };
 
 static tizcore_msg_str_t tizcore_msg_to_str_tbl[] = {
-  {ETIZCoreMsgInit, "ETIZCoreMsgInit"},
-  {ETIZCoreMsgDeinit, "ETIZCoreMsgDeinit"},
-  {ETIZCoreMsgGetHandle, "ETIZCoreMsgGetHandle"},
-  {ETIZCoreMsgFreeHandle, "ETIZCoreMsgFreeHandle"},
-  {ETIZCoreMsgComponentNameEnum, "ETIZCoreMsgComponentNameEnum"},
-  {ETIZCoreMsgComponentOfRoleEnum, "ETIZCoreMsgComponentOfRoleEnum"},
-  {ETIZCoreMsgRoleOfComponentEnum, "ETIZCoreMsgRoleOfComponentEnum"},
-  {ETIZCoreMsgGetCoreInterface, "ETIZCoreMsgGetCoreInterface"},
-  {ETIZCoreMsgFreeCoreInterface, "ETIZCoreMsgFreeCoreInterface"},
-  {ETIZCoreMsgMax, "ETIZCoreMsgMax"},
+  {ETIZCoreMsgInit, (const OMX_STRING) "ETIZCoreMsgInit"},
+  {ETIZCoreMsgDeinit, (const OMX_STRING) "ETIZCoreMsgDeinit"},
+  {ETIZCoreMsgGetHandle, (const OMX_STRING) "ETIZCoreMsgGetHandle"},
+  {ETIZCoreMsgFreeHandle, (const OMX_STRING) "ETIZCoreMsgFreeHandle"},
+  {ETIZCoreMsgComponentNameEnum, (const OMX_STRING) "ETIZCoreMsgComponentNameEnum"},
+  {ETIZCoreMsgComponentOfRoleEnum, (const OMX_STRING) "ETIZCoreMsgComponentOfRoleEnum"},
+  {ETIZCoreMsgRoleOfComponentEnum, (const OMX_STRING) "ETIZCoreMsgRoleOfComponentEnum"},
+  {ETIZCoreMsgGetCoreInterface, (const OMX_STRING) "ETIZCoreMsgGetCoreInterface"},
+  {ETIZCoreMsgFreeCoreInterface, (const OMX_STRING) "ETIZCoreMsgFreeCoreInterface"},
+  {ETIZCoreMsgMax, (const OMX_STRING) "ETIZCoreMsgMax"},
 };
 
-static const OMX_STRING
+static OMX_STRING
 tizcore_msg_to_str (const tizcore_msg_class_t a_msg)
 {
   const size_t count =
@@ -135,7 +128,7 @@ tizcore_msg_to_str (const tizcore_msg_class_t a_msg)
         }
     }
 
-  return "Unknown core message";
+  return (OMX_STRING) "Unknown core message";
 }
 
 typedef struct tizcore_msg_gethandle tizcore_msg_gethandle_t;
@@ -239,7 +232,7 @@ struct tizcore
 };
 
 static tizcore_t *pg_core = NULL;
-static inline tizcore_t *get_core ();
+static tizcore_t *get_core (void);
 static tizcore_registry_item_t *find_comp_in_registry (const OMX_STRING
                                                        ap_name);
 
@@ -612,7 +605,7 @@ cache_comp_info (const OMX_STRING ap_dl_path, const OMX_STRING ap_dl_name)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "dl_name [%s]", ap_dl_name);
 
   rc = instantiate_comp_lib (ap_dl_path, ap_dl_name,
-                             TIZ_DEFAULT_COMP_ENTRY_POINT_NAME,
+                             (const OMX_STRING) TIZ_DEFAULT_COMP_ENTRY_POINT_NAME,
                              &p_dl_hdl, &p_entry_point);
 
   if (OMX_ErrorNone == rc)
@@ -750,7 +743,7 @@ find_role_in_registry (const OMX_STRING ap_role_str, OMX_U32 a_index)
   tizcore_t *p_core = get_core ();
   tizcore_registry_t p_registry = NULL;
   role_list_item_t *p_role = NULL;
-  OMX_S32 num_components_found = 0;
+  OMX_U32 num_components_found = 0;
 
   assert (NULL != p_core);
   assert (NULL != ap_role_str);
@@ -869,7 +862,7 @@ instantiate_component (tizcore_msg_gethandle_t * ap_msg)
       if (OMX_ErrorNone
           == (rc = instantiate_comp_lib (p_reg_item->p_dl_path,
                                          p_reg_item->p_dl_name,
-                                         TIZ_DEFAULT_COMP_ENTRY_POINT_NAME,
+                                         (const OMX_STRING) TIZ_DEFAULT_COMP_ENTRY_POINT_NAME,
                                          &p_dl_hdl, &p_entry_point)))
         {
           /* TODO: refactor these two blocks into a function. They are also used */
@@ -995,7 +988,7 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 
   if (TIZRM_SUCCESS !=
       (rc =
-       tizrm_proxy_init (&p_core->rm, "OMX.Aratelia.ilcore",
+       tizrm_proxy_init (&p_core->rm, (const OMX_STRING) TIZ_IL_CORE_RM_NAME,
                          (const OMX_UUIDTYPE *) &p_core->uuid, &primgmt,
                          &p_core->rmcbacks, NULL)))
     {
@@ -1004,8 +997,8 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
       return OMX_ErrorInsufficientResources;
     }
 
-  (void) tiz_thread_setname (&(p_core->thread), "tizilcore");
-  
+  (void) tiz_thread_setname (&(p_core->thread), (const OMX_STRING) TIZ_IL_CORE_THREAD_NAME);
+
   * ap_state = ETIZCoreStateStarted;
   return scan_component_folders ();
 }
@@ -1313,8 +1306,8 @@ il_core_thread_func (void *p_arg)
   return NULL;
 }
 
-static inline tizcore_t *
-get_core ()
+static tizcore_t *
+get_core (void)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -1355,7 +1348,7 @@ get_core ()
 }
 
 static OMX_ERRORTYPE
-start_core ()
+start_core (void)
 {
   tizcore_t *p_core = get_core ();
 
@@ -1393,7 +1386,7 @@ init_core_message (tizcore_msg_class_t a_msg_class)
   return p_msg;
 }
 
-static inline OMX_ERRORTYPE
+static OMX_ERRORTYPE
 send_msg_blocking (tizcore_msg_t * ap_msg)
 {
   tizcore_t *p_core = get_core ();
@@ -1441,10 +1434,9 @@ do_tunnel_requests(OMX_HANDLETYPE ap_outhdl, OMX_U32 a_outport,
   OMX_COMPONENTTYPE *p_incmp = (OMX_COMPONENTTYPE *) ap_inhdl,
     *p_outcmp = (OMX_COMPONENTTYPE *) ap_outhdl;
   OMX_TUNNELSETUPTYPE tsetup = { 0, OMX_BufferSupplyUnspecified };
-  OMX_PARAM_PORTDEFINITIONTYPE port_def = {
-    sizeof (OMX_PARAM_PORTDEFINITIONTYPE),
-    tc_spec_version
-  };
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, 0);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "ap_outhdl [%p] a_outport [%d] "
            "ap_inhdl [%p] a_inport [%d]", ap_outhdl, a_outport,
@@ -1795,15 +1787,13 @@ OMX_RoleOfComponentEnum(OMX_STRING ap_role, OMX_STRING ap_comp_name,
 OMX_ERRORTYPE
 OMX_GetCoreInterface(void ** ppItf, OMX_STRING cExtensionName)
 {
-  assert(0);
   (void) ppItf;
   (void) cExtensionName;
   return OMX_ErrorNotImplemented;
 }
 
-OMX_API void
+void
 OMX_FreeCoreInterface(void * pItf)
 {
   (void) pItf;
-  assert(0);
 }

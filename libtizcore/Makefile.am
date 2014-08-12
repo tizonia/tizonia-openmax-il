@@ -17,6 +17,8 @@
 
 SUBDIRS= src test_component tests
 
+ACLOCAL_AMFLAGS = -I m4
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libtizcore.pc
 

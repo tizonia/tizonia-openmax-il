@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+AM_CFLAGS = $(WARN_CFLAGS)
+
 lib_LTLIBRARIES = libtizcore.la
 
 libtizcore_la_SOURCES = tizcore.c
@@ -24,7 +26,8 @@ libtizcore_la_CFLAGS = \
 	-I$(top_srcdir)/../libtizplatform/src \
 	-I$(top_srcdir)/../rm/libtizrmproxy/src \
 	-I$(top_srcdir)/../rm/dbus \
-	-I$(top_srcdir)/src
+	-I$(top_srcdir)/src \
+	$(AM_CFLAGS)
 
 libtizcore_la_LIBADD = \
 	$(top_builddir)/../libtizplatform/src/libtizplatform.la \

@@ -23,6 +23,9 @@ AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
+# 'm4' is the directory where the extra autoconf macros are stored
+AC_CONFIG_MACRO_DIR([m4])
+
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
@@ -61,6 +64,38 @@ AC_TYPE_SIZE_T
 # TODO: Move some of these to libtizplatform
 AC_FUNC_FORK
 AC_CHECK_FUNCS([bzero strerror strndup strstr])
+
+# Additional GCC warnings option
+AC_ARG_ENABLE([gcc-warnings],
+[AS_HELP_STRING([--enable-gcc-warnings],
+[turn on lots of GCC warnings (for developers)])],
+[case $enableval in
+yes|no) ;;
+*) AC_MSG_ERROR([bad value $enableval for gcc-warnings option]) ;;
+esac
+gl_gcc_warnings=$enableval],
+[gl_gcc_warnings=no]
+)
+
+if test "$gl_gcc_warnings" = yes; then
+   gl_MANYWARN_ALL_GCC([warnings])
+   # Set up the list of the pointless, undesired warnings.
+   nw=
+   nw="$nw -Wsystem-headers"       # Don't let system headers trigger warnings
+   nw="$nw -Wundef"                # All compiler preprocessors support #if UNDEF
+   nw="$nw -Wtraditional"          # All compilers nowadays support ANSI C
+   # nw="$nw -Wconversion"           # These warnings usually don't point to mistakes.
+   # nw="$nw -Wsign-conversion"      # Likewise.
+   nw="$nw -Wsuggest-attribute=pure"  # Is it worth using attributes?
+   nw="$nw -Wsuggest-attribute=const" # Is it worth using attributes?
+   # Enable all GCC warnings not in this list.
+   gl_MANYWARN_COMPLEMENT([warnings], [$warnings], [$nw])
+   for w in $warnings; do
+     gl_WARN_ADD([$w])
+     done
+
+   gl_WARN_ADD([-fdiagnostics-show-option])
+fi
 
 AC_CONFIG_FILES([Makefile
                  libtizcore.pc
