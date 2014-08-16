@@ -124,7 +124,7 @@ int32_t tizrmd::acquire (const uint32_t &rid, const uint32_t &quantity,
           // Notify the owners of the imminent preemption
 
           rev_it = owners.rbegin ();
-          for (int i = 0; i < preemption_counter; ++i)
+          for (uint32_t i = 0; i < preemption_counter; ++i)
           {
             tizrmowner &cur_owner = *rev_it++;
             char uuid_str[129];
@@ -197,7 +197,6 @@ int32_t tizrmd::release (const uint32_t &rid, const uint32_t &quantity,
   waitlist_t::iterator it_begin = waiters_.begin ();
   waitlist_t::iterator it_end = waiters_.end ();
   waitlist_t::iterator it_next = it_end;
-  uint32_t rid_next = 0;
   for (waitlist_t::iterator it = it_begin; it != it_end; ++it)
   {
     tizrmwaiter &waiter = *it;

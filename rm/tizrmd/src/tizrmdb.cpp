@@ -54,10 +54,10 @@ static const char *TIZ_RM_DB_CREATE_ALLOC_TABLE =
   "create table allocation(cname varchar(255), uuid varchar(16), grpid "
   "smallint, pri smallint, resid smallint, allocation mediumint)";
 
-static const char *TIZ_RM_DB_RESNAMES_FROM_RESOURCES
-    = "select resname from resources";
-static const char *TIZ_RM_DB_RESIDS_FROM_RESOURCES
-    = "select resid from resources";
+// static const char *TIZ_RM_DB_RESNAMES_FROM_RESOURCES
+//     = "select resname from resources";
+// static const char *TIZ_RM_DB_RESIDS_FROM_RESOURCES
+//     = "select resid from resources";
 
 static const char *TIZ_RM_DB_CNAMES_FROM_COMPONENTS
     = "select cname from components";
@@ -351,6 +351,8 @@ tizrm_error_t tizrmdb::acquire_resource (
   }
 
   requirement = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
+  // TODO: Replace this with proper error check
+  assert (requirement >= 0);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE,
            "tizrmdb::acquire_resource : "
@@ -358,7 +360,7 @@ tizrm_error_t tizrmdb::acquire_resource (
            "actually requested [%d] ...",
            cname.c_str (), requirement, quantity);
 
-  if (quantity > requirement)
+  if (quantity > (unsigned int) requirement)
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE,
              "tizrmdb::acquire_resource : "
@@ -451,13 +453,15 @@ tizrm_error_t tizrmdb::release_resource (
   }
 
   requirement = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
+  // TODO: Replace this with proper error check
+  assert (requirement >= 0);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE,
            "'%s': provisioned requirement [%d] units, "
            "actually requested [%d] ...",
            cname.c_str (), requirement, quantity);
 
-  if (quantity > requirement)
+  if (quantity > (unsigned int) requirement)
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE,
              "'%s': releasing [%d] units, "
@@ -638,7 +642,6 @@ tizrm_error_t tizrmdb::find_owners (const unsigned int &rid,
 {
   int rc = SQLITE_OK;
   char query[500];
-  char uuid_str[129];
 
   TIZ_LOG (TIZ_PRIORITY_TRACE,
            "tizrmdb::find_owners : resource id [%d] "
