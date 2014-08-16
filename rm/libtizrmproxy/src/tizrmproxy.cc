@@ -104,7 +104,6 @@ void tizrmproxy::unregister_client (const tizrm_t *ap_rm)
     {
       // Release all resources currently allocated with the RM and cancel all
       // outstanding resource requests
-      int32_t rc = TIZRM_SUCCESS;
       TIZ_LOG (TIZ_PRIORITY_TRACE,
                "Relinquishing rm resources "
                "for client with uuid [%s]...",
