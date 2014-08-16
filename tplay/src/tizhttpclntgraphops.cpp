@@ -319,31 +319,34 @@ graph::httpclntops::add_decoder_to_component_list (
       role_list.push_back ("audio_decoder.aac");
     }
     break;
-    case OMX_AUDIO_CodingFLAC:
-    {
-      comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
-      role_list.push_back ("audio_decoder.flac");
-    }
-    break;
     case OMX_AUDIO_CodingVORBIS:
     {
       comp_list.push_back ("OMX.Aratelia.audio_decoder.vorbis");
       role_list.push_back ("audio_decoder.vorbis");
     }
     break;
-    case OMX_AUDIO_CodingOPUS:
-    {
-      comp_list.push_back ("OMX.Aratelia.audio_decoder.opusfile.opus");
-      role_list.push_back ("audio_decoder.opus");
-    }
-    break;
     default:
-      TIZ_LOG (TIZ_PRIORITY_ERROR,
-               "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
-               encoding_);
-      rc = OMX_ErrorFormatNotDetected;
+      {
+      if (OMX_AUDIO_CodingOPUS == encoding_)
+        {
+          comp_list.push_back ("OMX.Aratelia.audio_decoder.opusfile.opus");
+          role_list.push_back ("audio_decoder.opus");
+        }
+      else if (OMX_AUDIO_CodingFLAC == encoding_)
+        {
+          comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
+          role_list.push_back ("audio_decoder.flac");
+        }
+      else
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR,
+                   "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+                   encoding_);
+          rc = OMX_ErrorFormatNotDetected;
+        }
+      }
       break;
-  }
+  };
   return rc;
 }
 
@@ -459,16 +462,6 @@ graph::httpclntops::get_channels_and_rate_from_http_source (
               handle, port_id, OMX_IndexParamAudioAac, channels, sampling_rate);
     }
     break;
-    case OMX_AUDIO_CodingFLAC:
-    {
-      encoding_str = "flac";
-      rc = tiz::graph::util::
-          get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_FLACTYPE >(
-              handle, port_id,
-              static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
-              channels, sampling_rate);
-    }
-    break;
     case OMX_AUDIO_CodingVORBIS:
     {
       encoding_str = "vorbis";
@@ -478,21 +471,34 @@ graph::httpclntops::get_channels_and_rate_from_http_source (
               sampling_rate);
     }
     break;
-    case OMX_AUDIO_CodingOPUS:
-    {
-      encoding_str = "opus";
-      rc = tiz::graph::util::
-          get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE >(
+    default:
+      {
+        if (OMX_AUDIO_CodingOPUS == encoding_)
+          {
+            encoding_str = "opus";
+            rc = tiz::graph::util::
+              get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE >(
               handle, port_id,
               static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
               channels, sampling_rate);
-    }
-    break;
-    default:
-      TIZ_LOG (TIZ_PRIORITY_ERROR,
-               "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
-               encoding_);
-      rc = OMX_ErrorFormatNotDetected;
+          }
+        else if (OMX_AUDIO_CodingFLAC == encoding_)
+          {
+            encoding_str = "flac";
+            rc = tiz::graph::util::
+              get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_FLACTYPE >(
+              handle, port_id,
+              static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
+              channels, sampling_rate);
+        }
+        else
+          {
+            TIZ_LOG (TIZ_PRIORITY_ERROR,
+                     "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+                     encoding_);
+            rc = OMX_ErrorFormatNotDetected;
+          }
+      }
       break;
   };
 
@@ -526,15 +532,6 @@ graph::httpclntops::set_channels_and_rate_on_decoder (
               handle, port_id, OMX_IndexParamAudioAac, channels, sampling_rate);
     }
     break;
-    case OMX_AUDIO_CodingFLAC:
-    {
-      rc = tiz::graph::util::
-          set_channels_and_rate_on_audio_port< OMX_TIZONIA_AUDIO_PARAM_FLACTYPE >(
-              handle, port_id,
-              static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
-              channels, sampling_rate);
-    }
-    break;
     case OMX_AUDIO_CodingVORBIS:
     {
       rc = tiz::graph::util::
@@ -543,20 +540,32 @@ graph::httpclntops::set_channels_and_rate_on_decoder (
               sampling_rate);
     }
     break;
-    case OMX_AUDIO_CodingOPUS:
-    {
-      rc = tiz::graph::util::
-          set_channels_and_rate_on_audio_port< OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE >(
+    default:
+      {
+        if (OMX_AUDIO_CodingOPUS == encoding_)
+          {
+            rc = tiz::graph::util::
+              set_channels_and_rate_on_audio_port< OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE >(
               handle, port_id,
               static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
               channels, sampling_rate);
-    }
-    break;
-    default:
-      TIZ_LOG (TIZ_PRIORITY_ERROR,
-               "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
-               encoding_);
-      rc = OMX_ErrorFormatNotDetected;
+          }
+        else if (OMX_AUDIO_CodingFLAC == encoding_)
+          {
+            rc = tiz::graph::util::
+              set_channels_and_rate_on_audio_port< OMX_TIZONIA_AUDIO_PARAM_FLACTYPE >(
+              handle, port_id,
+              static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
+              channels, sampling_rate);
+          }
+        else
+          {
+            TIZ_LOG (TIZ_PRIORITY_ERROR,
+                     "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+                     encoding_);
+            rc = OMX_ErrorFormatNotDetected;
+          }
+      }
       break;
   };
 

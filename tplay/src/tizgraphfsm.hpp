@@ -406,10 +406,8 @@ namespace tiz
     // typedef boost::msm::back::state_machine<fsm_, boost::msm::back::mpl_graph_fsm_check> fsm;
     typedef boost::msm::back::state_machine<fsm_> fsm;
 
-    static char const* const pstate(fsm const& p)
-    {
-      return tiz::graph::state_names[p.current_state()[0]];
-    }
+    // Helper function to aid in printing the current state when debugging
+    char const* const pstate(fsm const& p);
 
   } // namespace graph
 } // namespace tiz

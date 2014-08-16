@@ -18,11 +18,10 @@
  */
 
 /**
- * @file   tizplay.cpp
+ * @file   tizgraphmgrfsm.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - tplay: an audio player and streaming server
- * program
+ * @brief  Graph manager fsm
  *
  */
 
@@ -30,10 +29,12 @@
 #include <config.h>
 #endif
 
-#include "tizplayapp.hpp"
+#include "tizgraphmgrfsm.hpp"
 
-int main (int argc, char **argv)
+namespace graphmgr = tiz::graphmgr;
+
+char const* const graphmgr::pstate(graphmgr::fsm const& p)
 {
-  tiz::playapp app (argc, argv);
-  return app.run ();
+  return graphmgr::state_names[p.current_state()[0]];
 }
+

@@ -86,7 +86,7 @@ namespace
   {
     bool rc = true;
     rates.clear ();
-    for (int i = 0; i < rate_strings.size () && rc; ++i)
+    for (unsigned int i = 0; i < rate_strings.size () && rc; ++i)
     {
       rates.push_back (boost::lexical_cast< int >(rate_strings[i]));
       rc = is_valid_sampling_rate (rates[i]);
@@ -98,7 +98,7 @@ namespace
   bool is_valid_bitrate_list (const std::vector< std::string > &rate_strings)
   {
     bool rc = true;
-    for (int i = 0; i < rate_strings.size (); ++i)
+    for (unsigned int i = 0; i < rate_strings.size (); ++i)
     {
       if (!(0 == rate_strings[i].compare ("CBR")
             || 0 == rate_strings[i].compare ("VBR")))
@@ -128,8 +128,8 @@ namespace
 tiz::programopts::programopts (int argc, char *argv[])
   : argc_ (argc),
     argv_ (argv),
-    vm_ (),
     option_handlers_map_ (),
+    vm_ (),
     general_ ("General options"),
     debug_ ("Debug options"),
     omx_ ("OpenMAX IL options"),
@@ -600,7 +600,7 @@ int tiz::programopts::consume_input_file_uris_option ()
   }
   else
   {
-    std::cout < "This option requires one or more stream uri(s).";
+    std::cout << "This option requires one or more stream uri(s).";
   }
 
   return result;
@@ -620,7 +620,6 @@ int tiz::programopts::consume_input_http_uris_option ()
       boost::xpressive::smatch what;
       if (!boost::xpressive::regex_search (uri, what, http_s))
       {
-        std::cout < "This option requires one or more http stream uris.";
         all_ok = false;
         break;
       }
@@ -629,7 +628,7 @@ int tiz::programopts::consume_input_http_uris_option ()
   }
   else
   {
-    std::cout < "This option requires one or more http stream uris.";
+    std::cout << "This option requires one or more http stream uris.";
   }
   return result;
 }

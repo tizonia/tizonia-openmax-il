@@ -167,11 +167,11 @@ graph::util::verify_role_list (const omx_comp_name_lst_t &comp_list,
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   std::vector< std::string > roles;
-  int role_lst_size = role_list.size ();
+  unsigned int role_lst_size = role_list.size ();
 
   assert (comp_list.size () == role_lst_size);
 
-  for (int i = 0; i < role_lst_size; i++)
+  for (unsigned int i = 0; i < role_lst_size; i++)
   {
     if (OMX_ErrorNone != (error = verify_role (comp_list[i], role_list[i])))
     {
@@ -192,7 +192,8 @@ graph::util::instantiate_component (const std::string &comp_name,
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = NULL;
-  assert (graph_position < hdl_list.size ());
+  assert (graph_position >=0);
+  assert ((unsigned int) graph_position < hdl_list.size ());
 
   if (OMX_ErrorNone
       == (error = OMX_GetHandle (&p_hdl, (OMX_STRING)comp_name.c_str (),
@@ -322,7 +323,8 @@ graph::util::transition_one (const omx_comp_handle_lst_t &hdl_list,
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
-  assert (handle_id < hdl_list.size ());
+  assert (handle_id >= 0);
+  assert ((unsigned int) handle_id < hdl_list.size ());
 
   struct transition_to transition_component (to);
 
@@ -531,6 +533,7 @@ graph::util::set_pcm_mode (
   getter (pcmtype);
   tiz_check_omx_err (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &pcmtype));
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE

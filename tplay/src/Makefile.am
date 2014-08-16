@@ -80,8 +80,10 @@ tplay_SOURCES = \
 	tizgraphfactory.cpp \
 	tizgraphmgrcmd.cpp \
 	tizgraphmgrops.cpp \
+	tizgraphmgrfsm.cpp \
 	tizgraphmgr.cpp \
 	tizdecgraphmgr.cpp \
+	tizgraphfsm.cpp \
 	tizhttpservmgr.cpp \
 	tizgraphops.cpp \
 	tizgraphcmd.cpp \
@@ -94,9 +96,11 @@ tplay_SOURCES = \
 	tizflacgraph.cpp \
 	tizoggflacgraph.cpp \
 	tizhttpservgraph.cpp \
+	tizhttpservgraphfsm.cpp \
 	tizhttpservgraphops.cpp \
 	tizhttpclntmgr.cpp \
 	tizhttpclntgraph.cpp \
+	tizhttpclntgraphfsm.cpp \
 	tizhttpclntgraphops.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \

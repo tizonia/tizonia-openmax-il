@@ -584,7 +584,7 @@ void graph::ops::record_expected_transitions (const OMX_STATETYPE to_state)
 {
   const size_t nhandles = handles_.size ();
   clear_expected_transitions ();
-  for (int i = 0; i < nhandles; ++i)
+  for (unsigned int i = 0; i < nhandles; ++i)
   {
     expected_transitions_lst_.push_back (
         omx_event_info (handles_[i], to_state, OMX_ErrorNone));

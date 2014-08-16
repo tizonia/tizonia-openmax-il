@@ -103,11 +103,10 @@ namespace  // unnamed
 
   void close_input_file (AVFormatContext **ctx_ptr)
   {
-    int i = 0;
     AVFormatContext *fmt_ctx = *ctx_ptr;
 
     /* close decoder for each stream */
-    for (i = 0; i < fmt_ctx->nb_streams; i++)
+    for (unsigned int i = 0; i < fmt_ctx->nb_streams; ++i)
     {
       AVStream *stream = fmt_ctx->streams[i];
       avcodec_close (stream->codec);

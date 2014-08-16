@@ -41,7 +41,6 @@ namespace tiz
                                                                  OMX_U32              &sampling_rate)
 
       {
-        OMX_ERRORTYPE rc = OMX_ErrorNone;
         // Retrieve the current settings from the component port
         ParamT param_type;
         TIZ_INIT_OMX_PORT_STRUCT (param_type, port_id);
@@ -59,7 +58,6 @@ namespace tiz
                                                                const OMX_U32         sampling_rate)
 
       {
-        OMX_ERRORTYPE rc = OMX_ErrorNone;
         // Retrieve the current settings from the component port
         ParamT param_type;
         TIZ_INIT_OMX_PORT_STRUCT (param_type, port_id);

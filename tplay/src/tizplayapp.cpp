@@ -318,6 +318,7 @@ tiz::playapp::check_daemon_mode () const
     signal (SIGTSTP, tizplay_sig_stp_hdlr);
     signal (SIGQUIT, tizplay_sig_term_hdlr);
   }
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
@@ -325,6 +326,7 @@ tiz::playapp::unique_log_file () const
 {
   const std::string &log_dir = popts_.log_dir ();
   tiz_log_set_unique_rolling_file (log_dir.c_str (), PACKAGE_NAME);
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
@@ -339,6 +341,7 @@ tiz::playapp::print_debug_info () const
             TAGLIB_MINOR_VERSION, TAGLIB_PATCH_VERSION);
     printf ("\n");
   }
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
@@ -591,7 +594,6 @@ tiz::playapp::decode_stream ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const uri_lst_t &uri_list = popts_.uri_list ();
-  const std::string &station_name = popts_.station_name ();
 
   (void)check_daemon_mode ();
   print_banner ();

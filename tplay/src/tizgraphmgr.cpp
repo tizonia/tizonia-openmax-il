@@ -329,8 +329,10 @@ graphmgr::mgr::do_update_control_ifcs (const PlaybackStatus status,
 {
   if (mpris_ptr_)
   {
+    // TODO :
     // mpris_ptr_->
   }
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE

@@ -188,7 +188,7 @@ graph::graph::mute ()
 OMX_ERRORTYPE
 graph::graph::stop ()
 {
-  post_cmd (new tiz::graph::cmd (tiz::graph::stop_evt ()));
+  return post_cmd (new tiz::graph::cmd (tiz::graph::stop_evt ()));
 }
 
 void graph::graph::unload ()

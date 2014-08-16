@@ -18,11 +18,10 @@
  */
 
 /**
- * @file   tizplay.cpp
+ * @file   tizhttpservgraphfsm.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - tplay: an audio player and streaming server
- * program
+ * @brief  HTTP server graph fsm
  *
  */
 
@@ -30,10 +29,17 @@
 #include <config.h>
 #endif
 
-#include "tizplayapp.hpp"
+#include "tizhttpservgraphfsm.hpp"
 
-int main (int argc, char **argv)
+#ifdef TIZ_LOG_CATEGORY_NAME
+#undef TIZ_LOG_CATEGORY_NAME
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.httpservgraph.fsm"
+#endif
+
+namespace hsfsm = tiz::graph::hsfsm;
+
+char const* const hsfsm::pstate(hsfsm::fsm const& p)
 {
-  tiz::playapp app (argc, argv);
-  return app.run ();
+  return hsfsm::state_names[p.current_state()[0]];
 }
+
