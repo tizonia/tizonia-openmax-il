@@ -60,6 +60,11 @@ namespace  // unnamed namespace
     uri_lst_t &uri_list_;
   };
 
+  void add_to_extension_list (file_extension_lst_t &list, const std::string &extension)
+  {
+    list.insert (list.end (), extension);
+  }
+
   OMX_ERRORTYPE
   process_base_uri (const std::string &uri, uri_lst_t &uri_list,
                     bool recurse = false)
@@ -142,6 +147,7 @@ tiz::playlist::playlist (const uri_lst_t &uri_list /* = uri_lst_t () */)
     loop_playback_ (false),
     sub_list_indexes_ (),
     current_sub_list_ (-1),
+    extension_list_ (),
     single_format_ (Unknown)
 {
   const int list_size = uri_list_.size ();
@@ -160,6 +166,7 @@ tiz::playlist::playlist (const playlist &copy_from)
     loop_playback_ (copy_from.loop_playback_),
     sub_list_indexes_ (copy_from.sub_list_indexes_),
     current_sub_list_ (copy_from.current_sub_list_),
+    extension_list_ (copy_from.extension_list_),
     single_format_ (copy_from.single_format_)
 {
   const int list_size = uri_list_.size ();
@@ -235,15 +242,6 @@ end:
   if (!list_assembled)
   {
     TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s]", error_msg.c_str ());
-  }
-  else
-  {
-#define KNRM "\x1B[0m"
-#define KBLU "\x1B[34m"
-    fprintf (
-        stdout, "%sPlaylist length: %lu. File extensions in playlist: %s%s\n\n",
-        KBLU, (long)uri_list.size (),
-        boost::algorithm::join (extension_list_filtered, ", ").c_str (), KNRM);
   }
 
   return list_assembled;
@@ -502,6 +500,8 @@ int tiz::playlist::find_next_sub_list (const int index) const
         boost::filesystem::path (uri_list_[cur_idx]).extension ().string ());
     boost::algorithm::to_lower (current_extension);
 
+    add_to_extension_list (extension_list_, current_extension);
+
     for (; cur_idx < list_size; ++cur_idx)
     {
       std::string extension (
@@ -525,4 +525,11 @@ int tiz::playlist::find_next_sub_list (const int index) const
   }
 
   return cur_idx;
+}
+
+void tiz::playlist::print_info ()
+{
+  TIZ_PRINTF_BLU ("Playlist length: %lu. File extensions in playlist: %s\n",
+                  (long)uri_list_.size (),
+                  boost::algorithm::join (extension_list_, ", ").c_str ());
 }

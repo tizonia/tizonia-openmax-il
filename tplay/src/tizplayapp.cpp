@@ -250,6 +250,7 @@ namespace
         }
     }
   };
+
 }
 
 tiz::playapp::playapp (int argc, char *argv[]) : popts_ (argc, argv)
@@ -483,6 +484,9 @@ tiz::playapp::decode_local ()
   tizplaylist_ptr_t playlist
       = boost::make_shared< tiz::playlist >(tiz::playlist (file_list));
 
+  assert (playlist);
+  playlist->print_info ();
+
   // Instantiate the decode manager
   tiz::graphmgr::mgr_ptr_t p_mgr
       = boost::make_shared< tiz::graphmgr::decodemgr >();
@@ -562,10 +566,15 @@ tiz::playapp::serve_stream ()
 
   tizplaylist_ptr_t playlist
       = boost::make_shared< tiz::playlist >(tiz::playlist (file_list));
+
+  assert (playlist);
+  playlist->print_info ();
+
   // Here we'll only process one encoding, that is mp3... so enable loop
   // playback to ensure that the graph does not stop to get back to the
   // manager at the end of the playlist.
   playlist->set_loop_playback (true);
+
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::httpservconfig >(
           playlist, hostname, ip_address, port, sampling_rate_list,
@@ -600,6 +609,8 @@ tiz::playapp::decode_stream ()
 
   tizplaylist_ptr_t playlist
       = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list));
+
+  assert (playlist);
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config

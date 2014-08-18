@@ -70,6 +70,7 @@ namespace tiz
     void set_loop_playback (const bool loop_playback);
     void set_index (const int index);
     void erase_uri (const int index);
+    void print_info ();
 
   private:
     enum single_format_t
@@ -93,6 +94,7 @@ namespace tiz
     bool loop_playback_;
     std::vector<size_t> sub_list_indexes_;
     int current_sub_list_;
+    mutable file_extension_lst_t extension_list_;
     mutable single_format_t single_format_;
   };
 }  // namespace tiz
