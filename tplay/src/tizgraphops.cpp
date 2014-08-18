@@ -394,7 +394,7 @@ void graph::ops::do_tear_down_tunnels ()
 void graph::ops::do_destroy_graph ()
 {
   util::destroy_list (handles_);
-  handles_ = omx_comp_handle_lst_t (comp_lst_.size (), OMX_HANDLETYPE (NULL));
+  handles_.clear ();
   h2n_.clear ();
 }
 

@@ -293,11 +293,11 @@ OMX_ERRORTYPE
 graph::util::setup_suppliers (const omx_comp_handle_lst_t &hdl_list)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
   const int handle_lst_size = hdl_list.size ();
 
   if (handle_lst_size > 0)
     {
+      OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
       TIZ_INIT_OMX_PORT_STRUCT (supplier, 0);
       supplier.eBufferSupplier = OMX_BufferSupplyInput;
 
