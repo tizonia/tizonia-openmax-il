@@ -402,6 +402,8 @@ extern "C" {
 
 #endif /* !TIZ_DISABLE_CHECKS */
 
+  /* Avoid unused variables warnings */
+
 #ifdef TIZ_UNUSED
 #elif defined(__GNUC__)
 #define TIZ_UNUSED(x) UNUSED_##x __attribute__ ((unused))
@@ -411,6 +413,14 @@ extern "C" {
 #define TIZ_UNUSED(x)
 #else
 #define TIZ_UNUSED(x) x
+#endif
+
+  /* Turn off ASAN (Address Sanitazer) */
+
+#if defined(__clang__) || defined (__GNUC__)
+# define ATTRIBUTE_NO_SANITIZE_ADDRESS __attribute__((no_sanitize_address))
+#else
+# define ATTRIBUTE_NO_SANITIZE_ADDRESS
 #endif
 
 #ifdef __cplusplus

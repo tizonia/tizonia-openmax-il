@@ -2089,6 +2089,7 @@ tiz_port_SetConfig_internal (const void *ap_obj,
  * tiz_port_class
  */
 
+ATTRIBUTE_NO_SANITIZE_ADDRESS
 static void *
 port_class_ctor (void *ap_obj, va_list * app)
 {

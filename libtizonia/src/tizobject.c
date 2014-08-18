@@ -106,6 +106,7 @@ print_class (const void * ap_class, const char *file, int line,
  * Class
  */
 
+ATTRIBUTE_NO_SANITIZE_ADDRESS
 static void *
 class_ctor (void *ap_obj, va_list * app)
 {
