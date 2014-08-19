@@ -640,7 +640,9 @@ super_ComponentRoleEnum (const void *a_class,
  * tiz_api_class
  */
 
+#ifdef HAVE_FUNC_ATTRIBUTE_NO_SANITIZE_ADDRESS
 ATTRIBUTE_NO_SANITIZE_ADDRESS
+#endif
 static void *
 api_class_ctor (void *ap_obj, va_list * app)
 {

@@ -110,6 +110,7 @@ if test "x${blocking_etb_ftb}" = xyes; then
 AC_DEFINE([EFB_FTB_SHOULD_BLOCK], 1, [ Blocking behaviour of ETB and FTB APIS is enabled])
 fi
 
+AX_GCC_FUNC_ATTRIBUTE(no_sanitize_address)
 
 AC_OUTPUT
 
