@@ -37,7 +37,7 @@ extern "C"
 #include <OMX_Types.h>
 
 #define ARATELIA_MPG123_DECODER_DEFAULT_ROLE             "audio_decoder.mp3"
-#define ARATELIA_MPG123_DECODER_COMPONENT_NAME           "OMX.Aratelia.audio_decoder.mpg123"
+#define ARATELIA_MPG123_DECODER_COMPONENT_NAME           "OMX.Aratelia.audio_decoder.mpeg"
 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX         0
 #define ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX        1
