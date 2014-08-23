@@ -410,6 +410,57 @@ static FLAC__StreamDecoderReadStatus read_cb (
   return rc;
 }
 
+static void write_pcm_block_8 (uint8_t * ap_to, const FLAC__int32 *const ap_buffer[],
+                               const unsigned int a_nsamples, const unsigned int a_nchannels)
+{
+  size_t i = 0;
+  size_t j = 0;
+  for (i = 0; i < a_nsamples; i+=2, ++j)
+    {
+      FLAC__int8 *out = (FLAC__int8 *)(ap_to) + i;
+      int k;
+      for (k=0 ; k < a_nchannels; ++k)
+        {
+          out[k] = (FLAC__int8)ap_buffer[k][j];
+        }
+    }
+}
+
+static void write_pcm_block_16 (uint8_t * ap_to, const FLAC__int32 *const ap_buffer[],
+                                const unsigned int a_nsamples, const unsigned int a_nchannels)
+{
+  size_t i = 0;
+  size_t j = 0;
+  for (i = 0; i < a_nsamples; i+=2, ++j)
+    {
+      FLAC__int16 *out = (FLAC__int16 *)(ap_to) + i;
+      int k;
+      for (k=0 ; k < a_nchannels; ++k)
+        {
+          out[k] = (FLAC__int16)ap_buffer[k][j];
+        }
+    }
+}
+
+static void write_pcm_block_24 (uint8_t * ap_to, const FLAC__int32 *const ap_buffer[],
+                                const unsigned int a_nsamples, const unsigned int a_nchannels)
+{
+  size_t i = 0;
+  size_t j = 0;
+  for (i = 0; i < a_nsamples; i+=2, ++j)
+    {
+      unsigned char *out = (unsigned char *)(ap_to) + (i * 3);
+      int k;
+      for (k=0 ; k < a_nchannels; ++k)
+        {
+          unsigned long word32 = (unsigned long)ap_buffer[k][j];
+          *out++ = (unsigned char)(word32 >>  0);
+          *out++ = (unsigned char)(word32 >>  8);
+          *out++ = (unsigned char)(word32 >> 16);
+        }
+    }
+}
+
 static FLAC__StreamDecoderWriteStatus write_cb (
     const FLAC__StreamDecoder *ap_decoder, const FLAC__Frame *ap_frame,
     const FLAC__int32 *const ap_buffer[], void *ap_client_data)
@@ -427,37 +478,61 @@ static FLAC__StreamDecoderWriteStatus write_cb (
              ap_frame->header.blocksize, ap_frame->header.channels,
              ap_frame->header.bits_per_sample);
 
-  if (p_prc->channels_ != 2 || p_prc->bps_ != 16)
+  if (p_prc->channels_ > 2
+      || (ap_frame->header.bits_per_sample != 8
+          && ap_frame->header.bits_per_sample != 16
+          && ap_frame->header.bits_per_sample != 24))
     {
-      TIZ_ERROR (handleOf (p_prc), "Only support for 16bit stereo streams");
+      TIZ_ERROR (handleOf (p_prc), "Only stereo streams are supported"
+                 "at 8, 16, or 24 bits per sample.");
+      /* TODO: Signal client */
       rc = FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
   else
     {
       /* write decoded PCM samples */
-      size_t i = 0;
-      size_t j = 0;
-      size_t nbytes = ap_frame->header.blocksize * p_prc->channels_;
+      size_t nsamples = ap_frame->header.blocksize * p_prc->channels_;
       OMX_BUFFERHEADERTYPE *p_out
           = get_header (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
       assert (NULL != p_out);
 
-      assert (nbytes <= p_out->nAllocLen);
-      if (nbytes > p_out->nAllocLen)
+      if (nsamples * (p_prc->bps_ / 8) > p_out->nAllocLen)
         {
-          nbytes = p_out->nAllocLen;
+          nsamples = p_out->nAllocLen / (p_prc->bps_ / 8);
         }
+      assert (nsamples <= p_out->nAllocLen);
 
-      for (i = 0; i < nbytes;)
+      {
+        uint8_t * p_to = p_out->pBuffer + p_out->nOffset;
+
+      switch(ap_frame->header.bits_per_sample)
         {
-          short *out = (short *)(p_out->pBuffer + p_out->nOffset) + i;
-          out[0] = (FLAC__int16)ap_buffer[0][j]; /* left channel */
-          out[1] = (FLAC__int16)ap_buffer[1][j]; /* right channel */
-          j++;
-          i += 2;
-        }
-      p_out->nFilledLen = ap_frame->header.blocksize * p_prc->channels_
-                          * (p_prc->bps_ / 8);
+        case 8:
+          {
+            write_pcm_block_8 (p_to, ap_buffer, nsamples,
+                               ap_frame->header.channels);
+          }
+          break;
+        case 16:
+          {
+            write_pcm_block_16 (p_to, ap_buffer, nsamples,
+                              ap_frame->header.channels);
+          }
+          break;
+        case 24:
+          {
+            write_pcm_block_24 (p_to, ap_buffer, nsamples,
+                                ap_frame->header.channels);
+          }
+          break;
+        default:
+          {
+            assert (0);
+          }
+          break;
+        };
+
+      p_out->nFilledLen = nsamples * (p_prc->bps_ / 8);
       if ((p_prc->eos_ && p_prc->store_offset_ == 0))
         {
           /* Propagate EOS flag to output */
@@ -465,6 +540,7 @@ static FLAC__StreamDecoderWriteStatus write_cb (
           p_prc->eos_ = false;
         }
       release_header (p_prc, ARATELIA_FLAC_DECODER_OUTPUT_PORT_INDEX);
+      }
     }
 
   return rc;
