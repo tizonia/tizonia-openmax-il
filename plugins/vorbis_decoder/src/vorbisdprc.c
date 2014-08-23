@@ -152,7 +152,7 @@ static int store_data (vorbisd_prc_t *ap_prc, const OMX_U8 *ap_data,
 }
 
 static inline void write_frame_float_ilv (float *to, const float *from,
-                                          int channels)
+                                          const int channels)
 {
   int i = 0;
   assert (NULL != to);
@@ -221,7 +221,7 @@ static int fishsound_decoded_callback (FishSound *ap_fsound, float *app_pcm[],
     size_t bytes_to_write = frames_to_write * frame_len;
     assert (NULL != p_out);
 
-    for (i = 0; i < frames_to_write; i++)
+    for (i = 0; i < frames_to_write; ++i)
       {
         size_t frame_offset = i * frame_len;
         size_t float_offset = i * p_prc->fsinfo_.channels;
