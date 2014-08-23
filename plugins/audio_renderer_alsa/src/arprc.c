@@ -705,6 +705,11 @@ ar_prc_prepare_to_transfer (void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
             SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_S16_BE;
 
         }
+      else if (p_prc->pcmmode.nBitPerSample == 24)
+        {
+          snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle ?
+            SND_PCM_FORMAT_S24 : SND_PCM_FORMAT_S24_BE;
+        }
       /* NOTE: this is a hack to allow float pcm streams coming from the the
          vorbis or opusfile decoders */
       else if (p_prc->pcmmode.nBitPerSample == 32)
