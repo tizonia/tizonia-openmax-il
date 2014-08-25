@@ -52,7 +52,6 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 AC_CONFIG_FILES([Makefile])
 
 AC_CONFIG_SUBDIRS([aac_decoder
-                   audio_renderer_alsa
                    file_reader
                    file_writer
                    flac_decoder
@@ -64,6 +63,7 @@ AC_CONFIG_SUBDIRS([aac_decoder
                    ogg_demuxer
                    opus_decoder
                    opusfile_decoder
+                   pcm_renderer_alsa
                    vorbis_decoder
                    vp8_decoder
                    yuv_renderer])
