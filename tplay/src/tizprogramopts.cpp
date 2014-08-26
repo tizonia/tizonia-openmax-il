@@ -598,10 +598,6 @@ int tiz::programopts::consume_input_file_uris_option ()
     result = EXIT_SUCCESS;
     uri_list_ = vm_["input-uris"].as< std::vector< std::string > >();
   }
-  else
-  {
-    std::cout << "This option requires one or more stream uri(s).";
-  }
 
   return result;
 }
@@ -625,10 +621,6 @@ int tiz::programopts::consume_input_http_uris_option ()
       }
     }
     result = all_ok ? EXIT_SUCCESS : EXIT_FAILURE;
-  }
-  else
-  {
-    std::cout << "This option requires one or more http stream uris.";
   }
   return result;
 }
