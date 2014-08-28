@@ -139,10 +139,10 @@ static int read_cback (void *ap_private, unsigned char *ap_ptr, int a_nbytes)
 
   (void)store_data (p_prc);
 
-  TIZ_TRACE (handleOf (p_prc), "decoder_inited_ [%s] store bytes [%d] offset [%d]",
-             (p_prc->decoder_inited_ ? "YES" : "NO"),
-             tiz_buffer_bytes_available (p_prc->p_store_),
-             p_prc->store_offset_);
+  TIZ_TRACE (
+      handleOf (p_prc), "decoder_inited_ [%s] store bytes [%d] offset [%d]",
+      (p_prc->decoder_inited_ ? "YES" : "NO"),
+      tiz_buffer_bytes_available (p_prc->p_store_), p_prc->store_offset_);
 
   if (tiz_buffer_bytes_available (p_prc->p_store_) > 0)
     {
@@ -189,7 +189,8 @@ static OMX_ERRORTYPE init_opus_decoder (opusfiled_prc_t *ap_prc)
         }
       else
         {
-          TIZ_TRACE (handleOf (ap_prc), "decoder_inited = TRUE - store_offset [%d]",
+          TIZ_TRACE (handleOf (ap_prc),
+                     "decoder_inited = TRUE - store_offset [%d]",
                      ap_prc->store_offset_);
           ap_prc->decoder_inited_ = true;
           tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_);
@@ -222,6 +223,16 @@ static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
     {
       TIZ_TRACE (handleOf (ap_prc), "store bytes [%d] OUT HEADER [%p]",
                  tiz_buffer_bytes_available (ap_prc->p_store_), p_out);
+
+      /* Propagate the EOS flag to the next component */
+      if (tiz_buffer_bytes_available (ap_prc->p_store_) == 0 && NULL != p_out
+          && tiz_filter_prc_is_eos (ap_prc))
+        {
+          p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+          tiz_filter_prc_release_header (
+              ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
+          tiz_filter_prc_update_eos_flag (ap_prc, false);
+        }
       return OMX_ErrorNotReady;
     }
 
@@ -346,23 +357,20 @@ static OMX_ERRORTYPE opusfiled_prc_buffers_ready (const void *ap_obj)
 
   assert (NULL != ap_obj);
 
-  if (!tiz_filter_prc_is_eos (p_prc))
+  if (!p_prc->decoder_inited_)
     {
-      if (!p_prc->decoder_inited_)
-        {
-          rc = init_opus_decoder (p_prc);
-        }
+      rc = init_opus_decoder (p_prc);
+    }
 
-      if (p_prc->decoder_inited_ && OMX_ErrorNone == rc)
+  if (p_prc->decoder_inited_ && OMX_ErrorNone == rc)
+    {
+      while (OMX_ErrorNone == rc)
         {
-          while (OMX_ErrorNone == rc)
-            {
-              rc = transform_buffer (p_prc);
-            }
-          if (OMX_ErrorNotReady == rc)
-            {
-              rc = OMX_ErrorNone;
-            }
+          rc = transform_buffer (p_prc);
+        }
+      if (OMX_ErrorNotReady == rc)
+        {
+          rc = OMX_ErrorNone;
         }
     }
 
