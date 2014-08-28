@@ -45,7 +45,7 @@
 /* NOTE: Start ignoring splint warnings in this section of code */
 /*@ignore@*/
 
-static void rm_callback_hdlr (void *ap_obj, OMX_HANDLETYPE ap_hdl,
+static void rm_callback_hdlr (void *ap_obj,
                               tiz_event_pluggable_t *ap_event)
 {
   if (NULL != ap_event)
@@ -65,7 +65,6 @@ static void deliver_pluggable_event (OMX_U32 rid, OMX_HANDLETYPE ap_hdl)
   if (NULL != p_event && NULL != p_rid)
     {
       *p_rid = rid;
-      p_event->p_hdl = ap_hdl;
       p_event->p_servant = tiz_get_krn (ap_hdl);
       p_event->p_data = p_rid;
       p_event->pf_hdlr = &rm_callback_hdlr;

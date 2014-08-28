@@ -875,8 +875,7 @@ static OMX_ERRORTYPE dispatch_pe (void *ap_obj, OMX_PTR ap_msg)
   assert (NULL != p_msg_pe);
 
   /* TODO : Should this return something? */
-  p_msg_pe->p_event->pf_hdlr ((OMX_PTR)ap_obj, p_msg_pe->p_event->p_hdl,
-                              p_msg_pe->p_event);
+  p_msg_pe->p_event->pf_hdlr ((OMX_PTR)ap_obj, p_msg_pe->p_event);
   return OMX_ErrorNone;
 }
 

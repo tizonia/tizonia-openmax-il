@@ -1040,8 +1040,7 @@ static OMX_ERRORTYPE do_plgevt (tiz_scheduler_t *ap_sched,
   assert (NULL != p_msg_pe->p_event);
 
   p_event = p_msg_pe->p_event;
-  return tiz_srv_receive_pluggable_event (p_event->p_servant, p_event->p_hdl,
-                                          p_event);
+  return tiz_srv_receive_pluggable_event (p_event->p_servant, p_event);
 }
 
 static OMX_ERRORTYPE do_rr (tiz_scheduler_t *ap_sched,
@@ -2364,8 +2363,8 @@ tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
   return send_msg (get_sched (ap_hdl), p_msg);
 }
 
-void tiz_comp_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
-                        int a_fd, int a_events)
+void tiz_comp_event_io (const OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
+                        const int a_fd, const int a_events)
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_ev_io_t *p_msg_eio = NULL;
@@ -2385,7 +2384,7 @@ void tiz_comp_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
   (void)send_msg (get_sched (ap_hdl), p_msg);
 }
 
-void tiz_comp_event_timer (OMX_HANDLETYPE ap_hdl,
+void tiz_comp_event_timer (const OMX_HANDLETYPE ap_hdl,
                            tiz_event_timer_t *ap_ev_timer, void *ap_arg)
 {
   tiz_sched_msg_t *p_msg = NULL;
@@ -2405,8 +2404,8 @@ void tiz_comp_event_timer (OMX_HANDLETYPE ap_hdl,
   (void)send_msg (get_sched (ap_hdl), p_msg);
 }
 
-void tiz_comp_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_stat,
-                          int a_events)
+void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_stat,
+                          const int a_events)
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_ev_stat_t *p_msg_estat = NULL;

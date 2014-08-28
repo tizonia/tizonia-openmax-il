@@ -59,11 +59,9 @@ struct tiz_role_factory
 
 typedef struct tiz_event_pluggable tiz_event_pluggable_t;
 typedef void (*tiz_event_pluggable_hdlr_f)(OMX_PTR ap_servant,
-                                           OMX_HANDLETYPE ap_hdl,
                                            tiz_event_pluggable_t *ap_event);
 struct tiz_event_pluggable
 {
-  OMX_HANDLETYPE p_hdl;
   OMX_PTR p_servant;
   OMX_PTR p_data;
   tiz_event_pluggable_hdlr_f pf_hdlr;
@@ -109,12 +107,12 @@ OMX_ERRORTYPE tiz_comp_register_types (const OMX_HANDLETYPE ap_hdl,
                                        const OMX_U32 a_ntypes);
 OMX_ERRORTYPE tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
                                         tiz_event_pluggable_t *ap_event);
-void tiz_comp_event_io (OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
-                        int a_fd, int a_events);
-void tiz_comp_event_timer (OMX_HANDLETYPE ap_hdl,
+void tiz_comp_event_io (const OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
+                        const int a_fd, const int a_events);
+void tiz_comp_event_timer (const OMX_HANDLETYPE ap_hdl,
                            tiz_event_timer_t *ap_ev_timer, void *ap_arg);
-void tiz_comp_event_stat (OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_stat,
-                          int a_events);
+void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_stat,
+                          const int a_events);
 
 /* Utility functions */
 
