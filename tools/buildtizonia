@@ -42,8 +42,7 @@ readonly SKEMA_GIT_REPO=https://github.com/tizonia/skema
 readonly SKEMA_DIR="$INSTALL_DIR"/skema
 readonly SKEMA_BIN_DIR="$SKEMA_DIR"/bin
 # A list of skema test suites that should not be executed
-declare -ar SKEMA_EXEMPT_SUITES=\
-(
+declare -ar SKEMA_EXEMPT_SUITES=( \
     "Mp3Streaming" \
     "Vp8Playback" \
     "VorbisDecodeBaseProfile" \
@@ -60,11 +59,11 @@ declare -ar SKEMA_EXEMPT_SUITES=\
 # Create directories
 if [ ! -d "$INSTALL_DIR" ]; then
     echo "Creating the install directory: $INSTALL_DIR"
-    mkdir -p $INSTALL_DIR
+    mkdir -p "$INSTALL_DIR"
 fi
 
 echo "Changing dir to working directory: $WORKING_DIR"
-cd $WORKING_DIR
+cd "$WORKING_DIR"
 
 # Export important variables
 LIB_DIR="$INSTALL_DIR"/lib
@@ -98,7 +97,7 @@ function err {
 ##################################################################
 function cd_to_working_dir {
     echo "Changing dir to working directory: $WORKING_DIR"
-    cd $WORKING_DIR
+    cd "$WORKING_DIR"
 }
 
 ##################################################################
@@ -132,7 +131,7 @@ function start_dbus {
     ## test for an existing bus daemon, just to be safe
     if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
         ## if not found, launch a new one
-        export `dbus-launch --exit-with-session`
+        export $(dbus-launch --exit-with-session)
         echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
         echo "D-Bus per-session daemon PID is    : $DBUS_SESSION_BUS_PID"
     fi
@@ -195,27 +194,27 @@ function install_src_deps {
     local folders=( ogg liboggz opus opusfile flac )
     local total=${#repos[*]}
     local exit_status=$?
-    for (( i=0; i<=$(( $total -1 )); i++ ))
+    for (( i=0; i<=$(( total -1 )); i++ ))
     do
-        cd $WORKING_DIR \
+        cd "$WORKING_DIR" \
             && git clone ${repos[$i]} \
             && cd ${folders[$i]} \
             && ./autogen.sh \
-            && ./configure --prefix=$INSTALL_DIR \
+            && ./configure --prefix="$INSTALL_DIR" \
             && make install
         exit_status=$?
     done
     if [[ "$exit_status" -eq 0 ]] ; then
-        cd $WORKING_DIR
+        cd "$WORKING_DIR"
         # Build libmpg123 1.19 from source
         wget http://www.juanrubio.me/tizonia/mpg123-1.16.0.tgz \
             && tar zxvf mpg123-1.16.0.tgz \
             && cd mpg123-1.16.0 \
-            && ./configure --prefix=$INSTALL_DIR \
+            && ./configure --prefix="$INSTALL_DIR" \
             && make install
         exit_status=$?
     fi
-    return $exit_status
+    return "$exit_status"
 }
 
 ##################################################################
@@ -232,7 +231,7 @@ function copy_config_files {
     cd_to_working_dir
     echo "Copy the Resource Manager's D-bus service file " \
          "to the user's local D-Bus search path"
-    echo ${INSTALL_DIR}
+    echo "${INSTALL_DIR}"
     local DBUS_SERVICE_FILE=${INSTALL_DIR}"/share/dbus-1/services/com.aratelia.tiz.rm.service"
     local DBUS_DIR="$HOME/.local/share/dbus-1/services"
     mkdir -p "$DBUS_DIR" && cp "$DBUS_SERVICE_FILE" "$DBUS_DIR"
@@ -249,8 +248,7 @@ function copy_config_files {
         perl -pi -e 's/\bdefault\b/null/' "$HOME/.tizonia.conf"
         exit_status=$?
     fi
-
-    return $exit_status
+    return "$exit_status"
 }
 
 ##################################################################
@@ -269,10 +267,10 @@ function build_debug {
     autoreconf -ifs
     local exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
-        ./configure --prefix=$INSTALL_DIR CFLAGS="-ggdb -Wall -Werror"
+        ./configure --prefix="$INSTALL_DIR CFLAGS=-ggdb -Wall -Werror"
         exit_status=$?
     fi
-    return $exit_status
+    return "$exit_status"
 }
 
 ##################################################################
@@ -291,10 +289,10 @@ function build_release {
     autoreconf -ifs
     local exit_status=$?
     if [ $exit_status -eq 0 ] ; then
-        ./configure --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
+        ./configure --prefix="$INSTALL_DIR CFLAGS=-O3 -DNDEBUG"
         exit_status=$?
     fi
-    return $exit_status
+    return "$exit_status"
 }
 
 ##################################################################
@@ -316,11 +314,11 @@ function build_conformace {
         ./configure \
             --enable-silent-rules \
             --enable-blocking-etb-ftb \
-            --prefix=$INSTALL_DIR \
+            --prefix="$INSTALL_DIR" \
             CFLAGS="-ggdb -Wall -Werror"
         exit_status=$?
     fi
-    return $exit_status
+    return "$exit_status"
 }
 
 ##################################################################
@@ -339,7 +337,7 @@ function install_skema {
 
     # Step #1 : Clone repo
     echo "Cloning skema's repo..."
-    git clone $SKEMA_GIT_REPO $SKEMA_DIR
+    git clone "$SKEMA_GIT_REPO" "$SKEMA_DIR"
     local exit_status=$?
     if [[ "$exit_status" -ne 0 ]]; then
         err "Unable to clone skema's repo: $SKEMA_GIT_REPO"
@@ -347,9 +345,9 @@ function install_skema {
     fi
 
     # Step #2: Install skema's tags
-    cd $SKEMA_BIN_DIR
+    cd "$SKEMA_BIN_DIR"
 
-    local tags=( `./skema list_tags` )
+    local tags=( $(./skema list_tags) )
     local tag_count="${#tags[@]}"
     echo "Installing all $tag_count tags..."
     for t in "${tags[@]}"; do
@@ -359,7 +357,7 @@ function install_skema {
     done
 
     # This is to verify that the tags are installed
-    local installed_tags=( `./skema list_installed_tags` )
+    local installed_tags=( $(./skema list_installed_tags) )
     local installed_tag_count="${#installed_tags[@]}"
     if [[ "$installed_tag_count" -ne "$tag_count" ]]; then
         err "Error while installing tags"
@@ -368,7 +366,7 @@ function install_skema {
 
     # Step #3: Install skema's test suites
     echo
-    local suites=( `./skema list_suites` )
+    local suites=( $(./skema list_suites) )
     local suite_count="${#suites[@]}"
     echo "Installing all $suite_count suites..."
     for s in "${suites[@]}"; do
@@ -378,7 +376,7 @@ function install_skema {
     done
 
     # This is to verify that the suites are installed
-    local installed_suites=( `./skema list_installed_suites` )
+    local installed_suites=( $(./skema list_installed_suites) )
     local installed_suite_count="${#installed_suites[@]}"
     if [[ "$installed_suite_count" -ne "$suite_count" ]]; then
         err "Error while installing suites"
@@ -404,7 +402,7 @@ function run_tests {
     cd "$SKEMA_BIN_DIR"
 
     # Retrieve the list of installed suites
-    local installed_suites=( `./skema list_installed_suites` )
+    local installed_suites=( $(./skema list_installed_suites) )
     local installed_suite_count="${#installed_suite_count[@]}"
     local exit_status=0
     for s in "${installed_suites[@]}"; do
@@ -474,7 +472,7 @@ function main {
         run_tests
         exit_status=$?
     else
-        CMD=`basename $0`
+        CMD=$(basename "$0")
         echo "Usage: $CMD <debug|release|conf|deps|media|tizrc|skema|tests|bldonly> <working_dir> <install_dir>"
         exit 1
     fi
@@ -496,7 +494,7 @@ function main {
 
     cd "$CWD"
 
-    exit $exit_status
+    exit "$exit_status"
 }
 
 main "$@"
