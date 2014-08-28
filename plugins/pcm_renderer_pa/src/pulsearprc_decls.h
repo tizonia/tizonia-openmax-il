@@ -20,7 +20,8 @@
  * @file   pulsearprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - PCM audio renderer based on pulseaudio processor declarations
+ * @brief  Tizonia OpenMAX IL - PCM audio renderer based on pulseaudio processor
+ *declarations
  *
  *
  */
@@ -29,8 +30,7 @@
 #define PULSEARPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
@@ -47,26 +47,26 @@ extern "C"
 
 #include <tizprc_decls.h>
 
-  typedef struct pulsear_prc pulsear_prc_t;
-  struct pulsear_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    struct pa_threaded_mainloop *p_pa_loop_;
-    struct pa_context *p_pa_context_;
-    struct pa_stream *p_pa_stream_;
-  };
+typedef struct pulsear_prc pulsear_prc_t;
+struct pulsear_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  struct pa_threaded_mainloop *p_pa_loop_;
+  struct pa_context *p_pa_context_;
+  struct pa_stream *p_pa_stream_;
+};
 
-  typedef struct pulsear_prc_class pulsear_prc_class_t;
-  struct pulsear_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct pulsear_prc_class pulsear_prc_class_t;
+struct pulsear_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* PULSEARPRC_DECLS_H */
+#endif /* PULSEARPRC_DECLS_H */
