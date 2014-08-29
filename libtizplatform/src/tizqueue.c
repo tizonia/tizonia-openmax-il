@@ -76,7 +76,7 @@ static inline void deinit_queue_struct (/*@null@ */ tiz_queue_t *ap_q)
   tiz_queue_t *p_q = NULL;
   bool init_failed = false;
 
-  if ((p_q = (tiz_queue_t *)tiz_mem_calloc (1, sizeof(tiz_queue_t))))
+  if (p_q = (tiz_queue_t *)tiz_mem_calloc (1, sizeof(tiz_queue_t)))
     {
       if ((rc = tiz_mutex_init (&(p_q->mutex))) == OMX_ErrorNone)
         {

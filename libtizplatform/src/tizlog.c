@@ -137,7 +137,7 @@ int tiz_log_init (void)
 {
 #ifndef WITHOUT_LOG4C
   log_formatters_init ();
-  return (log4c_init ());
+  return log4c_init ();
 #else
   return 0;
 #endif
@@ -187,7 +187,7 @@ void tiz_log_set_unique_rolling_file (const char* ap_logdir, const char * ap_fil
 int tiz_log_deinit (void)
 {
 #ifndef WITHOUT_LOG4C
-  return (log4c_fini ());
+  return log4c_fini ();
 #else
   return 0;
 #endif

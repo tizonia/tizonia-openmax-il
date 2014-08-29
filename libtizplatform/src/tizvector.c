@@ -147,7 +147,6 @@ tiz_vector_back (tiz_vector_t *p_vec)
 {
   assert (NULL != p_vec);
   return utarray_back (p_vec->p_uta);
-  ;
 }
 
 OMX_S32
