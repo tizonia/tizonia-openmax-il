@@ -123,15 +123,6 @@ static inline OMX_BUFFERHEADERTYPE **get_header_ptr (mp3meta_prc_t *ap_prc)
   return pp_hdr;
 }
 
-static inline bool *get_port_disabled_ptr (mp3meta_prc_t *ap_prc)
-{
-  bool *p_port_disabled = NULL;
-  assert (NULL != ap_prc);
-  p_port_disabled = &(ap_prc->out_port_disabled_);
-  assert (NULL != p_port_disabled);
-  return p_port_disabled;
-}
-
 static OMX_BUFFERHEADERTYPE *get_header (mp3meta_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_hdr = *(get_header_ptr (ap_prc));
