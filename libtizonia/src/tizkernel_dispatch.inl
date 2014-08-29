@@ -596,6 +596,8 @@ static OMX_ERRORTYPE dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
             {
               /* Now decrement by one the port's claimed buffers count */
               claimed_count = TIZ_PORT_DEC_CLAIMED_COUNT (p_port);
+              (void)claimed_count; /* We don't need to use this value. WE do this
+                                      to fool static analysers */
             }
         }
 

@@ -398,10 +398,12 @@ super_UseBuffer (const void *a_class,
 }
 
 static OMX_ERRORTYPE
-api_AllocateBuffer (const void *ap_obj,
-                    OMX_HANDLETYPE ap_hdl,
-                    OMX_BUFFERHEADERTYPE ** app_hdr,
-                    OMX_U32 a_pid, OMX_PTR ap_apppriv, OMX_U32 a_size)
+api_AllocateBuffer (const void * TIZ_UNUSED (ap_obj),
+                    OMX_HANDLETYPE TIZ_UNUSED (ap_hdl),
+                    OMX_BUFFERHEADERTYPE ** TIZ_UNUSED (app_hdr),
+                    OMX_U32 TIZ_UNUSED (a_pid),
+                    OMX_PTR TIZ_UNUSED (ap_apppriv),
+                    OMX_U32 TIZ_UNUSED (a_size))
 {
   return OMX_ErrorNotImplemented;
 }

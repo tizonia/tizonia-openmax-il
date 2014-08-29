@@ -360,7 +360,6 @@ static OMX_ERRORTYPE krn_SetParameter (const void *ap_obj,
       case OMX_IndexParamOtherInit:
         {
           /* OMX_PORT_PARAM_TYPE structures are read only */
-          rc = OMX_ErrorUnsupportedIndex;
         }
       /*@fallthrough@*/
       default:
