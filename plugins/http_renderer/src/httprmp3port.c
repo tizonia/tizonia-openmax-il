@@ -193,12 +193,9 @@ static OMX_ERRORTYPE httpr_mp3port_GetConfig (const void *ap_obj,
             }
           else
             {
-              if (NULL != p_metadata->cStreamTitle)
-                {
-                  strncpy ((char *)p_metadata->cStreamTitle,
-                           p_obj->p_stream_title_, stream_title_len);
-                  p_metadata->cStreamTitle[stream_title_len] = '\000';
-                }
+              strncpy ((char *)p_metadata->cStreamTitle,
+                       p_obj->p_stream_title_, stream_title_len);
+              p_metadata->cStreamTitle[stream_title_len] = '\000';
             }
         }
       else

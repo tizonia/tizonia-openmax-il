@@ -89,7 +89,7 @@ static void *httpsrc_port_ctor (void *ap_obj, va_list *app)
   p_obj->opustype_.nChannels               = 2;
   p_obj->opustype_.nBitRate                = 256;
   p_obj->opustype_.nSampleRate             = 48000;
-  p_obj->opustype_.nFrameDuration          = 2.5;
+  p_obj->opustype_.nFrameDuration          = 2;
   p_obj->opustype_.nEncoderComplexity      = 0;
   p_obj->opustype_.bPacketLossResilience   = OMX_FALSE;
   p_obj->opustype_.bForwardErrorCorrection = OMX_FALSE;

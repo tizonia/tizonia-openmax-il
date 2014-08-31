@@ -79,7 +79,7 @@ instantiate_opus_port (OMX_HANDLETYPE ap_hdl)
   opustype.nChannels               = 2;
   opustype.nBitRate                = 256;
   opustype.nSampleRate             = 48000;
-  opustype.nFrameDuration          = 2.5;
+  opustype.nFrameDuration          = 2;
   opustype.nEncoderComplexity      = 0;
   opustype.bPacketLossResilience   = OMX_FALSE;
   opustype.bForwardErrorCorrection = OMX_FALSE;

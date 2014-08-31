@@ -699,13 +699,7 @@ ar_prc_prepare_to_transfer (void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
                   p_prc->pcmmode.ePCMMode);
 
       /* TODO : Add a function to properly encode snd_pcm_format */
-      if (p_prc->pcmmode.nBitPerSample == 16)
-        {
-          snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle ?
-            SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_S16_BE;
-
-        }
-      else if (p_prc->pcmmode.nBitPerSample == 24)
+      if (p_prc->pcmmode.nBitPerSample == 24)
         {
           snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle ?
             SND_PCM_FORMAT_S24 : SND_PCM_FORMAT_S24_BE;
@@ -716,6 +710,12 @@ ar_prc_prepare_to_transfer (void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
         {
           snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle ?
             SND_PCM_FORMAT_FLOAT_LE : SND_PCM_FORMAT_FLOAT_BE;
+        }
+      else
+        {
+          /* p_prc->pcmmode.nBitPerSample == 16 */
+          snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle ?
+            SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_S16_BE;
         }
 
       /*       snd_sampling_rate = p_prc->pcmmode.bInterleaved == OMX_TRUE ? */

@@ -291,16 +291,6 @@ static inline OMX_ERRORTYPE start_reconnect_timer_watcher (
   return rc;
 }
 
-static inline OMX_ERRORTYPE restart_reconnect_timer_watcher (
-    httpsrc_prc_t *ap_prc)
-{
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_ev_reconnect_timer_);
-  ap_prc->awaiting_reconnect_timer_ev_ = true;
-  TIZ_DEBUG (handleOf (ap_prc), "awaiting_reconnect_timer_ev [TRUE]");
-  return tiz_event_timer_restart (ap_prc->p_ev_reconnect_timer_);
-}
-
 static inline OMX_ERRORTYPE stop_reconnect_timer_watcher (httpsrc_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
