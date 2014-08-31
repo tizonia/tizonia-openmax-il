@@ -214,7 +214,8 @@ static int get_node (const tiz_rcfile_t *ap_rc, char *str, keyval_t **app_kv)
            trimlistseparator (trimwhitespace (value)));
 
   /* Find if the key exists already */
-  if (!(p_kv = find_node (ap_rc, key)))
+  p_kv = find_node (ap_rc, key);
+  if (!p_kv)
     {
       p_kv = (keyval_t *)tiz_mem_calloc (1, sizeof(keyval_t));
       p_v = (value_t *)tiz_mem_calloc (1, sizeof(value_t));
@@ -591,12 +592,13 @@ const char *tiz_rcfile_get_value (const char *ap_section, const char *ap_key)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Retrieving value for Key [%s] in section [%s]",
            ap_key, ap_section);
 
-  if ((p_kv = find_node (p_rc, ap_key)))
+  p_kv = find_node (p_rc, ap_key);
+  if (p_kv && p_kv->p_value_list)
     {
       return p_kv->p_value_list->p_value;
     }
 
-  return OMX_ErrorNone;
+  return NULL;
 }
 
 char **tiz_rcfile_get_value_list (const char *ap_section, const char *ap_key,
@@ -622,7 +624,8 @@ char **tiz_rcfile_get_value_list (const char *ap_section, const char *ap_key,
            "for Key [%s] in section [%s]",
            ap_key, ap_section);
 
-  if ((p_kv = find_node (p_rc, ap_key)))
+  p_kv = find_node (p_rc, ap_key);
+  if (p_kv)
     {
       int i = 0;
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Found value list - count [%d]",

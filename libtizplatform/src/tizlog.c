@@ -63,7 +63,10 @@ static const char *log_layout_format (const log4c_layout_t *a_layout,
   user_locinfo_t *uloc = NULL;
   (void) a_layout;
 
-  if (a_event->evt_loc->loc_data != NULL)
+  assert (NULL != a_event);
+  assert (NULL != a_event->evt_loc);
+
+  if (a_event->evt_loc->loc_data)
     {
       struct tm tm;
       gmtime_r (&a_event->evt_timestamp.tv_sec, &tm);

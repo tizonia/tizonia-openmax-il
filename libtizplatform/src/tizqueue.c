@@ -40,6 +40,29 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.platform.queue"
 #endif
 
+#define TIZ_Q_GOTO_END_ON_ERROR(exp)                                       \
+  do                                                                       \
+    {                                                                      \
+      OMX_ERRORTYPE rc_ = OMX_ErrorNone;                                   \
+      if (OMX_ErrorNone != (rc_ = (exp)))                                  \
+        {                                                                  \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (rc_)); \
+          goto end;                                                        \
+        }                                                                  \
+    }                                                                      \
+  while (0)
+
+#define TIZ_Q_GOTO_END_ON_NULL(exp)                                         \
+  do                                                                        \
+    {                                                                       \
+      if (NULL == ((exp)))                                                  \
+        {                                                                   \
+          TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources]"); \
+          goto end;                                                         \
+        }                                                                   \
+    }                                                                       \
+  while (0)
+
 typedef struct tiz_queue_item tiz_queue_item_t;
 struct tiz_queue_item
 {
@@ -72,57 +95,26 @@ static inline void deinit_queue_struct (/*@null@ */ tiz_queue_t *ap_q)
 
 /*@null@*/ static tiz_queue_t *init_queue_struct (void)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  bool init_failed = false;
+  bool init_ok = false;
   tiz_queue_t *p_q = (tiz_queue_t *)tiz_mem_calloc (1, sizeof(tiz_queue_t));
 
-  if (NULL != p_q)
-    {
-      if ((rc = tiz_mutex_init (&(p_q->mutex))) == OMX_ErrorNone)
-        {
-          if ((rc = tiz_cond_init (&(p_q->cond_full))) == OMX_ErrorNone)
-            {
-              if ((rc = tiz_cond_init (&(p_q->cond_empty))) == OMX_ErrorNone)
-                {
-                  p_q->p_first = (tiz_queue_item_t *)tiz_mem_calloc (
-                      1, sizeof(tiz_queue_item_t));
-                  if (!(p_q->p_first))
-                    {
-                      TIZ_LOG (TIZ_PRIORITY_ERROR,
-                               "Could not create first item.");
-                      init_failed = true;
-                    }
-                }
-              else
-                {
-                  TIZ_LOG (TIZ_PRIORITY_ERROR,
-                           "Could not create empty cond variable.");
-                  init_failed = true;
-                }
-            }
-          else
-            {
-              TIZ_LOG (TIZ_PRIORITY_ERROR,
-                       "Could not create full cond variable.");
-              init_failed = true;
-            }
-        }
-      else
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "Could not create mutex.");
-          init_failed = true;
-        }
-    }
-  else
-    {
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "Could not instantiate queue struct.");
-      init_failed = true;
-    }
+  TIZ_Q_GOTO_END_ON_NULL (p_q);
+  TIZ_Q_GOTO_END_ON_ERROR (tiz_mutex_init (&(p_q->mutex)));
+  TIZ_Q_GOTO_END_ON_ERROR (tiz_cond_init (&(p_q->cond_full)));
+  TIZ_Q_GOTO_END_ON_ERROR (tiz_cond_init (&(p_q->cond_empty)));
+  p_q->p_first
+      = (tiz_queue_item_t *)tiz_mem_calloc (1, sizeof(tiz_queue_item_t));
+  TIZ_Q_GOTO_END_ON_NULL (p_q->p_first);
 
-  if (init_failed)
+  /* All OK */
+  init_ok = true;
+
+end:
+
+  if (!init_ok)
     {
       deinit_queue_struct (p_q);
-      p_q = 0;
+      p_q = NULL;
     }
 
   return p_q;
@@ -192,15 +184,15 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
       rc = OMX_ErrorInsufficientResources;
     }
 
-  if (OMX_ErrorNone != rc)
+  if (OMX_ErrorNone == rc)
+    {
+      *app_q = p_q;
+    }
+  else
     {
       /* Clean-up */
       deinit_queue_struct (p_q);
       p_q = NULL;
-    }
-  else
-    {
-      *app_q = p_q;
     }
 
   return rc;

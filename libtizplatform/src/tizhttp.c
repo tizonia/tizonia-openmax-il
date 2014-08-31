@@ -128,10 +128,8 @@ static const char *get_kv_value (tiz_http_parser_t *ap_parser,
     {
       return p_kvp_found->p_value;
     }
-  else
-    {
-      return NULL;
-    }
+
+  return NULL;
 }
 
 static int insert_kv_pair (tiz_http_parser_t *ap_parser, const char *ap_key,
@@ -295,7 +293,7 @@ tiz_http_parser_init (tiz_http_parser_ptr_t *app_parser,
       goto end;
     }
 
-  http_parser_init (&(p_hp->parser), type);
+  http_parser_init (&(p_hp->parser), (enum http_parser_type)type);
 
   p_hp->settings.on_message_begin = on_message_begin;
   p_hp->settings.on_url = on_url;

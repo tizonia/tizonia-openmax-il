@@ -55,11 +55,12 @@ struct tiz_buffer
 static inline void *alloc_data_store (tiz_buffer_t *ap_buf, const size_t nbytes)
 {
   assert (NULL != ap_buf);
-  assert (ap_buf->p_store == NULL);
+  assert (NULL == ap_buf->p_store);
 
   if (nbytes > 0)
     {
-      if (NULL != (ap_buf->p_store = tiz_mem_calloc (1, nbytes)))
+      ap_buf->p_store = tiz_mem_calloc (1, nbytes);
+      if (ap_buf->p_store)
         {
           ap_buf->alloc_len = nbytes;
           ap_buf->filled_len = 0;
@@ -108,15 +109,12 @@ tiz_buffer_init (/*@null@ */ tiz_buffer_ptr_t *app_buf, const size_t a_nbytes)
 
 end:
 
-  if (OMX_ErrorNone != rc)
+  if (OMX_ErrorNone != rc && NULL != p_buf)
     {
-      if (NULL != p_buf)
-        {
-          dealloc_data_store (p_buf);
-          p_store = NULL;
-          tiz_mem_free (p_buf);
-          p_buf = NULL;
-        }
+      dealloc_data_store (p_buf);
+      p_store = NULL;
+      tiz_mem_free (p_buf);
+      p_buf = NULL;
     }
 
   *app_buf = p_buf;

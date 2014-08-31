@@ -182,22 +182,26 @@ tiz_mutex_destroy (tiz_mutex_t *app_mutex)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  if (NULL != app_mutex)
+  if (NULL == app_mutex)
     {
-      int error = 0;
-      pthread_mutex_t *p_mutex = *app_mutex;
-
-      if (p_mutex
-          && (PTHREAD_SUCCESS != (error = pthread_mutex_destroy (p_mutex))))
-        {
-          TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s",
-                   strerror (error));
-          rc = OMX_ErrorUndefined;
-        }
-
-      tiz_mem_free (p_mutex);
-      *app_mutex = 0;
+      return rc;
     }
+
+  {
+    int error = 0;
+    pthread_mutex_t *p_mutex = *app_mutex;
+
+    if (p_mutex
+        && (PTHREAD_SUCCESS != (error = pthread_mutex_destroy (p_mutex))))
+      {
+        TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s",
+                 strerror (error));
+        rc = OMX_ErrorUndefined;
+      }
+
+    tiz_mem_free (p_mutex);
+    *app_mutex = 0;
+  }
 
   return rc;
 }
