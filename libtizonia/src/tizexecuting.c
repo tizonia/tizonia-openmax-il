@@ -203,7 +203,7 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     case OMX_StatePause:
       {
-        new_state = OMX_StatePause;
+        new_state = (tiz_fsm_state_id_t)OMX_StatePause;
         break;
       }
 

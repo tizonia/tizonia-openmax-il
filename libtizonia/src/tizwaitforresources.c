@@ -131,7 +131,7 @@ waitforresources_state_set (const void *ap_obj,
     {
     case OMX_StateLoaded:
       {
-        new_state = OMX_StateLoaded;
+        new_state = (tiz_fsm_state_id_t)OMX_StateLoaded;
         break;
       }
 

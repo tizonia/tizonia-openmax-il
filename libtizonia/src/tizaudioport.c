@@ -210,6 +210,7 @@ audioport_SetParameter (const void *ap_obj,
         rc = super_SetParameter (typeOf (ap_obj, "tizaudioport"),
                                  ap_obj, ap_hdl, a_index, ap_struct);
       }
+      break;
     };
 
   return rc;

@@ -159,7 +159,7 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
     case OMX_StateWaitForResources:
       {
-        new_state = OMX_StateWaitForResources;
+        new_state = (tiz_fsm_state_id_t)OMX_StateWaitForResources;
         break;
       }
 

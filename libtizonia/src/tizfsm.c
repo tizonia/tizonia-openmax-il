@@ -985,7 +985,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
       if (EStateWaitForResources >= a_new_state)
         {
           tiz_srv_issue_trans_event
-            (p_obj, a_new_state,
+            (p_obj, (OMX_STATETYPE)a_new_state,
              p_obj->canceled_substate_id_ == EStateMax
              ? OMX_ErrorNone : OMX_ErrorCommandCanceled);
 

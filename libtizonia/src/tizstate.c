@@ -372,7 +372,7 @@ state_trans_complete (const void *ap_obj,
                                                (handleOf (ap_obj)),
                                                OMX_PORTSTATUS_ACCEPTBUFFEREXCHANGE);
         }
-      tiz_fsm_set_state (p_obj->p_fsm_, a_new_state, EStateMax);
+      tiz_fsm_set_state (p_obj->p_fsm_, (tiz_fsm_state_id_t)a_new_state, EStateMax);
     }
 
   p_obj->servants_count_ = p_obj->servants_count_ % 2;

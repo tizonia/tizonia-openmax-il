@@ -1943,12 +1943,12 @@ static void schedule_servants (tiz_scheduler_t *ap_sched,
     }
   while (NULL != p_ready && (OMX_ErrorNone == rc));
 
-  if (OMX_ErrorNone != rc)
-    {
-      /* INFO: For now, errors are sent via EventHandler by the servants */
-      /* TODO: Review errors allowed via EventHandler */
-      /* TODO: Review if tiz_srv_tick should return void */
-    }
+  /*   if (OMX_ErrorNone != rc) */
+  /*     { */
+  /* INFO: For now, errors are sent via EventHandler by the servants */
+  /* TODO: Review errors allowed via EventHandler */
+  /* TODO: Review if tiz_srv_tick should return void */
+  /*     } */
 }
 
 static void *il_sched_thread_func (void *p_arg)
