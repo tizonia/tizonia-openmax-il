@@ -57,6 +57,8 @@
 <!--         <category name="tiz.audio_renderer" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.audio_renderer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.audio_renderer.check" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.pcm_renderer" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.pcm_renderer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.file_reader" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.file_reader.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.file_reader.check" priority="trace" appender="tizlogfile" /> -->
@@ -65,10 +67,8 @@
 <!--         <category name="tiz.file_writer.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_decoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_decoder.prc" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.mp3_decoder.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_metadata" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_metadata.prc" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.mp3_metadata.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_encoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_encoder.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.mp3_encoder.check" priority="trace" appender="tizlogfile" /> -->
@@ -95,7 +95,6 @@
 <!--         <category name="tiz.flac_decoder.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.vorbis_decoder" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.vorbis_decoder.prc" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.vorbis_decoder.check" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_demuxer" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_demuxer.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_demuxer.check" priority="trace" appender="tizlogfile" /> -->
