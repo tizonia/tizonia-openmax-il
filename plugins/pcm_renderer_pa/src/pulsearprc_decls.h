@@ -52,9 +52,14 @@ struct pulsear_prc
 {
   /* Object */
   const tiz_prc_t _;
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
+  OMX_BUFFERHEADERTYPE *p_inhdr_;
+  bool port_disabled_;
   struct pa_threaded_mainloop *p_pa_loop_;
   struct pa_context *p_pa_context_;
   struct pa_stream *p_pa_stream_;
+  pa_stream_state_t pa_state_;
+  size_t pa_nbytes_;
 };
 
 typedef struct pulsear_prc_class pulsear_prc_class_t;
