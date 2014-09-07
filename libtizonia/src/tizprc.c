@@ -674,6 +674,17 @@ static OMX_ERRORTYPE prc_stop_and_return (void *ap_obj)
   return OMX_ErrorNotImplemented;
 }
 
+static OMX_ERRORTYPE prc_receive_pluggable_event (void *ap_obj,
+                                                  tiz_event_pluggable_t *ap_event)
+{
+  assert (ap_obj);
+  if (ap_event && ap_event->pf_hdlr)
+    {
+      (*(ap_event->pf_hdlr)) (ap_event->p_servant, ap_event);
+    }
+  return OMX_ErrorNone;
+}
+
 /*
  * from tiz_prc class
  */
@@ -944,6 +955,8 @@ void *tiz_prc_init (void *ap_tos, void *ap_hdl)
        tiz_srv_transfer_and_process, prc_transfer_and_process,
        /* TIZ_CLASS_COMMENT: */
        tiz_srv_stop_and_return, prc_stop_and_return,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_receive_pluggable_event, prc_receive_pluggable_event,
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_buffers_ready, prc_buffers_ready,
        /* TIZ_CLASS_COMMENT: */
