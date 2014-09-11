@@ -490,33 +490,28 @@ render_buffer (ar_prc_t * ap_prc, OMX_BUFFERHEADERTYPE * ap_hdr)
 }
 
 static OMX_BUFFERHEADERTYPE *
-buffer_needed (ar_prc_t * ap_prc)
+get_header (ar_prc_t * ap_prc)
 {
+  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (NULL != ap_prc);
 
   if (!ap_prc->port_disabled_)
     {
-      if (NULL != ap_prc->p_inhdr_ && ap_prc->p_inhdr_->nFilledLen > 0)
+      if (!ap_prc->p_inhdr_)
         {
-          return ap_prc->p_inhdr_;
-        }
-      else
-        {
-          if (OMX_ErrorNone == (tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
-                                                      ARATELIA_AUDIO_RENDERER_PORT_INDEX,
-                                                      0, &ap_prc->p_inhdr_)))
+          (void)tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                      ARATELIA_AUDIO_RENDERER_PORT_INDEX,
+                                      0, &ap_prc->p_inhdr_);
+          if (ap_prc->p_inhdr_)
             {
-              if (NULL != ap_prc->p_inhdr_)
-                {
-                  TIZ_TRACE (handleOf (ap_prc),
-                             "Claimed HEADER [%p]...nFilledLen [%d]",
-                             ap_prc->p_inhdr_, ap_prc->p_inhdr_->nFilledLen);
-                  return ap_prc->p_inhdr_;
-                }
+              TIZ_TRACE (handleOf (ap_prc),
+                         "Claimed HEADER [%p]...nFilledLen [%d]",
+                         ap_prc->p_inhdr_, ap_prc->p_inhdr_->nFilledLen);
             }
         }
+      p_hdr = ap_prc->p_inhdr_;
     }
-  return NULL;
+  return p_hdr;
 }
 
 static OMX_ERRORTYPE
@@ -547,7 +542,7 @@ render_pcm_data (ar_prc_t * ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  while ((NULL != (p_hdr = buffer_needed (ap_prc)))
+  while ((NULL != (p_hdr = get_header (ap_prc)))
          && OMX_ErrorNone == rc)
     {
       if (p_hdr->nFilledLen > 0)
