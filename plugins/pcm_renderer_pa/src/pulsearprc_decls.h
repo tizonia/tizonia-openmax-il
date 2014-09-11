@@ -60,6 +60,12 @@ struct pulsear_prc
   struct pa_stream *p_pa_stream_;
   pa_stream_state_t pa_state_;
   size_t pa_nbytes_;
+  tiz_event_timer_t *p_ev_timer_;
+  float gain_;
+  long volume_;
+  long ramp_step_;
+  long ramp_step_count_;
+  long ramp_volume_;
 };
 
 typedef struct pulsear_prc_class pulsear_prc_class_t;
