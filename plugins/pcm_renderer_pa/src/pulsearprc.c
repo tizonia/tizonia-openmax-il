@@ -520,17 +520,23 @@ static int init_pulseaudio_sample_spec (pulsear_prc_t *ap_prc,
 
       if (ap_prc->pcmmode_.nBitPerSample == 24)
         {
-          ap_spec->format = PA_SAMPLE_S24NE;
+          ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
+                                ? PA_SAMPLE_S24BE
+                                : PA_SAMPLE_S24LE;
         }
       /* NOTE: this is a hack to allow float pcm streams coming from the the
          vorbis or opusfile decoders */
       else if (ap_prc->pcmmode_.nBitPerSample == 32)
         {
-          ap_spec->format = PA_SAMPLE_S32NE;
+          ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
+                                ? PA_SAMPLE_S32BE
+                                : PA_SAMPLE_S32LE;
         }
       else
         {
-          ap_spec->format = PA_SAMPLE_S16NE;
+          ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
+                                ? PA_SAMPLE_S16BE
+                                : PA_SAMPLE_S16LE;
         }
 
       ap_spec->rate = ap_prc->pcmmode_.nSamplingRate;
