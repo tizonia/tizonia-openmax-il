@@ -124,7 +124,7 @@ void graph::httpclntops::do_load ()
   G_OPS_BAIL_IF_ERROR (add_decoder_to_component_list (comp_list, role_list),
                        "Unknown/unhandled stream format.");
 
-  comp_list.push_back ("OMX.Aratelia.audio_renderer.pcm");
+  comp_list.push_back ("OMX.Aratelia.audio_renderer.alsa.pcm");
   role_list.push_back ("audio_renderer.pcm");
 
   tiz::graph::cbackhandler &cbacks = get_cback_handler ();

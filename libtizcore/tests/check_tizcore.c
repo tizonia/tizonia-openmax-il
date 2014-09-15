@@ -51,7 +51,7 @@
 
 #define TIZ_CORE_TEST_COMPONENT_NAME "OMX.Aratelia.ilcore.test_component"
 #define TIZ_CORE_TEST_COMPONENT_ROLE "default"
-#define AUDIO_RENDERER "OMX.Aratelia.audio_renderer.pcm"
+#define AUDIO_RENDERER "OMX.Aratelia.audio_renderer.alsa.pcm"
 #define FILE_READER "OMX.Aratelia.file_reader.binary"
 
 char *pg_rmd_path;

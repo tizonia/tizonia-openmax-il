@@ -37,7 +37,7 @@ extern "C"
 #include <OMX_Types.h>
 
 #define ARATELIA_AUDIO_RENDERER_DEFAULT_ROLE         "audio_renderer.pcm"
-#define ARATELIA_AUDIO_RENDERER_COMPONENT_NAME       "OMX.Aratelia.audio_renderer.pcm"
+#define ARATELIA_AUDIO_RENDERER_COMPONENT_NAME       "OMX.Aratelia.audio_renderer.alsa.pcm"
 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_AUDIO_RENDERER_PORT_INDEX           0
 #define ARATELIA_AUDIO_RENDERER_PORT_MIN_BUF_COUNT   2

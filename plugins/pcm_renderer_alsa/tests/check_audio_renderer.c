@@ -56,7 +56,7 @@
 char *pg_rmd_path;
 pid_t g_rmd_pid;
 
-#define COMPONENT_NAME "OMX.Aratelia.audio_renderer.pcm"
+#define COMPONENT_NAME "OMX.Aratelia.audio_renderer.alsa.pcm"
 
 /* TODO: Move these two to the rc file */
 #define RATE_FILE1 48000
@@ -425,9 +425,9 @@ init_test_data()
   const char *p_testfile2 = NULL;
 
   p_testfile1 = tiz_rcfile_get_value("plugins-data",
-                                     "OMX.Aratelia.audio_renderer.pcm.testfile1_uri");
+                                     "OMX.Aratelia.audio_renderer.alsa.pcm.testfile1_uri");
   p_testfile2 = tiz_rcfile_get_value("plugins-data",
-                                     "OMX.Aratelia.audio_renderer.pcm.testfile2_uri");
+                                     "OMX.Aratelia.audio_renderer.alsa.pcm.testfile2_uri");
 
   if (!p_testfile1 || !p_testfile2)
 
