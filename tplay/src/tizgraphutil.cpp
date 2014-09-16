@@ -703,3 +703,14 @@ bool graph::util::is_fatal_error (const OMX_ERRORTYPE error)
   };
   return rc;
 }
+
+std::string graph::util::get_default_pcm_renderer ()
+{
+  std::string renderer_name;
+  const char *p_renderer_name = tiz_rcfile_get_value("tplay", "default-renderer");
+  if (p_renderer_name)
+    {
+      renderer_name.assign (p_renderer_name);
+    }
+  return renderer_name;
+}

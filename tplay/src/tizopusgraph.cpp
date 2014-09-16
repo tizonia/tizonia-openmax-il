@@ -66,7 +66,7 @@ graph::ops *graph::opusdecoder::do_init ()
   omx_comp_name_lst_t comp_list;
   comp_list.push_back ("OMX.Aratelia.container_demuxer.ogg");
   comp_list.push_back ("OMX.Aratelia.audio_decoder.opus");
-  comp_list.push_back ("OMX.Aratelia.audio_renderer.alsa.pcm");
+  comp_list.push_back (tiz::graph::util::get_default_pcm_renderer ());
 
   omx_comp_role_lst_t role_list;
   role_list.push_back ("source.container_demuxer.ogg");
