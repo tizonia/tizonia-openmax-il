@@ -529,8 +529,8 @@ static int init_pulseaudio_sample_spec (pulsear_prc_t *ap_prc,
       else if (ap_prc->pcmmode_.nBitPerSample == 32)
         {
           ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
-                                ? PA_SAMPLE_S32BE
-                                : PA_SAMPLE_S32LE;
+                                ? PA_SAMPLE_FLOAT32BE
+                                : PA_SAMPLE_FLOAT32LE;
         }
       else
         {
@@ -940,6 +940,7 @@ static OMX_ERRORTYPE pulsear_prc_transfer_and_process (void *ap_prc,
 
 static OMX_ERRORTYPE pulsear_prc_stop_and_return (void *ap_prc)
 {
+  stop_volume_ramp (ap_prc);
   return do_flush (ap_prc);
 }
 
@@ -972,17 +973,56 @@ static OMX_ERRORTYPE pulsear_prc_timer_ready (void *ap_prc,
 static OMX_ERRORTYPE pulsear_prc_pause (const void *ap_prc)
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "PAUSED...");
-  return rc;
+
+  stop_volume_ramp (p_prc);
+
+  if (p_prc->p_pa_loop_ && p_prc->p_pa_context_ && p_prc->p_pa_stream_)
+    {
+      pa_threaded_mainloop_lock (p_prc->p_pa_loop_);
+      if (!pa_stream_is_corked (p_prc->p_pa_stream_))
+        {
+          pa_operation *p_op
+              = pa_stream_cork (p_prc->p_pa_stream_, true,
+                                pulseaudio_stream_success_cback, p_prc);
+          if (p_op)
+            {
+              if (!pulseaudio_wait_for_operation (p_prc, p_op))
+                {
+                  TIZ_ERROR (handleOf (p_prc), "Operation wait failed.");
+                }
+            }
+          TIZ_TRACE (handleOf (p_prc), "PAUSED...");
+        }
+      pa_threaded_mainloop_unlock (p_prc->p_pa_loop_);
+    }
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE pulsear_prc_resume (const void *ap_prc)
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "RESUMING ALSA device...");
+
+  if (p_prc->p_pa_loop_ && p_prc->p_pa_context_ && p_prc->p_pa_stream_)
+    {
+      pa_threaded_mainloop_lock (p_prc->p_pa_loop_);
+      if (pa_stream_is_corked (p_prc->p_pa_stream_))
+        {
+          pa_operation *p_op
+              = pa_stream_cork (p_prc->p_pa_stream_, false,
+                                pulseaudio_stream_success_cback, p_prc);
+          if (p_op)
+            {
+              if (!pulseaudio_wait_for_operation (p_prc, p_op))
+                {
+                  TIZ_ERROR (handleOf (p_prc), "Operation wait failed.");
+                }
+            }
+          TIZ_TRACE (handleOf (p_prc), "RESUMING PULSEAUDIO...");
+        }
+      pa_threaded_mainloop_unlock (p_prc->p_pa_loop_);
+    }
   return OMX_ErrorNone;
 }
 
@@ -1011,6 +1051,7 @@ static OMX_ERRORTYPE pulsear_prc_port_enable (const void *ap_obj,
   assert (NULL != p_prc);
   TIZ_TRACE (handleOf (p_prc), "Received port emable");
   p_prc->port_disabled_ = false;
+  /* TODO: */
   /*   if (NULL != p_prc->p_pcm_hdl) */
   {
     /*       log_alsa_pcm_state (p_prc); */
@@ -1047,8 +1088,6 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
               && volume.sVolume.nValue
                  >= ARATELIA_PCM_RENDERER_MIN_VOLUME_VALUE)
             {
-              /* TODO: Volume should be done by adjusting the gain, not ALSA's
-               * master volume! */
               set_volume (p_prc, volume.sVolume.nValue);
             }
         }
@@ -1059,8 +1098,6 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
           tiz_check_omx_err (tiz_api_GetConfig (
               tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
               OMX_IndexConfigAudioMute, &mute));
-          /* TODO: Volume should be done by adjusting the gain, not ALSA's
-           * master volume! */
           TIZ_TRACE (handleOf (p_prc),
                      "[OMX_IndexConfigAudioMute] : bMute = [%s]",
                      (mute.bMute == OMX_FALSE ? "FALSE" : "TRUE"));
