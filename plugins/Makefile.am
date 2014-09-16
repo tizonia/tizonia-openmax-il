@@ -30,6 +30,7 @@ SUBDIRS = \
 	opus_decoder \
 	opusfile_decoder \
 	pcm_renderer_alsa \
+	pcm_renderer_pa \
 	vorbis_decoder \
 	vp8_decoder \
 	yuv_renderer
