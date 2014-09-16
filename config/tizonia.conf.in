@@ -58,9 +58,9 @@ OMX.Aratelia.file_writer.binary.default_uri = @localstatedir@/lib/tizonia/tizoni
 OMX.Aratelia.file_writer.binary.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
 OMX.Aratelia.file_writer.binary.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
 
-##################
-# Audio Renderer #
-##################
+#######################
+# ALSA Audio Renderer #
+#######################
 
 OMX.Aratelia.audio_renderer.alsa.pcm.preannouncements_disabled.port0 = false
 OMX.Aratelia.audio_renderer.alsa.pcm.alsa_device = default
@@ -157,3 +157,7 @@ OMX.Aratelia.container_demuxer.ogg.video_uri_demuxed = @localstatedir@/lib/tizon
 OMX.Aratelia.audio_metadata_eraser.mp3.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
 OMX.Aratelia.audio_metadata_eraser.mp3.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
 OMX.Aratelia.audio_metadata_eraser.mp3.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/strum12str.mp3
+
+[tplay]
+
+default-renderer = OMX.Aratelia.audio_renderer.alsa.pcm
