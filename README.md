@@ -15,15 +15,16 @@ Introduction
 
 The Tizonia OpenMAX IL project consists of a number of resources.
 
-A pretty complete implementation of OpenMAX IL 1.2
---------------------------------------------------
+An OpenMAX IL 1.2 component framework/library
+=============================================
 
 * Support for Base and Interop profiles.
 * TODO: Buffer sharing.
 
 An OpenMAX IL 1.2 Core implementation
 -------------------------------------
-* Support for all the tipical OMX IL 1.2 Core APIs, including *OMX_SetupTunnel*.
+* Support for all the usual OMX IL 1.2 Core APIs, including *OMX_SetupTunnel*.
+* TODO: IL 1.2 Core extension APIs.
 
 An OS abstraction/utility library
 ---------------------------------
@@ -79,7 +80,7 @@ A number of OpenMAX IL plugins
 How to build
 ============
 
-This build instructions should work fine on a typical Ubuntu 14.04 desktop
+These build instructions should work fine on a typical Ubuntu 14.04 desktop
 system.
 
 Dependencies
@@ -100,8 +101,8 @@ Dependencies
 
 ```
 
-Building all the base libraries, the IL Core, the plugins and the RM server
----------------------------------------------------------------------------
+Building all the base libraries, plugins and the RM server
+----------------------------------------------------------
 
 From the top of the repo, type something like this:
 
