@@ -81,7 +81,7 @@ On Ubuntu 14.04, the following build instructions should work ok.
 
 ```bash
 
-    sudo apt-get update -qq && sudo apt-get install -qq \
+    $ sudo apt-get update -qq && sudo apt-get install -qq \
     autoconf automake autotools-dev build-essential \
     libtool libmad0-dev liblog4c-dev \
     libasound2-dev libdbus-1-dev \
@@ -113,10 +113,10 @@ From the'tplay' folder (again replace *$INSTALL_DIR* with your favorite location
 
 ```bash
 
-    autoreconf -ifs
-    ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
-    make
-    make install
+    $ autoreconf -ifs
+    $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
+    $ make
+    $ make install
 
 ```
 
@@ -127,9 +127,9 @@ suitable location:
 
 ```bash
 
-    cp config/tizonia.conf ~/.tizonia.conf
-    mkdir -p ~/.local/share/dbus-1/services
-    cp rm/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
+    $ cp config/tizonia.conf ~/.tizonia.conf
+    $ mkdir -p ~/.local/share/dbus-1/services
+    $ cp rm/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
 
 ```
 
