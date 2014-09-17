@@ -160,4 +160,4 @@ OMX.Aratelia.audio_metadata_eraser.mp3.testfile2_uri = @localstatedir@/lib/tizon
 
 [tplay]
 
-default-renderer = OMX.Aratelia.audio_renderer.alsa.pcm
+default-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
