@@ -55,6 +55,7 @@ struct pulsear_prc
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
   OMX_BUFFERHEADERTYPE *p_inhdr_;
   bool port_disabled_;
+  bool paused_;
   struct pa_threaded_mainloop *p_pa_loop_;
   struct pa_context *p_pa_context_;
   struct pa_stream *p_pa_stream_;

@@ -349,7 +349,7 @@ static void pulseaudio_stream_write_cback_handler (
                  p_prc->pa_nbytes_);
       p_prc->pa_nbytes_ += *((size_t *)ap_event->p_data);
       TIZ_TRACE (handleOf (ap_prc), "AFTER pa_nbytes_ [%d]", p_prc->pa_nbytes_);
-      if (PA_STREAM_READY == p_prc->pa_state_)
+      if (PA_STREAM_READY == p_prc->pa_state_ && !p_prc->paused_)
         {
           (void)render_pcm_data (p_prc);
         }
@@ -518,14 +518,18 @@ static int init_pulseaudio_sample_spec (pulsear_prc_t *ap_prc,
           ap_prc->pcmmode_.bInterleaved == OMX_TRUE ? "OMX_TRUE" : "OMX_FALSE",
           ap_prc->pcmmode_.ePCMMode);
 
-      if (ap_prc->pcmmode_.nBitPerSample == 24)
+      if (ap_prc->pcmmode_.nBitPerSample == 16)
+        {
+          ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
+                                ? PA_SAMPLE_S16BE
+                                : PA_SAMPLE_S16LE;
+        }
+      else if (ap_prc->pcmmode_.nBitPerSample == 24)
         {
           ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
                                 ? PA_SAMPLE_S24BE
                                 : PA_SAMPLE_S24LE;
         }
-      /* NOTE: this is a hack to allow float pcm streams coming from the the
-         vorbis or opusfile decoders */
       else if (ap_prc->pcmmode_.nBitPerSample == 32)
         {
           ap_spec->format = ap_prc->pcmmode_.eEndian == OMX_EndianBig
@@ -874,6 +878,7 @@ static void *pulsear_prc_ctor (void *ap_prc, va_list *app)
       = super_ctor (typeOf (ap_prc, "pulsearprc"), ap_prc, app);
   p_prc->p_inhdr_ = NULL;
   p_prc->port_disabled_ = false;
+  p_prc->paused_ = false;
   p_prc->p_pa_loop_ = NULL;
   p_prc->p_pa_context_ = NULL;
   p_prc->p_pa_stream_ = NULL;
@@ -955,7 +960,7 @@ static OMX_ERRORTYPE pulsear_prc_buffers_ready (const void *ap_prc)
 
   assert (NULL != p_prc);
 
-  if (PA_STREAM_READY == p_prc->pa_state_)
+  if (PA_STREAM_READY == p_prc->pa_state_ && !p_prc->paused_)
     {
       rc = render_pcm_data (p_prc);
     }
@@ -975,6 +980,7 @@ static OMX_ERRORTYPE pulsear_prc_pause (const void *ap_prc)
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
   assert (NULL != p_prc);
 
+  p_prc->paused_ = true;
   stop_volume_ramp (p_prc);
 
   if (p_prc->p_pa_loop_ && p_prc->p_pa_context_ && p_prc->p_pa_stream_)
@@ -1003,6 +1009,8 @@ static OMX_ERRORTYPE pulsear_prc_resume (const void *ap_prc)
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
   assert (NULL != p_prc);
+
+  p_prc->paused_ = false;
 
   if (p_prc->p_pa_loop_ && p_prc->p_pa_context_ && p_prc->p_pa_stream_)
     {
