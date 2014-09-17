@@ -1,5 +1,4 @@
-Tizonia OpenMAX IL
-==================
+# Tizonia OpenMAX IL #
 
 An experimental implementation for Linux of the OpenMAX IL 1.2 provisional
 specification.
@@ -10,24 +9,21 @@ specification.
 
 _This is a highly experimental, rapidly-changing project. APIs might change overnight._
 
-Introduction
-============
+## Introduction ##
 
 The Tizonia OpenMAX IL project consists of a number of resources.
 
-An OpenMAX IL 1.2 component framework/library
-=============================================
+### An OpenMAX IL 1.2 component framework/library ###
 
 * Support for Base and Interop profiles.
 * TODO: Buffer sharing.
 
-An OpenMAX IL 1.2 Core implementation
--------------------------------------
+### An OpenMAX IL 1.2 Core implementation ###
+
 * Support for all the usual OMX IL 1.2 Core APIs, including *OMX_SetupTunnel*.
 * TODO: IL 1.2 Core extension APIs.
 
-An OS abstraction/utility library
----------------------------------
+### An OS abstraction/utility library ###
 
 * Wrappers and utilities for:
     * memory allocation,
@@ -42,15 +38,13 @@ An OS abstraction/utility library
     * evented I/O (via libev)
     * etc..
 
-An OpenMAX IL Resource Management (RM) framework
-------------------------------------------------
+### An OpenMAX IL Resource Management (RM) framework ###
 
 * Including:
   * a C client library,
   * a D-Bus-based RM server written in C++.
 
-A number of OpenMAX IL plugins
-------------------------------
+### A number of OpenMAX IL plugins ###
 
 * Including:
   * mp3 decoder (based on libmad),
@@ -68,23 +62,22 @@ A number of OpenMAX IL plugins
   * binary file readers and writers
   * etc...
 
-`tplay`: a command line music player and streaming server
----------------------------------------------------------
+### `tplay`: a command line music player and streaming server ###
 
-* Using pipelines of tunneled OpenMAX IL components:
-  * Playback of a number of audio formats from local files (mp3, aac,
-    vorbis, opus, flac).
-  * Playback of remote icecast/shoutcast streams (mp3, aac, opus).
-  * Serving of Icecast/Shoutcast streams (mp3).
+* Features:
+    * Uses graphs of tunneled OpenMAX IL components.
+    * Playback of audio formats from local files (mp3, aac, vorbis, opus,
+      flac).
+    * Playback of remote Icecast/Shoutcast streams (currently mp3, aac, and
+      opus streams are supported).
+    * Serving of Icecast/Shoutcast streams (mp3).
+    * MPRIS D-BUS v2 interface.
 
-How to build
-============
+## How to build ##
 
-These build instructions should work fine on a typical Ubuntu 14.04 desktop
-system.
+On Ubuntu 14.04, the following build instructions should work ok.
 
-Dependencies
-------------
+### Dependencies ###
 
 ```bash
 
@@ -101,10 +94,22 @@ Dependencies
 
 ```
 
-Building all the base libraries, plugins and the RM server
-----------------------------------------------------------
+### Building the base libraries, plugins and the RM server ###
 
-From the top of the repo, type something like this:
+From the top of the repo (Replace *$INSTALL_DIR* with your favorite location):
+
+```bash
+
+    $ autoreconf -ifs
+    $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
+    $ make
+    $ make install
+
+```
+
+### Building 'tplay' ###
+
+From the'tplay' folder (again replace *$INSTALL_DIR* with your favorite location):
 
 ```bash
 
@@ -115,28 +120,10 @@ From the top of the repo, type something like this:
 
 ```
 
-NOTE: Replace "$INSTALL_DIR" with your favorite location in your system.
+### Tizonia config file and the D-BUS service file ###
 
-Building 'tplay'
-----------------
-
-'cd' into the 'tplay' folder and again type:
-
-```bash
-
-    autoreconf -ifs
-    ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
-    make
-    make install
-
-```
-
-Tizonia config file and the D-BUS service file
-----------------------------------------------
-
-Finally, you need to copy the *tizonia.conf* file and D-BUS service file to a
-suitable location. From the top of the repo, run the following commands:
-
+Copy the *tizonia.conf* file and the Resource Manager's D-BUS service file to a
+suitable location:
 
 ```bash
 
@@ -146,8 +133,7 @@ suitable location. From the top of the repo, run the following commands:
 
 ```
 
-'tplay' usage information
-=========================
+## 'tplay' usage information ##
 
 ```bash
 
@@ -186,13 +172,11 @@ Audio streaming server options:
                         allowed in the playlist. Default: any.
 ```
 
-License
-=======
+## License ##
 
 Tizonia OpenMAX IL is released under the GNU Lesser General Public License
 version 3.
 
-More information
-================
+## More information ##
 
 For more information, please visit the project web site at http://tizonia.org
