@@ -35,6 +35,8 @@ extern "C" {
 
 #include <stdbool.h>
 
+#include <mpg123.h>
+
 #include <tizfilterprc.h>
 #include <tizfilterprc_decls.h>
 
@@ -43,6 +45,8 @@ struct mpg123d_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
+  mpg123_handle *p_mpg123_;
+  bool found_format_;
 };
 
 typedef struct mpg123d_prc_class mpg123d_prc_class_t;
