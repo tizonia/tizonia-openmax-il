@@ -60,7 +60,7 @@ struct pulsear_prc
   struct pa_context *p_pa_context_;
   struct pa_stream *p_pa_stream_;
   struct pa_cvolume pa_vol_;
-  pa_stream_state_t pa_state_;
+  pa_stream_state_t pa_stream_state_;
   size_t pa_nbytes_;
   tiz_event_timer_t *p_ev_timer_;
   float gain_;
