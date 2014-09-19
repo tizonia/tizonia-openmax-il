@@ -268,7 +268,7 @@ function build_debug {
     autoreconf -ifs
     local exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
-        ./configure --prefix="$INSTALL_DIR CFLAGS=-ggdb -Wall -Werror"
+        ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall -Werror"
         exit_status=$?
     fi
     return "$exit_status"
@@ -290,7 +290,7 @@ function build_release {
     autoreconf -ifs
     local exit_status=$?
     if [ $exit_status -eq 0 ] ; then
-        ./configure --prefix="$INSTALL_DIR CFLAGS=-O3 -DNDEBUG"
+        ./configure --prefix="$INSTALL_DIR" CFLAGS="-O3 -DNDEBUG"
         exit_status=$?
     fi
     return "$exit_status"
