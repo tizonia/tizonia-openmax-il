@@ -692,6 +692,10 @@ static OMX_ERRORTYPE init_pulseaudio (pulsear_prc_t *ap_prc)
 
   TIZ_TRACE (handleOf (ap_prc), "");
 
+  /* Start from a knonw state */
+  ap_prc->pa_stream_state_ = PA_STREAM_UNCONNECTED;
+  ap_prc->pa_nbytes_ = 0;
+
   /* Instantiate the pulseaudio threaded main loop */
   ap_prc->p_pa_loop_ = pa_threaded_mainloop_new ();
   tiz_check_null_ret_oom (ap_prc->p_pa_loop_);
@@ -936,8 +940,6 @@ static OMX_ERRORTYPE pulsear_prc_prepare_to_transfer (void *ap_prc,
   p_prc->ramp_step_ = 0;
   p_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
   p_prc->ramp_volume_ = 0;
-  p_prc->pa_stream_state_ = PA_STREAM_UNCONNECTED;
-  p_prc->pa_nbytes_ = 0;
   return OMX_ErrorNone;
 }
 
