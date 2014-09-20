@@ -47,7 +47,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.mp3_decoder"
+#define TIZ_LOG_CATEGORY_NAME "tiz.mpg123_decoder"
 #endif
 
 static OMX_VERSIONTYPE mp3_decoder_version = { { 1, 0, 0, 0 } };

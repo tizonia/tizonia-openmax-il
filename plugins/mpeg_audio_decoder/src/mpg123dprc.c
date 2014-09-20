@@ -44,7 +44,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.mp3_decoder.prc"
+#define TIZ_LOG_CATEGORY_NAME "tiz.mpg123_decoder.prc"
 #endif
 
 /* This macro assumes the existence of an "ap_prc" local variable */
@@ -117,6 +117,34 @@ static OMX_ERRORTYPE transform_buffer (mpg123d_prc_t *ap_prc)
   return rc;
 }
 
+OMX_ERRORTYPE release_input_header (mpg123d_prc_t *ap_prc)
+{
+  OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
+      ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
+
+  assert (NULL != ap_prc);
+
+  if (p_in)
+    {
+      if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
+        {
+          /* Let's propagate EOS flag to output */
+          TIZ_TRACE (handleOf (ap_prc), "Propagating EOS flag to output");
+          OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
+              ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
+          if (p_out)
+            {
+              p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+            }
+          tiz_filter_prc_update_eos_flag (ap_prc, true);
+          p_in->nFlags = 0;
+        }
+      tiz_filter_prc_release_header (ap_prc,
+                                     ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
+    }
+  return OMX_ErrorNone;
+}
+
 static OMX_ERRORTYPE query_format (mpg123d_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -149,14 +177,16 @@ static OMX_ERRORTYPE query_format (mpg123d_prc_t *ap_prc)
       /* Format found */
       mpg123_getformat (ap_prc->p_mpg123_, &rate, &channels, &encoding);
       TIZ_TRACE (handleOf (ap_prc),
-                 "stream format : rate [%l] channels [%d] encoding [%d]", rate,
+                 "stream format : rate [%ld] channels [%d] encoding [%d]", rate,
                  channels, encoding);
+      ap_prc->found_format_ = true;
     }
 
   if (0 == p_in->nFilledLen)
     {
       TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty", p_in,
                  p_in->nFlags);
+      release_input_header (ap_prc);
     }
 
   return rc;
@@ -199,17 +229,8 @@ static void *mpg123d_prc_dtor (void *ap_obj)
  * from tizsrv class
  */
 
-static OMX_ERRORTYPE mpg123d_prc_allocate_resources (void *ap_obj,
+static OMX_ERRORTYPE mpg123d_prc_allocate_resources (void *ap_prc,
                                                      OMX_U32 a_pid)
-{
-  mpg123d_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
-  mpg123_delete (p_prc->p_mpg123_); /* Closes, too. */
-  p_prc->p_mpg123_ = NULL;
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE mpg123d_prc_deallocate_resources (void *ap_prc)
 {
   mpg123d_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
@@ -235,6 +256,15 @@ end:
     }
 
   return rc;
+}
+
+static OMX_ERRORTYPE mpg123d_prc_deallocate_resources (void *ap_obj)
+{
+  mpg123d_prc_t *p_prc = ap_obj;
+  assert (NULL != p_prc);
+  mpg123_delete (p_prc->p_mpg123_); /* Closes, too. */
+  p_prc->p_mpg123_ = NULL;
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE mpg123d_prc_prepare_to_transfer (void *ap_obj,
@@ -272,13 +302,13 @@ static OMX_ERRORTYPE mpg123d_prc_buffers_ready (const void *ap_prc)
              tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO");
   while (tiz_filter_prc_headers_available (p_prc) && OMX_ErrorNone == rc)
     {
+      if (!p_prc->found_format_)
+        {
+          rc = query_format (p_prc);
+        }
       if (p_prc->found_format_)
         {
           rc = transform_buffer (p_prc);
-        }
-      else
-        {
-          rc = query_format (p_prc);
         }
     }
 
