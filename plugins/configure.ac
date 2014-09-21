@@ -22,8 +22,6 @@ AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 
-
-
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
@@ -60,6 +58,7 @@ AC_CONFIG_SUBDIRS([aac_decoder
                    mp3_decoder
                    mp3_encoder
                    mp3_metadata
+                   mpeg_audio_decoder
                    ogg_demuxer
                    opus_decoder
                    opusfile_decoder

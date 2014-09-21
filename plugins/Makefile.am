@@ -26,6 +26,7 @@ SUBDIRS = \
 	mp3_decoder \
 	mp3_encoder \
 	mp3_metadata \
+	mpeg_audio_decoder \
 	ogg_demuxer \
 	opus_decoder \
 	opusfile_decoder \
