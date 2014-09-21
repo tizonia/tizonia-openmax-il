@@ -87,6 +87,8 @@ static OMX_ERRORTYPE transform_buffer (mpg123d_prc_t *ap_prc)
       ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
   OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
+  int mpg123_ret = 0;
+  size_t bytes_decoded = 0;
 
   if (NULL == p_in || NULL == p_out)
     {
@@ -96,6 +98,14 @@ static OMX_ERRORTYPE transform_buffer (mpg123d_prc_t *ap_prc)
     }
 
   assert (NULL != ap_prc);
+
+  mpg123_ret = mpg123_decode (ap_prc->p_mpg123_, p_in->pBuffer + p_in->nOffset,
+                              p_in->nFilledLen, p_out->pBuffer + p_out->nOffset,
+                              p_out->nAllocLen, &bytes_decoded);
+  (void)mpg123_ret;
+  p_out->nFilledLen = bytes_decoded;
+  tiz_filter_prc_release_header (ap_prc,
+                                 ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
 
   if (0 == p_in->nFilledLen)
     {
@@ -180,6 +190,24 @@ static OMX_ERRORTYPE query_format (mpg123d_prc_t *ap_prc)
                  "stream format : rate [%ld] channels [%d] encoding [%d]", rate,
                  channels, encoding);
       ap_prc->found_format_ = true;
+
+      {
+        OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
+            ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
+
+        if (p_out)
+          {
+            size_t done;
+            mpg123_read (ap_prc->p_mpg123_, p_out->pBuffer + p_out->nOffset,
+                         p_out->nAllocLen, &done);
+            p_out->nFilledLen = done;
+            TIZ_TRACE (handleOf (ap_prc),
+                       "releasing header [%p] with [%d] bytes", p_out,
+                       p_out->nFilledLen);
+            tiz_filter_prc_release_header (
+                ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
+          }
+      }
     }
 
   if (0 == p_in->nFilledLen)
@@ -298,15 +326,15 @@ static OMX_ERRORTYPE mpg123d_prc_buffers_ready (const void *ap_prc)
 
   assert (NULL != ap_prc);
 
-  TIZ_TRACE (handleOf (p_prc), "eos [%s] ",
-             tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO");
   while (tiz_filter_prc_headers_available (p_prc) && OMX_ErrorNone == rc)
     {
+      TIZ_TRACE (handleOf (p_prc), "found_format [%s] ",
+                 p_prc->found_format_ ? "YES" : "NO");
       if (!p_prc->found_format_)
         {
           rc = query_format (p_prc);
         }
-      if (p_prc->found_format_)
+      else
         {
           rc = transform_buffer (p_prc);
         }
