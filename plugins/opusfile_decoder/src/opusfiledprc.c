@@ -381,8 +381,7 @@ static OMX_ERRORTYPE opusfiled_proc_port_flush (const void *ap_prc,
                                                 OMX_U32 a_pid)
 {
   opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_prc;
-  tiz_buffer_clear (p_prc->p_store_);
-  p_prc->store_offset_ = 0;
+  reset_stream_parameters (p_prc);
   return tiz_filter_prc_release_header (p_prc, a_pid);
 }
 
@@ -391,6 +390,7 @@ static OMX_ERRORTYPE opusfiled_prc_port_disable (const void *ap_prc,
 {
   opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = tiz_filter_prc_release_header (p_prc, a_pid);
+  reset_stream_parameters (p_prc);
   tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, true);
   return rc;
 }
