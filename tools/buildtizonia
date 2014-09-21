@@ -51,6 +51,7 @@ declare -ar SKEMA_EXEMPT_SUITES=( \
     "Mp3StreamingClientPortAutoDetect" \
     "OpusPlayback" \
     "PcmPlaybackPulse" \
+    "MpegPlayback" \
 )
 
 #
