@@ -13,17 +13,17 @@ _This is a highly experimental, rapidly-changing project. APIs might change over
 
 The Tizonia OpenMAX IL project consists of a number of resources.
 
-### An OpenMAX IL 1.2 component framework/library ###
+### 'libtizonia' : An OpenMAX IL 1.2 component framework/library ###
 
 * Support for Base and Interop profiles.
 * TODO: Buffer sharing.
 
-### An OpenMAX IL 1.2 Core implementation ###
+### 'libtizcore' : An OpenMAX IL 1.2 Core implementation ###
 
 * Support for all the usual OMX IL 1.2 Core APIs, including *OMX_SetupTunnel*.
 * TODO: IL 1.2 Core extension APIs.
 
-### An OS abstraction/utility library ###
+### 'libtizplatform' : An OS abstraction/utility library ###
 
 * Wrappers and utilities for:
     * memory allocation,
@@ -41,8 +41,8 @@ The Tizonia OpenMAX IL project consists of a number of resources.
 ### An OpenMAX IL Resource Management (RM) framework ###
 
 * Including:
-  * a C client library,
-  * a D-Bus-based RM server written in C++.
+  * 'libtizrmproxy' : a C client library,
+  * 'tizrmd' : a D-Bus-based RM server written in C++.
 
 ### A number of OpenMAX IL plugins ###
 
