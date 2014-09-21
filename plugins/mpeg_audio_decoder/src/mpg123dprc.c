@@ -104,25 +104,25 @@ static OMX_ERRORTYPE transform_buffer (mpg123d_prc_t *ap_prc)
                               p_out->nAllocLen, &bytes_decoded);
   (void)mpg123_ret;
   p_out->nFilledLen = bytes_decoded;
+  p_in->nFilledLen = 0;
+
   tiz_filter_prc_release_header (ap_prc,
                                  ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
 
-  if (0 == p_in->nFilledLen)
+  if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
     {
-      TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty", p_in,
-                 p_in->nFlags);
-      if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
-        {
-          /* Inmediately propagate EOS flag to output */
-          TIZ_TRACE (handleOf (ap_prc),
-                     "Propagate EOS flag to output HEADER [%p]", p_out);
-          p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-          tiz_filter_prc_update_eos_flag (ap_prc, true);
-          p_in->nFlags = 0;
-          tiz_check_omx_err (tiz_filter_prc_release_header (
-              ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX));
-        }
+      /* Inmediately propagate EOS flag to output */
+      TIZ_TRACE (handleOf (ap_prc), "Propagate EOS flag to output HEADER [%p]",
+                 p_out);
+      p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+      tiz_filter_prc_update_eos_flag (ap_prc, true);
+      p_in->nFlags = 0;
     }
+
+  tiz_check_omx_err (tiz_filter_prc_release_header (
+      ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX));
+  tiz_check_omx_err (tiz_filter_prc_release_header (
+      ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX));
 
   return rc;
 }
@@ -202,7 +202,7 @@ static OMX_ERRORTYPE query_format (mpg123d_prc_t *ap_prc)
                          p_out->nAllocLen, &done);
             p_out->nFilledLen = done;
             TIZ_TRACE (handleOf (ap_prc),
-                       "releasing header [%p] with [%d] bytes", p_out,
+                       "releasing output HEADER [%p] with [%d] bytes", p_out,
                        p_out->nFilledLen);
             tiz_filter_prc_release_header (
                 ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
@@ -212,7 +212,8 @@ static OMX_ERRORTYPE query_format (mpg123d_prc_t *ap_prc)
 
   if (0 == p_in->nFilledLen)
     {
-      TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty", p_in,
+      TIZ_TRACE (handleOf (ap_prc),
+                 "releasing input HEADER [%p] nFlags [%d] is empty", p_in,
                  p_in->nFlags);
       release_input_header (ap_prc);
     }
@@ -328,19 +329,20 @@ static OMX_ERRORTYPE mpg123d_prc_buffers_ready (const void *ap_prc)
 
   while (tiz_filter_prc_headers_available (p_prc) && OMX_ErrorNone == rc)
     {
-      TIZ_TRACE (handleOf (p_prc), "found_format [%s] ",
-                 p_prc->found_format_ ? "YES" : "NO");
-      if (!p_prc->found_format_)
-        {
-          rc = query_format (p_prc);
-        }
-      else
-        {
-          rc = transform_buffer (p_prc);
-        }
+
+      rc = !p_prc->found_format_ ? query_format (p_prc)
+                                 : transform_buffer (p_prc);
     }
 
   return rc;
+}
+
+static OMX_ERRORTYPE mpg123d_proc_port_flush (const void *ap_prc,
+                                              OMX_U32 a_pid)
+{
+  mpg123d_prc_t *p_prc = (mpg123d_prc_t *)ap_prc;
+  reset_stream_parameters (p_prc);
+  return tiz_filter_prc_release_header (p_prc, a_pid);
 }
 
 static OMX_ERRORTYPE mpg123d_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
@@ -355,6 +357,7 @@ static OMX_ERRORTYPE mpg123d_prc_port_disable (const void *ap_prc,
 {
   mpg123d_prc_t *p_prc = (mpg123d_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = tiz_filter_prc_release_header (p_prc, a_pid);
+  reset_stream_parameters (p_prc);
   tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, true);
   return rc;
 }
@@ -415,6 +418,8 @@ void *mpg123d_prc_init (void *ap_tos, void *ap_hdl)
        tiz_srv_stop_and_return, mpg123d_prc_stop_and_return,
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_buffers_ready, mpg123d_prc_buffers_ready,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_port_flush, mpg123d_proc_port_flush,
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_port_enable, mpg123d_prc_port_enable,
        /* TIZ_CLASS_COMMENT: */
