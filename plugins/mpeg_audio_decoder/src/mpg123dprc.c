@@ -116,7 +116,8 @@ static OMX_ERRORTYPE transform_buffer (mpg123d_prc_t *ap_prc)
                  p_out);
       p_out->nFlags |= OMX_BUFFERFLAG_EOS;
       tiz_filter_prc_update_eos_flag (ap_prc, true);
-      p_in->nFlags = 0;
+      /* Clear the EOS flag */
+      p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
     }
 
   tiz_check_omx_err (tiz_filter_prc_release_header (
@@ -147,7 +148,7 @@ OMX_ERRORTYPE release_input_header (mpg123d_prc_t *ap_prc)
               p_out->nFlags |= OMX_BUFFERFLAG_EOS;
             }
           tiz_filter_prc_update_eos_flag (ap_prc, true);
-          p_in->nFlags = 0;
+          p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
         }
       tiz_filter_prc_release_header (ap_prc,
                                      ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);

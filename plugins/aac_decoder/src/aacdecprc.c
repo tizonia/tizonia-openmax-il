@@ -266,7 +266,7 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
                      "Propagate EOS flag to output HEADER [%p]", p_out);
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
           tiz_filter_prc_update_eos_flag (ap_prc, true);
-          p_in->nFlags = 0;
+          p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
           tiz_check_omx_err (tiz_filter_prc_release_header (
               ap_prc, ARATELIA_AAC_DECODER_OUTPUT_PORT_INDEX));
         }
@@ -341,7 +341,7 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
           /* Let's propagate EOS flag to output */
           TIZ_TRACE (handleOf (ap_prc), "Let's propagate EOS flag to output");
           tiz_filter_prc_update_eos_flag (ap_prc, true);
-          p_in->nFlags = 0;
+          p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
         }
       rc = tiz_filter_prc_release_header (
           ap_prc, ARATELIA_AAC_DECODER_INPUT_PORT_INDEX);

@@ -259,6 +259,8 @@ static inline bool input_data_available (flacd_prc_t *ap_prc)
             {
               ap_prc->eos_ = true;
               done = true;
+              /* Clear the EOS flag */
+              p_hdr->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
             }
 
           /* TODO: Replace assert with a check for when nFilledLen != 0 */

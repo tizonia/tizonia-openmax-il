@@ -275,7 +275,7 @@ transform_buffer (opusd_prc_t * ap_prc)
         {
           /* Propagate EOS flag to output */
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-          p_in->nFlags = 0;
+          p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
           tiz_check_omx_err
             (release_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX));
         }
@@ -324,7 +324,7 @@ transform_buffer (opusd_prc_t * ap_prc)
           {
             /* Propagate EOS flag to output */
             p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-            p_in->nFlags = 0;
+            p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
           }
 
         p_out->nFilledLen = out_len * ap_prc->channels_ * 2;
