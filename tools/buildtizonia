@@ -166,7 +166,7 @@ function install_deps {
         uuid-dev libsdl1.2-dev libvpx-dev libavcodec-dev \
         libavformat-dev libavdevice-dev libmp3lame-dev libfaad-dev \
         libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
-        libcurl3-dev libpulse-dev \
+        libcurl3-dev libpulse-dev libsndfile1-dev \
         curl check wget sqlite3 dbus-x11
     return $?
 }
