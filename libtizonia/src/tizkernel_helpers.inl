@@ -45,8 +45,7 @@
 /* NOTE: Start ignoring splint warnings in this section of code */
 /*@ignore@*/
 
-static void rm_callback_hdlr (void *ap_obj,
-                              tiz_event_pluggable_t *ap_event)
+static void rm_callback_hdlr (void *ap_obj, tiz_event_pluggable_t *ap_event)
 {
   if (NULL != ap_event)
     {
@@ -640,20 +639,35 @@ static OMX_ERRORTYPE flush_egress (void *ap_obj, const OMX_U32 a_pid,
               }
             else
               {
-                /* Automatically report EOS event on output ports, but only
-                 * once...  */
-                if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) != 0
-                    && OMX_DirOutput == pdir && false == p_obj->eos_)
+                if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) != 0)
                   {
-                    TIZ_NOTICE (p_hdl,
-                                "OMX_BUFFERFLAG_EOS on "
-                                "port [%d]...",
-                                pid);
 
-                    /* ... flag EOS ... */
-                    p_obj->eos_ = true;
-                    tiz_srv_issue_event ((OMX_PTR)ap_obj, OMX_EventBufferFlag,
-                                         pid, p_hdr->nFlags, NULL);
+                    /* Automatically report EOS event on output ports, but only
+                     * once...  */
+                    if ((OMX_DirOutput == pdir) && false == p_obj->eos_)
+                      {
+                        TIZ_NOTICE (p_hdl,
+                                    "OMX_BUFFERFLAG_EOS on "
+                                    "port [%d]...",
+                                    pid);
+
+                        /* ... flag EOS ... */
+                        p_obj->eos_ = true;
+                        tiz_srv_issue_event ((OMX_PTR)ap_obj,
+                                             OMX_EventBufferFlag, pid,
+                                             p_hdr->nFlags, NULL);
+                      }
+                    /* Automatically clear EOS flag on input ports so that the
+                       flag
+                       does not get propagated upstream (this is a safety
+                       measure,
+                       as the component's processor is "usually" responsible for
+                       clearing the EOS flag. */
+                    else if (OMX_DirInput == pdir)
+                      {
+                        /* Clear the EOS flag */
+                        p_hdr->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
+                      }
                   }
               }
 
@@ -740,9 +754,7 @@ static OMX_ERRORTYPE complete_port_enable (void *ap_obj, OMX_PTR ap_port,
      port enable sequence). */
   tiz_check_omx_err (tiz_api_SendCommand (tiz_get_prc (handleOf (p_obj)),
                                           handleOf (p_obj),
-                                          OMX_CommandPortEnable,
-                                          a_pid,
-                                          NULL));
+                                          OMX_CommandPortEnable, a_pid, NULL));
 
   /* Decrement the completion counter */
   assert (p_obj->cmd_completion_count_ > 0);
@@ -1065,8 +1077,8 @@ static OMX_ERRORTYPE init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 
   if (TIZRM_SUCCESS
       != (rmrc = tiz_rm_proxy_init (&p_obj->rm_, (OMX_STRING)(&comp_name),
-                                   (const OMX_UUIDTYPE *)&uuid, &primgmt,
-                                   &p_obj->rm_cbacks_, ap_hdl)))
+                                    (const OMX_UUIDTYPE *)&uuid, &primgmt,
+                                    &p_obj->rm_cbacks_, ap_hdl)))
     {
       TIZ_ERROR (ap_hdl,
                  "[OMX_ErrorInsufficientResources] : "
@@ -1095,7 +1107,8 @@ static OMX_ERRORTYPE deinit_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   if (TIZRM_SUCCESS != (rmrc = tiz_rm_proxy_destroy (&p_obj->rm_)))
     {
       /* TODO: Translate into a proper error code, especially OOM error  */
-      TIZ_ERROR (ap_hdl, "[OMX_ErrorUndefined] : RM proxy deinitialization failed...");
+      TIZ_ERROR (ap_hdl,
+                 "[OMX_ErrorUndefined] : RM proxy deinitialization failed...");
       return OMX_ErrorUndefined;
     }
 
