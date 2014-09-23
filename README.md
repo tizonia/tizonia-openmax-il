@@ -41,13 +41,13 @@ The Tizonia OpenMAX IL project consists of a number of resources.
 ### An OpenMAX IL Resource Management (RM) framework ###
 
 * Including:
-  * 'libtizrmproxy' : a C client library,
-  * 'tizrmd' : a D-Bus-based RM server written in C++.
+  * 'tizrmd' : a D-Bus-based RM server.
+  * 'libtizrmproxy' : a RM client library.
 
 ### A number of OpenMAX IL plugins ###
 
 * Including:
-  * mp3 decoder (based on libmad),
+  * two mp3 decoders (one based on libmad and another based libmpg123),
   * mp3 encoder (based on LAME),
   * AAC decoder (based on libfaad),
   * two OPUS decoders (based on libopus and libopusfile)
@@ -117,6 +117,55 @@ From the'tplay' folder (again replace *$INSTALL_DIR* with your favorite location
     $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
     $ make
     $ make install
+
+```
+
+#### Known issues ####
+
+'tplay' makes heavy use the the the Boost
+[Meta State](http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html)
+library by Christophe Henry (which in turn is based on Boost MPL). 'tplay' uses
+Meta State to generate a number of state machines that control the tunneled
+OpenMAX IL components for the various playback uses cases. The state machines
+are quite large and'Meta State is well known for not being easy on the
+compilers. So building 'tplay' requires a bit of patience and a whole bunch of
+RAM (2.5+ GB).
+
+In case you find that GCC crashes like this, try issueing 'make' or 'make
+install' several times until all the objects get built (it will complete
+eventually, if you have a sufficient amount RAM).
+
+At some point, we'll look into optizmising the compilation of 'tplay' so that
+it requires less RAM and/or time.
+
+```bash
+
+Making all in src
+  CXX      tplay-tizplayapp.o
+  CXX      tplay-main.o
+  CXX      tplay-tizomxutil.o
+  CXX      tplay-tizprogramopts.o
+  CXX      tplay-tizgraphutil.o
+  CXX      tplay-tizgraphcback.o
+  CXX      tplay-tizprobe.o
+  CXX      tplay-tizdaemon.o
+  CXX      tplay-tizplaylist.o
+  CXX      tplay-tizgraphfactory.o
+  CXX      tplay-tizgraphmgrcmd.o
+  CXX      tplay-tizgraphmgrops.o
+  CXX      tplay-tizgraphmgrfsm.o
+  CXX      tplay-tizgraphmgr.o
+  CXX      tplay-tizdecgraphmgr.o
+g++: internal compiler error: Killed (program cc1plus)
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <file:///usr/share/doc/gcc-4.8/README.Bugs> for instructions.
+make[2]: *** [tplay-tizplayapp.o] Error 4
+make[2]: *** Waiting for unfinished jobs....
+g++: internal compiler error: Killed (program cc1plus)
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <file:///usr/share/doc/gcc-4.8/README.Bugs> for instructions.
 
 ```
 
