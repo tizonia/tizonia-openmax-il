@@ -48,6 +48,9 @@ struct sndfiled_prc
   SNDFILE *p_sf_;
   SF_INFO sf_info_;
   SF_VIRTUAL_IO sf_io_;
+  bool decoder_inited_;
+  tiz_buffer_t *p_store_;
+  OMX_U32 store_offset_;
 };
 
 typedef struct sndfiled_prc_class sndfiled_prc_class_t;
