@@ -122,21 +122,22 @@ From the'tplay' folder (again replace *$INSTALL_DIR* with your favorite location
 
 #### Known issues ####
 
-'tplay' makes heavy use the the the Boost
-[Meta State](http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html)
-library by Christophe Henry (which in turn is based on Boost MPL). 'tplay' uses
-Meta State to generate a number of state machines that control the tunneled
+`tplay` makes heavy use the the the
+[Boost Meta State Machine (MSM)](http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html)
+library by Christophe Henry (MSM is in turn based on
+[Boost MPL](http://www.boost.org/doc/libs/1_56_0/libs/mpl/doc/index.html)).
+
+MSM is used to generate a number of state machines that control the tunneled
 OpenMAX IL components for the various playback uses cases. The state machines
-are quite large and'Meta State is well known for not being easy on the
-compilers. So building 'tplay' requires a bit of patience and a whole bunch of
-RAM (2.5+ GB).
+are quite large and MSM is known for not being easy on the compilers. So
+building `tplay` requires a bit of patience and a whole lot of RAM (2.5+ GB).
 
-In case you find that GCC crashes like this, try issueing 'make' or 'make
-install' several times until all the objects get built (it will complete
-eventually, if you have a sufficient amount RAM).
+You may see GCC crashing like below; simply keep running `make -j1` or `make
+-j1 install` until all of tplay's objects get built (they all will eventually,
+if you have the sufficient amount RAM).
 
-At some point, we'll look into optizmising the compilation of 'tplay' so that
-it requires less RAM and/or time.
+(At some point, I'll look into optimising `tplay` so that building it requires
+less RAM and/or time).
 
 ```bash
 
