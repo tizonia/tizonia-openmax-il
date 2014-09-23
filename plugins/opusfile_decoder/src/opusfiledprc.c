@@ -312,10 +312,7 @@ static void *opusfiled_prc_dtor (void *ap_obj)
 static OMX_ERRORTYPE opusfiled_prc_allocate_resources (void *ap_obj,
                                                        OMX_U32 a_pid)
 {
-  opusfiled_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
-  tiz_check_omx_err (allocate_temp_data_store (p_prc));
-  return OMX_ErrorNone;
+  return allocate_temp_data_store (ap_obj);
 }
 
 static OMX_ERRORTYPE opusfiled_prc_deallocate_resources (void *ap_obj)
