@@ -181,10 +181,9 @@ static OMX_ERRORTYPE init_opus_decoder (opusfiled_prc_t *ap_prc)
 
       if (0 != op_error)
         {
-          TIZ_ERROR (
-              handleOf (ap_prc),
-              "[%s] : Unable to open the opus file handle (op_error = %d).",
-              tiz_err_to_str (rc), op_error);
+          TIZ_ERROR (handleOf (ap_prc),
+                     "Unable to open the opus file handle (op_error = %d).",
+                     op_error);
           ap_prc->store_offset_ = 0;
         }
       else
