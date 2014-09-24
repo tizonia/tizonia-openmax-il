@@ -87,7 +87,7 @@ OMX_ERRORTYPE release_input_header (sndfiled_prc_t *ap_prc)
     {
       if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
         {
-          /* Let's propagate EOS flag to output */
+          /* Propagate EOS flag to output */
           TIZ_TRACE (handleOf (ap_prc), "Propagating EOS flag to output");
           OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
               ap_prc, ARATELIA_PCM_DECODER_OUTPUT_PORT_INDEX);
@@ -165,7 +165,7 @@ static sf_count_t sf_io_read (void *ap_ptr, sf_count_t count, void *user_data)
   if (tiz_buffer_bytes_available (p_prc->p_store_) > 0)
     {
       bytes_read = MIN (count, tiz_buffer_bytes_available (p_prc->p_store_)
-                                  - p_prc->store_offset_);
+                               - p_prc->store_offset_);
       memcpy (ap_ptr,
               tiz_buffer_get_data (p_prc->p_store_) + p_prc->store_offset_,
               bytes_read);
@@ -201,17 +201,31 @@ static sf_count_t sf_io_tell (void *user_data)
 static OMX_ERRORTYPE open_sf (sndfiled_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_prc);
-  if (!ap_prc->p_sf_)
+
+  if (store_data (ap_prc))
+    {
+      assert (NULL != ap_prc);
+      if (!ap_prc->p_sf_)
     {
       ap_prc->p_sf_ = sf_open_virtual (&(ap_prc->sf_io_), SFM_READ,
                                        &(ap_prc->sf_info_), ap_prc);
       if (!ap_prc->p_sf_)
         {
-          rc = OMX_ErrorInsufficientResources;
+          TIZ_ERROR (handleOf (ap_prc),
+                     "Unable to open the sf handle");
+          ap_prc->store_offset_ = 0;
         }
+      else
       {
         SF_INFO *p = &(ap_prc->sf_info_);
+        TIZ_TRACE (handleOf (ap_prc),
+                   "decoder_inited = TRUE - store_offset [%d]",
+                   ap_prc->store_offset_);
+
+        ap_prc->decoder_inited_ = true;
+        tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_);
+        ap_prc->store_offset_ = 0;
+
         TIZ_TRACE (handleOf (ap_prc), "frames [%d]", p->frames);
         TIZ_TRACE (handleOf (ap_prc), "samplerate [%d]", p->samplerate);
         TIZ_TRACE (handleOf (ap_prc), "channels [%d]", p->channels);
@@ -220,6 +234,12 @@ static OMX_ERRORTYPE open_sf (sndfiled_prc_t *ap_prc)
         TIZ_TRACE (handleOf (ap_prc), "seekable [%d]", p->seekable);
       }
     }
+    }
+  else
+    {
+      rc = OMX_ErrorInsufficientResources;
+    }
+
   return rc;
 }
 
@@ -281,6 +301,9 @@ static OMX_ERRORTYPE transform_buffer (sndfiled_prc_t *ap_prc)
 static void reset_stream_parameters (sndfiled_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
+  ap_prc->decoder_inited_ = false;
+  tiz_buffer_clear (ap_prc->p_store_);
+  ap_prc->store_offset_ = 0;
   tiz_filter_prc_update_eos_flag (ap_prc, false);
 }
 
@@ -300,9 +323,7 @@ static void *sndfiled_prc_ctor (void *ap_obj, va_list *app)
   p_prc->sf_io_.read = sf_io_read;
   p_prc->sf_io_.write = sf_io_write;
   p_prc->sf_io_.tell = sf_io_tell;
-  p_prc->decoder_inited_ = false;
-  p_prc->p_store_ = NULL;
-  p_prc->store_offset_ = 0;
+  reset_stream_parameters (p_prc);
   return p_prc;
 }
 
@@ -326,6 +347,7 @@ static OMX_ERRORTYPE sndfiled_prc_deallocate_resources (void *ap_obj)
 {
   sndfiled_prc_t *p_prc = ap_obj;
   deallocate_temp_data_store (p_prc);
+  assert (NULL != p_prc);
   sf_close (p_prc->p_sf_);
   p_prc->p_sf_ = NULL;
   return OMX_ErrorNone;
@@ -334,9 +356,7 @@ static OMX_ERRORTYPE sndfiled_prc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE sndfiled_prc_prepare_to_transfer (void *ap_obj,
                                                        OMX_U32 a_pid)
 {
-  sndfiled_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
-  reset_stream_parameters (p_prc);
+  reset_stream_parameters (ap_obj);
   return OMX_ErrorNone;
 }
 
@@ -362,11 +382,21 @@ static OMX_ERRORTYPE sndfiled_prc_buffers_ready (const void *ap_prc)
 
   assert (NULL != ap_prc);
 
-  TIZ_TRACE (handleOf (p_prc), "eos [%s] ",
-             tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO");
-  while (tiz_filter_prc_headers_available (p_prc) && OMX_ErrorNone == rc)
+  if (!p_prc->decoder_inited_)
     {
-      rc = p_prc->p_sf_ == NULL ? open_sf (p_prc) : transform_buffer (p_prc);
+      rc = open_sf (p_prc);
+    }
+
+  if (p_prc->decoder_inited_ && OMX_ErrorNone == rc)
+    {
+      while (OMX_ErrorNone == rc)
+        {
+          rc = transform_buffer (p_prc);
+        }
+      if (OMX_ErrorNotReady == rc)
+        {
+          rc = OMX_ErrorNone;
+        }
     }
 
   return rc;
