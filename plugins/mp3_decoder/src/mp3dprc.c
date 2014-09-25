@@ -179,6 +179,12 @@ static void print_frame_info (const mp3d_prc_t *ap_prc,
         break;
     }
 
+  TIZ_PRINTF_DBG_GRN (
+             "%lu kb/s audio MPEG layer %s stream %s CRC, "
+             "%s with %s emphasis at %d Hz sample rate\n",
+             Header->bitrate, Layer,
+             Header->flags & MAD_FLAG_PROTECTION ? "with" : "without", Mode,
+             Emphasis, Header->samplerate);
   TIZ_TRACE (handleOf (ap_prc),
              "%lu kb/s audio MPEG layer %s stream %s CRC, "
              "%s with %s emphasis at %d Hz sample rate\n",
@@ -318,10 +324,18 @@ static int synthesize_samples (const void *ap_obj, int next_sample)
       p_prc->p_outhdr_->nFilledLen += 4;
 
       if (p_prc->frame_.header.samplerate != p_prc->pcmmode_.nSamplingRate
-          || MAD_NCHANNELS (&p_prc->frame_.header) != p_prc->pcmmode_.nChannels)
+          || p_prc->pcmmode_.nChannels < 2)
         {
-          (void)update_pcm_mode (p_prc, p_prc->frame_.header.samplerate,
-                                 MAD_NCHANNELS (&p_prc->frame_.header));
+          /* We're outputting two channels, also for mono streams.
+           */
+          p_prc->pcmmode_.nChannels = 2;
+          TIZ_PRINTF_DBG_GRN ("samplerate [%d] NCHANNELS [%d] channels [%d].",
+                              p_prc->frame_.header.samplerate,
+                              MAD_NCHANNELS (&p_prc->frame_.header),
+                              p_prc->synth_.pcm.channels);
+          print_frame_info (p_prc, &(p_prc->frame_.header));
+          (void)update_pcm_mode (p_prc, p_prc->synth_.pcm.samplerate,
+                                 p_prc->pcmmode_.nChannels);
         }
 
       /* release the output buffer if it is full. */
@@ -329,9 +343,6 @@ static int synthesize_samples (const void *ap_obj, int next_sample)
         {
           p_output = p_prc->p_outhdr_->pBuffer;
           p_prc->p_outhdr_->nFilledLen = p_prc->p_outhdr_->nAllocLen;
-          TIZ_PRINTF_DBG_GRN ("Releasing buffer [%p] with size [%u].",
-                              p_prc->p_outhdr_,
-                              (unsigned int)p_prc->p_outhdr_->nFilledLen);
           (void)release_headers (p_prc, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
           buffer_full = true;
         }
@@ -453,8 +464,6 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
                   TIZ_TRACE (handleOf (p_obj),
                              "recoverable frame level error (%s)",
                              mad_stream_errorstr (&p_obj->stream_));
-                  TIZ_PRINTF_DBG_RED ("recoverable frame level error [%s].",
-                                      mad_stream_errorstr (&p_obj->stream_));
                 }
               continue;
             }
@@ -467,9 +476,6 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
                       TIZ_TRACE (handleOf (p_obj),
                                  "p_obj->stream_.error==MAD_ERROR_BUFLEN "
                                  "p_obj->p_inhdr_=[NULL]");
-                      TIZ_PRINTF_DBG_RED (
-                          "[%s].", mad_stream_errorstr (&p_obj->stream_));
-
                       break;
                     }
                   else
@@ -657,9 +663,6 @@ static OMX_ERRORTYPE mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
              "sample rate renderer = [%d] channels renderer = [%d]",
              p_prc->pcmmode_.nSamplingRate, p_prc->pcmmode_.nChannels);
 
-  /*   tiz_check_omx_err (update_pcm_mode (p_prc, mp3type.nSampleRate,
-   * mp3type.nChannels)); */
-
   reset_stream_parameters (ap_obj);
 
   return OMX_ErrorNone;
@@ -733,9 +736,6 @@ static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
                  p_obj->p_outhdr_);
       p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
 
-      TIZ_PRINTF_DBG_GRN ("Releasing buffer [%p] with size [%u].",
-                          p_obj->p_outhdr_,
-                          (unsigned int)p_obj->p_outhdr_->nFilledLen);
       tiz_check_omx_err (
           release_headers (p_obj, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX));
       p_obj->eos_ = false;
