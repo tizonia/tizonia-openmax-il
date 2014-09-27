@@ -184,15 +184,7 @@ static OMX_ERRORTYPE
 fr_prc_port_disable (const void *ap_prc, OMX_U32 a_pid)
 {
   fr_prc_t *p_prc = (fr_prc_t *)ap_prc;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  if (OMX_ALL == a_pid)
-    {
-      rc = tiz_filter_prc_release_all_headers (p_prc);
-    }
-  else
-    {
-      rc = tiz_filter_prc_release_header (p_prc, a_pid);
-    }
+  OMX_ERRORTYPE rc = tiz_filter_prc_release_header (p_prc, a_pid);
   tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, true);
   return rc;
 }
