@@ -32,6 +32,7 @@
 #endif
 
 #include <assert.h>
+#include <errno.h>
 #include <limits.h>
 #include <string.h>
 
@@ -87,19 +88,35 @@ OMX_ERRORTYPE release_input_header (sndfiled_prc_t *ap_prc)
     {
       if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
         {
-          /* Propagate EOS flag to output */
-          TIZ_TRACE (handleOf (ap_prc), "Propagating EOS flag to output");
-          OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
-              ap_prc, ARATELIA_PCM_DECODER_OUTPUT_PORT_INDEX);
-          if (p_out)
-            {
-              p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-            }
+          TIZ_TRACE (handleOf (ap_prc), "EOS flag received");
+          /* Remember the EOS flag */
           tiz_filter_prc_update_eos_flag (ap_prc, true);
           p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
         }
+      TIZ_TRACE (handleOf (ap_prc), "Releasing IN HEADER [%p]", p_in);
       tiz_filter_prc_release_header (ap_prc,
                                      ARATELIA_PCM_DECODER_INPUT_PORT_INDEX);
+    }
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE release_output_header (sndfiled_prc_t *ap_prc)
+{
+  OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
+      ap_prc, ARATELIA_PCM_DECODER_OUTPUT_PORT_INDEX);
+
+  assert (NULL != ap_prc);
+
+  if (p_out)
+    {
+      if (tiz_filter_prc_is_eos (ap_prc))
+        {
+          TIZ_TRACE (handleOf (ap_prc), "Propagating EOS flag");
+          p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+        }
+      TIZ_TRACE (handleOf (ap_prc), "Releasing OUT HEADER [%p]", p_out);
+      tiz_filter_prc_release_header (ap_prc,
+                                     ARATELIA_PCM_DECODER_OUTPUT_PORT_INDEX);
     }
   return OMX_ErrorNone;
 }
@@ -107,9 +124,10 @@ OMX_ERRORTYPE release_input_header (sndfiled_prc_t *ap_prc)
 static bool store_data (sndfiled_prc_t *ap_prc)
 {
   bool rc = true;
+  assert (NULL != ap_prc);
 
   if ((tiz_buffer_bytes_available (ap_prc->p_store_) - ap_prc->store_offset_)
-      < ARATELIA_PCM_DECODER_PORT_MIN_INPUT_BUF_SIZE)
+      < ARATELIA_PCM_DECODER_PORT_MIN_INPUT_BUF_SIZE * 2)
     {
       OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
           ap_prc, ARATELIA_PCM_DECODER_INPUT_PORT_INDEX);
@@ -118,8 +136,6 @@ static bool store_data (sndfiled_prc_t *ap_prc)
 
       if (p_in)
         {
-          TIZ_TRACE (handleOf (ap_prc), "store available [%d]",
-                     tiz_buffer_bytes_available (ap_prc->p_store_));
           if (tiz_buffer_store_data (ap_prc->p_store_,
                                      p_in->pBuffer + p_in->nOffset,
                                      p_in->nFilledLen) < p_in->nFilledLen)
@@ -129,7 +145,12 @@ static bool store_data (sndfiled_prc_t *ap_prc)
                          tiz_err_to_str (rc));
               rc = false;
             }
-          release_input_header (ap_prc);
+          else
+            {
+              TIZ_TRACE (handleOf (ap_prc), "store bytes [%d]",
+                         tiz_buffer_bytes_available (ap_prc->p_store_));
+              release_input_header (ap_prc);
+            }
         }
     }
   return rc;
@@ -137,14 +158,14 @@ static bool store_data (sndfiled_prc_t *ap_prc)
 
 static sf_count_t sf_io_get_filelen (void *user_data)
 {
-  TIZ_TRACE (handleOf (user_data), "");
-  return -1;
+  /* We don't know the size of the stream */
+  return SF_COUNT_MAX;
 }
 
 static sf_count_t sf_io_seek (sf_count_t offset, int whence, void *user_data)
 {
-  TIZ_TRACE (handleOf (user_data), "");
-  return -1;
+  /* The stream is not seekable */
+  return EBADF;
 }
 
 static sf_count_t sf_io_read (void *ap_ptr, sf_count_t count, void *user_data)
@@ -155,85 +176,91 @@ static sf_count_t sf_io_read (void *ap_ptr, sf_count_t count, void *user_data)
   assert (NULL != ap_ptr);
   assert (NULL != p_prc);
 
-  (void)store_data (p_prc);
-
-  TIZ_TRACE (
-      handleOf (p_prc), "decoder_inited_ [%s] store bytes [%d] offset [%d]",
-      (p_prc->decoder_inited_ ? "YES" : "NO"),
-      tiz_buffer_bytes_available (p_prc->p_store_), p_prc->store_offset_);
-
-  if (tiz_buffer_bytes_available (p_prc->p_store_) > 0)
+  if (!tiz_filter_prc_is_eos (p_prc))
     {
-      bytes_read = MIN (count, tiz_buffer_bytes_available (p_prc->p_store_)
-                               - p_prc->store_offset_);
-      memcpy (ap_ptr,
-              tiz_buffer_get_data (p_prc->p_store_) + p_prc->store_offset_,
-              bytes_read);
-      if (p_prc->decoder_inited_)
+      (void)store_data (p_prc);
+
+      TIZ_TRACE (handleOf (p_prc),
+                 "count [%d] decoder_inited_ [%s] store bytes [%d] offset [%d]",
+                 count, (p_prc->decoder_inited_ ? "YES" : "NO"),
+                 tiz_buffer_bytes_available (p_prc->p_store_),
+                 p_prc->store_offset_);
+
+      if (tiz_buffer_bytes_available (p_prc->p_store_) > 0)
         {
-          tiz_buffer_advance (p_prc->p_store_, bytes_read);
+          bytes_read = MIN (count, tiz_buffer_bytes_available (p_prc->p_store_)
+                                   - p_prc->store_offset_);
+          memcpy (ap_ptr,
+                  tiz_buffer_get_data (p_prc->p_store_) + p_prc->store_offset_,
+                  bytes_read);
+          if (p_prc->decoder_inited_)
+            {
+              tiz_buffer_advance (p_prc->p_store_,
+                                  bytes_read + p_prc->store_offset_);
+              p_prc->store_offset_ = 0;
+            }
+          else
+            {
+              p_prc->store_offset_ += bytes_read;
+            }
         }
       else
         {
-          p_prc->store_offset_ += bytes_read;
+          TIZ_TRACE (handleOf (p_prc), "Run out of compressed data");
         }
     }
-  else
-    {
-      TIZ_TRACE (handleOf (p_prc), "Run out of compressed data");
-    }
+  TIZ_TRACE (handleOf (p_prc), "Satisfied callback ? [%s]",
+             (bytes_read == count ? "YES" : "NO"));
   return bytes_read;
 }
 
 static sf_count_t sf_io_write (const void *ptr, sf_count_t count,
                                void *user_data)
 {
-  TIZ_TRACE (handleOf (user_data), "");
+  /* Nothing to write */
   return -1;
 }
 
 static sf_count_t sf_io_tell (void *user_data)
 {
-  TIZ_TRACE (handleOf (user_data), "");
-  return -1;
+  sndfiled_prc_t *p_prc = (sndfiled_prc_t *)user_data;
+  assert (NULL != p_prc);
+  return p_prc->store_offset_;
 }
 
 static OMX_ERRORTYPE open_sf (sndfiled_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_prc);
 
-  if (store_data (ap_prc))
+  if (store_data (ap_prc) && tiz_buffer_bytes_available (ap_prc->p_store_) > 0)
     {
       assert (NULL != ap_prc);
       if (!ap_prc->p_sf_)
-    {
-      ap_prc->p_sf_ = sf_open_virtual (&(ap_prc->sf_io_), SFM_READ,
-                                       &(ap_prc->sf_info_), ap_prc);
-      if (!ap_prc->p_sf_)
         {
-          TIZ_ERROR (handleOf (ap_prc),
-                     "Unable to open the sf handle");
-          ap_prc->store_offset_ = 0;
+          ap_prc->p_sf_ = sf_open_virtual (&(ap_prc->sf_io_), SFM_READ,
+                                           &(ap_prc->sf_info_), ap_prc);
+          if (!ap_prc->p_sf_)
+            {
+              TIZ_ERROR (handleOf (ap_prc),
+                         "Unable to open the sf handle : [%s]",
+                         sf_strerror (NULL));
+              ap_prc->store_offset_ = 0;
+            }
+          else
+            {
+              SF_INFO *p = &(ap_prc->sf_info_);
+              ap_prc->decoder_inited_ = true;
+              tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_);
+
+              TIZ_TRACE (handleOf (ap_prc), "frames [%d]", p->frames);
+              TIZ_TRACE (handleOf (ap_prc), "samplerate [%d]", p->samplerate);
+              TIZ_TRACE (handleOf (ap_prc), "channels [%d]", p->channels);
+              TIZ_TRACE (handleOf (ap_prc), "format [%d]", p->format);
+              TIZ_TRACE (handleOf (ap_prc), "sections [%d]", p->sections);
+              TIZ_TRACE (handleOf (ap_prc), "seekable [%d]", p->seekable);
+            }
         }
-      else
-      {
-        SF_INFO *p = &(ap_prc->sf_info_);
-        TIZ_TRACE (handleOf (ap_prc),
-                   "decoder_inited = TRUE - store_offset [%d]",
-                   ap_prc->store_offset_);
-
-        ap_prc->decoder_inited_ = true;
-        tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_);
-        ap_prc->store_offset_ = 0;
-
-        TIZ_TRACE (handleOf (ap_prc), "frames [%d]", p->frames);
-        TIZ_TRACE (handleOf (ap_prc), "samplerate [%d]", p->samplerate);
-        TIZ_TRACE (handleOf (ap_prc), "channels [%d]", p->channels);
-        TIZ_TRACE (handleOf (ap_prc), "format [%d]", p->format);
-        TIZ_TRACE (handleOf (ap_prc), "sections [%d]", p->sections);
-        TIZ_TRACE (handleOf (ap_prc), "seekable [%d]", p->seekable);
-      }
-    }
     }
   else
     {
@@ -266,10 +293,7 @@ static OMX_ERRORTYPE transform_buffer (sndfiled_prc_t *ap_prc)
       if (tiz_buffer_bytes_available (ap_prc->p_store_) == 0 && NULL != p_out
           && tiz_filter_prc_is_eos (ap_prc))
         {
-          p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-          tiz_filter_prc_release_header (
-              ap_prc, ARATELIA_PCM_DECODER_OUTPUT_PORT_INDEX);
-          tiz_filter_prc_update_eos_flag (ap_prc, false);
+          (void)release_output_header (ap_prc);
         }
       return OMX_ErrorNotReady;
     }
@@ -278,20 +302,41 @@ static OMX_ERRORTYPE transform_buffer (sndfiled_prc_t *ap_prc)
   assert (NULL != ap_prc->p_sf_);
 
   {
-    size_t frame_size = sizeof(int) * ap_prc->sf_info_.channels;
+    size_t frame_size = sizeof(short int) * ap_prc->sf_info_.channels;
     sf_count_t read_frames = p_out->nAllocLen / frame_size;
-    sf_count_t num_frames = sf_readf_int (
-        ap_prc->p_sf_, (int *)(p_out->pBuffer + p_out->nOffset), read_frames);
+    sf_count_t num_frames = sf_readf_short (
+        ap_prc->p_sf_, (short int *)(p_out->pBuffer + p_out->nOffset),
+        read_frames);
+
+    TIZ_TRACE (
+        handleOf (ap_prc),
+        "store bytes [%d] num_frames [%d] read_frames [%d] frame_size [%d]",
+        tiz_buffer_bytes_available (ap_prc->p_store_), num_frames, read_frames,
+        frame_size);
+    TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFilledLen [%d] nAllocLen [%d]",
+               p_out, p_out->nFilledLen, p_out->nAllocLen);
 
     if (num_frames > 0)
       {
         p_out->nFilledLen = num_frames * frame_size;
-        (void)tiz_filter_prc_release_header (
-            ap_prc, ARATELIA_PCM_DECODER_OUTPUT_PORT_INDEX);
+        TIZ_TRACE (handleOf (ap_prc),
+                   "Releasing OUT HEADER [%p] nFilledLen [%d] nAllocLen [%d]",
+                   p_out, p_out->nFilledLen, p_out->nAllocLen);
+        (void)release_output_header (ap_prc);
       }
     else
       {
-        /* TODO */
+        TIZ_TRACE (handleOf (ap_prc),
+                   "num_frames [%d] : [%s] EOS [%s] store [%d]", num_frames,
+                   sf_strerror (ap_prc->p_sf_),
+                   tiz_filter_prc_is_eos (ap_prc) ? "YES" : "NO",
+                   tiz_buffer_bytes_available (ap_prc->p_store_));
+        /* Time to propagate the EOS flag to the next component */
+        if (tiz_filter_prc_is_eos (ap_prc))
+          {
+            (void)release_output_header (ap_prc);
+          }
+        return OMX_ErrorNotReady;
       }
   }
 
@@ -406,25 +451,20 @@ static OMX_ERRORTYPE sndfiled_prc_port_enable (const void *ap_prc,
                                                OMX_U32 a_pid)
 {
   sndfiled_prc_t *p_prc = (sndfiled_prc_t *)ap_prc;
-  tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, false);
-  return OMX_ErrorNone;
+  OMX_ERRORTYPE rc = sndfiled_prc_allocate_resources (p_prc, OMX_ALL);
+  if (OMX_ErrorNone == rc)
+    {
+      rc = sndfiled_prc_prepare_to_transfer (p_prc, OMX_ALL);
+    }
+  return rc;
 }
 
 static OMX_ERRORTYPE sndfiled_prc_port_disable (const void *ap_prc,
                                                 OMX_U32 a_pid)
 {
   sndfiled_prc_t *p_prc = (sndfiled_prc_t *)ap_prc;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  if (OMX_ALL == a_pid)
-    {
-      rc = tiz_filter_prc_release_all_headers (p_prc);
-    }
-  else
-    {
-      rc = tiz_filter_prc_release_header (p_prc, a_pid);
-    }
-  tiz_filter_prc_update_port_disabled_flag (p_prc, a_pid, true);
-  return rc;
+  (void)sndfiled_prc_deallocate_resources (p_prc);
+  return tiz_filter_prc_release_header (p_prc, a_pid);
 }
 
 /*
