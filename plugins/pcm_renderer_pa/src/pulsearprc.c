@@ -1082,8 +1082,9 @@ static OMX_ERRORTYPE pulsear_prc_port_disable (const void *ap_prc,
             }
         }
       pa_threaded_mainloop_unlock (p_prc->p_pa_loop_);
-      tiz_check_omx_err (pulsear_prc_deallocate_resources (p_prc));
     }
+
+  tiz_check_omx_err (pulsear_prc_deallocate_resources (p_prc));
 
   /* Release any buffers held  */
   return release_header ((pulsear_prc_t *)p_prc);
