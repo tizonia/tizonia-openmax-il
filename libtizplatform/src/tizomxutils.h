@@ -56,6 +56,9 @@ extern "C" {
 /*@observer@ */ OMX_STRING tiz_dir_to_str (OMX_DIRTYPE a_dir);
 /*@observer@ */ OMX_STRING tiz_idx_to_str (OMX_INDEXTYPE a_idx);
 
+void tiz_util_reset_eos_flag (OMX_BUFFERHEADERTYPE *p_hdr);
+void tiz_util_set_eos_flag (OMX_BUFFERHEADERTYPE *p_hdr);
+
 #ifdef __cplusplus
 }
 #endif
