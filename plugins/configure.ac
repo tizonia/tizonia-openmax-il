@@ -62,6 +62,7 @@ AC_CONFIG_SUBDIRS([aac_decoder
                    ogg_demuxer
                    opus_decoder
                    opusfile_decoder
+                   pcm_decoder
                    pcm_renderer_alsa
                    pcm_renderer_pa
                    vorbis_decoder
