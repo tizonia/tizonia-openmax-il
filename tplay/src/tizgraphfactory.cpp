@@ -43,6 +43,7 @@
 #include "tizvorbisgraph.hpp"
 #include "tizflacgraph.hpp"
 #include "tizoggflacgraph.hpp"
+#include "tizpcmgraph.hpp"
 #include "tizgraphfactory.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -98,6 +99,11 @@ tizgraph_ptr_t graph::factory::create_graph (const std::string &uri)
   {
     return boost::make_shared< tiz::graph::vorbisdecoder >();
   }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio
+           && p->get_audio_coding_type () == OMX_AUDIO_CodingPCM)
+  {
+    return boost::make_shared< tiz::graph::pcmdecoder >();
+  }
   return null_ptr;
 }
 
@@ -139,6 +145,11 @@ std::string graph::factory::coding_type (const std::string &uri)
            && p->get_audio_coding_type () == OMX_AUDIO_CodingVORBIS)
   {
     return std::string ("vorbis");
+  }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio
+           && p->get_audio_coding_type () == OMX_AUDIO_CodingPCM)
+  {
+    return std::string ("pcm");
   }
   return std::string ();
 }

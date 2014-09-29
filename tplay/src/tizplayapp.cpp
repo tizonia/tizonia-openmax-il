@@ -467,6 +467,9 @@ tiz::playapp::decode_local ()
   extension_list.insert (".oga");
   extension_list.insert (".flac");
   extension_list.insert (".aac");
+  extension_list.insert (".wav");
+  extension_list.insert (".aiff");
+  extension_list.insert (".aif");
 
   // Create a playlist
   BOOST_FOREACH (std::string uri, uri_list)

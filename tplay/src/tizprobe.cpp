@@ -49,13 +49,57 @@ extern "C" {
 #include <libavdevice/avdevice.h>
 }
 
+#include <tizplatform.h>
+
 #include "tizprobe.hpp"
+
+#ifdef TIZ_LOG_CATEGORY_NAME
+#undef TIZ_LOG_CATEGORY_NAME
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.probe"
+#endif
 
 static AVDictionary *format_opts;
 static AVInputFormat *iformat = NULL;
 
 namespace  // unnamed
 {
+  bool is_pcm_codec (const CodecID a_codec_id)
+  {
+    bool rc = false;
+    // NOTE@: AV_CODEC_ID_PCM_S8_PLANAR is the last of the PCM codecs in
+    // avcodec.h (as in Ubuntu 14.04).
+    if (a_codec_id >= AV_CODEC_ID_FIRST_AUDIO
+        && a_codec_id <= AV_CODEC_ID_PCM_S8_PLANAR)
+      {
+        rc = true;
+      }
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "outcome ? %s", (rc ? "PCM" : "OTHER"));
+    return rc;
+  }
+
+//   OMX_ENDIANTYPE get_pcm_codec_endianess (const CodecID a_codec_id)
+//   {
+//     OMX_ENDIANTYPE endian;
+//     switch(a_codec_id)
+//       {
+//       case AV_CODEC_ID_PCM_S16LE:
+//       case AV_CODEC_ID_PCM_U16LE:
+//       case AV_CODEC_ID_PCM_S32LE:
+//       case AV_CODEC_ID_PCM_U32LE:
+//       case AV_CODEC_ID_PCM_S24LE:
+//       case AV_CODEC_ID_PCM_U24LE:
+//       case AV_CODEC_ID_PCM_F32LE:
+//       case AV_CODEC_ID_PCM_F64LE:
+//       case AV_CODEC_ID_PCM_S16LE_PLANAR:
+//         endian = OMX_EndianLittle;
+//         break;
+//       default:
+//         endian = OMX_EndianBig;
+//         break;
+//       };
+//     return endian;
+//   }
+
   void dump_stream_info_to_string (AVDictionary *m, std::string &stream_title,
                                    std::string &stream_genre)
   {
@@ -319,6 +363,7 @@ int tiz::probe::probe_file ()
       }
 
       codec_id = cc->codec_id;
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "ext [%s] codec_id [%0x]", extension.c_str (), codec_id);
 
       if (codec_id == CODEC_ID_MP3)
       {
@@ -336,21 +381,52 @@ int tiz::probe::probe_file ()
       {
         set_vorbis_codec_info (cc);
       }
+      else if (codec_id == CODEC_ID_VP8)
+      {
+        domain_ = OMX_PortDomainVideo;
+        video_coding_type_ = OMX_VIDEO_CodingVP8;
+      }
       // TODO: This won't work on Ubuntu 12.04, so it's commented out for now
       //
       //       else if (codec_id == AV_CODEC_ID_OPUS)
       //       {
       //         set_opus_codec_info ();
       //       }
-      else if (codec_id == CODEC_ID_VP8)
-      {
-        domain_ = OMX_PortDomainVideo;
-        video_coding_type_ = OMX_VIDEO_CodingVP8;
-      }
       // For now, for opus files simply rely on the file extension.
       else if (extension.compare (".opus") == 0)
         {
           set_opus_codec_info ();
+        }
+      else if (is_pcm_codec (codec_id))
+        {
+          domain_ = OMX_PortDomainAudio;
+          audio_coding_type_
+            = static_cast< OMX_AUDIO_CODINGTYPE >(OMX_AUDIO_CodingPCM);
+          pcmtype_.nSamplingRate = cc->sample_rate;
+          pcmtype_.nChannels = cc->channels;
+
+          if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
+            {
+              pcmtype_.eNumData = OMX_NumericalDataUnsigned;
+              pcmtype_.nBitPerSample = 8;
+            }
+          else if (AV_SAMPLE_FMT_S16 == cc->sample_fmt)
+            {
+              pcmtype_.eNumData = OMX_NumericalDataSigned;
+              pcmtype_.nBitPerSample = 16;
+            }
+          else if (AV_SAMPLE_FMT_S32 == cc->sample_fmt)
+            {
+              pcmtype_.eNumData = OMX_NumericalDataSigned;
+              pcmtype_.nBitPerSample = 32;
+            }
+          else
+            {
+              pcmtype_.eNumData = OMX_NumericalDataSigned;
+              pcmtype_.nBitPerSample = 16;
+            }
+          // pcmtype_.eEndian = get_pcm_codec_endianess (codec_id);
+          pcmtype_.eEndian = OMX_EndianLittle;
         }
 
       close_input_file (&fmt_ctx);

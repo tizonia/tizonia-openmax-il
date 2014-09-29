@@ -1,3 +1,4 @@
+/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
@@ -18,37 +19,58 @@
  */
 
 /**
- * @file   tizgraphfactory.hpp
+ * @file   tizpcmgraph.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL graph factory
+ * @brief  OpenMAX IL pcm decoder graph
  *
  *
  */
 
-#ifndef TIZGRAPHFACTORY_HPP
-#define TIZGRAPHFACTORY_HPP
+#ifndef TIZPCMGRAPH_HPP
+#define TIZPCMGRAPH_HPP
 
-#include <string>
-
-#include <boost/utility.hpp>
-
-#include <OMX_Types.h>
-
-#include "tizgraphtypes.hpp"
+#include "tizgraph.hpp"
+#include "tizgraphfsm.hpp"
+#include "tizgraphops.hpp"
 
 namespace tiz
 {
   namespace graph
   {
-    class factory : boost::noncopyable
+    // Forward declarations
+    class cmd;
+
+    class pcmdecoder : public graph
     {
 
     public:
-      static tizgraph_ptr_t create_graph (const std::string &uri);
-      static std::string coding_type (const std::string &uri);
+      pcmdecoder ();
+
+    protected:
+      ops *do_init ();
+      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
+
+    protected:
+      fsm fsm_;
+    };
+
+    class pcmdecops : public ops
+    {
+    public:
+      pcmdecops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+                 const omx_comp_role_lst_t &role_lst);
+
+    public:
+      void do_probe ();
+      bool is_port_settings_evt_required () const;
+      bool is_disabled_evt_required () const;
+      void do_configure ();
+
+    protected:
+      bool need_port_settings_changed_evt_;
     };
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGRAPHFACTORY_HPP
+#endif  // TIZPCMGRAPH_HPP
