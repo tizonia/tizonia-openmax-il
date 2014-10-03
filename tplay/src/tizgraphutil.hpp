@@ -55,6 +55,9 @@ namespace tiz
       static OMX_ERRORTYPE verify_role (const std::string &comp,
                                         const std::string &role);
 
+      static OMX_ERRORTYPE set_role (const OMX_HANDLETYPE handle,
+                                     const std::string &comp_role);
+
       static OMX_ERRORTYPE verify_role_list (
           const omx_comp_name_lst_t &comp_list,
           const omx_comp_role_lst_t &role_list);

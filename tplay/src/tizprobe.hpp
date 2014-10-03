@@ -59,6 +59,7 @@ namespace tiz
 
     void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
     void set_pcm_codec_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
+    void get_mp2_codec_info (OMX_TIZONIA_AUDIO_PARAM_MP2TYPE &mp2type);
     void get_mp3_codec_info (OMX_AUDIO_PARAM_MP3TYPE &mp3type);
     void get_aac_codec_info (OMX_AUDIO_PARAM_AACPROFILETYPE &aactype);
     void get_opus_codec_info (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE &opustype);
@@ -86,12 +87,14 @@ namespace tiz
 
     void dump_pcm_info ();
     void dump_mp3_info ();
+    void dump_mp2_and_pcm_info ();
     void dump_mp3_and_pcm_info ();
     void dump_aac_and_pcm_info ();
     void dump_stream_metadata ();
 
   private:
     int probe_file ();
+    void set_mp2_codec_info (const AVCodecContext *cc);
     void set_mp3_codec_info (const AVCodecContext *cc);
     void set_aac_codec_info (const AVCodecContext *cc);
     void set_opus_codec_info ();
@@ -111,6 +114,7 @@ namespace tiz
     OMX_VIDEO_CODINGTYPE video_coding_type_;
     OMX_MEDIACONTAINER_FORMATTYPE container_type_;
     OMX_AUDIO_PARAM_PCMMODETYPE pcmtype_;
+    OMX_TIZONIA_AUDIO_PARAM_MP2TYPE mp2type_;
     OMX_AUDIO_PARAM_MP3TYPE mp3type_;
     OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
     OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_;

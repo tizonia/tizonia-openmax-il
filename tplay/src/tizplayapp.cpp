@@ -462,6 +462,9 @@ tiz::playapp::decode_local ()
   file_extension_lst_t extension_list;
   // Add here the list of file extensions currently supported for playback
   extension_list.insert (".mp3");
+  extension_list.insert (".mp2");
+  extension_list.insert (".mpa");
+  extension_list.insert (".m2a");
   extension_list.insert (".opus");
   extension_list.insert (".ogg");
   extension_list.insert (".oga");

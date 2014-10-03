@@ -211,6 +211,7 @@ tiz::probe::probe (const std::string &uri, const bool quiet)
     video_coding_type_ (OMX_VIDEO_CodingUnused),
     container_type_ (OMX_FORMATMax),
     pcmtype_ (),
+    mp2type_ (),
     mp3type_ (),
     opustype_ (),
     flactype_ (),
@@ -234,6 +235,16 @@ tiz::probe::probe (const std::string &uri, const bool quiet)
   pcmtype_.ePCMMode = OMX_AUDIO_PCMModeLinear;
   pcmtype_.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
   pcmtype_.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
+
+  // mp2 decoding settings
+  mp2type_.nSize = sizeof(OMX_TIZONIA_AUDIO_PARAM_MP2TYPE);
+  mp2type_.nVersion.nVersion = OMX_VERSION;
+  mp2type_.nPortIndex = 0;
+  mp2type_.nChannels = 2;
+  mp2type_.nBitRate = 0;
+  mp2type_.nSampleRate = 48000;
+  mp2type_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
+  mp2type_.eFormat = OMX_AUDIO_MP2StreamFormatMP2Layer2;
 
   // Defaults are the same as in the standard mp3 decoder
   mp3type_.nSize = sizeof(OMX_AUDIO_PARAM_MP3TYPE);
@@ -365,7 +376,11 @@ int tiz::probe::probe_file ()
       codec_id = cc->codec_id;
       TIZ_LOG (TIZ_PRIORITY_TRACE, "ext [%s] codec_id [%0x]", extension.c_str (), codec_id);
 
-      if (codec_id == CODEC_ID_MP3)
+      if (codec_id == CODEC_ID_MP2)
+      {
+        set_mp2_codec_info (cc);
+      }
+      else if (codec_id == CODEC_ID_MP3)
       {
         set_mp3_codec_info (cc);
       }
@@ -466,6 +481,46 @@ int tiz::probe::probe_file ()
       return 1;
     }
   return 0;
+}
+
+void tiz::probe::set_mp2_codec_info (const AVCodecContext *cc)
+{
+  assert (NULL != cc);
+
+  domain_ = OMX_PortDomainAudio;
+  audio_coding_type_ = static_cast< OMX_AUDIO_CODINGTYPE >(OMX_AUDIO_CodingMP2);
+  mp2type_.nSampleRate = cc->sample_rate;
+  pcmtype_.nSamplingRate = cc->sample_rate;
+  mp2type_.nBitRate = cc->bit_rate;
+  mp2type_.nChannels = cc->channels;
+  pcmtype_.nChannels = cc->channels;
+
+  if (1 == pcmtype_.nChannels)
+  {
+    pcmtype_.bInterleaved = OMX_FALSE;
+  }
+
+  if (AV_SAMPLE_FMT_U8 == cc->sample_fmt)
+  {
+    pcmtype_.eNumData = OMX_NumericalDataUnsigned;
+    pcmtype_.nBitPerSample = 8;
+  }
+  else if (AV_SAMPLE_FMT_S16 == cc->sample_fmt)
+  {
+    pcmtype_.eNumData = OMX_NumericalDataSigned;
+    pcmtype_.nBitPerSample = 16;
+  }
+  else if (AV_SAMPLE_FMT_S32 == cc->sample_fmt)
+  {
+    pcmtype_.eNumData = OMX_NumericalDataSigned;
+    pcmtype_.nBitPerSample = 32;
+  }
+  else
+  {
+    pcmtype_.eNumData = OMX_NumericalDataSigned;
+    pcmtype_.nBitPerSample = 16;
+  }
+  pcmtype_.eEndian = OMX_EndianLittle;
 }
 
 void tiz::probe::set_mp3_codec_info (const AVCodecContext *cc)
@@ -678,6 +733,16 @@ void tiz::probe::get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
 void tiz::probe::set_pcm_codec_info (const OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
 {
   pcmtype_ = pcmtype;
+  return;
+}
+
+void tiz::probe::get_mp2_codec_info (OMX_TIZONIA_AUDIO_PARAM_MP2TYPE &mp2type)
+{
+  if (OMX_PortDomainMax == domain_)
+  {
+    (void)probe_file ();
+  }
+  mp2type = mp2type_;
   return;
 }
 
@@ -903,6 +968,22 @@ void tiz::probe::dump_mp3_info ()
   fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps %s\n", KYEL,
            mp3type_.nChannels, ((float)mp3type_.nSampleRate) / 1000,
            mp3type_.nBitRate / 1000, KNRM);
+}
+
+void tiz::probe::dump_mp2_and_pcm_info ()
+{
+  if (OMX_PortDomainMax == domain_)
+  {
+    (void)probe_file ();
+  }
+
+#define KNRM "\x1B[0m"
+#define KYEL "\x1B[33m"
+  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu Kbps, %lu:%s:%s %s\n", KYEL,
+           mp2type_.nChannels, ((float)mp2type_.nSampleRate) / 1000,
+           mp2type_.nBitRate / 1000, pcmtype_.nBitPerSample,
+           pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+           pcmtype_.eEndian == OMX_EndianBig ? "b" : "l", KNRM);
 }
 
 void tiz::probe::dump_mp3_and_pcm_info ()

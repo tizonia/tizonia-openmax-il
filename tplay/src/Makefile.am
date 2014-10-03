@@ -51,6 +51,7 @@ noinst_HEADERS = \
 	tizflacgraph.hpp \
 	tizoggflacgraph.hpp \
 	tizpcmgraph.hpp \
+	tizmpeggraph.hpp \
 	tizhttpservconfig.hpp \
 	tizhttpservgraph.hpp \
 	tizhttpservgraphfsm.hpp \
@@ -97,6 +98,7 @@ tplay_SOURCES = \
 	tizflacgraph.cpp \
 	tizoggflacgraph.cpp \
 	tizpcmgraph.cpp \
+	tizmpeggraph.cpp \
 	tizhttpservgraph.cpp \
 	tizhttpservgraphfsm.cpp \
 	tizhttpservgraphops.cpp \

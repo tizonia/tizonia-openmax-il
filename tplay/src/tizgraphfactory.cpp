@@ -44,6 +44,7 @@
 #include "tizflacgraph.hpp"
 #include "tizoggflacgraph.hpp"
 #include "tizpcmgraph.hpp"
+#include "tizmpeggraph.hpp"
 #include "tizgraphfactory.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -59,6 +60,11 @@ tizgraph_ptr_t graph::factory::create_graph (const std::string &uri)
                                                       /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
   if (p->get_omx_domain () == OMX_PortDomainAudio
+      && p->get_audio_coding_type () == OMX_AUDIO_CodingMP2)
+  {
+    return boost::make_shared< tiz::graph::mpegdecoder >();
+  }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio
       && p->get_audio_coding_type () == OMX_AUDIO_CodingMP3)
   {
     return boost::make_shared< tiz::graph::mp3decoder >();
@@ -113,7 +119,12 @@ std::string graph::factory::coding_type (const std::string &uri)
                                                       /* quiet = */ true);
   tizgraph_ptr_t null_ptr;
   if (p->get_omx_domain () == OMX_PortDomainAudio && p->get_audio_coding_type ()
-                                                     == OMX_AUDIO_CodingMP3)
+                                                     == OMX_AUDIO_CodingMP2)
+  {
+    return std::string ("mp2");
+  }
+  else if (p->get_omx_domain () == OMX_PortDomainAudio && p->get_audio_coding_type ()
+           == OMX_AUDIO_CodingMP3)
   {
     return std::string ("mp3");
   }

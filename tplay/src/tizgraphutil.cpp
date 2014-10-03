@@ -162,6 +162,19 @@ graph::util::verify_role (const std::string &comp, const std::string &comp_role)
 }
 
 OMX_ERRORTYPE
+graph::util::set_role (const OMX_HANDLETYPE handle, const std::string &comp_role)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  OMX_PARAM_COMPONENTROLETYPE roletype;
+  TIZ_INIT_OMX_STRUCT (roletype);
+
+  tiz_check_omx_err (
+                     OMX_SetParameter (handle, OMX_IndexParamStandardComponentRole, &roletype));
+
+  return error;
+}
+
+OMX_ERRORTYPE
 graph::util::verify_role_list (const omx_comp_name_lst_t &comp_list,
                                const omx_comp_role_lst_t &role_list)
 {
@@ -171,7 +184,7 @@ graph::util::verify_role_list (const omx_comp_name_lst_t &comp_list,
 
   assert (comp_list.size () == role_lst_size);
 
-  for (unsigned int i = 0; i < role_lst_size; i++)
+  for (unsigned int i = 0; i < role_lst_size; ++i)
   {
     if (OMX_ErrorNone != (error = verify_role (comp_list[i], role_list[i])))
     {
@@ -243,7 +256,7 @@ void graph::util::destroy_list (omx_comp_handle_lst_t &hdl_list)
 {
   int handle_lst_size = hdl_list.size ();
 
-  for (int i = 0; i < handle_lst_size; i++)
+  for (int i = 0; i < handle_lst_size; ++i)
   {
     if (hdl_list[i] != NULL)
     {
@@ -262,7 +275,7 @@ graph::util::setup_tunnels (const omx_comp_handle_lst_t &hdl_list)
 
   if (handle_lst_size > 0)
     {
-      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; i++)
+      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; ++i)
         {
           error = OMX_SetupTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
         }
@@ -279,7 +292,7 @@ graph::util::tear_down_tunnels (const omx_comp_handle_lst_t &hdl_list)
 
   if (handle_lst_size > 0)
     {
-      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; i++)
+      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; ++i)
         {
           error
             = OMX_TeardownTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
@@ -301,7 +314,7 @@ graph::util::setup_suppliers (const omx_comp_handle_lst_t &hdl_list)
       TIZ_INIT_OMX_PORT_STRUCT (supplier, 0);
       supplier.eBufferSupplier = OMX_BufferSupplyInput;
 
-      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; i++)
+      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; ++i)
         {
           supplier.nPortIndex = i == 0 ? 0 : 1;
           error = OMX_SetParameter (hdl_list[i], OMX_IndexParamCompBufferSupplier,
@@ -464,7 +477,7 @@ graph::util::modify_tunnel (const omx_comp_handle_lst_t &hdl_list,
   port_ids.push_back (tunnel_id == 0 ? 0 : 1);
   port_ids.push_back (0);
 
-  for (int i = 0; i < 2 && error == OMX_ErrorNone; i++)
+  for (int i = 0; i < 2 && error == OMX_ErrorNone; ++i)
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE, "handle index [%d] - port id [%d]",
              i, port_ids[i]);
