@@ -21,7 +21,7 @@
  * @file   tizplay.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - tplay: an audio player and streaming server
+ * @brief Tizonia OpenMAX IL - tizonia: an audio player and streaming server
  * program
  *
  */

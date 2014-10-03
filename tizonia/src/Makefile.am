@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-bin_PROGRAMS = tplay
+bin_PROGRAMS = tizonia
 
 noinst_HEADERS = \
 	tizomxutil.hpp \
@@ -69,7 +69,7 @@ noinst_HEADERS = \
 	mpris/tizmprismgr.hpp
 
 
-tplay_SOURCES = \
+tizonia_SOURCES = \
 	main.cpp \
 	tizplayapp.cpp \
 	tizprogramopts.cpp \
@@ -110,7 +110,7 @@ tplay_SOURCES = \
 	mpris/tizmprisprops.cpp \
 	mpris/tizmprisif.cpp
 
-tplay_CPPFLAGS = \
+tizonia_CPPFLAGS = \
 	@BOOST_CPPFLAGS@ \
 	-I$(top_srcdir)/../include/omxil-1.2 \
 	-I$(top_srcdir)/../libtizplatform/src \
@@ -120,7 +120,7 @@ tplay_CPPFLAGS = \
 	@DBUS_CFLAGS@ \
 	-D__STDC_CONSTANT_MACROS
 
-tplay_LDADD = \
+tizonia_LDADD = \
 	@BOOST_PROGRAM_OPTIONS_LIB@ \
 	@BOOST_SYSTEM_LIB@ \
 	@BOOST_FILESYSTEM_LIB@ \

@@ -158,6 +158,6 @@ OMX.Aratelia.audio_metadata_eraser.mp3.default_uri = @localstatedir@/lib/tizonia
 OMX.Aratelia.audio_metadata_eraser.mp3.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
 OMX.Aratelia.audio_metadata_eraser.mp3.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/strum12str.mp3
 
-[tplay]
+[tizonia]
 
 default-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm

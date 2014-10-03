@@ -17,7 +17,7 @@
 <!-- You should have received a copy of the GNU Lesser General Public License -->
 <!-- along with Tizonia.  If not, see <http://www.gnu.org/licenses/>. -->
 
-<node name="/com/aratelia/tiz/tplay">
+<node name="/com/aratelia/tiz/tizonia">
 
   <interface name="org.mpris.MediaPlayer2">
 

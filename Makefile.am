@@ -19,11 +19,11 @@
 # NOTE: 'docs' folders is not currently being processed by the top Makefile.
 # The Doxygen/Sphinx documentation can still be manually generated, whenever is needed.
 
-# NOTE: 'tplay' folder is not currently being processed by the top Makefile.
-# This is to disable tplay compilation when building from top. This is because
-# tplay's FSMs require a very recent version of Boost.msm (currently >= 1.54).
+# NOTE: 'tizonia' folder is not currently being processed by the top Makefile.
+# This is to disable tizonia compilation when building from top. This is because
+# tizonia's FSMs require a very recent version of Boost.msm (currently >= 1.54).
 
-# SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tplay docs
+# SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tizonia docs
 SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins
 
 
@@ -33,7 +33,7 @@ SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins
 
 #.PHONY: cscope
 #cscope:
-#	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizplatform -srm -splugins -stplay;
+#	cscope -b -q -R -Iinclude/omxil-1.2 -slibtizonia -slibtizcore -slibtizplatform -srm -splugins -stizonia;
 
 # '-nut’ = '--no-tabs’
 #    Use spaces instead of tabs.

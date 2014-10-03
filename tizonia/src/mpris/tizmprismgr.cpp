@@ -54,7 +54,7 @@ namespace control = tiz::control;
 namespace
 {
   // Bus name
-  const char *TPLAY_MPRIS_BUS_NAME = "org.mpris.MediaPlayer2.tplay";
+  const char *TPLAY_MPRIS_BUS_NAME = "org.mpris.MediaPlayer2.tizonia";
 
   std::string get_unique_bus_name ()
   {

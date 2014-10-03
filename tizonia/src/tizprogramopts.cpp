@@ -209,7 +209,7 @@ int tiz::programopts::consume ()
 
 void tiz::programopts::print_version () const
 {
-  TIZ_PRINTF_BLU ("tplay %s. Copyright (C) 2014 Juan A. Rubio\n", PACKAGE_VERSION);
+  TIZ_PRINTF_BLU ("tizonia %s. Copyright (C) 2014 Juan A. Rubio\n", PACKAGE_VERSION);
   TIZ_PRINTF_BLU ("This software is part of Tizonia <http://tizonia.org>\n\n");
 }
 
@@ -325,7 +325,7 @@ void tiz::programopts::print_license () const
 void tiz::programopts::print_examples () const
 {
   printf ("Examples:\n");
-  printf (" tplay ~/Music\n\n");
+  printf (" tizonia ~/Music\n\n");
   printf ("    * Decodes every supported file in the '~/Music' directory)\n");
   printf ("    * File formats currently supported for playback:\n");
   printf (
@@ -339,7 +339,7 @@ void tiz::programopts::print_examples () const
   printf ("      * [+/-] increase/decrease volume.\n");
   printf ("      * [m] mute.\n");
   printf ("      * [q] quit.\n");
-  printf ("\n tplay --sampling-rates=44100,48000 -p 8011 --stream ~/Music\n\n");
+  printf ("\n tizonia --sampling-rates=44100,48000 -p 8011 --stream ~/Music\n\n");
   printf ("    * This streams files from the '~/Music' directory.\n");
   printf ("    * File formats currently supported for streaming: mp3.\n");
   printf ("    * Sampling rates other than [44100,4800] are ignored.\n");

@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Simple MPRIS2-based remote control for tplay
+# Simple MPRIS2-based remote control for tizonia
 #
 
 if [[ $# -gt 2 ]]
@@ -26,7 +26,7 @@ then
 fi
 
 # Constants
-readonly dbuscmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tplay /com/aratelia/tiz/tplay'
+readonly dbuscmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tizonia /com/aratelia/tiz/tizonia'
 readonly mediaifc='org.mpris.MediaPlayer2'
 readonly playerifc='org.mpris.MediaPlayer2.Player'
 readonly propgetifc='org.freedesktop.DBus.Properties.Get'
@@ -136,7 +136,7 @@ function main {
             eval "$quitcmd"
             ;;
         kill) echo  "Sending SIGKILL signal"
-            killall -TERM tplay
+            killall -TERM tizonia
             ;;
         *) echo "Unknown command"
             usage

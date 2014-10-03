@@ -62,7 +62,7 @@ The Tizonia OpenMAX IL project consists of a number of resources.
   * binary file readers and writers
   * etc...
 
-### `tplay`: a command line music player and streaming server ###
+### `tizonia`: a command line music player and streaming server ###
 
 * Features:
     * Uses graphs of tunneled OpenMAX IL components.
@@ -107,9 +107,9 @@ From the top of the repo (Replace *$INSTALL_DIR* with your favorite location):
 
 ```
 
-### Building 'tplay' ###
+### Building 'tizonia' ###
 
-From the'tplay' folder (again replace *$INSTALL_DIR* with your favorite location):
+From the'tizonia' folder (again replace *$INSTALL_DIR* with your favorite location):
 
 ```bash
 
@@ -122,7 +122,7 @@ From the'tplay' folder (again replace *$INSTALL_DIR* with your favorite location
 
 #### Known issues ####
 
-`tplay` makes heavy use the the the
+`tizonia` makes heavy use the the the
 [Boost Meta State Machine (MSM)](http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html)
 library by Christophe Henry (MSM is in turn based on
 [Boost MPL](http://www.boost.org/doc/libs/1_56_0/libs/mpl/doc/index.html)).
@@ -130,38 +130,38 @@ library by Christophe Henry (MSM is in turn based on
 MSM is used to generate a number of state machines that control the tunneled
 OpenMAX IL components for the various playback uses cases. The state machines
 are quite large and MSM is known for not being easy on the compilers. So
-building `tplay` requires a bit of patience and a whole lot of RAM (2.5+ GB).
+building `tizonia` requires a bit of patience and a whole lot of RAM (2.5+ GB).
 
 You may see GCC crashing like below; simply keep running `make -j1` or `make
--j1 install` until all of tplay's objects get built (they all will eventually,
+-j1 install` until all of tizonia's objects get built (they all will eventually,
 if you have the sufficient amount RAM).
 
-(At some point, I'll look into optimising `tplay` so that building it requires
+(At some point, I'll look into optimising `tizonia` so that building it requires
 less RAM and/or time).
 
 ```bash
 
 Making all in src
-  CXX      tplay-tizplayapp.o
-  CXX      tplay-main.o
-  CXX      tplay-tizomxutil.o
-  CXX      tplay-tizprogramopts.o
-  CXX      tplay-tizgraphutil.o
-  CXX      tplay-tizgraphcback.o
-  CXX      tplay-tizprobe.o
-  CXX      tplay-tizdaemon.o
-  CXX      tplay-tizplaylist.o
-  CXX      tplay-tizgraphfactory.o
-  CXX      tplay-tizgraphmgrcmd.o
-  CXX      tplay-tizgraphmgrops.o
-  CXX      tplay-tizgraphmgrfsm.o
-  CXX      tplay-tizgraphmgr.o
-  CXX      tplay-tizdecgraphmgr.o
+  CXX      tizonia-tizplayapp.o
+  CXX      tizonia-main.o
+  CXX      tizonia-tizomxutil.o
+  CXX      tizonia-tizprogramopts.o
+  CXX      tizonia-tizgraphutil.o
+  CXX      tizonia-tizgraphcback.o
+  CXX      tizonia-tizprobe.o
+  CXX      tizonia-tizdaemon.o
+  CXX      tizonia-tizplaylist.o
+  CXX      tizonia-tizgraphfactory.o
+  CXX      tizonia-tizgraphmgrcmd.o
+  CXX      tizonia-tizgraphmgrops.o
+  CXX      tizonia-tizgraphmgrfsm.o
+  CXX      tizonia-tizgraphmgr.o
+  CXX      tizonia-tizdecgraphmgr.o
 g++: internal compiler error: Killed (program cc1plus)
 Please submit a full bug report,
 with preprocessed source if appropriate.
 See <file:///usr/share/doc/gcc-4.8/README.Bugs> for instructions.
-make[2]: *** [tplay-tizplayapp.o] Error 4
+make[2]: *** [tizonia-tizplayapp.o] Error 4
 make[2]: *** Waiting for unfinished jobs....
 g++: internal compiler error: Killed (program cc1plus)
 Please submit a full bug report,
@@ -183,12 +183,12 @@ suitable location:
 
 ```
 
-## 'tplay' usage information ##
+## 'tizonia' usage information ##
 
 ```bash
 
-$ tplay
-tplay 0.1.0. Copyright (C) 2014 Juan A. Rubio
+$ tizonia
+tizonia 0.1.0. Copyright (C) 2014 Juan A. Rubio
 This software is part of Tizonia <http://tizonia.org>
 
 LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>

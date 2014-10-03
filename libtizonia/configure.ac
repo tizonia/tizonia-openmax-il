@@ -130,7 +130,7 @@ AC_MSG_RESULT([
   Installation paths:
 
     libraries: ................... ${LIBDIR}
-    tplay: ....................... ${BINDIR}
+    tizonia: ....................... ${BINDIR}
     Header files: ................ ${INCLUDEDIR}/libtizonia, ${INCLUDEDIR}/libtizplatform
     Documentation: ............... ${DOCDIR}
 

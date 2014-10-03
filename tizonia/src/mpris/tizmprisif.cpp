@@ -64,7 +64,7 @@ namespace
 
 // Object path, a.k.a. node
 const char *control::mprisif::TPLAY_MPRIS_OBJECT_PATH
-    = "/com/aratelia/tiz/tplay";
+    = "/com/aratelia/tiz/tizonia";
 
 control::mprisif::mprisif (DBus::Connection &connection,
                            mpris_mediaplayer2_props_t props,

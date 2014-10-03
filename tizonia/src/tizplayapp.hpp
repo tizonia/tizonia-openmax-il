@@ -22,7 +22,7 @@
  * @file   tizplayapp.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  tplay app wrapper
+ * @brief  tizonia app wrapper
  *
  *
  */
