@@ -36,6 +36,7 @@
 #include <OMX_Core.h>
 #include <OMX_Component.h>
 #include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
 
 #include <tizplatform.h>
 
@@ -81,6 +82,36 @@ static OMX_PTR instantiate_mp3_port (OMX_HANDLETYPE ap_hdl)
 
   return factory_new (tiz_get_type (ap_hdl, "tizmp3port"), &mp3_port_opts,
                       &encodings, &mp3type);
+}
+
+static OMX_PTR instantiate_mp2_port (OMX_HANDLETYPE ap_hdl)
+{
+  OMX_TIZONIA_AUDIO_PARAM_MP2TYPE mp2type;
+  OMX_AUDIO_CODINGTYPE encodings[]
+      = { OMX_AUDIO_CodingMP2, OMX_AUDIO_CodingMax };
+  tiz_port_options_t mp2_port_opts
+      = { OMX_PortDomainAudio,
+          OMX_DirInput,
+          ARATELIA_MPG123_DECODER_PORT_MIN_BUF_COUNT,
+          ARATELIA_MPG123_DECODER_PORT_MIN_INPUT_BUF_SIZE,
+          ARATELIA_MPG123_DECODER_PORT_NONCONTIGUOUS,
+          ARATELIA_MPG123_DECODER_PORT_ALIGNMENT,
+          ARATELIA_MPG123_DECODER_PORT_SUPPLIERPREF,
+          { ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX, NULL, NULL, NULL },
+          1 /* slave port's index  */
+      };
+
+  mp2type.nSize = sizeof(OMX_TIZONIA_AUDIO_PARAM_MP2TYPE);
+  mp2type.nVersion.nVersion = OMX_VERSION;
+  mp2type.nPortIndex = 0;
+  mp2type.nChannels = 2;
+  mp2type.nBitRate = 0;
+  mp2type.nSampleRate = 0;
+  mp2type.eChannelMode = OMX_AUDIO_ChannelModeStereo;
+  mp2type.eFormat = OMX_AUDIO_MP2StreamFormatMP2Layer2;
+
+  return factory_new (tiz_get_type (ap_hdl, "tizmp2port"), &mp2_port_opts,
+                      &encodings, &mp2type);
 }
 
 static OMX_PTR instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
@@ -149,17 +180,25 @@ static OMX_PTR instantiate_processor (OMX_HANDLETYPE ap_hdl)
 OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_role_factory_t role_factory;
-  const tiz_role_factory_t *rf_list[] = { &role_factory };
+  tiz_role_factory_t mp3_role;
+  tiz_role_factory_t mp2_role;
+  const tiz_role_factory_t *rf_list[] = { &mp3_role, &mp2_role };
   tiz_type_factory_t mpg123dprc_type;
   const tiz_type_factory_t *tf_list[] = { &mpg123dprc_type };
 
-  strcpy ((OMX_STRING)role_factory.role, ARATELIA_MPG123_DECODER_DEFAULT_ROLE);
-  role_factory.pf_cport = instantiate_config_port;
-  role_factory.pf_port[0] = instantiate_mp3_port;
-  role_factory.pf_port[1] = instantiate_pcm_port;
-  role_factory.nports = 2;
-  role_factory.pf_proc = instantiate_processor;
+  strcpy ((OMX_STRING)mp3_role.role, ARATELIA_MPG123_DECODER_MP3_ROLE);
+  mp3_role.pf_cport = instantiate_config_port;
+  mp3_role.pf_port[0] = instantiate_mp3_port;
+  mp3_role.pf_port[1] = instantiate_pcm_port;
+  mp3_role.nports = 2;
+  mp3_role.pf_proc = instantiate_processor;
+
+  strcpy ((OMX_STRING)mp2_role.role, ARATELIA_MPG123_DECODER_MP2_ROLE);
+  mp2_role.pf_cport = instantiate_config_port;
+  mp2_role.pf_port[0] = instantiate_mp2_port;
+  mp2_role.pf_port[1] = instantiate_pcm_port;
+  mp2_role.nports = 2;
+  mp2_role.pf_proc = instantiate_processor;
 
   strcpy ((OMX_STRING)mpg123dprc_type.class_name, "mpg123dprc_class");
   mpg123dprc_type.pf_class_init = mpg123d_prc_class_init;
@@ -174,7 +213,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
 
   /* Register the component role(s) */
-  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
+  tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 2));
 
   return OMX_ErrorNone;
 }

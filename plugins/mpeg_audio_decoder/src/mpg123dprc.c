@@ -80,55 +80,115 @@
 /* Forward declarations */
 static OMX_ERRORTYPE mpg123d_prc_deallocate_resources (void *);
 
-static OMX_ERRORTYPE transform_buffer (mpg123d_prc_t *ap_prc)
+static const char *mpeg_version_to_str (enum mpg123_version version)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
-      ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
-  OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
-      ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
-  int mpg123_ret = 0;
-  size_t bytes_decoded = 0;
-
-  if (NULL == p_in || NULL == p_out)
+  switch (version)
     {
-      TIZ_TRACE (handleOf (ap_prc), "IN HEADER [%p] OUT HEADER [%p]", p_in,
-                 p_out);
-      return OMX_ErrorNone;
-    }
-
-  assert (NULL != ap_prc);
-
-  mpg123_ret = mpg123_decode (ap_prc->p_mpg123_, p_in->pBuffer + p_in->nOffset,
-                              p_in->nFilledLen, p_out->pBuffer + p_out->nOffset,
-                              p_out->nAllocLen, &bytes_decoded);
-  (void)mpg123_ret;
-  p_out->nFilledLen = bytes_decoded;
-  p_in->nFilledLen = 0;
-
-  tiz_filter_prc_release_header (ap_prc,
-                                 ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
-
-  if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
-    {
-      /* Inmediately propagate EOS flag to output */
-      TIZ_TRACE (handleOf (ap_prc), "Propagate EOS flag to output HEADER [%p]",
-                 p_out);
-      p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-      tiz_filter_prc_update_eos_flag (ap_prc, true);
-      /* Clear the EOS flag */
-      p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
-    }
-
-  tiz_check_omx_err (tiz_filter_prc_release_header (
-      ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX));
-  tiz_check_omx_err (tiz_filter_prc_release_header (
-      ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX));
-
-  return rc;
+      case MPG123_1_0:
+        return "MPG123_1_0";
+        break;
+      case MPG123_2_0:
+        return "MPG123_2_0";
+        break;
+      case MPG123_2_5:
+        return "MPG123_3_0";
+        break;
+      default:
+        break;
+    };
+  return "Unknown version";
 }
 
-OMX_ERRORTYPE release_input_header (mpg123d_prc_t *ap_prc)
+static const char *mpeg_audio_mode_to_str (const enum mpg123_mode mode)
+{
+  switch (mode)
+    {
+      case MPG123_M_STEREO:
+        return "MPG123_M_STEREO";
+        break;
+      case MPG123_M_JOINT:
+        return "MPG123_M_JOINT";
+        break;
+      case MPG123_M_DUAL:
+        return "MPG123_M_DUAL";
+        break;
+      case MPG123_M_MONO:
+        return "MPG123_M_MONO";
+        break;
+      default:
+        break;
+    };
+  return "Unknown mode";
+}
+
+static const char *mpeg_output_encoding_to_str (const int encoding)
+{
+  switch (encoding)
+    {
+      case MPG123_ENC_8:
+        return "MPG123_ENC_8";
+        break;
+      case MPG123_ENC_16:
+        return "MPG123_ENC_16";
+        break;
+      case MPG123_ENC_24:
+        return "MPG123_ENC_24";
+        break;
+      case MPG123_ENC_32:
+        return "MPG123_ENC_32";
+        break;
+      case MPG123_ENC_SIGNED:
+        return "MPG123_ENC_SIGNED";
+        break;
+      case MPG123_ENC_FLOAT:
+        return "MPG123_ENC_FLOAT";
+        break;
+      case MPG123_ENC_SIGNED_16:
+        return "MPG123_ENC_SIGNED_16";
+        break;
+      case MPG123_ENC_UNSIGNED_16:
+        return "MPG123_ENC_UNSIGNED_16";
+        break;
+      case MPG123_ENC_UNSIGNED_8:
+        return "MPG123_ENC_UNSIGNED_8";
+        break;
+      case MPG123_ENC_SIGNED_8:
+        return "MPG123_ENC_SIGNED_8";
+        break;
+      case MPG123_ENC_ULAW_8:
+        return "MPG123_ENC_ULAW_8";
+        break;
+      case MPG123_ENC_ALAW_8:
+        return "MPG123_ENC_ALAW_8";
+        break;
+      case MPG123_ENC_SIGNED_32:
+        return "MPG123_ENC_SIGNED_32";
+        break;
+      case MPG123_ENC_UNSIGNED_32:
+        return "MPG123_ENC_UNSIGNED_32";
+        break;
+      case MPG123_ENC_SIGNED_24:
+        return "MPG123_ENC_SIGNED_24";
+        break;
+      case MPG123_ENC_UNSIGNED_24:
+        return "MPG123_ENC_UNSIGNED_24";
+        break;
+      case MPG123_ENC_FLOAT_32:
+        return "MPG123_ENC_FLOAT_32";
+        break;
+      case MPG123_ENC_FLOAT_64:
+        return "MPG123_ENC_FLOAT_64";
+        break;
+      case MPG123_ENC_ANY:
+        return "MPG123_ENC_ANY";
+        break;
+      default:
+        break;
+    };
+  return "Unknown Encoding";
+}
+
+OMX_ERRORTYPE release_in_hdr (mpg123d_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
@@ -139,20 +199,175 @@ OMX_ERRORTYPE release_input_header (mpg123d_prc_t *ap_prc)
     {
       if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
         {
-          /* Let's propagate EOS flag to output */
-          TIZ_TRACE (handleOf (ap_prc), "Propagating EOS flag to output");
-          OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
-              ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
-          if (p_out)
-            {
-              p_out->nFlags |= OMX_BUFFERFLAG_EOS;
-            }
+          TIZ_TRACE (handleOf (ap_prc), "EOS flag received");
+          /* Remember the EOS flag */
           tiz_filter_prc_update_eos_flag (ap_prc, true);
-          p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
+          tiz_util_reset_eos_flag (p_in);
         }
+      TIZ_TRACE (handleOf (ap_prc), "Releasing IN HEADER [%p]", p_in);
       tiz_filter_prc_release_header (ap_prc,
                                      ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
     }
+  return OMX_ErrorNone;
+}
+
+static long get_mpg123_buffer_fill (mpg123d_prc_t *ap_prc)
+{
+  double fval;
+  long buffer_fill;
+  assert (NULL != ap_prc);
+  (void)mpg123_getstate (ap_prc->p_mpg123_, MPG123_BUFFERFILL, &buffer_fill,
+                         &fval);
+  return buffer_fill;
+}
+
+OMX_ERRORTYPE release_out_hdr (mpg123d_prc_t *ap_prc)
+{
+  OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
+      ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
+  if (p_out)
+    {
+      if (tiz_filter_prc_is_eos (ap_prc)
+          && (get_mpg123_buffer_fill (ap_prc) == 0
+              || ap_prc->need_to_feed_more_))
+        {
+          TIZ_TRACE (handleOf (ap_prc), "Propagating EOS flag - fill [%ld]",
+                     get_mpg123_buffer_fill (ap_prc));
+          tiz_util_set_eos_flag (p_out);
+        }
+      TIZ_TRACE (handleOf (ap_prc),
+                 "Releasing OUT HEADER [%p] nFilledLen [%d] nAllocLen [%d]",
+                 p_out, p_out->nFilledLen, p_out->nAllocLen);
+      tiz_filter_prc_release_header (ap_prc,
+                                     ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
+    }
+  return OMX_ErrorNone;
+}
+
+static void retrieve_stream_format (mpg123d_prc_t *ap_prc)
+{
+  struct mpg123_frameinfo mi;
+  long rate;
+  int channels;
+  int encoding;
+
+  (void)mpg123_info (ap_prc->p_mpg123_, &mi);
+  TIZ_TRACE (handleOf (ap_prc),
+             "stream info : version [%s] layer [%d] rate [%ld] mode [%s]",
+             mpeg_version_to_str (mi.version), mi.layer, mi.rate,
+             mpeg_audio_mode_to_str (mi.mode));
+
+  (void)mpg123_getformat (ap_prc->p_mpg123_, &rate, &channels, &encoding);
+  TIZ_TRACE (handleOf (ap_prc),
+             "output format : rate [%ld] channels [%d] encoding [%s]", rate,
+             channels, mpeg_output_encoding_to_str (encoding));
+}
+
+static OMX_ERRORTYPE consume_decoded_data (mpg123d_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
+      ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
+
+  if (p_out)
+    {
+      size_t bytes_decoded;
+      const int ret
+          = mpg123_read (ap_prc->p_mpg123_, TIZ_OMX_BUF_PTR (p_out),
+                         TIZ_OMX_BUF_ALLOC_LEN (p_out), &bytes_decoded);
+      switch (ret)
+        {
+          case MPG123_OK:
+            ap_prc->need_to_feed_more_ = false;
+            break;
+          case MPG123_NEED_MORE:
+            ap_prc->need_to_feed_more_ = true;
+            break;
+          default:
+            {
+              TIZ_ERROR (handleOf (ap_prc),
+                         "[OMX_ErrorInsufficientResources] : "
+                         "mpg123_read error : [%s]",
+                         mpg123_plain_strerror (ret));
+              rc = OMX_ErrorInsufficientResources;
+            }
+            break;
+        };
+
+      if (OMX_ErrorNone == rc)
+        {
+          p_out->nFilledLen = bytes_decoded;
+          if (p_out->nFilledLen > 0)
+            {
+              rc = release_out_hdr (ap_prc);
+            }
+        }
+    }
+  return rc;
+}
+
+static bool need_to_feed_more_data (mpg123d_prc_t *ap_prc)
+{
+  bool rc = false;
+  if (get_mpg123_buffer_fill (ap_prc)
+      < ARATELIA_MPG123_DECODER_BUF_FILL_THRESHOLD)
+    {
+      rc = true;
+    }
+  return rc;
+}
+
+static bool may_consume_more_data (mpg123d_prc_t *ap_prc)
+{
+  bool rc = false;
+  assert (NULL != ap_prc);
+  rc = !(ap_prc->need_to_feed_more_)
+       && (NULL != tiz_filter_prc_get_header (
+                       ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX));
+  return rc;
+}
+
+static OMX_ERRORTYPE feed_encoded_data (mpg123d_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
+      ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
+
+  assert (NULL != ap_prc);
+
+  if (p_in)
+    {
+      const int ret = mpg123_feed (ap_prc->p_mpg123_, TIZ_OMX_BUF_PTR (p_in),
+                                   TIZ_OMX_BUF_FILL_LEN (p_in));
+      if (ret != MPG123_OK)
+        {
+          TIZ_ERROR (
+              handleOf (ap_prc),
+              "[OMX_ErrorInsufficientResources] : mpg123_feed error : [%s]",
+              mpg123_plain_strerror (ret));
+          rc = OMX_ErrorInsufficientResources;
+        }
+      else
+        {
+          p_in->nFilledLen = 0;
+          rc = release_in_hdr (ap_prc);
+        }
+    }
+  return rc;
+}
+
+static OMX_ERRORTYPE decode_stream (mpg123d_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  do
+    {
+      if (need_to_feed_more_data (ap_prc))
+        {
+          tiz_check_omx_err (feed_encoded_data (ap_prc));
+        }
+      tiz_check_omx_err (consume_decoded_data (ap_prc));
+    }
+  while (may_consume_more_data (ap_prc));
   return OMX_ErrorNone;
 }
 
@@ -161,62 +376,27 @@ static OMX_ERRORTYPE query_format (mpg123d_prc_t *ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
-  int mpg123_ret = 0;
-  size_t bytes_decoded = 0;
 
-  if (NULL == p_in)
+  if (p_in)
     {
-      TIZ_TRACE (handleOf (ap_prc), "IN HEADER [%p]", p_in);
-      return OMX_ErrorNone;
-    }
+      int mpg123_ret = 0;
+      size_t bytes_decoded = 0;
+      assert (NULL != ap_prc);
+      assert (NULL != ap_prc->p_mpg123_);
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_mpg123_);
+      mpg123_ret = mpg123_decode (ap_prc->p_mpg123_, TIZ_OMX_BUF_PTR (p_in),
+                                  TIZ_OMX_BUF_FILL_LEN (p_in), NULL, 0,
+                                  &bytes_decoded);
+      p_in->nFilledLen = 0;
 
-  mpg123_ret = mpg123_decode (ap_prc->p_mpg123_, p_in->pBuffer + p_in->nOffset,
-                              p_in->nFilledLen, NULL, 0, &bytes_decoded);
-  TIZ_TRACE (handleOf (ap_prc), "mpg123 return code [%s]",
-             mpg123_plain_strerror (mpg123_ret));
-
-  p_in->nFilledLen = 0;
-
-  if (MPG123_NEW_FORMAT == mpg123_ret)
-    {
-      long rate;
-      int channels;
-      int encoding;
-      /* Format found */
-      mpg123_getformat (ap_prc->p_mpg123_, &rate, &channels, &encoding);
-      TIZ_TRACE (handleOf (ap_prc),
-                 "stream format : rate [%ld] channels [%d] encoding [%d]", rate,
-                 channels, encoding);
-      ap_prc->found_format_ = true;
-
-      {
-        OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
-            ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
-
-        if (p_out)
-          {
-            size_t done;
-            mpg123_read (ap_prc->p_mpg123_, p_out->pBuffer + p_out->nOffset,
-                         p_out->nAllocLen, &done);
-            p_out->nFilledLen = done;
-            TIZ_TRACE (handleOf (ap_prc),
-                       "releasing output HEADER [%p] with [%d] bytes", p_out,
-                       p_out->nFilledLen);
-            tiz_filter_prc_release_header (
-                ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX);
-          }
-      }
-    }
-
-  if (0 == p_in->nFilledLen)
-    {
-      TIZ_TRACE (handleOf (ap_prc),
-                 "releasing input HEADER [%p] nFlags [%d] is empty", p_in,
-                 p_in->nFlags);
-      release_input_header (ap_prc);
+      if (MPG123_NEW_FORMAT == mpg123_ret)
+        {
+          TIZ_TRACE (handleOf (ap_prc), "Found new format");
+          ap_prc->found_format_ = true;
+          retrieve_stream_format (ap_prc);
+          rc = consume_decoded_data (ap_prc);
+        }
+      (void)release_in_hdr (ap_prc);
     }
 
   return rc;
@@ -226,6 +406,7 @@ static void reset_stream_parameters (mpg123d_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   ap_prc->found_format_ = false;
+  ap_prc->need_to_feed_more_ = true;
   tiz_filter_prc_update_eos_flag (ap_prc, false);
 }
 
@@ -328,18 +509,12 @@ static OMX_ERRORTYPE mpg123d_prc_buffers_ready (const void *ap_prc)
 
   assert (NULL != ap_prc);
 
-  while (tiz_filter_prc_headers_available (p_prc) && OMX_ErrorNone == rc)
-    {
-
-      rc = !p_prc->found_format_ ? query_format (p_prc)
-                                 : transform_buffer (p_prc);
-    }
+  rc = !p_prc->found_format_ ? query_format (p_prc) : decode_stream (p_prc);
 
   return rc;
 }
 
-static OMX_ERRORTYPE mpg123d_proc_port_flush (const void *ap_prc,
-                                              OMX_U32 a_pid)
+static OMX_ERRORTYPE mpg123d_proc_port_flush (const void *ap_prc, OMX_U32 a_pid)
 {
   mpg123d_prc_t *p_prc = (mpg123d_prc_t *)ap_prc;
   reset_stream_parameters (p_prc);

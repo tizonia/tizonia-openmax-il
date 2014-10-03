@@ -47,6 +47,7 @@ struct mpg123d_prc
   const tiz_filter_prc_t _;
   mpg123_handle *p_mpg123_;
   bool found_format_;
+  bool need_to_feed_more_;
 };
 
 typedef struct mpg123d_prc_class mpg123d_prc_class_t;
