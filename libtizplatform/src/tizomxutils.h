@@ -49,6 +49,12 @@ extern "C" {
   (struct_storage).nVersion.nVersion = OMX_VERSION;             \
   (struct_storage).nPortIndex = port_id;
 
+#define TIZ_OMX_BUF_PTR(hdr) (hdr->pBuffer + hdr->nOffset)
+
+#define TIZ_OMX_BUF_FILL_LEN(hdr) (hdr->nFilledLen)
+
+#define TIZ_OMX_BUF_ALLOC_LEN(hdr) (hdr->nAllocLen - hdr->nOffset)
+
 /*@observer@ */ OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd);
 /*@observer@ */ OMX_STRING tiz_state_to_str (OMX_STATETYPE a_id);
 /*@observer@ */ OMX_STRING tiz_evt_to_str (OMX_EVENTTYPE a_evt);
