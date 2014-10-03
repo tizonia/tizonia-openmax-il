@@ -56,7 +56,7 @@ namespace tiz
                     public DBus::ObjectAdaptor
     {
     public:
-      static const char * TPLAY_MPRIS_OBJECT_PATH;
+      static const char * TIZONIA_MPRIS_OBJECT_PATH;
 
     public:
       mprisif (DBus::Connection &connection,

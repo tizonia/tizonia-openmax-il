@@ -63,14 +63,14 @@ namespace
 }
 
 // Object path, a.k.a. node
-const char *control::mprisif::TPLAY_MPRIS_OBJECT_PATH
+const char *control::mprisif::TIZONIA_MPRIS_OBJECT_PATH
     = "/com/aratelia/tiz/tizonia";
 
 control::mprisif::mprisif (DBus::Connection &connection,
                            mpris_mediaplayer2_props_t props,
                            mpris_mediaplayer2_player_props_t player_props,
                            mpris_callbacks_t cbacks)
-  : DBus::ObjectAdaptor (connection, TPLAY_MPRIS_OBJECT_PATH),
+  : DBus::ObjectAdaptor (connection, TIZONIA_MPRIS_OBJECT_PATH),
     props_ (props),
     player_props_ (player_props),
     cbacks_ (cbacks)
