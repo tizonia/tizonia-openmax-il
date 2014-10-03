@@ -60,16 +60,18 @@
 #define OMX_TizoniaIndexConfigIcecastMetadata  OMX_IndexVendorStartUnused + 4 /**< reference: OMX_TIZONIA_ICECASTMETADATATYPE */
 #define OMX_TizoniaIndexParamAudioOpus         OMX_IndexVendorStartUnused + 5 /**< reference: OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE */
 #define OMX_TizoniaIndexParamAudioFlac         OMX_IndexVendorStartUnused + 6 /**< reference: OMX_TIZONIA_AUDIO_PARAM_FLACTYPE */
+#define OMX_TizoniaIndexParamAudioMp2         OMX_IndexVendorStartUnused + 6 /**< reference: OMX_TIZONIA_AUDIO_PARAM_MP2TYPE */
 
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
  */
 
-#define OMX_AUDIO_CodingOPUS OMX_AUDIO_CodingVendorStartUnused + 1
-#define OMX_AUDIO_CodingFLAC OMX_AUDIO_CodingVendorStartUnused + 2
+#define OMX_AUDIO_CodingOPUS  OMX_AUDIO_CodingVendorStartUnused + 1
+#define OMX_AUDIO_CodingFLAC  OMX_AUDIO_CodingVendorStartUnused + 2
 #define OMX_AUDIO_CodingSPEEX OMX_AUDIO_CodingVendorStartUnused + 3
-#define OMX_AUDIO_CodingOGA OMX_AUDIO_CodingVendorStartUnused + 4 /** this for audio in an ogg container */
+#define OMX_AUDIO_CodingOGA   OMX_AUDIO_CodingVendorStartUnused + 4 /** this for audio in an ogg container */
+#define OMX_AUDIO_CodingMP2   OMX_AUDIO_CodingVendorStartUnused + 5
 
 /**
  * The name of the pre-announcements mode extension.
@@ -213,5 +215,32 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_FLACTYPE {
                                        will be encoded. Set to 0 if unknown. */
     OMX_AUDIO_CHANNELMODETYPE eChannelMode;
 } OMX_TIZONIA_AUDIO_PARAM_FLACTYPE;
+
+/**
+ * MP2 encoder/decoder components
+ * References:
+ * - http://en.wikipedia.org/wiki/MPEG-1_Audio_Layer_II
+ *
+ */
+
+typedef enum OMX_TIZONIA_AUDIO_MP2STREAMFORMATTYPE {
+    OMX_AUDIO_MP2StreamFormatMP1Layer2 = 0, /**< MP2 Audio MPEG 1 Layer 2 Streaxm format */
+    OMX_AUDIO_MP2StreamFormatMP2Layer2,     /**< MP2 Audio MPEG 2 Layer 2 Stream format */
+    OMX_AUDIO_MP2StreamFormatKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */ 
+    OMX_AUDIO_MP2StreamFormatVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_MP2StreamFormatMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_MP2STREAMFORMATTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_MP2TYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U32 nChannels;
+    OMX_U32 nBitRate;           /** 8, 16, 24, 40 and 144 kbit/s (MPEG-2 only), 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320 and 384 kbit/s (MPEG-1 and MPEG-2) */
+    OMX_U32 nSampleRate;        /** 16, 22.05 and 24 (MPEG-2 only), 32, 44.1 and 48 kHz (MPEG-1 and MPEG-2)*/
+    OMX_AUDIO_CHANNELMODETYPE eChannelMode;
+    OMX_TIZONIA_AUDIO_MP2STREAMFORMATTYPE eFormat;
+} OMX_TIZONIA_AUDIO_PARAM_MP2TYPE;
+
 
 #endif /* OMX_TizoniaExt_h */
