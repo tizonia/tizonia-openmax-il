@@ -473,6 +473,17 @@ aacport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
                          "OMX_TizoniaIndexParamAudioFlac : new sampling rate[%d] "
                          "new num channels[%d]", new_rate, new_channels);
             }
+
+          else if (OMX_TizoniaIndexParamAudioMp2 == a_index)
+            {
+              const OMX_TIZONIA_AUDIO_PARAM_MP2TYPE *p_mp2type = ap_struct;
+              new_rate = p_mp2type->nSampleRate;
+              new_channels = p_mp2type->nChannels;
+
+              TIZ_TRACE (handleOf (ap_obj),
+                         "OMX_TizoniaIndexParamAudioMp2 : new sampling rate[%d] "
+                         "new num channels[%d]", new_rate, new_channels);
+            }
         }
       };
 
