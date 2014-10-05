@@ -59,6 +59,31 @@ extern "C"
 #define ICE_MAX_BURST_SIZE             4200 /* Not used for now */
 #define ICE_LISTENER_BUF_SIZE          (ICE_MAX_BURST_SIZE + OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE)
 
+#define ICE_RENDERER_SOCK_ERROR (int)-1
+
+#define goto_end_on_socket_error(expr, hdl, msg) \
+  do                                             \
+    {                                            \
+      if (ICE_RENDERER_SOCK_ERROR == (expr))     \
+        {                                        \
+          TIZ_ERROR (hdl, "%s (%s)", msg);       \
+          goto end;                              \
+        }                                        \
+    }                                            \
+  while (0)
+
+#define goto_end_on_omx_error(expr, hdl, msg)                     \
+  do                                                              \
+    {                                                             \
+      OMX_ERRORTYPE rc = OMX_ErrorNone;                           \
+      if (OMX_ErrorNone != (rc = (expr)))                         \
+        {                                                         \
+          TIZ_ERROR (hdl, "[%s] : %s", tiz_err_to_str (rc), msg); \
+          goto end;                                               \
+        }                                                         \
+    }                                                             \
+  while (0)
+
 #ifdef __cplusplus
 }
 #endif

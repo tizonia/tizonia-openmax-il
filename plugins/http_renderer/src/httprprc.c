@@ -69,7 +69,7 @@ stream_to_clients (httpr_prc_t * ap_prc)
   assert (NULL != ap_prc);
   if (ap_prc->p_server_)
     {
-      rc = httpr_net_write_to_listeners (ap_prc->p_server_);
+      rc = httpr_net_write_to_listener (ap_prc->p_server_);
       switch (rc)
         {
         case OMX_ErrorNoMore:

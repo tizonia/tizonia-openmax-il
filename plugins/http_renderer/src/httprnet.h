@@ -37,8 +37,6 @@ extern "C"
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#define ICE_RENDERER_SOCK_ERROR (int)-1
-
   typedef struct httpr_server httpr_server_t;
 
   typedef void (*httpr_buffer_emptied_f) (OMX_BUFFERHEADERTYPE * ap_hdr,
@@ -61,7 +59,7 @@ extern "C"
 
   OMX_ERRORTYPE httpr_net_stop_listening (httpr_server_t * ap_server);
 
-  OMX_ERRORTYPE httpr_net_write_to_listeners (httpr_server_t * ap_server);
+  OMX_ERRORTYPE httpr_net_write_to_listener (httpr_server_t * ap_server);
 
   int httpr_net_get_server_fd (const httpr_server_t * ap_server);
 
