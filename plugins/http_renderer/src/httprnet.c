@@ -166,6 +166,7 @@ static void listeners_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 static bool net_is_recoverable_error (httpr_server_t *ap_server, int sockfd,
                                       int error)
 {
+  bool rc = false;
   assert (NULL != ap_server);
   TIZ_TRACE (ap_server->p_hdl, "Socket [%d] error [%s]", sockfd,
              strerror (error));
@@ -178,13 +179,16 @@ static bool net_is_recoverable_error (httpr_server_t *ap_server, int sockfd,
       case EWOULDBLOCK:
 #endif
         {
-          return true;
+          rc = true;
         }
+        break;
       default:
         {
-          return false;
+          rc = false;
         }
+        break;
     };
+  return rc;
 }
 
 static inline bool net_is_valid_socket (int a_sockfd)
@@ -220,27 +224,27 @@ static inline int net_get_listeners_count (const httpr_server_t *ap_server)
   return rc;
 }
 
-static OMX_ERRORTYPE net_set_non_blocking (const int sockfd)
+static int net_set_non_blocking (const int sockfd)
 {
-  int rc, flags;
-
-  if ((flags = fcntl (sockfd, F_GETFL, 0)) < 0)
+  int rc = ICE_RENDERER_SOCK_ERROR;
+  int flags;
+  errno = 0;
+  if ((flags = fcntl (sockfd, F_GETFL, 0)) != ICE_RENDERER_SOCK_ERROR)
     {
-      return OMX_ErrorUndefined;
+      errno = 0;
+      flags |= O_NONBLOCK;
+      if (fcntl (sockfd, F_SETFL, flags) != ICE_RENDERER_SOCK_ERROR)
+        {
+          rc = 0;
+        }
     }
-
-  flags |= O_NONBLOCK;
-  if ((rc = fcntl (sockfd, F_SETFL, flags)) < 0)
-    {
-      return OMX_ErrorUndefined;
-    }
-
-  return OMX_ErrorNone;
+  return rc;
 }
 
 static inline int net_set_nolinger (const int sock)
 {
   struct linger lin = { 0, 0 };
+  errno = 0;
   /* linger inactive. close call will return immediately to the caller, and any
    * pending data will be delivered if possible. */
   return setsockopt (sock, SOL_SOCKET, SO_LINGER, (void *)&lin,
@@ -250,6 +254,7 @@ static inline int net_set_nolinger (const int sock)
 static inline int net_set_nodelay (const int sock)
 {
   int nodelay = 1;
+  errno = 0;
   return setsockopt (sock, IPPROTO_TCP, TCP_NODELAY, (void *)&nodelay,
                      sizeof(int));
 }
@@ -257,6 +262,7 @@ static inline int net_set_nodelay (const int sock)
 static inline int net_set_keepalive (const int sock)
 {
   int keepalive = 1;
+  errno = 0;
   return setsockopt (sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepalive,
                      sizeof(int));
 }
@@ -264,51 +270,69 @@ static inline int net_set_keepalive (const int sock)
 static int net_accept_socket (httpr_server_t *ap_server, char *ap_ip,
                               const size_t a_ip_len, unsigned short *ap_port)
 {
+#define bail_on_accept_error(some_error, msg)                          \
+  do                                                                   \
+    {                                                                  \
+      if (some_error)                                                  \
+        {                                                              \
+          TIZ_ERROR (p_hdl, "[%s]", msg);                              \
+          goto end;                                                    \
+        }                                                              \
+    }                                                                  \
+  while (0)
+
   int accepted_sockfd = ICE_RENDERER_SOCK_ERROR;
   struct sockaddr_storage sa;
   socklen_t slen = sizeof(sa);
   OMX_HANDLETYPE p_hdl = NULL;
+  bool some_error = true;
+  int err = 0;
 
   assert (NULL != ap_server);
   assert (NULL != ap_ip);
   assert (NULL != ap_port);
   p_hdl = ap_server->p_hdl;
 
-  if (!net_is_valid_socket (ap_server->lstn_sockfd))
+  some_error = (!net_is_valid_socket (ap_server->lstn_sockfd));
+  bail_on_accept_error (some_error, "Invalid server socket");
+
+  errno = 0;
+  accepted_sockfd
+    = accept (ap_server->lstn_sockfd, (struct sockaddr *)&sa, &slen);
+  some_error = (ICE_RENDERER_SOCK_ERROR == accepted_sockfd);
+  bail_on_accept_error (some_error, strerror (errno));
+
+  if (0 != (err = getnameinfo ((struct sockaddr *)&sa, slen, ap_ip,
+                               a_ip_len, NULL, 0, NI_NUMERICHOST)))
     {
-      TIZ_ERROR (p_hdl, "Invalid server socket fd [%d] ",
-                 ap_server->lstn_sockfd);
+      snprintf (ap_ip, a_ip_len, "unknown");
+      TIZ_ERROR (p_hdl, "getnameinfo error [%s]", gai_strerror (err));
     }
   else
     {
-      errno = 0;
-      accepted_sockfd
-          = accept (ap_server->lstn_sockfd, (struct sockaddr *)&sa, &slen);
-
-      if (accepted_sockfd != ICE_RENDERER_SOCK_ERROR)
+      if (sa.ss_family == AF_INET)
         {
-          int err = 0;
-          if (0 != (err = getnameinfo ((struct sockaddr *)&sa, slen, ap_ip,
-                                       a_ip_len, NULL, 0, NI_NUMERICHOST)))
-            {
-              snprintf (ap_ip, a_ip_len, "unknown");
-              TIZ_ERROR (p_hdl, "getnameinfo error [%s]", gai_strerror (err));
-            }
-          else
-            {
-              if (sa.ss_family == AF_INET)
-                {
-                  struct sockaddr_in *p_sa_in = (struct sockaddr_in *)&sa;
-                  *ap_port = ntohs (p_sa_in->sin_port);
-                }
-            }
-          (void)net_set_nolinger (accepted_sockfd);
-          (void)net_set_keepalive (accepted_sockfd);
-
-          TIZ_TRACE (p_hdl, "Accepted [%s:%u] fd [%d]", ap_ip, *ap_port,
-                     accepted_sockfd);
+          struct sockaddr_in *p_sa_in = (struct sockaddr_in *)&sa;
+          *ap_port = ntohs (p_sa_in->sin_port);
         }
     }
+
+  err = net_set_nolinger (accepted_sockfd);
+  some_error = (ICE_RENDERER_SOCK_ERROR == err);
+  bail_on_accept_error (some_error, strerror (errno));
+
+  err = net_set_keepalive (accepted_sockfd);
+  some_error = (ICE_RENDERER_SOCK_ERROR == err);
+  bail_on_accept_error (some_error, strerror (errno));
+
+  TIZ_TRACE (p_hdl, "Accepted [%s:%u] fd [%d]", ap_ip, *ap_port,
+             accepted_sockfd);
+ end:
+  if (some_error)
+    {
+      accepted_sockfd = ICE_RENDERER_SOCK_ERROR;
+    }
+
   return accepted_sockfd;
 }
 
@@ -587,6 +611,7 @@ static OMX_ERRORTYPE net_create_listener (httpr_server_t *ap_server,
   httpr_listener_t *p_lstnr = NULL;
   httpr_connection_t *p_con = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
+  int sockrc = ICE_RENDERER_SOCK_ERROR;
 
   assert (NULL != ap_server);
   assert (NULL != app_lstnr);
@@ -623,11 +648,13 @@ static OMX_ERRORTYPE net_create_listener (httpr_server_t *ap_server,
   rc = tiz_http_parser_init (&(p_lstnr->p_parser), ETIZHttpParserTypeRequest);
   goto_end_on_omx_error (rc, p_hdl, "Unable to init the http parser");
 
-  rc = net_set_non_blocking (p_lstnr->p_con->sockfd);
-  goto_end_on_omx_error (rc, p_hdl, "Unable to set socket non-blocking");
+  sockrc = net_set_non_blocking (p_lstnr->p_con->sockfd);
+  rc = sockrc < 0 ? OMX_ErrorInsufficientResources : OMX_ErrorNone;
+  goto_end_on_socket_error (sockrc, p_hdl, strerror (errno));
 
-  rc = net_set_nodelay (p_lstnr->p_con->sockfd);
-  goto_end_on_omx_error (rc, p_hdl, "Unable to set no delay");
+  sockrc = net_set_nodelay (p_lstnr->p_con->sockfd);
+  rc = sockrc < 0 ? OMX_ErrorInsufficientResources : OMX_ErrorNone;
+  goto_end_on_socket_error (sockrc, p_hdl, strerror (errno));
 
   rc = OMX_ErrorNone;
 
