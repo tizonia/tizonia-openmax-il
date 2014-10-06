@@ -854,6 +854,21 @@ static int net_send_http_response (httpr_server_t *ap_server,
 static OMX_ERRORTYPE net_handle_listeners_request (httpr_server_t *ap_server,
                                                    httpr_listener_t *ap_lstnr)
 {
+#define bail_on_request_error(some_error, httperr, msg)                \
+  do                                                                   \
+    {                                                                  \
+      if (some_error)                                                  \
+        {                                                              \
+          TIZ_ERROR (ap_server->p_hdl, "[%s]", msg);                   \
+          if (httperr > 0)                                             \
+            {                                                          \
+              net_send_http_error (ap_server, ap_lstnr, httperr, msg); \
+            }                                                          \
+          goto end;                                                    \
+        }                                                              \
+    }                                                                  \
+  while (0)
+
   int nparsed = 0;
   int nread = -1;
   bool some_error = true;
@@ -866,63 +881,35 @@ static OMX_ERRORTYPE net_handle_listeners_request (httpr_server_t *ap_server,
   assert (NULL != ap_lstnr->p_con);
   assert (NULL != ap_lstnr->p_parser);
 
-  if (net_get_listeners_count (ap_server) > ap_server->max_clients)
-    {
-      TIZ_ERROR (ap_server->p_hdl, "Client limit reached [%d]",
-                 ap_server->max_clients);
-      net_send_http_error (ap_server, ap_lstnr, 400, "Client limit reached");
-      goto end;
-    }
+  some_error = (net_get_listeners_count (ap_server) > ap_server->max_clients);
+  bail_on_request_error (some_error, 400, "Client limit reached");
 
-  if (ap_lstnr->p_con->con_time + ICE_DEFAULT_HEADER_TIMEOUT <= time (NULL))
-    {
-      TIZ_ERROR (ap_server->p_hdl, "Connection timed out.");
-      goto end;
-    }
+  some_error
+      = (ap_lstnr->p_con->con_time + ICE_DEFAULT_HEADER_TIMEOUT <= time (NULL));
+  bail_on_request_error (some_error, -1, "Connection timed out");
 
-  if ((nread = net_read_from_listener (ap_lstnr)) > 0)
-    {
-      nparsed = tiz_http_parser_parse (ap_lstnr->p_parser, ap_lstnr->buf.p_data,
-                                       nread);
-    }
-  else
-    {
-      TIZ_ERROR (ap_server->p_hdl,
-                 "Could not read from socket "
-                 "(nread = %d errno = [%s]).",
-                 nread, strerror (errno));
+  some_error = ((nread = net_read_from_listener (ap_lstnr)) <= 0);
+  rc = (some_error ? (net_is_recoverable_error (ap_server,
+                                                ap_lstnr->p_con->sockfd, errno)
+                          ? OMX_ErrorNotReady
+                          : OMX_ErrorNone)
+                   : OMX_ErrorNone);
+  bail_on_request_error (some_error, -1, strerror (errno));
 
-      if (net_is_recoverable_error (ap_server, ap_lstnr->p_con->sockfd, errno))
-        {
-          /* This could be due to a connection time out or to the peer having
-           * closed the connection already */
-          return OMX_ErrorNotReady;
-        }
-      goto end;
-    }
+  nparsed
+      = tiz_http_parser_parse (ap_lstnr->p_parser, ap_lstnr->buf.p_data, nread);
+  some_error = (nparsed != nread);
+  bail_on_request_error (some_error, 400, "Bad request");
 
-  if (nparsed != nread)
-    {
-      TIZ_ERROR (ap_server->p_hdl, "Bad http request");
-      net_send_http_error (ap_server, ap_lstnr, 400, "Bad request");
-      goto end;
-    }
+  some_error = (NULL == (parsed_string
+                         = tiz_http_parser_get_method (ap_lstnr->p_parser))
+                || (0 != strncmp ("GET", parsed_string, strlen ("GET"))));
+  bail_on_request_error (some_error, 405, "Method not allowed");
 
-  if (NULL == (parsed_string = tiz_http_parser_get_method (ap_lstnr->p_parser))
-      || (0 != strncmp ("GET", parsed_string, strlen ("GET"))))
-    {
-      TIZ_ERROR (ap_server->p_hdl, "Bad http method");
-      net_send_http_error (ap_server, ap_lstnr, 405, "Method not allowed");
-      goto end;
-    }
-
-  if (NULL == (parsed_string = tiz_http_parser_get_url (ap_lstnr->p_parser))
-      || (0 != strncmp ("/", parsed_string, strlen ("/"))))
-    {
-      TIZ_ERROR (ap_server->p_hdl, "Bad url");
-      net_send_http_error (ap_server, ap_lstnr, 405, "Unathorized");
-      goto end;
-    }
+  some_error
+      = (NULL == (parsed_string = tiz_http_parser_get_url (ap_lstnr->p_parser))
+         || (0 != strncmp ("/", parsed_string, strlen ("/"))));
+  bail_on_request_error (some_error, 401, "Unathorized");
 
   if (NULL != (parsed_string = tiz_http_parser_get_header (ap_lstnr->p_parser,
                                                            "Icy-MetaData"))
@@ -933,30 +920,21 @@ static OMX_ERRORTYPE net_handle_listeners_request (httpr_server_t *ap_server,
     }
 
   /* The request seems ok. Now build the response */
-  if (0 == (to_write = net_build_http_positive_response (
-                ap_server, ap_lstnr->buf.p_data, ICE_LISTENER_BUF_SIZE - 1,
-                ap_server->bitrate, ap_server->num_channels,
-                ap_server->sample_rate, ap_lstnr->want_metadata)))
-    {
-      TIZ_ERROR (ap_server->p_hdl, "Internal Server Error");
-      net_send_http_error (ap_server, ap_lstnr, 500, "Internal Server Error");
-      goto end;
-    }
+  some_error
+      = (0 == (to_write = net_build_http_positive_response (
+                   ap_server, ap_lstnr->buf.p_data, ICE_LISTENER_BUF_SIZE - 1,
+                   ap_server->bitrate, ap_server->num_channels,
+                   ap_server->sample_rate, ap_lstnr->want_metadata)));
+  bail_on_request_error (some_error, 500, "Internal Server Error");
 
-  if (0 == net_send_http_response (ap_server, ap_lstnr))
-    {
-      TIZ_ERROR (ap_server->p_hdl, "Internal Server Error");
-      net_send_http_error (ap_server, ap_lstnr, 500, "Internal Server Error");
-      goto end;
-    }
+  some_error = (0 == net_send_http_response (ap_server, ap_lstnr));
+  bail_on_request_error (some_error, 500, "Internal Server Error");
 
   some_error = false;
-
   ap_lstnr->need_response = false;
 
 end:
-
-  if (some_error)
+  if (some_error && OMX_ErrorNone == rc)
     {
       rc = OMX_ErrorInsufficientResources;
     }
