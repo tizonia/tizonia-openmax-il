@@ -1674,10 +1674,11 @@ end:
       TIZ_TRACE (p_hdl, "Client [%s:%u] fd [%d] now connected", p_con->p_ip,
                  p_con->port, p_con->sockfd);
 
-      TIZ_PRINTF_YEL (
-          "burst [%d] sample rate [%u] bitrate [%u] "
+      TIZ_PRINTF_RED ("Client connected [%s:%u]\n", p_con->p_ip, p_con->port);
+      TIZ_PRINTF_GRN (
+          "\tburst [%d] sample rate [%u] bitrate [%u] "
           "burst_size [%u] bytes per frame [%u] wait_time [%f] "
-          "pkts/s [%f].",
+          "pkts/s [%f].\n",
           (unsigned int)p_con->initial_burst_bytes,
           (unsigned int)ap_server->sample_rate,
           (unsigned int)ap_server->bitrate, (unsigned int)ap_server->burst_size,
@@ -1850,7 +1851,7 @@ void httpr_net_set_mp3_settings (httpr_server_t *ap_server,
       net_start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
     }
 
-  TIZ_PRINTF_YEL (
+  TIZ_PRINTF_MAG (
       "burst [%d] sample rate [%u] bitrate [%u] "
       "burst_size [%u] bytes per frame [%u] wait_time [%f] "
       "pkts/s [%f].%s\n",
