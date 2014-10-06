@@ -1854,7 +1854,7 @@ void httpr_net_set_mp3_settings (httpr_server_t *ap_server,
   TIZ_PRINTF_MAG (
       "burst [%d] sample rate [%u] bitrate [%u] "
       "burst_size [%u] bytes per frame [%u] wait_time [%f] "
-      "pkts/s [%f].%s\n",
+      "pkts/s [%f].\n",
       (unsigned int)ap_server->mountpoint.initial_burst_size,
       (unsigned int)ap_server->sample_rate, (unsigned int)ap_server->bitrate,
       (unsigned int)ap_server->burst_size,
