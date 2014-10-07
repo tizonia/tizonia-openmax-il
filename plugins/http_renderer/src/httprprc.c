@@ -419,13 +419,10 @@ httpr_prc_io_ready (void *ap_prc,
 {
   httpr_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Received io event on socket fd [%d] "
-            "lstn_sockfd_ [%d]", a_fd, p_prc->lstn_sockfd_);
-
   if (a_fd == p_prc->lstn_sockfd_)
     {
+      TIZ_PRINTF_DBG_RED ("lstn_sockfd is ready [%d]\n", p_prc->lstn_sockfd_);
       rc = httpr_net_accept_connection (p_prc->p_server_);
       if (OMX_ErrorInsufficientResources != rc)
         {
@@ -444,7 +441,6 @@ static OMX_ERRORTYPE
 httpr_prc_timer_ready (void *ap_prc, tiz_event_timer_t * ap_ev_timer,
                       void *ap_arg)
 {
-  TIZ_NOTICE (handleOf (ap_prc), "Received timer event ");
   return stream_to_clients (ap_prc);
 }
 
