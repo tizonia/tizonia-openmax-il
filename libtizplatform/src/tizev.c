@@ -141,41 +141,37 @@ static void io_watcher_cback (struct ev_loop *ap_loop, ev_io *ap_watcher,
 static void timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher,
                                  int a_revents)
 {
-  tiz_event_timer_t *p_timer_event = (tiz_event_timer_t *)ap_watcher;
   (void) ap_loop;
   (void) a_revents;
 
-  if (NULL == gp_event_thread)
+  if (gp_event_thread)
     {
-      return;
+      tiz_event_timer_t *p_timer_event = (tiz_event_timer_t *)ap_watcher;
+      assert (NULL != p_timer_event);
+      assert (NULL != p_timer_event->pf_cback);
+
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "timer watcher cback");
+
+      p_timer_event->pf_cback (p_timer_event->p_hdl, p_timer_event,
+                               p_timer_event->p_arg);
     }
-
-  assert (NULL != p_timer_event);
-  assert (NULL != p_timer_event->pf_cback);
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "timer watcher cback");
-
-  p_timer_event->pf_cback (p_timer_event->p_hdl, p_timer_event,
-                           p_timer_event->p_arg);
 }
 
 static void stat_watcher_cback (struct ev_loop *ap_loop, ev_stat *ap_watcher,
                                 int a_revents)
 {
-  tiz_event_stat_t *p_stat_event = (tiz_event_stat_t *)ap_watcher;
   (void) ap_loop;
 
-  if (NULL == gp_event_thread)
+  if (gp_event_thread)
     {
-      return;
+      tiz_event_stat_t *p_stat_event = (tiz_event_stat_t *)ap_watcher;
+      assert (NULL != p_stat_event);
+      assert (NULL != p_stat_event->pf_cback);
+
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "stat watcher cback");
+
+      p_stat_event->pf_cback (p_stat_event->p_hdl, p_stat_event, a_revents);
     }
-
-  assert (NULL != p_stat_event);
-  assert (NULL != p_stat_event->pf_cback);
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "stat watcher cback");
-
-  p_stat_event->pf_cback (p_stat_event->p_hdl, p_stat_event, a_revents);
 }
 
 static void *event_loop_thread_func (void *p_arg)
