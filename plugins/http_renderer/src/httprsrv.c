@@ -223,6 +223,16 @@ static inline int net_get_listeners_count (const httpr_server_t *ap_server)
   return rc;
 }
 
+static httpr_listener_t * net_get_first_listener (const httpr_server_t *ap_server)
+{
+  httpr_listener_t * p_lstnr = NULL;
+  if (net_get_listeners_count (ap_server) > 0)
+    {
+      p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
+    }
+  return p_lstnr;
+}
+
 static int net_set_non_blocking (const int sockfd)
 {
   int rc = ICE_SOCK_ERROR;
@@ -1530,10 +1540,13 @@ httpr_srv_accept_connection (httpr_server_t *ap_server)
   assert (NULL != ap_server);
   p_hdl = ap_server->p_hdl;
 
-  /* This is a simple solution to prevent more than one connection at
-   * a time. One day this mmay be a multi-client renderer */
-  tiz_map_for_each (ap_server->p_lstnrs, net_remove_existing_listener,
-                    ap_server);
+  if (net_get_listeners_count (ap_server) > 0)
+    {
+      /* This is a simple solution to prevent more than one connection at
+       * a time. One day this could be a multi-client renderer */
+      tiz_map_for_each (ap_server->p_lstnrs, net_remove_existing_listener,
+                        ap_server);
+    }
 
   if (NULL != (p_ip = (char *)tiz_mem_alloc (ICE_RENDERER_MAX_ADDR_LEN)))
     {
@@ -1626,7 +1639,7 @@ httpr_srv_stop (httpr_server_t *ap_server)
     {
       /* Until support for multiple listeners gets implemented, there will only
          be one listener in the map */
-      p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
+      p_lstnr = net_get_first_listener (ap_server);
       if (p_lstnr)
         {
           (void)net_stop_listener_io_watcher (p_lstnr);
@@ -1654,7 +1667,7 @@ httpr_srv_write (httpr_server_t *ap_server)
 
   /* Until support for multiple listeners gets implemented, there will only be
      one listener in the map */
-  p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
+  p_lstnr = net_get_first_listener (ap_server);
   assert (NULL != p_lstnr);
   p_con = p_lstnr->p_con;
   assert (NULL != p_con);
@@ -1755,7 +1768,7 @@ void httpr_srv_set_mp3_settings (httpr_server_t *ap_server,
 
   if (net_get_listeners_count (ap_server) > 0)
     {
-      httpr_listener_t *p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
+      httpr_listener_t *p_lstnr = net_get_first_listener (ap_server);
       assert (NULL != p_lstnr);
       net_stop_listener_timer_watcher (p_lstnr);
       net_start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
@@ -1835,7 +1848,7 @@ void httpr_srv_set_stream_title (httpr_server_t *ap_server,
 
   if (net_get_listeners_count (ap_server) > 0)
     {
-      httpr_listener_t *p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
+      httpr_listener_t *p_lstnr = net_get_first_listener (ap_server);
       assert (NULL != p_lstnr);
       assert (NULL != p_lstnr->p_con);
       p_lstnr->p_con->metadata_delivered = false;

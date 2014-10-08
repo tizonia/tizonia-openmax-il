@@ -64,6 +64,7 @@ static OMX_ERRORTYPE stream_to_clients (httpr_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_prc);
+
   if (ap_prc->p_server_)
     {
       rc = httpr_srv_write (ap_prc->p_server_);
@@ -114,7 +115,7 @@ static OMX_BUFFERHEADERTYPE *buffer_needed (void *ap_arg)
       p_hdr = p_prc->p_inhdr_;
     }
 
-  p_prc->awaiting_buffers_ = p_hdr ? true : false;
+  p_prc->awaiting_buffers_ = p_hdr ? false : true;
   return p_hdr;
 }
 
@@ -128,10 +129,11 @@ static void buffer_emptied (OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_arg)
   assert (ap_hdr->nFilledLen == 0);
 
   ap_hdr->nOffset = 0;
+  TIZ_TRACE (handleOf (p_prc), "HEADER [%p]", ap_hdr);
 
   if ((ap_hdr->nFlags & OMX_BUFFERFLAG_EOS) != 0)
     {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_BUFFERFLAG_EOS in HEADER [%p]", ap_hdr);
+      TIZ_TRACE (handleOf (p_prc), "OMX_BUFFERFLAG_EOS in HEADER [%p]", ap_hdr);
       tiz_srv_issue_event ((OMX_PTR)p_prc, OMX_EventBufferFlag,
                            ARATELIA_HTTP_RENDERER_PORT_INDEX, ap_hdr->nFlags,
                            NULL);
@@ -389,7 +391,6 @@ static OMX_ERRORTYPE httpr_prc_io_ready (void *ap_prc, tiz_event_io_t *ap_ev_io,
       if (a_fd == lstn_fd)
         {
           /* The server socket is ready */
-          TIZ_PRINTF_DBG_RED ("listener fd is ready [%d]\n", lstn_fd);
           rc = httpr_srv_accept_connection (p_prc->p_server_);
           if (OMX_ErrorInsufficientResources != rc)
             {
