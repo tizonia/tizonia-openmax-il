@@ -48,7 +48,6 @@ extern "C"
   {
     /* Object */
     const tiz_prc_t _;
-    OMX_STRING bind_address_;
     OMX_STRING mount_name_;
     bool awaiting_buffers_;
     bool port_disabled_;

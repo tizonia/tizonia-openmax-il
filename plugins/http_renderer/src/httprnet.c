@@ -225,14 +225,14 @@ static inline int net_get_listeners_count (const httpr_server_t *ap_server)
 
 static int net_set_non_blocking (const int sockfd)
 {
-  int rc = ICE_RENDERER_SOCK_ERROR;
+  int rc = ICE_SOCK_ERROR;
   int flags;
   errno = 0;
-  if ((flags = fcntl (sockfd, F_GETFL, 0)) != ICE_RENDERER_SOCK_ERROR)
+  if ((flags = fcntl (sockfd, F_GETFL, 0)) != ICE_SOCK_ERROR)
     {
       errno = 0;
       flags |= O_NONBLOCK;
-      if (fcntl (sockfd, F_SETFL, flags) != ICE_RENDERER_SOCK_ERROR)
+      if (fcntl (sockfd, F_SETFL, flags) != ICE_SOCK_ERROR)
         {
           rc = 0;
         }
@@ -269,18 +269,18 @@ static inline int net_set_keepalive (const int sock)
 static int net_accept_socket (httpr_server_t *ap_server, char *ap_ip,
                               const size_t a_ip_len, unsigned short *ap_port)
 {
-#define bail_on_accept_error(some_error, msg)                          \
-  do                                                                   \
-    {                                                                  \
-      if (some_error)                                                  \
-        {                                                              \
-          TIZ_ERROR (p_hdl, "[%s]", msg);                              \
-          goto end;                                                    \
-        }                                                              \
-    }                                                                  \
+#define bail_on_accept_error(some_error, msg) \
+  do                                          \
+    {                                         \
+      if (some_error)                         \
+        {                                     \
+          TIZ_ERROR (p_hdl, "[%s]", msg);     \
+          goto end;                           \
+        }                                     \
+    }                                         \
   while (0)
 
-  int accepted_sockfd = ICE_RENDERER_SOCK_ERROR;
+  int accepted_sockfd = ICE_SOCK_ERROR;
   struct sockaddr_storage sa;
   socklen_t slen = sizeof(sa);
   OMX_HANDLETYPE p_hdl = NULL;
@@ -297,12 +297,12 @@ static int net_accept_socket (httpr_server_t *ap_server, char *ap_ip,
 
   errno = 0;
   accepted_sockfd
-    = accept (ap_server->lstn_sockfd, (struct sockaddr *)&sa, &slen);
-  some_error = (ICE_RENDERER_SOCK_ERROR == accepted_sockfd);
+      = accept (ap_server->lstn_sockfd, (struct sockaddr *)&sa, &slen);
+  some_error = (ICE_SOCK_ERROR == accepted_sockfd);
   bail_on_accept_error (some_error, strerror (errno));
 
-  if (0 != (err = getnameinfo ((struct sockaddr *)&sa, slen, ap_ip,
-                               a_ip_len, NULL, 0, NI_NUMERICHOST)))
+  if (0 != (err = getnameinfo ((struct sockaddr *)&sa, slen, ap_ip, a_ip_len,
+                               NULL, 0, NI_NUMERICHOST)))
     {
       snprintf (ap_ip, a_ip_len, "unknown");
       TIZ_ERROR (p_hdl, "getnameinfo error [%s]", gai_strerror (err));
@@ -317,19 +317,19 @@ static int net_accept_socket (httpr_server_t *ap_server, char *ap_ip,
     }
 
   err = net_set_nolinger (accepted_sockfd);
-  some_error = (ICE_RENDERER_SOCK_ERROR == err);
+  some_error = (ICE_SOCK_ERROR == err);
   bail_on_accept_error (some_error, strerror (errno));
 
   err = net_set_keepalive (accepted_sockfd);
-  some_error = (ICE_RENDERER_SOCK_ERROR == err);
+  some_error = (ICE_SOCK_ERROR == err);
   bail_on_accept_error (some_error, strerror (errno));
 
   TIZ_TRACE (p_hdl, "Accepted [%s:%u] fd [%d]", ap_ip, *ap_port,
              accepted_sockfd);
- end:
+end:
   if (some_error)
     {
-      accepted_sockfd = ICE_RENDERER_SOCK_ERROR;
+      accepted_sockfd = ICE_SOCK_ERROR;
     }
 
   return accepted_sockfd;
@@ -344,8 +344,8 @@ static inline int net_create_server_socket (httpr_server_t *ap_server,
   struct addrinfo *res;
   struct addrinfo *ai;
   char service[10];
-  int sockfd = ICE_RENDERER_SOCK_ERROR;
-  int getaddrc = ICE_RENDERER_SOCK_ERROR;
+  int sockfd = ICE_SOCK_ERROR;
+  int getaddrc = ICE_SOCK_ERROR;
 
   assert (NULL != ap_server);
   assert (a_port >= 0);
@@ -360,7 +360,7 @@ static inline int net_create_server_socket (httpr_server_t *ap_server,
 
   if ((getaddrc = getaddrinfo (a_interface, service, &hints, &res)) != 0)
     {
-      TIZ_ERROR (ap_server->p_hdl, "[ICE_RENDERER_SOCK_ERROR] : %s.",
+      TIZ_ERROR (ap_server->p_hdl, "[ICE_SOCK_ERROR] : %s.",
                  gai_strerror (getaddrc));
     }
   else
@@ -392,7 +392,7 @@ static inline int net_create_server_socket (httpr_server_t *ap_server,
 
       freeaddrinfo (res);
     }
-  return ICE_RENDERER_SOCK_ERROR;
+  return ICE_SOCK_ERROR;
 }
 
 static void net_destroy_server_io_watcher (httpr_server_t *ap_server)
@@ -430,9 +430,9 @@ static OMX_ERRORTYPE net_start_server_io_watcher (httpr_server_t *ap_server)
 {
   assert (NULL != ap_server);
   TIZ_PRINTF_DBG_RED (
-             "Starting server io watcher "
-             "on fd [%d]",
-             ap_server->lstn_sockfd);
+      "Starting server io watcher "
+      "on fd [%d]",
+      ap_server->lstn_sockfd);
   return tiz_event_io_start (ap_server->p_srv_ev_io);
 }
 
@@ -441,9 +441,9 @@ static inline OMX_ERRORTYPE net_stop_server_io_watcher (
 {
   assert (NULL != ap_server);
   TIZ_PRINTF_DBG_RED (
-             "Stopping server io watcher "
-             "on fd [%d]",
-             ap_server->lstn_sockfd);
+      "Stopping server io watcher "
+      "on fd [%d]",
+      ap_server->lstn_sockfd);
   return tiz_event_io_stop (ap_server->p_srv_ev_io);
 }
 
@@ -495,7 +495,7 @@ static void net_destroy_connection (httpr_connection_t *ap_con)
 {
   if (ap_con)
     {
-      if (ICE_RENDERER_SOCK_ERROR != ap_con->sockfd)
+      if (ICE_SOCK_ERROR != ap_con->sockfd)
         {
           close (ap_con->sockfd);
         }
@@ -610,11 +610,11 @@ static OMX_ERRORTYPE net_create_listener (httpr_server_t *ap_server,
   httpr_listener_t *p_lstnr = NULL;
   httpr_connection_t *p_con = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
-  int sockrc = ICE_RENDERER_SOCK_ERROR;
+  int sockrc = ICE_SOCK_ERROR;
 
   assert (NULL != ap_server);
   assert (NULL != app_lstnr);
-  assert (ICE_RENDERER_SOCK_ERROR != a_connected_sockfd);
+  assert (ICE_SOCK_ERROR != a_connected_sockfd);
   assert (NULL != ap_ip);
   p_hdl = ap_server->p_hdl;
 
@@ -1025,7 +1025,7 @@ inline static void net_release_empty_buffer (httpr_server_t *ap_server,
 }
 
 static bool net_is_listener_ready (httpr_server_t *ap_server,
-                                httpr_listener_t *ap_lstnr)
+                                   httpr_listener_t *ap_lstnr)
 {
   bool lstnr_ready = true;
   OMX_HANDLETYPE p_hdl = NULL;
@@ -1255,7 +1255,7 @@ static OMX_S32 net_write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value,
   httpr_connection_t *p_con = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   OMX_U8 *p_buffer = NULL;
-  int sock = ICE_RENDERER_SOCK_ERROR;
+  int sock = ICE_SOCK_ERROR;
   size_t len = 0;
   int bytes = 0;
 
@@ -1300,8 +1300,8 @@ static OMX_S32 net_write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value,
           if (!net_is_recoverable_error (p_server, sock, errno))
             {
               TIZ_PRINTF_DBG_RED (
-                        "Will destroy listener "
-                        "(non-recoverable error while writing to socket\n");
+                  "Will destroy listener "
+                  "(non-recoverable error while writing to socket\n");
               /* Mark the listener as failed, so that it will get removed */
               p_con->error = true;
             }
@@ -1386,12 +1386,12 @@ static OMX_S32 net_write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value,
 /* httpr con APIs */
 /*               */
 
-void httpr_net_server_destroy (httpr_server_t *ap_server)
+void httpr_srv_destroy (httpr_server_t *ap_server)
 {
   if (ap_server)
     {
       net_destroy_server_io_watcher (ap_server);
-      if (ICE_RENDERER_SOCK_ERROR != ap_server->lstn_sockfd)
+      if (ICE_SOCK_ERROR != ap_server->lstn_sockfd)
         {
           close (ap_server->lstn_sockfd);
         }
@@ -1407,11 +1407,10 @@ void httpr_net_server_destroy (httpr_server_t *ap_server)
 }
 
 OMX_ERRORTYPE
-httpr_net_server_init (httpr_server_t **app_server, OMX_HANDLETYPE ap_hdl,
-                       OMX_STRING a_address, OMX_U32 a_port,
-                       OMX_U32 a_max_clients,
-                       httpr_buffer_emptied_f a_pf_emptied,
-                       httpr_buffer_needed_f a_pf_needed, OMX_PTR ap_arg)
+httpr_srv_init (httpr_server_t **app_server, OMX_HANDLETYPE ap_hdl,
+                OMX_STRING a_address, OMX_U32 a_port, OMX_U32 a_max_clients,
+                httpr_buffer_emptied_f a_pf_emptied,
+                httpr_buffer_needed_f a_pf_needed, OMX_PTR ap_arg)
 {
   httpr_server_t *p_server = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -1422,13 +1421,12 @@ httpr_net_server_init (httpr_server_t **app_server, OMX_HANDLETYPE ap_hdl,
   assert (NULL != a_pf_emptied);
   assert (NULL != a_pf_needed);
 
-  p_server
-    = (httpr_server_t *)tiz_mem_calloc (1, sizeof(httpr_server_t));
-  rc = p_server ?  OMX_ErrorNone : OMX_ErrorInsufficientResources;
+  p_server = (httpr_server_t *)tiz_mem_calloc (1, sizeof(httpr_server_t));
+  rc = p_server ? OMX_ErrorNone : OMX_ErrorInsufficientResources;
   goto_end_on_omx_error (rc, ap_hdl, "Unable to alloc the server struct");
 
   p_server->p_hdl = ap_hdl;
-  p_server->lstn_sockfd = ICE_RENDERER_SOCK_ERROR;
+  p_server->lstn_sockfd = ICE_SOCK_ERROR;
   p_server->p_ip = NULL;
   p_server->p_srv_ev_io = NULL;
   p_server->max_clients = a_max_clients;
@@ -1477,7 +1475,7 @@ httpr_net_server_init (httpr_server_t **app_server, OMX_HANDLETYPE ap_hdl,
 end:
   if (!all_ok)
     {
-      httpr_net_server_destroy (p_server);
+      httpr_srv_destroy (p_server);
       p_server = NULL;
       rc = OMX_ErrorInsufficientResources;
     }
@@ -1487,11 +1485,11 @@ end:
 }
 
 OMX_ERRORTYPE
-httpr_net_start_listening (httpr_server_t *ap_server)
+httpr_srv_start (httpr_server_t *ap_server)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_HANDLETYPE p_hdl = NULL;
-  int listen_rc = ICE_RENDERER_SOCK_ERROR;
+  int listen_rc = ICE_SOCK_ERROR;
   bool all_ok = false;
 
   assert (NULL != ap_server);
@@ -1519,13 +1517,13 @@ end:
 }
 
 OMX_ERRORTYPE
-httpr_net_accept_connection (httpr_server_t *ap_server)
+httpr_srv_accept_connection (httpr_server_t *ap_server)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   char *p_ip = NULL;
   httpr_listener_t *p_lstnr = NULL;
   httpr_connection_t *p_con = NULL;
-  int connected_sockfd = ICE_RENDERER_SOCK_ERROR;
+  int connected_sockfd = ICE_SOCK_ERROR;
   bool all_ok = false;
   OMX_HANDLETYPE p_hdl = NULL;
 
@@ -1534,11 +1532,8 @@ httpr_net_accept_connection (httpr_server_t *ap_server)
 
   /* This is a simple solution to prevent more than one connection at
    * a time. One day this mmay be a multi-client renderer */
-  if (net_get_listeners_count (ap_server) > 0)
-    {
-      tiz_map_for_each (ap_server->p_lstnrs, net_remove_existing_listener,
-                        ap_server);
-    }
+  tiz_map_for_each (ap_server->p_lstnrs, net_remove_existing_listener,
+                    ap_server);
 
   if (NULL != (p_ip = (char *)tiz_mem_alloc (ICE_RENDERER_MAX_ADDR_LEN)))
     {
@@ -1573,10 +1568,10 @@ end:
 
   if (!all_ok)
     {
-      if (ICE_RENDERER_SOCK_ERROR != connected_sockfd)
+      if (ICE_SOCK_ERROR != connected_sockfd)
         {
           close (connected_sockfd);
-          connected_sockfd = ICE_RENDERER_SOCK_ERROR;
+          connected_sockfd = ICE_SOCK_ERROR;
         }
 
       if (p_lstnr)
@@ -1600,9 +1595,10 @@ end:
   else
     {
       TIZ_NOTICE (p_hdl, "Client [%s:%u] fd [%d] now connected", p_con->p_ip,
-                 p_con->port, p_con->sockfd);
+                  p_con->port, p_con->sockfd);
 
-      TIZ_PRINTF_DBG_RED ("Client connected [%s:%u]\n", p_con->p_ip, p_con->port);
+      TIZ_PRINTF_DBG_RED ("Client connected [%s:%u]\n", p_con->p_ip,
+                          p_con->port);
       TIZ_PRINTF_DBG_GRN (
           "\tburst [%d] sample rate [%u] bitrate [%u] "
           "burst_size [%u] bytes per frame [%u] wait_time [%f] "
@@ -1621,25 +1617,37 @@ end:
 }
 
 OMX_ERRORTYPE
-httpr_net_stop_listening (httpr_server_t *ap_server)
+httpr_srv_stop (httpr_server_t *ap_server)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  if (ap_server)
+  httpr_listener_t *p_lstnr = NULL;
+  assert (NULL != ap_server);
+  (void)net_stop_server_io_watcher (ap_server);
+  if (ap_server->p_lstnrs)
     {
-      rc = net_stop_server_io_watcher (ap_server);
+      /* Until support for multiple listeners gets implemented, there will only
+         be one listener in the map */
+      p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
+      if (p_lstnr)
+        {
+          (void)net_stop_listener_io_watcher (p_lstnr);
+          (void)net_stop_listener_timer_watcher (p_lstnr);
+          (void)net_remove_listener (ap_server, p_lstnr);
+        }
     }
-  return rc;
+  return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-httpr_net_write_to_listener (httpr_server_t *ap_server)
+httpr_srv_write (httpr_server_t *ap_server)
 {
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   httpr_listener_t *p_lstnr = NULL;
   httpr_connection_t *p_con = NULL;
 
-  if (!ap_server || !ap_server->p_lstnrs || tiz_map_empty (ap_server->p_lstnrs))
+  assert (NULL != ap_server);
+
+  if (net_get_listeners_count (ap_server) <= 0)
     {
       return OMX_ErrorNotReady;
     }
@@ -1708,13 +1716,13 @@ httpr_net_write_to_listener (httpr_server_t *ap_server)
   return rc;
 }
 
-int httpr_net_get_server_fd (const httpr_server_t *ap_server)
+int httpr_srv_get_descriptor (const httpr_server_t *ap_server)
 {
   assert (NULL != ap_server);
   return ap_server->lstn_sockfd;
 }
 
-void httpr_net_release_buffers (httpr_server_t *ap_server)
+void httpr_srv_release_buffers (httpr_server_t *ap_server)
 {
   assert (NULL != ap_server);
   if (ap_server->p_hdr)
@@ -1725,7 +1733,7 @@ void httpr_net_release_buffers (httpr_server_t *ap_server)
     }
 }
 
-void httpr_net_set_mp3_settings (httpr_server_t *ap_server,
+void httpr_srv_set_mp3_settings (httpr_server_t *ap_server,
                                  const OMX_U32 a_bitrate,
                                  const OMX_U32 a_num_channels,
                                  const OMX_U32 a_sample_rate)
@@ -1762,10 +1770,9 @@ void httpr_net_set_mp3_settings (httpr_server_t *ap_server,
       (unsigned int)ap_server->burst_size,
       (unsigned int)ap_server->bytes_per_frame, ap_server->wait_time,
       ap_server->pkts_per_sec);
-
 }
 
-void httpr_net_set_mountpoint_settings (
+void httpr_srv_set_mountpoint_settings (
     httpr_server_t *ap_server, OMX_U8 *ap_mount_name, OMX_U8 *ap_station_name,
     OMX_U8 *ap_station_description, OMX_U8 *ap_station_genre,
     OMX_U8 *ap_station_url, const OMX_U32 a_metadata_period,
@@ -1810,8 +1817,8 @@ void httpr_net_set_mountpoint_settings (
               p_mount->station_name, p_mount->metadata_period);
 }
 
-void httpr_net_set_icecast_metadata (httpr_server_t *ap_server,
-                                     OMX_U8 *ap_stream_title)
+void httpr_srv_set_stream_title (httpr_server_t *ap_server,
+                                 OMX_U8 *ap_stream_title)
 {
   httpr_mount_t *p_mount = NULL;
 
