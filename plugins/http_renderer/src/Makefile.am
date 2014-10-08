@@ -22,7 +22,7 @@ noinst_HEADERS = \
 	httprcfgport_decls.h \
 	httprmp3port.h \
 	httprmp3port_decls.h \
-	httprnet.h \
+	httprsrv.h \
 	httpr.h \
 	httprprc.h \
 	httprprc_decls.h
@@ -31,7 +31,7 @@ libtizhttpr_la_SOURCES = \
 	httpr.c \
 	httprcfgport.c \
 	httprmp3port.c \
-	httprnet.c \
+	httprsrv.c \
 	httprprc.c
 
 libtizhttpr_la_CFLAGS = \

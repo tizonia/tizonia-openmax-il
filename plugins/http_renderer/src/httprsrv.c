@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   httprnet.c
+ * @file   httprsrv.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief Tizonia OpenMAX IL - HTTP renderer's networking functions
@@ -53,7 +53,7 @@
 #include <OMX_TizoniaExt.h>
 
 #include "httpr.h"
-#include "httprnet.h"
+#include "httprsrv.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME

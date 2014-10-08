@@ -41,7 +41,7 @@ extern "C"
 
 #include <tizprc_decls.h>
 
-#include "httprnet.h"
+#include "httprsrv.h"
 
   typedef struct httpr_prc httpr_prc_t;
   struct httpr_prc
