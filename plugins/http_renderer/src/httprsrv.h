@@ -38,28 +38,22 @@ extern "C" {
 
 typedef struct httpr_server httpr_server_t;
 
-typedef void (*httpr_buffer_emptied_f)(OMX_BUFFERHEADERTYPE *ap_hdr,
+typedef void (*httpr_srv_release_buffer_f)(OMX_BUFFERHEADERTYPE *ap_hdr,
                                        OMX_PTR ap_arg);
-typedef OMX_BUFFERHEADERTYPE *(*httpr_buffer_needed_f)(OMX_PTR ap_arg);
+typedef OMX_BUFFERHEADERTYPE *(*httpr_srv_acquire_buffer_f)(OMX_PTR ap_arg);
 
 OMX_ERRORTYPE httpr_srv_init (httpr_server_t **app_server,
                               OMX_HANDLETYPE ap_hdl, OMX_STRING a_address,
                               OMX_U32 a_port, OMX_U32 a_max_clients,
-                              httpr_buffer_emptied_f a_pf_emptied,
-                              httpr_buffer_needed_f a_pf_needed,
+                              httpr_srv_release_buffer_f a_pf_release_buf,
+                              httpr_srv_acquire_buffer_f a_pf_acquire_buf,
                               OMX_PTR ap_arg);
 
 void httpr_srv_destroy (httpr_server_t *ap_server);
 
 OMX_ERRORTYPE httpr_srv_start (httpr_server_t *ap_server);
 
-OMX_ERRORTYPE httpr_srv_accept_connection (httpr_server_t *ap_server);
-
 OMX_ERRORTYPE httpr_srv_stop (httpr_server_t *ap_server);
-
-OMX_ERRORTYPE httpr_srv_write (httpr_server_t *ap_server);
-
-int httpr_srv_get_descriptor (const httpr_server_t *ap_server);
 
 void httpr_srv_release_buffers (httpr_server_t *ap_server);
 
@@ -76,6 +70,10 @@ void httpr_srv_set_mountpoint_settings (
 
 void httpr_srv_set_stream_title (httpr_server_t *ap_server,
                                  OMX_U8 *ap_stream_title);
+
+OMX_ERRORTYPE httpr_srv_buffer_event (httpr_server_t *ap_server);
+OMX_ERRORTYPE httpr_srv_io_event (httpr_server_t *ap_server, const int a_fd);
+OMX_ERRORTYPE httpr_srv_timer_event (httpr_server_t *ap_server);
 
 #ifdef __cplusplus
 }

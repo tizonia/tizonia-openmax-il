@@ -49,7 +49,6 @@ extern "C"
     /* Object */
     const tiz_prc_t _;
     OMX_STRING mount_name_;
-    bool awaiting_buffers_;
     bool port_disabled_;
     int lstn_sockfd_;
     httpr_server_t *p_server_;

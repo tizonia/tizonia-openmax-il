@@ -60,38 +60,6 @@ static void release_buffers (httpr_prc_t *ap_prc)
   assert (NULL == ap_prc->p_inhdr_);
 }
 
-static OMX_ERRORTYPE stream_to_clients (httpr_prc_t *ap_prc)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_prc);
-
-  if (ap_prc->p_server_)
-    {
-      rc = httpr_srv_write (ap_prc->p_server_);
-      switch (rc)
-        {
-          case OMX_ErrorNoMore:
-          /* Socket not ready, send buffer full or burst limit reached */
-          case OMX_ErrorNone:
-          /* No more data to send or some  */
-          case OMX_ErrorNotReady:
-            {
-              /* No connected clients yet */
-              rc = OMX_ErrorNone;
-            }
-            break;
-
-          default:
-            {
-              TIZ_ERROR (handleOf (ap_prc), "[%s]", tiz_err_to_str (rc));
-              assert (0);
-            }
-            break;
-        };
-    }
-  return rc;
-}
-
 static OMX_BUFFERHEADERTYPE *buffer_needed (void *ap_arg)
 {
   httpr_prc_t *p_prc = ap_arg;
@@ -115,7 +83,7 @@ static OMX_BUFFERHEADERTYPE *buffer_needed (void *ap_arg)
       p_hdr = p_prc->p_inhdr_;
     }
 
-  p_prc->awaiting_buffers_ = p_hdr ? false : true;
+/*   p_prc->awaiting_buffers_ = p_hdr ? false : true; */
   return p_hdr;
 }
 
@@ -183,7 +151,6 @@ static void *httpr_prc_ctor (void *ap_prc, va_list *app)
   httpr_prc_t *p_prc = super_ctor (typeOf (ap_prc, "httprprc"), ap_prc, app);
   assert (NULL != p_prc);
   p_prc->mount_name_ = NULL;
-  p_prc->awaiting_buffers_ = true;
   p_prc->port_disabled_ = false;
   p_prc->p_server_ = NULL;
   p_prc->p_inhdr_ = NULL;
@@ -290,12 +257,37 @@ static OMX_ERRORTYPE httpr_prc_buffers_ready (const void *ap_prc)
   httpr_prc_t *p_prc = (httpr_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != p_prc);
-  if (p_prc->awaiting_buffers_ && p_prc->p_server_)
+  if (p_prc->p_server_)
     {
-      p_prc->awaiting_buffers_ = false;
-      rc = stream_to_clients (p_prc);
+      rc = httpr_srv_buffer_event (p_prc->p_server_);
     }
+  return rc;
+}
 
+static OMX_ERRORTYPE httpr_prc_io_ready (void *ap_prc, tiz_event_io_t *ap_ev_io,
+                                         int a_fd, int a_events)
+{
+  httpr_prc_t *p_prc = ap_prc;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != p_prc);
+  if (p_prc->p_server_)
+    {
+      httpr_srv_io_event (p_prc->p_server_, a_fd);
+    }
+  return rc;
+}
+
+static OMX_ERRORTYPE httpr_prc_timer_ready (void *ap_prc,
+                                            tiz_event_timer_t *ap_ev_timer,
+                                            void *ap_arg)
+{
+  httpr_prc_t *p_prc = ap_prc;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != p_prc);
+  if (p_prc->p_server_)
+    {
+      rc = httpr_srv_timer_event (p_prc->p_server_);
+    }
   return rc;
 }
 
@@ -335,12 +327,7 @@ static OMX_ERRORTYPE httpr_prc_config_change (const void *ap_prc,
 
   assert (NULL != ap_prc);
 
-  if (NULL == p_prc->p_server_)
-    {
-      return OMX_ErrorNone;
-    }
-
-  if (OMX_TizoniaIndexConfigIcecastMetadata == a_config_idx
+  if (p_prc->p_server_ && OMX_TizoniaIndexConfigIcecastMetadata == a_config_idx
       && ARATELIA_HTTP_RENDERER_PORT_INDEX == a_pid)
     {
       OMX_TIZONIA_ICECASTMETADATATYPE *p_metadata
@@ -373,49 +360,6 @@ static OMX_ERRORTYPE httpr_prc_config_change (const void *ap_prc,
 
       tiz_mem_free (p_metadata);
       p_metadata = NULL;
-    }
-
-  return rc;
-}
-
-static OMX_ERRORTYPE httpr_prc_io_ready (void *ap_prc, tiz_event_io_t *ap_ev_io,
-                                         int a_fd, int a_events)
-{
-  httpr_prc_t *p_prc = ap_prc;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
-
-  if (p_prc->p_server_)
-    {
-      int lstn_fd = httpr_srv_get_descriptor (p_prc->p_server_);
-      if (a_fd == lstn_fd)
-        {
-          /* The server socket is ready */
-          rc = httpr_srv_accept_connection (p_prc->p_server_);
-          if (OMX_ErrorInsufficientResources != rc)
-            {
-              rc = OMX_ErrorNone;
-            }
-        }
-      else
-        {
-          /* The client socket is ready */
-          rc = stream_to_clients (p_prc);
-        }
-    }
-  return rc;
-}
-
-static OMX_ERRORTYPE httpr_prc_timer_ready (void *ap_prc,
-                                            tiz_event_timer_t *ap_ev_timer,
-                                            void *ap_arg)
-{
-  httpr_prc_t *p_prc = ap_prc;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
-  if (p_prc->p_server_)
-    {
-      rc = stream_to_clients (ap_prc);
     }
   return rc;
 }
@@ -477,15 +421,15 @@ void *httpr_prc_init (void *ap_tos, void *ap_hdl)
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_buffers_ready, httpr_prc_buffers_ready,
        /* TIZ_CLASS_COMMENT: */
+       tiz_prc_io_ready, httpr_prc_io_ready,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_timer_ready, httpr_prc_timer_ready,
+       /* TIZ_CLASS_COMMENT: */
        tiz_prc_port_enable, httpr_prc_port_enable,
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_port_disable, httpr_prc_port_disable,
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_config_change, httpr_prc_config_change,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_io_ready, httpr_prc_io_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_timer_ready, httpr_prc_timer_ready,
        /* TIZ_CLASS_COMMENT: stop value */
        0);
 

@@ -98,9 +98,6 @@ struct httpr_connection
   OMX_S32 initial_burst_bytes;
   bool metadata_delivered;
   int sockfd;
-  bool error;
-  bool full;
-  bool not_ready;
   char *p_host;
   char *p_ip;
   unsigned short port;
@@ -129,11 +126,14 @@ struct httpr_server
   int lstn_sockfd;
   char *p_ip;
   tiz_event_io_t *p_srv_ev_io;
-  OMX_U32 max_clients;
+  OMX_U32 max_clients;          /* In future, more than one will be allowed;
+                                   only one allowed at the moment. */
   tiz_map_t *p_lstnrs;
   OMX_BUFFERHEADERTYPE *p_hdr;
-  httpr_buffer_emptied_f pf_emptied;
-  httpr_buffer_needed_f pf_needed;
+  httpr_srv_release_buffer_f pf_release_buf;
+  httpr_srv_acquire_buffer_f pf_acquire_buf;
+  bool need_more_data;
+  bool running;
   OMX_PTR p_arg;
   OMX_U32 bitrate;
   OMX_U32 num_channels;
@@ -223,9 +223,10 @@ static inline int srv_get_listeners_count (const httpr_server_t *ap_server)
   return rc;
 }
 
-static httpr_listener_t * srv_get_first_listener (const httpr_server_t *ap_server)
+static httpr_listener_t *srv_get_first_listener (
+    const httpr_server_t *ap_server)
 {
-  httpr_listener_t * p_lstnr = NULL;
+  httpr_listener_t *p_lstnr = NULL;
   if (srv_get_listeners_count (ap_server) > 0)
     {
       p_lstnr = tiz_map_value_at (ap_server->p_lstnrs, 0);
@@ -580,9 +581,6 @@ static httpr_connection_t *srv_create_connection (httpr_server_t *ap_server,
   p_con->burst_bytes = 0;
   p_con->initial_burst_bytes = ap_server->mountpoint.initial_burst_size;
   p_con->sockfd = connected_sockfd;
-  p_con->error = false;
-  p_con->full = false;
-  p_con->not_ready = false;
   p_con->p_host = NULL;
   p_con->p_ip = ap_ip;
   p_con->port = ap_port;
@@ -995,26 +993,6 @@ static OMX_S32 srv_remove_existing_listener (OMX_PTR ap_key, OMX_PTR ap_value,
   return 0;
 }
 
-static OMX_S32 srv_remove_failed_listener (OMX_PTR ap_key, OMX_PTR ap_value,
-                                           OMX_PTR ap_arg)
-{
-  httpr_server_t *p_server = ap_arg;
-  httpr_listener_t *p_lstnr = NULL;
-
-  assert (NULL != p_server);
-  assert (NULL != ap_key);
-  assert (NULL != ap_value);
-
-  p_lstnr = (httpr_listener_t *)ap_value;
-
-  if (p_lstnr->p_con && p_lstnr->p_con->error)
-    {
-      srv_remove_listener (p_server, p_lstnr);
-    }
-
-  return 0;
-}
-
 inline static void srv_release_empty_buffer (httpr_server_t *ap_server,
                                              httpr_listener_t *ap_lstnr,
                                              OMX_BUFFERHEADERTYPE **app_hdr)
@@ -1029,7 +1007,7 @@ inline static void srv_release_empty_buffer (httpr_server_t *ap_server,
 
   ap_lstnr->pos = 0;
   p_hdr->nFilledLen = 0;
-  ap_server->pf_emptied (p_hdr, ap_server->p_arg);
+  ap_server->pf_release_buf (p_hdr, ap_server->p_arg);
   *app_hdr = NULL;
   ap_server->p_hdr = NULL;
 }
@@ -1256,11 +1234,9 @@ static void srv_arrange_data (httpr_server_t *ap_server,
   *app_buffer = p_buffer;
 }
 
-static OMX_S32 srv_write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value,
-                                     OMX_PTR ap_arg)
+static OMX_ERRORTYPE srv_write_omx_buffer (httpr_server_t *ap_server,
+                                           httpr_listener_t * ap_lstnr)
 {
-  httpr_server_t *p_server = ap_arg;
-  httpr_listener_t *p_lstnr = NULL;
   httpr_listener_buffer_t *p_lstnr_buf = NULL;
   httpr_connection_t *p_con = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -1269,36 +1245,30 @@ static OMX_S32 srv_write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value,
   size_t len = 0;
   int bytes = 0;
 
-  assert (NULL != p_server);
-  assert (NULL != p_server->p_hdr);
-  assert (NULL != ap_key);
-  assert (NULL != ap_value);
+  assert (NULL != ap_server);
+  assert (NULL != ap_server->p_hdr);
+  assert (NULL != ap_lstnr);
+  assert (NULL != ap_lstnr->p_con);
 
-  p_hdr = p_server->p_hdr;
-  p_lstnr = (httpr_listener_t *)ap_value;
-  assert (NULL != p_lstnr->p_con);
-  p_con = p_lstnr->p_con;
-  p_lstnr_buf = &p_lstnr->buf;
+  p_hdr = ap_server->p_hdr;
+  p_con = ap_lstnr->p_con;
+  p_lstnr_buf = &ap_lstnr->buf;
   sock = p_con->sockfd;
 
   p_con->sent_last = 0;
-  p_con->error = false;
-  p_con->full = false;
-  p_con->not_ready = false;
 
   if (!srv_is_valid_socket (sock))
     {
-      TIZ_WARN (p_server->p_hdl,
-                "Destroying listener "
+      TIZ_WARN (ap_server->p_hdl,
+                "Will destroy listener "
                 "(Invalid listener socket fd [%d])",
                 sock);
-      /* Mark the listener as failed, so that it will get removed */
-      p_con->error = true;
-      return 0;
+      /* The socket is not valid anymore. The listener will be removed. */
+      return OMX_ErrorNoMore;
     }
 
   /* Obtain a pointer to the data and the amount of data to be written */
-  srv_arrange_data (p_server, p_lstnr, &p_buffer, &len);
+  srv_arrange_data (ap_server, ap_lstnr, &p_buffer, &len);
 
   if (len > 0)
     {
@@ -1307,22 +1277,22 @@ static OMX_S32 srv_write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value,
 
       if (bytes < 0)
         {
-          if (!srv_is_recoverable_error (p_server, sock, errno))
+          if (!srv_is_recoverable_error (ap_server, sock, errno))
             {
               TIZ_PRINTF_DBG_RED (
                   "Will destroy listener "
                   "(non-recoverable error while writing to socket\n");
               /* Mark the listener as failed, so that it will get removed */
-              p_con->error = true;
+              return OMX_ErrorNoMore;
             }
           else
             {
-              TIZ_TRACE (p_server->p_hdl,
+              TIZ_TRACE (ap_server->p_hdl,
                          "Recoverable error "
                          "(re-starting io watcher)");
-              (void)srv_start_listener_io_watcher (p_lstnr);
-              (void)srv_stop_listener_timer_watcher (p_lstnr);
-              p_con->not_ready = true;
+              (void)srv_start_listener_io_watcher (ap_lstnr);
+              (void)srv_stop_listener_timer_watcher (ap_lstnr);
+              return OMX_ErrorNotReady;
             }
         }
       else
@@ -1333,7 +1303,7 @@ static OMX_S32 srv_write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value,
             }
           else
             {
-              p_lstnr->pos += (bytes - p_lstnr_buf->metadata_bytes);
+              ap_lstnr->pos += (bytes - p_lstnr_buf->metadata_bytes);
             }
 
           if (p_con->initial_burst_bytes > 0)
@@ -1357,177 +1327,42 @@ static OMX_S32 srv_write_omx_buffer (OMX_PTR ap_key, OMX_PTR ap_value,
 
           if (bytes < len)
             {
-              (void)srv_start_listener_io_watcher (p_lstnr);
-              (void)srv_stop_listener_timer_watcher (p_lstnr);
-              p_con->full = true;
+              (void)srv_start_listener_io_watcher (ap_lstnr);
+              (void)srv_stop_listener_timer_watcher (ap_lstnr);
+              return OMX_ErrorNotReady;
             }
           else
             {
               if ((p_con->initial_burst_bytes <= 0)
-                  && (p_con->burst_bytes >= p_server->burst_size))
+                  && (p_con->burst_bytes >= ap_server->burst_size))
                 {
                   /* Let's not send too much data in one go */
 
-                  if ((p_hdr->nFilledLen - p_lstnr->pos) < p_server->burst_size)
+                  if ((p_hdr->nFilledLen - ap_lstnr->pos) < ap_server->burst_size)
                     {
                       /* copy the remaining data into the listener's buffer */
-                      int bytes_to_copy = p_hdr->nFilledLen - p_lstnr->pos;
-                      memcpy (p_lstnr->buf.p_data,
-                              p_hdr->pBuffer + p_lstnr->pos, bytes_to_copy);
-                      p_lstnr->buf.len = bytes_to_copy;
+                      int bytes_to_copy = p_hdr->nFilledLen - ap_lstnr->pos;
+                      memcpy (ap_lstnr->buf.p_data,
+                              p_hdr->pBuffer + ap_lstnr->pos, bytes_to_copy);
+                      ap_lstnr->buf.len = bytes_to_copy;
 
                       /* Buffer emptied */
-                      srv_release_empty_buffer (p_server, p_lstnr,
-                                                &p_server->p_hdr);
+                      srv_release_empty_buffer (ap_server, ap_lstnr,
+                                                &ap_server->p_hdr);
                     }
 
-                  srv_start_listener_timer_watcher (p_lstnr,
-                                                    p_server->wait_time);
+                  srv_start_listener_timer_watcher (ap_lstnr,
+                                                    ap_server->wait_time);
                 }
             }
         }
     }
 
   /* always return success */
-  return 0;
+  return OMX_ErrorNone;
 }
 
-/*               */
-/* httpr con APIs */
-/*               */
-
-void httpr_srv_destroy (httpr_server_t *ap_server)
-{
-  if (ap_server)
-    {
-      srv_destroy_server_io_watcher (ap_server);
-      if (ICE_SOCK_ERROR != ap_server->lstn_sockfd)
-        {
-          close (ap_server->lstn_sockfd);
-        }
-
-      tiz_mem_free (ap_server->p_ip);
-      if (ap_server->p_lstnrs)
-        {
-          tiz_map_clear (ap_server->p_lstnrs);
-          tiz_map_destroy (ap_server->p_lstnrs);
-        }
-      tiz_mem_free (ap_server);
-    }
-}
-
-OMX_ERRORTYPE
-httpr_srv_init (httpr_server_t **app_server, OMX_HANDLETYPE ap_hdl,
-                OMX_STRING a_address, OMX_U32 a_port, OMX_U32 a_max_clients,
-                httpr_buffer_emptied_f a_pf_emptied,
-                httpr_buffer_needed_f a_pf_needed, OMX_PTR ap_arg)
-{
-  httpr_server_t *p_server = NULL;
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  bool all_ok = false;
-
-  assert (NULL != app_server);
-  assert (NULL != ap_hdl);
-  assert (NULL != a_pf_emptied);
-  assert (NULL != a_pf_needed);
-
-  p_server = (httpr_server_t *)tiz_mem_calloc (1, sizeof(httpr_server_t));
-  rc = p_server ? OMX_ErrorNone : OMX_ErrorInsufficientResources;
-  goto_end_on_omx_error (rc, ap_hdl, "Unable to alloc the server struct");
-
-  p_server->p_hdl = ap_hdl;
-  p_server->lstn_sockfd = ICE_SOCK_ERROR;
-  p_server->p_ip = NULL;
-  p_server->p_srv_ev_io = NULL;
-  p_server->max_clients = a_max_clients;
-  p_server->p_lstnrs = NULL;
-  p_server->p_hdr = NULL;
-  p_server->pf_emptied = a_pf_emptied;
-  p_server->pf_needed = a_pf_needed;
-  p_server->p_arg = ap_arg;
-  p_server->bitrate = 0;
-  p_server->num_channels = 0;
-  p_server->sample_rate = 0;
-  p_server->bytes_per_frame = 144 * 128000 / 44100;
-  p_server->burst_size = ICE_MEDIUM_BURST_SIZE;
-  p_server->pkts_per_sec
-      = (((double)p_server->bytes_per_frame * (double)(1000 / 26)
-          / (double)p_server->burst_size));
-  p_server->wait_time = (1 / p_server->pkts_per_sec);
-
-  tiz_mem_set (&(p_server->mountpoint), 0, sizeof(httpr_mount_t));
-  p_server->mountpoint.metadata_period = ICE_DEFAULT_METADATA_INTERVAL;
-  p_server->mountpoint.initial_burst_size = ICE_INITIAL_BURST_SIZE;
-  p_server->mountpoint.max_clients = 1;
-
-  if (NULL != a_address)
-    {
-      p_server->p_ip = strndup (a_address, ICE_RENDERER_MAX_ADDR_LEN);
-    }
-  rc = p_server->p_ip ? OMX_ErrorNone : OMX_ErrorInsufficientResources;
-  goto_end_on_omx_error (rc, ap_hdl, "Unable to duo the server ip address");
-
-  rc = tiz_map_init (&(p_server->p_lstnrs), listeners_map_compare_func,
-                     listeners_map_free_func, NULL);
-  goto_end_on_omx_error (rc, ap_hdl, "Unable to init the listeners map");
-
-  p_server->lstn_sockfd
-      = srv_create_server_socket (p_server, a_port, a_address);
-  goto_end_on_socket_error (p_server->lstn_sockfd, ap_hdl,
-                            "Unable to create the server socket");
-
-  rc = srv_allocate_server_io_watcher (p_server);
-  goto_end_on_omx_error (rc, ap_hdl, "Unable to alloc the server's io event");
-
-  /* All good so far */
-  all_ok = true;
-
-end:
-  if (!all_ok)
-    {
-      httpr_srv_destroy (p_server);
-      p_server = NULL;
-      rc = OMX_ErrorInsufficientResources;
-    }
-
-  *app_server = p_server;
-  return rc;
-}
-
-OMX_ERRORTYPE
-httpr_srv_start (httpr_server_t *ap_server)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_HANDLETYPE p_hdl = NULL;
-  int listen_rc = ICE_SOCK_ERROR;
-  bool all_ok = false;
-
-  assert (NULL != ap_server);
-  p_hdl = ap_server->p_hdl;
-
-  errno = 0;
-  listen_rc = listen (ap_server->lstn_sockfd, ICE_LISTEN_QUEUE);
-  goto_end_on_socket_error (listen_rc, p_hdl, strerror (errno));
-
-  rc = srv_set_non_blocking (ap_server->lstn_sockfd);
-  goto_end_on_omx_error (rc, p_hdl, "Unable to set socket as non-blocking");
-
-  rc = srv_start_server_io_watcher (ap_server);
-  goto_end_on_omx_error (rc, p_hdl, "Unable to start the server io watcher");
-
-  /* so far so good */
-  all_ok = true;
-
-end:
-  if (!all_ok && OMX_ErrorNone == rc)
-    {
-      rc = OMX_ErrorInsufficientResources;
-    }
-  return rc;
-}
-
-OMX_ERRORTYPE
-httpr_srv_accept_connection (httpr_server_t *ap_server)
+static OMX_ERRORTYPE srv_accept_connection (httpr_server_t *ap_server)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   char *p_ip = NULL;
@@ -1629,6 +1464,254 @@ end:
   return rc;
 }
 
+static OMX_ERRORTYPE srv_write (httpr_server_t *ap_server)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  httpr_listener_t *p_lstnr = NULL;
+  httpr_connection_t *p_con = NULL;
+
+  assert (NULL != ap_server);
+
+  if (srv_get_listeners_count (ap_server) <= 0)
+    {
+      return OMX_ErrorNoMore;
+    }
+
+  /* Until support for multiple listeners gets implemented, there will only be
+     one listener in the map */
+  p_lstnr = srv_get_first_listener (ap_server);
+  assert (NULL != p_lstnr);
+  p_con = p_lstnr->p_con;
+  assert (NULL != p_con);
+
+  srv_stop_listener_io_watcher (p_lstnr);
+  if (!srv_is_listener_ready (ap_server, p_lstnr))
+    {
+      return OMX_ErrorNotReady;
+    }
+
+  srv_start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
+
+  if (p_con->initial_burst_bytes <= 0)
+    {
+      p_con->burst_bytes = 0;
+    }
+
+  while (1)
+    {
+      if (NULL == p_hdr)
+        {
+          if (NULL == (p_hdr = ap_server->pf_acquire_buf (ap_server->p_arg)))
+            {
+              /* no more buffers available at the moment */
+              ap_server->need_more_data = true;
+              srv_stop_listener_timer_watcher (p_lstnr);
+              rc = OMX_ErrorNone;
+              break;
+            }
+          ap_server->need_more_data = false;
+          ap_server->p_hdr = p_hdr;
+        }
+
+      rc = srv_write_omx_buffer (ap_server, p_lstnr);
+
+      if (OMX_ErrorNoMore == rc)
+        {
+          (void)srv_remove_listener (ap_server, p_lstnr);
+          break;
+        }
+
+      if (OMX_ErrorNotReady == rc
+          || ((p_con->initial_burst_bytes <= 0)
+              && (p_con->burst_bytes >= ap_server->burst_size)))
+        {
+          rc = OMX_ErrorNotReady;
+          break;
+        }
+
+      if (p_lstnr->pos == ap_server->p_hdr->nFilledLen)
+        {
+          /* Buffer emptied */
+          (void)srv_release_empty_buffer (ap_server, p_lstnr, &p_hdr);
+        }
+    };
+
+  return rc;
+}
+
+static OMX_ERRORTYPE srv_stream_to_client (httpr_server_t *ap_server)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_server);
+
+  rc = srv_write (ap_server);
+  switch (rc)
+    {
+      case OMX_ErrorNone:
+      case OMX_ErrorNoMore:
+      /* Socket not ready, send buffer is full, or the burst limit has been
+         reached */
+      case OMX_ErrorNotReady:
+        {
+          /* No connected clients just yet */
+          rc = OMX_ErrorNone;
+        }
+        break;
+
+      default:
+        {
+          TIZ_ERROR (ap_server->p_hdl, "[%s]", tiz_err_to_str (rc));
+          assert (0);
+        }
+        break;
+    };
+  return rc;
+}
+
+static int srv_get_descriptor (const httpr_server_t *ap_server)
+{
+  assert (NULL != ap_server);
+  return ap_server->lstn_sockfd;
+}
+
+/*               */
+/* httpr con APIs */
+/*               */
+
+void httpr_srv_destroy (httpr_server_t *ap_server)
+{
+  if (ap_server)
+    {
+      srv_destroy_server_io_watcher (ap_server);
+      if (ICE_SOCK_ERROR != ap_server->lstn_sockfd)
+        {
+          close (ap_server->lstn_sockfd);
+        }
+
+      tiz_mem_free (ap_server->p_ip);
+      if (ap_server->p_lstnrs)
+        {
+          tiz_map_clear (ap_server->p_lstnrs);
+          tiz_map_destroy (ap_server->p_lstnrs);
+        }
+      tiz_mem_free (ap_server);
+    }
+}
+
+OMX_ERRORTYPE
+httpr_srv_init (httpr_server_t **app_server, OMX_HANDLETYPE ap_hdl,
+                OMX_STRING a_address, OMX_U32 a_port, OMX_U32 a_max_clients,
+                httpr_srv_release_buffer_f a_pf_release_buf,
+                httpr_srv_acquire_buffer_f a_pf_acquire_buf, OMX_PTR ap_arg)
+{
+  httpr_server_t *p_server = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  bool all_ok = false;
+
+  assert (NULL != app_server);
+  assert (NULL != ap_hdl);
+  assert (NULL != a_pf_release_buf);
+  assert (NULL != a_pf_acquire_buf);
+
+  p_server = (httpr_server_t *)tiz_mem_calloc (1, sizeof(httpr_server_t));
+  rc = p_server ? OMX_ErrorNone : OMX_ErrorInsufficientResources;
+  goto_end_on_omx_error (rc, ap_hdl, "Unable to alloc the server struct");
+
+  p_server->p_hdl = ap_hdl;
+  p_server->lstn_sockfd = ICE_SOCK_ERROR;
+  p_server->p_ip = NULL;
+  p_server->p_srv_ev_io = NULL;
+  p_server->max_clients = a_max_clients;
+  p_server->p_lstnrs = NULL;
+  p_server->p_hdr = NULL;
+  p_server->pf_release_buf = a_pf_release_buf;
+  p_server->pf_acquire_buf = a_pf_acquire_buf;
+  p_server->need_more_data = true;
+  p_server->running = false;
+  p_server->p_arg = ap_arg;
+  p_server->bitrate = 0;
+  p_server->num_channels = 0;
+  p_server->sample_rate = 0;
+  p_server->bytes_per_frame = 144 * 128000 / 44100;
+  p_server->burst_size = ICE_MEDIUM_BURST_SIZE;
+  p_server->pkts_per_sec
+      = (((double)p_server->bytes_per_frame * (double)(1000 / 26)
+          / (double)p_server->burst_size));
+  p_server->wait_time = (1 / p_server->pkts_per_sec);
+
+  tiz_mem_set (&(p_server->mountpoint), 0, sizeof(httpr_mount_t));
+  p_server->mountpoint.metadata_period = ICE_DEFAULT_METADATA_INTERVAL;
+  p_server->mountpoint.initial_burst_size = ICE_INITIAL_BURST_SIZE;
+  p_server->mountpoint.max_clients = 1;
+
+  if (NULL != a_address)
+    {
+      p_server->p_ip = strndup (a_address, ICE_RENDERER_MAX_ADDR_LEN);
+    }
+  rc = p_server->p_ip ? OMX_ErrorNone : OMX_ErrorInsufficientResources;
+  goto_end_on_omx_error (rc, ap_hdl, "Unable to duo the server ip address");
+
+  rc = tiz_map_init (&(p_server->p_lstnrs), listeners_map_compare_func,
+                     listeners_map_free_func, NULL);
+  goto_end_on_omx_error (rc, ap_hdl, "Unable to init the listeners map");
+
+  p_server->lstn_sockfd
+      = srv_create_server_socket (p_server, a_port, a_address);
+  goto_end_on_socket_error (p_server->lstn_sockfd, ap_hdl,
+                            "Unable to create the server socket");
+
+  rc = srv_allocate_server_io_watcher (p_server);
+  goto_end_on_omx_error (rc, ap_hdl, "Unable to alloc the server's io event");
+
+  /* All good so far */
+  all_ok = true;
+
+end:
+  if (!all_ok)
+    {
+      httpr_srv_destroy (p_server);
+      p_server = NULL;
+      rc = OMX_ErrorInsufficientResources;
+    }
+
+  *app_server = p_server;
+  return rc;
+}
+
+OMX_ERRORTYPE
+httpr_srv_start (httpr_server_t *ap_server)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_HANDLETYPE p_hdl = NULL;
+  int listen_rc = ICE_SOCK_ERROR;
+  bool all_ok = false;
+
+  assert (NULL != ap_server);
+  p_hdl = ap_server->p_hdl;
+
+  errno = 0;
+  listen_rc = listen (ap_server->lstn_sockfd, ICE_LISTEN_QUEUE);
+  goto_end_on_socket_error (listen_rc, p_hdl, strerror (errno));
+
+  rc = srv_set_non_blocking (ap_server->lstn_sockfd);
+  goto_end_on_omx_error (rc, p_hdl, "Unable to set socket as non-blocking");
+
+  rc = srv_start_server_io_watcher (ap_server);
+  goto_end_on_omx_error (rc, p_hdl, "Unable to start the server io watcher");
+
+  /* so far so good */
+  ap_server->running = true;
+  all_ok = true;
+
+end:
+  if (!all_ok && OMX_ErrorNone == rc)
+    {
+      rc = OMX_ErrorInsufficientResources;
+    }
+  return rc;
+}
+
 OMX_ERRORTYPE
 httpr_srv_stop (httpr_server_t *ap_server)
 {
@@ -1647,92 +1730,9 @@ httpr_srv_stop (httpr_server_t *ap_server)
           (void)srv_remove_listener (ap_server, p_lstnr);
         }
     }
+  ap_server->running = false;
+  ap_server->need_more_data = false;
   return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-httpr_srv_write (httpr_server_t *ap_server)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  httpr_listener_t *p_lstnr = NULL;
-  httpr_connection_t *p_con = NULL;
-
-  assert (NULL != ap_server);
-
-  if (srv_get_listeners_count (ap_server) <= 0)
-    {
-      return OMX_ErrorNotReady;
-    }
-
-  /* Until support for multiple listeners gets implemented, there will only be
-     one listener in the map */
-  p_lstnr = srv_get_first_listener (ap_server);
-  assert (NULL != p_lstnr);
-  p_con = p_lstnr->p_con;
-  assert (NULL != p_con);
-
-  srv_stop_listener_io_watcher (p_lstnr);
-  if (!srv_is_listener_ready (ap_server, p_lstnr))
-    {
-      return OMX_ErrorNone;
-    }
-
-  srv_start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
-
-  if (p_con->initial_burst_bytes <= 0)
-    {
-      p_con->burst_bytes = 0;
-    }
-
-  while (1)
-    {
-      if (NULL == p_hdr)
-        {
-          if (NULL == (p_hdr = ap_server->pf_needed (ap_server->p_arg)))
-            {
-              /* no more buffers available at the moment */
-              srv_stop_listener_timer_watcher (p_lstnr);
-              rc = OMX_ErrorNone;
-              break;
-            }
-
-          ap_server->p_hdr = p_hdr;
-        }
-
-      /* NOTE: We assume only one client for now. But still do it like this in
-       * preparation for when multiple clients are fully supported */
-      tiz_map_for_each (ap_server->p_lstnrs, srv_write_omx_buffer, ap_server);
-      tiz_map_for_each (ap_server->p_lstnrs, srv_remove_failed_listener,
-                        ap_server);
-
-      if (srv_get_listeners_count (ap_server) == 0)
-        {
-          break;
-        }
-
-      if (p_con->full || p_con->not_ready
-          || (((p_con->initial_burst_bytes <= 0))
-              && (p_con->burst_bytes >= ap_server->burst_size)))
-        {
-          rc = OMX_ErrorNoMore;
-          break;
-        }
-
-      if (p_lstnr->pos == ap_server->p_hdr->nFilledLen)
-        {
-          /* Buffer emptied */
-          srv_release_empty_buffer (ap_server, p_lstnr, &p_hdr);
-        }
-    };
-
-  return rc;
-}
-
-int httpr_srv_get_descriptor (const httpr_server_t *ap_server)
-{
-  assert (NULL != ap_server);
-  return ap_server->lstn_sockfd;
 }
 
 void httpr_srv_release_buffers (httpr_server_t *ap_server)
@@ -1741,7 +1741,7 @@ void httpr_srv_release_buffers (httpr_server_t *ap_server)
   if (ap_server->p_hdr)
     {
       ap_server->p_hdr->nFilledLen = 0;
-      ap_server->pf_emptied (ap_server->p_hdr, ap_server->p_arg);
+      ap_server->pf_release_buf (ap_server->p_hdr, ap_server->p_arg);
       ap_server->p_hdr = NULL;
     }
 }
@@ -1857,4 +1857,42 @@ void httpr_srv_set_stream_title (httpr_server_t *ap_server,
       srv_stop_listener_timer_watcher (p_lstnr);
       srv_start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
     }
+}
+
+OMX_ERRORTYPE httpr_srv_buffer_event (httpr_server_t *ap_server)
+{
+  assert (NULL != ap_server);
+  return ((ap_server->running && ap_server->need_more_data)
+              ? srv_stream_to_client (ap_server)
+              : OMX_ErrorNone);
+}
+
+OMX_ERRORTYPE httpr_srv_io_event (httpr_server_t *ap_server, const int a_fd)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (NULL != ap_server);
+  if (ap_server->running)
+    {
+      if (a_fd == srv_get_descriptor (ap_server))
+        {
+          /* A new connection event. Try to accept it */
+          rc = srv_accept_connection (ap_server);
+          if (OMX_ErrorInsufficientResources != rc)
+            {
+              rc = OMX_ErrorNone;
+            }
+        }
+      else
+        {
+          /* The client socket is ready */
+          rc = srv_stream_to_client (ap_server);
+        }
+    }
+  return rc;
+}
+
+OMX_ERRORTYPE httpr_srv_timer_event (httpr_server_t *ap_server)
+{
+  assert (NULL != ap_server);
+  return ap_server->running ? srv_stream_to_client (ap_server) : OMX_ErrorNone;
 }
