@@ -51,7 +51,7 @@ struct tiz_event_io
 {
   ev_io io;
   tiz_event_io_cb_f pf_cback;
-  OMX_HANDLETYPE p_hdl;
+  void *p_arg0;
   bool once;
 };
 
@@ -59,15 +59,15 @@ struct tiz_event_timer
 {
   ev_timer timer;
   tiz_event_timer_cb_f pf_cback;
-  OMX_HANDLETYPE p_hdl;
-  void *p_arg;
+  void *p_arg0;
+  void *p_arg1;
 };
 
 struct tiz_event_stat
 {
   ev_stat stat;
   tiz_event_stat_cb_f pf_cback;
-  OMX_HANDLETYPE p_hdl;
+  void *p_arg0;
 };
 
 typedef enum tiz_loop_thread_state tiz_loop_thread_state_t;
@@ -98,18 +98,16 @@ static tiz_loop_thread_t *gp_event_thread = NULL;
 static void async_watcher_cback (struct ev_loop *ap_loop, ev_async *ap_watcher,
                                  int a_revents)
 {
-  (void) ap_loop;
-  (void) ap_watcher;
-  (void) a_revents;
+  (void)ap_loop;
+  (void)ap_watcher;
+  (void)a_revents;
 
-  if (NULL == gp_event_thread)
+  if (gp_event_thread)
     {
-      return;
-    }
-
-  if (ETIZEventLoopStateStopping == gp_event_thread->state)
-    {
-      ev_break (gp_event_thread->p_loop, EVBREAK_ONE);
+      if (ETIZEventLoopStateStopping == gp_event_thread->state)
+        {
+          ev_break (gp_event_thread->p_loop, EVBREAK_ONE);
+        }
     }
 }
 
@@ -117,32 +115,30 @@ static void io_watcher_cback (struct ev_loop *ap_loop, ev_io *ap_watcher,
                               int a_revents)
 {
   tiz_event_io_t *p_io_event = (tiz_event_io_t *)ap_watcher;
-  (void) ap_loop;
+  (void)ap_loop;
 
-  if (NULL == gp_event_thread)
+  if (gp_event_thread)
     {
-      return;
+      assert (NULL != p_io_event);
+      assert (NULL != p_io_event->pf_cback);
+
+      if (p_io_event->once)
+        {
+          ev_io_stop (gp_event_thread->p_loop, (ev_io *)p_io_event);
+        }
+
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "io watcher cback");
+
+      p_io_event->pf_cback (p_io_event->p_arg0, p_io_event,
+                            ((ev_io *)p_io_event)->fd, a_revents);
     }
-
-  assert (NULL != p_io_event);
-  assert (NULL != p_io_event->pf_cback);
-
-  if (p_io_event->once)
-    {
-      ev_io_stop (gp_event_thread->p_loop, (ev_io *)p_io_event);
-    }
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "io watcher cback");
-
-  p_io_event->pf_cback (p_io_event->p_hdl, p_io_event,
-                        ((ev_io *)p_io_event)->fd, a_revents);
 }
 
 static void timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher,
                                  int a_revents)
 {
-  (void) ap_loop;
-  (void) a_revents;
+  (void)ap_loop;
+  (void)a_revents;
 
   if (gp_event_thread)
     {
@@ -152,15 +148,15 @@ static void timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher,
 
       TIZ_LOG (TIZ_PRIORITY_TRACE, "timer watcher cback");
 
-      p_timer_event->pf_cback (p_timer_event->p_hdl, p_timer_event,
-                               p_timer_event->p_arg);
+      p_timer_event->pf_cback (p_timer_event->p_arg0, p_timer_event,
+                               p_timer_event->p_arg1);
     }
 }
 
 static void stat_watcher_cback (struct ev_loop *ap_loop, ev_stat *ap_watcher,
                                 int a_revents)
 {
-  (void) ap_loop;
+  (void)ap_loop;
 
   if (gp_event_thread)
     {
@@ -170,7 +166,7 @@ static void stat_watcher_cback (struct ev_loop *ap_loop, ev_stat *ap_watcher,
 
       TIZ_LOG (TIZ_PRIORITY_TRACE, "stat watcher cback");
 
-      p_stat_event->pf_cback (p_stat_event->p_hdl, p_stat_event, a_revents);
+      p_stat_event->pf_cback (p_stat_event->p_arg0, p_stat_event, a_revents);
     }
 }
 
@@ -184,7 +180,8 @@ static void *event_loop_thread_func (void *p_arg)
   p_loop = p_loop_thread->p_loop;
   assert (NULL != p_loop);
 
-  (void)tiz_thread_setname (&(p_loop_thread->thread), (const OMX_STRING ) TIZ_EV_THREAD_NAME);
+  (void)tiz_thread_setname (&(p_loop_thread->thread),
+                            (const OMX_STRING)TIZ_EV_THREAD_NAME);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Entering the dispatcher...");
   tiz_sem_post (&(p_loop_thread->sem));
@@ -315,11 +312,11 @@ end:
       tiz_thread_create (&(p_lp->thread), 0, 0, event_loop_thread_func, p_lp);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Now in ETIZEventLoopStateStarted state...");
 
-      tiz_mutex_lock (&(p_lp->mutex));
+      (void)tiz_mutex_lock (&(p_lp->mutex));
       /* This is to prevent the event loop from exiting when there are no
        * more active events */
       ev_ref (p_lp->p_loop);
-      tiz_mutex_unlock (&(p_lp->mutex));
+      (void)tiz_mutex_unlock (&(p_lp->mutex));
       tiz_sem_wait (&(p_lp->sem));
     }
   else
@@ -338,15 +335,7 @@ static inline tiz_loop_thread_t *get_loop_thread (void)
 OMX_ERRORTYPE
 tiz_event_loop_init (void)
 {
-  if (NULL == get_loop_thread ())
-    {
-      TIZ_LOG (TIZ_PRIORITY_ERROR,
-               "[OMX_ErrorInsufficientResources] : "
-               "Error retrieving the loop thread.");
-      return OMX_ErrorInsufficientResources;
-    }
-
-  return OMX_ErrorNone;
+  return get_loop_thread () ? OMX_ErrorNone : OMX_ErrorInsufficientResources;
 }
 
 void tiz_event_loop_destroy (void)
@@ -356,13 +345,13 @@ void tiz_event_loop_destroy (void)
 
   if (NULL != gp_event_thread)
     {
-      tiz_mutex_lock (&(gp_event_thread->mutex));
+      (void)tiz_mutex_lock (&(gp_event_thread->mutex));
       TIZ_LOG (TIZ_PRIORITY_TRACE, "destroying event loop thread [%p].",
                gp_event_thread);
       gp_event_thread->state = ETIZEventLoopStateStopping;
       ev_unref (gp_event_thread->p_loop);
       ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
-      tiz_mutex_unlock (&(gp_event_thread->mutex));
+      (void)tiz_mutex_unlock (&(gp_event_thread->mutex));
 
       {
         OMX_PTR p_result = NULL;
@@ -378,26 +367,25 @@ void tiz_event_loop_destroy (void)
  */
 
 OMX_ERRORTYPE
-tiz_event_io_init (tiz_event_io_t **app_ev_io, OMX_HANDLETYPE ap_hdl,
+tiz_event_io_init (tiz_event_io_t **app_ev_io, void *ap_arg0,
                    tiz_event_io_cb_f ap_cback)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   tiz_event_io_t *p_io_watcher = NULL;
 
   assert (NULL != app_ev_io);
   assert (NULL != ap_cback);
   (void)get_loop_thread ();
 
-  if (NULL == (p_io_watcher
+  if (NULL != (p_io_watcher
                = (tiz_event_io_t *)tiz_mem_calloc (1, sizeof(tiz_event_io_t))))
     {
-      return OMX_ErrorInsufficientResources;
+      p_io_watcher->pf_cback = ap_cback;
+      p_io_watcher->p_arg0 = ap_arg0;
+      p_io_watcher->once = false;
+      ev_init ((ev_io *)p_io_watcher, io_watcher_cback);
+      rc = OMX_ErrorNone;
     }
-
-  p_io_watcher->pf_cback = ap_cback;
-  p_io_watcher->p_hdl = ap_hdl;
-  p_io_watcher->once = false;
-  ev_init ((ev_io *)p_io_watcher, io_watcher_cback);
 
   *app_ev_io = p_io_watcher;
 
@@ -411,9 +399,7 @@ void tiz_event_io_set (tiz_event_io_t *ap_ev_io, int a_fd,
   assert (NULL != ap_ev_io);
   assert (a_fd > 0);
   assert (a_event < TIZ_EVENT_MAX);
-
   ap_ev_io->once = only_once;
-
   ev_io_set ((ev_io *)ap_ev_io, a_fd, a_event);
 }
 
@@ -423,13 +409,10 @@ tiz_event_io_start (tiz_event_io_t *ap_ev_io)
   (void)get_loop_thread ();
   assert (NULL != ap_ev_io);
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Started io watcher on fd [%d]",
-           ((ev_io *)ap_ev_io)->fd);
-
-  tiz_mutex_lock (&(gp_event_thread->mutex));
+  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
   ev_io_start (gp_event_thread->p_loop, (ev_io *)ap_ev_io);
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
-  tiz_mutex_unlock (&(gp_event_thread->mutex));
+  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
 
   return OMX_ErrorNone;
 }
@@ -439,12 +422,10 @@ tiz_event_io_stop (tiz_event_io_t *ap_ev_io)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_io);
-
-  tiz_mutex_lock (&(gp_event_thread->mutex));
+  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
   ev_io_stop (gp_event_thread->p_loop, (ev_io *)ap_ev_io);
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
-  tiz_mutex_unlock (&(gp_event_thread->mutex));
-
+  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
   return OMX_ErrorNone;
 }
 
@@ -463,26 +444,25 @@ void tiz_event_io_destroy (tiz_event_io_t *ap_ev_io)
  */
 
 OMX_ERRORTYPE
-tiz_event_timer_init (tiz_event_timer_t **app_ev_timer, OMX_HANDLETYPE ap_hdl,
-                      tiz_event_timer_cb_f ap_cback, void *ap_arg)
+tiz_event_timer_init (tiz_event_timer_t **app_ev_timer, void *ap_arg0,
+                      tiz_event_timer_cb_f ap_cback, void *ap_arg1)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   tiz_event_timer_t *p_timer_watcher = NULL;
 
   assert (NULL != app_ev_timer);
   assert (NULL != ap_cback);
   (void)get_loop_thread ();
 
-  if (NULL == (p_timer_watcher = (tiz_event_timer_t *)tiz_mem_calloc (
+  if (NULL != (p_timer_watcher = (tiz_event_timer_t *)tiz_mem_calloc (
                    1, sizeof(tiz_event_timer_t))))
     {
-      return OMX_ErrorInsufficientResources;
+      p_timer_watcher->pf_cback = ap_cback;
+      p_timer_watcher->p_arg0 = ap_arg0;
+      p_timer_watcher->p_arg1 = ap_arg1;
+      ev_init ((ev_timer *)p_timer_watcher, timer_watcher_cback);
+      rc = OMX_ErrorNone;
     }
-
-  p_timer_watcher->pf_cback = ap_cback;
-  p_timer_watcher->p_hdl = ap_hdl;
-  p_timer_watcher->p_arg = ap_arg;
-  ev_init ((ev_timer *)p_timer_watcher, timer_watcher_cback);
 
   *app_ev_timer = p_timer_watcher;
 
@@ -494,7 +474,6 @@ void tiz_event_timer_set (tiz_event_timer_t *ap_ev_timer, double a_after,
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_timer);
-
   ev_timer_set ((ev_timer *)ap_ev_timer, a_after, a_repeat);
 }
 
@@ -503,12 +482,10 @@ tiz_event_timer_start (tiz_event_timer_t *ap_ev_timer)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_timer);
-
-  tiz_mutex_lock (&(gp_event_thread->mutex));
+  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
   ev_timer_start (gp_event_thread->p_loop, (ev_timer *)ap_ev_timer);
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
-  tiz_mutex_unlock (&(gp_event_thread->mutex));
-
+  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
   return OMX_ErrorNone;
 }
 
@@ -517,11 +494,9 @@ tiz_event_timer_restart (tiz_event_timer_t *ap_ev_timer)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_timer);
-
-  tiz_mutex_lock (&(gp_event_thread->mutex));
+  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
   ev_timer_again (gp_event_thread->p_loop, (ev_timer *)ap_ev_timer);
-  tiz_mutex_unlock (&(gp_event_thread->mutex));
-
+  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
   return OMX_ErrorNone;
 }
 
@@ -530,12 +505,10 @@ tiz_event_timer_stop (tiz_event_timer_t *ap_ev_timer)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_timer);
-
-  tiz_mutex_lock (&(gp_event_thread->mutex));
+  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
   ev_timer_stop (gp_event_thread->p_loop, (ev_timer *)ap_ev_timer);
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
-  tiz_mutex_unlock (&(gp_event_thread->mutex));
-
+  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
   return OMX_ErrorNone;
 }
 
@@ -554,25 +527,24 @@ void tiz_event_timer_destroy (tiz_event_timer_t *ap_ev_timer)
  */
 
 OMX_ERRORTYPE
-tiz_event_stat_init (tiz_event_stat_t **app_ev_stat, OMX_HANDLETYPE ap_hdl,
+tiz_event_stat_init (tiz_event_stat_t **app_ev_stat, void *ap_arg0,
                      tiz_event_stat_cb_f ap_cback)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   tiz_event_stat_t *p_stat_watcher = NULL;
 
   assert (NULL != app_ev_stat);
   assert (NULL != ap_cback);
   (void)get_loop_thread ();
 
-  if (NULL == (p_stat_watcher = (tiz_event_stat_t *)tiz_mem_calloc (
+  if (NULL != (p_stat_watcher = (tiz_event_stat_t *)tiz_mem_calloc (
                    1, sizeof(tiz_event_stat_t))))
     {
-      return OMX_ErrorInsufficientResources;
+      p_stat_watcher->pf_cback = ap_cback;
+      p_stat_watcher->p_arg0 = ap_arg0;
+      ev_init ((ev_stat *)p_stat_watcher, stat_watcher_cback);
+      rc = OMX_ErrorNone;
     }
-
-  p_stat_watcher->pf_cback = ap_cback;
-  p_stat_watcher->p_hdl = ap_hdl;
-  ev_init ((ev_stat *)p_stat_watcher, stat_watcher_cback);
 
   *app_ev_stat = p_stat_watcher;
 
@@ -583,7 +555,6 @@ void tiz_event_stat_set (tiz_event_stat_t *ap_ev_stat, const char *ap_path)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_stat);
-
   ev_stat_set ((ev_stat *)ap_ev_stat, ap_path, 0);
 }
 
@@ -592,12 +563,10 @@ tiz_event_stat_start (tiz_event_stat_t *ap_ev_stat)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_stat);
-
-  tiz_mutex_lock (&(gp_event_thread->mutex));
+  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
   ev_stat_start (gp_event_thread->p_loop, (ev_stat *)ap_ev_stat);
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
-  tiz_mutex_unlock (&(gp_event_thread->mutex));
-
+  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
   return OMX_ErrorNone;
 }
 
@@ -606,12 +575,10 @@ tiz_event_stat_stop (tiz_event_stat_t *ap_ev_stat)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_stat);
-
-  tiz_mutex_lock (&(gp_event_thread->mutex));
+  tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
   ev_stat_stop (gp_event_thread->p_loop, (ev_stat *)ap_ev_stat);
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
-  tiz_mutex_unlock (&(gp_event_thread->mutex));
-
+  tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
   return OMX_ErrorNone;
 }
 
@@ -619,7 +586,6 @@ void tiz_event_stat_destroy (tiz_event_stat_t *ap_ev_stat)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_stat);
-
   tiz_event_stat_stop (ap_ev_stat);
   tiz_mem_free (ap_ev_stat);
 }

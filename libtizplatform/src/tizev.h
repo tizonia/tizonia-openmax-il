@@ -72,16 +72,15 @@ typedef struct tiz_event_stat tiz_event_stat_t;
  *
  * @ingroup event
  */
-typedef void (*tiz_event_io_cb_f)(OMX_HANDLETYPE ap_hdl,
-                                  tiz_event_io_t *ap_ev_io, int a_fd,
-                                  int a_events);
+typedef void (*tiz_event_io_cb_f)(void *ap_arg0, tiz_event_io_t *ap_ev_io,
+                                  int a_fd, int a_events);
 
-typedef void (*tiz_event_timer_cb_f)(OMX_HANDLETYPE ap_hdl,
+typedef void (*tiz_event_timer_cb_f)(void *ap_arg0,
                                      tiz_event_timer_t *ap_ev_timer,
-                                     void *ap_arg);
+                                     void *ap_arg1);
 
-typedef void (*tiz_event_stat_cb_f)(OMX_HANDLETYPE ap_hdl,
-                                    tiz_event_stat_t *ap_ev_stat, int a_events);
+typedef void (*tiz_event_stat_cb_f)(void *ap_arg0, tiz_event_stat_t *ap_ev_stat,
+                                    int a_events);
 
 typedef enum tiz_event_io_event
 {
@@ -118,8 +117,7 @@ OMX_ERRORTYPE tiz_event_loop_init (void);
  */
 void tiz_event_loop_destroy (void);
 
-OMX_ERRORTYPE tiz_event_io_init (tiz_event_io_t **app_ev_io,
-                                 OMX_HANDLETYPE ap_hdl,
+OMX_ERRORTYPE tiz_event_io_init (tiz_event_io_t **app_ev_io, void *ap_arg0,
                                  tiz_event_io_cb_f ap_cback);
 
 void tiz_event_io_set (tiz_event_io_t *ap_ev_io, int a_fd,
@@ -132,9 +130,9 @@ OMX_ERRORTYPE tiz_event_io_stop (tiz_event_io_t *ap_ev_io);
 void tiz_event_io_destroy (tiz_event_io_t *ap_ev_io);
 
 OMX_ERRORTYPE tiz_event_timer_init (tiz_event_timer_t **app_ev_timer,
-                                    OMX_HANDLETYPE ap_hdl,
+                                    void *ap_arg0,
                                     tiz_event_timer_cb_f ap_cback,
-                                    void *ap_arg);
+                                    void *ap_arg1);
 
 void tiz_event_timer_set (tiz_event_timer_t *ap_ev_timer, double a_after,
                           double a_repeat);
@@ -148,8 +146,7 @@ OMX_ERRORTYPE tiz_event_timer_stop (tiz_event_timer_t *ap_ev_timer);
 void tiz_event_timer_destroy (tiz_event_timer_t *ap_ev_timer);
 
 OMX_ERRORTYPE tiz_event_stat_init (tiz_event_stat_t **app_ev_stat,
-                                   OMX_HANDLETYPE ap_hdl,
-                                   tiz_event_stat_cb_f ap_cback);
+                                   void *ap_arg0, tiz_event_stat_cb_f ap_cback);
 
 void tiz_event_stat_set (tiz_event_stat_t *ap_ev_stat, const char *ap_path);
 
