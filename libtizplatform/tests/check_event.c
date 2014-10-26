@@ -120,7 +120,7 @@ stop_udp_server(int sockfd)
 
 static void
 check_event_timer_cback (OMX_HANDLETYPE p_hdl, tiz_event_timer_t * ap_ev_timer,
-                         void *ap_arg)
+                         void *ap_arg, const uint32_t a_id)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
@@ -242,7 +242,7 @@ START_TEST (test_event_timer)
 
   tiz_event_timer_set (p_ev_timer, 1., CHECK_TIMER_PERIOD);
 
-  error = tiz_event_timer_start (p_ev_timer);
+  error = tiz_event_timer_start (p_ev_timer, 0);
   fail_if (error != OMX_ErrorNone);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "started timer watcher - sleep_len [%d]", sleep_len);

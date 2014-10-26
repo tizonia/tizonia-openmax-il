@@ -101,6 +101,46 @@ OMX_ERRORTYPE tiz_srv_receive_pluggable_event (void *ap_obj,
 void *tiz_srv_soa_calloc (void *ap_obj, size_t a_size);
 void tiz_srv_soa_free (void *ap_obj, void *ap_addr);
 
+/* io event helpers */
+OMX_ERRORTYPE tiz_srv_io_watcher_init (void *ap_obj, tiz_event_io_t **app_ev_io,
+                                       int a_fd, tiz_event_io_event_t a_event,
+                                       bool only_once);
+OMX_ERRORTYPE tiz_srv_io_watcher_start (void *ap_obj, tiz_event_io_t *ap_ev_io);
+OMX_ERRORTYPE tiz_srv_io_watcher_stop (void *ap_obj, tiz_event_io_t *ap_ev_io);
+void tiz_srv_io_watcher_destroy (void *ap_obj, tiz_event_io_t *ap_ev_io);
+
+/* timer event helpers */
+OMX_ERRORTYPE tiz_srv_timer_watcher_init (void *ap_obj,
+                                          tiz_event_timer_t **app_ev_timer);
+OMX_ERRORTYPE tiz_srv_timer_watcher_start (void *ap_obj,
+                                           tiz_event_timer_t *ap_ev_timer,
+                                           const double a_after,
+                                           const double a_repeat);
+OMX_ERRORTYPE tiz_srv_timer_watcher_restart (void *ap_obj,
+                                             tiz_event_timer_t *ap_ev_timer);
+OMX_ERRORTYPE tiz_srv_timer_watcher_stop (void *ap_obj,
+                                          tiz_event_timer_t *ap_ev_timer);
+void tiz_srv_timer_watcher_destroy (void *ap_obj,
+                                    tiz_event_timer_t *ap_ev_timer);
+
+/* TODO: stat event helpers */
+
+/* Event filters */
+OMX_ERRORTYPE tiz_srv_event_io (void *ap_obj, tiz_event_io_t *ap_ev_io,
+                                const uint32_t a_id, int a_fd, int a_events);
+OMX_ERRORTYPE tiz_srv_event_timer (void *ap_obj, tiz_event_timer_t *ap_ev_timer,
+                                   const uint32_t a_id);
+OMX_ERRORTYPE tiz_srv_event_stat (void *ap_obj, tiz_event_stat_t *ap_ev_stat,
+                                  const uint32_t a_id, int a_events);
+
+/* Event handlers */
+OMX_ERRORTYPE tiz_srv_io_ready (void *ap_obj, tiz_event_io_t *ap_ev_io,
+                                int a_fd, int a_events);
+OMX_ERRORTYPE tiz_srv_timer_ready (void *ap_obj,
+                                   tiz_event_timer_t *ap_ev_timer);
+OMX_ERRORTYPE tiz_srv_stat_ready (void *ap_obj, tiz_event_stat_t *ap_ev_stat,
+                                  int a_events);
+
 #ifdef __cplusplus
 }
 #endif

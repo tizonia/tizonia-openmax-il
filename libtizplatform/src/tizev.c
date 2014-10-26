@@ -52,7 +52,9 @@ struct tiz_event_io
   ev_io io;
   tiz_event_io_cb_f pf_cback;
   void *p_arg0;
+  void *p_arg1;
   bool once;
+  uint32_t id;
 };
 
 struct tiz_event_timer
@@ -61,6 +63,7 @@ struct tiz_event_timer
   tiz_event_timer_cb_f pf_cback;
   void *p_arg0;
   void *p_arg1;
+  uint32_t id;
 };
 
 struct tiz_event_stat
@@ -68,6 +71,8 @@ struct tiz_event_stat
   ev_stat stat;
   tiz_event_stat_cb_f pf_cback;
   void *p_arg0;
+  void *p_arg1;
+  uint32_t id;
 };
 
 typedef enum tiz_loop_thread_state tiz_loop_thread_state_t;
@@ -129,8 +134,9 @@ static void io_watcher_cback (struct ev_loop *ap_loop, ev_io *ap_watcher,
 
       TIZ_LOG (TIZ_PRIORITY_TRACE, "io watcher cback");
 
-      p_io_event->pf_cback (p_io_event->p_arg0, p_io_event,
-                            ((ev_io *)p_io_event)->fd, a_revents);
+      p_io_event->pf_cback (p_io_event->p_arg0, p_io_event, p_io_event->p_arg1,
+                            p_io_event->id, ((ev_io *)p_io_event)->fd,
+                            a_revents);
     }
 }
 
@@ -149,7 +155,7 @@ static void timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher,
       TIZ_LOG (TIZ_PRIORITY_TRACE, "timer watcher cback");
 
       p_timer_event->pf_cback (p_timer_event->p_arg0, p_timer_event,
-                               p_timer_event->p_arg1);
+                               p_timer_event->p_arg1, p_timer_event->id);
     }
 }
 
@@ -166,7 +172,9 @@ static void stat_watcher_cback (struct ev_loop *ap_loop, ev_stat *ap_watcher,
 
       TIZ_LOG (TIZ_PRIORITY_TRACE, "stat watcher cback");
 
-      p_stat_event->pf_cback (p_stat_event->p_arg0, p_stat_event, a_revents);
+      p_stat_event->pf_cback (p_stat_event->p_arg0, p_stat_event,
+                              p_stat_event->p_arg1, p_stat_event->id,
+                              a_revents);
     }
 }
 
@@ -368,7 +376,7 @@ void tiz_event_loop_destroy (void)
 
 OMX_ERRORTYPE
 tiz_event_io_init (tiz_event_io_t **app_ev_io, void *ap_arg0,
-                   tiz_event_io_cb_f ap_cback)
+                   tiz_event_io_cb_f ap_cback, void *ap_arg1)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   tiz_event_io_t *p_io_watcher = NULL;
@@ -382,7 +390,9 @@ tiz_event_io_init (tiz_event_io_t **app_ev_io, void *ap_arg0,
     {
       p_io_watcher->pf_cback = ap_cback;
       p_io_watcher->p_arg0 = ap_arg0;
+      p_io_watcher->p_arg1 = ap_arg1;
       p_io_watcher->once = false;
+      p_io_watcher->id = 0;
       ev_init ((ev_io *)p_io_watcher, io_watcher_cback);
       rc = OMX_ErrorNone;
     }
@@ -404,16 +414,15 @@ void tiz_event_io_set (tiz_event_io_t *ap_ev_io, int a_fd,
 }
 
 OMX_ERRORTYPE
-tiz_event_io_start (tiz_event_io_t *ap_ev_io)
+tiz_event_io_start (tiz_event_io_t *ap_ev_io, const uint32_t a_id)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_io);
-
   tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
+  ap_ev_io->id = a_id;
   ev_io_start (gp_event_thread->p_loop, (ev_io *)ap_ev_io);
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
   tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
-
   return OMX_ErrorNone;
 }
 
@@ -427,6 +436,12 @@ tiz_event_io_stop (tiz_event_io_t *ap_ev_io)
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
   tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
   return OMX_ErrorNone;
+}
+
+bool tiz_event_io_is_level_triggered (tiz_event_io_t *ap_ev_io)
+{
+  assert (NULL != ap_ev_io);
+  return ap_ev_io->once;
 }
 
 void tiz_event_io_destroy (tiz_event_io_t *ap_ev_io)
@@ -460,6 +475,7 @@ tiz_event_timer_init (tiz_event_timer_t **app_ev_timer, void *ap_arg0,
       p_timer_watcher->pf_cback = ap_cback;
       p_timer_watcher->p_arg0 = ap_arg0;
       p_timer_watcher->p_arg1 = ap_arg1;
+      p_timer_watcher->id = 0;
       ev_init ((ev_timer *)p_timer_watcher, timer_watcher_cback);
       rc = OMX_ErrorNone;
     }
@@ -478,11 +494,12 @@ void tiz_event_timer_set (tiz_event_timer_t *ap_ev_timer, double a_after,
 }
 
 OMX_ERRORTYPE
-tiz_event_timer_start (tiz_event_timer_t *ap_ev_timer)
+tiz_event_timer_start (tiz_event_timer_t *ap_ev_timer, const uint32_t a_id)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_timer);
   tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
+  ap_ev_timer->id = a_id;
   ev_timer_start (gp_event_thread->p_loop, (ev_timer *)ap_ev_timer);
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
   tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
@@ -490,11 +507,12 @@ tiz_event_timer_start (tiz_event_timer_t *ap_ev_timer)
 }
 
 OMX_ERRORTYPE
-tiz_event_timer_restart (tiz_event_timer_t *ap_ev_timer)
+tiz_event_timer_restart (tiz_event_timer_t *ap_ev_timer, const uint32_t a_id)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_timer);
   tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
+  ap_ev_timer->id = a_id;
   ev_timer_again (gp_event_thread->p_loop, (ev_timer *)ap_ev_timer);
   tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));
   return OMX_ErrorNone;
@@ -528,7 +546,7 @@ void tiz_event_timer_destroy (tiz_event_timer_t *ap_ev_timer)
 
 OMX_ERRORTYPE
 tiz_event_stat_init (tiz_event_stat_t **app_ev_stat, void *ap_arg0,
-                     tiz_event_stat_cb_f ap_cback)
+                     tiz_event_stat_cb_f ap_cback, void *ap_arg1)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   tiz_event_stat_t *p_stat_watcher = NULL;
@@ -542,6 +560,8 @@ tiz_event_stat_init (tiz_event_stat_t **app_ev_stat, void *ap_arg0,
     {
       p_stat_watcher->pf_cback = ap_cback;
       p_stat_watcher->p_arg0 = ap_arg0;
+      p_stat_watcher->p_arg1 = ap_arg1;
+      p_stat_watcher->id = 0;
       ev_init ((ev_stat *)p_stat_watcher, stat_watcher_cback);
       rc = OMX_ErrorNone;
     }
@@ -559,11 +579,12 @@ void tiz_event_stat_set (tiz_event_stat_t *ap_ev_stat, const char *ap_path)
 }
 
 OMX_ERRORTYPE
-tiz_event_stat_start (tiz_event_stat_t *ap_ev_stat)
+tiz_event_stat_start (tiz_event_stat_t *ap_ev_stat, const uint32_t a_id)
 {
   (void)get_loop_thread ();
   assert (NULL != ap_ev_stat);
   tiz_check_omx_err (tiz_mutex_lock (&(gp_event_thread->mutex)));
+  ap_ev_stat->id = a_id;
   ev_stat_start (gp_event_thread->p_loop, (ev_stat *)ap_ev_stat);
   ev_async_send (gp_event_thread->p_loop, gp_event_thread->p_async_watcher);
   tiz_check_omx_err (tiz_mutex_unlock (&(gp_event_thread->mutex)));

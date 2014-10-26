@@ -270,6 +270,8 @@ typedef struct tiz_sched_msg_ev_io tiz_sched_msg_ev_io_t;
 struct tiz_sched_msg_ev_io
 {
   tiz_event_io_t *p_ev_io;
+  void *p_arg;
+  uint32_t id;
   int fd;
   int events;
 };
@@ -279,12 +281,15 @@ struct tiz_sched_msg_ev_timer
 {
   tiz_event_timer_t *p_ev_timer;
   void *p_arg;
+  uint32_t id;
 };
 
 typedef struct tiz_sched_msg_ev_stat tiz_sched_msg_ev_stat_t;
 struct tiz_sched_msg_ev_stat
 {
   tiz_event_stat_t *p_ev_stat;
+  void *p_arg;
+  uint32_t id;
   int events;
 };
 
@@ -1215,8 +1220,9 @@ static OMX_ERRORTYPE do_eio (tiz_scheduler_t *ap_sched,
   p_msg_eio = &(ap_msg->eio);
   assert (NULL != p_msg_eio);
 
-  return tiz_prc_io_ready (ap_sched->child.p_prc, p_msg_eio->p_ev_io,
-                           p_msg_eio->fd, p_msg_eio->events);
+  return tiz_srv_event_io (p_msg_eio->p_arg, p_msg_eio->p_ev_io,
+                           p_msg_eio->id, p_msg_eio->fd,
+                           p_msg_eio->events);
 }
 
 static OMX_ERRORTYPE do_etmr (tiz_scheduler_t *ap_sched,
@@ -1232,8 +1238,8 @@ static OMX_ERRORTYPE do_etmr (tiz_scheduler_t *ap_sched,
   p_msg_etmr = &(ap_msg->etmr);
   assert (NULL != p_msg_etmr);
 
-  return tiz_prc_timer_ready (ap_sched->child.p_prc, p_msg_etmr->p_ev_timer,
-                              p_msg_etmr->p_arg);
+  return tiz_srv_event_timer (p_msg_etmr->p_arg, p_msg_etmr->p_ev_timer,
+                              p_msg_etmr->id);
 }
 
 static OMX_ERRORTYPE do_estat (tiz_scheduler_t *ap_sched,
@@ -1249,8 +1255,8 @@ static OMX_ERRORTYPE do_estat (tiz_scheduler_t *ap_sched,
   p_msg_estat = &(ap_msg->estat);
   assert (NULL != p_msg_estat);
 
-  return tiz_prc_stat_ready (ap_sched->child.p_prc, p_msg_estat->p_ev_stat,
-                             p_msg_estat->events);
+  return tiz_srv_event_stat (p_msg_estat->p_arg, p_msg_estat->p_ev_stat,
+                             p_msg_estat->id, p_msg_estat->events);
 }
 
 /* NOTE: Start ignoring splint warnings in this section of code */
@@ -2364,6 +2370,7 @@ tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
 }
 
 void tiz_comp_event_io (const OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
+                        void *ap_arg, const uint32_t a_id,
                         const int a_fd, const int a_events)
 {
   tiz_sched_msg_t *p_msg = NULL;
@@ -2377,6 +2384,8 @@ void tiz_comp_event_io (const OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
   p_msg_eio = &(p_msg->eio);
   assert (NULL != p_msg_eio);
   p_msg_eio->p_ev_io = ap_ev_io;
+  p_msg_eio->p_arg = ap_arg;
+  p_msg_eio->id = a_id;
   p_msg_eio->fd = a_fd;
   p_msg_eio->events = a_events;
 
@@ -2385,7 +2394,8 @@ void tiz_comp_event_io (const OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
 }
 
 void tiz_comp_event_timer (const OMX_HANDLETYPE ap_hdl,
-                           tiz_event_timer_t *ap_ev_timer, void *ap_arg)
+                           tiz_event_timer_t *ap_ev_timer, void *ap_arg,
+                           const uint32_t a_id)
 {
   tiz_sched_msg_t *p_msg = NULL;
   tiz_sched_msg_ev_timer_t *p_msg_etmr = NULL;
@@ -2399,12 +2409,14 @@ void tiz_comp_event_timer (const OMX_HANDLETYPE ap_hdl,
   assert (NULL != p_msg_etmr);
   p_msg_etmr->p_ev_timer = ap_ev_timer;
   p_msg_etmr->p_arg = ap_arg;
+  p_msg_etmr->id = a_id;
 
   /* TODO: Shouldn't mask this return code */
   (void)send_msg (get_sched (ap_hdl), p_msg);
 }
 
 void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_stat,
+                          void *ap_arg, const uint32_t a_id,
                           const int a_events)
 {
   tiz_sched_msg_t *p_msg = NULL;
@@ -2418,6 +2430,8 @@ void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_s
   p_msg_estat = &(p_msg->estat);
   assert (NULL != p_msg_estat);
   p_msg_estat->p_ev_stat = ap_ev_stat;
+  p_msg_estat->p_arg = ap_arg;
+  p_msg_estat->id = a_id;
 
   /* TODO: Shouldn't mask this return code */
   (void)send_msg (get_sched (ap_hdl), p_msg);

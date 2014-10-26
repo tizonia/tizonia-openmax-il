@@ -64,16 +64,14 @@ static const OMX_STRING tiz_prc_msg_to_str (tiz_prc_msg_class_t a_msg)
   return "Unknown proc message";
 }
 
-static OMX_ERRORTYPE dispatch_idle_to_loaded (tiz_prc_t *ap_prc,
-                                              bool * ap_done)
+static OMX_ERRORTYPE dispatch_idle_to_loaded (tiz_prc_t *ap_prc, bool *ap_done)
 {
   assert (NULL != ap_done);
   *ap_done = true;
   return tiz_srv_deallocate_resources (ap_prc);
 }
 
-static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_prc_t *ap_prc,
-                                              bool * ap_done)
+static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_prc_t *ap_prc, bool *ap_done)
 {
   assert (NULL != ap_done);
   *ap_done = true;
@@ -81,15 +79,14 @@ static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_prc_t *ap_prc,
 }
 
 static OMX_ERRORTYPE dispatch_exe_or_pause_to_idle (tiz_prc_t *ap_prc,
-                                              bool * ap_done)
+                                                    bool *ap_done)
 {
   assert (NULL != ap_done);
   *ap_done = true;
   return tiz_srv_stop_and_return (ap_prc);
 }
 
-static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_prc_t *ap_prc,
-                                           bool * ap_done)
+static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
 {
   assert (NULL != ap_done);
   *ap_done = true;
@@ -97,16 +94,14 @@ static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_prc_t *ap_prc,
 }
 
 static OMX_ERRORTYPE prc_DeferredResume (const void *ap_obj);
-static OMX_ERRORTYPE dispatch_pause_to_exe (tiz_prc_t *ap_prc,
-                                           bool * ap_done)
+static OMX_ERRORTYPE dispatch_pause_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
 {
   assert (NULL != ap_done);
   *ap_done = true;
   return prc_DeferredResume (ap_prc);
 }
 
-static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_prc_t *ap_prc,
-                                          bool * ap_done)
+static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
 {
   assert (NULL != ap_done);
   *ap_done = true;
@@ -114,23 +109,21 @@ static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_prc_t *ap_prc,
 }
 
 static OMX_ERRORTYPE dispatch_exe_or_idle_to_pause (tiz_prc_t *ap_prc,
-                                                    bool *     ap_done)
+                                                    bool *ap_done)
 {
   assert (NULL != ap_done);
   *ap_done = true;
   return tiz_prc_pause (ap_prc);
 }
 
-static OMX_ERRORTYPE dispatch_true (tiz_prc_t *ap_prc,
-                                    bool * ap_done)
+static OMX_ERRORTYPE dispatch_true (tiz_prc_t *ap_prc, bool *ap_done)
 {
   assert (NULL != ap_done);
   *ap_done = true;
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE dispatch_false (tiz_prc_t *ap_prc,
-                                    bool * ap_done)
+static OMX_ERRORTYPE dispatch_false (tiz_prc_t *ap_prc, bool *ap_done)
 {
   return OMX_ErrorIncorrectStateTransition;
 }
@@ -221,10 +214,10 @@ static OMX_ERRORTYPE prc_DeferredResume (const void *ap_obj)
 
   assert (NULL != ap_obj);
 
-  TIZ_TRACE (handleOf(p_obj), "DeferredResume");
+  TIZ_TRACE (handleOf (p_obj), "DeferredResume");
 
-  if (NULL
-      == (p_msg = init_prc_message (p_obj, handleOf(p_obj), ETIZPrcMsgDeferredResume)))
+  if (NULL == (p_msg = init_prc_message (p_obj, handleOf (p_obj),
+                                         ETIZPrcMsgDeferredResume)))
     {
       return OMX_ErrorInsufficientResources;
     }
@@ -394,10 +387,9 @@ static OMX_ERRORTYPE dispatch_dr (void *ap_obj, OMX_PTR ap_msg)
   return rc;
 }
 
-static inline tiz_prc_msg_dispatch_state_set_f
-lookup_state_set_transition (const void *ap_obj,
-                             const OMX_STATETYPE a_current_state,
-                             const OMX_STATETYPE a_next_state)
+static inline tiz_prc_msg_dispatch_state_set_f lookup_state_set_transition (
+    const void *ap_obj, const OMX_STATETYPE a_current_state,
+    const OMX_STATETYPE a_next_state)
 {
   assert (a_current_state >= OMX_StateLoaded);
   assert (a_current_state <= OMX_StateWaitForResources);
@@ -405,7 +397,8 @@ lookup_state_set_transition (const void *ap_obj,
   assert (a_next_state <= OMX_StateWaitForResources);
 
   TIZ_TRACE (handleOf (ap_obj), "Requested transition [%s] -> [%s]",
-             tiz_state_to_str (a_current_state), tiz_state_to_str (a_next_state));
+             tiz_state_to_str (a_current_state),
+             tiz_state_to_str (a_next_state));
 
   return tiz_prc_state_set_dispatch_tbl[a_current_state][a_next_state];
 }
@@ -414,7 +407,7 @@ static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
                                          OMX_HANDLETYPE ap_hdl,
                                          tiz_prc_msg_sendcommand_t *ap_msg_sc)
 {
-  tiz_prc_t *p_prc = (tiz_prc_t *) ap_obj;
+  tiz_prc_t *p_prc = (tiz_prc_t *)ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_STATETYPE now = OMX_StateMax;
   OMX_STATETYPE next = OMX_StateMax;
@@ -427,7 +420,7 @@ static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
   tiz_check_omx_err (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
 
   /* ...and this is the next state */
-  next =  ap_msg_sc->param1;
+  next = ap_msg_sc->param1;
 
   /* find the action */
   p_action_f = lookup_state_set_transition (p_prc, now, next);
@@ -674,13 +667,13 @@ static OMX_ERRORTYPE prc_stop_and_return (void *ap_obj)
   return OMX_ErrorNotImplemented;
 }
 
-static OMX_ERRORTYPE prc_receive_pluggable_event (void *ap_obj,
-                                                  tiz_event_pluggable_t *ap_event)
+static OMX_ERRORTYPE prc_receive_pluggable_event (
+    void *ap_obj, tiz_event_pluggable_t *ap_event)
 {
   assert (ap_obj);
   if (ap_event && ap_event->pf_hdlr)
     {
-      (*(ap_event->pf_hdlr)) (ap_event->p_servant, ap_event);
+      (*(ap_event->pf_hdlr))(ap_event->p_servant, ap_event);
     }
   return OMX_ErrorNone;
 }
@@ -790,50 +783,6 @@ tiz_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
   return class->config_change (ap_obj, a_pid, a_config_idx);
 }
 
-static OMX_ERRORTYPE prc_io_ready (const void *ap_obj, tiz_event_io_t *ap_ev_io,
-                                   int a_fd, int a_events)
-{
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-tiz_prc_io_ready (void *ap_obj, tiz_event_io_t *ap_ev_io, int a_fd,
-                  int a_events)
-{
-  const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->io_ready);
-  return class->io_ready (ap_obj, ap_ev_io, a_fd, a_events);
-}
-
-static OMX_ERRORTYPE prc_timer_ready (void *ap_obj,
-                                      tiz_event_timer_t *ap_ev_timer,
-                                      void *ap_arg)
-{
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-tiz_prc_timer_ready (void *ap_obj, tiz_event_timer_t *ap_ev_timer, void *ap_arg)
-{
-  const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->timer_ready);
-  return class->timer_ready (ap_obj, ap_ev_timer, ap_arg);
-}
-
-static OMX_ERRORTYPE prc_stat_ready (void *ap_obj, tiz_event_stat_t *ap_ev_stat,
-                                     int a_events)
-{
-  return OMX_ErrorNone;
-}
-
-OMX_ERRORTYPE
-tiz_prc_stat_ready (void *ap_obj, tiz_event_stat_t *ap_ev_stat, int a_events)
-{
-  const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->stat_ready);
-  return class->stat_ready (ap_obj, ap_ev_stat, a_events);
-}
-
 /*
  * tizprc_class
  */
@@ -880,18 +829,6 @@ static void *prc_class_ctor (void *ap_obj, va_list *app)
         {
           *(voidf *)&p_obj->config_change = method;
         }
-      else if (selector == (voidf)tiz_prc_io_ready)
-        {
-          *(voidf *)&p_obj->io_ready = method;
-        }
-      else if (selector == (voidf)tiz_prc_timer_ready)
-        {
-          *(voidf *)&p_obj->timer_ready = method;
-        }
-      else if (selector == (voidf)tiz_prc_stat_ready)
-        {
-          *(voidf *)&p_obj->stat_ready = method;
-        }
     }
   /*@end@*/
   /* NOTE: Stop ignoring splint warnings in this section  */
@@ -908,14 +845,15 @@ void *tiz_prc_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizsrv = tiz_get_type (ap_hdl, "tizsrv");
   void *tizprc_class = factory_new
-    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizsrv), "tizprc_class", classOf (tizsrv), sizeof(tiz_prc_class_t),
-     /* TIZ_CLASS_COMMENT: */
-     ap_tos, ap_hdl,
-     /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, prc_class_ctor,
-     /* TIZ_CLASS_COMMENT: stop value*/
-     0);
+      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+      (classOf (tizsrv), "tizprc_class", classOf (tizsrv),
+       sizeof(tiz_prc_class_t),
+       /* TIZ_CLASS_COMMENT: */
+       ap_tos, ap_hdl,
+       /* TIZ_CLASS_COMMENT: class constructor */
+       ctor, prc_class_ctor,
+       /* TIZ_CLASS_COMMENT: stop value*/
+       0);
   return tizprc_class;
 }
 
@@ -971,12 +909,6 @@ void *tiz_prc_init (void *ap_tos, void *ap_hdl)
        tiz_prc_port_enable, prc_port_enable,
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_config_change, prc_config_change,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_io_ready, prc_io_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_timer_ready, prc_timer_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_stat_ready, prc_stat_ready,
        /* TIZ_CLASS_COMMENT: stop value */
        0);
 

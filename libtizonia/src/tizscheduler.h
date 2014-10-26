@@ -108,10 +108,14 @@ OMX_ERRORTYPE tiz_comp_register_types (const OMX_HANDLETYPE ap_hdl,
 OMX_ERRORTYPE tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
                                         tiz_event_pluggable_t *ap_event);
 void tiz_comp_event_io (const OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
+                        void *ap_arg, const uint32_t a_id,
                         const int a_fd, const int a_events);
 void tiz_comp_event_timer (const OMX_HANDLETYPE ap_hdl,
-                           tiz_event_timer_t *ap_ev_timer, void *ap_arg);
-void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_stat,
+                           tiz_event_timer_t *ap_ev_timer, void *ap_arg,
+                           const uint32_t a_id);
+void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl,
+                          tiz_event_stat_t *ap_ev_stat,
+                          void *ap_arg, const uint32_t a_id,
                           const int a_events);
 
 /* Utility functions */

@@ -177,7 +177,7 @@ static OMX_ERRORTYPE httpr_prc_allocate_resources (void *ap_prc, OMX_U32 a_pid)
       tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
       OMX_TizoniaIndexParamHttpServer, &p_prc->server_info_));
 
-  return httpr_srv_init (&(p_prc->p_server_), handleOf (p_prc),
+  return httpr_srv_init (&(p_prc->p_server_), p_prc,
                          p_prc->server_info_.cBindAddress, /* if this is
                                                             * null, the
                                                             * server will
@@ -279,7 +279,7 @@ static OMX_ERRORTYPE httpr_prc_io_ready (void *ap_prc, tiz_event_io_t *ap_ev_io,
 
 static OMX_ERRORTYPE httpr_prc_timer_ready (void *ap_prc,
                                             tiz_event_timer_t *ap_ev_timer,
-                                            void *ap_arg)
+                                            void *ap_arg, const uint32_t aid)
 {
   httpr_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -419,11 +419,11 @@ void *httpr_prc_init (void *ap_tos, void *ap_hdl)
        /* TIZ_CLASS_COMMENT: */
        tiz_srv_stop_and_return, httpr_prc_stop_and_return,
        /* TIZ_CLASS_COMMENT: */
+       tiz_srv_io_ready, httpr_prc_io_ready,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_timer_ready, httpr_prc_timer_ready,
+       /* TIZ_CLASS_COMMENT: */
        tiz_prc_buffers_ready, httpr_prc_buffers_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_io_ready, httpr_prc_io_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_timer_ready, httpr_prc_timer_ready,
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_port_enable, httpr_prc_port_enable,
        /* TIZ_CLASS_COMMENT: */

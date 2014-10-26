@@ -134,7 +134,7 @@ start_io_watcher (ar_prc_t * ap_prc)
   assert (NULL != ap_prc->p_ev_io_);
   if (!ap_prc->awaiting_io_ev_)
     {
-      rc = tiz_event_io_start (ap_prc->p_ev_io_);
+      rc = tiz_srv_io_watcher_start (ap_prc, ap_prc->p_ev_io_);
     }
   ap_prc->awaiting_io_ev_ = true;
   TIZ_DEBUG (handleOf (ap_prc), "io watcher : [RUNNING]");
@@ -148,7 +148,7 @@ stop_io_watcher (ar_prc_t * ap_prc)
   assert (NULL != ap_prc);
   if (NULL != ap_prc->p_ev_io_ && ap_prc->awaiting_io_ev_)
   {
-    rc = tiz_event_io_stop (ap_prc->p_ev_io_);
+    rc = tiz_srv_io_watcher_stop (ap_prc, ap_prc->p_ev_io_);
   }
   ap_prc->awaiting_io_ev_ = false;
   TIZ_DEBUG (handleOf (ap_prc), "io watcher : [STOPPED]");
@@ -397,7 +397,7 @@ static OMX_ERRORTYPE start_volume_ramp (ar_prc_t *ap_prc)
   ap_prc->ramp_volume_ = 0;
   TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
              ap_prc->ramp_volume_);
-  tiz_check_omx_err (tiz_event_timer_start (ap_prc->p_ev_timer_));
+  tiz_check_omx_err (tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
   return OMX_ErrorNone;
 }
 
@@ -406,7 +406,7 @@ static void stop_volume_ramp (ar_prc_t *ap_prc)
   assert (NULL != ap_prc);
   if (NULL != ap_prc->p_ev_timer_)
     {
-      (void)tiz_event_timer_stop (ap_prc->p_ev_timer_);
+      (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
     }
 }
 
@@ -636,14 +636,8 @@ ar_prc_allocate_resources (void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
         tiz_mem_alloc (sizeof (struct pollfd) * p_prc->descriptor_count_);
       tiz_check_null_ret_oom (p_prc->p_fds_);
 
-      /* Init the io watcher */
-      tiz_check_omx_err (tiz_event_io_init (&(p_prc->p_ev_io_), handleOf (p_prc),
-                                            tiz_comp_event_io));
-
       /* This is to generate volume ramps when needed */
-      tiz_check_omx_err (tiz_event_timer_init (&(p_prc->p_ev_timer_), handleOf (p_prc),
-                                               tiz_comp_event_timer, p_prc));
-      tiz_event_timer_set (p_prc->p_ev_timer_, 0.2, 0.2);
+      tiz_check_omx_err (tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
     }
 
   assert (NULL != p_prc->p_pcm_hdl);
@@ -728,8 +722,9 @@ ar_prc_prepare_to_transfer (void *ap_prc, OMX_U32 TIZ_UNUSED (a_pid))
 
       TIZ_DEBUG (handleOf (p_prc), "Poll descriptors : %d", p_prc->descriptor_count_);
 
-      tiz_event_io_set (p_prc->p_ev_io_, p_prc->p_fds_->fd,
-                        TIZ_EVENT_READ_OR_WRITE, true);
+      /* Init the io watcher */
+      tiz_check_omx_err (tiz_srv_io_watcher_init (p_prc, &(p_prc->p_ev_io_), p_prc->p_fds_->fd,
+                                                  TIZ_EVENT_READ_OR_WRITE, true));
 
       /* OK, now prepare the PCM for use */
       bail_on_snd_pcm_error (snd_pcm_prepare (p_prc->p_pcm_hdl));
@@ -771,14 +766,14 @@ ar_prc_deallocate_resources (void *ap_obj)
   ar_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
 
-  tiz_event_timer_destroy (p_prc->p_ev_timer_);
+  tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_ev_timer_);
   p_prc->p_ev_timer_ = NULL;
 
   p_prc->descriptor_count_ = 0;
   tiz_mem_free (p_prc->p_fds_);
   p_prc->p_fds_ = NULL;
 
-  tiz_event_io_destroy (p_prc->p_ev_io_);
+  tiz_srv_io_watcher_destroy (p_prc, p_prc->p_ev_io_);
   p_prc->p_ev_io_ = NULL;
 
   if (NULL != p_prc->p_hw_params)
@@ -829,7 +824,7 @@ ar_prc_io_ready (void *ap_obj,
 
 static OMX_ERRORTYPE
 ar_prc_timer_ready (void *ap_prc, tiz_event_timer_t * ap_ev_timer,
-                    void *ap_arg)
+                    void *ap_arg, const uint32_t a_id)
 {
   TIZ_TRACE (handleOf (ap_prc), "Received timer event");
   return apply_ramp_step (ap_prc);
@@ -1004,11 +999,11 @@ ar_prc_init (void *ap_tos, void *ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      tiz_srv_stop_and_return, ar_prc_stop_and_return,
      /* TIZ_CLASS_COMMENT: */
+     tiz_srv_io_ready, ar_prc_io_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_timer_ready, ar_prc_timer_ready,
+     /* TIZ_CLASS_COMMENT: */
      tiz_prc_buffers_ready, ar_prc_buffers_ready,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_prc_io_ready, ar_prc_io_ready,
-     /* TIZ_CLASS_COMMENT: */
-     tiz_prc_timer_ready, ar_prc_timer_ready,
      /* TIZ_CLASS_COMMENT: */
      tiz_prc_pause, ar_prc_pause,
      /* TIZ_CLASS_COMMENT: */

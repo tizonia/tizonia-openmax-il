@@ -46,13 +46,6 @@ OMX_ERRORTYPE tiz_prc_port_disable (const void *ap_obj, OMX_U32 a_pid);
 OMX_ERRORTYPE tiz_prc_port_enable (const void *ap_obj, OMX_U32 a_pid);
 OMX_ERRORTYPE tiz_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
                                      OMX_INDEXTYPE a_config_idx);
-OMX_ERRORTYPE tiz_prc_io_ready (void *ap_obj, tiz_event_io_t *ap_ev_io,
-                                int a_fd, int a_events);
-OMX_ERRORTYPE tiz_prc_timer_ready (void *ap_obj, tiz_event_timer_t *ap_ev_timer,
-                                   void *ap_arg);
-OMX_ERRORTYPE tiz_prc_stat_ready (void *ap_obj, tiz_event_stat_t *ap_ev_stat,
-                                  int a_events);
-
 #ifdef __cplusplus
 }
 #endif

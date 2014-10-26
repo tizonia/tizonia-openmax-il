@@ -138,27 +138,26 @@ struct ogg_codec_id
   OMX_S32 omx_coding_type;
 };
 
-const ogg_codec_id_t ogg_codec_type_tbl[] = {
-  {"\200theora", 7, "Theora", OMX_AUDIO_CodingUnused},
-  {"\001vorbis", 7, "Vorbis", OMX_AUDIO_CodingVORBIS},
-  {"Speex", 5, "Speex", OMX_AUDIO_CodingSPEEX},
-  {"PCM     ", 8, "PCM", OMX_AUDIO_CodingPCM},
-  {"CMML\0\0\0\0", 8, "CMML", OMX_AUDIO_CodingUnused},
-  {"Annodex", 7, "Annodex", OMX_AUDIO_CodingUnused},
-  {"fishead", 7, "Skeleton", OMX_AUDIO_CodingUnused},
-  {"fLaC", 4, "Flac0", OMX_AUDIO_CodingFLAC},
-  {"\177FLAC", 5, "Flac", OMX_AUDIO_CodingFLAC},
-  {"AnxData", 7, "AnxData", OMX_VIDEO_CodingUnused},
-  {"CELT    ", 8, "CELT", OMX_AUDIO_CodingUnused},
-  {"\200kate\0\0\0", 8, "Kate", OMX_AUDIO_CodingUnused},
-  {"BBCD\0", 5, "Dirac", OMX_AUDIO_CodingUnused},
-  {"OpusHead", 8, "Opus", OMX_AUDIO_CodingOPUS},
-  {"\x4fVP80", 5, "VP8", OMX_VIDEO_CodingVP8},
-  {"", 0, "Unknown", OMX_AUDIO_CodingUnused}
-};
+const ogg_codec_id_t ogg_codec_type_tbl[]
+    = { { "\200theora", 7, "Theora", OMX_AUDIO_CodingUnused },
+        { "\001vorbis", 7, "Vorbis", OMX_AUDIO_CodingVORBIS },
+        { "Speex", 5, "Speex", OMX_AUDIO_CodingSPEEX },
+        { "PCM     ", 8, "PCM", OMX_AUDIO_CodingPCM },
+        { "CMML\0\0\0\0", 8, "CMML", OMX_AUDIO_CodingUnused },
+        { "Annodex", 7, "Annodex", OMX_AUDIO_CodingUnused },
+        { "fishead", 7, "Skeleton", OMX_AUDIO_CodingUnused },
+        { "fLaC", 4, "Flac0", OMX_AUDIO_CodingFLAC },
+        { "\177FLAC", 5, "Flac", OMX_AUDIO_CodingFLAC },
+        { "AnxData", 7, "AnxData", OMX_VIDEO_CodingUnused },
+        { "CELT    ", 8, "CELT", OMX_AUDIO_CodingUnused },
+        { "\200kate\0\0\0", 8, "Kate", OMX_AUDIO_CodingUnused },
+        { "BBCD\0", 5, "Dirac", OMX_AUDIO_CodingUnused },
+        { "OpusHead", 8, "Opus", OMX_AUDIO_CodingOPUS },
+        { "\x4fVP80", 5, "VP8", OMX_VIDEO_CodingVP8 },
+        { "", 0, "Unknown", OMX_AUDIO_CodingUnused } };
 
-static OMX_S32
-identify_ogg_codec (httpsrc_prc_t *ap_prc, unsigned char * ap_data, long a_len)
+static OMX_S32 identify_ogg_codec (httpsrc_prc_t *ap_prc,
+                                   unsigned char *ap_data, long a_len)
 {
   OMX_S32 rc = OMX_AUDIO_CodingUnused;
   const size_t id_count = sizeof(ogg_codec_type_tbl) / sizeof(ogg_codec_id_t);
@@ -169,17 +168,18 @@ identify_ogg_codec (httpsrc_prc_t *ap_prc, unsigned char * ap_data, long a_len)
   TIZ_TRACE (handleOf (ap_prc), "len [%d] data [%s]", a_len, ap_data);
 
   for (i = 0; i < id_count; ++i)
-  {
-    const ogg_codec_id_t *p_id = ogg_codec_type_tbl + i;
+    {
+      const ogg_codec_id_t *p_id = ogg_codec_type_tbl + i;
 
-    if (a_len >= p_id->bos_str_len
-        && memcmp (ap_data + 28, p_id->p_bos_str, p_id->bos_str_len) == 0)
-      {
-        rc = p_id->omx_coding_type;
-        TIZ_TRACE (handleOf (ap_prc), "Identified codec : [%s]", p_id->p_coding_type);
-        break;
-      }
-  }
+      if (a_len >= p_id->bos_str_len
+          && memcmp (ap_data + 28, p_id->p_bos_str, p_id->bos_str_len) == 0)
+        {
+          rc = p_id->omx_coding_type;
+          TIZ_TRACE (handleOf (ap_prc), "Identified codec : [%s]",
+                     p_id->p_coding_type);
+          break;
+        }
+    }
   TIZ_TRACE (handleOf (ap_prc), "coding type  : [%X]", rc);
   return rc;
 }
@@ -215,10 +215,16 @@ static inline void deallocate_temp_data_store (
 static inline OMX_ERRORTYPE start_io_watcher (httpsrc_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_ev_io_);
+  /* We lazily initialise here the io event */
+  if (!ap_prc->p_ev_io_)
+    {
+      /* Allocate the io event */
+      tiz_check_omx_err (tiz_srv_io_watcher_init (
+          ap_prc, &(ap_prc->p_ev_io_), ap_prc->sockfd_, TIZ_EVENT_READ, true));
+    }
   ap_prc->awaiting_io_ev_ = true;
   TIZ_DEBUG (handleOf (ap_prc), "awaiting_io_ev [%s]", "TRUE");
-  return tiz_event_io_start (ap_prc->p_ev_io_);
+  return tiz_srv_io_watcher_start (ap_prc, ap_prc->p_ev_io_);
 }
 
 static inline OMX_ERRORTYPE stop_io_watcher (httpsrc_prc_t *ap_prc)
@@ -229,7 +235,7 @@ static inline OMX_ERRORTYPE stop_io_watcher (httpsrc_prc_t *ap_prc)
   TIZ_DEBUG (handleOf (ap_prc), "awaiting_io_ev [%s]", "FALSE");
   if (NULL != ap_prc->p_ev_io_)
     {
-      rc = tiz_event_io_stop (ap_prc->p_ev_io_);
+      rc = tiz_srv_io_watcher_stop (ap_prc, ap_prc->p_ev_io_);
     }
   return rc;
 }
@@ -244,8 +250,8 @@ static inline OMX_ERRORTYPE start_curl_timer_watcher (httpsrc_prc_t *ap_prc)
       ap_prc->awaiting_curl_timer_ev_ = true;
       TIZ_DEBUG (handleOf (ap_prc), "awaiting_curl_timer_ev [%p] [TRUE]",
                  ap_prc->p_ev_curl_timer_);
-      tiz_event_timer_set (ap_prc->p_ev_curl_timer_, ap_prc->curl_timeout_, 0.);
-      rc = tiz_event_timer_start (ap_prc->p_ev_curl_timer_);
+      rc = tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_curl_timer_,
+                                        ap_prc->curl_timeout_, 0.);
     }
   return rc;
 }
@@ -256,7 +262,7 @@ static inline OMX_ERRORTYPE restart_curl_timer_watcher (httpsrc_prc_t *ap_prc)
   assert (NULL != ap_prc->p_ev_curl_timer_);
   ap_prc->awaiting_curl_timer_ev_ = true;
   TIZ_DEBUG (handleOf (ap_prc), "awaiting_curl_timer_ev [TRUE]");
-  return tiz_event_timer_restart (ap_prc->p_ev_curl_timer_);
+  return tiz_srv_timer_watcher_restart (ap_prc, ap_prc->p_ev_curl_timer_);
 }
 
 static inline OMX_ERRORTYPE stop_curl_timer_watcher (httpsrc_prc_t *ap_prc)
@@ -267,7 +273,7 @@ static inline OMX_ERRORTYPE stop_curl_timer_watcher (httpsrc_prc_t *ap_prc)
   TIZ_DEBUG (handleOf (ap_prc), "awaiting_curl_timer_ev [FALSE]");
   if (NULL != ap_prc->p_ev_curl_timer_)
     {
-      rc = tiz_event_timer_stop (ap_prc->p_ev_curl_timer_);
+      rc = tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_curl_timer_);
     }
   return rc;
 }
@@ -283,10 +289,9 @@ static inline OMX_ERRORTYPE start_reconnect_timer_watcher (
       ap_prc->awaiting_reconnect_timer_ev_ = true;
       TIZ_DEBUG (handleOf (ap_prc), "awaiting_reconnect_timer_ev_ [%p] [TRUE]",
                  ap_prc->p_ev_reconnect_timer_);
-      tiz_event_timer_set (ap_prc->p_ev_reconnect_timer_,
-                           ap_prc->reconnect_timeout_,
-                           ap_prc->reconnect_timeout_);
-      rc = tiz_event_timer_start (ap_prc->p_ev_reconnect_timer_);
+      rc = tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_reconnect_timer_,
+                                        ap_prc->reconnect_timeout_,
+                                        ap_prc->reconnect_timeout_);
     }
   return rc;
 }
@@ -299,7 +304,7 @@ static inline OMX_ERRORTYPE stop_reconnect_timer_watcher (httpsrc_prc_t *ap_prc)
   TIZ_DEBUG (handleOf (ap_prc), "awaiting_reconnect_timer_ev [FALSE]");
   if (NULL != ap_prc->p_ev_reconnect_timer_)
     {
-      rc = tiz_event_timer_stop (ap_prc->p_ev_reconnect_timer_);
+      rc = tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_reconnect_timer_);
     }
   return rc;
 }
@@ -728,8 +733,8 @@ static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
       tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
                            ARATELIA_HTTP_SOURCE_PORT_INDEX, /* port 0 */
                            OMX_IndexParamPortDefinition,    /* the index of the
-                                                            struct that has
-                                                            been modififed */
+                                                         struct that has
+                                                         been modififed */
                            NULL);
     }
   else
@@ -826,7 +831,8 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
           if (OMX_AUDIO_CodingOGA == p_prc->audio_coding_type_)
             {
               /* Try to identify the actual codec from the ogg stream */
-              p_prc->audio_coding_type_ = identify_ogg_codec (p_prc, ptr, nbytes);
+              p_prc->audio_coding_type_
+                  = identify_ogg_codec (p_prc, ptr, nbytes);
               if (OMX_AUDIO_CodingUnused != p_prc->audio_coding_type_)
                 {
                   set_audio_coding_on_port (p_prc);
@@ -981,7 +987,6 @@ static int curl_socket_cback (CURL *easy, curl_socket_t s, int action,
   if (CURL_POLL_IN == action)
     {
       p_prc->sockfd_ = s;
-      tiz_event_io_set (p_prc->p_ev_io_, s, TIZ_EVENT_READ, true);
       (void)start_io_watcher (p_prc);
     }
   else if (CURL_POLL_REMOVE == action)
@@ -1223,25 +1228,19 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
   return rc;
 }
 
-static OMX_ERRORTYPE allocate_events (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE allocate_timer_events (httpsrc_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   assert (NULL == ap_prc->p_ev_io_);
   assert (NULL == ap_prc->p_ev_curl_timer_);
 
-  /* Allocate the io event */
-  tiz_check_omx_err (tiz_event_io_init (&(ap_prc->p_ev_io_), handleOf (ap_prc),
-                                        tiz_comp_event_io));
-
   /* Allocate the reconnect timer event */
-  tiz_check_omx_err (tiz_event_timer_init (&(ap_prc->p_ev_reconnect_timer_),
-                                           handleOf (ap_prc),
-                                           tiz_comp_event_timer, ap_prc));
+  tiz_check_omx_err (
+      tiz_srv_timer_watcher_init (ap_prc, &(ap_prc->p_ev_reconnect_timer_)));
 
   /* Allocate the curl timer event */
-  tiz_check_omx_err (tiz_event_timer_init (&(ap_prc->p_ev_curl_timer_),
-                                           handleOf (ap_prc),
-                                           tiz_comp_event_timer, ap_prc));
+  tiz_check_omx_err (
+      tiz_srv_timer_watcher_init (ap_prc, &(ap_prc->p_ev_curl_timer_)));
 
   return OMX_ErrorNone;
 }
@@ -1249,11 +1248,11 @@ static OMX_ERRORTYPE allocate_events (httpsrc_prc_t *ap_prc)
 static void destroy_events (httpsrc_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
-  tiz_event_io_destroy (ap_prc->p_ev_io_);
+  tiz_srv_io_watcher_destroy (ap_prc, ap_prc->p_ev_io_);
   ap_prc->p_ev_io_ = NULL;
-  tiz_event_timer_destroy (ap_prc->p_ev_curl_timer_);
+  tiz_srv_timer_watcher_destroy (ap_prc, ap_prc->p_ev_curl_timer_);
   ap_prc->p_ev_curl_timer_ = NULL;
-  tiz_event_timer_destroy (ap_prc->p_ev_reconnect_timer_);
+  tiz_srv_timer_watcher_destroy (ap_prc, ap_prc->p_ev_reconnect_timer_);
   ap_prc->p_ev_reconnect_timer_ = NULL;
 }
 
@@ -1380,7 +1379,7 @@ static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
   assert (NULL == p_prc->p_uri_param_);
   tiz_check_omx_err (allocate_temp_data_store (p_prc));
   tiz_check_omx_err (obtain_uri (p_prc));
-  tiz_check_omx_err (allocate_events (p_prc));
+  tiz_check_omx_err (allocate_timer_events (p_prc));
   tiz_check_omx_err (allocate_curl_resources (p_prc));
   return OMX_ErrorNone;
 }
@@ -1517,7 +1516,7 @@ static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
 
 static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
                                               tiz_event_timer_t *ap_ev_timer,
-                                              void *ap_arg)
+                                              void *ap_arg, const uint32_t a_id)
 {
   httpsrc_prc_t *p_prc = ap_prc;
   int running_handles = 0;
@@ -1677,11 +1676,11 @@ void *httpsrc_prc_init (void *ap_tos, void *ap_hdl)
        /* TIZ_CLASS_COMMENT: */
        tiz_srv_stop_and_return, httpsrc_prc_stop_and_return,
        /* TIZ_CLASS_COMMENT: */
+       tiz_srv_io_ready, httpsrc_prc_io_ready,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_timer_ready, httpsrc_prc_timer_ready,
+       /* TIZ_CLASS_COMMENT: */
        tiz_prc_buffers_ready, httpsrc_prc_buffers_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_io_ready, httpsrc_prc_io_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_timer_ready, httpsrc_prc_timer_ready,
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_pause, httpsrc_prc_pause,
        /* TIZ_CLASS_COMMENT: */

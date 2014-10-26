@@ -43,7 +43,7 @@ typedef void (*httpr_srv_release_buffer_f)(OMX_BUFFERHEADERTYPE *ap_hdr,
 typedef OMX_BUFFERHEADERTYPE *(*httpr_srv_acquire_buffer_f)(OMX_PTR ap_arg);
 
 OMX_ERRORTYPE httpr_srv_init (httpr_server_t **app_server,
-                              OMX_HANDLETYPE ap_hdl, OMX_STRING a_address,
+                              void * ap_parent, OMX_STRING a_address,
                               OMX_U32 a_port, OMX_U32 a_max_clients,
                               httpr_srv_release_buffer_f a_pf_release_buf,
                               httpr_srv_acquire_buffer_f a_pf_acquire_buf,

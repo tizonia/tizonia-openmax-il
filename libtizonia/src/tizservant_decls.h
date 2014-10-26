@@ -43,6 +43,8 @@ struct tiz_srv
   const tiz_api_t _;
   tiz_pqueue_t *p_pq_;
   tiz_soa_t *p_soa_; /* Not owned */
+  tiz_map_t *p_watchers_;
+  uint32_t watcher_id_;
   OMX_PTR p_appdata_;
   OMX_CALLBACKTYPE *p_cbacks_;
 };
@@ -116,6 +118,37 @@ struct tiz_srv_class
 
   void *(*soa_calloc)(void *ap_obj, size_t a_size);
   void (*soa_free)(void *ap_obj, void *ap_addr);
+
+  OMX_ERRORTYPE (*io_watcher_init)(void *ap_obj, tiz_event_io_t **app_ev_io,
+                                   int a_fd, tiz_event_io_event_t a_event,
+                                   bool only_once);
+  OMX_ERRORTYPE (*io_watcher_start)(void *ap_obj, tiz_event_io_t *ap_ev_io);
+  OMX_ERRORTYPE (*io_watcher_stop)(void *ap_obj, tiz_event_io_t *ap_ev_io);
+  void (*io_watcher_destroy)(void *ap_obj, tiz_event_io_t *ap_ev_io);
+
+  OMX_ERRORTYPE (*timer_watcher_init)(void *ap_obj,
+                                      tiz_event_timer_t **app_ev_timer);
+  OMX_ERRORTYPE (*timer_watcher_start)(void *ap_obj,
+                                       tiz_event_timer_t *ap_ev_timer,
+                                       const double a_after,
+                                       const double a_repeat);
+  OMX_ERRORTYPE (*timer_watcher_restart)(void *ap_obj,
+                                         tiz_event_timer_t *ap_ev_timer);
+  OMX_ERRORTYPE (*timer_watcher_stop)(void *ap_obj,
+                                      tiz_event_timer_t *ap_ev_timer);
+  void (*timer_watcher_destroy)(void *ap_obj, tiz_event_timer_t *ap_ev_timer);
+
+  OMX_ERRORTYPE (*event_io)(void *ap_obj, tiz_event_io_t *ap_ev_io,
+                            const uint32_t a_id, int a_fd, int a_events);
+  OMX_ERRORTYPE (*event_timer)(void *ap_obj, tiz_event_timer_t *ap_ev_timer,
+                               const uint32_t a_id);
+  OMX_ERRORTYPE (*event_stat)(void *ap_obj, tiz_event_stat_t *ap_ev_stat,
+                              const uint32_t a_id, int a_events);
+  OMX_ERRORTYPE (*io_ready)(void *ap_obj, tiz_event_io_t *ap_ev_io, int a_fd,
+                            int a_events);
+  OMX_ERRORTYPE (*timer_ready)(void *ap_obj, tiz_event_timer_t *ap_ev_timer);
+  OMX_ERRORTYPE (*stat_ready)(void *ap_obj, tiz_event_stat_t *ap_ev_stat,
+                              int a_events);
 };
 
 #ifdef __cplusplus

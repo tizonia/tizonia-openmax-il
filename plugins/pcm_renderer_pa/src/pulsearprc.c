@@ -1,7 +1,6 @@
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
- *
- * This file is part of Tizonia
+ file is part of Tizonia
  *
  * Tizonia is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -844,16 +843,16 @@ static OMX_ERRORTYPE start_volume_ramp (pulsear_prc_t *ap_prc)
   assert (NULL != ap_prc->p_ev_timer_);
   ap_prc->ramp_volume_ = 0;
   TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]", ap_prc->ramp_volume_);
-  tiz_check_omx_err (tiz_event_timer_start (ap_prc->p_ev_timer_));
+  tiz_check_omx_err (tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
   return OMX_ErrorNone;
 }
 
 static void stop_volume_ramp (pulsear_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
-  if (NULL != ap_prc->p_ev_timer_)
+  if (ap_prc->p_ev_timer_)
     {
-      (void)tiz_event_timer_stop (ap_prc->p_ev_timer_);
+      (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
     }
 }
 
@@ -918,9 +917,8 @@ static OMX_ERRORTYPE pulsear_prc_allocate_resources (void *ap_prc,
   assert (NULL != p_prc);
   assert (NULL == p_prc->p_ev_timer_);
 
-  tiz_check_omx_err (tiz_event_timer_init (
-      &(p_prc->p_ev_timer_), handleOf (p_prc), tiz_comp_event_timer, p_prc));
-  tiz_event_timer_set (p_prc->p_ev_timer_, 0.2, 0.2);
+  tiz_check_omx_err (tiz_srv_timer_watcher_init (p_prc,
+      &(p_prc->p_ev_timer_)));
   return init_pulseaudio (ap_prc);
 }
 
@@ -928,7 +926,7 @@ static OMX_ERRORTYPE pulsear_prc_deallocate_resources (void *ap_prc)
 {
   pulsear_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
-  tiz_event_timer_destroy (p_prc->p_ev_timer_);
+  (void)tiz_srv_timer_watcher_stop (p_prc, p_prc->p_ev_timer_);
   p_prc->p_ev_timer_ = NULL;
   deinit_pulseaudio (ap_prc);
   return OMX_ErrorNone;
@@ -986,7 +984,7 @@ static OMX_ERRORTYPE pulsear_prc_buffers_ready (const void *ap_prc)
 
 static OMX_ERRORTYPE pulsear_prc_timer_ready (void *ap_prc,
                                               tiz_event_timer_t *ap_ev_timer,
-                                              void *ap_arg)
+                                              void *ap_arg, const uint32_t a_id)
 {
   TIZ_TRACE (handleOf (ap_prc), "Received timer event");
   return apply_ramp_step (ap_prc);
@@ -1203,9 +1201,9 @@ void *pulsear_prc_init (void *ap_tos, void *ap_hdl)
        /* TIZ_CLASS_COMMENT: */
        tiz_srv_stop_and_return, pulsear_prc_stop_and_return,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, pulsear_prc_buffers_ready,
+       tiz_srv_timer_ready, pulsear_prc_timer_ready,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_timer_ready, pulsear_prc_timer_ready,
+       tiz_prc_buffers_ready, pulsear_prc_buffers_ready,
        /* TIZ_CLASS_COMMENT: */
        tiz_prc_pause, pulsear_prc_pause,
        /* TIZ_CLASS_COMMENT: */
