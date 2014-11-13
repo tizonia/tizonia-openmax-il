@@ -1,9 +1,7 @@
 # Tizonia #
 
-A command line music player and streaming server for Linux.
-
-The Tizonia project also contains a multimedia framework based on OpenMAX IL 1.2
-provisional specification.
+A command line music player and audio streaming server for Linux (including a
+complete implementation of OpenMAX IL 1.2 provisional specification).
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
 
@@ -25,18 +23,19 @@ The Tizonia project consists of a number of resources.
 
 ### 'libtizonia' : An OpenMAX IL 1.2 component framework/library ###
 
-* Full support for OpenMAX IL 1.2 Base and Interop profile components.
+* To create OpenMAX IL 1.2 plugins (encodes, decoders, container parsrs, sinks,
+  etc, for audio/video/other).
+* Full support for OpenMAX IL 1.2 Base and Interop profiles.
 
 ### 'libtizcore' : An OpenMAX IL 1.2 Core implementation ###
 
-* Enables discovery and dynamic loading of OpenMAX IL 1.2 plugin components
-  (encodes, decoders, container parsrs, sinks, etc).
-* Support for all the usual OMX IL 1.2 Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
+* Discovery and dynamic loading of OpenMAX IL 1.2 plugins.
+* Supports all the standard OMX IL 1.2 Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
 
 ### 'libtizplatform' : An OS abstraction/utility library ###
 
-* A number of wrappers and utilities to ease the creation of OpenMAX IL 1.2
-  components. With APIs and resources like:
+* A helper library with wrappers and utilities to ease the creation of OpenMAX
+  IL 1.2 components. With APIs and resources that include:
     * memory allocation,
     * threading and synchronization primitives,
     * evented I/O (via libev)
@@ -51,32 +50,33 @@ The Tizonia project consists of a number of resources.
 
 ### An OpenMAX IL 1.2 Resource Management (RM) framework ###
 
-* Including:
   * 'tizrmd' : a D-Bus-based Resource Manager server.
-  * 'libtizrmproxy' : a client library to communicate with the RM server.
+  * 'libtizrmproxy' : a client library to communicate with the RM daemon.
 
 ### OpenMAX IL 1.2 plugins ###
 
 * Including:
-  * two mp3 decoders (one based on libmad and another based libmpg123),
+  * mp3 decoders (libmad and libmpg123),
   * Spotify client (coming soon, based on libspotify),
-  * AAC decoder (based on libfaad),
-  * two OPUS decoders (based on libopus and libopusfile)
-  * FLAC decoder (based on libflac)
-  * VORBIS decoder (based on libfishsound)
+  * Sampled sound decoder (pcm formats, wav, etc, based on libsndfile)
+  * AAC decoder (libfaad),
+  * OPUS decoders (libopus and libopusfile)
+  * FLAC decoder (libflac)
+  * VORBIS decoder (libfishsound)
   * two PCM renderers (ALSA and Pulseaudio)
-  * OGG demuxer (based on liboggz)
+  * OGG demuxer (liboggz)
   * an HTTP renderer (i.e. ala icecast)
   * an HTTP source (based on libcurl)
-  * a VP8 video decoder (based on libvpx),
-  * a YUV video renderer (based on libsdl)
-  * binary file readers and writers
   * mp3 encoder (based on LAME),
+  * a VP8 video decoder (libvpx),
+  * a YUV video renderer (libsdl)
+  * general purpose plugins, like binary file readers and writers
   * etc...
 
 ## How to build ##
 
-On Ubuntu 14.04, the following build instructions should work ok.
+To build and install from source, follow these steps for (Ubuntu 14.04
+assumed).
 
 ### Dependencies ###
 
@@ -96,7 +96,7 @@ On Ubuntu 14.04, the following build instructions should work ok.
 
 ```
 
-### Building the libraries, plugins and RM framework ###
+### Building libraries, plugins and RM framework ###
 
 From the top of the repo (Replace *$INSTALL_DIR* with your favorite location):
 
