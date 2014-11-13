@@ -1,6 +1,6 @@
 # Tizonia #
 
-A command line music player and audio streaming server for Linux (including a
+A command line music player and audio streaming server for Linux (includes a
 complete implementation of OpenMAX IL 1.2 provisional specification).
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
@@ -14,7 +14,7 @@ The Tizonia project consists of a number of resources.
 ### `tizonia`: a command line music player and audio streaming server ###
 
 * Features:
-    * Playback of audio formats from local media files (pcm, mp3, aac, vorbis,
+    * Playback of audio formats from local media (pcm, mp3, aac, vorbis,
       opus, and flac encodings).
     * Icecast/Shoutcast client (mp3, aac, and opus streams supported).
     * Icecast/Shoutcast server (mp3 streams).
@@ -23,14 +23,14 @@ The Tizonia project consists of a number of resources.
 
 ### 'libtizonia' : An OpenMAX IL 1.2 component framework/library ###
 
-* To create OpenMAX IL 1.2 plugins (encodes, decoders, container parsrs, sinks,
+* To create OpenMAX IL 1.2 plugins (encoders, decoders, parsers, sinks,
   etc, for audio/video/other).
-* Full support for OpenMAX IL 1.2 Base and Interop profiles.
+* Full support for the OpenMAX IL 1.2 standard Base and Interop profiles.
 
 ### 'libtizcore' : An OpenMAX IL 1.2 Core implementation ###
 
 * Discovery and dynamic loading of OpenMAX IL 1.2 plugins.
-* Supports all the standard OMX IL 1.2 Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
+* Supports all the OMX IL 1.2 standard Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
 
 ### 'libtizplatform' : An OS abstraction/utility library ###
 
