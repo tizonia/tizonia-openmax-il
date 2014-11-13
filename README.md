@@ -1,54 +1,65 @@
-# Tizonia OpenMAX IL #
+# Tizonia #
 
-An experimental implementation for Linux of the OpenMAX IL 1.2 provisional
-specification.
+A command line music player and streaming server for Linux.
+
+The Tizonia project also contains a multimedia framework based on OpenMAX IL 1.2
+provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
 
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)
 
-_This is a highly experimental, rapidly-changing project. APIs might change overnight._
-
 ## Introduction ##
 
-The Tizonia OpenMAX IL project consists of a number of resources.
+The Tizonia project consists of a number of resources.
+
+### `tizonia`: a command line music player and audio streaming server ###
+
+* Features:
+    * Playback of audio formats from local media files (pcm, mp3, aac, vorbis,
+      opus, and flac encodings).
+    * Icecast/Shoutcast client (mp3, aac, and opus streams supported).
+    * Icecast/Shoutcast server (mp3 streams).
+    * MPRIS D-BUS v2 interface for controlling local playback.
+    * Entirely based on OpenMAX IL 1.2.
 
 ### 'libtizonia' : An OpenMAX IL 1.2 component framework/library ###
 
-* Support for Base and Interop profiles.
-* TODO: Buffer sharing.
+* Full support for OpenMAX IL 1.2 Base and Interop profile components.
 
 ### 'libtizcore' : An OpenMAX IL 1.2 Core implementation ###
 
-* Support for all the usual OMX IL 1.2 Core APIs, including *OMX_SetupTunnel*.
-* TODO: IL 1.2 Core extension APIs.
+* Enables discovery and dynamic loading of OpenMAX IL 1.2 plugin components
+  (encodes, decoders, container parsrs, sinks, etc).
+* Support for all the usual OMX IL 1.2 Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
 
 ### 'libtizplatform' : An OS abstraction/utility library ###
 
-* Wrappers and utilities for:
+* A number of wrappers and utilities to ease the creation of OpenMAX IL 1.2
+  components. With APIs and resources like:
     * memory allocation,
     * threading and synchronization primitives,
+    * evented I/O (via libev)
     * FIFO and priority queues,
     * dynamic arrays,
     * associative arrays,
     * small object allocation,
-    * HTTP parsing,
-    * uuids,
     * config file parsing,
-    * evented I/O (via libev)
+    * HTTP parser,
+    * uuids,
     * etc..
 
-### An OpenMAX IL Resource Management (RM) framework ###
+### An OpenMAX IL 1.2 Resource Management (RM) framework ###
 
 * Including:
-  * 'tizrmd' : a D-Bus-based RM server.
-  * 'libtizrmproxy' : a RM client library.
+  * 'tizrmd' : a D-Bus-based Resource Manager server.
+  * 'libtizrmproxy' : a client library to communicate with the RM server.
 
-### A number of OpenMAX IL plugins ###
+### OpenMAX IL 1.2 plugins ###
 
 * Including:
   * two mp3 decoders (one based on libmad and another based libmpg123),
-  * mp3 encoder (based on LAME),
+  * Spotify client (coming soon, based on libspotify),
   * AAC decoder (based on libfaad),
   * two OPUS decoders (based on libopus and libopusfile)
   * FLAC decoder (based on libflac)
@@ -60,18 +71,8 @@ The Tizonia OpenMAX IL project consists of a number of resources.
   * a VP8 video decoder (based on libvpx),
   * a YUV video renderer (based on libsdl)
   * binary file readers and writers
+  * mp3 encoder (based on LAME),
   * etc...
-
-### `tizonia`: a command line music player and streaming server ###
-
-* Features:
-    * Uses graphs of tunneled OpenMAX IL components.
-    * Playback of audio formats from local files (mp3, aac, vorbis, opus,
-      flac).
-    * Playback of remote Icecast/Shoutcast streams (currently mp3, aac, and
-      opus streams are supported).
-    * Serving of Icecast/Shoutcast streams (mp3).
-    * MPRIS D-BUS v2 interface.
 
 ## How to build ##
 
@@ -82,19 +83,20 @@ On Ubuntu 14.04, the following build instructions should work ok.
 ```bash
 
     $ sudo apt-get update -qq && sudo apt-get install -qq \
-    autoconf automake autotools-dev build-essential \
+    build-essential autoconf automake autotools-dev \
     libtool libmad0-dev liblog4c-dev \
     libasound2-dev libdbus-1-dev \
     libdbus-c++-dev libsqlite3-dev libboost-all-dev \
     uuid-dev libsdl1.2-dev libvpx-dev libavcodec-dev \
     libavformat-dev libavdevice-dev libmp3lame-dev libfaad-dev \
     libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
-    libcurl3-dev libpulse-dev \
-    curl check wget sqlite3 dbus-x11
+    libcurl3-dev libpulse-dev libmpg123-dev libvorbis-dev libopus-dev \
+    libopusfile-dev libogg-dev libflac-dev liboggz2-dev \
+    libsndfile1-dev curl check wget sqlite3 dbus-x11
 
 ```
 
-### Building the base libraries, plugins and the RM server ###
+### Building the libraries, plugins and RM framework ###
 
 From the top of the repo (Replace *$INSTALL_DIR* with your favorite location):
 
@@ -107,17 +109,70 @@ From the top of the repo (Replace *$INSTALL_DIR* with your favorite location):
 
 ```
 
-### Building 'tizonia' ###
+### Building 'tizonia', the music player/streaming server ###
 
-From the'tizonia' folder (again replace *$INSTALL_DIR* with your favorite location):
+From the'tizonia' sub-folder (again replace *$INSTALL_DIR* with your favorite location):
 
 ```bash
 
+    $ cd tizonia
     $ autoreconf -ifs
     $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
     $ make
     $ make install
 
+```
+
+### Tizonia config file and the D-BUS service file ###
+
+Copy the *tizonia.conf* file and the Resource Manager's D-BUS service file to a
+suitable location:
+
+```bash
+
+    $ cp config/tizonia.conf ~/.tizonia.conf
+    $ mkdir -p ~/.local/share/dbus-1/services
+    $ cp rm/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
+
+```
+
+## 'tizonia' usage ##
+
+```bash
+
+$ tizonia
+tizonia 0.1.0. Copyright (C) 2014 Juan A. Rubio
+This software is part of Tizonia <http://tizonia.org>
+
+LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+General options:
+  -h [ --help ]         Print the usage message.
+  -v [ --version ]      Print the version information.
+  -R [ --recurse ]      Recursively process the given folder.
+  -S [ --shuffle ]      Shuffle the playlist.
+  -d [ --daemon ]       Run in the background.
+
+OpenMAX IL options:
+  --list-comp           Enumerate all the OpenMAX IL components in the system.
+  --roles-of-comp arg   Display the OpenMAX IL roles found in component <arg>.
+  --comps-of-role arg   Display the OpenMAX IL components that implement role
+                        <arg>.
+
+Audio streaming server options:
+  --server              Stream media files using the SHOUTcast/ICEcast
+                        streaming protocol.
+  -p [ --port ] arg     TCP port used for SHOUTcast/ICEcast streaming. Default:
+                        8010.
+  --station-name arg    The SHOUTcast/ICEcast station name.
+  --station-genre arg   The SHOUTcast/ICEcast station genre.
+  --bitrate-modes arg   A comma-separated-list of bitrate modes (e.g.
+                        'CBR,VBR') that will be allowed in the playlist.
+                        Default: any.
+  --sampling-rates arg  A comma-separated-list of sampling rates that will be
+                        allowed in the playlist. Default: any.
 ```
 
 #### Known issues ####
@@ -168,58 +223,6 @@ Please submit a full bug report,
 with preprocessed source if appropriate.
 See <file:///usr/share/doc/gcc-4.8/README.Bugs> for instructions.
 
-```
-
-### Tizonia config file and the D-BUS service file ###
-
-Copy the *tizonia.conf* file and the Resource Manager's D-BUS service file to a
-suitable location:
-
-```bash
-
-    $ cp config/tizonia.conf ~/.tizonia.conf
-    $ mkdir -p ~/.local/share/dbus-1/services
-    $ cp rm/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
-
-```
-
-## 'tizonia' usage information ##
-
-```bash
-
-$ tizonia
-tizonia 0.1.0. Copyright (C) 2014 Juan A. Rubio
-This software is part of Tizonia <http://tizonia.org>
-
-LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-
-General options:
-  -h [ --help ]         Print the usage message.
-  -v [ --version ]      Print the version information.
-  -R [ --recurse ]      Recursively process the given folder.
-  -S [ --shuffle ]      Shuffle the playlist.
-  -d [ --daemon ]       Run in the background.
-
-OpenMAX IL options:
-  --list-comp           Enumerate all the OpenMAX IL components in the system.
-  --roles-of-comp arg   Display the OpenMAX IL roles found in component <arg>.
-  --comps-of-role arg   Display the OpenMAX IL components that implement role
-                        <arg>.
-
-Audio streaming server options:
-  --server              Stream media files using the SHOUTcast/ICEcast
-                        streaming protocol.
-  -p [ --port ] arg     TCP port used for SHOUTcast/ICEcast streaming. Default:
-                        8010.
-  --station-name arg    The SHOUTcast/ICEcast station name.
-  --station-genre arg   The SHOUTcast/ICEcast station genre.
-  --bitrate-modes arg   A comma-separated-list of bitrate modes (e.g.
-                        'CBR,VBR') that will be allowed in the playlist.
-                        Default: any.
-  --sampling-rates arg  A comma-separated-list of sampling rates that will be
-                        allowed in the playlist. Default: any.
 ```
 
 ## License ##
