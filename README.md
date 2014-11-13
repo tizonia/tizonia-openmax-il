@@ -75,7 +75,7 @@ The Tizonia project consists of a number of resources.
 
 ## How to build ##
 
-To build and install from source, follow these steps for (Ubuntu 14.04
+To build and install from source, follow these steps (Ubuntu 14.04
 assumed).
 
 ### Dependencies ###
@@ -111,7 +111,7 @@ From the top of the repo (Replace *$INSTALL_DIR* with your favorite location):
 
 ### Building 'tizonia', the music player/streaming server ###
 
-From the'tizonia' sub-folder (again replace *$INSTALL_DIR* with your favorite location):
+From the 'tizonia' sub-folder (again replace *$INSTALL_DIR* with your favorite location):
 
 ```bash
 
@@ -123,10 +123,10 @@ From the'tizonia' sub-folder (again replace *$INSTALL_DIR* with your favorite lo
 
 ```
 
-### Tizonia config file and the D-BUS service file ###
+### Tizonia config file and the D-BUS service activation file ###
 
-Copy the *tizonia.conf* file and the Resource Manager's D-BUS service file to a
-suitable location:
+Place *tizonia.conf* and the Resource Manager's D-BUS activation file to the
+following locations:
 
 ```bash
 
@@ -184,15 +184,12 @@ library by Christophe Henry (MSM is in turn based on
 
 MSM is used to generate a number of state machines that control the tunneled
 OpenMAX IL components for the various playback uses cases. The state machines
-are quite large and MSM is known for not being easy on the compilers. So
-building `tizonia` requires a bit of patience and a whole lot of RAM (2.5+ GB).
+are quite large and MSM is known for not being easy on the compilers. Building
+`tizonia` requires a bit of patience and a whole lot of RAM (2.5+ GB).
 
 You may see GCC crashing like below; simply keep running `make -j1` or `make
--j1 install` until all of tizonia's objects get built (they all will eventually,
-if you have the sufficient amount RAM).
-
-(At some point, I'll look into optimising `tizonia` so that building it requires
-less RAM and/or time).
+-j1 install` until the application is fully built (it will eventually, given
+the sufficient amount RAM).
 
 ```bash
 
