@@ -1,7 +1,7 @@
 # Tizonia #
 
-A command line music player and audio streaming server for Linux (includes a
-complete implementation of OpenMAX IL 1.2 provisional specification).
+* An audio player and streaming server for Linux.
+* A complete implementation of OpenMAX IL 1.2 provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
 
@@ -11,31 +11,33 @@ complete implementation of OpenMAX IL 1.2 provisional specification).
 
 The Tizonia project consists of a number of resources.
 
-### `tizonia`: a command line music player and audio streaming server ###
+### `tizonia`: audio player and streaming client/server ###
 
-* Features:
-    * Playback of audio formats from local media (pcm, mp3, aac, vorbis,
-      opus, and flac encodings).
-    * Icecast/Shoutcast client (mp3, aac, and opus streams supported).
-    * Icecast/Shoutcast server (mp3 streams).
-    * MPRIS D-BUS v2 interface for controlling local playback.
-    * Entirely based on OpenMAX IL 1.2.
+* Playback of audio formats from local media (supported formats: mp3, mp2, aac,
+  vorbis, opus, pcm and flac encodings).
+* Icecast/shoutcast streaming server (supported formats: mp3).
+* Icecast/shoutcast streaming client (supported formats: mp3, aac, and opus).
+* Deamon and command line modes (no GUI).
+* MPRIS D-BUS v2 media player remote control interface.
+* Spotify streaming client (coming soon).
+* Based on OpenMAX IL 1.2 (i.e. no gstreamer, libav, or ffmpeg needed for audio
+  decoding).
+* Written in C++.
 
-### 'libtizonia' : An OpenMAX IL 1.2 component framework/library ###
+### 'libtizonia' : An OpenMAX IL 1.2 component framework ###
 
-* To create OpenMAX IL 1.2 plugins (encoders, decoders, parsers, sinks,
-  etc, for audio/video/other).
-* Full support for the OpenMAX IL 1.2 standard Base and Interop profiles.
+* A library to help creating OpenMAX IL 1.2 plugins (encoders, decoders,
+  parsers, sinks, etc, for audio/video/etc).
+* Full support for OpenMAX IL 1.2 Base and Interop profiles (written in C).
 
 ### 'libtizcore' : An OpenMAX IL 1.2 Core implementation ###
 
-* Discovery and dynamic loading of OpenMAX IL 1.2 plugins.
+* A library for discovery and dynamic loading of OpenMAX IL 1.2 plugins (written in C).
 * Supports all the OMX IL 1.2 standard Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
 
 ### 'libtizplatform' : An OS abstraction/utility library ###
 
-* A helper library with wrappers and utilities to ease the creation of OpenMAX
-  IL 1.2 components. With APIs and resources that include:
+* A helper library written in C with wrappers and utilities for:
     * memory allocation,
     * threading and synchronization primitives,
     * evented I/O (via libev)
@@ -55,7 +57,6 @@ The Tizonia project consists of a number of resources.
 
 ### OpenMAX IL 1.2 plugins ###
 
-* Including:
   * mp3 decoders (libmad and libmpg123),
   * Spotify client (coming soon, based on libspotify),
   * Sampled sound decoder (pcm formats, wav, etc, based on libsndfile)
@@ -72,6 +73,12 @@ The Tizonia project consists of a number of resources.
   * a YUV video renderer (libsdl)
   * general purpose plugins, like binary file readers and writers
   * etc...
+
+### Skema: A Python test execution framework for OpenMAX IL 1.2 components ###
+
+  * A framework for execution of arbitrary OpenMAX IL graphs (tunneled and
+    non-tunneled) using a custom, easy-to-write XML syntax.
+  * Skema repo: http://github.com/tizonia/skema
 
 ## How to build ##
 
