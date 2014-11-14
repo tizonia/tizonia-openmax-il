@@ -27,13 +27,15 @@ The Tizonia project consists of a number of resources.
 ### 'libtizonia' : An OpenMAX IL 1.2 component framework ###
 
 * A library to help creating OpenMAX IL 1.2 plugins (encoders, decoders,
-  parsers, sinks, etc, for audio/video/etc).
-* Full support for OpenMAX IL 1.2 Base and Interop profiles (written in C).
+  parsers, sinks, etc, for audio/video/other).
+* Full support for OpenMAX IL 1.2 Base and Interop profiles.
+* Written in C.
 
 ### 'libtizcore' : An OpenMAX IL 1.2 Core implementation ###
 
-* A library for discovery and dynamic loading of OpenMAX IL 1.2 plugins (written in C).
-* Supports all the OMX IL 1.2 standard Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
+* A library for discovery and dynamic loading of OpenMAX IL 1.2 plugins.
+* Support forall the OMX IL 1.2 standard Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
+* Written in C.
 
 ### 'libtizplatform' : An OS abstraction/utility library ###
 
@@ -77,7 +79,7 @@ The Tizonia project consists of a number of resources.
 ### Skema: A Python test execution framework for OpenMAX IL 1.2 components ###
 
   * A framework for execution of arbitrary OpenMAX IL graphs (tunneled and
-    non-tunneled) using a custom, easy-to-write XML syntax.
+    non-tunneled) using a custom, [easy-to-write XML syntax](http://github.com/tizonia/tizonia-openmax-il/wiki/Mp3Playback101).
   * Skema repo: http://github.com/tizonia/skema
 
 ## How to build ##
