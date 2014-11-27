@@ -29,34 +29,50 @@
 #define SPFYSRCPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
+
+#include <libspotify/api.h>
 
 #include <OMX_Core.h>
 
 #include <tizprc_decls.h>
 
-  typedef struct spfysrc_prc spfysrc_prc_t;
-  struct spfysrc_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    bool eos_;
-  };
+typedef struct spfysrc_prc spfysrc_prc_t;
+struct spfysrc_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  bool eos_;
+  tiz_event_timer_t *p_ev_timer_;
+  int track_index_;
+  const char *p_playlist_name_;
+  const char *p_user_name_;
+  const char *p_user_pass_;
+  sp_session *p_sp_session_;
+  sp_session_config sp_config_;        /* The session configuration */
+  sp_session_callbacks sp_cbacks_;     /* The session callbacks */
+  sp_playlist_callbacks sp_pl_cbacks_; /* The callbacks we are interested in
+                                          for individual playlists */
+  sp_playlistcontainer_callbacks sp_plct_cbacks_; /* The playlist container
+                                                     callbacks */
+  sp_playlist *p_sp_playlist_; /* Handle to the playlist currently being
+                                 played */
+  sp_track *p_sp_track_;         /* Handle to the curren track */
+};
 
-  typedef struct spfysrc_prc_class spfysrc_prc_class_t;
-  struct spfysrc_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct spfysrc_prc_class spfysrc_prc_class_t;
+struct spfysrc_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* SPFYSRCPRC_DECLS_H */
+#endif /* SPFYSRCPRC_DECLS_H */

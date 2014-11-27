@@ -36,6 +36,7 @@ AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
+PKG_CHECK_MODULES([SPOTIFY], [libspotify >= 12.1.51])
 
 # Checks for header files.
 

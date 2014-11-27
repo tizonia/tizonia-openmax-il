@@ -23,16 +23,20 @@ noinst_HEADERS = \
 	spfysrcprc_decls.h
 
 libtizspotify_la_SOURCES = \
+	appkey.c \
 	spfysrc.c \
 	spfysrcprc.c
 
 libtizspotify_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
-	-I$(top_srcdir)/../../libtizonia/src
+	-I$(top_srcdir)/../../libtizonia/src \
+	@SPOTIFY_CFLAGS@
 
 libtizspotify_la_LIBADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
-	$(top_builddir)/../../libtizonia/src/libtizonia.la
+	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	@SPOTIFY_LIBS@
+
 
 
