@@ -468,6 +468,9 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
     (const OMX_STRING) "OMX_TizoniaIndexConfigIcecastMetadata" },
   { OMX_TizoniaIndexParamAudioOpus, (const OMX_STRING) "OMX_TizoniaIndexParamAudioOpus" },
   { OMX_TizoniaIndexParamAudioFlac, (const OMX_STRING) "OMX_TizoniaIndexParamAudioFlac" },
+  { OMX_TizoniaIndexParamAudioMp2, (const OMX_STRING) "OMX_TizoniaIndexParamAudioMp2" },
+  { OMX_TizoniaIndexParamAudioSpotifyUser, (const OMX_STRING) "OMX_TizoniaIndexParamAudioSpotifyUser" },
+  { OMX_TizoniaIndexParamAudioSpotifyPlaylist, (const OMX_STRING) "OMX_TizoniaIndexParamAudioSpotifyPlaylist" },
   { OMX_IndexKhronosExtensions, (const OMX_STRING) "OMX_IndexKhronosExtensions" },
   { OMX_IndexVendorStartUnused, (const OMX_STRING) "OMX_IndexVendorStartUnused" },
   { OMX_IndexMax, (const OMX_STRING) "OMX_IndexMax" }

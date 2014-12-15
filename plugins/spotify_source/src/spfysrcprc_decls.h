@@ -45,7 +45,14 @@ struct spfysrc_prc
 {
   /* Object */
   const tiz_prc_t _;
+  OMX_BUFFERHEADERTYPE *p_outhdr_;
   bool eos_;
+  bool transfering_;
+  bool port_disabled_;
+  bool spotify_inited_;
+  int bitrate_;
+  int cache_bytes_;
+  tiz_buffer_t *p_store_;
   tiz_event_timer_t *p_ev_timer_;
   int track_index_;
   const char *p_playlist_name_;

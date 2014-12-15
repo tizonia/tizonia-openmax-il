@@ -33,6 +33,7 @@
 #include "OMX_Types.h"
 #include "OMX_Audio.h"
 
+#define OMX_ROLE_AUDIO_SOURCE_PCM_SPOTIFY      "audio_source.pcm.spotify"
 #define OMX_ROLE_AUDIO_ENCODER_OPUS            "audio_encoder.opus"
 #define OMX_ROLE_AUDIO_DECODER_OPUS            "audio_decoder.opus"
 #define OMX_ROLE_AUDIO_ENCODER_FLAC            "audio_encoder.flac"
@@ -44,7 +45,6 @@
 #define OMX_ROLE_AUDIO_RENDERER_ICECAST_VORBIS "audio_renderer.icecast.vorbis"
 #define OMX_ROLE_AUDIO_RENDERER_ICECAST_OPUS   "audio_renderer.icecast.opus"
 
-
 #define OMX_TIZONIA_PORTSTATUS_AWAITBUFFERSRETURN   0x00000004
 
 /**
@@ -55,12 +55,14 @@
  */
 #define OMX_TizoniaIndexParamBufferPreAnnouncementsMode OMX_IndexVendorStartUnused + 1
 
-#define OMX_TizoniaIndexParamHttpServer        OMX_IndexVendorStartUnused + 2 /**< reference: OMX_TIZONIA_HTTPSERVERTYPE */
-#define OMX_TizoniaIndexParamIcecastMountpoint OMX_IndexVendorStartUnused + 3 /**< reference: OMX_TIZONIA_ICECASTMOUNTPOINTTYPE */
-#define OMX_TizoniaIndexConfigIcecastMetadata  OMX_IndexVendorStartUnused + 4 /**< reference: OMX_TIZONIA_ICECASTMETADATATYPE */
-#define OMX_TizoniaIndexParamAudioOpus         OMX_IndexVendorStartUnused + 5 /**< reference: OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE */
-#define OMX_TizoniaIndexParamAudioFlac         OMX_IndexVendorStartUnused + 6 /**< reference: OMX_TIZONIA_AUDIO_PARAM_FLACTYPE */
-#define OMX_TizoniaIndexParamAudioMp2         OMX_IndexVendorStartUnused + 6 /**< reference: OMX_TIZONIA_AUDIO_PARAM_MP2TYPE */
+#define OMX_TizoniaIndexParamHttpServer           OMX_IndexVendorStartUnused + 2 /**< reference: OMX_TIZONIA_HTTPSERVERTYPE */
+#define OMX_TizoniaIndexParamIcecastMountpoint    OMX_IndexVendorStartUnused + 3 /**< reference: OMX_TIZONIA_ICECASTMOUNTPOINTTYPE */
+#define OMX_TizoniaIndexConfigIcecastMetadata     OMX_IndexVendorStartUnused + 4 /**< reference: OMX_TIZONIA_ICECASTMETADATATYPE */
+#define OMX_TizoniaIndexParamAudioOpus            OMX_IndexVendorStartUnused + 5 /**< reference: OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE */
+#define OMX_TizoniaIndexParamAudioFlac            OMX_IndexVendorStartUnused + 6 /**< reference: OMX_TIZONIA_AUDIO_PARAM_FLACTYPE */
+#define OMX_TizoniaIndexParamAudioMp2             OMX_IndexVendorStartUnused + 7 /**< reference: OMX_TIZONIA_AUDIO_PARAM_MP2TYPE */
+#define OMX_TizoniaIndexParamAudioSpotifyUser     OMX_IndexVendorStartUnused + 8 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE */
+#define OMX_TizoniaIndexParamAudioSpotifyPlaylist OMX_IndexVendorStartUnused + 9 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE */
 
 
 /**
@@ -226,7 +228,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_FLACTYPE {
 typedef enum OMX_TIZONIA_AUDIO_MP2STREAMFORMATTYPE {
     OMX_AUDIO_MP2StreamFormatMP1Layer2 = 0, /**< MP2 Audio MPEG 1 Layer 2 Streaxm format */
     OMX_AUDIO_MP2StreamFormatMP2Layer2,     /**< MP2 Audio MPEG 2 Layer 2 Stream format */
-    OMX_AUDIO_MP2StreamFormatKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */ 
+    OMX_AUDIO_MP2StreamFormatKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_MP2StreamFormatVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_MP2StreamFormatMax = 0x7FFFFFFF
 } OMX_TIZONIA_AUDIO_MP2STREAMFORMATTYPE;
@@ -242,5 +244,25 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_MP2TYPE {
     OMX_TIZONIA_AUDIO_MP2STREAMFORMATTYPE eFormat;
 } OMX_TIZONIA_AUDIO_PARAM_MP2TYPE;
 
+/**
+ * Spotify source component
+ * References:
+ *
+ */
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U8 cUserName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cUserPassword[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U32 nPortIndex;
+    OMX_U8 cPlayListName[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE;
 
 #endif /* OMX_TizoniaExt_h */
