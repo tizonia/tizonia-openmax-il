@@ -771,7 +771,7 @@ static size_t curl_header_cback (void *ptr, size_t size, size_t nmemb,
   return nbytes;
 }
 
-OMX_ERRORTYPE process_cache (httpsrc_prc_t *p_prc)
+static OMX_ERRORTYPE process_cache (httpsrc_prc_t *p_prc)
 {
   OMX_BUFFERHEADERTYPE *p_out = NULL;
   int nbytes_stored = 0;
