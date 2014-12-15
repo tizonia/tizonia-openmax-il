@@ -1,4 +1,3 @@
-/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
@@ -72,6 +71,9 @@ namespace tiz
     const std::string &sampling_rates () const;
     const std::vector< int > &sampling_rate_list () const;
     const std::vector< std::string > &uri_list () const;
+    const std::string &spotify_user () const;
+    const std::string &spotify_password () const;
+    const std::vector< std::string > &spotify_playlist_container ();
 
   private:
     void print_license () const;
@@ -82,6 +84,7 @@ namespace tiz
     void init_omx_options ();
     void init_streaming_server_options ();
     void init_streaming_client_options ();
+    void init_spotify_options ();
     void init_input_uri_option ();
 
     void parse_command_line (int argc, char *argv[]);
@@ -91,6 +94,7 @@ namespace tiz
     int consume_omx_options (bool &done);
     int consume_streaming_server_options (bool &done);
     int consume_streaming_client_options (bool &done);
+    int consume_spotify_client_options (bool &done);
     int consume_local_decode_options (bool &done);
     int consume_input_file_uris_option ();
     int consume_input_http_uris_option ();
@@ -111,6 +115,7 @@ namespace tiz
     boost::program_options::options_description omx_;
     boost::program_options::options_description server_;
     boost::program_options::options_description client_;
+    boost::program_options::options_description spotify_;
     boost::program_options::options_description input_;
     boost::program_options::positional_options_description positional_;
 
@@ -130,6 +135,10 @@ namespace tiz
     std::string sampling_rates_;
     std::vector< int > sampling_rate_list_;
     std::vector< std::string > uri_list_;
+    std::string spotify_user_;
+    std::string spotify_pass_;
+    std::string spotify_playlist_;
+    std::vector< std::string > spotify_playlist_container_;
   };
 }
 #endif  // TIZPROGRAMOPTS_HPP

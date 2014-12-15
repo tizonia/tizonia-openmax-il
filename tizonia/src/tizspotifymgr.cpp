@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizhttpclntmgr.cpp
+ * @file   tizspotifymgr.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Implementation of a Manager for the HTTP client graph
+ * @brief  Implementation of a Manager for the Spotify client graph
  *
  */
 
@@ -37,12 +37,12 @@
 #include <tizplatform.h>
 
 #include "tizgraphmgrcaps.hpp"
-#include "tizhttpclntgraph.hpp"
-#include "tizhttpclntmgr.hpp"
+#include "tizspotifygraph.hpp"
+#include "tizspotifymgr.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.httpclntmgr"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.spotifymgr"
 #endif
 
 namespace graphmgr = tiz::graphmgr;
@@ -50,17 +50,17 @@ namespace graphmgr = tiz::graphmgr;
 //
 // mgr
 //
-graphmgr::httpclntmgr::httpclntmgr (tizgraphconfig_ptr_t config)
+graphmgr::spotifymgr::spotifymgr (tizgraphconfig_ptr_t config)
   : graphmgr::mgr (), config_ (config)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 }
 
-graphmgr::httpclntmgr::~httpclntmgr ()
+graphmgr::spotifymgr::~spotifymgr ()
 {
 }
 
-graphmgr::ops *graphmgr::httpclntmgr::do_init (
+graphmgr::ops *graphmgr::spotifymgr::do_init (
     const tizplaylist_ptr_t &playlist, const termination_callback_t &termination_cback,
     graphmgr_capabilities_t &graphmgr_caps)
 {
@@ -70,7 +70,7 @@ graphmgr::ops *graphmgr::httpclntmgr::do_init (
   graphmgr_caps.has_track_list_ = true;
   graphmgr_caps.identity_.assign ("Tizonia OpenMAX IL player version ");
   graphmgr_caps.identity_.append (PACKAGE_VERSION);
-  graphmgr_caps.uri_schemes_ = boost::assign::list_of ("http");
+  graphmgr_caps.uri_schemes_ = boost::assign::list_of ("spotify");
   graphmgr_caps.mime_types_ = boost::assign::list_of
     ("audio/mpeg")("audio/mpg")("audio/mp3")("audio/aac")("audio/aacp");
   graphmgr_caps.minimum_rate_ = 1.0;
@@ -82,28 +82,28 @@ graphmgr::ops *graphmgr::httpclntmgr::do_init (
   graphmgr_caps.can_seek_ = false;
   graphmgr_caps.can_control_ = false;
 
-  return new httpclntmgrops (this, playlist, termination_cback);
+  return new spotifymgrops (this, playlist, termination_cback);
 }
 
 //
 // decodemgrops
 //
-graphmgr::httpclntmgrops::httpclntmgrops (mgr *p_mgr,
+graphmgr::spotifymgrops::spotifymgrops (mgr *p_mgr,
                                           const tizplaylist_ptr_t &playlist,
                                           const termination_callback_t &termination_cback)
   : tiz::graphmgr::ops (p_mgr, playlist, termination_cback)
 {
 }
 
-tizgraph_ptr_t graphmgr::httpclntmgrops::get_graph (
+tizgraph_ptr_t graphmgr::spotifymgrops::get_graph (
     const std::string & /* uri */)
 {
   tizgraph_ptr_t g_ptr;
-  std::string encoding ("http/mp3");
+  std::string encoding ("pcm");
   tizgraph_ptr_map_t::const_iterator it = graph_registry_.find (encoding);
   if (it == graph_registry_.end ())
   {
-    g_ptr = boost::make_shared< tiz::graph::httpclient >();
+    g_ptr = boost::make_shared< tiz::graph::spotify >();
     if (g_ptr)
     {
       // TODO: Check rc
@@ -125,7 +125,7 @@ tizgraph_ptr_t graphmgr::httpclntmgrops::get_graph (
     else
     {
       GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources,
-                             "Unable to create the http client graph.");
+                             "Unable to create the Spotify client graph.");
     }
   }
   else
@@ -136,7 +136,7 @@ tizgraph_ptr_t graphmgr::httpclntmgrops::get_graph (
   return g_ptr;
 }
 
-void graphmgr::httpclntmgrops::do_load ()
+void graphmgr::spotifymgrops::do_load ()
 {
   tizgraph_ptr_t g_ptr (get_graph (std::string ()));
   if (g_ptr)
@@ -146,12 +146,12 @@ void graphmgr::httpclntmgrops::do_load ()
   p_managed_graph_ = g_ptr;
 }
 
-void graphmgr::httpclntmgrops::do_execute ()
+void graphmgr::spotifymgrops::do_execute ()
 {
   assert (playlist_);
   assert (p_mgr_);
 
-  httpclntmgr *p_clientmgr = dynamic_cast< httpclntmgr * >(p_mgr_);
+  spotifymgr *p_clientmgr = dynamic_cast< spotifymgr * >(p_mgr_);
   assert (p_clientmgr);
 
   graph_config_.reset ();
@@ -163,7 +163,7 @@ void graphmgr::httpclntmgrops::do_execute ()
                           "Unable to execute the graph.");
 }
 
-bool graphmgr::httpclntmgrops::is_fatal_error (const OMX_ERRORTYPE error,
+bool graphmgr::spotifymgrops::is_fatal_error (const OMX_ERRORTYPE error,
                                                const std::string &msg)
 {
   bool rc = false;

@@ -52,12 +52,15 @@ noinst_HEADERS = \
 	tizoggflacgraph.hpp \
 	tizpcmgraph.hpp \
 	tizmpeggraph.hpp \
+	tizspotifygraph.hpp \
 	tizhttpservconfig.hpp \
+	tizspotifyconfig.hpp \
 	tizhttpservgraph.hpp \
 	tizhttpservgraphfsm.hpp \
 	tizhttpservgraphops.hpp \
 	tizhttpservmgr.hpp \
 	tizhttpclntmgr.hpp \
+	tizspotifymgr.hpp \
 	tizhttpclntgraph.hpp \
 	tizhttpclntgraphfsm.hpp \
 	tizhttpclntgraphops.hpp \
@@ -99,10 +102,12 @@ tizonia_SOURCES = \
 	tizoggflacgraph.cpp \
 	tizpcmgraph.cpp \
 	tizmpeggraph.cpp \
+	tizspotifygraph.cpp \
 	tizhttpservgraph.cpp \
 	tizhttpservgraphfsm.cpp \
 	tizhttpservgraphops.cpp \
 	tizhttpclntmgr.cpp \
+	tizspotifymgr.cpp \
 	tizhttpclntgraph.cpp \
 	tizhttpclntgraphfsm.cpp \
 	tizhttpclntgraphops.cpp \

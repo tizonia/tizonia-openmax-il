@@ -18,42 +18,57 @@
  */
 
 /**
- * @file   tizhttpservgraph.hpp
+ * @file   tizspotifygraph.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP Streaming Server graph
+ * @brief  OpenMAX IL pcm decoder graph
  *
  *
  */
 
-#ifndef TIZHTTPSERVGRAPH_HPP
-#define TIZHTTPSERVGRAPH_HPP
+#ifndef TIZSPOTIFYGRAPH_HPP
+#define TIZSPOTIFYGRAPH_HPP
 
 #include "tizgraph.hpp"
-#include "tizhttpservgraphfsm.hpp"
-
+#include "tizgraphfsm.hpp"
+#include "tizgraphops.hpp"
 namespace tiz
 {
   namespace graph
   {
     // Forward declarations
     class cmd;
-    class ops;
 
-    class httpserver : public graph
+    class spotify : public graph
     {
 
     public:
-      httpserver ();
+      spotify ();
 
     protected:
       ops *do_init ();
       bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
 
     protected:
-      hsfsm::fsm fsm_;
+      fsm fsm_;
+    };
+
+    class spotifydecops : public ops
+    {
+    public:
+      spotifydecops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+                     const omx_comp_role_lst_t &role_lst);
+
+    public:
+      void do_probe ();
+      bool is_port_settings_evt_required () const;
+      bool is_disabled_evt_required () const;
+      void do_configure ();
+
+    protected:
+      bool need_port_settings_changed_evt_;
     };
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZHTTPSERVGRAPH_HPP
+#endif  // TIZSPOTIFYGRAPH_HPP

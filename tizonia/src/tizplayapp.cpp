@@ -31,6 +31,7 @@
 
 #include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <termios.h>
 #include <netdb.h>
@@ -53,6 +54,7 @@
 #include "tizomxutil.hpp"
 #include "tizdecgraphmgr.hpp"
 #include "tizhttpservconfig.hpp"
+#include "tizspotifyconfig.hpp"
 #include "tizhttpservmgr.hpp"
 #include "tizhttpclntmgr.hpp"
 #include "tizdaemon.hpp"
@@ -292,6 +294,9 @@ void tiz::playapp::set_option_handlers ()
   // streaming audio client program options
   popts_.set_option_handler ("decode-stream",
                              boost::bind (&tiz::playapp::decode_stream, this));
+  // spotify streaming client program options
+  popts_.set_option_handler ("spotify-stream",
+                             boost::bind (&tiz::playapp::spotify_stream, this));
 }
 
 OMX_ERRORTYPE
@@ -621,6 +626,53 @@ tiz::playapp::decode_stream ()
 
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::config >(playlist);
+
+  // Instantiate the streaming client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::httpclntmgr >(config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != wait_for_user_input_while_streaming (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz::playapp::spotify_stream ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const std::string user (popts_.spotify_user ());
+  std::string pass (popts_.spotify_password ());
+  const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
+
+  (void)check_daemon_mode ();
+  print_banner ();
+
+  // If a username was supplied without a password, prompt for password
+  if (!user.empty () && pass.empty ())
+    {
+      pass.assign (getpass("Spotify password: "));
+    }
+
+  return rc;
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t config
+      = boost::make_shared< tiz::graph::spotifyconfig >(
+          playlist, user, pass);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr

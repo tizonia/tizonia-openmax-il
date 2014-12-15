@@ -18,42 +18,55 @@
  */
 
 /**
- * @file   tizhttpservgraph.hpp
+ * @file   tizspotifyconfig.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP Streaming Server graph
+ * @brief  OpenMAX IL HTTP Streaming Server graph configuration
  *
  *
  */
 
-#ifndef TIZHTTPSERVGRAPH_HPP
-#define TIZHTTPSERVGRAPH_HPP
+#ifndef TIZSPOTIFYCONFIG_HPP
+#define TIZSPOTIFYCONFIG_HPP
 
-#include "tizgraph.hpp"
-#include "tizhttpservgraphfsm.hpp"
+#include <string>
+
+#include "tizgraphtypes.hpp"
+#include "tizgraphconfig.hpp"
 
 namespace tiz
 {
   namespace graph
   {
-    // Forward declarations
-    class cmd;
-    class ops;
-
-    class httpserver : public graph
+    class spotifyconfig : public config
     {
 
     public:
-      httpserver ();
+      spotifyconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
+                      const std::string &pass)
+        : config (playlist), user_ (user), pass_ (pass)
+      {
+      }
+
+      ~spotifyconfig ()
+      {
+      }
+
+      std::string get_user_name () const
+      {
+        return user_;
+      }
+
+      std::string get_user_pass () const
+      {
+        return pass_;
+      }
 
     protected:
-      ops *do_init ();
-      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
-
-    protected:
-      hsfsm::fsm fsm_;
+      const std::string user_;
+      const std::string pass_;
     };
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZHTTPSERVGRAPH_HPP
+#endif  // TIZSPOTIFYCONFIG_HPP

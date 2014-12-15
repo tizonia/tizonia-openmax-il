@@ -18,52 +18,67 @@
  */
 
 /**
- * @file   tizdecgraphmgr.hpp
+ * @file   tizspotifymgr.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A manager for decoding graphs
+ * @brief  A manager for the HTTP client graph
  *
  *
  */
 
-#ifndef TIZDECGRAPHMGR_HPP
-#define TIZDECGRAPHMGR_HPP
+#ifndef TIZSPOTIFYMGR_HPP
+#define TIZSPOTIFYMGR_HPP
 
 #include "tizgraphtypes.hpp"
+#include "tizgraphmgrcaps.hpp"
 #include "tizgraphmgr.hpp"
 
 namespace tiz
 {
   namespace graphmgr
   {
+    class spotifymgrops;
     class graphmgr_capabilities;
 
     /**
-     *  @class decodemgr
-     *  @brief A manager for decoding graphs.
+     *  @class spotifymgr
+     *  @brief The http client graph manager class.
      *
      */
-    class decodemgr : public mgr
+    class spotifymgr : public mgr
     {
-    public:
-      decodemgr ();
-      virtual ~decodemgr ();
+      friend class spotifymgrops;
 
-    protected:
+    public:
+      spotifymgr (tizgraphconfig_ptr_t config);
+      virtual ~spotifymgr ();
+
+    private:
       ops *do_init (const tizplaylist_ptr_t &playlist,
                     const termination_callback_t &termination_cback,
                     graphmgr_capabilities &graphmgr_caps);
+
+    private:
+      tizgraphconfig_ptr_t config_;
     };
 
-    typedef boost::shared_ptr< decodemgr > decodemgr_ptr_t;
+    typedef boost::shared_ptr< spotifymgr > spotifymgr_ptr_t;
 
-    class decodemgrops : public ops
+    class spotifymgrops : public ops
     {
     public:
-      decodemgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
-                    const termination_callback_t &termination_cback);
+      spotifymgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
+                      const termination_callback_t &termination_cback);
+
+      void do_load ();
+      void do_execute ();
+
+    private:
+      bool is_fatal_error (const OMX_ERRORTYPE error,
+                           const std::string &msg);
+      tizgraph_ptr_t get_graph (const std::string &uri);
     };
   }  // namespace graphmgr
 }  // namespace tiz
 
-#endif  // TIZDECGRAPHMGR_HPP
+#endif  // TIZSPOTIFYMGR_HPP

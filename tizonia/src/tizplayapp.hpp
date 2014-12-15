@@ -1,4 +1,3 @@
-/* -*-Mode: c++; -*- */
 /**
  * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
  *
@@ -60,6 +59,7 @@ namespace tiz
     OMX_ERRORTYPE decode_local ();
     OMX_ERRORTYPE serve_stream ();
     OMX_ERRORTYPE decode_stream ();
+    OMX_ERRORTYPE spotify_stream ();
 
     void print_banner () const;
 
