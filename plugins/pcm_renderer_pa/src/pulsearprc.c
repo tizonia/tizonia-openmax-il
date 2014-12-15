@@ -300,8 +300,8 @@ static void pulseaudio_stream_state_cback_handler (
       TIZ_TRACE (handleOf (ap_prc), "PA STREAM STATE : [%s]",
                  pulseaudio_stream_state_to_str (p_prc->pa_stream_state_));
     }
-  tiz_srv_soa_free (ap_prc, ap_event->p_data);
-  tiz_srv_soa_free (ap_prc, ap_event);
+  tiz_mem_free (ap_event->p_data);
+  tiz_mem_free (ap_event);
 }
 
 static void pulseaudio_stream_state_cback (pa_stream *stream, void *userdata)
@@ -310,11 +310,11 @@ static void pulseaudio_stream_state_cback (pa_stream *stream, void *userdata)
   assert (NULL != p_prc);
   {
     tiz_event_pluggable_t *p_event
-        = tiz_srv_soa_calloc (p_prc, sizeof(tiz_event_pluggable_t));
+        = tiz_mem_calloc (1, sizeof(tiz_event_pluggable_t));
     if (NULL != p_event)
       {
         p_event->p_servant = p_prc;
-        p_event->p_data = tiz_srv_soa_calloc (p_prc, sizeof(pa_stream_state_t));
+        p_event->p_data = tiz_mem_calloc (1, sizeof(pa_stream_state_t));
         p_event->pf_hdlr = pulseaudio_stream_state_cback_handler;
         if (p_event->p_data)
           {
@@ -354,8 +354,8 @@ static void pulseaudio_stream_write_cback_handler (
           (void)render_pcm_data (p_prc);
         }
     }
-  tiz_srv_soa_free (ap_prc, ap_event->p_data);
-  tiz_srv_soa_free (ap_prc, ap_event);
+  tiz_mem_free (ap_event->p_data);
+  tiz_mem_free (ap_event);
 }
 
 static void pulseaudio_stream_write_cback (pa_stream *stream, size_t nbytes,
@@ -367,11 +367,11 @@ static void pulseaudio_stream_write_cback (pa_stream *stream, size_t nbytes,
   if (p_prc->p_pa_loop_)
     {
       tiz_event_pluggable_t *p_event
-          = tiz_srv_soa_calloc (p_prc, sizeof(tiz_event_pluggable_t));
+          = tiz_mem_calloc (1, sizeof(tiz_event_pluggable_t));
       if (NULL != p_event)
         {
           p_event->p_servant = p_prc;
-          p_event->p_data = tiz_srv_soa_calloc (p_prc, sizeof(nbytes));
+          p_event->p_data = tiz_mem_calloc (1, sizeof(nbytes));
           if (p_event->p_data)
             {
               *((size_t *)(p_event->p_data)) = nbytes;
