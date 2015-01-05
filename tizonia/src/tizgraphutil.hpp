@@ -115,19 +115,23 @@ namespace tiz
       static OMX_ERRORTYPE enable_tunnel (const omx_comp_handle_lst_t &hdl_list,
                                           const int tunnel_id);
 
-      template<typename ParamT>
-      static OMX_ERRORTYPE get_channels_and_rate_from_audio_port (const OMX_HANDLETYPE handle,
-                                                                  const OMX_U32 port_id,
-                                                                  const OMX_INDEXTYPE param_index,
-                                                                  OMX_U32 &channels,
-                                                                  OMX_U32 &sampling_rate);
+      template < typename ParamT >
+      static OMX_ERRORTYPE get_channels_and_rate_from_audio_port (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          const OMX_INDEXTYPE param_index, OMX_U32 &channels,
+          OMX_U32 &sampling_rate);
 
-      template<typename ParamT>
-      static OMX_ERRORTYPE set_channels_and_rate_on_audio_port (const OMX_HANDLETYPE handle,
-                                                                const OMX_U32 port_id,
-                                                                const OMX_INDEXTYPE param_index,
-                                                                const OMX_U32 channels,
-                                                                const OMX_U32 sampling_rate);
+      template < typename ParamT >
+      static OMX_ERRORTYPE get_channels_and_rate_from_audio_port_v2 (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          const OMX_INDEXTYPE param_index, OMX_U32 &channels,
+          OMX_U32 &sampling_rate);
+
+      template < typename ParamT >
+      static OMX_ERRORTYPE set_channels_and_rate_on_audio_port (
+          const OMX_HANDLETYPE handle, const OMX_U32 port_id,
+          const OMX_INDEXTYPE param_index, const OMX_U32 channels,
+          const OMX_U32 sampling_rate);
 
       static OMX_ERRORTYPE set_content_uri (const OMX_HANDLETYPE handle,
                                             const std::string &uri);
@@ -143,8 +147,8 @@ namespace tiz
 
       static OMX_ERRORTYPE set_aac_type (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
-          boost::function< void(OMX_AUDIO_PARAM_AACPROFILETYPE &aactype) > getter,
-          bool &need_port_settings_changed_evt);
+          boost::function< void(OMX_AUDIO_PARAM_AACPROFILETYPE &aactype) >
+              getter, bool &need_port_settings_changed_evt);
 
       static OMX_ERRORTYPE set_flac_type (
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
@@ -162,7 +166,6 @@ namespace tiz
       static bool is_fatal_error (const OMX_ERRORTYPE error);
 
       static std::string get_default_pcm_renderer ();
-
     };
   }  // namespace graph
 }  // namespace tiz

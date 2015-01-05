@@ -19,12 +19,15 @@ lib_LTLIBRARIES = libtizspotify.la
 
 noinst_HEADERS = \
 	spfysrc.h \
+	spfysrccfgport.h \
+	spfysrccfgport_decls.h \
 	spfysrcprc.h \
 	spfysrcprc_decls.h
 
 libtizspotify_la_SOURCES = \
 	appkey.c \
 	spfysrc.c \
+	spfysrccfgport.c \
 	spfysrcprc.c
 
 libtizspotify_la_CFLAGS = \

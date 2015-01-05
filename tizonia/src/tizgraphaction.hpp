@@ -73,6 +73,19 @@ namespace tiz
       }
     };
 
+    struct do_configure_source
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            (*(fsm.pp_ops_))->do_configure_source ();
+          }
+      }
+    };
+
     struct do_skip
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
@@ -96,6 +109,19 @@ namespace tiz
         {
           (*(fsm.pp_ops_))->do_load ();
         }
+      }
+    };
+
+    struct do_load_source
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            (*(fsm.pp_ops_))->do_load_source ();
+          }
       }
     };
 
@@ -134,6 +160,20 @@ namespace tiz
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
           (*(fsm.pp_ops_))->do_store_config (evt.config_);
+        }
+      }
+    };
+
+    template<int handle_id, int port_id>
+    struct do_enable_auto_detection
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_enable_auto_detection (handle_id, port_id);
         }
       }
     };

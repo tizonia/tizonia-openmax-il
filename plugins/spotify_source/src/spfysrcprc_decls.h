@@ -46,6 +46,7 @@ struct spfysrc_prc
   /* Object */
   const tiz_prc_t _;
   OMX_BUFFERHEADERTYPE *p_outhdr_;
+  OMX_PARAM_CONTENTURITYPE *p_uri_param_;
   bool eos_;
   bool transfering_;
   bool port_disabled_;
@@ -54,11 +55,14 @@ struct spfysrc_prc
   int cache_bytes_;
   tiz_buffer_t *p_store_;
   tiz_event_timer_t *p_ev_timer_;
-  int track_index_;
-  const char *p_playlist_name_;
-  const char *p_user_name_;
-  const char *p_user_pass_;
-  sp_session *p_sp_session_;
+  OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE user_;
+  OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE playlist_;
+  OMX_S32 audio_coding_type_;
+  OMX_U32 num_channels_;
+  OMX_U32 samplerate_;
+  bool auto_detect_on_;
+  int track_index_;             /* Index to the next track */
+  sp_session *p_sp_session_;    /* The global session handle */
   sp_session_config sp_config_;        /* The session configuration */
   sp_session_callbacks sp_cbacks_;     /* The session callbacks */
   sp_playlist_callbacks sp_pl_cbacks_; /* The callbacks we are interested in
@@ -67,7 +71,11 @@ struct spfysrc_prc
                                                      callbacks */
   sp_playlist *p_sp_playlist_; /* Handle to the playlist currently being
                                  played */
-  sp_track *p_sp_track_;         /* Handle to the curren track */
+  sp_track *p_sp_track_;         /* Handle to the current track */
+  bool remove_tracks_;            /* Remove tracks flag */
+  bool keep_processing_sp_events_; /* callback called from libspotify thread to
+                                    * ask us to reiterate the main loop */
+  int next_timeout_;            /* Remove tracks flag */
 };
 
 typedef struct spfysrc_prc_class spfysrc_prc_class_t;

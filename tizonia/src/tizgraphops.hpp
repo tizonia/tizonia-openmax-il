@@ -82,9 +82,11 @@ namespace tiz
 
     public:
       virtual void do_load ();
+      virtual void do_load_source ();
       virtual void do_setup ();
       virtual void do_ack_loaded ();
       virtual void do_store_config (const tizgraphconfig_ptr_t &config);
+      virtual void do_enable_auto_detection (const int handle_id, const int port_id);
       virtual void do_disable_ports ();
       virtual void do_disable_tunnel (const int tunnel_id);
       virtual void do_enable_tunnel (const int tunnel_id);
@@ -93,6 +95,7 @@ namespace tiz
       virtual bool is_port_settings_evt_required () const;
       virtual bool is_disabled_evt_required () const;
       virtual void do_configure ();
+      virtual void do_configure_source ();
       virtual void do_omx_loaded2idle ();
       virtual void do_source_omx_loaded2idle ();
       virtual void do_source_omx_idle2exe ();

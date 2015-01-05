@@ -428,6 +428,9 @@ configport_GetExtensionIndex (const void *ap_obj,
 static void
 configport_clear_metadata (void *ap_obj)
 {
+  tiz_configport_t *p_obj = ap_obj;
+  assert (NULL != p_obj);
+  p_obj->metadata_count_.nMetadataItemCount = 0;
   clear_metadata_map (ap_obj);
 }
 

@@ -43,6 +43,7 @@
 #include <tizscheduler.h>
 
 #include "spfysrcprc.h"
+#include "spfysrccfgport.h"
 #include "spfysrc.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -52,18 +53,20 @@
 
 static OMX_VERSIONTYPE spotify_source_version = { {1, 0, 0, 0} };
 
-static OMX_PTR instantiate_output_port (OMX_HANDLETYPE ap_hdl)
+static OMX_PTR instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
   OMX_AUDIO_CONFIG_MUTETYPE mute;
   OMX_AUDIO_CODINGTYPE encodings[] = {
+    OMX_AUDIO_CodingUnused,
+    OMX_AUDIO_CodingAutoDetect,
     OMX_AUDIO_CodingPCM,
     OMX_AUDIO_CodingMax
   };
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
-    OMX_DirInput,
+    OMX_DirOutput,
     ARATELIA_SPOTIFY_SOURCE_PORT_MIN_BUF_COUNT,
     ARATELIA_SPOTIFY_SOURCE_PORT_MIN_BUF_SIZE,
     ARATELIA_SPOTIFY_SOURCE_PORT_NONCONTIGUOUS,
@@ -107,7 +110,7 @@ static OMX_PTR instantiate_output_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
+  return factory_new (tiz_get_type (ap_hdl, "spfysrccfgport"),
                       NULL,       /* this port does not take options */
                       ARATELIA_SPOTIFY_SOURCE_COMPONENT_NAME,
                       spotify_source_version);
@@ -125,11 +128,12 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_role_factory_t role_factory;
   const tiz_role_factory_t *rf_list[] = { &role_factory };
   tiz_type_factory_t spfysrcprc_type;
-  const tiz_type_factory_t *tf_list[] = { &spfysrcprc_type };
+  tiz_type_factory_t spfysrccfgport_type;
+  const tiz_type_factory_t *tf_list[] = { &spfysrcprc_type, &spfysrccfgport_type };
 
   strcpy ((OMX_STRING) role_factory.role, ARATELIA_SPOTIFY_SOURCE_DEFAULT_ROLE);
   role_factory.pf_cport   = instantiate_config_port;
-  role_factory.pf_port[0] = instantiate_output_port;
+  role_factory.pf_port[0] = instantiate_pcm_port;
   role_factory.nports     = 1;
   role_factory.pf_proc    = instantiate_processor;
 
@@ -138,13 +142,18 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   strcpy ((OMX_STRING) spfysrcprc_type.object_name, "spfysrcprc");
   spfysrcprc_type.pf_object_init = spfysrc_prc_init;
 
+  strcpy ((OMX_STRING) spfysrccfgport_type.class_name, "spfysrccfgport_class");
+  spfysrccfgport_type.pf_class_init = spfysrc_cfgport_class_init;
+  strcpy ((OMX_STRING) spfysrccfgport_type.object_name, "spfysrccfgport");
+  spfysrccfgport_type.pf_object_init = spfysrc_cfgport_init;
+
   /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_SPOTIFY_SOURCE_COMPONENT_NAME));
 
-  /* Register the "spfysrcprc" class */
-  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 1));
+  /* Register the "spfysrcprc" and "spfysrccfgport" classes */
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 2));
 
-  /* Register the component role(s) */
+  /* Register this component's role */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 1));
 
   return OMX_ErrorNone;

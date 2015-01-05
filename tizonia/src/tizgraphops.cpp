@@ -100,6 +100,16 @@ void graph::ops::do_load ()
       "Unable to instantiate the component list.");
 }
 
+void graph::ops::do_load_source ()
+{
+  assert (!comp_lst_.empty ());
+  assert (!role_lst_.empty ());
+  // At this point we are instantiating a graph with a single component, the
+  // spotify source component.
+  assert (comp_lst_.size () == 1);
+  tiz::graph::ops::do_load ();
+}
+
 void graph::ops::do_setup ()
 {
   if (last_op_succeeded ())
@@ -124,6 +134,15 @@ void graph::ops::do_store_config (const tizgraphconfig_ptr_t &config)
 {
   config_ = config;
   playlist_ = config_->get_playlist ();
+}
+
+void graph::ops::do_enable_auto_detection (const int handle_id, const int port_id)
+{
+  assert (handle_id >= 0 && static_cast<size_t>(handle_id) < handles_.size ());
+  G_OPS_BAIL_IF_ERROR (
+      tiz::graph::util::enable_port_format_auto_detection (
+          handles_[handle_id], port_id, OMX_PortDomainAudio),
+      "Unable to set OMX_IndexParamPortDefinition (port auto detection)");
 }
 
 void graph::ops::do_disable_ports ()
@@ -178,6 +197,11 @@ bool graph::ops::is_disabled_evt_required () const
 }
 
 void graph::ops::do_configure ()
+{
+  // This is a no-op in the base class.
+}
+
+void graph::ops::do_configure_source ()
 {
   // This is a no-op in the base class.
 }

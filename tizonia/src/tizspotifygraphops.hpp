@@ -18,16 +18,16 @@
  */
 
 /**
- * @file   tizhttpclntgraphops.hpp
+ * @file   tizspotifygraphops.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP client graph actions / operations
+ * @brief  Spotify client graph actions / operations
  *
  *
  */
 
-#ifndef TIZHTTPCLNTGRAPHOPS_HPP
-#define TIZHTTPCLNTGRAPHOPS_HPP
+#ifndef TIZSPOTIFYGRAPHOPS_HPP
+#define TIZSPOTIFYGRAPHOPS_HPP
 
 #include "tizgraphops.hpp"
 
@@ -37,14 +37,15 @@ namespace tiz
   {
     class graph;
 
-    class httpclntops : public ops
+    class spotifyops : public ops
     {
     public:
-      httpclntops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
-                   const omx_comp_role_lst_t &role_lst);
+      spotifyops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+                  const omx_comp_role_lst_t &role_lst);
 
     public:
-      void do_enable_auto_detection (const int handle_id, const int port_id);
+      void do_enable_auto_detection (const int handle_id,
+                                     const int port_id);
       void do_disable_ports ();
       void do_configure_source ();
       void do_load ();
@@ -59,21 +60,22 @@ namespace tiz
       OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
       OMX_ERRORTYPE transition_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
+      OMX_ERRORTYPE set_spotify_user_and_pass (const OMX_HANDLETYPE handle,
+                                               const std::string &user,
+                                               const std::string &pass);
+      OMX_ERRORTYPE set_spotify_playlist (const OMX_HANDLETYPE handle,
+                                          const std::string &playlist);
 
     private:
-      OMX_ERRORTYPE add_decoder_to_component_list (
-          omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list);
       // re-implemented from the base class
       bool probe_stream_hook ();
       void dump_stream_metadata ();
       OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index);
-      OMX_ERRORTYPE get_encoding_type_from_http_source ();
-      OMX_ERRORTYPE apply_pcm_codec_info_from_http_source ();
-      OMX_ERRORTYPE get_channels_and_rate_from_http_source (
+      OMX_ERRORTYPE get_encoding_type_from_spotify_source ();
+      OMX_ERRORTYPE apply_pcm_codec_info_from_spotify_source ();
+      OMX_ERRORTYPE get_channels_and_rate_from_spotify_source (
           OMX_U32 &channels, OMX_U32 &sampling_rate,
           std::string &encoding_str) const;
-      OMX_ERRORTYPE set_channels_and_rate_on_decoder (
-          const OMX_U32 channels, const OMX_U32 sampling_rate);
       OMX_ERRORTYPE set_channels_and_rate_on_renderer (
           const OMX_U32 channels, const OMX_U32 sampling_rate,
           const std::string encoding_str);
@@ -84,4 +86,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZHTTPCLNTGRAPHOPS_HPP
+#endif  // TIZSPOTIFYGRAPHOPS_HPP

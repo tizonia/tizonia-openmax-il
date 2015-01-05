@@ -31,7 +31,7 @@
 
 #include <assert.h>
 
-#include <boost/assign/list_of.hpp> // for 'list_of()'
+#include <boost/assign/list_of.hpp>  // for 'list_of()'
 #include <boost/make_shared.hpp>
 
 #include <tizplatform.h>
@@ -61,18 +61,18 @@ graphmgr::spotifymgr::~spotifymgr ()
 }
 
 graphmgr::ops *graphmgr::spotifymgr::do_init (
-    const tizplaylist_ptr_t &playlist, const termination_callback_t &termination_cback,
+    const tizplaylist_ptr_t &playlist,
+    const termination_callback_t &termination_cback,
     graphmgr_capabilities_t &graphmgr_caps)
 {
   // Fill this graph manager capabilities
   graphmgr_caps.can_quit_ = false;
   graphmgr_caps.can_raise_ = false;
-  graphmgr_caps.has_track_list_ = true;
+  graphmgr_caps.has_track_list_ = false;
   graphmgr_caps.identity_.assign ("Tizonia OpenMAX IL player version ");
   graphmgr_caps.identity_.append (PACKAGE_VERSION);
   graphmgr_caps.uri_schemes_ = boost::assign::list_of ("spotify");
-  graphmgr_caps.mime_types_ = boost::assign::list_of
-    ("audio/mpeg")("audio/mpg")("audio/mp3")("audio/aac")("audio/aacp");
+  graphmgr_caps.mime_types_ = boost::assign::list_of ("audio/pcm");
   graphmgr_caps.minimum_rate_ = 1.0;
   graphmgr_caps.maximum_rate_ = 1.0;
   graphmgr_caps.can_go_next_ = false;
@@ -88,9 +88,9 @@ graphmgr::ops *graphmgr::spotifymgr::do_init (
 //
 // decodemgrops
 //
-graphmgr::spotifymgrops::spotifymgrops (mgr *p_mgr,
-                                          const tizplaylist_ptr_t &playlist,
-                                          const termination_callback_t &termination_cback)
+graphmgr::spotifymgrops::spotifymgrops (
+    mgr *p_mgr, const tizplaylist_ptr_t &playlist,
+    const termination_callback_t &termination_cback)
   : tiz::graphmgr::ops (p_mgr, playlist, termination_cback)
 {
 }
@@ -164,7 +164,7 @@ void graphmgr::spotifymgrops::do_execute ()
 }
 
 bool graphmgr::spotifymgrops::is_fatal_error (const OMX_ERRORTYPE error,
-                                               const std::string &msg)
+                                              const std::string &msg)
 {
   bool rc = false;
   TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error),

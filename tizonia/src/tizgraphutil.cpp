@@ -709,6 +709,9 @@ bool graph::util::is_fatal_error (const OMX_ERRORTYPE error)
     case OMX_ErrorNotImplemented:
     case OMX_ErrorPortsNotCompatible:
     case OMX_ErrorVersionMismatch:
+    case OMX_ErrorUnsupportedSetting:
+    case OMX_ErrorBadParameter:
+    case OMX_ErrorBadPortIndex:
       rc = true;
       break;
     default:

@@ -591,7 +591,7 @@ static inline OMX_ERRORTYPE send_msg (tiz_scheduler_t *ap_sched,
   assert (NULL != ap_sched);
   assert (NULL != ap_msg);
 
-  if (tid == ap_sched->thread_id)
+  if (tid == ap_sched->thread_id && ap_msg->class != ETIZSchedMsgPluggableEvent)
     {
       TIZ_WARN (ap_sched->child.p_hdl,
                 "WARNING: (API %s called from IL callback context...)",

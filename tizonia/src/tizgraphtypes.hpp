@@ -57,6 +57,7 @@ namespace tiz
     class graph;
     class config;
     class httpservconfig;
+    class spotifyconfig;
     struct omx_event_info;
   }
 }
@@ -66,6 +67,7 @@ typedef boost::shared_ptr< tiz::graph::graph > tizgraph_ptr_t;
 typedef std::map< std::string, tizgraph_ptr_t > tizgraph_ptr_map_t;
 typedef boost::shared_ptr< tiz::graph::config > tizgraphconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
+typedef boost::shared_ptr< tiz::graph::spotifyconfig > tizspotifyconfig_ptr_t;
 typedef tiz::playlist tizplaylist_t;
 typedef boost::shared_ptr< tiz::playlist > tizplaylist_ptr_t;
 

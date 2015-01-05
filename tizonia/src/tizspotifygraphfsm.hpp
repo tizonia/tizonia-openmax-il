@@ -18,15 +18,15 @@
  */
 
 /**
- * @file   tizhttpclntgraphfsm.hpp
+ * @file   tizspotifygraphfsm.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP client graph fsm
+ * @brief  Spotify client graph fsm
  *
  */
 
-#ifndef TIZHTTPCLNTGRAPHFSM_HPP
-#define TIZHTTPCLNTGRAPHFSM_HPP
+#ifndef TIZSPOTIFYGRAPHFSM_HPP
+#define TIZSPOTIFYGRAPHFSM_HPP
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 #define BOOST_MPL_LIMIT_VECTOR_SIZE 40
@@ -49,11 +49,11 @@
 #include "tizgraphguard.hpp"
 #include "tizgraphaction.hpp"
 #include "tizgraphstate.hpp"
-#include "tizhttpclntgraphops.hpp"
+#include "tizspotifygraphops.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.httpclnt.fsm"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.spotify.fsm"
 #endif
 
 #define G_FSM_LOG()                                                     \
@@ -70,7 +70,7 @@ namespace tiz
 {
   namespace graph
   {
-    namespace hcfsm
+    namespace spfsm
     {
       static char const* const state_names[] = { "inited",
                                                  "loaded",
@@ -294,12 +294,12 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //       Start                            Event                         Next                              Action                           Guard
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
-          bmf::Row < reconfiguring_graph_initial    , bmf::none                 , tg::awaiting_port_disabled_evt  , tg::do_disable_tunnel<1>         , bmf::none                      >,
+          bmf::Row < reconfiguring_graph_initial    , bmf::none                 , tg::awaiting_port_disabled_evt  , tg::do_disable_tunnel<0>         , bmf::none                      >,
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::enabling_tunnel             , bmf::ActionSequence_<
                                                                                                                       boost::mpl::vector<
                                                                                                                         tg::do_reconfigure_tunnel,
-                                                                                                                        tg::do_enable_tunnel<1> > >  , tg::is_port_disabling_complete >,
+                                                                                                                        tg::do_enable_tunnel<0> > >  , tg::is_port_disabling_complete >,
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , reconfiguring_graph_exit        , bmf::none                        , tg::is_port_enabling_complete  >
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
@@ -324,7 +324,7 @@ namespace tiz
 
       // guard conditions
 
-      // Transition table for the http client graph fsm
+      // Transition table for the spotify client graph fsm
       struct transition_table : boost::mpl::vector<
         //       Start                          Event                       Next                      Action                        Guard
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
@@ -379,7 +379,7 @@ namespace tiz
       void no_transition(Event const& e, FSM&,int state)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state [%s] on event [%s]",
-                 tg::hcfsm::state_names[state], typeid(e).name());
+                 tg::spfsm::state_names[state], typeid(e).name());
       }
     };
     // typedef boost::msm::back::state_machine<fsm_, boost::msm::back::mpl_graph_fsm_check> fsm;
@@ -387,8 +387,8 @@ namespace tiz
 
     char const* const pstate(fsm const& p);
 
-    } // namespace hcfsm
+    } // namespace spfsm
   } // namespace graph
 } // namespace tiz
 
-#endif // TIZHTTPCLNTGRAPHFSM_HPP
+#endif // TIZSPOTIFYGRAPHFSM_HPP

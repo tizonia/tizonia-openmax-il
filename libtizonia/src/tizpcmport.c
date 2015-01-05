@@ -420,7 +420,9 @@ pcmport_SetParameter_internal (const void *ap_obj,
       break;
     default:
       {
-        assert (0);
+        /* Try the parent's indexes */
+        rc = super_SetParameter (typeOf (ap_obj, "tizpcmport"),
+                                 ap_obj, ap_hdl, a_index, ap_struct);
       }
       break;
     };

@@ -18,42 +18,27 @@
  */
 
 /**
- * @file   tizspotifygraph.hpp
+ * @file   spfysrccfgport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL pcm decoder graph
+ * @brief  A specialised config port class for the Spotify source component
  *
  *
  */
 
-#ifndef TIZSPOTIFYGRAPH_HPP
-#define TIZSPOTIFYGRAPH_HPP
+#ifndef SPFYSRCCFGPORT_H
+#define SPFYSRCCFGPORT_H
 
-#include "tizgraph.hpp"
-#include "tizspotifygraphfsm.hpp"
-
-namespace tiz
+#ifdef __cplusplus
+extern "C"
 {
-  namespace graph
-  {
-    // Forward declarations
-    class cmd;
-    class ops;
+#endif
 
-    class spotify : public graph
-    {
+  void * spfysrc_cfgport_class_init (void * ap_tos, void * ap_hdl);
+  void * spfysrc_cfgport_init (void * ap_tos, void * ap_hdl);
 
-    public:
-      spotify ();
+#ifdef __cplusplus
+}
+#endif
 
-    protected:
-      ops *do_init ();
-      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
-
-    protected:
-      spfsm::fsm fsm_;
-    };
-  }  // namespace graph
-}  // namespace tiz
-
-#endif  // TIZSPOTIFYGRAPH_HPP
+#endif                          /* SPFYSRCCFGPORT_H */

@@ -55,9 +55,11 @@ namespace graph = tiz::graph;
 // spotify
 //
 graph::spotify::spotify ()
-  : graph::graph ("pcmdecgraph"),
-    fsm_ (boost::msm::back::states_ << tiz::graph::fsm::configuring (&p_ops_)
-                                    << tiz::graph::fsm::skipping (&p_ops_),
+  : graph::graph ("spotifygraph"),
+    fsm_ (boost::msm::back::states_
+          << tiz::graph::spfsm::fsm::auto_detecting (&p_ops_)
+          << tiz::graph::spfsm::fsm::updating_graph (&p_ops_)
+          << tiz::graph::spfsm::fsm::reconfiguring_graph (&p_ops_),
           &p_ops_)
 {
 }
@@ -66,13 +68,11 @@ graph::ops *graph::spotify::do_init ()
 {
   omx_comp_name_lst_t comp_list;
   comp_list.push_back ("OMX.Aratelia.audio_source.spotify.pcm");
-  comp_list.push_back (tiz::graph::util::get_default_pcm_renderer ());
 
   omx_comp_role_lst_t role_list;
   role_list.push_back (OMX_ROLE_AUDIO_SOURCE_PCM_SPOTIFY);
-  role_list.push_back ("audio_renderer.pcm");
 
-  return new spotifydecops (this, comp_list, role_list);
+  return new spotifyops (this, comp_list, role_list);
 }
 
 bool graph::spotify::dispatch_cmd (const tiz::graph::cmd *p_cmd)
@@ -89,7 +89,7 @@ bool graph::spotify::dispatch_cmd (const tiz::graph::cmd *p_cmd)
       fsm_.start ();
     }
 
-    p_cmd->inject< fsm >(fsm_, tiz::graph::pstate);
+    p_cmd->inject< spfsm::fsm >(fsm_, tiz::graph::spfsm::pstate);
 
     // Check for internal errors produced during the processing of the last
     // event. If any, inject an "internal" error event. This is fatal and shall
@@ -108,45 +108,4 @@ bool graph::spotify::dispatch_cmd (const tiz::graph::cmd *p_cmd)
   }
 
   return p_cmd->kill_thread ();
-}
-
-//
-// spotifydecops
-//
-graph::spotifydecops::spotifydecops (graph *p_graph,
-                                     const omx_comp_name_lst_t &comp_lst,
-                                     const omx_comp_role_lst_t &role_lst)
-  : tiz::graph::ops (p_graph, comp_lst, role_lst),
-    need_port_settings_changed_evt_ (false)
-{
-}
-
-void graph::spotifydecops::do_probe ()
-{
-  G_OPS_BAIL_IF_ERROR (
-      probe_stream (OMX_PortDomainAudio, OMX_AUDIO_CodingPCM, "pcm", "decode",
-                    &tiz::probe::dump_pcm_info),
-      "Unable to probe the stream.");
-}
-
-bool graph::spotifydecops::is_port_settings_evt_required () const
-{
-  return need_port_settings_changed_evt_;
-}
-
-bool graph::spotifydecops::is_disabled_evt_required () const
-{
-  return false;
-}
-
-void graph::spotifydecops::do_configure ()
-{
-  G_OPS_BAIL_IF_ERROR (
-      util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
-      "Unable to set OMX_IndexParamContentURI");
-  G_OPS_BAIL_IF_ERROR (
-      tiz::graph::util::set_pcm_mode (
-          handles_[2], 0,
-          boost::bind (&tiz::probe::get_pcm_codec_info, probe_ptr_, _1)),
-      "Unable to set OMX_IndexParamAudioPcm");
 }

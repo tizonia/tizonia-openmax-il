@@ -57,6 +57,7 @@
 #include "tizspotifyconfig.hpp"
 #include "tizhttpservmgr.hpp"
 #include "tizhttpclntmgr.hpp"
+#include "tizspotifymgr.hpp"
 #include "tizdaemon.hpp"
 
 #include "tizplayapp.hpp"
@@ -662,8 +663,6 @@ tiz::playapp::spotify_stream ()
       pass.assign (getpass("Spotify password: "));
     }
 
-  return rc;
-
   tizplaylist_ptr_t playlist
       = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list));
 
@@ -676,7 +675,7 @@ tiz::playapp::spotify_stream ()
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
-      = boost::make_shared< tiz::graphmgr::httpclntmgr >(config);
+      = boost::make_shared< tiz::graphmgr::spotifymgr >(config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());

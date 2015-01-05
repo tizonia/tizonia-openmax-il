@@ -63,24 +63,9 @@ graph::httpclntops::httpclntops (graph *p_graph,
 {
 }
 
-void graph::httpclntops::do_load_source ()
+void graph::httpclntops::do_enable_auto_detection (const int handle_id, const int port_id)
 {
-  assert (!comp_lst_.empty ());
-  assert (!role_lst_.empty ());
-  // At this point we are instantiating a graph with a single component, the
-  // http source component.
-  assert (comp_lst_.size () == 1);
-  tiz::graph::ops::do_load ();
-}
-
-void graph::httpclntops::do_enable_auto_detection ()
-{
-  const int http_source_index = 0;
-  assert (handles_.size () == 1);
-  G_OPS_BAIL_IF_ERROR (
-      tiz::graph::util::enable_port_format_auto_detection (
-          handles_[0], http_source_index, OMX_PortDomainAudio),
-      "Unable to set OMX_IndexParamPortDefinition (port auto detection)");
+  tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
   tiz::graph::util::dump_graph_info ("http", "Connecting to radio station",
                                      playlist_->get_current_uri ().c_str ());
 }

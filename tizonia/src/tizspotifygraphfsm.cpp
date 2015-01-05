@@ -18,42 +18,21 @@
  */
 
 /**
- * @file   tizspotifygraph.hpp
+ * @file   tizspotifygraphfsm.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  OpenMAX IL pcm decoder graph
- *
+ * @brief  Spotify client graph fsm
  *
  */
 
-#ifndef TIZSPOTIFYGRAPH_HPP
-#define TIZSPOTIFYGRAPH_HPP
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-#include "tizgraph.hpp"
 #include "tizspotifygraphfsm.hpp"
 
-namespace tiz
+char const* const tiz::graph::spfsm::pstate(tiz::graph::spfsm::fsm const& p)
 {
-  namespace graph
-  {
-    // Forward declarations
-    class cmd;
-    class ops;
+  return tiz::graph::spfsm::state_names[p.current_state()[0]];
+}
 
-    class spotify : public graph
-    {
-
-    public:
-      spotify ();
-
-    protected:
-      ops *do_init ();
-      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
-
-    protected:
-      spfsm::fsm fsm_;
-    };
-  }  // namespace graph
-}  // namespace tiz
-
-#endif  // TIZSPOTIFYGRAPH_HPP
