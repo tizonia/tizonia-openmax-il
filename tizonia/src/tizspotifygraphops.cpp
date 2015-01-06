@@ -105,7 +105,7 @@ void graph::spotifyops::do_configure_source ()
   G_OPS_BAIL_IF_ERROR (
       set_spotify_user_and_pass (handles_[0], spotify_config->get_user_name (),
                                  spotify_config->get_user_pass ()),
-      "Unable to set OMX_TizoniaIndexParamAudioSpotifyUser");
+      "Unable to set OMX_TizoniaIndexParamAudioSpotifySession");
 
   G_OPS_BAIL_IF_ERROR (
       set_spotify_playlist (handles_[0], playlist_->get_current_uri ()),
@@ -456,12 +456,12 @@ graph::spotifyops::set_spotify_user_and_pass (const OMX_HANDLETYPE handle,
                                               const std::string &pass)
 {
   // Set the Spotify user and pass
-  OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE usertype;
+  OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE usertype;
   TIZ_INIT_OMX_STRUCT (usertype);
   copy_omx_string (usertype.cUserName, user);
   copy_omx_string (usertype.cUserPassword, pass);
   return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE >(
-                                       OMX_TizoniaIndexParamAudioSpotifyUser),
+                                       OMX_TizoniaIndexParamAudioSpotifySession),
                            &usertype);
 }
 

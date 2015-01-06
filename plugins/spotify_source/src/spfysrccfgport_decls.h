@@ -44,7 +44,7 @@ extern "C"
   {
     /* Object */
     const tiz_configport_t _;
-    OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE spotifyuser_;
+    OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE spotifysession_;
     OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE playlist_;
   };
 

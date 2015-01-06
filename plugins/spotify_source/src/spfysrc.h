@@ -41,7 +41,7 @@ extern "C"
 #define ARATELIA_SPOTIFY_SOURCE_COMPONENT_NAME         "OMX.Aratelia.audio_source.spotify.pcm"
   /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_SPOTIFY_SOURCE_PORT_INDEX             0
-#define ARATELIA_SPOTIFY_SOURCE_PORT_MIN_BUF_COUNT     2
+#define ARATELIA_SPOTIFY_SOURCE_PORT_MIN_BUF_COUNT     3
 #define ARATELIA_SPOTIFY_SOURCE_PORT_MIN_BUF_SIZE      8192 * 3
 #define ARATELIA_SPOTIFY_SOURCE_PORT_NONCONTIGUOUS     OMX_FALSE
 #define ARATELIA_SPOTIFY_SOURCE_PORT_ALIGNMENT         0

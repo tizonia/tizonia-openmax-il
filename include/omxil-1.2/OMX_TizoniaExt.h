@@ -61,7 +61,7 @@
 #define OMX_TizoniaIndexParamAudioOpus            OMX_IndexVendorStartUnused + 5 /**< reference: OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE */
 #define OMX_TizoniaIndexParamAudioFlac            OMX_IndexVendorStartUnused + 6 /**< reference: OMX_TIZONIA_AUDIO_PARAM_FLACTYPE */
 #define OMX_TizoniaIndexParamAudioMp2             OMX_IndexVendorStartUnused + 7 /**< reference: OMX_TIZONIA_AUDIO_PARAM_MP2TYPE */
-#define OMX_TizoniaIndexParamAudioSpotifyUser     OMX_IndexVendorStartUnused + 8 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE */
+#define OMX_TizoniaIndexParamAudioSpotifySession  OMX_IndexVendorStartUnused + 8 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioSpotifyPlaylist OMX_IndexVendorStartUnused + 9 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE */
 
 
@@ -250,13 +250,36 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_MP2TYPE {
  *
  */
 
-typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE {
+typedef enum OMX_TIZONIA_AUDIO_SPOTIFYCONNECTIONTYPE {
+    OMX_AUDIO_SpotifyConnectionUnknown = 0, /**< Connection type unknown (Default) */
+    OMX_AUDIO_SpotifyConnectionNone, /**< No connection */
+    OMX_AUDIO_SpotifyConnectionMobile, /**< Mobile data (EDGE, 3G, etc). */
+    OMX_AUDIO_SpotifyConnectionMobileRoaming, /**< Roamed mobile data (EDGE, 3G, etc). */
+    OMX_AUDIO_SpotifyConnectionMobileWifi, /**< Wireless connection. */
+    OMX_AUDIO_SpotifyConnectionMobileWired, /**< Wireless connection. */
+    OMX_AUDIO_SpotifyConnectionKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_SpotifyConnectionVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_SpotifyConnectionMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_SPOTIFYCONNECTIONTYPE;
+
+typedef enum OMX_TIZONIA_AUDIO_SPOTIFYBITRATETYPE {
+    OMX_AUDIO_SpotifyBitrate160Kbps = 0,
+    OMX_AUDIO_SpotifyBitrate320Kbps,
+    OMX_AUDIO_SpotifyBitrate96Kbps,
+    OMX_AUDIO_SpotifyBitrateKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_SpotifyBitrateVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_SpotifyBitrateMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_SPOTIFYBITRATETYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
     OMX_U8 cUserName[OMX_MAX_STRINGNAME_SIZE];
     OMX_U8 cUserPassword[OMX_MAX_STRINGNAME_SIZE];
-    OMX_BOOL bRememberCredentials;
-} OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE;
+    OMX_BOOL bRememberCredentials; /**< default: OMX_TRUE */
+    OMX_TIZONIA_AUDIO_SPOTIFYBITRATETYPE ePreferredBitRate;  /**< 96, 160, or 320 kbps; default: 320 */
+    OMX_TIZONIA_AUDIO_SPOTIFYCONNECTIONTYPE eConnectionType; /**< Default: Connection type unknown */
+} OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE;
 
 typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE {
     OMX_U32 nSize;

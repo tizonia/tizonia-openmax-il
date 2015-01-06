@@ -56,17 +56,21 @@ static void *spfysrc_cfgport_ctor (void *ap_obj, va_list *app)
 
   assert (NULL != p_obj);
 
-  tiz_check_omx_err_ret_null (
-      tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioSpotifyUser));
-  tiz_check_omx_err_ret_null (
-      tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioSpotifyPlaylist));
+  tiz_check_omx_err_ret_null (tiz_port_register_index (
+      p_obj, OMX_TizoniaIndexParamAudioSpotifySession));
+  tiz_check_omx_err_ret_null (tiz_port_register_index (
+      p_obj, OMX_TizoniaIndexParamAudioSpotifyPlaylist));
 
-  /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE structure */
-  TIZ_INIT_OMX_STRUCT (p_obj->spotifyuser_);
-  snprintf ((char *)p_obj->spotifyuser_.cUserName,
-            sizeof(p_obj->spotifyuser_.cUserName), "tizonia");
-  snprintf ((char *)p_obj->spotifyuser_.cUserPassword,
-            sizeof(p_obj->spotifyuser_.cUserPassword), "pass");
+  /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE structure */
+  TIZ_INIT_OMX_STRUCT (p_obj->spotifysession_);
+  snprintf ((char *)p_obj->spotifysession_.cUserName,
+            sizeof(p_obj->spotifysession_.cUserName), "tizonia");
+  snprintf ((char *)p_obj->spotifysession_.cUserPassword,
+            sizeof(p_obj->spotifysession_.cUserPassword), "pass");
+  p_obj->spotifysession_.bRememberCredentials = OMX_TRUE;
+  p_obj->spotifysession_.ePreferredBitRate = OMX_AUDIO_SpotifyBitrate320Kbps;
+  p_obj->spotifysession_.eConnectionType
+      = OMX_AUDIO_SpotifyConnectionMobileWired;
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
@@ -99,10 +103,10 @@ spfysrc_cfgport_GetParameter (const void *ap_obj,
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...", tiz_port_index (ap_obj),
              tiz_idx_to_str (a_index));
 
-  if (OMX_TizoniaIndexParamAudioSpotifyUser == a_index)
+  if (OMX_TizoniaIndexParamAudioSpotifySession == a_index)
     {
-      memcpy (ap_struct, &(p_obj->spotifyuser_),
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE));
+      memcpy (ap_struct, &(p_obj->spotifysession_),
+              sizeof(OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE));
     }
   else if (OMX_TizoniaIndexParamAudioSpotifyPlaylist == a_index)
     {
@@ -132,14 +136,14 @@ spfysrc_cfgport_SetParameter (const void *ap_obj,
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...", tiz_port_index (ap_obj),
              tiz_idx_to_str (a_index));
 
-  if (OMX_TizoniaIndexParamAudioSpotifyUser == a_index)
+  if (OMX_TizoniaIndexParamAudioSpotifySession == a_index)
     {
-      memcpy (&(p_obj->spotifyuser_), ap_struct,
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE));
-      p_obj->spotifyuser_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->spotifyuser_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      memcpy (&(p_obj->spotifysession_), ap_struct,
+              sizeof(OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE));
+      p_obj->spotifysession_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->spotifysession_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       TIZ_TRACE (ap_hdl, "Spotify User Name [%s]...",
-                 p_obj->spotifyuser_.cUserName);
+                 p_obj->spotifysession_.cUserName);
     }
   else if (OMX_TizoniaIndexParamAudioSpotifyPlaylist == a_index)
     {

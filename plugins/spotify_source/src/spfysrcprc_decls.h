@@ -55,7 +55,7 @@ struct spfysrc_prc
   int cache_bytes_;
   tiz_buffer_t *p_store_;
   tiz_event_timer_t *p_ev_timer_;
-  OMX_TIZONIA_AUDIO_PARAM_SPOTIFYUSERTYPE user_;
+  OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE playlist_;
   OMX_S32 audio_coding_type_;
   OMX_U32 num_channels_;
