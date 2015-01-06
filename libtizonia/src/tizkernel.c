@@ -306,7 +306,8 @@ static OMX_ERRORTYPE krn_SetParameter (const void *ap_obj,
         {
           if (tiz_port_is_master_or_slave (p_port, &mos_pid) == true)
             {
-              OMX_PTR *pp_mos_port = NULL, p_mos_port = NULL;
+              OMX_PTR *pp_mos_port = NULL;
+              OMX_PTR p_mos_port = NULL;
               tiz_vector_t *p_changed_idxs = NULL;
 
               /* Retrieve the master or slave's port... */
