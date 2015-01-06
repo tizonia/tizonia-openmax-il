@@ -150,7 +150,7 @@ following locations:
 ```bash
 
 $ tizonia
-tizonia 0.1.0. Copyright (C) 2014 Juan A. Rubio
+tizonia 0.1.0. Copyright (C) 2015 Juan A. Rubio
 This software is part of Tizonia <http://tizonia.org>
 
 LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
