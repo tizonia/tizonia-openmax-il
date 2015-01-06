@@ -50,6 +50,7 @@ struct spfysrc_prc
   bool eos_;
   int bytes_till_eos_;
   bool transfering_;
+  bool stopping_;
   bool port_disabled_;
   bool spotify_inited_;
   bool spotify_paused_;

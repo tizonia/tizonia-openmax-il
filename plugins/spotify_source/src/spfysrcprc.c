@@ -220,8 +220,8 @@ static void send_port_settings_change_event (spfysrc_prc_t *ap_prc)
   tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
                        ARATELIA_SPOTIFY_SOURCE_PORT_INDEX, /* port 0 */
                        OMX_IndexParamPortDefinition,       /* the index of the
-                                                  struct that has
-                                                  been modififed */
+                                            struct that has
+                                            been modififed */
                        NULL);
 }
 
@@ -629,7 +629,8 @@ static OMX_ERRORTYPE consume_cache (spfysrc_prc_t *ap_prc)
     {
       int nbytes_stored = 0;
       OMX_BUFFERHEADERTYPE *p_out = NULL;
-      /* Reset the cache size */
+
+      /* Reset the initial size */
       ap_prc->initial_cache_bytes_ = 0;
 
       while ((nbytes_stored = tiz_buffer_bytes_available (ap_prc->p_store_)) > 0
@@ -810,7 +811,10 @@ static void notify_main_thread_cback_handler (OMX_PTR ap_prc,
   assert (NULL != ap_event);
   tiz_mem_free (ap_event);
   p_prc->keep_processing_sp_events_ = true;
-  (void)process_spotify_session_events (p_prc);
+  if (!p_prc->stopping_)
+    {
+      (void)process_spotify_session_events (p_prc);
+    }
 }
 
 /**
@@ -865,7 +869,7 @@ static void music_delivery_cback_handler (OMX_PTR ap_prc,
   assert (NULL != p_prc);
   assert (NULL != ap_event);
 
-  if (ap_event->p_data)
+  if (!p_prc->stopping_ && ap_event->p_data)
     {
       spfy_music_delivery_data_t *p_data = ap_event->p_data;
       int nbytes = p_data->num_frames * sizeof(int16_t)
@@ -963,7 +967,7 @@ static void end_of_track_cback_handler (OMX_PTR ap_prc,
 
   TIZ_PRINTF_DBG_MAG ("end_of_track");
 
-  if (ap_event->p_data)
+  if (!p_prc->stopping_ && ap_event->p_data)
     {
       int tracks = 0;
       p_prc->eos_ = true;
@@ -1401,6 +1405,7 @@ static void *spfysrc_prc_ctor (void *ap_obj, va_list *app)
   p_prc->eos_ = false;
   p_prc->bytes_till_eos_ = 0;
   p_prc->transfering_ = false;
+  p_prc->stopping_ = false;
   p_prc->port_disabled_ = false;
   p_prc->spotify_inited_ = false;
   p_prc->spotify_paused_ = false;
@@ -1551,6 +1556,7 @@ static OMX_ERRORTYPE spfysrc_prc_stop_and_return (void *ap_obj)
   spfysrc_prc_t *p_prc = ap_obj;
   assert (NULL != p_prc);
   p_prc->transfering_ = false;
+  p_prc->stopping_ = true;
   stop_playback (p_prc);
   return OMX_ErrorNone;
 }
@@ -1585,10 +1591,15 @@ static OMX_ERRORTYPE spfysrc_prc_timer_ready (void *ap_prc,
                                               void *ap_arg, const uint32_t a_id)
 {
   spfysrc_prc_t *p_prc = (spfysrc_prc_t *)ap_prc;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != p_prc);
   (void)tiz_srv_timer_watcher_stop (p_prc, p_prc->p_ev_timer_);
   p_prc->next_timeout_ = 0;
-  return process_spotify_session_events (p_prc);
+  if (!p_prc->stopping_)
+    {
+      rc = process_spotify_session_events (p_prc);
+    }
+  return rc;
 }
 
 static OMX_ERRORTYPE spfysrc_prc_pause (const void *ap_obj)
