@@ -56,6 +56,9 @@ namespace tiz
       void do_omx_idle2exe ();
       void do_reconfigure_tunnel ();
 
+      // This is a spotifyops-specific method
+      void do_retrieve_metadata ();
+
     private:
       OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
       OMX_ERRORTYPE transition_tunnel (
@@ -82,6 +85,7 @@ namespace tiz
 
     private:
       OMX_AUDIO_CODINGTYPE encoding_;
+      OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype_;
     };
   }  // namespace graph
 }  // namespace tiz

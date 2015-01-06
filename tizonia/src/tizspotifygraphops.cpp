@@ -238,6 +238,12 @@ void graph::spotifyops::do_reconfigure_tunnel ()
   }
 }
 
+void
+graph::spotifyops::do_retrieve_metadata ()
+{
+  dump_stream_metadata ();
+}
+
 // TODO: Move this implementation to the base class (and remove also from
 // httpservops)
 OMX_ERRORTYPE
@@ -303,6 +309,13 @@ void graph::spotifyops::dump_stream_metadata ()
   while (OMX_ErrorNone == dump_metadata_item (index++))
   {
   };
+
+  TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu:%s:%s \n",
+                  renderer_pcmtype_.nChannels,
+                  ((float)renderer_pcmtype_.nSamplingRate) / 1000,
+                  renderer_pcmtype_.nBitPerSample,
+                  renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+                  renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
 }
 
 OMX_ERRORTYPE graph::spotifyops::dump_metadata_item (const OMX_U32 index)
@@ -338,10 +351,7 @@ OMX_ERRORTYPE graph::spotifyops::dump_metadata_item (const OMX_U32 index)
     rc = OMX_GetConfig (handles_[0], OMX_IndexConfigMetadataItem, p_meta);
     if (OMX_ErrorNone == rc)
     {
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-      fprintf (stdout, "   %s%s : %s%s\n", KYEL, p_meta->nKey, p_meta->nValue,
-               KNRM);
+      TIZ_PRINTF_CYN ("   %s%s : %s\n", index ? "  " : "", p_meta->nKey, p_meta->nValue);
     }
 
     tiz_mem_free (p_meta);
@@ -415,37 +425,25 @@ graph::spotifyops::set_channels_and_rate_on_renderer (
            sampling_rate);
 
   // Retrieve the pcm settings from the renderer component
-  OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;
-  TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype, port_id);
+  TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, port_id);
   tiz_check_omx_err (
-      OMX_GetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype));
+      OMX_GetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   // Now assign the actual settings to the pcmtype structure
-  renderer_pcmtype.nChannels = channels;
-  renderer_pcmtype.nSamplingRate = sampling_rate;
-  renderer_pcmtype.eNumData = OMX_NumericalDataSigned;
-  renderer_pcmtype.eEndian
+  renderer_pcmtype_.nChannels = channels;
+  renderer_pcmtype_.nSamplingRate = sampling_rate;
+  renderer_pcmtype_.eNumData = OMX_NumericalDataSigned;
+  renderer_pcmtype_.eEndian
       = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
 
   // Set the new pcm settings
   tiz_check_omx_err (
-      OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype));
+      OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
-  std::string coding_type_str ("spotify/");
-  coding_type_str.append (encoding_str);
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                     "Connection established",
+  std::string coding_type_str ("spotify");
+  tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connection established",
                                      playlist_->get_current_uri ().c_str ());
   dump_stream_metadata ();
-
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu:%s:%s %s\n", KYEL,
-           renderer_pcmtype.nChannels,
-           ((float)renderer_pcmtype.nSamplingRate) / 1000,
-           renderer_pcmtype.nBitPerSample,
-           renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-           renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l", KNRM);
 
   return OMX_ErrorNone;
 }
