@@ -294,7 +294,7 @@ static void pulseaudio_stream_state_cback_handler (
   assert (NULL != p_prc);
   assert (NULL != ap_event);
 
-  if (p_prc->p_pa_loop_ && p_prc->p_pa_stream_ && ap_event->p_data)
+  if (!p_prc->stopped_ && p_prc->p_pa_loop_ && p_prc->p_pa_stream_ && ap_event->p_data)
     {
       p_prc->pa_stream_state_ = *((pa_stream_state_t *)(ap_event->p_data));
       TIZ_TRACE (handleOf (ap_prc), "PA STREAM STATE : [%s]",
@@ -343,7 +343,7 @@ static void pulseaudio_stream_write_cback_handler (
   assert (NULL != p_prc);
   assert (NULL != ap_event);
   assert (NULL != ap_event->p_data);
-  if (p_prc->p_pa_loop_)
+  if (!p_prc->stopped_ && p_prc->p_pa_loop_)
     {
       assert (NULL != ap_event->p_data);
       p_prc->pa_nbytes_ += *((size_t *)ap_event->p_data);
