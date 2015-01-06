@@ -19,7 +19,7 @@ The Tizonia project consists of a number of resources.
 * Icecast/shoutcast streaming client (supported formats: mp3, aac, and opus).
 * Deamon and command line modes (no GUI).
 * MPRIS D-BUS v2 media player remote control interface.
-* Spotify streaming client (coming soon).
+* Spotify streaming client.
 * Based on OpenMAX IL 1.2 (i.e. no gstreamer, libav, or ffmpeg needed for audio
   decoding).
 * Written in C++.
@@ -60,7 +60,7 @@ The Tizonia project consists of a number of resources.
 ### OpenMAX IL 1.2 plugins ###
 
   * mp3 decoders (libmad and libmpg123),
-  * Spotify client (coming soon, based on libspotify),
+  * Spotify client (libspotify),
   * Sampled sound decoder (pcm formats, wav, etc, based on libsndfile)
   * AAC decoder (libfaad),
   * OPUS decoders (libopus and libopusfile)
@@ -182,6 +182,12 @@ Audio streaming server options:
                         Default: any.
   --sampling-rates arg  A comma-separated-list of sampling rates that will be
                         allowed in the playlist. Default: any.
+
+Spotify client options:
+  --spotify-user arg     Spotify user's name.
+  --spotify-password arg Spotify user's password.
+  --spotify-playlist arg Spotify playlist name.
+
 ```
 
 #### Known issues ####
