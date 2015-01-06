@@ -48,11 +48,14 @@ struct spfysrc_prc
   OMX_BUFFERHEADERTYPE *p_outhdr_;
   OMX_PARAM_CONTENTURITYPE *p_uri_param_;
   bool eos_;
+  int bytes_till_eos_;
   bool transfering_;
   bool port_disabled_;
   bool spotify_inited_;
-  int bitrate_;
-  int cache_bytes_;
+  bool spotify_paused_;
+  int initial_cache_bytes_;
+  int min_cache_bytes_;
+  int max_cache_bytes_;
   tiz_buffer_t *p_store_;
   tiz_event_timer_t *p_ev_timer_;
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE session_;
