@@ -53,7 +53,7 @@ extern "C"
     OMX_PARAM_SUSPENSIONPOLICYTYPE param_sp_;
     OMX_PRIORITYMGMTTYPE config_pm_;
     OMX_CONFIG_METADATAITEMCOUNTTYPE metadata_count_;
-    tiz_map_t *p_metadata_map_;
+    tiz_vector_t *p_metadata_lst_;
   };
 
   typedef struct tiz_configport_class tiz_configport_class_t;

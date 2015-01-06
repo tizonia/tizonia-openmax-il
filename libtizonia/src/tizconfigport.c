@@ -43,26 +43,17 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.configport"
 #endif
 
-static OMX_S32
-metadata_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+static void clear_metadata_lst (tiz_configport_t *ap_obj)
 {
-  return strncmp((const char *) ap_key1, (const char *) ap_key2,
-                 OMX_MAX_STRINGNAME_SIZE);
-}
-
-static void
-metadata_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
-{
-  tiz_mem_free (ap_value);
-}
-
-static void clear_metadata_map (tiz_configport_t *ap_obj)
-{
+  OMX_PTR *pp_metadata_item = NULL;
   assert (NULL != ap_obj);
-  while (!tiz_map_empty (ap_obj->p_metadata_map_))
+  while (tiz_vector_length (ap_obj->p_metadata_lst_) > 0)
     {
-      tiz_map_erase_at (ap_obj->p_metadata_map_, 0);
-    };
+      pp_metadata_item = tiz_vector_back (ap_obj->p_metadata_lst_);
+      assert (pp_metadata_item);
+      tiz_mem_free (*pp_metadata_item);
+      tiz_vector_pop_back (ap_obj->p_metadata_lst_);
+    }
 }
 
 static OMX_ERRORTYPE store_metadata (tiz_configport_t *ap_obj,
@@ -73,17 +64,14 @@ static OMX_ERRORTYPE store_metadata (tiz_configport_t *ap_obj,
   assert (NULL != ap_meta);
 
   {
-    const OMX_U32 current_count = tiz_map_size (ap_obj->p_metadata_map_);
-    assert (current_count == ap_obj->metadata_count_.nMetadataItemCount);
-    tiz_check_omx_err (tiz_map_insert (ap_obj->p_metadata_map_,
-                                       (OMX_PTR)ap_meta->nKey,
-                                       (OMX_PTR)ap_meta,
-                                       (OMX_U32 *)&current_count));
+    const OMX_U32 count = tiz_vector_length (ap_obj->p_metadata_lst_);
+    assert (count == ap_obj->metadata_count_.nMetadataItemCount);
+    tiz_check_omx_err (
+        tiz_vector_push_back (ap_obj->p_metadata_lst_, &ap_meta));
     ap_obj->metadata_count_.nMetadataItemCount++;
-    TIZ_TRACE (handleOf (ap_obj),
-               "storing metadata [%d] [%s]...", ap_obj->metadata_count_.nMetadataItemCount,
-               ap_meta->nKey);
-
+    TIZ_TRACE (handleOf (ap_obj), "storing metadata [%d] [%s] - count [%u]...",
+               ap_obj->metadata_count_.nMetadataItemCount, ap_meta->nKey,
+               count);
   }
   return rc;
 }
@@ -158,8 +146,7 @@ configport_ctor (void *ap_obj, va_list * app)
   p_obj->metadata_count_.nMetadataItemCount = 0;
 
   tiz_check_omx_err_ret_null
-    (tiz_map_init (&(p_obj->p_metadata_map_), metadata_map_compare_func,
-                   metadata_map_free_func, NULL));
+    (tiz_vector_init (&(p_obj->p_metadata_lst_), sizeof(OMX_PTR)));
 
   return p_obj;
 }
@@ -168,8 +155,9 @@ static void *
 configport_dtor (void *ap_obj)
 {
   tiz_configport_t *p_obj = ap_obj;
-  clear_metadata_map (p_obj);
-  tiz_map_destroy (p_obj->p_metadata_map_);
+  clear_metadata_lst (p_obj);
+  tiz_vector_destroy (p_obj->p_metadata_lst_);
+  p_obj->p_metadata_lst_ = NULL;
   return super_dtor (typeOf (ap_obj, "tizconfigport"), ap_obj);
 }
 
@@ -341,16 +329,19 @@ configport_GetConfig (const void *ap_obj,
     case OMX_IndexConfigMetadataItem:
       {
         OMX_CONFIG_METADATAITEMTYPE *p_meta = ap_struct;
-        assert (tiz_map_size (p_obj->p_metadata_map_) == p_obj->metadata_count_.nMetadataItemCount);
+        assert (tiz_vector_length (p_obj->p_metadata_lst_) == p_obj->metadata_count_.nMetadataItemCount);
         if (p_meta->nMetadataItemIndex >= p_obj->metadata_count_.nMetadataItemCount)
           {
             rc = OMX_ErrorNoMore;
           }
         else
           {
-            OMX_CONFIG_METADATAITEMTYPE *p_value
-              = tiz_map_value_at (p_obj->p_metadata_map_, p_meta->nMetadataItemIndex);
-            assert (NULL != p_value);
+            OMX_PTR *pp_value = NULL;
+            OMX_CONFIG_METADATAITEMTYPE *p_value = NULL;
+            pp_value
+              = tiz_vector_at (p_obj->p_metadata_lst_, p_meta->nMetadataItemIndex);
+            assert (NULL != pp_value && NULL != *pp_value);
+            p_value = (OMX_CONFIG_METADATAITEMTYPE *)*pp_value;
             strncpy ((char *)p_meta->nKey, (char *)p_value->nKey, 128);
             p_meta->nKeySizeUsed = strnlen ((char *)p_meta->nKey, 128);
             strncpy ((char *)p_meta->nValue, (char *)p_value->nValue, p_meta->nValueMaxSize);
@@ -430,8 +421,8 @@ configport_clear_metadata (void *ap_obj)
 {
   tiz_configport_t *p_obj = ap_obj;
   assert (NULL != p_obj);
+  clear_metadata_lst (ap_obj);
   p_obj->metadata_count_.nMetadataItemCount = 0;
-  clear_metadata_map (ap_obj);
 }
 
 void
