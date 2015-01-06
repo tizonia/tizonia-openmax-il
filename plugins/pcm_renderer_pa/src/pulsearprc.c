@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
+ * Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
  file is part of Tizonia
  *
  * Tizonia is free software: you can redistribute it and/or modify it under the

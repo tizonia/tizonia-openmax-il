@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ readonly prevcmd='$dbuscmd $playerifc.Previous   &> /dev/null'
 readonly quitcmd='$dbuscmd $mediaifc.Quit   &> /dev/null'
 
 function usage {
-    echo "tizonia-remote. Copyright (C) 2014 Juan A. Rubio"
+    echo "tizonia-remote. Copyright (C) 2015 Juan A. Rubio"
     echo "This software is part of Tizonia <http://tizonia.org>"
     echo
     echo "Usage : $0 <canquit|canraise|hastracklist|identity|urischemes|mimetypes..."
