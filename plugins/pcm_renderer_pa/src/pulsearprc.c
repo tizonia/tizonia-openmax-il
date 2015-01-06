@@ -913,21 +913,30 @@ static OMX_ERRORTYPE pulsear_prc_allocate_resources (void *ap_prc,
                                                      OMX_U32 a_pid)
 {
   pulsear_prc_t *p_prc = ap_prc;
-
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != p_prc);
-  assert (NULL == p_prc->p_ev_timer_);
-
-  tiz_check_omx_err (tiz_srv_timer_watcher_init (p_prc,
-      &(p_prc->p_ev_timer_)));
-  return init_pulseaudio (ap_prc);
+  /* If the timer event has already been initialised, we assume the whole
+     component has already been initialised. */
+  if (!(p_prc->p_ev_timer_))
+    {
+      tiz_check_omx_err (
+          tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
+      rc = init_pulseaudio (ap_prc);
+    }
+  return rc;
 }
 
 static OMX_ERRORTYPE pulsear_prc_deallocate_resources (void *ap_prc)
 {
   pulsear_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
-  (void)tiz_srv_timer_watcher_stop (p_prc, p_prc->p_ev_timer_);
-  p_prc->p_ev_timer_ = NULL;
+  TIZ_TRACE (handleOf (p_prc), "");
+  if (p_prc->p_ev_timer_)
+    {
+      (void)tiz_srv_timer_watcher_stop (p_prc, p_prc->p_ev_timer_);
+      tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_ev_timer_);
+      p_prc->p_ev_timer_ = NULL;
+    }
   deinit_pulseaudio (ap_prc);
   return OMX_ErrorNone;
 }
@@ -1093,12 +1102,15 @@ static OMX_ERRORTYPE pulsear_prc_port_enable (const void *ap_obj,
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_obj;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Received port emable");
-  p_prc->port_disabled_ = false;
-
-  tiz_check_omx_err (pulsear_prc_allocate_resources (p_prc, OMX_ALL));
-  tiz_check_omx_err (pulsear_prc_prepare_to_transfer (p_prc, OMX_ALL));
-  tiz_check_omx_err (pulsear_prc_transfer_and_process (p_prc, OMX_ALL));
+  TIZ_TRACE (handleOf (p_prc), "Received port emable : was disabled ? [%s]",
+             p_prc->port_disabled_ ? "YES" : "NO");
+  if (p_prc->port_disabled_)
+    {
+      p_prc->port_disabled_ = false;
+      tiz_check_omx_err (pulsear_prc_allocate_resources (p_prc, OMX_ALL));
+      tiz_check_omx_err (pulsear_prc_prepare_to_transfer (p_prc, OMX_ALL));
+      tiz_check_omx_err (pulsear_prc_transfer_and_process (p_prc, OMX_ALL));
+    }
   return OMX_ErrorNone;
 }
 
