@@ -219,9 +219,6 @@ static OMX_ERRORTYPE render_pcm_data (pulsear_prc_t *ap_prc)
 
   while (NULL != (p_hdr = get_header (ap_prc)) && ap_prc->pa_nbytes_ > 0)
     {
-      TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFilledLen [%d]", p_hdr,
-                 p_hdr->nFilledLen);
-
       if (p_hdr->nFilledLen > 0)
         {
           const int bytes_to_write
@@ -233,9 +230,6 @@ static OMX_ERRORTYPE render_pcm_data (pulsear_prc_t *ap_prc)
           int result = pa_stream_write (
               ap_prc->p_pa_stream_, p_hdr->pBuffer + p_hdr->nOffset,
               bytes_to_write, NULL, 0, PA_SEEK_RELATIVE);
-          TIZ_TRACE (handleOf (ap_prc),
-                     "bytes_to_write [%d] pa_stream_write [%d]", bytes_to_write,
-                     result);
           /* TODO : Check return code */
           (void)result;
           pa_threaded_mainloop_unlock (ap_prc->p_pa_loop_);
@@ -840,10 +834,12 @@ static void prepare_volume_ramp (pulsear_prc_t *ap_prc)
 static OMX_ERRORTYPE start_volume_ramp (pulsear_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_ev_timer_);
-  ap_prc->ramp_volume_ = 0;
-  TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]", ap_prc->ramp_volume_);
-  tiz_check_omx_err (tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
+  if (ap_prc->p_ev_timer_)
+    {
+      ap_prc->ramp_volume_ = 0;
+      TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]", ap_prc->ramp_volume_);
+      tiz_check_omx_err (tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
+    }
   return OMX_ErrorNone;
 }
 
@@ -1069,7 +1065,8 @@ static OMX_ERRORTYPE pulsear_prc_port_disable (const void *ap_prc,
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Received port disable");
+  TIZ_TRACE (handleOf (p_prc), "Received port disable : disabled ? [%s]",
+             p_prc->port_disabled_ ? "YES" : "NO");
 
   stop_volume_ramp (p_prc);
   p_prc->port_disabled_ = true;
@@ -1102,7 +1099,7 @@ static OMX_ERRORTYPE pulsear_prc_port_enable (const void *ap_obj,
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_obj;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Received port emable : was disabled ? [%s]",
+  TIZ_TRACE (handleOf (p_prc), "Received port emable : disabled ? [%s]",
              p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->port_disabled_)
     {

@@ -317,7 +317,7 @@ static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg)
   TIZ_TRACE (p_msg->p_hdl, "p_msg_cc->pid = [%d] p_port [%p]", p_msg->p_hdl,
              p_msg_cc->pid, p_port);
 
-  assert (NULL != p_port);
+  /*   assert (NULL != p_port); */
 
   /* Do not notify this config change in the following situations:
    *
@@ -329,8 +329,9 @@ static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg)
    *
    * */
   if (EStatePause != now && ESubStateExecutingToIdle != now
-      && ESubStatePauseToIdle != now && !TIZ_PORT_IS_DISABLED (p_port)
-      && !TIZ_PORT_IS_BEING_DISABLED (p_port))
+      && ESubStatePauseToIdle != now)
+/*       && !TIZ_PORT_IS_DISABLED (p_port) */
+/*       && !TIZ_PORT_IS_BEING_DISABLED (p_port)) */
     {
       TIZ_TRACE (p_msg->p_hdl, "index [%s] ", tiz_idx_to_str (p_msg_cc->index));
       rc = tiz_prc_config_change (p_obj, p_msg_cc->pid, p_msg_cc->index);
@@ -593,7 +594,7 @@ static OMX_ERRORTYPE prc_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   /* Finish-up this message */
   p_msg_cc = &(p_msg->cc);
-  /* TODO: This is not the best way to do this */
+  /* BUG: There are structures that have no port index. */
   p_msg_cc->pid = *((OMX_U32 *)ap_struct + sizeof(OMX_U32) / sizeof(OMX_U32)
                     + sizeof(OMX_VERSIONTYPE) / sizeof(OMX_U32));
   p_msg_cc->index = a_index;

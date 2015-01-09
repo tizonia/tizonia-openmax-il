@@ -681,7 +681,7 @@ tiz::playapp::spotify_stream ()
   p_mgr->init (playlist, graphmgr_termination_cback ());
   p_mgr->start ();
 
-  while (ETIZPlayUserQuit != wait_for_user_input_while_streaming (p_mgr))
+  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
   {
   }
 

@@ -50,17 +50,18 @@ namespace tiz
       void do_configure_source ();
       void do_load ();
       void do_configure ();
-      void do_omx_exe2pause ();
-      void do_omx_pause2exe ();
       void do_omx_loaded2idle ();
       void do_omx_idle2exe ();
       void do_reconfigure_tunnel ();
+      void do_skip ();
 
-      // This is a spotifyops-specific method
+      // These are spotifyops-specific methods
       void do_retrieve_metadata ();
+      void do_sink_omx_idle2exe ();
+      void do_sink_omx_exe2idle ();
 
     private:
-      OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
+      OMX_ERRORTYPE transition_sink (const OMX_STATETYPE to_state);
       OMX_ERRORTYPE transition_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
       OMX_ERRORTYPE set_spotify_user_and_pass (const OMX_HANDLETYPE handle,

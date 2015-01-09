@@ -34,6 +34,7 @@
 
 #include <OMX_Core.h>
 #include <OMX_Component.h>
+#include <OMX_TizoniaExt.h>
 
 #include <tizplatform.h>
 
@@ -452,6 +453,23 @@ graph::util::apply_mute (const OMX_HANDLETYPE handle, const OMX_U32 pid)
 }
 
 OMX_ERRORTYPE
+graph::util::apply_playlist_jump (const OMX_HANDLETYPE handle,
+                                  const OMX_S32 jump)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_TIZONIA_PLAYLISTSKIPTYPE skip;
+  TIZ_INIT_OMX_STRUCT (skip);
+  tiz_check_omx_err (OMX_GetConfig (
+      handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexConfigPlaylistSkip),
+      &skip));
+  skip.nValue = jump;
+  tiz_check_omx_err (OMX_SetConfig (
+      handle, static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexConfigPlaylistSkip),
+      &skip));
+  return rc;
+}
+
+OMX_ERRORTYPE
 graph::util::disable_port (const OMX_HANDLETYPE handle, const OMX_U32 port_id)
 {
   return OMX_SendCommand (handle, OMX_CommandPortDisable, port_id, NULL);
@@ -710,6 +728,7 @@ bool graph::util::is_fatal_error (const OMX_ERRORTYPE error)
     case OMX_ErrorPortsNotCompatible:
     case OMX_ErrorVersionMismatch:
     case OMX_ErrorUnsupportedSetting:
+    case OMX_ErrorUnsupportedIndex:
     case OMX_ErrorBadParameter:
     case OMX_ErrorBadPortIndex:
       rc = true;

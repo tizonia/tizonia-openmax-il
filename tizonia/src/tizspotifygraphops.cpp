@@ -154,16 +154,6 @@ void graph::spotifyops::do_configure ()
   }
 }
 
-void graph::spotifyops::do_omx_exe2pause ()
-{
-  // No-op. This is to disable pause in this graph
-}
-
-void graph::spotifyops::do_omx_pause2exe ()
-{
-  // No-op. This is to disable pause in this graph
-}
-
 void graph::spotifyops::do_omx_loaded2idle ()
 {
   if (last_op_succeeded ())
@@ -227,14 +217,25 @@ void graph::spotifyops::do_reconfigure_tunnel ()
                           &renderer_pcmtype),
         "Unable to set the PCM settings on the audio renderer");
 
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-    fprintf (stdout, "   %s%ld Ch, %g KHz, %lu:%s:%s %s\n", KYEL,
-             renderer_pcmtype.nChannels,
-             ((float)renderer_pcmtype.nSamplingRate) / 1000,
-             renderer_pcmtype.nBitPerSample,
-             renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-             renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l", KNRM);
+    TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu:%s:%s\n",
+                    renderer_pcmtype.nChannels,
+                    ((float)renderer_pcmtype.nSamplingRate) / 1000,
+                    renderer_pcmtype.nBitPerSample,
+                    renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+                    renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
+  }
+}
+
+void graph::spotifyops::do_skip ()
+{
+  if (last_op_succeeded () && 0 != jump_)
+  {
+    assert (!handles_.empty ());
+    G_OPS_BAIL_IF_ERROR (
+        util::apply_playlist_jump (handles_[0], jump_),
+        "Unable to skip in playlist");
+    // Reset the jump value, to its default value
+    jump_ = SKIP_DEFAULT_VALUE;
   }
 }
 
@@ -244,19 +245,39 @@ graph::spotifyops::do_retrieve_metadata ()
   dump_stream_metadata ();
 }
 
+void
+graph::spotifyops::do_sink_omx_idle2exe ()
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (transition_sink (OMX_StateExecuting),
+                         "Unable to transition audio renderer from Idle->Exe");
+  }
+}
+
+void
+graph::spotifyops::do_sink_omx_exe2idle ()
+{
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (transition_sink (OMX_StateIdle),
+                         "Unable to transition audio renderer from Exe->Idle");
+  }
+}
+
 // TODO: Move this implementation to the base class (and remove also from
 // httpservops)
 OMX_ERRORTYPE
-graph::spotifyops::transition_source (const OMX_STATETYPE to_state)
+graph::spotifyops::transition_sink (const OMX_STATETYPE to_state)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const int spotify_source_index = 0;
-  rc = tiz::graph::util::transition_one (handles_, spotify_source_index,
+  const int renderer_source_index = 1;
+  rc = tiz::graph::util::transition_one (handles_, renderer_source_index,
                                          to_state);
   if (OMX_ErrorNone == rc)
   {
     clear_expected_transitions ();
-    add_expected_transition (handles_[spotify_source_index], to_state);
+    add_expected_transition (handles_[renderer_source_index], to_state);
   }
   return rc;
 }

@@ -64,6 +64,8 @@
 #define OMX_TizoniaIndexParamAudioSpotifySession  OMX_IndexVendorStartUnused + 8 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioSpotifyPlaylist OMX_IndexVendorStartUnused + 9 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE */
 
+#define OMX_TizoniaIndexConfigPlaylistSkip OMX_IndexVendorStartUnused + 10 /**< reference: OMX_TIZONIA_PLAYLISTSKIPTYPE */
+
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -286,5 +288,17 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_U8 cPlayListName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE;
+
+/**
+ * Extension to jump to another track in a playlist.
+ */
+
+typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_S32 nValue;              /** Can be a positive or a negative value. Wrap-around use cases are allowed. */
+} OMX_TIZONIA_PLAYLISTSKIPTYPE;
+
+
 
 #endif /* OMX_TizoniaExt_h */

@@ -118,11 +118,28 @@ configport_ctor (void *ap_obj, va_list * app)
   p_obj->config_pm_.nGroupPriority = 0;
   p_obj->config_pm_.nGroupID = 0;
 
+  /* Generate the uuid */
+  tiz_uuid_generate (&p_obj->uuid_);
+
+  p_obj->metadata_count_.nSize              = sizeof (OMX_CONFIG_METADATAITEMCOUNTTYPE);
+  p_obj->metadata_count_.nVersion.nVersion  = OMX_VERSION;
+  p_obj->metadata_count_.eScopeMode         = OMX_MetadataScopeAllLevels;
+  p_obj->metadata_count_.nScopeSpecifier    = 0;
+  p_obj->metadata_count_.nMetadataItemCount = 0;
+
+  tiz_check_omx_err_ret_null
+    (tiz_vector_init (&(p_obj->p_metadata_lst_), sizeof(OMX_PTR)));
+
+  /* OMX_TIZONIA_PLAYLISTSKIPTYPE */
+  p_obj->playlist_skip_.nSize             = sizeof (OMX_TIZONIA_PLAYLISTSKIPTYPE);
+  p_obj->playlist_skip_.nVersion.nVersion = OMX_VERSION;
+  p_obj->playlist_skip_.nValue            = 0;
+
   /* Clear the indexes added by the base port class. They are of no interest
      here and won't be handled in this class.  */
   tiz_vector_clear (p_base->p_indexes_);
 
-  /* Now register the indexes we are interested in */
+  /* Register the indexes we are interested in */
   tiz_check_omx_err_ret_null
     (tiz_port_register_index (p_obj, OMX_IndexParamDisableResourceConcealment));
   tiz_check_omx_err_ret_null
@@ -135,18 +152,8 @@ configport_ctor (void *ap_obj, va_list * app)
       tiz_port_register_index (p_obj, OMX_IndexConfigMetadataItemCount)); /* read-only */
   tiz_check_omx_err_ret_null (
       tiz_port_register_index (p_obj, OMX_IndexConfigMetadataItem)); /* read-only */
-
-  /* Generate the uuid */
-  tiz_uuid_generate (&p_obj->uuid_);
-
-  p_obj->metadata_count_.nSize              = sizeof (OMX_CONFIG_METADATAITEMCOUNTTYPE);
-  p_obj->metadata_count_.nVersion.nVersion  = OMX_VERSION;
-  p_obj->metadata_count_.eScopeMode         = OMX_MetadataScopeAllLevels;
-  p_obj->metadata_count_.nScopeSpecifier    = 0;
-  p_obj->metadata_count_.nMetadataItemCount = 0;
-
-  tiz_check_omx_err_ret_null
-    (tiz_vector_init (&(p_obj->p_metadata_lst_), sizeof(OMX_PTR)));
+  tiz_check_omx_err_ret_null (
+      tiz_port_register_index (p_obj, OMX_TizoniaIndexConfigPlaylistSkip));
 
   return p_obj;
 }
@@ -354,9 +361,17 @@ configport_GetConfig (const void *ap_obj,
 
     default:
       {
-        TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
-                 a_index);
-        rc = OMX_ErrorUnsupportedIndex;
+        if (OMX_TizoniaIndexConfigPlaylistSkip == a_index)
+          {
+            OMX_TIZONIA_PLAYLISTSKIPTYPE *p_playlist_skip = ap_struct;
+            *p_playlist_skip = p_obj->playlist_skip_;
+          }
+        else
+          {
+            TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
+                       a_index);
+            rc = OMX_ErrorUnsupportedIndex;
+          }
       }
       break;
     };
@@ -396,10 +411,20 @@ configport_SetConfig (const void *ap_obj,
 
     default:
       {
-        TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
-                 a_index);
-        rc = OMX_ErrorUnsupportedIndex;
+        if (OMX_TizoniaIndexConfigPlaylistSkip == a_index)
+          {
+            const OMX_TIZONIA_PLAYLISTSKIPTYPE *p_playlist_skip
+                = (OMX_TIZONIA_PLAYLISTSKIPTYPE *)ap_struct;
+            p_obj->playlist_skip_ = *p_playlist_skip;
+          }
+        else
+          {
+            TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] : [0x%08x]...",
+                       a_index);
+            rc = OMX_ErrorUnsupportedIndex;
+          }
       }
+      break;
     };
 
   return rc;

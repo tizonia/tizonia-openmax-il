@@ -59,7 +59,8 @@ graph::spotify::spotify ()
     fsm_ (boost::msm::back::states_
           << tiz::graph::spfsm::fsm::auto_detecting (&p_ops_)
           << tiz::graph::spfsm::fsm::updating_graph (&p_ops_)
-          << tiz::graph::spfsm::fsm::reconfiguring_graph (&p_ops_),
+          << tiz::graph::spfsm::fsm::reconfiguring_graph (&p_ops_)
+          << tiz::graph::spfsm::fsm::skipping (&p_ops_),
           &p_ops_)
 {
 }

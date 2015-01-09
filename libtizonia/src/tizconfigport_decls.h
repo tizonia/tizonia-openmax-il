@@ -36,6 +36,7 @@ extern "C"
 
 #include <OMX_Component.h>
 #include <OMX_Core.h>
+#include <OMX_TizoniaExt.h>
 
 #include <tizplatform.h>
 
@@ -54,7 +55,8 @@ extern "C"
     OMX_PRIORITYMGMTTYPE config_pm_;
     OMX_CONFIG_METADATAITEMCOUNTTYPE metadata_count_;
     tiz_vector_t *p_metadata_lst_;
-  };
+    OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
+};
 
   typedef struct tiz_configport_class tiz_configport_class_t;
   struct tiz_configport_class
