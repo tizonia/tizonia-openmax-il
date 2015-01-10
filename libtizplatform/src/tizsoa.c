@@ -147,10 +147,6 @@ tiz_soa_init (/*@null@ */ tiz_soa_ptr_t *app_soa)
 
   assert (NULL != app_soa);
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "init [%p]", app_soa);
-
-  assert (NULL != app_soa);
-
   if (NULL == (p_soa = tiz_mem_calloc (1, sizeof(tiz_soa_t))))
     {
       rc = OMX_ErrorInsufficientResources;
@@ -174,14 +170,10 @@ tiz_soa_reserve_chunk (tiz_soa_t *p_soa, int32_t chunk_class)
 
 void tiz_soa_destroy (tiz_soa_t *p_soa)
 {
-  if (p_soa != NULL)
+  if (p_soa)
     {
       chunk_t *p_chunk = NULL;
       chunk_t *p_next = NULL;
-
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "destroying [%p]", p_soa);
-
-      assert (p_soa != NULL);
 
       p_chunk = p_soa->p_chunk_lst;
 

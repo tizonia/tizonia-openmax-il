@@ -54,6 +54,7 @@
 #include "tizmap.h"
 #include "tizlimits.h"
 #include "tizprintf.h"
+#include "tizshuffle.h"
 
 /** @} */
 

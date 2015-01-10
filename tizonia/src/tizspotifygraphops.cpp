@@ -475,13 +475,18 @@ graph::spotifyops::set_spotify_user_and_pass (const OMX_HANDLETYPE handle,
                                               const std::string &pass)
 {
   // Set the Spotify user and pass
-  OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE usertype;
-  TIZ_INIT_OMX_STRUCT (usertype);
-  copy_omx_string (usertype.cUserName, user);
-  copy_omx_string (usertype.cUserPassword, pass);
-  return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE >(
-                                       OMX_TizoniaIndexParamAudioSpotifySession),
-                           &usertype);
+  OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE sessiontype;
+  TIZ_INIT_OMX_STRUCT (sessiontype);
+  tiz_check_omx_err (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifySession),
+      &sessiontype));
+  copy_omx_string (sessiontype.cUserName, user);
+  copy_omx_string (sessiontype.cUserPassword, pass);
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifySession),
+      &sessiontype);
 }
 
 OMX_ERRORTYPE
@@ -491,6 +496,10 @@ graph::spotifyops::set_spotify_playlist (const OMX_HANDLETYPE handle,
   // Set the Spotify playlist
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE playlisttype;
   TIZ_INIT_OMX_STRUCT (playlisttype);
+  tiz_check_omx_err (OMX_GetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifyPlaylist),
+      &playlisttype));
   copy_omx_string (playlisttype.cPlayListName, playlist);
   return OMX_SetParameter (
       handle,

@@ -59,6 +59,7 @@ struct spfysrc_prc
   int max_cache_bytes_;
   tiz_buffer_t *p_store_;
   tiz_event_timer_t *p_ev_timer_;
+  tiz_shuffle_lst_t *p_shuffle_lst_;
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;

@@ -76,6 +76,7 @@ static void *spfysrc_cfgport_ctor (void *ap_obj, va_list *app)
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
   snprintf ((char *)p_obj->playlist_.cPlayListName,
             sizeof(p_obj->playlist_.cPlayListName), "playlist");
+  p_obj->playlist_.bShuffle = OMX_FALSE;
 
   return p_obj;
 }
