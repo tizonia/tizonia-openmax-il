@@ -127,7 +127,8 @@ static void skip_tracks (spfysrc_prc_t *ap_prc, const OMX_S32 a_skip_value)
     {
       const int list_size = sp_playlist_num_tracks (ap_prc->p_sp_playlist_);
       int new_track_index = (ap_prc->playlist_.bShuffle == OMX_TRUE)
-                                ? tiz_shuffle_lst_next (ap_prc->p_shuffle_lst_)
+                                ? tiz_shuffle_lst_jump (ap_prc->p_shuffle_lst_,
+                                                        a_skip_value) - 1
                                 : ap_prc->track_index_ + a_skip_value;
       if (new_track_index >= list_size)
         {
@@ -139,8 +140,6 @@ static void skip_tracks (spfysrc_prc_t *ap_prc, const OMX_S32 a_skip_value)
         }
 
       assert (new_track_index >= 0 && new_track_index < list_size);
-      TIZ_TRACE (handleOf (ap_prc), "ap_prc->track_index_ [%d] new index [%d]",
-                 ap_prc->track_index_, new_track_index);
       ap_prc->track_index_ = new_track_index;
     }
 }
@@ -155,12 +154,7 @@ static void update_track_index (spfysrc_prc_t *ap_prc)
     }
   else
     {
-      ap_prc->track_index_++;
-      if (ap_prc->track_index_
-          >= sp_playlist_num_tracks (ap_prc->p_sp_playlist_))
-        {
-          ap_prc->track_index_ = 0;
-        }
+      skip_tracks (ap_prc, 1);
     }
 }
 
@@ -266,8 +260,8 @@ static void send_port_settings_change_event (spfysrc_prc_t *ap_prc)
   tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
                        ARATELIA_SPOTIFY_SOURCE_PORT_INDEX, /* port 0 */
                        OMX_IndexParamPortDefinition,       /* the index of the
-                                            struct that has
-                                            been modififed */
+                                      struct that has
+                                      been modififed */
                        NULL);
 }
 
@@ -400,7 +394,8 @@ static void store_metadata_track_duration (spfysrc_prc_t *ap_prc,
     }
 }
 
-static void store_relevant_track_metadata (spfysrc_prc_t *ap_prc, const int a_num_tracks)
+static void store_relevant_track_metadata (spfysrc_prc_t *ap_prc,
+                                           const int a_num_tracks)
 {
   assert (NULL != ap_prc);
   (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
@@ -579,13 +574,15 @@ static OMX_ERRORTYPE release_buffer (spfysrc_prc_t *ap_prc)
   if (ap_prc->p_outhdr_)
     {
       OMX_BUFFERHEADERTYPE *p_hdr = ap_prc->p_outhdr_;
-/*       TIZ_NOTICE (handleOf (ap_prc), */
-/*                   "releasing HEADER [%p] nFilledLen [%d] store [%d] [%d - %d] " */
-/*                   "spotify paused [%s]", */
-/*                   p_hdr, p_hdr->nFilledLen, */
-/*                   tiz_buffer_bytes_available (ap_prc->p_store_), */
-/*                   ap_prc->min_cache_bytes_, ap_prc->max_cache_bytes_, */
-/*                   ap_prc->spotify_paused_ ? "YES" : "NO"); */
+      /*       TIZ_NOTICE (handleOf (ap_prc), */
+      /*                   "releasing HEADER [%p] nFilledLen [%d] store [%d] [%d
+       * - %d] " */
+      /*                   "spotify paused [%s]", */
+      /*                   p_hdr, p_hdr->nFilledLen, */
+      /*                   tiz_buffer_bytes_available (ap_prc->p_store_), */
+      /*                   ap_prc->min_cache_bytes_, ap_prc->max_cache_bytes_,
+       */
+      /*                   ap_prc->spotify_paused_ ? "YES" : "NO"); */
       if (ap_prc->eos_)
         {
           ap_prc->bytes_till_eos_ -= p_hdr->nFilledLen;
@@ -624,9 +621,11 @@ static OMX_BUFFERHEADERTYPE *buffer_needed (spfysrc_prc_t *ap_prc)
             {
               if (NULL != ap_prc->p_outhdr_)
                 {
-/*                   TIZ_TRACE (handleOf (ap_prc), */
-/*                              "Claimed HEADER [%p]...nFilledLen [%d]", */
-/*                              ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen); */
+                  /*                   TIZ_TRACE (handleOf (ap_prc), */
+                  /*                              "Claimed HEADER
+                   * [%p]...nFilledLen [%d]", */
+                  /*                              ap_prc->p_outhdr_,
+                   * ap_prc->p_outhdr_->nFilledLen); */
                   p_hdr = ap_prc->p_outhdr_;
                 }
             }
@@ -825,8 +824,18 @@ static void logged_in_cback_handler (OMX_PTR ap_prc,
                                (const char *)p_prc->playlist_.cPlayListName))
                 {
                   p_prc->p_sp_playlist_ = pl;
+                  if (OMX_TRUE == p_prc->playlist_.bShuffle)
+                    {
+                      /* Allocate a list of random track indexes */
+                      assert (NULL == p_prc->p_shuffle_lst_);
+                      tiz_shuffle_lst_init (&(p_prc->p_shuffle_lst_),
+                                            sp_playlist_num_tracks (pl));
+                      p_prc->track_index_
+                          = tiz_shuffle_lst_jump (p_prc->p_shuffle_lst_, 0) - 1;
+                    }
                   start_playback (p_prc);
                 }
+              break;
             }
 
           if (!p_prc->p_sp_playlist_)
@@ -1201,8 +1210,10 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
       sp_playlistcontainer *pc = ap_event->p_data;
       bool playlist_found = false;
       TIZ_PRINTF_DBG_MAG (
-          "container_loaded; Rootlist synchronized (%d playlists) - shuffle ? [%s]",
-          sp_playlistcontainer_num_playlists (pc), p_prc->playlist_.bShuffle == OMX_TRUE ? "YES" : "NO");
+          "container_loaded; Rootlist synchronized (%d playlists) - shuffle ? "
+          "[%s]",
+          sp_playlistcontainer_num_playlists (pc),
+          p_prc->playlist_.bShuffle == OMX_TRUE ? "YES" : "NO");
       TIZ_DEBUG (handleOf (ap_prc), "Rootlist synchronized (%d playlists)",
                  sp_playlistcontainer_num_playlists (pc));
 
@@ -1220,8 +1231,7 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
               = sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
           assert (SP_ERROR_OK == sp_rc);
 
-          TIZ_DEBUG (handleOf (ap_prc), "playlist : %s",
-                     sp_playlist_name (pl));
+          TIZ_DEBUG (handleOf (ap_prc), "playlist : %s", sp_playlist_name (pl));
 
           if (!strcasecmp (sp_playlist_name (pl),
                            (const char *)p_prc->playlist_.cPlayListName))
@@ -1233,6 +1243,8 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
                   assert (NULL == p_prc->p_shuffle_lst_);
                   tiz_shuffle_lst_init (&(p_prc->p_shuffle_lst_),
                                         sp_playlist_num_tracks (pl));
+                  p_prc->track_index_
+                      = tiz_shuffle_lst_jump (p_prc->p_shuffle_lst_, 0) - 1;
                 }
               start_playback (p_prc);
               playlist_found = true;
@@ -1727,9 +1739,9 @@ static OMX_ERRORTYPE spfysrc_prc_config_change (void *ap_obj,
       && p_prc->p_sp_session_)
     {
       TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
-      tiz_check_omx_err (
-          tiz_api_GetConfig (tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-                             OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
+      tiz_check_omx_err (tiz_api_GetConfig (
+          tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+          OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
       TIZ_TRACE (handleOf (p_prc),
                  "[OMX_TizoniaIndexConfigPlaylistSkip] : skip.nValue = [%d]",
                  p_prc->playlist_skip_.nValue);
