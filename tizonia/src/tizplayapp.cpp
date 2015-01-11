@@ -650,6 +650,7 @@ OMX_ERRORTYPE
 tiz::playapp::spotify_stream ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
   const std::string user (popts_.spotify_user ());
   std::string pass (popts_.spotify_password ());
   const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
@@ -664,7 +665,7 @@ tiz::playapp::spotify_stream ()
     }
 
   tizplaylist_ptr_t playlist
-      = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list));
+    = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));
 
   assert (playlist);
   playlist->set_loop_playback (true);

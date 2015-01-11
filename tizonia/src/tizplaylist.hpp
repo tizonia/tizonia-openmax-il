@@ -45,7 +45,7 @@ namespace tiz
       };
 
   public:
-    explicit playlist (const uri_lst_t &uri_list = uri_lst_t ());
+    explicit playlist (const uri_lst_t &uri_list = uri_lst_t (), const bool shuffle = false);
     playlist (const playlist &playlist);
 
     static bool assemble_play_list (const std::string &base_uri,
@@ -67,6 +67,7 @@ namespace tiz
     bool past_end () const;
     bool loop_playback () const;
     void set_loop_playback (const bool loop_playback);
+    bool shuffle () const;
     void set_index (const int index);
     void erase_uri (const int index);
     void print_info ();
@@ -93,6 +94,7 @@ namespace tiz
     bool loop_playback_;
     std::vector<size_t> sub_list_indexes_;
     int current_sub_list_;
+    bool shuffle_;
     mutable file_extension_lst_t extension_list_;
     mutable single_format_t single_format_;
   };

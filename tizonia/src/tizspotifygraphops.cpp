@@ -217,12 +217,12 @@ void graph::spotifyops::do_reconfigure_tunnel ()
                           &renderer_pcmtype),
         "Unable to set the PCM settings on the audio renderer");
 
-    TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu:%s:%s\n",
-                    renderer_pcmtype.nChannels,
-                    ((float)renderer_pcmtype.nSamplingRate) / 1000,
-                    renderer_pcmtype.nBitPerSample,
-                    renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-                    renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
+    TIZ_PRINTF_YEL (
+        "   %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
+        ((float)renderer_pcmtype.nSamplingRate) / 1000,
+        renderer_pcmtype.nBitPerSample,
+        renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+        renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
   }
 }
 
@@ -231,22 +231,19 @@ void graph::spotifyops::do_skip ()
   if (last_op_succeeded () && 0 != jump_)
   {
     assert (!handles_.empty ());
-    G_OPS_BAIL_IF_ERROR (
-        util::apply_playlist_jump (handles_[0], jump_),
-        "Unable to skip in playlist");
+    G_OPS_BAIL_IF_ERROR (util::apply_playlist_jump (handles_[0], jump_),
+                         "Unable to skip in playlist");
     // Reset the jump value, to its default value
     jump_ = SKIP_DEFAULT_VALUE;
   }
 }
 
-void
-graph::spotifyops::do_retrieve_metadata ()
+void graph::spotifyops::do_retrieve_metadata ()
 {
   dump_stream_metadata ();
 }
 
-void
-graph::spotifyops::do_sink_omx_idle2exe ()
+void graph::spotifyops::do_sink_omx_idle2exe ()
 {
   if (last_op_succeeded ())
   {
@@ -255,8 +252,7 @@ graph::spotifyops::do_sink_omx_idle2exe ()
   }
 }
 
-void
-graph::spotifyops::do_sink_omx_exe2idle ()
+void graph::spotifyops::do_sink_omx_exe2idle ()
 {
   if (last_op_succeeded ())
   {
@@ -331,12 +327,12 @@ void graph::spotifyops::dump_stream_metadata ()
   {
   };
 
-  TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu:%s:%s \n",
-                  renderer_pcmtype_.nChannels,
-                  ((float)renderer_pcmtype_.nSamplingRate) / 1000,
-                  renderer_pcmtype_.nBitPerSample,
-                  renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-                  renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
+  TIZ_PRINTF_YEL (
+      "   %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
+      ((float)renderer_pcmtype_.nSamplingRate) / 1000,
+      renderer_pcmtype_.nBitPerSample,
+      renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+      renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
 }
 
 OMX_ERRORTYPE graph::spotifyops::dump_metadata_item (const OMX_U32 index)
@@ -372,7 +368,8 @@ OMX_ERRORTYPE graph::spotifyops::dump_metadata_item (const OMX_U32 index)
     rc = OMX_GetConfig (handles_[0], OMX_IndexConfigMetadataItem, p_meta);
     if (OMX_ErrorNone == rc)
     {
-      TIZ_PRINTF_CYN ("   %s%s : %s\n", index ? "  " : "", p_meta->nKey, p_meta->nValue);
+      TIZ_PRINTF_CYN ("   %s%s : %s\n", index ? "  " : "", p_meta->nKey,
+                      p_meta->nValue);
     }
 
     tiz_mem_free (p_meta);
@@ -462,7 +459,8 @@ graph::spotifyops::set_channels_and_rate_on_renderer (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   std::string coding_type_str ("spotify");
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connection established",
+  tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
+                                     "Connection established",
                                      playlist_->get_current_uri ().c_str ());
   dump_stream_metadata ();
 
@@ -501,6 +499,7 @@ graph::spotifyops::set_spotify_playlist (const OMX_HANDLETYPE handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifyPlaylist),
       &playlisttype));
   copy_omx_string (playlisttype.cPlayListName, playlist);
+  playlisttype.bShuffle = playlist_->shuffle ();
   return OMX_SetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifyPlaylist),

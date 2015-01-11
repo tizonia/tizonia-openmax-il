@@ -141,12 +141,14 @@ namespace  // unnamed namespace
 //
 // playlist
 //
-tiz::playlist::playlist (const uri_lst_t &uri_list /* = uri_lst_t () */)
+tiz::playlist::playlist (const uri_lst_t &uri_list /* = uri_lst_t () */,
+                         const bool shuffle /* = false */)
   : uri_list_ (uri_list),
     current_index_ (0),
     loop_playback_ (false),
     sub_list_indexes_ (),
     current_sub_list_ (-1),
+    shuffle_ (shuffle),
     extension_list_ (),
     single_format_ (Unknown)
 {
@@ -166,6 +168,7 @@ tiz::playlist::playlist (const playlist &copy_from)
     loop_playback_ (copy_from.loop_playback_),
     sub_list_indexes_ (copy_from.sub_list_indexes_),
     current_sub_list_ (copy_from.current_sub_list_),
+    shuffle_ (copy_from.shuffle_),
     extension_list_ (copy_from.extension_list_),
     single_format_ (copy_from.single_format_)
 {
@@ -434,6 +437,11 @@ bool tiz::playlist::loop_playback () const
 void tiz::playlist::set_loop_playback (const bool loop_playback)
 {
   loop_playback_ = loop_playback;
+}
+
+bool tiz::playlist::shuffle () const
+{
+  return shuffle_;
 }
 
 void tiz::playlist::set_index (const int index)
