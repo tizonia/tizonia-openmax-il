@@ -69,6 +69,25 @@ OMX_ERRORTYPE tiz_shuffle_lst_init (tiz_shuffle_lst_ptr_t *app_shuffle_lst,
 OMX_S32 tiz_shuffle_lst_next (tiz_shuffle_lst_t *ap_shuffle_lst);
 
 /**
+* Return the prev integer in the list.
+*
+* @ingroup shuffle_lst
+*
+* @return 0 if success, -1 otherwise.
+*/
+OMX_S32 tiz_shuffle_lst_prev (tiz_shuffle_lst_t *ap_shuffle_lst);
+
+/**
+* Return the prev integer in the list.
+*
+* @ingroup shuffle_lst
+*
+* @return 0 if success, -1 otherwise.
+*/
+OMX_S32 tiz_shuffle_lst_jump (tiz_shuffle_lst_t *ap_shuffle_lst,
+                              const OMX_S32 a_jump);
+
+/**
  * Terminate the calling shuffle_lst.
  *
  * @ingroup shuffle_lst
