@@ -535,6 +535,7 @@ namespace tiz
                                                                                                             tg::do_tear_down_tunnels,
                                                                                                             tg::do_destroy_graph> > , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::AllOk                    , tg::unload_evt            , tg::unloaded            , bmf::none                                                  >,
         bmf::Row < tg::AllOk                    , tg::omx_err_evt           , tg::unloaded            , boost::msm::front::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_record_fatal_error,
