@@ -686,7 +686,7 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
 
   // Probe a new uri
   probe_ptr_.reset ();
-  bool quiet_probing = true;
+  const bool quiet_probing = true;
   probe_ptr_ = boost::make_shared< tiz::probe >(uri, quiet_probing);
 
   if (probe_ptr_)
