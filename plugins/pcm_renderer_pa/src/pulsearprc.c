@@ -183,6 +183,8 @@ static OMX_ERRORTYPE release_header (pulsear_prc_t *ap_prc)
 
   if (ap_prc->p_inhdr_)
     {
+      TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] emptied",
+                 ap_prc->p_inhdr_);
       ap_prc->p_inhdr_->nOffset = 0;
       tiz_check_omx_err (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)), ARATELIA_PCM_RENDERER_PORT_INDEX,
@@ -197,9 +199,6 @@ static OMX_ERRORTYPE buffer_emptied (pulsear_prc_t *ap_prc)
   assert (NULL != ap_prc);
   assert (NULL != ap_prc->p_inhdr_);
   assert (ap_prc->p_inhdr_->nFilledLen == 0);
-
-  TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] emptied",
-             ap_prc->p_inhdr_);
 
   if ((ap_prc->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
     {
@@ -733,6 +732,8 @@ static bool pulseaudio_wait_for_operation (pulsear_prc_t *ap_prc,
 
   while (PA_OPERATION_RUNNING == (op_state = pa_operation_get_state (ap_op)))
     {
+      TIZ_TRACE (handleOf (ap_prc), "PA operation state [%s]",
+                 pulseaudio_operation_state_to_str (op_state));
       pa_threaded_mainloop_wait (ap_prc->p_pa_loop_);
     }
   pa_operation_unref (ap_op);
@@ -926,7 +927,8 @@ static OMX_ERRORTYPE pulsear_prc_deallocate_resources (void *ap_prc)
 {
   pulsear_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "");
+  TIZ_TRACE (handleOf (p_prc), "port disabled ? [%s]",
+             p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->p_ev_timer_)
     {
       (void)tiz_srv_timer_watcher_stop (p_prc, p_prc->p_ev_timer_);
@@ -1065,30 +1067,29 @@ static OMX_ERRORTYPE pulsear_prc_port_disable (const void *ap_prc,
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Received port disable : disabled ? [%s]",
-             p_prc->port_disabled_ ? "YES" : "NO");
 
-  stop_volume_ramp (p_prc);
-  p_prc->port_disabled_ = true;
-
-  if (p_prc->p_pa_loop_ && p_prc->p_pa_stream_ && PA_STREAM_READY
-                                                  == p_prc->pa_stream_state_)
+  if (!p_prc->port_disabled_)
     {
-      pa_operation *p_op = NULL;
-      pa_threaded_mainloop_lock (p_prc->p_pa_loop_);
-      p_op = pa_stream_drain (p_prc->p_pa_stream_,
-                              pulseaudio_stream_success_cback, p_prc);
-      if (p_op)
+      p_prc->port_disabled_ = true;
+      stop_volume_ramp (p_prc);
+      if (p_prc->p_pa_loop_ && p_prc->p_pa_stream_
+          && PA_STREAM_READY == p_prc->pa_stream_state_)
         {
-          if (!pulseaudio_wait_for_operation (p_prc, p_op))
+          pa_operation *p_op = NULL;
+          pa_threaded_mainloop_lock (p_prc->p_pa_loop_);
+          p_op = pa_stream_flush (p_prc->p_pa_stream_,
+                                  pulseaudio_stream_success_cback, p_prc);
+          if (p_op)
             {
-              TIZ_ERROR (handleOf (p_prc), "Operation wait failed.");
+              if (!pulseaudio_wait_for_operation (p_prc, p_op))
+                {
+                  TIZ_ERROR (handleOf (p_prc), "Operation wait failed.");
+                }
             }
+          pa_threaded_mainloop_unlock (p_prc->p_pa_loop_);
         }
-      pa_threaded_mainloop_unlock (p_prc->p_pa_loop_);
+      tiz_check_omx_err (pulsear_prc_deallocate_resources (p_prc));
     }
-
-  tiz_check_omx_err (pulsear_prc_deallocate_resources (p_prc));
 
   /* Release any buffers held  */
   return release_header ((pulsear_prc_t *)p_prc);
@@ -1099,8 +1100,6 @@ static OMX_ERRORTYPE pulsear_prc_port_enable (const void *ap_obj,
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_obj;
   assert (NULL != p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Received port emable : disabled ? [%s]",
-             p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = false;
