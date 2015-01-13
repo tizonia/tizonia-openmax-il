@@ -158,6 +158,26 @@ static void update_track_index (spfysrc_prc_t *ap_prc)
     }
 }
 
+static void init_track_index (spfysrc_prc_t *ap_prc, const int a_num_tracks)
+{
+  assert (NULL != ap_prc);
+  if (OMX_TRUE == ap_prc->playlist_.bShuffle)
+    {
+      if (NULL == ap_prc->p_shuffle_lst_)
+        {
+          /* Allocate a list of random track indexes */
+          assert (NULL == ap_prc->p_shuffle_lst_);
+          tiz_shuffle_lst_init (&(ap_prc->p_shuffle_lst_), a_num_tracks);
+          ap_prc->track_index_
+              = tiz_shuffle_lst_jump (ap_prc->p_shuffle_lst_, 0) - 1;
+        }
+    }
+  else
+    {
+      ap_prc->track_index_ = 0;
+    }
+}
+
 static void process_spotify_event (spfysrc_prc_t *ap_prc,
                                    tiz_event_pluggable_hdlr_f apf_hdlr,
                                    void *ap_data)
@@ -260,8 +280,8 @@ static void send_port_settings_change_event (spfysrc_prc_t *ap_prc)
   tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
                        ARATELIA_SPOTIFY_SOURCE_PORT_INDEX, /* port 0 */
                        OMX_IndexParamPortDefinition,       /* the index of the
-                                      struct that has
-                                      been modififed */
+                          struct that has
+                          been modififed */
                        NULL);
 }
 
@@ -561,6 +581,7 @@ static inline int copy_to_omx_buffer (OMX_BUFFERHEADERTYPE *ap_hdr,
                                       const void *ap_src, const int nbytes)
 {
   int n = MIN (nbytes, ap_hdr->nAllocLen - ap_hdr->nFilledLen);
+  TIZ_PRINTF_DBG_YEL ("HEADER [%p] n [%d] \n", ap_hdr, n);
   (void)memcpy (ap_hdr->pBuffer + ap_hdr->nOffset, ap_src, n);
   ap_hdr->nFilledLen += n;
   ap_hdr->nOffset += n;
@@ -574,15 +595,6 @@ static OMX_ERRORTYPE release_buffer (spfysrc_prc_t *ap_prc)
   if (ap_prc->p_outhdr_)
     {
       OMX_BUFFERHEADERTYPE *p_hdr = ap_prc->p_outhdr_;
-      /*       TIZ_NOTICE (handleOf (ap_prc), */
-      /*                   "releasing HEADER [%p] nFilledLen [%d] store [%d] [%d
-       * - %d] " */
-      /*                   "spotify paused [%s]", */
-      /*                   p_hdr, p_hdr->nFilledLen, */
-      /*                   tiz_buffer_bytes_available (ap_prc->p_store_), */
-      /*                   ap_prc->min_cache_bytes_, ap_prc->max_cache_bytes_,
-       */
-      /*                   ap_prc->spotify_paused_ ? "YES" : "NO"); */
       if (ap_prc->eos_)
         {
           ap_prc->bytes_till_eos_ -= p_hdr->nFilledLen;
@@ -594,6 +606,10 @@ static OMX_ERRORTYPE release_buffer (spfysrc_prc_t *ap_prc)
             }
         }
       p_hdr->nOffset = 0;
+      TIZ_PRINTF_DBG_YEL (
+          "HEADER [%p] nFilledLen [%d] store [%d] - cache [%d]\n", p_hdr,
+          p_hdr->nFilledLen, tiz_buffer_bytes_available (ap_prc->p_store_),
+          ap_prc->initial_cache_bytes_);
       tiz_check_omx_err (
           tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), 0, p_hdr));
       ap_prc->p_outhdr_ = NULL;
@@ -824,15 +840,7 @@ static void logged_in_cback_handler (OMX_PTR ap_prc,
                                (const char *)p_prc->playlist_.cPlayListName))
                 {
                   p_prc->p_sp_playlist_ = pl;
-                  if (OMX_TRUE == p_prc->playlist_.bShuffle)
-                    {
-                      /* Allocate a list of random track indexes */
-                      assert (NULL == p_prc->p_shuffle_lst_);
-                      tiz_shuffle_lst_init (&(p_prc->p_shuffle_lst_),
-                                            sp_playlist_num_tracks (pl));
-                      p_prc->track_index_
-                          = tiz_shuffle_lst_jump (p_prc->p_shuffle_lst_, 0) - 1;
-                    }
+                  init_track_index (p_prc, sp_playlist_num_tracks (pl));
                   start_playback (p_prc);
                 }
               break;
@@ -940,7 +948,8 @@ static void music_delivery_cback_handler (OMX_PTR ap_prc,
       if (!p_prc->spotify_paused_)
         {
           consume_cache (p_prc);
-          while (nbytes > 0 && (p_out = buffer_needed (p_prc)) != NULL)
+          while (nbytes > 0 && (p_out = buffer_needed (p_prc)) != NULL
+                 && !p_prc->initial_cache_bytes_)
             {
               int nbytes_copied = copy_to_omx_buffer (p_out, p_in, nbytes);
               (void)release_buffer (p_prc);
@@ -1237,15 +1246,7 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
                            (const char *)p_prc->playlist_.cPlayListName))
             {
               p_prc->p_sp_playlist_ = pl;
-              if (OMX_TRUE == p_prc->playlist_.bShuffle)
-                {
-                  /* Allocate a list of random track indexes */
-                  assert (NULL == p_prc->p_shuffle_lst_);
-                  tiz_shuffle_lst_init (&(p_prc->p_shuffle_lst_),
-                                        sp_playlist_num_tracks (pl));
-                  p_prc->track_index_
-                      = tiz_shuffle_lst_jump (p_prc->p_shuffle_lst_, 0) - 1;
-                }
+              init_track_index (p_prc, sp_playlist_num_tracks (pl));
               start_playback (p_prc);
               playlist_found = true;
               break;
@@ -1702,8 +1703,8 @@ static OMX_ERRORTYPE spfysrc_prc_port_disable (const void *ap_obj,
 {
   spfysrc_prc_t *p_prc = (spfysrc_prc_t *)ap_obj;
   assert (NULL != p_prc);
-  TIZ_NOTICE (handleOf (p_prc), "Disabling port ; was disabled? [%s]",
-              p_prc->port_disabled_ ? "YES" : "NO");
+  TIZ_PRINTF_DBG_YEL ("Disabling port ; was disabled? [%s]\n",
+                      p_prc->port_disabled_ ? "YES" : "NO");
   p_prc->port_disabled_ = true;
   stop_spotify_session_timer (p_prc);
   tiz_buffer_clear (p_prc->p_store_);
@@ -1715,8 +1716,8 @@ static OMX_ERRORTYPE spfysrc_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
   spfysrc_prc_t *p_prc = (spfysrc_prc_t *)ap_prc;
   assert (NULL != p_prc);
-  TIZ_NOTICE (handleOf (p_prc), "Enabling port [%d]; was disabled? [%s]", a_pid,
-              p_prc->port_disabled_ ? "YES" : "NO");
+  TIZ_PRINTF_DBG_CYN ("Enabling port [%d]; was disabled? [%s]\n", a_pid,
+                      p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = false;
@@ -1745,6 +1746,13 @@ static OMX_ERRORTYPE spfysrc_prc_config_change (void *ap_obj,
       TIZ_TRACE (handleOf (p_prc),
                  "[OMX_TizoniaIndexConfigPlaylistSkip] : skip.nValue = [%d]",
                  p_prc->playlist_skip_.nValue);
+
+      if (p_prc->spotify_paused_)
+        {
+          /* Re-start spotify music delivery */
+          sp_session_player_play (p_prc->p_sp_session_, true);
+          p_prc->spotify_paused_ = false;
+        }
 
       /* Let's processed a faked end of track event */
       process_spotify_event (p_prc, end_of_track_cback_handler,
