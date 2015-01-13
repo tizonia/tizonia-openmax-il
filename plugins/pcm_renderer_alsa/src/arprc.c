@@ -460,10 +460,6 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
         {
           /* This should handle -EINTR (interrupted system call), -EPIPE
            * (overrun or underrun) and -ESTRPIPE (stream is suspended) */
-          TIZ_PRINTF_DBG_RED (handleOf (ap_prc),
-                              "Underflow HEADER [%p]... step [%d], samples "
-                              "[%d] nFilledLen [%d]",
-                              ap_hdr, step, samples, ap_hdr->nFilledLen);
           err = snd_pcm_recover (ap_prc->p_pcm_hdl, (int)err, 0);
           if (err < 0)
             {
