@@ -606,10 +606,6 @@ static OMX_ERRORTYPE release_buffer (spfysrc_prc_t *ap_prc)
             }
         }
       p_hdr->nOffset = 0;
-      TIZ_PRINTF_DBG_YEL (
-          "HEADER [%p] nFilledLen [%d] store [%d] - cache [%d]\n", p_hdr,
-          p_hdr->nFilledLen, tiz_buffer_bytes_available (ap_prc->p_store_),
-          ap_prc->initial_cache_bytes_);
       tiz_check_omx_err (
           tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), 0, p_hdr));
       ap_prc->p_outhdr_ = NULL;
@@ -1037,8 +1033,6 @@ static void end_of_track_cback_handler (OMX_PTR ap_prc,
 
       if (p_prc->p_sp_track_)
         {
-          TIZ_PRINTF_DBG_MAG ("end of track = [%s]",
-                              sp_track_name (p_prc->p_sp_track_));
           TIZ_TRACE (handleOf (ap_prc), "end of track = [%s]",
                      sp_track_name (p_prc->p_sp_track_));
           sp_session_player_unload (p_prc->p_sp_session_);
@@ -1703,11 +1697,8 @@ static OMX_ERRORTYPE spfysrc_prc_port_disable (const void *ap_obj,
 {
   spfysrc_prc_t *p_prc = (spfysrc_prc_t *)ap_obj;
   assert (NULL != p_prc);
-  TIZ_PRINTF_DBG_YEL ("Disabling port ; was disabled? [%s]\n",
-                      p_prc->port_disabled_ ? "YES" : "NO");
   p_prc->port_disabled_ = true;
   stop_spotify_session_timer (p_prc);
-  tiz_buffer_clear (p_prc->p_store_);
   /* Release any buffers held  */
   return release_buffer ((spfysrc_prc_t *)ap_obj);
 }
@@ -1716,12 +1707,10 @@ static OMX_ERRORTYPE spfysrc_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
   spfysrc_prc_t *p_prc = (spfysrc_prc_t *)ap_prc;
   assert (NULL != p_prc);
-  TIZ_PRINTF_DBG_CYN ("Enabling port [%d]; was disabled? [%s]\n", a_pid,
-                      p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = false;
-      tiz_buffer_clear (p_prc->p_store_);
+      reset_stream_parameters (p_prc);
       start_playback (p_prc);
     }
   return OMX_ErrorNone;
@@ -1743,9 +1732,6 @@ static OMX_ERRORTYPE spfysrc_prc_config_change (void *ap_obj,
       tiz_check_omx_err (tiz_api_GetConfig (
           tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
           OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
-      TIZ_TRACE (handleOf (p_prc),
-                 "[OMX_TizoniaIndexConfigPlaylistSkip] : skip.nValue = [%d]",
-                 p_prc->playlist_skip_.nValue);
 
       if (p_prc->spotify_paused_)
         {
