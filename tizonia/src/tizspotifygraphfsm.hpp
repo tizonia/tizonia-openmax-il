@@ -411,12 +411,11 @@ namespace tiz
           //         Start                 Event                       Next                      Action                      Guard
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
           bmf::Row < skipping_initial      , bmf::none                 , tg::disabling_tunnel    , tg::do_disable_tunnel<0>                                   >,
-          bmf::Row < tg::disabling_tunnel  , tg::omx_port_disabled_evt , to_idle                 , do_sink_omx_exe2idle      , tg::is_port_disabling_complete >,
-          bmf::Row < to_idle               , tg::omx_trans_evt         , tg::idle2exe            , bmf::ActionSequence_<
+
+          bmf::Row < tg::disabling_tunnel  , tg::omx_port_disabled_evt , tg::enabling_tunnel     , bmf::ActionSequence_<
                                                                                                      boost::mpl::vector<
-                                                                                                       do_sink_omx_idle2exe,
-                                                                                                       tg::do_skip > >       , tg::is_trans_complete          >,
-          bmf::Row < tg::idle2exe          , tg::omx_trans_evt         , tg::enabling_tunnel     , tg::do_enable_tunnel<0>   , tg::is_trans_complete          >,
+                                                                                                       tg::do_skip,
+                                                                                                       do_enable_tunnel<0> > >  , tg::is_port_disabling_complete >,
           bmf::Row < tg::enabling_tunnel   , tg::omx_port_enabled_evt  , skip_exit               , bmf::none                 , tg::is_port_enabling_complete  >
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
           > {};
