@@ -661,7 +661,9 @@ tiz::playapp::spotify_stream ()
   // If a username was supplied without a password, prompt for password
   if (!user.empty () && pass.empty ())
     {
-      pass.assign (getpass("Spotify password: "));
+      std::string msg (user);
+      msg.append ("'s password:");
+      pass.assign (getpass(msg.c_str ()));
     }
 
   tizplaylist_ptr_t playlist
