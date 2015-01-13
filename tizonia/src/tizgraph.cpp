@@ -198,62 +198,66 @@ void graph::graph::unload ()
 
 void graph::graph::omx_evt (const omx_event_info &evt_info)
 {
-  TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] : [%s] -> %s", get_graph_name ().c_str (),
-           p_ops_->handle2name (evt_info.component_).c_str (),
-           evt_info.to_string ().c_str ());
+  if (p_ops_)
+  {
+    TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] : [%s] -> %s",
+             get_graph_name ().c_str (),
+             p_ops_->handle2name (evt_info.component_).c_str (),
+             evt_info.to_string ().c_str ());
 
-  if (evt_info.event_ == OMX_EventCmdComplete && evt_info.ndata1_
-                                                 == OMX_CommandStateSet)
-  {
-    OMX_ERRORTYPE error
-        = static_cast< OMX_ERRORTYPE >(*((int *)&((evt_info.pEventData_))));
-    post_cmd (new tiz::graph::cmd (tiz::graph::omx_trans_evt (
-        evt_info.component_, static_cast< OMX_STATETYPE >(evt_info.ndata2_),
-        error)));
-  }
-  else if (evt_info.event_ == OMX_EventCmdComplete && evt_info.ndata1_
-                                                      == OMX_CommandPortDisable)
-  {
-    OMX_ERRORTYPE error
-        = static_cast< OMX_ERRORTYPE >(*((int *)&((evt_info.pEventData_))));
-    post_cmd (new tiz::graph::cmd (tiz::graph::omx_port_disabled_evt (
-        evt_info.component_, evt_info.ndata2_, error)));
-  }
-  else if (evt_info.event_ == OMX_EventCmdComplete && evt_info.ndata1_
-                                                      == OMX_CommandPortEnable)
-  {
-    OMX_ERRORTYPE error
-        = static_cast< OMX_ERRORTYPE >(*((int *)&((evt_info.pEventData_))));
-    post_cmd (new tiz::graph::cmd (tiz::graph::omx_port_enabled_evt (
-        evt_info.component_, evt_info.ndata2_, error)));
-  }
-  else if (evt_info.event_ == OMX_EventError)
-  {
-    post_cmd (new tiz::graph::cmd (tiz::graph::omx_err_evt (
-        evt_info.component_, static_cast< OMX_ERRORTYPE >(evt_info.ndata1_),
-        evt_info.ndata2_)));
-  }
-  else if (evt_info.event_ == OMX_EventPortSettingsChanged)
-  {
-    post_cmd (new tiz::graph::cmd (tiz::graph::omx_port_settings_evt (
-        evt_info.component_, evt_info.ndata1_,
-        static_cast< OMX_INDEXTYPE >(evt_info.ndata2_))));
-  }
-  else if (evt_info.event_ == OMX_EventPortFormatDetected)
-  {
-    post_cmd (new tiz::graph::cmd (tiz::graph::omx_format_detected_evt (
-        evt_info.component_)));
-  }
-  else if (evt_info.event_ == OMX_EventBufferFlag)
-  {
-    post_cmd (new tiz::graph::cmd (tiz::graph::omx_eos_evt (
-        evt_info.component_, evt_info.ndata1_, evt_info.ndata2_)));
-  }
-  else
-  {
-    post_cmd (new tiz::graph::cmd (tiz::graph::omx_evt (
-        evt_info.component_, evt_info.event_, evt_info.ndata1_,
-        evt_info.ndata2_, evt_info.pEventData_)));
+    if (evt_info.event_ == OMX_EventCmdComplete && evt_info.ndata1_
+                                                   == OMX_CommandStateSet)
+    {
+      OMX_ERRORTYPE error
+          = static_cast< OMX_ERRORTYPE >(*((int *)&((evt_info.pEventData_))));
+      post_cmd (new tiz::graph::cmd (tiz::graph::omx_trans_evt (
+          evt_info.component_, static_cast< OMX_STATETYPE >(evt_info.ndata2_),
+          error)));
+    }
+    else if (evt_info.event_ == OMX_EventCmdComplete
+             && evt_info.ndata1_ == OMX_CommandPortDisable)
+    {
+      OMX_ERRORTYPE error
+          = static_cast< OMX_ERRORTYPE >(*((int *)&((evt_info.pEventData_))));
+      post_cmd (new tiz::graph::cmd (tiz::graph::omx_port_disabled_evt (
+          evt_info.component_, evt_info.ndata2_, error)));
+    }
+    else if (evt_info.event_ == OMX_EventCmdComplete
+             && evt_info.ndata1_ == OMX_CommandPortEnable)
+    {
+      OMX_ERRORTYPE error
+          = static_cast< OMX_ERRORTYPE >(*((int *)&((evt_info.pEventData_))));
+      post_cmd (new tiz::graph::cmd (tiz::graph::omx_port_enabled_evt (
+          evt_info.component_, evt_info.ndata2_, error)));
+    }
+    else if (evt_info.event_ == OMX_EventError)
+    {
+      post_cmd (new tiz::graph::cmd (tiz::graph::omx_err_evt (
+          evt_info.component_, static_cast< OMX_ERRORTYPE >(evt_info.ndata1_),
+          evt_info.ndata2_)));
+    }
+    else if (evt_info.event_ == OMX_EventPortSettingsChanged)
+    {
+      post_cmd (new tiz::graph::cmd (tiz::graph::omx_port_settings_evt (
+          evt_info.component_, evt_info.ndata1_,
+          static_cast< OMX_INDEXTYPE >(evt_info.ndata2_))));
+    }
+    else if (evt_info.event_ == OMX_EventPortFormatDetected)
+    {
+      post_cmd (new tiz::graph::cmd (
+          tiz::graph::omx_format_detected_evt (evt_info.component_)));
+    }
+    else if (evt_info.event_ == OMX_EventBufferFlag)
+    {
+      post_cmd (new tiz::graph::cmd (tiz::graph::omx_eos_evt (
+          evt_info.component_, evt_info.ndata1_, evt_info.ndata2_)));
+    }
+    else
+    {
+      post_cmd (new tiz::graph::cmd (tiz::graph::omx_evt (
+          evt_info.component_, evt_info.event_, evt_info.ndata1_,
+          evt_info.ndata2_, evt_info.pEventData_)));
+    }
   }
 }
 
@@ -331,12 +335,14 @@ void graph::graph::deinit_cmd_queue ()
   tiz_mutex_destroy (&mutex_);
   tiz_sem_destroy (&sem_);
   tiz_queue_destroy (p_queue_);
+  p_queue_ = NULL;
 }
 
 OMX_ERRORTYPE
 graph::graph::post_cmd (tiz::graph::cmd *p_cmd)
 {
   assert (NULL != p_cmd);
+  assert (NULL != p_ops_);
   assert (NULL != p_queue_);
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_err_ret_oom (tiz_queue_send (p_queue_, p_cmd));
