@@ -169,17 +169,10 @@ bool graphmgr::spotifymgrops::is_fatal_error (const OMX_ERRORTYPE error,
   bool rc = false;
   TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : %s", tiz_err_to_str (error),
            msg.c_str ());
-  if (error == OMX_ErrorStreamCorruptFatal)
+  if (error == OMX_ErrorContentURIError)
   {
-    // If the decoder component reports this error, it means we can't decode
-    // the incoming stream. So this is fatal for this graph.
-    error_msg_.assign ("Unable to decode the input stream.");
-    rc = true;
-  }
-  else if (error == OMX_ErrorFormatNotDetected)
-  {
-    // If the source component reports this error, it means we don't know how
-    // to handle the incoming stream So this is fatal for this graph.
+    // If the source component reports this error, the playlist is not avaiable.
+    error_msg_.assign ("Playlist not found.");
     rc = true;
   }
   else

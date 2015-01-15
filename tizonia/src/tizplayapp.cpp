@@ -243,14 +243,14 @@ namespace
     {
       if (OMX_ErrorNone != code)
         {
-          TIZ_PRINTF_RED ("\n%s (%s).\n", KRED, msg.c_str (), tiz_err_to_str (code));
-          exit (EXIT_FAILURE);
+          TIZ_PRINTF_BLU ("\n%s exiting (%s).\n", PACKAGE_NAME, tiz_err_to_str (code));
+          TIZ_PRINTF_RED ("\n %s\n\n", msg.c_str ());
         }
       else
         {
-          TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n", PACKAGE_NAME);
-          exit (EXIT_SUCCESS);
+          TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n\n", PACKAGE_NAME);
         }
+      exit (EXIT_FAILURE);
     }
   };
 
@@ -301,13 +301,13 @@ void tiz::playapp::set_option_handlers ()
 }
 
 OMX_ERRORTYPE
-tiz::playapp::check_daemon_mode () const
+tiz::playapp::daemonize_if_requested () const
 {
   gb_daemon_mode = popts_.daemon ();
 
   if (gb_daemon_mode)
   {
-    TIZ_PRINTF_BLU ("Starting daemon.\n");
+    TIZ_PRINTF_BLU ("Starting daemon.\n\n");
     if (-1 == tiz::daemon::daemonize ())
     {
       fprintf (stderr, "Could not daemonize.\n");
@@ -491,7 +491,7 @@ tiz::playapp::decode_local ()
     }
   }
 
-  (void)check_daemon_mode ();
+  (void)daemonize_if_requested ();
 
   tizplaylist_ptr_t playlist
       = boost::make_shared< tiz::playlist >(tiz::playlist (file_list));
@@ -552,7 +552,7 @@ tiz::playapp::serve_stream ()
     }
   }
 
-  (void)check_daemon_mode ();
+  (void)daemonize_if_requested ();
 
   // Retrieve the hostname
   // TODO: Error handling
@@ -616,7 +616,7 @@ tiz::playapp::decode_stream ()
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const uri_lst_t &uri_list = popts_.uri_list ();
 
-  (void)check_daemon_mode ();
+  (void)daemonize_if_requested ();
   print_banner ();
 
   tizplaylist_ptr_t playlist
@@ -655,16 +655,23 @@ tiz::playapp::spotify_stream ()
   std::string pass (popts_.spotify_password ());
   const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
 
-  (void)check_daemon_mode ();
-  print_banner ();
+  // TODO: daemon support
+  //   if (!popts_.daemon ())
+    {
+      print_banner ();
+    }
 
-  // If a username was supplied without a password, prompt for password
+  // If a username was supplied without a password, prompt for one
   if (!user.empty () && pass.empty ())
     {
       std::string msg (user);
       msg.append ("'s password:");
       pass.assign (getpass(msg.c_str ()));
+      TIZ_PRINTF_RED ("\n");
     }
+
+  // TODO: daemon support
+  //   (void)daemonize_if_requested ();
 
   tizplaylist_ptr_t playlist
     = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));

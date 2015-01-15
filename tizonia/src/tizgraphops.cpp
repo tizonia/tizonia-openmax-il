@@ -184,18 +184,6 @@ void graph::ops::do_probe ()
   // This is a no-op in the base class.
 }
 
-bool graph::ops::is_port_settings_evt_required () const
-{
-  // To be overriden in child classes when needed.
-  return false;
-}
-
-bool graph::ops::is_disabled_evt_required () const
-{
-  // To be overriden in child classes when needed.
-  return false;
-}
-
 void graph::ops::do_configure ()
 {
   // This is a no-op in the base class.
@@ -445,17 +433,35 @@ void graph::ops::do_record_fatal_error (const OMX_HANDLETYPE handle,
                                         const OMX_ERRORTYPE error,
                                         const OMX_U32 port)
 {
-  std::string msg ("Fatal error reported by : [");
+  std::string msg ("[");
   msg.append (handle2name (handle));
   if (port != OMX_ALL)
   {
     msg.append (":port:");
     msg.append (boost::lexical_cast< std::string >(port));
   }
-  msg.append ("] - [");
+  msg.append ("]\n [");
   msg.append (std::string (tiz_err_to_str (error)));
   msg.append ("]");
   record_error (error, msg);
+}
+
+bool graph::ops::is_port_settings_evt_required () const
+{
+  // To be overriden in child classes when needed.
+  return false;
+}
+
+bool graph::ops::is_disabled_evt_required () const
+{
+  // To be overriden in child classes when needed.
+  return false;
+}
+
+bool graph::ops::is_fatal_error (const OMX_ERRORTYPE error) const
+{
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] ", tiz_err_to_str (error));
+  return tiz::graph::util::is_fatal_error (error);
 }
 
 OMX_ERRORTYPE
@@ -574,12 +580,6 @@ bool graph::ops::is_probing_result_ok () const
   TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s] : is_probing_result_ok [%s]...",
            tiz_err_to_str (int_error), rc ? "YES" : "NO");
   return rc;
-}
-
-bool graph::ops::is_fatal_error (const OMX_ERRORTYPE error) const
-{
-  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] ", tiz_err_to_str (error));
-  return tiz::graph::util::is_fatal_error (error);
 }
 
 std::string graph::ops::handle2name (const OMX_HANDLETYPE handle) const

@@ -505,3 +505,32 @@ graph::spotifyops::set_spotify_playlist (const OMX_HANDLETYPE handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifyPlaylist),
       &playlisttype);
 }
+
+bool
+graph::spotifyops::is_fatal_error (const OMX_ERRORTYPE error) const
+{
+  bool rc = false;
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] ", tiz_err_to_str (error));
+  if (error == error_code_)
+    {
+      // if this error is already being handled, then ignore it.
+      rc = false;
+    }
+  else
+    {
+      rc |= tiz::graph::ops::is_fatal_error (error);
+      rc |= (OMX_ErrorContentURIError == error);
+    }
+  return rc;
+}
+
+void graph::spotifyops::do_record_fatal_error (const OMX_HANDLETYPE handle,
+                                               const OMX_ERRORTYPE error,
+                                               const OMX_U32 port)
+{
+  tiz::graph::ops::do_record_fatal_error (handle, error, port);
+  if (error == OMX_ErrorContentURIError)
+    {
+      error_msg_.append ("\n [Playlist not found]");
+    }
+}

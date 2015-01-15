@@ -49,8 +49,7 @@ namespace tiz
   private:
     void set_option_handlers ();
 
-    OMX_ERRORTYPE check_daemon_mode () const;
-
+    OMX_ERRORTYPE daemonize_if_requested () const;
     OMX_ERRORTYPE unique_log_file () const;
     OMX_ERRORTYPE print_debug_info () const;
     OMX_ERRORTYPE list_of_comps () const;

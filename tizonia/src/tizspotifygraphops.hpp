@@ -44,8 +44,7 @@ namespace tiz
                   const omx_comp_role_lst_t &role_lst);
 
     public:
-      void do_enable_auto_detection (const int handle_id,
-                                     const int port_id);
+      void do_enable_auto_detection (const int handle_id, const int port_id);
       void do_disable_ports ();
       void do_configure_source ();
       void do_load ();
@@ -59,6 +58,11 @@ namespace tiz
       void do_retrieve_metadata ();
       void do_sink_omx_idle2exe ();
       void do_sink_omx_exe2idle ();
+
+      bool is_fatal_error (const OMX_ERRORTYPE error) const;
+      void do_record_fatal_error (const OMX_HANDLETYPE handle,
+                                  const OMX_ERRORTYPE error,
+                                  const OMX_U32 port);
 
     private:
       OMX_ERRORTYPE transition_sink (const OMX_STATETYPE to_state);

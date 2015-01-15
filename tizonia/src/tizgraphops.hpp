@@ -92,8 +92,6 @@ namespace tiz
       virtual void do_enable_tunnel (const int tunnel_id);
       virtual void do_reconfigure_tunnel ();
       virtual void do_probe ();
-      virtual bool is_port_settings_evt_required () const;
-      virtual bool is_disabled_evt_required () const;
       virtual void do_configure ();
       virtual void do_configure_source ();
       virtual void do_omx_loaded2idle ();
@@ -122,6 +120,10 @@ namespace tiz
       virtual void do_record_fatal_error (const OMX_HANDLETYPE handle, const OMX_ERRORTYPE error,
                                           const OMX_U32 port);
 
+      virtual bool is_port_settings_evt_required () const;
+      virtual bool is_disabled_evt_required () const;
+      virtual bool is_fatal_error (const OMX_ERRORTYPE error) const;
+
       OMX_ERRORTYPE internal_error () const;
       std::string internal_error_msg () const;
 
@@ -137,7 +139,6 @@ namespace tiz
       bool last_op_succeeded () const;
       bool is_end_of_play () const;
       bool is_probing_result_ok () const;
-      bool is_fatal_error (const OMX_ERRORTYPE error) const;
 
       std::string handle2name (const OMX_HANDLETYPE handle) const;
 

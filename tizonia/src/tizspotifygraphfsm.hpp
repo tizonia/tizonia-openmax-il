@@ -466,6 +466,10 @@ namespace tiz
                                                                                                             tg::do_store_config,
                                                                                                             tg::do_enable_auto_detection<0,0> > > , tg::last_op_succeeded    >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < auto_detecting               , tg::omx_err_evt           , tg::exe2idle            , bmf::ActionSequence_<
+                                                                                                          boost::mpl::vector<
+                                                                                                            tg::do_record_fatal_error,
+                                                                                                            tg::do_omx_exe2idle> >                                 >,
         bmf::Row < auto_detecting               , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
         bmf::Row < auto_detecting
                    ::exit_pt
@@ -509,7 +513,7 @@ namespace tiz
         bmf::Row < skipping
                    ::exit_pt
                    <skipping_
-                    ::skip_exit>                , skipped_evt               , tg::unloaded            , bmf::ActionSequence_<
+                    ::skip_exit>                , tg::skipped_evt           , tg::unloaded            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_error,
                                                                                                             tg::do_tear_down_tunnels,
@@ -517,7 +521,7 @@ namespace tiz
         bmf::Row < skipping
                    ::exit_pt
                    <skipping_
-                    ::skip_exit>                , skipped_evt               , tg::unloaded            , bmf::ActionSequence_<
+                    ::skip_exit>                , tg::skipped_evt           , tg::unloaded            , bmf::ActionSequence_<
                                                                                                           boost::mpl::vector<
                                                                                                             tg::do_end_of_play,
                                                                                                             tg::do_tear_down_tunnels,
@@ -525,9 +529,11 @@ namespace tiz
         bmf::Row < skipping
                    ::exit_pt
                    <skipping_
-                    ::skip_exit>                , skipped_evt               , tg::executing           , bmf::none                       , bmf::euml::Not_<
+                    ::skip_exit>                , tg::skipped_evt           , tg::executing           , bmf::none                       , bmf::euml::Not_<
                                                                                                                                             tg::is_end_of_play >   >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < tg::exe2idle                 , tg::omx_err_evt           , tg::exe2idle            , bmf::none                   , bmf::euml::Not_<
+                                                                                                                                        tg::is_fatal_error >       >,
         bmf::Row < tg::exe2idle                 , tg::omx_trans_evt         , tg::idle2loaded         , tg::do_omx_idle2loaded      , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::idle2loaded              , tg::omx_trans_evt         , tg::unloaded            , bmf::ActionSequence_<
