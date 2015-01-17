@@ -65,6 +65,7 @@ AC_CONFIG_SUBDIRS([aac_decoder
                    pcm_decoder
                    pcm_renderer_alsa
                    pcm_renderer_pa
+                   spotify_source
                    vorbis_decoder
                    vp8_decoder
                    yuv_renderer])
