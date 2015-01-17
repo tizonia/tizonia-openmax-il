@@ -56,7 +56,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.ilcore"
 #endif
 
-#define TIZ_IL_CORE_THREAD_NAME "tizilcore"
+#define TIZ_IL_CORE_THREAD_NAME "omxilcore"
 #define TIZ_IL_CORE_RM_NAME "OMX.Aratelia.ilcore"
 #define TIZ_DEFAULT_COMP_ENTRY_POINT_NAME "OMX_ComponentInit"
 #define TIZ_SHARED_LIB_SONAME_STRING ".so.0.0.0"

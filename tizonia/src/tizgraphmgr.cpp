@@ -63,7 +63,7 @@ void *graphmgr::thread_func (void *p_arg)
 
   assert (NULL != p_mgr);
 
-  (void)tiz_thread_setname (&(p_mgr->thread_), (char *)"tizgraphmgr");
+  (void)tiz_thread_setname (&(p_mgr->thread_), (char *)"graphmgr");
   tiz_check_omx_err_ret_null (tiz_sem_post (&(p_mgr->sem_)));
 
   while (!done)

@@ -45,7 +45,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.platform.event"
 #endif
 
-#define TIZ_EV_THREAD_NAME "tizevloop"
+#define TIZ_EV_THREAD_NAME "evloop"
 
 struct tiz_event_io
 {
