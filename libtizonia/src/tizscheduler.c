@@ -456,7 +456,11 @@ static OMX_BOOL tiz_sched_blocking_apis_tbl[]
     = { OMX_TRUE,  /* ETIZSchedMsgComponentInit */
         OMX_TRUE,  /* ETIZSchedMsgComponentDeInit */
         OMX_TRUE,  /* ETIZSchedMsgGetComponentVersion */
+#ifdef SENDCOMMAND_SHOULD_BLOCK
         OMX_TRUE,  /* ETIZSchedMsgSendCommand */
+#else
+        OMX_FALSE, /* ETIZSchedMsgSendCommand */
+#endif
         OMX_TRUE,  /* ETIZSchedMsgGetParameter */
         OMX_TRUE,  /* ETIZSchedMsgSetParameter */
         OMX_TRUE,  /* ETIZSchedMsgGetConfig */

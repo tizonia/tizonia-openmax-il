@@ -110,6 +110,14 @@ if test "x${blocking_etb_ftb}" = xyes; then
 AC_DEFINE([EFB_FTB_SHOULD_BLOCK], 1, [ Blocking behaviour of ETB and FTB APIS is enabled])
 fi
 
+AC_ARG_ENABLE([blocking-sendcommand],
+ [  --enable-blocking-sendcommand   Enable fully conformant blocking behaviour of SendCommand API],
+ [blocking_sendcommand=${enableval}], [blocking_sendcommand=no])
+
+if test "x${blocking_sendcommand}" = xyes; then
+AC_DEFINE([SENDCOMMAND_SHOULD_BLOCK], 1, [ Blocking behaviour of SendCommand API is enabled])
+fi
+
 AX_GCC_FUNC_ATTRIBUTE(no_sanitize_address)
 
 AC_OUTPUT
@@ -126,11 +134,12 @@ AC_MSG_RESULT([
   General configuration:
 
     Blocking ETB/FTB: ........... ${blocking_etb_ftb}
+    Blocking OMX_SendCommand: ... ${blocking_sendcommand}
 
   Installation paths:
 
     libraries: ................... ${LIBDIR}
-    tizonia: ....................... ${BINDIR}
+    tizonia: ......................${BINDIR}
     Header files: ................ ${INCLUDEDIR}/libtizonia, ${INCLUDEDIR}/libtizplatform
     Documentation: ............... ${DOCDIR}
 
