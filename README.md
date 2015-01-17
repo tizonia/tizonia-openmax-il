@@ -1,7 +1,7 @@
 # Tizonia #
 
-* An audio player and streaming server for Linux.
-* A complete implementation of OpenMAX IL 1.2 provisional specification.
+* A music player and audio streaming client/server for Linux. Supports music streaming from Spotify.
+* A multimedia framework based on OpenMAX IL 1.2 provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
 
@@ -11,35 +11,31 @@
 
 The Tizonia project consists of a number of resources.
 
-### `tizonia`: audio player and streaming client/server ###
+### `tizonia`: music player and audio streaming client/server ###
 
-* Playback of audio formats from local media (supported formats: mp3, mp2, aac,
-  vorbis, opus, pcm and flac encodings).
-* Icecast/shoutcast streaming server (supported formats: mp3).
-* Icecast/shoutcast streaming client (supported formats: mp3, aac, and opus).
+* Playback of audio formats from local media (supported file formats: mp3, mp2,
+  mpa, m2a, aac, ogg/vorbis, opus, wav, aiff, and flac).
+* Spotify client.
+* ICEcast/SHOUTcast streaming server (supported formats: mp3).
+* ICEcast/SHOUTcast streaming client (supported formats: mp3, aac, and opus, more to be added in the future).
 * Deamon and command line modes (no GUI).
-* MPRIS D-BUS v2 media player remote control interface.
-* Spotify streaming client.
-* Based on OpenMAX IL 1.2 (i.e. no gstreamer, libav, or ffmpeg needed for audio
-  decoding).
+* MPRIS D-BUS v2 media player remote control interface (work-in-progress).
+* Based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg needed for audio
+  decoding (although libav is currently used for probing of media files; this
+  dependency will be removed soon ).
 * Written in C++.
 
-### 'libtizonia' : An OpenMAX IL 1.2 component framework ###
+### An OpenMAX IL 1.2 based multimedia framework ###
 
-* A library to help creating OpenMAX IL 1.2 plugins (encoders, decoders,
+1. 'libtizonia' : An OpenMAX IL 1.2 component framework
+  * A C library for creating OpenMAX IL 1.2 plugins (encoders, decoders,
   parsers, sinks, etc, for audio/video/other).
-* Full support for OpenMAX IL 1.2 Base and Interop profiles.
-* Written in C.
-
-### 'libtizcore' : An OpenMAX IL 1.2 Core implementation ###
-
-* A library for discovery and dynamic loading of OpenMAX IL 1.2 plugins.
-* Support forall the OMX IL 1.2 standard Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
-* Written in C.
-
-### 'libtizplatform' : An OS abstraction/utility library ###
-
-* A helper library written in C with wrappers and utilities for:
+  * Full support for OpenMAX IL 1.2 Base and Interop profiles.
+2. 'libtizcore' : An OpenMAX IL 1.2 Core implementation
+  * A C library for discovery and dynamic loading of OpenMAX IL 1.2 plugins.
+  * Support for all of the OMX IL 1.2 standard Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
+3. 'libtizplatform' : An OS abstraction/utility library
+  * A C library with wrappers and utilities for:
     * memory allocation,
     * threading and synchronization primitives,
     * evented I/O (via libev)
@@ -51,17 +47,14 @@ The Tizonia project consists of a number of resources.
     * HTTP parser,
     * uuids,
     * etc..
-
-### An OpenMAX IL 1.2 Resource Management (RM) framework ###
-
+4. An OpenMAX IL 1.2 Resource Management (RM) framework
   * 'tizrmd' : a D-Bus-based Resource Manager server.
-  * 'libtizrmproxy' : a client library to communicate with the RM daemon.
-
-### OpenMAX IL 1.2 plugins ###
-
+  * 'libtizrmproxy' : a C client library to communicate with the RM daemon.
+5. OpenMAX IL 1.2 plugins
   * mp3 decoders (libmad and libmpg123),
   * Spotify client (libspotify),
-  * Sampled sound decoder (pcm formats, wav, etc, based on libsndfile)
+  * mpeg audio (mp2) decoder (libmpg123),
+  * Sampled sound formats decoder (various pcm formats, like wav, etc, based on libsndfile)
   * AAC decoder (libfaad),
   * OPUS decoders (libopus and libopusfile)
   * FLAC decoder (libflac)
@@ -75,9 +68,7 @@ The Tizonia project consists of a number of resources.
   * a YUV video renderer (libsdl)
   * general purpose plugins, like binary file readers and writers
   * etc...
-
-### Skema: A Python test execution framework for OpenMAX IL 1.2 components ###
-
+6. Skema: A Python test execution framework for OpenMAX IL 1.2 components
   * A framework for execution of arbitrary OpenMAX IL graphs (tunneled and
     non-tunneled) using a custom, [easy-to-write XML syntax](http://github.com/tizonia/tizonia-openmax-il/wiki/Mp3Playback101).
   * Skema repo: http://github.com/tizonia/skema
@@ -105,9 +96,26 @@ assumed).
 
 ```
 
+### libspotify binaries ###
+
+To stream music from Spotify, libspotify needs to be present in the
+system. A suitable 'libspotify' flavour can be downloaded from here:
+
+    https://developer.spotify.com/technologies/libspotify/
+
+E.g.: You could do something like this (replace *$INSTALL_DIR* with your favorite location):
+
+```bash
+
+    $ wget https://developer.spotify.com/download/libspotify/libspotify-12.1.51-Linux-x86_64-release.tar.gz
+    $ tar zxvf libspotify-12.1.51-Linux-x86_64-release.tar.gz
+    $ cd libspotify-12.1.51-Linux-x86_64-release
+    $ make --prefix=$INSTALL_DIR install
+```
+
 ### Building libraries, plugins and RM framework ###
 
-From the top of the repo (Replace *$INSTALL_DIR* with your favorite location):
+From the top of the repo (replace *$INSTALL_DIR* with your favorite location):
 
 ```bash
 
@@ -118,7 +126,7 @@ From the top of the repo (Replace *$INSTALL_DIR* with your favorite location):
 
 ```
 
-### Building 'tizonia', the music player/streaming server ###
+### Building 'tizonia', the music player and streaming client/server ###
 
 From the 'tizonia' sub-folder (again replace *$INSTALL_DIR* with your favorite location):
 
