@@ -1,7 +1,7 @@
 # Tizonia #
 
 * A music player and audio streaming client/server for Linux.
-* Spotify client.
+* Spotify streaming service client.
 * A multimedia framework based on OpenMAX IL 1.2 provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
@@ -53,17 +53,17 @@ The Tizonia project consists of a number of resources.
   * 'libtizrmproxy' : a C client library to communicate with the RM daemon.
 5. OpenMAX IL 1.2 plugins
   * mp3 decoders (libmad and libmpg123),
-  * Spotify client (libspotify),
+  * Spotify streaming service client (libspotify),
   * mpeg audio (mp2) decoder (libmpg123),
   * Sampled sound formats decoder (various pcm formats, like wav, etc, based on libsndfile)
   * AAC decoder (libfaad),
   * OPUS decoders (libopus and libopusfile)
   * FLAC decoder (libflac)
   * VORBIS decoder (libfishsound)
-  * two PCM renderers (ALSA and Pulseaudio)
+  * PCM renderers (ALSA and Pulseaudio)
   * OGG demuxer (liboggz)
-  * an HTTP renderer (i.e. ala icecast)
-  * an HTTP source (based on libcurl)
+  * HTTP renderer (i.e. ala icecast)
+  * HTTP source (based on libcurl)
   * mp3 encoder (based on LAME),
   * a VP8 video decoder (libvpx),
   * a YUV video renderer (libsdl)
@@ -76,8 +76,7 @@ The Tizonia project consists of a number of resources.
 
 ## How to build ##
 
-To build and install from source, follow these steps (Ubuntu 14.04
-assumed).
+To build and install from source, follow the following steps (Ubuntu 14.04 is assumed).
 
 ### Dependencies ###
 
