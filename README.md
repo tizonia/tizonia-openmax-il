@@ -98,21 +98,31 @@ To build and install from source, follow the following steps (Ubuntu 14.04 is as
 
 ### libspotify binaries ###
 
-To stream music from Spotify, libspotify needs to be present in the
-system. A suitable 'libspotify' flavour can be downloaded for your system from here:
+To stream music from Spotify, libspotify needs to be present in the system. A
+suitable 'libspotify' flavour for your system can be downloaded from here:
 
     https://developer.spotify.com/technologies/libspotify/
 
-E.g.: (replace *$INSTALL_DIR* with your favorite location):
+However, note that the Makefile(s) found in the tarballs listed in Spotify's
+website may or may not for you out of the box.
+
+Alternatively, you can download from my site patched versions of the i686 and
+x86_64 tarballs that should work in any regular Ubuntu or Debian-based system.
+
+E.g.: This will download and install the *x86_64* version of the library
+(replace *$INSTALL_DIR* with your favorite location, or *x86_64* with *i686* if
+you need the 32-bit versio of the library):
 
 ```bash
 
-    $ wget https://developer.spotify.com/download/libspotify/libspotify-12.1.51-Linux-x86_64-release.tar.gz
-    $ tar zxvf libspotify-12.1.51-Linux-x86_64-release.tar.gz
-    $ cd libspotify-12.1.51-Linux-x86_64-release
+    $ wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-x86_64.tgz
+    $ tar zxvf libspotify-12.1.51-Linux-x86_64.tgz
+    $ cd libspotify-12.1.51-Linux-x86_64
     $ make install prefix=$INSTALL_DIR
 
 ```
+
+
 
 ### Building libraries, plugins and RM framework ###
 
