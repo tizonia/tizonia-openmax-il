@@ -222,7 +222,7 @@ function install_src_deps {
         wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-i686.tgz \
             && tar zxvf libspotify-12.1.51-Linux-i686.tgz \
             && cd libspotify-12.1.51-Linux-i686-release \
-            && make --prefix="$INSTALL_DIR" install
+            && make install prefix="$INSTALL_DIR"
         exit_status=$?
     fi
     return "$exit_status"

@@ -1,7 +1,7 @@
 # Tizonia #
 
 * A music player and audio streaming client/server for Linux.
-* With support for Spotify.
+* Spotify client.
 * A multimedia framework based on OpenMAX IL 1.2 provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
@@ -111,7 +111,7 @@ E.g.: (replace *$INSTALL_DIR* with your favorite location):
     $ wget https://developer.spotify.com/download/libspotify/libspotify-12.1.51-Linux-x86_64-release.tar.gz
     $ tar zxvf libspotify-12.1.51-Linux-x86_64-release.tar.gz
     $ cd libspotify-12.1.51-Linux-x86_64-release
-    $ make --prefix=$INSTALL_DIR install
+    $ make install prefix=$INSTALL_DIR
 
 ```
 
