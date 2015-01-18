@@ -219,9 +219,9 @@ function install_src_deps {
     if [[ "$exit_status" -eq 0 ]] ; then
         cd "$WORKING_DIR"
         # Install libspotify 12.1.51 binaries
-        wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-i686.tgz \
-            && tar zxvf libspotify-12.1.51-Linux-i686.tgz \
-            && cd libspotify-12.1.51-Linux-i686-release \
+        wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-x86_64.tgz \
+            && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz \
+            && cd libspotify-12.1.51-Linux-x86_64 \
             && make install prefix="$INSTALL_DIR"
         exit_status=$?
     fi
