@@ -342,10 +342,11 @@ OMX_ERRORTYPE
 graph::graph::post_cmd (tiz::graph::cmd *p_cmd)
 {
   assert (NULL != p_cmd);
-  assert (NULL != p_ops_);
-  assert (NULL != p_queue_);
-  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
-  tiz_check_omx_err_ret_oom (tiz_queue_send (p_queue_, p_cmd));
-  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+  if (p_ops_ && p_queue_)
+    {
+      tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
+      tiz_check_omx_err_ret_oom (tiz_queue_send (p_queue_, p_cmd));
+      tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&mutex_));
+    }
   return OMX_ErrorNone;
 }
