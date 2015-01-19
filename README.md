@@ -1,7 +1,7 @@
 # Tizonia #
 
 * A music player and audio streaming client/server for Linux.
-* Spotify streaming service client.
+* With support for Spotify.
 * A multimedia framework based on OpenMAX IL 1.2 provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)
@@ -14,19 +14,19 @@ The Tizonia project consists of a number of resources.
 
 ### `tizonia`: music player and audio streaming client/server ###
 
-* Playback of audio formats from local media (supported file formats: mp3, mp2,
-  mpa, m2a, aac, ogg/vorbis, opus, wav, aiff, and flac).
+* Playback of audio formats from local media (formats: mp3, mp2, mpa, m2a, aac,
+  ogg/vorbis, opus, wav, aiff, and flac).
 * Spotify client.
-* ICEcast/SHOUTcast streaming server (supported formats: mp3).
-* ICEcast/SHOUTcast streaming client (supported formats: mp3, aac, and opus, more to be added in the future).
+* ICEcast/SHOUTcast streaming server (formats: mp3).
+* ICEcast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
 * Deamon and command line modes (no GUI).
-* MPRIS D-BUS v2 media player remote control interface (work-in-progress).
-* Based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg needed for audio
+* MPRIS D-BUS v2 media player remote control interface (early days, work-in-progress).
+* Completely based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg needed for audio
   decoding (although libav is currently used for probing of media files; this
-  dependency will be removed soon ).
+  dependency will be removed soon).
 * Written in C++.
 
-### An OpenMAX IL 1.2 based multimedia framework ###
+### A multimedia framework based on OpenMAX IL 1.2 ###
 
 1. 'libtizonia' : An OpenMAX IL 1.2 component framework
   * A C library for creating OpenMAX IL 1.2 plugins (encoders, decoders,
@@ -69,8 +69,9 @@ The Tizonia project consists of a number of resources.
   * a YUV video renderer (libsdl)
   * general purpose plugins, like binary file readers and writers
   * etc...
-6. Skema: A Python test execution framework for OpenMAX IL 1.2 components
-  * A framework for execution of arbitrary OpenMAX IL graphs (tunneled and
+
+### Skema: A Python test execution framework for OpenMAX IL 1.2 components ###
+  * Skema is a test framework for execution of arbitrary OpenMAX IL graphs (tunneled and
     non-tunneled) using a custom, [easy-to-write XML syntax](http://github.com/tizonia/tizonia-openmax-il/wiki/Mp3Playback101).
   * Skema repo: http://github.com/tizonia/skema
 
@@ -98,20 +99,19 @@ To build and install from source, follow the following steps (Ubuntu 14.04 is as
 
 ### libspotify binaries ###
 
-To stream music from Spotify, libspotify needs to be present in the system. A
-suitable 'libspotify' flavour for your system can be downloaded from here:
+To stream music from Spotify, libspotify needs to be present in your system. A
+suitable 'libspotify' flavour can be downloaded from Spotify's website:
 
     https://developer.spotify.com/technologies/libspotify/
 
-However, note that the Makefile(s) found in the tarballs listed in Spotify's
-website may or may not for you out of the box.
+However, the Makefile(s) found in the tarballs listed in Spotify's website may
+or may not work for you out of the box. Alternatively, you can download from my
+site patched versions of the i686 and x86_64 tarballs that will work in any
+regular Ubuntu or Debian-based system.
 
-Alternatively, you can download from my site patched versions of the i686 and
-x86_64 tarballs that should work in any regular Ubuntu or Debian-based system.
-
-E.g.: This will download and install the *x86_64* version of the library
-(replace *$INSTALL_DIR* with your favorite location, or *x86_64* with *i686* if
-you need the 32-bit versio of the library):
+E.g.: To download and install the *x86_64* version of the library, replace
+*$INSTALL_DIR* with your favorite location; replace *x86_64* with *i686* if you
+need the 32-bit version of the library):
 
 ```bash
 
@@ -122,11 +122,10 @@ you need the 32-bit versio of the library):
 
 ```
 
+### Building the multimedia framework ###
 
-
-### Building libraries, plugins and RM framework ###
-
-From the top of the repo (replace *$INSTALL_DIR* with your favorite location):
+From the top of Tizonia's repo (replace *$INSTALL_DIR* with your favorite
+location), type the following:
 
 ```bash
 
@@ -139,7 +138,9 @@ From the top of the repo (replace *$INSTALL_DIR* with your favorite location):
 
 ### Building 'tizonia', the music player and streaming client/server ###
 
-From the 'tizonia' sub-folder (again replace *$INSTALL_DIR* with your favorite location):
+After completing the steps above, change directory to the 'tizonia' sub-folder
+inside the repo (again replace *$INSTALL_DIR* with your favorite location), and
+type the following:
 
 ```bash
 
@@ -151,7 +152,7 @@ From the 'tizonia' sub-folder (again replace *$INSTALL_DIR* with your favorite l
 
 ```
 
-### Tizonia config file and the D-BUS service activation file ###
+### Tizonia config and the D-BUS service activation files ###
 
 Place *tizonia.conf* and the Resource Manager's D-BUS activation file to the
 following locations:
