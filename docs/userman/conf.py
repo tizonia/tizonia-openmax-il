@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Tizonia OpenMAX IL documentation build configuration file, created by
+# Tizonia documentation build configuration file, created by
 # sphinx-quickstart on Sun Apr  8 23:37:03 2012.
 #
 # This file is execfile()d with the current directory set to its containing dir.

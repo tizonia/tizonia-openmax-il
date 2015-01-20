@@ -1,12 +1,12 @@
-.. Tizonia OpenMAX IL documentation master file, created by
+.. Tizonia documentation master file, created by
    sphinx-quickstart on Sun Apr  8 23:37:03 2012.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Tizonia OpenMAX IL's documentation
-==================================
+Tizonia documentation
+=====================
 
-Tizonia OpenMAX IL 1.2 - Copyright 2012 Aratelia Limited - Juan A. Rubio
+The Tizonia Project - Copyright 2011-2015 Juan A. Rubio
 
 
 Introduction
@@ -18,7 +18,14 @@ Introduction
    intro/intro
    intro/requirements
    intro/installation
-   intro/tutorial
+
+Tutorial
+========
+
+.. toctree::
+   :maxdepth: 2
+
+   tutorial/tutorial
 
 Architecture
 ============
