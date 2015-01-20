@@ -47,7 +47,7 @@ extern "C" {
 
 #include "tizsync.h"
 
-#define TIZ_QUEUE_MAX_ITEMS 20
+#define TIZ_QUEUE_MAX_ITEMS 30
 
 /**
  * Queue opaque structure

@@ -2043,7 +2043,8 @@ static tiz_scheduler_t *instantiate_scheduler (OMX_HANDLETYPE ap_hdl,
 
   tiz_check_omx_err_ret_null (tiz_mutex_init (&(p_sched->mutex)));
   tiz_check_omx_err_ret_null (tiz_sem_init (&(p_sched->sem), 0));
-  tiz_check_omx_err_ret_null (tiz_queue_init (&(p_sched->p_queue), 10));
+  tiz_check_omx_err_ret_null (tiz_queue_init (&(p_sched->p_queue),
+                                              TIZ_QUEUE_MAX_ITEMS));
 
   p_sched->child.p_fsm = NULL;
   p_sched->child.p_ker = NULL;

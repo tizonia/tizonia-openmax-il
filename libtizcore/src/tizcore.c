@@ -1332,7 +1332,7 @@ get_core (void)
         }
 
       if (OMX_ErrorNone
-          != (rc = tiz_queue_init (&(pg_core->p_queue), 10)))
+          != (rc = tiz_queue_init (&(pg_core->p_queue), TIZ_QUEUE_MAX_ITEMS)))
         {
           return NULL;
         }
