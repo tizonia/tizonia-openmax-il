@@ -6,7 +6,7 @@
 Tizonia documentation
 =====================
 
-The Tizonia Project - Copyright 2011-2015 Juan A. Rubio
+The Tizonia Project - Copyright 2015 Juan A. Rubio
 
 
 Introduction

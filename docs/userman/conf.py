@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Tizonia OpenMAX IL'
-copyright = u'2012, Aratelia Limited - Juan A. Rubio'
+project = u'Tizonia'
+copyright = u'2015, Juan A. Rubio'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -213,7 +213,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'tizoniaopenmaxil', u'Tizonia OpenMAX IL Documentation',
+    ('index', 'tizoniaopenmaxil', u'Tizonia Documentation',
      [u'Juan A. Rubio'], 1)
 ]
 
