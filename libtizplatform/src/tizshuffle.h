@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizthread.h
+ * @file   tizshuffle.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia Platform - Integer list shuffling
