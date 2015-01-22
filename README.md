@@ -19,9 +19,9 @@ The Tizonia project consists of a number of resources.
 * Playback of audio formats from local media (formats: mp3, mp2, mpa, m2a, aac,
   ogg/vorbis, opus, wav, aiff, and flac).
 * Spotify client.
-* ICEcast/SHOUTcast streaming server (formats: mp3).
-* ICEcast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
-* Deamon and command line modes (no GUI).
+* Icecast/SHOUTcast streaming server (formats: mp3).
+* Icecast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
+* Daemon and command line modes (no GUI).
 * MPRIS D-BUS v2 media player remote control interface (early days, work-in-progress).
 * Completely based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg needed for audio
   decoding (although libav is currently used for probing of media files; this
