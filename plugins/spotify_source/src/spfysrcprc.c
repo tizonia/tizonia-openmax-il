@@ -670,6 +670,47 @@ static OMX_BUFFERHEADERTYPE *buffer_needed (spfysrc_prc_t *ap_prc)
   return p_hdr;
 }
 
+static void start_spotify (spfysrc_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  if (ap_prc->p_sp_session_)
+    {
+      sp_session_player_play (ap_prc->p_sp_session_, true);
+      ap_prc->spotify_paused_ = false;
+    }
+}
+
+static void pause_spotify (spfysrc_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  if (ap_prc->p_sp_session_)
+    {
+      sp_session_player_play (ap_prc->p_sp_session_, false);
+      ap_prc->spotify_paused_ = true;
+    }
+}
+
+static void stop_spotify_session_timer (spfysrc_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  if (ap_prc->next_timeout_ && ap_prc->p_ev_timer_)
+    {
+      (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
+      ap_prc->next_timeout_ = 0;
+    }
+}
+
+static void stop_spotify (spfysrc_prc_t *ap_prc)
+{
+  assert (NULL != ap_prc);
+  if (ap_prc->p_sp_track_)
+    {
+      sp_session_player_unload (ap_prc->p_sp_session_);
+      ap_prc->p_sp_track_ = NULL;
+      stop_spotify_session_timer (ap_prc);
+    }
+}
+
 static void control_cache_size (spfysrc_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
@@ -682,15 +723,13 @@ static void control_cache_size (spfysrc_prc_t *ap_prc)
           && !ap_prc->spotify_paused_)
         {
           /* Temporarily pause spotify music delivery */
-          sp_session_player_play (ap_prc->p_sp_session_, false);
-          ap_prc->spotify_paused_ = true;
+          pause_spotify (ap_prc);
         }
       else if (current_cache_bytes <= ap_prc->min_cache_bytes_
                && ap_prc->spotify_paused_)
         {
           /* Re-start spotify music delivery */
-          sp_session_player_play (ap_prc->p_sp_session_, true);
-          ap_prc->spotify_paused_ = false;
+          start_spotify (ap_prc);
         }
     }
 }
@@ -753,27 +792,6 @@ static OMX_ERRORTYPE process_spotify_session_events (spfysrc_prc_t *ap_prc)
   return rc;
 }
 
-static void stop_spotify_session_timer (spfysrc_prc_t *ap_prc)
-{
-  assert (NULL != ap_prc);
-  if (ap_prc->next_timeout_ && ap_prc->p_ev_timer_)
-    {
-      (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
-      ap_prc->next_timeout_ = 0;
-    }
-}
-
-static void stop_playback (spfysrc_prc_t *ap_prc)
-{
-  assert (NULL != ap_prc);
-  if (ap_prc->p_sp_track_ != NULL)
-    {
-      sp_session_player_unload (ap_prc->p_sp_session_);
-      ap_prc->p_sp_track_ = NULL;
-      stop_spotify_session_timer (ap_prc);
-    }
-}
-
 /**
  * Called on various events to start playback if it hasn't been started already.
  *
@@ -814,7 +832,7 @@ static void start_playback (spfysrc_prc_t *ap_prc)
       if (ap_prc->p_sp_track_ && p_track != ap_prc->p_sp_track_)
         {
           /* Someone changed the current track */
-          stop_playback (ap_prc);
+          stop_spotify (ap_prc);
         }
 
       verify_or_return ((p_track != NULL), "Track is NULL. Waiting.");
@@ -828,7 +846,7 @@ static void start_playback (spfysrc_prc_t *ap_prc)
           ap_prc->p_sp_track_ = p_track;
           store_relevant_track_metadata (ap_prc, num_tracks);
           sp_session_player_load (ap_prc->p_sp_session_, p_track);
-          sp_session_player_play (ap_prc->p_sp_session_, 1);
+          start_spotify (ap_prc);
           ap_prc->spotify_inited_ = true;
         }
     }
@@ -1121,7 +1139,7 @@ static void play_token_lost_cback_handler (OMX_PTR ap_prc,
   assert (NULL != p_prc);
   assert (NULL != ap_event);
   TIZ_PRINTF_DBG_MAG ("play_token_lost");
-  stop_playback (p_prc);
+  stop_spotify (p_prc);
   tiz_mem_free (ap_event);
 }
 
@@ -1497,7 +1515,7 @@ static void playlist_renamed_cback_handler (OMX_PTR ap_prc,
           TIZ_DEBUG (handleOf (p_prc), "current playlist renamed to \"%s\".",
                      name);
           p_prc->p_sp_playlist_ = NULL;
-          stop_playback (p_prc);
+          stop_spotify (p_prc);
         }
     }
   tiz_mem_free (ap_event);
@@ -1684,7 +1702,7 @@ static OMX_ERRORTYPE spfysrc_prc_stop_and_return (void *ap_obj)
   assert (NULL != p_prc);
   p_prc->transfering_ = false;
   p_prc->stopping_ = true;
-  stop_playback (p_prc);
+  stop_spotify (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -1735,8 +1753,7 @@ static OMX_ERRORTYPE spfysrc_prc_pause (const void *ap_prc)
   if (p_prc->transfering_ && !p_prc->spotify_paused_)
     {
       /* pause spotify music delivery */
-      sp_session_player_play (p_prc->p_sp_session_, false);
-      p_prc->spotify_paused_ = true;
+      pause_spotify (p_prc);
     }
   return OMX_ErrorNone;
 }
@@ -1748,8 +1765,7 @@ static OMX_ERRORTYPE spfysrc_prc_resume (const void *ap_prc)
   if (p_prc->transfering_ && p_prc->spotify_paused_)
     {
       /* Re-start spotify music delivery */
-      sp_session_player_play (p_prc->p_sp_session_, true);
-      p_prc->spotify_paused_ = false;
+      start_spotify (p_prc);
     }
   return OMX_ErrorNone;
 }
@@ -1806,8 +1822,7 @@ static OMX_ERRORTYPE spfysrc_prc_config_change (void *ap_obj,
       if (p_prc->spotify_paused_)
         {
           /* Re-start spotify music delivery */
-          sp_session_player_play (p_prc->p_sp_session_, true);
-          p_prc->spotify_paused_ = false;
+          start_spotify (p_prc);
         }
 
       /* Let's processed a faked end of track event */
