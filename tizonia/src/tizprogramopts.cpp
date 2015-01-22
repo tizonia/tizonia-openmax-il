@@ -38,6 +38,8 @@
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
+#include <boost/mem_fn.hpp>
+#include <boost/bind.hpp>
 
 #include <tizplatform.h>
 
@@ -47,15 +49,6 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.programopts"
 #endif
-
-#define PO_GOTO_END_IF_DONE(done) \
-  do                              \
-  {                               \
-    if ((done))                   \
-    {                             \
-      goto end;                   \
-    }                             \
-  } while (0)
 
 #define PO_RETURN_IF_FAIL(expr) \
   do                            \
@@ -191,7 +184,8 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_pass_ (),
     spotify_playlist_ (),
     spotify_playlist_container_ (),
-    default_options_count_ (0)
+    default_options_count_ (0),
+    consume_functions_ ()
 {
   init_general_options ();
   init_debug_options ();
@@ -209,32 +203,15 @@ int tiz::programopts::consume ()
   try
   {
     bool done = false;
-
     parse_command_line (argc_, argv_);
-
-    rc = consume_debug_options (done, error_msg);
-    PO_GOTO_END_IF_DONE (done);
-
-    rc = consume_general_options (done, error_msg);
-    PO_GOTO_END_IF_DONE (done);
-
-    rc = consume_omx_options (done, error_msg);
-    PO_GOTO_END_IF_DONE (done);
-
-    rc = consume_streaming_server_options (done, error_msg);
-    PO_GOTO_END_IF_DONE (done);
-
-    rc = consume_streaming_client_options (done, error_msg);
-    PO_GOTO_END_IF_DONE (done);
-
-    rc = consume_spotify_client_options (done, error_msg);
-    PO_GOTO_END_IF_DONE (done);
-
-    rc = consume_local_decode_options (done, error_msg);
-    PO_GOTO_END_IF_DONE (done);
-
-  end:
-    ;
+    BOOST_FOREACH (consume_function_t consume_options, consume_functions_)
+    {
+      rc = consume_options (done, error_msg);
+      if (done)
+      {
+        break;
+      }
+    }
   }
   catch (std::exception &e)
   {
@@ -438,6 +415,7 @@ void tiz::programopts::init_general_options ()
       ;
   // Here we are defining 3 default options
   default_options_count_ += 3;
+  register_consume_function(&tiz::programopts::consume_general_options);
 }
 
 void tiz::programopts::init_debug_options ()
@@ -453,6 +431,7 @@ void tiz::programopts::init_debug_options ()
       ;
   // Here we are defining 1 default options
   default_options_count_ += 1;
+  register_consume_function(&tiz::programopts::consume_debug_options);
 }
 
 void tiz::programopts::init_omx_options ()
@@ -469,6 +448,7 @@ void tiz::programopts::init_omx_options ()
        "Display the OpenMAX IL components that implement role <arg>.")
       /* TIZ_CLASS_COMMENT: */
       ;
+  register_consume_function(&tiz::programopts::consume_omx_options);
 }
 
 void tiz::programopts::init_streaming_server_options ()
@@ -506,6 +486,7 @@ void tiz::programopts::init_streaming_server_options ()
   // Give a default value to the bitrate list
   bitrates_ = std::string ("CBR,VBR");
   boost::split (bitrate_list_, bitrates_, boost::is_any_of (","));
+  register_consume_function(&tiz::programopts::consume_streaming_server_options);
 }
 
 void tiz::programopts::init_streaming_client_options ()
@@ -514,6 +495,7 @@ void tiz::programopts::init_streaming_client_options ()
       /* TIZ_CLASS_COMMENT: */
       ("station-id", po::value (&station_name_),
        "Give a name/id to the remote stream.");
+  register_consume_function (&tiz::programopts::consume_streaming_client_options);
 }
 
 void tiz::programopts::init_spotify_options ()
@@ -527,6 +509,7 @@ void tiz::programopts::init_spotify_options ()
       /* TIZ_CLASS_COMMENT: */
       ("spotify-playlist", po::value (&spotify_playlist_),
        "Spotify playlist name.");
+  register_consume_function (&tiz::programopts::consume_spotify_client_options);
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -539,6 +522,7 @@ void tiz::programopts::init_input_uri_option ()
       /* TIZ_CLASS_COMMENT: */
       ;
   positional_.add ("input-uris", -1);
+  register_consume_function (&tiz::programopts::consume_local_decode_options);
 }
 
 void tiz::programopts::parse_command_line (int argc, char *argv[])
@@ -756,15 +740,16 @@ int tiz::programopts::consume_input_http_uris_option ()
 
 bool tiz::programopts::verify_omx_options () const
 {
-  bool outcome = true;
+  bool outcome = false;
   unsigned int omx_opts_count = vm_.count ("comp-list")
                                 + vm_.count ("roles-of-comp")
                                 + vm_.count ("comps-of-role");
-  if (!is_options_count_valid (omx_opts_count))
+  if ((vm_.count ("comp-list") || vm_.count ("roles-of-comp")
+       || vm_.count ("comps-of-role"))
+      && is_options_count_valid (omx_opts_count))
   {
-    outcome = false;
+    outcome = true;
   }
-  TIZ_PRINTF_DBG_RED ("omx options [%s]\n", outcome ? "YES" : "NO");
   return outcome;
 }
 
@@ -779,8 +764,6 @@ bool tiz::programopts::verify_streaming_server_options () const
   {
     outcome = false;
   }
-  TIZ_PRINTF_DBG_RED ("streaming server options [%s]\n",
-                      outcome ? "YES" : "NO");
   return outcome;
 }
 
@@ -795,7 +778,6 @@ bool tiz::programopts::verify_spotify_client_options () const
   {
     outcome = false;
   }
-  TIZ_PRINTF_DBG_RED ("spotify client options [%s]\n", outcome ? "YES" : "NO");
   return outcome;
 }
 
@@ -861,22 +843,28 @@ bool tiz::programopts::is_options_count_valid (
 {
   unsigned int general_opts_count = get_general_options_count (vm_);
   unsigned int debug_opts_count = get_debug_options_count (vm_);
-  TIZ_PRINTF_DBG_RED ("mode [%u]\n", mode_opts_count);
-  TIZ_PRINTF_DBG_RED ("default [%u]\n", default_options_count_);
-  TIZ_PRINTF_DBG_RED ("general [%u]\n", general_opts_count);
-  TIZ_PRINTF_DBG_RED ("debug [%u]\n", debug_opts_count);
 
-  boost::program_options::variables_map::const_iterator it = vm_.begin ();
-  boost::program_options::variables_map::const_iterator end_it = vm_.end ();
-  while (it != end_it)
-  {
-    TIZ_PRINTF_DBG_RED ("[%s]\n", it->first.c_str ());
-    ++it;
-  }
+  // TIZ_PRINTF_DBG_RED ("mode [%u]\n", mode_opts_count);
+  // TIZ_PRINTF_DBG_RED ("default [%u]\n", default_options_count_);
+  // TIZ_PRINTF_DBG_RED ("general [%u]\n", general_opts_count);
+  // TIZ_PRINTF_DBG_RED ("debug [%u]\n", debug_opts_count);
+
+  // boost::program_options::variables_map::const_iterator it = vm_.begin ();
+  // boost::program_options::variables_map::const_iterator end_it = vm_.end ();
+  // while (it != end_it)
+  // {
+  //   TIZ_PRINTF_DBG_RED ("[%s]\n", it->first.c_str ());
+  //   ++it;
+  // }
 
   return ((vm_.size () - default_options_count_ + general_opts_count
            + debug_opts_count)
           == (mode_opts_count + general_opts_count + debug_opts_count));
+}
+
+void tiz::programopts::register_consume_function (const consume_mem_fn_t cf)
+{
+  consume_functions_.push_back (boost::bind(boost::mem_fn (cf), this, _1, _2));
 }
 
 int tiz::programopts::call_handler (

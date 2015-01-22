@@ -89,6 +89,9 @@ namespace tiz
 
     void parse_command_line (int argc, char *argv[]);
 
+    typedef int (tiz::programopts::*consume_mem_fn_t)(bool &, std::string &);
+    typedef boost::function< int(bool &, std::string &) > consume_function_t;
+
     int consume_debug_options (bool &done, std::string &msg);
     int consume_general_options (bool &done, std::string &msg);
     int consume_omx_options (bool &done, std::string &msg);
@@ -108,6 +111,8 @@ namespace tiz
     bool is_options_count_valid (const unsigned int mode_opts_count) const;
 
     int call_handler (const option_handlers_map_t::const_iterator &handler_it);
+
+    void register_consume_function (const consume_mem_fn_t cf);
 
   private:
     int argc_;
@@ -144,6 +149,7 @@ namespace tiz
     std::string spotify_playlist_;
     std::vector< std::string > spotify_playlist_container_;
     unsigned int default_options_count_;
+    std::vector<consume_function_t> consume_functions_;
   };
 }
 #endif  // TIZPROGRAMOPTS_HPP
