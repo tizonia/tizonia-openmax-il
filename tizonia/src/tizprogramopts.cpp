@@ -564,40 +564,45 @@ void tiz::programopts::parse_command_line (int argc, char *argv[])
 
 int tiz::programopts::consume_debug_options (bool &done, std::string &msg)
 {
+  int rc = EXIT_FAILURE;
   done = false;
   if (vm_.count ("log-directory"))
   {
     (void)call_handler (option_handlers_map_.find ("log-directory"));
+    rc = EXIT_SUCCESS;
   }
   if (vm_.count ("debug-info") && debug_info_)
   {
     (void)call_handler (option_handlers_map_.find ("debug-info"));
+    rc = EXIT_SUCCESS;
     done = true;
   }
-  return EXIT_SUCCESS;
+  return rc;
 }
 
 int tiz::programopts::consume_general_options (bool &done,
                                                std::string & /* msg */)
 {
-  int result = EXIT_SUCCESS;
+  int rc = EXIT_FAILURE;
   done = false;
   if (vm_.count ("help"))
   {
     print_usage_extended ();
     done = true;
+    rc = EXIT_SUCCESS;
   }
   else if (vm_.count ("version"))
   {
     print_version ();
     done = true;
+    rc = EXIT_SUCCESS;
   }
-  return result;
+  return rc;
 }
 
 int tiz::programopts::consume_omx_options (bool &done, std::string &msg)
 {
-  int result = EXIT_FAILURE;
+  int rc = EXIT_FAILURE;
   done = false;
 
   if (verify_omx_options ())
@@ -611,32 +616,32 @@ int tiz::programopts::consume_omx_options (bool &done, std::string &msg)
       msg.assign (
           "Only one of '--comp-list', '--roles-of-comp', "
           "'--comps-of-role' can be specified.");
-      result = EXIT_FAILURE;
+      rc = EXIT_FAILURE;
     }
     else
     {
       if (vm_.count ("comp-list"))
       {
-        result = call_handler (option_handlers_map_.find ("comp-list"));
+        rc = call_handler (option_handlers_map_.find ("comp-list"));
       }
       else if (vm_.count ("roles-of-comp"))
       {
-        result = call_handler (option_handlers_map_.find ("roles-of-comp"));
+        rc = call_handler (option_handlers_map_.find ("roles-of-comp"));
       }
       else if (vm_.count ("comps-of-role"))
       {
-        result = call_handler (option_handlers_map_.find ("comps-of-role"));
+        rc = call_handler (option_handlers_map_.find ("comps-of-role"));
       }
-      result = EXIT_SUCCESS;
+      rc = EXIT_SUCCESS;
     }
   }
-  return result;
+  return rc;
 }
 
 int tiz::programopts::consume_streaming_server_options (bool &done,
                                                         std::string &msg)
 {
-  int result = EXIT_SUCCESS;
+  int rc = EXIT_FAILURE;
   done = false;
 
   if (verify_streaming_server_options ())
@@ -645,33 +650,33 @@ int tiz::programopts::consume_streaming_server_options (bool &done,
     PO_RETURN_IF_FAIL (validate_port_argument (msg));
     PO_RETURN_IF_FAIL (validate_bitrates_argument (msg));
     PO_RETURN_IF_FAIL (validate_sampling_rates_argument (msg));
-    result = consume_input_file_uris_option ();
-    if (EXIT_SUCCESS == result)
+    rc = consume_input_file_uris_option ();
+    if (EXIT_SUCCESS == rc)
     {
-      result = call_handler (option_handlers_map_.find ("serve-stream"));
+      rc = call_handler (option_handlers_map_.find ("serve-stream"));
     }
   }
-  return result;
+  return rc;
 }
 
 int tiz::programopts::consume_streaming_client_options (bool &done,
                                                         std::string &msg)
 {
-  int result = EXIT_FAILURE;
+  int rc = EXIT_FAILURE;
   done = false;
-  result = consume_input_http_uris_option ();
-  if (EXIT_SUCCESS == result)
+  rc = consume_input_http_uris_option ();
+  if (EXIT_SUCCESS == rc)
   {
     done = true;
-    result = call_handler (option_handlers_map_.find ("decode-stream"));
+    rc = call_handler (option_handlers_map_.find ("decode-stream"));
   }
-  return result;
+  return rc;
 }
 
 int tiz::programopts::consume_spotify_client_options (bool &done,
                                                       std::string &msg)
 {
-  int result = EXIT_FAILURE;
+  int rc = EXIT_FAILURE;
   done = false;
 
   if (verify_spotify_client_options ())
@@ -680,55 +685,55 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
 
     if (!vm_.count ("spotify-user") && vm_.count ("spotify-password"))
     {
-      result = EXIT_FAILURE;
+      rc = EXIT_FAILURE;
       std::ostringstream oss;
       oss << "Need to provide a Spotify user name.";
       msg.assign (oss.str ());
     }
     else if (!vm_.count ("spotify-playlist"))
     {
-      result = EXIT_FAILURE;
+      rc = EXIT_FAILURE;
       std::ostringstream oss;
       oss << "A playlist must be specified.";
       msg.assign (oss.str ());
     }
     else
     {
-      result = call_handler (option_handlers_map_.find ("spotify-stream"));
+      rc = call_handler (option_handlers_map_.find ("spotify-stream"));
     }
   }
-  return result;
+  return rc;
 }
 
 int tiz::programopts::consume_local_decode_options (bool &done,
                                                     std::string &msg)
 {
-  int result = EXIT_FAILURE;
+  int rc = EXIT_FAILURE;
   done = false;
-  result = consume_input_file_uris_option ();
-  if (EXIT_SUCCESS == result)
+  if (EXIT_SUCCESS == consume_input_file_uris_option ())
   {
+    rc = EXIT_SUCCESS;
     done = true;
-    result = call_handler (option_handlers_map_.find ("decode-local"));
+    rc = call_handler (option_handlers_map_.find ("decode-local"));
   }
-  return result;
+  return rc;
 }
 
 int tiz::programopts::consume_input_file_uris_option ()
 {
-  int result = EXIT_FAILURE;
+  int rc = EXIT_FAILURE;
   if (vm_.count ("input-uris"))
   {
-    result = EXIT_SUCCESS;
+    rc = EXIT_SUCCESS;
     uri_list_ = vm_["input-uris"].as< std::vector< std::string > >();
   }
 
-  return result;
+  return rc;
 }
 
 int tiz::programopts::consume_input_http_uris_option ()
 {
-  int result = EXIT_FAILURE;
+  int rc = EXIT_FAILURE;
   if (vm_.count ("input-uris"))
   {
     uri_list_ = vm_["input-uris"].as< std::vector< std::string > >();
@@ -744,9 +749,9 @@ int tiz::programopts::consume_input_http_uris_option ()
         break;
       }
     }
-    result = all_ok ? EXIT_SUCCESS : EXIT_FAILURE;
+    rc = all_ok ? EXIT_SUCCESS : EXIT_FAILURE;
   }
-  return result;
+  return rc;
 }
 
 bool tiz::programopts::verify_omx_options () const
