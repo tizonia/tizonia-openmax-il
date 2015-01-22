@@ -58,12 +58,14 @@ typedef /*@null@ */ tiz_atomic_var_t *tiz_atomic_var_ptr_t;
  */
 OMX_ERRORTYPE tiz_atomic_var_init (tiz_atomic_var_ptr_t *app_atomic_var);
 
+  tiz_atomic_var_test_and_set (tiz_atomic_var_t *ap_atomic_var);
+  
 /**
  * Destroy the atomic binary variable.
  *
  * @ingroup atomic
  */
-void tiz_atomic_var_destroy (tiz_atomic_var_t *p_atomic_var);
+void tiz_atomic_var_destroy (tiz_atomic_var_t *ap_atomic_var);
 
 #ifdef __cplusplus
 }

@@ -34,6 +34,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include <atomic_ops.h>
+
 #include "tizplatform.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -43,9 +45,7 @@
 
 struct tiz_atomic_var
 {
-  OMX_S32 *p_lst;
-  size_t length;
-  OMX_S32 current_index;
+  AO_TS_t lock;
 };
 
 static OMX_S32 rand_number (const OMX_S32 n)
