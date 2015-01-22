@@ -89,19 +89,23 @@ namespace tiz
 
     void parse_command_line (int argc, char *argv[]);
 
-    int consume_debug_options (bool &done);
-    int consume_general_options (bool &done);
-    int consume_omx_options (bool &done);
-    int consume_streaming_server_options (bool &done);
-    int consume_streaming_client_options (bool &done);
-    int consume_spotify_client_options (bool &done);
-    int consume_local_decode_options (bool &done);
+    int consume_debug_options (bool &done, std::string &msg);
+    int consume_general_options (bool &done, std::string &msg);
+    int consume_omx_options (bool &done, std::string &msg);
+    int consume_streaming_server_options (bool &done, std::string &msg);
+    int consume_streaming_client_options (bool &done, std::string &msg);
+    int consume_spotify_client_options (bool &done, std::string &msg);
+    int consume_local_decode_options (bool &done, std::string &msg);
     int consume_input_file_uris_option ();
     int consume_input_http_uris_option ();
 
-    bool verify_port_argument () const;
-    bool verify_bitrates_argument ();
-    bool verify_sampling_rates_argument ();
+    bool verify_omx_options () const;
+    bool verify_streaming_server_options () const;
+    bool verify_spotify_client_options () const;
+    bool validate_port_argument (std::string &msg) const;
+    bool validate_bitrates_argument (std::string &msg);
+    bool validate_sampling_rates_argument (std::string &msg);
+    bool is_options_count_valid (const unsigned int mode_opts_count) const;
 
     int call_handler (const option_handlers_map_t::const_iterator &handler_it);
 
@@ -139,6 +143,7 @@ namespace tiz
     std::string spotify_pass_;
     std::string spotify_playlist_;
     std::vector< std::string > spotify_playlist_container_;
+    unsigned int default_options_count_;
   };
 }
 #endif  // TIZPROGRAMOPTS_HPP

@@ -280,7 +280,7 @@ void tiz::playapp::set_option_handlers ()
   popts_.set_option_handler (
       "debug-info", boost::bind (&tiz::playapp::print_debug_info, this));
   // OMX-related program options
-  popts_.set_option_handler ("list-comp",
+  popts_.set_option_handler ("comp-list",
                              boost::bind (&tiz::playapp::list_of_comps, this));
   popts_.set_option_handler ("roles-of-comp",
                              boost::bind (&tiz::playapp::roles_of_comp, this));
