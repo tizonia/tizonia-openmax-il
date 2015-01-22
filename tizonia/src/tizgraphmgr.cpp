@@ -32,7 +32,6 @@
 #include <assert.h>
 
 #include <algorithm>
-#include <boost/foreach.hpp>
 #include <boost/make_shared.hpp>
 
 #include <OMX_Component.h>
