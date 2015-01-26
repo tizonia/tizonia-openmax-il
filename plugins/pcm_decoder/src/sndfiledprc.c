@@ -234,6 +234,7 @@ static OMX_ERRORTYPE open_sf (sndfiled_prc_t *ap_prc)
     {
       if (!ap_prc->p_sf_)
         {
+          ap_prc->sf_info_.format |= SF_ENDIAN_LITTLE;
           ap_prc->p_sf_ = sf_open_virtual (&(ap_prc->sf_io_), SFM_READ,
                                            &(ap_prc->sf_info_), ap_prc);
           if (!ap_prc->p_sf_)

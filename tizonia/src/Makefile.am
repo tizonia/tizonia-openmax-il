@@ -134,9 +134,6 @@ tizonia_LDADD = \
 	@BOOST_SYSTEM_LIB@ \
 	@BOOST_FILESYSTEM_LIB@ \
 	@BOOST_THREAD_LIB@ \
-	-lavformat \
-	-lavcodec \
-	-lavutil \
 	-ltag \
 	@LIBMEDIAINFO_LIBS@ \
 	@DBUS_LIBS@ \

@@ -33,6 +33,25 @@ namespace tiz
 {
   namespace graph
   {
+    template < typename ParamT, OMX_INDEXTYPE ParamIndex >
+    OMX_ERRORTYPE util::normalize_tunnel_settings (
+        const omx_comp_handle_lst_t &hdl_list, const int tunnel_id,
+        const OMX_U32 out_port_id, const OMX_U32 in_port_id)
+    {
+      const int handle_lst_size = hdl_list.size ();
+      assert (tunnel_id < handle_lst_size - 1);
+
+      ParamT omx_struct;
+      TIZ_INIT_OMX_PORT_STRUCT (omx_struct, out_port_id);
+      // Retrieve the settings from the output port...
+      tiz_check_omx_err (
+          OMX_GetParameter (hdl_list[tunnel_id], ParamIndex, &omx_struct));
+      omx_struct.nPortIndex = in_port_id;
+      // ... and apply them on the input port...
+      return OMX_SetParameter (hdl_list[tunnel_id + 1], ParamIndex,
+                               &omx_struct);
+    }
+
     template < typename ParamT >
     OMX_ERRORTYPE util::get_channels_and_rate_from_audio_port (
         const OMX_HANDLETYPE handle, const OMX_U32 port_id,
@@ -40,7 +59,7 @@ namespace tiz
         OMX_U32 &sampling_rate)
 
     {
-      // Retrieve the current settings from the component port
+      // Retrieve the current settings from the port
       ParamT param_type;
       TIZ_INIT_OMX_PORT_STRUCT (param_type, port_id);
       tiz_check_omx_err (OMX_GetParameter (handle, param_index, &param_type));
@@ -58,7 +77,7 @@ namespace tiz
         OMX_U32 &sampling_rate)
 
     {
-      // Retrieve the current settings from the component port
+      // Retrieve the current settings from the port
       ParamT param_type;
       TIZ_INIT_OMX_PORT_STRUCT (param_type, port_id);
       tiz_check_omx_err (OMX_GetParameter (handle, param_index, &param_type));
@@ -74,7 +93,7 @@ namespace tiz
         const OMX_U32 sampling_rate)
 
     {
-      // Retrieve the current settings from the component port
+      // Retrieve the current settings from the port
       ParamT param_type;
       TIZ_INIT_OMX_PORT_STRUCT (param_type, port_id);
       tiz_check_omx_err (OMX_GetParameter (handle, param_index, &param_type));

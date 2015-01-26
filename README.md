@@ -24,8 +24,7 @@ The Tizonia project consists of a number of resources.
 * Daemon and command line modes (no GUI).
 * MPRIS D-BUS v2 media player remote control interface (early days, work-in-progress).
 * Completely based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg needed for audio
-  decoding (although libav is currently used for probing of media files; this
-  dependency will be removed soon).
+  decoding.
 * Written in C++.
 
 ### A multimedia framework based on OpenMAX IL 1.2 ###
@@ -90,8 +89,7 @@ To build and install from source, follow the following steps (Ubuntu 14.04 is as
     libtool libmad0-dev liblog4c-dev \
     libasound2-dev libdbus-1-dev \
     libdbus-c++-dev libsqlite3-dev libboost-all-dev \
-    uuid-dev libsdl1.2-dev libvpx-dev libavcodec-dev \
-    libavformat-dev libavdevice-dev libmp3lame-dev libfaad-dev \
+    uuid-dev libsdl1.2-dev libvpx-dev libmp3lame-dev libfaad-dev \
     libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
     libcurl3-dev libpulse-dev libmpg123-dev libvorbis-dev libopus-dev \
     libopusfile-dev libogg-dev libflac-dev liboggz2-dev \

@@ -164,8 +164,7 @@ function install_deps {
         libtool libmad0-dev liblog4c-dev \
         libasound2-dev libdbus-1-dev \
         libdbus-c++-dev libsqlite3-dev libboost-all-dev \
-        uuid-dev libsdl1.2-dev libvpx-dev libavcodec-dev \
-        libavformat-dev libavdevice-dev libmp3lame-dev libfaad-dev \
+        uuid-dev libsdl1.2-dev libvpx-dev libmp3lame-dev libfaad-dev \
         libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
         libcurl3-dev libpulse-dev libsndfile1-dev libatomic-ops-dev \
         curl check wget sqlite3 dbus-x11

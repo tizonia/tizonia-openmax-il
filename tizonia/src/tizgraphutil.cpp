@@ -708,10 +708,8 @@ void graph::util::dump_graph_info (const char *ap_coding_type_str,
                                    const char *ap_graph_type_str,
                                    const std::string &uri)
 {
-#define KNRM "\x1B[0m"
-#define KGRN "\x1B[32m"
-  fprintf (stdout, "%s[%s] [%s] : '%s'.%s\n", KGRN, ap_coding_type_str,
-           ap_graph_type_str, uri.c_str (), KNRM);
+  TIZ_PRINTF_GRN ("[%s] [%s] : '%s'.\n", ap_coding_type_str,
+           ap_graph_type_str, uri.c_str ());
 }
 
 bool graph::util::is_fatal_error (const OMX_ERRORTYPE error)

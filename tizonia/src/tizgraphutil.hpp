@@ -112,6 +112,11 @@ namespace tiz
                                           const int tunnel_id,
                                           const OMX_COMMANDTYPE cmd);
 
+      template < typename ParamT, OMX_INDEXTYPE ParamIndex >
+      static OMX_ERRORTYPE normalize_tunnel_settings (
+          const omx_comp_handle_lst_t &hdl_list, const int tunnel_id,
+          const OMX_U32 out_port_id, const OMX_U32 in_port_id);
+
       static OMX_ERRORTYPE disable_tunnel (
           const omx_comp_handle_lst_t &hdl_list, const int tunnel_id);
 

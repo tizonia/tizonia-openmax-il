@@ -210,14 +210,12 @@ void graph::httpclntops::do_reconfigure_tunnel ()
                           &renderer_pcmtype),
         "Unable to set the PCM settings on the audio renderer");
 
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-    fprintf (stdout, "   %s%ld Ch, %g KHz, %lu:%s:%s %s\n", KYEL,
+    TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu:%s:%s\n",
              renderer_pcmtype.nChannels,
              ((float)renderer_pcmtype.nSamplingRate) / 1000,
              renderer_pcmtype.nBitPerSample,
              renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-             renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l", KNRM);
+             renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
   }
 }
 
@@ -381,10 +379,7 @@ OMX_ERRORTYPE graph::httpclntops::dump_metadata_item (const OMX_U32 index)
     rc = OMX_GetConfig (handles_[0], OMX_IndexConfigMetadataItem, p_meta);
     if (OMX_ErrorNone == rc)
     {
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-      fprintf (stdout, "   %s%s : %s%s\n", KYEL, p_meta->nKey, p_meta->nValue,
-               KNRM);
+      TIZ_PRINTF_YEL ("   %s : %s\n", p_meta->nKey, p_meta->nValue);
     }
 
     tiz_mem_free (p_meta);
@@ -597,14 +592,12 @@ graph::httpclntops::set_channels_and_rate_on_renderer (
                                      "Connection established",
                                      playlist_->get_current_uri ().c_str ());
 
-#define KNRM "\x1B[0m"
-#define KYEL "\x1B[33m"
-  fprintf (stdout, "   %s%ld Ch, %g KHz, %lu:%s:%s %s\n", KYEL,
+  TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu:%s:%s\n",
            renderer_pcmtype.nChannels,
            ((float)renderer_pcmtype.nSamplingRate) / 1000,
            renderer_pcmtype.nBitPerSample,
            renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-           renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l", KNRM);
+           renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
 
   return OMX_ErrorNone;
 }

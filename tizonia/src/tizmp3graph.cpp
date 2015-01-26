@@ -147,12 +147,41 @@ bool graph::mp3decops::is_disabled_evt_required () const
 
 void graph::mp3decops::do_configure ()
 {
+  if (last_op_succeeded ())
+  {
+    G_OPS_BAIL_IF_ERROR (
+        util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
+        "Unable to set OMX_IndexParamContentURI");
+    OMX_ERRORTYPE rc = tiz::graph::util::
+        normalize_tunnel_settings< OMX_AUDIO_PARAM_PCMMODETYPE,
+                                   OMX_IndexParamAudioPcm >(
+            handles_, 1,  // tunneld id, i.e. this is decoder <-> renderer),
+            1,            // decoder's output port
+            0);           // renderer's input port
+    G_OPS_BAIL_IF_ERROR (rc, "Unable to transfer OMX_IndexParamAudioPcm");
+    G_OPS_BAIL_IF_ERROR (
+        tiz::graph::util::set_pcm_mode (
+            handles_[2], 0,
+            boost::bind (&tiz::graph::mp3decops::get_pcm_codec_info, this, _1)),
+        "Unable to set OMX_IndexParamAudioPcm");
+  }
+}
+
+void graph::mp3decops::get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype)
+{
+  OMX_U32 dec_port_id = 1;
+  OMX_AUDIO_PARAM_PCMMODETYPE dec_pcmtype;
+  TIZ_INIT_OMX_PORT_STRUCT (dec_pcmtype, dec_port_id);
+
   G_OPS_BAIL_IF_ERROR (
-      util::set_content_uri (handles_[0], probe_ptr_->get_uri ()),
-      "Unable to set OMX_IndexParamContentURI");
-  G_OPS_BAIL_IF_ERROR (
-      tiz::graph::util::set_pcm_mode (
-          handles_[2], 0,
-          boost::bind (&tiz::probe::get_pcm_codec_info, probe_ptr_, _1)),
-      "Unable to set OMX_IndexParamAudioPcm");
+      OMX_GetParameter (handles_[1], OMX_IndexParamAudioPcm, &dec_pcmtype),
+      "Unable to get OMX_IndexParamAudioPcm from decoder");
+
+  assert (probe_ptr_);
+  probe_ptr_->get_pcm_codec_info (pcmtype);
+
+  // Ammend the endianness, sign, and interleave cofig as per the decoder values
+  pcmtype.eEndian = dec_pcmtype.eEndian;
+  pcmtype.eNumData = dec_pcmtype.eNumData;
+  pcmtype.bInterleaved = dec_pcmtype.bInterleaved;
 }

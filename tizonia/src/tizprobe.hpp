@@ -21,7 +21,7 @@
  * @file   tizprobe.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  File probing utilities
+ * @brief  Stream probing utilities
  *
  *
  */
@@ -40,8 +40,6 @@
 #include <OMX_Audio.h>
 #include <OMX_Video.h>
 #include <OMX_TizoniaExt.h>
-
-class AVCodecContext;
 
 namespace tiz
 {
@@ -93,13 +91,31 @@ namespace tiz
     void dump_stream_metadata ();
 
   private:
-    int probe_file ();
-    void set_mp2_codec_info (const AVCodecContext *cc);
-    void set_mp3_codec_info (const AVCodecContext *cc);
-    void set_aac_codec_info (const AVCodecContext *cc);
-    void set_opus_codec_info ();
-    void set_flac_codec_info (const AVCodecContext *cc);
-    void set_vorbis_codec_info (const AVCodecContext *cc);
+    void probe_stream ();
+    void set_mp2_codec_info (const OMX_U32 samplerate, const OMX_U32 bitrate,
+                             const OMX_U32 nchannels, const OMX_U32 bitdepth,
+                             const OMX_ENDIANTYPE endianness,
+                             const OMX_NUMERICALDATATYPE sign);
+    void set_mp3_codec_info (const OMX_U32 samplerate, const OMX_U32 bitrate,
+                             const OMX_U32 nchannels, const OMX_U32 bitdepth,
+                             const OMX_ENDIANTYPE endianness,
+                             const OMX_NUMERICALDATATYPE sign);
+    void set_aac_codec_info (const OMX_U32 samplerate, const OMX_U32 bitrate,
+                             const OMX_U32 nchannels, const OMX_U32 bitdepth,
+                             const OMX_ENDIANTYPE endianness,
+                             const OMX_NUMERICALDATATYPE sign);
+    void set_opus_codec_info (const OMX_U32 samplerate, const OMX_U32 bitrate,
+                              const OMX_U32 nchannels, const OMX_U32 bitdepth,
+                              const OMX_ENDIANTYPE endianness,
+                              const OMX_NUMERICALDATATYPE sign);
+    void set_flac_codec_info (const OMX_U32 samplerate, const OMX_U32 bitrate,
+                              const OMX_U32 nchannels, const OMX_U32 bitdepth,
+                              const OMX_ENDIANTYPE endianness,
+                              const OMX_NUMERICALDATATYPE sign);
+    void set_vorbis_codec_info (const OMX_U32 samplerate, const OMX_U32 bitrate,
+                                const OMX_U32 nchannels, const OMX_U32 bitdepth,
+                                const OMX_ENDIANTYPE endianness,
+                                const OMX_NUMERICALDATATYPE sign);
     std::string retrieve_meta_data_str (
         TagLib::String (TagLib::Tag::*TagFunction)() const) const;
     unsigned int retrieve_meta_data_uint (

@@ -68,6 +68,9 @@ namespace tiz
 
     protected:
       bool need_port_settings_changed_evt_;
+
+    private:
+      void get_pcm_codec_info (OMX_AUDIO_PARAM_PCMMODETYPE &pcmtype);
     };
   }  // namespace graph
 }  // namespace tiz
