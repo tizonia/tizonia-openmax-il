@@ -655,11 +655,7 @@ tiz::playapp::spotify_stream ()
   std::string pass (popts_.spotify_password ());
   const uri_lst_t &uri_list = popts_.spotify_playlist_container ();
 
-  // TODO: daemon support
-  //   if (!popts_.daemon ())
-    {
-      print_banner ();
-    }
+  print_banner ();
 
   // If a username was supplied without a password, prompt for one
   if (!user.empty () && pass.empty ())
@@ -670,8 +666,8 @@ tiz::playapp::spotify_stream ()
       TIZ_PRINTF_RED ("\n");
     }
 
-  // TODO: daemon support
-  //   (void)daemonize_if_requested ();
+  // daemon support
+  (void)daemonize_if_requested ();
 
   tizplaylist_ptr_t playlist
     = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));

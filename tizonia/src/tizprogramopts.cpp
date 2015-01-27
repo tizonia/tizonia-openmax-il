@@ -770,9 +770,9 @@ bool tiz::programopts::verify_streaming_server_options () const
 bool tiz::programopts::verify_spotify_client_options () const
 {
   bool outcome = true;
-  unsigned int spotify_opts_count = vm_.count ("spotify-user")
-                                    + vm_.count ("spotify-password")
-                                    + vm_.count ("spotify-playlist");
+  unsigned int spotify_opts_count
+      = vm_.count ("spotify-user") + vm_.count ("spotify-password")
+        + vm_.count ("spotify-playlist") + vm_.count ("log-directory");
   if (!vm_.count ("spotify-user") || !vm_.count ("spotify-playlist")
       || !is_options_count_valid (spotify_opts_count))
   {
@@ -841,13 +841,13 @@ bool tiz::programopts::validate_sampling_rates_argument (std::string &msg)
 bool tiz::programopts::is_options_count_valid (
     const unsigned int mode_opts_count) const
 {
-  unsigned int general_opts_count = get_general_options_count (vm_);
-  unsigned int debug_opts_count = get_debug_options_count (vm_);
+//   unsigned int general_opts_count = get_general_options_count (vm_);
+//   unsigned int debug_opts_count = get_debug_options_count (vm_);
 
-  // TIZ_PRINTF_DBG_RED ("mode [%u]\n", mode_opts_count);
-  // TIZ_PRINTF_DBG_RED ("default [%u]\n", default_options_count_);
-  // TIZ_PRINTF_DBG_RED ("general [%u]\n", general_opts_count);
-  // TIZ_PRINTF_DBG_RED ("debug [%u]\n", debug_opts_count);
+  // TIZ_PRINTF_RED ("mode [%u]\n", mode_opts_count);
+  // TIZ_PRINTF_RED ("default [%u]\n", default_options_count_);
+  // TIZ_PRINTF_RED ("general [%u]\n", general_opts_count);
+  // TIZ_PRINTF_RED ("debug [%u]\n", debug_opts_count);
 
   // boost::program_options::variables_map::const_iterator it = vm_.begin ();
   // boost::program_options::variables_map::const_iterator end_it = vm_.end ();
@@ -857,9 +857,8 @@ bool tiz::programopts::is_options_count_valid (
   //   ++it;
   // }
 
-  return ((vm_.size () - default_options_count_ + general_opts_count
-           + debug_opts_count)
-          == (mode_opts_count + general_opts_count + debug_opts_count));
+  return ((vm_.size () - default_options_count_)
+          == mode_opts_count);
 }
 
 void tiz::programopts::register_consume_function (const consume_mem_fn_t cf)
