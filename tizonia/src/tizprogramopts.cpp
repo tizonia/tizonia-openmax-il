@@ -640,6 +640,8 @@ int tiz::programopts::consume_streaming_server_options (bool &done,
       rc = call_handler (option_handlers_map_.find ("serve-stream"));
     }
   }
+  TIZ_PRINTF_DBG_RED ("serve-stream ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
 
@@ -759,11 +761,14 @@ bool tiz::programopts::verify_streaming_server_options () const
   unsigned int server_opts_count
       = vm_.count ("server") + vm_.count ("port") + vm_.count ("bitrate-modes")
         + vm_.count ("sampling-rates") + vm_.count ("station-name")
-        + vm_.count ("station-genre");
+        + vm_.count ("station-genre") + 1; // Add 1 to account for the uri
+                                           // parameter
   if (!vm_.count ("server") || !is_options_count_valid (server_opts_count))
   {
     outcome = false;
   }
+  TIZ_PRINTF_DBG_RED ("verify_streaming_server_options ; rc = [%s]\n",
+                      outcome ? "SUCCESS" : "FAILURE");
   return outcome;
 }
 
@@ -841,9 +846,10 @@ bool tiz::programopts::validate_sampling_rates_argument (std::string &msg)
 bool tiz::programopts::is_options_count_valid (
     const unsigned int mode_opts_count) const
 {
-//   unsigned int general_opts_count = get_general_options_count (vm_);
-//   unsigned int debug_opts_count = get_debug_options_count (vm_);
-
+  // unsigned int general_opts_count = get_general_options_count (vm_);
+  // unsigned int debug_opts_count = get_debug_options_count (vm_);
+  //
+  // TIZ_PRINTF_RED ("vm_.size [%u]\n", vm_.size ());
   // TIZ_PRINTF_RED ("mode [%u]\n", mode_opts_count);
   // TIZ_PRINTF_RED ("default [%u]\n", default_options_count_);
   // TIZ_PRINTF_RED ("general [%u]\n", general_opts_count);
