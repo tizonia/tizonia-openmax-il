@@ -140,7 +140,7 @@ namespace tiz
     int port_;
     std::string station_name_;
     std::string station_genre_;
-    bool icy_metadata_;
+    bool no_icy_metadata_;
     std::string bitrates_;
     std::vector< std::string > bitrate_list_;
     std::string sampling_rates_;
@@ -150,7 +150,6 @@ namespace tiz
     std::string spotify_pass_;
     std::string spotify_playlist_;
     std::vector< std::string > spotify_playlist_container_;
-    unsigned int default_options_count_;
     std::vector<consume_function_t> consume_functions_;
 
     std::vector<std::string> all_general_options_;

@@ -562,17 +562,17 @@ tiz::playapp::serve_stream ()
     struct hostent *p_hostent = gethostbyname (hostname);
     struct in_addr ip_addr = *(struct in_addr *)(p_hostent->h_addr);
     ip_address = inet_ntoa (ip_addr);
-    fprintf (stdout, "[%s] - Server streaming on http://%s:%ld\n",
+    fprintf (stdout, "[%s]: Server streaming on http://%s:%ld\n",
              station_name.c_str (), hostname, port);
     if (!sampling_rates.empty ())
     {
-      fprintf (stdout, "NOTE: Streaming media with sampling rates [%s].\n",
-               sampling_rates.c_str ());
+      fprintf (stdout, "[%s]: Streaming media with sampling rates [%s].\n",
+               station_name.c_str (), sampling_rates.c_str ());
     }
     if (!bitrate_list.empty () || bitrate_list.size () == TIZ_MAX_BITRATE_MODES)
     {
-      fprintf (stdout, "NOTE: Streaming media with bitrates [%s].\n",
-               bitrates.c_str ());
+      fprintf (stdout, "[%s]: Streaming media with bitrates [%s].\n",
+               station_name.c_str (), bitrates.c_str ());
     }
     fprintf (stdout, "\n");
   }

@@ -140,21 +140,6 @@ namespace
     return rc;
   }
 
-  unsigned int get_general_options_count (
-      const boost::program_options::variables_map &vm)
-  {
-    return ((vm["recurse"].defaulted () ? 0 : 1)
-            + (vm["shuffle"].defaulted () ? 0 : 1)
-            + (vm["daemon"].defaulted () ? 0 : 1));
-  }
-
-  unsigned int get_debug_options_count (
-      const boost::program_options::variables_map &vm)
-  {
-    return ((vm["debug-info"].defaulted () ? 0 : 1)
-            + vm.count ("log-directory"));
-  }
-
   void concat_option_lists (std::vector< std::string > &a,
                             const std::vector< std::string > &b)
   {
@@ -229,7 +214,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     port_ (TIZ_STREAMING_SERVER_DEFAULT_PORT),
     station_name_ ("Tizonia Radio"),
     station_genre_ ("Unknown Genre"),
-    icy_metadata_ (true),
+    no_icy_metadata_ (false),
     bitrates_ (),
     bitrate_list_ (),
     sampling_rates_ (),
@@ -239,7 +224,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_pass_ (),
     spotify_playlist_ (),
     spotify_playlist_container_ (),
-    default_options_count_ (0),
     consume_functions_ (),
     all_general_options_ (),
     all_debug_options_ (),
@@ -381,7 +365,7 @@ const std::string &tiz::programopts::station_genre () const
 
 bool tiz::programopts::icy_metadata () const
 {
-  return icy_metadata_;
+  return !no_icy_metadata_;
 }
 
 const std::string &tiz::programopts::bitrates () const
@@ -481,9 +465,7 @@ void tiz::programopts::init_general_options ()
        "Run in the background.")
       /* TIZ_CLASS_COMMENT: */
       ;
-  // Here we are defining 3 default options
-  default_options_count_ += 3;
-  register_consume_function(&tiz::programopts::consume_general_options);
+  register_consume_function (&tiz::programopts::consume_general_options);
   // TODO: help and version are not included. These should be moved out of
   // "general" and into its own category: "info"
   all_general_options_
@@ -501,10 +483,8 @@ void tiz::programopts::init_debug_options ()
           "Print debug-related information.")
       /* TIZ_CLASS_COMMENT: */
       ;
-  // Here we are defining 1 default options
-  default_options_count_ += 1;
-  register_consume_function(&tiz::programopts::consume_debug_options);
-  all_debug_options_ = boost::assign::list_of("log-directory")("debug-info");
+  register_consume_function (&tiz::programopts::consume_debug_options);
+  all_debug_options_ = boost::assign::list_of ("log-directory")("debug-info");
 }
 
 void tiz::programopts::init_omx_options ()
@@ -521,8 +501,9 @@ void tiz::programopts::init_omx_options ()
        "Display the OpenMAX IL components that implement role <arg>.")
       /* TIZ_CLASS_COMMENT: */
       ;
-  register_consume_function(&tiz::programopts::consume_omx_options);
-  all_omx_options_ = boost::assign::list_of("comp-list")("roles-of-comp")("comps-of-role");
+  register_consume_function (&tiz::programopts::consume_omx_options);
+  all_omx_options_
+      = boost::assign::list_of ("comp-list")("roles-of-comp")("comps-of-role");
 }
 
 void tiz::programopts::init_streaming_server_options ()
@@ -542,7 +523,8 @@ void tiz::programopts::init_streaming_server_options ()
       ("station-genre", po::value (&station_genre_),
        "The Icecast/SHOUTcast station genre. Optional.")
       /* TIZ_CLASS_COMMENT: */
-      ("no-icy-metadata", "Disables Icecast/SHOUTcast metadata in the stream.")
+      ("no-icy-metadata", po::bool_switch (&no_icy_metadata_),
+       "Disables Icecast/SHOUTcast metadata in the stream.")
       /* TIZ_CLASS_COMMENT: */
       ("bitrate-modes", po::value (&bitrates_),
        "A comma-separated list of "
@@ -561,9 +543,6 @@ void tiz::programopts::init_streaming_server_options ()
 
   // Give a default value to the bitrate list
   bitrates_ = std::string ("CBR,VBR");
-  // By default, icy metadata will be enabled. Unless no-icy-metadata is given
-  // on the command line
-  icy_metadata_ = true;
   boost::split (bitrate_list_, bitrates_, boost::is_any_of (","));
   register_consume_function (
       &tiz::programopts::consume_streaming_server_options);
@@ -652,6 +631,8 @@ int tiz::programopts::consume_debug_options (bool &done, std::string &msg)
     rc = EXIT_SUCCESS;
     done = true;
   }
+  TIZ_PRINTF_DBG_RED ("debug-opts ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
 
@@ -672,6 +653,8 @@ int tiz::programopts::consume_general_options (bool &done,
     done = true;
     rc = EXIT_SUCCESS;
   }
+  TIZ_PRINTF_DBG_RED ("general-opts ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
 
@@ -710,6 +693,8 @@ int tiz::programopts::consume_omx_options (bool &done, std::string &msg)
       rc = EXIT_SUCCESS;
     }
   }
+  TIZ_PRINTF_DBG_RED ("omx-opts ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
 
@@ -747,6 +732,8 @@ int tiz::programopts::consume_streaming_client_options (bool &done,
     done = true;
     rc = call_handler (option_handlers_map_.find ("decode-stream"));
   }
+  TIZ_PRINTF_DBG_RED ("streaming-client ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
 
@@ -779,6 +766,8 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
       rc = call_handler (option_handlers_map_.find ("spotify-stream"));
     }
   }
+  TIZ_PRINTF_DBG_RED ("spotify ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
 
@@ -793,6 +782,8 @@ int tiz::programopts::consume_local_decode_options (bool &done,
     done = true;
     rc = call_handler (option_handlers_map_.find ("decode-local"));
   }
+  TIZ_PRINTF_DBG_RED ("decode-local ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
 
@@ -804,7 +795,6 @@ int tiz::programopts::consume_input_file_uris_option ()
     rc = EXIT_SUCCESS;
     uri_list_ = vm_["input-uris"].as< std::vector< std::string > >();
   }
-
   return rc;
 }
 
@@ -833,48 +823,55 @@ int tiz::programopts::consume_input_http_uris_option ()
 
 bool tiz::programopts::validate_omx_options () const
 {
-  bool outcome = true;
+  bool outcome = false;
+  const unsigned int omx_opts_count = vm_.count ("comp-list")
+                                      + vm_.count ("roles-of-comp")
+                                      + vm_.count ("comps-of-role");
 
   std::vector< std::string > all_valid_options = all_omx_options_;
   concat_option_lists (all_valid_options, all_general_options_);
   concat_option_lists (all_valid_options, all_debug_options_);
 
-  if (!is_valid_options_combination (all_valid_options, all_given_options_))
+  if (omx_opts_count > 0 && omx_opts_count <= 3
+      && is_valid_options_combination (all_valid_options, all_given_options_))
   {
-    outcome = false;
+    outcome = true;
   }
   return outcome;
 }
 
 bool tiz::programopts::validate_streaming_server_options () const
 {
-  bool outcome = true;
+  bool outcome = false;
 
   std::vector< std::string > all_valid_options = all_streaming_server_options_;
   concat_option_lists (all_valid_options, all_general_options_);
   concat_option_lists (all_valid_options, all_debug_options_);
   concat_option_lists (all_valid_options, all_input_uri_options_);
 
-  if (!is_valid_options_combination (all_valid_options, all_given_options_))
+  if (vm_.count ("server")
+      && is_valid_options_combination (all_valid_options, all_given_options_))
   {
-    outcome = false;
+    outcome = true;
   }
-  TIZ_PRINTF_DBG_RED ("validate_streaming_server_options ; rc = [%s]\n",
-                      outcome ? "SUCCESS" : "FAILURE");
   return outcome;
 }
 
 bool tiz::programopts::validate_spotify_client_options () const
 {
-  bool outcome = true;
+  bool outcome = false;
+  unsigned int spotify_opts_count
+      = vm_.count ("spotify-user") + vm_.count ("spotify-password")
+        + vm_.count ("spotify-playlist") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_spotify_client_options_;
   concat_option_lists (all_valid_options, all_general_options_);
   concat_option_lists (all_valid_options, all_debug_options_);
 
-  if (!is_valid_options_combination (all_valid_options, all_given_options_))
+  if (spotify_opts_count > 0
+      && is_valid_options_combination (all_valid_options, all_given_options_))
   {
-    outcome = false;
+    outcome = true;
   }
   return outcome;
 }
@@ -938,7 +935,7 @@ bool tiz::programopts::validate_sampling_rates_argument (std::string &msg)
 
 void tiz::programopts::register_consume_function (const consume_mem_fn_t cf)
 {
-  consume_functions_.push_back (boost::bind(boost::mem_fn (cf), this, _1, _2));
+  consume_functions_.push_back (boost::bind (boost::mem_fn (cf), this, _1, _2));
 }
 
 int tiz::programopts::call_handler (

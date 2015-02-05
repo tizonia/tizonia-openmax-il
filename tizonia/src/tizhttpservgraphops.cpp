@@ -209,20 +209,17 @@ graph::httpservops::configure_station ()
             srv_config->get_host_name ().c_str (), srv_config->get_port ());
   snprintf ((char *)mount.cStationDescription,
             sizeof(mount.cStationDescription),
-            "Tizonia Audio Streaming Server");
+            "Tizonia Streaming Server");
   snprintf ((char *)mount.cStationGenre, sizeof(mount.cStationGenre), "%s",
             srv_config->get_station_genre ().c_str ());
   snprintf ((char *)mount.cStationUrl, sizeof(mount.cStationUrl),
             "http://tizonia.org");
 
-  if (srv_config->get_icy_metadata_enabled ())
-  {
-    mount.nIcyMetadataPeriod = TIZ_DEFAULT_ICY_METADATA_INTERVAL;
-  }
-  else
-  {
-    mount.nIcyMetadataPeriod = 0;
-  }
+  mount.nIcyMetadataPeriod = (srv_config->get_icy_metadata_enabled () ?
+                              TIZ_DEFAULT_ICY_METADATA_INTERVAL : 0);
+
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "nIcyMetadataPeriod [%u]...",
+           mount.nIcyMetadataPeriod);
 
   mount.eEncoding = OMX_AUDIO_CodingMP3;
   mount.nMaxClients = 1;
