@@ -525,6 +525,7 @@ tiz::playapp::serve_stream ()
   const long int port = popts_.port ();
   const bool shuffle = popts_.shuffle ();
   const bool recurse = popts_.recurse ();
+  const bool icy_metadata = popts_.icy_metadata ();
   const std::string &sampling_rates = popts_.sampling_rates ();
   const std::vector< int > &sampling_rate_list = popts_.sampling_rate_list ();
   const std::string &bitrates = popts_.bitrates ();
@@ -590,7 +591,7 @@ tiz::playapp::serve_stream ()
   tizgraphconfig_ptr_t config
       = boost::make_shared< tiz::graph::httpservconfig >(
           playlist, hostname, ip_address, port, sampling_rate_list,
-          bitrate_list, station_name, station_genre);
+          bitrate_list, station_name, station_genre, icy_metadata);
 
   // Instantiate the http streaming manager
   tiz::graphmgr::mgr_ptr_t p_mgr

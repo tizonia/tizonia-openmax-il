@@ -47,10 +47,12 @@ namespace tiz
                       const std::vector<int> &sampling_rate_list,
                       const std::vector< std::string > &bitrate_mode_list,
                       const std::string &station_name,
-                      const std::string &station_genre)
+                      const std::string &station_genre,
+                      const bool &icy_metadata_enabled)
         : config (playlist), host_ (host), addr_ (ip_address), port_ (port),
           sampling_rate_list_ (sampling_rate_list), bitrate_mode_list_ (bitrate_mode_list),
-          station_name_ (station_name), station_genre_ (station_genre)
+          station_name_ (station_name), station_genre_ (station_genre),
+          icy_metadata_enabled_ (icy_metadata_enabled)
       {
       }
 
@@ -93,6 +95,11 @@ namespace tiz
         return station_genre_;
       }
 
+      bool get_icy_metadata_enabled () const
+      {
+        return icy_metadata_enabled_;
+      }
+
     protected:
       const std::string host_;
       const std::string addr_;
@@ -101,6 +108,7 @@ namespace tiz
       const std::vector< std::string > bitrate_mode_list_;
       const std::string station_name_;
       const std::string station_genre_;
+      const bool icy_metadata_enabled_;
     };
   }  // namespace graph
 }  // namespace tiz

@@ -29,8 +29,9 @@
 #ifndef TIZPROGRAMOPTS_HPP
 #define TIZPROGRAMOPTS_HPP
 
-#include <map>
 #include <string>
+#include <map>
+#include <vector>
 
 #include <boost/program_options.hpp>
 #include <boost/function.hpp>
@@ -66,6 +67,7 @@ namespace tiz
     int port () const;
     const std::string &station_name () const;
     const std::string &station_genre () const;
+    bool icy_metadata () const;
     const std::string &bitrates () const;
     const std::vector< std::string > &bitrate_list () const;
     const std::string &sampling_rates () const;
@@ -102,13 +104,12 @@ namespace tiz
     int consume_input_file_uris_option ();
     int consume_input_http_uris_option ();
 
-    bool verify_omx_options () const;
-    bool verify_streaming_server_options () const;
-    bool verify_spotify_client_options () const;
+    bool validate_omx_options () const;
+    bool validate_streaming_server_options () const;
+    bool validate_spotify_client_options () const;
     bool validate_port_argument (std::string &msg) const;
     bool validate_bitrates_argument (std::string &msg);
     bool validate_sampling_rates_argument (std::string &msg);
-    bool is_options_count_valid (const unsigned int mode_opts_count) const;
 
     int call_handler (const option_handlers_map_t::const_iterator &handler_it);
 
@@ -139,6 +140,7 @@ namespace tiz
     int port_;
     std::string station_name_;
     std::string station_genre_;
+    bool icy_metadata_;
     std::string bitrates_;
     std::vector< std::string > bitrate_list_;
     std::string sampling_rates_;
@@ -150,6 +152,15 @@ namespace tiz
     std::vector< std::string > spotify_playlist_container_;
     unsigned int default_options_count_;
     std::vector<consume_function_t> consume_functions_;
+
+    std::vector<std::string> all_general_options_;
+    std::vector<std::string> all_debug_options_;
+    std::vector<std::string> all_omx_options_;
+    std::vector<std::string> all_streaming_server_options_;
+    std::vector<std::string> all_streaming_client_options_;
+    std::vector<std::string> all_spotify_client_options_;
+    std::vector<std::string> all_input_uri_options_;
+    std::vector<std::string> all_given_options_;
   };
 }
 #endif  // TIZPROGRAMOPTS_HPP

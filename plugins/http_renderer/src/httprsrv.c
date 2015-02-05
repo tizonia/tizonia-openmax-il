@@ -74,6 +74,7 @@ typedef struct httpr_mount httpr_mount_t;
 struct httpr_listener_buffer
 {
   unsigned int len;
+  unsigned int metadata_offset;
   unsigned int metadata_bytes;
   char *p_data;
 };
@@ -645,6 +646,7 @@ static OMX_ERRORTYPE srv_create_listener (httpr_server_t *ap_server,
   p_lstnr->intro_offset = 0;
   p_lstnr->pos = 0;
   p_lstnr->buf.len = ICE_LISTENER_BUF_SIZE;
+  p_lstnr->buf.metadata_offset = 0;
   p_lstnr->buf.metadata_bytes = 0;
   p_lstnr->p_parser = NULL;
   p_lstnr->need_response = true;
@@ -1071,15 +1073,16 @@ static inline bool srv_is_time_to_send_metadata (httpr_server_t *ap_server,
 static inline size_t srv_get_metadata_offset (const httpr_server_t *ap_server,
                                               const httpr_listener_t *ap_lstnr)
 {
-  if (ap_lstnr->p_con->sent_total == 0)
+  size_t offset = 0;
+  if (ap_lstnr->p_con->sent_total != 0)
     {
-      return 0;
+      offset = (ap_server->mountpoint.metadata_period
+                * ((ap_lstnr->p_con->sent_total + ap_server->burst_size)
+                   / ap_server->mountpoint.metadata_period))
+        - ap_lstnr->p_con->sent_total;
     }
 
-  return (ap_server->mountpoint.metadata_period
-          * ((ap_lstnr->p_con->sent_total + ap_server->burst_size)
-             / ap_server->mountpoint.metadata_period))
-         - ap_lstnr->p_con->sent_total;
+  return offset;
 }
 
 static inline size_t srv_get_metadata_length (const httpr_server_t *ap_server,
@@ -1113,17 +1116,15 @@ static void srv_arrange_metadata (httpr_server_t *ap_server,
       || 0 == ap_server->mountpoint.metadata_period
       || !srv_is_time_to_send_metadata (ap_server, ap_lstnr))
     {
-      p_lstnr_buf->metadata_bytes = 0;
+      /* p_lstnr_buf->metadata_bytes = 0; */
       return;
     }
 
-  /* If metadata needs to be sent in this burst, copy both data + metadata into
-   * the listener buffer */
   {
     OMX_U8 *p_buffer = *app_buffer;
     size_t metadata_offset = srv_get_metadata_offset (ap_server, ap_lstnr);
 
-    if (metadata_offset < len)
+    if (metadata_offset < len && 0 == p_lstnr_buf->metadata_bytes)
       {
         OMX_U8 *p_dest = NULL;
         OMX_U8 *p_src = NULL;
@@ -1131,18 +1132,13 @@ static void srv_arrange_metadata (httpr_server_t *ap_server,
         size_t metadata_total = 0;
         size_t metadata_byte = 0;
 
-        /* We use the listener's buffer to inline the metadata */
-        if (p_lstnr_buf->len == 0)
-          {
-            memcpy (p_lstnr_buf->p_data, p_buffer, len);
-            p_buffer = (OMX_U8 *)p_lstnr_buf->p_data;
-            p_lstnr_buf->len = len;
-            ap_lstnr->pos += len;
-          }
-
         if (metadata_len > 0)
           {
-            metadata_byte = (metadata_len - 1) / 16 + 1;
+            metadata_byte = metadata_len / 16;
+            if (metadata_len % 16)
+              {
+                metadata_byte++;
+              }
           }
         else
           {
@@ -1156,7 +1152,8 @@ static void srv_arrange_metadata (httpr_server_t *ap_server,
         /* Move content to make space for the metadata */
         memmove (p_dest, p_src, len - metadata_offset);
 
-        p_lstnr_buf->metadata_bytes = metadata_total;
+        p_lstnr_buf->metadata_bytes += metadata_total;
+        p_lstnr_buf->metadata_offset += metadata_offset;
 
         if (metadata_len)
           {
@@ -1195,40 +1192,26 @@ static void srv_arrange_data (httpr_server_t *ap_server,
   p_lstnr_buf = &ap_lstnr->buf;
   p_hdr = ap_server->p_hdr;
 
-  if (p_lstnr_buf->len > 0)
+  if (p_hdr && p_hdr->pBuffer && p_hdr->nFilledLen > 0)
     {
-      if (NULL != p_hdr && NULL != p_hdr->pBuffer && p_hdr->nFilledLen > 0)
+      int to_copy = 0;
+      if (ap_server->burst_size > p_lstnr_buf->len)
         {
-          int to_copy = ap_server->burst_size - p_lstnr_buf->len;
-          if (to_copy > p_hdr->nFilledLen)
-            {
-              to_copy = p_hdr->nFilledLen;
-            }
-          memcpy (p_lstnr_buf->p_data + p_lstnr_buf->len,
-                  p_hdr->pBuffer + p_hdr->nOffset, to_copy);
-          ap_lstnr->pos = to_copy;
-          p_lstnr_buf->len += to_copy;
+          to_copy = ap_server->burst_size - p_lstnr_buf->len;
         }
-
-      p_buffer = (OMX_U8 *)p_lstnr_buf->p_data;
-      len = p_lstnr_buf->len;
-    }
-  else
-    {
-      if (p_hdr->nFilledLen > 0)
+      if (to_copy > p_hdr->nFilledLen)
         {
-          p_buffer = p_hdr->pBuffer + p_hdr->nOffset + ap_lstnr->pos;
-
-          assert (p_hdr->nAllocLen >= (p_hdr->nOffset + p_hdr->nFilledLen));
-          assert (ap_lstnr->pos <= p_hdr->nFilledLen);
-
-          len = p_hdr->nFilledLen - ap_lstnr->pos;
-          if (len > ap_server->burst_size)
-            {
-              len = ap_server->burst_size;
-            }
+          to_copy = p_hdr->nFilledLen;
         }
+      memcpy (p_lstnr_buf->p_data + p_lstnr_buf->len,
+              p_hdr->pBuffer + p_hdr->nOffset, to_copy);
+      p_lstnr_buf->len += to_copy;
+      p_hdr->nFilledLen -= to_copy;
+      p_hdr->nOffset += to_copy;
     }
+
+  p_buffer = (OMX_U8 *)p_lstnr_buf->p_data;
+  len = p_lstnr_buf->len;
 
   srv_arrange_metadata (ap_server, ap_lstnr, &p_buffer, &len);
 
@@ -1236,84 +1219,115 @@ static void srv_arrange_data (httpr_server_t *ap_server,
   *app_buffer = p_buffer;
 }
 
+static OMX_ERRORTYPE srv_write_to_listener (httpr_server_t *ap_server,
+                                            httpr_listener_t *ap_lstnr,
+                                            const void *ap_buffer,
+                                            const size_t a_buf_len,
+                                            int *a_bytes_written)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  int bytes = 0;
+  httpr_connection_t *p_con = NULL;
+  int sock = ICE_SOCK_ERROR;
+
+  assert (NULL != ap_server);
+  assert (NULL != ap_lstnr);
+  assert (NULL != ap_buffer);
+  assert (NULL != a_bytes_written);
+
+  p_con = ap_lstnr->p_con;
+  sock = p_con->sockfd;
+  *a_bytes_written = 0;
+  errno = 0;
+
+  bytes = send (sock, (const void *)ap_buffer, a_buf_len, MSG_NOSIGNAL);
+
+  if (bytes < 0)
+    {
+      if (!srv_is_recoverable_error (ap_server, sock, errno))
+        {
+          TIZ_PRINTF_DBG_RED (
+              "Non-recoverable error while writing to the socket (will destroy "
+              "listener)\n");
+          /* Mark the listener as failed, so that it will get removed */
+          rc = OMX_ErrorNoMore;
+        }
+      else
+        {
+          TIZ_PRINTF_DBG_RED (
+              "Recoverable error while writing to the socket"
+              "(re-starting io watcher)\n");
+          (void)srv_start_listener_io_watcher (ap_lstnr);
+          (void)srv_stop_listener_timer_watcher (ap_lstnr);
+          rc = OMX_ErrorNotReady;
+        }
+    }
+  else
+    {
+      *a_bytes_written = bytes;
+    }
+  return rc;
+}
+
 static OMX_ERRORTYPE srv_write_omx_buffer (httpr_server_t *ap_server,
                                            httpr_listener_t *ap_lstnr)
 {
-  httpr_listener_buffer_t *p_lstnr_buf = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   httpr_connection_t *p_con = NULL;
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  OMX_HANDLETYPE p_hdl = NULL;
-  OMX_U8 *p_buffer = NULL;
   int sock = ICE_SOCK_ERROR;
-  size_t len = 0;
-  int bytes = 0;
 
   assert (NULL != ap_server);
-  assert (NULL != ap_server->p_hdr);
   assert (NULL != ap_lstnr);
   assert (NULL != ap_lstnr->p_con);
 
-  p_hdr = ap_server->p_hdr;
-  p_hdl = handleOf (ap_server->p_parent);
   p_con = ap_lstnr->p_con;
-  p_lstnr_buf = &ap_lstnr->buf;
   sock = p_con->sockfd;
 
   p_con->sent_last = 0;
 
   if (!srv_is_valid_socket (sock))
     {
-      TIZ_WARN (p_hdl,
+      TIZ_WARN (handleOf (ap_server->p_parent),
                 "Will destroy listener "
                 "(Invalid listener socket fd [%d])",
                 sock);
       /* The socket is not valid anymore. The listener will be removed. */
-      return OMX_ErrorNoMore;
+      rc = OMX_ErrorNoMore;
     }
-
-  /* Obtain a pointer to the data and the amount of data to be written */
-  srv_arrange_data (ap_server, ap_lstnr, &p_buffer, &len);
-
-  if (len > 0)
+  else
     {
-      errno = 0;
-      bytes = send (sock, (const void *)p_buffer, len, MSG_NOSIGNAL);
+      httpr_listener_buffer_t *p_lstnr_buf = &ap_lstnr->buf;
+      OMX_U8 *p_buffer = NULL;
+      size_t len = 0;
+      int bytes = 0;
 
-      if (bytes < 0)
+      /* Obtain a pointer to the data and the amount of data to be written */
+      srv_arrange_data (ap_server, ap_lstnr, &p_buffer, &len);
+
+      if (len > 0)
         {
-          if (!srv_is_recoverable_error (ap_server, sock, errno))
-            {
-              TIZ_PRINTF_DBG_RED (
-                  "Will destroy listener "
-                  "(non-recoverable error while writing to socket\n");
-              /* Mark the listener as failed, so that it will get removed */
-              return OMX_ErrorNoMore;
-            }
-          else
-            {
-              TIZ_TRACE (p_hdl,
-                         "Recoverable error "
-                         "(re-starting io watcher)");
-              (void)srv_start_listener_io_watcher (ap_lstnr);
-              (void)srv_stop_listener_timer_watcher (ap_lstnr);
-              return OMX_ErrorNotReady;
-            }
-        }
-      else
-        {
+          int metadata_sent = 0;
+          tiz_check_omx_err (srv_write_to_listener (ap_server, ap_lstnr,
+                                                    p_buffer, len, &bytes));
+          assert (bytes >= 0);
+
+          p_lstnr_buf->len -= bytes;
+          assert (p_lstnr_buf->len >= 0);
           if (p_lstnr_buf->len > 0)
             {
-              p_lstnr_buf->len -= bytes;
+              memmove (p_lstnr_buf->p_data, p_lstnr_buf->p_data + bytes,
+                       p_lstnr_buf->len);
             }
-          else
+
+          if (bytes > p_lstnr_buf->metadata_offset)
             {
-              ap_lstnr->pos += (bytes - p_lstnr_buf->metadata_bytes);
+              metadata_sent = MIN ((bytes - p_lstnr_buf->metadata_offset),
+                                   p_lstnr_buf->metadata_bytes);
             }
 
           if (p_con->initial_burst_bytes > 0)
             {
-              p_con->initial_burst_bytes
-                  -= (bytes - p_lstnr_buf->metadata_bytes);
+              p_con->initial_burst_bytes -= (bytes - metadata_sent);
             }
           else
             {
@@ -1323,58 +1337,58 @@ static OMX_ERRORTYPE srv_write_omx_buffer (httpr_server_t *ap_server,
                 }
             }
 
-          p_con->sent_total += (bytes - p_lstnr_buf->metadata_bytes);
-          p_con->sent_last = (bytes - p_lstnr_buf->metadata_bytes);
-          p_con->burst_bytes += (bytes - p_lstnr_buf->metadata_bytes);
+          p_con->sent_total += (bytes - metadata_sent);
+          p_con->sent_last = (bytes - metadata_sent);
+          p_con->burst_bytes += (bytes - metadata_sent);
 
           {
             time_t t = time (NULL);
             double d = difftime (t, p_con->con_time);
             uint64_t rate = d ? p_con->sent_total / (uint64_t)d : 0;
-            TIZ_PRINTF_DBG_RED (
+            TIZ_PRINTF_DBG_BLU (
                 "total [%lld] last [%d] burst [%d] time [%f] rate [%lld] "
                 "server burst [%d] bytes [%d]\n",
                 p_con->sent_total, p_con->sent_last, p_con->burst_bytes, d,
                 rate, ap_server->burst_size, bytes);
           }
-          p_lstnr_buf->metadata_bytes = 0;
+
+          TIZ_PRINTF_DBG_GRN (
+              "metadata_bytes [%u] < metadata_offset [%u] metadata_sent [%u]\n",
+              p_lstnr_buf->metadata_bytes, p_lstnr_buf->metadata_offset,
+              metadata_sent);
+
+          p_lstnr_buf->metadata_bytes -= metadata_sent;
+          if (p_lstnr_buf->metadata_offset > 0 && p_lstnr_buf->metadata_bytes)
+            {
+              p_lstnr_buf->metadata_offset -= ((unsigned int)bytes);
+            }
+          else
+            {
+              p_lstnr_buf->metadata_offset = 0;
+            }
 
           if (bytes < len)
             {
+              TIZ_PRINTF_DBG_RED (
+                  "NEED TO STOP bytes [%d] < len [%u] p_lstnr_buf->len [%u]\n",
+                  bytes, len, p_lstnr_buf->len);
               (void)srv_start_listener_io_watcher (ap_lstnr);
               (void)srv_stop_listener_timer_watcher (ap_lstnr);
-              return OMX_ErrorNotReady;
+              rc = OMX_ErrorNotReady;
             }
           else
             {
               if ((p_con->initial_burst_bytes <= 0)
                   && (p_con->burst_bytes >= ap_server->burst_size))
                 {
-                  /* Let's not send too much data in one go */
-
-                  if ((p_hdr->nFilledLen - ap_lstnr->pos)
-                      < ap_server->burst_size)
-                    {
-                      /* copy the remaining data into the listener's buffer */
-                      int bytes_to_copy = p_hdr->nFilledLen - ap_lstnr->pos;
-                      memcpy (ap_lstnr->buf.p_data,
-                              p_hdr->pBuffer + ap_lstnr->pos, bytes_to_copy);
-                      ap_lstnr->buf.len = bytes_to_copy;
-
-                      /* Buffer emptied */
-                      srv_release_empty_buffer (ap_server, ap_lstnr,
-                                                &ap_server->p_hdr);
-                    }
-
-                  srv_start_listener_timer_watcher (ap_lstnr,
-                                                    ap_server->wait_time);
+                  rc = srv_start_listener_timer_watcher (ap_lstnr,
+                                                         ap_server->wait_time);
                 }
             }
         }
     }
 
-  /* always return success */
-  return OMX_ErrorNone;
+  return rc;
 }
 
 static OMX_ERRORTYPE srv_accept_connection (httpr_server_t *ap_server)
@@ -1545,7 +1559,8 @@ static OMX_ERRORTYPE srv_write (httpr_server_t *ap_server)
           break;
         }
 
-      if (p_lstnr->pos == ap_server->p_hdr->nFilledLen)
+/*       if (p_lstnr->pos == ap_server->p_hdr->nFilledLen) */
+      if (0 == ap_server->p_hdr->nFilledLen)
         {
           /* Buffer emptied */
           (void)srv_release_empty_buffer (ap_server, p_lstnr, &p_hdr);
@@ -1861,8 +1876,7 @@ void httpr_srv_set_stream_title (httpr_server_t *ap_server,
 
   p_mount = &(ap_server->mountpoint);
 
-  TIZ_NOTICE (handleOf (ap_server->p_parent), "ap_stream_title [%s]",
-              ap_stream_title);
+  TIZ_PRINTF_DBG_YEL ("stream_title [%s]\n", ap_stream_title);
 
   strncpy ((char *)p_mount->stream_title, (char *)ap_stream_title,
            OMX_TIZONIA_MAX_SHOUTCAST_METADATA_SIZE);

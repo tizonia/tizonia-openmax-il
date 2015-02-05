@@ -52,6 +52,10 @@
 
 namespace graph = tiz::graph;
 
+namespace
+{
+  const OMX_U32 TIZ_DEFAULT_ICY_METADATA_INTERVAL = 8192;
+}
 //
 // httpservops
 //
@@ -211,9 +215,14 @@ graph::httpservops::configure_station ()
   snprintf ((char *)mount.cStationUrl, sizeof(mount.cStationUrl),
             "http://tizonia.org");
 
-  // TODO: Will re-enable this when github's issue #44 is closed.
-  // Disable ICY metadata for now
-  mount.nIcyMetadataPeriod = 0;
+  if (srv_config->get_icy_metadata_enabled ())
+  {
+    mount.nIcyMetadataPeriod = TIZ_DEFAULT_ICY_METADATA_INTERVAL;
+  }
+  else
+  {
+    mount.nIcyMetadataPeriod = 0;
+  }
 
   mount.eEncoding = OMX_AUDIO_CodingMP3;
   mount.nMaxClients = 1;

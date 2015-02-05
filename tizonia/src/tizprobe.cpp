@@ -332,9 +332,6 @@ tiz::probe::probe (const std::string &uri, const bool quiet)
   vorbistype_.nQuality = 5;
   vorbistype_.bManaged = OMX_FALSE;
   vorbistype_.bDownmix = OMX_FALSE;
-
-  //   av_register_all ();
-  //   av_log_set_level (AV_LOG_QUIET);
 }
 
 std::string tiz::probe::get_uri () const
@@ -916,7 +913,7 @@ void tiz::probe::dump_stream_metadata ()
   }
   if (!track ().empty () && track ().compare ("0") != 0)
   {
-    TIZ_PRINTF_CYN ("     Track   : %s\n", track ().c_str ());
+    TIZ_PRINTF_CYN ("     Track # : %s\n", track ().c_str ());
   }
   if (!genre ().empty ())
   {
