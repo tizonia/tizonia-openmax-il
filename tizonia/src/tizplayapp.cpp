@@ -45,6 +45,7 @@
 #include <boost/version.hpp>
 
 #include <taglib/taglib.h>
+#include <MediaInfo/MediaInfo.h>
 
 #include <tizplatform.h>
 #include <OMX_Core.h>
@@ -343,9 +344,13 @@ tiz::playapp::print_debug_info () const
   {
     print_banner ();
     printf ("Debug Info:\n");
-    printf ("\t    * Boost [%s]\n", BOOST_LIB_VERSION);
-    printf ("\t    * TagLib [%d.%d.%d]\n", TAGLIB_MAJOR_VERSION,
+    printf ("\t    * [Boost %s]\n", BOOST_LIB_VERSION);
+    printf ("\t    * [TagLib %d.%d.%d]\n", TAGLIB_MAJOR_VERSION,
             TAGLIB_MINOR_VERSION, TAGLIB_PATCH_VERSION);
+    std::wstring wide (
+        MediaInfoLib::MediaInfo::Option_Static (L"Info_Version"));
+    printf ("\t    * [%s]\n",
+            std::string (wide.begin (), wide.end ()).c_str ());
     printf ("\n");
   }
   return OMX_ErrorNone;
@@ -564,14 +569,14 @@ tiz::playapp::serve_stream ()
     ip_address = inet_ntoa (ip_addr);
     fprintf (stdout, "[%s]: Server streaming on http://%s:%ld\n",
              station_name.c_str (), hostname, port);
-    if (!sampling_rates.empty ())
-    {
-      fprintf (stdout, "[%s]: Streaming media with sampling rates [%s].\n",
-               station_name.c_str (), sampling_rates.c_str ());
-    }
+
+    fprintf (stdout, "[%s]: Streaming media with sampling rates [%s].\n",
+             station_name.c_str (),
+             sampling_rates.empty () ? "ANY" : sampling_rates.c_str ());
+
     if (!bitrate_list.empty () || bitrate_list.size () == TIZ_MAX_BITRATE_MODES)
     {
-      fprintf (stdout, "[%s]: Streaming media with bitrates [%s].\n",
+      fprintf (stdout, "[%s]: Streaming media with bitrate modes [%s].\n",
                station_name.c_str (), bitrates.c_str ());
     }
     fprintf (stdout, "\n");

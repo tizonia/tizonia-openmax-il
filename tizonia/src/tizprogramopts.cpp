@@ -70,6 +70,23 @@ namespace
   const int TIZ_STREAMING_SERVER_DEFAULT_PORT = 8010;
   const int TIZ_MAX_BITRATE_MODES = 2;
 
+  struct program_option_is_defaulted
+  {
+    explicit program_option_is_defaulted (
+        const boost::program_options::variables_map &vm)
+      : vm_ (vm)
+    {
+    }
+
+    bool operator()(const std::string &option) const
+    {
+      return vm_[option].defaulted ();
+    }
+
+  private:
+    const boost::program_options::variables_map &vm_;
+  };
+
   bool is_valid_sampling_rate (const int sampling_rate)
   {
     bool rc = false;
@@ -153,6 +170,7 @@ namespace
   {
     std::set_difference (a.begin (), a.end (), b.begin (), b.end (),
                          std::back_inserter (diff));
+#ifdef _DEBUG
     BOOST_FOREACH (std::string elem, a)
     {
       TIZ_PRINTF_DBG_RED ("a [%s]\n", elem.c_str ());
@@ -165,7 +183,8 @@ namespace
     {
       TIZ_PRINTF_DBG_RED ("diff [%s]\n", elem.c_str ());
     }
-  }
+#endif
+}
 
   void sort_option_list (std::vector< std::string > &a)
   {
@@ -455,10 +474,10 @@ void tiz::programopts::init_general_options ()
       /* TIZ_CLASS_COMMENT: */
       ("version,v", "Print the version information.")
       /* TIZ_CLASS_COMMENT: */
-      ("recurse,R", po::bool_switch (&recurse_)->default_value (false),
+      ("recurse,r", po::bool_switch (&recurse_)->default_value (false),
        "Recursively process a given path.")
       /* TIZ_CLASS_COMMENT: */
-      ("shuffle,S", po::bool_switch (&shuffle_)->default_value (false),
+      ("shuffle,s", po::bool_switch (&shuffle_)->default_value (false),
        "Shuffle the playlist.")
       /* TIZ_CLASS_COMMENT: */
       ("daemon,d", po::bool_switch (&daemon_)->default_value (false),
@@ -492,12 +511,12 @@ void tiz::programopts::init_omx_options ()
   omx_.add_options ()
       /* TIZ_CLASS_COMMENT: This is to avoid the clang formatter messing up
          these lines*/
-      ("comp-list", "Enumerate all the OpenMAX IL components in the system.")
+      ("comp-list,L", "Enumerate all the OpenMAX IL components in the system.")
       /* TIZ_CLASS_COMMENT: */
-      ("roles-of-comp", po::value (&comp_name_),
+      ("roles-of-comp,R", po::value (&comp_name_),
        "Display the OpenMAX IL roles found in component <arg>.")
       /* TIZ_CLASS_COMMENT: */
-      ("comps-of-role", po::value (&role_name_),
+      ("comps-of-role,C", po::value (&role_name_),
        "Display the OpenMAX IL components that implement role <arg>.")
       /* TIZ_CLASS_COMMENT: */
       ;
@@ -611,8 +630,18 @@ void tiz::programopts::parse_command_line (int argc, char *argv[])
   po::store (parsed, vm_);
   po::notify (vm_);
   uri_list_ = po::collect_unrecognized (parsed.options, po::include_positional);
+
+  // Copy the keys of the vm_ map into the all_given_options_ vector
   boost::copy (vm_ | boost::adaptors::map_keys,
                std::back_inserter (all_given_options_));
+
+  // ... now remove all defaulted options from all_given_options_
+  std::vector< std::string >::iterator it
+      = std::remove_if (all_given_options_.begin (), all_given_options_.end (),
+                        program_option_is_defaulted (vm_));
+  all_given_options_.erase (it, all_given_options_.end ());
+
+  // ... and finally sort the list to enable binary searching
   sort_option_list (all_given_options_);
 }
 
