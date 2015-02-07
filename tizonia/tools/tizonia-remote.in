@@ -16,16 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Simple MPRIS2-based remote control for tizonia
+# MPRIS2-based remote control for tizonia
 #
 
-if [[ $# -gt 2 ]]
-then
-    usage
-    exit 1
-fi
-
-# Constants
+#############
+# Constants #
+#############
 readonly dbuscmd='dbus-send --print-reply --dest=org.mpris.MediaPlayer2.tizonia /com/aratelia/tiz/tizonia'
 readonly mediaifc='org.mpris.MediaPlayer2'
 readonly playerifc='org.mpris.MediaPlayer2.Player'
@@ -54,12 +50,69 @@ readonly nextcmd='$dbuscmd $playerifc.Next   &> /dev/null'
 readonly prevcmd='$dbuscmd $playerifc.Previous   &> /dev/null'
 readonly quitcmd='$dbuscmd $mediaifc.Quit   &> /dev/null'
 
+readonly red=1
+readonly green=2
+readonly yellow=3
+readonly blue=4
+readonly magenta=5
+readonly cyan=6
+readonly white=7
+
+function pretty_print {
+    echo "$(tput setaf $1)$2$(tput sgr 0)" 1>&2
+}
+
 function usage {
-    echo "tizonia-remote. Copyright (C) 2014 Juan A. Rubio"
-    echo "This software is part of Tizonia <http://tizonia.org>"
+    pretty_print "$blue" "tizonia-remote @PACKAGE_VERSION@. Copyright (C) 2015 Juan A. Rubio"
+    pretty_print "$blue" "This software is part of Tizonia <http://tizonia.org>"
+
     echo
-    echo "Usage : $0 <canquit|canraise|hastracklist|identity|urischemes|mimetypes..."
-    echo "...|playstatus|loopstatus|rate|shuffle|metadata|volume|play|pause|stop|prev|next|quit|kill>"
+    pretty_print "$green" "LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"
+    pretty_print "$green" "This is free software: you are free to change and redistribute it."
+    pretty_print "$green" "There is NO WARRANTY, to the extent permitted by law."
+
+    echo
+
+tput setaf "$yellow"
+cat <<EOF
+MPRIS2 remote control for tizonia.
+http://specifications.freedesktop.org/mpris-spec/latest/
+
+Usage: $0 [command]
+
+    help                 This help text.
+
+    org.mpris.MediaPlayer2 interface
+    -----------------------------------------
+
+    canquit              whether the media player quit.
+    canraise             whether the media player can raise its UI.
+    hastracklist         whether the org.mpris.MediaPlayer2.TrackList interface
+                         is implemented.
+    identity             returns the name that identifies the media player.
+    urischemes           returns the URI schemes supported.
+    mimetypes            returns the mime types supported.
+
+    org.mpris.MediaPlayer2.Player interface
+    ---------------------------------------
+    TODO
+
+    org.mpris.MediaPlayer2.TrackList interface
+    ------------------------------------------
+    TODO
+
+    org.mpris.MediaPlayer2.Playlists interface
+    ------------------------------------------
+    TODO
+
+EOF
+tput sgr 0
+
+#     echo "tizonia-remote. Copyright (C) 2014 Juan A. Rubio"
+#     echo "This software is part of Tizonia <http://tizonia.org>"
+#     echo
+#     echo "Usage : $0 <canquit|canraise|hastracklist|identity|urischemes|mimetypes..."
+#     echo "...|playstatus|loopstatus|rate|shuffle|metadata|volume|play|pause|stop|prev|next|quit|kill>"
 }
 
 function start_dbus {
@@ -73,6 +126,13 @@ function start_dbus {
 }
 
 function main {
+
+    if [[ $# -gt 2 ]]
+    then
+        usage
+        exit 1
+    fi
+
     start_dbus
 
     case "$1" in
@@ -135,10 +195,14 @@ function main {
         quit)
             eval "$quitcmd"
             ;;
-        kill) echo  "Sending SIGKILL signal"
+        kill) echo  "Sending SIGTERM signal"
             killall -TERM tizonia
             ;;
-        *) echo "Unknown command"
+        help)
+            usage
+            exit 1
+            ;;
+        *) echo; pretty_print "$red" "Unknown command"
             usage
             exit 1
             ;;

@@ -15,11 +15,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+shell_scripts = tizonia-remote
 
-SUBDIRS= tools dbus src
+bin_SCRIPTS = $(shell_scripts)
+CLEANFILES = $(bin_SCRIPTS)
+EXTRA_DIST = tizonia-remote.in
 
-ACLOCAL_AMFLAGS = -I m4
+do_subst = sed -e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
+	-e 's,[@]VERSION[@],$(VERSION),g'
 
-#pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = tizonia.pc
+tizonia-remote: tizonia-remote.in Makefile
+	$(do_subst) < $(srcdir)/tizonia-remote.in > tizonia-remote
+	chmod +x tizonia-remote
+
+all-local: tizonia-remote
+
+clean-local: clean-local-tools
+distclean-local: clean-local-tools
+.PHONY: clean-local-tools
+clean-local-tools:
+	-rm -f tizonia-remote
 

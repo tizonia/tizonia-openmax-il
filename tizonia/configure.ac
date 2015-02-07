@@ -67,6 +67,7 @@ AC_FUNC_FORK
 AC_CHECK_FUNCS([dup2 gethostbyname gethostname inet_ntoa strtol])
 
 AC_CONFIG_FILES([Makefile
+                tools/Makefile
                 dbus/Makefile
                 src/Makefile])
 
