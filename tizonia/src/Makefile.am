@@ -52,20 +52,20 @@ noinst_HEADERS = \
 	tizoggflacgraph.hpp \
 	tizpcmgraph.hpp \
 	tizmpeggraph.hpp \
-	tizspotifygraph.hpp \
-	tizspotifygraphfsm.hpp \
-	tizspotifygraphops.hpp
-	tizhttpservconfig.hpp \
-	tizspotifyconfig.hpp \
-	tizhttpservgraph.hpp \
-	tizhttpservgraphfsm.hpp \
-	tizhttpservgraphops.hpp \
-	tizhttpservmgr.hpp \
+	httpserv/tizhttpservconfig.hpp \
+	httpserv/tizhttpservgraph.hpp \
+	httpserv/tizhttpservgraphfsm.hpp \
+	httpserv/tizhttpservgraphops.hpp \
+	httpserv/tizhttpservmgr.hpp \
 	httpclnt/tizhttpclntmgr.hpp \
 	httpclnt/tizhttpclntgraph.hpp \
 	httpclnt/tizhttpclntgraphfsm.hpp \
 	httpclnt/tizhttpclntgraphops.hpp \
-	tizspotifymgr.hpp \
+	spotify/tizspotifygraph.hpp \
+	spotify/tizspotifygraphfsm.hpp \
+	spotify/tizspotifygraphops.hpp
+	spotify/tizspotifyconfig.hpp \
+	spotify/tizspotifymgr.hpp \
 	tizgraphmgrcaps.hpp \
 	tizgraphmgrstatus.hpp \
 	tizplaybacksignals.hpp \
@@ -92,7 +92,6 @@ tizonia_SOURCES = \
 	tizgraphmgr.cpp \
 	tizdecgraphmgr.cpp \
 	tizgraphfsm.cpp \
-	tizhttpservmgr.cpp \
 	tizgraphops.cpp \
 	tizgraphcmd.cpp \
 	tizgraph.cpp \
@@ -105,17 +104,18 @@ tizonia_SOURCES = \
 	tizoggflacgraph.cpp \
 	tizpcmgraph.cpp \
 	tizmpeggraph.cpp \
-	tizspotifygraph.cpp \
-	tizspotifygraphfsm.cpp \
-	tizspotifygraphops.cpp \
-	tizhttpservgraph.cpp \
-	tizhttpservgraphfsm.cpp \
-	tizhttpservgraphops.cpp \
+	httpserv/tizhttpservmgr.cpp \
+	httpserv/tizhttpservgraph.cpp \
+	httpserv/tizhttpservgraphfsm.cpp \
+	httpserv/tizhttpservgraphops.cpp \
 	httpclnt/tizhttpclntmgr.cpp \
 	httpclnt/tizhttpclntgraph.cpp \
 	httpclnt/tizhttpclntgraphfsm.cpp \
 	httpclnt/tizhttpclntgraphops.cpp \
-	tizspotifymgr.cpp \
+	spotify/tizspotifygraph.cpp \
+	spotify/tizspotifygraphfsm.cpp \
+	spotify/tizspotifygraphops.cpp \
+	spotify/tizspotifymgr.cpp \
 	tizplaybacksignals.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \
