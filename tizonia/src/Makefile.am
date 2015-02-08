@@ -61,11 +61,11 @@ noinst_HEADERS = \
 	tizhttpservgraphfsm.hpp \
 	tizhttpservgraphops.hpp \
 	tizhttpservmgr.hpp \
-	tizhttpclntmgr.hpp \
+	httpclnt/tizhttpclntmgr.hpp \
+	httpclnt/tizhttpclntgraph.hpp \
+	httpclnt/tizhttpclntgraphfsm.hpp \
+	httpclnt/tizhttpclntgraphops.hpp \
 	tizspotifymgr.hpp \
-	tizhttpclntgraph.hpp \
-	tizhttpclntgraphfsm.hpp \
-	tizhttpclntgraphops.hpp \
 	tizgraphmgrcaps.hpp \
 	tizgraphmgrstatus.hpp \
 	tizplaybacksignals.hpp \
@@ -111,11 +111,11 @@ tizonia_SOURCES = \
 	tizhttpservgraph.cpp \
 	tizhttpservgraphfsm.cpp \
 	tizhttpservgraphops.cpp \
-	tizhttpclntmgr.cpp \
+	httpclnt/tizhttpclntmgr.cpp \
+	httpclnt/tizhttpclntgraph.cpp \
+	httpclnt/tizhttpclntgraphfsm.cpp \
+	httpclnt/tizhttpclntgraphops.cpp \
 	tizspotifymgr.cpp \
-	tizhttpclntgraph.cpp \
-	tizhttpclntgraphfsm.cpp \
-	tizhttpclntgraphops.cpp \
 	tizplaybacksignals.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \

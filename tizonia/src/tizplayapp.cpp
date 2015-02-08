@@ -57,7 +57,7 @@
 #include "tizhttpservconfig.hpp"
 #include "tizspotifyconfig.hpp"
 #include "tizhttpservmgr.hpp"
-#include "tizhttpclntmgr.hpp"
+#include "httpclnt/tizhttpclntmgr.hpp"
 #include "tizspotifymgr.hpp"
 #include "tizdaemon.hpp"
 
