@@ -80,10 +80,19 @@ http://specifications.freedesktop.org/mpris-spec/latest/
 
 Usage: $0 [command]
 
-    help                 This help text.
+    Misc. commands
+    -----------------------------------------
+
+    help                 this help text.
+    kill                 sends the TERM signal.
 
     org.mpris.MediaPlayer2 interface
-    -----------------------------------------
+    --------------------------------
+    ::Methods::
+
+    quit                 causes the application to stop running.
+
+    ::Properties::
 
     canquit              whether the media player quit.
     canraise             whether the media player can raise its UI.
@@ -95,7 +104,25 @@ Usage: $0 [command]
 
     org.mpris.MediaPlayer2.Player interface
     ---------------------------------------
-    TODO
+    ::Methods::
+
+    play                 starts or resumes playback.
+    stop                 stops playback.
+    pause                pauses playback.
+    next                 skips to the next track in the tracklist.
+    prev                 skips to the previous track in the tracklist.
+    seek                 (NOT IMPLEMENTED) seeks forward in the current
+                         track by the specified number of microseconds.
+
+    ::Properties::
+
+    playstatus           the current playback status ("Playing", "Paused" or "Stopped").
+    loopstatus           the current loop / repeat status ("None", "Track", "Playlist")
+                         (Read/Write).
+    rate                 the current playback rate (Read/Write).
+    shuffle              the current shuffled playback status (true or false).
+    metadata             the metadata of the current track (Read/Write).
+    volume               the volume level (Read/Write).
 
     org.mpris.MediaPlayer2.TrackList interface
     ------------------------------------------
@@ -107,12 +134,6 @@ Usage: $0 [command]
 
 EOF
 tput sgr 0
-
-#     echo "tizonia-remote. Copyright (C) 2014 Juan A. Rubio"
-#     echo "This software is part of Tizonia <http://tizonia.org>"
-#     echo
-#     echo "Usage : $0 <canquit|canraise|hastracklist|identity|urischemes|mimetypes..."
-#     echo "...|playstatus|loopstatus|rate|shuffle|metadata|volume|play|pause|stop|prev|next|quit|kill>"
 }
 
 function start_dbus {
@@ -127,7 +148,7 @@ function start_dbus {
 
 function main {
 
-    if [[ $# -gt 2 ]]
+    if [[ ($# -gt 2) || ($# -eq 0) ]]
     then
         usage
         exit 1
