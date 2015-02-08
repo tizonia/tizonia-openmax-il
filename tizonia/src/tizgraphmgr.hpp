@@ -223,6 +223,7 @@ namespace tiz
       ops *p_ops_;
       fsm fsm_;
       control::mprismgr_ptr_t mpris_ptr_;
+      control::playback_signals_t playback_events_;
 
     private:
       OMX_ERRORTYPE init_cmd_queue ();

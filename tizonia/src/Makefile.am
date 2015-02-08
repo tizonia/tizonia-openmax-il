@@ -68,6 +68,7 @@ noinst_HEADERS = \
 	tizhttpclntgraphops.hpp \
 	tizgraphmgrcaps.hpp \
 	tizgraphmgrstatus.hpp \
+	tizplaybacksignals.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
@@ -115,6 +116,7 @@ tizonia_SOURCES = \
 	tizhttpclntgraph.cpp \
 	tizhttpclntgraphfsm.cpp \
 	tizhttpclntgraphops.cpp \
+	tizplaybacksignals.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \
 	mpris/tizmprisif.cpp
@@ -124,6 +126,7 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
 	-I$(top_srcdir)/../libtizplatform/src \
 	-I$(top_srcdir)/dbus \
+	-I$(top_srcdir)/src \
 	-I/usr/include/taglib \
 	@LIBMEDIAINFO_CFLAGS@ \
 	@DBUS_CFLAGS@ \
