@@ -24,7 +24,7 @@ noinst_HEADERS =
 libtizrmproxy_include_HEADERS = \
 	tizrmproxytypes.h \
 	tizrmproxy_c.h \
-	tizrmproxy.hh \
+	tizrmproxy.hh
 
 libtizrmproxy_la_SOURCES = \
 	tizrmproxy.cc \
