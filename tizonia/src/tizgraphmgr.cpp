@@ -93,6 +93,7 @@ graphmgr::mgr::mgr ()
                                     << graphmgr::fsm::stopping (&p_ops_),
           &p_ops_),
     mpris_ptr_ (),
+    playback_events_ (),
     thread_ (),
     mutex_ (),
     sem_ (),
@@ -300,8 +301,10 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
         graphmgr_caps.can_go_next_, graphmgr_caps.can_go_previous_,
         graphmgr_caps.can_play_, graphmgr_caps.can_pause_,
         graphmgr_caps.can_seek_, graphmgr_caps.can_control_);
-    mpris_ptr_ = boost::make_shared< tiz::control::mprismgr >(
-        tiz::control::mprismgr (props, player_props, mpris_cbacks));
+
+    mpris_ptr_
+        = boost::make_shared< tiz::control::mprismgr >(tiz::control::mprismgr (
+            props, player_props, mpris_cbacks, playback_events_));
     tiz_check_null_ret_oom (mpris_ptr_);
 
     tiz_check_omx_err (mpris_ptr_->init ());

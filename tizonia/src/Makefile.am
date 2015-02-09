@@ -52,22 +52,23 @@ noinst_HEADERS = \
 	tizoggflacgraph.hpp \
 	tizpcmgraph.hpp \
 	tizmpeggraph.hpp \
-	tizspotifygraph.hpp \
-	tizspotifygraphfsm.hpp \
-	tizspotifygraphops.hpp
-	tizhttpservconfig.hpp \
-	tizspotifyconfig.hpp \
-	tizhttpservgraph.hpp \
-	tizhttpservgraphfsm.hpp \
-	tizhttpservgraphops.hpp \
-	tizhttpservmgr.hpp \
-	tizhttpclntmgr.hpp \
-	tizspotifymgr.hpp \
-	tizhttpclntgraph.hpp \
-	tizhttpclntgraphfsm.hpp \
-	tizhttpclntgraphops.hpp \
+	httpserv/tizhttpservconfig.hpp \
+	httpserv/tizhttpservgraph.hpp \
+	httpserv/tizhttpservgraphfsm.hpp \
+	httpserv/tizhttpservgraphops.hpp \
+	httpserv/tizhttpservmgr.hpp \
+	httpclnt/tizhttpclntmgr.hpp \
+	httpclnt/tizhttpclntgraph.hpp \
+	httpclnt/tizhttpclntgraphfsm.hpp \
+	httpclnt/tizhttpclntgraphops.hpp \
+	spotify/tizspotifygraph.hpp \
+	spotify/tizspotifygraphfsm.hpp \
+	spotify/tizspotifygraphops.hpp
+	spotify/tizspotifyconfig.hpp \
+	spotify/tizspotifymgr.hpp \
 	tizgraphmgrcaps.hpp \
 	tizgraphmgrstatus.hpp \
+	tizplaybacksignals.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
@@ -91,7 +92,6 @@ tizonia_SOURCES = \
 	tizgraphmgr.cpp \
 	tizdecgraphmgr.cpp \
 	tizgraphfsm.cpp \
-	tizhttpservmgr.cpp \
 	tizgraphops.cpp \
 	tizgraphcmd.cpp \
 	tizgraph.cpp \
@@ -104,17 +104,19 @@ tizonia_SOURCES = \
 	tizoggflacgraph.cpp \
 	tizpcmgraph.cpp \
 	tizmpeggraph.cpp \
-	tizspotifygraph.cpp \
-	tizspotifygraphfsm.cpp \
-	tizspotifygraphops.cpp \
-	tizhttpservgraph.cpp \
-	tizhttpservgraphfsm.cpp \
-	tizhttpservgraphops.cpp \
-	tizhttpclntmgr.cpp \
-	tizspotifymgr.cpp \
-	tizhttpclntgraph.cpp \
-	tizhttpclntgraphfsm.cpp \
-	tizhttpclntgraphops.cpp \
+	httpserv/tizhttpservmgr.cpp \
+	httpserv/tizhttpservgraph.cpp \
+	httpserv/tizhttpservgraphfsm.cpp \
+	httpserv/tizhttpservgraphops.cpp \
+	httpclnt/tizhttpclntmgr.cpp \
+	httpclnt/tizhttpclntgraph.cpp \
+	httpclnt/tizhttpclntgraphfsm.cpp \
+	httpclnt/tizhttpclntgraphops.cpp \
+	spotify/tizspotifygraph.cpp \
+	spotify/tizspotifygraphfsm.cpp \
+	spotify/tizspotifygraphops.cpp \
+	spotify/tizspotifymgr.cpp \
+	tizplaybacksignals.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \
 	mpris/tizmprisif.cpp
@@ -124,6 +126,7 @@ tizonia_CPPFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
 	-I$(top_srcdir)/../libtizplatform/src \
 	-I$(top_srcdir)/dbus \
+	-I$(top_srcdir)/src \
 	-I/usr/include/taglib \
 	@LIBMEDIAINFO_CFLAGS@ \
 	@DBUS_CFLAGS@ \

@@ -19,6 +19,6 @@
 SUBDIRS= src tests
 ACLOCAL_AMFLAGS = -I m4
 
-#pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = tizcomps.pc
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libtizrmproxy.pc
 

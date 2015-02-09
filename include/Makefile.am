@@ -18,4 +18,4 @@
 SUBDIRS = omxil-1.2
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libkhromxil12.pc
+pkgconfig_DATA = tizonia-khronos-openmaxil12.pc.in

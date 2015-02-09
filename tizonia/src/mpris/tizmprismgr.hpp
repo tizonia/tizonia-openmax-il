@@ -40,6 +40,8 @@
 
 #include <tizgraphtypes.hpp>
 
+#include "tizplaybacksignals.hpp"
+
 #include "tizmprisprops.hpp"
 #include "tizmpriscbacks.hpp"
 
@@ -96,7 +98,8 @@ namespace tiz
     public:
       mprismgr (const mpris_mediaplayer2_props_t &props,
                 const mpris_mediaplayer2_player_props_t &player_props,
-                const mpris_callbacks_t &cbacks);
+                const mpris_callbacks_t &cbacks,
+                const playback_signals_t &playback_events);
       virtual ~mprismgr ();
 
       /**
