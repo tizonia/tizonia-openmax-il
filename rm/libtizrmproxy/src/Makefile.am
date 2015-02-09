@@ -17,12 +17,16 @@
 
 lib_LTLIBRARIES = libtizrmproxy.la
 
+libtizplatform_includedir = $(includedir)/tizonia/rmproxy
+
 noinst_HEADERS =
 
-libtizrmproxy_la_SOURCES = \
+libtizrmproxy_include_HEADERS = \
 	tizrmproxytypes.h \
 	tizrmproxy_c.h \
 	tizrmproxy.hh \
+
+libtizrmproxy_la_SOURCES = \
 	tizrmproxy.cc \
 	tizrmproxy_c.cc
 
