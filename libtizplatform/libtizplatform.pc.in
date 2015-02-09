@@ -6,10 +6,9 @@ toolsdir=@bindir@
 pluginsdir=@plugindir@
 
 Name: libtizplatform
-Description: Tizonia Platform library
-Version: @VERSION@
+Description: Tizonia platform library
+Version: @PACKAGE_VERSION@
+Requires: uuid
 Require.private: check
-Cflags: -I${includedir} -I${includedir}/libtizplatform
-Libs: -L${libdir} -lpthread -ltizplatform
-
-
+Cflags: -I${includedir}/tizonia/libtizplatform
+Libs: -L${libdir} -llog4c -lpthread -lev -ltizplatform
