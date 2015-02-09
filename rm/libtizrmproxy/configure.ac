@@ -74,8 +74,9 @@ AC_DEFINE_UNQUOTED(DBUS_SERVICES_DIR, "$DBUS_SERVICES_DIR",
                                       [Where services dir for DBUS is])
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile
-                 tests/Makefile])
+                libtizrmproxy.pc
+                src/Makefile
+                tests/Makefile])
 
 # End the configure script.
 AC_OUTPUT
