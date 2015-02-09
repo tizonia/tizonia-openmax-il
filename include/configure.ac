@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([Khronos OpenMAX IL Headers], [1.2], [BUG-REPORT-ADDRESS])
+AC_INIT([Khronos OpenMAX IL Headers (Tizonia)], [1.2], [juan.rubio@aratelia.com])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([omxil-1.2/OMX_Core.h])
 AC_CONFIG_HEADERS([config.h])
@@ -36,6 +36,6 @@ PKG_PROG_PKG_CONFIG([0.25])
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                libkhromxil12.pc
+                tizonia-khronos-openmaxil12.pc
                 omxil-1.2/Makefile])
 AC_OUTPUT
