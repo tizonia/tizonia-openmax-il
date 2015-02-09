@@ -17,7 +17,7 @@
 
 lib_LTLIBRARIES = libtizonia.la
 
-libtizonia_includedir = $(includedir)/libtizonia
+libtizonia_includedir = $(includedir)/tizonia/tizonia
 
 libtizonia_include_HEADERS = \
 	tizapi_decls.h \

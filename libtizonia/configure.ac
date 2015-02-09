@@ -40,10 +40,6 @@ PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
-#PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
-#PKG_CHECK_MODULES([TIZ], [libtizplatform])
-#PKG_CHECK_MODULES([ILRMPROXY], [libtizrmproxy])
-#PKG_CHECK_MODULES([TIZCORE], [libtizcore])
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stddef.h stdlib.h string.h sys/time.h unistd.h])

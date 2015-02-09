@@ -6,9 +6,10 @@ toolsdir=@bindir@
 pluginsdir=@plugindir@
 
 Name: tizonia
-Description: Aratelia OpenMAX IL Component library
-Version: @VERSION@
+Description: Tizonia OpenMAX IL 1.2 base component library
+Version: @PACKAGE_VERSION@
+Require: tizplatform tizrmproxy
 Require.private: check
-Cflags: -I${includedir} -I${includedir}/libtizonia
-Libs: -L${libdir} -ltizplatform -ltizonia
+Cflags: -I${includedir} -I${includedir}/tizonia/tizonia
+Libs: -L${libdir} -ltizonia
 
