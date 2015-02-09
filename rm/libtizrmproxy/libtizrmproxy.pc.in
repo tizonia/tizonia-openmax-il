@@ -12,4 +12,3 @@ Require: tizplatform dbus
 Require.private: check
 Cflags: -I${includedir}/tizonia/tizrmproxy
 Libs: -L${libdir} -ltizrmproxy
-
