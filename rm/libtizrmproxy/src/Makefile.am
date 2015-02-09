@@ -17,7 +17,7 @@
 
 lib_LTLIBRARIES = libtizrmproxy.la
 
-libtizplatform_includedir = $(includedir)/tizonia/rmproxy
+libtizrmproxy_includedir = $(includedir)/tizonia/rmproxy
 
 noinst_HEADERS =
 
