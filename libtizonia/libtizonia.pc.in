@@ -8,7 +8,7 @@ pluginsdir=@plugindir@
 Name: tizonia
 Description: Tizonia OpenMAX IL 1.2 base component library
 Version: @PACKAGE_VERSION@
-Require: tizplatform tizrmproxy
+Require: tizonia-khronos-openmaxil12 tizplatform tizrmproxy
 Require.private: check
 Cflags: -I${includedir} -I${includedir}/tizonia/tizonia
 Libs: -L${libdir} -ltizonia

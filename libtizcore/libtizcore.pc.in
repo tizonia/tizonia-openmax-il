@@ -8,7 +8,7 @@ pluginsdir=@plugindir@
 Name: tizcore
 Description: Tizonia OpenMAX IL 1.2 Core
 Version: @PACKAGE_VERSION@
-Require: tizplatform
+Require: tizonia-khronos-openmaxil12 tizplatform tizrmproxy
 Require.private: check
 Cflags: -I${includedir}/tizonia/tizcore
 Libs: -L${libdir} -ldl -ltizcore

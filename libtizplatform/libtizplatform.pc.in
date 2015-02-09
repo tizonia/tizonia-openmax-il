@@ -8,7 +8,7 @@ pluginsdir=@plugindir@
 Name: libtizplatform
 Description: Tizonia platform library
 Version: @PACKAGE_VERSION@
-Requires: uuid
+Requires: tizonia-khronos-openmaxil12 uuid
 Require.private: check
 Cflags: -I${includedir}/tizonia/tizplatform
 Libs: -L${libdir} -llog4c -lpthread -lev -ltizplatform
