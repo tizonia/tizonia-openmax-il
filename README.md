@@ -164,8 +164,8 @@ following locations:
 ## 'tizonia' usage ##
 
 ```bash
-
 $ tizonia
+
 tizonia 0.1.0. Copyright (C) 2015 Juan A. Rubio
 This software is part of Tizonia <http://tizonia.org>
 
@@ -176,28 +176,32 @@ There is NO WARRANTY, to the extent permitted by law.
 General options:
   -h [ --help ]         Print the usage message.
   -v [ --version ]      Print the version information.
-  -R [ --recurse ]      Recursively process the given folder.
-  -S [ --shuffle ]      Shuffle the playlist.
+  -r [ --recurse ]      Recursively process a given path.
+  -s [ --shuffle ]      Shuffle the playlist.
   -d [ --daemon ]       Run in the background.
 
 OpenMAX IL options:
-  --list-comp           Enumerate all the OpenMAX IL components in the system.
-  --roles-of-comp arg   Display the OpenMAX IL roles found in component <arg>.
-  --comps-of-role arg   Display the OpenMAX IL components that implement role
-                        <arg>.
+  -L [ --comp-list ]         Enumerate all the OpenMAX IL components in the
+                             system.
+  -R [ --roles-of-comp ] arg Display the OpenMAX IL roles found in component
+                             <arg>.
+  -C [ --comps-of-role ] arg Display the OpenMAX IL components that implement
+                             role <arg>.
 
 Audio streaming server options:
   --server              Stream media files using the SHOUTcast/ICEcast
                         streaming protocol.
-  -p [ --port ] arg     TCP port used for SHOUTcast/ICEcast streaming. Default:
-                        8010.
-  --station-name arg    The SHOUTcast/ICEcast station name.
-  --station-genre arg   The SHOUTcast/ICEcast station genre.
-  --bitrate-modes arg   A comma-separated-list of bitrate modes (e.g.
-                        'CBR,VBR') that will be allowed in the playlist.
-                        Default: any.
-  --sampling-rates arg  A comma-separated-list of sampling rates that will be
-                        allowed in the playlist. Default: any.
+  -p [ --port ] arg     TCP port to be used for Icecast/SHOUTcast streaming.
+                        Default: 8010.
+  --station-name arg    The Icecast/SHOUTcast station name. Optional.
+  --station-genre arg   The Icecast/SHOUTcast station genre. Optional.
+  --no-icy-metadata     Disables Icecast/SHOUTcast metadata in the stream.
+  --bitrate-modes arg   A comma-separated list of bitrate modes (e.g.
+                        'CBR,VBR'). Only these bitrate omdes will allowed in
+                        the playlist. Default: all.
+  --sampling-rates arg  A comma-separated list of sampling rates. Only these
+                        sampling rates will be allowed in the playlist.
+                        Default: all.
 
 Spotify client options:
   --spotify-user arg     Spotify user's name.
