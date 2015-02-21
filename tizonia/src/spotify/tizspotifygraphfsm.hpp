@@ -493,7 +493,7 @@ namespace tiz
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip                                          >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , do_retrieve_metadata        , tg::is_last_eos              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , bmf::none                   , tg::is_trans_complete        >,
+        bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::pause                    , tg::execute_evt           , tg::pause2exe           , tg::do_omx_pause2exe                                       >,
         bmf::Row < tg::pause                    , tg::pause_evt             , tg::pause2exe           , tg::do_omx_pause2exe                                       >,
@@ -503,7 +503,7 @@ namespace tiz
                                                                                                             tg::do_omx_pause2idle > >                              >,
         bmf::Row < tg::pause                    , tg::unload_evt            , tg::pause2idle          , tg::do_omx_pause2idle                                      >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , bmf::none                   , tg::is_trans_complete        >,
+        bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , tg::do_ack_unpaused         , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < reconfiguring_graph
                    ::exit_pt

@@ -256,6 +256,32 @@ namespace tiz
       }
     };
 
+    struct do_ack_paused
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_ack_paused ();
+        }
+      }
+    };
+
+    struct do_ack_unpaused
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const&, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_ack_unpaused ();
+        }
+      }
+    };
+
     struct do_seek
     {
       template < class FSM, class EVT, class SourceState, class TargetState >

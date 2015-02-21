@@ -93,7 +93,9 @@ void graphmgr::cmd::inject (fsm& machine) const
                           else INJECT_EVENT (graph_loaded_evt)
                             else INJECT_EVENT (graph_execd_evt)
                               else INJECT_EVENT (graph_stopped_evt)
-                                else INJECT_EVENT (graph_unlded_evt)
+                               else INJECT_EVENT (graph_paused_evt)
+                                else INJECT_EVENT (graph_unpaused_evt)
+                                 else INJECT_EVENT (graph_unlded_evt)
                                   else
                                     {
                                       assert (0);

@@ -45,7 +45,7 @@
 
 #include <tizplatform.h>
 
-#include "tizgraphmgrstatus.hpp"
+#include "tizplaybackstatus.hpp"
 #include "tizgraphmgrops.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -61,6 +61,7 @@
   while(0)
 
 namespace bmf = boost::msm::front;
+namespace tc = tiz::control;
 
 namespace tiz
 {
@@ -101,10 +102,12 @@ namespace tiz
       bool is_internal_;
     };
 
-    // 'starting/restarting' submachine events
+    // graph feedback events
     struct graph_loaded_evt {};
     struct graph_execd_evt {};
     struct graph_stopped_evt {};
+    struct graph_paused_evt {};
+    struct graph_unpaused_evt {};
     struct graph_unlded_evt {};
 
     // Concrete FSM implementation
@@ -385,7 +388,7 @@ namespace tiz
           GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
           {
-            (*(fsm.pp_ops_))->do_update_control_ifcs (Playing);
+            (*(fsm.pp_ops_))->do_update_control_ifcs (tiz::control::Playing);
           }
         }
         template <class Event,class FSM>
@@ -409,7 +412,7 @@ namespace tiz
           GMGR_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
           {
-            (*(fsm.pp_ops_))->do_update_control_ifcs (Stopped);
+            (*(fsm.pp_ops_))->do_update_control_ifcs (tiz::control::Stopped);
           }
         }
         template <class Event,class FSM>
@@ -596,6 +599,20 @@ namespace tiz
         }
       };
 
+      template<tiz::control::playback_status_t playstatus>
+      struct do_update_control_ifcs
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_update_control_ifcs (playstatus);
+            }
+        }
+      };
+
       struct do_report_fatal_error
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
@@ -672,6 +689,8 @@ namespace tiz
         bmf::Row < running               , vol_down_evt     , bmf::none   , do_vol_down                                 >,
         bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
         bmf::Row < running               , pause_evt        , bmf::none   , do_pause                                    >,
+        bmf::Row < running               , graph_paused_evt , bmf::none   , do_update_control_ifcs<tc::Paused>          >,
+        bmf::Row < running               , graph_unpaused_evt, bmf::none  , do_update_control_ifcs<tc::Playing>         >,
         bmf::Row < running               , start_evt        , bmf::none   , do_pause                                    >,
         bmf::Row < running               , stop_evt         , stopping    , do_stop                                     >,
         bmf::Row < running               , quit_evt         , quitting    , do_unload                                   >,

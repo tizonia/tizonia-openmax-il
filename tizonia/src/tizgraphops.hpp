@@ -100,6 +100,8 @@ namespace tiz
       virtual void do_omx_idle2exe ();
       virtual void do_ack_execd ();
       virtual void do_ack_stopped ();
+      virtual void do_ack_paused ();
+      virtual void do_ack_unpaused ();
       virtual void do_omx_exe2pause ();
       virtual void do_omx_pause2exe ();
       virtual void do_omx_pause2idle ();

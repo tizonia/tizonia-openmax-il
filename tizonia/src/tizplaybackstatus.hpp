@@ -18,31 +18,41 @@
  */
 
 /**
- * @file   tizplaybacksignals.cpp
+ * @file   tizplaybackstatus.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Media player signals
+ * @brief  Playback Status
+ *
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+#ifndef TIZPLAYBACKSTATUS_HPP
+#define TIZPLAYBACKSTATUS_HPP
 
-#include "tizplaybacksignals.hpp"
-
-#ifdef TIZ_LOG_CATEGORY_NAME
-#undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.control.signals"
-#endif
-
-namespace control = tiz::control;
-
-//
-// playback_signals
-//
-
-control::playback_signals::playback_signals ()
-  : PlaybackStatus_ (), LoopStatus_ (), Metadata_ (), Volume_ ()
+namespace tiz
 {
-}
+  namespace control
+  {
+    enum playback_status_t
+      {
+        // A track is currently playing.
+        Playing,
+        // A track is currently paused.
+        Paused,
+        // There is no track currently playing.
+        Stopped
+      };
+
+    enum loop_status_t
+      {
+        // The playback will stop when there are no more tracks to play.
+        None,
+        // The current track will start again from the begining once it has finished playing
+        Track,
+        // The playback loops through a list of tracks
+        Playlist
+      };
+  }  // namespace control
+}  // namespace tiz
+
+#endif  // TIZPLAYBACKSTATUS_HPP

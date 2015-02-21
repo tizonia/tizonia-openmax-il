@@ -67,8 +67,8 @@ noinst_HEADERS = \
 	spotify/tizspotifyconfig.hpp \
 	spotify/tizspotifymgr.hpp \
 	tizgraphmgrcaps.hpp \
-	tizgraphmgrstatus.hpp \
-	tizplaybacksignals.hpp \
+	tizplaybackstatus.hpp \
+	tizplaybackevents.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
@@ -116,7 +116,7 @@ tizonia_SOURCES = \
 	spotify/tizspotifygraphfsm.cpp \
 	spotify/tizspotifygraphops.cpp \
 	spotify/tizspotifymgr.cpp \
-	tizplaybacksignals.cpp \
+	tizplaybackevents.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \
 	mpris/tizmprisif.cpp

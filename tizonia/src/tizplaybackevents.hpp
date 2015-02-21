@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizplaybacksignals.hpp
+ * @file   tizplaybackevents.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Media player signals
@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZPLAYBACKSIGNALS_HPP
-#define TIZPLAYBACKSIGNALS_HPP
+#ifndef TIZPLAYBACKEVENTS_HPP
+#define TIZPLAYBACKEVENTS_HPP
 
 #include <map>
 #include <string>
@@ -39,28 +39,37 @@
 
 #include <tizplatform.h>
 
+#include <tizplaybackstatus.hpp>
+
 namespace tiz
 {
   namespace control
   {
-    typedef class playback_signals playback_signals_t;
-    class playback_signals
+    typedef class playback_events playback_events_t;
+    class playback_events
     {
     public:
-      playback_signals ();
+      typedef boost::signals2::signal<void (const playback_status_t status)> playback_status_event_t;
+      typedef playback_status_event_t::slot_type playback_status_observer_t;
+
+      typedef boost::signals2::signal<void (const loop_status_t status)> loop_status_event_t;
+      typedef loop_status_event_t::slot_type loop_status_observer_t;
 
     public:
-      boost::signals2::signal<void (std::string)> PlaybackStatus_;
-      boost::signals2::signal<void (std::string)> LoopStatus_;
-      boost::signals2::signal<void (std::string)> Metadata_;
-      boost::signals2::signal<void (double)> Volume_;
+      playback_events ();
+
+    public:
+      playback_status_event_t playback_;
+      loop_status_event_t loop_;
+      boost::signals2::signal<void (const std::string & metadata)> metadata_;
+      boost::signals2::signal<void (const double volume)> volume_;
     };
 
-    typedef boost::shared_ptr< playback_signals_t >
-        playback_signals_ptr_t;
-    typedef boost::scoped_ptr< playback_signals_t >
-        playback_signals_scoped_ptr_t;
+    typedef boost::shared_ptr< playback_events_t >
+        playback_events_ptr_t;
+    typedef boost::scoped_ptr< playback_events_t >
+        playback_events_scoped_ptr_t;
   }  // namespace control
 }  // namespace tiz
 
-#endif  // TIZPLAYBACKSIGNALS_HPP
+#endif  // TIZPLAYBACKEVENTS_HPP

@@ -347,7 +347,7 @@ namespace tiz
                                   ::skip_exit>, skipped_evt    , configuring             , boost::msm::front::none , boost::msm::front::euml::Not_<
                                                                                                                        is_end_of_play>   >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
-        boost::msm::front::Row < exe2pause   , omx_trans_evt   , pause                   , boost::msm::front::none , is_trans_complete    >,
+        boost::msm::front::Row < exe2pause   , omx_trans_evt   , pause                   , do_ack_paused           , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < pause       , execute_evt     , pause2exe               , do_omx_pause2exe                               >,
         boost::msm::front::Row < pause       , pause_evt       , pause2exe               , do_omx_pause2exe                               >,
@@ -357,7 +357,7 @@ namespace tiz
                                                                                                do_omx_pause2idle > >                      >,
         boost::msm::front::Row < pause       , unload_evt      , pause2idle              , do_omx_pause2idle                              >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
-        boost::msm::front::Row < pause2exe   , omx_trans_evt   , executing               , boost::msm::front::none , is_trans_complete    >,
+        boost::msm::front::Row < pause2exe   , omx_trans_evt   , executing               , do_ack_unpaused         , is_trans_complete    >,
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < pause2idle  , omx_trans_evt   , idle2loaded             , do_omx_idle2loaded      , is_trans_complete    >,
         boost::msm::front::Row < pause2idle  , omx_trans_evt   , idle                    , boost::msm::front::ActionSequence_<

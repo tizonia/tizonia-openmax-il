@@ -36,7 +36,7 @@
 #include <OMX_Core.h>
 
 #include "tizgraphtypes.hpp"
-#include "tizgraphmgrstatus.hpp"
+#include "tizplaybackstatus.hpp"
 #include "mpris/tizmprismgr.hpp"
 #include "tizgraphmgrfsm.hpp"
 
@@ -209,6 +209,8 @@ namespace tiz
       OMX_ERRORTYPE graph_loaded ();
       OMX_ERRORTYPE graph_execd ();
       OMX_ERRORTYPE graph_stopped ();
+      OMX_ERRORTYPE graph_paused ();
+      OMX_ERRORTYPE graph_unpaused ();
       OMX_ERRORTYPE graph_unloaded ();
       OMX_ERRORTYPE graph_end_of_play ();
       OMX_ERRORTYPE graph_error (const OMX_ERRORTYPE error,
@@ -216,14 +218,14 @@ namespace tiz
 
       OMX_ERRORTYPE start_mpris (const graphmgr_capabilities &graphmgr_caps);
       OMX_ERRORTYPE stop_mpris ();
-      OMX_ERRORTYPE do_update_control_ifcs (const PlaybackStatus status,
-                                              const std::string &current_song = std::string ());
+      OMX_ERRORTYPE do_update_control_ifcs (const control::playback_status_t status,
+                                            const std::string &current_song = std::string ());
 
     protected:
       ops *p_ops_;
       fsm fsm_;
       control::mprismgr_ptr_t mpris_ptr_;
-      control::playback_signals_t playback_events_;
+      control::playback_events_t playback_events_;
 
     private:
       OMX_ERRORTYPE init_cmd_queue ();

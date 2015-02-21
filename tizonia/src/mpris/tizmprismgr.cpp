@@ -35,6 +35,7 @@
 
 #include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
 
 #include <OMX_Component.h>
 
@@ -56,24 +57,26 @@ namespace
   // Bus name
   const char *TIZONIA_MPRIS_BUS_NAME = "org.mpris.MediaPlayer2.tizonia";
 
+  tiz::control::mpris_mediaplayer2_player_props_t * gp_player_props = NULL;
+
   std::string get_unique_bus_name ()
   {
     std::string bus_name (TIZONIA_MPRIS_BUS_NAME);
     // Append the process id to make a unique bus name
-//     bus_name.append (".");
-//     bus_name.append (boost::lexical_cast< std::string >(getpid ()));
+    //     bus_name.append (".");
+    //     bus_name.append (boost::lexical_cast< std::string >(getpid ()));
     return bus_name;
   }
 
   void player_props_pipe_handler (const void *p_arg, void *p_buffer,
                                   unsigned int nbyte)
   {
+    TIZ_PRINTF_RED ("player_props_pipe_handler\n");
     tiz::control::mprisif * p_mif = static_cast< tiz::control::mprisif * >(const_cast<void *>(p_arg));
-    tiz::control::mpris_mediaplayer2_player_props_t *p_props
-      = static_cast< tiz::control::mpris_mediaplayer2_player_props_t * >(p_buffer);
-    assert (NULL != p_mif);
-    assert (NULL != p_props);
-    p_mif->UpdatePlayerProps (*p_props);
+    if  (p_mif && gp_player_props)
+      {
+        p_mif->UpdatePlayerProps (*gp_player_props);
+      }
   }
 
 }
@@ -114,26 +117,31 @@ void *control::thread_func (void *p_arg)
 control::mprismgr::mprismgr (const mpris_mediaplayer2_props_t &props,
                              const mpris_mediaplayer2_player_props_t &player_props,
                              const mpris_callbacks_t &cbacks,
-                             const playback_signals_t &playback_events)
+                             playback_events_t &playback_events)
   : props_ (props),
     player_props_ (player_props),
     cbacks_ (cbacks),
     dispatcher_ (),
     p_player_props_pipe_ (NULL),
-    p_connection_ (NULL),
+    p_dbus_connection_ (NULL),
+    playback_connections_ (),
     thread_ (),
     mutex_ (),
     sem_ (),
     p_queue_ (NULL)
 {
+  gp_player_props = &player_props_;
+  connect_playback_slots (playback_events);
 }
 
 control::mprismgr::~mprismgr ()
 {
+  gp_player_props = NULL;
+  disconnect_playback_slots ();
   // NOTE: We need to leak this object. Its deletion produces a crash in
   // dbus-c++
   //
-  // delete p_connection_;
+  // delete p_dbus_connection_;
 }
 
 OMX_ERRORTYPE
@@ -160,17 +168,6 @@ control::mprismgr::start ()
   return post_cmd (new control::cmd (control::cmd::ETIZMprisMgrCmdStart));
 }
 
-void
-control::mprismgr::update_player_properties (
-    const mpris_mediaplayer2_player_props_t &player_props)
-{
-  if (NULL != p_player_props_pipe_)
-    {
-      // TODO: Serialise the properties structure
-      p_player_props_pipe_->write('\0', 1);
-    }
-}
-
 OMX_ERRORTYPE
 control::mprismgr::stop ()
 {
@@ -186,6 +183,31 @@ void control::mprismgr::deinit ()
   void *p_result = NULL;
   static_cast< void >(tiz_thread_join (&thread_, &p_result));
   deinit_cmd_queue ();
+}
+
+void control::mprismgr::playback_status_changed (const playback_status_t status)
+{
+  if (p_player_props_pipe_)
+    {
+      if (control::Playing == status)
+        {
+          player_props_.playback_status_ = "Playing";
+        }
+      else if (control::Paused == status)
+        {
+          player_props_.playback_status_ = "Paused";
+        }
+      else if (control::Stopped == status)
+        {
+          player_props_.playback_status_ = "Stopped";
+        }
+      p_player_props_pipe_->write(&player_props_, sizeof (player_props_));
+    }
+}
+
+void control::mprismgr::loop_status_changed (const loop_status_t status)
+{
+  // NOT IMPLEMENTED
 }
 
 OMX_ERRORTYPE
@@ -229,10 +251,10 @@ bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mgr,
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS processing START cmd...");
     DBus::default_dispatcher = &(dispatcher);
-    p_mgr->p_connection_ =
+    p_mgr->p_dbus_connection_ =
       new DBus::Connection(DBus::Connection::SessionBus());
-    p_mgr->p_connection_->request_name (get_unique_bus_name ().c_str ());
-    mprisif mif (*(p_mgr->p_connection_), p_mgr->props_, p_mgr->player_props_, p_mgr->cbacks_);
+    p_mgr->p_dbus_connection_->request_name (get_unique_bus_name ().c_str ());
+    mprisif mif (*(p_mgr->p_dbus_connection_), p_mgr->props_, p_mgr->player_props_, p_mgr->cbacks_);
     p_mgr->p_player_props_pipe_ = dispatcher.add_pipe (player_props_pipe_handler, &mif);
     dispatcher.enter ();
     TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS dispatcher done...");
@@ -246,4 +268,27 @@ bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mgr,
     TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS interface terminating...");
   }
   return terminated;
+}
+
+void control::mprismgr::connect_playback_slots (
+    playback_events_t &playback_events)
+{
+  playback_connections_.playback_ = playback_events.playback_.connect (
+      boost::bind (&tiz::control::mprismgr::playback_status_changed, this, _1));
+  playback_connections_.loop_     = playback_events.loop_.connect (
+      boost::bind (&tiz::control::mprismgr::loop_status_changed, this, _1));
+
+  //   playback_events.playback_ (control::Playing);
+  //  playback_connections_.metadata_ =
+  // playback_events.metadata_.connect(HelloWorld());
+  //   playback_connections_.volume_ =
+  // playback_events.volume_.connect(HelloWorld());
+}
+
+void control::mprismgr::disconnect_playback_slots ()
+{
+  playback_connections_.playback_.disconnect ();
+  playback_connections_.loop_.disconnect ();
+//   playback_connections_.metadata_.disconnect ();
+//   playback_connections_.volume_.disconnect ();
 }

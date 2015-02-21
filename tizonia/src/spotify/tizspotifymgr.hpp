@@ -21,7 +21,7 @@
  * @file   tizspotifymgr.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A manager for the HTTP client graph
+ * @brief  A manager for the spotify client graph
  *
  *
  */
@@ -42,7 +42,7 @@ namespace tiz
 
     /**
      *  @class spotifymgr
-     *  @brief The http client graph manager class.
+     *  @brief The spotify client graph manager class.
      *
      */
     class spotifymgr : public mgr

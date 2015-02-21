@@ -252,6 +252,22 @@ void graph::ops::do_ack_stopped ()
   }
 }
 
+void graph::ops::do_ack_paused ()
+{
+  if (last_op_succeeded () && NULL != p_graph_)
+  {
+    p_graph_->graph_paused ();
+  }
+}
+
+void graph::ops::do_ack_unpaused ()
+{
+  if (last_op_succeeded () && NULL != p_graph_)
+  {
+    p_graph_->graph_unpaused ();
+  }
+}
+
 void graph::ops::do_omx_exe2pause ()
 {
   assert (!handles_.empty ());

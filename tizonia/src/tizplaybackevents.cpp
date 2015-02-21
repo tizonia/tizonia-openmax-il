@@ -18,31 +18,31 @@
  */
 
 /**
- * @file   tizgraphmgrstatus.hpp
+ * @file   tizplaybackevents.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Graph Manager Playback Status
- *
+ * @brief  Media player signals
  *
  */
 
-#ifndef TIZGRAPHMGRSTATUS_HPP
-#define TIZGRAPHMGRSTATUS_HPP
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-namespace tiz
+#include "tizplaybackevents.hpp"
+
+#ifdef TIZ_LOG_CATEGORY_NAME
+#undef TIZ_LOG_CATEGORY_NAME
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.control.events"
+#endif
+
+namespace control = tiz::control;
+
+//
+// playback_events
+//
+
+control::playback_events::playback_events ()
+  : playback_ (), loop_ (), metadata_ (), volume_ ()
 {
-  namespace graphmgr
-  {
-    enum PlaybackStatus
-      {
-        // A track is currently playing.
-        Playing,
-        // A track is currently paused.
-        Paused,
-        // There is no track currently playing.
-        Stopped
-      };
-  }  // namespace graphmgr
-}  // namespace tiz
-
-#endif  // TIZGRAPHMGRSTATUS_HPP
+}

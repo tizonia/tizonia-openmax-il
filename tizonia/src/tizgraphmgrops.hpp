@@ -35,7 +35,7 @@
 #include <OMX_Core.h>
 
 #include "tizgraphtypes.hpp"
-#include "tizgraphmgrstatus.hpp"
+#include "tizplaybackstatus.hpp"
 #include "tizplaylist.hpp"
 
 #define GMGR_OPS_RECORD_ERROR(err, str)                                     \
@@ -102,7 +102,7 @@ namespace tiz
       virtual void do_report_fatal_error (const OMX_ERRORTYPE error,
                                           const std::string &msg);
       virtual void do_end_of_play ();
-      virtual void do_update_control_ifcs (const PlaybackStatus status);
+      virtual void do_update_control_ifcs (const control::playback_status_t status);
       virtual bool is_fatal_error (const OMX_ERRORTYPE error,
                                    const std::string &msg);
 

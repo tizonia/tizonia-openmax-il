@@ -47,6 +47,7 @@
 #endif
 
 namespace graphmgr = tiz::graphmgr;
+namespace control = tiz::control;
 
 //
 // ops
@@ -252,11 +253,15 @@ void graphmgr::ops::do_end_of_play ()
   termination_cback_ (OMX_ErrorNone, "End of playlist.");
 }
 
-void graphmgr::ops::do_update_control_ifcs (const PlaybackStatus status)
+void graphmgr::ops::do_update_control_ifcs (const control::playback_status_t status)
 {
-  if (p_mgr_ && next_playlist_)
+  if (p_mgr_)
     {
-      std::string current_stream = next_playlist_->get_current_uri ();
+      std::string current_stream;
+      if (next_playlist_)
+        {
+          current_stream = next_playlist_->get_current_uri ();
+        }
       p_mgr_->do_update_control_ifcs (status, current_stream);
     }
 }

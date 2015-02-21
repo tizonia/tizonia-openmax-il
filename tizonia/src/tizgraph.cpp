@@ -291,6 +291,22 @@ void graph::graph::graph_stopped ()
   }
 }
 
+void graph::graph::graph_paused ()
+{
+  if (p_mgr_)
+  {
+    p_mgr_->graph_paused ();
+  }
+}
+
+void graph::graph::graph_unpaused ()
+{
+  if (p_mgr_)
+  {
+    p_mgr_->graph_unpaused ();
+  }
+}
+
 void graph::graph::graph_unloaded ()
 {
   if (p_mgr_)

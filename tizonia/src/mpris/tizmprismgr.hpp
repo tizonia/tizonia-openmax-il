@@ -31,7 +31,9 @@
 
 #include <stdint.h>
 #include <string>
+
 #include <boost/function.hpp>
+#include <boost/signals2/connection.hpp>
 
 #include <dbus-c++/dbus.h>
 
@@ -40,7 +42,7 @@
 
 #include <tizgraphtypes.hpp>
 
-#include "tizplaybacksignals.hpp"
+#include "tizplaybackevents.hpp"
 
 #include "tizmprisprops.hpp"
 #include "tizmpriscbacks.hpp"
@@ -99,7 +101,7 @@ namespace tiz
       mprismgr (const mpris_mediaplayer2_props_t &props,
                 const mpris_mediaplayer2_player_props_t &player_props,
                 const mpris_callbacks_t &cbacks,
-                const playback_signals_t &playback_events);
+                playback_events_t &playback_events);
       virtual ~mprismgr ();
 
       /**
@@ -126,17 +128,6 @@ namespace tiz
       OMX_ERRORTYPE start ();
 
       /**
-       * Inform the MPRIS manager about a change that affects any of the
-       * org.mpris.MediaPlayer2 properties.
-       *
-       * @pre start() has been called on this manager.
-       *
-       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
-       * success.
-       */
-      void update_player_properties (const mpris_mediaplayer2_player_props_t &player_props);
-
-      /**
        * Halt the processing of the DBUS messages.
        *
        * @pre start() has been called on this manager.
@@ -158,19 +149,44 @@ namespace tiz
        */
       void deinit ();
 
+      void playback_status_changed (const playback_status_t status);
+      void loop_status_changed (const loop_status_t status);
+
     protected:
-      const mpris_mediaplayer2_props_t props_;
-      const mpris_mediaplayer2_player_props_t player_props_;
+      mpris_mediaplayer2_props_t props_;
+      mpris_mediaplayer2_player_props_t player_props_;
       const mpris_callbacks_t cbacks_;
       DBus::BusDispatcher dispatcher_;
       DBus::Pipe *p_player_props_pipe_; // Not owned
-      DBus::Connection *p_connection_;
+      DBus::Connection *p_dbus_connection_;
 
     private:
       OMX_ERRORTYPE init_cmd_queue ();
       void deinit_cmd_queue ();
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
       static bool dispatch_cmd (mprismgr *p_mgr, const cmd *p_cmd);
+      void connect_playback_slots (playback_events_t &playback_events);
+      void disconnect_playback_slots ();
+
+    private:
+      struct playback_connections
+      {
+        playback_connections ()
+          :
+          playback_(),
+          loop_(),
+          metadata_(),
+          volume_ ()
+        {}
+      public:
+        boost::signals2::connection playback_;
+        boost::signals2::connection loop_;
+        boost::signals2::connection metadata_;
+        boost::signals2::connection volume_;
+      };
+      typedef struct playback_connections playback_connections_t;
+    private:
+      playback_connections_t playback_connections_;
 
     private:
       tiz_thread_t thread_;

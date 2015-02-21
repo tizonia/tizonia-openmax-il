@@ -63,7 +63,7 @@ graphmgr::ops *graphmgr::decodemgr::do_init (
   graphmgr_caps.can_quit_ = false;
   graphmgr_caps.can_raise_ = false;
   graphmgr_caps.has_track_list_ = true;
-  graphmgr_caps.identity_.assign ("Tizonia OpenMAX IL player version ");
+  graphmgr_caps.identity_.assign ("Tizonia version ");
   graphmgr_caps.identity_.append (PACKAGE_VERSION);
   graphmgr_caps.uri_schemes_ = boost::assign::list_of("file");
   graphmgr_caps.mime_types_ = boost::assign::list_of

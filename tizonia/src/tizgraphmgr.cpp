@@ -53,6 +53,7 @@
 #endif
 
 namespace graphmgr = tiz::graphmgr;
+namespace control = tiz::control;
 
 void *graphmgr::thread_func (void *p_arg)
 {
@@ -251,6 +252,18 @@ graphmgr::mgr::graph_stopped ()
 }
 
 OMX_ERRORTYPE
+graphmgr::mgr::graph_paused ()
+{
+  return post_cmd (new graphmgr::cmd (graphmgr::graph_paused_evt ()));
+}
+
+OMX_ERRORTYPE
+graphmgr::mgr::graph_unpaused ()
+{
+  return post_cmd (new graphmgr::cmd (graphmgr::graph_unpaused_evt ()));
+}
+
+OMX_ERRORTYPE
 graphmgr::mgr::graph_unloaded ()
 {
   return post_cmd (new graphmgr::cmd (graphmgr::graph_unlded_evt ()));
@@ -302,8 +315,11 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
         graphmgr_caps.can_play_, graphmgr_caps.can_pause_,
         graphmgr_caps.can_seek_, graphmgr_caps.can_control_);
 
+    // NOTE: Can't use make_shared here because the playback events would be
+    // passed as const & which means the slots will connected to a copy of our
+    // signals, not to the original signals.
     mpris_ptr_
-        = boost::make_shared< tiz::control::mprismgr >(tiz::control::mprismgr (
+        = boost::shared_ptr< tiz::control::mprismgr >(new tiz::control::mprismgr (
             props, player_props, mpris_cbacks, playback_events_));
     tiz_check_null_ret_oom (mpris_ptr_);
 
@@ -326,14 +342,10 @@ graphmgr::mgr::stop_mpris ()
 }
 
 OMX_ERRORTYPE
-graphmgr::mgr::do_update_control_ifcs (const PlaybackStatus status,
+graphmgr::mgr::do_update_control_ifcs (const control::playback_status_t status,
                                        const std::string &current_song)
 {
-  if (mpris_ptr_)
-  {
-    // TODO :
-    // mpris_ptr_->
-  }
+  playback_events_.playback_ (status);
   return OMX_ErrorNone;
 }
 
