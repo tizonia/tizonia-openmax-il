@@ -264,6 +264,12 @@ graphmgr::mgr::graph_unpaused ()
 }
 
 OMX_ERRORTYPE
+graphmgr::mgr::graph_metadata (const track_metadata_map_t &metadata)
+{
+  return post_cmd (new graphmgr::cmd (graphmgr::graph_metadata_evt (metadata)));
+}
+
+OMX_ERRORTYPE
 graphmgr::mgr::graph_unloaded ()
 {
   return post_cmd (new graphmgr::cmd (graphmgr::graph_unlded_evt ()));
@@ -296,7 +302,8 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
         boost::bind (&tiz::graphmgr::mgr::pause, this),
         boost::bind (&tiz::graphmgr::mgr::pause, this),
         boost::bind (&tiz::graphmgr::mgr::stop, this),
-        boost::bind (&tiz::graphmgr::mgr::quit, this));
+        boost::bind (&tiz::graphmgr::mgr::quit, this),
+        boost::bind (&tiz::graphmgr::mgr::volume, this, _1));
 
     control::mpris_mediaplayer2_props_t props (
         graphmgr_caps.can_quit_, graphmgr_caps.can_raise_,
@@ -307,8 +314,8 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
         "Playlist",                              // loop status
         1.0,                                     // rate
         false,                                   // shuffle
-        std::map< std::string, std::string >(),  // metadata
-        80,                                      // volumen
+        track_metadata_map_t(),                  // metadata
+        .80,                                     // volumen
         0,                                       // position
         graphmgr_caps.minimum_rate_, graphmgr_caps.maximum_rate_,
         graphmgr_caps.can_go_next_, graphmgr_caps.can_go_previous_,
@@ -346,6 +353,13 @@ graphmgr::mgr::do_update_control_ifcs (const control::playback_status_t status,
                                        const std::string &current_song)
 {
   playback_events_.playback_ (status);
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+graphmgr::mgr::do_update_metadata (const track_metadata_map_t &metadata)
+{
+  playback_events_.metadata_ (metadata);
   return OMX_ErrorNone;
 }
 

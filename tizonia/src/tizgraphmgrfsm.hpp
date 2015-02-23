@@ -45,6 +45,7 @@
 
 #include <tizplatform.h>
 
+#include "tizgraphtypes.hpp"
 #include "tizplaybackstatus.hpp"
 #include "tizgraphmgrops.hpp"
 
@@ -108,6 +109,14 @@ namespace tiz
     struct graph_stopped_evt {};
     struct graph_paused_evt {};
     struct graph_unpaused_evt {};
+    struct graph_metadata_evt
+    {
+      graph_metadata_evt (const track_metadata_map_t &metadata)
+      : metadata_ (metadata)
+      {
+      }
+      const track_metadata_map_t metadata_;
+    };
     struct graph_unlded_evt {};
 
     // Concrete FSM implementation
@@ -613,6 +622,19 @@ namespace tiz
         }
       };
 
+      struct do_update_metadata
+      {
+        template < class FSM, class EVT, class SourceState, class TargetState >
+        void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_update_metadata (evt.metadata_);
+            }
+        }
+      };
+
       struct do_report_fatal_error
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
@@ -691,6 +713,7 @@ namespace tiz
         bmf::Row < running               , pause_evt        , bmf::none   , do_pause                                    >,
         bmf::Row < running               , graph_paused_evt , bmf::none   , do_update_control_ifcs<tc::Paused>          >,
         bmf::Row < running               , graph_unpaused_evt, bmf::none  , do_update_control_ifcs<tc::Playing>         >,
+        bmf::Row < running               , graph_metadata_evt, bmf::none  , do_update_metadata                          >,
         bmf::Row < running               , start_evt        , bmf::none   , do_pause                                    >,
         bmf::Row < running               , stop_evt         , stopping    , do_stop                                     >,
         bmf::Row < running               , quit_evt         , quitting    , do_unload                                   >,

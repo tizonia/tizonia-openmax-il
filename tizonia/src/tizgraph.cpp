@@ -307,6 +307,14 @@ void graph::graph::graph_unpaused ()
   }
 }
 
+void graph::graph::graph_metadata (const track_metadata_map_t &metadata)
+{
+  if (p_mgr_)
+  {
+    p_mgr_->graph_metadata (metadata);
+  }
+}
+
 void graph::graph::graph_unloaded ()
 {
   if (p_mgr_)

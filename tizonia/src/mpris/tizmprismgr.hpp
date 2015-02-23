@@ -149,8 +149,11 @@ namespace tiz
        */
       void deinit ();
 
+    protected:
       void playback_status_changed (const playback_status_t status);
       void loop_status_changed (const loop_status_t status);
+      void metadata_changed (const track_metadata_map_t &metadata);
+      void volume_changed (const double volume);
 
     protected:
       mpris_mediaplayer2_props_t props_;
@@ -165,8 +168,8 @@ namespace tiz
       void deinit_cmd_queue ();
       OMX_ERRORTYPE post_cmd (cmd *p_cmd);
       static bool dispatch_cmd (mprismgr *p_mgr, const cmd *p_cmd);
-      void connect_playback_slots (playback_events_t &playback_events);
-      void disconnect_playback_slots ();
+      void connect_slots (playback_events_t &playback_events);
+      void disconnect_slots ();
 
     private:
       struct playback_connections

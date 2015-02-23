@@ -35,6 +35,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/mem_fn.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include <tizplatform.h>
 #include <tizmacros.h>
@@ -56,7 +57,7 @@ namespace graph = tiz::graph;
 //
 // ops
 //
-graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+graph::ops::ops (graph                     *p_graph, const omx_comp_name_lst_t &comp_lst,
                  const omx_comp_role_lst_t &role_lst)
   : p_graph_ (p_graph),
     probe_ptr_ (),
@@ -70,6 +71,7 @@ graph::ops::ops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
     playlist_ (),
     jump_ (SKIP_DEFAULT_VALUE),
     destination_state_ (OMX_StateMax),
+    metadata_ (),
     error_code_ (OMX_ErrorNone),
     error_msg_ ()
 {
@@ -265,6 +267,14 @@ void graph::ops::do_ack_unpaused ()
   if (last_op_succeeded () && NULL != p_graph_)
   {
     p_graph_->graph_unpaused ();
+  }
+}
+
+void graph::ops::do_ack_metadata ()
+{
+  if (last_op_succeeded () && NULL != p_graph_)
+  {
+    p_graph_->graph_metadata (metadata_);
   }
 }
 
@@ -758,6 +768,10 @@ graph::ops::probe_stream (const OMX_PORTDOMAINTYPE omx_domain,
                                            graph_action.c_str (), uri);
         probe_ptr_->dump_stream_metadata ();
         boost::bind (boost::mem_fn (stream_info_dump_f), probe_ptr_)();
+
+        metadata_ = boost::assign::map_list_of
+          ("trackid", "1");
+        do_ack_metadata ();
       }
 
       // Everything went well..

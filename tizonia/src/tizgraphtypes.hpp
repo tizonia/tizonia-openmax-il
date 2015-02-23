@@ -17,7 +17,7 @@
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
+/**```````````````````````````````````
  * @file   tizgraphtypes.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
@@ -47,6 +47,7 @@ typedef std::vector< OMX_EVENTTYPE > omx_event_lst_t;
 typedef std::vector< OMX_STATETYPE > omx_state_lst_t;
 typedef std::vector< std::string > uri_lst_t;
 typedef std::set< std::string > file_extension_lst_t;
+typedef std::map< std::string, std::string > track_metadata_map_t;
 
 namespace tiz
 {

@@ -266,6 +266,14 @@ void graphmgr::ops::do_update_control_ifcs (const control::playback_status_t sta
     }
 }
 
+void graphmgr::ops::do_update_metadata (const track_metadata_map_t &metadata)
+{
+  if (p_mgr_)
+    {
+      p_mgr_->do_update_metadata (metadata);
+    }
+}
+
 bool graphmgr::ops::is_fatal_error (const OMX_ERRORTYPE error,
                                     const std::string &msg)
 {

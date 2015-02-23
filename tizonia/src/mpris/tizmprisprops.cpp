@@ -60,7 +60,7 @@ control::mpris_mediaplayer2_props::mpris_mediaplayer2_props (
 //
 control::mpris_mediaplayer2_player_props::mpris_mediaplayer2_player_props (
     std::string playback_status, std::string loop_status, double rate,
-    bool shuffle, std::map< std::string, std::string > metadata, double volume,
+    bool shuffle, const track_metadata_map_t &metadata, double volume,
     int64_t position, double minimum_rate, double maximum_rate,
     bool can_go_next, bool can_go_previous, bool can_play, bool can_pause,
     bool can_seek, bool can_control)

@@ -47,16 +47,24 @@ namespace control = tiz::control;
 namespace
 {
 
-  std::map< std::string, DBus::Variant > toDbusMetadata (
+  std::map< std::string, ::DBus::Variant > toDbusMetadata (
       const std::map< std::string, std::string > &meta)
   {
     std::map< std::string, DBus::Variant > dbus_meta;
     typedef std::map< std::string, std::string >::value_type dbus_meta_t;
     BOOST_FOREACH (dbus_meta_t val, meta)
     {
-      DBus::MessageIter it;
+      DBus::Variant va;
+      DBus::MessageIter it = va.writer ();
+      std::string key ("mpris:");
+      key.append (val.first);
+      std::string value (control::mprisif::TIZONIA_MPRIS_OBJECT_PATH);
+      value.append ("/1");
+      DBus::Path path (value);
+      it << path;
+      TIZ_PRINTF_RED ("key [%s] val [%s]\n", key.c_str (), value.c_str ());
       dbus_meta.insert (std::make_pair< std::string, DBus::Variant >(
-          val.first, DBus::Variant ((it << val.second))));
+          key, DBus::Variant (it)));
     }
     return dbus_meta;
   }
@@ -87,18 +95,26 @@ void control::mprisif::on_set_property (DBus::InterfaceAdaptor &interface,
   if (property == "Volume")
   {
     double vol = value;
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "Volume has changed : %f", vol);
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "Volume changed : %f", vol);
+    if (vol >= .5)
+      {
+        cbacks_.volume_ (1);
+      }
+    else if (vol < .5)
+      {
+        cbacks_.volume_ (-1);
+      }
   }
   else if (property == "Shuffle")
   {
     bool shuffle = value;
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "Shuffle has changed : %s",
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "Shuffle changed : %s",
              shuffle ? "YES" : "NO");
   }
   else if (property == "LoopStatus")
   {
     std::string loop = value;
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "Shuffle has changed : %s", loop.c_str ());
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "LoopStatus changed : %s", loop.c_str ());
   }
 }
 
@@ -175,7 +191,7 @@ void control::mprisif::UpdatePlayerProps (
   LoopStatus = props.loop_status_;
   Rate = props.rate_;
   Shuffle = props.shuffle_;
-  Metadata = toDbusMetadata (props.metadata_);
+  // Metadata = toDbusMetadata (props.metadata_);
   Volume = props.volume_;
   Position = props.position_;
   MinimumRate = props.minimum_rate_;

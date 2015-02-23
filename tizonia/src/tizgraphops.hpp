@@ -102,6 +102,7 @@ namespace tiz
       virtual void do_ack_stopped ();
       virtual void do_ack_paused ();
       virtual void do_ack_unpaused ();
+      virtual void do_ack_metadata ();
       virtual void do_omx_exe2pause ();
       virtual void do_omx_pause2exe ();
       virtual void do_omx_pause2idle ();
@@ -192,6 +193,7 @@ namespace tiz
       tizplaylist_ptr_t playlist_;
       int jump_;
       OMX_STATETYPE destination_state_;
+      track_metadata_map_t metadata_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;
     };

@@ -92,6 +92,7 @@ namespace tiz
       void graph_stopped ();
       void graph_paused ();
       void graph_unpaused ();
+      void graph_metadata (const track_metadata_map_t &metadata);
       void graph_unloaded ();
       void graph_end_of_play ();
       void graph_error (const OMX_ERRORTYPE error, const std::string &msg);

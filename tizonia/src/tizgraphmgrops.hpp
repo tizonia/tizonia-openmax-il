@@ -103,6 +103,7 @@ namespace tiz
                                           const std::string &msg);
       virtual void do_end_of_play ();
       virtual void do_update_control_ifcs (const control::playback_status_t status);
+      virtual void do_update_metadata (const track_metadata_map_t &metadata);
       virtual bool is_fatal_error (const OMX_ERRORTYPE error,
                                    const std::string &msg);
 

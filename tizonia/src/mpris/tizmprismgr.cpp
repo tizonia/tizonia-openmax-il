@@ -71,7 +71,6 @@ namespace
   void player_props_pipe_handler (const void *p_arg, void *p_buffer,
                                   unsigned int nbyte)
   {
-    TIZ_PRINTF_RED ("player_props_pipe_handler\n");
     tiz::control::mprisif * p_mif = static_cast< tiz::control::mprisif * >(const_cast<void *>(p_arg));
     if  (p_mif && gp_player_props)
       {
@@ -131,13 +130,13 @@ control::mprismgr::mprismgr (const mpris_mediaplayer2_props_t &props,
     p_queue_ (NULL)
 {
   gp_player_props = &player_props_;
-  connect_playback_slots (playback_events);
+  connect_slots (playback_events);
 }
 
 control::mprismgr::~mprismgr ()
 {
   gp_player_props = NULL;
-  disconnect_playback_slots ();
+  disconnect_slots ();
   // NOTE: We need to leak this object. Its deletion produces a crash in
   // dbus-c++
   //
@@ -210,6 +209,18 @@ void control::mprismgr::loop_status_changed (const loop_status_t status)
   // NOT IMPLEMENTED
 }
 
+void control::mprismgr::metadata_changed (const track_metadata_map_t &metadata)
+{
+  // TODO
+  //   player_props_.metadata_ = metadata;
+  //   p_player_props_pipe_->write(&player_props_, sizeof (player_props_));
+}
+
+void control::mprismgr::volume_changed (const double volume)
+{
+  // TODO
+}
+
 OMX_ERRORTYPE
 control::mprismgr::init_cmd_queue ()
 {
@@ -251,6 +262,7 @@ bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mgr,
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS processing START cmd...");
     DBus::default_dispatcher = &(dispatcher);
+    DBus::DefaultTimeout(100, false, &dispatcher);
     p_mgr->p_dbus_connection_ =
       new DBus::Connection(DBus::Connection::SessionBus());
     p_mgr->p_dbus_connection_->request_name (get_unique_bus_name ().c_str ());
@@ -270,25 +282,23 @@ bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mgr,
   return terminated;
 }
 
-void control::mprismgr::connect_playback_slots (
+void control::mprismgr::connect_slots (
     playback_events_t &playback_events)
 {
   playback_connections_.playback_ = playback_events.playback_.connect (
       boost::bind (&tiz::control::mprismgr::playback_status_changed, this, _1));
-  playback_connections_.loop_     = playback_events.loop_.connect (
+  playback_connections_.loop_ = playback_events.loop_.connect (
       boost::bind (&tiz::control::mprismgr::loop_status_changed, this, _1));
-
-  //   playback_events.playback_ (control::Playing);
-  //  playback_connections_.metadata_ =
-  // playback_events.metadata_.connect(HelloWorld());
-  //   playback_connections_.volume_ =
-  // playback_events.volume_.connect(HelloWorld());
+  playback_connections_.metadata_ = playback_events.metadata_.connect (
+      boost::bind (&tiz::control::mprismgr::metadata_changed, this, _1));
+  playback_connections_.volume_ = playback_events.volume_.connect (
+      boost::bind (&tiz::control::mprismgr::volume_changed, this, _1));
 }
 
-void control::mprismgr::disconnect_playback_slots ()
+void control::mprismgr::disconnect_slots ()
 {
   playback_connections_.playback_.disconnect ();
   playback_connections_.loop_.disconnect ();
-//   playback_connections_.metadata_.disconnect ();
-//   playback_connections_.volume_.disconnect ();
+  playback_connections_.metadata_.disconnect ();
+  playback_connections_.volume_.disconnect ();
 }

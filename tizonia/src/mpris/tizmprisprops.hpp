@@ -38,6 +38,8 @@
 
 #include <tizplatform.h>
 
+#include <tizgraphtypes.hpp>
+
 namespace tiz
 {
   namespace control
@@ -71,7 +73,7 @@ namespace tiz
     public:
       mpris_mediaplayer2_player_props (
           std::string playback_status, std::string loop_status, double rate,
-          bool shuffle, std::map< std::string, std::string > metadata,
+          bool shuffle, const track_metadata_map_t &metadata,
           double volume, int64_t position, double minimum_rate,
           double maximum_rate, bool can_go_next, bool can_go_previous,
           bool can_play, bool can_pause, bool can_seek, bool can_control);
@@ -81,7 +83,7 @@ namespace tiz
       std::string loop_status_;
       double rate_;
       bool shuffle_;
-      std::map< std::string, std::string > metadata_;
+      track_metadata_map_t metadata_;
       double volume_;
       int64_t position_;
       double minimum_rate_;
