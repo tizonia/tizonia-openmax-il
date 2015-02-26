@@ -85,6 +85,14 @@ namespace tiz
     struct rwd_evt {};
     struct vol_up_evt {};
     struct vol_down_evt {};
+    struct vol_evt
+    {
+      vol_evt (const double vol)
+      : vol_ (vol)
+      {
+      }
+      const double vol_;
+    };
     struct mute_evt {};
     struct pause_evt {};
     struct stop_evt {};
@@ -116,6 +124,14 @@ namespace tiz
       {
       }
       const track_metadata_map_t metadata_;
+    };
+    struct graph_volume_evt
+    {
+      graph_volume_evt (const int &volume)
+      : volume_ (volume)
+      {
+      }
+      const int volume_;
     };
     struct graph_unlded_evt {};
 
@@ -179,14 +195,14 @@ namespace tiz
         // submachine states
         struct loading_graph : public boost::msm::front::state<>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
+          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
         };
 
         struct starting_exit : public boost::msm::front::exit_pseudo_state<graph_execd_evt>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
+          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
@@ -243,7 +259,7 @@ namespace tiz
 
         struct restarting_exit : public boost::msm::front::exit_pseudo_state<graph_unlded_evt>
         {
-          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
+          typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
           template <class Event,class FSM>
           void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
         };
@@ -384,7 +400,7 @@ namespace tiz
 
       struct executing_graph : public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
+        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt, stop_evt, quit_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&,FSM& ) {GMGR_FSM_LOG ();}
       };
@@ -430,7 +446,7 @@ namespace tiz
 
       struct unloading_graph : public boost::msm::front::state<>
       {
-        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, mute_evt, pause_evt> deferred_events;
+        typedef boost::mpl::vector<next_evt, prev_evt, fwd_evt, rwd_evt, vol_up_evt, vol_down_evt, vol_evt, mute_evt, pause_evt> deferred_events;
         template <class Event,class FSM>
         void on_entry(Event const&, FSM& fsm) {GMGR_FSM_LOG ();}
       };
@@ -556,6 +572,19 @@ namespace tiz
         }
       };
 
+      struct do_vol
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_vol (evt.vol_);
+            }
+        }
+      };
+
       struct do_mute
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
@@ -635,6 +664,19 @@ namespace tiz
         }
       };
 
+      struct do_update_volume
+      {
+        template < class FSM, class EVT, class SourceState, class TargetState >
+        void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_update_volume (evt.volume_);
+            }
+        }
+      };
+
       struct do_report_fatal_error
       {
         template <class FSM,class EVT,class SourceState,class TargetState>
@@ -709,11 +751,13 @@ namespace tiz
         bmf::Row < running               , rwd_evt          , bmf::none   , do_rwd                                      >,
         bmf::Row < running               , vol_up_evt       , bmf::none   , do_vol_up                                   >,
         bmf::Row < running               , vol_down_evt     , bmf::none   , do_vol_down                                 >,
+        bmf::Row < running               , vol_evt          , bmf::none   , do_vol                                      >,
         bmf::Row < running               , mute_evt         , bmf::none   , do_mute                                     >,
         bmf::Row < running               , pause_evt        , bmf::none   , do_pause                                    >,
         bmf::Row < running               , graph_paused_evt , bmf::none   , do_update_control_ifcs<tc::Paused>          >,
         bmf::Row < running               , graph_unpaused_evt, bmf::none  , do_update_control_ifcs<tc::Playing>         >,
         bmf::Row < running               , graph_metadata_evt, bmf::none  , do_update_metadata                          >,
+        bmf::Row < running               , graph_volume_evt , bmf::none   , do_update_volume                            >,
         bmf::Row < running               , start_evt        , bmf::none   , do_pause                                    >,
         bmf::Row < running               , stop_evt         , stopping    , do_stop                                     >,
         bmf::Row < running               , quit_evt         , quitting    , do_unload                                   >,

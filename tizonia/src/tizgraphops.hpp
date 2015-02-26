@@ -103,6 +103,7 @@ namespace tiz
       virtual void do_ack_paused ();
       virtual void do_ack_unpaused ();
       virtual void do_ack_metadata ();
+      virtual void do_ack_volume ();
       virtual void do_omx_exe2pause ();
       virtual void do_omx_pause2exe ();
       virtual void do_omx_pause2idle ();
@@ -111,7 +112,8 @@ namespace tiz
       virtual void do_seek ();
       virtual void do_skip ();
       virtual void do_store_skip (const int jump);
-      virtual void do_volume (const int step);
+      virtual void do_volume_step (const int step);
+      virtual void do_volume (const double vol);
       virtual void do_mute ();
       virtual void do_error ();
       virtual void do_end_of_play ();
@@ -194,6 +196,7 @@ namespace tiz
       int jump_;
       OMX_STATETYPE destination_state_;
       track_metadata_map_t metadata_;
+      int volume_;
       OMX_ERRORTYPE error_code_;
       std::string error_msg_;
     };

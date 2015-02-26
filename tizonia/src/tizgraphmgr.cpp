@@ -192,7 +192,7 @@ graphmgr::mgr::rwd ()
 }
 
 OMX_ERRORTYPE
-graphmgr::mgr::volume (const int step)
+graphmgr::mgr::volume_step (const int step)
 {
   if (step == 0)
   {
@@ -207,6 +207,12 @@ graphmgr::mgr::volume (const int step)
   {
     return post_cmd (new graphmgr::cmd (graphmgr::vol_down_evt ()));
   }
+}
+
+OMX_ERRORTYPE
+graphmgr::mgr::volume (const double volume)
+{
+  return post_cmd (new graphmgr::cmd (graphmgr::vol_evt (volume)));
 }
 
 OMX_ERRORTYPE
@@ -270,6 +276,12 @@ graphmgr::mgr::graph_metadata (const track_metadata_map_t &metadata)
 }
 
 OMX_ERRORTYPE
+graphmgr::mgr::graph_volume (const int volume)
+{
+  return post_cmd (new graphmgr::cmd (graphmgr::graph_volume_evt (volume)));
+}
+
+OMX_ERRORTYPE
 graphmgr::mgr::graph_unloaded ()
 {
   return post_cmd (new graphmgr::cmd (graphmgr::graph_unlded_evt ()));
@@ -315,7 +327,7 @@ graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
         1.0,                                     // rate
         false,                                   // shuffle
         track_metadata_map_t(),                  // metadata
-        .80,                                     // volumen
+        .80,                                     // volume
         0,                                       // position
         graphmgr_caps.minimum_rate_, graphmgr_caps.maximum_rate_,
         graphmgr_caps.can_go_next_, graphmgr_caps.can_go_previous_,
@@ -360,6 +372,13 @@ OMX_ERRORTYPE
 graphmgr::mgr::do_update_metadata (const track_metadata_map_t &metadata)
 {
   playback_events_.metadata_ (metadata);
+  return OMX_ErrorNone;
+}
+
+OMX_ERRORTYPE
+graphmgr::mgr::do_update_volume (const int volume)
+{
+  playback_events_.volume_ (volume > 0 ? (double)volume / 100 : 0);
   return OMX_ErrorNone;
 }
 

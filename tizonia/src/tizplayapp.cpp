@@ -183,11 +183,11 @@ namespace
             break;
 
           case '-':
-            mgr_ptr->volume (-1);
+            mgr_ptr->volume_step (-1);
             break;
 
           case '+':
-            mgr_ptr->volume (1);
+            mgr_ptr->volume_step (1);
             break;
 
           default:

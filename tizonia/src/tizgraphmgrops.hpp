@@ -97,6 +97,7 @@ namespace tiz
       virtual void do_rwd ();
       virtual void do_vol_up ();
       virtual void do_vol_down ();
+      virtual void do_vol (const double vol);
       virtual void do_mute ();
       virtual void do_pause ();
       virtual void do_report_fatal_error (const OMX_ERRORTYPE error,
@@ -104,6 +105,7 @@ namespace tiz
       virtual void do_end_of_play ();
       virtual void do_update_control_ifcs (const control::playback_status_t status);
       virtual void do_update_metadata (const track_metadata_map_t &metadata);
+      virtual void do_update_volume (const int volume);
       virtual bool is_fatal_error (const OMX_ERRORTYPE error,
                                    const std::string &msg);
 

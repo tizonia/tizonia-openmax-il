@@ -73,7 +73,8 @@ namespace tiz
       OMX_ERRORTYPE pause ();
       OMX_ERRORTYPE seek ();
       OMX_ERRORTYPE skip (const int jump);
-      OMX_ERRORTYPE volume (const int step);
+      OMX_ERRORTYPE volume_step (const int step);
+      OMX_ERRORTYPE volume (const double vol);
       OMX_ERRORTYPE mute ();
       OMX_ERRORTYPE stop ();
       void unload ();
@@ -93,6 +94,7 @@ namespace tiz
       void graph_paused ();
       void graph_unpaused ();
       void graph_metadata (const track_metadata_map_t &metadata);
+      void graph_volume (const int volume);
       void graph_unloaded ();
       void graph_end_of_play ();
       void graph_error (const OMX_ERRORTYPE error, const std::string &msg);

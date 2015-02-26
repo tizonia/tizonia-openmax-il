@@ -295,6 +295,19 @@ namespace tiz
       }
     };
 
+    struct do_volume_step
+    {
+      template < class FSM, class EVT, class SourceState, class TargetState >
+      void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_volume_step (evt.step_);
+        }
+      }
+    };
+
     struct do_volume
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
@@ -303,7 +316,7 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_volume (evt.step_);
+          (*(fsm.pp_ops_))->do_volume (evt.vol_);
         }
       }
     };

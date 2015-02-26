@@ -355,6 +355,7 @@ namespace tiz
                                                                                                             tg::do_omx_exe2idle> >                                 >,
         bmf::Row < tg::executing                , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
         bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_graph     , tg::do_mute                                                >,
+        bmf::Row < tg::executing                , tg::volume_step_evt       , bmf::none               , tg::do_volume_step                                         >,
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+

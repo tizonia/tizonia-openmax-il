@@ -72,6 +72,7 @@ graph::ops::ops (graph                     *p_graph, const omx_comp_name_lst_t &
     jump_ (SKIP_DEFAULT_VALUE),
     destination_state_ (OMX_StateMax),
     metadata_ (),
+    volume_ (80),
     error_code_ (OMX_ErrorNone),
     error_msg_ ()
 {
@@ -278,6 +279,14 @@ void graph::ops::do_ack_metadata ()
   }
 }
 
+void graph::ops::do_ack_volume ()
+{
+  if (last_op_succeeded () && NULL != p_graph_)
+  {
+    p_graph_->graph_volume (volume_);
+  }
+}
+
 void graph::ops::do_omx_exe2pause ()
 {
   assert (!handles_.empty ());
@@ -372,21 +381,44 @@ void graph::ops::do_store_skip (const int jump)
 }
 
 /**
- * Default implementation of do_volume () operation. It applies a volume
+ * Default implementation of do_volume_step () operation. It applies a volume
  * increment or decrement on port #0 of the last element of the graph.
  *
  * @param step The number of "units" by which the volume will be increased (if
  * positive) or decreased (negative).
  */
-void graph::ops::do_volume (const int step)
+void graph::ops::do_volume_step (const int step)
 {
   if (last_op_succeeded ())
   {
     OMX_U32 input_port = 0;
     assert (!handles_.empty ());
     G_OPS_BAIL_IF_ERROR (
-        util::apply_volume (handles_[handles_.size () - 1], input_port, step),
-        "Unable to apply volume");
+        util::apply_volume_step (handles_[handles_.size () - 1], input_port,
+                                 step, volume_),
+        "Unable to apply volume step");
+    // We update the mgr with the new volume here
+    do_ack_volume ();
+  }
+}
+
+/**
+ * Default implementation of do_volume () operation. It applies a volume
+ * increment or decrement on port #0 of the last element of the graph.
+ *
+ * @param vol 1.0 is maximum volume and 0.0 means mute.
+ */
+void graph::ops::do_volume (const double vol)
+{
+  if (last_op_succeeded ())
+  {
+    OMX_U32 input_port = 0;
+    assert (!handles_.empty ());
+    G_OPS_BAIL_IF_ERROR (util::apply_volume (handles_[handles_.size () - 1],
+                                             input_port, vol, volume_),
+                         "Unable to apply volume");
+    // We update the mgr with the new volume here
+    do_ack_volume ();
   }
 }
 

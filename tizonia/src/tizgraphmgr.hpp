@@ -151,14 +151,24 @@ namespace tiz
       OMX_ERRORTYPE rwd ();
 
       /**
-       * Change the volume.
+       * Increments or decrements the volume by steps.
        *
        * @pre init() has been called on this manager.
        *
        * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
        * success.
        */
-      OMX_ERRORTYPE volume (const int step);
+      OMX_ERRORTYPE volume_step (const int step);
+
+      /**
+       * Changes the volume to the specified value. 1.0 is maximum volume and 0.0 means mute.
+       *
+       * @pre init() has been called on this manager.
+       *
+       * @return OMX_ErrorInsuficientResources if OOM. OMX_ErrorNone in case of
+       * success.
+       */
+      OMX_ERRORTYPE volume (const double volume);
 
       /**
        * Mute/unmute toggle.
@@ -212,6 +222,7 @@ namespace tiz
       OMX_ERRORTYPE graph_paused ();
       OMX_ERRORTYPE graph_unpaused ();
       OMX_ERRORTYPE graph_metadata (const track_metadata_map_t &metadata);
+      OMX_ERRORTYPE graph_volume (const int volume);
       OMX_ERRORTYPE graph_unloaded ();
       OMX_ERRORTYPE graph_end_of_play ();
       OMX_ERRORTYPE graph_error (const OMX_ERRORTYPE error,
@@ -222,6 +233,7 @@ namespace tiz
       OMX_ERRORTYPE do_update_control_ifcs (const control::playback_status_t status,
                                             const std::string &current_song = std::string ());
       OMX_ERRORTYPE do_update_metadata (const track_metadata_map_t &metadata);
+      OMX_ERRORTYPE do_update_volume (const int volume);
 
     protected:
       ops *p_ops_;

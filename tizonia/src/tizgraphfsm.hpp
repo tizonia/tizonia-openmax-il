@@ -313,6 +313,7 @@ namespace tiz
         //    +------------------------------+-----------------+-------------------------+-------------------------+----------------------+
         boost::msm::front::Row < executing   , skip_evt        , skipping                , do_store_skip                                  >,
         boost::msm::front::Row < executing   , seek_evt        , boost::msm::front::none , do_seek                                        >,
+        boost::msm::front::Row < executing   , volume_step_evt , boost::msm::front::none , do_volume_step                                 >,
         boost::msm::front::Row < executing   , volume_evt      , boost::msm::front::none , do_volume                                      >,
         boost::msm::front::Row < executing   , mute_evt        , boost::msm::front::none , do_mute                                        >,
         boost::msm::front::Row < executing   , pause_evt       , exe2pause               , do_omx_exe2pause                               >,

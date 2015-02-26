@@ -409,8 +409,8 @@ bool graph::util::verify_transition_one (const OMX_HANDLETYPE handle,
 }
 
 OMX_ERRORTYPE
-graph::util::apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid,
-                           const int step)
+graph::util::apply_volume_step (const OMX_HANDLETYPE handle, const OMX_U32 pid,
+                                const int step, int &vol)
 {
 #define VOL_STEP 5
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -432,8 +432,28 @@ graph::util::apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid,
   }
   if (new_volume)
   {
+    vol = volume.sVolume.nValue;
     tiz_check_omx_err (
         OMX_SetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+  }
+  return rc;
+}
+
+OMX_ERRORTYPE
+graph::util::apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid,
+                           const double vol, int &comp_vol)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const OMX_S32 nValue = (vol > 1.0 ? 100 : (OMX_S32) (vol * 100));
+  OMX_AUDIO_CONFIG_VOLUMETYPE volume;
+  TIZ_INIT_OMX_PORT_STRUCT (volume, pid);
+  tiz_check_omx_err (
+      OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+  if (volume.sVolume.nValue != nValue)
+  {
+    comp_vol = volume.sVolume.nValue;
+    volume.sVolume.nValue = nValue > 0 ? nValue : 0;
+    rc = OMX_SetConfig (handle, OMX_IndexConfigAudioVolume, &volume);
   }
   return rc;
 }

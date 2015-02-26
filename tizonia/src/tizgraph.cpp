@@ -174,9 +174,15 @@ graph::graph::skip (const int jump)
 }
 
 OMX_ERRORTYPE
-graph::graph::volume (const int step)
+graph::graph::volume_step (const int step)
 {
-  return post_cmd (new tiz::graph::cmd (tiz::graph::volume_evt (step)));
+  return post_cmd (new tiz::graph::cmd (tiz::graph::volume_step_evt (step)));
+}
+
+OMX_ERRORTYPE
+graph::graph::volume (const double vol)
+{
+  return post_cmd (new tiz::graph::cmd (tiz::graph::volume_evt (vol)));
 }
 
 OMX_ERRORTYPE
@@ -312,6 +318,14 @@ void graph::graph::graph_metadata (const track_metadata_map_t &metadata)
   if (p_mgr_)
   {
     p_mgr_->graph_metadata (metadata);
+  }
+}
+
+void graph::graph::graph_volume (const int volume)
+{
+  if (p_mgr_)
+  {
+    p_mgr_->graph_volume (volume);
   }
 }
 

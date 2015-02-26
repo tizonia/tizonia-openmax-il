@@ -99,12 +99,20 @@ namespace tiz
     {
     };
 
-    struct volume_evt
+    struct volume_step_evt
     {
-      volume_evt (const int step) : step_ (step)
+      volume_step_evt (const int step) : step_ (step)
       {
       }
-      int step_;
+      const int step_;
+    };
+
+    struct volume_evt
+    {
+      volume_evt (const double vol) : vol_ (vol)
+      {
+      }
+      const double vol_;
     };
 
     struct mute_evt

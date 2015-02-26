@@ -45,7 +45,7 @@ namespace tiz
     {
     public:
       typedef boost::function< OMX_ERRORTYPE() > cback_func_t;
-      typedef boost::function< OMX_ERRORTYPE(int) > cback_vol_func_t;
+      typedef boost::function< OMX_ERRORTYPE(double) > cback_vol_func_t;
 
     public:
       mpris_callbacks (cback_func_t play,

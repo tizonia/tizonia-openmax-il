@@ -218,14 +218,20 @@ void graphmgr::ops::do_rwd ()
 
 void graphmgr::ops::do_vol_up ()
 {
-  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->volume (1),
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->volume_step (1),
                           "Unable to inc. volume.");
 }
 
 void graphmgr::ops::do_vol_down ()
 {
-  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->volume (-1),
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->volume_step (-1),
                           "Unable to dec. volume.");
+}
+
+void graphmgr::ops::do_vol (const double vol)
+{
+  GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->volume (vol),
+                          "Unable to change volume.");
 }
 
 void graphmgr::ops::do_mute ()
@@ -271,6 +277,14 @@ void graphmgr::ops::do_update_metadata (const track_metadata_map_t &metadata)
   if (p_mgr_)
     {
       p_mgr_->do_update_metadata (metadata);
+    }
+}
+
+void graphmgr::ops::do_update_volume (const int volume)
+{
+  if (p_mgr_)
+    {
+      p_mgr_->do_update_volume (volume);
     }
 }
 

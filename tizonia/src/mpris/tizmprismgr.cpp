@@ -37,6 +37,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
+#include <dbus-c++/dbus.h>
+
 #include <OMX_Component.h>
 
 #include <tizplatform.h>
@@ -120,8 +122,9 @@ control::mprismgr::mprismgr (const mpris_mediaplayer2_props_t &props,
   : props_ (props),
     player_props_ (player_props),
     cbacks_ (cbacks),
-    dispatcher_ (),
+    p_dispatcher_ (NULL),
     p_player_props_pipe_ (NULL),
+    p_dbus_timeout_ (NULL),
     p_dbus_connection_ (NULL),
     playback_connections_ (),
     thread_ (),
@@ -137,6 +140,8 @@ control::mprismgr::~mprismgr ()
 {
   gp_player_props = NULL;
   disconnect_slots ();
+  delete p_dbus_timeout_;
+  p_dbus_timeout_ = NULL;
   // NOTE: We need to leak this object. Its deletion produces a crash in
   // dbus-c++
   //
@@ -146,6 +151,8 @@ control::mprismgr::~mprismgr ()
 OMX_ERRORTYPE
 control::mprismgr::init ()
 {
+  assert (!p_queue_ && !p_dispatcher_);
+
   // Init command queue infrastructure
   tiz_check_omx_err_ret_oom (init_cmd_queue ());
 
@@ -157,6 +164,10 @@ control::mprismgr::init ()
 
   // Let's wait until the manager's thread is ready to receive requests
   tiz_check_omx_err_ret_oom (tiz_sem_wait (&sem_));
+
+  // Create the DBus dispatcher
+  p_dispatcher_ = new DBus::BusDispatcher ();
+  tiz_check_null_ret_oom (p_dispatcher_);
 
   return OMX_ErrorNone;
 }
@@ -172,12 +183,15 @@ control::mprismgr::stop ()
 {
   // Before sending the command to stop the thread, we have to make the DBUS
   // dispatcher leave its event loop.
-  dispatcher_.leave ();
+  assert (NULL != p_dispatcher_);
+  p_dispatcher_->leave ();
   return post_cmd (new control::cmd (control::cmd::ETIZMprisMgrCmdStop));
 }
 
 void control::mprismgr::deinit ()
 {
+  delete p_dispatcher_;
+  p_dispatcher_ = NULL;
   static_cast< void >(tiz_sem_wait (&sem_));
   void *p_result = NULL;
   static_cast< void >(tiz_thread_join (&thread_, &p_result));
@@ -218,7 +232,8 @@ void control::mprismgr::metadata_changed (const track_metadata_map_t &metadata)
 
 void control::mprismgr::volume_changed (const double volume)
 {
-  // TODO
+  player_props_.volume_ = volume;
+  p_player_props_pipe_->write(&player_props_, sizeof (player_props_));
 }
 
 OMX_ERRORTYPE
@@ -257,27 +272,32 @@ bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mgr,
   assert (NULL != p_mgr);
   assert (NULL != p_cmd);
 
-  DBus::BusDispatcher &dispatcher = p_mgr->dispatcher_;
-  if (p_cmd->is_start ())
+  if (p_mgr->p_dispatcher_)
   {
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS processing START cmd...");
-    DBus::default_dispatcher = &(dispatcher);
-    DBus::DefaultTimeout(100, false, &dispatcher);
-    p_mgr->p_dbus_connection_ =
-      new DBus::Connection(DBus::Connection::SessionBus());
-    p_mgr->p_dbus_connection_->request_name (get_unique_bus_name ().c_str ());
-    mprisif mif (*(p_mgr->p_dbus_connection_), p_mgr->props_, p_mgr->player_props_, p_mgr->cbacks_);
-    p_mgr->p_player_props_pipe_ = dispatcher.add_pipe (player_props_pipe_handler, &mif);
-    dispatcher.enter ();
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS dispatcher done...");
-  }
-  else if (p_cmd->is_stop ())
-  {
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS processing STOP cmd...");
-    dispatcher.del_pipe (p_mgr->p_player_props_pipe_);
-    p_mgr->p_player_props_pipe_ = NULL;
-    terminated = true;
-    TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS interface terminating...");
+    if (p_cmd->is_start ())
+    {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS processing START cmd...");
+      DBus::default_dispatcher = p_mgr->p_dispatcher_;
+      p_mgr->p_dbus_timeout_
+          = new DBus::DefaultTimeout (100, false, p_mgr->p_dispatcher_);
+      p_mgr->p_dbus_connection_
+          = new DBus::Connection (DBus::Connection::SessionBus ());
+      p_mgr->p_dbus_connection_->request_name (get_unique_bus_name ().c_str ());
+      mprisif mif (*(p_mgr->p_dbus_connection_), p_mgr->props_,
+                   p_mgr->player_props_, p_mgr->cbacks_);
+      p_mgr->p_player_props_pipe_
+          = p_mgr->p_dispatcher_->add_pipe (player_props_pipe_handler, &mif);
+      p_mgr->p_dispatcher_->enter ();
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS dispatcher done...");
+    }
+    else if (p_cmd->is_stop ())
+    {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS processing STOP cmd...");
+      p_mgr->p_dispatcher_->del_pipe (p_mgr->p_player_props_pipe_);
+      p_mgr->p_player_props_pipe_ = NULL;
+      terminated = true;
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS interface terminating...");
+    }
   }
   return terminated;
 }

@@ -94,26 +94,19 @@ void control::mprisif::on_set_property (DBus::InterfaceAdaptor &interface,
 {
   if (property == "Volume")
   {
-    double vol = value;
+    const double vol = value;
     TIZ_LOG (TIZ_PRIORITY_TRACE, "Volume changed : %f", vol);
-    if (vol >= .5)
-      {
-        cbacks_.volume_ (1);
-      }
-    else if (vol < .5)
-      {
-        cbacks_.volume_ (-1);
-      }
+    cbacks_.volume_ (vol);
   }
   else if (property == "Shuffle")
   {
-    bool shuffle = value;
+    const bool shuffle = value;
     TIZ_LOG (TIZ_PRIORITY_TRACE, "Shuffle changed : %s",
              shuffle ? "YES" : "NO");
   }
   else if (property == "LoopStatus")
   {
-    std::string loop = value;
+    const std::string loop = value;
     TIZ_LOG (TIZ_PRIORITY_TRACE, "LoopStatus changed : %s", loop.c_str ());
   }
 }

@@ -59,7 +59,7 @@ namespace tiz
       typedef boost::signals2::signal<void (const track_metadata_map_t &metadata)> metadata_event_t;
       typedef metadata_event_t::slot_type metadata_observer_t;
 
-      typedef boost::signals2::signal<void (const double &volume)> volume_event_t;
+      typedef boost::signals2::signal<void (const double volume)> volume_event_t;
       typedef volume_event_t::slot_type volume_observer_t;
 
     public:

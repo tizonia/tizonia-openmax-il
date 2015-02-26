@@ -96,8 +96,13 @@ namespace tiz
       static bool verify_transition_one (const OMX_HANDLETYPE handle,
                                          const OMX_STATETYPE to);
 
+      static OMX_ERRORTYPE apply_volume_step (const OMX_HANDLETYPE handle,
+                                              const OMX_U32 pid, const int step,
+                                              int &volume);
+
       static OMX_ERRORTYPE apply_volume (const OMX_HANDLETYPE handle,
-                                         const OMX_U32 pid, const int step);
+                                         const OMX_U32 pid, const double vol,
+                                         int &volume);
 
       static OMX_ERRORTYPE apply_mute (const OMX_HANDLETYPE handle,
                                        const OMX_U32 pid);

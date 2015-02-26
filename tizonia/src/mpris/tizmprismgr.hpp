@@ -35,8 +35,6 @@
 #include <boost/function.hpp>
 #include <boost/signals2/connection.hpp>
 
-#include <dbus-c++/dbus.h>
-
 #include <tizplatform.h>
 #include <OMX_Core.h>
 
@@ -46,6 +44,14 @@
 
 #include "tizmprisprops.hpp"
 #include "tizmpriscbacks.hpp"
+
+namespace DBus
+{
+  class BusDispatcher;
+  class DefaultTimeout;
+  class Connection;
+  class Pipe;
+}
 
 namespace tiz
 {
@@ -159,8 +165,9 @@ namespace tiz
       mpris_mediaplayer2_props_t props_;
       mpris_mediaplayer2_player_props_t player_props_;
       const mpris_callbacks_t cbacks_;
-      DBus::BusDispatcher dispatcher_;
+      DBus::BusDispatcher *p_dispatcher_;
       DBus::Pipe *p_player_props_pipe_; // Not owned
+      DBus::DefaultTimeout *p_dbus_timeout_;
       DBus::Connection *p_dbus_connection_;
 
     private:
