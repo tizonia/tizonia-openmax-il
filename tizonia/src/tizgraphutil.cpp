@@ -437,7 +437,6 @@ graph::util::apply_volume_step (const OMX_HANDLETYPE handle, const OMX_U32 pid,
     tiz_check_omx_err (
         OMX_SetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
   }
-  TIZ_PRINTF_RED ("graph::util::apply_volume_step : %d\n", vol);
   return rc;
 }
 
