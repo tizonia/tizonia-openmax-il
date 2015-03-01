@@ -139,7 +139,6 @@ control::mprismgr::mprismgr (const mpris_mediaplayer2_props_t &props,
 control::mprismgr::~mprismgr ()
 {
   gp_player_props = NULL;
-  disconnect_slots ();
   delete p_dbus_timeout_;
   p_dbus_timeout_ = NULL;
   // NOTE: We need to leak this object. Its deletion produces a crash in
@@ -293,6 +292,7 @@ bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mgr,
     else if (p_cmd->is_stop ())
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS processing STOP cmd...");
+      p_mgr->disconnect_slots ();
       p_mgr->p_dispatcher_->del_pipe (p_mgr->p_player_props_pipe_);
       p_mgr->p_player_props_pipe_ = NULL;
       terminated = true;

@@ -419,6 +419,7 @@ graph::util::apply_volume_step (const OMX_HANDLETYPE handle, const OMX_U32 pid,
   TIZ_INIT_OMX_PORT_STRUCT (volume, pid);
   tiz_check_omx_err (
       OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+  vol = volume.sVolume.nValue;
   if (volume.sVolume.nValue <= (volume.sVolume.nMax - VOL_STEP) && step > 0)
   {
     volume.sVolume.nValue += VOL_STEP;
@@ -436,6 +437,7 @@ graph::util::apply_volume_step (const OMX_HANDLETYPE handle, const OMX_U32 pid,
     tiz_check_omx_err (
         OMX_SetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
   }
+  TIZ_PRINTF_RED ("graph::util::apply_volume_step : %d\n", vol);
   return rc;
 }
 
@@ -449,10 +451,11 @@ graph::util::apply_volume (const OMX_HANDLETYPE handle, const OMX_U32 pid,
   TIZ_INIT_OMX_PORT_STRUCT (volume, pid);
   tiz_check_omx_err (
       OMX_GetConfig (handle, OMX_IndexConfigAudioVolume, &volume));
+  comp_vol = volume.sVolume.nValue;
   if (volume.sVolume.nValue != nValue)
   {
-    comp_vol = volume.sVolume.nValue;
     volume.sVolume.nValue = nValue > 0 ? nValue : 0;
+    comp_vol = volume.sVolume.nValue;
     rc = OMX_SetConfig (handle, OMX_IndexConfigAudioVolume, &volume);
   }
   return rc;
