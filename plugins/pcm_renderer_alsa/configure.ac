@@ -56,8 +56,7 @@ AC_FUNC_FORK
 AC_CHECK_FUNCS([pow strndup])
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile
-                 tests/Makefile])
+                 src/Makefile])
 
 # End the configure script.
 AC_OUTPUT
