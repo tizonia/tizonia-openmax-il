@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SUBDIRS = src tests
+SUBDIRS = src
 
 #pkgconfigdir = $(libdir)/pkgconfig
 #pkgconfig_DATA = tizcomps.pc
