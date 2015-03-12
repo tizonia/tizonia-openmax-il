@@ -167,7 +167,26 @@ function install_deps {
         uuid-dev libsdl1.2-dev libvpx-dev libmp3lame-dev libfaad-dev \
         libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
         libcurl3-dev libpulse-dev libsndfile1-dev libatomic-ops-dev \
-        curl check wget sqlite3 dbus-x11
+        python-dev python-pip curl check wget sqlite3 dbus-x11
+    return $?
+}
+
+##################################################################
+# Installs python modules
+#
+# Globals
+#   WORKING_DIR
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function install_python_deps {
+    cd_to_working_dir
+
+    echo "Installing python modules..."
+    sudo pip install gmusicapi
     return $?
 }
 
@@ -449,6 +468,9 @@ function main {
 
     if [ "$1" == "deps" ];  then
         install_deps
+        exit_status=$?
+    elif [ "$1" == "pydeps" ];  then
+        install_python_deps
         exit_status=$?
     elif [ "$1" == "srcdeps" ];  then
         install_src_deps

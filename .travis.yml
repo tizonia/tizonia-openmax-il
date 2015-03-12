@@ -25,6 +25,7 @@ compiler:
   - gcc
 before_install:
  - ./tools/buildtizonia deps "$HOME"
+ - ./tools/buildtizonia pydeps "$HOME"
  - ./tools/buildtizonia srcdeps "$HOME"
 before_script:
  - ./tools/buildtizonia media "$HOME" "$HOME/temp"
