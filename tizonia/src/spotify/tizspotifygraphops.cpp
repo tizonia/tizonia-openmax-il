@@ -21,7 +21,7 @@
  * @file   tizspotifygraphops.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Spotify Streaming Client graph implementation
+ * @brief  Spotify client graph implementation
  *
  */
 
@@ -185,10 +185,11 @@ void graph::spotifyops::do_omx_idle2exe ()
   }
 }
 
-void graph::spotifyops::do_reconfigure_tunnel ()
+void graph::spotifyops::do_reconfigure_tunnel (const int tunnel_id)
 {
   if (last_op_succeeded ())
   {
+    assert (0 == tunnel_id);    // Only one tunnel in this graph
     // Retrieve the pcm settings from the source component
     OMX_AUDIO_PARAM_PCMMODETYPE spotify_pcmtype;
     const OMX_U32 spotify_port_id = 0;
@@ -241,41 +242,6 @@ void graph::spotifyops::do_skip ()
 void graph::spotifyops::do_retrieve_metadata ()
 {
   dump_stream_metadata ();
-}
-
-void graph::spotifyops::do_sink_omx_idle2exe ()
-{
-  if (last_op_succeeded ())
-  {
-    G_OPS_BAIL_IF_ERROR (transition_sink (OMX_StateExecuting),
-                         "Unable to transition audio renderer from Idle->Exe");
-  }
-}
-
-void graph::spotifyops::do_sink_omx_exe2idle ()
-{
-  if (last_op_succeeded ())
-  {
-    G_OPS_BAIL_IF_ERROR (transition_sink (OMX_StateIdle),
-                         "Unable to transition audio renderer from Exe->Idle");
-  }
-}
-
-// TODO: Move this implementation to the base class (and remove also from
-// httpservops)
-OMX_ERRORTYPE
-graph::spotifyops::transition_sink (const OMX_STATETYPE to_state)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const int renderer_source_index = 1;
-  rc = tiz::graph::util::transition_one (handles_, renderer_source_index,
-                                         to_state);
-  if (OMX_ErrorNone == rc)
-  {
-    clear_expected_transitions ();
-    add_expected_transition (handles_[renderer_source_index], to_state);
-  }
-  return rc;
 }
 
 // TODO: Move this implementation to the base class (and remove also from

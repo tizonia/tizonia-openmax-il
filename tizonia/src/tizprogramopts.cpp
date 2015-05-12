@@ -184,7 +184,7 @@ namespace
       TIZ_PRINTF_DBG_RED ("diff [%s]\n", elem.c_str ());
     }
 #endif
-}
+  }
 
   void sort_option_list (std::vector< std::string > &a)
   {
@@ -206,6 +206,8 @@ namespace
     {
       outcome = false;
     }
+    TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
+                          outcome ? "SUCCESS" : "FAILURE");
     return outcome;
   }
 }
@@ -220,7 +222,8 @@ tiz::programopts::programopts (int argc, char *argv[])
     omx_ ("OpenMAX IL options"),
     server_ ("Audio streaming server options"),
     client_ ("Audio streaming client options"),
-    spotify_ ("Spotify client options"),
+    spotify_ ("Spotify options"),
+    gmusic_ ("Google Music options"),
     input_ ("Intput uris option"),
     positional_ (),
     recurse_ (false),
@@ -243,6 +246,11 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_pass_ (),
     spotify_playlist_ (),
     spotify_playlist_container_ (),
+    gmusic_user_ (),
+    gmusic_pass_ (),
+    gmusic_device_id_ (),
+    gmusic_playlist_ (),
+    gmusic_playlist_container_ (),
     consume_functions_ (),
     all_general_options_ (),
     all_debug_options_ (),
@@ -250,6 +258,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_streaming_server_options_ (),
     all_streaming_client_options_ (),
     all_spotify_client_options_ (),
+    all_gmusic_client_options_ (),
     all_input_uri_options_ (),
     all_given_options_ ()
 {
@@ -259,6 +268,7 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_streaming_server_options ();
   init_streaming_client_options ();
   init_spotify_options ();
+  init_gmusic_options ();
   init_input_uri_option ();
 }
 
@@ -314,6 +324,7 @@ void tiz::programopts::print_usage () const
   std::cout << omx_ << "\n";
   std::cout << server_ << "\n";
   std::cout << spotify_ << "\n";
+  std::cout << gmusic_ << "\n";
   // Note: We don't show the client_ options for now, but this may be needed in
   // the future
   // std::cout << client_ << "\n";
@@ -428,6 +439,29 @@ const std::vector< std::string > &
   spotify_playlist_container_.clear ();
   spotify_playlist_container_.push_back (spotify_playlist_);
   return spotify_playlist_container_;
+}
+
+const std::string &tiz::programopts::gmusic_user () const
+{
+  return gmusic_user_;
+}
+
+const std::string &tiz::programopts::gmusic_password () const
+{
+  return gmusic_pass_;
+}
+
+const std::string &tiz::programopts::gmusic_device_id () const
+{
+  return gmusic_device_id_;
+}
+
+const std::vector< std::string > &
+    tiz::programopts::gmusic_playlist_container ()
+{
+  gmusic_playlist_container_.clear ();
+  gmusic_playlist_container_.push_back (gmusic_playlist_);
+  return gmusic_playlist_container_;
 }
 
 void tiz::programopts::print_license () const
@@ -597,6 +631,25 @@ void tiz::programopts::init_spotify_options ()
       "spotify-password")("spotify-playlist");
 }
 
+void tiz::programopts::init_gmusic_options ()
+{
+  gmusic_.add_options ()
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-user", po::value (&gmusic_user_), "Google Music user's name.")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-password", po::value (&gmusic_pass_),
+       "Google Music user's password.")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-device-id", po::value (&gmusic_device_id_),
+       "Google Music device id.")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-artist", po::value (&gmusic_playlist_),
+       "Google Music playlist name.");
+  register_consume_function (&tiz::programopts::consume_gmusic_client_options);
+  all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")(
+      "gmusic-password")("gmusic-device-id")("gmusic-artist");
+}
+
 void tiz::programopts::init_input_uri_option ()
 {
   input_.add_options ()
@@ -622,6 +675,7 @@ void tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (server_)
       .add (client_)
       .add (spotify_)
+      .add (gmusic_)
       .add (input_);
   po::parsed_options parsed = po::command_line_parser (argc, argv)
                                   .options (all)
@@ -800,6 +854,47 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
   return rc;
 }
 
+int tiz::programopts::consume_gmusic_client_options (bool &done,
+                                                     std::string &msg)
+{
+  int rc = EXIT_FAILURE;
+  done = false;
+
+  if (validate_gmusic_client_options ())
+  {
+    done = true;
+
+    if (!vm_.count ("gmusic-user") && vm_.count ("gmusic-password"))
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Need to provide a Gmusic user name.";
+      msg.assign (oss.str ());
+    }
+    else if (!vm_.count ("gmusic-device-id"))
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A device id must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (!vm_.count ("gmusic-artist"))
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist must be specified.";
+      msg.assign (oss.str ());
+    }
+    else
+    {
+      rc = call_handler (option_handlers_map_.find ("gmusic-stream"));
+    }
+  }
+  TIZ_PRINTF_DBG_RED ("gmusic ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
+  return rc;
+}
+
 int tiz::programopts::consume_local_decode_options (bool &done,
                                                     std::string &msg)
 {
@@ -902,6 +997,28 @@ bool tiz::programopts::validate_spotify_client_options () const
   {
     outcome = true;
   }
+  return outcome;
+}
+
+bool tiz::programopts::validate_gmusic_client_options () const
+{
+  bool outcome = false;
+  unsigned int gmusic_opts_count
+      = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
+        + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
+        + vm_.count ("log-directory");
+
+  std::vector< std::string > all_valid_options = all_gmusic_client_options_;
+  concat_option_lists (all_valid_options, all_general_options_);
+  concat_option_lists (all_valid_options, all_debug_options_);
+
+  if (gmusic_opts_count > 0
+      && is_valid_options_combination (all_valid_options, all_given_options_))
+  {
+    outcome = true;
+  }
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
+                      outcome ? "SUCCESS" : "FAILURE");
   return outcome;
 }
 

@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizspotifymgr.cpp
+ * @file   tizgmusicmgr.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Manager implementation for the Spotify client graph
+ * @brief  Implementation of a Manager for the Google Music client graph
  *
  */
 
@@ -37,12 +37,12 @@
 #include <tizplatform.h>
 
 #include "tizgraphmgrcaps.hpp"
-#include "tizspotifygraph.hpp"
-#include "tizspotifymgr.hpp"
+#include "tizgmusicgraph.hpp"
+#include "tizgmusicmgr.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.spotifymgr"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.gmusicmgr"
 #endif
 
 namespace graphmgr = tiz::graphmgr;
@@ -50,17 +50,17 @@ namespace graphmgr = tiz::graphmgr;
 //
 // mgr
 //
-graphmgr::spotifymgr::spotifymgr (tizgraphconfig_ptr_t config)
+graphmgr::gmusicmgr::gmusicmgr (tizgraphconfig_ptr_t config)
   : graphmgr::mgr (), config_ (config)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
 }
 
-graphmgr::spotifymgr::~spotifymgr ()
+graphmgr::gmusicmgr::~gmusicmgr ()
 {
 }
 
-graphmgr::ops *graphmgr::spotifymgr::do_init (
+graphmgr::ops *graphmgr::gmusicmgr::do_init (
     const tizplaylist_ptr_t &playlist,
     const termination_callback_t &termination_cback,
     graphmgr_capabilities_t &graphmgr_caps)
@@ -71,7 +71,7 @@ graphmgr::ops *graphmgr::spotifymgr::do_init (
   graphmgr_caps.has_track_list_ = false;
   graphmgr_caps.identity_.assign ("Tizonia version ");
   graphmgr_caps.identity_.append (PACKAGE_VERSION);
-  graphmgr_caps.uri_schemes_ = boost::assign::list_of ("spotify");
+  graphmgr_caps.uri_schemes_ = boost::assign::list_of ("gmusic");
   graphmgr_caps.mime_types_ = boost::assign::list_of ("audio/pcm");
   graphmgr_caps.minimum_rate_ = 1.0;
   graphmgr_caps.maximum_rate_ = 1.0;
@@ -82,20 +82,20 @@ graphmgr::ops *graphmgr::spotifymgr::do_init (
   graphmgr_caps.can_seek_ = false;
   graphmgr_caps.can_control_ = false;
 
-  return new spotifymgrops (this, playlist, termination_cback);
+  return new gmusicmgrops (this, playlist, termination_cback);
 }
 
 //
 // decodemgrops
 //
-graphmgr::spotifymgrops::spotifymgrops (
+graphmgr::gmusicmgrops::gmusicmgrops (
     mgr *p_mgr, const tizplaylist_ptr_t &playlist,
     const termination_callback_t &termination_cback)
   : tiz::graphmgr::ops (p_mgr, playlist, termination_cback)
 {
 }
 
-tizgraph_ptr_t graphmgr::spotifymgrops::get_graph (
+tizgraph_ptr_t graphmgr::gmusicmgrops::get_graph (
     const std::string & /* uri */)
 {
   tizgraph_ptr_t g_ptr;
@@ -103,7 +103,7 @@ tizgraph_ptr_t graphmgr::spotifymgrops::get_graph (
   tizgraph_ptr_map_t::const_iterator it = graph_registry_.find (encoding);
   if (it == graph_registry_.end ())
   {
-    g_ptr = boost::make_shared< tiz::graph::spotify >();
+    g_ptr = boost::make_shared< tiz::graph::gmusic >();
     if (g_ptr)
     {
       // TODO: Check rc
@@ -125,7 +125,7 @@ tizgraph_ptr_t graphmgr::spotifymgrops::get_graph (
     else
     {
       GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources,
-                             "Unable to create the Spotify client graph.");
+                             "Unable to create the Google Music client graph.");
     }
   }
   else
@@ -136,7 +136,7 @@ tizgraph_ptr_t graphmgr::spotifymgrops::get_graph (
   return g_ptr;
 }
 
-void graphmgr::spotifymgrops::do_load ()
+void graphmgr::gmusicmgrops::do_load ()
 {
   tizgraph_ptr_t g_ptr (get_graph (std::string ()));
   if (g_ptr)
@@ -146,12 +146,12 @@ void graphmgr::spotifymgrops::do_load ()
   p_managed_graph_ = g_ptr;
 }
 
-void graphmgr::spotifymgrops::do_execute ()
+void graphmgr::gmusicmgrops::do_execute ()
 {
   assert (playlist_);
   assert (p_mgr_);
 
-  spotifymgr *p_clientmgr = dynamic_cast< spotifymgr * >(p_mgr_);
+  gmusicmgr *p_clientmgr = dynamic_cast< gmusicmgr * >(p_mgr_);
   assert (p_clientmgr);
 
   graph_config_.reset ();
@@ -163,7 +163,7 @@ void graphmgr::spotifymgrops::do_execute ()
                           "Unable to execute the graph.");
 }
 
-bool graphmgr::spotifymgrops::is_fatal_error (const OMX_ERRORTYPE error,
+bool graphmgr::gmusicmgrops::is_fatal_error (const OMX_ERRORTYPE error,
                                               const std::string &msg)
 {
   bool rc = false;

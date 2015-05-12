@@ -298,7 +298,7 @@ namespace tiz
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::enabling_tunnel             , bmf::ActionSequence_<
                                                                                                                       boost::mpl::vector<
-                                                                                                                        tg::do_reconfigure_tunnel,
+                                                                                                                        tg::do_reconfigure_tunnel<1>,
                                                                                                                         tg::do_enable_tunnel<1> > >  , tg::is_port_disabling_complete >,
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , reconfiguring_graph_exit        , bmf::none                        , tg::is_port_enabling_complete  >

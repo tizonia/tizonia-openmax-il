@@ -43,6 +43,7 @@ typedef std::map< OMX_HANDLETYPE, std::string > omx_hdl2name_map_t;
 typedef std::vector< std::string > omx_comp_name_lst_t;
 typedef std::vector< OMX_HANDLETYPE > omx_comp_handle_lst_t;
 typedef std::vector< std::string > omx_comp_role_lst_t;
+typedef std::vector< int > omx_comp_role_pos_lst_t;
 typedef std::vector< OMX_EVENTTYPE > omx_event_lst_t;
 typedef std::vector< OMX_STATETYPE > omx_state_lst_t;
 typedef std::vector< std::string > uri_lst_t;
@@ -59,6 +60,7 @@ namespace tiz
     class config;
     class httpservconfig;
     class spotifyconfig;
+    class gmusicconfig;
     struct omx_event_info;
   }
 }
@@ -69,6 +71,7 @@ typedef std::map< std::string, tizgraph_ptr_t > tizgraph_ptr_map_t;
 typedef boost::shared_ptr< tiz::graph::config > tizgraphconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::spotifyconfig > tizspotifyconfig_ptr_t;
+typedef boost::shared_ptr< tiz::graph::gmusicconfig > tizgmusicconfig_ptr_t;
 typedef tiz::playlist tizplaylist_t;
 typedef boost::shared_ptr< tiz::playlist > tizplaylist_ptr_t;
 

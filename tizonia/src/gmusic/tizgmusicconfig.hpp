@@ -18,16 +18,16 @@
  */
 
 /**
- * @file   tizspotifyconfig.hpp
+ * @file   tizgmusicconfig.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Spotify client graph configuration
+ * @brief  Google Music client graph configuration
  *
  *
  */
 
-#ifndef TIZSPOTIFYCONFIG_HPP
-#define TIZSPOTIFYCONFIG_HPP
+#ifndef TIZGMUSICCONFIG_HPP
+#define TIZGMUSICCONFIG_HPP
 
 #include <string>
 
@@ -38,17 +38,17 @@ namespace tiz
 {
   namespace graph
   {
-    class spotifyconfig : public config
+    class gmusicconfig : public config
     {
 
     public:
-      spotifyconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
-                      const std::string &pass)
-        : config (playlist), user_ (user), pass_ (pass)
+      gmusicconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
+                    const std::string &pass, const std::string &device_id)
+        : config (playlist), user_ (user), pass_ (pass), device_id_ (device_id)
       {
       }
 
-      ~spotifyconfig ()
+      ~gmusicconfig ()
       {
       }
 
@@ -62,11 +62,17 @@ namespace tiz
         return pass_;
       }
 
+      std::string get_device_id () const
+      {
+        return device_id_;
+      }
+
     protected:
       const std::string user_;
       const std::string pass_;
+      const std::string device_id_;
     };
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZSPOTIFYCONFIG_HPP
+#endif  // TIZGMUSICCONFIG_HPP

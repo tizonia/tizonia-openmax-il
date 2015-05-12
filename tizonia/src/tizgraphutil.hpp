@@ -52,14 +52,13 @@ namespace tiz
           const omx_comp_name_lst_t &comp_list);
 
       static OMX_ERRORTYPE verify_role (const std::string &comp,
-                                        const std::string &role);
-
-      static OMX_ERRORTYPE set_role (const OMX_HANDLETYPE handle,
-                                     const std::string &comp_role);
+                                        const std::string &role,
+                                        int &role_position);
 
       static OMX_ERRORTYPE verify_role_list (
           const omx_comp_name_lst_t &comp_list,
-          const omx_comp_role_lst_t &role_list);
+          const omx_comp_role_lst_t &role_list,
+          omx_comp_role_pos_lst_t &role_positions);
 
       static OMX_ERRORTYPE instantiate_component (
           const std::string &comp_name, const int graph_position,
@@ -67,9 +66,16 @@ namespace tiz
           omx_comp_handle_lst_t &hdl_list, omx_hdl2name_map_t &h2n_map);
 
       static OMX_ERRORTYPE instantiate_comp_list (
-          const omx_comp_name_lst_t &comp_list, omx_comp_handle_lst_t &hdl_list,
-          omx_hdl2name_map_t &h2n_map, OMX_PTR ap_app_data,
-          OMX_CALLBACKTYPE *ap_callbacks);
+          const omx_comp_name_lst_t &comp_list,
+          omx_comp_handle_lst_t &hdl_list, omx_hdl2name_map_t &h2n_map,
+          OMX_PTR ap_app_data, OMX_CALLBACKTYPE *ap_callbacks);
+
+      static OMX_ERRORTYPE set_role (const OMX_HANDLETYPE handle,
+                                     const std::string &comp_role);
+
+      static OMX_ERRORTYPE set_role_list (const omx_comp_handle_lst_t &hdl_list,
+                                          const omx_comp_role_lst_t &role_list,
+                                          const omx_comp_role_pos_lst_t &role_positions);
 
       static void destroy_list (omx_comp_handle_lst_t &hdl_list);
 

@@ -131,17 +131,20 @@ graph::util::verify_comp_list (const omx_comp_name_lst_t &comp_list)
 }
 
 OMX_ERRORTYPE
-graph::util::verify_role (const std::string &comp, const std::string &comp_role)
+graph::util::verify_role (const std::string &comp, const std::string &comp_role, int &role_position)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   std::vector< std::string > roles;
-
   if (OMX_ErrorNoMore == (error = tiz::omxutil::roles_of_comp (
                               (OMX_STRING)comp.c_str (), roles)))
   {
     bool found = false;
+    role_position = 0;
     BOOST_FOREACH (std::string role, roles)
     {
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "comp [%s] role [%s]",
+               comp.c_str (), role.c_str ());
+      ++role_position;
       if (comp_role.compare (role) == 0)
       {
         found = true;
@@ -150,6 +153,7 @@ graph::util::verify_role (const std::string &comp, const std::string &comp_role)
     }
     if (!found)
     {
+      role_position = 0;
       error = OMX_ErrorComponentNotFound;
     }
   }
@@ -163,34 +167,25 @@ graph::util::verify_role (const std::string &comp, const std::string &comp_role)
 }
 
 OMX_ERRORTYPE
-graph::util::set_role (const OMX_HANDLETYPE handle, const std::string &comp_role)
-{
-  OMX_ERRORTYPE error = OMX_ErrorNone;
-  OMX_PARAM_COMPONENTROLETYPE roletype;
-  TIZ_INIT_OMX_STRUCT (roletype);
-
-  tiz_check_omx_err (
-                     OMX_SetParameter (handle, OMX_IndexParamStandardComponentRole, &roletype));
-
-  return error;
-}
-
-OMX_ERRORTYPE
 graph::util::verify_role_list (const omx_comp_name_lst_t &comp_list,
-                               const omx_comp_role_lst_t &role_list)
+                               const omx_comp_role_lst_t &role_list,
+                               omx_comp_role_pos_lst_t &role_positions)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   std::vector< std::string > roles;
   unsigned int role_lst_size = role_list.size ();
 
   assert (comp_list.size () == role_lst_size);
+  role_positions.clear ();
 
   for (unsigned int i = 0; i < role_lst_size; ++i)
   {
-    if (OMX_ErrorNone != (error = verify_role (comp_list[i], role_list[i])))
+    int role_pos = 0;
+    if (OMX_ErrorNone != (error = verify_role (comp_list[i], role_list[i], role_pos)))
     {
       break;
     }
+    role_positions.push_back (role_pos);
   }
 
   return error;
@@ -248,6 +243,50 @@ graph::util::instantiate_comp_list (const omx_comp_name_lst_t &comp_list,
   {
     destroy_list (hdl_list);
     hdl_list.clear ();
+  }
+
+  return error;
+}
+
+OMX_ERRORTYPE
+graph::util::set_role (const OMX_HANDLETYPE handle,
+                       const std::string &comp_role)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  OMX_PARAM_COMPONENTROLETYPE roletype;
+  TIZ_INIT_OMX_STRUCT (roletype);
+  strncpy ((char *)roletype.cRole, comp_role.c_str (), OMX_MAX_STRINGNAME_SIZE - 1);
+  roletype.cRole[OMX_MAX_STRINGNAME_SIZE] = '\000';
+  tiz_check_omx_err (OMX_SetParameter (
+      handle, OMX_IndexParamStandardComponentRole, &roletype));
+
+  return error;
+}
+
+OMX_ERRORTYPE
+graph::util::set_role_list (const omx_comp_handle_lst_t &hdl_list,
+                            const omx_comp_role_lst_t &role_list,
+                            const omx_comp_role_pos_lst_t &role_positions)
+{
+  OMX_ERRORTYPE error = OMX_ErrorNone;
+  const int nroles = role_list.size ();
+
+  assert  ((int)hdl_list.size () == nroles);
+  assert  ((int)role_positions.size () == nroles);
+
+  // Ok, now set the requested component roles...
+  for (int i = 0; i < nroles; ++i)
+  {
+    int role_pos = role_positions[i];
+    // ... but only if the requested role is not the default role,
+    // which is role #0
+    if (0 != role_pos)
+    {
+      if (OMX_ErrorNone != (error = set_role (hdl_list[i], role_list[i])))
+      {
+        break;
+      }
+    }
   }
 
   return error;
@@ -353,6 +392,8 @@ graph::util::transition_all (const omx_comp_handle_lst_t &hdl_list,
                              const OMX_STATETYPE to, const OMX_STATETYPE from)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
+
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "handle size = [%d]", hdl_list.size ());
 
   if ((to == OMX_StateIdle && from == OMX_StateLoaded)
       || (to == OMX_StateExecuting && from == OMX_StateIdle))

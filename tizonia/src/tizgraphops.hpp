@@ -86,11 +86,12 @@ namespace tiz
       virtual void do_setup ();
       virtual void do_ack_loaded ();
       virtual void do_store_config (const tizgraphconfig_ptr_t &config);
-      virtual void do_enable_auto_detection (const int handle_id, const int port_id);
+      virtual void do_enable_auto_detection (const int handle_id,
+                                             const int port_id);
       virtual void do_disable_ports ();
       virtual void do_disable_tunnel (const int tunnel_id);
       virtual void do_enable_tunnel (const int tunnel_id);
-      virtual void do_reconfigure_tunnel ();
+      virtual void do_reconfigure_tunnel (const int tunnel_id);
       virtual void do_probe ();
       virtual void do_configure ();
       virtual void do_configure_source ();
@@ -120,14 +121,20 @@ namespace tiz
       virtual void do_tear_down_tunnels ();
       virtual void do_destroy_graph ();
       virtual void do_ack_unloaded ();
-      virtual void do_record_destination (const OMX_STATETYPE destination_state);
+      virtual void do_record_destination (
+          const OMX_STATETYPE destination_state);
       virtual void do_reset_internal_error ();
-      virtual void do_record_fatal_error (const OMX_HANDLETYPE handle, const OMX_ERRORTYPE error,
+      virtual void do_record_fatal_error (const OMX_HANDLETYPE handle,
+                                          const OMX_ERRORTYPE error,
                                           const OMX_U32 port);
 
       virtual bool is_port_settings_evt_required () const;
       virtual bool is_disabled_evt_required () const;
       virtual bool is_fatal_error (const OMX_ERRORTYPE error) const;
+      virtual bool is_tunnel_altered (const int tunnel_id,
+                                      const OMX_HANDLETYPE handle,
+                                      const OMX_U32 port_id,
+                                      const OMX_INDEXTYPE index_id) const;
 
       OMX_ERRORTYPE internal_error () const;
       std::string internal_error_msg () const;
@@ -149,13 +156,14 @@ namespace tiz
 
     protected:
       virtual void record_error (const OMX_ERRORTYPE err_code,
-                         const std::string &err_msg);
+                                 const std::string &err_msg);
 
       virtual void clear_expected_transitions ();
       virtual void record_expected_transitions (const OMX_STATETYPE to_state);
       virtual void add_expected_transition (const OMX_HANDLETYPE handle,
-                                    const OMX_STATETYPE to_state,
-                                    const OMX_ERRORTYPE error = OMX_ErrorNone);
+                                            const OMX_STATETYPE to_state,
+                                            const OMX_ERRORTYPE error
+                                            = OMX_ErrorNone);
 
       virtual void clear_expected_port_transitions ();
       virtual void add_expected_port_transition (
@@ -167,20 +175,18 @@ namespace tiz
           const OMX_HANDLETYPE handle, const OMX_U32 port_id,
           const OMX_COMMANDTYPE disable_or_enable);
 
-      typedef void (tiz::probe::*stream_info_dump_func_t) (void);
-      virtual OMX_ERRORTYPE probe_stream (const OMX_PORTDOMAINTYPE   omx_domain,
-                                  const int                  omx_coding,
-                                  const std::string        & graph_id,
-                                  const std::string        & graph_action,
-                                  stream_info_dump_func_t stream_info_dump_f,
-                                  const bool quiet = false);
+      typedef void (tiz::probe::*stream_info_dump_func_t)(void);
+      virtual OMX_ERRORTYPE probe_stream (
+          const OMX_PORTDOMAINTYPE omx_domain, const int omx_coding,
+          const std::string &graph_id, const std::string &graph_action,
+          stream_info_dump_func_t stream_info_dump_f, const bool quiet = false);
 
       virtual bool probe_stream_hook ();
       virtual OMX_ERRORTYPE transition_source (const OMX_STATETYPE to_state);
-      virtual OMX_ERRORTYPE transition_tunnel (const int tunnel_id,
-                                               const OMX_COMMANDTYPE to_disabled_or_enabled);
+      virtual OMX_ERRORTYPE transition_tunnel (
+          const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
 
-      cbackhandler & get_cback_handler () const;
+      cbackhandler &get_cback_handler () const;
 
     protected:
       graph *p_graph_;

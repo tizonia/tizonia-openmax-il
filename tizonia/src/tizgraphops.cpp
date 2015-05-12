@@ -32,6 +32,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include <algorithm>
+
 #include <boost/make_shared.hpp>
 #include <boost/mem_fn.hpp>
 #include <boost/lexical_cast.hpp>
@@ -93,13 +95,20 @@ void graph::ops::do_load ()
 
   G_OPS_BAIL_IF_ERROR (util::verify_comp_list (comp_lst_),
                        "Unable to verify the component list.");
-  G_OPS_BAIL_IF_ERROR (util::verify_role_list (comp_lst_, role_lst_),
-                       "Unable to verify the role list.");
+
+  omx_comp_role_pos_lst_t role_positions;
+  G_OPS_BAIL_IF_ERROR (
+      util::verify_role_list (comp_lst_, role_lst_, role_positions),
+      "Unable to verify the role list.");
 
   tiz::graph::cbackhandler &cbacks = p_graph_->cback_handler_;
   G_OPS_BAIL_IF_ERROR (
-      util::instantiate_comp_list (comp_lst_, handles_, h2n_, &(cbacks),
-                                   cbacks.get_omx_cbacks ()),
+      util::instantiate_comp_list (comp_lst_, handles_, h2n_,
+                                   &(cbacks), cbacks.get_omx_cbacks ()),
+      "Unable to instantiate the component list.");
+
+  G_OPS_BAIL_IF_ERROR (
+      util::set_role_list (handles_, role_lst_, role_positions),
       "Unable to instantiate the component list.");
 }
 
@@ -177,8 +186,9 @@ void graph::ops::do_enable_tunnel (const int tunnel_id)
   }
 }
 
-void graph::ops::do_reconfigure_tunnel ()
+void graph::ops::do_reconfigure_tunnel (const int tunnel_id)
 {
+  (void)tunnel_id;
   // This is a no-op in the base class.
 }
 
@@ -520,6 +530,23 @@ bool graph::ops::is_fatal_error (const OMX_ERRORTYPE error) const
 {
   TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] ", tiz_err_to_str (error));
   return tiz::graph::util::is_fatal_error (error);
+}
+
+bool graph::ops::is_tunnel_altered (const int tunnel_id,
+                                    const OMX_HANDLETYPE handle,
+                                    const OMX_U32 port_id,
+                                    const OMX_INDEXTYPE index_id) const
+{
+  const omx_comp_handle_lst_t::const_iterator handle_pos_iter (
+      std::find (handles_.begin (), handles_.end (), handle));
+
+  assert (handles_.size () > 0);
+  assert (handle_pos_iter != handles_.end ());
+  assert (tunnel_id < (int)(handles_.size () - 1));
+
+  (void)port_id;
+  (void)index_id;
+  return tunnel_id == std::distance (handles_.begin (), handle_pos_iter);
 }
 
 OMX_ERRORTYPE

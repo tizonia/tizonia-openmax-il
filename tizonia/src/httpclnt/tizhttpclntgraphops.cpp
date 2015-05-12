@@ -178,10 +178,11 @@ void graph::httpclntops::do_omx_idle2exe ()
   }
 }
 
-void graph::httpclntops::do_reconfigure_tunnel ()
+void graph::httpclntops::do_reconfigure_tunnel (const int tunnel_id)
 {
   if (last_op_succeeded ())
   {
+    assert (1 == tunnel_id);     // We only expect tunnel reconfiguration in tunnel 1
     // Retrieve the pcm settings from the decoder component
     OMX_AUDIO_PARAM_PCMMODETYPE decoder_pcmtype;
     const OMX_U32 decoder_port_id = 1;
@@ -217,22 +218,6 @@ void graph::httpclntops::do_reconfigure_tunnel ()
              renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",
              renderer_pcmtype.eEndian == OMX_EndianBig ? "b" : "l");
   }
-}
-
-// TODO: Move this implementation to the base class (and remove also from
-// httpservops)
-OMX_ERRORTYPE
-graph::httpclntops::transition_source (const OMX_STATETYPE to_state)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const int http_source_index = 0;
-  rc = tiz::graph::util::transition_one (handles_, http_source_index, to_state);
-  if (OMX_ErrorNone == rc)
-  {
-    clear_expected_transitions ();
-    add_expected_transition (handles_[http_source_index], to_state);
-  }
-  return rc;
 }
 
 // TODO: Move this implementation to the base class (and remove also from

@@ -18,42 +18,21 @@
  */
 
 /**
- * @file   tizspotifygraph.hpp
+ * @file   tizgmusicgraphfsm.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Spotify client graph
- *
+ * @brief  Google Music client graph fsm
  *
  */
 
-#ifndef TIZSPOTIFYGRAPH_HPP
-#define TIZSPOTIFYGRAPH_HPP
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
-#include "tizgraph.hpp"
-#include "tizspotifygraphfsm.hpp"
+#include "tizgmusicgraphfsm.hpp"
 
-namespace tiz
+char const* const tiz::graph::gmfsm::pstate(tiz::graph::gmfsm::fsm const& p)
 {
-  namespace graph
-  {
-    // Forward declarations
-    class cmd;
-    class ops;
+  return tiz::graph::gmfsm::state_names[p.current_state()[0]];
+}
 
-    class spotify : public graph
-    {
-
-    public:
-      spotify ();
-
-    protected:
-      ops *do_init ();
-      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
-
-    protected:
-      spfsm::fsm fsm_;
-    };
-  }  // namespace graph
-}  // namespace tiz
-
-#endif  // TIZSPOTIFYGRAPH_HPP

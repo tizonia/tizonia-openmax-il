@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizspotifygraph.cpp
+ * @file   tizgmusicgraph.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Spotify client graph implementation
+ * @brief  Google Music client graph implementation
  *
  */
 
@@ -42,41 +42,42 @@
 #include "tizgraphconfig.hpp"
 #include "tizgraphcmd.hpp"
 #include "tizprobe.hpp"
-#include "tizspotifygraph.hpp"
+#include "tizgmusicgraph.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.spotify"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.gmusic"
 #endif
 
 namespace graph = tiz::graph;
 
 //
-// spotify
+// gmusic
 //
-graph::spotify::spotify ()
-  : graph::graph ("spotifygraph"),
+graph::gmusic::gmusic ()
+  : graph::graph ("gmusicgraph"),
     fsm_ (boost::msm::back::states_
-          << tiz::graph::spfsm::fsm::auto_detecting (&p_ops_)
-          << tiz::graph::spfsm::fsm::updating_graph (&p_ops_)
-          << tiz::graph::spfsm::fsm::reconfiguring_graph (&p_ops_)
-          << tiz::graph::spfsm::fsm::skipping (&p_ops_),
+          << tiz::graph::gmfsm::fsm::auto_detecting (&p_ops_)
+          << tiz::graph::gmfsm::fsm::updating_graph (&p_ops_)
+          << tiz::graph::gmfsm::fsm::reconfiguring_tunnel_0 (&p_ops_)
+          << tiz::graph::gmfsm::fsm::reconfiguring_tunnel_1 (&p_ops_)
+          << tiz::graph::gmfsm::fsm::skipping (&p_ops_),
           &p_ops_)
 {
 }
 
-graph::ops *graph::spotify::do_init ()
+graph::ops *graph::gmusic::do_init ()
 {
   omx_comp_name_lst_t comp_list;
-  comp_list.push_back ("OMX.Aratelia.audio_source.spotify.pcm");
+  comp_list.push_back ("OMX.Aratelia.audio_source.http");
 
   omx_comp_role_lst_t role_list;
-  role_list.push_back (OMX_ROLE_AUDIO_SOURCE_PCM_SPOTIFY);
+  role_list.push_back ("audio_source.http.gmusic");
 
-  return new spotifyops (this, comp_list, role_list);
+  return new gmusicops (this, comp_list, role_list);
 }
 
-bool graph::spotify::dispatch_cmd (const tiz::graph::cmd *p_cmd)
+bool graph::gmusic::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 {
   assert (NULL != p_cmd);
 
@@ -90,7 +91,7 @@ bool graph::spotify::dispatch_cmd (const tiz::graph::cmd *p_cmd)
       fsm_.start ();
     }
 
-    p_cmd->inject< spfsm::fsm >(fsm_, tiz::graph::spfsm::pstate);
+    p_cmd->inject< gmfsm::fsm >(fsm_, tiz::graph::gmfsm::pstate);
 
     // Check for internal errors produced during the processing of the last
     // event. If any, inject an "internal" error event. This is fatal and shall

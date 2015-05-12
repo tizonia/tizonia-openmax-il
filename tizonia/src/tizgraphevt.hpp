@@ -51,7 +51,7 @@ namespace tiz
       const tizgraphconfig_ptr_t config_;
     };
 
-    // Make this state convertible from any state (this exits a sub-machine)
+    // Make this state convertible from any state (this event exits a sub-machine)
     struct configured_evt
     {
       configured_evt ()
@@ -83,7 +83,7 @@ namespace tiz
       int jump_;
     };
 
-    // Make this state convertible from any state (this exits a sub-machine)
+    // Make this state convertible from any state (this event exits a sub-machine)
     struct skipped_evt
     {
       skipped_evt ()
@@ -234,7 +234,7 @@ namespace tiz
       std::string error_str_;
     };
 
-    // Make this state convertible from any state (this exits a sub-machine)
+    // Make this state convertible from any state (this event exits a sub-machine)
     struct auto_detected_evt
     {
       auto_detected_evt ()
@@ -246,7 +246,7 @@ namespace tiz
       }
     };
 
-    // Make this state convertible from any state (this exits a sub-machine)
+    // Make this state convertible from any state (this event exits a sub-machine)
     struct graph_updated_evt
     {
       graph_updated_evt ()
@@ -258,7 +258,7 @@ namespace tiz
       }
     };
 
-    // Make this state convertible from any state (this exits a sub-machine)
+    // Make this state convertible from any state (this event exits a sub-machine)
     struct graph_reconfigured_evt
     {
       graph_reconfigured_evt ()
@@ -266,6 +266,18 @@ namespace tiz
       }
       template < class Event >
       graph_reconfigured_evt (Event const &)
+      {
+      }
+    };
+
+    // Make this state convertible from any state (this event exits a sub-machine)
+    struct tunnel_reconfigured_evt
+    {
+      tunnel_reconfigured_evt ()
+      {
+      }
+      template < class Event >
+      tunnel_reconfigured_evt (Event const &)
       {
       }
     };

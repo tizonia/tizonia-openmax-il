@@ -18,16 +18,16 @@
  */
 
 /**
- * @file   tizspotifygraphops.hpp
+ * @file   tizgmusicgraphops.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Spotify client graph actions / operations
+ * @brief  Google Music client graph actions / operations
  *
  *
  */
 
-#ifndef TIZSPOTIFYGRAPHOPS_HPP
-#define TIZSPOTIFYGRAPHOPS_HPP
+#ifndef TIZGMUSICGRAPHOPS_HPP
+#define TIZGMUSICGRAPHOPS_HPP
 
 #include "tizgraphops.hpp"
 
@@ -37,11 +37,11 @@ namespace tiz
   {
     class graph;
 
-    class spotifyops : public ops
+    class gmusicops : public ops
     {
     public:
-      spotifyops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
-                  const omx_comp_role_lst_t &role_lst);
+      gmusicops (graph *p_graph, const omx_comp_name_lst_t &comp_lst,
+                 const omx_comp_role_lst_t &role_lst);
 
     public:
       void do_enable_auto_detection (const int handle_id, const int port_id);
@@ -54,7 +54,7 @@ namespace tiz
       void do_reconfigure_tunnel (const int tunnel_id);
       void do_skip ();
 
-      // These are spotifyops-specific methods
+      // These are gmusicops-specific methods
       void do_retrieve_metadata ();
 
       bool is_fatal_error (const OMX_ERRORTYPE error) const;
@@ -65,25 +65,28 @@ namespace tiz
     private:
       OMX_ERRORTYPE transition_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
-      OMX_ERRORTYPE set_spotify_user_and_pass (const OMX_HANDLETYPE handle,
-                                               const std::string &user,
-                                               const std::string &pass);
-      OMX_ERRORTYPE set_spotify_playlist (const OMX_HANDLETYPE handle,
-                                          const std::string &playlist);
+      OMX_ERRORTYPE set_gmusic_user_and_device_id (
+          const OMX_HANDLETYPE handle, const std::string &user,
+          const std::string &pass, const std::string &device_id);
+      OMX_ERRORTYPE set_gmusic_playlist (const OMX_HANDLETYPE handle,
+                                         const std::string &playlist);
 
     private:
       // re-implemented from the base class
       bool probe_stream_hook ();
       void dump_stream_metadata ();
       OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index);
-      OMX_ERRORTYPE get_encoding_type_from_spotify_source ();
-      OMX_ERRORTYPE apply_pcm_codec_info_from_spotify_source ();
-      OMX_ERRORTYPE get_channels_and_rate_from_spotify_source (
+      OMX_ERRORTYPE get_encoding_type_from_gmusic_source ();
+      OMX_ERRORTYPE apply_pcm_codec_info_from_decoder ();
+      OMX_ERRORTYPE get_channels_and_rate_from_decoder (
           OMX_U32 &channels, OMX_U32 &sampling_rate,
           std::string &encoding_str) const;
       OMX_ERRORTYPE set_channels_and_rate_on_renderer (
           const OMX_U32 channels, const OMX_U32 sampling_rate,
           const std::string encoding_str);
+
+      void do_reconfigure_first_tunnel ();
+      void do_reconfigure_second_tunnel ();
 
     private:
       OMX_AUDIO_CODINGTYPE encoding_;
@@ -92,4 +95,4 @@ namespace tiz
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZSPOTIFYGRAPHOPS_HPP
+#endif  // TIZGMUSICGRAPHOPS_HPP

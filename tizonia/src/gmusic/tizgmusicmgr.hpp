@@ -18,16 +18,16 @@
  */
 
 /**
- * @file   tizspotifymgr.hpp
+ * @file   tizgmusicmgr.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A manager for the spotify client graph
+ * @brief  A manager for the gmusic client graph
  *
  *
  */
 
-#ifndef TIZSPOTIFYMGR_HPP
-#define TIZSPOTIFYMGR_HPP
+#ifndef TIZGMUSICMGR_HPP
+#define TIZGMUSICMGR_HPP
 
 #include "tizgraphtypes.hpp"
 #include "tizgraphmgrcaps.hpp"
@@ -37,21 +37,21 @@ namespace tiz
 {
   namespace graphmgr
   {
-    class spotifymgrops;
+    class gmusicmgrops;
     class graphmgr_capabilities;
 
     /**
-     *  @class spotifymgr
-     *  @brief The Spotify client graph manager class.
+     *  @class gmusicmgr
+     *  @brief The Google Music client graph manager class.
      *
      */
-    class spotifymgr : public mgr
+    class gmusicmgr : public mgr
     {
-      friend class spotifymgrops;
+      friend class gmusicmgrops;
 
     public:
-      spotifymgr (tizgraphconfig_ptr_t config);
-      virtual ~spotifymgr ();
+      gmusicmgr (tizgraphconfig_ptr_t config);
+      virtual ~gmusicmgr ();
 
     private:
       ops *do_init (const tizplaylist_ptr_t &playlist,
@@ -62,12 +62,12 @@ namespace tiz
       tizgraphconfig_ptr_t config_;
     };
 
-    typedef boost::shared_ptr< spotifymgr > spotifymgr_ptr_t;
+    typedef boost::shared_ptr< gmusicmgr > gmusicmgr_ptr_t;
 
-    class spotifymgrops : public ops
+    class gmusicmgrops : public ops
     {
     public:
-      spotifymgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
+      gmusicmgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
                       const termination_callback_t &termination_cback);
 
       void do_load ();
@@ -81,4 +81,4 @@ namespace tiz
   }  // namespace graphmgr
 }  // namespace tiz
 
-#endif  // TIZSPOTIFYMGR_HPP
+#endif  // TIZGMUSICMGR_HPP

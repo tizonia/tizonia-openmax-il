@@ -18,55 +18,42 @@
  */
 
 /**
- * @file   tizspotifyconfig.hpp
+ * @file   tizgmusicgraph.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Spotify client graph configuration
+ * @brief  Google Music client graph
  *
  *
  */
 
-#ifndef TIZSPOTIFYCONFIG_HPP
-#define TIZSPOTIFYCONFIG_HPP
+#ifndef TIZGMUSICGRAPH_HPP
+#define TIZGMUSICGRAPH_HPP
 
-#include <string>
-
-#include "tizgraphtypes.hpp"
-#include "tizgraphconfig.hpp"
+#include "tizgraph.hpp"
+#include "tizgmusicgraphfsm.hpp"
 
 namespace tiz
 {
   namespace graph
   {
-    class spotifyconfig : public config
+    // Forward declarations
+    class cmd;
+    class ops;
+
+    class gmusic : public graph
     {
 
     public:
-      spotifyconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
-                      const std::string &pass)
-        : config (playlist), user_ (user), pass_ (pass)
-      {
-      }
-
-      ~spotifyconfig ()
-      {
-      }
-
-      std::string get_user_name () const
-      {
-        return user_;
-      }
-
-      std::string get_user_pass () const
-      {
-        return pass_;
-      }
+      gmusic ();
 
     protected:
-      const std::string user_;
-      const std::string pass_;
+      ops *do_init ();
+      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
+
+    protected:
+      gmfsm::fsm fsm_;
     };
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZSPOTIFYCONFIG_HPP
+#endif  // TIZGMUSICGRAPH_HPP

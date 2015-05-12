@@ -18,15 +18,15 @@
  */
 
 /**
- * @file   tizspotifygraphfsm.hpp
+ * @file   tizgmusicgraphfsm.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Spotify client graph fsm
+ * @brief  Google Music client graph fsm
  *
  */
 
-#ifndef TIZSPOTIFYGRAPHFSM_HPP
-#define TIZSPOTIFYGRAPHFSM_HPP
+#ifndef TIZGMUSICGRAPHFSM_HPP
+#define TIZGMUSICGRAPHFSM_HPP
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 #define BOOST_MPL_LIMIT_VECTOR_SIZE 40
@@ -49,11 +49,11 @@
 #include "tizgraphguard.hpp"
 #include "tizgraphaction.hpp"
 #include "tizgraphstate.hpp"
-#include "tizspotifygraphops.hpp"
+#include "tizgmusicgraphops.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.spotify.fsm"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.gmusic.fsm"
 #endif
 
 #define G_FSM_LOG()                                                     \
@@ -70,7 +70,7 @@ namespace tiz
 {
   namespace graph
   {
-    namespace spfsm
+    namespace gmfsm
     {
       static char const* const state_names[] = { "inited",
                                                  "loaded",
@@ -80,7 +80,7 @@ namespace tiz
                                                  "exe2pause",
                                                  "pause",
                                                  "pause2exe",
-                                                 "reconfiguring_graph",
+                                                 "reconfiguring_tunnel_0",
                                                  "skipping",
                                                  "exe2idle",
                                                  "idle2loaded",
@@ -252,8 +252,9 @@ namespace tiz
       // typedef boost::msm::back::state_machine<updating_graph_, boost::msm::back::mpl_graph_fsm_check> updating_graph;
       typedef boost::msm::back::state_machine<updating_graph_> updating_graph;
 
-      /* 'reconfiguring_graph' is a submachine */
-      struct reconfiguring_graph_ : public boost::msm::front::state_machine_def<reconfiguring_graph_>
+      /* 'reconfiguring_tunnel_' is a submachine */
+      template<int tunnel_id>
+      struct reconfiguring_tunnel_ : public boost::msm::front::state_machine_def<reconfiguring_tunnel_< tunnel_id > >
       {
         // no need for exception handling
         typedef int no_exception_thrown;
@@ -261,11 +262,11 @@ namespace tiz
         // data members
         ops ** pp_ops_;
 
-        reconfiguring_graph_()
+        reconfiguring_tunnel_()
           :
           pp_ops_(NULL)
         {}
-        reconfiguring_graph_(ops **pp_ops)
+        reconfiguring_tunnel_(ops **pp_ops)
           :
           pp_ops_(pp_ops)
         {
@@ -273,7 +274,7 @@ namespace tiz
         }
 
         // submachine states
-        struct reconfiguring_graph_initial : public boost::msm::front::state<>
+        struct reconfiguring_tunnel_initial : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
           void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
@@ -281,31 +282,31 @@ namespace tiz
           void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
         };
 
-        struct reconfiguring_graph_exit : public boost::msm::front::exit_pseudo_state<tg::graph_reconfigured_evt>
+        struct reconfiguring_tunnel_exit : public boost::msm::front::exit_pseudo_state<tg::tunnel_reconfigured_evt>
         {
           template <class Event,class FSM>
           void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
         };
 
         // the initial state. Must be defined
-        typedef reconfiguring_graph_initial initial_state;
+        typedef reconfiguring_tunnel_initial initial_state;
 
         // transition actions
 
         // guard conditions
 
-        // Transition table for reconfiguring_graph
+        // Transition table for reconfiguring_tunnel_
         struct transition_table : boost::mpl::vector<
           //       Start                            Event                         Next                              Action                           Guard
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
-          bmf::Row < reconfiguring_graph_initial    , bmf::none                 , tg::awaiting_port_disabled_evt  , tg::do_disable_tunnel<0>         , bmf::none                      >,
+          bmf::Row < reconfiguring_tunnel_initial    , bmf::none                 , tg::awaiting_port_disabled_evt  , tg::do_disable_tunnel<tunnel_id>         , bmf::none                      >,
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           bmf::Row < tg::awaiting_port_disabled_evt , tg::omx_port_disabled_evt , tg::enabling_tunnel             , bmf::ActionSequence_<
                                                                                                                       boost::mpl::vector<
-                                                                                                                        tg::do_reconfigure_tunnel<0>,
-                                                                                                                        tg::do_enable_tunnel<0> > >  , tg::is_port_disabling_complete >,
+                                                                                                                        tg::do_reconfigure_tunnel<tunnel_id>,
+                                                                                                                        tg::do_enable_tunnel<tunnel_id> > >  , tg::is_port_disabling_complete >,
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
-          bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , reconfiguring_graph_exit        , bmf::none                        , tg::is_port_enabling_complete  >
+          bmf::Row < tg::enabling_tunnel            , tg::omx_port_enabled_evt  , reconfiguring_tunnel_exit        , bmf::none                        , tg::is_port_enabling_complete  >
           //    +--+--------------------------------+---------------------------+---------------------------------+----------------------------------+--------------------------------+
           > {};
 
@@ -318,8 +319,9 @@ namespace tiz
         }
 
       };
-      // typedef boost::msm::back::state_machine<reconfiguring_graph_, boost::msm::back::mpl_graph_fsm_check> reconfiguring_graph;
-      typedef boost::msm::back::state_machine<reconfiguring_graph_> reconfiguring_graph;
+      // typedef boost::msm::back::state_machine<reconfiguring_tunnel_, boost::msm::back::mpl_graph_fsm_check> reconfiguring_tunnel_0;
+      typedef boost::msm::back::state_machine<reconfiguring_tunnel_<0> > reconfiguring_tunnel_0;
+      typedef boost::msm::back::state_machine<reconfiguring_tunnel_<1> > reconfiguring_tunnel_1;
 
       /* 'skipping' is a submachine of tiz::graph::fsm_ */
       struct skipping_ : public boost::msm::front::state_machine_def<skipping_>
@@ -416,15 +418,15 @@ namespace tiz
           G_FSM_LOG ();
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
           {
-            // This is a spotifyops-specific method
-            dynamic_cast< spotifyops* >(*(fsm.pp_ops_))->do_retrieve_metadata ();
+            // This is a gmusicops-specific method
+            dynamic_cast< gmusicops* >(*(fsm.pp_ops_))->do_retrieve_metadata ();
           }
         }
       };
 
       // guard conditions
 
-      // Transition table for the spotify client graph fsm
+      // Transition table for the gmusic client graph fsm
       struct transition_table : boost::mpl::vector<
         //       Start                          Event                       Next                      Action                        Guard
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
@@ -449,7 +451,7 @@ namespace tiz
                     ::auto_detecting_exit>      , tg::auto_detected_evt     , updating_graph          , bmf::none                                                  >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < updating_graph
-                   ::exit_pt\
+                   ::exit_pt
                    <updating_graph_
                     ::updating_graph_exit>      , tg::graph_updated_evt     , tg::executing           , tg::do_ack_execd                                           >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
@@ -458,7 +460,8 @@ namespace tiz
                                                                                                             tg::do_record_fatal_error,
                                                                                                             tg::do_omx_exe2idle> >                                 >,
         bmf::Row < tg::executing                , tg::unload_evt            , tg::exe2idle            , tg::do_omx_exe2idle                                        >,
-        bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_graph     , tg::do_mute                                                >,
+        bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_tunnel_0  , tg::do_mute                                                >,
+        bmf::Row < tg::executing                , tg::omx_port_settings_evt , reconfiguring_tunnel_1  , tg::do_mute                 , tg::is_tunnel_altered<1>     >,
         bmf::Row < tg::executing                , tg::pause_evt             , tg::exe2pause           , tg::do_omx_exe2pause                                       >,
         bmf::Row < tg::executing                , tg::volume_step_evt       , bmf::none               , tg::do_volume_step                                         >,
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
@@ -478,10 +481,15 @@ namespace tiz
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::pause2exe                , tg::omx_trans_evt         , tg::executing           , tg::do_ack_unpaused         , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
-        bmf::Row < reconfiguring_graph
+        bmf::Row < reconfiguring_tunnel_0
                    ::exit_pt
-                   <reconfiguring_graph_
-                    ::reconfiguring_graph_exit> , tg::graph_reconfigured_evt, tg::executing           , tg::do_mute                                                >,
+                   <reconfiguring_tunnel_<0>
+                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                                >,
+        //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
+        bmf::Row < reconfiguring_tunnel_1
+                   ::exit_pt
+                   <reconfiguring_tunnel_<1>
+                    ::reconfiguring_tunnel_exit> , tg::tunnel_reconfigured_evt, tg::executing           , tg::do_mute                                                >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < skipping
                    ::exit_pt
@@ -530,7 +538,7 @@ namespace tiz
       void no_transition(Event const& e, FSM&,int state)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state [%s] on event [%s]",
-                 tg::spfsm::state_names[state], typeid(e).name());
+                 tg::gmfsm::state_names[state], typeid(e).name());
       }
     };
     // typedef boost::msm::back::state_machine<fsm_, boost::msm::back::mpl_graph_fsm_check> fsm;
@@ -538,8 +546,8 @@ namespace tiz
 
     char const* const pstate(fsm const& p);
 
-    } // namespace spfsm
+    } // namespace gmfsm
   } // namespace graph
 } // namespace tiz
 
-#endif // TIZSPOTIFYGRAPHFSM_HPP
+#endif // TIZGMUSICGRAPHFSM_HPP
