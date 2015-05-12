@@ -17,16 +17,16 @@
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file   httpsrcprc_decls.h
+ * @file   gmusicprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP streaming client - processor declarations
+ * @brief  Google Music client - processor declarations
  *
  *
  */
 
-#ifndef HTTPSRCPRC_DECLS_H
-#define HTTPSRCPRC_DECLS_H
+#ifndef GMUSICPRC_DECLS_H
+#define GMUSICPRC_DECLS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,17 +37,22 @@ extern "C" {
 #include <OMX_Core.h>
 
 #include <tizprc_decls.h>
+#include <tizgmusic_c.h>
 
 #include "httpsrctrans.h"
 
-typedef struct httpsrc_prc httpsrc_prc_t;
-struct httpsrc_prc
+typedef struct gmusic_prc gmusic_prc_t;
+struct gmusic_prc
 {
   /* Object */
   const tiz_prc_t _;
   OMX_BUFFERHEADERTYPE *p_outhdr_;
+  OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE session_;
+  OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlist_;
+  OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
   OMX_PARAM_CONTENTURITYPE *p_uri_param_;
   httpsrc_trans_t *p_trans_;
+  tiz_gmusic_t *p_gmusic_;
   bool eos_;
   bool port_disabled_;
   OMX_S32 audio_coding_type_;
@@ -58,8 +63,8 @@ struct httpsrc_prc
   int cache_bytes_;
 };
 
-typedef struct httpsrc_prc_class httpsrc_prc_class_t;
-struct httpsrc_prc_class
+typedef struct gmusic_prc_class gmusic_prc_class_t;
+struct gmusic_prc_class
 {
   /* Class */
   const tiz_prc_class_t _;
@@ -70,4 +75,4 @@ struct httpsrc_prc_class
 }
 #endif
 
-#endif /* HTTPSRCPRC_DECLS_H */
+#endif /* GMUSICPRC_DECLS_H */

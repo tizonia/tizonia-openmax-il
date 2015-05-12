@@ -39,6 +39,7 @@ extern "C"
 #include <OMX_Types.h>
 
 #define ARATELIA_HTTP_SOURCE_DEFAULT_ROLE              "audio_source.http"
+#define ARATELIA_GMUSIC_SOURCE_DEFAULT_ROLE            "audio_source.http.gmusic"
 #define ARATELIA_HTTP_SOURCE_COMPONENT_NAME            "OMX.Aratelia.audio_source.http"
 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_HTTP_SOURCE_PORT_INDEX                0

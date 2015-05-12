@@ -16,58 +16,48 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /**
- * @file   httpsrcprc_decls.h
+ * @file   gmusiccfgport_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP streaming client - processor declarations
+ * @brief  A specialised config port class for the Google Music source component
  *
  *
  */
 
-#ifndef HTTPSRCPRC_DECLS_H
-#define HTTPSRCPRC_DECLS_H
+#ifndef GMUSICCFGPORT_DECLS_H
+#define GMUSICCFGPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-#include <stdbool.h>
+#include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
 
-#include <OMX_Core.h>
+#include <tizconfigport_decls.h>
 
-#include <tizprc_decls.h>
+  typedef struct gmusic_cfgport gmusic_cfgport_t;
+  struct gmusic_cfgport
+  {
+    /* Object */
+    const tiz_configport_t _;
+    OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE session_;
+    OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlist_;
+  };
 
-#include "httpsrctrans.h"
-
-typedef struct httpsrc_prc httpsrc_prc_t;
-struct httpsrc_prc
-{
-  /* Object */
-  const tiz_prc_t _;
-  OMX_BUFFERHEADERTYPE *p_outhdr_;
-  OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  httpsrc_trans_t *p_trans_;
-  bool eos_;
-  bool port_disabled_;
-  OMX_S32 audio_coding_type_;
-  OMX_U32 num_channels_;
-  OMX_U32 samplerate_;
-  bool auto_detect_on_;
-  int bitrate_;
-  int cache_bytes_;
-};
-
-typedef struct httpsrc_prc_class httpsrc_prc_class_t;
-struct httpsrc_prc_class
-{
-  /* Class */
-  const tiz_prc_class_t _;
-  /* NOTE: Class methods might be added in the future */
-};
+  typedef struct gmusic_cfgport_class gmusic_cfgport_class_t;
+  struct gmusic_cfgport_class
+  {
+    /* Class */
+    const tiz_configport_class_t _;
+    /* NOTE: Class methods might be added in the future */
+  };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* HTTPSRCPRC_DECLS_H */
+#endif                          /* GMUSICCFGPORT_DECLS_H */

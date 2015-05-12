@@ -16,58 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /**
- * @file   httpsrcprc_decls.h
+ * @file   gmusicprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP streaming client - processor declarations
+ * @brief  Google Music streaming client - processor class
  *
  *
  */
 
-#ifndef HTTPSRCPRC_DECLS_H
-#define HTTPSRCPRC_DECLS_H
+#ifndef GMUSICPRC_H
+#define GMUSICPRC_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-#include <stdbool.h>
-
-#include <OMX_Core.h>
-
-#include <tizprc_decls.h>
-
-#include "httpsrctrans.h"
-
-typedef struct httpsrc_prc httpsrc_prc_t;
-struct httpsrc_prc
-{
-  /* Object */
-  const tiz_prc_t _;
-  OMX_BUFFERHEADERTYPE *p_outhdr_;
-  OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  httpsrc_trans_t *p_trans_;
-  bool eos_;
-  bool port_disabled_;
-  OMX_S32 audio_coding_type_;
-  OMX_U32 num_channels_;
-  OMX_U32 samplerate_;
-  bool auto_detect_on_;
-  int bitrate_;
-  int cache_bytes_;
-};
-
-typedef struct httpsrc_prc_class httpsrc_prc_class_t;
-struct httpsrc_prc_class
-{
-  /* Class */
-  const tiz_prc_class_t _;
-  /* NOTE: Class methods might be added in the future */
-};
+  void * gmusic_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * gmusic_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* HTTPSRCPRC_DECLS_H */
+#endif                          /* GMUSICPRC_H */

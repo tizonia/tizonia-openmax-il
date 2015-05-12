@@ -21,7 +21,7 @@
  * @file   httpsrcprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - HTTP streaming client processor
+ * @brief  HTTP streaming client - processor class
  *
  *
  */

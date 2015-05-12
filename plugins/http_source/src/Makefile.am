@@ -22,20 +22,30 @@ noinst_HEADERS = \
 	httpsrcport.h \
 	httpsrcport_decls.h
 	httpsrcprc.h \
-	httpsrcprc_decls.h
+	httpsrcprc_decls.h \
+	gmusicprc.h \
+	gmusicprc_decls.h \
+	gmusiccfgport.h \
+	gmusiccfgport_decls.h \
+	httpsrctrans.h
 
 libtizhttpsrc_la_SOURCES = \
 	httpsrc.c \
 	httpsrcport.c \
-	httpsrcprc.c
+	httpsrcprc.c \
+	gmusicprc.c \
+	gmusiccfgport.c \
+	httpsrctrans.c
 
 libtizhttpsrc_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../../libtizonia/src \
+	-I$(top_srcdir)/../../libtizgmusic/src \
 	@LIBCURL_CFLAGS@
 
 libtizhttpsrc_la_LIBADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	$(top_builddir)/../../libtizgmusic/src/libtizgmusic.la \
 	@LIBCURL_LIBS@

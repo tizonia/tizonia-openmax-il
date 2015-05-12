@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   httpsrcprc.c
+ * @file   gmusicprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  HTTP streaming client - processor class
+ * @brief  Google Music streaming client - processor class
  *
  *
  */
@@ -43,80 +43,43 @@
 #include <tizscheduler.h>
 
 #include "httpsrc.h"
-#include "httpsrcprc.h"
-#include "httpsrcprc_decls.h"
+#include "gmusicprc.h"
+#include "gmusicprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.http_source.prc"
+#define TIZ_LOG_CATEGORY_NAME "tiz.http_source.prc.gmusic"
 #endif
 
 /* forward declarations */
-static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *);
-static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *);
-static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc);
+static OMX_ERRORTYPE gmusic_prc_deallocate_resources (void *);
+static OMX_ERRORTYPE release_buffer (gmusic_prc_t *);
+static OMX_ERRORTYPE prepare_for_port_auto_detection (gmusic_prc_t *ap_prc);
+static OMX_ERRORTYPE gmusic_prc_prepare_to_transfer (void *ap_prc,
+                                                     OMX_U32 a_pid);
+static OMX_ERRORTYPE gmusic_prc_transfer_and_process (void *ap_prc,
+                                                      OMX_U32 a_pid);
 
-typedef struct ogg_codec_id ogg_codec_id_t;
-struct ogg_codec_id
-{
-  const char *p_bos_str;
-  int bos_str_len;
-  const char *p_coding_type;
-  OMX_S32 omx_coding_type;
-};
-
-static const ogg_codec_id_t ogg_codec_type_tbl[]
-    = { { "\200theora", 7, "Theora", OMX_AUDIO_CodingUnused },
-        { "\001vorbis", 7, "Vorbis", OMX_AUDIO_CodingVORBIS },
-        { "Speex", 5, "Speex", OMX_AUDIO_CodingSPEEX },
-        { "PCM     ", 8, "PCM", OMX_AUDIO_CodingPCM },
-        { "CMML\0\0\0\0", 8, "CMML", OMX_AUDIO_CodingUnused },
-        { "Annodex", 7, "Annodex", OMX_AUDIO_CodingUnused },
-        { "fishead", 7, "Skeleton", OMX_AUDIO_CodingUnused },
-        { "fLaC", 4, "Flac0", OMX_AUDIO_CodingFLAC },
-        { "\177FLAC", 5, "Flac", OMX_AUDIO_CodingFLAC },
-        { "AnxData", 7, "AnxData", OMX_VIDEO_CodingUnused },
-        { "CELT    ", 8, "CELT", OMX_AUDIO_CodingUnused },
-        { "\200kate\0\0\0", 8, "Kate", OMX_AUDIO_CodingUnused },
-        { "BBCD\0", 5, "Dirac", OMX_AUDIO_CodingUnused },
-        { "OpusHead", 8, "Opus", OMX_AUDIO_CodingOPUS },
-        { "\x4fVP80", 5, "VP8", OMX_VIDEO_CodingVP8 },
-        { "", 0, "Unknown", OMX_AUDIO_CodingUnused } };
-
-static OMX_S32 identify_ogg_codec (httpsrc_prc_t *ap_prc,
-                                   unsigned char *ap_data, long a_len)
-{
-  OMX_S32 rc = OMX_AUDIO_CodingUnused;
-  const size_t id_count = sizeof(ogg_codec_type_tbl) / sizeof(ogg_codec_id_t);
-  size_t i = 0;
-
-  assert (NULL != ap_prc);
-
-  TIZ_TRACE (handleOf (ap_prc), "len [%d] data [%s]", a_len, ap_data);
-
-  for (i = 0; i < id_count; ++i)
-    {
-      const ogg_codec_id_t *p_id = ogg_codec_type_tbl + i;
-
-      if (a_len >= p_id->bos_str_len
-          && memcmp (ap_data + 28, p_id->p_bos_str, p_id->bos_str_len) == 0)
-        {
-          rc = p_id->omx_coding_type;
-          TIZ_TRACE (handleOf (ap_prc), "Identified codec : [%s]",
-                     p_id->p_coding_type);
-          break;
-        }
-    }
-  TIZ_TRACE (handleOf (ap_prc), "coding type  : [%X]", rc);
-  return rc;
-}
+#define on_gmusic_error_ret_omx_oom(expr)                                    \
+  do                                                                         \
+    {                                                                        \
+      int gmusic_error = 0;                                                  \
+      if (0 != (gmusic_error = (expr)))                                      \
+        {                                                                    \
+          TIZ_ERROR (handleOf (p_prc),                                       \
+                     "[OMX_ErrorInsufficientResources] : error while using " \
+                     "libtizgmusic");                                        \
+          return OMX_ErrorInsufficientResources;                             \
+        }                                                                    \
+    }                                                                        \
+  while (0)
 
 static inline bool is_valid_character (const char c)
 {
   return (unsigned char)c > 0x20;
 }
 
-static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
+static void obtain_coding_type (gmusic_prc_t *ap_prc, char *ap_info)
 {
   assert (NULL != ap_prc);
   assert (NULL != ap_info);
@@ -129,46 +92,13 @@ static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
     }
-  else if (memcmp (ap_info, "audio/aac", 9) == 0
-           || memcmp (ap_info, "audio/aacp", 10) == 0)
-    {
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
-    }
-  else if (memcmp (ap_info, "audio/vorbis", 12) == 0)
-    {
-      /* This is vorbis without container */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingVORBIS;
-    }
-  else if (memcmp (ap_info, "audio/speex", 11) == 0)
-    {
-      /* This is speex without container */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingSPEEX;
-    }
-  else if (memcmp (ap_info, "audio/flac", 10) == 0)
-    {
-      /* This is flac without container */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingFLAC;
-    }
-  else if (memcmp (ap_info, "audio/opus", 10) == 0)
-    {
-      /* This is opus without container */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOPUS;
-    }
-  else if (memcmp (ap_info, "application/ogg", 15) == 0
-           || memcmp (ap_info, "audio/ogg", 9) == 0)
-    {
-      /* This is for audio with ogg container (may be FLAC, Vorbis, Opus,
-         etc). We'll have to identify the actual codec when the first bytes
-         from the stream arrive */
-      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOGA;
-    }
   else
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
     }
 }
 
-static int convert_str_to_int (httpsrc_prc_t *ap_prc, const char *ap_start,
+static int convert_str_to_int (gmusic_prc_t *ap_prc, const char *ap_start,
                                char **ap_end)
 {
   long val = -1;
@@ -197,7 +127,7 @@ static int convert_str_to_int (httpsrc_prc_t *ap_prc, const char *ap_start,
   return val;
 }
 
-static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
+static void obtain_audio_info (gmusic_prc_t *ap_prc, char *ap_info)
 {
   const char *channels = "channels";
   const char *samplerate = "samplerate";
@@ -232,7 +162,7 @@ static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
     }
 }
 
-static void obtain_bit_rate (httpsrc_prc_t *ap_prc, char *ap_info)
+static void obtain_bit_rate (gmusic_prc_t *ap_prc, char *ap_info)
 {
   char *p_end = NULL;
 
@@ -244,7 +174,7 @@ static void obtain_bit_rate (httpsrc_prc_t *ap_prc, char *ap_info)
   ap_prc->bitrate_ = convert_str_to_int (ap_prc, ap_info, &p_end);
 }
 
-static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE set_audio_coding_on_port (gmusic_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (NULL != ap_prc);
@@ -263,7 +193,7 @@ static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE set_mp3_audio_info_on_port (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE set_mp3_audio_info_on_port (gmusic_prc_t *ap_prc)
 {
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
   assert (NULL != ap_prc);
@@ -283,47 +213,7 @@ static OMX_ERRORTYPE set_mp3_audio_info_on_port (httpsrc_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE set_aac_audio_info_on_port (httpsrc_prc_t *ap_prc)
-{
-  OMX_AUDIO_PARAM_AACPROFILETYPE aactype;
-  assert (NULL != ap_prc);
-
-  TIZ_INIT_OMX_PORT_STRUCT (aactype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
-                                           handleOf (ap_prc),
-                                           OMX_IndexParamAudioAac, &aactype));
-
-  /* Set the new values */
-  aactype.nChannels = ap_prc->num_channels_;
-  aactype.nSampleRate = ap_prc->samplerate_;
-
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
-      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-      OMX_IndexParamAudioAac, &aactype));
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE set_opus_audio_info_on_port (httpsrc_prc_t *ap_prc)
-{
-  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype;
-  assert (NULL != ap_prc);
-
-  TIZ_INIT_OMX_PORT_STRUCT (opustype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (
-      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                            OMX_TizoniaIndexParamAudioOpus, &opustype));
-
-  /* Set the new values */
-  opustype.nChannels = ap_prc->num_channels_;
-  opustype.nSampleRate = ap_prc->samplerate_;
-
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
-      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-      OMX_TizoniaIndexParamAudioOpus, &opustype));
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE set_audio_info_on_port (gmusic_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_prc);
@@ -334,31 +224,6 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
           rc = set_mp3_audio_info_on_port (ap_prc);
         }
         break;
-      case OMX_AUDIO_CodingAAC:
-        {
-          rc = set_aac_audio_info_on_port (ap_prc);
-        }
-        break;
-      case OMX_AUDIO_CodingFLAC:
-        {
-          /* TODO */
-        }
-        break;
-      case OMX_AUDIO_CodingVORBIS:
-        {
-          /* TODO */
-        }
-        break;
-      case OMX_AUDIO_CodingOPUS:
-        {
-          rc = set_opus_audio_info_on_port (ap_prc);
-        }
-        break;
-      case OMX_AUDIO_CodingOGA:
-        {
-          /* Nothing to do here */
-        }
-        break;
       default:
         assert (0);
         break;
@@ -366,7 +231,7 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
   return rc;
 }
 
-static void update_cache_size (httpsrc_prc_t *ap_prc)
+static void update_cache_size (gmusic_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   assert (ap_prc->bitrate_ > 0);
@@ -374,11 +239,12 @@ static void update_cache_size (httpsrc_prc_t *ap_prc)
                          * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
   if (ap_prc->p_trans_)
     {
-      httpsrc_trans_set_internal_buffer_size (ap_prc->p_trans_, ap_prc->cache_bytes_);
+      httpsrc_trans_set_internal_buffer_size (ap_prc->p_trans_,
+                                              ap_prc->cache_bytes_);
     }
 }
 
-static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
+static OMX_ERRORTYPE store_metadata (gmusic_prc_t *ap_prc,
                                      const char *ap_header_name,
                                      const char *ap_header_info)
 {
@@ -388,46 +254,45 @@ static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
   size_t info_len = 0;
 
   assert (NULL != ap_prc);
-  assert (NULL != ap_header_name);
-  assert (NULL != ap_header_info);
-
-  info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
-  metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
-
-  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
-                   1, metadata_len)))
+  if (ap_header_name && ap_header_info)
     {
-      rc = OMX_ErrorInsufficientResources;
+      info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+      metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
+
+      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
+                       1, metadata_len)))
+        {
+          rc = OMX_ErrorInsufficientResources;
+        }
+      else
+        {
+          const size_t name_len
+              = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+          strncpy ((char *)p_meta->nKey, ap_header_name, name_len - 1);
+          p_meta->nKey[name_len - 1] = '\0';
+          p_meta->nKeySizeUsed = name_len;
+
+          strncpy ((char *)p_meta->nValue, ap_header_info, info_len - 1);
+          p_meta->nValue[info_len - 1] = '\0';
+          p_meta->nValueMaxSize = info_len;
+          p_meta->nValueSizeUsed = info_len;
+
+          p_meta->nSize = metadata_len;
+          p_meta->nVersion.nVersion = OMX_VERSION;
+          p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+          p_meta->nScopeSpecifier = 0;
+          p_meta->nMetadataItemIndex = 0;
+          p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+          p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+          p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+
+          rc = tiz_krn_store_metadata (tiz_get_krn (handleOf (ap_prc)), p_meta);
+        }
     }
-  else
-    {
-      const size_t name_len
-          = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
-      strncpy ((char *)p_meta->nKey, ap_header_name, name_len - 1);
-      p_meta->nKey[name_len - 1] = '\0';
-      p_meta->nKeySizeUsed = name_len;
-
-      strncpy ((char *)p_meta->nValue, ap_header_info, info_len - 1);
-      p_meta->nValue[info_len - 1] = '\0';
-      p_meta->nValueMaxSize = info_len;
-      p_meta->nValueSizeUsed = info_len;
-
-      p_meta->nSize = metadata_len;
-      p_meta->nVersion.nVersion = OMX_VERSION;
-      p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
-      p_meta->nScopeSpecifier = 0;
-      p_meta->nMetadataItemIndex = 0;
-      p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
-      p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
-      p_meta->eValueCharset = OMX_MetadataCharsetASCII;
-
-      rc = tiz_krn_store_metadata (tiz_get_krn (handleOf (ap_prc)), p_meta);
-    }
-
   return rc;
 }
 
-static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
+static void obtain_audio_encoding_from_headers (gmusic_prc_t *ap_prc,
                                                 const char *ap_header,
                                                 const size_t a_size)
 {
@@ -464,7 +329,7 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
           TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
           TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
-          (void)store_metadata (ap_prc, name, p_info);
+/*           (void)store_metadata (ap_prc, name, p_info); */
 
           if (memcmp (name, "Content-Type", 12) == 0
               || memcmp (name, "content-type", 12) == 0)
@@ -493,7 +358,7 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
   }
 }
 
-static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
+static void send_port_auto_detect_events (gmusic_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
@@ -517,25 +382,28 @@ static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
     }
 }
 
-static inline void delete_uri (httpsrc_prc_t *ap_prc)
+static inline void delete_uri (gmusic_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
   ap_prc->p_uri_param_ = NULL;
 }
 
-static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
 
   assert (NULL != ap_prc);
-  assert (NULL == ap_prc->p_uri_param_);
+  assert (NULL != ap_prc->p_gmusic_);
 
-  ap_prc->p_uri_param_
-      = tiz_mem_calloc (1, sizeof(OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
+  if (!ap_prc->p_uri_param_)
+    {
+      ap_prc->p_uri_param_ = tiz_mem_calloc (
+          1, sizeof(OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
+    }
 
-  if (NULL == ap_prc->p_uri_param_)
+  if (!ap_prc->p_uri_param_)
     {
       TIZ_ERROR (handleOf (ap_prc),
                  "Error allocating memory for the content uri struct");
@@ -547,23 +415,50 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
                                     + pathname_max + 1;
       ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
-      tiz_check_omx_err (tiz_api_GetParameter (
-          tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-          OMX_IndexParamContentURI, ap_prc->p_uri_param_));
-      TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
-                  ap_prc->p_uri_param_->contentURI);
-      /* Verify we are getting an http scheme */
-      if (memcmp (ap_prc->p_uri_param_->contentURI, "http://", 7) != 0
-          && memcmp (ap_prc->p_uri_param_->contentURI, "https://", 8) != 0)
-        {
-          rc = OMX_ErrorContentURIError;
-        }
-    }
+      {
+        const char *p_next_url
+            = a_skip_value > 0 ? tiz_gmusic_get_next_url (ap_prc->p_gmusic_)
+                               : tiz_gmusic_get_prev_url (ap_prc->p_gmusic_);
+        const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
+        TIZ_NOTICE (handleOf (ap_prc), "URL [%s]", p_next_url);
 
+        /* Verify we are getting an http scheme */
+        if (!p_next_url || !url_len
+            || (memcmp (p_next_url, "http://", 7) != 0
+                && memcmp (p_next_url, "https://", 8) != 0))
+          {
+            rc = OMX_ErrorContentURIError;
+          }
+        else
+          {
+            strncpy ((char *)ap_prc->p_uri_param_->contentURI, p_next_url,
+                     url_len);
+            ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+            TIZ_TRACE (handleOf (ap_prc), "url len [%d] pathname_max [%d]",
+                       url_len, pathname_max);
+
+            (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
+            store_metadata (
+                ap_prc, tiz_gmusic_get_current_song_artist (ap_prc->p_gmusic_),
+                tiz_gmusic_get_current_song_title (ap_prc->p_gmusic_));
+            store_metadata (ap_prc, "Album", tiz_gmusic_get_current_song_album (
+                                                 ap_prc->p_gmusic_));
+            store_metadata (
+                ap_prc, "Duration",
+                tiz_gmusic_get_current_song_duration (ap_prc->p_gmusic_));
+            store_metadata (
+                ap_prc, "Track",
+                tiz_gmusic_get_current_song_track_number (ap_prc->p_gmusic_));
+            store_metadata (ap_prc, "Total tracks",
+                            tiz_gmusic_get_current_song_tracks_in_album (
+                                ap_prc->p_gmusic_));
+          }
+      }
+    }
   return rc;
 }
 
-static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE release_buffer (gmusic_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
 
@@ -571,6 +466,11 @@ static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
     {
       TIZ_NOTICE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]",
                   ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
+      if (ap_prc->eos_)
+        {
+          ap_prc->eos_ = false;
+          ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
+        }
       tiz_check_omx_err (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)), ARATELIA_HTTP_SOURCE_PORT_INDEX,
           ap_prc->p_outhdr_));
@@ -581,7 +481,7 @@ static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
 
 static void buffer_filled (OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_arg)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
+  gmusic_prc_t *p_prc = ap_arg;
   assert (NULL != p_prc);
   assert (NULL != ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
@@ -591,7 +491,7 @@ static void buffer_filled (OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_arg)
 
 static OMX_BUFFERHEADERTYPE *buffer_wanted (OMX_PTR ap_arg)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
+  gmusic_prc_t *p_prc = ap_arg;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   assert (NULL != p_prc);
 
@@ -624,7 +524,7 @@ static OMX_BUFFERHEADERTYPE *buffer_wanted (OMX_PTR ap_arg)
 static void header_available (OMX_PTR ap_arg, const void *ap_ptr,
                               const size_t a_nbytes)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
+  gmusic_prc_t *p_prc = ap_arg;
   assert (NULL != p_prc);
   assert (NULL != ap_ptr);
 
@@ -637,7 +537,7 @@ static void header_available (OMX_PTR ap_arg, const void *ap_ptr,
 static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
                             const size_t a_nbytes)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
+  gmusic_prc_t *p_prc = ap_arg;
   bool pause_needed = false;
   assert (NULL != p_prc);
   assert (NULL != ap_ptr);
@@ -649,17 +549,6 @@ static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
       /* This will pause the http transfer */
       pause_needed = true;
 
-      if (OMX_AUDIO_CodingOGA == p_prc->audio_coding_type_)
-        {
-          /* Try to identify the actual codec from the ogg stream */
-          p_prc->audio_coding_type_
-            = identify_ogg_codec (p_prc, (unsigned char *)ap_ptr, a_nbytes);
-          if (OMX_AUDIO_CodingUnused != p_prc->audio_coding_type_)
-            {
-              set_audio_coding_on_port (p_prc);
-              set_audio_info_on_port (p_prc);
-            }
-        }
       /* And now trigger the OMX_EventPortFormatDetected and
          OMX_EventPortSettingsChanged events or a
          OMX_ErrorFormatNotDetected event */
@@ -670,15 +559,22 @@ static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
 
 static bool connection_lost (OMX_PTR ap_arg)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
+  gmusic_prc_t *p_prc = ap_arg;
   assert (NULL != p_prc);
-  prepare_for_port_auto_detection (p_prc);
-  /* Return true to indicate that the automatic reconnection procedure needs to
-     be started */
-  return true;
+  TIZ_TRACE (handleOf (p_prc), "Connection lost");
+  httpsrc_trans_pause (p_prc->p_trans_);
+  httpsrc_trans_flush_buffer (p_prc->p_trans_);
+  release_buffer (p_prc);
+  (void)obtain_next_url (p_prc, 1);
+  httpsrc_trans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
+  p_prc->eos_ = true;
+  httpsrc_trans_start (p_prc->p_trans_);
+  /* Return false to indicate that there is no need to start the automatic
+     reconnection procedure */
+  return false;
 }
 
-static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE prepare_for_port_auto_detection (gmusic_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (NULL != ap_prc);
@@ -699,14 +595,39 @@ static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
+static OMX_ERRORTYPE retrieve_session_configuration (gmusic_prc_t *ap_prc)
+{
+  return tiz_api_GetParameter (
+      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+      OMX_TizoniaIndexParamAudioGmusicSession, &(ap_prc->session_));
+}
+
+static OMX_ERRORTYPE retrieve_playlist (gmusic_prc_t *ap_prc)
+{
+  return tiz_api_GetParameter (
+      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+      OMX_TizoniaIndexParamAudioGmusicPlaylist, &(ap_prc->playlist_));
+}
+
+static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
+{
+  int rc = 1;
+  assert (NULL != ap_prc);
+  assert (NULL != ap_prc->p_gmusic_);
+  /* For now, the google music client library only has support for artist
+   * playlists */
+  rc = tiz_gmusic_enqueue_artist (
+      ap_prc->p_gmusic_, (const char *)ap_prc->playlist_.cPlayListName);
+  return (rc == 0 ? OMX_ErrorNone : OMX_ErrorInsufficientResources);
+}
+
 /*
- * httpsrcprc
+ * gmusicprc
  */
 
-static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
+static void *gmusic_prc_ctor (void *ap_obj, va_list *app)
 {
-  httpsrc_prc_t *p_prc
-      = super_ctor (typeOf (ap_obj, "httpsrcprc"), ap_obj, app);
+  gmusic_prc_t *p_prc = super_ctor (typeOf (ap_obj, "gmusicprc"), ap_obj, app);
   p_prc->p_outhdr_ = NULL;
   p_prc->p_uri_param_ = NULL;
   p_prc->eos_ = false;
@@ -720,45 +641,58 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
   return p_prc;
 }
 
-static void *httpsrc_prc_dtor (void *ap_obj)
+static void *gmusic_prc_dtor (void *ap_obj)
 {
-  (void)httpsrc_prc_deallocate_resources (ap_obj);
-  return super_dtor (typeOf (ap_obj, "httpsrcprc"), ap_obj);
+  (void)gmusic_prc_deallocate_resources (ap_obj);
+  return super_dtor (typeOf (ap_obj, "gmusicprc"), ap_obj);
 }
 
 /*
  * from tizsrv class
  */
 
-static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
-                                                     OMX_U32 a_pid)
+static OMX_ERRORTYPE gmusic_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
-  httpsrc_prc_t *p_prc = ap_obj;
+  gmusic_prc_t *p_prc = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (NULL != p_prc);
-  assert (NULL == p_prc->p_uri_param_);
-  tiz_check_omx_err (obtain_uri (p_prc));
-  return httpsrc_trans_init (&(p_prc->p_trans_), p_prc,
-                             p_prc->p_uri_param_,
-                             buffer_filled, buffer_wanted,
-                             header_available,
-                             data_available,
-                             connection_lost);
+  tiz_check_omx_err (retrieve_session_configuration (p_prc));
+  tiz_check_omx_err (retrieve_playlist (p_prc));
+
+  TIZ_TRACE (handleOf (p_prc), "cUserName  : [%s]", p_prc->session_.cUserName);
+  TIZ_TRACE (handleOf (p_prc), "cUserPassword  : [%s]",
+             p_prc->session_.cUserPassword);
+  TIZ_TRACE (handleOf (p_prc), "cDeviceId  : [%s]", p_prc->session_.cDeviceId);
+
+  on_gmusic_error_ret_omx_oom (tiz_gmusic_init (
+      &(p_prc->p_gmusic_), (const char *)p_prc->session_.cUserName,
+      (const char *)p_prc->session_.cUserPassword,
+      (const char *)p_prc->session_.cDeviceId));
+
+  tiz_check_omx_err (enqueue_playlist_items (p_prc));
+  tiz_check_omx_err (obtain_next_url (p_prc, 1));
+  rc = httpsrc_trans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
+                           buffer_filled, buffer_wanted, header_available,
+                           data_available, connection_lost);
+  return rc;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *ap_prc)
+static OMX_ERRORTYPE gmusic_prc_deallocate_resources (void *ap_prc)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  gmusic_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
   httpsrc_trans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
   delete_uri (p_prc);
+  tiz_gmusic_destroy (p_prc->p_gmusic_);
+  p_prc->p_gmusic_ = NULL;
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_prepare_to_transfer (void *ap_prc,
-                                                      OMX_U32 a_pid)
+static OMX_ERRORTYPE gmusic_prc_prepare_to_transfer (void *ap_prc,
+                                                     OMX_U32 a_pid)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  gmusic_prc_t *p_prc = ap_prc;
   assert (NULL != ap_prc);
   p_prc->eos_ = false;
   httpsrc_trans_cancel (p_prc->p_trans_);
@@ -766,10 +700,10 @@ static OMX_ERRORTYPE httpsrc_prc_prepare_to_transfer (void *ap_prc,
   return prepare_for_port_auto_detection (p_prc);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
-                                                       OMX_U32 a_pid)
+static OMX_ERRORTYPE gmusic_prc_transfer_and_process (void *ap_prc,
+                                                      OMX_U32 a_pid)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  gmusic_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != p_prc);
   if (p_prc->auto_detect_on_)
@@ -779,9 +713,9 @@ static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
   return rc;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_prc)
+static OMX_ERRORTYPE gmusic_prc_stop_and_return (void *ap_prc)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  gmusic_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
   if (p_prc->p_trans_)
     {
@@ -795,45 +729,45 @@ static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_prc)
  * from tizprc class
  */
 
-static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
+static OMX_ERRORTYPE gmusic_prc_buffers_ready (const void *ap_prc)
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
+  gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_prc;
   assert (NULL != p_prc);
   return httpsrc_trans_on_buffers_ready (p_prc->p_trans_);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
-                                           tiz_event_io_t *ap_ev_io, int a_fd,
-                                           int a_events)
+static OMX_ERRORTYPE gmusic_prc_io_ready (void *ap_prc,
+                                          tiz_event_io_t *ap_ev_io, int a_fd,
+                                          int a_events)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  gmusic_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
   return httpsrc_trans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
-                                              tiz_event_timer_t *ap_ev_timer,
-                                              void *ap_arg, const uint32_t a_id)
+static OMX_ERRORTYPE gmusic_prc_timer_ready (void *ap_prc,
+                                             tiz_event_timer_t *ap_ev_timer,
+                                             void *ap_arg, const uint32_t a_id)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  gmusic_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
   return httpsrc_trans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_pause (const void *ap_obj)
+static OMX_ERRORTYPE gmusic_prc_pause (const void *ap_obj)
 {
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_resume (const void *ap_obj)
+static OMX_ERRORTYPE gmusic_prc_resume (const void *ap_obj)
 {
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_port_flush (const void *ap_obj,
-                                             OMX_U32 TIZ_UNUSED (a_pid))
+static OMX_ERRORTYPE gmusic_prc_port_flush (const void *ap_obj,
+                                            OMX_U32 TIZ_UNUSED (a_pid))
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_obj;
+  gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_obj;
   if (p_prc->p_trans_)
     {
       httpsrc_trans_flush_buffer (p_prc->p_trans_);
@@ -841,11 +775,13 @@ static OMX_ERRORTYPE httpsrc_prc_port_flush (const void *ap_obj,
   return release_buffer (p_prc);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_port_disable (const void *ap_obj,
-                                               OMX_U32 TIZ_UNUSED (a_pid))
+static OMX_ERRORTYPE gmusic_prc_port_disable (const void *ap_obj,
+                                              OMX_U32 TIZ_UNUSED (a_pid))
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_obj;
+  gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_obj;
   assert (NULL != p_prc);
+  TIZ_NOTICE (handleOf (p_prc), "Disabling port was disabled? [%s]",
+              p_prc->port_disabled_ ? "YES" : "NO");
   p_prc->port_disabled_ = true;
   if (p_prc->p_trans_)
     {
@@ -853,12 +789,12 @@ static OMX_ERRORTYPE httpsrc_prc_port_disable (const void *ap_obj,
       httpsrc_trans_flush_buffer (p_prc->p_trans_);
     }
   /* Release any buffers held  */
-  return release_buffer ((httpsrc_prc_t *)ap_obj);
+  return release_buffer ((gmusic_prc_t *)ap_obj);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
+static OMX_ERRORTYPE gmusic_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
+  gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != p_prc);
   TIZ_NOTICE (handleOf (p_prc), "Enabling port [%d] was disabled? [%s]", a_pid,
@@ -871,78 +807,103 @@ static OMX_ERRORTYPE httpsrc_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
   return rc;
 }
 
+static OMX_ERRORTYPE gmusic_prc_config_change (void *ap_prc,
+                                               OMX_U32 TIZ_UNUSED (a_pid),
+                                               OMX_INDEXTYPE a_config_idx)
+{
+  gmusic_prc_t *p_prc = ap_prc;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != p_prc);
+
+  if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx && p_prc->p_trans_)
+    {
+      TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
+      tiz_check_omx_err (tiz_api_GetConfig (
+          tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
+          OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
+      p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
+                                       : obtain_next_url (p_prc, -1);
+      httpsrc_trans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
+      p_prc->eos_ = true;
+    }
+  return rc;
+}
+
 /*
- * httpsrc_prc_class
+ * gmusic_prc_class
  */
 
-static void *httpsrc_prc_class_ctor (void *ap_obj, va_list *app)
+static void *gmusic_prc_class_ctor (void *ap_obj, va_list *app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "httpsrcprc_class"), ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "gmusicprc_class"), ap_obj, app);
 }
 
 /*
  * initialization
  */
 
-void *httpsrc_prc_class_init (void *ap_tos, void *ap_hdl)
+void *gmusic_prc_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *httpsrcprc_class = factory_new
+  void *gmusicprc_class = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizprc), "httpsrcprc_class", classOf (tizprc),
-       sizeof(httpsrc_prc_class_t),
+      (classOf (tizprc), "gmusicprc_class", classOf (tizprc),
+       sizeof(gmusic_prc_class_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
        /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, httpsrc_prc_class_ctor,
+       ctor, gmusic_prc_class_ctor,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
-  return httpsrcprc_class;
+  return gmusicprc_class;
 }
 
-void *httpsrc_prc_init (void *ap_tos, void *ap_hdl)
+void *gmusic_prc_init (void *ap_tos, void *ap_hdl)
 {
   void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *httpsrcprc_class = tiz_get_type (ap_hdl, "httpsrcprc_class");
-  TIZ_LOG_CLASS (httpsrcprc_class);
-  void *httpsrcprc = factory_new
+  void *gmusicprc_class = tiz_get_type (ap_hdl, "gmusicprc_class");
+  TIZ_LOG_CLASS (gmusicprc_class);
+  void *gmusicprc = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (httpsrcprc_class, "httpsrcprc", tizprc, sizeof(httpsrc_prc_t),
+      (gmusicprc_class, "gmusicprc", tizprc, sizeof(gmusic_prc_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
        /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, httpsrc_prc_ctor,
+       ctor, gmusic_prc_ctor,
        /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, httpsrc_prc_dtor,
+       dtor, gmusic_prc_dtor,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_allocate_resources, httpsrc_prc_allocate_resources,
+       tiz_srv_allocate_resources, gmusic_prc_allocate_resources,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_deallocate_resources, httpsrc_prc_deallocate_resources,
+       tiz_srv_deallocate_resources, gmusic_prc_deallocate_resources,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_prepare_to_transfer, httpsrc_prc_prepare_to_transfer,
+       tiz_srv_prepare_to_transfer, gmusic_prc_prepare_to_transfer,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_transfer_and_process, httpsrc_prc_transfer_and_process,
+       tiz_srv_transfer_and_process, gmusic_prc_transfer_and_process,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stop_and_return, httpsrc_prc_stop_and_return,
+       tiz_srv_stop_and_return, gmusic_prc_stop_and_return,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_io_ready, httpsrc_prc_io_ready,
+       tiz_srv_io_ready, gmusic_prc_io_ready,
        /* TIZ_CLASS_COMMENT: */
-       tiz_srv_timer_ready, httpsrc_prc_timer_ready,
+       tiz_srv_timer_ready, gmusic_prc_timer_ready,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, httpsrc_prc_buffers_ready,
+       tiz_prc_buffers_ready, gmusic_prc_buffers_ready,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_pause, httpsrc_prc_pause,
+       tiz_prc_pause, gmusic_prc_pause,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_resume, httpsrc_prc_resume,
+       tiz_prc_resume, gmusic_prc_resume,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_flush, httpsrc_prc_port_flush,
+       tiz_prc_port_flush, gmusic_prc_port_flush,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_disable, httpsrc_prc_port_disable,
+       tiz_prc_port_disable, gmusic_prc_port_disable,
        /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_enable, httpsrc_prc_port_enable,
+       tiz_prc_port_enable, gmusic_prc_port_enable,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_config_change, gmusic_prc_config_change,
        /* TIZ_CLASS_COMMENT: stop value */
        0);
 
-  return httpsrcprc;
+  return gmusicprc;
 }
