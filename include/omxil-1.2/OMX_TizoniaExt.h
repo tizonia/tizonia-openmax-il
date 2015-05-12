@@ -63,9 +63,9 @@
 #define OMX_TizoniaIndexParamAudioMp2             OMX_IndexVendorStartUnused + 7 /**< reference: OMX_TIZONIA_AUDIO_PARAM_MP2TYPE */
 #define OMX_TizoniaIndexParamAudioSpotifySession  OMX_IndexVendorStartUnused + 8 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioSpotifyPlaylist OMX_IndexVendorStartUnused + 9 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE */
-
-#define OMX_TizoniaIndexConfigPlaylistSkip OMX_IndexVendorStartUnused + 10 /**< reference: OMX_TIZONIA_PLAYLISTSKIPTYPE */
-
+#define OMX_TizoniaIndexParamAudioGmusicSession   OMX_IndexVendorStartUnused + 10 /**< reference: OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioGmusicPlaylist  OMX_IndexVendorStartUnused + 11 /**< reference: OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE */
+#define OMX_TizoniaIndexConfigPlaylistSkip        OMX_IndexVendorStartUnused + 12 /**< reference: OMX_TIZONIA_PLAYLISTSKIPTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -300,6 +300,36 @@ typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
     OMX_S32 nValue;              /** Can be a positive or a negative value. Wrap-around use cases are allowed. */
 } OMX_TIZONIA_PLAYLISTSKIPTYPE;
 
+/**
+ * Google Music source component
+ * References:
+ *
+ */
+
+typedef enum OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE {
+    OMX_AUDIO_GmusicPlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
+    OMX_AUDIO_GmusicPlaylistTypeUser, /**< User-defined playlist. */
+    OMX_AUDIO_GmusicPlaylistTypeArtist, /**< Artist playlist. */
+    OMX_AUDIO_GmusicPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_GmusicPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_GmusicPlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U8 cUserName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cUserPassword[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cDeviceId[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE ePlaylistType;
+    OMX_U8 bShuffle;            /**< Default: OMX_FALSE */
+    OMX_U8 cPlayListName[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE;
 
 
 #endif /* OMX_TizoniaExt_h */
