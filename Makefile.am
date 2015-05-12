@@ -24,7 +24,7 @@
 # tizonia's FSMs require a very recent version of Boost.msm (currently >= 1.54).
 
 # SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tizonia docs
-SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins
+SUBDIRS = config include libtizplatform libtizgmusic rm libtizcore libtizonia plugins
 
 
 # NOTE: A cscope target is included in automake since api 1.12
