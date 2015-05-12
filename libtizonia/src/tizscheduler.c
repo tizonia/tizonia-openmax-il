@@ -110,6 +110,8 @@ struct tiz_scheduler
   OMX_S32 error;
   tiz_srv_group_t child;
   tiz_sched_state_t state;
+  OMX_PTR appdata;              /* For use during setting of the component callbacks, not owned */
+  OMX_CALLBACKTYPE *cbacks;     /* For use during setting of the component callbacks, not owned */
 };
 
 typedef enum tiz_sched_msg_class tiz_sched_msg_class_t;
@@ -759,6 +761,11 @@ static OMX_ERRORTYPE do_set_component_role (
 
           /* Populate defaults according to the new role */
           rc = init_and_register_role (ap_sched, role_pos);
+
+          /* Now, make sure the new role's processor has access to the IL
+             client's callback information */
+          tiz_srv_set_callbacks (ap_sched->child.p_prc, ap_sched->appdata,
+                         ap_sched->cbacks);
         }
       else
         {
@@ -992,14 +999,16 @@ static OMX_ERRORTYPE do_scbs (tiz_scheduler_t *ap_sched,
       return rc;
     }
 
-  /* do the actual storing of the callbacks in the servants, who will be using
-     them */
-  tiz_srv_set_callbacks (ap_sched->child.p_fsm, p_msg_scbs->p_appdata,
-                         p_msg_scbs->p_cbacks);
-  tiz_srv_set_callbacks (ap_sched->child.p_ker, p_msg_scbs->p_appdata,
-                         p_msg_scbs->p_cbacks);
-  tiz_srv_set_callbacks (ap_sched->child.p_prc, p_msg_scbs->p_appdata,
-                         p_msg_scbs->p_cbacks);
+  /* store of the callbacks in the servants, who will be using them */
+  ap_sched->appdata = p_msg_scbs->p_appdata;
+  ap_sched->cbacks  = p_msg_scbs->p_cbacks;
+
+  tiz_srv_set_callbacks (ap_sched->child.p_fsm, ap_sched->appdata,
+                         ap_sched->cbacks);
+  tiz_srv_set_callbacks (ap_sched->child.p_ker, ap_sched->appdata,
+                         ap_sched->cbacks);
+  tiz_srv_set_callbacks (ap_sched->child.p_prc, ap_sched->appdata,
+                         ap_sched->cbacks);
 
   return rc;
 }
@@ -2054,6 +2063,8 @@ static tiz_scheduler_t *instantiate_scheduler (OMX_HANDLETYPE ap_hdl,
   p_sched->child.p_hdl = ap_hdl;
   p_sched->error = OMX_ErrorNone;
   p_sched->state = ETIZSchedStateStarting;
+  p_sched->appdata = NULL;
+  p_sched->cbacks = NULL;
 
   len = strnlen (ap_cname, OMX_MAX_STRINGNAME_SIZE - 1);
   strncpy (p_sched->cname, ap_cname, len);
