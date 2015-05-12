@@ -1322,7 +1322,7 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
         }
       if (!playlist_found && !empty_playlist_name)
         {
-          tiz_srv_issue_err_event ((OMX_PTR)ap_prc, OMX_ErrorContentURIError);
+/*           tiz_srv_issue_err_event ((OMX_PTR)ap_prc, OMX_ErrorContentURIError); */
         }
     }
   tiz_mem_free (ap_event);
@@ -1825,7 +1825,7 @@ static OMX_ERRORTYPE spfysrc_prc_config_change (void *ap_obj,
           start_spotify (p_prc);
         }
 
-      /* Let's processed a faked end of track event */
+      /* Let's process a fake end of track event */
       process_spotify_event (p_prc, end_of_track_cback_handler,
                              p_prc->p_sp_session_);
     }
