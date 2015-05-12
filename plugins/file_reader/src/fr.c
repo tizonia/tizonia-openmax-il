@@ -157,9 +157,6 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   tiz_type_factory_t frprc_type;
   const tiz_type_factory_t *tf_list[] = { &frprc_type };
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: [%s]",
-           ARATELIA_FILE_READER_COMPONENT_NAME);
-
   strcpy ((OMX_STRING) audio_role.role,
           ARATELIA_FILE_READER_AUDIO_READER_ROLE);
   audio_role.pf_cport   = instantiate_config_port;
