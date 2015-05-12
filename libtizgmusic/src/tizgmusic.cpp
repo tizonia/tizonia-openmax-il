@@ -29,6 +29,8 @@
 #include <config.h>
 #endif
 
+#include <boost/lexical_cast.hpp>
+
 #include "tizgmusic.hpp"
 
 namespace bp = boost::python;
@@ -112,6 +114,7 @@ void tizgmusic::stop ()
 {
   int rc = 0;
   try_catch_wrapper (py_gm_proxy_.attr ("logout")());
+  (void)rc;
 }
 
 void tizgmusic::deinit ()
@@ -155,6 +158,28 @@ const char *tizgmusic::get_next_url ()
   return current_url_.empty () ? NULL : current_url_.c_str ();
 }
 
+const char *tizgmusic::get_prev_url ()
+{
+  current_url_.clear ();
+  try
+    {
+      const char *p_prev_url
+          = bp::extract< char const * >(py_gm_proxy_.attr ("prev_url")());
+      if (p_prev_url && !get_current_song ())
+        {
+          current_url_.assign (p_prev_url);
+        }
+    }
+  catch (bp::error_already_set &e)
+    {
+      PyErr_PrintEx (0);
+    }
+  catch (...)
+    {
+    }
+  return current_url_.empty () ? NULL : current_url_.c_str ();
+}
+
 const char *tizgmusic::get_current_song_artist ()
 {
   return current_artist_.empty () ? NULL : current_artist_.c_str ();
@@ -165,10 +190,33 @@ const char *tizgmusic::get_current_song_title ()
   return current_title_.empty () ? NULL : current_title_.c_str ();
 }
 
+const char *tizgmusic::get_current_song_album ()
+{
+  return current_album_.empty () ? NULL : current_album_.c_str ();
+}
+
+const char *tizgmusic::get_current_song_duration ()
+{
+  return current_duration_.empty () ? NULL : current_duration_.c_str ();
+}
+
+const char *tizgmusic::get_current_song_track_number ()
+{
+  return current_track_num_.empty () ? NULL : current_track_num_.c_str ();
+}
+
+const char *tizgmusic::get_current_song_tracks_in_album ()
+{
+  return current_song_tracks_total_.empty ()
+             ? NULL
+             : current_song_tracks_total_.c_str ();
+}
+
 void tizgmusic::clear_queue ()
 {
   int rc = 0;
   try_catch_wrapper (py_gm_proxy_.attr ("clear_queue")());
+  (void)rc;
 }
 
 int tizgmusic::get_current_song ()
@@ -177,10 +225,10 @@ int tizgmusic::get_current_song ()
   current_artist_.clear ();
   current_title_.clear ();
 
-  const bp::tuple &info
-      = bp::extract< bp::tuple >(py_gm_proxy_.attr ("current_song")());
-  const char *p_artist = bp::extract< char const * >(info[0]);
-  const char *p_title = bp::extract< char const * >(info[1]);
+  const bp::tuple &info1 = bp::extract< bp::tuple >(
+      py_gm_proxy_.attr ("current_song_title_and_artist")());
+  const char *p_artist = bp::extract< char const * >(info1[0]);
+  const char *p_title = bp::extract< char const * >(info1[1]);
 
   if (p_artist)
     {
@@ -190,6 +238,58 @@ int tizgmusic::get_current_song ()
     {
       current_title_.assign (p_title);
     }
+
+  const bp::tuple &info2 = bp::extract< bp::tuple >(
+      py_gm_proxy_.attr ("current_song_album_and_duration")());
+  const char *p_album = bp::extract< char const * >(info2[0]);
+  int duration = bp::extract< int >(info2[1]);
+
+  if (p_album)
+    {
+      current_album_.assign (p_album);
+    }
+
+  int seconds = 0;
+  current_duration_.clear ();
+  if (duration)
+    {
+      duration /= 1000;
+      seconds = duration % 60;
+      int minutes = (duration - seconds) / 60;
+      int hours = 0;
+      if (minutes >= 60)
+        {
+          int total_minutes = minutes;
+          minutes = total_minutes % 60;
+          hours = (total_minutes - minutes) / 60;
+        }
+
+      if (hours > 0)
+        {
+          current_duration_.append (boost::lexical_cast< std::string >(hours));
+          current_duration_.append ("h:");
+        }
+
+      if (minutes > 0)
+        {
+          current_duration_.append (
+              boost::lexical_cast< std::string >(minutes));
+          current_duration_.append ("m:");
+        }
+    }
+
+  char seconds_str[3];
+  sprintf (seconds_str, "%02i", seconds);
+  current_duration_.append (seconds_str);
+  current_duration_.append ("s");
+
+  const bp::tuple &info3 = bp::extract< bp::tuple >(
+      py_gm_proxy_.attr ("current_song_track_number_and_total_tracks")());
+  const int track_num = bp::extract< int >(info3[0]);
+  const int total_tracks = bp::extract< int >(info3[1]);
+
+  current_track_num_.assign (boost::lexical_cast< std::string >(track_num));
+  current_song_tracks_total_.assign (boost::lexical_cast< std::string >(total_tracks));
 
   if (p_artist || p_title)
     {

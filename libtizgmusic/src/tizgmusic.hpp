@@ -51,8 +51,13 @@ public:
   void clear_queue ();
 
   const char * get_next_url ();
+  const char * get_prev_url ();
   const char * get_current_song_artist ();
   const char * get_current_song_title ();
+  const char * get_current_song_album ();
+  const char * get_current_song_duration ();
+  const char * get_current_song_track_number ();
+  const char * get_current_song_tracks_in_album ();
 
 private:
   int get_current_song ();
@@ -64,6 +69,10 @@ private:
   std::string current_url_;
   std::string current_artist_;
   std::string current_title_;
+  std::string current_album_;
+  std::string current_duration_;
+  std::string current_track_num_;
+  std::string current_song_tracks_total_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_gm_proxy_;

@@ -69,8 +69,13 @@ int tiz_gmusic_enqueue_album (tiz_gmusic_t *ap_gmusic, const char *ap_album);
 int tiz_gmusic_enqueue_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist);
 void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic);
 const char *tiz_gmusic_get_next_url (tiz_gmusic_t *ap_gmusic);
+const char *tiz_gmusic_get_prev_url (tiz_gmusic_t *ap_gmusic);
 const char *tiz_gmusic_get_current_song_artist (tiz_gmusic_t *ap_gmusic);
 const char *tiz_gmusic_get_current_song_title (tiz_gmusic_t *ap_gmusic);
+const char *tiz_gmusic_get_current_song_album (tiz_gmusic_t *ap_gmusic);
+const char *tiz_gmusic_get_current_song_duration (tiz_gmusic_t *ap_gmusic);
+const char *tiz_gmusic_get_current_song_track_number (tiz_gmusic_t *ap_gmusic);
+const char *tiz_gmusic_get_current_song_tracks_in_album (tiz_gmusic_t *ap_gmusic);
 void tiz_gmusic_destroy (tiz_gmusic_t *ap_gmusic);
 
 #ifdef __cplusplus

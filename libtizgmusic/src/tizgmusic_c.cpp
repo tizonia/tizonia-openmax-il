@@ -134,6 +134,13 @@ extern "C" const char *tiz_gmusic_get_next_url (tiz_gmusic_t *ap_gmusic)
   return ap_gmusic->p_proxy_->get_next_url ();
 }
 
+extern "C" const char *tiz_gmusic_get_prev_url (tiz_gmusic_t *ap_gmusic)
+{
+  assert (NULL != ap_gmusic);
+  assert (NULL != ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_prev_url ();
+}
+
 extern "C" const char *tiz_gmusic_get_current_song_artist (
     tiz_gmusic_t *ap_gmusic)
 {
@@ -148,6 +155,38 @@ extern "C" const char *tiz_gmusic_get_current_song_title (
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
   return ap_gmusic->p_proxy_->get_current_song_title ();
+}
+
+extern "C" const char *tiz_gmusic_get_current_song_album (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (NULL != ap_gmusic);
+  assert (NULL != ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_song_album ();
+}
+
+extern "C" const char *tiz_gmusic_get_current_song_duration (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (NULL != ap_gmusic);
+  assert (NULL != ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_song_duration ();
+}
+
+extern "C" const char *tiz_gmusic_get_current_song_track_number (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (NULL != ap_gmusic);
+  assert (NULL != ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_song_track_number ();
+}
+
+extern "C" const char *tiz_gmusic_get_current_song_tracks_in_album (
+    tiz_gmusic_t *ap_gmusic)
+{
+  assert (NULL != ap_gmusic);
+  assert (NULL != ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->get_current_song_tracks_in_album ();
 }
 
 extern "C" void tiz_gmusic_destroy (tiz_gmusic_t *ap_gmusic)

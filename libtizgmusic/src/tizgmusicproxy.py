@@ -37,6 +37,8 @@ import logging
 import unicodedata as ud
 from gmusicapi import Mobileclient
 
+logging.captureWarnings(True)
+logging.getLogger().addHandler(logging.NullHandler())
 
 class tizgmusicproxy(object):
     """A class for accessing a Google Music account to retrieve song URLs.
@@ -99,9 +101,9 @@ class tizgmusicproxy(object):
 
         # Sort albums by track number
         for artist in self.library.keys():
-            print "Artist : {0}".format(artist.encode("utf-8"))
+            logging.info ("Artist : {0}".format(artist.encode("utf-8")))
             for album in self.library[artist].keys():
-                print "   Album : {0}".format(album.encode("utf-8"))
+                logging.info ("   Album : {0}".format(album.encode("utf-8")))
                 if album == self.all_songs_album_title:
                     sorted_album = sorted(self.library[artist][album],
                                           key=lambda k: k['title'])
@@ -123,14 +125,35 @@ class tizgmusicproxy(object):
                 except IndexError:
                     pass
 
-    def current_song(self):
+    def current_song_title_and_artist(self):
+        song         = self.now_playing_song
+        if song is not None:
+            title    = self.now_playing_song["title"]
+            artist   = self.now_playing_song["artist"]
+            logging.info ("Now playing {0} by {1}".format(title.encode("utf-8"),
+                                                   artist.encode("utf-8")))
+            return artist.encode("utf-8"), title.encode("utf-8")
+        else:
+            return '', ''
+
+    def current_song_album_and_duration(self):
         song = self.now_playing_song
         if song is not None:
-            title = self.now_playing_song["title"]
-            artist = self.now_playing_song["artist"]
-            print "Now playing {0} by {1}".format(title.encode("utf-8"),
-                                                  artist.encode("utf-8"))
-            return artist.encode("utf-8"), title.encode("utf-8")
+            album = self.now_playing_song["album"]
+            duration = self.now_playing_song["durationMillis"]
+            logging.info ("album {0} duration {1}".format(album.encode("utf-8"),
+                                                   duration.encode("utf-8")))
+            return album.encode("utf-8"), int(duration)
+        else:
+            return '', ''
+
+    def current_song_track_number_and_total_tracks(self):
+        song = self.now_playing_song
+        if song is not None:
+            track = self.now_playing_song["trackNumber"]
+            total = self.now_playing_song["totalTrackCount"]
+            logging.info ("track number {0} total tracks {1}".format(track, total))
+            return track, total
         else:
             return '', ''
 
@@ -146,28 +169,28 @@ class tizgmusicproxy(object):
                 for song in artist[album]:
                     self.queue.append(song)
                     count += 1
-            print "Added {0} tracks by {1} to queue".format(count, arg)
+            logging.info ("Added {0} tracks by {1} to queue".format(count, arg))
         except KeyError:
-            print "Cannot find {0}".format(arg)
+            logging.info ("Cannot find {0}".format(arg))
             raise
 
     def enqueue_album(self, arg):
         try:
             for artist in self.library:
                 for album in self.library[artist]:
-                    print "enqueue album : {0} | {1}".format(
+                    logging.info ("enqueue album : {0} | {1}".format(
                         artist.encode("utf-8"),
-                        album.encode("utf-8"))
+                        album.encode("utf-8")))
                     if album == arg:
                         count = 0
                         for song in self.library[artist][album]:
                             self.queue.append(song)
                             count += 1
-                        print "Added {0} tracks from {1} by "
+                        logging.info ("Added {0} tracks from {1} by "
                         "{2} to queue".format(count, album.encode("utf-8"),
-                                              artist.encode("utf-8"))
+                                              artist.encode("utf-8")))
         except KeyError:
-            print "Cannot find {0}".format(arg)
+            logging.info ("Cannot find {0}".format(arg))
             raise
 
     def next_url(self):
@@ -183,13 +206,26 @@ class tizgmusicproxy(object):
         else:
             return ''
 
+    def prev_url(self):
+        if len(self.queue):
+            self.queue_index -= 1
+            if (self.queue_index < len(self.queue)) \
+               and (self.queue_index >= 0):
+                prev_song = self.queue[self.queue_index]
+                return self.__get_song_url(prev_song)
+            else:
+                self.queue_index = len(self.queue)
+                return self.prev_url()
+        else:
+            return ''
+
     def __get_song_url(self, song):
         song_url = self.__api.get_stream_url(song["id"], self.__device_id)
         try:
             self.now_playing_song = song
             return song_url
         except AttributeError:
-            print "Could not retrieve song url!"
+            logging.info ("Could not retrieve song url!")
             raise
 
 if __name__ == "__main__":
