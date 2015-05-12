@@ -185,8 +185,10 @@ function install_deps {
 function install_python_deps {
     cd_to_working_dir
 
-    echo "Installing python modules..."
-    sudo pip install gmusicapi
+    echo "Upgrading Python pip and installing gmusic python module..."
+    wget https://bootstrap.pypa.io/get-pip.py \
+        && sudo python get-pip.py \
+        && sudo pip install gmusicapi
     return $?
 }
 
