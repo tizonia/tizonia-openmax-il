@@ -570,7 +570,7 @@ instantiate_comp_lib (const OMX_STRING ap_path,
     }
   full_name[len] = 0;
 
-  if (NULL == (* app_dl_hdl = dlopen (strcat (full_name, ap_name), RTLD_LAZY)))
+  if (NULL == (* app_dl_hdl = dlopen (strcat (full_name, ap_name), RTLD_LAZY|RTLD_GLOBAL)))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorUndefined] : "
                "Error loading dynamic library [%s]", dlerror ());
