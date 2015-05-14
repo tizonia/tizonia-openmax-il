@@ -15,6 +15,7 @@ The Tizonia project consists of a number of resources.
 * Playback of audio formats from local media (formats: mp3, mp2, mpa, m2a, aac,
   ogg/vorbis, opus, wav, aiff, and flac).
 * Spotify client.
+* Google Play Music client.
 * Icecast/SHOUTcast streaming server (formats: mp3).
 * Icecast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
 * Daemon and command line modes (no GUI).
@@ -93,7 +94,7 @@ To build and install from source, follow the following steps (Ubuntu 14.04 is as
 
 ```
 
-### libspotify binaries ###
+### libspotify ###
 
 To stream music from Spotify, libspotify needs to be present in your system. A
 suitable 'libspotify' flavour can be downloaded from Spotify's website:
@@ -115,6 +116,32 @@ need the 32-bit version of the library):
     $ tar zxvf libspotify-12.1.51-Linux-x86_64.tgz
     $ cd libspotify-12.1.51-Linux-x86_64
     $ make install prefix=$INSTALL_DIR
+
+```
+
+### Google Play Music ###
+
+To stream from Google Play Music, you need to install the
+[gmusicapi](https://github.com/simon-weber/Unofficial-Google-Music-API)
+package. To avoid problems, prior to installing gmusicapi you may also need to
+upgrade your pip installation.
+python2.7/site-packages
+```bash
+
+    $ echo "Upgrading Python pip and installing the gmusicapi python module..."
+    $ wget https://bootstrap.pypa.io/get-pip.py \
+        && sudo python get-pip.py \
+        && sudo pip install gmusicapi
+
+```
+
+Finally, make sure to adjust your Python search path so that the
+*tizgmusicproxy.py* module can be found. One way of doing this is using the
+*PYTHONPATH* environment variable.
+
+```bash
+
+    $ export PYTHONPATH=$PYTHONPATH:/home/juan/temp/lib/python2.7/site-packages
 
 ```
 
@@ -207,6 +234,12 @@ Spotify client options:
   --spotify-user arg     Spotify user's name.
   --spotify-password arg Spotify user's password.
   --spotify-playlist arg Spotify playlist name.
+
+Google Music options:
+  --gmusic-user arg      Google Music user's name.
+  --gmusic-password arg  Google Music user's password.
+  --gmusic-device-id arg Google Music device id.
+  --gmusic-artist arg    Google Music playlist name.
 
 ```
 
