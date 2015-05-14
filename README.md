@@ -1,7 +1,7 @@
 # Tizonia #
 
 * A music player and audio streaming client/server for Linux.
-* With support for Spotify.
+* With support for Spotify and Google Play Music.
 * A multimedia framework based on OpenMAX IL 1.2 provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
@@ -81,8 +81,8 @@ To build and install from source, follow the following steps (Ubuntu 14.04 is as
 ```bash
 
     $ sudo apt-get update -qq && sudo apt-get install -qq \
-    build-essential autoconf automake autotools-dev \
-    libtool libmad0-dev liblog4c-dev \
+    build-essential autoconf autoconf-archive \
+    automake autotools-dev libtool libmad0-dev liblog4c-dev \
     libasound2-dev libdbus-1-dev \
     libdbus-c++-dev libsqlite3-dev libboost-all-dev \
     uuid-dev libsdl1.2-dev libvpx-dev libmp3lame-dev libfaad-dev \

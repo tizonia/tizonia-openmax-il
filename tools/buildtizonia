@@ -160,8 +160,8 @@ function start_dbus {
 function install_deps {
     echo "Installing debian dependencies..."
     sudo apt-get update -qq && sudo apt-get install -qq \
-        build-essential autoconf automake autotools-dev \
-        libtool libmad0-dev liblog4c-dev \
+        build-essential autoconf autoconf-archive  \
+        automake autotools-dev libtool libmad0-dev liblog4c-dev \
         libasound2-dev libdbus-1-dev \
         libdbus-c++-dev libsqlite3-dev libboost-all-dev \
         uuid-dev libsdl1.2-dev libvpx-dev libmp3lame-dev libfaad-dev \
