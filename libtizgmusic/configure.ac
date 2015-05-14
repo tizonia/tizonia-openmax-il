@@ -46,7 +46,7 @@ AX_BOOST_BASE([1.54],, [AC_MSG_ERROR([libtizgmusic needs Boost 1.54])])
 AX_BOOST_PYTHON
 
 # Checks for header files.
-AC_CHECK_HEADER_STDBOOL
+#AC_CHECK_HEADER_STDBOOL
 
 # Checks for typedefs, structures, and compiler characteristics.
 
