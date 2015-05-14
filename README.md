@@ -124,8 +124,8 @@ need the 32-bit version of the library):
 To stream from Google Play Music, you need to install the
 [gmusicapi](https://github.com/simon-weber/Unofficial-Google-Music-API)
 package. To avoid problems, prior to installing gmusicapi you may also need to
-upgrade your pip installation.
-python2.7/site-packages
+upgrade your pip installation. E.g.:
+
 ```bash
 
     $ echo "Upgrading Python pip and installing the gmusicapi python module..."
@@ -137,7 +137,7 @@ python2.7/site-packages
 
 Finally, make sure to adjust your Python search path so that the
 *tizgmusicproxy.py* module can be found. One way of doing this is using the
-*PYTHONPATH* environment variable.
+*PYTHONPATH* environment variable. E.g.:
 
 ```bash
 
