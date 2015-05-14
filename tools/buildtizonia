@@ -251,7 +251,7 @@ function install_src_deps {
         wget http://www.juanrubio.me/tizonia/boost_1_54_0.tar.gz \
             && tar zxvf boost_1_54_0.tar.gz \
             && cd boost_1_54_0 \
-            && ./bootstrap.sh --prefix="$INSTALL_DIR"
+            && ./bootstrap.sh --prefix="$INSTALL_DIR" \
             && ./b2 install
         exit_status=$?
     fi
