@@ -245,6 +245,16 @@ function install_src_deps {
             && make install prefix="$INSTALL_DIR"
         exit_status=$?
     fi
+    if [[ "$exit_status" -eq 0 ]] ; then
+        cd "$WORKING_DIR"
+        # Install Boost 1.54
+        wget http://www.juanrubio.me/tizonia/boost_1_54_0.tar.gz \
+            && tar zxvf boost_1_54_0.tar.gz \
+            && cd boost_1_54_0 \
+            && ./bootstrap.sh --prefix="$INSTALL_DIR"
+            && ./b2 install
+        exit_status=$?
+    fi
     return "$exit_status"
 }
 
