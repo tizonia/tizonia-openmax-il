@@ -225,7 +225,7 @@ function install_src_deps {
         cd "$WORKING_DIR" \
             && git clone ${repos[$i]} &>/dev/null \
             && cd ${folders[$i]} \
-            && ./autogen.sh \
+            && ./autogen.sh &>/dev/null \
             && ./configure --prefix="$INSTALL_DIR" &>/dev/null \
             && make install &>/dev/null
         exit_status=$?
@@ -496,7 +496,7 @@ function main {
         mkdir -p "$INSTALL_DIR" \
             && cd "$INSTALL_DIR" \
             && wget http://www.juanrubio.me/tizonia/tizonia-test-media.tgz \
-            && tar zxvf tizonia-test-media.tgz
+            && tar zxvf tizonia-test-media.tgz &>/dev/null
         exit_status=$?
     elif [ "$1" == "tizrc" ];  then
         copy_config_files
