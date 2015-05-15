@@ -167,7 +167,7 @@ function install_deps {
         uuid-dev libsdl1.2-dev libvpx-dev libmp3lame-dev libfaad-dev \
         libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
         libcurl3-dev libpulse-dev libsndfile1-dev libatomic-ops-dev \
-        python-dev python-pip curl check wget sqlite3 dbus-x11
+        python-dev python-pip curl check wget sqlite3 dbus-x11 &>/dev/null
     return $?
 }
 
@@ -222,8 +222,8 @@ function install_src_deps {
             && git clone ${repos[$i]} &>/dev/null \
             && cd ${folders[$i]} \
             && ./autogen.sh \
-            && ./configure --prefix="$INSTALL_DIR" \
-            && make install
+            && ./configure --prefix="$INSTALL_DIR" &>/dev/null \
+            && make install &>/dev/null
         exit_status=$?
     done
     if [[ "$exit_status" -eq 0 ]] ; then
@@ -232,8 +232,8 @@ function install_src_deps {
         wget http://www.juanrubio.me/tizonia/mpg123-1.16.0.tgz \
             && tar zxvf mpg123-1.16.0.tgz &>/dev/null \
             && cd mpg123-1.16.0 \
-            && ./configure --prefix="$INSTALL_DIR" \
-            && make install
+            && ./configure --prefix="$INSTALL_DIR" &>/dev/null \
+            && make install &>/dev/null
         exit_status=$?
     fi
     if [[ "$exit_status" -eq 0 ]] ; then
@@ -242,7 +242,7 @@ function install_src_deps {
         wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-x86_64.tgz \
             && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz &>/dev/null \
             && cd libspotify-12.1.51-Linux-x86_64 \
-            && make install prefix="$INSTALL_DIR"
+            && make install prefix="$INSTALL_DIR" &>/dev/null
         exit_status=$?
     fi
     if [[ "$exit_status" -eq 0 ]] ; then
@@ -251,8 +251,8 @@ function install_src_deps {
         wget http://www.juanrubio.me/tizonia/boost_1_54_0.tar.gz \
             && tar zxvf boost_1_54_0.tar.gz &>/dev/null \
             && cd boost_1_54_0 \
-            && ./bootstrap.sh --prefix="$INSTALL_DIR" \
-            && ./b2 install
+            && ./bootstrap.sh --prefix="$INSTALL_DIR" &>/dev/null \
+            && ./b2 install &>/dev/null
         exit_status=$?
     fi
     return "$exit_status"
@@ -378,7 +378,7 @@ function install_skema {
 
     # Step #1 : Clone repo
     echo "Cloning skema's repo..."
-    git clone "$SKEMA_GIT_REPO" "$SKEMA_DIR"
+    git clone "$SKEMA_GIT_REPO" "$SKEMA_DIR" &>/dev/null
     local exit_status=$?
     if [[ "$exit_status" -ne 0 ]]; then
         err "Unable to clone skema's repo: $SKEMA_GIT_REPO"
