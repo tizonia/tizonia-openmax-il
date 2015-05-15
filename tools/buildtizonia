@@ -219,7 +219,7 @@ function install_src_deps {
     for (( i=0; i<=$(( total -1 )); i++ ))
     do
         cd "$WORKING_DIR" \
-            && git clone ${repos[$i]} \
+            && git clone ${repos[$i]} &>/dev/null \
             && cd ${folders[$i]} \
             && ./autogen.sh \
             && ./configure --prefix="$INSTALL_DIR" \
@@ -230,7 +230,7 @@ function install_src_deps {
         cd "$WORKING_DIR"
         # Build libmpg123 1.19 from source
         wget http://www.juanrubio.me/tizonia/mpg123-1.16.0.tgz \
-            && tar zxvf mpg123-1.16.0.tgz \
+            && tar zxvf mpg123-1.16.0.tgz &>/dev/null \
             && cd mpg123-1.16.0 \
             && ./configure --prefix="$INSTALL_DIR" \
             && make install
@@ -240,7 +240,7 @@ function install_src_deps {
         cd "$WORKING_DIR"
         # Install libspotify 12.1.51 binaries
         wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-x86_64.tgz \
-            && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz \
+            && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz &>/dev/null \
             && cd libspotify-12.1.51-Linux-x86_64 \
             && make install prefix="$INSTALL_DIR"
         exit_status=$?
@@ -249,7 +249,7 @@ function install_src_deps {
         cd "$WORKING_DIR"
         # Install Boost 1.54
         wget http://www.juanrubio.me/tizonia/boost_1_54_0.tar.gz \
-            && tar zxvf boost_1_54_0.tar.gz \
+            && tar zxvf boost_1_54_0.tar.gz &>/dev/null \
             && cd boost_1_54_0 \
             && ./bootstrap.sh --prefix="$INSTALL_DIR" \
             && ./b2 install
