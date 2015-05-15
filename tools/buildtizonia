@@ -287,6 +287,30 @@ function copy_config_files {
 }
 
 ##################################################################
+# Tizonia build
+#
+# Globals
+#   INSTALL_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function build_tizonia {
+    cd_to_working_dir && cd tizonia
+    echo "Reconfiguring tizonia/tizonia for [DEBUG] build - Install dir [$INSTALL_DIR]..."
+    autoreconf -ifs
+    local exit_status=$?
+    if [[ "$exit_status" -eq 0 ]] ; then
+        ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall -Werror" \
+            && make -j8 \
+            && make install
+        exit_status=$?
+    fi
+    return "$exit_status"
+}
+
+##################################################################
 # Debug build
 #
 # Globals
@@ -503,6 +527,9 @@ function main {
         exit_status=$?
     elif [ "$1" == "bldonly" ];  then
         echo "Build only..."
+    elif [ "$1" == "tizonia" ]; then
+        build_tizonia
+        exit_status=$?
     elif [ "$1" == "skema" ];  then
         install_skema
         exit_status=$?
