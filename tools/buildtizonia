@@ -227,7 +227,7 @@ function install_src_deps {
             && cd ${folders[$i]} \
             && ./autogen.sh &>/dev/null \
             && ./configure --prefix="$INSTALL_DIR" &>/dev/null \
-            && make install &>/dev/null
+            && make -s -j8 V=0 install &>/dev/null
         exit_status=$?
     done
     if [[ "$exit_status" -eq 0 ]] ; then
@@ -237,7 +237,7 @@ function install_src_deps {
             && tar zxvf mpg123-1.16.0.tgz &>/dev/null \
             && cd mpg123-1.16.0 \
             && ./configure --prefix="$INSTALL_DIR" &>/dev/null \
-            && make install &>/dev/null
+            && make -s -j8 V=0 install &>/dev/null
         exit_status=$?
     fi
     if [[ "$exit_status" -eq 0 ]] ; then
@@ -297,16 +297,34 @@ function copy_config_files {
 #   None
 ##################################################################
 function build_tizonia {
-    cd_to_working_dir && cd tizonia
-    echo "Reconfiguring tizonia/tizonia for [DEBUG] build - Install dir [$INSTALL_DIR]..."
-    autoreconf -ifs
-    local exit_status=$?
+    # Install MediaInfo dependencies
+    sudo apt-get install -qq zlib1g-dev libzen-dev
+
+    # Build MediaInfo 0.7.67 from source
+    echo "Building MediaInfo 0.7.67 from source..."
+    cd "$WORKING_DIR"
+    wget http://juanrubio.me/tizonia/libmediainfo_0.7.67.orig.tar.gz \
+        && tar zxvf libmediainfo_0.7.67.orig.tar.gz \
+        && cd MediaInfoLib/Project/GNU/Library \
+        && ./autogen \
+        && ./configure --enable-shared --prefix="$INSTALL_DIR" &>/dev/null \
+        && && make -s -j8 V=0 install &>/dev/null
+    exit_status=$?
+
+    # Build Tizonia app
     if [[ "$exit_status" -eq 0 ]] ; then
-        ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall -Werror" \
-            && make -j8 \
-            && make install
-        exit_status=$?
+        cd "$WORKING_DIR" && cd tizonia
+        echo "Reconfiguring Tizonia app for [DEBUG] build - Install dir [$INSTALL_DIR]..."
+        autoreconf -ifs
+        local exit_status=$?
+        if [[ "$exit_status" -eq 0 ]] ; then
+            ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall -Werror" \
+                && make -s -j8 V=0 \
+                && make -j8 install
+            exit_status=$?
+        fi
     fi
+
     return "$exit_status"
 }
 
@@ -545,13 +563,13 @@ function main {
     if [ "$1" == "debug" ] || [ "$1" == "release" ] || [ "$1" == "conf" ] || [ "$1" == "bldonly" ] ; then
         cd_to_working_dir
         if [[ "$exit_status" -eq 0 ]] ; then
-            make -j8
+            make -s -j8 V=0
             exit_status=$?
         fi
 
         if [ ! "$1" == "bldonly" ] ; then
             if [[ "$exit_status" -eq 0 ]] ; then
-                make install
+                make -j8 install
                 exit_status=$?
             fi
         fi
