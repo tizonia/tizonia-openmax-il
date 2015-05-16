@@ -308,7 +308,7 @@ function build_tizonia {
         && cd MediaInfoLib/Project/GNU/Library \
         && ./autogen \
         && ./configure --enable-shared --prefix="$INSTALL_DIR" &>/dev/null \
-        && && make -s -j8 V=0 install &>/dev/null
+        && make -s -j8 V=0 install &>/dev/null
     exit_status=$?
 
     # Build Tizonia app
