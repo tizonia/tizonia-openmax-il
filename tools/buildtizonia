@@ -309,14 +309,14 @@ function build_tizonia {
         && ./autogen \
         && ./configure --enable-shared --prefix="$INSTALL_DIR" &>/dev/null \
         && make -s -j8 V=0 install &>/dev/null
-    exit_status=$?
+    local exit_status=$?
 
     # Build Tizonia app
     if [[ "$exit_status" -eq 0 ]] ; then
         cd "$WORKING_DIR" && cd tizonia
         echo "Reconfiguring Tizonia app for [DEBUG] build - Install dir [$INSTALL_DIR]..."
         autoreconf -ifs
-        local exit_status=$?
+        exit_status=$?
         if [[ "$exit_status" -eq 0 ]] ; then
             ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall -Werror" \
                 && make -s -j8 V=0 \
