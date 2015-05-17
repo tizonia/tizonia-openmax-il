@@ -815,6 +815,7 @@ static OMX_ERRORTYPE gmusic_prc_config_change (void *ap_prc,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_prc);
+  TIZ_NOTICE (handleOf (p_prc), "");
 
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx && p_prc->p_trans_)
     {
