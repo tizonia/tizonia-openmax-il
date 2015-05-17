@@ -304,11 +304,11 @@ function build_tizonia {
     echo "Building MediaInfo 0.7.67 from source..."
     cd "$WORKING_DIR"
     wget http://juanrubio.me/tizonia/libmediainfo_0.7.67.orig.tar.gz \
-        && tar zxvf libmediainfo_0.7.67.orig.tar.gz \
+        && tar zxvf libmediainfo_0.7.67.orig.tar.gz &>/dev/null \
         && cd MediaInfoLib/Project/GNU/Library \
-        && ./autogen \
-        && ./configure --enable-shared --prefix="$INSTALL_DIR" &>/dev/null \
-        && make -s -j8 V=0 install &>/dev/null
+        && ./autogen &>/dev/null \
+        && ./configure --enable-shared --prefix="$INSTALL_DIR" \
+        && make -s -j8 V=0 install
     local exit_status=$?
 
     # Build Tizonia app
