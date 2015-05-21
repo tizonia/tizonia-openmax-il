@@ -217,32 +217,71 @@ struct httpsrc_trans
   return (OMX_STRING) "Unknown http trans curl state";
 }
 
-#define set_curl_state(ap_trans, state)                                      \
-  do                                                                         \
-    {                                                                        \
-      assert (NULL != ap_trans);                                             \
-      assert (state < ECurlStateMax);                                        \
-      TIZ_DEBUG (handleOf (ap_trans->p_parent_), "Transition: [%s] -> [%s]", \
-                 httpsrc_curl_state_to_str (ap_trans->curl_state_),          \
-                 httpsrc_curl_state_to_str (state));                         \
-      ap_trans->curl_state_ = state;                                         \
-    }                                                                        \
+#define set_curl_state(ap_trans, state)                                 \
+  do                                                                    \
+    {                                                                   \
+      assert (NULL != ap_trans);                                        \
+      assert (state < ECurlStateMax);                                   \
+      if (ap_trans->curl_state_ != state)                               \
+        {                                                               \
+          TIZ_DEBUG (handleOf (ap_trans->p_parent_),                    \
+                     "Transition: [%s] -> [%s]",                        \
+                     httpsrc_curl_state_to_str (ap_trans->curl_state_), \
+                     httpsrc_curl_state_to_str (state));                \
+          ap_trans->curl_state_ = state;                                \
+        }                                                               \
+    }                                                                   \
+  while (0)
+
+#define TRANS_LOG_API_START()                                                  \
+  do                                                                           \
+    {                                                                          \
+      TIZ_TRACE (handleOf (ap_trans->p_parent_),                               \
+                 "START : STATE = [%s] fd [%d] store [%d] timer [%f] io [%s] " \
+                 "ct [%s] rt [%s]",                                            \
+                 httpsrc_curl_state_to_str (ap_trans->curl_state_),            \
+                 ap_trans->sockfd_,                                            \
+                 (ap_trans->p_store_                                           \
+                      ? tiz_buffer_bytes_available (ap_trans->p_store_)        \
+                      : 0),                                                    \
+                 ap_trans->curl_timeout_,                                      \
+                 (ap_trans->awaiting_io_ev_ ? "Y" : "N"),                      \
+                 (ap_trans->awaiting_curl_timer_ev_ ? "Y" : "N"),              \
+                 (ap_trans->awaiting_reconnect_timer_ev_ ? "Y" : "N"));        \
+    }                                                                          \
+  while (0)
+
+#define TRANS_LOG_API_END()                                                   \
+  do                                                                          \
+    {                                                                         \
+      TIZ_TRACE (handleOf (ap_trans->p_parent_),                              \
+                 "END  : STATE = [%s] fd [%d] store [%d] timer [%f] io [%s] " \
+                 "ct [%s] rt [%s]",                                           \
+                 httpsrc_curl_state_to_str (ap_trans->curl_state_),           \
+                 ap_trans->sockfd_,                                           \
+                 (ap_trans->p_store_                                          \
+                      ? tiz_buffer_bytes_available (ap_trans->p_store_)       \
+                      : 0),                                                   \
+                 ap_trans->curl_timeout_,                                     \
+                 (ap_trans->awaiting_io_ev_ ? "Y" : "N"),                     \
+                 (ap_trans->awaiting_curl_timer_ev_ ? "Y" : "N"),             \
+                 (ap_trans->awaiting_reconnect_timer_ev_ ? "Y" : "N"));       \
+    }                                                                         \
   while (0)
 
 static OMX_ERRORTYPE start_curl (httpsrc_trans_t *ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
-  TIZ_NOTICE (handleOf (ap_trans->p_parent_),
-              "starting curl : curl_state_ [%s]",
+  TIZ_TRACE (handleOf (ap_trans->p_parent_),
+             "starting curl : curl_state_ [%s]",
               httpsrc_curl_state_to_str (ap_trans->curl_state_));
 
   assert (NULL != ap_trans->p_curl_);
   assert (NULL != ap_trans->p_curl_multi_);
-  assert (ECurlStateStopped == ap_trans->curl_state_
-          || ECurlStateConnecting == ap_trans->curl_state_);
+  assert (ECurlStateStopped == ap_trans->curl_state_ || ECurlStatePaused == ap_trans->curl_state_);
 
-  set_curl_state (ap_trans, ECurlStateConnecting);
+  set_curl_state (ap_trans, ECurlStateTransfering);
 
   /* associate the processor with the curl handle */
   bail_on_curl_error (
@@ -322,7 +361,6 @@ static inline OMX_ERRORTYPE start_io_watcher (httpsrc_trans_t *ap_trans)
                                    ap_trans->sockfd_, TIZ_EVENT_READ, true));
     }
   ap_trans->awaiting_io_ev_ = true;
-  TIZ_DEBUG (handleOf (ap_trans->p_parent_), "awaiting_io_ev [%s]", "TRUE");
   return tiz_srv_io_watcher_start (ap_trans->p_parent_, ap_trans->p_ev_io_);
 }
 
@@ -331,7 +369,6 @@ static inline OMX_ERRORTYPE stop_io_watcher (httpsrc_trans_t *ap_trans)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_trans);
   ap_trans->awaiting_io_ev_ = false;
-  TIZ_DEBUG (handleOf (ap_trans->p_parent_), "awaiting_io_ev [%s]", "FALSE");
   if (ap_trans->p_ev_io_)
     {
       rc = tiz_srv_io_watcher_stop (ap_trans->p_parent_, ap_trans->p_ev_io_);
@@ -347,9 +384,6 @@ static inline OMX_ERRORTYPE start_curl_timer_watcher (httpsrc_trans_t *ap_trans)
   if (!ap_trans->awaiting_curl_timer_ev_)
     {
       ap_trans->awaiting_curl_timer_ev_ = true;
-      TIZ_DEBUG (handleOf (ap_trans->p_parent_),
-                 "awaiting_curl_timer_ev [%p] [TRUE]",
-                 ap_trans->p_ev_curl_timer_);
       rc = tiz_srv_timer_watcher_start (ap_trans->p_parent_,
                                         ap_trans->p_ev_curl_timer_,
                                         ap_trans->curl_timeout_, 0.);
@@ -363,7 +397,6 @@ static inline OMX_ERRORTYPE restart_curl_timer_watcher (
   assert (NULL != ap_trans);
   assert (NULL != ap_trans->p_ev_curl_timer_);
   ap_trans->awaiting_curl_timer_ev_ = true;
-  TIZ_DEBUG (handleOf (ap_trans->p_parent_), "awaiting_curl_timer_ev [TRUE]");
   return tiz_srv_timer_watcher_restart (ap_trans->p_parent_,
                                         ap_trans->p_ev_curl_timer_);
 }
@@ -381,7 +414,6 @@ static inline OMX_ERRORTYPE stop_curl_timer_watcher (httpsrc_trans_t *ap_trans)
                                            ap_trans->p_ev_curl_timer_);
         }
     }
-  TIZ_DEBUG (handleOf (ap_trans->p_parent_), "awaiting_curl_timer_ev [FALSE]");
   return rc;
 }
 
@@ -394,9 +426,6 @@ static inline OMX_ERRORTYPE start_reconnect_timer_watcher (
   if (!ap_trans->awaiting_reconnect_timer_ev_)
     {
       ap_trans->awaiting_reconnect_timer_ev_ = true;
-      TIZ_DEBUG (handleOf (ap_trans->p_parent_),
-                 "awaiting_reconnect_timer_ev_ [%p] [TRUE]",
-                 ap_trans->p_ev_reconnect_timer_);
       rc = tiz_srv_timer_watcher_start (
           ap_trans->p_parent_, ap_trans->p_ev_reconnect_timer_,
           ap_trans->reconnect_timeout_, ap_trans->reconnect_timeout_);
@@ -410,8 +439,6 @@ static inline OMX_ERRORTYPE stop_reconnect_timer_watcher (
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_trans);
   ap_trans->awaiting_reconnect_timer_ev_ = false;
-  TIZ_DEBUG (handleOf (ap_trans->p_parent_),
-             "awaiting_reconnect_timer_ev [FALSE]");
   if (NULL != ap_trans->p_ev_reconnect_timer_)
     {
       rc = tiz_srv_timer_watcher_stop (ap_trans->p_parent_,
@@ -424,13 +451,13 @@ static OMX_ERRORTYPE resume_curl (httpsrc_trans_t *ap_trans)
 {
   assert (NULL != ap_trans);
 
-  TIZ_NOTICE (handleOf (ap_trans->p_parent_), "Resuming curl. Was paused [%s]",
-              ECurlStatePaused == ap_trans->curl_state_ ? "YES" : "NO");
-
   if (ECurlStatePaused == ap_trans->curl_state_)
     {
       int running_handles = 0;
-      set_curl_state (ap_trans, ECurlStateConnecting);
+      TIZ_TRACE (handleOf (ap_trans->p_parent_), "Resuming curl. Was paused [%s]",
+                  ECurlStatePaused == ap_trans->curl_state_ ? "YES" : "NO");
+
+      set_curl_state (ap_trans, ECurlStateTransfering);
       on_curl_error_ret_omx_oom (
           curl_easy_pause (ap_trans->p_curl_, CURLPAUSE_CONT));
       if (ap_trans->curl_version_ < 0x072000)
@@ -471,6 +498,11 @@ static OMX_ERRORTYPE process_cache (httpsrc_trans_t *p_trans)
   OMX_BUFFERHEADERTYPE *p_out = NULL;
   int nbytes_stored = 0;
   assert (NULL != p_trans);
+
+  TIZ_TRACE (handleOf (p_trans->p_parent_), "curl_state_ = [%s] "
+             "bytes_stored = [%d]",
+             httpsrc_curl_state_to_str (p_trans->curl_state_),
+             tiz_buffer_bytes_available (p_trans->p_store_));
 
   while ((nbytes_stored = tiz_buffer_bytes_available (p_trans->p_store_)) > 0
          && (p_out = p_trans->pf_buf_wanted_ (p_trans->p_parent_)) != NULL)
@@ -526,22 +558,21 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
   size_t rc = nbytes;
   assert (NULL != p_trans);
   TIZ_TRACE (handleOf (p_trans->p_parent_),
-             "size [%d] nmemb [%d] sockfd [%d] store [%d]", size, nmemb,
+             "size [%d] nmemb [%d] fd [%d] store [%d]", size, nmemb,
              p_trans->sockfd_, tiz_buffer_bytes_available (p_trans->p_store_));
 
   if (nbytes > 0)
     {
-      set_curl_state (p_trans, ECurlStateConnecting);
+      set_curl_state (p_trans, ECurlStateTransfering);
       OMX_BUFFERHEADERTYPE *p_out = NULL;
 
       if (p_trans->pf_data_avail_ (p_trans->p_parent_, ptr, nbytes))
         {
-          /* This is to pause curl */
-          TIZ_TRACE (handleOf (p_trans->p_parent_), "Pausing curl");
-
-          /* Also stop the watchers */
+          /* Stop the watchers */
           stop_io_watcher (p_trans);
           stop_curl_timer_watcher (p_trans);
+
+          /* Pause curl */
 
           rc = CURL_WRITEFUNC_PAUSE;
           set_curl_state (p_trans, ECurlStatePaused);
@@ -597,19 +628,13 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
                                  nbytes, nbytes_stored);
                     }
                   nbytes -= nbytes_stored;
-                  TIZ_PRINTF_DBG_BLU (
-                      "No more omx buffers, using the store : [%u] bytes "
-                      "cached.",
-                      tiz_buffer_bytes_available (p_trans->p_store_));
-                  TIZ_TRACE (
-                      handleOf (p_trans->p_parent_),
-                      "Unable to get an omx buffer, using the temp store : "
-                      "[%d] bytes stored.",
-                      tiz_buffer_bytes_available (p_trans->p_store_));
                 }
             }
         }
     }
+  TIZ_TRACE (handleOf (p_trans->p_parent_),
+             "size [%d] nmemb [%d] fd [%d] store [%d]", size, nmemb,
+             p_trans->sockfd_, tiz_buffer_bytes_available (p_trans->p_store_));
 
   return rc;
 }
@@ -686,7 +711,7 @@ static int curl_socket_cback (CURL *easy, curl_socket_t s, int action,
       handleOf (p_trans->p_parent_),
       "socket [%d] action [%d] (1 READ, 2 WRITE, 3 READ/WRITE, 4 REMOVE)", s,
       action);
-  if (CURL_POLL_IN == action)
+  if (CURL_POLL_IN == action || CURL_POLL_OUT == action)
     {
       p_trans->sockfd_ = s;
       (void)start_io_watcher (p_trans);
@@ -718,9 +743,10 @@ static int curl_timer_cback (CURLM *multi, long timeout_ms, void *userp)
              "timeout_ms : %d - curl_state_ [%s]", timeout_ms,
              httpsrc_curl_state_to_str (p_trans->curl_state_));
 
-  if (timeout_ms < 0 && ECurlStateTransfering == p_trans->curl_state_)
+  stop_curl_timer_watcher (p_trans);
+
+  if (timeout_ms < 0)
     {
-      stop_curl_timer_watcher (p_trans);
       p_trans->curl_timeout_ = 0;
     }
   else if (timeout_ms > 0)
@@ -730,12 +756,11 @@ static int curl_timer_cback (CURLM *multi, long timeout_ms, void *userp)
           timeout_ms = 10;
         }
       p_trans->curl_timeout_ = ((double)timeout_ms / (double)1000);
-      stop_curl_timer_watcher (p_trans);
       (void)start_curl_timer_watcher (p_trans);
-      if (ECurlStatePaused == p_trans->curl_state_)
-        {
-          (void)resume_curl (p_trans);
-        }
+/*       if (ECurlStateStopped != p_trans->curl_state_) */
+/*         { */
+/*           (void)resume_curl (p_trans); */
+/*         } */
     }
   return 0;
 }
@@ -952,16 +977,17 @@ void httpsrc_trans_set_uri (httpsrc_trans_t *ap_trans,
 {
   assert (NULL != ap_trans);
   assert (NULL != ap_uri_param);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "curl_state_ = [%s]",
-             httpsrc_curl_state_to_str (ap_trans->curl_state_));
+  TRANS_LOG_API_START();
   ap_trans->p_uri_param_ = ap_uri_param;
   curl_multi_remove_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_);
   bail_on_curl_error (curl_easy_setopt (ap_trans->p_curl_, CURLOPT_URL,
                                         ap_trans->p_uri_param_->contentURI));
   /* Add the easy handle to the multi */
-  bail_on_curl_multi_error (
-      curl_multi_add_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_));
+/*   bail_on_curl_multi_error ( */
+/*       curl_multi_add_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_)); */
 end:
+
+  TRANS_LOG_API_END();
   return;
 }
 
@@ -970,7 +996,7 @@ void httpsrc_trans_set_internal_buffer_size (httpsrc_trans_t *ap_trans,
 {
   assert (NULL != ap_trans);
   assert (a_nbytes > 0);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "a_nbytes = [%d]", a_nbytes);
+  TRANS_LOG_API_START();
   ap_trans->cache_bytes_ = ap_trans->current_cache_bytes_ = a_nbytes;
 }
 
@@ -978,9 +1004,8 @@ OMX_ERRORTYPE httpsrc_trans_start (httpsrc_trans_t *ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_trans);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "curl_state_ = [%s]",
-             httpsrc_curl_state_to_str (ap_trans->curl_state_));
-  if (ECurlStateStopped == ap_trans->curl_state_)
+  TRANS_LOG_API_START();
+  if (ECurlStateStopped == ap_trans->curl_state_ || ECurlStatePaused == ap_trans->curl_state_)
     {
       int running_handles = 0;
       tiz_check_omx_err (start_curl (ap_trans));
@@ -988,20 +1013,21 @@ OMX_ERRORTYPE httpsrc_trans_start (httpsrc_trans_t *ap_trans)
       /* Kickstart curl to get one or more callbacks called. */
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
           ap_trans->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
-      TIZ_NOTICE (handleOf (ap_trans->p_parent_), "running handles [%d]",
-                  running_handles);
     }
+  TRANS_LOG_API_END();
   return rc;
 }
 
 OMX_ERRORTYPE httpsrc_trans_pause (httpsrc_trans_t *ap_trans)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_trans);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "curl_state_ = [%s]",
-             httpsrc_curl_state_to_str (ap_trans->curl_state_));
+  TRANS_LOG_API_START();
   tiz_check_omx_err (stop_io_watcher (ap_trans));
   tiz_check_omx_err (stop_curl_timer_watcher (ap_trans));
-  return stop_reconnect_timer_watcher (ap_trans);
+  rc = stop_reconnect_timer_watcher (ap_trans);
+  TRANS_LOG_API_END();
+  return rc;
 }
 
 OMX_ERRORTYPE httpsrc_trans_unpause (httpsrc_trans_t *ap_trans)
@@ -1009,43 +1035,42 @@ OMX_ERRORTYPE httpsrc_trans_unpause (httpsrc_trans_t *ap_trans)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int running_handles = 0;
   assert (NULL != ap_trans);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "curl_state_ = [%s]",
-             httpsrc_curl_state_to_str (ap_trans->curl_state_));
+  TRANS_LOG_API_START();
   tiz_check_omx_err (restart_curl_timer_watcher (ap_trans));
   on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
       ap_trans->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
-  TIZ_NOTICE (handleOf (ap_trans->p_parent_), "running handles [%d]",
-              running_handles);
+  TRANS_LOG_API_END();
   return rc;
 }
 
 void httpsrc_trans_cancel (httpsrc_trans_t *ap_trans)
 {
   assert (NULL != ap_trans);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "curl_state_ = [%s]",
-             httpsrc_curl_state_to_str (ap_trans->curl_state_));
+  TRANS_LOG_API_START();
   httpsrc_trans_pause (ap_trans);
   ap_trans->sockfd_ = -1;
   ap_trans->awaiting_io_ev_ = false;
   ap_trans->awaiting_curl_timer_ev_ = false;
   ap_trans->curl_timeout_ = 0;
+  TRANS_LOG_API_END();
 }
 
 void httpsrc_trans_flush_buffer (httpsrc_trans_t *ap_trans)
 {
   assert (NULL != ap_trans);
+  TRANS_LOG_API_START();
   if (ap_trans->p_store_)
     {
       tiz_buffer_clear (ap_trans->p_store_);
     }
+  TRANS_LOG_API_END();
 }
 
 OMX_ERRORTYPE httpsrc_trans_on_buffers_ready (httpsrc_trans_t *ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_trans);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "curl_state_ = [%s]",
-             httpsrc_curl_state_to_str (ap_trans->curl_state_));
+  TRANS_LOG_API_START();
   if (ECurlStatePaused == ap_trans->curl_state_)
     {
       if (tiz_buffer_bytes_available (ap_trans->p_store_)
@@ -1062,6 +1087,7 @@ OMX_ERRORTYPE httpsrc_trans_on_buffers_ready (httpsrc_trans_t *ap_trans)
     {
       process_cache (ap_trans);
     }
+  TRANS_LOG_API_END();
   return rc;
 }
 
@@ -1071,10 +1097,8 @@ OMX_ERRORTYPE httpsrc_trans_on_io_ready (httpsrc_trans_t *ap_trans,
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != ap_trans);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "awaiting_io_ev_ [%s] curl_state_ = [%s]",
-             ap_trans->awaiting_io_ev_ ? "TRUE" : "FALSE",
-             httpsrc_curl_state_to_str (ap_trans->curl_state_));
-  if (ap_trans->awaiting_io_ev_)
+  TRANS_LOG_API_START();
+  if (ap_trans->awaiting_io_ev_ && a_fd == ap_trans->sockfd_)
     {
       int running_handles = 0;
       int curl_ev_bitmask = 0;
@@ -1086,22 +1110,19 @@ OMX_ERRORTYPE httpsrc_trans_on_io_ready (httpsrc_trans_t *ap_trans,
         {
           curl_ev_bitmask |= CURL_CSELECT_OUT;
         }
-      tiz_check_omx_err (stop_io_watcher (ap_trans));
-      tiz_check_omx_err (restart_curl_timer_watcher (ap_trans));
+
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
           ap_trans->p_curl_multi_, a_fd, curl_ev_bitmask, &running_handles));
-      TIZ_TRACE (handleOf (ap_trans->p_parent_),
-                 "Received io event on fd [%d] events [%d] running handles "
-                 "[%d] curl_state_ [%s]",
-                 a_fd, a_events, running_handles,
-                 httpsrc_curl_state_to_str (ap_trans->curl_state_));
-      if (ECurlStatePaused != ap_trans->curl_state_ && running_handles > 0)
+
+      if (ECurlStateTransfering == ap_trans->curl_state_ && running_handles > 0)
         {
           tiz_check_omx_err (start_io_watcher (ap_trans));
+          tiz_check_omx_err (restart_curl_timer_watcher (ap_trans));
         }
-      else if (0 == running_handles)
+      else if (!running_handles)
         {
           bool auto_reconnect = false;
+          stop_curl_timer_watcher (ap_trans);
           assert (NULL != ap_trans->pf_connection_lost_);
           set_curl_state (ap_trans, ECurlStateStopped);
           auto_reconnect = ap_trans->pf_connection_lost_ (ap_trans->p_parent_);
@@ -1112,6 +1133,7 @@ OMX_ERRORTYPE httpsrc_trans_on_io_ready (httpsrc_trans_t *ap_trans,
             }
         }
     }
+  TRANS_LOG_API_END();
   return rc;
 }
 
@@ -1121,56 +1143,50 @@ OMX_ERRORTYPE httpsrc_trans_on_timer_ready (httpsrc_trans_t *ap_trans,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int running_handles = 0;
   assert (NULL != ap_trans);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "curl_state_ = [%s]",
-             httpsrc_curl_state_to_str (ap_trans->curl_state_));
+  TRANS_LOG_API_START();
   if (ap_trans->awaiting_curl_timer_ev_
       && ap_ev_timer == ap_trans->p_ev_curl_timer_)
     {
-      TIZ_NOTICE (handleOf (ap_trans->p_parent_),
-                  "01 - Received curl timer event [%p] : curl_state_ [%s] "
-                  "curl_timeout_ [%f]",
-                  ap_ev_timer,
-                  httpsrc_curl_state_to_str (ap_trans->curl_state_),
-                  ap_trans->curl_timeout_);
-
-      if (ECurlStateTransfering == ap_trans->curl_state_
-          || ECurlStateConnecting == ap_trans->curl_state_)
+      if (ECurlStateTransfering == ap_trans->curl_state_)
         {
           tiz_check_omx_err (restart_curl_timer_watcher (ap_trans));
-          /* stop_curl_timer_watcher (ap_trans); */
-          /* start_curl_timer_watcher (ap_trans); */
           on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
               ap_trans->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0,
               &running_handles));
-          TIZ_NOTICE (handleOf (ap_trans->p_parent_),
-                      "02 - running handles [%d] curl_timeout_ [%f]",
-                      running_handles, ap_trans->curl_timeout_);
-          if (0 == running_handles)
+          if (!running_handles)
             {
+              bool auto_reconnect = false;
+              assert (NULL != ap_trans->pf_connection_lost_);
               set_curl_state (ap_trans, ECurlStateStopped);
               stop_curl_timer_watcher (ap_trans);
+              auto_reconnect = ap_trans->pf_connection_lost_ (ap_trans->p_parent_);
               reset_cache_size (ap_trans);
-              (void)start_reconnect_timer_watcher (ap_trans);
+              if (auto_reconnect)
+                {
+                  (void)start_reconnect_timer_watcher (ap_trans);
+                }
+            }
+          else
+            {
+              if (ECurlStateTransfering == ap_trans->curl_state_)
+                {
+                  process_cache (ap_trans);
+                }
             }
         }
     }
   else if (ap_trans->awaiting_reconnect_timer_ev_
            && ap_ev_timer == ap_trans->p_ev_reconnect_timer_)
     {
-      TIZ_NOTICE (handleOf (ap_trans->p_parent_),
-                  "01 - Received reconnect timer event [%p] : curl_state_ [%s] "
-                  "reconnect_timeout_ [%f]",
-                  ap_ev_timer,
-                  httpsrc_curl_state_to_str (ap_trans->curl_state_),
-                  ap_trans->reconnect_timeout_);
       TIZ_PRINTF_RED ("\rFailed to connect to '%s'.",
                       ap_trans->p_uri_param_->contentURI);
-      TIZ_PRINTF_RED ("Re-connecting radio station in %.1f seconds.\n",
+      TIZ_PRINTF_RED ("Re-connecting in %.1f seconds.\n",
                       ap_trans->reconnect_timeout_);
       curl_multi_remove_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_);
       start_curl (ap_trans);
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
           ap_trans->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, &running_handles));
     }
+  TRANS_LOG_API_END();
   return rc;
 }

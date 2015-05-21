@@ -415,12 +415,13 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
                                     + pathname_max + 1;
       ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
+      TIZ_PRINTF_DBG_MAG ("a_skip_value [%d].", a_skip_value);
       {
         const char *p_next_url
             = a_skip_value > 0 ? tiz_gmusic_get_next_url (ap_prc->p_gmusic_)
                                : tiz_gmusic_get_prev_url (ap_prc->p_gmusic_);
         const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
-        TIZ_NOTICE (handleOf (ap_prc), "URL [%s]", p_next_url);
+        TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
 
         /* Verify we are getting an http scheme */
         if (!p_next_url || !url_len
@@ -434,8 +435,6 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
             strncpy ((char *)ap_prc->p_uri_param_->contentURI, p_next_url,
                      url_len);
             ap_prc->p_uri_param_->contentURI[url_len] = '\000';
-            TIZ_TRACE (handleOf (ap_prc), "url len [%d] pathname_max [%d]",
-                       url_len, pathname_max);
 
             (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
             store_metadata (
@@ -464,10 +463,12 @@ static OMX_ERRORTYPE release_buffer (gmusic_prc_t *ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
-      TIZ_NOTICE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]",
+      TIZ_TRACE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]",
                   ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
       if (ap_prc->eos_)
         {
+          TIZ_PRINTF_DBG_RED ("EOS - releasing HEADER [%p] nFilledLen [%d]\n",
+                              ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
           ap_prc->eos_ = false;
           ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
         }
@@ -612,12 +613,38 @@ static OMX_ERRORTYPE retrieve_playlist (gmusic_prc_t *ap_prc)
 static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
 {
   int rc = 1;
+
   assert (NULL != ap_prc);
   assert (NULL != ap_prc->p_gmusic_);
-  /* For now, the google music client library only has support for artist
-   * playlists */
-  rc = tiz_gmusic_enqueue_artist (
-      ap_prc->p_gmusic_, (const char *)ap_prc->playlist_.cPlayListName);
+
+  {
+    const char *p_playlist = (const char *)ap_prc->playlist_.cPlaylistName;
+    switch (ap_prc->playlist_.ePlaylistType)
+      {
+        case OMX_AUDIO_GmusicPlaylistTypeUnknown:
+        case OMX_AUDIO_GmusicPlaylistTypeUser:
+          {
+            /* TODO */
+            assert (0);
+          }
+          break;
+        case OMX_AUDIO_GmusicPlaylistTypeArtist:
+          {
+            rc = tiz_gmusic_enqueue_artist (ap_prc->p_gmusic_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_GmusicPlaylistTypeAlbum:
+          {
+            rc = tiz_gmusic_enqueue_album (ap_prc->p_gmusic_, p_playlist);
+          }
+          break;
+        default:
+          {
+            assert (0);
+          }
+          break;
+      };
+  }
   return (rc == 0 ? OMX_ErrorNone : OMX_ErrorInsufficientResources);
 }
 
@@ -632,6 +659,7 @@ static void *gmusic_prc_ctor (void *ap_obj, va_list *app)
   p_prc->p_uri_param_ = NULL;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
+  p_prc->uri_changed_ = false;
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->num_channels_ = 2;
   p_prc->samplerate_ = 44100;
@@ -780,11 +808,13 @@ static OMX_ERRORTYPE gmusic_prc_port_disable (const void *ap_obj,
 {
   gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_obj;
   assert (NULL != p_prc);
-  TIZ_NOTICE (handleOf (p_prc), "Disabling port was disabled? [%s]",
+  TIZ_TRACE (handleOf (p_prc), "Disabling port was disabled? [%s]",
               p_prc->port_disabled_ ? "YES" : "NO");
-  p_prc->port_disabled_ = true;
+  TIZ_PRINTF_DBG_RED ("Disabling port was disabled? [%s]\n",
+                      p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->p_trans_)
     {
+      p_prc->port_disabled_ = true;
       httpsrc_trans_pause (p_prc->p_trans_);
       httpsrc_trans_flush_buffer (p_prc->p_trans_);
     }
@@ -797,12 +827,22 @@ static OMX_ERRORTYPE gmusic_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
   gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (NULL != p_prc);
-  TIZ_NOTICE (handleOf (p_prc), "Enabling port [%d] was disabled? [%s]", a_pid,
+  TIZ_TRACE (handleOf (p_prc), "Enabling port [%d] was disabled? [%s]", a_pid,
               p_prc->port_disabled_ ? "YES" : "NO");
+  TIZ_PRINTF_DBG_RED ("Enabling port was disabled? [%s]\n",
+                      p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = false;
-      rc = httpsrc_trans_unpause (p_prc->p_trans_);
+      if (!p_prc->uri_changed_)
+        {
+          rc = httpsrc_trans_unpause (p_prc->p_trans_);
+        }
+      else
+        {
+          p_prc->uri_changed_ = false;
+          rc = httpsrc_trans_start (p_prc->p_trans_);
+        }
     }
   return rc;
 }
@@ -815,7 +855,8 @@ static OMX_ERRORTYPE gmusic_prc_config_change (void *ap_prc,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (NULL != p_prc);
-  TIZ_NOTICE (handleOf (p_prc), "");
+  TIZ_TRACE (handleOf (p_prc), "");
+  TIZ_PRINTF_DBG_RED ("Config change\n");
 
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx && p_prc->p_trans_)
     {
@@ -825,7 +866,10 @@ static OMX_ERRORTYPE gmusic_prc_config_change (void *ap_prc,
           OMX_TizoniaIndexConfigPlaylistSkip, &p_prc->playlist_skip_));
       p_prc->playlist_skip_.nValue > 0 ? obtain_next_url (p_prc, 1)
                                        : obtain_next_url (p_prc, -1);
+      /* Changing the URL has the side effect of halting the current
+         download */
       httpsrc_trans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
+      p_prc->uri_changed_ = true;
       p_prc->eos_ = true;
     }
   return rc;

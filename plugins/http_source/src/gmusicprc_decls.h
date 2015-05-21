@@ -55,6 +55,7 @@ struct gmusic_prc
   tiz_gmusic_t *p_gmusic_;
   bool eos_;
   bool port_disabled_;
+  bool uri_changed_;
   OMX_S32 audio_coding_type_;
   OMX_U32 num_channels_;
   OMX_U32 samplerate_;
