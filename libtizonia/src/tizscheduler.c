@@ -584,8 +584,7 @@ static inline OMX_ERRORTYPE send_msg_non_blocking (tiz_scheduler_t *ap_sched,
   assert (NULL != ap_msg);
   assert (NULL != ap_sched);
   ap_msg->will_block = OMX_FALSE;
-  tiz_check_omx_err_ret_oom (tiz_queue_send (ap_sched->p_queue, ap_msg));
-  return ap_sched->error;
+  return tiz_queue_send (ap_sched->p_queue, ap_msg);
 }
 
 static inline OMX_ERRORTYPE send_msg (tiz_scheduler_t *ap_sched,
