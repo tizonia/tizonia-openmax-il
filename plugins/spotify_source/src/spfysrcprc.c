@@ -890,7 +890,7 @@ static void logged_in_cback_handler (OMX_PTR ap_prc,
               assert (SP_ERROR_OK == sp_rc);
 
               if (!strcasecmp (sp_playlist_name (pl),
-                               (const char *)p_prc->playlist_.cPlayListName))
+                               (const char *)p_prc->playlist_.cPlaylistName))
                 {
                   p_prc->p_sp_playlist_ = pl;
                   init_track_index (p_prc, sp_playlist_num_tracks (pl));
@@ -1179,7 +1179,7 @@ static void playlist_added_cback_handler (OMX_PTR ap_prc,
                  sp_playlist_name (p_data->p_pl));
 
       if (!strcasecmp (sp_playlist_name (p_data->p_pl),
-                       (const char *)p_prc->playlist_.cPlayListName))
+                       (const char *)p_prc->playlist_.cPlaylistName))
         {
           p_prc->p_sp_playlist_ = p_data->p_pl;
           init_track_index (p_prc, sp_playlist_num_tracks (p_data->p_pl));
@@ -1310,7 +1310,7 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
                                   sp_playlist_name (pl));
               empty_playlist_name = false;
               if (!strcasecmp (sp_playlist_name (pl),
-                               (const char *)p_prc->playlist_.cPlayListName))
+                               (const char *)p_prc->playlist_.cPlaylistName))
                 {
                   p_prc->p_sp_playlist_ = pl;
                   init_track_index (p_prc, sp_playlist_num_tracks (pl));
@@ -1504,7 +1504,7 @@ static void playlist_renamed_cback_handler (OMX_PTR ap_prc,
       sp_playlist *pl = ap_event->p_data;
       const char *name = sp_playlist_name (pl);
 
-      if (!strcasecmp (name, (const char *)p_prc->playlist_.cPlayListName))
+      if (!strcasecmp (name, (const char *)p_prc->playlist_.cPlaylistName))
         {
           p_prc->p_sp_playlist_ = pl;
           init_track_index (p_prc, sp_playlist_num_tracks (pl));

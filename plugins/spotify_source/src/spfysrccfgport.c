@@ -74,8 +74,8 @@ static void *spfysrc_cfgport_ctor (void *ap_obj, va_list *app)
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
-  snprintf ((char *)p_obj->playlist_.cPlayListName,
-            sizeof(p_obj->playlist_.cPlayListName), "playlist");
+  snprintf ((char *)p_obj->playlist_.cPlaylistName,
+            sizeof(p_obj->playlist_.cPlaylistName), "playlist");
   p_obj->playlist_.bShuffle = OMX_FALSE;
 
   return p_obj;
@@ -150,9 +150,9 @@ spfysrc_cfgport_SetParameter (const void *ap_obj,
     {
       memcpy (&(p_obj->playlist_), ap_struct,
               sizeof(OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE));
-      p_obj->playlist_.cPlayListName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       TIZ_TRACE (ap_hdl, "Spotify playlist [%s]...",
-                 p_obj->playlist_.cPlayListName);
+                 p_obj->playlist_.cPlaylistName);
     }
   else
     {
