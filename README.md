@@ -239,7 +239,8 @@ Google Music options:
   --gmusic-user arg      Google Music user's name.
   --gmusic-password arg  Google Music user's password.
   --gmusic-device-id arg Google Music device id.
-  --gmusic-artist arg    Google Music playlist name.
+  --gmusic-artist arg    Google Music playlist by artist name.
+  --gmusic-album arg     Google Music playlist by album name.
 
 ```
 
