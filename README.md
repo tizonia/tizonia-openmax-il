@@ -8,11 +8,13 @@
 
 ## Introduction ##
 
-NOTE: Tizonia is still under development and there are no pre-built binary releases yet (but there will be soon though). However you can download the repo and follow the instructions below in this README to build it from source.
+_Tizonia is still under development and there are no pre-built binary releases yet (but there will be soon though)_. 
+
+However you can download this repo and build everything from source following the instructions in this README.
 
 ## The Tizonia project
 
-For an introduction of the resources that can be fond here, please keep reading further.
+For an introduction of the resources that can be found here, please keep reading further.
 
 ### `tizonia`: music player and audio streaming client/server ###
 
@@ -24,8 +26,7 @@ For an introduction of the resources that can be fond here, please keep reading 
 * Icecast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
 * Daemon and command line modes (no GUI).
 * MPRIS D-BUS v2 media player remote control interface (early days, work-in-progress).
-* Completely based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg needed for audio
-  decoding.
+* Completely based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg libraries needed.
 * Written in C++.
 
 ### A multimedia framework based on OpenMAX IL 1.2 ###
