@@ -8,14 +8,18 @@
 
 ## Introduction ##
 
-The Tizonia project consists of a number of resources.
+NOTE: Tizonia is still under development and there are no pre-built binary releases yet (but there will be soon though). However you can download the repo and follow the instruction further below in this README to build it from source.
+
+## The Tizonia project
+
+For an introduction of the resources that can be fond here, please keep reading below.
 
 ### `tizonia`: music player and audio streaming client/server ###
 
+* Spotify client (Spotify Premium account required).
+* Google Play Music client.
 * Playback of audio formats from local media (formats: mp3, mp2, mpa, m2a, aac,
   ogg/vorbis, opus, wav, aiff, and flac).
-* Spotify client.
-* Google Play Music client.
 * Icecast/SHOUTcast streaming server (formats: mp3).
 * Icecast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
 * Daemon and command line modes (no GUI).
