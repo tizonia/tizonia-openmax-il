@@ -20,7 +20,7 @@ For an introduction of the resources that can be fond here, please keep reading 
 * Google Play Music client.
 * Playback of audio formats from local media (formats: mp3, mp2, mpa, m2a, aac,
   ogg/vorbis, opus, wav, aiff, and flac).
-* Icecast/SHOUTcast streaming server (formats: mp3).
+* Icecast/SHOUTcast streaming lan server (formats: mp3).
 * Icecast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
 * Daemon and command line modes (no GUI).
 * MPRIS D-BUS v2 media player remote control interface (early days, work-in-progress).
@@ -79,7 +79,7 @@ For an introduction of the resources that can be fond here, please keep reading 
 
 ## How to build ##
 
-To build and install from source, follow the following steps (Ubuntu 14.04 is assumed).
+To build and install from source, follow the these steps (Ubuntu 14.04 is assumed).
 
 ### Dependencies ###
 
