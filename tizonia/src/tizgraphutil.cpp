@@ -563,6 +563,7 @@ graph::util::modify_tunnel (const omx_comp_handle_lst_t &hdl_list,
     TIZ_LOG (TIZ_PRIORITY_TRACE, "handle index [%d] - port id [%d]",
              i, port_ids[i]);
     error = OMX_SendCommand (tunnel_handles[i], cmd, port_ids[i], NULL);
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "error [%s]", tiz_err_to_str (error));
   }
 
   return error;

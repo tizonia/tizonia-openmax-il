@@ -464,7 +464,7 @@ graph::spotifyops::set_spotify_playlist (const OMX_HANDLETYPE handle,
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSpotifyPlaylist),
       &playlisttype));
-  copy_omx_string (playlisttype.cPlayListName, playlist);
+  copy_omx_string (playlisttype.cPlaylistName, playlist);
   playlisttype.bShuffle = playlist_->shuffle ();
   return OMX_SetParameter (
       handle,

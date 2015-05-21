@@ -408,19 +408,6 @@ namespace tiz
       typedef boost::mpl::vector<tg::inited, tg::AllOk> initial_state;
 
       // transition actions
-      struct do_retrieve_metadata
-      {
-        template < class FSM, class EVT, class SourceState, class TargetState >
-        void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
-        {
-          G_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            // This is a spotifyops-specific method
-            dynamic_cast< spotifyops* >(*(fsm.pp_ops_))->do_retrieve_metadata ();
-          }
-        }
-      };
 
       // guard conditions
 
@@ -464,7 +451,7 @@ namespace tiz
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip                                          >,
-        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , do_retrieve_metadata        , tg::is_last_eos              >,
+        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_retrieve_metadata    , tg::is_last_eos              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+

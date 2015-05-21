@@ -53,8 +53,6 @@ namespace tiz
       void do_omx_idle2exe ();
       void do_reconfigure_tunnel (const int tunnel_id);
       void do_skip ();
-
-      // These are gmusicops-specific methods
       void do_retrieve_metadata ();
 
       bool is_fatal_error (const OMX_ERRORTYPE error) const;

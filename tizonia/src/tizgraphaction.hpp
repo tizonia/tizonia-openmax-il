@@ -547,7 +547,7 @@ namespace tiz
       }
     };
 
-    struct do_store_port_settings
+    struct do_retrieve_metadata
     {
       template < class FSM, class EVT, class SourceState, class TargetState >
       void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
@@ -555,7 +555,7 @@ namespace tiz
         G_ACTION_LOG ();
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          (*(fsm.pp_ops_))->do_store_port_settings (evt.handle_, evt.port_, evt.index_);
+          (*(fsm.pp_ops_))->do_retrieve_metadata ();
         }
       }
     };

@@ -491,6 +491,11 @@ void graph::ops::do_record_destination (const OMX_STATETYPE destination_state)
   destination_state_ = destination_state;
 }
 
+void graph::ops::do_retrieve_metadata ()
+{
+  // To be overriden in child classes when needed.
+}
+
 void graph::ops::do_reset_internal_error ()
 {
   error_code_ = OMX_ErrorNone;
@@ -727,7 +732,7 @@ bool graph::ops::is_port_transition_complete (
     const OMX_COMMANDTYPE disable_or_enable)
 {
   bool rc = false;
-
+  TIZ_PRINTF_DBG_RED ("expected_port_transitions_lst_ size [%d]\n", expected_port_transitions_lst_.size ());
   assert (std::find (handles_.begin (), handles_.end (), handle)
           != handles_.end ());
   assert (!expected_port_transitions_lst_.empty ());
@@ -752,6 +757,7 @@ bool graph::ops::is_port_transition_complete (
       }
     }
   }
+  TIZ_PRINTF_DBG_RED ("expected_port_transitions_lst_ size [%d]\n", expected_port_transitions_lst_.size ());
   return rc;
 }
 

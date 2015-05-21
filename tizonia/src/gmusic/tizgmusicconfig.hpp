@@ -31,6 +31,8 @@
 
 #include <string>
 
+#include <OMX_TizoniaExt.h>
+
 #include "tizgraphtypes.hpp"
 #include "tizgraphconfig.hpp"
 
@@ -43,8 +45,13 @@ namespace tiz
 
     public:
       gmusicconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
-                    const std::string &pass, const std::string &device_id)
-        : config (playlist), user_ (user), pass_ (pass), device_id_ (device_id)
+                    const std::string &pass, const std::string &device_id,
+                    const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type)
+        : config (playlist),
+          user_ (user),
+          pass_ (pass),
+          device_id_ (device_id),
+          playlist_type_ (playlist_type)
       {
       }
 
@@ -67,10 +74,16 @@ namespace tiz
         return device_id_;
       }
 
+      OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE get_playlist_type () const
+      {
+        return playlist_type_;
+      }
+
     protected:
       const std::string user_;
       const std::string pass_;
       const std::string device_id_;
+      const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type_;
     };
   }  // namespace graph
 }  // namespace tiz

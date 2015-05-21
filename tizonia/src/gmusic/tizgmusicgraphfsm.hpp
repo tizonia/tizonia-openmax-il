@@ -150,7 +150,7 @@ namespace tiz
           bmf::Row < tg::awaiting_port_disabled_evt   , tg::omx_port_disabled_evt   , tg::config2idle                 , bmf::ActionSequence_<
                                                                                                                           boost::mpl::vector<
                                                                                                                             tg::do_configure_source,
-                                                                                                                            tg::do_source_omx_loaded2idle > > , bmf::none   >,
+                                                                                                                            tg::do_source_omx_loaded2idle > > , tg::is_port_disabling_complete   >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
           bmf::Row < tg::config2idle                  , tg::omx_trans_evt           , tg::idle2exe                    , tg::do_source_omx_idle2exe , tg::is_trans_complete  >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
@@ -373,6 +373,22 @@ namespace tiz
           void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
         };
 
+        struct disabling_2nd_tunnel : public boost::msm::front::state<>
+        {
+          template <class Event,class FSM>
+          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          template <class Event,class FSM>
+          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+        };
+
+        struct enabling_2nd_tunnel : public boost::msm::front::state<>
+        {
+          template <class Event,class FSM>
+          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          template <class Event,class FSM>
+          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+        };
+
         // the initial state. Must be defined
         typedef skipping_initial initial_state;
 
@@ -384,13 +400,18 @@ namespace tiz
         struct transition_table : boost::mpl::vector<
           //         Start                 Event                       Next                      Action                      Guard
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
-          bmf::Row < skipping_initial      , bmf::none                 , tg::disabling_tunnel    , tg::do_disable_tunnel<0>                                   >,
-
-          bmf::Row < tg::disabling_tunnel  , tg::omx_port_disabled_evt , tg::enabling_tunnel     , bmf::ActionSequence_<
+          bmf::Row < skipping_initial      , bmf::none                 , tg::disabling_tunnel    , bmf::ActionSequence_<
+                                                                                                     boost::mpl::vector<
+                                                                                                       tg::do_mute,
+                                                                                                       tg::do_disable_tunnel<0> > >                           >,
+          bmf::Row < tg::disabling_tunnel  , tg::omx_port_disabled_evt , disabling_2nd_tunnel    , tg::do_disable_tunnel<1>  , tg::is_port_disabling_complete >,
+          bmf::Row < disabling_2nd_tunnel  , tg::omx_port_disabled_evt , tg::enabling_tunnel     , bmf::ActionSequence_<
                                                                                                      boost::mpl::vector<
                                                                                                        tg::do_skip,
-                                                                                                       do_enable_tunnel<0> > >  , tg::is_port_disabling_complete >,
-          bmf::Row < tg::enabling_tunnel   , tg::omx_port_enabled_evt  , skip_exit               , bmf::none                 , tg::is_port_enabling_complete  >
+                                                                                                       tg::do_retrieve_metadata,
+                                                                                                       tg::do_enable_tunnel<1> > >, tg::is_port_disabling_complete >,
+          bmf::Row < tg::enabling_tunnel   , tg::omx_port_enabled_evt  , enabling_2nd_tunnel     , tg::do_enable_tunnel<0>   , tg::is_port_enabling_complete  >,
+          bmf::Row < enabling_2nd_tunnel   , tg::omx_port_enabled_evt  , skip_exit               , tg::do_mute               , tg::is_port_enabling_complete  >
           //    +----+---------------------+---------------------------+-------------------------+---------------------------+---------------------------------+
           > {};
 
@@ -410,19 +431,6 @@ namespace tiz
       typedef boost::mpl::vector<tg::inited, tg::AllOk> initial_state;
 
       // transition actions
-      struct do_retrieve_metadata
-      {
-        template < class FSM, class EVT, class SourceState, class TargetState >
-        void operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
-        {
-          G_FSM_LOG ();
-          if (fsm.pp_ops_ && *(fsm.pp_ops_))
-          {
-            // This is a gmusicops-specific method
-            dynamic_cast< gmusicops* >(*(fsm.pp_ops_))->do_retrieve_metadata ();
-          }
-        }
-      };
 
       // guard conditions
 
@@ -467,7 +475,7 @@ namespace tiz
         bmf::Row < tg::executing                , tg::volume_evt            , bmf::none               , tg::do_volume                                              >,
         bmf::Row < tg::executing                , tg::mute_evt              , bmf::none               , tg::do_mute                                                >,
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip                                          >,
-        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , do_retrieve_metadata        , tg::is_last_eos              >,
+        bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_retrieve_metadata    , tg::is_last_eos              >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+

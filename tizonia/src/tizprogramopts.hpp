@@ -36,6 +36,7 @@
 #include <boost/program_options.hpp>
 #include <boost/function.hpp>
 
+#include <OMX_TizoniaExt.h>
 #include <OMX_Core.h>
 
 namespace tiz
@@ -80,6 +81,7 @@ namespace tiz
     const std::string &gmusic_password () const;
     const std::string &gmusic_device_id () const;
     const std::vector< std::string > &gmusic_playlist_container ();
+    OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type ();
 
   private:
     void print_license () const;
@@ -161,8 +163,10 @@ namespace tiz
     std::string gmusic_user_;
     std::string gmusic_pass_;
     std::string gmusic_device_id_;
-    std::string gmusic_playlist_;
+    std::string gmusic_artist_;
+    std::string gmusic_album_;
     std::vector< std::string > gmusic_playlist_container_;
+    OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type_;
 
     std::vector<consume_function_t> consume_functions_;
 

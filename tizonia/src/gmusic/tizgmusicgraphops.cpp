@@ -255,20 +255,18 @@ graph::gmusicops::transition_tunnel (
 
   if (OMX_ErrorNone == rc && 0 == tunnel_id)
   {
-    clear_expected_port_transitions ();
     const int gmusic_source_index = 0;
     const int gmusic_source_output_port = 0;
     add_expected_port_transition (handles_[gmusic_source_index],
                                   gmusic_source_output_port,
                                   to_disabled_or_enabled);
-    const int renderer_index = 1;
-    const int renderer_input_port = 0;
-    add_expected_port_transition (handles_[renderer_index], renderer_input_port,
+    const int decoder_index = 1;
+    const int decoder_input_port = 0;
+    add_expected_port_transition (handles_[decoder_index], decoder_input_port,
                                   to_disabled_or_enabled);
   }
   else if (OMX_ErrorNone == rc && 1 == tunnel_id)
   {
-    clear_expected_port_transitions ();
     const int decoder_index = 1;
     const int decoder_output_port = 1;
     add_expected_port_transition (handles_[decoder_index], decoder_output_port,
@@ -467,8 +465,15 @@ graph::gmusicops::set_gmusic_playlist (const OMX_HANDLETYPE handle,
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioGmusicPlaylist),
       &playlisttype));
-  copy_omx_string (playlisttype.cPlayListName, playlist);
+  copy_omx_string (playlisttype.cPlaylistName, playlist);
+
+  tizgmusicconfig_ptr_t gmusic_config
+    = boost::dynamic_pointer_cast< gmusicconfig >(config_);
+  assert (gmusic_config);
+
+  playlisttype.ePlaylistType = gmusic_config->get_playlist_type ();
   playlisttype.bShuffle = playlist_->shuffle ();
+
   return OMX_SetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioGmusicPlaylist),

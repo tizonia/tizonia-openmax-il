@@ -123,6 +123,7 @@ namespace tiz
       virtual void do_ack_unloaded ();
       virtual void do_record_destination (
           const OMX_STATETYPE destination_state);
+      virtual void do_retrieve_metadata ();
       virtual void do_reset_internal_error ();
       virtual void do_record_fatal_error (const OMX_HANDLETYPE handle,
                                           const OMX_ERRORTYPE error,

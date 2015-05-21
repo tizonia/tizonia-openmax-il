@@ -210,6 +210,10 @@ void graph::graph::omx_evt (const omx_event_info &evt_info)
              get_graph_name ().c_str (),
              p_ops_->handle2name (evt_info.component_).c_str (),
              evt_info.to_string ().c_str ());
+    TIZ_PRINTF_DBG_RED ("[%s] : [%s] -> %s\n",
+                        get_graph_name ().c_str (),
+                        p_ops_->handle2name (evt_info.component_).c_str (),
+                        evt_info.to_string ().c_str ());
 
     if (evt_info.event_ == OMX_EventCmdComplete && evt_info.ndata1_
                                                    == OMX_CommandStateSet)
