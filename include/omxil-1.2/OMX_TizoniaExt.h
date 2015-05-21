@@ -286,7 +286,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE {
 typedef struct OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE {
     OMX_U32 nSize;
     OMX_VERSIONTYPE nVersion;
-    OMX_U8 cPlayListName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
     OMX_U8 bShuffle;            /**< Default: OMX_FALSE */
 } OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE;
 
@@ -310,6 +310,7 @@ typedef enum OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE {
     OMX_AUDIO_GmusicPlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
     OMX_AUDIO_GmusicPlaylistTypeUser, /**< User-defined playlist. */
     OMX_AUDIO_GmusicPlaylistTypeArtist, /**< Artist playlist. */
+    OMX_AUDIO_GmusicPlaylistTypeAlbum, /**< Album playlist. */
     OMX_AUDIO_GmusicPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_GmusicPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_GmusicPlaylistTypeMax = 0x7FFFFFFF
@@ -328,7 +329,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE {
     OMX_VERSIONTYPE nVersion;
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE ePlaylistType;
     OMX_U8 bShuffle;            /**< Default: OMX_FALSE */
-    OMX_U8 cPlayListName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE;
 
 
