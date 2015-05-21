@@ -8,11 +8,11 @@
 
 ## Introduction ##
 
-NOTE: Tizonia is still under development and there are no pre-built binary releases yet (but there will be soon though). However you can download the repo and follow the instruction further below in this README to build it from source.
+NOTE: Tizonia is still under development and there are no pre-built binary releases yet (but there will be soon though). However you can download the repo and follow the instructions below in this README to build it from source.
 
 ## The Tizonia project
 
-For an introduction of the resources that can be fond here, please keep reading below.
+For an introduction of the resources that can be fond here, please keep reading further.
 
 ### `tizonia`: music player and audio streaming client/server ###
 
