@@ -120,6 +120,14 @@ extern "C" int tiz_gmusic_enqueue_artist (tiz_gmusic_t *ap_gmusic,
   return ap_gmusic->p_proxy_->enqueue_artist (ap_artist);
 }
 
+extern "C" int tiz_gmusic_enqueue_playlist (tiz_gmusic_t *ap_gmusic,
+                                            const char *ap_playlist)
+{
+  assert (NULL != ap_gmusic);
+  assert (NULL != ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->enqueue_playlist (ap_playlist);
+}
+
 extern "C" void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic)
 {
   assert (NULL != ap_gmusic);

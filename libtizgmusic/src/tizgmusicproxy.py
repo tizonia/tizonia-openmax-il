@@ -198,6 +198,18 @@ class tizgmusicproxy(object):
             logging.info ("Cannot find {0}".format(arg))
             raise
 
+    def enqueue_playlist(self, arg):
+        try:
+            playlist = self.playlists[arg]
+            count = 0
+            for song in playlist:
+                self.queue.append(song)
+                count += 1
+            logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+        except KeyError:
+            logging.info ("Cannot find {0}".format(arg))
+            raise
+
     def next_url(self):
         logging.info ("next_url")
         if len(self.queue):

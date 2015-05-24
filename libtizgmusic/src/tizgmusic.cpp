@@ -136,6 +136,13 @@ int tizgmusic::enqueue_artist (const std::string &artist)
   return rc;
 }
 
+int tizgmusic::enqueue_playlist (const std::string &playlist)
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlist")(bp::object (playlist)));
+  return rc;
+}
+
 const char *tizgmusic::get_next_url ()
 {
   current_url_.clear ();
