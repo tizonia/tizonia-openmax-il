@@ -24,13 +24,13 @@ language: c
 compiler:
   - gcc
 before_install:
- - ./tools/buildtizonia deps "$HOME"
- - ./tools/buildtizonia pydeps "$HOME"
- - ./tools/buildtizonia srcdeps "$HOME"
+ - ./tools/tizonia-travis-build deps "$HOME"
+ - ./tools/tizonia-travis-build pydeps "$HOME"
+ - ./tools/tizonia-travis-build srcdeps "$HOME"
 before_script:
- - ./tools/buildtizonia media "$HOME" "$HOME/temp"
+ - ./tools/tizonia-travis-build media "$HOME" "$HOME/temp"
 script:
- - ./tools/buildtizonia debug "$HOME/build/tizonia/tizonia-openmax-il"
- - ./tools/buildtizonia tizrc "$HOME/build/tizonia/tizonia-openmax-il"
- - ./tools/buildtizonia skema "$HOME/build"
- - ./tools/buildtizonia tests "$HOME/build"
+ - ./tools/tizonia-travis-build debug "$HOME/build/tizonia/tizonia-openmax-il"
+ - ./tools/tizonia-travis-build tizrc "$HOME/build/tizonia/tizonia-openmax-il"
+ - ./tools/tizonia-travis-build skema "$HOME/build"
+ - ./tools/tizonia-travis-build tests "$HOME/build"
