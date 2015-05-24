@@ -559,10 +559,14 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
     switch (ap_prc->playlist_.ePlaylistType)
       {
         case OMX_AUDIO_GmusicPlaylistTypeUnknown:
-        case OMX_AUDIO_GmusicPlaylistTypeUser:
           {
             /* TODO */
             assert (0);
+          }
+          break;
+        case OMX_AUDIO_GmusicPlaylistTypeUser:
+          {
+            rc = tiz_gmusic_enqueue_playlist (ap_prc->p_gmusic_, p_playlist);
           }
           break;
         case OMX_AUDIO_GmusicPlaylistTypeArtist:
