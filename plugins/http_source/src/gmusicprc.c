@@ -127,51 +127,15 @@ static int convert_str_to_int (gmusic_prc_t *ap_prc, const char *ap_start,
   return val;
 }
 
-static void obtain_audio_info (gmusic_prc_t *ap_prc, char *ap_info)
-{
-  const char *channels = "channels";
-  const char *samplerate = "samplerate";
-  const char *p_start = NULL;
-  char *p_end = NULL;
-  const char *p_value = NULL;
-  assert (NULL != ap_prc);
-  assert (NULL != ap_info);
-
-  TIZ_TRACE (handleOf (ap_prc), "audio info  : [%s]", ap_info);
-
-  /* Find the number of channels */
-  if (NULL != (p_value = (const char *)strstr (ap_info, channels)))
-    {
-      if (NULL != (p_start = (const char *)strchr (p_value, '=')))
-        {
-          /* skip the equal sign */
-          p_start++;
-          ap_prc->num_channels_ = convert_str_to_int (ap_prc, p_start, &p_end);
-        }
-    }
-
-  /* Find the sampling rate */
-  if (NULL != (p_value = (const char *)strstr (ap_info, samplerate)))
-    {
-      if (NULL != (p_start = (const char *)strchr (p_value, '=')))
-        {
-          /* skip the equal sign */
-          p_start++;
-          ap_prc->samplerate_ = convert_str_to_int (ap_prc, p_start, &p_end);
-        }
-    }
-}
-
-static void obtain_bit_rate (gmusic_prc_t *ap_prc, char *ap_info)
+static void obtain_content_length (gmusic_prc_t *ap_prc, char *ap_info)
 {
   char *p_end = NULL;
 
   assert (NULL != ap_prc);
   assert (NULL != ap_info);
-
-  TIZ_TRACE (handleOf (ap_prc), "bit rate  : [%s]", ap_info);
-
-  ap_prc->bitrate_ = convert_str_to_int (ap_prc, ap_info, &p_end);
+  ap_prc->content_length_bytes_ = convert_str_to_int (ap_prc, ap_info, &p_end);
+  ap_prc->bytes_before_eos_ = ap_prc->content_length_bytes_;
+  TIZ_TRACE (handleOf (ap_prc), "content length  : [%d]", ap_prc->content_length_bytes_);
 }
 
 static OMX_ERRORTYPE set_audio_coding_on_port (gmusic_prc_t *ap_prc)
@@ -191,44 +155,6 @@ static OMX_ERRORTYPE set_audio_coding_on_port (gmusic_prc_t *ap_prc)
       tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
       OMX_IndexParamPortDefinition, &port_def));
   return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE set_mp3_audio_info_on_port (gmusic_prc_t *ap_prc)
-{
-  OMX_AUDIO_PARAM_MP3TYPE mp3type;
-  assert (NULL != ap_prc);
-
-  TIZ_INIT_OMX_PORT_STRUCT (mp3type, ARATELIA_HTTP_SOURCE_PORT_INDEX);
-  tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
-                                           handleOf (ap_prc),
-                                           OMX_IndexParamAudioMp3, &mp3type));
-
-  /* Set the new values */
-  mp3type.nChannels = ap_prc->num_channels_;
-  mp3type.nSampleRate = ap_prc->samplerate_;
-
-  tiz_check_omx_err (tiz_krn_SetParameter_internal (
-      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-      OMX_IndexParamAudioMp3, &mp3type));
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE set_audio_info_on_port (gmusic_prc_t *ap_prc)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_prc);
-  switch (ap_prc->audio_coding_type_)
-    {
-      case OMX_AUDIO_CodingMP3:
-        {
-          rc = set_mp3_audio_info_on_port (ap_prc);
-        }
-        break;
-      default:
-        assert (0);
-        break;
-    };
-  return rc;
 }
 
 static void update_cache_size (gmusic_prc_t *ap_prc)
@@ -338,19 +264,9 @@ static void obtain_audio_encoding_from_headers (gmusic_prc_t *ap_prc,
               /* Now set the new coding type value on the output port */
               (void)set_audio_coding_on_port (ap_prc);
             }
-          else if (memcmp (name, "ice-audio-info", 14) == 0)
+          else if (memcmp (name, "Content-Length", 14) == 0)
             {
-              obtain_audio_info (ap_prc, p_info);
-              /* Now set the pcm info on the output port */
-              (void)set_audio_info_on_port (ap_prc);
-              /* Sometimes, the bitrate is provided in the ice-audio-info
-                 header */
-              update_cache_size (ap_prc);
-            }
-          else if (memcmp (name, "icy-br", 6) == 0)
-            {
-              obtain_bit_rate (ap_prc, p_info);
-              update_cache_size (ap_prc);
+              obtain_content_length (ap_prc, p_info);
             }
           tiz_mem_free (p_info);
         }
@@ -463,8 +379,20 @@ static OMX_ERRORTYPE release_buffer (gmusic_prc_t *ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
-      TIZ_TRACE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]",
-                  ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
+      TIZ_PRINTF_DBG_RED ("releasing HEADER [%p] nFilledLen [%d] bytes_before_eos_ [%d]\n",
+                          ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen,
+                          ap_prc->bytes_before_eos_);
+
+      if (ap_prc->bytes_before_eos_ >= ap_prc->p_outhdr_->nFilledLen)
+        {
+          ap_prc->bytes_before_eos_ -= ap_prc->p_outhdr_->nFilledLen;
+        }
+      else
+        {
+          ap_prc->bytes_before_eos_ = 0;
+          ap_prc->eos_ = true;
+        }
+
       if (ap_prc->eos_)
         {
           TIZ_PRINTF_DBG_RED ("EOS - releasing HEADER [%p] nFilledLen [%d]\n",
@@ -529,7 +457,7 @@ static void header_available (OMX_PTR ap_arg, const void *ap_ptr,
   assert (NULL != p_prc);
   assert (NULL != ap_ptr);
 
-  if (p_prc->auto_detect_on_)
+/*   if (p_prc->auto_detect_on_) */
     {
       obtain_audio_encoding_from_headers (p_prc, ap_ptr, a_nbytes);
     }
@@ -563,13 +491,10 @@ static bool connection_lost (OMX_PTR ap_arg)
   gmusic_prc_t *p_prc = ap_arg;
   assert (NULL != p_prc);
   TIZ_TRACE (handleOf (p_prc), "Connection lost");
-  httpsrc_trans_pause (p_prc->p_trans_);
-  httpsrc_trans_flush_buffer (p_prc->p_trans_);
-  release_buffer (p_prc);
-  (void)obtain_next_url (p_prc, 1);
-  httpsrc_trans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
-  p_prc->eos_ = true;
-  httpsrc_trans_start (p_prc->p_trans_);
+  if (p_prc->bytes_before_eos_ > 0)
+    {
+      p_prc->eos_ = true;
+    }
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -663,6 +588,7 @@ static void *gmusic_prc_ctor (void *ap_obj, va_list *app)
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->num_channels_ = 2;
   p_prc->samplerate_ = 44100;
+  p_prc->content_length_bytes_ = 0;
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
@@ -870,7 +796,6 @@ static OMX_ERRORTYPE gmusic_prc_config_change (void *ap_prc,
          download */
       httpsrc_trans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
       p_prc->uri_changed_ = true;
-      p_prc->eos_ = true;
     }
   return rc;
 }
