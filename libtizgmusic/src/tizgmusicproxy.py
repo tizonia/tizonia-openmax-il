@@ -39,6 +39,7 @@ from gmusicapi import Mobileclient
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
+logging.getLogger().setLevel(logging.INFO)
 
 class tizgmusicproxy(object):
     """A class for accessing a Google Music account to retrieve song URLs.
@@ -126,6 +127,7 @@ class tizgmusicproxy(object):
                     pass
 
     def current_song_title_and_artist(self):
+        logging.info ("current_song_title_and_artist")
         song         = self.now_playing_song
         if song is not None:
             title    = self.now_playing_song["title"]
@@ -137,6 +139,7 @@ class tizgmusicproxy(object):
             return '', ''
 
     def current_song_album_and_duration(self):
+        logging.info ("current_song_album_and_duration")
         song = self.now_playing_song
         if song is not None:
             album = self.now_playing_song["album"]
@@ -145,9 +148,10 @@ class tizgmusicproxy(object):
                                                    duration.encode("utf-8")))
             return album.encode("utf-8"), int(duration)
         else:
-            return '', ''
+            return '', 0
 
     def current_song_track_number_and_total_tracks(self):
+        logging.info ("current_song_track_number_and_total_tracks")
         song = self.now_playing_song
         if song is not None:
             track = self.now_playing_song["trackNumber"]
@@ -155,7 +159,8 @@ class tizgmusicproxy(object):
             logging.info ("track number {0} total tracks {1}".format(track, total))
             return track, total
         else:
-            return '', ''
+            logging.info ("current_song_track_number_and_total_tracks : not found")
+            return 0, 0
 
     def clear_queue(self):
         self.queue = list()
@@ -194,6 +199,7 @@ class tizgmusicproxy(object):
             raise
 
     def next_url(self):
+        logging.info ("next_url")
         if len(self.queue):
             self.queue_index += 1
             if (self.queue_index < len(self.queue)) \
