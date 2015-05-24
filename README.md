@@ -8,20 +8,25 @@
 
 ## Introduction ##
 
-The Tizonia project consists of a number of resources.
+_Tizonia is still under development and there are no pre-built binary releases yet (but there will be soon though)_. 
+
+However you can download this repo and build everything from source following the instructions in this README.
+
+## The Tizonia project
+
+For an introduction of the resources that can be found here, please keep reading further.
 
 ### `tizonia`: music player and audio streaming client/server ###
 
+* Spotify client (Spotify Premium account required).
+* Google Play Music client.
 * Playback of audio formats from local media (formats: mp3, mp2, mpa, m2a, aac,
   ogg/vorbis, opus, wav, aiff, and flac).
-* Spotify client.
-* Google Play Music client.
-* Icecast/SHOUTcast streaming server (formats: mp3).
+* Icecast/SHOUTcast streaming lan server (formats: mp3).
 * Icecast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
 * Daemon and command line modes (no GUI).
 * MPRIS D-BUS v2 media player remote control interface (early days, work-in-progress).
-* Completely based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg needed for audio
-  decoding.
+* Completely based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg libraries needed.
 * Written in C++.
 
 ### A multimedia framework based on OpenMAX IL 1.2 ###
@@ -75,7 +80,7 @@ The Tizonia project consists of a number of resources.
 
 ## How to build ##
 
-To build and install from source, follow the following steps (Ubuntu 14.04 is assumed).
+To build and install from source, follow the these steps (Ubuntu 14.04 is assumed).
 
 ### Dependencies ###
 
