@@ -66,6 +66,8 @@ struct pulsear_prc
   tiz_event_timer_t *p_ev_timer_;
   float gain_;
   long volume_;
+  long pending_volume_;
+  bool ramp_enabled_;
   long ramp_step_;
   long ramp_step_count_;
   long ramp_volume_;

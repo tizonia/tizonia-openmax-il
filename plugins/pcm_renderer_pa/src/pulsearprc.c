@@ -80,6 +80,7 @@
 /* Forward declarations */
 static OMX_ERRORTYPE pulsear_prc_deallocate_resources (void *ap_obj);
 static int init_pulseaudio_context (pulsear_prc_t *ap_prc);
+static void set_volume (pulsear_prc_t *ap_prc, const long a_volume);
 
 static OMX_STRING pulseaudio_context_state_to_str (
     const pa_context_state_t a_state)
@@ -191,6 +192,7 @@ static OMX_ERRORTYPE release_header (pulsear_prc_t *ap_prc)
       TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] emptied",
                  ap_prc->p_inhdr_);
       ap_prc->p_inhdr_->nOffset = 0;
+      ap_prc->p_inhdr_->nFilledLen = 0;
       tiz_check_omx_err (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)), ARATELIA_PCM_RENDERER_PORT_INDEX,
           ap_prc->p_inhdr_));
@@ -301,8 +303,14 @@ static void pulseaudio_stream_state_cback_handler (
   if (ap_event->p_data)
     {
       p_prc->pa_stream_state_ = *((pa_stream_state_t *)(ap_event->p_data));
-      TIZ_TRACE (handleOf (ap_prc), "PA STREAM STATE : [%s]",
+      TIZ_PRINTF_DBG_YEL ("PA STREAM STATE : [%s]\n",
                  pulseaudio_stream_state_to_str (p_prc->pa_stream_state_));
+
+      if (PA_STREAM_READY == p_prc->pa_stream_state_ && p_prc->pending_volume_)
+        {
+          /* There is a  pending volume request, process it now */
+          set_volume (p_prc, p_prc->pending_volume_);
+        }
     }
   tiz_mem_free (ap_event->p_data);
   tiz_mem_free (ap_event);
@@ -752,8 +760,8 @@ static bool pulseaudio_wait_for_operation (pulsear_prc_t *ap_prc,
 static inline OMX_ERRORTYPE do_flush (pulsear_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
-  if (ap_prc->p_pa_loop_ && ap_prc->p_pa_stream_ && PA_STREAM_READY
-                                                    == ap_prc->pa_stream_state_)
+  if (ap_prc->p_pa_loop_ && ap_prc->p_pa_stream_
+      && PA_STREAM_READY == ap_prc->pa_stream_state_)
     {
       pa_operation *p_op = NULL;
       pa_threaded_mainloop_lock (ap_prc->p_pa_loop_);
@@ -777,11 +785,15 @@ static bool set_pa_sink_volume (pulsear_prc_t *ap_prc, const long a_volume)
   bool rc = false;
   assert (NULL != ap_prc);
 
-  if (PA_STREAM_READY == ap_prc->pa_stream_state_ && ap_prc->p_pa_loop_
-      && ap_prc->p_pa_context_ && ap_prc->p_pa_stream_)
+  if (ap_prc->p_pa_loop_ && ap_prc->p_pa_context_ && ap_prc->p_pa_stream_)
     {
       struct pa_cvolume cvolume;
       pa_operation *p_op = NULL;
+
+      TIZ_PRINTF_DBG_YEL ("%p [%p] %p vol [%ld] [%s] [%s]\n",
+                          ap_prc->p_pa_loop_ , ap_prc->p_pa_context_ , ap_prc->p_pa_stream_, a_volume,
+                          pulseaudio_context_state_to_str (pa_context_get_state (ap_prc->p_pa_context_)),
+                          pulseaudio_stream_state_to_str (pa_stream_get_state (ap_prc->p_pa_stream_)));
 
       (void)pa_cvolume_set (&cvolume, ap_prc->pa_vol_.channels,
                             (pa_volume_t)a_volume * PA_VOLUME_NORM / 100 + 0.5);
@@ -791,10 +803,13 @@ static bool set_pa_sink_volume (pulsear_prc_t *ap_prc, const long a_volume)
           &cvolume, NULL, NULL);
       if (!p_op)
         {
-          TIZ_TRACE (handleOf (ap_prc), "Unable to set pulsaudio volume");
+          TIZ_PRINTF_DBG_YEL ("Unable to set pulsaudio volume\n");
+          ap_prc->pending_volume_ = a_volume;
         }
       else
         {
+          pa_operation_unref (p_op);
+          ap_prc->pending_volume_ = 0;
           rc = true;
           ap_prc->pa_vol_ = cvolume;
         }
@@ -809,7 +824,7 @@ static void toggle_mute (pulsear_prc_t *ap_prc, const bool a_mute)
 
   {
     long new_volume = (a_mute ? 0 : ap_prc->volume_);
-    TIZ_TRACE (handleOf (ap_prc), "new volume = %ld - ap_prc->volume_ [%d]",
+    TIZ_PRINTF_DBG_YEL ("new volume = %ld - ap_prc->volume_ [%d]\n",
                new_volume, ap_prc->volume_);
     set_pa_sink_volume (ap_prc, new_volume);
   }
@@ -817,6 +832,8 @@ static void toggle_mute (pulsear_prc_t *ap_prc, const bool a_mute)
 
 static void set_volume (pulsear_prc_t *ap_prc, const long a_volume)
 {
+    TIZ_PRINTF_DBG_YEL ("ap_prc->volume_ [%d]\n",
+               ap_prc->volume_);
   if (set_pa_sink_volume (ap_prc, a_volume))
     {
       assert (NULL != ap_prc);
@@ -827,28 +844,37 @@ static void set_volume (pulsear_prc_t *ap_prc, const long a_volume)
 
 static void prepare_volume_ramp (pulsear_prc_t *ap_prc)
 {
-  pa_volume_t vol = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
   assert (NULL != ap_prc);
+  pa_volume_t vol = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
   (void)pa_cvolume_init (&(ap_prc->pa_vol_));
   (void)pa_cvolume_set (&(ap_prc->pa_vol_), ap_prc->pcmmode_.nChannels, vol);
-  ap_prc->ramp_volume_ = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
-  ap_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
-  ap_prc->ramp_step_ = (double)ap_prc->ramp_volume_
-                       / (double)ap_prc->ramp_step_count_;
-  TIZ_TRACE (handleOf (ap_prc), "ramp_step_ = [%d] ramp_step_count_ = [%d]",
-             ap_prc->ramp_step_, ap_prc->ramp_step_count_);
+
+  if (ap_prc->ramp_enabled_)
+    {
+      ap_prc->ramp_volume_ = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
+      set_volume (ap_prc, ap_prc->ramp_volume_);
+      ap_prc->ramp_volume_ = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
+      ap_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
+      ap_prc->ramp_step_ = (double)ap_prc->ramp_volume_
+                           / (double)ap_prc->ramp_step_count_;
+      TIZ_TRACE (handleOf (ap_prc), "ramp_step_ = [%d] ramp_step_count_ = [%d]",
+                 ap_prc->ramp_step_, ap_prc->ramp_step_count_);
+    }
 }
 
 static OMX_ERRORTYPE start_volume_ramp (pulsear_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
-  if (ap_prc->p_ev_timer_)
+  if (ap_prc->ramp_enabled_)
     {
-      ap_prc->ramp_volume_ = 0;
-      TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
-                 ap_prc->ramp_volume_);
-      tiz_check_omx_err (
-          tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
+      if (ap_prc->p_ev_timer_)
+        {
+          ap_prc->ramp_volume_ = 0;
+          TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
+                     ap_prc->ramp_volume_);
+          tiz_check_omx_err (tiz_srv_timer_watcher_start (
+              ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
+        }
     }
   return OMX_ErrorNone;
 }
@@ -856,25 +882,31 @@ static OMX_ERRORTYPE start_volume_ramp (pulsear_prc_t *ap_prc)
 static void stop_volume_ramp (pulsear_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
-  if (ap_prc->p_ev_timer_)
+  if (ap_prc->ramp_enabled_)
     {
-      (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
+      if (ap_prc->p_ev_timer_)
+        {
+          (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
+        }
     }
 }
 
 static OMX_ERRORTYPE apply_ramp_step (pulsear_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
-  if (ap_prc->ramp_step_count_-- > 0)
+  if (ap_prc->ramp_enabled_)
     {
-      ap_prc->ramp_volume_ += ap_prc->ramp_step_;
-      TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
-                 ap_prc->ramp_volume_);
-      set_volume (ap_prc, ap_prc->ramp_volume_);
-    }
-  else
-    {
-      stop_volume_ramp (ap_prc);
+      if (ap_prc->ramp_step_count_-- > 0)
+        {
+          ap_prc->ramp_volume_ += ap_prc->ramp_step_;
+          TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
+                     ap_prc->ramp_volume_);
+          set_volume (ap_prc, ap_prc->ramp_volume_);
+        }
+      else
+        {
+          stop_volume_ramp (ap_prc);
+        }
     }
   return OMX_ErrorNone;
 }
@@ -899,6 +931,8 @@ static void *pulsear_prc_ctor (void *ap_prc, va_list *app)
   p_prc->p_ev_timer_ = NULL;
   p_prc->gain_ = ARATELIA_PCM_RENDERER_DEFAULT_GAIN_VALUE;
   p_prc->volume_ = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
+  p_prc->pending_volume_ = 0;
+  p_prc->ramp_enabled_ = false;
   p_prc->ramp_step_ = 0;
   p_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
   p_prc->ramp_volume_ = 0;
@@ -953,8 +987,6 @@ static OMX_ERRORTYPE pulsear_prc_prepare_to_transfer (void *ap_prc,
 {
   pulsear_prc_t *p_prc = ap_prc;
   assert (NULL != p_prc);
-  p_prc->gain_ = ARATELIA_PCM_RENDERER_DEFAULT_GAIN_VALUE;
-  p_prc->volume_ = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
   p_prc->ramp_step_ = 0;
   p_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
   p_prc->ramp_volume_ = 0;
@@ -1141,9 +1173,9 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
           tiz_check_omx_err (tiz_api_GetConfig (
               tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
               OMX_IndexConfigAudioVolume, &volume));
-          TIZ_TRACE (
-              handleOf (p_prc),
-              "[OMX_IndexConfigAudioVolume] : volume.sVolume.nValue = %ld",
+          TIZ_PRINTF_DBG_YEL (
+/*               handleOf (p_prc), */
+              "[OMX_IndexConfigAudioVolume] : volume.sVolume.nValue = %ld\n",
               volume.sVolume.nValue);
           if (volume.sVolume.nValue <= ARATELIA_PCM_RENDERER_MAX_VOLUME_VALUE
               && volume.sVolume.nValue
@@ -1159,8 +1191,9 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
           tiz_check_omx_err (tiz_api_GetConfig (
               tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
               OMX_IndexConfigAudioMute, &mute));
-          TIZ_TRACE (handleOf (p_prc),
-                     "[OMX_IndexConfigAudioMute] : bMute = [%s]",
+          TIZ_PRINTF_DBG_YEL (
+/*                               handleOf (p_prc), */
+                     "[OMX_IndexConfigAudioMute] : bMute = [%s]\n",
                      (mute.bMute == OMX_FALSE ? "FALSE" : "TRUE"));
           toggle_mute (p_prc, mute.bMute == OMX_TRUE ? true : false);
         }
