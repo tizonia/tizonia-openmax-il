@@ -336,37 +336,49 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
         const char *p_next_url
             = a_skip_value > 0 ? tiz_gmusic_get_next_url (ap_prc->p_gmusic_)
                                : tiz_gmusic_get_prev_url (ap_prc->p_gmusic_);
-        const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
-        TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
-
-        /* Verify we are getting an http scheme */
-        if (!p_next_url || !url_len
-            || (memcmp (p_next_url, "http://", 7) != 0
-                && memcmp (p_next_url, "https://", 8) != 0))
+        if (p_next_url)
           {
-            rc = OMX_ErrorContentURIError;
+            const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
+            TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
+
+            /* Verify we are getting an http scheme */
+            if (!p_next_url || !url_len
+                || (memcmp (p_next_url, "http://", 7) != 0
+                    && memcmp (p_next_url, "https://", 8) != 0))
+              {
+                rc = OMX_ErrorContentURIError;
+              }
+            else
+              {
+                strncpy ((char *)ap_prc->p_uri_param_->contentURI, p_next_url,
+                         url_len);
+                ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+
+                (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
+                store_metadata (
+                    ap_prc,
+                    tiz_gmusic_get_current_song_artist (ap_prc->p_gmusic_),
+                    tiz_gmusic_get_current_song_title (ap_prc->p_gmusic_));
+                store_metadata (
+                    ap_prc, "Album",
+                    tiz_gmusic_get_current_song_album (ap_prc->p_gmusic_));
+                store_metadata (
+                    ap_prc, "Duration",
+                    tiz_gmusic_get_current_song_duration (ap_prc->p_gmusic_));
+                store_metadata (ap_prc, "Track",
+                                tiz_gmusic_get_current_song_track_number (
+                                    ap_prc->p_gmusic_));
+                store_metadata (ap_prc, "Total tracks",
+                                tiz_gmusic_get_current_song_tracks_in_album (
+                                    ap_prc->p_gmusic_));
+              }
           }
         else
           {
-            strncpy ((char *)ap_prc->p_uri_param_->contentURI, p_next_url,
-                     url_len);
-            ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+            TIZ_ERROR (handleOf (ap_prc),
+                       "Unable to retrieve the next uri.");
+            rc = OMX_ErrorInsufficientResources;
 
-            (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
-            store_metadata (
-                ap_prc, tiz_gmusic_get_current_song_artist (ap_prc->p_gmusic_),
-                tiz_gmusic_get_current_song_title (ap_prc->p_gmusic_));
-            store_metadata (ap_prc, "Album", tiz_gmusic_get_current_song_album (
-                                                 ap_prc->p_gmusic_));
-            store_metadata (
-                ap_prc, "Duration",
-                tiz_gmusic_get_current_song_duration (ap_prc->p_gmusic_));
-            store_metadata (
-                ap_prc, "Track",
-                tiz_gmusic_get_current_song_track_number (ap_prc->p_gmusic_));
-            store_metadata (ap_prc, "Total tracks",
-                            tiz_gmusic_get_current_song_tracks_in_album (
-                                ap_prc->p_gmusic_));
           }
       }
     }
