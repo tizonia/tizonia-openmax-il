@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+PWD=`pwd`
+SOURCEDIR="/home/$USER/work/tizonia"
+DESKTOPDIR="/home/$USER/temp/emacs-desktops/tiz"
+CSCOPEFILES='./cscope.files'
+EBROWSEFILES='./ebrowse.files'
+UBUNTU_VER=`cat /etc/os-release | grep VERSION_ID | grep -Po '".*?"' | awk -F'"' '{ print $2 }'`
+
+echo "Changing dir to $DESKTOPDIR..."
+cd $DESKTOPDIR
+
+if [ -a $CSCOPEFILES ]; then
+    echo "Deleting old cscope and TAGS files..."
+    ls
+    rm -f cscope.*
+    rm -f TAGS
+fi
+
+if [ -a $EBROWSEFILES ]; then
+    echo "Deleting old browse files..."
+    ls
+    rm -f ebrose.files
+    rm -f BROWSE
+fi
+
+echo "Collecting all *.h from $SOURCEDIR..."
+find $SOURCEDIR -name "*.h" -print > $CSCOPEFILES
+echo "Collecting all *.inl from $SOURCEDIR..."
+find $SOURCEDIR -name "*.inl" -print > $CSCOPEFILES
+echo "Collecting all *.c from $SOURCEDIR..."
+find $SOURCEDIR -name "*.c" -print > $CSCOPEFILES
+echo "Collecting all *.hpp files from $SOURCEDIR..."
+find $SOURCEDIR -name "*.hpp" -print >> $CSCOPEFILES
+echo "Collecting all *.cpp files from $SOURCEDIR..."
+find $SOURCEDIR -name "*.cpp" -print >> $CSCOPEFILES
+
+echo "Collecting all *.hpp from $SOURCEDIR..."
+find $SOURCEDIR -name "*.hpp" -print > $EBROWSEFILES
+echo "Collecting all *.cpp files from $SOURCEDIR..."
+find $SOURCEDIR -name "*.cpp" -print >> $EBROWSEFILES
+
+echo "Number of lines found: `wc -l $CSCOPEFILES`"
+echo "Running cscope..."
+cscope -v -b -q -k
+
+if [ "$UBUNTU_VER" == "12.04" ]; then
+    echo "Now running etags on UBUNTU $UBUNTU_VER..."
+    # For use in Ubuntu 12.04
+    #  Exuberant Ctags 5.9~svn20110310, Copyright (C) 1996-2009 Darren Hiebert
+    #  Compiled: Nov  9 2011, 17:42:21
+    #  Addresses: <dhiebert@users.sourceforge.net>, http://ctags.sourceforge.net
+    #  Optional compiled features: +wildcards, +regex
+    etags -V `find $SOURCEDIR -name "*.h" -o -name "*.inl" -o -name "*.c" -o -name "*.hpp" -o -name "*.cpp"`
+elif [ "$UBUNTU_VER" == "13.04" ]; then
+    # For use in Ubuntu 13.04
+    echo "Now running etags on UBUNTU $UBUNTU_VER..."
+    find $SOURCEDIR -name "*.h" -o -name "*.inl" -o -name "*.c" -o -name "*.hpp" -o -name "*.cpp" | etags -
+elif [ "$UBUNTU_VER" == "14.04" ]; then
+    # For use in Ubuntu 14.04
+    echo "Now running etags on UBUNTU $UBUNTU_VER..."
+    find $SOURCEDIR -name "*.h" -o -name "*.inl" -o -name "*.c" -o -name "*.hpp" -o -name "*.cpp" | etags -
+fi
+
+echo "Now running ebrowse on $SOURCEDIR..."
+ebrowse -V --file=$EBROWSEFILES
+
+echo "Done."

@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Simple utility to take a backtrace on every thread in the tizonia running
+# process (assumed only one is running)
+#
+# TODO: Generalize for multiple running tizonia processes by taking a PID
+# argument
+# TODO: Cleanup, remove unused functions.
+#
+
+usage() {
+    cat<<EOF
+Usage: ${0} program_name [program_args]
+
+Trace a given program using gdb.
+
+EOF
+}
+
+log() {
+    echo "${*}" 1>&2
+}
+
+TIZONIA_PID=$(pidof tizonia)
+LOG="/tmp/tizonia-backtrace-$TIZONIA_PID.txt"
+log "Outputting trace to '${LOG}'"
+
+echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+
+exec gdb \
+    -nh \
+    -batch \
+    -p $TIZONIA_PID \
+    -ex 'set logging overwrite on' \
+    -ex "set logging file ${LOG}" \
+    -ex 'set logging on' \
+    -ex 'handle SIG33 pass nostop noprint' \
+    -ex 'set pagination 0' \
+    -ex 'backtrace full' \
+    -ex 'info registers' \
+    -ex 'x/16i $pc' \
+    -ex 'thread apply all bt' \
+    -ex 'thread apply all list' \
+    -ex 'quit' \
+    < /dev/null
+
+echo 1 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+
