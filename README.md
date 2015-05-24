@@ -22,7 +22,7 @@ For an introduction of the resources that can be found here, please keep reading
 * Google Play Music client.
 * Playback of audio formats from local media (formats: mp3, mp2, mpa, m2a, aac,
   ogg/vorbis, opus, wav, aiff, and flac).
-* Icecast/SHOUTcast streaming lan server (formats: mp3).
+* Icecast/SHOUTcast streaming server (formats: mp3).
 * Icecast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
 * Daemon and command line modes (no GUI).
 * MPRIS D-BUS v2 media player remote control interface (early days, work-in-progress).
@@ -55,8 +55,9 @@ For an introduction of the resources that can be found here, please keep reading
   * 'tizrmd' : a D-Bus-based Resource Manager server.
   * 'libtizrmproxy' : a C client library to communicate with the RM daemon.
 5. OpenMAX IL 1.2 plugins
-  * mp3 decoders (libmad and libmpg123),
   * Spotify streaming service client (libspotify),
+  * Google Play Music streaming service client (based on gmusicapi)
+  * mp3 decoders (libmad and libmpg123),
   * mpeg audio (mp2) decoder (libmpg123),
   * Sampled sound formats decoder (various pcm formats, like wav, etc, based on libsndfile)
   * AAC decoder (libfaad),
@@ -246,6 +247,7 @@ Google Music options:
   --gmusic-device-id arg Google Music device id.
   --gmusic-artist arg    Google Music playlist by artist name.
   --gmusic-album arg     Google Music playlist by album name.
+  --gmusic-playlist arg  A user playlist.
 
 ```
 
