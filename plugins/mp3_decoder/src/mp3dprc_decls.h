@@ -57,7 +57,6 @@ extern "C"
     mad_timer_t timer_;
     unsigned long frame_count_;
     unsigned char in_buff_[INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD];
-    unsigned char out_buff_[OUTPUT_BUFFER_SIZE];
     OMX_BUFFERHEADERTYPE *p_inhdr_;
     OMX_BUFFERHEADERTYPE *p_outhdr_;
     int next_synth_sample_;

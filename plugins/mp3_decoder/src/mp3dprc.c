@@ -50,6 +50,9 @@
 static void reset_stream_parameters (mp3d_prc_t *ap_prc)
 {
   assert (NULL != ap_prc);
+  mad_frame_mute (&ap_prc->frame_);
+  mad_synth_mute (&ap_prc->synth_);
+  tiz_mem_set (ap_prc->in_buff_, 0, INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD);
   ap_prc->remaining_ = 0;
   ap_prc->frame_count_ = 0;
   ap_prc->next_synth_sample_ = 0;
@@ -756,10 +759,12 @@ static OMX_ERRORTYPE mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
   assert (NULL != p_obj);
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
+      reset_stream_parameters (p_obj);
       p_obj->in_port_disabled_ = true;
     }
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX == a_pid)
     {
+      reset_stream_parameters (p_obj);
       p_obj->out_port_disabled_ = true;
     }
   return release_headers (p_obj, a_pid);
@@ -771,10 +776,12 @@ static OMX_ERRORTYPE mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
   assert (NULL != p_obj);
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
+      reset_stream_parameters (p_obj);
       p_obj->in_port_disabled_ = false;
     }
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX == a_pid)
     {
+      reset_stream_parameters (p_obj);
       p_obj->out_port_disabled_ = false;
     }
   return OMX_ErrorNone;
