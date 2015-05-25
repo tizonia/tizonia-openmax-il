@@ -36,6 +36,6 @@ PKG_PROG_PKG_CONFIG([0.25])
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                tizonia-khronos-openmaxil12.pc
+                tizonia-openmax-il-headers.pc
                 omxil-1.2/Makefile])
 AC_OUTPUT
