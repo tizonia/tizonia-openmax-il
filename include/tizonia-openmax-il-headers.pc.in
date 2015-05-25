@@ -5,7 +5,7 @@ includedir=@includedir@
 toolsdir=@bindir@
 pluginsdir=@plugindir@
 
-Name: tizonia-khronos-openmaxil12
-Description: Khronos OpenMAX IL 1.2 Header Files (with Tizonia's extensions)
+Name: tizonia-openmax-il-headers
+Description: Khronos OpenMAX IL 1.2 header files (including Tizonia's extensions)
 Version: @PACKAGE_VERSION@
 Cflags: -I${includedir}/tizonia/omxil-1.2
