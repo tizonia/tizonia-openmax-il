@@ -1,5 +1,5 @@
-Source: tizonia-openmax-il-headers
-Section: contrib
+Source: tizilheaders
+Section: libs
 Priority: optional
 Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
 Build-Depends: debhelper (>= 8.0.0), autotools-dev
@@ -8,7 +8,7 @@ Homepage: http://tizonia.org
 Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
 Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
 
-Package: tizonia-openmax-il-headers
+Package: tizilheaders
 Architecture: all
 Depends: ${misc:Depends}
 Description: Tizonia's Khronos OpenMAX IL 1.2 headers.
