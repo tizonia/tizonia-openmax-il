@@ -2,10 +2,8 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
-toolsdir=@bindir@
-pluginsdir=@plugindir@
 
-Name: tizonia-openmax-il-headers
+Name: tizilheaders
 Description: Khronos OpenMAX IL 1.2 header files (including Tizonia's extensions)
 Version: @PACKAGE_VERSION@
 Cflags: -I${includedir}/tizonia/omxil-1.2

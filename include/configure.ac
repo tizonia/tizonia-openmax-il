@@ -16,11 +16,11 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([Tizonia OpenMAX IL headers], [0.1.0], [juan.rubio@aratelia.com])
+AC_INIT([tizilheaders], [0.1.0], [juan.rubio@aratelia.com])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([omxil-1.2/OMX_Core.h])
 AC_CONFIG_HEADERS([config.h])
-
+AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_PROG_CC
@@ -36,6 +36,6 @@ PKG_PROG_PKG_CONFIG([0.25])
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                tizonia-openmax-il-headers.pc
+                tizilheaders.pc
                 omxil-1.2/Makefile])
 AC_OUTPUT

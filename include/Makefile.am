@@ -17,5 +17,7 @@
 
 SUBDIRS = omxil-1.2
 
+ACLOCAL_AMFLAGS = -I m4
+
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = tizonia-khronos-openmaxil12.pc.in
+pkgconfig_DATA = tizilheaders.pc
