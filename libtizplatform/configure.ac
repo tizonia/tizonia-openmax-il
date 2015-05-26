@@ -22,8 +22,6 @@ AM_INIT_AUTOMAKE([foreign color-tests silent-rules subdir-objects -Wall -Werror]
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
-
-# 'm4' is the directory where the extra autoconf macros are stored
 AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
@@ -48,7 +46,16 @@ AC_CHECK_LIB([libuuid], [uuid_generate])
 AC_CHECK_LIB([ev], [ev_run])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 PKG_CHECK_MODULES([uuid], [uuid >= 2.19.0])
-#PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
+
+AC_CHECK_HEADERS([tizonia/omxil-1.2/OMX_Core.h tizonia/omxil-1.2/OMX_Component.h],
+	[tizplat_found_omx_headers=yes; break;])
+
+AS_IF([test "x$tizplat_found_omx_headers" != "xyes"],
+	[AC_MSG_NOTICE([Unable to find the omx il headers])])
+
+AS_IF([test "x$tizplat_found_omx_headers" == "xyes"],
+	[PKG_CHECK_MODULES([tizilheaders], [tizilheaders >= 0.1.0])])
+
 AM_PATH_LOG4C([1.2.1])
 
 # Checks for header files.

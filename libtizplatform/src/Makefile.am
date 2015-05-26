@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-#SUBDIRS = http-parser
-
 AM_CFLAGS = $(WARN_CFLAGS)
 
 lib_LTLIBRARIES = libtizplatform.la
@@ -75,6 +73,7 @@ libtizplatform_la_SOURCES = \
 libtizplatform_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
 	$(AM_CFLAGS) \
+	@tizilheaders_CFLAGS@ \
 	@LOG4C_CFLAGS@
 
 libtizplatform_la_LIBADD = \

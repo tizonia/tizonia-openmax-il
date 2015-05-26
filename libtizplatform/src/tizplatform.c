@@ -30,8 +30,8 @@
 #include <config.h>
 #endif
 
-#include "tizlog.h"
-#include "tizev.h"
+/* #include "tizlog.h" */
+/* #include "tizev.h" */
 
 /* TODO */
 

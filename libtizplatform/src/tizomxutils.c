@@ -30,8 +30,9 @@
 #include <config.h>
 #endif
 
-#include "OMX_Core.h"
-#include "OMX_TizoniaExt.h"
+#include <OMX_Core.h>
+#include <OMX_TizoniaExt.h>
+
 #include "tizplatform.h"
 
 #include <assert.h>

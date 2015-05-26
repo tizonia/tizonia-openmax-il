@@ -37,10 +37,15 @@ check_tizplatform_SOURCES = check_tizplatform.c
 check_tizplatform_CFLAGS = \
 	-I$(top_srcdir)/src/ \
 	-I$(top_srcdir)/../include/omxil-1.2 \
+	@tizilheaders_CFLAGS@ \
 	@CHECK_CFLAGS@
 
 check_tizplatform_LDADD = \
 	$(top_builddir)/src/libtizplatform.la \
 	@CHECK_LIBS@
 
-# End of Makefile.am
+clean-local: clean-local-check-tizplatform
+distclean-local: clean-local-check-tizplatform
+.PHONY: clean-local-check-tizplatform
+clean-local-check-tizplatform:
+	-rm -f core

@@ -55,8 +55,8 @@ static bool g_timer_restarted = false;
 static bool g_file_status_changed = false;
 
 static void
-check_event_io_cback (OMX_HANDLETYPE p_hdl, tiz_event_io_t * ap_ev_io, int fd,
-                      int events)
+check_event_io_cback (OMX_HANDLETYPE p_hdl, tiz_event_io_t * ap_ev_io, void *ap_arg1,
+                      const uint32_t a_id, int fd, int events)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
   int rcvfromrc;
@@ -135,7 +135,7 @@ check_event_timer_cback (OMX_HANDLETYPE p_hdl, tiz_event_timer_t * ap_ev_timer,
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE, "timeout count [%d] - restarting timer",
                    g_timeout_count);
-          error = tiz_event_timer_restart (ap_ev_timer);
+          error = tiz_event_timer_restart (ap_ev_timer, a_id);
           fail_if (OMX_ErrorNone != error);
           g_timeout_count = g_restart_count;
           g_timer_restarted = true;
@@ -152,7 +152,7 @@ check_event_timer_cback (OMX_HANDLETYPE p_hdl, tiz_event_timer_t * ap_ev_timer,
 
 static void
 check_event_stat_cback (OMX_HANDLETYPE p_hdl, tiz_event_stat_t * ap_ev_stat,
-                        int events)
+                        void *ap_arg1, const uint32_t a_id, int events)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
 
@@ -189,20 +189,21 @@ START_TEST (test_event_io)
   int fd = 0;
   char cmd [128];
   OMX_HANDLETYPE p_hdl = NULL;
+  uint32_t id = 1;
 
   error = tiz_event_loop_init ();
   fail_if (error != OMX_ErrorNone);
 
   fd = start_udp_server();
 
-  error = tiz_event_io_init (&p_ev_io, p_hdl, check_event_io_cback);
+  error = tiz_event_io_init (&p_ev_io, p_hdl, check_event_io_cback, NULL);
   fail_if (error != OMX_ErrorNone);
 
   tiz_event_io_set (p_ev_io, fd, TIZ_EVENT_READ, false);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "started io watcher");
 
-  error = tiz_event_io_start (p_ev_io);
+  error = tiz_event_io_start (p_ev_io, id);
   fail_if (error != OMX_ErrorNone);
 
   snprintf(cmd, strlen (CHECK_IO_ECHO_CMD) + 1, "%s", CHECK_IO_ECHO_CMD);
@@ -282,6 +283,7 @@ START_TEST (test_event_stat)
   int sleep_count = 5;
   OMX_HANDLETYPE p_hdl = NULL;
   int echo_cmd_pid = 0;
+  uint32_t id = 1;
 
   snprintf (cmd, strlen (CHECK_STAT_RM_CMD) + 1, "%s", CHECK_STAT_RM_CMD);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "cmd = [%s]", cmd);
@@ -294,12 +296,12 @@ START_TEST (test_event_stat)
   error = tiz_event_loop_init ();
   fail_if (error != OMX_ErrorNone);
 
-  error = tiz_event_stat_init (&p_ev_stat, p_hdl, check_event_stat_cback);
+  error = tiz_event_stat_init (&p_ev_stat, p_hdl, check_event_stat_cback, NULL);
   fail_if (error != OMX_ErrorNone);
 
   tiz_event_stat_set (p_ev_stat, CHECK_STAT_FILE);
 
-  error = tiz_event_stat_start (p_ev_stat);
+  error = tiz_event_stat_start (p_ev_stat, id);
   fail_if (error != OMX_ErrorNone);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "started stat watcher");

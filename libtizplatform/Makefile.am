@@ -19,7 +19,7 @@ SUBDIRS= src tests
 
 ACLOCAL_AMFLAGS = -I m4
 
+EXTRA_DIST = debian
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libtizplatform.pc
-
-# End of Makefile.am
