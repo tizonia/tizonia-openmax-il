@@ -17,7 +17,7 @@
 
 SUBDIRS = omxil-1.2
 
-ACLOCAL_AMFLAGS = -I m4
+#ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = debian
 
