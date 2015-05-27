@@ -40,7 +40,7 @@ extern "C" {
  *  for this header file to compile successfully 
  */
 
-#include <OMX_Core.h>
+#include "OMX_Core.h"
 
 typedef enum OMX_OTHER_FORMATTYPE {
     OMX_OTHER_FormatTime = 0,

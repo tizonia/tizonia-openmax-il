@@ -6,4 +6,4 @@ includedir=@includedir@
 Name: tizilheaders
 Description: Khronos OpenMAX IL 1.2 header files (including Tizonia's extensions)
 Version: @PACKAGE_VERSION@
-Cflags: -I${includedir}/tizonia/omxil-1.2
+Cflags: -I${includedir}/tizonia

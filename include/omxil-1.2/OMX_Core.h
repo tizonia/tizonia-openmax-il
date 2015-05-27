@@ -41,7 +41,7 @@ extern "C" {
  *  for this header file to compile successfully 
  */
 
-#include <OMX_Index.h>
+#include "OMX_Index.h"
 
 typedef enum OMX_COMMANDTYPE
 {

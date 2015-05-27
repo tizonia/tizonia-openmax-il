@@ -23,3 +23,12 @@ EXTRA_DIST = debian
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tizilheaders.pc
+
+BUILT_SOURCES = tizonia
+
+DISTCLEANFILES = tizonia
+
+noinst_HEADERS = tizonia
+
+tizonia:
+	ln -s $(srcdir)/omxil-1.2 tizonia

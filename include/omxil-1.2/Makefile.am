@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-openmaxil12_includedir = $(includedir)/tizonia/omxil-1.2
+openmaxil12_includedir = $(includedir)/tizonia
 
 openmaxil12_include_HEADERS = \
 	OMX_Audio.h \

@@ -40,7 +40,7 @@ extern "C" {
  *  for this header file to compile successfully 
  */
 
-#include <OMX_Core.h>
+#include "OMX_Core.h"
 
 typedef enum OMX_AUDIO_CODINGTYPE {
     OMX_AUDIO_CodingUnused = 0,

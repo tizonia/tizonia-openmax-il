@@ -42,10 +42,10 @@ extern "C" {
  *  for this header file to compile successfully 
  */
 
-#include <OMX_Audio.h>
-#include <OMX_Video.h>
-#include <OMX_Image.h>
-#include <OMX_Other.h>
+#include "OMX_Audio.h"
+#include "OMX_Video.h"
+#include "OMX_Image.h"
+#include "OMX_Other.h"
 
 typedef enum OMX_PORTDOMAINTYPE { 
     OMX_PortDomainAudio, 

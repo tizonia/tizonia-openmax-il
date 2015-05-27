@@ -41,7 +41,7 @@ extern "C" {
  * for this header file to compile successfully 
  */
 
-#include <OMX_IVCommon.h>
+#include "OMX_IVCommon.h"
 
 typedef enum OMX_IMAGE_CODINGTYPE {
     OMX_IMAGE_CodingUnused,

@@ -39,7 +39,7 @@ extern "C" {
  *  header to compile without errors.  The includes below are required
  *  for this header file to compile successfully 
  */
-#include <OMX_Types.h>
+#include "OMX_Types.h"
 
 typedef enum OMX_INDEXTYPE {
 

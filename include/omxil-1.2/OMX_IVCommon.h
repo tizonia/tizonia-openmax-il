@@ -40,7 +40,7 @@ extern "C" {
  * file to compile successfully 
  */
 
-#include <OMX_Core.h>
+#include "OMX_Core.h"
 
 typedef enum OMX_COLOR_FORMATTYPE {
     OMX_COLOR_FormatUnused,
