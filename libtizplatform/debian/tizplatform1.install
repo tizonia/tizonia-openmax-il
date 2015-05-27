@@ -1,1 +1,2 @@
-usr/lib/lib*.so.*
+usr/lib/*/libtizplatform.so.0
+usr/lib/*/libtizplatform.so.0.0.0
