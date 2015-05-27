@@ -47,7 +47,7 @@ AC_CHECK_LIB([ev], [ev_run])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 PKG_CHECK_MODULES([uuid], [uuid >= 2.19.0])
 
-AC_CHECK_HEADERS([tizonia/omxil-1.2/OMX_Core.h tizonia/omxil-1.2/OMX_Component.h],
+AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tizplat_found_omx_headers=yes; break;])
 
 AS_IF([test "x$tizplat_found_omx_headers" != "xyes"],
