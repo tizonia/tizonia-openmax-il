@@ -1,4 +1,4 @@
-usr/include/tizonia/*
-usr/lib/*/libtizplatform.a
-usr/lib/*/libtizplatform.so
-usr/lib/*/pkgconfig/libtizplatform.pc
+usr/lib/*/lib*.a
+usr/lib/*/lib*.so
+usr/include/tizonia/platform/*
+usr/lib/*/pkgconfig/lib*.pc

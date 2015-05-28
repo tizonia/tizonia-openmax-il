@@ -1,23 +1,27 @@
 Source: tizplatform
 Priority: optional
 Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev
+Build-Depends: debhelper (>= 8.0.0), dh-autoreconf
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://tizonia.org
 Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
 Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
 
-Package: tizplatform-dev
+Package: libtizplatform-dev
 Section: libdevel
 Architecture: any
-Depends: tizplatform0 (= ${binary:Version}), liblog4c-dev, uuid-dev, libev-dev, check
+Depends: libtizplatform0 (= ${binary:Version}), liblog4c-dev, uuid-dev, libev-dev, check
 Description: Tizonia's platform library, development files
  Tizonia's platform library.
+ .
+ This package contains the development library libtizplatform.
 
-Package: tizplatform0
+Package: libtizplatform0
 Section: libs
 Architecture: any
-Depends: liblog4c3, uuid, libev, ${shlibs:Depends}, ${misc:Depends}
+Depends: liblog4c3, libuuid1, libev4, ${shlibs:Depends}, ${misc:Depends}
 Description: Tizonia's platform library, run-time library
  Tizonia's platform library.
+ .
+ This package contains the runtime library libtizplatform.
