@@ -16,5 +16,11 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SUBDIRS= src tests
+SUBDIRS= src
+
 ACLOCAL_AMFLAGS = -I m4
+
+# EXTRA_DIST = debian
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libtizgmusic.pc.in

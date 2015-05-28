@@ -54,8 +54,8 @@ AX_BOOST_PYTHON
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                src/Makefile
-                tests/Makefile])
+                libtizgmusic.pc
+                src/Makefile])
 
 # End the configure script.
 AC_OUTPUT
