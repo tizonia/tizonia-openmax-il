@@ -138,7 +138,7 @@ won't work):
     $ echo "Installing the gmusicapi python module from source..."
     $ git clone https://github.com/simon-weber/Unofficial-Google-Music-API \
       && cd Unofficial-Google-Music-API
-      && yes | sudo python setup.py install
+      && sudo python setup.py install
 
 ```
 

@@ -193,10 +193,10 @@ function install_python_deps {
     wget https://bootstrap.pypa.io/get-pip.py \
         && sudo python get-pip.py \
         && sudo pip install gmusicapi --upgrade \
-        && sudo pip uninstall gmusicapi \
+        && yes | sudo pip uninstall gmusicapi \
         && git clone https://github.com/simon-weber/Unofficial-Google-Music-API \
         && cd Unofficial-Google-Music-API \
-        && yes | sudo python setup.py install
+        && sudo python setup.py install
     return $?
 }
 
