@@ -127,17 +127,18 @@ need the 32-bit version of the library):
 
 ### Google Play Music ###
 
-To stream from Google Play Music, you need to install the
-[gmusicapi](https://github.com/simon-weber/Unofficial-Google-Music-API)
-package. To avoid problems, prior to installing gmusicapi you may also need to
-upgrade your pip installation. E.g.:
+To stream from Google Play Music, you need to install Simon Weber's
+[gmusicapi](https://github.com/simon-weber/Unofficial-Google-Music-API) python
+library. Currently, you have to install it from source (the latest version in
+pip [4.0.0](https://pypi.python.org/pypi/gmusicapi/4.0.0) is out-of-date and
+won't work):
 
 ```bash
 
-    $ echo "Upgrading Python pip and installing the gmusicapi python module..."
-    $ wget https://bootstrap.pypa.io/get-pip.py \
-        && sudo python get-pip.py \
-        && sudo pip install gmusicapi
+    $ echo "Installing the gmusicapi python module from source..."
+    $ git clone https://github.com/simon-weber/Unofficial-Google-Music-API \
+      && cd Unofficial-Google-Music-API
+      && sudo python setup.py install
 
 ```
 

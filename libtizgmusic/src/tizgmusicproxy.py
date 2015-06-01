@@ -59,7 +59,7 @@ class tizgmusicproxy(object):
 
         attempts = 0
         while not self.logged_in and attempts < 3:
-            self.logged_in = self.__api.login(email, password)
+            self.logged_in = self.__api.login(email, password, device_id)
             attempts += 1
 
         self.playlists = dict()
