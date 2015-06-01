@@ -196,7 +196,7 @@ function install_python_deps {
         && sudo pip uninstall gmusicapi \
         && git clone https://github.com/simon-weber/Unofficial-Google-Music-API \
         && cd Unofficial-Google-Music-API \
-        && sudo python setup.py install
+        && yes | sudo python setup.py install
     return $?
 }
 
