@@ -809,7 +809,7 @@ static OMX_ERRORTYPE srv_timer_watcher_start (void *ap_obj,
           index = tiz_map_size (p_srv->p_watchers_);
           tiz_check_omx_err (tiz_map_insert (p_srv->p_watchers_, ap_ev_timer, p_id, &index));
           rc = tiz_event_timer_start (ap_ev_timer, id);
-          TIZ_TRACE (handleOf (ap_obj), "started watcher with id [%d]", id);
+          TIZ_TRACE (handleOf (ap_obj), "started timer watcher with id [%d]", id);
         }
     }
   return rc;
@@ -879,7 +879,7 @@ static OMX_ERRORTYPE srv_timer_watcher_stop (void *ap_obj,
     {
       rc = tiz_event_timer_stop (ap_ev_timer);
       tiz_map_erase (p_srv->p_watchers_, ap_ev_timer);
-      TIZ_TRACE (handleOf (ap_obj), "stopped watcher id [%d]", id);
+      TIZ_TRACE (handleOf (ap_obj), "stopped timer watcher id [%d]", id);
     }
   return rc;
 }
@@ -963,11 +963,12 @@ static OMX_ERRORTYPE srv_event_timer (void *ap_obj,
   /* Notify a timer event only if it is currently active */
   if (is_watcher_active (p_srv, ap_ev_timer, &id) && a_id == id)
     {
+      TIZ_TRACE (handleOf (ap_obj), "signaling timer watcher id [%d]", id);
       rc = tiz_srv_timer_ready (p_srv, ap_ev_timer);
     }
   else
     {
-      TIZ_TRACE (handleOf (ap_obj), "ignoring watcher id [%d] a_id [%d]", id, a_id);
+      TIZ_TRACE (handleOf (ap_obj), "ignoring timer watcher id [%d] a_id [%d]", id, a_id);
     }
   return rc;
 }
