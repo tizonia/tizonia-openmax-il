@@ -211,6 +211,18 @@ namespace
                           outcome ? "SUCCESS" : "FAILURE");
     return outcome;
   }
+
+  void retrieve_config_from_rc_file (const char *rc_section, const char *rc_key,
+                                     std::string &container)
+  {
+    assert (rc_section);
+    assert (rc_key);
+    const char *p_key = tiz_rcfile_get_value (rc_section, rc_key);
+    if (p_key)
+    {
+      container.assign (p_key);
+    }
+  }
 }
 
 tiz::programopts::programopts (int argc, char *argv[])
@@ -878,7 +890,16 @@ int tiz::programopts::consume_spotify_client_options (bool &done,
   {
     done = true;
 
-    if (!vm_.count ("spotify-user") && vm_.count ("spotify-password"))
+    if (spotify_user_.empty ())
+      {
+        retrieve_config_from_rc_file ("tizonia", "spotify.user", spotify_user_);
+      }
+    if (spotify_pass_.empty ())
+      {
+        retrieve_config_from_rc_file ("tizonia", "spotify.password", spotify_pass_);
+      }
+
+    if (spotify_user_.empty ())
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
@@ -915,14 +936,27 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     const int playlist_option_count = vm_.count ("gmusic-artist")
       + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist");
 
-    if (!vm_.count ("gmusic-user") && vm_.count ("gmusic-password"))
+    if (gmusic_user_.empty ())
+      {
+        retrieve_config_from_rc_file ("tizonia", "gmusic.user", gmusic_user_);
+      }
+    if (gmusic_pass_.empty ())
+      {
+        retrieve_config_from_rc_file ("tizonia", "gmusic.password", gmusic_pass_);
+      }
+    if (gmusic_device_id_.empty ())
+      {
+        retrieve_config_from_rc_file ("tizonia", "gmusic.device_id", gmusic_device_id_);
+      }
+
+    if (gmusic_user_.empty ())
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
-      oss << "Need to provide a Gmusic user name.";
+      oss << "Need to provide a Google Play Music user name.";
       msg.assign (oss.str ());
     }
-    else if (!vm_.count ("gmusic-device-id"))
+    else if (gmusic_device_id_.empty ())
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
