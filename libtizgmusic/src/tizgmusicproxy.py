@@ -36,6 +36,7 @@ import os
 import logging
 import unicodedata as ud
 from gmusicapi import Mobileclient
+from requests.structures import CaseInsensitiveDict
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
@@ -62,8 +63,8 @@ class tizgmusicproxy(object):
             self.logged_in = self.__api.login(email, password)
             attempts += 1
 
-        self.playlists = dict()
-        self.library = dict()
+        self.playlists = CaseInsensitiveDict()
+        self.library = CaseInsensitiveDict()
 
     def logout(self):
         self.__api.logout()
@@ -186,7 +187,7 @@ class tizgmusicproxy(object):
                     logging.info ("enqueue album : {0} | {1}".format(
                         artist.encode("utf-8"),
                         album.encode("utf-8")))
-                    if album == arg:
+                    if album.lower() == arg.lower():
                         count = 0
                         for song in self.library[artist][album]:
                             self.queue.append(song)

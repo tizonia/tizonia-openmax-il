@@ -43,6 +43,7 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 AM_PATH_PYTHON([2.7])
 AX_PYTHON_DEVEL([>= '2.7'])
 AX_PYTHON_MODULE(gmusicapi, [libtizgmusic needs gmusicapi])
+AX_PYTHON_MODULE(requests, [libtizgmusic needs requests])
 AX_BOOST_BASE([1.54],, [AC_MSG_ERROR([libtizgmusic needs Boost 1.54])])
 AX_BOOST_PYTHON
 
