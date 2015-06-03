@@ -189,12 +189,12 @@ function install_deps {
 function install_python_deps {
     cd_to_working_dir
 
-#     wget https://bootstrap.pypa.io/get-pip.py \
-#         && sudo python get-pip.py \
-#         && sudo pip install gmusicapi --upgrade \
-#         && yes | sudo pip uninstall gmusicapi \
+    echo "Installing pip and an older version of the gmusicapi python module..."
+    wget https://bootstrap.pypa.io/get-pip.py \
+        && sudo python get-pip.py \
+        && sudo pip install gmusicapi --upgrade
 
-    echo "Installing gmusic python module..."
+    echo "Now installing the latest gmusicapi from source..."
     git clone https://github.com/simon-weber/Unofficial-Google-Music-API \
         && cd Unofficial-Google-Music-API \
         && sudo python setup.py install
