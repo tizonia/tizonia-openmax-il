@@ -161,3 +161,18 @@ OMX.Aratelia.audio_metadata_eraser.mp3.testfile2_uri = @localstatedir@/lib/tizon
 [tizonia]
 
 default-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
+
+###########
+# Spotify #
+###########
+
+# spotify.user = user
+# spotify.password = pass
+
+#####################
+# Google Play Music #
+#####################
+
+# gmusic.user = user@gmail.com
+# gmusic.password = pass
+# gmusic.device_id = deviceid
