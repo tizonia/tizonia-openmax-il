@@ -1,0 +1,27 @@
+Source: tizgmusic
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0), dh-autoreconf
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizgmusic-dev
+Section: libdevel
+Architecture: any
+Depends: libtizgmusic0 (= ${binary:Version})
+Description: Tizonia's Google Play Music client library, development files
+ Tizonia's Google Play Music client library.
+ .
+ This package contains the development library libtizplatform.
+
+Package: libtizgmusic0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's Google Play Music client library, run-time library
+ Tizonia's Google Play Music client library.
+ .
+ This package contains the runtime library libtizgmusic.
