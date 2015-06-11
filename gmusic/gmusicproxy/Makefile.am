@@ -15,29 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizgmusic.la
-
-libtizgmusic_includedir = $(includedir)/tizonia/gmusic
-
-noinst_HEADERS =
-
 python_PYTHON = tizgmusicproxy.py
-
-libtizgmusic_include_HEADERS = \
-	tizgmusic.hpp \
-	tizgmusic_c.h
-
-libtizgmusic_la_SOURCES = \
-	tizgmusic.cpp \
-	tizgmusic_c.cpp
-
-libtizgmusic_la_CPPFLAGS = \
-	@PYTHON_CPPFLAGS@ \
-	@BOOST_CPPFLAGS@
-
-libtizgmusic_la_LIBADD = \
-	@BOOST_PYTHON_LIB@ \
-	@PYTHON_LDFLAGS@ \
-	-lboost_python
 
 
