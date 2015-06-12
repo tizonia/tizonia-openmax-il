@@ -73,14 +73,14 @@ libtizplatform_la_SOURCES = \
 libtizplatform_la_CFLAGS = \
 	-I$(top_srcdir)/../include/tizonia \
 	$(AM_CFLAGS) \
-	@tizilheaders_CFLAGS@ \
+	@TIZILHEADERS_CFLAGS@ \
 	@LOG4C_CFLAGS@
 
 libtizplatform_la_LIBADD = \
 	-lpthread \
 	-lev \
 	@LOG4C_LIBS@ \
-	@uuid_LIBS@
+	@UUID_LIBS@
 
 
 # End of Makefile.am
