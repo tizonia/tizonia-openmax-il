@@ -41,11 +41,11 @@ libtizhttpsrc_la_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../../libtizonia/src \
-	-I$(top_srcdir)/../../libtizgmusic/src \
+	-I$(top_srcdir)/../../gmusic/libtizgmusic/src \
 	@LIBCURL_CFLAGS@
 
 libtizhttpsrc_la_LIBADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	$(top_builddir)/../../libtizonia/src/libtizonia.la \
-	$(top_builddir)/../../libtizgmusic/src/libtizgmusic.la \
+	$(top_builddir)/../../gmusic/libtizgmusic/src/libtizgmusic.la \
 	@LIBCURL_LIBS@
