@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([libtizrmproxy], [0.1.0], [juan.rubio@aratelia.com])
+AC_INIT([tizrmproxy], [0.1.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -46,8 +46,19 @@ PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
 	[http://www.freedesktop.org/wiki/Software_2fdbus]))
 PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
 
-#PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
-#PKG_CHECK_MODULES([TIZ], [libtizplatform])
+AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
+	[tizrmproxy_found_omx_headers=yes; break;])
+AS_IF([test "x$tizrmproxy_found_omx_headers" != "xyes"],
+	[AC_MSG_NOTICE([Unable to find the omx il headers])])
+AS_IF([test "x$tizrmproxy_found_omx_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZILHEADERS], [tizilheaders >= 0.1.0])])
+
+AC_CHECK_HEADERS([tizonia/platform/tizplatform.h],
+	[tizrmproxy_found_platform_headers=yes; break;])
+AS_IF([test "x$tizrmproxy_found_platform_headers" != "xyes"],
+	[AC_MSG_NOTICE([Unable to find Tizonia's platform headers])])
+AS_IF([test "x$tizrmproxy_found_platform_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZPLATFORM], [libtizplatform >= 0.1.0])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])

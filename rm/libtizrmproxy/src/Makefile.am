@@ -33,11 +33,14 @@ libtizrmproxy_la_SOURCES = \
 libtizrmproxy_la_CPPFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
 	-I$(top_srcdir)/../dbus \
 	@DBUS_CFLAGS@
 
 libtizrmproxy_la_LIBADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
+	@TIZPLATFORM_LIBS@ \
 	@DBUS_LIBS@
 
 

@@ -34,12 +34,15 @@ check_tizrmproxy_SOURCES = check_tizrmproxy.c
 check_tizrmproxy_CFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
 	-I$(top_srcdir)/../dbus \
 	-I$(top_srcdir)/src
 	@CHECK_CFLAGS@
 
 check_tizrmproxy_LDADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
+	@TIZPLATFORM_LIBS@ \
 	$(top_builddir)/src/libtizrmproxy.la \
 	@CHECK_LIBS@
 

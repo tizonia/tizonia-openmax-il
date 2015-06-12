@@ -2,13 +2,11 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
-toolsdir=@bindir@
-pluginsdir=@plugindir@
 
-Name: tizrmproxy
-Description: Tizonia Resource Manager proxy library
+Name: libtizrmproxy
+Description: Tizonia resource manager proxy library
 Version: @PACKAGE_VERSION@
-Require: tizplatform dbus
-Require.private: check
-Cflags: -I${includedir}/tizonia/tizrmproxy
+Require: tizilheaders tizplatform
+Requires.private: dbus-c++-1
 Libs: -L${libdir} -ltizrmproxy
+Cflags: -I${includedir} -I${includedir}/tizonia/rmproxy
