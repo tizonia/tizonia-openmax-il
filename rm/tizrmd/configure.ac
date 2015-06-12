@@ -51,8 +51,19 @@ PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
 AX_BOOST_BASE([1.46],, [AC_MSG_ERROR([tizrmd needs Boost 1.46])])
 AX_LIB_SQLITE3([3.7.1])
 
-#PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
-#PKG_CHECK_MODULES([TIZ], [libtizplatform])
+AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
+	[tizrmd_found_omx_headers=yes; break;])
+AS_IF([test "x$tizrmd_found_omx_headers" != "xyes"],
+	[AC_MSG_NOTICE([Unable to find the omx il headers])])
+AS_IF([test "x$tizrmd_found_omx_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZILHEADERS], [tizilheaders >= 0.1.0])])
+
+AC_CHECK_HEADERS([tizonia/platform/tizplatform.h],
+	[tizrmd_found_platform_headers=yes; break;])
+AS_IF([test "x$tizrmd_found_platform_headers" != "xyes"],
+	[AC_MSG_NOTICE([Unable to find Tizonia's platform headers])])
+AS_IF([test "x$tizrmd_found_platform_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZPLATFORM], [libtizplatform >= 0.1.0])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([syslog.h unistd.h])

@@ -32,11 +32,14 @@ tizrmd_CPPFLAGS = \
 	-I$(top_srcdir)/../../include/omxil-1.2 \
 	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../dbus \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
 	@DBUS_CFLAGS@ \
 	@SQLITE3_CFLAGS@
 
 tizrmd_LDADD = \
 	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
+	@TIZPLATFORM_LIBS@ \
 	@DBUS_LIBS@ \
 	@SQLITE3_LDFLAGS@
 
