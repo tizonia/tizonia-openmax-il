@@ -25,7 +25,7 @@ libtizcore_la_CFLAGS = \
 	-I$(top_srcdir)/../include/omxil-1.2 \
 	-I$(top_srcdir)/../libtizplatform/src \
 	-I$(top_srcdir)/../rm/libtizrmproxy/src \
-	-I$(top_srcdir)/../rm/dbus \
+	-I$(top_srcdir)/../rm/tizrmd/dbus \
 	-I$(top_srcdir)/src \
 	$(AM_CFLAGS)
 

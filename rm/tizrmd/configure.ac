@@ -66,20 +66,30 @@ AS_IF([test "x$tizrmd_found_platform_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZPLATFORM], [libtizplatform >= 0.1.0])])
 
 # Checks for header files.
-AC_CHECK_HEADERS([syslog.h unistd.h])
+AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS([boost/foreach.hpp], [],
     [AC_MSG_ERROR(You need the Boost libraries.)])
 AC_LANG_POP([C++])
 
+DBUS_REQUIRED_VERSION=0.60
+PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
+	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
+	[http://www.freedesktop.org/wiki/Software_2fdbus]))
+PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
+
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
 AC_C_RESTRICT
+AC_HEADER_STDBOOL
+AC_TYPE_INT32_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
 
 # Checks for library functions.
 AC_CHECK_FUNCS([strtol])
-AC_CHECK_HEADERS([limits.h])
 # This one was introduced in 2.69
 # AC_CHECK_HEADER_STDBOOL
 AC_TYPE_INT32_T
@@ -100,6 +110,7 @@ if test "x$HAVE_SQLITE3" = "xfalse"; then
 fi
 
 AC_CONFIG_FILES([Makefile
+                dbus/Makefile
                 data/Makefile
                 src/Makefile
                 tests/Makefile])

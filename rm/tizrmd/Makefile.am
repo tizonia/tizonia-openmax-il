@@ -16,7 +16,8 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SUBDIRS= data src tests
+SUBDIRS= dbus data src tests
+
 ACLOCAL_AMFLAGS = -I m4
 
 #pkgconfigdir = $(libdir)/pkgconfig
