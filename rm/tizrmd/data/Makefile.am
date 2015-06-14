@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-sqlite_scripts = initrmdb.sql3
-shell_scripts = tiz_rm_dumpdb.sh tiz_rm_gendb.sh
+sqlite_scripts = tizonia-rmdb-initial.sql3
+shell_scripts = tizonia-rmdb-dump.sh tizonia-rmdb-generate.sh
 sqlite_databases = tizrm.db
 
 tizrmdbdir = $(datadir)/$(PACKAGE)
@@ -24,22 +24,22 @@ tizrmdb_DATA = $(sqlite_scripts) $(sqlite_databases)
 
 bin_SCRIPTS = $(shell_scripts)
 CLEANFILES = $(bin_SCRIPTS)
-EXTRA_DIST = $(sqlite_scripts) $(sqlite_databases) tiz_rm_dumpdb.sh.in tiz_rm_gendb.sh.in
+EXTRA_DIST = $(sqlite_scripts) $(sqlite_databases) tizonia-rmdb-dump.sh.in tizonia-rmdb-generate.sh.in
 
 do_subst = sed -e 's,[@]datadir[@],$(datadir),g' \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
 	-e 's,[@]VERSION[@],$(VERSION),g'
 
-tiz_rm_dumpdb.sh: tiz_rm_dumpdb.sh.in Makefile
-	$(do_subst) < $(srcdir)/tiz_rm_dumpdb.sh.in > tiz_rm_dumpdb.sh
-	chmod +x tiz_rm_dumpdb.sh
+tizonia-rmdb-dump.sh: tizonia-rmdb-dump.sh.in Makefile
+	$(do_subst) < $(srcdir)/tizonia-rmdb-dump.sh.in > tizonia-rmdb-dump.sh
+	chmod +x tizonia-rmdb-dump.sh
 
-tiz_rm_gendb.sh: tiz_rm_gendb.sh.in Makefile
-	$(do_subst) < $(srcdir)/tiz_rm_gendb.sh.in > tiz_rm_gendb.sh
-	chmod +x tiz_rm_gendb.sh
+tizonia-rmdb-generate.sh: tizonia-rmdb-generate.sh.in Makefile
+	$(do_subst) < $(srcdir)/tizonia-rmdb-generate.sh.in > tizonia-rmdb-generate.sh
+	chmod +x tizonia-rmdb-generate.sh
 
 tizrm.db: $(sqlite_scripts) $(shell_scripts)
-	. tiz_rm_gendb.sh
+	. tizonia-rmdb-generate.sh
 
 all-local: tizrm.db
 

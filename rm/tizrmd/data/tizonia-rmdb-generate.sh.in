@@ -30,7 +30,7 @@ datadir=@datadir@
 
 if [ -z "$1" ];
 then
-    COMMANDS=${BASEDIR}"/initrmdb.sql3"
+    COMMANDS=${BASEDIR}"/tizonia-rmdb-initial.sql3"
     TIZ_RM_DB_NAME=${BASEDIR}"/tizrm.db"
 fi
 
