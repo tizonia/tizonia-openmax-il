@@ -39,34 +39,34 @@ extern "C"
 #include <tizrmproxytypes.h>
 #include "tizrmtypes.h"
 
-  tizrm_error_t
-    tiz_rm_proxy_init (tizrm_t * ap_rm, const OMX_STRING ap_name,
+  tiz_rm_error_t
+    tiz_rm_proxy_init (tiz_rm_t * ap_rm, const OMX_STRING ap_name,
                       const OMX_UUIDTYPE * ap_uuid,
                       const OMX_PRIORITYMGMTTYPE * ap_pri,
                       const tiz_rm_proxy_callbacks_t * ap_cbacks,
                       OMX_PTR ap_data);
 
-  tizrm_error_t tiz_rm_proxy_destroy (tizrm_t * ap_rm);
+  tiz_rm_error_t tiz_rm_proxy_destroy (tiz_rm_t * ap_rm);
 
-  OMX_S32 tiz_rm_proxy_version (const tizrm_t * ap_rm);
+  OMX_S32 tiz_rm_proxy_version (const tiz_rm_t * ap_rm);
 
-    tizrm_error_t
-    tiz_rm_proxy_acquire (const tizrm_t * ap_rm, OMX_U32 rid,
+    tiz_rm_error_t
+    tiz_rm_proxy_acquire (const tiz_rm_t * ap_rm, OMX_U32 rid,
                          OMX_U32 quantity);
 
-    tizrm_error_t
-    tiz_rm_proxy_release (const tizrm_t * ap_rm, OMX_U32 rid,
+    tiz_rm_error_t
+    tiz_rm_proxy_release (const tiz_rm_t * ap_rm, OMX_U32 rid,
                          OMX_U32 quantity);
 
-    tizrm_error_t
-    tiz_rm_proxy_wait (const tizrm_t * ap_rm, OMX_U32 rid, OMX_U32 quantity);
+    tiz_rm_error_t
+    tiz_rm_proxy_wait (const tiz_rm_t * ap_rm, OMX_U32 rid, OMX_U32 quantity);
 
-    tizrm_error_t
-    tiz_rm_proxy_cancel_wait (const tizrm_t * ap_rm, OMX_U32 rid,
+    tiz_rm_error_t
+    tiz_rm_proxy_cancel_wait (const tiz_rm_t * ap_rm, OMX_U32 rid,
                              OMX_U32 quantity);
 
-    tizrm_error_t
-    tiz_rm_proxy_preemption_conf (const tizrm_t * ap_rm, OMX_U32 rid,
+    tiz_rm_error_t
+    tiz_rm_proxy_preemption_conf (const tiz_rm_t * ap_rm, OMX_U32 rid,
                                  OMX_U32 quantity);
 
 #ifdef __cplusplus

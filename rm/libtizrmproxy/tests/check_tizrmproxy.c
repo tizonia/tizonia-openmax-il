@@ -77,7 +77,7 @@ struct check_common_context
 {
   OMX_BOOL signaled;
   OMX_U32 rid;
-  tizrm_t *pp_rm;
+  tiz_rm_t *pp_rm;
   tiz_mutex_t mutex;
   tiz_cond_t cond;
 };
@@ -474,9 +474,9 @@ check_tizrmproxy_find_proc (const char *name)
 
 START_TEST (test_proxy_acquire_and_release)
 {
-  tizrm_error_t error = TIZRM_SUCCESS;
+  tiz_rm_error_t error = TIZ_RM_SUCCESS;
   int rc, daemon_existed = 1;
-  tizrm_t p_rm;;
+  tiz_rm_t p_rm;;
   pid_t pid;
   OMX_UUIDTYPE uuid_omx;
   OMX_PRIORITYMGMTTYPE primgmt;
@@ -526,19 +526,19 @@ START_TEST (test_proxy_acquire_and_release)
         tiz_rm_proxy_init (&p_rm, COMPONENT1_NAME,
                           (const OMX_UUIDTYPE *) &uuid_omx, &primgmt, &cbacks,
                           NULL);
-      fail_if (error != TIZRM_SUCCESS);
+      fail_if (error != TIZ_RM_SUCCESS);
 
       /* error = tiz_rm_proxy_version(&p_rm); */
-      error = tiz_rm_proxy_acquire (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
+      error = tiz_rm_proxy_acquire (&p_rm, TIZ_RM_RESOURCE_DUMMY, 1);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_acquire returned [%d]", error);
-      fail_if (error != TIZRM_SUCCESS);
+      fail_if (error != TIZ_RM_SUCCESS);
 
-      error = tiz_rm_proxy_release (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
+      error = tiz_rm_proxy_release (&p_rm, TIZ_RM_RESOURCE_DUMMY, 1);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_release returned [%d]", error);
-      fail_if (error != TIZRM_SUCCESS);
+      fail_if (error != TIZ_RM_SUCCESS);
 
       error = tiz_rm_proxy_destroy (&p_rm);
-      fail_if (error != TIZRM_SUCCESS);
+      fail_if (error != TIZ_RM_SUCCESS);
 
       if (!daemon_existed)
         {
@@ -570,9 +570,9 @@ START_TEST (test_proxy_acquire_and_release)
 END_TEST
 START_TEST (test_proxy_acquire_and_destroy_no_release)
 {
-  tizrm_error_t error = TIZRM_SUCCESS;
+  tiz_rm_error_t error = TIZ_RM_SUCCESS;
   int rc, daemon_existed = 1;
-  tizrm_t p_rm;;
+  tiz_rm_t p_rm;;
   pid_t pid;
   OMX_UUIDTYPE uuid_omx;
   OMX_PRIORITYMGMTTYPE primgmt;
@@ -622,15 +622,15 @@ START_TEST (test_proxy_acquire_and_destroy_no_release)
         tiz_rm_proxy_init (&p_rm, COMPONENT1_NAME,
                           (const OMX_UUIDTYPE *) &uuid_omx, &primgmt, &cbacks,
                           NULL);
-      fail_if (error != TIZRM_SUCCESS);
+      fail_if (error != TIZ_RM_SUCCESS);
 
       /* error = tiz_rm_proxy_version(&p_rm); */
-      error = tiz_rm_proxy_acquire (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
+      error = tiz_rm_proxy_acquire (&p_rm, TIZ_RM_RESOURCE_DUMMY, 1);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_acquire returned [%d]", error);
-      fail_if (error != TIZRM_SUCCESS);
+      fail_if (error != TIZ_RM_SUCCESS);
 
       error = tiz_rm_proxy_destroy (&p_rm);
-      fail_if (error != TIZRM_SUCCESS);
+      fail_if (error != TIZ_RM_SUCCESS);
 
       if (!daemon_existed)
         {
@@ -662,9 +662,9 @@ START_TEST (test_proxy_acquire_and_destroy_no_release)
 END_TEST
 START_TEST (test_proxy_wait_cancel_wait)
 {
-  tizrm_error_t error = TIZRM_SUCCESS;
+  tiz_rm_error_t error = TIZ_RM_SUCCESS;
   int rc, daemon_existed = 1;
-  tizrm_t p_rm;;
+  tiz_rm_t p_rm;;
   pid_t pid;
   OMX_UUIDTYPE uuid_omx;
   OMX_PRIORITYMGMTTYPE primgmt;
@@ -714,27 +714,27 @@ START_TEST (test_proxy_wait_cancel_wait)
             tiz_rm_proxy_init (&p_rm, COMPONENT1_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx, &primgmt, &cbacks,
                               NULL);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           /* error = tiz_rm_proxy_version(&p_rm); */
-          error = tiz_rm_proxy_acquire (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
+          error = tiz_rm_proxy_acquire (&p_rm, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_acquire returned [%d]", error);
-          fail_if (error != TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE);
+          fail_if (error != TIZ_RM_NOT_ENOUGH_RESOURCE_AVAILABLE);
 
           /* Wait for the resource */
-          error = tiz_rm_proxy_wait (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
+          error = tiz_rm_proxy_wait (&p_rm, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_wait returned [%d]", error);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           /* Now cancel the wait */
-          error = tiz_rm_proxy_cancel_wait (&p_rm, TIZRM_RESOURCE_DUMMY, 1);
+          error = tiz_rm_proxy_cancel_wait (&p_rm, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_cancel_wait returned [%d]",
                      error);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           error = tiz_rm_proxy_destroy (&p_rm);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_destroy returned [%d]", error);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           if (!daemon_existed)
             {
@@ -770,10 +770,10 @@ START_TEST (test_proxy_wait_cancel_wait)
 END_TEST
 START_TEST (test_proxy_busy_resource_management)
 {
-  tizrm_error_t error = TIZRM_SUCCESS;
+  tiz_rm_error_t error = TIZ_RM_SUCCESS;
   OMX_ERRORTYPE omx_error = OMX_ErrorNone;
   int rc, daemon_existed = 1;
-  tizrm_t p_rm1, p_rm2;
+  tiz_rm_t p_rm1, p_rm2;
   pid_t pid;
   OMX_UUIDTYPE uuid_omx1, uuid_omx2;
   OMX_PRIORITYMGMTTYPE primgmt;
@@ -832,7 +832,7 @@ START_TEST (test_proxy_busy_resource_management)
             tiz_rm_proxy_init (&p_rm1, COMPONENT1_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx1, &primgmt,
                               &cbacks1, (OMX_PTR *) (&ctx));
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           cbacks2.pf_waitend = &check_tizrmproxy_comp2_wait_complete;
           cbacks2.pf_preempt = &check_tizrmproxy_comp2_preemption_req;
@@ -843,57 +843,57 @@ START_TEST (test_proxy_busy_resource_management)
             tiz_rm_proxy_init (&p_rm2, COMPONENT2_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx2, &primgmt,
                               &cbacks2, (OMX_PTR *) (&ctx));
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
-          /* Component1 acquires all the available units (1) of resource TIZRM_RESOURCE_DUMMY */
-          error = tiz_rm_proxy_acquire (&p_rm1, TIZRM_RESOURCE_DUMMY, 1);
+          /* Component1 acquires all the available units (1) of resource TIZ_RM_RESOURCE_DUMMY */
+          error = tiz_rm_proxy_acquire (&p_rm1, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_acquire returned (rm1) [%d]",
                      error);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           /* Component2 cannot acquire the resource, because there are not enough
            * units available */
-          error = tiz_rm_proxy_acquire (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
+          error = tiz_rm_proxy_acquire (&p_rm2, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_acquire returned (rm2) [%d]",
                      error);
-          fail_if (error != TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE);
+          fail_if (error != TIZ_RM_NOT_ENOUGH_RESOURCE_AVAILABLE);
 
           /* Component2 signals its intent to wait for the resource */
-          error = tiz_rm_proxy_wait (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
+          error = tiz_rm_proxy_wait (&p_rm2, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_wait returned (rm2) [%d]",
                      error);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           /* Now Component1 releases the resource */
-          error = tiz_rm_proxy_release (&p_rm1, TIZRM_RESOURCE_DUMMY, 1);
+          error = tiz_rm_proxy_release (&p_rm1, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_release returned (rm1) [%d]",
                      error);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           /* and now Component2 receives the resource  */
           /* Check wait complete */
           omx_error = _ctx_wait (&ctx, TIMEOUT_EXPECTING_SUCCESS, &timedout);
           fail_if (OMX_ErrorNone != omx_error);
           fail_if (OMX_TRUE == timedout);
-          fail_if (TIZRM_RESOURCE_DUMMY != p_ctx->rid);
+          fail_if (TIZ_RM_RESOURCE_DUMMY != p_ctx->rid);
 
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Wait complete (rm2)");
 
           /* Component2 releases the resource  */
-          error = tiz_rm_proxy_release (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
-          fail_if (error != TIZRM_SUCCESS);
+          error = tiz_rm_proxy_release (&p_rm2, TIZ_RM_RESOURCE_DUMMY, 1);
+          fail_if (error != TIZ_RM_SUCCESS);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_release returned (rm2) [%d]",
                      error);
 
           /* Destroy the rm hdls */
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Destroying rm hdls");
           error = tiz_rm_proxy_destroy (&p_rm1);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_destroy returned (rm1) [%d]",
                      error);
 
           error = tiz_rm_proxy_destroy (&p_rm2);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_destroy returned (rm2) [%d]",
                      error);
 
@@ -934,10 +934,10 @@ START_TEST (test_proxy_busy_resource_management)
 END_TEST
 START_TEST (test_proxy_resource_preemption)
 {
-  tizrm_error_t error = TIZRM_SUCCESS;
+  tiz_rm_error_t error = TIZ_RM_SUCCESS;
   OMX_ERRORTYPE omx_error = OMX_ErrorNone;
   int rc, daemon_existed = 1;
-  tizrm_t p_rm1, p_rm2;
+  tiz_rm_t p_rm1, p_rm2;
   pid_t pid;
   OMX_UUIDTYPE uuid_omx1, uuid_omx2;
   OMX_PRIORITYMGMTTYPE primgmt;
@@ -1002,7 +1002,7 @@ START_TEST (test_proxy_resource_preemption)
             tiz_rm_proxy_init (&p_rm1, COMPONENT1_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx1, &primgmt,
                               &cbacks1, (OMX_PTR *) (&ctx1));
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           primgmt.nGroupPriority = COMPONENT2_PRIORITY;
           primgmt.nGroupID = COMPONENT2_GROUP_ID;
@@ -1016,20 +1016,20 @@ START_TEST (test_proxy_resource_preemption)
             tiz_rm_proxy_init (&p_rm2, COMPONENT2_NAME,
                               (const OMX_UUIDTYPE *) &uuid_omx2, &primgmt,
                               &cbacks2, (OMX_PTR *) (&ctx2));
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
-          /* Component1 acquires all the available units (1) of resource TIZRM_RESOURCE_DUMMY */
-          error = tiz_rm_proxy_acquire (&p_rm1, TIZRM_RESOURCE_DUMMY, 1);
+          /* Component1 acquires all the available units (1) of resource TIZ_RM_RESOURCE_DUMMY */
+          error = tiz_rm_proxy_acquire (&p_rm1, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_acquire returned (rm1) [%d]",
                      error);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           /* Component2 requests the same resource. It belongs to a higher priority
            * group and causes the preemption of the resource from Component1 */
-          error = tiz_rm_proxy_acquire (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
+          error = tiz_rm_proxy_acquire (&p_rm2, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_acquire returned (rm2) [%d]",
                      error);
-          fail_if (error != TIZRM_PREEMPTION_IN_PROGRESS);
+          fail_if (error != TIZ_RM_PREEMPTION_IN_PROGRESS);
 
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Preemption is in progress (rm1) [%d]",
                      error);
@@ -1038,41 +1038,41 @@ START_TEST (test_proxy_resource_preemption)
           omx_error = _ctx_wait (&ctx1, TIMEOUT_EXPECTING_SUCCESS, &timedout1);
           fail_if (OMX_ErrorNone != omx_error);
           fail_if (OMX_TRUE == timedout1);
-          fail_if (TIZRM_RESOURCE_DUMMY != p_ctx1->rid);
+          fail_if (TIZ_RM_RESOURCE_DUMMY != p_ctx1->rid);
 
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Preemption request verified (rm1) [%d]",
                      error);
 
           /* Now Component1 releases the resource */
-          error = tiz_rm_proxy_preemption_conf (&p_rm1, TIZRM_RESOURCE_DUMMY, 1);
+          error = tiz_rm_proxy_preemption_conf (&p_rm1, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE,
                      "tiz_rm_proxy_preemption_conf returned (rm1) [%d]", error);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           /* Verify preemption completion and Component2's resource ownership */
           omx_error = _ctx_wait (&ctx2, TIMEOUT_EXPECTING_SUCCESS, &timedout2);
           fail_if (OMX_ErrorNone != omx_error);
           fail_if (OMX_TRUE == timedout2);
-          fail_if (TIZRM_RESOURCE_DUMMY != p_ctx2->rid);
+          fail_if (TIZ_RM_RESOURCE_DUMMY != p_ctx2->rid);
 
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Preemption completion verified (rm2) [%d]",
                      error);
 
           /* Now Component2 releases the resource */
-          error = tiz_rm_proxy_release (&p_rm2, TIZRM_RESOURCE_DUMMY, 1);
+          error = tiz_rm_proxy_release (&p_rm2, TIZ_RM_RESOURCE_DUMMY, 1);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_release returned (rm2) [%d]",
                      error);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
 
           /* Destroy the rm hdls */
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Destroying rm hdls");
           error = tiz_rm_proxy_destroy (&p_rm1);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_destroy returned (rm1) [%d]",
                      error);
 
           error = tiz_rm_proxy_destroy (&p_rm2);
-          fail_if (error != TIZRM_SUCCESS);
+          fail_if (error != TIZ_RM_SUCCESS);
           TIZ_LOG (TIZ_PRIORITY_TRACE, "tiz_rm_proxy_destroy returned (rm2) [%d]",
                      error);
 

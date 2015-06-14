@@ -1040,7 +1040,7 @@ static OMX_ERRORTYPE init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
   OMX_UUIDTYPE uuid;
   OMX_PRIORITYMGMTTYPE primgmt;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tizrm_error_t rmrc = TIZRM_SUCCESS;
+  tiz_rm_error_t rmrc = TIZ_RM_SUCCESS;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
@@ -1075,7 +1075,7 @@ static OMX_ERRORTYPE init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
       return rc;
     }
 
-  if (TIZRM_SUCCESS
+  if (TIZ_RM_SUCCESS
       != (rmrc = tiz_rm_proxy_init (&p_obj->rm_, (OMX_STRING)(&comp_name),
                                     (const OMX_UUIDTYPE *)&uuid, &primgmt,
                                     &p_obj->rm_cbacks_, ap_hdl)))
@@ -1099,12 +1099,12 @@ static OMX_ERRORTYPE init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 static OMX_ERRORTYPE deinit_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   tiz_krn_t *p_obj = (tiz_krn_t *)ap_obj;
-  tizrm_error_t rmrc = TIZRM_SUCCESS;
+  tiz_rm_error_t rmrc = TIZ_RM_SUCCESS;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
 
-  if (TIZRM_SUCCESS != (rmrc = tiz_rm_proxy_destroy (&p_obj->rm_)))
+  if (TIZ_RM_SUCCESS != (rmrc = tiz_rm_proxy_destroy (&p_obj->rm_)))
     {
       /* TODO: Translate into a proper error code, especially OOM error  */
       TIZ_ERROR (ap_hdl,
@@ -1119,22 +1119,22 @@ static OMX_ERRORTYPE acquire_rm_resources (const void *ap_obj,
                                            OMX_HANDLETYPE ap_hdl)
 {
   tiz_krn_t *p_obj = (tiz_krn_t *)ap_obj;
-  tizrm_error_t rmrc = TIZRM_SUCCESS;
+  tiz_rm_error_t rmrc = TIZ_RM_SUCCESS;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* Request permission to use the RM-based resources */
-  if (TIZRM_SUCCESS
-      != (rmrc = tiz_rm_proxy_acquire (&p_obj->rm_, TIZRM_RESOURCE_DUMMY, 1)))
+  if (TIZ_RM_SUCCESS
+      != (rmrc = tiz_rm_proxy_acquire (&p_obj->rm_, TIZ_RM_RESOURCE_DUMMY, 1)))
     {
       switch (rmrc)
         {
-          case TIZRM_PREEMPTION_IN_PROGRESS:
+          case TIZ_RM_PREEMPTION_IN_PROGRESS:
             {
               rc = OMX_ErrorResourcesPreempted;
             }
             break;
 
-          case TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE:
+          case TIZ_RM_NOT_ENOUGH_RESOURCE_AVAILABLE:
           default:
             {
               rc = OMX_ErrorInsufficientResources;
@@ -1154,10 +1154,10 @@ static OMX_ERRORTYPE release_rm_resources (const void *ap_obj,
                                            OMX_HANDLETYPE ap_hdl)
 {
   tiz_krn_t *p_obj = (tiz_krn_t *)ap_obj;
-  tizrm_error_t rmrc = TIZRM_SUCCESS;
+  tiz_rm_error_t rmrc = TIZ_RM_SUCCESS;
 
-  if (TIZRM_SUCCESS
-      != (rmrc = tiz_rm_proxy_release (&p_obj->rm_, TIZRM_RESOURCE_DUMMY, 1)))
+  if (TIZ_RM_SUCCESS
+      != (rmrc = tiz_rm_proxy_release (&p_obj->rm_, TIZ_RM_RESOURCE_DUMMY, 1)))
     {
       TIZ_TRACE (ap_hdl, "Resource release failed - RM error [%d]...", rmrc);
     }

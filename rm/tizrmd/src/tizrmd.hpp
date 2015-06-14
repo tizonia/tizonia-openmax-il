@@ -64,7 +64,7 @@ public:
    * @param grpid The component's group
    * @param pri The component's group priority
    *
-   * @return An tizrm_error_t error code
+   * @return An tiz_rm_error_t error code
    */
   int32_t acquire (const uint32_t &rid, const uint32_t &quantity,
                    const std::string &cname, const std::vector< uint8_t > &uuid,
@@ -81,7 +81,7 @@ public:
    * @param grpid The component's group
    * @param pri The component's group priority
    *
-   * @return An tizrm_error_t error code
+   * @return An tiz_rm_error_t error code
    */
   int32_t release (const uint32_t &rid, const uint32_t &quantity,
                    const std::string &cname, const std::vector< uint8_t > &uuid,
@@ -97,7 +97,7 @@ public:
    * @param grpid The component's group
    * @param pri The component's group priority
    *
-   * @return An tizrm_error_t error code
+   * @return An tiz_rm_error_t error code
    */
   int32_t wait (const uint32_t &rid, const uint32_t &quantity,
                 const std::string &cname, const std::vector< uint8_t > &uuid,
@@ -113,7 +113,7 @@ public:
    * @param grpid The component's group
    * @param pri The component's group priority
    *
-   * @return An tizrm_error_t error code
+   * @return An tiz_rm_error_t error code
    */
   int32_t cancel_wait (const uint32_t &rid, const uint32_t &quantity,
                        const std::string &cname,
@@ -130,7 +130,7 @@ public:
    * @param grpid The component's group
    * @param pri The component's group priority
    *
-   * @return An tizrm_error_t error code
+   * @return An tiz_rm_error_t error code
    */
   int32_t preemption_conf (const uint32_t &rid, const uint32_t &quantity,
                            const std::string &cname,
@@ -144,7 +144,7 @@ public:
    * @param cname The OpenMAX IL component's name
    * @param uuid The component's uuid
    *
-   * @return A tizrm_error_t error code
+   * @return A tiz_rm_error_t error code
    */
   int32_t relinquish_all (const std::string &cname,
                           const std::vector< unsigned char > &uuid);

@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 sqlite_scripts = initrmdb.sql3
-shell_scripts = tizrm_dumpdb.sh tizrm_gendb.sh
+shell_scripts = tiz_rm_dumpdb.sh tiz_rm_gendb.sh
 sqlite_databases = tizrm.db
 
 tizrmdbdir = $(datadir)/$(PACKAGE)
@@ -24,22 +24,22 @@ tizrmdb_DATA = $(sqlite_scripts) $(sqlite_databases)
 
 bin_SCRIPTS = $(shell_scripts)
 CLEANFILES = $(bin_SCRIPTS)
-EXTRA_DIST = $(sqlite_scripts) $(sqlite_databases) tizrm_dumpdb.sh.in tizrm_gendb.sh.in
+EXTRA_DIST = $(sqlite_scripts) $(sqlite_databases) tiz_rm_dumpdb.sh.in tiz_rm_gendb.sh.in
 
 do_subst = sed -e 's,[@]datadir[@],$(datadir),g' \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
 	-e 's,[@]VERSION[@],$(VERSION),g'
 
-tizrm_dumpdb.sh: tizrm_dumpdb.sh.in Makefile
-	$(do_subst) < $(srcdir)/tizrm_dumpdb.sh.in > tizrm_dumpdb.sh
-	chmod +x tizrm_dumpdb.sh
+tiz_rm_dumpdb.sh: tiz_rm_dumpdb.sh.in Makefile
+	$(do_subst) < $(srcdir)/tiz_rm_dumpdb.sh.in > tiz_rm_dumpdb.sh
+	chmod +x tiz_rm_dumpdb.sh
 
-tizrm_gendb.sh: tizrm_gendb.sh.in Makefile
-	$(do_subst) < $(srcdir)/tizrm_gendb.sh.in > tizrm_gendb.sh
-	chmod +x tizrm_gendb.sh
+tiz_rm_gendb.sh: tiz_rm_gendb.sh.in Makefile
+	$(do_subst) < $(srcdir)/tiz_rm_gendb.sh.in > tiz_rm_gendb.sh
+	chmod +x tiz_rm_gendb.sh
 
 tizrm.db: $(sqlite_scripts) $(shell_scripts)
-	. tizrm_gendb.sh
+	. tiz_rm_gendb.sh
 
 all-local: tizrm.db
 

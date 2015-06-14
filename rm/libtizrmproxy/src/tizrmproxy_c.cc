@@ -45,7 +45,7 @@
 /* Object path, a.k.a. node */
 #define TIZ_RM_DAEMON_PATH "/com/aratelia/tiz/tizrmd"
 
-enum tizrm_state
+enum tiz_rm_state
   {
     ETIZRmStateInvalid = 0,
     ETIZRmStateStarting,
@@ -53,15 +53,15 @@ enum tizrm_state
     ETIZRmStateStopped
   };
 
-typedef enum tizrm_state tizrm_state_t;
+typedef enum tiz_rm_state tiz_rm_state_t;
 
 struct tizrm
 {
   tiz_thread_t thread;
   tiz_sem_t sem;
   tiz_queue_t *p_queue;
-  tizrm_error_t error;
-  tizrm_state_t state;
+  tiz_rm_error_t error;
+  tiz_rm_state_t state;
   OMX_S32 ref_count;
   DBus::DefaultTimeout *p_dbustimeout;
   DBus::BusDispatcher *p_dispatcher;
@@ -69,14 +69,14 @@ struct tizrm
   tizrmproxy *p_proxy;
 };
 
-typedef struct tizrm tizrm_int_t;
+typedef struct tizrm tiz_rm_int_t;
 
-static inline tizrm_int_t* get_rm();
+static inline tiz_rm_int_t* get_rm();
 
 static void *
 il_rmproxy_thread_func(void *p_arg)
 {
-  tizrm_int_t *p_rm = (tizrm_int_t*)(p_arg);
+  tiz_rm_int_t *p_rm = (tiz_rm_int_t*)(p_arg);
 
   TIZ_LOG(TIZ_PRIORITY_TRACE, "p_rm [%08X]", p_rm);
 
@@ -94,10 +94,10 @@ il_rmproxy_thread_func(void *p_arg)
   return NULL;
 }
 
-static inline tizrm_int_t*
+static inline tiz_rm_int_t*
 get_rm()
 {
-  static tizrm_int_t *p_rm = NULL;
+  static tiz_rm_int_t *p_rm = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* For now, don't bother about thread safety of initialization of this */
@@ -108,8 +108,8 @@ get_rm()
 
   if(!p_rm)
     {
-      p_rm = (tizrm_int_t*)
-        tiz_mem_calloc(1, sizeof(tizrm_int_t));
+      p_rm = (tiz_rm_int_t*)
+        tiz_mem_calloc(1, sizeof(tiz_rm_int_t));
 
       if (!p_rm)
         {
@@ -133,7 +133,7 @@ get_rm()
           return NULL;
         }
 
-      p_rm->error = TIZRM_SUCCESS;
+      p_rm->error = TIZ_RM_SUCCESS;
       p_rm->state = ETIZRmStateStarting;
       p_rm->ref_count = 0;
 
@@ -150,10 +150,10 @@ get_rm()
 
 }
 
-static tizrm_error_t
+static tiz_rm_error_t
 stop_proxy()
 {
-  tizrm_int_t *p_rm = get_rm();
+  tiz_rm_int_t *p_rm = get_rm();
   OMX_PTR p_result = NULL;
   assert(p_rm);
 
@@ -174,23 +174,23 @@ stop_proxy()
   p_rm->p_queue = NULL;
   tiz_sem_destroy(&(p_rm->sem));
 
-  /* NOTE: Do not free the tizrm_int_t structure. This will be reused in case
+  /* NOTE: Do not free the tiz_rm_int_t structure. This will be reused in case
      the proxy is re-initialized */
   /* tiz_mem_free(p_rm); */
 
-  return TIZRM_SUCCESS;
+  return TIZ_RM_SUCCESS;
 
 }
 
-extern "C" tizrm_error_t
-tiz_rm_proxy_init(tizrm_t * ap_rm, const OMX_STRING ap_name,
+extern "C" tiz_rm_error_t
+tiz_rm_proxy_init(tiz_rm_t * ap_rm, const OMX_STRING ap_name,
                  const OMX_UUIDTYPE * ap_uuid,
                  const OMX_PRIORITYMGMTTYPE * ap_pri,
                  const tiz_rm_proxy_callbacks_t * ap_cbacks,
                  OMX_PTR ap_data)
 {
-  tizrm_error_t rc = TIZRM_SUCCESS;
-  tizrm_int_t *p_rm = NULL;
+  tiz_rm_error_t rc = TIZ_RM_SUCCESS;
+  tiz_rm_int_t *p_rm = NULL;
 
   TIZ_LOG(TIZ_PRIORITY_TRACE, "IL RM Proxy Init");
   assert(ap_rm);
@@ -205,7 +205,7 @@ tiz_rm_proxy_init(tizrm_t * ap_rm, const OMX_STRING ap_name,
   if (NULL == (p_rm = get_rm()))
     {
       TIZ_LOG(TIZ_PRIORITY_TRACE, "Error retrieving proxy");
-      return TIZRM_OOM;
+      return TIZ_RM_OOM;
     }
 
   if (ETIZRmStateStarting == p_rm->state
@@ -252,7 +252,7 @@ tiz_rm_proxy_init(tizrm_t * ap_rm, const OMX_STRING ap_name,
                                                 ap_data)))
     {
       TIZ_LOG(TIZ_PRIORITY_TRACE, "Error registering proxy");
-      rc = TIZRM_OOM;
+      rc = TIZ_RM_OOM;
     }
 
 
@@ -260,22 +260,22 @@ tiz_rm_proxy_init(tizrm_t * ap_rm, const OMX_STRING ap_name,
 
 }
 
-extern "C" tizrm_error_t
-tiz_rm_proxy_destroy(tizrm_t * ap_rm)
+extern "C" tiz_rm_error_t
+tiz_rm_proxy_destroy(tiz_rm_t * ap_rm)
 {
-  tizrm_error_t rc = TIZRM_SUCCESS;
-  tizrm_int_t *p_rm = NULL;
+  tiz_rm_error_t rc = TIZ_RM_SUCCESS;
+  tiz_rm_int_t *p_rm = NULL;
 
   if (!ap_rm)
     {
-      return TIZRM_MISUSE;
+      return TIZ_RM_MISUSE;
     }
 
 
   if (NULL == (p_rm = get_rm()))
     {
       TIZ_LOG(TIZ_PRIORITY_TRACE, "Error retrieving proxy");
-      return TIZRM_OOM;
+      return TIZ_RM_OOM;
     }
 
   TIZ_LOG(TIZ_PRIORITY_TRACE, "IL RM Proxy destroy : ref_count [%d]", p_rm->ref_count);
@@ -303,12 +303,12 @@ tiz_rm_proxy_destroy(tizrm_t * ap_rm)
 }
 
 extern "C" OMX_S32
-tiz_rm_proxy_version(const tizrm_t * ap_rm)
+tiz_rm_proxy_version(const tiz_rm_t * ap_rm)
 {
-  tizrm_int_t *p_rm = NULL;
+  tiz_rm_int_t *p_rm = NULL;
   if (!ap_rm)
     {
-      return TIZRM_MISUSE;
+      return TIZ_RM_MISUSE;
     }
 
   p_rm = get_rm();
@@ -317,13 +317,13 @@ tiz_rm_proxy_version(const tizrm_t * ap_rm)
   return p_rm->p_proxy->Version();
 }
 
-extern "C" tizrm_error_t
-tiz_rm_proxy_acquire(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+extern "C" tiz_rm_error_t
+tiz_rm_proxy_acquire(const tiz_rm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
-  tizrm_int_t *p_rm = NULL;
+  tiz_rm_int_t *p_rm = NULL;
   if (!ap_rm)
     {
-      return TIZRM_MISUSE;
+      return TIZ_RM_MISUSE;
     }
 
   p_rm = get_rm();
@@ -331,69 +331,69 @@ tiz_rm_proxy_acquire(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 
   TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_acquire");
 
-  return (tizrm_error_t)p_rm->p_proxy->acquire(ap_rm, a_rid, a_quantity);
+  return (tiz_rm_error_t)p_rm->p_proxy->acquire(ap_rm, a_rid, a_quantity);
 }
 
-extern "C" tizrm_error_t
-tiz_rm_proxy_release(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+extern "C" tiz_rm_error_t
+tiz_rm_proxy_release(const tiz_rm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
-  tizrm_int_t *p_rm = NULL;
+  tiz_rm_int_t *p_rm = NULL;
   if (!ap_rm)
     {
-      return TIZRM_MISUSE;
+      return TIZ_RM_MISUSE;
     }
 
   p_rm = get_rm();
   assert(p_rm);
 
   TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_release");
-  return (tizrm_error_t)p_rm->p_proxy->release(ap_rm, a_rid, a_quantity);
+  return (tiz_rm_error_t)p_rm->p_proxy->release(ap_rm, a_rid, a_quantity);
 }
 
-extern "C" tizrm_error_t
-tiz_rm_proxy_wait(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+extern "C" tiz_rm_error_t
+tiz_rm_proxy_wait(const tiz_rm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
-  tizrm_int_t *p_rm = NULL;
+  tiz_rm_int_t *p_rm = NULL;
   if (!ap_rm)
     {
-      return TIZRM_MISUSE;
+      return TIZ_RM_MISUSE;
     }
 
   p_rm = get_rm();
   assert(p_rm);
 
   TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_wait");
-  return (tizrm_error_t)p_rm->p_proxy->wait(ap_rm, a_rid, a_quantity);
+  return (tiz_rm_error_t)p_rm->p_proxy->wait(ap_rm, a_rid, a_quantity);
 }
 
-extern "C" tizrm_error_t
-tiz_rm_proxy_cancel_wait(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+extern "C" tiz_rm_error_t
+tiz_rm_proxy_cancel_wait(const tiz_rm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
-  tizrm_int_t *p_rm = NULL;
+  tiz_rm_int_t *p_rm = NULL;
   if (!ap_rm)
     {
-      return TIZRM_MISUSE;
+      return TIZ_RM_MISUSE;
     }
 
   p_rm = get_rm();
   assert(p_rm);
 
   TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_cancel_wait");
-  return (tizrm_error_t)p_rm->p_proxy->cancel_wait(ap_rm, a_rid, a_quantity);
+  return (tiz_rm_error_t)p_rm->p_proxy->cancel_wait(ap_rm, a_rid, a_quantity);
 }
 
-extern "C" tizrm_error_t
-tiz_rm_proxy_preemption_conf(const tizrm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
+extern "C" tiz_rm_error_t
+tiz_rm_proxy_preemption_conf(const tiz_rm_t * ap_rm, OMX_U32 a_rid, OMX_U32 a_quantity)
 {
-  tizrm_int_t *p_rm = NULL;
+  tiz_rm_int_t *p_rm = NULL;
   if (!ap_rm)
     {
-      return TIZRM_MISUSE;
+      return TIZ_RM_MISUSE;
     }
 
   p_rm = get_rm();
   assert(p_rm);
 
   TIZ_LOG(TIZ_PRIORITY_TRACE, "tiz_rm_proxy_preemption_conf");
-  return (tizrm_error_t)p_rm->p_proxy->preemption_conf(ap_rm, a_rid, a_quantity);
+  return (tiz_rm_error_t)p_rm->p_proxy->preemption_conf(ap_rm, a_rid, a_quantity);
 }

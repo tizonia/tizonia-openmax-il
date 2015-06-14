@@ -226,7 +226,7 @@ struct tizcore
   OMX_ERRORTYPE error;
   tizcore_state_t state;
   tizcore_registry_t p_registry;
-  tizrm_t rm;
+  tiz_rm_t rm;
   tiz_rm_proxy_callbacks_t rmcbacks;
   OMX_UUIDTYPE uuid;
 };
@@ -962,7 +962,7 @@ remove_comp_instance (tizcore_msg_freehandle_t * ap_msg)
 static OMX_ERRORTYPE
 do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
-  tizrm_error_t rc = TIZRM_SUCCESS;
+  tiz_rm_error_t rc = TIZ_RM_SUCCESS;
   tizcore_t *p_core = get_core ();
   OMX_PRIORITYMGMTTYPE primgmt;
   (void) ap_msg;
@@ -986,7 +986,7 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 
   bzero (&p_core->uuid, 128);
 
-  if (TIZRM_SUCCESS !=
+  if (TIZ_RM_SUCCESS !=
       (rc =
        tiz_rm_proxy_init (&p_core->rm, (const OMX_STRING) TIZ_IL_CORE_RM_NAME,
                          (const OMX_UUIDTYPE *) &p_core->uuid, &primgmt,
@@ -1006,7 +1006,7 @@ do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 static OMX_ERRORTYPE
 do_deinit (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
 {
-  tizrm_error_t rc = TIZRM_SUCCESS;
+  tiz_rm_error_t rc = TIZ_RM_SUCCESS;
   tizcore_t *p_core = get_core ();
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "ETIZCoreMsgDeinit received...");
@@ -1018,7 +1018,7 @@ do_deinit (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   * ap_state = ETIZCoreStateStopped;
 
   /* Deinit the RM hdl */
-  if (TIZRM_SUCCESS != (rc = tiz_rm_proxy_destroy (&p_core->rm)))
+  if (TIZ_RM_SUCCESS != (rc = tiz_rm_proxy_destroy (&p_core->rm)))
     {
       /* TODO: Translate into a proper error code, especially OOM error  */
       TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorUndefined] : "

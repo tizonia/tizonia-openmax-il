@@ -83,9 +83,9 @@ void *tizrmproxy::register_client (
   return NULL;
 }
 
-void tizrmproxy::unregister_client (const tizrm_t *ap_rm)
+void tizrmproxy::unregister_client (const tiz_rm_t *ap_rm)
 {
-  int32_t rc = TIZRM_SUCCESS;
+  int32_t rc = TIZ_RM_SUCCESS;
   char uuid_str[128];
   assert (ap_rm);
   const std::vector< unsigned char > *p_uuid_vec
@@ -117,37 +117,37 @@ void tizrmproxy::unregister_client (const tizrm_t *ap_rm)
            uuid_str, rc);
 }
 
-int32_t tizrmproxy::acquire (const tizrm_t *ap_rm, const uint32_t &rid,
+int32_t tizrmproxy::acquire (const tiz_rm_t *ap_rm, const uint32_t &rid,
                              const uint32_t &quantity)
 {
   return invokerm (&com::aratelia::tiz::tizrmif_proxy::acquire, ap_rm, rid,
                    quantity);
 }
 
-int32_t tizrmproxy::release (const tizrm_t *ap_rm, const uint32_t &rid,
+int32_t tizrmproxy::release (const tiz_rm_t *ap_rm, const uint32_t &rid,
                              const uint32_t &quantity)
 {
   return invokerm (&com::aratelia::tiz::tizrmif_proxy::release, ap_rm, rid,
                    quantity);
 }
 
-int32_t tizrmproxy::wait (const tizrm_t *ap_rm, const uint32_t &rid,
+int32_t tizrmproxy::wait (const tiz_rm_t *ap_rm, const uint32_t &rid,
                           const uint32_t &quantity)
 {
   return invokerm (&com::aratelia::tiz::tizrmif_proxy::wait, ap_rm, rid,
                    quantity);
 }
 
-int32_t tizrmproxy::cancel_wait (const tizrm_t *ap_rm, const uint32_t &rid,
+int32_t tizrmproxy::cancel_wait (const tiz_rm_t *ap_rm, const uint32_t &rid,
                                  const uint32_t &quantity)
 {
   return invokerm (&com::aratelia::tiz::tizrmif_proxy::cancel_wait, ap_rm, rid,
                    quantity);
 }
 
-int32_t tizrmproxy::relinquish_all (const tizrm_t *ap_rm)
+int32_t tizrmproxy::relinquish_all (const tiz_rm_t *ap_rm)
 {
-  int32_t rc = TIZRM_SUCCESS;
+  int32_t rc = TIZ_RM_SUCCESS;
   assert (ap_rm);
   const std::vector< unsigned char > *p_uuid_vec
       = static_cast< std::vector< unsigned char > * >(*ap_rm);
@@ -164,23 +164,23 @@ int32_t tizrmproxy::relinquish_all (const tizrm_t *ap_rm)
       catch (DBus::Error const &e)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "DBus error [%s]...", e.what ());
-        rc = TIZRM_DBUS;
+        rc = TIZ_RM_DBUS;
       }
       catch (std::exception const &e)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "Standard exception error [%s]...",
                  e.what ());
-        rc = TIZRM_UNKNOWN;
+        rc = TIZ_RM_UNKNOWN;
       }
       catch (...)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "Uknonwn exception error...");
-        rc = TIZRM_UNKNOWN;
+        rc = TIZ_RM_UNKNOWN;
       }
     }
   else
     {
-      rc = TIZRM_MISUSE;
+      rc = TIZ_RM_MISUSE;
       char uuid_str[128];
       tiz_uuid_str (&((*p_uuid_vec)[0]), uuid_str);
       TIZ_LOG (TIZ_PRIORITY_TRACE,
@@ -190,7 +190,7 @@ int32_t tizrmproxy::relinquish_all (const tizrm_t *ap_rm)
   return rc;
 }
 
-int32_t tizrmproxy::preemption_conf (const tizrm_t *ap_rm, const uint32_t &rid,
+int32_t tizrmproxy::preemption_conf (const tiz_rm_t *ap_rm, const uint32_t &rid,
                                      const uint32_t &quantity)
 {
   return invokerm (&com::aratelia::tiz::tizrmif_proxy::preemption_conf, ap_rm,
@@ -263,10 +263,10 @@ void tizrmproxy::preemption_complete (const uint32_t &rid,
     }
 }
 
-int32_t tizrmproxy::invokerm (pmf_t a_pmf, const tizrm_t *ap_rm,
+int32_t tizrmproxy::invokerm (pmf_t a_pmf, const tiz_rm_t *ap_rm,
                               const uint32_t &rid, const uint32_t &quantity)
 {
-  int32_t rc = TIZRM_SUCCESS;
+  int32_t rc = TIZ_RM_SUCCESS;
   assert (ap_rm);
   const std::vector< unsigned char > *p_uuid_vec
       = static_cast< std::vector< unsigned char > * >(*ap_rm);
@@ -285,23 +285,23 @@ int32_t tizrmproxy::invokerm (pmf_t a_pmf, const tizrm_t *ap_rm,
       catch (DBus::Error const &e)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "DBus error [%s]...", e.what ());
-        rc = TIZRM_DBUS;
+        rc = TIZ_RM_DBUS;
       }
       catch (std::exception const &e)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "Standard exception error [%s]...",
                  e.what ());
-        rc = TIZRM_UNKNOWN;
+        rc = TIZ_RM_UNKNOWN;
       }
       catch (...)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "Uknonwn exception error...");
-        rc = TIZRM_UNKNOWN;
+        rc = TIZ_RM_UNKNOWN;
       }
     }
   else
     {
-      rc = TIZRM_MISUSE;
+      rc = TIZ_RM_MISUSE;
       char uuid_str[128];
       tiz_uuid_str (&((*p_uuid_vec)[0]), uuid_str);
       TIZ_LOG (TIZ_PRIORITY_ERROR,

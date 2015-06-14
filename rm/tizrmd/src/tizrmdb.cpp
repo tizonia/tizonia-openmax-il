@@ -71,9 +71,9 @@ tizrmdb::~tizrmdb ()
   close ();
 }
 
-tizrm_error_t tizrmdb::connect ()
+tiz_rm_error_t tizrmdb::connect ()
 {
-  tizrm_error_t ret_val = TIZRM_SUCCESS;
+  tiz_rm_error_t ret_val = TIZ_RM_SUCCESS;
 
   if (!dbname_.empty ())
   {
@@ -83,7 +83,7 @@ tizrm_error_t tizrmdb::connect ()
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not connect db [%s]",
                dbname_.c_str ());
-      ret_val = TIZRM_DATABASE_OPEN_ERROR;
+      ret_val = TIZ_RM_DATABASE_OPEN_ERROR;
     }
     else
     {
@@ -92,28 +92,28 @@ tizrm_error_t tizrmdb::connect ()
       {
         TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not init db [%s]",
                  dbname_.c_str ());
-        ret_val = TIZRM_DATABASE_INIT_ERROR;
+        ret_val = TIZ_RM_DATABASE_INIT_ERROR;
       }
     }
   }
   else
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE, "Empty db name");
-    ret_val = TIZRM_DATABASE_OPEN_ERROR;
+    ret_val = TIZ_RM_DATABASE_OPEN_ERROR;
   }
 
   return ret_val;
 }
 
-tizrm_error_t tizrmdb::disconnect ()
+tiz_rm_error_t tizrmdb::disconnect ()
 {
-  tizrm_error_t ret_val = TIZRM_SUCCESS;
+  tiz_rm_error_t ret_val = TIZ_RM_SUCCESS;
   int rc = close ();
 
   if (SQLITE_OK != rc)
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not disconnect db");
-    ret_val = TIZRM_DATABASE_CLOSE_ERROR;
+    ret_val = TIZ_RM_DATABASE_CLOSE_ERROR;
   }
 
   return ret_val;
@@ -320,7 +320,7 @@ bool tizrmdb::comp_provisioned_with_resid (const std::string &cname,
   return ret_val;
 }
 
-tizrm_error_t tizrmdb::acquire_resource (
+tiz_rm_error_t tizrmdb::acquire_resource (
     const unsigned int &rid, const unsigned int &quantity,
     const std::string &cname, const std::vector< unsigned char > &uuid,
     const unsigned int &grpid, const unsigned int &pri)
@@ -347,7 +347,7 @@ tizrm_error_t tizrmdb::acquire_resource (
              "tizrmdb::acquire_resource : "
              "'%s' is not provisioned...",
              cname.c_str ());
-    return TIZRM_COMPONENT_NOT_PROVISIONED;
+    return TIZ_RM_COMPONENT_NOT_PROVISIONED;
   }
 
   requirement = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
@@ -367,7 +367,7 @@ tizrm_error_t tizrmdb::acquire_resource (
              "[%s]: requested [%d] units, but provisioned "
              "only [%d]",
              cname.c_str (), quantity, requirement);
-    return TIZRM_NOT_ENOUGH_RESOURCE_PROVISIONED;
+    return TIZ_RM_NOT_ENOUGH_RESOURCE_PROVISIONED;
   }
 
   // Check that the requested resource is provisioned and there is availability
@@ -377,7 +377,7 @@ tizrm_error_t tizrmdb::acquire_resource (
              "tizrmdb::acquire_resource : "
              "Resource [%d] not available...",
              rid);
-    return TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE;
+    return TIZ_RM_NOT_ENOUGH_RESOURCE_AVAILABLE;
   }
 
   current = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
@@ -401,7 +401,7 @@ tizrm_error_t tizrmdb::acquire_resource (
              "tizrmdb::acquire_resource : "
              "'%s' : Could not update allocation table",
              cname.c_str ());
-    return TIZRM_DATABASE_ERROR;
+    return TIZ_RM_DATABASE_ERROR;
   }
 
   snprintf (query, sizeof(query),
@@ -417,7 +417,7 @@ tizrm_error_t tizrmdb::acquire_resource (
              "Could not update resource table "
              "for resource [%s]",
              rid);
-    return TIZRM_DATABASE_ERROR;
+    return TIZ_RM_DATABASE_ERROR;
   }
 
   TIZ_LOG (TIZ_PRIORITY_TRACE,
@@ -425,10 +425,10 @@ tizrm_error_t tizrmdb::acquire_resource (
            "Succesfully acquired resource [%d] for [%s]",
            rid, cname.c_str ());
 
-  return TIZRM_SUCCESS;
+  return TIZ_RM_SUCCESS;
 }
 
-tizrm_error_t tizrmdb::release_resource (
+tiz_rm_error_t tizrmdb::release_resource (
     const unsigned int &rid, const unsigned int &quantity,
     const std::string &cname, const std::vector< unsigned char > &uuid,
     const unsigned int &grpid, const unsigned int &pri)
@@ -449,7 +449,7 @@ tizrm_error_t tizrmdb::release_resource (
   if (!comp_provisioned_with_resid (cname, rid))
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' is not provisioned...", cname.c_str ());
-    return TIZRM_COMPONENT_NOT_PROVISIONED;
+    return TIZ_RM_COMPONENT_NOT_PROVISIONED;
   }
 
   requirement = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
@@ -467,7 +467,7 @@ tizrm_error_t tizrmdb::release_resource (
              "'%s': releasing [%d] units, "
              "but provisioned only [%d]",
              cname.c_str (), quantity, requirement);
-    return TIZRM_NOT_ENOUGH_RESOURCE_PROVISIONED;
+    return TIZ_RM_NOT_ENOUGH_RESOURCE_PROVISIONED;
   }
 
   // Check that the resource was effectively acquired by the component
@@ -477,7 +477,7 @@ tizrm_error_t tizrmdb::release_resource (
              "Resource [%d] cannot be released: "
              "not enough resource previously acquired",
              rid);
-    return TIZRM_NOT_ENOUGH_RESOURCE_ACQUIRED;
+    return TIZ_RM_NOT_ENOUGH_RESOURCE_ACQUIRED;
   }
 
   current = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
@@ -503,7 +503,7 @@ tizrm_error_t tizrmdb::release_resource (
              "'%s' : Could not update allocation "
              "table ",
              cname.c_str ());
-    return TIZRM_DATABASE_ACCESS_ERROR;
+    return TIZ_RM_DATABASE_ACCESS_ERROR;
   }
 
   //... now create a new one, only if there's some resource allocation
@@ -522,7 +522,7 @@ tizrm_error_t tizrmdb::release_resource (
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "'%s' : Could not update allocation table",
                cname.c_str ());
-      return TIZRM_DATABASE_ACCESS_ERROR;
+      return TIZ_RM_DATABASE_ACCESS_ERROR;
     }
   }
 
@@ -530,7 +530,7 @@ tizrm_error_t tizrmdb::release_resource (
   if (!resource_available (rid, 0))
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE, "Resource [%d] not available...", rid);
-    return TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE;
+    return TIZ_RM_NOT_ENOUGH_RESOURCE_AVAILABLE;
   }
 
   current = strtol (vdata_[vdata_.size () - 1].c_str (), NULL, 0);
@@ -548,7 +548,7 @@ tizrm_error_t tizrmdb::release_resource (
              "Could not update resource table "
              "for resource [%s]",
              rid);
-    return TIZRM_DATABASE_ACCESS_ERROR;
+    return TIZ_RM_DATABASE_ACCESS_ERROR;
   }
 
   TIZ_LOG (TIZ_PRIORITY_TRACE,
@@ -556,10 +556,10 @@ tizrm_error_t tizrmdb::release_resource (
            "resource id [%d]",
            cname.c_str (), quantity, rid);
 
-  return TIZRM_SUCCESS;
+  return TIZ_RM_SUCCESS;
 }
 
-tizrm_error_t tizrmdb::release_all (const std::string &cname,
+tiz_rm_error_t tizrmdb::release_all (const std::string &cname,
                                     const std::vector< unsigned char > &uuid)
 {
   int rc = SQLITE_OK;
@@ -575,7 +575,7 @@ tizrm_error_t tizrmdb::release_all (const std::string &cname,
            "component with uuid [%s]",
            uuid_str);
 
-  for (int rid = 0; rid < TIZRM_RESOURCE_MAX; ++rid)
+  for (int rid = 0; rid < TIZ_RM_RESOURCE_MAX; ++rid)
   {
     if (resource_acquired (uuid, rid, 0))
     {
@@ -602,7 +602,7 @@ tizrm_error_t tizrmdb::release_all (const std::string &cname,
                  "'%s' : Could not update allocation "
                  "table ",
                  cname.c_str ());
-        return TIZRM_DATABASE_ACCESS_ERROR;
+        return TIZ_RM_DATABASE_ACCESS_ERROR;
       }
 
       // Now, obtain the current resource availability
@@ -623,7 +623,7 @@ tizrm_error_t tizrmdb::release_all (const std::string &cname,
                  "Could not update resource table "
                  "for resource [%s]",
                  rid);
-        return TIZRM_DATABASE_ACCESS_ERROR;
+        return TIZ_RM_DATABASE_ACCESS_ERROR;
       }
 
       TIZ_LOG (TIZ_PRIORITY_TRACE,
@@ -633,12 +633,12 @@ tizrm_error_t tizrmdb::release_all (const std::string &cname,
     }
   }
 
-  return TIZRM_SUCCESS;
+  return TIZ_RM_SUCCESS;
 }
 
-tizrm_error_t tizrmdb::find_owners (const unsigned int &rid,
+tiz_rm_error_t tizrmdb::find_owners (const unsigned int &rid,
                                     const unsigned int &pri,
-                                    tizrm_owners_list_t &owners) const
+                                    tiz_rm_owners_list_t &owners) const
 {
   int rc = SQLITE_OK;
   char query[500];
@@ -657,7 +657,7 @@ tizrm_error_t tizrmdb::find_owners (const unsigned int &rid,
 
   if (SQLITE_OK != rc)
   {
-    return TIZRM_DATABASE_ERROR;
+    return TIZ_RM_DATABASE_ERROR;
   }
 
   int headingsize = vcol_head_.size ();
@@ -697,7 +697,7 @@ tizrm_error_t tizrmdb::find_owners (const unsigned int &rid,
            "resource id [%d]",
            owners.size (), pri, rid);
 
-  return TIZRM_SUCCESS;
+  return TIZ_RM_SUCCESS;
 }
 
 int tizrmdb::run_query (char const *ap_sql)

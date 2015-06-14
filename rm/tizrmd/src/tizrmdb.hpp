@@ -45,28 +45,28 @@ public:
   explicit tizrmdb (char const *ap_dbname = 0);
   ~tizrmdb ();
 
-  tizrm_error_t connect ();
-  tizrm_error_t disconnect ();
+  tiz_rm_error_t connect ();
+  tiz_rm_error_t disconnect ();
 
-  tizrm_error_t acquire_resource (const unsigned int &rid,
+  tiz_rm_error_t acquire_resource (const unsigned int &rid,
                                   const unsigned int &quantity,
                                   const std::string &cname,
                                   const std::vector< unsigned char > &uuid,
                                   const unsigned int &grpid,
                                   const unsigned int &pri);
 
-  tizrm_error_t release_resource (const unsigned int &rid,
+  tiz_rm_error_t release_resource (const unsigned int &rid,
                                   const unsigned int &quantity,
                                   const std::string &cname,
                                   const std::vector< unsigned char > &uuid,
                                   const unsigned int &grpid,
                                   const unsigned int &pri);
 
-  tizrm_error_t release_all (const std::string &cname,
+  tiz_rm_error_t release_all (const std::string &cname,
                              const std::vector< unsigned char > &uuid);
 
-  tizrm_error_t find_owners (const unsigned int &rid, const unsigned int &pri,
-                             tizrm_owners_list_t &owners) const;
+  tiz_rm_error_t find_owners (const unsigned int &rid, const unsigned int &pri,
+                             tiz_rm_owners_list_t &owners) const;
 
   bool resource_available (const unsigned int &rid,
                            const unsigned int &quantity) const;

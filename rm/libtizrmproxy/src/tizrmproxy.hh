@@ -54,25 +54,25 @@ public:
                         tiz_rm_proxy_preemption_complete_f apf_preempt_end,
                         void * ap_data);
 
-  void unregister_client(const tizrm_t * ap_rm);
+  void unregister_client(const tiz_rm_t * ap_rm);
 
   // DBUS Methods
 
-  int32_t acquire(const tizrm_t * ap_rm, const uint32_t &rid,
+  int32_t acquire(const tiz_rm_t * ap_rm, const uint32_t &rid,
                   const uint32_t &quantity);
 
-  int32_t release(const tizrm_t * ap_rm, const uint32_t &rid,
+  int32_t release(const tiz_rm_t * ap_rm, const uint32_t &rid,
                   const uint32_t &quantity);
 
-  int32_t wait(const tizrm_t * ap_rm, const uint32_t &rid,
+  int32_t wait(const tiz_rm_t * ap_rm, const uint32_t &rid,
                const uint32_t &quantity);
 
-  int32_t cancel_wait(const tizrm_t * ap_rm, const uint32_t &rid,
+  int32_t cancel_wait(const tiz_rm_t * ap_rm, const uint32_t &rid,
                       const uint32_t &quantity);
 
-  int32_t relinquish_all(const tizrm_t * ap_rm);
+  int32_t relinquish_all(const tiz_rm_t * ap_rm);
 
-  int32_t preemption_conf(const tizrm_t * ap_rm, const uint32_t &rid,
+  int32_t preemption_conf(const tiz_rm_t * ap_rm, const uint32_t &rid,
                          const uint32_t &quantity);
 
 private:
@@ -151,7 +151,7 @@ private:
 
 private:
 
-  int32_t invokerm(pmf_t a_pmf, const tizrm_t * ap_rm, const uint32_t &,
+  int32_t invokerm(pmf_t a_pmf, const tiz_rm_t * ap_rm, const uint32_t &,
                    const uint32_t &);
 
   using com::aratelia::tiz::tizrmif_proxy::acquire;

@@ -72,14 +72,14 @@ int32_t tizrmd::acquire (const uint32_t &rid, const uint32_t &quantity,
                          const std::vector< uint8_t > &uuid,
                          const uint32_t &grpid, const uint32_t &pri)
 {
-  tizrm_error_t rc = TIZRM_SUCCESS;
+  tiz_rm_error_t rc = TIZ_RM_SUCCESS;
   TIZ_LOG (TIZ_PRIORITY_TRACE,
            "tizrmd::acquire : '%s': acquiring rid [%d] -"
            "quantity [%d] - grpid [%d] - pri [%d]...",
            cname.c_str (), rid, quantity, grpid, pri);
 
   // Reserve the resources now
-  if (TIZRM_SUCCESS
+  if (TIZ_RM_SUCCESS
       != (rc = rmdb_.acquire_resource (rid, quantity, cname, uuid, grpid, pri)))
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE,
@@ -88,22 +88,22 @@ int32_t tizrmd::acquire (const uint32_t &rid, const uint32_t &quantity,
              "units of resource [%d]",
              cname.c_str (), quantity, rid);
 
-    if (TIZRM_NOT_ENOUGH_RESOURCE_AVAILABLE == rc)
+    if (TIZ_RM_NOT_ENOUGH_RESOURCE_AVAILABLE == rc)
     {
-      tizrm_owners_list_t owners;
-      tizrm_error_t fo_rc = TIZRM_SUCCESS;
-      if (TIZRM_SUCCESS != (fo_rc = rmdb_.find_owners (rid, pri, owners)))
+      tiz_rm_owners_list_t owners;
+      tiz_rm_error_t fo_rc = TIZ_RM_SUCCESS;
+      if (TIZ_RM_SUCCESS != (fo_rc = rmdb_.find_owners (rid, pri, owners)))
       {
         return fo_rc;
       }
 
       if (!owners.empty ())
       {
-        tizrm_owners_list_t::reverse_iterator rev_it = owners.rbegin ();
-        tizrm_owners_list_t::reverse_iterator rend_it = owners.rend ();
+        tiz_rm_owners_list_t::reverse_iterator rev_it = owners.rbegin ();
+        tiz_rm_owners_list_t::reverse_iterator rend_it = owners.rend ();
         uint32_t preemption_counter = 0;
         uint32_t preemption_quantity = 0;
-        tizrm_owners_list_t *p_signaled_owners = new tizrm_owners_list_t ();
+        tiz_rm_owners_list_t *p_signaled_owners = new tiz_rm_owners_list_t ();
 
         while (rev_it != rend_it)
         {
@@ -147,7 +147,7 @@ int32_t tizrmd::acquire (const uint32_t &rid, const uint32_t &quantity,
                                                        rid, quantity),
                                            p_signaled_owners)));
 
-            rc = TIZRM_PREEMPTION_IN_PROGRESS;
+            rc = TIZ_RM_PREEMPTION_IN_PROGRESS;
           }
         }
         else
@@ -175,14 +175,14 @@ int32_t tizrmd::release (const uint32_t &rid, const uint32_t &quantity,
                          const std::vector< uint8_t > &uuid,
                          const uint32_t &grpid, const uint32_t &pri)
 {
-  tizrm_error_t ret_val = TIZRM_SUCCESS;
+  tiz_rm_error_t ret_val = TIZ_RM_SUCCESS;
   TIZ_LOG (TIZ_PRIORITY_TRACE,
            "tizrmd::release : '%s': releasing rid [%d] - "
            "quantity [%d]",
            cname.c_str (), rid, quantity);
 
   // Release the resources now...
-  if (TIZRM_SUCCESS != (ret_val = rmdb_.release_resource (rid, quantity, cname,
+  if (TIZ_RM_SUCCESS != (ret_val = rmdb_.release_resource (rid, quantity, cname,
                                                           uuid, grpid, pri)))
   {
     TIZ_LOG (TIZ_PRIORITY_TRACE,
@@ -203,11 +203,11 @@ int32_t tizrmd::release (const uint32_t &rid, const uint32_t &quantity,
     if (waiter.resid () == rid
         && rmdb_.resource_available (rid, waiter.quantity ()))
     {
-      ret_val = (tizrm_error_t)acquire (rid, quantity, waiter.cname (),
+      ret_val = (tiz_rm_error_t)acquire (rid, quantity, waiter.cname (),
                                         waiter.uuid (), waiter.grpid (),
                                         waiter.pri ());
 
-      if (TIZRM_SUCCESS == ret_val)
+      if (TIZ_RM_SUCCESS == ret_val)
       {
         // Signal the waiter
         TIZ_LOG (TIZ_PRIORITY_TRACE,
@@ -233,7 +233,7 @@ int32_t tizrmd::wait (const uint32_t &rid, const uint32_t &quantity,
                       const std::vector< uint8_t > &uuid, const uint32_t &grpid,
                       const uint32_t &pri)
 {
-  tizrm_error_t ret_val = TIZRM_SUCCESS;
+  tiz_rm_error_t ret_val = TIZ_RM_SUCCESS;
 
   TIZ_LOG (TIZ_PRIORITY_TRACE,
            "'%s': waiting for rid [%d] - "
@@ -248,7 +248,7 @@ int32_t tizrmd::wait (const uint32_t &rid, const uint32_t &quantity,
              "tizrmd::wait : "
              "'%s': not provisioned...",
              cname.c_str ());
-    return TIZRM_COMPONENT_NOT_PROVISIONED;
+    return TIZ_RM_COMPONENT_NOT_PROVISIONED;
   }
 
   // Check that the requested resource is provisioned...
@@ -258,7 +258,7 @@ int32_t tizrmd::wait (const uint32_t &rid, const uint32_t &quantity,
              "tizrmd::wait : "
              "Resource [%d] not provisioned...",
              rid);
-    return TIZRM_RESOURCE_NOT_PROVISIONED;
+    return TIZ_RM_RESOURCE_NOT_PROVISIONED;
   }
 
   //...and that there isn't availability...
@@ -269,7 +269,7 @@ int32_t tizrmd::wait (const uint32_t &rid, const uint32_t &quantity,
              "Enough resource [%d] already available ...",
              rid);
 
-    if (TIZRM_SUCCESS != (ret_val = rmdb_.acquire_resource (
+    if (TIZ_RM_SUCCESS != (ret_val = rmdb_.acquire_resource (
                               rid, quantity, cname, uuid, grpid, pri)))
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE,
@@ -280,7 +280,7 @@ int32_t tizrmd::wait (const uint32_t &rid, const uint32_t &quantity,
       return ret_val;
     }
 
-    return TIZRM_WAIT_COMPLETE;
+    return TIZ_RM_WAIT_COMPLETE;
   }
 
   // No preemption occurs at this point. Preemption can only happen if the
@@ -294,7 +294,7 @@ int32_t tizrmd::wait (const uint32_t &rid, const uint32_t &quantity,
   // Now, add a waiter to the queue...
   waiters_.push_back (tizrmwaiter (rid, quantity, cname, uuid, grpid, pri));
 
-  return TIZRM_SUCCESS;
+  return TIZ_RM_SUCCESS;
 }
 
 int32_t tizrmd::cancel_wait (const uint32_t &rid, const uint32_t &quantity,
@@ -329,7 +329,7 @@ int32_t tizrmd::cancel_wait (const uint32_t &rid, const uint32_t &quantity,
            "units of resource [%d] - waiters [%d]",
            cname.c_str (), quantity, rid, waiters_.size ());
 
-  return TIZRM_SUCCESS;
+  return TIZ_RM_SUCCESS;
 }
 
 int32_t tizrmd::preemption_conf (const uint32_t &rid, const uint32_t &quantity,
@@ -337,7 +337,7 @@ int32_t tizrmd::preemption_conf (const uint32_t &rid, const uint32_t &quantity,
                                  const std::vector< uint8_t > &uuid,
                                  const uint32_t &grpid, const uint32_t &pri)
 {
-  tizrm_error_t ret_val = TIZRM_SUCCESS;
+  tiz_rm_error_t ret_val = TIZ_RM_SUCCESS;
   preemptlist_t::iterator it
       = preemptions_.find (tizrmowner (cname, uuid, grpid, pri, rid, quantity));
 
@@ -353,10 +353,10 @@ int32_t tizrmd::preemption_conf (const uint32_t &rid, const uint32_t &quantity,
 
     const tizrmowner &cur_owner = it->first;
     const tizrmowner &future_owner = it->second.preemptor_;
-    tizrm_owners_list_t *p_cur_owners = it->second.p_owners_;
+    tiz_rm_owners_list_t *p_cur_owners = it->second.p_owners_;
 
     // Release the resource...
-    if (TIZRM_SUCCESS != (ret_val = rmdb_.release_resource (
+    if (TIZ_RM_SUCCESS != (ret_val = rmdb_.release_resource (
                               rid, quantity, cname, uuid, grpid, pri)))
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE,
@@ -374,7 +374,7 @@ int32_t tizrmd::preemption_conf (const uint32_t &rid, const uint32_t &quantity,
 
       delete p_cur_owners;
       //... now allocate the resource on behalf of the new owner
-      if (TIZRM_SUCCESS != (ret_val = rmdb_.acquire_resource (
+      if (TIZ_RM_SUCCESS != (ret_val = rmdb_.acquire_resource (
                                 future_owner.rid_, future_owner.quantity_,
                                 future_owner.cname_, future_owner.uuid_,
                                 future_owner.grpid_, future_owner.pri_)))
@@ -403,16 +403,16 @@ int32_t tizrmd::preemption_conf (const uint32_t &rid, const uint32_t &quantity,
   }
   else
   {
-    return TIZRM_MISUSE;
+    return TIZ_RM_MISUSE;
   }
 
-  return TIZRM_SUCCESS;
+  return TIZ_RM_SUCCESS;
 }
 
 int32_t tizrmd::relinquish_all (const std::string &cname,
                                 const std::vector< unsigned char > &uuid)
 {
-  tizrm_error_t ret_val = TIZRM_SUCCESS;
+  tiz_rm_error_t ret_val = TIZ_RM_SUCCESS;
 
   TIZ_LOG (TIZ_PRIORITY_TRACE,
            "tizrmd::relinquish_all: '%s' : "

@@ -35,14 +35,14 @@ class tizrmpreemptor
 {
 
 public:
-  tizrmpreemptor (const tizrmowner &next_owner, tizrm_owners_list_t *p_owners)
+  tizrmpreemptor (const tizrmowner &next_owner, tiz_rm_owners_list_t *p_owners)
     : preemptor_ (next_owner), p_owners_ (p_owners)
   {
   }
 
 public:
   tizrmowner preemptor_;
-  tizrm_owners_list_t *p_owners_;
+  tiz_rm_owners_list_t *p_owners_;
 };
 
 #endif  // TIZRMPREEMPTOR_HPP

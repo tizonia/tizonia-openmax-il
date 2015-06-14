@@ -25,7 +25,7 @@ rmdb = @datadir@/tizrmd/tizrm.db
 
 # For testing purposes. This is the path to the shell script that initialises
 # the RM db
-rmdb.init_script = @bindir@/tizrm_gendb.sh
+rmdb.init_script = @bindir@/tiz_rm_gendb.sh
 
 # For testing purposes. This is the path to the sqlite3 script that contains
 # the initial configuration of the RM database
@@ -33,7 +33,7 @@ rmdb.sqlite_script = @datadir@/tizrmd/initrmdb.sql3
 
 # For testing purposes. This is the path to the script that dumps the contents
 # of the RM db
-rmdb.dbdump_script = @bindir@/tizrm_dumpdb.sh
+rmdb.dbdump_script = @bindir@/tiz_rm_dumpdb.sh
 
 
 [plugins-data]

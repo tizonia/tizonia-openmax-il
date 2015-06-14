@@ -36,7 +36,7 @@ extern "C"
 
 #include <OMX_Types.h>
 
-  typedef void *tizrm_t;
+  typedef void *tiz_rm_t;
 
   /* Callback function to signal a waiting client when a resource has become
    * available */

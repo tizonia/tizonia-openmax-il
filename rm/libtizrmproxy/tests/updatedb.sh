@@ -19,11 +19,11 @@
 
 SQLITE3=$(which sqlite3)
 BASEDIR=$(dirname $0)
-TIZRM_DB_NAME="../../tizrmd/data/tizrm.db"
+TIZ_RM_DB_NAME="../../tizrmd/data/tizrm.db"
 COMMANDS=${BASEDIR}"/"$1
 
-echo -e "Updating $TIZRM_DB_NAME using $COMMANDS..."
+echo -e "Updating $TIZ_RM_DB_NAME using $COMMANDS..."
 cat $COMMANDS
-$SQLITE3 $TIZRM_DB_NAME < $COMMANDS
+$SQLITE3 $TIZ_RM_DB_NAME < $COMMANDS
 echo -e "Done."
 

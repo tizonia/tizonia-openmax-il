@@ -70,6 +70,6 @@ public:
   unsigned int quantity_;
 };
 
-typedef std::list< tizrmowner > tizrm_owners_list_t;
+typedef std::list< tizrmowner > tiz_rm_owners_list_t;
 
 #endif  // TIZRMOWNER_HPP
