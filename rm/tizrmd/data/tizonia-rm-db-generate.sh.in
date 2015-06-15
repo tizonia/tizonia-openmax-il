@@ -18,7 +18,10 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 SQLITE3=$(which sqlite3)
-BASEDIR=$(dirname $0)
+BASEDIR=$(pwd)
+
+COMMANDS=$1
+TIZ_RM_DB_NAME=$2
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -27,17 +30,15 @@ datadir=@datadir@
 
 if [ -z "$1" ];
 then
+    COMMANDS=${BASEDIR}"/tizonia-rm-db-initial.sql3"
     TIZ_RM_DB_NAME=${BASEDIR}"/tizrm.db"
-else
-    TIZ_RM_DB_NAME=$1
 fi
 
-if [ -f $TIZ_RM_DB_NAME ];
-then 
-    echo -e .dump | $SQLITE3 $TIZ_RM_DB_NAME > /tmp/$2
-    cat /tmp/$2
-    echo -e "Dumped $TIZ_RM_DB_NAME database to /tmp/$2..."
+if [ -f $TIZ_RM_DB_NAME ]; then
+    rm $TIZ_RM_DB_NAME
+    echo -e "Deleted old $TIZ_RM_DB_NAME database..."
 fi
 
+echo -e "Populating $TIZ_RM_DB_NAME using $COMMANDS..."
+$SQLITE3 $TIZ_RM_DB_NAME < $COMMANDS
 echo -e "Done."
-
