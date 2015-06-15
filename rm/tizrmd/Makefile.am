@@ -16,10 +16,9 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SUBDIRS= dbus data src tests
+SUBDIRS= dbus data src
 
 ACLOCAL_AMFLAGS = -I m4
 
-#pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = tizcomps.pc
+EXTRA_DIST = debian
 

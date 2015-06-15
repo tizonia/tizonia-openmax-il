@@ -42,7 +42,6 @@ LT_INIT
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 DBUS_REQUIRED_VERSION=0.60
 PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
 	AC_MSG_ERROR([You need the DBus libraries (version 0.6 or better)]
@@ -112,8 +111,7 @@ fi
 AC_CONFIG_FILES([Makefile
                 dbus/Makefile
                 data/Makefile
-                src/Makefile
-                tests/Makefile])
+                src/Makefile])
 
 # End the configure script.
 AC_OUTPUT
