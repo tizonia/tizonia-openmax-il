@@ -1,0 +1,25 @@
+Source: tizrmd
+Section: sound
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev
+Standards-Version: 3.9.4
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: tizrmd
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's resource manager daemon
+ A server that controls the Tizonia OpenMAX IL resources.
+
+Package: tizrmd-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: tizrmd (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's resource manager daemon
+ A server that controls the Tizonia OpenMAX IL resources.
+ .
+ This package contains the debugging symbols.
