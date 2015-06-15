@@ -26,8 +26,12 @@ DISTCLEANFILES = \
 	$(service_DATA) \
 	Makefile.in
 
+tizrmd_dbus_includedir = $(includedir)/tizonia/tizrmd
+
+tizrmd_dbus_include_HEADERS = \
+	tizrmtypes.h
+
 noinst_HEADERS = \
-	tizrmtypes.h \
 	tizrmd-dbus.hh \
 	tizrmproxy-dbus.hh
 
