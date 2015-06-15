@@ -20,10 +20,10 @@
 /**
  * @file   tizrmtypes.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Resource Manager Daemon - Types and constants
- * 
- * 
+ *
+ *
  */
 
 #ifndef TIZRMTYPES_H
