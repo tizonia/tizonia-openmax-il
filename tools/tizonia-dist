@@ -1,0 +1,284 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Script to package all the Tizonia sub-projects and create the Debian packages
+#
+
+# Globals
+TIZONIA_DIR="$HOME/work/tizonia" # Default value for Tizonia repo's directory
+DEBIAN_DIR="$HOME/work/debian" # Default value for the debian packaging directory
+
+# Constants
+readonly MYDEBFULLNAME="Juan A. Rubio"
+readonly MYDEBEMAIL="juan.rubio@aratelia.com"
+
+readonly E_BADARGS=85
+readonly E_NOFILE=86
+readonly E_BAD_CLONE=87
+readonly CWD=$(pwd)
+
+declare -ar TIZ_DEBIAN_PKGS=( \
+    dpkg-dev \
+    dh-make \
+    debhelper \
+    devscripts \
+    pbuilder \
+    fakeroot \
+    dh-autoreconf \
+    python-all-dev \
+    python-stdeb \
+)
+
+declare -Ar TIZ_PKG_DIRS=( \
+    [tizilheaders]="include" \
+    [tizgmusicproxy]="gmusic/gmusicproxy" \
+    [tizgmusic]="gmusic/libtizgmusic" \
+    [tizplatform]="libtizplatform" \
+    [tizrmd]="rm/tizrmd" \
+)
+
+readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
+readonly TIZ_PKGS_ORDERED=( \
+    tizilheaders \
+    tizgmusicproxy \
+    tizgmusic \
+    tizplatform \
+    tizrmd \
+)
+
+readonly TIZ_C_CPP_PKG_DIST_CMD="autoreconf -ifs &> /dev/null && ./configure CFLAGS=\"-O3 -DNDEBUG\" &> /dev/null && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
+readonly TIZ_PYTHON_PKG_DIST_CMD="python setup.py sdist && cp dist/*.tar.gz \"$DEBIAN_DIR\""
+
+declare -Ar TIZ_PKG_DIST_CMD=( \
+    [tizilheaders]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizgmusicproxy]="$TIZ_PYTHON_PKG_DIST_CMD" \
+    [tizgmusic]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizplatform]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizrmd]="$TIZ_C_CPP_PKG_DIST_CMD" \
+)
+
+TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
+
+declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
+    [tizilheaders]="$TIZ_PKG_DH_MAKE_I_CMD" \
+)
+
+##################################################################
+# Usage details
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+
+function usage {
+    echo "Usage : $0 [-p]"
+    echo "       -a            : Do all packages."
+    echo "       -p            : Pre-requisites. Install debian packages in other such tasks."
+}
+
+##################################################################
+# Make sure pre-requisites are taken care of
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_prereqs {
+    # Install debian dependencies
+    for pkg in "${TIZ_DEBIAN_PKGS[@]}"; do
+        local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" | cut -d ' ' -f3)
+        printf "[$pkg] : $result\n"
+        if [[ "$result" == "not-installed" ]]; then
+            sudo apt-get install "$pkg"
+        fi
+    done
+}
+
+##################################################################
+# Simple function to print a debug/error message with some extra info
+#
+# Globals
+#   TIZONIA_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function err {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+}
+
+##################################################################
+# Simple function to go to the working directory
+#
+# Globals
+#   TIZONIA_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function cd_to_dir {
+    local pkg_dir="$1"
+    echo "package dir: $pkg_dir"
+    cd "$pkg_dir"
+}
+
+function print_banner {
+    local msg="$1"
+    echo -e "\E[32;48m================================================\E[0m"
+    echo -e "\E[32;48m$msg\E[0m"
+    echo -e "\E[32;48m================================================\E[0m"
+}
+
+##################################################################
+# Function to create distribution tar files
+#
+# Globals
+#   DEBIAN_DIR
+#   TIZ_PKG_DIST_CMD
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_tar_file {
+    local pkg="$1"
+    local pkg_dir="$2"
+
+    print_banner "Creating distribution tar file for: $1"
+    cd_to_dir "$pkg_dir"
+
+    hg purge . > /dev/null
+    mkdir -p "$DEBIAN_DIR/$pkg"
+    eval "${TIZ_PKG_DIST_CMD[$pkg]}"
+    mv "$DEBIAN_DIR/$pkg"*.tar.gz "$DEBIAN_DIR/$pkg"
+}
+
+##################################################################
+# Function to create debian packages
+#
+# Globals
+#   DEBIAN_DIR
+#   TIZ_PKG_DIST_CMD
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_deb_file {
+    local pkg="$1"
+    local pkg_dir="$2"
+
+    print_banner "Creating debian package for: $1"
+    cd_to_dir "$pkg_dir"
+
+    pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
+    tar zxvf "$pkg-$pkg_ver".tar.gz
+    cd "$pkg-$pkg_ver"
+    eval "${TIZ_PKG_DH_MAKE_CMD[$pkg]}"
+    dpkg-buildpackage -us -uc -rfakeroot
+}
+
+##################################################################
+# Main function
+#
+# Globals
+#   TIZONIA_DIR
+#   DEBIAN_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function main {
+    local prereqs=0
+    local doall=0
+
+    while getopts "ap" opt; do
+        case "$opt" in
+            a)
+                doall=1
+                ;;
+            p)
+                prereqs=1
+                ;;
+            *)
+                usage
+                exit "$E_BADARGS"
+        esac
+    done
+
+    local total=$(( $prereqs + $doall ))
+    if [[ "$total" < 1 ]]; then
+        usage
+        exit "$E_BADARGS"
+    fi
+
+    if [[ "$prereqs" == 1 ]]; then
+        do_prereqs
+        exit 0
+    fi
+
+    if [[ "$doall" == 1 ]]; then
+        echo "Do all"
+    fi
+
+    # Create directories
+    if [[ -d "$DEBIAN_DIR" ]]; then
+        echo "Deleting an old debian directory: $DEBIAN_DIR"
+        rm -rf "$DEBIAN_DIR"
+    fi
+
+    if [[ ! -d "$DEBIAN_DIR" ]]; then
+        echo "Creating the debian directory: $DEBIAN_DIR"
+        mkdir -p "$DEBIAN_DIR"
+    fi
+
+    # Export important variables
+    export DEBFULLNAME=$MYDEBFULLNAME
+    export DEBEMAIL=$MYDEBEMAIL
+
+#     for (( I=0; $I < ${#TIZ_PKG_DIRS[@]}; I+=1 )); do
+#         KEY=${TIZ_PKGS[$I]};
+#         echo $KEY --- ${TIZ_PKG_DIRS[$KEY]};
+#     done
+
+    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
+        local pkg_dir="$TIZONIA_DIR/${TIZ_PKG_DIRS[$pkg]}"
+        do_tar_file "$pkg" "$pkg_dir"
+    done
+
+    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
+        local pkg_dir="$DEBIAN_DIR/$pkg"
+        do_deb_file "$pkg" "$pkg_dir"
+        break
+    done
+
+    cd "$CWD"
+    exit 0
+}
+
+main "$@"
