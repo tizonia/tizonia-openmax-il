@@ -25,7 +25,7 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
-LT_INIT
+AC_PROG_LN_S
 PKG_PROG_PKG_CONFIG([0.25])
 
 # Checks for libraries.
