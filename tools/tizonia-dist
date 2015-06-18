@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Script to package all the Tizonia sub-projects and create the Debian packages
+# Script to package all the Tizonia sub-projects and create Debian packages
 #
 
 # Globals
@@ -39,6 +39,46 @@ readonly BLU=4
 readonly MAG=5
 readonly CYA=6
 readonly WHI=7
+
+declare -ar TIZ_TIZONIA_DEPS=( \
+    build-essential \
+    autoconf \
+    autoconf-archive \
+    automake \
+    autotools-dev \
+    libtool \
+    libmad0-dev \
+    liblog4c-dev \
+    libasound2-dev \
+    libdbus-1-dev \
+    libdbus-c++-dev \
+    libsqlite3-dev \
+    libboost-all-dev \
+    uuid-dev \
+    libsdl1.2-dev \
+    libvpx-dev \
+    libmp3lame-dev \
+    libfaad-dev \
+    libev-dev \
+    libtag1-dev \
+    libfishsound-dev \
+    libmediainfo-dev \
+    libcurl3-dev \
+    libpulse-dev \
+    libmpg123-dev \
+    libvorbis-dev \
+    libopus-dev \
+    libopusfile-dev \
+    libogg-dev \
+    libflac-dev \
+    liboggz2-dev \
+    libsndfile1-dev \
+    curl \
+    check \
+    wget \
+    sqlite3 \
+    dbus-x11 \
+)
 
 declare -ar TIZ_DEBIAN_PKGS=( \
     dpkg-dev \
@@ -134,13 +174,44 @@ function usage {
 #   None
 ##################################################################
 function do_prereqs {
+
+    # Install tizonia dependencies
+    for pkg in "${TIZ_TIZONIA_DEPS[@]}"; do
+        local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
+        if [[ "$result" == "not-installed" ]]; then
+            pretty_print "$BLU" "[$pkg] : installing."
+            sudo apt-get install -qq "$pkg" > /dev/null
+            pretty_print "$GRN" "[$pkg] : installed."
+        elif [[ "$result" == "" ]]; then
+            pretty_print "$BLU" "[$pkg] : installing."
+            sudo apt-get install -qq "$pkg" > /dev/null
+            pretty_print "$GRN" "[$pkg] : installed."
+        elif [[ "$result" == "installed" ]]; then
+            pretty_print "$GRN" "[$pkg] : $result."
+        else
+            pretty_print "$BLU" "[$pkg] : installing."
+            sudo apt-get install -qq "$pkg" > /dev/null
+            pretty_print "$GRN" "[$pkg] : installed."
+        fi
+    done
+
     # Install debian dependencies
     for pkg in "${TIZ_DEBIAN_PKGS[@]}"; do
-        local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" | cut -d ' ' -f3)
+        local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
         if [[ "$result" == "not-installed" ]]; then
-            sudo apt-get install "$pkg"
-        else
+            pretty_print "$BLU" "[$pkg] : installing."
+            sudo apt-get install -qq "$pkg" > /dev/null
+            pretty_print "$GRN" "[$pkg] : installed."
+        elif [[ "$result" == "" ]]; then
+            pretty_print "$BLU" "[$pkg] : installing."
+            sudo apt-get install -qq "$pkg" > /dev/null
+            pretty_print "$GRN" "[$pkg] : installed."
+        elif [[ "$result" == "installed" ]]; then
             pretty_print "$GRN" "[$pkg] : $result."
+        else
+            pretty_print "$BLU" "[$pkg] : installing."
+            sudo apt-get install -qq "$pkg" > /dev/null
+            pretty_print "$GRN" "[$pkg] : installed."
         fi
     done
 }
@@ -398,6 +469,38 @@ function do_python_deb_file {
 }
 
 ##################################################################
+# Function to create debian packages for python packages
+#
+# Globals
+#   DEBIAN_DIR
+#   TIZ_PKG_DIST_CMD
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_install_deb_file {
+    local pkg="$1"
+    local pkg_dir="$2"
+    local pkg_ver=0
+    local exit_status=1
+    local err_msg='Unknown error'
+
+    print_banner "Installing debian package: $1" "$MAG"
+    cd_to_dir "$pkg_dir"
+
+    pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
+
+    err_msg="[$pkg] : Error while installing the package."
+    sudo dpkg --purge *.deb
+    sudo dpkg -i *.deb
+    exit_status=$?
+
+    log_on_error "$exit_status" "$err_msg"
+    return "$exit_status"
+}
+
+##################################################################
 # Main function
 #
 # Globals
@@ -488,6 +591,8 @@ function main {
             if [[ "$exit_status" -ne 0 ]] ; then
                 break
             fi
+
+            do_install_deb_file "$pkg" "$pkg_dir"
         done
     fi
 
