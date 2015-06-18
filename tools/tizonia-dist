@@ -32,6 +32,14 @@ readonly E_NOFILE=86
 readonly E_BAD_CLONE=87
 readonly CWD=$(pwd)
 
+readonly RED=1
+readonly GRN=2
+readonly YEL=3
+readonly BLU=4
+readonly MAG=5
+readonly CYA=6
+readonly WHI=7
+
 declare -ar TIZ_DEBIAN_PKGS=( \
     dpkg-dev \
     dh-make \
@@ -61,7 +69,12 @@ readonly TIZ_PKGS_ORDERED=( \
     tizrmd \
 )
 
-readonly TIZ_C_CPP_PKG_DIST_CMD="autoreconf -ifs &> /dev/null && ./configure CFLAGS=\"-O3 -DNDEBUG\" &> /dev/null && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
+readonly TIZ_PYTHON_PKGS=( \
+    tizgmusicproxy \
+)
+
+# &> /dev/null
+readonly TIZ_C_CPP_PKG_DIST_CMD="autoreconf -ifs &> /dev/null && ./configure &> /dev/null && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
 readonly TIZ_PYTHON_PKG_DIST_CMD="python setup.py sdist && cp dist/*.tar.gz \"$DEBIAN_DIR\""
 
 declare -Ar TIZ_PKG_DIST_CMD=( \
@@ -73,9 +86,15 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
 )
 
 TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
+TIZ_PKG_DH_MAKE_C_CMD="dh_make -c lgpl3 -l --createorig --yes"
+TIZ_PKG_PY2DSC_CMD="py2dsc"
 
 declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizilheaders]="$TIZ_PKG_DH_MAKE_I_CMD" \
+    [tizgmusicproxy]="$TIZ_PYTHON_PKG_DIST_CMD" \
+    [tizgmusic]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizplatform]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizrmd]="$TIZ_PKG_DH_MAKE_C_CMD" \
 )
 
 ##################################################################
@@ -90,10 +109,19 @@ declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
 ##################################################################
 
 function usage {
-    echo "Usage : $0 [-p]"
-    echo "       -a            : Do all packages."
-    echo "       -p            : Pre-requisites. Install debian packages in other such tasks."
-}
+    pretty_print "$BLU" "tizonia-remote 0.1.0. Copyright (C) 2015 Juan A. Rubio"
+    pretty_print "$BLU" "This software is part of Tizonia <http://tizonia.org>"
+
+    echo
+    pretty_print "$BLU" "LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"
+    pretty_print "$BLU" "This is free software: you are free to change and redistribute it."
+    pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
+
+    echo
+    pretty_print "$GRN" "Usage : $(basename $0) [-p]"
+    pretty_print "$GRN" "       -a            : Do all packages."
+    pretty_print "$GRN" "       -p            : Pre-requisites. Install debian packages in other such tasks."
+} >&2
 
 ##################################################################
 # Make sure pre-requisites are taken care of
@@ -109,11 +137,29 @@ function do_prereqs {
     # Install debian dependencies
     for pkg in "${TIZ_DEBIAN_PKGS[@]}"; do
         local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" | cut -d ' ' -f3)
-        printf "[$pkg] : $result\n"
         if [[ "$result" == "not-installed" ]]; then
             sudo apt-get install "$pkg"
+        else
+            pretty_print "$GRN" "[$pkg] : $result."
         fi
     done
+}
+
+##################################################################
+# Simple function to check if a string exists in an array
+#
+# Globals
+#   none
+# Arguments:
+#   The search string is the first argument
+#   The array is the second argument
+# Returns:
+#   0 if success, 1 on error
+##################################################################
+function exists_in_array {
+    local e
+    for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
+    return 1
 }
 
 ##################################################################
@@ -126,8 +172,26 @@ function do_prereqs {
 # Returns:
 #   None
 ##################################################################
-function err {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+function print_err {
+  pretty_print "$RED" "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $@" >&2
+}
+
+##################################################################
+# Simple function to print a debug/error message with some extra info
+#
+# Globals
+#   TIZONIA_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function log_on_error {
+    local exit_status="$1"
+    local msg="$2"
+    if [[ "$exit_status" -ne 0 ]]; then
+        pretty_print "$RED" "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $2"
+    fi
 }
 
 ##################################################################
@@ -146,11 +210,81 @@ function cd_to_dir {
     cd "$pkg_dir"
 }
 
+##################################################################
+# Simple function to produce a string of "dashes" of a
+# pre-determined size
+#
+# Globals
+#   TIZONIA_DIR
+# Arguments:
+#   The length of the message
+# Returns:
+#   None
+##################################################################
+function print_dashes {
+    local LEN=$1
+    local CHAR='-'
+    while (( $# > 0 ))
+    do
+        case $1 in
+            [0-9]*) LEN=$1;;
+            -c) shift
+                CHAR=$1;;
+            *) usagexit;;
+        esac
+        shift
+    done
+
+    if (( LEN > 4096 ))
+    then
+        echo "too large" >&2
+        exit 3
+    fi
+
+    # build the string to the exact length
+    DASHES=""
+    for ((i=0; i<LEN; i++))
+    do
+        DASHES="${DASHES}${CHAR}"
+    done
+    echo "$DASHES"
+}
+
+##################################################################
+#
+#
+# Globals
+#
+# Arguments:
+#
+# Returns:
+#   None
+##################################################################
+function pretty_print {
+    echo "$(tput setaf $1)$2$(tput sgr 0)" 1>&2
+}
+
+##################################################################
+#
+#
+# Globals
+#
+# Arguments:
+#
+# Returns:
+#   None
+##################################################################
 function print_banner {
     local msg="$1"
-    echo -e "\E[32;48m================================================\E[0m"
-    echo -e "\E[32;48m$msg\E[0m"
-    echo -e "\E[32;48m================================================\E[0m"
+    local color="$2"
+    local msg_sz=${#msg}
+    local dashes=$(print_dashes "$msg_sz")
+    if [[ "$color" == "" ]]; then
+        color="$RED"
+    fi
+    pretty_print "$color" "$dashes"
+    pretty_print "$color" "$msg"
+    pretty_print "$color" "$dashes"
 }
 
 ##################################################################
@@ -167,14 +301,23 @@ function print_banner {
 function do_tar_file {
     local pkg="$1"
     local pkg_dir="$2"
+    local exit_status=1
+    local err_msg='Unknown error'
 
-    print_banner "Creating distribution tar file for: $1"
+    print_banner "Creating distribution tar file for: $pkg" "$GRN"
     cd_to_dir "$pkg_dir"
 
-    hg purge . > /dev/null
-    mkdir -p "$DEBIAN_DIR/$pkg"
-    eval "${TIZ_PKG_DIST_CMD[$pkg]}"
-    mv "$DEBIAN_DIR/$pkg"*.tar.gz "$DEBIAN_DIR/$pkg"
+    hg purge . > /dev/null && mkdir -p "$DEBIAN_DIR/$pkg"
+    exit_status=$?
+    if [[ "$exit_status" -eq 0 ]] ; then
+        err_msg="[$pkg] : Error creating the tar file."
+        eval "${TIZ_PKG_DIST_CMD[$pkg]}" \
+            && mv "$DEBIAN_DIR"/*.gz "$DEBIAN_DIR/$pkg"
+        exit_status=$?
+    fi
+
+    log_on_error "$exit_status" "$err_msg"
+    return "$exit_status"
 }
 
 ##################################################################
@@ -191,15 +334,67 @@ function do_tar_file {
 function do_deb_file {
     local pkg="$1"
     local pkg_dir="$2"
+    local pkg_ver=0
+    local exit_status=1
+    local err_msg='Unknown error'
 
-    print_banner "Creating debian package for: $1"
+    print_banner "Creating debian package for: $1" "$YEL"
+    cd_to_dir "$pkg_dir"
+    pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
+
+    tar zxvf "$pkg-$pkg_ver".tar.gz && cd "$pkg-$pkg_ver"
+    exit_status=$?
+    if [[ "$exit_status" -eq 0 ]] ; then
+        err_msg="[$pkg] : Error while running dh_make."
+        eval "${TIZ_PKG_DH_MAKE_CMD[$pkg]}"
+        exit_status=0
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        err_msg="[$pkg] : Error while running dpkg-buildpackage."
+        dpkg-buildpackage -us -uc -rfakeroot
+        exit_status=$?
+    fi
+
+    log_on_error "$exit_status" "$err_msg"
+    return "$exit_status"
+}
+
+##################################################################
+# Function to create debian packages for python packages
+#
+# Globals
+#   DEBIAN_DIR
+#   TIZ_PKG_DIST_CMD
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_python_deb_file {
+    local pkg="$1"
+    local pkg_dir="$2"
+    local pkg_ver=0
+    local exit_status=1
+    local err_msg='Unknown error'
+
+    print_banner "Creating debian package for: $1" "$YEL"
     cd_to_dir "$pkg_dir"
 
     pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
-    tar zxvf "$pkg-$pkg_ver".tar.gz
-    cd "$pkg-$pkg_ver"
-    eval "${TIZ_PKG_DH_MAKE_CMD[$pkg]}"
-    dpkg-buildpackage -us -uc -rfakeroot
+
+    err_msg="[$pkg] : Error while running py2dsc."
+    py2dsc "$pkg-$pkg_ver".tar.gz && cd deb_dist/"$pkg-$pkg_ver"
+    exit_status=$?
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        err_msg="[$pkg] : Error while running debuild."
+        debuild -i -us -uc -b
+        exit_status=$?
+    fi
+
+    log_on_error "$exit_status" "$err_msg"
+    return "$exit_status"
 }
 
 ##################################################################
@@ -242,6 +437,8 @@ function main {
         exit 0
     fi
 
+    local exit_status=1
+
     if [[ "$doall" == 1 ]]; then
         echo "Do all"
     fi
@@ -269,16 +466,33 @@ function main {
     for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
         local pkg_dir="$TIZONIA_DIR/${TIZ_PKG_DIRS[$pkg]}"
         do_tar_file "$pkg" "$pkg_dir"
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            break
+        fi
     done
 
-    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
-        local pkg_dir="$DEBIAN_DIR/$pkg"
-        do_deb_file "$pkg" "$pkg_dir"
-        break
-    done
+    if [[ "$exit_status" -eq 0 ]] ; then
+        for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
+            local pkg_dir="$DEBIAN_DIR/$pkg"
+
+            exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
+            if [[ $? -eq 0 ]]; then
+                do_python_deb_file "$pkg" "$pkg_dir"
+                exit_status=$?
+            else
+                do_deb_file "$pkg" "$pkg_dir"
+                exit_status=$?
+            fi
+
+            if [[ "$exit_status" -ne 0 ]] ; then
+                break
+            fi
+        done
+    fi
 
     cd "$CWD"
-    exit 0
+    exit "$exit_status"
 }
 
 main "$@"
