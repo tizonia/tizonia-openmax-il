@@ -17,6 +17,7 @@
 
 AC_PREREQ([2.67])
 AC_INIT([tizilheaders], [0.1.0], [juan.rubio@aratelia.com])
+AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([omxil-1.2/OMX_Core.h])
 AC_CONFIG_HEADERS([config.h])
