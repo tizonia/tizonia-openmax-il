@@ -37,7 +37,7 @@ check_tizplatform_SOURCES = check_tizplatform.c
 check_tizplatform_CFLAGS = \
 	-I$(top_srcdir)/src/ \
 	-I$(top_srcdir)/../include/omxil-1.2 \
-	@tizilheaders_CFLAGS@ \
+	@TIZILHEADERS_CFLAGS@ \
 	@CHECK_CFLAGS@
 
 check_tizplatform_LDADD = \
