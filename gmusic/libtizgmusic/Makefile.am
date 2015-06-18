@@ -20,7 +20,7 @@ SUBDIRS= src
 
 ACLOCAL_AMFLAGS = -I m4
 
-# EXTRA_DIST = debian
+EXTRA_DIST = debian
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libtizgmusic.pc
