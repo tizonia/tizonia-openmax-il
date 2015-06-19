@@ -22,6 +22,7 @@
 # Globals
 TIZONIA_DIR="$HOME/work/tizonia" # Default value for Tizonia repo's directory
 DEBIAN_DIR="$HOME/work/debian" # Default value for the debian packaging directory
+TEMP_DIR="$HOME/temp" # Default value for the debian packaging directory
 
 # Constants
 readonly MYDEBFULLNAME="Juan A. Rubio"
@@ -127,7 +128,7 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
 
 TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
 TIZ_PKG_DH_MAKE_C_CMD="dh_make -c lgpl3 -l --createorig --yes"
-TIZ_PKG_PY2DSC_CMD="py2dsc"
+TIZ_PKG_PY2DSC_CMD="py2dsc --dist-dir=."
 
 declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizilheaders]="$TIZ_PKG_DH_MAKE_I_CMD" \
@@ -175,7 +176,7 @@ function usage {
 ##################################################################
 function do_prereqs {
 
-    # Install tizonia dependencies
+    # Install tizonia's binary dependencies
     for pkg in "${TIZ_TIZONIA_DEPS[@]}"; do
         local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
         if [[ "$result" == "not-installed" ]]; then
@@ -194,6 +195,22 @@ function do_prereqs {
             pretty_print "$GRN" "[$pkg] : installed."
         fi
     done
+
+    # Install source dependencies : currently gmusicapi only
+    local GMUSICAPI_DIR=gmusicapi
+    if [[ -d "$TEMP_DIR"/gmusicapi ]]; then
+        sudo rm -rf "$TEMP_DIR"/gmusicapi
+    fi
+
+    echo "Installing pip and an older version of the gmusicapi python module..."
+#     wget https://bootstrap.pypa.io/get-pip.py \
+#         && sudo python get-pip.py \
+#         && sudo pip install gmusicapi --upgrade
+
+    cd "$TEMP_DIR" \
+        && git clone https://github.com/simon-weber/Unofficial-Google-Music-API gmusicapi \
+        && cd gmusicapi \
+        && sudo python setup.py install
 
     # Install debian dependencies
     for pkg in "${TIZ_DEBIAN_PKGS[@]}"; do
@@ -353,6 +370,7 @@ function print_banner {
     if [[ "$color" == "" ]]; then
         color="$RED"
     fi
+    echo
     pretty_print "$color" "$dashes"
     pretty_print "$color" "$msg"
     pretty_print "$color" "$dashes"
@@ -455,7 +473,7 @@ function do_python_deb_file {
     pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
 
     err_msg="[$pkg] : Error while running py2dsc."
-    py2dsc "$pkg-$pkg_ver".tar.gz && cd deb_dist/"$pkg-$pkg_ver"
+    py2dsc --dist-dir='.' "$pkg-$pkg_ver".tar.gz && cd "$pkg-$pkg_ver"
     exit_status=$?
 
     if [[ "$exit_status" -eq 0 ]] ; then
@@ -469,7 +487,7 @@ function do_python_deb_file {
 }
 
 ##################################################################
-# Function to create debian packages for python packages
+# Function to install debian packages
 #
 # Globals
 #   DEBIAN_DIR
@@ -492,9 +510,25 @@ function do_install_deb_file {
     pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
 
     err_msg="[$pkg] : Error while installing the package."
-    sudo dpkg --purge *.deb
-    sudo dpkg -i *.deb
-    exit_status=$?
+    local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
+    if [[ "$result" == "installed" ]]; then
+        pretty_print "$BLU" "[$pkg] : uninstalling."
+        sudo dpkg --purge "$pkg"
+        pretty_print "$GRN" "[$pkg] : uninstalled."
+    fi
+
+    for deb in *.deb
+    do
+        err_msg="[$pkg] : Error while installing the package."
+        pretty_print "$BLU" "[$deb] : installing."
+        sudo dpkg -i "$deb"
+        exit_status=$?
+        if [[ "$exit_status" -eq 0 ]] ; then
+            pretty_print "$GRN" "[$deb] : installed."
+        else
+            break
+        fi
+    done
 
     log_on_error "$exit_status" "$err_msg"
     return "$exit_status"
@@ -546,6 +580,13 @@ function main {
         echo "Do all"
     fi
 
+    pretty_print "$BLU" "hostname = $(hostname)"
+    pretty_print "$BLU" "OS rel   = $(cat /etc/os-release | grep PRETTY | cut -d'=' -f2 | cut -d\" -f2)"
+    pretty_print "$BLU" "uname -m = $(uname -m)"
+    pretty_print "$BLU" "uname -r = $(uname -r)"
+    pretty_print "$BLU" "uname -s = $(uname -s)"
+    pretty_print "$BLU" "uname -v = $(uname -v)"
+
     # Create directories
     if [[ -d "$DEBIAN_DIR" ]]; then
         echo "Deleting an old debian directory: $DEBIAN_DIR"
@@ -555,6 +596,11 @@ function main {
     if [[ ! -d "$DEBIAN_DIR" ]]; then
         echo "Creating the debian directory: $DEBIAN_DIR"
         mkdir -p "$DEBIAN_DIR"
+    fi
+
+    if [[ ! -d "$TEMP_DIR" ]]; then
+        echo "Creating the temp directory: $TEMP_DIR"
+        mkdir -p "$TEMP_DIR"
     fi
 
     # Export important variables
@@ -593,6 +639,10 @@ function main {
             fi
 
             do_install_deb_file "$pkg" "$pkg_dir"
+            exit_status=$?
+            if [[ "$exit_status" -ne 0 ]] ; then
+                break
+            fi
         done
     fi
 
