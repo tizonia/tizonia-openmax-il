@@ -47,7 +47,7 @@ setup(
     license              = "GNU GPLv3",
     description          = 'Tizonia Google Play Music proxy',
     install_requires     = [
-        'gmusicapi >= 5.0.0',
+#        'gmusicapi >= 5.0.0',
     ],
     classifiers          = [
         "Development Status :: 2 - Pre-Alpha",
