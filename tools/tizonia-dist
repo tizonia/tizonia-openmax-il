@@ -126,9 +126,9 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
     [tizrmd]="$TIZ_C_CPP_PKG_DIST_CMD" \
 )
 
-TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
-TIZ_PKG_DH_MAKE_C_CMD="dh_make -c lgpl3 -l --createorig --yes"
-TIZ_PKG_PY2DSC_CMD="py2dsc --dist-dir=."
+readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
+readonly TIZ_PKG_DH_MAKE_C_CMD="dh_make -c lgpl3 -l --createorig --yes"
+readonly TIZ_PKG_PY2DSC_CMD="py2dsc --dist-dir=."
 
 declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizilheaders]="$TIZ_PKG_DH_MAKE_I_CMD" \
@@ -159,9 +159,10 @@ function usage {
     pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
 
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-p]"
-    pretty_print "$GRN" "       -a            : Do all packages."
+    pretty_print "$GRN" "Usage : $(basename $0) [-a] [-p] [-r]"
+    pretty_print "$GRN" "       -a            : Create and install all deb packages."
     pretty_print "$GRN" "       -p            : Pre-requisites. Install debian packages in other such tasks."
+    pretty_print "$GRN" "       -r            : Uninstall (purge) all deb packages."
 } >&2
 
 ##################################################################
@@ -181,56 +182,60 @@ function do_prereqs {
         local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
         if [[ "$result" == "not-installed" ]]; then
             pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -qq "$pkg" > /dev/null
+            sudo apt-get install -q -y "$pkg" #> /dev/null
             pretty_print "$GRN" "[$pkg] : installed."
         elif [[ "$result" == "" ]]; then
             pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -qq "$pkg" > /dev/null
+            sudo apt-get install -q -y "$pkg" #> /dev/null
             pretty_print "$GRN" "[$pkg] : installed."
         elif [[ "$result" == "installed" ]]; then
             pretty_print "$GRN" "[$pkg] : $result."
         else
             pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -qq "$pkg" > /dev/null
+            sudo apt-get install -q -y "$pkg" #> /dev/null
             pretty_print "$GRN" "[$pkg] : installed."
         fi
     done
-
-    # Install source dependencies : currently gmusicapi only
-    local GMUSICAPI_DIR=gmusicapi
-    if [[ -d "$TEMP_DIR"/gmusicapi ]]; then
-        sudo rm -rf "$TEMP_DIR"/gmusicapi
-    fi
-
-    echo "Installing pip and an older version of the gmusicapi python module..."
-#     wget https://bootstrap.pypa.io/get-pip.py \
-#         && sudo python get-pip.py \
-#         && sudo pip install gmusicapi --upgrade
-
-    cd "$TEMP_DIR" \
-        && git clone https://github.com/simon-weber/Unofficial-Google-Music-API gmusicapi \
-        && cd gmusicapi \
-        && sudo python setup.py install
 
     # Install debian dependencies
     for pkg in "${TIZ_DEBIAN_PKGS[@]}"; do
         local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
         if [[ "$result" == "not-installed" ]]; then
             pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -qq "$pkg" > /dev/null
+            sudo apt-get install -q -y "$pkg" #> /dev/null
             pretty_print "$GRN" "[$pkg] : installed."
         elif [[ "$result" == "" ]]; then
             pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -qq "$pkg" > /dev/null
+            sudo apt-get install -q -y "$pkg" #> /dev/null
             pretty_print "$GRN" "[$pkg] : installed."
         elif [[ "$result" == "installed" ]]; then
             pretty_print "$GRN" "[$pkg] : $result."
         else
             pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -qq "$pkg" > /dev/null
+            sudo apt-get install -q -y "$pkg" #> /dev/null
             pretty_print "$GRN" "[$pkg] : installed."
         fi
     done
+
+    # Install source dependencies : currently gmusicapi only
+    python -c "import gmusicapi"
+    if [[ "$?" -ne 0 ]]; then
+        local GMUSICAPI_DIR=gmusicapi
+        if [[ -d "$TEMP_DIR"/gmusicapi ]]; then
+            sudo rm -rf "$TEMP_DIR"/gmusicapi
+        fi
+
+        #echo "Installing pip and an older version of the gmusicapi python module..."
+        #     wget https://bootstrap.pypa.io/get-pip.py \
+        #         && sudo python get-pip.py \
+        #         && sudo pip install gmusicapi --upgrade
+
+        cd "$TEMP_DIR" \
+            && git clone https://github.com/simon-weber/Unofficial-Google-Music-API gmusicapi \
+            && cd gmusicapi \
+            && sudo python setup.py install
+    fi
+
 }
 
 ##################################################################
@@ -283,7 +288,7 @@ function log_on_error {
 }
 
 ##################################################################
-# Simple function to go to the working directory
+# Simple function to go to a particular directory
 #
 # Globals
 #   TIZONIA_DIR
@@ -339,7 +344,7 @@ function print_dashes {
 }
 
 ##################################################################
-#
+# Simple function to print with color
 #
 # Globals
 #
@@ -353,7 +358,7 @@ function pretty_print {
 }
 
 ##################################################################
-#
+# Simple function to print a banner
 #
 # Globals
 #
@@ -377,7 +382,7 @@ function print_banner {
 }
 
 ##################################################################
-# Function to create distribution tar files
+# Function to create distribution tar files.
 #
 # Globals
 #   DEBIAN_DIR
@@ -410,7 +415,8 @@ function do_tar_file {
 }
 
 ##################################################################
-# Function to create debian packages
+# Function to create a debian package from a normal C/C++ source
+# package.
 #
 # Globals
 #   DEBIAN_DIR
@@ -450,7 +456,7 @@ function do_deb_file {
 }
 
 ##################################################################
-# Function to create debian packages for python packages
+# Function to create a debian package from a python source package.
 #
 # Globals
 #   DEBIAN_DIR
@@ -535,51 +541,84 @@ function do_install_deb_file {
 }
 
 ##################################################################
-# Main function
+# Function to create tar archives of all sub-projects.
 #
 # Globals
-#   TIZONIA_DIR
 #   DEBIAN_DIR
+#   TIZ_PKG_DIST_CMD
 # Arguments:
 #   None
 # Returns:
 #   None
 ##################################################################
-function main {
-    local prereqs=0
-    local doall=0
-
-    while getopts "ap" opt; do
-        case "$opt" in
-            a)
-                doall=1
-                ;;
-            p)
-                prereqs=1
-                ;;
-            *)
-                usage
-                exit "$E_BADARGS"
-        esac
+function do_all_tars {
+    local exit_status=0
+    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
+        local pkg_dir="$TIZONIA_DIR/${TIZ_PKG_DIRS[$pkg]}"
+        do_tar_file "$pkg" "$pkg_dir"
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            break
+        fi
     done
+    return "$exit_status"
+}
 
-    local total=$(( $prereqs + $doall ))
-    if [[ "$total" < 1 ]]; then
-        usage
-        exit "$E_BADARGS"
-    fi
+##################################################################
+# Function to create deb packages of all sub-projects.
+# Debs are also installed.
+#
+# Globals
+#   DEBIAN_DIR
+#   TIZ_PKG_DIST_CMD
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_all_debs {
+    local exit_status=0
+    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
+        local pkg_dir="$DEBIAN_DIR/$pkg"
 
-    if [[ "$prereqs" == 1 ]]; then
-        do_prereqs
-        exit 0
-    fi
+        exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
+        if [[ $? -eq 0 ]]; then
+            do_python_deb_file "$pkg" "$pkg_dir"
+            exit_status=$?
+        else
+            do_deb_file "$pkg" "$pkg_dir"
+            exit_status=$?
+        fi
 
-    local exit_status=1
+        if [[ "$exit_status" -ne 0 ]] ; then
+            break
+        fi
 
-    if [[ "$doall" == 1 ]]; then
-        echo "Do all"
-    fi
+        do_install_deb_file "$pkg" "$pkg_dir"
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            break
+        fi
+    done
+    return "$exit_status"
+}
 
+##################################################################
+# Function to create tar archives and deb packages of all
+# sub-projects.Debs are also installed.
+#
+# Globals
+#   DEBIAN_DIR
+#   TIZ_PKG_DIST_CMD
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_all_tars_and_debs {
+    local exit_status=0
+
+    # Print platform info
     pretty_print "$BLU" "hostname = $(hostname)"
     pretty_print "$BLU" "OS rel   = $(cat /etc/os-release | grep PRETTY | cut -d'=' -f2 | cut -d\" -f2)"
     pretty_print "$BLU" "uname -m = $(uname -m)"
@@ -603,47 +642,107 @@ function main {
         mkdir -p "$TEMP_DIR"
     fi
 
+    do_all_tars
+    exit_status=$?
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        do_all_debs
+        exit_status=$?
+    fi
+    return "$exit_status"
+}
+
+##################################################################
+# Function to uninstall (purge) all previously installed debian
+# packages
+#
+# Globals
+#   DEBIAN_DIR
+#   TIZ_PKG_DIST_CMD
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_remove_debs {
+    local exit_status=0
+    for ((i=${#TIZ_PKGS_ORDERED[@]}-1; i>=0; i--)); do
+        local pkg="${TIZ_PKGS_ORDERED[$i]}"
+        local pkg_dir="$DEBIAN_DIR/$pkg"
+        if [[ -d "$pkg_dir" ]]; then
+            cd "$pkg_dir"
+            local deb_files=(*.deb)
+            for ((j=${#deb_files[@]}-1; j>=0; j--)); do
+                deb="${deb_files[$j]}"
+                pretty_print "$BLU" "[$pkg] : uninstalling $deb."
+                sudo dpkg --purge $(echo "$deb" | cut -d'_' -f1)
+            done
+        fi
+    done
+    return "$exit_status"
+}
+
+##################################################################
+# Main function
+#
+# Globals
+#   TIZONIA_DIR
+#   DEBIAN_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function main {
+    local exit_status=0
+    local prereqs=0
+    local doall=0
+    local removedebs=0
+
+    while getopts "apr" opt; do
+        case "$opt" in
+            a)
+                doall=1
+                ;;
+            p)
+                prereqs=1
+                ;;
+            r)
+                removedebs=1
+                ;;
+            *)
+                usage
+                exit "$E_BADARGS"
+        esac
+    done
+
+    local total=$(( $prereqs + $doall + $removedebs ))
+    if [[ "$total" < 1 ]]; then
+        usage
+        exit "$E_BADARGS"
+    fi
+
     # Export important variables
     export DEBFULLNAME=$MYDEBFULLNAME
     export DEBEMAIL=$MYDEBEMAIL
 
-#     for (( I=0; $I < ${#TIZ_PKG_DIRS[@]}; I+=1 )); do
-#         KEY=${TIZ_PKGS[$I]};
-#         echo $KEY --- ${TIZ_PKG_DIRS[$KEY]};
-#     done
-
-    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
-        local pkg_dir="$TIZONIA_DIR/${TIZ_PKG_DIRS[$pkg]}"
-        do_tar_file "$pkg" "$pkg_dir"
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            break
-        fi
-    done
+    if [[ "$prereqs" == 1 ]]; then
+        do_prereqs
+        exit_status=0
+    fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
-            local pkg_dir="$DEBIAN_DIR/$pkg"
-
-            exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
-            if [[ $? -eq 0 ]]; then
-                do_python_deb_file "$pkg" "$pkg_dir"
-                exit_status=$?
-            else
-                do_deb_file "$pkg" "$pkg_dir"
-                exit_status=$?
-            fi
-
-            if [[ "$exit_status" -ne 0 ]] ; then
-                break
-            fi
-
-            do_install_deb_file "$pkg" "$pkg_dir"
+        if [[ "$doall" == 1 ]]; then
+            do_all_tars_and_debs
             exit_status=$?
-            if [[ "$exit_status" -ne 0 ]] ; then
-                break
-            fi
-        done
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        if [[ "$removedebs" == 1 ]]; then
+            do_remove_debs
+            exit_status=$?
+        fi
     fi
 
     cd "$CWD"
