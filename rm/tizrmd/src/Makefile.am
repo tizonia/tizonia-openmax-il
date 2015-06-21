@@ -29,8 +29,6 @@ tizrmd_SOURCES = \
 	tizrmdb.cpp
 
 tizrmd_CPPFLAGS = \
-	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/dbus \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
@@ -38,7 +36,6 @@ tizrmd_CPPFLAGS = \
 	@SQLITE3_CFLAGS@
 
 tizrmd_LDADD = \
-	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	@TIZPLATFORM_LIBS@ \
 	@DBUS_LIBS@ \
 	@SQLITE3_LDFLAGS@
