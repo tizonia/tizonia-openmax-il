@@ -8,4 +8,4 @@ Description: Tizonia Google Music client library
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -ltizgmusic
 Libs.private: -lpython2.7 -lboost_python
-Cflags: -I${includedir} -I${includedir}/python2.7 -I${includedir}/tizonia/gmusic
+Cflags: -I${includedir} -I${includedir}/python2.7 -I${includedir}/tizonia

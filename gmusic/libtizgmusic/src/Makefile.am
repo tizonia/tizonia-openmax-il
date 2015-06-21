@@ -17,7 +17,7 @@
 
 lib_LTLIBRARIES = libtizgmusic.la
 
-libtizgmusic_includedir = $(includedir)/tizonia/gmusic
+libtizgmusic_includedir = $(includedir)/tizonia
 
 noinst_HEADERS =
 

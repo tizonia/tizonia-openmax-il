@@ -1,4 +1,4 @@
 usr/lib/*/lib*.a
 usr/lib/*/lib*.so
-usr/include/tizonia/gmusic/*
+usr/include/tizonia/*
 usr/lib/*/pkgconfig/lib*.pc
