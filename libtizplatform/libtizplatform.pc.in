@@ -10,4 +10,4 @@ Requires: tizilheaders
 Requires.private: uuid
 Libs: -L${libdir} -ltizplatform
 Libs.private: -llog4c -lev -lpthread
-Cflags: -I${includedir} -I${includedir}/tizonia/platform
+Cflags: -I${includedir} -I${includedir}/tizonia

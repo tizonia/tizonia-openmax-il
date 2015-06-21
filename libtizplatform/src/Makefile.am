@@ -19,7 +19,7 @@ AM_CFLAGS = $(WARN_CFLAGS)
 
 lib_LTLIBRARIES = libtizplatform.la
 
-libtizplatform_includedir = $(includedir)/tizonia/platform
+libtizplatform_includedir = $(includedir)/tizonia
 
 libtizplatform_include_HEADERS = \
 	utarray/utarray.h \
