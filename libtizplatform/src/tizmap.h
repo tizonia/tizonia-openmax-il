@@ -38,7 +38,7 @@ extern "C" {
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#include <tizsoa.h>
+#include "tizsoa.h"
 
 typedef struct tiz_map tiz_map_t;
 
