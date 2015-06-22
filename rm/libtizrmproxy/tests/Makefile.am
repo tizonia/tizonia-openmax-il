@@ -37,7 +37,7 @@ check_tizrmproxy_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
 	-I$(top_srcdir)/../dbus \
-	-I$(top_srcdir)/src
+	-I$(top_srcdir)/src \
 	@CHECK_CFLAGS@
 
 check_tizrmproxy_LDADD = \
