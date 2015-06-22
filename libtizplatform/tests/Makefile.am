@@ -17,6 +17,9 @@
 
 TESTS = check_tizplatform
 
+EXTRA_DIST = tizonia.conf check_tizplatform.h.in check_tizplatform.h
+CLEANFILES = check_tizplatform.h
+
 check_PROGRAMS = check_tizplatform
 
 noinst_HEADERS = \
@@ -35,14 +38,20 @@ noinst_HEADERS = \
 check_tizplatform_SOURCES = check_tizplatform.c
 
 check_tizplatform_CFLAGS = \
-	-I$(top_srcdir)/src/ \
-	-I$(top_srcdir)/../include/omxil-1.2 \
+	-I$(top_srcdir)/src \
 	@TIZILHEADERS_CFLAGS@ \
 	@CHECK_CFLAGS@
 
 check_tizplatform_LDADD = \
 	$(top_builddir)/src/libtizplatform.la \
 	@CHECK_LIBS@
+
+do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g'
+
+check_tizplatform.h: check_tizplatform.h.in Makefile
+	$(do_subst) < $(srcdir)/check_tizplatform.h.in > check_tizplatform.h
+
+all-local: check_tizplatform.h
 
 clean-local: clean-local-check-tizplatform
 distclean-local: clean-local-check-tizplatform

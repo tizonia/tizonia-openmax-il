@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include <check.h>
 #include <signal.h>
+#include <unistd.h>
+#include <linux/limits.h>
 #include "../src/tizplatform.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -37,6 +39,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.platform.check"
 #endif
 
+#include "check_tizplatform.h"
 #include "./check_mem.c"
 #include "./check_sem.c"
 #include "./check_mutex.c"
@@ -147,6 +150,8 @@ platform_rcfile_suite (void)
 {
   TCase *tc_rc = NULL;
   Suite *s = suite_create ("Runcon file parsing APIs");
+
+  putenv(TIZ_PLATFORM_RC_FILE_ENV);
 
   /* config file parsing API test cases */
   tc_rc = tcase_create ("rcfile");
