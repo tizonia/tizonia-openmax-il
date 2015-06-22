@@ -20,10 +20,10 @@
 /**
  * @file   check_rc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Configuration file parsing utility unit tests
- * 
- * 
+ *
+ *
  */
 
 START_TEST (test_rcfile_get_single_value)
