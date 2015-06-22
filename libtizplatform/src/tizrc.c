@@ -68,8 +68,11 @@ static char *list_keys[] = { "component-paths", };
 
 static const int nrlist_keys = 1;
 
-static file_info_t rcfiles[]
-    = { { "$SYSCONFDIR/tizonia.conf" }, { "$HOME/.tizonia.conf" } };
+static file_info_t rcfiles[] = {
+  { "$TIZONIA_RC_FILE/tizonia.conf" },
+  { "$SYSCONFDIR/tizonia.conf" },
+  { "$HOME/.tizonia.conf" }
+};
 
 static const int g_nrcfiles = sizeof(rcfiles) / sizeof(rcfiles[0]);
 
@@ -509,13 +512,16 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
   /* load rc files */
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Looking for [%d] rc files...", g_nrcfiles);
 
-  snprintf (rcfiles[0].name, sizeof(rcfiles[0].name) - 1, "%s/tizonia.conf",
+  snprintf(rcfiles[0].name, sizeof(rcfiles[0].name) - 1, "%s",
+           getenv("TIZONIA_RC_FILE") ? getenv("TIZONIA_RC_FILE") : "");
+
+  snprintf (rcfiles[1].name, sizeof(rcfiles[0].name) - 1, "%s/tizonia.conf",
             SYSCONFDIR);
 
-  if (g_nrcfiles >= 2 && (p_env_str = getenv ("HOME")))
+  if (g_nrcfiles >= 3 && (p_env_str = getenv ("HOME")))
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "HOME [%s] ...", p_env_str);
-      snprintf (rcfiles[1].name, sizeof(rcfiles[1].name) - 1,
+      snprintf (rcfiles[2].name, sizeof(rcfiles[2].name) - 1,
                 "%s/.tizonia.conf", p_env_str ? p_env_str : "");
     }
 
@@ -531,7 +537,6 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Checking for rc file at [%s]",
                rcfiles[i].name);
-
       /* Check file existence and user's read access */
       if (0 != access (rcfiles[i].name, R_OK))
         {
