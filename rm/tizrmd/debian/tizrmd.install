@@ -1,0 +1,6 @@
+usr/bin/tizrmd                                            usr/bin
+usr/bin/tizonia-rm-db-dump.sh                             usr/bin
+usr/bin/tizonia-rm-db-generate.sh                         usr/bin
+usr/share/dbus-1/services/com.aratelia.tiz.rm.service     usr/share/dbus-1/services
+usr/share/tizrmd/tizonia-rm-db-initial.sql3               usr/share/tizrmd
+usr/share/tizrmd/tizrm.db                                 usr/share/tizrmd
