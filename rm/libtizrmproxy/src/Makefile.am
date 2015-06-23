@@ -17,7 +17,7 @@
 
 lib_LTLIBRARIES = libtizrmproxy.la
 
-libtizrmproxy_includedir = $(includedir)/tizonia/rmproxy
+libtizrmproxy_includedir = $(includedir)/tizonia
 
 noinst_HEADERS =
 
@@ -31,16 +31,11 @@ libtizrmproxy_la_SOURCES = \
 	tizrmproxy_c.cc
 
 libtizrmproxy_la_CPPFLAGS = \
-	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizplatform/src \
 	-I$(top_srcdir)/../tizrmd/dbus \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
 	@DBUS_CFLAGS@
 
 libtizrmproxy_la_LIBADD = \
-	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
 	@TIZPLATFORM_LIBS@ \
 	@DBUS_LIBS@
-
-

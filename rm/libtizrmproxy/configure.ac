@@ -47,18 +47,24 @@ PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
 PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
-	[tizrmproxy_found_omx_headers=yes; break;])
-AS_IF([test "x$tizrmproxy_found_omx_headers" != "xyes"],
-	[AC_MSG_NOTICE([Unable to find the omx il headers])])
-AS_IF([test "x$tizrmproxy_found_omx_headers" == "xyes"],
-	[PKG_CHECK_MODULES([TIZILHEADERS], [tizilheaders >= 0.1.0])])
+	[tizrmd_found_omx_headers=yes; break;])
+AS_IF([test "x$tizrmd_found_omx_headers" != "xyes"],
+	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../../include/tizonia']),
+	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
+	[AC_MSG_NOTICE([Not substituting TIZILHEADERS cflags and libs with local paths])])
+AS_IF([test "x$tizrmd_found_omx_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZILHEADERS], [tizilheaders >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZILHEADERS cflags and libs])])
 
-AC_CHECK_HEADERS([tizonia/platform/tizplatform.h],
-	[tizrmproxy_found_platform_headers=yes; break;])
-AS_IF([test "x$tizrmproxy_found_platform_headers" != "xyes"],
-	[AC_MSG_NOTICE([Unable to find Tizonia's platform headers])])
-AS_IF([test "x$tizrmproxy_found_platform_headers" == "xyes"],
-	[PKG_CHECK_MODULES([TIZPLATFORM], [libtizplatform >= 0.1.0])])
+AC_CHECK_HEADERS([tizonia/tizplatform.h],
+	[tizrmd_found_platform_headers=yes; break;])
+AS_IF([test "x$tizrmd_found_platform_headers" != "xyes"],
+	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../../libtizplatform/tizonia']),
+	AC_SUBST([TIZPLATFORM_LIBS], ['$(top_builddir)/../../libtizplatform/tizonia/libtizplatform.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZPLATFORM cflags and libs with local paths])])
+AS_IF([test "x$tizrmd_found_platform_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZPLATFORM], [libtizplatform >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZPLATFORM cflags and libs])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
