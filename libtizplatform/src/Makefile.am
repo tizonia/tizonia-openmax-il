@@ -71,7 +71,6 @@ libtizplatform_la_SOURCES = \
 	tizshuffle.c
 
 libtizplatform_la_CFLAGS = \
-	-I$(top_srcdir)/../include/tizonia \
 	$(AM_CFLAGS) \
 	@TIZILHEADERS_CFLAGS@ \
 	@LOG4C_CFLAGS@
