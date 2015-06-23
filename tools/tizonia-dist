@@ -99,6 +99,7 @@ declare -Ar TIZ_PKG_DIRS=( \
     [tizgmusic]="gmusic/libtizgmusic" \
     [tizplatform]="libtizplatform" \
     [tizrmd]="rm/tizrmd" \
+    [tizrmproxy]="rm/libtizrmproxy" \
 )
 
 readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
@@ -108,6 +109,7 @@ readonly TIZ_PKGS_ORDERED=( \
     tizgmusic \
     tizplatform \
     tizrmd \
+    tizrmproxy \
 )
 
 readonly TIZ_PYTHON_PKGS=( \
@@ -124,6 +126,7 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
     [tizgmusic]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizplatform]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizrmd]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizrmproxy]="$TIZ_C_CPP_PKG_DIST_CMD" \
 )
 
 readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
@@ -136,6 +139,7 @@ declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizgmusic]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizplatform]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizrmd]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizrmproxy]="$TIZ_PKG_DH_MAKE_C_CMD" \
 )
 
 ##################################################################
