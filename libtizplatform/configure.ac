@@ -48,13 +48,14 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 PKG_CHECK_MODULES([UUID], [uuid >= 2.19.0])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
-	[tizplat_found_omx_headers=yes; break;])
-
-AS_IF([test "x$tizplat_found_omx_headers" != "xyes"],
-	[AC_MSG_NOTICE([Unable to find the omx il headers])])
-
-AS_IF([test "x$tizplat_found_omx_headers" == "xyes"],
-	[PKG_CHECK_MODULES([TIZILHEADERS], [tizilheaders >= 0.1.0])])
+	[tizrmd_found_omx_headers=yes; break;])
+AS_IF([test "x$tizrmd_found_omx_headers" != "xyes"],
+	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../include/tizonia']),
+	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
+	[AC_MSG_NOTICE([Not substituting TIZILHEADERS cflags and libs with local paths])])
+AS_IF([test "x$tizrmd_found_omx_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZILHEADERS], [tizilheaders >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZILHEADERS cflags and libs])])
 
 AM_PATH_LOG4C([1.2.1])
 
