@@ -1,0 +1,13 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: tizrmd
+Description: Tizonia Resource Manager daemon
+Version: @PACKAGE_VERSION@
+Requires: tizilheaders, tizplatform
+Requires.private: dbus-c++-1
+Libs: -L${libdir}
+Libs.private: -llog4c -lev -lpthread
+Cflags: -I${includedir} -I${includedir}/tizonia

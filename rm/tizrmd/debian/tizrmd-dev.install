@@ -1,0 +1,3 @@
+usr/include/tizonia/*
+usr/lib/*/pkgconfig/*.pc
+
