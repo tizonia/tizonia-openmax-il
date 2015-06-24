@@ -6,7 +6,7 @@ includedir=@includedir@
 Name: libtizrmproxy
 Description: Tizonia Resource Manager proxy library
 Version: @PACKAGE_VERSION@
-Require: tizilheaders tizplatform tizrmd
+Requires: tizilheaders libtizplatform tizrmd
 Requires.private: dbus-c++-1
 Libs: -L${libdir} -ltizrmproxy
 Cflags: -I${includedir} -I${includedir}/tizonia

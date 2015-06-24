@@ -31,9 +31,9 @@ libtizrmproxy_la_SOURCES = \
 	tizrmproxy_c.cc
 
 libtizrmproxy_la_CPPFLAGS = \
-	-I$(top_srcdir)/../tizrmd/dbus \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
+	@TIZRMD_CFLAGS@ \
 	@DBUS_CFLAGS@
 
 libtizrmproxy_la_LIBADD = \
