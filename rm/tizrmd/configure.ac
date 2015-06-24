@@ -115,6 +115,7 @@ if test "x$HAVE_SQLITE3" = "xfalse"; then
 fi
 
 AC_CONFIG_FILES([Makefile
+                tizrmd.pc
                 dbus/Makefile
                 data/Makefile
                 src/Makefile])

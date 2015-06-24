@@ -10,7 +10,7 @@ Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
 
 Package: tizrmd
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: libtizplatform0, ${shlibs:Depends}, ${misc:Depends}
 Description: Tizonia's resource manager daemon
  A server that controls the Tizonia OpenMAX IL resources.
 
@@ -23,3 +23,12 @@ Description: Tizonia's resource manager daemon
  A server that controls the Tizonia OpenMAX IL resources.
  .
  This package contains the debugging symbols.
+
+Package: tizrmd-dev
+Section: libdevel
+Architecture: any
+Depends: tizrmd (= ${binary:Version}), libtizplatform-dev, tizilheaders, check
+Description: Tizonia's platform library, development files
+ Tizonia's resource manager daemon.
+ .
+ This package contains the development headers.

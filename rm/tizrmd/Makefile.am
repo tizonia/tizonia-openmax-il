@@ -22,3 +22,14 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = debian
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = tizrmd.pc
+
+BUILT_SOURCES = tizonia
+
+DISTCLEANFILES = tizonia
+
+noinst_HEADERS = tizonia
+
+tizonia:
+	ln -s $(srcdir)/dbus tizonia
