@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 #
 # Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
 #
@@ -163,10 +163,11 @@ function usage {
     pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
 
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-a] [-p] [-r]"
+    pretty_print "$GRN" "Usage : $(basename $0) [-a] [-n] [-p] [-r]"
     pretty_print "$GRN" "       -a            : Create and install all deb packages."
-    pretty_print "$GRN" "       -p            : Pre-requisites. Install debian packages in other such tasks."
-    pretty_print "$GRN" "       -r            : Uninstall (purge) all deb packages."
+    pretty_print "$GRN" "       -n            : Create and install all deb packages, starting from the rist that is not installed yet."
+    pretty_print "$GRN" "       -p            : Pre-requisites. Install both Tizonia's and Debian's dependencies."
+    pretty_print "$GRN" "       -r            : Uninstall (purge) all currently install Tizonia packages."
 } >&2
 
 ##################################################################
@@ -657,6 +658,58 @@ function do_all_tars_and_debs {
 }
 
 ##################################################################
+# Function to create the deb package for the next project in the
+# list
+#
+# Globals
+#   DEBIAN_DIR
+#   TIZ_PKG_DIST_CMD
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_next_deb {
+    local exit_status=0
+    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
+        dpkg -l | grep "$pkg" > /dev/null
+        result=${PIPESTATUS[1]}
+        if [[ $result -ne 0 ]]; then
+
+            local pkg_dir="$TIZONIA_DIR/${TIZ_PKG_DIRS[$pkg]}"
+            do_tar_file "$pkg" "$pkg_dir"
+            exit_status=$?
+            if [[ "$exit_status" -ne 0 ]] ; then
+                break
+            fi
+
+            exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
+            if [[ $? -eq 0 ]]; then
+                do_python_deb_file "$pkg" "$pkg_dir"
+                exit_status=$?
+            else
+                do_deb_file "$pkg" "$pkg_dir"
+                exit_status=$?
+            fi
+
+            if [[ "$exit_status" -ne 0 ]] ; then
+                break
+            fi
+
+            do_install_deb_file "$pkg" "$pkg_dir"
+            exit_status=$?
+            if [[ "$exit_status" -ne 0 ]] ; then
+                break
+            fi
+
+        else
+            pretty_print "$GRN" "[$pkg] : installed."
+        fi
+    done
+    return "$exit_status"
+}
+
+##################################################################
 # Function to uninstall (purge) all previously installed debian
 # packages
 #
@@ -699,29 +752,41 @@ function do_remove_debs {
 ##################################################################
 function main {
     local exit_status=0
+    local makeall=0
+    local makenext=0
     local prereqs=0
-    local doall=0
-    local removedebs=0
+    local removeall=0
 
-    while getopts "apr" opt; do
-        case "$opt" in
-            a)
-                doall=1
+    local progname=$(basename $0)
+    CMDLINE=$(getopt -o "anpr" --long "makeall,makenext,prereqs,removeall" -n "$progname" -- "$@")
+    eval set -- "$CMDLINE"
+    while true; do
+        case "$1" in
+            -a|--makeall)
+                echo "makeall"
+                makeall=1; shift
                 ;;
-            p)
-                prereqs=1
+            -n|--makenext)
+                echo "makenext"
+                makenext=1; shift
                 ;;
-            r)
-                removedebs=1
+            -p|--prereqs)
+                echo "prereqs"
+                prereqs=1; shift
                 ;;
-            *)
-                usage
-                exit "$E_BADARGS"
+            -r|--removeall)
+                echo "removeall"
+                removeall=1; shift
+                ;;
+            --)
+                shift
+                break
+                ;;
         esac
     done
 
-    local total=$(( $prereqs + $doall + $removedebs ))
-    if [[ "$total" < 1 ]]; then
+    local total=$(( $makeall + $makenext + $prereqs + $removeall ))
+    if [[ "$total" != 1 ]]; then
         usage
         exit "$E_BADARGS"
     fi
@@ -736,14 +801,21 @@ function main {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        if [[ "$doall" == 1 ]]; then
+        if [[ "$makeall" == 1 ]]; then
             do_all_tars_and_debs
             exit_status=$?
         fi
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        if [[ "$removedebs" == 1 ]]; then
+        if [[ "$makenext" == 1 ]]; then
+            do_next_deb
+            exit_status=$?
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        if [[ "$removeall" == 1 ]]; then
             do_remove_debs
             exit_status=$?
         fi
