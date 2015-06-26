@@ -7,4 +7,4 @@ export DEB_CFLAGS_MAINT_APPEND=-I/usr/include/tizonia
 export DEB_CPPFLAGS_MAINT_APPEND=-I/usr/include/tizonia
 
 %:
-	dh $@  --with autotools-dev
+	dh $@  --with autoreconf

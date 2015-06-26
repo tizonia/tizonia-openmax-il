@@ -2,7 +2,12 @@ Source: tizrmd
 Section: sound
 Priority: optional
 Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf
+               tizilheaders,
+               libtizplatform-dev,
+               libdbus-1-dev,
+               libdbus-c++-dev
 Standards-Version: 3.9.4
 Homepage: http://tizonia.org
 Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
@@ -10,7 +15,7 @@ Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
 
 Package: tizrmd
 Architecture: any
-Depends: libtizplatform0, ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Tizonia's resource manager daemon
  A server that controls the Tizonia OpenMAX IL resources.
 
