@@ -3,7 +3,7 @@ Section: sound
 Priority: optional
 Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
 Build-Depends: debhelper (>= 8.0.0),
-               dh-autoreconf
+               dh-autoreconf,
                tizilheaders,
                libtizplatform-dev,
                libdbus-1-dev,
