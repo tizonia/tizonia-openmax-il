@@ -1,23 +1,40 @@
 Source: tizrmproxy
 Priority: optional
 Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               tizilheaders,
+               libtizplatform-dev,
+               tizrmd-dev,
+               libdbus-1-dev,
+               libdbus-c++-dev,
+               check
 Standards-Version: 3.9.4
 Section: libs
-Homepage: <insert the upstream URL, if relevant>
-#Vcs-Git: git://git.debian.org/collab-maint/tizrmproxy.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/tizrmproxy.git;a=summary
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
 
-Package: tizrmproxy-dev
+Package: libtizrmproxy-dev
 Section: libdevel
 Architecture: any
-Depends: tizrmproxyBROKEN (= ${binary:Version})
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: libtizrmproxy0 (= ${binary:Version}),
+         ${misc:Depends},
+         tizilheaders,
+         libtizplatform-dev,
+         tizrmd-dev,
+         libdbus-1-dev,
+         libdbus-c++-dev,
+Description: Tizonia's Resource Manager proxy library, development files
+ Tizonia's resource manager proxy library.
+ .
+ This package contains the development library libtizrmproxy.
 
-Package: tizrmproxyBROKEN
+Package: libtizrmproxy0
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: Tizonia's Resource Manager proxy library, run-time library
+ Tizonia's resource manager proxy library.
+ .
+ This package contains the runtime library libtizrmproxy.
