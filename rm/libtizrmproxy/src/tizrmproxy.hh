@@ -32,7 +32,8 @@
 #include <map>
 #include <string.h>
 
-#include "tizrmproxy-dbus.hh"
+#include <tizrmproxy-dbus.hh>
+
 #include "tizrmproxytypes.h"
 
 class tizrmproxy

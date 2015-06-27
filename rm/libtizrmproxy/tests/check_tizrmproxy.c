@@ -44,6 +44,8 @@
 #include "tizrmproxy_c.h"
 #include "tizrmtypes.h"
 
+#include "check_tizrmproxy.h"
+
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.rm.proxy.check"
@@ -1115,11 +1117,13 @@ START_TEST (test_proxy_resource_preemption)
 }
 END_TEST
 
-Suite * 
+Suite *
 rmproxy_suite (void)
 {
   TCase *tc_proxy;
   Suite *s = suite_create ("libtizrmproxy");
+
+  putenv(TIZ_PLATFORM_RC_FILE_ENV);
 
   /* test case */
   tc_proxy = tcase_create ("RM proxy");

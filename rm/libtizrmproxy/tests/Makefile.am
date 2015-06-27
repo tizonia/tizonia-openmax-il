@@ -17,7 +17,11 @@
 
 TESTS = check_tizrmproxy
 
-EXTRA_DIST = db_acquire_and_destroy_no_release.sql3 \
+EXTRA_DIST = \
+	tizonia.conf \
+	check_tizrmproxy.h.in \
+	check_tizrmproxy.h \
+	db_acquire_and_destroy_no_release.sql3 \
 	db_acquire_and_release.sql3 \
 	db_busy_resource_management.after.sql3 \
 	db_busy_resource_management.before.sql3 \
@@ -26,6 +30,8 @@ EXTRA_DIST = db_acquire_and_destroy_no_release.sql3 \
 	db_wait_cancel_wait.after.sql3 \
 	db_wait_cancel_wait.before.sql3 \
 	updatedb.sh
+
+CLEANFILES = check_tizrmproxy.h
 
 check_PROGRAMS = check_tizrmproxy
 
@@ -43,3 +49,15 @@ check_tizrmproxy_LDADD = \
 	$(top_builddir)/src/libtizrmproxy.la \
 	@CHECK_LIBS@
 
+do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g'
+
+check_tizrmproxy.h: check_tizrmproxy.h.in Makefile
+	$(do_subst) < $(srcdir)/check_tizrmproxy.h.in > check_tizrmproxy.h
+
+all-local: check_tizrmproxy.h
+
+clean-local: clean-local-check-tizrmproxy
+distclean-local: clean-local-check-tizrmproxy
+.PHONY: clean-local-check-tizrmproxy
+clean-local-check-tizrmproxy:
+	-rm -f core
