@@ -41,8 +41,9 @@
 #include <signal.h>
 #include <limits.h>
 
-#include "tizplatform.h"
+#include <tizplatform.h>
 
+#include "check_tizcore.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -287,6 +288,8 @@ END_TEST Suite * tizcore_suite (void)
 {
   TCase *tc_ilcore;
   Suite *s = suite_create ("libtizcore");
+
+  putenv(TIZ_PLATFORM_RC_FILE_ENV);
 
   /* IL Core API test case */
   tc_ilcore = tcase_create ("ilcore");

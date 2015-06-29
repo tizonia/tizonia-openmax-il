@@ -20,9 +20,9 @@ lib_LTLIBRARIES = libtizcoretc.la
 libtizcoretc_la_SOURCES = tizcoretc.c
 
 libtizcoretc_la_CFLAGS = \
-	-I$(top_srcdir)/../include/omxil-1.2 \
-	-I$(top_srcdir)/../libtizplatform/src
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@
 
 libtizcoretc_la_LIBADD = \
-	$(top_builddir)/../libtizplatform/src/libtizplatform.la
+	@TIZPLATFORM_LIBS@
 

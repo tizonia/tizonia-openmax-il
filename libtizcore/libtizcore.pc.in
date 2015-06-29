@@ -2,14 +2,11 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
-toolsdir=@bindir@
-pluginsdir=@plugindir@
 
-Name: tizcore
+Name: libtizcore
 Description: Tizonia OpenMAX IL 1.2 Core
 Version: @PACKAGE_VERSION@
-Require: tizonia-khronos-openmaxil12 tizplatform tizrmproxy
+Require: tizilheaders libtizplatform libtizrmproxy tizrmd
 Require.private: check
-Cflags: -I${includedir}/tizonia/tizcore
 Libs: -L${libdir} -ldl -ltizcore
-
+Cflags: -I${includedir} -I${includedir}/tizonia

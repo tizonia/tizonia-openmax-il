@@ -17,18 +17,47 @@
 
 TESTS = check_tizcore
 
+EXTRA_DIST = \
+	tizonia.conf \
+	tizonia.conf.in \
+	check_tizcore.h.in \
+	check_tizcore.h
+
+CLEANFILES = check_tizcore.h tizonia.conf
+
 check_PROGRAMS = check_tizcore
 
 check_tizcore_SOURCES = check_tizcore.c
 
 check_tizcore_CFLAGS = \
-	-I$(top_srcdir)/../include/omxil-1.2 \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
 	-I$(top_srcdir)/src \
-	-I$(top_srcdir)/../libtizplatform/src \
 	@CHECK_CFLAGS@
 
 check_tizcore_LDADD = \
 	$(top_builddir)/src/libtizcore.la \
-	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
+	@TIZPLATFORM_LIBS@ \
 	@CHECK_LIBS@
 
+do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \
+	-e 's,[@]localstatedir[@],$(localstatedir),g' \
+	-e 's,[@]bindir[@],$(bindir),g' \
+	-e 's,[@]libdir[@],$(libdir),g' \
+	-e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	-e 's,[@]VERSION[@],$(VERSION),g'
+
+check_tizcore.h: check_tizcore.h.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
+
+tizonia.conf: tizonia.conf.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
+
+all-local: tizonia.conf check_tizcore.h
+
+clean-local: clean-local-check-tizcore
+distclean-local: clean-local-check-tizcore
+.PHONY: clean-local-check-tizcore
+clean-local-check-tizcore:
+	-rm -f core tizrm.db

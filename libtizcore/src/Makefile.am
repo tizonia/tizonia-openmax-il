@@ -22,15 +22,15 @@ lib_LTLIBRARIES = libtizcore.la
 libtizcore_la_SOURCES = tizcore.c
 
 libtizcore_la_CFLAGS = \
-	-I$(top_srcdir)/../include/omxil-1.2 \
-	-I$(top_srcdir)/../libtizplatform/src \
-	-I$(top_srcdir)/../rm/libtizrmproxy/src \
-	-I$(top_srcdir)/../rm/tizrmd/dbus \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
+	@TIZRMPROXY_CFLAGS@ \
+	@TIZRMD_CFLAGS@ \
 	-I$(top_srcdir)/src \
 	$(AM_CFLAGS)
 
 libtizcore_la_LIBADD = \
-	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
-	$(top_builddir)/../rm/libtizrmproxy/src/libtizrmproxy.la \
+	@TIZPLATFORM_LIBS@ \
+	@TIZRMPROXY_LIBS@ \
 	-ldl
 

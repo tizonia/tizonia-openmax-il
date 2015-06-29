@@ -689,8 +689,6 @@ scan_component_folders (void)
   unsigned long npaths = 0;
   struct dirent *p_dir_entry = NULL;
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Looking for component plugins...");
-
   if (NULL == (pp_paths = find_component_paths(&npaths)))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "No component paths configured");
@@ -699,6 +697,9 @@ scan_component_folders (void)
 
   for (i = 0; i < (int)npaths; i++)
     {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Looking for component plugins : %s",
+               pp_paths[i]);
+
       if (NULL == (p_dir = opendir (pp_paths[i])))
         {
           TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorUndefined] : "
@@ -709,14 +710,14 @@ scan_component_folders (void)
         {
           while (NULL != (p_dir_entry = readdir (p_dir)))
             {
+              TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]",
+                       p_dir_entry->d_name);
               if (p_dir_entry->d_type == DT_REG
                   && strstr (p_dir_entry->d_name,
                              TIZ_SHARED_LIB_SONAME_STRING)
                   && !strstr (p_dir_entry->d_name,
                               TIZ_SHARED_LIB_SONAMET_STRING))
                 {
-                  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]",
-                           p_dir_entry->d_name);
                   if (OMX_ErrorInsufficientResources
                       == cache_comp_info (pp_paths[i],
                                           p_dir_entry->d_name))
