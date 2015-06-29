@@ -19,6 +19,7 @@ TESTS = check_tizrmproxy
 
 EXTRA_DIST = \
 	tizonia.conf \
+	tizonia.conf.in \
 	check_tizrmproxy.h.in \
 	check_tizrmproxy.h \
 	db_acquire_and_destroy_no_release.sql3 \
@@ -31,7 +32,7 @@ EXTRA_DIST = \
 	db_wait_cancel_wait.before.sql3 \
 	updatedb.sh
 
-CLEANFILES = check_tizrmproxy.h
+CLEANFILES = check_tizrmproxy.h tizonia.conf
 
 check_PROGRAMS = check_tizrmproxy
 
@@ -49,15 +50,24 @@ check_tizrmproxy_LDADD = \
 	$(top_builddir)/src/libtizrmproxy.la \
 	@CHECK_LIBS@
 
-do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g'
+do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \
+	-e 's,[@]localstatedir[@],$(localstatedir),g' \
+	-e 's,[@]bindir[@],$(bindir),g' \
+	-e 's,[@]libdir[@],$(libdir),g' \
+	-e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	-e 's,[@]VERSION[@],$(VERSION),g'
 
 check_tizrmproxy.h: check_tizrmproxy.h.in Makefile
-	$(do_subst) < $(srcdir)/check_tizrmproxy.h.in > check_tizrmproxy.h
+	$(do_subst) < $(srcdir)/$@.in > $@
 
-all-local: check_tizrmproxy.h
+tizonia.conf: tizonia.conf.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
+
+all-local: tizonia.conf check_tizrmproxy.h
 
 clean-local: clean-local-check-tizrmproxy
 distclean-local: clean-local-check-tizrmproxy
 .PHONY: clean-local-check-tizrmproxy
 clean-local-check-tizrmproxy:
-	-rm -f core
+	-rm -f core tizrm.db

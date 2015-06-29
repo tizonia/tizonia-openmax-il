@@ -5,7 +5,7 @@
 
 # A comma-separated list of paths to be scanned by the Tizonia IL Core when
 # searching for component plugins
-component-paths = /usr/local/lib/lib;
+component-paths = @libdir@/lib;
 
 # A comma-separated list of paths to be scanned by the Tizonia IL Core when
 # searching for IL Core extensions (not implemented yet)
@@ -18,19 +18,19 @@ extension-paths =
 enabled = true
 
 # This is the path to the RM daemon executable
-rmd.path = /usr/local/bin/tizrmd
+rmd.path = @bindir@/tizrmd
 
 # This is the path to the Resource Manager database
-rmdb = /home/joni/work/tizonia/rm/libtizrmproxy/tests/tizrm.db
+rmdb = @abs_top_builddir@/tests/tizrm.db
 
 # For testing purposes. This is the path to the shell script that initialises
 # the RM db
-rmdb.init_script = /usr/local/bin/tizonia-rm-db-generate.sh
+rmdb.init_script = @bindir@/tizonia-rm-db-generate.sh
 
 # For testing purposes. This is the path to the sqlite3 script that contains
 # the initial configuration of the RM database
-rmdb.sqlite_script = /usr/local/share/tizrmd/tizonia-rm-db-initial.sql3
+rmdb.sqlite_script = @datadir@/tizrmd/tizonia-rm-db-initial.sql3
 
 # For testing purposes. This is the path to the script that dumps the contents
 # of the RM db
-rmdb.dbdump_script = /usr/local/bin/tizonia-rm-db-dump.sh
+rmdb.dbdump_script = @bindir@/tizonia-rm-db-dump.sh
