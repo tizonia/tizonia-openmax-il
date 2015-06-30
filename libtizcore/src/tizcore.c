@@ -44,12 +44,12 @@
 #include <errno.h>
 #include <limits.h>
 
-#include "OMX_Core.h"
-#include "OMX_Component.h"
-#include "OMX_Types.h"
+#include <OMX_Core.h>
+#include <OMX_Component.h>
+#include <OMX_Types.h>
 
-#include "tizrmproxy_c.h"
-#include "tizplatform.h"
+#include <tizrmproxy_c.h>
+#include <tizplatform.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
@@ -651,7 +651,7 @@ static char **
 find_component_paths(unsigned long * ap_npaths)
 {
   char **val_lst = NULL;
-
+  int i=0;
   assert(ap_npaths);
 
   val_lst = tiz_rcfile_get_value_list("il-core", "component-paths", ap_npaths);
@@ -660,6 +660,12 @@ find_component_paths(unsigned long * ap_npaths)
     {
       val_lst = NULL;
       * ap_npaths = 0;
+    }
+
+  for (i=0; i<*ap_npaths; ++i)
+    {
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "component paths [] : "
+                 "[%s]", i , val_lst[i]);
     }
 
   return val_lst;

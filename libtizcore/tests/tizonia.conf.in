@@ -5,7 +5,7 @@
 
 # A comma-separated list of paths to be scanned by the Tizonia IL Core when
 # searching for component plugins
-component-paths = @abs_top_builddir@/test_component/.libs;
+component-paths = @abs_top_builddir@/test_component/.libs;@libdir@
 
 # A comma-separated list of paths to be scanned by the Tizonia IL Core when
 # searching for IL Core extensions (not implemented yet)

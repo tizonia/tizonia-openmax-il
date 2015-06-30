@@ -102,7 +102,7 @@ refresh_rm_db (void)
             }
           else
             {
-              TIZ_LOG(TIZ_PRIORITY_TRACE, 
+              TIZ_LOG(TIZ_PRIORITY_TRACE,
                       "Error while executing db init shell script...");
             }
           tiz_mem_free (p_cmd);
@@ -187,53 +187,53 @@ START_TEST (test_ilcore_init_and_deinit_get_hdl_free_hdl)
   fail_if (error != OMX_ErrorNone);
 }
 
-END_TEST
-START_TEST (test_ilcore_setup_tunnel_tear_down_tunnel)
-{
-  OMX_ERRORTYPE error = OMX_ErrorNone;
-  OMX_HANDLETYPE p_hdl_out = NULL;
-  OMX_HANDLETYPE p_hdl_in = NULL;
-  OMX_U32 appData;
-  OMX_CALLBACKTYPE callBacks;
+/* END_TEST */
+/* START_TEST (test_ilcore_setup_tunnel_tear_down_tunnel) */
+/* { */
+/*   OMX_ERRORTYPE error = OMX_ErrorNone; */
+/*   OMX_HANDLETYPE p_hdl_out = NULL; */
+/*   OMX_HANDLETYPE p_hdl_in = NULL; */
+/*   OMX_U32 appData; */
+/*   OMX_CALLBACKTYPE callBacks; */
 
-  error = OMX_Init ();
-  fail_if (error != OMX_ErrorNone);
+/*   error = OMX_Init (); */
+/*   fail_if (error != OMX_ErrorNone); */
 
-  error = OMX_GetHandle (&p_hdl_in,
-                         AUDIO_RENDERER, (OMX_PTR *) (&appData), &callBacks);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_GetHandle [%s] error [%s]",
-           AUDIO_RENDERER, tiz_err_to_str (error));
-  fail_if (error != OMX_ErrorNone);
+/*   error = OMX_GetHandle (&p_hdl_in, */
+/*                          AUDIO_RENDERER, (OMX_PTR *) (&appData), &callBacks); */
+/*   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_GetHandle [%s] error [%s]", */
+/*            AUDIO_RENDERER, tiz_err_to_str (error)); */
+/*   fail_if (error != OMX_ErrorNone); */
 
-  error = OMX_GetHandle (&p_hdl_out,
-                         FILE_READER, (OMX_PTR *) (&appData), &callBacks);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_GetHandle [%s] error [%s]",
-           FILE_READER, tiz_err_to_str (error));
-  fail_if (error != OMX_ErrorNone);
+/*   error = OMX_GetHandle (&p_hdl_out, */
+/*                          FILE_READER, (OMX_PTR *) (&appData), &callBacks); */
+/*   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_GetHandle [%s] error [%s]", */
+/*            FILE_READER, tiz_err_to_str (error)); */
+/*   fail_if (error != OMX_ErrorNone); */
 
-  /* ------------------------------------- */
-  /* Create Tunnel Reader:0 <-> Renderer:0 */
-  /* ------------------------------------- */
-  error = OMX_SetupTunnel(p_hdl_out, 0, p_hdl_in, 0);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_SetupTunnel [%s]", tiz_err_to_str(error));
-  fail_if (OMX_ErrorNone != error);
+/*   /\* ------------------------------------- *\/ */
+/*   /\* Create Tunnel Reader:0 <-> Renderer:0 *\/ */
+/*   /\* ------------------------------------- *\/ */
+/*   error = OMX_SetupTunnel(p_hdl_out, 0, p_hdl_in, 0); */
+/*   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_SetupTunnel [%s]", tiz_err_to_str(error)); */
+/*   fail_if (OMX_ErrorNone != error); */
 
-  /* ---------------------------------------- */
-  /* Tear down Tunnel Reader:0 <-> Renderer:0 */
-  /* ---------------------------------------- */
-  error = OMX_TeardownTunnel(p_hdl_out, 0, p_hdl_in, 0);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_TeardownTunnel [%s]", tiz_err_to_str(error));
-  fail_if (OMX_ErrorNone != error);
+/*   /\* ---------------------------------------- *\/ */
+/*   /\* Tear down Tunnel Reader:0 <-> Renderer:0 *\/ */
+/*   /\* ---------------------------------------- *\/ */
+/*   error = OMX_TeardownTunnel(p_hdl_out, 0, p_hdl_in, 0); */
+/*   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_TeardownTunnel [%s]", tiz_err_to_str(error)); */
+/*   fail_if (OMX_ErrorNone != error); */
 
-  error = OMX_FreeHandle (p_hdl_out);
-  fail_if (error != OMX_ErrorNone);
+/*   error = OMX_FreeHandle (p_hdl_out); */
+/*   fail_if (error != OMX_ErrorNone); */
 
-  error = OMX_FreeHandle (p_hdl_in);
-  fail_if (error != OMX_ErrorNone);
+/*   error = OMX_FreeHandle (p_hdl_in); */
+/*   fail_if (error != OMX_ErrorNone); */
 
-  error = OMX_Deinit ();
-  fail_if (error != OMX_ErrorNone);
-}
+/*   error = OMX_Deinit (); */
+/*   fail_if (error != OMX_ErrorNone); */
+/* } */
 
 END_TEST
 START_TEST (test_ilcore_comp_of_role_enum)
@@ -297,7 +297,9 @@ END_TEST Suite * tizcore_suite (void)
   tcase_add_test (tc_ilcore, test_ilcore_init_and_deinit);
   tcase_add_test (tc_ilcore,
                   test_ilcore_init_and_deinit_get_hdl_free_hdl);
-  tcase_add_test (tc_ilcore, test_ilcore_setup_tunnel_tear_down_tunnel);
+  /* NOTE: Test temporarily disabled. It uses components which won;t be present
+     when this deb file is created */
+  /*   tcase_add_test (tc_ilcore, test_ilcore_setup_tunnel_tear_down_tunnel); */
   tcase_add_test (tc_ilcore, test_ilcore_comp_of_role_enum);
   tcase_add_test (tc_ilcore, test_ilcore_role_of_comp_enum);
 
