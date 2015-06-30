@@ -54,6 +54,7 @@
 
 #define PAT_SIZE 255
 
+static char delim[2] = {';', '\000'};
 static char pat[PAT_SIZE];
 
 typedef struct file_info file_info_t;
@@ -237,12 +238,30 @@ static int get_node (const tiz_rcfile_t *ap_rc, char *str, keyval_t **app_kv)
         }
       else
         {
-          p_v->p_value = value;
           p_kv->p_key = key;
           p_kv->p_value_list = p_v;
           p_kv->p_value_iter = p_v;
           p_kv->valcount++;
           p_kv->p_next = NULL;
+          if (is_list (key))
+            {
+              char* token = strtok(value, delim);
+              while (token)
+                {
+                  p_v->p_value = strdup(token);
+                  token = strtok(0, delim);
+                  if (token)
+                    {
+                      p_v->p_next = (value_t *)tiz_mem_calloc (1, sizeof(value_t));
+                      p_v = p_v->p_next;
+                      p_kv->valcount++;
+                    }
+                }
+            }
+          else
+            {
+              p_v->p_value = value;
+            }
           ret = 1;
         }
     }
