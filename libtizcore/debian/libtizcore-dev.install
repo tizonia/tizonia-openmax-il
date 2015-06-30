@@ -1,0 +1,4 @@
+usr/lib/*/lib*.a
+usr/lib/*/lib*.so
+usr/include/tizonia/*
+usr/lib/*/pkgconfig/lib*.pc

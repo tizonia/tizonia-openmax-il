@@ -1,0 +1,37 @@
+Source: tizcore
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               tizilheaders,
+               libtizplatform-dev,
+               libtizrmproxy-dev,
+               tizrmd-dev,
+               check
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizcore-dev
+Section: libdevel
+Architecture: any
+Depends: libtizcore0 (= ${binary:Version}),
+         tizilheaders,
+         libtizplatform-dev,
+         libtizrmproxy-dev,
+         tizrmd-dev
+Description: Tizonia's OpenMAX IL Core library, development files
+ Tizonia's OpenMAX IL Core library.
+ .
+ This package contains the development library libtizcore.
+
+Package: libtizcore0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's OpenMAX IL Core library, run-time library
+ Tizonia's OpenMAX IL Core library.
+ .
+ This package contains the runtime library libtizcore.
