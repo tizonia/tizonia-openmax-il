@@ -100,6 +100,7 @@ declare -Ar TIZ_PKG_DIRS=( \
     [tizplatform]="libtizplatform" \
     [tizrmd]="rm/tizrmd" \
     [tizrmproxy]="rm/libtizrmproxy" \
+    [tizcore]="libtizcore" \
 )
 
 readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
@@ -110,6 +111,7 @@ readonly TIZ_PKGS_ORDERED=( \
     tizplatform \
     tizrmd \
     tizrmproxy \
+    tizcore \
 )
 
 readonly TIZ_PYTHON_PKGS=( \
@@ -117,7 +119,7 @@ readonly TIZ_PYTHON_PKGS=( \
 )
 
 # &> /dev/null
-readonly TIZ_C_CPP_PKG_DIST_CMD="autoreconf -ifs &> /dev/null && ./configure &> /dev/null && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
+readonly TIZ_C_CPP_PKG_DIST_CMD="autoreconf -ifs &> /dev/null && ./configure && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
 readonly TIZ_PYTHON_PKG_DIST_CMD="python setup.py sdist && cp dist/*.tar.gz \"$DEBIAN_DIR\""
 
 declare -Ar TIZ_PKG_DIST_CMD=( \
@@ -127,6 +129,7 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
     [tizplatform]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizrmd]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizrmproxy]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizcore]="$TIZ_C_CPP_PKG_DIST_CMD" \
 )
 
 readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
@@ -140,6 +143,7 @@ declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizplatform]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizrmd]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizrmproxy]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizcore]="$TIZ_PKG_DH_MAKE_C_CMD" \
 )
 
 ##################################################################
