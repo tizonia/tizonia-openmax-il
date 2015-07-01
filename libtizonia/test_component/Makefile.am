@@ -26,11 +26,11 @@ libtiztc_la_SOURCES = \
 	tiztcproc.c
 
 libtiztc_la_CFLAGS = \
-	-I$(top_srcdir)/../include/omxil-1.2 \
-	-I$(top_srcdir)/../libtizplatform/src \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
 	-I$(top_srcdir)/src
 
 libtiztc_la_LIBADD = \
-	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
+	@TIZPLATFORM_LIBS@ \
 	$(top_builddir)/src/libtizonia.la
 
