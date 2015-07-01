@@ -1,0 +1,40 @@
+Source: tizonia
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               tizilheaders,
+               libtizplatform-dev,
+               libtizrmproxy-dev,
+               tizrmd-dev,
+               libtizcore-dev,
+               check
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizonia-dev
+Section: libdevel
+Architecture: any
+Depends: libtizonia0 (= ${binary:Version}),
+         ${misc:Depends},
+         tizilheaders,
+         libtizplatform-dev,
+         libtizrmproxy-dev,
+         tizrmd-dev,
+         libtizcore-dev
+Description: Tizonia's OpenMAX IL 1.2 base component library, development files
+ Tizonia's OpenMAX IL 1.2 base component library.
+ .
+ This package contains the development library libtizonia.
+
+Package: libtizonia0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's OpenMAX IL 1.2 base component library, run-time library
+ Tizonia's OpenMAX IL 1.2 base component library.
+ .
+ This package contains the runtime library libtizonia.
