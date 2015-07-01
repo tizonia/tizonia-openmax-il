@@ -23,3 +23,12 @@ EXTRA_DIST = debian
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libtizcore.pc
+
+BUILT_SOURCES = tizonia
+
+DISTCLEANFILES = tizonia
+
+noinst_HEADERS = tizonia
+
+tizonia:
+	ln -s $(srcdir)/src tizonia

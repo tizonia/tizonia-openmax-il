@@ -33,4 +33,3 @@ libtizcore_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZRMPROXY_LIBS@ \
 	-ldl
-
