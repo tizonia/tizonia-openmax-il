@@ -27,12 +27,10 @@ libtizfr_la_SOURCES = \
 	frprc.c
 
 libtizfr_la_CFLAGS = \
-	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizplatform/src \
-	-I$(top_srcdir)/../../libtizonia/src
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
+	@TIZONIA_CFLAGS@
 
 libtizfr_la_LIBADD = \
-	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
-	$(top_builddir)/../../libtizonia/src/libtizonia.la
-
-
+	@TIZPLATFORM_LIBS@ \
+	@TIZONIA_LIBS@
