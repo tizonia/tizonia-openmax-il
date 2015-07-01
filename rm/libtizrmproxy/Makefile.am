@@ -33,5 +33,3 @@ noinst_HEADERS = tizonia
 
 tizonia:
 	ln -s $(srcdir)/src tizonia
-
-
