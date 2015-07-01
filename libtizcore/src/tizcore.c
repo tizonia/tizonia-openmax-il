@@ -664,7 +664,7 @@ find_component_paths(unsigned long * ap_npaths)
 
   for (i=0; i<*ap_npaths; ++i)
     {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "component paths [] : "
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "component paths [%d] : "
                  "[%s]", i , val_lst[i]);
     }
 
