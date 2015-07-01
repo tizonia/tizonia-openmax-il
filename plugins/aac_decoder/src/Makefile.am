@@ -35,4 +35,4 @@ libtizaacdec_la_CFLAGS = \
 libtizaacdec_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \
-	-lfaad2
+	-lfaad
