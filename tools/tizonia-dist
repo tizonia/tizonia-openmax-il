@@ -101,6 +101,7 @@ declare -Ar TIZ_PKG_DIRS=( \
     [tizrmd]="rm/tizrmd" \
     [tizrmproxy]="rm/libtizrmproxy" \
     [tizcore]="libtizcore" \
+    [tizonia]="libtizonia" \
 )
 
 readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
@@ -112,6 +113,7 @@ readonly TIZ_PKGS_ORDERED=( \
     tizrmd \
     tizrmproxy \
     tizcore \
+    tizonia \
 )
 
 readonly TIZ_PYTHON_PKGS=( \
@@ -130,6 +132,7 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
     [tizrmd]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizrmproxy]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizcore]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizonia]="$TIZ_C_CPP_PKG_DIST_CMD" \
 )
 
 readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
@@ -144,6 +147,7 @@ declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizrmd]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizrmproxy]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizcore]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizonia]="$TIZ_PKG_DH_MAKE_C_CMD" \
 )
 
 ##################################################################
@@ -410,7 +414,7 @@ function do_tar_file {
     print_banner "Creating distribution tar file for: $pkg" "$GRN"
     cd_to_dir "$pkg_dir"
 
-    hg purge . > /dev/null && mkdir -p "$DEBIAN_DIR/$pkg"
+    hg purge . > /dev/null && rm -rf "$DEBIAN_DIR/$pkg" && mkdir -p "$DEBIAN_DIR/$pkg"
     exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
         err_msg="[$pkg] : Error creating the tar file."
@@ -588,14 +592,14 @@ function do_all_tars {
 function do_all_debs {
     local exit_status=0
     for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
-        local pkg_dir="$DEBIAN_DIR/$pkg"
+        local pkg_deb_dir="$DEBIAN_DIR/$pkg"
 
         exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
         if [[ $? -eq 0 ]]; then
-            do_python_deb_file "$pkg" "$pkg_dir"
+            do_python_deb_file "$pkg" "$pkg_deb_dir"
             exit_status=$?
         else
-            do_deb_file "$pkg" "$pkg_dir"
+            do_deb_file "$pkg" "$pkg_deb_dir"
             exit_status=$?
         fi
 
@@ -603,7 +607,7 @@ function do_all_debs {
             break
         fi
 
-        do_install_deb_file "$pkg" "$pkg_dir"
+        do_install_deb_file "$pkg" "$pkg_deb_dir"
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             break
@@ -687,12 +691,13 @@ function do_next_deb {
                 break
             fi
 
+            local pkg_deb_dir="$DEBIAN_DIR/$pkg"
             exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
             if [[ $? -eq 0 ]]; then
-                do_python_deb_file "$pkg" "$pkg_dir"
+                do_python_deb_file "$pkg" "$pkg_deb_dir"
                 exit_status=$?
             else
-                do_deb_file "$pkg" "$pkg_dir"
+                do_deb_file "$pkg" "$pkg_deb_dir"
                 exit_status=$?
             fi
 
@@ -700,7 +705,7 @@ function do_next_deb {
                 break
             fi
 
-            do_install_deb_file "$pkg" "$pkg_dir"
+            do_install_deb_file "$pkg" "$pkg_deb_dir"
             exit_status=$?
             if [[ "$exit_status" -ne 0 ]] ; then
                 break
