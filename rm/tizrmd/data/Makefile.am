@@ -31,12 +31,12 @@ do_subst = sed -e 's,[@]datadir[@],$(datadir),g' \
 	-e 's,[@]VERSION[@],$(VERSION),g'
 
 tizonia-rm-db-dump.sh: tizonia-rm-db-dump.sh.in Makefile
-	$(do_subst) < $(srcdir)/tizonia-rm-db-dump.sh.in > tizonia-rm-db-dump.sh
-	chmod +x tizonia-rm-db-dump.sh
+	$(do_subst) < $(srcdir)/$@.in > $@
+	chmod +x $@
 
 tizonia-rm-db-generate.sh: tizonia-rm-db-generate.sh.in Makefile
-	$(do_subst) < $(srcdir)/tizonia-rm-db-generate.sh.in > tizonia-rm-db-generate.sh
-	chmod +x tizonia-rm-db-generate.sh
+	$(do_subst) < $(srcdir)/$@.in > $@
+	chmod +x $@
 
 tizrm.db: $(sqlite_scripts) $(shell_scripts)
 	. tizonia-rm-db-generate.sh
