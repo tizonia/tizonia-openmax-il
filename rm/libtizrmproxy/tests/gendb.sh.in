@@ -19,11 +19,11 @@
 
 SQLITE3=$(which sqlite3)
 BASEDIR=$(dirname $0)
-TIZ_RM_DB_NAME="../../tizrmd/data/tizrm.db"
+TIZ_RM_DB_NAME="@abs_top_builddir@/tests/tizrm.db"
 COMMANDS=${BASEDIR}"/"$1
 
 if [ -f $TIZ_RM_DB_NAME ];
-then 
+then
     rm $TIZ_RM_DB_NAME
     echo -e "Deleted old $TIZ_RM_DB_NAME database..."
 fi
@@ -31,4 +31,3 @@ fi
 echo -e "Populating $TIZ_RM_DB_NAME using $COMMANDS..."
 $SQLITE3 $TIZ_RM_DB_NAME < $COMMANDS
 echo -e "Done."
-
