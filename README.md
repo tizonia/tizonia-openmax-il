@@ -8,7 +8,7 @@
 
 ## Introduction ##
 
-_Tizonia is still under development and there are no pre-built binary releases yet (but there will be soon though)_. 
+_Tizonia is still under development and there are no pre-built binary releases yet (but there will be soon though)_.
 
 However you can download this repo and build everything from source following the instructions in this README.
 
@@ -96,7 +96,8 @@ To build and install from source, follow the these steps (Ubuntu 14.04 is assume
     libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
     libcurl3-dev libpulse-dev libmpg123-dev libvorbis-dev libopus-dev \
     libopusfile-dev libogg-dev libflac-dev liboggz2-dev \
-    libsndfile1-dev curl check wget sqlite3 dbus-x11
+    libsndfile1-dev curl check wget sqlite3 dbus-x11 \
+    python-setuptools
 
 ```
 
@@ -118,17 +119,17 @@ need the 32-bit version of the library):
 
 ```bash
 
-    $ wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-x86_64.tgz
-    $ tar zxvf libspotify-12.1.51-Linux-x86_64.tgz
-    $ cd libspotify-12.1.51-Linux-x86_64
-    $ make install prefix=$INSTALL_DIR
+    $ wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-x86_64.tgz \
+        && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz \
+        && cd libspotify-12.1.51-Linux-x86_64 \
+        && make install prefix=$INSTALL_DIR
 
 ```
 
 ### Google Play Music ###
 
 To stream from Google Play Music, you need to install Simon Weber's
-[gmusicapi](https://github.com/simon-weber/Unofficial-Google-Music-API) python
+[gmusicapi](https://github.com/simon-weber/gmusicapi) python
 library. Currently, you have to install it from source (the latest version in
 pip [4.0.0](https://pypi.python.org/pypi/gmusicapi/4.0.0) is out-of-date and
 won't work):
@@ -136,8 +137,8 @@ won't work):
 ```bash
 
     $ echo "Installing the gmusicapi python module from source..."
-    $ git clone https://github.com/simon-weber/Unofficial-Google-Music-API \
-      && cd Unofficial-Google-Music-API
+    $ git clone https://github.com/simon-weber/gmusicapi \
+      && cd gmusicapi \
       && sudo python setup.py install
 
 ```
@@ -191,7 +192,7 @@ following locations:
 
     $ cp config/tizonia.conf ~/.tizonia.conf
     $ mkdir -p ~/.local/share/dbus-1/services
-    $ cp rm/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
+    $ cp rm/tizrmd/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
 
 ```
 
