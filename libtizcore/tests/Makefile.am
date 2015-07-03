@@ -17,6 +17,8 @@
 
 TESTS = check_tizcore
 
+BUILT_SOURCES = check_tizcore.h
+
 EXTRA_DIST = \
 	tizonia.conf \
 	tizonia.conf.in \
@@ -54,7 +56,7 @@ check_tizcore.h: check_tizcore.h.in Makefile
 tizonia.conf: tizonia.conf.in Makefile
 	$(do_subst) < $(srcdir)/$@.in > $@
 
-all-local: tizonia.conf check_tizcore.h
+all-local: tizonia.conf
 
 clean-local: clean-local-check-tizcore
 distclean-local: clean-local-check-tizcore
