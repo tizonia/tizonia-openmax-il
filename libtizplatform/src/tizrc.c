@@ -23,16 +23,14 @@
  *
  * @brief Tizonia Platform - Configuration file utility functions
  *
- * Very simplistic implementation of a config file parser.
+ * Very naive implementation of a ini file parser (to be replaced in the near
+ * future with a json-based utility).
  *
  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#include "tizplatform.h"
-#include "tizplatform_internal.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -42,6 +40,10 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <ctype.h>
+
+#include <tizplatform.h>
+#include "tizplatform_internal.h"
+#include "tizplatform_config.h"
 
 #ifndef SYSCONFDIR
 #define SYSCONFDIR "/etc/tizonia"
@@ -65,27 +67,17 @@ struct file_info
   int exists;
 };
 
-static char *list_keys[] = { "component-paths", };
+static char *g_list_value_keys[] = { "component-paths", };
 
-static const int nrlist_keys = 1;
+static const int g_num_list_value_keys = 1;
 
-static file_info_t rcfiles[] = {
-  { "$TIZONIA_RC_FILE/tizonia.conf" },
+static file_info_t g_rcfiles[] = {
   { "$SYSCONFDIR/tizonia.conf" },
-  { "$HOME/.tizonia.conf" }
+  { "$HOME/.tizonia.conf" },
+  { "$TIZONIA_RC_FILE/tizonia.conf" }
 };
 
-static const int g_nrcfiles = sizeof(rcfiles) / sizeof(rcfiles[0]);
-
-/* static void */
-/* lowercase (char *str) */
-/* { */
-/*   int i; */
-/*   for (i = 0; str[i]; i++) */
-/*     { */
-/*       str[i] = tolower (str[i]); */
-/*     } */
-/* } */
+static const int g_num_rcfiles = sizeof(g_rcfiles) / sizeof(g_rcfiles[0]);
 
 static char *trimwhitespace (char *str)
 {
@@ -184,10 +176,10 @@ static keyval_t *find_node (const tiz_rcfile_t *ap_rc, const char *key)
 static bool is_list (const char *key)
 {
   int i;
-  for (i = 0; i < nrlist_keys; i++)
+  for (i = 0; i < g_num_list_value_keys; i++)
     {
       /* TODO: strncmp here */
-      if (0 == strcmp (list_keys[i], key))
+      if (0 == strcmp (g_list_value_keys[i], key))
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Found list Key [%s]", key);
           return true;
@@ -528,20 +520,24 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
 
   assert (pp_rc);
 
-  /* load rc files */
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Looking for [%d] rc files...", g_nrcfiles);
+  /* Load rc files */
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Looking for [%d] rc files...", g_num_rcfiles);
+  assert (3 == g_num_rcfiles);
 
-  snprintf(rcfiles[0].name, sizeof(rcfiles[0].name) - 1, "%s",
-           getenv("TIZONIA_RC_FILE") ? getenv("TIZONIA_RC_FILE") : "");
-
-  snprintf (rcfiles[1].name, sizeof(rcfiles[0].name) - 1, "%s/tizonia.conf",
+  snprintf (g_rcfiles[0].name, sizeof(g_rcfiles[0].name) - 1, "%s/tizonia.conf",
             SYSCONFDIR);
 
-  if (g_nrcfiles >= 3 && (p_env_str = getenv ("HOME")))
+  if ((p_env_str = getenv ("HOME")))
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "HOME [%s] ...", p_env_str);
-      snprintf (rcfiles[2].name, sizeof(rcfiles[2].name) - 1,
+      snprintf (g_rcfiles[1].name, sizeof(g_rcfiles[1].name) - 1,
                 "%s/.tizonia.conf", p_env_str ? p_env_str : "");
+    }
+
+  if ((p_env_str = getenv ("TIZONIA_RC_FILE")))
+    {
+      snprintf (g_rcfiles[2].name, sizeof(g_rcfiles[2].name) - 1, "%s",
+                p_env_str ? p_env_str : "");
     }
 
   if (!(p_rc = (tiz_rcfile_t *)tiz_mem_calloc (1, sizeof(tiz_rcfile_t))))
@@ -552,38 +548,38 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
       return OMX_ErrorInsufficientResources;
     }
 
-  for (i = 0; i < g_nrcfiles; i++)
+  for (i = 0; i < g_num_rcfiles; i++)
     {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Checking for rc file at [%s]",
-               rcfiles[i].name);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Checking for rc file [%d] at [%s]",
+               i, g_rcfiles[i].name);
       /* Check file existence and user's read access */
-      if (0 != access (rcfiles[i].name, R_OK))
+      if (0 != access (g_rcfiles[i].name, R_OK))
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE,
                    "rc file [%s] does not exist or "
                    "user has no read access permission",
-                   rcfiles[i].name);
+                   g_rcfiles[i].name);
           continue;
         }
 
       /* Store stat's ctime */
-      if (stat_ctime (rcfiles[i].name, &rcfiles[i].ctime) != 0)
+      if (stat_ctime (g_rcfiles[i].name, &g_rcfiles[i].ctime) != 0)
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE, "stat_ctime for [%s] failed",
-                   rcfiles[i].name);
+                   g_rcfiles[i].name);
         }
 
-      rcfiles[i].exists = 1;
+      g_rcfiles[i].exists = 1;
 
-      if (0 != load_rc_file (&rcfiles[i], p_rc))
+      if (0 != load_rc_file (&g_rcfiles[i], p_rc))
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Loading [%s] rc file failed",
-                   rcfiles[i].name);
+                   g_rcfiles[i].name);
         }
       else
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Loading [%s] rc file succeeded",
-                   rcfiles[i].name);
+                   g_rcfiles[i].name);
         }
     }
 

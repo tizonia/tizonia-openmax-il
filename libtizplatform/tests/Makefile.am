@@ -17,8 +17,11 @@
 
 TESTS = check_tizplatform
 
-EXTRA_DIST = tizonia.conf check_tizplatform.h.in check_tizplatform.h
-CLEANFILES = check_tizplatform.h
+BUILT_SOURCES = check_tizplatform.h
+
+CLEANFILES = $(BUILT_SOURCES)
+
+EXTRA_DIST = tizonia.conf check_tizplatform.h.in $(BUILT_SOURCES)
 
 check_PROGRAMS = check_tizplatform
 
@@ -49,9 +52,7 @@ check_tizplatform_LDADD = \
 do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g'
 
 check_tizplatform.h: check_tizplatform.h.in Makefile
-	$(do_subst) < $(srcdir)/check_tizplatform.h.in > check_tizplatform.h
-
-all-local: check_tizplatform.h
+	$(do_subst) < $(srcdir)/$@.in > $@
 
 clean-local: clean-local-check-tizplatform
 distclean-local: clean-local-check-tizplatform

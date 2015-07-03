@@ -17,6 +17,12 @@
 
 AM_CFLAGS = $(WARN_CFLAGS)
 
+BUILT_SOURCES = tizplatform_config.h
+
+CLEANFILES = $(BUILT_SOURCES)
+
+EXTRA_DIST = tizplatform_config.h.in $(BUILT_SOURCES)
+
 lib_LTLIBRARIES = libtizplatform.la
 
 libtizplatform_includedir = $(includedir)/tizonia
@@ -81,5 +87,14 @@ libtizplatform_la_LIBADD = \
 	@LOG4C_LIBS@ \
 	@UUID_LIBS@
 
+do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \
+	-e 's,[@]localstatedir[@],$(localstatedir),g' \
+	-e 's,[@]bindir[@],$(bindir),g' \
+	-e 's,[@]libdir[@],$(libdir),g' \
+	-e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
+	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	-e 's,[@]VERSION[@],$(VERSION),g'
 
-# End of Makefile.am
+tizplatform_config.h: tizplatform_config.h.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
