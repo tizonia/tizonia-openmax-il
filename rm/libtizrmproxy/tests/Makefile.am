@@ -17,9 +17,15 @@
 
 TESTS = check_tizrmproxy
 
+BUILT_SOURCES = check_tizrmproxy.h
+
 EXTRA_DIST = \
 	tizonia.conf \
 	tizonia.conf.in \
+	gendb.sh \
+	gendb.sh.in \
+	updatedb.sh \
+	updatedb.sh.in \
 	check_tizrmproxy.h.in \
 	check_tizrmproxy.h \
 	db_acquire_and_destroy_no_release.sql3 \
@@ -29,10 +35,9 @@ EXTRA_DIST = \
 	db_resource_preemption.after.sql3 \
 	db_resource_preemption.before.sql3 \
 	db_wait_cancel_wait.after.sql3 \
-	db_wait_cancel_wait.before.sql3 \
-	updatedb.sh
+	db_wait_cancel_wait.before.sql3
 
-CLEANFILES = check_tizrmproxy.h tizonia.conf
+CLEANFILES = check_tizrmproxy.h tizonia.conf gendb.sh updatedb.sh
 
 check_PROGRAMS = check_tizrmproxy
 
@@ -64,7 +69,15 @@ check_tizrmproxy.h: check_tizrmproxy.h.in Makefile
 tizonia.conf: tizonia.conf.in Makefile
 	$(do_subst) < $(srcdir)/$@.in > $@
 
-all-local: tizonia.conf check_tizrmproxy.h
+gendb.sh: gendb.sh.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
+	chmod +x $@
+
+updatedb.sh: updatedb.sh.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
+	chmod +x $@
+
+all-local: tizonia.conf gendb.sh updatedb.sh
 
 clean-local: clean-local-check-tizrmproxy
 distclean-local: clean-local-check-tizrmproxy
