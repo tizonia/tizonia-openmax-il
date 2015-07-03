@@ -90,7 +90,8 @@ libtizonia_include_HEADERS = \
 	tizdemuxercfgport.h \
 	tizdemuxercfgport_decls.h \
 	tizkernel_helpers.inl \
-	tizkernel_dispatch.inl
+	tizkernel_dispatch.inl \
+	tizkernel_internal.h
 
 libtizonia_la_SOURCES = \
 	tizscheduler.c \

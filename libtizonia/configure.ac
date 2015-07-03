@@ -88,7 +88,7 @@ AS_IF([test "x$tizonia_found_core_lib" != "xyes"],
 	AC_SUBST([TIZCORE_LIBS], ['$(top_builddir)/../libtizcore/tizonia/libtizcore.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZCORE cflags and libs with local paths])])
 AS_IF([test "x$tizonia_found_core_lib" == "xyes"],
-	[PKG_CHECK_MODULES([TIZCORE], [tizrmd >= 0.1.0])],
+	[PKG_CHECK_MODULES([TIZCORE], [libtizcore >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZCORE cflags and libs])])
 
 # Checks for header files.
