@@ -83,6 +83,13 @@ pcm_port_free_hook (OMX_PTR ap_buf, OMX_PTR ap_port_priv, void *ap_args)
 static OMX_PTR
 instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 {
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
+  OMX_AUDIO_CONFIG_VOLUMETYPE volume;
+  OMX_AUDIO_CONFIG_MUTETYPE mute;
+  OMX_AUDIO_CODINGTYPE encodings[] = {
+    OMX_AUDIO_CodingPCM,
+    OMX_AUDIO_CodingMax
+  };
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
@@ -97,9 +104,35 @@ instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Inititializing the test component's pcm port");
 
-  /* Instantiate a pcm port */
+  /* Instantiate the pcm port */
+  pcmmode.nSize              = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
+  pcmmode.nVersion.nVersion  = OMX_VERSION;
+  pcmmode.nPortIndex         = 0;
+  pcmmode.nChannels          = 2;
+  pcmmode.eNumData           = OMX_NumericalDataSigned;
+  pcmmode.eEndian            = OMX_EndianLittle;
+  pcmmode.bInterleaved       = OMX_TRUE;
+  pcmmode.nBitPerSample      = 16;
+  pcmmode.nSamplingRate      = 48000;
+  pcmmode.ePCMMode           = OMX_AUDIO_PCMModeLinear;
+  pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
+  pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
+
+  volume.nSize             = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
+  volume.nVersion.nVersion = OMX_VERSION;
+  volume.nPortIndex        = 0;
+  volume.bLinear           = OMX_FALSE;
+  volume.sVolume.nValue    = 75;
+  volume.sVolume.nMin      = 0;
+  volume.sVolume.nMax      = 100;
+
+  mute.nSize             = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
+  mute.nVersion.nVersion = OMX_VERSION;
+  mute.nPortIndex        = 0;
+  mute.bMute             = OMX_FALSE;
+
   return factory_new (tiz_get_type (ap_hdl, "tizpcmport"), &port_opts,
-                      NULL, NULL, NULL, NULL);
+                      &encodings, &pcmmode, &volume, &mute);
 }
 
 static OMX_PTR
