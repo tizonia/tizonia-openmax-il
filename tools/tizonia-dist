@@ -102,6 +102,8 @@ declare -Ar TIZ_PKG_DIRS=( \
     [tizrmproxy]="rm/libtizrmproxy" \
     [tizcore]="libtizcore" \
     [tizonia]="libtizonia" \
+    [tizaacdec]="plugins/aac_decoder" \
+    [tizfr]="plugins/file_reader" \
 )
 
 readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
@@ -114,6 +116,8 @@ readonly TIZ_PKGS_ORDERED=( \
     tizrmproxy \
     tizcore \
     tizonia \
+    tizaacdec \
+    tizfr \
 )
 
 readonly TIZ_PYTHON_PKGS=( \
@@ -133,6 +137,8 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
     [tizrmproxy]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizcore]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizonia]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizaacdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizfr]="$TIZ_C_CPP_PKG_DIST_CMD" \
 )
 
 readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
@@ -148,6 +154,8 @@ declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizrmproxy]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizcore]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizonia]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizaacdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizfr]="$TIZ_PKG_DH_MAKE_C_CMD" \
 )
 
 ##################################################################
