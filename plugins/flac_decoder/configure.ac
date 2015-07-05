@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([libtizflacd], [0.1.0], [juan.rubio@aratelia.com])
+AC_INIT([tizflacdec], [0.1.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -37,11 +37,40 @@ PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
 PKG_CHECK_MODULES([FLAC], [flac >= 1.3.0], [HAVE_FLAC=yes], [HAVE_FLAC=no])
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 if test "x$HAVE_FLAC" = "xno"; then
    AC_MSG_ERROR([Please install libflac version 1.3.0 or later.])
 fi
+
+AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
+	[tizaacdec_found_omx_headers=yes; break;])
+AS_IF([test "x$tizaacdec_found_omx_headers" != "xyes"],
+	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../../include/tizonia']),
+	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
+	[AC_MSG_NOTICE([Not substituting TIZILHEADERS cflags and libs with local paths])])
+AS_IF([test "x$tizaacdec_found_omx_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZILHEADERS], [tizilheaders >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZILHEADERS cflags and libs])])
+
+AC_CHECK_HEADERS([tizonia/tizplatform.h],
+	[tizaacdec_found_platform_headers=yes; break;])
+AS_IF([test "x$tizaacdec_found_platform_headers" != "xyes"],
+	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../../libtizplatform/tizonia']),
+	AC_SUBST([TIZPLATFORM_LIBS], ['$(top_builddir)/../../libtizplatform/tizonia/libtizplatform.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZPLATFORM cflags and libs with local paths])])
+AS_IF([test "x$tizaacdec_found_platform_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZPLATFORM], [libtizplatform >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZPLATFORM cflags and libs])])
+
+AC_CHECK_HEADERS([tizonia/tizscheduler.h],
+	[tizaacdec_found_tizonia_headers=yes; break;])
+AS_IF([test "x$tizaacdec_found_tizonia_headers" != "xyes"],
+	[AC_SUBST([TIZONIA_CFLAGS], ['-I$(top_srcdir)/../../libtizonia/tizonia']),
+	AC_SUBST([TIZONIA_LIBS], ['$(top_builddir)/../../libtizonia/tizonia/libtizonia.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZONIA cflags and libs with local paths])])
+AS_IF([test "x$tizaacdec_found_tizonia_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZONIA], [libtizonia >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZONIA cflags and libs])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h stdlib.h string.h sys/time.h unistd.h])
