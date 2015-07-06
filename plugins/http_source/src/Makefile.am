@@ -20,7 +20,7 @@ lib_LTLIBRARIES = libtizhttpsrc.la
 noinst_HEADERS = \
 	httpsrc.h \
 	httpsrcport.h \
-	httpsrcport_decls.h
+	httpsrcport_decls.h \
 	httpsrcprc.h \
 	httpsrcprc_decls.h \
 	gmusicprc.h \
@@ -38,14 +38,14 @@ libtizhttpsrc_la_SOURCES = \
 	httpsrctrans.c
 
 libtizhttpsrc_la_CFLAGS = \
-	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizplatform/src \
-	-I$(top_srcdir)/../../libtizonia/src \
-	-I$(top_srcdir)/../../gmusic/libtizgmusic/src \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
+	@TIZONIA_CFLAGS@ \
+	@TIZGMUSIC_CFLAGS@ \
 	@LIBCURL_CFLAGS@
 
 libtizhttpsrc_la_LIBADD = \
-	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
-	$(top_builddir)/../../libtizonia/src/libtizonia.la \
-	$(top_builddir)/../../gmusic/libtizgmusic/src/libtizgmusic.la \
+	@TIZPLATFORM_LIBS@ \
+	@TIZONIA_LIBS@ \
+	@TIZGMUSIC_LIBS@ \
 	@LIBCURL_LIBS@
