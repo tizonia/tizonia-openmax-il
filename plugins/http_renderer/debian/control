@@ -5,8 +5,7 @@ Build-Depends: debhelper (>= 8.0.0),
                dh-autoreconf,
                tizilheaders,
                libtizplatform-dev,
-               libtizonia-dev,
-               libflac-dev
+               libtizonia-dev
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://tizonia.org
@@ -20,10 +19,9 @@ Depends: libtizhttprnd0 (= ${binary:Version}),
          ${misc:Depends},
          tizilheaders,
          libtizplatform-dev,
-         libtizonia-dev,
-         libflac-dev
-Description: Tizonia's OpenMAX IL FLAC decoder library, development files
- Tizonia's OpenMAX IL FLAC decoder library.
+         libtizonia-dev
+Description: Tizonia's OpenMAX IL HTTP audio renderer library, development files
+ Tizonia's OpenMAX IL HTTP audio renderer library.
  .
  This package contains the development library libtizhttprnd.
 
@@ -31,7 +29,7 @@ Package: libtizhttprnd0
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Tizonia's OpenMAX IL FLAC decoder library, run-time library
- Tizonia's OpenMAX IL FLAC decoder library.
+Description: Tizonia's OpenMAX IL HTTP audio renderer library, run-time library
+ Tizonia's OpenMAX IL HTTP audio renderer library.
  .
  This package contains the runtime library libtizhttprnd.

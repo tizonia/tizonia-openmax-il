@@ -36,8 +36,6 @@ LT_INIT
 PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
-
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
 AS_IF([test "x$tiz_found_omx_headers" != "xyes"],
@@ -68,16 +66,6 @@ AS_IF([test "x$tiz_found_tizonia_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZONIA], [libtizonia >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZONIA cflags and libs])])
 
-AC_CHECK_LIB([tizcore], [OMX_Init],
-	[tiz_found_core_lib=yes; break;])
-AS_IF([test "x$tiz_found_core_lib" != "xyes"],
-	[AC_SUBST([TIZCORE_CFLAGS], ['not-used']),
-	AC_SUBST([TIZCORE_LIBS], ['$(top_builddir)/../../libtizcore/tizonia/libtizcore.la'])],
-	[AC_MSG_NOTICE([Not substituting TIZCORE cflags and libs with local paths])])
-AS_IF([test "x$tiz_found_core_lib" == "xyes"],
-	[PKG_CHECK_MODULES([TIZCORE], [libtizcore >= 0.1.0])],
-	[AC_MSG_NOTICE([Not using pkg-config to find TIZCORE cflags and libs])])
-
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h netdb.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
 
@@ -94,8 +82,7 @@ AC_FUNC_FORK
 AC_CHECK_FUNCS([memmove socket strerror strndup])
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile
-                 tests/Makefile])
+                 src/Makefile])
 
 # End the configure script.
 AC_OUTPUT
