@@ -27,15 +27,15 @@ libtizmp3meta_la_SOURCES = \
 	mp3metaprc.c
 
 libtizmp3meta_la_CFLAGS = \
-	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizplatform/src \
-	-I$(top_srcdir)/../../libtizonia/src \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
+	@TIZONIA_CFLAGS@ \
 	@LIBMPG123_CFLAGS@
 
 
 libtizmp3meta_la_LIBADD = \
-	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
-	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	@TIZPLATFORM_LIBS@ \
+	@TIZONIA_LIBS@ \
 	@LIBMPG123_LIBS@
 
 
