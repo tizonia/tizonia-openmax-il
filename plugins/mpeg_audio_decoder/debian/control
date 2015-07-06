@@ -1,0 +1,37 @@
+Source: tizmpgdec
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               tizilheaders,
+               libtizplatform-dev,
+               libtizonia-dev,
+               libmpg123-dev
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizmpgdec-dev
+Section: libdevel
+Architecture: any
+Depends: libtizmpgdec0 (= ${binary:Version}),
+         ${misc:Depends},
+         tizilheaders,
+         libtizplatform-dev,
+         libtizonia-dev,
+         libmpg123-dev
+Description: Tizonia's OpenMAX IL MPG audio decoder library, development files
+ Tizonia's OpenMAX IL MPG audio decoder library.
+ .
+ This package contains the development library libtizmpgdec.
+
+Package: libtizmpgdec0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's OpenMAX IL MPG audio decoder library, run-time library
+ Tizonia's OpenMAX IL MPG audio decoder library.
+ .
+ This package contains the runtime library libtizmpgdec.
