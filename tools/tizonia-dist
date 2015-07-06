@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #
 # Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
 #
@@ -111,6 +111,7 @@ declare -Ar TIZ_PKG_DIRS=( \
     [tizmp3dec]="plugins/mp3_decoder" \
     [tizmp3enc]="plugins/mp3_encoder" \
     [tizmp3meta]="plugins/mp3_metadata" \
+    [tizmpgdec]="plugins/mpeg_audio_decoder" \
 )
 
 readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
@@ -132,6 +133,7 @@ readonly TIZ_PKGS_ORDERED=( \
     tizmp3dec \
     tizmp3enc \
     tizmp3meta \
+    tizmpgdec \
 )
 
 readonly TIZ_PYTHON_PKGS=( \
@@ -160,6 +162,7 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
     [tizmp3dec]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizmp3enc]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizmp3meta]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizmpgdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
 )
 
 readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
@@ -184,6 +187,7 @@ declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizmp3dec]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizmp3enc]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizmp3meta]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizmpgdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
 )
 
 ##################################################################
