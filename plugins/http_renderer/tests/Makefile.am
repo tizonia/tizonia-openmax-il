@@ -17,6 +17,16 @@
 
 TESTS = check_http_renderer
 
+BUILT_SOURCES = check_http_renderer.h
+
+EXTRA_DIST = \
+	tizonia.conf \
+	tizonia.conf.in \
+	check_http_renderer.h.in \
+	check_http_renderer.h
+
+CLEANFILES = check_http_renderer.h tizonia.conf
+
 check_PROGRAMS = check_http_renderer
 
 check_http_renderer_SOURCES = check_http_renderer.c
@@ -33,3 +43,24 @@ check_http_renderer_LDADD = \
 	@TIZCORE_LIBS@ \
 	@CHECK_LIBS@
 
+do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \
+	-e 's,[@]localstatedir[@],$(localstatedir),g' \
+	-e 's,[@]bindir[@],$(bindir),g' \
+	-e 's,[@]libdir[@],$(libdir),g' \
+	-e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	-e 's,[@]VERSION[@],$(VERSION),g'
+
+check_http_renderer.h: check_http_renderer.h.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
+
+tizonia.conf: tizonia.conf.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
+
+all-local: tizonia.conf
+
+clean-local: clean-local-check-http-renderer
+distclean-local: clean-local-check-http-renderer
+.PHONY: clean-local-check-http-renderer
+clean-local-check-http-renderer:
+	-rm -f core tizrm.db

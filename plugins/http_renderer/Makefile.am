@@ -16,6 +16,9 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 
-SUBDIRS = src tests
+# NOTE: Unit tests are currently disabled
+# SUBDIRS = src tests
+
+SUBDIRS = src
 
 EXTRA_DIST = debian
