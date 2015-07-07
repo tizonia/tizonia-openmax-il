@@ -1,0 +1,37 @@
+Source: tizopusdec
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               tizilheaders,
+               libtizplatform-dev,
+               libtizonia-dev,
+               libopus-dev
+Standards-Version: 3.9.4
+Section: libs
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: libtizopusdec-dev
+Section: libdevel
+Architecture: any
+Depends: libtizopusdec0 (= ${binary:Version}),
+         ${misc:Depends},
+         tizilheaders,
+         libtizplatform-dev,
+         libtizonia-dev,
+         libopus-dev
+Description: Tizonia's OpenMAX IL OPUS decoder library, development files
+ Tizonia's OpenMAX IL OPUS decoder library.
+ .
+ This package contains the development library libtizopusdec.
+
+Package: libtizopusdec0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia's OpenMAX IL OPUS decoder library, run-time library
+ Tizonia's OpenMAX IL OPUS decoder library.
+ .
+ This package contains the runtime library libtizopusdec.
