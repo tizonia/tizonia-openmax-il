@@ -112,6 +112,9 @@ declare -Ar TIZ_PKG_DIRS=( \
     [tizmp3enc]="plugins/mp3_encoder" \
     [tizmp3meta]="plugins/mp3_metadata" \
     [tizmpgdec]="plugins/mpeg_audio_decoder" \
+    [tizoggdmux]="plugins/ogg_demuxer" \
+    [tizopusdec]="plugins/opus_decoder" \
+    [tizopusfiledec]="plugins/opusfile_decoder" \
 )
 
 readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
@@ -134,6 +137,9 @@ readonly TIZ_PKGS_ORDERED=( \
     tizmp3enc \
     tizmp3meta \
     tizmpgdec \
+    tizoggdmux \
+    tizopusdec \
+    tizopusfiledec \
 )
 
 readonly TIZ_PYTHON_PKGS=( \
@@ -163,6 +169,9 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
     [tizmp3enc]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizmp3meta]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizmpgdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizoggdmux]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizopusdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizopusfiledec]="$TIZ_C_CPP_PKG_DIST_CMD" \
 )
 
 readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
@@ -188,6 +197,9 @@ declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizmp3enc]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizmp3meta]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizmpgdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizoggdmux]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizopusdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizopusfiledec]="$TIZ_PKG_DH_MAKE_C_CMD" \
 )
 
 ##################################################################
