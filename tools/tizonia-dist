@@ -115,6 +115,11 @@ declare -Ar TIZ_PKG_DIRS=( \
     [tizoggdmux]="plugins/ogg_demuxer" \
     [tizopusdec]="plugins/opus_decoder" \
     [tizopusfiledec]="plugins/opusfile_decoder" \
+    [tizpcmdec]="plugins/pcm_decoder" \
+    [tizalsapcmrnd]="plugins/pcm_renderer_alsa" \
+    [tizpulsepcmrnd]="plugins/pcm_renderer_pa" \
+    [tizspotifysrc]="plugins/spotify_source" \
+    [tizvorbisdec]="plugins/vorbis_decoder" \
 )
 
 readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
@@ -140,6 +145,11 @@ readonly TIZ_PKGS_ORDERED=( \
     tizoggdmux \
     tizopusdec \
     tizopusfiledec \
+    tizpcmdec \
+    tizalsapcmrnd \
+    tizpulsepcmrnd \
+    tizspotifysrc \
+    tizvorbisdec \
 )
 
 readonly TIZ_PYTHON_PKGS=( \
@@ -172,6 +182,11 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
     [tizoggdmux]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizopusdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizopusfiledec]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizpcmdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizalsapcmrnd]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizpulsepcmrnd]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizspotifysrc]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizvorbisdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
 )
 
 readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
@@ -200,6 +215,11 @@ declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizoggdmux]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizopusdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizopusfiledec]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizpcmdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizalsapcmrnd]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizpulsepcmrnd]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizspotifysrc]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizvorbisdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
 )
 
 ##################################################################
@@ -301,6 +321,16 @@ function do_prereqs {
             && sudo python setup.py install
     fi
 
+    # Install libspotify
+    local spotify=$(ldconfig -p | grep -c libspotify)
+    if [[ "$spotify" -eq 0 ]]; then
+        cd "$TEMP_DIR" \
+            && wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-$(uname -m).tgz \
+            && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz \
+            && cd libspotify-12.1.51-Linux-x86_64 \
+            && sudo make install prefix=/usr \
+            && sudo ldconfig
+    fi
 }
 
 ##################################################################
