@@ -534,7 +534,7 @@ function do_deb_file {
 
     print_banner "Creating debian package for: $1" "$YEL"
     cd_to_dir "$pkg_dir"
-    pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
+    pkg_ver=$(ls *.gz | perl -pe 'if(($v)=/([0-9]+([.][0-9]+)+)/){print"$v\n";exit}$_=""')
 
     tar zxvf "$pkg-$pkg_ver".tar.gz && cd "$pkg-$pkg_ver"
     exit_status=$?
