@@ -47,11 +47,14 @@ noinst_HEADERS = \
 	tizaacgraph.hpp \
 	tizopusgraph.hpp \
 	tizoggopusgraph.hpp \
-	tizvorbisgraph.hpp
+	tizvorbisgraph.hpp \
 	tizflacgraph.hpp \
 	tizoggflacgraph.hpp \
 	tizpcmgraph.hpp \
 	tizmpeggraph.hpp \
+	tizgraphmgrcaps.hpp \
+	tizplaybackstatus.hpp \
+	tizplaybackevents.hpp \
 	httpserv/tizhttpservconfig.hpp \
 	httpserv/tizhttpservgraph.hpp \
 	httpserv/tizhttpservgraphfsm.hpp \
@@ -63,17 +66,14 @@ noinst_HEADERS = \
 	httpclnt/tizhttpclntgraphops.hpp \
 	spotify/tizspotifygraph.hpp \
 	spotify/tizspotifygraphfsm.hpp \
-	spotify/tizspotifygraphops.hpp
+	spotify/tizspotifygraphops.hpp \
 	spotify/tizspotifyconfig.hpp \
 	spotify/tizspotifymgr.hpp \
 	gmusic/tizgmusicgraph.hpp \
 	gmusic/tizgmusicgraphfsm.hpp \
-	gmusic/tizgmusicgraphops.hpp
+	gmusic/tizgmusicgraphops.hpp \
 	gmusic/tizgmusicconfig.hpp \
 	gmusic/tizgmusicmgr.hpp \
-	tizgraphmgrcaps.hpp \
-	tizplaybackstatus.hpp \
-	tizplaybackevents.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
