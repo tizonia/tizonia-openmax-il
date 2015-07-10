@@ -316,10 +316,10 @@ function build_tizonia {
         && make -s -j8 V=0 install
     local exit_status=$?
 
-    # Build Tizonia app
+    # Build the tizonia player
     if [[ "$exit_status" -eq 0 ]] ; then
-        cd "$WORKING_DIR" && cd tizonia
-        echo "Reconfiguring Tizonia app for [DEBUG] build - Install dir [$INSTALL_DIR]..."
+        cd "$WORKING_DIR" && cd player
+        echo "Reconfiguring tizonia player for [DEBUG] build - Install dir [$INSTALL_DIR]..."
         autoreconf -ifs
         exit_status=$?
         if [[ "$exit_status" -eq 0 ]] ; then
