@@ -42,7 +42,7 @@ PKG_PROG_PKG_CONFIG()
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
-	[tizonia_found_omx_headers=yes; break;])
+	[tiz_found_omx_headers=yes; break;])
 AS_IF([test "x$tiz_found_omx_headers" != "xyes"],
 	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../include/tizonia']),
 	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
@@ -52,7 +52,7 @@ AS_IF([test "x$tiz_found_omx_headers" == "xyes"],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZILHEADERS cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/tizplatform.h],
-	[tizonia_found_platform_headers=yes; break;])
+	[tiz_found_platform_headers=yes; break;])
 AS_IF([test "x$tiz_found_platform_headers" != "xyes"],
 	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../libtizplatform/tizonia']),
 	AC_SUBST([TIZPLATFORM_LIBS], ['$(top_builddir)/../libtizplatform/tizonia/libtizplatform.la'])],
@@ -62,7 +62,7 @@ AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZPLATFORM cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/tizrmproxytypes.h],
-	[tizonia_found_rmproxy_headers=yes; break;])
+	[tiz_found_rmproxy_headers=yes; break;])
 AS_IF([test "x$tiz_found_rmproxy_headers" != "xyes"],
 	[AC_SUBST([TIZRMPROXY_CFLAGS], ['-I$(top_srcdir)/../rm/libtizrmproxy/tizonia']),
 	AC_SUBST([TIZRMPROXY_LIBS], ['$(top_builddir)/../rm/libtizrmproxy/tizonia/libtizrmproxy.la'])],
@@ -72,7 +72,7 @@ AS_IF([test "x$tiz_found_rmproxy_headers" == "xyes"],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZRMPROXY cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/tizrmtypes.h],
-	[tizonia_found_rmd_headers=yes; break;])
+	[tiz_found_rmd_headers=yes; break;])
 AS_IF([test "x$tiz_found_rmd_headers" != "xyes"],
 	[AC_SUBST([TIZRMD_CFLAGS], ['-I$(top_srcdir)/../rm/tizrmd/tizonia']),
 	AC_SUBST([TIZRMD_LIBS], ['not-used'])],
@@ -82,7 +82,7 @@ AS_IF([test "x$tiz_found_rmd_headers" == "xyes"],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZRMD cflags and libs])])
 
 AC_CHECK_LIB([tizcore], [OMX_Init],
-	[tizonia_found_core_lib=yes; break;])
+	[tiz_found_core_lib=yes; break;])
 AS_IF([test "x$tiz_found_core_lib" != "xyes"],
 	[AC_SUBST([TIZCORE_CFLAGS], ['not-used']),
 	AC_SUBST([TIZCORE_LIBS], ['$(top_builddir)/../libtizcore/tizonia/libtizcore.la'])],
