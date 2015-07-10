@@ -20,6 +20,5 @@ SUBDIRS= tools dbus src
 
 ACLOCAL_AMFLAGS = -I m4
 
-#pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = tizonia.pc
+EXTRA_DIST = debian
 
