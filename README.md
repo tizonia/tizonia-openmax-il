@@ -143,20 +143,35 @@ won't work):
 
 ```
 
-Finally, make sure to adjust your Python search path so that the
-*tizgmusicproxy.py* module can be found. One way of doing this is using the
-*PYTHONPATH* environment variable. E.g.:
+### Adjusting environment variables
+
+Let's assume you are installing to a temporary directory inside your home
+folder. Do the following before initiating the build.
 
 ```bash
 
-    $ export PYTHONPATH=$PYTHONPATH:/home/juan/temp/lib/python2.7/site-packages
+    $ INSTALL_DIR="$HOME/temp"
+    $ LIB_DIR="$INSTALL_DIR/lib"
+    $ PKG_CONFIG_DIR="$LIB_DIR/pkgconfig"
+
+    $ export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
+    $ export LD_LIBRARY_PATH="$LIB_DIR"
+
+```
+
+Finally, adjust your Python search path so that the *tizgmusicproxy.py* module
+can be found when needed. One way of doing this is using the *PYTHONPATH*
+environment variable. E.g.:
+
+```bash
+
+    $ export PYTHONPATH=$PYTHONPATH:$HOME/temp/lib/python2.7/site-packages
 
 ```
 
 ### Building the multimedia framework ###
 
-From the top of Tizonia's repo (replace *$INSTALL_DIR* with your favorite
-location), type the following:
+From the top of Tizonia's repo, type the following:
 
 ```bash
 
@@ -169,9 +184,8 @@ location), type the following:
 
 ### Building 'tizonia', the music player and streaming client/server ###
 
-After completing the steps above, change directory to the 'tizonia' sub-folder
-inside the repo (again replace *$INSTALL_DIR* with your favorite location), and
-type the following:
+After completing the steps above, change directory to the 'player' sub-folder
+inside the repo, and type the following:
 
 ```bash
 
