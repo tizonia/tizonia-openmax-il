@@ -101,6 +101,23 @@ To build and install from source, follow the these steps (Ubuntu 14.04 is assume
 
 ```
 
+### Adjusting environment variables
+
+Let's assume you are installing to a temporary directory inside your home
+folder. Do the following before initiating the build.
+
+```bash
+
+    $ INSTALL_DIR="$HOME/temp"
+    $ LIB_DIR="$INSTALL_DIR/lib"
+    $ PKG_CONFIG_DIR="$LIB_DIR/pkgconfig"
+
+    $ export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
+    $ export LD_LIBRARY_PATH="$LIB_DIR"
+    $ export PYTHONPATH=$PYTHONPATH:$LIB_DIR/python2.7/site-packages
+
+```
+
 ### libspotify ###
 
 To stream music from Spotify, libspotify needs to be present in your system. A
@@ -140,32 +157,6 @@ won't work):
     $ git clone https://github.com/simon-weber/gmusicapi \
       && cd gmusicapi \
       && sudo python setup.py install
-
-```
-
-### Adjusting environment variables
-
-Let's assume you are installing to a temporary directory inside your home
-folder. Do the following before initiating the build.
-
-```bash
-
-    $ INSTALL_DIR="$HOME/temp"
-    $ LIB_DIR="$INSTALL_DIR/lib"
-    $ PKG_CONFIG_DIR="$LIB_DIR/pkgconfig"
-
-    $ export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
-    $ export LD_LIBRARY_PATH="$LIB_DIR"
-
-```
-
-Finally, adjust your Python search path so that the *tizgmusicproxy.py* module
-can be found when needed. One way of doing this is using the *PYTHONPATH*
-environment variable. E.g.:
-
-```bash
-
-    $ export PYTHONPATH=$PYTHONPATH:$HOME/temp/lib/python2.7/site-packages
 
 ```
 
