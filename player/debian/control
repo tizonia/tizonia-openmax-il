@@ -1,0 +1,24 @@
+Source: tizonia-player
+Section: sound
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf,
+               tizilheaders,
+               libtizplatform-dev,
+               libtizrmproxy-dev,
+               tizrmd-dev,
+               libtizcore-dev,
+               libdbus-1-dev,
+               libdbus-c++-dev
+Standards-Version: 3.9.4
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: tizonia-player
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tizonia command-line music player
+ A command-line music player and streaming server with support
+ for Spotify and Google Play Music.
