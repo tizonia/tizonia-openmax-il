@@ -132,8 +132,8 @@ tizonia_SOURCES = \
 
 tizonia_CPPFLAGS = \
 	@BOOST_CPPFLAGS@ \
-	-I$(top_srcdir)/../include/omxil-1.2 \
-	-I$(top_srcdir)/../libtizplatform/src \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
 	-I$(top_srcdir)/dbus \
 	-I$(top_srcdir)/src \
 	-I/usr/include/taglib \
@@ -149,5 +149,5 @@ tizonia_LDADD = \
 	-ltag \
 	@LIBMEDIAINFO_LIBS@ \
 	@DBUS_LIBS@ \
-	$(top_builddir)/../libtizplatform/src/libtizplatform.la \
-	$(top_builddir)/../libtizcore/src/libtizcore.la
+	@TIZPLATFORM_LIBS@ \
+	@TIZCORE_LIBS@

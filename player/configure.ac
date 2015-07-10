@@ -16,7 +16,7 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.68])
-AC_INIT([tizonia], [0.1.0], [juan.rubio@aratelia.com])
+AC_INIT([tizonia-player], [0.1.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules subdir-objects -Wextra -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
@@ -50,8 +50,36 @@ PKG_CHECK_MODULES(dbus, [dbus-1 >= $DBUS_REQUIRED_VERSION],,
 PKG_CHECK_MODULES([DBUS], [dbus-c++-1 >= 0.6.0-pre1])
 PKG_CHECK_MODULES([TAGLIB], [taglib >= 1.7.0])
 PKG_CHECK_MODULES([LIBMEDIAINFO], [libmediainfo >= 0.7.65])
-#PKG_CHECK_MODULES([KHROMTIZ12], [libkhromxil12])
-#PKG_CHECK_MODULES([TIZ], [libtizplatform])
+
+AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
+	[tiz_found_omx_headers=yes; break;])
+AS_IF([test "x$tiz_found_omx_headers" != "xyes"],
+	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../include/tizonia']),
+	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
+	[AC_MSG_NOTICE([Not substituting TIZILHEADERS cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_omx_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZILHEADERS], [tizilheaders >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZILHEADERS cflags and libs])])
+
+AC_CHECK_HEADERS([tizonia/tizplatform.h],
+	[tiz_found_platform_headers=yes; break;])
+AS_IF([test "x$tiz_found_platform_headers" != "xyes"],
+	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../libtizplatform/tizonia']),
+	AC_SUBST([TIZPLATFORM_LIBS], ['$(top_builddir)/../libtizplatform/tizonia/libtizplatform.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZPLATFORM cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZPLATFORM], [libtizplatform >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZPLATFORM cflags and libs])])
+
+AC_CHECK_LIB([tizcore], [OMX_Init],
+	[tizonia_found_core_lib=yes; break;])
+AS_IF([test "x$tiz_found_core_lib" != "xyes"],
+	[AC_SUBST([TIZCORE_CFLAGS], ['not-used']),
+	AC_SUBST([TIZCORE_LIBS], ['$(top_builddir)/../libtizcore/tizonia/libtizcore.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZCORE cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_core_lib" == "xyes"],
+	[PKG_CHECK_MODULES([TIZCORE], [libtizcore >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZCORE cflags and libs])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h termios.h unistd.h])
