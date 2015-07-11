@@ -72,7 +72,7 @@ AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZPLATFORM cflags and libs])])
 
 AC_CHECK_LIB([tizcore], [OMX_Init],
-	[tizonia_found_core_lib=yes; break;])
+	[tiz_found_core_lib=yes; break;])
 AS_IF([test "x$tiz_found_core_lib" != "xyes"],
 	[AC_SUBST([TIZCORE_CFLAGS], ['not-used']),
 	AC_SUBST([TIZCORE_LIBS], ['$(top_builddir)/../libtizcore/tizonia/libtizcore.la'])],

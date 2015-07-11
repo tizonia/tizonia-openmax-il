@@ -51,22 +51,22 @@ AX_BOOST_BASE([1.46],, [AC_MSG_ERROR([tizrmd needs Boost 1.46])])
 AX_LIB_SQLITE3([3.7.1])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
-	[tizrmd_found_omx_headers=yes; break;])
-AS_IF([test "x$tizrmd_found_omx_headers" != "xyes"],
+	[tiz_found_omx_headers=yes; break;])
+AS_IF([test "x$tiz_found_omx_headers" != "xyes"],
 	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../../include/tizonia']),
 	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
 	[AC_MSG_NOTICE([Not substituting TIZILHEADERS cflags and libs with local paths])])
-AS_IF([test "x$tizrmd_found_omx_headers" == "xyes"],
+AS_IF([test "x$tiz_found_omx_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZILHEADERS], [tizilheaders >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZILHEADERS cflags and libs])])
 
 AC_CHECK_HEADERS([tizonia/tizplatform.h],
-	[tizrmd_found_platform_headers=yes; break;])
-AS_IF([test "x$tizrmd_found_platform_headers" != "xyes"],
+	[tiz_found_platform_headers=yes; break;])
+AS_IF([test "x$tiz_found_platform_headers" != "xyes"],
 	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../../libtizplatform/tizonia']),
 	AC_SUBST([TIZPLATFORM_LIBS], ['$(top_builddir)/../../libtizplatform/tizonia/libtizplatform.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZPLATFORM cflags and libs with local paths])])
-AS_IF([test "x$tizrmd_found_platform_headers" == "xyes"],
+AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZPLATFORM], [libtizplatform >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZPLATFORM cflags and libs])])
 
