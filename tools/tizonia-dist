@@ -89,6 +89,7 @@ declare -ar TIZ_DEBIAN_PKGS=( \
     pbuilder \
     fakeroot \
     dh-autoreconf \
+    equivs \
     python-all-dev \
     python-stdeb \
 )
