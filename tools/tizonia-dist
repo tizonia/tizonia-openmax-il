@@ -122,6 +122,7 @@ declare -Ar TIZ_PKG_DIRS=( \
     [tizspotifysrc]="plugins/spotify_source" \
     [tizvorbisdec]="plugins/vorbis_decoder" \
     [tizonia-player]="player" \
+    [tizonia-config]="config" \
 )
 
 readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
@@ -153,6 +154,7 @@ readonly TIZ_PKGS_ORDERED=( \
     tizspotifysrc \
     tizvorbisdec \
     tizonia-player \
+    tizonia-config \
 )
 
 readonly TIZ_PYTHON_PKGS=( \
@@ -191,6 +193,7 @@ declare -Ar TIZ_PKG_DIST_CMD=( \
     [tizspotifysrc]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizvorbisdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
     [tizonia-player]="$TIZ_C_CPP_PKG_DIST_CMD" \
+    [tizonia-config]="$TIZ_C_CPP_PKG_DIST_CMD" \
 )
 
 readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
@@ -225,6 +228,7 @@ declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
     [tizspotifysrc]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizvorbisdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
     [tizonia-player]="$TIZ_PKG_DH_MAKE_C_CMD" \
+    [tizonia-config]="$TIZ_PKG_DH_MAKE_I_CMD" \
 )
 
 ##################################################################
@@ -575,8 +579,8 @@ function do_python_deb_file {
 
     print_banner "Creating debian package for: $1" "$YEL"
     cd_to_dir "$pkg_dir"
-
-    pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
+    pkg_ver=$(ls *.gz | perl -pe 'if(($v)=/([0-9]+([.][0-9]+)+)/){print"$v\n";exit}$_=""')
+    #pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
 
     err_msg="[$pkg] : Error while running py2dsc."
     py2dsc --dist-dir='.' "$pkg-$pkg_ver".tar.gz && cd "$pkg-$pkg_ver"
@@ -603,36 +607,98 @@ function do_python_deb_file {
 # Returns:
 #   None
 ##################################################################
-function do_install_deb_file {
+function do_install_package_debs {
     local pkg="$1"
     local pkg_dir="$2"
-    local pkg_ver=0
     local exit_status=1
     local err_msg='Unknown error'
 
-    print_banner "Installing debian package: $1" "$MAG"
+    # Uninstall them first, if are installed
+    do_uninstall_package_debs "$pkg" "$pkg_dir"
+
+    print_banner "Installing debs from package: $1" "$MAG"
     cd_to_dir "$pkg_dir"
 
-    pkg_ver=$(ls *.gz | cut -d'-' -f2 | cut -d'.' -f1-3)
-
-    err_msg="[$pkg] : Error while installing the package."
-    local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
-    if [[ "$result" == "installed" ]]; then
-        pretty_print "$BLU" "[$pkg] : uninstalling."
-        sudo dpkg --purge "$pkg"
-        pretty_print "$GRN" "[$pkg] : uninstalled."
-    fi
-
-    for deb in *.deb
-    do
-        err_msg="[$pkg] : Error while installing the package."
+    if [[ "$pkg" == "tizonia-config" ]]; then
+        local deb=$(ls *config*.deb)
+        err_msg="[$deb] : Error while installing the package."
         pretty_print "$BLU" "[$deb] : installing."
         sudo dpkg -i "$deb"
         exit_status=$?
         if [[ "$exit_status" -eq 0 ]] ; then
             pretty_print "$GRN" "[$deb] : installed."
         else
-            break
+            log_on_error "$exit_status" "$err_msg"
+            return "$exit_status"
+        fi
+
+        deb=$(ls *all*.deb)
+        err_msg="[$deb] : Error while installing the package."
+        pretty_print "$BLU" "[$deb] : installing."
+        sudo dpkg -i "$deb"
+        exit_status=$?
+        if [[ "$exit_status" -eq 0 ]] ; then
+            pretty_print "$GRN" "[$deb] : installed."
+        else
+            log_on_error "$exit_status" "$err_msg"
+            return "$exit_status"
+        fi
+        return 0
+    fi
+
+    # Install normal packages first
+    for deb in *.deb
+    do
+        if [[ -e "$deb" ]]; then
+            if [[ "$deb" = *dev.*deb ]]; then
+                continue
+            fi
+            if [[ "$deb" = *dbg.*deb ]]; then
+                continue
+            fi
+            err_msg="[$pkg] : Error while installing the package."
+            pretty_print "$BLU" "[$deb] : installing."
+            sudo dpkg -i "$deb"
+            exit_status=$?
+            if [[ "$exit_status" -eq 0 ]] ; then
+                pretty_print "$GRN" "[$deb] : installed."
+            else
+                break
+            fi
+        fi
+    done
+
+    # Install dev packages next
+    local dev_debs=$(ls *dev*.deb 2> /dev/null)
+    for deb in "${dev_debs[@]}"
+    do
+        if [[ -e "$deb" ]]; then
+            err_msg="[$pkg] : Error while installing the package."
+            pretty_print "$BLU" "[$deb] : installing."
+            sudo dpkg -i "$deb"
+            exit_status=$?
+            if [[ "$exit_status" -eq 0 ]] ; then
+                pretty_print "$GRN" "[$deb] : installed."
+            else
+                break
+            fi
+        fi
+    done
+
+    # Install dbg packages next
+    local dbg_debs=$(ls *dbg*.deb 2> /dev/null)
+    for deb in "${dbg_debs[@]}"
+    do
+        if [[ -e "$deb" ]]; then
+            err_msg="[$pkg] : Error while installing the package."
+            pretty_print "$BLU" "[$deb] : installing."
+            sudo dpkg -i "$deb"
+            exit_status=$?
+            if [[ "$exit_status" -eq 0 ]] ; then
+                pretty_print "$GRN" "[$deb] : installed."
+            else
+                break
+            fi
         fi
     done
 
@@ -694,7 +760,7 @@ function do_all_debs {
             break
         fi
 
-        do_install_deb_file "$pkg" "$pkg_deb_dir"
+        do_install_package_debs "$pkg" "$pkg_deb_dir"
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             break
@@ -792,7 +858,7 @@ function do_next_deb {
                 break
             fi
 
-            do_install_deb_file "$pkg" "$pkg_deb_dir"
+            do_install_package_debs "$pkg" "$pkg_deb_dir"
             exit_status=$?
             if [[ "$exit_status" -ne 0 ]] ; then
                 break
@@ -802,6 +868,75 @@ function do_next_deb {
             pretty_print "$GRN" "[$pkg] : installed."
         fi
     done
+    return "$exit_status"
+}
+
+function do_uninstall_package_debs {
+    local pkg="$1"
+    local pkg_dir="$2"
+    local exit_status=0
+    local err_msg='Unknown error'
+
+    print_banner "Uninstalling debs from package: $1 [$2]" "$MAG"
+    cd_to_dir "$pkg_dir"
+
+    if [[ "$pkg" == "tizonia-config" ]]; then
+        local deb_config=$(ls *config*.deb)
+        local deb_config_name=$(echo "$deb_config" | cut -d'_' -f1)
+        pretty_print "$BLU" "[$pkg] : uninstalling $deb_config_name."
+        sudo dpkg --purge "$deb_config_name"
+        pretty_print "$GRN" "[$pkg] : uninstalled $deb_name."
+
+        local deb_all=$(ls *all*.deb)
+        local deb_all_name=$(echo "$deb_all" | cut -d'_' -f1)
+        pretty_print "$BLU" "[$pkg] : uninstalling $deb_all_name."
+        sudo dpkg --purge "$deb_all_name"
+        pretty_print "$GRN" "[$pkg] : uninstalled $deb_name."
+        return
+    fi
+
+    # Uninstall dbg packages fist, if any
+    local dbg_debs=$(ls *dbg*.deb 2> /dev/null)
+    for deb in "${dbg_debs[@]}"
+    do
+        if [[ -e "$deb" ]]; then
+            local deb_name=$(echo "$deb" | cut -d'_' -f1)
+            pretty_print "$BLU" "[$pkg] : uninstalling $deb_name."
+            sudo dpkg --purge "$deb_name"
+            pretty_print "$GRN" "[$pkg] : uninstalled $deb_name."
+        fi
+    done
+
+    # Uninstall dev packages next, if any
+    local dev_debs=$(ls *dev*.deb 2> /dev/null)
+    for deb in "${dev_debs[@]}"
+    do
+        if [[ -e "$deb" ]]; then
+            local deb_name=$(echo "$deb" | cut -d'_' -f1)
+            pretty_print "$BLU" "[$pkg] : uninstalling $deb_name."
+            sudo dpkg --purge "$deb_name"
+            pretty_print "$GRN" "[$pkg] : uninstalled $deb_name."
+        fi
+    done
+
+    # Uninstall any remaining packages next
+    for deb in *.deb
+    do
+        if [[ -e "$deb" ]]; then
+            if [[ "$deb" = *dev.*deb ]]; then
+                continue
+            fi
+            if [[ "$deb" = *dbg.*deb ]]; then
+                continue
+            fi
+            local deb_name=$(echo "$deb" | cut -d'_' -f1)
+            pretty_print "$BLU" "[$pkg] : uninstalling $deb_name."
+            sudo dpkg --purge "$deb_name"
+            pretty_print "$GRN" "[$pkg] : uninstalled $deb_name."
+        fi
+    done
+
+    log_on_error "$exit_status" "$err_msg"
     return "$exit_status"
 }
 
@@ -817,19 +952,13 @@ function do_next_deb {
 # Returns:
 #   None
 ##################################################################
-function do_remove_debs {
+function do_uninstall_all_debs {
     local exit_status=0
     for ((i=${#TIZ_PKGS_ORDERED[@]}-1; i>=0; i--)); do
         local pkg="${TIZ_PKGS_ORDERED[$i]}"
         local pkg_dir="$DEBIAN_DIR/$pkg"
         if [[ -d "$pkg_dir" ]]; then
-            cd "$pkg_dir"
-            local deb_files=(*.deb)
-            for ((j=${#deb_files[@]}-1; j>=0; j--)); do
-                deb="${deb_files[$j]}"
-                pretty_print "$BLU" "[$pkg] : uninstalling $deb."
-                sudo dpkg --purge $(echo "$deb" | cut -d'_' -f1)
-            done
+            do_uninstall_package_debs "$pkg" "$pkg_dir"
         fi
     done
     return "$exit_status"
@@ -912,7 +1041,7 @@ function main {
 
     if [[ "$exit_status" -eq 0 ]] ; then
         if [[ "$removeall" == 1 ]]; then
-            do_remove_debs
+            do_uninstall_all_debs
             exit_status=$?
         fi
     fi
