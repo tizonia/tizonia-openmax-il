@@ -1,0 +1,54 @@
+Source: tizonia-config
+Section: sound
+Priority: optional
+Maintainer: Juan A. Rubio <juan.rubio@aratelia.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-autoreconf
+Standards-Version: 3.9.4
+Homepage: http://tizonia.org
+Vcs-Git: git://github.com/tizonia/tizonia-openmax-il.git
+Vcs-Browser: https://github.com/tizonia/tizonia-openmax-il
+
+Package: tizonia-config
+Architecture: any
+Description: Tizonia command-line music player (config files)
+ A command-line music player and streaming server with support
+ for Spotify and Google Play Music.
+
+Package: tizonia-all
+Architecture: any
+Multi-Arch: same
+Section: libs
+Depends: tizilheaders,
+    python-tizgmusicproxy,
+    libtizgmusic0,
+    libtizplatform0,
+    tizrmd,
+    libtizrmproxy0,
+    libtizcore0,
+    libtizonia0,
+    libtizaacdec0,
+    libtizfr0,
+    libtizfw0,
+    libtizflacdec0,
+    libtizhttprnd0,
+    libtizhttpsrc0,
+    libtizmp3dec0,
+    libtizmp3enc0,
+    libtizmp3meta0,
+    libtizmpgdec0,
+    libtizoggdmux0,
+    libtizopusdec0,
+    libtizopusfiledec0,
+    libtizpcmdec0,
+    libtizalsapcmrnd0,
+    libtizpulsepcmrnd0,
+    libtizspotifysrc0,
+    libtizvorbisdec0,
+    tizonia-player,
+    tizonia-config
+Description: Tizonia command-line music player (metapackage)
+ A command-line music player and streaming server with support
+ for Spotify and Google Play Music.
+ .
+ This is a metapackage that depends on all Tizonia libraries.

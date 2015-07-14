@@ -40,12 +40,13 @@ AM_CONDITIONAL([HAVE_DOXYGEN],
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile config/Makefile docs/Makefile])
+AC_CONFIG_FILES([Makefile docs/Makefile])
 AC_CONFIG_SUBDIRS([include
                    gmusic
                    libtizplatform
                    rm
                    libtizcore
                    libtizonia
-                   plugins])
+                   plugins
+                   config])
 AC_OUTPUT

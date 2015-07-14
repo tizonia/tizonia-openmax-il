@@ -15,6 +15,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS= src
+tizonia_config = tizonia.conf
+log4c_config = log4crc
 
-EXTRA_DIST = debian
+tizoniaconfdir = $(sysconfdir)/tizonia
+tizoniaconf_DATA = $(tizonia_config) $(log4c_config)
+
+EXTRA_DIST = $(tizonia_config) $(sqlite_databases) tizonia.conf.in log4crc.in
+
+do_subst = sed -e 's,[@]localstatedir[@],$(localstatedir),g' \
+	-e 's,[@]bindir[@],$(bindir),g' \
+	-e 's,[@]libdir[@],$(libdir),g' \
+	-e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	-e 's,[@]VERSION[@],$(VERSION),g'
+
+tizonia.conf: tizonia.conf.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
+
+log4crc: log4crc.in Makefile
+	$(do_subst) < $(srcdir)/$@.in > $@
+
+CLEANFILES = $(tizonia_config) $(log4c_config)

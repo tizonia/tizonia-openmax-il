@@ -15,6 +15,32 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS= src
+AC_PREREQ([2.67])
+AC_INIT([tizonia-config], [0.1.0], [juan.rubio@aratelia.com])
+AC_CONFIG_AUX_DIR([.])
+AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
+AC_CONFIG_SRCDIR([config.h.in])
+AC_CONFIG_HEADERS([config.h])
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
-EXTRA_DIST = debian
+# 'm4' is the directory where the extra autoconf macros are stored
+AC_CONFIG_MACRO_DIR([m4])
+
+# Checks for programs.
+
+# Checks for libraries.
+
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+
+# Additional GCC warnings option
+
+AC_CONFIG_FILES([Makefile
+                src/Makefile])
+
+# End the configure script.
+AC_OUTPUT
