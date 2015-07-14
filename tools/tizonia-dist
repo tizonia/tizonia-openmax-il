@@ -252,11 +252,11 @@ function usage {
     pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
 
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-a] [-n] [-p] [-r]"
-    pretty_print "$GRN" "       -a            : Create and install all deb packages."
-    pretty_print "$GRN" "       -n            : Create and install all deb packages, starting from the rist that is not installed yet."
-    pretty_print "$GRN" "       -p            : Pre-requisites. Install both Tizonia's and Debian's dependencies."
-    pretty_print "$GRN" "       -r            : Uninstall (purge) all currently install Tizonia packages."
+    pretty_print "$GRN" "Usage : $(basename $0) [-a] [-n] [-d] [-r]"
+    pretty_print "$GRN" "       -a            : Make and install all debian packages."
+    pretty_print "$GRN" "       -n            : Make and install all debian packages, starting from the first one not yet installed."
+    pretty_print "$GRN" "       -d            : Install both Tizonia's and Debian's dependencies."
+    pretty_print "$GRN" "       -r            : Uninstall (purge) all currently installed packages."
 } >&2
 
 ##################################################################
@@ -269,20 +269,12 @@ function usage {
 # Returns:
 #   None
 ##################################################################
-function do_prereqs {
+function do_deps {
 
     # Install tizonia's binary dependencies
     for pkg in "${TIZ_TIZONIA_DEPS[@]}"; do
         local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
-        if [[ "$result" == "not-installed" ]]; then
-            pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -q -y "$pkg" #> /dev/null
-            pretty_print "$GRN" "[$pkg] : installed."
-        elif [[ "$result" == "" ]]; then
-            pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -q -y "$pkg" #> /dev/null
-            pretty_print "$GRN" "[$pkg] : installed."
-        elif [[ "$result" == "installed" ]]; then
+        if [[ "$result" == "installed" ]]; then
             pretty_print "$GRN" "[$pkg] : $result."
         else
             pretty_print "$BLU" "[$pkg] : installing."
@@ -294,15 +286,7 @@ function do_prereqs {
     # Install debian dependencies
     for pkg in "${TIZ_DEBIAN_PKGS[@]}"; do
         local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
-        if [[ "$result" == "not-installed" ]]; then
-            pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -q -y "$pkg" #> /dev/null
-            pretty_print "$GRN" "[$pkg] : installed."
-        elif [[ "$result" == "" ]]; then
-            pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -q -y "$pkg" #> /dev/null
-            pretty_print "$GRN" "[$pkg] : installed."
-        elif [[ "$result" == "installed" ]]; then
+        if [[ "$result" == "installed" ]]; then
             pretty_print "$GRN" "[$pkg] : $result."
         else
             pretty_print "$BLU" "[$pkg] : installing."
@@ -325,7 +309,7 @@ function do_prereqs {
         #         && sudo pip install gmusicapi --upgrade
 
         cd "$TEMP_DIR" \
-            && git clone https://github.com/simon-weber/Unofficial-Google-Music-API gmusicapi \
+            && git clone https://github.com/simon-weber/gmusicapi gmusicapi \
             && cd gmusicapi \
             && sudo python setup.py install
     fi
@@ -530,7 +514,7 @@ function do_tar_file {
 # Returns:
 #   None
 ##################################################################
-function do_deb_file {
+function do_c_package_debs {
     local pkg="$1"
     local pkg_dir="$2"
     local pkg_ver=0
@@ -570,7 +554,7 @@ function do_deb_file {
 # Returns:
 #   None
 ##################################################################
-function do_python_deb_file {
+function do_python_packate_debs {
     local pkg="$1"
     local pkg_dir="$2"
     local pkg_ver=0
@@ -607,18 +591,20 @@ function do_python_deb_file {
 # Returns:
 #   None
 ##################################################################
-function do_install_package_debs {
+function do_install_project_debs {
     local pkg="$1"
     local pkg_dir="$2"
     local exit_status=1
     local err_msg='Unknown error'
 
-    # Uninstall them first, if are installed
-    do_uninstall_package_debs "$pkg" "$pkg_dir"
+    # Uninstall them first, if installed
+    do_uninstall_project_debs "$pkg" "$pkg_dir"
 
     print_banner "Installing debs from package: $1" "$MAG"
     cd_to_dir "$pkg_dir"
 
+    # Check first for tizonia-config, this sub-project is special as it does
+    # not produce any -dev or -dbg packages.
     if [[ "$pkg" == "tizonia-config" ]]; then
         local deb=$(ls *config*.deb)
         err_msg="[$deb] : Error while installing the package."
@@ -749,10 +735,10 @@ function do_all_debs {
 
         exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
         if [[ $? -eq 0 ]]; then
-            do_python_deb_file "$pkg" "$pkg_deb_dir"
+            do_python_packate_debs "$pkg" "$pkg_deb_dir"
             exit_status=$?
         else
-            do_deb_file "$pkg" "$pkg_deb_dir"
+            do_c_package_debs "$pkg" "$pkg_deb_dir"
             exit_status=$?
         fi
 
@@ -760,7 +746,7 @@ function do_all_debs {
             break
         fi
 
-        do_install_package_debs "$pkg" "$pkg_deb_dir"
+        do_install_project_debs "$pkg" "$pkg_deb_dir"
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             break
@@ -830,7 +816,7 @@ function do_all_tars_and_debs {
 # Returns:
 #   None
 ##################################################################
-function do_next_deb {
+function do_next_package_debs {
     local exit_status=0
     for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
         dpkg -l | grep "$pkg" > /dev/null
@@ -847,10 +833,10 @@ function do_next_deb {
             local pkg_deb_dir="$DEBIAN_DIR/$pkg"
             exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
             if [[ $? -eq 0 ]]; then
-                do_python_deb_file "$pkg" "$pkg_deb_dir"
+                do_python_packate_debs "$pkg" "$pkg_deb_dir"
                 exit_status=$?
             else
-                do_deb_file "$pkg" "$pkg_deb_dir"
+                do_c_package_debs "$pkg" "$pkg_deb_dir"
                 exit_status=$?
             fi
 
@@ -858,7 +844,7 @@ function do_next_deb {
                 break
             fi
 
-            do_install_package_debs "$pkg" "$pkg_deb_dir"
+            do_install_project_debs "$pkg" "$pkg_deb_dir"
             exit_status=$?
             if [[ "$exit_status" -ne 0 ]] ; then
                 break
@@ -871,7 +857,7 @@ function do_next_deb {
     return "$exit_status"
 }
 
-function do_uninstall_package_debs {
+function do_uninstall_project_debs {
     local pkg="$1"
     local pkg_dir="$2"
     local exit_status=0
@@ -958,7 +944,7 @@ function do_uninstall_all_debs {
         local pkg="${TIZ_PKGS_ORDERED[$i]}"
         local pkg_dir="$DEBIAN_DIR/$pkg"
         if [[ -d "$pkg_dir" ]]; then
-            do_uninstall_package_debs "$pkg" "$pkg_dir"
+            do_uninstall_project_debs "$pkg" "$pkg_dir"
         fi
     done
     return "$exit_status"
@@ -979,28 +965,24 @@ function main {
     local exit_status=0
     local makeall=0
     local makenext=0
-    local prereqs=0
+    local deps=0
     local removeall=0
 
     local progname=$(basename $0)
-    CMDLINE=$(getopt -o "anpr" --long "makeall,makenext,prereqs,removeall" -n "$progname" -- "$@")
+    CMDLINE=$(getopt -o "andr" --long "makeall,makenext,deps,removeall" -n "$progname" -- "$@")
     eval set -- "$CMDLINE"
     while true; do
         case "$1" in
             -a|--makeall)
-                echo "makeall"
                 makeall=1; shift
                 ;;
             -n|--makenext)
-                echo "makenext"
                 makenext=1; shift
                 ;;
-            -p|--prereqs)
-                echo "prereqs"
-                prereqs=1; shift
+            -d|--deps)
+                deps=1; shift
                 ;;
             -r|--removeall)
-                echo "removeall"
                 removeall=1; shift
                 ;;
             --)
@@ -1010,7 +992,7 @@ function main {
         esac
     done
 
-    local total=$(( $makeall + $makenext + $prereqs + $removeall ))
+    local total=$(( $makeall + $makenext + $deps + $removeall ))
     if [[ "$total" != 1 ]]; then
         usage
         exit "$E_BADARGS"
@@ -1020,9 +1002,15 @@ function main {
     export DEBFULLNAME=$MYDEBFULLNAME
     export DEBEMAIL=$MYDEBEMAIL
 
-    if [[ "$prereqs" == 1 ]]; then
-        do_prereqs
+    if [[ "$deps" == 1 ]]; then
+        do_deps
         exit_status=0
+    fi
+
+    if [[ -e "$HOME/.tizonia.conf" ]]; then
+        local err_msg="Please remove $HOME/.tizonia.conf before proceeding"
+        exit_status=1
+        log_on_error "$exit_status" "$err_msg"
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
@@ -1034,7 +1022,7 @@ function main {
 
     if [[ "$exit_status" -eq 0 ]] ; then
         if [[ "$makenext" == 1 ]]; then
-            do_next_deb
+            do_next_package_debs
             exit_status=$?
         fi
     fi
