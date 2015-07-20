@@ -81,6 +81,8 @@ libtizplatform_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@LOG4C_CFLAGS@
 
+libtizplatform_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizplatform_la_LIBADD = \
 	-lpthread \
 	-lev \

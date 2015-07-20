@@ -36,6 +36,8 @@ libtizspotify_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@SPOTIFY_CFLAGS@
 
+libtizspotify_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizspotify_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

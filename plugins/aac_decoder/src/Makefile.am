@@ -32,6 +32,8 @@ libtizaacdec_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	-I/usr/include
 
+libtizaacdec_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizaacdec_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

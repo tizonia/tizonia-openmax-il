@@ -32,6 +32,8 @@ libtizvorbisd_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@FISHSOUND_CFLAGS@
 
+libtizvorbisd_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizvorbisd_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

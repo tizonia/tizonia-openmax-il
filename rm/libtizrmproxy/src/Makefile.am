@@ -36,6 +36,8 @@ libtizrmproxy_la_CPPFLAGS = \
 	@TIZRMD_CFLAGS@ \
 	@DBUS_CFLAGS@
 
+libtizrmproxy_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizrmproxy_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@DBUS_LIBS@

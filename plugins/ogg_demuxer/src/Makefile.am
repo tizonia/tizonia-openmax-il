@@ -32,6 +32,8 @@ libtizoggdemux_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@OGGZ_CFLAGS@
 
+libtizoggdemux_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizoggdemux_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

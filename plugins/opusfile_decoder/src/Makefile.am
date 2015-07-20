@@ -32,6 +32,8 @@ libtizopusfiled_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@OPUSFILE_CFLAGS@
 
+libtizopusfiled_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizopusfiled_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

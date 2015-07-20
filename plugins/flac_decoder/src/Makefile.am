@@ -32,6 +32,8 @@ libtizflacd_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@FLAC_CFLAGS@
 
+libtizflacd_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizflacd_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

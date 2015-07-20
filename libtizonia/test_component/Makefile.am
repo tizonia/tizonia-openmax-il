@@ -30,6 +30,8 @@ libtiztc_la_CFLAGS = \
 	@TIZPLATFORM_CFLAGS@ \
 	-I$(top_srcdir)/src
 
+libtiztc_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtiztc_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	$(top_builddir)/src/libtizonia.la

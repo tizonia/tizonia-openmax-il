@@ -32,6 +32,8 @@ libtizpulsear_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@PULSEAUDIO_CFLAGS@
 
+libtizpulsear_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizpulsear_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

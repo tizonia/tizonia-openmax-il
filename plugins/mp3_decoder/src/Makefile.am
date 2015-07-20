@@ -32,6 +32,8 @@ libtizmp3dec_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@MAD_CFLAGS@
 
+libtizmp3dec_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizmp3dec_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

@@ -23,6 +23,8 @@ libtizcoretc_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@
 
+libtizcoretc_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizcoretc_la_LIBADD = \
 	@TIZPLATFORM_LIBS@
 

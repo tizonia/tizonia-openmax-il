@@ -44,6 +44,8 @@ libtizhttpsrc_la_CFLAGS = \
 	@TIZGMUSIC_CFLAGS@ \
 	@LIBCURL_CFLAGS@
 
+libtizhttpsrc_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizhttpsrc_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

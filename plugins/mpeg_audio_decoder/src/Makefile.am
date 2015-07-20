@@ -32,6 +32,8 @@ libtizmpg123d_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@LIBMPG123_CFLAGS@
 
+libtizmpg123d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizmpg123d_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \

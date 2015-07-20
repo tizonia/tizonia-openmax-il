@@ -33,6 +33,8 @@ libtizgmusic_la_CPPFLAGS = \
 	@PYTHON_CPPFLAGS@ \
 	@BOOST_CPPFLAGS@
 
+libtizgmusic_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizgmusic_la_LIBADD = \
 	@BOOST_PYTHON_LIB@ \
 	@PYTHON_LDFLAGS@ \

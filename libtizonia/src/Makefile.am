@@ -142,6 +142,8 @@ libtizonia_la_CFLAGS = \
 	@TIZRMD_CFLAGS@ \
 	-I$(top_srcdir)/src
 
+libtizonia_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizonia_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZRMPROXY_LIBS@

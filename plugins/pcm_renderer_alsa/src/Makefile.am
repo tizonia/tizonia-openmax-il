@@ -32,6 +32,8 @@ libtizalsaar_la_CFLAGS = \
 	@TIZONIA_CFLAGS@ \
 	@ALSA_CFLAGS@
 
+libtizalsaar_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
+
 libtizalsaar_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \
