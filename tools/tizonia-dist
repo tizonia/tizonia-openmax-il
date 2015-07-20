@@ -651,10 +651,10 @@ function do_install_project_debs {
     for deb in $(find . -type f -name "*.deb" -print | cut -d'/' -f2)
     do
         if [[ -e "$deb" ]]; then
-            if [[ "$deb" = *dev.*deb ]]; then
+            if [[ "$deb" = *dev*.deb ]]; then
                 continue
             fi
-            if [[ "$deb" = *dbg.*deb ]]; then
+            if [[ "$deb" = *dbg*.deb ]]; then
                 continue
             fi
             err_msg="[$pkg] : Error while installing the package."
@@ -832,6 +832,8 @@ function do_all_tars_and_debs {
 function do_next_package_debs {
     local exit_status=0
     for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
+        # TODO: this way of learning is a package is installed is broken:
+        # replace with 'dpkg -s' with proper debian package names
         dpkg -l | grep "$pkg" > /dev/null
         result=${PIPESTATUS[1]}
         if [[ $result -ne 0 ]]; then
@@ -920,10 +922,10 @@ function do_uninstall_project_debs {
     for deb in $(find . -type f -name "*.deb" -print | cut -d'/' -f2)
     do
         if [[ -e "$deb" ]]; then
-            if [[ "$deb" = *dev.*deb ]]; then
+            if [[ "$deb" = *dev*.deb ]]; then
                 continue
             fi
-            if [[ "$deb" = *dbg.*deb ]]; then
+            if [[ "$deb" = *dbg*.deb ]]; then
                 continue
             fi
             local deb_name=$(echo "$deb" | cut -d'_' -f1)
