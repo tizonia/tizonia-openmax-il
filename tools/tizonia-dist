@@ -87,6 +87,13 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     wget \
     sqlite3 \
     dbus-x11 \
+    python-decorator \
+    python-protobuf \
+    python-validictory \
+    python-bs4 \
+    python-oauth2client \
+    python-dateutil \
+    python-mutagen \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
@@ -328,6 +335,8 @@ function do_deps {
             && git clone https://github.com/simon-weber/gmusicapi gmusicapi \
             && cd gmusicapi \
             && sudo python setup.py install
+    else
+        pretty_print "$GRN" "[gmusicapi] : installed."
     fi
 
     # Install libspotify
@@ -335,10 +344,12 @@ function do_deps {
     if [[ "$spotify" -eq 0 ]]; then
         cd "$TEMP_DIR" \
             && wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-$(uname -m).tgz \
-            && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz \
-            && cd libspotify-12.1.51-Linux-x86_64 \
+            && tar zxvf libspotify-12.1.51-Linux-$(uname -m).tgz \
+            && cd libspotify-12.1.51-Linux-$(uname -m) \
             && sudo make install prefix=/usr \
             && sudo ldconfig
+    else
+        pretty_print "$GRN" "[libspotify] : installed."
     fi
 }
 
