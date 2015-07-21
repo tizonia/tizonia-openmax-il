@@ -992,6 +992,7 @@ function do_publish_project_debs {
             pretty_print "$YEL" "[$pkg] : uploading $deb_name."
             curl -X PUT -T "$deb" -utizonia:"$TIZONIA_BINTRAY_API_KEY" \
                 "https://api.bintray.com/content/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION/pool/main/t/tizonia-$DISTRO_CODENAME/$deb;deb_distribution=$DISTRO_CODENAME;deb_component=main;deb_architecture=$arch"
+            echo
             pretty_print "$GRN" "[$pkg] : uploaded $deb_name."
         fi
     done
@@ -1025,9 +1026,11 @@ function do_publish_to_bintray {
     # Publish the repo
     pretty_print "$GRN" "Bintray: publishing the $DISTRO_ID repo"
     curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/content/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION/publish"
+    echo
     # Trigger metadata calculation
     pretty_print "$GRN" "Bintray: Triggering metadata calculation on $DISTRO_ID repo"
     curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/calc_metadata/tizonia/$DISTRO_ID/"
+    echo
     return "$exit_status"
 }
 
