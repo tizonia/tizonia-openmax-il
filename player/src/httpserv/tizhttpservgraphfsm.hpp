@@ -36,7 +36,7 @@
 #include <sys/time.h>
 
 #include <boost/msm/back/state_machine.hpp>
-#include <boost/msm/back/mpl_graph_fsm_check.hpp>
+//#include <boost/msm/back/mpl_graph_fsm_check.hpp>
 #include <boost/msm/back/state_machine.hpp>
 #include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/front/functor_row.hpp>
