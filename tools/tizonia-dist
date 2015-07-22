@@ -414,7 +414,7 @@ function log_on_error {
 ##################################################################
 function cd_to_dir {
     local pkg_dir="$1"
-    echo "package dir: $pkg_dir"
+    #echo "package dir: $pkg_dir"
     cd "$pkg_dir"
 }
 
@@ -513,7 +513,7 @@ function do_tar_file {
     local exit_status=1
     local err_msg='Unknown error'
 
-    print_banner "Creating distribution tar file for: $pkg" "$GRN"
+    print_banner "Creating distribution tar file for: $1 [$2]" "$GRN"
     cd_to_dir "$pkg_dir"
 
     hg purge . > /dev/null && rm -rf "$DEBIAN_DIR/$pkg" && mkdir -p "$DEBIAN_DIR/$pkg"
@@ -548,7 +548,7 @@ function do_c_package_debs {
     local exit_status=1
     local err_msg='Unknown error'
 
-    print_banner "Creating debian package for: $1" "$YEL"
+    print_banner "Creating debian package for: $1 [$2]" "$YEL"
     cd_to_dir "$pkg_dir"
     pkg_ver=$(ls *.gz | perl -pe 'if(($v)=/([0-9]+([.][0-9]+)+)/){print"$v\n";exit}$_=""')
 
@@ -588,7 +588,7 @@ function do_python_packate_debs {
     local exit_status=1
     local err_msg='Unknown error'
 
-    print_banner "Creating debian package for: $1" "$YEL"
+    print_banner "Creating debian package for: $1 [$2]" "$YEL"
     cd_to_dir "$pkg_dir"
     pkg_ver=$(ls *.gz | perl -pe 'if(($v)=/([0-9]+([.][0-9]+)+)/){print"$v\n";exit}$_=""')
 
@@ -626,7 +626,7 @@ function do_install_project_debs {
     # Uninstall them first, if installed
     do_uninstall_project_debs "$pkg" "$pkg_dir"
 
-    print_banner "Installing debs from package: $1" "$MAG"
+    print_banner "Installing debs from package: $1 [$2]" "$MAG"
     cd_to_dir "$pkg_dir"
 
     # Check first for tizonia-config, this sub-project is special as it does
