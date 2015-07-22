@@ -4,7 +4,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 export DEB_CFLAGS_MAINT_APPEND=-I/usr/include/tizonia
-export DEB_CPPFLAGS_MAINT_APPEND=-I/usr/include/tizonia
+export DEB_CXXFLAGS_MAINT_APPEND=-I/usr/include/tizonia
 
 %:
 	dh $@  --with autoreconf
