@@ -3,8 +3,10 @@
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
+# export DEB_BUILD_MAINT_OPTIONS=hardening=-all
 export DEB_CFLAGS_MAINT_APPEND=-I/usr/include/tizonia
-export DEB_CPPFLAGS_MAINT_APPEND=-I/usr/include/tizonia
+export DEB_CXXFLAGS_MAINT_SET=-I/usr/include/tizonia -O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security
+
 
 %:
 	dh $@  --with autoreconf
