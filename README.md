@@ -167,7 +167,7 @@ From the top of Tizonia's repo, type the following:
 ```bash
 
     $ autoreconf -ifs
-    $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
+    $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O2 -s -DNDEBUG"
     $ make
     $ make install
 
@@ -182,7 +182,7 @@ inside the repo, and type the following:
 
     $ cd tizonia
     $ autoreconf -ifs
-    $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O3 -DNDEBUG"
+    $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CXXFLAGS="-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security"
     $ make
     $ make install
 
@@ -260,7 +260,7 @@ Google Music options:
 
 #### Known issues ####
 
-`tizonia` makes heavy use the the the
+The `tizonia` player app makes heavy use the the the
 [Boost Meta State Machine (MSM)](http://www.boost.org/doc/libs/1_55_0/libs/msm/doc/HTML/index.html)
 library by Christophe Henry (MSM is in turn based on
 [Boost MPL](http://www.boost.org/doc/libs/1_56_0/libs/mpl/doc/index.html)).
@@ -268,7 +268,7 @@ library by Christophe Henry (MSM is in turn based on
 MSM is used to generate a number of state machines that control the tunneled
 OpenMAX IL components for the various playback uses cases. The state machines
 are quite large and MSM is known for not being easy on the compilers. Building
-`tizonia` requires a bit of patience and a whole lot of RAM (2.5+ GB).
+`tizonia` requires quite a bit of RAM (~2 GB).
 
 You may see GCC crashing like below; simply keep running `make -j1` or `make
 -j1 install` until the application is fully built (it will eventually, given
