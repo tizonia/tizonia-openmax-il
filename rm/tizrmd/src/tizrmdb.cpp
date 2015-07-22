@@ -81,8 +81,8 @@ tiz_rm_error_t tizrmdb::connect ()
     TIZ_LOG (TIZ_PRIORITY_TRACE, "Opening db [%s]", dbname_.c_str ());
     if (rc != SQLITE_OK)
     {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not open db [%s] (%s)",
-               dbname_.c_str (), sqlite3_errstr(rc));
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Could not open db [%s]",
+               dbname_.c_str ());
       ret_val = TIZ_RM_DATABASE_OPEN_ERROR;
     }
     else
