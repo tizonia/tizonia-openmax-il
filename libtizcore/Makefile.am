@@ -15,7 +15,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
+if ENABLE_TEST
 SUBDIRS= src test_component tests
+else
+SUBDIRS= src test_component
+endif
 
 ACLOCAL_AMFLAGS = -I m4
 

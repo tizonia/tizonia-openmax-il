@@ -105,6 +105,15 @@ AS_IF([test "x$tiz_found_rmd_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZRMD], [tizrmd >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZRMD cflags and libs])])
 
+#---------------------------------------------------------------------------
+# test suite
+#---------------------------------------------------------------------------
+AC_ARG_ENABLE(test,
+	AS_HELP_STRING([--enable-test],
+		[build the test programs (default: disabled)]),,
+	enable_test=no)
+
+AM_CONDITIONAL(ENABLE_TEST, test "x$enable_test" = xyes)
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stdlib.h string.h unistd.h])
