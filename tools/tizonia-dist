@@ -111,7 +111,7 @@ declare -ar TIZ_DEBIAN_PKGS=( \
     python-stdeb \
 )
 
-declare -Ar TIZ_PKG_DIRS=( \
+declare -Ar TIZ_PROJECT_DIRS=( \
     [tizilheaders]="include" \
     [tizgmusicproxy]="gmusic/gmusicproxy" \
     [tizgmusic]="gmusic/libtizgmusic" \
@@ -142,8 +142,8 @@ declare -Ar TIZ_PKG_DIRS=( \
     [tizonia-config]="config" \
 )
 
-readonly TIZ_PKGS=(${!TIZ_PKG_DIRS[@]})
-readonly TIZ_PKGS_ORDERED=( \
+readonly TIZ_PROJECTS=(${!TIZ_PROJECT_DIRS[@]})
+readonly TIZ_PROJECTS_ORDERED=( \
     tizilheaders \
     tizgmusicproxy \
     tizgmusic \
@@ -174,81 +174,113 @@ readonly TIZ_PKGS_ORDERED=( \
     tizonia-config \
 )
 
-readonly TIZ_PYTHON_PKGS=( \
+readonly TIZ_PYTHON_PROJECTS=( \
     tizgmusicproxy \
 )
 
 # &> /dev/null
-readonly TIZ_C_CPP_PKG_DIST_CMD="autoreconf -ifs &> /dev/null && ./configure && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
-readonly TIZ_PYTHON_PKG_DIST_CMD="python setup.py sdist && cp dist/*.tar.gz \"$DEBIAN_DIR\""
-readonly TIZ_BUILD_="dpkg-buildpackage -us -uc -rfakeroot"
+readonly TIZ_C_CPP_PROJECT_DIST_CMD="autoreconf -ifs &> /dev/null && ./configure && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
+readonly TIZ_C_CPP_PROJECT_DIST_PLAYER_CMD="autoreconf -ifs &> /dev/null && ./configure --with-boost-libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) && make dist && cp *.tar.gz \"$DEBIAN_DIR\""
+readonly TIZ_PYTHON_PROJECT_DIST_CMD="python setup.py sdist && cp dist/*.tar.gz \"$DEBIAN_DIR\""
 
-declare -Ar TIZ_PKG_DIST_CMD=( \
-    [tizilheaders]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizgmusicproxy]="$TIZ_PYTHON_PKG_DIST_CMD" \
-    [tizgmusic]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizplatform]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizrmd]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizrmproxy]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizcore]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizonia]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizaacdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizfr]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizfw]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizflacdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizhttprnd]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizhttpsrc]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizmp3dec]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizmp3enc]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizmp3meta]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizmpgdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizoggdmux]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizopusdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizopusfiledec]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizpcmdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizalsapcmrnd]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizpulsepcmrnd]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizspotifysrc]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizvorbisdec]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizonia-player]="$TIZ_C_CPP_PKG_DIST_CMD" \
-    [tizonia-config]="$TIZ_C_CPP_PKG_DIST_CMD" \
+declare -Ar TIZ_PROJECT_DIST_CMD=( \
+    [tizilheaders]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizgmusic]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizplatform]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizrmd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizrmproxy]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizcore]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizonia]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizaacdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizfr]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizfw]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizflacdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizhttprnd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizhttpsrc]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizmp3dec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizmp3enc]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizmp3meta]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizmpgdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizoggdmux]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizopusdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizopusfiledec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizpcmdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizalsapcmrnd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizpulsepcmrnd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizspotifysrc]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizvorbisdec]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizonia-player]="$TIZ_C_CPP_PROJECT_DIST_PLAYER_CMD" \
+    [tizonia-config]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
 )
 
-readonly TIZ_PKG_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
-readonly TIZ_PKG_DH_MAKE_C_CMD="dh_make -c lgpl3 -l --createorig --yes"
+readonly TIZ_PROJECT_DH_MAKE_I_CMD="dh_make -i --createorig --yes"
+readonly TIZ_PROJECT_DH_MAKE_C_CMD="dh_make -c lgpl3 -l --createorig --yes"
+
+declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
+    [tizilheaders]="$TIZ_PROJECT_DH_MAKE_I_CMD" \
+    [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizgmusic]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizplatform]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizrmd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizrmproxy]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizcore]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizonia]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizaacdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizfr]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizfw]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizflacdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizhttprnd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizhttpsrc]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizmp3dec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizmp3enc]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizmp3meta]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizmpgdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizoggdmux]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizopusdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizopusfiledec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizpcmdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizalsapcmrnd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizpulsepcmrnd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizspotifysrc]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizvorbisdec]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizonia-player]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizonia-config]="$TIZ_PROJECT_DH_MAKE_I_CMD" \
+)
+
+declare -Ar TIZ_PROJECT_MAIN_PKG=( \
+    [tizilheaders]="tizilheaders" \
+    [tizgmusicproxy]="python-tizgmusicproxy" \
+    [tizgmusic]="libtizgmusic0" \
+    [tizplatform]="libtizplatform0" \
+    [tizrmd]="tizrmd" \
+    [tizrmproxy]="libtizrmproxy0" \
+    [tizcore]="libtizcore0" \
+    [tizonia]="libtizonia0" \
+    [tizaacdec]="libtizaacdec0" \
+    [tizfr]="libtizfr0" \
+    [tizfw]="libtizfw0" \
+    [tizflacdec]="libtizflacdec0" \
+    [tizhttprnd]="libtizhttprnd0" \
+    [tizhttpsrc]="libtizhttpsrc0" \
+    [tizmp3dec]="libtizmp3dec0" \
+    [tizmp3enc]="libtizmp3enc0" \
+    [tizmp3meta]="libtizmp3meta0" \
+    [tizmpgdec]="libtizmpgdec0" \
+    [tizoggdmux]="libtizoggdmux0" \
+    [tizopusdec]="libtizopusdec0" \
+    [tizopusfiledec]="libtizopusfiledec0" \
+    [tizpcmdec]="libtizpcmdec0" \
+    [tizalsapcmrnd]="libtizalsapcmrnd0" \
+    [tizpulsepcmrnd]="libtizpulsepcmrnd0" \
+    [tizspotifysrc]="libtizspotifysrc0" \
+    [tizvorbisdec]="libtizvorbisdec0" \
+    [tizonia-player]="tizonia-player" \
+    [tizonia-config]="tizonia-all" \
+)
+
 readonly TIZ_DPKG_BUILD_UNSIGNED_CMD="dpkg-buildpackage -us -uc -rfakeroot"
 readonly TIZ_DPKG_BUILD_SIGNED_CMD="dpkg-buildpackage --force-sign -rfakeroot"
-
-declare -Ar TIZ_PKG_DH_MAKE_CMD=( \
-    [tizilheaders]="$TIZ_PKG_DH_MAKE_I_CMD" \
-    [tizgmusicproxy]="$TIZ_PYTHON_PKG_DIST_CMD" \
-    [tizgmusic]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizplatform]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizrmd]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizrmproxy]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizcore]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizonia]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizaacdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizfr]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizfw]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizflacdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizhttprnd]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizhttpsrc]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizmp3dec]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizmp3enc]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizmp3meta]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizmpgdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizoggdmux]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizopusdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizopusfiledec]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizpcmdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizalsapcmrnd]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizpulsepcmrnd]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizspotifysrc]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizvorbisdec]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizonia-player]="$TIZ_PKG_DH_MAKE_C_CMD" \
-    [tizonia-config]="$TIZ_PKG_DH_MAKE_I_CMD" \
-)
 
 ##################################################################
 # Usage details
@@ -500,7 +532,7 @@ function print_banner {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -519,7 +551,7 @@ function do_tar_file {
     exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
         err_msg="[$pkg] : Error creating the tar file."
-        eval "${TIZ_PKG_DIST_CMD[$pkg]}" \
+        eval "${TIZ_PROJECT_DIST_CMD[$pkg]}" \
             && mv "$DEBIAN_DIR"/*.gz "$DEBIAN_DIR/$pkg"
         exit_status=$?
     fi
@@ -534,7 +566,7 @@ function do_tar_file {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -555,7 +587,7 @@ function do_c_package_debs {
     exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
         err_msg="[$pkg] : Error while running dh_make."
-        eval "${TIZ_PKG_DH_MAKE_CMD[$pkg]}"
+        eval "${TIZ_PROJECT_DH_MAKE_CMD[$pkg]}"
         exit_status=0
     fi
 
@@ -574,7 +606,7 @@ function do_c_package_debs {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -610,7 +642,7 @@ function do_python_packate_debs {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -720,7 +752,7 @@ function do_install_project_debs {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -728,8 +760,8 @@ function do_install_project_debs {
 ##################################################################
 function do_all_tars {
     local exit_status=0
-    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
-        local pkg_dir="$TIZONIA_DIR/${TIZ_PKG_DIRS[$pkg]}"
+    for pkg in "${TIZ_PROJECTS_ORDERED[@]}"; do
+        local pkg_dir="$TIZONIA_DIR/${TIZ_PROJECT_DIRS[$pkg]}"
         do_tar_file "$pkg" "$pkg_dir"
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
@@ -745,7 +777,7 @@ function do_all_tars {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -753,10 +785,10 @@ function do_all_tars {
 ##################################################################
 function do_all_debs {
     local exit_status=0
-    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
+    for pkg in "${TIZ_PROJECTS_ORDERED[@]}"; do
         local pkg_deb_dir="$DEBIAN_DIR/$pkg"
 
-        exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
+        exists_in_array "$pkg" "${TIZ_PYTHON_PROJECTS[@]}"
         if [[ $? -eq 0 ]]; then
             do_python_packate_debs "$pkg" "$pkg_deb_dir"
             exit_status=$?
@@ -784,7 +816,7 @@ function do_all_debs {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -833,7 +865,7 @@ function do_all_tars_and_debs {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -841,14 +873,12 @@ function do_all_tars_and_debs {
 ##################################################################
 function do_next_package_debs {
     local exit_status=0
-    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
-        # TODO: this way of learning is a package is installed is broken:
-        # replace with 'dpkg -s' with proper debian package names
-        dpkg -l | grep "$pkg" > /dev/null
-        result=${PIPESTATUS[1]}
+    for pkg in "${TIZ_PROJECTS_ORDERED[@]}"; do
+        dpkg -s "${TIZ_PROJECT_MAIN_PKG[$pkg]}"
+        result=$?
         if [[ $result -ne 0 ]]; then
 
-            local pkg_dir="$TIZONIA_DIR/${TIZ_PKG_DIRS[$pkg]}"
+            local pkg_dir="$TIZONIA_DIR/${TIZ_PROJECT_DIRS[$pkg]}"
             do_tar_file "$pkg" "$pkg_dir"
             exit_status=$?
             if [[ "$exit_status" -ne 0 ]] ; then
@@ -856,7 +886,7 @@ function do_next_package_debs {
             fi
 
             local pkg_deb_dir="$DEBIAN_DIR/$pkg"
-            exists_in_array "$pkg" "${TIZ_PYTHON_PKGS[@]}"
+            exists_in_array "$pkg" "${TIZ_PYTHON_PROJECTS[@]}"
             if [[ $? -eq 0 ]]; then
                 do_python_packate_debs "$pkg" "$pkg_deb_dir"
                 exit_status=$?
@@ -955,7 +985,7 @@ function do_uninstall_project_debs {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -963,8 +993,8 @@ function do_uninstall_project_debs {
 ##################################################################
 function do_uninstall_all_debs {
     local exit_status=0
-    for ((i=${#TIZ_PKGS_ORDERED[@]}-1; i>=0; i--)); do
-        local pkg="${TIZ_PKGS_ORDERED[$i]}"
+    for ((i=${#TIZ_PROJECTS_ORDERED[@]}-1; i>=0; i--)); do
+        local pkg="${TIZ_PROJECTS_ORDERED[$i]}"
         local pkg_dir="$DEBIAN_DIR/$pkg"
         if [[ -d "$pkg_dir" ]]; then
             do_uninstall_project_debs "$pkg" "$pkg_dir"
@@ -979,7 +1009,7 @@ function do_uninstall_all_debs {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -1017,7 +1047,7 @@ function do_publish_project_debs {
 #
 # Globals
 #   DEBIAN_DIR
-#   TIZ_PKG_DIST_CMD
+#   TIZ_PROJECT_DIST_CMD
 # Arguments:
 #   None
 # Returns:
@@ -1025,7 +1055,7 @@ function do_publish_project_debs {
 ##################################################################
 function do_publish_to_bintray {
     local exit_status=0
-    for pkg in "${TIZ_PKGS_ORDERED[@]}"; do
+    for pkg in "${TIZ_PROJECTS_ORDERED[@]}"; do
         local pkg_deb_dir="$DEBIAN_DIR/$pkg"
         if [[ -d "$pkg_deb_dir" ]]; then
             do_publish_project_debs "$pkg" "$pkg_deb_dir"
