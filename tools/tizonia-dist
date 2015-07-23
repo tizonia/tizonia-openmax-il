@@ -82,11 +82,6 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libflac-dev \
     liboggz2-dev \
     libsndfile1-dev \
-    curl \
-    check \
-    wget \
-    sqlite3 \
-    dbus-x11 \
     python-decorator \
     python-protobuf \
     python-validictory \
@@ -95,6 +90,12 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     python-dateutil \
     python-mutagen \
     python-crypto \
+    curl \
+    check \
+    wget \
+    sqlite3 \
+    dbus-x11 \
+    mercurial \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
