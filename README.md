@@ -166,25 +166,25 @@ From the top of Tizonia's repo, type the following:
 
 ```bash
 
-    $ autoreconf -ifs
-    $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O2 -s -DNDEBUG"
-    $ make
-    $ make install
+    $ autoreconf -ifs \
+        && ./configure --enable-silent-rules --prefix=$INSTALL_DIR CFLAGS="-O2 -s -DNDEBUG" \
+        && make \
+        && make install
 
 ```
 
 ### Building 'tizonia', the music player and streaming client/server ###
 
 After completing the steps above, change directory to the 'player' sub-folder
-inside the repo, and type the following:
+inside the repo and build the application using the following commands:
 
 ```bash
 
-    $ cd tizonia
-    $ autoreconf -ifs
-    $ ./configure --enable-silent-rules --prefix=$INSTALL_DIR CXXFLAGS="-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security"
-    $ make
-    $ make install
+    $ cd player
+    $ autoreconf -ifs \
+        &&./configure --enable-silent-rules --prefix=$INSTALL_DIR CXXFLAGS="-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security" \
+        && make \
+        && make install
 
 ```
 
@@ -195,7 +195,7 @@ following locations:
 
 ```bash
 
-    $ cp config/tizonia.conf ~/.tizonia.conf
+    $ cp config/src/tizonia.conf ~/.tizonia.conf
     $ mkdir -p ~/.local/share/dbus-1/services
     $ cp rm/tizrmd/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
 
