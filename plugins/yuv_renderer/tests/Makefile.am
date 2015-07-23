@@ -22,14 +22,14 @@ check_PROGRAMS = check_yuv_renderer
 check_yuv_renderer_SOURCES = check_yuv_renderer.c
 
 check_yuv_renderer_CFLAGS = \
-	-I$(top_srcdir)/../../include/omxil-1.2 \
-	-I$(top_srcdir)/../../libtizplatform/src \
-	-I$(top_srcdir)/../../libtizonia/src/ \
+	@TIZILHEADERS_CFLAGS@ \
+	@TIZPLATFORM_CFLAGS@ \
+	@TIZONIA_CFLAGS@ \
 	@CHECK_CFLAGS@
 
 check_yuv_renderer_LDADD = \
-	$(top_builddir)/../../libtizplatform/src/libtizplatform.la \
-	$(top_builddir)/../../libtizcore/src/libtizcore.la \
-	$(top_builddir)/../../libtizonia/src/libtizonia.la \
+	@TIZPLATFORM_LIBS@ \
+	@TIZONIA_LIBS@ \
+	@TIZCORE_LIBS@ \
 	@CHECK_LIBS@
 
