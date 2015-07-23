@@ -323,18 +323,15 @@ function do_deps {
     python -c "import gmusicapi"
     if [[ "$?" -ne 0 ]]; then
         local GMUSICAPI_DIR=gmusicapi
-        if [[ -d "$TEMP_DIR"/gmusicapi ]]; then
-            sudo rm -rf "$TEMP_DIR"/gmusicapi
+        if [[ ! -d "$TEMP_DIR"/gmusicapi ]]; then
+            #echo "Installing pip and an older version of the gmusicapi python module..."
+            #     wget https://bootstrap.pypa.io/get-pip.py \
+            #         && sudo python get-pip.py \
+            #         && sudo pip install gmusicapi --upgrade
+            cd "$TEMP_DIR" \
+                && git clone https://github.com/simon-weber/gmusicapi gmusicapi
         fi
-
-        #echo "Installing pip and an older version of the gmusicapi python module..."
-        #     wget https://bootstrap.pypa.io/get-pip.py \
-        #         && sudo python get-pip.py \
-        #         && sudo pip install gmusicapi --upgrade
-
-        cd "$TEMP_DIR" \
-            && git clone https://github.com/simon-weber/gmusicapi gmusicapi \
-            && cd gmusicapi \
+        cd gmusicapi \
             && sudo python setup.py install
     else
         pretty_print "$GRN" "[gmusicapi] : installed."
