@@ -331,7 +331,7 @@ function do_deps {
             cd "$TEMP_DIR" \
                 && git clone https://github.com/simon-weber/gmusicapi gmusicapi
         fi
-        cd gmusicapi \
+        cd "$TEMP_DIR"/gmusicapi \
             && sudo python setup.py install
     else
         pretty_print "$GRN" "[gmusicapi] : installed."
