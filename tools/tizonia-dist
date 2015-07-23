@@ -94,6 +94,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     python-oauth2client \
     python-dateutil \
     python-mutagen \
+    python-crypto \
 )
 
 declare -ar TIZ_DEBIAN_PKGS=( \
@@ -340,7 +341,7 @@ function do_deps {
     fi
 
     # Install libspotify
-    local spotify=$(ldconfig -p | grep -c libspotify)
+    local spotify=$(sudo ldconfig -p | grep -c libspotify)
     if [[ "$spotify" -eq 0 ]]; then
         cd "$TEMP_DIR" \
             && wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-$(uname -m).tgz \
@@ -1116,9 +1117,22 @@ function main {
 
     # Verify that this script is being run on a supported distro
     obtain_distro_id_and_codename
-    exists_in_array "$DISTRO_CODENAME" "${TIZ_SUPPORTED_DISTROS[@]}"
-    if [[ $? -ne 0 ]]; then
-        local err_msg="Unfortunately, this script does not support your distribution: $DISTRO_CODENAME"
+    if [[ "$DISTRO_ID" == "ubuntu" ]]; then
+        exists_in_array "$DISTRO_CODENAME" "${TIZ_SUPPORTED_DISTROS[@]}"
+        if [[ $? -ne 0 ]]; then
+            local err_msg="Unfortunately, this script does not support your version of Ubuntu: $DISTRO_CODENAME"
+            exit_status=1
+            log_on_error "$exit_status" "$err_msg"
+        fi
+    elif [[ "$DISTRO_ID" == "raspbian" ]]; then
+        local version_id=$(cat /etc/*-release | grep -E '^VERSION_ID=' | cut -d'=' -f2)
+        if [[ "$version_id" != "\"8\"" ]]; then
+            local err_msg="Unfortunately, this script does not support your version of Raspbian: $version_id"
+            exit_status=1
+            log_on_error "$exit_status" "$err_msg"
+        fi
+    else
+        local err_msg="Unfortunately, this script does not support your distribution"
         exit_status=1
         log_on_error "$exit_status" "$err_msg"
     fi
