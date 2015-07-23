@@ -82,6 +82,16 @@ AS_IF([test "x$tizrmd_found_omx_headers" == "xyes"],
 
 AM_PATH_LOG4C([1.2.1])
 
+#---------------------------------------------------------------------------
+# test suite
+#---------------------------------------------------------------------------
+AC_ARG_ENABLE(test,
+	AS_HELP_STRING([--enable-test],
+		[build the test programs (default: disabled)]),,
+	enable_test=no)
+
+AM_CONDITIONAL(ENABLE_TEST, test "x$enable_test" = xyes)
+
 # Checks for header files.
 AC_FUNC_ALLOCA
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h malloc.h stddef.h stdint.h stdlib.h string.h strings.h sys/socket.h sys/time.h unistd.h])
