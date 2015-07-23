@@ -278,7 +278,7 @@ function copy_config_files {
     local exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
         echo "Preparing the $HOME/.tizrc config file..."
-        cp "$WORKING_DIR/config/tizonia.conf" "$HOME/.tizonia.conf"
+        cp "$WORKING_DIR/config/src/tizonia.conf" "$HOME/.tizonia.conf"
         exit_status=$?
     fi
 
