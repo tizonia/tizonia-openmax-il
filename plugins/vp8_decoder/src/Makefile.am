@@ -37,8 +37,4 @@ libtizvp8d_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
 libtizvp8d_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \
-	@FISHSOUND_LIBS@ \
 	-lvpx
-
-
-
