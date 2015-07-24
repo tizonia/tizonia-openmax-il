@@ -305,13 +305,36 @@ function usage {
 
     echo
     pretty_print "$GRN" "Usage : $(basename $0) [-a] [-n] [-d] [-r] [-s]"
-    pretty_print "$GRN" "       -a            : Make and install all debian packages."
     pretty_print "$GRN" "       -n            : Make and install all debian packages, starting from the first one not yet installed."
     pretty_print "$GRN" "       -d            : Install both Tizonia's and Debian's dependencies."
     pretty_print "$GRN" "       -p            : Publish to Bintray (requires Tizonia's Bintray API_KEY and Juan's GPG passphrase)."
     pretty_print "$GRN" "       -r            : Uninstall (purge) all currently installed packages."
     pretty_print "$GRN" "       -s            : (optional) Sign the .changes and .dsc files. DEB_SIGN_KEYID environment variable must be set."
 } >&2
+
+##################################################################
+# Function to print various platform details
+#
+# Globals
+#   DEBIAN_DIR
+#   TIZ_PROJECT_DIST_CMD
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function print_platform_info {
+    local exit_status=0
+
+    # Print platform info
+    pretty_print "$BLU" "hostname = $(hostname)"
+    pretty_print "$BLU" "OS rel   = $(cat /etc/os-release | grep PRETTY | cut -d'=' -f2 | cut -d\" -f2)"
+    pretty_print "$BLU" "uname -m = $(uname -m)"
+    pretty_print "$BLU" "uname -r = $(uname -r)"
+    pretty_print "$BLU" "uname -s = $(uname -s)"
+    pretty_print "$BLU" "uname -v = $(uname -v)"
+    return "$exit_status"
+}
 
 function obtain_distro_id_and_codename {
     DISTRO_ID=$(cat /etc/*-release | grep -E '^ID=' | cut -d'=' -f2)
@@ -749,118 +772,6 @@ function do_install_project_debs {
 }
 
 ##################################################################
-# Function to create tar archives of all sub-projects.
-#
-# Globals
-#   DEBIAN_DIR
-#   TIZ_PROJECT_DIST_CMD
-# Arguments:
-#   None
-# Returns:
-#   None
-##################################################################
-function do_all_tars {
-    local exit_status=0
-    for pkg in "${TIZ_PROJECTS_ORDERED[@]}"; do
-        local pkg_dir="$TIZONIA_DIR/${TIZ_PROJECT_DIRS[$pkg]}"
-        do_tar_file "$pkg" "$pkg_dir"
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            break
-        fi
-    done
-    return "$exit_status"
-}
-
-##################################################################
-# Function to create deb packages of all sub-projects.
-# Debs are also installed.
-#
-# Globals
-#   DEBIAN_DIR
-#   TIZ_PROJECT_DIST_CMD
-# Arguments:
-#   None
-# Returns:
-#   None
-##################################################################
-function do_all_debs {
-    local exit_status=0
-    for pkg in "${TIZ_PROJECTS_ORDERED[@]}"; do
-        local pkg_deb_dir="$DEBIAN_DIR/$pkg"
-
-        exists_in_array "$pkg" "${TIZ_PYTHON_PROJECTS[@]}"
-        if [[ $? -eq 0 ]]; then
-            do_python_packate_debs "$pkg" "$pkg_deb_dir"
-            exit_status=$?
-        else
-            do_c_package_debs "$pkg" "$pkg_deb_dir"
-            exit_status=$?
-        fi
-
-        if [[ "$exit_status" -ne 0 ]] ; then
-            break
-        fi
-
-        do_install_project_debs "$pkg" "$pkg_deb_dir"
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            break
-        fi
-    done
-    return "$exit_status"
-}
-
-##################################################################
-# Function to create tar archives and deb packages of all
-# sub-projects.Debs are also installed.
-#
-# Globals
-#   DEBIAN_DIR
-#   TIZ_PROJECT_DIST_CMD
-# Arguments:
-#   None
-# Returns:
-#   None
-##################################################################
-function do_all_tars_and_debs {
-    local exit_status=0
-
-    # Print platform info
-    pretty_print "$BLU" "hostname = $(hostname)"
-    pretty_print "$BLU" "OS rel   = $(cat /etc/os-release | grep PRETTY | cut -d'=' -f2 | cut -d\" -f2)"
-    pretty_print "$BLU" "uname -m = $(uname -m)"
-    pretty_print "$BLU" "uname -r = $(uname -r)"
-    pretty_print "$BLU" "uname -s = $(uname -s)"
-    pretty_print "$BLU" "uname -v = $(uname -v)"
-
-    # Create directories
-    if [[ -d "$DEBIAN_DIR" ]]; then
-        echo "Deleting an old debian directory: $DEBIAN_DIR"
-        rm -rf "$DEBIAN_DIR"
-    fi
-
-    if [[ ! -d "$DEBIAN_DIR" ]]; then
-        echo "Creating the debian directory: $DEBIAN_DIR"
-        mkdir -p "$DEBIAN_DIR"
-    fi
-
-    if [[ ! -d "$TEMP_DIR" ]]; then
-        echo "Creating the temp directory: $TEMP_DIR"
-        mkdir -p "$TEMP_DIR"
-    fi
-
-    do_all_tars
-    exit_status=$?
-
-    if [[ "$exit_status" -eq 0 ]] ; then
-        do_all_debs
-        exit_status=$?
-    fi
-    return "$exit_status"
-}
-
-##################################################################
 # Function to create the deb package for the next project in the
 # list
 #
@@ -1088,7 +999,6 @@ function do_publish_to_bintray {
 ##################################################################
 function main {
     local exit_status=0
-    local makeall=0
     local makenext=0
     local deps=0
     local removeall=0
@@ -1096,13 +1006,10 @@ function main {
     local signdebs=0
 
     local progname=$(basename $0)
-    CMDLINE=$(getopt -o "adnprs" --long "makeall,deps,makenext,publish,removeall,signdebs" -n "$progname" -- "$@")
+    CMDLINE=$(getopt -o "dnprs" --long "deps,makenext,publish,removeall,signdebs" -n "$progname" -- "$@")
     eval set -- "$CMDLINE"
     while true; do
         case "$1" in
-            -a|--makeall)
-                makeall=1; shift
-                ;;
             -n|--makenext)
                 makenext=1; shift
                 ;;
@@ -1125,11 +1032,13 @@ function main {
         esac
     done
 
-    local total=$(( $makeall + $makenext + $deps + $removeall + $publish ))
+    local total=$(( $makenext + $deps + $removeall + $publish ))
     if [[ "$total" != 1 ]]; then
         usage
         exit "$E_BADARGS"
     fi
+
+    print_platform_info
 
     # Verify the existence of important environment variables
     : ${DEBFULLNAME:?"Need to set DEBFULLNAME"}
@@ -1176,13 +1085,6 @@ function main {
         local err_msg="Please remove $HOME/.tizonia.conf before proceeding"
         exit_status=1
         log_on_error "$exit_status" "$err_msg"
-    fi
-
-    if [[ "$exit_status" -eq 0 ]] ; then
-        if [[ "$makeall" == 1 ]]; then
-            do_all_tars_and_debs
-            exit_status=$?
-        fi
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
