@@ -47,6 +47,7 @@ readonly WHI=7
 
 readonly TIZ_SUPPORTED_DISTROS=( \
     trusty \
+    jessie \
 )
 
 declare -ar TIZ_TIZONIA_DEPS=( \
@@ -1145,22 +1146,20 @@ function main {
 
     # Verify that this script is being run on a supported distro
     obtain_distro_id_and_codename
-    if [[ "$DISTRO_ID" == "ubuntu" ]]; then
-        exists_in_array "$DISTRO_CODENAME" "${TIZ_SUPPORTED_DISTROS[@]}"
-        if [[ $? -ne 0 ]]; then
-            local err_msg="Unfortunately, this script does not support your version of Ubuntu: $DISTRO_CODENAME"
-            exit_status=1
-            log_on_error "$exit_status" "$err_msg"
-        fi
-    elif [[ "$DISTRO_ID" == "raspbian" ]]; then
+    if [[ "$DISTRO_ID" == "raspbian" ]]; then
         local version_id=$(cat /etc/*-release | grep -E '^VERSION_ID=' | cut -d'=' -f2)
-        if [[ "$version_id" != "\"8\"" ]]; then
-            local err_msg="Unfortunately, this script does not support your version of Raspbian: $version_id"
-            exit_status=1
-            log_on_error "$exit_status" "$err_msg"
+        if [[ "$version_id" == "\"8\"" ]]; then
+            DISTRO_CODENAME="jessie"
+        elif [[ "$version_id" == "\"7\"" ]]; then
+            DISTRO_CODENAME="wheezy"
+        else
+            DISTRO_CODENAME="other debian"
         fi
-    else
-        local err_msg="Unfortunately, this script does not support your distribution"
+    fi
+
+    exists_in_array "$DISTRO_CODENAME" "${TIZ_SUPPORTED_DISTROS[@]}"
+    if [[ $? -ne 0 ]]; then
+        local err_msg="Unfortunately, this script does not support your distro: $DISTRO_ID/$DISTRO_CODENAME"
         exit_status=1
         log_on_error "$exit_status" "$err_msg"
     fi
