@@ -74,7 +74,7 @@ static const int g_num_list_value_keys = 1;
 
 static file_info_t g_rcfiles[] = {
   { "$SYSCONFDIR/tizonia.conf" },
-  { "$HOME/.tizonia.conf" },
+  { "$HOME/.config/tizonia/tizonia.conf" },
   { "$TIZONIA_RC_FILE/tizonia.conf" }
 };
 
@@ -533,7 +533,7 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "HOME [%s] ...", p_env_str);
       snprintf (g_rcfiles[1].name, sizeof(g_rcfiles[1].name) - 1,
-                "%s/.tizonia.conf", p_env_str ? p_env_str : "");
+                "%s/.config/tizonia/tizonia.conf", p_env_str ? p_env_str : "");
     }
 
   if ((p_env_str = getenv ("TIZONIA_RC_FILE")))

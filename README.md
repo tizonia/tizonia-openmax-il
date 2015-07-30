@@ -188,16 +188,25 @@ inside the repo and build the application using the following commands:
 
 ```
 
-### Tizonia config and the D-BUS service activation files ###
+### Tizonia configuration file ###
 
-Place *tizonia.conf* and the Resource Manager's D-BUS activation file to the
-following locations:
+Copy *tizonia.conf* to the following location:
 
 ```bash
 
-    $ cp config/src/tizonia.conf ~/.tizonia.conf
-    $ mkdir -p ~/.local/share/dbus-1/services
-    $ cp rm/tizrmd/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
+    $ mkdir -p $HOME/.config/tizonia \
+        && cp config/src/tizonia.conf $HOME/.config/tizonia
+
+```
+
+### Resource Manager's D-BUS service activation file (optional) ###
+
+Copy the Resource Manager's D-BUS activation file like this:
+
+```bash
+
+    $ mkdir -p ~/.local/share/dbus-1/services \
+        && cp rm/tizrmd/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
 
 ```
 

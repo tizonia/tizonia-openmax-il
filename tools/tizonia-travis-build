@@ -278,14 +278,15 @@ function copy_config_files {
     local exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
         echo "Preparing the $HOME/.tizrc config file..."
-        cp "$WORKING_DIR/config/src/tizonia.conf" "$HOME/.tizonia.conf"
+        mkdir -p "$HOME/.config/tizonia" \
+            && cp "$WORKING_DIR/config/src/tizonia.conf" "$HOME/.config/tizonia/tizonia.conf"
         exit_status=$?
     fi
 
-    # Modify tizonia config to make the ALSA renderers use the null pcm
+    # Modify tizonia config to make the ALSA renderer use the null pcm
     if [[ "$exit_status" -eq 0 ]] ; then
         echo "Preparing the $HOME/.tizrc config file..."
-        perl -pi -e 's/\bdefault\b/null/' "$HOME/.tizonia.conf"
+        perl -pi -e 's/\bdefault\b/null/' "$HOME/.config/tizonia/tizonia.conf"
         exit_status=$?
     fi
     return "$exit_status"
