@@ -97,6 +97,17 @@ char **tiz_rcfile_get_value_list (const char *section, const char *key,
 int tiz_rcfile_compare_value (const char *section, const char *key,
                               const char *value);
 
+/**
+ * Returns 0 if the status of the configuration file is such that a tizonia
+ * configuration file has been found at one of the expected locations and the
+ * file can be opened and read by the current user.
+ *
+ * @ingroup rcfile
+ *
+ * @return On success, zero is returned. On error, -1 is returned.
+ */
+int tiz_rcfile_status (void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -317,8 +317,9 @@ int tiz::programopts::consume ()
     {
       error_msg.assign ("Invalid combination of program options.");
     }
+    print_version ();
+    print_license ();
     TIZ_PRINTF_RED ("%s\n\n", error_msg.c_str ());
-    print_usage ();
   }
 
   return rc;

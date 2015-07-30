@@ -52,6 +52,7 @@ namespace tiz
     int consume ();
 
     void print_version () const;
+    void print_license () const;
     void print_usage () const;
     void print_usage_extended () const;
 
@@ -84,7 +85,6 @@ namespace tiz
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type ();
 
   private:
-    void print_license () const;
     void print_examples () const;
 
     void init_general_options ();

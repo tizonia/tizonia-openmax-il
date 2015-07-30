@@ -515,6 +515,7 @@ static int stat_ctime (const char *path, time_t *time)
 OMX_ERRORTYPE
 tiz_rcfile_init (tiz_rcfile_t **pp_rc)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   int i;
   tiz_rcfile_t *p_rc = NULL;
   char *p_env_str = NULL;
@@ -549,7 +550,7 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
       return OMX_ErrorInsufficientResources;
     }
 
-  for (i = 0; i < g_num_rcfiles; i++)
+  for (i = (g_num_rcfiles - 1); i >= 0; --i)
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Checking for rc file [%d] at [%s]",
                i, g_rcfiles[i].name);
@@ -568,20 +569,22 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE, "stat_ctime for [%s] failed",
                    g_rcfiles[i].name);
+          continue;
         }
-
-      g_rcfiles[i].exists = 1;
 
       if (0 != load_rc_file (&g_rcfiles[i], p_rc))
         {
           TIZ_LOG (TIZ_PRIORITY_TRACE, "Loading [%s] rc file failed",
                    g_rcfiles[i].name);
+          continue;
         }
-      else
-        {
-          TIZ_LOG (TIZ_PRIORITY_TRACE, "Loading [%s] rc file succeeded",
+
+      TIZ_LOG (TIZ_PRIORITY_DEBUG, "Loading [%s] rc file succeeded",
                    g_rcfiles[i].name);
-        }
+      g_rcfiles[i].exists = 1;
+
+      /* We only need to load one file */
+      break;
     }
 
   if (p_rc->count)
@@ -591,9 +594,10 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
   else
     {
       *pp_rc = NULL;
+      rc = OMX_ErrorInsufficientResources;
     }
 
-  return OMX_ErrorNone;
+  return rc;
 }
 
 const char *tiz_rcfile_get_value (const char *ap_section, const char *ap_key)
@@ -678,7 +682,7 @@ void tiz_rcfile_destroy (tiz_rcfile_t *p_rc)
   keyval_t *p_kvt = NULL;
   value_t *p_val_lst = NULL;
 
-  if (NULL == p_rc)
+  if (!p_rc)
     {
       return;
     }
@@ -716,4 +720,18 @@ int tiz_rcfile_compare_value (const char *section, const char *key,
       rc = (0 == strncmp (p_value, value, PATH_MAX) ? 0 : 1);
     }
   return rc;
+}
+
+int tiz_rcfile_status (void)
+{
+  int status = -1;
+  tiz_rcfile_t *p_rc = NULL;
+  if (OMX_ErrorNone == tiz_rcfile_init (&p_rc))
+    {
+      status = 0;
+      tiz_rcfile_destroy (p_rc);
+    }
+
+  TIZ_LOG (TIZ_PRIORITY_DEBUG, "status [%d]", status);
+  return status;
 }
