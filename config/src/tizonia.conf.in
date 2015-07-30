@@ -159,7 +159,7 @@ rmdb.dbdump_script = @bindir@/tiz_rm_dumpdb.sh
 
 [tizonia]
 
-default-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
+default-audio-renderer = OMX.Aratelia.audio_renderer.alsa.pcm
 
 ###########
 # Spotify #
