@@ -33,6 +33,7 @@
 #endif
 
 #include <assert.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -703,4 +704,16 @@ void tiz_rcfile_destroy (tiz_rcfile_t *p_rc)
     }
 
   tiz_mem_free (p_rc);
+}
+
+int tiz_rcfile_compare_value (const char *section, const char *key,
+                              const char *value)
+{
+  int rc = -1;
+  const char *p_value = tiz_rcfile_get_value(section, key);
+  if (p_value)
+    {
+      rc = (0 == strncmp (p_value, value, PATH_MAX) ? 0 : 1);
+    }
+  return rc;
 }

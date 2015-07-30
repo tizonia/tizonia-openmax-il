@@ -118,6 +118,7 @@ struct tiz_krn
   bool eos_;
   tiz_rm_t rm_;
   tiz_rm_proxy_callbacks_t rm_cbacks_;
+  bool rm_inited_;
   OMX_PORT_PARAM_TYPE audio_init_;
   OMX_PORT_PARAM_TYPE image_init_;
   OMX_PORT_PARAM_TYPE video_init_;

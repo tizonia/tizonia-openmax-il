@@ -118,6 +118,7 @@ static OMX_ERRORTYPE init_ports_and_lists (void *ap_obj)
   p_obj->rm_cbacks_.pf_waitend = &wait_complete;
   p_obj->rm_cbacks_.pf_preempt = &preemption_req;
   p_obj->rm_cbacks_.pf_preempt_end = &preemption_complete;
+  p_obj->rm_inited_ = false;
   p_obj->audio_init_ = null_param;
   p_obj->image_init_ = null_param;
   p_obj->video_init_ = null_param;

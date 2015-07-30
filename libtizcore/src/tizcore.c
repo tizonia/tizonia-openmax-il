@@ -228,6 +228,7 @@ struct tizcore
   tizcore_registry_t p_registry;
   tiz_rm_t rm;
   tiz_rm_proxy_callbacks_t rmcbacks;
+  bool rm_inited;
   OMX_UUIDTYPE uuid;
 };
 
@@ -255,6 +256,64 @@ preemption_complete (OMX_U32 rid, OMX_PTR ap_data)
 {
   (void) ap_data;
   TIZ_LOG (TIZ_PRIORITY_TRACE, "preemption_complete : rid [%u]", rid);
+}
+
+static OMX_ERRORTYPE init_rm (tizcore_t *ap_core)
+{
+  OMX_ERRORTYPE omx_rc = OMX_ErrorNone;
+
+  assert (ap_core);
+
+  if (!ap_core->rm_inited
+      && (0 == tiz_rcfile_compare_value ("resource-management", "enabled", "true")))
+    {
+      tiz_rm_error_t rm_rc = TIZ_RM_SUCCESS;
+      OMX_PRIORITYMGMTTYPE primgmt;
+
+      ap_core->rmcbacks.pf_waitend = &wait_complete;
+      ap_core->rmcbacks.pf_preempt = &preemption_req;
+      ap_core->rmcbacks.pf_preempt_end = &preemption_complete;
+
+      bzero (&ap_core->uuid, 128);
+
+      if (TIZ_RM_SUCCESS
+          != (rm_rc = tiz_rm_proxy_init (&ap_core->rm,
+                                         (const OMX_STRING)TIZ_IL_CORE_RM_NAME,
+                                         (const OMX_UUIDTYPE *)&ap_core->uuid,
+                                         &primgmt, &ap_core->rmcbacks, NULL)))
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR,
+                   "RM proxy initialization failed. RM error [%d]...", rm_rc);
+          omx_rc = OMX_ErrorInsufficientResources;
+        }
+      else
+        {
+          ap_core->rm_inited = true;
+        }
+    }
+  return omx_rc;
+}
+
+static OMX_ERRORTYPE deinit_rm (tizcore_t *ap_core)
+{
+  OMX_ERRORTYPE omx_rc = OMX_ErrorNone;
+
+  assert (ap_core);
+
+  if (ap_core->rm_inited)
+    {
+      tiz_rm_error_t rc = TIZ_RM_SUCCESS;
+      if (TIZ_RM_SUCCESS != (rc = tiz_rm_proxy_destroy (&ap_core->rm)))
+        {
+          /* TODO: Translate into a proper error code, especially OOM error  */
+          TIZ_LOG (TIZ_PRIORITY_ERROR,
+                   "[OMX_ErrorUndefined] : "
+                   "RM proxy deinitialization failed...");
+          omx_rc = OMX_ErrorUndefined;
+        }
+      ap_core->rm_inited = false;
+    }
+  return omx_rc;
 }
 
 static void
@@ -966,54 +1025,40 @@ remove_comp_instance (tizcore_msg_freehandle_t * ap_msg)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE
-do_init (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
+static OMX_ERRORTYPE do_init (tizcore_state_t *ap_state, tizcore_msg_t *ap_msg)
 {
-  tiz_rm_error_t rc = TIZ_RM_SUCCESS;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   tizcore_t *p_core = get_core ();
-  OMX_PRIORITYMGMTTYPE primgmt;
-  (void) ap_msg;
+  (void)ap_msg;
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "ETIZCoreMsgInit received...");
   assert (NULL != p_core);
-  assert (NULL != ap_state
-          && (ETIZCoreStateStarting == * ap_state
-              || ETIZCoreStateStarted == * ap_state));
+  assert (NULL != ap_state && (ETIZCoreStateStarting == *ap_state
+                               || ETIZCoreStateStarted == *ap_state));
   assert (ETIZCoreMsgInit == ap_msg->class);
 
-  if (ETIZCoreStateStarted == * ap_state)
+  if (ETIZCoreStateStarted == *ap_state)
     {
       return OMX_ErrorNone;
     }
 
-  /* Init here the RM hdl */
-  p_core->rmcbacks.pf_waitend = &wait_complete;
-  p_core->rmcbacks.pf_preempt = &preemption_req;
-  p_core->rmcbacks.pf_preempt_end = &preemption_complete;
-
-  bzero (&p_core->uuid, 128);
-
-  if (TIZ_RM_SUCCESS !=
-      (rc =
-       tiz_rm_proxy_init (&p_core->rm, (const OMX_STRING) TIZ_IL_CORE_RM_NAME,
-                         (const OMX_UUIDTYPE *) &p_core->uuid, &primgmt,
-                         &p_core->rmcbacks, NULL)))
+  /* Init here the RM handle */
+  if (OMX_ErrorNone != (rc = init_rm (p_core)))
     {
-      TIZ_LOG (TIZ_PRIORITY_ERROR,
-               "RM proxy initialization failed. RM error [%d]...", rc);
-      return OMX_ErrorInsufficientResources;
+      return rc;
     }
 
-  (void) tiz_thread_setname (&(p_core->thread), (const OMX_STRING) TIZ_IL_CORE_THREAD_NAME);
+  (void)tiz_thread_setname (&(p_core->thread),
+                            (const OMX_STRING)TIZ_IL_CORE_THREAD_NAME);
 
-  * ap_state = ETIZCoreStateStarted;
+  *ap_state = ETIZCoreStateStarted;
   return scan_component_folders ();
 }
 
-static OMX_ERRORTYPE
-do_deinit (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
+static OMX_ERRORTYPE do_deinit (tizcore_state_t *ap_state,
+                                tizcore_msg_t *ap_msg)
 {
-  tiz_rm_error_t rc = TIZ_RM_SUCCESS;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   tizcore_t *p_core = get_core ();
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "ETIZCoreMsgDeinit received...");
@@ -1022,15 +1067,12 @@ do_deinit (tizcore_state_t * ap_state, tizcore_msg_t * ap_msg)
   assert (NULL != ap_msg);
   assert (ETIZCoreMsgDeinit == ap_msg->class);
 
-  * ap_state = ETIZCoreStateStopped;
+  *ap_state = ETIZCoreStateStopped;
 
-  /* Deinit the RM hdl */
-  if (TIZ_RM_SUCCESS != (rc = tiz_rm_proxy_destroy (&p_core->rm)))
+  /* Deinit the RM handle */
+  if (OMX_ErrorNone != (rc = deinit_rm (p_core)))
     {
-      /* TODO: Translate into a proper error code, especially OOM error  */
-      TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorUndefined] : "
-               "RM proxy deinitialization failed...");
-      return OMX_ErrorUndefined;
+      return rc;
     }
 
   delete_registry ();
@@ -1322,7 +1364,7 @@ get_core (void)
 
   if (!pg_core)
     {
-      pg_core = (tizcore_t *) tiz_mem_alloc (sizeof (tizcore_t));
+      pg_core = (tizcore_t *) tiz_mem_calloc (1, sizeof (tizcore_t));
       if (!pg_core)
         {
           return NULL;

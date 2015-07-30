@@ -13,9 +13,8 @@ extension-paths =
 
 [resource-management]
 
-# Whether the IL RM functionality is enabled or not (currently 'true' is the
-# only value supported)
-enabled = true
+# Whether the IL RM functionality is enabled or not
+enabled = false
 
 # This is the path to the RM daemon executable
 rmd.path = @bindir@/tizrmd

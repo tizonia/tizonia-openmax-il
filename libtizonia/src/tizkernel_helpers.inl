@@ -1035,83 +1035,92 @@ static OMX_ERRORTYPE enqueue_callback_msg (
 static OMX_ERRORTYPE init_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   tiz_krn_t *p_obj = (tiz_krn_t *)ap_obj;
-  OMX_U8 comp_name[OMX_MAX_STRINGNAME_SIZE];
-  OMX_VERSIONTYPE comp_ver, spec_ver;
-  OMX_UUIDTYPE uuid;
-  OMX_PRIORITYMGMTTYPE primgmt;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_rm_error_t rmrc = TIZ_RM_SUCCESS;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
 
-  rc = tiz_api_GetComponentVersion (p_obj->p_cport_, ap_hdl,
-                                    (OMX_STRING)(&comp_name), &comp_ver,
-                                    &spec_ver, &uuid);
-  if (OMX_ErrorNone != rc)
+  if (!p_obj->rm_inited_
+      && (0 == tiz_rcfile_compare_value ("resource-management", "enabled", "true")))
     {
-      TIZ_ERROR (ap_hdl,
-                 "[%s] : while retrieving the component's "
-                 "name...",
-                 tiz_err_to_str (rc));
-      return rc;
+      OMX_U8 comp_name[OMX_MAX_STRINGNAME_SIZE];
+      OMX_VERSIONTYPE comp_ver;
+      OMX_VERSIONTYPE spec_ver;
+      OMX_UUIDTYPE uuid;
+      OMX_PRIORITYMGMTTYPE primgmt;
+      tiz_rm_error_t rmrc = TIZ_RM_SUCCESS;
+
+      rc = tiz_api_GetComponentVersion (p_obj->p_cport_, ap_hdl,
+                                        (OMX_STRING)(&comp_name), &comp_ver,
+                                        &spec_ver, &uuid);
+      if (OMX_ErrorNone != rc)
+        {
+          TIZ_ERROR (ap_hdl,
+                     "[%s] : while retrieving the component's "
+                     "name...",
+                     tiz_err_to_str (rc));
+          return rc;
+        }
+
+      comp_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+
+      primgmt.nSize = (OMX_U32)sizeof(OMX_PRIORITYMGMTTYPE);
+      primgmt.nVersion.nVersion = OMX_VERSION;
+      primgmt.nGroupPriority = 0;
+      primgmt.nGroupID = 0;
+
+      if (OMX_ErrorNone
+          != (rc = tiz_api_GetConfig (p_obj->p_cport_, ap_hdl,
+                                      OMX_IndexConfigPriorityMgmt, &primgmt)))
+        {
+          TIZ_ERROR (ap_hdl,
+                     "[%s] : while retrieving "
+                     "OMX_IndexConfigPriorityMgmt...",
+                     tiz_err_to_str (rc));
+          return rc;
+        }
+
+      if (TIZ_RM_SUCCESS
+          != (rmrc = tiz_rm_proxy_init (&p_obj->rm_, (OMX_STRING)(&comp_name),
+                                        (const OMX_UUIDTYPE *)&uuid, &primgmt,
+                                        &p_obj->rm_cbacks_, ap_hdl)))
+        {
+          TIZ_ERROR (ap_hdl,
+                     "[OMX_ErrorInsufficientResources] : "
+                     "RM error [%d]...",
+                     rmrc);
+          return OMX_ErrorInsufficientResources;
+        }
+
+      /* NOTE: Start ignoring splint warnings in this section of code */
+      /*@ignore@*/
+      TIZ_TRACE (ap_hdl, "[%s] [%p] : RM init'ed", comp_name, ap_hdl);
+      /*@end@*/
+      /* NOTE: Stop ignoring splint warnings in this section  */
     }
-
-  comp_name[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-
-  primgmt.nSize = (OMX_U32)sizeof(OMX_PRIORITYMGMTTYPE);
-  primgmt.nVersion.nVersion = OMX_VERSION;
-  primgmt.nGroupPriority = 0;
-  primgmt.nGroupID = 0;
-
-  if (OMX_ErrorNone
-      != (rc = tiz_api_GetConfig (p_obj->p_cport_, ap_hdl,
-                                  OMX_IndexConfigPriorityMgmt, &primgmt)))
-    {
-      TIZ_ERROR (ap_hdl,
-                 "[%s] : while retrieving "
-                 "OMX_IndexConfigPriorityMgmt...",
-                 tiz_err_to_str (rc));
-      return rc;
-    }
-
-  if (TIZ_RM_SUCCESS
-      != (rmrc = tiz_rm_proxy_init (&p_obj->rm_, (OMX_STRING)(&comp_name),
-                                    (const OMX_UUIDTYPE *)&uuid, &primgmt,
-                                    &p_obj->rm_cbacks_, ap_hdl)))
-    {
-      TIZ_ERROR (ap_hdl,
-                 "[OMX_ErrorInsufficientResources] : "
-                 "RM error [%d]...",
-                 rmrc);
-      return OMX_ErrorInsufficientResources;
-    }
-
-  /* NOTE: Start ignoring splint warnings in this section of code */
-  /*@ignore@*/
-  TIZ_TRACE (ap_hdl, "[%s] [%p] : RM init'ed", comp_name, ap_hdl);
-  /*@end@*/
-  /* NOTE: Stop ignoring splint warnings in this section  */
-
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE deinit_rm (const void *ap_obj, OMX_HANDLETYPE ap_hdl)
 {
   tiz_krn_t *p_obj = (tiz_krn_t *)ap_obj;
-  tiz_rm_error_t rmrc = TIZ_RM_SUCCESS;
 
   assert (NULL != ap_obj);
   assert (NULL != ap_hdl);
 
-  if (TIZ_RM_SUCCESS != (rmrc = tiz_rm_proxy_destroy (&p_obj->rm_)))
+  if (p_obj->rm_inited_)
     {
-      /* TODO: Translate into a proper error code, especially OOM error  */
-      TIZ_ERROR (ap_hdl,
-                 "[OMX_ErrorUndefined] : RM proxy deinitialization failed...");
-      return OMX_ErrorUndefined;
+      tiz_rm_error_t rmrc = TIZ_RM_SUCCESS;
+      if (TIZ_RM_SUCCESS != (rmrc = tiz_rm_proxy_destroy (&p_obj->rm_)))
+        {
+          /* TODO: Translate into a proper error code, especially OOM error  */
+          TIZ_ERROR (
+              ap_hdl,
+              "[OMX_ErrorUndefined] : RM proxy deinitialization failed...");
+          return OMX_ErrorUndefined;
+        }
+      p_obj->rm_inited_ = false;
     }
-
   return OMX_ErrorNone;
 }
 
@@ -1123,7 +1132,8 @@ static OMX_ERRORTYPE acquire_rm_resources (const void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* Request permission to use the RM-based resources */
-  if (TIZ_RM_SUCCESS
+  if (p_obj->rm_inited_
+      && TIZ_RM_SUCCESS
       != (rmrc = tiz_rm_proxy_acquire (&p_obj->rm_, TIZ_RM_RESOURCE_DUMMY, 1)))
     {
       switch (rmrc)
@@ -1156,7 +1166,8 @@ static OMX_ERRORTYPE release_rm_resources (const void *ap_obj,
   tiz_krn_t *p_obj = (tiz_krn_t *)ap_obj;
   tiz_rm_error_t rmrc = TIZ_RM_SUCCESS;
 
-  if (TIZ_RM_SUCCESS
+  if (p_obj->rm_inited_
+      && TIZ_RM_SUCCESS
       != (rmrc = tiz_rm_proxy_release (&p_obj->rm_, TIZ_RM_RESOURCE_DUMMY, 1)))
     {
       TIZ_TRACE (ap_hdl, "Resource release failed - RM error [%d]...", rmrc);

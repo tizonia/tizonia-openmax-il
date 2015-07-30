@@ -48,9 +48,10 @@ extern "C" {
  *
  * @ingroup rcfile
  *
- * @param section String indicating the section where the key-value pair is
- *located
- * @param key The key to use to search for the value
+ * @param section String indicating the section where the key-value list pair
+ * is to be found.
+ *
+ * @param key A search key in the specified section.
  *
  * @return A newly allocated string or NULL if the specified key cannot be
  *found.
@@ -62,17 +63,39 @@ const char *tiz_rcfile_get_value (const char *section, const char *key);
  *
  * @ingroup rcfile
  *
- * @param section String indicating the section where the key-value pair is
- *located
- * @param key The key to use to search for the value
- * @param length Return location for the number of returned strings
+ * @param section String indicating the section where the key-value list pair
+ * is to be found.
+ *
+ * @param key A search key in the specified section.
+ *
+ * @param length The length of the returned list.
  *
  * @return An array of NULL-terminated strings or NULL if the specified key
- *cannot
- * be found. The array should be freed by the caller.
+ *cannot be found. The array should be freed by the caller.
  */
 char **tiz_rcfile_get_value_list (const char *section, const char *key,
                                   unsigned long *length);
+
+/**
+ * Returns an integer less than, equal to, or greater than zero if the
+ * section-key-value triad provided is respectively, not found, found and
+ * matching, or found and no matching.
+ *
+ * @ingroup rcfile
+ *
+ * @param section String indicating the section where the key-value pair is
+ * to be found.
+ *
+ * @param key A search key in the specified section.
+ *
+ * @param value The value to be matched against.
+ *
+ * @return Returns an integer less than (key or section not found), equal to
+ * (section and key found, value matched), or greater than zero (section and
+ * key found, value unmatched).
+ */
+int tiz_rcfile_compare_value (const char *section, const char *key,
+                              const char *value);
 
 #ifdef __cplusplus
 }
