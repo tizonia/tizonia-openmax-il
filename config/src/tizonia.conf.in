@@ -45,117 +45,117 @@ rmdb.dbdump_script = @bindir@/tiz_rm_dumpdb.sh
 # File Reader #
 ###############
 
-OMX.Aratelia.file_reader.binary.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
-OMX.Aratelia.file_reader.binary.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
-OMX.Aratelia.file_reader.binary.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
+# OMX.Aratelia.file_reader.binary.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
+# OMX.Aratelia.file_reader.binary.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
+# OMX.Aratelia.file_reader.binary.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
 
 ###############
 # File Writer #
 ###############
 
-OMX.Aratelia.file_writer.binary.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
-OMX.Aratelia.file_writer.binary.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
-OMX.Aratelia.file_writer.binary.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
+# OMX.Aratelia.file_writer.binary.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
+# OMX.Aratelia.file_writer.binary.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
+# OMX.Aratelia.file_writer.binary.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw.copy
 
 #######################
 # ALSA Audio Renderer #
 #######################
 
-OMX.Aratelia.audio_renderer.alsa.pcm.preannouncements_disabled.port0 = false
-OMX.Aratelia.audio_renderer.alsa.pcm.alsa_device = default
-OMX.Aratelia.audio_renderer.alsa.pcm.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_48_stereo.raw
-OMX.Aratelia.audio_renderer.alsa.pcm.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
+# OMX.Aratelia.audio_renderer.alsa.pcm.preannouncements_disabled.port0 = false
+# OMX.Aratelia.audio_renderer.alsa.pcm.alsa_device = default
+# OMX.Aratelia.audio_renderer.alsa.pcm.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_48_stereo.raw
+# OMX.Aratelia.audio_renderer.alsa.pcm.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
 
 ###############
 # MP3 Decoder #
 ###############
 
-OMX.Aratelia.audio_decoder.mp3.preannouncements_disabled.port0 = false
-OMX.Aratelia.audio_decoder.mp3.preannouncements_disabled.port1 = false
-OMX.Aratelia.audio_decoder.mp3.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
-OMX.Aratelia.audio_decoder.mp3.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/strum12str.mp3
+# OMX.Aratelia.audio_decoder.mp3.preannouncements_disabled.port0 = false
+# OMX.Aratelia.audio_decoder.mp3.preannouncements_disabled.port1 = false
+# OMX.Aratelia.audio_decoder.mp3.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
+# OMX.Aratelia.audio_decoder.mp3.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/strum12str.mp3
 
 ###############
 # MP3 Encoder #
 ###############
 
-OMX.Aratelia.audio_encoder.mp3.preannouncements_disabled.port0 = false
-OMX.Aratelia.audio_encoder.mp3.preannouncements_disabled.port1 = false
-OMX.Aratelia.audio_encoder.mp3.input_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
-OMX.Aratelia.audio_encoder.mp3.output_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/strum12str_5sec_le_signed_16_44_1_stereo.raw.mp3
+# OMX.Aratelia.audio_encoder.mp3.preannouncements_disabled.port0 = false
+# OMX.Aratelia.audio_encoder.mp3.preannouncements_disabled.port1 = false
+# OMX.Aratelia.audio_encoder.mp3.input_uri = @localstatedir@/lib/tizonia/tizonia-test-media/pcm/strum12str_5sec_le_signed_16_44_1_stereo.raw
+# OMX.Aratelia.audio_encoder.mp3.output_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/strum12str_5sec_le_signed_16_44_1_stereo.raw.mp3
 
 ################
 # I/V Renderer #
 ################
 
-OMX.Aratelia.yuv_renderer.overlay.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/yuv/bbb_640x360_25fps_yuv420p.yuv
+# OMX.Aratelia.yuv_renderer.overlay.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/yuv/bbb_640x360_25fps_yuv420p.yuv
 
 ###############
 # VP8 Decoder #
 ###############
 
-OMX.Aratelia.video_decoder.vp8.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/ivf/bbb_640x360_25fps_vp8_yuv420p.ivf
+# OMX.Aratelia.video_decoder.vp8.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/ivf/bbb_640x360_25fps_vp8_yuv420p.ivf
 
 ###############
 # HTTP Source #
 ###############
 
-OMX.Aratelia.audio_source.http.default_uri = http://localhost:80150
+# OMX.Aratelia.audio_source.http.default_uri = http://localhost:80150
 
 #################
 # HTTP Renderer #
 #################
 
-OMX.Aratelia.audio_renderer.http.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
-OMX.Aratelia.audio_renderer.http.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.streamed.mp3
+# OMX.Aratelia.audio_renderer.http.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
+# OMX.Aratelia.audio_renderer.http.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.streamed.mp3
 
 ################
 # Opus Decoder #
 ################
 
-OMX.Aratelia.audio_decoder.opus.preannouncements_disabled.port0 = false
-OMX.Aratelia.audio_decoder.opus.preannouncements_disabled.port1 = false
-OMX.Aratelia.audio_decoder.opus.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/opus/strum12str_16_441_vbr_20ms.opus
-OMX.Aratelia.audio_decoder.opus.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/opus/strum12str_16_441_vbr_20ms.opus
+# OMX.Aratelia.audio_decoder.opus.preannouncements_disabled.port0 = false
+# OMX.Aratelia.audio_decoder.opus.preannouncements_disabled.port1 = false
+# OMX.Aratelia.audio_decoder.opus.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/opus/strum12str_16_441_vbr_20ms.opus
+# OMX.Aratelia.audio_decoder.opus.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/opus/strum12str_16_441_vbr_20ms.opus
 
 ################
 # Flac Decoder #
 ################
 
-OMX.Aratelia.audio_decoder.flac.preannouncements_disabled.port0 = false
-OMX.Aratelia.audio_decoder.flac.preannouncements_disabled.port1 = false
-OMX.Aratelia.audio_decoder.flac.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.oga
-OMX.Aratelia.audio_decoder.flac.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.oga
+# OMX.Aratelia.audio_decoder.flac.preannouncements_disabled.port0 = false
+# OMX.Aratelia.audio_decoder.flac.preannouncements_disabled.port1 = false
+# OMX.Aratelia.audio_decoder.flac.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.oga
+# OMX.Aratelia.audio_decoder.flac.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/flac/strum12str_16_441_vbr_20ms.oga
 
 ##################
 # Vorbis Decoder #
 ##################
 
-OMX.Aratelia.audio_decoder.vorbis.preannouncements_disabled.port0 = false
-OMX.Aratelia.audio_decoder.vorbis.preannouncements_disabled.port1 = false
-OMX.Aratelia.audio_decoder.vorbis.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/vorbis/strum12str_16_441_vbr_20ms.oga
-OMX.Aratelia.audio_decoder.vorbis.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/vorbis/strum12str_16_441_vbr_20ms.oga
+# OMX.Aratelia.audio_decoder.vorbis.preannouncements_disabled.port0 = false
+# OMX.Aratelia.audio_decoder.vorbis.preannouncements_disabled.port1 = false
+# OMX.Aratelia.audio_decoder.vorbis.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/vorbis/strum12str_16_441_vbr_20ms.oga
+# OMX.Aratelia.audio_decoder.vorbis.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/vorbis/strum12str_16_441_vbr_20ms.oga
 
 ###############
 # Ogg Demuxer #
 ###############
 
-OMX.Aratelia.container_demuxer.ogg.preannouncements_disabled.port0 = false
-OMX.Aratelia.container_demuxer.ogg.preannouncements_disabled.port1 = false
-OMX.Aratelia.container_demuxer.ogg.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.ogg
-OMX.Aratelia.container_demuxer.ogg.audio_uri_original = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.vorbis.original
-OMX.Aratelia.container_demuxer.ogg.audio_uri_demuxed = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.vorbis.demuxed
-OMX.Aratelia.container_demuxer.ogg.video_uri_original = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.theora.original
-OMX.Aratelia.container_demuxer.ogg.video_uri_demuxed = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.theora.demuxed
+# OMX.Aratelia.container_demuxer.ogg.preannouncements_disabled.port0 = false
+# OMX.Aratelia.container_demuxer.ogg.preannouncements_disabled.port1 = false
+# OMX.Aratelia.container_demuxer.ogg.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.ogg
+# OMX.Aratelia.container_demuxer.ogg.audio_uri_original = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.vorbis.original
+# OMX.Aratelia.container_demuxer.ogg.audio_uri_demuxed = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.vorbis.demuxed
+# OMX.Aratelia.container_demuxer.ogg.video_uri_original = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.theora.original
+# OMX.Aratelia.container_demuxer.ogg.video_uri_demuxed = @localstatedir@/lib/tizonia/tizonia-test-media/ogg/big_buck_bunny_480p_stereo.theora.demuxed
 
 
 #######################
 # MP3 Metadata Eraser #
 #######################
 
-OMX.Aratelia.audio_metadata_eraser.mp3.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
-OMX.Aratelia.audio_metadata_eraser.mp3.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
-OMX.Aratelia.audio_metadata_eraser.mp3.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/strum12str.mp3
+# OMX.Aratelia.audio_metadata_eraser.mp3.default_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
+# OMX.Aratelia.audio_metadata_eraser.mp3.testfile1_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/riff_rock.mp3
+# OMX.Aratelia.audio_metadata_eraser.mp3.testfile2_uri = @localstatedir@/lib/tizonia/tizonia-test-media/mp3/strum12str.mp3
 
 [tizonia]
 

@@ -65,9 +65,9 @@ static char *retrieve_default_uri_from_config (tiz_uricfgport_t *ap_obj)
            OMX_MAX_STRINGNAME_SIZE - strlen (fqd_key) - 1);
 
   p_uri = tiz_rcfile_get_value (TIZ_RCFILE_PLUGINS_DATA_SECTION, fqd_key);
-  assert (NULL != p_uri && ".default_uri not found in configuration file...");
+  /* assert (NULL != p_uri && ".default_uri not found in configuration file..."); */
   TIZ_TRACE (handleOf (ap_obj), "Default URI [%s]...", p_uri);
-  if ((pathname_max = tiz_pathname_max (p_uri)) > 0)
+  if (p_uri && (pathname_max = tiz_pathname_max (p_uri)) > 0)
     {
       p_rv = strndup (p_uri, pathname_max); /* A terminating \0 is added by
                                                strndup*/
