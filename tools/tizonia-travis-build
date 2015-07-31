@@ -38,9 +38,12 @@ readonly E_NOFILE=86
 readonly E_BAD_CLONE=87
 readonly CWD=$(pwd)
 
+readonly TIZONIA_CONF_PATH="$HOME/.config/tizonia/tizonia.conf"
+
 readonly SKEMA_GIT_REPO=https://github.com/tizonia/skema
 readonly SKEMA_DIR="$INSTALL_DIR"/skema
 readonly SKEMA_BIN_DIR="$SKEMA_DIR"/bin
+
 # A list of skema test suites that should not be executed
 declare -ar SKEMA_EXEMPT_SUITES=( \
     "Mp3Streaming" \
@@ -130,21 +133,25 @@ function exists_in_array {
 #   None
 ##################################################################
 function start_dbus {
-    ## test for an existing bus daemon, just to be safe
-    if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
-        ## if not found, launch a new one
-        export $(dbus-launch --exit-with-session)
-        echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
-        echo "D-Bus per-session daemon PID is    : $DBUS_SESSION_BUS_PID"
-    fi
+    # Only start D-BUS and the RM daemon if RM is enabled in tizonia.conf
+    local rm_needed=$(sed -rn 's/^enabled(\s*)=(\s*)(true|false)/\3/p' "$TIZONIA_CONF_PATH")
+    if [[ "$rm_needed" == "true" ]]; then
+        ## test for an existing bus daemon, just to be safe
+        if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
+            ## if not found, launch a new one
+            export $(dbus-launch --exit-with-session)
+            echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
+            echo "D-Bus per-session daemon PID is    : $DBUS_SESSION_BUS_PID"
+        fi
 
-    "$INSTALL_DIR"/bin/tizrmd &
-    TIZRMD_PID=$(pidof tizrmd)
-    if [[ -z "$TIZRMD_PID" ]] ; then
-        err "Unable to start the resource manager deamon"
-        exit 1
+        "$INSTALL_DIR"/bin/tizrmd &
+        TIZRMD_PID=$(pidof tizrmd)
+        if [[ -z "$TIZRMD_PID" ]] ; then
+            err "Unable to start the resource manager deamon"
+            exit 1
+        fi
+        echo "Tizonia RM daemon instantiated: pid $ltrmdpid."
     fi
-    echo "Tizonia RM daemon instantiated: pid $ltrmdpid."
 }
 
 ##################################################################
@@ -279,14 +286,14 @@ function copy_config_files {
     if [[ "$exit_status" -eq 0 ]] ; then
         echo "Preparing the $HOME/.tizrc config file..."
         mkdir -p "$HOME/.config/tizonia" \
-            && cp "$WORKING_DIR/config/src/tizonia.conf" "$HOME/.config/tizonia/tizonia.conf"
+            && cp "$WORKING_DIR/config/src/tizonia.conf" "$TIZONIA_CONF_PATH"
         exit_status=$?
     fi
 
     # Modify tizonia config to make the ALSA renderer use the null pcm
     if [[ "$exit_status" -eq 0 ]] ; then
         echo "Preparing the $HOME/.tizrc config file..."
-        perl -pi -e 's/\bdefault\b/null/' "$HOME/.config/tizonia/tizonia.conf"
+        perl -pi -e 's/\bdefault\b/null/' "$TIZONIA_CONF_PATH"
         exit_status=$?
     fi
     return "$exit_status"
