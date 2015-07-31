@@ -8,37 +8,36 @@
 
 ## Introduction ##
 
-_Tizonia is still under development and there are no pre-built binary releases yet (but there will be soon though)_.
+_Tizonia is still under development and there are no pre-built binary releases yet (coming soon)_.
 
-However you can download this repo and build everything from source following the instructions in this README.
+For now you can clone this repo and build everything from source following the instructions below.
 
 ## The Tizonia project
 
-For an introduction of the resources that can be found here, please keep reading further.
+For the resources that can be found here, please keep reading further.
 
 ### `tizonia`: music player and audio streaming client/server ###
 
 * Spotify client (Spotify Premium account required).
-* Google Play Music client.
-* Playback of audio formats from local media (formats: mp3, mp2, mpa, m2a, aac,
-  ogg/vorbis, opus, wav, aiff, and flac).
-* Icecast/SHOUTcast streaming server (formats: mp3).
-* Icecast/SHOUTcast streaming client (formats: mp3, aac, and opus, more to be added in the future).
+* Google Play Music client (free tier only for now, All-Access streaming coming soon).
+* Playback of local media (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus, wav,
+  aiff, and flac).
+* Icecast/SHOUTcast streaming LAN server (mp3).
+* Icecast/SHOUTcast streaming client (mp3, aac, and opus).
 * Daemon and command line modes (no GUI).
-* MPRIS D-BUS v2 media player remote control interface (early days, work-in-progress).
-* Completely based on OpenMAX IL 1.2. No gstreamer, libav, or ffmpeg libraries needed.
-* Written in C++.
+* MPRIS D-BUS v2 media player remote control interface (basic functions only).
+* Based on own OpenMAX IL-based multimedia framework. No gstreamer, libav, or ffmpeg libraries needed.
 
-### A multimedia framework based on OpenMAX IL 1.2 ###
+### OpenMAX IL 1.2 multimedia framework ###
 
-1. 'libtizonia' : An OpenMAX IL 1.2 component framework
+1. 'libtizonia' : OpenMAX IL 1.2 component framework
   * A C library for creating OpenMAX IL 1.2 plugins (encoders, decoders,
   parsers, sinks, etc, for audio/video/other).
   * Full support for OpenMAX IL 1.2 Base and Interop profiles.
-2. 'libtizcore' : An OpenMAX IL 1.2 Core implementation
+2. 'libtizcore' : OpenMAX IL 1.2 Core implementation
   * A C library for discovery and dynamic loading of OpenMAX IL 1.2 plugins.
   * Support for all of the OMX IL 1.2 standard Core APIs, including *OMX_SetupTunnel* and *OMX_TeardownTunnel*.
-3. 'libtizplatform' : An OS abstraction/utility library
+3. 'libtizplatform' : OS abstraction/utility library
   * A C library with wrappers and utilities for:
     * memory allocation,
     * threading and synchronization primitives,
@@ -51,22 +50,22 @@ For an introduction of the resources that can be found here, please keep reading
     * HTTP parser,
     * uuids,
     * etc..
-4. An OpenMAX IL 1.2 Resource Management (RM) framework
-  * 'tizrmd' : a D-Bus-based Resource Manager server.
-  * 'libtizrmproxy' : a C client library to communicate with the RM daemon.
-5. OpenMAX IL 1.2 plugins
+4. OpenMAX IL 1.2 Resource Management (RM) framework
+  * 'tizrmd' : a D-Bus-based Resource Manager daemon server.
+  * 'libtizrmproxy' : a C client library to interface with the RM daemon.
+5. OpenMAX IL 1.2 codecs/plugins
   * Spotify streaming service client (libspotify),
   * Google Play Music streaming service client (based on gmusicapi)
   * mp3 decoders (libmad and libmpg123),
   * mpeg audio (mp2) decoder (libmpg123),
-  * Sampled sound formats decoder (various pcm formats, like wav, etc, based on libsndfile)
+  * Sampled sound formats decoder (various pcm formats, including wav, etc, based on libsndfile)
   * AAC decoder (libfaad),
   * OPUS decoders (libopus and libopusfile)
   * FLAC decoder (libflac)
   * VORBIS decoder (libfishsound)
   * PCM renderers (ALSA and Pulseaudio)
   * OGG demuxer (liboggz)
-  * HTTP renderer (i.e. ala icecast)
+  * HTTP renderer (i.e. ala icecast, for LAN streaming)
   * HTTP source (based on libcurl)
   * mp3 encoder (based on LAME),
   * a VP8 video decoder (libvpx),
@@ -74,14 +73,15 @@ For an introduction of the resources that can be found here, please keep reading
   * general purpose plugins, like binary file readers and writers
   * etc...
 
-### Skema: A Python test execution framework for OpenMAX IL 1.2 components ###
-  * Skema is a test framework for execution of arbitrary OpenMAX IL graphs (tunneled and
+### Skema: Tizonia's Python-based test execution framework ###
+  * Test execution framework to build and test arbitrary OpenMAX IL graphs (tunneled and
     non-tunneled) using a custom, [easy-to-write XML syntax](http://github.com/tizonia/tizonia-openmax-il/wiki/Mp3Playback101).
-  * Skema repo: http://github.com/tizonia/skema
+  * Skema's Github repo: http://github.com/tizonia/skema
 
-## How to build ##
+## Building from source ##
 
-To build and install from source, follow the these steps (Ubuntu 14.04 is assumed).
+To build and install from source, follow the these steps (Ubuntu 14.04 is
+assumed, but should work on other relatively recent debian-based distros).
 
 ### Dependencies ###
 
@@ -103,8 +103,9 @@ To build and install from source, follow the these steps (Ubuntu 14.04 is assume
 
 ### Adjusting environment variables
 
-Let's assume you are installing to a temporary directory inside your home
-folder. Do the following before initiating the build.
+This assumes we are installing to a temporary directory inside the $HOME
+folder. The following environment variables are exported before starting the
+build.
 
 ```bash
 
