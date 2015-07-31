@@ -41,7 +41,7 @@ extern "C" {
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#define TIZ_RCFILE_PLUGINS_DATA_SECTION "plugins-data"
+#define TIZ_RCFILE_PLUGINS_DATA_SECTION "plugins"
 
 /**
  * Returns a value string from a give section using the value's key

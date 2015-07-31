@@ -410,7 +410,7 @@ init_test_data()
   bool rv = false;
   const char *p_testfile1 = NULL;
 
-  p_testfile1 = tiz_rcfile_get_value("plugins-data",
+  p_testfile1 = tiz_rcfile_get_value("plugins",
                                      "OMX.Aratelia.yuv_renderer.overlay.testfile1_uri");
 
   if (!p_testfile1)

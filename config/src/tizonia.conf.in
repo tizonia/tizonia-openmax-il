@@ -35,7 +35,7 @@ rmdb.sqlite_script = @datadir@/tizrmd/initrmdb.sql3
 rmdb.dbdump_script = @bindir@/tiz_rm_dumpdb.sh
 
 
-[plugins-data]
+[plugins]
 
 # Each key-value pair represents a list of any data that a
 # specific component might need. The entries here must honor the following

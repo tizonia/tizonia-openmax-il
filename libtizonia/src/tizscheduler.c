@@ -1321,7 +1321,7 @@ static OMX_ERRORTYPE configure_port_preannouncements (tiz_scheduler_t *ap_sched,
            OMX_MAX_STRINGNAME_SIZE - strlen (fqd_key) - 1);
   strncat (fqd_key, port_num, OMX_MAX_STRINGNAME_SIZE - strlen (fqd_key) - 1);
 
-  p_preannounce_disabled = tiz_rcfile_get_value ("plugins-data", fqd_key);
+  p_preannounce_disabled = tiz_rcfile_get_value ("plugins", fqd_key);
 
   if (NULL == p_preannounce_disabled
       || (0 != strncmp (p_preannounce_disabled, "true", 4)))
