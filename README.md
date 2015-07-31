@@ -202,7 +202,9 @@ Copy *tizonia.conf* to the following location:
 
 ### Resource Manager's D-BUS service activation file (optional) ###
 
-Copy the Resource Manager's D-BUS activation file like this:
+OpenMAX IL Resource Management is present but disabled by default. In case this
+is to be used (prior to that, needs to be explicitly enabled in tizonia.conf),
+copy the Resource Manager's D-BUS activation file like this:
 
 ```bash
 
