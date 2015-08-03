@@ -284,7 +284,7 @@ function copy_config_files {
     mkdir -p "$DBUS_DIR" && cp "$DBUS_SERVICE_FILE" "$DBUS_DIR"
     local exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
-        echo "Preparing the $HOME/.tizrc config file..."
+        echo "Preparing the $TIZONIA_CONF_PATH config file..."
         mkdir -p "$HOME/.config/tizonia" \
             && cp "$WORKING_DIR/config/src/tizonia.conf" "$TIZONIA_CONF_PATH"
         exit_status=$?
@@ -292,8 +292,8 @@ function copy_config_files {
 
     # Modify tizonia config to make the ALSA renderer use the null pcm
     if [[ "$exit_status" -eq 0 ]] ; then
-        echo "Preparing the $HOME/.tizrc config file..."
-        perl -pi -e 's/\bdefault\b/null/' "$TIZONIA_CONF_PATH"
+        echo "Preparing the $TIZONIA_CONF_PATH config file..."
+        perl -pi -e 's/^#.*(OMX\..*alsa_device.*)\bdefault\b/\1null/' "$TIZONIA_CONF_PATH"
         exit_status=$?
     fi
     return "$exit_status"
@@ -553,7 +553,7 @@ function main {
             && wget http://www.juanrubio.me/tizonia/tizonia-test-media.tgz \
             && tar zxvf tizonia-test-media.tgz &>/dev/null
         exit_status=$?
-    elif [ "$1" == "tizrc" ];  then
+    elif [ "$1" == "config" ];  then
         copy_config_files
         exit_status=$?
     elif [ "$1" == "bldonly" ];  then
@@ -569,7 +569,7 @@ function main {
         exit_status=$?
     else
         CMD=$(basename "$0")
-        echo "Usage: $CMD <debug|release|conf|deps|media|tizrc|skema|tests|bldonly> <working_dir> <install_dir>"
+        echo "Usage: $CMD <debug|release|conf|deps|media|config|skema|tests|bldonly> <working_dir> <install_dir>"
         exit 1
     fi
 

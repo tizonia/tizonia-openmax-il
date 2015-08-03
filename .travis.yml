@@ -31,6 +31,6 @@ before_script:
  - ./tools/tizonia-travis-build media "$HOME" "$HOME/temp"
 script:
  - ./tools/tizonia-travis-build debug "$HOME/build/tizonia/tizonia-openmax-il"
- - ./tools/tizonia-travis-build tizrc "$HOME/build/tizonia/tizonia-openmax-il"
+ - ./tools/tizonia-travis-build config "$HOME/build/tizonia/tizonia-openmax-il"
  - ./tools/tizonia-travis-build skema "$HOME/build"
  - ./tools/tizonia-travis-build tests "$HOME/build"
