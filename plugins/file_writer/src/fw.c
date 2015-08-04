@@ -21,7 +21,7 @@
  * @file   fw.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Binary Writer Component
+ * @brief  Tizonia OpenMAX IL - Binary file writer
  *
  *
  */
