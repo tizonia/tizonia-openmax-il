@@ -21,7 +21,7 @@
  * @file   fr.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Binary Reader Component
+ * @brief  Tizonia OpenMAX IL - Binary file reader
  *
  *
  */
