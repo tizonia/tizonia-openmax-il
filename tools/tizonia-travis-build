@@ -293,7 +293,7 @@ function copy_config_files {
     # Modify tizonia config to make the ALSA renderer use the null pcm
     if [[ "$exit_status" -eq 0 ]] ; then
         echo "Preparing the $TIZONIA_CONF_PATH config file..."
-        perl -pi -e 's/^#.*(OMX\..*alsa_device.*)\bdefault\b/\1null/' "$TIZONIA_CONF_PATH"
+        perl -pi -e 's/^(OMX\..*alsa_device.*)\bdefault\b/\1null/' "$TIZONIA_CONF_PATH"
         exit_status=$?
     fi
     return "$exit_status"
