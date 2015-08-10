@@ -905,13 +905,7 @@ function do_uninstall_project_debs {
 ##################################################################
 function do_uninstall_all_debs {
     local exit_status=0
-    for ((i=${#TIZ_PROJECTS_ORDERED[@]}-1; i>=0; i--)); do
-        local pkg="${TIZ_PROJECTS_ORDERED[$i]}"
-        local pkg_dir="$DEBIAN_DIR/$pkg"
-        if [[ -d "$pkg_dir" ]]; then
-            do_uninstall_project_debs "$pkg" "$pkg_dir"
-        fi
-    done
+    dpkg -l | grep -E 'ii\s*(libtiz|tiz|python-tiz)' | awk '{ print $2 }' | xargs sudo apt-get remove --purge -qq
     return "$exit_status"
 }
 
