@@ -89,9 +89,9 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj);
 
 static void log_alsa_pcm_state (ar_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
-  if (NULL != ap_prc->p_pcm_hdl)
+  if (ap_prc->p_pcm_hdl)
     {
       snd_pcm_state_t state = snd_pcm_state (ap_prc->p_pcm_hdl);
       TIZ_DEBUG (handleOf (ap_prc), "ALSA PCM state : [%s]",
@@ -101,15 +101,15 @@ static void log_alsa_pcm_state (ar_prc_t *ap_prc)
 
 /*@null@*/ static char *get_alsa_device (ar_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
-  if (NULL == ap_prc->p_alsa_pcm_)
+  if (!ap_prc->p_alsa_pcm_)
     {
       const char *p_alsa_pcm = tiz_rcfile_get_value (
           TIZ_RCFILE_PLUGINS_DATA_SECTION,
           "OMX.Aratelia.audio_renderer.alsa.pcm.alsa_device");
 
-      if (NULL != p_alsa_pcm)
+      if (p_alsa_pcm)
         {
           TIZ_TRACE (handleOf (ap_prc), "Using ALSA pcm [%s]...", p_alsa_pcm);
           ap_prc->p_alsa_pcm_ = strndup (p_alsa_pcm, OMX_MAX_STRINGNAME_SIZE);
@@ -121,9 +121,36 @@ static void log_alsa_pcm_state (ar_prc_t *ap_prc)
                      ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_DEVICE);
         }
     }
-  return (NULL != ap_prc->p_alsa_pcm_)
+  return (ap_prc->p_alsa_pcm_)
              ? ap_prc->p_alsa_pcm_
              : ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_DEVICE;
+}
+
+/*@null@*/ static char *get_alsa_mixer (ar_prc_t *ap_prc)
+{
+  assert (ap_prc);
+
+  if (!ap_prc->p_alsa_mixer_)
+    {
+      const char *p_alsa_mixer = tiz_rcfile_get_value (
+          TIZ_RCFILE_PLUGINS_DATA_SECTION,
+          "OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer");
+
+      if (p_alsa_mixer)
+        {
+          TIZ_TRACE (handleOf (ap_prc), "Using ALSA mixer [%s]...", p_alsa_mixer);
+          ap_prc->p_alsa_mixer_ = strndup (p_alsa_mixer, OMX_MAX_STRINGNAME_SIZE);
+        }
+      else
+        {
+          TIZ_TRACE (handleOf (ap_prc),
+                     "No alsa mixer found in config file. Using [%s]...",
+                     ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_MIXER);
+        }
+    }
+  return (ap_prc->p_alsa_mixer_)
+             ? ap_prc->p_alsa_mixer_
+             : ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_MIXER;
 }
 
 static bool using_null_alsa_device (ar_prc_t *ap_prc)
@@ -136,8 +163,8 @@ static bool using_null_alsa_device (ar_prc_t *ap_prc)
 static inline OMX_ERRORTYPE start_io_watcher (ar_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_ev_io_);
+  assert (ap_prc);
+  assert (ap_prc->p_ev_io_);
   if (!ap_prc->awaiting_io_ev_)
     {
       rc = tiz_srv_io_watcher_start (ap_prc, ap_prc->p_ev_io_);
@@ -150,8 +177,8 @@ static inline OMX_ERRORTYPE start_io_watcher (ar_prc_t *ap_prc)
 static inline OMX_ERRORTYPE stop_io_watcher (ar_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_prc);
-  if (NULL != ap_prc->p_ev_io_ && ap_prc->awaiting_io_ev_)
+  assert (ap_prc);
+  if (ap_prc->p_ev_io_ && ap_prc->awaiting_io_ev_)
     {
       rc = tiz_srv_io_watcher_stop (ap_prc, ap_prc->p_ev_io_);
     }
@@ -162,7 +189,7 @@ static inline OMX_ERRORTYPE stop_io_watcher (ar_prc_t *ap_prc)
 
 static OMX_ERRORTYPE release_header (ar_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (ap_prc->p_inhdr_)
     {
@@ -177,9 +204,9 @@ static OMX_ERRORTYPE release_header (ar_prc_t *ap_prc)
 
 static inline OMX_ERRORTYPE do_flush (ar_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_check_omx_err (stop_io_watcher (ap_prc));
-  if (NULL != ap_prc->p_pcm_hdl)
+  if (ap_prc->p_pcm_hdl)
     {
       (void)snd_pcm_drop (ap_prc->p_pcm_hdl);
     }
@@ -211,8 +238,8 @@ static int float_to_sint (const float a_sample)
 static void adjust_gain (const ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE *ap_hdr,
                          const snd_pcm_uframes_t a_num_samples)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_hdr);
+  assert (ap_prc);
+  assert (ap_hdr);
 
   if (ARATELIA_AUDIO_RENDERER_DEFAULT_GAIN_VALUE != ap_prc->gain_)
     {
@@ -236,15 +263,15 @@ static void adjust_gain (const ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE *ap_hdr,
     }
 }
 
-static OMX_ERRORTYPE get_alsa_master_volume (const ar_prc_t *ap_prc,
+static OMX_ERRORTYPE get_alsa_master_volume (ar_prc_t *ap_prc,
                                              long *ap_volume)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_prc);
-  assert (NULL != ap_volume);
+  assert (ap_prc);
+  assert (ap_volume);
 
   {
-    const char *selem_name = "Master";
+    const char *selem_name = get_alsa_mixer (ap_prc);
     long min, max, volume;
     snd_mixer_t *handle = NULL;
     snd_mixer_selem_id_t *sid = NULL;
@@ -281,7 +308,7 @@ static OMX_ERRORTYPE set_initial_component_volume (ar_prc_t *ap_prc)
 {
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE != ap_prc->volume_)
     {
@@ -313,7 +340,7 @@ static OMX_ERRORTYPE set_initial_component_volume (ar_prc_t *ap_prc)
 static bool set_alsa_master_volume (const ar_prc_t *ap_prc, const long a_volume)
 {
   bool rc = false;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   {
     const char *selem_name = "Master";
@@ -351,7 +378,7 @@ end:
 
 static void toggle_mute (ar_prc_t *ap_prc, const bool a_mute)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (!using_null_alsa_device (ap_prc))
     {
@@ -368,7 +395,7 @@ static void set_volume (ar_prc_t *ap_prc, const long a_volume)
     {
       if (set_alsa_master_volume (ap_prc, a_volume))
         {
-          assert (NULL != ap_prc);
+          assert (ap_prc);
           ap_prc->volume_ = a_volume;
           TIZ_TRACE (handleOf (ap_prc), "ap_prc->volume_ = %ld",
                      ap_prc->volume_);
@@ -378,7 +405,7 @@ static void set_volume (ar_prc_t *ap_prc, const long a_volume)
 
 static void prepare_volume_ramp (ar_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   ap_prc->ramp_volume_ = ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE;
   ap_prc->ramp_step_count_ = ARATELIA_AUDIO_RENDERER_DEFAULT_RAMP_STEP_COUNT;
   ap_prc->ramp_step_ = (double)ap_prc->ramp_volume_
@@ -389,8 +416,8 @@ static void prepare_volume_ramp (ar_prc_t *ap_prc)
 
 static OMX_ERRORTYPE start_volume_ramp (ar_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_ev_timer_);
+  assert (ap_prc);
+  assert (ap_prc->p_ev_timer_);
   ap_prc->ramp_volume_ = 0;
   TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]", ap_prc->ramp_volume_);
   tiz_check_omx_err (
@@ -400,8 +427,8 @@ static OMX_ERRORTYPE start_volume_ramp (ar_prc_t *ap_prc)
 
 static void stop_volume_ramp (ar_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
-  if (NULL != ap_prc->p_ev_timer_)
+  assert (ap_prc);
+  if (ap_prc->p_ev_timer_)
     {
       (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
     }
@@ -409,7 +436,7 @@ static void stop_volume_ramp (ar_prc_t *ap_prc)
 
 static OMX_ERRORTYPE apply_ramp_step (ar_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (ap_prc->ramp_step_count_-- > 0)
     {
       ap_prc->ramp_volume_ += ap_prc->ramp_step_;
@@ -432,8 +459,8 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
   snd_pcm_uframes_t samples = 0;
   unsigned long int step = 0;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_hdr);
+  assert (ap_prc);
+  assert (ap_hdr);
 
   step = (ap_prc->pcmmode.nBitPerSample / 8) * ap_prc->pcmmode.nChannels;
   assert (ap_hdr->nFilledLen > 0);
@@ -486,7 +513,7 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
 static OMX_BUFFERHEADERTYPE *get_header (ar_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (!ap_prc->port_disabled_)
     {
@@ -509,8 +536,8 @@ static OMX_BUFFERHEADERTYPE *get_header (ar_prc_t *ap_prc)
 
 static OMX_ERRORTYPE buffer_emptied (ar_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_inhdr_);
+  assert (ap_prc);
+  assert (ap_prc->p_inhdr_);
   assert (ap_prc->p_inhdr_->nFilledLen == 0);
 
   TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] emptied",
@@ -532,7 +559,7 @@ static OMX_ERRORTYPE render_pcm_data (ar_prc_t *ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  while ((NULL != (p_hdr = get_header (ap_prc))) && OMX_ErrorNone == rc)
+  while (((p_hdr = get_header (ap_prc))) && OMX_ErrorNone == rc)
     {
       if (p_hdr->nFilledLen > 0)
         {
@@ -566,6 +593,7 @@ static void *ar_prc_ctor (void *ap_obj, va_list *app)
   p_obj->p_pcm_hdl = NULL;
   p_obj->p_hw_params = NULL;
   p_obj->p_alsa_pcm_ = NULL;
+  p_obj->p_alsa_mixer_ = NULL;
   p_obj->descriptor_count_ = 0;
   p_obj->p_fds_ = NULL;
   p_obj->p_ev_io_ = NULL;
@@ -596,12 +624,12 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
 {
   ar_prc_t *p_prc = ap_prc;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
 
-  if (NULL == p_prc->p_pcm_hdl)
+  if (!p_prc->p_pcm_hdl)
     {
       char *p_device = get_alsa_device (p_prc);
-      assert (NULL != p_device);
+      assert (p_device);
 
       /* Open a PCM in non-blocking mode */
       bail_on_snd_pcm_error (snd_pcm_open (&p_prc->p_pcm_hdl, p_device,
@@ -631,7 +659,7 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
           tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
     }
 
-  assert (NULL != p_prc->p_pcm_hdl);
+  assert (p_prc->p_pcm_hdl);
 
   return OMX_ErrorNone;
 }
@@ -640,9 +668,9 @@ static OMX_ERRORTYPE ar_prc_prepare_to_transfer (void *ap_prc,
                                                  OMX_U32 TIZ_UNUSED (a_pid))
 {
   ar_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
-  if (NULL != p_prc->p_pcm_hdl)
+  if (p_prc->p_pcm_hdl)
     {
       snd_pcm_format_t snd_pcm_format;
       unsigned int snd_sampling_rate = 0;
@@ -745,7 +773,7 @@ static OMX_ERRORTYPE ar_prc_transfer_and_process (void *ap_obj,
                                                   OMX_U32 TIZ_UNUSED (a_pid))
 {
   ar_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   prepare_volume_ramp (p_prc);
   tiz_check_omx_err (start_volume_ramp (p_prc));
   tiz_check_omx_err (apply_ramp_step (p_prc));
@@ -761,7 +789,7 @@ static OMX_ERRORTYPE ar_prc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj)
 {
   ar_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_ev_timer_);
   p_prc->p_ev_timer_ = NULL;
@@ -773,7 +801,7 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj)
   tiz_srv_io_watcher_destroy (p_prc, p_prc->p_ev_io_);
   p_prc->p_ev_io_ = NULL;
 
-  if (NULL != p_prc->p_hw_params)
+  if (p_prc->p_hw_params)
     {
       snd_pcm_hw_params_free (p_prc->p_hw_params);
       (void)snd_pcm_close (p_prc->p_pcm_hdl);
@@ -785,6 +813,9 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj)
   tiz_mem_free (p_prc->p_alsa_pcm_);
   p_prc->p_alsa_pcm_ = NULL;
 
+  tiz_mem_free (p_prc->p_alsa_mixer_);
+  p_prc->p_alsa_mixer_ = NULL;
+
   return OMX_ErrorNone;
 }
 
@@ -795,7 +826,7 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj)
 static OMX_ERRORTYPE ar_prc_buffers_ready (const void *ap_obj)
 {
   ar_prc_t *p_prc = (ar_prc_t *)ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc),
              "Received buffer ready notification - "
              "awaiting_io_ev [%s]",
@@ -830,7 +861,7 @@ static OMX_ERRORTYPE ar_prc_pause (const void *ap_prc)
   ar_prc_t *p_prc = (ar_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int pause = 1;
-  assert (NULL != p_prc);
+  assert (p_prc);
   tiz_check_omx_err (stop_io_watcher (p_prc));
   bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_hdl, pause));
   TIZ_TRACE (handleOf (p_prc),
@@ -844,7 +875,7 @@ static OMX_ERRORTYPE ar_prc_resume (const void *ap_prc)
 {
   ar_prc_t *p_prc = (ar_prc_t *)ap_prc;
   int resume = 0;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "RESUMING ALSA device...");
   bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_hdl, resume));
   tiz_check_omx_err (start_io_watcher (p_prc));
@@ -862,11 +893,11 @@ static OMX_ERRORTYPE ar_prc_port_disable (const void *ap_prc,
                                           OMX_U32 TIZ_UNUSED (a_pid))
 {
   ar_prc_t *p_prc = (ar_prc_t *)ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_PRINTF_DBG_BLU ("Received port disable\n");
   stop_volume_ramp (p_prc);
   p_prc->port_disabled_ = true;
-  if (NULL != p_prc->p_pcm_hdl)
+  if (p_prc->p_pcm_hdl)
     {
       bail_on_snd_pcm_error (snd_pcm_drain (p_prc->p_pcm_hdl));
       tiz_check_omx_err (stop_io_watcher (p_prc));
@@ -879,10 +910,10 @@ static OMX_ERRORTYPE ar_prc_port_enable (const void *ap_obj,
                                          OMX_U32 TIZ_UNUSED (a_pid))
 {
   ar_prc_t *p_prc = (ar_prc_t *)ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_PRINTF_DBG_GRN ("Received port emable\n");
   p_prc->port_disabled_ = false;
-  if (NULL != p_prc->p_pcm_hdl)
+  if (p_prc->p_pcm_hdl)
     {
       log_alsa_pcm_state (p_prc);
       tiz_check_omx_err (ar_prc_prepare_to_transfer (p_prc, OMX_ALL));
@@ -897,7 +928,7 @@ static OMX_ERRORTYPE ar_prc_config_change (void *ap_obj, OMX_U32 a_pid,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   ar_prc_t *p_prc = ap_obj;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   if (ARATELIA_AUDIO_RENDERER_PORT_INDEX == a_pid)
     {
