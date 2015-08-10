@@ -969,13 +969,17 @@ function do_publish_to_bintray {
     done
     read -s -p "Enter GPG-PASSPHRASE: " password
     echo
-    # Publish the repo
-    pretty_print "$GRN" "Bintray: publishing the $DISTRO_ID repo"
-    curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/content/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION/publish"
-    echo
     # Trigger metadata calculation
     pretty_print "$GRN" "Bintray: Triggering metadata calculation on $DISTRO_ID repo"
     curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/calc_metadata/tizonia/$DISTRO_ID/"
+    echo
+    # GPG signing request
+    pretty_print "$GRN" "Bintray: Requesting GPG signing of $DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION"
+    curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/gpg/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/versions/$TIZONIA_RELEASE_VERSION"
+    echo
+    # Publish the repo
+    pretty_print "$GRN" "Bintray: publishing the $DISTRO_ID repo"
+    curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/content/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION/publish"
     echo
     return "$exit_status"
 }
