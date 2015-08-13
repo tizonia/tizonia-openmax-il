@@ -344,7 +344,7 @@ static OMX_ERRORTYPE set_initial_component_volume (ar_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
-static bool set_alsa_master_volume (const ar_prc_t *ap_prc, const long a_volume)
+static bool set_alsa_master_volume (ar_prc_t *ap_prc, const long a_volume)
 {
   bool rc = false;
   assert (ap_prc);
