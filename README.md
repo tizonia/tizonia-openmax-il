@@ -121,26 +121,17 @@ build.
 
 ### libspotify ###
 
-To stream music from Spotify, libspotify needs to be present in your system. A
-suitable 'libspotify' flavour can be downloaded from Spotify's website:
-
-    https://developer.spotify.com/technologies/libspotify/
-
-However, the Makefile(s) found in the tarballs listed in Spotify's website may
-or may not work for you out of the box. Alternatively, you can download from my
-site patched versions of the i686 and x86_64 tarballs that will work in any
-regular Ubuntu or Debian-based system.
-
-E.g.: To download and install the *x86_64* version of the library, replace
-*$INSTALL_DIR* with your favorite location; replace *x86_64* with *i686* if you
-need the 32-bit version of the library):
+To stream music from Spotify, libspotify needs to be present in your
+system. You can install libspotify from
+[Modipy](https://github.com/mopidy/libspotify-deb) APT archive, like this:
 
 ```bash
 
-    $ wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-x86_64.tgz \
-        && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz \
-        && cd libspotify-12.1.51-Linux-x86_64 \
-        && make install prefix=$INSTALL_DIR
+    $ wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add - \
+        && echo "deb http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list \
+        && echo "deb-src http://apt.mopidy.com/ stable main contrib non-free" | sudo tee -a /etc/apt/sources.list \
+        && sudo apt-get update \
+        && sudo apt-get install libspotify12 libspotify-dev -qq
 
 ```
 
@@ -150,14 +141,14 @@ To stream from Google Play Music, you need to install Simon Weber's
 [gmusicapi](https://github.com/simon-weber/gmusicapi) python library. You may
 want to install it from source as the latest version in pip
 [6.0.0](https://pypi.python.org/pypi/gmusicapi/6.0.0) sometimes is out-of-date
-and may or may not work. Note prior to doing that, in order to satisfy all of
-'gmusicapi's depedencies you might need to download and install a fresher
-version of setuptools (see https://pypi.python.org/pypi/setuptools).
+and may or may not work. In order to satisfy all of 'gmusicapi's depedencies
+you may need to download and install a fresher version of setuptools (see
+https://pypi.python.org/pypi/setuptools).
 
 
 ```bash
 
-    $ echo "OPTIONAL: Downloading and installing a fresher version of setuptools"
+    $ echo "OPTIONAL: Downloading and installing a fresh version of setuptools"
     $ wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python
 
     $ echo "Installing the latest gmusicapi from source..."
