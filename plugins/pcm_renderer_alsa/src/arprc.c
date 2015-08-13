@@ -288,6 +288,13 @@ static OMX_ERRORTYPE get_alsa_master_volume (ar_prc_t *ap_prc,
     snd_mixer_selem_id_set_name (sid, selem_name);
     elem = snd_mixer_find_selem (handle, sid);
 
+    if (!elem)
+      {
+        TIZ_ERROR (handleOf (ap_prc), "[OMX_ErrorInsufficientResources] : "
+                   "Unable to find mixer simple element.");
+        goto end;
+      }
+
     bail_on_snd_mixer_error (
         snd_mixer_selem_get_playback_volume_range (elem, &min, &max));
     bail_on_snd_mixer_error (snd_mixer_selem_get_playback_volume (
@@ -343,13 +350,12 @@ static bool set_alsa_master_volume (const ar_prc_t *ap_prc, const long a_volume)
   assert (ap_prc);
 
   {
-    const char *selem_name = "Master";
+    const char *selem_name = get_alsa_mixer (ap_prc);
     long min, max;
     snd_mixer_t *handle = NULL;
     snd_mixer_selem_id_t *sid = NULL;
     snd_mixer_elem_t *elem = NULL;
 
-    TIZ_TRACE (handleOf (ap_prc), "volume = %ld", a_volume);
     bail_on_snd_mixer_error (snd_mixer_open (&handle, 0));
     bail_on_snd_mixer_error (snd_mixer_attach (handle, ap_prc->p_alsa_pcm_));
     bail_on_snd_mixer_error (snd_mixer_selem_register (handle, NULL, NULL));
@@ -359,6 +365,13 @@ static bool set_alsa_master_volume (const ar_prc_t *ap_prc, const long a_volume)
     snd_mixer_selem_id_set_index (sid, 0);
     snd_mixer_selem_id_set_name (sid, selem_name);
     elem = snd_mixer_find_selem (handle, sid);
+
+    if (!elem)
+      {
+        TIZ_ERROR (handleOf (ap_prc), "[OMX_ErrorInsufficientResources] : "
+                   "Unable to find mixer simple element.");
+        goto end;
+      }
 
     bail_on_snd_mixer_error (
         snd_mixer_selem_get_playback_volume_range (elem, &min, &max));
