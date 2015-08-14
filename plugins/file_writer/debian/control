@@ -33,3 +33,13 @@ Description: Tizonia's OpenMAX IL binary file writer library, run-time library
  Tizonia's OpenMAX IL binary file writer library.
  .
  This package contains the runtime library libtizfw.
+
+Package: libtizfw0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizfw0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL binary file writer library, debug symbols
+ Tizonia's OpenMAX IL binary file writer library.
+ .
+ This package contains the detached debug symbols for libtizfw.

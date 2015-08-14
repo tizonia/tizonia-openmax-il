@@ -35,3 +35,13 @@ Description: Tizonia's OpenMAX IL HTTP audio source library, run-time library
  Tizonia's OpenMAX IL HTTP audio source library.
  .
  This package contains the runtime library libtizhttpsrc.
+
+Package: libtizhttpsrc0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizhttpsrc0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL HTTP audio source library, debug symbols
+ Tizonia's OpenMAX IL HTTP audio source library.
+ .
+ This package contains the detached debug symbols for libtizhttpsrc.

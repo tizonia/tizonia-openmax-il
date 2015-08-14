@@ -33,3 +33,13 @@ Description: Tizonia's OpenMAX IL AAC decoder library, run-time library
  Tizonia's OpenMAX IL AAC decoder library.
  .
  This package contains the runtime library libtizaacdec.
+
+Package: libtizaacdec0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizaacdec0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL AAC decoder library, debug symbols
+ Tizonia's OpenMAX IL AAC decoder library.
+ .
+ This package contains the detached debug symbols for libtizaacdec.

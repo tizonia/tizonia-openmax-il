@@ -10,3 +10,6 @@ export DEB_CFLAGS_MAINT_APPEND=-I/usr/include/tizonia
 
 override_dh_shlibdeps:
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+
+override_dh_strip:
+	dh_strip --dbg-package=libtizspotifysrc0-dbg

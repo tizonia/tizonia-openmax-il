@@ -35,3 +35,13 @@ Description: Tizonia's OpenMAX IL audio renderer (ALSA) library, run-time librar
  Tizonia's OpenMAX IL audio renderer (ALSA) library.
  .
  This package contains the runtime library libtizalsapcmrnd.
+
+Package: libtizalsapcmrnd0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizalsapcmrnd0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL audio renderer (ALSA) library, debug symbols
+ Tizonia's OpenMAX IL audio renderer (ALSA) library.
+ .
+ This package contains the detached debug symbols for libtizalsapcmrnd.

@@ -35,3 +35,13 @@ Description: Tizonia's OpenMAX IL FLAC decoder library, run-time library
  Tizonia's OpenMAX IL FLAC decoder library.
  .
  This package contains the runtime library libtizflacdec.
+
+Package: libtizflacdec0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizflacdec0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL FLAC decoder library, debug symbols
+ Tizonia's OpenMAX IL FLAC decoder library.
+ .
+ This package contains the detached debug symbols for libtizflacdec.

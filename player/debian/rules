@@ -13,3 +13,6 @@ export DEB_CXXFLAGS_MAINT_SET=-I/usr/include/tizonia -O2 -s -DNDEBUG -fstack-pro
 
 override_dh_auto_configure:
 	dh_auto_configure -- --with-boost-libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+
+override_dh_strip:
+	dh_strip --dbg-package=tizonia-player-dbg

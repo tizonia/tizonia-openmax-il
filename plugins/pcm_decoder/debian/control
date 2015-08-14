@@ -31,7 +31,17 @@ Package: libtizpcmdec0
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Tizonia's OpenMAX IL sampled sound decoder library, run-time library
+Description: Tizonia's OpenMAX IL sampled sound (PCM) decoder library, run-time library
  Tizonia's OpenMAX IL sampled sound (PCM) decoder library.
  .
  This package contains the runtime library libtizpcmdec.
+
+Package: libtizpcmdec0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizpcmdec0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL sampled sound (PCM) decoder library, debug symbols
+ Tizonia's OpenMAX IL sampled sound (PCM) decoder library.
+ .
+ This package contains the detached debug symbols for libtizpcmdec.

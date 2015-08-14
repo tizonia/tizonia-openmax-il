@@ -35,3 +35,13 @@ Description: Tizonia's OpenMAX IL MP3 encoder library, run-time library
  Tizonia's OpenMAX IL MP3 encoder library.
  .
  This package contains the runtime library libtizmp3enc.
+
+Package: libtizmp3enc0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizmp3enc0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL MP3 encoder library, debug symbols
+ Tizonia's OpenMAX IL MP3 encoder library.
+ .
+ This package contains the detached debug symbols for libtizmp3enc.

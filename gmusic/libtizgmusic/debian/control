@@ -25,3 +25,13 @@ Description: Tizonia's Google Play Music client library, run-time library
  Tizonia's Google Play Music client library.
  .
  This package contains the runtime library libtizgmusic.
+
+Package: libtizgmusic0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizgmusic0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's Google Play Music client library, debug symbols
+ Tizonia's Google Play Music client library.
+ .
+ This package contains the detached debug symbols for libtizgmusic.

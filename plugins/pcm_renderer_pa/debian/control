@@ -35,3 +35,13 @@ Description: Tizonia's OpenMAX IL audio renderer (Pulseaudio) library, run-time 
  Tizonia's OpenMAX IL audio renderer (Pulseaudio) library.
  .
  This package contains the runtime library libtizpulsepcmrnd.
+
+Package: libtizpulsepcmrnd0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizpulsepcmrnd0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL audio renderer (Pulseaudio) library, debug symbols
+ Tizonia's OpenMAX IL audio renderer (Pulseaudio) library.
+ .
+ This package contains the detached debug symbols for libtizpulsepcmrnd.

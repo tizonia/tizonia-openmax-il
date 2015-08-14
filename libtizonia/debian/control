@@ -38,3 +38,13 @@ Description: Tizonia's OpenMAX IL 1.2 base component library, run-time library
  Tizonia's OpenMAX IL 1.2 base component library.
  .
  This package contains the runtime library libtizonia.
+
+Package: libtizonia0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizonia0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL 1.2 base component library, debug symbols
+ Tizonia's OpenMAX IL 1.2 base component library.
+ .
+ This package contains the detached debug symbols for libtizonia.

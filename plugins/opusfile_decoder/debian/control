@@ -35,3 +35,13 @@ Description: Tizonia's OpenMAX IL OPUS decoder (libopusfile) library, run-time l
  Tizonia's OpenMAX IL OPUS decoder (libopusfile) library.
  .
  This package contains the runtime library libtizopusfiledec.
+
+Package: libtizopusfiledec0-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libtizopusfiledec0 (= ${binary:Version}), ${misc:Depends}
+Description: Tizonia's OpenMAX IL OPUS decoder (libopusfile) library, debug symbols
+ Tizonia's OpenMAX IL OPUS decoder (libopusfile) library.
+ .
+ This package contains the detached debug symbols for libtizopusfiledec.
