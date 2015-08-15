@@ -352,6 +352,24 @@ function obtain_distro_id_and_codename {
 ##################################################################
 function do_deps {
 
+    # Add mopidy APT archive to sources, if not added already
+    # and install libspotify using mopidy's deb packages
+    local spotify=$(sudo ldconfig -p | grep -c libspotify)
+    if [[ "$spotify" -eq 0 ]]; then
+        grep -q 'apt.mopidy.com' /etc/apt/sources.list
+        if [[ "$?" -ne 0 ]]; then
+            # Add Mopidy APT archive to sources.list
+            pretty_print "$BLU" "[libspotify] : installing libspotify debian packages."
+            sudo apt-get install -q -y "$pkg" #> /dev/null
+            wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
+            echo deb http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
+            deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
+            sudo apt-get update
+            sudo apt-get install libspotify12 libspotify-dev -q -y
+            pretty_print "$GRN" "[libspotify] : installed."
+        fi
+    fi
+
     # Install tizonia's binary dependencies
     for pkg in "${TIZ_TIZONIA_DEPS[@]}"; do
         local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
@@ -394,8 +412,8 @@ function do_deps {
         pretty_print "$GRN" "[gmusicapi] : installed."
     fi
 
-    # Install libspotify
-    local spotify=$(sudo ldconfig -p | grep -c libspotify)
+    # Install libspotify binaries using my own tar files, in case the binary
+    # installation from mopidy's APT archive failed for whatever reason
     if [[ "$spotify" -eq 0 ]]; then
         cd "$TEMP_DIR" \
             && wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-$(uname -m).tgz \
