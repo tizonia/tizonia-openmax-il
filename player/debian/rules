@@ -6,9 +6,9 @@ include /usr/share/dpkg/default.mk
 #export DH_VERBOSE=1
 # export DEB_BUILD_MAINT_OPTIONS=hardening=-all
 export DEB_CFLAGS_MAINT_APPEND=-I/usr/include/tizonia
-export DEB_CXXFLAGS_MAINT_SET=-I/usr/include/tizonia -O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security
+# export DEB_CXXFLAGS_MAINT_SET=-I/usr/include/tizonia -O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security
 # Use this during testing and to produce a -dbg package with actual contents!
-# export DEB_CXXFLAGS_MAINT_SET=-I/usr/include/tizonia -g -Os -s -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security
+export DEB_CXXFLAGS_MAINT_SET=-I/usr/include/tizonia -g -O0 -s -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security
 
 %:
 	dh $@  --with autoreconf
