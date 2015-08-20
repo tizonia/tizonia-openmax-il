@@ -84,26 +84,26 @@
     }                                                      \
   while (0)
 
+#define log_alsa_pcm_state(ap_obj)                                        \
+  do                                                                      \
+    {                                                                     \
+      const ar_prc_t *ap_prc = ap_obj;                                    \
+      if (ap_prc && ap_prc->p_pcm)                                        \
+        {                                                                 \
+          TIZ_DEBUG (handleOf (ap_prc), "ALSA PCM state : [%s]",          \
+                     snd_pcm_state_name (snd_pcm_state (ap_prc->p_pcm))); \
+        }                                                                 \
+    }                                                                     \
+  while (0)
+
 /* Forward declaration */
-static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj);
-
-static void log_alsa_pcm_state (ar_prc_t *ap_prc)
-{
-  assert (ap_prc);
-
-  if (ap_prc->p_pcm_hdl)
-    {
-      snd_pcm_state_t state = snd_pcm_state (ap_prc->p_pcm_hdl);
-      TIZ_DEBUG (handleOf (ap_prc), "ALSA PCM state : [%s]",
-                 snd_pcm_state_name (state));
-    }
-}
+static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_prc);
 
 /*@null@*/ static char *get_alsa_device (ar_prc_t *ap_prc)
 {
   assert (ap_prc);
 
-  if (!ap_prc->p_alsa_pcm_)
+  if (!ap_prc->p_pcm_name_)
     {
       const char *p_alsa_pcm = tiz_rcfile_get_value (
           TIZ_RCFILE_PLUGINS_DATA_SECTION,
@@ -112,7 +112,7 @@ static void log_alsa_pcm_state (ar_prc_t *ap_prc)
       if (p_alsa_pcm)
         {
           TIZ_TRACE (handleOf (ap_prc), "Using ALSA pcm [%s]...", p_alsa_pcm);
-          ap_prc->p_alsa_pcm_ = strndup (p_alsa_pcm, OMX_MAX_STRINGNAME_SIZE);
+          ap_prc->p_pcm_name_ = strndup (p_alsa_pcm, OMX_MAX_STRINGNAME_SIZE);
         }
       else
         {
@@ -121,8 +121,8 @@ static void log_alsa_pcm_state (ar_prc_t *ap_prc)
                      ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_DEVICE);
         }
     }
-  return (ap_prc->p_alsa_pcm_)
-             ? ap_prc->p_alsa_pcm_
+  return (ap_prc->p_pcm_name_)
+             ? ap_prc->p_pcm_name_
              : ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_DEVICE;
 }
 
@@ -130,7 +130,7 @@ static void log_alsa_pcm_state (ar_prc_t *ap_prc)
 {
   assert (ap_prc);
 
-  if (!ap_prc->p_alsa_mixer_)
+  if (!ap_prc->p_mixer_name_)
     {
       const char *p_alsa_mixer = tiz_rcfile_get_value (
           TIZ_RCFILE_PLUGINS_DATA_SECTION,
@@ -139,7 +139,7 @@ static void log_alsa_pcm_state (ar_prc_t *ap_prc)
       if (p_alsa_mixer)
         {
           TIZ_TRACE (handleOf (ap_prc), "Using ALSA mixer [%s]...", p_alsa_mixer);
-          ap_prc->p_alsa_mixer_ = strndup (p_alsa_mixer, OMX_MAX_STRINGNAME_SIZE);
+          ap_prc->p_mixer_name_ = strndup (p_alsa_mixer, OMX_MAX_STRINGNAME_SIZE);
         }
       else
         {
@@ -148,8 +148,8 @@ static void log_alsa_pcm_state (ar_prc_t *ap_prc)
                      ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_MIXER);
         }
     }
-  return (ap_prc->p_alsa_mixer_)
-             ? ap_prc->p_alsa_mixer_
+  return (ap_prc->p_mixer_name_)
+             ? ap_prc->p_mixer_name_
              : ARATELIA_AUDIO_RENDERER_DEFAULT_ALSA_MIXER;
 }
 
@@ -206,9 +206,9 @@ static inline OMX_ERRORTYPE do_flush (ar_prc_t *ap_prc)
 {
   assert (ap_prc);
   tiz_check_omx_err (stop_io_watcher (ap_prc));
-  if (ap_prc->p_pcm_hdl)
+  if (ap_prc->p_pcm)
     {
-      (void)snd_pcm_drop (ap_prc->p_pcm_hdl);
+      (void)snd_pcm_drop (ap_prc->p_pcm);
     }
   /* Release any buffers held  */
   return release_header (ap_prc);
@@ -279,7 +279,7 @@ static OMX_ERRORTYPE get_alsa_master_volume (ar_prc_t *ap_prc,
 
     rc = OMX_ErrorInsufficientResources;
     bail_on_snd_mixer_error (snd_mixer_open (&handle, 0));
-    bail_on_snd_mixer_error (snd_mixer_attach (handle, ap_prc->p_alsa_pcm_));
+    bail_on_snd_mixer_error (snd_mixer_attach (handle, ap_prc->p_pcm_name_));
     bail_on_snd_mixer_error (snd_mixer_selem_register (handle, NULL, NULL));
     bail_on_snd_mixer_error (snd_mixer_load (handle));
 
@@ -357,7 +357,7 @@ static bool set_alsa_master_volume (ar_prc_t *ap_prc, const long a_volume)
     snd_mixer_elem_t *elem = NULL;
 
     bail_on_snd_mixer_error (snd_mixer_open (&handle, 0));
-    bail_on_snd_mixer_error (snd_mixer_attach (handle, ap_prc->p_alsa_pcm_));
+    bail_on_snd_mixer_error (snd_mixer_attach (handle, ap_prc->p_pcm_name_));
     bail_on_snd_mixer_error (snd_mixer_selem_register (handle, NULL, NULL));
     bail_on_snd_mixer_error (snd_mixer_load (handle));
 
@@ -488,7 +488,7 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
 
   while (samples > 0 && OMX_ErrorNone == rc)
     {
-      err = snd_pcm_writei (ap_prc->p_pcm_hdl,
+      err = snd_pcm_writei (ap_prc->p_pcm,
                             ap_hdr->pBuffer + ap_hdr->nOffset, samples);
 
       if (-EAGAIN == err)
@@ -500,7 +500,7 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
         {
           /* This should handle -EINTR (interrupted system call), -EPIPE
            * (overrun or underrun) and -ESTRPIPE (stream is suspended) */
-          err = snd_pcm_recover (ap_prc->p_pcm_hdl, (int)err, 0);
+          err = snd_pcm_recover (ap_prc->p_pcm, (int)err, 0);
           if (err < 0)
             {
               TIZ_ERROR (handleOf (ap_prc), "snd_pcm_recover error: %s",
@@ -600,13 +600,13 @@ static OMX_ERRORTYPE render_pcm_data (ar_prc_t *ap_prc)
  * arprc
  */
 
-static void *ar_prc_ctor (void *ap_obj, va_list *app)
+static void *ar_prc_ctor (void *ap_prc, va_list *app)
 {
-  ar_prc_t *p_obj = super_ctor (typeOf (ap_obj, "arprc"), ap_obj, app);
-  p_obj->p_pcm_hdl = NULL;
+  ar_prc_t *p_obj = super_ctor (typeOf (ap_prc, "arprc"), ap_prc, app);
+  p_obj->p_pcm = NULL;
   p_obj->p_hw_params = NULL;
-  p_obj->p_alsa_pcm_ = NULL;
-  p_obj->p_alsa_mixer_ = NULL;
+  p_obj->p_pcm_name_ = NULL;
+  p_obj->p_mixer_name_ = NULL;
   p_obj->descriptor_count_ = 0;
   p_obj->p_fds_ = NULL;
   p_obj->p_ev_io_ = NULL;
@@ -622,10 +622,10 @@ static void *ar_prc_ctor (void *ap_obj, va_list *app)
   return p_obj;
 }
 
-static void *ar_prc_dtor (void *ap_obj)
+static void *ar_prc_dtor (void *ap_prc)
 {
-  (void)ar_prc_deallocate_resources (ap_obj);
-  return super_dtor (typeOf (ap_obj, "arprc"), ap_obj);
+  (void)ar_prc_deallocate_resources (ap_prc);
+  return super_dtor (typeOf (ap_prc, "arprc"), ap_prc);
 }
 
 /*
@@ -639,13 +639,13 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
 
   assert (p_prc);
 
-  if (!p_prc->p_pcm_hdl)
+  if (!p_prc->p_pcm)
     {
       char *p_device = get_alsa_device (p_prc);
       assert (p_device);
 
       /* Open a PCM in non-blocking mode */
-      bail_on_snd_pcm_error (snd_pcm_open (&p_prc->p_pcm_hdl, p_device,
+      bail_on_snd_pcm_error (snd_pcm_open (&p_prc->p_pcm, p_device,
                                            SND_PCM_STREAM_PLAYBACK,
                                            SND_PCM_NONBLOCK));
       /* Allocate alsa's hardware parameter structure */
@@ -653,7 +653,7 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
 
       /* Get the alsa descriptors count */
       p_prc->descriptor_count_
-          = snd_pcm_poll_descriptors_count (p_prc->p_pcm_hdl);
+          = snd_pcm_poll_descriptors_count (p_prc->p_pcm);
       if (p_prc->descriptor_count_ <= 0)
         {
           TIZ_ERROR (handleOf (p_prc),
@@ -672,7 +672,7 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
           tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
     }
 
-  assert (p_prc->p_pcm_hdl);
+  assert (p_prc->p_pcm);
 
   return OMX_ErrorNone;
 }
@@ -683,14 +683,16 @@ static OMX_ERRORTYPE ar_prc_prepare_to_transfer (void *ap_prc,
   ar_prc_t *p_prc = ap_prc;
   assert (p_prc);
 
-  if (p_prc->p_pcm_hdl)
+  if (p_prc->p_pcm)
     {
       snd_pcm_format_t snd_pcm_format;
       unsigned int snd_sampling_rate = 0;
 
+      log_alsa_pcm_state (p_prc);
+
       /* Fill params with a full configuration space for the PCM. */
       bail_on_snd_pcm_error (
-          snd_pcm_hw_params_any (p_prc->p_pcm_hdl, p_prc->p_hw_params));
+          snd_pcm_hw_params_any (p_prc->p_pcm, p_prc->p_hw_params));
 
       TIZ_DEBUG (
           handleOf (p_prc), "Device can pause [%s] ",
@@ -749,14 +751,14 @@ static OMX_ERRORTYPE ar_prc_prepare_to_transfer (void *ap_prc,
 
       /* This sets the hardware and software parameters in a convenient way. */
       bail_on_snd_pcm_error (snd_pcm_set_params (
-          p_prc->p_pcm_hdl, snd_pcm_format, SND_PCM_ACCESS_RW_INTERLEAVED,
+          p_prc->p_pcm, snd_pcm_format, SND_PCM_ACCESS_RW_INTERLEAVED,
           (unsigned int)p_prc->pcmmode.nChannels, snd_sampling_rate,
           0,     /* allow alsa-lib resampling */
           100000 /* overall latency in us */
           ));
 
       bail_on_snd_pcm_error (snd_pcm_poll_descriptors (
-          p_prc->p_pcm_hdl, p_prc->p_fds_, p_prc->descriptor_count_));
+          p_prc->p_pcm, p_prc->p_fds_, p_prc->descriptor_count_));
 
       TIZ_DEBUG (handleOf (p_prc), "Poll descriptors : %d",
                  p_prc->descriptor_count_);
@@ -767,7 +769,7 @@ static OMX_ERRORTYPE ar_prc_prepare_to_transfer (void *ap_prc,
                                    TIZ_EVENT_READ_OR_WRITE, true));
 
       /* OK, now prepare the PCM for use */
-      bail_on_snd_pcm_error (snd_pcm_prepare (p_prc->p_pcm_hdl));
+      bail_on_snd_pcm_error (snd_pcm_prepare (p_prc->p_pcm));
 
       /* Internally store the initial volume, so that the internal OMX volume
          struct reflects the current value of ALSA's master volume. */
@@ -782,26 +784,28 @@ static OMX_ERRORTYPE ar_prc_prepare_to_transfer (void *ap_prc,
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE ar_prc_transfer_and_process (void *ap_obj,
+static OMX_ERRORTYPE ar_prc_transfer_and_process (void *ap_prc,
                                                   OMX_U32 TIZ_UNUSED (a_pid))
 {
-  ar_prc_t *p_prc = ap_obj;
+  ar_prc_t *p_prc = ap_prc;
   assert (p_prc);
+  log_alsa_pcm_state (p_prc);
   prepare_volume_ramp (p_prc);
   tiz_check_omx_err (start_volume_ramp (p_prc));
   tiz_check_omx_err (apply_ramp_step (p_prc));
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE ar_prc_stop_and_return (void *ap_obj)
+static OMX_ERRORTYPE ar_prc_stop_and_return (void *ap_prc)
 {
-  stop_volume_ramp (ap_obj);
-  return do_flush (ap_obj);
+  log_alsa_pcm_state (ap_prc);
+  stop_volume_ramp (ap_prc);
+  return do_flush (ap_prc);
 }
 
-static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj)
+static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_prc)
 {
-  ar_prc_t *p_prc = ap_obj;
+  ar_prc_t *p_prc = ap_prc;
   assert (p_prc);
 
   tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_ev_timer_);
@@ -817,17 +821,17 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj)
   if (p_prc->p_hw_params)
     {
       snd_pcm_hw_params_free (p_prc->p_hw_params);
-      (void)snd_pcm_close (p_prc->p_pcm_hdl);
+      (void)snd_pcm_close (p_prc->p_pcm);
       (void)snd_config_update_free_global ();
-      p_prc->p_pcm_hdl = NULL;
+      p_prc->p_pcm = NULL;
       p_prc->p_hw_params = NULL;
     }
 
-  tiz_mem_free (p_prc->p_alsa_pcm_);
-  p_prc->p_alsa_pcm_ = NULL;
+  tiz_mem_free (p_prc->p_pcm_name_);
+  p_prc->p_pcm_name_ = NULL;
 
-  tiz_mem_free (p_prc->p_alsa_mixer_);
-  p_prc->p_alsa_mixer_ = NULL;
+  tiz_mem_free (p_prc->p_mixer_name_);
+  p_prc->p_mixer_name_ = NULL;
 
   return OMX_ErrorNone;
 }
@@ -836,9 +840,9 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_obj)
  * from tiz_prc class
  */
 
-static OMX_ERRORTYPE ar_prc_buffers_ready (const void *ap_obj)
+static OMX_ERRORTYPE ar_prc_buffers_ready (const void *ap_prc)
 {
-  ar_prc_t *p_prc = (ar_prc_t *)ap_obj;
+  ar_prc_t *p_prc = (ar_prc_t *)ap_prc;
   assert (p_prc);
   TIZ_TRACE (handleOf (p_prc),
              "Received buffer ready notification - "
@@ -847,16 +851,16 @@ static OMX_ERRORTYPE ar_prc_buffers_ready (const void *ap_obj)
   return render_pcm_data (p_prc);
 }
 
-static OMX_ERRORTYPE ar_prc_io_ready (void *ap_obj, tiz_event_io_t *ap_ev_io,
+static OMX_ERRORTYPE ar_prc_io_ready (void *ap_prc, tiz_event_io_t *ap_ev_io,
                                       int a_fd, int a_events)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  ar_prc_t *p_prc = ap_obj;
+  ar_prc_t *p_prc = ap_prc;
   TIZ_TRACE (handleOf (p_prc), "Received io event on fd [%d]", a_fd);
   if (p_prc->awaiting_io_ev_)
     {
       p_prc->awaiting_io_ev_ = false;
-      rc = render_pcm_data (ap_obj);
+      rc = render_pcm_data (ap_prc);
     }
   return rc;
 }
@@ -875,8 +879,9 @@ static OMX_ERRORTYPE ar_prc_pause (const void *ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int pause = 1;
   assert (p_prc);
+  log_alsa_pcm_state (p_prc);
   tiz_check_omx_err (stop_io_watcher (p_prc));
-  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_hdl, pause));
+  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm, pause));
   TIZ_TRACE (handleOf (p_prc),
              "PAUSED ALSA device..."
              "awaiting_io_ev_ [%s]",
@@ -890,15 +895,16 @@ static OMX_ERRORTYPE ar_prc_resume (const void *ap_prc)
   int resume = 0;
   assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "RESUMING ALSA device...");
-  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_hdl, resume));
+  log_alsa_pcm_state (p_prc);
+  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm, resume));
   tiz_check_omx_err (start_io_watcher (p_prc));
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE ar_prc_port_flush (const void *ap_obj,
+static OMX_ERRORTYPE ar_prc_port_flush (const void *ap_prc,
                                         OMX_U32 TIZ_UNUSED (a_pid))
 {
-  ar_prc_t *p_prc = (ar_prc_t *)ap_obj;
+  ar_prc_t *p_prc = (ar_prc_t *)ap_prc;
   return do_flush (p_prc);
 }
 
@@ -908,40 +914,41 @@ static OMX_ERRORTYPE ar_prc_port_disable (const void *ap_prc,
   ar_prc_t *p_prc = (ar_prc_t *)ap_prc;
   assert (p_prc);
   TIZ_PRINTF_DBG_BLU ("Received port disable\n");
+  log_alsa_pcm_state (p_prc);
   stop_volume_ramp (p_prc);
   p_prc->port_disabled_ = true;
-  if (p_prc->p_pcm_hdl)
+  if (p_prc->p_pcm)
     {
-      bail_on_snd_pcm_error (snd_pcm_drain (p_prc->p_pcm_hdl));
+      bail_on_snd_pcm_error (snd_pcm_drain (p_prc->p_pcm));
       tiz_check_omx_err (stop_io_watcher (p_prc));
     }
   /* Release any buffers held  */
   return release_header ((ar_prc_t *)ap_prc);
 }
 
-static OMX_ERRORTYPE ar_prc_port_enable (const void *ap_obj,
+static OMX_ERRORTYPE ar_prc_port_enable (const void *ap_prc,
                                          OMX_U32 TIZ_UNUSED (a_pid))
 {
-  ar_prc_t *p_prc = (ar_prc_t *)ap_obj;
+  ar_prc_t *p_prc = (ar_prc_t *)ap_prc;
   assert (p_prc);
   TIZ_PRINTF_DBG_GRN ("Received port emable\n");
+  log_alsa_pcm_state (p_prc);
   p_prc->port_disabled_ = false;
-  if (p_prc->p_pcm_hdl)
+  if (p_prc->p_pcm)
     {
-      log_alsa_pcm_state (p_prc);
       tiz_check_omx_err (ar_prc_prepare_to_transfer (p_prc, OMX_ALL));
       tiz_check_omx_err (ar_prc_transfer_and_process (p_prc, OMX_ALL));
     }
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE ar_prc_config_change (void *ap_obj, OMX_U32 a_pid,
+static OMX_ERRORTYPE ar_prc_config_change (void *ap_prc, OMX_U32 a_pid,
                                            OMX_INDEXTYPE a_config_idx)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  ar_prc_t *p_prc = ap_obj;
+  ar_prc_t *p_prc = ap_prc;
 
-  assert (ap_obj);
+  assert (ap_prc);
 
   if (ARATELIA_AUDIO_RENDERER_PORT_INDEX == a_pid)
     {
@@ -987,10 +994,10 @@ static OMX_ERRORTYPE ar_prc_config_change (void *ap_obj, OMX_U32 a_pid,
  * ar_prc_class
  */
 
-static void *ar_prc_class_ctor (void *ap_obj, va_list *app)
+static void *ar_prc_class_ctor (void *ap_prc, va_list *app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "arprc_class"), ap_obj, app);
+  return super_ctor (typeOf (ap_prc, "arprc_class"), ap_prc, app);
 }
 
 /*

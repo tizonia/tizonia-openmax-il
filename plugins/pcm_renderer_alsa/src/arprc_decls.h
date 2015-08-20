@@ -48,10 +48,10 @@ extern "C"
     /* Object */
     const tiz_prc_t _;
     OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
-    snd_pcm_t *p_pcm_hdl;
+    snd_pcm_t *p_pcm;
     snd_pcm_hw_params_t *p_hw_params;
-    char *p_alsa_pcm_;
-    char *p_alsa_mixer_;
+    char *p_pcm_name_;
+    char *p_mixer_name_;
     int descriptor_count_;
     struct pollfd *p_fds_;
     tiz_event_io_t *p_ev_io_;
