@@ -304,7 +304,7 @@ function usage {
     pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
 
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-a] [-n] [-d] [-r] [-s]"
+    pretty_print "$GRN" "Usage : $(basename $0) [-n|--makenext] [-d|--deps] [-p|--publish] [-r|--removeall] [-s|--signdebs]"
     pretty_print "$GRN" "       -n            : Make and install all debian packages, starting from the first one not yet installed."
     pretty_print "$GRN" "       -d            : Install both Tizonia's and Debian's dependencies."
     pretty_print "$GRN" "       -p            : Publish to Bintray (requires Tizonia's Bintray API_KEY and Juan's GPG passphrase)."
@@ -923,6 +923,7 @@ function do_uninstall_project_debs {
 ##################################################################
 function do_uninstall_all_debs {
     local exit_status=0
+    sudo apt-get remove --purge tizonia-all -q -y && sudo apt-get autoremove -q -y
     dpkg -l | grep -E 'ii\s*(libtiz|tiz|python-tiz)' | awk '{ print $2 }' | xargs sudo apt-get remove --purge -qq
     return "$exit_status"
 }
