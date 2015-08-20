@@ -42,6 +42,7 @@
 #include "tizgraphmgrcmd.hpp"
 #include "tizgraph.hpp"
 #include "tizomxutil.hpp"
+#include "tizgraphutil.hpp"
 #include "mpris/tizmprisprops.hpp"
 #include "mpris/tizmpriscbacks.hpp"
 #include "tizgraphmgrcaps.hpp"
@@ -54,6 +55,7 @@
 
 namespace graphmgr = tiz::graphmgr;
 namespace control = tiz::control;
+namespace graph = tiz::graph;
 
 void *graphmgr::thread_func (void *p_arg)
 {
@@ -305,7 +307,7 @@ OMX_ERRORTYPE
 graphmgr::mgr::start_mpris (const graphmgr_capabilities_t &graphmgr_caps)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  if (!mpris_ptr_)
+  if (!mpris_ptr_ && graph::util::is_mpris_enabled ())
   {
     control::mpris_callbacks_t mpris_cbacks (
         boost::bind (&tiz::graphmgr::mgr::start, this),

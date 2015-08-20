@@ -811,3 +811,19 @@ std::string graph::util::get_default_pcm_renderer ()
     }
   return renderer_name;
 }
+
+bool graph::util::is_mpris_enabled ()
+{
+  bool is_enabled = false;
+  const char *p_mpris_enabled = tiz_rcfile_get_value("tizonia", "mpris-enabled");
+  if (p_mpris_enabled)
+    {
+      std::string mpris_enabled_str;
+      mpris_enabled_str.assign (p_mpris_enabled);
+      if (mpris_enabled_str.compare ("true") == 0)
+        {
+          is_enabled = true;
+        }
+    }
+  return is_enabled;
+}

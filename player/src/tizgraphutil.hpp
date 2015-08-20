@@ -185,6 +185,8 @@ namespace tiz
       static bool is_fatal_error (const OMX_ERRORTYPE error);
 
       static std::string get_default_pcm_renderer ();
+
+      static bool is_mpris_enabled ();
     };
   }  // namespace graph
 }  // namespace tiz

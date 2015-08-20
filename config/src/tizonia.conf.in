@@ -162,6 +162,8 @@ OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 
 default-audio-renderer = OMX.Aratelia.audio_renderer.alsa.pcm
 
+mpris-enabled = false
+
 ###########
 # Spotify #
 ###########
