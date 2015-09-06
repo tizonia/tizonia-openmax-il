@@ -919,12 +919,16 @@ static OMX_ERRORTYPE ar_prc_port_disable (const void *ap_prc,
   p_prc->port_disabled_ = true;
   if (p_prc->p_pcm)
     {
+<<<<<<< local
+      (void)snd_pcm_drop (p_prc->p_pcm);
+=======
       /* Try to drain the PCM...*/
       if (snd_pcm_drain (p_prc->p_pcm))
         {
           /* ... or else drop all samples. */
           (void)snd_pcm_drop (p_prc->p_pcm);
         }
+>>>>>>> other
       tiz_check_omx_err (stop_io_watcher (p_prc));
     }
   /* Release any buffers held  */
