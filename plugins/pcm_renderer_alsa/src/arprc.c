@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <math.h>
 #include <string.h>
+#include <byteswap.h>
 
 #include <tizplatform.h>
 
@@ -88,16 +89,149 @@
   do                                                                      \
     {                                                                     \
       const ar_prc_t *ap_prc = ap_obj;                                    \
-      if (ap_prc && ap_prc->p_pcm)                                        \
+      if (ap_prc && ap_prc->p_pcm_)                                        \
         {                                                                 \
           TIZ_DEBUG (handleOf (ap_prc), "ALSA PCM state : [%s]",          \
-                     snd_pcm_state_name (snd_pcm_state (ap_prc->p_pcm))); \
+                     snd_pcm_state_name (snd_pcm_state (ap_prc->p_pcm_))); \
         }                                                                 \
     }                                                                     \
   while (0)
 
 /* Forward declaration */
 static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_prc);
+
+static void verify_alsa_pcm_format_support (
+    ar_prc_t *ap_prc, snd_pcm_format_t *ap_snd_pcm_format)
+{
+  int fmt = 0;
+  snd_pcm_format_mask_t *fmask = NULL;
+  bool is_supported_format = false;
+
+  assert (ap_prc);
+  assert (ap_snd_pcm_format);
+
+  snd_pcm_format_mask_alloca (&fmask);
+  snd_pcm_hw_params_get_format_mask (ap_prc->p_hw_params_, fmask);
+
+  for (fmt = 0; fmt <= SND_PCM_FORMAT_LAST; ++fmt)
+    {
+      if (snd_pcm_format_mask_test (fmask, (snd_pcm_format_t)fmt))
+        {
+          const snd_pcm_format_t supported_format = snd_pcm_format_value (
+              snd_pcm_format_name ((snd_pcm_format_t)fmt));
+          TIZ_DEBUG (handleOf (ap_prc), "%s : byte order [%s]",
+                     snd_pcm_format_name ((snd_pcm_format_t)fmt),
+                     snd_pcm_format_little_endian (supported_format) == 1
+                         ? "LITTLE"
+                         : "BIG");
+          if (supported_format == *ap_snd_pcm_format)
+            {
+              is_supported_format = true;
+              TIZ_DEBUG (handleOf (ap_prc),
+                         "%s : format supported by the alsa pcm",
+                         snd_pcm_format_name ((snd_pcm_format_t)fmt));
+              break;
+            }
+        }
+    }
+
+  if (!is_supported_format)
+    {
+      ap_prc->swap_byte_order_ = true;
+
+      switch (*ap_snd_pcm_format)
+        {
+          case SND_PCM_FORMAT_FLOAT_LE:
+            {
+              *ap_snd_pcm_format = SND_PCM_FORMAT_FLOAT_BE;
+            }
+            break;
+          case SND_PCM_FORMAT_FLOAT_BE:
+            {
+              *ap_snd_pcm_format = SND_PCM_FORMAT_FLOAT_LE;
+            }
+            break;
+          case SND_PCM_FORMAT_S24:
+            {
+              *ap_snd_pcm_format = SND_PCM_FORMAT_S24_BE;
+            }
+            break;
+          case SND_PCM_FORMAT_S24_BE:
+            {
+              *ap_snd_pcm_format = SND_PCM_FORMAT_S24;
+            }
+            break;
+          case SND_PCM_FORMAT_S16:
+            {
+              *ap_snd_pcm_format = SND_PCM_FORMAT_S16_BE;
+            }
+            break;
+          case SND_PCM_FORMAT_S16_BE:
+            {
+              *ap_snd_pcm_format = SND_PCM_FORMAT_S16;
+            }
+            break;
+          default:
+            {
+            }
+            break;
+        };
+    }
+}
+
+static OMX_ERRORTYPE retrieve_alsa_pcm_format (
+    ar_prc_t *ap_prc, snd_pcm_format_t *ap_snd_pcm_format)
+{
+
+  assert (ap_prc);
+  assert (ap_snd_pcm_format);
+  assert (ap_prc->p_hw_params_);
+
+  TIZ_INIT_OMX_PORT_STRUCT (ap_prc->pcmmode,
+                            ARATELIA_AUDIO_RENDERER_PORT_INDEX);
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_IndexParamAudioPcm, &ap_prc->pcmmode));
+
+  if (ap_prc->pcmmode.nBitPerSample == 24)
+    {
+      *ap_snd_pcm_format = ap_prc->pcmmode.eEndian == OMX_EndianLittle
+                           ? SND_PCM_FORMAT_S24
+                           : SND_PCM_FORMAT_S24_BE;
+    }
+  /* NOTE: this is to allow float pcm streams coming from the the vorbis or
+     opusfile decoders */
+  else if (ap_prc->pcmmode.nBitPerSample == 32)
+    {
+      *ap_snd_pcm_format = ap_prc->pcmmode.eEndian == OMX_EndianLittle
+                           ? SND_PCM_FORMAT_FLOAT_LE
+                           : SND_PCM_FORMAT_FLOAT_BE;
+    }
+  else
+    {
+      *ap_snd_pcm_format = ap_prc->pcmmode.eEndian == OMX_EndianLittle
+                           ? SND_PCM_FORMAT_S16
+                           : SND_PCM_FORMAT_S16_BE;
+    }
+
+  verify_alsa_pcm_format_support(ap_prc, ap_snd_pcm_format);
+
+  TIZ_NOTICE (
+      handleOf (ap_prc),
+      "nChannels = [%d] nBitPerSample = [%d] "
+      "nSamplingRate = [%d] eNumData = [%s] eEndian = [%s] "
+      "bInterleaved = [%s] ePCMMode = [%d] snd_pcm_format = [%s]",
+      ap_prc->pcmmode.nChannels, ap_prc->pcmmode.nBitPerSample,
+      ap_prc->pcmmode.nSamplingRate,
+      ap_prc->pcmmode.eNumData == OMX_NumericalDataSigned ? "SIGNED"
+                                                          : "UNSIGNED",
+      ap_prc->pcmmode.eEndian == OMX_EndianBig ? "BIG" : "LITTLE",
+      ap_prc->pcmmode.bInterleaved == OMX_TRUE ? "OMX_TRUE" : "OMX_FALSE",
+      ap_prc->pcmmode.ePCMMode,
+      snd_pcm_format_name (*ap_snd_pcm_format));
+
+  return OMX_ErrorNone;
+}
 
 /*@null@*/ static char *get_alsa_device (ar_prc_t *ap_prc)
 {
@@ -206,9 +340,9 @@ static inline OMX_ERRORTYPE do_flush (ar_prc_t *ap_prc)
 {
   assert (ap_prc);
   tiz_check_omx_err (stop_io_watcher (ap_prc));
-  if (ap_prc->p_pcm)
+  if (ap_prc->p_pcm_)
     {
-      (void)snd_pcm_drop (ap_prc->p_pcm);
+      (void)snd_pcm_drop (ap_prc->p_pcm_);
     }
   /* Release any buffers held  */
   return release_header (ap_prc);
@@ -236,7 +370,7 @@ static int float_to_sint (const float a_sample)
 }
 
 static void adjust_gain (const ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE *ap_hdr,
-                         const snd_pcm_uframes_t a_num_samples)
+                         const snd_pcm_uframes_t a_samples_per_channel)
 {
   assert (ap_prc);
   assert (ap_hdr);
@@ -247,9 +381,9 @@ static void adjust_gain (const ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE *ap_hdr,
       int gainadj = (int)(ap_prc->gain_ * 256.);
       float gain = pow (10., gainadj / 5120.);
       /*       gain = 3.1f; */
-      /*       fprintf (stderr, "%f samples %ld\n", gain, a_num_samples); */
+      /*       fprintf (stderr, "%f samples %ld\n", gain, a_samples_per_channel); */
       OMX_S16 *pcm = (OMX_S16 *)(ap_hdr->pBuffer + ap_hdr->nOffset);
-      for (i = 0; i < a_num_samples; i++)
+      for (i = 0; i < a_samples_per_channel; i++)
         {
           float f = sint_to_float (*pcm);
           f *= gain;
@@ -260,6 +394,57 @@ static void adjust_gain (const ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE *ap_hdr,
           v = float_to_sint (f);
           *(pcm++) = (v > 32767) ? 32767 : ((v < -32768) ? -32768 : v);
         }
+    }
+}
+
+static void swap_byte_order_s16 (const ar_prc_t *ap_prc, OMX_BUFFERHEADERTYPE *ap_hdr,
+                                 const int a_samples)
+{
+  assert (ap_prc);
+  assert (ap_hdr);
+  assert (ap_hdr->pBuffer);
+
+  {
+    OMX_S16 *p_pcm = (OMX_S16 *)(ap_hdr->pBuffer + ap_hdr->nOffset);
+    int i = 0;
+    for (i = 0; i < a_samples; ++i)
+      {
+        *p_pcm = bswap_16(*p_pcm);
+        p_pcm++;
+      }
+  }
+}
+
+static void swap_byte_order (const ar_prc_t *ap_prc,
+                             OMX_BUFFERHEADERTYPE *ap_hdr)
+{
+  assert (ap_prc);
+  assert (ap_hdr);
+
+  if (ap_prc->swap_byte_order_ && !ap_hdr->nOffset)
+    {
+      const int bytes_per_sample = ap_prc->pcmmode.nBitPerSample / 8;
+      const int samples = ap_hdr->nFilledLen / bytes_per_sample;
+      TIZ_DEBUG (handleOf (ap_prc),
+                 "nBitPerSample = [%d] "
+                 "nFilledLen = [%d] "
+                 "samples = [%d]"
+                 "nOffset = [%d]",
+                 ap_prc->pcmmode.nBitPerSample, ap_hdr->nFilledLen, samples,
+                 ap_hdr->nOffset);
+
+      switch (ap_prc->pcmmode.nBitPerSample)
+        {
+        case 16:
+          {
+            swap_byte_order_s16 (ap_prc, ap_hdr, samples);
+          }
+          break;
+        default:
+          {
+          }
+          break;
+        };
     }
 }
 
@@ -468,8 +653,7 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
                                     OMX_BUFFERHEADERTYPE *ap_hdr)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  snd_pcm_sframes_t err = 0;
-  snd_pcm_uframes_t samples = 0;
+  snd_pcm_uframes_t samples_per_channel = 0;
   unsigned long int step = 0;
 
   assert (ap_prc);
@@ -477,30 +661,32 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
 
   step = (ap_prc->pcmmode.nBitPerSample / 8) * ap_prc->pcmmode.nChannels;
   assert (ap_hdr->nFilledLen > 0);
-  samples = ap_hdr->nFilledLen / step;
+  samples_per_channel = ap_hdr->nFilledLen / step;
   TIZ_TRACE (handleOf (ap_prc),
-             "Rendering HEADER [%p]... step [%d], samples [%d] nFilledLen [%d]",
-             ap_hdr, step, samples, ap_hdr->nFilledLen);
+             "Rendering HEADER [%p]... step [%d], samples per channel [%u] nFilledLen [%d]",
+             ap_hdr, step, samples_per_channel, ap_hdr->nFilledLen);
   TIZ_PRINTF_DBG_RED ("HEADER [%p] nFilledLen = [%d]\n", ap_hdr,
                       ap_hdr->nFilledLen);
 
-  adjust_gain (ap_prc, ap_hdr, samples);
+  adjust_gain (ap_prc, ap_hdr, samples_per_channel);
+  swap_byte_order (ap_prc, ap_hdr);
 
-  while (samples > 0 && OMX_ErrorNone == rc)
+  while (samples_per_channel > 0 && OMX_ErrorNone == rc)
     {
-      err = snd_pcm_writei (ap_prc->p_pcm,
-                            ap_hdr->pBuffer + ap_hdr->nOffset, samples);
+      snd_pcm_sframes_t err
+          = snd_pcm_writei (ap_prc->p_pcm_, ap_hdr->pBuffer + ap_hdr->nOffset,
+                            samples_per_channel);
 
       if (-EAGAIN == err)
         {
-          /* got -EAGAIN, alsa's buffers must be full */
+          /* got -EAGAIN, alsa buffers are full */
           rc = OMX_ErrorNoMore;
         }
       else if (err < 0)
         {
           /* This should handle -EINTR (interrupted system call), -EPIPE
            * (overrun or underrun) and -ESTRPIPE (stream is suspended) */
-          err = snd_pcm_recover (ap_prc->p_pcm, (int)err, 0);
+          err = snd_pcm_recover (ap_prc->p_pcm_, (int)err, 0);
           if (err < 0)
             {
               TIZ_ERROR (handleOf (ap_prc), "snd_pcm_recover error: %s",
@@ -512,7 +698,7 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
         {
           ap_hdr->nOffset += err * step;
           ap_hdr->nFilledLen -= err * step;
-          samples -= err;
+          samples_per_channel -= err;
         }
     }
 
@@ -603,10 +789,11 @@ static OMX_ERRORTYPE render_pcm_data (ar_prc_t *ap_prc)
 static void *ar_prc_ctor (void *ap_prc, va_list *app)
 {
   ar_prc_t *p_obj = super_ctor (typeOf (ap_prc, "arprc"), ap_prc, app);
-  p_obj->p_pcm = NULL;
-  p_obj->p_hw_params = NULL;
+  p_obj->p_pcm_ = NULL;
+  p_obj->p_hw_params_ = NULL;
   p_obj->p_pcm_name_ = NULL;
   p_obj->p_mixer_name_ = NULL;
+  p_obj->swap_byte_order_ = false;
   p_obj->descriptor_count_ = 0;
   p_obj->p_fds_ = NULL;
   p_obj->p_ev_io_ = NULL;
@@ -639,21 +826,21 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
 
   assert (p_prc);
 
-  if (!p_prc->p_pcm)
+  if (!p_prc->p_pcm_)
     {
       char *p_device = get_alsa_device (p_prc);
       assert (p_device);
 
       /* Open a PCM in non-blocking mode */
-      bail_on_snd_pcm_error (snd_pcm_open (&p_prc->p_pcm, p_device,
+      bail_on_snd_pcm_error (snd_pcm_open (&p_prc->p_pcm_, p_device,
                                            SND_PCM_STREAM_PLAYBACK,
                                            SND_PCM_NONBLOCK));
       /* Allocate alsa's hardware parameter structure */
-      bail_on_snd_pcm_error (snd_pcm_hw_params_malloc (&p_prc->p_hw_params));
+      bail_on_snd_pcm_error (snd_pcm_hw_params_malloc (&p_prc->p_hw_params_));
 
       /* Get the alsa descriptors count */
       p_prc->descriptor_count_
-          = snd_pcm_poll_descriptors_count (p_prc->p_pcm);
+          = snd_pcm_poll_descriptors_count (p_prc->p_pcm_);
       if (p_prc->descriptor_count_ <= 0)
         {
           TIZ_ERROR (handleOf (p_prc),
@@ -672,7 +859,7 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
           tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
     }
 
-  assert (p_prc->p_pcm);
+  assert (p_prc->p_pcm_);
 
   return OMX_ErrorNone;
 }
@@ -683,82 +870,31 @@ static OMX_ERRORTYPE ar_prc_prepare_to_transfer (void *ap_prc,
   ar_prc_t *p_prc = ap_prc;
   assert (p_prc);
 
-  if (p_prc->p_pcm)
+  if (p_prc->p_pcm_)
     {
       snd_pcm_format_t snd_pcm_format;
-      unsigned int snd_sampling_rate = 0;
+
+      p_prc->swap_byte_order_ = false;
 
       log_alsa_pcm_state (p_prc);
 
       /* Fill params with a full configuration space for the PCM. */
       bail_on_snd_pcm_error (
-          snd_pcm_hw_params_any (p_prc->p_pcm, p_prc->p_hw_params));
+          snd_pcm_hw_params_any (p_prc->p_pcm_, p_prc->p_hw_params_));
 
-      TIZ_DEBUG (
-          handleOf (p_prc), "Device can pause [%s] ",
-          snd_pcm_hw_params_can_pause (p_prc->p_hw_params) == 0 ? "NO" : "YES");
-
-      TIZ_DEBUG (handleOf (p_prc), "Device can resume [%s] ",
-                 snd_pcm_hw_params_can_resume (p_prc->p_hw_params) == 0
-                     ? "NO"
-                     : "YES");
-
-      /* Retrieve pcm params from port */
-      TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode,
-                                ARATELIA_AUDIO_RENDERER_PORT_INDEX);
-      tiz_check_omx_err (tiz_api_GetParameter (
-          tiz_get_krn (handleOf (p_prc)), handleOf (p_prc),
-          OMX_IndexParamAudioPcm, &p_prc->pcmmode));
-
-      TIZ_NOTICE (
-          handleOf (p_prc),
-          "nChannels = [%d] nBitPerSample = [%d] "
-          "nSamplingRate = [%d] eNumData = [%d] eEndian = [%d] "
-          "bInterleaved = [%s] ePCMMode = [%d]",
-          p_prc->pcmmode.nChannels, p_prc->pcmmode.nBitPerSample,
-          p_prc->pcmmode.nSamplingRate, p_prc->pcmmode.eNumData,
-          p_prc->pcmmode.eEndian,
-          p_prc->pcmmode.bInterleaved == OMX_TRUE ? "OMX_TRUE" : "OMX_FALSE",
-          p_prc->pcmmode.ePCMMode);
-
-      /* TODO : Add a function to properly encode snd_pcm_format */
-      if (p_prc->pcmmode.nBitPerSample == 24)
-        {
-          snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle
-                               ? SND_PCM_FORMAT_S24
-                               : SND_PCM_FORMAT_S24_BE;
-        }
-      /* NOTE: this is a hack to allow float pcm streams coming from the the
-         vorbis or opusfile decoders */
-      else if (p_prc->pcmmode.nBitPerSample == 32)
-        {
-          snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle
-                               ? SND_PCM_FORMAT_FLOAT_LE
-                               : SND_PCM_FORMAT_FLOAT_BE;
-        }
-      else
-        {
-          /* p_prc->pcmmode.nBitPerSample == 16 */
-          snd_pcm_format = p_prc->pcmmode.eEndian == OMX_EndianLittle
-                               ? SND_PCM_FORMAT_S16
-                               : SND_PCM_FORMAT_S16_BE;
-        }
-
-      /*       snd_sampling_rate = p_prc->pcmmode.bInterleaved == OMX_TRUE ? */
-      /*         p_prc->pcmmode.nSamplingRate : p_prc->pcmmode.nSamplingRate *
-       * 2; */
-      snd_sampling_rate = p_prc->pcmmode.nSamplingRate;
+      /* Retrieve pcm params from the alsa pcm device and the omx port */
+      tiz_check_omx_err (retrieve_alsa_pcm_format (p_prc, &snd_pcm_format));
 
       /* This sets the hardware and software parameters in a convenient way. */
       bail_on_snd_pcm_error (snd_pcm_set_params (
-          p_prc->p_pcm, snd_pcm_format, SND_PCM_ACCESS_RW_INTERLEAVED,
-          (unsigned int)p_prc->pcmmode.nChannels, snd_sampling_rate,
+          p_prc->p_pcm_, snd_pcm_format, SND_PCM_ACCESS_RW_INTERLEAVED,
+          (unsigned int)p_prc->pcmmode.nChannels, p_prc->pcmmode.nSamplingRate,
           0,     /* allow alsa-lib resampling */
           100000 /* overall latency in us */
           ));
 
       bail_on_snd_pcm_error (snd_pcm_poll_descriptors (
-          p_prc->p_pcm, p_prc->p_fds_, p_prc->descriptor_count_));
+          p_prc->p_pcm_, p_prc->p_fds_, p_prc->descriptor_count_));
 
       TIZ_DEBUG (handleOf (p_prc), "Poll descriptors : %d",
                  p_prc->descriptor_count_);
@@ -769,7 +905,7 @@ static OMX_ERRORTYPE ar_prc_prepare_to_transfer (void *ap_prc,
                                    TIZ_EVENT_READ_OR_WRITE, true));
 
       /* OK, now prepare the PCM for use */
-      bail_on_snd_pcm_error (snd_pcm_prepare (p_prc->p_pcm));
+      bail_on_snd_pcm_error (snd_pcm_prepare (p_prc->p_pcm_));
 
       /* Internally store the initial volume, so that the internal OMX volume
          struct reflects the current value of ALSA's master volume. */
@@ -818,13 +954,13 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_prc)
   tiz_srv_io_watcher_destroy (p_prc, p_prc->p_ev_io_);
   p_prc->p_ev_io_ = NULL;
 
-  if (p_prc->p_hw_params)
+  if (p_prc->p_hw_params_)
     {
-      snd_pcm_hw_params_free (p_prc->p_hw_params);
-      (void)snd_pcm_close (p_prc->p_pcm);
+      snd_pcm_hw_params_free (p_prc->p_hw_params_);
+      (void)snd_pcm_close (p_prc->p_pcm_);
       (void)snd_config_update_free_global ();
-      p_prc->p_pcm = NULL;
-      p_prc->p_hw_params = NULL;
+      p_prc->p_pcm_ = NULL;
+      p_prc->p_hw_params_ = NULL;
     }
 
   tiz_mem_free (p_prc->p_pcm_name_);
@@ -881,7 +1017,7 @@ static OMX_ERRORTYPE ar_prc_pause (const void *ap_prc)
   assert (p_prc);
   log_alsa_pcm_state (p_prc);
   tiz_check_omx_err (stop_io_watcher (p_prc));
-  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm, pause));
+  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_, pause));
   TIZ_TRACE (handleOf (p_prc),
              "PAUSED ALSA device..."
              "awaiting_io_ev_ [%s]",
@@ -896,7 +1032,7 @@ static OMX_ERRORTYPE ar_prc_resume (const void *ap_prc)
   assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "RESUMING ALSA device...");
   log_alsa_pcm_state (p_prc);
-  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm, resume));
+  bail_on_snd_pcm_error (snd_pcm_pause (p_prc->p_pcm_, resume));
   tiz_check_omx_err (start_io_watcher (p_prc));
   return OMX_ErrorNone;
 }
@@ -917,18 +1053,14 @@ static OMX_ERRORTYPE ar_prc_port_disable (const void *ap_prc,
   log_alsa_pcm_state (p_prc);
   stop_volume_ramp (p_prc);
   p_prc->port_disabled_ = true;
-  if (p_prc->p_pcm)
+  if (p_prc->p_pcm_)
     {
-<<<<<<< local
-      (void)snd_pcm_drop (p_prc->p_pcm);
-=======
       /* Try to drain the PCM...*/
-      if (snd_pcm_drain (p_prc->p_pcm))
+      if (snd_pcm_drain (p_prc->p_pcm_))
         {
           /* ... or else drop all samples. */
-          (void)snd_pcm_drop (p_prc->p_pcm);
+          (void)snd_pcm_drop (p_prc->p_pcm_);
         }
->>>>>>> other
       tiz_check_omx_err (stop_io_watcher (p_prc));
     }
   /* Release any buffers held  */
@@ -943,7 +1075,7 @@ static OMX_ERRORTYPE ar_prc_port_enable (const void *ap_prc,
   TIZ_PRINTF_DBG_GRN ("Received port emable\n");
   log_alsa_pcm_state (p_prc);
   p_prc->port_disabled_ = false;
-  if (p_prc->p_pcm)
+  if (p_prc->p_pcm_)
     {
       tiz_check_omx_err (ar_prc_prepare_to_transfer (p_prc, OMX_ALL));
       tiz_check_omx_err (ar_prc_transfer_and_process (p_prc, OMX_ALL));
