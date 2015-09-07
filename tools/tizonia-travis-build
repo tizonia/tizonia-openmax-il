@@ -241,6 +241,10 @@ function install_src_deps {
             && ./configure --prefix="$INSTALL_DIR" &>/dev/null \
             && make -s -j8 V=0 install &>/dev/null
         exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while building ${repos[$i]}" >&2
+            break
+        fi
     done
     if [[ "$exit_status" -eq 0 ]] ; then
         cd "$WORKING_DIR"
@@ -251,6 +255,9 @@ function install_src_deps {
             && ./configure --prefix="$INSTALL_DIR" &>/dev/null \
             && make -s -j8 V=0 install &>/dev/null
         exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while building mpg123" >&2
+        fi
     fi
     if [[ "$exit_status" -eq 0 ]] ; then
         cd "$WORKING_DIR"
@@ -260,6 +267,9 @@ function install_src_deps {
             && cd libspotify-12.1.51-Linux-x86_64 \
             && make install prefix="$INSTALL_DIR" &>/dev/null
         exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing libspotify" >&2
+        fi
     fi
     return "$exit_status"
 }
