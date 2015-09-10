@@ -115,14 +115,31 @@ class tizgmusicproxy(object):
                                                               0))
                 self.library[artist][album] = sorted_album
 
-        # Get all playlists
+        # Get all user playlists
         plists = self.__api.get_all_user_playlist_contents()
         for plist in plists:
             plist_name = plist["name"]
+            logging.info ("playlist name : {0}".format(plist_name.encode("utf-8")))
             self.playlists[plist_name] = list()
             for track in plist["tracks"]:
                 try:
                     song = song_map[track["trackId"]]
+                    self.playlists[plist_name].append(song)
+                except IndexError:
+                    pass
+
+        # Get shared playlists (All Access)
+        plists_subscribed_to = [p for p in self.__api.get_all_playlists() if p.get('type') == 'SHARED']
+        for plist in plists_subscribed_to:
+            share_tok = plist['shareToken']
+            playlist_items = self.__api.get_shared_playlist_contents(share_tok)
+            plist_name = plist["name"]
+            logging.info ("shared playlist name : {0}".format(plist_name.encode("utf-8")))
+            self.playlists[plist_name] = list()
+            for item in playlist_items:
+                try:
+                    song = item['track']
+                    song['id'] = item['trackId']
                     self.playlists[plist_name].append(song)
                 except IndexError:
                     pass
@@ -155,10 +172,14 @@ class tizgmusicproxy(object):
         logging.info ("current_song_track_number_and_total_tracks")
         song = self.now_playing_song
         if song is not None:
-            track = self.now_playing_song["trackNumber"]
-            total = self.now_playing_song["totalTrackCount"]
-            logging.info ("track number {0} total tracks {1}".format(track, total))
-            return track, total
+            try:
+                track = self.now_playing_song["trackNumber"]
+                total = self.now_playing_song["totalTrackCount"]
+                logging.info ("track number {0} total tracks {1}".format(track, total))
+                return track, total
+            except KeyError:
+                logging.info ("trackNumber or totalTrackCount : not found")
+                return 0, 0
         else:
             logging.info ("current_song_track_number_and_total_tracks : not found")
             return 0, 0
@@ -201,6 +222,8 @@ class tizgmusicproxy(object):
 
     def enqueue_playlist(self, arg):
         try:
+            for playlist in self.playlists:
+                logging.info ("playlist {0}".format(playlist.encode("utf-8")))
             playlist = self.playlists[arg]
             count = 0
             for song in playlist:
