@@ -267,6 +267,8 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_album_ (),
     gmusic_playlist_ (),
     gmusic_station_ (),
+    gmusic_promoted_ (),
+    gmusic_feeling_lucky_station_ (),
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
     consume_functions_ (),
@@ -495,6 +497,16 @@ const std::vector< std::string > &
     {
       gmusic_playlist_container_.push_back (gmusic_station_);
     }
+  else if (!gmusic_promoted_.empty ())
+    {
+      // With gmusic promoted songs option, no playlist "name" is actually
+      // required. But this helps keeping track of what is in the container.
+      gmusic_playlist_container_.push_back (gmusic_promoted_);
+    }
+  else if (!gmusic_feeling_lucky_station_.empty ())
+    {
+      gmusic_playlist_container_.push_back (gmusic_feeling_lucky_station_);
+    }
   else
     {
       assert (0);
@@ -517,9 +529,13 @@ tiz::programopts::gmusic_playlist_type ()
     {
       gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeUser;
     }
-  else if (!gmusic_station_.empty ())
+  else if (!gmusic_station_.empty () || !gmusic_feeling_lucky_station_.empty ())
     {
       gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeStation;
+    }
+  else if (!gmusic_promoted_.empty ())
+    {
+      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypePromotedTracks;
     }
   else
     {
@@ -718,10 +734,18 @@ void tiz::programopts::init_gmusic_options ()
        "A user playlist.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-station", po::value (&gmusic_station_),
-       "A radio station.");
+       "An All Access 'radio' station.")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-feeling-lucky-station",
+       "All Access 'I'm Feeling Lucky' station.")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-promoted-tracks",
+       "All Access promoted tracks playlist.");
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
-  all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")(
-      "gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")("gmusic-playlist")("gmusic-station");
+  all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")
+    ("gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")
+    ("gmusic-playlist")("gmusic-station")("gmusic-feeling-lucky-station")
+    ("gmusic-promoted-tracks");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -949,7 +973,8 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
 
     const int playlist_option_count = vm_.count ("gmusic-artist")
       + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-      + vm_.count ("gmusic-station");
+      + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
+      + vm_.count ("gmusic-promoted-tracks");
 
     if (gmusic_user_.empty ())
       {
@@ -962,6 +987,18 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     if (gmusic_device_id_.empty ())
       {
         retrieve_config_from_rc_file ("tizonia", "gmusic.device_id", gmusic_device_id_);
+      }
+
+    if (vm_.count ("gmusic-promoted-tracks"))
+      {
+        // This is not going to be used by the client code, but will help
+        // in gmusic_playlist_type() to decide which playlist type value is returned.
+        gmusic_promoted_.assign ("All Access promoted tracks");
+      }
+
+    if (vm_.count ("gmusic-feeling-lucky-station"))
+      {
+        gmusic_feeling_lucky_station_.assign ("I'm Feeling Lucky");
       }
 
     if (gmusic_user_.empty ())
@@ -1114,7 +1151,8 @@ bool tiz::programopts::validate_gmusic_client_options () const
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-        + vm_.count ("gmusic-station") + vm_.count ("log-directory");
+        + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
+        + vm_.count ("gmusic-promoted-tracks") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_gmusic_client_options_;
   concat_option_lists (all_valid_options, all_general_options_);
