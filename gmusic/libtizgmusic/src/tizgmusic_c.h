@@ -68,6 +68,7 @@ int tiz_gmusic_init (/*@null@ */ tiz_gmusic_ptr_t *app_gmusic,
 int tiz_gmusic_enqueue_album (tiz_gmusic_t *ap_gmusic, const char *ap_album);
 int tiz_gmusic_enqueue_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist);
 int tiz_gmusic_enqueue_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist);
+int tiz_gmusic_enqueue_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
 void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic);
 const char *tiz_gmusic_get_next_url (tiz_gmusic_t *ap_gmusic);
 const char *tiz_gmusic_get_prev_url (tiz_gmusic_t *ap_gmusic);

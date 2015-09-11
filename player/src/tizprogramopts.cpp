@@ -266,6 +266,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_artist_ (),
     gmusic_album_ (),
     gmusic_playlist_ (),
+    gmusic_station_ (),
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
     consume_functions_ (),
@@ -490,6 +491,10 @@ const std::vector< std::string > &
     {
       gmusic_playlist_container_.push_back (gmusic_playlist_);
     }
+  else if (!gmusic_station_.empty ())
+    {
+      gmusic_playlist_container_.push_back (gmusic_station_);
+    }
   else
     {
       assert (0);
@@ -511,6 +516,10 @@ tiz::programopts::gmusic_playlist_type ()
   else if (!gmusic_playlist_.empty ())
     {
       gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeUser;
+    }
+  else if (!gmusic_station_.empty ())
+    {
+      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeStation;
     }
   else
     {
@@ -706,10 +715,13 @@ void tiz::programopts::init_gmusic_options ()
        "Google Music playlist by album name.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-playlist", po::value (&gmusic_playlist_),
-       "A user playlist.");
+       "A user playlist.")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-station", po::value (&gmusic_station_),
+       "A radio station.");
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")(
-      "gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")("gmusic-playlist");
+      "gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")("gmusic-playlist")("gmusic-station");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -936,7 +948,8 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     done = true;
 
     const int playlist_option_count = vm_.count ("gmusic-artist")
-      + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist");
+      + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
+      + vm_.count ("gmusic-station");
 
     if (gmusic_user_.empty ())
       {
@@ -1101,7 +1114,7 @@ bool tiz::programopts::validate_gmusic_client_options () const
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-        + vm_.count ("log-directory");
+        + vm_.count ("gmusic-station") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_gmusic_client_options_;
   concat_option_lists (all_valid_options, all_general_options_);

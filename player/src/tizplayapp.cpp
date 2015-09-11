@@ -70,6 +70,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.app"
 #endif
 
+#define APP_NAME "tizonia"
+
 namespace
 {
   const int TIZ_MAX_BITRATE_MODES = 2;
@@ -120,7 +122,7 @@ namespace
     {
       reset_termios ();
     }
-    TIZ_PRINTF_BLU ("\n%s exiting (Ctrl-C).\n", PACKAGE_NAME);
+    TIZ_PRINTF_BLU ("\n%s exiting (Ctrl-C).\n", APP_NAME);
     exit (EXIT_SUCCESS);
   }
 
@@ -246,12 +248,12 @@ namespace
     {
       if (OMX_ErrorNone != code)
         {
-          TIZ_PRINTF_BLU ("\n%s exiting (%s).\n", PACKAGE_NAME, tiz_err_to_str (code));
+          TIZ_PRINTF_BLU ("\n%s exiting (%s).\n", APP_NAME, tiz_err_to_str (code));
           TIZ_PRINTF_RED ("\n %s\n\n", msg.c_str ());
         }
       else
         {
-          TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n\n", PACKAGE_NAME);
+          TIZ_PRINTF_BLU ("\n%s exiting (Quit).\n\n", APP_NAME);
         }
       exit (EXIT_FAILURE);
     }
@@ -350,7 +352,7 @@ OMX_ERRORTYPE
 tiz::playapp::unique_log_file () const
 {
   const std::string &log_dir = popts_.log_dir ();
-  tiz_log_set_unique_rolling_file (log_dir.c_str (), PACKAGE_NAME);
+  tiz_log_set_unique_rolling_file (log_dir.c_str (), APP_NAME);
   return OMX_ErrorNone;
 }
 

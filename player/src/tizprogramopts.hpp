@@ -166,6 +166,7 @@ namespace tiz
     std::string gmusic_artist_;
     std::string gmusic_album_;
     std::string gmusic_playlist_;
+    std::string gmusic_station_;
     std::vector< std::string > gmusic_playlist_container_;
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type_;
 

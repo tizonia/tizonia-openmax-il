@@ -20,8 +20,8 @@
 """Simple Google Music proxy class.
 
 Access a user's Google Music account to retrieve song URLs to be used for
-streaming. With ideas from Dan Nixon's command-line client, which is in turn
-based on Simon Weber's 'Unofficial Google Music API' Python module. For more
+streaming. With ideas from Dan Nixon's command-line client, which in turn
+uses Simon Weber's 'Unofficial Google Music API' Python module. For more
 information:
 
 - https://github.com/DanNixon/PlayMusicCL
@@ -41,6 +41,13 @@ from requests.structures import CaseInsensitiveDict
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.INFO)
+
+def exceptionHandler(exception_type, exception, traceback):
+    # All your trace are belong to us!
+    # your format
+    print "%s" % (exception)
+
+sys.excepthook = exceptionHandler
 
 class tizgmusicproxy(object):
     """A class for accessing a Google Music account to retrieve song URLs.
@@ -64,6 +71,7 @@ class tizgmusicproxy(object):
             attempts += 1
 
         self.playlists = CaseInsensitiveDict()
+        self.stations = CaseInsensitiveDict()
         self.library = CaseInsensitiveDict()
 
     def logout(self):
@@ -73,15 +81,15 @@ class tizgmusicproxy(object):
         songs = self.__api.get_all_songs()
         self.playlists[self.thumbs_up_playlist_name] = list()
 
-        # Get main library
+        # Retrieve the user's song library
         song_map = dict()
         for song in songs:
-            if "rating" in song and song["rating"] == "5":
+            if "rating" in song and song['rating'] == "5":
                 self.playlists[self.thumbs_up_playlist_name].append(song)
 
-            song_id = song["id"]
-            song_artist = song["artist"]
-            song_album = song["album"]
+            song_id = song['id']
+            song_artist = song['artist']
+            song_album = song['album']
 
             song_map[song_id] = song
 
@@ -118,12 +126,12 @@ class tizgmusicproxy(object):
         # Get all user playlists
         plists = self.__api.get_all_user_playlist_contents()
         for plist in plists:
-            plist_name = plist["name"]
+            plist_name = plist['name']
             logging.info ("playlist name : {0}".format(plist_name.encode("utf-8")))
             self.playlists[plist_name] = list()
-            for track in plist["tracks"]:
+            for track in plist['tracks']:
                 try:
-                    song = song_map[track["trackId"]]
+                    song = song_map[track['trackId']]
                     self.playlists[plist_name].append(song)
                 except IndexError:
                     pass
@@ -133,7 +141,7 @@ class tizgmusicproxy(object):
         for plist in plists_subscribed_to:
             share_tok = plist['shareToken']
             playlist_items = self.__api.get_shared_playlist_contents(share_tok)
-            plist_name = plist["name"]
+            plist_name = plist['name']
             logging.info ("shared playlist name : {0}".format(plist_name.encode("utf-8")))
             self.playlists[plist_name] = list()
             for item in playlist_items:
@@ -144,12 +152,20 @@ class tizgmusicproxy(object):
                 except IndexError:
                     pass
 
+        # Get stations (All Access)
+        stations = self.__api.get_all_stations()
+        self.stations["I'm Feeling Lucky"] = 'IFL'
+        for station in stations:
+            station_name = station['name']
+            logging.info ("station name : {0}".format(station_name.encode("utf-8")))
+            self.stations[station_name] = station['id']
+
     def current_song_title_and_artist(self):
         logging.info ("current_song_title_and_artist")
         song         = self.now_playing_song
         if song is not None:
-            title    = self.now_playing_song["title"]
-            artist   = self.now_playing_song["artist"]
+            title    = self.now_playing_song['title']
+            artist   = self.now_playing_song['artist']
             logging.info ("Now playing {0} by {1}".format(title.encode("utf-8"),
                                                    artist.encode("utf-8")))
             return artist.encode("utf-8"), title.encode("utf-8")
@@ -160,8 +176,8 @@ class tizgmusicproxy(object):
         logging.info ("current_song_album_and_duration")
         song = self.now_playing_song
         if song is not None:
-            album = self.now_playing_song["album"]
-            duration = self.now_playing_song["durationMillis"]
+            album = self.now_playing_song['album']
+            duration = self.now_playing_song['durationMillis']
             logging.info ("album {0} duration {1}".format(album.encode("utf-8"),
                                                    duration.encode("utf-8")))
             return album.encode("utf-8"), int(duration)
@@ -173,8 +189,8 @@ class tizgmusicproxy(object):
         song = self.now_playing_song
         if song is not None:
             try:
-                track = self.now_playing_song["trackNumber"]
-                total = self.now_playing_song["totalTrackCount"]
+                track = self.now_playing_song['trackNumber']
+                total = self.now_playing_song['totalTrackCount']
                 logging.info ("track number {0} total tracks {1}".format(track, total))
                 return track, total
             except KeyError:
@@ -190,7 +206,17 @@ class tizgmusicproxy(object):
 
     def enqueue_artist(self, arg):
         try:
-            artist = self.library[arg]
+            if not arg in self.library.keys():
+                artist = next((v for (k,v) in self.library.items() if arg in k), None)
+                if artist:
+                    for name, art in self.library.items():
+                        if art == artist:
+                            print "'{0}' not found. Playing '{1}' instead.".format(arg, name)
+                            break
+                else:
+                    raise KeyError("Artist not found : {0}".format(arg))
+            else:
+                artist = self.library[arg]
             count = 0
             for album in artist:
                 for song in artist[album]:
@@ -198,8 +224,7 @@ class tizgmusicproxy(object):
                     count += 1
             logging.info ("Added {0} tracks by {1} to queue".format(count, arg))
         except KeyError:
-            logging.info ("Cannot find {0}".format(arg))
-            raise
+            raise KeyError("Artist not found : {0}".format(arg))
 
     def enqueue_album(self, arg):
         try:
@@ -217,22 +242,52 @@ class tizgmusicproxy(object):
                         "{2} to queue".format(count, album.encode("utf-8"),
                                               artist.encode("utf-8")))
         except KeyError:
-            logging.info ("Cannot find {0}".format(arg))
-            raise
+            raise KeyError("Album not found : {0}".format(arg))
 
     def enqueue_playlist(self, arg):
         try:
-            for playlist in self.playlists:
-                logging.info ("playlist {0}".format(playlist.encode("utf-8")))
-            playlist = self.playlists[arg]
+            if not arg in self.playlists.keys():
+                playlist = next((v for (k,v) in self.playlists.items() if arg in k), None)
+                if playlist:
+                    for name, plist in self.playlists.items():
+                        if plist == playlist:
+                            print "'{0}' not found. Playing '{1}' instead.".format(arg, name)
+                            break
+                else:
+                    raise KeyError("Playlist not found : {0}".format(arg))
+            else:
+                playlist = self.playlists[arg]
             count = 0
             for song in playlist:
                 self.queue.append(song)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
         except KeyError:
-            logging.info ("Cannot find {0}".format(arg))
-            raise
+            raise KeyError("Playlist not found : {0}".format(arg))
+
+    def enqueue_station(self, arg):
+        try:
+            if not arg in self.stations.keys():
+                station_id = next((v for (k,v) in self.stations.iteritems() if arg in k), None)
+                if station_id:
+                    for name, st_id in self.stations.iteritems():
+                        if st_id == station_id:
+                            print "'{0}' not found. Playing '{1}' instead.".format(arg, name)
+                            break
+                else:
+                    raise KeyError("Station not found : {0}".format(arg))
+            else:
+                station_id = self.stations[arg]
+            num_tracks = 200
+            tracks = self.__api.get_station_tracks(station_id, num_tracks)
+            count = 0
+            for track in tracks:
+                track['id'] = track['nid']
+                self.queue.append(track)
+                count += 1
+            logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+        except KeyError:
+            raise KeyError("Station not found : {0}".format(arg))
 
     def next_url(self):
         logging.info ("next_url")
@@ -262,7 +317,7 @@ class tizgmusicproxy(object):
             return ''
 
     def __get_song_url(self, song):
-        song_url = self.__api.get_stream_url(song["id"], self.__device_id)
+        song_url = self.__api.get_stream_url(song['id'], self.__device_id)
         try:
             self.now_playing_song = song
             return song_url

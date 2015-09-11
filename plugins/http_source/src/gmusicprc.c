@@ -578,6 +578,10 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
           {
             rc = tiz_gmusic_enqueue_album (ap_prc->p_gmusic_, p_playlist);
           }
+        case OMX_AUDIO_GmusicPlaylistTypeStation:
+          {
+            rc = tiz_gmusic_enqueue_station (ap_prc->p_gmusic_, p_playlist);
+          }
           break;
         default:
           {

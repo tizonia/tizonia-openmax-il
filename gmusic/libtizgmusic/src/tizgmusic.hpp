@@ -49,6 +49,7 @@ public:
   int enqueue_album (const std::string &album);
   int enqueue_artist (const std::string &artist);
   int enqueue_playlist (const std::string &playlist);
+  int enqueue_station (const std::string &station);
   void clear_queue ();
 
   const char * get_next_url ();

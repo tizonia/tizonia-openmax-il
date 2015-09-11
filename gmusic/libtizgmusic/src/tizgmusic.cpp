@@ -144,6 +144,13 @@ int tizgmusic::enqueue_playlist (const std::string &playlist)
   return rc;
 }
 
+int tizgmusic::enqueue_station (const std::string &station)
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_station")(bp::object (station)));
+  return rc;
+}
+
 const char *tizgmusic::get_next_url ()
 {
   current_url_.clear ();
