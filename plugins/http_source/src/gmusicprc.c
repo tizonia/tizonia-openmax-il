@@ -566,21 +566,27 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
           break;
         case OMX_AUDIO_GmusicPlaylistTypeUser:
           {
-            rc = tiz_gmusic_enqueue_playlist (ap_prc->p_gmusic_, p_playlist);
+            rc = tiz_gmusic_play_playlist (ap_prc->p_gmusic_, p_playlist);
           }
           break;
         case OMX_AUDIO_GmusicPlaylistTypeArtist:
           {
-            rc = tiz_gmusic_enqueue_artist (ap_prc->p_gmusic_, p_playlist);
+            rc = tiz_gmusic_play_artist (ap_prc->p_gmusic_, p_playlist);
           }
           break;
         case OMX_AUDIO_GmusicPlaylistTypeAlbum:
           {
-            rc = tiz_gmusic_enqueue_album (ap_prc->p_gmusic_, p_playlist);
+            rc = tiz_gmusic_play_album (ap_prc->p_gmusic_, p_playlist);
           }
+          break;
         case OMX_AUDIO_GmusicPlaylistTypeStation:
           {
-            rc = tiz_gmusic_enqueue_station (ap_prc->p_gmusic_, p_playlist);
+            rc = tiz_gmusic_play_station (ap_prc->p_gmusic_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_GmusicPlaylistTypePromotedTracks:
+          {
+            rc = tiz_gmusic_play_promoted_tracks (ap_prc->p_gmusic_);
           }
           break;
         default:
