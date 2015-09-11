@@ -67,7 +67,7 @@ START_TEST (test_gmusic_play_artist)
   ck_assert (0 == rc);
   ck_assert (NULL != p_gmusic);
 
-  rc = tiz_gmusic_enqueue_artist (p_gmusic, GMUSIC_ARTIST);
+  rc = tiz_gmusic_play_artist (p_gmusic, GMUSIC_ARTIST);
   ck_assert (0 == rc);
 
   /* while (1) */
@@ -102,7 +102,7 @@ START_TEST (test_gmusic_play_album)
   ck_assert (0 == rc);
   ck_assert (NULL != p_gmusic);
 
-  rc = tiz_gmusic_enqueue_album (p_gmusic, GMUSIC_ALBUM);
+  rc = tiz_gmusic_play_album (p_gmusic, GMUSIC_ALBUM);
   ck_assert (0 == rc);
 
   /* while (1) */

@@ -21,7 +21,7 @@
  * @file   tizgmusic_c.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple Google Music client library (c wrapper)
+ * @brief  Tizonia - Simple Google Play Music client library (c wrapper)
  *
  */
 
@@ -104,36 +104,43 @@ extern "C" int tiz_gmusic_init (tiz_gmusic_ptr_t *app_gmusic,
   return rc;
 }
 
-extern "C" int tiz_gmusic_enqueue_album (tiz_gmusic_t *ap_gmusic,
+extern "C" int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic,
                                      const char *ap_album)
 {
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->enqueue_album (ap_album);
+  return ap_gmusic->p_proxy_->play_album (ap_album);
 }
 
-extern "C" int tiz_gmusic_enqueue_artist (tiz_gmusic_t *ap_gmusic,
+extern "C" int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic,
                                       const char *ap_artist)
 {
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->enqueue_artist (ap_artist);
+  return ap_gmusic->p_proxy_->play_artist (ap_artist);
 }
 
-extern "C" int tiz_gmusic_enqueue_playlist (tiz_gmusic_t *ap_gmusic,
+extern "C" int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic,
                                             const char *ap_playlist)
 {
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->enqueue_playlist (ap_playlist);
+  return ap_gmusic->p_proxy_->play_playlist (ap_playlist);
 }
 
-extern "C" int tiz_gmusic_enqueue_station (tiz_gmusic_t *ap_gmusic,
+extern "C" int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic,
                                            const char *ap_station)
 {
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->enqueue_station (ap_station);
+  return ap_gmusic->p_proxy_->play_station (ap_station);
+}
+
+extern "C" int tiz_gmusic_play_promoted_tracks (tiz_gmusic_t *ap_gmusic)
+{
+  assert (NULL != ap_gmusic);
+  assert (NULL != ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->play_promoted_tracks ();
 }
 
 extern "C" void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic)

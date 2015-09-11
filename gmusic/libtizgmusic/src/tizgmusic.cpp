@@ -21,7 +21,7 @@
  * @file   tizgmusic.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple Google Music client library
+ * @brief  Tizonia - Simple Google Play Music client library
  *
  */
 
@@ -67,7 +67,7 @@ namespace
   {
     Py_Initialize ();
 
-    // Import the Google Music proxy module
+    // Import the Google Play Music proxy module
     py_main = bp::import ("tizgmusicproxy");
 
     // Retrieve the main module's namespace
@@ -123,31 +123,38 @@ void tizgmusic::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-int tizgmusic::enqueue_album (const std::string &album)
+int tizgmusic::play_album (const std::string &album)
 {
   int rc = 0;
   try_catch_wrapper (py_gm_proxy_.attr ("enqueue_album")(bp::object (album)));
   return rc;
 }
 
-int tizgmusic::enqueue_artist (const std::string &artist)
+int tizgmusic::play_artist (const std::string &artist)
 {
   int rc = 0;
   try_catch_wrapper (py_gm_proxy_.attr ("enqueue_artist")(bp::object (artist)));
   return rc;
 }
 
-int tizgmusic::enqueue_playlist (const std::string &playlist)
+int tizgmusic::play_playlist (const std::string &playlist)
 {
   int rc = 0;
   try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlist")(bp::object (playlist)));
   return rc;
 }
 
-int tizgmusic::enqueue_station (const std::string &station)
+int tizgmusic::play_station (const std::string &station)
 {
   int rc = 0;
   try_catch_wrapper (py_gm_proxy_.attr ("enqueue_station")(bp::object (station)));
+  return rc;
+}
+
+int tizgmusic::play_promoted_tracks ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_promoted_tracks")());
   return rc;
 }
 

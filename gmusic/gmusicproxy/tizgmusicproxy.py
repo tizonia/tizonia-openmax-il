@@ -17,7 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Simple Google Music proxy class.
+"""Simple Google PLay Music proxy class.
 
 Access a user's Google Music account to retrieve song URLs to be used for
 streaming. With ideas from Dan Nixon's command-line client, which in turn
@@ -36,7 +36,9 @@ import os
 import logging
 import unicodedata as ud
 from gmusicapi import Mobileclient
+from gmusicapi.exceptions import CallFailure, NotLoggedIn
 from requests.structures import CaseInsensitiveDict
+import pprint
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
@@ -282,12 +284,26 @@ class tizgmusicproxy(object):
             tracks = self.__api.get_station_tracks(station_id, num_tracks)
             count = 0
             for track in tracks:
-                track['id'] = track['nid']
+                track[u'id'] = track['nid']
                 self.queue.append(track)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
         except KeyError:
             raise KeyError("Station not found : {0}".format(arg))
+
+    def enqueue_promoted_tracks(self):
+        try:
+            tracks = self.__api.get_promoted_songs()
+            count  = 0
+            for track in tracks:
+                store_track = self.__api.get_track_info(track['storeId'])
+                if not u'id' in store_track.keys():
+                    store_track[u'id'] = store_track['nid']
+                self.queue.append(store_track)
+                count += 1
+            logging.info ("Added {0} All Access promoted tracks to queue".format(count))
+        except CallFailure:
+            raise CallFailure("Operation requires an All Access subscription.")
 
     def next_url(self):
         logging.info ("next_url")
@@ -317,6 +333,7 @@ class tizgmusicproxy(object):
             return ''
 
     def __get_song_url(self, song):
+        logging.info ("__get_song_url : {0}".format(song['id']))
         song_url = self.__api.get_stream_url(song['id'], self.__device_id)
         try:
             self.now_playing_song = song

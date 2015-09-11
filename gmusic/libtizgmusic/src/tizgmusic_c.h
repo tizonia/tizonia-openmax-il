@@ -21,7 +21,7 @@
  * @file   tizgmusic_c.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple Google Music client library (c wrapper)
+ * @brief  Tizonia - Simple Google Play Music client library (c wrapper)
  *
  *
  */
@@ -34,17 +34,17 @@ extern "C" {
 #endif
 
 /**
-* @defgroup googlemusic A Google Music client library
+* @defgroup tizgmusic A Google Play Music client library
 *
-* A C library to access the Google Music streaming service (based on Simon
-* Weber's 'Unofficial Google Music API' python library).
+* A C library to access the Google Play Music streaming service (using Simon
+* Weber's 'gmusicapi' python library).
 *
 * @ingroup Tizonia
 */
 
 /**
  * The gmusic opaque structure
- * @ingroup googlemusic
+ * @ingroup tizgmusic
  */
 typedef struct tiz_gmusic tiz_gmusic_t;
 typedef /*@null@ */ tiz_gmusic_t *tiz_gmusic_ptr_t;
@@ -52,23 +52,24 @@ typedef /*@null@ */ tiz_gmusic_t *tiz_gmusic_ptr_t;
 /**
  * Initialize the gmusic handle.
  *
- * @ingroup googlemusic
+ * @ingroup tizgmusic
  *
  * @param app_gmusic A pointer to the gmusic handle which will be initialised.
- * @param ap_user A Google email account
+ * @param ap_user A Google email account.
  * @param ap_pass The password associated to the Google account.
- * @param ap_device_id A 16-character string containing the device id
- * associated to the Google Music account.
+ * @param ap_device_id A 16-character string containing a device id
+ * associated to the Google Play Music account.
  *
  * @return 0 on success.
  */
 int tiz_gmusic_init (/*@null@ */ tiz_gmusic_ptr_t *app_gmusic,
                      const char *ap_user, const char *ap_pass,
                      const char *ap_device_id);
-int tiz_gmusic_enqueue_album (tiz_gmusic_t *ap_gmusic, const char *ap_album);
-int tiz_gmusic_enqueue_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist);
-int tiz_gmusic_enqueue_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist);
-int tiz_gmusic_enqueue_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
+int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album);
+int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist);
+int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist);
+int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
+int tiz_gmusic_play_promoted_tracks (tiz_gmusic_t *ap_gmusic);
 void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic);
 const char *tiz_gmusic_get_next_url (tiz_gmusic_t *ap_gmusic);
 const char *tiz_gmusic_get_prev_url (tiz_gmusic_t *ap_gmusic);

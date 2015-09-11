@@ -21,7 +21,7 @@
  * @file   tizgmusic.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Simple Google Music client library
+ * @brief  Tizonia - Simple Google Play Music client library
  *
  *
  */
@@ -46,10 +46,11 @@ public:
   void stop ();
   void deinit ();
 
-  int enqueue_album (const std::string &album);
-  int enqueue_artist (const std::string &artist);
-  int enqueue_playlist (const std::string &playlist);
-  int enqueue_station (const std::string &station);
+  int play_album (const std::string &album);
+  int play_artist (const std::string &artist);
+  int play_playlist (const std::string &playlist);
+  int play_station (const std::string &station);
+  int play_promoted_tracks ();
   void clear_queue ();
 
   const char * get_next_url ();
