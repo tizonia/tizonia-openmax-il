@@ -237,7 +237,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     server_ ("Audio streaming server options"),
     client_ ("Audio streaming client options"),
     spotify_ ("Spotify options"),
-    gmusic_ ("Google Music options"),
+    gmusic_ ("Google Play Music options"),
     input_ ("Intput uris option"),
     positional_ (),
     recurse_ (false),
