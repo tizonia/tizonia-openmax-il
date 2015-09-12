@@ -556,6 +556,7 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
 
   {
     const char *p_playlist = (const char *)ap_prc->playlist_.cPlaylistName;
+    const OMX_BOOL is_all_access_search = ap_prc->playlist_.bAllAccessSearch;
     switch (ap_prc->playlist_.ePlaylistType)
       {
         case OMX_AUDIO_GmusicPlaylistTypeUnknown:
@@ -576,7 +577,7 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
           break;
         case OMX_AUDIO_GmusicPlaylistTypeAlbum:
           {
-            rc = tiz_gmusic_play_album (ap_prc->p_gmusic_, p_playlist);
+            rc = tiz_gmusic_play_album (ap_prc->p_gmusic_, p_playlist, is_all_access_search);
           }
           break;
         case OMX_AUDIO_GmusicPlaylistTypeStation:
