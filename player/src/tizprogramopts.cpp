@@ -271,6 +271,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_feeling_lucky_station_ (),
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
+    gmusic_is_all_access_search_ (false),
     consume_functions_ (),
     all_general_options_ (),
     all_debug_options_ (),
@@ -545,6 +546,11 @@ tiz::programopts::gmusic_playlist_type ()
   return gmusic_playlist_type_;
 }
 
+bool tiz::programopts::gmusic_is_all_access_search () const
+{
+  return gmusic_is_all_access_search_;
+}
+
 void tiz::programopts::print_license () const
 {
   TIZ_PRINTF_GRN (
@@ -718,7 +724,7 @@ void tiz::programopts::init_gmusic_options ()
   gmusic_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-user", po::value (&gmusic_user_),
-      "Google Music user's name (Optional: may also be provided via config file).")
+      "Google Play Music user's name (Optional: may also be provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-password", po::value (&gmusic_pass_),
        "Google Play Music user's password (Optional: may also be provided via config file).")
@@ -727,27 +733,32 @@ void tiz::programopts::init_gmusic_options ()
        "Google Play Music device id (Optional: may also be provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-artist", po::value (&gmusic_artist_),
-       "Google Play Music playlist by artist name.")
+       "Play tracks from the user's library by artist.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-album", po::value (&gmusic_album_),
-       "Google Play Music playlist by album name.")
+       "Play tracks from the user's library by album.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-playlist", po::value (&gmusic_playlist_),
-       "Google Play Music playlist from the user's library.")
+       "Play a playlist from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-station", po::value (&gmusic_station_),
-       "An All Access 'radio' station.")
+       "Play a station from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-feeling-lucky-station",
        "All Access 'I'm Feeling Lucky' station.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-promoted-tracks",
-       "All Access promoted tracks playlist.");
+       "All Access promoted tracks playlist.")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-all-access-album", po::value (&gmusic_album_),
+       "Play All Access tracks by album.");
+
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")
     ("gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")
     ("gmusic-playlist")("gmusic-station")("gmusic-feeling-lucky-station")
-    ("gmusic-promoted-tracks");
+    ("gmusic-promoted-tracks")
+    ("gmusic-all-access-album");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -976,7 +987,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     const int playlist_option_count = vm_.count ("gmusic-artist")
       + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
       + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
-      + vm_.count ("gmusic-promoted-tracks");
+      + vm_.count ("gmusic-promoted-tracks") + vm_.count ("gmusic-all-access-album") ;
 
     if (gmusic_user_.empty ())
       {
@@ -1001,6 +1012,11 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     if (vm_.count ("gmusic-feeling-lucky-station"))
       {
         gmusic_feeling_lucky_station_.assign ("I'm Feeling Lucky");
+      }
+
+    if (vm_.count ("gmusic-all-access-album"))
+      {
+        gmusic_is_all_access_search_ = true;
       }
 
     if (gmusic_user_.empty ())
@@ -1154,7 +1170,8 @@ bool tiz::programopts::validate_gmusic_client_options () const
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
         + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
-        + vm_.count ("gmusic-promoted-tracks") + vm_.count ("log-directory");
+        + vm_.count ("gmusic-promoted-tracks") + vm_.count ("gmusic-all-access-album")
+        + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_gmusic_client_options_;
   concat_option_lists (all_valid_options, all_general_options_);

@@ -83,6 +83,7 @@ namespace tiz
     const std::string &gmusic_device_id () const;
     const std::vector< std::string > &gmusic_playlist_container ();
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type ();
+    bool gmusic_is_all_access_search () const;
 
   private:
     void print_examples () const;
@@ -171,7 +172,7 @@ namespace tiz
     std::string gmusic_feeling_lucky_station_;
     std::vector< std::string > gmusic_playlist_container_;
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type_;
-
+    bool gmusic_is_all_access_search_;
     std::vector<consume_function_t> consume_functions_;
 
     std::vector<std::string> all_general_options_;

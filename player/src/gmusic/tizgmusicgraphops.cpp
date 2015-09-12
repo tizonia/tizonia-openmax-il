@@ -472,7 +472,8 @@ graph::gmusicops::set_gmusic_playlist (const OMX_HANDLETYPE handle,
   assert (gmusic_config);
 
   playlisttype.ePlaylistType = gmusic_config->get_playlist_type ();
-  playlisttype.bShuffle = playlist_->shuffle ();
+  playlisttype.bShuffle = playlist_->shuffle () ? OMX_TRUE : OMX_FALSE;
+  playlisttype.bAllAccessSearch = gmusic_config->is_all_access_search () ? OMX_TRUE : OMX_FALSE;
 
   return OMX_SetParameter (
       handle,
