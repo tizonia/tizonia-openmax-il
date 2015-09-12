@@ -139,10 +139,17 @@ int tizgmusic::play_album (const std::string &album, const bool a_all_access_sea
   return rc;
 }
 
-int tizgmusic::play_artist (const std::string &artist)
+int tizgmusic::play_artist (const std::string &artist, const bool a_all_access_search)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_artist")(bp::object (artist)));
+  if (a_all_access_search)
+    {
+      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_artist_all_access")(bp::object (artist)));
+    }
+  else
+    {
+      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_artist")(bp::object (artist)));
+    }
   return rc;
 }
 

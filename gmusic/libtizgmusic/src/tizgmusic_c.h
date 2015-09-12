@@ -71,11 +71,10 @@ int tiz_gmusic_init (/*@null@ */ tiz_gmusic_ptr_t *app_gmusic,
  * After calling this methods, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @note Only tracks in the user's library are added. All Access tracks are
- * not included.
- *
  * @param ap_gmusic The gmusic handle.
  * @param ap_album The album name
+ * @param a_all_access_search If true, All Access albums are
+ * included. Otherwise, only albums from the user's library are considered.
  *
  * @return 0 on success
  */
@@ -93,10 +92,13 @@ int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album,
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_album The artist name
+ * @param a_all_access_search If true, All Access artists are
+ * included. Otherwise, only artists from the user's library are considered.
  *
  * @return 0 on success
  */
-int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist);
+int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist,
+                            const bool a_all_access_search);
 
 /**
  * Add the tracks of the specified artist to the playback queue.
