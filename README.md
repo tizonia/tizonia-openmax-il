@@ -260,7 +260,7 @@ Spotify options:
                          via config file).
   --spotify-playlist arg Spotify playlist name.
 
-Google Music options:
+Google Play Music options:
   --gmusic-user arg               Google Play Music user's name (Optional: may
                                   also be provided via config file).
   --gmusic-password arg           Google Play Music user's password (Optional:
