@@ -716,22 +716,23 @@ void tiz::programopts::init_gmusic_options ()
 {
   gmusic_.add_options ()
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-user", po::value (&gmusic_user_), "Google Music user's name.")
+      ("gmusic-user", po::value (&gmusic_user_),
+      "Google Music user's name (Optional: may also be provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-password", po::value (&gmusic_pass_),
-       "Google Music user's password.")
+       "Google Play Music user's password (Optional: may also be provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-device-id", po::value (&gmusic_device_id_),
-       "Google Music device id.")
+       "Google Play Music device id (Optional: may also be provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-artist", po::value (&gmusic_artist_),
-       "Google Music playlist by artist name.")
+       "Google Play Music playlist by artist name.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-album", po::value (&gmusic_album_),
-       "Google Music playlist by album name.")
+       "Google Play Music playlist by album name.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-playlist", po::value (&gmusic_playlist_),
-       "A user playlist.")
+       "Google Play Music playlist from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-station", po::value (&gmusic_station_),
        "An All Access 'radio' station.")
