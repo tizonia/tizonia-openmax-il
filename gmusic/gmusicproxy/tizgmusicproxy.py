@@ -229,6 +229,29 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Artist not found : {0}".format(arg))
 
+    def enqueue_artist_all_access(self, arg):
+        try:
+            artist_hits = self.__api.search_all_access(arg)['artist_hits']
+            artist = next((hit for hit in artist_hits if 'best_result' in hit.keys()), None)
+            if not artist:
+                artist = artist_hits[0]
+                print "'{0}' not found. Playing '{1}' instead.".format(arg, artist['artist']['name'])
+            include_albums = False
+            max_top_tracks = 50
+            max_rel_artist = 0
+            artist_tracks = self.__api.get_artist_info(artist['artist']['artistId'],
+                                                       include_albums, max_top_tracks,
+                                                       max_rel_artist)['topTracks']
+            count = 0
+            for track in artist_tracks:
+                if not u'id' in track.keys():
+                    track[u'id'] = track['nid']
+                self.queue.append(track)
+                count += 1
+            logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+        except KeyError:
+            raise KeyError("Artist not found : {0}".format(arg))
+
     def enqueue_album(self, arg):
         try:
             for artist in self.library:
