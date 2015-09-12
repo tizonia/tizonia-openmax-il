@@ -19,7 +19,7 @@ For the resources that can be found here, please keep reading further.
 ### `tizonia`: music player and audio streaming client/server ###
 
 * Spotify client (Spotify Premium account required).
-* Google Play Music client (free tier only for now, All-Access streaming coming soon).
+* Google Play Music client (with support for All Access features, if a subscription is available).
 * Playback of local media (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus, wav,
   aiff, and flac).
 * Icecast/SHOUTcast streaming LAN server (mp3).
@@ -259,12 +259,15 @@ Spotify client options:
   --spotify-playlist arg Spotify playlist name.
 
 Google Music options:
-  --gmusic-user arg      Google Music user's name.
-  --gmusic-password arg  Google Music user's password.
-  --gmusic-device-id arg Google Music device id.
-  --gmusic-artist arg    Google Music playlist by artist name.
-  --gmusic-album arg     Google Music playlist by album name.
-  --gmusic-playlist arg  A user playlist.
+  --gmusic-user arg               Google Music user's name.
+  --gmusic-password arg           Google Music user's password.
+  --gmusic-device-id arg          Google Music device id.
+  --gmusic-artist arg             Google Music playlist by artist name.
+  --gmusic-album arg              Google Music playlist by album name.
+  --gmusic-playlist arg           A user playlist.
+  --gmusic-station arg            An All Access 'radio' station.
+  --gmusic-feeling-lucky-station  All Access 'I'm Feeling Lucky' station.
+  --gmusic-promoted-tracks        All Access promoted tracks playlist.
 
 ```
 
