@@ -700,7 +700,8 @@ void tiz::programopts::init_spotify_options ()
 {
   spotify_.add_options ()
       /* TIZ_CLASS_COMMENT: */
-      ("spotify-user", po::value (&spotify_user_), "Spotify user name (Optional: may also be provided via config file).")
+      ("spotify-user", po::value (&spotify_user_),
+      "Spotify user name (Optional: may also be provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-password", po::value (&spotify_pass_),
        "Spotify user password (Optional: may also be provided via config file).")
