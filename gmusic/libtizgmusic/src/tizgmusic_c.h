@@ -65,20 +65,156 @@ typedef /*@null@ */ tiz_gmusic_t *tiz_gmusic_ptr_t;
 int tiz_gmusic_init (/*@null@ */ tiz_gmusic_ptr_t *app_gmusic,
                      const char *ap_user, const char *ap_pass,
                      const char *ap_device_id);
+/**
+ * Add the tracks of the specified album to the playback queue.
+ *
+ * After calling this methods, the various tiz_gmusic_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @note Only tracks in the user's library are added. All Access tracks are
+ * not included.
+ *
+ * @param ap_gmusic The gmusic handle.
+ * @param ap_album The album name
+ *
+ * @return 0 on success
+ */
 int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album);
+
+/**
+ * Add the tracks of the specified artist to the playback queue.
+ *
+ * After calling this methods, the various tiz_gmusic_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @note Only tracks in the user's library are added. All Access tracks are
+ * not included.
+ *
+ * @param ap_gmusic The gmusic handle.
+ * @param ap_album The artist name
+ *
+ * @return 0 on success
+ */
 int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist);
+
+/**
+ * Add the tracks of the specified artist to the playback queue.
+ *
+ * After calling this methods, the various tiz_gmusic_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @note Only tracks in the user's library are added. All Access tracks are
+ * not included.
+ *
+ * @param ap_gmusic The gmusic handle.
+ * @param ap_album The artist name
+ *
+ * @return 0 on success
+ */
 int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist);
+
+/**
+ * Add the tracks of the specified station to the playback queue.
+ *
+ * After calling this methods, the various tiz_gmusic_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @note All Access subscription is required.
+ *
+ * @param ap_gmusic The gmusic handle.
+ * @param ap_album The station name
+ *
+ * @return 0 on success
+ */
 int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
+
+/**
+* Add All Access promoted tracks to the playback queue.
+*
+* After calling this methods, the various tiz_gmusic_get* methods can be
+* used to interact with the playback queue.
+*
+* @note All Access subscription is required.
+*
+* @param ap_gmusic The gmusic handle.
+*
+* @return 0 on success
+*/
 int tiz_gmusic_play_promoted_tracks (tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Clear the playback queue.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
 void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Retrieve the next track url
+ *
+ * The the playback queue pointer moves one position forwards.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
 const char *tiz_gmusic_get_next_url (tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Retrieve the previous track url.
+ *
+ * The the playback queue pointer moves one position backwards.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
 const char *tiz_gmusic_get_prev_url (tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Retrieve the current song's artist.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
 const char *tiz_gmusic_get_current_song_artist (tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Retrieve the current song's title.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
 const char *tiz_gmusic_get_current_song_title (tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Retrieve the current song's album.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
 const char *tiz_gmusic_get_current_song_album (tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Retrieve the current song's duration.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
 const char *tiz_gmusic_get_current_song_duration (tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Retrieve the current song's track number.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
 const char *tiz_gmusic_get_current_song_track_number (tiz_gmusic_t *ap_gmusic);
-const char *tiz_gmusic_get_current_song_tracks_in_album (tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Retrieve the number of tracks in the current song's album.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
+const char *tiz_gmusic_get_current_song_tracks_in_album (
+    tiz_gmusic_t *ap_gmusic);
+
+/**
+ * Destroy the gmusic handle.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
 void tiz_gmusic_destroy (tiz_gmusic_t *ap_gmusic);
 
 #ifdef __cplusplus
