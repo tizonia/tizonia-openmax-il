@@ -253,21 +253,29 @@ Audio streaming server options:
                         sampling rates will be allowed in the playlist.
                         Default: all.
 
-Spotify client options:
-  --spotify-user arg     Spotify user's name.
-  --spotify-password arg Spotify user's password.
+Spotify options:
+  --spotify-user arg     Spotify user name (Optional: may also be provided via
+                         config file).
+  --spotify-password arg Spotify user password (Optional: may also be provided
+                         via config file).
   --spotify-playlist arg Spotify playlist name.
 
 Google Music options:
-  --gmusic-user arg               Google Music user's name.
-  --gmusic-password arg           Google Music user's password.
-  --gmusic-device-id arg          Google Music device id.
-  --gmusic-artist arg             Google Music playlist by artist name.
-  --gmusic-album arg              Google Music playlist by album name.
-  --gmusic-playlist arg           A user playlist.
-  --gmusic-station arg            An All Access 'radio' station.
+  --gmusic-user arg               Google Play Music user's name (Optional: may
+                                  also be provided via config file).
+  --gmusic-password arg           Google Play Music user's password (Optional:
+                                  may also be provided via config file).
+  --gmusic-device-id arg          Google Play Music device id (Optional: may
+                                  also be provided via config file).
+  --gmusic-artist arg             Play tracks from the user's library by
+                                  artist.
+  --gmusic-album arg              Play tracks from the user's library by album.
+  --gmusic-playlist arg           Play a playlist from the user's library.
+  --gmusic-station arg            Play a station from the user's library.
   --gmusic-feeling-lucky-station  All Access 'I'm Feeling Lucky' station.
   --gmusic-promoted-tracks        All Access promoted tracks playlist.
+  --gmusic-all-access-album arg   Play All Access tracks by album.
+  --gmusic-all-access-artist arg  Play All Access tracks by artist.
 
 ```
 
