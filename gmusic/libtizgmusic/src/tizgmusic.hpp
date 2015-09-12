@@ -46,7 +46,7 @@ public:
   void stop ();
   void deinit ();
 
-  int play_album (const std::string &album);
+  int play_album (const std::string &album, const bool a_all_access_search);
   int play_artist (const std::string &artist);
   int play_playlist (const std::string &playlist);
   int play_station (const std::string &station);

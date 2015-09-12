@@ -123,10 +123,19 @@ void tizgmusic::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-int tizgmusic::play_album (const std::string &album)
+int tizgmusic::play_album (const std::string &album, const bool a_all_access_search)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_album")(bp::object (album)));
+  if (a_all_access_search)
+    {
+      try_catch_wrapper (
+          py_gm_proxy_.attr ("enqueue_album_all_access")(bp::object (album)));
+    }
+  else
+    {
+      try_catch_wrapper (
+          py_gm_proxy_.attr ("enqueue_album")(bp::object (album)));
+    }
   return rc;
 }
 

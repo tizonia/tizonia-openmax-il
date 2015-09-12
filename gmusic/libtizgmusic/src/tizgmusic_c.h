@@ -79,7 +79,8 @@ int tiz_gmusic_init (/*@null@ */ tiz_gmusic_ptr_t *app_gmusic,
  *
  * @return 0 on success
  */
-int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album);
+int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album,
+                           const bool a_all_access_search);
 
 /**
  * Add the tracks of the specified artist to the playback queue.
