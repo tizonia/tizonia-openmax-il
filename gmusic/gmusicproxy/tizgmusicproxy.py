@@ -45,14 +45,14 @@ logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.INFO)
 
 def exceptionHandler(exception_type, exception, traceback):
-    # All your trace are belong to us!
-    # your format
     print "%s" % (exception)
 
 sys.excepthook = exceptionHandler
 
 class tizgmusicproxy(object):
-    """A class for accessing a Google Music account to retrieve song URLs.
+    """A class for logging into a Google Play Music account and retrieving song
+    URLs.
+
     """
 
     all_songs_album_title = "All Songs"
@@ -164,10 +164,10 @@ class tizgmusicproxy(object):
 
     def current_song_title_and_artist(self):
         logging.info ("current_song_title_and_artist")
-        song         = self.now_playing_song
+        song = self.now_playing_song
         if song is not None:
-            title    = self.now_playing_song['title']
-            artist   = self.now_playing_song['artist']
+            title = self.now_playing_song['title']
+            artist = self.now_playing_song['artist']
             logging.info ("Now playing {0} by {1}".format(title.encode("utf-8"),
                                                    artist.encode("utf-8")))
             return artist.encode("utf-8"), title.encode("utf-8")
@@ -190,14 +190,15 @@ class tizgmusicproxy(object):
         logging.info ("current_song_track_number_and_total_tracks")
         song = self.now_playing_song
         if song is not None:
+            track = 0
+            total = 0
             try:
                 track = self.now_playing_song['trackNumber']
                 total = self.now_playing_song['totalTrackCount']
                 logging.info ("track number {0} total tracks {1}".format(track, total))
-                return track, total
             except KeyError:
                 logging.info ("trackNumber or totalTrackCount : not found")
-                return 0, 0
+            return track, total
         else:
             logging.info ("current_song_track_number_and_total_tracks : not found")
             return 0, 0
@@ -243,6 +244,24 @@ class tizgmusicproxy(object):
                         logging.info ("Added {0} tracks from {1} by "
                         "{2} to queue".format(count, album.encode("utf-8"),
                                               artist.encode("utf-8")))
+        except KeyError:
+            raise KeyError("Album not found : {0}".format(arg))
+
+    def enqueue_album_all_access(self, arg):
+        try:
+            album_hits = self.__api.search_all_access(arg)['album_hits']
+            album = next((hit for hit in album_hits if 'best_result' in hit.keys()), None)
+            if not album:
+                album = album_hits[0]
+                print "'{0}' not found. Playing '{1}' instead.".format(arg, album['album']['name'])
+            album_tracks = self.__api.get_album_info(album['album']['albumId'])['tracks']
+            count = 0
+            for track in album_tracks:
+                if not u'id' in track.keys():
+                    track[u'id'] = track['nid']
+                self.queue.append(track)
+                count += 1
+            logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
 
