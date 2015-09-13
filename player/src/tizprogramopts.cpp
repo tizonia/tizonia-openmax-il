@@ -724,13 +724,13 @@ void tiz::programopts::init_gmusic_options ()
   gmusic_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-user", po::value (&gmusic_user_),
-      "Google Play Music user's name (Optional: may also be provided via config file).")
+      "Google Play Music user's name (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-password", po::value (&gmusic_pass_),
-       "Google Play Music user's password (Optional: may also be provided via config file).")
+       "Google Play Music user's password (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-device-id", po::value (&gmusic_device_id_),
-       "Google Play Music device id (Optional: may also be provided via config file).")
+       "Google Play Music device id (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-artist", po::value (&gmusic_artist_),
        "Play tracks from the user's library by artist.")
@@ -745,22 +745,22 @@ void tiz::programopts::init_gmusic_options ()
        "Play a station from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-feeling-lucky-station",
-       "All Access 'I'm Feeling Lucky' station.")
+       "Play the user's 'I'm Feeling Lucky' station.")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-promoted-tracks",
-       "All Access promoted tracks playlist.")
+      ("gmusic-all-access-promoted-tracks",
+       "Play All Access promoted tracks.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-album", po::value (&gmusic_album_),
-       "Play All Access tracks by album.")
+       "Search and play All Access tracks by album (best match only).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-artist", po::value (&gmusic_artist_),
-       "Play All Access tracks by artist.");
+       "Search and play All Access tracks by artist (best match only).");
 
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")
     ("gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")
     ("gmusic-playlist")("gmusic-station")("gmusic-feeling-lucky-station")
-    ("gmusic-promoted-tracks")("gmusic-all-access-album")("gmusic-all-access-artist");
+    ("gmusic-all-access-promoted-tracks")("gmusic-all-access-album")("gmusic-all-access-artist");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -989,7 +989,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
     const int playlist_option_count = vm_.count ("gmusic-artist")
       + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
       + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
-      + vm_.count ("gmusic-promoted-tracks") + vm_.count ("gmusic-all-access-album")
+      + vm_.count ("gmusic-all-access-promoted-tracks") + vm_.count ("gmusic-all-access-album")
       + vm_.count ("gmusic-all-access-artist");
 
     if (gmusic_user_.empty ())
@@ -1005,7 +1005,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
         retrieve_config_from_rc_file ("tizonia", "gmusic.device_id", gmusic_device_id_);
       }
 
-    if (vm_.count ("gmusic-promoted-tracks"))
+    if (vm_.count ("gmusic-all-access-promoted-tracks"))
       {
         // This is not going to be used by the client code, but will help
         // in gmusic_playlist_type() to decide which playlist type value is returned.
@@ -1173,7 +1173,7 @@ bool tiz::programopts::validate_gmusic_client_options () const
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
         + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
-        + vm_.count ("gmusic-promoted-tracks") + vm_.count ("gmusic-all-access-album")
+        + vm_.count ("gmusic-all-access-promoted-tracks") + vm_.count ("gmusic-all-access-album")
         + vm_.count ("gmusic-all-access-artist") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_gmusic_client_options_;
