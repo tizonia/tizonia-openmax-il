@@ -229,29 +229,6 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Artist not found : {0}".format(arg))
 
-    def enqueue_artist_all_access(self, arg):
-        try:
-            artist_hits = self.__api.search_all_access(arg)['artist_hits']
-            artist = next((hit for hit in artist_hits if 'best_result' in hit.keys()), None)
-            if not artist:
-                artist = artist_hits[0]
-                print "'{0}' not found. Playing '{1}' instead.".format(arg, artist['artist']['name'])
-            include_albums = False
-            max_top_tracks = 50
-            max_rel_artist = 0
-            artist_tracks = self.__api.get_artist_info(artist['artist']['artistId'],
-                                                       include_albums, max_top_tracks,
-                                                       max_rel_artist)['topTracks']
-            count = 0
-            for track in artist_tracks:
-                if not u'id' in track.keys():
-                    track[u'id'] = track['nid']
-                self.queue.append(track)
-                count += 1
-            logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
-        except KeyError:
-            raise KeyError("Artist not found : {0}".format(arg))
-
     def enqueue_album(self, arg):
         try:
             for artist in self.library:
@@ -267,24 +244,6 @@ class tizgmusicproxy(object):
                         logging.info ("Added {0} tracks from {1} by "
                         "{2} to queue".format(count, album.encode("utf-8"),
                                               artist.encode("utf-8")))
-        except KeyError:
-            raise KeyError("Album not found : {0}".format(arg))
-
-    def enqueue_album_all_access(self, arg):
-        try:
-            album_hits = self.__api.search_all_access(arg)['album_hits']
-            album = next((hit for hit in album_hits if 'best_result' in hit.keys()), None)
-            if not album:
-                album = album_hits[0]
-                print "'{0}' not found. Playing '{1}' instead.".format(arg, album['album']['name'])
-            album_tracks = self.__api.get_album_info(album['album']['albumId'])['tracks']
-            count = 0
-            for track in album_tracks:
-                if not u'id' in track.keys():
-                    track[u'id'] = track['nid']
-                self.queue.append(track)
-                count += 1
-            logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
 
@@ -333,7 +292,67 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Station not found : {0}".format(arg))
 
-    def enqueue_promoted_tracks(self):
+    def enqueue_artist_all_access(self, arg):
+        try:
+            artist_hits = self.__api.search_all_access(arg)['artist_hits']
+            artist = next((hit for hit in artist_hits if 'best_result' in hit.keys()), None)
+            if not artist:
+                artist = artist_hits[0]
+                print "'{0}' not found. Playing '{1}' instead.".format(arg, artist['artist']['name'])
+            include_albums = False
+            max_top_tracks = 50
+            max_rel_artist = 0
+            artist_tracks = self.__api.get_artist_info(artist['artist']['artistId'],
+                                                       include_albums, max_top_tracks,
+                                                       max_rel_artist)['topTracks']
+            count = 0
+            for track in artist_tracks:
+                if not u'id' in track.keys():
+                    track[u'id'] = track['nid']
+                self.queue.append(track)
+                count += 1
+            logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+        except KeyError:
+            raise KeyError("Artist not found : {0}".format(arg))
+
+    def enqueue_album_all_access(self, arg):
+        try:
+            album_hits = self.__api.search_all_access(arg)['album_hits']
+            album = next((hit for hit in album_hits if 'best_result' in hit.keys()), None)
+            if not album:
+                album = album_hits[0]
+                print "'{0}' not found. Playing '{1}' instead.".format(arg, album['album']['name'])
+            album_tracks = self.__api.get_album_info(album['album']['albumId'])['tracks']
+            count = 0
+            for track in album_tracks:
+                if not u'id' in track.keys():
+                    track[u'id'] = track['nid']
+                self.queue.append(track)
+                count += 1
+            logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+        except KeyError:
+            raise KeyError("Album not found : {0}".format(arg))
+
+    def enqueue_playlist_all_access(self, arg):
+        try:
+            playlist_hits = self.__api.search_all_access(arg)['playlist_hits']
+            playlist = next((hit for hit in playlist_hits if 'best_result' in hit.keys()), None)
+            if not playlist:
+                playlist = playlist_hits[0]
+                print "'{0}' not found. Playing '{1}' instead.".format(arg, playlist['playlist']['name'])
+            share_tok = playlist['playlist']['shareToken']
+            playlist_items = self.__api.get_shared_playlist_contents(share_tok)
+            count = 0
+            for item in playlist_items:
+                track = item['track']
+                track['id'] = item['trackId']
+                self.queue.append(track)
+                count += 1
+            logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+        except KeyError:
+            raise KeyError("Playlist not found : {0}".format(arg))
+
+    def enqueue_promoted_tracks_all_access(self):
         try:
             tracks = self.__api.get_promoted_songs()
             count  = 0
