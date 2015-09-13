@@ -123,11 +123,12 @@ extern "C" int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic,
 }
 
 extern "C" int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic,
-                                            const char *ap_playlist)
+                                         const char *ap_playlist,
+                                         const bool a_all_access_search)
 {
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->play_playlist (ap_playlist);
+  return ap_gmusic->p_proxy_->play_playlist (ap_playlist, a_all_access_search);
 }
 
 extern "C" int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic,

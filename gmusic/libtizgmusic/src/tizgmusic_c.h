@@ -94,8 +94,8 @@ int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album,
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_album The artist name
- * @param a_all_access_search If true, All Access artists are
- * included. Otherwise, only artists from the user's library are considered.
+ * @param a_all_access_search If true, All Access albums are
+ * included. Otherwise, only albums from the user's library are considered.
  *
  * @return 0 on success
  */
@@ -113,10 +113,13 @@ int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist,
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_album The artist name
+ * @param a_all_access_search If true, All Access albums are
+ * included. Otherwise, only albums from the user's library are considered.
  *
  * @return 0 on success
  */
-int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist);
+int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist,
+                            const bool a_all_access_search);
 
 /**
  * Add the tracks of the specified station to the playback queue.

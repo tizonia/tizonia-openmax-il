@@ -153,10 +153,17 @@ int tizgmusic::play_artist (const std::string &artist, const bool a_all_access_s
   return rc;
 }
 
-int tizgmusic::play_playlist (const std::string &playlist)
+int tizgmusic::play_playlist (const std::string &playlist, const bool a_all_access_search)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlist")(bp::object (playlist)));
+  if (a_all_access_search)
+    {
+      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlist_all_access")(bp::object (playlist)));
+    }
+  else
+    {
+      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlist")(bp::object (playlist)));
+    }
   return rc;
 }
 
@@ -170,7 +177,7 @@ int tizgmusic::play_station (const std::string &station)
 int tizgmusic::play_promoted_tracks ()
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_promoted_tracks")());
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_promoted_tracks_all_access")());
   return rc;
 }
 
