@@ -33,6 +33,8 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 /**
 * @defgroup tizgmusic A Google Play Music client library
 *
