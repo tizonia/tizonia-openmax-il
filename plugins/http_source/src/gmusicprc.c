@@ -567,7 +567,7 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
           break;
         case OMX_AUDIO_GmusicPlaylistTypeUser:
           {
-            rc = tiz_gmusic_play_playlist (ap_prc->p_gmusic_, p_playlist);
+            rc = tiz_gmusic_play_playlist (ap_prc->p_gmusic_, p_playlist, is_all_access_search);
           }
           break;
         case OMX_AUDIO_GmusicPlaylistTypeArtist:
