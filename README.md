@@ -261,21 +261,27 @@ Spotify options:
   --spotify-playlist arg Spotify playlist name.
 
 Google Play Music options:
-  --gmusic-user arg               Google Play Music user's name (Optional: may
-                                  also be provided via config file).
-  --gmusic-password arg           Google Play Music user's password (Optional:
-                                  may also be provided via config file).
-  --gmusic-device-id arg          Google Play Music device id (Optional: may
-                                  also be provided via config file).
-  --gmusic-artist arg             Play tracks from the user's library by
-                                  artist.
-  --gmusic-album arg              Play tracks from the user's library by album.
-  --gmusic-playlist arg           Play a playlist from the user's library.
-  --gmusic-station arg            Play a station from the user's library.
-  --gmusic-feeling-lucky-station  All Access 'I'm Feeling Lucky' station.
-  --gmusic-promoted-tracks        All Access promoted tracks playlist.
-  --gmusic-all-access-album arg   Play All Access tracks by album.
-  --gmusic-all-access-artist arg  Play All Access tracks by artist.
+  --gmusic-user arg                    Google Play Music user's name (not
+                                       required if provided via config file).
+  --gmusic-password arg                Google Play Music user's password (not
+                                       required if provided via config file).
+  --gmusic-device-id arg               Google Play Music device id (not
+                                       required if provided via config file).
+  --gmusic-artist arg                  Play tracks from the user's library by
+                                       artist.
+  --gmusic-album arg                   Play tracks from the user's library by
+                                       album.
+  --gmusic-playlist arg                Play a playlist from the user's library.
+  --gmusic-station arg                 Play a station from the user's library.
+  --gmusic-feeling-lucky-station       Play the user's 'I'm Feeling Lucky'
+                                       station.
+  --gmusic-all-access-promoted-tracks  Play All Access promoted tracks.
+  --gmusic-all-access-album arg        Search and play All Access tracks by
+                                       album (best match only).
+  --gmusic-all-access-artist arg       Search and play All Access tracks by
+                                       artist (best match only).
+  --gmusic-all-access-tracks arg       Search and play All Access tracks by
+                                       name (50 best matches only).
 
 ```
 
