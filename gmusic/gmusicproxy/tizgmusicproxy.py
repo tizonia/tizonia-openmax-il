@@ -333,19 +333,14 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
 
-    def enqueue_playlist_all_access(self, arg):
+    def enqueue_tracks_all_access(self, arg):
         try:
-            playlist_hits = self.__api.search_all_access(arg)['playlist_hits']
-            playlist = next((hit for hit in playlist_hits if 'best_result' in hit.keys()), None)
-            if not playlist:
-                playlist = playlist_hits[0]
-                print "'{0}' not found. Playing '{1}' instead.".format(arg, playlist['playlist']['name'])
-            share_tok = playlist['playlist']['shareToken']
-            playlist_items = self.__api.get_shared_playlist_contents(share_tok)
+            track_hits = self.__api.search_all_access(arg)['song_hits']
             count = 0
-            for item in playlist_items:
+            for item in track_hits:
                 track = item['track']
-                track['id'] = item['trackId']
+                if not u'id' in track.keys():
+                    track[u'id'] = track['nid']
                 self.queue.append(track)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
