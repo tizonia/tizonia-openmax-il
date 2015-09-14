@@ -756,15 +756,15 @@ void tiz::programopts::init_gmusic_options ()
       ("gmusic-all-access-artist", po::value (&gmusic_artist_),
        "Search and play All Access tracks by artist (best match only).")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-all-access-playlist", po::value (&gmusic_playlist_),
-       "Search and play All Access tracks by playlist (best match only).");
+      ("gmusic-all-access-tracks", po::value (&gmusic_playlist_),
+       "Search and play All Access tracks by name (50 best matches only).");
 
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")
     ("gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")
     ("gmusic-playlist")("gmusic-station")("gmusic-feeling-lucky-station")
     ("gmusic-all-access-promoted-tracks")("gmusic-all-access-album")
-    ("gmusic-all-access-artist")("gmusic-all-access-playlist");
+    ("gmusic-all-access-artist")("gmusic-all-access-tracks");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -994,7 +994,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
       + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
       + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
       + vm_.count ("gmusic-all-access-promoted-tracks") + vm_.count ("gmusic-all-access-album")
-      + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-playlist");
+      + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-tracks");
 
     if (gmusic_user_.empty ())
       {
@@ -1023,7 +1023,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
 
       if (vm_.count ("gmusic-all-access-album")
           || vm_.count ("gmusic-all-access-artist")
-          || vm_.count ("gmusic-all-access-playlist"))
+          || vm_.count ("gmusic-all-access-tracks"))
       {
         gmusic_is_all_access_search_ = true;
       }
@@ -1180,7 +1180,7 @@ bool tiz::programopts::validate_gmusic_client_options () const
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
         + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
         + vm_.count ("gmusic-all-access-promoted-tracks") + vm_.count ("gmusic-all-access-album")
-        + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-playlist")
+        + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-tracks")
         + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_gmusic_client_options_;
