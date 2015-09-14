@@ -158,7 +158,9 @@ int tizgmusic::play_playlist (const std::string &playlist, const bool a_all_acce
   int rc = 0;
   if (a_all_access_search)
     {
-      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlist_all_access")(bp::object (playlist)));
+      // NOTE: we will enqueue here "tracks" instead of a playlist (gmusicapi
+      // returns an empty playlist_hits list)
+      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_tracks_all_access")(bp::object (playlist)));
     }
   else
     {
