@@ -267,6 +267,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_album_ (),
     gmusic_playlist_ (),
     gmusic_station_ (),
+    gmusic_genre_ (),
     gmusic_promoted_ (),
     gmusic_feeling_lucky_station_ (),
     gmusic_playlist_container_ (),
@@ -498,6 +499,10 @@ const std::vector< std::string > &
     {
       gmusic_playlist_container_.push_back (gmusic_station_);
     }
+  else if (!gmusic_genre_.empty ())
+    {
+      gmusic_playlist_container_.push_back (gmusic_genre_);
+    }
   else if (!gmusic_promoted_.empty ())
     {
       // With gmusic promoted songs option, no playlist "name" is actually
@@ -533,6 +538,10 @@ tiz::programopts::gmusic_playlist_type ()
   else if (!gmusic_station_.empty () || !gmusic_feeling_lucky_station_.empty ())
     {
       gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeStation;
+    }
+  else if (!gmusic_genre_.empty ())
+    {
+      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeGenre;
     }
   else if (!gmusic_promoted_.empty ())
     {
@@ -744,12 +753,6 @@ void tiz::programopts::init_gmusic_options ()
       ("gmusic-station", po::value (&gmusic_station_),
        "Play a station from the user's library.")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-feeling-lucky-station",
-       "Play the user's 'I'm Feeling Lucky' station.")
-      /* TIZ_CLASS_COMMENT: */
-      ("gmusic-all-access-promoted-tracks",
-       "Play All Access promoted tracks.")
-      /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-album", po::value (&gmusic_album_),
        "Search and play All Access tracks by album (best match only).")
       /* TIZ_CLASS_COMMENT: */
@@ -757,14 +760,23 @@ void tiz::programopts::init_gmusic_options ()
        "Search and play All Access tracks by artist (best match only).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-tracks", po::value (&gmusic_playlist_),
-       "Search and play All Access tracks by name (50 best matches only).");
+       "Search and play All Access tracks by name (50 best matches only).")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-all-access-genre", po::value (&gmusic_genre_),
+       "Search and play All Access tracks by genre.")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-feeling-lucky-station",
+       "Play the user's 'I'm Feeling Lucky' station.")
+      /* TIZ_CLASS_COMMENT: */
+      ("gmusic-all-access-promoted-tracks",
+       "Play All Access promoted tracks.");
 
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")
     ("gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")
-    ("gmusic-playlist")("gmusic-station")("gmusic-feeling-lucky-station")
-    ("gmusic-all-access-promoted-tracks")("gmusic-all-access-album")
-    ("gmusic-all-access-artist")("gmusic-all-access-tracks");
+    ("gmusic-playlist")("gmusic-station")("gmusic-all-access-album")
+    ("gmusic-all-access-artist")("gmusic-all-access-tracks")("gmusic-all-access-genre")
+    ("gmusic-feeling-lucky-station")("gmusic-all-access-promoted-tracks");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -992,9 +1004,10 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
 
     const int playlist_option_count = vm_.count ("gmusic-artist")
       + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-      + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
-      + vm_.count ("gmusic-all-access-promoted-tracks") + vm_.count ("gmusic-all-access-album")
-      + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-tracks");
+      + vm_.count ("gmusic-station") + vm_.count ("gmusic-all-access-album")
+      + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-tracks")
+      + vm_.count ("gmusic-all-access-genre") + vm_.count ("gmusic-feeling-lucky-station")
+      + vm_.count ("gmusic-all-access-promoted-tracks") ;
 
     if (gmusic_user_.empty ())
       {
@@ -1023,7 +1036,8 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
 
       if (vm_.count ("gmusic-all-access-album")
           || vm_.count ("gmusic-all-access-artist")
-          || vm_.count ("gmusic-all-access-tracks"))
+          || vm_.count ("gmusic-all-access-tracks")
+          || vm_.count ("gmusic-all-access-genre"))
       {
         gmusic_is_all_access_search_ = true;
       }
@@ -1178,9 +1192,10 @@ bool tiz::programopts::validate_gmusic_client_options () const
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-        + vm_.count ("gmusic-station") + vm_.count ("gmusic-feeling-lucky-station")
-        + vm_.count ("gmusic-all-access-promoted-tracks") + vm_.count ("gmusic-all-access-album")
+        + vm_.count ("gmusic-station") + vm_.count ("gmusic-all-access-album")
         + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-tracks")
+        + vm_.count ("gmusic-all-access-genre") + vm_.count ("gmusic-feeling-lucky-station")
+        + vm_.count ("gmusic-all-access-promoted-tracks")
         + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_gmusic_client_options_;
