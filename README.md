@@ -273,15 +273,17 @@ Google Play Music options:
                                        album.
   --gmusic-playlist arg                Play a playlist from the user's library.
   --gmusic-station arg                 Play a station from the user's library.
-  --gmusic-feeling-lucky-station       Play the user's 'I'm Feeling Lucky'
-                                       station.
-  --gmusic-all-access-promoted-tracks  Play All Access promoted tracks.
   --gmusic-all-access-album arg        Search and play All Access tracks by
                                        album (best match only).
   --gmusic-all-access-artist arg       Search and play All Access tracks by
                                        artist (best match only).
   --gmusic-all-access-tracks arg       Search and play All Access tracks by
                                        name (50 best matches only).
+  --gmusic-all-access-genre arg        Search and play All Access tracks by
+                                       genre.
+  --gmusic-feeling-lucky-station       Play the user's 'I'm Feeling Lucky'
+                                       station.
+  --gmusic-all-access-promoted-tracks  Play All Access promoted tracks.
 
 ```
 
