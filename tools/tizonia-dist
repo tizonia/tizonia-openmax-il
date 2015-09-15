@@ -1114,18 +1114,20 @@ function main {
         fi
     fi
 
-    # Make suire $HOME/.config/tizonia/.tizonia.conf does not exist (may break
-    # unit tests during the package creation)
-    if [[ -e "$HOME/.config/tizonia/tizonia.conf" ]]; then
-        local err_msg="Please remove $HOME/.config/tizonia/tizonia.conf before proceeding"
-        exit_status=1
-        log_on_error "$exit_status" "$err_msg"
-    fi
-
     if [[ "$exit_status" -eq 0 ]] ; then
         if [[ "$makenext" == 1 ]]; then
-            do_next_package_debs
-            exit_status=$?
+            # Make suire $HOME/.config/tizonia/.tizonia.conf does not exist (may break
+            # unit tests during the package creation)
+            if [[ -e "$HOME/.config/tizonia/tizonia.conf" ]]; then
+                local err_msg="Please remove $HOME/.config/tizonia/tizonia.conf before proceeding"
+                exit_status=1
+                log_on_error "$exit_status" "$err_msg"
+            fi
+
+            if [[ "$exit_status" -eq 0 ]] ; then
+                do_next_package_debs
+                exit_status=$?
+            fi
         fi
     fi
 
