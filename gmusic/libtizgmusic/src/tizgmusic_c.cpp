@@ -82,7 +82,7 @@ extern "C" int tiz_gmusic_init (tiz_gmusic_ptr_t *app_gmusic,
     {
       if (!gmusic_alloc_data (p_gmusic, ap_user, ap_pass, ap_device_id))
         {
-          tizgmusic * p_gm = p_gmusic->p_proxy_;
+          tizgmusic *p_gm = p_gmusic->p_proxy_;
           assert (NULL != p_gm);
           if (!p_gm->init () && !p_gm->start ())
             {
@@ -132,11 +132,19 @@ extern "C" int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic,
 }
 
 extern "C" int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic,
-                                           const char *ap_station)
+                                        const char *ap_station)
 {
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
   return ap_gmusic->p_proxy_->play_station (ap_station);
+}
+
+extern "C" int tiz_gmusic_play_genre (tiz_gmusic_t *ap_gmusic,
+                                      const char *ap_genre)
+{
+  assert (NULL != ap_gmusic);
+  assert (NULL != ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->play_genre (ap_genre);
 }
 
 extern "C" int tiz_gmusic_play_promoted_tracks (tiz_gmusic_t *ap_gmusic)

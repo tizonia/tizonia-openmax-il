@@ -176,6 +176,13 @@ int tizgmusic::play_station (const std::string &station)
   return rc;
 }
 
+int tizgmusic::play_genre (const std::string &genre)
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_genre")(bp::object (genre)));
+  return rc;
+}
+
 int tizgmusic::play_promoted_tracks ()
 {
   int rc = 0;
