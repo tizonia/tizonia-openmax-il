@@ -45,7 +45,7 @@ logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.INFO)
 
 def exceptionHandler(exception_type, exception, traceback):
-    print "%s" % (exception)
+    print "[gmusic] %s" % (exception)
 
 sys.excepthook = exceptionHandler
 
@@ -189,19 +189,18 @@ class tizgmusicproxy(object):
     def current_song_track_number_and_total_tracks(self):
         logging.info ("current_song_track_number_and_total_tracks")
         song = self.now_playing_song
+        track = 0
+        total = 0
         if song is not None:
-            track = 0
-            total = 0
             try:
                 track = self.now_playing_song['trackNumber']
                 total = self.now_playing_song['totalTrackCount']
                 logging.info ("track number {0} total tracks {1}".format(track, total))
             except KeyError:
                 logging.info ("trackNumber or totalTrackCount : not found")
-            return track, total
         else:
             logging.info ("current_song_track_number_and_total_tracks : not found")
-            return 0, 0
+        return track, total
 
     def clear_queue(self):
         self.queue = list()
@@ -214,7 +213,7 @@ class tizgmusicproxy(object):
                 if artist:
                     for name, art in self.library.items():
                         if art == artist:
-                            print "'{0}' not found. Playing '{1}' instead.".format(arg, name)
+                            print "[gmusic] '{0}' not found. Playing '{1}' instead.".format(arg, name)
                             break
                 else:
                     raise KeyError("Artist not found : {0}".format(arg))
@@ -233,6 +232,7 @@ class tizgmusicproxy(object):
         try:
             for artist in self.library:
                 for album in self.library[artist]:
+                    print "[gmusic] [Album] '{0}'.".format(album.encode("utf-8"))
                     logging.info ("enqueue album : {0} | {1}".format(
                         artist.encode("utf-8"),
                         album.encode("utf-8")))
@@ -249,12 +249,14 @@ class tizgmusicproxy(object):
 
     def enqueue_playlist(self, arg):
         try:
+            for name, plist in self.playlists.items():
+                print "[gmusic] [Playlist] '{0}'.".format(name.encode("utf-8"))
             if not arg in self.playlists.keys():
                 playlist = next((v for (k,v) in self.playlists.items() if arg in k), None)
                 if playlist:
                     for name, plist in self.playlists.items():
                         if plist == playlist:
-                            print "'{0}' not found. Playing '{1}' instead.".format(arg, name)
+                            print "[gmusic] '{0}' not found. Playing '{1}' instead.".format(arg, name)
                             break
                 else:
                     raise KeyError("Playlist not found : {0}".format(arg))
@@ -270,12 +272,14 @@ class tizgmusicproxy(object):
 
     def enqueue_station(self, arg):
         try:
+            for name, st_id in self.stations.iteritems():
+                print "[gmusic] [Station] '{0}'.".format(name.encode("utf-8"))
             if not arg in self.stations.keys():
                 station_id = next((v for (k,v) in self.stations.iteritems() if arg in k), None)
                 if station_id:
                     for name, st_id in self.stations.iteritems():
                         if st_id == station_id:
-                            print "'{0}' not found. Playing '{1}' instead.".format(arg, name)
+                            print "[gmusic] '{0}' not found. Playing '{1}' instead.".format(arg, name)
                             break
                 else:
                     raise KeyError("Station not found : {0}".format(arg))
@@ -292,13 +296,42 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Station not found : {0}".format(arg))
 
+    def enqueue_genre(self, arg):
+        try:
+            all_genres = list()
+            root_genres = self.__api.get_genres()
+            all_genres += root_genres
+            count = 0
+            for root_genre in root_genres:
+                all_genres += self.__api.get_genres(root_genre['id'])
+            for genre in all_genres:
+                print "[gmusic] [Genre] '{0}'.".format(genre['name'].encode("utf-8"))
+            genre = next((g for g in all_genres if arg in g['name']), None)
+            if genre:
+                print "[gmusic] Playing '{0}'.".format(genre['name'])
+            else:
+                raise KeyError("Genre not found : {0}".format(arg))
+            genre_name = genre['name']
+            genre_id = genre['id']
+            station_id = self.__api.create_station(genre_name, None, None, None, genre_id)
+            num_tracks = 200
+            tracks = self.__api.get_station_tracks(station_id, num_tracks)
+            count = 0
+            for track in tracks:
+                track[u'id'] = track['nid']
+                self.queue.append(track)
+                count += 1
+            logging.info ("Added {0} tracks from {1} to queue".format(count, genre_name))
+        except KeyError:
+            raise KeyError("Genre not found : {0}".format(arg))
+
     def enqueue_artist_all_access(self, arg):
         try:
             artist_hits = self.__api.search_all_access(arg)['artist_hits']
             artist = next((hit for hit in artist_hits if 'best_result' in hit.keys()), None)
             if not artist:
                 artist = artist_hits[0]
-                print "'{0}' not found. Playing '{1}' instead.".format(arg, artist['artist']['name'])
+                print "[gmusic] '{0}' not found. Playing '{1}' instead.".format(arg, artist['artist']['name'])
             include_albums = False
             max_top_tracks = 50
             max_rel_artist = 0
@@ -321,7 +354,7 @@ class tizgmusicproxy(object):
             album = next((hit for hit in album_hits if 'best_result' in hit.keys()), None)
             if not album:
                 album = album_hits[0]
-                print "'{0}' not found. Playing '{1}' instead.".format(arg, album['album']['name'])
+                print "[gmusic] '{0}' not found. Playing '{1}' instead.".format(arg, album['album']['name'])
             album_tracks = self.__api.get_album_info(album['album']['albumId'])['tracks']
             count = 0
             for track in album_tracks:
