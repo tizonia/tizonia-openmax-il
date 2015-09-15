@@ -943,6 +943,7 @@ function do_uninstall_all_debs {
 function do_publish_project_debs {
     local pkg="$1"
     local pkg_dir="$2"
+    local password="$3"
     local exit_status=0
     local err_msg='Unknown error'
 
@@ -955,7 +956,7 @@ function do_publish_project_debs {
         if [[ -e "$deb" ]]; then
             local deb_name=$(echo "$deb" | cut -d'_' -f1)
             pretty_print "$YEL" "[$pkg] : uploading $deb_name."
-            curl -X PUT -T "$deb" -utizonia:"$TIZONIA_BINTRAY_API_KEY" \
+            curl -X PUT -T "$deb" -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" \
                 "https://api.bintray.com/content/tizonia/$DISTRO_ID/tizonia-$DISTRO_CODENAME/$TIZONIA_RELEASE_VERSION/pool/main/t/tizonia-$DISTRO_CODENAME/$deb;deb_distribution=$DISTRO_CODENAME;deb_component=main;deb_architecture=$arch"
             echo
             pretty_print "$GRN" "[$pkg] : uploaded $deb_name."
@@ -980,14 +981,14 @@ function do_publish_project_debs {
 ##################################################################
 function do_publish_to_bintray {
     local exit_status=0
+    read -s -p "Enter GPG-PASSPHRASE: " password
+    echo
     for pkg in "${TIZ_PROJECTS_ORDERED[@]}"; do
         local pkg_deb_dir="$DEBIAN_DIR/$pkg"
         if [[ -d "$pkg_deb_dir" ]]; then
-            do_publish_project_debs "$pkg" "$pkg_deb_dir"
+            do_publish_project_debs "$pkg" "$pkg_deb_dir" "$password"
         fi
     done
-    read -s -p "Enter GPG-PASSPHRASE: " password
-    echo
     # Trigger metadata calculation
     pretty_print "$GRN" "Bintray: Triggering metadata calculation on $DISTRO_ID repo"
     curl -X POST -H "X-GPG-PASSPHRASE: $password" -utizonia:"$TIZONIA_BINTRAY_API_KEY" "https://api.bintray.com/calc_metadata/tizonia/$DISTRO_ID/"
@@ -1097,21 +1098,6 @@ function main {
         fi
     fi
 
-    # Make suire $HOME/.config/tizonia/.tizonia.conf does not exist (may break
-    # unit tests during the package creation)
-    if [[ -e "$HOME/.config/tizonia/tizonia.conf" ]]; then
-        local err_msg="Please remove $HOME/.config/tizonia/tizonia.conf before proceeding"
-        exit_status=1
-        log_on_error "$exit_status" "$err_msg"
-    fi
-
-    if [[ "$exit_status" -eq 0 ]] ; then
-        if [[ "$makenext" == 1 ]]; then
-            do_next_package_debs
-            exit_status=$?
-        fi
-    fi
-
     if [[ "$exit_status" -eq 0 ]] ; then
         if [[ "$removeall" == 1 ]]; then
             do_uninstall_all_debs
@@ -1124,6 +1110,21 @@ function main {
             # Verify the existence of important environment variables
             : ${TIZONIA_BINTRAY_API_KEY:?"Need to set TIZONIA_BINTRAY_API_KEY"}
             do_publish_to_bintray
+            exit_status=$?
+        fi
+    fi
+
+    # Make suire $HOME/.config/tizonia/.tizonia.conf does not exist (may break
+    # unit tests during the package creation)
+    if [[ -e "$HOME/.config/tizonia/tizonia.conf" ]]; then
+        local err_msg="Please remove $HOME/.config/tizonia/tizonia.conf before proceeding"
+        exit_status=1
+        log_on_error "$exit_status" "$err_msg"
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        if [[ "$makenext" == 1 ]]; then
+            do_next_package_debs
             exit_status=$?
         fi
     fi
