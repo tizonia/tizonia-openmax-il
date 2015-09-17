@@ -237,8 +237,8 @@ function install_src_deps {
         cd "$WORKING_DIR" \
             && git clone ${repos[$i]} &>/dev/null \
             && cd ${folders[$i]} \
-            && ./autogen.sh &>/dev/null || ./autogen.sh &>/dev/null \
-            && ./configure --prefix="$INSTALL_DIR" &>/dev/null \
+            && ./autogen.sh || ./autogen.sh \
+            && ./configure --prefix="$INSTALL_DIR" \
             && make -s -j8 V=0 install &>/dev/null
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
