@@ -236,10 +236,10 @@ function install_src_deps {
     do
         cd "$WORKING_DIR" \
             && git clone ${repos[$i]} &>/dev/null \
-            && cd ${folders[$i]} ; \
-            ./autogen.sh; \
-            ./configure --prefix="$INSTALL_DIR"; \
-            make -s -j8 V=0 install
+            && cd ${folders[$i]} &>/dev/null ; \
+            ./autogen.sh &>/dev/null ; \
+            ./configure --prefix="$INSTALL_DIR" &>/dev/null ; \
+            make -s -j8 V=0 install &>/dev/null
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while building ${repos[$i]}" >&2
