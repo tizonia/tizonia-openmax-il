@@ -172,14 +172,14 @@ int tizgmusic::play_playlist (const std::string &playlist, const bool a_all_acce
 int tizgmusic::play_station (const std::string &station)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_station")(bp::object (station)));
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_station_all_access")(bp::object (station)));
   return rc;
 }
 
 int tizgmusic::play_genre (const std::string &genre)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_genre")(bp::object (genre)));
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_genre_all_access")(bp::object (genre)));
   return rc;
 }
 
