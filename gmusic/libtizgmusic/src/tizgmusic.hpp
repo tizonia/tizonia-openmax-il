@@ -62,6 +62,7 @@ public:
   const char * get_current_song_duration ();
   const char * get_current_song_track_number ();
   const char * get_current_song_tracks_in_album ();
+  const char * get_current_song_year ();
 
 private:
   int get_current_song ();
@@ -77,6 +78,7 @@ private:
   std::string current_duration_;
   std::string current_track_num_;
   std::string current_song_tracks_total_;
+  std::string current_song_year_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_gm_proxy_;

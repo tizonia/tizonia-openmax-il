@@ -266,6 +266,13 @@ const char *tizgmusic::get_current_song_tracks_in_album ()
              : current_song_tracks_total_.c_str ();
 }
 
+const char *tizgmusic::get_current_song_year ()
+{
+  return current_song_year_.empty ()
+             ? NULL
+             : current_song_year_.c_str ();
+}
+
 void tizgmusic::clear_queue ()
 {
   int rc = 0;
@@ -344,6 +351,9 @@ int tizgmusic::get_current_song ()
 
   current_track_num_.assign (boost::lexical_cast< std::string >(track_num));
   current_song_tracks_total_.assign (boost::lexical_cast< std::string >(total_tracks));
+
+  const int song_year = bp::extract< int >(py_gm_proxy_.attr ("current_song_year")());
+  current_song_year_.assign (boost::lexical_cast< std::string >(song_year));
 
   if (p_artist || p_title)
     {

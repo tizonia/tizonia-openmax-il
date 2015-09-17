@@ -234,6 +234,14 @@ const char *tiz_gmusic_get_current_song_tracks_in_album (
     tiz_gmusic_t *ap_gmusic);
 
 /**
+ * Retrieve the current song's publication year.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
+const char *tiz_gmusic_get_current_song_year (
+    tiz_gmusic_t *ap_gmusic);
+
+/**
  * Destroy the gmusic handle.
  *
  * @param ap_gmusic The gmusic handle.
