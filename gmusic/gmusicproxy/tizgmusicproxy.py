@@ -156,7 +156,7 @@ class tizgmusicproxy(object):
 
         # Get stations (All Access)
         stations = self.__api.get_all_stations()
-        self.stations["I'm Feeling Lucky"] = 'IFL'
+        self.stations[u"I'm Feeling Lucky"] = 'IFL'
         for station in stations:
             station_name = station['name']
             logging.info ("station name : {0}".format(station_name.encode("utf-8")))
@@ -270,7 +270,7 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
 
-    def enqueue_station(self, arg):
+    def enqueue_station_all_access(self, arg):
         try:
             for name, st_id in self.stations.iteritems():
                 print "[gmusic] [Station] '{0}'.".format(name.encode("utf-8"))
@@ -279,24 +279,28 @@ class tizgmusicproxy(object):
                 if station_id:
                     for name, st_id in self.stations.iteritems():
                         if st_id == station_id:
-                            print "[gmusic] '{0}' not found. Playing '{1}' instead.".format(arg, name)
+                            print "[gmusic] '{0}' not found. Playing '{1}' instead.".format(arg, name.encode("utf-8"))
                             break
                 else:
                     raise KeyError("Station not found : {0}".format(arg))
             else:
                 station_id = self.stations[arg]
             num_tracks = 200
-            tracks = self.__api.get_station_tracks(station_id, num_tracks)
+            try:
+                tracks = self.__api.get_station_tracks(station_id, num_tracks)
+            except KeyError:
+                raise RuntimeError("Operation requires an All Access subscription.")
             count = 0
             for track in tracks:
-                track[u'id'] = track['nid']
+                if not u'id' in track.keys():
+                    track[u'id'] = track['nid']
                 self.queue.append(track)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
         except KeyError:
             raise KeyError("Station not found : {0}".format(arg))
 
-    def enqueue_genre(self, arg):
+    def enqueue_genre_all_access(self, arg):
         try:
             all_genres = list()
             root_genres = self.__api.get_genres()
@@ -318,12 +322,15 @@ class tizgmusicproxy(object):
             tracks = self.__api.get_station_tracks(station_id, num_tracks)
             count = 0
             for track in tracks:
-                track[u'id'] = track['nid']
+                if not u'id' in track.keys():
+                    track[u'id'] = track['nid']
                 self.queue.append(track)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, genre_name))
         except KeyError:
             raise KeyError("Genre not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an All Access subscription.")
 
     def enqueue_artist_all_access(self, arg):
         try:
@@ -347,6 +354,8 @@ class tizgmusicproxy(object):
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
         except KeyError:
             raise KeyError("Artist not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an All Access subscription.")
 
     def enqueue_album_all_access(self, arg):
         try:
@@ -365,6 +374,8 @@ class tizgmusicproxy(object):
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an All Access subscription.")
 
     def enqueue_tracks_all_access(self, arg):
         try:
@@ -379,6 +390,8 @@ class tizgmusicproxy(object):
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an All Access subscription.")
 
     def enqueue_promoted_tracks_all_access(self):
         try:
@@ -390,9 +403,11 @@ class tizgmusicproxy(object):
                     store_track[u'id'] = store_track['nid']
                 self.queue.append(store_track)
                 count += 1
+            if count == 0:
+                print "[gmusic] Operation requires an All Access subscription."
             logging.info ("Added {0} All Access promoted tracks to queue".format(count))
         except CallFailure:
-            raise CallFailure("Operation requires an All Access subscription.")
+            raise RuntimeError("Operation requires an All Access subscription.")
 
     def next_url(self):
         logging.info ("next_url")
