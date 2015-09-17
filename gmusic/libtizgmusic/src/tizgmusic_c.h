@@ -127,7 +127,7 @@ int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist,
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @note All Access subscription is required.
+ * @note An All Access subscription is required.
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_album The station name
@@ -142,7 +142,7 @@ int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @note All Access subscription is required.
+ * @note An All Access subscription is required.
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_album The artist name
@@ -157,7 +157,7 @@ int tiz_gmusic_play_genre (tiz_gmusic_t *ap_gmusic, const char *ap_genre);
 * After calling this method, the various tiz_gmusic_get* methods can be
 * used to interact with the playback queue.
 *
-* @note All Access subscription is required.
+* @note An All Access subscription is required.
 *
 * @param ap_gmusic The gmusic handle.
 *
