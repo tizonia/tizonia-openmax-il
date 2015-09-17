@@ -237,9 +237,9 @@ function install_src_deps {
         cd "$WORKING_DIR" \
             && git clone ${repos[$i]} &>/dev/null \
             && cd ${folders[$i]} ; \
-            ./autogen.sh &>/dev/null ; \
-            ./configure --prefix="$INSTALL_DIR" &>/dev/null ; \
-            make -s -j8 V=0 install &>/dev/null
+            ./autogen.sh; \
+            ./configure --prefix="$INSTALL_DIR"; \
+            make -s -j8 V=0 install
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while building ${repos[$i]}" >&2
