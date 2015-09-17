@@ -202,6 +202,21 @@ class tizgmusicproxy(object):
             logging.info ("current_song_track_number_and_total_tracks : not found")
         return track, total
 
+    def current_song_year(self):
+        logging.info ("current_song_year")
+        song = self.now_playing_song
+        year = 0
+        if song is not None:
+            pprint.pprint(song)
+            try:
+                year = song['year']
+                logging.info ("track year {0}".format(year))
+            except KeyError:
+                logging.info ("year : not found")
+        else:
+            logging.info ("current_song_year : not found")
+        return year
+
     def clear_queue(self):
         self.queue = list()
         self.queue_index = -1
