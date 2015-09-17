@@ -750,8 +750,8 @@ void tiz::programopts::init_gmusic_options ()
       ("gmusic-playlist", po::value (&gmusic_playlist_),
        "Play a playlist from the user's library.")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-station", po::value (&gmusic_station_),
-       "Play a station from the user's library.")
+      ("gmusic-all-access-station", po::value (&gmusic_station_),
+       "Search and play All Access stations from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-album", po::value (&gmusic_album_),
        "Search and play All Access tracks by album (best match only).")
@@ -765,8 +765,8 @@ void tiz::programopts::init_gmusic_options ()
       ("gmusic-all-access-genre", po::value (&gmusic_genre_),
        "Search and play All Access tracks by genre.")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-feeling-lucky-station",
-       "Play the user's 'I'm Feeling Lucky' station.")
+      ("gmusic-all-access-feeling-lucky-station",
+       "Play the user's All Access 'I'm Feeling Lucky' station.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-promoted-tracks",
        "Play All Access promoted tracks.");
@@ -774,9 +774,9 @@ void tiz::programopts::init_gmusic_options ()
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")
     ("gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")
-    ("gmusic-playlist")("gmusic-station")("gmusic-all-access-album")
+    ("gmusic-playlist")("gmusic-all-access-station")("gmusic-all-access-album")
     ("gmusic-all-access-artist")("gmusic-all-access-tracks")("gmusic-all-access-genre")
-    ("gmusic-feeling-lucky-station")("gmusic-all-access-promoted-tracks");
+    ("gmusic-all-access-feeling-lucky-station")("gmusic-all-access-promoted-tracks");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -1004,9 +1004,9 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
 
     const int playlist_option_count = vm_.count ("gmusic-artist")
       + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-      + vm_.count ("gmusic-station") + vm_.count ("gmusic-all-access-album")
+      + vm_.count ("gmusic-all-access-station") + vm_.count ("gmusic-all-access-album")
       + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-tracks")
-      + vm_.count ("gmusic-all-access-genre") + vm_.count ("gmusic-feeling-lucky-station")
+      + vm_.count ("gmusic-all-access-genre") + vm_.count ("gmusic-all-access-feeling-lucky-station")
       + vm_.count ("gmusic-all-access-promoted-tracks") ;
 
     if (gmusic_user_.empty ())
@@ -1029,12 +1029,13 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
         gmusic_promoted_.assign ("All Access promoted tracks");
       }
 
-    if (vm_.count ("gmusic-feeling-lucky-station"))
+    if (vm_.count ("gmusic-all-access-feeling-lucky-station"))
       {
         gmusic_feeling_lucky_station_.assign ("I'm Feeling Lucky");
       }
 
-      if (vm_.count ("gmusic-all-access-album")
+      if (vm_.count ("gmusic-all-access-station")
+          || vm_.count ("gmusic-all-access-album")
           || vm_.count ("gmusic-all-access-artist")
           || vm_.count ("gmusic-all-access-tracks")
           || vm_.count ("gmusic-all-access-genre"))
@@ -1192,9 +1193,9 @@ bool tiz::programopts::validate_gmusic_client_options () const
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-        + vm_.count ("gmusic-station") + vm_.count ("gmusic-all-access-album")
+        + vm_.count ("gmusic-all-access-station") + vm_.count ("gmusic-all-access-album")
         + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-tracks")
-        + vm_.count ("gmusic-all-access-genre") + vm_.count ("gmusic-feeling-lucky-station")
+        + vm_.count ("gmusic-all-access-genre") + vm_.count ("gmusic-all-access-feeling-lucky-station")
         + vm_.count ("gmusic-all-access-promoted-tracks")
         + vm_.count ("log-directory");
 
