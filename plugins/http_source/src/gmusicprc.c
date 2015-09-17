@@ -362,15 +362,31 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
                 store_metadata (
                     ap_prc, "Album",
                     tiz_gmusic_get_current_song_album (ap_prc->p_gmusic_));
+                {
+                  /* Only store the year if not 0 */
+                  const char *p_year
+                      = tiz_gmusic_get_current_song_year (ap_prc->p_gmusic_);
+                  if (p_year && strncmp (p_year, "0", 4) != 0)
+                    {
+                      store_metadata (ap_prc, "Year", p_year);
+                    }
+                }
                 store_metadata (
                     ap_prc, "Duration",
                     tiz_gmusic_get_current_song_duration (ap_prc->p_gmusic_));
                 store_metadata (ap_prc, "Track",
                                 tiz_gmusic_get_current_song_track_number (
                                     ap_prc->p_gmusic_));
-                store_metadata (ap_prc, "Total tracks",
-                                tiz_gmusic_get_current_song_tracks_in_album (
-                                    ap_prc->p_gmusic_));
+
+                {
+                  /* Only store total tracks if not 0 */
+                  const char *p_total_tracks = tiz_gmusic_get_current_song_tracks_in_album (
+                      ap_prc->p_gmusic_);
+                  if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
+                    {
+                      store_metadata (ap_prc, "Total tracks", p_total_tracks);
+                    }
+                }
               }
           }
         else
