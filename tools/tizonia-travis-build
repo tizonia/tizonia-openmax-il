@@ -243,6 +243,7 @@ function install_src_deps {
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while building ${repos[$i]}" >&2
+            exit_status=0
             #break
         fi
     done
