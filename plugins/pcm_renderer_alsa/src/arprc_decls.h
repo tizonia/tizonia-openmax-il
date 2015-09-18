@@ -62,6 +62,7 @@ extern "C"
     bool awaiting_io_ev_;
     float gain_;
     long volume_;
+    bool ramp_enabled_;
     long ramp_step_;
     long ramp_step_count_;
     long ramp_volume_;

@@ -604,47 +604,61 @@ static void set_volume (ar_prc_t *ap_prc, const long a_volume)
 static void prepare_volume_ramp (ar_prc_t *ap_prc)
 {
   assert (ap_prc);
-  ap_prc->ramp_volume_ = ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE;
-  ap_prc->ramp_step_count_ = ARATELIA_AUDIO_RENDERER_DEFAULT_RAMP_STEP_COUNT;
-  ap_prc->ramp_step_ = (double)ap_prc->ramp_volume_
-                       / (double)ap_prc->ramp_step_count_;
-  TIZ_TRACE (handleOf (ap_prc), "ramp_step_ = [%d] ramp_step_count_ = [%d]",
-             ap_prc->ramp_step_, ap_prc->ramp_step_count_);
+  if (ap_prc->ramp_enabled_)
+    {
+      ap_prc->ramp_volume_ = ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE;
+      ap_prc->ramp_step_count_
+          = ARATELIA_AUDIO_RENDERER_DEFAULT_RAMP_STEP_COUNT;
+      ap_prc->ramp_step_ = (double)ap_prc->ramp_volume_
+                           / (double)ap_prc->ramp_step_count_;
+      TIZ_TRACE (handleOf (ap_prc), "ramp_step_ = [%d] ramp_step_count_ = [%d]",
+                 ap_prc->ramp_step_, ap_prc->ramp_step_count_);
+    }
 }
 
 static OMX_ERRORTYPE start_volume_ramp (ar_prc_t *ap_prc)
 {
   assert (ap_prc);
   assert (ap_prc->p_ev_timer_);
-  ap_prc->ramp_volume_ = 0;
-  TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]", ap_prc->ramp_volume_);
-  tiz_check_omx_err (
-      tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
+  if (ap_prc->ramp_enabled_)
+    {
+      ap_prc->ramp_volume_ = 0;
+      TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
+                 ap_prc->ramp_volume_);
+      tiz_check_omx_err (
+          tiz_srv_timer_watcher_start (ap_prc, ap_prc->p_ev_timer_, 0.2, 0.2));
+    }
   return OMX_ErrorNone;
 }
 
 static void stop_volume_ramp (ar_prc_t *ap_prc)
 {
   assert (ap_prc);
-  if (ap_prc->p_ev_timer_)
+  if (ap_prc->ramp_enabled_)
     {
-      (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
+      if (ap_prc->p_ev_timer_)
+        {
+          (void)tiz_srv_timer_watcher_stop (ap_prc, ap_prc->p_ev_timer_);
+        }
     }
 }
 
 static OMX_ERRORTYPE apply_ramp_step (ar_prc_t *ap_prc)
 {
   assert (ap_prc);
-  if (ap_prc->ramp_step_count_-- > 0)
+  if (ap_prc->ramp_enabled_)
     {
-      ap_prc->ramp_volume_ += ap_prc->ramp_step_;
-      TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
-                 ap_prc->ramp_volume_);
-      set_volume (ap_prc, ap_prc->ramp_volume_);
-    }
-  else
-    {
-      stop_volume_ramp (ap_prc);
+      if (ap_prc->ramp_step_count_-- > 0)
+        {
+          ap_prc->ramp_volume_ += ap_prc->ramp_step_;
+          TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
+                     ap_prc->ramp_volume_);
+          set_volume (ap_prc, ap_prc->ramp_volume_);
+        }
+      else
+        {
+          stop_volume_ramp (ap_prc);
+        }
     }
   return OMX_ErrorNone;
 }
@@ -665,8 +679,6 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
   TIZ_TRACE (handleOf (ap_prc),
              "Rendering HEADER [%p]... step [%d], samples per channel [%u] nFilledLen [%d]",
              ap_hdr, step, samples_per_channel, ap_hdr->nFilledLen);
-  TIZ_PRINTF_DBG_RED ("HEADER [%p] nFilledLen = [%d]\n", ap_hdr,
-                      ap_hdr->nFilledLen);
 
   adjust_gain (ap_prc, ap_hdr, samples_per_channel);
   swap_byte_order (ap_prc, ap_hdr);
@@ -788,25 +800,26 @@ static OMX_ERRORTYPE render_pcm_data (ar_prc_t *ap_prc)
 
 static void *ar_prc_ctor (void *ap_prc, va_list *app)
 {
-  ar_prc_t *p_obj = super_ctor (typeOf (ap_prc, "arprc"), ap_prc, app);
-  p_obj->p_pcm_ = NULL;
-  p_obj->p_hw_params_ = NULL;
-  p_obj->p_pcm_name_ = NULL;
-  p_obj->p_mixer_name_ = NULL;
-  p_obj->swap_byte_order_ = false;
-  p_obj->descriptor_count_ = 0;
-  p_obj->p_fds_ = NULL;
-  p_obj->p_ev_io_ = NULL;
-  p_obj->p_ev_timer_ = NULL;
-  p_obj->p_inhdr_ = NULL;
-  p_obj->port_disabled_ = false;
-  p_obj->awaiting_io_ev_ = false;
-  p_obj->gain_ = ARATELIA_AUDIO_RENDERER_DEFAULT_GAIN_VALUE;
-  p_obj->volume_ = ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE;
-  p_obj->ramp_step_ = 0;
-  p_obj->ramp_step_count_ = ARATELIA_AUDIO_RENDERER_DEFAULT_RAMP_STEP_COUNT;
-  p_obj->ramp_volume_ = 0;
-  return p_obj;
+  ar_prc_t *p_prc = super_ctor (typeOf (ap_prc, "arprc"), ap_prc, app);
+  p_prc->p_pcm_ = NULL;
+  p_prc->p_hw_params_ = NULL;
+  p_prc->p_pcm_name_ = NULL;
+  p_prc->p_mixer_name_ = NULL;
+  p_prc->swap_byte_order_ = false;
+  p_prc->descriptor_count_ = 0;
+  p_prc->p_fds_ = NULL;
+  p_prc->p_ev_io_ = NULL;
+  p_prc->p_ev_timer_ = NULL;
+  p_prc->p_inhdr_ = NULL;
+  p_prc->port_disabled_ = false;
+  p_prc->awaiting_io_ev_ = false;
+  p_prc->gain_ = ARATELIA_AUDIO_RENDERER_DEFAULT_GAIN_VALUE;
+  p_prc->volume_ = ARATELIA_AUDIO_RENDERER_DEFAULT_VOLUME_VALUE;
+  p_prc->ramp_enabled_ = false;
+  p_prc->ramp_step_ = 0;
+  p_prc->ramp_step_count_ = ARATELIA_AUDIO_RENDERER_DEFAULT_RAMP_STEP_COUNT;
+  p_prc->ramp_volume_ = 0;
+  return p_prc;
 }
 
 static void *ar_prc_dtor (void *ap_prc)
@@ -855,8 +868,11 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
       tiz_check_null_ret_oom (p_prc->p_fds_);
 
       /* This is to generate volume ramps when needed */
-      tiz_check_omx_err (
-          tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
+      if (p_prc->ramp_enabled_)
+        {
+          tiz_check_omx_err (
+              tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
+        }
     }
 
   assert (p_prc->p_pcm_);
@@ -944,8 +960,12 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_prc)
   ar_prc_t *p_prc = ap_prc;
   assert (p_prc);
 
-  tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_ev_timer_);
-  p_prc->p_ev_timer_ = NULL;
+  if (p_prc->ramp_enabled_)
+    {
+
+      tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_ev_timer_);
+      p_prc->p_ev_timer_ = NULL;
+    }
 
   p_prc->descriptor_count_ = 0;
   tiz_mem_free (p_prc->p_fds_);
