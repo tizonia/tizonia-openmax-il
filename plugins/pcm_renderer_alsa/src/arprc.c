@@ -619,9 +619,9 @@ static void prepare_volume_ramp (ar_prc_t *ap_prc)
 static OMX_ERRORTYPE start_volume_ramp (ar_prc_t *ap_prc)
 {
   assert (ap_prc);
-  assert (ap_prc->p_ev_timer_);
   if (ap_prc->ramp_enabled_)
     {
+      assert (ap_prc->p_ev_timer_);
       ap_prc->ramp_volume_ = 0;
       TIZ_TRACE (handleOf (ap_prc), "ramp_volume_ = [%d]",
                  ap_prc->ramp_volume_);
