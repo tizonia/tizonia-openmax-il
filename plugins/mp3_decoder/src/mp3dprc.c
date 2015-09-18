@@ -183,13 +183,13 @@ static void print_frame_info (const mp3d_prc_t *ap_prc,
     }
 
   TIZ_PRINTF_DBG_GRN (
-             "%lu kb/s audio MPEG layer %s stream %s CRC, "
+             "%lu b/s audio MPEG layer %s stream %s CRC, "
              "%s with %s emphasis at %d Hz sample rate\n",
              Header->bitrate, Layer,
              Header->flags & MAD_FLAG_PROTECTION ? "with" : "without", Mode,
              Emphasis, Header->samplerate);
   TIZ_TRACE (handleOf (ap_prc),
-             "%lu kb/s audio MPEG layer %s stream %s CRC, "
+             "%lu b/s audio MPEG layer %s stream %s CRC, "
              "%s with %s emphasis at %d Hz sample rate\n",
              Header->bitrate, Layer,
              Header->flags & MAD_FLAG_PROTECTION ? "with" : "without", Mode,
