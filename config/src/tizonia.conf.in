@@ -1,59 +1,88 @@
 # -*-Mode: conf; -*-
 # @PACKAGE@ v@VERSION@ configuration file
 
+###########################################################################
+# Tizonia OpenMAX IL Core section
+###########################################################################
 [ilcore]
 
+# Component plugins discovery
+# -------------------------------------------------------------------------
 # A comma-separated list of paths to be scanned by the Tizonia IL Core when
 # searching for component plugins
 component-paths = @libdir@;
 
+# IL Core extension plugins discovery
+# -------------------------------------------------------------------------
 # A comma-separated list of paths to be scanned by the Tizonia IL Core when
 # searching for IL Core extensions (not implemented yet)
 extension-paths =
 
+###########################################################################
+# Tizonia OpenMAX IL Resource Management (RM) section
+###########################################################################
 [resource-management]
 
+# Resource Manager (RM) daemon interface enable/disable switch
+# -------------------------------------------------------------------------
 # Whether the IL RM functionality is enabled or not
 enabled = false
 
-# This is the path to the RM daemon executable
-rmd.path = @bindir@/tizrmd
-
+# RM database
+# -------------------------------------------------------------------------
 # This is the path to the Resource Manager database
 rmdb = @datadir@/tizrmd/tizrm.db
 
 
+###########################################################################
+# OpenMAX IL Component plugins section
+###########################################################################
 [plugins]
 
 # Each key-value pair represents a list of any data that a
 # specific component might need. The entries here must honor the following
 # format: OMX.component.name.key = <semi-colon-separated list of items>
 
-#######################
-# ALSA Audio Renderer #
-#######################
-
+# ALSA Audio Renderer
+# -------------------------------------------------------------------------
+#
 # OMX.Aratelia.audio_renderer.alsa.pcm.preannouncements_disabled.port0 = false
 OMX.Aratelia.audio_renderer.alsa.pcm.alsa_device = default
 OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 
+###########################################################################
+# Tizonia player section
+###########################################################################
 [tizonia]
 
+# The default audio renderer used by the tizonia player
+# -------------------------------------------------------------------------
+# Valid values are:
+# - OMX.Aratelia.audio_renderer.alsa.pcm
+# - OMX.Aratelia.audio_renderer.pulseaudio.pcm
 default-audio-renderer = OMX.Aratelia.audio_renderer.alsa.pcm
 
+# MPRIS v2 interface enable/disable switch
+# -------------------------------------------------------------------------
+# Valid values are: true | false
+#
 mpris-enabled = false
 
-###########
-# Spotify #
-###########
 
-# spotify.user = user
+# Spotify configuration
+# -------------------------------------------------------------------------
+# To avoid passing this information on the command line, simply uncomment
+# and configure accordingly
+#
+# spotify.user     = user
 # spotify.password = pass
 
-#####################
-# Google Play Music #
-#####################
 
-# gmusic.user = user@gmail.com
-# gmusic.password = pass
+# Google Play Music configuration
+# -------------------------------------------------------------------------
+# To avoid passing this information on the command line, simply uncomment
+# and configure accordingly
+#
+# gmusic.user      = user@gmail.com
+# gmusic.password  = pass
 # gmusic.device_id = deviceid
