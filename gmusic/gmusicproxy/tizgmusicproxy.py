@@ -38,7 +38,7 @@ import unicodedata as ud
 from gmusicapi import Mobileclient
 from gmusicapi.exceptions import CallFailure, NotLoggedIn
 from requests.structures import CaseInsensitiveDict
-import pprint
+#import pprint
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
@@ -207,7 +207,6 @@ class tizgmusicproxy(object):
         song = self.now_playing_song
         year = 0
         if song is not None:
-            pprint.pprint(song)
             try:
                 year = song['year']
                 logging.info ("track year {0}".format(year))
