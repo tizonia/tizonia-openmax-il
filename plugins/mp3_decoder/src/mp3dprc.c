@@ -111,7 +111,55 @@ static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
   return OMX_ErrorNone;
 }
 
-static void print_frame_info (const mp3d_prc_t *ap_prc,
+static OMX_ERRORTYPE store_metadata (mp3d_prc_t *ap_prc,
+                                     const char *ap_header_name,
+                                     const char *ap_header_info)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
+  size_t metadata_len = 0;
+  size_t info_len = 0;
+
+  assert (NULL != ap_prc);
+  if (ap_header_name && ap_header_info)
+    {
+      info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+      metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
+
+      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
+                       1, metadata_len)))
+        {
+          rc = OMX_ErrorInsufficientResources;
+        }
+      else
+        {
+          const size_t name_len
+              = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+          strncpy ((char *)p_meta->nKey, ap_header_name, name_len - 1);
+          p_meta->nKey[name_len - 1] = '\0';
+          p_meta->nKeySizeUsed = name_len;
+
+          strncpy ((char *)p_meta->nValue, ap_header_info, info_len - 1);
+          p_meta->nValue[info_len - 1] = '\0';
+          p_meta->nValueMaxSize = info_len;
+          p_meta->nValueSizeUsed = info_len;
+
+          p_meta->nSize = metadata_len;
+          p_meta->nVersion.nVersion = OMX_VERSION;
+          p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+          p_meta->nScopeSpecifier = 0;
+          p_meta->nMetadataItemIndex = 0;
+          p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+          p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+          p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+
+          rc = tiz_krn_store_metadata (tiz_get_krn (handleOf (ap_prc)), p_meta);
+        }
+    }
+  return rc;
+}
+
+static void store_stream_metadata (mp3d_prc_t *ap_prc,
                               struct mad_header *Header)
 {
   const char *Layer, *Mode, *Emphasis;
@@ -132,7 +180,7 @@ static void print_frame_info (const mp3d_prc_t *ap_prc,
         Layer = "III";
         break;
       default:
-        Layer = "(unexpected layer value)";
+        Layer = "(unknown)";
         break;
     }
 
@@ -149,10 +197,10 @@ static void print_frame_info (const mp3d_prc_t *ap_prc,
         Mode = "joint (MS/intensity) stereo";
         break;
       case MAD_MODE_STEREO:
-        Mode = "normal LR stereo";
+        Mode = "LR stereo";
         break;
       default:
-        Mode = "(unexpected mode value)";
+        Mode = "(unknown)";
         break;
     }
 
@@ -178,8 +226,31 @@ static void print_frame_info (const mp3d_prc_t *ap_prc,
         break;
 #endif
       default:
-        Emphasis = "(unexpected emphasis value)";
+        Emphasis = "(unknown)";
         break;
+    }
+
+  {
+      char info[100];
+
+      (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
+
+      snprintf (info, 99, "%lu kbit/s, %d Hz",
+        (ap_prc->frame_.header.bitrate
+        ? ap_prc->frame_.header.bitrate / 1000
+        : 0),
+        Header->samplerate);
+      info[99] = '\000';
+      (void)store_metadata (ap_prc, "Audio Stream", info);
+
+      snprintf (info, 99, "%s, %s CRC",
+        Layer, Header->flags & MAD_FLAG_PROTECTION ? "with" : "w/o");
+      info[99] = '\000';
+      (void)store_metadata (ap_prc, "MPEG Layer", info);
+
+      snprintf (info, 99, "%s, %s emphasis", Mode, Emphasis);
+      info[99] = '\000';
+      (void)store_metadata (ap_prc, "Mode", info);
     }
 
   TIZ_PRINTF_DBG_GRN (
@@ -194,6 +265,7 @@ static void print_frame_info (const mp3d_prc_t *ap_prc,
              Header->bitrate, Layer,
              Header->flags & MAD_FLAG_PROTECTION ? "with" : "without", Mode,
              Emphasis, Header->samplerate);
+
 }
 
 static signed short mad_fixed_to_sshort (mad_fixed_t fixed)
@@ -336,7 +408,7 @@ static int synthesize_samples (const void *ap_obj, int next_sample)
                               p_prc->frame_.header.samplerate,
                               MAD_NCHANNELS (&p_prc->frame_.header),
                               p_prc->synth_.pcm.channels);
-          print_frame_info (p_prc, &(p_prc->frame_.header));
+          store_stream_metadata (p_prc, &(p_prc->frame_.header));
           (void)update_pcm_mode (p_prc, p_prc->synth_.pcm.samplerate,
                                  p_prc->pcmmode_.nChannels);
         }
@@ -501,13 +573,12 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
             }
         }
 
-      /* The characteristics of the stream's first frame is printed
-       * on stderr. The first frame is representative of the entire
-       * stream.
+      /* The characteristics of the stream's first frame is printed The first
+       * frame is representative of the entire stream.
        */
       if (0 == p_obj->frame_count_)
         {
-          print_frame_info (p_obj, &(p_obj->frame_.header));
+          store_stream_metadata (p_obj, &(p_obj->frame_.header));
         }
 
       p_obj->frame_count_++;
