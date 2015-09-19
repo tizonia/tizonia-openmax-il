@@ -82,7 +82,7 @@ void graph::spotifyops::do_enable_auto_detection (const int handle_id,
       = boost::dynamic_pointer_cast< spotifyconfig >(config_);
   assert (spotify_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
-  tiz::graph::util::dump_graph_info ("spotify", "Connecting with user account",
+  tiz::graph::util::dump_graph_info ("Spotify", "Connecting",
                                      spotify_config->get_user_name ().c_str ());
 }
 
@@ -424,9 +424,9 @@ graph::spotifyops::set_channels_and_rate_on_renderer (
   tiz_check_omx_err (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
-  std::string coding_type_str ("spotify");
+  std::string coding_type_str ("Spotify");
   tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                     "Connection established",
+                                     "Connected",
                                      playlist_->get_current_uri ().c_str ());
   dump_stream_metadata ();
 
