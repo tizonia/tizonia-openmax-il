@@ -441,7 +441,6 @@ graph::gmusicops::set_channels_and_rate_on_renderer (
   tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
                                      "Connected",
                                      playlist_->get_current_uri ().c_str ());
-//   dump_stream_metadata ();
 
   return OMX_ErrorNone;
 }
