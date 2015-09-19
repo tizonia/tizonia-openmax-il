@@ -82,8 +82,8 @@ void graph::gmusicops::do_enable_auto_detection (const int handle_id,
       = boost::dynamic_pointer_cast< gmusicconfig >(config_);
   assert (gmusic_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
-  tiz::graph::util::dump_graph_info ("Google Music",
-                                     "Connecting with user account",
+  tiz::graph::util::dump_graph_info ("Google Play Music",
+                                     "Connecting",
                                      gmusic_config->get_user_name ().c_str ());
 }
 
@@ -287,9 +287,20 @@ bool graph::gmusicops::probe_stream_hook ()
 void graph::gmusicops::dump_stream_metadata ()
 {
   OMX_U32 index = 0;
-  while (OMX_ErrorNone == dump_metadata_item (index++))
+  const int gmusic_index = 0;
+  // Extract metadata from the gmusic source
+  while (OMX_ErrorNone == dump_metadata_item (index++, gmusic_index))
   {
   };
+
+  // Now extract metadata from the decoder
+  const int decoder_index = 1;
+  index = 0;
+  while (OMX_ErrorNone == dump_metadata_item (index++, decoder_index))
+  {
+  };
+
+  OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype_);
 
   TIZ_PRINTF_YEL (
       "   %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
@@ -299,7 +310,8 @@ void graph::gmusicops::dump_stream_metadata ()
       renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
 }
 
-OMX_ERRORTYPE graph::gmusicops::dump_metadata_item (const OMX_U32 index)
+OMX_ERRORTYPE graph::gmusicops::dump_metadata_item (const OMX_U32 index,
+                                                    const int comp_index)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
@@ -329,7 +341,8 @@ OMX_ERRORTYPE graph::gmusicops::dump_metadata_item (const OMX_U32 index)
     p_meta->nValueMaxSize = OMX_MAX_STRINGNAME_SIZE;
     p_meta->nValueSizeUsed = 0;
 
-    rc = OMX_GetConfig (handles_[0], OMX_IndexConfigMetadataItem, p_meta);
+    rc = OMX_GetConfig (handles_[comp_index], OMX_IndexConfigMetadataItem,
+                        p_meta);
     if (OMX_ErrorNone == rc)
     {
       TIZ_PRINTF_CYN ("   %s%s : %s\n", index ? "  " : "", p_meta->nKey,
@@ -424,11 +437,11 @@ graph::gmusicops::set_channels_and_rate_on_renderer (
   tiz_check_omx_err (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
-  std::string coding_type_str ("gmusic");
+  std::string coding_type_str ("Google Play Music");
   tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                     "Connection established",
+                                     "Connected",
                                      playlist_->get_current_uri ().c_str ());
-  dump_stream_metadata ();
+//   dump_stream_metadata ();
 
   return OMX_ErrorNone;
 }

@@ -73,7 +73,8 @@ namespace tiz
       // re-implemented from the base class
       bool probe_stream_hook ();
       void dump_stream_metadata ();
-      OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index);
+      OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index,
+                                        const int comp_index);
       OMX_ERRORTYPE get_encoding_type_from_gmusic_source ();
       OMX_ERRORTYPE apply_pcm_codec_info_from_decoder ();
       OMX_ERRORTYPE get_channels_and_rate_from_decoder (
