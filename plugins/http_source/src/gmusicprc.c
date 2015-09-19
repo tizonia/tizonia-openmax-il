@@ -255,8 +255,6 @@ static void obtain_audio_encoding_from_headers (gmusic_prc_t *ap_prc,
           TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
           TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
-/*           (void)store_metadata (ap_prc, name, p_info); */
-
           if (memcmp (name, "Content-Type", 12) == 0
               || memcmp (name, "content-type", 12) == 0)
             {
@@ -355,11 +353,11 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
                 ap_prc->p_uri_param_->contentURI[url_len] = '\000';
 
                 (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
-                store_metadata (
+                (void)store_metadata (
                     ap_prc,
                     tiz_gmusic_get_current_song_artist (ap_prc->p_gmusic_),
                     tiz_gmusic_get_current_song_title (ap_prc->p_gmusic_));
-                store_metadata (
+                (void)store_metadata (
                     ap_prc, "Album",
                     tiz_gmusic_get_current_song_album (ap_prc->p_gmusic_));
                 {
@@ -371,12 +369,12 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
                       store_metadata (ap_prc, "Year", p_year);
                     }
                 }
-                store_metadata (
+                (void)store_metadata (
                     ap_prc, "Duration",
                     tiz_gmusic_get_current_song_duration (ap_prc->p_gmusic_));
-                store_metadata (ap_prc, "Track",
-                                tiz_gmusic_get_current_song_track_number (
-                                    ap_prc->p_gmusic_));
+                (void)store_metadata (ap_prc, "Track",
+                                      tiz_gmusic_get_current_song_track_number (
+                                          ap_prc->p_gmusic_));
 
                 {
                   /* Only store total tracks if not 0 */
@@ -384,7 +382,7 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
                       ap_prc->p_gmusic_);
                   if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
                     {
-                      store_metadata (ap_prc, "Total tracks", p_total_tracks);
+                      (void)store_metadata (ap_prc, "Total tracks", p_total_tracks);
                     }
                 }
               }
