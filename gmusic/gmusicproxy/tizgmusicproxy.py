@@ -79,81 +79,6 @@ class tizgmusicproxy(object):
     def logout(self):
         self.__api.logout()
 
-    def update_local_lib(self):
-        songs = self.__api.get_all_songs()
-        self.playlists[self.thumbs_up_playlist_name] = list()
-
-        # Retrieve the user's song library
-        song_map = dict()
-        for song in songs:
-            if "rating" in song and song['rating'] == "5":
-                self.playlists[self.thumbs_up_playlist_name].append(song)
-
-            song_id = song['id']
-            song_artist = song['artist']
-            song_album = song['album']
-
-            song_map[song_id] = song
-
-            if song_artist == "":
-                song_artist = "Unknown Artist"
-
-            if song_album == "":
-                song_album = "Unknown Album"
-
-            if not (song_artist in self.library):
-                self.library[song_artist] = dict()
-                self.library[song_artist][self.all_songs_album_title] = list()
-
-            if not (song_album in self.library[song_artist]):
-                self.library[song_artist][song_album] = list()
-
-            self.library[song_artist][song_album].append(song)
-            self.library[song_artist][self.all_songs_album_title].append(song)
-
-        # Sort albums by track number
-        for artist in self.library.keys():
-            logging.info ("Artist : {0}".format(artist.encode("utf-8")))
-            for album in self.library[artist].keys():
-                logging.info ("   Album : {0}".format(album.encode("utf-8")))
-                if album == self.all_songs_album_title:
-                    sorted_album = sorted(self.library[artist][album],
-                                          key=lambda k: k['title'])
-                else:
-                    sorted_album = sorted(self.library[artist][album],
-                                          key=lambda k: k.get('trackNumber',
-                                                              0))
-                self.library[artist][album] = sorted_album
-
-        # Get all user playlists
-        plists = self.__api.get_all_user_playlist_contents()
-        for plist in plists:
-            plist_name = plist['name']
-            logging.info ("playlist name : {0}".format(plist_name.encode("utf-8")))
-            self.playlists[plist_name] = list()
-            for track in plist['tracks']:
-                try:
-                    song = song_map[track['trackId']]
-                    self.playlists[plist_name].append(song)
-                except IndexError:
-                    pass
-
-        # Get shared playlists (All Access)
-        plists_subscribed_to = [p for p in self.__api.get_all_playlists() if p.get('type') == 'SHARED']
-        for plist in plists_subscribed_to:
-            share_tok = plist['shareToken']
-            playlist_items = self.__api.get_shared_playlist_contents(share_tok)
-            plist_name = plist['name']
-            logging.info ("shared playlist name : {0}".format(plist_name.encode("utf-8")))
-            self.playlists[plist_name] = list()
-            for item in playlist_items:
-                try:
-                    song = item['track']
-                    song['id'] = item['trackId']
-                    self.playlists[plist_name].append(song)
-                except IndexError:
-                    pass
-
     def current_song_title_and_artist(self):
         logging.info ("current_song_title_and_artist")
         song = self.now_playing_song
@@ -214,6 +139,7 @@ class tizgmusicproxy(object):
 
     def enqueue_artist(self, arg):
         try:
+            self.__update_local_library()
             if not arg in self.library.keys():
                 artist = next((v for (k,v) in self.library.items() if arg in k), None)
                 if artist:
@@ -236,6 +162,7 @@ class tizgmusicproxy(object):
 
     def enqueue_album(self, arg):
         try:
+            self.__update_local_library()
             for artist in self.library:
                 for album in self.library[artist]:
                     print "[Google Play Music] [Album] '{0}'.".format(album.encode("utf-8"))
@@ -255,6 +182,8 @@ class tizgmusicproxy(object):
 
     def enqueue_playlist(self, arg):
         try:
+            self.__update_playlists()
+            self.__update_playlists_all_access()
             for name, plist in self.playlists.items():
                 print "[Google Play Music] [Playlist] '{0}'.".format(name.encode("utf-8"))
             if not arg in self.playlists.keys():
@@ -453,6 +382,52 @@ class tizgmusicproxy(object):
             logging.info ("Could not retrieve song url!")
             raise
 
+    def __update_local_library(self):
+        songs = self.__api.get_all_songs()
+        self.playlists[self.thumbs_up_playlist_name] = list()
+
+        # Retrieve the user's song library
+        song_map = dict()
+        for song in songs:
+            if "rating" in song and song['rating'] == "5":
+                self.playlists[self.thumbs_up_playlist_name].append(song)
+
+            song_id = song['id']
+            song_artist = song['artist']
+            song_album = song['album']
+
+            song_map[song_id] = song
+
+            if song_artist == "":
+                song_artist = "Unknown Artist"
+
+            if song_album == "":
+                song_album = "Unknown Album"
+
+            if not (song_artist in self.library):
+                self.library[song_artist] = dict()
+                self.library[song_artist][self.all_songs_album_title] = list()
+
+            if not (song_album in self.library[song_artist]):
+                self.library[song_artist][song_album] = list()
+
+            self.library[song_artist][song_album].append(song)
+            self.library[song_artist][self.all_songs_album_title].append(song)
+
+        # Sort albums by track number
+        for artist in self.library.keys():
+            logging.info ("Artist : {0}".format(artist.encode("utf-8")))
+            for album in self.library[artist].keys():
+                logging.info ("   Album : {0}".format(album.encode("utf-8")))
+                if album == self.all_songs_album_title:
+                    sorted_album = sorted(self.library[artist][album],
+                                          key=lambda k: k['title'])
+                else:
+                    sorted_album = sorted(self.library[artist][album],
+                                          key=lambda k: k.get('trackNumber',
+                                                              0))
+                self.library[artist][album] = sorted_album
+
     def __update_stations_all_access(self):
         # Get stations (All Access)
         self.stations.clear()
@@ -462,6 +437,37 @@ class tizgmusicproxy(object):
             station_name = station['name']
             logging.info ("station name : {0}".format(station_name.encode("utf-8")))
             self.stations[station_name] = station['id']
+
+    def __update_playlists(self):
+        # Get all user playlists
+        plists = self.__api.get_all_user_playlist_contents()
+        for plist in plists:
+            plist_name = plist['name']
+            logging.info ("playlist name : {0}".format(plist_name.encode("utf-8")))
+            self.playlists[plist_name] = list()
+            for track in plist['tracks']:
+                try:
+                    song = song_map[track['trackId']]
+                    self.playlists[plist_name].append(song)
+                except IndexError:
+                    pass
+
+    def __update_playlists_all_access(self):
+        # Get shared playlists (All Access)
+        plists_subscribed_to = [p for p in self.__api.get_all_playlists() if p.get('type') == 'SHARED']
+        for plist in plists_subscribed_to:
+            share_tok = plist['shareToken']
+            playlist_items = self.__api.get_shared_playlist_contents(share_tok)
+            plist_name = plist['name']
+            logging.info ("shared playlist name : {0}".format(plist_name.encode("utf-8")))
+            self.playlists[plist_name] = list()
+            for item in playlist_items:
+                try:
+                    song = item['track']
+                    song['id'] = item['trackId']
+                    self.playlists[plist_name].append(song)
+                except IndexError:
+                    pass
 
 if __name__ == "__main__":
     tizgmusicproxy()
