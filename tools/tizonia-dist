@@ -404,8 +404,13 @@ function do_deps {
             #     wget https://bootstrap.pypa.io/get-pip.py \
             #         && sudo python get-pip.py \
             #         && sudo pip install gmusicapi --upgrade
+
             echo "Installing a fresher version of setuptools..."
             wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python
+
+            # echo "Installing a fresher version of pip..."
+            # wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | sudo python
+
             cd "$TEMP_DIR" \
                 && git clone https://github.com/simon-weber/gmusicapi gmusicapi
         fi
