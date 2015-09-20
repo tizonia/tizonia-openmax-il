@@ -91,6 +91,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     python-dateutil \
     python-mutagen \
     python-crypto \
+    python-requests \
     curl \
     check \
     wget \
