@@ -82,7 +82,6 @@ namespace
     bp::object pygmusicproxy = py_global["tizgmusicproxy"];
     py_gm_proxy
         = pygmusicproxy (user.c_str (), pass.c_str (), device_id.c_str ());
-    py_gm_proxy.attr ("update_local_lib")();
   }
 }
 
