@@ -154,14 +154,6 @@ class tizgmusicproxy(object):
                 except IndexError:
                     pass
 
-        # Get stations (All Access)
-        stations = self.__api.get_all_stations()
-        self.stations[u"I'm Feeling Lucky"] = 'IFL'
-        for station in stations:
-            station_name = station['name']
-            logging.info ("station name : {0}".format(station_name.encode("utf-8")))
-            self.stations[station_name] = station['id']
-
     def current_song_title_and_artist(self):
         logging.info ("current_song_title_and_artist")
         song = self.now_playing_song
@@ -286,6 +278,7 @@ class tizgmusicproxy(object):
 
     def enqueue_station_all_access(self, arg):
         try:
+            self.__update_stations_all_access()
             for name, st_id in self.stations.iteritems():
                 print "[Google Play Music] [Station] '{0}'.".format(name.encode("utf-8"))
             if not arg in self.stations.keys():
@@ -459,6 +452,16 @@ class tizgmusicproxy(object):
         except AttributeError:
             logging.info ("Could not retrieve song url!")
             raise
+
+    def __update_stations_all_access(self):
+        # Get stations (All Access)
+        self.stations.clear()
+        stations = self.__api.get_all_stations()
+        self.stations[u"I'm Feeling Lucky"] = 'IFL'
+        for station in stations:
+            station_name = station['name']
+            logging.info ("station name : {0}".format(station_name.encode("utf-8")))
+            self.stations[station_name] = station['id']
 
 if __name__ == "__main__":
     tizgmusicproxy()
