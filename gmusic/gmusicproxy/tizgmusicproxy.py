@@ -20,9 +20,8 @@
 """Simple Google PLay Music proxy class.
 
 Access a user's Google Music account to retrieve song URLs to be used for
-streaming. With ideas from Dan Nixon's command-line client, which in turn
-uses Simon Weber's 'Unofficial Google Music API' Python module. For more
-information:
+streaming. With ideas from Dan Nixon's command-line client, which in turn uses
+Simon Weber's 'gmusicapi' Python module. For further information:
 
 - https://github.com/DanNixon/PlayMusicCL
 - https://github.com/simon-weber/Unofficial-Google-Music-API
@@ -34,6 +33,7 @@ import random
 import sys
 import os
 import logging
+import random
 import unicodedata as ud
 from gmusicapi import Mobileclient
 from gmusicapi.exceptions import CallFailure, NotLoggedIn
@@ -48,6 +48,18 @@ def exceptionHandler(exception_type, exception, traceback):
     print "[Google Play Music] %s" % (exception)
 
 sys.excepthook = exceptionHandler
+
+class tizenumeration(set):
+    def __init__(self, values):
+        if type(values) == list:
+            for value in values:
+                setattr(self, value, value)
+        else:
+            raise AttributeError
+    def __getattr__(self, name):
+        if name in self:
+            return name
+        raise AttributeError
 
 class tizgmusicproxy(object):
     """A class for logging into a Google Play Music account and retrieving song
@@ -64,7 +76,9 @@ class tizgmusicproxy(object):
         self.__device_id = device_id
         self.queue = list()
         self.queue_index = -1
-        self.play_mode = 0
+        self.play_queue_order = list()
+        self.play_modes = tizenumeration(["NORMAL", "SHUFFLE"])
+        self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_song = None
 
         attempts = 0
@@ -78,6 +92,10 @@ class tizgmusicproxy(object):
 
     def logout(self):
         self.__api.logout()
+
+    def set_play_mode(self, arg):
+        self.current_play_mode = getattr(self.play_modes, arg)
+        self.__update_play_queue_order()
 
     def current_song_title_and_artist(self):
         logging.info ("current_song_title_and_artist")
@@ -157,6 +175,7 @@ class tizgmusicproxy(object):
                     self.queue.append(song)
                     count += 1
             logging.info ("Added {0} tracks by {1} to queue".format(count, arg))
+            self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Artist not found : {0}".format(arg))
 
@@ -177,6 +196,7 @@ class tizgmusicproxy(object):
                         logging.info ("Added {0} tracks from {1} by "
                         "{2} to queue".format(count, album.encode("utf-8"),
                                               artist.encode("utf-8")))
+            self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
 
@@ -202,6 +222,7 @@ class tizgmusicproxy(object):
                 self.queue.append(song)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+            self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
 
@@ -233,6 +254,7 @@ class tizgmusicproxy(object):
                 self.queue.append(track)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+            self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Station not found : {0}".format(arg))
 
@@ -263,6 +285,7 @@ class tizgmusicproxy(object):
                 self.queue.append(track)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, genre_name))
+            self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Genre not found : {0}".format(arg))
         except CallFailure:
@@ -288,6 +311,9 @@ class tizgmusicproxy(object):
                 self.queue.append(track)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+            print "artist before"
+            self.__update_play_queue_order()
+            print "artist after"
         except KeyError:
             raise KeyError("Artist not found : {0}".format(arg))
         except CallFailure:
@@ -308,6 +334,7 @@ class tizgmusicproxy(object):
                 self.queue.append(track)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+            self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
         except CallFailure:
@@ -324,6 +351,7 @@ class tizgmusicproxy(object):
                 self.queue.append(track)
                 count += 1
             logging.info ("Added {0} tracks from {1} to queue".format(count, arg))
+            self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
         except CallFailure:
@@ -342,6 +370,7 @@ class tizgmusicproxy(object):
             if count == 0:
                 print "[Google Play Music] Operation requires an All Access subscription."
             logging.info ("Added {0} All Access promoted tracks to queue".format(count))
+            self.__update_play_queue_order()
         except CallFailure:
             raise RuntimeError("Operation requires an All Access subscription.")
 
@@ -351,7 +380,7 @@ class tizgmusicproxy(object):
             self.queue_index += 1
             if (self.queue_index < len(self.queue)) \
                and (self.queue_index >= 0):
-                next_song = self.queue[self.queue_index]
+                next_song = self.queue[self.play_queue_order[self.queue_index]]
                 return self.__get_song_url(next_song)
             else:
                 self.queue_index = -1
@@ -364,13 +393,21 @@ class tizgmusicproxy(object):
             self.queue_index -= 1
             if (self.queue_index < len(self.queue)) \
                and (self.queue_index >= 0):
-                prev_song = self.queue[self.queue_index]
+                prev_song = self.queue[self.play_queue_order[self.queue_index]]
                 return self.__get_song_url(prev_song)
             else:
                 self.queue_index = len(self.queue)
                 return self.prev_url()
         else:
             return ''
+
+    def __update_play_queue_order(self):
+        if len(self.queue):
+            if not len(self.play_queue_order):
+                # Create a sequential play order, if empty
+                self.play_queue_order = range(len(self.queue))
+            if self.current_play_mode == self.play_modes.SHUFFLE:
+                random.shuffle(self.play_queue_order)
 
     def __get_song_url(self, song):
         logging.info ("__get_song_url : {0}".format(song['id']))
