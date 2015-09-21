@@ -571,6 +571,13 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
   {
     const char *p_playlist = (const char *)ap_prc->playlist_.cPlaylistName;
     const OMX_BOOL is_all_access_search = ap_prc->playlist_.bAllAccessSearch;
+    const OMX_BOOL shuffle = ap_prc->playlist_.bShuffle;
+
+    tiz_gmusic_set_playback_mode (
+        ap_prc->p_gmusic_,
+        (shuffle == OMX_TRUE ? ETIZGmusicPlaybackModeShuffle
+                             : ETIZGmusicPlaybackModeNormal));
+
     switch (ap_prc->playlist_.ePlaylistType)
       {
         case OMX_AUDIO_GmusicPlaylistTypeUnknown:
