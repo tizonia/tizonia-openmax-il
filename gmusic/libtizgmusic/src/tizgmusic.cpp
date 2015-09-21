@@ -279,6 +279,30 @@ void tizgmusic::clear_queue ()
   (void)rc;
 }
 
+void tizgmusic::set_playback_mode (const playback_mode mode)
+{
+  int rc = 0;
+  switch(mode)
+    {
+    case PlaybackModeNormal:
+      {
+        try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode")("NORMAL"));
+      }
+      break;
+    case PlaybackModeShuffle:
+      {
+        try_catch_wrapper (py_gm_proxy_.attr ("set_play_mode")("SHUFFLE"));
+      }
+      break;
+    default:
+      {
+        assert (0);
+      }
+      break;
+    };
+  (void)rc;
+}
+
 int tizgmusic::get_current_song ()
 {
   int rc = 1;

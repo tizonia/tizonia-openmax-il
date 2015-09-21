@@ -104,6 +104,15 @@ extern "C" int tiz_gmusic_init (tiz_gmusic_ptr_t *app_gmusic,
   return rc;
 }
 
+extern "C" void tiz_gmusic_set_playback_mode (tiz_gmusic_t *ap_gmusic,
+                                              const tiz_gmusic_playback_mode_t mode)
+{
+  assert (NULL != ap_gmusic);
+  assert (NULL != ap_gmusic->p_proxy_);
+  return ap_gmusic->p_proxy_->set_playback_mode (
+      static_cast< tizgmusic::playback_mode >(mode));
+}
+
 extern "C" int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic,
                                       const char *ap_album,
                                       const bool a_all_access_search)

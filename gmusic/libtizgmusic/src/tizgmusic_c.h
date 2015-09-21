@@ -52,6 +52,17 @@ typedef struct tiz_gmusic tiz_gmusic_t;
 typedef /*@null@ */ tiz_gmusic_t *tiz_gmusic_ptr_t;
 
 /**
+ * Various playback modes that control the playback queue.
+ * @ingroup tizgmusic
+ */
+typedef enum tiz_gmusic_playback_mode
+{
+  ETIZGmusicPlaybackModeNormal,
+  ETIZGmusicPlaybackModeShuffle,
+  ETIZGmusicPlaybackModeMax
+} tiz_gmusic_playback_mode_t;
+
+/**
  * Initialize the gmusic handle.
  *
  * @ingroup tizgmusic
@@ -67,6 +78,15 @@ typedef /*@null@ */ tiz_gmusic_t *tiz_gmusic_ptr_t;
 int tiz_gmusic_init (/*@null@ */ tiz_gmusic_ptr_t *app_gmusic,
                      const char *ap_user, const char *ap_pass,
                      const char *ap_device_id);
+
+/**
+ * Clear the playback queue.
+ *
+ * @param ap_gmusic The gmusic handle.
+ */
+void tiz_gmusic_set_playback_mode (tiz_gmusic_t *ap_gmusic,
+                                   const tiz_gmusic_playback_mode_t mode);
+
 /**
  * Add the tracks of the specified album to the playback queue.
  *
@@ -238,8 +258,7 @@ const char *tiz_gmusic_get_current_song_tracks_in_album (
  *
  * @param ap_gmusic The gmusic handle.
  */
-const char *tiz_gmusic_get_current_song_year (
-    tiz_gmusic_t *ap_gmusic);
+const char *tiz_gmusic_get_current_song_year (tiz_gmusic_t *ap_gmusic);
 
 /**
  * Destroy the gmusic handle.

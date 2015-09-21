@@ -35,6 +35,16 @@
 
 class tizgmusic
 {
+public:
+  /**
+   * Various playback modes that control the playback queue.
+   */
+  enum playback_mode
+    {
+      PlaybackModeNormal,
+      PlaybackModeShuffle,
+      PlaybackModeMax
+    };
 
 public:
   tizgmusic (const std::string &user, const std::string &pass,
@@ -52,7 +62,9 @@ public:
   int play_station (const std::string &station);
   int play_genre (const std::string &genre);
   int play_promoted_tracks ();
+
   void clear_queue ();
+  void set_playback_mode (const playback_mode mode);
 
   const char * get_next_url ();
   const char * get_prev_url ();
