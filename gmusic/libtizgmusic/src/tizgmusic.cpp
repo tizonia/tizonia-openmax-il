@@ -368,7 +368,7 @@ int tizgmusic::get_current_song ()
   current_duration_.append ("s");
 
   const bp::tuple &info3 = bp::extract< bp::tuple >(
-      py_gm_proxy_.attr ("current_song_track_number_and_total_tracks")());
+      py_gm_proxy_.attr ("current_track_and_album_total")());
   const int track_num = bp::extract< int >(info3[0]);
   const int total_tracks = bp::extract< int >(info3[1]);
 

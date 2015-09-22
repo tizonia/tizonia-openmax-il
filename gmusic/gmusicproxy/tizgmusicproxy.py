@@ -31,9 +31,9 @@ Simon Weber's 'gmusicapi' Python module. For further information:
 import sys
 import logging
 import random
-import unicodedata as ud
+from operator import itemgetter
 from gmusicapi import Mobileclient
-from gmusicapi.exceptions import CallFailure, NotLoggedIn
+from gmusicapi.exceptions import CallFailure
 from requests.structures import CaseInsensitiveDict
 #import pprint
 
@@ -42,17 +42,19 @@ logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.INFO)
 
 def exception_handler(exception_type, exception, traceback):
+    """A simple exception handler that prints the excetion message.
+
+    """
+    del exception_type # unused
+    del traceback # unused
     print "[Google Play Music] %s" % (exception)
 
 sys.excepthook = exception_handler
 
-class tizenumeration(set):
-    def __init__(self, values):
-        if type(values) == list:
-            for value in values:
-                setattr(self, value, value)
-        else:
-            raise AttributeError
+class TizEnumeration(set):
+    """A simple enumeration class.
+
+    """
     def __getattr__(self, name):
         if name in self:
             return name
@@ -70,11 +72,12 @@ class tizgmusicproxy(object):
     def __init__(self, email, password, device_id):
         self.__api = Mobileclient()
         self.logged_in = False
+        self.__email = email
         self.__device_id = device_id
         self.queue = list()
         self.queue_index = -1
         self.play_queue_order = list()
-        self.play_modes = tizenumeration(["NORMAL", "SHUFFLE"])
+        self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
         self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_song = None
 
@@ -86,15 +89,27 @@ class tizgmusicproxy(object):
         self.playlists = CaseInsensitiveDict()
         self.stations = CaseInsensitiveDict()
         self.library = CaseInsensitiveDict()
+        self.song_map = CaseInsensitiveDict()
 
     def logout(self):
+        """ Reset the session to an unauthenticated, default state.
+
+        """
         self.__api.logout()
 
-    def set_play_mode(self, arg):
-        self.current_play_mode = getattr(self.play_modes, arg)
+    def set_play_mode(self, mode):
+        """ Set the playback mode.
+
+        :param mode: curren tvalid values are "NORMAL" and "SHUFFLE"
+
+        """
+        self.current_play_mode = getattr(self.play_modes, mode)
         self.__update_play_queue_order()
 
     def current_song_title_and_artist(self):
+        """ Retrive the current track's title and artist name.
+
+        """
         logging.info("current_song_title_and_artist")
         song = self.now_playing_song
         if song is not None:
@@ -107,6 +122,9 @@ class tizgmusicproxy(object):
             return '', ''
 
     def current_song_album_and_duration(self):
+        """ Retrive the current track's album and duration.
+
+        """
         logging.info("current_song_album_and_duration")
         song = self.now_playing_song
         if song is not None:
@@ -118,8 +136,12 @@ class tizgmusicproxy(object):
         else:
             return '', 0
 
-    def current_song_track_number_and_total_tracks(self):
-        logging.info("current_song_track_number_and_total_tracks")
+    def current_track_and_album_total(self):
+        """Return the current track number and the total number of tracks in the
+        album, if known.
+
+        """
+        logging.info("current_track_and_album_total")
         song = self.now_playing_song
         track = 0
         total = 0
@@ -137,6 +159,9 @@ class tizgmusicproxy(object):
         return track, total
 
     def current_song_year(self):
+        """ Return the current track's year of publication.
+
+        """
         logging.info("current_song_year")
         song = self.now_playing_song
         year = 0
@@ -151,10 +176,20 @@ class tizgmusicproxy(object):
         return year
 
     def clear_queue(self):
+        """ Clears the playback queue.
+
+        """
         self.queue = list()
         self.queue_index = -1
 
     def enqueue_artist(self, arg):
+        """ Search the user's library for tracks from the given artist and adds
+        them to the playback queue.
+
+        No All Access search is performed.
+
+        :param arg: an artist
+        """
         try:
             self.__update_local_library()
             if not arg in self.library.keys():
@@ -181,6 +216,12 @@ class tizgmusicproxy(object):
             raise KeyError("Artist not found : {0}".format(arg))
 
     def enqueue_album(self, arg):
+        """ Search the user's library for albums with a given name and adds
+        them to the playback queue.
+
+        No All Access search is performed.
+
+        """
         try:
             self.__update_local_library()
             for artist in self.library:
@@ -203,7 +244,14 @@ class tizgmusicproxy(object):
             raise KeyError("Album not found : {0}".format(arg))
 
     def enqueue_playlist(self, arg):
+        """ Search the user's library for playlists with a given name and adds
+        them to the playback queue.
+
+        An All Access search is performed.
+
+        """
         try:
+            self.__update_local_library()
             self.__update_playlists()
             self.__update_playlists_all_access()
             for name, plist in self.playlists.items():
@@ -233,6 +281,12 @@ class tizgmusicproxy(object):
             raise KeyError("Playlist not found : {0}".format(arg))
 
     def enqueue_station_all_access(self, arg):
+        """Search the user's library for a station with a given name
+        and adds its tracks to the playback queue.
+
+        An All Access search is performed.
+
+        """
         try:
             self.__update_stations_all_access()
             for name, st_id in self.stations.iteritems():
@@ -272,6 +326,12 @@ class tizgmusicproxy(object):
             raise KeyError("Station not found : {0}".format(arg))
 
     def enqueue_genre_all_access(self, arg):
+        """Search All Access for a genre with a given name and adds its
+        tracks to the playback queue.
+
+        An All Access search is performed.
+
+        """
         try:
             all_genres = list()
             root_genres = self.__api.get_genres()
@@ -309,6 +369,12 @@ class tizgmusicproxy(object):
             raise RuntimeError("Operation requires an All Access subscription.")
 
     def enqueue_artist_all_access(self, arg):
+        """Search All Access for an artist and adds the artist's 50 top tracks
+        to the playback queue.
+
+        An All Access search is performed.
+
+        """
         try:
             artist_hits = self.__api.search_all_access(arg)['artist_hits']
             artist = next((hit for hit in artist_hits \
@@ -340,6 +406,12 @@ class tizgmusicproxy(object):
             raise RuntimeError("Operation requires an All Access subscription.")
 
     def enqueue_album_all_access(self, arg):
+        """Search All Access for an album and adds its tracks to the
+        playback queue.
+
+        An All Access search is performed.
+
+        """
         try:
             album_hits = self.__api.search_all_access(arg)['album_hits']
             album = next((hit for hit in album_hits \
@@ -366,6 +438,12 @@ class tizgmusicproxy(object):
             raise RuntimeError("Operation requires an All Access subscription.")
 
     def enqueue_tracks_all_access(self, arg):
+        """ Search All Access for a track name and adds all the matching tracks
+        to the playback queue.
+
+        An All Access search is performed.
+
+        """
         try:
             track_hits = self.__api.search_all_access(arg)['song_hits']
             count = 0
@@ -384,6 +462,9 @@ class tizgmusicproxy(object):
             raise RuntimeError("Operation requires an All Access subscription.")
 
     def enqueue_promoted_tracks_all_access(self):
+        """ Retrieve the url of the next track in the playback queue.
+
+        """
         try:
             tracks = self.__api.get_promoted_songs()
             count = 0
@@ -403,13 +484,15 @@ class tizgmusicproxy(object):
             raise RuntimeError("Operation requires an All Access subscription.")
 
     def next_url(self):
-        logging.info("next_url")
+        """ Retrieve the url of the next track in the playback queue.
+
+        """
         if len(self.queue):
             self.queue_index += 1
             if (self.queue_index < len(self.queue)) \
                and (self.queue_index >= 0):
                 next_song = self.queue[self.play_queue_order[self.queue_index]]
-                return self.__get_song_url(next_song)
+                return self.__retrieve_track_url(next_song)
             else:
                 self.queue_index = -1
                 return self.next_url()
@@ -417,12 +500,15 @@ class tizgmusicproxy(object):
             return ''
 
     def prev_url(self):
+        """ Retrieve the url of the previous track in the playback queue.
+
+        """
         if len(self.queue):
             self.queue_index -= 1
             if (self.queue_index < len(self.queue)) \
                and (self.queue_index >= 0):
                 prev_song = self.queue[self.play_queue_order[self.queue_index]]
-                return self.__get_song_url(prev_song)
+                return self.__retrieve_track_url(prev_song)
             else:
                 self.queue_index = len(self.queue)
                 return self.prev_url()
@@ -430,6 +516,12 @@ class tizgmusicproxy(object):
             return ''
 
     def __update_play_queue_order(self):
+        """ Update the queue playback order.
+
+        A sequential order is applied if the current play mode is "NORMAL" or a
+        random order if current play mode is "SHUFFLE"
+
+        """
         if len(self.queue):
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
@@ -437,22 +529,30 @@ class tizgmusicproxy(object):
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
 
-    def __get_song_url(self, song):
-        logging.info("__get_song_url : {0}".format(song['id']))
+    def __retrieve_track_url(self, song):
+        """ Retrieve a song url
+
+        """
+        logging.info("__retrieve_track_url : {0}".format(song['id']))
         song_url = self.__api.get_stream_url(song['id'], self.__device_id)
         try:
             self.now_playing_song = song
             return song_url
         except AttributeError:
-            logging.info("Could not retrieve song url!")
+            logging.info("Could not retrieve the song url!")
             raise
 
     def __update_local_library(self):
+        """ Retrieve the user's song library
+
+        """
+        print "[Google Play Music] [Retrieving library] : '{0}'. " \
+            "This may take a while.".format(self.__email)
+
         songs = self.__api.get_all_songs()
         self.playlists[self.thumbs_up_playlist_name] = list()
 
         # Retrieve the user's song library
-        song_map = dict()
         for song in songs:
             if "rating" in song and song['rating'] == "5":
                 self.playlists[self.thumbs_up_playlist_name].append(song)
@@ -461,7 +561,7 @@ class tizgmusicproxy(object):
             song_artist = song['artist']
             song_album = song['album']
 
-            song_map[song_id] = song
+            self.song_map[song_id] = song
 
             if song_artist == "":
                 song_artist = "Unknown Artist"
@@ -494,7 +594,9 @@ class tizgmusicproxy(object):
                 self.library[artist][album] = sorted_album
 
     def __update_stations_all_access(self):
-        # Get stations (All Access)
+        """ Retrieve stations (All Access)
+
+        """
         self.stations.clear()
         stations = self.__api.get_all_stations()
         self.stations[u"I'm Feeling Lucky"] = 'IFL'
@@ -505,22 +607,28 @@ class tizgmusicproxy(object):
             self.stations[station_name] = station['id']
 
     def __update_playlists(self):
-        # Get all user playlists
+        """ Retrieve the user's playlists
+
+        """
         plists = self.__api.get_all_user_playlist_contents()
         for plist in plists:
             plist_name = plist['name']
             logging.info("playlist name : {0}" \
                          .format(plist_name.encode("utf-8")))
+            tracks = plist['tracks']
+            tracks.sort(key=itemgetter('creationTimestamp'))
             self.playlists[plist_name] = list()
-            for track in plist['tracks']:
+            for track in tracks:
                 try:
-                    song = song_map[track['trackId']]
+                    song = self.song_map[track['trackId']]
                     self.playlists[plist_name].append(song)
                 except IndexError:
                     pass
 
     def __update_playlists_all_access(self):
-        # Get shared playlists (All Access)
+        """ Retrieve shared playlists (All Access)
+
+        """
         plists_subscribed_to = [p for p in self.__api.get_all_playlists() \
                                 if p.get('type') == 'SHARED']
         for plist in plists_subscribed_to:
