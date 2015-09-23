@@ -350,7 +350,7 @@ class tizgmusicproxy(object):
         An All Access search is performed.
 
         """
-        print_msg("[Google Play Music] [Retrieving tracks] : '{0}'. " \
+        print_msg("[Google Play Music] [Retrieving stations] : '{0}'. " \
                   "This could take some time.".format(self.__email))
 
         try:
