@@ -41,13 +41,55 @@ logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.INFO)
 
+class _Colors:
+    """A trivial class that defines various ANSI color codes.
+
+    """
+    BOLD = '\033[1m'
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+
+def pretty_print(color, msg=""):
+    """Print message with color.
+
+    """
+    print color + msg + _Colors.ENDC
+
+def print_msg(msg=""):
+    """Print a normal message.
+
+    """
+    pretty_print(_Colors.OKGREEN + msg + _Colors.ENDC)
+
+def print_nfo(msg=""):
+    """Print an info message.
+
+    """
+    pretty_print(_Colors.OKBLUE + msg + _Colors.ENDC)
+
+def print_wrn(msg=""):
+    """Print a warning message.
+
+    """
+    pretty_print(_Colors.WARNING + msg + _Colors.ENDC)
+
+def print_err(msg=""):
+    """Print an error message.
+
+    """
+    pretty_print(_Colors.FAIL + msg + _Colors.ENDC)
+
 def exception_handler(exception_type, exception, traceback):
     """A simple exception handler that prints the excetion message.
 
     """
     del exception_type # unused
     del traceback # unused
-    print "[Google Play Music] %s" % (exception)
+    print_err("[Google Play Music] %s" % (exception))
 
 sys.excepthook = exception_handler
 
@@ -86,10 +128,10 @@ class tizgmusicproxy(object):
             self.logged_in = self.__api.login(email, password, device_id)
             attempts += 1
 
-        self.playlists = CaseInsensitiveDict()
-        self.stations = CaseInsensitiveDict()
         self.library = CaseInsensitiveDict()
         self.song_map = CaseInsensitiveDict()
+        self.playlists = CaseInsensitiveDict()
+        self.stations = CaseInsensitiveDict()
 
     def logout(self):
         """ Reset the session to an unauthenticated, default state.
@@ -192,15 +234,15 @@ class tizgmusicproxy(object):
         """
         try:
             self.__update_local_library()
+            artist = ""
             if not arg in self.library.keys():
-                artist = next((v for (k, v)                             \
-                               in self.library.items() if arg in k), None)
-                if artist:
-                    for name, art in self.library.items():
-                        if art == artist:
-                            print "[Google Play Music] '{0}' not found. " \
-                            "Playing '{1}' instead.".format(arg, name)
-                            break
+                for name, art in self.library.iteritems():
+                    if arg.lower() in name.lower():
+                        artist = art
+                        print_wrn("[Google Play Music] '{0}' not found. " \
+                                  "Playing '{1}' instead." \
+                                  .format(arg, name))
+                        break
                 else:
                     raise KeyError("Artist not found : {0}".format(arg))
             else:
@@ -224,21 +266,29 @@ class tizgmusicproxy(object):
         """
         try:
             self.__update_local_library()
+            album = ""
             for artist in self.library:
-                for album in self.library[artist]:
-                    print "[Google Play Music] [Album] '{0}'." \
-                        .format(album.encode("utf-8"))
+                for artist_album in self.library[artist]:
+                    print_nfo("[Google Play Music] [Album] '{0}'." \
+                              .format(artist_album.encode("utf-8")))
                     logging.info("enqueue album : {0} | {1}".format(
                         artist.encode("utf-8"),
-                        album.encode("utf-8")))
-                    if album.lower() == arg.lower():
-                        count = 0
-                        for song in self.library[artist][album]:
-                            self.queue.append(song)
-                            count += 1
-                        logging.info("Added {0} tracks from {1} by "
-                        "{2} to queue".format(count, album.encode("utf-8"),
-                                              artist.encode("utf-8")))
+                        artist_album.encode("utf-8")))
+                    if arg.lower() in artist_album.lower():
+                        album = artist_album
+                        print_wrn("[Google Play Music] '{0}' not found. " \
+                                  "Playing '{1}' instead." \
+                                  .format(arg, artist_album))
+                        break
+            if not album:
+                raise KeyError("Album not found : {0}".format(arg))
+            count = 0
+            for song in self.library[artist][album]:
+                self.queue.append(song)
+                count += 1
+                logging.info("Added {0} tracks from {1} by " \
+                             "{2} to queue".format(count, album.encode("utf-8"), \
+                                                   artist.encode("utf-8")))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
@@ -254,18 +304,18 @@ class tizgmusicproxy(object):
             self.__update_local_library()
             self.__update_playlists()
             self.__update_playlists_all_access()
+            playlist = ""
             for name, plist in self.playlists.items():
-                print "[Google Play Music] [Playlist] '{0}'."           \
-                    .format(name.encode("utf-8"))
+                print_nfo("[Google Play Music] [Playlist] '{0}'." \
+                          .format(name.encode("utf-8")))
             if not arg in self.playlists.keys():
-                playlist = next((v for (k, v)                           \
-                                 in self.playlists.items() if arg in k), None)
-                if playlist:
-                    for name, plist in self.playlists.items():
-                        if plist == playlist:
-                            print "[Google Play Music] '{0}' not found." \
-                            "Playing '{1}' instead.".format(arg, name)
-                            break
+                for name, plist in self.playlists.iteritems():
+                    if arg.lower() in name.lower():
+                        playlist = plist
+                        print_wrn("[Google Play Music] '{0}' not found. " \
+                                  "Playing '{1}' instead." \
+                                  .format(arg, name))
+                        break
                 else:
                     raise KeyError("Playlist not found : {0}".format(arg))
             else:
@@ -290,19 +340,17 @@ class tizgmusicproxy(object):
         try:
             self.__update_stations_all_access()
             for name, st_id in self.stations.iteritems():
-                print "[Google Play Music] [Station] '{0}'." \
-                    .format(name.encode("utf-8"))
+                print_nfo("[Google Play Music] [Station] '{0}'." \
+                          .format(name.encode("utf-8")))
+            station_id = ""
             if not arg in self.stations.keys():
-                station_id = next((v for (k, v) \
-                                   in self.stations.iteritems() \
-                                   if arg in k), None)
-                if station_id:
-                    for name, st_id in self.stations.iteritems():
-                        if st_id == station_id:
-                            print "[Google Play Music] '{0}' not found. " \
-                                "Playing '{1}' instead." \
-                                .format(arg, name.encode("utf-8"))
-                            break
+                for name, st_id in self.stations.iteritems():
+                    if arg.lower() in name.lower():
+                        station_id = st_id
+                        print_wrn("[Google Play Music] '{0}' not found. " \
+                                  "Playing '{1}' instead." \
+                                  .format(arg, name.encode("utf-8")))
+                        break
                 else:
                     raise KeyError("Station not found : {0}".format(arg))
             else:
@@ -340,12 +388,13 @@ class tizgmusicproxy(object):
             for root_genre in root_genres:
                 all_genres += self.__api.get_genres(root_genre['id'])
             for genre in all_genres:
-                print "[Google Play Music] [Genre] '{0}'." \
-                    .format(genre['name'].encode("utf-8"))
+                print_nfo("[Google Play Music] [Genre] '{0}'." \
+                          .format(genre['name'].encode("utf-8")))
             genre = next((g for g in all_genres \
                           if arg in g['name']), None)
             if genre:
-                print "[Google Play Music] Playing '{0}'.".format(genre['name'])
+                print_nfo("[Google Play Music] Playing '{0}'." \
+                          .format(genre['name']))
             else:
                 raise KeyError("Genre not found : {0}".format(arg))
             genre_name = genre['name']
@@ -381,9 +430,9 @@ class tizgmusicproxy(object):
                            if 'best_result' in hit.keys()), None)
             if not artist:
                 artist = artist_hits[0]
-                print "[Google Play Music] '{0}' not found. "\
-                    "Playing '{1}' instead."\
-                    .format(arg, artist['artist']['name'])
+                print_wrn("[Google Play Music] '{0}' not found. " \
+                          "Playing '{1}' instead." \
+                          .format(arg, artist['artist']['name']))
             include_albums = False
             max_top_tracks = 50
             max_rel_artist = 0
@@ -418,9 +467,9 @@ class tizgmusicproxy(object):
                           if 'best_result' in hit.keys()), None)
             if not album:
                 album = album_hits[0]
-                print "[Google Play Music] '{0}' not found. " \
-                    "Playing '{1}' instead." \
-                    .format(arg, album['album']['name'])
+                print_wrn("[Google Play Music] '{0}' not found. " \
+                          "Playing '{1}' instead." \
+                          .format(arg, album['album']['name']))
             album_tracks = self.__api.get_album_info\
                            (album['album']['albumId'])['tracks']
             count = 0
@@ -475,8 +524,8 @@ class tizgmusicproxy(object):
                 self.queue.append(store_track)
                 count += 1
             if count == 0:
-                print "[Google Play Music] Operation requires "\
-                    "an All Access subscription."
+                print_wrn("[Google Play Music] Operation requires " \
+                          "an All Access subscription.")
             logging.info("Added {0} All Access promoted tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
@@ -543,11 +592,11 @@ class tizgmusicproxy(object):
             raise
 
     def __update_local_library(self):
-        """ Retrieve the user's song library
+        """ Retrieve the songs and albums from the user's library
 
         """
-        print "[Google Play Music] [Retrieving library] : '{0}'. " \
-            "This may take a while.".format(self.__email)
+        print_msg("[Google Play Music] [Retrieving library] : '{0}'. " \
+                  "This may take a while.".format(self.__email))
 
         songs = self.__api.get_all_songs()
         self.playlists[self.thumbs_up_playlist_name] = list()
@@ -570,7 +619,7 @@ class tizgmusicproxy(object):
                 song_album = "Unknown Album"
 
             if not song_artist in self.library:
-                self.library[song_artist] = dict()
+                self.library[song_artist] = CaseInsensitiveDict()
                 self.library[song_artist][self.all_songs_album_title] = list()
 
             if not song_album in self.library[song_artist]:
