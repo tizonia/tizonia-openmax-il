@@ -285,6 +285,44 @@ readonly TIZ_DPKG_BUILD_UNSIGNED_CMD="dpkg-buildpackage -us -uc -rfakeroot"
 readonly TIZ_DPKG_BUILD_SIGNED_CMD="dpkg-buildpackage --force-sign -rfakeroot"
 
 ##################################################################
+# Simple function to print with color
+#
+# Globals
+#
+# Arguments:
+#
+# Returns:
+#   None
+##################################################################
+function pretty_print {
+    echo "$(tput setaf $1)$2$(tput sgr 0)" 1>&2
+}
+
+##################################################################
+# Simple function to print a banner
+#
+# Globals
+#
+# Arguments:
+#
+# Returns:
+#   None
+##################################################################
+function print_banner {
+    local msg="$1"
+    local color="$2"
+    local msg_sz=${#msg}
+    local dashes=$(print_dashes "$msg_sz")
+    if [[ "$color" == "" ]]; then
+        color="$RED"
+    fi
+    echo
+    pretty_print "$color" "$dashes"
+    pretty_print "$color" "$msg"
+    pretty_print "$color" "$dashes"
+}
+
+##################################################################
 # Usage details
 #
 # Globals
@@ -537,44 +575,6 @@ function print_dashes {
         DASHES="${DASHES}${CHAR}"
     done
     echo "$DASHES"
-}
-
-##################################################################
-# Simple function to print with color
-#
-# Globals
-#
-# Arguments:
-#
-# Returns:
-#   None
-##################################################################
-function pretty_print {
-    echo "$(tput setaf $1)$2$(tput sgr 0)" 1>&2
-}
-
-##################################################################
-# Simple function to print a banner
-#
-# Globals
-#
-# Arguments:
-#
-# Returns:
-#   None
-##################################################################
-function print_banner {
-    local msg="$1"
-    local color="$2"
-    local msg_sz=${#msg}
-    local dashes=$(print_dashes "$msg_sz")
-    if [[ "$color" == "" ]]; then
-        color="$RED"
-    fi
-    echo
-    pretty_print "$color" "$dashes"
-    pretty_print "$color" "$msg"
-    pretty_print "$color" "$dashes"
 }
 
 ##################################################################
