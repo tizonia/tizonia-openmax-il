@@ -27,11 +27,7 @@ DPKG_BUILD_PKG_CMD=""
 DISTRO_ID=""
 DISTRO_CODENAME=""
 
-
 # Constants
-# readonly MYDEBFULLNAME="Juan A. Rubio"
-# readonly MYDEBEMAIL="juan.rubio@aratelia.com"
-
 readonly E_BADARGS=85
 readonly E_NOFILE=86
 readonly E_BAD_CLONE=87
