@@ -328,7 +328,6 @@ function print_banner {
 # Returns:
 #   None
 ##################################################################
-
 function usage {
     pretty_print "$BLU" "tizonia-dist $TIZONIA_RELEASE_VERSION. Copyright (C) 2015 Juan A. Rubio"
     pretty_print "$BLU" "This software is part of Tizonia <http://tizonia.org>"
