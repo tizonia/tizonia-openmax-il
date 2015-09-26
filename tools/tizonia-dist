@@ -453,18 +453,19 @@ function do_deps {
         pretty_print "$GRN" "[gmusicapi] : installed."
     fi
 
+    # Backup installation of Spotify. Can be used if Modipy's repo is not available.
     # Install libspotify binaries using my own tar files, in case the binary
     # installation from mopidy's APT archive failed for whatever reason
-    if [[ "$spotify" -eq 0 ]]; then
-        cd "$TEMP_DIR" \
-            && wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-$(uname -m).tgz \
-            && tar zxvf libspotify-12.1.51-Linux-$(uname -m).tgz \
-            && cd libspotify-12.1.51-Linux-$(uname -m) \
-            && sudo make install prefix=/usr \
-            && sudo ldconfig
-    else
-        pretty_print "$GRN" "[libspotify] : installed."
-    fi
+    #     if [[ "$spotify" -eq 0 ]]; then
+    #         cd "$TEMP_DIR" \
+    #             && wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-$(uname -m).tgz \
+    #             && tar zxvf libspotify-12.1.51-Linux-$(uname -m).tgz \
+    #             && cd libspotify-12.1.51-Linux-$(uname -m) \
+    #             && sudo make install prefix=/usr \
+    #             && sudo ldconfig
+    #     else
+    #         pretty_print "$GRN" "[libspotify] : installed."
+    #     fi
 }
 
 ##################################################################
