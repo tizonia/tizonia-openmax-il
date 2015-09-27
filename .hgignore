@@ -5,3 +5,4 @@ tizrm.db
 *.bak
 *~
 *.orig
+tools/tizonia-build

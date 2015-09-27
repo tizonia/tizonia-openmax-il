@@ -1,0 +1,678 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# A script that uses debootstrap and QEMU to:
+# - create a Raspbian|Debian|Ubuntu rootfs from scratch
+# - build debian packages for all Tizonia sub-projects inside the chroot
+# - for the various supported architectures (i386, amd64, armhf, armel)
+#
+# TODO:
+# - More exit code checks
+#
+
+# Constants
+
+readonly E_BADARGS=85
+readonly E_NOFILE=86
+readonly E_BAD_CLONE=87
+readonly CWD=$(pwd)
+
+readonly RED=1
+readonly GRN=2
+readonly YEL=3
+readonly BLU=4
+readonly MAG=5
+readonly CYA=6
+readonly WHI=7
+
+declare -ar TIZ_SUPPORTED_DISTROS=( \
+    ubuntu \
+    debian \
+    raspbian \
+)
+
+declare -Ar TIZ_SUPPORTED_RELEASES=( \
+    [ubuntu]="trusty" \
+    [debian]="jessie" \
+    [raspbian]="jessie" \
+)
+
+declare -ar TIZ_SUPPORTED_ARCHITECTURES=( \
+    i386 \
+    amd64 \
+    armhf \
+    armel \
+)
+
+# an alternate mirror for armhf
+#    [ubuntu-armhf]="http://ftp.tu-chemnitz.de/pub/linux/ubuntu-ports/" \
+
+declare -Ar TIZ_DISTRO_MIRRORS=( \
+    [ubuntu-i386]="http://archive.ubuntu.com/ubuntu/" \
+    [ubuntu-amd64]="http://archive.ubuntu.com/ubuntu/" \
+    [ubuntu-armhf]="http://ports.ubuntu.com/ubuntu-ports/" \
+    [debian-i386]="http://ftp.uk.debian.org/debian/" \
+    [debian-amd64]="http://ftp.uk.debian.org/debian/" \
+    [debian-armel]="http://ftp.uk.debian.org/debian/" \
+    [debian-armhf]="http://ftp.uk.debian.org/debian/" \
+    [raspbian-armhf]="http://archive.raspbian.org/raspbian/" \
+)
+
+declare -Ar TIZ_DISTRO_COMPONENTS=( \
+    [ubuntu]="main restricted universe multiverse" \
+    [debian]="main contrib non-free" \
+    [raspbian]="main contrib non-free" \
+)
+
+declare -Ar TIZ_DISTRO_DEBOOTSTRAPOPTS=( \
+    [ubuntu]="--no-check-gpg --include=ca-certificates,git-core,binutils,curl" \
+    [debian]="--keyring=/usr/share/keyrings/debian-archive-keyring.gpg --no-check-gpg --include=ca-certificates,git-core,binutils,curl" \
+    [raspbian]="--no-check-gpg --include=ca-certificates,git-core,binutils,curl" \
+)
+
+##################################################################
+# Simple function to print with color
+#
+# Globals
+#
+# Arguments:
+#
+# Returns:
+#   None
+##################################################################
+function pretty_print {
+    echo "$(tput setaf $1)$2$(tput sgr 0)" 1>&2
+}
+
+##################################################################
+# Simple function to print a banner
+#
+# Globals
+#
+# Arguments:
+#
+# Returns:
+#   None
+##################################################################
+function print_banner {
+    local msg="$1"
+    local color="$2"
+    local msg_sz=${#msg}
+    local dashes=$(print_dashes "$msg_sz")
+    if [[ "$color" == "" ]]; then
+        color="$RED"
+    fi
+    echo
+    pretty_print "$color" "$dashes"
+    pretty_print "$color" "$msg"
+    pretty_print "$color" "$dashes"
+}
+
+##################################################################
+# Simple function to produce a string of "dashes" of a
+# pre-determined size
+#
+# Globals
+#   TIZONIA_DIR
+# Arguments:
+#   The length of the message
+# Returns:
+#   None
+##################################################################
+function print_dashes {
+    local LEN=$1
+    local CHAR='-'
+    while (( $# > 0 ))
+    do
+        case $1 in
+            [0-9]*) LEN=$1;;
+            -c) shift
+                CHAR=$1;;
+            *) usagexit;;
+        esac
+        shift
+    done
+
+    if (( LEN > 4096 ))
+    then
+        echo "too large" >&2
+        exit 3
+    fi
+
+    # build the string to the exact length
+    DASHES=""
+    for ((i=0; i<LEN; i++))
+    do
+        DASHES="${DASHES}${CHAR}"
+    done
+    echo "$DASHES"
+}
+
+function print_banenr_and_license {
+    pretty_print "$BLU" "tizonia-qemu-debootstrap-env $TIZONIA_RELEASE_VERSION. Copyright (C) 2015 Juan A. Rubio"
+    pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
+
+    echo
+    pretty_print "$BLU" "GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"
+    pretty_print "$BLU" "This is free software: you are free to change and redistribute it."
+    pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
+}
+
+##################################################################
+# Usage details
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function usage {
+    print_banenr_and_license
+    echo
+    pretty_print "$GRN" "Usage : $(basename $0) [-b|--bootstrap] [-c|--chroot] [-d|--deps] [-m|--make] [-p|--publish] [-r|--rootfs] [-t|--update] [-u|--uninstall]"
+    pretty_print "$GRN" "       -b            : Bootstrap the chroot build environment (purges installed tizonia packages, updates chroot deps, deletes old build folders, and transfer a fresh tizonia repo)."
+    pretty_print "$GRN" "       -c            : Enter the chroot environment (for manual work inside the chroot)."
+    pretty_print "$GRN" "       -d            : Install this program's dependencies (only needed the first time this program is run)."
+    pretty_print "$GRN" "       -m            : Build all debian packages (builds the packages, assumes a bootstrapped environment)."
+    pretty_print "$GRN" "       -p            : Publish all debian packages to Bintray (requires Tizonia's Bintray API_KEY and Juan's GPG passphrase)."
+    pretty_print "$GRN" "       -r            : Create the chroot folder, and download and install the rootfs in it."
+    pretty_print "$GRN" "       -t            : Refresh the tizonia repo inside the chroot (pulls latest changes into the chroot's repo)."
+    pretty_print "$GRN" "       -u            : Uninstall (purge) all currently installed Tizonia packages in the chroot."
+    echo
+    echo
+    print_banner " Typical workflow" "$MAG"
+    pretty_print "$CYA" " 1.- Install this program's dependencies: "
+    pretty_print "$YEL" "     $ DISTRO=debian RELEASE=jessie ARCH=armhf ./tizonia-qemu-debootstrap-env --deps"
+    pretty_print "$CYA" " 2.- Download rootfs: "
+    pretty_print "$YEL" "     $ DISTRO=debian RELEASE=jessie ARCH=armhf ./tizonia-qemu-debootstrap-env --rootfs"
+    pretty_print "$CYA" " 3.- Bootstrap the development environent inside the chroot: "
+    pretty_print "$YEL" "     $ DISTRO=debian RELEASE=jessie ARCH=armhf ./tizonia-qemu-debootstrap-env --bootstrap"
+    pretty_print "$CYA" " 4.- Build packages: "
+    pretty_print "$YEL" "     $ DISTRO=debian RELEASE=jessie ARCH=armhf ./tizonia-qemu-debootstrap-env --make"
+    pretty_print "$CYA" " 5.- Publish packages: "
+    pretty_print "$YEL" "     $ DISTRO=debian RELEASE=jessie ARCH=armhf ./tizonia-qemu-debootstrap-env --publish"
+    echo
+    pretty_print "$MAG" " Other actions like '--uninstall', '--update' or '--chroot' are optional."
+} >&2
+
+##################################################################
+# Simple function to print a debug/error message with some extra info
+#
+# Globals
+#   TIZONIA_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function log_on_error {
+    local exit_status="$1"
+    local msg="$2"
+    if [[ "$exit_status" -ne 0 ]]; then
+        pretty_print "$RED" "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $2"
+    fi
+}
+
+##################################################################
+# Simple function to check if a string exists in an array
+#
+# Globals
+#   none
+# Arguments:
+#   The search string is the first argument
+#   The array is the second argument
+# Returns:
+#   0 if success, 1 on error
+##################################################################
+function exists_in_array {
+    local e
+    for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
+    return 1
+}
+
+function raise_error {
+    echo -e "\n[!!!] $@" 1>&2
+    exit 1
+}
+
+function verify_chroot_existence {
+    if [[ ! -e "$TIZONIA_ROOTFS_DIR" ]]; then
+        local err_msg="Chroot not found : $TIZONIA_ROOTFS_DIR"
+        local exit_status=1
+        log_on_error "$exit_status" "$err_msg"
+        exit "$E_BADARGS"
+    fi
+}
+
+function run_chroot {
+    local exit_status=0
+    $cmd_sudo mount -t proc proc $TIZONIA_ROOTFS_DIR/proc
+    $cmd_sudo mount -t sysfs sysfs $TIZONIA_ROOTFS_DIR/sys
+    $cmd_sudo mount -o bind /dev $TIZONIA_ROOTFS_DIR/dev
+    $cmd_sudo mount -o bind /dev/pts $TIZONIA_ROOTFS_DIR/dev/pts
+    $cmd_sudo chroot $TIZONIA_ROOTFS_DIR /usr/bin/env -i HOME=/root LC_ALL=C TERM="$TERM" PS1='\u:\w\$ ' PATH=/bin:/usr/bin:/sbin:/usr/sbin "$@"
+    exit_status=$?
+    sleep 1s
+    $cmd_sudo umount $TIZONIA_ROOTFS_DIR/dev/pts
+    $cmd_sudo umount $TIZONIA_ROOTFS_DIR/dev
+    $cmd_sudo umount $TIZONIA_ROOTFS_DIR/sys
+    $cmd_sudo umount $TIZONIA_ROOTFS_DIR/proc
+    return "$exit_status"
+}
+
+function check_for_root {
+    if [[ $(whoami) == "root" ]]; then
+        export cmd_sudo=""
+    else
+        export cmd_sudo=$(which sudo)
+        if [[ $? != 0 ]]; then
+            raise_error "Please install sudo or run this script as root."
+        fi
+    fi
+}
+
+function check_dependency {
+    local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$1" 2> /dev/null | cut -d ' ' -f3)
+    if [[ "$result" != "installed" ]]; then
+        pretty_print "$RED" "[NOK] $1 not installed. Installing now."
+        $cmd_sudo apt-get -y install "$1"
+    else
+        pretty_print "$GRN" "[ OK] $1 installed."
+    fi
+}
+
+function install_dependencies {
+    local exit_status=0
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Checking/installing this program's dependencies" "$YEL"
+    check_dependency debootstrap
+    check_dependency qemu-user-static
+    check_dependency coreutils
+    check_dependency sudo
+    check_dependency mercurial
+    check_dependency git
+    echo
+    pretty_print "$BLU" "Done checking dependencies."
+
+    return "$exit_status"
+}
+
+function install_rpi_update {
+
+    verify_chroot_existence
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Installing rpi-update" "$GRN"
+
+    $cmd_sudo wget "$MIRRORSITE"/raspbian.public.key -O "$TIZONIA_ROOTFS_DIR"/root/raspbian.key
+    run_chroot apt-key add /root/raspbian.key
+    run_chroot apt-get update
+    $cmd_sudo rm "$TIZONIA_ROOTFS_DIR"/root/raspbian.key
+
+    $cmd_sudo wget https://raw.github.com/Hexxeh/rpi-update/master/rpi-update -O "$TIZONIA_ROOTFS_DIR"/usr/bin/rpi-update
+    $cmd_sudo chmod +x "$TIZONIA_ROOTFS_DIR"/usr/bin/rpi-update
+    $cmd_sudo mkdir "$TIZONIA_ROOTFS_DIR"/lib/modules
+
+    run_chroot rpi-update
+
+    pretty_print "$BLU" "Done rpi-update."
+}
+
+function install_chroot {
+
+    if [[ -e "$TIZONIA_ROOTFS_DIR" ]]; then
+        local err_msg="A chroot already exists : $TIZONIA_ROOTFS_DIR"
+        exit_status=1
+        log_on_error "$exit_status" "$err_msg"
+        exit "$E_BADARGS"
+    fi
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Downloading rootfs" "$GRN"
+
+    $cmd_sudo qemu-debootstrap \
+        $DEBOOTSTRAPOPTS \
+        --arch "$ARCH" "$RELEASE" "$TIZONIA_ROOTFS_DIR" "$MIRRORSITE"
+
+    echo
+    pretty_print "$BLU" "Done downloading rootfs."
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Configuring rootfs" "$GRN"
+
+cat <<EOF | $cmd_sudo tee -a "$TIZONIA_ROOTFS_DIR"/usr/sbin/policy-rc.d > /dev/null
+#!/bin/sh
+echo "rc.d operations disabled for chroot"
+exit 101
+EOF
+
+    $cmd_sudo chmod 0755 "$TIZONIA_ROOTFS_DIR"/usr/sbin/policy-rc.d
+    echo "deb $MIRRORSITE $RELEASE $COMPONENTS" | $cmd_sudo tee -a $TIZONIA_ROOTFS_DIR/etc/apt/sources.list > /dev/null
+    echo
+    pretty_print "$BLU" "Done configuring rootfs."
+
+    # Install rpi-update in the Raspbian chroot
+    if [[ "$DISTRO" == "raspbian" ]]; then
+        install_rpi_update
+    fi
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Installing additional packages" "$GRN"
+    run_chroot apt-get update
+    run_chroot apt-get upgrade -qq
+    run_chroot apt-get install -qq sudo mercurial wget python python-setuptools apt-utils dpkg-dev
+    echo
+    pretty_print "$BLU" "Done installing additional packages."
+}
+
+function bootstrap_environment {
+    local exit_status=0
+
+    verify_chroot_existence
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Resetting build folders" "$GRN"
+    $cmd_sudo rm -rf $TIZONIA_ROOTFS_DIR/root/temp
+    $cmd_sudo rm -rf $TIZONIA_ROOTFS_DIR/root/work
+    $cmd_sudo mkdir $TIZONIA_ROOTFS_DIR/root/temp
+    $cmd_sudo mkdir -p $TIZONIA_ROOTFS_DIR/root/work/debian
+
+    pretty_print "$BLU" "Done build folders."
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Copying various config files" "$GRN"
+    $cmd_sudo cp -f tizonia-build/.bash* tizonia-build/.profile tizonia-build/.hgrc $TIZONIA_ROOTFS_DIR/root
+    pretty_print "$BLU" "Done config files."
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Copying Tizonia repository" "$GRN"
+    if [[ ! -e "tizonia-build/tizonia" ]]; then
+        hg clone https://bitbucket.org/tizonia/tizonia-openmax-il tizonia-build/tizonia
+    fi
+    cd tizonia-build/tizonia && pwd && hg pull -u && cd -
+    $cmd_sudo cp -R tizonia-build/tizonia $TIZONIA_ROOTFS_DIR/root/work/tizonia
+    pretty_print "$BLU" "Done Tizonia repo."
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Copying gmusicapi repository" "$GRN"
+    if [[ ! -e "tizonia-build/gmusicapi" ]]; then
+        git clone https://github.com/simon-weber/gmusicapi tizonia-build/gmusicapi
+    fi
+    cd tizonia-build/gmusicapi && pwd && git pull && cd -
+    $cmd_sudo cp -R tizonia-build/gmusicapi $TIZONIA_ROOTFS_DIR/root/temp/gmusicapi
+    pretty_print "$BLU" "Done gmusicapi repo."
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Updating build folder permissions" "$GRN"
+    $cmd_sudo chmod o+rx $TIZONIA_ROOTFS_DIR/root $TIZONIA_ROOTFS_DIR/root/temp $TIZONIA_ROOTFS_DIR/root/work
+    pretty_print "$BLU" "Done folder permissions."
+
+    uninstall_packages
+    exit_status=$?
+    if [[ "$exit_status" -ne 0 ]]; then
+        local err_msg="Unable to uninstall packages"
+        exit_status=1
+        log_on_error "$exit_status" "$err_msg"
+        exit "$E_BADARGS"
+    fi
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Updating apt cache" "$GRN"
+    run_chroot apt-get update
+    run_chroot apt-get upgrade -qq
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Installing Tizonia's dependencies" "$GRN"
+    run_chroot /bin/bash -v -c 'source /root/.profile; /root/work/tizonia/tools/tizonia-dpkg-build --deps'
+
+    pretty_print "$BLU" "Done Tizonia's dependencies."
+    return "$exit_status"
+}
+
+function enter_chroot {
+    local exit_status=1
+
+    verify_chroot_existence
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Entering chroot" "$GRN"
+    run_chroot /bin/bash -l +h
+    exit_status=0
+
+    return "$exit_status"
+}
+
+function make_packages {
+    local exit_status=0
+
+    verify_chroot_existence
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Building Tizonia packages" "$GRN"
+    run_chroot /bin/bash -v -c 'source /root/.profile; /root/work/tizonia/tools/tizonia-dpkg-build --makenext'
+    pretty_print "$BLU" "Done building packages."
+
+    return "$exit_status"
+}
+
+function publish_packages {
+    local exit_status=0
+
+    verify_chroot_existence
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Publishing tizonia packages" "$GRN"
+    run_chroot /bin/bash -v -c 'source /root/.profile; /root/work/tizonia/tools/tizonia-dpkg-build --publish'
+    exit_status=$?
+
+    pretty_print "$BLU" "Done publishing packages."
+
+    return "$exit_status"
+}
+
+function uninstall_packages {
+    local exit_status=0
+
+    verify_chroot_existence
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Uninstalling tizonia packages" "$GRN"
+    run_chroot /bin/bash -v -c 'source /root/.profile; /root/work/tizonia/tools/tizonia-dpkg-build --removeall'
+    exit_status=$?
+    pretty_print "$BLU" "Done uninstalling packages."
+
+    return "$exit_status"
+}
+
+function update_repo {
+    local exit_status=0
+
+    verify_chroot_existence
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Deleting the Tizonia repository inside the chroot" "$GRN"
+    $cmd_sudo rm -rf $TIZONIA_ROOTFS_DIR/root/work/tizonia
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Updating the external repo" "$GRN"
+    cd tizonia-build/tizonia && hg pull -u && cd -
+
+    print_banner "[$DISTRO-$RELEASE-$ARCH] Copying the updated repo into the chroot" "$GRN"
+    $cmd_sudo cp -R tizonia-build/tizonia $TIZONIA_ROOTFS_DIR/root/work/tizonia
+
+    pretty_print "$BLU" "Done updating repo."
+
+    return "$exit_status"
+}
+
+##################################################################
+# Main function
+#
+# Globals
+#   TIZONIA_DIR
+#   DEBIAN_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function main {
+    local exit_status=0
+    local distro=""
+    local release=""
+    local arch=""
+    local boostrap=0
+    local enterchroot=0
+    local deps=0
+    local make=0
+    local publish=0
+    local rootfs=0
+    local update=0
+    local uninstall=0
+
+    local progname=$(basename $0)
+    CMDLINE=$(getopt -o "bcdmprtu" --long "bootstrap,chroot,deps,make,publish,rootfs,update,uninstall" -n "$progname" -- "$@")
+    eval set -- "$CMDLINE"
+    while true; do
+        case "$1" in
+            -b|--bootstrap)
+                bootstrap=1; shift
+                ;;
+            -c|--chroot)
+                enterchroot=1; shift
+                ;;
+            -d|--deps)
+                deps=1; shift
+                ;;
+            -m|--make)
+                make=1; shift
+                ;;
+            -p|--publish)
+                publish=1; shift
+                ;;
+            -r|--rootfs)
+                rootfs=1; shift
+                ;;
+            -t|--update)
+                update=1; shift
+                ;;
+            -u|--uninstall)
+                uninstall=1; shift
+                ;;
+            --)
+                shift
+                break
+                ;;
+        esac
+    done
+
+    local total=$(( $bootstrap + $enterchroot + $deps + $make + $publish + $rootfs + $update + $uninstall ))
+    if [[ "$total" != 1 ]]; then
+        usage
+        exit "$E_BADARGS"
+    fi
+
+    # Verify the existence of important environment variables
+    : ${TIZONIA_RELEASE_VERSION:?"Need to set TIZONIA_RELEASE_VERSION"}
+    : ${TIZONIA_CHROOT_ENVS_DIR:?"Need to set TIZONIA_CHROOT_ENVS_DIR"}
+    : ${DISTRO:?"Need to set DISTRO"}
+    : ${RELEASE:?"Need to set RELEASE"}
+    : ${ARCH:?"Need to set ARCH"}
+
+    exists_in_array "$DISTRO" "${TIZ_SUPPORTED_DISTROS[@]}"
+    if [[ $? -ne 0 ]]; then
+        local err_msg="This script does not support your distro: $DISTRO"
+        exit_status=1
+        log_on_error "$exit_status" "$err_msg"
+        exit "$E_BADARGS"
+    fi
+
+    if [[ "$RELEASE" != "${TIZ_SUPPORTED_RELEASES[$DISTRO]}" ]]; then
+        local err_msg="This script does not support your release: $RELEASE"
+        exit_status=1
+        log_on_error "$exit_status" "$err_msg"
+        exit "$E_BADARGS"
+    fi
+
+    exists_in_array "$ARCH" "${TIZ_SUPPORTED_ARCHITECTURES[@]}"
+    if [[ $? -ne 0 ]]; then
+        local err_msg="This script does not support your architecture: $ARCH"
+        exit_status=1
+        log_on_error "$exit_status" "$err_msg"
+        exit "$E_BADARGS"
+    fi
+
+    print_banenr_and_license
+    check_for_root
+
+    export TIZONIA_ROOTFS_DIR="$TIZONIA_CHROOT_ENVS_DIR/$DISTRO-$RELEASE-$ARCH"
+    export MIRRORSITE="${TIZ_DISTRO_MIRRORS[$DISTRO-$ARCH]}"
+    export DEBOOTSTRAPOPTS="${TIZ_DISTRO_DEBOOTSTRAPOPTS[$DISTRO]}"
+    export COMPONENTS="${TIZ_DISTRO_COMPONENTS[$DISTRO]}"
+
+    if [[ "$bootstrap" == 1 ]]; then
+        local err_msg="Unable to bootstrap the developement environment"
+        bootstrap_environment
+        exit_status=$?
+        log_on_error "$exit_status" "$err_msg"
+        exit "$exit_status"
+    fi
+
+    if [[ "$enterchroot" == 1 ]]; then
+        local err_msg="Unable to enter the chroot environment"
+        enter_chroot
+        exit_status=$?
+        log_on_error "$exit_status" "$err_msg"
+        exit "$exit_status"
+    fi
+
+    if [[ "$deps" == 1 ]]; then
+        local err_msg="Unable to install dependencies"
+        install_dependencies
+        exit_status=$?
+        log_on_error "$exit_status" "$err_msg"
+        exit "$exit_status"
+    fi
+
+    if [[ "$make" == 1 ]]; then
+        local err_msg="Unable to build the debian packages"
+        make_packages
+        exit_status=$?
+        log_on_error "$exit_status" "$err_msg"
+        exit "$exit_status"
+    fi
+
+    if [[ "$publish" == 1 ]]; then
+        local err_msg="Unable to publish the debian packages"
+        publish_packages
+        exit_status=$?
+        log_on_error "$exit_status" "$err_msg"
+        exit "$exit_status"
+    fi
+
+    if [[ "$rootfs" == 1 ]]; then
+        local err_msg="Unable to download chroot"
+        install_chroot
+        exit_status=$?
+        log_on_error "$exit_status" "$err_msg"
+        exit "$exit_status"
+    fi
+
+    if [[ "$update" == 1 ]]; then
+        local err_msg="Unable to update the tizonia repository"
+        update_repo
+        exit_status=$?
+        log_on_error "$exit_status" "$err_msg"
+        exit "$exit_status"
+    fi
+
+    if [[ "$uninstall" == 1 ]]; then
+        local err_msg="Unable to uninstall the debian packages"
+        uninstall_packages
+        exit_status=$?
+        log_on_error "$exit_status" "$err_msg"
+        exit "$exit_status"
+    fi
+}
+
+main "$@"
