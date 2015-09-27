@@ -202,8 +202,8 @@ function install_python_deps {
         && sudo pip install gmusicapi --upgrade
 
     echo "Now installing the latest gmusicapi from source..."
-    git clone https://github.com/simon-weber/Unofficial-Google-Music-API \
-        && cd Unofficial-Google-Music-API \
+    git clone https://github.com/simon-weber/gmusicapi \
+        && cd gmusicapi \
         && sudo python setup.py install
     return $?
 }
