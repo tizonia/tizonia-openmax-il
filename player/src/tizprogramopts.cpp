@@ -334,7 +334,7 @@ void tiz::programopts::print_version () const
 {
   TIZ_PRINTF_BLU ("tizonia %s. Copyright (C) 2015 Juan A. Rubio\n",
                   PACKAGE_VERSION);
-  TIZ_PRINTF_BLU ("This software is part of Tizonia <http://tizonia.org>\n\n");
+  TIZ_PRINTF_BLU ("This software is part of the Tizonia project <http://tizonia.org>\n\n");
 }
 
 void tiz::programopts::print_usage () const
@@ -563,7 +563,7 @@ bool tiz::programopts::gmusic_is_all_access_search () const
 void tiz::programopts::print_license () const
 {
   TIZ_PRINTF_GRN (
-      "LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>\n"
+      "GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>\n"
       "This is free software: you are free to change and redistribute it.\n"
       "There is NO WARRANTY, to the extent permitted by law.\n\n");
 }

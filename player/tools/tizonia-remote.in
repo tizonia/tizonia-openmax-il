@@ -64,10 +64,10 @@ function pretty_print {
 
 function usage {
     pretty_print "$blue" "tizonia-remote @PACKAGE_VERSION@. Copyright (C) 2015 Juan A. Rubio"
-    pretty_print "$blue" "This software is part of Tizonia <http://tizonia.org>"
+    pretty_print "$blue" "This software is part of the Tizonia project <http://tizonia.org>"
 
     echo
-    pretty_print "$green" "LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"
+    pretty_print "$green" "GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"
     pretty_print "$green" "This is free software: you are free to change and redistribute it."
     pretty_print "$green" "There is NO WARRANTY, to the extent permitted by law."
 
