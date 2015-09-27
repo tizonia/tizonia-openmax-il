@@ -339,11 +339,11 @@ function print_banner {
 #   None
 ##################################################################
 function usage {
-    pretty_print "$BLU" "tizonia-dist $TIZONIA_RELEASE_VERSION. Copyright (C) 2015 Juan A. Rubio"
-    pretty_print "$BLU" "This software is part of Tizonia <http://tizonia.org>"
+    pretty_print "$BLU" "tizonia-dpkg-build $TIZONIA_RELEASE_VERSION. Copyright (C) 2015 Juan A. Rubio"
+    pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
 
     echo
-    pretty_print "$BLU" "LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"
+    pretty_print "$BLU" "GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"
     pretty_print "$BLU" "This is free software: you are free to change and redistribute it."
     pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
 
