@@ -79,6 +79,9 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     libflac-dev \
     liboggz2-dev \
     libsndfile1-dev \
+    python-dev \
+    python-setuptools \
+    python-pip \
     python-decorator \
     python-protobuf \
     python-validictory \
@@ -433,16 +436,18 @@ function do_deps {
     if [[ "$?" -ne 0 ]]; then
         local GMUSICAPI_DIR=gmusicapi
         if [[ ! -d "$TEMP_DIR"/gmusicapi ]]; then
-            #echo "Installing pip and an older version of the gmusicapi python module..."
-            #     wget https://bootstrap.pypa.io/get-pip.py \
-            #         && sudo python get-pip.py \
-            #         && sudo pip install gmusicapi --upgrade
 
-            echo "Installing a fresher version of setuptools..."
-            wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python
+            echo "Installing a fresher version of pip..."
+            wget https://bootstrap.pypa.io/get-pip.py \
+                && sudo python get-pip.py
+
+            # echo "Installing a fresher version of setuptools..."
+            # wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python
 
             # echo "Installing a fresher version of pip..."
             # wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | sudo python
+
+            sudo pip install gmusicapi
 
             cd "$TEMP_DIR" \
                 && git clone https://github.com/simon-weber/gmusicapi gmusicapi
