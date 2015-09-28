@@ -1,32 +1,47 @@
 # Tizonia #
 
 * A music player and audio streaming client/server for Linux.
-* With support for Spotify and Google Play Music.
+* With support for Spotify and Google Play Music (including All Access).
 * A multimedia framework based on OpenMAX IL 1.2 provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
-## Introduction ##
+## Install the latest release
 
-_Tizonia is still under development and there are no pre-built binary releases yet (coming soon)_.
+Debian packages are available from [Bintray](https://bintray.com/tizonia) for
+the following distro/arch combinations:
 
-For now you can clone this repo and build everything from source following the instructions below.
+- Ubuntu Trusty (14.04)
+  - amd64, i386, armhf
+- Debian Jessie (8)
+  - amd64, i386, armhf, armel
+- Raspbian Jessie (8)
+  - armhf
+
+To install, simply run this:
+
+```bash
+
+    $ curl -L -O https://github.com/tizonia/tizonia-openmax-il/raw/master/tools/tizonia-install.sh
+        && chmod +x tizonia-install.sh \
+        && ./tizonia-install.sh
+
+```
 
 ## The Tizonia project
 
-For the resources that can be found here, please keep reading further.
+### `tizonia`: command line music player and audio streaming client/server ###
 
-### `tizonia`: music player and audio streaming client/server ###
-
-* Spotify client (Spotify Premium account required).
-* Google Play Music client (with support for All Access features, if a subscription is available).
-* Playback of local media (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus, wav,
+* Stream audio from Spotify (Spotify Premium required).
+* Stream audio from Google Play Music (including All Access features).
+* Playback of local media file (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus, wav,
   aiff, and flac).
 * Icecast/SHOUTcast streaming LAN server (mp3).
 * Icecast/SHOUTcast streaming client (mp3, aac, and opus).
 * Daemon and command line modes (no GUI).
 * MPRIS D-BUS v2 media player remote control interface (basic functions only).
-* Based on own OpenMAX IL-based multimedia framework. No gstreamer, libav, or ffmpeg libraries needed.
+* Based on own OpenMAX IL-based multimedia framework. No gstreamer, libav, or
+  ffmpeg libraries needed.
 
 ### OpenMAX IL 1.2 multimedia framework ###
 
@@ -137,24 +152,13 @@ system. You can install libspotify from
 
 ### Google Play Music ###
 
-To stream from Google Play Music, you need to install Simon Weber's
-[gmusicapi](https://github.com/simon-weber/gmusicapi) python library. You may
-want to install it from source as the latest version in pip
-[6.0.0](https://pypi.python.org/pypi/gmusicapi/6.0.0) sometimes is out-of-date
-and may or may not work. In order to satisfy all of 'gmusicapi's depedencies
-you may need to download and install a fresher version of setuptools (see
-https://pypi.python.org/pypi/setuptools).
-
+To stream from Google Play Music, you'll need to install Simon Weber's
+[gmusicapi](https://github.com/simon-weber/gmusicapi) python library.
 
 ```bash
 
-    $ echo "OPTIONAL: Downloading and installing a fresh version of setuptools"
-    $ wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python
-
-    $ echo "Installing the latest gmusicapi from source..."
-    $ git clone https://github.com/simon-weber/gmusicapi \
-      && cd gmusicapi \
-      && sudo python setup.py install
+    $ sudo apt-get -y install python-pip
+    $ sudo pip install gmusicapi
 
 ```
 
