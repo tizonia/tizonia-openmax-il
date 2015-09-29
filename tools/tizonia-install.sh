@@ -51,11 +51,16 @@ fi
 sudo apt-get update
 
 # Install Simon Weber's gmusicapi
-sudo apt-get -y install python-pip
-sudo pip install gmusicapi && sudo pip install gmusicapi
+sudo apt-get -y install python-pip \
+    && ( sudo pip install gmusicapi || sudo pip install gmusicapi )
 
 # Install libspotify
 sudo apt-get -y install libspotify12
 
 # Install Tizonia
 sudo apt-get -y install tizonia-all
+
+# Copy Tizonia's config file
+if [ ! -e "$HOME"/.config/tizonia/tizonia.conf ]; then
+    cp /etc/tizonia/tizonia.conf/tizonia.conf "$HOME"/.config/tizonia/tizonia.conf
+fi
