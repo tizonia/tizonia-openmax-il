@@ -20,11 +20,11 @@
 #
 
 if cat /etc/*-release | grep raspbian; then
-  DISTRO="raspbian" ; RELEASE=jessie
+  DISTRO="raspbian" ; RELEASE="jessie"
 elif cat /etc/*-release | grep jessie; then
-  DISTRO="jessie" ; RELEASE=jessie
+  DISTRO="jessie" ; RELEASE="jessie"
 elif cat /etc/*-release | grep trusty; then
-  DISTRO="ubuntu" ; RELEASE=trusty
+  DISTRO="ubuntu" ; RELEASE="trusty"
 else
   echo "Can't find a supported debian-based distribution."
   exit 1
