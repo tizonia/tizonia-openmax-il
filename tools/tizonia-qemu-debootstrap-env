@@ -46,10 +46,11 @@ declare -ar TIZ_SUPPORTED_DISTROS=( \
     raspbian \
 )
 
-declare -Ar TIZ_SUPPORTED_RELEASES=( \
-    [ubuntu]="trusty" \
-    [debian]="jessie" \
-    [raspbian]="jessie" \
+declare -ar TIZ_SUPPORTED_RELEASES=( \
+    ubuntu-trusty \
+    ubuntu-vivid \
+    debian-jessie \
+    raspbian-jessie \
 )
 
 declare -ar TIZ_SUPPORTED_ARCHITECTURES=( \
@@ -587,7 +588,8 @@ function main {
         exit "$E_BADARGS"
     fi
 
-    if [[ "$RELEASE" != "${TIZ_SUPPORTED_RELEASES[$DISTRO]}" ]]; then
+    exists_in_array "$DISTRO-$RELEASE" "${TIZ_SUPPORTED_RELEASES[@]}"
+    if [[ $? -ne 0 ]]; then
         local err_msg="This script does not support your release: $RELEASE"
         exit_status=1
         log_on_error "$exit_status" "$err_msg"
