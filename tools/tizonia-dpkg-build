@@ -670,7 +670,7 @@ function do_c_package_debs {
 # Returns:
 #   None
 ##################################################################
-function do_python_packate_debs {
+function do_python_package_debs {
     local pkg="$1"
     local pkg_dir="$2"
     local pkg_ver=0
@@ -834,7 +834,7 @@ function do_next_package_debs {
             local pkg_deb_dir="$DEBIAN_DIR/$pkg"
             exists_in_array "$pkg" "${TIZ_PYTHON_PROJECTS[@]}"
             if [[ $? -eq 0 ]]; then
-                do_python_packate_debs "$pkg" "$pkg_deb_dir"
+                do_python_package_debs "$pkg" "$pkg_deb_dir"
                 exit_status=$?
             else
                 do_c_package_debs "$pkg" "$pkg_deb_dir"
