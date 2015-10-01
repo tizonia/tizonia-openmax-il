@@ -47,10 +47,11 @@ declare -ar TIZ_SUPPORTED_DISTROS=( \
     raspbian \
 )
 
-declare -Ar TIZ_SUPPORTED_RELEASES=( \
-    [ubuntu]="trusty" \
-    [debian]="jessie" \
-    [raspbian]="jessie" \
+declare -ar TIZ_SUPPORTED_RELEASES=( \
+    ubuntu-trusty \
+    ubuntu-vivid \
+    debian-jessie \
+    raspbian-jessie \
 )
 
 declare -ar TIZ_TIZONIA_DEPS=( \
@@ -1100,7 +1101,8 @@ function main {
         fi
     fi
 
-    if [[ "$DISTRO_CODENAME" != "${TIZ_SUPPORTED_RELEASES[$DISTRO_ID]}" ]]; then
+    exists_in_array "$DISTRO_ID-$DISTRO_CODENAME" "${TIZ_SUPPORTED_RELEASES[@]}"
+    if [[ $? -ne 0 ]]; then
         local err_msg="This script does not support : $DISTRO_ID/$DISTRO_CODENAME"
         exit_status=1
         log_on_error "$exit_status" "$err_msg"
