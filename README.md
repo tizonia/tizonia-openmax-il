@@ -20,7 +20,7 @@ the following distro/arch combinations:
 - Raspbian Jessie (8)
   - armhf
 
-To install, simply run this:
+To install, simply run:
 
 ```bash
 
