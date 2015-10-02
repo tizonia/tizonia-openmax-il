@@ -22,7 +22,7 @@
 if cat /etc/*-release | grep raspbian; then
   DISTRO="raspbian" ; RELEASE="jessie"
 elif cat /etc/*-release | grep jessie; then
-  DISTRO="jessie" ; RELEASE="jessie"
+  DISTRO="debian" ; RELEASE="jessie"
 elif cat /etc/*-release | grep trusty; then
   DISTRO="ubuntu" ; RELEASE="trusty"
 elif cat /etc/*-release | grep vivid; then
@@ -63,6 +63,14 @@ sudo apt-get -y install libspotify12
 sudo apt-get -y install tizonia-all
 
 # Copy Tizonia's config file
-if [ ! -e "$HOME"/.config/tizonia/tizonia.conf ]; then
-    cp /etc/tizonia/tizonia.conf/tizonia.conf "$HOME"/.config/tizonia/tizonia.conf
+TIZ_CONFIG_DIR="$HOME/.config/tizonia"
+TIZ_CONFIG_FILE="$TIZ_CONFIG_DIR/tizonia.conf"
+if [ ! -e "$TIZ_CONFIG_FILE" ]; then
+    mkdir "$TIZ_CONFIG_DIR"
+    cp /etc/tizonia/tizonia.conf/tizonia.conf "$TIZ_CONFIG_FILE"
 fi
+
+tizonia -v
+
+echo "Tizonia is now installed."
+echo "Configuration file located in : $TIZ_CONFIG_FILE "
