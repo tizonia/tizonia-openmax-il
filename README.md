@@ -13,6 +13,8 @@ the following distro/arch combinations:
 
 - Ubuntu Trusty (14.04)
   - amd64, i386, armhf
+- Ubuntu Vivid (15.04)
+  - amd64, i386, armhf
 - Debian Jessie (8)
   - amd64, i386, armhf, armel
 - Raspbian Jessie (8)
