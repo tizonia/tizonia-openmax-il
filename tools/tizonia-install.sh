@@ -25,6 +25,8 @@ elif cat /etc/*-release | grep jessie; then
   DISTRO="jessie" ; RELEASE="jessie"
 elif cat /etc/*-release | grep trusty; then
   DISTRO="ubuntu" ; RELEASE="trusty"
+elif cat /etc/*-release | grep vivid; then
+  DISTRO="ubuntu" ; RELEASE="vivid"
 else
   echo "Can't find a supported debian-based distribution."
   exit 1
