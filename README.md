@@ -28,6 +28,85 @@ To install, simply run this:
 
 ```
 
+## 'tizonia' usage ##
+
+```bash
+$ tizonia
+
+tizonia 0.1.0. Copyright (C) 2015 Juan A. Rubio
+This software is part of Tizonia <http://tizonia.org>
+
+LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+General options:
+  -h [ --help ]         Print the usage message.
+  -v [ --version ]      Print the version information.
+  -r [ --recurse ]      Recursively process a given path.
+  -s [ --shuffle ]      Shuffle the playlist.
+  -d [ --daemon ]       Run in the background.
+
+OpenMAX IL options:
+  -L [ --comp-list ]         Enumerate all the OpenMAX IL components in the
+                             system.
+  -R [ --roles-of-comp ] arg Display the OpenMAX IL roles found in component
+                             <arg>.
+  -C [ --comps-of-role ] arg Display the OpenMAX IL components that implement
+                             role <arg>.
+
+Audio streaming server options:
+  --server              Stream media files using the SHOUTcast/ICEcast
+                        streaming protocol.
+  -p [ --port ] arg     TCP port to be used for Icecast/SHOUTcast streaming.
+                        Default: 8010.
+  --station-name arg    The Icecast/SHOUTcast station name. Optional.
+  --station-genre arg   The Icecast/SHOUTcast station genre. Optional.
+  --no-icy-metadata     Disables Icecast/SHOUTcast metadata in the stream.
+  --bitrate-modes arg   A comma-separated list of bitrate modes (e.g.
+                        'CBR,VBR'). Only these bitrate omdes will allowed in
+                        the playlist. Default: all.
+  --sampling-rates arg  A comma-separated list of sampling rates. Only these
+                        sampling rates will be allowed in the playlist.
+                        Default: all.
+
+Spotify options:
+  --spotify-user arg     Spotify user name (Optional: may also be provided via
+                         config file).
+  --spotify-password arg Spotify user password (Optional: may also be provided
+                         via config file).
+  --spotify-playlist arg Spotify playlist name.
+
+Google Play Music options:
+  --gmusic-user arg                     Google Play Music user's name (not
+                                        required if provided via config file).
+  --gmusic-password arg                 Google Play Music user's password (not
+                                        required if provided via config file).
+  --gmusic-device-id arg                Google Play Music device id (not
+                                        required if provided via config file).
+  --gmusic-artist arg                   Play tracks from the user's library by
+                                        artist.
+  --gmusic-album arg                    Play tracks from the user's library by
+                                        album.
+  --gmusic-playlist arg                 Play a playlist from the user's
+                                        library.
+  --gmusic-all-access-station arg       Search and play All Access stations
+                                        from the user's library.
+  --gmusic-all-access-album arg         Search and play All Access tracks by
+                                        album (best match only).
+  --gmusic-all-access-artist arg        Search and play All Access tracks by
+                                        artist (best match only).
+  --gmusic-all-access-tracks arg        Search and play All Access tracks by
+                                        name (50 best matches only).
+  --gmusic-all-access-genre arg         Search and play All Access tracks by
+                                        genre.
+  --gmusic-all-access-feeling-lucky-station
+                                        Play the user's All Access 'I'm Feeling
+                                        Lucky' station.
+  --gmusic-all-access-promoted-tracks   Play All Access promoted tracks.
+
+```
+
 ## The Tizonia project
 
 ### `tizonia`: command line music player and audio streaming client/server ###
@@ -212,85 +291,6 @@ copy the Resource Manager's D-BUS activation file like this:
 
     $ mkdir -p ~/.local/share/dbus-1/services \
         && cp rm/tizrmd/dbus/com.aratelia.tiz.rm.service ~/.local/share/dbus-1/services
-
-```
-
-## 'tizonia' usage ##
-
-```bash
-$ tizonia
-
-tizonia 0.1.0. Copyright (C) 2015 Juan A. Rubio
-This software is part of Tizonia <http://tizonia.org>
-
-LGPLv3: GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-
-General options:
-  -h [ --help ]         Print the usage message.
-  -v [ --version ]      Print the version information.
-  -r [ --recurse ]      Recursively process a given path.
-  -s [ --shuffle ]      Shuffle the playlist.
-  -d [ --daemon ]       Run in the background.
-
-OpenMAX IL options:
-  -L [ --comp-list ]         Enumerate all the OpenMAX IL components in the
-                             system.
-  -R [ --roles-of-comp ] arg Display the OpenMAX IL roles found in component
-                             <arg>.
-  -C [ --comps-of-role ] arg Display the OpenMAX IL components that implement
-                             role <arg>.
-
-Audio streaming server options:
-  --server              Stream media files using the SHOUTcast/ICEcast
-                        streaming protocol.
-  -p [ --port ] arg     TCP port to be used for Icecast/SHOUTcast streaming.
-                        Default: 8010.
-  --station-name arg    The Icecast/SHOUTcast station name. Optional.
-  --station-genre arg   The Icecast/SHOUTcast station genre. Optional.
-  --no-icy-metadata     Disables Icecast/SHOUTcast metadata in the stream.
-  --bitrate-modes arg   A comma-separated list of bitrate modes (e.g.
-                        'CBR,VBR'). Only these bitrate omdes will allowed in
-                        the playlist. Default: all.
-  --sampling-rates arg  A comma-separated list of sampling rates. Only these
-                        sampling rates will be allowed in the playlist.
-                        Default: all.
-
-Spotify options:
-  --spotify-user arg     Spotify user name (Optional: may also be provided via
-                         config file).
-  --spotify-password arg Spotify user password (Optional: may also be provided
-                         via config file).
-  --spotify-playlist arg Spotify playlist name.
-
-Google Play Music options:
-  --gmusic-user arg                     Google Play Music user's name (not
-                                        required if provided via config file).
-  --gmusic-password arg                 Google Play Music user's password (not
-                                        required if provided via config file).
-  --gmusic-device-id arg                Google Play Music device id (not
-                                        required if provided via config file).
-  --gmusic-artist arg                   Play tracks from the user's library by
-                                        artist.
-  --gmusic-album arg                    Play tracks from the user's library by
-                                        album.
-  --gmusic-playlist arg                 Play a playlist from the user's
-                                        library.
-  --gmusic-all-access-station arg       Search and play All Access stations
-                                        from the user's library.
-  --gmusic-all-access-album arg         Search and play All Access tracks by
-                                        album (best match only).
-  --gmusic-all-access-artist arg        Search and play All Access tracks by
-                                        artist (best match only).
-  --gmusic-all-access-tracks arg        Search and play All Access tracks by
-                                        name (50 best matches only).
-  --gmusic-all-access-genre arg         Search and play All Access tracks by
-                                        genre.
-  --gmusic-all-access-feeling-lucky-station
-                                        Play the user's All Access 'I'm Feeling
-                                        Lucky' station.
-  --gmusic-all-access-promoted-tracks   Play All Access promoted tracks.
 
 ```
 
