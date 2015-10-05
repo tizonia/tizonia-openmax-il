@@ -49,7 +49,7 @@
 
 static void reset_stream_parameters (mp3d_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   mad_frame_mute (&ap_prc->frame_);
   mad_synth_mute (&ap_prc->synth_);
   tiz_mem_set (ap_prc->in_buff_, 0, INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD);
@@ -61,7 +61,7 @@ static void reset_stream_parameters (mp3d_prc_t *ap_prc)
 
 static void init_mad_decoder (mp3d_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   mad_stream_init (&ap_prc->stream_);
   mad_frame_init (&ap_prc->frame_);
   mad_synth_init (&ap_prc->synth_);
@@ -70,7 +70,7 @@ static void init_mad_decoder (mp3d_prc_t *ap_prc)
 
 static void deinit_mad_decoder (mp3d_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   mad_synth_finish (&ap_prc->synth_);
   mad_frame_finish (&ap_prc->frame_);
   mad_stream_finish (&ap_prc->stream_);
@@ -80,11 +80,11 @@ static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
 {
   mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
-      if (NULL != p_obj->p_inhdr_)
+      if (p_obj->p_inhdr_)
         {
           p_obj->p_inhdr_->nOffset = 0;
           tiz_check_omx_err (tiz_krn_release_buffer (
@@ -97,11 +97,12 @@ static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
 
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX == a_pid)
     {
-      if (NULL != p_obj->p_outhdr_)
+      if (p_obj->p_outhdr_)
         {
           TIZ_TRACE (handleOf (p_obj),
-                     "Releasing output HEADER [%p] nFilledLen [%d]",
-                     p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen);
+                     "Releasing output HEADER [%p] nFilledLen [%d] nAllocLen [%d]",
+                     p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen,
+                     p_obj->p_outhdr_->nAllocLen);
           tiz_check_omx_err (tiz_krn_release_buffer (
               tiz_get_krn (handleOf (ap_obj)),
               ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX, p_obj->p_outhdr_));
@@ -120,7 +121,7 @@ static OMX_ERRORTYPE store_metadata (mp3d_prc_t *ap_prc,
   size_t metadata_len = 0;
   size_t info_len = 0;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (ap_header_name && ap_header_info)
     {
       info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
@@ -164,8 +165,8 @@ static void store_stream_metadata (mp3d_prc_t *ap_prc,
 {
   const char *Layer, *Mode, *Emphasis;
 
-  assert (NULL != ap_prc);
-  assert (NULL != Header);
+  assert (ap_prc);
+  assert (Header);
 
   /* Convert the layer number to it's printed representation. */
   switch (Header->layer)
@@ -312,8 +313,8 @@ static size_t read_from_omx_buffer (const mp3d_prc_t *ap_prc, void *ap_dst,
 {
   size_t to_read = bytes;
 
-  assert (NULL != ap_dst);
-  assert (NULL != ap_hdr);
+  assert (ap_dst);
+  assert (ap_hdr);
 
   if (bytes > 0)
     {
@@ -342,7 +343,7 @@ static OMX_ERRORTYPE update_pcm_mode (mp3d_prc_t *ap_prc,
                                       const OMX_U32 a_samplerate,
                                       const OMX_U32 a_channels)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (a_samplerate != ap_prc->pcmmode_.nSamplingRate
       || a_channels != ap_prc->pcmmode_.nChannels)
     {
@@ -413,11 +414,20 @@ static int synthesize_samples (const void *ap_obj, int next_sample)
                                  p_prc->pcmmode_.nChannels);
         }
 
-      /* release the output buffer if it is full. */
+      /* release the output buffer if it is full, or if we are at the early stages
+         of the decoding */
       if (p_output == p_bufend)
         {
           p_output = p_prc->p_outhdr_->pBuffer;
           p_prc->p_outhdr_->nFilledLen = p_prc->p_outhdr_->nAllocLen;
+          (void)release_headers (p_prc, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
+          buffer_full = true;
+        }
+      else if (p_prc->frame_count_ < 5
+               && p_prc->p_outhdr_->nFilledLen
+               >= (int)(ARATELIA_MP3_DECODER_PORT_MIN_OUTPUT_BUF_SIZE * .2))
+        {
+          p_output = p_prc->p_outhdr_->pBuffer;
           (void)release_headers (p_prc, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX);
           buffer_full = true;
         }
@@ -440,9 +450,9 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
   unsigned char *p_guardzone = NULL;
   int status = 0;
 
-  assert (NULL != p_obj->p_outhdr_);
+  assert (p_obj->p_outhdr_);
 
-  if (NULL != p_obj->p_inhdr_)
+  if (p_obj->p_inhdr_)
     {
       if ((p_obj->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
         {
@@ -460,7 +470,7 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
           = synthesize_samples (p_obj, p_obj->next_synth_sample_);
     }
 
-  while (NULL != p_obj->p_outhdr_)
+  while (p_obj->p_outhdr_)
     {
 
       /* The input bucket must be filled if it becomes empty or if
@@ -619,7 +629,7 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
 static bool claim_input_buffer (mp3d_prc_t *ap_prc)
 {
   bool rc = false;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (!ap_prc->in_port_disabled_)
     {
@@ -627,7 +637,7 @@ static bool claim_input_buffer (mp3d_prc_t *ap_prc)
           == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)), 0, 0,
                                    &ap_prc->p_inhdr_))
         {
-          if (NULL != ap_prc->p_inhdr_)
+          if (ap_prc->p_inhdr_)
             {
               TIZ_TRACE (handleOf (ap_prc),
                          "Claimed INPUT HEADER [%p]...nFilledLen [%d] "
@@ -636,6 +646,10 @@ static bool claim_input_buffer (mp3d_prc_t *ap_prc)
                          ap_prc->p_outhdr_,
                          ap_prc->p_outhdr_ ? ap_prc->p_outhdr_->nFilledLen : 0);
               rc = true;
+            }
+          else
+            {
+              TIZ_TRACE (handleOf (ap_prc), "No INPUT headers available");
             }
         }
     }
@@ -646,7 +660,7 @@ static bool claim_input_buffer (mp3d_prc_t *ap_prc)
 static bool claim_output_buffer (mp3d_prc_t *ap_prc)
 {
   bool rc = false;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (!ap_prc->out_port_disabled_)
     {
@@ -654,7 +668,7 @@ static bool claim_output_buffer (mp3d_prc_t *ap_prc)
           == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)), 1, 0,
                                    &ap_prc->p_outhdr_))
         {
-          if (NULL != ap_prc->p_outhdr_)
+          if (ap_prc->p_outhdr_)
             {
               TIZ_TRACE (handleOf (ap_prc),
                          "Claimed OUTPUT HEADER [%p] BUFFER [%p] "
@@ -662,6 +676,10 @@ static bool claim_output_buffer (mp3d_prc_t *ap_prc)
                          ap_prc->p_outhdr_, ap_prc->p_outhdr_->pBuffer,
                          ap_prc->p_outhdr_->nFilledLen);
               rc = true;
+            }
+          else
+            {
+              TIZ_TRACE (handleOf (ap_prc), "No OUTPUT headers available");
             }
         }
     }
@@ -712,7 +730,7 @@ static OMX_ERRORTYPE mp3d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   mp3d_prc_t *p_prc = ap_obj;
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   /* NOTE: init the decoder here, as it might have been de-inited in a
      transition Exe->Idle */
@@ -752,7 +770,7 @@ static OMX_ERRORTYPE mp3d_proc_stop_and_return (void *ap_obj)
 {
   mp3d_prc_t *p_obj = ap_obj;
   char buffer[80];
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   mad_timer_string (p_obj->timer_, buffer, "%lu:%02lu.%03u", MAD_UNITS_MINUTES,
                     MAD_UNITS_MILLISECONDS, 0);
   TIZ_TRACE (handleOf (p_obj), "%lu frames decoded (%s)", p_obj->frame_count_,
@@ -771,7 +789,7 @@ static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
 {
   mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (handleOf (p_obj), "buffers ready");
 
@@ -802,7 +820,7 @@ static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
         }
     }
 
-  if (p_obj->eos_ && NULL != p_obj->p_outhdr_)
+  if (p_obj->eos_ && p_obj->p_outhdr_)
     {
       /* EOS has been received and all the input data has been consumed
        * already, so its time to propagate the EOS flag */
@@ -827,7 +845,7 @@ static OMX_ERRORTYPE mp3d_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
   mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
       reset_stream_parameters (p_obj);
@@ -844,7 +862,7 @@ static OMX_ERRORTYPE mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE mp3d_proc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 {
   mp3d_prc_t *p_obj = (mp3d_prc_t *)ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
       reset_stream_parameters (p_obj);

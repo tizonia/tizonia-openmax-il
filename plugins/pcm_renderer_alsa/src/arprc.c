@@ -85,16 +85,16 @@
     }                                                      \
   while (0)
 
-#define log_alsa_pcm_state(ap_obj)                                        \
-  do                                                                      \
-    {                                                                     \
-      const ar_prc_t *ap_prc = ap_obj;                                    \
+#define log_alsa_pcm_state(ap_obj)                                         \
+  do                                                                       \
+    {                                                                      \
+      const ar_prc_t *ap_prc = ap_obj;                                     \
       if (ap_prc && ap_prc->p_pcm_)                                        \
-        {                                                                 \
-          TIZ_DEBUG (handleOf (ap_prc), "ALSA PCM state : [%s]",          \
+        {                                                                  \
+          TIZ_DEBUG (handleOf (ap_prc), "ALSA PCM state : [%s]",           \
                      snd_pcm_state_name (snd_pcm_state (ap_prc->p_pcm_))); \
-        }                                                                 \
-    }                                                                     \
+        }                                                                  \
+    }                                                                      \
   while (0)
 
 /* Forward declaration */
@@ -304,7 +304,6 @@ static inline OMX_ERRORTYPE start_io_watcher (ar_prc_t *ap_prc)
       rc = tiz_srv_io_watcher_start (ap_prc, ap_prc->p_ev_io_);
     }
   ap_prc->awaiting_io_ev_ = true;
-  TIZ_DEBUG (handleOf (ap_prc), "io watcher : [RUNNING]");
   return rc;
 }
 
@@ -317,7 +316,6 @@ static inline OMX_ERRORTYPE stop_io_watcher (ar_prc_t *ap_prc)
       rc = tiz_srv_io_watcher_stop (ap_prc, ap_prc->p_ev_io_);
     }
   ap_prc->awaiting_io_ev_ = false;
-  TIZ_DEBUG (handleOf (ap_prc), "io watcher : [STOPPED]");
   return rc;
 }
 
@@ -676,9 +674,9 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
   step = (ap_prc->pcmmode.nBitPerSample / 8) * ap_prc->pcmmode.nChannels;
   assert (ap_hdr->nFilledLen > 0);
   samples_per_channel = ap_hdr->nFilledLen / step;
-  TIZ_TRACE (handleOf (ap_prc),
-             "Rendering HEADER [%p]... step [%d], samples per channel [%u] nFilledLen [%d]",
-             ap_hdr, step, samples_per_channel, ap_hdr->nFilledLen);
+/*   TIZ_TRACE (handleOf (ap_prc), */
+/*              "Rendering HEADER [%p]... step [%d], samples per channel [%u] nFilledLen [%d]", */
+/*              ap_hdr, step, samples_per_channel, ap_hdr->nFilledLen); */
 
   adjust_gain (ap_prc, ap_hdr, samples_per_channel);
   swap_byte_order (ap_prc, ap_hdr);
@@ -692,10 +690,12 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
       if (-EAGAIN == err)
         {
           /* got -EAGAIN, alsa buffers are full */
+          TIZ_TRACE (handleOf (ap_prc), "-EAGAIN");
           rc = OMX_ErrorNoMore;
         }
       else if (err < 0)
         {
+          TIZ_TRACE (handleOf (ap_prc), "err");
           /* This should handle -EINTR (interrupted system call), -EPIPE
            * (overrun or underrun) and -ESTRPIPE (stream is suspended) */
           err = snd_pcm_recover (ap_prc->p_pcm_, (int)err, 0);
@@ -708,16 +708,13 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
         }
       else
         {
+          TIZ_TRACE (handleOf (ap_prc), "normal");
           ap_hdr->nOffset += err * step;
           ap_hdr->nFilledLen -= err * step;
           samples_per_channel -= err;
         }
     }
 
-  if (OMX_ErrorNone == rc)
-    {
-      ap_hdr->nFilledLen = 0;
-    }
   return rc;
 }
 
@@ -739,6 +736,15 @@ static OMX_BUFFERHEADERTYPE *get_header (ar_prc_t *ap_prc)
                          "Claimed HEADER [%p]...nFilledLen [%d]",
                          ap_prc->p_inhdr_, ap_prc->p_inhdr_->nFilledLen);
             }
+          else
+            {
+              TIZ_TRACE (handleOf (ap_prc), "No INPUT headers available");
+            }
+        }
+      else
+        {
+          TIZ_TRACE (handleOf (ap_prc), "Using HEADER [%p]...nFilledLen [%d]",
+                     ap_prc->p_inhdr_, ap_prc->p_inhdr_->nFilledLen);
         }
       p_hdr = ap_prc->p_inhdr_;
     }
@@ -770,7 +776,7 @@ static OMX_ERRORTYPE render_pcm_data (ar_prc_t *ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  while (((p_hdr = get_header (ap_prc))) && OMX_ErrorNone == rc)
+  while (OMX_ErrorNone == rc && (p_hdr = get_header (ap_prc)))
     {
       if (p_hdr->nFilledLen > 0)
         {
@@ -786,7 +792,6 @@ static OMX_ERRORTYPE render_pcm_data (ar_prc_t *ap_prc)
 
   if (OMX_ErrorNoMore == rc)
     {
-      TIZ_DEBUG (handleOf (ap_prc), "OMX_ErrorNoMore");
       tiz_check_omx_err (start_io_watcher (ap_prc));
       rc = OMX_ErrorNone;
     }
@@ -998,13 +1003,18 @@ static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_prc)
 
 static OMX_ERRORTYPE ar_prc_buffers_ready (const void *ap_prc)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   ar_prc_t *p_prc = (ar_prc_t *)ap_prc;
   assert (p_prc);
   TIZ_TRACE (handleOf (p_prc),
              "Received buffer ready notification - "
              "awaiting_io_ev [%s]",
              p_prc->awaiting_io_ev_ ? "YES" : "NO");
-  return render_pcm_data (p_prc);
+  if (!p_prc->awaiting_io_ev_)
+    {
+      rc = render_pcm_data (p_prc);
+    }
+  return rc;
 }
 
 static OMX_ERRORTYPE ar_prc_io_ready (void *ap_prc, tiz_event_io_t *ap_ev_io,
@@ -1012,10 +1022,10 @@ static OMX_ERRORTYPE ar_prc_io_ready (void *ap_prc, tiz_event_io_t *ap_ev_io,
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   ar_prc_t *p_prc = ap_prc;
-  TIZ_TRACE (handleOf (p_prc), "Received io event on fd [%d]", a_fd);
   if (p_prc->awaiting_io_ev_)
     {
       p_prc->awaiting_io_ev_ = false;
+      TIZ_TRACE (handleOf (ap_prc), "io received");
       rc = render_pcm_data (ap_prc);
     }
   return rc;
@@ -1025,7 +1035,6 @@ static OMX_ERRORTYPE ar_prc_timer_ready (void *ap_prc,
                                          tiz_event_timer_t *ap_ev_timer,
                                          void *ap_arg, const uint32_t a_id)
 {
-  TIZ_TRACE (handleOf (ap_prc), "Received timer event");
   return apply_ramp_step (ap_prc);
 }
 
