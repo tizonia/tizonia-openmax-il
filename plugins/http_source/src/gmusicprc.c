@@ -81,8 +81,8 @@ static inline bool is_valid_character (const char c)
 
 static void obtain_coding_type (gmusic_prc_t *ap_prc, char *ap_info)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_info);
+  assert (ap_prc);
+  assert (ap_info);
 
   TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", ap_info);
 
@@ -102,9 +102,9 @@ static int convert_str_to_int (gmusic_prc_t *ap_prc, const char *ap_start,
                                char **ap_end)
 {
   long val = -1;
-  assert (NULL != ap_prc);
-  assert (NULL != ap_start);
-  assert (NULL != ap_end);
+  assert (ap_prc);
+  assert (ap_start);
+  assert (ap_end);
 
   errno = 0;
   val = strtol (ap_start, ap_end, 0);
@@ -131,8 +131,8 @@ static void obtain_content_length (gmusic_prc_t *ap_prc, char *ap_info)
 {
   char *p_end = NULL;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_info);
+  assert (ap_prc);
+  assert (ap_info);
   ap_prc->content_length_bytes_ = convert_str_to_int (ap_prc, ap_info, &p_end);
   ap_prc->bytes_before_eos_ = ap_prc->content_length_bytes_;
   TIZ_TRACE (handleOf (ap_prc), "content length  : [%d]", ap_prc->content_length_bytes_);
@@ -141,7 +141,7 @@ static void obtain_content_length (gmusic_prc_t *ap_prc, char *ap_info)
 static OMX_ERRORTYPE set_audio_coding_on_port (gmusic_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (
@@ -159,7 +159,7 @@ static OMX_ERRORTYPE set_audio_coding_on_port (gmusic_prc_t *ap_prc)
 
 static void update_cache_size (gmusic_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (ap_prc->bitrate_ > 0);
   ap_prc->cache_bytes_ = ((ap_prc->bitrate_ * 1000) / 8)
                          * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
@@ -179,7 +179,7 @@ static OMX_ERRORTYPE store_metadata (gmusic_prc_t *ap_prc,
   size_t metadata_len = 0;
   size_t info_len = 0;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (ap_header_name && ap_header_info)
     {
       info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
@@ -222,8 +222,8 @@ static void obtain_audio_encoding_from_headers (gmusic_prc_t *ap_prc,
                                                 const char *ap_header,
                                                 const size_t a_size)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_header);
+  assert (ap_prc);
+  assert (ap_header);
   {
     const char *p_end = ap_header + a_size;
     const char *p_value = (const char *)memchr (ap_header, ':', a_size);
@@ -274,7 +274,7 @@ static void obtain_audio_encoding_from_headers (gmusic_prc_t *ap_prc,
 
 static void send_port_auto_detect_events (gmusic_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
       || ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
     {
@@ -298,7 +298,7 @@ static void send_port_auto_detect_events (gmusic_prc_t *ap_prc)
 
 static inline void delete_uri (gmusic_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
   ap_prc->p_uri_param_ = NULL;
 }
@@ -308,8 +308,8 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_gmusic_);
+  assert (ap_prc);
+  assert (ap_prc->p_gmusic_);
 
   if (!ap_prc->p_uri_param_)
     {
@@ -401,7 +401,7 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
 
 static OMX_ERRORTYPE release_buffer (gmusic_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (ap_prc->p_outhdr_)
     {
@@ -437,8 +437,8 @@ static OMX_ERRORTYPE release_buffer (gmusic_prc_t *ap_prc)
 static void buffer_filled (OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_arg)
 {
   gmusic_prc_t *p_prc = ap_arg;
-  assert (NULL != p_prc);
-  assert (NULL != ap_hdr);
+  assert (p_prc);
+  assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
   ap_hdr->nOffset = 0;
   (void)release_buffer (p_prc);
@@ -448,11 +448,11 @@ static OMX_BUFFERHEADERTYPE *buffer_wanted (OMX_PTR ap_arg)
 {
   gmusic_prc_t *p_prc = ap_arg;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (!p_prc->port_disabled_)
     {
-      if (NULL != p_prc->p_outhdr_)
+      if (p_prc->p_outhdr_)
         {
           p_hdr = p_prc->p_outhdr_;
         }
@@ -463,12 +463,16 @@ static OMX_BUFFERHEADERTYPE *buffer_wanted (OMX_PTR ap_arg)
                                         ARATELIA_HTTP_SOURCE_PORT_INDEX, 0,
                                         &p_prc->p_outhdr_)))
             {
-              if (NULL != p_prc->p_outhdr_)
+              if (p_prc->p_outhdr_)
                 {
                   TIZ_TRACE (handleOf (p_prc),
                              "Claimed HEADER [%p]...nFilledLen [%d]",
                              p_prc->p_outhdr_, p_prc->p_outhdr_->nFilledLen);
                   p_hdr = p_prc->p_outhdr_;
+                }
+              else
+                {
+                  TIZ_TRACE (handleOf (p_prc), "No more headers available");
                 }
             }
         }
@@ -480,13 +484,9 @@ static void header_available (OMX_PTR ap_arg, const void *ap_ptr,
                               const size_t a_nbytes)
 {
   gmusic_prc_t *p_prc = ap_arg;
-  assert (NULL != p_prc);
-  assert (NULL != ap_ptr);
-
-/*   if (p_prc->auto_detect_on_) */
-    {
-      obtain_audio_encoding_from_headers (p_prc, ap_ptr, a_nbytes);
-    }
+  assert (p_prc);
+  assert (ap_ptr);
+  obtain_audio_encoding_from_headers (p_prc, ap_ptr, a_nbytes);
 }
 
 static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
@@ -494,8 +494,8 @@ static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
 {
   gmusic_prc_t *p_prc = ap_arg;
   bool pause_needed = false;
-  assert (NULL != p_prc);
-  assert (NULL != ap_ptr);
+  assert (p_prc);
+  assert (ap_ptr);
 
   if (p_prc->auto_detect_on_ && a_nbytes > 0)
     {
@@ -515,7 +515,7 @@ static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
 static bool connection_lost (OMX_PTR ap_arg)
 {
   gmusic_prc_t *p_prc = ap_arg;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "Connection lost");
   if (p_prc->bytes_before_eos_ > 0)
     {
@@ -529,7 +529,7 @@ static bool connection_lost (OMX_PTR ap_arg)
 static OMX_ERRORTYPE prepare_for_port_auto_detection (gmusic_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (
@@ -565,8 +565,8 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
 {
   int rc = 1;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_gmusic_);
+  assert (ap_prc);
+  assert (ap_prc->p_gmusic_);
 
   {
     const char *p_playlist = (const char *)ap_prc->playlist_.cPlaylistName;
@@ -662,7 +662,7 @@ static OMX_ERRORTYPE gmusic_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   gmusic_prc_t *p_prc = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
-  assert (NULL != p_prc);
+  assert (p_prc);
   tiz_check_omx_err (retrieve_session_configuration (p_prc));
   tiz_check_omx_err (retrieve_playlist (p_prc));
 
@@ -687,7 +687,7 @@ static OMX_ERRORTYPE gmusic_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE gmusic_prc_deallocate_resources (void *ap_prc)
 {
   gmusic_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   httpsrc_trans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
   delete_uri (p_prc);
@@ -700,7 +700,7 @@ static OMX_ERRORTYPE gmusic_prc_prepare_to_transfer (void *ap_prc,
                                                      OMX_U32 a_pid)
 {
   gmusic_prc_t *p_prc = ap_prc;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   p_prc->eos_ = false;
   httpsrc_trans_cancel (p_prc->p_trans_);
   httpsrc_trans_set_internal_buffer_size (p_prc->p_trans_, p_prc->cache_bytes_);
@@ -712,7 +712,7 @@ static OMX_ERRORTYPE gmusic_prc_transfer_and_process (void *ap_prc,
 {
   gmusic_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (p_prc->auto_detect_on_)
     {
       rc = httpsrc_trans_start (p_prc->p_trans_);
@@ -723,7 +723,7 @@ static OMX_ERRORTYPE gmusic_prc_transfer_and_process (void *ap_prc,
 static OMX_ERRORTYPE gmusic_prc_stop_and_return (void *ap_prc)
 {
   gmusic_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (p_prc->p_trans_)
     {
       httpsrc_trans_pause (p_prc->p_trans_);
@@ -739,7 +739,7 @@ static OMX_ERRORTYPE gmusic_prc_stop_and_return (void *ap_prc)
 static OMX_ERRORTYPE gmusic_prc_buffers_ready (const void *ap_prc)
 {
   gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   return httpsrc_trans_on_buffers_ready (p_prc->p_trans_);
 }
 
@@ -748,7 +748,7 @@ static OMX_ERRORTYPE gmusic_prc_io_ready (void *ap_prc,
                                           int a_events)
 {
   gmusic_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   return httpsrc_trans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
 }
 
@@ -757,7 +757,7 @@ static OMX_ERRORTYPE gmusic_prc_timer_ready (void *ap_prc,
                                              void *ap_arg, const uint32_t a_id)
 {
   gmusic_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   return httpsrc_trans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
 }
 
@@ -786,7 +786,7 @@ static OMX_ERRORTYPE gmusic_prc_port_disable (const void *ap_obj,
                                               OMX_U32 TIZ_UNUSED (a_pid))
 {
   gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "Disabling port was disabled? [%s]",
               p_prc->port_disabled_ ? "YES" : "NO");
   TIZ_PRINTF_DBG_RED ("Disabling port was disabled? [%s]\n",
@@ -805,7 +805,7 @@ static OMX_ERRORTYPE gmusic_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
   gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "Enabling port [%d] was disabled? [%s]", a_pid,
               p_prc->port_disabled_ ? "YES" : "NO");
   TIZ_PRINTF_DBG_RED ("Enabling port was disabled? [%s]\n",
@@ -833,7 +833,7 @@ static OMX_ERRORTYPE gmusic_prc_config_change (void *ap_prc,
   gmusic_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "");
   TIZ_PRINTF_DBG_RED ("Config change\n");
 
