@@ -15,4 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-watch -n60 smem -p --processfilter=^tizonia
+#
+# Simple smem wrapper for the tizonia process
+#
+
+declare -ar TIZONIA_SMEM_DEPS=( \
+    'watch' \
+    'smem' \
+)
+
+# Check dependencies
+for cmd in "${TIZONIA_SMEM_DEPS[@]}"; do
+    command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
+done
+
+watch -n60 'smem -p --processfilter="^tizonia "'

@@ -13,11 +13,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Simple tail wrapper
-#
-# TODO: Generalize by taking the path to the tizonia log file as argument
 
-tail -F ~/temp/tizonia.log.0 | cut -c 50- | sed 's/httpsrctrans.c//g' | sed 's/gmusicprc.c//g' | grcat conf.tizonia
+#
+# Simple tail wrapper that uses the grcat colorizer
+#
 
+TIZONIA_GRCAT_CONFIG="$TIZONIA_REPO_DIR"/tools/tizonia.grcat.conf
+TIZONIA_LOG_FILE="$HOME"/temp/tizonia.log.0
+
+declare -ar TIZONIA_TAIL_DEPS=( \
+    'tail' \
+    'cut' \
+    'grcat' \
+)
+
+# Check dependencies
+for cmd in "${TIZONIA_TAIL_DEPS[@]}"; do
+    command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
+done
+
+tail -F "$TIZONIA_LOG_FILE" | cut -c 48- | grcat "$TIZONIA_GRCAT_CONFIG"
+
+# tail -F "$TIZONIA_LOG_FILE" | cut -c 50- | sed 's/httpsrctrans.c//g' | sed 's/gmusicprc.c//g' | grcat "$TIZONIA_GRCAT_CONFIG"
 # grep -E "debug_cback|socket_cback|write_cback|timer_cback" |

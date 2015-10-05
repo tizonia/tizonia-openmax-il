@@ -16,26 +16,27 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Simple utility to take a backtrace on every thread in the tizonia running
-# process (assumed only one is running)
+# Simple utility that takes a backtrace on every thread in the tizonia running
+# process (assumed only one process running).
 #
 # TODO: Generalize for multiple running tizonia processes by taking a PID
-# argument
-# TODO: Cleanup, remove unused functions.
+# argument.
 #
 
-usage() {
-    cat<<EOF
-Usage: ${0} program_name [program_args]
+declare -ar TIZONIA_BACKTRACE_DEPS=( \
+    'gdb' \
+    'tee' \
+    'sudo' \
+)
 
-Trace a given program using gdb.
-
-EOF
-}
-
-log() {
+function log {
     echo "${*}" 1>&2
 }
+
+# Check dependencies
+for cmd in "${TIZONIA_BACKTRACE_DEPS[@]}"; do
+    command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
+done
 
 TIZONIA_PID=$(pidof tizonia)
 LOG="/tmp/tizonia-backtrace-$TIZONIA_PID.txt"
@@ -61,4 +62,3 @@ exec gdb \
     < /dev/null
 
 echo 1 | sudo tee /proc/sys/kernel/yama/ptrace_scope
-

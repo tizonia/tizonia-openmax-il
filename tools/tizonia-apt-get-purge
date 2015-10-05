@@ -16,8 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Simple script to remove/purge all tizonia packages installed in the
-# system
+# Remove/purge all tizonia packages installed in the system
 #
 
 sudo apt-get -y remove --purge tizonia-all && sudo apt-get -y autoremove

@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Simple script to install tizonia
+# Install tizonia in a debian-like system
 #
 
 sudo apt-get -y install tizonia-all
