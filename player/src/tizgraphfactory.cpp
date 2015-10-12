@@ -35,16 +35,16 @@
 #include <boost/make_shared.hpp>
 #include <boost/filesystem.hpp>
 
+#include "decoders/tizmp3graph.hpp"
+#include "decoders/tizaacgraph.hpp"
+#include "decoders/tizopusgraph.hpp"
+#include "decoders/tizoggopusgraph.hpp"
+#include "decoders/tizvorbisgraph.hpp"
+#include "decoders/tizflacgraph.hpp"
+#include "decoders/tizoggflacgraph.hpp"
+#include "decoders/tizpcmgraph.hpp"
+#include "decoders/tizmpeggraph.hpp"
 #include "tizprobe.hpp"
-#include "tizmp3graph.hpp"
-#include "tizaacgraph.hpp"
-#include "tizopusgraph.hpp"
-#include "tizoggopusgraph.hpp"
-#include "tizvorbisgraph.hpp"
-#include "tizflacgraph.hpp"
-#include "tizoggflacgraph.hpp"
-#include "tizpcmgraph.hpp"
-#include "tizmpeggraph.hpp"
 #include "tizgraphfactory.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME

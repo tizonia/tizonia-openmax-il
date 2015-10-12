@@ -53,7 +53,7 @@
 #include "tizgraphtypes.hpp"
 #include "tizgraphmgr.hpp"
 #include "tizomxutil.hpp"
-#include "tizdecgraphmgr.hpp"
+#include "decoders/tizdecgraphmgr.hpp"
 #include "httpserv/tizhttpservconfig.hpp"
 #include "httpserv/tizhttpservmgr.hpp"
 #include "httpclnt/tizhttpclntmgr.hpp"

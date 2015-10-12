@@ -34,7 +34,6 @@ noinst_HEADERS = \
 	tizgraphmgrops.hpp \
 	tizgraphmgrfsm.hpp \
 	tizgraphmgr.hpp \
-	tizdecgraphmgr.hpp \
 	tizgraphfsm.hpp \
 	tizgraphevt.hpp \
 	tizgraphguard.hpp \
@@ -43,19 +42,20 @@ noinst_HEADERS = \
 	tizgraphcmd.hpp \
 	tizgraphops.hpp \
 	tizgraph.hpp \
-	tizdecgraph.hpp \
-	tizmp3graph.hpp \
-	tizaacgraph.hpp \
-	tizopusgraph.hpp \
-	tizoggopusgraph.hpp \
-	tizvorbisgraph.hpp \
-	tizflacgraph.hpp \
-	tizoggflacgraph.hpp \
-	tizpcmgraph.hpp \
-	tizmpeggraph.hpp \
 	tizgraphmgrcaps.hpp \
 	tizplaybackstatus.hpp \
 	tizplaybackevents.hpp \
+	decoders/tizdecgraphmgr.hpp \
+	decoders/tizdecgraph.hpp \
+	decoders/tizmp3graph.hpp \
+	decoders/tizaacgraph.hpp \
+	decoders/tizopusgraph.hpp \
+	decoders/tizoggopusgraph.hpp \
+	decoders/tizvorbisgraph.hpp \
+	decoders/tizflacgraph.hpp \
+	decoders/tizoggflacgraph.hpp \
+	decoders/tizpcmgraph.hpp \
+	decoders/tizmpeggraph.hpp \
 	httpserv/tizhttpservconfig.hpp \
 	httpserv/tizhttpservgraph.hpp \
 	httpserv/tizhttpservgraphfsm.hpp \
@@ -96,21 +96,21 @@ tizonia_SOURCES = \
 	tizgraphmgrops.cpp \
 	tizgraphmgrfsm.cpp \
 	tizgraphmgr.cpp \
-	tizdecgraphmgr.cpp \
 	tizgraphfsm.cpp \
 	tizgraphops.cpp \
 	tizgraphcmd.cpp \
 	tizgraph.cpp \
-	tizdecgraph.cpp \
-	tizmp3graph.cpp \
-	tizaacgraph.cpp \
-	tizopusgraph.cpp \
-	tizoggopusgraph.cpp \
-	tizvorbisgraph.cpp \
-	tizflacgraph.cpp \
-	tizoggflacgraph.cpp \
-	tizpcmgraph.cpp \
-	tizmpeggraph.cpp \
+	decoders/tizdecgraphmgr.cpp \
+	decoders/tizdecgraph.cpp \
+	decoders/tizmp3graph.cpp \
+	decoders/tizaacgraph.cpp \
+	decoders/tizopusgraph.cpp \
+	decoders/tizoggopusgraph.cpp \
+	decoders/tizvorbisgraph.cpp \
+	decoders/tizflacgraph.cpp \
+	decoders/tizoggflacgraph.cpp \
+	decoders/tizpcmgraph.cpp \
+	decoders/tizmpeggraph.cpp \
 	httpserv/tizhttpservmgr.cpp \
 	httpserv/tizhttpservgraph.cpp \
 	httpserv/tizhttpservgraphfsm.cpp \
