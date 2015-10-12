@@ -109,11 +109,8 @@ int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album,
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @note Only tracks in the user's library are added. All Access tracks are
- * not included.
- *
  * @param ap_gmusic The gmusic handle.
- * @param ap_album The artist name
+ * @param ap_artist The artist name
  * @param a_all_access_search If true, All Access albums are
  * included. Otherwise, only albums from the user's library are considered.
  *
@@ -128,13 +125,10 @@ int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist,
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @note Only tracks in the user's library are added. All Access tracks are
- * not included.
- *
  * @param ap_gmusic The gmusic handle.
- * @param ap_album The artist name
- * @param a_all_access_search If true, All Access albums are
- * included. Otherwise, only albums from the user's library are considered.
+ * @param ap_playlist The playlist name
+ * @param a_all_access_search If true, All Access playlists are
+ * included. Otherwise, only playlists from the user's library are considered.
  *
  * @return 0 on success
  */
@@ -150,7 +144,7 @@ int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist,
  * @note An All Access subscription is required.
  *
  * @param ap_gmusic The gmusic handle.
- * @param ap_album The station name
+ * @param ap_station The station name
  *
  * @return 0 on success
  */
@@ -165,7 +159,7 @@ int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
  * @note An All Access subscription is required.
  *
  * @param ap_gmusic The gmusic handle.
- * @param ap_album The artist name
+ * @param ap_genre The genre
  *
  * @return 0 on success
  */
