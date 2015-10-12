@@ -18,52 +18,44 @@
  */
 
 /**
- * @file   tizdecgraphmgr.hpp
+ * @file   tizgraph.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A manager for decoding graphs
+ * @brief  OpenMAX IL decoder graph
  *
  *
  */
 
-#ifndef TIZDECGRAPHMGR_HPP
-#define TIZDECGRAPHMGR_HPP
+#ifndef TIZDECGRAPH_HPP
+#define TIZDECGRAPH_HPP
 
-#include "tizgraphtypes.hpp"
-#include "tizgraphmgr.hpp"
+#include <boost/any.hpp>
+
+#include "tizgraph.hpp"
 
 namespace tiz
 {
-  namespace graphmgr
+  namespace graph
   {
-    class graphmgr_capabilities;
+    // Forward declarations
+    class cmd;
+    class ops;
 
-    /**
-     *  @class decodemgr
-     *  @brief A manager for decoding graphs.
-     *
-     */
-    class decodemgr : public mgr
+    class decoder : public graph
     {
+
     public:
-      decodemgr ();
-      virtual ~decodemgr ();
+      explicit decoder (const std::string &graph_name);
+      ~decoder ();
 
     protected:
-      ops *do_init (const tizplaylist_ptr_t &playlist,
-                    const termination_callback_t &termination_cback,
-                    graphmgr_capabilities &graphmgr_caps);
+      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
+
+    protected:
+      boost::any fsm_;
     };
 
-    typedef boost::shared_ptr< decodemgr > decodemgr_ptr_t;
-
-    class decodemgrops : public ops
-    {
-    public:
-      decodemgrops (mgr *p_mgr, const tizplaylist_ptr_t &playlist,
-                    const termination_callback_t &termination_cback);
-    };
-  }  // namespace graphmgr
+  }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZDECGRAPHMGR_HPP
+#endif  // TIZDECGRAPH_HPP
