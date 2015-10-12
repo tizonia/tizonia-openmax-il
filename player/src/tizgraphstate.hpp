@@ -50,6 +50,7 @@ namespace tiz
 
     struct inited : public boost::msm::front::state<>
     {
+      typedef boost::mpl::vector<execute_evt> deferred_events;
       // optional entry/exit methods
       template < class Event, class FSM >
       void on_entry (Event const &evt, FSM &fsm)

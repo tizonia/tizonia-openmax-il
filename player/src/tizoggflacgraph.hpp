@@ -29,18 +29,14 @@
 #ifndef TIZOGGFLACGRAPH_HPP
 #define TIZOGGFLACGRAPH_HPP
 
-#include "tizgraph.hpp"
-#include "tizgraphfsm.hpp"
+#include "tizdecgraph.hpp"
 #include "tizgraphops.hpp"
 
 namespace tiz
 {
   namespace graph
   {
-    // Forward declarations
-    class cmd;
-
-    class oggflacdecoder : public graph
+    class oggflacdecoder : public decoder
     {
 
     public:
@@ -48,10 +44,7 @@ namespace tiz
 
     protected:
       ops *do_init ();
-      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
 
-    protected:
-      fsm fsm_;
     };
 
     class oggflacdecops : public ops

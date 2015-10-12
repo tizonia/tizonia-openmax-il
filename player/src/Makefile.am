@@ -43,6 +43,7 @@ noinst_HEADERS = \
 	tizgraphcmd.hpp \
 	tizgraphops.hpp \
 	tizgraph.hpp \
+	tizdecgraph.hpp \
 	tizmp3graph.hpp \
 	tizaacgraph.hpp \
 	tizopusgraph.hpp \
@@ -100,6 +101,7 @@ tizonia_SOURCES = \
 	tizgraphops.cpp \
 	tizgraphcmd.cpp \
 	tizgraph.cpp \
+	tizdecgraph.cpp \
 	tizmp3graph.cpp \
 	tizaacgraph.cpp \
 	tizopusgraph.cpp \

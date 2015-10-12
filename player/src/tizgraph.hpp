@@ -64,7 +64,7 @@ namespace tiz
       friend void *thread_func (void *);
 
     public:
-      graph (const std::string &graph_name);
+      explicit graph (const std::string &graph_name);
       virtual ~graph ();
 
       OMX_ERRORTYPE init ();
