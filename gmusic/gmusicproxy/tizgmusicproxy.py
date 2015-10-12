@@ -149,7 +149,7 @@ class tizgmusicproxy(object):
         self.__update_play_queue_order()
 
     def current_song_title_and_artist(self):
-        """ Retrive the current track's title and artist name.
+        """ Retrieve the current track's title and artist name.
 
         """
         logging.info("current_song_title_and_artist")
@@ -164,7 +164,7 @@ class tizgmusicproxy(object):
             return '', ''
 
     def current_song_album_and_duration(self):
-        """ Retrive the current track's album and duration.
+        """ Retrieve the current track's album and duration.
 
         """
         logging.info("current_song_album_and_duration")
@@ -307,8 +307,8 @@ class tizgmusicproxy(object):
             raise KeyError("Album not found : {0}".format(arg))
 
     def enqueue_playlist(self, arg):
-        """ Search the user's library for playlists with a given name and adds
-        them to the playback queue.
+        """Search the user's library for playlists with a given name and adds the
+        tracks of the first match to the playback queue.
 
         An All Access search is performed.
 
