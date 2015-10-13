@@ -21,7 +21,7 @@
  * @file   tizgmusicgraphops.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Google Music client graph implementation
+ * @brief  Google Play Music client graph actions / operations implementation
  *
  */
 
@@ -451,7 +451,7 @@ graph::gmusicops::set_gmusic_user_and_device_id (const OMX_HANDLETYPE handle,
                                                  const std::string &pass,
                                                  const std::string &device_id)
 {
-  // Set the Google Music user and pass
+  // Set the Google Play Music user and pass
   OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE sessiontype;
   TIZ_INIT_OMX_STRUCT (sessiontype);
   tiz_check_omx_err (OMX_GetParameter (
@@ -470,7 +470,7 @@ OMX_ERRORTYPE
 graph::gmusicops::set_gmusic_playlist (const OMX_HANDLETYPE handle,
                                        const std::string &playlist)
 {
-  // Set the Google Music playlist
+  // Set the Google Play Music playlist
   OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlisttype;
   TIZ_INIT_OMX_STRUCT (playlisttype);
   tiz_check_omx_err (OMX_GetParameter (

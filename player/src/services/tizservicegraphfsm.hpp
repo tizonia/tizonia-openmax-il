@@ -18,15 +18,15 @@
  */
 
 /**
- * @file   tizgmusicgraphfsm.hpp
+ * @file   tizservicegraphfsm.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Google Music client graph fsm
+ * @brief  Generic streaming service client graph fsm
  *
  */
 
-#ifndef TIZGMUSICGRAPHFSM_HPP
-#define TIZGMUSICGRAPHFSM_HPP
+#ifndef TIZSERVICEGRAPHFSM_HPP
+#define TIZSERVICEGRAPHFSM_HPP
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 #define BOOST_MPL_LIMIT_VECTOR_SIZE 40
@@ -49,19 +49,17 @@
 #include "tizgraphguard.hpp"
 #include "tizgraphaction.hpp"
 #include "tizgraphstate.hpp"
-#include "tizgmusicgraphops.hpp"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.gmusic.fsm"
+#define TIZ_LOG_CATEGORY_NAME "tiz.play.graph.service.fsm"
 #endif
 
-#define G_FSM_LOG()                                                     \
-  do                                                                    \
-    {                                                                   \
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ());      \
-    }                                                                   \
-  while(0)
+#define SERVICE_FSM_LOG()                                        \
+  do                                                             \
+  {                                                              \
+    TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", typeid(*this).name ()); \
+  } while (0)
 
 namespace tg = tiz::graph;
 namespace bmf = boost::msm::front;
@@ -70,7 +68,7 @@ namespace tiz
 {
   namespace graph
   {
-    namespace gmfsm
+    namespace servicefsm
     {
       static char const* const state_names[] = { "inited",
                                                  "loaded",
@@ -134,7 +132,7 @@ namespace tiz
         struct auto_detecting_exit : public boost::msm::front::exit_pseudo_state<tg::auto_detected_evt>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
         };
 
         // the initial state. Must be defined
@@ -204,15 +202,15 @@ namespace tiz
         struct updating_graph_initial : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
         };
 
         struct updating_graph_exit : public boost::msm::front::exit_pseudo_state<tg::graph_updated_evt>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
         };
 
         // the initial state. Must be defined
@@ -282,15 +280,15 @@ namespace tiz
         struct reconfiguring_tunnel_initial : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
         };
 
         struct reconfiguring_tunnel_exit : public boost::msm::front::exit_pseudo_state<tg::tunnel_reconfigured_evt>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
         };
 
         // the initial state. Must be defined
@@ -358,17 +356,17 @@ namespace tiz
         struct skipping_initial : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
         };
 
         struct to_idle : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
           OMX_STATETYPE target_omx_state () const
           {
             return OMX_StateIdle;
@@ -378,23 +376,23 @@ namespace tiz
         struct skip_exit : public boost::msm::front::exit_pseudo_state<tiz::graph::skipped_evt>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
         };
 
         struct disabling_2nd_tunnel : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
         };
 
         struct enabling_2nd_tunnel : public boost::msm::front::state<>
         {
           template <class Event,class FSM>
-          void on_entry(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_entry(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
           template <class Event,class FSM>
-          void on_exit(Event const & evt, FSM & fsm) {G_FSM_LOG();}
+          void on_exit(Event const & evt, FSM & fsm) {SERVICE_FSM_LOG();}
         };
 
         // the initial state. Must be defined
@@ -444,7 +442,7 @@ namespace tiz
 
       // guard conditions
 
-      // Transition table for the gmusic client graph fsm
+      // Transition table for the service client graph fsm
       struct transition_table : boost::mpl::vector<
         //       Start                          Event                       Next                      Action                        Guard
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
@@ -559,7 +557,7 @@ namespace tiz
       void no_transition(Event const& e, FSM&,int state)
       {
         TIZ_LOG (TIZ_PRIORITY_ERROR, "no transition from state [%s] on event [%s]",
-                 tg::gmfsm::state_names[state], typeid(e).name());
+                 tg::servicefsm::state_names[state], typeid(e).name());
       }
     };
     // typedef boost::msm::back::state_machine<fsm_, boost::msm::back::mpl_graph_fsm_check> fsm;
@@ -567,8 +565,8 @@ namespace tiz
 
     char const* const pstate(fsm const& p);
 
-    } // namespace gmfsm
+    } // namespace servicefsm
   } // namespace graph
 } // namespace tiz
 
-#endif // TIZGMUSICGRAPHFSM_HPP
+#endif // TIZSERVICEGRAPHFSM_HPP

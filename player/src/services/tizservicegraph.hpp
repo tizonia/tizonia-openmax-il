@@ -18,19 +18,20 @@
  */
 
 /**
- * @file   tizgmusicgraph.hpp
+ * @file   tizservicegraph.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Google Music client graph
+ * @brief  Generic streaming service graph
  *
  *
  */
 
-#ifndef TIZGMUSICGRAPH_HPP
-#define TIZGMUSICGRAPH_HPP
+#ifndef TIZSERVICEGRAPH_HPP
+#define TIZSERVICEGRAPH_HPP
+
+#include <boost/any.hpp>
 
 #include "tizgraph.hpp"
-#include "tizgmusicgraphfsm.hpp"
 
 namespace tiz
 {
@@ -40,20 +41,21 @@ namespace tiz
     class cmd;
     class ops;
 
-    class gmusic : public graph
+    class servicegraph : public graph
     {
 
     public:
-      gmusic ();
+      explicit servicegraph (const std::string &graph_name);
+      ~servicegraph ();
 
     protected:
-      ops *do_init ();
       bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
 
     protected:
-      gmfsm::fsm fsm_;
+      boost::any fsm_;
     };
+
   }  // namespace graph
 }  // namespace tiz
 
-#endif  // TIZGMUSICGRAPH_HPP
+#endif  // TIZSERVICEGRAPH_HPP

@@ -21,7 +21,7 @@
  * @file   tizgmusicmgr.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Implementation of a Manager for the Google Music client graph
+ * @brief  Manager implementation for the Google Play Music client graph
  *
  */
 
@@ -125,7 +125,7 @@ tizgraph_ptr_t graphmgr::gmusicmgrops::get_graph (
     else
     {
       GMGR_OPS_RECORD_ERROR (OMX_ErrorInsufficientResources,
-                             "Unable to create the Google Music client graph.");
+                             "Unable to create the Google Play Music client graph.");
     }
   }
   else

@@ -59,8 +59,8 @@
 #include "httpclnt/tizhttpclntmgr.hpp"
 #include "spotify/tizspotifyconfig.hpp"
 #include "spotify/tizspotifymgr.hpp"
-#include "gmusic/tizgmusicconfig.hpp"
-#include "gmusic/tizgmusicmgr.hpp"
+#include "services/googlemusic/tizgmusicconfig.hpp"
+#include "services/googlemusic/tizgmusicmgr.hpp"
 #include "tizdaemon.hpp"
 
 #include "tizplayapp.hpp"

@@ -21,7 +21,7 @@
  * @file   tizgmusicmgr.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A manager for the gmusic client graph
+ * @brief  Manager for the Google Play Music client graph
  *
  *
  */
@@ -42,7 +42,7 @@ namespace tiz
 
     /**
      *  @class gmusicmgr
-     *  @brief The Google Music client graph manager class.
+     *  @brief The Google Play Music client graph manager class.
      *
      */
     class gmusicmgr : public mgr

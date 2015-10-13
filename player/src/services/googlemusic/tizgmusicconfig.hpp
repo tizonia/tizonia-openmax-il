@@ -21,7 +21,7 @@
  * @file   tizgmusicconfig.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Google Music client graph configuration
+ * @brief  Google Play Music client graph configuration
  *
  *
  */

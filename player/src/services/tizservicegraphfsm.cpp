@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizgmusicgraphfsm.cpp
+ * @file   tizservicegraphfsm.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Google Music client graph fsm
+ * @brief  Generic streaming service client graph fsm
  *
  */
 
@@ -29,10 +29,10 @@
 #include <config.h>
 #endif
 
-#include "tizgmusicgraphfsm.hpp"
+#include "tizservicegraphfsm.hpp"
 
-char const* const tiz::graph::gmfsm::pstate(tiz::graph::gmfsm::fsm const& p)
+char const* const tiz::graph::servicefsm::pstate(tiz::graph::servicefsm::fsm const& p)
 {
-  return tiz::graph::gmfsm::state_names[p.current_state()[0]];
+  return tiz::graph::servicefsm::state_names[p.current_state()[0]];
 }
 

@@ -21,7 +21,7 @@
  * @file   tizgmusicgraphops.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Google Music client graph actions / operations
+ * @brief  Google Play Music client graph actions / operations
  *
  *
  */

@@ -123,10 +123,11 @@ tizonia_SOURCES = \
 	spotify/tizspotifygraphfsm.cpp \
 	spotify/tizspotifygraphops.cpp \
 	spotify/tizspotifymgr.cpp \
-	gmusic/tizgmusicgraph.cpp \
-	gmusic/tizgmusicgraphfsm.cpp \
-	gmusic/tizgmusicgraphops.cpp \
-	gmusic/tizgmusicmgr.cpp \
+	services/tizservicegraph.cpp \
+	services/tizservicegraphfsm.cpp \
+	services/googlemusic/tizgmusicgraph.cpp \
+	services/googlemusic/tizgmusicgraphops.cpp \
+	services/googlemusic/tizgmusicmgr.cpp \
 	tizplaybackevents.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \
@@ -138,6 +139,7 @@ tizonia_CPPFLAGS = \
 	@TIZPLATFORM_CFLAGS@ \
 	-I$(top_srcdir)/dbus \
 	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/src/services \
 	-I/usr/include/taglib \
 	@LIBMEDIAINFO_CFLAGS@ \
 	@DBUS_CFLAGS@ \
