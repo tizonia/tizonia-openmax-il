@@ -301,7 +301,7 @@ typedef struct OMX_TIZONIA_PLAYLISTSKIPTYPE {
 } OMX_TIZONIA_PLAYLISTSKIPTYPE;
 
 /**
- * Google Music source component
+ * Google Play Music source component
  * References:
  *
  */
@@ -336,5 +336,36 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE {
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE;
 
+
+/**
+ * SoundCloud source component
+ * References:
+ *
+ */
+
+typedef enum OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE {
+    OMX_AUDIO_GmusicPlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
+    OMX_AUDIO_GmusicPlaylistTypeUserStream, /**< The user's stream playlist. */
+    OMX_AUDIO_GmusicPlaylistTypeUser, /**< User-defined playlist. */
+    OMX_AUDIO_GmusicPlaylistTypeCreator, /**< Creator playlist. */
+    OMX_AUDIO_GmusicPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_GmusicPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_GmusicPlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U8 cUserName[OMX_MAX_STRINGNAME_SIZE];
+    OMX_U8 cUserPassword[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE ePlaylistType;
+    OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
+    OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE;
 
 #endif /* OMX_TizoniaExt_h */
