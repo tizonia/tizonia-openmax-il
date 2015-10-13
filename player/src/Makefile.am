@@ -70,11 +70,12 @@ noinst_HEADERS = \
 	spotify/tizspotifygraphops.hpp \
 	spotify/tizspotifyconfig.hpp \
 	spotify/tizspotifymgr.hpp \
-	gmusic/tizgmusicgraph.hpp \
-	gmusic/tizgmusicgraphfsm.hpp \
-	gmusic/tizgmusicgraphops.hpp \
-	gmusic/tizgmusicconfig.hpp \
-	gmusic/tizgmusicmgr.hpp \
+	services/tizservicegraph.hpp \
+	services/tizservicegraphfsm.hpp \
+	services/googlemusic/tizgmusicgraph.hpp \
+	services/googlemusic/tizgmusicgraphops.hpp \
+	services/googlemusic/tizgmusicconfig.hpp \
+	services/googlemusic/tizgmusicmgr.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
