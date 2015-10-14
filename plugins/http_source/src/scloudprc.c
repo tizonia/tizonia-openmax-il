@@ -541,14 +541,14 @@ static OMX_ERRORTYPE retrieve_session_configuration (scloud_prc_t *ap_prc)
 {
   return tiz_api_GetParameter (
       tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-      OMX_TizoniaIndexParamAudioScloudSession, &(ap_prc->session_));
+      OMX_TizoniaIndexParamAudioSoundCloudSession, &(ap_prc->session_));
 }
 
 static OMX_ERRORTYPE retrieve_playlist (scloud_prc_t *ap_prc)
 {
   return tiz_api_GetParameter (
       tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-      OMX_TizoniaIndexParamAudioScloudPlaylist, &(ap_prc->playlist_));
+      OMX_TizoniaIndexParamAudioSoundCloudPlaylist, &(ap_prc->playlist_));
 }
 
 static OMX_ERRORTYPE enqueue_playlist_items (scloud_prc_t *ap_prc)
@@ -560,7 +560,6 @@ static OMX_ERRORTYPE enqueue_playlist_items (scloud_prc_t *ap_prc)
 
   {
     const char *p_playlist = (const char *)ap_prc->playlist_.cPlaylistName;
-    const OMX_BOOL is_all_access_search = ap_prc->playlist_.bAllAccessSearch;
     const OMX_BOOL shuffle = ap_prc->playlist_.bShuffle;
 
     tiz_scloud_set_playback_mode (
@@ -570,40 +569,25 @@ static OMX_ERRORTYPE enqueue_playlist_items (scloud_prc_t *ap_prc)
 
     switch (ap_prc->playlist_.ePlaylistType)
       {
-        case OMX_AUDIO_ScloudPlaylistTypeUnknown:
+        case OMX_AUDIO_SoundCloudPlaylistTypeUnknown:
           {
             /* TODO */
             assert (0);
           }
           break;
-        case OMX_AUDIO_ScloudPlaylistTypeUser:
+        case OMX_AUDIO_SoundCloudPlaylistTypeStream:
           {
-            rc = tiz_scloud_play_playlist (ap_prc->p_scloud_, p_playlist, is_all_access_search);
+            rc = tiz_scloud_play_stream (ap_prc->p_scloud_);
           }
           break;
-        case OMX_AUDIO_ScloudPlaylistTypeArtist:
+        case OMX_AUDIO_SoundCloudPlaylistTypeCreator:
           {
-            rc = tiz_scloud_play_artist (ap_prc->p_scloud_, p_playlist, is_all_access_search);
+            rc = tiz_scloud_play_creator (ap_prc->p_scloud_, p_playlist);
           }
           break;
-        case OMX_AUDIO_ScloudPlaylistTypeAlbum:
+        case OMX_AUDIO_SoundCloudPlaylistTypeUserDefined:
           {
-            rc = tiz_scloud_play_album (ap_prc->p_scloud_, p_playlist, is_all_access_search);
-          }
-          break;
-        case OMX_AUDIO_ScloudPlaylistTypeStation:
-          {
-            rc = tiz_scloud_play_station (ap_prc->p_scloud_, p_playlist);
-          }
-          break;
-        case OMX_AUDIO_ScloudPlaylistTypeGenre:
-          {
-            rc = tiz_scloud_play_genre (ap_prc->p_scloud_, p_playlist);
-          }
-          break;
-        case OMX_AUDIO_ScloudPlaylistTypePromotedTracks:
-          {
-            rc = tiz_scloud_play_promoted_tracks (ap_prc->p_scloud_);
+            rc = tiz_scloud_play_playlist (ap_prc->p_scloud_, p_playlist);
           }
           break;
         default:
@@ -659,12 +643,10 @@ static OMX_ERRORTYPE scloud_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   TIZ_TRACE (handleOf (p_prc), "cUserName  : [%s]", p_prc->session_.cUserName);
   TIZ_TRACE (handleOf (p_prc), "cUserPassword  : [%s]",
              p_prc->session_.cUserPassword);
-  TIZ_TRACE (handleOf (p_prc), "cDeviceId  : [%s]", p_prc->session_.cDeviceId);
 
   on_scloud_error_ret_omx_oom (tiz_scloud_init (
       &(p_prc->p_scloud_), (const char *)p_prc->session_.cUserName,
-      (const char *)p_prc->session_.cUserPassword,
-      (const char *)p_prc->session_.cDeviceId));
+      (const char *)p_prc->session_.cUserPassword));
 
   tiz_check_omx_err (enqueue_playlist_items (p_prc));
   tiz_check_omx_err (obtain_next_url (p_prc, 1));

@@ -104,6 +104,16 @@ AS_IF([test "x$tiz_found_gmusic_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZGMUSIC], [libtizgmusic >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZGMUSIC cflags and libs])])
 
+AC_CHECK_HEADERS([tizonia/tizsoundcloud_c.h],
+	[tiz_found_soundcloud_headers=yes; break;])
+AS_IF([test "x$tiz_found_soundcloud_headers" != "xyes"],
+	[AC_SUBST([TIZSOUNDCLOUD_CFLAGS], ['-I$(top_srcdir)/../../soundcloud/libtizsoundcloud/tizonia']),
+	AC_SUBST([TIZSOUNDCLOUD_LIBS], ['$(top_builddir)/../../soundcloud/libtizsoundcloud/tizonia/libtizsoundcloud.la'])],
+	[AC_MSG_NOTICE([Not substituting TIZSOUNDCLOUD cflags and libs with local paths])])
+AS_IF([test "x$tiz_found_soundcloud_headers" == "xyes"],
+	[PKG_CHECK_MODULES([TIZSOUNDCLOUD], [libtizsoundcloud >= 0.1.0])],
+	[AC_MSG_NOTICE([Not using pkg-config to find TIZSOUNDCLOUD cflags and libs])])
+
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.

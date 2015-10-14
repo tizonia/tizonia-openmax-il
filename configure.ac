@@ -43,6 +43,7 @@ AM_CONDITIONAL([HAVE_DOXYGEN],
 AC_CONFIG_FILES([Makefile docs/Makefile])
 AC_CONFIG_SUBDIRS([include
                    gmusic
+                   soundcloud
                    libtizplatform
                    rm
                    libtizcore

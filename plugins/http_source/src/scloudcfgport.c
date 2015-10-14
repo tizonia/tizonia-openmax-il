@@ -56,26 +56,23 @@ static void *scloud_cfgport_ctor (void *ap_obj, va_list *app)
   assert (NULL != p_obj);
 
   tiz_check_omx_err_ret_null (tiz_port_register_index (
-      p_obj, OMX_TizoniaIndexParamAudioScloudSession));
+      p_obj, OMX_TizoniaIndexParamAudioSoundCloudSession));
   tiz_check_omx_err_ret_null (tiz_port_register_index (
-      p_obj, OMX_TizoniaIndexParamAudioScloudPlaylist));
+      p_obj, OMX_TizoniaIndexParamAudioSoundCloudPlaylist));
 
-  /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SCLOUDSESSIONTYPE structure */
+  /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->session_);
   snprintf ((char *)p_obj->session_.cUserName,
             sizeof(p_obj->session_.cUserName), "tizonia");
   snprintf ((char *)p_obj->session_.cUserPassword,
             sizeof(p_obj->session_.cUserPassword), "pass");
-  snprintf ((char *)p_obj->session_.cDeviceId,
-            sizeof(p_obj->session_.cDeviceId), "deviceId");
 
-  /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SCLOUDPLAYLISTTYPE structure */
+  /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
   snprintf ((char *)p_obj->playlist_.cPlaylistName,
             sizeof(p_obj->playlist_.cPlaylistName), "playlist");
-  p_obj->playlist_.ePlaylistType = OMX_AUDIO_ScloudPlaylistTypeUnknown;
+  p_obj->playlist_.ePlaylistType = OMX_AUDIO_SoundCloudPlaylistTypeUnknown;
   p_obj->playlist_.bShuffle = OMX_FALSE;
-  p_obj->playlist_.bAllAccessSearch = OMX_FALSE;
 
   return p_obj;
 }
@@ -103,15 +100,15 @@ scloud_cfgport_GetParameter (const void *ap_obj,
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...", tiz_port_index (ap_obj),
              tiz_idx_to_str (a_index));
 
-  if (OMX_TizoniaIndexParamAudioScloudSession == a_index)
+  if (OMX_TizoniaIndexParamAudioSoundCloudSession == a_index)
     {
       memcpy (ap_struct, &(p_obj->session_),
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SCLOUDSESSIONTYPE));
+              sizeof(OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE));
     }
-  else if (OMX_TizoniaIndexParamAudioScloudPlaylist == a_index)
+  else if (OMX_TizoniaIndexParamAudioSoundCloudPlaylist == a_index)
     {
       memcpy (ap_struct, &(p_obj->playlist_),
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SCLOUDPLAYLISTTYPE));
+              sizeof(OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE));
     }
   else
     {
@@ -136,22 +133,21 @@ scloud_cfgport_SetParameter (const void *ap_obj,
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...", tiz_port_index (ap_obj),
              tiz_idx_to_str (a_index));
 
-  if (OMX_TizoniaIndexParamAudioScloudSession == a_index)
+  if (OMX_TizoniaIndexParamAudioSoundCloudSession == a_index)
     {
       memcpy (&(p_obj->session_), ap_struct,
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SCLOUDSESSIONTYPE));
+              sizeof(OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE));
       p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cDeviceId[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      TIZ_TRACE (ap_hdl, "Scloud User Name [%s]...",
+      TIZ_TRACE (ap_hdl, "SoundCloud User Name [%s]...",
                  p_obj->session_.cUserName);
     }
-  else if (OMX_TizoniaIndexParamAudioScloudPlaylist == a_index)
+  else if (OMX_TizoniaIndexParamAudioSoundCloudPlaylist == a_index)
     {
       memcpy (&(p_obj->playlist_), ap_struct,
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SCLOUDPLAYLISTTYPE));
+              sizeof(OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE));
       p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      TIZ_TRACE (ap_hdl, "Scloud playlist [%s]...",
+      TIZ_TRACE (ap_hdl, "SoundCloud playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
     }
   else

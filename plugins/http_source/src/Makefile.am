@@ -27,6 +27,10 @@ noinst_HEADERS = \
 	gmusicprc_decls.h \
 	gmusiccfgport.h \
 	gmusiccfgport_decls.h \
+	scloudprc.h \
+	scloudprc_decls.h \
+	scloudcfgport.h \
+	scloudcfgport_decls.h \
 	httpsrctrans.h
 
 libtizhttpsrc_la_SOURCES = \
@@ -35,6 +39,8 @@ libtizhttpsrc_la_SOURCES = \
 	httpsrcprc.c \
 	gmusicprc.c \
 	gmusiccfgport.c \
+	scloudprc.c \
+	scloudcfgport.c \
 	httpsrctrans.c
 
 libtizhttpsrc_la_CFLAGS = \
@@ -42,6 +48,7 @@ libtizhttpsrc_la_CFLAGS = \
 	@TIZPLATFORM_CFLAGS@ \
 	@TIZONIA_CFLAGS@ \
 	@TIZGMUSIC_CFLAGS@ \
+	@TIZSOUNDCLOUD_CFLAGS@ \
 	@LIBCURL_CFLAGS@
 
 libtizhttpsrc_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
@@ -50,4 +57,5 @@ libtizhttpsrc_la_LIBADD = \
 	@TIZPLATFORM_LIBS@ \
 	@TIZONIA_LIBS@ \
 	@TIZGMUSIC_LIBS@ \
+	@TIZSOUNDCLOUD_LIBS@ \
 	@LIBCURL_LIBS@

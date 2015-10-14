@@ -44,8 +44,8 @@ extern "C"
   {
     /* Object */
     const tiz_configport_t _;
-    OMX_TIZONIA_AUDIO_PARAM_SCLOUDSESSIONTYPE session_;
-    OMX_TIZONIA_AUDIO_PARAM_SCLOUDPLAYLISTTYPE playlist_;
+    OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE session_;
+    OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE playlist_;
   };
 
   typedef struct scloud_cfgport_class scloud_cfgport_class_t;
