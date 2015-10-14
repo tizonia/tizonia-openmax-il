@@ -55,17 +55,19 @@
  */
 #define OMX_TizoniaIndexParamBufferPreAnnouncementsMode OMX_IndexVendorStartUnused + 1
 
-#define OMX_TizoniaIndexParamHttpServer           OMX_IndexVendorStartUnused + 2 /**< reference: OMX_TIZONIA_HTTPSERVERTYPE */
-#define OMX_TizoniaIndexParamIcecastMountpoint    OMX_IndexVendorStartUnused + 3 /**< reference: OMX_TIZONIA_ICECASTMOUNTPOINTTYPE */
-#define OMX_TizoniaIndexConfigIcecastMetadata     OMX_IndexVendorStartUnused + 4 /**< reference: OMX_TIZONIA_ICECASTMETADATATYPE */
-#define OMX_TizoniaIndexParamAudioOpus            OMX_IndexVendorStartUnused + 5 /**< reference: OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE */
-#define OMX_TizoniaIndexParamAudioFlac            OMX_IndexVendorStartUnused + 6 /**< reference: OMX_TIZONIA_AUDIO_PARAM_FLACTYPE */
-#define OMX_TizoniaIndexParamAudioMp2             OMX_IndexVendorStartUnused + 7 /**< reference: OMX_TIZONIA_AUDIO_PARAM_MP2TYPE */
-#define OMX_TizoniaIndexParamAudioSpotifySession  OMX_IndexVendorStartUnused + 8 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE */
-#define OMX_TizoniaIndexParamAudioSpotifyPlaylist OMX_IndexVendorStartUnused + 9 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE */
-#define OMX_TizoniaIndexParamAudioGmusicSession   OMX_IndexVendorStartUnused + 10 /**< reference: OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE */
-#define OMX_TizoniaIndexParamAudioGmusicPlaylist  OMX_IndexVendorStartUnused + 11 /**< reference: OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE */
-#define OMX_TizoniaIndexConfigPlaylistSkip        OMX_IndexVendorStartUnused + 12 /**< reference: OMX_TIZONIA_PLAYLISTSKIPTYPE */
+#define OMX_TizoniaIndexParamHttpServer              OMX_IndexVendorStartUnused + 2 /**< reference: OMX_TIZONIA_HTTPSERVERTYPE */
+#define OMX_TizoniaIndexParamIcecastMountpoint       OMX_IndexVendorStartUnused + 3 /**< reference: OMX_TIZONIA_ICECASTMOUNTPOINTTYPE */
+#define OMX_TizoniaIndexConfigIcecastMetadata        OMX_IndexVendorStartUnused + 4 /**< reference: OMX_TIZONIA_ICECASTMETADATATYPE */
+#define OMX_TizoniaIndexParamAudioOpus               OMX_IndexVendorStartUnused + 5 /**< reference: OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE */
+#define OMX_TizoniaIndexParamAudioFlac               OMX_IndexVendorStartUnused + 6 /**< reference: OMX_TIZONIA_AUDIO_PARAM_FLACTYPE */
+#define OMX_TizoniaIndexParamAudioMp2                OMX_IndexVendorStartUnused + 7 /**< reference: OMX_TIZONIA_AUDIO_PARAM_MP2TYPE */
+#define OMX_TizoniaIndexParamAudioSpotifySession     OMX_IndexVendorStartUnused + 8 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioSpotifyPlaylist    OMX_IndexVendorStartUnused + 9 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SPOTIFYPLAYLISTTYPE */
+#define OMX_TizoniaIndexParamAudioGmusicSession      OMX_IndexVendorStartUnused + 10 /**< reference: OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioGmusicPlaylist     OMX_IndexVendorStartUnused + 11 /**< reference: OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE */
+#define OMX_TizoniaIndexConfigPlaylistSkip           OMX_IndexVendorStartUnused + 12 /**< reference: OMX_TIZONIA_PLAYLISTSKIPTYPE */
+#define OMX_TizoniaIndexParamAudioSoundCloudSession  OMX_IndexVendorStartUnused + 13 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioSoundCloudPlaylist OMX_IndexVendorStartUnused + 14 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -344,13 +346,13 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE {
  */
 
 typedef enum OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE {
-    OMX_AUDIO_GmusicPlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
-    OMX_AUDIO_GmusicPlaylistTypeUserStream, /**< The user's stream playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeUser, /**< User-defined playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeCreator, /**< Creator playlist. */
-    OMX_AUDIO_GmusicPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
-    OMX_AUDIO_GmusicPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
-    OMX_AUDIO_GmusicPlaylistTypeMax = 0x7FFFFFFF
+    OMX_AUDIO_SoundCloudPlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
+    OMX_AUDIO_SoundCloudPlaylistTypeStream, /**< The user's stream playlist. */
+    OMX_AUDIO_SoundCloudPlaylistTypeCreator, /**< Creator playlist. */
+    OMX_AUDIO_SoundCloudPlaylistTypeUserDefined, /**< User-defined playlist. */
+    OMX_AUDIO_SoundCloudPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_SoundCloudPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_SoundCloudPlaylistTypeMax = 0x7FFFFFFF
 } OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE;
 
 typedef struct OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE {
