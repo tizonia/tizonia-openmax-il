@@ -41,7 +41,7 @@ extern "C" {
 
 #define TIZ_COMP_MAX_PORTS 32
 #define TIZ_COMP_MAX_ROLES 64
-#define TIZ_COMP_MAX_TYPES 5
+#define TIZ_COMP_MAX_TYPES 10
 
 typedef OMX_PTR (*tiz_role_config_port_init_f)(OMX_HANDLETYPE ap_hdl);
 typedef OMX_PTR (*tiz_role_port_init_f)(OMX_HANDLETYPE ap_hdl);
