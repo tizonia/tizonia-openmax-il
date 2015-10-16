@@ -86,3 +86,11 @@ mpris-enabled = false
 # gmusic.user      = user@gmail.com
 # gmusic.password  = pass
 # gmusic.device_id = deviceid
+
+# SoundCloud configuration
+# -------------------------------------------------------------------------
+# To avoid passing this information on the command line, simply uncomment
+# and configure accordingly
+#
+# soundcloud.user = user@mail.com
+# soundcloud.password = pass
