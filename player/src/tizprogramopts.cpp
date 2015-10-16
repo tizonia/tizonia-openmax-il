@@ -236,9 +236,10 @@ tiz::programopts::programopts (int argc, char *argv[])
     omx_ ("OpenMAX IL options"),
     server_ ("Audio streaming server options"),
     client_ ("Audio streaming client options"),
-    spotify_ ("Spotify options"),
+    spotify_ ("Spotify options (Premium subscription required)"),
     gmusic_ ("Google Play Music options"),
-    input_ ("Intput uris option"),
+    scloud_ ("SoundCloud options"),
+    input_ ("Intput urioption"),
     positional_ (),
     recurse_ (false),
     shuffle_ (false),
@@ -275,9 +276,11 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_is_all_access_search_ (false),
     scloud_user_ (),
     scloud_pass_ (),
-    scloud_stream_ (),
+    scloud_user_stream_ (),
+    scloud_user_playlist_ (),
     scloud_creator_ (),
-    scloud_playlist_ (),
+    scloud_tracks_ (),
+    scloud_playlists_ (),
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
     consume_functions_ (),
@@ -288,6 +291,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_streaming_client_options_ (),
     all_spotify_client_options_ (),
     all_gmusic_client_options_ (),
+    all_scloud_client_options_ (),
     all_input_uri_options_ (),
     all_given_options_ ()
 {
@@ -298,6 +302,7 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_streaming_client_options ();
   init_spotify_options ();
   init_gmusic_options ();
+  init_scloud_options ();
   init_input_uri_option ();
 }
 
@@ -355,6 +360,7 @@ void tiz::programopts::print_usage () const
   std::cout << server_ << "\n";
   std::cout << spotify_ << "\n";
   std::cout << gmusic_ << "\n";
+  std::cout << scloud_ << "\n";
   // Note: We don't show the client_ options for now, but this may be needed in
   // the future
   // std::cout << client_ << "\n";
@@ -581,17 +587,25 @@ const std::vector< std::string > &
     tiz::programopts::scloud_playlist_container ()
 {
   scloud_playlist_container_.clear ();
-  if (!scloud_stream_.empty ())
+  if (!scloud_user_stream_.empty ())
     {
-      scloud_playlist_container_.push_back (scloud_stream_);
+      scloud_playlist_container_.push_back (scloud_user_stream_);
+    }
+  else if (!scloud_user_playlist_.empty ())
+    {
+      scloud_playlist_container_.push_back (scloud_user_playlist_);
     }
   else if (!scloud_creator_.empty ())
     {
       scloud_playlist_container_.push_back (scloud_creator_);
     }
-  else if (!scloud_playlist_.empty ())
+  else if (!scloud_tracks_.empty ())
     {
-      scloud_playlist_container_.push_back (scloud_playlist_);
+      scloud_playlist_container_.push_back (scloud_tracks_);
+    }
+  else if (!scloud_playlists_.empty ())
+    {
+      scloud_playlist_container_.push_back (scloud_playlists_);
     }
   else
     {
@@ -603,17 +617,25 @@ const std::vector< std::string > &
 OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE
 tiz::programopts::scloud_playlist_type ()
 {
-  if (!scloud_stream_.empty ())
+  if (!scloud_user_stream_.empty ())
     {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeStream;
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserStream;
+    }
+  else if (!scloud_user_playlist_.empty ())
+    {
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserPlaylist;
     }
   else if (!scloud_creator_.empty ())
     {
       scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeCreator;
     }
-  else if (!scloud_playlist_.empty ())
+  else if (!scloud_tracks_.empty ())
     {
-      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserDefined;
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeTracks;
+    }
+  else if (!scloud_playlists_.empty ())
+    {
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypePlaylists;
     }
   else
     {
@@ -779,13 +801,13 @@ void tiz::programopts::init_spotify_options ()
   spotify_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("spotify-user", po::value (&spotify_user_),
-      "Spotify user name (Optional: may also be provided via config file).")
+      "Spotify user name  (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-password", po::value (&spotify_pass_),
-       "Spotify user password (Optional: may also be provided via config file).")
+       "Spotify user password  (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-playlist", po::value (&spotify_playlist_),
-       "Spotify playlist name.");
+       "Play a playlist from the user's library.");
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_ = boost::assign::list_of ("spotify-user")(
       "spotify-password")("spotify-playlist");
@@ -796,7 +818,7 @@ void tiz::programopts::init_gmusic_options ()
   gmusic_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-user", po::value (&gmusic_user_),
-      "Google Play Music user's name (not required if provided via config file).")
+      "Google Play Music user name (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-password", po::value (&gmusic_pass_),
        "Google Play Music user's password (not required if provided via config file).")
@@ -823,7 +845,7 @@ void tiz::programopts::init_gmusic_options ()
        "Search and play All Access tracks by artist (best match only).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-tracks", po::value (&gmusic_playlist_),
-       "Search and play All Access tracks by name (50 best matches only).")
+       "Search and play All Access tracks by name (50 first matches only).")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-genre", po::value (&gmusic_genre_),
        "Search and play All Access tracks by genre.")
@@ -842,15 +864,44 @@ void tiz::programopts::init_gmusic_options ()
     ("gmusic-all-access-feeling-lucky-station")("gmusic-all-access-promoted-tracks");
 }
 
+void tiz::programopts::init_scloud_options ()
+{
+  scloud_.add_options ()
+      /* TIZ_CLASS_COMMENT: */
+      ("soundcloud-user", po::value (&scloud_user_),
+       "SoundCloud user's name (not required if provided via config file).")
+      /* TIZ_CLASS_COMMENT: */
+      ("soundcloud-password", po::value (&scloud_pass_),
+       "SoundCloud user's password (not required if provided via config file).")
+      /* TIZ_CLASS_COMMENT: */
+      ("soundcloud-user-stream", po::value (&scloud_user_stream_),
+       "Play the tracks from the user's stream.")
+      /* TIZ_CLASS_COMMENT: */
+      ("soundcloud-user-playlist", po::value (&scloud_user_playlist_),
+       "Play a playlist from the user's collection.")
+      /* TIZ_CLASS_COMMENT: */
+      ("soundcloud-creator", po::value (&scloud_creator_),
+       "Search and play the top 50 tracks from a creator.")
+      /* TIZ_CLASS_COMMENT: */
+      ("soundcloud-tracks", po::value (&scloud_tracks_),
+       "Search and play tracks by title (50 first matches only).")
+      /* TIZ_CLASS_COMMENT: */
+      ("soundcloud-playlists", po::value (&scloud_playlists_),
+       "Search and play playlists by title.");
+
+  register_consume_function (&tiz::programopts::consume_scloud_client_options);
+  all_scloud_client_options_ = boost::assign::list_of ("soundcloud-user")
+    ("soundcloud-password")("soundcloud-user-stream")("soundcloud-user-playlist")
+    ("soundcloud-creator")("soundcloud-tracks")("soundcloud-playlists");
+}
+
 void tiz::programopts::init_input_uri_option ()
 {
   input_.add_options ()
       /* TIZ_CLASS_COMMENT: */
       ("input-uris",
        po::value< std::vector< std::string > >(&uri_list_)->multitoken (),
-       "input file")
-      /* TIZ_CLASS_COMMENT: */
-      ;
+       "input file");
   positional_.add ("input-uris", -1);
   register_consume_function (&tiz::programopts::consume_local_decode_options);
   all_input_uri_options_ = boost::assign::list_of ("input-uris");
@@ -868,6 +919,7 @@ void tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (client_)
       .add (spotify_)
       .add (gmusic_)
+      .add (scloud_)
       .add (input_);
   po::parsed_options parsed = po::command_line_parser (argc, argv)
                                   .options (all)
@@ -1144,6 +1196,60 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
   return rc;
 }
 
+int tiz::programopts::consume_scloud_client_options (bool &done,
+                                                     std::string &msg)
+{
+  int rc = EXIT_FAILURE;
+  done = false;
+
+  if (validate_scloud_client_options ())
+  {
+    done = true;
+
+    const int playlist_option_count = vm_.count ("soundcloud-user-stream")
+      + vm_.count ("soundcloud-user-playlist") + vm_.count ("soundcloud-creator")
+      + vm_.count ("soundcloud-tracks") + vm_.count("soundcloud-playlists");
+
+    if (scloud_user_.empty ())
+      {
+        retrieve_config_from_rc_file ("tizonia", "soundcloud.user", scloud_user_);
+      }
+    if (scloud_pass_.empty ())
+      {
+        retrieve_config_from_rc_file ("tizonia", "soundcloud.password", scloud_pass_);
+      }
+
+    if (scloud_user_.empty ())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Need to provide a SoundCloud user name.";
+      msg.assign (oss.str ());
+    }
+    else if (playlist_option_count > 1)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Only one playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (!playlist_option_count)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist must be specified.";
+      msg.assign (oss.str ());
+    }
+    else
+    {
+      rc = call_handler (option_handlers_map_.find ("scloud-stream"));
+    }
+  }
+  TIZ_PRINTF_DBG_RED ("scloud ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
+  return rc;
+}
+
 int tiz::programopts::consume_local_decode_options (bool &done,
                                                     std::string &msg)
 {
@@ -1267,6 +1373,29 @@ bool tiz::programopts::validate_gmusic_client_options () const
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (gmusic_opts_count > 0
+      && is_valid_options_combination (all_valid_options, all_given_options_))
+  {
+    outcome = true;
+  }
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
+                      outcome ? "SUCCESS" : "FAILURE");
+  return outcome;
+}
+
+bool tiz::programopts::validate_scloud_client_options () const
+{
+  bool outcome = false;
+  unsigned int scloud_opts_count
+      = vm_.count ("soundcloud-user") + vm_.count ("soundcloud-password")
+        + vm_.count ("soundcloud-user-stream") + vm_.count ("soundcloud-user-playlist")
+        + vm_.count ("soundcloud-creator") + vm_.count ("soundcloud-tracks")
+        + vm_.count ("soundcloud-playlists") + vm_.count ("log-directory");
+
+  std::vector< std::string > all_valid_options = all_scloud_client_options_;
+  concat_option_lists (all_valid_options, all_general_options_);
+  concat_option_lists (all_valid_options, all_debug_options_);
+
+  if (scloud_opts_count > 0
       && is_valid_options_combination (all_valid_options, all_given_options_))
   {
     outcome = true;

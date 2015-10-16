@@ -99,6 +99,7 @@ namespace tiz
     void init_streaming_client_options ();
     void init_spotify_options ();
     void init_gmusic_options ();
+    void init_scloud_options ();
     void init_input_uri_option ();
 
     void parse_command_line (int argc, char *argv[]);
@@ -113,6 +114,7 @@ namespace tiz
     int consume_streaming_client_options (bool &done, std::string &msg);
     int consume_spotify_client_options (bool &done, std::string &msg);
     int consume_gmusic_client_options (bool &done, std::string &msg);
+    int consume_scloud_client_options (bool &done, std::string &msg);
     int consume_local_decode_options (bool &done, std::string &msg);
     int consume_input_file_uris_option ();
     int consume_input_http_uris_option ();
@@ -121,6 +123,7 @@ namespace tiz
     bool validate_streaming_server_options () const;
     bool validate_spotify_client_options () const;
     bool validate_gmusic_client_options () const;
+    bool validate_scloud_client_options () const;
     bool validate_port_argument (std::string &msg) const;
     bool validate_bitrates_argument (std::string &msg);
     bool validate_sampling_rates_argument (std::string &msg);
@@ -141,6 +144,7 @@ namespace tiz
     boost::program_options::options_description client_;
     boost::program_options::options_description spotify_;
     boost::program_options::options_description gmusic_;
+    boost::program_options::options_description scloud_;
     boost::program_options::options_description input_;
     boost::program_options::positional_options_description positional_;
 
@@ -180,9 +184,11 @@ namespace tiz
     bool gmusic_is_all_access_search_;
     std::string scloud_user_;
     std::string scloud_pass_;
-    std::string scloud_stream_;
+    std::string scloud_user_stream_;
+    std::string scloud_user_playlist_;
     std::string scloud_creator_;
-    std::string scloud_playlist_;
+    std::string scloud_tracks_;
+    std::string scloud_playlists_;
     std::vector< std::string > scloud_playlist_container_;
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type_;
     std::vector<consume_function_t> consume_functions_;
@@ -194,6 +200,7 @@ namespace tiz
     std::vector<std::string> all_streaming_client_options_;
     std::vector<std::string> all_spotify_client_options_;
     std::vector<std::string> all_gmusic_client_options_;
+    std::vector<std::string> all_scloud_client_options_;
     std::vector<std::string> all_input_uri_options_;
     std::vector<std::string> all_given_options_;
   };

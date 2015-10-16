@@ -321,7 +321,7 @@ void tiz::playapp::set_option_handlers ()
   popts_.set_option_handler ("gmusic-stream",
                              boost::bind (&tiz::playapp::gmusic_stream, this));
   // SoundCloud music streaming client program options
-  popts_.set_option_handler ("soundcloud-stream",
+  popts_.set_option_handler ("scloud-stream",
                              boost::bind (&tiz::playapp::scloud_stream, this));
 }
 
