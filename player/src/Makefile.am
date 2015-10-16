@@ -76,6 +76,10 @@ noinst_HEADERS = \
 	services/googlemusic/tizgmusicgraphops.hpp \
 	services/googlemusic/tizgmusicconfig.hpp \
 	services/googlemusic/tizgmusicmgr.hpp \
+	services/soundcloud/tizscloudgraph.hpp \
+	services/soundcloud/tizscloudgraphops.hpp \
+	services/soundcloud/tizscloudconfig.hpp \
+	services/soundcloud/tizscloudmgr.hpp \
 	mpris/tizmpriscbacks.hpp \
 	mpris/tizmprisprops.hpp \
 	mpris/tizmprisif.hpp \
@@ -129,6 +133,9 @@ tizonia_SOURCES = \
 	services/googlemusic/tizgmusicgraph.cpp \
 	services/googlemusic/tizgmusicgraphops.cpp \
 	services/googlemusic/tizgmusicmgr.cpp \
+	services/soundcloud/tizscloudgraph.cpp \
+	services/soundcloud/tizscloudgraphops.cpp \
+	services/soundcloud/tizscloudmgr.cpp \
 	tizplaybackevents.cpp \
 	mpris/tizmprismgr.cpp \
 	mpris/tizmprisprops.cpp \

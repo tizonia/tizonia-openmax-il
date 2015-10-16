@@ -273,6 +273,13 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
     gmusic_is_all_access_search_ (false),
+    scloud_user_ (),
+    scloud_pass_ (),
+    scloud_stream_ (),
+    scloud_creator_ (),
+    scloud_playlist_ (),
+    scloud_playlist_container_ (),
+    scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
     consume_functions_ (),
     all_general_options_ (),
     all_debug_options_ (),
@@ -558,6 +565,62 @@ tiz::programopts::gmusic_playlist_type ()
 bool tiz::programopts::gmusic_is_all_access_search () const
 {
   return gmusic_is_all_access_search_;
+}
+
+const std::string &tiz::programopts::scloud_user () const
+{
+  return scloud_user_;
+}
+
+const std::string &tiz::programopts::scloud_password () const
+{
+  return scloud_pass_;
+}
+
+const std::vector< std::string > &
+    tiz::programopts::scloud_playlist_container ()
+{
+  scloud_playlist_container_.clear ();
+  if (!scloud_stream_.empty ())
+    {
+      scloud_playlist_container_.push_back (scloud_stream_);
+    }
+  else if (!scloud_creator_.empty ())
+    {
+      scloud_playlist_container_.push_back (scloud_creator_);
+    }
+  else if (!scloud_playlist_.empty ())
+    {
+      scloud_playlist_container_.push_back (scloud_playlist_);
+    }
+  else
+    {
+      assert (0);
+    }
+  return scloud_playlist_container_;
+}
+
+OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE
+tiz::programopts::scloud_playlist_type ()
+{
+  if (!scloud_stream_.empty ())
+    {
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeStream;
+    }
+  else if (!scloud_creator_.empty ())
+    {
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeCreator;
+    }
+  else if (!scloud_playlist_.empty ())
+    {
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserDefined;
+    }
+  else
+    {
+      assert (0);
+    }
+
+  return scloud_playlist_type_;
 }
 
 void tiz::programopts::print_license () const

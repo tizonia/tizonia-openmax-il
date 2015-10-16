@@ -61,6 +61,7 @@ namespace tiz
     class httpservconfig;
     class spotifyconfig;
     class gmusicconfig;
+    class scloudconfig;
     struct omx_event_info;
   }
 }
@@ -72,6 +73,7 @@ typedef boost::shared_ptr< tiz::graph::config > tizgraphconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::httpservconfig > tizhttpservconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::spotifyconfig > tizspotifyconfig_ptr_t;
 typedef boost::shared_ptr< tiz::graph::gmusicconfig > tizgmusicconfig_ptr_t;
+typedef boost::shared_ptr< tiz::graph::scloudconfig > tizscloudconfig_ptr_t;
 typedef tiz::playlist tizplaylist_t;
 typedef boost::shared_ptr< tiz::playlist > tizplaylist_ptr_t;
 

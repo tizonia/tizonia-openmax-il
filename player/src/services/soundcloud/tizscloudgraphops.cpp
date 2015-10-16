@@ -82,8 +82,7 @@ void graph::scloudops::do_enable_auto_detection (const int handle_id,
       = boost::dynamic_pointer_cast< scloudconfig >(config_);
   assert (scloud_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
-  tiz::graph::util::dump_graph_info ("SoundCloud",
-                                     "Connecting",
+  tiz::graph::util::dump_graph_info ("SoundCloud", "Connecting",
                                      scloud_config->get_user_name ().c_str ());
 }
 
@@ -104,9 +103,8 @@ void graph::scloudops::do_configure_source ()
   assert (scloud_config);
 
   G_OPS_BAIL_IF_ERROR (
-      set_scloud_user_and_device_id (
-          handles_[0], scloud_config->get_user_name (),
-          scloud_config->get_user_pass (), scloud_config->get_device_id ()),
+      set_scloud_user (handles_[0], scloud_config->get_user_name (),
+                       scloud_config->get_user_pass ()),
       "Unable to set OMX_TizoniaIndexParamAudioSoundCloudSession");
 
   G_OPS_BAIL_IF_ERROR (
@@ -438,21 +436,19 @@ graph::scloudops::set_channels_and_rate_on_renderer (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
   std::string coding_type_str ("SoundCloud");
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                     "Connected",
+  tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
                                      playlist_->get_current_uri ().c_str ());
 
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-graph::scloudops::set_scloud_user_and_device_id (const OMX_HANDLETYPE handle,
-                                                 const std::string &user,
-                                                 const std::string &pass,
-                                                 const std::string &device_id)
+graph::scloudops::set_scloud_user (const OMX_HANDLETYPE handle,
+                                   const std::string &user,
+                                   const std::string &pass)
 {
   // Set the SoundCloud user and pass
-  OMX_TIZONIA_AUDIO_PARAM_SCLOUDSESSIONTYPE sessiontype;
+  OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE sessiontype;
   TIZ_INIT_OMX_STRUCT (sessiontype);
   tiz_check_omx_err (OMX_GetParameter (
       handle,
@@ -460,10 +456,10 @@ graph::scloudops::set_scloud_user_and_device_id (const OMX_HANDLETYPE handle,
       &sessiontype));
   copy_omx_string (sessiontype.cUserName, user);
   copy_omx_string (sessiontype.cUserPassword, pass);
-  copy_omx_string (sessiontype.cDeviceId, device_id);
-  return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE >(
-                                       OMX_TizoniaIndexParamAudioSoundCloudSession),
-                           &sessiontype);
+  return OMX_SetParameter (
+      handle,
+      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSoundCloudSession),
+      &sessiontype);
 }
 
 OMX_ERRORTYPE
@@ -471,26 +467,25 @@ graph::scloudops::set_scloud_playlist (const OMX_HANDLETYPE handle,
                                        const std::string &playlist)
 {
   // Set the SoundCloud playlist
-  OMX_TIZONIA_AUDIO_PARAM_SCLOUDPLAYLISTTYPE playlisttype;
+  OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE playlisttype;
   TIZ_INIT_OMX_STRUCT (playlisttype);
   tiz_check_omx_err (OMX_GetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSoundCloudPlaylist),
+      handle, static_cast< OMX_INDEXTYPE >(
+                  OMX_TizoniaIndexParamAudioSoundCloudPlaylist),
       &playlisttype));
   copy_omx_string (playlisttype.cPlaylistName, playlist);
 
   tizscloudconfig_ptr_t scloud_config
-    = boost::dynamic_pointer_cast< scloudconfig >(config_);
+      = boost::dynamic_pointer_cast< scloudconfig >(config_);
   assert (scloud_config);
 
   playlisttype.ePlaylistType = scloud_config->get_playlist_type ();
   playlisttype.bShuffle = playlist_->shuffle () ? OMX_TRUE : OMX_FALSE;
-  playlisttype.bAllAccessSearch = scloud_config->is_all_access_search () ? OMX_TRUE : OMX_FALSE;
 
-  return OMX_SetParameter (
-      handle,
-      static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSoundCloudPlaylist),
-      &playlisttype);
+  return OMX_SetParameter (handle,
+                           static_cast< OMX_INDEXTYPE >(
+                               OMX_TizoniaIndexParamAudioSoundCloudPlaylist),
+                           &playlisttype);
 }
 
 bool graph::scloudops::is_fatal_error (const OMX_ERRORTYPE error) const
