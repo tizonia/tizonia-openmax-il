@@ -31,7 +31,7 @@ To install, simply run:
 ```
 
 Finally you can add your Spotify and Google Play Music login details in
-Tizonia's config file located at _$HOME/.config/tizonia/tizonia.conf_:
+Tizonia's config file located at _$HOME/.config/tizonia/tizonia.conf_
 
 ## 'tizonia' usage ##
 
