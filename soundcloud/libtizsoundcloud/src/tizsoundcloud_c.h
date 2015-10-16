@@ -66,7 +66,8 @@ typedef enum tiz_scloud_playback_mode
  *
  * @ingroup tizsoundcloud
  *
- * @param app_scloud A pointer to the soundcloud handle which will be initialised.
+ * @param app_scloud A pointer to the soundcloud handle which will be
+ * initialised.
  * @param ap_user A SoundCloud email account.
  * @param ap_pass The password associated to the SoundCloud account.
  *
@@ -84,42 +85,71 @@ void tiz_scloud_set_playback_mode (tiz_scloud_t *ap_scloud,
                                    const tiz_scloud_playback_mode_t mode);
 
 /**
-* Add the tracks in the user's streamto the playback queue.
-*
-* After calling this method, the various tiz_scloud_get* methods can be
-* used to interact with the playback queue.
-*
-* @param ap_scloud The soundcloud handle.
-*
-* @return 0 on success
-*/
-int tiz_scloud_play_stream (tiz_scloud_t *ap_scloud);
-
-/**
- * Add the tracks of the specified creator/artist to the playback queue.
+ * Add the tracks in the user's stream to the playback queue.
  *
  * After calling this method, the various tiz_scloud_get* methods can be
  * used to interact with the playback queue.
  *
  * @param ap_scloud The soundcloud handle.
- * @param ap_creator The creator/artist name
+ *
+ * @return 0 on success
+ */
+int tiz_scloud_play_user_stream (tiz_scloud_t *ap_scloud);
+
+/**
+ * Search the user's collection for a playlist add its tracks to the playback
+ * queue.
+ *
+ * After calling this method, the various tiz_scloud_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @param ap_scloud The soundcloud handle.
+ * @param ap_playlist The playlist name.
+ *
+ * @return 0 on success
+ */
+int tiz_scloud_play_user_playlist (tiz_scloud_t *ap_scloud,
+                                   const char *ap_playlist);
+
+/**
+ * Add the last 50 tracks uploaded by a user/creator to the playback queue.
+ *
+ * After calling this method, the various tiz_scloud_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @param ap_scloud The soundcloud handle.
+ * @param ap_creator The creator/artist name.
  *
  * @return 0 on success
  */
 int tiz_scloud_play_creator (tiz_scloud_t *ap_scloud, const char *ap_creator);
 
 /**
- * Add the tracks of the specified playlist to the playback queue.
+ * Search SoundCloud for tracks and add them to the playback queue.
  *
  * After calling this method, the various tiz_scloud_get* methods can be
  * used to interact with the playback queue.
  *
  * @param ap_scloud The soundcloud handle.
- * @param ap_playlist The user name
+ * @param ap_tracks A search string.
  *
  * @return 0 on success
  */
-int tiz_scloud_play_playlist (tiz_scloud_t *ap_scloud, const char *ap_playlist);
+int tiz_scloud_play_tracks (tiz_scloud_t *ap_scloud, const char *ap_tracks);
+
+/**
+ * Search SoundCloud for playlists and add them to the playback queue.
+ *
+ * After calling this method, the various tiz_scloud_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @param ap_scloud The soundcloud handle.
+ * @param ap_playlists A search string.
+ *
+ * @return 0 on success
+ */
+int tiz_scloud_play_playlists (tiz_scloud_t *ap_scloud,
+                               const char *ap_playlists);
 
 /**
  * Clear the playback queue.

@@ -50,7 +50,7 @@ static void soundcloud_free_data (tiz_scloud_t *ap_scloud)
 }
 
 static int soundcloud_alloc_data (tiz_scloud_t *ap_scloud, const char *ap_user,
-                              const char *ap_pass)
+                                  const char *ap_pass)
 {
   int rc = 0;
   assert (NULL != ap_scloud);
@@ -102,8 +102,8 @@ extern "C" int tiz_scloud_init (tiz_scloud_ptr_t *app_scloud,
   return rc;
 }
 
-extern "C" void tiz_scloud_set_playback_mode (tiz_scloud_t *ap_scloud,
-                                              const tiz_scloud_playback_mode_t mode)
+extern "C" void tiz_scloud_set_playback_mode (
+    tiz_scloud_t *ap_scloud, const tiz_scloud_playback_mode_t mode)
 {
   assert (NULL != ap_scloud);
   assert (NULL != ap_scloud->p_proxy_);
@@ -111,27 +111,43 @@ extern "C" void tiz_scloud_set_playback_mode (tiz_scloud_t *ap_scloud,
       static_cast< tizsoundcloud::playback_mode >(mode));
 }
 
-extern "C" int tiz_scloud_play_stream (tiz_scloud_t *ap_scloud)
+extern "C" int tiz_scloud_play_user_stream (tiz_scloud_t *ap_scloud)
 {
   assert (NULL != ap_scloud);
   assert (NULL != ap_scloud->p_proxy_);
-  return ap_scloud->p_proxy_->play_stream ();
+  return ap_scloud->p_proxy_->play_user_stream ();
+}
+
+extern "C" int tiz_scloud_play_user_playlist (tiz_scloud_t *ap_scloud,
+                                              const char *ap_playlist)
+{
+  assert (NULL != ap_scloud);
+  assert (NULL != ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->play_user_playlist (ap_playlist);
 }
 
 extern "C" int tiz_scloud_play_creator (tiz_scloud_t *ap_scloud,
-                                       const char *ap_user)
+                                        const char *ap_creator)
 {
   assert (NULL != ap_scloud);
   assert (NULL != ap_scloud->p_proxy_);
-  return ap_scloud->p_proxy_->play_creator (ap_user);
+  return ap_scloud->p_proxy_->play_creator (ap_creator);
 }
 
-extern "C" int tiz_scloud_play_playlist (tiz_scloud_t *ap_scloud,
-                                         const char *ap_playlist)
+extern "C" int tiz_scloud_play_tracks (tiz_scloud_t *ap_scloud,
+                                       const char *ap_tracks)
 {
   assert (NULL != ap_scloud);
   assert (NULL != ap_scloud->p_proxy_);
-  return ap_scloud->p_proxy_->play_playlist (ap_playlist);
+  return ap_scloud->p_proxy_->play_tracks (ap_tracks);
+}
+
+extern "C" int tiz_scloud_play_playlists (tiz_scloud_t *ap_scloud,
+                                          const char *ap_playlists)
+{
+  assert (NULL != ap_scloud);
+  assert (NULL != ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->play_playlists (ap_playlists);
 }
 
 extern "C" void tiz_scloud_clear_queue (tiz_scloud_t *ap_scloud)

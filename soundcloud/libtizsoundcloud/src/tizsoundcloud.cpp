@@ -120,24 +120,38 @@ void tizsoundcloud::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-int tizsoundcloud::play_stream ()
+int tizsoundcloud::play_user_stream ()
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_stream")());
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_user_stream")());
   return rc;
 }
 
-int tizsoundcloud::play_creator (const std::string &user)
+int tizsoundcloud::play_user_playlist (const std::string &playlist)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_creator")(bp::object (user)));
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_user_playlist")(bp::object (playlist)));
   return rc;
 }
 
-int tizsoundcloud::play_playlist (const std::string &playlist)
+int tizsoundcloud::play_creator (const std::string &creator)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlist")(bp::object (playlist)));
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_creator")(bp::object (creator)));
+  return rc;
+}
+
+int tizsoundcloud::play_tracks (const std::string &tracks)
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_tracks")(bp::object (tracks)));
+  return rc;
+}
+
+int tizsoundcloud::play_playlists (const std::string &playlists)
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_playlists")(bp::object (playlists)));
   return rc;
 }
 
@@ -274,7 +288,6 @@ int tizsoundcloud::get_current_track ()
 
   int duration
       = bp::extract< int >(py_gm_proxy_.attr ("current_track_duration")());
-
 
   int seconds = 0;
   current_duration_.clear ();

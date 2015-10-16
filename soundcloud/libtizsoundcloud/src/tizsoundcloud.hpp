@@ -55,9 +55,11 @@ public:
   void stop ();
   void deinit ();
 
-  int play_stream ();
-  int play_creator (const std::string &user);
-  int play_playlist (const std::string &playlist);
+  int play_user_stream ();
+  int play_user_playlist (const std::string &playlist);
+  int play_creator (const std::string &creator);
+  int play_tracks (const std::string &tracks);
+  int play_playlists (const std::string &playlists);
 
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);
