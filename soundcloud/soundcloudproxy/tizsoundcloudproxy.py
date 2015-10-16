@@ -96,7 +96,7 @@ def exception_handler(exception_type, exception, traceback):
     """
     del exception_type # unused
     del traceback # unused
-    print_err("[SoundCloud] %s" % (exception))
+    print_err("[SoundCloud] %s" % exception)
 
 sys.excepthook = exception_handler
 
@@ -115,7 +115,7 @@ class tizsoundcloudproxy(object):
 
     """
     CLIENT_ID = 'f3399c9c80866d417ae70009dfc95b2e'
-    CLIENT_SECRET = 'XXX'
+    CLIENT_SECRET = 'xxx'
 
     def __init__(self, email, password):
         self.__email = email
@@ -157,12 +157,46 @@ class tizsoundcloudproxy(object):
             logging.info("enqueue_stream")
             # TODO
         except KeyError:
-            raise KeyError("User not found")
+            raise KeyError(str("User not found"))
+
+    def enqueue_user_playlist(self, arg):
+        """Search the user's collection for a playlist and add its tracks to the
+        playback queue.
+
+        :param arg: a playlist
+
+        """
+        logging.info("enqueue_playlist")
+        try:
+            playlists = self.__api.get('/me/playlists')
+            count = 0
+            for playlist in playlists:
+                fields = playlist.fields()
+                pid = playlist.id
+                title = fields['title']
+                print_nfo("[SoundCloud] [Playlist] '{0}'." \
+                          .format(title.encode("utf-8")))
+                if arg.lower() in title.encode("utf-8").lower():
+                    pl = self.__api.get('/playlists/%s' % pid)
+                    tracks = pl.tracks
+                    for track in tracks:
+                        if track['streamable']:
+                            self.queue.append(track)
+                            count += 1
+            if count == 0:
+                raise KeyError
+            logging.info("Added {0} playlist tracks to queue" \
+                         .format(count))
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError(str("Playlist not found : %s" % arg))
 
     def enqueue_creator(self, arg):
-        """ Enqueue the last 50 tracks uploaded by a user/creator.
+        """Enqueue the last 50 tracks uploaded by a user/creator.
 
         :param arg: a creator
+
         """
         try:
             logging.info("enqueue_creator")
@@ -180,26 +214,59 @@ class tizsoundcloudproxy(object):
                         if tfields['streamable']:
                             self.queue.append(tfields)
                             count += 1
+            if count == 0:
+                raise KeyError
             logging.info("Added {0} user tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
 
         except KeyError:
-            raise KeyError("User not found")
+            raise KeyError(str("Creator not found : %s" % arg))
 
-    def enqueue_playlist(self, arg):
-        """Search the user's library for a playlist with a given name and add its tracks
-        to the playback queue.
+    def enqueue_tracks(self, arg):
+        """Search SoundCloud for tracks with a given title and add them to the playback
+        queue.
+
+        :param arg: a search string
 
         """
-        logging.info("enqueue_playlist")
+        logging.info("enqueue_tracks")
         try:
-            playlists = self.__api.get('/me/playlists')
+            tracks = self.__api.get('/tracks', q=arg)
+            count = 0
+            for track in tracks:
+                fields = track.fields()
+                title = fields['title']
+                print_nfo("[SoundCloud] [Track] '{0}'." \
+                          .format(title.encode("utf-8")))
+                if fields['streamable']:
+                    self.queue.append(fields)
+                    count += 1
+            if count == 0:
+                raise KeyError
+            logging.info("Added {0} tracks to queue" \
+                         .format(count))
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError(str("No tracks found : %s" % arg))
+
+    def enqueue_playlists(self, arg):
+        """Search SoundCloud for playlists and add their tracks to the playback queue.
+
+        :param arg: a search string
+
+        """
+        logging.info("enqueue_playlists")
+        try:
+            playlists = self.__api.get('/playlists', q=arg)
             count = 0
             for playlist in playlists:
                 fields = playlist.fields()
                 pid = playlist.id
                 title = fields['title']
+                print_nfo("[SoundCloud] [Playlist] '{0}'." \
+                          .format(title.encode("utf-8")))
                 if arg.lower() in title.encode("utf-8").lower():
                     pl = self.__api.get('/playlists/%s' % pid)
                     tracks = pl.tracks
@@ -207,12 +274,14 @@ class tizsoundcloudproxy(object):
                         if track['streamable']:
                             self.queue.append(track)
                             count += 1
+            if count == 0:
+                raise KeyError
             logging.info("Added {0} playlist tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
 
         except KeyError:
-            raise KeyError("Playlist not found")
+            raise KeyError(str("No playlists found : %s" % arg))
 
     def current_track_title_and_user(self):
         """ Retrieve the current track's title and user name.
