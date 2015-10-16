@@ -68,7 +68,7 @@ static OMX_ERRORTYPE scloud_prc_transfer_and_process (void *ap_prc,
         {                                                                    \
           TIZ_ERROR (handleOf (p_prc),                                       \
                      "[OMX_ErrorInsufficientResources] : error while using " \
-                     "libtizsoundcloud");                                        \
+                     "libtizsoundcloud");                                    \
           return OMX_ErrorInsufficientResources;                             \
         }                                                                    \
     }                                                                        \
@@ -575,9 +575,14 @@ static OMX_ERRORTYPE enqueue_playlist_items (scloud_prc_t *ap_prc)
             assert (0);
           }
           break;
-        case OMX_AUDIO_SoundCloudPlaylistTypeStream:
+        case OMX_AUDIO_SoundCloudPlaylistTypeUserStream:
           {
-            rc = tiz_scloud_play_stream (ap_prc->p_scloud_);
+            rc = tiz_scloud_play_user_stream (ap_prc->p_scloud_);
+          }
+          break;
+        case OMX_AUDIO_SoundCloudPlaylistTypeUserPlaylist:
+          {
+            rc = tiz_scloud_play_user_playlist (ap_prc->p_scloud_, p_playlist);
           }
           break;
         case OMX_AUDIO_SoundCloudPlaylistTypeCreator:
@@ -585,9 +590,14 @@ static OMX_ERRORTYPE enqueue_playlist_items (scloud_prc_t *ap_prc)
             rc = tiz_scloud_play_creator (ap_prc->p_scloud_, p_playlist);
           }
           break;
-        case OMX_AUDIO_SoundCloudPlaylistTypeUserDefined:
+        case OMX_AUDIO_SoundCloudPlaylistTypeTracks:
           {
-            rc = tiz_scloud_play_playlist (ap_prc->p_scloud_, p_playlist);
+            rc = tiz_scloud_play_tracks (ap_prc->p_scloud_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_SoundCloudPlaylistTypePlaylists:
+          {
+            rc = tiz_scloud_play_playlists (ap_prc->p_scloud_, p_playlist);
           }
           break;
         default:
