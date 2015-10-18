@@ -199,29 +199,42 @@ class tizsoundcloudproxy(object):
 
         """
         try:
-            logging.info("enqueue_creator")
+            logging.info('enqueue_creator : %s' % arg)
 
-            users = self.__api.get('/users', q=arg.lower())
+            resources = self.__api.get('/users', q=arg)
             count = 0
-            for u in users:
-                fields = u.fields()
-                uid = fields['id']
-                permalink = fields['permalink']
-                if arg.lower() == permalink.encode("utf-8").lower():
-                    tracks = self.__api.get('/users/%s/tracks' % uid)
-                    for track in tracks:
-                        tfields = track.fields()
-                        if tfields['streamable']:
-                            self.queue.append(tfields)
+            for resource in resources:
+                creator = resource.fields()
+                cid = creator.get('id')
+                username = creator.get('username')
+                fullname = creator.get('full name')
+                permalink = creator.get('permalink')
+                track_count = creator.get('track_count')
+                arg_permalink = permalink.replace(' ', '-').lower()
+                if track_count == 0:
+                    continue
+                if arg.lower() == username.encode("utf-8").lower() \
+                   or arg_permalink == permalink.encode("utf-8").lower() \
+                   or (fullname and arg.lower() == fullname.encode("utf-8").lower()):
+                    try:
+                        track_resources = self.__api.get('/users/%s/tracks' % cid, filter='streamable')
+                    except:
+                        continue
+                    for track_resource in track_resources:
+                        track = track_resource.fields()
+                        if track['streamable']:
+                            self.queue.append(track)
                             count += 1
+                    if count > 0:
+                        break;
             if count == 0:
-                raise KeyError
+                raise KeyError(str("Creator not found : %s" % arg))
             logging.info("Added {0} user tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
 
         except KeyError:
-            raise KeyError(str("Creator not found : %s" % arg))
+            raise
 
     def enqueue_tracks(self, arg):
         """Search SoundCloud for tracks with a given title and add them to the playback
@@ -232,16 +245,15 @@ class tizsoundcloudproxy(object):
         """
         logging.info("enqueue_tracks")
         try:
-            tracks = self.__api.get('/tracks', q=arg)
+            track_resources = self.__api.get('/tracks', q=arg, filter='streamable')
             count = 0
-            for track in tracks:
-                fields = track.fields()
-                title = fields['title']
+            for resource in track_resources:
+                track = resource.fields()
+                title = track.get('title')
                 print_nfo("[SoundCloud] [Track] '{0}'." \
                           .format(title.encode("utf-8")))
-                if fields['streamable']:
-                    self.queue.append(fields)
-                    count += 1
+                self.queue.append(track)
+                count += 1
             if count == 0:
                 raise KeyError
             logging.info("Added {0} tracks to queue" \
@@ -259,12 +271,12 @@ class tizsoundcloudproxy(object):
         """
         logging.info("enqueue_playlists")
         try:
-            playlists = self.__api.get('/playlists', q=arg)
+            playlist_resources = self.__api.get('/playlists', q=arg)
             count = 0
-            for playlist in playlists:
-                fields = playlist.fields()
-                pid = playlist.id
-                title = fields['title']
+            for resource in playlist_resources:
+                playlist = resource.fields()
+                pid = resource.id
+                title = playlist.get('title')
                 print_nfo("[SoundCloud] [Playlist] '{0}'." \
                           .format(title.encode("utf-8")))
                 if arg.lower() in title.encode("utf-8").lower():
@@ -293,7 +305,7 @@ class tizsoundcloudproxy(object):
         user = ''
         if track:
             try:
-                title = track['title']
+                title = track.get('title')
                 user = track['user']['username']
                 logging.info("Now playing {0} by {1}".format(title.encode("utf-8"),
                                                              user.encode("utf-8")))
@@ -310,7 +322,7 @@ class tizsoundcloudproxy(object):
         track_duration = 0
         if track:
             try:
-                duration = track['duration']
+                duration = track.get('duration')
                 if duration:
                     track_duration = duration
                 logging.info("duration {0}".format(duration))
@@ -327,7 +339,7 @@ class tizsoundcloudproxy(object):
         track_year = 0
         if track:
             try:
-                year = track['release_year']
+                year = track.get('release_year')
                 if year:
                     track_year = year
                 logging.info("track year {0}".format(year))
@@ -344,7 +356,8 @@ class tizsoundcloudproxy(object):
         track_permalink = ''
         if track:
             try:
-                permalink = track['permalink_url']
+                #pprint.pprint(track)
+                permalink = track.get('permalink_url')
                 if permalink:
                     track_permalink = permalink
                 logging.info("track permalink {0}".format(permalink))
@@ -361,7 +374,7 @@ class tizsoundcloudproxy(object):
         track_license = ''
         if track:
             try:
-                tlicense = track['license']
+                tlicense = track.get('license')
                 if tlicense:
                     track_license = tlicense
                 logging.info("track license {0}".format(tlicense))
