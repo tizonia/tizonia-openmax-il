@@ -65,13 +65,13 @@ noinst_HEADERS = \
 	httpclnt/tizhttpclntgraph.hpp \
 	httpclnt/tizhttpclntgraphfsm.hpp \
 	httpclnt/tizhttpclntgraphops.hpp \
-	spotify/tizspotifygraph.hpp \
-	spotify/tizspotifygraphfsm.hpp \
-	spotify/tizspotifygraphops.hpp \
-	spotify/tizspotifyconfig.hpp \
-	spotify/tizspotifymgr.hpp \
 	services/tizservicegraph.hpp \
 	services/tizservicegraphfsm.hpp \
+	services/spotify/tizspotifygraph.hpp \
+	services/spotify/tizspotifygraphfsm.hpp \
+	services/spotify/tizspotifygraphops.hpp \
+	services/spotify/tizspotifyconfig.hpp \
+	services/spotify/tizspotifymgr.hpp \
 	services/googlemusic/tizgmusicgraph.hpp \
 	services/googlemusic/tizgmusicgraphops.hpp \
 	services/googlemusic/tizgmusicconfig.hpp \
@@ -124,12 +124,12 @@ tizonia_SOURCES = \
 	httpclnt/tizhttpclntgraph.cpp \
 	httpclnt/tizhttpclntgraphfsm.cpp \
 	httpclnt/tizhttpclntgraphops.cpp \
-	spotify/tizspotifygraph.cpp \
-	spotify/tizspotifygraphfsm.cpp \
-	spotify/tizspotifygraphops.cpp \
-	spotify/tizspotifymgr.cpp \
 	services/tizservicegraph.cpp \
 	services/tizservicegraphfsm.cpp \
+	services/spotify/tizspotifygraph.cpp \
+	services/spotify/tizspotifygraphfsm.cpp \
+	services/spotify/tizspotifygraphops.cpp \
+	services/spotify/tizspotifymgr.cpp \
 	services/googlemusic/tizgmusicgraph.cpp \
 	services/googlemusic/tizgmusicgraphops.cpp \
 	services/googlemusic/tizgmusicmgr.cpp \
