@@ -370,11 +370,14 @@ static OMX_ERRORTYPE obtain_next_url (scloud_prc_t *ap_prc, int a_skip_value)
                     ap_prc, "Duration",
                     tiz_scloud_get_current_track_duration (ap_prc->p_scloud_));
                 (void)store_metadata (
-                    ap_prc, "License",
-                    tiz_scloud_get_current_track_license (ap_prc->p_scloud_));
+                    ap_prc, "Likes count",
+                    tiz_scloud_get_current_track_likes (ap_prc->p_scloud_));
                 (void)store_metadata (
                     ap_prc, "Permalink",
                     tiz_scloud_get_current_track_permalink (ap_prc->p_scloud_));
+                (void)store_metadata (
+                    ap_prc, "License",
+                    tiz_scloud_get_current_track_license (ap_prc->p_scloud_));
               }
           }
         else
