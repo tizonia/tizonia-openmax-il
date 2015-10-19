@@ -152,6 +152,32 @@ int tiz_scloud_play_playlists (tiz_scloud_t *ap_scloud,
                                const char *ap_playlists);
 
 /**
+ * Search SoundCloud for genres and tracks to the playback queue.
+ *
+ * After calling this method, the various tiz_scloud_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @param ap_scloud The soundcloud handle.
+ * @param ap_genres The genres (a comma separated-list).
+ *
+ * @return 0 on success
+ */
+int tiz_scloud_play_genres (tiz_scloud_t *ap_scloud, const char *ap_genres);
+
+/**
+ * Search SoundCloud for tags and tracks to the playback queue.
+ *
+ * After calling this method, the various tiz_scloud_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @param ap_scloud The soundcloud handle.
+ * @param ap_tags The tags (a comma separated-list).
+ *
+ * @return 0 on success
+ */
+int tiz_scloud_play_tags (tiz_scloud_t *ap_scloud, const char *ap_tags);
+
+/**
  * Clear the playback queue.
  *
  * @param ap_scloud The soundcloud handle.

@@ -155,6 +155,20 @@ int tizsoundcloud::play_playlists (const std::string &playlists)
   return rc;
 }
 
+int tizsoundcloud::play_genres (const std::string &genres)
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_genres")(bp::object (genres)));
+  return rc;
+}
+
+int tizsoundcloud::play_tags (const std::string &tags)
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_tags")(bp::object (tags)));
+  return rc;
+}
+
 const char *tizsoundcloud::get_next_url ()
 {
   current_url_.clear ();

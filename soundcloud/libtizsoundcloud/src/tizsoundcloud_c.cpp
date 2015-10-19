@@ -150,6 +150,22 @@ extern "C" int tiz_scloud_play_playlists (tiz_scloud_t *ap_scloud,
   return ap_scloud->p_proxy_->play_playlists (ap_playlists);
 }
 
+extern "C" int tiz_scloud_play_genres (tiz_scloud_t *ap_scloud,
+                                        const char *ap_genres)
+{
+  assert (NULL != ap_scloud);
+  assert (NULL != ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->play_genres (ap_genres);
+}
+
+extern "C" int tiz_scloud_play_tags (tiz_scloud_t *ap_scloud,
+                                        const char *ap_tags)
+{
+  assert (NULL != ap_scloud);
+  assert (NULL != ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->play_tags (ap_tags);
+}
+
 extern "C" void tiz_scloud_clear_queue (tiz_scloud_t *ap_scloud)
 {
   assert (NULL != ap_scloud);
