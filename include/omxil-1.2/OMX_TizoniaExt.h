@@ -349,9 +349,11 @@ typedef enum OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE {
     OMX_AUDIO_SoundCloudPlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
     OMX_AUDIO_SoundCloudPlaylistTypeUserStream, /**< The user's stream playlist. */
     OMX_AUDIO_SoundCloudPlaylistTypeUserPlaylist, /**< A playlist from the user's collection. */
-    OMX_AUDIO_SoundCloudPlaylistTypeCreator, /**< Creator top tracks. */
-    OMX_AUDIO_SoundCloudPlaylistTypeTracks, /**< Track search playlist. */
-    OMX_AUDIO_SoundCloudPlaylistTypePlaylists, /**< Playlist search playlist. */
+    OMX_AUDIO_SoundCloudPlaylistTypeCreator, /**< A creator's top tracks. */
+    OMX_AUDIO_SoundCloudPlaylistTypeTracks, /**< Track search. */
+    OMX_AUDIO_SoundCloudPlaylistTypePlaylists, /**< Playlist search. */
+    OMX_AUDIO_SoundCloudPlaylistTypeGenres, /**< Genres search. */
+    OMX_AUDIO_SoundCloudPlaylistTypeTags, /**< Tags search. */
     OMX_AUDIO_SoundCloudPlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_SoundCloudPlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_SoundCloudPlaylistTypeMax = 0x7FFFFFFF
