@@ -600,6 +600,16 @@ static OMX_ERRORTYPE enqueue_playlist_items (scloud_prc_t *ap_prc)
             rc = tiz_scloud_play_playlists (ap_prc->p_scloud_, p_playlist);
           }
           break;
+        case OMX_AUDIO_SoundCloudPlaylistTypeGenres:
+          {
+            rc = tiz_scloud_play_genres (ap_prc->p_scloud_, p_playlist);
+          }
+          break;
+        case OMX_AUDIO_SoundCloudPlaylistTypeTags:
+          {
+            rc = tiz_scloud_play_tags (ap_prc->p_scloud_, p_playlist);
+          }
+          break;
         default:
           {
             assert (0);
