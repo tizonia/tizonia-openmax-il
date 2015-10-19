@@ -281,6 +281,8 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_creator_ (),
     scloud_tracks_ (),
     scloud_playlists_ (),
+    scloud_genres_ (),
+    scloud_tags_ (),
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
     consume_functions_ (),
@@ -607,6 +609,14 @@ const std::vector< std::string > &
     {
       scloud_playlist_container_.push_back (scloud_playlists_);
     }
+  else if (!scloud_genres_.empty ())
+    {
+      scloud_playlist_container_.push_back (scloud_genres_);
+    }
+  else if (!scloud_tags_.empty ())
+    {
+      scloud_playlist_container_.push_back (scloud_tags_);
+    }
   else
     {
       assert (0);
@@ -636,6 +646,14 @@ tiz::programopts::scloud_playlist_type ()
   else if (!scloud_playlists_.empty ())
     {
       scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypePlaylists;
+    }
+  else if (!scloud_genres_.empty ())
+    {
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeGenres;
+    }
+  else if (!scloud_tags_.empty ())
+    {
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeTags;
     }
   else
     {
@@ -887,12 +905,18 @@ void tiz::programopts::init_scloud_options ()
        "Search and play tracks by title (50 first matches only).")
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-playlists", po::value (&scloud_playlists_),
-       "Search and play playlists by title.");
+       "Search and play playlists by title.")
+      /* TIZ_CLASS_COMMENT: */
+      ("soundcloud-genres", po::value (&scloud_genres_),
+       "Search and play genres top tracks (arg is a command-separated list).")
+      ("soundcloud-tags", po::value (&scloud_tags_),
+       "Search and play tags top tracks (arg is a command-separated list).");
 
   register_consume_function (&tiz::programopts::consume_scloud_client_options);
   all_scloud_client_options_ = boost::assign::list_of ("soundcloud-user")
     ("soundcloud-password")("soundcloud-user-stream")("soundcloud-user-playlist")
-    ("soundcloud-creator")("soundcloud-tracks")("soundcloud-playlists");
+    ("soundcloud-creator")("soundcloud-tracks")("soundcloud-playlists")
+    ("soundcloud-genres")("soundcloud-tags");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -1208,7 +1232,8 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
 
     const int playlist_option_count = vm_.count ("soundcloud-user-stream")
       + vm_.count ("soundcloud-user-playlist") + vm_.count ("soundcloud-creator")
-      + vm_.count ("soundcloud-tracks") + vm_.count("soundcloud-playlists");
+      + vm_.count ("soundcloud-tracks") + vm_.count("soundcloud-playlists")
+      + vm_.count ("soundcloud-genres") + vm_.count ("soundcloud-tags");
 
     if (scloud_user_.empty ())
       {
@@ -1389,7 +1414,8 @@ bool tiz::programopts::validate_scloud_client_options () const
       = vm_.count ("soundcloud-user") + vm_.count ("soundcloud-password")
         + vm_.count ("soundcloud-user-stream") + vm_.count ("soundcloud-user-playlist")
         + vm_.count ("soundcloud-creator") + vm_.count ("soundcloud-tracks")
-        + vm_.count ("soundcloud-playlists") + vm_.count ("log-directory");
+        + vm_.count ("soundcloud-playlists") + vm_.count ("soundcloud-genres")
+        + vm_.count ("soundcloud-tags") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_scloud_client_options_;
   concat_option_lists (all_valid_options, all_general_options_);

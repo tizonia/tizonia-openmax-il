@@ -189,6 +189,8 @@ namespace tiz
     std::string scloud_creator_;
     std::string scloud_tracks_;
     std::string scloud_playlists_;
+    std::string scloud_genres_;
+    std::string scloud_tags_;
     std::vector< std::string > scloud_playlist_container_;
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type_;
     std::vector<consume_function_t> consume_functions_;
