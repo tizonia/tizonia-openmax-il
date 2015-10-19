@@ -235,6 +235,14 @@ extern "C" const char *tiz_scloud_get_current_track_license (
   return ap_scloud->p_proxy_->get_current_track_license ();
 }
 
+extern "C" const char *tiz_scloud_get_current_track_likes (
+    tiz_scloud_t *ap_scloud)
+{
+  assert (NULL != ap_scloud);
+  assert (NULL != ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->get_current_track_likes ();
+}
+
 extern "C" void tiz_scloud_destroy (tiz_scloud_t *ap_scloud)
 {
   if (ap_scloud)

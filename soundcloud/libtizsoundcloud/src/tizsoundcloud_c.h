@@ -245,6 +245,13 @@ const char *tiz_scloud_get_current_track_permalink (tiz_scloud_t *ap_scloud);
 const char *tiz_scloud_get_current_track_license (tiz_scloud_t *ap_scloud);
 
 /**
+ * Retrieve the current track's likes count.
+ *
+ * @param ap_scloud The soundcloud handle.
+ */
+const char *tiz_scloud_get_current_track_likes (tiz_scloud_t *ap_scloud);
+
+/**
  * Destroy the soundcloud handle.
  *
  * @param ap_scloud The soundcloud handle.

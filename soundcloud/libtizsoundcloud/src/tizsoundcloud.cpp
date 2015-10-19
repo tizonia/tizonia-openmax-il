@@ -249,6 +249,13 @@ const char *tizsoundcloud::get_current_track_license ()
              : current_track_license_.c_str ();
 }
 
+const char *tizsoundcloud::get_current_track_likes ()
+{
+  return current_track_likes_.empty ()
+             ? NULL
+             : current_track_likes_.c_str ();
+}
+
 void tizsoundcloud::clear_queue ()
 {
   int rc = 0;
@@ -354,10 +361,13 @@ int tizsoundcloud::get_current_track ()
       current_track_license_.assign (p_track_license);
     }
 
-//   if (p_user || p_title)
-//     {
+  const int track_likes = bp::extract< int >(py_gm_proxy_.attr ("current_track_likes")());
+  current_track_likes_.assign (boost::lexical_cast< std::string >(track_likes));
+
+  if (p_user || p_title)
+    {
       rc = 0;
-//     }
+    }
 
   return rc;
 }

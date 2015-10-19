@@ -74,6 +74,7 @@ public:
   const char * get_current_track_year ();
   const char * get_current_track_permalink ();
   const char * get_current_track_license ();
+  const char * get_current_track_likes ();
 
 private:
   int get_current_track ();
@@ -88,6 +89,7 @@ private:
   std::string current_track_year_;
   std::string current_track_permalink_;
   std::string current_track_license_;
+  std::string current_track_likes_;
   boost::python::object py_main_;
   boost::python::object py_global_;
   boost::python::object py_gm_proxy_;
