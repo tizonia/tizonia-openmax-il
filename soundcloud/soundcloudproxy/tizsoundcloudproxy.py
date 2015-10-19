@@ -115,7 +115,7 @@ class tizsoundcloudproxy(object):
 
     """
     CLIENT_ID = 'f3399c9c80866d417ae70009dfc95b2e'
-    CLIENT_SECRET = '09126a701cfe463262bbaeec47574072'
+    CLIENT_SECRET = 'xxx'
 
     def __init__(self, email, password):
         self.__email = email
@@ -245,7 +245,8 @@ class tizsoundcloudproxy(object):
         """
         logging.info('enqueue_tracks : %s' % arg)
         try:
-            track_resources = self.__api.get('/tracks', q=arg, filter='streamable')
+            page_size = 100
+            track_resources = self.__api.get('/tracks', q=arg, limit=page_size, filter='streamable')
             count = 0
             for resource in track_resources:
                 track = resource.fields()
@@ -258,6 +259,7 @@ class tizsoundcloudproxy(object):
                 raise KeyError
             logging.info("Added {0} tracks to queue" \
                          .format(count))
+            self.queue = sorted(self.queue, key=itemgetter('likes_count'), reverse=True)
             self.__update_play_queue_order()
 
         except KeyError:
@@ -304,7 +306,8 @@ class tizsoundcloudproxy(object):
         """
         logging.info('enqueue_genres : %s' % arg)
         try:
-            genre_resources = self.__api.get('/tracks', genres=arg, filter='streamable')
+            page_size = 100
+            genre_resources = self.__api.get('/tracks', genres=arg, limit=page_size, filter='streamable')
             count = 0
             for resource in genre_resources:
                 track = resource.fields()
@@ -336,7 +339,8 @@ class tizsoundcloudproxy(object):
         """
         logging.info('enqueue_tags : %s' % arg)
         try:
-            tag_resources = self.__api.get('/tracks', tags=arg, filter='streamable')
+            page_size = 100
+            tag_resources = self.__api.get('/tracks', tags=arg, limit=page_size, filter='streamable')
             count = 0
             for resource in tag_resources:
                 track = resource.fields()
@@ -444,6 +448,23 @@ class tizsoundcloudproxy(object):
             except KeyError:
                 logging.info("license : not found")
         return track_license.encode("utf-8")
+
+    def current_track_likes(self):
+        """ Return the current track's likes.
+
+        """
+        logging.info("current_track_likes")
+        track = self.now_playing_track
+        track_likes = 0
+        if track:
+            try:
+                likes = track.get('likes_count')
+                if likes:
+                    track_likes = likes
+                logging.info("track likes {0}".format(likes))
+            except KeyError:
+                logging.info("likes : not found")
+        return track_likes
 
     def clear_queue(self):
         """ Clears the playback queue.
