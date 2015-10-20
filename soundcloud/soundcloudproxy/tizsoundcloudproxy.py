@@ -149,15 +149,69 @@ class tizsoundcloudproxy(object):
         self.current_play_mode = getattr(self.play_modes, mode)
         self.__update_play_queue_order()
 
-    def enqueue_stream(self):
+    def enqueue_user_stream(self):
         """Adds the tracks in the user stream to the playback queue.
 
         """
         try:
-            logging.info("enqueue_stream")
-            # TODO
+            logging.info("enqueue_user_stream")
+            stream_resource = self.__api.get('/e1/me/stream', offset=0)
+            count = 0
+            stream = stream_resource.fields()
+            for data in stream.get('collection'):
+                kind = data.get('type')
+                # multiple types of track with same data
+                if 'track' in kind:
+                    track = data.get('track')
+                    if track['streamable']:
+                        self.queue.append(track)
+                        count += 1
+                if kind == 'playlist':
+                    tracks = data.get('playlist').get('tracks')
+                    if isinstance(tracks, collections.Iterable):
+                        for track in tracks:
+                            if track['streamable']:
+                                self.queue.append(track)
+                                count += 1
+            if count == 0:
+                raise KeyError
+            logging.info("Added {0} stream tracks to queue" \
+                         .format(count))
+            self.__update_play_queue_order()
+
         except KeyError:
-            raise KeyError(str("User not found"))
+            raise
+
+    def enqueue_user_likes(self):
+        """Adds the tracks that the user liked to the playback queue.
+
+        """
+        try:
+            logging.info("enqueue_user_likes")
+            likes_resource = self.__api.get('/e1/me/likes', limit=100)
+            count = 0
+            for resource in likes_resource:
+                like = resource.fields()
+                track = like.get('track')
+                if track and track['streamable']:
+                    self.queue.append(track)
+                    count += 1
+                playlist = like.get('playlist')
+                if playlist:
+                    tracks = playlist.get('tracks')
+                    if isinstance(tracks, collections.Iterable):
+                        for track in tracks:
+                            if track['streamable']:
+                                self.queue.append(track)
+                                count += 1
+            if count == 0:
+                raise KeyError
+            logging.info("Added {0} stream tracks to queue" \
+                         .format(count))
+            self.__update_play_queue_order()
+
+        except KeyError:
+            raise
 
     def enqueue_user_playlist(self, arg):
         """Search the user's collection for a playlist and add its tracks to the
@@ -185,7 +239,7 @@ class tizsoundcloudproxy(object):
                             count += 1
             if count == 0:
                 raise KeyError
-            logging.info("Added {0} playlist tracks to queue" \
+            logging.info("Added {0} stream tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
 
@@ -523,12 +577,15 @@ class tizsoundcloudproxy(object):
         random order if current play mode is "SHUFFLE"
 
         """
-        if len(self.queue):
+        total_tracks = len(self.queue)
+        if total_tracks:
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
-                self.play_queue_order = range(len(self.queue))
+                self.play_queue_order = range(total_tracks)
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
+            print_nfo("[SoundCloud] [Tracks in queue] '{0}'." \
+                      .format(total_tracks))
 
     def __retrieve_track_url(self, track):
         """ Retrieve a track url
