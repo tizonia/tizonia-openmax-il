@@ -56,6 +56,7 @@ public:
   void deinit ();
 
   int play_user_stream ();
+  int play_user_likes ();
   int play_user_playlist (const std::string &playlist);
   int play_creator (const std::string &creator);
   int play_tracks (const std::string &tracks);

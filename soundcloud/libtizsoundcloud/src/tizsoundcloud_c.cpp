@@ -118,6 +118,13 @@ extern "C" int tiz_scloud_play_user_stream (tiz_scloud_t *ap_scloud)
   return ap_scloud->p_proxy_->play_user_stream ();
 }
 
+extern "C" int tiz_scloud_play_user_likes (tiz_scloud_t *ap_scloud)
+{
+  assert (NULL != ap_scloud);
+  assert (NULL != ap_scloud->p_proxy_);
+  return ap_scloud->p_proxy_->play_user_likes ();
+}
+
 extern "C" int tiz_scloud_play_user_playlist (tiz_scloud_t *ap_scloud,
                                               const char *ap_playlist)
 {

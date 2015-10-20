@@ -97,6 +97,18 @@ void tiz_scloud_set_playback_mode (tiz_scloud_t *ap_scloud,
 int tiz_scloud_play_user_stream (tiz_scloud_t *ap_scloud);
 
 /**
+ * Add the tracks in the user's likes to the playback queue.
+ *
+ * After calling this method, the various tiz_scloud_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @param ap_scloud The soundcloud handle.
+ *
+ * @return 0 on success
+ */
+int tiz_scloud_play_user_likes (tiz_scloud_t *ap_scloud);
+
+/**
  * Search the user's collection for a playlist add its tracks to the playback
  * queue.
  *

@@ -127,6 +127,13 @@ int tizsoundcloud::play_user_stream ()
   return rc;
 }
 
+int tizsoundcloud::play_user_likes ()
+{
+  int rc = 0;
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_user_likes")());
+  return rc;
+}
+
 int tizsoundcloud::play_user_playlist (const std::string &playlist)
 {
   int rc = 0;
