@@ -348,6 +348,7 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE {
 typedef enum OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE {
     OMX_AUDIO_SoundCloudPlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
     OMX_AUDIO_SoundCloudPlaylistTypeUserStream, /**< The user's stream playlist. */
+    OMX_AUDIO_SoundCloudPlaylistTypeUserLikes, /**< The user's likes playlist. */
     OMX_AUDIO_SoundCloudPlaylistTypeUserPlaylist, /**< A playlist from the user's collection. */
     OMX_AUDIO_SoundCloudPlaylistTypeCreator, /**< A creator's top tracks. */
     OMX_AUDIO_SoundCloudPlaylistTypeTracks, /**< Track search. */
