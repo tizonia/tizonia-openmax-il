@@ -583,6 +583,11 @@ static OMX_ERRORTYPE enqueue_playlist_items (scloud_prc_t *ap_prc)
             rc = tiz_scloud_play_user_stream (ap_prc->p_scloud_);
           }
           break;
+        case OMX_AUDIO_SoundCloudPlaylistTypeUserLikes:
+          {
+            rc = tiz_scloud_play_user_likes (ap_prc->p_scloud_);
+          }
+          break;
         case OMX_AUDIO_SoundCloudPlaylistTypeUserPlaylist:
           {
             rc = tiz_scloud_play_user_playlist (ap_prc->p_scloud_, p_playlist);
