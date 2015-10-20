@@ -53,8 +53,7 @@ namespace tiz
 
     void print_version () const;
     void print_license () const;
-    void print_usage () const;
-    void print_usage_extended () const;
+    void print_usage_help () const;
 
     void set_option_handler (const std::string &option,
                              const option_handler_t handler);
@@ -90,9 +89,12 @@ namespace tiz
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type ();
 
   private:
-    void print_examples () const;
+    void print_usage_feature (boost::program_options::options_description &desc) const;
+    void print_usage_keyboard () const;
+    void print_usage_config () const;
+    void print_usage_examples () const;
 
-    void init_general_options ();
+    void init_global_options ();
     void init_debug_options ();
     void init_omx_options ();
     void init_streaming_server_options ();
@@ -102,13 +104,13 @@ namespace tiz
     void init_scloud_options ();
     void init_input_uri_option ();
 
-    void parse_command_line (int argc, char *argv[]);
+    unsigned int parse_command_line (int argc, char *argv[]);
 
     typedef int (tiz::programopts::*consume_mem_fn_t)(bool &, std::string &);
     typedef boost::function< int(bool &, std::string &) > consume_function_t;
 
     int consume_debug_options (bool &done, std::string &msg);
-    int consume_general_options (bool &done, std::string &msg);
+    int consume_global_options (bool &done, std::string &msg);
     int consume_omx_options (bool &done, std::string &msg);
     int consume_streaming_server_options (bool &done, std::string &msg);
     int consume_streaming_client_options (bool &done, std::string &msg);
@@ -137,7 +139,7 @@ namespace tiz
     char **argv_;
     option_handlers_map_t option_handlers_map_;
     boost::program_options::variables_map vm_;
-    boost::program_options::options_description general_;
+    boost::program_options::options_description global_;
     boost::program_options::options_description debug_;
     boost::program_options::options_description omx_;
     boost::program_options::options_description server_;
@@ -149,6 +151,7 @@ namespace tiz
     boost::program_options::positional_options_description positional_;
 
   private:
+    std::string help_option_;
     bool recurse_;
     bool shuffle_;
     bool daemon_;
@@ -196,7 +199,7 @@ namespace tiz
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type_;
     std::vector<consume_function_t> consume_functions_;
 
-    std::vector<std::string> all_general_options_;
+    std::vector<std::string> all_global_options_;
     std::vector<std::string> all_debug_options_;
     std::vector<std::string> all_omx_options_;
     std::vector<std::string> all_streaming_server_options_;

@@ -231,16 +231,17 @@ tiz::programopts::programopts (int argc, char *argv[])
     argv_ (argv),
     option_handlers_map_ (),
     vm_ (),
-    general_ ("General options"),
+    global_ ("Global options"),
     debug_ ("Debug options"),
     omx_ ("OpenMAX IL options"),
     server_ ("Audio streaming server options"),
     client_ ("Audio streaming client options"),
-    spotify_ ("Spotify options (Premium subscription required)"),
+    spotify_ ("Spotify options (Spotify Premium required)"),
     gmusic_ ("Google Play Music options"),
     scloud_ ("SoundCloud options"),
     input_ ("Intput urioption"),
     positional_ (),
+    help_option_ ("help"),
     recurse_ (false),
     shuffle_ (false),
     daemon_ (false),
@@ -287,7 +288,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
     consume_functions_ (),
-    all_general_options_ (),
+    all_global_options_ (),
     all_debug_options_ (),
     all_omx_options_ (),
     all_streaming_server_options_ (),
@@ -298,7 +299,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_input_uri_options_ (),
     all_given_options_ ()
 {
-  init_general_options ();
+  init_global_options ();
   init_debug_options ();
   init_omx_options ();
   init_streaming_server_options ();
@@ -312,17 +313,21 @@ tiz::programopts::programopts (int argc, char *argv[])
 int tiz::programopts::consume ()
 {
   int rc = EXIT_FAILURE;
+  unsigned int given_options_count = 0;
   std::string error_msg;
   try
   {
     bool done = false;
-    parse_command_line (argc_, argv_);
-    BOOST_FOREACH (consume_function_t consume_options, consume_functions_)
+    given_options_count = parse_command_line (argc_, argv_);
+    if (given_options_count)
     {
-      rc = consume_options (done, error_msg);
-      if (done)
+      BOOST_FOREACH (consume_function_t consume_options, consume_functions_)
       {
-        break;
+        rc = consume_options (done, error_msg);
+        if (done)
+        {
+          break;
+        }
       }
     }
   }
@@ -333,13 +338,20 @@ int tiz::programopts::consume ()
 
   if (EXIT_FAILURE == rc)
   {
-    if (error_msg.empty ())
+    if (!given_options_count)
     {
-      error_msg.assign ("Invalid combination of program options.");
+      print_usage_help ();
     }
-    print_version ();
-    print_license ();
-    TIZ_PRINTF_RED ("%s\n\n", error_msg.c_str ());
+    else
+    {
+      if (error_msg.empty ())
+      {
+        error_msg.assign ("Invalid combination of program options.");
+      }
+      print_version ();
+      print_license ();
+      TIZ_PRINTF_RED ("%s\n\n", error_msg.c_str ());
+    }
   }
 
   return rc;
@@ -352,27 +364,67 @@ void tiz::programopts::print_version () const
   TIZ_PRINTF_BLU ("This software is part of the Tizonia project <http://tizonia.org>\n\n");
 }
 
-void tiz::programopts::print_usage () const
+void tiz::programopts::print_usage_help () const
 {
   print_version ();
   print_license ();
-  // Note: We don't show here debug_ or input_ options, they are hidden from the
-  // user.
-  std::cout << general_ << "\n";
-  std::cout << omx_ << "\n";
-  std::cout << server_ << "\n";
-  std::cout << spotify_ << "\n";
-  std::cout << gmusic_ << "\n";
-  std::cout << scloud_ << "\n";
-  // Note: We don't show the client_ options for now, but this may be needed in
-  // the future
-  // std::cout << client_ << "\n";
+  std::cout << " " << "Help topics:" << "\n\n";
+  std::cout << "  " << "global        Global options available with most features." << "\n";
+  std::cout << "  " << "openmax       Various OpenMAX IL query options." << "\n";
+  std::cout << "  " << "server        SHOUTcast/ICEcast streaming server options." << "\n";
+  std::cout << "  " << "client        SHOUTcast/ICEcast streaming client options." << "\n";
+  std::cout << "  " << "spotify       Spotify options." << "\n";
+  std::cout << "  " << "googlemusic   Google Play Music options." << "\n";
+  std::cout << "  " << "soundcloud    SoundCloud options." << "\n";
+  std::cout << "  " << "keyboard      Keyboard control." << "\n";
+  std::cout << "  " << "config        Configuration files." << "\n";
+  std::cout << "  " << "examples      Some command-line examples." << "\n";
+
+  std::cout << "\n" << "Use \"tizonia --help topic\"." << "\n";
 }
 
-void tiz::programopts::print_usage_extended () const
+void tiz::programopts::print_usage_feature (po::options_description &desc) const
 {
-  print_usage ();
-  print_examples ();
+  print_version ();
+  print_license ();
+  std::cout << desc << "\n";
+}
+
+void tiz::programopts::print_usage_keyboard () const
+{
+  print_version ();
+  print_license ();
+  printf ("Keyboard control:\n\n");
+  printf ("   [p] skip to previous file.\n");
+  printf ("   [n] skip to next file.\n");
+  printf ("   [SPACE] pause playback.\n");
+  printf ("   [+/-] increase/decrease volume.\n");
+  printf ("   [m] mute.\n");
+  printf ("   [q] quit.\n");
+  printf ("\n");
+}
+
+void tiz::programopts::print_usage_config () const
+{
+}
+
+void tiz::programopts::print_usage_examples () const
+{
+  print_version ();
+  print_license ();
+  printf ("Examples:\n\n");
+  printf (" tizonia ~/Music\n\n");
+  printf ("    * Decodes every supported file in the '~/Music' directory)\n");
+  printf ("    * File formats currently supported for playback:\n");
+  printf (
+      "      * mp3, mp2, m2a, aac, (.aac only) flac (.flac, .ogg, .oga),\n"
+      "        opus (.opus, .ogg, .oga), vorbis (.ogg, .oga), wav, aiff, aif.\n");
+  printf (
+      "\n tizonia --sampling-rates=44100,48000 -p 8011 --stream ~/Music\n\n");
+  printf ("    * Streams files from the '~/Music' directory.\n");
+  printf ("    * File formats currently supported for streaming: mp3.\n");
+  printf ("    * Sampling rates other than [44100,4800] are ignored.\n");
+  printf ("\n");
 }
 
 void tiz::programopts::set_option_handler (const std::string &option,
@@ -680,39 +732,15 @@ void tiz::programopts::print_license () const
       "There is NO WARRANTY, to the extent permitted by law.\n\n");
 }
 
-void tiz::programopts::print_examples () const
+void tiz::programopts::init_global_options ()
 {
-  printf ("Examples:\n");
-  printf (" tizonia ~/Music\n\n");
-  printf ("    * Decodes every supported file in the '~/Music' directory)\n");
-  printf ("    * File formats currently supported for playback:\n");
-  printf (
-      "      * mp3, mp2, m2a, aac, (.aac only) flac (.flac, .ogg, .oga), opus "
-      "(.opus, .ogg, .oga), "
-      "vorbis (.ogg, .oga), wav, aiff, aif.\n");
-  printf ("    * Basic keys:\n");
-  printf ("      * [p] skip to previous file.\n");
-  printf ("      * [n] skip to next file.\n");
-  printf ("      * [SPACE] pause playback.\n");
-  printf ("      * [+/-] increase/decrease volume.\n");
-  printf ("      * [m] mute.\n");
-  printf ("      * [q] quit.\n");
-  printf (
-      "\n tizonia --sampling-rates=44100,48000 -p 8011 --stream ~/Music\n\n");
-  printf ("    * This streams files from the '~/Music' directory.\n");
-  printf ("    * File formats currently supported for streaming: mp3.\n");
-  printf ("    * Sampling rates other than [44100,4800] are ignored.\n");
-  printf ("    * Basic keys:\n");
-  printf ("      * [q] quit.\n");
-  printf ("\n");
-}
-
-void tiz::programopts::init_general_options ()
-{
-  general_.add_options ()
+  global_.add_options ()
       /* TIZ_CLASS_COMMENT: This is to avoid the clang formatter messing up
          these lines*/
-      ("help,h", "Print the usage message.")
+      ("help,h", po::value< std::string >(&help_option_)
+                     ->implicit_value (std::string ("help")),
+       "Print a usage message for a specific help topic (e.g. global, "
+       "openmax, server, spotify, googlemusic, soundcloud, etc).")
       /* TIZ_CLASS_COMMENT: */
       ("version,v", "Print the version information.")
       /* TIZ_CLASS_COMMENT: */
@@ -726,11 +754,10 @@ void tiz::programopts::init_general_options ()
        "Run in the background.")
       /* TIZ_CLASS_COMMENT: */
       ;
-  register_consume_function (&tiz::programopts::consume_general_options);
+  register_consume_function (&tiz::programopts::consume_global_options);
   // TODO: help and version are not included. These should be moved out of
-  // "general" and into its own category: "info"
-  all_general_options_
-      = boost::assign::list_of ("recurse")("shuffle")("daemon");
+  // "global" and into its own category: "info"
+  all_global_options_ = boost::assign::list_of ("recurse")("shuffle")("daemon");
 }
 
 void tiz::programopts::init_debug_options ()
@@ -790,15 +817,14 @@ void tiz::programopts::init_streaming_server_options ()
       ("bitrate-modes", po::value (&bitrates_),
        "A comma-separated list of "
        /* TIZ_CLASS_COMMENT: */
-       "bitrate modes (e.g. 'CBR,VBR'). Only these bitrate omdes will allowed "
-       "in the playlist. "
-       "Default: all.")
+       "bitrate modes (e.g. 'CBR,VBR'). Only media with these bitrate modes will be "
+       "in the playlist. Default: any.")
       /* TIZ_CLASS_COMMENT: */
       ("sampling-rates", po::value (&sampling_rates_),
        "A comma-separated list "
        /* TIZ_CLASS_COMMENT: */
-       "of sampling rates. Only these sampling rates will be allowed in the "
-       "playlist. Default: all.")
+       "of sampling rates. Only media with these rates will in the "
+       "playlist. Default: any.")
       /* TIZ_CLASS_COMMENT: */
       ;
 
@@ -834,7 +860,7 @@ void tiz::programopts::init_spotify_options ()
        "Spotify user password  (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("spotify-playlist", po::value (&spotify_playlist_),
-       "Play a playlist from the user's library.");
+       "A playlist from the user's library.");
   register_consume_function (&tiz::programopts::consume_spotify_client_options);
   all_spotify_client_options_ = boost::assign::list_of ("spotify-user")(
       "spotify-password")("spotify-playlist");
@@ -857,13 +883,13 @@ void tiz::programopts::init_gmusic_options ()
        "Play tracks from the user's library by artist.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-album", po::value (&gmusic_album_),
-       "Play tracks from the user's library by album.")
+       "Play an album from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-playlist", po::value (&gmusic_playlist_),
-       "Play a playlist from the user's library.")
+       "A playlist from the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-station", po::value (&gmusic_station_),
-       "Search and play All Access stations from the user's library.")
+       "Search and play All Access stations found in the user's library.")
       /* TIZ_CLASS_COMMENT: */
       ("gmusic-all-access-album", po::value (&gmusic_album_),
        "Search and play All Access tracks by album (best match only).")
@@ -902,10 +928,10 @@ void tiz::programopts::init_scloud_options ()
        "SoundCloud user's password (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-user-stream",
-       "Play the tracks from the user's stream.")
+       "Play the tracks currently listed in the user's stream.")
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-user-likes",
-       "Play the tracks that the user has liked.")
+       "Play the tracks liked by the user.")
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-user-playlist", po::value (&scloud_user_playlist_),
        "Play a playlist from the user's collection.")
@@ -943,12 +969,12 @@ void tiz::programopts::init_input_uri_option ()
   all_input_uri_options_ = boost::assign::list_of ("input-uris");
 }
 
-void tiz::programopts::parse_command_line (int argc, char *argv[])
+unsigned int tiz::programopts::parse_command_line (int argc, char *argv[])
 {
   // Declare an options description instance which will include
   // all the options
   po::options_description all ("All options");
-  all.add (general_)
+  all.add (global_)
       .add (debug_)
       .add (omx_)
       .add (server_)
@@ -977,6 +1003,9 @@ void tiz::programopts::parse_command_line (int argc, char *argv[])
 
   // ... and finally sort the list to enable binary searching
   sort_option_list (all_given_options_);
+
+  // ... finally, return the number of non-default options provided by the user
+  return all_given_options_.size ();
 }
 
 int tiz::programopts::consume_debug_options (bool &done, std::string &msg)
@@ -999,16 +1028,59 @@ int tiz::programopts::consume_debug_options (bool &done, std::string &msg)
   return rc;
 }
 
-int tiz::programopts::consume_general_options (bool &done,
+int tiz::programopts::consume_global_options (bool &done,
                                                std::string & /* msg */)
 {
   int rc = EXIT_FAILURE;
   done = false;
   if (vm_.count ("help"))
   {
-    print_usage_extended ();
     done = true;
     rc = EXIT_SUCCESS;
+    if (0 == help_option_.compare ("global"))
+      {
+        print_usage_feature (global_);
+      }
+    else if (0 == help_option_.compare ("openmax"))
+      {
+        print_usage_feature (omx_);
+      }
+    else if (0 == help_option_.compare ("server"))
+      {
+        print_usage_feature (server_);
+      }
+    else if (0 == help_option_.compare ("client"))
+      {
+        print_usage_feature (client_);
+      }
+    else if (0 == help_option_.compare ("spotify"))
+      {
+        print_usage_feature (spotify_);
+      }
+    else if (0 == help_option_.compare ("googlemusic"))
+      {
+        print_usage_feature (gmusic_);
+      }
+    else if (0 == help_option_.compare ("soundcloud"))
+      {
+        print_usage_feature (scloud_);
+      }
+    else if (0 == help_option_.compare ("keyboard"))
+      {
+        print_usage_keyboard ();
+      }
+    else if (0 == help_option_.compare ("config"))
+      {
+        print_usage_config ();
+      }
+    else if (0 == help_option_.compare ("examples"))
+      {
+        print_usage_examples ();
+      }
+    else
+      {
+        print_usage_help ();
+      }
   }
   else if (vm_.count ("version"))
   {
@@ -1016,7 +1088,7 @@ int tiz::programopts::consume_general_options (bool &done,
     done = true;
     rc = EXIT_SUCCESS;
   }
-  TIZ_PRINTF_DBG_RED ("general-opts ; rc = [%s]\n",
+  TIZ_PRINTF_DBG_RED ("global-opts ; rc = [%s]\n",
                       rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
   return rc;
 }
@@ -1360,7 +1432,7 @@ bool tiz::programopts::validate_omx_options () const
                                       + vm_.count ("comps-of-role");
 
   std::vector< std::string > all_valid_options = all_omx_options_;
-  concat_option_lists (all_valid_options, all_general_options_);
+  concat_option_lists (all_valid_options, all_global_options_);
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (omx_opts_count > 0 && omx_opts_count <= 3
@@ -1376,7 +1448,7 @@ bool tiz::programopts::validate_streaming_server_options () const
   bool outcome = false;
 
   std::vector< std::string > all_valid_options = all_streaming_server_options_;
-  concat_option_lists (all_valid_options, all_general_options_);
+  concat_option_lists (all_valid_options, all_global_options_);
   concat_option_lists (all_valid_options, all_debug_options_);
   concat_option_lists (all_valid_options, all_input_uri_options_);
 
@@ -1396,7 +1468,7 @@ bool tiz::programopts::validate_spotify_client_options () const
         + vm_.count ("spotify-playlist") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_spotify_client_options_;
-  concat_option_lists (all_valid_options, all_general_options_);
+  concat_option_lists (all_valid_options, all_global_options_);
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (spotify_opts_count > 0
@@ -1421,7 +1493,7 @@ bool tiz::programopts::validate_gmusic_client_options () const
         + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_gmusic_client_options_;
-  concat_option_lists (all_valid_options, all_general_options_);
+  concat_option_lists (all_valid_options, all_global_options_);
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (gmusic_opts_count > 0
@@ -1446,7 +1518,7 @@ bool tiz::programopts::validate_scloud_client_options () const
         + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_scloud_client_options_;
-  concat_option_lists (all_valid_options, all_general_options_);
+  concat_option_lists (all_valid_options, all_global_options_);
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (scloud_opts_count > 0
