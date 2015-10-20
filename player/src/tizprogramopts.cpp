@@ -277,6 +277,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_user_ (),
     scloud_pass_ (),
     scloud_user_stream_ (),
+    scloud_user_likes_ (),
     scloud_user_playlist_ (),
     scloud_creator_ (),
     scloud_tracks_ (),
@@ -593,6 +594,10 @@ const std::vector< std::string > &
     {
       scloud_playlist_container_.push_back (scloud_user_stream_);
     }
+  else if (!scloud_user_likes_.empty ())
+    {
+      scloud_playlist_container_.push_back (scloud_user_likes_);
+    }
   else if (!scloud_user_playlist_.empty ())
     {
       scloud_playlist_container_.push_back (scloud_user_playlist_);
@@ -630,6 +635,10 @@ tiz::programopts::scloud_playlist_type ()
   if (!scloud_user_stream_.empty ())
     {
       scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserStream;
+    }
+  else if (!scloud_user_likes_.empty ())
+    {
+      scloud_playlist_type_ = OMX_AUDIO_SoundCloudPlaylistTypeUserLikes;
     }
   else if (!scloud_user_playlist_.empty ())
     {
@@ -892,8 +901,11 @@ void tiz::programopts::init_scloud_options ()
       ("soundcloud-password", po::value (&scloud_pass_),
        "SoundCloud user's password (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
-      ("soundcloud-user-stream", po::value (&scloud_user_stream_),
+      ("soundcloud-user-stream",
        "Play the tracks from the user's stream.")
+      /* TIZ_CLASS_COMMENT: */
+      ("soundcloud-user-likes",
+       "Play the tracks that the user has liked.")
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-user-playlist", po::value (&scloud_user_playlist_),
        "Play a playlist from the user's collection.")
@@ -914,9 +926,9 @@ void tiz::programopts::init_scloud_options ()
 
   register_consume_function (&tiz::programopts::consume_scloud_client_options);
   all_scloud_client_options_ = boost::assign::list_of ("soundcloud-user")
-    ("soundcloud-password")("soundcloud-user-stream")("soundcloud-user-playlist")
-    ("soundcloud-creator")("soundcloud-tracks")("soundcloud-playlists")
-    ("soundcloud-genres")("soundcloud-tags");
+    ("soundcloud-password")("soundcloud-user-stream")("soundcloud-user-likes")
+    ("soundcloud-user-playlist") ("soundcloud-creator")("soundcloud-tracks")
+    ("soundcloud-playlists") ("soundcloud-genres")("soundcloud-tags");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -1231,9 +1243,10 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
     done = true;
 
     const int playlist_option_count = vm_.count ("soundcloud-user-stream")
-      + vm_.count ("soundcloud-user-playlist") + vm_.count ("soundcloud-creator")
-      + vm_.count ("soundcloud-tracks") + vm_.count("soundcloud-playlists")
-      + vm_.count ("soundcloud-genres") + vm_.count ("soundcloud-tags");
+      + vm_.count ("soundcloud-user-likes") + vm_.count ("soundcloud-user-playlist")
+      + vm_.count ("soundcloud-creator") + vm_.count ("soundcloud-tracks")
+      + vm_.count("soundcloud-playlists") + vm_.count ("soundcloud-genres")
+      + vm_.count ("soundcloud-tags");
 
     if (scloud_user_.empty ())
       {
@@ -1242,6 +1255,20 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
     if (scloud_pass_.empty ())
       {
         retrieve_config_from_rc_file ("tizonia", "soundcloud.password", scloud_pass_);
+      }
+
+    if (vm_.count ("soundcloud-user-stream"))
+      {
+        // This is not going to be used by the client code, but will help
+        // in sclound_playlist_type() to decide which playlist type value is returned.
+        scloud_user_stream_.assign ("SoundCloud user stream");
+      }
+
+    if (vm_.count ("soundcloud-user-likes"))
+      {
+        // This is not going to be used by the client code, but will help
+        // in sclound_playlist_type() to decide which playlist type value is returned.
+        scloud_user_likes_.assign ("SoundCloud user likes");
       }
 
     if (scloud_user_.empty ())
@@ -1412,10 +1439,11 @@ bool tiz::programopts::validate_scloud_client_options () const
   bool outcome = false;
   unsigned int scloud_opts_count
       = vm_.count ("soundcloud-user") + vm_.count ("soundcloud-password")
-        + vm_.count ("soundcloud-user-stream") + vm_.count ("soundcloud-user-playlist")
-        + vm_.count ("soundcloud-creator") + vm_.count ("soundcloud-tracks")
-        + vm_.count ("soundcloud-playlists") + vm_.count ("soundcloud-genres")
-        + vm_.count ("soundcloud-tags") + vm_.count ("log-directory");
+        + vm_.count ("soundcloud-user-stream") + vm_.count ("soundcloud-user-likes")
+        + vm_.count ("soundcloud-user-playlist") + vm_.count ("soundcloud-creator")
+        + vm_.count ("soundcloud-tracks") + vm_.count ("soundcloud-playlists")
+        + vm_.count ("soundcloud-genres") + vm_.count ("soundcloud-tags")
+        + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_scloud_client_options_;
   concat_option_lists (all_valid_options, all_general_options_);
