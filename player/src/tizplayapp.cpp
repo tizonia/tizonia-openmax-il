@@ -275,20 +275,8 @@ tiz::playapp::~playapp ()
 
 int tiz::playapp::run ()
 {
-  int rc = tiz_rcfile_status ();
-  if (0 == rc)
-    {
-      set_option_handlers ();
-      rc = popts_.consume ();
-    }
-  else
-    {
-      popts_.print_version ();
-      popts_.print_license ();
-      TIZ_PRINTF_RED (
-          "Unable to find a valid configuration file (tizonia.conf)\n\n");
-    }
-  return rc;
+  set_option_handlers ();
+  return popts_.consume ();
 }
 
 void tiz::playapp::set_option_handlers ()

@@ -313,13 +313,15 @@ tiz::programopts::programopts (int argc, char *argv[])
 int tiz::programopts::consume ()
 {
   int rc = EXIT_FAILURE;
+  bool config_file_ok = (0 == tiz_rcfile_status ());
   unsigned int given_options_count = 0;
   std::string error_msg;
+
   try
   {
     bool done = false;
     given_options_count = parse_command_line (argc_, argv_);
-    if (given_options_count)
+    if (given_options_count && (config_file_ok || vm_.count ("help")))
     {
       BOOST_FOREACH (consume_function_t consume_options, consume_functions_)
       {
@@ -344,6 +346,12 @@ int tiz::programopts::consume ()
     }
     else
     {
+      if (!config_file_ok)
+      {
+        error_msg.assign (
+            "Unable to find a valid configuration file (tizonia.conf). \nUse "
+            "'tizonia --help config'");
+      }
       if (error_msg.empty ())
       {
         error_msg.assign ("Invalid combination of program options.");
@@ -406,6 +414,12 @@ void tiz::programopts::print_usage_keyboard () const
 
 void tiz::programopts::print_usage_config () const
 {
+  print_version ();
+  print_license ();
+  printf ("Configuration file location:\n\n");
+  printf ("   tizonia.conf     $HOME/.config/tizonia/tizonia.conf\n");
+  printf ("                    See /etc/tizonia/tizonia.conf/tizonia.conf\n");
+  printf ("                    for an example.\n");
 }
 
 void tiz::programopts::print_usage_examples () const
