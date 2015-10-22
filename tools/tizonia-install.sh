@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Script that installs Tizonia's debian packages and its dependencies.
+# Script that installs Tizonia's debian packages and their dependencies.
 #
 
 if cat /etc/*-release | grep raspbian; then
@@ -35,7 +35,8 @@ fi
 # Make sure curl is already installed
 sudo apt-get -y install curl
 
-# Add Mopidy's archive to APT's sources.list
+# To install libspotify deb packages, add Mopidy's archive to APT's
+# sources.list
 grep -q "apt.mopidy.com" /etc/apt/sources.list
 if [ $? -eq 1 ]; then
     curl 'http://apt.mopidy.com/mopidy.gpg' | sudo apt-key add -
@@ -62,7 +63,7 @@ sudo apt-get -y install libspotify12
 # Install Tizonia
 sudo apt-get -y install tizonia-all
 
-# Copy Tizonia's config file
+# Copy Tizonia's config file to the user's config directory
 TIZ_CONFIG_DIR="$HOME/.config/tizonia"
 TIZ_CONFIG_FILE="$TIZ_CONFIG_DIR/tizonia.conf"
 if [ ! -e "$TIZ_CONFIG_FILE" ]; then
@@ -70,6 +71,7 @@ if [ ! -e "$TIZ_CONFIG_FILE" ]; then
     cp /etc/tizonia/tizonia.conf/tizonia.conf "$TIZ_CONFIG_FILE"
 fi
 
+# Simply test to verify everyting went well
 tizonia -v
 
 echo "Tizonia is now installed."
