@@ -1,7 +1,8 @@
 # Tizonia #
 
 * A music player and audio streaming client/server for Linux.
-* With support for Spotify and Google Play Music (including All Access).
+* With support for Spotify and Google Play Music, including All Access (and
+  SoundCloud support coming soon).
 * A multimedia framework based on OpenMAX IL 1.2 provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
