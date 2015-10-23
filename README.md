@@ -25,9 +25,9 @@ To install, simply run:
 
 ```bash
 
-    $ curl -L -O https://github.com/tizonia/tizonia-openmax-il/raw/master/tools/tizonia-install.sh
-        && chmod +x tizonia-install.sh \
-        && ./tizonia-install.sh
+    $ curl -L -O https://github.com/tizonia/tizonia-openmax-il/raw/master/tools/install.sh
+        && chmod +x install.sh \
+        && ./install.sh
 
 ```
 
