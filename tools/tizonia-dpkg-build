@@ -439,31 +439,32 @@ function do_deps {
         fi
     done
 
-    # Install source dependencies : currently gmusicapi only
+    # Install a newew version of pip
+    echo "Installing a fresher version of pip..."
+    wget https://bootstrap.pypa.io/get-pip.py \
+        && sudo python get-pip.py
+
+    # Install Python pip-based dependencies : gmusicapi
     python -c "import gmusicapi"
     if [[ "$?" -ne 0 ]]; then
-        local GMUSICAPI_DIR=gmusicapi
-        if [[ ! -d "$TEMP_DIR"/gmusicapi ]]; then
-
-            echo "Installing a fresher version of pip..."
-            wget https://bootstrap.pypa.io/get-pip.py \
-                && sudo python get-pip.py
-
-            # echo "Installing a fresher version of setuptools..."
-            # wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python
-
-            # echo "Installing a fresher version of pip..."
-            # wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | sudo python
-
-            sudo pip install gmusicapi
-
-            cd "$TEMP_DIR" \
-                && git clone https://github.com/simon-weber/gmusicapi gmusicapi
-        fi
-        cd "$TEMP_DIR"/gmusicapi \
-            && sudo python setup.py install
+        #         local GMUSICAPI_DIR=gmusicapi
+        sudo pip install gmusicapi
+        # if [[ ! -d "$TEMP_DIR"/gmusicapi ]]; then
+        #    cd "$TEMP_DIR" \
+        #    && git clone https://github.com/simon-weber/gmusicapi gmusicapi
+        # fi
+        # cd "$TEMP_DIR"/gmusicapi \
+        #             && sudo python setup.py install
     else
         pretty_print "$GRN" "[gmusicapi] : installed."
+    fi
+
+    # Install Python pip-based dependencies : soundcloud
+    python -c "import soundcloud"
+    if [[ "$?" -ne 0 ]]; then
+        sudo pip install soundcloud
+    else
+        pretty_print "$GRN" "[soundcloud] : installed."
     fi
 
     # Backup installation of Spotify. Can be used if Modipy's repo is not available.
