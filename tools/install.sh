@@ -53,9 +53,10 @@ fi
 # Resynchronize APT's package index files
 sudo apt-get update
 
-# Install Simon Weber's gmusicapi
+# Using pip, install Simon Weber's gmusicapi and soundcloud's API wrapper
 sudo apt-get -y install python-pip \
-    && ( sudo pip install gmusicapi || sudo pip install gmusicapi )
+    && ( sudo pip install gmusicapi || sudo pip install gmusicapi ) \
+    && sudo pip install soundcloud
 
 # Install libspotify
 sudo apt-get -y install libspotify12
@@ -73,6 +74,9 @@ fi
 
 # Simply test to verify everyting went well
 tizonia -v
-
-echo "Tizonia is now installed."
-echo "Configuration file located in : $TIZ_CONFIG_FILE "
+if [ $? -eq 0 ]; then
+    echo "Tizonia is now installed."
+    echo "Configuration file located in : $TIZ_CONFIG_FILE "
+else
+    echo "Oops. Something went wrong!"
+fi
