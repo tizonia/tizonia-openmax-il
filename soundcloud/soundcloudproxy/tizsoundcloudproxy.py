@@ -17,10 +17,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Simple SoundCloud proxy class.
+"""Simple SoundCloud proxy/wrapper.
 
-Access a user's SoundCloud account to retrieve track URLs to be used for
-streaming.
+Access SoundCloud using a user account to retrieve track URLs and create a play
+queue for streaming.
 
 """
 
@@ -30,19 +30,11 @@ import sys
 import logging
 import random
 from operator import itemgetter
-import requests
-from requests.structures import CaseInsensitiveDict
 import soundcloud
-
-import pprint
+# import pprint
 
 import collections
-import re
-import string
-import time
 import unicodedata
-from multiprocessing.pool import ThreadPool
-from urllib import quote_plus
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
@@ -110,22 +102,17 @@ class TizEnumeration(set):
         raise AttributeError
 
 class tizsoundcloudproxy(object):
-    """A class for logging into a SoundCloud account and retrieving track
-    URLs.
+    """A class that logs into a SoundCloud account, retrieves track URLs
+    on behalf of the user and creates and manages a playback queue.
 
     """
     CLIENT_ID = 'f3399c9c80866d417ae70009dfc95b2e'
-    CLIENT_SECRET = 'xxx'
 
-    def __init__(self, email, password):
-        self.__email = email
+    def __init__(self, oauth_token):
         self.__api = soundcloud.Client(
             client_id=self.CLIENT_ID,
-            client_secret=self.CLIENT_SECRET,
-            username=email,
-            password=password
+            access_token=oauth_token
         )
-        me = self.__api.get('/me')
 
         self.queue = list()
         self.queue_index = -1
@@ -222,17 +209,17 @@ class tizsoundcloudproxy(object):
         """
         logging.info("enqueue_playlist")
         try:
-            playlists = self.__api.get('/me/playlists')
+            resources = self.__api.get('/me/playlists')
             count = 0
-            for playlist in playlists:
-                fields = playlist.fields()
-                pid = playlist.id
-                title = fields['title']
+            for resource in resources:
+                playlist = resource.fields()
+                pid = playlist.get("id")
+                title = playlist.get('title')
                 print_nfo("[SoundCloud] [Playlist] '{0}'." \
                           .format(title.encode("utf-8")))
                 if arg.lower() in title.encode("utf-8").lower():
-                    pl = self.__api.get('/playlists/%s' % pid)
-                    tracks = pl.tracks
+                    playlist_resource = self.__api.get('/playlists/%s' % pid)
+                    tracks = playlist_resource.tracks
                     for track in tracks:
                         if track['streamable']:
                             self.queue.append(track)
@@ -253,7 +240,7 @@ class tizsoundcloudproxy(object):
 
         """
         try:
-            logging.info('enqueue_creator : %s' % arg)
+            logging.info('enqueue_creator : %s', arg)
 
             resources = self.__api.get('/users', q=arg)
             count = 0
@@ -269,10 +256,13 @@ class tizsoundcloudproxy(object):
                     continue
                 if arg.lower() == username.encode("utf-8").lower() \
                    or arg_permalink == permalink.encode("utf-8").lower() \
-                   or (fullname and arg.lower() == fullname.encode("utf-8").lower()):
+                   or (fullname and arg.lower() \
+                       == fullname.encode("utf-8").lower()):
                     try:
-                        track_resources = self.__api.get('/users/%s/tracks' % cid, filter='streamable')
-                    except:
+                        track_resources \
+                            = self.__api.get('/users/%s/tracks' \
+                                             % cid, filter='streamable')
+                    except (KeyError, AttributeError):
                         continue
                     for track_resource in track_resources:
                         track = track_resource.fields()
@@ -280,7 +270,7 @@ class tizsoundcloudproxy(object):
                             self.queue.append(track)
                             count += 1
                     if count > 0:
-                        break;
+                        break
             if count == 0:
                 raise KeyError(str("Creator not found : %s" % arg))
             logging.info("Added {0} user tracks to queue" \
@@ -291,16 +281,18 @@ class tizsoundcloudproxy(object):
             raise
 
     def enqueue_tracks(self, arg):
-        """Search SoundCloud for tracks with a given title and add them to the playback
-        queue.
+        """Search SoundCloud for tracks with a given title and add them
+        to the playback queue.
 
         :param arg: a search string
 
         """
-        logging.info('enqueue_tracks : %s' % arg)
+        logging.info('enqueue_tracks : %s', arg)
         try:
             page_size = 100
-            track_resources = self.__api.get('/tracks', q=arg, limit=page_size, filter='streamable')
+            track_resources = self.__api.get('/tracks', \
+                                             q=arg, limit=page_size, \
+                                             filter='streamable')
             count = 0
             for resource in track_resources:
                 track = resource.fields()
@@ -313,19 +305,21 @@ class tizsoundcloudproxy(object):
                 raise KeyError
             logging.info("Added {0} tracks to queue" \
                          .format(count))
-            self.queue = sorted(self.queue, key=itemgetter('likes_count'), reverse=True)
+            self.queue = sorted(self.queue, key=itemgetter('likes_count'), \
+                                reverse=True)
             self.__update_play_queue_order()
 
         except KeyError:
             raise KeyError(str("No tracks found : %s" % arg))
 
     def enqueue_playlists(self, arg):
-        """Search SoundCloud for playlists and add their tracks to the playback queue.
+        """Search SoundCloud for playlists and add their tracks to the
+        playback queue.
 
         :param arg: a search string
 
         """
-        logging.info('enqueue_playlists : %s' % arg)
+        logging.info('enqueue_playlists : %s', arg)
         try:
             playlist_resources = self.__api.get('/playlists', q=arg)
             count = 0
@@ -336,8 +330,8 @@ class tizsoundcloudproxy(object):
                 print_nfo("[SoundCloud] [Playlist] '{0}'." \
                           .format(title.encode("utf-8")))
                 if arg.lower() in title.encode("utf-8").lower():
-                    pl = self.__api.get('/playlists/%s' % pid)
-                    tracks = pl.tracks
+                    playlist_resource = self.__api.get('/playlists/%s' % pid)
+                    tracks = playlist_resource.tracks
                     for track in tracks:
                         if track['streamable']:
                             self.queue.append(track)
@@ -358,16 +352,19 @@ class tizsoundcloudproxy(object):
         :param arg: a search string
 
         """
-        logging.info('enqueue_genres : %s' % arg)
+        logging.info('enqueue_genres : %s', arg)
         try:
             page_size = 100
-            genre_resources = self.__api.get('/tracks', genres=arg, limit=page_size, filter='streamable')
+            genre_resources = self.__api.get('/tracks', genres=arg, \
+                                             limit=page_size, \
+                                             filter='streamable')
             count = 0
             for resource in genre_resources:
                 track = resource.fields()
-                gid = track.get('id')
                 title = track.get('title')
-                title = unicodedata.normalize('NFKD', unicode(title)).encode('ASCII', 'ignore')
+                title = unicodedata.normalize('NFKD', \
+                                              unicode(title)) \
+                                   .encode('ASCII', 'ignore')
                 print_nfo("[SoundCloud] [Track] '{0}'." \
                           .format(title))
                 self.queue.append(track)
@@ -376,7 +373,8 @@ class tizsoundcloudproxy(object):
                 raise KeyError
             logging.info("Added {0} tracks to queue" \
                          .format(count))
-            self.queue = sorted(self.queue, key=itemgetter('likes_count'), reverse=True)
+            self.queue = sorted(self.queue, key=itemgetter('likes_count'), \
+                                reverse=True)
             self.__update_play_queue_order()
 
         except KeyError:
@@ -385,22 +383,26 @@ class tizsoundcloudproxy(object):
             print("Unexpected error:", sys.exc_info()[0])
 
     def enqueue_tags(self, arg):
-        """Search SoundCloud for a tag (or list of) and add its tracks to the playback
-        queue.
+        """Search SoundCloud for a tag (or list of) and add its tracks to
+        the playback queue.
 
         :param arg: a search string
 
         """
-        logging.info('enqueue_tags : %s' % arg)
+        logging.info('enqueue_tags : %s', arg)
         try:
             page_size = 100
-            tag_resources = self.__api.get('/tracks', tags=arg, limit=page_size, filter='streamable')
+            tag_resources = self.__api.get('/tracks', \
+                                           tags=arg, \
+                                           limit=page_size, \
+                                           filter='streamable')
             count = 0
             for resource in tag_resources:
                 track = resource.fields()
-                gid = track.get('id')
                 title = track.get('title')
-                title = unicodedata.normalize('NFKD', unicode(title)).encode('ASCII', 'ignore')
+                title = unicodedata.normalize('NFKD', \
+                                              unicode(title)) \
+                                   .encode('ASCII', 'ignore')
                 print_nfo("[SoundCloud] [Track] '{0}'." \
                           .format(title))
                 self.queue.append(track)
@@ -409,7 +411,8 @@ class tizsoundcloudproxy(object):
                 raise KeyError
             logging.info("Added {0} tracks to queue" \
                          .format(count))
-            self.queue = sorted(self.queue, key=itemgetter('likes_count'), reverse=True)
+            self.queue = sorted(self.queue, key=itemgetter('likes_count'), \
+                                reverse=True)
             self.__update_play_queue_order()
 
         except KeyError:
@@ -427,10 +430,16 @@ class tizsoundcloudproxy(object):
         user = ''
         if track:
             try:
-                title = unicodedata.normalize('NFKD', unicode(track.get('title'))).encode('ASCII', 'ignore')
-                user = unicodedata.normalize('NFKD', unicode(track['user']['username'])).encode('ASCII', 'ignore')
-                logging.info("Now playing {0} by {1}".format(title.encode("utf-8"),
-                                                             user.encode("utf-8")))
+                title = unicodedata.normalize('NFKD', \
+                                              unicode(track.get('title'))) \
+                                   .encode('ASCII', 'ignore')
+                user = unicodedata.normalize('NFKD', \
+                                             unicode
+                                             (track['user']['username'])) \
+                                  .encode('ASCII', 'ignore')
+                logging.info("Now playing {0} by {1}" \
+                             .format(title.encode("utf-8"),
+                                     user.encode("utf-8")))
             except KeyError:
                 logging.info("title/user : not found")
         return title.encode("utf-8"), user.encode("utf-8")
@@ -537,14 +546,15 @@ class tizsoundcloudproxy(object):
                 self.queue_index += 1
                 if (self.queue_index < len(self.queue)) \
                    and (self.queue_index >= 0):
-                    next_track = self.queue[self.play_queue_order[self.queue_index]]
+                    next_track = self.queue[self.play_queue_order \
+                                            [self.queue_index]]
                     return self.__retrieve_track_url(next_track)
                 else:
                     self.queue_index = -1
                     return self.next_url()
             else:
                 return ''
-        except:
+        except (KeyError, AttributeError):
             del self.queue[self.queue_index]
             return self.prev_url()
 
@@ -558,14 +568,15 @@ class tizsoundcloudproxy(object):
                 self.queue_index -= 1
                 if (self.queue_index < len(self.queue)) \
                    and (self.queue_index >= 0):
-                    prev_track = self.queue[self.play_queue_order[self.queue_index]]
+                    prev_track = self.queue[self.play_queue_order \
+                                            [self.queue_index]]
                     return self.__retrieve_track_url(prev_track)
                 else:
                     self.queue_index = len(self.queue)
                     return self.prev_url()
             else:
                 return ''
-        except:
+        except (KeyError, AttributeError):
             del self.queue[self.queue_index]
             return self.prev_url()
 
