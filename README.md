@@ -22,7 +22,7 @@ the following distro/arch combinations:
   - armhf
 
 To install the
-[latest release](https://github.com/tizonia/tizonia-openmax-il/releases/tag/v0.1.0),
+[latest release](https://github.com/tizonia/tizonia-openmax-il/releases/latest),
 simply run:
 
 ```bash
