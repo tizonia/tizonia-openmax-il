@@ -773,21 +773,11 @@ tiz::playapp::scloud_stream ()
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const bool shuffle = popts_.shuffle ();
-  const std::string user (popts_.scloud_user ());
-  std::string pass (popts_.scloud_password ());
+  const std::string token (popts_.scloud_oauth_token ());
   const uri_lst_t &uri_list = popts_.scloud_playlist_container ();
   const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type = popts_.scloud_playlist_type ();
 
   print_banner ();
-
-  // If a username was supplied without a password, prompt for one
-  if (!user.empty () && pass.empty ())
-  {
-    std::string msg (user);
-    msg.append ("'s password:");
-    pass.assign (getpass (msg.c_str ()));
-    TIZ_PRINTF_RED ("\n");
-  }
 
   // daemon support
   (void)daemonize_if_requested ();
@@ -799,7 +789,7 @@ tiz::playapp::scloud_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::scloudconfig >(
-      playlist, user, pass, playlist_type);
+      playlist, token, playlist_type);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr

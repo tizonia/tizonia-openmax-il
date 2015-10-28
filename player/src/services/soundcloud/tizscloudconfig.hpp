@@ -44,12 +44,10 @@ namespace tiz
     {
 
     public:
-      scloudconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
-                    const std::string &pass,
-                    const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type)
+      scloudconfig (const tizplaylist_ptr_t &playlist, const std::string &oauth_token,
+                    const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE &playlist_type)
         : config (playlist),
-          user_ (user),
-          pass_ (pass),
+          oauth_token_ (oauth_token),
           playlist_type_ (playlist_type)
       {
       }
@@ -58,14 +56,9 @@ namespace tiz
       {
       }
 
-      std::string get_user_name () const
+      std::string get_oauth_token () const
       {
-        return user_;
-      }
-
-      std::string get_user_pass () const
-      {
-        return pass_;
+        return oauth_token_;
       }
 
       OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE get_playlist_type () const
@@ -74,8 +67,7 @@ namespace tiz
       }
 
     protected:
-      const std::string user_;
-      const std::string pass_;
+      const std::string oauth_token_;
       const OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE playlist_type_;
     };
   }  // namespace graph

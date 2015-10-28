@@ -275,8 +275,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
     gmusic_is_all_access_search_ (false),
-    scloud_user_ (),
-    scloud_pass_ (),
+    scloud_oauth_token_ (),
     scloud_user_stream_ (),
     scloud_user_likes_ (),
     scloud_user_playlist_ (),
@@ -642,14 +641,9 @@ bool tiz::programopts::gmusic_is_all_access_search () const
   return gmusic_is_all_access_search_;
 }
 
-const std::string &tiz::programopts::scloud_user () const
+const std::string &tiz::programopts::scloud_oauth_token () const
 {
-  return scloud_user_;
-}
-
-const std::string &tiz::programopts::scloud_password () const
-{
-  return scloud_pass_;
+  return scloud_oauth_token_;
 }
 
 const std::vector< std::string > &
@@ -935,11 +929,8 @@ void tiz::programopts::init_scloud_options ()
 {
   scloud_.add_options ()
       /* TIZ_CLASS_COMMENT: */
-      ("soundcloud-user", po::value (&scloud_user_),
-       "SoundCloud user's name (not required if provided via config file).")
-      /* TIZ_CLASS_COMMENT: */
-      ("soundcloud-password", po::value (&scloud_pass_),
-       "SoundCloud user's password (not required if provided via config file).")
+      ("soundcloud-oauth-token", po::value (&scloud_oauth_token_),
+       "SoundCloud user OAuth token (not required if provided via config file).")
       /* TIZ_CLASS_COMMENT: */
       ("soundcloud-user-stream",
        "Play the tracks currently listed in the user's stream.")
@@ -965,8 +956,8 @@ void tiz::programopts::init_scloud_options ()
        "Search and play tags top tracks (arg is a command-separated list).");
 
   register_consume_function (&tiz::programopts::consume_scloud_client_options);
-  all_scloud_client_options_ = boost::assign::list_of ("soundcloud-user")
-    ("soundcloud-password")("soundcloud-user-stream")("soundcloud-user-likes")
+  all_scloud_client_options_ = boost::assign::list_of ("soundcloud-oauth-token")
+    ("soundcloud-user-stream")("soundcloud-user-likes")
     ("soundcloud-user-playlist") ("soundcloud-creator")("soundcloud-tracks")
     ("soundcloud-playlists") ("soundcloud-genres")("soundcloud-tags");
 }
@@ -1334,13 +1325,9 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
       + vm_.count("soundcloud-playlists") + vm_.count ("soundcloud-genres")
       + vm_.count ("soundcloud-tags");
 
-    if (scloud_user_.empty ())
+    if (scloud_oauth_token_.empty ())
       {
-        retrieve_config_from_rc_file ("tizonia", "soundcloud.user", scloud_user_);
-      }
-    if (scloud_pass_.empty ())
-      {
-        retrieve_config_from_rc_file ("tizonia", "soundcloud.password", scloud_pass_);
+        retrieve_config_from_rc_file ("tizonia", "soundcloud.oauth_token", scloud_oauth_token_);
       }
 
     if (vm_.count ("soundcloud-user-stream"))
@@ -1357,11 +1344,11 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
         scloud_user_likes_.assign ("SoundCloud user likes");
       }
 
-    if (scloud_user_.empty ())
+    if (scloud_oauth_token_.empty ())
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;
-      oss << "Need to provide a SoundCloud user name.";
+      oss << "Need to provide a SoundCloud user OAuth token.";
       msg.assign (oss.str ());
     }
     else if (playlist_option_count > 1)
@@ -1524,7 +1511,7 @@ bool tiz::programopts::validate_scloud_client_options () const
 {
   bool outcome = false;
   unsigned int scloud_opts_count
-      = vm_.count ("soundcloud-user") + vm_.count ("soundcloud-password")
+      = vm_.count ("soundcloud-oauth-token")
         + vm_.count ("soundcloud-user-stream") + vm_.count ("soundcloud-user-likes")
         + vm_.count ("soundcloud-user-playlist") + vm_.count ("soundcloud-creator")
         + vm_.count ("soundcloud-tracks") + vm_.count ("soundcloud-playlists")

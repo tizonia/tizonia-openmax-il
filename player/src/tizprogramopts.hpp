@@ -83,8 +83,7 @@ namespace tiz
     const std::vector< std::string > &gmusic_playlist_container ();
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type ();
     bool gmusic_is_all_access_search () const;
-    const std::string &scloud_user () const;
-    const std::string &scloud_password () const;
+    const std::string &scloud_oauth_token () const;
     const std::vector< std::string > &scloud_playlist_container ();
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type ();
 
@@ -185,8 +184,7 @@ namespace tiz
     std::vector< std::string > gmusic_playlist_container_;
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type_;
     bool gmusic_is_all_access_search_;
-    std::string scloud_user_;
-    std::string scloud_pass_;
+    std::string scloud_oauth_token_;
     std::string scloud_user_stream_;
     std::string scloud_user_likes_;
     std::string scloud_user_playlist_;

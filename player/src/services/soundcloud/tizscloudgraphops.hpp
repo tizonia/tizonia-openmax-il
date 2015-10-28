@@ -63,9 +63,8 @@ namespace tiz
     private:
       OMX_ERRORTYPE transition_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
-      OMX_ERRORTYPE set_scloud_user (const OMX_HANDLETYPE handle,
-                                     const std::string &user,
-                                     const std::string &pass);
+      OMX_ERRORTYPE set_scloud_oauth_token (const OMX_HANDLETYPE handle,
+                                            const std::string &oauth_token);
       OMX_ERRORTYPE set_scloud_playlist (const OMX_HANDLETYPE handle,
                                          const std::string &playlist);
 

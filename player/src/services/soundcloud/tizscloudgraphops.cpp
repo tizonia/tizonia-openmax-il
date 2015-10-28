@@ -83,7 +83,7 @@ void graph::scloudops::do_enable_auto_detection (const int handle_id,
   assert (scloud_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
   tiz::graph::util::dump_graph_info ("SoundCloud", "Connecting",
-                                     scloud_config->get_user_name ().c_str ());
+                                     scloud_config->get_oauth_token ().c_str ());
 }
 
 void graph::scloudops::do_disable_ports ()
@@ -103,8 +103,7 @@ void graph::scloudops::do_configure_source ()
   assert (scloud_config);
 
   G_OPS_BAIL_IF_ERROR (
-      set_scloud_user (handles_[0], scloud_config->get_user_name (),
-                       scloud_config->get_user_pass ()),
+      set_scloud_oauth_token (handles_[0], scloud_config->get_oauth_token ()),
       "Unable to set OMX_TizoniaIndexParamAudioSoundCloudSession");
 
   G_OPS_BAIL_IF_ERROR (
@@ -443,9 +442,8 @@ graph::scloudops::set_channels_and_rate_on_renderer (
 }
 
 OMX_ERRORTYPE
-graph::scloudops::set_scloud_user (const OMX_HANDLETYPE handle,
-                                   const std::string &user,
-                                   const std::string &pass)
+graph::scloudops::set_scloud_oauth_token (const OMX_HANDLETYPE handle,
+                                          const std::string &oauth_token)
 {
   // Set the SoundCloud user and pass
   OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE sessiontype;
@@ -454,8 +452,7 @@ graph::scloudops::set_scloud_user (const OMX_HANDLETYPE handle,
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSoundCloudSession),
       &sessiontype));
-  copy_omx_string (sessiontype.cUserName, user);
-  copy_omx_string (sessiontype.cUserPassword, pass);
+  copy_omx_string (sessiontype.cUserOauthToken, oauth_token);
   return OMX_SetParameter (
       handle,
       static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioSoundCloudSession),
