@@ -17,4 +17,6 @@
 
 python_PYTHON = tizgmusicproxy.py
 
-
+.PHONY: lint
+lint:
+	pylint --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ${python_PYTHON}

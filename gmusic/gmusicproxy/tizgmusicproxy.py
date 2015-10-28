@@ -17,9 +17,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Simple Google PLay Music proxy class.
+"""Simple Google Play Music proxy/wrapper.
 
-Access a user's Google Music account to retrieve song URLs to be used for
+Access a Google Music account to retrieve song URLs and create a play queue for
 streaming. With ideas from Dan Nixon's command-line client, which in turn uses
 Simon Weber's 'gmusicapi' Python module. For further information:
 
@@ -31,11 +31,15 @@ Simon Weber's 'gmusicapi' Python module. For further information:
 import sys
 import logging
 import random
+import unicodedata
 from operator import itemgetter
 from gmusicapi import Mobileclient
 from gmusicapi.exceptions import CallFailure
 from requests.structures import CaseInsensitiveDict
-#import pprint
+
+# For use during debugging
+# import pprint
+# from traceback import print_exception
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
@@ -87,9 +91,10 @@ def exception_handler(exception_type, exception, traceback):
     """A simple exception handler that prints the excetion message.
 
     """
-    del exception_type # unused
+    print_err("[Google Play Music] (%s) : %s" \
+              % (exception_type.__name__, exception))
     del traceback # unused
-    print_err("[Google Play Music] %s" % (exception))
+    #print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -101,6 +106,13 @@ class TizEnumeration(set):
         if name in self:
             return name
         raise AttributeError
+
+def to_ascii(msg):
+    """Unicode to ascii helper.
+
+    """
+
+    return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
 
 class tizgmusicproxy(object):
     """A class for logging into a Google Play Music account and retrieving song
@@ -155,11 +167,10 @@ class tizgmusicproxy(object):
         logging.info("current_song_title_and_artist")
         song = self.now_playing_song
         if song is not None:
-            title = self.now_playing_song['title']
-            artist = self.now_playing_song['artist']
-            logging.info("Now playing {0} by {1}".format(title.encode("utf-8"),
-                                                   artist.encode("utf-8")))
-            return artist.encode("utf-8"), title.encode("utf-8")
+            title = to_ascii(self.now_playing_song.get('title'))
+            artist = to_ascii(self.now_playing_song.get('artist'))
+            logging.info("Now playing {0} by {1}".format(title, artist))
+            return artist, title
         else:
             return '', ''
 
@@ -170,11 +181,11 @@ class tizgmusicproxy(object):
         logging.info("current_song_album_and_duration")
         song = self.now_playing_song
         if song is not None:
-            album = self.now_playing_song['album']
-            duration = self.now_playing_song['durationMillis']
-            logging.info("album {0} duration {1}".format(album.encode("utf-8"),
-                                                   duration.encode("utf-8")))
-            return album.encode("utf-8"), int(duration)
+            album = to_ascii(self.now_playing_song.get('album'))
+            duration = to_ascii \
+                       (self.now_playing_song.get('durationMillis'))
+            logging.info("album {0} duration {1}".format(album, duration))
+            return album, int(duration)
         else:
             return '', 0
 
@@ -271,9 +282,11 @@ class tizgmusicproxy(object):
             tentative_album = None
             tentative_artist = None
             for library_artist in self.library:
+                library_artist = to_ascii(library_artist)
                 for artist_album in self.library[library_artist]:
+                    artist_album = to_ascii(artist_album)
                     print_nfo("[Google Play Music] [Album] '{0}'." \
-                              .format(artist_album.encode("utf-8")))
+                              .format(artist_album))
                     if not album:
                         if arg.lower() == artist_album.lower():
                             album = artist_album
@@ -300,15 +313,14 @@ class tizgmusicproxy(object):
                 count += 1
                 logging.info("Added {0} tracks from {1} by " \
                              "{2} to queue" \
-                             .format(count, album.encode("utf-8"), \
-                                     artist.encode("utf-8")))
+                             .format(count, album, artist))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
 
     def enqueue_playlist(self, arg):
-        """Search the user's library for playlists with a given name and adds the
-        tracks of the first match to the playback queue.
+        """Search the user's library for playlists with a given name
+        and adds the tracks of the first match to the playback queue.
 
         An All Access search is performed.
 
@@ -319,8 +331,9 @@ class tizgmusicproxy(object):
             self.__update_playlists_all_access()
             playlist = None
             for name, plist in self.playlists.items():
+                name = to_ascii(name)
                 print_nfo("[Google Play Music] [Playlist] '{0}'." \
-                          .format(name.encode("utf-8")))
+                          .format(name))
             if not arg in self.playlists.keys():
                 for name, plist in self.playlists.iteritems():
                     if arg.lower() in name.lower():
@@ -356,8 +369,9 @@ class tizgmusicproxy(object):
         try:
             self.__update_stations_all_access()
             for name, st_id in self.stations.iteritems():
+                name = to_ascii(name)
                 print_nfo("[Google Play Music] [Station] '{0}'." \
-                          .format(name.encode("utf-8")))
+                          .format(name))
             station_id = None
             if not arg in self.stations.keys():
                 for name, st_id in self.stations.iteritems():
@@ -365,7 +379,7 @@ class tizgmusicproxy(object):
                         station_id = st_id
                         print_wrn("[Google Play Music] '{0}' not found. " \
                                   "Playing '{1}' instead." \
-                                  .format(arg, name.encode("utf-8")))
+                                  .format(arg, name))
                         break
                 if not station_id:
                     raise KeyError("Station not found : {0}".format(arg))
@@ -408,15 +422,15 @@ class tizgmusicproxy(object):
                 all_genres += self.__api.get_genres(root_genre['id'])
             for genre in all_genres:
                 print_nfo("[Google Play Music] [Genre] '{0}'." \
-                          .format(genre['name'].encode("utf-8")))
+                          .format(to_ascii(genre['name'])))
             genre = dict()
             if not arg in all_genres:
                 genre = next((g for g in all_genres \
-                              if arg.lower() in g['name'].lower()), None)
+                              if arg.lower() in to_ascii(g['name']).lower()), None)
                 if genre:
                     print_wrn("[Google Play Music] '{0}' not found. " \
                               "Playing '{1}' instead." \
-                              .format(arg, genre['name'].encode("utf-8")))
+                              .format(arg, to_ascii(genre['name'])))
                 else:
                     raise KeyError("Genre not found : {0}".format(arg))
             genre_name = genre['name']
@@ -655,9 +669,11 @@ class tizgmusicproxy(object):
 
         # Sort albums by track number
         for artist in self.library.keys():
-            logging.info("Artist : {0}".format(artist.encode("utf-8")))
+            artist = to_ascii(artist)
+            logging.info("Artist : {0}".format(artist))
             for album in self.library[artist].keys():
-                logging.info("   Album : {0}".format(album.encode("utf-8")))
+                album = to_ascii(album)
+                logging.info("   Album : {0}".format(album))
                 if album == self.all_songs_album_title:
                     sorted_album = sorted(self.library[artist][album],
                                           key=lambda k: k['title'])
@@ -675,9 +691,9 @@ class tizgmusicproxy(object):
         stations = self.__api.get_all_stations()
         self.stations[u"I'm Feeling Lucky"] = 'IFL'
         for station in stations:
-            station_name = station['name']
+            station_name = to_ascii(station['name'])
             logging.info("station name : {0}" \
-                         .format(station_name.encode("utf-8")))
+                         .format(station_name))
             self.stations[station_name] = station['id']
 
     def __update_playlists(self):
@@ -686,9 +702,8 @@ class tizgmusicproxy(object):
         """
         plists = self.__api.get_all_user_playlist_contents()
         for plist in plists:
-            plist_name = plist['name']
-            logging.info("playlist name : {0}" \
-                         .format(plist_name.encode("utf-8")))
+            plist_name = to_ascii(plist['name'])
+            logging.info("playlist name : {0}".format(plist_name))
             tracks = plist['tracks']
             tracks.sort(key=itemgetter('creationTimestamp'))
             self.playlists[plist_name] = list()
@@ -708,9 +723,8 @@ class tizgmusicproxy(object):
         for plist in plists_subscribed_to:
             share_tok = plist['shareToken']
             playlist_items = self.__api.get_shared_playlist_contents(share_tok)
-            plist_name = plist['name']
-            logging.info("shared playlist name : {0}" \
-                         .format(plist_name.encode("utf-8")))
+            plist_name = to_ascii(plist['name'])
+            logging.info("shared playlist name : {0}".format(plist_name))
             self.playlists[plist_name] = list()
             for item in playlist_items:
                 try:
