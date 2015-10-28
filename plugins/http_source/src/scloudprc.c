@@ -668,13 +668,8 @@ static OMX_ERRORTYPE scloud_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   tiz_check_omx_err (retrieve_session_configuration (p_prc));
   tiz_check_omx_err (retrieve_playlist (p_prc));
 
-  TIZ_TRACE (handleOf (p_prc), "cUserName  : [%s]", p_prc->session_.cUserName);
-  TIZ_TRACE (handleOf (p_prc), "cUserPassword  : [%s]",
-             p_prc->session_.cUserPassword);
-
   on_scloud_error_ret_omx_oom (tiz_scloud_init (
-      &(p_prc->p_scloud_), (const char *)p_prc->session_.cUserName,
-      (const char *)p_prc->session_.cUserPassword));
+      &(p_prc->p_scloud_), (const char *)p_prc->session_.cUserOauthToken));
 
   tiz_check_omx_err (enqueue_playlist_items (p_prc));
   tiz_check_omx_err (obtain_next_url (p_prc, 1));

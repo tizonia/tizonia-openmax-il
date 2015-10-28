@@ -66,6 +66,8 @@ static void *scloud_cfgport_ctor (void *ap_obj, va_list *app)
             sizeof(p_obj->session_.cUserName), "tizonia");
   snprintf ((char *)p_obj->session_.cUserPassword,
             sizeof(p_obj->session_.cUserPassword), "pass");
+  snprintf ((char *)p_obj->session_.cUserOauthToken,
+            sizeof(p_obj->session_.cUserOauthToken), "1-111111-11111111-11111111111111");
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
@@ -139,8 +141,9 @@ scloud_cfgport_SetParameter (const void *ap_obj,
               sizeof(OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE));
       p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      TIZ_TRACE (ap_hdl, "SoundCloud User Name [%s]...",
-                 p_obj->session_.cUserName);
+      p_obj->session_.cUserOauthToken[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
+      TIZ_TRACE (ap_hdl, "SoundCloud User's OAuth Token [%s]...",
+                 p_obj->session_.cUserOauthToken);
     }
   else if (OMX_TizoniaIndexParamAudioSoundCloudPlaylist == a_index)
     {
