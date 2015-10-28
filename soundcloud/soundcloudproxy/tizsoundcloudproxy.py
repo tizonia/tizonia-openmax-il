@@ -105,8 +105,8 @@ class TizEnumeration(set):
             return name
         raise AttributeError
 
-def normalize_str(msg):
-    """NFKD unicode normalization wrapper.
+def to_ascii(msg):
+    """Unicode to ascii helper.
 
     """
 
@@ -225,7 +225,7 @@ class tizsoundcloudproxy(object):
             for resource in resources:
                 playlist = resource.fields()
                 pid = playlist.get("id")
-                title = normalize_str(playlist.get('title'))
+                title = to_ascii(playlist.get('title'))
                 print_nfo("[SoundCloud] [Playlist] '{0}'.".format(title))
                 if arg.lower() in title.lower():
                     playlist_resource = self.__api.get('/playlists/%s' % pid)
@@ -306,7 +306,7 @@ class tizsoundcloudproxy(object):
             count = 0
             for resource in track_resources:
                 track = resource.fields()
-                title = normalize_str(track.get('title'))
+                title = to_ascii(track.get('title'))
                 print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                 self.queue.append(track)
                 count += 1
@@ -370,7 +370,7 @@ class tizsoundcloudproxy(object):
             count = 0
             for resource in genre_resources:
                 track = resource.fields()
-                title = normalize_str(track.get('title'))
+                title = to_ascii(track.get('title'))
                 print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                 self.queue.append(track)
                 count += 1
@@ -404,7 +404,7 @@ class tizsoundcloudproxy(object):
             count = 0
             for resource in tag_resources:
                 track = resource.fields()
-                title = normalize_str(track.get('title'))
+                title = to_ascii(track.get('title'))
                 print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                 self.queue.append(track)
                 count += 1
@@ -431,8 +431,8 @@ class tizsoundcloudproxy(object):
         user = ''
         if track:
             try:
-                title = normalize_str(track.get('title'))
-                user = normalize_str(track['user']['username'])
+                title = to_ascii(track.get('title'))
+                user = to_ascii(track['user']['username'])
                 logging.info("Now playing {0} by {1}" \
                              .format(title, user))
             except KeyError:
