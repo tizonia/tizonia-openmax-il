@@ -49,14 +49,14 @@ static void soundcloud_free_data (tiz_scloud_t *ap_scloud)
     }
 }
 
-static int soundcloud_alloc_data (tiz_scloud_t *ap_scloud, const char *ap_user,
-                                  const char *ap_pass)
+static int soundcloud_alloc_data (tiz_scloud_t *ap_scloud,
+                                  const char *ap_oauth_token)
 {
   int rc = 0;
   assert (NULL != ap_scloud);
   try
     {
-      ap_scloud->p_proxy_ = new tizsoundcloud (ap_user, ap_pass);
+      ap_scloud->p_proxy_ = new tizsoundcloud (ap_oauth_token);
     }
   catch (...)
     {
@@ -67,18 +67,17 @@ static int soundcloud_alloc_data (tiz_scloud_t *ap_scloud, const char *ap_user,
 }
 
 extern "C" int tiz_scloud_init (tiz_scloud_ptr_t *app_scloud,
-                                const char *ap_user, const char *ap_pass)
+                                const char *ap_oauth_token)
 {
   tiz_scloud_t *p_scloud = NULL;
   int rc = 1;
 
   assert (NULL != app_scloud);
-  assert (NULL != ap_user);
-  assert (NULL != ap_pass);
+  assert (NULL != ap_oauth_token);
 
   if (NULL != (p_scloud = (tiz_scloud_t *)calloc (1, sizeof(tiz_scloud_t))))
     {
-      if (!soundcloud_alloc_data (p_scloud, ap_user, ap_pass))
+      if (!soundcloud_alloc_data (p_scloud, ap_oauth_token))
         {
           tizsoundcloud *p_gm = p_scloud->p_proxy_;
           assert (NULL != p_gm);

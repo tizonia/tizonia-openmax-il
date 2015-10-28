@@ -68,13 +68,12 @@ typedef enum tiz_scloud_playback_mode
  *
  * @param app_scloud A pointer to the soundcloud handle which will be
  * initialised.
- * @param ap_user A SoundCloud email account.
- * @param ap_pass The password associated to the SoundCloud account.
+ * @param ap_oauth_token A SoundCloud email account.
  *
  * @return 0 on success.
  */
 int tiz_scloud_init (/*@null@ */ tiz_scloud_ptr_t *app_scloud,
-                     const char *ap_user, const char *ap_pass);
+                     const char *ap_oauth_token);
 
 /**
  * Clear the playback queue.

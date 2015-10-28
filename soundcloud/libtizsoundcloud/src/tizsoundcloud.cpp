@@ -76,16 +76,16 @@ namespace
 
   void start_soundcloud (boost::python::object &py_global,
                      boost::python::object &py_gm_proxy,
-                     const std::string &user, const std::string &pass)
+                     const std::string &oauth_token)
   {
     bp::object pysoundcloudproxy = py_global["tizsoundcloudproxy"];
     py_gm_proxy
-        = pysoundcloudproxy (user.c_str (), pass.c_str ());
+        = pysoundcloudproxy (oauth_token.c_str ());
   }
 }
 
-tizsoundcloud::tizsoundcloud (const std::string &user, const std::string &pass)
-  : user_ (user), pass_ (pass)
+tizsoundcloud::tizsoundcloud (const std::string &oauth_token)
+  : oauth_token_ (oauth_token)
 {
 }
 
@@ -104,7 +104,7 @@ int tizsoundcloud::start ()
 {
   int rc = 0;
   try_catch_wrapper (
-      start_soundcloud (py_global_, py_gm_proxy_, user_, pass_));
+      start_soundcloud (py_global_, py_gm_proxy_, oauth_token_));
   return rc;
 }
 

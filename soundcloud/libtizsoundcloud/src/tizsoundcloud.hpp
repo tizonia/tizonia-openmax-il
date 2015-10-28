@@ -47,7 +47,7 @@ public:
     };
 
 public:
-  tizsoundcloud (const std::string &user, const std::string &pass);
+  tizsoundcloud (const std::string &oauth_token);
   ~tizsoundcloud ();
 
   int init ();
@@ -81,8 +81,7 @@ private:
   int get_current_track ();
 
 private:
-  std::string user_;
-  std::string pass_;
+  std::string oauth_token_;
   std::string current_url_;
   std::string current_user_;
   std::string current_title_;
