@@ -92,5 +92,4 @@ mpris-enabled = false
 # To avoid passing this information on the command line, simply uncomment
 # and configure accordingly
 #
-# soundcloud.user = user@mail.com
-# soundcloud.password = pass
+# soundcloud.oauth_token = user@mail.com
