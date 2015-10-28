@@ -29,12 +29,15 @@ from __future__ import unicode_literals
 import sys
 import logging
 import random
-from operator import itemgetter
 import soundcloud
-# import pprint
-
 import collections
 import unicodedata
+from requests.exceptions import HTTPError
+from operator import itemgetter
+
+# For use during debugging
+# import pprint
+# from traceback import print_exception
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
@@ -86,9 +89,10 @@ def exception_handler(exception_type, exception, traceback):
     """A simple exception handler that prints the excetion message.
 
     """
-    del exception_type # unused
+
+    print_err("[SoundCloud] (%s) : %s" % (exception_type.__name__, exception))
     del traceback # unused
-    print_err("[SoundCloud] %s" % exception)
+    #print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -100,6 +104,13 @@ class TizEnumeration(set):
         if name in self:
             return name
         raise AttributeError
+
+def normalize_str(msg):
+    """NFKD unicode normalization wrapper.
+
+    """
+
+    return unicodedata.normalize('NFKD', unicode(msg)).encode('ASCII', 'ignore')
 
 class tizsoundcloudproxy(object):
     """A class that logs into a SoundCloud account, retrieves track URLs
@@ -214,10 +225,9 @@ class tizsoundcloudproxy(object):
             for resource in resources:
                 playlist = resource.fields()
                 pid = playlist.get("id")
-                title = playlist.get('title')
-                print_nfo("[SoundCloud] [Playlist] '{0}'." \
-                          .format(title.encode("utf-8")))
-                if arg.lower() in title.encode("utf-8").lower():
+                title = normalize_str(playlist.get('title'))
+                print_nfo("[SoundCloud] [Playlist] '{0}'.".format(title))
+                if arg.lower() in title.lower():
                     playlist_resource = self.__api.get('/playlists/%s' % pid)
                     tracks = playlist_resource.tracks
                     for track in tracks:
@@ -296,9 +306,8 @@ class tizsoundcloudproxy(object):
             count = 0
             for resource in track_resources:
                 track = resource.fields()
-                title = track.get('title')
-                print_nfo("[SoundCloud] [Track] '{0}'." \
-                          .format(title.encode("utf-8")))
+                title = normalize_str(track.get('title'))
+                print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                 self.queue.append(track)
                 count += 1
             if count == 0:
@@ -361,12 +370,8 @@ class tizsoundcloudproxy(object):
             count = 0
             for resource in genre_resources:
                 track = resource.fields()
-                title = track.get('title')
-                title = unicodedata.normalize('NFKD', \
-                                              unicode(title)) \
-                                   .encode('ASCII', 'ignore')
-                print_nfo("[SoundCloud] [Track] '{0}'." \
-                          .format(title))
+                title = normalize_str(track.get('title'))
+                print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                 self.queue.append(track)
                 count += 1
             if count == 0:
@@ -399,12 +404,8 @@ class tizsoundcloudproxy(object):
             count = 0
             for resource in tag_resources:
                 track = resource.fields()
-                title = track.get('title')
-                title = unicodedata.normalize('NFKD', \
-                                              unicode(title)) \
-                                   .encode('ASCII', 'ignore')
-                print_nfo("[SoundCloud] [Track] '{0}'." \
-                          .format(title))
+                title = normalize_str(track.get('title'))
+                print_nfo("[SoundCloud] [Track] '{0}'.".format(title))
                 self.queue.append(track)
                 count += 1
             if count == 0:
@@ -430,16 +431,10 @@ class tizsoundcloudproxy(object):
         user = ''
         if track:
             try:
-                title = unicodedata.normalize('NFKD', \
-                                              unicode(track.get('title'))) \
-                                   .encode('ASCII', 'ignore')
-                user = unicodedata.normalize('NFKD', \
-                                             unicode
-                                             (track['user']['username'])) \
-                                  .encode('ASCII', 'ignore')
+                title = normalize_str(track.get('title'))
+                user = normalize_str(track['user']['username'])
                 logging.info("Now playing {0} by {1}" \
-                             .format(title.encode("utf-8"),
-                                     user.encode("utf-8")))
+                             .format(title, user))
             except KeyError:
                 logging.info("title/user : not found")
         return title.encode("utf-8"), user.encode("utf-8")
@@ -554,9 +549,9 @@ class tizsoundcloudproxy(object):
                     return self.next_url()
             else:
                 return ''
-        except (KeyError, AttributeError):
+        except (KeyError, AttributeError, HTTPError):
             del self.queue[self.queue_index]
-            return self.prev_url()
+            return self.next_url()
 
     def prev_url(self):
         """ Retrieve the url of the previous track in the playback queue.
@@ -576,10 +571,9 @@ class tizsoundcloudproxy(object):
                     return self.prev_url()
             else:
                 return ''
-        except (KeyError, AttributeError):
+        except (KeyError, AttributeError, HTTPError):
             del self.queue[self.queue_index]
             return self.prev_url()
-
 
     def __update_play_queue_order(self):
         """ Update the queue playback order.
