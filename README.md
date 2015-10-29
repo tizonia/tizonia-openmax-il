@@ -33,7 +33,7 @@ simply run:
 
 ```
 
-Finally you can add your Spotify and Google Play Music and SoundCloud login
+Finally you can add your Spotify, Google Play Music and SoundCloud login
 details in Tizonia's config file located at
 _$HOME/.config/tizonia/tizonia.conf_
 
