@@ -90,6 +90,9 @@ mpris-enabled = false
 # SoundCloud configuration
 # -------------------------------------------------------------------------
 # To avoid passing this information on the command line, simply uncomment
-# and configure accordingly
+# and configure your SoundCloud OAuth token accordingly.
 #
-# soundcloud.oauth_token = user@mail.com
+# To obtain your OAuth token, Tizonia needs to be granted access to your
+# SoundCloud account. Visit http://www.tizonia.org/soundcloud for the details.
+#
+# soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX
