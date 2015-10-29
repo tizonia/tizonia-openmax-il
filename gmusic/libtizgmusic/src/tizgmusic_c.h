@@ -95,13 +95,13 @@ void tiz_gmusic_set_playback_mode (tiz_gmusic_t *ap_gmusic,
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_album The album name
- * @param a_all_access_search If true, All Access albums are
+ * @param a_unlimited_search If true, Google Play Unlimited albums are
  * included. Otherwise, only albums from the user's library are considered.
  *
  * @return 0 on success
  */
 int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album,
-                           const bool a_all_access_search);
+                           const bool a_unlimited_search);
 
 /**
  * Add the tracks of the specified artist to the playback queue.
@@ -111,13 +111,13 @@ int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album,
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_artist The artist name
- * @param a_all_access_search If true, All Access albums are
- * included. Otherwise, only albums from the user's library are considered.
+ * @param a_unlimited_search If true, Google Play Unlimited artists are
+ * included. Otherwise, only artists from the user's library are considered.
  *
  * @return 0 on success
  */
 int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist,
-                            const bool a_all_access_search);
+                            const bool a_unlimited_search);
 
 /**
  * Add the tracks of the specified playlist to the playback queue.
@@ -127,13 +127,13 @@ int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist,
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_playlist The playlist name
- * @param a_all_access_search If true, All Access playlists are
+ * @param a_unlimited_search If true, Google Play Unlimited playlists are
  * included. Otherwise, only playlists from the user's library are considered.
  *
  * @return 0 on success
  */
 int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist,
-                              const bool a_all_access_search);
+                              const bool a_unlimited_search);
 
 /**
  * Add the tracks of the specified station to the playback queue.
@@ -141,7 +141,7 @@ int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist,
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @note An All Access subscription is required.
+ * @note An Google Play Unlimited subscription is required.
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_station The station name
@@ -156,7 +156,7 @@ int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @note An All Access subscription is required.
+ * @note An Google Play Unlimited subscription is required.
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_genre The genre
@@ -166,12 +166,12 @@ int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
 int tiz_gmusic_play_genre (tiz_gmusic_t *ap_gmusic, const char *ap_genre);
 
 /**
-* Add All Access promoted tracks to the playback queue.
+* Add Google Play Unlimited promoted tracks to the playback queue.
 *
 * After calling this method, the various tiz_gmusic_get* methods can be
 * used to interact with the playback queue.
 *
-* @note An All Access subscription is required.
+* @note An Google Play Unlimited subscription is required.
 *
 * @param ap_gmusic The gmusic handle.
 *

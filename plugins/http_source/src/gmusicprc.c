@@ -570,7 +570,7 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
 
   {
     const char *p_playlist = (const char *)ap_prc->playlist_.cPlaylistName;
-    const OMX_BOOL is_all_access_search = ap_prc->playlist_.bAllAccessSearch;
+    const OMX_BOOL is_unlimited_search = ap_prc->playlist_.bUnlimitedSearch;
     const OMX_BOOL shuffle = ap_prc->playlist_.bShuffle;
 
     tiz_gmusic_set_playback_mode (
@@ -588,17 +588,17 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
           break;
         case OMX_AUDIO_GmusicPlaylistTypeUser:
           {
-            rc = tiz_gmusic_play_playlist (ap_prc->p_gmusic_, p_playlist, is_all_access_search);
+            rc = tiz_gmusic_play_playlist (ap_prc->p_gmusic_, p_playlist, is_unlimited_search);
           }
           break;
         case OMX_AUDIO_GmusicPlaylistTypeArtist:
           {
-            rc = tiz_gmusic_play_artist (ap_prc->p_gmusic_, p_playlist, is_all_access_search);
+            rc = tiz_gmusic_play_artist (ap_prc->p_gmusic_, p_playlist, is_unlimited_search);
           }
           break;
         case OMX_AUDIO_GmusicPlaylistTypeAlbum:
           {
-            rc = tiz_gmusic_play_album (ap_prc->p_gmusic_, p_playlist, is_all_access_search);
+            rc = tiz_gmusic_play_album (ap_prc->p_gmusic_, p_playlist, is_unlimited_search);
           }
           break;
         case OMX_AUDIO_GmusicPlaylistTypeStation:

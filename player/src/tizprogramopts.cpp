@@ -274,7 +274,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_feeling_lucky_station_ (),
     gmusic_playlist_container_ (),
     gmusic_playlist_type_ (OMX_AUDIO_GmusicPlaylistTypeUnknown),
-    gmusic_is_all_access_search_ (false),
+    gmusic_is_unlimited_search_ (false),
     scloud_oauth_token_ (),
     scloud_user_stream_ (),
     scloud_user_likes_ (),
@@ -636,9 +636,9 @@ tiz::programopts::gmusic_playlist_type ()
   return gmusic_playlist_type_;
 }
 
-bool tiz::programopts::gmusic_is_all_access_search () const
+bool tiz::programopts::gmusic_is_unlimited_search () const
 {
-  return gmusic_is_all_access_search_;
+  return gmusic_is_unlimited_search_;
 }
 
 const std::string &tiz::programopts::scloud_oauth_token () const
@@ -896,33 +896,33 @@ void tiz::programopts::init_gmusic_options ()
       ("gmusic-playlist", po::value (&gmusic_playlist_),
        "A playlist from the user's library.")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-all-access-station", po::value (&gmusic_station_),
-       "Search and play All Access stations found in the user's library.")
+      ("gmusic-unlimited-station", po::value (&gmusic_station_),
+       "Search and play Google Play Music Unlimited stations found in the user's library.")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-all-access-album", po::value (&gmusic_album_),
-       "Search and play All Access tracks by album (best match only).")
+      ("gmusic-unlimited-album", po::value (&gmusic_album_),
+       "Search and play Google Play Music Unlimited tracks by album (best match only).")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-all-access-artist", po::value (&gmusic_artist_),
-       "Search and play All Access tracks by artist (best match only).")
+      ("gmusic-unlimited-artist", po::value (&gmusic_artist_),
+       "Search and play Google Play Music Unlimited tracks by artist (best match only).")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-all-access-tracks", po::value (&gmusic_playlist_),
-       "Search and play All Access tracks by name (50 first matches only).")
+      ("gmusic-unlimited-tracks", po::value (&gmusic_playlist_),
+       "Search and play Google Play Music Unlimited tracks by name (50 first matches only).")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-all-access-genre", po::value (&gmusic_genre_),
-       "Search and play All Access tracks by genre.")
+      ("gmusic-unlimited-genre", po::value (&gmusic_genre_),
+       "Search and play Google Play Music Unlimited tracks by genre.")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-all-access-feeling-lucky-station",
-       "Play the user's All Access 'I'm Feeling Lucky' station.")
+      ("gmusic-unlimited-feeling-lucky-station",
+       "Play the user's Google Play Music Unlimited 'I'm Feeling Lucky' station.")
       /* TIZ_CLASS_COMMENT: */
-      ("gmusic-all-access-promoted-tracks",
-       "Play All Access promoted tracks.");
+      ("gmusic-unlimited-promoted-tracks",
+       "Play Google Play Music Unlimited promoted tracks.");
 
   register_consume_function (&tiz::programopts::consume_gmusic_client_options);
   all_gmusic_client_options_ = boost::assign::list_of ("gmusic-user")
     ("gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")
-    ("gmusic-playlist")("gmusic-all-access-station")("gmusic-all-access-album")
-    ("gmusic-all-access-artist")("gmusic-all-access-tracks")("gmusic-all-access-genre")
-    ("gmusic-all-access-feeling-lucky-station")("gmusic-all-access-promoted-tracks");
+    ("gmusic-playlist")("gmusic-unlimited-station")("gmusic-unlimited-album")
+    ("gmusic-unlimited-artist")("gmusic-unlimited-tracks")("gmusic-unlimited-genre")
+    ("gmusic-unlimited-feeling-lucky-station")("gmusic-unlimited-promoted-tracks");
 }
 
 void tiz::programopts::init_scloud_options ()
@@ -1232,10 +1232,10 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
 
     const int playlist_option_count = vm_.count ("gmusic-artist")
       + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-      + vm_.count ("gmusic-all-access-station") + vm_.count ("gmusic-all-access-album")
-      + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-tracks")
-      + vm_.count ("gmusic-all-access-genre") + vm_.count ("gmusic-all-access-feeling-lucky-station")
-      + vm_.count ("gmusic-all-access-promoted-tracks") ;
+      + vm_.count ("gmusic-unlimited-station") + vm_.count ("gmusic-unlimited-album")
+      + vm_.count ("gmusic-unlimited-artist") + vm_.count ("gmusic-unlimited-tracks")
+      + vm_.count ("gmusic-unlimited-genre") + vm_.count ("gmusic-unlimited-feeling-lucky-station")
+      + vm_.count ("gmusic-unlimited-promoted-tracks") ;
 
     if (gmusic_user_.empty ())
       {
@@ -1250,25 +1250,25 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
         retrieve_config_from_rc_file ("tizonia", "gmusic.device_id", gmusic_device_id_);
       }
 
-    if (vm_.count ("gmusic-all-access-promoted-tracks"))
+    if (vm_.count ("gmusic-unlimited-promoted-tracks"))
       {
         // This is not going to be used by the client code, but will help
         // in gmusic_playlist_type() to decide which playlist type value is returned.
-        gmusic_promoted_.assign ("All Access promoted tracks");
+        gmusic_promoted_.assign ("Google Play Music Unlimited promoted tracks");
       }
 
-    if (vm_.count ("gmusic-all-access-feeling-lucky-station"))
+    if (vm_.count ("gmusic-unlimited-feeling-lucky-station"))
       {
         gmusic_feeling_lucky_station_.assign ("I'm Feeling Lucky");
       }
 
-      if (vm_.count ("gmusic-all-access-station")
-          || vm_.count ("gmusic-all-access-album")
-          || vm_.count ("gmusic-all-access-artist")
-          || vm_.count ("gmusic-all-access-tracks")
-          || vm_.count ("gmusic-all-access-genre"))
+      if (vm_.count ("gmusic-unlimited-station")
+          || vm_.count ("gmusic-unlimited-album")
+          || vm_.count ("gmusic-unlimited-artist")
+          || vm_.count ("gmusic-unlimited-tracks")
+          || vm_.count ("gmusic-unlimited-genre"))
       {
-        gmusic_is_all_access_search_ = true;
+        gmusic_is_unlimited_search_ = true;
       }
 
     if (gmusic_user_.empty ())
@@ -1487,10 +1487,10 @@ bool tiz::programopts::validate_gmusic_client_options () const
       = vm_.count ("gmusic-user") + vm_.count ("gmusic-password")
         + vm_.count ("gmusic-device-id") + vm_.count ("gmusic-artist")
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-        + vm_.count ("gmusic-all-access-station") + vm_.count ("gmusic-all-access-album")
-        + vm_.count ("gmusic-all-access-artist") + vm_.count ("gmusic-all-access-tracks")
-        + vm_.count ("gmusic-all-access-genre") + vm_.count ("gmusic-all-access-feeling-lucky-station")
-        + vm_.count ("gmusic-all-access-promoted-tracks")
+        + vm_.count ("gmusic-unlimited-station") + vm_.count ("gmusic-unlimited-album")
+        + vm_.count ("gmusic-unlimited-artist") + vm_.count ("gmusic-unlimited-tracks")
+        + vm_.count ("gmusic-unlimited-genre") + vm_.count ("gmusic-unlimited-feeling-lucky-station")
+        + vm_.count ("gmusic-unlimited-promoted-tracks")
         + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_gmusic_client_options_;

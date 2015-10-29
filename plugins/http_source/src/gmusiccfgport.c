@@ -75,7 +75,7 @@ static void *gmusic_cfgport_ctor (void *ap_obj, va_list *app)
             sizeof(p_obj->playlist_.cPlaylistName), "playlist");
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_GmusicPlaylistTypeUnknown;
   p_obj->playlist_.bShuffle = OMX_FALSE;
-  p_obj->playlist_.bAllAccessSearch = OMX_FALSE;
+  p_obj->playlist_.bUnlimitedSearch = OMX_FALSE;
 
   return p_obj;
 }

@@ -115,29 +115,29 @@ extern "C" void tiz_gmusic_set_playback_mode (tiz_gmusic_t *ap_gmusic,
 
 extern "C" int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic,
                                       const char *ap_album,
-                                      const bool a_all_access_search)
+                                      const bool a_unlimited_search)
 {
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->play_album (ap_album, a_all_access_search);
+  return ap_gmusic->p_proxy_->play_album (ap_album, a_unlimited_search);
 }
 
 extern "C" int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic,
                                        const char *ap_artist,
-                                       const bool a_all_access_search)
+                                       const bool a_unlimited_search)
 {
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->play_artist (ap_artist, a_all_access_search);
+  return ap_gmusic->p_proxy_->play_artist (ap_artist, a_unlimited_search);
 }
 
 extern "C" int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic,
                                          const char *ap_playlist,
-                                         const bool a_all_access_search)
+                                         const bool a_unlimited_search)
 {
   assert (NULL != ap_gmusic);
   assert (NULL != ap_gmusic->p_proxy_);
-  return ap_gmusic->p_proxy_->play_playlist (ap_playlist, a_all_access_search);
+  return ap_gmusic->p_proxy_->play_playlist (ap_playlist, a_unlimited_search);
 }
 
 extern "C" int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic,

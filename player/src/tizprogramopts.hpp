@@ -82,7 +82,7 @@ namespace tiz
     const std::string &gmusic_device_id () const;
     const std::vector< std::string > &gmusic_playlist_container ();
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type ();
-    bool gmusic_is_all_access_search () const;
+    bool gmusic_is_unlimited_search () const;
     const std::string &scloud_oauth_token () const;
     const std::vector< std::string > &scloud_playlist_container ();
     OMX_TIZONIA_AUDIO_SOUNDCLOUDPLAYLISTTYPE scloud_playlist_type ();
@@ -183,7 +183,7 @@ namespace tiz
     std::string gmusic_feeling_lucky_station_;
     std::vector< std::string > gmusic_playlist_container_;
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type_;
-    bool gmusic_is_all_access_search_;
+    bool gmusic_is_unlimited_search_;
     std::string scloud_oauth_token_;
     std::string scloud_user_stream_;
     std::string scloud_user_likes_;

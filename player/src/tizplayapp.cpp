@@ -725,7 +725,7 @@ tiz::playapp::gmusic_stream ()
   std::string device_id (popts_.gmusic_device_id ());
   const uri_lst_t &uri_list = popts_.gmusic_playlist_container ();
   const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type = popts_.gmusic_playlist_type ();
-  const bool is_all_access_search = popts_.gmusic_is_all_access_search ();
+  const bool is_unlimited_search = popts_.gmusic_is_unlimited_search ();
 
   print_banner ();
 
@@ -748,7 +748,7 @@ tiz::playapp::gmusic_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::gmusicconfig >(
-      playlist, user, pass, device_id, playlist_type, is_all_access_search);
+      playlist, user, pass, device_id, playlist_type, is_unlimited_search);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr

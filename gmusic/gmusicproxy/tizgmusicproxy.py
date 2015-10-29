@@ -328,7 +328,7 @@ class tizgmusicproxy(object):
         try:
             self.__update_local_library()
             self.__update_playlists()
-            self.__update_playlists_all_access()
+            self.__update_playlists_unlimited()
             playlist = None
             for name, plist in self.playlists.items():
                 name = to_ascii(name)
@@ -356,7 +356,7 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
 
-    def enqueue_station_all_access(self, arg):
+    def enqueue_station_unlimited(self, arg):
         """Search the user's library for a station with a given name
         and adds its tracks to the playback queue.
 
@@ -367,7 +367,7 @@ class tizgmusicproxy(object):
                   "This could take some time.".format(self.__email))
 
         try:
-            self.__update_stations_all_access()
+            self.__update_stations_unlimited()
             for name, st_id in self.stations.iteritems():
                 name = to_ascii(name)
                 print_nfo("[Google Play Music] [Station] '{0}'." \
@@ -403,7 +403,7 @@ class tizgmusicproxy(object):
         except KeyError:
             raise KeyError("Station not found : {0}".format(arg))
 
-    def enqueue_genre_all_access(self, arg):
+    def enqueue_genre_unlimited(self, arg):
         """Search All Access for a genre with a given name and adds its
         tracks to the playback queue.
 
@@ -453,7 +453,7 @@ class tizgmusicproxy(object):
         except CallFailure:
             raise RuntimeError("Operation requires an All Access subscription.")
 
-    def enqueue_artist_all_access(self, arg):
+    def enqueue_artist_unlimited(self, arg):
         """Search All Access for an artist and adds the artist's 50 top tracks
         to the playback queue.
 
@@ -490,7 +490,7 @@ class tizgmusicproxy(object):
         except CallFailure:
             raise RuntimeError("Operation requires an All Access subscription.")
 
-    def enqueue_album_all_access(self, arg):
+    def enqueue_album_unlimited(self, arg):
         """Search All Access for an album and adds its tracks to the
         playback queue.
 
@@ -522,7 +522,7 @@ class tizgmusicproxy(object):
         except CallFailure:
             raise RuntimeError("Operation requires an All Access subscription.")
 
-    def enqueue_tracks_all_access(self, arg):
+    def enqueue_tracks_unlimited(self, arg):
         """ Search All Access for a track name and adds all the matching tracks
         to the playback queue.
 
@@ -549,7 +549,7 @@ class tizgmusicproxy(object):
         except CallFailure:
             raise RuntimeError("Operation requires an All Access subscription.")
 
-    def enqueue_promoted_tracks_all_access(self):
+    def enqueue_promoted_tracks_unlimited(self):
         """ Retrieve the url of the next track in the playback queue.
 
         """
@@ -683,7 +683,7 @@ class tizgmusicproxy(object):
                                                               0))
                 self.library[artist][album] = sorted_album
 
-    def __update_stations_all_access(self):
+    def __update_stations_unlimited(self):
         """ Retrieve stations (All Access)
 
         """
@@ -714,7 +714,7 @@ class tizgmusicproxy(object):
                 except IndexError:
                     pass
 
-    def __update_playlists_all_access(self):
+    def __update_playlists_unlimited(self):
         """ Retrieve shared playlists (All Access)
 
         """

@@ -122,13 +122,13 @@ void tizgmusic::deinit ()
   // boost::python doesn't support Py_Finalize() yet!
 }
 
-int tizgmusic::play_album (const std::string &album, const bool a_all_access_search)
+int tizgmusic::play_album (const std::string &album, const bool a_unlimited_search)
 {
   int rc = 0;
-  if (a_all_access_search)
+  if (a_unlimited_search)
     {
       try_catch_wrapper (
-          py_gm_proxy_.attr ("enqueue_album_all_access")(bp::object (album)));
+          py_gm_proxy_.attr ("enqueue_album_unlimited")(bp::object (album)));
     }
   else
     {
@@ -138,12 +138,12 @@ int tizgmusic::play_album (const std::string &album, const bool a_all_access_sea
   return rc;
 }
 
-int tizgmusic::play_artist (const std::string &artist, const bool a_all_access_search)
+int tizgmusic::play_artist (const std::string &artist, const bool a_unlimited_search)
 {
   int rc = 0;
-  if (a_all_access_search)
+  if (a_unlimited_search)
     {
-      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_artist_all_access")(bp::object (artist)));
+      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_artist_unlimited")(bp::object (artist)));
     }
   else
     {
@@ -152,14 +152,14 @@ int tizgmusic::play_artist (const std::string &artist, const bool a_all_access_s
   return rc;
 }
 
-int tizgmusic::play_playlist (const std::string &playlist, const bool a_all_access_search)
+int tizgmusic::play_playlist (const std::string &playlist, const bool a_unlimited_search)
 {
   int rc = 0;
-  if (a_all_access_search)
+  if (a_unlimited_search)
     {
       // NOTE: we will enqueue here "tracks" instead of a playlist (gmusicapi
       // returns an empty playlist_hits list)
-      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_tracks_all_access")(bp::object (playlist)));
+      try_catch_wrapper (py_gm_proxy_.attr ("enqueue_tracks_unlimited")(bp::object (playlist)));
     }
   else
     {
@@ -171,21 +171,21 @@ int tizgmusic::play_playlist (const std::string &playlist, const bool a_all_acce
 int tizgmusic::play_station (const std::string &station)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_station_all_access")(bp::object (station)));
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_station_unlimited")(bp::object (station)));
   return rc;
 }
 
 int tizgmusic::play_genre (const std::string &genre)
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_genre_all_access")(bp::object (genre)));
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_genre_unlimited")(bp::object (genre)));
   return rc;
 }
 
 int tizgmusic::play_promoted_tracks ()
 {
   int rc = 0;
-  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_promoted_tracks_all_access")());
+  try_catch_wrapper (py_gm_proxy_.attr ("enqueue_promoted_tracks_unlimited")());
   return rc;
 }
 
