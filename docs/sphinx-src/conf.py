@@ -287,7 +287,7 @@ def run_doxygen(app):
     try:
         read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
         if read_the_docs_build:
-            retcode = subprocess.call("cd .. && autoreconf -ifs && ./configure && make", shell=True)
+            retcode = subprocess.call("cd .. && ./configure && make", shell=True)
         else:
             retcode = subprocess.call("cd .. && make", shell=True)
         if retcode < 0:
