@@ -24,19 +24,22 @@ AC_CONFIG_HEADERS([config.h])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 # 'm4' is the directory where the extra autoconf macros are stored
-# AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_CHECK_PROGS([DOXYGEN], [doxygen])
 if test -z "$DOXYGEN";
-   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+   then AC_MSG_ERROR([tizonia-doc needs doxygen])
 fi
 
-AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
-#AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([Doxyfile])])
+AC_CHECK_PROGS([SPHINXBUILD], [sphinx-build sphinx-build3 sphinx-build2], [no])
+if test -z "$SPHINXBUILD";
+   then AC_MSG_ERROR([tizonia-doc needs sphinx])
+fi
 
 # Checks for libraries.
-
+AX_PYTHON_MODULE(alabaster, [tizonia-doc needs alabaster])
+AX_PYTHON_MODULE(breathe, [tizonia-doc needs breathe])
 
 # Checks for header files.
 
