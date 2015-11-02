@@ -35,7 +35,7 @@ extern "C" {
 
 /**
  * @defgroup event Event loop utilities
- * @ingroup tizplatform
+ * @ingroup libtizplatform
  */
 
 #include <stdbool.h>

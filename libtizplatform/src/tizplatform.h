@@ -30,7 +30,7 @@
 #define TIZ_H
 
 /**
- * @defgroup tizplatform 'libtizplatform' : OS abstraction wrapers and utilities
+ * @defgroup libtizplatform 'libtizplatform' : OS abstraction wrapers and utilities
  *
  * @{
  *

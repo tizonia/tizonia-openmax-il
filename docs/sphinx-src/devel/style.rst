@@ -1,8 +1,8 @@
 .. Tizonia documentation
 
 
-Developer Notes / Coding Style
-==============================
+Coding Style
+============
 
 General Philosophy
 ------------------

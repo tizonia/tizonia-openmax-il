@@ -47,7 +47,7 @@
 #endif
 
 /**
- *@defgroup tizsdlivrnd 'libtizsdlivrnd' : OpenMAX IL SDL-based video renderer
+ *@defgroup libtizsdlivrnd 'libtizsdlivrnd' : OpenMAX IL SDL-based video renderer
  *
  * - Component name : "OMX.Aratelia.iv_renderer.yuv.overlay"
  * - Implements role: "iv_renderer.yuv.overlay"

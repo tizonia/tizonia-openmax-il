@@ -51,7 +51,7 @@
 #endif
 
 /**
- *@defgroup tizmp3meta 'libtizmp3meta' : OpenMAX IL MP3 metadata eraser
+ *@defgroup libtizmp3meta 'libtizmp3meta' : OpenMAX IL MP3 metadata eraser
  *
  * - Component name : "OMX.Aratelia.audio_metadata_eraser.mp3"
  * - Implements role: "audio_metadata_eraser.mp3"

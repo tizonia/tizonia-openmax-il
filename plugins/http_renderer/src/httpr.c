@@ -53,7 +53,7 @@
 #endif
 
 /**
- *@defgroup tizhttprnd 'libtizhttprnd' : OpenMAX IL HTTP audio renderer
+ *@defgroup libtizhttprnd 'libtizhttprnd' : OpenMAX IL HTTP audio renderer
  *
  * - Component name : "OMX.Aratelia.audio_renderer.http"
  * - Implements role: "audio_renderer.http"

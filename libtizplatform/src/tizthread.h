@@ -35,7 +35,7 @@ extern "C" {
 
 /**
  * @defgroup thread Thread/task management
- * @ingroup tizplatform
+ * @ingroup libtizplatform
  */
 
 #include <OMX_Core.h>

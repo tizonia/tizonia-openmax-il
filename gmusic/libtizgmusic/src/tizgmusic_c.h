@@ -36,7 +36,7 @@ extern "C" {
 #include <stdbool.h>
 
 /**
-* @defgroup tizgmusic 'libtizgmusic' : A Google Play Music client library
+* @defgroup libtizgmusic 'libtizgmusic' : A Google Play Music client library
 *
 * A C library to access the Google Play Music streaming service (using Simon
 * Weber's 'gmusicapi' python library).
@@ -46,14 +46,14 @@ extern "C" {
 
 /**
  * The gmusic opaque structure
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  */
 typedef struct tiz_gmusic tiz_gmusic_t;
 typedef /*@null@ */ tiz_gmusic_t *tiz_gmusic_ptr_t;
 
 /**
  * Various playback modes that control the playback queue.
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  */
 typedef enum tiz_gmusic_playback_mode
 {
@@ -65,7 +65,7 @@ typedef enum tiz_gmusic_playback_mode
 /**
  * Initialize the gmusic handle.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param app_gmusic A pointer to the gmusic handle which will be initialised.
  * @param ap_user A Google email account.
@@ -82,7 +82,7 @@ int tiz_gmusic_init (/*@null@ */ tiz_gmusic_ptr_t *app_gmusic,
 /**
  * Set the playback mode.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -95,7 +95,7 @@ void tiz_gmusic_set_playback_mode (tiz_gmusic_t *ap_gmusic,
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_album The album name
@@ -113,7 +113,7 @@ int tiz_gmusic_play_album (tiz_gmusic_t *ap_gmusic, const char *ap_album,
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_artist The artist name
@@ -131,7 +131,7 @@ int tiz_gmusic_play_artist (tiz_gmusic_t *ap_gmusic, const char *ap_artist,
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  * @param ap_playlist The playlist name
@@ -149,7 +149,7 @@ int tiz_gmusic_play_playlist (tiz_gmusic_t *ap_gmusic, const char *ap_playlist,
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @note An Google Play Unlimited subscription is required.
  *
@@ -166,7 +166,7 @@ int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
  * After calling this method, the various tiz_gmusic_get* methods can be
  * used to interact with the playback queue.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @note An Google Play Unlimited subscription is required.
  *
@@ -183,7 +183,7 @@ int tiz_gmusic_play_genre (tiz_gmusic_t *ap_gmusic, const char *ap_genre);
 * After calling this method, the various tiz_gmusic_get* methods can be
 * used to interact with the playback queue.
 *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
 * @note An Google Play Unlimited subscription is required.
 *
@@ -196,7 +196,7 @@ int tiz_gmusic_play_promoted_tracks (tiz_gmusic_t *ap_gmusic);
 /**
  * Clear the playback queue.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -207,7 +207,7 @@ void tiz_gmusic_clear_queue (tiz_gmusic_t *ap_gmusic);
  *
  * The the playback queue pointer moves one position forwards.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -218,7 +218,7 @@ const char *tiz_gmusic_get_next_url (tiz_gmusic_t *ap_gmusic);
  *
  * The the playback queue pointer moves one position backwards.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -227,7 +227,7 @@ const char *tiz_gmusic_get_prev_url (tiz_gmusic_t *ap_gmusic);
 /**
  * Retrieve the current song's artist.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -236,7 +236,7 @@ const char *tiz_gmusic_get_current_song_artist (tiz_gmusic_t *ap_gmusic);
 /**
  * Retrieve the current song's title.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -245,7 +245,7 @@ const char *tiz_gmusic_get_current_song_title (tiz_gmusic_t *ap_gmusic);
 /**
  * Retrieve the current song's album.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -254,7 +254,7 @@ const char *tiz_gmusic_get_current_song_album (tiz_gmusic_t *ap_gmusic);
 /**
  * Retrieve the current song's duration.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -263,7 +263,7 @@ const char *tiz_gmusic_get_current_song_duration (tiz_gmusic_t *ap_gmusic);
 /**
  * Retrieve the current song's track number.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -272,7 +272,7 @@ const char *tiz_gmusic_get_current_song_track_number (tiz_gmusic_t *ap_gmusic);
 /**
  * Retrieve the number of tracks in the current song's album.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -282,7 +282,7 @@ const char *tiz_gmusic_get_current_song_tracks_in_album (
 /**
  * Retrieve the current song's publication year.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */
@@ -291,7 +291,7 @@ const char *tiz_gmusic_get_current_song_year (tiz_gmusic_t *ap_gmusic);
 /**
  * Destroy the gmusic handle.
  *
- * @ingroup tizgmusic
+ * @ingroup libtizgmusic
  *
  * @param ap_gmusic The gmusic handle.
  */

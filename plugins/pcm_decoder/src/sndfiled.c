@@ -51,7 +51,7 @@
 #endif
 
 /**
- *@defgroup tizpcmdec 'libtizpcmdec' : OpenMAX IL sampled sound file decoder
+ *@defgroup libtizpcmdec 'libtizpcmdec' : OpenMAX IL sampled sound file decoder
  *
  * - Component name : "OMX.Aratelia.audio_decoder.pcm"
  * - Implements role: "audio_decoder.pcm"

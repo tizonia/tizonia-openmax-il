@@ -52,7 +52,7 @@
 #endif
 
 /**
- *@defgroup tizflacdec 'libtizflacdec' : OpenMAX IL FLAC decoder
+ *@defgroup libtizflacdec 'libtizflacdec' : OpenMAX IL FLAC decoder
  *
  * - Component name : "OMX.Aratelia.audio_decoder.flac"
  * - Implements role: "audio_encoder.flac"

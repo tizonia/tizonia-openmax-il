@@ -8,7 +8,6 @@ Tizonia documentation
 
 The Tizonia Project - Copyright 2015 Juan A. Rubio
 
-
 Introduction
 ============
 
@@ -27,21 +26,14 @@ Tutorial
 
    tutorial/tutorial
 
-Architecture
-============
-
-.. toctree::
-   :maxdepth: 2
-
-   arch/design
-
 Development
 ===========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
+   :glob:
 
-   devel/style
+   devel/development
 
 Indices and tables
 ==================
@@ -49,4 +41,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

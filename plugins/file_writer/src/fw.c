@@ -51,7 +51,7 @@
 #endif
 
 /**
- *@defgroup tizfw 'libtizfw' : OpenMAX IL binary file writer
+ *@defgroup libtizfw 'libtizfw' : OpenMAX IL binary file writer
  *
  * - Component name : "OMX.Aratelia.file_writer.binary"
  * - Implements role: "audio_writer.binary"

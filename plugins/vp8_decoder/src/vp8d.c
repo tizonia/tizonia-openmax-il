@@ -47,7 +47,7 @@
 #endif
 
 /**
- *@defgroup tizvp8dec 'libtizvp8dec' : OpenMAX IL VP8 decoder
+ *@defgroup libtizvp8dec 'libtizvp8dec' : OpenMAX IL VP8 decoder
  *
  * - Component name : "OMX.Aratelia.video_decoder.vp8"
  * - Implements role: "video_decoder.vp8"

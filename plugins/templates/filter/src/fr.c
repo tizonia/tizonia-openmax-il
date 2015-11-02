@@ -51,7 +51,7 @@
 #endif
 
 /**
- *@defgroup tizfr 'libtizfr' : OpenMAX IL File Reader
+ *@defgroup libtizfr 'libtizfr' : OpenMAX IL File Reader
  *
  * - Component name : "OMX.Aratelia.file_reader.binary"
  * - Implements role: "file_reader.binary"

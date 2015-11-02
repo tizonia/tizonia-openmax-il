@@ -57,7 +57,7 @@
 #endif
 
 /**
- *@defgroup tizhttpsrc 'libtizhttpsrc' : OpenMAX IL HTTP audio client
+ *@defgroup libtizhttpsrc 'libtizhttpsrc' : OpenMAX IL HTTP audio client
  *
  * - Component name : "OMX.Aratelia.audio_source.http"
  * - Implements role: "audio_source.http"

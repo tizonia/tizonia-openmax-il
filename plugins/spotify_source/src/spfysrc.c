@@ -52,7 +52,7 @@
 #endif
 
 /**
- *@defgroup tizspotifysrc 'libtizspotifysrc' : OpenMAX IL Spotify client
+ *@defgroup libtizspotifysrc 'libtizspotifysrc' : OpenMAX IL Spotify client
  *
  * - Component name : "OMX.Aratelia.audio_source.spotify.pcm"
  * - Implements role: "audio_source.pcm.spotify"

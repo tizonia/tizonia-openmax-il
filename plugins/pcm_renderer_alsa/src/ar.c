@@ -51,7 +51,7 @@
 #endif
 
 /**
- *@defgroup tizalsapcmrnd 'libtizalsapcmrnd' : OpenMAX IL PCM Audio Renderer
+ *@defgroup libtizalsapcmrnd 'libtizalsapcmrnd' : OpenMAX IL PCM Audio Renderer
  *based on ALSA
  *
  * - Component name : "OMX.Aratelia.audio_renderer.alsa.pcm"

@@ -36,7 +36,7 @@ extern "C" {
 /**
  * @defgroup atomic Atomic operations
  *
- * @ingroup tizplatform
+ * @ingroup libtizplatform
  */
 
 #include <OMX_Core.h>

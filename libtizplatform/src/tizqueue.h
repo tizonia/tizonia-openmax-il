@@ -39,7 +39,7 @@ extern "C" {
  * Thread-safe FIFO queue that can be accessed safely by any number of
  * threads.
  *
- * @ingroup tizplatform
+ * @ingroup libtizplatform
  */
 
 #include <OMX_Core.h>

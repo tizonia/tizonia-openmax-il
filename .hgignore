@@ -6,3 +6,7 @@ tizrm.db
 *~
 *.orig
 tools/tizonia-build
+docs/sphinx-src/_build
+docs/doxygen-src/html
+docs/doxygen-src/xml
+

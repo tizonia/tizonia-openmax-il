@@ -52,7 +52,7 @@
 #endif
 
 /**
- *@defgroup tizaacdec 'libtizaacdec' : OpenMAX IL AAC decoder
+ *@defgroup libtizaacdec 'libtizaacdec' : OpenMAX IL AAC decoder
  *
  * - Component name : "OMX.Aratelia.audio_decoder.aac"
  * - Implements role: "audio_decoder.aac"

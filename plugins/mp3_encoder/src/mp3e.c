@@ -53,7 +53,7 @@
 #endif
 
 /**
- *@defgroup tizmp3enc 'libtizmp3enc' : OpenMAX IL MP3 encoder
+ *@defgroup libtizmp3enc 'libtizmp3enc' : OpenMAX IL MP3 encoder
  *
  * - Component name : "OMX.Aratelia.audio_encoder.mp3"
  * - Implements role: "audio_encoder.mp3"

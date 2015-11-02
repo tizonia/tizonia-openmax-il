@@ -51,7 +51,7 @@
 #endif
 
 /**
- *@defgroup tizoggdmux 'libtizoggdmux' : OpenMAX IL OGG demuxer
+ *@defgroup libtizoggdmux 'libtizoggdmux' : OpenMAX IL OGG demuxer
  *
  * - Component name : "OMX.Aratelia.container_demuxer.ogg"
  * - Implements role: "source.container_demuxer.ogg"

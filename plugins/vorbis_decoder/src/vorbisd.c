@@ -47,7 +47,7 @@
 #endif
 
 /**
- *@defgroup tizvorbisdec 'libtizvorbisdec' : OpenMAX IL Vorbis decoder
+ *@defgroup libtizvorbisdec 'libtizvorbisdec' : OpenMAX IL Vorbis decoder
  *
  * - Component name : "OMX.Aratelia.audio_decoder.vorbis"
  * - Implements role: "audio_decoder.vorbis"

@@ -52,7 +52,7 @@
 #endif
 
 /**
- *@defgroup tizopusdec 'libtizopusdec' : OpenMAX IL OPUS decoder
+ *@defgroup libtizopusdec 'libtizopusdec' : OpenMAX IL OPUS decoder
  *
  * - Component name : "OMX.Aratelia.audio_decoder.opus"
  * - Implements role: "audio_decoder.opus"

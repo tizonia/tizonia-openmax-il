@@ -35,7 +35,7 @@ extern "C" {
 
 /**
  * @defgroup sync Semaphore, mutex, and condition variable
- * @ingroup tizplatform
+ * @ingroup libtizplatform
  */
 
 #include <OMX_Core.h>

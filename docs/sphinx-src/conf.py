@@ -11,12 +11,19 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
+import subprocess
+import re
+import alabaster
+import breathe
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+# sys.path.insert(0, os.path.abspath('.'))
+#sys.path.append(os.path.abspath('/usr/local/lib/python2.7/dist-packages/breathe'))
+#sys.path.append('/home/joni/work/3rdparty/breathe')
 
 # -- General configuration -----------------------------------------------------
 
@@ -25,7 +32,9 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['breathe', 'sphinx.ext.todo']
+extensions = ['sphinx.ext.todo', 'alabaster', 'breathe']
+
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -86,20 +95,44 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+# Options for breathe extension
+# -----------------------------
+
+breathe_projects = {
+    "tizonia":"../doxygen-src/xml/",
+    }
+
+breathe_default_project = "tizonia"
+
+breathe_domain_by_extension = {
+        "h" : "c",
+        "c" : "c",
+        "hpp" : "cpp",
+        "cpp" : "cpp",
+        "py": "py",
+        }
 
 # -- Options for HTML output ---------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #html_theme_options = {}
+html_theme_options = {
+    'logo': '../../../../logo/tizonia_logo_200.gif',
+    'github_user': 'tizonia',
+    'github_repo': 'tizonia-openmax-il',
+    'travis_button': 'true',
+    'analytics_id': 'UA-21817639-6'
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
+html_theme_path = [alabaster.get_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -120,7 +153,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -132,6 +165,14 @@ html_static_path = ['_static']
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+    ]
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -240,3 +281,34 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+def run_doxygen(folder):
+    """Run the doxygen make command in the designated folder"""
+
+    try:
+        retcode = subprocess.call("cd %s; pwd; make" % folder, shell=True)
+        if retcode < 0:
+            sys.stderr.write("doxygen terminated by signal %s" % (-retcode))
+    except OSError as e:
+        sys.stderr.write("doxygen execution failed: %s" % e)
+
+
+def generate_doxygen_xml(app):
+    """Run the doxygen make commands if we're on the ReadTheDocs server"""
+
+    read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+    if read_the_docs_build:
+
+        # Attempt to build the doxygen files on the RTD server. Explicitly override the path/name used
+        # for executing doxygen to simply be 'doxygen' to stop the makefiles looking for the executable.
+        # This is because the `which doxygen` effort seemed to fail when tested on the RTD server.
+        run_doxygen("..")
+    else:
+        run_doxygen("..")
+
+
+def setup(app):
+
+    # Add hook for building doxygen xml when needed
+    app.connect("builder-inited", generate_doxygen_xml)

@@ -51,7 +51,7 @@
 #endif
 
 /**
- *@defgroup tizpulsepcmrnd 'libtizpulsepcmrnd' : OpenMAX IL PCM audio renderer
+ *@defgroup libtizpulsepcmrnd 'libtizpulsepcmrnd' : OpenMAX IL PCM audio renderer
  *based on pulseaudio
  *
  * - Component name : "OMX.Aratelia.audio_renderer.pulseaudio.pcm"

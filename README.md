@@ -28,8 +28,6 @@ simply run:
 ```bash
 
     $ curl -L -O https://goo.gl/Vu8qGR && chmod +x Vu8qGR && ./Vu8qGR
-        && chmod +x Vu8qGR \
-        && ./Vu8qGR
 
 ```
 

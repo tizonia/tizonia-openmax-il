@@ -34,8 +34,7 @@ PKG_PROG_PKG_CONFIG([0.25])
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([config
-                   include
+AC_CONFIG_SUBDIRS([include
                    gmusic
                    soundcloud
                    libtizplatform
