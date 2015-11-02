@@ -268,8 +268,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'TizoniaOpenMAXIL', u'Tizonia OpenMAX IL Documentation',
-   u'Juan A. Rubio', 'TizoniaOpenMAXIL', 'One line description of project.',
+  ('index', 'Tizonia', u'Tizonia Documentation',
+   u'Juan A. Rubio', 'Tizonia', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -282,33 +282,22 @@ texinfo_documents = [
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
 
-def run_doxygen(folder):
-    """Run the doxygen make command in the designated folder"""
+def run_doxygen(app):
+    """Run the doxygen make command in the docs/ top level folder"""
 
     try:
-        retcode = subprocess.call("cd %s; pwd; make" % folder, shell=True)
+        read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+        if read_the_docs_build:
+            retcode = subprocess.call("cd .. && autoreconf -ifs && ./configure && make", shell=True)
+        else:
+            retcode = subprocess.call("cd .. && make", shell=True)
         if retcode < 0:
             sys.stderr.write("doxygen terminated by signal %s" % (-retcode))
     except OSError as e:
         sys.stderr.write("doxygen execution failed: %s" % e)
 
 
-def generate_doxygen_xml(app):
-    """Run the doxygen make commands if we're on the ReadTheDocs server"""
-
-    read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
-
-    if read_the_docs_build:
-
-        # Attempt to build the doxygen files on the RTD server. Explicitly override the path/name used
-        # for executing doxygen to simply be 'doxygen' to stop the makefiles looking for the executable.
-        # This is because the `which doxygen` effort seemed to fail when tested on the RTD server.
-        run_doxygen("..")
-    else:
-        run_doxygen("..")
-
-
 def setup(app):
 
     # Add hook for building doxygen xml when needed
-    app.connect("builder-inited", generate_doxygen_xml)
+    app.connect("builder-inited", run_doxygen)

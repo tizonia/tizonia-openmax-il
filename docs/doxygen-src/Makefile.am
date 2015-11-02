@@ -44,9 +44,6 @@ do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \
 doxyfile: doxyfile.in Makefile
 	$(do_subst) < $(srcdir)/$@.in > $@
 
-sphinxdoc: doxyfile Makefile
-	make -f sphinx-src/Makefile html
-
 all-local: doxyfile doxyfile.stamp
 
 clean-local: clean-local-doxygen
