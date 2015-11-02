@@ -21,7 +21,7 @@
  * @file   mpg123d.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - MPEG audio decoder component constants
+ * @brief  Tizonia - MPEG audio decoder component constants
  *
  *
  */

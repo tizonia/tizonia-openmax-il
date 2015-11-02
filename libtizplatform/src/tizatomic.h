@@ -36,7 +36,7 @@ extern "C" {
 /**
  * @defgroup atomic Atomic operations
  *
- * @ingroup Tizonia-Platform
+ * @ingroup tizplatform
  */
 
 #include <OMX_Core.h>

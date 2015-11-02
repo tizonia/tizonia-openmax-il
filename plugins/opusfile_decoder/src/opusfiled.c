@@ -51,6 +51,15 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.opusfile_decoder"
 #endif
 
+/**
+ *@defgroup tizopusfiledec 'libtizopusfiledec' : OpenMAX IL OPUS decoder
+ *
+ * - Component name : "OMX.Aratelia.audio_decoder.opusfile.opus"
+ * - Implements role: "audio_decoder.opus"
+ *
+ *@ingroup plugins
+ */
+
 static OMX_VERSIONTYPE opus_decoder_version = { {1, 0, 0, 0} };
 
 static OMX_PTR

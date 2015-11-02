@@ -21,7 +21,7 @@
  * @file   httprsrv.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - HTTP renderer's networking functions
+ * @brief Tizonia - HTTP renderer's networking functions
  *
  * NOTE: This is work in progress!!!!
  *

@@ -21,7 +21,7 @@
  * @file   oggdmux.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Ogg demuxer component constants
+ * @brief  Tizonia - OGG demuxer component constants
  *
  *
  */

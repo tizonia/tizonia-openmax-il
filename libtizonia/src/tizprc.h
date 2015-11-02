@@ -33,6 +33,12 @@
 extern "C" {
 #endif
 
+/**
+ * @defgroup tizprc 'tizprc' : libtizonia's OpenMAX IL 'processor' servant
+ *
+ * @ingroup libtizonia
+ */
+
 #include <tizplatform.h>
 
 void *tiz_prc_class_init (void *ap_tos, void *ap_hdl);

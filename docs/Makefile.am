@@ -15,25 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-if HAVE_DOXYGEN
-# directory = $(top_srcdir)/docs/man/man3/
-# 
-# dist_man_MANS = $(directory)/man_page_1.3 $(directory)/man_page_2.3
-# $(directory)/man_page_1.3: doxyfile.stamp
-# $(directory)/man_page_2.3: doxyfile.stamp
+SUBDIRS= doxygen-src
 
-doxyfile.stamp:
-	$(DOXYGEN) Doxyfile
-	echo Timestamp > doxyfile.stamp
-
-DISTCLEANFILES = Doxyfile doxyfile.stamp
-
-all-local: doxyfile.stamp
-
-clean-local: clean-local-doxygen
-distclean-local: clean-local-doxygen
-.PHONY: clean-local-doxygen
-clean-local-doxygen:
-	-rm -rf $(top_builddir)/docs/html
-#	rm -rf $(top_builddir)/docs/man
-endif
+# EXTRA_DIST = debian

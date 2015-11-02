@@ -21,7 +21,7 @@
  * @file   mp3e.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Mp3 Encoder based on MAD
+ * @brief  Tizonia - Mp3 Encoder based on MAD
  *
  *
  */
@@ -51,6 +51,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.mp3_encoder"
 #endif
+
+/**
+ *@defgroup tizmp3enc 'libtizmp3enc' : OpenMAX IL MP3 encoder
+ *
+ * - Component name : "OMX.Aratelia.audio_encoder.mp3"
+ * - Implements role: "audio_encoder.mp3"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE mp3_encoder_version = { {1, 0, 0, 0} };
 

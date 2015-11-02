@@ -21,7 +21,7 @@
  * @file   inprocrnd.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - ZMQ inproc socket writer constants
+ * @brief  Tizonia - ZMQ inproc socket writer constants
  *
  *
  */

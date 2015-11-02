@@ -21,7 +21,7 @@
  * @file   mp3eprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Mp3 Encoder processor class
+ * @brief  Tizonia - Mp3 Encoder processor class
  *
  *
  */

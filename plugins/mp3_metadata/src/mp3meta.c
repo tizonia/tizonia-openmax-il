@@ -21,7 +21,7 @@
  * @file   mp3meta.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Mp3 Metadata Eraser component
+ * @brief  Tizonia - Mp3 Metadata Eraser component
  *
  *
  */
@@ -49,6 +49,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.mp3_metadata"
 #endif
+
+/**
+ *@defgroup tizmp3meta 'libtizmp3meta' : OpenMAX IL MP3 metadata eraser
+ *
+ * - Component name : "OMX.Aratelia.audio_metadata_eraser.mp3"
+ * - Implements role: "audio_metadata_eraser.mp3"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE mp3_metadata_version = { { 1, 0, 0, 0 } };
 

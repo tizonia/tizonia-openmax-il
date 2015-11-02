@@ -21,7 +21,7 @@
  * @file   mp3meta.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Mp3 Metadata Eraser component
+ * @brief  Tizonia - MP3 metadata eraser component
  *
  *
  */

@@ -21,7 +21,7 @@
  * @file   spfysrc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Spotify client component constants
+ * @brief  Tizonia - Spotify client component constants
  *
  *
  */

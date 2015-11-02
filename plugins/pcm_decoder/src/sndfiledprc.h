@@ -21,7 +21,7 @@
  * @file   sndfiledprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Sampled sound file decoder - processor class
+ * @brief  Tizonia - Sampled sound file decoder - processor class
  *
  *
  */

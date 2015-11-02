@@ -21,7 +21,7 @@
  * @file   opusdprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Opus decoder processor class implementation
+ * @brief  Tizonia - Opus decoder processor class implementation
  *
  *
  */

@@ -15,13 +15,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-
 # NOTE: 'docs' folders is not currently being processed by the top Makefile.
 # The Doxygen/Sphinx documentation can still be manually generated, whenever is needed.
 
-# NOTE: 'tizonia' folder is not currently being processed by the top Makefile.
-# This is to disable tizonia compilation when building from top. This is because
-# tizonia's FSMs require a very recent version of Boost.msm (currently >= 1.54).
+# NOTE: 'player' folder is not currently being processed by the top Makefile.
+# This is to disable tizonia's player compilation when building from top. Still
+# it can be manually configured and built.
 
 # SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tizonia docs
 SUBDIRS = config include gmusic soundcloud libtizplatform rm libtizcore libtizonia plugins

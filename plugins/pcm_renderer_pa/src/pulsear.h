@@ -21,7 +21,7 @@
  * @file   pulsear.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - PCM audio renderer based on pulseaudio component constants
+ * @brief  Tizonia - PCM audio renderer based on pulseaudio component constants
  *
  *
  */

@@ -21,7 +21,7 @@
  * @file   vorbisd.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Vorbis Decoder component
+ * @brief  Tizonia - Vorbis decoder component
  *
  *
  */
@@ -45,6 +45,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.vorbis_decoder"
 #endif
+
+/**
+ *@defgroup tizvorbisdec 'libtizvorbisdec' : OpenMAX IL Vorbis decoder
+ *
+ * - Component name : "OMX.Aratelia.audio_decoder.vorbis"
+ * - Implements role: "audio_decoder.vorbis"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE vorbis_decoder_version = { { 1, 0, 0, 0 } };
 

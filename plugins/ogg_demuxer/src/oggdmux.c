@@ -21,7 +21,7 @@
  * @file   oggdmux.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Ogg demuxer component
+ * @brief  Tizonia - OGG demuxer component
  *
  *
  */
@@ -49,6 +49,16 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.ogg_demuxer"
 #endif
+
+/**
+ *@defgroup tizoggdmux 'libtizoggdmux' : OpenMAX IL OGG demuxer
+ *
+ * - Component name : "OMX.Aratelia.container_demuxer.ogg"
+ * - Implements role: "source.container_demuxer.ogg"
+ * - Implements role: "filter.container_demuxer.ogg"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE ogg_demuxer_version = { {1, 0, 0, 0} };
 

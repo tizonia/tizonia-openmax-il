@@ -21,7 +21,7 @@
  * @file   vp8d.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - VP8 Decoder component
+ * @brief  Tizonia - VP8 Decoder component
  *
  *
  */
@@ -45,6 +45,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.vp8_decoder"
 #endif
+
+/**
+ *@defgroup tizvp8dec 'libtizvp8dec' : OpenMAX IL VP8 decoder
+ *
+ * - Component name : "OMX.Aratelia.video_decoder.vp8"
+ * - Implements role: "video_decoder.vp8"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE vp8_decoder_version = { {1, 0, 0, 0} };
 

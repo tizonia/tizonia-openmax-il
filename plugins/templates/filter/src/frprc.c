@@ -21,7 +21,7 @@
  * @file   frprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - File Reader processor class implementation
+ * @brief  Tizonia - File Reader processor class implementation
  *
  *
  */

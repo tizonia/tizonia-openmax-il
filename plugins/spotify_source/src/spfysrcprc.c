@@ -21,7 +21,7 @@
  * @file   spfysrcprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Spotify client component
+ * @brief  Tizonia - Spotify client component
  *
  *
  */

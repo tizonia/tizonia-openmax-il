@@ -21,7 +21,7 @@
  * @file   mpg123dprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - MPEG audio decoder processor class implementation
+ * @brief Tizonia - MPEG audio decoder processor class implementation
  *
  *
  */

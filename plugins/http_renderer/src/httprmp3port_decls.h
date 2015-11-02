@@ -21,7 +21,7 @@
  * @file   httprmp3port_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Http renderer mp3 input port class decls
+ * @brief  Tizonia - Http renderer mp3 input port class decls
  *
  *
  */

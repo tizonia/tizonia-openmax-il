@@ -21,7 +21,7 @@
  * @file   vorbisd.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Vorbis decoder component constants
+ * @brief  Tizonia - Vorbis decoder component constants
  *
  *
  */

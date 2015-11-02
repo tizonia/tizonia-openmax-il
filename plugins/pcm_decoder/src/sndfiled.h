@@ -21,7 +21,7 @@
  * @file   sndfiled.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Sampled sound file decoder - constants
+ * @brief  Tizonia - Sampled sound file decoder - constants
  *
  *
  */

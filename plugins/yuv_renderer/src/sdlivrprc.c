@@ -21,7 +21,7 @@
  * @file   sdlivrprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - SDL Video Renderer processor class
+ * @brief  Tizonia - SDL Video Renderer processor class
  *
  *
  */
@@ -215,7 +215,7 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   /*            p_prc->vportdef_.eCompressionFormat, */
   /*            p_prc->vportdef_.eColorFormat); */
 
-  SDL_WM_SetCaption ("Tizonia OpenMAX IL YUV renderer", "YUV");
+  SDL_WM_SetCaption ("Tizonia YUV renderer", "YUV");
 
 
   p_prc->p_surface = SDL_SetVideoMode

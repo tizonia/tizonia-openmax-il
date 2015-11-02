@@ -35,7 +35,7 @@ extern "C" {
 
 /**
  * @defgroup event Event loop utilities
- * @ingroup Tizonia-Platform
+ * @ingroup tizplatform
  */
 
 #include <stdbool.h>

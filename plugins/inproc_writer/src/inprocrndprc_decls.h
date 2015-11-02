@@ -20,7 +20,7 @@
  * @file   inprocrndprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - ZMQ inproc socket writer class declarations
+ * @brief  Tizonia - ZMQ inproc socket writer class declarations
  *
  *
  */

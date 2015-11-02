@@ -21,7 +21,7 @@
  * @file   aacdec.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - AAC Decoder component
+ * @brief  Tizonia - AAC Decoder component
  *
  *
  */
@@ -50,6 +50,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.aac_decoder"
 #endif
+
+/**
+ *@defgroup tizaacdec 'libtizaacdec' : OpenMAX IL AAC decoder
+ *
+ * - Component name : "OMX.Aratelia.audio_decoder.aac"
+ * - Implements role: "audio_decoder.aac"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE aac_decoder_version = { { 1, 0, 0, 0 } };
 

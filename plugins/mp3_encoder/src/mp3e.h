@@ -21,7 +21,7 @@
  * @file   mp3e.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Mp3 encoder component constants
+ * @brief  Tizonia - Mp3 encoder component constants
  *
  *
  */

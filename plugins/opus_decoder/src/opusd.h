@@ -21,7 +21,7 @@
  * @file   opusd.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Opus decoder component constants
+ * @brief  Tizonia - Opus decoder component constants
  *
  *
  */

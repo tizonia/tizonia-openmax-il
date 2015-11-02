@@ -29,6 +29,15 @@
 #ifndef TIZRMD_HPP
 #define TIZRMD_HPP
 
+/**
+* @defgroup tizrmd 'tizrmd' : Tizonia's OpenMAX IL Resource Manager
+* daemon process.
+*
+* This module implements an OpenMAX IL Resource Manager D-Bus-based daemon.
+*
+* @ingroup rm
+*/
+
 #include <string.h>
 #include <deque>
 #include <map>

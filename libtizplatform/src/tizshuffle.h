@@ -36,7 +36,7 @@ extern "C" {
 /**
  * @defgroup shuffle Simple implementation of the Knuth-Fisher-Yates shuffle
  * algorithm.
- * @ingroup Tizonia-Platform
+ * @ingroup tizplatform
  */
 
 #include <OMX_Core.h>

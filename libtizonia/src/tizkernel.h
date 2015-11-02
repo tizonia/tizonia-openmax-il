@@ -33,6 +33,15 @@
 extern "C" {
 #endif
 
+/**
+ *@defgroup tizkernel 'tizkernel' : libtizonia's 'kernel' servant
+ *
+ * The 'kernel' servant is responsible for all the OpenMAX IL port management
+ * functionality.
+ *
+ *@ingroup libtizonia
+ */
+
 #include <OMX_Core.h>
 #include <OMX_Component.h>
 

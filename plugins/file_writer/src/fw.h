@@ -21,7 +21,7 @@
  * @file   fr.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Binary file writer constants
+ * @brief  Tizonia - Binary file writer constants
  *
  *
  */

@@ -21,7 +21,7 @@
  * @file   httprprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - HTTP renderer processor class
+ * @brief  Tizonia - HTTP renderer processor class
  *
  *
  */

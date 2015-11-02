@@ -21,7 +21,7 @@
  * @file   vorbisdprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Vorbis Decoder processor class decls
+ * @brief  Tizonia - Vorbis decoder processor class decls
  *
  *
  */

@@ -17,7 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Simple SoundCloud proxy/wrapper.
+"""@package tizsoundcloudproxy
+Simple SoundCloud proxy/wrapper.
 
 Access SoundCloud using a user account to retrieve track URLs and create a play
 queue for streaming.

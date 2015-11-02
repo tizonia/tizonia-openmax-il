@@ -21,7 +21,7 @@
  * @file   arprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Audio Renderer Component processor class
+ * @brief  Tizonia - Audio Renderer Component processor class
  *
  *
  */

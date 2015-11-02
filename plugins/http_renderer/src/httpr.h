@@ -21,7 +21,7 @@
  * @file   httpr.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief   Tizonia OpenMAX IL - HTTP renderer constants
+ * @brief   Tizonia - HTTP renderer constants
  *
  *
  */

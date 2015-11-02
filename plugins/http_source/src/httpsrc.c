@@ -21,7 +21,7 @@
  * @file   httpsrc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - HTTP streaming client component
+ * @brief  Tizonia - HTTP streaming client component
  *
  *
  */
@@ -55,6 +55,17 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_source"
 #endif
+
+/**
+ *@defgroup tizhttpsrc 'libtizhttpsrc' : OpenMAX IL HTTP audio client
+ *
+ * - Component name : "OMX.Aratelia.audio_source.http"
+ * - Implements role: "audio_source.http"
+ * - Implements role: "audio_source.http.gmusic"
+ * - Implements role: "audio_source.http.scloud"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE http_source_version = { { 1, 0, 0, 0 } };
 

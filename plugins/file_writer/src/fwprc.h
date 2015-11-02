@@ -21,7 +21,7 @@
  * @file   fwprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Binary file writer processor class
+ * @brief  Tizonia - Binary file writer processor class
  *
  *
  */

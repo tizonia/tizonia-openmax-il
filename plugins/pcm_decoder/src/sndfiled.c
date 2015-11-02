@@ -21,7 +21,7 @@
  * @file   sndfiled.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Sampled sound file decoder component
+ * @brief  Tizonia - Sampled sound file decoder component
  *
  *
  */
@@ -49,6 +49,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.sndfile_decoder"
 #endif
+
+/**
+ *@defgroup tizpcmdec 'libtizpcmdec' : OpenMAX IL sampled sound file decoder
+ *
+ * - Component name : "OMX.Aratelia.audio_decoder.pcm"
+ * - Implements role: "audio_decoder.pcm"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE pcm_decoder_version = { {1, 0, 0, 0} };
 

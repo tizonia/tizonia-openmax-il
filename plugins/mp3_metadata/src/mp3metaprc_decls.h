@@ -21,7 +21,7 @@
  * @file   mp3metaprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Mp3 Metadata Eraser processor class decls
+ * @brief  Tizonia - Mp3 Metadata Eraser processor class decls
  *
  *
  */

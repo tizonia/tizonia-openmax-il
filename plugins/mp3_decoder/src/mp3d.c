@@ -21,7 +21,7 @@
  * @file   mp3d.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Mp3 Decoder based on libmad
+ * @brief  Tizonia - Mp3 Decoder based on libmad
  *
  *
  */
@@ -49,6 +49,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.mp3_decoder"
 #endif
+
+/**
+ *@defgroup tizmp3dec 'libtizmp3dec' : OpenMAX IL MP3 decoder
+ *
+ * - Component name : "OMX.Aratelia.audio_decoder.mp3"
+ * - Implements role: "audio_decoder.mp3"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE mp3_decoder_version = { {1, 0, 0, 0} };
 

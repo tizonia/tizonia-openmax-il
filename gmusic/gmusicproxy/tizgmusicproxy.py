@@ -17,7 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Simple Google Play Music proxy/wrapper.
+"""@package tizgmusicproxy
+Simple Google Play Music proxy/wrapper.
 
 Access a Google Music account to retrieve song URLs and create a play queue for
 streaming. With ideas from Dan Nixon's command-line client, which in turn uses

@@ -21,7 +21,7 @@
  * @file   httprmp3port.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - Http renderer's specialised mp3 port
+ * @brief Tizonia - Http renderer's specialised mp3 port
  *
  *
  */

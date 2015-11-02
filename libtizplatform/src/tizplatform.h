@@ -30,7 +30,7 @@
 #define TIZ_H
 
 /**
- * @defgroup Tizonia-Platform OS Abstraction Layer and Utilities
+ * @defgroup tizplatform 'libtizplatform' : OS abstraction wrapers and utilities
  *
  * @{
  *

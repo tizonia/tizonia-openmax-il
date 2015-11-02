@@ -21,7 +21,7 @@
  * @file   inprocsrcprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - ZMQ inproc socket reader
+ * @brief  Tizonia - ZMQ inproc socket reader
  *
  *
  */

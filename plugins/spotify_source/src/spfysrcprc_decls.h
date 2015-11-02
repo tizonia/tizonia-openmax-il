@@ -20,7 +20,7 @@
  * @file   spfysrcprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Spotify client processor declarations
+ * @brief  Tizonia - Spotify client processor declarations
  *
  *
  */

@@ -21,7 +21,7 @@
  * @file   fw.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Binary file writer
+ * @brief  Tizonia - Binary file writer
  *
  *
  */
@@ -49,6 +49,18 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_writer"
 #endif
+
+/**
+ *@defgroup tizfw 'libtizfw' : OpenMAX IL binary file writer
+ *
+ * - Component name : "OMX.Aratelia.file_writer.binary"
+ * - Implements role: "audio_writer.binary"
+ * - Implements role: "video_writer.binary"
+ * - Implements role: "image_writer.binary"
+ * - Implements role: "other_writer.binary"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE file_writer_version = { {1, 0, 0, 0} };
 

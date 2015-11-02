@@ -21,7 +21,7 @@
  * @file   inprocrndprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - ZMQ inproc socket writer processor
+ * @brief  Tizonia - ZMQ inproc socket writer processor
  *
  *
  */

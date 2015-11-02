@@ -21,7 +21,7 @@
  * @file   httprsrv.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - HTTP renderer's server functions
+ * @brief Tizonia - HTTP renderer's server functions
  *
  *
  */

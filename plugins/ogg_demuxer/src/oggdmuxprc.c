@@ -21,7 +21,7 @@
  * @file   oggdmuxprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Ogg demuxer processor class implementation
+ * @brief  Tizonia - OGG demuxer processor class implementation
  *
  *
  */

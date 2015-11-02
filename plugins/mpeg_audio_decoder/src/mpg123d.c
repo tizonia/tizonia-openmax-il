@@ -21,7 +21,7 @@
  * @file   mpg123d.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - MPEG audio decoder component based on libmpg123
+ * @brief  Tizonia - MPEG audio decoder component based on libmpg123
  *
  *
  */
@@ -50,6 +50,16 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.mpg123_decoder"
 #endif
+
+/**
+ *@defgroup tizmpgdec 'libtizmpgdec' : OpenMAX IL MP2 and MP3 decoder
+ *
+ * - Component name : "OMX.Aratelia.audio_decoder.mpeg"
+ * - Implements role: "audio_decoder.mp2"
+ * - Implements role: "audio_decoder.mp3"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE mp3_decoder_version = { { 1, 0, 0, 0 } };
 

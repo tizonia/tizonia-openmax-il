@@ -20,7 +20,7 @@
  * @file   pulsearprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - PCM audio renderer based on pulseaudio processor
+ * @brief  Tizonia - PCM audio renderer based on pulseaudio processor
  *declarations
  *
  *

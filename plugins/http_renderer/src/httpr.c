@@ -21,7 +21,7 @@
  * @file   httpr.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Icecast-like HTTP renderer
+ * @brief  Tizonia - Icecast-like HTTP renderer
  *
  *
  */
@@ -51,6 +51,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.http_renderer"
 #endif
+
+/**
+ *@defgroup tizhttprnd 'libtizhttprnd' : OpenMAX IL HTTP audio renderer
+ *
+ * - Component name : "OMX.Aratelia.audio_renderer.http"
+ * - Implements role: "audio_renderer.http"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE http_renderer_version = { {1, 0, 0, 0} };
 

@@ -21,7 +21,7 @@
  * @file   check_audio_renderer.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - SDL i/v yuv overlay renderer unit tests
+ * @brief  Tizonia - SDL i/v yuv overlay renderer unit tests
  *
  *
  */
@@ -753,7 +753,7 @@ main (void)
 
   tiz_log_init();
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL - "
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia - "
            "DSL i/v YUV overlay renderer unit tests");
 
   srunner_run_all (sr, CK_VERBOSE);

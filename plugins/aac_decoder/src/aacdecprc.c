@@ -21,7 +21,7 @@
  * @file   aacdecprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - AAC Decoder processor class
+ * @brief  Tizonia - AAC Decoder processor class
  *
  *
  */

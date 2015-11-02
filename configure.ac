@@ -24,13 +24,6 @@ AC_CONFIG_HEADERS([config.h])
 # Checks for programs.
 AC_PROG_CC
 PKG_PROG_PKG_CONFIG([0.25])
-AC_CHECK_PROGS([DOXYGEN], [doxygen])
-if test -z "$DOXYGEN";
-   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
-fi
-
-AM_CONDITIONAL([HAVE_DOXYGEN],
-[test -n "$DOXYGEN"])AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([docs/Doxyfile])])
 
 # Checks for libraries.
 
@@ -40,8 +33,9 @@ AM_CONDITIONAL([HAVE_DOXYGEN],
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile docs/Makefile])
-AC_CONFIG_SUBDIRS([include
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_SUBDIRS([config
+                   include
                    gmusic
                    soundcloud
                    libtizplatform

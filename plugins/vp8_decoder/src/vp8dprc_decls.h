@@ -21,7 +21,7 @@
  * @file   vp8dprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - VP8 Decoder processor class decls
+ * @brief  Tizonia - VP8 Decoder processor class decls
  *
  *
  */

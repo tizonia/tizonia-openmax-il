@@ -21,7 +21,7 @@
  * @file   check_vp8_decoder.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - VP8 Decoder unit tests
+ * @brief  Tizonia - VP8 Decoder unit tests
  *
  *
  */
@@ -1222,7 +1222,7 @@ main (void)
 
   tiz_log_init();
 
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia OpenMAX IL - VP8 Decoder unit tests");
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "Tizonia - VP8 Decoder unit tests");
 
   srunner_run_all (sr, CK_VERBOSE);
   number_failed = srunner_ntests_failed (sr);

@@ -21,7 +21,7 @@
  * @file   sdlivr.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - SDL Video Renderer component
+ * @brief  Tizonia - SDL Video Renderer component
  *
  *
  */
@@ -45,6 +45,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.yuv_renderer"
 #endif
+
+/**
+ *@defgroup tizsdlivrnd 'libtizsdlivrnd' : OpenMAX IL SDL-based video renderer
+ *
+ * - Component name : "OMX.Aratelia.iv_renderer.yuv.overlay"
+ * - Implements role: "iv_renderer.yuv.overlay"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE yuv_renderer_version = { {1, 0, 0, 0} };
 

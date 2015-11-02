@@ -21,7 +21,7 @@
  * @file   pulsear.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - PCM audio renderer based on pulseaudio component
+ * @brief  Tizonia - PCM audio renderer based on pulseaudio component
  *
  *
  */
@@ -49,6 +49,16 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.pcm_renderer"
 #endif
+
+/**
+ *@defgroup tizpulsepcmrnd 'libtizpulsepcmrnd' : OpenMAX IL PCM audio renderer
+ *based on pulseaudio
+ *
+ * - Component name : "OMX.Aratelia.audio_renderer.pulseaudio.pcm"
+ * - Implements role: "audio_renderer.pcm"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE pcm_renderer_version = { { 1, 0, 0, 0 } };
 

@@ -21,7 +21,7 @@
  * @file   opusd.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Opus decoder component
+ * @brief  Tizonia - Opus decoder component
  *
  *
  */
@@ -50,6 +50,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.opus_decoder"
 #endif
+
+/**
+ *@defgroup tizopusdec 'libtizopusdec' : OpenMAX IL OPUS decoder
+ *
+ * - Component name : "OMX.Aratelia.audio_decoder.opus"
+ * - Implements role: "audio_decoder.opus"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE opus_decoder_version = { {1, 0, 0, 0} };
 

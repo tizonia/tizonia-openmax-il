@@ -21,7 +21,7 @@
  * @file   mp3dprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Mp3 Decoder processor class decls
+ * @brief  Tizonia - Mp3 Decoder processor class decls
  *
  *
  */

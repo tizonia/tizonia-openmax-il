@@ -21,7 +21,7 @@
  * @file   ar.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - ALSA audio renderer component constants
+ * @brief  Tizonia - ALSA audio renderer component constants
  *
  *
  */

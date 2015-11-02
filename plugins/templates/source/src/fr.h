@@ -21,7 +21,7 @@
  * @file   fr.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - File Reader component constants
+ * @brief  Tizonia - File Reader component constants
  *
  *
  */

@@ -21,7 +21,7 @@
  * @file   flacdprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - FLAC Decoder processor class implementation
+ * @brief  Tizonia - FLAC Decoder processor class implementation
  *
  *
  */

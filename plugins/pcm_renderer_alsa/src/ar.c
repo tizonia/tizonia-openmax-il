@@ -21,7 +21,7 @@
  * @file   audio_renderer.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - PCM Audio Renderer based on ALSA
+ * @brief  Tizonia - PCM Audio Renderer based on ALSA
  *
  *
  */
@@ -49,6 +49,16 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.audio_renderer"
 #endif
+
+/**
+ *@defgroup tizalsapcmrnd 'libtizalsapcmrnd' : OpenMAX IL PCM Audio Renderer
+ *based on ALSA
+ *
+ * - Component name : "OMX.Aratelia.audio_renderer.alsa.pcm"
+ * - Implements role: "audio_renderer.pcm"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE audio_renderer_version = { {1, 0, 0, 0} };
 

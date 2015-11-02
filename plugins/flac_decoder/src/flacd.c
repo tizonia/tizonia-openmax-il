@@ -21,7 +21,7 @@
  * @file   flacd.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - FLAC Decoder component
+ * @brief  Tizonia - FLAC Decoder component
  *
  *
  */
@@ -50,6 +50,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.flac_decoder"
 #endif
+
+/**
+ *@defgroup tizflacdec 'libtizflacdec' : OpenMAX IL FLAC decoder
+ *
+ * - Component name : "OMX.Aratelia.audio_decoder.flac"
+ * - Implements role: "audio_encoder.flac"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE flac_decoder_version = { { 1, 0, 0, 0 } };
 

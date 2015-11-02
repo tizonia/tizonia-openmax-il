@@ -21,7 +21,7 @@
  * @file   sdlivrprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - SDL Video Renderer processor class
+ * @brief  Tizonia - SDL Video Renderer processor class
  *
  *
  */

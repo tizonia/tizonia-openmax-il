@@ -47,7 +47,7 @@
  * Based on the avl tree implementation by Sam Rushing
  * <rushing@nightmare.com>
  *
- * @ingroup Tizonia-Platform
+ * @ingroup tizplatform
  */
 
 struct tiz_map

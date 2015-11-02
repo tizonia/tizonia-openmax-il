@@ -39,7 +39,7 @@ extern "C" {
  * Non-synchronized priority queue. External synchronisaztion is needed in
  * case it needs to be accessed safely from any number of threads.
  *
- * @ingroup Tizonia-Platform
+ * @ingroup tizplatform
  */
 
 #include <OMX_Core.h>

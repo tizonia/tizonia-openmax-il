@@ -21,7 +21,7 @@
  * @file   httpsrc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - HTTP streaming client component constants
+ * @brief  Tizonia - HTTP streaming client component constants
  *
  *
  */

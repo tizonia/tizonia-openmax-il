@@ -34,6 +34,12 @@ extern "C"
 {
 #endif
 
+/**
+ * @defgroup tizfsm 'tizfsm' : libtizonia's OpenMAX IL FSM servant
+ *
+ * @ingroup libtizonia
+ */
+
 #include "tizservant.h"
 
   typedef enum tiz_fsm_state_id tiz_fsm_state_id_t;

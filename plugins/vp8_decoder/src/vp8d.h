@@ -21,7 +21,7 @@
  * @file   vp8d.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Vp8 decoder component constants
+ * @brief  Tizonia - Vp8 decoder component constants
  *
  *
  */

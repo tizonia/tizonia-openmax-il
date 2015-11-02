@@ -21,7 +21,7 @@
  * @file   aacdec.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - AAC Decoder component constants
+ * @brief  Tizonia - AAC Decoder component constants
  *
  *
  */

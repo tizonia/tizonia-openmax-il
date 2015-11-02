@@ -21,7 +21,7 @@
  * @file   fr.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - File Reader component
+ * @brief  Tizonia - File Reader component
  *
  *
  */
@@ -49,6 +49,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.file_reader"
 #endif
+
+/**
+ *@defgroup tizfr 'libtizfr' : OpenMAX IL File Reader
+ *
+ * - Component name : "OMX.Aratelia.file_reader.binary"
+ * - Implements role: "file_reader.binary"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE file_reader_version = { {1, 0, 0, 0} };
 

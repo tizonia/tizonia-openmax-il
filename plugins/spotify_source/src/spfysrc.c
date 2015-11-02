@@ -21,7 +21,7 @@
  * @file   spfysrc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Spotify client component
+ * @brief  Tizonia - Spotify client component
  *
  *
  */
@@ -50,6 +50,15 @@
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.spotify_source"
 #endif
+
+/**
+ *@defgroup tizspotifysrc 'libtizspotifysrc' : OpenMAX IL Spotify client
+ *
+ * - Component name : "OMX.Aratelia.audio_source.spotify.pcm"
+ * - Implements role: "audio_source.pcm.spotify"
+ *
+ *@ingroup plugins
+ */
 
 static OMX_VERSIONTYPE spotify_source_version = { {1, 0, 0, 0} };
 

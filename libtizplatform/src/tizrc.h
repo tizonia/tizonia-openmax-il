@@ -35,7 +35,7 @@ extern "C" {
 
 /**
  * @defgroup rcfile Configuration file parsing utilities
- * @ingroup Tizonia-Platform
+ * @ingroup tizplatform
  */
 
 #include <OMX_Core.h>

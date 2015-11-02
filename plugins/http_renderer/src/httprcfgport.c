@@ -21,7 +21,7 @@
  * @file   httprcfgport.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Http renderer config port implementation
+ * @brief  Tizonia - Http renderer config port implementation
  *
  *
  */

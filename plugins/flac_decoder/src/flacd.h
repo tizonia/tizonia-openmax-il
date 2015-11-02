@@ -21,7 +21,7 @@
  * @file   flacd.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia OpenMAX IL - Flac decoder component constants
+ * @brief  Tizonia - Flac decoder component constants
  *
  *
  */
