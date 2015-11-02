@@ -1,5 +1,5 @@
-Tizonia Streaming Clients
-=========================
+Streaming Clients
+=================
 
 .. toctree::
    :maxdepth: 1

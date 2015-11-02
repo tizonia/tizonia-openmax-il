@@ -1,5 +1,5 @@
-Tizonia OpenMAX IL plugins
-==========================
+OpenMAX IL Plugins
+==================
 
 .. toctree::
    :maxdepth: 1

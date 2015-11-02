@@ -1,5 +1,5 @@
-Tizonia OpenMAX IL framework
-============================
+OpenMAX IL Framework
+====================
 
 .. toctree::
    :maxdepth: 1

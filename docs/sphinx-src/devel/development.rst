@@ -5,7 +5,7 @@ Development
    :maxdepth: 2
 
    architecture
-   components/components
+   omxil/omxil
    plugins/plugins
    clients/clients
    style
