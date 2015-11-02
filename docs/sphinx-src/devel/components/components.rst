@@ -1,5 +1,5 @@
-Tizonia Components
-==================
+Tizonia OpenMAX IL framework
+============================
 
 .. toctree::
    :maxdepth: 1
@@ -7,7 +7,6 @@ Tizonia Components
    libtizplatform
    libtizcore
    libtizonia
-   plugins/plugins
-   libtizgmusic
-   libtizsoundcloud
+   libtizrmproxy
+   tizrmd
 

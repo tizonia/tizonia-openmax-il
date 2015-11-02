@@ -6,4 +6,6 @@ Development
 
    architecture
    components/components
+   plugins/plugins
+   clients/clients
    style
