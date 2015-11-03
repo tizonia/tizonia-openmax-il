@@ -51,7 +51,7 @@ PROJECT_BRIEF          =
 # and the maximum width should not exceed 200 pixels. Doxygen will copy the logo
 # to the output directory.
 
-PROJECT_LOGO           = /home/joni/work/tizonia/docs/logo/tizonia_logo_200.gif
+PROJECT_LOGO           = ../logo/tizonia_logo_200.gif
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -744,17 +744,17 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = mainpage.dox
-INPUT                 += /home/joni/work/tizonia/docs/../gmusic
-INPUT                 += /home/joni/work/tizonia/docs/../soundcloud
-INPUT                 += /home/joni/work/tizonia/docs/../libtizcore
-INPUT                 += /home/joni/work/tizonia/docs/../libtizonia
-INPUT                 += /home/joni/work/tizonia/docs/../libtizplatform
+INPUT                 += ../../gmusic
+INPUT                 += ../../soundcloud
+INPUT                 += ../../libtizcore
+INPUT                 += ../../libtizonia
+INPUT                 += ../../libtizplatform
 INPUT                 += resourcemanagement.dox
-INPUT                 += /home/joni/work/tizonia/docs/../rm/libtizrmproxy
-INPUT                 += /home/joni/work/tizonia/docs/../rm/tizrmd
+INPUT                 += ../../rm/libtizrmproxy
+INPUT                 += ../../rm/tizrmd
 INPUT                 += plugins.dox
-INPUT                 += /home/joni/work/tizonia/docs/../plugins
-INPUT                 += /home/joni/work/tizonia/docs/../player
+INPUT                 += ../../plugins
+INPUT                 += ../../player
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -789,12 +789,12 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = /home/joni/work/tizonia/docs/include
-EXCLUDE               += /home/joni/work/tizonia/docs/.hg
-EXCLUDE               += /home/joni/work/tizonia/docs/.git
-EXCLUDE               += /home/joni/work/tizonia/docs/../plugins/templates
-EXCLUDE               += /home/joni/work/tizonia/docs/../libtizplatform/src/http-parser
-EXCLUDE               += /home/joni/work/tizonia/docs/../libtizplatform/src/avl
+EXCLUDE                = ../../include
+EXCLUDE               += ../../.hg
+EXCLUDE               += ../../.git
+EXCLUDE               += ../../plugins/templates
+EXCLUDE               += ../../libtizplatform/src/http-parser
+EXCLUDE               += ../../libtizplatform/src/avl
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
