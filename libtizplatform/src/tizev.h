@@ -34,7 +34,10 @@ extern "C" {
 #endif
 
 /**
- * @defgroup event Event loop utilities
+ * @defgroup tizevent Global event loop, async io and timers.
+ *
+ * Global event loop, async io and timers.
+ *
  * @ingroup libtizplatform
  */
 
@@ -46,19 +49,19 @@ extern "C" {
 
 /**
  * Handle to an io event
- * @ingroup event
+ * @ingroup tizevent
  */
 typedef struct tiz_event_io tiz_event_io_t;
 
 /**
  * Handle to a timer event
- * @ingroup event
+ * @ingroup tizevent
  */
 typedef struct tiz_event_timer tiz_event_timer_t;
 
 /**
  * Handle to a file status change event
- * @ingroup event
+ * @ingroup tizevent
  */
 typedef struct tiz_event_stat tiz_event_stat_t;
 
@@ -71,7 +74,7 @@ typedef struct tiz_event_stat tiz_event_stat_t;
  *
  * @param events The event types notified
  *
- * @ingroup event
+ * @ingroup tizevent
  */
 typedef void (*tiz_event_io_cb_f)(void *ap_arg0, tiz_event_io_t *ap_ev_io,
                                   void *ap_arg1, const uint32_t a_id, int a_fd,
@@ -101,7 +104,7 @@ typedef enum tiz_event_io_event
  * useful if for some reason the initialization cannot be done at the same
  * time as the first use.
  *
- * @ingroup event
+ * @ingroup tizevent
  *
  * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources
  * otherwise.
@@ -115,7 +118,7 @@ OMX_ERRORTYPE tiz_event_loop_init (void);
  * process. Therefore, if this function is used, the caller should guarantee
  * that the global event loop is no longer needed.
  *
- * @ingroup event
+ * @ingroup tizevent
  *
  */
 void tiz_event_loop_destroy (void);

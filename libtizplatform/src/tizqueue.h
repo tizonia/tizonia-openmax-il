@@ -34,10 +34,9 @@ extern "C" {
 #endif
 
 /**
- * @defgroup queue Message queue handling
+ * @defgroup tizqueue Message queue handling
  *
- * Thread-safe FIFO queue that can be accessed safely by any number of
- * threads.
+ * Thread-safe FIFO queue.
  *
  * @ingroup libtizplatform
  */
@@ -50,8 +49,8 @@ extern "C" {
 #define TIZ_QUEUE_MAX_ITEMS 30
 
 /**
- * Queue opaque structure
- * @ingroup queue
+ * Queue opaque structure.
+ * @ingroup tizqueue
  */
 typedef struct tiz_queue tiz_queue_t;
 typedef /*@null@ */ tiz_queue_t *tiz_queue_ptr_t;
@@ -59,7 +58,7 @@ typedef /*@null@ */ tiz_queue_t *tiz_queue_ptr_t;
 /**
  * Initialize a new empty queue.
  *
- * @ingroup queue
+ * @ingroup tizqueue
  *
  * @param a_capacity Maximum number of items that can be added to the queue.
  *
@@ -72,7 +71,7 @@ OMX_ERRORTYPE tiz_queue_init (/*@out@*/ tiz_queue_ptr_t *app_q,
  * Destroy a queue. If ap_q is NULL, or the queue has already been detroyed
  * before, no operation is performed.
  *
- * @ingroup queue
+ * @ingroup tizqueue
  *
  */
 void tiz_queue_destroy (/*@null@ */ tiz_queue_t *ap_q);
@@ -81,24 +80,24 @@ void tiz_queue_destroy (/*@null@ */ tiz_queue_t *ap_q);
  * Add an item onto the end of the queue. If the queue is full, it blocks
  * until a space becomes available.
  *
- * @ingroup queue
+ * @ingroup tizqueue
  *
  */
 OMX_ERRORTYPE tiz_queue_send (tiz_queue_t *ap_q, OMX_PTR ap_data);
 
 /**
- * Retrives an item from the head of the queue. If the queue is empty, it
+ * Retrive an item from the head of the queue. If the queue is empty, it
  * blocks until an item becomes available.
  *
- * @ingroup queue
+ * @ingroup tizqueue
  *
  */
 OMX_ERRORTYPE tiz_queue_receive (tiz_queue_t *ap_q, OMX_PTR *app_data);
 
 /**
- * Retrives the number of items currently stored in the queue.
+ * Retrive the number of items currently stored in the queue.
  *
- * @ingroup queue
+ * @ingroup tizqueue
  *
  */
 OMX_S32 tiz_queue_length (tiz_queue_t *ap_q);

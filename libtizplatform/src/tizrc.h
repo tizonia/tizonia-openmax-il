@@ -34,7 +34,7 @@ extern "C" {
 #endif
 
 /**
- * @defgroup rcfile Configuration file parsing utilities
+ * @defgroup tizrcfile Configuration file parsing utilities
  * @ingroup libtizplatform
  */
 
@@ -46,7 +46,7 @@ extern "C" {
 /**
  * Returns a value string from a give section using the value's key
  *
- * @ingroup rcfile
+ * @ingroup tizrcfile
  *
  * @param section String indicating the section where the key-value list pair
  * is to be found.
@@ -61,7 +61,7 @@ const char *tiz_rcfile_get_value (const char *section, const char *key);
 /**
  * Returns a value string from a give section using the value's key
  *
- * @ingroup rcfile
+ * @ingroup tizrcfile
  *
  * @param section String indicating the section where the key-value list pair
  * is to be found.
@@ -81,7 +81,7 @@ char **tiz_rcfile_get_value_list (const char *section, const char *key,
  * section-key-value triad provided is respectively, not found, found and
  * matching, or found and no matching.
  *
- * @ingroup rcfile
+ * @ingroup tizrcfile
  *
  * @param section String indicating the section where the key-value pair is
  * to be found.
@@ -102,7 +102,7 @@ int tiz_rcfile_compare_value (const char *section, const char *key,
  * configuration file has been found at one of the expected locations and the
  * file can be opened and read by the current user.
  *
- * @ingroup rcfile
+ * @ingroup tizrcfile
  *
  * @return On success, zero is returned. On error, -1 is returned.
  */

@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef TIZ_H
-#define TIZ_H
+#ifndef TIZPLATFORM_H
+#define TIZPLATFORM_H
 
 /**
  * @defgroup libtizplatform 'libtizplatform' : OS abstraction wrapers and utilities
@@ -54,8 +54,8 @@
 #include "tizmap.h"
 #include "tizlimits.h"
 #include "tizprintf.h"
-#include "tizshuffle.h"
+#include "tizshufflelst.h"
 
 /** @} */
 
-#endif /* TIZ_H */
+#endif /* TIZPLATFORM_H */

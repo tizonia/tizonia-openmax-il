@@ -34,10 +34,10 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @defgroup queue Priority message queue handling
+ * @defgroup tizpqueue Priority message queue handling
  *
- * Non-synchronized priority queue. External synchronisaztion is needed in
- * case it needs to be accessed safely from any number of threads.
+ * Non-synchronized priority queue. External synchronisation is required in
+ * case it needs to be accessed safely from multiple threads.
  *
  * @ingroup libtizplatform
  */
@@ -48,8 +48,8 @@ extern "C" {
 #include "tizsoa.h"
 
 /**
- * Priority queue opaque structure
- * @ingroup pqueue
+ * Priority queue opaque structure.
+ * @ingroup tizpqueue
  */
 typedef struct tiz_pqueue tiz_pqueue_t;
 
@@ -108,7 +108,7 @@ typedef void (*tiz_pq_dump_item_f)(const char *ap_name, void *ap_data,
  * priorities (i.e. priority groups [0..a_max_prio]). 0 is the highest
  * priority.
  *
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  * @param app_pq A handle to the priority queue object to be initialized
  *
@@ -139,7 +139,7 @@ OMX_ERRORTYPE tiz_pqueue_init (tiz_pqueue_t **app_pq, OMX_S32 a_max_prio,
  *
  * @pre The queue must be empty before calling this function
 
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  */
 void tiz_pqueue_destroy (/*@null@ */ tiz_pqueue_t *ap_pq);
@@ -147,7 +147,7 @@ void tiz_pqueue_destroy (/*@null@ */ tiz_pqueue_t *ap_pq);
 /**
  * Add an item to the end of the priority group a_prio.
  *
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources otherwise
  *
@@ -161,7 +161,7 @@ OMX_ERRORTYPE tiz_pqueue_send (tiz_pqueue_t *ap_pq, void *ap_data,
  *
  * @return OMX_ErrorNone if success, OMX_ErrorNoMore if empty
  *
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  */
 OMX_ERRORTYPE tiz_pqueue_receive (tiz_pqueue_t *ap_pq, void **app_data);
@@ -172,7 +172,7 @@ OMX_ERRORTYPE tiz_pqueue_receive (tiz_pqueue_t *ap_pq, void **app_data);
  *
  * @return OMX_ErrorNone if success, OMX_ErrorNoMore if not found
  *
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  */
 OMX_ERRORTYPE tiz_pqueue_remove (tiz_pqueue_t *ap_pq, void *ap_data);
@@ -184,7 +184,7 @@ OMX_ERRORTYPE tiz_pqueue_remove (tiz_pqueue_t *ap_pq, void *ap_data);
  *
  * @return OMX_ErrorNone if success, OMX_ErrorNoMore if not found
  *
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  */
 OMX_ERRORTYPE tiz_pqueue_removep (tiz_pqueue_t *ap_pq, void *ap_data,
@@ -194,7 +194,7 @@ OMX_ERRORTYPE tiz_pqueue_removep (tiz_pqueue_t *ap_pq, void *ap_data,
  * Remove from the queue all the items found using the comparison function
  * apf_func.
  *
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  */
 void tiz_pqueue_remove_func (tiz_pqueue_t *ap_pq, tiz_pq_func_f apf_func,
@@ -205,7 +205,7 @@ void tiz_pqueue_remove_func (tiz_pqueue_t *ap_pq, tiz_pq_func_f apf_func,
  *
  * @return OMX_ErrorNone if success, OMX_ErrorNoMore if none found
  *
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  */
 OMX_ERRORTYPE tiz_pqueue_first (tiz_pqueue_t *ap_pq, void **app_data);
@@ -215,7 +215,7 @@ OMX_ERRORTYPE tiz_pqueue_first (tiz_pqueue_t *ap_pq, void **app_data);
  *
  * @return Number of items in the queue
  *
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  */
 OMX_S32 tiz_pqueue_length (const tiz_pqueue_t *ap_pq);
@@ -226,7 +226,7 @@ OMX_S32 tiz_pqueue_length (const tiz_pqueue_t *ap_pq);
  *
  * @return The number of nodes processed.
  *
- * @ingroup pqueue
+ * @ingroup tizpqueue
  *
  */
 OMX_S32 tiz_pqueue_dump (tiz_pqueue_t *ap_pq, tiz_pq_dump_item_f apf_dump);

@@ -34,7 +34,9 @@ extern "C" {
 #endif
 
 /**
- * @defgroup atomic Atomic operations
+ * @defgroup tizatomic Atomic operations
+ *
+ * Atomic operations. This module is work-in-progress.
  *
  * @ingroup libtizplatform
  */
@@ -43,8 +45,8 @@ extern "C" {
 #include <OMX_Types.h>
 
 /**
- * Atomic list handle
- * @ingroup atomic
+ * Atomic variable opaque handle.
+ * @ingroup tizatomic
  */
 typedef struct tiz_atomic_var tiz_atomic_var_t;
 typedef /*@null@ */ tiz_atomic_var_t *tiz_atomic_var_ptr_t;
@@ -52,18 +54,25 @@ typedef /*@null@ */ tiz_atomic_var_t *tiz_atomic_var_ptr_t;
 /**
  * Create a new atomic binary variable.
  *
- * @ingroup atomic
- *
+ * @ingroup tizatomic
+ * @param app_atomic_var An atomic variable opaque handle to be initialised.
  * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
  */
 OMX_ERRORTYPE tiz_atomic_var_init (tiz_atomic_var_ptr_t *app_atomic_var);
 
-  tiz_atomic_var_test_and_set (tiz_atomic_var_t *ap_atomic_var);
-  
+/**
+ * Atomic test and set.
+ *
+ * @ingroup tizatomic
+ * @param app_atomic_var An atomic variable opaque handle.
+ * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
+ */
+OMX_ERRORTYPE tiz_atomic_var_test_and_set (tiz_atomic_var_t *ap_atomic_var);
+
 /**
  * Destroy the atomic binary variable.
- *
- * @ingroup atomic
+ * @param app_atomic_var An atomic variable opaque handle.
+ * @ingroup tizatomic
  */
 void tiz_atomic_var_destroy (tiz_atomic_var_t *ap_atomic_var);
 
