@@ -5,7 +5,7 @@ Development
    :maxdepth: 2
 
    architecture
-   omxil/omxil
+   openmaxil/openmaxil
    plugins/plugins
    clients/clients
    style
