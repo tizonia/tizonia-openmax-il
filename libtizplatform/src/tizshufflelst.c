@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizshuffle.c
+ * @file   tizshufflelst.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia Platform - Integer list shuffling
@@ -38,7 +38,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.platform.shuffle"
+#define TIZ_LOG_CATEGORY_NAME "tiz.platform.shufflelst"
 #endif
 
 struct tiz_shuffle_lst

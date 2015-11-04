@@ -51,7 +51,7 @@ libtizplatform_include_HEADERS = \
 	tizhttp.h \
 	tizlimits.h \
 	tizprintf.h \
-	tizshuffle.h
+	tizshufflelst.h
 
 libtizplatform_la_SOURCES = \
 	http-parser/http_parser.c \
@@ -74,7 +74,7 @@ libtizplatform_la_SOURCES = \
 	tizhttp.c \
 	tizlimits.c \
 	tizprintf.c \
-	tizshuffle.c
+	tizshufflelst.c
 
 libtizplatform_la_CFLAGS = \
 	$(AM_CFLAGS) \

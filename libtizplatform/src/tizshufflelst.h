@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   tizshuffle.h
+ * @file   tizshufflelst.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia Platform - Integer list shuffling
@@ -26,16 +26,18 @@
  *
  */
 
-#ifndef TIZSHUFFLE_H
-#define TIZSHUFFLE_H
+#ifndef TIZSHUFFLELST_H
+#define TIZSHUFFLELST_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @defgroup shuffle Simple implementation of the Knuth-Fisher-Yates shuffle
- * algorithm.
+ * @defgroup tizshufflelst Simple implementation of the Knuth-Fisher-Yates shuffle algorithm.
+ *
+ * Simple implementation of the Knuth-Fisher-Yates shuffle algorithm.
+ *
  * @ingroup libtizplatform
  */
 
@@ -43,16 +45,16 @@ extern "C" {
 #include <OMX_Types.h>
 
 /**
- * Shuffle list handle
- * @ingroup shuffle
+ * Shuffle list opaque handle.
+ * @ingroup tizshufflelst
  */
 typedef struct tiz_shuffle_lst tiz_shuffle_lst_t;
 typedef /*@null@ */ tiz_shuffle_lst_t *tiz_shuffle_lst_ptr_t;
 
 /**
- * Create a new shuffle_lstd list of integers.
+ * Create a new shuffled list of integers.
  *
- * @ingroup shuffle_lst
+ * @ingroup tizshufflelst
  *
  * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
  */
@@ -62,7 +64,7 @@ OMX_ERRORTYPE tiz_shuffle_lst_init (tiz_shuffle_lst_ptr_t *app_shuffle_lst,
 /**
  * Return the next integer in the list.
  *
- * @ingroup shuffle_lst
+ * @ingroup tizshufflelst
  *
  * @return 0 if success, -1 otherwise.
  */
@@ -71,7 +73,7 @@ OMX_S32 tiz_shuffle_lst_next (tiz_shuffle_lst_t *ap_shuffle_lst);
 /**
 * Return the prev integer in the list.
 *
-* @ingroup shuffle_lst
+* @ingroup tizshufflelst
 *
 * @return 0 if success, -1 otherwise.
 */
@@ -80,7 +82,7 @@ OMX_S32 tiz_shuffle_lst_prev (tiz_shuffle_lst_t *ap_shuffle_lst);
 /**
 * Return the prev integer in the list.
 *
-* @ingroup shuffle_lst
+* @ingroup tizshufflelst
 *
 * @return 0 if success, -1 otherwise.
 */
@@ -88,9 +90,9 @@ OMX_S32 tiz_shuffle_lst_jump (tiz_shuffle_lst_t *ap_shuffle_lst,
                               const OMX_S32 a_jump);
 
 /**
- * Terminate the calling shuffle_lst.
+ * Destroy the shuffled list object.
  *
- * @ingroup shuffle_lst
+ * @ingroup tizshufflelst
  */
 void tiz_shuffle_lst_destroy (tiz_shuffle_lst_t *p_shuffle_lst);
 
@@ -98,4 +100,4 @@ void tiz_shuffle_lst_destroy (tiz_shuffle_lst_t *p_shuffle_lst);
 }
 #endif
 
-#endif /* TIZSHUFFLE_H */
+#endif /* TIZSHUFFLELST_H */
