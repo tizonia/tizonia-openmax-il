@@ -4,7 +4,7 @@ OpenMAX IL Framework
 .. toctree::
    :maxdepth: 1
 
-   libtizplatform
+   libtizplatform/libtizplatform
    libtizcore
    libtizonia
    libtizrmproxy
