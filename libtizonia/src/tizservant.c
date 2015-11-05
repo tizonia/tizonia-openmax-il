@@ -556,16 +556,16 @@ static void srv_issue_buf_callback (const void *ap_obj,
         {
           TIZ_DEBUG (handleOf (ap_obj),
                      "[OMX_FillThisBuffer] : "
-                     "HEADER [%p] BUFFER [%p] ap_tcomp [%p]",
-                     p_hdr, p_hdr->pBuffer, ap_tcomp);
+                     "HEADER [%p] BUFFER [%p] [%s]",
+                     p_hdr, p_hdr->pBuffer, TIZ_CNAME(ap_tcomp));
           (void)OMX_FillThisBuffer (ap_tcomp, p_hdr);
         }
       else
         {
           TIZ_DEBUG (handleOf (ap_obj),
                      "[OMX_EmptyThisBuffer] : "
-                     "HEADER [%p] BUFFER [%p] ap_tcomp [%p]",
-                     p_hdr, p_hdr->pBuffer, ap_tcomp);
+                     "HEADER [%p] BUFFER [%p] [%s]",
+                     p_hdr, p_hdr->pBuffer, TIZ_CNAME(ap_tcomp));
           (void)OMX_EmptyThisBuffer (ap_tcomp, p_hdr);
         }
     }
