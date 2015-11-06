@@ -18,7 +18,7 @@
 #
 # Tizonia's buffer exchange information
 # usage: e.g:
-#       $ tail -f /home/user/temp/tizonia.log.0 | ./tizonia-buffer-top.pl
+#       $ tail -f /home/user/temp/tizonia.log.0 | ./tizonia-stats-top.pl
 
 use Time::Local;
 
@@ -45,13 +45,17 @@ $headers[2] = \$comp3_headers_lst;
 
 $t0   = time();
 $bpm = 0;
+$bps = 0;
+
+$test1 = "";
+$test2 = "";
 
 %header_lists;
 
 format STATS_TOP =
-COMPONENT NAME                                  ETB     FTB         BPM       ELAPSED TIME              CURRENT TIME
-                                            @###### @######  @######.##            @######              @<<<<<<<<<<<<<<<<<<<<<
-$etb, $ftb, $bpm, $elapsed, $date
+COMPONENT NAME                                  ETB     FTB       BPM      BPS    ELAPSED TIME              CURRENT TIME
+                                            @###### @######  @####.## @####.##         @######              @<<<<<<<<<<<<<<<<<<<<<
+$etb, $ftb, $bpm, $bps, $elapsed, $date
 ====================================================================================================================================
 .
 
@@ -62,6 +66,11 @@ $comp1, $comp1_headers_lst
 $comp2, $comp2_headers_lst
 @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<    @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 $comp3, $comp3_headers_lst
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+$test1
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+$test2
+Press Ctr-C to exit.
 .
 $^ = 'STATS_TOP';
 $~ = 'STATS';
@@ -92,12 +101,23 @@ while (<STDIN>) {
       }
       @tokens = split / /, $line;
       $to = @tokens[-1];
-      $header = @tokens[-4];
-      $from = @tokens[-10];
+      $info = @tokens[-2];
+      $header = @tokens[-5];
+      $from = @tokens[-11];
       if (exists $header_lists{$from}{$header}) {
         delete $header_lists{$from}{$header};
       }
-      $header_lists{$to}{$header} = $header;
+      $header_lists{$to}{$header} = $header . ":" . $info;
+    }
+    elsif ($line =~ m/\[OMX_EventCmdComplete\]\s\[OMX_CommandStateSet\]\s\[OMX_StateIdle\]/) {
+      @tokens = split / /, $line;
+      $from = @tokens[-6];
+      $header_lists{$from} = ();
+    }
+    elsif ($line =~ m/\[OMX_EventCmdComplete\]\s\[OMX_CommandPortDisable\]/) {
+      @tokens = split / /, $line;
+      $from = @tokens[5];
+      $header_lists{$from} = ();
     }
 
     $i = 0;
@@ -113,6 +133,7 @@ while (<STDIN>) {
     $elapsed = $t1 - $t0;
     if ($elapsed > 0)
     {
-       $bpm = (($etb + $ftb) / $elapsed) * 60;
+       $bps = (($etb + $ftb) / $elapsed);
+       $bpm = $bps * 60;
     }
 }

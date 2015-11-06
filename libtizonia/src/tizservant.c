@@ -510,7 +510,7 @@ static void srv_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
                                  OMX_U32 a_pid, OMX_ERRORTYPE a_error)
 {
   TIZ_NOTICE (handleOf (ap_obj),
-              "OMX_EventCmdComplete...[%s] pid [%d] error [%s]",
+              "[OMX_EventCmdComplete] [%s] PID [%d] [%s]",
               tiz_cmd_to_str (a_cmd), a_pid, tiz_err_to_str (a_error));
   srv_issue_event (ap_obj, OMX_EventCmdComplete, a_cmd, a_pid,
                    (OMX_PTR)a_error);
@@ -528,7 +528,7 @@ static void srv_issue_trans_event (void *ap_obj, OMX_STATETYPE a_state,
                                    OMX_ERRORTYPE a_error)
 {
   TIZ_NOTICE (handleOf (ap_obj),
-              "OMX_EventCmdComplete...[OMX_CommandStateSet] [%s]",
+              "[OMX_EventCmdComplete] [OMX_CommandStateSet] [%s]",
               tiz_fsm_state_to_str (a_state));
   srv_issue_event (ap_obj, OMX_EventCmdComplete, OMX_CommandStateSet, a_state,
                    (OMX_PTR)a_error);
@@ -556,16 +556,18 @@ static void srv_issue_buf_callback (const void *ap_obj,
         {
           TIZ_DEBUG (handleOf (ap_obj),
                      "[OMX_FillThisBuffer] : "
-                     "HEADER [%p] BUFFER [%p] [%s]",
-                     p_hdr, p_hdr->pBuffer, TIZ_CNAME(ap_tcomp));
+                     "HEADER [%p] BUFFER [%p] [%d:%d] [%s]",
+                     p_hdr, p_hdr->pBuffer, p_hdr->nFilledLen,
+                     p_hdr->nAllocLen, TIZ_CNAME(ap_tcomp));
           (void)OMX_FillThisBuffer (ap_tcomp, p_hdr);
         }
       else
         {
           TIZ_DEBUG (handleOf (ap_obj),
                      "[OMX_EmptyThisBuffer] : "
-                     "HEADER [%p] BUFFER [%p] [%s]",
-                     p_hdr, p_hdr->pBuffer, TIZ_CNAME(ap_tcomp));
+                     "HEADER [%p] BUFFER [%p] [F(%d):A(%d)] [%s]",
+                     p_hdr, p_hdr->pBuffer, p_hdr->nFilledLen,
+                     p_hdr->nAllocLen, TIZ_CNAME (ap_tcomp));
           (void)OMX_EmptyThisBuffer (ap_tcomp, p_hdr);
         }
     }
