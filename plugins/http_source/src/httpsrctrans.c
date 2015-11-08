@@ -514,9 +514,6 @@ static OMX_ERRORTYPE resume_curl (httpsrc_trans_t *ap_trans)
   if (is_transfer_paused(ap_trans))
     {
       int running_handles = 0;
-      TIZ_TRACE (handleOf (ap_trans->p_parent_),
-                 "Resuming curl. Was paused [%s]",
-                 is_transfer_paused(ap_trans) ? "YES" : "NO");
 
       set_curl_state (ap_trans, ECurlStateTransfering);
       on_curl_error_ret_omx_oom (
@@ -558,12 +555,6 @@ static OMX_ERRORTYPE send_from_internal_buffer (httpsrc_trans_t *p_trans)
   OMX_BUFFERHEADERTYPE *p_out = NULL;
   int nbytes_available = 0;
   assert (p_trans);
-
-  TIZ_TRACE (handleOf (p_trans->p_parent_),
-             "curl_state_ = [%s] "
-             "bytes_available = [%d]",
-             httpsrc_curl_state_to_str (p_trans->curl_state_),
-             tiz_buffer_bytes_available (p_trans->p_store_));
 
   while ((nbytes_available = tiz_buffer_bytes_available (p_trans->p_store_)) > 0
          && (p_out = p_trans->pf_buf_wanted_ (p_trans->p_parent_)) != NULL)
@@ -641,9 +632,6 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
   size_t rc = nbytes;
   assert (p_trans);
   TRANS_LOG (p_trans, TRANS_CBACK_START);
-  TIZ_TRACE (handleOf (p_trans->p_parent_),
-             "size [%d] nmemb [%d] fd [%d] store [%d]", size, nmemb,
-             p_trans->sockfd_, tiz_buffer_bytes_available (p_trans->p_store_));
 
   if (nbytes > 0)
     {
@@ -715,9 +703,6 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
             }
         }
     }
-  TIZ_TRACE (handleOf (p_trans->p_parent_),
-             "size [%d] nmemb [%d] fd [%d] store [%d]", size, nmemb,
-             p_trans->sockfd_, tiz_buffer_bytes_available (p_trans->p_store_));
 
   TRANS_LOG (p_trans, TRANS_CBACK_END);
   return rc;
@@ -809,6 +794,7 @@ static int curl_socket_cback (CURL *easy, curl_socket_t s, int action,
       (void)stop_io_watcher (p_trans);
       tiz_srv_io_watcher_destroy (p_trans->p_parent_, p_trans->p_ev_io_);
       p_trans->p_ev_io_ = NULL;
+      p_trans->sockfd_ = -1;
       (void)stop_curl_timer_watcher (p_trans);
     }
   TRANS_LOG (p_trans, TRANS_CBACK_END);
@@ -838,6 +824,7 @@ static int curl_timer_cback (CURLM *multi, long timeout_ms, void *userp)
              p_trans->curl_timeout_);
 
   stop_curl_timer_watcher (p_trans);
+  p_trans->curl_timeout_ = -1;
 
   if (0 == timeout_ms)
     {
@@ -1173,10 +1160,8 @@ OMX_ERRORTYPE httpsrc_trans_on_io_ready (httpsrc_trans_t *ap_trans,
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
-  TIZ_TRACE (handleOf (ap_trans->p_parent_), "a_fd [%d] sockfd_ [%d]", a_fd,
-             ap_trans->sockfd_)
   TRANS_LOG (ap_trans, TRANS_API_START);
-  if (ap_trans->awaiting_io_ev_)
+  if (a_fd == ap_trans->sockfd_)
     {
       int running_handles = 0;
       int curl_ev_bitmask = 0;
@@ -1205,7 +1190,10 @@ OMX_ERRORTYPE httpsrc_trans_on_io_ready (httpsrc_trans_t *ap_trans,
         {
           if (is_transfer_running (ap_trans))
             {
-              tiz_check_omx_err (restart_io_watcher (ap_trans));
+              if (ap_trans->sockfd_ > 0)
+                {
+                  tiz_check_omx_err (restart_io_watcher (ap_trans));
+                }
               send_from_internal_buffer (ap_trans);
             }
         }
