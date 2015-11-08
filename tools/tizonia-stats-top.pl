@@ -47,15 +47,17 @@ $t0   = time();
 $bpm = 0;
 $bps = 0;
 
+$exe_count = 0;
+
 $test1 = "";
 $test2 = "";
 
 %header_lists;
 
 format STATS_TOP =
-COMPONENT NAME                                  ETB     FTB       BPM      BPS    ELAPSED TIME              CURRENT TIME
-                                            @###### @######  @####.## @####.##         @######              @<<<<<<<<<<<<<<<<<<<<<
-$etb, $ftb, $bpm, $bps, $elapsed, $date
+COMPONENT NAME                                  ETB     FTB       BPM      BPS    EXE  ELAPSED TIME              CURRENT TIME
+                                            @###### @######  @####.## @####.##  @####       @######              @<<<<<<<<<<<<<<<<<<<<<
+$etb, $ftb, $bpm, $bps, $exe_count, $elapsed, $date
 ====================================================================================================================================
 .
 
@@ -118,6 +120,11 @@ while (<STDIN>) {
       @tokens = split / /, $line;
       $from = @tokens[5];
       $header_lists{$from} = ();
+    }
+    elsif ($line =~ m/\[OMX_EventCmdComplete\]\s\[OMX_CommandPortEnable\]/) {
+      if ($line =~ m/renderer/) {
+        $exe_count++;
+      }
     }
 
     $i = 0;
