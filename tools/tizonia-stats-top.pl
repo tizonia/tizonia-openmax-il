@@ -103,13 +103,14 @@ while (<STDIN>) {
       }
       @tokens = split / /, $line;
       $to = @tokens[-1];
-      $info = @tokens[-2];
-      $header = @tokens[-5];
-      $from = @tokens[-11];
+      $watchers = @tokens[-2];
+      $info = @tokens[-3];
+      $header = @tokens[-6];
+      $from = @tokens[-12];
       if (exists $header_lists{$from}{$header}) {
         delete $header_lists{$from}{$header};
       }
-      $header_lists{$to}{$header} = $header . ":" . $info;
+      $header_lists{$to}{$header} = $header . ":" . $info . ":" . $watchers;
     }
     elsif ($line =~ m/\[OMX_EventCmdComplete\]\s\[OMX_CommandStateSet\]\s\[OMX_StateIdle\]/) {
       @tokens = split / /, $line;
