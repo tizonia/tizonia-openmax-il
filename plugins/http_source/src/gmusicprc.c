@@ -84,8 +84,6 @@ static void obtain_coding_type (gmusic_prc_t *ap_prc, char *ap_info)
   assert (ap_prc);
   assert (ap_info);
 
-  TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", ap_info);
-
   if (memcmp (ap_info, "audio/mpeg", 10) == 0
       || memcmp (ap_info, "audio/mpg", 9) == 0
       || memcmp (ap_info, "audio/mp3", 9) == 0)
@@ -122,8 +120,6 @@ static int convert_str_to_int (gmusic_prc_t *ap_prc, const char *ap_start,
                  "Error retrieving the number of channels : "
                  "[No digits were found]");
     }
-
-  TIZ_TRACE (handleOf (ap_prc), "Value : [%d]", val);
   return val;
 }
 
@@ -135,7 +131,6 @@ static void obtain_content_length (gmusic_prc_t *ap_prc, char *ap_info)
   assert (ap_info);
   ap_prc->content_length_bytes_ = convert_str_to_int (ap_prc, ap_info, &p_end);
   ap_prc->bytes_before_eos_ = ap_prc->content_length_bytes_;
-  TIZ_TRACE (handleOf (ap_prc), "content length  : [%d]", ap_prc->content_length_bytes_);
 }
 
 static OMX_ERRORTYPE set_audio_coding_on_port (gmusic_prc_t *ap_prc)
@@ -252,8 +247,6 @@ static void obtain_audio_encoding_from_headers (gmusic_prc_t *ap_prc,
           char *p_info = tiz_mem_calloc (1, (p_end - p_value) + 1);
           memcpy (p_info, p_value, p_end - p_value);
           p_info[(p_end - p_value)] = '\000';
-          TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
-          TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
           if (memcmp (name, "Content-Type", 12) == 0
               || memcmp (name, "content-type", 12) == 0)
@@ -278,10 +271,8 @@ static void send_port_auto_detect_events (gmusic_prc_t *ap_prc)
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
       || ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
     {
-      TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortFormatDetected");
       tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortFormatDetected, 0, 0,
                            NULL);
-      TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged");
       tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
                            ARATELIA_HTTP_SOURCE_PORT_INDEX, /* port 0 */
                            OMX_IndexParamPortDefinition,    /* the index of the
@@ -329,7 +320,6 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
                                     + pathname_max + 1;
       ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
-      TIZ_PRINTF_DBG_MAG ("a_skip_value [%d].", a_skip_value);
       {
         const char *p_next_url
             = a_skip_value > 0 ? tiz_gmusic_get_next_url (ap_prc->p_gmusic_)
@@ -405,10 +395,6 @@ static OMX_ERRORTYPE release_buffer (gmusic_prc_t *ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
-      TIZ_PRINTF_DBG_RED ("releasing HEADER [%p] nFilledLen [%d] bytes_before_eos_ [%d]\n",
-                          ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen,
-                          ap_prc->bytes_before_eos_);
-
       if (ap_prc->bytes_before_eos_ >= ap_prc->p_outhdr_->nFilledLen)
         {
           ap_prc->bytes_before_eos_ -= ap_prc->p_outhdr_->nFilledLen;
@@ -470,10 +456,6 @@ static OMX_BUFFERHEADERTYPE *buffer_wanted (OMX_PTR ap_arg)
                              p_prc->p_outhdr_, p_prc->p_outhdr_->nFilledLen);
                   p_hdr = p_prc->p_outhdr_;
                 }
-              else
-                {
-                  TIZ_TRACE (handleOf (p_prc), "No more headers available");
-                }
             }
         }
     }
@@ -516,7 +498,8 @@ static bool connection_lost (OMX_PTR ap_arg)
 {
   gmusic_prc_t *p_prc = ap_arg;
   assert (p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Connection lost");
+  TIZ_PRINTF_DBG_RED ("connection_lost - bytes_before_eos_ [%d]\n",
+                      p_prc->bytes_before_eos_);
   if (p_prc->bytes_before_eos_ > 0)
     {
       p_prc->eos_ = true;
@@ -539,11 +522,6 @@ static OMX_ERRORTYPE prepare_for_port_auto_detection (gmusic_prc_t *ap_prc)
   ap_prc->auto_detect_on_
       = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true
                                                                    : false;
-
-  TIZ_TRACE (
-      handleOf (ap_prc), "auto_detect_on_ [%s]...audio_coding_type_ [%d]",
-      ap_prc->auto_detect_on_ ? "true" : "false", ap_prc->audio_coding_type_);
-
   return OMX_ErrorNone;
 }
 
@@ -787,8 +765,6 @@ static OMX_ERRORTYPE gmusic_prc_port_disable (const void *ap_obj,
 {
   gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_obj;
   assert (p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Disabling port was disabled? [%s]",
-              p_prc->port_disabled_ ? "YES" : "NO");
   TIZ_PRINTF_DBG_RED ("Disabling port was disabled? [%s]\n",
                       p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->p_trans_)
@@ -806,8 +782,6 @@ static OMX_ERRORTYPE gmusic_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
   gmusic_prc_t *p_prc = (gmusic_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Enabling port [%d] was disabled? [%s]", a_pid,
-              p_prc->port_disabled_ ? "YES" : "NO");
   TIZ_PRINTF_DBG_RED ("Enabling port was disabled? [%s]\n",
                       p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->port_disabled_)
@@ -834,8 +808,6 @@ static OMX_ERRORTYPE gmusic_prc_config_change (void *ap_prc,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_prc);
-  TIZ_TRACE (handleOf (p_prc), "");
-  TIZ_PRINTF_DBG_RED ("Config change\n");
 
   if (OMX_TizoniaIndexConfigPlaylistSkip == a_config_idx && p_prc->p_trans_)
     {
