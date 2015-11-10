@@ -105,6 +105,18 @@ static inline bool is_watcher_active (tiz_srv_t *ap_srv, void *ap_watcher,
   return rc;
 }
 
+static OMX_S32 watcher_count (const void *ap_obj)
+{
+  tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
+  OMX_S32 count = 0;
+  assert (NULL != p_srv);
+  if (p_srv->p_watchers_)
+    {
+      count = tiz_map_size (p_srv->p_watchers_);
+    }
+  return count;
+}
+
 /*
  * tiz_srv
  */
@@ -494,7 +506,7 @@ void tiz_srv_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
 
 static void srv_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error)
 {
-  TIZ_ERROR (handleOf (ap_obj), "OMX_EventError...[%s]",
+  TIZ_ERROR (handleOf (ap_obj), "[OMX_EventError] [%s]",
              tiz_err_to_str (a_error));
   srv_issue_event (ap_obj, OMX_EventError, a_error, 0, 0);
 }
@@ -556,18 +568,18 @@ static void srv_issue_buf_callback (const void *ap_obj,
         {
           TIZ_DEBUG (handleOf (ap_obj),
                      "[OMX_FillThisBuffer] : "
-                     "HEADER [%p] BUFFER [%p] [%d:%d] [%s]",
+                     "HEADER [%p] BUFFER [%p] [F(%d):A(%d)] [w:%d] [%s]",
                      p_hdr, p_hdr->pBuffer, p_hdr->nFilledLen,
-                     p_hdr->nAllocLen, TIZ_CNAME(ap_tcomp));
+                     p_hdr->nAllocLen, watcher_count (ap_obj), TIZ_CNAME(ap_tcomp));
           (void)OMX_FillThisBuffer (ap_tcomp, p_hdr);
         }
       else
         {
           TIZ_DEBUG (handleOf (ap_obj),
                      "[OMX_EmptyThisBuffer] : "
-                     "HEADER [%p] BUFFER [%p] [F(%d):A(%d)] [%s]",
+                     "HEADER [%p] BUFFER [%p] [F(%d):A(%d)] [w:%d] [%s]",
                      p_hdr, p_hdr->pBuffer, p_hdr->nFilledLen,
-                     p_hdr->nAllocLen, TIZ_CNAME (ap_tcomp));
+                     p_hdr->nAllocLen, watcher_count (ap_obj), TIZ_CNAME (ap_tcomp));
           (void)OMX_EmptyThisBuffer (ap_tcomp, p_hdr);
         }
     }
@@ -694,7 +706,9 @@ static OMX_ERRORTYPE srv_io_watcher_start (void *ap_obj,
           index = tiz_map_size (p_srv->p_watchers_);
           tiz_check_omx_err (tiz_map_insert (p_srv->p_watchers_, ap_ev_io, p_id, &index));
           rc = tiz_event_io_start (ap_ev_io, id);
-          TIZ_TRACE (handleOf (ap_obj), "started watcher with id [%d]", id);
+          TIZ_TRACE (handleOf (ap_obj),
+                     "started io watcher id [%d] active watchers [%d]", id,
+                     watcher_count (p_srv));
         }
     }
   return rc;
@@ -720,7 +734,9 @@ static OMX_ERRORTYPE srv_io_watcher_stop (void *ap_obj,
     {
       rc = tiz_event_io_stop (ap_ev_io);
       tiz_map_erase (p_srv->p_watchers_, ap_ev_io);
-      TIZ_TRACE (handleOf (ap_obj), "stopped watcher with id [%d]", id);
+      TIZ_TRACE (handleOf (ap_obj),
+                 "stopped watcher id [%d] active watchers [%d]", id,
+                 watcher_count (p_srv));
     }
   return rc;
 }
@@ -811,7 +827,9 @@ static OMX_ERRORTYPE srv_timer_watcher_start (void *ap_obj,
           index = tiz_map_size (p_srv->p_watchers_);
           tiz_check_omx_err (tiz_map_insert (p_srv->p_watchers_, ap_ev_timer, p_id, &index));
           rc = tiz_event_timer_start (ap_ev_timer, id);
-          TIZ_TRACE (handleOf (ap_obj), "started timer watcher with id [%d]", id);
+          TIZ_TRACE (handleOf (ap_obj),
+                     "started timer watcher id [%d] active watchers [%d]",
+                     id, watcher_count (p_srv));
         }
     }
   return rc;
@@ -854,7 +872,9 @@ static OMX_ERRORTYPE srv_timer_watcher_restart (void *ap_obj,
       index = tiz_map_size (p_srv->p_watchers_);
       tiz_check_omx_err (tiz_map_insert (p_srv->p_watchers_, ap_ev_timer, p_id, &index));
       rc = tiz_event_timer_restart (ap_ev_timer, id);
-      TIZ_TRACE (handleOf (ap_obj), "restarted watcher with id [%d]", id);
+      TIZ_TRACE (handleOf (ap_obj),
+                 "restarted io watcher id [%d] active watchers [%d]", id,
+                 watcher_count (p_srv));
     }
 
   return rc;
@@ -881,7 +901,9 @@ static OMX_ERRORTYPE srv_timer_watcher_stop (void *ap_obj,
     {
       rc = tiz_event_timer_stop (ap_ev_timer);
       tiz_map_erase (p_srv->p_watchers_, ap_ev_timer);
-      TIZ_TRACE (handleOf (ap_obj), "stopped timer watcher id [%d]", id);
+      TIZ_TRACE (handleOf (ap_obj),
+                 "stopped timer watcher id [%d] active watchers [%d]", id,
+                 watcher_count (p_srv));
     }
   return rc;
 }
@@ -933,7 +955,9 @@ static OMX_ERRORTYPE srv_event_io (void *ap_obj, tiz_event_io_t *ap_ev_io,
       if (tiz_event_io_is_level_triggered (ap_ev_io))
         {
           tiz_map_erase (p_srv->p_watchers_, ap_ev_io);
-          TIZ_TRACE (handleOf (ap_obj), "stopped watcher id [%d]", id);
+          TIZ_TRACE (handleOf (ap_obj),
+                     "stopped io watcher id [%d] active watchers [%d]", id,
+                     watcher_count (p_srv));
         }
       rc = tiz_srv_io_ready (p_srv, ap_ev_io, a_fd, a_events);
     }
@@ -965,7 +989,9 @@ static OMX_ERRORTYPE srv_event_timer (void *ap_obj,
   /* Notify a timer event only if it is currently active */
   if (is_watcher_active (p_srv, ap_ev_timer, &id) && a_id == id)
     {
-      TIZ_TRACE (handleOf (ap_obj), "signaling timer watcher id [%d]", id);
+      TIZ_TRACE (handleOf (ap_obj),
+                 "signaling timer watcher id [%d] active watchers [%d]", id,
+                 watcher_count (p_srv));
       rc = tiz_srv_timer_ready (p_srv, ap_ev_timer);
     }
   else
