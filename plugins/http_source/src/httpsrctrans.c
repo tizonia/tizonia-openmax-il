@@ -727,6 +727,7 @@ static size_t curl_debug_cback (CURL *p_curl, curl_infotype type, char *buf,
       char *p_info = tiz_mem_calloc (1, nbytes + 1);
       memcpy (p_info, buf, nbytes);
       TIZ_TRACE (handleOf (p_trans->p_parent_), "libcurl : [%s]", p_info);
+      TIZ_PRINTF_DBG_RED ("libcurl : [%s]\n", p_info);
       tiz_mem_free (p_info);
     }
   return 0;
