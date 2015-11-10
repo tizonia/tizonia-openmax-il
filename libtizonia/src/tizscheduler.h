@@ -49,27 +49,120 @@ extern "C" {
 
 #include <tizplatform.h>
 
+/**
+ * Maximum number of OpenMAX IL ports that may be registered with a Tizonia
+ * component.
+ * @ingroup libtizonia
+ */
 #define TIZ_COMP_MAX_PORTS 32
+
+/**
+ * Maximum number of roles that may be registered with a Tizonia component.
+ * @ingroup libtizonia
+ */
 #define TIZ_COMP_MAX_ROLES 64
+
+/**
+ * The maximum number of types that may be registered with a Tizonia component.
+ * @ingroup libtizonia
+ */
 #define TIZ_COMP_MAX_TYPES 10
 
+/**
+ * @brief 'Configuration port' factory function prototype.
+ *
+ * This function instantiates a 'configuration port' object for a specific
+ * component role. The 'configuration' port is a pseudo-port, it does not have
+ * an associated OpenMAX IL port index. It is used in libtizonia to encapsulate
+ * the logic for the component's OpenMAX IL structures that are not associated
+ * to an actual OpenMAX IL port, i.e. OpenMAX IL parameter structures without
+ * an 'nIndex' member (e.g. OMX_PARAM_CONTENTURITYPE).
+ *
+ * @note Tizonia components require exactly one 'configuration port' to be
+ * functional.
+ *
+ * @ingroup libtizonia
+ * @param ap_hdl The component's OpenMAX IL handle.
+ * @return A pointer to a newly instantiated 'configuration port' object.
+ */
+
 typedef OMX_PTR (*tiz_role_config_port_init_f)(OMX_HANDLETYPE ap_hdl);
+
+/**
+ * @brief 'port' factory function prototype.
+ *
+ * This function instantiates an OpenMAX IL 'port' object for a specific
+ * component role. Tizonia components require one or more 'port' objects to
+ * be functional.
+ *
+ * @ingroup libtizonia
+ * @param ap_hdl The component's OpenMAX IL handle.
+ * @return A pointer to a newly instantiated 'port' object.
+ */
 typedef OMX_PTR (*tiz_role_port_init_f)(OMX_HANDLETYPE ap_hdl);
+
+/**
+ * @brief 'processor' factory function prototype.
+ *
+ * This function instantiates an OpenMAX IL 'processor' object for a specific
+ * component role. Tizonia components require exactly one 'processor' object
+ * to be functional.
+ *
+ * @ingroup libtizonia
+ * @param ap_hdl The component's OpenMAX IL handle.
+ * @return A pointer to a newly instantiated 'processor' object.
+ */
 typedef OMX_PTR (*tiz_role_proc_init_f)(OMX_HANDLETYPE ap_hdl);
 
+/**
+ * @brief OpenMAX IL role registration factory structure (typedef).
+ * @ingroup libtizonia
+ */
 typedef struct tiz_role_factory tiz_role_factory_t;
+
+/**
+ * @brief OpenMAX IL role registration factory structure.
+ *
+ * This structure is used to hold the various factory functions and elements
+ * necessary to register a new role within the libtizonia component
+ * infrastrucure.
+ * @ingroup libtizonia
+ */
 struct tiz_role_factory
 {
-  tiz_role_config_port_init_f pf_cport;
-  tiz_role_proc_init_f pf_proc;
-  OMX_U32 nports;
-  tiz_role_port_init_f pf_port[TIZ_COMP_MAX_PORTS];
-  OMX_U8 role[OMX_MAX_STRINGNAME_SIZE];
+  tiz_role_config_port_init_f pf_cport; /**< 'configuration port'
+                                           factory function */
+  tiz_role_proc_init_f pf_proc;         /**< 'processor' factory function */
+  OMX_U32 nports;                       /**< number of ports in this role */
+  tiz_role_port_init_f pf_port[TIZ_COMP_MAX_PORTS]; /* list of regular 'port'
+                                                       factory functions */
+  OMX_U8 role[OMX_MAX_STRINGNAME_SIZE];             /**< the role name */
 };
 
+/**
+ * @brief 'Pluggable' event structure (typedef).
+ * @ingroup libtizonia
+ */
 typedef struct tiz_event_pluggable tiz_event_pluggable_t;
+
 typedef void (*tiz_event_pluggable_hdlr_f)(OMX_PTR ap_servant,
                                            tiz_event_pluggable_t *ap_event);
+/**
+ * @brief 'Pluggable' event structure.
+ *
+ * A 'pluggable' event is a user-defined event. A 'pluggable' event is
+ * submitted to the component's own event loop. The event is then delivered (in
+ * the context of the component's internal thread) to the corresponding servant
+ * object for processing.
+ *
+ * The main use for this type of event is to allow a component's 'processor'
+ * object the processing of events coming from an external thread using the
+ * component's own event loop and thread. Any data received in the external
+ * event tipically needs to be dupped before enqueueing the pluggable event (to
+ * avoid data races).
+ *
+ * @ingroup libtizonia
+ */
 struct tiz_event_pluggable
 {
   OMX_PTR p_servant;
@@ -89,6 +182,17 @@ struct tiz_alloc_hooks
   OMX_U32 pid;
   /*@null@*/ tiz_alloc_hook_f pf_alloc;
   /*@null@*/ tiz_free_hook_f pf_free;
+  /*@null@*/ void *p_args;
+};
+
+typedef OMX_U8 *(*tiz_eglimage_validation_hook_f)(OMX_PTR *ap_eglimage,
+                                                  void *ap_args);
+
+typedef struct tiz_eglimage_validation_hook tiz_eglimage_validation_hook_t;
+struct tiz_eglimage_validation_hook_f
+{
+  OMX_U32 pid;
+  /*@null@*/ tiz_eglimage_validation_hook_f pf_egl_validator;
   /*@null@*/ void *p_args;
 };
 
@@ -146,9 +250,8 @@ OMX_ERRORTYPE tiz_comp_register_roles (const OMX_HANDLETYPE ap_hdl,
 /**
  * @brief Registration of component types (a.k.a. classes).
  *
- *
- * Components need to register at least one additional class, and that is, a
- * specialised 'processor' class. Ports may also need to be specialised.
+ * Components need to register at least one additional class, a specialised
+ * 'processor' class. Ports may also need to be specialised.
  *
  * @ingroup libtizonia
  * @note This function must be called during the execution of the component's
@@ -189,15 +292,14 @@ OMX_ERRORTYPE tiz_comp_register_alloc_hooks (
 OMX_ERRORTYPE tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
                                         tiz_event_pluggable_t *ap_event);
 void tiz_comp_event_io (const OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
-                        void *ap_arg, const uint32_t a_id,
-                        const int a_fd, const int a_events);
+                        void *ap_arg, const uint32_t a_id, const int a_fd,
+                        const int a_events);
 void tiz_comp_event_timer (const OMX_HANDLETYPE ap_hdl,
                            tiz_event_timer_t *ap_ev_timer, void *ap_arg,
                            const uint32_t a_id);
 void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl,
-                          tiz_event_stat_t *ap_ev_stat,
-                          void *ap_arg, const uint32_t a_id,
-                          const int a_events);
+                          tiz_event_stat_t *ap_ev_stat, void *ap_arg,
+                          const uint32_t a_id, const int a_events);
 
 /* Utility functions */
 
