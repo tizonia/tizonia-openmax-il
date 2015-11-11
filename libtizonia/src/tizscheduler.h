@@ -150,24 +150,27 @@ typedef void (*tiz_event_pluggable_hdlr_f)(OMX_PTR ap_servant,
 /**
  * @brief 'Pluggable' event structure.
  *
- * A 'pluggable' event is a user-defined event. A 'pluggable' event is
- * submitted to the component's own event loop. The event is then delivered (in
- * the context of the component's internal thread) to the corresponding servant
- * object for processing.
+ * A 'pluggable' event is a user-defined event that gets queued up in the
+ * component's event queue. Once in the component's event loop, the event is
+ * then delivered (in the context of the component's thread) to the
+ * corresponding servant object ('fsm', 'kernel', or 'processor') for
+ * processing.
  *
- * The main use for this type of event is to allow a component's 'processor'
- * object the processing of events coming from an external thread using the
- * component's own event loop and thread. Any data received in the external
- * event tipically needs to be dupped before enqueueing the pluggable event (to
- * avoid data races).
+ * The main use for this type of event is to allow the component's 'processor'
+ * the processing of events coming from an external thread from within the
+ * component's event loop and thread. Any data received in the external event
+ * tipically needs to be dup'ed before enqueueing the pluggable event (to avoid
+ * data races).
  *
  * @ingroup libtizonia
  */
 struct tiz_event_pluggable
 {
-  OMX_PTR p_servant;
-  OMX_PTR p_data;
-  tiz_event_pluggable_hdlr_f pf_hdlr;
+  OMX_PTR p_servant; /**< The servant object that will be processing
+                        the external event. */
+  OMX_PTR p_data;    /* Tipically, a copy of the data received in
+                        the external event. */
+  tiz_event_pluggable_hdlr_f pf_hdlr; /**< The event handler */
 };
 
 typedef OMX_U8 *(*tiz_alloc_hook_f)(OMX_U32 *ap_size, OMX_PTR *app_port_priv,
@@ -185,7 +188,8 @@ struct tiz_alloc_hooks
   /*@null@*/ void *p_args;
 };
 
-typedef OMX_U8 *(*tiz_eglimage_validation_hook_f)(OMX_PTR *ap_eglimage,
+typedef OMX_U8 *(*tiz_eglimage_validation_hook_f)(const OMX_HANDLETYPE ap_hdl,
+                                                  OMX_PTR *ap_eglimage,
                                                   void *ap_args);
 
 typedef struct tiz_eglimage_validation_hook tiz_eglimage_validation_hook_t;
@@ -273,7 +277,7 @@ OMX_ERRORTYPE tiz_comp_register_types (const OMX_HANDLETYPE ap_hdl,
  *
  * @param ap_hdl The OpenMAX IL handle.
  * @param ap_new_hooks The new allocation hooks.
- * @param ap_old_hooks The old allocation hooks (the ones being replaced).
+ * @param ap_old_hooks The old allocation hooks (the ones replaced).
  * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
  */
 OMX_ERRORTYPE tiz_comp_register_alloc_hooks (
@@ -281,22 +285,88 @@ OMX_ERRORTYPE tiz_comp_register_alloc_hooks (
     tiz_alloc_hooks_t *ap_old_hooks);
 
 /**
- * Registration of allocation hooks.
+ * Registration of the EGL image validation hook.
  *
  * @ingroup libtizonia
  *
  * @param ap_hdl The OpenMAX IL handle.
- * @param ap_event A pluggable event definition.
+ * @param ap_hook EGL image validation hook info.
+ * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
+ */
+OMX_ERRORTYPE tiz_comp_register_eglimage_validation_hook (
+    const OMX_HANDLETYPE ap_hdl, const tiz_eglimage_validation_hook_f *ap_hook);
+
+/**
+ * Queueing of 'pluggable' events.
+ *
+ * A 'pluggable' event is submitted to the component's event queue using this
+ * function. The component's event loop will deliver the event to its handler
+ * for processing within the component's thread context.
+ *
+ * @ingroup libtizonia
+ *
+ * @param ap_hdl The OpenMAX IL handle.
+ * @param ap_event The pluggable event.
  * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
  */
 OMX_ERRORTYPE tiz_comp_event_pluggable (const OMX_HANDLETYPE ap_hdl,
                                         tiz_event_pluggable_t *ap_event);
+/**
+ * Queueing of 'io' events.
+ *
+ * An 'io' event is submitted to the component's event queue using this
+ * function. The component's event loop will deliver the 'io' event to the
+ * 'processor' object for processing within the component's thread context.
+ *
+ * @ingroup libtizonia
+ *
+ * @param ap_hdl The OpenMAX IL handle.
+ * @param ap_ev_io
+ * @param ap_arg
+ * @param a_id
+ * @param a_fd
+ * @param a_events
+ * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
+ */
 void tiz_comp_event_io (const OMX_HANDLETYPE ap_hdl, tiz_event_io_t *ap_ev_io,
                         void *ap_arg, const uint32_t a_id, const int a_fd,
                         const int a_events);
+
+/**
+ * Queueing of 'timer' events.
+ *
+ * An 'timer' event is submitted to the component's event queue using this
+ * function. The component's event loop will deliver the 'timer' event to the
+ * 'processor' object for processing within the component's thread context.
+ *
+ * @ingroup libtizonia
+ *
+ * @param ap_hdl The OpenMAX IL handle.
+ * @param ap_ev_timer
+ * @param ap_arg
+ * @param a_id
+ * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
+ */
 void tiz_comp_event_timer (const OMX_HANDLETYPE ap_hdl,
                            tiz_event_timer_t *ap_ev_timer, void *ap_arg,
                            const uint32_t a_id);
+
+/**
+ * Queueing of 'stat' events.
+ *
+ * An 'stat' event is submitted to the component's event queue using this
+ * function. The component's event loop will deliver the 'stat' event to the
+ * 'processor' object for processing within the component's thread context.
+ *
+ * @ingroup libtizonia
+ *
+ * @param ap_hdl The OpenMAX IL handle.
+ * @param ap_ev_stat
+ * @param ap_arg
+ * @param a_id
+ * @param a_events
+ * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
+ */
 void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl,
                           tiz_event_stat_t *ap_ev_stat, void *ap_arg,
                           const uint32_t a_id, const int a_events);
