@@ -133,6 +133,8 @@ extern "C"
     void (*set_alloc_hooks) (void *ap_obj,
                              const tiz_alloc_hooks_t * ap_new_hooks,
                              tiz_alloc_hooks_t * ap_old_hooks);
+    void (*set_eglimage_hook) (void *ap_obj,
+                               const tiz_eglimage_hook_t * ap_hook);
     OMX_ERRORTYPE (*populate_header) (const void *ap_obj,
                                       OMX_BUFFERHEADERTYPE * ap_hdr);
     void (*depopulate_header) (const void *ap_obj,

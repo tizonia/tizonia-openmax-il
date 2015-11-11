@@ -188,15 +188,15 @@ struct tiz_alloc_hooks
   /*@null@*/ void *p_args;
 };
 
-typedef OMX_U8 *(*tiz_eglimage_validation_hook_f)(const OMX_HANDLETYPE ap_hdl,
+typedef OMX_U8 *(*tiz_eglimage_hook_f)(const OMX_HANDLETYPE ap_hdl,
                                                   OMX_PTR *ap_eglimage,
                                                   void *ap_args);
 
-typedef struct tiz_eglimage_validation_hook tiz_eglimage_validation_hook_t;
-struct tiz_eglimage_validation_hook_f
+typedef struct tiz_eglimage_hook tiz_eglimage_hook_t;
+struct tiz_eglimage_hook
 {
   OMX_U32 pid;
-  /*@null@*/ tiz_eglimage_validation_hook_f pf_egl_validator;
+  /*@null@*/ tiz_eglimage_hook_f pf_egl_validator;
   /*@null@*/ void *p_args;
 };
 
@@ -271,12 +271,12 @@ OMX_ERRORTYPE tiz_comp_register_types (const OMX_HANDLETYPE ap_hdl,
                                        const OMX_U32 a_ntypes);
 
 /**
- * Registration of allocation hooks.
+ * Registration of port buffer allocation hooks.
  *
  * @ingroup libtizonia
  *
  * @param ap_hdl The OpenMAX IL handle.
- * @param ap_new_hooks The new allocation hooks.
+ * @param ap_new_hooks The new port buffer allocation hooks.
  * @param ap_old_hooks The old allocation hooks (the ones replaced).
  * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
  */
@@ -293,8 +293,8 @@ OMX_ERRORTYPE tiz_comp_register_alloc_hooks (
  * @param ap_hook EGL image validation hook info.
  * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
  */
-OMX_ERRORTYPE tiz_comp_register_eglimage_validation_hook (
-    const OMX_HANDLETYPE ap_hdl, const tiz_eglimage_validation_hook_f *ap_hook);
+OMX_ERRORTYPE tiz_comp_register_eglimage_hook (
+    const OMX_HANDLETYPE ap_hdl, const tiz_eglimage_hook_t *ap_hook);
 
 /**
  * Queueing of 'pluggable' events.

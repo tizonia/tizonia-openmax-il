@@ -1803,6 +1803,27 @@ tiz_port_set_alloc_hooks (void *ap_obj,
   class->set_alloc_hooks (ap_obj, ap_new_hooks, ap_old_hooks);
 }
 
+static void
+port_set_eglimage_hook (void *ap_obj,
+                      const tiz_eglimage_hook_t * ap_hook)
+{
+  tiz_port_t *p_obj = ap_obj;
+
+  assert (NULL != ap_obj);
+  assert (NULL != ap_hook);
+
+  p_obj->opts_.eglimage_hook = *ap_hook;
+}
+
+void
+tiz_port_set_eglimage_hook (void *ap_obj,
+                         const tiz_eglimage_hook_t * ap_hook)
+{
+  tiz_port_class_t *class = (tiz_port_class_t *) classOf (ap_obj);
+  assert (class->set_eglimage_hook);
+  class->set_eglimage_hook (ap_obj, ap_hook);
+}
+
 static OMX_ERRORTYPE
 port_populate_header (const void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
 {
@@ -2193,6 +2214,10 @@ port_class_ctor (void *ap_obj, va_list * app)
         {
           *(voidf *) & p_obj->set_alloc_hooks = method;
         }
+      else if (selector == (voidf) tiz_port_set_eglimage_hook)
+        {
+          *(voidf *) & p_obj->set_eglimage_hook = method;
+        }
       else if (selector == (voidf) tiz_port_populate_header)
         {
           *(voidf *) & p_obj->populate_header = method;
@@ -2329,6 +2354,8 @@ tiz_port_init (void * ap_tos, void * ap_hdl)
      tiz_port_mark_buffer, port_mark_buffer,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_set_alloc_hooks, port_set_alloc_hooks,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_set_eglimage_hook, port_set_eglimage_hook,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_populate_header, port_populate_header,
      /* TIZ_CLASS_COMMENT: */

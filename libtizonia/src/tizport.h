@@ -79,6 +79,8 @@ extern "C"
     OMX_BUFFERSUPPLIERTYPE buf_supplier;
     /* Memory allocation and deallocation hooks */
     tiz_alloc_hooks_t mem_hooks;
+    /* EGL image validation hook */
+    tiz_eglimage_hook_t eglimage_hook;
     /* Port index of the port that acts as a master or slave of this port. Use -1
      * for none. */
     OMX_U32 mos_port;
@@ -140,12 +142,15 @@ extern "C"
                                  const tiz_alloc_hooks_t * ap_new_hooks,
                                  /*@null@*/ tiz_alloc_hooks_t * ap_old_hooks);
 
+  void tiz_port_set_eglimage_hook (void *ap_obj,
+                                   const tiz_eglimage_hook_t *ap_hook);
+
   OMX_ERRORTYPE tiz_port_populate_header (const void *ap_obj,
-                                          OMX_BUFFERHEADERTYPE * ap_hdr);
+                                          OMX_BUFFERHEADERTYPE *ap_hdr);
 
   /* TODO: This function is not being used anywhere */
   void tiz_port_depopulate_header (const void *ap_obj,
-                                   OMX_BUFFERHEADERTYPE * ap_hdr);
+                                   OMX_BUFFERHEADERTYPE *ap_hdr);
 
   bool tiz_port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid);
 

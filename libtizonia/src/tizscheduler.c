@@ -140,6 +140,7 @@ enum tiz_sched_msg_class
   ETIZSchedMsgRegisterRoles,
   ETIZSchedMsgRegisterTypes,
   ETIZSchedMsgRegisterPortHooks,
+  ETIZSchedMsgRegisterEglImageHook,
   ETIZSchedMsgEvIo,
   ETIZSchedMsgEvTimer,
   ETIZSchedMsgEvStat,
@@ -268,6 +269,12 @@ struct tiz_sched_msg_regphooks
   tiz_alloc_hooks_t *p_old_hooks;
 };
 
+typedef struct tiz_sched_msg_regeglhook tiz_sched_msg_regeglhook_t;
+struct tiz_sched_msg_regeglhook
+{
+  const tiz_eglimage_hook_t *p_hook;
+};
+
 typedef struct tiz_sched_msg_ev_io tiz_sched_msg_ev_io_t;
 struct tiz_sched_msg_ev_io
 {
@@ -320,6 +327,7 @@ struct tiz_sched_msg
     tiz_sched_msg_regroles_t rr;
     tiz_sched_msg_regtypes_t rt;
     tiz_sched_msg_regphooks_t rph;
+    tiz_sched_msg_regeglhook_t reh;
     tiz_sched_msg_ev_io_t eio;
     tiz_sched_msg_ev_timer_t etmr;
     tiz_sched_msg_ev_stat_t estat;
@@ -371,6 +379,8 @@ static OMX_ERRORTYPE do_rt (tiz_scheduler_t *, tiz_sched_state_t *,
                             tiz_sched_msg_t *);
 static OMX_ERRORTYPE do_rph (tiz_scheduler_t *, tiz_sched_state_t *,
                              tiz_sched_msg_t *);
+static OMX_ERRORTYPE do_reh (tiz_scheduler_t *, tiz_sched_state_t *,
+                             tiz_sched_msg_t *);
 static OMX_ERRORTYPE do_eio (tiz_scheduler_t *, tiz_sched_state_t *,
                              tiz_sched_msg_t *);
 static OMX_ERRORTYPE do_etmr (tiz_scheduler_t *, tiz_sched_state_t *,
@@ -394,7 +404,7 @@ static const tiz_sched_msg_dispatch_f tiz_sched_msg_to_fnt_tbl[]
         do_tr,     do_ub,      do_ab,      do_fb,   do_etb,
         do_ftb,    do_scbs,    NULL, /* ETIZSchedMsgUseEGLImage */
         do_cre,    do_plgevt,  do_rr,      do_rt,   do_rph,
-        do_eio,    do_etmr,    do_estat, };
+        do_reh,    do_eio,     do_etmr,    do_estat, };
 
 static OMX_BOOL dispatch_msg (tiz_scheduler_t *ap_sched,
                               tiz_sched_state_t *ap_state,
@@ -1209,6 +1219,63 @@ static OMX_ERRORTYPE do_rph (tiz_scheduler_t *ap_sched,
         while (p_port != NULL && (OMX_ALL == p_hooks->pid));
 
         if (NULL == p_port && OMX_ALL != p_hooks->pid)
+          {
+            /* Bad port index received */
+            rc = OMX_ErrorBadPortIndex;
+          }
+      }
+  }
+
+  return rc;
+}
+
+static OMX_ERRORTYPE do_reh (tiz_scheduler_t *ap_sched,
+                             tiz_sched_state_t *ap_state,
+                             tiz_sched_msg_t *ap_msg)
+{
+  tiz_sched_msg_regeglhook_t *p_msg_reh = NULL;
+  const tiz_eglimage_hook_t *p_hook = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (NULL != ap_sched);
+  assert (NULL != ap_msg);
+  assert (NULL != ap_state && ETIZSchedStateStarted == *ap_state);
+
+  p_msg_reh = &(ap_msg->reh);
+  assert (NULL != p_msg_reh);
+  p_hook = p_msg_reh->p_hook;
+  assert (NULL != p_hook);
+
+  {
+    const tiz_fsm_state_id_t now = tiz_fsm_get_substate (ap_sched->child.p_fsm);
+
+    /* Only allow role registration if in OMX_StateLoded state. Disallowed for
+     * other states, even if the port is disabled.
+     */
+    if (EStateLoaded != now)
+      {
+        rc = OMX_ErrorIncorrectStateOperation;
+      }
+    else
+      {
+        OMX_U32 i = 0;
+        void *p_port = NULL;
+        OMX_U32 pid = 0;
+
+        do
+          {
+            pid = ((OMX_ALL != p_hook->pid) ? p_hook->pid : i++);
+
+            if (NULL
+                != (p_port = tiz_krn_get_port (ap_sched->child.p_ker, pid)))
+              {
+                tiz_port_set_eglimage_hook (
+                    p_port, p_hook);
+              }
+          }
+        while (p_port != NULL && (OMX_ALL == p_hook->pid));
+
+        if (NULL == p_port && OMX_ALL != p_hook->pid)
           {
             /* Bad port index received */
             rc = OMX_ErrorBadPortIndex;
@@ -2380,6 +2447,25 @@ tiz_comp_register_alloc_hooks (const OMX_HANDLETYPE ap_hdl,
   assert (NULL != p_msg_rph);
   p_msg_rph->p_hooks = ap_new_hooks;
   p_msg_rph->p_old_hooks = ap_old_hooks;
+
+  return send_msg (get_sched (ap_hdl), p_msg);
+}
+
+OMX_ERRORTYPE
+tiz_comp_register_eglimage_hook (
+    const OMX_HANDLETYPE ap_hdl, const tiz_eglimage_hook_t *ap_hook)
+{
+  tiz_sched_msg_t *p_msg = NULL;
+  tiz_sched_msg_regeglhook_t *p_msg_reh = NULL;
+
+  assert (NULL != ap_hook);
+
+  TIZ_COMP_INIT_MSG_OOM (ap_hdl, p_msg, ETIZSchedMsgRegisterEglImageHook);
+
+  assert (NULL != p_msg);
+  p_msg_reh = &(p_msg->reh);
+  assert (NULL != p_msg_reh);
+  p_msg_reh->p_hook = ap_hook;
 
   return send_msg (get_sched (ap_hdl), p_msg);
 }
