@@ -60,6 +60,7 @@ extern "C"
     OMX_PARAM_BUFFERSUPPLIERTYPE bufsupplier_;
     OMX_BOOL announce_bufs_;
     OMX_CONFIG_TUNNELEDPORTSTATUSTYPE peer_port_status_;
+    tiz_eglimage_hook_t eglimage_hook_;  /* EGL image validation hook */
   };
 
   OMX_ERRORTYPE tiz_port_super_register_index (const void *a_class,
@@ -110,6 +111,7 @@ extern "C"
     OMX_DIRTYPE (*dir) (const void *ap_obj);
     OMX_PORTDOMAINTYPE (*domain) (const void *ap_obj);
     OMX_HANDLETYPE (*get_tunnel_comp) (const void *ap_obj);
+    OMX_PTR (*get_eglimage) (const void *ap_obj, const OMX_BUFFERHEADERTYPE *ap_hdr);
     tiz_vector_t *(*get_hdrs_list) (void *ap_obj);
     bool (*check_flags) (const void *ap_obj, OMX_U32 a_nflags,
                          va_list * app);

@@ -79,8 +79,6 @@ extern "C"
     OMX_BUFFERSUPPLIERTYPE buf_supplier;
     /* Memory allocation and deallocation hooks */
     tiz_alloc_hooks_t mem_hooks;
-    /* EGL image validation hook */
-    tiz_eglimage_hook_t eglimage_hook;
     /* Port index of the port that acts as a master or slave of this port. Use -1
      * for none. */
     OMX_U32 mos_port;
@@ -118,6 +116,8 @@ extern "C"
   OMX_PORTDOMAINTYPE tiz_port_domain (const void *ap_obj);
 
   OMX_HANDLETYPE tiz_port_get_tunnel_comp (const void *ap_obj);
+
+  OMX_PTR tiz_port_get_eglimage (const void *ap_obj, const OMX_BUFFERHEADERTYPE *ap_hdr);
 
   tiz_vector_t *tiz_port_get_hdrs_list (void *ap_obj);
 

@@ -188,9 +188,10 @@ struct tiz_alloc_hooks
   /*@null@*/ void *p_args;
 };
 
-typedef OMX_U8 *(*tiz_eglimage_hook_f)(const OMX_HANDLETYPE ap_hdl,
-                                                  OMX_PTR *ap_eglimage,
-                                                  void *ap_args);
+typedef OMX_BOOL (*tiz_eglimage_hook_f)(const OMX_HANDLETYPE ap_hdl,
+                                        OMX_U32 pid,
+                                        OMX_PTR ap_eglimage,
+                                        void *ap_args);
 
 typedef struct tiz_eglimage_hook tiz_eglimage_hook_t;
 struct tiz_eglimage_hook

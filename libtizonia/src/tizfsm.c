@@ -141,10 +141,10 @@ dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   tiz_fsm_msg_t *p_msg = ap_msg;
   tiz_fsm_msg_sendcommand_t *p_msg_sc = NULL;
 
-  assert (NULL != p_msg);
+  assert (p_msg);
 
   p_msg_sc = &(p_msg->sc);
-  assert (NULL != p_msg_sc);
+  assert (p_msg_sc);
   assert (p_msg_sc->cmd <= OMX_CommandMarkBuffer);
 
   return tiz_api_SendCommand (p_obj->p_current_state_,
@@ -160,8 +160,8 @@ dispatch_tc (void *ap_obj, OMX_PTR ap_msg)
   tiz_fsm_msg_t *p_msg = ap_msg;
   tiz_fsm_msg_transcomplete_t *p_msg_tc = NULL;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
+  assert (p_obj);
+  assert (p_msg);
 
   p_msg_tc = &(p_msg->tc);
   assert (p_msg_tc->state <= OMX_StateWaitForResources);
@@ -177,8 +177,8 @@ init_fsm_message (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   tiz_fsm_t *p_obj = (tiz_fsm_t *) ap_obj;
   tiz_fsm_msg_t *p_msg = NULL;
 
-  assert (NULL != p_obj);
-  assert (NULL != ap_hdl);
+  assert (p_obj);
+  assert (ap_hdl);
   assert (a_msg_class < ETIZFsmMsgMax);
 
   if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_fsm_msg_t))))
@@ -229,11 +229,11 @@ validate_stateset (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   const tiz_fsm_t *p_obj = ap_obj;
   const void *p_krn = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
-  assert (NULL != p_krn);
+  assert (p_krn);
 
   TIZ_TRACE (ap_hdl, "Requested transition to [%s] - "
             "cur_state_id_ [%s] in_progress_cmd_ [%s]",
@@ -299,11 +299,11 @@ validate_portdisable (const void *ap_obj, OMX_HANDLETYPE ap_hdl, OMX_U32 a_pid)
   const tiz_fsm_t *p_obj = ap_obj;
   const void *p_krn = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
-  assert (NULL != p_krn);
+  assert (p_krn);
 
   TIZ_TRACE (ap_hdl, "[OMX_CommandPortDisable] pid [%d] "
             "cur_state_id_ [%s]",
@@ -438,7 +438,7 @@ validate_sendcommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
             return OMX_ErrorBadParameter;
           }
 
-        assert (NULL != p_port);
+        assert (p_port);
         /* Not sure whether OMX_ALL may be used with OMX_CommandMarkBuffer. For
          * for now explicitly disallow it */
         assert (OMX_ALL != a_param1);
@@ -580,7 +580,7 @@ fsm_SendCommand (const void *ap_obj,
 
   TIZ_FSM_INIT_MSG_OOM(p_obj, ap_hdl, p_msg, ETIZFsmMsgSendCommand);
 
-  assert (NULL != p_msg);
+  assert (p_msg);
   p_msg_sc = &(p_msg->sc);
   p_msg_sc->cmd = a_cmd;
   p_msg_sc->param1 = a_param1;
@@ -627,8 +627,8 @@ static OMX_ERRORTYPE
 fsm_SetConfig (const void *ap_obj,
                OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
   /* Get this processed at the kernel */
   return tiz_api_SetConfig (tiz_get_krn (ap_hdl), ap_hdl, a_index, ap_struct);
 }
@@ -639,9 +639,9 @@ fsm_GetState (const void *ap_obj,
 {
   const tiz_fsm_t *p_obj = ap_obj;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
-  assert (NULL != ap_state);
+  assert (ap_obj);
+  assert (ap_hdl);
+  assert (ap_state);
 
   TIZ_TRACE (ap_hdl, "GetState [%s]",
             tiz_fsm_state_to_str (p_obj->cur_state_id_));
@@ -662,8 +662,8 @@ fsm_ComponentTunnelRequest (const void *ap_obj,
   const void *p_krn = NULL;
   const void *p_port = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
   p_port = tiz_krn_get_port (p_krn, a_pid);
@@ -699,8 +699,8 @@ fsm_UseBuffer (const void *ap_obj,
   const void *p_krn = NULL;
   const void *p_port = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
   p_port = tiz_krn_get_port (p_krn, a_pid);
@@ -726,6 +726,43 @@ fsm_UseBuffer (const void *ap_obj,
 }
 
 static OMX_ERRORTYPE
+fsm_UseEGLImage (const void *ap_obj,
+               OMX_HANDLETYPE ap_hdl,
+               OMX_BUFFERHEADERTYPE ** app_hdr,
+               OMX_U32 a_pid,
+               OMX_PTR ap_apppriv, OMX_U8 * ap_eglimage)
+{
+  const tiz_fsm_t *p_obj = ap_obj;
+  const void *p_krn = NULL;
+  const void *p_port = NULL;
+
+  assert (ap_obj);
+  assert (ap_hdl);
+
+  p_krn = tiz_get_krn (ap_hdl);
+  p_port = tiz_krn_get_port (p_krn, a_pid);
+
+  if (NULL == p_port)
+    {
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorBadParameter] : "
+                "(Unknown port index [%d]) ...", a_pid);
+      return OMX_ErrorBadParameter;
+    }
+
+  if ((ESubStateLoadedToIdle != p_obj->cur_state_id_)
+      && TIZ_PORT_IS_ENABLED (p_port) && !TIZ_PORT_IS_BEING_ENABLED (p_port))
+    {
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorIncorrectStateOperation] : (API "
+                "not allowed in the current state - port [%d] state [%d])...",
+                a_pid, tiz_fsm_state_to_str (p_obj->cur_state_id_));
+      return OMX_ErrorIncorrectStateOperation;
+    }
+
+  return tiz_api_UseEGLImage (p_krn, ap_hdl, app_hdr, a_pid, ap_apppriv,
+                              ap_eglimage);
+}
+
+static OMX_ERRORTYPE
 fsm_AllocateBuffer (const void *ap_obj,
                     OMX_HANDLETYPE ap_hdl,
                     OMX_BUFFERHEADERTYPE ** app_hdr,
@@ -735,8 +772,8 @@ fsm_AllocateBuffer (const void *ap_obj,
   const void *p_krn = NULL;
   const void *p_port = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
   p_port = tiz_krn_get_port (p_krn, a_pid);
@@ -770,8 +807,8 @@ fsm_FreeBuffer (const void *ap_obj,
   const void *p_krn = NULL;
   const void *p_port = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
   p_port = tiz_krn_get_port (p_krn, a_pid);
@@ -795,9 +832,9 @@ fsm_EmptyThisBuffer (const void *ap_obj,
   const void *p_port = NULL;
   OMX_U32 pid = 0;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
-  assert (NULL != ap_hdr);
+  assert (ap_obj);
+  assert (ap_hdl);
+  assert (ap_hdr);
 
   pid = ap_hdr->nInputPortIndex;
   p_krn = tiz_get_krn (ap_hdl);
@@ -839,9 +876,9 @@ fsm_FillThisBuffer (const void *ap_obj,
   const void *p_krn = NULL;
   const void *p_port = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
-  assert (NULL != ap_hdr);
+  assert (ap_obj);
+  assert (ap_hdl);
+  assert (ap_hdr);
 
   pid = ap_hdr->nOutputPortIndex;
   p_krn = tiz_get_krn (ap_hdl);
@@ -883,8 +920,8 @@ fsm_SetCallbacks (const void *ap_obj,
 {
   const tiz_fsm_t *p_obj = ap_obj;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
 
   /* only allowed in OMX_StateLoaded state */
   if (EStateLoaded != p_obj->cur_state_id_)
@@ -913,8 +950,8 @@ fsm_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   tiz_fsm_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
+  assert (p_obj);
+  assert (p_msg);
 
   TIZ_TRACE (handleOf (p_obj), "Processing [%s]...",
             tiz_fsm_msg_to_str (p_msg->class));
@@ -960,7 +997,7 @@ fsm_set_state (const void *ap_obj, tiz_fsm_state_id_t a_new_state,
   void *p_prc = NULL;
   void *p_krn = NULL;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   p_prc = tiz_get_prc (handleOf (p_obj));
   p_krn = tiz_get_krn (handleOf (p_obj));
@@ -1032,7 +1069,7 @@ tiz_fsm_set_state (void *ap_obj, tiz_fsm_state_id_t a_new_state,
                    tiz_fsm_state_id_t a_canceled_substate)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (NULL != class->set_state);
+  assert (class->set_state);
   return class->set_state (ap_obj, a_new_state, a_canceled_substate);
 }
 
@@ -1046,11 +1083,11 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
   tiz_fsm_msg_transcomplete_t *p_msg_tc = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_servant);
+  assert (p_obj);
+  assert (p_servant);
 
   p_hdl = handleOf (p_obj);
-  assert (NULL != p_hdl);
+  assert (p_hdl);
 
   TIZ_TRACE (p_hdl, "Servant [%s] notifies transition complete "
             "(to state [%s])", nameOf (ap_servant),
@@ -1097,7 +1134,7 @@ tiz_fsm_complete_transition (void *ap_obj, const void *ap_servant,
                              OMX_STATETYPE a_new_state)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (NULL != class->complete_transition);
+  assert (class->complete_transition);
   return class->complete_transition (ap_obj, ap_servant, a_new_state);
 }
 
@@ -1109,11 +1146,11 @@ fsm_complete_command (void *ap_obj, const void *ap_servant,
   const tiz_srv_t *p_servant = ap_servant;
   OMX_HANDLETYPE p_hdl = NULL;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_servant);
+  assert (p_obj);
+  assert (p_servant);
 
   p_hdl = handleOf (p_obj);
-  assert (NULL != p_hdl);
+  assert (p_hdl);
 
   TIZ_TRACE (p_hdl, "Servant [%s] notifies cmd complete (cmd [%s]) "
             "in_progress_cmd_ [%s] cancellation_cmd_ [%s]",
@@ -1161,7 +1198,7 @@ tiz_fsm_complete_command (void *ap_obj, const void *ap_servant,
                           OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (NULL != class->complete_command);
+  assert (class->complete_command);
   return class->complete_command (ap_obj, ap_servant, a_cmd, a_param1);
 }
 
@@ -1169,7 +1206,7 @@ tiz_fsm_state_id_t
 fsm_get_substate (const void *ap_obj)
 {
   const tiz_fsm_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   return p_obj->cur_state_id_;
 }
 
@@ -1177,7 +1214,7 @@ tiz_fsm_state_id_t
 tiz_fsm_get_substate (const void *ap_obj)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (NULL != class->get_substate);
+  assert (class->get_substate);
   return class->get_substate (ap_obj);
 }
 
@@ -1185,7 +1222,7 @@ OMX_ERRORTYPE
 fsm_tunneled_ports_status_update (void *ap_obj)
 {
   tiz_fsm_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   /* Delegate to the current state... */
   return tiz_state_tunneled_ports_status_update (p_obj->p_current_state_);
 }
@@ -1194,7 +1231,7 @@ OMX_ERRORTYPE
 tiz_fsm_tunneled_ports_status_update (void *ap_obj)
 {
   const tiz_fsm_class_t *class = classOf (ap_obj);
-  assert (NULL != class->tunneled_ports_status_update);
+  assert (class->tunneled_ports_status_update);
   return class->tunneled_ports_status_update (ap_obj);
 }
 
@@ -1250,54 +1287,77 @@ fsm_class_ctor (void *ap_obj, va_list * app)
  * initialization
  */
 
-void *
-tiz_fsm_class_init (void * ap_tos, void * ap_hdl)
+void *tiz_fsm_class_init (void *ap_tos, void *ap_hdl)
 {
-  void * tizsrv = tiz_get_type (ap_hdl, "tizsrv");
-  void * tizfsm_class = factory_new (classOf (tizsrv),
-                                     "tizfsm_class",
-                                     classOf (tizsrv),
-                                     sizeof (tiz_fsm_class_t),
-                                     ap_tos, ap_hdl,
-                                     ctor, fsm_class_ctor, 0);
+  void *tizsrv = tiz_get_type (ap_hdl, "tizsrv");
+  void *tizfsm_class = factory_new
+      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+      (classOf (tizsrv), "tizfsm_class", classOf (tizsrv), sizeof(tiz_fsm_class_t),
+       /* TIZ_CLASS_COMMENT: */
+       ap_tos, ap_hdl,
+       /* TIZ_CLASS_COMMENT: class constructor */
+       ctor, fsm_class_ctor,
+       /* TIZ_CLASS_COMMENT: stop value*/
+       0);
   return tizfsm_class;
 }
 
-void *
-tiz_fsm_init (void * ap_tos, void * ap_hdl)
+void *tiz_fsm_init (void *ap_tos, void *ap_hdl)
 {
-  void * tizsrv       = tiz_get_type (ap_hdl, "tizsrv");
-  void * tizfsm_class = tiz_get_type (ap_hdl, "tizfsm_class");
+  void *tizsrv = tiz_get_type (ap_hdl, "tizsrv");
+  void *tizfsm_class = tiz_get_type (ap_hdl, "tizfsm_class");
   TIZ_LOG_CLASS (tizfsm_class);
-  void * tizfsm =
-    factory_new
-    (tizfsm_class,
-     "tizfsm",
-     tizsrv,
-     sizeof (tiz_fsm_t),
-     ap_tos, ap_hdl,
-     ctor, fsm_ctor,
-     dtor, fsm_dtor,
-     tiz_api_SendCommand, fsm_SendCommand,
-     tiz_api_SetParameter, fsm_SetParameter,
-     tiz_api_GetParameter, fsm_GetParameter,
-     tiz_api_SetConfig, fsm_SetConfig,
-     tiz_api_GetConfig, fsm_GetConfig,
-     tiz_api_GetState, fsm_GetState,
-     tiz_api_ComponentTunnelRequest, fsm_ComponentTunnelRequest,
-     tiz_api_UseBuffer, fsm_UseBuffer,
-     tiz_api_AllocateBuffer, fsm_AllocateBuffer,
-     tiz_api_FreeBuffer, fsm_FreeBuffer,
-     tiz_api_EmptyThisBuffer, fsm_EmptyThisBuffer,
-     tiz_api_FillThisBuffer, fsm_FillThisBuffer,
-     tiz_api_SetCallbacks, fsm_SetCallbacks,
-     tiz_srv_dispatch_msg, fsm_dispatch_msg,
-     tiz_fsm_set_state, fsm_set_state,
-     tiz_fsm_complete_transition, fsm_complete_transition,
-     tiz_fsm_complete_command, fsm_complete_command,
-     tiz_fsm_get_substate, fsm_get_substate,
-     tiz_fsm_tunneled_ports_status_update,
-     fsm_tunneled_ports_status_update, 0);
+  void *tizfsm = factory_new
+      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+      (tizfsm_class, "tizfsm", tizsrv, sizeof(tiz_fsm_t),
+       /* TIZ_CLASS_COMMENT: */
+       ap_tos, ap_hdl,
+       /* TIZ_CLASS_COMMENT: class constructor */
+       ctor, fsm_ctor,
+       /* TIZ_CLASS_COMMENT: class destructor */
+       dtor, fsm_dtor,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_SendCommand, fsm_SendCommand,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_SetParameter, fsm_SetParameter,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_GetParameter, fsm_GetParameter,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_SetConfig, fsm_SetConfig,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_GetConfig, fsm_GetConfig,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_GetState, fsm_GetState,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_ComponentTunnelRequest, fsm_ComponentTunnelRequest,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_UseBuffer, fsm_UseBuffer,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_UseEGLImage, fsm_UseEGLImage,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_AllocateBuffer, fsm_AllocateBuffer,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_FreeBuffer, fsm_FreeBuffer,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_EmptyThisBuffer, fsm_EmptyThisBuffer,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_FillThisBuffer, fsm_FillThisBuffer,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_api_SetCallbacks, fsm_SetCallbacks,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_dispatch_msg, fsm_dispatch_msg,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_fsm_set_state, fsm_set_state,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_fsm_complete_transition, fsm_complete_transition,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_fsm_complete_command, fsm_complete_command,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_fsm_get_substate, fsm_get_substate,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_fsm_tunneled_ports_status_update, fsm_tunneled_ports_status_update,
+       /* TIZ_CLASS_COMMENT: stop value*/
+       0);
 
   return tizfsm;
 }

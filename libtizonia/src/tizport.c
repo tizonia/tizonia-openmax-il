@@ -66,8 +66,9 @@ typedef struct tiz_port_buf_props tiz_port_buf_props_t;
 struct tiz_port_buf_props
 {
   OMX_BUFFERHEADERTYPE *p_hdr;
-/*   tiz_pd_set_t flags_; */
   OMX_BOOL owned;
+  OMX_PTR p_eglimage;           /* This is only used when a header is allocated
+                                   with OMX_UseEGLBuffer */
 };
 
 typedef struct tiz_port_mark_info tiz_port_mark_info_t;
@@ -83,9 +84,9 @@ static inline tiz_port_buf_props_t *
 get_buffer_properties (const tiz_port_t * ap_obj, OMX_U32 a_pid)
 {
   tiz_port_buf_props_t **pp_bps = NULL;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   pp_bps = tiz_vector_at (ap_obj->p_hdrs_info_, (OMX_S32) a_pid);
-  assert (NULL != pp_bps && NULL != *pp_bps);
+  assert (pp_bps && *pp_bps);
   return *pp_bps;
 }
 
@@ -93,9 +94,9 @@ static inline tiz_port_mark_info_t *
 get_mark_info (const tiz_port_t * ap_obj, OMX_U32 a_mark_idx)
 {
   tiz_port_mark_info_t **pp_mi = NULL;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   pp_mi = tiz_vector_at (ap_obj->p_marks_, (OMX_S32) a_mark_idx);
-  assert (NULL != pp_mi && NULL != *pp_mi);
+  assert (pp_mi && *pp_mi);
   return *pp_mi;
 }
 
@@ -104,7 +105,7 @@ static OMX_U8 *
 default_alloc_hook (OMX_U32 * ap_size, OMX_PTR * app_port_priv, void *ap_args)
 {
   OMX_U8 *p = NULL;
-  assert (NULL != ap_size && *ap_size > 0);
+  assert (ap_size && *ap_size > 0);
   p = tiz_mem_calloc ((size_t) *ap_size, sizeof (OMX_U8));
   return p;
 }
@@ -112,7 +113,7 @@ default_alloc_hook (OMX_U32 * ap_size, OMX_PTR * app_port_priv, void *ap_args)
 static void
 default_free_hook (OMX_PTR ap_buf, OMX_PTR ap_port_priv, void *ap_args)
 {
-  assert (NULL != ap_buf);
+  assert (ap_buf);
   tiz_mem_free (ap_buf);
 }
 
@@ -125,13 +126,15 @@ alloc_buffer (void *ap_obj,
   OMX_U32 alloc_size = 0;
 
   assert (ap_size > 0);
-  assert (NULL != app_buf);
+  assert (app_buf);
 
   alloc_size = *ap_size;
 
   if (!(p_buf = p_obj->opts_.mem_hooks.pf_alloc
         (&alloc_size, app_portPrivate, p_obj->opts_.mem_hooks.p_args)))
     {
+      TIZ_ERROR (handleOf (p_obj), "[OMX_ErrorInsufficientResources] : "
+                 "allocating the buffer on PORT [%d]", p_obj->pid_);
       return OMX_ErrorInsufficientResources;
     }
 
@@ -155,7 +158,7 @@ free_buffer (void *ap_obj, OMX_PTR ap_buf, OMX_PTR /*@null@*/ ap_portPrivate)
 {
   tiz_port_t *p_obj = ap_obj;
   TIZ_TRACE (handleOf (ap_obj), "ap_buf[%p]", ap_buf);
-  assert (NULL != ap_buf);
+  assert (ap_buf);
   p_obj->opts_.mem_hooks.pf_free (ap_buf, ap_portPrivate,
                                   p_obj->opts_.mem_hooks.p_args);
 }
@@ -164,7 +167,8 @@ free_buffer (void *ap_obj, OMX_PTR ap_buf, OMX_PTR /*@null@*/ ap_portPrivate)
 /*@ignore@*/
 static OMX_ERRORTYPE
 register_header (const void *ap_obj,
-                 OMX_BUFFERHEADERTYPE * ap_hdr, const OMX_BOOL ais_owned)
+                 OMX_BUFFERHEADERTYPE * ap_hdr, const OMX_BOOL ais_owned,
+                 OMX_PTR /*@null@*/ ap_eglimage)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   tiz_port_buf_props_t *p_bps = tiz_mem_calloc (1, sizeof (tiz_port_buf_props_t));
@@ -176,6 +180,7 @@ register_header (const void *ap_obj,
 
   p_bps->p_hdr = ap_hdr;
   p_bps->owned = ais_owned;
+  p_bps->p_eglimage = ap_eglimage; /* NULL unless OMX_UseEGLImage is being used */
 
   if (OMX_ErrorNone != tiz_vector_push_back (p_obj->p_hdrs_info_, &p_bps))
     {
@@ -192,10 +197,11 @@ find_buffer (const void *ap_obj, const OMX_BUFFERHEADERTYPE * ap_hdr,
              OMX_BOOL * ap_is_owned)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
-  OMX_S32 i, hdr_count = tiz_vector_length (p_obj->p_hdrs_info_);
+  OMX_S32 i = 0;
+  OMX_S32 hdr_count = tiz_vector_length (p_obj->p_hdrs_info_);
   tiz_port_buf_props_t *p_bps = NULL;
-  assert (NULL != ap_hdr);
-  assert (NULL != ap_is_owned);
+  assert (ap_hdr);
+  assert (ap_is_owned);
 
   for (i = 0; i < hdr_count; ++i)
     {
@@ -219,8 +225,8 @@ unregister_header (const void *ap_obj, OMX_S32 hdr_pos)
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   assert (hdr_pos >= 0);
   p_bps = get_buffer_properties (p_obj, (OMX_U32) hdr_pos);
-  assert (NULL != p_bps);
-  if (NULL != p_bps)
+  assert (p_bps);
+  if (p_bps)
     {
       p_hdr = p_bps->p_hdr;
       tiz_mem_free (p_bps);
@@ -244,7 +250,7 @@ port_ctor (void *ap_obj, va_list * app)
   OMX_INDEXTYPE id3 = OMX_IndexConfigTunneledPortStatus;
   OMX_INDEXTYPE id4 = OMX_TizoniaIndexParamBufferPreAnnouncementsMode;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   /* Register the indexes managed by this base port class */
   tiz_check_omx_err_ret_null
@@ -337,6 +343,7 @@ port_ctor (void *ap_obj, va_list * app)
                                                      another port */
   p_obj->peer_port_status_.nTunneledPortStatus = 0;
 
+  (void) tiz_mem_set (&p_obj->eglimage_hook_, 0, sizeof p_obj->eglimage_hook_);
 
   return p_obj;
 }
@@ -346,7 +353,7 @@ port_dtor (void *ap_obj)
 {
   tiz_port_t *p_obj = ap_obj;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   tiz_vector_clear (p_obj->p_indexes_);
   tiz_vector_destroy (p_obj->p_indexes_);
@@ -378,7 +385,7 @@ port_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             p_obj->pid_, tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -417,8 +424,8 @@ port_GetParameter (const void *ap_obj,
           }
         else
           {
-            TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] - [%s]...",
-                      tiz_idx_to_str (a_index));
+            TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] - [%s] on PORT [%d]",
+                       tiz_idx_to_str (a_index), p_obj->pid_);
             return OMX_ErrorUnsupportedIndex;
           }
       }
@@ -435,7 +442,7 @@ port_SetParameter (const void *ap_obj,
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...", p_obj->pid_,
             tiz_idx_to_str (a_index));
@@ -491,7 +498,7 @@ port_SetParameter (const void *ap_obj,
             OMX_BOOL is_supplier = OMX_FALSE;
             /* the buffer supplier override procedure */
             /* is initiated by the input port... */
-            if (NULL != p_obj->thdl_ && p_obj->portdef_.eDir == OMX_DirInput)
+            if (p_obj->thdl_ && p_obj->portdef_.eDir == OMX_DirInput)
               {
                 OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
                 supplier.nSize
@@ -545,8 +552,8 @@ port_SetParameter (const void *ap_obj,
           }
         else
           {
-            TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] - [%s]...",
-                           tiz_idx_to_str (a_index));
+            TIZ_ERROR (ap_hdl, "[OMX_ErrorUnsupportedIndex] - [%s] on PORT [%d]",
+                       tiz_idx_to_str (a_index), p_obj->pid_);
             return OMX_ErrorUnsupportedIndex;
           }
       }
@@ -563,12 +570,12 @@ port_GetConfig (const void *ap_obj,
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetConfig [%s] ...", p_obj->pid_,
             tiz_idx_to_str (a_index));
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -598,7 +605,7 @@ port_SetConfig (const void *ap_obj,
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetConfig [%s] ...", p_obj->pid_,
             tiz_idx_to_str (a_index));
@@ -637,7 +644,7 @@ port_GetExtensionIndex (const void *ap_obj,
   const tiz_port_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorUnsupportedIndex;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetExtensionIndex [%s]...",
             p_obj->pid_, ap_param_name);
@@ -741,7 +748,7 @@ port_ComponentTunnelRequest (const void *ap_obj,
         {
           p_obj->thdl_ = NULL;
           TIZ_ERROR (ap_hdl,
-                    "OMX_ErrorPortsNotCompatible: "
+                    "[OMX_ErrorPortsNotCompatible] : "
                     "Derived port checks have failed");
           return OMX_ErrorPortsNotCompatible;
         }
@@ -771,7 +778,7 @@ port_ComponentTunnelRequest (const void *ap_obj,
                                              &buf_supplier))
         {
           p_obj->thdl_ = NULL;
-          TIZ_ERROR (ap_hdl, "OMX_ErrorPortsNotCompatible: "
+          TIZ_ERROR (ap_hdl, "[OMX_ErrorPortsNotCompatible] : "
                     "SetParameter"
                     "(OMX_IndexParamCompBufferSupplier) failed");
           return OMX_ErrorPortsNotCompatible;
@@ -804,7 +811,7 @@ port_UseBuffer (const void *ap_obj,
   OMX_PTR p_plat_priv = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  if (NULL != ap_buf && a_size < p_obj->portdef_.nBufferSize)
+  if (ap_buf && a_size < p_obj->portdef_.nBufferSize)
     {
       TIZ_ERROR (ap_hdl, "UseBuffer : Bad parameter found...");
       return OMX_ErrorBadParameter;
@@ -852,11 +859,11 @@ port_UseBuffer (const void *ap_obj,
     }
 
   /* register this buffer header... */
-  if (OMX_ErrorNone != register_header (p_obj, p_hdr, OMX_FALSE))
+  if (OMX_ErrorNone != register_header (p_obj, p_hdr, OMX_FALSE, NULL))
     {
       tiz_mem_free (p_hdr);
       TIZ_ERROR (ap_hdl, "[OMX_ErrorInsufficientResources] : "
-                "While registering the OMX header...");
+                "While registering the OMX header on PORT [%d]", p_obj->pid_);
       return OMX_ErrorInsufficientResources;
     }
 
@@ -873,6 +880,115 @@ port_UseBuffer (const void *ap_obj,
             "HEADER [%p] BUFFER [%p] PORT [%d] POPULATED [%s] "
             "nBufferCountActual [%d] headers [%d]",
             p_hdr, ap_buf, p_obj->portdef_.nPortIndex,
+            (TIZ_PD_ISSET (EFlagPopulated, &p_obj->flags_) ? "YES" : "NO"),
+            p_obj->portdef_.nBufferCountActual,
+            tiz_vector_length (p_obj->p_hdrs_info_));
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE
+port_UseEGLImage (const void *ap_obj,
+                  OMX_HANDLETYPE ap_hdl,
+                  OMX_BUFFERHEADERTYPE ** app_hdr,
+                  OMX_U32 a_pid,
+                  OMX_PTR ap_app_priv, OMX_U8 * ap_eglimage)
+{
+  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
+  OMX_PTR p_port_priv = NULL;
+  OMX_PTR p_plat_priv = NULL;
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+
+  if (!ap_eglimage)
+    {
+      TIZ_ERROR (ap_hdl, "UseEGLImage : Bad parameter found...");
+      return OMX_ErrorBadParameter;
+    }
+
+  assert (a_pid == p_obj->portdef_.nPortIndex);
+
+  /* Before allocating the buffer header, call the egl image validation hook,
+     if it was registered on this port */
+  if (p_obj->eglimage_hook_.pf_egl_validator)
+    {
+      assert (a_pid == p_obj->eglimage_hook_.pid);
+      if (OMX_TRUE
+          != p_obj->eglimage_hook_.pf_egl_validator (
+                 ap_hdl, a_pid, ap_eglimage, p_obj->eglimage_hook_.p_args))
+        {
+          TIZ_ERROR (ap_hdl,
+                     "[OMX_ErrorInsufficientResources] : "
+                     "EGLImage validation failed on PORT [%d]",
+                     p_obj->pid_);
+          return OMX_ErrorInsufficientResources;
+        }
+    }
+
+  /* Allocate the buffer header... */
+  p_hdr = tiz_mem_calloc (1, sizeof (OMX_BUFFERHEADERTYPE));
+  if (!p_hdr)
+    {
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorInsufficientResources] : "
+                "While allocating the OMX header on PORT [%d]", p_obj->pid_);
+      return OMX_ErrorInsufficientResources;
+    }
+
+  /* Fill in the header fields... */
+  p_hdr->nSize                = (OMX_U32) sizeof (OMX_BUFFERHEADERTYPE);
+  p_hdr->nVersion             = p_obj->portdef_.nVersion;
+  p_hdr->pBuffer              = NULL; /* The EGLImage is an opaque resource
+                                         handle to a shared resource allocated
+                                         by EGL client apis, so no buffer will
+                                         need to be referenced here. */
+  p_hdr->nAllocLen            = 0; /* Since no OpenMAX IL buffer is actually
+                                      allocated here */
+  p_hdr->nFilledLen           = 0;
+  p_hdr->nOffset              = 0;
+  p_hdr->pAppPrivate          = ap_app_priv;
+  p_hdr->pPlatformPrivate     = p_plat_priv;
+  p_hdr->hMarkTargetComponent = NULL;
+  p_hdr->pMarkData            = NULL;
+  p_hdr->nTickCount           = 0;
+  p_hdr->nTimeStamp           = 0;
+  p_hdr->nFlags               = 0;
+
+  if (OMX_DirInput == p_obj->portdef_.eDir)
+    {
+      p_hdr->pInputPortPrivate  = p_port_priv;
+      p_hdr->pOutputPortPrivate = NULL;
+      p_hdr->nInputPortIndex    = p_obj->portdef_.nPortIndex;
+      p_hdr->nOutputPortIndex   = 0;
+    }
+  else
+    {
+      p_hdr->pInputPortPrivate  = NULL;
+      p_hdr->pOutputPortPrivate = p_port_priv;
+      p_hdr->nInputPortIndex    = 0;
+      p_hdr->nOutputPortIndex   = p_obj->portdef_.nPortIndex;
+    }
+
+  /* register this buffer header... */
+  if (OMX_ErrorNone != register_header (p_obj, p_hdr, OMX_FALSE, ap_eglimage))
+    {
+      tiz_mem_free (p_hdr);
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorInsufficientResources] : "
+                "While registering the OMX headeron PORT [%d]", p_obj->pid_);
+      return OMX_ErrorInsufficientResources;
+    }
+
+  *app_hdr = p_hdr;
+
+  if ((OMX_S32) p_obj->portdef_.nBufferCountActual ==
+      tiz_vector_length (p_obj->p_hdrs_info_))
+    {
+      tiz_port_set_flags (p_obj, 2, EFlagPopulated, EFlagEnabled);
+      tiz_port_clear_flags (p_obj, 1, EFlagBeingEnabled);
+    }
+
+  TIZ_TRACE (ap_hdl, "UseEGLImage: "
+            "HEADER [%p] EGLIMAGE [%p] PORT [%d] POPULATED [%s] "
+            "nBufferCountActual [%d] headers [%d]",
+            p_hdr, ap_eglimage, p_obj->portdef_.nPortIndex,
             (TIZ_PD_ISSET (EFlagPopulated, &p_obj->flags_) ? "YES" : "NO"),
             p_obj->portdef_.nBufferCountActual,
             tiz_vector_length (p_obj->p_hdrs_info_));
@@ -908,6 +1024,8 @@ port_AllocateBuffer (const void *ap_obj,
   /* Allocate the buffer header... */
   if (NULL == (p_hdr = tiz_mem_calloc (1, sizeof (OMX_BUFFERHEADERTYPE))))
     {
+      TIZ_ERROR (ap_hdl, "[OMX_ErrorInsufficientResources] : "
+                 "allocating the buffer header on PORT [%d]", p_obj->pid_);
       return OMX_ErrorInsufficientResources;
     }
 
@@ -920,7 +1038,7 @@ port_AllocateBuffer (const void *ap_obj,
       return rc;
     }
 
-  assert (NULL != p_buf);
+  assert (p_buf);
 
   /* Fill in the header fields... */
   p_hdr->nSize                = (OMX_U32) sizeof (OMX_BUFFERHEADERTYPE);
@@ -953,7 +1071,7 @@ port_AllocateBuffer (const void *ap_obj,
     }
 
   /* register this buffer header... */
-  if (OMX_ErrorNone != register_header (p_obj, p_hdr, OMX_TRUE))
+  if (OMX_ErrorNone != register_header (p_obj, p_hdr, OMX_TRUE, NULL))
     {
       free_buffer (p_obj, p_buf, p_port_priv);
       tiz_mem_free (p_hdr);
@@ -1048,7 +1166,7 @@ tiz_port_super_register_index (const void *a_class,
                               const void *ap_obj, OMX_INDEXTYPE a_index)
 {
   const tiz_port_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->register_index);
+  assert (ap_obj && superclass->register_index);
   return superclass->register_index (ap_obj, a_index);
 }
 
@@ -1057,7 +1175,7 @@ static OMX_ERRORTYPE
 port_find_index (const void *ap_obj, OMX_INDEXTYPE a_index)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   return (tiz_vector_find (p_obj->p_indexes_, &a_index) ?
           OMX_ErrorNone : OMX_ErrorUnsupportedIndex);
 }
@@ -1075,7 +1193,7 @@ tiz_port_super_find_index (const void *a_class,
                           const void *ap_obj, OMX_INDEXTYPE a_index)
 {
   const tiz_port_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->find_index);
+  assert (ap_obj && superclass->find_index);
   return superclass->find_index (ap_obj, a_index);
 }
 
@@ -1083,7 +1201,7 @@ static OMX_U32
 port_index (const void *ap_obj)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   return p_obj->pid_;
 }
 
@@ -1194,6 +1312,34 @@ tiz_port_get_tunnel_comp (const void *ap_obj)
   return class->get_tunnel_comp (ap_obj);
 }
 
+static OMX_PTR
+port_get_eglimage (const void *ap_obj, const OMX_BUFFERHEADERTYPE *ap_hdr)
+{
+  const tiz_port_t *p_obj = ap_obj;
+  tiz_port_buf_props_t *p_bps = NULL;
+  OMX_BOOL is_owned = OMX_FALSE;
+  OMX_S32 hdr_pos = find_buffer (p_obj, ap_hdr, &is_owned);
+  if (TIZ_HDR_NOT_FOUND == hdr_pos)
+    {
+      return NULL;
+    }
+  p_bps = get_buffer_properties (p_obj, (OMX_U32)hdr_pos);
+  assert (p_bps);
+  if (!p_bps || ap_hdr != p_bps->p_hdr)
+    {
+      return NULL;
+    }
+  return p_bps->p_eglimage;
+}
+
+OMX_HANDLETYPE
+tiz_port_get_eglimage (const void *ap_obj, const OMX_BUFFERHEADERTYPE *ap_hdr)
+{
+  const tiz_port_class_t *class = classOf (ap_obj);
+  assert (class->get_eglimage);
+  return class->get_eglimage (ap_obj, ap_hdr);
+}
+
 static tiz_vector_t *
 port_get_hdrs_list (void *ap_obj)
 {
@@ -1235,7 +1381,7 @@ port_check_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
   va_list ap;
   va_copy (ap, *app);
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   for (i = 0; i < a_nflags; ++i)
     {
@@ -1275,7 +1421,7 @@ port_set_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
   va_list ap;
   va_copy (ap, *app);
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   for (i = 0; i < a_nflags; ++i)
     {
@@ -1322,7 +1468,7 @@ port_clear_flags (const void *ap_obj, OMX_U32 a_nflags, va_list * app)
   va_list ap;
   va_copy (ap, *app);
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   for (i = 0; i < a_nflags; ++i)
     {
@@ -1363,7 +1509,7 @@ static bool
 port_check_tunneled_port_status (const void *ap_obj, const OMX_U32 a_port_status_flag)
 {
   const tiz_port_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] peer nTunneledPortStatus [%d] a_port_status_flag [0x%08x] ",
             p_obj->pid_, p_obj->peer_port_status_.nTunneledPortStatus, a_port_status_flag);
@@ -1475,7 +1621,7 @@ port_populate (const void *ap_obj)
           return rc;
         }
 
-      assert (NULL != p_buf);
+      assert (p_buf);
 
       do
         {
@@ -1525,7 +1671,7 @@ port_populate (const void *ap_obj)
         }
 
       /* register this buffer header... */
-      if (OMX_ErrorNone != register_header (p_obj, p_hdr, OMX_FALSE))
+      if (OMX_ErrorNone != register_header (p_obj, p_hdr, OMX_FALSE, NULL))
         {
           free_buffer (p_obj, p_buf, p_port_priv);
 
@@ -1557,7 +1703,7 @@ OMX_ERRORTYPE
 tiz_port_super_populate (const void *a_class, const void *ap_obj)
 {
   const tiz_port_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->populate);
+  assert (ap_obj && superclass->populate);
   return superclass->populate (ap_obj);
 }
 
@@ -1580,8 +1726,8 @@ port_depopulate (const void *ap_obj)
   for (i = 0; i < nbufs; ++i)
     {
       p_hdr = unregister_header (p_obj, 0);
-      assert (NULL != p_hdr);
-      if (NULL != p_hdr)
+      assert (p_hdr);
+      if (p_hdr)
         {
           p_buf       = p_hdr->pBuffer;
           p_port_priv = OMX_DirInput == p_obj->portdef_.eDir ?
@@ -1624,7 +1770,7 @@ OMX_ERRORTYPE
 tiz_port_super_depopulate (const void *a_class, const void *ap_obj)
 {
   const tiz_port_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->depopulate);
+  assert (ap_obj && superclass->depopulate);
   return superclass->depopulate (ap_obj);
 }
 
@@ -1654,7 +1800,7 @@ tiz_port_super_check_tunnel_compat (const void *a_class, const void *ap_obj,
                                    ap_other_def)
 {
   const tiz_port_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->check_tunnel_compat);
+  assert (ap_obj && superclass->check_tunnel_compat);
   return superclass->check_tunnel_compat (ap_obj, ap_this_def, ap_other_def);
 }
 
@@ -1688,8 +1834,8 @@ port_store_mark (void *ap_obj, const OMX_MARKTYPE * ap_mark_info,
   tiz_port_t *p_obj = ap_obj;
   /*@dependent@*/ tiz_port_mark_info_t *p_mi = tiz_mem_calloc (1, sizeof (tiz_port_mark_info_t));
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_mark_info);
+  assert (ap_obj);
+  assert (ap_mark_info);
 
   if (NULL == p_mi)
     {
@@ -1727,7 +1873,7 @@ port_mark_buffer (void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const OMX_S32 mark_count = tiz_vector_length (p_obj->p_marks_);
 
-  assert (NULL != ap_hdr);
+  assert (ap_hdr);
 
   if (mark_count > 0)
     {
@@ -1782,10 +1928,10 @@ port_set_alloc_hooks (void *ap_obj,
 {
   tiz_port_t *p_obj = ap_obj;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_new_hooks);
+  assert (ap_obj);
+  assert (ap_new_hooks);
 
-  if (NULL != ap_old_hooks)
+  if (ap_old_hooks)
     {
       *ap_old_hooks = p_obj->opts_.mem_hooks;
     }
@@ -1809,10 +1955,13 @@ port_set_eglimage_hook (void *ap_obj,
 {
   tiz_port_t *p_obj = ap_obj;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hook);
+  assert (ap_obj);
+  assert (ap_hook);
+  assert (ap_hook->pid == p_obj->pid_);
 
-  p_obj->opts_.eglimage_hook = *ap_hook;
+  p_obj->eglimage_hook_.pid = ap_hook->pid;
+  p_obj->eglimage_hook_.pf_egl_validator = ap_hook->pf_egl_validator;
+  p_obj->eglimage_hook_.p_args = ap_hook->p_args;
 }
 
 void
@@ -1833,8 +1982,8 @@ port_populate_header (const void *ap_obj, OMX_BUFFERHEADERTYPE * ap_hdr)
   OMX_U8 *p_buf = NULL;
   OMX_PTR p_port_priv = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdr);
+  assert (ap_obj);
+  assert (ap_hdr);
 
   TIZ_TRACE (handleOf (ap_obj),
             "port index [%d] announce_bufs [%s]...",
@@ -1897,8 +2046,8 @@ port_depopulate_header (const void *ap_obj,
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
   OMX_PTR p_port_priv = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdr);
+  assert (ap_obj);
+  assert (ap_hdr);
 
   if (OMX_TRUE == p_obj->announce_bufs_)
     {
@@ -1932,8 +2081,8 @@ port_is_master_or_slave (const void *ap_obj, OMX_U32 * ap_mos_pid)
 {
   const tiz_port_t *p_obj = ap_obj;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_mos_pid);
+  assert (ap_obj);
+  assert (ap_mos_pid);
 
   TIZ_TRACE (handleOf (ap_obj), "PORT [%d] mos [%d]...",
            p_obj->portdef_.nPortIndex, p_obj->opts_.mos_port);
@@ -1979,7 +2128,7 @@ tiz_port_super_apply_slaving_behaviour (void *a_class, void *ap_obj,
                                        tiz_vector_t * ap_changed_idxs)
 {
   const tiz_port_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->apply_slaving_behaviour);
+  assert (ap_obj && superclass->apply_slaving_behaviour);
   return superclass->apply_slaving_behaviour (ap_obj, ap_mos_port, a_index,
                                               ap_struct, ap_changed_idxs);
 }
@@ -1991,7 +2140,7 @@ port_update_tunneled_status (void *ap_obj, OMX_U32 a_port_status)
   OMX_CONFIG_TUNNELEDPORTSTATUSTYPE port_status;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   port_status.nSize               = sizeof (OMX_CONFIG_TUNNELEDPORTSTATUSTYPE);
   port_status.nVersion.nVersion   = OMX_VERSION;
@@ -2021,7 +2170,7 @@ port_update_tunneled_status (void *ap_obj, OMX_U32 a_port_status)
       return;
     }
 
-  assert (NULL != p_obj->thdl_);
+  assert (p_obj->thdl_);
 
   TIZ_TRACE (handleOf (ap_obj),
             "pid [%d] tpid_ [%d] port_status [0x%08X]", p_obj->pid_,
@@ -2051,7 +2200,7 @@ port_reset_tunneled_port_status_flag (void *ap_obj,
                                  OMX_U32 a_port_status_flag)
 {
   tiz_port_t *p_obj = ap_obj;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   p_obj->peer_port_status_.nTunneledPortStatus &= ~(a_port_status_flag);
   TIZ_TRACE (handleOf (ap_obj), "peer nTunneledPortStatus = "
             "[%d]", p_obj->peer_port_status_.nTunneledPortStatus);
@@ -2082,7 +2231,7 @@ tiz_port_SetParameter_internal (const void *ap_obj,
                                OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_port_class_t *class = classOf (ap_obj);
-  assert (NULL != class->SetParameter_internal);
+  assert (class->SetParameter_internal);
   return class->SetParameter_internal (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -2102,7 +2251,7 @@ tiz_port_SetConfig_internal (const void *ap_obj,
                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_port_class_t *class = classOf (ap_obj);
-  assert (NULL != class->SetConfig_internal);
+  assert (class->SetConfig_internal);
   return class->SetConfig_internal (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -2121,7 +2270,7 @@ port_class_ctor (void *ap_obj, va_list * app)
   voidf selector = NULL;
   va_list ap;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   va_copy (ap, *app);
 
@@ -2165,6 +2314,10 @@ port_class_ctor (void *ap_obj, va_list * app)
       else if (selector == (voidf) tiz_port_get_tunnel_comp)
         {
           *(voidf *) & p_obj->get_tunnel_comp = method;
+        }
+      else if (selector == (voidf) tiz_port_get_eglimage)
+        {
+          *(voidf *) & p_obj->get_eglimage = method;
         }
       else if (selector == (voidf) tiz_port_get_hdrs_list)
         {
@@ -2309,6 +2462,8 @@ tiz_port_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      tiz_api_UseBuffer, port_UseBuffer,
      /* TIZ_CLASS_COMMENT: */
+     tiz_api_UseEGLImage, port_UseEGLImage,
+     /* TIZ_CLASS_COMMENT: */
      tiz_api_AllocateBuffer, port_AllocateBuffer,
      /* TIZ_CLASS_COMMENT: */
      tiz_api_FreeBuffer, port_FreeBuffer,
@@ -2330,6 +2485,8 @@ tiz_port_init (void * ap_tos, void * ap_hdl)
      tiz_port_domain, port_domain,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_get_tunnel_comp, port_get_tunnel_comp,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_get_eglimage, port_get_eglimage,
      /* TIZ_CLASS_COMMENT: */
      tiz_port_get_hdrs_list, port_get_hdrs_list,
      /* TIZ_CLASS_COMMENT: */

@@ -203,7 +203,7 @@ static OMX_ERRORTYPE krn_GetComponentVersion (const void *ap_obj,
                                               OMX_UUIDTYPE *ap_comp_uuid)
 {
   const tiz_krn_t *p_obj = ap_obj;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   /* Delegate to the config port */
   return tiz_api_GetComponentVersion (p_obj->p_cport_, ap_hdl, ap_comp_name,
                                       ap_comp_version, ap_spec_version,
@@ -218,7 +218,7 @@ static OMX_ERRORTYPE krn_GetParameter (const void *ap_obj,
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
@@ -226,7 +226,7 @@ static OMX_ERRORTYPE krn_GetParameter (const void *ap_obj,
   if (OMX_ErrorNone
       == (rc = tiz_krn_find_managing_port (p_obj, a_index, ap_struct, &p_port)))
     {
-      assert (NULL != p_port);
+      assert (p_port);
       /* Delegate to that port */
       return tiz_api_GetParameter (p_port, ap_hdl, a_index, ap_struct);
     }
@@ -290,7 +290,7 @@ static OMX_ERRORTYPE krn_SetParameter (const void *ap_obj,
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
@@ -299,7 +299,7 @@ static OMX_ERRORTYPE krn_SetParameter (const void *ap_obj,
       == (rc = tiz_krn_find_managing_port (p_obj, a_index, ap_struct, &p_port)))
     {
       OMX_U32 mos_pid = 0; /* master's or slave's pid */
-      assert (NULL != p_port);
+      assert (p_port);
       /* Delegate to the port */
       rc = tiz_api_SetParameter (p_port, ap_hdl, a_index, ap_struct);
 
@@ -313,12 +313,12 @@ static OMX_ERRORTYPE krn_SetParameter (const void *ap_obj,
 
               /* Retrieve the master or slave's port... */
               pp_mos_port = tiz_vector_at (p_obj->p_ports_, mos_pid);
-              assert (NULL != pp_mos_port && NULL != *pp_mos_port);
+              assert (pp_mos_port && *pp_mos_port);
               p_mos_port = *pp_mos_port;
 
               tiz_check_omx_err (
                   tiz_vector_init (&(p_changed_idxs), sizeof(OMX_INDEXTYPE)));
-              assert (NULL != p_changed_idxs);
+              assert (p_changed_idxs);
               rc = tiz_port_apply_slaving_behaviour (
                   p_mos_port, p_port, a_index, ap_struct, p_changed_idxs);
 
@@ -381,7 +381,7 @@ static OMX_ERRORTYPE krn_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
@@ -390,7 +390,7 @@ static OMX_ERRORTYPE krn_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
       == (rc = tiz_krn_find_managing_port (p_obj, a_index, ap_struct, &p_port)))
     {
       /* Delegate to that port */
-      assert (NULL != p_port);
+      assert (p_port);
       return tiz_api_GetConfig (p_port, ap_hdl, a_index, ap_struct);
     }
 
@@ -404,14 +404,14 @@ static OMX_ERRORTYPE krn_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   /* Find the port that holds the data */
   if (OMX_ErrorNone
       == (rc = tiz_krn_find_managing_port (p_obj, a_index, ap_struct, &p_port)))
     {
       /* Delegate to that port */
-      assert (NULL != p_port);
+      assert (p_port);
       rc = tiz_api_SetConfig (p_port, ap_hdl, a_index, ap_struct);
     }
 
@@ -489,7 +489,7 @@ static OMX_ERRORTYPE krn_GetExtensionIndex (const void *ap_obj,
   OMX_PTR p_port = NULL;
   OMX_S32 i = 0;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   nports = tiz_vector_length (p_obj->p_ports_);
 
@@ -521,13 +521,13 @@ static OMX_ERRORTYPE krn_SendCommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   tiz_krn_msg_t *p_msg = NULL;
   tiz_krn_msg_sendcommand_t *p_msg_sc = NULL;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
 
   TIZ_KRN_INIT_MSG_OOM (ap_obj, ap_hdl, p_msg, ETIZKrnMsgSendCommand);
 
-  assert (NULL != p_msg);
+  assert (p_msg);
   p_msg_sc = &(p_msg->sc);
   p_msg_sc->cmd = a_cmd;
   p_msg_sc->param1 = a_param1;
@@ -543,7 +543,7 @@ static OMX_ERRORTYPE krn_ComponentTunnelRequest (
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   if (check_pid (p_obj, a_pid) != OMX_ErrorNone)
     {
@@ -593,7 +593,7 @@ static OMX_ERRORTYPE krn_UseBuffer (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_fsm_state_id_t now = EStateMax;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   now = tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
 
@@ -648,6 +648,71 @@ static OMX_ERRORTYPE krn_UseBuffer (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   return rc;
 }
 
+static OMX_ERRORTYPE krn_UseEGLImage (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
+                                    OMX_BUFFERHEADERTYPE **app_hdr,
+                                    OMX_U32 a_pid, OMX_PTR ap_apppriv,
+                                    OMX_U8 *ap_eglimage)
+{
+  tiz_krn_t *p_obj = (tiz_krn_t *)ap_obj;
+  OMX_PTR p_port = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  tiz_fsm_state_id_t now = EStateMax;
+
+  assert (ap_obj);
+
+  now = tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
+
+  if (check_pid (p_obj, a_pid) != OMX_ErrorNone)
+    {
+      return OMX_ErrorBadPortIndex;
+    }
+
+  /* Retrieve the port... */
+  p_port = get_port (p_obj, a_pid);
+
+  /* Check that in case of tunnelling, this port is not a buffer supplier... */
+  if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
+    {
+      TIZ_ERROR (ap_hdl,
+                 "[OMX_ErrorBadPortIndex] : Bad port index"
+                 "(port is tunneled)...");
+      return OMX_ErrorBadPortIndex;
+    }
+
+  /* Now delegate to the port... */
+  {
+    const bool was_being_enabled = TIZ_PORT_IS_BEING_ENABLED (p_port);
+    if (OMX_ErrorNone
+        != (rc = tiz_api_UseEGLImage (p_port, ap_hdl, app_hdr, a_pid, ap_apppriv,
+                                      ap_eglimage)))
+      {
+        TIZ_ERROR (ap_hdl,
+                   "[%s] : While delegating UseEGLImage "
+                   "to port [%d]",
+                   tiz_err_to_str (rc), a_pid);
+        return rc;
+      }
+
+    if (was_being_enabled && TIZ_PORT_IS_POPULATED (p_port))
+      {
+        tiz_check_omx_err (
+            complete_port_enable (p_obj, p_port, a_pid, OMX_ErrorNone));
+      }
+  }
+
+  if (OMX_ErrorNone == rc && all_populated (p_obj))
+    {
+      TIZ_TRACE (ap_hdl, "AllPortsPopulated : [TRUE]");
+      if (ESubStateLoadedToIdle == now)
+        {
+          rc = tiz_fsm_complete_transition (tiz_get_fsm (ap_hdl), ap_obj,
+                                            OMX_StateIdle);
+        }
+    }
+
+  return rc;
+}
+
 static OMX_ERRORTYPE krn_AllocateBuffer (const void *ap_obj,
                                          OMX_HANDLETYPE ap_hdl,
                                          OMX_BUFFERHEADERTYPE **app_hdr,
@@ -659,7 +724,7 @@ static OMX_ERRORTYPE krn_AllocateBuffer (const void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_fsm_state_id_t now = EStateMax;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   now = tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
 
@@ -716,7 +781,7 @@ static OMX_ERRORTYPE krn_AllocateBuffer (const void *ap_obj,
 
   if (OMX_ErrorNone == rc)
     {
-      assert (NULL != *app_hdr);
+      assert (*app_hdr);
     }
 
   return rc;
@@ -731,7 +796,7 @@ static OMX_ERRORTYPE krn_FreeBuffer (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   bool issue_unpop = false;
   tiz_fsm_state_id_t now = EStateMax;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   now = tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
 
@@ -803,14 +868,14 @@ static OMX_ERRORTYPE krn_EmptyThisBuffer (const void *ap_obj,
   tiz_krn_msg_t *p_msg = NULL;
   tiz_krn_msg_emptyfillbuffer_t *p_etb = NULL;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "HEADER [%p] BUFFER [%p] PORT [%d]", ap_hdr,
              ap_hdr->pBuffer, ap_hdr->nInputPortIndex);
 
   TIZ_KRN_INIT_MSG_OOM (ap_obj, ap_hdl, p_msg, ETIZKrnMsgEmptyThisBuffer);
 
-  assert (NULL != p_msg);
+  assert (p_msg);
   p_etb = &(p_msg->ef);
   p_etb->p_hdr = ap_hdr;
   return tiz_srv_enqueue (ap_obj, p_msg, 2);
@@ -823,14 +888,14 @@ static OMX_ERRORTYPE krn_FillThisBuffer (const void *ap_obj,
   tiz_krn_msg_t *p_msg = NULL;
   tiz_krn_msg_emptyfillbuffer_t *p_msg_ftb = NULL;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "HEADER [%p] BUFFER [%p] PORT [%d]", ap_hdr,
              ap_hdr->pBuffer, ap_hdr->nOutputPortIndex);
 
   TIZ_KRN_INIT_MSG_OOM (ap_obj, ap_hdl, p_msg, ETIZKrnMsgFillThisBuffer);
 
-  assert (NULL != p_msg);
+  assert (p_msg);
   p_msg_ftb = &(p_msg->ef);
   p_msg_ftb->p_hdr = ap_hdr;
   return tiz_srv_enqueue (ap_obj, p_msg, 2);
@@ -846,8 +911,8 @@ static OMX_ERRORTYPE krn_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   tiz_krn_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
+  assert (p_obj);
+  assert (p_msg);
 
   TIZ_TRACE (handleOf (p_obj), "Processing [%s]...",
              krn_msg_to_str (p_msg->class));
@@ -866,7 +931,7 @@ static OMX_ERRORTYPE krn_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   OMX_U32 pid = 0;
   OMX_S32 i = 0;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
   TIZ_TRACE (handleOf (p_obj), "port index [%d]...", a_pid);
@@ -926,7 +991,7 @@ static OMX_ERRORTYPE krn_deallocate_resources (void *ap_obj)
   OMX_PTR p_port = NULL;
   OMX_S32 i = 0;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
   for (i = 0; i < nports; ++i)
@@ -956,7 +1021,7 @@ static OMX_ERRORTYPE krn_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
   OMX_U32 pid = 0;
   OMX_S32 i = 0;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
   TIZ_TRACE (handleOf (p_obj), "PORT [%d]", a_pid);
@@ -1010,7 +1075,7 @@ static OMX_ERRORTYPE krn_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
   OMX_U32 pid = 0;
   OMX_S32 i = 0;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
   TIZ_TRACE (handleOf (p_obj), "PORT [%d]", a_pid);
@@ -1046,7 +1111,7 @@ static OMX_ERRORTYPE krn_stop_and_return (void *ap_obj)
   OMX_PTR p_port = NULL;
   OMX_S32 i = 0, nbufs = 0;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
   TIZ_TRACE (handleOf (p_obj), "stop and return...[%p]", ap_obj);
@@ -1146,11 +1211,11 @@ static OMX_ERRORTYPE krn_receive_pluggable_event (
   tiz_krn_msg_t *p_msg = NULL;
   tiz_krn_msg_plg_event_t *p_plgevt = NULL;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_KRN_INIT_MSG_OOM (ap_obj, ap_hdl, p_msg, ETIZKrnMsgPluggableEvent);
 
-  assert (NULL != p_msg);
+  assert (p_msg);
   p_plgevt = &(p_msg->pe);
   p_plgevt->p_event = ap_event;
   return tiz_srv_enqueue (ap_obj, p_msg, 2);
@@ -1165,8 +1230,8 @@ static OMX_ERRORTYPE krn_register_port (void *ap_obj, OMX_PTR ap_port,
 {
   tiz_krn_t *p_obj = ap_obj;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_port);
+  assert (ap_obj);
+  assert (ap_port);
 
   if (ais_config)
     {
@@ -1183,10 +1248,10 @@ static OMX_ERRORTYPE krn_register_port (void *ap_obj, OMX_PTR ap_port,
     OMX_U32 pid = 0;
     tiz_check_omx_err (
         tiz_vector_init (&(p_in_list), sizeof(OMX_BUFFERHEADERTYPE *)));
-    assert (NULL != p_in_list);
+    assert (p_in_list);
     tiz_check_omx_err (
         tiz_vector_init (&(p_out_list), sizeof(OMX_BUFFERHEADERTYPE *)));
-    assert (NULL != p_out_list);
+    assert (p_out_list);
     tiz_check_omx_err (tiz_vector_push_back (p_obj->p_ingress_, &p_in_list));
     tiz_check_omx_err (tiz_vector_push_back (p_obj->p_egress_, &p_out_list));
 
@@ -1256,7 +1321,7 @@ tiz_krn_register_port (const void *ap_obj, OMX_PTR ap_port,
                        const bool ais_config)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->register_port);
+  assert (class->register_port);
   return class->register_port (ap_obj, ap_port, ais_config);
 }
 
@@ -1265,7 +1330,7 @@ tiz_krn_super_register_port (const void *a_class, const void *ap_obj,
                              OMX_PTR ap_port, const bool ais_config)
 {
   const tiz_krn_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->register_port);
+  assert (ap_obj && superclass->register_port);
   return superclass->register_port (ap_obj, ap_port, ais_config);
 }
 
@@ -1274,7 +1339,7 @@ static void *krn_get_port (const void *ap_obj, const OMX_U32 a_pid)
   const tiz_krn_t *p_obj = ap_obj;
   OMX_S32 num_ports = 0;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   num_ports = tiz_vector_length (p_obj->p_ports_);
 
   if (num_ports <= a_pid)
@@ -1288,7 +1353,7 @@ static void *krn_get_port (const void *ap_obj, const OMX_U32 a_pid)
 void *tiz_krn_get_port (const void *ap_obj, const OMX_U32 a_pid)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->get_port);
+  assert (class->get_port);
   return class->get_port (ap_obj, a_pid);
 }
 
@@ -1300,9 +1365,9 @@ krn_find_managing_port (const tiz_krn_t *ap_krn, const OMX_INDEXTYPE a_index,
   OMX_PTR *pp_port = NULL;
   OMX_U32 *p_port_index;
 
-  assert (NULL != ap_krn);
-  assert (NULL != app_port);
-  assert (NULL != ap_struct);
+  assert (ap_krn);
+  assert (app_port);
+  assert (ap_struct);
 
   if (OMX_ErrorNone == tiz_port_find_index (ap_krn->p_cport_, a_index))
     {
@@ -1360,7 +1425,7 @@ tiz_krn_find_managing_port (const void *ap_obj, const OMX_INDEXTYPE a_index,
                             const OMX_PTR ap_struct, OMX_PTR *app_port)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->find_managing_port);
+  assert (class->find_managing_port);
   return class->find_managing_port (ap_obj, a_index, ap_struct, app_port);
 }
 
@@ -1371,7 +1436,7 @@ static tiz_krn_population_status_t krn_get_population_status (
   const tiz_krn_t *p_obj = ap_obj;
   tiz_krn_population_status_t status = ETIZKrnFullyPopulated;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   if (OMX_ALL == a_pid)
     {
@@ -1388,7 +1453,7 @@ static tiz_krn_population_status_t krn_get_population_status (
           OMX_S32 i, nports = tiz_vector_length (p_obj->p_ports_);
           OMX_PTR p_port = NULL;
 
-          assert (NULL != ap_may_be_fully_unpopulated);
+          assert (ap_may_be_fully_unpopulated);
 
           status = ETIZKrnUnpopulated;
           *ap_may_be_fully_unpopulated = OMX_TRUE;
@@ -1430,7 +1495,7 @@ static tiz_krn_population_status_t krn_get_population_status (
         }
       else
         {
-          assert (NULL != ap_may_be_fully_unpopulated);
+          assert (ap_may_be_fully_unpopulated);
 
           status = ETIZKrnUnpopulated;
           *ap_may_be_fully_unpopulated = OMX_TRUE;
@@ -1451,7 +1516,7 @@ tiz_krn_population_status_t tiz_krn_get_population_status (
     OMX_BOOL *ap_may_be_fully_unpopulated)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->get_population_status);
+  assert (class->get_population_status);
   return class->get_population_status (ap_obj, a_pid,
                                        ap_may_be_fully_unpopulated);
 }
@@ -1461,7 +1526,7 @@ tiz_krn_population_status_t tiz_krn_super_get_population_status (
     OMX_BOOL *ap_may_be_fully_unpopulated)
 {
   const tiz_krn_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->get_population_status);
+  assert (ap_obj && superclass->get_population_status);
   return superclass->get_population_status (ap_obj, a_pid,
                                             ap_may_be_fully_unpopulated);
 }
@@ -1474,8 +1539,8 @@ static OMX_ERRORTYPE krn_select (const void *ap_obj, const OMX_U32 a_nports,
   OMX_S32 nports = 0;
   tiz_vector_t *p_list = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_set);
+  assert (ap_obj);
+  assert (ap_set);
 
   nports = tiz_vector_length (p_obj->p_ports_);
 
@@ -1502,7 +1567,7 @@ tiz_krn_select (const void *ap_obj, const OMX_U32 a_nports,
                 /*@out@*/ tiz_pd_set_t *ap_set)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->select);
+  assert (class->select);
   return class->select (ap_obj, a_nports, ap_set);
 }
 
@@ -1511,7 +1576,7 @@ tiz_krn_super_select (const void *a_class, const void *ap_obj,
                       const OMX_U32 a_nports, tiz_pd_set_t *ap_set)
 {
   const tiz_krn_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->select);
+  assert (ap_obj && superclass->select);
   return superclass->select (ap_obj, a_nports, ap_set);
 }
 
@@ -1525,9 +1590,9 @@ static OMX_ERRORTYPE krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,
   tiz_vector_t *p_list = NULL;
   OMX_PTR p_port = NULL;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   assert (check_pid (p_obj, a_pid) == OMX_ErrorNone);
-  assert (NULL != app_hdr);
+  assert (app_hdr);
 
   /* Find the port.. */
   p_port = get_port (p_obj, a_pid);
@@ -1557,7 +1622,7 @@ static OMX_ERRORTYPE krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,
 
       /* Retrieve the header from the port's ingress list... */
       p_hdr = get_header (p_list, a_pos);
-      assert (NULL != p_hdr);
+      assert (p_hdr);
 
       TIZ_TRACE (handleOf (p_obj),
                  "port's [%d] HEADER [%p] BUFFER [%p] ingress "
@@ -1627,7 +1692,7 @@ tiz_krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,
                       const OMX_U32 a_pos, OMX_BUFFERHEADERTYPE **app_hdr)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->claim_buffer);
+  assert (class->claim_buffer);
   return class->claim_buffer (ap_obj, a_pid, a_pos, app_hdr);
 }
 
@@ -1637,7 +1702,7 @@ tiz_krn_super_claim_buffer (const void *a_class, const void *ap_obj,
                             OMX_BUFFERHEADERTYPE **app_hdr)
 {
   const tiz_krn_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->claim_buffer);
+  assert (ap_obj && superclass->claim_buffer);
   return superclass->claim_buffer (ap_obj, a_pid, a_pos, app_hdr);
 }
 
@@ -1649,8 +1714,8 @@ static OMX_ERRORTYPE krn_release_buffer (const void *ap_obj,
   tiz_vector_t *p_list = NULL;
   OMX_PTR p_port = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdr);
+  assert (ap_obj);
+  assert (ap_hdr);
   assert (check_pid (p_obj, a_pid) == OMX_ErrorNone);
   assert ((ap_hdr->nOffset + ap_hdr->nFilledLen) <= ap_hdr->nAllocLen);
 
@@ -1676,7 +1741,7 @@ tiz_krn_release_buffer (const void *ap_obj, const OMX_U32 a_pid,
                         OMX_BUFFERHEADERTYPE *ap_hdr)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->release_buffer);
+  assert (class->release_buffer);
   return class->release_buffer (ap_obj, a_pid, ap_hdr);
 }
 
@@ -1685,8 +1750,66 @@ tiz_krn_super_release_buffer (const void *a_class, const void *ap_obj,
                               const OMX_U32 a_pid, OMX_BUFFERHEADERTYPE *ap_hdr)
 {
   const tiz_krn_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->release_buffer);
+  assert (ap_obj && superclass->release_buffer);
   return superclass->release_buffer (ap_obj, a_pid, ap_hdr);
+}
+
+static OMX_ERRORTYPE krn_claim_eglimage (const void *ap_obj, const OMX_U32 a_pid,
+                                         const OMX_BUFFERHEADERTYPE *ap_hdr,
+                                         OMX_PTR *app_eglimage)
+{
+  tiz_krn_t *p_obj = (tiz_krn_t *) ap_obj;
+  OMX_PTR p_port = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  assert (ap_obj);
+  assert (ap_hdr);
+  assert (app_eglimage);
+
+  if (check_pid (p_obj, a_pid) != OMX_ErrorNone)
+    {
+      return OMX_ErrorBadPortIndex;
+    }
+
+    if (!ap_hdr || !app_eglimage)
+    {
+      return OMX_ErrorBadParameter;
+    }
+
+  /* Grab the port here... */
+  p_port = get_port (p_obj, a_pid);
+  if (p_port)
+    {
+      *app_eglimage = tiz_port_get_eglimage (p_port, ap_hdr);
+    }
+
+  if (!(*app_eglimage))
+    {
+      rc = OMX_ErrorInsufficientResources;
+    }
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz_krn_claim_eglimage (const void *ap_obj, const OMX_U32 a_pid,
+                        const OMX_BUFFERHEADERTYPE *ap_hdr,
+                        OMX_PTR *app_eglimage)
+{
+  const tiz_krn_class_t *class = classOf (ap_obj);
+  assert (class->claim_eglimage);
+  return class->claim_eglimage (ap_obj, a_pid, ap_hdr, app_eglimage);
+}
+
+OMX_ERRORTYPE
+tiz_krn_super_claim_eglimage (const void *a_class, const void *ap_obj,
+                              const OMX_U32 a_pid,
+                              const OMX_BUFFERHEADERTYPE *ap_hdr,
+                              OMX_PTR *app_eglimage)
+{
+  const tiz_krn_class_t *superclass = super (a_class);
+  assert (ap_obj && superclass->claim_eglimage);
+  return superclass->claim_eglimage (ap_obj, a_pid, ap_hdr, app_eglimage);
 }
 
 /* TODO: Do not ignore return codes */
@@ -1701,14 +1824,14 @@ static void krn_deregister_all_ports (void *ap_obj)
 void tiz_krn_deregister_all_ports (void *ap_obj)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->deregister_all_ports);
+  assert (class->deregister_all_ports);
   class->deregister_all_ports (ap_obj);
 }
 
 void tiz_krn_super_deregister_all_ports (const void *a_class, void *ap_obj)
 {
   const tiz_krn_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->deregister_all_ports);
+  assert (ap_obj && superclass->deregister_all_ports);
   superclass->deregister_all_ports (ap_obj);
 }
 
@@ -1717,7 +1840,7 @@ static void krn_reset_tunneled_ports_status (void *ap_obj,
 {
   tiz_krn_t *p_obj = ap_obj;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_port_status_flag)
     {
@@ -1767,7 +1890,7 @@ void tiz_krn_reset_tunneled_ports_status (void *ap_obj,
                                           const OMX_U32 a_port_status_flag)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->reset_tunneled_ports_status);
+  assert (class->reset_tunneled_ports_status);
   class->reset_tunneled_ports_status (ap_obj, a_port_status_flag);
 }
 
@@ -1775,7 +1898,7 @@ void tiz_krn_super_reset_tunneled_ports_status (
     const void *a_class, void *ap_obj, const OMX_U32 a_port_status_flag)
 {
   const tiz_krn_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->reset_tunneled_ports_status);
+  assert (ap_obj && superclass->reset_tunneled_ports_status);
   superclass->reset_tunneled_ports_status (ap_obj, a_port_status_flag);
 }
 
@@ -1783,7 +1906,7 @@ static bool is_ready_for_alloc_phase (const tiz_krn_t *ap_obj)
 {
   bool outcome = true;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   {
     const OMX_S32 nports = tiz_vector_length (ap_obj->p_ports_);
@@ -1792,7 +1915,7 @@ static bool is_ready_for_alloc_phase (const tiz_krn_t *ap_obj)
     for (i = 0; i < nports; ++i)
       {
         p_port = get_port (ap_obj, i);
-        if (NULL != p_port)
+        if (p_port)
           {
             if (TIZ_PORT_IS_ENABLED (p_port)
                 && TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
@@ -1813,7 +1936,7 @@ static bool is_ready_to_exchange_buffers (const tiz_krn_t *ap_obj)
 {
   bool outcome = true;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   {
     const OMX_S32 nports = tiz_vector_length (ap_obj->p_ports_);
@@ -1822,7 +1945,7 @@ static bool is_ready_to_exchange_buffers (const tiz_krn_t *ap_obj)
     for (i = 0; i < nports; ++i)
       {
         p_port = get_port (ap_obj, i);
-        if (NULL != p_port)
+        if (p_port)
           {
             if (TIZ_PORT_IS_ENABLED (p_port)
                 && TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (p_port))
@@ -1843,7 +1966,7 @@ static bool is_ready_for_exe_to_idle (const tiz_krn_t *ap_obj)
 {
   bool outcome = true;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   {
     const OMX_S32 nports = tiz_vector_length (ap_obj->p_ports_);
@@ -1852,7 +1975,7 @@ static bool is_ready_for_exe_to_idle (const tiz_krn_t *ap_obj)
     for (i = 0; i < nports; ++i)
       {
         p_port = get_port (ap_obj, i);
-        if (NULL != p_port)
+        if (p_port)
           {
             if (TIZ_PORT_IS_ENABLED (p_port) && TIZ_PORT_IS_TUNNELED (p_port))
               {
@@ -1906,7 +2029,7 @@ bool tiz_krn_get_restriction_status (const void *ap_obj,
                                      const tiz_krn_restriction_t a_restriction)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->get_restriction_status);
+  assert (class->get_restriction_status);
   return class->get_restriction_status (ap_obj, a_restriction);
 }
 
@@ -1914,7 +2037,7 @@ static void
 krn_clear_metadata (void *ap_obj)
 {
   tiz_krn_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   tiz_configport_clear_metadata (p_obj->p_cport_);
 }
 
@@ -1922,7 +2045,7 @@ void
 tiz_krn_clear_metadata (void *ap_obj)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->clear_metadata);
+  assert (class->clear_metadata);
   return class->clear_metadata (ap_obj);
 }
 
@@ -1930,7 +2053,7 @@ static OMX_ERRORTYPE
 krn_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item)
 {
   tiz_krn_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   return tiz_configport_store_metadata (p_obj->p_cport_, ap_meta_item);
 }
 
@@ -1938,7 +2061,7 @@ OMX_ERRORTYPE
 tiz_krn_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->store_metadata);
+  assert (class->store_metadata);
   return class->store_metadata (ap_obj, ap_meta_item);
 }
 
@@ -1951,7 +2074,7 @@ krn_SetParameter_internal (const void *ap_obj,
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
@@ -1959,7 +2082,7 @@ krn_SetParameter_internal (const void *ap_obj,
   if (OMX_ErrorNone
       == (rc = tiz_krn_find_managing_port (p_obj, a_index, ap_struct, &p_port)))
     {
-      assert (NULL != p_port);
+      assert (p_port);
       /* Delegate to the port */
       rc = tiz_port_SetParameter_internal (p_port, ap_hdl, a_index, ap_struct);
     }
@@ -1972,7 +2095,7 @@ tiz_krn_SetParameter_internal (const void *ap_obj,
                                OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->SetParameter_internal);
+  assert (class->SetParameter_internal);
   return class->SetParameter_internal (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -1985,14 +2108,14 @@ krn_SetConfig_internal (const void *ap_obj,
   OMX_PTR p_port = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   /* Find the port that holds the data */
   if (OMX_ErrorNone
       == (rc = tiz_krn_find_managing_port (p_obj, a_index, ap_struct, &p_port)))
     {
       /* Delegate to that port */
-      assert (NULL != p_port);
+      assert (p_port);
       rc = tiz_port_SetConfig_internal (p_port, ap_hdl, a_index, ap_struct);
     }
   return rc;
@@ -2004,7 +2127,7 @@ tiz_krn_SetConfig_internal (const void *ap_obj,
                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_krn_class_t *class = classOf (ap_obj);
-  assert (NULL != class->SetConfig_internal);
+  assert (class->SetConfig_internal);
   return class->SetConfig_internal (ap_obj, ap_hdl, a_index, ap_struct);
 }
 
@@ -2053,6 +2176,10 @@ static void *krn_class_ctor (void *ap_obj, va_list *app)
       else if (selector == (voidf)tiz_krn_release_buffer)
         {
           *(voidf *)&p_obj->release_buffer = method;
+        }
+      else if (selector == (voidf)tiz_krn_claim_eglimage)
+        {
+          *(voidf *)&p_obj->claim_eglimage = method;
         }
       else if (selector == (voidf)tiz_krn_deregister_all_ports)
         {
@@ -2141,6 +2268,8 @@ void *tiz_krn_init (void *ap_tos, void *ap_hdl)
        tiz_api_ComponentTunnelRequest, krn_ComponentTunnelRequest,
        /* TIZ_CLASS_COMMENT: UseBuffer */
        tiz_api_UseBuffer, krn_UseBuffer,
+       /* TIZ_CLASS_COMMENT: UseEGLImage */
+       tiz_api_UseEGLImage, krn_UseEGLImage,
        /* TIZ_CLASS_COMMENT: AllocateBuffer */
        tiz_api_AllocateBuffer, krn_AllocateBuffer,
        /* TIZ_CLASS_COMMENT: FreeBuffer */
@@ -2177,6 +2306,8 @@ void *tiz_krn_init (void *ap_tos, void *ap_hdl)
        tiz_krn_claim_buffer, krn_claim_buffer,
        /* TIZ_CLASS_COMMENT: release_buffer */
        tiz_krn_release_buffer, krn_release_buffer,
+       /* TIZ_CLASS_COMMENT: claim_eglimage */
+       tiz_krn_claim_eglimage, krn_claim_eglimage,
        /* TIZ_CLASS_COMMENT: deregister_all_ports */
        tiz_krn_deregister_all_ports, krn_deregister_all_ports,
        /* TIZ_CLASS_COMMENT: tunneled_ports_status */

@@ -140,12 +140,17 @@ tiz_krn_super_select (const void *a_class, const void *ap_obj,
                       const OMX_U32 a_nports, tiz_pd_set_t *p_set);
 OMX_ERRORTYPE
 tiz_krn_super_claim_buffer (const void *a_class, const void *ap_obj,
-                            const OMX_U32 a_port_id, const OMX_U32 a_pos,
+                            const OMX_U32 a_pid, const OMX_U32 a_pos,
                             OMX_BUFFERHEADERTYPE **p_hdr);
 OMX_ERRORTYPE
 tiz_krn_super_release_buffer (const void *a_class, const void *ap_obj,
-                              const OMX_U32 a_port_id,
+                              const OMX_U32 a_pid,
                               OMX_BUFFERHEADERTYPE *ap_hdr);
+OMX_ERRORTYPE
+tiz_krn_super_claim_eglimage (const void *a_class, const void *ap_obj,
+                              const OMX_U32 a_pid,
+                              const OMX_BUFFERHEADERTYPE *p_hdr,
+                              OMX_PTR *app_eglimage);
 void tiz_krn_super_deregister_all_ports (const void *a_class, void *ap_obj);
 void tiz_krn_super_reset_tunneled_ports_status (
     const void *a_class, void *ap_obj, const OMX_U32 a_port_status_flag);
@@ -168,11 +173,14 @@ struct tiz_krn_class
    OMX_BOOL *ap_may_be_fully_unpopulated);
   OMX_ERRORTYPE (*select)(const void *p_obj, const OMX_U32 a_nports,
                           /*@out@*/ tiz_pd_set_t *ap_set);
-  OMX_ERRORTYPE (*claim_buffer)(const void *ap_obj, const OMX_U32 a_port_id,
+  OMX_ERRORTYPE (*claim_buffer)(const void *ap_obj, const OMX_U32 a_pid,
                                 const OMX_U32 a_pos,
                                 OMX_BUFFERHEADERTYPE **p_hdr);
-  OMX_ERRORTYPE (*release_buffer)(const void *ap_obj, const OMX_U32 a_port_id,
+  OMX_ERRORTYPE (*release_buffer)(const void *ap_obj, const OMX_U32 a_pid,
                                   OMX_BUFFERHEADERTYPE *p_hdr);
+  OMX_ERRORTYPE (*claim_eglimage)(const void *ap_obj, const OMX_U32 a_pid,
+                                  const OMX_BUFFERHEADERTYPE *p_hdr,
+                                  OMX_PTR *app_eglimage);
   void (*deregister_all_ports)(void *ap_obj);
   void (*reset_tunneled_ports_status)(void *ap_obj,
                                       const OMX_U32 a_port_status_flag);
