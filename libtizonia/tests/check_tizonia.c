@@ -762,37 +762,6 @@ START_TEST (test_tizonia_preannouncements_extension)
 }
 END_TEST
 
-START_TEST (test_tizonia_pd_set)
-{
-  tiz_pd_set_t set;
-  OMX_U32 i, port = 13;
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "_TIZ_PD_SETSIZE = [%d]", _TIZ_PD_SETSIZE);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "_TIZ_NPDBITS = [%d]", _TIZ_NPDBITS);
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "_TIZ_PDELT = [%d]", _TIZ_PDELT (port));
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "sizeof (tiz_pd_set_t) = [%d]", sizeof (tiz_pd_set_t));
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "sizeof (_tiz_pd_mask) = [%d]", sizeof (_tiz_pd_mask));
-
-  TIZ_PD_SET (port, (&set));
-
-  for (i = 0; i < sizeof (tiz_pd_set_t); ++i)
-    {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "set = [%X]", set.a_pds_bits[i]);
-    }
-
-  TIZ_PD_CLR (port, &set);
-
-  for (i = 0; i < sizeof (tiz_pd_set_t); ++i)
-    {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "set = [%X]", set.a_pds_bits[i]);
-    }
-
-  TIZ_PD_SET (port, (&set));
-
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "set = [%s]",
-             TIZ_PD_ISSET (port, &set) ? "TRUE" : "FALSE");
-}
-END_TEST
-
 START_TEST (test_tizonia_move_to_exe_and_transfer_with_allocbuffer)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
@@ -2069,7 +2038,6 @@ tiz_suite (void)
 /*   (void) test_tizonia_getparameter; */
 /*   (void) test_tizonia_roles; */
 /*   (void) test_tizonia_preannouncements_extension; */
-/*   (void) test_tizonia_pd_set; */
 /*   (void) test_tizonia_move_to_exe_and_transfer_with_allocbuffer; */
 /*   (void) test_tizonia_command_cancellation_loaded_to_idle_no_buffers; */
   (void) test_tizonia_command_cancellation_loaded_to_idle_with_tunneled_supplied_buffers;
