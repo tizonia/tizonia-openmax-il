@@ -79,6 +79,18 @@ pcm_port_free_hook (OMX_PTR ap_buf, OMX_PTR ap_port_priv, void *ap_args)
   tiz_mem_free (ap_buf);
 }
 
+static OMX_BOOL
+egl_image_validation_hook (const OMX_HANDLETYPE ap_hdl,
+                           OMX_U32 pid, OMX_PTR ap_eglimage,
+                           void *ap_args)
+{
+  assert (ap_hdl);
+  assert (ap_eglimage);
+  assert (!ap_args);
+  TIZ_LOG (TIZ_PRIORITY_TRACE,
+           "Test Component EGLImage Hook : ap_eglimage=[%p]", ap_eglimage);
+  return OMX_TRUE;
+}
 
 static OMX_PTR
 instantiate_pcm_port (OMX_HANDLETYPE ap_hdl)
@@ -159,6 +171,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_alloc_hooks_t new_hooks =
     { 0, pcm_port_alloc_hook, pcm_port_free_hook, NULL };
   tiz_alloc_hooks_t old_hooks = { 0, NULL, NULL, NULL };
+  const tiz_eglimage_hook_t egl_validation_hook =
+    { 0, egl_image_validation_hook, NULL };
 
   strcpy ((OMX_STRING) role_factory1.role, TC_DEFAULT_ROLE1);
   role_factory1.pf_cport = instantiate_config_port;
@@ -194,6 +208,10 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   /* Register alloc hooks */
   tiz_check_omx_err (tiz_comp_register_alloc_hooks
                      (ap_hdl, &new_hooks, &old_hooks));
+
+  /* Register egl image validation hook */
+  tiz_check_omx_err (tiz_comp_register_eglimage_hook
+                     (ap_hdl, &egl_validation_hook));
 
   /* Verify that the old hooks have been returned */
   assert (old_hooks.pf_alloc);

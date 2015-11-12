@@ -108,19 +108,17 @@ tcprc_stop_and_return (void *ap_obj)
 static OMX_ERRORTYPE
 tcprc_buffers_ready (const void *ap_obj)
 {
-  tiz_pd_set_t ports;
-  void *p_ker = tiz_get_krn (handleOf (ap_obj));
+  void *p_krn = tiz_get_krn (handleOf (ap_obj));
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_PD_ZERO (&ports);
-
-  tiz_check_omx_err (tiz_krn_select (p_ker, 1, &ports));
-
-  if (TIZ_PD_ISSET (0, &ports))
+  rc = tiz_krn_claim_buffer (p_krn, 0, 0, &p_hdr);
+  if (OMX_ErrorNone == rc && p_hdr)
     {
-      tiz_check_omx_err (tiz_krn_claim_buffer (p_ker, 0, 0, &p_hdr));
+      OMX_PTR p_eglimage = NULL;
+      tiz_check_omx_err (tiz_krn_claim_eglimage (p_krn, 0, p_hdr, &p_eglimage));
       tiz_check_omx_err (tiztc_proc_render_buffer (p_hdr));
-      (void) tiz_krn_release_buffer (p_ker, 0, p_hdr);
+      (void)tiz_krn_release_buffer (p_krn, 0, p_hdr);
     }
 
   return OMX_ErrorNone;
