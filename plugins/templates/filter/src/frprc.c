@@ -66,7 +66,7 @@ transform_buffer (fr_prc_t *ap_prc)
       return OMX_ErrorNone;
     }
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (0 == p_in->nFilledLen)
     {
@@ -90,7 +90,7 @@ transform_buffer (fr_prc_t *ap_prc)
 
 static void reset_stream_parameters (fr_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_filter_prc_update_eos_flag (ap_prc, false);
 }
 
@@ -102,7 +102,7 @@ static void *
 fr_prc_ctor (void *ap_obj, va_list * app)
 {
   fr_prc_t *p_prc = super_ctor (typeOf (ap_obj, "frprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   return p_prc;
 }
 
@@ -133,7 +133,7 @@ static OMX_ERRORTYPE
 fr_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   fr_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   reset_stream_parameters (p_prc);
   return OMX_ErrorNone;
 }
@@ -160,7 +160,7 @@ fr_prc_buffers_ready (const void *ap_prc)
   fr_prc_t *p_prc = (fr_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_TRACE (handleOf (p_prc), "eos [%s] ",
              tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO");

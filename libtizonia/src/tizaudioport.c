@@ -51,7 +51,7 @@ update_audio_coding_type (void *ap_obj,
   tiz_audioport_t *p_obj = ap_obj;
   tiz_port_t *p_base = ap_obj;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   if (a_encoding >= OMX_AUDIO_CodingMax)
     {
@@ -92,7 +92,7 @@ audioport_ctor (void *ap_obj, va_list * app)
   tiz_audioport_t *p_obj = super_ctor (typeOf (ap_obj, "tizaudioport"), ap_obj, app);
   OMX_AUDIO_CODINGTYPE *p_encodings = NULL;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   tiz_check_omx_err_ret_null
     (tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat));
@@ -106,7 +106,7 @@ audioport_ctor (void *ap_obj, va_list * app)
   p_obj->port_format_.nVersion.nVersion = (OMX_U32) OMX_VERSION;
   p_obj->port_format_.nIndex            = 0;
 
-  if (NULL != (p_encodings = va_arg (*app, OMX_AUDIO_CODINGTYPE *)))
+  if ((p_encodings = va_arg (*app, OMX_AUDIO_CODINGTYPE *)))
     {
       OMX_U32 i = 0;
       while (OMX_AUDIO_CodingMax != p_encodings[i])
@@ -128,7 +128,7 @@ static void *
 audioport_dtor (void *ap_obj)
 {
   tiz_audioport_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   tiz_vector_clear (p_obj->p_encodings_);
   tiz_vector_destroy (p_obj->p_encodings_);
   return super_dtor (typeOf (ap_obj, "tizaudioport"), ap_obj);
@@ -147,7 +147,7 @@ audioport_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_index)
     {
@@ -162,7 +162,7 @@ audioport_GetParameter (const void *ap_obj,
           }
 
         p_encoding = tiz_vector_at (p_obj->p_encodings_, (OMX_S32) p_pft->nIndex);
-        assert (NULL != p_encoding);
+        assert (p_encoding);
         p_pft->eEncoding = *p_encoding;
         TIZ_TRACE (ap_hdl, "Encoding [0x%08x]...", *p_encoding);
       }
@@ -189,7 +189,7 @@ audioport_SetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -223,8 +223,8 @@ audioport_set_portdef_format (void *ap_obj,
   tiz_audioport_t *p_obj = ap_obj;
   tiz_port_t *p_base = ap_obj;
 
-  assert (NULL != p_obj);
-  assert (NULL != ap_pdef);
+  assert (p_obj);
+  assert (ap_pdef);
 
   p_base->portdef_.format.audio.pNativeRender = ap_pdef->format.audio.pNativeRender;
   p_base->portdef_.format.audio.bFlagErrorConcealment = ap_pdef->format.audio.bFlagErrorConcealment;

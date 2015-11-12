@@ -88,7 +88,7 @@ void *control::thread_func (void *p_arg)
   void *p_data = NULL;
   bool done = false;
 
-  assert (NULL != p_mgr);
+  assert (p_mgr);
 
   (void)tiz_thread_setname (&(p_mgr->thread_), (char *)"mprismgr");
   tiz_check_omx_err_ret_null (tiz_sem_post (&(p_mgr->sem_)));
@@ -98,7 +98,7 @@ void *control::thread_func (void *p_arg)
     TIZ_LOG (TIZ_PRIORITY_TRACE, "MPRIS thread receiving...");
     tiz_check_omx_err_ret_null (tiz_queue_receive (p_mgr->p_queue_, &p_data));
 
-    assert (NULL != p_data);
+    assert (p_data);
 
     cmd *p_cmd = static_cast< cmd * >(p_data);
     done = mprismgr::dispatch_cmd (p_mgr, p_cmd);
@@ -182,7 +182,7 @@ control::mprismgr::stop ()
 {
   // Before sending the command to stop the thread, we have to make the DBUS
   // dispatcher leave its event loop.
-  assert (NULL != p_dispatcher_);
+  assert (p_dispatcher_);
   p_dispatcher_->leave ();
   return post_cmd (new control::cmd (control::cmd::ETIZMprisMgrCmdStop));
 }
@@ -254,8 +254,8 @@ void control::mprismgr::deinit_cmd_queue ()
 OMX_ERRORTYPE
 control::mprismgr::post_cmd (control::cmd *p_cmd)
 {
-  assert (NULL != p_cmd);
-  assert (NULL != p_queue_);
+  assert (p_cmd);
+  assert (p_queue_);
 
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_err_ret_oom (tiz_queue_send (p_queue_, p_cmd));
@@ -268,8 +268,8 @@ bool control::mprismgr::dispatch_cmd (control::mprismgr *p_mgr,
                                       const control::cmd *p_cmd)
 {
   bool terminated = false;
-  assert (NULL != p_mgr);
-  assert (NULL != p_cmd);
+  assert (p_mgr);
+  assert (p_cmd);
 
   if (p_mgr->p_dispatcher_)
   {

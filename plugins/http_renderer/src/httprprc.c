@@ -51,9 +51,9 @@ static OMX_ERRORTYPE httpr_prc_config_change (const void *ap_prc, OMX_U32 a_pid,
 
 static void release_buffers (httpr_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
-  if (NULL != ap_prc->p_server_ && NULL != ap_prc->p_inhdr_)
+  if (ap_prc->p_server_ && ap_prc->p_inhdr_)
     {
       httpr_srv_release_buffers (ap_prc->p_server_);
     }
@@ -64,7 +64,7 @@ static OMX_BUFFERHEADERTYPE *buffer_needed (void *ap_arg)
 {
   httpr_prc_t *p_prc = ap_arg;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (!p_prc->port_disabled_)
     {
@@ -91,8 +91,8 @@ static void buffer_emptied (OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_arg)
 {
   httpr_prc_t *p_prc = ap_arg;
 
-  assert (NULL != p_prc);
-  assert (NULL != ap_hdr);
+  assert (p_prc);
+  assert (ap_hdr);
   assert (p_prc->p_inhdr_ == ap_hdr);
   assert (ap_hdr->nFilledLen == 0);
 
@@ -116,8 +116,8 @@ static inline OMX_ERRORTYPE retrieve_mp3_settings (
     const void *ap_prc, OMX_AUDIO_PARAM_MP3TYPE *ap_mp3type)
 {
   const httpr_prc_t *p_prc = ap_prc;
-  assert (NULL != ap_prc);
-  assert (NULL != ap_mp3type);
+  assert (ap_prc);
+  assert (ap_mp3type);
 
   /* Retrieve the mp3 settings from the input port */
   TIZ_INIT_OMX_PORT_STRUCT (*ap_mp3type, ARATELIA_HTTP_RENDERER_PORT_INDEX);
@@ -131,8 +131,8 @@ static inline OMX_ERRORTYPE retrieve_mountpoint_settings (
     const void *ap_prc, OMX_TIZONIA_ICECASTMOUNTPOINTTYPE *ap_mountpoint)
 {
   const httpr_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
-  assert (NULL != ap_mountpoint);
+  assert (p_prc);
+  assert (ap_mountpoint);
 
   /* Retrieve the mountpoint settings from the input port */
   TIZ_INIT_OMX_PORT_STRUCT (*ap_mountpoint, ARATELIA_HTTP_RENDERER_PORT_INDEX);
@@ -149,7 +149,7 @@ static inline OMX_ERRORTYPE retrieve_mountpoint_settings (
 static void *httpr_prc_ctor (void *ap_prc, va_list *app)
 {
   httpr_prc_t *p_prc = super_ctor (typeOf (ap_prc, "httprprc"), ap_prc, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->mount_name_ = NULL;
   p_prc->port_disabled_ = false;
   p_prc->p_server_ = NULL;
@@ -169,7 +169,7 @@ static void *httpr_prc_dtor (void *ap_prc)
 static OMX_ERRORTYPE httpr_prc_allocate_resources (void *ap_prc, OMX_U32 a_pid)
 {
   httpr_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   /* Retrieve http server configuration from the component's config port */
   TIZ_INIT_OMX_STRUCT (p_prc->server_info_);
@@ -192,7 +192,7 @@ static OMX_ERRORTYPE httpr_prc_allocate_resources (void *ap_prc, OMX_U32 a_pid)
 static OMX_ERRORTYPE httpr_prc_deallocate_resources (void *ap_prc)
 {
   httpr_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   httpr_srv_destroy (p_prc->p_server_);
   p_prc->p_server_ = NULL;
   return OMX_ErrorNone;
@@ -202,7 +202,7 @@ static OMX_ERRORTYPE httpr_prc_prepare_to_transfer (void *ap_prc, OMX_U32 a_pid)
 {
   httpr_prc_t *p_prc = ap_prc;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   /* Obtain mp3 settings from port */
   tiz_check_omx_err (retrieve_mp3_settings (ap_prc, &(p_prc->mp3type_)));
@@ -242,7 +242,7 @@ static OMX_ERRORTYPE httpr_prc_stop_and_return (void *ap_prc)
 {
   httpr_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   rc = httpr_srv_stop (p_prc->p_server_);
   release_buffers (p_prc);
   return rc;
@@ -256,7 +256,7 @@ static OMX_ERRORTYPE httpr_prc_buffers_ready (const void *ap_prc)
 {
   httpr_prc_t *p_prc = (httpr_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (p_prc->p_server_)
     {
       rc = httpr_srv_buffer_event (p_prc->p_server_);
@@ -269,7 +269,7 @@ static OMX_ERRORTYPE httpr_prc_io_ready (void *ap_prc, tiz_event_io_t *ap_ev_io,
 {
   httpr_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (p_prc->p_server_)
     {
       httpr_srv_io_event (p_prc->p_server_, a_fd);
@@ -283,7 +283,7 @@ static OMX_ERRORTYPE httpr_prc_timer_ready (void *ap_prc,
 {
   httpr_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (p_prc->p_server_)
     {
       rc = httpr_srv_timer_event (p_prc->p_server_);
@@ -295,7 +295,7 @@ static OMX_ERRORTYPE httpr_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
   httpr_prc_t *p_prc = (httpr_prc_t *)ap_prc;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (ARATELIA_HTTP_RENDERER_PORT_INDEX == a_pid);
 
   p_prc->port_disabled_ = false;
@@ -325,7 +325,7 @@ static OMX_ERRORTYPE httpr_prc_config_change (const void *ap_prc,
   const httpr_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (p_prc->p_server_ && OMX_TizoniaIndexConfigIcecastMetadata == a_config_idx
       && ARATELIA_HTTP_RENDERER_PORT_INDEX == a_pid)

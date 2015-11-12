@@ -180,7 +180,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "OMX_ComponentInit: "
            "Inititializing the test component");
 
-  assert (NULL != ap_hdl);
+  assert (ap_hdl);
 
   /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, TC_COMPONENT_NAME));
@@ -196,8 +196,8 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
                      (ap_hdl, &new_hooks, &old_hooks));
 
   /* Verify that the old hooks have been returned */
-  assert (NULL != old_hooks.pf_alloc);
-  assert (NULL != old_hooks.pf_free);
+  assert (old_hooks.pf_alloc);
+  assert (old_hooks.pf_free);
 
   return OMX_ErrorNone;
 }

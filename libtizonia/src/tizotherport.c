@@ -62,7 +62,7 @@ otherport_ctor (void *ap_obj, va_list * app)
   p_obj->port_format_.nVersion.nVersion = OMX_VERSION;
   p_obj->port_format_.nIndex = 0;
 
-  if (NULL != (p_formats = va_arg (*app, OMX_OTHER_FORMATTYPE *)))
+  if ((p_formats = va_arg (*app, OMX_OTHER_FORMATTYPE *)))
     {
       OMX_U32 i = 0;
       while (OMX_OTHER_FormatMax != p_formats[i])
@@ -101,7 +101,7 @@ otherport_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -142,7 +142,7 @@ otherport_SetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {

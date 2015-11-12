@@ -63,7 +63,7 @@ void *graphmgr::thread_func (void *p_arg)
   void *p_data = NULL;
   bool done = false;
 
-  assert (NULL != p_mgr);
+  assert (p_mgr);
 
   (void)tiz_thread_setname (&(p_mgr->thread_), (char *)"graphmgr");
   tiz_check_omx_err_ret_null (tiz_sem_post (&(p_mgr->sem_)));
@@ -72,7 +72,7 @@ void *graphmgr::thread_func (void *p_arg)
   {
     tiz_check_omx_err_ret_null (tiz_queue_receive (p_mgr->p_queue_, &p_data));
 
-    assert (NULL != p_data);
+    assert (p_data);
 
     cmd *p_cmd = static_cast< cmd * >(p_data);
     done = mgr::dispatch_cmd (p_mgr, p_cmd);
@@ -403,8 +403,8 @@ void graphmgr::mgr::deinit_cmd_queue ()
 OMX_ERRORTYPE
 graphmgr::mgr::post_cmd (graphmgr::cmd *p_cmd)
 {
-  assert (NULL != p_cmd);
-  assert (NULL != p_queue_);
+  assert (p_cmd);
+  assert (p_queue_);
 
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
   tiz_check_omx_err_ret_oom (tiz_queue_send (p_queue_, p_cmd));
@@ -416,9 +416,9 @@ graphmgr::mgr::post_cmd (graphmgr::cmd *p_cmd)
 bool graphmgr::mgr::dispatch_cmd (graphmgr::mgr *p_mgr,
                                   const graphmgr::cmd *p_cmd)
 {
-  assert (NULL != p_mgr);
-  assert (NULL != p_mgr->p_ops_);
-  assert (NULL != p_cmd);
+  assert (p_mgr);
+  assert (p_mgr->p_ops_);
+  assert (p_cmd);
 
   p_cmd->inject (p_mgr->fsm_);
 

@@ -93,7 +93,7 @@ obtain_uri (oggdmux_prc_t * ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (NULL == ap_prc->p_uri_param_);
 
   if (NULL == (ap_prc->p_uri_param_ = tiz_mem_calloc
@@ -132,7 +132,7 @@ alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   port_def.nSize = (OMX_U32) sizeof (OMX_PARAM_PORTDEFINITIONTYPE);
   port_def.nVersion.nVersion = OMX_VERSION;
@@ -167,8 +167,8 @@ close_file ( /*@special@ */ oggdmux_prc_t * ap_prc)
   /*@releases ap_prc->p_file_ @ */
   /*@ensures isnull ap_prc->p_file_@ */
 {
-  assert (NULL != ap_prc);
-  if (NULL != ap_prc->p_file_)
+  assert (ap_prc);
+  if (ap_prc->p_file_)
     {
       (void) fclose (ap_prc->p_file_);
       ap_prc->p_file_ = NULL;
@@ -180,7 +180,7 @@ delete_oggz ( /*@special@ */ oggdmux_prc_t * ap_prc)
   /*@releases ap_prc->p_oggz_, ap_prc->p_tracks_ @ */
   /*@ensures isnull ap_prc->p_oggz_, ap_prc->p_tracks_ @ */
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   oggz_table_delete (ap_prc->p_tracks_);
   ap_prc->p_tracks_ = NULL;
 /*   oggz_close (ap_prc->p_oggz_); */
@@ -192,7 +192,7 @@ delete_uri ( /*@special@ */ oggdmux_prc_t * ap_prc)
   /*@releases ap_prc->p_uri_param_ @ */
   /*@ensures isnull ap_prc->p_uri_param_ @ */
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
   ap_prc->p_uri_param_ = NULL;
 }
@@ -202,7 +202,7 @@ dealloc_temp_data_stores ( /*@special@ */ oggdmux_prc_t * ap_prc)
   /*@releases ap_prc->p_aud_store_, ap_prc->p_vid_store_ @ */
   /*@ensures isnull ap_prc->p_aud_store_, ap_prc->p_vid_store_ @ */
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_mem_free (ap_prc->p_aud_store_);
   tiz_mem_free (ap_prc->p_vid_store_);
   ap_prc->p_aud_store_ = NULL;
@@ -217,7 +217,7 @@ static inline OMX_U8 **
 get_store_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_U8 **pp_store = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   pp_store = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
     ? &(ap_prc->p_aud_store_) : &(ap_prc->p_vid_store_);
@@ -228,7 +228,7 @@ static inline OMX_U32 *
 get_store_size_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_U32 *p_size = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   p_size = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
     ? &(ap_prc->aud_store_size_) : &(ap_prc->vid_store_size_);
@@ -239,11 +239,11 @@ static inline OMX_U32 *
 get_store_offset_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_U32 *p_offset = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   p_offset = a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
     ? &(ap_prc->aud_store_offset_) : &(ap_prc->vid_store_offset_);
-  assert (NULL != p_offset);
+  assert (p_offset);
   return p_offset;
 }
 
@@ -251,12 +251,12 @@ static inline bool *
 get_port_disabled_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   bool *p_port_disabled = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   p_port_disabled = (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
                      ? &(ap_prc->aud_port_disabled_)
                      : &(ap_prc->vid_port_disabled_));
-  assert (NULL != p_port_disabled);
+  assert (p_port_disabled);
   return p_port_disabled;
 }
 
@@ -264,11 +264,11 @@ static inline OMX_BUFFERHEADERTYPE **
 get_header_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   pp_hdr = (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
             ? &(ap_prc->p_aud_hdr_) : &(ap_prc->p_vid_hdr_));
-  assert (NULL != pp_hdr);
+  assert (pp_hdr);
   return pp_hdr;
 }
 
@@ -276,11 +276,11 @@ static inline bool *
 get_eos_ptr (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   bool *p_eos = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
   p_eos = (a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
            ? &(ap_prc->aud_eos_) : &(ap_prc->vid_eos_));
-  assert (NULL != p_eos);
+  assert (p_eos);
   return p_eos;
 }
 
@@ -294,17 +294,17 @@ store_data (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
   OMX_U32 nbytes_to_copy = 0;
   OMX_U32 nbytes_avail = 0;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
-  assert (NULL != ap_data);
+  assert (ap_data);
 
   pp_store = get_store_ptr (ap_prc, a_pid);
   p_size = get_store_size_ptr (ap_prc, a_pid);
   p_offset = get_store_offset_ptr (ap_prc, a_pid);
 
-  assert (NULL != pp_store && NULL != *pp_store);
-  assert (NULL != p_size);
-  assert (NULL != p_offset);
+  assert (pp_store && *pp_store);
+  assert (p_size);
+  assert (p_offset);
 
   nbytes_avail = *p_size - *p_offset;
 
@@ -313,7 +313,7 @@ store_data (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
       /* need to re-alloc */
       OMX_U8 *p_new_store = NULL;
       p_new_store = tiz_mem_realloc (*pp_store, *p_offset + a_nbytes);
-      if (NULL != p_new_store)
+      if (p_new_store)
         {
           *pp_store = p_new_store;
           *p_size = *p_offset + a_nbytes;
@@ -341,15 +341,15 @@ dump_temp_store (oggdmux_prc_t * ap_prc,
   OMX_U32 nbytes_to_copy = 0;
   OMX_U32 nbytes_avail = 0;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
-  assert (NULL != ap_hdr);
+  assert (ap_hdr);
 
   p_store = *(get_store_ptr (ap_prc, a_pid));
   p_offset = get_store_offset_ptr (ap_prc, a_pid);
 
-  assert (NULL != p_store);
-  assert (NULL != p_offset);
+  assert (p_store);
+  assert (p_offset);
   assert (ap_hdr->nAllocLen >= ap_hdr->nFilledLen);
 
   nbytes_avail = ap_hdr->nAllocLen - ap_hdr->nFilledLen;
@@ -380,10 +380,10 @@ dump_ogg_data (oggdmux_prc_t * ap_prc,
   OMX_U32 nbytes_copied = 0;
   OMX_U32 nbytes_avail = 0;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
-  assert (NULL != ap_ogg_data);
-  assert (NULL != ap_hdr);
+  assert (ap_ogg_data);
+  assert (ap_hdr);
 
   assert (ap_hdr->nAllocLen >= ap_hdr->nFilledLen);
 
@@ -420,7 +420,7 @@ get_header (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
               (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
             {
               p_hdr = *pp_hdr;
-              if (NULL != p_hdr)
+              if (p_hdr)
                 {
                   TIZ_TRACE (handleOf (ap_prc),
                              "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
@@ -445,7 +445,7 @@ release_header (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
   p_hdr = *pp_hdr;
-  assert (NULL != p_hdr);
+  assert (p_hdr);
 
   TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] pid [%d] "
              "nFilledLen [%d] nFlags [%d]", p_hdr, a_pid, p_hdr->nFilledLen,
@@ -457,7 +457,7 @@ release_header (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
     (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr);
   *pp_hdr = NULL;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   ap_prc->awaiting_buffers_ = true;
 }
 
@@ -467,7 +467,7 @@ release_header_with_eos (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
   bool eos_released = false;
   OMX_BUFFERHEADERTYPE *p_hdr = get_header (ap_prc, a_pid);
 
-  if (NULL != p_hdr)
+  if (p_hdr)
     {
       TIZ_TRACE (handleOf (ap_prc), "Adding EOS flag - PID [%d]", a_pid);
       p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
@@ -484,7 +484,7 @@ flush_temp_store (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
   OMX_U32 *p_offset = get_store_offset_ptr (ap_prc, a_pid);
   OMX_U32 ds_offset = *p_offset;
 
-  assert (NULL != p_offset);
+  assert (p_offset);
 
   if (0 == *p_offset)
     {
@@ -492,7 +492,7 @@ flush_temp_store (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
       return 0;
     }
 
-  while (NULL != (p_hdr = get_header (ap_prc, a_pid)))
+  while ((p_hdr = get_header (ap_prc, a_pid)))
     {
       ds_offset = dump_temp_store (ap_prc, a_pid, p_hdr);
 #ifdef _DEBUG
@@ -536,7 +536,7 @@ flush_ogg_packet (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid,
   OMX_U32 nbytes_copied = 0;
   OMX_U32 op_offset = 0;
 
-  while (NULL != (p_hdr = get_header (ap_prc, a_pid)))
+  while ((p_hdr = get_header (ap_prc, a_pid)))
     {
       nbytes_copied
         = dump_ogg_data (ap_prc, a_pid, ap_ogg_data + op_offset,
@@ -597,9 +597,9 @@ read_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
   ogg_packet *p_op = NULL;
   int rc = OGGZ_CONTINUE;
 
-  assert (NULL != ap_oggz);
-  assert (NULL != ap_zp);
-  assert (NULL != p_prc);
+  assert (ap_oggz);
+  assert (ap_zp);
+  assert (p_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
 
   p_op = &(ap_zp->op);
@@ -654,7 +654,7 @@ read_audio_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
 {
   oggdmux_prc_t *p_prc = ap_user_data;
   int rc = OGGZ_CONTINUE;
-  assert (NULL != ap_user_data);
+  assert (ap_user_data);
 
   if (!p_prc->aud_port_disabled_
       && is_audio_content (oggz_stream_get_content (p_prc->p_oggz_, serialno)))
@@ -672,7 +672,7 @@ read_video_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
 {
   oggdmux_prc_t *p_prc = ap_user_data;
   int rc = OGGZ_CONTINUE;
-  assert (NULL != ap_user_data);
+  assert (ap_user_data);
 
   if (!p_prc->vid_port_disabled_
       && is_video_content (oggz_stream_get_content (p_prc->p_oggz_, serialno)))
@@ -688,10 +688,10 @@ read_video_packet (OGGZ * ap_oggz, oggz_packet * ap_zp, long serialno,
 static OMX_ERRORTYPE
 release_all_buffers (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if ((a_pid == ARATELIA_OGG_DEMUXER_AUDIO_PORT_BASE_INDEX
-       || a_pid == OMX_ALL) && (NULL != ap_prc->p_aud_hdr_))
+       || a_pid == OMX_ALL) && (ap_prc->p_aud_hdr_))
     {
       void *p_krn = tiz_get_krn (handleOf (ap_prc));
       tiz_check_omx_err
@@ -702,7 +702,7 @@ release_all_buffers (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
     }
 
   if ((a_pid == ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX
-       || a_pid == OMX_ALL) && (NULL != ap_prc->p_vid_hdr_))
+       || a_pid == OMX_ALL) && (ap_prc->p_vid_hdr_))
     {
       void *p_krn = tiz_get_krn (handleOf (ap_prc));
       tiz_check_omx_err
@@ -720,7 +720,7 @@ release_all_buffers (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
 static inline OMX_ERRORTYPE
 do_flush (oggdmux_prc_t * ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "do_flush");
   (void) oggz_purge (ap_prc->p_oggz_);
   ap_prc->aud_store_offset_ = 0;
@@ -736,7 +736,7 @@ io_read (void *ap_user_handle, void *ap_buf, size_t n)
   FILE *f = NULL;
   ssize_t bytes_read = 0;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
   f = p_prc->p_file_;
 
   bytes_read = read (fileno (f), ap_buf, n);
@@ -753,7 +753,7 @@ io_seek (void *ap_user_handle, long offset, int whence)
 {
   oggdmux_prc_t *p_prc = ap_user_handle;
   FILE *f = NULL;
-  assert (NULL != p_prc);
+  assert (p_prc);
   f = p_prc->p_file_;
   return (fseek (f, offset, whence));
 }
@@ -763,7 +763,7 @@ io_tell (void *ap_user_handle)
 {
   oggdmux_prc_t *p_prc = ap_user_handle;
   FILE *f = NULL;
-  assert (NULL != p_prc);
+  assert (p_prc);
   f = p_prc->p_file_;
   return ftell (f);
 }
@@ -784,8 +784,8 @@ read_page_first_pass (OGGZ * ap_oggz, const ogg_page * ap_og,
 {
   int rc = OGGZ_CONTINUE;
   oggdmux_prc_t *p_prc = ap_user_data;
-  assert (NULL != p_prc);
-  assert (NULL != ap_oggz);
+  assert (p_prc);
+  assert (ap_oggz);
 
   if (oggz_get_bos (ap_oggz, a_serialno) > 0)
     {
@@ -812,7 +812,7 @@ read_page_first_pass (OGGZ * ap_oggz, const ogg_page * ap_og,
 static inline OMX_ERRORTYPE
 seek_to_byte_offset (oggdmux_prc_t * ap_prc, const oggz_off_t a_offset)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   /* Reset the internal EOS flags */
   ap_prc->aud_eos_ = false;
   ap_prc->vid_eos_ = false;
@@ -828,8 +828,8 @@ seek_to_byte_offset (oggdmux_prc_t * ap_prc, const oggz_off_t a_offset)
 static inline OMX_ERRORTYPE
 set_read_page_callback (oggdmux_prc_t * ap_prc, OggzReadPage ap_read_cback)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_read_cback);
+  assert (ap_prc);
+  assert (ap_read_cback);
   if (oggz_set_read_page (ap_prc->p_oggz_, ALL_OGG_STREAMS,
                           ap_read_cback, ap_prc) < 0)
     {
@@ -844,8 +844,8 @@ static inline OMX_ERRORTYPE
 set_read_packet_callback (oggdmux_prc_t * ap_prc, long serialno,
                           OggzReadPacket ap_read_cback)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_read_cback);
+  assert (ap_prc);
+  assert (ap_read_cback);
   if (oggz_set_read_callback (ap_prc->p_oggz_, serialno,
                               ap_read_cback, ap_prc) < 0)
     {
@@ -861,7 +861,7 @@ obtain_tracks (oggdmux_prc_t * ap_prc)
 {
   oggdmux_prc_t *p_prc = ap_prc;
   long n = 0;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   /* Seek to beginning of file and set the first pass callback that will help
    * with the discovery of the codecs */
@@ -881,7 +881,7 @@ obtain_tracks (oggdmux_prc_t * ap_prc)
 static void
 print_codec_name (oggdmux_prc_t * ap_prc, long serialno)
 {
-  if (NULL != ap_prc)
+  if (ap_prc)
     {
       OggzStreamContent content = oggz_stream_get_content (ap_prc->p_oggz_,
                                                            serialno);
@@ -900,7 +900,7 @@ set_read_packet_callbacks (oggdmux_prc_t * ap_prc)
   int i = 0;
   void *p_nth_data = NULL;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   n = oggz_table_size (ap_prc->p_tracks_);
   TIZ_TRACE (handleOf (ap_prc), "oggz table size [%d]", n);
@@ -908,7 +908,7 @@ set_read_packet_callbacks (oggdmux_prc_t * ap_prc)
     {
       OggzStreamContent content = OGGZ_CONTENT_UNKNOWN;
       p_nth_data = oggz_table_nth (ap_prc->p_tracks_, i, &serialno);
-      assert (NULL != p_nth_data);
+      assert (p_nth_data);
       print_codec_name (ap_prc, serialno);
       content = oggz_stream_get_content (ap_prc->p_oggz_, serialno);
       if (is_audio_content (content))
@@ -959,7 +959,7 @@ static OMX_ERRORTYPE
 demux_file (oggdmux_prc_t * ap_prc)
 {
   int run_status = 0;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   do
     {
@@ -1004,7 +1004,7 @@ oggdmux_prc_ctor (void *ap_obj, va_list * app)
 {
   oggdmux_prc_t *p_prc =
     super_ctor (typeOf (ap_obj, "oggdmuxprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_file_ = NULL;
   p_prc->p_uri_param_ = NULL;
   p_prc->p_oggz_ = NULL;
@@ -1043,7 +1043,7 @@ static OMX_ERRORTYPE
 oggdmux_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   oggdmux_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   assert (NULL == p_prc->p_oggz_);
   assert (NULL == p_prc->p_uri_param_);
 
@@ -1102,7 +1102,7 @@ static OMX_ERRORTYPE
 oggdmux_prc_deallocate_resources (void *ap_obj)
 {
   oggdmux_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "Deallocating resources");
   close_file (p_prc);
   delete_oggz (p_prc);
@@ -1115,7 +1115,7 @@ static OMX_ERRORTYPE
 oggdmux_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   oggdmux_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   tiz_check_omx_err (obtain_tracks (p_prc));
   tiz_check_omx_err (set_read_packet_callbacks (p_prc));
   return OMX_ErrorNone;
@@ -1131,7 +1131,7 @@ static OMX_ERRORTYPE
 oggdmux_prc_stop_and_return (void *ap_obj)
 {
   oggdmux_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   /* Reset the internal EOS flags */
   p_prc->aud_eos_ = false;
   p_prc->vid_eos_ = false;
@@ -1149,7 +1149,7 @@ oggdmux_prc_buffers_ready (const void *ap_obj)
 {
   oggdmux_prc_t *p_prc = (oggdmux_prc_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "awaiting_buffers [%s] aud eos [%s] "
              "vid eos [%s]",
              p_prc->awaiting_buffers_ ? "YES" : "NO",
@@ -1173,7 +1173,7 @@ static OMX_ERRORTYPE
 oggdmux_prc_port_flush (const void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
   oggdmux_prc_t *p_prc = (oggdmux_prc_t *) ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   return do_flush (p_prc);
 }
 
@@ -1182,7 +1182,7 @@ oggdmux_prc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
   oggdmux_prc_t *p_prc = (oggdmux_prc_t *) ap_obj;
   bool *p_port_disabled = NULL;
-  assert (NULL != p_prc);
+  assert (p_prc);
   assert (a_pid <= ARATELIA_OGG_DEMUXER_VIDEO_PORT_BASE_INDEX);
 
   if (OMX_ALL == a_pid)

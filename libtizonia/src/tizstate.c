@@ -350,7 +350,7 @@ state_trans_complete (const void *ap_obj,
                       OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
   tiz_state_t *p_obj = (tiz_state_t *) ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   p_obj->servants_count_++;
 
@@ -401,7 +401,7 @@ static OMX_ERRORTYPE
 state_tunneled_ports_status_update (void *ap_obj)
 {
   tiz_state_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   return OMX_ErrorNone;
 }
 

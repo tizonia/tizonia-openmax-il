@@ -58,7 +58,7 @@ obtain_uri (fw_prc_t *ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (NULL == ap_prc->p_uri_param_);
 
   ap_prc->p_uri_param_ = tiz_mem_calloc
@@ -102,7 +102,7 @@ static void *
 fw_proc_ctor (void *ap_obj, va_list * app)
 {
   fw_prc_t *p_prc     = super_ctor (typeOf (ap_obj, "fwprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_file_      = NULL;
   p_prc->p_uri_param_ = NULL;
   p_prc->counter_     = 0;
@@ -114,7 +114,7 @@ static void *
 fw_proc_dtor (void *ap_obj)
 {
   fw_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (p_prc->p_file_)
     {
@@ -133,7 +133,7 @@ static OMX_ERRORTYPE
 fw_proc_write_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 {
   fw_prc_t *p_prc = (fw_prc_t *) ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (p_prc->p_file_ && !(p_prc->eos_) && p_hdr->nFilledLen > 0)
     {
@@ -168,7 +168,7 @@ static OMX_ERRORTYPE
 fw_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   fw_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   tiz_check_omx_err (obtain_uri (p_prc));
 
@@ -187,7 +187,7 @@ static OMX_ERRORTYPE
 fw_proc_deallocate_resources (void *ap_obj)
 {
   fw_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   if (p_prc->p_file_)
     {
@@ -205,7 +205,7 @@ static OMX_ERRORTYPE
 fw_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   fw_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   p_prc->counter_ = 0;
   p_prc->eos_ = false;
   return OMX_ErrorNone;
@@ -215,7 +215,7 @@ static OMX_ERRORTYPE
 fw_proc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
 {
   fw_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   p_prc->counter_ = 0;
   p_prc->eos_ = false;
   return OMX_ErrorNone;
@@ -242,7 +242,7 @@ fw_proc_buffers_ready (const void *ap_obj)
       tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
                                                ARATELIA_FILE_WRITER_PORT_INDEX,
                                                0, &p_hdr));
-      if (NULL != p_hdr)
+      if (p_hdr)
         {
           TIZ_TRACE (handleOf (p_prc), "Claimed HEADER [%p]...", p_hdr);
           tiz_check_omx_err (fw_proc_write_buffer (p_prc, p_hdr));

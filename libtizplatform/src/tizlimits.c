@@ -43,7 +43,7 @@ long tiz_pathname_max (const char *file)
   long name_max = 0;
   long pathname_max = -1;
 
-  assert (NULL != file);
+  assert (file);
 
   errno = 0;
   path_max = pathconf (file, _PC_PATH_MAX);

@@ -189,7 +189,7 @@ namespace tiz
           :
           pp_ops_(pp_ops)
         {
-          assert (NULL != pp_ops);
+          assert (pp_ops);
         }
 
         // submachine states
@@ -254,7 +254,7 @@ namespace tiz
           :
           pp_ops_(pp_ops)
         {
-          assert (NULL != pp_ops);
+          assert (pp_ops);
         }
 
         struct restarting_exit : public boost::msm::front::exit_pseudo_state<graph_unlded_evt>
@@ -308,7 +308,7 @@ namespace tiz
           :
           pp_ops_(pp_ops)
         {
-          assert (NULL != pp_ops);
+          assert (pp_ops);
         }
 
         // The list of FSM states
@@ -362,7 +362,7 @@ namespace tiz
           :
           pp_ops_(pp_ops)
         {
-          assert (NULL != pp_ops);
+          assert (pp_ops);
         }
 
         // The list of FSM states

@@ -63,7 +63,7 @@ imageport_ctor (void *ap_obj, va_list * app)
   tiz_vector_init (&(p_obj->p_color_formats_), sizeof (OMX_COLOR_FORMATTYPE));
 
   /* Finalize the base's port definition structure */
-  if (NULL != (p_portdef = va_arg (*app, OMX_IMAGE_PORTDEFINITIONTYPE *)))
+  if ((p_portdef = va_arg (*app, OMX_IMAGE_PORTDEFINITIONTYPE *)))
     {
       tiz_port_t *p_base = ap_obj;
       p_base->portdef_.format.image.pNativeRender = p_portdef->pNativeRender;
@@ -84,7 +84,7 @@ imageport_ctor (void *ap_obj, va_list * app)
   p_obj->port_format_.nVersion.nVersion = OMX_VERSION;
   p_obj->port_format_.nIndex = 0;
 
-  if (NULL != (p_encodings = va_arg (*app, OMX_IMAGE_CODINGTYPE *)))
+  if ((p_encodings = va_arg (*app, OMX_IMAGE_CODINGTYPE *)))
     {
       while (OMX_IMAGE_CodingMax != p_encodings[i])
         {
@@ -93,7 +93,7 @@ imageport_ctor (void *ap_obj, va_list * app)
     }
 
   i = 0;
-  if (NULL != (p_formats = va_arg (*app, OMX_COLOR_FORMATTYPE *)))
+  if ((p_formats = va_arg (*app, OMX_COLOR_FORMATTYPE *)))
     {
       while (OMX_COLOR_FormatMax != p_formats[i])
         {
@@ -137,7 +137,7 @@ imageport_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -199,7 +199,7 @@ imageport_SetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {

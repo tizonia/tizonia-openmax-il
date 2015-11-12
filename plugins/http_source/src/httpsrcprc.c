@@ -90,7 +90,7 @@ static OMX_S32 identify_ogg_codec (httpsrc_prc_t *ap_prc,
   const size_t id_count = sizeof(ogg_codec_type_tbl) / sizeof(ogg_codec_id_t);
   size_t i = 0;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_TRACE (handleOf (ap_prc), "len [%d] data [%s]", a_len, ap_data);
 
@@ -118,8 +118,8 @@ static inline bool is_valid_character (const char c)
 
 static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_info);
+  assert (ap_prc);
+  assert (ap_info);
 
   TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", ap_info);
 
@@ -172,9 +172,9 @@ static int convert_str_to_int (httpsrc_prc_t *ap_prc, const char *ap_start,
                                char **ap_end)
 {
   long val = -1;
-  assert (NULL != ap_prc);
-  assert (NULL != ap_start);
-  assert (NULL != ap_end);
+  assert (ap_prc);
+  assert (ap_start);
+  assert (ap_end);
 
   errno = 0;
   val = strtol (ap_start, ap_end, 0);
@@ -204,15 +204,15 @@ static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
   const char *p_start = NULL;
   char *p_end = NULL;
   const char *p_value = NULL;
-  assert (NULL != ap_prc);
-  assert (NULL != ap_info);
+  assert (ap_prc);
+  assert (ap_info);
 
   TIZ_TRACE (handleOf (ap_prc), "audio info  : [%s]", ap_info);
 
   /* Find the number of channels */
-  if (NULL != (p_value = (const char *)strstr (ap_info, channels)))
+  if ((p_value = (const char *)strstr (ap_info, channels)))
     {
-      if (NULL != (p_start = (const char *)strchr (p_value, '=')))
+      if ((p_start = (const char *)strchr (p_value, '=')))
         {
           /* skip the equal sign */
           p_start++;
@@ -221,9 +221,9 @@ static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
     }
 
   /* Find the sampling rate */
-  if (NULL != (p_value = (const char *)strstr (ap_info, samplerate)))
+  if ((p_value = (const char *)strstr (ap_info, samplerate)))
     {
-      if (NULL != (p_start = (const char *)strchr (p_value, '=')))
+      if ((p_start = (const char *)strchr (p_value, '=')))
         {
           /* skip the equal sign */
           p_start++;
@@ -236,8 +236,8 @@ static void obtain_bit_rate (httpsrc_prc_t *ap_prc, char *ap_info)
 {
   char *p_end = NULL;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_info);
+  assert (ap_prc);
+  assert (ap_info);
 
   TIZ_TRACE (handleOf (ap_prc), "bit rate  : [%s]", ap_info);
 
@@ -247,7 +247,7 @@ static void obtain_bit_rate (httpsrc_prc_t *ap_prc, char *ap_info)
 static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (
@@ -266,7 +266,7 @@ static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
 static OMX_ERRORTYPE set_mp3_audio_info_on_port (httpsrc_prc_t *ap_prc)
 {
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (mp3type, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
@@ -286,7 +286,7 @@ static OMX_ERRORTYPE set_mp3_audio_info_on_port (httpsrc_prc_t *ap_prc)
 static OMX_ERRORTYPE set_aac_audio_info_on_port (httpsrc_prc_t *ap_prc)
 {
   OMX_AUDIO_PARAM_AACPROFILETYPE aactype;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (aactype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)),
@@ -306,7 +306,7 @@ static OMX_ERRORTYPE set_aac_audio_info_on_port (httpsrc_prc_t *ap_prc)
 static OMX_ERRORTYPE set_opus_audio_info_on_port (httpsrc_prc_t *ap_prc)
 {
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (opustype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (
@@ -326,7 +326,7 @@ static OMX_ERRORTYPE set_opus_audio_info_on_port (httpsrc_prc_t *ap_prc)
 static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   switch (ap_prc->audio_coding_type_)
     {
       case OMX_AUDIO_CodingMP3:
@@ -368,7 +368,7 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
 
 static void update_cache_size (httpsrc_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (ap_prc->bitrate_ > 0);
   ap_prc->cache_bytes_ = ((ap_prc->bitrate_ * 1000) / 8)
                          * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
@@ -387,9 +387,9 @@ static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
   size_t metadata_len = 0;
   size_t info_len = 0;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_header_name);
-  assert (NULL != ap_header_info);
+  assert (ap_prc);
+  assert (ap_header_name);
+  assert (ap_header_info);
 
   info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
   metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
@@ -431,8 +431,8 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
                                                 const char *ap_header,
                                                 const size_t a_size)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_header);
+  assert (ap_prc);
+  assert (ap_header);
   {
     const char *p_end = ap_header + a_size;
     const char *p_value = (const char *)memchr (ap_header, ':', a_size);
@@ -495,7 +495,7 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
 
 static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
       || ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
     {
@@ -519,7 +519,7 @@ static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
 
 static inline void delete_uri (httpsrc_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
   ap_prc->p_uri_param_ = NULL;
 }
@@ -529,7 +529,7 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (NULL == ap_prc->p_uri_param_);
 
   ap_prc->p_uri_param_
@@ -565,7 +565,7 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
 
 static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (ap_prc->p_outhdr_)
     {
@@ -582,8 +582,8 @@ static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
 static void buffer_filled (OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_arg)
 {
   httpsrc_prc_t *p_prc = ap_arg;
-  assert (NULL != p_prc);
-  assert (NULL != ap_hdr);
+  assert (p_prc);
+  assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
   ap_hdr->nOffset = 0;
   (void)release_buffer (p_prc);
@@ -593,11 +593,11 @@ static OMX_BUFFERHEADERTYPE *buffer_wanted (OMX_PTR ap_arg)
 {
   httpsrc_prc_t *p_prc = ap_arg;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (!p_prc->port_disabled_)
     {
-      if (NULL != p_prc->p_outhdr_)
+      if (p_prc->p_outhdr_)
         {
           p_hdr = p_prc->p_outhdr_;
         }
@@ -608,7 +608,7 @@ static OMX_BUFFERHEADERTYPE *buffer_wanted (OMX_PTR ap_arg)
                                         ARATELIA_HTTP_SOURCE_PORT_INDEX, 0,
                                         &p_prc->p_outhdr_)))
             {
-              if (NULL != p_prc->p_outhdr_)
+              if (p_prc->p_outhdr_)
                 {
                   TIZ_TRACE (handleOf (p_prc),
                              "Claimed HEADER [%p]...nFilledLen [%d]",
@@ -625,8 +625,8 @@ static void header_available (OMX_PTR ap_arg, const void *ap_ptr,
                               const size_t a_nbytes)
 {
   httpsrc_prc_t *p_prc = ap_arg;
-  assert (NULL != p_prc);
-  assert (NULL != ap_ptr);
+  assert (p_prc);
+  assert (ap_ptr);
 
   if (p_prc->auto_detect_on_)
     {
@@ -639,8 +639,8 @@ static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
 {
   httpsrc_prc_t *p_prc = ap_arg;
   bool pause_needed = false;
-  assert (NULL != p_prc);
-  assert (NULL != ap_ptr);
+  assert (p_prc);
+  assert (ap_ptr);
 
   if (p_prc->auto_detect_on_ && a_nbytes > 0)
     {
@@ -671,7 +671,7 @@ static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
 static bool connection_lost (OMX_PTR ap_arg)
 {
   httpsrc_prc_t *p_prc = ap_arg;
-  assert (NULL != p_prc);
+  assert (p_prc);
   prepare_for_port_auto_detection (p_prc);
   /* Return true to indicate that the automatic reconnection procedure needs to
      be started */
@@ -681,7 +681,7 @@ static bool connection_lost (OMX_PTR ap_arg)
 static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (
@@ -734,7 +734,7 @@ static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
                                                      OMX_U32 a_pid)
 {
   httpsrc_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   assert (NULL == p_prc->p_uri_param_);
   tiz_check_omx_err (obtain_uri (p_prc));
   return httpsrc_trans_init (&(p_prc->p_trans_), p_prc,
@@ -748,7 +748,7 @@ static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
 static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *ap_prc)
 {
   httpsrc_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   httpsrc_trans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
   delete_uri (p_prc);
@@ -759,7 +759,7 @@ static OMX_ERRORTYPE httpsrc_prc_prepare_to_transfer (void *ap_prc,
                                                       OMX_U32 a_pid)
 {
   httpsrc_prc_t *p_prc = ap_prc;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   p_prc->eos_ = false;
   httpsrc_trans_cancel (p_prc->p_trans_);
   httpsrc_trans_set_internal_buffer_size (p_prc->p_trans_, p_prc->cache_bytes_);
@@ -771,7 +771,7 @@ static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
 {
   httpsrc_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (p_prc->auto_detect_on_)
     {
       rc = httpsrc_trans_start (p_prc->p_trans_);
@@ -782,7 +782,7 @@ static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
 static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_prc)
 {
   httpsrc_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (p_prc->p_trans_)
     {
       httpsrc_trans_pause (p_prc->p_trans_);
@@ -798,7 +798,7 @@ static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_prc)
 static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
 {
   httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   return httpsrc_trans_on_buffers_ready (p_prc->p_trans_);
 }
 
@@ -807,7 +807,7 @@ static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
                                            int a_events)
 {
   httpsrc_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   return httpsrc_trans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
 }
 
@@ -816,7 +816,7 @@ static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
                                               void *ap_arg, const uint32_t a_id)
 {
   httpsrc_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   return httpsrc_trans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
 }
 
@@ -845,7 +845,7 @@ static OMX_ERRORTYPE httpsrc_prc_port_disable (const void *ap_obj,
                                                OMX_U32 TIZ_UNUSED (a_pid))
 {
   httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->port_disabled_ = true;
   if (p_prc->p_trans_)
     {
@@ -860,7 +860,7 @@ static OMX_ERRORTYPE httpsrc_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
   httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_NOTICE (handleOf (p_prc), "Enabling port [%d] was disabled? [%s]", a_pid,
               p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->port_disabled_)

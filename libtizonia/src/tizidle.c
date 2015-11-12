@@ -71,8 +71,8 @@ idle_SetParameter (const void *ap_obj,
   const void *p_krn = NULL;
   OMX_PTR p_port = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
 
   p_krn = tiz_get_krn (ap_hdl);
 
@@ -108,7 +108,7 @@ static OMX_ERRORTYPE
 idle_GetState (const void *ap_obj,
                OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
-  assert (NULL != ap_state);
+  assert (ap_state);
   *ap_state = OMX_StateIdle;
   return OMX_ErrorNone;
 }
@@ -131,9 +131,9 @@ idle_EmptyThisBuffer (const void *ap_obj,
   const void *p_krn = NULL;
   const void *p_port = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
-  assert (NULL != ap_hdr);
+  assert (ap_obj);
+  assert (ap_hdl);
+  assert (ap_hdr);
 
   pid = ap_hdr->nInputPortIndex;
   p_krn = tiz_get_krn (ap_hdl);
@@ -186,8 +186,8 @@ idle_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   void *p_krn = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
   TIZ_DEBUG (ap_hdl, "Requested transition to state [%s]...",

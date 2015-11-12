@@ -172,7 +172,7 @@ std::string graph::omx_event_info::to_string () const
 graph::cbackhandler::cbackhandler (graph *p_graph)
   : p_graph_ (p_graph), cbacks_ ()
 {
-  assert (NULL != p_graph);
+  assert (p_graph);
   cbacks_.EventHandler = &cbackhandler::event_handler_wrapper;
   cbacks_.EmptyBufferDone = NULL;
   cbacks_.FillBufferDone = NULL;
@@ -186,7 +186,7 @@ graph::cbackhandler::event_handler_wrapper (OMX_HANDLETYPE hComponent,
                                             OMX_PTR pEventData)
 {
   cbackhandler *p_handler = static_cast< cbackhandler * >(pAppData);
-  assert (NULL != p_handler);
+  assert (p_handler);
   p_handler->event_handler (hComponent, eEvent, nData1, nData2, pEventData);
   return OMX_ErrorNone;
 }

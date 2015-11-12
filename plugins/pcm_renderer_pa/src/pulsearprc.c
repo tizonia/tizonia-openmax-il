@@ -148,7 +148,7 @@ static OMX_STRING pulseaudio_operation_state_to_str (
 
 static bool ready_to_process (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc),
              "stream state [%s] paused [%s] port disabled [%s] stopped [%s]",
              pulseaudio_stream_state_to_str (ap_prc->pa_stream_state_),
@@ -162,7 +162,7 @@ static bool ready_to_process (pulsear_prc_t *ap_prc)
 static OMX_BUFFERHEADERTYPE *get_header (pulsear_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (!ap_prc->port_disabled_)
     {
@@ -185,7 +185,7 @@ static OMX_BUFFERHEADERTYPE *get_header (pulsear_prc_t *ap_prc)
 
 static OMX_ERRORTYPE release_header (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (ap_prc->p_inhdr_)
     {
@@ -203,8 +203,8 @@ static OMX_ERRORTYPE release_header (pulsear_prc_t *ap_prc)
 
 static OMX_ERRORTYPE buffer_emptied (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_inhdr_);
+  assert (ap_prc);
+  assert (ap_prc->p_inhdr_);
   assert (ap_prc->p_inhdr_->nFilledLen == 0);
 
   if ((ap_prc->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
@@ -222,16 +222,16 @@ static OMX_ERRORTYPE render_pcm_data (pulsear_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
-  while (NULL != (p_hdr = get_header (ap_prc)) && ap_prc->pa_nbytes_ > 0)
+  while ((p_hdr = get_header (ap_prc)) && ap_prc->pa_nbytes_ > 0)
     {
       if (p_hdr->nFilledLen > 0)
         {
           const int bytes_to_write
               = MIN (ap_prc->pa_nbytes_, p_hdr->nFilledLen);
-          assert (NULL != ap_prc->p_pa_loop_);
-          assert (NULL != ap_prc->p_pa_context_);
+          assert (ap_prc->p_pa_loop_);
+          assert (ap_prc->p_pa_context_);
 
           pa_threaded_mainloop_lock (ap_prc->p_pa_loop_);
           int result = pa_stream_write (
@@ -259,7 +259,7 @@ static void pulseaudio_context_state_cback (struct pa_context *ap_context,
                                             void *ap_userdata)
 {
   pulsear_prc_t *p_prc = ap_userdata;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "[%s]", pulseaudio_context_state_to_str (
                                            pa_context_get_state (ap_context)));
 
@@ -291,8 +291,8 @@ static void pulseaudio_stream_state_cback_handler (
     OMX_PTR ap_prc, tiz_event_pluggable_t *ap_event)
 {
   pulsear_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
-  assert (NULL != ap_event);
+  assert (p_prc);
+  assert (ap_event);
 
   TIZ_TRACE (
       handleOf (p_prc),
@@ -319,11 +319,11 @@ static void pulseaudio_stream_state_cback_handler (
 static void pulseaudio_stream_state_cback (pa_stream *stream, void *userdata)
 {
   pulsear_prc_t *p_prc = userdata;
-  assert (NULL != p_prc);
+  assert (p_prc);
   {
     tiz_event_pluggable_t *p_event
         = tiz_mem_calloc (1, sizeof(tiz_event_pluggable_t));
-    if (NULL != p_event)
+    if (p_event)
       {
         p_event->p_servant = p_prc;
         p_event->p_data = tiz_mem_calloc (1, sizeof(pa_stream_state_t));
@@ -342,9 +342,9 @@ static void pulseaudio_stream_suspended_cback (pa_stream *stream,
                                                void *userdata)
 {
   pulsear_prc_t *p_prc = userdata;
-  assert (NULL != p_prc);
+  assert (p_prc);
   assert (stream == p_prc->p_pa_stream_ || NULL == p_prc->p_pa_stream_);
-  assert (NULL != p_prc->p_pa_loop_);
+  assert (p_prc->p_pa_loop_);
   TIZ_TRACE (handleOf (p_prc), "");
 }
 
@@ -352,9 +352,9 @@ static void pulseaudio_stream_write_cback_handler (
     OMX_PTR ap_prc, tiz_event_pluggable_t *ap_event)
 {
   pulsear_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
-  assert (NULL != ap_event);
-  assert (NULL != ap_event->p_data);
+  assert (p_prc);
+  assert (ap_event);
+  assert (ap_event->p_data);
   p_prc->pa_nbytes_ += *((size_t *)ap_event->p_data);
   /* We only render the available data if the component's current state
      allows it */
@@ -370,13 +370,13 @@ static void pulseaudio_stream_write_cback (pa_stream *stream, size_t nbytes,
                                            void *userdata)
 {
   pulsear_prc_t *p_prc = userdata;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (p_prc->p_pa_loop_)
     {
       tiz_event_pluggable_t *p_event
           = tiz_mem_calloc (1, sizeof(tiz_event_pluggable_t));
-      if (NULL != p_event)
+      if (p_event)
         {
           p_event->p_servant = p_prc;
           p_event->p_data = tiz_mem_calloc (1, sizeof(nbytes));
@@ -395,16 +395,16 @@ static void pulseaudio_stream_success_cback (pa_stream *s, int success,
                                              void *userdata)
 {
   pulsear_prc_t *p_prc = userdata;
-  assert (NULL != p_prc);
-  assert (NULL != p_prc->p_pa_loop_);
+  assert (p_prc);
+  assert (p_prc->p_pa_loop_);
   pa_threaded_mainloop_signal (p_prc->p_pa_loop_, 0);
 }
 
 static void deinit_pulseaudio_stream (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "");
-  if (NULL != ap_prc->p_pa_stream_)
+  if (ap_prc->p_pa_stream_)
     {
       pa_stream_set_suspended_callback (ap_prc->p_pa_stream_, NULL, NULL);
       pa_stream_set_state_callback (ap_prc->p_pa_stream_, NULL, NULL);
@@ -418,9 +418,9 @@ static void deinit_pulseaudio_stream (pulsear_prc_t *ap_prc)
 
 static void deinit_pulseaudio_context (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "");
-  if (NULL != ap_prc->p_pa_context_)
+  if (ap_prc->p_pa_context_)
     {
       pa_context_set_state_callback (ap_prc->p_pa_context_, NULL, NULL);
       pa_context_set_subscribe_callback (ap_prc->p_pa_context_, NULL, NULL);
@@ -432,9 +432,9 @@ static void deinit_pulseaudio_context (pulsear_prc_t *ap_prc)
 
 static void deinit_pulseaudio (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "");
-  if (NULL != ap_prc->p_pa_loop_)
+  if (ap_prc->p_pa_loop_)
     {
       pa_threaded_mainloop_stop (ap_prc->p_pa_loop_);
       deinit_pulseaudio_stream (ap_prc);
@@ -449,13 +449,13 @@ static bool await_pulseaudio_context_connection (pulsear_prc_t *ap_prc)
   int rc = PA_ERR_UNKNOWN;
   bool done = false;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_pa_loop_);
+  assert (ap_prc);
+  assert (ap_prc->p_pa_loop_);
 
   TIZ_TRACE (handleOf (ap_prc), "");
 
   goto_end_on_pa_error (init_pulseaudio_context (ap_prc));
-  assert (NULL != ap_prc->p_pa_context_);
+  assert (ap_prc->p_pa_context_);
 
   while (!done)
     {
@@ -503,8 +503,8 @@ static int init_pulseaudio_sample_spec (pulsear_prc_t *ap_prc,
   OMX_ERRORTYPE omx_rc = OMX_ErrorNone;
   int rc = PA_ERR_UNKNOWN;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_spec);
+  assert (ap_prc);
+  assert (ap_spec);
 
   /* Retrieve pcm params from the input port */
   TIZ_INIT_OMX_PORT_STRUCT (ap_prc->pcmmode_, ARATELIA_PCM_RENDERER_PORT_INDEX);
@@ -568,9 +568,9 @@ static int init_pulseaudio_stream (pulsear_prc_t *ap_prc)
 {
   int rc = PA_ERR_UNKNOWN;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_pa_loop_);
-  assert (NULL != ap_prc->p_pa_context_);
+  assert (ap_prc);
+  assert (ap_prc->p_pa_loop_);
+  assert (ap_prc->p_pa_context_);
 
   TIZ_TRACE (handleOf (ap_prc), "");
 
@@ -646,8 +646,8 @@ static int init_pulseaudio_context (pulsear_prc_t *ap_prc)
 {
   int rc = PA_ERR_UNKNOWN;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_pa_loop_);
+  assert (ap_prc);
+  assert (ap_prc->p_pa_loop_);
 
   TIZ_TRACE (handleOf (ap_prc), "p_pa_context_= [%p]", ap_prc->p_pa_context_);
   if (ap_prc->p_pa_context_)
@@ -696,7 +696,7 @@ static OMX_ERRORTYPE init_pulseaudio (pulsear_prc_t *ap_prc)
   setenv ("PULSE_PROP_media.role", "music", true);
   setenv ("PULSE_PROP_application.icon_name", "tizonia", true);
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (NULL == ap_prc->p_pa_loop_);
   assert (NULL == ap_prc->p_pa_context_);
 
@@ -741,9 +741,9 @@ static bool pulseaudio_wait_for_operation (pulsear_prc_t *ap_prc,
 {
   pa_operation_state_t op_state = PA_OPERATION_CANCELLED;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_pa_loop_);
-  assert (NULL != ap_op);
+  assert (ap_prc);
+  assert (ap_prc->p_pa_loop_);
+  assert (ap_op);
 
   while (PA_OPERATION_RUNNING == (op_state = pa_operation_get_state (ap_op)))
     {
@@ -759,7 +759,7 @@ static bool pulseaudio_wait_for_operation (pulsear_prc_t *ap_prc,
 
 static inline OMX_ERRORTYPE do_flush (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (ap_prc->p_pa_loop_ && ap_prc->p_pa_stream_
       && PA_STREAM_READY == ap_prc->pa_stream_state_)
     {
@@ -783,7 +783,7 @@ static inline OMX_ERRORTYPE do_flush (pulsear_prc_t *ap_prc)
 static bool set_pa_sink_volume (pulsear_prc_t *ap_prc, const long a_volume)
 {
   bool rc = false;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (ap_prc->p_pa_loop_ && ap_prc->p_pa_context_ && ap_prc->p_pa_stream_)
     {
@@ -820,7 +820,7 @@ static bool set_pa_sink_volume (pulsear_prc_t *ap_prc, const long a_volume)
 
 static void toggle_mute (pulsear_prc_t *ap_prc, const bool a_mute)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   {
     long new_volume = (a_mute ? 0 : ap_prc->volume_);
@@ -836,7 +836,7 @@ static void set_volume (pulsear_prc_t *ap_prc, const long a_volume)
                ap_prc->volume_);
   if (set_pa_sink_volume (ap_prc, a_volume))
     {
-      assert (NULL != ap_prc);
+      assert (ap_prc);
       ap_prc->volume_ = a_volume;
       TIZ_TRACE (handleOf (ap_prc), "ap_prc->volume_ = %ld", ap_prc->volume_);
     }
@@ -844,7 +844,7 @@ static void set_volume (pulsear_prc_t *ap_prc, const long a_volume)
 
 static void prepare_volume_ramp (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   pa_volume_t vol = ARATELIA_PCM_RENDERER_DEFAULT_VOLUME_VALUE;
   (void)pa_cvolume_init (&(ap_prc->pa_vol_));
   (void)pa_cvolume_set (&(ap_prc->pa_vol_), ap_prc->pcmmode_.nChannels, vol);
@@ -864,7 +864,7 @@ static void prepare_volume_ramp (pulsear_prc_t *ap_prc)
 
 static OMX_ERRORTYPE start_volume_ramp (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (ap_prc->ramp_enabled_)
     {
       if (ap_prc->p_ev_timer_)
@@ -881,7 +881,7 @@ static OMX_ERRORTYPE start_volume_ramp (pulsear_prc_t *ap_prc)
 
 static void stop_volume_ramp (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (ap_prc->ramp_enabled_)
     {
       if (ap_prc->p_ev_timer_)
@@ -893,7 +893,7 @@ static void stop_volume_ramp (pulsear_prc_t *ap_prc)
 
 static OMX_ERRORTYPE apply_ramp_step (pulsear_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (ap_prc->ramp_enabled_)
     {
       if (ap_prc->ramp_step_count_-- > 0)
@@ -954,7 +954,7 @@ static OMX_ERRORTYPE pulsear_prc_allocate_resources (void *ap_prc,
 {
   pulsear_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   /* If the timer event has already been initialised, we assume the whole
      component has already been initialised. */
   if (!(p_prc->p_ev_timer_))
@@ -969,7 +969,7 @@ static OMX_ERRORTYPE pulsear_prc_allocate_resources (void *ap_prc,
 static OMX_ERRORTYPE pulsear_prc_deallocate_resources (void *ap_prc)
 {
   pulsear_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (p_prc), "port disabled ? [%s]",
              p_prc->port_disabled_ ? "YES" : "NO");
   if (p_prc->p_ev_timer_)
@@ -986,7 +986,7 @@ static OMX_ERRORTYPE pulsear_prc_prepare_to_transfer (void *ap_prc,
                                                       OMX_U32 a_pid)
 {
   pulsear_prc_t *p_prc = ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->ramp_step_ = 0;
   p_prc->ramp_step_count_ = ARATELIA_PCM_RENDERER_DEFAULT_RAMP_STEP_COUNT;
   p_prc->ramp_volume_ = 0;
@@ -997,7 +997,7 @@ static OMX_ERRORTYPE pulsear_prc_transfer_and_process (void *ap_prc,
                                                        OMX_U32 a_pid)
 {
   pulsear_prc_t *p_prc = ap_prc;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   p_prc->stopped_ = false;
   prepare_volume_ramp (p_prc);
   tiz_check_omx_err (start_volume_ramp (p_prc));
@@ -1008,7 +1008,7 @@ static OMX_ERRORTYPE pulsear_prc_transfer_and_process (void *ap_prc,
 static OMX_ERRORTYPE pulsear_prc_stop_and_return (void *ap_prc)
 {
   pulsear_prc_t *p_prc = ap_prc;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   p_prc->stopped_ = true;
   stop_volume_ramp (ap_prc);
   return do_flush (ap_prc);
@@ -1022,7 +1022,7 @@ static OMX_ERRORTYPE pulsear_prc_buffers_ready (const void *ap_prc)
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (ready_to_process (p_prc))
     {
       rc = render_pcm_data (p_prc);
@@ -1036,7 +1036,7 @@ static OMX_ERRORTYPE pulsear_prc_timer_ready (void *ap_prc,
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   TIZ_TRACE (handleOf (ap_prc), "Received timer event");
   tiz_check_omx_err (apply_ramp_step (ap_prc));
   if (ready_to_process (p_prc))
@@ -1049,7 +1049,7 @@ static OMX_ERRORTYPE pulsear_prc_timer_ready (void *ap_prc,
 static OMX_ERRORTYPE pulsear_prc_pause (const void *ap_prc)
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   p_prc->paused_ = true;
   stop_volume_ramp (p_prc);
@@ -1079,7 +1079,7 @@ static OMX_ERRORTYPE pulsear_prc_pause (const void *ap_prc)
 static OMX_ERRORTYPE pulsear_prc_resume (const void *ap_prc)
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   p_prc->paused_ = false;
 
@@ -1115,7 +1115,7 @@ static OMX_ERRORTYPE pulsear_prc_port_disable (const void *ap_prc,
                                                OMX_U32 TIZ_UNUSED (a_pid))
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (!p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = true;
@@ -1147,7 +1147,7 @@ static OMX_ERRORTYPE pulsear_prc_port_enable (const void *ap_obj,
                                               OMX_U32 TIZ_UNUSED (a_pid))
 {
   pulsear_prc_t *p_prc = (pulsear_prc_t *)ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = false;
@@ -1163,7 +1163,7 @@ static OMX_ERRORTYPE pulsear_prc_config_change (void *ap_obj, OMX_U32 a_pid,
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   pulsear_prc_t *p_prc = ap_obj;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   if (ARATELIA_PCM_RENDERER_PORT_INDEX == a_pid)
     {
       if (OMX_IndexConfigAudioVolume == a_config_idx)

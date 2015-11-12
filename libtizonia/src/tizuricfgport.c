@@ -55,7 +55,7 @@ static char *retrieve_default_uri_from_config (tiz_uricfgport_t *ap_obj)
                                                             component name in
                                                             a member
                                                             variable */
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   /* Looking for OMX.component.name.default_uri */
   strncpy (fqd_key, p_base->comp_name_, OMX_MAX_STRINGNAME_SIZE - 1);
@@ -65,7 +65,7 @@ static char *retrieve_default_uri_from_config (tiz_uricfgport_t *ap_obj)
            OMX_MAX_STRINGNAME_SIZE - strlen (fqd_key) - 1);
 
   p_uri = tiz_rcfile_get_value (TIZ_RCFILE_PLUGINS_DATA_SECTION, fqd_key);
-  /* assert (NULL != p_uri && ".default_uri not found in configuration file..."); */
+  /* assert (p_uri && ".default_uri not found in configuration file..."); */
   TIZ_TRACE (handleOf (ap_obj), "Default URI [%s]...", p_uri);
   if (p_uri && (pathname_max = tiz_pathname_max (p_uri)) > 0)
     {
@@ -113,7 +113,7 @@ static OMX_ERRORTYPE uri_cfgport_GetParameter (const void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -127,7 +127,7 @@ static OMX_ERRORTYPE uri_cfgport_GetParameter (const void *ap_obj,
 
           TIZ_TRACE (ap_hdl, "uri_buf_size [%d]...", uri_buf_size);
 
-          if (NULL != p_obj->p_uri_)
+          if (p_obj->p_uri_)
             {
               uri_len = strlen (p_obj->p_uri_);
             }
@@ -141,7 +141,7 @@ static OMX_ERRORTYPE uri_cfgport_GetParameter (const void *ap_obj,
               p_uri->nVersion.nVersion = OMX_VERSION;
               if (p_uri->contentURI)
                 {
-                  if (NULL != p_obj->p_uri_ && uri_len > 0)
+                  if (p_obj->p_uri_ && uri_len > 0)
                     {
                       strncpy ((char *)p_uri->contentURI, p_obj->p_uri_,
                                uri_len + 1);
@@ -172,7 +172,7 @@ static OMX_ERRORTYPE uri_cfgport_SetParameter (const void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {

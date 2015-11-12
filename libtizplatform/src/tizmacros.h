@@ -226,7 +226,7 @@ extern "C" {
   do                                                                        \
     {                                                                       \
       if                                                                    \
-        TIZ_LIKELY (NULL != (expr))                                         \
+        TIZ_LIKELY ((expr))                                         \
         {                                                                   \
         }                                                                   \
       else                                                                  \
@@ -333,7 +333,7 @@ extern "C" {
 #define tiz_check_null_ret_oom(expr)                                        \
   do                                                                        \
     {                                                                       \
-      if (NULL != (expr))                                                   \
+      if ((expr))                                                   \
         {                                                                   \
         }                                                                   \
       else                                                                  \

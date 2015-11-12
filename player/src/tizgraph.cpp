@@ -55,7 +55,7 @@ void *graph::thread_func (void *p_arg)
   void *p_data = NULL;
   bool done = false;
 
-  assert (NULL != p_graph);
+  assert (p_graph);
 
   (void)tiz_thread_setname (&(p_graph->thread_),
                             (char *)p_graph->get_graph_name ().c_str ());
@@ -65,7 +65,7 @@ void *graph::thread_func (void *p_arg)
   {
     tiz_check_omx_err_ret_null (tiz_queue_receive (p_graph->p_queue_, &p_data));
 
-    assert (NULL != p_data);
+    assert (p_data);
 
     cmd *p_cmd = static_cast< cmd * >(p_data);
     done = p_graph->dispatch_cmd (p_cmd);
@@ -273,7 +273,7 @@ void graph::graph::omx_evt (const omx_event_info &evt_info)
 
 void graph::graph::set_manager (tiz::graphmgr::mgr *ap_mgr)
 {
-  assert (NULL != ap_mgr);
+  assert (ap_mgr);
   p_mgr_ = ap_mgr;
 }
 
@@ -383,7 +383,7 @@ void graph::graph::deinit_cmd_queue ()
 OMX_ERRORTYPE
 graph::graph::post_cmd (tiz::graph::cmd *p_cmd)
 {
-  assert (NULL != p_cmd);
+  assert (p_cmd);
   if (p_ops_ && p_queue_)
     {
       tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));

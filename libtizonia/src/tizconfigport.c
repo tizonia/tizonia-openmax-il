@@ -46,7 +46,7 @@
 static void clear_metadata_lst (tiz_configport_t *ap_obj)
 {
   OMX_PTR *pp_metadata_item = NULL;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   while (tiz_vector_length (ap_obj->p_metadata_lst_) > 0)
     {
       pp_metadata_item = tiz_vector_back (ap_obj->p_metadata_lst_);
@@ -60,8 +60,8 @@ static OMX_ERRORTYPE store_metadata (tiz_configport_t *ap_obj,
                                      const OMX_CONFIG_METADATAITEMTYPE *ap_meta)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_obj);
-  assert (NULL != ap_meta);
+  assert (ap_obj);
+  assert (ap_meta);
 
   {
     const OMX_U32 count = tiz_vector_length (ap_obj->p_metadata_lst_);
@@ -206,7 +206,7 @@ configport_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -251,7 +251,7 @@ configport_SetParameter (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   TIZ_TRACE (ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -313,7 +313,7 @@ configport_GetConfig (const void *ap_obj,
   const tiz_configport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
 
@@ -347,7 +347,7 @@ configport_GetConfig (const void *ap_obj,
             OMX_CONFIG_METADATAITEMTYPE *p_value = NULL;
             pp_value
               = tiz_vector_at (p_obj->p_metadata_lst_, p_meta->nMetadataItemIndex);
-            assert (NULL != pp_value && NULL != *pp_value);
+            assert (pp_value && *pp_value);
             p_value = (OMX_CONFIG_METADATAITEMTYPE *)*pp_value;
             strncpy ((char *)p_meta->nKey, (char *)p_value->nKey, 128);
             p_meta->nKeySizeUsed = strnlen ((char *)p_meta->nKey, 128);
@@ -387,7 +387,7 @@ configport_SetConfig (const void *ap_obj,
   tiz_configport_t *p_obj = (tiz_configport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
 
@@ -445,7 +445,7 @@ static void
 configport_clear_metadata (void *ap_obj)
 {
   tiz_configport_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   clear_metadata_lst (ap_obj);
   p_obj->metadata_count_.nMetadataItemCount = 0;
 }
@@ -454,7 +454,7 @@ void
 tiz_configport_clear_metadata (void *ap_obj)
 {
   const tiz_configport_class_t *class = classOf (ap_obj);
-  assert (NULL != class->clear_metadata);
+  assert (class->clear_metadata);
   return class->clear_metadata (ap_obj);
 }
 
@@ -468,7 +468,7 @@ OMX_ERRORTYPE
 tiz_configport_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item)
 {
   const tiz_configport_class_t *class = classOf (ap_obj);
-  assert (NULL != class->store_metadata);
+  assert (class->store_metadata);
   return class->store_metadata (ap_obj, ap_meta_item);
 }
 

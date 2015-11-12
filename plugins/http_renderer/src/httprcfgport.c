@@ -54,7 +54,7 @@ httpr_cfgport_ctor (void *ap_obj, va_list * app)
 {
   httpr_cfgport_t *p_obj = super_ctor (typeOf (ap_obj, "httprcfgport"), ap_obj, app);
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   tiz_port_register_index (p_obj, OMX_TizoniaIndexParamHttpServer);
   p_obj->http_conf_.nSize             = sizeof (OMX_TIZONIA_HTTPSERVERTYPE);
@@ -85,7 +85,7 @@ httpr_cfgport_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   if (OMX_TizoniaIndexParamHttpServer == a_index)
     {
@@ -114,7 +114,7 @@ httpr_cfgport_SetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   if (OMX_TizoniaIndexParamHttpServer == a_index)
     {

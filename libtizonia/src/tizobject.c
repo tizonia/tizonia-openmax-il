@@ -56,7 +56,7 @@ const void *
 classOf (const void *ap_obj)
 {
   const tiz_object_t *p_obj = ap_obj;
-  assert (NULL != p_obj && NULL != p_obj->class);
+  assert (p_obj && p_obj->class);
   return p_obj->class;
 }
 
@@ -93,7 +93,7 @@ print_class (const void * ap_class, const char *file, int line,
              const char *func)
 {
   const tiz_class_t *p_class = ap_class;
-  assert (NULL != p_class);
+  assert (p_class);
   tiz_log(file, line, func, TIZ_LOG_CATEGORY_NAME, TIZ_PRIORITY_TRACE,
           TIZ_CNAME(p_class->hdl), TIZ_CBUF(p_class->hdl),
           "[%p] - name [%s] - super [%p] - super name [%s] - "
@@ -121,7 +121,7 @@ class_ctor (void *ap_obj, va_list * app)
   p_obj->tos   = va_arg (*app, void *);
   p_obj->hdl   = va_arg (*app, void *);
 
-  assert (NULL != p_obj->super);
+  assert (p_obj->super);
 
   memcpy ((char *) p_obj + offset, (char *) p_obj->super
           + offset, sizeOf (p_obj->super) - offset);
@@ -156,7 +156,7 @@ const void *
 super (const void *ap_obj)
 {
   const tiz_class_t *p_obj = ap_obj;
-  assert (NULL != p_obj && NULL != p_obj->super);
+  assert (p_obj && p_obj->super);
   return p_obj->super;
 }
 
@@ -175,8 +175,8 @@ factory_new (const void *ap_class, ...)
   tiz_object_t *p_obj = NULL;
   va_list ap;
 
-  assert (NULL != p_class && p_class->size > 0);
-  if (NULL != (p_obj = tiz_mem_calloc (1, p_class->size)))
+  assert (p_class && p_class->size > 0);
+  if ((p_obj = tiz_mem_calloc (1, p_class->size)))
   {
     p_obj->class = p_class;
     va_start (ap, ap_class);
@@ -200,7 +200,7 @@ ctor (void *ap_obj, va_list * app)
 {
   const tiz_class_t *p_class = classOf (ap_obj);
 /*   TIZ_LOG_CLASS (p_class); */
-  assert (NULL != p_class->ctor);
+  assert (p_class->ctor);
   return p_class->ctor (ap_obj, app);
 }
 
@@ -208,7 +208,7 @@ void *
 super_ctor (const void *ap_class, void *ap_obj, va_list * app)
 {
   const tiz_class_t *p_super = super (ap_class);
-  assert (NULL != ap_obj && NULL != p_super->ctor);
+  assert (ap_obj && p_super->ctor);
 /*   TIZ_LOG_CLASS (p_super); */
   return p_super->ctor (ap_obj, app);
 }
@@ -217,7 +217,7 @@ void *
 dtor (void *ap_obj)
 {
   tiz_class_t *p_class = (tiz_class_t *) classOf (ap_obj);
-  assert (NULL != p_class && NULL != p_class->dtor);
+  assert (p_class && p_class->dtor);
   return p_class->dtor (ap_obj);
 }
 
@@ -225,7 +225,7 @@ void *
 super_dtor (const void *ap_class, void *ap_obj)
 {
   const tiz_class_t *p_super = super (ap_class);
-  assert (NULL != ap_obj && NULL != p_super->dtor);
+  assert (ap_obj && p_super->dtor);
   return p_super->dtor (ap_obj);
 }
 

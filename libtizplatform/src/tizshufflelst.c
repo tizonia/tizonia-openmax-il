@@ -67,7 +67,7 @@ static void shuffle_lst (OMX_S32 *ap_array, OMX_S32 n)
   OMX_S32 j = 0;
   OMX_S32 tmp = 0;
 
-  assert (NULL != ap_array);
+  assert (ap_array);
 
   for (i = n - 1; i > 0; --i)
     {
@@ -81,7 +81,7 @@ static void shuffle_lst (OMX_S32 *ap_array, OMX_S32 n)
 static OMX_ERRORTYPE init_lst (tiz_shuffle_lst_t *ap_shuffle_lst)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
-  assert (NULL != ap_shuffle_lst);
+  assert (ap_shuffle_lst);
   ap_shuffle_lst->p_lst
       = tiz_mem_alloc (ap_shuffle_lst->length * sizeof(OMX_S32));
   if (ap_shuffle_lst->p_lst)
@@ -111,7 +111,7 @@ OMX_ERRORTYPE tiz_shuffle_lst_init (tiz_shuffle_lst_ptr_t *app_shuffle_lst,
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   tiz_shuffle_lst_t *p_shuffle_lst = NULL;
 
-  assert (NULL != app_shuffle_lst);
+  assert (app_shuffle_lst);
   assert (a_list_size > 0);
 
   p_shuffle_lst = tiz_mem_calloc (1, sizeof(tiz_shuffle_lst_t));
@@ -149,8 +149,8 @@ OMX_S32 tiz_shuffle_lst_jump (tiz_shuffle_lst_t *ap_shuffle_lst,
                               const OMX_S32 a_jump)
 {
   OMX_S32 new_index = 0;
-  assert (NULL != ap_shuffle_lst);
-  assert (NULL != ap_shuffle_lst->p_lst);
+  assert (ap_shuffle_lst);
+  assert (ap_shuffle_lst->p_lst);
   new_index = ap_shuffle_lst->current_index + a_jump;
   if (new_index >= ap_shuffle_lst->length)
     {

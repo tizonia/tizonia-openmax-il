@@ -43,10 +43,10 @@ static OMX_ERRORTYPE dispatch_port_disable (
   OMX_S32 i = 0;
   OMX_S32 nbufs = 0;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
-  assert (NULL != ap_msg_sc);
+  assert (ap_msg_sc);
   pid = ap_msg_sc->param1;
 
   TIZ_TRACE (p_hdl, "Port Disable on port [%d] ", pid);
@@ -111,7 +111,7 @@ static OMX_ERRORTYPE dispatch_port_disable (
               tiz_vector_t *p_hdr_lst_copy = NULL;
               tiz_check_omx_err (tiz_vector_init (
                   &(p_hdr_lst_copy), sizeof(OMX_BUFFERHEADERTYPE *)));
-              assert (NULL != p_hdr_lst_copy);
+              assert (p_hdr_lst_copy);
               tiz_check_omx_err (tiz_vector_append (p_hdr_lst_copy, p_hdr_lst));
 
               /* Depopulate the tunnel... */
@@ -124,7 +124,7 @@ static OMX_ERRORTYPE dispatch_port_disable (
                   for (j = 0; j < nhdrs; ++j)
                     {
                       pp_hdr = tiz_vector_at (p_hdr_lst_copy, j);
-                      assert (NULL != pp_hdr && NULL != *pp_hdr);
+                      assert (pp_hdr && *pp_hdr);
 
                       TIZ_TRACE (p_hdl,
                                  "port [%d] depopulated - "
@@ -234,13 +234,13 @@ static OMX_ERRORTYPE dispatch_port_enable (void *ap_obj, OMX_HANDLETYPE p_hdl,
   OMX_S32 i = 0;
   tiz_fsm_state_id_t now = EStateMax;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
-  assert (NULL != p_hdl);
+  assert (p_hdl);
   now = tiz_fsm_get_substate (tiz_get_fsm (p_hdl));
 
-  assert (NULL != ap_msg_pe);
+  assert (ap_msg_pe);
   pid = ap_msg_pe->param1;
 
   TIZ_TRACE (handleOf (p_obj), "Requested port enable for PORT [%d]", pid);
@@ -322,13 +322,13 @@ static OMX_ERRORTYPE dispatch_port_flush (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_S32 nbufs = 0;
   tiz_fsm_state_id_t now = EStateMax;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   nports = tiz_vector_length (p_obj->p_ports_);
 
-  assert (NULL != ap_hdl);
+  assert (ap_hdl);
   now = tiz_fsm_get_substate (tiz_get_fsm (ap_hdl));
 
-  assert (NULL != ap_msg_pf);
+  assert (ap_msg_pf);
   pid = ap_msg_pf->param1;
 
   TIZ_TRACE (ap_hdl, "Requested port flush on PORT [%d]", pid);
@@ -545,11 +545,11 @@ static OMX_ERRORTYPE dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
   OMX_U32 pid = 0;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
+  assert (p_obj);
+  assert (p_msg);
 
   p_hdl = p_msg->p_hdl;
-  assert (NULL != p_hdl);
+  assert (p_hdl);
 
   p_msg_cb = &(p_msg->cb);
   pid = p_msg_cb->pid;
@@ -678,7 +678,7 @@ static OMX_ERRORTYPE depopulate_port (tiz_krn_t *ap_krn, OMX_PTR ap_port,
   /* Make a temp copy of the list of headers */
   tiz_check_omx_err (
       tiz_vector_init (&(p_hdr_lst_copy), sizeof(OMX_BUFFERHEADERTYPE *)));
-  assert (NULL != p_hdr_lst_copy);
+  assert (p_hdr_lst_copy);
 
   if (OMX_ErrorNone == (rc = tiz_vector_append (p_hdr_lst_copy, p_hdr_lst)))
     {
@@ -691,7 +691,7 @@ static OMX_ERRORTYPE depopulate_port (tiz_krn_t *ap_krn, OMX_PTR ap_port,
           for (i = 0; i < nhdrs; ++i)
             {
               pp_hdr = tiz_vector_at (p_hdr_lst_copy, i);
-              assert (NULL != pp_hdr && NULL != *pp_hdr);
+              assert (pp_hdr && *pp_hdr);
 
               TIZ_TRACE (handleOf (ap_krn),
                          "port [%d] depopulated - "
@@ -724,8 +724,8 @@ static OMX_ERRORTYPE dispatch_efb_port_disable_in_progress (
     const OMX_S32 a_nbufs)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_krn);
-  assert (NULL != ap_port);
+  assert (ap_krn);
+  assert (ap_port);
   assert (TIZ_PORT_IS_BEING_DISABLED (ap_port));
 
   if (TIZ_PORT_IS_TUNNELED_AND_SUPPLIER (ap_port))
@@ -773,17 +773,17 @@ static OMX_ERRORTYPE dispatch_efb (void *ap_obj, OMX_PTR ap_msg,
   OMX_U32 pid = 0;
   OMX_HANDLETYPE *p_hdl = NULL;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
+  assert (p_obj);
+  assert (p_msg);
 
   p_msg_ef = &(p_msg->ef);
-  assert (NULL != p_msg_ef);
+  assert (p_msg_ef);
 
   p_hdr = p_msg_ef->p_hdr;
-  assert (NULL != p_hdr);
+  assert (p_hdr);
 
   p_hdl = p_msg->p_hdl;
-  assert (NULL != p_hdl);
+  assert (p_hdl);
 
   now = tiz_fsm_get_substate (tiz_get_fsm (p_hdl));
 
@@ -870,11 +870,11 @@ static OMX_ERRORTYPE dispatch_pe (void *ap_obj, OMX_PTR ap_msg)
   tiz_krn_msg_t *p_msg = ap_msg;
   tiz_krn_msg_plg_event_t *p_msg_pe = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != p_msg);
+  assert (ap_obj);
+  assert (p_msg);
 
   p_msg_pe = &(p_msg->pe);
-  assert (NULL != p_msg_pe);
+  assert (p_msg_pe);
 
   /* TODO : Should this return something? */
   p_msg_pe->p_event->pf_hdlr ((OMX_PTR)ap_obj, p_msg_pe->p_event);
@@ -887,11 +887,11 @@ static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   tiz_krn_msg_t *p_msg = ap_msg;
   tiz_krn_msg_sendcommand_t *p_msg_sc = NULL;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
+  assert (p_obj);
+  assert (p_msg);
 
   p_msg_sc = &(p_msg->sc);
-  assert (NULL != p_msg_sc);
+  assert (p_msg_sc);
   assert (p_msg_sc->cmd <= OMX_CommandMarkBuffer);
 
   TIZ_TRACE (handleOf (p_obj), "Processing [%s]...",
@@ -905,7 +905,7 @@ static OMX_ERRORTYPE dispatch_idle_to_loaded (tiz_krn_t *ap_krn,
                                               bool * ap_done)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_done);
+  assert (ap_done);
 
   rc = tiz_srv_deallocate_resources (ap_krn);
 
@@ -934,7 +934,7 @@ static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_krn_t *ap_krn,
                                               bool * ap_done)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_done);
+  assert (ap_done);
 
   /* Before allocating any resources, we need to initialize the
    * Resource Manager hdl */
@@ -960,7 +960,7 @@ static OMX_ERRORTYPE dispatch_exe_or_pause_to_idle (tiz_krn_t *ap_krn,
                                               bool * ap_done)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_done);
+  assert (ap_done);
 
   rc = tiz_srv_stop_and_return (ap_krn);
   *ap_done = (OMX_ErrorNone == rc
@@ -978,7 +978,7 @@ static OMX_ERRORTYPE dispatch_exe_or_pause_to_idle (tiz_krn_t *ap_krn,
 static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_krn_t *ap_krn,
                                            bool * ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return tiz_srv_prepare_to_transfer (ap_krn, OMX_ALL);
 }
@@ -986,7 +986,7 @@ static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_krn_t *ap_krn,
 static OMX_ERRORTYPE dispatch_pause_to_exe (tiz_krn_t *ap_krn,
                                             bool * ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   /* Enqueue a dummy callback msg to be processed ...   */
   /* ...in case there are headers present in the egress lists... */
@@ -996,7 +996,7 @@ static OMX_ERRORTYPE dispatch_pause_to_exe (tiz_krn_t *ap_krn,
 static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_krn_t *ap_krn,
                                           bool * ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   /* NOTE: not done yet here */
   *ap_done = false;
   return tiz_srv_transfer_and_process (ap_krn, OMX_ALL);
@@ -1005,7 +1005,7 @@ static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_krn_t *ap_krn,
 static OMX_ERRORTYPE dispatch_exe_or_idle_to_pause (tiz_krn_t *ap_krn,
                                                     bool * ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   /* TODO: Consider to add here the removal of buffer indications from the
    * processor queue */
@@ -1015,7 +1015,7 @@ static OMX_ERRORTYPE dispatch_exe_or_idle_to_pause (tiz_krn_t *ap_krn,
 static OMX_ERRORTYPE dispatch_true (tiz_krn_t *ap_krn,
                                     bool * ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return OMX_ErrorNone;
 }
@@ -1052,8 +1052,8 @@ static OMX_ERRORTYPE dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
   bool done = false;
   tiz_krn_msg_dispatch_state_set_f p_action_f = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_msg_sc);
+  assert (ap_obj);
+  assert (ap_msg_sc);
 
   /* Obtain the current state */
   tiz_check_omx_err (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
@@ -1063,7 +1063,7 @@ static OMX_ERRORTYPE dispatch_state_set (void *ap_obj, OMX_HANDLETYPE ap_hdl,
 
   /* find the action */
   p_action_f = lookup_state_set_transition (p_krn, now, next);
-  assert (NULL != p_action_f);
+  assert (p_action_f);
   rc = p_action_f (p_krn, &done);
 
   if (OMX_ErrorIncorrectStateTransition == rc)

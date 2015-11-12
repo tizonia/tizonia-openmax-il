@@ -56,7 +56,7 @@ static OMX_ERRORTYPE alloc_temp_data_store (vorbisd_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   port_def.nSize = (OMX_U32)sizeof(OMX_PARAM_PORTDEFINITIONTYPE);
   port_def.nVersion.nVersion = OMX_VERSION;
@@ -79,7 +79,7 @@ static inline void dealloc_temp_data_store (
 /*@releases ap_prc->p_store_@ */
 /*@ensures isnull ap_prc->p_store_@ */
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_mem_free (ap_prc->p_store_);
   ap_prc->p_store_ = NULL;
   ap_prc->store_size_ = 0;
@@ -88,19 +88,19 @@ static inline void dealloc_temp_data_store (
 
 static inline OMX_U8 **get_store_ptr (vorbisd_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   return &(ap_prc->p_store_);
 }
 
 static inline OMX_U32 *get_store_size_ptr (vorbisd_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   return &(ap_prc->store_size_);
 }
 
 static inline OMX_U32 *get_store_offset_ptr (vorbisd_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   return &(ap_prc->store_offset_);
 }
 
@@ -113,16 +113,16 @@ static int store_data (vorbisd_prc_t *ap_prc, const OMX_U8 *ap_data,
   OMX_U32 nbytes_to_copy = 0;
   OMX_U32 nbytes_avail = 0;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_data);
+  assert (ap_prc);
+  assert (ap_data);
 
   pp_store = get_store_ptr (ap_prc);
   p_size = get_store_size_ptr (ap_prc);
   p_offset = get_store_offset_ptr (ap_prc);
 
-  assert (NULL != pp_store && NULL != *pp_store);
-  assert (NULL != p_size);
-  assert (NULL != p_offset);
+  assert (pp_store && *pp_store);
+  assert (p_size);
+  assert (p_offset);
 
   nbytes_avail = *p_size - *p_offset;
 
@@ -131,7 +131,7 @@ static int store_data (vorbisd_prc_t *ap_prc, const OMX_U8 *ap_data,
       /* need to re-alloc */
       OMX_U8 *p_new_store = NULL;
       p_new_store = tiz_mem_realloc (*pp_store, *p_offset + a_nbytes);
-      if (NULL != p_new_store)
+      if (p_new_store)
         {
           *pp_store = p_new_store;
           *p_size = *p_offset + a_nbytes;
@@ -155,8 +155,8 @@ static inline void write_frame_float_ilv (float *to, const float *from,
                                           const int channels)
 {
   int i = 0;
-  assert (NULL != to);
-  assert (NULL != from);
+  assert (to);
+  assert (from);
   for (i = 0; i < channels; ++i)
     {
       to[i] = from[i];
@@ -171,8 +171,8 @@ static int fishsound_decoded_callback (FishSound *ap_fsound, float *app_pcm[],
   OMX_BUFFERHEADERTYPE *p_out = NULL;
 
   (void)ap_fsound;
-  assert (NULL != app_pcm);
-  assert (NULL != ap_user_data);
+  assert (app_pcm);
+  assert (ap_user_data);
 
   TIZ_TRACE (handleOf (p_prc), "frames [%d] ", frames);
 
@@ -219,7 +219,7 @@ static int fishsound_decoded_callback (FishSound *ap_fsound, float *app_pcm[],
     size_t frames_alloc = ((p_out->nAllocLen - p_out->nOffset) / frame_len);
     size_t frames_to_write = (frames > frames_alloc) ? frames_alloc : frames;
     size_t bytes_to_write = frames_to_write * frame_len;
-    assert (NULL != p_out);
+    assert (p_out);
 
     for (i = 0; i < frames_to_write; ++i)
       {
@@ -267,7 +267,7 @@ static OMX_ERRORTYPE init_vorbis_decoder (vorbisd_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   tiz_check_null_ret_oom (
       ap_prc->p_fsnd_ = fish_sound_new (FISH_SOUND_DECODE, &(ap_prc->fsinfo_)));
@@ -318,7 +318,7 @@ static OMX_ERRORTYPE transform_buffer (vorbisd_prc_t *ap_prc)
       return OMX_ErrorNone;
     }
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (0 == p_in->nFilledLen)
     {
@@ -419,7 +419,7 @@ static OMX_ERRORTYPE transform_buffer (vorbisd_prc_t *ap_prc)
 
 static void reset_stream_parameters (vorbisd_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   ap_prc->started_ = false;
   tiz_mem_set (&(ap_prc->fsinfo_), 0, sizeof(FishSoundInfo));
   tiz_filter_prc_update_eos_flag (ap_prc, false);
@@ -433,7 +433,7 @@ static void *vorbisd_prc_ctor (void *ap_obj, va_list *app)
 {
   vorbisd_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "vorbisdprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_fsnd_ = NULL;
   reset_stream_parameters (p_prc);
   p_prc->p_store_ = NULL;
@@ -462,8 +462,8 @@ static OMX_ERRORTYPE vorbisd_prc_allocate_resources (void *ap_obj,
 static OMX_ERRORTYPE vorbisd_prc_deallocate_resources (void *ap_obj)
 {
   vorbisd_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
-  if (NULL != p_prc->p_fsnd_)
+  assert (p_prc);
+  if (p_prc->p_fsnd_)
     {
       fish_sound_delete (p_prc->p_fsnd_);
       p_prc->p_fsnd_ = NULL;
@@ -476,7 +476,7 @@ static OMX_ERRORTYPE vorbisd_prc_prepare_to_transfer (void *ap_obj,
                                                       OMX_U32 a_pid)
 {
   vorbisd_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   reset_stream_parameters (p_prc);
   p_prc->store_offset_ = 0;
   return OMX_ErrorNone;
@@ -502,7 +502,7 @@ static OMX_ERRORTYPE vorbisd_prc_buffers_ready (const void *ap_obj)
   vorbisd_prc_t *p_prc = (vorbisd_prc_t *)ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   TIZ_TRACE (handleOf (p_prc), "eos [%s] ",
              tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO");

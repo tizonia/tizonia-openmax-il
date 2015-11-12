@@ -56,7 +56,7 @@ void tiz_printf (const char *ap_color, const char *ap_file, int a_line,
   if (ap_file && ap_func)
     {
       const char *p_env = getenv("TIZONIA_DEBUG_COLOR_TRACE");
-      if (NULL != p_env && strncmp (p_env, "1", 2) == 0)
+      if (p_env && strncmp (p_env, "1", 2) == 0)
         {
           fprintf (stderr, "%s[%s:%s:%d] --- %s%s\n", ap_color, ap_file, ap_func,
                    a_line, buffer, KNRM);

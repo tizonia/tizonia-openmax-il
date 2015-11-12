@@ -82,7 +82,7 @@ demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "GetConfig [%s]...", tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -92,7 +92,7 @@ demuxer_cfgport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         /* Only the processor knows about current position or seek mode. So
            lets get the processor to fill this info for us. */
         void *p_prc = tiz_get_prc (ap_hdl);
-        assert (NULL != p_prc);
+        assert (p_prc);
         if (OMX_ErrorNone != (rc = tiz_api_GetConfig (p_prc, ap_hdl,
                                                       a_index, ap_struct)))
           {
@@ -122,7 +122,7 @@ demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "SetConfig [%s]...", tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -132,7 +132,7 @@ demuxer_cfgport_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
         /* Only the processor knows about current position or seek mode. So
            lets get the processor update this info for us. */
         void *p_prc = tiz_get_prc (ap_hdl);
-        assert (NULL != p_prc);
+        assert (p_prc);
         if (OMX_ErrorNone != (rc = tiz_api_SetConfig (p_prc, ap_hdl,
                                                       a_index, ap_struct)))
           {

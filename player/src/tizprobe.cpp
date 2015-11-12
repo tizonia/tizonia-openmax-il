@@ -725,7 +725,7 @@ bool tiz::probe::is_cbr_stream ()
 std::string tiz::probe::retrieve_meta_data_str (
     TagLib::String (TagLib::Tag::*TagFunction)() const) const
 {
-  assert (NULL != TagFunction);
+  assert (TagFunction);
   if (!meta_file_.isNull () && meta_file_.tag ())
   {
     TagLib::Tag *tag = meta_file_.tag ();
@@ -737,7 +737,7 @@ std::string tiz::probe::retrieve_meta_data_str (
 unsigned int tiz::probe::retrieve_meta_data_uint (
     TagLib::uint (TagLib::Tag::*TagFunction)() const) const
 {
-  assert (NULL != TagFunction);
+  assert (TagFunction);
   if (!meta_file_.isNull () && meta_file_.tag ())
   {
     TagLib::Tag *tag = meta_file_.tag ();

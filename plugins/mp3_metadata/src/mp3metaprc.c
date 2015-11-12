@@ -54,7 +54,7 @@ static OMX_ERRORTYPE mp3meta_prc_deallocate_resources (void *);
 
 static inline void delete_uri (mp3meta_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
   ap_prc->p_uri_param_ = NULL;
 }
@@ -64,7 +64,7 @@ static OMX_ERRORTYPE obtain_uri (mp3meta_prc_t *ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (NULL == ap_prc->p_uri_param_);
 
   ap_prc->p_uri_param_
@@ -103,8 +103,8 @@ static OMX_ERRORTYPE obtain_uri (mp3meta_prc_t *ap_prc)
 
 static OMX_ERRORTYPE release_out_buffer (mp3meta_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
-  if (NULL != ap_prc->p_out_hdr_)
+  assert (ap_prc);
+  if (ap_prc->p_out_hdr_)
     {
       tiz_check_omx_err (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)),
@@ -117,9 +117,9 @@ static OMX_ERRORTYPE release_out_buffer (mp3meta_prc_t *ap_prc)
 static inline OMX_BUFFERHEADERTYPE **get_header_ptr (mp3meta_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   pp_hdr = &(ap_prc->p_out_hdr_);
-  assert (NULL != pp_hdr);
+  assert (pp_hdr);
   return pp_hdr;
 }
 
@@ -134,7 +134,7 @@ static OMX_BUFFERHEADERTYPE *get_header (mp3meta_prc_t *ap_prc)
                  tiz_get_krn (handleOf (ap_prc)),
                  ARATELIA_MP3_METADATA_ERASER_PORT_INDEX, 0, &p_hdr))
         {
-          if (NULL != p_hdr)
+          if (p_hdr)
             {
               TIZ_TRACE (handleOf (ap_prc),
                          "Claimed HEADER [%p] nFilledLen [%d]", p_hdr,
@@ -149,7 +149,7 @@ static OMX_BUFFERHEADERTYPE *get_header (mp3meta_prc_t *ap_prc)
 
 static inline bool buffers_available (mp3meta_prc_t *ap_prc)
 {
-  return (NULL != get_header (ap_prc));
+  return (get_header (ap_prc));
 }
 
 static OMX_ERRORTYPE remove_metadata (mp3meta_prc_t *ap_prc)
@@ -157,11 +157,11 @@ static OMX_ERRORTYPE remove_metadata (mp3meta_prc_t *ap_prc)
   int ret = MPG123_OK;
   OMX_BUFFERHEADERTYPE *p_out = NULL;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_mpg123_);
+  assert (ap_prc);
+  assert (ap_prc->p_mpg123_);
 
   p_out = get_header (ap_prc);
-  assert (NULL != p_out);
+  assert (p_out);
   p_out->nFilledLen = 0;
   p_out->nFlags = 0;
 
@@ -223,7 +223,7 @@ static void *mp3meta_prc_ctor (void *ap_obj, va_list *app)
 {
   mp3meta_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "mp3metaprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_mpg123_ = NULL;
   p_prc->p_out_hdr_ = NULL;
   p_prc->p_uri_param_ = NULL;
@@ -258,12 +258,12 @@ static OMX_ERRORTYPE mp3meta_prc_allocate_resources (void *ap_obj,
   mp3meta_prc_t *p_prc = ap_obj;
   int ret = 0;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
   assert (NULL == p_prc->p_uri_param_);
 
   tiz_check_omx_err (obtain_uri (p_prc));
 
-  assert (NULL != p_prc->p_uri_param_);
+  assert (p_prc->p_uri_param_);
 
   if (NULL == (p_prc->p_mpg123_ = mpg123_new (NULL, &ret)))
     {
@@ -306,7 +306,7 @@ end:
 static OMX_ERRORTYPE mp3meta_prc_deallocate_resources (void *ap_obj)
 {
   mp3meta_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   delete_uri (ap_obj);
   mpg123_delete (p_prc->p_mpg123_); /* Closes, too. */
   p_prc->p_mpg123_ = NULL;
@@ -317,7 +317,7 @@ static OMX_ERRORTYPE mp3meta_prc_prepare_to_transfer (void *ap_obj,
                                                       OMX_U32 a_pid)
 {
   mp3meta_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->counter_ = 0;
   p_prc->eos_ = false;
   return OMX_ErrorNone;
@@ -327,7 +327,7 @@ static OMX_ERRORTYPE mp3meta_prc_transfer_and_process (void *ap_obj,
                                                        OMX_U32 a_pid)
 {
   mp3meta_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->counter_ = 0;
   p_prc->eos_ = false;
   return OMX_ErrorNone;
@@ -347,7 +347,7 @@ static OMX_ERRORTYPE mp3meta_prc_buffers_ready (const void *ap_obj)
   mp3meta_prc_t *p_prc = (mp3meta_prc_t *)ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   while (buffers_available (p_prc) && OMX_ErrorNone == rc && !p_prc->eos_
          && !p_prc->out_port_disabled_)
@@ -361,7 +361,7 @@ static OMX_ERRORTYPE mp3meta_prc_buffers_ready (const void *ap_obj)
 static OMX_ERRORTYPE mp3meta_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
   mp3meta_prc_t *p_prc = (mp3meta_prc_t *)ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   assert (ARATELIA_MP3_METADATA_ERASER_PORT_INDEX == a_pid || OMX_ALL
                                                                      == a_pid);
   p_prc->out_port_disabled_ = false;
@@ -372,7 +372,7 @@ static OMX_ERRORTYPE mp3meta_prc_port_disable (const void *ap_prc,
                                                OMX_U32 a_pid)
 {
   mp3meta_prc_t *p_prc = (mp3meta_prc_t *)ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   assert (ARATELIA_MP3_METADATA_ERASER_PORT_INDEX == a_pid || OMX_ALL
                                                                      == a_pid);
   p_prc->out_port_disabled_ = true;

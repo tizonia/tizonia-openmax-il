@@ -57,8 +57,8 @@ static OMX_S32 pqueue_cmp (OMX_PTR ap_left, OMX_PTR ap_right)
 
 static OMX_S32 watchers_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
 {
-  assert (NULL != ap_key1);
-  assert (NULL != ap_key2);
+  assert (ap_key1);
+  assert (ap_key2);
   return (ap_key1 == ap_key2) ? 0 : ((ap_key1 < ap_key2) ? -1 : 1);
 }
 
@@ -67,15 +67,15 @@ static void watchers_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
   tiz_srv_watcher_id_t *p_id = (tiz_srv_watcher_id_t *)ap_value;
   tiz_srv_t *p_srv = p_id->p_srv;
   uint32_t id = p_id->id;
-  assert (NULL != p_id);
-  assert (NULL != p_srv);
+  assert (p_id);
+  assert (p_srv);
   TIZ_TRACE (handleOf (p_srv), "Deleting watcher id [%d]", id);
   tiz_soa_free (p_srv->p_soa_, p_id);
 }
 
 static void destroy_watchers_map (tiz_srv_t *ap_srv)
 {
-  assert (NULL != ap_srv);
+  assert (ap_srv);
   if (ap_srv->p_watchers_)
     {
       while (!tiz_map_empty (ap_srv->p_watchers_))
@@ -92,7 +92,7 @@ static inline bool is_watcher_active (tiz_srv_t *ap_srv, void *ap_watcher,
 {
   bool rc = false;
   tiz_srv_watcher_id_t *p_id = NULL;
-  assert (NULL != ap_srv);
+  assert (ap_srv);
   if (ap_srv->p_watchers_ && ap_watcher)
     {
       p_id = tiz_map_find (ap_srv->p_watchers_, ap_watcher);
@@ -109,7 +109,7 @@ static OMX_S32 watcher_count (const void *ap_obj)
 {
   tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
   OMX_S32 count = 0;
-  assert (NULL != p_srv);
+  assert (p_srv);
   if (p_srv->p_watchers_)
     {
       count = tiz_map_size (p_srv->p_watchers_);
@@ -143,7 +143,7 @@ static void *srv_dtor (void *ap_obj)
 
   destroy_watchers_map (p_srv);
 
-  if (NULL != p_srv->p_pq_)
+  if (p_srv->p_pq_)
     {
       OMX_PTR p_msg = NULL;
 
@@ -154,7 +154,7 @@ static void *srv_dtor (void *ap_obj)
             {
               break;
             }
-          assert (NULL != p_msg);
+          assert (p_msg);
           tiz_soa_free (p_srv->p_soa_, p_msg);
         }
 
@@ -167,8 +167,8 @@ static void *srv_dtor (void *ap_obj)
 static OMX_ERRORTYPE srv_set_allocator (void *ap_obj, tiz_soa_t *p_soa)
 {
   tiz_srv_t *p_srv = ap_obj;
-  assert (NULL != ap_obj);
-  assert (NULL != p_soa);
+  assert (ap_obj);
+  assert (p_soa);
   p_srv->p_soa_ = p_soa;
   return tiz_pqueue_init (&p_srv->p_pq_, 5, &pqueue_cmp, p_soa,
                           nameOf (ap_obj));
@@ -178,7 +178,7 @@ OMX_ERRORTYPE
 tiz_srv_set_allocator (void *ap_obj, tiz_soa_t *p_soa)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->set_allocator);
+  assert (class->set_allocator);
   return class->set_allocator (ap_obj, p_soa);
 }
 
@@ -186,7 +186,7 @@ static void srv_set_callbacks (void *ap_obj, OMX_PTR ap_appdata,
                                OMX_CALLBACKTYPE *ap_cbacks)
 {
   tiz_srv_t *p_srv = ap_obj;
-  assert (NULL != p_srv);
+  assert (p_srv);
   p_srv->p_appdata_ = ap_appdata;
   p_srv->p_cbacks_ = ap_cbacks;
 }
@@ -195,7 +195,7 @@ void tiz_srv_set_callbacks (void *ap_obj, OMX_PTR ap_appdata,
                             OMX_CALLBACKTYPE *ap_cbacks)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->set_callbacks);
+  assert (class->set_callbacks);
   class->set_callbacks (ap_obj, ap_appdata, ap_cbacks);
 }
 
@@ -205,7 +205,7 @@ static OMX_ERRORTYPE srv_tick (const void *ap_obj)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR p_msg = NULL;
 
-  assert (NULL != p_srv);
+  assert (p_srv);
 
   /* Receive the message */
   rc = tiz_pqueue_receive (p_srv->p_pq_, &p_msg);
@@ -217,7 +217,7 @@ static OMX_ERRORTYPE srv_tick (const void *ap_obj)
       goto end;
     }
 
-  assert (NULL != p_msg);
+  assert (p_msg);
 
   /* Process the message */
   rc = tiz_srv_dispatch_msg (p_srv, p_msg);
@@ -245,7 +245,7 @@ OMX_ERRORTYPE
 tiz_srv_tick (const void *ap_obj)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->tick);
+  assert (class->tick);
   return class->tick (ap_obj);
 }
 
@@ -253,15 +253,15 @@ OMX_ERRORTYPE
 tiz_srv_super_tick (const void *a_class, const void *ap_obj)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->tick);
+  assert (ap_obj && superclass->tick);
   return superclass->tick (ap_obj);
 }
 
 static OMX_PTR srv_init_msg (void *ap_obj, size_t msg_sz)
 {
   tiz_srv_t *p_srv = ap_obj;
-  assert (NULL != p_srv);
-  assert (NULL != p_srv->p_soa_);
+  assert (p_srv);
+  assert (p_srv->p_soa_);
   return tiz_soa_calloc (p_srv->p_soa_, msg_sz);
 }
 
@@ -270,7 +270,7 @@ tiz_srv_init_msg (void *ap_obj, size_t msg_sz)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
 
-  assert (NULL != class->init_msg);
+  assert (class->init_msg);
   return class->init_msg (ap_obj, msg_sz);
 }
 
@@ -278,7 +278,7 @@ static OMX_ERRORTYPE srv_enqueue (const void *ap_obj, OMX_PTR ap_data,
                                   OMX_U32 a_priority)
 {
   tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
-  assert (NULL != p_srv);
+  assert (p_srv);
   return tiz_pqueue_send (p_srv->p_pq_, ap_data, a_priority);
 }
 
@@ -286,7 +286,7 @@ OMX_ERRORTYPE
 tiz_srv_enqueue (const void *ap_obj, OMX_PTR ap_data, OMX_U32 a_priority)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->enqueue);
+  assert (class->enqueue);
   return class->enqueue (ap_obj, ap_data, a_priority);
 }
 
@@ -295,7 +295,7 @@ tiz_srv_super_enqueue (const void *a_class, const void *ap_obj, OMX_PTR ap_data,
                        OMX_U32 a_priority)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->enqueue);
+  assert (ap_obj && superclass->enqueue);
   return superclass->enqueue (ap_obj, ap_data, a_priority);
 }
 
@@ -303,7 +303,7 @@ static void srv_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
                                    OMX_S32 a_data1, OMX_PTR ap_data2)
 {
   tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
-  assert (NULL != p_srv);
+  assert (p_srv);
   tiz_pqueue_remove_func (p_srv->p_pq_, apf_func, a_data1, ap_data2);
 }
 
@@ -311,7 +311,7 @@ void tiz_srv_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
                                 OMX_S32 a_data1, OMX_PTR ap_data2)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->remove_from_queue);
+  assert (class->remove_from_queue);
   class->remove_from_queue (ap_obj, apf_func, a_data1, ap_data2);
 }
 
@@ -320,7 +320,7 @@ void tiz_srv_super_remove_from_queue (const void *a_class, const void *ap_obj,
                                       OMX_PTR ap_data2)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->remove_from_queue);
+  assert (ap_obj && superclass->remove_from_queue);
   superclass->remove_from_queue (ap_obj, apf_func, a_data1, ap_data2);
 }
 
@@ -335,7 +335,7 @@ OMX_ERRORTYPE
 tiz_srv_dispatch_msg (const void *ap_obj, OMX_PTR ap_data)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->dispatch_msg);
+  assert (class->dispatch_msg);
   return class->dispatch_msg (ap_obj, ap_data);
 }
 
@@ -344,28 +344,28 @@ tiz_srv_super_dispatch_msg (const void *a_class, const void *ap_obj,
                             OMX_PTR ap_data)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->dispatch_msg);
+  assert (ap_obj && superclass->dispatch_msg);
   return superclass->dispatch_msg (ap_obj, ap_data);
 }
 
 static bool srv_is_ready (const void *ap_obj)
 {
   const tiz_srv_t *p_srv = ap_obj;
-  assert (NULL != p_srv);
+  assert (p_srv);
   return (tiz_pqueue_length (p_srv->p_pq_) > 0 ? OMX_TRUE : OMX_FALSE);
 }
 
 bool tiz_srv_is_ready (const void *ap_obj)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->is_ready);
+  assert (class->is_ready);
   return class->is_ready (ap_obj);
 }
 
 bool tiz_srv_super_is_ready (const void *a_class, const void *ap_obj)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->is_ready);
+  assert (ap_obj && superclass->is_ready);
   return superclass->is_ready (ap_obj);
 }
 
@@ -378,7 +378,7 @@ OMX_ERRORTYPE
 tiz_srv_allocate_resources (const void *ap_obj, OMX_U32 a_pid)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->allocate_resources);
+  assert (class->allocate_resources);
   return class->allocate_resources (ap_obj, a_pid);
 }
 
@@ -387,7 +387,7 @@ tiz_srv_super_allocate_resources (const void *a_class, const void *ap_obj,
                                   OMX_U32 a_pid)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->allocate_resources);
+  assert (ap_obj && superclass->allocate_resources);
   return superclass->allocate_resources (ap_obj, a_pid);
 }
 
@@ -400,7 +400,7 @@ OMX_ERRORTYPE
 tiz_srv_deallocate_resources (const void *ap_obj)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->deallocate_resources);
+  assert (class->deallocate_resources);
   return class->deallocate_resources (ap_obj);
 }
 
@@ -408,7 +408,7 @@ OMX_ERRORTYPE
 tiz_srv_super_deallocate_resources (const void *a_class, const void *ap_obj)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->deallocate_resources);
+  assert (ap_obj && superclass->deallocate_resources);
   return superclass->deallocate_resources (ap_obj);
 }
 
@@ -421,7 +421,7 @@ OMX_ERRORTYPE
 tiz_srv_prepare_to_transfer (const void *ap_obj, OMX_U32 a_pid)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->prepare_to_transfer);
+  assert (class->prepare_to_transfer);
   return class->prepare_to_transfer (ap_obj, a_pid);
 }
 
@@ -430,7 +430,7 @@ tiz_srv_super_prepare_to_transfer (const void *a_class, const void *ap_obj,
                                    OMX_U32 a_pid)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->prepare_to_transfer);
+  assert (ap_obj && superclass->prepare_to_transfer);
   return superclass->prepare_to_transfer (ap_obj, a_pid);
 }
 
@@ -443,7 +443,7 @@ OMX_ERRORTYPE
 tiz_srv_transfer_and_process (const void *ap_obj, OMX_U32 a_pid)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->transfer_and_process);
+  assert (class->transfer_and_process);
   return class->transfer_and_process (ap_obj, a_pid);
 }
 
@@ -452,7 +452,7 @@ tiz_srv_super_transfer_and_process (const void *a_class, const void *ap_obj,
                                     OMX_U32 a_pid)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->transfer_and_process);
+  assert (ap_obj && superclass->transfer_and_process);
   return superclass->transfer_and_process (ap_obj, a_pid);
 }
 
@@ -465,7 +465,7 @@ OMX_ERRORTYPE
 tiz_srv_stop_and_return (const void *ap_obj)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->stop_and_return);
+  assert (class->stop_and_return);
   return class->stop_and_return (ap_obj);
 }
 
@@ -473,7 +473,7 @@ OMX_ERRORTYPE
 tiz_srv_super_stop_and_return (const void *a_class, const void *ap_obj)
 {
   const tiz_srv_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->stop_and_return);
+  assert (ap_obj && superclass->stop_and_return);
   return superclass->stop_and_return (ap_obj);
 }
 
@@ -482,9 +482,9 @@ static void srv_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
                              /*@null@*/ OMX_PTR ap_eventdata)
 {
   tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
-  assert (NULL != p_srv);
-  assert (NULL != p_srv->p_cbacks_);
-  assert (NULL != p_srv->p_cbacks_->EventHandler);
+  assert (p_srv);
+  assert (p_srv->p_cbacks_);
+  assert (p_srv->p_cbacks_->EventHandler);
   /* NOTE: Start ignoring splint warnings in this section of code */
   /*@ignore@*/
   TIZ_NOTICE (handleOf (ap_obj), "[%s]", tiz_evt_to_str (a_event));
@@ -500,7 +500,7 @@ void tiz_srv_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
                           OMX_PTR ap_eventdata)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->issue_event);
+  assert (class->issue_event);
   class->issue_event (ap_obj, a_event, a_data1, a_data2, ap_eventdata);
 }
 
@@ -514,7 +514,7 @@ static void srv_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error)
 void tiz_srv_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->issue_err_event);
+  assert (class->issue_err_event);
   class->issue_err_event (ap_obj, a_error);
 }
 
@@ -532,7 +532,7 @@ void tiz_srv_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
                               OMX_U32 a_pid, OMX_ERRORTYPE a_error)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->issue_cmd_event);
+  assert (class->issue_cmd_event);
   class->issue_cmd_event (ap_obj, a_cmd, a_pid, a_error);
 }
 
@@ -550,7 +550,7 @@ void tiz_srv_issue_trans_event (const void *ap_obj, OMX_STATETYPE a_state,
                                 OMX_ERRORTYPE a_error)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->issue_trans_event);
+  assert (class->issue_trans_event);
   class->issue_trans_event (ap_obj, a_state, a_error);
 }
 
@@ -559,9 +559,9 @@ static void srv_issue_buf_callback (const void *ap_obj,
                                     OMX_DIRTYPE dir, OMX_HANDLETYPE ap_tcomp)
 {
   tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
-  assert (NULL != p_srv);
-  assert (NULL != p_srv->p_cbacks_);
-  assert (NULL != p_srv->p_cbacks_->EventHandler);
+  assert (p_srv);
+  assert (p_srv->p_cbacks_);
+  assert (p_srv->p_cbacks_->EventHandler);
   if (ap_tcomp)
     {
       if (OMX_DirInput == dir)
@@ -604,7 +604,7 @@ void tiz_srv_issue_buf_callback (const void *ap_obj,
                                  OMX_DIRTYPE dir, OMX_HANDLETYPE ap_tcomp)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->issue_buf_callback);
+  assert (class->issue_buf_callback);
   class->issue_buf_callback (ap_obj, p_hdr, pid, dir, ap_tcomp);
 }
 
@@ -618,35 +618,35 @@ OMX_ERRORTYPE
 tiz_srv_receive_pluggable_event (void *ap_obj, tiz_event_pluggable_t *ap_event)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->receive_pluggable_event);
+  assert (class->receive_pluggable_event);
   return class->receive_pluggable_event (ap_obj, ap_event);
 }
 
 static void *srv_soa_calloc (void *ap_obj, size_t a_size)
 {
   tiz_srv_t *p_srv = ap_obj;
-  assert (NULL != p_srv);
+  assert (p_srv);
   return tiz_soa_calloc (p_srv->p_soa_, a_size);
 }
 
 void *tiz_srv_soa_calloc (void *ap_obj, size_t a_size)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->soa_calloc);
+  assert (class->soa_calloc);
   return class->soa_calloc (ap_obj, a_size);
 }
 
 static void srv_soa_free (void *ap_obj, void *ap_addr)
 {
   tiz_srv_t *p_srv = ap_obj;
-  assert (NULL != p_srv);
+  assert (p_srv);
   tiz_soa_free (p_srv->p_soa_, ap_addr);
 }
 
 void tiz_srv_soa_free (void *ap_obj, void *ap_addr)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->soa_free);
+  assert (class->soa_free);
   class->soa_free (ap_obj, ap_addr);
 }
 
@@ -657,8 +657,8 @@ static OMX_ERRORTYPE srv_io_watcher_init (void *ap_obj,
 {
   tiz_srv_t *p_srv = ap_obj;
 
-  assert (NULL != p_srv);
-  assert (NULL != app_ev_io);
+  assert (p_srv);
+  assert (app_ev_io);
 
   /* We lazily initialise the watchers map */
   if (!p_srv->p_watchers_)
@@ -669,7 +669,7 @@ static OMX_ERRORTYPE srv_io_watcher_init (void *ap_obj,
     }
   tiz_check_omx_err (tiz_event_io_init (app_ev_io, handleOf (p_srv),
                                         tiz_comp_event_io, p_srv));
-  assert (NULL != *app_ev_io);
+  assert (*app_ev_io);
   tiz_event_io_set (*app_ev_io, a_fd, a_event, only_once);
   return OMX_ErrorNone;
 }
@@ -679,7 +679,7 @@ OMX_ERRORTYPE tiz_srv_io_watcher_init (void *ap_obj, tiz_event_io_t **app_ev_io,
                                        bool only_once)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->io_watcher_init);
+  assert (class->io_watcher_init);
   return class->io_watcher_init (ap_obj, app_ev_io, a_fd, a_event, only_once);
 }
 
@@ -690,9 +690,9 @@ static OMX_ERRORTYPE srv_io_watcher_start (void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
 
-  assert (NULL != p_srv);
-  assert (NULL != ap_ev_io);
-  assert (NULL != p_srv->p_watchers_);
+  assert (p_srv);
+  assert (ap_ev_io);
+  assert (p_srv->p_watchers_);
 
   if (!is_watcher_active (p_srv, ap_ev_io, &id))
     {
@@ -717,7 +717,7 @@ static OMX_ERRORTYPE srv_io_watcher_start (void *ap_obj,
 OMX_ERRORTYPE tiz_srv_io_watcher_start (void *ap_obj, tiz_event_io_t *ap_ev_io)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->io_watcher_start);
+  assert (class->io_watcher_start);
   return class->io_watcher_start (ap_obj, ap_ev_io);
 }
 
@@ -728,7 +728,7 @@ static OMX_ERRORTYPE srv_io_watcher_stop (void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
 
-  assert (NULL != p_srv);
+  assert (p_srv);
 
   if (is_watcher_active (p_srv, ap_ev_io, &id))
     {
@@ -744,7 +744,7 @@ static OMX_ERRORTYPE srv_io_watcher_stop (void *ap_obj,
 OMX_ERRORTYPE tiz_srv_io_watcher_stop (void *ap_obj, tiz_event_io_t *ap_ev_io)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->io_watcher_stop);
+  assert (class->io_watcher_stop);
   return class->io_watcher_stop (ap_obj, ap_ev_io);
 }
 
@@ -752,7 +752,7 @@ static void srv_io_watcher_destroy (void *ap_obj, tiz_event_io_t *ap_ev_io)
 {
   tiz_srv_t *p_srv = ap_obj;
 
-  assert (NULL != p_srv);
+  assert (p_srv);
 
   if (ap_ev_io)
     {
@@ -769,7 +769,7 @@ static void srv_io_watcher_destroy (void *ap_obj, tiz_event_io_t *ap_ev_io)
 void tiz_srv_io_watcher_destroy (void *ap_obj, tiz_event_io_t *ap_ev_io)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->io_watcher_destroy);
+  assert (class->io_watcher_destroy);
   class->io_watcher_destroy (ap_obj, ap_ev_io);
 }
 
@@ -778,8 +778,8 @@ static OMX_ERRORTYPE srv_timer_watcher_init (void *ap_obj,
 {
   tiz_srv_t *p_srv = ap_obj;
 
-  assert (NULL != p_srv);
-  assert (NULL != app_ev_timer);
+  assert (p_srv);
+  assert (app_ev_timer);
 
   /* We lazily initialise the watchers map */
   if (!p_srv->p_watchers_)
@@ -797,7 +797,7 @@ OMX_ERRORTYPE tiz_srv_timer_watcher_init (void *ap_obj,
                                           tiz_event_timer_t **app_ev_timer)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->timer_watcher_init);
+  assert (class->timer_watcher_init);
   return class->timer_watcher_init (ap_obj, app_ev_timer);
 }
 
@@ -810,9 +810,9 @@ static OMX_ERRORTYPE srv_timer_watcher_start (void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
 
-  assert (NULL != p_srv);
-  assert (NULL != ap_ev_timer);
-  assert (NULL != p_srv->p_watchers_);
+  assert (p_srv);
+  assert (ap_ev_timer);
+  assert (p_srv->p_watchers_);
 
   if (!is_watcher_active (p_srv, ap_ev_timer, &id))
     {
@@ -841,7 +841,7 @@ OMX_ERRORTYPE tiz_srv_timer_watcher_start (void *ap_obj,
                                            const double a_repeat)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->timer_watcher_start);
+  assert (class->timer_watcher_start);
   return class->timer_watcher_start (ap_obj, ap_ev_timer, a_after, a_repeat);
 }
 
@@ -853,9 +853,9 @@ static OMX_ERRORTYPE srv_timer_watcher_restart (void *ap_obj,
   tiz_srv_watcher_id_t *p_id = NULL;
   uint32_t id = 0;
 
-  assert (NULL != p_srv);
-  assert (NULL != ap_ev_timer);
-  assert (NULL != p_srv->p_watchers_);
+  assert (p_srv);
+  assert (ap_ev_timer);
+  assert (p_srv->p_watchers_);
 
   if (is_watcher_active (p_srv, ap_ev_timer, &id))
     {
@@ -884,7 +884,7 @@ OMX_ERRORTYPE tiz_srv_timer_watcher_restart (void *ap_obj,
                                              tiz_event_timer_t *ap_ev_timer)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->timer_watcher_restart);
+  assert (class->timer_watcher_restart);
   return class->timer_watcher_restart (ap_obj, ap_ev_timer);
 }
 
@@ -895,7 +895,7 @@ static OMX_ERRORTYPE srv_timer_watcher_stop (void *ap_obj,
   OMX_ERRORTYPE rc = OMX_ErrorBadParameter;
   uint32_t id = 0;
 
-  assert (NULL != p_srv);
+  assert (p_srv);
 
   if (is_watcher_active (p_srv, ap_ev_timer, &id))
     {
@@ -912,7 +912,7 @@ OMX_ERRORTYPE tiz_srv_timer_watcher_stop (void *ap_obj,
                                           tiz_event_timer_t *ap_ev_timer)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->timer_watcher_stop);
+  assert (class->timer_watcher_stop);
   return class->timer_watcher_stop (ap_obj, ap_ev_timer);
 }
 
@@ -920,7 +920,7 @@ static void srv_timer_watcher_destroy (void *ap_obj,
                                        tiz_event_timer_t *ap_ev_timer)
 {
   tiz_srv_t *p_srv = ap_obj;
-  assert (NULL != p_srv);
+  assert (p_srv);
   if (ap_ev_timer)
     {
       if (p_srv->p_watchers_)
@@ -936,7 +936,7 @@ void tiz_srv_timer_watcher_destroy (void *ap_obj,
                                     tiz_event_timer_t *ap_ev_timer)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->timer_watcher_destroy);
+  assert (class->timer_watcher_destroy);
   class->timer_watcher_destroy (ap_obj, ap_ev_timer);
 }
 
@@ -946,8 +946,8 @@ static OMX_ERRORTYPE srv_event_io (void *ap_obj, tiz_event_io_t *ap_ev_io,
   tiz_srv_t *p_srv = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
-  assert (NULL != p_srv);
-  assert (NULL != ap_ev_io);
+  assert (p_srv);
+  assert (ap_ev_io);
   /* Notify an io event only if it is currently active */
   if (is_watcher_active (p_srv, ap_ev_io, &id) && a_id == id)
     {
@@ -973,7 +973,7 @@ tiz_srv_event_io (void *ap_obj, tiz_event_io_t *ap_ev_io, const uint32_t a_id,
                   int a_fd, int a_events)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->event_io);
+  assert (class->event_io);
   return class->event_io (ap_obj, ap_ev_io, a_id, a_fd, a_events);
 }
 
@@ -984,8 +984,8 @@ static OMX_ERRORTYPE srv_event_timer (void *ap_obj,
   tiz_srv_t *p_srv = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
-  assert (NULL != p_srv);
-  assert (NULL != ap_ev_timer);
+  assert (p_srv);
+  assert (ap_ev_timer);
   /* Notify a timer event only if it is currently active */
   if (is_watcher_active (p_srv, ap_ev_timer, &id) && a_id == id)
     {
@@ -1006,7 +1006,7 @@ tiz_srv_event_timer (void *ap_obj, tiz_event_timer_t *ap_ev_timer,
                      const uint32_t a_id)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->event_timer);
+  assert (class->event_timer);
   return class->event_timer (ap_obj, ap_ev_timer, a_id);
 }
 
@@ -1022,7 +1022,7 @@ tiz_srv_event_stat (void *ap_obj, tiz_event_stat_t *ap_ev_stat,
                     const uint32_t a_id, int a_events)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->event_stat);
+  assert (class->event_stat);
   return class->event_stat (ap_obj, ap_ev_stat, a_id, a_events);
 }
 
@@ -1037,7 +1037,7 @@ tiz_srv_io_ready (void *ap_obj, tiz_event_io_t *ap_ev_io, int a_fd,
                   int a_events)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->io_ready);
+  assert (class->io_ready);
   return class->io_ready (ap_obj, ap_ev_io, a_fd, a_events);
 }
 
@@ -1051,7 +1051,7 @@ OMX_ERRORTYPE
 tiz_srv_timer_ready (void *ap_obj, tiz_event_timer_t *ap_ev_timer)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->timer_ready);
+  assert (class->timer_ready);
   return class->timer_ready (ap_obj, ap_ev_timer);
 }
 
@@ -1065,7 +1065,7 @@ OMX_ERRORTYPE
 tiz_srv_stat_ready (void *ap_obj, tiz_event_stat_t *ap_ev_stat, int a_events)
 {
   const tiz_srv_class_t *class = classOf (ap_obj);
-  assert (NULL != class->stat_ready);
+  assert (class->stat_ready);
   return class->stat_ready (ap_obj, ap_ev_stat, a_events);
 }
 

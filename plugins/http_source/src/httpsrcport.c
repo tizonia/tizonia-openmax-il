@@ -53,7 +53,7 @@ static void *httpsrc_port_ctor (void *ap_obj, va_list *app)
 {
   httpsrc_port_t *p_obj
       = super_ctor (typeOf (ap_obj, "httpsrcport"), ap_obj, app);
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   tiz_port_register_index (p_obj, OMX_IndexParamAudioMp3);
   tiz_port_register_index (p_obj, OMX_IndexParamAudioAac);
@@ -103,7 +103,7 @@ static void *httpsrc_port_ctor (void *ap_obj, va_list *app)
 static void *httpsrc_port_dtor (void *ap_obj)
 {
   httpsrc_port_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   return super_dtor (typeOf (ap_obj, "httpsrcport"), ap_obj);
 }
 
@@ -119,7 +119,7 @@ static OMX_ERRORTYPE httpsrc_port_GetParameter (const void *ap_obj,
   const httpsrc_port_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
@@ -172,7 +172,7 @@ static OMX_ERRORTYPE httpsrc_port_SetParameter (const void *ap_obj,
   httpsrc_port_t *p_obj = (httpsrc_port_t *)ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
@@ -327,8 +327,8 @@ httpsrc_port_check_tunnel_compat (const void *ap_obj,
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (NULL != ap_this_def);
-  assert (NULL != ap_other_def);
+  assert (ap_this_def);
+  assert (ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {

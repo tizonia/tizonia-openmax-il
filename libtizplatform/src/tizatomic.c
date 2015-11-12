@@ -67,7 +67,7 @@ static void atomic_var (OMX_S32 *ap_array, OMX_S32 n)
   OMX_S32 j = 0;
   OMX_S32 tmp = 0;
 
-  assert (NULL != ap_array);
+  assert (ap_array);
 
   for (i = n - 1; i > 0; --i)
     {
@@ -81,7 +81,7 @@ static void atomic_var (OMX_S32 *ap_array, OMX_S32 n)
 static OMX_ERRORTYPE init_lst (tiz_atomic_var_t *ap_atomic_var)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
-  assert (NULL != ap_atomic_var);
+  assert (ap_atomic_var);
   ap_atomic_var->p_lst
       = tiz_mem_alloc (ap_atomic_var->length * sizeof(OMX_S32));
   if (ap_atomic_var->p_lst)
@@ -111,7 +111,7 @@ OMX_ERRORTYPE tiz_atomic_var_init (tiz_atomic_var_ptr_t *app_atomic_var,
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   tiz_atomic_var_t *p_atomic_var = NULL;
 
-  assert (NULL != app_atomic_var);
+  assert (app_atomic_var);
   assert (a_list_size > 0);
 
   p_atomic_var = tiz_mem_calloc (1, sizeof(tiz_atomic_var_t));

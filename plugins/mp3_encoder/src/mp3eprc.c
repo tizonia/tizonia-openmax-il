@@ -75,7 +75,7 @@ release_buffers (const void *ap_obj)
   p_obj->frame_size_ = 0;
   if (!p_obj->lame_flushed_)
     {
-      if (NULL != p_obj->lame_)
+      if (p_obj->lame_)
         {
           OMX_U8 *p_buffer = NULL;
 
@@ -105,7 +105,7 @@ encode_buffer (const void *ap_obj)
 
   assert (p_obj->p_outhdr_);
 
-  if (NULL != p_obj->p_inhdr_)
+  if (p_obj->p_inhdr_)
     {
       if ((p_obj->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
         {
@@ -171,11 +171,11 @@ encode_buffer (const void *ap_obj)
           p_obj->p_outhdr_ = NULL;
         }
 
-    }                           /* if (NULL != p_obj->p_inhdr_) */
+    }                           /* if (p_obj->p_inhdr_) */
 
   if (true == p_obj->eos_)
     {
-      if (NULL != p_obj->p_outhdr_)
+      if (p_obj->p_outhdr_)
         {
           /* may return one more mp3 frames */
           encoded_bytes = lame_encode_flush (p_obj->lame_,
@@ -204,12 +204,12 @@ claim_input (const void *ap_obj)
 {
   mp3e_prc_t *p_prc = (mp3e_prc_t *) ap_obj;
   bool rc = false;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (OMX_ErrorNone == tiz_krn_claim_buffer
       (tiz_get_krn (handleOf (p_prc)), 0, 0, &p_prc->p_inhdr_))
     {
-      if (NULL != p_prc->p_inhdr_)
+      if (p_prc->p_inhdr_)
         {
           TIZ_TRACE (handleOf (p_prc),
                      "Claimed INPUT HEADER [%p]...", p_prc->p_inhdr_);
@@ -225,12 +225,12 @@ claim_output (const void *ap_obj)
 {
   mp3e_prc_t *p_prc = (mp3e_prc_t *) ap_obj;
   bool rc = false;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (OMX_ErrorNone == tiz_krn_claim_buffer
       (tiz_get_krn (handleOf (p_prc)), 1, 0, &p_prc->p_outhdr_))
     {
-      if (NULL != p_prc->p_outhdr_)
+      if (p_prc->p_outhdr_)
         {
           TIZ_TRACE (handleOf (p_prc),
                      "Claimed OUTPUT HEADER [%p] BUFFER [%p] nFilledLen [%d]...",
@@ -251,9 +251,9 @@ set_lame_pcm_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
   mp3e_prc_t *p_prc = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
-  assert (NULL != p_prc);
-  assert (NULL != ap_hdl);
-  assert (NULL != ap_krn);
+  assert (p_prc);
+  assert (ap_hdl);
+  assert (ap_krn);
 
   /* Retrieve pcm params from port */
   p_prc->pcmmode_.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
@@ -289,9 +289,9 @@ set_lame_mp3_settings (void *ap_obj, OMX_HANDLETYPE ap_hdl, void *ap_krn)
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
   int lame_mode = 0;
 
-  assert (NULL != p_prc);
-  assert (NULL != ap_hdl);
-  assert (NULL != ap_krn);
+  assert (p_prc);
+  assert (ap_hdl);
+  assert (ap_krn);
 
   /* Retrieve mp3 params from port */
   p_prc->mp3type_.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
@@ -363,7 +363,7 @@ static void *
 mp3e_proc_ctor (void *ap_obj, va_list * app)
 {
   mp3e_prc_t *p_prc = super_ctor (typeOf (ap_obj, "mp3eprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->lame_ = NULL;
   p_prc->frame_size_ = 0;
   p_prc->p_inhdr_ = 0;
@@ -377,9 +377,9 @@ static void *
 mp3e_proc_dtor (void *ap_obj)
 {
   mp3e_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
-  if (NULL != p_prc->lame_)
+  if (p_prc->lame_)
     {
       lame_close (p_prc->lame_);
       p_prc->lame_ = NULL;
@@ -396,7 +396,7 @@ static OMX_ERRORTYPE
 mp3e_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   mp3e_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (NULL == (p_prc->lame_ = lame_init ()))
     {
@@ -420,9 +420,9 @@ static OMX_ERRORTYPE
 mp3e_proc_deallocate_resources (void *ap_obj)
 {
   mp3e_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
-  if (NULL != p_prc->lame_)
+  if (p_prc->lame_)
     {
       lame_close (p_prc->lame_);
       p_prc->lame_ = NULL;
@@ -437,7 +437,7 @@ mp3e_proc_prepare_to_transfer (void *ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
   mp3e_prc_t *p_prc = ap_obj;
   OMX_ERRORTYPE ret_val = OMX_ErrorNone;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (NULL == p_prc->lame_)
     {
@@ -490,7 +490,7 @@ static OMX_ERRORTYPE
 mp3e_proc_buffers_ready (const void *ap_obj)
 {
   mp3e_prc_t *p_prc = (mp3e_prc_t *) ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   while (1)
     {

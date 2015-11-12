@@ -58,7 +58,7 @@ namespace
   {
     const size_t len = omx_string.length ();
     const size_t to_copy = MIN (len, OMX_MAX_STRINGNAME_SIZE - 1);
-    assert (NULL != p_dest);
+    assert (p_dest);
     memcpy (p_dest, omx_string.c_str (), to_copy);
     p_dest[to_copy] = '\0';
   }

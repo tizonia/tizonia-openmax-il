@@ -51,7 +51,7 @@ mp2port_SetParameter_common (const void *ap_obj,
   tiz_mp2port_t *p_obj = (tiz_mp2port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
   assert (OMX_TizoniaIndexParamAudioMp2 == a_index);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] [%s]...",
@@ -143,7 +143,7 @@ mp2port_GetParameter (const void *ap_obj,
   const tiz_mp2port_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
@@ -178,7 +178,7 @@ mp2port_SetParameter (const void *ap_obj,
   tiz_mp2port_t *p_obj = (tiz_mp2port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
@@ -234,7 +234,7 @@ mp2port_SetParameter_internal (const void *ap_obj,
   tiz_mp2port_t *p_obj = (tiz_mp2port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
@@ -265,8 +265,8 @@ mp2port_check_tunnel_compat (const void *ap_obj,
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (NULL != ap_this_def);
-  assert (NULL != ap_other_def);
+  assert (ap_this_def);
+  assert (ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
@@ -312,9 +312,9 @@ mp2port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
   /* OpenMAX IL 1.2 Section 3.5 : Slaving behaviour for nSamplingRate and
    * nChannels, both in OMX_TIZONIA_AUDIO_PARAM_MP2TYPE */
 
-  assert (NULL != p_obj);
-  assert (NULL != ap_struct);
-  assert (NULL != ap_changed_idxs);
+  assert (p_obj);
+  assert (ap_struct);
+  assert (ap_changed_idxs);
 
   {
     OMX_U32 new_rate = p_obj->mp2type_.nSampleRate;

@@ -65,7 +65,7 @@ START_TEST (test_gmusic_play_artist)
   int rc = tiz_gmusic_init (&p_gmusic, GMUSIC_USER,
                             GMUSIC_PASS, GMUSIC_DEVICE_ID);
   ck_assert (0 == rc);
-  ck_assert (NULL != p_gmusic);
+  ck_assert (p_gmusic);
 
   rc = tiz_gmusic_play_artist (p_gmusic, GMUSIC_ARTIST);
   ck_assert (0 == rc);
@@ -74,15 +74,15 @@ START_TEST (test_gmusic_play_artist)
   {
     char cmd[CMD_LEN];
     const char * next_url = tiz_gmusic_get_next_url (p_gmusic);
-    ck_assert (NULL != next_url);
+    ck_assert (next_url);
     fprintf (stderr, "url = %s\n", next_url);
 
     const char * artist = tiz_gmusic_get_current_song_artist (p_gmusic);
-    ck_assert (NULL != artist);
+    ck_assert (artist);
     fprintf (stderr, "artist = %s\n", artist);
 
     const char * title = tiz_gmusic_get_current_song_title (p_gmusic);
-    ck_assert (NULL != title);
+    ck_assert (title);
     fprintf (stderr, "title = %s\n", title);
 
     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url);
@@ -100,7 +100,7 @@ START_TEST (test_gmusic_play_album)
   int rc = tiz_gmusic_init (&p_gmusic, GMUSIC_USER,
                             GMUSIC_PASS, GMUSIC_DEVICE_ID);
   ck_assert (0 == rc);
-  ck_assert (NULL != p_gmusic);
+  ck_assert (p_gmusic);
 
   rc = tiz_gmusic_play_album (p_gmusic, GMUSIC_ALBUM);
   ck_assert (0 == rc);
@@ -109,15 +109,15 @@ START_TEST (test_gmusic_play_album)
   {
     char cmd[CMD_LEN];
     const char * next_url = tiz_gmusic_get_next_url (p_gmusic);
-    ck_assert (NULL != next_url);
+    ck_assert (next_url);
     fprintf (stderr, "url = %s\n", next_url);
 
     const char * artist = tiz_gmusic_get_current_song_artist (p_gmusic);
-    ck_assert (NULL != artist);
+    ck_assert (artist);
     fprintf (stderr, "artist = %s\n", artist);
 
     const char * title = tiz_gmusic_get_current_song_title (p_gmusic);
-    ck_assert (NULL != title);
+    ck_assert (title);
     fprintf (stderr, "title = %s\n", title);
 
     snprintf (cmd, CMD_LEN, "%s \"%s\"", PLAYER, next_url);

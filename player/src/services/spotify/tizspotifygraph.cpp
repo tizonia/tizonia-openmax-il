@@ -78,7 +78,7 @@ graph::ops *graph::spotify::do_init ()
 
 bool graph::spotify::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 {
-  assert (NULL != p_cmd);
+  assert (p_cmd);
 
   if (!p_cmd->kill_thread ())
   {

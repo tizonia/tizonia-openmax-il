@@ -128,24 +128,24 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
   tiz_queue_item_t *p_cur_item = NULL;
   tiz_queue_t *p_q = NULL;
 
-  assert (NULL != app_q);
+  assert (app_q);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "queue capacity [%d]", a_capacity);
 
   assert (a_capacity > 0);
 
-  if (NULL != (p_q = init_queue_struct ()))
+  if ((p_q = init_queue_struct ()))
     {
       int i = 0;
       p_q->capacity = a_capacity;
       p_q->length = 0;
 
       p_cur_item = p_q->p_last = p_q->p_first;
-      assert (NULL != p_cur_item);
+      assert (p_cur_item);
 
       for (i = 0; i < (TIZ_QUEUE_MAX_ITEMS - 2); i++)
         {
-          if (NULL != (p_new_item = (tiz_queue_item_t *)tiz_mem_calloc (
+          if ((p_new_item = (tiz_queue_item_t *)tiz_mem_calloc (
                            1, sizeof(tiz_queue_item_t))))
             {
               p_cur_item->p_next = p_new_item;
@@ -159,7 +159,7 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
               rc = OMX_ErrorInsufficientResources;
 
               /* Clean-up */
-              while (NULL != p_q->p_first)
+              while (p_q->p_first)
                 {
                   p_cur_item = p_q->p_first->p_next;
                   tiz_mem_free ((OMX_PTR)p_q->p_first);
@@ -205,7 +205,7 @@ void tiz_queue_destroy (/*@null@ */ tiz_queue_t *p_q)
       tiz_queue_item_t *p_cur_item = 0;
       int i = 0;
 
-      for (i = 0; NULL != p_q->p_first && i < (TIZ_QUEUE_MAX_ITEMS - 2); ++i)
+      for (i = 0; p_q->p_first && i < (TIZ_QUEUE_MAX_ITEMS - 2); ++i)
         {
           p_cur_item = p_q->p_first->p_next;
           tiz_mem_free (p_q->p_first);
@@ -227,11 +227,11 @@ tiz_queue_send (tiz_queue_t *p_q, OMX_PTR ap_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_q);
+  assert (p_q);
 
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(p_q->mutex)));
 
-  assert (NULL != p_q->p_last);
+  assert (p_q->p_last);
   assert (NULL == (p_q->p_last->p_data));
   assert (p_q->length <= p_q->capacity);
 
@@ -258,8 +258,8 @@ tiz_queue_receive (tiz_queue_t *p_q, OMX_PTR *app_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_q);
-  assert (NULL != app_data);
+  assert (p_q);
+  assert (app_data);
 
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(p_q->mutex)));
 
@@ -272,8 +272,8 @@ tiz_queue_receive (tiz_queue_t *p_q, OMX_PTR *app_data)
 
   if (OMX_ErrorNone == rc)
     {
-      assert (NULL != p_q->p_first);
-      assert (NULL != p_q->p_first->p_data);
+      assert (p_q->p_first);
+      assert (p_q->p_first->p_data);
       *app_data = p_q->p_first->p_data;
       p_q->p_first->p_data = 0;
       p_q->p_first = p_q->p_first->p_next;
@@ -291,7 +291,7 @@ tiz_queue_length (tiz_queue_t *p_q)
 {
   OMX_S32 length = 0;
 
-  assert (NULL != p_q);
+  assert (p_q);
 
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(p_q->mutex)));
 

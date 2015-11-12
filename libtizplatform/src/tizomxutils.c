@@ -580,12 +580,12 @@ static const tiz_idx_str_t tiz_idx_to_str_tbl[] = {
 
 void tiz_util_reset_eos_flag (OMX_BUFFERHEADERTYPE *p_hdr)
 {
-  assert (NULL != p_hdr);
+  assert (p_hdr);
   p_hdr->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
 }
 
 void tiz_util_set_eos_flag (OMX_BUFFERHEADERTYPE *p_hdr)
 {
-  assert (NULL != p_hdr);
+  assert (p_hdr);
   p_hdr->nFlags |= OMX_BUFFERFLAG_EOS;
 }

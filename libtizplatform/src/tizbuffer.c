@@ -54,7 +54,7 @@ struct tiz_buffer
 
 static inline void *alloc_data_store (tiz_buffer_t *ap_buf, const size_t nbytes)
 {
-  assert (NULL != ap_buf);
+  assert (ap_buf);
   assert (NULL == ap_buf->p_store);
 
   if (nbytes > 0)
@@ -75,7 +75,7 @@ static inline void dealloc_data_store (
 /*@releases ap_buf->p_store@ */
 /*@ensures isnull ap_buf->p_store@ */
 {
-  if (NULL != ap_buf)
+  if (ap_buf)
     {
       tiz_mem_free (ap_buf->p_store);
       ap_buf->p_store = NULL;
@@ -92,7 +92,7 @@ tiz_buffer_init (/*@null@ */ tiz_buffer_ptr_t *app_buf, const size_t a_nbytes)
   tiz_buffer_t *p_buf = NULL;
   void *p_store = NULL;
 
-  assert (NULL != app_buf);
+  assert (app_buf);
 
   if (NULL == (p_buf = tiz_mem_calloc (1, sizeof(tiz_buffer_t))))
     {
@@ -109,7 +109,7 @@ tiz_buffer_init (/*@null@ */ tiz_buffer_ptr_t *app_buf, const size_t a_nbytes)
 
 end:
 
-  if (OMX_ErrorNone != rc && NULL != p_buf)
+  if (OMX_ErrorNone != rc && p_buf)
     {
       dealloc_data_store (p_buf);
       p_store = NULL;
@@ -124,7 +124,7 @@ end:
 
 void tiz_buffer_destroy (tiz_buffer_t *ap_buf)
 {
-  if (NULL != ap_buf)
+  if (ap_buf)
     {
       dealloc_data_store (ap_buf);
       tiz_mem_free (ap_buf);
@@ -136,13 +136,13 @@ int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
 {
   OMX_U32 nbytes_to_copy = 0;
 
-  assert (NULL != ap_buf);
+  assert (ap_buf);
   assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "filled_len [%d] offset [%d]",
            ap_buf->filled_len, ap_buf->offset);
 
-  if (NULL != ap_data && a_nbytes > 0)
+  if (ap_data && a_nbytes > 0)
     {
       size_t avail = 0;
 
@@ -161,7 +161,7 @@ int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
           OMX_U8 *p_new_store = NULL;
           size_t need = ap_buf->alloc_len + (a_nbytes - avail);
           p_new_store = tiz_mem_realloc (ap_buf->p_store, need);
-          if (NULL != p_new_store)
+          if (p_new_store)
             {
               ap_buf->p_store = p_new_store;
               ap_buf->alloc_len = need;
@@ -187,14 +187,14 @@ int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
 
 int tiz_buffer_bytes_available (const tiz_buffer_t *ap_buf)
 {
-  assert (NULL != ap_buf);
+  assert (ap_buf);
   assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
   return ap_buf->filled_len;
 }
 
 void *tiz_buffer_get_data (const tiz_buffer_t *ap_buf)
 {
-  assert (NULL != ap_buf);
+  assert (ap_buf);
   assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
   return (ap_buf->p_store + ap_buf->offset);
 }
@@ -202,7 +202,7 @@ void *tiz_buffer_get_data (const tiz_buffer_t *ap_buf)
 int tiz_buffer_advance (tiz_buffer_t *ap_buf, const int nbytes)
 {
   int min_nbytes = 0;
-  assert (NULL != ap_buf);
+  assert (ap_buf);
   if (nbytes > 0)
     {
       min_nbytes = MIN (nbytes, tiz_buffer_bytes_available (ap_buf));
@@ -219,7 +219,7 @@ int tiz_buffer_advance (tiz_buffer_t *ap_buf, const int nbytes)
 
 void tiz_buffer_clear (tiz_buffer_t *ap_buf)
 {
-  if (NULL != ap_buf)
+  if (ap_buf)
     {
       ap_buf->offset = 0;
       ap_buf->filled_len = 0;

@@ -67,7 +67,7 @@ static inline OMX_BUFFERHEADERTYPE *get_out_hdr (sndfiled_prc_t *ap_prc)
 OMX_ERRORTYPE release_in_hdr (sndfiled_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_in = get_in_hdr (ap_prc);
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (p_in)
     {
       if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
@@ -88,7 +88,7 @@ OMX_ERRORTYPE release_out_hdr (sndfiled_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_PCM_DECODER_OUTPUT_PORT_INDEX);
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (p_out)
     {
       if (tiz_filter_prc_is_eos (ap_prc))
@@ -108,7 +108,7 @@ OMX_ERRORTYPE release_out_hdr (sndfiled_prc_t *ap_prc)
 static OMX_ERRORTYPE allocate_temp_data_store (sndfiled_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_PCM_DECODER_INPUT_PORT_INDEX);
   tiz_check_omx_err (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
@@ -122,7 +122,7 @@ static inline void deallocate_temp_data_store (
 /*@releases ap_prc->p_store_@ */
 /*@ensures isnull ap_prc->p_store_@ */
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_buffer_destroy (ap_prc->p_store_);
   ap_prc->p_store_ = NULL;
 }
@@ -130,7 +130,7 @@ static inline void deallocate_temp_data_store (
 static bool store_data (sndfiled_prc_t *ap_prc)
 {
   bool rc = true;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if ((tiz_buffer_bytes_available (ap_prc->p_store_) - ap_prc->store_offset_)
       < ARATELIA_PCM_DECODER_PORT_MIN_INPUT_BUF_SIZE * 2)
@@ -138,7 +138,7 @@ static bool store_data (sndfiled_prc_t *ap_prc)
       OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
           ap_prc, ARATELIA_PCM_DECODER_INPUT_PORT_INDEX);
 
-      assert (NULL != ap_prc);
+      assert (ap_prc);
 
       if (p_in)
         {
@@ -179,8 +179,8 @@ static sf_count_t sf_io_read (void *ap_ptr, sf_count_t count, void *user_data)
   sndfiled_prc_t *p_prc = (sndfiled_prc_t *)user_data;
   sf_count_t bytes_read = 0;
 
-  assert (NULL != ap_ptr);
-  assert (NULL != p_prc);
+  assert (ap_ptr);
+  assert (p_prc);
 
   if (!tiz_filter_prc_is_eos (p_prc) && store_data (p_prc)
       && tiz_buffer_bytes_available (p_prc->p_store_) > 0)
@@ -221,14 +221,14 @@ static sf_count_t sf_io_write (const void *ptr, sf_count_t count,
 static sf_count_t sf_io_tell (void *user_data)
 {
   sndfiled_prc_t *p_prc = (sndfiled_prc_t *)user_data;
-  assert (NULL != p_prc);
+  assert (p_prc);
   return p_prc->store_offset_;
 }
 
 static OMX_ERRORTYPE open_sf (sndfiled_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (store_data (ap_prc) && tiz_buffer_bytes_available (ap_prc->p_store_) > 0)
     {
@@ -270,8 +270,8 @@ static OMX_ERRORTYPE transform_buffer (sndfiled_prc_t *ap_prc)
 
   (void)store_data (ap_prc);
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_sf_);
+  assert (ap_prc);
+  assert (ap_prc->p_sf_);
 
   if (p_out && tiz_buffer_bytes_available (ap_prc->p_store_) > 0)
     {
@@ -292,7 +292,7 @@ static OMX_ERRORTYPE transform_buffer (sndfiled_prc_t *ap_prc)
 
 static void reset_stream_parameters (sndfiled_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   ap_prc->decoder_inited_ = false;
   tiz_buffer_clear (ap_prc->p_store_);
   ap_prc->store_offset_ = 0;
@@ -307,7 +307,7 @@ static void *sndfiled_prc_ctor (void *ap_obj, va_list *app)
 {
   sndfiled_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "sndfiledprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_sf_ = NULL;
   p_prc->sf_info_.format = 0;
   p_prc->sf_io_.get_filelen = sf_io_get_filelen;
@@ -339,7 +339,7 @@ static OMX_ERRORTYPE sndfiled_prc_deallocate_resources (void *ap_obj)
 {
   sndfiled_prc_t *p_prc = ap_obj;
   deallocate_temp_data_store (p_prc);
-  assert (NULL != p_prc);
+  assert (p_prc);
   sf_close (p_prc->p_sf_);
   p_prc->p_sf_ = NULL;
   return OMX_ErrorNone;
@@ -372,7 +372,7 @@ static OMX_ERRORTYPE sndfiled_prc_buffers_ready (const void *ap_prc)
   sndfiled_prc_t *p_prc = (sndfiled_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (!p_prc->decoder_inited_)
     {

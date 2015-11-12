@@ -54,7 +54,7 @@ static OMX_ERRORTYPE allocate_temp_data_store (aacdec_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_AAC_DECODER_INPUT_PORT_INDEX);
   tiz_check_omx_err (
@@ -70,7 +70,7 @@ static inline void deallocate_temp_data_store (
 /*@releases ap_prc->p_store_@ */
 /*@ensures isnull ap_prc->p_store_@ */
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_buffer_destroy (ap_prc->p_store_);
   ap_prc->p_store_ = NULL;
 }
@@ -79,7 +79,7 @@ static void skip_id3_tag (aacdec_prc_t *ap_prc)
 {
   OMX_U8 *p_buffer = tiz_buffer_get_data (ap_prc->p_store_);
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (!memcmp (p_buffer, "ID3", 3))
     {
@@ -96,8 +96,8 @@ static inline OMX_ERRORTYPE retrieve_aac_settings (
     const void *ap_prc, OMX_AUDIO_PARAM_AACPROFILETYPE *ap_aactype)
 {
   const aacdec_prc_t *p_prc = ap_prc;
-  assert (NULL != ap_prc);
-  assert (NULL != ap_aactype);
+  assert (ap_prc);
+  assert (ap_aactype);
 
   /* Retrieve the aac settings from the input port */
   TIZ_INIT_OMX_PORT_STRUCT (*ap_aactype, ARATELIA_AAC_DECODER_INPUT_PORT_INDEX);
@@ -113,8 +113,8 @@ static OMX_ERRORTYPE set_decoder_config (aacdec_prc_t *ap_prc)
   NeAACDecConfigurationPtr p_config;
   OMX_AUDIO_PARAM_AACPROFILETYPE aactype;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_aac_dec_);
+  assert (ap_prc);
+  assert (ap_prc->p_aac_dec_);
 
   /* Retrieve the aac settings from the input port */
   tiz_check_omx_err (retrieve_aac_settings (ap_prc, &aactype));
@@ -122,7 +122,7 @@ static OMX_ERRORTYPE set_decoder_config (aacdec_prc_t *ap_prc)
   /* Set the default object type and samplerate */
   /* This is useful for RAW AAC files */
   p_config = NeAACDecGetCurrentConfiguration (ap_prc->p_aac_dec_);
-  if (NULL != p_config)
+  if (p_config)
     {
       p_config->defSampleRate = aactype.nSampleRate;
       p_config->defObjectType = aactype.eAACProfile;
@@ -154,7 +154,7 @@ static OMX_ERRORTYPE set_decoder_config (aacdec_prc_t *ap_prc)
 static OMX_ERRORTYPE update_pcm_mode (aacdec_prc_t *ap_prc, const OMX_U32 a_samplerate,
                                       const OMX_U32 a_channels)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   if (a_samplerate  != ap_prc->pcmmode_.nSamplingRate
       || a_channels != ap_prc->pcmmode_.nChannels)
     {
@@ -186,9 +186,9 @@ static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_AAC_DECODER_INPUT_PORT_INDEX);
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_aac_dec_);
-  assert (NULL != p_in);
+  assert (ap_prc);
+  assert (ap_prc->p_aac_dec_);
+  assert (p_in);
 
   if (tiz_buffer_store_data (ap_prc->p_store_, p_in->pBuffer + p_in->nOffset,
                              p_in->nFilledLen) < p_in->nFilledLen)
@@ -251,8 +251,8 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
       return OMX_ErrorNone;
     }
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_aac_dec_);
+  assert (ap_prc);
+  assert (ap_prc->p_aac_dec_);
 
   if (0 == p_in->nFilledLen && tiz_buffer_bytes_available (ap_prc->p_store_)
                                == 0)
@@ -371,7 +371,7 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
 
 static void reset_stream_parameters (aacdec_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_mem_set (&(ap_prc->aac_info_), 0, sizeof(ap_prc->aac_info_));
   ap_prc->samplerate_ = 0;
   ap_prc->channels_ = 0;
@@ -387,7 +387,7 @@ static void reset_stream_parameters (aacdec_prc_t *ap_prc)
 static void *aacdec_prc_ctor (void *ap_obj, va_list *app)
 {
   aacdec_prc_t *p_prc = super_ctor (typeOf (ap_obj, "aacdecprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   unsigned long cap = NeAACDecGetCapabilities ();
   TIZ_DEBUG (handleOf (ap_obj), "libfaad2 caps: %X", cap);
   /*   Open the faad library */
@@ -400,9 +400,9 @@ static void *aacdec_prc_ctor (void *ap_obj, va_list *app)
 static void *aacdec_prc_dtor (void *ap_obj)
 {
   aacdec_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   (void)aacdec_prc_deallocate_resources (p_prc);
-  if (NULL != p_prc->p_aac_dec_)
+  if (p_prc->p_aac_dec_)
     {
       NeAACDecClose (p_prc->p_aac_dec_);
       p_prc->p_aac_dec_ = NULL;
@@ -417,7 +417,7 @@ static void *aacdec_prc_dtor (void *ap_obj)
 static OMX_ERRORTYPE aacdec_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   aacdec_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   tiz_check_omx_err (allocate_temp_data_store (p_prc));
   /* Check that the library has been successfully inited */
   tiz_check_null_ret_oom ((p_prc->p_aac_dec_));
@@ -434,7 +434,7 @@ static OMX_ERRORTYPE aacdec_prc_prepare_to_transfer (void *ap_obj,
                                                      OMX_U32 a_pid)
 {
   aacdec_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   reset_stream_parameters (p_prc);
   TIZ_INIT_OMX_PORT_STRUCT (p_prc->pcmmode_, ARATELIA_AAC_DECODER_OUTPUT_PORT_INDEX);
   tiz_check_omx_err (tiz_api_GetParameter
@@ -463,7 +463,7 @@ static OMX_ERRORTYPE aacdec_prc_buffers_ready (const void *ap_prc)
   aacdec_prc_t *p_prc = (aacdec_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_TRACE (handleOf (p_prc), "eos [%s] ",
              tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO");

@@ -71,11 +71,11 @@ static inline OMX_BUFFERHEADERTYPE **
 get_header_ptr (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
   pp_hdr = (a_pid == ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX
             ? &(ap_prc->p_in_hdr_) : &(ap_prc->p_out_hdr_));
-  assert (NULL != pp_hdr);
+  assert (pp_hdr);
   return pp_hdr;
 }
 
@@ -83,12 +83,12 @@ static inline bool *
 get_port_disabled_ptr (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   bool *p_port_disabled = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
   p_port_disabled = (a_pid == ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX
                      ? &(ap_prc->in_port_disabled_)
                      : &(ap_prc->out_port_disabled_));
-  assert (NULL != p_port_disabled);
+  assert (p_port_disabled);
   return p_port_disabled;
 }
 
@@ -108,7 +108,7 @@ get_header (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
               (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
             {
               p_hdr = *pp_hdr;
-              if (NULL != p_hdr)
+              if (p_hdr)
                 {
                   TIZ_TRACE (handleOf (ap_prc),
                              "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
@@ -128,7 +128,7 @@ release_header (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
   p_hdr = *pp_hdr;
-  assert (NULL != p_hdr);
+  assert (p_hdr);
 
   TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] pid [%d] "
              "nFilledLen [%d] nFlags [%d]", p_hdr, a_pid, p_hdr->nFilledLen,
@@ -225,10 +225,10 @@ print_opus_comments (opusd_prc_t * ap_prc)
 static OMX_ERRORTYPE
 release_headers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if ((a_pid == ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX
-       || a_pid == OMX_ALL) && (NULL != ap_prc->p_in_hdr_))
+       || a_pid == OMX_ALL) && (ap_prc->p_in_hdr_))
     {
       tiz_check_omx_err
         (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
@@ -238,7 +238,7 @@ release_headers (opusd_prc_t * ap_prc, const OMX_U32 a_pid)
     }
 
   if ((a_pid == ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX
-       || a_pid == OMX_ALL) && (NULL != ap_prc->p_out_hdr_))
+       || a_pid == OMX_ALL) && (ap_prc->p_out_hdr_))
     {
       tiz_check_omx_err
         (tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)),
@@ -258,7 +258,7 @@ transform_buffer (opusd_prc_t * ap_prc)
   OMX_BUFFERHEADERTYPE *p_out
     = get_header (ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX);
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (NULL == p_in || NULL == p_out)
     {
@@ -344,7 +344,7 @@ transform_buffer (opusd_prc_t * ap_prc)
 static void
 reset_stream_parameters (opusd_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   ap_prc->packet_count_   = 0;
   ap_prc->rate_           = 0;
   ap_prc->mapping_family_ = 0;
@@ -360,7 +360,7 @@ static void *
 opusd_prc_ctor (void *ap_obj, va_list * app)
 {
   opusd_prc_t *p_prc        = super_ctor (typeOf (ap_obj, "opusdprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_opus_dec_        = NULL;
   p_prc->p_in_hdr_          = NULL;
   p_prc->p_out_hdr_         = NULL;
@@ -389,7 +389,7 @@ static OMX_ERRORTYPE
 opusd_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   opusd_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (NULL == (p_prc->p_out_buf_ = tiz_mem_alloc
                (sizeof (float) *
                 ARATELIA_OPUS_DECODER_PORT_MIN_OUTPUT_BUF_SIZE)))
@@ -403,8 +403,8 @@ static OMX_ERRORTYPE
 opusd_prc_deallocate_resources (void *ap_obj)
 {
   opusd_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
-  if (NULL != p_prc->p_opus_dec_)
+  assert (p_prc);
+  if (p_prc->p_opus_dec_)
     {
       opus_multistream_decoder_destroy (p_prc->p_opus_dec_);
       p_prc->p_opus_dec_ = NULL;
@@ -441,7 +441,7 @@ opusd_prc_buffers_ready (const void *ap_obj)
 {
   opusd_prc_t *p_prc = (opusd_prc_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_obj);
+  assert (ap_obj);
   TIZ_TRACE (handleOf (p_prc), "eos [%s] packet_count [%d]",
              p_prc->eos_ ? "YES" : "NO", p_prc->packet_count_);
   if (!p_prc->eos_)
@@ -494,7 +494,7 @@ opusd_proc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 static OMX_ERRORTYPE opusd_prc_port_disable (const void *ap_prc, OMX_U32 a_pid)
 {
   opusd_prc_t *p_prc = (opusd_prc_t *) ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX == a_pid)
     {
       p_prc->in_port_disabled_ = true;
@@ -509,7 +509,7 @@ static OMX_ERRORTYPE opusd_prc_port_disable (const void *ap_prc, OMX_U32 a_pid)
 static OMX_ERRORTYPE opusd_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
 {
   opusd_prc_t *p_prc = (opusd_prc_t *) ap_prc;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (OMX_ALL == a_pid || ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX == a_pid)
     {
       p_prc->in_port_disabled_ = false;

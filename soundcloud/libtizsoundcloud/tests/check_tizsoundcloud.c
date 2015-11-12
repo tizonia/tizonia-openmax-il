@@ -63,7 +63,7 @@ START_TEST (test_scloud_play_stream)
   tiz_scloud_t *p_soundcloud = NULL;
   int rc = tiz_scloud_init (&p_soundcloud, SOUNDCLOUD_USERNAME, SOUNDCLOUD_PASS);
   ck_assert (0 == rc);
-  ck_assert (NULL != p_soundcloud);
+  ck_assert (p_soundcloud);
 
   rc = tiz_scloud_play_stream (p_soundcloud);
   ck_assert (0 == rc);
@@ -73,44 +73,44 @@ START_TEST (test_scloud_play_stream)
 /*     char cmd[CMD_LEN]; */
     {
       const char *next_url = tiz_scloud_get_next_url (p_soundcloud);
-      ck_assert (NULL != next_url);
+      ck_assert (next_url);
       fprintf (stderr, "url = %s\n", next_url);
     }
 
     {
       const char *user = tiz_scloud_get_current_track_user (p_soundcloud);
-      ck_assert (NULL != user);
+      ck_assert (user);
       fprintf (stderr, "user = %s\n", user);
     }
 
     {
       const char *title = tiz_scloud_get_current_track_title (p_soundcloud);
-      ck_assert (NULL != title);
+      ck_assert (title);
       fprintf (stderr, "title = %s\n", title);
     }
 
     {
       const char *duration
           = tiz_scloud_get_current_track_duration (p_soundcloud);
-      ck_assert (NULL != duration);
+      ck_assert (duration);
       fprintf (stderr, "duration = %s\n", duration);
     }
 
     {
       const char *year = tiz_scloud_get_current_track_year (p_soundcloud);
-      ck_assert (NULL != year);
+      ck_assert (year);
       fprintf (stderr, "year = %s\n", year);
     }
 
     {
       const char *permalink = tiz_scloud_get_current_track_permalink (p_soundcloud);
-      ck_assert (NULL != permalink);
+      ck_assert (permalink);
       fprintf (stderr, "permalink = %s\n", permalink);
     }
 
     {
       const char *license = tiz_scloud_get_current_track_license (p_soundcloud);
-      ck_assert (NULL != license);
+      ck_assert (license);
       fprintf (stderr, "license = %s\n", license);
     }
 
@@ -128,7 +128,7 @@ START_TEST (test_scloud_play_creator)
   tiz_scloud_t *p_soundcloud = NULL;
   int rc = tiz_scloud_init (&p_soundcloud, SOUNDCLOUD_USERNAME, SOUNDCLOUD_PASS);
   ck_assert (0 == rc);
-  ck_assert (NULL != p_soundcloud);
+  ck_assert (p_soundcloud);
 
   rc = tiz_scloud_play_creator (p_soundcloud, SOUNDCLOUD_USER);
   ck_assert (0 == rc);
@@ -139,44 +139,44 @@ START_TEST (test_scloud_play_creator)
 
     {
       const char *next_url = tiz_scloud_get_next_url (p_soundcloud);
-      ck_assert (NULL != next_url);
+      ck_assert (next_url);
       fprintf (stderr, "url = %s\n", next_url);
     }
 
     {
       const char *user = tiz_scloud_get_current_track_user (p_soundcloud);
-      ck_assert (NULL != user);
+      ck_assert (user);
       fprintf (stderr, "user = %s\n", user);
     }
 
     {
       const char *title = tiz_scloud_get_current_track_title (p_soundcloud);
-      ck_assert (NULL != title);
+      ck_assert (title);
       fprintf (stderr, "title = %s\n", title);
     }
 
     {
       const char *duration
           = tiz_scloud_get_current_track_duration (p_soundcloud);
-      ck_assert (NULL != duration);
+      ck_assert (duration);
       fprintf (stderr, "duration = %s\n", duration);
     }
 
     {
       const char *year = tiz_scloud_get_current_track_year (p_soundcloud);
-      ck_assert (NULL != year);
+      ck_assert (year);
       fprintf (stderr, "year = %s\n", year);
     }
 
     {
       const char *permalink = tiz_scloud_get_current_track_permalink (p_soundcloud);
-      ck_assert (NULL != permalink);
+      ck_assert (permalink);
       fprintf (stderr, "permalink = %s\n", permalink);
     }
 
     {
       const char *license = tiz_scloud_get_current_track_license (p_soundcloud);
-      ck_assert (NULL != license);
+      ck_assert (license);
       fprintf (stderr, "license = %s\n", license);
     }
 
@@ -194,7 +194,7 @@ START_TEST (test_scloud_play_playlist)
   tiz_scloud_t *p_soundcloud = NULL;
   int rc = tiz_scloud_init (&p_soundcloud, SOUNDCLOUD_USERNAME, SOUNDCLOUD_PASS);
   ck_assert (0 == rc);
-  ck_assert (NULL != p_soundcloud);
+  ck_assert (p_soundcloud);
 
   rc = tiz_scloud_play_playlist (p_soundcloud, SOUNDCLOUD_PLAYLIST);
   ck_assert (0 == rc);
@@ -205,44 +205,44 @@ START_TEST (test_scloud_play_playlist)
 
     {
       const char *next_url = tiz_scloud_get_next_url (p_soundcloud);
-      ck_assert (NULL != next_url);
+      ck_assert (next_url);
       fprintf (stderr, "url = %s\n", next_url);
     }
 
     {
       const char *user = tiz_scloud_get_current_track_user (p_soundcloud);
-      ck_assert (NULL != user);
+      ck_assert (user);
       fprintf (stderr, "user = %s\n", user);
     }
 
     {
       const char *title = tiz_scloud_get_current_track_title (p_soundcloud);
-      ck_assert (NULL != title);
+      ck_assert (title);
       fprintf (stderr, "title = %s\n", title);
     }
 
     {
       const char *duration
           = tiz_scloud_get_current_track_duration (p_soundcloud);
-      ck_assert (NULL != duration);
+      ck_assert (duration);
       fprintf (stderr, "duration = %s\n", duration);
     }
 
     {
       const char *year = tiz_scloud_get_current_track_year (p_soundcloud);
-      ck_assert (NULL != year);
+      ck_assert (year);
       fprintf (stderr, "year = %s\n", year);
     }
 
     {
       const char *permalink = tiz_scloud_get_current_track_permalink (p_soundcloud);
-      ck_assert (NULL != permalink);
+      ck_assert (permalink);
       fprintf (stderr, "permalink = %s\n", permalink);
     }
 
     {
       const char *license = tiz_scloud_get_current_track_license (p_soundcloud);
-      ck_assert (NULL != license);
+      ck_assert (license);
       fprintf (stderr, "license = %s\n", license);
     }
 

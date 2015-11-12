@@ -50,7 +50,7 @@ pcmport_SetParameter_common (const void *ap_obj,
 {
   tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_dir (p_obj), tiz_idx_to_str (a_index));
@@ -219,7 +219,7 @@ pcmport_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "GetParameter [%s]...",
             tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_index)
     {
@@ -255,7 +255,7 @@ pcmport_SetParameter (const void *ap_obj,
   tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
   OMX_ERRORTYPE  rc    = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_dir (p_obj), tiz_idx_to_str (a_index));
@@ -347,7 +347,7 @@ pcmport_SetConfig (const void *ap_obj,
   tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetConfig [%s]...",
             tiz_port_dir (p_obj), tiz_idx_to_str (a_index));
@@ -406,7 +406,7 @@ pcmport_SetParameter_internal (const void *ap_obj,
   tiz_pcmport_t *p_obj = (tiz_pcmport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
              tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
@@ -445,8 +445,8 @@ pcmport_check_tunnel_compat (const void *ap_obj,
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (NULL != ap_this_def);
-  assert (NULL != ap_other_def);
+  assert (ap_this_def);
+  assert (ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
@@ -493,9 +493,9 @@ pcmport_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
    * change if the current value is not big enough to fit 5 ms of PCM audio
    * data - see OpenMAX IL 1.2 section 4.1.2. */
 
-  assert (NULL != p_obj);
-  assert (NULL != ap_struct);
-  assert (NULL != ap_changed_idxs);
+  assert (p_obj);
+  assert (ap_struct);
+  assert (ap_changed_idxs);
 
   {
     OMX_U32 new_min_buf_sz = 0;

@@ -154,15 +154,15 @@ static OMX_S32 listeners_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
 {
   int *p_sockfd1 = (int *)ap_key1;
   int *p_sockfd2 = (int *)ap_key2;
-  assert (NULL != ap_key1);
-  assert (NULL != ap_key2);
+  assert (ap_key1);
+  assert (ap_key2);
   return (*p_sockfd1 == *p_sockfd2) ? 0 : ((*p_sockfd1 < *p_sockfd2) ? -1 : 1);
 }
 
 static void listeners_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 {
   httpr_listener_t *p_lstnr = (httpr_listener_t *)ap_value;
-  assert (NULL != p_lstnr);
+  assert (p_lstnr);
   srv_destroy_listener (p_lstnr);
 }
 
@@ -170,7 +170,7 @@ static bool srv_is_recoverable_error (httpr_server_t *ap_server, int sockfd,
                                       int error)
 {
   bool rc = false;
-  assert (NULL != ap_server);
+  assert (ap_server);
   TIZ_PRINTF_DBG_RED ("Socket [%d] - error [%s]", sockfd, strerror (error));
 
   switch (error)
@@ -301,9 +301,9 @@ static int srv_accept_socket (httpr_server_t *ap_server, char *ap_ip,
   bool some_error = true;
   int err = 0;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_ip);
-  assert (NULL != ap_port);
+  assert (ap_server);
+  assert (ap_ip);
+  assert (ap_port);
   p_hdl = handleOf (ap_server->p_parent);
 
   some_error = (!srv_is_valid_socket (ap_server->lstn_sockfd));
@@ -361,7 +361,7 @@ static inline int srv_create_server_socket (httpr_server_t *ap_server,
   int sockfd = ICE_SOCK_ERROR;
   int getaddrc = ICE_SOCK_ERROR;
 
-  assert (NULL != ap_server);
+  assert (ap_server);
   assert (a_port >= 0);
 
   tiz_mem_set (&sa, 0, sizeof(sa));
@@ -411,7 +411,7 @@ static inline int srv_create_server_socket (httpr_server_t *ap_server,
 
 static void srv_destroy_server_io_watcher (httpr_server_t *ap_server)
 {
-  assert (NULL != ap_server);
+  assert (ap_server);
   tiz_srv_io_watcher_destroy (ap_server->p_parent, ap_server->p_srv_ev_io);
   ap_server->p_srv_ev_io = NULL;
 }
@@ -419,7 +419,7 @@ static void srv_destroy_server_io_watcher (httpr_server_t *ap_server)
 static OMX_ERRORTYPE srv_allocate_server_io_watcher (httpr_server_t *ap_server)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_server);
+  assert (ap_server);
 
   rc = tiz_srv_io_watcher_init (
       ap_server->p_parent, &(ap_server->p_srv_ev_io), ap_server->lstn_sockfd,
@@ -436,7 +436,7 @@ static OMX_ERRORTYPE srv_allocate_server_io_watcher (httpr_server_t *ap_server)
 
 static OMX_ERRORTYPE srv_start_server_io_watcher (httpr_server_t *ap_server)
 {
-  assert (NULL != ap_server);
+  assert (ap_server);
   TIZ_PRINTF_DBG_RED (
       "Starting server io watcher "
       "on fd [%d]",
@@ -447,7 +447,7 @@ static OMX_ERRORTYPE srv_start_server_io_watcher (httpr_server_t *ap_server)
 static inline OMX_ERRORTYPE srv_stop_server_io_watcher (
     httpr_server_t *ap_server)
 {
-  assert (NULL != ap_server);
+  assert (ap_server);
   TIZ_PRINTF_DBG_RED (
       "Stopping server io watcher "
       "on fd [%d]",
@@ -457,17 +457,17 @@ static inline OMX_ERRORTYPE srv_stop_server_io_watcher (
 
 static OMX_ERRORTYPE srv_start_listener_io_watcher (httpr_listener_t *ap_lstnr)
 {
-  assert (NULL != ap_lstnr);
-  assert (NULL != ap_lstnr->p_server);
-  assert (NULL != ap_lstnr->p_con);
+  assert (ap_lstnr);
+  assert (ap_lstnr->p_server);
+  assert (ap_lstnr->p_con);
   return tiz_srv_io_watcher_start (ap_lstnr->p_server->p_parent,
                                    ap_lstnr->p_con->p_ev_io);
 }
 
 static OMX_ERRORTYPE srv_stop_listener_io_watcher (httpr_listener_t *ap_lstnr)
 {
-  assert (NULL != ap_lstnr);
-  assert (NULL != ap_lstnr->p_con);
+  assert (ap_lstnr);
+  assert (ap_lstnr->p_con);
   return tiz_srv_io_watcher_stop (ap_lstnr->p_server->p_parent,
                                   ap_lstnr->p_con->p_ev_io);
 }
@@ -476,11 +476,11 @@ static OMX_ERRORTYPE srv_start_listener_timer_watcher (
     httpr_listener_t *ap_lstnr, const double a_wait_time)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_lstnr);
+  assert (ap_lstnr);
   if (!ap_lstnr->timer_started)
     {
-      assert (NULL != ap_lstnr->p_server);
-      assert (NULL != ap_lstnr->p_con);
+      assert (ap_lstnr->p_server);
+      assert (ap_lstnr->p_con);
       tiz_check_omx_err (tiz_srv_timer_watcher_start (
           ap_lstnr->p_server->p_parent, ap_lstnr->p_con->p_ev_timer,
           a_wait_time, a_wait_time));
@@ -493,11 +493,11 @@ static OMX_ERRORTYPE srv_stop_listener_timer_watcher (
     httpr_listener_t *ap_lstnr)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_lstnr);
+  assert (ap_lstnr);
   if (ap_lstnr->timer_started)
     {
-      assert (NULL != ap_lstnr->p_server);
-      assert (NULL != ap_lstnr->p_con);
+      assert (ap_lstnr->p_server);
+      assert (ap_lstnr->p_con);
       tiz_check_omx_err (tiz_srv_timer_watcher_stop (
           ap_lstnr->p_server->p_parent, ap_lstnr->p_con->p_ev_timer));
       ap_lstnr->timer_started = false;
@@ -526,10 +526,10 @@ static void srv_destroy_connection (httpr_connection_t *ap_con)
 
 static void srv_destroy_listener (httpr_listener_t *ap_lstnr)
 {
-  if (NULL != ap_lstnr)
+  if (ap_lstnr)
     {
       srv_stop_listener_timer_watcher (ap_lstnr);
-      if (NULL != ap_lstnr->p_parser)
+      if (ap_lstnr->p_parser)
         {
           tiz_http_parser_destroy (ap_lstnr->p_parser);
         }
@@ -544,8 +544,8 @@ static void srv_remove_listener (httpr_server_t *ap_server,
 {
   int nlstnrs = 0;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
+  assert (ap_server);
+  assert (ap_lstnr);
 
   nlstnrs = srv_get_listeners_count (ap_server);
   assert (nlstnrs > 0);
@@ -573,8 +573,8 @@ static httpr_connection_t *srv_create_connection (httpr_server_t *ap_server,
   httpr_connection_t *p_con = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
+  assert (ap_server);
+  assert (ap_lstnr);
   p_hdl = handleOf (ap_server->p_parent);
 
   p_con = (httpr_connection_t *)tiz_mem_calloc (1, sizeof(httpr_connection_t));
@@ -625,10 +625,10 @@ static OMX_ERRORTYPE srv_create_listener (httpr_server_t *ap_server,
   OMX_HANDLETYPE p_hdl = NULL;
   int sockrc = ICE_SOCK_ERROR;
 
-  assert (NULL != ap_server);
-  assert (NULL != app_lstnr);
+  assert (ap_server);
+  assert (app_lstnr);
   assert (ICE_SOCK_ERROR != a_connected_sockfd);
-  assert (NULL != ap_ip);
+  assert (ap_ip);
   p_hdl = handleOf (ap_server->p_parent);
 
   p_lstnr = (httpr_listener_t *)tiz_mem_calloc (1, sizeof(httpr_listener_t));
@@ -689,12 +689,12 @@ static int srv_read_from_listener (httpr_listener_t *ap_lstnr)
   httpr_connection_t *p_con = NULL;
   httpr_listener_buffer_t *p_buf = NULL;
 
-  assert (NULL != ap_lstnr);
-  assert (NULL != ap_lstnr->p_con);
+  assert (ap_lstnr);
+  assert (ap_lstnr->p_con);
 
   p_con = ap_lstnr->p_con;
   p_buf = &ap_lstnr->buf;
-  assert (NULL != p_buf->p_data);
+  assert (p_buf->p_data);
   assert (p_buf->len > 0);
 
   errno = 0;
@@ -715,7 +715,7 @@ static ssize_t srv_build_http_negative_response (char *ap_buf, size_t len,
   const char *statusmsg = NULL;
   const char *contenttype = "text/html";
 
-  assert (NULL != ap_buf);
+  assert (ap_buf);
 
   switch (status)
     {
@@ -771,11 +771,11 @@ static void srv_send_http_error (httpr_server_t *ap_server,
 {
   ssize_t resp_size = 0;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
-  assert (NULL != ap_lstnr->buf.p_data);
-  assert (NULL != ap_lstnr->p_con);
-  assert (NULL != ap_err_msg);
+  assert (ap_server);
+  assert (ap_lstnr);
+  assert (ap_lstnr->buf.p_data);
+  assert (ap_lstnr->p_con);
+  assert (ap_err_msg);
 
   ap_lstnr->buf.p_data[ICE_LISTENER_BUF_SIZE - 1] = '\000';
   resp_size = srv_build_http_negative_response (
@@ -814,8 +814,8 @@ static ssize_t srv_build_http_positive_response (
   int pub = 0;
   bool metadata_needed = false;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_buf);
+  assert (ap_server);
+  assert (ap_buf);
 
   /* HTTP status line */
   snprintf (status_buffer, sizeof(status_buffer), "HTTP/%s %d %s\r\n",
@@ -878,10 +878,10 @@ static int srv_send_http_response (httpr_server_t *ap_server,
 {
   ssize_t sent_bytes = 0;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
-  assert (NULL != ap_lstnr->buf.p_data);
-  assert (NULL != ap_lstnr->p_con);
+  assert (ap_server);
+  assert (ap_lstnr);
+  assert (ap_lstnr->buf.p_data);
+  assert (ap_lstnr->p_con);
 
   ap_lstnr->buf.len = strnlen (ap_lstnr->buf.p_data, ICE_LISTENER_BUF_SIZE);
 
@@ -916,10 +916,10 @@ static OMX_ERRORTYPE srv_handle_listeners_request (httpr_server_t *ap_server,
   int to_write = -1;
   const char *parsed_string = NULL;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
-  assert (NULL != ap_lstnr->p_con);
-  assert (NULL != ap_lstnr->p_parser);
+  assert (ap_server);
+  assert (ap_lstnr);
+  assert (ap_lstnr->p_con);
+  assert (ap_lstnr->p_parser);
 
   some_error = (srv_get_listeners_count (ap_server) > ap_server->max_clients);
   bail_on_request_error (some_error, 400, "Client limit reached");
@@ -952,7 +952,7 @@ static OMX_ERRORTYPE srv_handle_listeners_request (httpr_server_t *ap_server,
          || (0 != strncmp ("/", parsed_string, strlen ("/"))));
   bail_on_request_error (some_error, 401, "Unathorized");
 
-  if (NULL != (parsed_string = tiz_http_parser_get_header (ap_lstnr->p_parser,
+  if ((parsed_string = tiz_http_parser_get_header (ap_lstnr->p_parser,
                                                            "Icy-MetaData"))
       && (0 == strncmp ("1", parsed_string, strlen ("1"))))
     {
@@ -989,9 +989,9 @@ static OMX_S32 srv_remove_existing_listener (OMX_PTR ap_key, OMX_PTR ap_value,
   httpr_server_t *p_server = ap_arg;
   httpr_listener_t *p_lstnr = NULL;
 
-  assert (NULL != p_server);
-  assert (NULL != ap_key);
-  assert (NULL != ap_value);
+  assert (p_server);
+  assert (ap_key);
+  assert (ap_value);
 
   p_lstnr = (httpr_listener_t *)ap_value;
 
@@ -1006,9 +1006,9 @@ inline static void srv_release_empty_buffer (httpr_server_t *ap_server,
 {
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
-  assert (NULL != app_hdr);
+  assert (ap_server);
+  assert (ap_lstnr);
+  assert (app_hdr);
 
   p_hdr = *app_hdr;
 
@@ -1024,8 +1024,8 @@ static bool srv_is_listener_ready (httpr_server_t *ap_server,
 {
   bool lstnr_ready = true;
   OMX_HANDLETYPE p_hdl = NULL;
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
+  assert (ap_server);
+  assert (ap_lstnr);
   p_hdl = handleOf (ap_server->p_parent);
 
   if (ap_lstnr->need_response)
@@ -1104,10 +1104,10 @@ static void srv_arrange_metadata (httpr_server_t *ap_server,
   size_t len = 0;
   httpr_listener_buffer_t *p_lstnr_buf = NULL;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
-  assert (NULL != app_buffer);
-  assert (NULL != ap_len);
+  assert (ap_server);
+  assert (ap_lstnr);
+  assert (app_buffer);
+  assert (ap_len);
 
   len = *ap_len;
   p_lstnr_buf = &ap_lstnr->buf;
@@ -1184,10 +1184,10 @@ static void srv_arrange_data (httpr_server_t *ap_server,
   httpr_listener_buffer_t *p_lstnr_buf = NULL;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
-  assert (NULL != app_buffer);
-  assert (NULL != ap_len);
+  assert (ap_server);
+  assert (ap_lstnr);
+  assert (app_buffer);
+  assert (ap_len);
 
   p_lstnr_buf = &ap_lstnr->buf;
   p_hdr = ap_server->p_hdr;
@@ -1230,10 +1230,10 @@ static OMX_ERRORTYPE srv_write_to_listener (httpr_server_t *ap_server,
   httpr_connection_t *p_con = NULL;
   int sock = ICE_SOCK_ERROR;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
-  assert (NULL != ap_buffer);
-  assert (NULL != a_bytes_written);
+  assert (ap_server);
+  assert (ap_lstnr);
+  assert (ap_buffer);
+  assert (a_bytes_written);
 
   p_con = ap_lstnr->p_con;
   sock = p_con->sockfd;
@@ -1276,9 +1276,9 @@ static OMX_ERRORTYPE srv_write_omx_buffer (httpr_server_t *ap_server,
   httpr_connection_t *p_con = NULL;
   int sock = ICE_SOCK_ERROR;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_lstnr);
-  assert (NULL != ap_lstnr->p_con);
+  assert (ap_server);
+  assert (ap_lstnr);
+  assert (ap_lstnr->p_con);
 
   p_con = ap_lstnr->p_con;
   sock = p_con->sockfd;
@@ -1401,7 +1401,7 @@ static OMX_ERRORTYPE srv_accept_connection (httpr_server_t *ap_server)
   bool all_ok = false;
   OMX_HANDLETYPE p_hdl = NULL;
 
-  assert (NULL != ap_server);
+  assert (ap_server);
   p_hdl = handleOf (ap_server->p_parent);
 
   if (srv_get_listeners_count (ap_server) > 0)
@@ -1412,7 +1412,7 @@ static OMX_ERRORTYPE srv_accept_connection (httpr_server_t *ap_server)
                         ap_server);
     }
 
-  if (NULL != (p_ip = (char *)tiz_mem_alloc (ICE_RENDERER_MAX_ADDR_LEN)))
+  if ((p_ip = (char *)tiz_mem_alloc (ICE_RENDERER_MAX_ADDR_LEN)))
     {
       unsigned short port = 0;
       OMX_U32 index = 0;
@@ -1426,7 +1426,7 @@ static OMX_ERRORTYPE srv_accept_connection (httpr_server_t *ap_server)
                                 port);
       goto_end_on_omx_error (rc, p_hdl, "Unable to instantiate the listener");
 
-      assert (NULL != p_lstnr->p_con);
+      assert (p_lstnr->p_con);
       p_con = p_lstnr->p_con;
 
       rc = tiz_map_insert (ap_server->p_lstnrs, &(p_con->sockfd), p_lstnr,
@@ -1500,7 +1500,7 @@ static OMX_ERRORTYPE srv_write (httpr_server_t *ap_server)
   httpr_listener_t *p_lstnr = NULL;
   httpr_connection_t *p_con = NULL;
 
-  assert (NULL != ap_server);
+  assert (ap_server);
 
   if (srv_get_listeners_count (ap_server) <= 0)
     {
@@ -1510,9 +1510,9 @@ static OMX_ERRORTYPE srv_write (httpr_server_t *ap_server)
   /* Until support for multiple listeners gets implemented, there will only be
      one listener in the map */
   p_lstnr = srv_get_first_listener (ap_server);
-  assert (NULL != p_lstnr);
+  assert (p_lstnr);
   p_con = p_lstnr->p_con;
-  assert (NULL != p_con);
+  assert (p_con);
 
   srv_stop_listener_io_watcher (p_lstnr);
   if (!srv_is_listener_ready (ap_server, p_lstnr))
@@ -1573,7 +1573,7 @@ static OMX_ERRORTYPE srv_write (httpr_server_t *ap_server)
 static OMX_ERRORTYPE srv_stream_to_client (httpr_server_t *ap_server)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_server);
+  assert (ap_server);
 
   rc = srv_write (ap_server);
   switch (rc)
@@ -1602,7 +1602,7 @@ static OMX_ERRORTYPE srv_stream_to_client (httpr_server_t *ap_server)
 
 static int srv_get_descriptor (const httpr_server_t *ap_server)
 {
-  assert (NULL != ap_server);
+  assert (ap_server);
   return ap_server->lstn_sockfd;
 }
 
@@ -1640,10 +1640,10 @@ httpr_srv_init (httpr_server_t **app_server, void *ap_parent,
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   bool all_ok = false;
 
-  assert (NULL != app_server);
-  assert (NULL != ap_parent);
-  assert (NULL != a_pf_release_buf);
-  assert (NULL != a_pf_acquire_buf);
+  assert (app_server);
+  assert (ap_parent);
+  assert (a_pf_release_buf);
+  assert (a_pf_acquire_buf);
 
   p_server = (httpr_server_t *)tiz_mem_calloc (1, sizeof(httpr_server_t));
   rc = p_server ? OMX_ErrorNone : OMX_ErrorInsufficientResources;
@@ -1677,7 +1677,7 @@ httpr_srv_init (httpr_server_t **app_server, void *ap_parent,
   p_server->mountpoint.initial_burst_size = ICE_INITIAL_BURST_SIZE;
   p_server->mountpoint.max_clients = 1;
 
-  if (NULL != a_address)
+  if (a_address)
     {
       p_server->p_ip = strndup (a_address, ICE_RENDERER_MAX_ADDR_LEN);
     }
@@ -1722,7 +1722,7 @@ httpr_srv_start (httpr_server_t *ap_server)
   int listen_rc = ICE_SOCK_ERROR;
   bool all_ok = false;
 
-  assert (NULL != ap_server);
+  assert (ap_server);
   p_hdl = handleOf (ap_server->p_parent);
 
   errno = 0;
@@ -1751,7 +1751,7 @@ OMX_ERRORTYPE
 httpr_srv_stop (httpr_server_t *ap_server)
 {
   httpr_listener_t *p_lstnr = NULL;
-  assert (NULL != ap_server);
+  assert (ap_server);
   (void)srv_stop_server_io_watcher (ap_server);
   if (ap_server->p_lstnrs)
     {
@@ -1772,7 +1772,7 @@ httpr_srv_stop (httpr_server_t *ap_server)
 
 void httpr_srv_release_buffers (httpr_server_t *ap_server)
 {
-  assert (NULL != ap_server);
+  assert (ap_server);
   if (ap_server->p_hdr)
     {
       ap_server->p_hdr->nFilledLen = 0;
@@ -1786,7 +1786,7 @@ void httpr_srv_set_mp3_settings (httpr_server_t *ap_server,
                                  const OMX_U32 a_num_channels,
                                  const OMX_U32 a_sample_rate)
 {
-  assert (NULL != ap_server);
+  assert (ap_server);
 
   ap_server->bitrate = (a_bitrate != 0 ? a_bitrate : 448000);
   ap_server->num_channels = (a_num_channels != 0 ? a_num_channels : 2);
@@ -1804,7 +1804,7 @@ void httpr_srv_set_mp3_settings (httpr_server_t *ap_server,
   if (srv_get_listeners_count (ap_server) > 0)
     {
       httpr_listener_t *p_lstnr = srv_get_first_listener (ap_server);
-      assert (NULL != p_lstnr);
+      assert (p_lstnr);
       srv_stop_listener_timer_watcher (p_lstnr);
       srv_start_listener_timer_watcher (p_lstnr, ap_server->wait_time);
     }
@@ -1828,12 +1828,12 @@ void httpr_srv_set_mountpoint_settings (
 {
   httpr_mount_t *p_mount = NULL;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_mount_name);
-  assert (NULL != ap_station_name);
-  assert (NULL != ap_station_description);
-  assert (NULL != ap_station_genre);
-  assert (NULL != ap_station_url);
+  assert (ap_server);
+  assert (ap_mount_name);
+  assert (ap_station_name);
+  assert (ap_station_description);
+  assert (ap_station_genre);
+  assert (ap_station_url);
 
   p_mount = &(ap_server->mountpoint);
 
@@ -1871,8 +1871,8 @@ void httpr_srv_set_stream_title (httpr_server_t *ap_server,
 {
   httpr_mount_t *p_mount = NULL;
 
-  assert (NULL != ap_server);
-  assert (NULL != ap_stream_title);
+  assert (ap_server);
+  assert (ap_stream_title);
 
   p_mount = &(ap_server->mountpoint);
 
@@ -1885,8 +1885,8 @@ void httpr_srv_set_stream_title (httpr_server_t *ap_server,
   if (srv_get_listeners_count (ap_server) > 0)
     {
       httpr_listener_t *p_lstnr = srv_get_first_listener (ap_server);
-      assert (NULL != p_lstnr);
-      assert (NULL != p_lstnr->p_con);
+      assert (p_lstnr);
+      assert (p_lstnr->p_con);
       p_lstnr->p_con->metadata_delivered = false;
       p_lstnr->p_con->initial_burst_bytes
           = ap_server->mountpoint.initial_burst_size * 0.1;
@@ -1897,7 +1897,7 @@ void httpr_srv_set_stream_title (httpr_server_t *ap_server,
 
 OMX_ERRORTYPE httpr_srv_buffer_event (httpr_server_t *ap_server)
 {
-  assert (NULL != ap_server);
+  assert (ap_server);
   return ((ap_server->running && ap_server->need_more_data)
               ? srv_stream_to_client (ap_server)
               : OMX_ErrorNone);
@@ -1906,7 +1906,7 @@ OMX_ERRORTYPE httpr_srv_buffer_event (httpr_server_t *ap_server)
 OMX_ERRORTYPE httpr_srv_io_event (httpr_server_t *ap_server, const int a_fd)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != ap_server);
+  assert (ap_server);
   if (ap_server->running)
     {
       if (a_fd == srv_get_descriptor (ap_server))
@@ -1929,6 +1929,6 @@ OMX_ERRORTYPE httpr_srv_io_event (httpr_server_t *ap_server, const int a_fd)
 
 OMX_ERRORTYPE httpr_srv_timer_event (httpr_server_t *ap_server)
 {
-  assert (NULL != ap_server);
+  assert (ap_server);
   return ap_server->running ? srv_stream_to_client (ap_server) : OMX_ErrorNone;
 }

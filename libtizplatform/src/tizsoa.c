@@ -108,7 +108,7 @@ struct tiz_soa
 
   slice_sz = slice_sz_tbl[chunk_class];
 
-  if (NULL != (p_new_chunk = tiz_mem_calloc (1, sizeof(chunk_t))))
+  if ((p_new_chunk = tiz_mem_calloc (1, sizeof(chunk_t))))
     {
       p_new_chunk->p_soa = p_soa;
       p_new_chunk->p_next = p_soa->p_chunk_lst;
@@ -145,7 +145,7 @@ tiz_soa_init (/*@null@ */ tiz_soa_ptr_t *app_soa)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_soa_t *p_soa = NULL;
 
-  assert (NULL != app_soa);
+  assert (app_soa);
 
   if (NULL == (p_soa = tiz_mem_calloc (1, sizeof(tiz_soa_t))))
     {
@@ -194,7 +194,7 @@ void tiz_soa_destroy (tiz_soa_t *p_soa)
                     + SLICE_PREAMBLE_SZ;
   uint8_t *p_usr = NULL;
 
-  assert (NULL != p_soa);
+  assert (p_soa);
   assert (alloc_sz > 0);
   assert (alloc_sz <= SOA_MAX_SLICE_SIZE);
 
@@ -213,7 +213,7 @@ void tiz_soa_destroy (tiz_soa_t *p_soa)
         p_soa->p_slice_store[chunk_class] = p_slice->p_next_free;
       }
 
-    if (NULL != p_slice)
+    if (p_slice)
       {
         p_slice->p_chunk->n_allocated_slices += 1;
         p_soa->n_allocated_objects += 1;
@@ -230,7 +230,7 @@ void tiz_soa_free (tiz_soa_t *p_soa, void *p_addr)
 {
   assert (p_soa != NULL);
 
-  if (NULL != p_addr)
+  if (p_addr)
     {
       slice_t *p_slice = get_slice_ptr (p_addr);
 

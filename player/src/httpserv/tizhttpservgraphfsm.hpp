@@ -116,7 +116,7 @@ namespace tiz
         pp_ops_(pp_ops),
         terminated_ (false)
       {
-        assert (NULL != pp_ops);
+        assert (pp_ops);
       }
 
       // states
@@ -138,7 +138,7 @@ namespace tiz
           :
           pp_ops_(pp_ops)
         {
-          assert (NULL != pp_ops);
+          assert (pp_ops);
         }
 
         // submachine states
@@ -319,7 +319,7 @@ namespace tiz
           pp_ops_(pp_ops),
           jump_ (1)
         {
-          assert (NULL != pp_ops);
+          assert (pp_ops);
         }
 
         // submachine states

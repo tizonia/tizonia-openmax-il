@@ -63,7 +63,7 @@ videoport_ctor (void *ap_obj, va_list * app)
   tiz_vector_init (&(p_obj->p_color_formats_), sizeof (OMX_COLOR_FORMATTYPE));
 
   /* Finalize the base's port definition structure */
-  if (NULL != (p_portdef = va_arg (*app, OMX_VIDEO_PORTDEFINITIONTYPE *)))
+  if ((p_portdef = va_arg (*app, OMX_VIDEO_PORTDEFINITIONTYPE *)))
     {
       tiz_port_t *p_base = ap_obj;
       p_base->portdef_.format.video.pNativeRender = p_portdef->pNativeRender;
@@ -86,7 +86,7 @@ videoport_ctor (void *ap_obj, va_list * app)
   p_obj->port_format_.nVersion.nVersion = OMX_VERSION;
   p_obj->port_format_.nIndex = 0;
 
-  if (NULL != (p_encodings = va_arg (*app, OMX_VIDEO_CODINGTYPE *)))
+  if ((p_encodings = va_arg (*app, OMX_VIDEO_CODINGTYPE *)))
     {
       while (OMX_VIDEO_CodingMax != p_encodings[i])
         {
@@ -99,7 +99,7 @@ videoport_ctor (void *ap_obj, va_list * app)
     ? p_encodings[0] : OMX_VIDEO_CodingUnused;
 
   i = 0;
-  if (NULL != (p_formats = va_arg (*app, OMX_COLOR_FORMATTYPE *)))
+  if ((p_formats = va_arg (*app, OMX_COLOR_FORMATTYPE *)))
     {
       while (OMX_COLOR_FormatMax != p_formats[i])
         {
@@ -143,7 +143,7 @@ videoport_GetParameter (const void *ap_obj,
   const tiz_videoport_t *p_obj = ap_obj;
 
   TIZ_TRACE (ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_index)
     {
@@ -207,7 +207,7 @@ videoport_SetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "SetParameter [%s]...",
             tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   /* Do now allow changes to nFrameWidth or nFrameHeight if this is a slave
    * output port */

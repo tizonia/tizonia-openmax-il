@@ -66,14 +66,14 @@ static const OMX_STRING tiz_prc_msg_to_str (tiz_prc_msg_class_t a_msg)
 
 static OMX_ERRORTYPE dispatch_idle_to_loaded (tiz_prc_t *ap_prc, bool *ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return tiz_srv_deallocate_resources (ap_prc);
 }
 
 static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_prc_t *ap_prc, bool *ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return tiz_srv_allocate_resources (ap_prc, OMX_ALL);
 }
@@ -81,14 +81,14 @@ static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_prc_t *ap_prc, bool *ap_done)
 static OMX_ERRORTYPE dispatch_exe_or_pause_to_idle (tiz_prc_t *ap_prc,
                                                     bool *ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return tiz_srv_stop_and_return (ap_prc);
 }
 
 static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return tiz_srv_prepare_to_transfer (ap_prc, OMX_ALL);
 }
@@ -96,14 +96,14 @@ static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
 static OMX_ERRORTYPE prc_DeferredResume (const void *ap_obj);
 static OMX_ERRORTYPE dispatch_pause_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return prc_DeferredResume (ap_prc);
 }
 
 static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return tiz_srv_transfer_and_process (ap_prc, OMX_ALL);
 }
@@ -111,14 +111,14 @@ static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
 static OMX_ERRORTYPE dispatch_exe_or_idle_to_pause (tiz_prc_t *ap_prc,
                                                     bool *ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return tiz_prc_pause (ap_prc);
 }
 
 static OMX_ERRORTYPE dispatch_true (tiz_prc_t *ap_prc, bool *ap_done)
 {
-  assert (NULL != ap_done);
+  assert (ap_done);
   *ap_done = true;
   return OMX_ErrorNone;
 }
@@ -135,8 +135,8 @@ static inline tiz_prc_msg_t *init_prc_message (const void *ap_obj,
   tiz_prc_t *p_obj = (tiz_prc_t *)ap_obj;
   tiz_prc_msg_t *p_msg = NULL;
 
-  assert (NULL != p_obj);
-  assert (NULL != ap_hdl);
+  assert (p_obj);
+  assert (ap_hdl);
   assert (a_msg_class < ETIZPrcMsgMax);
 
   if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof(tiz_prc_msg_t))))
@@ -212,7 +212,7 @@ static OMX_ERRORTYPE prc_DeferredResume (const void *ap_obj)
   tiz_prc_msg_t *p_msg = NULL;
   tiz_prc_msg_deferredresume_t *p_msg_dr = NULL;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   TIZ_TRACE (handleOf (p_obj), "DeferredResume");
 
@@ -234,10 +234,10 @@ static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
   tiz_prc_msg_t *p_msg = ap_msg;
   tiz_prc_msg_sendcommand_t *p_msg_sc = NULL;
 
-  assert (NULL != p_msg);
+  assert (p_msg);
 
   p_msg_sc = &(p_msg->sc);
-  assert (NULL != p_msg_sc);
+  assert (p_msg_sc);
   /* NOTE: Mark buffer command is not hdld in this class */
   assert (p_msg_sc->cmd < OMX_CommandMarkBuffer);
 
@@ -255,13 +255,13 @@ static OMX_ERRORTYPE dispatch_br (void *ap_obj, OMX_PTR ap_msg)
   const void *p_port = NULL;
   tiz_fsm_state_id_t now = EStateMax;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
-  assert (NULL != p_msg->p_hdl);
+  assert (p_obj);
+  assert (p_msg);
+  assert (p_msg->p_hdl);
 
   p_msg_br = &(p_msg->br);
-  assert (NULL != p_msg_br);
-  assert (NULL != p_msg_br->p_buffer);
+  assert (p_msg_br);
+  assert (p_msg_br->p_buffer);
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
   p_port = tiz_krn_get_port (p_krn, p_msg_br->pid);
@@ -304,11 +304,11 @@ static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg)
   const void *p_port = NULL;
   tiz_fsm_state_id_t now = EStateMax;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
+  assert (p_obj);
+  assert (p_msg);
 
   p_msg_cc = &(p_msg->cc);
-  assert (NULL != p_msg_cc);
+  assert (p_msg_cc);
 
   p_krn = tiz_get_krn (p_msg->p_hdl);
   p_port = tiz_krn_get_port (p_krn, p_msg_cc->pid);
@@ -317,7 +317,7 @@ static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg)
   TIZ_TRACE (p_msg->p_hdl, "p_msg_cc->pid = [%d] p_port [%p]", p_msg->p_hdl,
              p_msg_cc->pid, p_port);
 
-  /*   assert (NULL != p_port); */
+  /*   assert (p_port); */
 
   /* Do not notify this config change in the following situations:
    *
@@ -348,11 +348,11 @@ static OMX_ERRORTYPE dispatch_dr (void *ap_obj, OMX_PTR ap_msg)
   tiz_prc_msg_deferredresume_t *p_msg_dr = NULL;
   tiz_fsm_state_id_t now = EStateMax;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
+  assert (p_obj);
+  assert (p_msg);
 
   p_msg_dr = &(p_msg->dr);
-  assert (NULL != p_msg_dr);
+  assert (p_msg_dr);
 
   now = tiz_fsm_get_substate (tiz_get_fsm (p_msg->p_hdl));
 
@@ -415,7 +415,7 @@ static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
   bool done = false;
   tiz_prc_msg_dispatch_state_set_f p_action_f = NULL;
 
-  assert (NULL != ap_msg_sc);
+  assert (ap_msg_sc);
 
   /* Obtain the current state */
   tiz_check_omx_err (tiz_api_GetState (tiz_get_fsm (ap_hdl), ap_hdl, &now));
@@ -425,7 +425,7 @@ static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
 
   /* find the action */
   p_action_f = lookup_state_set_transition (p_prc, now, next);
-  assert (NULL != p_action_f);
+  assert (p_action_f);
   rc = p_action_f (p_prc, &done);
 
   if (OMX_ErrorIncorrectStateTransition == rc)
@@ -460,7 +460,7 @@ static OMX_ERRORTYPE dispatch_port_flush (const void *ap_obj,
                                           OMX_HANDLETYPE p_hdl,
                                           tiz_prc_msg_sendcommand_t *ap_msg_sc)
 {
-  assert (NULL != ap_msg_sc);
+  assert (ap_msg_sc);
   return tiz_prc_port_flush (ap_obj, ap_msg_sc->param1);
 }
 
@@ -468,7 +468,7 @@ static OMX_ERRORTYPE dispatch_port_disable (
     const void *ap_obj, OMX_HANDLETYPE p_hdl,
     tiz_prc_msg_sendcommand_t *ap_msg_sc)
 {
-  assert (NULL != ap_msg_sc);
+  assert (ap_msg_sc);
   return tiz_prc_port_disable (ap_obj, ap_msg_sc->param1);
 }
 
@@ -476,7 +476,7 @@ static OMX_ERRORTYPE dispatch_port_enable (const void *ap_obj,
                                            OMX_HANDLETYPE p_hdl,
                                            tiz_prc_msg_sendcommand_t *ap_msg_sc)
 {
-  assert (NULL != ap_msg_sc);
+  assert (ap_msg_sc);
   return tiz_prc_port_enable (ap_obj, ap_msg_sc->param1);
 }
 
@@ -488,13 +488,13 @@ static OMX_BOOL remove_buffer_from_servant_queue (OMX_PTR ap_elem,
   tiz_prc_msg_t *p_msg = ap_elem;
   const OMX_BUFFERHEADERTYPE *p_hdr = ap_data2;
 
-  assert (NULL != p_msg);
-  assert (NULL != p_hdr);
+  assert (p_msg);
+  assert (p_hdr);
 
   if (p_msg->class == a_data1)
     {
       tiz_prc_msg_buffersready_t *p_msg_br = &(p_msg->br);
-      assert (NULL != p_msg_br);
+      assert (p_msg_br);
 
       if (p_hdr == p_msg_br->p_buffer)
         {
@@ -582,8 +582,8 @@ static OMX_ERRORTYPE prc_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   tiz_prc_msg_t *p_msg = NULL;
   tiz_prc_msg_configchange_t *p_msg_cc = NULL;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_struct);
+  assert (ap_obj);
+  assert (ap_struct);
 
   TIZ_TRACE (ap_hdl, "SetConfig [%s]", tiz_idx_to_str (a_index));
 
@@ -623,8 +623,8 @@ static OMX_ERRORTYPE prc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
   tiz_prc_msg_t *p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
-  assert (NULL != p_msg);
+  assert (p_obj);
+  assert (p_msg);
 
   TIZ_TRACE (handleOf (ap_obj), "Processing [%s]...",
              tiz_prc_msg_to_str (p_msg->class));
@@ -692,7 +692,7 @@ OMX_ERRORTYPE
 tiz_prc_buffers_ready (const void *ap_obj)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->buffers_ready);
+  assert (class->buffers_ready);
   return class->buffers_ready (ap_obj);
 }
 
@@ -700,7 +700,7 @@ OMX_ERRORTYPE
 tiz_prc_super_buffers_ready (const void *a_class, const void *ap_obj)
 {
   const tiz_prc_class_t *superclass = super (a_class);
-  assert (NULL != ap_obj && NULL != superclass->buffers_ready);
+  assert (ap_obj && superclass->buffers_ready);
   return superclass->buffers_ready (ap_obj);
 }
 
@@ -713,7 +713,7 @@ OMX_ERRORTYPE
 tiz_prc_pause (const void *ap_obj)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->pause);
+  assert (class->pause);
   return class->pause (ap_obj);
 }
 
@@ -726,7 +726,7 @@ OMX_ERRORTYPE
 tiz_prc_resume (const void *ap_obj)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->resume);
+  assert (class->resume);
   return class->resume (ap_obj);
 }
 
@@ -739,7 +739,7 @@ OMX_ERRORTYPE
 tiz_prc_port_flush (const void *ap_obj, OMX_U32 a_pid)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->port_flush);
+  assert (class->port_flush);
   return class->port_flush (ap_obj, a_pid);
 }
 
@@ -752,7 +752,7 @@ OMX_ERRORTYPE
 tiz_prc_port_disable (const void *ap_obj, OMX_U32 a_pid)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->port_disable);
+  assert (class->port_disable);
   return class->port_disable (ap_obj, a_pid);
 }
 
@@ -765,7 +765,7 @@ OMX_ERRORTYPE
 tiz_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->port_enable);
+  assert (class->port_enable);
   return class->port_enable (ap_obj, a_pid);
 }
 
@@ -780,7 +780,7 @@ tiz_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
                        OMX_INDEXTYPE a_config_idx)
 {
   const tiz_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->config_change);
+  assert (class->config_change);
   return class->config_change (ap_obj, a_pid, a_config_idx);
 }
 

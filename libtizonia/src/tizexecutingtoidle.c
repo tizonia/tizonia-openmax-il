@@ -63,7 +63,7 @@ static OMX_ERRORTYPE
 executingtoidle_GetState (const void *ap_obj,
                           OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
-  assert (NULL != ap_state);
+  assert (ap_state);
   *ap_state = OMX_StateExecuting;
   return OMX_ErrorNone;
 }
@@ -98,8 +98,8 @@ executingtoidle_trans_complete (const void *ap_obj,
             "Trans complete to state [%s]...",
             tiz_fsm_state_to_str (a_new_state));
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_servant);
+  assert (ap_obj);
+  assert (ap_servant);
   assert (OMX_StateIdle == a_new_state);
 
   if (2 == p_base->servants_count_ + 1)
@@ -120,7 +120,7 @@ executingtoidle_tunneled_ports_status_update (void *ap_obj)
 {
   tiz_state_t *p_base = (tiz_state_t *) ap_obj;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   {
     OMX_HANDLETYPE p_hdl = handleOf(p_base->p_fsm_);

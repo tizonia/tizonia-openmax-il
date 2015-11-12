@@ -90,7 +90,7 @@ flacport_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   if (OMX_TizoniaIndexParamAudioFlac == a_index)
     {
@@ -178,8 +178,8 @@ flacport_check_tunnel_compat (const void *ap_obj,
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (NULL != ap_this_def);
-  assert (NULL != ap_other_def);
+  assert (ap_this_def);
+  assert (ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {

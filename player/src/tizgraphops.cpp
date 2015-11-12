@@ -79,7 +79,7 @@ graph::ops::ops (graph                     *p_graph, const omx_comp_name_lst_t &
     error_msg_ ()
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Constructing...");
-  assert (NULL != p_graph_);
+  assert (p_graph_);
   assert (comp_lst.size () == role_lst_.size ());
 }
 
@@ -91,7 +91,7 @@ void graph::ops::do_load ()
 {
   assert (!comp_lst_.empty ());
   assert (!role_lst_.empty ());
-  assert (NULL != p_graph_);
+  assert (p_graph_);
 
   G_OPS_BAIL_IF_ERROR (util::verify_comp_list (comp_lst_),
                        "Unable to verify the component list.");
@@ -136,7 +136,7 @@ void graph::ops::do_setup ()
 void graph::ops::do_ack_loaded ()
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, " p_graph_ [%p]", p_graph_);
-  if (last_op_succeeded () && NULL != p_graph_)
+  if (last_op_succeeded () && p_graph_)
   {
     p_graph_->graph_loaded ();
   }
@@ -251,7 +251,7 @@ void graph::ops::do_omx_idle2exe ()
 
 void graph::ops::do_ack_execd ()
 {
-  if (last_op_succeeded () && NULL != p_graph_)
+  if (last_op_succeeded () && p_graph_)
   {
     p_graph_->graph_execd ();
   }
@@ -259,7 +259,7 @@ void graph::ops::do_ack_execd ()
 
 void graph::ops::do_ack_stopped ()
 {
-  if (last_op_succeeded () && NULL != p_graph_)
+  if (last_op_succeeded () && p_graph_)
   {
     p_graph_->graph_stopped ();
   }
@@ -267,7 +267,7 @@ void graph::ops::do_ack_stopped ()
 
 void graph::ops::do_ack_paused ()
 {
-  if (last_op_succeeded () && NULL != p_graph_)
+  if (last_op_succeeded () && p_graph_)
   {
     p_graph_->graph_paused ();
   }
@@ -275,7 +275,7 @@ void graph::ops::do_ack_paused ()
 
 void graph::ops::do_ack_unpaused ()
 {
-  if (last_op_succeeded () && NULL != p_graph_)
+  if (last_op_succeeded () && p_graph_)
   {
     p_graph_->graph_unpaused ();
   }
@@ -283,7 +283,7 @@ void graph::ops::do_ack_unpaused ()
 
 void graph::ops::do_ack_metadata ()
 {
-  if (last_op_succeeded () && NULL != p_graph_)
+  if (last_op_succeeded () && p_graph_)
   {
     p_graph_->graph_metadata (metadata_);
   }
@@ -291,7 +291,7 @@ void graph::ops::do_ack_metadata ()
 
 void graph::ops::do_ack_volume ()
 {
-  if (last_op_succeeded () && NULL != p_graph_)
+  if (last_op_succeeded () && p_graph_)
   {
     p_graph_->graph_volume (volume_);
   }

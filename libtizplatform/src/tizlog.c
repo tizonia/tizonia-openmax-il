@@ -63,8 +63,8 @@ static const char *log_layout_format (const log4c_layout_t *a_layout,
   user_locinfo_t *uloc = NULL;
   (void) a_layout;
 
-  assert (NULL != a_event);
-  assert (NULL != a_event->evt_loc);
+  assert (a_event);
+  assert (a_event->evt_loc);
 
   if (a_event->evt_loc->loc_data)
     {
@@ -148,8 +148,8 @@ int tiz_log_init (void)
 
 void tiz_log_set_unique_rolling_file (const char* ap_logdir, const char * ap_file_prefix)
 {
-  assert (NULL != ap_logdir);
-  assert (NULL != ap_file_prefix);
+  assert (ap_logdir);
+  assert (ap_file_prefix);
 
   if (NULL == ap_logdir || NULL == ap_file_prefix)
     {
@@ -159,10 +159,10 @@ void tiz_log_set_unique_rolling_file (const char* ap_logdir, const char * ap_fil
   {
     log4c_appender_t *app = log4c_appender_get ("tizlogfile");
 
-    if (NULL != app)
+    if (app)
       {
         rollingfile_udata_t *rfup = log4c_appender_get_udata(app);
-        if (NULL != rfup)
+        if (rfup)
           {
             char buffer[128];
             pid_t pid = getpid ();
@@ -173,7 +173,7 @@ void tiz_log_set_unique_rolling_file (const char* ap_logdir, const char * ap_fil
             /* recover a rollingpolicy instance with this name */
             log4c_rollingpolicy_t *rollingpolicyp
               = log4c_rollingpolicy_get("tizrolling");
-            if (NULL != rollingpolicyp)
+            if (rollingpolicyp)
               {
                 /* connect that policy to this rollingfile appender conf */
                 rollingfile_udata_set_policy(rfup, rollingpolicyp);

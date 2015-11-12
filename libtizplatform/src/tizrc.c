@@ -152,8 +152,8 @@ static keyval_t *find_node (const tiz_rcfile_t *ap_rc, const char *key)
 {
   keyval_t *p_kvs = NULL;
 
-  assert (NULL != ap_rc);
-  assert (NULL != key);
+  assert (ap_rc);
+  assert (key);
 
   p_kvs = ap_rc->p_keyvals;
 

@@ -50,7 +50,7 @@
 static OMX_ERRORTYPE
 sdlivr_proc_render_buffer (const sdlivr_prc_t *ap_prc, OMX_BUFFERHEADERTYPE * p_hdr)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (ap_prc->p_overlay)
     {
@@ -140,7 +140,7 @@ static void *
 sdlivr_proc_ctor (void *ap_obj, va_list * app)
 {
   sdlivr_prc_t *p_prc = super_ctor (typeOf (ap_obj, "sdlivrprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->pinhdr_ = NULL;
   p_prc->pouthdr_ = NULL;
   p_prc->eos_ = false;
@@ -188,7 +188,7 @@ sdlivr_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 
   TIZ_TRACE (handleOf (p_prc), "pid [%d]", a_pid);
 
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   /* Retrieve port def from port */
   if (OMX_ErrorNone != (rc = tiz_api_GetParameter
@@ -238,7 +238,7 @@ static OMX_ERRORTYPE
 sdlivr_proc_stop_and_return (void *ap_obj)
 {
   sdlivr_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   SDL_FreeYUVOverlay (p_prc->p_overlay);
   return OMX_ErrorNone;
 }
@@ -255,7 +255,7 @@ sdlivr_proc_buffers_ready (const void *ap_obj)
   if (OMX_ErrorNone == tiz_krn_claim_buffer
       (tiz_get_krn (handleOf (ap_obj)), 0, 0, &p_hdr))
     {
-      if (NULL != p_hdr)
+      if (p_hdr)
         {
           tiz_check_omx_err (sdlivr_proc_render_buffer (ap_obj, p_hdr));
           if (p_hdr->nFlags & OMX_BUFFERFLAG_EOS)

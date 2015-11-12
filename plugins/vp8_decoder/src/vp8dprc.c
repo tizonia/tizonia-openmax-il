@@ -200,8 +200,8 @@ read_from_omx_buffer (void *ap_dst, const size_t a_bytes, OMX_BUFFERHEADERTYPE *
 {
   size_t to_read = a_bytes;
 
-  assert (NULL != ap_dst);
-  assert (NULL != ap_hdr);
+  assert (ap_dst);
+  assert (ap_hdr);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "a_bytes [%d], nFilledLen [%d] nOffset [%d]",
            a_bytes, ap_hdr->nFilledLen, ap_hdr->nOffset);
@@ -231,9 +231,9 @@ read_from_omx_buffer (void *ap_dst, const size_t a_bytes, OMX_BUFFERHEADERTYPE *
 static OMX_BUFFERHEADERTYPE *
 get_input_buffer (vp8d_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
-  if (NULL != ap_prc->p_inhdr_)
+  if (ap_prc->p_inhdr_)
     {
       return ap_prc->p_inhdr_;
     }
@@ -242,7 +242,7 @@ get_input_buffer (vp8d_prc_t *ap_prc)
       if (OMX_ErrorNone == tiz_krn_claim_buffer
           (tiz_get_krn (handleOf (ap_prc)), 0, 0, &ap_prc->p_inhdr_))
         {
-          if (NULL != ap_prc->p_inhdr_)
+          if (ap_prc->p_inhdr_)
             {
               TIZ_TRACE (handleOf (ap_prc), "Claimed input HEADER [%p]..."
                          "nFilledLen [%d]", ap_prc->p_inhdr_,
@@ -258,11 +258,11 @@ get_input_buffer (vp8d_prc_t *ap_prc)
 static OMX_BUFFERHEADERTYPE *
 get_output_buffer (vp8d_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_TRACE (handleOf (ap_prc), "eos_ = %s", ap_prc->eos_ ? "TRUE" : "FALSE");
 
-  if (NULL != ap_prc->p_outhdr_)
+  if (ap_prc->p_outhdr_)
     {
       return ap_prc->p_outhdr_;
     }
@@ -293,7 +293,7 @@ get_output_buffer (vp8d_prc_t *ap_prc)
 static void
 buffer_emptied (vp8d_prc_t *ap_prc,  OMX_BUFFERHEADERTYPE *ap_hdr)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (ap_prc->p_inhdr_ == ap_hdr);
 
   TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] emptied ", ap_hdr);
@@ -313,8 +313,8 @@ buffer_emptied (vp8d_prc_t *ap_prc,  OMX_BUFFERHEADERTYPE *ap_hdr)
 static void
 buffer_filled (vp8d_prc_t *ap_prc, OMX_BUFFERHEADERTYPE *ap_hdr)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_hdr);
+  assert (ap_prc);
+  assert (ap_hdr);
   assert (ap_prc->p_outhdr_ == ap_hdr);
 
   TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFilledLen [%d] ", ap_hdr,
@@ -366,8 +366,8 @@ read_frame_size (vp8d_prc_t *ap_prc, OMX_BUFFERHEADERTYPE *ap_inhdr)
   size_t bytes_read = 0;
   size_t frame_size = 0;
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_inhdr);
+  assert (ap_prc);
+  assert (ap_inhdr);
   assert (ap_inhdr->nFilledLen > 0);
 
   /* For both the raw and ivf formats, the frame size is the first 4 bytes
@@ -409,8 +409,8 @@ read_frame (vp8d_prc_t *ap_prc, OMX_BUFFERHEADERTYPE *p_inhdr)
 {
   vp8d_codec_buffer_t *p_buf = NULL;
 
-  assert (NULL != ap_prc);
-  assert (NULL != p_inhdr);
+  assert (ap_prc);
+  assert (p_inhdr);
   assert (p_inhdr->nFilledLen > 0);
 
   p_buf = &(ap_prc->codec_buf_);
@@ -489,7 +489,7 @@ decode_frame (vp8d_prc_t *ap_prc)
   vpx_image_t *img = NULL;
   vp8d_codec_buffer_t *p_buf = NULL;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   p_buf = &(ap_prc->codec_buf_);
 
@@ -540,7 +540,7 @@ decode_stream (vp8d_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_inhdr  = NULL;
   OMX_BUFFERHEADERTYPE *p_outhdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   while (1)
     {
@@ -590,7 +590,7 @@ decode_stream (vp8d_prc_t *ap_prc)
 static inline void
 free_codec_buffer (vp8d_prc_t *p_obj)
 {
-  assert (NULL != p_obj);
+  assert (p_obj);
   tiz_mem_free (p_obj->codec_buf_.p_data);
   tiz_mem_set (&(p_obj->codec_buf_), 0, sizeof(p_obj->codec_buf_));
 }
@@ -600,9 +600,9 @@ release_buffers (const void *ap_prc)
 {
   vp8d_prc_t *p_prc = (vp8d_prc_t *) ap_prc;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
-  if (NULL != p_prc->p_inhdr_)
+  if (p_prc->p_inhdr_)
     {
       tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
                               ARATELIA_VP8_DECODER_INPUT_PORT_INDEX,
@@ -610,7 +610,7 @@ release_buffers (const void *ap_prc)
       p_prc->p_inhdr_ = NULL;
     }
 
-  if (NULL != p_prc->p_outhdr_)
+  if (p_prc->p_outhdr_)
     {
       tiz_krn_release_buffer (tiz_get_krn (handleOf (p_prc)),
                               ARATELIA_VP8_DECODER_OUTPUT_PORT_INDEX,
@@ -618,7 +618,7 @@ release_buffers (const void *ap_prc)
       p_prc->p_outhdr_ = NULL;
     }
 
-  if (NULL != p_prc->codec_buf_.p_data)
+  if (p_prc->codec_buf_.p_data)
     {
       free_codec_buffer (p_prc);
     }
@@ -632,7 +632,7 @@ static void *
 vp8d_proc_ctor (void *ap_obj, va_list * app)
 {
   vp8d_prc_t *p_prc = super_ctor (typeOf (ap_obj, "vp8dprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_inhdr_     = 0;
   p_prc->p_outhdr_    = 0;
   p_prc->first_buf_   = true;
@@ -661,7 +661,7 @@ vp8d_proc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   vpx_codec_err_t err = VPX_CODEC_OK;
   int flags = 0;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   /* TODO : vp8 decoder flags */
   /*   flags = (postproc ? VPX_CODEC_USE_POSTPROC : 0) | */
@@ -686,7 +686,7 @@ static OMX_ERRORTYPE
 vp8d_proc_deallocate_resources (void *ap_obj)
 {
   vp8d_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   free_codec_buffer (p_prc);
   vpx_codec_destroy (&(p_prc->vp8ctx_));
   return OMX_ErrorNone;
@@ -696,7 +696,7 @@ static OMX_ERRORTYPE
 vp8d_proc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
 {
   vp8d_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->first_buf_ = true;
   p_prc->eos_       = false;
   return OMX_ErrorNone;

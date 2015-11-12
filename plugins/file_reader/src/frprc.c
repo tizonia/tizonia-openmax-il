@@ -56,8 +56,8 @@ static OMX_ERRORTYPE fr_prc_deallocate_resources (void *);
 
 static inline void close_file (fr_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
-  if (NULL != ap_prc->p_file_)
+  assert (ap_prc);
+  if (ap_prc->p_file_)
     {
       fclose (ap_prc->p_file_);
       ap_prc->p_file_ = NULL;
@@ -66,17 +66,17 @@ static inline void close_file (fr_prc_t *ap_prc)
 
 static inline void delete_uri (fr_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
   ap_prc->p_uri_param_ = NULL;
 }
 
 static inline void reset_stream_parameters (fr_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   ap_prc->counter_ = 0;
   ap_prc->eos_ = false;
-  if (NULL != ap_prc->p_file_)
+  if (ap_prc->p_file_)
     {
       rewind (ap_prc->p_file_);
     }
@@ -87,7 +87,7 @@ static OMX_ERRORTYPE obtain_uri (fr_prc_t *ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (NULL == ap_prc->p_uri_param_);
 
   ap_prc->p_uri_param_
@@ -128,7 +128,7 @@ static OMX_ERRORTYPE read_into_buffer (const void *ap_obj,
                                        OMX_BUFFERHEADERTYPE *p_hdr)
 {
   fr_prc_t *p_prc = (fr_prc_t *)ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   if (p_prc->p_file_ && !(p_prc->eos_))
     {
@@ -171,7 +171,7 @@ static OMX_ERRORTYPE read_into_buffer (const void *ap_obj,
 static void *fr_prc_ctor (void *ap_obj, va_list *app)
 {
   fr_prc_t *p_prc = super_ctor (typeOf (ap_obj, "frprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_file_ = NULL;
   p_prc->p_uri_param_ = NULL;
   reset_stream_parameters (p_prc);
@@ -192,7 +192,7 @@ static OMX_ERRORTYPE fr_prc_allocate_resources (void *ap_obj,
                                                 OMX_U32 TIZ_UNUSED (a_pid))
 {
   fr_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   assert (NULL == p_prc->p_uri_param_);
   assert (NULL == p_prc->p_file_);
 
@@ -242,7 +242,7 @@ static OMX_ERRORTYPE fr_prc_buffers_ready (const void *ap_obj)
 {
   const fr_prc_t *p_prc = ap_obj;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   if (!p_prc->eos_)
     {
@@ -250,7 +250,7 @@ static OMX_ERRORTYPE fr_prc_buffers_ready (const void *ap_obj)
       tiz_check_omx_err (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
                                                ARATELIA_FILE_READER_PORT_INDEX,
                                                0, &p_hdr));
-      if (NULL != p_hdr)
+      if (p_hdr)
         {
           TIZ_TRACE (handleOf (p_prc), "Claimed HEADER [%p]...nFilledLen [%d]",
                      p_hdr, p_hdr->nFilledLen);

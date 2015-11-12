@@ -72,8 +72,8 @@ static char *to_lower_case (char *p_str)
 
 static int compare_kv_pairs (void *compare_arg, void *p_a, void *p_b)
 {
-  assert (NULL != p_a);
-  assert (NULL != p_b);
+  assert (p_a);
+  assert (p_b);
 
   if (NULL == p_a || NULL == p_b)
     {
@@ -88,9 +88,9 @@ static int free_kv_pair (void *ap_key)
 {
   http_kv_pair_t *p_kvp = ap_key;
 
-  assert (NULL != p_kvp);
+  assert (p_kvp);
 
-  if (NULL != p_kvp)
+  if (p_kvp)
     {
       if (p_kvp->p_key)
         {
@@ -187,8 +187,8 @@ static int on_url (http_parser *ap_parser, const char *ap_at, size_t a_length)
   tiz_http_parser_t *p_hp = (tiz_http_parser_t *)ap_parser;
   const char *p_url_str = "url";
 
-  assert (NULL != p_hp);
-  assert (NULL != ap_at);
+  assert (p_hp);
+  assert (ap_at);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on url [%.*s] ***", (int)a_length, ap_at);
 
@@ -206,8 +206,8 @@ static int on_header_field (http_parser *ap_parser, const char *ap_at,
 {
   tiz_http_parser_t *p_hp = (tiz_http_parser_t *)ap_parser;
 
-  assert (NULL != p_hp);
-  assert (NULL != ap_at);
+  assert (p_hp);
+  assert (ap_at);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on header field [%.*s] ***", (int)a_length,
            ap_at);
@@ -226,9 +226,9 @@ static int on_header_value (http_parser *ap_parser, const char *ap_at,
   tiz_http_parser_t *p_hp = (tiz_http_parser_t *)ap_parser;
   char *p_hdr = p_hp->p_last_header;
 
-  assert (NULL != p_hp);
-  assert (NULL != ap_at);
-  assert (NULL != p_hdr);
+  assert (p_hp);
+  assert (ap_at);
+  assert (p_hdr);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on header value [%.*s] ***", (int)a_length,
            ap_at);
@@ -257,9 +257,9 @@ static int on_message_complete (http_parser *ap_parser)
 
 static inline void clean_up_parser (tiz_http_parser_ptr_t ap_parser)
 {
-  if (NULL != ap_parser)
+  if (ap_parser)
     {
-      if (NULL != ap_parser->p_dict)
+      if (ap_parser->p_dict)
         {
           avl_free_avl_tree (ap_parser->p_dict, free_kv_pair);
         }
@@ -275,7 +275,7 @@ tiz_http_parser_init (tiz_http_parser_ptr_t *app_parser,
   tiz_http_parser_ptr_t p_hp = NULL;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != app_parser);
+  assert (app_parser);
   assert (type < ETIZHttpParserTypeMax);
 
   if (NULL == (p_hp = (tiz_http_parser_ptr_t)tiz_mem_calloc (
@@ -327,8 +327,8 @@ void tiz_http_parser_destroy (tiz_http_parser_t *ap_parser)
 int tiz_http_parser_parse (tiz_http_parser_t *ap_parser, const char *ap_data,
                            unsigned long a_len)
 {
-  assert (NULL != ap_parser);
-  assert (NULL != ap_data);
+  assert (ap_parser);
+  assert (ap_data);
 
   return http_parser_execute ((http_parser *)ap_parser, &(ap_parser->settings),
                               ap_data, a_len);
@@ -336,23 +336,23 @@ int tiz_http_parser_parse (tiz_http_parser_t *ap_parser, const char *ap_data,
 
 const char *tiz_http_parser_errno_name (tiz_http_parser_t *ap_parser)
 {
-  assert (NULL != ap_parser);
+  assert (ap_parser);
   return http_errno_name (HTTP_PARSER_ERRNO ((http_parser *)ap_parser));
 }
 
 const char *tiz_http_parser_errno_description (tiz_http_parser_t *ap_parser)
 {
-  assert (NULL != ap_parser);
+  assert (ap_parser);
   return http_errno_description (HTTP_PARSER_ERRNO ((http_parser *)ap_parser));
 }
 
 const char *tiz_http_parser_get_header (tiz_http_parser_t *ap_parser,
                                         const char *ap_hdr_name)
 {
-  assert (NULL != ap_parser);
+  assert (ap_parser);
   char *p_str = strndup (ap_hdr_name, HTTP_MAX_HEADER_SIZE);
   const char *p_res = NULL;
-  if (NULL != p_str)
+  if (p_str)
     {
       p_res = get_kv_value (ap_parser, to_lower_case (p_str));
       tiz_mem_free (p_str);
@@ -363,12 +363,12 @@ const char *tiz_http_parser_get_header (tiz_http_parser_t *ap_parser,
 const char *tiz_http_parser_get_url (tiz_http_parser_t *ap_parser)
 {
   const char *p_url_str = "url";
-  assert (NULL != ap_parser);
+  assert (ap_parser);
   return get_kv_value (ap_parser, p_url_str);
 }
 
 const char *tiz_http_parser_get_method (tiz_http_parser_t *ap_parser)
 {
-  assert (NULL != ap_parser);
+  assert (ap_parser);
   return http_method_str (((http_parser *)ap_parser)->method);
 }

@@ -66,8 +66,8 @@ tiz_thread_create (tiz_thread_t *ap_thread, size_t a_stack_size,
   size_t stack_size;
   int error = 0;
 
-  assert (NULL != ap_thread);
-  assert (NULL != a_pf_routine);
+  assert (ap_thread);
+  assert (a_pf_routine);
 
   /* TODO: Check for wrong priority values */
   /*    int    sched_get_priority_max(int); */
@@ -147,8 +147,8 @@ tiz_thread_join (tiz_thread_t *ap_thread, void **app_result)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int error = 0;
 
-  assert (NULL != ap_thread);
-  assert (NULL != app_result);
+  assert (ap_thread);
+  assert (app_result);
 
   if (PTHREAD_SUCCESS != (error = pthread_join (*ap_thread, app_result)))
     {
@@ -174,8 +174,8 @@ tiz_thread_setname (tiz_thread_t *ap_thread, const OMX_STRING a_name)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int error = 0;
 
-  assert (NULL != ap_thread);
-  assert (NULL != a_name);
+  assert (ap_thread);
+  assert (a_name);
 
   if (PTHREAD_SUCCESS != (error = pthread_setname_np (*ap_thread, a_name)))
     {

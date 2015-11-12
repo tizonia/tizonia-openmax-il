@@ -56,7 +56,7 @@ vp8port_ctor (void *ap_obj, va_list * app)
   OMX_VIDEO_VP8LEVELTYPE *p_levels = NULL;
   OMX_VIDEO_PARAM_BITRATETYPE *p_pbrtype = NULL;
 
-  assert (NULL != app);
+  assert (app);
 
   tiz_port_register_index (p_obj, OMX_IndexParamVideoVp8);
   tiz_port_register_index (p_obj, OMX_IndexParamVideoProfileLevelCurrent);
@@ -73,7 +73,7 @@ vp8port_ctor (void *ap_obj, va_list * app)
     }
 
   /* Initialize the OMX_VIDEO_PARAM_VP8TYPE structure */
-  if (NULL != (p_vp8type = va_arg (*app, OMX_VIDEO_PARAM_VP8TYPE *)))
+  if ((p_vp8type = va_arg (*app, OMX_VIDEO_PARAM_VP8TYPE *)))
     {
       p_obj->vp8type_ = *p_vp8type;
     }
@@ -81,7 +81,7 @@ vp8port_ctor (void *ap_obj, va_list * app)
   /* Supported VP8 codec levels can be passed to this class. */
   tiz_vector_init (&(p_obj->p_levels_), sizeof (OMX_VIDEO_VP8LEVELTYPE));
 
-  if (NULL != (p_levels = va_arg (*app, OMX_VIDEO_VP8LEVELTYPE *)))
+  if ((p_levels = va_arg (*app, OMX_VIDEO_VP8LEVELTYPE *)))
     {
       OMX_U32 i = 0;
       while (OMX_VIDEO_VP8LevelMax != p_levels[i])
@@ -101,7 +101,7 @@ vp8port_ctor (void *ap_obj, va_list * app)
   p_obj->pltype_.eCodecType = 0;        /* Not applicable */
 
   /* Init the OMX_VIDEO_PARAM_BITRATETYPE structure, if provided */
-  if (NULL != (p_pbrtype = va_arg (*app, OMX_VIDEO_PARAM_BITRATETYPE *)))
+  if ((p_pbrtype = va_arg (*app, OMX_VIDEO_PARAM_BITRATETYPE *)))
     {
       p_obj->pbrtype_ = *p_pbrtype;
 
@@ -147,7 +147,7 @@ vp8port_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -227,7 +227,7 @@ vp8port_SetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -344,7 +344,7 @@ vp8port_GetConfig (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetConfig [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -402,7 +402,7 @@ vp8port_SetConfig (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetConfig [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -466,8 +466,8 @@ vp8port_check_tunnel_compat (const void *ap_obj,
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (NULL != ap_this_def);
-  assert (NULL != ap_other_def);
+  assert (ap_this_def);
+  assert (ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {

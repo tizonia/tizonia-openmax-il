@@ -193,7 +193,7 @@ OMX_ERRORTYPE release_in_hdr (mpg123d_prc_t *ap_prc)
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (p_in)
     {
@@ -215,7 +215,7 @@ static long get_mpg123_buffer_fill (mpg123d_prc_t *ap_prc)
 {
   double fval;
   long buffer_fill;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   (void)mpg123_getstate (ap_prc->p_mpg123_, MPG123_BUFFERFILL, &buffer_fill,
                          &fval);
   return buffer_fill;
@@ -320,9 +320,9 @@ static bool need_to_feed_more_data (mpg123d_prc_t *ap_prc)
 static bool may_consume_more_data (mpg123d_prc_t *ap_prc)
 {
   bool rc = false;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   rc = !(ap_prc->need_to_feed_more_)
-       && (NULL != tiz_filter_prc_get_header (
+       && (tiz_filter_prc_get_header (
                        ap_prc, ARATELIA_MPG123_DECODER_OUTPUT_PORT_INDEX));
   return rc;
 }
@@ -333,7 +333,7 @@ static OMX_ERRORTYPE feed_encoded_data (mpg123d_prc_t *ap_prc)
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_MPG123_DECODER_INPUT_PORT_INDEX);
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (p_in)
     {
@@ -358,7 +358,7 @@ static OMX_ERRORTYPE feed_encoded_data (mpg123d_prc_t *ap_prc)
 
 static OMX_ERRORTYPE decode_stream (mpg123d_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   do
     {
       if (need_to_feed_more_data (ap_prc))
@@ -381,8 +381,8 @@ static OMX_ERRORTYPE query_format (mpg123d_prc_t *ap_prc)
     {
       int mpg123_ret = 0;
       size_t bytes_decoded = 0;
-      assert (NULL != ap_prc);
-      assert (NULL != ap_prc->p_mpg123_);
+      assert (ap_prc);
+      assert (ap_prc->p_mpg123_);
 
       mpg123_ret = mpg123_decode (ap_prc->p_mpg123_, TIZ_OMX_BUF_PTR (p_in),
                                   TIZ_OMX_BUF_FILL_LEN (p_in), NULL, 0,
@@ -404,7 +404,7 @@ static OMX_ERRORTYPE query_format (mpg123d_prc_t *ap_prc)
 
 static void reset_stream_parameters (mpg123d_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   ap_prc->found_format_ = false;
   ap_prc->need_to_feed_more_ = true;
   tiz_filter_prc_update_eos_flag (ap_prc, false);
@@ -418,7 +418,7 @@ static void *mpg123d_prc_ctor (void *ap_obj, va_list *app)
 {
   mpg123d_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "mpg123dprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_mpg123_ = NULL;
   reset_stream_parameters (p_prc);
   if (MPG123_OK != mpg123_init ())
@@ -447,7 +447,7 @@ static OMX_ERRORTYPE mpg123d_prc_allocate_resources (void *ap_prc,
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   int ret = 0;
 
-  assert (NULL != p_prc);
+  assert (p_prc);
 
   p_prc->p_mpg123_ = mpg123_new (NULL, &ret);
   goto_end_on_mpg123_error (ret);
@@ -472,7 +472,7 @@ end:
 static OMX_ERRORTYPE mpg123d_prc_deallocate_resources (void *ap_obj)
 {
   mpg123d_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   mpg123_delete (p_prc->p_mpg123_); /* Closes, too. */
   p_prc->p_mpg123_ = NULL;
   return OMX_ErrorNone;
@@ -482,7 +482,7 @@ static OMX_ERRORTYPE mpg123d_prc_prepare_to_transfer (void *ap_obj,
                                                       OMX_U32 a_pid)
 {
   mpg123d_prc_t *p_prc = ap_obj;
-  assert (NULL != p_prc);
+  assert (p_prc);
   reset_stream_parameters (p_prc);
   return OMX_ErrorNone;
 }
@@ -507,7 +507,7 @@ static OMX_ERRORTYPE mpg123d_prc_buffers_ready (const void *ap_prc)
   mpg123d_prc_t *p_prc = (mpg123d_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   rc = !p_prc->found_format_ ? query_format (p_prc) : decode_stream (p_prc);
 

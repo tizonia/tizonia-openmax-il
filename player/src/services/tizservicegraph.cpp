@@ -68,8 +68,8 @@ graph::servicegraph::~servicegraph ()
 
 bool graph::servicegraph::dispatch_cmd (const tiz::graph::cmd *p_cmd)
 {
-  assert (NULL != p_ops_);
-  assert (NULL != p_cmd);
+  assert (p_ops_);
+  assert (p_cmd);
 
   if (!p_cmd->kill_thread ())
   {

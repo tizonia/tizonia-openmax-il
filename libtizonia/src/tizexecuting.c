@@ -71,7 +71,7 @@ executing_SetParameter (const void *ap_obj,
   const void *p_krn = NULL;
   OMX_PTR p_port = NULL;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   p_krn = tiz_get_krn (ap_hdl);
 
@@ -88,7 +88,7 @@ executing_SetParameter (const void *ap_obj,
       return ret_val;
     }
 
-  assert (NULL != p_port);
+  assert (p_port);
 
   if (TIZ_PORT_IS_CONFIG_PORT (p_port)
       || (!TIZ_PORT_IS_CONFIG_PORT (p_port) && TIZ_PORT_IS_ENABLED (p_port)))
@@ -105,7 +105,7 @@ static OMX_ERRORTYPE
 executing_GetState (const void *ap_obj,
                     OMX_HANDLETYPE ap_hdl, OMX_STATETYPE * ap_state)
 {
-  assert (NULL != ap_state);
+  assert (ap_state);
   *ap_state = OMX_StateExecuting;
   return OMX_ErrorNone;
 }
@@ -180,8 +180,8 @@ executing_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 {
   tiz_fsm_state_id_t new_state = EStateMax;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
   TIZ_DEBUG (ap_hdl, "Requested transition to state [%s]...",
@@ -255,8 +255,8 @@ static OMX_ERRORTYPE
 executing_trans_complete (const void *ap_obj,
                           OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  assert (NULL != ap_obj);
-  assert (NULL != ap_servant);
+  assert (ap_obj);
+  assert (ap_servant);
 
   TIZ_DEBUG (handleOf(ap_servant),
             "Trans complete to state [%s]...",

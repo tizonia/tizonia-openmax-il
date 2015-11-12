@@ -116,7 +116,7 @@ ivrport_GetConfig (const void *ap_obj,
   TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] GetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_index)
     {
@@ -179,7 +179,7 @@ ivrport_SetConfig (const void *ap_obj,
   TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] SetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_index)
     {
@@ -256,8 +256,8 @@ ivrport_check_tunnel_compat (const void *ap_obj,
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (NULL != ap_this_def);
-  assert (NULL != ap_other_def);
+  assert (ap_this_def);
+  assert (ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {

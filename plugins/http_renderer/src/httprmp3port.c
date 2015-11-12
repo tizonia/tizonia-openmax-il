@@ -53,7 +53,7 @@ static void *httpr_mp3port_ctor (void *ap_obj, va_list *app)
 {
   httpr_mp3port_t *p_obj
       = super_ctor (typeOf (ap_obj, "httprmp3port"), ap_obj, app);
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   tiz_port_register_index (p_obj, OMX_TizoniaIndexParamIcecastMountpoint);
   tiz_port_register_index (p_obj, OMX_TizoniaIndexConfigIcecastMetadata);
@@ -88,7 +88,7 @@ static void *httpr_mp3port_ctor (void *ap_obj, va_list *app)
 static void *httpr_mp3port_dtor (void *ap_obj)
 {
   httpr_mp3port_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   tiz_mem_free (p_obj->p_stream_title_);
   return super_dtor (typeOf (ap_obj, "httprmp3port"), ap_obj);
 }
@@ -107,7 +107,7 @@ static OMX_ERRORTYPE httpr_mp3port_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   if (OMX_TizoniaIndexParamIcecastMountpoint == a_index)
     {
@@ -134,7 +134,7 @@ static OMX_ERRORTYPE httpr_mp3port_SetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   if (OMX_TizoniaIndexParamIcecastMountpoint == a_index)
     {
@@ -168,7 +168,7 @@ static OMX_ERRORTYPE httpr_mp3port_GetConfig (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   if (OMX_TizoniaIndexConfigIcecastMetadata == a_index)
     {
@@ -177,7 +177,7 @@ static OMX_ERRORTYPE httpr_mp3port_GetConfig (const void *ap_obj,
 
       p_metadata->nVersion.nVersion = OMX_VERSION;
 
-      if (NULL != p_obj->p_stream_title_)
+      if (p_obj->p_stream_title_)
         {
           OMX_U32 metadata_buf_size = p_metadata->nSize - sizeof(OMX_U32)
                                       - sizeof(OMX_VERSIONTYPE)
@@ -223,7 +223,7 @@ static OMX_ERRORTYPE httpr_mp3port_SetConfig (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "[%s]...", tiz_idx_to_str (a_index));
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   if (OMX_TizoniaIndexConfigIcecastMetadata == a_index)
     {
@@ -243,7 +243,7 @@ static OMX_ERRORTYPE httpr_mp3port_SetConfig (const void *ap_obj,
 
           tiz_mem_free (p_obj->p_stream_title_);
           p_obj->p_stream_title_ = tiz_mem_calloc (1, stream_title_len + 1);
-          if (NULL != p_obj->p_stream_title_)
+          if (p_obj->p_stream_title_)
             {
               strncpy (p_obj->p_stream_title_, (char *)p_metadata->cStreamTitle,
                        stream_title_len);

@@ -69,7 +69,7 @@ check_map_for_each_f (OMX_PTR ap_key, OMX_PTR ap_value,
 
   fail_if (NULL == ap_key);
   fail_if (NULL == ap_value);
-  fail_if (NULL != ap_arg);
+  fail_if (ap_arg);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "each [%d] key [%d] value [%d]", g_each, *p_key, *p_value);
 

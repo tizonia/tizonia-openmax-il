@@ -59,7 +59,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
   tiz_port_options_t *p_opts = NULL;
   va_list app_copy;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   /* Make a copy of the incoming va_list before it gets parsed by the parent
      class:
@@ -77,7 +77,7 @@ binaryport_ctor (void *ap_obj, va_list * app)
 
   /* Now, grab the port options structure */
   p_opts = va_arg (app_copy, tiz_port_options_t *);
-  assert (NULL != p_opts);
+  assert (p_opts);
 
   switch (p_opts->domain)
     {
@@ -208,7 +208,7 @@ static void *
 binaryport_dtor (void *ap_obj)
 {
   tiz_binaryport_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   factory_delete (p_obj->p_port_);
   return super_dtor (typeOf (ap_obj, "tizbinaryport"), ap_obj);
 }
@@ -227,7 +227,7 @@ binaryport_GetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -269,7 +269,7 @@ binaryport_SetParameter (const void *ap_obj,
 
   TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
             tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   switch (a_index)
     {
@@ -310,8 +310,8 @@ static bool
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
 
-  assert (NULL != ap_this_def);
-  assert (NULL != ap_other_def);
+  assert (ap_this_def);
+  assert (ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {

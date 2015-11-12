@@ -52,7 +52,7 @@ static OMX_ERRORTYPE allocate_temp_data_store (opusfiled_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
   tiz_check_omx_err (
@@ -68,7 +68,7 @@ static inline void deallocate_temp_data_store (
 /*@releases ap_prc->p_store_@ */
 /*@ensures isnull ap_prc->p_store_@ */
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   tiz_buffer_destroy (ap_prc->p_store_);
   ap_prc->p_store_ = NULL;
 }
@@ -78,7 +78,7 @@ OMX_ERRORTYPE release_input_header (opusfiled_prc_t *ap_prc)
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
 
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (p_in)
     {
@@ -111,7 +111,7 @@ static bool store_data (opusfiled_prc_t *ap_prc)
       OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
           ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
 
-      assert (NULL != ap_prc);
+      assert (ap_prc);
 
       if (p_in)
         {
@@ -224,7 +224,7 @@ static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
                  tiz_buffer_bytes_available (ap_prc->p_store_), p_out);
 
       /* Propagate the EOS flag to the next component */
-      if (tiz_buffer_bytes_available (ap_prc->p_store_) == 0 && NULL != p_out
+      if (tiz_buffer_bytes_available (ap_prc->p_store_) == 0 && p_out
           && tiz_filter_prc_is_eos (ap_prc))
         {
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;
@@ -235,8 +235,8 @@ static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
       return OMX_ErrorNotReady;
     }
 
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_opus_dec_);
+  assert (ap_prc);
+  assert (ap_prc->p_opus_dec_);
 
   {
     unsigned char *p_pcm = p_out->pBuffer + p_out->nOffset;
@@ -278,7 +278,7 @@ static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
 
 static void reset_stream_parameters (opusfiled_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   ap_prc->decoder_inited_ = false;
   tiz_buffer_clear (ap_prc->p_store_);
   ap_prc->store_offset_ = 0;
@@ -293,7 +293,7 @@ static void *opusfiled_prc_ctor (void *ap_obj, va_list *app)
 {
   opusfiled_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "opusfiledprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   reset_stream_parameters (p_prc);
   return p_prc;
 }
@@ -318,7 +318,7 @@ static OMX_ERRORTYPE opusfiled_prc_deallocate_resources (void *ap_obj)
 {
   opusfiled_prc_t *p_prc = ap_obj;
   deallocate_temp_data_store (p_prc);
-  assert (NULL != p_prc);
+  assert (p_prc);
   op_free (p_prc->p_opus_dec_);
   p_prc->p_opus_dec_ = NULL;
   return OMX_ErrorNone;
@@ -351,7 +351,7 @@ static OMX_ERRORTYPE opusfiled_prc_buffers_ready (const void *ap_obj)
   opusfiled_prc_t *p_prc = (opusfiled_prc_t *)ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   if (!p_prc->decoder_inited_)
     {

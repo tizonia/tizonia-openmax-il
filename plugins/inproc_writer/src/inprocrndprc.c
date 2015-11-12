@@ -71,7 +71,7 @@
 static OMX_BUFFERHEADERTYPE *get_header (inprocrnd_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (!ap_prc->port_disabled_)
     {
@@ -94,7 +94,7 @@ static OMX_BUFFERHEADERTYPE *get_header (inprocrnd_prc_t *ap_prc)
 
 static bool ready_to_process (inprocrnd_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   TIZ_TRACE (handleOf (ap_prc), "paused [%s] port disabled [%s] stopped [%s]",
              ap_prc->paused_ ? "YES" : "NO",
              ap_prc->port_disabled_ ? "YES" : "NO",
@@ -109,7 +109,7 @@ static bool ready_to_write_to_zmq_sock (inprocrnd_prc_t *ap_prc)
   int zevents = 0;
   size_t zevents_len = sizeof(zevents);
   bool sock_ready = false;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (ap_prc->p_zmq_sock_)
     {
@@ -129,7 +129,7 @@ static bool ready_to_write_to_zmq_sock (inprocrnd_prc_t *ap_prc)
 
 static OMX_ERRORTYPE release_header (inprocrnd_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
   if (ap_prc->p_inhdr_)
     {
@@ -147,8 +147,8 @@ static OMX_ERRORTYPE release_header (inprocrnd_prc_t *ap_prc)
 
 static OMX_ERRORTYPE buffer_emptied (inprocrnd_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
-  assert (NULL != ap_prc->p_inhdr_);
+  assert (ap_prc);
+  assert (ap_prc->p_inhdr_);
   assert (ap_prc->p_inhdr_->nFilledLen == 0);
 
   if ((ap_prc->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
@@ -166,9 +166,9 @@ static OMX_ERRORTYPE write_buffer (inprocrnd_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
 
-  while (NULL != (p_hdr = get_header (ap_prc)))
+  while ((p_hdr = get_header (ap_prc)))
     {
       if (p_hdr->nFilledLen > 0)
         {
@@ -306,7 +306,7 @@ static OMX_ERRORTYPE inprocrnd_prc_io_ready (void *ap_prc,
 {
   inprocrnd_prc_t *p_prc = (inprocrnd_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (ready_to_process (p_prc) && ready_to_write_to_zmq_sock (p_prc))
     {
       rc = write_buffer (p_prc);
@@ -318,7 +318,7 @@ static OMX_ERRORTYPE inprocrnd_prc_buffers_ready (const void *ap_prc)
 {
   inprocrnd_prc_t *p_prc = (inprocrnd_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  assert (NULL != p_prc);
+  assert (p_prc);
   if (ready_to_process (p_prc))
     {
       rc = write_buffer (p_prc);

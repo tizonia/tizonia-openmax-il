@@ -65,7 +65,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
   va_copy (app_copy, *app);
 
   /* Now give the original to the base class */
-  if (NULL !=  (p_obj = super_ctor (typeOf (ap_obj, "tizdemuxerport"), ap_obj, app)))
+  if ( (p_obj = super_ctor (typeOf (ap_obj, "tizdemuxerport"), ap_obj, app)))
     {
       /* Register the demuxer-specific indexes  */
       tiz_check_omx_err_ret_null
@@ -75,7 +75,7 @@ demuxerport_ctor (void *ap_obj, va_list * app)
 
       /* Grab the port options structure (mandatory argument) */
       p_opts      = va_arg (app_copy, tiz_port_options_t *);
-      assert (NULL != p_opts);
+      assert (p_opts);
 
       TIZ_TRACE (handleOf (ap_obj), "min_buf_size [%d]",
                 p_opts->min_buf_size);
@@ -105,22 +105,22 @@ demuxerport_ctor (void *ap_obj, va_list * app)
 
             /* Get the array of OMX_AUDIO_CODINGTYPE values  (mandatory argument) */
             p_encodings = va_arg (app_copy, OMX_AUDIO_CODINGTYPE *);
-            assert (NULL != p_encodings);
+            assert (p_encodings);
 
             /* Get the OMX_AUDIO_PARAM_PCMMODETYPE structure (mandatory argument) */
             p_pcmmode = va_arg (app_copy, OMX_AUDIO_PARAM_PCMMODETYPE *);
-            assert (NULL != p_pcmmode);
+            assert (p_pcmmode);
 
             /* Get the OMX_AUDIO_CONFIG_VOLUMETYPE structure (mandatory argument) */
             p_volume = va_arg (app_copy, OMX_AUDIO_CONFIG_VOLUMETYPE *);
-            assert (NULL != p_volume);
+            assert (p_volume);
 
             TIZ_TRACE (handleOf (ap_obj), "p_volume->sVolume.nValue [%d]",
                       p_volume->sVolume.nValue);
 
             /* Get the OMX_AUDIO_CONFIG_MUTETYPE structure (mandatory argument) */
             p_mute = va_arg (app_copy, OMX_AUDIO_CONFIG_MUTETYPE *);
-            assert (NULL != p_mute);
+            assert (p_mute);
 
             p_obj->p_port_
               = factory_new (typeOf (ap_obj, "tizpcmport"),
@@ -145,15 +145,15 @@ demuxerport_ctor (void *ap_obj, va_list * app)
 
             /* Get the OMX_VIDEO_PORTDEFINITIONTYPE structure (mandatory argument) */
             p_portdef = va_arg (app_copy, OMX_VIDEO_PORTDEFINITIONTYPE *);
-            assert (NULL != p_portdef);
+            assert (p_portdef);
 
             /* Get the array of OMX_VIDEO_CODINGTYPE values (mandatory argument) */
             p_encodings = va_arg (app_copy, OMX_VIDEO_CODINGTYPE *);
-            assert (NULL != p_encodings);
+            assert (p_encodings);
 
             /* Get the array of OMX_COLOR_FORMATTYPE values (mandatory argument) */
             p_formats = va_arg (app_copy, OMX_COLOR_FORMATTYPE *);
-            assert (NULL != p_formats);
+            assert (p_formats);
 
             if (NULL == (p_obj->p_port_
                          = factory_new (typeOf (ap_obj, "tizvideoport"),
@@ -177,7 +177,7 @@ static void *
 demuxerport_dtor (void *ap_obj)
 {
   tiz_demuxerport_t *p_obj = ap_obj;
-  assert (NULL != p_obj);
+  assert (p_obj);
   factory_delete (p_obj->p_port_);
   return super_dtor (typeOf (ap_obj, "tizdemuxerport"), ap_obj);
 }
@@ -196,7 +196,7 @@ demuxerport_GetParameter (const void *ap_obj,
   TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] GetParameter [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_index)
     {
@@ -206,7 +206,7 @@ demuxerport_GetParameter (const void *ap_obj,
         /* Only the processor knows about available or active streams. So lets
            get the processor to fill this info for us. */
         void *p_prc = tiz_get_prc (ap_hdl);
-        assert (NULL != p_prc);
+        assert (p_prc);
         if (OMX_ErrorNone != (rc = tiz_api_GetParameter (p_prc, ap_hdl,
                                                          a_index, ap_struct)))
           {
@@ -256,7 +256,7 @@ demuxerport_SetParameter (const void *ap_obj,
   TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] SetParameter [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_index)
     {
@@ -273,7 +273,7 @@ demuxerport_SetParameter (const void *ap_obj,
         /* Only the processor knows about active streams. So lets
            get the processor update this info for us. */
         void *p_prc = tiz_get_prc (ap_hdl);
-        assert (NULL != p_prc);
+        assert (p_prc);
         if (OMX_ErrorUnsupportedIndex
             != (rc = tiz_api_SetParameter (p_prc, ap_hdl,
                                            a_index, ap_struct)))
@@ -290,7 +290,7 @@ demuxerport_SetParameter (const void *ap_obj,
     case OMX_IndexParamVideoPortFormat:
       {
         /* Delegate to the domain-specific port */
-        assert (NULL != p_obj->p_port_);
+        assert (p_obj->p_port_);
         if (OMX_ErrorUnsupportedIndex
             != (rc = tiz_api_SetParameter (p_obj->p_port_,
                                            ap_hdl, a_index, ap_struct)))
@@ -323,7 +323,7 @@ demuxerport_GetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] GetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_index)
     {
@@ -365,7 +365,7 @@ demuxerport_SetConfig (const void *ap_obj,
   TIZ_TRACE (handleOf (ap_obj),
             "PORT [%d] SetConfig [%s]", tiz_port_index (ap_obj),
             tiz_idx_to_str (a_index));
-  assert (NULL != ap_obj);
+  assert (ap_obj);
 
   switch (a_index)
     {
@@ -403,8 +403,8 @@ demuxerport_check_tunnel_compat
  OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
   tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
-  assert (NULL != ap_this_def);
-  assert (NULL != ap_other_def);
+  assert (ap_this_def);
+  assert (ap_other_def);
 
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {

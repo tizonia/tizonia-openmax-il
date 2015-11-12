@@ -141,8 +141,8 @@ loaded_state_set (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
 {
   tiz_fsm_state_id_t new_state = EStateMax;
 
-  assert (NULL != ap_obj);
-  assert (NULL != ap_hdl);
+  assert (ap_obj);
+  assert (ap_hdl);
   assert (a_cmd == OMX_CommandStateSet);
 
   TIZ_DEBUG (ap_hdl, "Requested transition "

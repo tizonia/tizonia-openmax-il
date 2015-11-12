@@ -918,7 +918,7 @@ static OMX_ERRORTYPE allocate_curl_resources (httpsrc_trans_t *ap_trans)
   TIZ_DEBUG (handleOf (ap_trans->p_parent_), "%s", curl_version ());
 
   p_version_info = curl_version_info (CURLVERSION_NOW);
-  if (NULL != p_version_info)
+  if (p_version_info)
     {
       ap_trans->curl_version_ = p_version_info->version_num;
     }
@@ -974,13 +974,13 @@ OMX_ERRORTYPE httpsrc_trans_init (
   httpsrc_trans_t *p_trans = NULL;
   OMX_HANDLETYPE p_hdl = NULL;
 
-  assert (NULL != app_trans);
-  assert (NULL != ap_parent);
-  assert (NULL != apf_buf_filled);
-  assert (NULL != apf_buf_wanted);
-  assert (NULL != apf_header_avail);
-  assert (NULL != apf_data_avail);
-  assert (NULL != apf_connection_lost);
+  assert (app_trans);
+  assert (ap_parent);
+  assert (apf_buf_filled);
+  assert (apf_buf_wanted);
+  assert (apf_header_avail);
+  assert (apf_data_avail);
+  assert (apf_connection_lost);
 
   p_hdl = handleOf (ap_parent);
 
@@ -1050,7 +1050,7 @@ void httpsrc_trans_set_uri (httpsrc_trans_t *ap_trans,
                             OMX_PARAM_CONTENTURITYPE *ap_uri_param)
 {
   assert (ap_trans);
-  assert (NULL != ap_uri_param);
+  assert (ap_uri_param);
   TRANS_LOG (ap_trans, TRANS_API_START);
   ap_trans->p_uri_param_ = ap_uri_param;
   curl_multi_remove_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_);

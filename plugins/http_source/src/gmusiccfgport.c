@@ -53,7 +53,7 @@ static void *gmusic_cfgport_ctor (void *ap_obj, va_list *app)
   gmusic_cfgport_t *p_obj
       = super_ctor (typeOf (ap_obj, "gmusiccfgport"), ap_obj, app);
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   tiz_check_omx_err_ret_null (tiz_port_register_index (
       p_obj, OMX_TizoniaIndexParamAudioGmusicSession));
@@ -98,7 +98,7 @@ gmusic_cfgport_GetParameter (const void *ap_obj,
   const gmusic_cfgport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...", tiz_port_index (ap_obj),
              tiz_idx_to_str (a_index));
@@ -131,7 +131,7 @@ gmusic_cfgport_SetParameter (const void *ap_obj,
   gmusic_cfgport_t *p_obj = (gmusic_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  assert (NULL != p_obj);
+  assert (p_obj);
 
   TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...", tiz_port_index (ap_obj),
              tiz_idx_to_str (a_index));

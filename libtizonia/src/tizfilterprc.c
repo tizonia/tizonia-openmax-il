@@ -58,7 +58,7 @@ static void *filter_prc_ctor (void *ap_obj, va_list *app)
 {
   tiz_filter_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "tizfilterprc"), ap_obj, app);
-  assert (NULL != p_prc);
+  assert (p_prc);
   p_prc->p_in_hdr_ = NULL;
   p_prc->p_out_hdr_ = NULL;
   p_prc->eos_ = false;
@@ -76,12 +76,12 @@ static OMX_BUFFERHEADERTYPE **
 filter_prc_get_header_ptr (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= TIZ_FILTER_OUTPUT_PORT_INDEX);
   pp_hdr = (a_pid == TIZ_FILTER_INPUT_PORT_INDEX
                 ? &(ap_prc->p_in_hdr_)
                 : &(ap_prc->p_out_hdr_));
-  assert (NULL != pp_hdr);
+  assert (pp_hdr);
   return pp_hdr;
 }
 
@@ -89,7 +89,7 @@ OMX_BUFFERHEADERTYPE **
 tiz_filter_prc_get_header_ptr (void *ap_obj, const OMX_U32 a_pid)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->get_header_ptr);
+  assert (class->get_header_ptr);
   return class->get_header_ptr (ap_obj, a_pid);
 }
 
@@ -108,7 +108,7 @@ filter_prc_get_header (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
               (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr)))
         {
           p_hdr = *pp_hdr;
-          if (NULL != p_hdr)
+          if (p_hdr)
             {
               TIZ_TRACE (handleOf (ap_prc),
                          "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
@@ -124,7 +124,7 @@ OMX_BUFFERHEADERTYPE *
 tiz_filter_prc_get_header (void *ap_obj, const OMX_U32 a_pid)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->get_header);
+  assert (class->get_header);
   return class->get_header (ap_obj, a_pid);
 }
 
@@ -142,7 +142,7 @@ bool
 tiz_filter_prc_headers_available (const void *ap_obj)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->headers_available);
+  assert (class->headers_available);
   return class->headers_available (ap_obj);
 }
 
@@ -160,10 +160,10 @@ filter_prc_release_header (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
       OMX_BUFFERHEADERTYPE **pp_hdr = tiz_filter_prc_get_header_ptr (ap_prc, a_pid);
       OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
-      assert (NULL != pp_hdr);
+      assert (pp_hdr);
       p_hdr = *pp_hdr;
 
-      if (NULL != p_hdr)
+      if (p_hdr)
         {
           TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] pid [%d] "
                      "nFilledLen [%d] nFlags [%d]",
@@ -182,7 +182,7 @@ OMX_ERRORTYPE
 tiz_filter_prc_release_header (void *ap_obj, const OMX_U32 a_pid)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->release_header);
+  assert (class->release_header);
   return class->release_header (ap_obj, a_pid);
 }
 
@@ -200,7 +200,7 @@ OMX_ERRORTYPE
 tiz_filter_prc_release_all_headers (void *ap_obj)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->release_all_headers);
+  assert (class->release_all_headers);
   return class->release_all_headers (ap_obj);
 }
 
@@ -208,12 +208,12 @@ static bool *
 filter_prc_get_port_disabled_ptr (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
 {
   bool *p_port_disabled = NULL;
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   assert (a_pid <= TIZ_FILTER_OUTPUT_PORT_INDEX);
   p_port_disabled = (a_pid == TIZ_FILTER_INPUT_PORT_INDEX
                          ? &(ap_prc->in_port_disabled_)
                          : &(ap_prc->out_port_disabled_));
-  assert (NULL != p_port_disabled);
+  assert (p_port_disabled);
   return p_port_disabled;
 }
 
@@ -221,14 +221,14 @@ bool *
 tiz_filter_prc_get_port_disabled_ptr (void *ap_obj, const OMX_U32 a_pid)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->get_port_disabled_ptr);
+  assert (class->get_port_disabled_ptr);
   return class->get_port_disabled_ptr (ap_obj, a_pid);
 }
 
 static bool
 filter_prc_is_eos (const tiz_filter_prc_t *ap_prc)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   return ap_prc->eos_;
 }
 
@@ -236,14 +236,14 @@ bool
 tiz_filter_prc_is_eos (const void *ap_obj)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->is_eos);
+  assert (class->is_eos);
   return class->is_eos (ap_obj);
 }
 
 static void
 filter_prc_update_eos_flag (tiz_filter_prc_t *ap_prc, const bool flag)
 {
-  assert (NULL != ap_prc);
+  assert (ap_prc);
   ap_prc->eos_ = flag;
 }
 
@@ -251,7 +251,7 @@ void
 tiz_filter_prc_update_eos_flag (void *ap_obj, const bool flag)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->update_eos_flag);
+  assert (class->update_eos_flag);
   class->update_eos_flag (ap_obj, flag);
 }
 
@@ -259,8 +259,8 @@ static void
 filter_prc_update_port_disabled_flag (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid, const bool flag)
 {
   bool *p_port_disabled = tiz_filter_prc_get_port_disabled_ptr (ap_prc, a_pid);
-  assert (NULL != ap_prc);
-  assert (NULL != p_port_disabled);
+  assert (ap_prc);
+  assert (p_port_disabled);
   *p_port_disabled = flag;
 }
 
@@ -268,7 +268,7 @@ void
 tiz_filter_prc_update_port_disabled_flag (void *ap_obj, const OMX_U32 a_pid, const bool flag)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
-  assert (NULL != class->update_port_disabled_flag);
+  assert (class->update_port_disabled_flag);
   class->update_port_disabled_flag (ap_obj, a_pid, flag);
 }
 

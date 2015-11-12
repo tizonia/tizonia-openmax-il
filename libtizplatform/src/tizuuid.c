@@ -42,7 +42,7 @@ void tiz_uuid_generate (OMX_UUIDTYPE *ap_uuid)
   uuid_t uid = { '0', '0', '0', '0', '0', '0', '0', '0',
                  '0', '0', '0', '0', '0', '0', '0', '0' };
 
-  assert (NULL != ap_uuid);
+  assert (ap_uuid);
 
   /* Khronos uuid type is 128 bytes length !! */
   (void)tiz_mem_set (ap_uuid, 0, 128);
@@ -56,8 +56,8 @@ void tiz_uuid_generate (OMX_UUIDTYPE *ap_uuid)
 
 void tiz_uuid_copy (OMX_UUIDTYPE *ap_uuid_dst, const OMX_UUIDTYPE *ap_uuid_src)
 {
-  assert (NULL != ap_uuid_dst);
-  assert (NULL != ap_uuid_src);
+  assert (ap_uuid_dst);
+  assert (ap_uuid_src);
   assert (ap_uuid_src != (const OMX_UUIDTYPE *)ap_uuid_dst);
 
   /* Khronos uuid type is 128 bytes length */
@@ -69,8 +69,8 @@ void tiz_uuid_str (const OMX_U8 *ap_uuid, OMX_STRING ap_str)
   uuid_t uid = { '0', '0', '0', '0', '0', '0', '0', '0',
                  '0', '0', '0', '0', '0', '0', '0', '0' };
 
-  assert (NULL != ap_uuid);
-  assert (NULL != ap_str);
+  assert (ap_uuid);
+  assert (ap_str);
 
   uuid_clear (uid);
 
@@ -88,8 +88,8 @@ void tiz_str_uuid (const char *ap_str, OMX_UUIDTYPE *ap_uuid)
                  '0', '0', '0', '0', '0', '0', '0', '0' };
   int parse_result = 0;
 
-  assert (NULL != ap_str);
-  assert (NULL != ap_uuid);
+  assert (ap_str);
+  assert (ap_uuid);
 
   uuid_clear (uid);
 
