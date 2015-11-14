@@ -134,7 +134,7 @@ html_theme_options = {
     'github_repo': 'tizonia-openmax-il',
     'github_banner': True,
     'travis_button': 'true',
-    'page_width': 'auto',
+    'page_width': '90%',
     'extra_nav_links': extra_nav_links,
     'analytics_id': 'UA-21817639-6'
 }
