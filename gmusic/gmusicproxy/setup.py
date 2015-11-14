@@ -44,7 +44,7 @@ setup(
     url                  = 'http://tizonia.org',
     py_modules           = ['tizgmusicproxy'],
     scripts              = [],
-    license              = "GNU GPLv3",
+    license              = "Apache License, Version 2.0",
     description          = 'Tizonia Google Play Music proxy',
     install_requires     = [
 #        'gmusicapi >= 5.0.0',
@@ -52,7 +52,7 @@ setup(
     classifiers          = [
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
