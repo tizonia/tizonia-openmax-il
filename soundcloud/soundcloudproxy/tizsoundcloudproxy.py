@@ -1,8 +1,5 @@
 # Copyright (C) 2015 Aratelia Limited - Juan A. Rubio
 #
-# Portions Copyright (C) 2014 Dan Nixon
-# (see https://github.com/DanNixon/PlayMusicCL)
-#
 # This file is part of Tizonia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
