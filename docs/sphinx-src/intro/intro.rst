@@ -4,28 +4,36 @@
 Introduction
 ============
 
-The 500-foot view
------------------
+500-foot view
+-------------
 
-**Tizonia** is an open source music player and audio streaming client/server
-for Linux. It features support for Spotify and Google Play Music and is based
-on its own multimedia framework (OpenMAX IL 1.2-based).
+Tizonia is an open-source sofware project built around a multimedia framework
+based on OpenMAX IL. `OpenMAX IL <https://en.wikipedia.org/wiki/OpenMAX>`_ is
+an open standard from `The Khronos Group <http://www.khronos.org/openmax/>`_
+that enables the creation and integration of software and hardware accelerated
+media streaming components like audio and video encoders and decoders, camera
+components, and media processing algorithms.
+
+In addition to the OpenMAX IL-based multimedia framework, the Tizonia project
+features a command-line music player and audio streaming client/server for
+Linux with support for Spotify, Google Play Music and SoundCloud cloud
+streaming services.
 
 
-The project's current features
-------------------------------
+Current features
+----------------
 
 * Simple, no-fuss command-line music player utility.
-* Cloud streaming audio services:
+* Cloud audio streaming services:
 
-  * *Spotify and Google Play Music currently supported. SoundCloud to be added soon.*
+  * *Spotify Premium, Google Play Unlimited, and SoundCloud.*
 
-* Local media playback with support for most of the common high-quality audio formats:
+* Support for most common high-quality audio formats from local media:
 
   * *Formats currently supported: mp3, mp2, mpa, m2a, aac, vorbis, opus, wav,
     aiff, and flac*.
 
-* Support for traditional Icecast/SHOUTcast radio streams:
+* Playback of Icecast/SHOUTcast radio streams:
 
   * mp3, aac, and opus stations (ogg to be added soon).
 
@@ -38,14 +46,16 @@ The project's current features
 
 * Based on Tizonia's own internal multimedia framework.
 
-  * A full implementation of the OpenMAX IL 1.2 provisional specification:
-  * No ffmpeg, libav, gstreamer or libvlc dependencies.
+  * A full implementation of the OpenMAX IL 1.2 provisional
+    specification. I.e. no ffmpeg, libav, gstreamer or libvlc dependencies.
 
 
-Future project's goals
-----------------------
+Future goals
+------------
 
 * LAN streaming (Icecast/SHOUTcast) of cloud streams.
+* Additional cloud audio streaming services (e.g. Dirble, YouTube, etc.).
 * Multi-room synchronised playback.
 * Zeroconf/AVAHI networking.
 * Music Player Daemon protocol support.
+* Video streaming features.

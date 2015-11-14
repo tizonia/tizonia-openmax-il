@@ -15,7 +15,6 @@ Introduction
    :maxdepth: 2
 
    intro/intro
-   intro/requirements
    intro/installation
 
 Tutorial
