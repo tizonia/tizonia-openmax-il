@@ -124,6 +124,8 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizilheaders]="include" \
     [tizgmusicproxy]="gmusic/gmusicproxy" \
     [tizgmusic]="gmusic/libtizgmusic" \
+    [tizsoundcloudproxy]="soundcloud/soundcloudproxy" \
+    [tizsoundcloud]="soundcloud/libtizsoundcloud" \
     [tizplatform]="libtizplatform" \
     [tizrmd]="rm/tizrmd" \
     [tizrmproxy]="rm/libtizrmproxy" \
@@ -156,6 +158,8 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizilheaders \
     tizgmusicproxy \
     tizgmusic \
+    tizsoundcloudproxy \
+    tizsoundcloud \
     tizplatform \
     tizrmd \
     tizrmproxy \
@@ -185,6 +189,7 @@ readonly TIZ_PROJECTS_ORDERED=( \
 
 readonly TIZ_PYTHON_PROJECTS=( \
     tizgmusicproxy \
+    tizsoundcloudproxy \
 )
 
 # &> /dev/null
@@ -196,6 +201,8 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizilheaders]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizgmusic]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizsoundcloudproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizsoundcloud]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizplatform]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizrmd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizrmproxy]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -230,6 +237,8 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizilheaders]="$TIZ_PROJECT_DH_MAKE_I_CMD" \
     [tizgmusicproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizgmusic]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizsoundcloudproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizsoundcloud]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizplatform]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizrmd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizrmproxy]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
@@ -261,6 +270,8 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizilheaders]="tizilheaders" \
     [tizgmusicproxy]="python-tizgmusicproxy" \
     [tizgmusic]="libtizgmusic0" \
+    [tizsoundcloudproxy]="python-tizsoundcloudproxy" \
+    [tizsoundcloud]="libtizsoundcloud0" \
     [tizplatform]="libtizplatform0" \
     [tizrmd]="tizrmd" \
     [tizrmproxy]="libtizrmproxy0" \
