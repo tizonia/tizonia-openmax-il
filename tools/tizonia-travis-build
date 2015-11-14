@@ -205,7 +205,20 @@ function install_python_deps {
     git clone https://github.com/simon-weber/gmusicapi \
         && cd gmusicapi \
         && sudo python setup.py install
-    return $?
+
+    if [[ "$exit_status" -ne 0 ]] ; then
+        echo "Error while installing gmusicapi" >&2
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        sudo pip install soundcloud
+        exit_status=$?
+        if [[ "$exit_status" -ne 0 ]] ; then
+            echo "Error while installing soundcloud" >&2
+        fi
+    fi
+
+    return $exit_status
 }
 
 ##################################################################
