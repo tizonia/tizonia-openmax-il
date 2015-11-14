@@ -792,9 +792,11 @@ RECURSIVE              = YES
 EXCLUDE                = @abs_top_builddir@/include
 EXCLUDE               += @abs_top_builddir@/.hg
 EXCLUDE               += @abs_top_builddir@/.git
+EXCLUDE               += @abs_top_builddir@/../player
 EXCLUDE               += @abs_top_builddir@/../plugins/templates
 EXCLUDE               += @abs_top_builddir@/../libtizplatform/src/http-parser
 EXCLUDE               += @abs_top_builddir@/../libtizplatform/src/avl
+EXCLUDE               += @abs_top_builddir@/../libtizplatform/src/utarray
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
