@@ -86,7 +86,7 @@ void tiz_queue_destroy (/*@null@ */ tiz_queue_t *ap_q);
 OMX_ERRORTYPE tiz_queue_send (tiz_queue_t *ap_q, OMX_PTR ap_data);
 
 /**
- * Retrive an item from the head of the queue. If the queue is empty, it
+ * Retrieve an item from the head of the queue. If the queue is empty, it
  * blocks until an item becomes available.
  *
  * @ingroup tizqueue
@@ -95,7 +95,7 @@ OMX_ERRORTYPE tiz_queue_send (tiz_queue_t *ap_q, OMX_PTR ap_data);
 OMX_ERRORTYPE tiz_queue_receive (tiz_queue_t *ap_q, OMX_PTR *app_data);
 
 /**
- * Retrive the number of items currently stored in the queue.
+ * Retrieve the number of items currently stored in the queue.
  *
  * @ingroup tizqueue
  *
