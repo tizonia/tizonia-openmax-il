@@ -78,8 +78,7 @@ AX_BOOST_PYTHON
 
 AC_CONFIG_FILES([Makefile
                 libtizsoundcloud.pc
-                src/Makefile
-                tests/Makefile])
+                src/Makefile])
 
 # End the configure script.
 AC_OUTPUT
