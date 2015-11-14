@@ -502,11 +502,14 @@ class tizgmusicproxy(object):
             album_hits = self.__api.search_all_access(arg)['album_hits']
             album = next((hit for hit in album_hits \
                           if 'best_result' in hit.keys()), None)
+
             if not album and len(album_hits):
+                for hit in album_hits:
+                    print_nfo("[Google Play Music] [Album] '{0}'." \
+                              .format((hit['album']['name']).encode('utf-8')))
                 album = album_hits[0]
-                print_wrn("[Google Play Music] '{0}' not found. " \
-                          "Playing '{1}' instead." \
-                          .format(arg, album['album']['name']))
+                print_wrn("[Google Play Music] Playing '{0}'." \
+                          .format((album['album']['name']).encode('utf-8')))
 
             album_tracks = dict()
             if album:
