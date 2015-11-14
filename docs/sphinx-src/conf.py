@@ -16,6 +16,7 @@ import os
 import subprocess
 import re
 import alabaster
+from collections import OrderedDict
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -117,6 +118,12 @@ breathe_domain_by_extension = {
 # a list of builtin themes.
 html_theme = 'alabaster'
 
+extra_nav_links = OrderedDict()
+extra_nav_links['Tizonia Website']  = 'http://www.tizonia.org'
+extra_nav_links['Source (GitHub)'] = 'https://github.com/tizonia/tizonia-openmax-il'
+extra_nav_links['Issues (GitHub)'] = 'https://github.com/tizonia/tizonia-openmax-il/issues'
+extra_nav_links['Binaries (Bintray)']  = 'https://bintray.com/tizonia'
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -125,7 +132,10 @@ html_theme_options = {
     'logo': 'tizonia_logo_200.gif',
     'github_user': 'tizonia',
     'github_repo': 'tizonia-openmax-il',
+    'github_banner': True,
     'travis_button': 'true',
+    'page_width': 'auto',
+    'extra_nav_links': extra_nav_links,
     'analytics_id': 'UA-21817639-6'
 }
 
@@ -204,7 +214,7 @@ html_sidebars = {
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'TizoniaOpenMAXILdoc'
+htmlhelp_basename = 'Tizoniadoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -223,7 +233,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'TizoniaOpenMAXIL.tex', u'Tizonia OpenMAX IL Documentation',
+  ('index', 'Tizonia.tex', u'Tizonia Documentation',
    u'Juan A. Rubio', 'manual'),
 ]
 
