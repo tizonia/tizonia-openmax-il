@@ -117,7 +117,13 @@ tcprc_buffers_ready (const void *ap_obj)
     {
       OMX_PTR p_eglimage = NULL;
       tiz_check_omx_err (tiz_krn_claim_eglimage (p_krn, 0, p_hdr, &p_eglimage));
+      TIZ_PRINTF_DBG_MAG ("eglimage [%p]\n", p_eglimage);
       tiz_check_omx_err (tiztc_proc_render_buffer (p_hdr));
+      if ((p_hdr->nFlags & OMX_BUFFERFLAG_EOS) != 0)
+        {
+          tiz_srv_issue_event ((OMX_PTR)ap_obj, OMX_EventBufferFlag, 0,
+                               p_hdr->nFlags, NULL);
+        }
       (void)tiz_krn_release_buffer (p_krn, 0, p_hdr);
     }
 
