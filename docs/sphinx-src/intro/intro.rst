@@ -50,8 +50,8 @@ Current features
     specification. I.e. no ffmpeg, libav, gstreamer or libvlc dependencies.
 
 
-Future goals
-------------
+Planned features
+----------------
 
 * LAN streaming (Icecast/SHOUTcast) of cloud streams.
 * Additional cloud audio streaming services (e.g. Dirble, YouTube, etc.).
