@@ -22,8 +22,8 @@ the following distro/arch combinations:
   - armhf
 
 To install the
-[latest release](https://github.com/tizonia/tizonia-openmax-il/releases/latest),
-simply run:
+[latest binary release](https://github.com/tizonia/tizonia-openmax-il/releases/latest),
+use the following shortcut:
 
 ```bash
 
@@ -38,7 +38,7 @@ _$HOME/.config/tizonia/tizonia.conf_
 ## 'tizonia' usage ##
 
 ```bash
-tizonia 0.1.0. Copyright (C) 2015 Juan A. Rubio
+tizonia 0.2.0. Copyright (C) 2015 Juan A. Rubio
 This software is part of the Tizonia project <http://tizonia.org>
 
 GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
@@ -69,14 +69,14 @@ Use "tizonia --help topic".
 * Stream audio from Spotify (Spotify Premium required).
 * Stream audio from Google Play Music (including Unlimited features).
 * Stream audio from SoundCloud.
-* Playback of local media file (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus, wav,
-  aiff, and flac).
+* Playback of local media files (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus,
+  wav, aiff, and flac).
 * Icecast/SHOUTcast streaming LAN server (mp3).
 * Icecast/SHOUTcast streaming client (mp3, aac, and opus).
 * Daemon and command line modes (no GUI).
-* MPRIS D-BUS v2 media player remote control interface (basic functions only).
-* Based on own OpenMAX IL-based multimedia framework. No gstreamer, libav, or
-  ffmpeg libraries needed.
+* MPRIS D-BUS v2 media player remote control interface (basic controls only).
+* Based on Tizonia's own OpenMAX IL-based multimedia framework. That means, no
+  gstreamer, libav, or ffmpeg dependencies.
 
 ### OpenMAX IL 1.2 multimedia framework ###
 
