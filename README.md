@@ -123,7 +123,7 @@ Use "tizonia --help topic".
   * general purpose plugins, like binary file readers and writers
   * etc...
 
-### Skema: Tizonia's Python-based test execution framework ###
+### Skema: Tizonia's Python test execution framework ###
   * Test execution framework to build and test arbitrary OpenMAX IL graphs (tunneled and
     non-tunneled) using a custom, [easy-to-write XML syntax](http://github.com/tizonia/tizonia-openmax-il/wiki/Mp3Playback101).
   * Skema's Github repo: http://github.com/tizonia/skema
@@ -173,7 +173,7 @@ build.
 
 To stream music from Spotify, libspotify needs to be present in your
 system. You can install libspotify from
-[Modipy](https://github.com/mopidy/libspotify-deb) APT archive, like this:
+[Mopidy](https://github.com/mopidy/libspotify-deb) APT archive, like this:
 
 ```bash
 
@@ -185,6 +185,9 @@ system. You can install libspotify from
 
 ```
 
+Add your Spotify login details in Tizonia's config file located at
+_$HOME/.config/tizonia/tizonia.conf_
+
 ### Google Play Music ###
 
 To stream from Google Play Music, you'll need to install Simon Weber's
@@ -192,11 +195,26 @@ To stream from Google Play Music, you'll need to install Simon Weber's
 
 ```bash
 
-    $ sudo apt-get -y install python-pip
     $ sudo pip install gmusicapi
 
 ```
 
+Add your Google login details in Tizonia's config file located at
+_$HOME/.config/tizonia/tizonia.conf_
+
+### SoundCloud ###
+
+To stream from SoundCloud, you'll need to install Simon Weber's
+[gmusicapi](https://github.com/simon-weber/gmusicapi) python library.
+
+```bash
+
+    $ sudo pip install soundcloud
+
+```
+
+Add your SoundCloud login details in Tizonia's config file located at
+_$HOME/.config/tizonia/tizonia.conf_
 
 ### Building the multimedia framework ###
 
