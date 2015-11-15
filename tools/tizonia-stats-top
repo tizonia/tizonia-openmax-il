@@ -21,4 +21,4 @@
 
 TIZONIA_LOG_FILE="$HOME"/temp/tizonia.log.0
 
-tail -F -n 100 "$TIZONIA_LOG_FILE" | tizonia-stats-top.pl
+tail -F -n +1 "$TIZONIA_LOG_FILE" | tizonia-stats-top.pl
