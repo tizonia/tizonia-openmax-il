@@ -76,9 +76,20 @@ AX_BOOST_PYTHON
 
 # Checks for library functions.
 
+#---------------------------------------------------------------------------
+# test suite
+#---------------------------------------------------------------------------
+AC_ARG_ENABLE(test,
+	AS_HELP_STRING([--enable-test],
+		[build the test programs (default: disabled)]),,
+	enable_test=no)
+
+AM_CONDITIONAL(ENABLE_TEST, test "x$enable_test" = xyes)
+
 AC_CONFIG_FILES([Makefile
                 libtizgmusic.pc
-                src/Makefile])
+                src/Makefile
+                tests/Makefile])
 
 # End the configure script.
 AC_OUTPUT

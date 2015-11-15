@@ -16,7 +16,11 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 
+if ENABLE_TEST
+SUBDIRS= src tests
+else
 SUBDIRS= src
+endif
 
 ACLOCAL_AMFLAGS = -I m4
 
