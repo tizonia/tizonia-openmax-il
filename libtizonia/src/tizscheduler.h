@@ -46,7 +46,7 @@ extern "C" {
 /**
  * @defgroup tizscheduler 'tizscheduler' : Component event loop, and servant scheduling.
  *
- * Component event loop, OpenMAX IL handling initialisaton and servant scheduling.
+ * Component event loop, OpenMAX IL handler initialisation and servant scheduling.
  *
  * @ingroup libtizonia
  */
