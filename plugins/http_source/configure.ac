@@ -97,8 +97,8 @@ AS_IF([test "x$tiz_found_tizonia_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizgmusic_c.h],
 	[tiz_found_gmusic_headers=yes; break;])
 AS_IF([test "x$tiz_found_gmusic_headers" != "xyes"],
-	[AC_SUBST([TIZGMUSIC_CFLAGS], ['-I$(top_srcdir)/../../gmusic/libtizgmusic/tizonia']),
-	AC_SUBST([TIZGMUSIC_LIBS], ['$(top_builddir)/../../gmusic/libtizgmusic/tizonia/libtizgmusic.la'])],
+	[AC_SUBST([TIZGMUSIC_CFLAGS], ['-I$(top_srcdir)/../../clients/gmusic/libtizgmusic/tizonia']),
+	AC_SUBST([TIZGMUSIC_LIBS], ['$(top_builddir)/../../clients/gmusic/libtizgmusic/tizonia/libtizgmusic.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZGMUSIC cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_gmusic_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZGMUSIC], [libtizgmusic >= 0.1.0])],
@@ -107,8 +107,8 @@ AS_IF([test "x$tiz_found_gmusic_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizsoundcloud_c.h],
 	[tiz_found_soundcloud_headers=yes; break;])
 AS_IF([test "x$tiz_found_soundcloud_headers" != "xyes"],
-	[AC_SUBST([TIZSOUNDCLOUD_CFLAGS], ['-I$(top_srcdir)/../../soundcloud/libtizsoundcloud/tizonia']),
-	AC_SUBST([TIZSOUNDCLOUD_LIBS], ['$(top_builddir)/../../soundcloud/libtizsoundcloud/tizonia/libtizsoundcloud.la'])],
+	[AC_SUBST([TIZSOUNDCLOUD_CFLAGS], ['-I$(top_srcdir)/../../clients/soundcloud/libtizsoundcloud/tizonia']),
+	AC_SUBST([TIZSOUNDCLOUD_LIBS], ['$(top_builddir)/../../clients/soundcloud/libtizsoundcloud/tizonia/libtizsoundcloud.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZSOUNDCLOUD cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_soundcloud_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZSOUNDCLOUD], [libtizsoundcloud >= 0.1.0])],

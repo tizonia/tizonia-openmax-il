@@ -16,14 +16,11 @@
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.67])
-AC_INIT([tizonia], [0.2.0], [juan.rubio@aratelia.com])
+AC_INIT([tizonia-clients], [0.2.0], [juan.rubio@aratelia.com])
+AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
-AC_CONFIG_SRCDIR([include/omxil-1.2/OMX_Core.h])
-AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
-AC_PROG_CC
-PKG_PROG_PKG_CONFIG([0.25])
 
 # Checks for libraries.
 
@@ -34,12 +31,5 @@ PKG_PROG_PKG_CONFIG([0.25])
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([include
-                   clients
-                   libtizplatform
-                   rm
-                   libtizcore
-                   libtizonia
-                   plugins
-                   config])
+AC_CONFIG_SUBDIRS([gmusic soundcloud])
 AC_OUTPUT
