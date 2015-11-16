@@ -105,7 +105,7 @@ static bool store_data (opusfiled_prc_t *ap_prc)
 {
   bool rc = true;
 
-  if ((tiz_buffer_bytes_available (ap_prc->p_store_) - ap_prc->store_offset_)
+  if ((tiz_buffer_available (ap_prc->p_store_) - ap_prc->store_offset_)
       < ARATELIA_OPUS_DECODER_PORT_MIN_INPUT_BUF_SIZE)
     {
       OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
@@ -116,8 +116,8 @@ static bool store_data (opusfiled_prc_t *ap_prc)
       if (p_in)
         {
           TIZ_TRACE (handleOf (ap_prc), "store available [%d]",
-                     tiz_buffer_bytes_available (ap_prc->p_store_));
-          if (tiz_buffer_store_data (ap_prc->p_store_,
+                     tiz_buffer_available (ap_prc->p_store_));
+          if (tiz_buffer_push (ap_prc->p_store_,
                                      p_in->pBuffer + p_in->nOffset,
                                      p_in->nFilledLen) < p_in->nFilledLen)
             {
@@ -142,14 +142,14 @@ static int read_cback (void *ap_private, unsigned char *ap_ptr, int a_nbytes)
   TIZ_TRACE (
       handleOf (p_prc), "decoder_inited_ [%s] store bytes [%d] offset [%d]",
       (p_prc->decoder_inited_ ? "YES" : "NO"),
-      tiz_buffer_bytes_available (p_prc->p_store_), p_prc->store_offset_);
+      tiz_buffer_available (p_prc->p_store_), p_prc->store_offset_);
 
-  if (tiz_buffer_bytes_available (p_prc->p_store_) > 0)
+  if (tiz_buffer_available (p_prc->p_store_) > 0)
     {
-      bytes_read = MIN (a_nbytes, tiz_buffer_bytes_available (p_prc->p_store_)
+      bytes_read = MIN (a_nbytes, tiz_buffer_available (p_prc->p_store_)
                                   - p_prc->store_offset_);
       memcpy (ap_ptr,
-              tiz_buffer_get_data (p_prc->p_store_) + p_prc->store_offset_,
+              tiz_buffer_get (p_prc->p_store_) + p_prc->store_offset_,
               bytes_read);
       if (p_prc->decoder_inited_)
         {
@@ -218,13 +218,13 @@ static OMX_ERRORTYPE transform_buffer (opusfiled_prc_t *ap_prc)
       return OMX_ErrorInsufficientResources;
     }
 
-  if (tiz_buffer_bytes_available (ap_prc->p_store_) == 0 || NULL == p_out)
+  if (tiz_buffer_available (ap_prc->p_store_) == 0 || NULL == p_out)
     {
       TIZ_TRACE (handleOf (ap_prc), "store bytes [%d] OUT HEADER [%p]",
-                 tiz_buffer_bytes_available (ap_prc->p_store_), p_out);
+                 tiz_buffer_available (ap_prc->p_store_), p_out);
 
       /* Propagate the EOS flag to the next component */
-      if (tiz_buffer_bytes_available (ap_prc->p_store_) == 0 && p_out
+      if (tiz_buffer_available (ap_prc->p_store_) == 0 && p_out
           && tiz_filter_prc_is_eos (ap_prc))
         {
           p_out->nFlags |= OMX_BUFFERFLAG_EOS;

@@ -718,7 +718,7 @@ static void control_cache_size (spfysrc_prc_t *ap_prc)
   if (ap_prc->p_sp_session_ && !ap_prc->initial_cache_bytes_)
     {
       const int current_cache_bytes
-          = tiz_buffer_bytes_available (ap_prc->p_store_);
+          = tiz_buffer_available (ap_prc->p_store_);
       if (current_cache_bytes > ap_prc->max_cache_bytes_
           && !ap_prc->spotify_paused_)
         {
@@ -741,16 +741,16 @@ static OMX_ERRORTYPE consume_cache (spfysrc_prc_t *ap_prc)
   /* Also, control here the delivery of the next eos flag */
   if (ap_prc->eos_ && ap_prc->bytes_till_eos_ <= 0)
     {
-      ap_prc->bytes_till_eos_ = tiz_buffer_bytes_available (ap_prc->p_store_);
+      ap_prc->bytes_till_eos_ = tiz_buffer_available (ap_prc->p_store_);
     }
 
   TIZ_TRACE (handleOf (ap_prc),
              "store [%d] initial_cache [%d] min_cache [%d] max_cache [%d]",
-             tiz_buffer_bytes_available (ap_prc->p_store_),
+             tiz_buffer_available (ap_prc->p_store_),
              ap_prc->initial_cache_bytes_, ap_prc->min_cache_bytes_,
              ap_prc->max_cache_bytes_);
 
-  if (tiz_buffer_bytes_available (ap_prc->p_store_)
+  if (tiz_buffer_available (ap_prc->p_store_)
       > ap_prc->initial_cache_bytes_)
     {
       int nbytes_stored = 0;
@@ -759,11 +759,11 @@ static OMX_ERRORTYPE consume_cache (spfysrc_prc_t *ap_prc)
       /* Reset the initial size */
       ap_prc->initial_cache_bytes_ = 0;
 
-      while ((nbytes_stored = tiz_buffer_bytes_available (ap_prc->p_store_)) > 0
+      while ((nbytes_stored = tiz_buffer_available (ap_prc->p_store_)) > 0
              && (p_out = buffer_needed (ap_prc)) != NULL)
         {
           int nbytes_copied = copy_to_omx_buffer (
-              p_out, tiz_buffer_get_data (ap_prc->p_store_), nbytes_stored);
+              p_out, tiz_buffer_get (ap_prc->p_store_), nbytes_stored);
           tiz_check_omx_err (release_buffer (ap_prc));
           (void)tiz_buffer_advance (ap_prc->p_store_, nbytes_copied);
           p_out = NULL;
@@ -1003,7 +1003,7 @@ static void music_delivery_cback_handler (OMX_PTR ap_prc,
       TIZ_TRACE (handleOf (ap_prc),
                  "nbytes [%d] spotify_paused_ [%s] store [%d]", nbytes,
                  p_prc->spotify_paused_ ? "YES" : "NO",
-                 tiz_buffer_bytes_available (p_prc->p_store_));
+                 tiz_buffer_available (p_prc->p_store_));
 
       consume_cache (p_prc);
       if (!p_prc->spotify_paused_)
@@ -1021,7 +1021,7 @@ static void music_delivery_cback_handler (OMX_PTR ap_prc,
       if (nbytes > 0)
         {
           int nbytes_stored = 0;
-          if ((nbytes_stored = tiz_buffer_store_data (p_prc->p_store_, p_in,
+          if ((nbytes_stored = tiz_buffer_push (p_prc->p_store_, p_in,
                                                       nbytes)) < nbytes)
             {
               TIZ_ERROR (handleOf (p_prc),

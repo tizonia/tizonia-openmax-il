@@ -132,7 +132,7 @@ static bool store_data (sndfiled_prc_t *ap_prc)
   bool rc = true;
   assert (ap_prc);
 
-  if ((tiz_buffer_bytes_available (ap_prc->p_store_) - ap_prc->store_offset_)
+  if ((tiz_buffer_available (ap_prc->p_store_) - ap_prc->store_offset_)
       < ARATELIA_PCM_DECODER_PORT_MIN_INPUT_BUF_SIZE * 2)
     {
       OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
@@ -142,12 +142,12 @@ static bool store_data (sndfiled_prc_t *ap_prc)
 
       if (p_in)
         {
-          if (tiz_buffer_store_data (ap_prc->p_store_,
+          if (tiz_buffer_push (ap_prc->p_store_,
                                      p_in->pBuffer + p_in->nOffset,
                                      p_in->nFilledLen) == p_in->nFilledLen)
             {
               TIZ_TRACE (handleOf (ap_prc), "store bytes [%d]",
-                         tiz_buffer_bytes_available (ap_prc->p_store_));
+                         tiz_buffer_available (ap_prc->p_store_));
               release_in_hdr (ap_prc);
             }
           else
@@ -183,17 +183,17 @@ static sf_count_t sf_io_read (void *ap_ptr, sf_count_t count, void *user_data)
   assert (p_prc);
 
   if (!tiz_filter_prc_is_eos (p_prc) && store_data (p_prc)
-      && tiz_buffer_bytes_available (p_prc->p_store_) > 0)
+      && tiz_buffer_available (p_prc->p_store_) > 0)
     {
       TIZ_TRACE (handleOf (p_prc),
                  "count [%d] decoder_inited_ [%s] store bytes [%d] offset [%d]",
                  count, (p_prc->decoder_inited_ ? "YES" : "NO"),
-                 tiz_buffer_bytes_available (p_prc->p_store_),
+                 tiz_buffer_available (p_prc->p_store_),
                  p_prc->store_offset_);
-      bytes_read = MIN (count, tiz_buffer_bytes_available (p_prc->p_store_)
+      bytes_read = MIN (count, tiz_buffer_available (p_prc->p_store_)
                                - p_prc->store_offset_);
       memcpy (ap_ptr,
-              tiz_buffer_get_data (p_prc->p_store_) + p_prc->store_offset_,
+              tiz_buffer_get (p_prc->p_store_) + p_prc->store_offset_,
               bytes_read);
       if (p_prc->decoder_inited_)
         {
@@ -230,7 +230,7 @@ static OMX_ERRORTYPE open_sf (sndfiled_prc_t *ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
 
-  if (store_data (ap_prc) && tiz_buffer_bytes_available (ap_prc->p_store_) > 0)
+  if (store_data (ap_prc) && tiz_buffer_available (ap_prc->p_store_) > 0)
     {
       if (!ap_prc->p_sf_)
         {
@@ -273,7 +273,7 @@ static OMX_ERRORTYPE transform_buffer (sndfiled_prc_t *ap_prc)
   assert (ap_prc);
   assert (ap_prc->p_sf_);
 
-  if (p_out && tiz_buffer_bytes_available (ap_prc->p_store_) > 0)
+  if (p_out && tiz_buffer_available (ap_prc->p_store_) > 0)
     {
       size_t frame_size = sizeof(short int) * ap_prc->sf_info_.channels;
       sf_count_t read_frames = p_out->nAllocLen / frame_size;

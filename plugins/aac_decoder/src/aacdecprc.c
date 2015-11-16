@@ -77,7 +77,7 @@ static inline void deallocate_temp_data_store (
 
 static void skip_id3_tag (aacdec_prc_t *ap_prc)
 {
-  OMX_U8 *p_buffer = tiz_buffer_get_data (ap_prc->p_store_);
+  OMX_U8 *p_buffer = tiz_buffer_get (ap_prc->p_store_);
 
   assert (ap_prc);
 
@@ -190,7 +190,7 @@ static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
   assert (ap_prc->p_aac_dec_);
   assert (p_in);
 
-  if (tiz_buffer_store_data (ap_prc->p_store_, p_in->pBuffer + p_in->nOffset,
+  if (tiz_buffer_push (ap_prc->p_store_, p_in->pBuffer + p_in->nOffset,
                              p_in->nFilledLen) < p_in->nFilledLen)
     {
       TIZ_ERROR (handleOf (ap_prc), "[%s] : Unable to store all the data.",
@@ -212,8 +212,8 @@ static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
 
   /* Initialise the library using one of the initialization functions */
   nbytes = NeAACDecInit (ap_prc->p_aac_dec_,
-                         tiz_buffer_get_data (ap_prc->p_store_),
-                         tiz_buffer_bytes_available (ap_prc->p_store_),
+                         tiz_buffer_get (ap_prc->p_store_),
+                         tiz_buffer_available (ap_prc->p_store_),
                          &(ap_prc->samplerate_), &(ap_prc->channels_));
 
   if (nbytes < 0)
@@ -254,7 +254,7 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
   assert (ap_prc);
   assert (ap_prc->p_aac_dec_);
 
-  if (0 == p_in->nFilledLen && tiz_buffer_bytes_available (ap_prc->p_store_)
+  if (0 == p_in->nFilledLen && tiz_buffer_available (ap_prc->p_store_)
                                == 0)
     {
       TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty", p_in,
@@ -274,7 +274,7 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
 
   if (p_in->nFilledLen > 0)
     {
-      if (tiz_buffer_store_data (
+      if (tiz_buffer_push (
               ap_prc->p_store_, p_in->pBuffer + p_in->nOffset, p_in->nFilledLen)
           < p_in->nFilledLen)
         {
@@ -286,7 +286,7 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
       p_in->nFilledLen = 0;
     }
 
-  if (tiz_buffer_bytes_available (ap_prc->p_store_) > 0)
+  if (tiz_buffer_available (ap_prc->p_store_) > 0)
     {
       /* Decode the AAC data passed in the buffer. Returns a pointer to a
          sample buffer or NULL. Info about the decoded frame is filled in the
@@ -296,13 +296,13 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
          samples of the frame. */
       short *p_sample_buf
           = NeAACDecDecode (ap_prc->p_aac_dec_, &(ap_prc->aac_info_),
-                            tiz_buffer_get_data (ap_prc->p_store_),
-                            tiz_buffer_bytes_available (ap_prc->p_store_));
+                            tiz_buffer_get (ap_prc->p_store_),
+                            tiz_buffer_available (ap_prc->p_store_));
 
       TIZ_TRACE (handleOf (ap_prc),
                  "bytes_available = [%d] bytesconsumed = [%d] "
                  "samples = [%d] error [%d]",
-                 tiz_buffer_bytes_available (ap_prc->p_store_),
+                 tiz_buffer_available (ap_prc->p_store_),
                  ap_prc->aac_info_.bytesconsumed, ap_prc->aac_info_.samples,
                  ap_prc->aac_info_.error);
 
@@ -331,7 +331,7 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
     }
 
   if (OMX_ErrorNone == rc && 0 == p_in->nFilledLen
-      && tiz_buffer_bytes_available (ap_prc->p_store_) < FAAD_MIN_STREAMSIZE
+      && tiz_buffer_available (ap_prc->p_store_) < FAAD_MIN_STREAMSIZE
                                                          * ap_prc->channels_)
     {
       TIZ_TRACE (handleOf (ap_prc), "HEADER [%p] nFlags [%d] is empty", p_in,

@@ -131,7 +131,7 @@ void tiz_buffer_destroy (tiz_buffer_t *ap_buf)
     }
 }
 
-int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
+int tiz_buffer_push (tiz_buffer_t *ap_buf, const void *ap_data,
                            const size_t a_nbytes)
 {
   OMX_U32 nbytes_to_copy = 0;
@@ -185,14 +185,14 @@ int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
   return nbytes_to_copy;
 }
 
-int tiz_buffer_bytes_available (const tiz_buffer_t *ap_buf)
+int tiz_buffer_available (const tiz_buffer_t *ap_buf)
 {
   assert (ap_buf);
   assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
   return ap_buf->filled_len;
 }
 
-void *tiz_buffer_get_data (const tiz_buffer_t *ap_buf)
+void *tiz_buffer_get (const tiz_buffer_t *ap_buf)
 {
   assert (ap_buf);
   assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
@@ -205,7 +205,7 @@ int tiz_buffer_advance (tiz_buffer_t *ap_buf, const int nbytes)
   assert (ap_buf);
   if (nbytes > 0)
     {
-      min_nbytes = MIN (nbytes, tiz_buffer_bytes_available (ap_buf));
+      min_nbytes = MIN (nbytes, tiz_buffer_available (ap_buf));
       ap_buf->offset += min_nbytes;
       ap_buf->filled_len -= min_nbytes;
     }

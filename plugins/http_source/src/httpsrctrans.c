@@ -250,7 +250,7 @@ struct httpsrc_trans
           start_or_end_str, httpsrc_curl_state_to_str (ap_trans->curl_state_), \
           ap_trans->sockfd_,                                                   \
           (ap_trans->p_store_                                                  \
-               ? tiz_buffer_bytes_available (ap_trans->p_store_)               \
+               ? tiz_buffer_available (ap_trans->p_store_)               \
                : 0),                                                           \
           ap_trans->curl_timeout_, (ap_trans->awaiting_io_ev_ ? "Y" : "N"),    \
           (ap_trans->awaiting_curl_timer_ev_ ? "Y" : "N"),                     \
@@ -279,7 +279,7 @@ static inline bool is_transfer_running (httpsrc_trans_t *ap_trans)
 static inline bool is_passed_buffer_high_watermark (httpsrc_trans_t *ap_trans)
 {
   assert (ap_trans);
-  return (tiz_buffer_bytes_available (ap_trans->p_store_)
+  return (tiz_buffer_available (ap_trans->p_store_)
           >= ap_trans->internal_buffer_size_initial_);
 }
 
@@ -556,15 +556,15 @@ static OMX_ERRORTYPE send_from_internal_buffer (httpsrc_trans_t *p_trans)
   int nbytes_available = 0;
   assert (p_trans);
 
-  while ((nbytes_available = tiz_buffer_bytes_available (p_trans->p_store_)) > 0
+  while ((nbytes_available = tiz_buffer_available (p_trans->p_store_)) > 0
          && (p_out = p_trans->pf_buf_wanted_ (p_trans->p_parent_)) != NULL)
     {
       int nbytes_copied = copy_to_omx_buffer (
-          p_out, tiz_buffer_get_data (p_trans->p_store_), nbytes_available);
+          p_out, tiz_buffer_get (p_trans->p_store_), nbytes_available);
       TIZ_PRINTF_DBG_MAG (
           "Releasing buffer with size [%u] available [%u].",
           (unsigned int)p_out->nFilledLen,
-          tiz_buffer_bytes_available (p_trans->p_store_) - nbytes_copied);
+          tiz_buffer_available (p_trans->p_store_) - nbytes_copied);
       p_trans->pf_buf_filled_ (p_out, p_trans->p_parent_);
       (void)tiz_buffer_advance (p_trans->p_store_, nbytes_copied);
       p_out = NULL;
@@ -674,13 +674,13 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
 
           if (nbytes > 0)
             {
-              if (tiz_buffer_bytes_available (p_trans->p_store_)
+              if (tiz_buffer_available (p_trans->p_store_)
                   > (2 * p_trans->internal_buffer_size_))
                 {
                   /* This is to pause curl */
                   TIZ_PRINTF_DBG_GRN (
                       "Pausing curl - cache size [%d]",
-                      tiz_buffer_bytes_available (p_trans->p_store_));
+                      tiz_buffer_available (p_trans->p_store_));
                   rc = CURL_WRITEFUNC_PAUSE;
                   set_curl_state (p_trans, ECurlStatePaused);
                   /* Also stop the watchers */
@@ -690,7 +690,7 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
               else
                 {
                   int nbytes_available = 0;
-                  if ((nbytes_available = tiz_buffer_store_data (
+                  if ((nbytes_available = tiz_buffer_push (
                            p_trans->p_store_, ptr, nbytes)) < nbytes)
                     {
                       TIZ_ERROR (handleOf (p_trans->p_parent_),
@@ -1145,7 +1145,7 @@ OMX_ERRORTYPE httpsrc_trans_on_buffers_ready (httpsrc_trans_t *ap_trans)
   rc = send_from_internal_buffer (ap_trans);
   if (is_transfer_paused(ap_trans))
     {
-      if (tiz_buffer_bytes_available (ap_trans->p_store_)
+      if (tiz_buffer_available (ap_trans->p_store_)
           <= ap_trans->internal_buffer_size_)
         {
           rc = resume_curl (ap_trans);
