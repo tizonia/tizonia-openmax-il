@@ -9,4 +9,6 @@ libtizonia
    :maxdepth: 1
    :glob:
 
-   tiz*
+   tizscheduler
+   tizfsm
+   tizkernel
