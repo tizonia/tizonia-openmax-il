@@ -84,6 +84,8 @@ AC_ARG_ENABLE(test,
 		[build the test programs (default: disabled)]),,
 	enable_test=no)
 
+AM_CONDITIONAL(ENABLE_TEST, test "x$enable_test" = xyes)
+
 AC_CONFIG_FILES([Makefile
                 libtizsoundcloud.pc
                 src/Makefile
