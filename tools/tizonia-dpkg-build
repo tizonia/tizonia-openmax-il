@@ -122,10 +122,10 @@ declare -ar TIZ_DEBIAN_PKGS=( \
 
 declare -Ar TIZ_PROJECT_DIRS=( \
     [tizilheaders]="include" \
-    [tizgmusicproxy]="gmusic/gmusicproxy" \
-    [tizgmusic]="gmusic/libtizgmusic" \
-    [tizsoundcloudproxy]="soundcloud/soundcloudproxy" \
-    [tizsoundcloud]="soundcloud/libtizsoundcloud" \
+    [tizgmusicproxy]="clients/gmusic/gmusicproxy" \
+    [tizgmusic]="clients/gmusic/libtizgmusic" \
+    [tizsoundcloudproxy]="clients/soundcloud/soundcloudproxy" \
+    [tizsoundcloud]="clients/soundcloud/libtizsoundcloud" \
     [tizplatform]="libtizplatform" \
     [tizrmd]="rm/tizrmd" \
     [tizrmproxy]="rm/libtizrmproxy" \

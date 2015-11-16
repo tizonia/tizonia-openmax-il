@@ -15,31 +15,4 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_PREREQ([2.67])
-AC_INIT([tizonia], [0.2.0], [juan.rubio@aratelia.com])
-AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
-AC_CONFIG_SRCDIR([include/omxil-1.2/OMX_Core.h])
-AC_CONFIG_HEADERS([config.h])
-
-# Checks for programs.
-AC_PROG_CC
-PKG_PROG_PKG_CONFIG([0.25])
-
-# Checks for libraries.
-
-# Checks for header files.
-
-# Checks for typedefs, structures, and compiler characteristics.
-
-# Checks for library functions.
-
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_SUBDIRS([include
-                   clients
-                   libtizplatform
-                   rm
-                   libtizcore
-                   libtizonia
-                   plugins
-                   config])
-AC_OUTPUT
+SUBDIRS = gmusic soundcloud
