@@ -47,9 +47,6 @@ extern "C" {
 
 #include "tizutils.h"
 
-void *tiz_krn_class_init (void *ap_tos, void *ap_hdl);
-void *tiz_krn_init (void *ap_tos, void *ap_hdl);
-
 typedef enum tiz_krn_population_status tiz_krn_population_status_t;
 enum tiz_krn_population_status
 {
@@ -66,6 +63,24 @@ enum tiz_krn_restriction
   ETIZKrnMayInitiateExeToIdle,
   ETIZKrnMayMax,
 };
+
+/**
+ * 'kernel' metaclass initialisation.
+ * @ingroup tizkernel
+ * @param ap_tos Tizonia's object system handle.
+ * @param ap_hdl The OpenMAX IL handle.
+ * @return The scheduler object.
+ */
+void *tiz_krn_class_init (void *ap_tos, void *ap_hdl);
+
+/**
+*'kernel' class initialisation.
+*@ingroup tizkernel
+*@param ap_tos Tizonia's object system handle.
+*@param ap_hdl The OpenMAX IL handle.
+*@return The scheduler object.
+*/
+void *tiz_krn_init (void *ap_tos, void *ap_hdl);
 
 OMX_ERRORTYPE tiz_krn_register_port (const void *ap_obj, OMX_PTR ap_port,
                                      const bool ais_config);
@@ -85,6 +100,17 @@ OMX_ERRORTYPE tiz_krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,
                                     OMX_BUFFERHEADERTYPE **p_hdr);
 OMX_ERRORTYPE tiz_krn_release_buffer (const void *ap_obj, const OMX_U32 a_pid,
                                       OMX_BUFFERHEADERTYPE *ap_hdr);
+/**
+ * Retrieve the EGL image associated to a particular OpenMAX IL header.
+ *
+ * @ingroup tizkernel
+ *
+ * @param ap_obj The 'kernel' servant object.
+ * @param a_pid The index of the port that the EGL image is associated with.
+ * @param ap_hdr The OpenMAX IL header that the EGL image is associated with.
+ * @param[out] app_eglimage The EGL image.
+ * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
+ */
 OMX_ERRORTYPE tiz_krn_claim_eglimage (const void *ap_obj, const OMX_U32 a_pid,
                                       const OMX_BUFFERHEADERTYPE *p_hdr,
                                       OMX_PTR *app_eglimage);
@@ -96,13 +122,16 @@ tiz_krn_population_status_t tiz_krn_get_population_status (
 bool tiz_krn_get_restriction_status (const void *ap_obj,
                                      const tiz_krn_restriction_t a_restriction);
 void tiz_krn_clear_metadata (void *ap_obj);
-OMX_ERRORTYPE tiz_krn_store_metadata (void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item);
-OMX_ERRORTYPE  tiz_krn_SetParameter_internal (const void *ap_obj,
-                                              OMX_HANDLETYPE ap_hdl,
-                                              OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
+OMX_ERRORTYPE tiz_krn_store_metadata (
+    void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item);
+OMX_ERRORTYPE tiz_krn_SetParameter_internal (const void *ap_obj,
+                                             OMX_HANDLETYPE ap_hdl,
+                                             OMX_INDEXTYPE a_index,
+                                             OMX_PTR ap_struct);
 OMX_ERRORTYPE tiz_krn_SetConfig_internal (const void *ap_obj,
                                           OMX_HANDLETYPE ap_hdl,
-                                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
+                                          OMX_INDEXTYPE a_index,
+                                          OMX_PTR ap_struct);
 
 #define TIZ_KRN_MAY_INIT_ALLOC_PHASE(_p) \
   tiz_krn_get_restriction_status (_p, ETIZKrnMayInitiateAllocPhase)

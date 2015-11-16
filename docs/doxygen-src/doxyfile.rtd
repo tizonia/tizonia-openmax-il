@@ -744,8 +744,8 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = mainpage.dox
-INPUT                 += ../../gmusic
-INPUT                 += ../../soundcloud
+INPUT                 += ../../clients/gmusic
+INPUT                 += ../../clients/soundcloud
 INPUT                 += ../../libtizcore
 INPUT                 += ../../libtizonia
 INPUT                 += ../../libtizplatform

@@ -744,8 +744,8 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = mainpage.dox
-INPUT                 += @abs_top_builddir@/../gmusic
-INPUT                 += @abs_top_builddir@/../soundcloud
+INPUT                 += @abs_top_builddir@/../clients/gmusic
+INPUT                 += @abs_top_builddir@/../clients/soundcloud
 INPUT                 += @abs_top_builddir@/../libtizcore
 INPUT                 += @abs_top_builddir@/../libtizonia
 INPUT                 += @abs_top_builddir@/../libtizplatform

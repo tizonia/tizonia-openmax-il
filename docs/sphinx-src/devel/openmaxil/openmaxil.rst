@@ -6,7 +6,7 @@ OpenMAX IL Framework
 
    libtizplatform/libtizplatform
    libtizcore
-   libtizonia
+   libtizonia/libtizonia
    libtizrmproxy
    tizrmd
 
