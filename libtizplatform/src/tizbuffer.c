@@ -132,7 +132,7 @@ void tiz_buffer_destroy (tiz_buffer_t *ap_buf)
 }
 
 int tiz_buffer_push (tiz_buffer_t *ap_buf, const void *ap_data,
-                           const size_t a_nbytes)
+                     const size_t a_nbytes)
 {
   OMX_U32 nbytes_to_copy = 0;
 
@@ -224,4 +224,23 @@ void tiz_buffer_clear (tiz_buffer_t *ap_buf)
       ap_buf->offset = 0;
       ap_buf->filled_len = 0;
     }
+}
+
+/* DEPRECATED. For backward compatibility only. Will be removed in v0.3.0. */
+int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
+                           const size_t a_nbytes)
+{
+  return tiz_buffer_push (ap_buf, ap_data, a_nbytes);
+}
+
+/* DEPRECATED. For backward compatibility only. Will be removed in v0.3.0. */
+int tiz_buffer_bytes_available (const tiz_buffer_t *ap_buf)
+{
+  return tiz_buffer_available (ap_buf);
+}
+
+/* DEPRECATED. For backward compatibility only. Will be removed in v0.3.0. */
+void *tiz_buffer_get_data (const tiz_buffer_t *ap_buf)
+{
+  return tiz_buffer_get (ap_buf);
 }
