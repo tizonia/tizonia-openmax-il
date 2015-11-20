@@ -164,7 +164,7 @@ function print_dashes {
     echo "$DASHES"
 }
 
-function print_banenr_and_license {
+function print_banner_and_license {
     pretty_print "$BLU" "tizonia-qemu-debootstrap-env $TIZONIA_RELEASE_VERSION. Copyright (C) 2015 Juan A. Rubio"
     pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
 
@@ -185,7 +185,7 @@ function print_banenr_and_license {
 #   None
 ##################################################################
 function usage {
-    print_banenr_and_license
+    print_banner_and_license
     echo
     pretty_print "$GRN" "Usage : $(basename $0) [-b|--bootstrap] [-c|--chroot] [-d|--deps] [-m|--make] [-p|--publish] [-r|--rootfs] [-t|--update] [-u|--uninstall]"
     pretty_print "$GRN" "       -b            : Bootstrap the chroot build environment (purges installed tizonia packages, updates chroot deps, deletes old build folders, and transfer a fresh tizonia repo)."
@@ -604,7 +604,7 @@ function main {
         exit "$E_BADARGS"
     fi
 
-    print_banenr_and_license
+    print_banner_and_license
     check_for_root
 
     export TIZONIA_ROOTFS_DIR="$TIZONIA_CHROOT_ENVS_DIR/$DISTRO-$RELEASE-$ARCH"
