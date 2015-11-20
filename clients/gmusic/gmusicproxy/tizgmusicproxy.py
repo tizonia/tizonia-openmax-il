@@ -124,11 +124,11 @@ class tizgmusicproxy(object):
     all_songs_album_title = "All Songs"
     thumbs_up_playlist_name = "Thumbs Up"
 
-    def __init__(self, email, password, device_id):
-        self.__api = Mobileclient()
-        self.logged_in = False
+    def __init__(self, email, password, device_id, auth_token=None):
+        self.__gmusic = Mobileclient()
         self.__email = email
         self.__device_id = device_id
+        self.logged_in = False
         self.queue = list()
         self.queue_index = -1
         self.play_queue_order = list()
@@ -136,10 +136,31 @@ class tizgmusicproxy(object):
         self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_song = None
 
-        attempts = 0
-        while not self.logged_in and attempts < 3:
-            self.logged_in = self.__api.login(email, password, device_id)
-            attempts += 1
+        if auth_token is None:
+            attempts = 0
+            print_nfo("[Google Play Music] [Authenticating] : " \
+                      "'with user credentials'")
+            while not self.logged_in and attempts < 3:
+                self.logged_in = self.__gmusic.login(email, password, device_id)
+                attempts += 1
+
+            if self.__gmusic.session.is_authenticated:
+                print_msg("[Google Play Music] [{0}]".format(self.__email))
+                print_msg("[Google Play Music] [To avoid server-side rate " \
+                          "limit logouts on Android devices]")
+                print_msg("[Google Play Music] [please copy the " \
+                          "authentication token into your Tizonia's " \
+                          "config file]")
+                print_msg("[Google Play Music] [auth token] {0}"\
+                          .format(self.__gmusic.session._authtoken))
+        else:
+            # Keep track of the auth token workaround. See:
+            # https://github.com/diraimondo/gmusicproxy/issues/34#issuecomment-147359198
+            print_msg("[Google Play Music] [Authenticating] : " \
+                      "'with auth token'")
+            self.__gmusic.android_id = device_id
+            self.__gmusic.session._authtoken = auth_token
+            self.__gmusic.session.is_authenticated = True
 
         self.library = CaseInsensitiveDict()
         self.song_map = CaseInsensitiveDict()
@@ -150,7 +171,7 @@ class tizgmusicproxy(object):
         """ Reset the session to an unauthenticated, default state.
 
         """
-        self.__api.logout()
+        self.__gmusic.logout()
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -365,7 +386,7 @@ class tizgmusicproxy(object):
 
         """
         print_msg("[Google Play Music] [Retrieving stations] : '{0}'. " \
-                  "This could take some time.".format(self.__email))
+                  .format(self.__email))
 
         try:
             self.__update_stations_unlimited()
@@ -388,7 +409,8 @@ class tizgmusicproxy(object):
                 station_id = self.stations[arg]
             num_tracks = 200
             try:
-                tracks = self.__api.get_station_tracks(station_id, num_tracks)
+                tracks = self.__gmusic.get_station_tracks(station_id, \
+                                                          num_tracks)
             except KeyError:
                 raise RuntimeError("Operation requires an "
                                    "All Access subscription.")
@@ -412,22 +434,23 @@ class tizgmusicproxy(object):
 
         """
         print_msg("[Google Play Music] [Retrieving genres] : '{0}'. " \
-                  "This could take some time.".format(self.__email))
+                  .format(self.__email))
 
         try:
             all_genres = list()
-            root_genres = self.__api.get_genres()
+            root_genres = self.__gmusic.get_genres()
             all_genres += root_genres
             count = 0
             for root_genre in root_genres:
-                all_genres += self.__api.get_genres(root_genre['id'])
+                all_genres += self.__gmusic.get_genres(root_genre['id'])
             for genre in all_genres:
                 print_nfo("[Google Play Music] [Genre] '{0}'." \
                           .format(to_ascii(genre['name'])))
             genre = dict()
             if not arg in all_genres:
                 genre = next((g for g in all_genres \
-                              if arg.lower() in to_ascii(g['name']).lower()), None)
+                              if arg.lower() in to_ascii(g['name']).lower()), \
+                             None)
                 if genre:
                     print_wrn("[Google Play Music] '{0}' not found. " \
                               "Playing '{1}' instead." \
@@ -436,10 +459,10 @@ class tizgmusicproxy(object):
                     raise KeyError("Genre not found : {0}".format(arg))
             genre_name = genre['name']
             genre_id = genre['id']
-            station_id = self.__api.create_station(genre_name, \
+            station_id = self.__gmusic.create_station(genre_name, \
                                                    None, None, None, genre_id)
             num_tracks = 200
-            tracks = self.__api.get_station_tracks(station_id, num_tracks)
+            tracks = self.__gmusic.get_station_tracks(station_id, num_tracks)
             count = 0
             for track in tracks:
                 if not u'id' in track.keys():
@@ -462,21 +485,29 @@ class tizgmusicproxy(object):
 
         """
         try:
-            artist_hits = self.__api.search_all_access(arg)['artist_hits']
+            artist_hits = self.__gmusic.search_all_access(arg)['artist_hits']
             artist = next((hit for hit in artist_hits \
                            if 'best_result' in hit.keys()), None)
-            if not artist:
+            if not artist and len(artist_hits):
+                for hit in artist_hits:
+                    print_nfo("[Google Play Music] [Artist] '{0}'." \
+                              .format((hit['artist']['name']).encode('utf-8')))
                 artist = artist_hits[0]
-                print_wrn("[Google Play Music] '{0}' not found. " \
-                          "Playing '{1}' instead." \
-                          .format(arg, artist['artist']['name']))
+                print_wrn("[Google Play Music] Playing '{0}'." \
+                          .format((artist['artist']['name']).encode('utf-8')))
+
             include_albums = False
             max_top_tracks = 50
             max_rel_artist = 0
-            artist_tracks = self.__api.get_artist_info \
-                            (artist['artist']['artistId'],
-                             include_albums, max_top_tracks,
-                             max_rel_artist)['topTracks']
+            artist_tracks = dict()
+            if artist:
+                artist_tracks = self.__gmusic.get_artist_info \
+                                (artist['artist']['artistId'],
+                                 include_albums, max_top_tracks,
+                                 max_rel_artist)['topTracks']
+            if not artist_tracks:
+                raise KeyError
+
             count = 0
             for track in artist_tracks:
                 if not u'id' in track.keys():
@@ -499,7 +530,7 @@ class tizgmusicproxy(object):
 
         """
         try:
-            album_hits = self.__api.search_all_access(arg)['album_hits']
+            album_hits = self.__gmusic.search_all_access(arg)['album_hits']
             album = next((hit for hit in album_hits \
                           if 'best_result' in hit.keys()), None)
 
@@ -513,7 +544,7 @@ class tizgmusicproxy(object):
 
             album_tracks = dict()
             if album:
-                album_tracks = self.__api.get_album_info \
+                album_tracks = self.__gmusic.get_album_info \
                                (album['album']['albumId'])['tracks']
             if not album_tracks:
                 raise KeyError
@@ -540,10 +571,10 @@ class tizgmusicproxy(object):
 
         """
         print_msg("[Google Play Music] [Retrieving library] : '{0}'. " \
-                  "This could take some time.".format(self.__email))
+                  .format(self.__email))
 
         try:
-            track_hits = self.__api.search_all_access(arg)['song_hits']
+            track_hits = self.__gmusic.search_all_access(arg)['song_hits']
             count = 0
             for item in track_hits:
                 track = item['track']
@@ -564,10 +595,10 @@ class tizgmusicproxy(object):
 
         """
         try:
-            tracks = self.__api.get_promoted_songs()
+            tracks = self.__gmusic.get_promoted_songs()
             count = 0
             for track in tracks:
-                store_track = self.__api.get_track_info(track['storeId'])
+                store_track = self.__gmusic.get_track_info(track['storeId'])
                 if not u'id' in store_track.keys():
                     store_track[u'id'] = store_track['nid']
                 self.queue.append(store_track)
@@ -620,19 +651,22 @@ class tizgmusicproxy(object):
         random order if current play mode is "SHUFFLE"
 
         """
-        if len(self.queue):
+        total_tracks = len(self.queue)
+        if total_tracks:
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
-                self.play_queue_order = range(len(self.queue))
+                self.play_queue_order = range(total_tracks)
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
+            print_nfo("[Google Play Music] [Tracks in queue] '{0}'." \
+                      .format(total_tracks))
 
     def __retrieve_track_url(self, song):
         """ Retrieve a song url
 
         """
         logging.info("__retrieve_track_url : {0}".format(song['id']))
-        song_url = self.__api.get_stream_url(song['id'], self.__device_id)
+        song_url = self.__gmusic.get_stream_url(song['id'], self.__device_id)
         try:
             self.now_playing_song = song
             return song_url
@@ -645,9 +679,9 @@ class tizgmusicproxy(object):
 
         """
         print_msg("[Google Play Music] [Retrieving library] : '{0}'. " \
-                  "This could take some time.".format(self.__email))
+                  .format(self.__email))
 
-        songs = self.__api.get_all_songs()
+        songs = self.__gmusic.get_all_songs()
         self.playlists[self.thumbs_up_playlist_name] = list()
 
         # Retrieve the user's song library
@@ -698,7 +732,7 @@ class tizgmusicproxy(object):
 
         """
         self.stations.clear()
-        stations = self.__api.get_all_stations()
+        stations = self.__gmusic.get_all_stations()
         self.stations[u"I'm Feeling Lucky"] = 'IFL'
         for station in stations:
             station_name = to_ascii(station['name'])
@@ -710,7 +744,7 @@ class tizgmusicproxy(object):
         """ Retrieve the user's playlists
 
         """
-        plists = self.__api.get_all_user_playlist_contents()
+        plists = self.__gmusic.get_all_user_playlist_contents()
         for plist in plists:
             plist_name = to_ascii(plist['name'])
             logging.info("playlist name : {0}".format(plist_name))
@@ -728,11 +762,12 @@ class tizgmusicproxy(object):
         """ Retrieve shared playlists (All Access)
 
         """
-        plists_subscribed_to = [p for p in self.__api.get_all_playlists() \
+        plists_subscribed_to = [p for p in self.__gmusic.get_all_playlists() \
                                 if p.get('type') == 'SHARED']
         for plist in plists_subscribed_to:
             share_tok = plist['shareToken']
-            playlist_items = self.__api.get_shared_playlist_contents(share_tok)
+            playlist_items \
+                = self.__gmusic.get_shared_playlist_contents(share_tok)
             plist_name = to_ascii(plist['name'])
             logging.info("shared playlist name : {0}".format(plist_name))
             self.playlists[plist_name] = list()
