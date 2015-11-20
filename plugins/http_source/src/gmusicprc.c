@@ -652,7 +652,8 @@ static OMX_ERRORTYPE gmusic_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
   on_gmusic_error_ret_omx_oom (tiz_gmusic_init (
       &(p_prc->p_gmusic_), (const char *)p_prc->session_.cUserName,
       (const char *)p_prc->session_.cUserPassword,
-      (const char *)p_prc->session_.cDeviceId));
+      (const char *)p_prc->session_.cDeviceId,
+      (const char *)p_prc->session_.cUserAuthToken));
 
   tiz_check_omx_err (enqueue_playlist_items (p_prc));
   tiz_check_omx_err (obtain_next_url (p_prc, 1));
