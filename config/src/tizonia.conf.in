@@ -58,9 +58,9 @@ OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 # The default audio renderer used by the tizonia player
 # -------------------------------------------------------------------------
 # Valid values are:
-# - OMX.Aratelia.audio_renderer.alsa.pcm
 # - OMX.Aratelia.audio_renderer.pulseaudio.pcm
-default-audio-renderer = OMX.Aratelia.audio_renderer.alsa.pcm
+# - OMX.Aratelia.audio_renderer.alsa.pcm
+default-audio-renderer = OMX.Aratelia.audio_renderer.pulseaudio.pcm
 
 # MPRIS v2 interface enable/disable switch
 # -------------------------------------------------------------------------
@@ -81,11 +81,24 @@ mpris-enabled = false
 # Google Play Music configuration
 # -------------------------------------------------------------------------
 # To avoid passing this information on the command line, simply uncomment
-# and configure accordingly
+# and configure accordingly.
 #
-# gmusic.user      = user@gmail.com
-# gmusic.password  = pass
-# gmusic.device_id = deviceid
+# gmusic.user       = user@gmail.com
+# gmusic.password   = pass
+# gmusic.device_id  = deviceid
+
+# Optional: Google Play Music authentication token
+#
+# To avoid the server-side rate limit triggering a log out in all of the user's
+# Android devices, the Google Play Music authentication token can be provided
+# in 'gmusic.auth_token'. Simply copy the token that gets displayed by Tizonia
+# in the console right after connecting to Google Play Music. When
+# 'gmusic.auth_token' is enabled and non-empty, it is used for authentication
+# instead of the user's email and password, which may then be removed from this
+# file.
+
+# gmusic.auth_token = XXXXX....
+
 
 # SoundCloud configuration
 # -------------------------------------------------------------------------
