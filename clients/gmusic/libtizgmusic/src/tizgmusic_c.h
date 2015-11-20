@@ -71,13 +71,15 @@ typedef enum tiz_gmusic_playback_mode
  * @param ap_user A Google email account.
  * @param ap_pass The password associated to the Google account.
  * @param ap_device_id A 16-character string containing a device id
+ * @param ap_auth_token A null-terminated string containing an auth token
  * associated to the Google Play Music account.
  *
  * @return 0 on success.
  */
 int tiz_gmusic_init (/*@null@ */ tiz_gmusic_ptr_t *app_gmusic,
                      const char *ap_user, const char *ap_pass,
-                     const char *ap_device_id);
+                     const char *ap_device_id,
+                     const char *ap_auth_token);
 
 /**
  * Set the playback mode.

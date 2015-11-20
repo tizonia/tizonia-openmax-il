@@ -48,7 +48,7 @@ public:
 
 public:
   tizgmusic (const std::string &user, const std::string &pass,
-             const std::string &device_id);
+             const std::string &device_id, const std::string &auth_token);
   ~tizgmusic ();
 
   int init ();
@@ -83,6 +83,7 @@ private:
   std::string user_;
   std::string pass_;
   std::string device_id_;
+  std::string auth_token_;
   std::string current_url_;
   std::string current_artist_;
   std::string current_title_;
