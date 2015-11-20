@@ -1,0 +1,417 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Development build script for Tizonia
+#
+
+# Constants
+
+readonly E_BADARGS=85
+readonly E_NOFILE=86
+readonly E_BAD_CLONE=87
+readonly CWD=$(pwd)
+
+readonly RED=1
+readonly GRN=2
+readonly YEL=3
+readonly BLU=4
+readonly MAG=5
+readonly CYA=6
+readonly WHI=7
+
+##################################################################
+# Simple function to print with color
+#
+# Globals
+#
+# Arguments:
+#
+# Returns:
+#   None
+##################################################################
+function pretty_print {
+    echo "$(tput setaf $1)$2$(tput sgr 0)" 1>&2
+}
+
+##################################################################
+# Simple function to print a banner
+#
+# Globals
+#
+# Arguments:
+#
+# Returns:
+#   None
+##################################################################
+function print_banner {
+    local msg="$1"
+    local color="$2"
+    local msg_sz=${#msg}
+    local dashes=$(print_dashes "$msg_sz")
+    if [[ "$color" == "" ]]; then
+        color="$RED"
+    fi
+    echo
+    pretty_print "$color" "$dashes"
+    pretty_print "$color" "$msg"
+    pretty_print "$color" "$dashes"
+}
+
+##################################################################
+# Simple function to produce a string of "dashes" of a
+# pre-determined size
+#
+# Globals
+#   TIZONIA_DIR
+# Arguments:
+#   The length of the message
+# Returns:
+#   None
+##################################################################
+function print_dashes {
+    local LEN=$1
+    local CHAR='-'
+    while (( $# > 0 ))
+    do
+        case $1 in
+            [0-9]*) LEN=$1;;
+            -c) shift
+                CHAR=$1;;
+            *) usagexit;;
+        esac
+        shift
+    done
+
+    if (( LEN > 4096 ))
+    then
+        echo "too large" >&2
+        exit 3
+    fi
+
+    # build the string to the exact length
+    DASHES=""
+    for ((i=0; i<LEN; i++))
+    do
+        DASHES="${DASHES}${CHAR}"
+    done
+    echo "$DASHES"
+}
+
+function print_banner_and_license {
+    pretty_print "$BLU" "tizonia-dev-build $TIZONIA_RELEASE_VERSION. Copyright (C) 2015 Juan A. Rubio"
+    pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
+
+    echo
+    pretty_print "$BLU" "GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"
+    pretty_print "$BLU" "This is free software: you are free to change and redistribute it."
+    pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
+}
+
+##################################################################
+# Usage details
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function usage {
+    print_banner_and_license
+    echo
+    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-b|--debian] [-c|--conf] [-d|--deps] [-g|--debug] [-i|--install] [-m|--make] [-r|--release] [-s|--scan] [-v|--valgrind]"
+    pretty_print "$GRN" "       -a            : Configure for an Address Sanitizer (ASAN) type of build (requires clang)."
+    pretty_print "$GRN" "       -b            : Configure for a 'Debian' type build (--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH))."
+    pretty_print "$GRN" "       -c            : Configure for conformance testing."
+    pretty_print "$GRN" "       -d            : Install Tizonia's development dependencies."
+    pretty_print "$GRN" "       -g            : Configure for a DEBUG type of build."
+    pretty_print "$GRN" "       -i            : Make and install all sub-projects."
+    pretty_print "$GRN" "       -m            : Make all sub-projects."
+    pretty_print "$GRN" "       -r            : Configure for a RELEASE type of build."
+    pretty_print "$GRN" "       -s            : Configure for 'scan-build'."
+    pretty_print "$GRN" "       -v            : Configure for Valgrind memory leak analysis."
+    echo
+    echo
+    print_banner " Typical workflow" "$MAG"
+    pretty_print "$CYA" " 1.- Install Tizonia's development dependencies: "
+    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --deps"
+    pretty_print "$CYA" " 2.- Configure the build using one of the flavors: "
+    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --debug"
+    pretty_print "$CYA" " 3.- Recursively make and install all sub-projects, except the 'player' sub-project (Tizonia's player app):"
+    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --install"
+    pretty_print "$CYA" " 4.- Configure the 'player' sub-project (Tizonia's player app):"
+    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --debug --player"
+    pretty_print "$CYA" " 5.- Make and install the 'player' sub-project (Tizonia's player app):"
+    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --install --player"
+    echo
+} >&2
+
+##################################################################
+# Simple function to print a debug/error message with some extra info
+#
+# Globals
+#   TIZONIA_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function log_on_error {
+    local exit_status="$1"
+    local msg="$2"
+    if [[ "$exit_status" -ne 0 ]]; then
+        pretty_print "$RED" "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $2"
+    fi
+}
+
+##################################################################
+# Simple function to check if a string exists in an array
+#
+# Globals
+#   none
+# Arguments:
+#   The search string is the first argument
+#   The array is the second argument
+# Returns:
+#   0 if success, 1 on error
+##################################################################
+function exists_in_array {
+    local e
+    for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
+    return 1
+}
+
+function raise_error {
+    echo -e "\n[!!!] $@" 1>&2
+    exit 1
+}
+
+
+##################################################################
+# Main function
+#
+# Globals
+#   TIZONIA_DIR
+#   DEBIAN_DIR
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function main {
+    local exit_status=0
+    local asan=0
+    local debian=0
+    local conf=0
+    local debug=0
+    local deps=0
+    local install=0
+    local make=0
+    local release=0
+    local scan=0
+    local player=0
+    local valgrind=0
+
+    local progname=$(basename $0)
+    CMDLINE=$(getopt -o "abcdgimrsv" --long "asan,debian,conf,deps,debug,install,make,player,release,scan,valgrind," -n "$progname" -- "$@")
+    eval set -- "$CMDLINE"
+    while true; do
+        case "$1" in
+            -a|--asan)
+                asan=1; shift
+                ;;
+            -b|--debian)
+                debian=1; shift
+                ;;
+            -c|--conf)
+                conf=1; shift
+                ;;
+            -d|--deps)
+                deps=1; shift
+                ;;
+            -g|--debug)
+                debug=1; shift
+                ;;
+            -i|--install)
+                install=1; shift
+                ;;
+            -m|--make)
+                make=1; shift
+                ;;
+            -p|--player)
+                player=1; shift
+                ;;
+            -r|--release)
+                release=1; shift
+                ;;
+            -s|--scan)
+                scan=1; shift
+                ;;
+            -v|--valgrind)
+                valgrind=1; shift
+                ;;
+            --)
+                shift
+                break
+                ;;
+        esac
+    done
+
+
+    local make_install_total=$(( $make + $install ))
+
+    local config_total=$(( $asan + $debian + $conf + $debug + $release + $scan + $valgrind ))
+    if [[ ("$config_total" != 1) && ("$make_install_total" == 0) ]]; then
+        usage
+        exit "$E_BADARGS"
+    fi
+
+    if [[ ("$config_total" == 0) && ("$make_install_total" != 1) ]]; then
+        usage
+        exit "$E_BADARGS"
+    fi
+
+    # Verify the existence of important environment variables
+    : ${TIZONIA_REPO_DIR:?"Need to set TIZONIA_REPO_DIR"}
+    : ${TIZONIA_INSTALL_DIR:?"Need to set TIZONIA_INSTALL_DIR"}
+
+    print_banner_and_license
+
+    LIB_DIR="$TIZONIA_INSTALL_DIR"/lib
+    PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
+
+    print_banner "Exporting environment variables" "$GRN"
+    pretty_print "$BLU" "export LD_LIBRARY_PATH=$LIB_DIR"
+    pretty_print "$BLU" "export PKG_CONFIG_PATH=$PKG_CONFIG_DIR"
+    export LD_LIBRARY_PATH="$LIB_DIR"
+    export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
+
+    set -e
+
+    local builddir="$TIZONIA_REPO_DIR"
+    if [[ "$player" == 1 ]]; then
+        builddir="$TIZONIA_REPO_DIR"/player
+    fi
+
+    print_banner "Changing dir to $builddir" "$GRN"
+    cd "$builddir"
+
+    local config=1
+    if [[ ("$make" == 1) || ("$install" == 1) ]]; then
+        config=0
+    fi
+
+    if [[ ("$debug" == 1) && ("$config" == 1) ]]; then
+
+        print_banner "Reconfiguring Tizonia for [DEBUG] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        autoreconf -ifs \
+            && ./configure \
+            --enable-silent-rules \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-O0 -ggdb -Wall -Werror' \
+            CXXFLAGS='-O0 -ggdb -Wall'
+
+    elif [[ ("$asan" == 1) && ("$config" == 1) ]]; then
+
+        print_banner "Reconfiguring Tizonia for [ASAN] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        autoreconf -ifs \
+            && ./configure \
+            --enable-silent-rules \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-ggdb -Wall -Werror -fno-omit-frame-pointer -fsanitize=address' \
+            CXXFLAGS='-ggdb -Wall -fno-omit-frame-pointer -fsanitize=address' \
+            LDFLAGS='-fsanitize=address'
+
+    elif [[ ("$debian" == 1) && ("$config" == 1) ]]; then
+
+        print_banner "Reconfiguring Tizonia for [DEBUG] build - Install dir [/usr]..." "$YEL"
+        autoreconf -ifs \
+            && ./configure \
+            --prefix=/usr \
+            --libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) \
+            CFLAGS='-O0 -ggdb -Wall -Werror -I/usr/include/tizonia' \
+            CXXFLAGS='-O0 -ggdb -Wall'
+
+    elif [[ ("$release" == 1) && ("$config" == 1) ]];  then
+
+        print_banner "Reconfiguring Tizonia for [RELEASE] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        autoreconf -ifs \
+            && ./configure --enable-silent-rules \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-O2 -s -DNDEBUG'  \
+            CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
+
+    elif [[ ("$conf" == 1)  && ("$config" == 1) ]];  then
+
+        print_banner "Reconfiguring Tizonia for [CONFORMANCE TESTING] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        autoreconf -ifs \
+            && ./configure \
+            --enable-silent-rules \
+            --enable-blocking-etb-ftb \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-ggdb -Wall -Werror'
+
+    elif [[ ("$valgrind" == 1)  && ("$config" == 1) ]];  then
+
+        print_banner "Reconfiguring Tizonia for [VALGRIND] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        autoreconf -ifs \
+            && ./configure \
+            --enable-silent-rules \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-O0 -g' \
+            CXXFLAGS='-O0 -g'
+
+    elif [[ ("$scan" == 1) && ("$config" == 1) ]]; then
+
+        print_banner "Reconfiguring Tizonia for [SCAN-BUILD] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        scan-build autoreconf -ifs \
+            && scan-build ./configure \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-ggdb -Wall -Werror'
+
+    fi
+
+    if [[ "$?" != 0 ]]; then
+        raise_error "Configuration failure."
+    fi
+
+    if [[ ("$scan" == 1) && ("$config" == 0) ]]; then
+        print_banner "Building for [SCAN-BUILD] build" "$GRN"
+        scan-build make
+    elif [[ ("$valgrind" == 1) && ("$config" == 0) ]]; then
+        print_banner "Building for [VALGRIND] build" "$GRN"
+        make CFLAGS='-O0 -g' CXXFLAGS='-O0 -g'
+    elif [[ ("$config" == 0) ]]; then
+        print_banner "Building Tizonia" "$GRN"
+        make -s -j8 V=0
+    fi
+
+    if [[ "$?" != 0 ]]; then
+        raise_error "make install failure."
+    fi
+
+    if [[ ("$install" == 1) ]]; then
+        print_banner "Installing Tizonia - Install dir [$TIZONIA_INSTALL_DIR]" "$GRN"
+        make install
+    fi
+
+    exit "$?"
+}
+
+main "$@"
