@@ -16,7 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Install tizonia in a debian-like system
+# Install tizonia Debian packages in a debian-like system.
+#
+# NOTE: Tizonia's Bintray repo must have been configured beforehand.
+# https://bintray.com/tizonia
 #
 
 sudo apt-get -y install tizonia-all

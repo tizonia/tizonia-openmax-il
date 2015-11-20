@@ -18,6 +18,9 @@
 #
 # Simple script to first purge and then re-install tizonia
 #
+# NOTE: Tizonia's Bintray repo must have been configured beforehand.
+# https://bintray.com/tizonia
+#
 
 # Remove (purge) all tizonia packages and files
 tizonia-apt-get-purge
