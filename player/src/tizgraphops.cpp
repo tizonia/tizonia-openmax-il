@@ -877,6 +877,58 @@ graph::ops::transition_tunnel (const int tunnel_id,
   return OMX_ErrorNone;
 }
 
+OMX_ERRORTYPE
+graph::ops::dump_metadata_item (const OMX_U32 index, const int comp_index,
+                                const bool use_first_as_heading /* = true */)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
+  size_t metadata_len = 0;
+  size_t value_len = 0;
+
+  value_len = OMX_MAX_STRINGNAME_SIZE;
+  metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + value_len;
+
+  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
+                   1, metadata_len)))
+  {
+    rc = OMX_ErrorInsufficientResources;
+  }
+  else
+  {
+    p_meta->nSize = metadata_len;
+    p_meta->nVersion.nVersion = OMX_VERSION;
+    p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+    p_meta->nScopeSpecifier = 0;
+    p_meta->nMetadataItemIndex = index;
+    p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+    p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+    p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+    p_meta->nKeySizeUsed = 0;
+    p_meta->nValue[0] = '\0';
+    p_meta->nValueMaxSize = OMX_MAX_STRINGNAME_SIZE;
+    p_meta->nValueSizeUsed = 0;
+
+    rc = OMX_GetConfig (handles_[comp_index], OMX_IndexConfigMetadataItem,
+                        p_meta);
+    if (OMX_ErrorNone == rc)
+    {
+      if (0 == index && use_first_as_heading)
+        {
+          TIZ_PRINTF_YEL ("   %s : %s\n", p_meta->nKey, p_meta->nValue);
+        }
+      else
+        {
+          TIZ_PRINTF_CYN ("     %s : %s\n", p_meta->nKey, p_meta->nValue);
+        }
+    }
+
+    tiz_mem_free (p_meta);
+    p_meta = NULL;
+  }
+  return rc;
+}
+
 graph::cbackhandler &graph::ops::get_cback_handler () const
 {
   return p_graph_->cback_handler_;

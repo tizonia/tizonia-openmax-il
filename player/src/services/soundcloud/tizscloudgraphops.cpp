@@ -226,7 +226,30 @@ void graph::scloudops::do_skip ()
 
 void graph::scloudops::do_retrieve_metadata ()
 {
-  dump_stream_metadata ();
+  OMX_U32 index = 0;
+  const int scloud_index = 0;
+  // Extract metadata from the scloud source
+  while (OMX_ErrorNone == dump_metadata_item (index++, scloud_index))
+  {
+  };
+
+  // Now extract metadata from the decoder
+  const int decoder_index = 1;
+  index = 0;
+  const bool use_first_as_heading = false;
+  while (OMX_ErrorNone == dump_metadata_item (index++, decoder_index, use_first_as_heading))
+  {
+  };
+
+  OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype_);
+
+  // Now print renderer metadata
+  TIZ_PRINTF_MAG (
+      "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
+      ((float)renderer_pcmtype_.nSamplingRate) / 1000,
+      renderer_pcmtype_.nBitPerSample,
+      renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+      renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
 }
 
 // TODO: Move this implementation to the base class (and remove also from
@@ -279,77 +302,6 @@ graph::scloudops::transition_tunnel (
 bool graph::scloudops::probe_stream_hook ()
 {
   return true;
-}
-
-void graph::scloudops::dump_stream_metadata ()
-{
-  OMX_U32 index = 0;
-  const int scloud_index = 0;
-  // Extract metadata from the scloud source
-  while (OMX_ErrorNone == dump_metadata_item (index++, scloud_index))
-  {
-  };
-
-  // Now extract metadata from the decoder
-  const int decoder_index = 1;
-  index = 0;
-  while (OMX_ErrorNone == dump_metadata_item (index++, decoder_index))
-  {
-  };
-
-  OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype_);
-
-  TIZ_PRINTF_YEL (
-      "   %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
-      ((float)renderer_pcmtype_.nSamplingRate) / 1000,
-      renderer_pcmtype_.nBitPerSample,
-      renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-      renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
-}
-
-OMX_ERRORTYPE graph::scloudops::dump_metadata_item (const OMX_U32 index,
-                                                    const int comp_index)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
-  size_t metadata_len = 0;
-  size_t value_len = 0;
-
-  value_len = OMX_MAX_STRINGNAME_SIZE;
-  metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + value_len;
-
-  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
-                   1, metadata_len)))
-  {
-    rc = OMX_ErrorInsufficientResources;
-  }
-  else
-  {
-    p_meta->nSize = metadata_len;
-    p_meta->nVersion.nVersion = OMX_VERSION;
-    p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
-    p_meta->nScopeSpecifier = 0;
-    p_meta->nMetadataItemIndex = index;
-    p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
-    p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
-    p_meta->eValueCharset = OMX_MetadataCharsetASCII;
-    p_meta->nKeySizeUsed = 0;
-    p_meta->nValue[0] = '\0';
-    p_meta->nValueMaxSize = OMX_MAX_STRINGNAME_SIZE;
-    p_meta->nValueSizeUsed = 0;
-
-    rc = OMX_GetConfig (handles_[comp_index], OMX_IndexConfigMetadataItem,
-                        p_meta);
-    if (OMX_ErrorNone == rc)
-    {
-      TIZ_PRINTF_CYN ("   %s%s : %s\n", index ? "  " : "", p_meta->nKey,
-                      p_meta->nValue);
-    }
-
-    tiz_mem_free (p_meta);
-    p_meta = NULL;
-  }
-  return rc;
 }
 
 OMX_ERRORTYPE graph::scloudops::get_encoding_type_from_scloud_source ()
@@ -568,8 +520,8 @@ void graph::scloudops::do_reconfigure_second_tunnel ()
       OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype),
       "Unable to set the PCM settings on the audio renderer");
 
-  TIZ_PRINTF_YEL (
-      "   %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
+  TIZ_PRINTF_MAG (
+      "     %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
       ((float)renderer_pcmtype.nSamplingRate) / 1000,
       renderer_pcmtype.nBitPerSample,
       renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",

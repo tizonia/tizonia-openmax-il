@@ -65,16 +65,14 @@ namespace tiz
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
       OMX_ERRORTYPE set_gmusic_user_and_device_id (
           const OMX_HANDLETYPE handle, const std::string &user,
-          const std::string &pass, const std::string &device_id);
+          const std::string &pass, const std::string &device_id,
+          const std::string &auth_token);
       OMX_ERRORTYPE set_gmusic_playlist (const OMX_HANDLETYPE handle,
                                          const std::string &playlist);
 
     private:
       // re-implemented from the base class
       bool probe_stream_hook ();
-      void dump_stream_metadata ();
-      OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index,
-                                        const int comp_index);
       OMX_ERRORTYPE get_encoding_type_from_gmusic_source ();
       OMX_ERRORTYPE apply_pcm_codec_info_from_decoder ();
       OMX_ERRORTYPE get_channels_and_rate_from_decoder (

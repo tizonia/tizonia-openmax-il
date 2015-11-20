@@ -187,6 +187,10 @@ namespace tiz
       virtual OMX_ERRORTYPE transition_tunnel (
           const int tunnel_id, const OMX_COMMANDTYPE to_disabled_or_enabled);
 
+      virtual OMX_ERRORTYPE dump_metadata_item (const OMX_U32 index,
+                                                const int comp_index,
+                                                const bool use_first_as_heading = true);
+
       cbackhandler &get_cback_handler () const;
 
     protected:

@@ -265,6 +265,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_user_ (),
     gmusic_pass_ (),
     gmusic_device_id_ (),
+    gmusic_auth_token_ (),
     gmusic_artist_ (),
     gmusic_album_ (),
     gmusic_playlist_ (),
@@ -558,6 +559,11 @@ const std::string &tiz::programopts::gmusic_password () const
 const std::string &tiz::programopts::gmusic_device_id () const
 {
   return gmusic_device_id_;
+}
+
+const std::string &tiz::programopts::gmusic_auth_token () const
+{
+  return gmusic_auth_token_;
 }
 
 const std::vector< std::string > &
@@ -1230,48 +1236,59 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
   {
     done = true;
 
-    const int playlist_option_count = vm_.count ("gmusic-artist")
-      + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
-      + vm_.count ("gmusic-unlimited-station") + vm_.count ("gmusic-unlimited-album")
-      + vm_.count ("gmusic-unlimited-artist") + vm_.count ("gmusic-unlimited-tracks")
-      + vm_.count ("gmusic-unlimited-genre") + vm_.count ("gmusic-unlimited-feeling-lucky-station")
-      + vm_.count ("gmusic-unlimited-promoted-tracks") ;
+    const int playlist_option_count
+        = vm_.count ("gmusic-artist") + vm_.count ("gmusic-album")
+          + vm_.count ("gmusic-playlist")
+          + vm_.count ("gmusic-unlimited-station")
+          + vm_.count ("gmusic-unlimited-album")
+          + vm_.count ("gmusic-unlimited-artist")
+          + vm_.count ("gmusic-unlimited-tracks")
+          + vm_.count ("gmusic-unlimited-genre")
+          + vm_.count ("gmusic-unlimited-feeling-lucky-station")
+          + vm_.count ("gmusic-unlimited-promoted-tracks");
 
     if (gmusic_user_.empty ())
-      {
-        retrieve_config_from_rc_file ("tizonia", "gmusic.user", gmusic_user_);
-      }
+    {
+      retrieve_config_from_rc_file ("tizonia", "gmusic.user", gmusic_user_);
+    }
     if (gmusic_pass_.empty ())
-      {
-        retrieve_config_from_rc_file ("tizonia", "gmusic.password", gmusic_pass_);
-      }
+    {
+      retrieve_config_from_rc_file ("tizonia", "gmusic.password", gmusic_pass_);
+    }
     if (gmusic_device_id_.empty ())
-      {
-        retrieve_config_from_rc_file ("tizonia", "gmusic.device_id", gmusic_device_id_);
-      }
+    {
+      retrieve_config_from_rc_file ("tizonia", "gmusic.device_id",
+                                    gmusic_device_id_);
+    }
+    if (gmusic_auth_token_.empty ())
+    {
+      retrieve_config_from_rc_file ("tizonia", "gmusic.auth_token",
+                                    gmusic_auth_token_);
+    }
 
     if (vm_.count ("gmusic-unlimited-promoted-tracks"))
-      {
-        // This is not going to be used by the client code, but will help
-        // in gmusic_playlist_type() to decide which playlist type value is returned.
-        gmusic_promoted_.assign ("Google Play Music Unlimited promoted tracks");
-      }
+    {
+      // This is not going to be used by the client code, but will help
+      // in gmusic_playlist_type() to decide which playlist type value is
+      // returned.
+      gmusic_promoted_.assign ("Google Play Music Unlimited promoted tracks");
+    }
 
     if (vm_.count ("gmusic-unlimited-feeling-lucky-station"))
-      {
-        gmusic_feeling_lucky_station_.assign ("I'm Feeling Lucky");
-      }
+    {
+      gmusic_feeling_lucky_station_.assign ("I'm Feeling Lucky");
+    }
 
-      if (vm_.count ("gmusic-unlimited-station")
-          || vm_.count ("gmusic-unlimited-album")
-          || vm_.count ("gmusic-unlimited-artist")
-          || vm_.count ("gmusic-unlimited-tracks")
-          || vm_.count ("gmusic-unlimited-genre"))
-      {
-        gmusic_is_unlimited_search_ = true;
-      }
+    if (vm_.count ("gmusic-unlimited-station")
+        || vm_.count ("gmusic-unlimited-album")
+        || vm_.count ("gmusic-unlimited-artist")
+        || vm_.count ("gmusic-unlimited-tracks")
+        || vm_.count ("gmusic-unlimited-genre"))
+    {
+      gmusic_is_unlimited_search_ = true;
+    }
 
-    if (gmusic_user_.empty ())
+    if (gmusic_user_.empty () && gmusic_auth_token_.empty ())
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;

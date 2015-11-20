@@ -828,7 +828,7 @@ void tiz::probe::dump_pcm_info ()
     probe_stream ();
   }
 
-  TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu:%s:%s\n", pcmtype_.nChannels,
+  TIZ_PRINTF_MAG ("     %ld Ch, %g KHz, %lu:%s:%s\n", pcmtype_.nChannels,
                   ((float)pcmtype_.nSamplingRate) / 1000,
                   pcmtype_.nBitPerSample,
                   pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
@@ -842,7 +842,7 @@ void tiz::probe::dump_mp3_info ()
     probe_stream ();
   }
 
-  TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu Kbps\n", mp3type_.nChannels,
+  TIZ_PRINTF_MAG ("     %ld Ch, %g KHz, %lu Kbps\n", mp3type_.nChannels,
                   ((float)mp3type_.nSampleRate) / 1000,
                   mp3type_.nBitRate / 1000);
 }
@@ -854,7 +854,7 @@ void tiz::probe::dump_mp2_and_pcm_info ()
     probe_stream ();
   }
 
-  TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu Kbps, %lu:%s:%s\n",
+  TIZ_PRINTF_MAG ("     %ld Ch, %g KHz, %lu Kbps, %lu:%s:%s\n",
                   mp2type_.nChannels, ((float)mp2type_.nSampleRate) / 1000,
                   mp2type_.nBitRate / 1000, pcmtype_.nBitPerSample,
                   pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
@@ -868,7 +868,7 @@ void tiz::probe::dump_mp3_and_pcm_info ()
     probe_stream ();
   }
 
-  TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu Kbps, %lu:%s:%s\n",
+  TIZ_PRINTF_MAG ("     %ld Ch, %g KHz, %lu Kbps, %lu:%s:%s\n",
                   mp3type_.nChannels, ((float)mp3type_.nSampleRate) / 1000,
                   mp3type_.nBitRate / 1000, pcmtype_.nBitPerSample,
                   pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
@@ -882,7 +882,7 @@ void tiz::probe::dump_aac_and_pcm_info ()
     probe_stream ();
   }
 
-  TIZ_PRINTF_YEL ("   %ld Ch, %g KHz, %lu Kbps, %lu:%s:%s\n",
+  TIZ_PRINTF_MAG ("     %ld Ch, %g KHz, %lu Kbps, %lu:%s:%s\n",
                   aactype_.nChannels, ((float)aactype_.nSampleRate) / 1000,
                   aactype_.nBitRate / 1000, pcmtype_.nBitPerSample,
                   pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
@@ -899,17 +899,17 @@ void tiz::probe::dump_stream_metadata ()
   std::string the_title = title ().empty () ? get_stream_title () : title ();
   std::string the_artist = artist ().empty () ? get_stream_genre () : artist ();
 
-  TIZ_PRINTF_CYN (
-      "   %s, %s - [%s, %.2g MiB]\n", the_title.c_str (), the_artist.c_str (),
-      stream_length ().c_str (),
+  TIZ_PRINTF_YEL ("   %s, %s\n", the_title.c_str (), the_artist.c_str ());
+  TIZ_PRINTF_CYN ("     Duration : %s\n", stream_length ().c_str ());
+  TIZ_PRINTF_CYN ("     Size : %.2g MiB\n",
       ((float)boost::filesystem::file_size (uri_.c_str ()) / (1024 * 1024)));
   if (!album ().empty ())
   {
-    TIZ_PRINTF_CYN ("     Album   : %s\n", album ().c_str ());
+    TIZ_PRINTF_CYN ("     Album : %s\n", album ().c_str ());
   }
   if (!year ().empty () && year ().compare ("0") != 0)
   {
-    TIZ_PRINTF_CYN ("     Year    : %s\n", year ().c_str ());
+    TIZ_PRINTF_CYN ("     Year : %s\n", year ().c_str ());
   }
   if (!track ().empty () && track ().compare ("0") != 0)
   {
@@ -917,7 +917,7 @@ void tiz::probe::dump_stream_metadata ()
   }
   if (!genre ().empty ())
   {
-    TIZ_PRINTF_CYN ("     Genre   : %s\n", genre ().c_str ());
+    TIZ_PRINTF_CYN ("     Genre : %s\n", genre ().c_str ());
   }
   if (!comment ().empty ())
   {

@@ -54,10 +54,11 @@ namespace graph = tiz::graph;
 
 namespace
 {
-  void copy_omx_string (OMX_U8 *p_dest, const std::string &omx_string)
+  void copy_omx_string (OMX_U8 *p_dest, const std::string &omx_string,
+                        const size_t max_length = OMX_MAX_STRINGNAME_SIZE)
   {
     const size_t len = omx_string.length ();
-    const size_t to_copy = MIN (len, OMX_MAX_STRINGNAME_SIZE - 1);
+    const size_t to_copy = MIN (len, max_length - 1);
     assert (p_dest);
     memcpy (p_dest, omx_string.c_str (), to_copy);
     p_dest[to_copy] = '\0';
@@ -106,7 +107,8 @@ void graph::gmusicops::do_configure_source ()
   G_OPS_BAIL_IF_ERROR (
       set_gmusic_user_and_device_id (
           handles_[0], gmusic_config->get_user_name (),
-          gmusic_config->get_user_pass (), gmusic_config->get_device_id ()),
+          gmusic_config->get_user_pass (), gmusic_config->get_device_id (),
+          gmusic_config->get_auth_token ()),
       "Unable to set OMX_TizoniaIndexParamAudioGmusicSession");
 
   G_OPS_BAIL_IF_ERROR (
@@ -229,7 +231,31 @@ void graph::gmusicops::do_skip ()
 
 void graph::gmusicops::do_retrieve_metadata ()
 {
-  dump_stream_metadata ();
+  OMX_U32 index = 0;
+  const int gmusic_index = 0;
+  // Extract metadata from the gmusic source
+  while (OMX_ErrorNone == dump_metadata_item (index++, gmusic_index))
+  {
+  };
+
+  // Now extract metadata from the decoder
+  const int decoder_index = 1;
+  index = 0;
+  const bool use_first_as_heading = false;
+  while (OMX_ErrorNone
+         == dump_metadata_item (index++, decoder_index, use_first_as_heading))
+  {
+  };
+
+  OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype_);
+
+  // Now print renderer metadata
+  TIZ_PRINTF_MAG (
+      "     %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
+      ((float)renderer_pcmtype_.nSamplingRate) / 1000,
+      renderer_pcmtype_.nBitPerSample,
+      renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
+      renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
 }
 
 // TODO: Move this implementation to the base class (and remove also from
@@ -282,77 +308,6 @@ graph::gmusicops::transition_tunnel (
 bool graph::gmusicops::probe_stream_hook ()
 {
   return true;
-}
-
-void graph::gmusicops::dump_stream_metadata ()
-{
-  OMX_U32 index = 0;
-  const int gmusic_index = 0;
-  // Extract metadata from the gmusic source
-  while (OMX_ErrorNone == dump_metadata_item (index++, gmusic_index))
-  {
-  };
-
-  // Now extract metadata from the decoder
-  const int decoder_index = 1;
-  index = 0;
-  while (OMX_ErrorNone == dump_metadata_item (index++, decoder_index))
-  {
-  };
-
-  OMX_GetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype_);
-
-  TIZ_PRINTF_YEL (
-      "   %ld Ch, %g KHz, %lu:%s:%s \n", renderer_pcmtype_.nChannels,
-      ((float)renderer_pcmtype_.nSamplingRate) / 1000,
-      renderer_pcmtype_.nBitPerSample,
-      renderer_pcmtype_.eNumData == OMX_NumericalDataSigned ? "s" : "u",
-      renderer_pcmtype_.eEndian == OMX_EndianBig ? "b" : "l");
-}
-
-OMX_ERRORTYPE graph::gmusicops::dump_metadata_item (const OMX_U32 index,
-                                                    const int comp_index)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
-  size_t metadata_len = 0;
-  size_t value_len = 0;
-
-  value_len = OMX_MAX_STRINGNAME_SIZE;
-  metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + value_len;
-
-  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
-                   1, metadata_len)))
-  {
-    rc = OMX_ErrorInsufficientResources;
-  }
-  else
-  {
-    p_meta->nSize = metadata_len;
-    p_meta->nVersion.nVersion = OMX_VERSION;
-    p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
-    p_meta->nScopeSpecifier = 0;
-    p_meta->nMetadataItemIndex = index;
-    p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
-    p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
-    p_meta->eValueCharset = OMX_MetadataCharsetASCII;
-    p_meta->nKeySizeUsed = 0;
-    p_meta->nValue[0] = '\0';
-    p_meta->nValueMaxSize = OMX_MAX_STRINGNAME_SIZE;
-    p_meta->nValueSizeUsed = 0;
-
-    rc = OMX_GetConfig (handles_[comp_index], OMX_IndexConfigMetadataItem,
-                        p_meta);
-    if (OMX_ErrorNone == rc)
-    {
-      TIZ_PRINTF_CYN ("   %s%s : %s\n", index ? "  " : "", p_meta->nKey,
-                      p_meta->nValue);
-    }
-
-    tiz_mem_free (p_meta);
-    p_meta = NULL;
-  }
-  return rc;
 }
 
 OMX_ERRORTYPE graph::gmusicops::get_encoding_type_from_gmusic_source ()
@@ -449,7 +404,8 @@ OMX_ERRORTYPE
 graph::gmusicops::set_gmusic_user_and_device_id (const OMX_HANDLETYPE handle,
                                                  const std::string &user,
                                                  const std::string &pass,
-                                                 const std::string &device_id)
+                                                 const std::string &device_id,
+                                                 const std::string &auth_token)
 {
   // Set the Google Play Music user and pass
   OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE sessiontype;
@@ -461,6 +417,7 @@ graph::gmusicops::set_gmusic_user_and_device_id (const OMX_HANDLETYPE handle,
   copy_omx_string (sessiontype.cUserName, user);
   copy_omx_string (sessiontype.cUserPassword, pass);
   copy_omx_string (sessiontype.cDeviceId, device_id);
+  copy_omx_string (sessiontype.cUserAuthToken, auth_token, 500);
   return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE >(
                                        OMX_TizoniaIndexParamAudioGmusicSession),
                            &sessiontype);
@@ -576,8 +533,8 @@ void graph::gmusicops::do_reconfigure_second_tunnel ()
       OMX_SetParameter (handles_[2], OMX_IndexParamAudioPcm, &renderer_pcmtype),
       "Unable to set the PCM settings on the audio renderer");
 
-  TIZ_PRINTF_YEL (
-      "   %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
+  TIZ_PRINTF_MAG (
+      "     %ld Ch, %g KHz, %lu:%s:%s\n", renderer_pcmtype.nChannels,
       ((float)renderer_pcmtype.nSamplingRate) / 1000,
       renderer_pcmtype.nBitPerSample,
       renderer_pcmtype.eNumData == OMX_NumericalDataSigned ? "s" : "u",

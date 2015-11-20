@@ -46,12 +46,14 @@ namespace tiz
     public:
       gmusicconfig (const tizplaylist_ptr_t &playlist, const std::string &user,
                     const std::string &pass, const std::string &device_id,
+                    const std::string &auth_token,
                     const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type,
                     const bool is_unlimited_search = false)
         : config (playlist),
           user_ (user),
           pass_ (pass),
           device_id_ (device_id),
+          auth_token_ (auth_token),
           playlist_type_ (playlist_type),
           is_unlimited_search_ (is_unlimited_search)
       {
@@ -76,6 +78,11 @@ namespace tiz
         return device_id_;
       }
 
+      std::string get_auth_token () const
+      {
+        return auth_token_;
+      }
+
       OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE get_playlist_type () const
       {
         return playlist_type_;
@@ -90,6 +97,7 @@ namespace tiz
       const std::string user_;
       const std::string pass_;
       const std::string device_id_;
+      const std::string auth_token_;
       const OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE playlist_type_;
       bool is_unlimited_search_;
     };

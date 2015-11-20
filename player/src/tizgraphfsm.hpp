@@ -301,7 +301,10 @@ namespace tiz
         boost::msm::front::Row < configuring
                                  ::exit_pt
                                  <configuring_
-                                  ::conf_exit>, configured_evt , executing               , do_ack_execd                                   >,
+                                  ::conf_exit>, configured_evt , executing               , boost::msm::front::ActionSequence_<
+                                                                                             boost::mpl::vector<
+                                                                                               do_retrieve_metadata,
+                                                                                               do_ack_execd> >                            >,
         boost::msm::front::Row < configuring
                                  ::exit_pt
                                  <configuring_
