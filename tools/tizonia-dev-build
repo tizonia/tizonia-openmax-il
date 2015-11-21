@@ -407,10 +407,10 @@ function main {
     if [[ ("$scan" == 1) && ("$make" == 1) ]]; then
         print_banner "Building for [SCAN-BUILD] build" "$GRN"
         scan-build make
-    elif [[ ("$valgrind" == 1) && ("$make" == 1) ]]; then
+    elif [[ ("$valgrind" == 1) && ( ("$make" == 1) || ("$install" == 1) ) ]]; then
         print_banner "Building for [VALGRIND] build" "$GRN"
         make CFLAGS='-O0 -g' CXXFLAGS='-O0 -g'
-    elif [[ ("$make" == 1) ]]; then
+    elif [[ ("$make" == 1) || ("$install" == 1) ]]; then
         print_banner "Building Tizonia" "$GRN"
         make -s -j8 V=0
     fi
