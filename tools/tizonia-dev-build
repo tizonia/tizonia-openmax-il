@@ -135,17 +135,19 @@ function print_banner_and_license {
 function usage {
     print_banner_and_license
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-b|--debian] [-c|--conf] [-d|--deps] [-g|--debug] [-i|--install] [-m|--make] [-r|--release] [-s|--scan] [-v|--valgrind]"
+    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-c|--conf] [-d|--deps] [-g|--debug] [-i|--install] [-m|--make] [-p|--player] [-r|--release] [-s|--scan] [-v|--valgrind] [-w|--cwd]"
     pretty_print "$GRN" "       -a            : Configure for an Address Sanitizer (ASAN) type of build (requires clang)."
-    pretty_print "$GRN" "       -b            : Configure for a 'Debian' type build (--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH))."
+#   pretty_print "$GRN" "       -b            : Configure for a 'Debian' type build (--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH))."
     pretty_print "$GRN" "       -c            : Configure for conformance testing."
     pretty_print "$GRN" "       -d            : Install Tizonia's development dependencies."
     pretty_print "$GRN" "       -g            : Configure for a DEBUG type of build."
     pretty_print "$GRN" "       -i            : Make and install all sub-projects."
     pretty_print "$GRN" "       -m            : Make all sub-projects."
+    pretty_print "$GRN" "       -p            : Use the 'player' directory as the base directory for configuration/build."
     pretty_print "$GRN" "       -r            : Configure for a RELEASE type of build."
     pretty_print "$GRN" "       -s            : Configure for 'scan-build'."
     pretty_print "$GRN" "       -v            : Configure for Valgrind memory leak analysis."
+    pretty_print "$GRN" "       -w            : Use the the current working directory as the base directory for configuration/build."
     echo
     echo
     print_banner " Typical workflow" "$MAG"
@@ -227,9 +229,10 @@ function main {
     local scan=0
     local player=0
     local valgrind=0
+    local cwd=0
 
     local progname=$(basename $0)
-    CMDLINE=$(getopt -o "abcdgimrsv" --long "asan,debian,conf,deps,debug,install,make,player,release,scan,valgrind," -n "$progname" -- "$@")
+    CMDLINE=$(getopt -o "abcdgimrsvw" --long "asan,debian,conf,deps,debug,install,make,player,release,scan,valgrind,cwd," -n "$progname" -- "$@")
     eval set -- "$CMDLINE"
     while true; do
         case "$1" in
@@ -265,6 +268,9 @@ function main {
                 ;;
             -v|--valgrind)
                 valgrind=1; shift
+                ;;
+            -w|--cwd)
+                cwd=1; shift
                 ;;
             --)
                 shift
@@ -309,6 +315,10 @@ function main {
         builddir="$TIZONIA_REPO_DIR"/player
     fi
 
+    if [[ "$cwd" == 1 ]]; then
+        builddir="$PWD"
+    fi
+
     print_banner "Changing dir to $builddir" "$GRN"
     cd "$builddir"
 
@@ -317,7 +327,7 @@ function main {
         config=0
     fi
 
-    if [[ ("$debug" == 1) && ("$config" == 1) ]]; then
+    if [[ ("$debug" == 1) ]]; then
 
         print_banner "Reconfiguring Tizonia for [DEBUG] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
@@ -327,7 +337,7 @@ function main {
             CFLAGS='-O0 -ggdb -Wall -Werror' \
             CXXFLAGS='-O0 -ggdb -Wall'
 
-    elif [[ ("$asan" == 1) && ("$config" == 1) ]]; then
+    elif [[ ("$asan" == 1) ]]; then
 
         print_banner "Reconfiguring Tizonia for [ASAN] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
@@ -338,17 +348,20 @@ function main {
             CXXFLAGS='-ggdb -Wall -fno-omit-frame-pointer -fsanitize=address' \
             LDFLAGS='-fsanitize=address'
 
-    elif [[ ("$debian" == 1) && ("$config" == 1) ]]; then
+    elif [[ ("$debian" == 1) ]]; then
 
-        print_banner "Reconfiguring Tizonia for [DEBUG] build - Install dir [/usr]..." "$YEL"
-        autoreconf -ifs \
-            && ./configure \
-            --prefix=/usr \
-            --libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) \
-            CFLAGS='-O0 -ggdb -Wall -Werror -I/usr/include/tizonia' \
-            CXXFLAGS='-O0 -ggdb -Wall'
+#         print_banner "Reconfiguring Tizonia for [Debian] build - Install dir [/usr]..." "$YEL"
+#         autoreconf -ifs \
+#             && ./configure \
+#             --prefix=/usr \
+#             --libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) \
+#             CFLAGS='-O0 -ggdb -Wall -Werror -I/usr/include/tizonia' \
+#             CXXFLAGS='-O0 -ggdb -Wall'
 
-    elif [[ ("$release" == 1) && ("$config" == 1) ]];  then
+         print_banner "--debian option is currently disabled..." "$YEL"
+         exit "$E_BADARGS"
+
+    elif [[ ("$release" == 1) ]];  then
 
         print_banner "Reconfiguring Tizonia for [RELEASE] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
@@ -357,7 +370,7 @@ function main {
             CFLAGS='-O2 -s -DNDEBUG'  \
             CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
 
-    elif [[ ("$conf" == 1)  && ("$config" == 1) ]];  then
+    elif [[ ("$conf" == 1)  ]];  then
 
         print_banner "Reconfiguring Tizonia for [CONFORMANCE TESTING] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
@@ -367,7 +380,7 @@ function main {
             --prefix="$TIZONIA_INSTALL_DIR" \
             CFLAGS='-ggdb -Wall -Werror'
 
-    elif [[ ("$valgrind" == 1)  && ("$config" == 1) ]];  then
+    elif [[ ("$valgrind" == 1)  ]];  then
 
         print_banner "Reconfiguring Tizonia for [VALGRIND] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
@@ -377,7 +390,7 @@ function main {
             CFLAGS='-O0 -g' \
             CXXFLAGS='-O0 -g'
 
-    elif [[ ("$scan" == 1) && ("$config" == 1) ]]; then
+    elif [[ ("$scan" == 1) ]]; then
 
         print_banner "Reconfiguring Tizonia for [SCAN-BUILD] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         scan-build autoreconf -ifs \
@@ -391,13 +404,13 @@ function main {
         raise_error "Configuration failure."
     fi
 
-    if [[ ("$scan" == 1) && ("$config" == 0) ]]; then
+    if [[ ("$scan" == 1) && ("$make" == 1) ]]; then
         print_banner "Building for [SCAN-BUILD] build" "$GRN"
         scan-build make
-    elif [[ ("$valgrind" == 1) && ("$config" == 0) ]]; then
+    elif [[ ("$valgrind" == 1) && ("$make" == 1) ]]; then
         print_banner "Building for [VALGRIND] build" "$GRN"
         make CFLAGS='-O0 -g' CXXFLAGS='-O0 -g'
-    elif [[ ("$config" == 0) ]]; then
+    elif [[ ("$make" == 1) ]]; then
         print_banner "Building Tizonia" "$GRN"
         make -s -j8 V=0
     fi
@@ -408,7 +421,7 @@ function main {
 
     if [[ ("$install" == 1) ]]; then
         print_banner "Installing Tizonia - Install dir [$TIZONIA_INSTALL_DIR]" "$GRN"
-        make install
+        make -s -j8 V=0 install
     fi
 
     exit "$?"
