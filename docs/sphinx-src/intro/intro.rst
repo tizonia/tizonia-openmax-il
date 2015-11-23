@@ -7,17 +7,29 @@ Introduction
 500-foot view
 -------------
 
-Tizonia is an open-source sofware project built around a multimedia framework
-based on OpenMAX IL. `OpenMAX IL <https://en.wikipedia.org/wiki/OpenMAX>`_ is
-an open standard from `The Khronos Group <http://www.khronos.org/openmax/>`_
-that enables the creation and integration of software and hardware accelerated
-media streaming components like audio and video encoders and decoders, camera
+Tizonia is a free and open-source multimedia software project based on
+OpenMAX IL.
+
+`OpenMAX IL <https://en.wikipedia.org/wiki/OpenMAX>`_ is an open standard
+maintained by the `The Khronos Group <http://www.khronos.org/openmax/>`_ that
+enables the creation and integration of software and hardware accelerated media
+streaming components like audio and video encoders and decoders, camera
 components, and media processing algorithms.
 
-In addition to the OpenMAX IL-based multimedia framework, the Tizonia project
-features a command-line music player and audio streaming client/server for
-Linux with support for Spotify, Google Play Music and SoundCloud cloud
-streaming services.
+Tizonia provides a number of libraries that implement the various features and
+components of the OpenMAX IL API, including the OpenMAX IL Core, the OpenMAX IL
+plugin infrastructure, Resource Management and a number of plugin
+implementations (primarily audio and video software decoders, and media sources
+and renderers).
+
+From a user-side perspective, the Tizonia project also features a command-line
+music player and audio streaming client/server for Linux with support for
+Spotify, Google Play Music and SoundCloud on-demand audio streaming services.
+
+Tizonia development is hosted on `GitHub
+<https://github.com/tizonia/tizonia-openmax-il>`_ and software binary releases
+are available for Debian-based Linux distributions from `Bintray
+<https://bintray.com/tizonia>`_.
 
 
 Current features
@@ -46,16 +58,19 @@ Current features
 
 * Based on Tizonia's own internal multimedia framework.
 
-  * A full implementation of the OpenMAX IL 1.2 provisional
-    specification. I.e. no ffmpeg, libav, gstreamer or libvlc dependencies.
+  * A full implementation of the OpenMAX IL 1.2 provisional specification.
+
+  * No ffmpeg, libav, gstreamer or libvlc dependencies.
 
 
-Planned features
-----------------
+Roadmap
+-------
 
-* LAN streaming (Icecast/SHOUTcast) of cloud streams.
-* Additional cloud audio streaming services (e.g. Dirble, YouTube, etc.).
+* LAN streaming (Icecast/SHOUTcast) of any audio stream (including cloud
+  services).
+* Integration of additional audio streaming services (e.g. Dirble, YouTube,
+  etc.).
 * Multi-room synchronised playback.
 * Zeroconf/AVAHI networking.
 * Music Player Daemon protocol support.
-* Video streaming features.
+* Hardware-acceleration and Video support.
