@@ -547,7 +547,7 @@ static OMX_ERRORTYPE store_roles (
   assert (ap_sched);
   assert (ap_msg_regroles);
 
-  if (NULL == (ap_sched->child.p_role_list = tiz_mem_calloc (
+  if (!(ap_sched->child.p_role_list = tiz_mem_calloc (
                    ap_msg_regroles->nroles, sizeof(tiz_role_factory_t *))))
     {
       TIZ_ERROR (ap_sched->child.p_hdl,
@@ -1121,7 +1121,7 @@ static OMX_ERRORTYPE do_rr (tiz_scheduler_t *ap_sched,
   for (i = 0; i < p_msg_rr->nroles && rc == OMX_ErrorNone; ++i)
     {
       p_rf = p_msg_rr->p_role_list[i];
-      if (NULL == p_rf->pf_cport || NULL == p_rf->pf_proc)
+      if (!p_rf->pf_cport || !p_rf->pf_proc)
         {
           assert (0);
         }
@@ -1172,7 +1172,7 @@ static OMX_ERRORTYPE do_rt (tiz_scheduler_t *ap_sched,
     {
       p_tf = p_msg_rt->p_type_list[i];
       assert (p_tf);
-      if ((NULL == p_tf->pf_class_init) || (NULL == p_tf->pf_object_init)
+      if ((!p_tf->pf_class_init) || (!p_tf->pf_object_init)
           || (strnlen ((const char *)(p_tf->class_name),
                        OMX_MAX_STRINGNAME_SIZE) == OMX_MAX_STRINGNAME_SIZE)
           || (strnlen ((const char *)(p_tf->object_name),
@@ -1246,7 +1246,7 @@ static OMX_ERRORTYPE do_rph (tiz_scheduler_t *ap_sched,
           }
         while (p_port != NULL && (OMX_ALL == p_hooks->pid));
 
-        if (NULL == p_port && OMX_ALL != p_hooks->pid)
+        if (!p_port && OMX_ALL != p_hooks->pid)
           {
             /* Bad port index received */
             rc = OMX_ErrorBadPortIndex;
@@ -1303,7 +1303,7 @@ static OMX_ERRORTYPE do_reh (tiz_scheduler_t *ap_sched,
           }
         while (p_port != NULL && (OMX_ALL == p_hook->pid));
 
-        if (NULL == p_port && OMX_ALL != p_hook->pid)
+        if (!p_port && OMX_ALL != p_hook->pid)
           {
             /* Bad port index received */
             rc = OMX_ErrorBadPortIndex;
@@ -1376,7 +1376,7 @@ static inline tiz_sched_msg_t *init_scheduler_message (
   assert (ap_hdl);
   assert (a_msg_class < ETIZSchedMsgMax);
 
-  if (NULL == (p_msg = (tiz_sched_msg_t *)tiz_mem_calloc (
+  if (!(p_msg = (tiz_sched_msg_t *)tiz_mem_calloc (
                    1, sizeof(tiz_sched_msg_t))))
     {
       TIZ_ERROR (ap_hdl,
@@ -1418,7 +1418,7 @@ static OMX_ERRORTYPE configure_port_preannouncements (tiz_scheduler_t *ap_sched,
 
   p_preannounce_disabled = tiz_rcfile_get_value ("plugins", fqd_key);
 
-  if (NULL == p_preannounce_disabled
+  if (!p_preannounce_disabled
       || (0 != strncmp (p_preannounce_disabled, "true", 4)))
     {
       TIZ_TRACE (ap_hdl,
@@ -1454,7 +1454,7 @@ static OMX_ERRORTYPE sched_ComponentDeInit (OMX_HANDLETYPE ap_hdl)
   tiz_sched_msg_t *p_msg = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl)
+  if (!ap_hdl)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorBadParameter] : (null handle.)");
       return OMX_ErrorBadParameter;
@@ -1479,8 +1479,8 @@ static OMX_ERRORTYPE sched_GetComponentVersion (
   tiz_sched_msg_getcomponentversion_t *p_msg_gcv = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_comp_name || NULL == ap_comp_version
-      || NULL == ap_spec_version || NULL == ap_comp_uuid)
+  if (!ap_hdl || !ap_comp_name || !ap_comp_version
+      || !ap_spec_version || !ap_comp_uuid)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1511,7 +1511,7 @@ static OMX_ERRORTYPE sched_SendCommand (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_sendcommand_t *p_msg_scmd = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || (OMX_CommandStateSet == a_cmd
+  if (!ap_hdl || (OMX_CommandStateSet == a_cmd
                          && (a_param1 < OMX_StateLoaded
                              || a_param1 > OMX_StateWaitForResources)))
     {
@@ -1545,7 +1545,7 @@ static OMX_ERRORTYPE sched_GetParameter (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_setget_paramconfig_t *p_msg_gparam = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_struct)
+  if (!ap_hdl || !ap_struct)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1574,7 +1574,7 @@ static OMX_ERRORTYPE sched_SetParameter (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_setget_paramconfig_t *p_msg_sparam = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_struct)
+  if (!ap_hdl || !ap_struct)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1602,7 +1602,7 @@ static OMX_ERRORTYPE sched_GetConfig (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_setget_paramconfig_t *p_msg_gconf = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_struct)
+  if (!ap_hdl || !ap_struct)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1630,7 +1630,7 @@ static OMX_ERRORTYPE sched_SetConfig (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_setget_paramconfig_t *p_msg_sconf = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_struct)
+  if (!ap_hdl || !ap_struct)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1649,7 +1649,7 @@ static OMX_ERRORTYPE sched_SetConfig (OMX_HANDLETYPE ap_hdl,
   /* Copy the config struct, if api is to be called non-blocking */
   if (OMX_FALSE == tiz_sched_blocking_apis_tbl[ETIZSchedMsgSetConfig])
     {
-      if (NULL == (p_msg_sconf->p_struct
+      if (!(p_msg_sconf->p_struct
                    = tiz_mem_calloc (1, (*(OMX_U32 *)ap_struct))))
         {
           tiz_mem_free (p_msg);
@@ -1679,7 +1679,7 @@ static OMX_ERRORTYPE sched_GetExtensionIndex (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_getextindex_t *p_msg_gei = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_index_type || NULL == ap_param_name)
+  if (!ap_index_type || !ap_param_name)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1707,7 +1707,7 @@ static OMX_ERRORTYPE sched_GetState (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_getstate_t *p_msg_gs = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_state)
+  if (!ap_hdl || !ap_state)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1735,7 +1735,7 @@ static OMX_ERRORTYPE sched_ComponentTunnelRequest (
   tiz_sched_msg_tunnelrequest_t *p_msg_tr = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || (ap_thdl && NULL == ap_tsetup))
+  if (!ap_hdl || (ap_thdl && !ap_tsetup))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1772,7 +1772,7 @@ static OMX_ERRORTYPE sched_UseBuffer (OMX_HANDLETYPE ap_hdl,
   /* From 1.2, ap_buf may be NULL. The provisional spec does not say what
    * a_size would be when ap_buf is NULL. For now assume a_size may also be
    * zero. */
-  if (NULL == ap_hdl || NULL == app_hdr)
+  if (!ap_hdl || !app_hdr)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1807,7 +1807,7 @@ static OMX_ERRORTYPE sched_AllocateBuffer (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_allocbuffer_t *p_msg_ab = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || 0 == a_size)
+  if (!ap_hdl || 0 == a_size)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1837,7 +1837,7 @@ static OMX_ERRORTYPE sched_FreeBuffer (OMX_HANDLETYPE ap_hdl, OMX_U32 a_pid,
   tiz_sched_msg_freebuffer_t *p_msg_fb = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_hdr)
+  if (!ap_hdl || !ap_hdr)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1865,7 +1865,7 @@ static OMX_ERRORTYPE sched_EmptyThisBuffer (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_emptyfillbuffer_t *p_msg_efb = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_hdr)
+  if (!ap_hdl || !ap_hdr)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1892,7 +1892,7 @@ static OMX_ERRORTYPE sched_FillThisBuffer (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_emptyfillbuffer_t *p_msg_efb = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_hdr)
+  if (!ap_hdl || !ap_hdr)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1920,7 +1920,7 @@ static OMX_ERRORTYPE sched_SetCallbacks (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_setcallbacks_t *p_msg_scbs = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_cbacks)
+  if (!ap_hdl || !ap_cbacks)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -1953,7 +1953,7 @@ static OMX_ERRORTYPE sched_UseEGLImage (OMX_HANDLETYPE ap_hdl,
   /* From 1.2, ap_buf may be NULL. The provisional spec does not say what
    * a_size would be when ap_buf is NULL. For now assume a_size may also be
    * zero. */
-  if (NULL == ap_hdl || NULL == app_hdr)
+  if (!ap_hdl || !app_hdr)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : (Bad parameter found "
@@ -1984,7 +1984,7 @@ static OMX_ERRORTYPE sched_ComponentRoleEnum (OMX_HANDLETYPE ap_hdl,
   tiz_sched_msg_componentroleenum_t *p_msg_cre = NULL;
   tiz_scheduler_t *p_sched = NULL;
 
-  if (NULL == ap_hdl || NULL == ap_role)
+  if (!ap_hdl || !ap_role)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorBadParameter] : "
@@ -2041,8 +2041,8 @@ static void schedule_servants (tiz_scheduler_t *ap_sched,
   assert (ap_sched);
   assert (ETIZSchedStateStopped < ap_state);
 
-  if (ETIZSchedStateStarted != ap_state || NULL == ap_sched->child.p_prc
-      || NULL == ap_sched->child.p_ker || NULL == ap_sched->child.p_fsm)
+  if (ETIZSchedStateStarted != ap_state || !ap_sched->child.p_prc
+      || !ap_sched->child.p_ker || !ap_sched->child.p_fsm)
     {
       TIZ_TRACE (ap_sched->child.p_hdl, "Not ready prc [%p] fsm [%p] ker [%p]",
                  ap_sched->child.p_prc, ap_sched->child.p_fsm,
@@ -2164,7 +2164,7 @@ static tiz_scheduler_t *instantiate_scheduler (OMX_HANDLETYPE ap_hdl,
 
   assert (ap_hdl);
 
-  if (NULL == (p_sched = tiz_mem_calloc (1, sizeof(tiz_scheduler_t))))
+  if (!(p_sched = tiz_mem_calloc (1, sizeof(tiz_scheduler_t))))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorInsufficientResources] : "
@@ -2266,7 +2266,7 @@ static OMX_ERRORTYPE init_servants (tiz_scheduler_t *ap_sched,
 
   /* Init the FSM */
   ap_sched->child.p_fsm = factory_new (tiz_get_type (p_hdl, "tizfsm"));
-  if (NULL == ap_sched->child.p_fsm)
+  if (!ap_sched->child.p_fsm)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorInsufficientResources] : "
@@ -2276,7 +2276,7 @@ static OMX_ERRORTYPE init_servants (tiz_scheduler_t *ap_sched,
 
   /* Init the kernel */
   ap_sched->child.p_ker = factory_new (tiz_get_type (p_hdl, "tizkrn"));
-  if (NULL == ap_sched->child.p_ker)
+  if (!ap_sched->child.p_ker)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorInsufficientResources] : "
@@ -2361,7 +2361,7 @@ static OMX_ERRORTYPE init_and_register_role (tiz_scheduler_t *ap_sched,
     {
       /* Instantiate the processor */
       tiz_check_null_ret_oom (p_proc = p_rf->pf_proc (p_hdl));
-      assert (NULL == ap_sched->child.p_prc);
+      assert (!ap_sched->child.p_prc);
       ap_sched->child.p_prc = p_proc;
 
       /* All servants will use the same object allocator */
@@ -2397,14 +2397,14 @@ tiz_comp_init (const OMX_HANDLETYPE ap_hdl, const char *ap_cname)
            "infrastructure",
            ap_cname);
 
-  if (NULL == ap_hdl)
+  if (!ap_hdl)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorBadParameter] : (%s)", ap_cname);
       return OMX_ErrorBadParameter;
     }
 
   /* Instantiate the scheduler */
-  if (NULL == (p_sched = instantiate_scheduler (ap_hdl, ap_cname)))
+  if (!(p_sched = instantiate_scheduler (ap_hdl, ap_cname)))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR,
                "[OMX_ErrorInsufficientResources] : "
