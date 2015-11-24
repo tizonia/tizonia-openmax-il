@@ -50,6 +50,7 @@ declare -ar TIZ_SUPPORTED_DISTROS=( \
 declare -ar TIZ_SUPPORTED_RELEASES=( \
     ubuntu-trusty \
     ubuntu-vivid \
+    ubuntu-wily \
     debian-jessie \
     raspbian-jessie \
 )
@@ -360,12 +361,13 @@ function usage {
     pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
 
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-n|--makenext] [-d|--deps] [-p|--publish] [-r|--removeall] [-s|--signdebs]"
+    pretty_print "$GRN" "Usage : $(basename $0) [-n|--makenext] [-d|--alldeps] [-p|--publish] [-r|--removeall] [-s|--signdebs] [-t|--tizdeps]"
     pretty_print "$GRN" "       -n            : Make and install all debian packages, starting from the first one not yet installed."
-    pretty_print "$GRN" "       -d            : Install both Tizonia's and Debian's dependencies."
+    pretty_print "$GRN" "       -d            : Install both Tizonia's and Debian maintainership dependencies."
     pretty_print "$GRN" "       -p            : Publish to Bintray (requires Tizonia's Bintray API_KEY and Juan's GPG passphrase)."
     pretty_print "$GRN" "       -r            : Uninstall (purge) all currently installed packages."
     pretty_print "$GRN" "       -s            : (optional) Sign the .changes and .dsc files. DEB_SIGN_KEYID environment variable must be set."
+    pretty_print "$GRN" "       -t            : Install Tizonia's dependencies only."
 } >&2
 
 ##################################################################
@@ -396,8 +398,9 @@ function obtain_distro_id_and_codename {
     DISTRO_ID=$(cat /etc/*-release | grep -E '^ID=' | cut -d'=' -f2)
     DISTRO_CODENAME=$(cat /etc/*-release | grep -i codename | cut -d'=' -f2)
 }
+
 ##################################################################
-# Make sure pre-requisites are taken care of
+# Install all dependencies, both Tizonia's and for Debian packaging
 #
 # Globals
 #   None
@@ -406,7 +409,7 @@ function obtain_distro_id_and_codename {
 # Returns:
 #   None
 ##################################################################
-function do_deps {
+function do_tizonia_deps {
 
     # Add mopidy APT archive to sources, if not added already
     # and install libspotify using mopidy's deb packages
@@ -428,18 +431,6 @@ function do_deps {
 
     # Install tizonia's binary dependencies
     for pkg in "${TIZ_TIZONIA_DEPS[@]}"; do
-        local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
-        if [[ "$result" == "installed" ]]; then
-            pretty_print "$GRN" "[$pkg] : $result."
-        else
-            pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -q -y "$pkg" #> /dev/null
-            pretty_print "$GRN" "[$pkg] : installed."
-        fi
-    done
-
-    # Install debian dependencies
-    for pkg in "${TIZ_DEBIAN_PKGS[@]}"; do
         local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
         if [[ "$result" == "installed" ]]; then
             pretty_print "$GRN" "[$pkg] : $result."
@@ -491,6 +482,33 @@ function do_deps {
     #     else
     #         pretty_print "$GRN" "[libspotify] : installed."
     #     fi
+}
+
+##################################################################
+# Install all dependencies, both Tizonia's and for Debian packaging
+#
+# Globals
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function do_all_deps {
+
+    do_tizonia_deps
+
+    # Install debian dependencies
+    for pkg in "${TIZ_DEBIAN_PKGS[@]}"; do
+        local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2> /dev/null | cut -d ' ' -f3)
+        if [[ "$result" == "installed" ]]; then
+            pretty_print "$GRN" "[$pkg] : $result."
+        else
+            pretty_print "$BLU" "[$pkg] : installing."
+            sudo apt-get install -q -y "$pkg" #> /dev/null
+            pretty_print "$GRN" "[$pkg] : installed."
+        fi
+    done
 }
 
 ##################################################################
@@ -1047,21 +1065,22 @@ function do_publish_to_bintray {
 function main {
     local exit_status=0
     local makenext=0
-    local deps=0
+    local alldeps=0
     local removeall=0
     local publish=0
     local signdebs=0
+    local tizdeps=0
 
     local progname=$(basename $0)
-    CMDLINE=$(getopt -o "dnprs" --long "deps,makenext,publish,removeall,signdebs" -n "$progname" -- "$@")
+    CMDLINE=$(getopt -o "dnprst" --long "alldeps,makenext,publish,removeall,signdebs,tizdeps" -n "$progname" -- "$@")
     eval set -- "$CMDLINE"
     while true; do
         case "$1" in
             -n|--makenext)
                 makenext=1; shift
                 ;;
-            -d|--deps)
-                deps=1; shift
+            -d|--alldeps)
+                alldeps=1; shift
                 ;;
             -p|--publish)
                 publish=1; shift
@@ -1072,6 +1091,9 @@ function main {
             -s|--signdebs)
                 signdebs=1; shift
                 ;;
+            -t|--tizdeps)
+                tizdeps=1; shift
+                ;;
             --)
                 shift
                 break
@@ -1079,7 +1101,7 @@ function main {
         esac
     done
 
-    local total=$(( $makenext + $deps + $removeall + $publish ))
+    local total=$(( $makenext + $alldeps + $removeall + $publish + $tizdeps ))
     if [[ "$total" != 1 ]]; then
         usage
         exit "$E_BADARGS"
@@ -1121,8 +1143,15 @@ function main {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        if [[ "$deps" == 1 ]]; then
-            do_deps
+        if [[ "$alldeps" == 1 ]]; then
+            do_all_deps
+            exit_status=0
+        fi
+    fi
+
+    if [[ "$exit_status" -eq 0 ]] ; then
+        if [[ "$tizdeps" == 1 ]]; then
+            do_tizonia_deps
             exit_status=0
         fi
     fi

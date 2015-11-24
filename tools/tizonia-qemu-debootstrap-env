@@ -430,7 +430,7 @@ function bootstrap_environment {
     run_chroot apt-get upgrade -qq
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Installing Tizonia's dependencies" "$GRN"
-    run_chroot /bin/bash -v -c 'source /root/.profile; /root/work/tizonia/tools/tizonia-dpkg-build --deps'
+    run_chroot /bin/bash -v -c 'source /root/.profile; /root/work/tizonia/tools/tizonia-dpkg-build --alldeps'
 
     pretty_print "$BLU" "Done Tizonia's dependencies."
     return "$exit_status"
