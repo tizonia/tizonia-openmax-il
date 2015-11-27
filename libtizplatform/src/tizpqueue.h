@@ -180,7 +180,7 @@ OMX_ERRORTYPE tiz_pqueue_remove (tiz_pqueue_t *ap_pq, void *ap_data);
 /**
  * Remove an item from the queue. The item is found using the comparison
  * function provided at initialization time (see tiz_pqueue_init). The search
- * is restricted to the priority group a_priority
+ * is restricted to the priority group a_priority.
  *
  * @return OMX_ErrorNone if success, OMX_ErrorNoMore if not found
  *
@@ -195,10 +195,10 @@ OMX_ERRORTYPE tiz_pqueue_removep (tiz_pqueue_t *ap_pq, void *ap_data,
  * apf_func.
  *
  * @ingroup tizpqueue
- *
+ * @return The number of items removed from the queue.
  */
-void tiz_pqueue_remove_func (tiz_pqueue_t *ap_pq, tiz_pq_func_f apf_func,
-                             OMX_S32 a_data1, void *ap_data2);
+OMX_S32 tiz_pqueue_remove_func (tiz_pqueue_t *ap_pq, tiz_pq_func_f apf_func,
+                                OMX_S32 a_data1, void *ap_data2);
 
 /**
  * Return a reference to the first item in the queue.

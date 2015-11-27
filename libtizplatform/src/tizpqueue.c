@@ -421,16 +421,19 @@ tiz_pqueue_removep (tiz_pqueue_t *p_q, void *ap_data, OMX_S32 a_priority)
   return rc;
 }
 
-void tiz_pqueue_remove_func (tiz_pqueue_t *p_q, tiz_pq_func_f a_pf_func,
-                             OMX_S32 a_data1, void *ap_data2)
+OMX_S32 tiz_pqueue_remove_func (tiz_pqueue_t *p_q, tiz_pq_func_f a_pf_func,
+                                OMX_S32 a_data1, void *ap_data2)
 {
   tiz_pqueue_item_t *p_cur = NULL;
   tiz_pqueue_item_t *p_next = NULL;
   tiz_pqueue_item_t *p_prev = NULL;
+  OMX_S32 initial_item_count = 0;
 
   assert (p_q);
   assert (a_pf_func);
   assert (ap_data2);
+
+  initial_item_count = p_q->length;
 
   p_cur = p_q->p_first;
   while (p_cur)
@@ -486,6 +489,8 @@ void tiz_pqueue_remove_func (tiz_pqueue_t *p_q, tiz_pq_func_f a_pf_func,
           p_cur = p_cur->p_next;
         }
     }
+
+  return (initial_item_count - p_q->length);
 }
 
 OMX_ERRORTYPE
