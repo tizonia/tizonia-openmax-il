@@ -368,7 +368,7 @@ function main {
             && ./configure \
                    --enable-silent-rules \
                    --prefix="$TIZONIA_INSTALL_DIR" \
-                   CFLAGS='-O0 -ggdb -Wall -Werror' \
+                   CFLAGS='-O0 -ggdb -Wall' \
                    CXXFLAGS='-O0 -ggdb -Wall'
 
     elif [[ ("$asan" == 1) ]]; then
