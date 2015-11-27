@@ -30,6 +30,7 @@ libtizplatform_includedir = $(includedir)/tizonia
 libtizplatform_include_HEADERS = \
 	utarray/utarray.h \
 	avl/avl.h \
+	ev/ev.h \
 	http-parser/http_parser.h \
 	tizplatform.h \
 	tizmacros.h \
@@ -56,6 +57,7 @@ libtizplatform_include_HEADERS = \
 libtizplatform_la_SOURCES = \
 	http-parser/http_parser.c \
 	avl/avl.c \
+	ev/ev.c \
 	tizplatform.c \
 	tizlog.c \
 	tizomxutils.c \
@@ -85,7 +87,6 @@ libtizplatform_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_A
 
 libtizplatform_la_LIBADD = \
 	-lpthread \
-	-lev \
 	@LOG4C_LIBS@ \
 	@UUID_LIBS@
 

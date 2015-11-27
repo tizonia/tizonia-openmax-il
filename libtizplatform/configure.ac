@@ -18,7 +18,7 @@
 AC_PREREQ([2.67])
 AC_INIT([tizplatform], [0.2.0], [juan.rubio@aratelia.com])
 AC_CONFIG_AUX_DIR([.])
-AM_INIT_AUTOMAKE([foreign color-tests silent-rules subdir-objects -Wall -Werror])
+AM_INIT_AUTOMAKE([foreign color-tests silent-rules subdir-objects -Wall])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
@@ -66,9 +66,8 @@ AC_DEFINE([HTTP_PARSER_STRICT], [1], [Using strict http parsing.])
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([libuuid], [uuid_generate])
-AC_CHECK_LIB([ev], [ev_run])
-PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 PKG_CHECK_MODULES([UUID], [uuid >= 2.19.0])
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tizrmd_found_omx_headers=yes; break;])
