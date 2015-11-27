@@ -355,7 +355,7 @@ function build_tizonia {
         autoreconf -ifs
         exit_status=$?
         if [[ "$exit_status" -eq 0 ]] ; then
-            ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall -Werror" \
+            ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall" \
                 && make -s -j8 V=0 \
                 && make -j8 install
             exit_status=$?
@@ -381,7 +381,7 @@ function build_debug {
     autoreconf -ifs
     local exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
-        ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall -Werror"
+        ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall"
         exit_status=$?
     fi
     return "$exit_status"
@@ -429,7 +429,7 @@ function build_conformace {
             --enable-silent-rules \
             --enable-blocking-etb-ftb \
             --prefix="$INSTALL_DIR" \
-            CFLAGS="-ggdb -Wall -Werror"
+            CFLAGS="-ggdb -Wall"
         exit_status=$?
     fi
     return "$exit_status"
