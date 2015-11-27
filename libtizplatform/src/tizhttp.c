@@ -195,9 +195,12 @@ static int on_url (http_parser *ap_parser, const char *ap_at, size_t a_length)
   return insert_kv_pair (p_hp, p_url_str, 3, ap_at, a_length);
 }
 
-static int on_status_complete (http_parser *ap_parser)
+static int on_status (http_parser *ap_parser, const char *at, size_t length)
 {
-  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on status complete ***");
+  (void)ap_parser;
+  (void)at;
+  (void)length;
+  TIZ_LOG (TIZ_PRIORITY_TRACE, "*** on status ***");
   return 0;
 }
 
@@ -297,7 +300,7 @@ tiz_http_parser_init (tiz_http_parser_ptr_t *app_parser,
 
   p_hp->settings.on_message_begin = on_message_begin;
   p_hp->settings.on_url = on_url;
-  p_hp->settings.on_status_complete = on_status_complete;
+  p_hp->settings.on_status = on_status;
   p_hp->settings.on_header_field = on_header_field;
   p_hp->settings.on_header_value = on_header_value;
   p_hp->settings.on_headers_complete = on_headers_complete;
