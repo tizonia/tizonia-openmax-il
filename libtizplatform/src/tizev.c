@@ -545,9 +545,17 @@ static OMX_ERRORTYPE do_io_start (tiz_event_loop_msg_t *ap_msg)
   assert (p_msg_io);
   p_ev_io = p_msg_io->p_ev_io;
   assert (p_ev_io);
-  /*   assert (p_ev_io->id != p_msg_io->id); */
+  /* debug: Verify that ids don't get repeated */
+  if (p_ev_io->id != 0 && p_ev_io->id == p_msg_io->id)
+    {
+      assert (p_ev_io->id != p_msg_io->id);
+    }
   p_ev_io->id = p_msg_io->id;
-  /*   assert (!p_ev_io->started); */
+  /* debug: Verify that we are starting a watcher that was stopped */
+  if (p_ev_io->started)
+    {
+      assert (!p_ev_io->started);
+    }
   p_ev_io->started = true;
   ev_io_start (gp_event_loop->p_loop, (ev_io *)(p_ev_io));
 
@@ -575,8 +583,8 @@ static OMX_ERRORTYPE do_io_stop (tiz_event_loop_msg_t *ap_msg)
     }
   else
     {
-      /* The io watcher hasn't been started, let's make sure there are no start
-         requests in the queue */
+      /* This io watcher hasn't been started, let's make sure there are no
+         start requests left behind in the queue */
       const tiz_event_loop_msg_class_t class_to_be_deleted
           = ETIZEventLoopMsgIoStart;
       tiz_pqueue_remove_func (gp_event_loop->p_pq, ev_io_msg_dequeue,
@@ -634,7 +642,6 @@ static OMX_ERRORTYPE do_timer_start (tiz_event_loop_msg_t *ap_msg)
   assert (p_ev_timer);
   assert (p_ev_timer->id != p_msg_timer->id);
   p_ev_timer->id = p_msg_timer->id;
-  /*   assert (!p_ev_timer->started); */
   p_ev_timer->started = true;
   ev_timer_start (gp_event_loop->p_loop, (ev_timer *)(p_ev_timer));
 
@@ -741,9 +748,17 @@ static OMX_ERRORTYPE do_stat_start (tiz_event_loop_msg_t *ap_msg)
   assert (p_msg_stat);
   p_ev_stat = p_msg_stat->p_ev_stat;
   assert (p_ev_stat);
-  assert (p_ev_stat->id != p_msg_stat->id);
+  /* debug: Verify that ids don't get repeated */
+  if (p_ev_stat->id != 0 && p_ev_stat->id == p_msg_stat->id)
+    {
+      assert (p_ev_stat->id != p_msg_stat->id);
+    }
   p_ev_stat->id = p_msg_stat->id;
-  assert (!p_ev_stat->started);
+  /* debug: Verify that we are starting a watcher that was stopped */
+  if (p_ev_stat->started)
+    {
+      assert (!p_ev_stat->started);
+    }
   p_ev_stat->started = true;
   ev_stat_start (gp_event_loop->p_loop, (ev_stat *)(p_ev_stat));
 
@@ -832,9 +847,8 @@ static void async_watcher_cback (struct ev_loop *ap_loop, ev_async *ap_watcher,
         {
           void *p_msg = NULL;
 
-          /* Process any remaining items in the queue */
+          /* Process all items from the queue */
           (void)tiz_mutex_lock (&(gp_event_loop->mutex));
-
           while (0 < tiz_pqueue_length (gp_event_loop->p_pq))
             {
               if (OMX_ErrorNone
@@ -844,6 +858,7 @@ static void async_watcher_cback (struct ev_loop *ap_loop, ev_async *ap_watcher,
                 }
               /* Process the message */
               dispatch_msg (p_msg);
+              /* Delete the message */
               tiz_soa_free (gp_event_loop->p_soa, p_msg);
             }
           (void)tiz_mutex_unlock (&(gp_event_loop->mutex));
@@ -864,11 +879,9 @@ static void io_watcher_cback (struct ev_loop *ap_loop, ev_io *ap_watcher,
 
       if (p_io_event->once)
         {
+          p_io_event->started = false;
           ev_io_stop (gp_event_loop->p_loop, (ev_io *)p_io_event);
         }
-
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "io watcher cback");
-
       p_io_event->pf_cback (p_io_event->p_arg0, p_io_event, p_io_event->p_arg1,
                             p_io_event->id, ((ev_io *)p_io_event)->fd,
                             a_revents);
@@ -886,9 +899,6 @@ static void timer_watcher_cback (struct ev_loop *ap_loop, ev_timer *ap_watcher,
       tiz_event_timer_t *p_timer_event = (tiz_event_timer_t *)ap_watcher;
       assert (p_timer_event);
       assert (p_timer_event->pf_cback);
-
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "timer watcher cback");
-
       p_timer_event->pf_cback (p_timer_event->p_arg0, p_timer_event,
                                p_timer_event->p_arg1, p_timer_event->id);
     }
@@ -904,9 +914,6 @@ static void stat_watcher_cback (struct ev_loop *ap_loop, ev_stat *ap_watcher,
       tiz_event_stat_t *p_stat_event = (tiz_event_stat_t *)ap_watcher;
       assert (p_stat_event);
       assert (p_stat_event->pf_cback);
-
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "stat watcher cback");
-
       p_stat_event->pf_cback (p_stat_event->p_arg0, p_stat_event,
                               p_stat_event->p_arg1, p_stat_event->id,
                               a_revents);
