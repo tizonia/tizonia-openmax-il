@@ -23,16 +23,22 @@ the following distro/arch combinations:
 
 To install the
 [latest binary release](https://github.com/tizonia/tizonia-openmax-il/releases/latest),
-use the following shortcut:
+use:
 
 ```bash
 
-    $ curl -L -O https://goo.gl/Vu8qGR && chmod +x Vu8qGR && ./Vu8qGR
+    $ curl -kL https://github.com/tizonia/tizonia-openmax-il/raw/master/tools/install.sh | bash
+    # Or its shortened version:
+    $ curl -kL https://goo.gl/Vu8qGR | bash
 
 ```
 
-Finally you can add your Spotify, Google Play Music and SoundCloud login
-details in Tizonia's config file located at
+This will install the latest version of Tizonia's deb packages from Bintray and
+all the dependencies.
+
+Finally, to use Spotify, Google Play Music and SoundCloud, introduce your
+credentials in Tizonia's config file:
+
 _$HOME/.config/tizonia/tizonia.conf_
 
 ## 'tizonia' usage ##
