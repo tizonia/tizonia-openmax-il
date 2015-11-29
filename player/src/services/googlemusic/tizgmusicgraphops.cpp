@@ -392,10 +392,14 @@ graph::gmusicops::set_channels_and_rate_on_renderer (
   tiz_check_omx_err (
       OMX_SetParameter (handle, OMX_IndexParamAudioPcm, &renderer_pcmtype_));
 
+  tizgmusicconfig_ptr_t gmusic_config
+    = boost::dynamic_pointer_cast< gmusicconfig >(config_);
+  assert (gmusic_config);
+
   std::string coding_type_str ("Google Play Music");
   tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
                                      "Connected",
-                                     playlist_->get_current_uri ().c_str ());
+                                     gmusic_config->get_user_name ().c_str ());
 
   return OMX_ErrorNone;
 }
