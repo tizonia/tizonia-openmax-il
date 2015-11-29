@@ -20,17 +20,19 @@
 #
 #
 
+sudo: required
+dist: trusty
 language: c
 compiler:
   - gcc
 before_install:
- - ./tools/tizonia-travis-build deps "$HOME"
- - ./tools/tizonia-travis-build pydeps "$HOME"
- - ./tools/tizonia-travis-build srcdeps "$HOME"
+ - ./tools/tizonia-travis-build-trusty deps "$HOME"
+ - ./tools/tizonia-travis-build-trusty pydeps "$HOME"
+# - - ./tools/tizonia-travis-build-trusty srcdeps "$HOME"
 before_script:
- - ./tools/tizonia-travis-build media "$HOME" "$HOME/temp"
+ - ./tools/tizonia-travis-build-trusty media "$HOME" "$HOME/temp"
 script:
- - ./tools/tizonia-travis-build debug "$HOME/build/tizonia/tizonia-openmax-il"
- - ./tools/tizonia-travis-build config "$HOME/build/tizonia/tizonia-openmax-il"
- - ./tools/tizonia-travis-build skema "$HOME/build"
- - ./tools/tizonia-travis-build tests "$HOME/build"
+ - ./tools/tizonia-travis-build-trusty debug "$HOME/build/tizonia/tizonia-openmax-il"
+ - ./tools/tizonia-travis-build-trusty config "$HOME/build/tizonia/tizonia-openmax-il"
+ - ./tools/tizonia-travis-build-trusty skema "$HOME/build"
+ - ./tools/tizonia-travis-build-trusty tests "$HOME/build"
