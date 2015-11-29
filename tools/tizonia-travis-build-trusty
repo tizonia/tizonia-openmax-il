@@ -238,7 +238,7 @@ function install_python_deps {
     echo "Installing pip and an the gmusicapi python module..."
     wget https://bootstrap.pypa.io/get-pip.py \
         && sudo python get-pip.py \
-        && sudo pip install gmusicapi
+        && pip install --user gmusicapi
 
     # echo "Now installing the latest gmusicapi from source..."
     # git clone https://github.com/simon-weber/gmusicapi \
@@ -250,7 +250,7 @@ function install_python_deps {
     fi
 
     if [[ "$exit_status" -eq 0 ]] ; then
-        sudo pip install soundcloud
+        pip install --user soundcloud
         exit_status=$?
         if [[ "$exit_status" -ne 0 ]] ; then
             echo "Error while installing soundcloud" >&2
@@ -416,12 +416,15 @@ function build_tizonia {
 ##################################################################
 function build_debug {
     cd_to_working_dir
-    echo "Reconfiguring Tizonia for [DEBUG] build - Install dir [$INSTALL_DIR]..."
+    # Fix annoying log4c.m4 warning
+    sudo sed -irn 's/AC_DEFUN(AM_PATH_LOG4C/AC_DEFUN(\[AM_PATH_LOG4C\]/' /usr/share/aclocal/log4c.m4
+    # Export $PYTHONPATH to make sure soundcloud and gmusicapi can be found
+    export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python2.7/site-packages
+    echo $TRAVIS_PYTHON_VERSION
     autoreconf -ifs
     local exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
         ./configure \
-            --silent \
             --enable-silent-rules \
             --prefix="$INSTALL_DIR" \
             CFLAGS="-ggdb -Wall"
