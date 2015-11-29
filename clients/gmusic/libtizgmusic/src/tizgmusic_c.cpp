@@ -50,14 +50,13 @@ static void gmusic_free_data (tiz_gmusic_t *ap_gmusic)
 }
 
 static int gmusic_alloc_data (tiz_gmusic_t *ap_gmusic, const char *ap_user,
-                              const char *ap_pass, const char *ap_device_id,
-                              const char *ap_auth_token)
+                              const char *ap_pass, const char *ap_device_id)
 {
   int rc = 0;
   assert (ap_gmusic);
   try
     {
-      ap_gmusic->p_proxy_ = new tizgmusic (ap_user, ap_pass, ap_device_id, ap_auth_token);
+      ap_gmusic->p_proxy_ = new tizgmusic (ap_user, ap_pass, ap_device_id);
     }
   catch (...)
     {
@@ -69,8 +68,7 @@ static int gmusic_alloc_data (tiz_gmusic_t *ap_gmusic, const char *ap_user,
 
 extern "C" int tiz_gmusic_init (tiz_gmusic_ptr_t *app_gmusic,
                                 const char *ap_user, const char *ap_pass,
-                                const char *ap_device_id,
-                                const char *ap_auth_token)
+                                const char *ap_device_id)
 {
   tiz_gmusic_t *p_gmusic = NULL;
   int rc = 1;
@@ -82,7 +80,7 @@ extern "C" int tiz_gmusic_init (tiz_gmusic_ptr_t *app_gmusic,
 
   if ((p_gmusic = (tiz_gmusic_t *)calloc (1, sizeof(tiz_gmusic_t))))
     {
-      if (!gmusic_alloc_data (p_gmusic, ap_user, ap_pass, ap_device_id, ap_auth_token))
+      if (!gmusic_alloc_data (p_gmusic, ap_user, ap_pass, ap_device_id))
         {
           tizgmusic *p_gm = p_gmusic->p_proxy_;
           assert (p_gm);

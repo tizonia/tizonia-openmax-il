@@ -77,19 +77,17 @@ namespace
   void start_gmusic (boost::python::object &py_global,
                      boost::python::object &py_gm_proxy,
                      const std::string &user, const std::string &pass,
-                     const std::string &device_id,
-                     const std::string &auth_token)
+                     const std::string &device_id)
   {
     bp::object pygmusicproxy = py_global["tizgmusicproxy"];
     py_gm_proxy
-      = pygmusicproxy (user.c_str (), pass.c_str (), device_id.c_str (),
-                       auth_token.empty() ? NULL : auth_token.c_str ());
+      = pygmusicproxy (user.c_str (), pass.c_str (), device_id.c_str ());
   }
 }
 
 tizgmusic::tizgmusic (const std::string &user, const std::string &pass,
-                      const std::string &device_id, const std::string &auth_token)
-  : user_ (user), pass_ (pass), device_id_ (device_id), auth_token_ (auth_token)
+                      const std::string &device_id)
+  : user_ (user), pass_ (pass), device_id_ (device_id)
 {
 }
 
@@ -108,7 +106,7 @@ int tizgmusic::start ()
 {
   int rc = 0;
   try_catch_wrapper (start_gmusic (py_global_, py_gm_proxy_, user_, pass_,
-                                   device_id_, auth_token_));
+                                   device_id_));
   return rc;
 }
 

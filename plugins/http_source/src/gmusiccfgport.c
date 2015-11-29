@@ -143,7 +143,6 @@ gmusic_cfgport_SetParameter (const void *ap_obj,
       p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       p_obj->session_.cDeviceId[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      p_obj->session_.cUserAuthToken[500 - 1] = '\000';
       TIZ_TRACE (ap_hdl, "Gmusic User Name [%s]...",
                  p_obj->session_.cUserName);
     }

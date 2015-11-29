@@ -87,18 +87,6 @@ mpris-enabled = false
 # gmusic.password   = pass
 # gmusic.device_id  = deviceid
 
-# Optional: Google Play Music authentication token
-#
-# To avoid the server-side rate limit triggering a log out in all of the user's
-# Android devices, the Google Play Music authentication token can be provided
-# in 'gmusic.auth_token'. Simply copy the token that gets displayed by Tizonia
-# in the console right after connecting to Google Play Music. When
-# 'gmusic.auth_token' is enabled and non-empty, it is used for authentication
-# instead of the user's email and password, which may then be removed from this
-# file.
-
-# gmusic.auth_token = XXXXX....
-
 
 # SoundCloud configuration
 # -------------------------------------------------------------------------

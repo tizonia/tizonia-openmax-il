@@ -30,10 +30,12 @@ Simon Weber's 'gmusicapi' Python module. For further information:
 
 """
 
+import os
 import sys
 import logging
 import random
 import unicodedata
+import pickle
 from operator import itemgetter
 from gmusicapi import Mobileclient
 from gmusicapi.exceptions import CallFailure
@@ -125,7 +127,7 @@ class tizgmusicproxy(object):
     all_songs_album_title = "All Songs"
     thumbs_up_playlist_name = "Thumbs Up"
 
-    def __init__(self, email, password, device_id, auth_token=None):
+    def __init__(self, email, password, device_id):
         self.__gmusic = Mobileclient()
         self.__email = email
         self.__device_id = device_id
@@ -137,7 +139,30 @@ class tizgmusicproxy(object):
         self.current_play_mode = self.play_modes.NORMAL
         self.now_playing_song = None
 
-        if auth_token is None:
+        userdir = os.path.expanduser('~')
+        tizconfig = os.path.join(userdir, ".config/tizonia/." + email + ".auth_token")
+        auth_token = ""
+        if os.path.isfile(tizconfig):
+            with open(tizconfig, "r") as f:
+                auth_token = pickle.load(f)
+                if auth_token:
+                    # 'Keep track of the auth token' workaround. See:
+                    # https://github.com/diraimondo/gmusicproxy/issues/34#issuecomment-147359198
+                    print_msg("[Google Play Music] [Authenticating] : " \
+                              "'with cached auth token'")
+                    self.__gmusic.android_id = device_id
+                    self.__gmusic.session._authtoken = auth_token
+                    self.__gmusic.session.is_authenticated = True
+                    try:
+                        self.__gmusic.get_registered_devices()
+                    except CallFailure:
+                        # The token has expired. Reset the client object
+                        print_wrn("[Google Play Music] [Authenticating] : " \
+                                  "'auth token expired'")
+                        self.__gmusic = Mobileclient()
+                        auth_token = ""
+
+        if not auth_token:
             attempts = 0
             print_nfo("[Google Play Music] [Authenticating] : " \
                       "'with user credentials'")
@@ -145,24 +170,10 @@ class tizgmusicproxy(object):
                 self.logged_in = self.__gmusic.login(email, password, device_id)
                 attempts += 1
 
-            if self.__gmusic.session.is_authenticated:
-                print_msg("[Google Play Music] [{0}]".format(self.__email))
-                print_msg("[Google Play Music] [To avoid server-side rate " \
-                          "limit logouts on Android devices]")
-                print_msg("[Google Play Music] [please copy the " \
-                          "authentication token into your Tizonia's " \
-                          "config file]")
-                print_msg("[Google Play Music] [auth token] {0}"\
-                          .format(self.__gmusic.session._authtoken))
-        else:
-            # Keep track of the auth token workaround. See:
-            # https://github.com/diraimondo/gmusicproxy/issues/34#issuecomment-147359198
-            print_msg("[Google Play Music] [Authenticating] : " \
-                      "'with auth token'")
-            self.__gmusic.android_id = device_id
-            self.__gmusic.session._authtoken = auth_token
-            self.__gmusic.session.is_authenticated = True
-
+            with open(tizconfig, "a+") as f:
+                f.truncate()
+                pickle.dump(self.__gmusic.session._authtoken, f)
+            
         self.library = CaseInsensitiveDict()
         self.song_map = CaseInsensitiveDict()
         self.playlists = CaseInsensitiveDict()

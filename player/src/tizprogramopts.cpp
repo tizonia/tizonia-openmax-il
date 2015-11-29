@@ -265,7 +265,6 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_user_ (),
     gmusic_pass_ (),
     gmusic_device_id_ (),
-    gmusic_auth_token_ (),
     gmusic_artist_ (),
     gmusic_album_ (),
     gmusic_playlist_ (),
@@ -559,11 +558,6 @@ const std::string &tiz::programopts::gmusic_password () const
 const std::string &tiz::programopts::gmusic_device_id () const
 {
   return gmusic_device_id_;
-}
-
-const std::string &tiz::programopts::gmusic_auth_token () const
-{
-  return gmusic_auth_token_;
 }
 
 const std::vector< std::string > &
@@ -1260,11 +1254,6 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
       retrieve_config_from_rc_file ("tizonia", "gmusic.device_id",
                                     gmusic_device_id_);
     }
-    if (gmusic_auth_token_.empty ())
-    {
-      retrieve_config_from_rc_file ("tizonia", "gmusic.auth_token",
-                                    gmusic_auth_token_);
-    }
 
     if (vm_.count ("gmusic-unlimited-promoted-tracks"))
     {
@@ -1288,7 +1277,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
       gmusic_is_unlimited_search_ = true;
     }
 
-    if (gmusic_user_.empty () && gmusic_auth_token_.empty ())
+    if (gmusic_user_.empty ())
     {
       rc = EXIT_FAILURE;
       std::ostringstream oss;

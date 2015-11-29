@@ -748,8 +748,7 @@ tiz::playapp::gmusic_stream ()
   playlist->set_loop_playback (true);
 
   tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::gmusicconfig >(
-      playlist, user, pass, device_id, popts_.gmusic_auth_token (),
-      playlist_type, is_unlimited_search);
+      playlist, user, pass, device_id, playlist_type, is_unlimited_search);
 
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr

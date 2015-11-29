@@ -80,7 +80,6 @@ namespace tiz
     const std::string &gmusic_user () const;
     const std::string &gmusic_password () const;
     const std::string &gmusic_device_id () const;
-    const std::string &gmusic_auth_token () const;
     const std::vector< std::string > &gmusic_playlist_container ();
     OMX_TIZONIA_AUDIO_GMUSICPLAYLISTTYPE gmusic_playlist_type ();
     bool gmusic_is_unlimited_search () const;
@@ -175,7 +174,6 @@ namespace tiz
     std::string gmusic_user_;
     std::string gmusic_pass_;
     std::string gmusic_device_id_;
-    std::string gmusic_auth_token_;
     std::string gmusic_artist_;
     std::string gmusic_album_;
     std::string gmusic_playlist_;

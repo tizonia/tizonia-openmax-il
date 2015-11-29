@@ -107,8 +107,7 @@ void graph::gmusicops::do_configure_source ()
   G_OPS_BAIL_IF_ERROR (
       set_gmusic_user_and_device_id (
           handles_[0], gmusic_config->get_user_name (),
-          gmusic_config->get_user_pass (), gmusic_config->get_device_id (),
-          gmusic_config->get_auth_token ()),
+          gmusic_config->get_user_pass (), gmusic_config->get_device_id ()),
       "Unable to set OMX_TizoniaIndexParamAudioGmusicSession");
 
   G_OPS_BAIL_IF_ERROR (
@@ -408,8 +407,7 @@ OMX_ERRORTYPE
 graph::gmusicops::set_gmusic_user_and_device_id (const OMX_HANDLETYPE handle,
                                                  const std::string &user,
                                                  const std::string &pass,
-                                                 const std::string &device_id,
-                                                 const std::string &auth_token)
+                                                 const std::string &device_id)
 {
   // Set the Google Play Music user and pass
   OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE sessiontype;
@@ -421,7 +419,6 @@ graph::gmusicops::set_gmusic_user_and_device_id (const OMX_HANDLETYPE handle,
   copy_omx_string (sessiontype.cUserName, user);
   copy_omx_string (sessiontype.cUserPassword, pass);
   copy_omx_string (sessiontype.cDeviceId, device_id);
-  copy_omx_string (sessiontype.cUserAuthToken, auth_token, 500);
   return OMX_SetParameter (handle, static_cast< OMX_INDEXTYPE >(
                                        OMX_TizoniaIndexParamAudioGmusicSession),
                            &sessiontype);
