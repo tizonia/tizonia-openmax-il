@@ -25,6 +25,8 @@ dist: trusty
 language: c
 compiler:
   - gcc
+python:
+  - "2.7_with_system_site_packages"
 before_install:
  - ./tools/tizonia-travis-build-trusty deps "$HOME"
  - ./tools/tizonia-travis-build-trusty pydeps "$HOME"

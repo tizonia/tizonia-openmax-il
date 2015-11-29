@@ -420,7 +420,11 @@ function build_debug {
     autoreconf -ifs
     local exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
-        ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall"
+        ./configure \
+            --silent \
+            --enable-silent-rules \
+            --prefix="$INSTALL_DIR" \
+            CFLAGS="-ggdb -Wall"
         exit_status=$?
     fi
     return "$exit_status"
