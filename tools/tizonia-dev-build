@@ -366,21 +366,23 @@ function main {
         print_banner "Reconfiguring Tizonia for [DEBUG] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
             && ./configure \
-                   --enable-silent-rules \
-                   --prefix="$TIZONIA_INSTALL_DIR" \
-                   CFLAGS='-O0 -ggdb -Wall' \
-                   CXXFLAGS='-O0 -ggdb -Wall'
+            --silent \
+            --enable-silent-rules \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-O0 -ggdb -Wall' \
+            CXXFLAGS='-O0 -ggdb -Wall'
 
     elif [[ ("$asan" == 1) ]]; then
 
         print_banner "Reconfiguring Tizonia for [ASAN] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
             && ./configure \
-                   --enable-silent-rules \
-                   --prefix="$TIZONIA_INSTALL_DIR" \
-                   CFLAGS='-ggdb -Wall -Werror -fno-omit-frame-pointer -fsanitize=address' \
-                   CXXFLAGS='-ggdb -Wall -fno-omit-frame-pointer -fsanitize=address' \
-                   LDFLAGS='-fsanitize=address'
+            --silent \
+            --enable-silent-rules \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-ggdb -Wall -Werror -fno-omit-frame-pointer -fsanitize=address' \
+            CXXFLAGS='-ggdb -Wall -fno-omit-frame-pointer -fsanitize=address' \
+            LDFLAGS='-fsanitize=address'
 
     elif [[ ("$debian" == 1) ]]; then
 
@@ -400,30 +402,33 @@ function main {
         print_banner "Reconfiguring Tizonia for [RELEASE] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
         && ./configure \
-               --enable-silent-rules \
-               --prefix="$TIZONIA_INSTALL_DIR" \
-               CFLAGS='-O2 -s -DNDEBUG'  \
-               CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
+            --silent \
+            --enable-silent-rules \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-O2 -s -DNDEBUG'  \
+            CXXFLAGS='-O2 -s -DNDEBUG -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security'
 
     elif [[ ("$conf" == 1)  ]];  then
 
         print_banner "Reconfiguring Tizonia for [CONFORMANCE TESTING] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
             && ./configure \
-                   --enable-silent-rules \
-                   --enable-blocking-etb-ftb \
-                   --prefix="$TIZONIA_INSTALL_DIR" \
-                   CFLAGS='-ggdb -Wall -Werror'
+            --silent \
+            --enable-silent-rules \
+            --enable-blocking-etb-ftb \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-ggdb -Wall -Werror'
 
     elif [[ ("$valgrind" == 1)  ]];  then
 
         print_banner "Reconfiguring Tizonia for [VALGRIND] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
         && ./configure \
-               --enable-silent-rules \
-               --prefix="$TIZONIA_INSTALL_DIR" \
-               CFLAGS='-O0 -g' \
-               CXXFLAGS='-O0 -g'
+            --silent \
+            --enable-silent-rules \
+            --prefix="$TIZONIA_INSTALL_DIR" \
+            CFLAGS='-O0 -g' \
+            CXXFLAGS='-O0 -g'
 
     elif [[ ("$scan" == 1) ]]; then
 
