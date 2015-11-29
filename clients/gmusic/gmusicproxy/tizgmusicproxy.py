@@ -17,6 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 """@package tizgmusicproxy
 Simple Google Play Music proxy/wrapper.
 
@@ -261,8 +262,6 @@ class tizgmusicproxy(object):
         """ Search the user's library for tracks from the given artist and adds
         them to the playback queue.
 
-        No All Access search is performed.
-
         :param arg: an artist
         """
         try:
@@ -280,12 +279,11 @@ class tizgmusicproxy(object):
                     raise KeyError("Artist not found : {0}".format(arg))
             else:
                 artist = self.library[arg]
-            count = 0
+            tracks_added = 0
             for album in artist:
-                for song in artist[album]:
-                    self.queue.append(song)
-                    count += 1
-            logging.info("Added {0} tracks by {1} to queue".format(count, arg))
+                tracks_added += self.__enqueue_tracks(artist[album])
+            logging.info("Added {0} tracks by {1} to queue" \
+                         .format(tracks_added, arg))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Artist not found : {0}".format(arg))
@@ -293,8 +291,6 @@ class tizgmusicproxy(object):
     def enqueue_album(self, arg):
         """ Search the user's library for albums with a given name and adds
         them to the playback queue.
-
-        No All Access search is performed.
 
         """
         try:
@@ -304,11 +300,9 @@ class tizgmusicproxy(object):
             tentative_album = None
             tentative_artist = None
             for library_artist in self.library:
-                library_artist = to_ascii(library_artist)
                 for artist_album in self.library[library_artist]:
-                    artist_album = to_ascii(artist_album)
                     print_nfo("[Google Play Music] [Album] '{0}'." \
-                              .format(artist_album))
+                              .format(to_ascii(artist_album)))
                     if not album:
                         if arg.lower() == artist_album.lower():
                             album = artist_album
@@ -329,13 +323,10 @@ class tizgmusicproxy(object):
                           .format(arg, album))
             if not album:
                 raise KeyError("Album not found : {0}".format(arg))
-            count = 0
-            for song in self.library[artist][album]:
-                self.queue.append(song)
-                count += 1
-                logging.info("Added {0} tracks from {1} by " \
-                             "{2} to queue" \
-                             .format(count, album, artist))
+            tracks_added = self.__enqueue_tracks(self.library[artist][album])
+            logging.info("Added {0} tracks from {1} by " \
+                         "{2} to queue" \
+                         .format(tracks_added, album, artist))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
@@ -344,7 +335,7 @@ class tizgmusicproxy(object):
         """Search the user's library for playlists with a given name
         and adds the tracks of the first match to the playback queue.
 
-        An All Access search is performed.
+        Requires Unlimited subscription.
 
         """
         try:
@@ -353,27 +344,24 @@ class tizgmusicproxy(object):
             self.__update_playlists_unlimited()
             playlist = None
             for name, plist in self.playlists.items():
-                name = to_ascii(name)
                 print_nfo("[Google Play Music] [Playlist] '{0}'." \
-                          .format(name))
+                          .format(to_ascii(name)))
             if not arg in self.playlists.keys():
                 for name, plist in self.playlists.iteritems():
                     if arg.lower() in name.lower():
                         playlist = plist
                         print_wrn("[Google Play Music] '{0}' not found. " \
                                   "Playing '{1}' instead." \
-                                  .format(arg, name))
+                                  .format(arg, to_ascii(name)))
                         break
                 if not playlist:
-                    raise KeyError("Playlist not found : {0}".format(arg))
+                    raise KeyError
             else:
                 playlist = self.playlists[arg]
-            count = 0
-            for song in playlist:
-                self.queue.append(song)
-                count += 1
+
+            tracks_added = self.__enqueue_tracks(playlist)
             logging.info("Added {0} tracks from {1} to queue" \
-                         .format(count, arg))
+                         .format(tracks_added, arg))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
@@ -382,55 +370,31 @@ class tizgmusicproxy(object):
         """Search the user's library for a station with a given name
         and adds its tracks to the playback queue.
 
-        An All Access search is performed.
+        Requires Unlimited subscription.
 
         """
-        print_msg("[Google Play Music] [Retrieving stations] : '{0}'. " \
-                  .format(self.__email))
-
         try:
-            self.__update_stations_unlimited()
-            for name, st_id in self.stations.iteritems():
-                name = to_ascii(name)
-                print_nfo("[Google Play Music] [Station] '{0}'." \
-                          .format(name))
-            station_id = None
-            if not arg in self.stations.keys():
-                for name, st_id in self.stations.iteritems():
-                    if arg.lower() in name.lower():
-                        station_id = st_id
-                        print_wrn("[Google Play Music] '{0}' not found. " \
-                                  "Playing '{1}' instead." \
-                                  .format(arg, name))
-                        break
-                if not station_id:
-                    raise KeyError("Station not found : {0}".format(arg))
-            else:
-                station_id = self.stations[arg]
-            num_tracks = 200
-            try:
-                tracks = self.__gmusic.get_station_tracks(station_id, \
-                                                          num_tracks)
-            except KeyError:
-                raise RuntimeError("Operation requires an "
-                                   "All Access subscription.")
-            count = 0
-            for track in tracks:
-                if not u'id' in track.keys():
-                    track[u'id'] = track['nid']
-                self.queue.append(track)
-                count += 1
-            logging.info("Added {0} tracks from {1} to queue" \
-                         .format(count, arg))
-            self.__update_play_queue_order()
+            # First try to find a suitable station in the user's library
+            self.__enqueue_user_station_unlimited(arg)
+
+            # if not len(self.queue):
+                # If no suitable station found in the user's library, the
+                # search google play unlimited for potential match.
+                # This requires gmusicapi 7.0.1-dev, so it's disabled
+                # for now
+                # self.__enqueue_station_unlimited(arg)
+
+            if not len(self.queue):
+                raise KeyError
+
         except KeyError:
             raise KeyError("Station not found : {0}".format(arg))
 
     def enqueue_genre_unlimited(self, arg):
-        """Search All Access for a genre with a given name and adds its
+        """Search Unlimited for a genre with a given name and adds its
         tracks to the playback queue.
 
-        An All Access search is performed.
+        Requires Unlimited subscription.
 
         """
         print_msg("[Google Play Music] [Retrieving genres] : '{0}'. " \
@@ -439,10 +403,11 @@ class tizgmusicproxy(object):
         try:
             all_genres = list()
             root_genres = self.__gmusic.get_genres()
-            all_genres += root_genres
-            count = 0
+            second_tier_genres = list()
             for root_genre in root_genres:
-                all_genres += self.__gmusic.get_genres(root_genre['id'])
+                second_tier_genres += self.__gmusic.get_genres(root_genre['id'])
+            all_genres += root_genres
+            all_genres += second_tier_genres
             for genre in all_genres:
                 print_nfo("[Google Play Music] [Genre] '{0}'." \
                           .format(to_ascii(genre['name'])))
@@ -463,25 +428,20 @@ class tizgmusicproxy(object):
                                                    None, None, None, genre_id)
             num_tracks = 200
             tracks = self.__gmusic.get_station_tracks(station_id, num_tracks)
-            count = 0
-            for track in tracks:
-                if not u'id' in track.keys():
-                    track[u'id'] = track['nid']
-                self.queue.append(track)
-                count += 1
+            tracks_added = self.__enqueue_tracks(tracks)
             logging.info("Added {0} tracks from {1} to queue" \
-                         .format(count, genre_name))
+                         .format(tracks_added, genre_name))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Genre not found : {0}".format(arg))
         except CallFailure:
-            raise RuntimeError("Operation requires an All Access subscription.")
+            raise RuntimeError("Operation requires an Unlimited subscription.")
 
     def enqueue_artist_unlimited(self, arg):
-        """Search All Access for an artist and adds the artist's 50 top tracks
-        to the playback queue.
+        """Search Unlimited for an artist and adds the artist's 200 top tracks to the
+        playback queue.
 
-        An All Access search is performed.
+        Requires Unlimited subscription.
 
         """
         try:
@@ -497,7 +457,7 @@ class tizgmusicproxy(object):
                           .format((artist['artist']['name']).encode('utf-8')))
 
             include_albums = False
-            max_top_tracks = 50
+            max_top_tracks = 200
             max_rel_artist = 0
             artist_tracks = dict()
             if artist:
@@ -508,25 +468,20 @@ class tizgmusicproxy(object):
             if not artist_tracks:
                 raise KeyError
 
-            count = 0
-            for track in artist_tracks:
-                if not u'id' in track.keys():
-                    track[u'id'] = track['nid']
-                self.queue.append(track)
-                count += 1
+            tracks_added = self.__enqueue_tracks(artist_tracks)
             logging.info("Added {0} tracks from {1} to queue" \
-                         .format(count, arg))
+                         .format(tracks_added, arg))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Artist not found : {0}".format(arg))
         except CallFailure:
-            raise RuntimeError("Operation requires an All Access subscription.")
+            raise RuntimeError("Operation requires an Unlimited subscription.")
 
     def enqueue_album_unlimited(self, arg):
-        """Search All Access for an album and adds its tracks to the
+        """Search Unlimited for an album and adds its tracks to the
         playback queue.
 
-        An All Access search is performed.
+        Requires Unlimited subscription.
 
         """
         try:
@@ -549,25 +504,20 @@ class tizgmusicproxy(object):
             if not album_tracks:
                 raise KeyError
 
-            count = 0
-            for track in album_tracks:
-                if not u'id' in track.keys():
-                    track[u'id'] = track['nid']
-                self.queue.append(track)
-                count += 1
+            tracks_added = self.__enqueue_tracks(album_tracks)
             logging.info("Added {0} tracks from {1} to queue" \
-                         .format(count, arg))
+                         .format(tracks_added, arg))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Album not found : {0}".format(arg))
         except CallFailure:
-            raise RuntimeError("Operation requires an All Access subscription.")
+            raise RuntimeError("Operation requires an Unlimited subscription.")
 
     def enqueue_tracks_unlimited(self, arg):
-        """ Search All Access for a track name and adds all the matching tracks
+        """ Search Unlimited for a track name and adds all the matching tracks
         to the playback queue.
 
-        An All Access search is performed.
+        Requires Unlimited subscription.
 
         """
         print_msg("[Google Play Music] [Retrieving library] : '{0}'. " \
@@ -575,20 +525,17 @@ class tizgmusicproxy(object):
 
         try:
             track_hits = self.__gmusic.search_all_access(arg)['song_hits']
-            count = 0
-            for item in track_hits:
-                track = item['track']
-                if not u'id' in track.keys():
-                    track[u'id'] = track['nid']
-                self.queue.append(track)
-                count += 1
+            tracks = list()
+            for hit in track_hits:
+                tracks.append(hit['track'])
+            tracks_added = self.__enqueue_tracks(tracks)
             logging.info("Added {0} tracks from {1} to queue" \
-                         .format(count, arg))
+                         .format(tracks_added, arg))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Playlist not found : {0}".format(arg))
         except CallFailure:
-            raise RuntimeError("Operation requires an All Access subscription.")
+            raise RuntimeError("Operation requires an Unlimited subscription.")
 
     def enqueue_promoted_tracks_unlimited(self):
         """ Retrieve the url of the next track in the playback queue.
@@ -605,12 +552,12 @@ class tizgmusicproxy(object):
                 count += 1
             if count == 0:
                 print_wrn("[Google Play Music] Operation requires " \
-                          "an All Access subscription.")
-            logging.info("Added {0} All Access promoted tracks to queue" \
+                          "an Unlimited subscription.")
+            logging.info("Added {0} Unlimited promoted tracks to queue" \
                          .format(count))
             self.__update_play_queue_order()
         except CallFailure:
-            raise RuntimeError("Operation requires an All Access subscription.")
+            raise RuntimeError("Operation requires an Unlimited subscription.")
 
     def next_url(self):
         """ Retrieve the url of the next track in the playback queue.
@@ -713,11 +660,9 @@ class tizgmusicproxy(object):
 
         # Sort albums by track number
         for artist in self.library.keys():
-            artist = to_ascii(artist)
-            logging.info("Artist : {0}".format(artist))
+            logging.info("Artist : {0}".format(to_ascii(artist)))
             for album in self.library[artist].keys():
-                album = to_ascii(album)
-                logging.info("   Album : {0}".format(album))
+                logging.info("   Album : {0}".format(to_ascii(album)))
                 if album == self.all_songs_album_title:
                     sorted_album = sorted(self.library[artist][album],
                                           key=lambda k: k['title'])
@@ -728,17 +673,141 @@ class tizgmusicproxy(object):
                 self.library[artist][album] = sorted_album
 
     def __update_stations_unlimited(self):
-        """ Retrieve stations (All Access)
+        """ Retrieve stations (Unlimited)
 
         """
         self.stations.clear()
         stations = self.__gmusic.get_all_stations()
         self.stations[u"I'm Feeling Lucky"] = 'IFL'
         for station in stations:
-            station_name = to_ascii(station['name'])
+            station_name = station['name']
             logging.info("station name : {0}" \
-                         .format(station_name))
+                         .format(to_ascii(station_name)))
             self.stations[station_name] = station['id']
+
+    def __enqueue_user_station_unlimited(self, arg):
+        """ Enqueue a user station (Unlimited)
+
+        """
+        print_msg("[Google Play Music] [Station search "\
+                  "in user's library] : '{0}'. " \
+                  .format(self.__email))
+        self.__update_stations_unlimited()
+        station_name = arg
+        station_id = None
+        for name, st_id in self.stations.iteritems():
+            print_nfo("[Google Play Music] [Station] '{0}'." \
+                      .format(to_ascii(name)))
+        if not arg in self.stations.keys():
+            for name, st_id in self.stations.iteritems():
+                if arg.lower() in name.lower():
+                    station_id = st_id
+                    station_name = name
+                    break
+        else:
+            station_id = self.stations[arg]
+
+        num_tracks = 200
+        tracks = dict()
+        if station_id:
+            try:
+                tracks = self.__gmusic.get_station_tracks(station_id, \
+                                                          num_tracks)
+            except KeyError:
+                raise RuntimeError("Operation requires an "
+                                   "Unlimited subscription.")
+            tracks_added = self.__enqueue_tracks(tracks)
+            if tracks_added:
+                if arg != station_name:
+                    print_wrn("[Google Play Music] '{0}' not found. " \
+                              "Playing '{1}' instead." \
+                              .format(arg, name))
+                logging.info("Added {0} tracks from {1} to queue" \
+                             .format(tracks_added, arg))
+                self.__update_play_queue_order()
+            else:
+                print_wrn("[Google Play Music] '{0}' has no tracks. " \
+                          .format(station_name))
+
+        if not len(self.queue):
+            print_wrn("[Google Play Music] '{0}' unable to find a " \
+                      "suitable station in user's library. " \
+                      .format(arg))
+
+    def __enqueue_station_unlimited(self, arg):
+        """Search for a station and enqueue all of its tracks (Unlimited)
+
+        """
+        print_msg("[Google Play Music] [Station search in "\
+                  "Google Play Music Unlimited] : '{0}'. " \
+                  .format(arg))
+        try:
+            station_name = arg
+            station_id = None
+            station_hits = self.__gmusic.search_all_access(arg)['station_hits']
+            station = next((hit for hit in station_hits \
+                            if 'best_result' in hit.keys()), None)
+
+            if not station and len(station_hits):
+                for hit in station_hits:
+                    print_nfo("[Google Play Music] [Station] '{0}'." \
+                              .format((hit['station']['name']).encode('utf-8')))
+                    if not station:
+                        if arg.lower() in \
+                           to_ascii(hit['station']['name']).lower():
+                            station = hit
+                if not station:
+                    # Play some random station from the search results
+                    random.seed()
+                    station_index = random.randint(0, len(station_hits))
+                    station = station_hits[station_index]
+
+            if station:
+                station = station['station']
+                station_name = station['name']
+                seed = station['seed']
+                seed_type = seed['seedType']
+                track_id = seed['trackId'] if seed_type == u'2' else None
+                artist_id = seed['artistId'] if seed_type == u'3' else None
+                album_id = seed['albumId'] if seed_type == u'4' else None
+                genre_id = seed['genreId'] if seed_type == u'5' else None
+                num_tracks = 200
+                tracks = dict()
+                try:
+                    station_id \
+                        = self.__gmusic.create_station(station_name, \
+                                                       track_id, \
+                                                       artist_id, \
+                                                       album_id, \
+                                                       genre_id)
+                    tracks \
+                        = self.__gmusic.get_station_tracks(station_id, \
+                                                           num_tracks)
+                except KeyError:
+                    raise RuntimeError("Operation requires an "
+                                       "Unlimited subscription.")
+                tracks_added = self.__enqueue_tracks(tracks)
+                if tracks_added:
+                    print_wrn("[Google Play Music] [Station] : '{0}'." \
+                              .format(station_name.encode('utf-8')))
+                    logging.info("Added {0} tracks from {1} to queue" \
+                                 .format(tracks_added, arg))
+                    self.__update_play_queue_order()
+
+        except KeyError:
+            raise KeyError("Station not found : {0}".format(arg))
+
+    def __enqueue_tracks(self, tracks):
+        """ Add tracks to the playback queue
+
+        """
+        count = 0
+        for track in tracks:
+            if not u'id' in track.keys():
+                track[u'id'] = track['nid']
+            self.queue.append(track)
+            count += 1
+        return count
 
     def __update_playlists(self):
         """ Retrieve the user's playlists
@@ -746,8 +815,8 @@ class tizgmusicproxy(object):
         """
         plists = self.__gmusic.get_all_user_playlist_contents()
         for plist in plists:
-            plist_name = to_ascii(plist['name'])
-            logging.info("playlist name : {0}".format(plist_name))
+            plist_name = plist['name']
+            logging.info("playlist name : {0}".format(to_ascii(plist_name)))
             tracks = plist['tracks']
             tracks.sort(key=itemgetter('creationTimestamp'))
             self.playlists[plist_name] = list()
@@ -759,7 +828,7 @@ class tizgmusicproxy(object):
                     pass
 
     def __update_playlists_unlimited(self):
-        """ Retrieve shared playlists (All Access)
+        """ Retrieve shared playlists (Unlimited)
 
         """
         plists_subscribed_to = [p for p in self.__gmusic.get_all_playlists() \
@@ -768,8 +837,9 @@ class tizgmusicproxy(object):
             share_tok = plist['shareToken']
             playlist_items \
                 = self.__gmusic.get_shared_playlist_contents(share_tok)
-            plist_name = to_ascii(plist['name'])
-            logging.info("shared playlist name : {0}".format(plist_name))
+            plist_name = plist['name']
+            logging.info("shared playlist name : {0}" \
+                         .format(to_ascii(plist_name)))
             self.playlists[plist_name] = list()
             for item in playlist_items:
                 try:
