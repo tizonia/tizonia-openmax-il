@@ -175,10 +175,7 @@ function install_deps {
         libev-dev libtag1-dev libfishsound-dev libmediainfo-dev \
         libcurl3-dev libpulse-dev libsndfile1-dev libatomic-ops-dev \
         python-dev python-pip curl check wget sqlite3 dbus-x11 &>/dev/null \
-        && sudo apt-get remove --purge $(dpkg -l | grep libboost | awk '{print $2}') \
-        && sudo add-apt-repository -y ppa:boost-latest/ppa \
-        && sudo apt-get update -qq \
-        && sudo apt-get install -qq libboost1.54-all-dev
+        libboost1.54-all-dev
     return $?
 }
 
