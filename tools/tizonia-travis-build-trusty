@@ -75,6 +75,8 @@ LIB_DIR="$INSTALL_DIR"/lib
 PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
 export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
 export LD_LIBRARY_PATH="$LIB_DIR"
+# Export $PYTHONPATH to make sure soundcloud and gmusicapi can be found
+export PYTHONPATH="$PYTHONPATH":"$HOME"/.local/lib/python2.7/site-packages
 
 ##################################################################
 # Simple function to print a debug/error message with some extra info
@@ -437,9 +439,7 @@ function build_debug {
     cd_to_working_dir
     # Fix annoying log4c.m4 warning
     sudo sed -irn 's/AC_DEFUN(AM_PATH_LOG4C/AC_DEFUN(\[AM_PATH_LOG4C\]/' /usr/share/aclocal/log4c.m4
-    # Export $PYTHONPATH to make sure soundcloud and gmusicapi can be found
-    export PYTHONPATH=$PYTHONPATH:$HOME/.local/lib/python2.7/site-packages
-    echo $TRAVIS_PYTHON_VERSION
+    echo "Reconfiguring Tizonia for [DEBUG] build - Install dir [$INSTALL_DIR]..."
     autoreconf -ifs
     local exit_status=$?
     if [[ "$exit_status" -eq 0 ]] ; then
