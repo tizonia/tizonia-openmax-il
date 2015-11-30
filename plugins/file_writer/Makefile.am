@@ -20,3 +20,4 @@ SUBDIRS = src
 
 EXTRA_DIST = debian
 
+ACLOCAL_AMFLAGS = -I m4
