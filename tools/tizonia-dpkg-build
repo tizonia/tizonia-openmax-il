@@ -51,6 +51,7 @@ declare -ar TIZ_SUPPORTED_RELEASES=( \
     ubuntu-trusty \
     ubuntu-vivid \
     ubuntu-wily \
+    ubuntu-xenial \
     debian-jessie \
     raspbian-jessie \
 )
@@ -396,7 +397,7 @@ function print_platform_info {
 
 function obtain_distro_id_and_codename {
     DISTRO_ID=$(cat /etc/*-release | grep -E '^ID=' | cut -d'=' -f2)
-    DISTRO_CODENAME=$(cat /etc/*-release | grep -i codename | cut -d'=' -f2)
+    DISTRO_CODENAME=$(cat /etc/*-release | grep -i -m1 codename | cut -d'=' -f2)
 }
 
 ##################################################################
