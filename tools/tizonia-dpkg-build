@@ -419,7 +419,6 @@ function do_tizonia_deps {
         if [[ "$?" -ne 0 ]]; then
             # Add Mopidy APT archive to sources.list
             pretty_print "$BLU" "[libspotify] : installing libspotify debian packages."
-            sudo apt-get install -q -y "$pkg" #> /dev/null
             wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
             echo deb http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
             echo deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
