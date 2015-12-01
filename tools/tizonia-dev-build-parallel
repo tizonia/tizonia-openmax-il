@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Development build script for Tizonia - with parallel configuration, make and install
+#
+
+source tizonia-common.inc
+
+function main {
+    for proj in "${TIZ_PROJECTS_ORDERED[@]}"; do
+        local proj_dir="$TIZONIA_REPO_DIR/${TIZ_PROJECT_DIRS[$proj]}"
+
+        if [[ "${TIZ_PROJECT_DIRS[$proj]}" == *"plugins"* ]]; then
+            break
+        fi
+        pretty_print "$GRN" "[$proj] : $proj_dir"
+        tizonia-dev-build --debug --install --project="$proj"
+    done
+
+    local tmpsource=$(mktemp)
+
+    for proj in "${TIZ_PROJECTS_ORDERED[@]}"; do
+        local proj_dir="$TIZONIA_REPO_DIR/${TIZ_PROJECT_DIRS[$proj]}"
+
+        if [[ "${TIZ_PROJECT_DIRS[$proj]}" == *"plugins"* \
+            || "${TIZ_PROJECT_DIRS[$proj]}" == *"config"* \
+            || "${TIZ_PROJECT_DIRS[$proj]}" == *"player"* ]]; then
+            echo "$proj" >> "$tmpsource"
+        fi
+    done
+    cat $tmpsource | parallel -k 'tizonia-dev-build --debug --install --project'
+    rm $tmpsource
+}
+
+main "$@"
