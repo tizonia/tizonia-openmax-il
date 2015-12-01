@@ -22,6 +22,8 @@ AM_INIT_AUTOMAKE([foreign color-tests silent-rules subdir-objects -Wall])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+
+# 'm4' is the directory where the extra autoconf macros are stored
 AC_CONFIG_MACRO_DIR([m4])
 
 ################################################################################
@@ -72,7 +74,7 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tizrmd_found_omx_headers=yes; break;])
 AS_IF([test "x$tizrmd_found_omx_headers" != "xyes"],
-	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../include/tizonia']),
+	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../include/tizonia'])
 	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
 	[AC_MSG_NOTICE([Not substituting TIZILHEADERS cflags and libs with local paths])])
 AS_IF([test "x$tizrmd_found_omx_headers" == "xyes"],

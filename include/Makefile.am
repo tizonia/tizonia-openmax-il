@@ -19,6 +19,8 @@ SUBDIRS = omxil-1.2
 
 EXTRA_DIST = debian
 
+ACLOCAL_AMFLAGS = -I m4
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tizilheaders.pc
 

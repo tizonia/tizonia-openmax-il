@@ -68,7 +68,7 @@ PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
 AS_IF([test "x$tiz_found_omx_headers" != "xyes"],
-	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../include/tizonia']),
+	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../include/tizonia'])
 	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
 	[AC_MSG_NOTICE([Not substituting TIZILHEADERS cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_omx_headers" == "xyes"],
@@ -78,7 +78,7 @@ AS_IF([test "x$tiz_found_omx_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizplatform.h],
 	[tiz_found_platform_headers=yes; break;])
 AS_IF([test "x$tiz_found_platform_headers" != "xyes"],
-	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../libtizplatform/tizonia']),
+	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../libtizplatform/tizonia'])
 	AC_SUBST([TIZPLATFORM_LIBS], ['$(top_builddir)/../libtizplatform/tizonia/libtizplatform.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZPLATFORM cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
@@ -88,7 +88,7 @@ AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizrmproxytypes.h],
 	[tiz_found_rmproxy_headers=yes; break;])
 AS_IF([test "x$tiz_found_rmproxy_headers" != "xyes"],
-	[AC_SUBST([TIZRMPROXY_CFLAGS], ['-I$(top_srcdir)/../rm/libtizrmproxy/tizonia']),
+	[AC_SUBST([TIZRMPROXY_CFLAGS], ['-I$(top_srcdir)/../rm/libtizrmproxy/tizonia'])
 	AC_SUBST([TIZRMPROXY_LIBS], ['$(top_builddir)/../rm/libtizrmproxy/tizonia/libtizrmproxy.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZRMPROXY cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_rmproxy_headers" == "xyes"],
@@ -98,7 +98,7 @@ AS_IF([test "x$tiz_found_rmproxy_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizrmtypes.h],
 	[tiz_found_rmd_headers=yes; break;])
 AS_IF([test "x$tiz_found_rmd_headers" != "xyes"],
-	[AC_SUBST([TIZRMD_CFLAGS], ['-I$(top_srcdir)/../rm/tizrmd/tizonia']),
+	[AC_SUBST([TIZRMD_CFLAGS], ['-I$(top_srcdir)/../rm/tizrmd/tizonia'])
 	AC_SUBST([TIZRMD_LIBS], ['not-used'])],
 	[AC_MSG_NOTICE([Not substituting TIZRMD cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_rmd_headers" == "xyes"],

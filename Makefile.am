@@ -23,7 +23,7 @@
 # it can be manually configured and built.
 
 # SUBDIRS = config include libtizplatform rm libtizcore libtizonia plugins tizonia docs
-SUBDIRS = config include clients libtizplatform rm libtizcore libtizonia plugins
+SUBDIRS = config include clients libtizplatform rm libtizcore libtizonia plugins player config
 
 
 # NOTE: A cscope target is included in automake since api 1.12

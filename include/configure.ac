@@ -22,7 +22,8 @@ AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([omxil-1.2/OMX_Core.h])
 AC_CONFIG_HEADERS([config.h])
 
-#AC_CONFIG_MACRO_DIR([m4])
+# 'm4' is the directory where the extra autoconf macros are stored
+AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_PROG_CC

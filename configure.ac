@@ -41,5 +41,6 @@ AC_CONFIG_SUBDIRS([include
                    libtizcore
                    libtizonia
                    plugins
+                   player
                    config])
 AC_OUTPUT

@@ -23,6 +23,9 @@ AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
+# 'm4' is the directory where the extra autoconf macros are stored
+AC_CONFIG_MACRO_DIR([m4])
+
 ################################################################################
 # Set the shared versioning info, according to section 6.3 of the libtool info #
 # pages. CURRENT:REVISION:AGE must be updated immediately before each release: #
@@ -67,7 +70,7 @@ PKG_CHECK_MODULES([LIBCURL], [libcurl >= 7.18.0])
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
 AS_IF([test "x$tiz_found_omx_headers" != "xyes"],
-	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../../include/tizonia']),
+	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../../include/tizonia'])
 	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
 	[AC_MSG_NOTICE([Not substituting TIZILHEADERS cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_omx_headers" == "xyes"],
@@ -77,7 +80,7 @@ AS_IF([test "x$tiz_found_omx_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizplatform.h],
 	[tiz_found_platform_headers=yes; break;])
 AS_IF([test "x$tiz_found_platform_headers" != "xyes"],
-	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../../libtizplatform/tizonia']),
+	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../../libtizplatform/tizonia'])
 	AC_SUBST([TIZPLATFORM_LIBS], ['$(top_builddir)/../../libtizplatform/tizonia/libtizplatform.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZPLATFORM cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
@@ -87,7 +90,7 @@ AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizscheduler.h],
 	[tiz_found_tizonia_headers=yes; break;])
 AS_IF([test "x$tiz_found_tizonia_headers" != "xyes"],
-	[AC_SUBST([TIZONIA_CFLAGS], ['-I$(top_srcdir)/../../libtizonia/tizonia']),
+	[AC_SUBST([TIZONIA_CFLAGS], ['-I$(top_srcdir)/../../libtizonia/tizonia'])
 	AC_SUBST([TIZONIA_LIBS], ['$(top_builddir)/../../libtizonia/tizonia/libtizonia.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZONIA cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_tizonia_headers" == "xyes"],
@@ -97,7 +100,7 @@ AS_IF([test "x$tiz_found_tizonia_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizgmusic_c.h],
 	[tiz_found_gmusic_headers=yes; break;])
 AS_IF([test "x$tiz_found_gmusic_headers" != "xyes"],
-	[AC_SUBST([TIZGMUSIC_CFLAGS], ['-I$(top_srcdir)/../../clients/gmusic/libtizgmusic/tizonia']),
+	[AC_SUBST([TIZGMUSIC_CFLAGS], ['-I$(top_srcdir)/../../clients/gmusic/libtizgmusic/tizonia'])
 	AC_SUBST([TIZGMUSIC_LIBS], ['$(top_builddir)/../../clients/gmusic/libtizgmusic/tizonia/libtizgmusic.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZGMUSIC cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_gmusic_headers" == "xyes"],
@@ -107,7 +110,7 @@ AS_IF([test "x$tiz_found_gmusic_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizsoundcloud_c.h],
 	[tiz_found_soundcloud_headers=yes; break;])
 AS_IF([test "x$tiz_found_soundcloud_headers" != "xyes"],
-	[AC_SUBST([TIZSOUNDCLOUD_CFLAGS], ['-I$(top_srcdir)/../../clients/soundcloud/libtizsoundcloud/tizonia']),
+	[AC_SUBST([TIZSOUNDCLOUD_CFLAGS], ['-I$(top_srcdir)/../../clients/soundcloud/libtizsoundcloud/tizonia'])
 	AC_SUBST([TIZSOUNDCLOUD_LIBS], ['$(top_builddir)/../../clients/soundcloud/libtizsoundcloud/tizonia/libtizsoundcloud.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZSOUNDCLOUD cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_soundcloud_headers" == "xyes"],
