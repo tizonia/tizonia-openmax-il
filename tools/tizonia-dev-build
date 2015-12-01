@@ -19,108 +19,7 @@
 # Development build script for Tizonia
 #
 
-# Constants
-
-readonly E_BADARGS=85
-readonly E_NOFILE=86
-readonly E_BAD_CLONE=87
-readonly CWD=$(pwd)
-
-readonly RED=1
-readonly GRN=2
-readonly YEL=3
-readonly BLU=4
-readonly MAG=5
-readonly CYA=6
-readonly WHI=7
-
-##################################################################
-# Simple function to print with color
-#
-# Globals
-#
-# Arguments:
-#
-# Returns:
-#   None
-##################################################################
-function pretty_print {
-    echo "$(tput setaf $1)$2$(tput sgr 0)" 1>&2
-}
-
-##################################################################
-# Simple function to print a banner
-#
-# Globals
-#
-# Arguments:
-#
-# Returns:
-#   None
-##################################################################
-function print_banner {
-    local msg="$1"
-    local color="$2"
-    local msg_sz=${#msg}
-    local dashes=$(print_dashes "$msg_sz")
-    if [[ "$color" == "" ]]; then
-        color="$RED"
-    fi
-    echo
-    pretty_print "$color" "$dashes"
-    pretty_print "$color" "$msg"
-    pretty_print "$color" "$dashes"
-}
-
-##################################################################
-# Simple function to produce a string of "dashes" of a
-# pre-determined size
-#
-# Globals
-#   TIZONIA_DIR
-# Arguments:
-#   The length of the message
-# Returns:
-#   None
-##################################################################
-function print_dashes {
-    local LEN=$1
-    local CHAR='-'
-    while (( $# > 0 ))
-    do
-        case $1 in
-            [0-9]*) LEN=$1;;
-            -c) shift
-                CHAR=$1;;
-            *) usagexit;;
-        esac
-        shift
-    done
-
-    if (( LEN > 4096 ))
-    then
-        echo "too large" >&2
-        exit 3
-    fi
-
-    # build the string to the exact length
-    DASHES=""
-    for ((i=0; i<LEN; i++))
-    do
-        DASHES="${DASHES}${CHAR}"
-    done
-    echo "$DASHES"
-}
-
-function print_banner_and_license {
-    pretty_print "$BLU" "tizonia-dev-build $TIZONIA_RELEASE_VERSION. Copyright (C) 2015 Juan A. Rubio"
-    pretty_print "$BLU" "This software is part of the Tizonia project <http://tizonia.org>."
-
-    echo
-    pretty_print "$BLU" "GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>"
-    pretty_print "$BLU" "This is free software: you are free to change and redistribute it."
-    pretty_print "$BLU" "There is NO WARRANTY, to the extent permitted by law."
-}
+source tizonia-common.inc
 
 ##################################################################
 # Usage details
@@ -133,9 +32,9 @@ function print_banner_and_license {
 #   None
 ##################################################################
 function usage {
-    print_banner_and_license
+    print_banner_and_license $(basename "$0")
     echo
-    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-c|--conf] [-d|--deps] [-g|--debug] [-i|--install] [-m|--make] [-p|--player] [-r|--release] [-s|--scan] [-v|--valgrind] [-w|--cwd]"
+    pretty_print "$GRN" "Usage : $(basename $0) [-a|--asan] [-c|--conf] [-d|--deps] [-g|--debug] [-i|--install] [-m|--make] [-p|--project <proj_name>] [-r|--release] [-s|--scan] [-v|--valgrind] [-w|--cwd]"
     pretty_print "$GRN" "       -a            : Configure for an Address Sanitizer (ASAN) type of build (requires clang)."
 #   pretty_print "$GRN" "       -b            : Configure for a 'Debian' type build (--libdir=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH))."
     pretty_print "$GRN" "       -c            : Configure for conformance testing."
@@ -143,7 +42,7 @@ function usage {
     pretty_print "$GRN" "       -g            : Configure for a DEBUG type of build."
     pretty_print "$GRN" "       -i            : Make and install all sub-projects."
     pretty_print "$GRN" "       -m            : Make all sub-projects."
-    pretty_print "$GRN" "       -p            : Use the 'player' directory as the base directory for configuration/build."
+    pretty_print "$GRN" "       -p            : Use the '<proj_name>' as the base folder for configuration/build."
     pretty_print "$GRN" "       -r            : Configure for a RELEASE type of build."
     pretty_print "$GRN" "       -s            : Configure for 'scan-build'."
     pretty_print "$GRN" "       -v            : Configure for Valgrind memory leak analysis."
@@ -153,64 +52,31 @@ function usage {
     print_banner " Typical workflow" "$MAG"
     pretty_print "$CYA" " 1.- Install Tizonia's development dependencies: "
     pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --deps"
-    pretty_print "$CYA" " 2.- Configure the build using one of the flavors: "
-    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --debug"
-    pretty_print "$CYA" " 3.- Recursively make and install all sub-projects, except the 'player' sub-project (Tizonia's player app):"
-    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --install"
-    pretty_print "$CYA" " 4.- Configure the 'player' sub-project (Tizonia's player app):"
-    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --debug --player"
-    pretty_print "$CYA" " 5.- Make and install the 'player' sub-project (Tizonia's player app):"
-    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --install --player"
+    pretty_print "$CYA" " 2.- Recursively configure ('debug' flavor), and then make and install the binaries (from top of Tizonia's repo): "
+    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --debug --install"
+    pretty_print "$CYA" " 2.- Recursively configure ('debug' flavor), and then make and install the binaries (from Tizonia's 'player' sub-dir): "
+    pretty_print "$YEL" "     $ TIZONIA_REPO_DIR=$TIZONIA_REPO_DIR TIZONIA_INSTALL_DIR=$HOME/temp tizonia-dev-build --debug --install --project=tizonia-player"
     echo
 } >&2
 
 ##################################################################
-# Simple function to print a debug/error message with some extra info
+# Function that runs make and make install with a best guess of
+# make job count
 #
 # Globals
-#   TIZONIA_DIR
+#   None
 # Arguments:
 #   None
 # Returns:
 #   None
 ##################################################################
-function log_on_error {
-    local exit_status="$1"
-    local msg="$2"
-    if [[ "$exit_status" -ne 0 ]]; then
-        pretty_print "$RED" "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $2"
-    fi
-}
-
-##################################################################
-# Simple function to check if a string exists in an array
-#
-# Globals
-#   none
-# Arguments:
-#   The search string is the first argument
-#   The array is the second argument
-# Returns:
-#   0 if success, 1 on error
-##################################################################
-function exists_in_array {
-    local e
-    for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
-    return 1
-}
-
-function raise_error {
-    pretty_print "$RED" "$@" 1>&2
-    exit 1
-}
-
 function build_project {
     local install_option=${1:-''}
     local buildlog=$(mktemp)
     local exit_status=0
     local procs=$(nproc)
     local jobcnt=$(( $procs + 1 ))
-    print_banner "Building Tizonia [$jobcnt jobs]" "$GRN"
+    print_banner "Building [$TIZONIA_PROJ_NAME] [$jobcnt jobs]" "$GRN"
     if [[ -z "$install_option" ]]; then
         make -s -j"$jobcnt" V=0 2>&1 | tee "$buildlog"
     else
@@ -220,7 +86,7 @@ function build_project {
     if [[ "$exit_status" != 0 ]]; then
         grep -q 'internal compiler error' "$buildlog"
         if [[ "$?" -eq 0 ]]; then
-            print_banner "Building Tizonia [2nd pass, 1 job]" "$GRN"
+            print_banner "Building [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
             if [[ -z "$install_option" ]]; then
                 make -s -j1 V=0
             else
@@ -249,18 +115,19 @@ function main {
     local asan=0
     local debian=0
     local conf=0
-    local debug=0
     local deps=0
+    local project=0
+    local proj_name=""
+    local debug=0
     local install=0
     local make=0
     local release=0
     local scan=0
-    local player=0
     local valgrind=0
     local cwd=0
 
     local progname=$(basename $0)
-    CMDLINE=$(getopt -o "abcdgimrsvw" --long "asan,debian,conf,deps,debug,install,make,player,release,scan,valgrind,cwd," -n "$progname" -- "$@")
+    CMDLINE=$(getopt -o "abcdgimp:rsvw" --long "asan,debian,conf,deps,debug,install,make,project:,release,scan,valgrind,cwd," -n "$progname" -- "$@")
     eval set -- "$CMDLINE"
     while true; do
         case "$1" in
@@ -285,8 +152,13 @@ function main {
             -m|--make)
                 make=1; shift
                 ;;
-            -p|--player)
-                player=1; shift
+            -p|--project)
+                project=1;
+                shift
+                if [[ -n "$1" ]]; then
+                    proj_name="$1"
+                    shift
+                fi
                 ;;
             -r|--release)
                 release=1; shift
@@ -332,7 +204,7 @@ function main {
     : ${TIZONIA_REPO_DIR:?"Need to set TIZONIA_REPO_DIR"}
     : ${TIZONIA_INSTALL_DIR:?"Need to set TIZONIA_INSTALL_DIR"}
 
-    print_banner_and_license
+    print_banner_and_license $(basename "$0")
 
     LIB_DIR="$TIZONIA_INSTALL_DIR"/lib
     PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
@@ -344,14 +216,30 @@ function main {
     export PKG_CONFIG_PATH="$PKG_CONFIG_DIR"
 
     local builddir="$TIZONIA_REPO_DIR"
-    if [[ "$player" == 1 ]]; then
-        builddir="$TIZONIA_REPO_DIR"/player
-    fi
-
-    if [[ "$cwd" == 1 ]]; then
+    if [[ "$project" == 1 ]]; then
+        exists_in_array "$proj_name" "${TIZ_PROJECTS_ORDERED[@]}"
+        if [[ $? -ne 0 ]]; then
+            echo
+            pretty_print "$RED" "[$proj_name] : Unknown project name."
+            echo
+            pretty_print "$MAG" "Current list of available projects:"
+            for proj in "${TIZ_PROJECTS_ORDERED[@]}"; do
+                local proj_dir="$TIZONIA_REPO_DIR/${TIZ_PROJECT_DIRS[$proj]}"
+                pretty_print "$GRN" "[$proj] : $proj_dir"
+            done
+            echo
+            raise_error "Please review this list and provide a valid project name."
+        else
+            builddir="$TIZONIA_REPO_DIR/${TIZ_PROJECT_DIRS[$proj_name]}"
+        fi
+    elif [[ "$cwd" == 1 ]]; then
         builddir="$PWD"
+        proj_name="Tizonia"
     fi
 
+    export TIZONIA_PROJ_NAME="$proj_name"
+    export TIZONIA_BUILD_DIR="$builddir"
+    
     echo
     pretty_print "$MAG" "Changing dir to $builddir"
     cd "$builddir"
@@ -363,7 +251,7 @@ function main {
 
     if [[ ("$debug" == 1) ]]; then
 
-        print_banner "Reconfiguring Tizonia for [DEBUG] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [DEBUG] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
             && ./configure \
             --silent \
@@ -374,7 +262,7 @@ function main {
 
     elif [[ ("$asan" == 1) ]]; then
 
-        print_banner "Reconfiguring Tizonia for [ASAN] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [ASAN] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
             && ./configure \
             --silent \
@@ -386,7 +274,7 @@ function main {
 
     elif [[ ("$debian" == 1) ]]; then
 
-#         print_banner "Reconfiguring Tizonia for [Debian] build - Install dir [/usr]..." "$YEL"
+#         print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [Debian] build - Install dir [/usr]..." "$YEL"
 #         autoreconf -ifs \
 #             && ./configure \
 #             --prefix=/usr \
@@ -399,7 +287,7 @@ function main {
 
     elif [[ ("$release" == 1) ]];  then
 
-        print_banner "Reconfiguring Tizonia for [RELEASE] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [RELEASE] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
         && ./configure \
             --silent \
@@ -410,7 +298,7 @@ function main {
 
     elif [[ ("$conf" == 1)  ]];  then
 
-        print_banner "Reconfiguring Tizonia for [CONFORMANCE TESTING] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [CONFORMANCE TESTING] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
             && ./configure \
             --silent \
@@ -421,7 +309,7 @@ function main {
 
     elif [[ ("$valgrind" == 1)  ]];  then
 
-        print_banner "Reconfiguring Tizonia for [VALGRIND] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [VALGRIND] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         autoreconf -ifs \
         && ./configure \
             --silent \
@@ -432,7 +320,7 @@ function main {
 
     elif [[ ("$scan" == 1) ]]; then
 
-        print_banner "Reconfiguring Tizonia for [SCAN-BUILD] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
+        print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [SCAN-BUILD] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
         scan-build autoreconf -ifs \
             && scan-build ./configure \
                           --prefix="$TIZONIA_INSTALL_DIR" \
