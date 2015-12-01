@@ -16,12 +16,25 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Development build script for Tizonia - with parallel configuration, make and install
+# Tizonia's parallel build wrapper script
 #
+# Parallel configuration, make and make install for those sub-projects that can
+# effectivly be configured/built in parallel
+#
+
+declare -ar TIZONIA_DEV_BUILD_PARALLEL_DEPS=( \
+    'parallel' \
+    'tizonia-dev-build' \
+)
 
 source tizonia-common.inc
 
 function main {
+    # Check dependencies
+    for cmd in "${TIZONIA_DEV_BUILD_PARALLEL_DEPS[@]}"; do
+        command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
+    done
+
     for proj in "${TIZ_PROJECTS_ORDERED[@]}"; do
         local proj_dir="$TIZONIA_REPO_DIR/${TIZ_PROJECT_DIRS[$proj]}"
 
@@ -29,7 +42,7 @@ function main {
             break
         fi
         pretty_print "$GRN" "[$proj] : $proj_dir"
-        tizonia-dev-build --debug --install --project="$proj"
+        tizonia-dev-build "$@" --project="$proj"
     done
 
     local tmpsource=$(mktemp)
@@ -43,7 +56,11 @@ function main {
             echo "$proj" >> "$tmpsource"
         fi
     done
-    cat $tmpsource | parallel -k 'tizonia-dev-build --debug --install --project'
+
+    # Da business
+    cat $tmpsource | parallel -k "tizonia-dev-build $@ --project"
+
+    # Cleanup
     rm $tmpsource
 }
 
