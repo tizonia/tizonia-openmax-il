@@ -243,7 +243,7 @@ function main {
 
     export TIZONIA_PROJ_NAME="$proj_name"
     export TIZONIA_BUILD_DIR="$builddir"
-    
+
     echo
     pretty_print "$MAG" "Changing dir to $builddir"
     cd "$builddir"
@@ -342,7 +342,7 @@ function main {
     elif [[ ("$valgrind" == 1) && ( ("$make" == 1) || ("$install" == 1) ) ]]; then
         print_banner "Building for [VALGRIND] build" "$GRN"
         make CFLAGS='-O0 -g' CXXFLAGS='-O0 -g'
-    elif [[ ("$make" == 1) || ("$install" == 1) ]]; then
+    elif [[ ("$make" == 1) ]]; then
         build_project
     fi
 
