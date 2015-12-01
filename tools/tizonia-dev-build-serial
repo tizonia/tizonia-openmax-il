@@ -1,0 +1,3 @@
+#!/bin/bash
+tizonia-dev-build --debug --install \
+    && tizonia-dev-build --debug --install --project tizonia-player

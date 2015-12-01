@@ -76,20 +76,22 @@ function build_project {
     local exit_status=0
     local procs=$(nproc)
     local jobcnt=$(( $procs + 1 ))
-    print_banner "Building [$TIZONIA_PROJ_NAME] [$jobcnt jobs]" "$GRN"
     if [[ -z "$install_option" ]]; then
+        print_banner "Building [$TIZONIA_PROJ_NAME] [$jobcnt jobs]" "$GRN"
         make -s -j"$jobcnt" V=0 2>&1 | tee "$buildlog"
     else
+        print_banner "Installing [$TIZONIA_PROJ_NAME] [$jobcnt jobs]" "$GRN"
         make -s -j"$jobcnt" V=0 2>&1 install | tee "$buildlog"
     fi
     exit_status="${PIPESTATUS[0]}"
     if [[ "$exit_status" != 0 ]]; then
         grep -q 'internal compiler error' "$buildlog"
         if [[ "$?" -eq 0 ]]; then
-            print_banner "Building [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
             if [[ -z "$install_option" ]]; then
+                print_banner "Building [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
                 make -s -j1 V=0
             else
+                print_banner "Installing [$TIZONIA_PROJ_NAME] [2nd pass, 1 job]" "$GRN"
                 make -s -j1 V=0 install
             fi
             exit_status="$?"
@@ -234,6 +236,8 @@ function main {
         fi
     elif [[ "$cwd" == 1 ]]; then
         builddir="$PWD"
+        proj_name="Tizonia"
+    else
         proj_name="Tizonia"
     fi
 
