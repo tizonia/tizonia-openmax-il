@@ -30,11 +30,10 @@ python:
 before_install:
  - ./tools/tizonia-travis-build-trusty deps "$HOME"
  - ./tools/tizonia-travis-build-trusty pydeps "$HOME"
-# - - ./tools/tizonia-travis-build-trusty srcdeps "$HOME"
 before_script:
  - ./tools/tizonia-travis-build-trusty media "$HOME" "$HOME/temp"
 script:
- - ./tools/tizonia-travis-build-trusty debug "$HOME/build/tizonia/tizonia-openmax-il"
+ - ./tools/tizonia-travis-build-trusty build "$HOME/build/tizonia/tizonia-openmax-il"
  - ./tools/tizonia-travis-build-trusty config "$HOME/build/tizonia/tizonia-openmax-il"
  - ./tools/tizonia-travis-build-trusty skema "$HOME/build"
  - ./tools/tizonia-travis-build-trusty tests "$HOME/build"

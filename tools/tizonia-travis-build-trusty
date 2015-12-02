@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Travis-ci build script
+# Tizonia's Travis-ci build script - for Travis' Ubuntu 14.04 image
 #
 
 # Globals
@@ -24,19 +24,10 @@ WORKING_DIR="$HOME/tizonia-openmax-il" # Default value for working directory
 INSTALL_DIR="$HOME/build" # Default value for install directory
 TIZRMD_PID=-1
 
-if [ "$2" != "" ]; then
-    WORKING_DIR="$2"
-fi
-
-if [ "$3" != "" ]; then
-    INSTALL_DIR="$3"
-fi
-
 # Constants
 readonly E_BADARGS=85
 readonly E_NOFILE=86
 readonly E_BAD_CLONE=87
-readonly CWD=$(pwd)
 
 readonly TIZONIA_CONF_PATH="$HOME/.config/tizonia/tizonia.conf"
 
@@ -57,19 +48,6 @@ declare -ar SKEMA_EXEMPT_SUITES=( \
     "WavPlayback" \
 )
 
-#
-# Pre-requisites
-#
-
-# Create directories
-if [ ! -d "$INSTALL_DIR" ]; then
-    echo "Creating the install directory: $INSTALL_DIR"
-    mkdir -p "$INSTALL_DIR"
-fi
-
-echo "Changing dir to working directory: $WORKING_DIR"
-cd "$WORKING_DIR"
-
 # Export important variables
 LIB_DIR="$INSTALL_DIR"/lib
 PKG_CONFIG_DIR="$LIB_DIR"/pkgconfig
@@ -82,9 +60,9 @@ export PYTHONPATH="$PYTHONPATH":"$HOME"/.local/lib/python2.7/site-packages
 # Simple function to print a debug/error message with some extra info
 #
 # Globals
-#   WORKING_DIR
-# Arguments:
 #   None
+# Arguments:
+#   An error message
 # Returns:
 #   None
 ##################################################################
@@ -116,7 +94,7 @@ function cd_to_working_dir {
 #   The search string is the first argument
 #   The array is the second argument
 # Returns:
-#   0 if success, 1 on error
+#   0 on success, 1 on error
 ##################################################################
 function exists_in_array {
     local e
@@ -164,7 +142,7 @@ function start_dbus {
 # Arguments:
 #   None
 # Returns:
-#   None
+#   0 on success
 ##################################################################
 function install_deps {
     echo "Installing Tizonia's dependencies..."
@@ -227,8 +205,8 @@ function install_deps {
         echo "Error while installing gmusicapi" >&2
     fi
 
-    echo "Installing libspotify..."
     if [[ "$exit_status" -eq 0 ]] ; then
+        echo "Installing libspotify..."
         wget -q -O - http://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
         echo deb http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
         echo deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
@@ -249,7 +227,7 @@ function install_deps {
 # Arguments:
 #   None
 # Returns:
-#   None
+#   0 on success
 ##################################################################
 function install_python_deps {
     cd_to_working_dir
@@ -282,73 +260,6 @@ function install_python_deps {
 }
 
 ##################################################################
-# Installs the source-based dependencies
-#
-# Globals
-#   WORKING_DIR
-#   INSTALL_DIR
-# Arguments:
-#   None
-# Returns:
-#   None
-##################################################################
-function install_src_deps {
-    cd_to_working_dir
-
-    echo "Installing source-based project dependencies..."
-    local repos=( \
-        https://git.xiph.org/mirrors/ogg.git \
-        https://git.xiph.org/liboggz.git \
-        https://git.xiph.org/opus.git \
-        https://git.xiph.org/opusfile.git \
-        https://git.xiph.org/flac.git )
-    local folders=( ogg liboggz opus opusfile flac )
-    local total=${#repos[*]}
-    local exit_status=$?
-    for (( i=0; i<=$(( total -1 )); i++ ))
-    do
-        cd "$WORKING_DIR" \
-            && git clone ${repos[$i]} &>/dev/null \
-            && cd ${folders[$i]} &>/dev/null ; \
-            ./autogen.sh &>/dev/null ; \
-            ./configure --prefix="$INSTALL_DIR" &>/dev/null ; \
-            make -s -j8 V=0 install &>/dev/null
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while building ${repos[$i]}" >&2
-            exit_status=0
-            #break
-        fi
-    done
-    if [[ "$exit_status" -eq 0 ]] ; then
-        cd "$WORKING_DIR"
-        # Build libmpg123 1.19 from source
-        wget http://www.juanrubio.me/tizonia/mpg123-1.16.0.tgz \
-            && tar zxvf mpg123-1.16.0.tgz &>/dev/null \
-            && cd mpg123-1.16.0 \
-            && ./configure --prefix="$INSTALL_DIR" &>/dev/null \
-            && make -s -j8 V=0 install &>/dev/null
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while building mpg123" >&2
-        fi
-    fi
-    if [[ "$exit_status" -eq 0 ]] ; then
-        cd "$WORKING_DIR"
-        # Install libspotify 12.1.51 binaries
-        wget http://www.juanrubio.me/tizonia/libspotify-12.1.51-Linux-x86_64.tgz \
-            && tar zxvf libspotify-12.1.51-Linux-x86_64.tgz &>/dev/null \
-            && cd libspotify-12.1.51-Linux-x86_64 \
-            && make install prefix="$INSTALL_DIR" &>/dev/null
-        exit_status=$?
-        if [[ "$exit_status" -ne 0 ]] ; then
-            echo "Error while installing libspotify" >&2
-        fi
-    fi
-    return "$exit_status"
-}
-
-##################################################################
 # Installs the config files
 #
 # Globals
@@ -356,7 +267,7 @@ function install_src_deps {
 # Arguments:
 #   None
 # Returns:
-#   None
+#   0 on success
 ##################################################################
 function copy_config_files {
     cd_to_working_dir
@@ -384,131 +295,43 @@ function copy_config_files {
 }
 
 ##################################################################
-# Tizonia build
+# Recursively configure and build all projects
 #
 # Globals
 #   INSTALL_DIR
 # Arguments:
 #   None
 # Returns:
-#   None
+#   0 on success
 ##################################################################
-function build_tizonia {
-    # Install MediaInfo dependencies
-    sudo apt-get install -qq zlib1g-dev libzen-dev
-
-    # Build MediaInfo 0.7.67 from source
-    echo "Building MediaInfo 0.7.67 from source..."
-    cd "$WORKING_DIR"
-    wget http://juanrubio.me/tizonia/libmediainfo_0.7.67.orig.tar.gz \
-        && tar zxvf libmediainfo_0.7.67.orig.tar.gz &>/dev/null \
-        && cd MediaInfoLib/Project/GNU/Library \
-        && ./autogen &>/dev/null \
-        && ./configure --enable-shared --prefix="$INSTALL_DIR" \
-        && make -s -j8 V=0 install
-    local exit_status=$?
-
-    # Build the tizonia player
-    if [[ "$exit_status" -eq 0 ]] ; then
-        cd "$WORKING_DIR" && cd player
-        echo "Reconfiguring tizonia player for [DEBUG] build - Install dir [$INSTALL_DIR]..."
-        autoreconf -ifs
-        exit_status=$?
-        if [[ "$exit_status" -eq 0 ]] ; then
-            ./configure --prefix="$INSTALL_DIR" CFLAGS="-ggdb -Wall" \
-                && make -s -j8 V=0 \
-                && make -j8 install
-            exit_status=$?
-        fi
-    fi
-
-    return "$exit_status"
-}
-
-##################################################################
-# Debug build
-#
-# Globals
-#   INSTALL_DIR
-# Arguments:
-#   None
-# Returns:
-#   None
-##################################################################
-function build_debug {
+function configure_and_build {
     cd_to_working_dir
+
     # Fix annoying log4c.m4 warning
     sudo sed -irn 's/AC_DEFUN(AM_PATH_LOG4C/AC_DEFUN(\[AM_PATH_LOG4C\]/' /usr/share/aclocal/log4c.m4
-    echo "Reconfiguring Tizonia for [DEBUG] build - Install dir [$INSTALL_DIR]..."
-    autoreconf -ifs
-    local exit_status=$?
-    if [[ "$exit_status" -eq 0 ]] ; then
-        ./configure \
-            --enable-silent-rules \
-            --prefix="$INSTALL_DIR" \
-            CFLAGS="-ggdb -Wall"
-        exit_status=$?
-    fi
-    return "$exit_status"
+
+    echo "Reconfiguring Tizonia - Install dir [$INSTALL_DIR]..."
+    autoreconf -ifs \
+        && ./configure \
+        --enable-silent-rules \
+        --prefix="$INSTALL_DIR" \
+        CFLAGS="-Wall" \
+        CXXFLAGS='-Wall' \
+        && make -s -j1 V=0
+
+    return $?
 }
 
 ##################################################################
-# Release build
+# Clones Skema's git repo and installs all Skema 'tags' and 'suites'
 #
 # Globals
-#   INSTALL_DIR
+#   SKEMA_GIT_REPO
+#   SKEMA_BIN_DIR
 # Arguments:
 #   None
 # Returns:
-#   None
-##################################################################
-function build_release {
-    cd_to_working_dir
-    echo "Reconfiguring Tizonia for [RELEASE] build - Install dir [$INSTALL_DIR]..."
-    autoreconf -ifs
-    local exit_status=$?
-    if [ $exit_status -eq 0 ] ; then
-        ./configure --prefix="$INSTALL_DIR" CFLAGS="-O3 -DNDEBUG"
-        exit_status=$?
-    fi
-    return "$exit_status"
-}
-
-##################################################################
-# Conformance testing build
-#
-# Globals
-#   INSTALL_DIR
-# Arguments:
-#   None
-# Returns:
-#   None
-##################################################################
-function build_conformace {
-    cd_to_working_dir
-    echo "Reconfiguring Tizonia for [CONFORMANCE TESTING] build - Install dir [$INSTALL_DIR]..."
-    autoreconf -ifs
-    local exit_status=$?
-    if [[ "$exit_status" -eq 0 ]] ; then
-        ./configure \
-            --enable-silent-rules \
-            --enable-blocking-etb-ftb \
-            --prefix="$INSTALL_DIR" \
-            CFLAGS="-ggdb -Wall"
-        exit_status=$?
-    fi
-    return "$exit_status"
-}
-
-##################################################################
-# Clones skema's git repo and installs all skema tags and suites
-#
-# Globals
-#   None
-# Arguments:
-#   None
-# Returns:
-#   None
+#   0 on success
 ##################################################################
 function install_skema {
 
@@ -565,14 +388,15 @@ function install_skema {
 }
 
 ##################################################################
-# Run all the installed skema suites
+# Run all skema test suites installed, minus the ones that have
+# been exempted.
 #
 # Globals
-#   None
+#   SKEMA_EXEMPT_SUITES
 # Arguments:
 #   None
 # Returns:
-#   None
+#   0 on success
 ##################################################################
 function run_tests {
 
@@ -616,70 +440,50 @@ function run_tests {
 ##################################################################
 function main {
 
-    if [ "$1" == "deps" ];  then
+    if [[ "$2" != "" ]]; then
+        WORKING_DIR="$2"
+    fi
+
+    if [[ "$3" != "" ]]; then
+        INSTALL_DIR="$3"
+    fi
+
+    # Create directories
+    if [[ ! -d "$INSTALL_DIR" ]]; then
+        echo "Creating the install directory: $INSTALL_DIR"
+        mkdir -p "$INSTALL_DIR"
+    fi
+
+    echo "Changing dir to working directory: $WORKING_DIR"
+    cd "$WORKING_DIR"
+
+    
+    if [[ "$1" == "deps" ]];  then
         install_deps
-        exit_status=$?
-    elif [ "$1" == "pydeps" ];  then
+    elif [[ "$1" == "pydeps" ]];  then
         install_python_deps
-        exit_status=$?
-    elif [ "$1" == "srcdeps" ];  then
-        install_src_deps
-        exit_status=$?
-    elif [ "$1" == "debug" ]; then
-        build_debug
-        exit_status=$?
-    elif [ "$1" == "release" ];  then
-        build_release
-        exit_status=$?
-    elif [ "$1" == "conf" ];  then
-        build_conformace
-        exit_status=$?
-    elif [ "$1" == "media" ];  then
+    elif [[ "$1" == "build" ]]; then
+        configure_and_build
+    elif [[ "$1" == "media" ]];  then
         cd_to_working_dir
         echo "Downloading test media files to $INSTALL_DIR..."
         mkdir -p "$INSTALL_DIR" \
             && cd "$INSTALL_DIR" \
             && wget http://www.juanrubio.me/tizonia/tizonia-test-media.tgz \
             && tar zxvf tizonia-test-media.tgz &>/dev/null
-        exit_status=$?
-    elif [ "$1" == "config" ];  then
+    elif [[ "$1" == "config" ]];  then
         copy_config_files
-        exit_status=$?
-    elif [ "$1" == "bldonly" ];  then
-        echo "Build only..."
-    elif [ "$1" == "tizonia" ]; then
-        build_tizonia
-        exit_status=$?
-    elif [ "$1" == "skema" ];  then
+    elif [[ "$1" == "skema" ]];  then
         install_skema
-        exit_status=$?
-    elif [ "$1" == "tests" ];  then
+    elif [[ "$1" == "tests" ]];  then
         run_tests
-        exit_status=$?
     else
         CMD=$(basename "$0")
-        echo "Usage: $CMD <debug|release|conf|deps|media|config|skema|tests|bldonly> <working_dir> <install_dir>"
+        echo "Usage: $CMD <deps|pydeps|media|build|config|skema|tests> <working_dir> <install_dir>"
         exit 1
     fi
 
-    if [ "$1" == "debug" ] || [ "$1" == "release" ] || [ "$1" == "conf" ] || [ "$1" == "bldonly" ] ; then
-        cd_to_working_dir
-        if [[ "$exit_status" -eq 0 ]] ; then
-            make -s -j8 V=0
-            exit_status=$?
-        fi
-
-        if [ ! "$1" == "bldonly" ] ; then
-            if [[ "$exit_status" -eq 0 ]] ; then
-                make -j8 install
-                exit_status=$?
-            fi
-        fi
-    fi
-
-    cd "$CWD"
-
-    exit "$exit_status"
+    exit $?
 }
 
 main "$@"
