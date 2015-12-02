@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Script that automates the various activities around preparing the sources for
+# a new release.
+#
+
+function update_package_versions {
+    cd "$TIZONIA_REPO_DIR"
+    local OLD_VER="0.2.0"
+    local OLD_VER_QUOTED=$(echo "$OLD_VER" | sed -r 's/\./\\./g')
+    perl -i -p -e "s/(?<=AC_INIT)(.*)\s\[$OLD_VER_QUOTED\]/\1 [0.3.0]/g" $(find "$TIZONIA_REPO_DIR" -type f -name '*.ac' -print)
+}
+
+function update_package_versions {
+    cd "$TIZONIA_REPO_DIR"
+    local OLD_VER="0.2.0"
+    local OLD_VER_QUOTED=$(echo "$OLD_VER" | sed -r 's/\./\\./g')
+    perl -i -p -e "s/(?<=AC_INIT)(.*)\s\[$OLD_VER_QUOTED\]/\1 [0.3.0]/g" $(find . -type f -name '*.ac' -print)
+}
+
+function update_plugin_shared_lib_versions {
+    cd "$TIZONIA_REPO_DIR"/plugins
+    local OLD_VER="0:2:0"
+    local OLD_VER_QUOTED=$(echo "$OLD_VER" | sed -r 's/\:/\\:/g')
+    perl -i -p -e "s/(?<=SHARED_VERSION_INFO)=\"$OLD_VER_QUOTED\"/=\"0:3:0\"/g" $(find . -type f -name '*.ac' -print)
+}
+
+function update_il_core_soname_strings {
+    cd "$TIZONIA_REPO_DIR"/libtizcore/src
+    local OLD_SONAME_STRING=".so.0.0.2"
+    local OLD_SONAME_STRING_QUOTED=$(echo "$OLD_SONAME_STRING" | sed -r 's/\./\\./g')
+    perl -i -p -e "s/(?<=#define TIZ_SHARED_LIB_SONAME_STRING) \"$OLD_SONAME_STRING_QUOTED\"/ \".so.0.0.3\"/g" tizcore.c
+    local OLD_SONAMET_STRING=".so.0.0.2T"
+    local OLD_SONAMET_STRING_QUOTED=$(echo "$OLD_SONAMET_STRING" | sed -r 's/\./\\./g')
+    perl -i -p -e "s/(?<=#define TIZ_SHARED_LIB_SONAMET_STRING) \"$OLD_SONAMET_STRING_QUOTED\"/ \".so.0.0.3T\"/g" tizcore.c
+}
+
+update_il_core_soname_strings
