@@ -310,14 +310,14 @@ function configure_and_build {
     # Fix annoying log4c.m4 warning
     sudo sed -irn 's/AC_DEFUN(AM_PATH_LOG4C/AC_DEFUN(\[AM_PATH_LOG4C\]/' /usr/share/aclocal/log4c.m4
 
-    echo "Reconfiguring Tizonia - Install dir [$INSTALL_DIR]..."
+    echo "Configuring, building and installing Tizonia - Install dir [$INSTALL_DIR]..."
     autoreconf -ifs \
         && ./configure \
         --enable-silent-rules \
         --prefix="$INSTALL_DIR" \
         CFLAGS="-Wall" \
         CXXFLAGS='-Wall' \
-        && make -s -j1 V=0
+        && make -s -j1 V=0 install
 
     return $?
 }
