@@ -31,6 +31,9 @@ libtizplatform_include_HEADERS = \
 	utarray/utarray.h \
 	avl/avl.h \
 	ev/ev.h \
+	ev/ev_vars.h \
+	ev/ev_wrap.h \
+	ev/ev_epoll.c \
 	http-parser/http_parser.h \
 	tizplatform.h \
 	tizmacros.h \
