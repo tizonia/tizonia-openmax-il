@@ -640,7 +640,11 @@ static OMX_ERRORTYPE do_timer_start (tiz_event_loop_msg_t *ap_msg)
   assert (p_msg_timer);
   p_ev_timer = p_msg_timer->p_ev_timer;
   assert (p_ev_timer);
-  assert (p_ev_timer->id != p_msg_timer->id);
+  /* debug: Verify that ids don't get repeated */
+  if (p_ev_timer->id != 0 && p_ev_timer->id == p_msg_timer->id)
+    {
+      assert (p_ev_timer->id != p_msg_timer->id);
+    }
   p_ev_timer->id = p_msg_timer->id;
   p_ev_timer->started = true;
   ev_timer_start (gp_event_loop->p_loop, (ev_timer *)(p_ev_timer));
@@ -661,7 +665,11 @@ static OMX_ERRORTYPE do_timer_restart (tiz_event_loop_msg_t *ap_msg)
   assert (p_msg_timer);
   p_ev_timer = p_msg_timer->p_ev_timer;
   assert (p_ev_timer);
-  assert (p_ev_timer->id != p_msg_timer->id);
+  /* debug: Verify that ids don't get repeated */
+  if (p_ev_timer->id != 0 && p_ev_timer->id == p_msg_timer->id)
+    {
+      assert (p_ev_timer->id != p_msg_timer->id);
+    }
   p_ev_timer->id = p_msg_timer->id;
   p_ev_timer->started = true;
   ev_timer_again (gp_event_loop->p_loop, (ev_timer *)(p_ev_timer));
