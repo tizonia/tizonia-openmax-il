@@ -20,35 +20,86 @@
 # a new release.
 #
 
-function update_package_versions {
-    cd "$TIZONIA_REPO_DIR"
-    local OLD_VER="0.2.0"
-    local OLD_VER_QUOTED=$(echo "$OLD_VER" | sed -r 's/\./\\./g')
-    perl -i -p -e "s/(?<=AC_INIT)(.*)\s\[$OLD_VER_QUOTED\]/\1 [0.3.0]/g" $(find "$TIZONIA_REPO_DIR" -type f -name '*.ac' -print)
-}
+# Includes
+source tizonia-common.inc
+
+# Constants
+readonly TIZONIA_OLD_PACKAGE_VER="0.1.0"
+readonly TIZONIA_NEW_PACKAGE_VER="$TIZONIA_RELEASE_VERSION"
+
+readonly TIZONIA_OLD_SHLIB_VER="0:1:0"
+readonly TIZONIA_NEW_SHLIB_VER="0:2:0"
+
+readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:1:0"
+readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:2:0"
+
+readonly TIZONIA_ILCORE_OLD_SONAME_VER="0.0.1"
+readonly TIZONIA_ILCORE_NEW_SONAME_VER="0.0.2"
+
+readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
+readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="141"
 
 function update_package_versions {
+    pretty_print "$MAG" "[START] : updating package versions."
     cd "$TIZONIA_REPO_DIR"
-    local OLD_VER="0.2.0"
+    local OLD_VER="$TIZONIA_OLD_PACKAGE_VER"
+    local NEW_VER="$TIZONIA_NEW_PACKAGE_VER"
     local OLD_VER_QUOTED=$(echo "$OLD_VER" | sed -r 's/\./\\./g')
-    perl -i -p -e "s/(?<=AC_INIT)(.*)\s\[$OLD_VER_QUOTED\]/\1 [0.3.0]/g" $(find . -type f -name '*.ac' -print)
+    perl -i -p -e "s/(?<=AC_INIT)(.*)\s\[$OLD_VER_QUOTED\]/\1 [$NEW_VER]/g" $(find "$TIZONIA_REPO_DIR" -type f -name '*.ac' -print)
+    pretty_print "$BLU" "[DONE] : updating package versions."
+}
+
+function update_shared_lib_versions {
+    pretty_print "$MAG" "[START] : updating shared lib versions."
+    cd "$TIZONIA_REPO_DIR"
+    local OLD_VER="$TIZONIA_OLD_SHLIB_VER"
+    local NEW_VER="$TIZONIA_NEW_SHLIB_VER"
+    perl -i -p -e "s/(?<=SHARED_VERSION_INFO=\")$OLD_VER/$NEW_VER/g" \
+        $(find . -type f \( -path "./plugins/*" -prune \) -o \( -name '*.ac' \) -print)
+    pretty_print "$BLU" "[DONE] : updating shared lib versions."
 }
 
 function update_plugin_shared_lib_versions {
+    pretty_print "$MAG" "[START] : updating plugins shared lib versions."
     cd "$TIZONIA_REPO_DIR"/plugins
-    local OLD_VER="0:2:0"
-    local OLD_VER_QUOTED=$(echo "$OLD_VER" | sed -r 's/\:/\\:/g')
-    perl -i -p -e "s/(?<=SHARED_VERSION_INFO)=\"$OLD_VER_QUOTED\"/=\"0:3:0\"/g" $(find . -type f -name '*.ac' -print)
+    local OLD_VER="$TIZONIA_PLUGIN_OLD_SHLIB_VER"
+    local NEW_VER="$TIZONIA_PLUGIN_NEW_SHLIB_VER"
+    perl -i -p -e "s/(?<=SHARED_VERSION_INFO=\")$OLD_VER/$NEW_VER/g" $(find . -type f -name '*.ac' -print)
+    pretty_print "$BLU" "[DONE] : updating plugins shared lib versions."
 }
 
 function update_il_core_soname_strings {
+    pretty_print "$MAG" "[START] : updating OpenMAX IL Core SONAME string literals."
     cd "$TIZONIA_REPO_DIR"/libtizcore/src
-    local OLD_SONAME_STRING=".so.0.0.2"
+    local OLD_VER="$TIZONIA_ILCORE_OLD_SONAME_VER"
+    local NEW_VER="$TIZONIA_ILCORE_NEW_SONAME_VER"
+    local OLD_SONAME_STRING=".so.$OLD_VER"
     local OLD_SONAME_STRING_QUOTED=$(echo "$OLD_SONAME_STRING" | sed -r 's/\./\\./g')
-    perl -i -p -e "s/(?<=#define TIZ_SHARED_LIB_SONAME_STRING) \"$OLD_SONAME_STRING_QUOTED\"/ \".so.0.0.3\"/g" tizcore.c
-    local OLD_SONAMET_STRING=".so.0.0.2T"
+    perl -i -p -e "s/(?<=#define TIZ_SHARED_LIB_SONAME_STRING) \"$OLD_SONAME_STRING_QUOTED\"/ \".so.$NEW_VER\"/g" tizcore.c
+    local OLD_SONAMET_STRING=".so.$OLD_VERT"
     local OLD_SONAMET_STRING_QUOTED=$(echo "$OLD_SONAMET_STRING" | sed -r 's/\./\\./g')
-    perl -i -p -e "s/(?<=#define TIZ_SHARED_LIB_SONAMET_STRING) \"$OLD_SONAMET_STRING_QUOTED\"/ \".so.0.0.3T\"/g" tizcore.c
+    perl -i -p -e "s/(?<=#define TIZ_SHARED_LIB_SONAMET_STRING) \"$OLD_SONAMET_STRING_QUOTED\"/ \".so.$NEW_VERT\"/g" tizcore.c
+    pretty_print "$BLU" "[DONE] : updating OpenMAX IL Core SONAME string literals."
 }
 
+function update_debian_changelog_files {
+    pretty_print "$MAG" "[START] : updating Debian changelog files."
+    cd "$TIZONIA_REPO_DIR"
+    local NEW_VER="$TIZONIA_DEBIAN_CHANGELOG_VER"
+    local CLOSING_BUG="$TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG"
+    for proj in "${TIZ_PROJECTS_ORDERED[@]}"; do
+        local proj_dir="$TIZONIA_REPO_DIR/${TIZ_PROJECT_DIRS[$proj]}"
+        cd "$proj_dir"
+        dch --newversion "$NEW_VER"-1 --upstream --urgency low --distribution unstable "New upstream release (Closes: #$CLOSING_BUG)"
+    done
+    pretty_print "$BLU" "[DONE] : updating Debian changelog files."
+}
+
+print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
+update_package_versions
+update_shared_lib_versions
+update_plugin_shared_lib_versions
 update_il_core_soname_strings
+update_debian_changelog_files
+print_banner "[DONE] : Updating files." "$BLU" 
+
