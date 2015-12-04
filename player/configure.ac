@@ -54,7 +54,7 @@ PKG_CHECK_MODULES([LIBMEDIAINFO], [libmediainfo >= 0.7.65])
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
 AS_IF([test "x$tiz_found_omx_headers" != "xyes"],
-	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../include/tizonia']),
+	[AC_SUBST([TIZILHEADERS_CFLAGS], ['-I$(top_srcdir)/../include/tizonia'])
 	AC_SUBST([TIZILHEADERS_LIBS], ['not-used'])],
 	[AC_MSG_NOTICE([Not substituting TIZILHEADERS cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_omx_headers" == "xyes"],
@@ -64,7 +64,7 @@ AS_IF([test "x$tiz_found_omx_headers" == "xyes"],
 AC_CHECK_HEADERS([tizonia/tizplatform.h],
 	[tiz_found_platform_headers=yes; break;])
 AS_IF([test "x$tiz_found_platform_headers" != "xyes"],
-	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../libtizplatform/tizonia']),
+	[AC_SUBST([TIZPLATFORM_CFLAGS], ['-I$(top_srcdir)/../libtizplatform/tizonia'])
 	AC_SUBST([TIZPLATFORM_LIBS], ['$(top_builddir)/../libtizplatform/tizonia/libtizplatform.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZPLATFORM cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
@@ -74,7 +74,7 @@ AS_IF([test "x$tiz_found_platform_headers" == "xyes"],
 AC_CHECK_LIB([tizcore], [OMX_Init],
 	[tiz_found_core_lib=yes; break;])
 AS_IF([test "x$tiz_found_core_lib" != "xyes"],
-	[AC_SUBST([TIZCORE_CFLAGS], ['not-used']),
+	[AC_SUBST([TIZCORE_CFLAGS], ['not-used'])
 	AC_SUBST([TIZCORE_LIBS], ['$(top_builddir)/../libtizcore/tizonia/libtizcore.la'])],
 	[AC_MSG_NOTICE([Not substituting TIZCORE cflags and libs with local paths])])
 AS_IF([test "x$tiz_found_core_lib" == "xyes"],
