@@ -1,3 +1,9 @@
+tizflacdec (0.2.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #141)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 04 Dec 2015 04:19:40 +0000
+
 tizflacdec (0.1.0-1) unstable; urgency=low
 
   * Initial release (Closes: #64)
