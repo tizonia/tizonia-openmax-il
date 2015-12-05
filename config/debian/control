@@ -21,7 +21,9 @@ Multi-Arch: same
 Section: libs
 Depends: tizilheaders,
     python-tizgmusicproxy,
+    python-tizsoundcloudproxy,
     libtizgmusic0,
+    libtizsoundcloud0,
     libtizplatform0,
     tizrmd,
     libtizrmproxy0,
