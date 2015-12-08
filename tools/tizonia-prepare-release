@@ -36,6 +36,9 @@ readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:2:0"
 readonly TIZONIA_ILCORE_OLD_SONAME_VER="0.0.1"
 readonly TIZONIA_ILCORE_NEW_SONAME_VER="0.0.2"
 
+readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.1.0"
+readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.2.0"
+
 readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
 readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="141"
 
@@ -82,6 +85,15 @@ function update_il_core_soname_strings {
     pretty_print "$BLU" "[DONE] : updating OpenMAX IL Core SONAME string literals."
 }
 
+function update_python_version_strings {
+    pretty_print "$MAG" "[START] : updating python version strings."
+    cd "$TIZONIA_REPO_DIR"
+    local OLD_VER="$TIZONIA_PYTHON_OLD_MODULE_VER"
+    local NEW_VER="$TIZONIA_PYTHON_NEW_MODULE_VER"
+    perl -i -p -e "s/$OLD_VER/$NEW_VER/g" $(find . -type f -name '_version.py' -print)
+    pretty_print "$BLU" "[DONE] : updating python version strings."
+}
+
 function update_debian_changelog_files {
     pretty_print "$MAG" "[START] : updating Debian changelog files."
     cd "$TIZONIA_REPO_DIR"
@@ -100,6 +112,7 @@ update_package_versions
 update_shared_lib_versions
 update_plugin_shared_lib_versions
 update_il_core_soname_strings
+update_python_version_strings
 update_debian_changelog_files
 print_banner "[DONE] : Updating files." "$BLU" 
 
