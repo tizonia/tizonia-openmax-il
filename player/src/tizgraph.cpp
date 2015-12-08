@@ -47,6 +47,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.graph"
 #endif
 
+#define TIZ_GRAPH_QUEUE_MAX_ITEMS 30
+
 namespace graph = tiz::graph;
 
 void *graph::thread_func (void *p_arg)
@@ -368,7 +370,7 @@ graph::graph::init_cmd_queue ()
 {
   tiz_check_omx_err_ret_oom (tiz_mutex_init (&mutex_));
   tiz_check_omx_err_ret_oom (tiz_sem_init (&sem_, 0));
-  tiz_check_omx_err_ret_oom (tiz_queue_init (&p_queue_, TIZ_QUEUE_MAX_ITEMS));
+  tiz_check_omx_err_ret_oom (tiz_queue_init (&p_queue_, TIZ_GRAPH_QUEUE_MAX_ITEMS));
   return OMX_ErrorNone;
 }
 

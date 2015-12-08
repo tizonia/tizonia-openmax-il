@@ -46,8 +46,6 @@ extern "C" {
 
 #include "tizsync.h"
 
-#define TIZ_QUEUE_MAX_ITEMS 30
-
 /**
  * Queue opaque structure.
  * @ingroup tizqueue
@@ -60,7 +58,7 @@ typedef /*@null@ */ tiz_queue_t *tiz_queue_ptr_t;
  *
  * @ingroup tizqueue
  *
- * @param a_capacity Maximum number of items that can be added to the queue.
+ * @param a_capacity Maximum number of items that can be send into the queue.
  *
  * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources otherwise.
  */
@@ -93,6 +91,14 @@ OMX_ERRORTYPE tiz_queue_send (tiz_queue_t *ap_q, OMX_PTR ap_data);
  *
  */
 OMX_ERRORTYPE tiz_queue_receive (tiz_queue_t *ap_q, OMX_PTR *app_data);
+
+/**
+ * Retrieve the maximum number of items that can be stored in the queue.
+ *
+ * @ingroup tizqueue
+ *
+ */
+OMX_S32 tiz_queue_capacity (tiz_queue_t *ap_q);
 
 /**
  * Retrieve the number of items currently stored in the queue.

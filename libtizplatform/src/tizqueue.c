@@ -143,7 +143,7 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
       p_cur_item = p_q->p_last = p_q->p_first;
       assert (p_cur_item);
 
-      for (i = 0; i < (TIZ_QUEUE_MAX_ITEMS - 2); i++)
+      for (i = 0; i < (a_capacity - 1); ++i)
         {
           if ((p_new_item = (tiz_queue_item_t *)tiz_mem_calloc (
                            1, sizeof(tiz_queue_item_t))))
@@ -205,17 +205,11 @@ void tiz_queue_destroy (/*@null@ */ tiz_queue_t *p_q)
       tiz_queue_item_t *p_cur_item = 0;
       int i = 0;
 
-      for (i = 0; p_q->p_first && i < (TIZ_QUEUE_MAX_ITEMS - 2); ++i)
+      for (i = 0; p_q->p_first && i < (p_q->capacity - 1); ++i)
         {
           p_cur_item = p_q->p_first->p_next;
           tiz_mem_free (p_q->p_first);
           p_q->p_first = p_cur_item;
-        }
-
-      if (p_q->p_first)
-        {
-          tiz_mem_free (p_q->p_first);
-          p_q->p_first = NULL;
         }
 
       deinit_queue_struct (p_q);
@@ -284,6 +278,22 @@ tiz_queue_receive (tiz_queue_t *p_q, OMX_PTR *app_data)
   tiz_check_omx_err_ret_oom (tiz_cond_broadcast (&(p_q->cond_full)));
 
   return rc;
+}
+
+OMX_S32
+tiz_queue_capacity (tiz_queue_t *p_q)
+{
+  OMX_S32 capacity = 0;
+
+  assert (p_q);
+
+  tiz_check_omx_err_ret_oom (tiz_mutex_lock (&(p_q->mutex)));
+
+  capacity = p_q->capacity;
+
+  tiz_check_omx_err_ret_oom (tiz_mutex_unlock (&(p_q->mutex)));
+
+  return capacity;
 }
 
 OMX_S32

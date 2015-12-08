@@ -70,6 +70,7 @@
 #define TIZ_DEFAULT_COMP_ENTRY_POINT_NAME "OMX_ComponentInit"
 #define TIZ_SHARED_LIB_SONAME_STRING ".so.0.0.2"
 #define TIZ_SHARED_LIB_SONAMET_STRING ".so.0.0.2T"
+#define TIZ_CORE_QUEUE_MAX_ITEMS 30
 
 typedef struct role_list_item role_list_item_t;
 typedef role_list_item_t *role_list_t;
@@ -1390,7 +1391,7 @@ get_core (void)
         }
 
       if (OMX_ErrorNone
-          != (rc = tiz_queue_init (&(pg_core->p_queue), TIZ_QUEUE_MAX_ITEMS)))
+          != (rc = tiz_queue_init (&(pg_core->p_queue), TIZ_CORE_QUEUE_MAX_ITEMS)))
         {
           return NULL;
         }

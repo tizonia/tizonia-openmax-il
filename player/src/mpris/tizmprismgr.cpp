@@ -52,6 +52,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.play.control.mprismgr"
 #endif
 
+#define TIZ_MPRISMGR_QUEUE_MAX_ITEMS 30
+
 namespace control = tiz::control;
 
 namespace
@@ -240,7 +242,7 @@ control::mprismgr::init_cmd_queue ()
 {
   tiz_check_omx_err_ret_oom (tiz_mutex_init (&mutex_));
   tiz_check_omx_err_ret_oom (tiz_sem_init (&sem_, 0));
-  tiz_check_omx_err_ret_oom (tiz_queue_init (&p_queue_, TIZ_QUEUE_MAX_ITEMS));
+  tiz_check_omx_err_ret_oom (tiz_queue_init (&p_queue_, TIZ_MPRISMGR_QUEUE_MAX_ITEMS));
   return OMX_ErrorNone;
 }
 
