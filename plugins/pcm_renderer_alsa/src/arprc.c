@@ -100,6 +100,50 @@
 /* Forward declaration */
 static OMX_ERRORTYPE ar_prc_deallocate_resources (void *ap_prc);
 
+static void alsa_error_handler (const char *file, int line,
+                                const char *function, int err, const char *fmt,
+                                ...)
+{
+  char err_msg[128];
+  int index, len;
+  va_list arg;
+
+#ifndef NDEBUG
+  index = snprintf (err_msg, sizeof(err_msg), "ALSA lib %s:%i:(%s) ", file,
+                    line, function);
+#else
+  index = snprintf (err_msg, sizeof(err_msg), "ALSA lib: ");
+#endif
+  if (index < 1 || index >= (int)sizeof(err_msg))
+    {
+      index = sizeof(err_msg) - 1;
+      err_msg[index] = '\0';
+      goto print_msg;
+    }
+
+  va_start (arg, fmt);
+  if (index < sizeof(err_msg) - 1)
+    {
+      len = vsnprintf (err_msg + index, sizeof(err_msg) - index, fmt, arg);
+      if (len < 1 || len >= (int)sizeof(err_msg) - index)
+        len = sizeof(err_msg) - index - 1;
+      index += len;
+      err_msg[index] = '\0';
+    }
+  va_end (arg);
+  if (err && index < sizeof(err_msg) - 1)
+    {
+      len = snprintf (err_msg + index, sizeof(err_msg) - index, ": %s",
+                      snd_strerror (err));
+      if (len < 1 || len >= (int)sizeof(err_msg) - index)
+        len = sizeof(err_msg) - index - 1;
+      index += len;
+      err_msg[index] = '\0';
+    }
+print_msg:
+  TIZ_LOG (TIZ_PRIORITY_ERROR, "%s", err_msg);
+}
+
 static void verify_alsa_pcm_format_support (
     ar_prc_t *ap_prc, snd_pcm_format_t *ap_snd_pcm_format)
 {
@@ -843,6 +887,8 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
   ar_prc_t *p_prc = ap_prc;
 
   assert (p_prc);
+
+  snd_lib_error_set_handler (alsa_error_handler);
 
   if (!p_prc->p_pcm_)
     {
