@@ -54,6 +54,7 @@
 #endif
 
 #define SCHED_OMX_DEFAULT_ROLE "default"
+#define SCHED_QUEUE_MAX_ITEMS 30
 
 #ifndef S_SPLINT_S
 #define TIZ_COMP_INIT_MSG(hdl, msg, msgtype)                            \
@@ -2175,7 +2176,7 @@ static tiz_scheduler_t *instantiate_scheduler (OMX_HANDLETYPE ap_hdl,
   tiz_check_omx_err_ret_null (tiz_mutex_init (&(p_sched->mutex)));
   tiz_check_omx_err_ret_null (tiz_sem_init (&(p_sched->sem), 0));
   tiz_check_omx_err_ret_null (tiz_queue_init (&(p_sched->p_queue),
-                                              TIZ_QUEUE_MAX_ITEMS));
+                                              SCHED_QUEUE_MAX_ITEMS));
 
   p_sched->child.p_fsm = NULL;
   p_sched->child.p_ker = NULL;
@@ -2592,6 +2593,13 @@ void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl, tiz_event_stat_t *ap_ev_s
 
   /* TODO: Shouldn't mask this return code */
   (void)send_msg (get_sched (ap_hdl), p_msg);
+}
+
+size_t tiz_comp_event_queue_unused_spaces (const OMX_HANDLETYPE ap_hdl)
+{
+  tiz_scheduler_t *p_sched = get_sched (ap_hdl);
+  assert (p_sched);
+  return SCHED_QUEUE_MAX_ITEMS - tiz_queue_length (p_sched->p_queue);
 }
 
 void *tiz_get_sched (const OMX_HANDLETYPE ap_hdl)

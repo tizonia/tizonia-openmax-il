@@ -51,6 +51,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.spotify_source.prc"
 #endif
 
+#define COMPONENT_MIN_QUEUE_UNUSED_SPACES 5
+
 /* This macro assumes the existence of an "ap_prc" local variable */
 #define goto_end_on_sp_error(expr)                         \
   do                                                       \
@@ -69,6 +71,8 @@
 
 /* Forward declarations */
 static OMX_ERRORTYPE spfysrc_prc_deallocate_resources (void *ap_obj);
+static sp_bitrate omx_preferred_bitrate_to_spfy (
+    const OMX_TIZONIA_AUDIO_SPOTIFYBITRATETYPE a_bitrate_type, int *ap_bitrate);
 
 /* The application key, specific to each project. */
 extern const uint8_t g_appkey[];
@@ -87,7 +91,7 @@ struct spfy_music_delivery_data
 {
   sp_session *p_sess;
   sp_audioformat format;
-  const void *p_frames;
+  void *p_frames;
   int num_frames;
 };
 
@@ -313,8 +317,6 @@ static void send_port_auto_detect_events (spfysrc_prc_t *ap_prc)
 {
   assert (ap_prc);
 
-  TIZ_PRINTF_DBG_MAG ("send_port_auto_detect_events");
-
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
       || ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
     {
@@ -438,6 +440,16 @@ static void store_metadata_track_duration (spfysrc_prc_t *ap_prc,
     }
 }
 
+static void store_metadata_preferred_bitrate (spfysrc_prc_t *ap_prc)
+{
+  char bitrate_str[OMX_MAX_STRINGNAME_SIZE];
+  int bitrate = 0;
+  omx_preferred_bitrate_to_spfy (ap_prc->session_.ePreferredBitRate,
+                                 &bitrate);
+  snprintf (bitrate_str, OMX_MAX_STRINGNAME_SIZE - 1, "%d kbps", bitrate);
+  (void)store_metadata (ap_prc, "Bit rate", bitrate_str);
+}
+
 static void store_relevant_track_metadata (spfysrc_prc_t *ap_prc,
                                            const int a_num_tracks)
 {
@@ -453,6 +465,7 @@ static void store_relevant_track_metadata (spfysrc_prc_t *ap_prc,
                              ap_prc->track_index_, a_num_tracks);
   store_metadata_track_duration (ap_prc,
                                  sp_track_duration (ap_prc->p_sp_track_));
+  store_metadata_preferred_bitrate (ap_prc);
 }
 
 static OMX_ERRORTYPE retrieve_session_configuration (spfysrc_prc_t *ap_prc)
@@ -544,7 +557,7 @@ static sp_bitrate omx_preferred_bitrate_to_spfy (
           assert (0);
         }
         break;
-    }
+    };
   return spfy_bitrate;
 }
 
@@ -605,10 +618,12 @@ static inline int copy_to_omx_buffer (OMX_BUFFERHEADERTYPE *ap_hdr,
                                       const void *ap_src, const int nbytes)
 {
   int n = MIN (nbytes, ap_hdr->nAllocLen - ap_hdr->nFilledLen);
-  TIZ_PRINTF_DBG_YEL ("HEADER [%p] n [%d] \n", ap_hdr, n);
+  assert (n > 0);
   (void)memcpy (ap_hdr->pBuffer + ap_hdr->nOffset, ap_src, n);
   ap_hdr->nFilledLen += n;
   ap_hdr->nOffset += n;
+  TIZ_PRINTF_DBG_YEL ("HEADER [%p] nbytes [%d] alloc [%d] fill [%d] offset [%d]\n", ap_hdr, n,
+                  ap_hdr->nAllocLen, ap_hdr->nFilledLen, ap_hdr->nOffset);
   return n;
 }
 
@@ -657,11 +672,6 @@ static OMX_BUFFERHEADERTYPE *buffer_needed (spfysrc_prc_t *ap_prc)
             {
               if (ap_prc->p_outhdr_)
                 {
-                  /*                   TIZ_TRACE (handleOf (ap_prc), */
-                  /*                              "Claimed HEADER
-                   * [%p]...nFilledLen [%d]", */
-                  /*                              ap_prc->p_outhdr_,
-                   * ap_prc->p_outhdr_->nFilledLen); */
                   p_hdr = ap_prc->p_outhdr_;
                 }
             }
@@ -711,7 +721,8 @@ static void stop_spotify (spfysrc_prc_t *ap_prc)
     }
 }
 
-static void control_cache_size (spfysrc_prc_t *ap_prc)
+/* Decide if spotify music delivery needs pause/re-start */
+static void reevaluate_cache (spfysrc_prc_t *ap_prc)
 {
   assert (ap_prc);
 
@@ -902,7 +913,7 @@ static void logged_in_cback_handler (OMX_PTR ap_prc,
           if (!p_prc->p_sp_playlist_)
             {
               TIZ_PRINTF_DBG_MAG (
-                  "No such playlist. Waiting for one to pop up...");
+                  "No such playlist. Waiting for one to pop up...\n");
             }
         }
       tiz_mem_free (ap_event->p_data);
@@ -949,8 +960,14 @@ static void notify_main_thread_cback_handler (OMX_PTR ap_prc,
  */
 static void notify_main_thread (sp_session *sess)
 {
-  post_spotify_event (sp_session_userdata (sess),
-                      notify_main_thread_cback_handler, sess);
+
+  if (tiz_comp_event_queue_unused_spaces (handleOf (sp_session_userdata (sess)))
+      >= COMPONENT_MIN_QUEUE_UNUSED_SPACES)
+    {
+      TIZ_PRINTF_DBG_YEL ("notify_main_thread\n");
+      post_spotify_event (sp_session_userdata (sess),
+                          notify_main_thread_cback_handler, sess);
+    }
 }
 
 static void metadata_updated_cback_handler (OMX_PTR ap_prc,
@@ -991,6 +1008,9 @@ static void music_delivery_cback_handler (OMX_PTR ap_prc,
   assert (ap_event);
 
   TIZ_TRACE (handleOf (ap_prc), "p_data [%p] ", ap_event->p_data);
+
+  /* Decide if spotify music delivery needs pause/re-start */
+  reevaluate_cache (ap_prc);
 
   if (!p_prc->stopping_ && ap_event->p_data)
     {
@@ -1047,6 +1067,7 @@ static void music_delivery_cback_handler (OMX_PTR ap_prc,
              OMX_ErrorFormatNotDetected event */
           send_port_auto_detect_events (p_prc);
         }
+      tiz_mem_free (p_data->p_frames);
       tiz_mem_free (ap_event->p_data);
     }
   tiz_mem_free (ap_event);
@@ -1060,27 +1081,43 @@ static void music_delivery_cback_handler (OMX_PTR ap_prc,
 static int music_delivery (sp_session *sess, const sp_audioformat *format,
                            const void *frames, int num_frames)
 {
+  int num_frames_delivered = 0;
   if (num_frames > 0)
     {
-      spfy_music_delivery_data_t *p_data
-          = tiz_mem_calloc (1, sizeof(spfy_music_delivery_data_t));
-      if (p_data)
+      /* We'll only send another pluggable event into the component's main
+         event queue if there are a few spaces available. Otherwise, we'll ask
+         Spotify to wait a little. */
+      if (tiz_comp_event_queue_unused_spaces (handleOf (
+              sp_session_userdata (sess))) >= COMPONENT_MIN_QUEUE_UNUSED_SPACES)
         {
-          assert (sess);
-          assert (format);
-          assert (frames);
-          p_data->p_sess = sess;
-          p_data->format.sample_type = format->sample_type;
-          p_data->format.sample_rate = format->sample_rate;
-          p_data->format.channels = format->channels;
-          p_data->p_frames = frames;
-          p_data->num_frames = num_frames;
-          post_spotify_event (sp_session_userdata (sess),
-                              music_delivery_cback_handler, p_data);
+          spfy_music_delivery_data_t *p_data
+            = tiz_mem_calloc (1, sizeof(spfy_music_delivery_data_t));
+          if (p_data)
+            {
+              size_t pcm_buffer_len = num_frames * sizeof(int16_t) * format->channels;
+              assert (sess);
+              assert (format);
+              assert (frames);
+              p_data->p_sess = sess;
+              p_data->format.sample_type = format->sample_type;
+              p_data->format.sample_rate = format->sample_rate;
+              p_data->format.channels = format->channels;
+              p_data->p_frames = tiz_mem_alloc (pcm_buffer_len);
+              memcpy(p_data->p_frames, frames, pcm_buffer_len);
+              p_data->num_frames = num_frames;
+              TIZ_PRINTF_DBG_YEL (
+                  "music_delivery - num frames : %d pcm_buffer_len : %d - "
+                  "spaces %d\n",
+                  num_frames, pcm_buffer_len,
+                  tiz_comp_event_queue_unused_spaces (
+                      handleOf (sp_session_userdata (sess))));
+              post_spotify_event (sp_session_userdata (sess),
+                                  music_delivery_cback_handler, p_data);
+              num_frames_delivered = num_frames;
+            }
         }
     }
-  control_cache_size (sp_session_userdata (sess));
-  return num_frames;
+  return num_frames_delivered;
 }
 
 static void end_of_track_cback_handler (OMX_PTR ap_prc,
@@ -1128,6 +1165,8 @@ static void end_of_track_cback_handler (OMX_PTR ap_prc,
  */
 static void end_of_track (sp_session *sess)
 {
+  TIZ_PRINTF_DBG_YEL ("end_of_track\n");
+
   post_spotify_event (sp_session_userdata (sess), end_of_track_cback_handler,
                       sess);
 }
@@ -1138,7 +1177,7 @@ static void play_token_lost_cback_handler (OMX_PTR ap_prc,
   spfysrc_prc_t *p_prc = ap_prc;
   assert (p_prc);
   assert (ap_event);
-  TIZ_PRINTF_DBG_MAG ("play_token_lost");
+  TIZ_PRINTF_MAG ("[Spotify] : The play token has been lost\n");
   stop_spotify (p_prc);
   tiz_mem_free (ap_event);
 }
@@ -1156,7 +1195,13 @@ static void play_token_lost (sp_session *sess)
 
 static void log_message (sp_session *sess, const char *msg)
 {
-  TIZ_PRINTF_DBG_MAG ("%s", msg);
+  if(strstr(msg, "Request for file")
+     || strstr(msg, "locked"))
+    {
+      /* Skip these messages */
+      return;
+    }
+  TIZ_PRINTF_MAG ("[Spotify] : %s", msg);
 }
 
 /* --------------------  PLAYLIST CONTAINER CALLBACKS  --------------------- */
@@ -1168,15 +1213,13 @@ static void playlist_added_cback_handler (OMX_PTR ap_prc,
   assert (p_prc);
   assert (ap_event);
 
-  TIZ_PRINTF_DBG_MAG ("playlist_added");
-
   if (ap_event->p_data)
     {
       spfy_playlist_added_removed_data_t *p_data = ap_event->p_data;
       sp_playlist_add_callbacks (p_data->p_pl, &(p_prc->sp_pl_cbacks_), p_prc);
 
-      TIZ_TRACE (handleOf (ap_prc), "playlist added = [%s]",
-                 sp_playlist_name (p_data->p_pl));
+      TIZ_PRINTF_MAG ("[Spotify] : playlist added [%s]\n",
+                          sp_playlist_name (p_data->p_pl));
 
       if (!strcasecmp (sp_playlist_name (p_data->p_pl),
                        (const char *)p_prc->playlist_.cPlaylistName))
@@ -1222,8 +1265,6 @@ static void playlist_removed_cback_handler (OMX_PTR ap_prc,
   assert (p_prc);
   assert (ap_event);
 
-  TIZ_PRINTF_DBG_MAG ("playlist_removed");
-
   if (ap_event->p_data)
     {
       spfy_playlist_added_removed_data_t *p_data = ap_event->p_data;
@@ -1268,8 +1309,6 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
   assert (p_prc);
   assert (ap_event);
 
-  TIZ_PRINTF_DBG_MAG ("tracks_added");
-
   if (ap_event->p_data)
     {
       int i = 0;
@@ -1278,15 +1317,8 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
       sp_playlistcontainer *pc = ap_event->p_data;
       bool playlist_found = false;
       bool empty_playlist_name = true;
-      TIZ_PRINTF_DBG_GRN ("[spotify] [rootlist] : [%d playlists]\n",
-                          sp_playlistcontainer_num_playlists (pc));
-      TIZ_PRINTF_DBG_MAG (
-          "container_loaded; Rootlist synchronized (%d playlists) - shuffle ? "
-          "[%s]",
-          sp_playlistcontainer_num_playlists (pc),
-          p_prc->playlist_.bShuffle == OMX_TRUE ? "YES" : "NO");
-      TIZ_DEBUG (handleOf (ap_prc), "Rootlist synchronized (%d playlists)",
-                 sp_playlistcontainer_num_playlists (pc));
+      TIZ_PRINTF_MAG ("[Spotify] : %d playlists\n",
+                      sp_playlistcontainer_num_playlists (pc));
 
       sp_rc = sp_playlistcontainer_add_callbacks (pc, &(p_prc->sp_plct_cbacks_),
                                                   p_prc);
@@ -1306,8 +1338,7 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
 
           if (strnlen (sp_playlist_name (pl), OMX_MAX_STRINGNAME_SIZE) > 0)
             {
-              TIZ_PRINTF_DBG_GRN ("[spotify] [playlist] : [%s]\n",
-                                  sp_playlist_name (pl));
+              TIZ_PRINTF_MAG ("[Spotify] : [%s]\n", sp_playlist_name (pl));
               empty_playlist_name = false;
               if (!strcasecmp (sp_playlist_name (pl),
                                (const char *)p_prc->playlist_.cPlaylistName))
@@ -1346,8 +1377,6 @@ static void tracks_added_cback_handler (OMX_PTR ap_prc,
   spfysrc_prc_t *p_prc = ap_prc;
   assert (p_prc);
   assert (ap_event);
-
-  TIZ_PRINTF_DBG_MAG ("tracks_added");
 
   if (ap_event->p_data)
     {
@@ -1393,8 +1422,6 @@ static void tracks_removed_cback_handler (OMX_PTR ap_prc,
   spfysrc_prc_t *p_prc = ap_prc;
   assert (p_prc);
   assert (ap_event);
-
-  TIZ_PRINTF_DBG_MAG ("tracks_removed");
 
   if (ap_event->p_data)
     {
@@ -1449,8 +1476,6 @@ static void tracks_moved_cback_handler (OMX_PTR ap_prc,
   assert (p_prc);
   assert (ap_event);
 
-  TIZ_PRINTF_DBG_MAG ("tracks_moved");
-
   if (ap_event->p_data)
     {
       spfy_tracks_operation_data_t *p_data = ap_event->p_data;
@@ -1496,8 +1521,6 @@ static void playlist_renamed_cback_handler (OMX_PTR ap_prc,
   spfysrc_prc_t *p_prc = ap_prc;
   assert (p_prc);
   assert (ap_event);
-
-  TIZ_PRINTF_DBG_MAG ("playlist_renamed");
 
   if (ap_event->p_data)
     {
@@ -1722,7 +1745,8 @@ static OMX_ERRORTYPE spfysrc_prc_buffers_ready (const void *ap_obj)
   if (p_prc->transfering_ && p_prc->spotify_paused_)
     {
       rc = consume_cache (p_prc);
-      control_cache_size (p_prc);
+      /* Decide if spotify music delivery needs pause/re-start */
+      reevaluate_cache (p_prc);
     }
   else
     {

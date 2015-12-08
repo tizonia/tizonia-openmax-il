@@ -380,6 +380,14 @@ void tiz_comp_event_stat (const OMX_HANDLETYPE ap_hdl,
                           tiz_event_stat_t *ap_ev_stat, void *ap_arg,
                           const uint32_t a_id, const int a_events);
 
+/**
+ * Retrieve the current maximum number of items that could be insterted into the queue.
+ * @ingroup tizscheduler
+ * @param ap_hdl The OpenMAX IL handle.
+ * @return A registered type.
+ */
+size_t tiz_comp_event_queue_unused_spaces (const OMX_HANDLETYPE ap_hdl);
+
 /* Utility functions */
 
 /**
