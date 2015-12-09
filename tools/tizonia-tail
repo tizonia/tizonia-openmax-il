@@ -29,7 +29,8 @@ declare -ar TIZONIA_TAIL_DEPS=( \
 
 # Check dependencies
 for cmd in "${TIZONIA_TAIL_DEPS[@]}"; do
-    command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
+    command -v "$cmd" >/dev/null 2>&1 \
+        || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
 done
 
 tail -F "$TIZONIA_LOG_FILE" | cut -c 50- | grcat "$TIZONIA_GRCAT_CONFIG"

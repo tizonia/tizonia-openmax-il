@@ -29,7 +29,8 @@ declare -ar TIZONIA_HTOP_DEPS=( \
 
 # Check dependencies
 for cmd in "${TIZONIA_HTOP_DEPS[@]}"; do
-    command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
+    command -v "$cmd" >/dev/null 2>&1 \
+        || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
 done
 
 htop $(echo $(pstree -A -p $(pidof tizonia) | cut -d'(' -f2 | cut -d')' -f1) | sed 's/ /\ -p\ /g' | sed 's/^/-p\ /g')

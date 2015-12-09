@@ -26,7 +26,8 @@ declare -ar TIZONIA_SMEM_DEPS=( \
 
 # Check dependencies
 for cmd in "${TIZONIA_SMEM_DEPS[@]}"; do
-    command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
+    command -v "$cmd" >/dev/null 2>&1 \
+        || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
 done
 
 watch -n60 'smem -p --processfilter="^tizonia "'
