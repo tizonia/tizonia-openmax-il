@@ -900,8 +900,9 @@ static void logged_in_cback_handler (OMX_PTR ap_prc,
                                                  p_prc);
               assert (SP_ERROR_OK == sp_rc);
 
-              if (!strcasecmp (sp_playlist_name (pl),
-                               (const char *)p_prc->playlist_.cPlaylistName))
+              if (!strncasecmp (sp_playlist_name (pl),
+                                (const char *)p_prc->playlist_.cPlaylistName,
+                                OMX_MAX_STRINGNAME_SIZE))
                 {
                   p_prc->p_sp_playlist_ = pl;
                   init_track_index (p_prc, sp_playlist_num_tracks (pl));
@@ -1221,8 +1222,9 @@ static void playlist_added_cback_handler (OMX_PTR ap_prc,
       TIZ_PRINTF_MAG ("[Spotify] : playlist added [%s]\n",
                           sp_playlist_name (p_data->p_pl));
 
-      if (!strcasecmp (sp_playlist_name (p_data->p_pl),
-                       (const char *)p_prc->playlist_.cPlaylistName))
+      if (!strncasecmp (sp_playlist_name (p_data->p_pl),
+                        (const char *)p_prc->playlist_.cPlaylistName,
+                        OMX_MAX_STRINGNAME_SIZE))
         {
           p_prc->p_sp_playlist_ = p_data->p_pl;
           init_track_index (p_prc, sp_playlist_num_tracks (p_data->p_pl));
@@ -1302,6 +1304,46 @@ static void playlist_removed (sp_playlistcontainer *pc, sp_playlist *pl,
     }
 }
 
+static bool playlist_name_partial_match (spfysrc_prc_t *ap_prc, const char *ap_pl_name)
+{
+  assert (ap_prc);
+  assert (ap_pl_name);
+
+  if (strcasestr (ap_pl_name, (const char *)ap_prc->playlist_.cPlaylistName))
+    {
+      return true;
+    }
+  return false;
+}
+
+static bool playlist_name_exact_match (spfysrc_prc_t *ap_prc, const char *ap_pl_name)
+{
+  assert (ap_prc);
+  assert (ap_pl_name);
+  if (!strncasecmp (ap_pl_name, (const char *)ap_prc->playlist_.cPlaylistName,
+                    OMX_MAX_STRINGNAME_SIZE))
+    {
+      return true;
+    }
+  return false;
+}
+
+static bool playlist_name_match (spfysrc_prc_t *ap_prc, const char *ap_pl_name, bool *p_exact)
+{
+  bool outcome = false;
+  assert (ap_prc);
+  assert (ap_pl_name);
+  assert (p_exact);
+
+  outcome = *p_exact = playlist_name_exact_match (ap_prc, ap_pl_name);
+  if (!outcome)
+    {
+      outcome = playlist_name_partial_match (ap_prc, ap_pl_name);
+    }
+
+  return outcome;
+}
+
 static void container_loaded_cback_handler (OMX_PTR ap_prc,
                                             tiz_event_pluggable_t *ap_event)
 {
@@ -1315,7 +1357,6 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
       int nplaylists = 0;
       sp_error sp_rc = SP_ERROR_OK;
       sp_playlistcontainer *pc = ap_event->p_data;
-      bool playlist_found = false;
       bool empty_playlist_name = true;
       TIZ_PRINTF_MAG ("[Spotify] : %d playlists\n",
                       sp_playlistcontainer_num_playlists (pc));
@@ -1325,6 +1366,8 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
       assert (SP_ERROR_OK == sp_rc);
 
       nplaylists = sp_playlistcontainer_num_playlists (pc);
+
+      p_prc->p_sp_playlist_ = NULL;
       for (i = 0; i < nplaylists; ++i)
         {
           sp_playlist *pl = sp_playlistcontainer_playlist (pc, i);
@@ -1334,26 +1377,35 @@ static void container_loaded_cback_handler (OMX_PTR ap_prc,
               = sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
           assert (SP_ERROR_OK == sp_rc);
 
-          TIZ_DEBUG (handleOf (ap_prc), "playlist : %s", sp_playlist_name (pl));
-
           if (strnlen (sp_playlist_name (pl), OMX_MAX_STRINGNAME_SIZE) > 0)
             {
               TIZ_PRINTF_MAG ("[Spotify] : [%s]\n", sp_playlist_name (pl));
               empty_playlist_name = false;
-              if (!strcasecmp (sp_playlist_name (pl),
-                               (const char *)p_prc->playlist_.cPlaylistName))
+              bool exact = false;
+              if (playlist_name_match (p_prc, sp_playlist_name (pl), &exact))
                 {
-                  p_prc->p_sp_playlist_ = pl;
-                  init_track_index (p_prc, sp_playlist_num_tracks (pl));
-                  start_playback (p_prc);
-                  playlist_found = true;
-                  break;
+                  if (exact)
+                    {
+                      p_prc->p_sp_playlist_ = pl;
+                      break;
+                    }
+                  else if (!p_prc->p_sp_playlist_)
+                    {
+                      p_prc->p_sp_playlist_ = pl;
+                    }
                 }
             }
         }
-      if (!playlist_found && !empty_playlist_name)
+
+      if (p_prc->p_sp_playlist_)
         {
-/*           tiz_srv_issue_err_event ((OMX_PTR)ap_prc, OMX_ErrorContentURIError); */
+          init_track_index (p_prc, sp_playlist_num_tracks (p_prc->p_sp_playlist_));
+          start_playback (p_prc);
+        }
+
+      if (!p_prc->p_sp_playlist_ && !empty_playlist_name)
+        {
+          tiz_srv_issue_err_event ((OMX_PTR)ap_prc, OMX_ErrorContentURIError);
         }
     }
   tiz_mem_free (ap_event);
@@ -1527,7 +1579,8 @@ static void playlist_renamed_cback_handler (OMX_PTR ap_prc,
       sp_playlist *pl = ap_event->p_data;
       const char *name = sp_playlist_name (pl);
 
-      if (!strcasecmp (name, (const char *)p_prc->playlist_.cPlaylistName))
+      if (!strncasecmp (name, (const char *)p_prc->playlist_.cPlaylistName,
+                        OMX_MAX_STRINGNAME_SIZE))
         {
           p_prc->p_sp_playlist_ = pl;
           init_track_index (p_prc, sp_playlist_num_tracks (pl));
