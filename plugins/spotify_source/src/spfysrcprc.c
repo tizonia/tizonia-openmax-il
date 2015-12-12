@@ -1181,8 +1181,8 @@ static void playlist_added (sp_playlistcontainer *pc, sp_playlist *pl,
   spfysrc_prc_t *p_prc = userdata;
   assert (p_prc);
   sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
-  TIZ_PRINTF_YEL ("[Spotify] : playlist added [%s] - position [%d]\n",
-                  sp_playlist_name (pl), position);
+  TIZ_PRINTF_YEL ("[Spotify] : playlist added to container at position [%d]\n",
+                  position);
 }
 
 /**
@@ -1424,8 +1424,8 @@ static void *spfysrc_prc_ctor (void *ap_obj, va_list *app)
   /* Init the spotify config struct */
   tiz_mem_set ((OMX_PTR)&p_prc->sp_config_, 0, sizeof(p_prc->sp_config_));
   p_prc->sp_config_.api_version = SPOTIFY_API_VERSION;
-  p_prc->sp_config_.cache_location = "/var/tmp/tizonia/";
-  p_prc->sp_config_.settings_location = "tmp";
+  p_prc->sp_config_.cache_location = "/var/tmp/tizonia";
+  p_prc->sp_config_.settings_location = "/var/tmp/tizonia";
   p_prc->sp_config_.application_key = g_appkey;
   p_prc->sp_config_.application_key_size = g_appkey_size;
   p_prc->sp_config_.user_agent = "tizonia-source-component";
