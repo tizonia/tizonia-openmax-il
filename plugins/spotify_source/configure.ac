@@ -17,6 +17,7 @@
 
 AC_PREREQ([2.67])
 AC_INIT([tizspotifysrc], [0.2.0], [juan.rubio@aratelia.com])
+AC_USE_SYSTEM_EXTENSIONS
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([foreign color-tests silent-rules -Wall -Werror])
 AC_CONFIG_SRCDIR([config.h.in])
