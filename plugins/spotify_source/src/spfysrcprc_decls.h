@@ -57,7 +57,7 @@ struct spfysrc_prc
   int initial_cache_bytes_;
   int min_cache_bytes_;
   int max_cache_bytes_;
-  tiz_buffer_t *p_store_;       /* The component's pcm buffer */
+  tiz_buffer_t *p_store_; /* The component's pcm buffer */
   tiz_event_timer_t *p_ev_timer_;
   tiz_shuffle_lst_t *p_shuffle_lst_;
   OMX_TIZONIA_AUDIO_PARAM_SPOTIFYSESSIONTYPE session_;
@@ -67,21 +67,29 @@ struct spfysrc_prc
   OMX_U32 num_channels_;
   OMX_U32 samplerate_;
   bool auto_detect_on_;
-  int track_index_;             /* Index to the next track */
-  sp_session *p_sp_session_;    /* The global session handle */
-  sp_session_config sp_config_;        /* The session configuration */
-  sp_session_callbacks sp_cbacks_;     /* The session callbacks */
+  int track_index_;     /* Index to the next track */
+  int nplaylists_;      /* Total number of playlists in the user's
+                           library */
+  int playlists_ready_; /* Number of playlists currently loaded and
+                           without pending changes */
+  OMX_U8 cache_name_[OMX_MAX_STRINGNAME_SIZE]; /* The cache name */
+  sp_session *p_sp_session_;                   /* The global session handle */
+  sp_session_config sp_config_;                /* The session configuration */
+  sp_session_callbacks sp_cbacks_;             /* The session callbacks */
   sp_playlist_callbacks sp_pl_cbacks_; /* The callbacks we are interested in
                                           for individual playlists */
   sp_playlistcontainer_callbacks sp_plct_cbacks_; /* The playlist container
                                                      callbacks */
   sp_playlist *p_sp_playlist_; /* Handle to the playlist currently being
                                  played */
-  sp_track *p_sp_track_;         /* Handle to the current track */
-  bool remove_tracks_;            /* Remove tracks flag */
+  sp_playlist *p_sp_tentative_playlist_; /* Handle to a tentative playlist
+                                 that partially match the requested playlist's
+                                 name */
+  sp_track *p_sp_track_;                 /* Handle to the current track */
+  bool remove_tracks_;                   /* Remove tracks flag */
   bool keep_processing_sp_events_; /* callback called from libspotify thread to
                                     * ask us to reiterate the main loop */
-  int next_timeout_;            /* Remove tracks flag */
+  int next_timeout_;               /* Remove tracks flag */
 };
 
 typedef struct spfysrc_prc_class spfysrc_prc_class_t;
