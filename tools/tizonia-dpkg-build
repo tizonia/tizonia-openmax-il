@@ -1107,6 +1107,13 @@ function main {
         exit "$E_BADARGS"
     fi
 
+    # Installing dependencies does not require verification of environment
+    # variables
+    if [[ "$tizdeps" == 1 ]]; then
+        do_tizonia_deps
+        exit 0
+    fi
+
     print_platform_info
 
     # Verify the existence of important environment variables
@@ -1145,13 +1152,6 @@ function main {
     if [[ "$exit_status" -eq 0 ]] ; then
         if [[ "$alldeps" == 1 ]]; then
             do_all_deps
-            exit_status=0
-        fi
-    fi
-
-    if [[ "$exit_status" -eq 0 ]] ; then
-        if [[ "$tizdeps" == 1 ]]; then
-            do_tizonia_deps
             exit_status=0
         fi
     fi
