@@ -147,9 +147,8 @@ To install all the development dependencies, the easiest way is to use the
 maintains an up-to-date list of all the packages that are required in a
 Debian-compatible system to be able to build Tizonia from source.
 
-> NOTE: The following command also installs the Mopidy's 'libspotify-dev'
-> package, and the 'gmusicapi' and 'soundcloud' python packages, in addition to
-> dependencies required during Debian packaging of Tizonia.
+> NOTE: The following command also installs Mopidy's 'libspotify-dev' package,
+> and the 'gmusicapi' and 'soundcloud' python packages.
 
 ```bash
 
