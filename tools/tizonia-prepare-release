@@ -107,6 +107,11 @@ function update_debian_changelog_files {
     pretty_print "$BLU" "[DONE] : updating Debian changelog files."
 }
 
+function update_changelog {
+    cd "$TIZONIA_REPO_DIR"
+    tizonia  github_changelog_generator --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**" tizonia/tizonia-openmax-il
+}
+
 print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
 update_package_versions
 update_shared_lib_versions
@@ -114,5 +119,5 @@ update_plugin_shared_lib_versions
 update_il_core_soname_strings
 update_python_version_strings
 update_debian_changelog_files
+update_changelog
 print_banner "[DONE] : Updating files." "$BLU" 
-
