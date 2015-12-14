@@ -1,7 +1,7 @@
 # Change Log
 
-## [0.2.0](https://github.com/tizonia/tizonia-openmax-il/tree/0.2.0) (2015-12-14)
-[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.1.0...0.2.0)
+## [v0.2.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.2.0) (2015-12-14)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.1.0...v0.2.0)
 
 **Improvements:**
 
