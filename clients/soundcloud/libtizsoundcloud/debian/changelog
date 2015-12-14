@@ -1,11 +1,5 @@
-tizsoundcloud (0.2.0-1) unstable; urgency=low
-
-  * New upstream release (Closes: #141)
-
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 04 Dec 2015 04:19:38 +0000
-
 tizsoundcloud (0.1.0-1) unstable; urgency=low
 
-  * Initial release (Closes: #64)
+  * Initial release (Closes: #141)
 
- -- Juan A. Rubio <juan.rubio@aratelia.com>  Tue, 26 May 2015 22:24:28 +0100
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 04 Dec 2015 04:19:38 +0000
