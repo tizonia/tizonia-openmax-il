@@ -1,8 +1,47 @@
 # Change Log
 
-## [v0.1.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.1.0) (2015-09-27)
-**Implemented enhancements:**
+## [0.2.0](https://github.com/tizonia/tizonia-openmax-il/tree/0.2.0) (2015-12-14)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.1.0...0.2.0)
 
+**Improvements:**
+
+- tizspotifysrc: playlist name matching improvements [\#146](https://github.com/tizonia/tizonia-openmax-il/issues/146)
+- alsa\_renderer: set a custom ALSA error handler to dump error info to tizonia's log file [\#145](https://github.com/tizonia/tizonia-openmax-il/issues/145)
+- release v0.2.0 [\#141](https://github.com/tizonia/tizonia-openmax-il/issues/141)
+- Simplybuilt website [\#140](https://github.com/tizonia/tizonia-openmax-il/issues/140)
+- CI: migrate to Travis' Ubuntu 14.04 image [\#138](https://github.com/tizonia/tizonia-openmax-il/issues/138)
+- libtizplatform: update http-parser to v2.6.0 [\#137](https://github.com/tizonia/tizonia-openmax-il/issues/137)
+- libtizplatform: update utarray to v1.9.9 [\#136](https://github.com/tizonia/tizonia-openmax-il/issues/136)
+- tools: add a dev build script [\#133](https://github.com/tizonia/tizonia-openmax-il/issues/133)
+- google music: support logging in via an auth token [\#132](https://github.com/tizonia/tizonia-openmax-il/issues/132)
+- docs: update Sphinx config to integrate 'breathe' and allow Doxygen output in Read the Docs  [\#127](https://github.com/tizonia/tizonia-openmax-il/issues/127)
+- tizonia-player: add SoundCloud support [\#121](https://github.com/tizonia/tizonia-openmax-il/issues/121)
+- libtizonia: support for OMX\_UseEGLImage [\#118](https://github.com/tizonia/tizonia-openmax-il/issues/118)
+- Improved, more straightforward command line '--help' option [\#117](https://github.com/tizonia/tizonia-openmax-il/issues/117)
+- tizonia-player: improve compile times by firewalling the decoder graph fsm [\#115](https://github.com/tizonia/tizonia-openmax-il/issues/115)
+- SoundCloud streaming source component [\#111](https://github.com/tizonia/tizonia-openmax-il/issues/111)
+
+**Fixed bugs:**
+
+- tizspotifysrc: playlist name matching improvements [\#146](https://github.com/tizonia/tizonia-openmax-il/issues/146)
+- tizplatform: tiz\_queue uses internally TIZ\_QUEUE\_MAX\_ITEMS instead of the 'capacity' argument provided [\#144](https://github.com/tizonia/tizonia-openmax-il/issues/144)
+- tizspotifysrc: don't allow the component's main event queue get full \(which leads to component stalling or crashing\)  [\#143](https://github.com/tizonia/tizonia-openmax-il/issues/143)
+- tizspotifysrc: fix various race conditions causing cracking sound problems [\#142](https://github.com/tizonia/tizonia-openmax-il/issues/142)
+- build system: remove warnings [\#139](https://github.com/tizonia/tizonia-openmax-il/issues/139)
+- libtizplatform: rework tizev to dispatch event start/stop/destroy from the async watcher callback [\#135](https://github.com/tizonia/tizonia-openmax-il/issues/135)
+- libtizplatform: increase line limit in config file parser utility  [\#134](https://github.com/tizonia/tizonia-openmax-il/issues/134)
+- tizgmusicproxy: \(UnicodeEncodeError\) : 'ascii' codec can't encode character in 'tizonia --gmusic-unlimited-album' "Las 100 mejores canciones del Rock español" [\#130](https://github.com/tizonia/tizonia-openmax-il/issues/130)
+- tizgmusicproxy: tizonia --gmusic-unlimited-album : IndexError: list index out of range [\#129](https://github.com/tizonia/tizonia-openmax-il/issues/129)
+- docs: fix build system under 'docs' folder to properly build doxygen docs [\#126](https://github.com/tizonia/tizonia-openmax-il/issues/126)
+- google play music: replace references to 'All-access' with 'Unlimited' [\#120](https://github.com/tizonia/tizonia-openmax-il/issues/120)
+- tizgmusicproxy: unicode to ASCII without errors [\#119](https://github.com/tizonia/tizonia-openmax-il/issues/119)
+- mp3\_decoder: output buffer size is too small and causes too many exchanges with the renderer [\#110](https://github.com/tizonia/tizonia-openmax-il/issues/110)
+- http\_source sometimes stalls when curl instructs to unregister the socket  [\#109](https://github.com/tizonia/tizonia-openmax-il/issues/109)
+
+## [v0.1.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.1.0) (2015-09-28)
+**Improvements:**
+
+- plugins: Google Music streaming client component [\#106](https://github.com/tizonia/tizonia-openmax-il/issues/106)
 - tizonia: remove dependency on libav libraries [\#103](https://github.com/tizonia/tizonia-openmax-il/issues/103)
 - plugins: opus decoder based on libopusfile [\#96](https://github.com/tizonia/tizonia-openmax-il/issues/96)
 - plugins: libspotify component [\#94](https://github.com/tizonia/tizonia-openmax-il/issues/94)
