@@ -16,8 +16,9 @@ the following distro/arch combinations:
   - amd64, i386, armhf
 - Ubuntu Vivid (15.04)
   - amd64, i386, armhf
-- Debian Jessie (8)
+- Debian Jessie (8) 
   - amd64, i386, armhf, armel
+      - [ ![Debian Jessie (8)](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)
 - Raspbian Jessie (8)
   - armhf
 
