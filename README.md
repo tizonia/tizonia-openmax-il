@@ -14,16 +14,19 @@ the following distro/arch combinations:
 
 - Ubuntu Trusty (14.04)
   - amd64, i386, armhf
+      - [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion)
 - Ubuntu Vivid (15.04)
   - amd64, i386, armhf
+      - [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-vivid/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-vivid/_latestVersion)
 - Debian Jessie (8) 
   - amd64, i386, armhf, armel
-      - [ ![Debian Jessie (8)](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)
+      - [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)
 - Raspbian Jessie (8)
   - armhf
+      - [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion)
 
 To install the
-[latest binaries](https://github.com/tizonia/tizonia-openmax-il/releases/latest),
+[latest release](https://github.com/tizonia/tizonia-openmax-il/releases/latest),
 use:
 
 ```bash
