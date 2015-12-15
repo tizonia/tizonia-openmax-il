@@ -110,7 +110,7 @@ graph::graph::init ()
   tiz_check_omx_err_ret_oom (init_cmd_queue ());
 
   // Init this graph's operations using the do_init template method
-  tiz_check_null_ret_oom ((p_ops_ = do_init ()));
+  tiz_check_null_ret_oom ((p_ops_ = do_init ()) != NULL);
 
   // Create the graph's thread
   tiz_check_omx_err_ret_oom (tiz_mutex_lock (&mutex_));
