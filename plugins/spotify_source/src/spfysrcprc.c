@@ -51,7 +51,8 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.spotify_source.prc"
 #endif
 
-#define COMPONENT_MIN_QUEUE_UNUSED_SPACES 5
+#define SPFYSRC_MIN_QUEUE_UNUSED_SPACES 5
+#define SPFYSRC_MAX_STRING_SIZE 2 * OMX_MAX_STRINGNAME_SIZE
 
 /* This macro assumes the existence of an "ap_prc" local variable */
 #define goto_end_on_sp_error(expr)                         \
@@ -88,6 +89,18 @@ struct spfy_music_delivery_data
   int num_frames;
 };
 
+static OMX_S32 playlists_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+{
+  return strncmp((const char *) ap_key1, (const char *) ap_key2,
+                 SPFYSRC_MAX_STRING_SIZE);
+}
+
+static void playlists_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
+{
+  tiz_mem_free (ap_key);
+  tiz_mem_free (ap_value);
+}
+
 static bool playlist_name_partial_match (spfysrc_prc_t *ap_prc,
                                          const char *ap_pl_name)
 {
@@ -107,7 +120,7 @@ static bool playlist_name_exact_match (spfysrc_prc_t *ap_prc,
   assert (ap_prc);
   assert (ap_pl_name);
   if (!strncasecmp (ap_pl_name, (const char *)ap_prc->playlist_.cPlaylistName,
-                    OMX_MAX_STRINGNAME_SIZE))
+                    SPFYSRC_MAX_STRING_SIZE))
     {
       return true;
     }
@@ -360,7 +373,7 @@ static OMX_ERRORTYPE store_metadata (spfysrc_prc_t *ap_prc, const char *ap_key,
   assert (ap_key);
   assert (ap_value);
 
-  info_len = strnlen (ap_value, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+  info_len = strnlen (ap_value, SPFYSRC_MAX_STRING_SIZE - 1) + 1;
   metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
   if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
@@ -370,7 +383,7 @@ static OMX_ERRORTYPE store_metadata (spfysrc_prc_t *ap_prc, const char *ap_key,
     }
   else
     {
-      const size_t name_len = strnlen (ap_key, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+      const size_t name_len = strnlen (ap_key, SPFYSRC_MAX_STRING_SIZE - 1) + 1;
       strncpy ((char *)p_meta->nKey, ap_key, name_len - 1);
       p_meta->nKey[name_len - 1] = '\0';
       p_meta->nKeySizeUsed = name_len;
@@ -400,9 +413,9 @@ static void store_metadata_playlist (spfysrc_prc_t *ap_prc,
                                      const int a_num_tracks,
                                      const int a_num_subscribers)
 {
-  char playlist_info[OMX_MAX_STRINGNAME_SIZE];
+  char playlist_info[SPFYSRC_MAX_STRING_SIZE];
   assert (a_playlist_name);
-  snprintf (playlist_info, OMX_MAX_STRINGNAME_SIZE - 1,
+  snprintf (playlist_info, SPFYSRC_MAX_STRING_SIZE - 1,
             "%d tracks, %d subscribers", a_num_tracks, a_num_subscribers);
   (void)store_metadata (ap_prc, a_playlist_name, playlist_info);
 }
@@ -412,9 +425,9 @@ static void store_metadata_track_name (spfysrc_prc_t *ap_prc,
                                        const int a_track_index,
                                        const int a_num_tracks)
 {
-  char name_str[OMX_MAX_STRINGNAME_SIZE];
+  char name_str[SPFYSRC_MAX_STRING_SIZE];
   assert (a_track_name);
-  snprintf (name_str, OMX_MAX_STRINGNAME_SIZE - 1, "%s (%d of %d)",
+  snprintf (name_str, SPFYSRC_MAX_STRING_SIZE - 1, "%s (%d of %d)",
             a_track_name, a_track_index + 1, a_num_tracks);
   (void)store_metadata (ap_prc, "Track", name_str);
 }
@@ -425,7 +438,7 @@ static void store_metadata_track_duration (spfysrc_prc_t *ap_prc,
   if (a_duration_ms > 0)
     {
       int duration = a_duration_ms / 1000;
-      char duration_str[OMX_MAX_STRINGNAME_SIZE];
+      char duration_str[SPFYSRC_MAX_STRING_SIZE];
       int seconds = duration % 60;
       int minutes = (duration - seconds) / 60;
       int hours = 0;
@@ -441,17 +454,17 @@ static void store_metadata_track_duration (spfysrc_prc_t *ap_prc,
 
       if (hours > 0)
         {
-          snprintf (duration_str, OMX_MAX_STRINGNAME_SIZE - 1, "%2ih:%2im:%2is",
+          snprintf (duration_str, SPFYSRC_MAX_STRING_SIZE - 1, "%2ih:%2im:%2is",
                     hours, minutes, seconds);
         }
       else if (minutes > 0)
         {
-          snprintf (duration_str, OMX_MAX_STRINGNAME_SIZE - 1, "%2im:%2is",
+          snprintf (duration_str, SPFYSRC_MAX_STRING_SIZE - 1, "%2im:%2is",
                     minutes, seconds);
         }
       else
         {
-          snprintf (duration_str, OMX_MAX_STRINGNAME_SIZE - 1, "%2is", seconds);
+          snprintf (duration_str, SPFYSRC_MAX_STRING_SIZE - 1, "%2is", seconds);
         }
       (void)store_metadata (ap_prc, "Duration", duration_str);
     }
@@ -459,10 +472,10 @@ static void store_metadata_track_duration (spfysrc_prc_t *ap_prc,
 
 static void store_metadata_preferred_bitrate (spfysrc_prc_t *ap_prc)
 {
-  char bitrate_str[OMX_MAX_STRINGNAME_SIZE];
+  char bitrate_str[SPFYSRC_MAX_STRING_SIZE];
   int bitrate = 0;
   omx_preferred_bitrate_to_spfy (ap_prc->session_.ePreferredBitRate, &bitrate);
-  snprintf (bitrate_str, OMX_MAX_STRINGNAME_SIZE - 1, "%d kbps", bitrate);
+  snprintf (bitrate_str, SPFYSRC_MAX_STRING_SIZE - 1, "%d kbps", bitrate);
   (void)store_metadata (ap_prc, "Bit rate", bitrate_str);
 }
 
@@ -940,7 +953,7 @@ static void notify_main_thread (sp_session *sess)
 {
 
   if (tiz_comp_event_queue_unused_spaces (handleOf (sp_session_userdata (sess)))
-      >= COMPONENT_MIN_QUEUE_UNUSED_SPACES)
+      >= SPFYSRC_MIN_QUEUE_UNUSED_SPACES)
     {
       post_spotify_event (sp_session_userdata (sess),
                           notify_main_thread_handler, sess);
@@ -1056,7 +1069,7 @@ static int music_delivery (sp_session *sess, const sp_audioformat *format,
          event queue if there are a few spaces available. Otherwise, we'll ask
          Spotify to wait a little. */
       if (tiz_comp_event_queue_unused_spaces (handleOf (
-              sp_session_userdata (sess))) >= COMPONENT_MIN_QUEUE_UNUSED_SPACES)
+              sp_session_userdata (sess))) >= SPFYSRC_MIN_QUEUE_UNUSED_SPACES)
         {
           spfy_music_delivery_data_t *p_data
               = tiz_mem_calloc (1, sizeof(spfy_music_delivery_data_t));
@@ -1115,10 +1128,6 @@ static void end_of_track_handler (OMX_PTR ap_prc,
             {
               update_track_index (p_prc);
             }
-
-          assert (p_prc->track_index_
-                  < sp_playlist_num_tracks (p_prc->p_sp_playlist_));
-          assert (p_prc->track_index_ >= 0);
         }
 
       start_playback (p_prc);
@@ -1347,11 +1356,24 @@ static void playlist_state_changed (sp_playlist *pl, void *userdata)
 
   if (sp_playlist_is_loaded (pl) && !sp_playlist_has_pending_changes (pl))
     {
+      OMX_ERRORTYPE rc = OMX_ErrorNone;
       spfysrc_prc_t *p_prc = userdata;
       bool exact_match = false;
-      /* Increment the count of playlist that are ready for playback */
-      p_prc->playlists_ready_++;
-      TIZ_PRINTF_BLU ("[Spotify] : '%s'\n", sp_playlist_name (pl));
+      OMX_U32 ready_playlists_count
+          = (OMX_U32)tiz_map_size (p_prc->p_ready_playlists_);
+
+      /* Record that this playlist is ready for playback */
+      rc = tiz_map_insert (
+          p_prc->p_ready_playlists_,
+          strndup (sp_playlist_name (pl), SPFYSRC_MAX_STRING_SIZE), pl,
+          (OMX_U32 *)(&ready_playlists_count));
+
+      if (OMX_ErrorNone == rc)
+        {
+          TIZ_PRINTF_BLU ("[Spotify] : '%s' [%d]\n", sp_playlist_name (pl),
+                          tiz_map_size (p_prc->p_ready_playlists_));
+        }
+
       if (playlist_name_match (p_prc, sp_playlist_name (pl), &exact_match))
         {
           if (exact_match)
@@ -1367,7 +1389,7 @@ static void playlist_state_changed (sp_playlist *pl, void *userdata)
 
   if (p_prc->p_sp_playlist_
       || (0 != p_prc->nplaylists_
-          && p_prc->nplaylists_ == p_prc->playlists_ready_))
+          && p_prc->nplaylists_ == tiz_map_size (p_prc->p_ready_playlists_)))
     {
       p_prc->p_sp_playlist_ = p_prc->p_sp_playlist_
                                   ? p_prc->p_sp_playlist_
@@ -1418,7 +1440,7 @@ static void *spfysrc_prc_ctor (void *ap_obj, va_list *app)
 
   p_prc->track_index_ = 0;
   p_prc->nplaylists_ = 0;
-  p_prc->playlists_ready_ = 0;
+  p_prc->p_ready_playlists_ = NULL;
   p_prc->p_sp_session_ = NULL;
 
   /* Init the spotify config struct */
@@ -1495,7 +1517,10 @@ static OMX_ERRORTYPE spfysrc_prc_allocate_resources (void *ap_prc,
   tiz_check_omx_err (retrieve_session_configuration (p_prc));
   tiz_check_omx_err (retrieve_playlist (p_prc));
   tiz_check_omx_err (tiz_srv_timer_watcher_init (p_prc, &(p_prc->p_ev_timer_)));
-
+  tiz_check_omx_err (tiz_map_init (&(p_prc->p_ready_playlists_),
+                                   playlists_map_compare_func,
+                                   playlists_map_free_func, NULL));
+  assert (p_prc->p_ready_playlists_);
   /* Create a spotify session */
   goto_end_on_sp_error (
       sp_session_create (&(p_prc->sp_config_), &(p_prc->p_sp_session_)));
@@ -1521,18 +1546,34 @@ static OMX_ERRORTYPE spfysrc_prc_deallocate_resources (void *ap_prc)
 {
   spfysrc_prc_t *p_prc = ap_prc;
   assert (p_prc);
+
   if (p_prc->p_ev_timer_)
     {
       stop_spotify_session_timer (p_prc);
       tiz_srv_timer_watcher_destroy (p_prc, p_prc->p_ev_timer_);
       p_prc->p_ev_timer_ = NULL;
     }
+
+  if (p_prc->p_ready_playlists_)
+    {
+      while (!tiz_map_empty (p_prc->p_ready_playlists_))
+        {
+          tiz_map_erase_at (p_prc->p_ready_playlists_, 0);
+        };
+      tiz_map_destroy (p_prc->p_ready_playlists_);
+      p_prc->p_ready_playlists_ = NULL;
+    }
+
   tiz_shuffle_lst_destroy (p_prc->p_shuffle_lst_);
   p_prc->p_shuffle_lst_ = NULL;
+
   (void)sp_session_release (p_prc->p_sp_session_);
   p_prc->p_sp_session_ = NULL;
+
   p_prc->spotify_inited_ = false;
+
   deallocate_temp_data_store (p_prc);
+
   return OMX_ErrorNone;
 }
 

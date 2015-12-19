@@ -70,8 +70,8 @@ struct spfysrc_prc
   int track_index_;     /* Index to the next track */
   int nplaylists_;      /* Total number of playlists in the user's
                            library */
-  int playlists_ready_; /* Number of playlists currently loaded and
-                           without pending changes */
+  tiz_map_t *p_ready_playlists_; /* A map containing the playlists that are
+                                    ready for playback */
   OMX_U8 cache_name_[OMX_MAX_STRINGNAME_SIZE]; /* The cache name */
   sp_session *p_sp_session_;                   /* The global session handle */
   sp_session_config sp_config_;                /* The session configuration */
