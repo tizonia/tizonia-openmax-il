@@ -253,6 +253,8 @@ function main {
         config=0
     fi
 
+    local before="$(date +%s)"
+    
     if [[ ("$debug" == 1) ]]; then
 
         print_banner "Reconfiguring [$TIZONIA_PROJ_NAME] for [DEBUG] build - Install dir [$TIZONIA_INSTALL_DIR]..." "$YEL"
@@ -359,6 +361,10 @@ function main {
         echo "raise error"
         raise_error "*** make install failed ***"
     fi
+
+    local after="$(date +%s)"
+    local elapsed_seconds="$(expr $after - $before)"
+    print_banner "Elapsed time: $(date -d\@$elapsed_seconds -u +%H:%M:%S)" "$BLU"
 
     exit "$?"
 }
