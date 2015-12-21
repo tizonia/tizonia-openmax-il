@@ -1188,8 +1188,10 @@ static void playlist_added (sp_playlistcontainer *pc, sp_playlist *pl,
                             int position, void *userdata)
 {
   spfysrc_prc_t *p_prc = userdata;
+  sp_error sp_rc = SP_ERROR_OK;
   assert (p_prc);
-  sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
+  sp_rc = sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
+  assert (SP_ERROR_OK == sp_rc);
   TIZ_PRINTF_YEL ("[Spotify] : playlist added to container at position [%d]\n",
                   position);
 }
@@ -1225,26 +1227,27 @@ static void playlist_removed (sp_playlistcontainer *pc, sp_playlist *pl,
 static void container_loaded (sp_playlistcontainer *pc, void *userdata)
 {
   spfysrc_prc_t *p_prc = userdata;
-  int nplaylists = sp_playlistcontainer_num_playlists (pc);
-  int i = 0;
-  sp_error sp_rc = SP_ERROR_OK;
+  const int nplaylists = sp_playlistcontainer_num_playlists (pc);
   assert (p_prc);
 
-  sp_rc = sp_playlistcontainer_add_callbacks (pc, &(p_prc->sp_plct_cbacks_),
-                                              p_prc);
-  assert (SP_ERROR_OK == sp_rc);
-
-  TIZ_PRINTF_BLU ("[Spotify] : %d playlists\n", nplaylists);
-
-  p_prc->p_sp_playlist_ = NULL;
-  for (i = 0; i < nplaylists; ++i)
+  if (nplaylists != p_prc->nplaylists_)
     {
-      sp_playlist *pl = sp_playlistcontainer_playlist (pc, i);
-      assert (pl);
-      sp_rc = sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
-      assert (SP_ERROR_OK == sp_rc);
+      int i = 0;
+      sp_error sp_rc = SP_ERROR_OK;
+
+      TIZ_PRINTF_BLU ("[Spotify] : %d playlists\n", nplaylists);
+
+      p_prc->p_sp_playlist_ = NULL;
+      for (i = 0; i < nplaylists; ++i)
+        {
+          sp_playlist *pl = sp_playlistcontainer_playlist (pc, i);
+          assert (pl);
+          sp_rc
+              = sp_playlist_add_callbacks (pl, &(p_prc->sp_pl_cbacks_), p_prc);
+          assert (SP_ERROR_OK == sp_rc);
+        }
+      p_prc->nplaylists_ = nplaylists;
     }
-  p_prc->nplaylists_ = nplaylists;
 }
 
 /**
@@ -1387,9 +1390,8 @@ static void playlist_state_changed (sp_playlist *pl, void *userdata)
         }
     }
 
-  if (p_prc->p_sp_playlist_
-      || (0 != p_prc->nplaylists_
-          && p_prc->nplaylists_ == tiz_map_size (p_prc->p_ready_playlists_)))
+  if ((0 != p_prc->nplaylists_
+       && p_prc->nplaylists_ == tiz_map_size (p_prc->p_ready_playlists_)))
     {
       p_prc->p_sp_playlist_ = p_prc->p_sp_playlist_
                                   ? p_prc->p_sp_playlist_
