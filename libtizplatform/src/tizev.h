@@ -154,6 +154,8 @@ OMX_ERRORTYPE tiz_event_timer_restart (tiz_event_timer_t *ap_ev_timer,
 
 OMX_ERRORTYPE tiz_event_timer_stop (tiz_event_timer_t *ap_ev_timer);
 
+bool tiz_event_timer_is_repeat (tiz_event_timer_t *ap_ev_timer);
+
 void tiz_event_timer_destroy (tiz_event_timer_t *ap_ev_timer);
 
 OMX_ERRORTYPE tiz_event_stat_init (tiz_event_stat_t **app_ev_stat,

@@ -82,6 +82,7 @@ struct tiz_event_timer
   tiz_event_timer_cb_f pf_cback;
   void *p_arg0;
   void *p_arg1;
+  bool once;
   uint32_t id;
   bool started;
 };
@@ -1244,6 +1245,7 @@ tiz_event_timer_init (tiz_event_timer_t **app_ev_timer, void *ap_arg0,
       p_ev_timer->pf_cback = ap_cback;
       p_ev_timer->p_arg0 = ap_arg0;
       p_ev_timer->p_arg1 = ap_arg1;
+      p_ev_timer->once = false;
       p_ev_timer->id = 0;
       p_ev_timer->started = false;
       ev_init ((ev_timer *)p_ev_timer, timer_watcher_cback);
@@ -1260,6 +1262,7 @@ void tiz_event_timer_set (tiz_event_timer_t *ap_ev_timer, double a_after,
 {
   assert (ap_ev_timer);
   (void)get_event_loop ();
+  ap_ev_timer->once = a_repeat ? false : true;
   ev_timer_set ((ev_timer *)ap_ev_timer, a_after, a_repeat);
 }
 
@@ -1286,6 +1289,12 @@ tiz_event_timer_stop (tiz_event_timer_t *ap_ev_timer)
   (void)get_event_loop ();
   return enqueue_timer_msg (ap_ev_timer, ap_ev_timer->id,
                             ETIZEventLoopMsgTimerStop);
+}
+
+bool tiz_event_timer_is_repeat (tiz_event_timer_t *ap_ev_timer)
+{
+  assert (ap_ev_timer);
+  return !ap_ev_timer->once;  
 }
 
 void tiz_event_timer_destroy (tiz_event_timer_t *ap_ev_timer)
