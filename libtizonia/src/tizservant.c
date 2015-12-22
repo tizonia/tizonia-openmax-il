@@ -989,6 +989,14 @@ static OMX_ERRORTYPE srv_event_timer (void *ap_obj,
   /* Notify a timer event only if it is currently active */
   if (is_watcher_active (p_srv, ap_ev_timer, &id) && a_id == id)
     {
+      /* Remove from the map if it is non-repeat */
+      if (!tiz_event_timer_is_repeat (ap_ev_timer))
+        {
+          tiz_map_erase (p_srv->p_watchers_, ap_ev_timer);
+          TIZ_TRACE (handleOf (ap_obj),
+                     "stopped timer watcher id [%d] active watchers [%d]", id,
+                     watcher_count (p_srv));
+        }
       TIZ_TRACE (handleOf (ap_obj),
                  "signaling timer watcher id [%d] active watchers [%d]", id,
                  watcher_count (p_srv));
