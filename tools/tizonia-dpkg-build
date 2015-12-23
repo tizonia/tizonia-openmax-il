@@ -441,7 +441,7 @@ function do_tizonia_deps {
         fi
     done
 
-    # Install a newew version of pip
+    # Install a new version of pip
     echo "Installing a fresher version of pip..."
     wget https://bootstrap.pypa.io/get-pip.py \
         && sudo python get-pip.py
