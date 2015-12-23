@@ -1,5 +1,23 @@
 # Change Log
 
+## [0.3.0](https://github.com/tizonia/tizonia-openmax-il/tree/0.3.0) (2015-12-23)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.2.0...0.3.0)
+
+**Improvements:**
+
+- release v0.3.0 [\#156](https://github.com/tizonia/tizonia-openmax-il/issues/156)
+- libtizplatform: add 'tiz\_event\_timer\_is\_repeat' to know if a timer is repeat or not [\#153](https://github.com/tizonia/tizonia-openmax-il/issues/153)
+
+**Fixed bugs:**
+
+- pcm\_renderer\_alsa: EOS should be signalled after all frames in the last buffer are consumed by ALSA [\#155](https://github.com/tizonia/tizonia-openmax-il/issues/155)
+- tizmp3dec: component does not always report EOS [\#154](https://github.com/tizonia/tizonia-openmax-il/issues/154)
+- libtizonia: non-repeat timers are not removed from the tizservant's watcher map   [\#152](https://github.com/tizonia/tizonia-openmax-il/issues/152)
+- tizhttpsrc: soundcloud gapless playback [\#151](https://github.com/tizonia/tizonia-openmax-il/issues/151)
+- tizhttpsrc: google play music gapless playback [\#150](https://github.com/tizonia/tizonia-openmax-il/issues/150)
+- tizspotifysrc: playback stalls when 'container\_loaded' is called by spotify [\#149](https://github.com/tizonia/tizonia-openmax-il/issues/149)
+- tizspotifysrc: playlists are not found in the user library [\#148](https://github.com/tizonia/tizonia-openmax-il/issues/148)
+
 ## [v0.2.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.2.0) (2015-12-14)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.1.0...v0.2.0)
 
