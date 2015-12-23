@@ -399,8 +399,9 @@ function bootstrap_environment {
     print_banner "[$DISTRO-$RELEASE-$ARCH] Copying Tizonia repository" "$GRN"
     if [[ ! -e "tizonia-build/tizonia" ]]; then
         hg clone https://bitbucket.org/tizonia/tizonia-openmax-il tizonia-build/tizonia
+    else
+        cd tizonia-build/tizonia && hg revert -C --all && hg purge --all && hg pull -u && cd -
     fi
-    cd tizonia-build/tizonia && pwd && hg pull -u && cd -
     $cmd_sudo cp -R tizonia-build/tizonia $TIZONIA_ROOTFS_DIR/root/work/tizonia
     pretty_print "$BLU" "Done Tizonia repo."
 
