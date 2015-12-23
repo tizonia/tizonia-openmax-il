@@ -149,7 +149,7 @@ function update_debian_changelog_files {
 
 function update_changelog {
     cd "$TIZONIA_REPO_DIR"
-    tizonia  github_changelog_generator --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**" tizonia/tizonia-openmax-il
+    github_changelog_generator --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**" tizonia/tizonia-openmax-il
 }
 
 [[ "$TIZONIA_OLD_PACKAGE_VER" != "$TIZONIA_NEW_PACKAGE_VER" ]] || { echo >&2 "Forgot to update TIZONIA_RELEASE_VERSION. Aborting."; exit 1; }
