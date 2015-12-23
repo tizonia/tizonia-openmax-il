@@ -24,14 +24,14 @@
 source tizonia-common.inc
 
 # Constants
-readonly TIZONIA_OLD_PACKAGE_VER="0.1.0"
+readonly TIZONIA_OLD_PACKAGE_VER="0.2.0"
 readonly TIZONIA_NEW_PACKAGE_VER="$TIZONIA_RELEASE_VERSION"
 
-readonly TIZONIA_OLD_SHLIB_VER="0:1:0"
-readonly TIZONIA_NEW_SHLIB_VER="0:2:0"
+readonly TIZONIA_OLD_SHLIB_VER="0:2:0"
+readonly TIZONIA_NEW_SHLIB_VER="0:3:0"
 
-readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:1:0"
-readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:2:0"
+readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:2:0"
+readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:3:0"
 
 readonly TIZONIA_ILCORE_OLD_SONAME_VER="0.0.1"
 readonly TIZONIA_ILCORE_NEW_SONAME_VER="0.0.2"
@@ -40,7 +40,7 @@ readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.1.0"
 readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.2.0"
 
 readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
-readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="141"
+readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="156"
 
 function update_package_versions {
     pretty_print "$MAG" "[START] : updating package versions."
@@ -112,12 +112,14 @@ function update_changelog {
     tizonia  github_changelog_generator --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**" tizonia/tizonia-openmax-il
 }
 
+[[ "$TIZONIA_OLD_PACKAGE_VER" != "$TIZONIA_NEW_PACKAGE_VER" ]] || { echo >&2 "Forgot to update TIZONIA_RELEASE_VERSION. Aborting."; exit 1; }
+
 print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
 update_package_versions
+update_debian_changelog_files
 update_shared_lib_versions
 update_plugin_shared_lib_versions
 update_il_core_soname_strings
 update_python_version_strings
-update_debian_changelog_files
 update_changelog
 print_banner "[DONE] : Updating files." "$BLU" 
