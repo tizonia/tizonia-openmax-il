@@ -1,0 +1,164 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#
+# Ubuntu Trusty
+#
+
+# trusty=$(screen -list | grep tached | awk '{ print $1 }' | grep trusty | wc -l)
+
+# if [[ "$trusty" == "0" ]];then
+#     screen -S "ubuntu-trusty-amd64" -d -m
+#     screen -r "ubuntu-trusty-amd64" -X stuff \
+#         $'cd $TIZONIA_REPO_DIR/tools \
+#        && export DISTRO=ubuntu \
+#        && export RELEASE=trusty \
+#        && export ARCH=amd64 \
+#        && ./tizonia-qemu-debootstrap-env -b \
+#        && ./tizonia-qemu-debootstrap-env -m \n'
+
+#     screen -S "ubuntu-trusty-i386" -d -m
+#     screen -r "ubuntu-trusty-i386" -X stuff \
+#         $'cd $TIZONIA_REPO_DIR/tools \
+#        && export DISTRO=ubuntu \
+#        && export RELEASE=trusty \
+#        && export ARCH=i386 \
+#        && ./tizonia-qemu-debootstrap-env -b \
+#        && ./tizonia-qemu-debootstrap-env -m \n'
+
+#     screen -S "ubuntu-trusty-armhf" -d -m
+#     screen -r "ubuntu-trusty-armhf" -X stuff \
+#         $'cd $TIZONIA_REPO_DIR/tools \
+#        && export DISTRO=ubuntu \
+#        && export RELEASE=trusty \
+#        && export ARCH=armhf \
+#        && ./tizonia-qemu-debootstrap-env -b \
+#        && ./tizonia-qemu-debootstrap-env -m \n'
+# else
+#     echo >&2 "Ubuntu Trusty builds [$trusty] already in progress."
+# fi
+
+
+#
+# Ubuntu Vivid
+#
+
+vivid=$(screen -list | grep tached | awk '{ print $1 }' | grep vivid | wc -l)
+
+if [[ "$vivid" == "0" ]]; then
+    screen -S "ubuntu-vivid-amd64" -d -m
+    screen -r "ubuntu-vivid-amd64" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=ubuntu \
+       && export RELEASE=vivid \
+       && export ARCH=amd64 \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+
+    screen -S "ubuntu-vivid-i386" -d -m
+    screen -r "ubuntu-vivid-i386" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=ubuntu \
+       && export RELEASE=vivid \
+       && export ARCH=i386 \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+
+    screen -S "ubuntu-vivid-armhf" -d -m
+    screen -r "ubuntu-vivid-armhf" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=ubuntu \
+       && export RELEASE=vivid \
+       && export ARCH=armhf \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+else
+    echo >&2 "Ubuntu Vivid builds [$vivid] already in progress."
+fi
+
+#
+# Debian Jessie
+#
+
+debian=$(screen -list | grep tached | awk '{ print $1 }' | grep debian | wc -l)
+
+if [[ "$debian" == "0" ]]; then
+    screen -S "debian-jessie-amd64" -d -m
+    screen -r "debian-jessie-amd64" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=debian \
+       && export RELEASE=jessie \
+       && export ARCH=amd64 \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+
+    screen -S "debian-jessie-i386" -d -m
+    screen -r "debian-jessie-i386" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=debian \
+       && export RELEASE=jessie \
+       && export ARCH=i386 \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+
+    screen -S "debian-jessie-armhf" -d -m
+    screen -r "debian-jessie-armhf" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=debian \
+       && export RELEASE=jessie \
+       && export ARCH=armhf \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+
+    screen -S "debian-jessie-armel" -d -m
+    screen -r "debian-jessie-armel" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=debian \
+       && export RELEASE=jessie \
+       && export ARCH=armel \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+
+else
+    echo >&2 "Debian Jessie builds [$debian] already in progress."
+fi
+
+#
+# Raspbian Jessie
+#
+
+# raspbian=$(screen -list | grep tached | awk '{ print $1 }' | grep raspbian | wc -l)
+
+# if [[ "$raspbian" == "0" ]]; then
+#     screen -S "raspbian-jessie-armhf" -d -m
+#     screen -r "raspbian-jessie-armhf" -X stuff \
+#         $'cd $TIZONIA_REPO_DIR/tools \
+#        && export DISTRO=raspbian \
+#        && export RELEASE=jessie \
+#        && export ARCH=armhf \
+#        && ./tizonia-qemu-debootstrap-env -b \
+#        && ./tizonia-qemu-debootstrap-env -m \n'
+# else
+#     echo >&2 "Raspbian Jessie builds [$raspbian] already in progress."
+# fi
+
+
+# Now attach to all running screen sessions to inspect each one of them
+for scr in $(screen -list | grep tached | awk '{ print $1 }'); do
+    screen -r "$scr"
+done
