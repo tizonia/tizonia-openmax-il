@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 PWD=`pwd`
-SOURCEDIR="/home/$USER/work/tizonia"
+SOURCEDIR="$TIZONIA_REPO_DIR"
 DESKTOPDIR="/home/$USER/temp/emacs-desktops/tiz"
 CSCOPEFILES='./cscope.files'
 EBROWSEFILES='./ebrowse.files'
@@ -38,6 +38,9 @@ if [ -a $EBROWSEFILES ]; then
     rm -f ebrose.files
     rm -f BROWSE
 fi
+
+# Make sure there are no temp files under $TIZONIA_REPO_DIR/tools
+rm -rf $TIZONIA_REPO_DIR/tools/tizonia-build/*
 
 echo "Collecting all *.h from $SOURCEDIR..."
 find $SOURCEDIR -name "*.h" -print > $CSCOPEFILES
