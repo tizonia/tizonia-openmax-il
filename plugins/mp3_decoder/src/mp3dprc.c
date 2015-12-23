@@ -86,6 +86,12 @@ static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
     {
       if (p_obj->p_inhdr_)
         {
+          if ((p_obj->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
+            {
+              TIZ_TRACE (handleOf (ap_obj), "EOS received");
+              p_obj->eos_ = true;
+            }
+
           p_obj->p_inhdr_->nOffset = 0;
           tiz_check_omx_err (tiz_krn_release_buffer (
               tiz_get_krn (handleOf (ap_obj)),
@@ -99,6 +105,13 @@ static OMX_ERRORTYPE release_headers (const void *ap_obj, OMX_U32 a_pid)
     {
       if (p_obj->p_outhdr_)
         {
+          if (p_obj->eos_)
+            {
+              /* EOS has been received and all the input data has been consumed
+               * already, so its time to propagate the EOS flag */
+              p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
+              p_obj->eos_ = false;
+            }
           TIZ_TRACE (handleOf (p_obj),
                      "Releasing output HEADER [%p] nFilledLen [%d] nAllocLen [%d]",
                      p_obj->p_outhdr_, p_obj->p_outhdr_->nFilledLen,
@@ -254,12 +267,6 @@ static void store_stream_metadata (mp3d_prc_t *ap_prc,
       (void)store_metadata (ap_prc, "Mode", info);
     }
 
-  TIZ_PRINTF_DBG_GRN (
-             "%lu b/s audio MPEG layer %s stream %s CRC, "
-             "%s with %s emphasis at %d Hz sample rate\n",
-             Header->bitrate, Layer,
-             Header->flags & MAD_FLAG_PROTECTION ? "with" : "without", Mode,
-             Emphasis, Header->samplerate);
   TIZ_TRACE (handleOf (ap_prc),
              "%lu b/s audio MPEG layer %s stream %s CRC, "
              "%s with %s emphasis at %d Hz sample rate\n",
@@ -451,14 +458,6 @@ static OMX_ERRORTYPE decode_buffer (const void *ap_obj)
   int status = 0;
 
   assert (p_obj->p_outhdr_);
-
-  if (p_obj->p_inhdr_)
-    {
-      if ((p_obj->p_inhdr_->nFlags & OMX_BUFFERFLAG_EOS) != 0)
-        {
-          p_obj->eos_ = true;
-        }
-    }
 
   /* Check if there is any remaining PCM data from a previous run of the
    * decoding loop that needs to be synthesised */
@@ -820,19 +819,6 @@ static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
         }
     }
 
-  if (p_obj->eos_ && p_obj->p_outhdr_)
-    {
-      /* EOS has been received and all the input data has been consumed
-       * already, so its time to propagate the EOS flag */
-      TIZ_TRACE (handleOf (p_obj), "p_obj->eos OUTPUT HEADER [%p]...",
-                 p_obj->p_outhdr_);
-      p_obj->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
-
-      tiz_check_omx_err (
-          release_headers (p_obj, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX));
-      p_obj->eos_ = false;
-    }
-
   return OMX_ErrorNone;
 }
 
@@ -848,14 +834,13 @@ static OMX_ERRORTYPE mp3d_proc_port_disable (const void *ap_obj, OMX_U32 a_pid)
   assert (p_obj);
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_INPUT_PORT_INDEX == a_pid)
     {
-      reset_stream_parameters (p_obj);
       p_obj->in_port_disabled_ = true;
     }
   if (OMX_ALL == a_pid || ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX == a_pid)
     {
-      reset_stream_parameters (p_obj);
       p_obj->out_port_disabled_ = true;
     }
+  reset_stream_parameters (p_obj);
   return release_headers (p_obj, a_pid);
 }
 
