@@ -393,7 +393,7 @@ function bootstrap_environment {
     pretty_print "$BLU" "Done build folders."
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Copying various config files" "$GRN"
-    $cmd_sudo cp -f tizonia-build/.bash* tizonia-build/.profile tizonia-build/.hgrc $TIZONIA_ROOTFS_DIR/root
+    $cmd_sudo cp -f $HOME/.bashrc $HOME/.bash_aliases $HOME/.profile $HOME/.hgrc $TIZONIA_ROOTFS_DIR/root
     pretty_print "$BLU" "Done config files."
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Copying Tizonia repository" "$GRN"
