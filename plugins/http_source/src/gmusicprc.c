@@ -294,6 +294,62 @@ static inline void delete_uri (gmusic_prc_t *ap_prc)
   ap_prc->p_uri_param_ = NULL;
 }
 
+static OMX_ERRORTYPE update_metadata (gmusic_prc_t *ap_prc)
+{
+  assert (ap_prc);
+
+  /* Clear previous metatada items */
+  tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
+
+  /* Artist and song title */
+  tiz_check_omx_err (store_metadata (
+      ap_prc, tiz_gmusic_get_current_song_artist (ap_prc->p_gmusic_),
+      tiz_gmusic_get_current_song_title (ap_prc->p_gmusic_)));
+
+  /* Album */
+  tiz_check_omx_err (store_metadata (
+      ap_prc, "Album", tiz_gmusic_get_current_song_album (ap_prc->p_gmusic_)));
+
+  /* Store the year if not 0 */
+  {
+    const char *p_year = tiz_gmusic_get_current_song_year (ap_prc->p_gmusic_);
+    if (p_year && strncmp (p_year, "0", 4) != 0)
+      {
+        tiz_check_omx_err (store_metadata (ap_prc, "Year", p_year));
+      }
+  }
+
+  /* Song duration */
+  tiz_check_omx_err (store_metadata (
+      ap_prc, "Duration",
+      tiz_gmusic_get_current_song_duration (ap_prc->p_gmusic_)));
+
+  /* Track number */
+  tiz_check_omx_err (store_metadata (
+      ap_prc, "Track",
+      tiz_gmusic_get_current_song_track_number (ap_prc->p_gmusic_)));
+
+  /* Store total tracks if not 0 */
+  {
+    const char *p_total_tracks
+        = tiz_gmusic_get_current_song_tracks_in_album (ap_prc->p_gmusic_);
+    if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
+      {
+        tiz_check_omx_err (
+            store_metadata (ap_prc, "Total tracks", p_total_tracks));
+      }
+  }
+
+  /* Signal that a new set of metatadata items is available */
+  (void)tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventIndexSettingChanged,
+                             OMX_ALL, /* no particular port associated */
+                             OMX_IndexConfigMetadataItem, /* index of the
+                                                             struct that has
+                                                             been modififed */
+                             NULL);
+  return OMX_ErrorNone;
+}
+
 static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -308,84 +364,41 @@ static OMX_ERRORTYPE obtain_next_url (gmusic_prc_t *ap_prc, int a_skip_value)
           1, sizeof(OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
     }
 
-  if (!ap_prc->p_uri_param_)
+  tiz_check_null_ret_oom (ap_prc->p_uri_param_);
+
+  ap_prc->p_uri_param_->nSize = sizeof(OMX_PARAM_CONTENTURITYPE)
+    + pathname_max + 1;
+  ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
+
+  {
+    const char *p_next_url = a_skip_value > 0
+                                 ? tiz_gmusic_get_next_url (ap_prc->p_gmusic_)
+                                 : tiz_gmusic_get_prev_url (ap_prc->p_gmusic_);
+    tiz_check_null_ret_oom (p_next_url);
+
     {
-      TIZ_ERROR (handleOf (ap_prc),
-                 "Error allocating memory for the content uri struct");
-      rc = OMX_ErrorInsufficientResources;
+      const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
+      TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
+
+      /* Verify we are getting an http scheme */
+      if (!p_next_url || !url_len
+          || (memcmp (p_next_url, "http://", 7) != 0
+              && memcmp (p_next_url, "https://", 8) != 0))
+        {
+          rc = OMX_ErrorContentURIError;
+        }
+      else
+        {
+          strncpy ((char *)ap_prc->p_uri_param_->contentURI, p_next_url,
+                   url_len);
+          ap_prc->p_uri_param_->contentURI[url_len] = '\000';
+
+          /* Song metadata is now available, update the IL client */
+          rc = update_metadata (ap_prc);
+        }
     }
-  else
-    {
-      ap_prc->p_uri_param_->nSize = sizeof(OMX_PARAM_CONTENTURITYPE)
-                                    + pathname_max + 1;
-      ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
+  }
 
-      {
-        const char *p_next_url
-            = a_skip_value > 0 ? tiz_gmusic_get_next_url (ap_prc->p_gmusic_)
-                               : tiz_gmusic_get_prev_url (ap_prc->p_gmusic_);
-        if (p_next_url)
-          {
-            const OMX_U32 url_len = strnlen (p_next_url, pathname_max);
-            TIZ_TRACE (handleOf (ap_prc), "URL [%s]", p_next_url);
-
-            /* Verify we are getting an http scheme */
-            if (!p_next_url || !url_len
-                || (memcmp (p_next_url, "http://", 7) != 0
-                    && memcmp (p_next_url, "https://", 8) != 0))
-              {
-                rc = OMX_ErrorContentURIError;
-              }
-            else
-              {
-                strncpy ((char *)ap_prc->p_uri_param_->contentURI, p_next_url,
-                         url_len);
-                ap_prc->p_uri_param_->contentURI[url_len] = '\000';
-
-                (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
-                (void)store_metadata (
-                    ap_prc,
-                    tiz_gmusic_get_current_song_artist (ap_prc->p_gmusic_),
-                    tiz_gmusic_get_current_song_title (ap_prc->p_gmusic_));
-                (void)store_metadata (
-                    ap_prc, "Album",
-                    tiz_gmusic_get_current_song_album (ap_prc->p_gmusic_));
-                {
-                  /* Only store the year if not 0 */
-                  const char *p_year
-                      = tiz_gmusic_get_current_song_year (ap_prc->p_gmusic_);
-                  if (p_year && strncmp (p_year, "0", 4) != 0)
-                    {
-                      store_metadata (ap_prc, "Year", p_year);
-                    }
-                }
-                (void)store_metadata (
-                    ap_prc, "Duration",
-                    tiz_gmusic_get_current_song_duration (ap_prc->p_gmusic_));
-                (void)store_metadata (ap_prc, "Track",
-                                      tiz_gmusic_get_current_song_track_number (
-                                          ap_prc->p_gmusic_));
-
-                {
-                  /* Only store total tracks if not 0 */
-                  const char *p_total_tracks = tiz_gmusic_get_current_song_tracks_in_album (
-                      ap_prc->p_gmusic_);
-                  if (p_total_tracks && strncmp (p_total_tracks, "0", 2) != 0)
-                    {
-                      (void)store_metadata (ap_prc, "Total tracks", p_total_tracks);
-                    }
-                }
-              }
-          }
-        else
-          {
-            TIZ_ERROR (handleOf (ap_prc),
-                       "Unable to retrieve the next uri.");
-            rc = OMX_ErrorInsufficientResources;
-
-          }
-      }
-    }
   return rc;
 }
 
@@ -395,7 +408,7 @@ static OMX_ERRORTYPE release_buffer (gmusic_prc_t *ap_prc)
 
   if (ap_prc->p_outhdr_)
     {
-      if (ap_prc->bytes_before_eos_ >= ap_prc->p_outhdr_->nFilledLen)
+      if (ap_prc->bytes_before_eos_ > ap_prc->p_outhdr_->nFilledLen)
         {
           ap_prc->bytes_before_eos_ -= ap_prc->p_outhdr_->nFilledLen;
         }
@@ -407,8 +420,6 @@ static OMX_ERRORTYPE release_buffer (gmusic_prc_t *ap_prc)
 
       if (ap_prc->eos_)
         {
-          TIZ_PRINTF_DBG_RED ("EOS - releasing HEADER [%p] nFilledLen [%d]\n",
-                              ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
           ap_prc->eos_ = false;
           ap_prc->p_outhdr_->nFlags |= OMX_BUFFERFLAG_EOS;
         }
@@ -500,10 +511,6 @@ static bool connection_lost (OMX_PTR ap_arg)
   assert (p_prc);
   TIZ_PRINTF_DBG_RED ("connection_lost - bytes_before_eos_ [%d]\n",
                       p_prc->bytes_before_eos_);
-  if (p_prc->bytes_before_eos_ > 0)
-    {
-      p_prc->eos_ = true;
-    }
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -820,7 +827,17 @@ static OMX_ERRORTYPE gmusic_prc_config_change (void *ap_prc,
       /* Changing the URL has the side effect of halting the current
          download */
       httpsrc_trans_set_uri (p_prc->p_trans_, p_prc->p_uri_param_);
-      p_prc->uri_changed_ = true;
+      if (p_prc->port_disabled_)
+        {
+          /* Record that the URI has changed, so that when the port is
+             re-enabled, we restart the transfer */
+          p_prc->uri_changed_ = true;
+        }
+      else
+        {
+          /* re-start the transfer */
+          httpsrc_trans_start (p_prc->p_trans_);
+        }
     }
   return rc;
 }
