@@ -20,38 +20,38 @@
 # Ubuntu Trusty
 #
 
-# trusty=$(screen -list | grep tached | awk '{ print $1 }' | grep trusty | wc -l)
+trusty=$(screen -list | grep tached | awk '{ print $1 }' | grep trusty | wc -l)
 
-# if [[ "$trusty" == "0" ]];then
-#     screen -S "ubuntu-trusty-amd64" -d -m
-#     screen -r "ubuntu-trusty-amd64" -X stuff \
-#         $'cd $TIZONIA_REPO_DIR/tools \
-#        && export DISTRO=ubuntu \
-#        && export RELEASE=trusty \
-#        && export ARCH=amd64 \
-#        && ./tizonia-qemu-debootstrap-env -b \
-#        && ./tizonia-qemu-debootstrap-env -m \n'
+if [[ "$trusty" == "0" ]];then
+    screen -S "ubuntu-trusty-amd64" -d -m
+    screen -r "ubuntu-trusty-amd64" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=ubuntu \
+       && export RELEASE=trusty \
+       && export ARCH=amd64 \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
 
-#     screen -S "ubuntu-trusty-i386" -d -m
-#     screen -r "ubuntu-trusty-i386" -X stuff \
-#         $'cd $TIZONIA_REPO_DIR/tools \
-#        && export DISTRO=ubuntu \
-#        && export RELEASE=trusty \
-#        && export ARCH=i386 \
-#        && ./tizonia-qemu-debootstrap-env -b \
-#        && ./tizonia-qemu-debootstrap-env -m \n'
+    screen -S "ubuntu-trusty-i386" -d -m
+    screen -r "ubuntu-trusty-i386" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=ubuntu \
+       && export RELEASE=trusty \
+       && export ARCH=i386 \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
 
-#     screen -S "ubuntu-trusty-armhf" -d -m
-#     screen -r "ubuntu-trusty-armhf" -X stuff \
-#         $'cd $TIZONIA_REPO_DIR/tools \
-#        && export DISTRO=ubuntu \
-#        && export RELEASE=trusty \
-#        && export ARCH=armhf \
-#        && ./tizonia-qemu-debootstrap-env -b \
-#        && ./tizonia-qemu-debootstrap-env -m \n'
-# else
-#     echo >&2 "Ubuntu Trusty builds [$trusty] already in progress."
-# fi
+    screen -S "ubuntu-trusty-armhf" -d -m
+    screen -r "ubuntu-trusty-armhf" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=ubuntu \
+       && export RELEASE=trusty \
+       && export ARCH=armhf \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+else
+    echo >&2 "Ubuntu Trusty builds [$trusty] already in progress."
+fi
 
 
 #
@@ -142,20 +142,20 @@ fi
 # Raspbian Jessie
 #
 
-# raspbian=$(screen -list | grep tached | awk '{ print $1 }' | grep raspbian | wc -l)
+raspbian=$(screen -list | grep tached | awk '{ print $1 }' | grep raspbian | wc -l)
 
-# if [[ "$raspbian" == "0" ]]; then
-#     screen -S "raspbian-jessie-armhf" -d -m
-#     screen -r "raspbian-jessie-armhf" -X stuff \
-#         $'cd $TIZONIA_REPO_DIR/tools \
-#        && export DISTRO=raspbian \
-#        && export RELEASE=jessie \
-#        && export ARCH=armhf \
-#        && ./tizonia-qemu-debootstrap-env -b \
-#        && ./tizonia-qemu-debootstrap-env -m \n'
-# else
-#     echo >&2 "Raspbian Jessie builds [$raspbian] already in progress."
-# fi
+if [[ "$raspbian" == "0" ]]; then
+    screen -S "raspbian-jessie-armhf" -d -m
+    screen -r "raspbian-jessie-armhf" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=raspbian \
+       && export RELEASE=jessie \
+       && export ARCH=armhf \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+else
+    echo >&2 "Raspbian Jessie builds [$raspbian] already in progress."
+fi
 
 
 # Now attach to all running screen sessions to inspect each one of them
