@@ -33,8 +33,8 @@ readonly TIZONIA_NEW_SHLIB_VER="0:3:0"
 readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:2:0"
 readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:3:0"
 
-readonly TIZONIA_ILCORE_OLD_SONAME_VER="0.0.1"
-readonly TIZONIA_ILCORE_NEW_SONAME_VER="0.0.2"
+readonly TIZONIA_ILCORE_OLD_SONAME_VER="0.0.2"
+readonly TIZONIA_ILCORE_NEW_SONAME_VER="0.0.3"
 
 readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.1.0"
 readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.2.0"
@@ -79,8 +79,9 @@ function update_il_core_soname_strings {
     local OLD_SONAME_STRING=".so.$OLD_VER"
     local OLD_SONAME_STRING_QUOTED=$(echo "$OLD_SONAME_STRING" | sed -r 's/\./\\./g')
     perl -i -p -e "s/(?<=#define TIZ_SHARED_LIB_SONAME_STRING) \"$OLD_SONAME_STRING_QUOTED\"/ \".so.$NEW_VER\"/g" tizcore.c
-    local OLD_SONAMET_STRING=".so.$OLD_VERT"
+    local OLD_SONAMET_STRING=".so.$OLD_VER"T
     local OLD_SONAMET_STRING_QUOTED=$(echo "$OLD_SONAMET_STRING" | sed -r 's/\./\\./g')
+    local NEW_VERT="$NEW_VER"T
     perl -i -p -e "s/(?<=#define TIZ_SHARED_LIB_SONAMET_STRING) \"$OLD_SONAMET_STRING_QUOTED\"/ \".so.$NEW_VERT\"/g" tizcore.c
     pretty_print "$BLU" "[DONE] : updating OpenMAX IL Core SONAME string literals."
 }
@@ -116,10 +117,10 @@ function update_changelog {
 
 print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
 update_package_versions
-update_debian_changelog_files
-update_shared_lib_versions
 update_plugin_shared_lib_versions
 update_il_core_soname_strings
+update_shared_lib_versions
+update_debian_changelog_files
 update_python_version_strings
 update_changelog
 print_banner "[DONE] : Updating files." "$BLU" 
