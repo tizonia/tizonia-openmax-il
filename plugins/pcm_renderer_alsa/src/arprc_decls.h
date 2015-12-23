@@ -56,10 +56,12 @@ extern "C"
     int descriptor_count_;
     struct pollfd *p_fds_;
     tiz_event_io_t *p_ev_io_;
-    tiz_event_timer_t *p_ev_timer_;
+    tiz_event_timer_t *p_vol_ramp_timer_;
+    tiz_event_timer_t *p_eos_timer_;
     OMX_BUFFERHEADERTYPE *p_inhdr_;
     bool port_disabled_;
     bool awaiting_io_ev_;
+    OMX_U32 nflags_;
     float gain_;
     long volume_;
     bool ramp_enabled_;
