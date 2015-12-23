@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 #
 # Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
 #
@@ -16,9 +16,43 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #
-# Script that automates the various activities around preparing the sources for
+# Script that helps with the various activities around preparing the sources for
 # a new release.
 #
+
+# General process
+# 1.- Update package versions
+#     - typically, only on those packages with source code changes, with a few exceptions.
+#     These are the configure.ac(s) that have their version number
+#     always bumped:
+#       - top-level configure.ac
+#       - plugins/configure.ac
+#       - config/configure.ac
+# 2.- Update plugin shared lib version infos
+#     - IMPORTANT: all plugin shared libs versions are sync'ed. This is currently so
+#     because the IL Core checks the soname and only loads shared libs of a specific
+#      soname version.
+# 3.- Update IL Core soname strings
+#     - IMPORTANT: the soname string is adjusted to be able to load plugin shared libs
+#     that match the specific version as provided in the previous step.
+# 4.- Update other shared lib version infos
+#     - Again this is as needed, only when changes have been made to the library. Again,
+#     with exceptions. The following libs are sync'd with the plugins shared lib version:
+#       - libtizonia
+#       - libtizcore
+#     These two libs have test plugins that will need to be in sync with the rest of the plugins.
+# 5.- Update Python module versions in _version.py files
+#     - as needed
+# 6.- Update Debian 'changelog' files.
+#     - as needed, following the changes made in the packages
+# 7.- Update README.md (as needed).
+# 8.- Update CHANGELOG.md
+#     - using github-changelog-generator
+# 9.- Close github issue: release v0.x.x
+# 10.- Create release and tag on GitHub.
+#     - manual
+# 11.- Build debian packages and upload to Bintray.
+# 12.- Update website.
 
 # Includes
 source tizonia-common.inc
@@ -125,7 +159,7 @@ update_package_versions
 update_plugin_shared_lib_versions
 update_il_core_soname_strings
 update_shared_lib_versions
-update_debian_changelog_files
 update_python_version_strings
+update_debian_changelog_files
 update_changelog
 print_banner "[DONE] : Updating files." "$BLU" 
