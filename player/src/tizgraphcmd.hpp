@@ -97,17 +97,18 @@ namespace tiz
                                     else INJECT_EVENT (omx_port_disabled_evt)
                                       else INJECT_EVENT (omx_port_enabled_evt)
                                         else INJECT_EVENT (omx_port_settings_evt)
-                                          else INJECT_EVENT (omx_format_detected_evt)
-                                            else INJECT_EVENT (omx_err_evt)
-                                              else INJECT_EVENT (err_evt)
-                                                else INJECT_EVENT (auto_detected_evt)
-                                                  else INJECT_EVENT (graph_updated_evt)
-                                                    else INJECT_EVENT (graph_reconfigured_evt)
-                                                      else INJECT_EVENT (tunnel_reconfigured_evt)
-                                                        else
-                                                          {
-                                                            assert (0);
-                                                          }
+                                         else INJECT_EVENT (omx_index_setting_evt)
+                                           else INJECT_EVENT (omx_format_detected_evt)
+                                             else INJECT_EVENT (omx_err_evt)
+                                               else INJECT_EVENT (err_evt)
+                                                 else INJECT_EVENT (auto_detected_evt)
+                                                   else INJECT_EVENT (graph_updated_evt)
+                                                     else INJECT_EVENT (graph_reconfigured_evt)
+                                                       else INJECT_EVENT (tunnel_reconfigured_evt)
+                                                         else
+                                                           {
+                                                             assert (0);
+                                                           }
       }
 
     private:

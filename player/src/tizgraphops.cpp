@@ -186,6 +186,14 @@ void graph::ops::do_enable_tunnel (const int tunnel_id)
   }
 }
 
+void graph::ops::do_flush_tunnel (const int tunnel_id)
+{
+  if (last_op_succeeded ())
+  {
+    // TODO
+  }
+}
+
 void graph::ops::do_reconfigure_tunnel (const int tunnel_id)
 {
   (void)tunnel_id;
@@ -571,6 +579,16 @@ bool graph::ops::is_last_component (const OMX_HANDLETYPE handle) const
   if (!handles_.empty ())
   {
     rc = (handles_[handles_.size () - 1] == handle);
+  }
+  return rc;
+}
+
+bool graph::ops::is_first_component (const OMX_HANDLETYPE handle) const
+{
+  bool rc = false;
+  if (!handles_.empty ())
+  {
+    rc = (handles_[0] == handle);
   }
   return rc;
 }

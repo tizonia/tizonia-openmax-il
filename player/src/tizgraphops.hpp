@@ -91,6 +91,7 @@ namespace tiz
       virtual void do_disable_ports ();
       virtual void do_disable_tunnel (const int tunnel_id);
       virtual void do_enable_tunnel (const int tunnel_id);
+      virtual void do_flush_tunnel (const int tunnel_id);
       virtual void do_reconfigure_tunnel (const int tunnel_id);
       virtual void do_probe ();
       virtual void do_configure ();
@@ -142,6 +143,7 @@ namespace tiz
 
     public:
       bool is_last_component (const OMX_HANDLETYPE handle) const;
+      bool is_first_component (const OMX_HANDLETYPE handle) const;
       bool is_trans_complete (const OMX_HANDLETYPE handle,
                               const OMX_STATETYPE to_state);
       bool is_destination_state (const OMX_STATETYPE to_state);

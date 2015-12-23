@@ -28,6 +28,8 @@
 #ifndef TIZGRAPHGUARD_HPP
 #define TIZGRAPHGUARD_HPP
 
+#include <OMX_Index.h>
+
 #include <tizplatform.h>
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -186,6 +188,21 @@ namespace tiz
       }
     };
 
+    struct is_first_eos
+    {
+      template < class EVT, class FSM, class SourceState, class TargetState >
+      bool operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        bool rc = false;
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          rc = (*(fsm.pp_ops_))->is_first_component (evt.handle_);
+        }
+        G_GUARD_LOG (rc);
+        return rc;
+      }
+    };
+
     struct is_internal_error
     {
       template < class EVT, class FSM, class SourceState, class TargetState >
@@ -257,8 +274,25 @@ namespace tiz
       {
         bool rc = false;
         if (fsm.pp_ops_ && *(fsm.pp_ops_))
+          {
+            rc = (*(fsm.pp_ops_))->is_tunnel_altered (tunnel_id, evt.handle_, evt.port_, evt.index_);
+          }
+
+        G_GUARD_LOG (rc);
+        return rc;
+      }
+    };
+
+    template<OMX_INDEXTYPE param_or_config_idx>
+    struct is_setting_changed
+    {
+      template < class EVT, class FSM, class SourceState, class TargetState >
+      bool operator()(EVT const& evt, FSM& fsm, SourceState&, TargetState&)
+      {
+        bool rc = false;
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
         {
-          rc = (*(fsm.pp_ops_))->is_tunnel_altered (tunnel_id, evt.handle_, evt.port_, evt.index_);
+          rc = (param_or_config_idx == evt.index_);
         }
 
         G_GUARD_LOG (rc);

@@ -441,6 +441,20 @@ namespace tiz
     };
 
     template<int tunnel_id>
+    struct do_flush_tunnel
+    {
+      template <class FSM, class EVT, class SourceState, class TargetState>
+      void operator()(EVT const& evt, FSM& fsm, SourceState& , TargetState& )
+      {
+        G_ACTION_LOG ();
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          (*(fsm.pp_ops_))->do_flush_tunnel (tunnel_id);
+        }
+      }
+    };
+
+    template<int tunnel_id>
     struct do_reconfigure_tunnel
     {
       template <class FSM, class EVT, class SourceState, class TargetState>

@@ -254,6 +254,12 @@ void graph::graph::omx_evt (const omx_event_info &evt_info)
           evt_info.component_, evt_info.ndata1_,
           static_cast< OMX_INDEXTYPE >(evt_info.ndata2_))));
     }
+    else if (evt_info.event_ == OMX_EventIndexSettingChanged)
+    {
+      post_cmd (new tiz::graph::cmd (tiz::graph::omx_index_setting_evt (
+          evt_info.component_, evt_info.ndata1_,
+          static_cast< OMX_INDEXTYPE >(evt_info.ndata2_))));
+    }
     else if (evt_info.event_ == OMX_EventPortFormatDetected)
     {
       post_cmd (new tiz::graph::cmd (

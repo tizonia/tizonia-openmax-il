@@ -186,9 +186,33 @@ namespace tiz
       OMX_ERRORTYPE error_;
     };
 
+    struct omx_port_flushed_evt
+    {
+      omx_port_flushed_evt (const OMX_HANDLETYPE a_handle, const OMX_U32 port,
+                            const OMX_ERRORTYPE error)
+        : handle_ (a_handle), port_ (port), error_ (error)
+      {
+      }
+      OMX_HANDLETYPE handle_;
+      OMX_U32 port_;
+      OMX_ERRORTYPE error_;
+    };
+
     struct omx_port_settings_evt
     {
       omx_port_settings_evt (const OMX_HANDLETYPE a_handle, const OMX_U32 port,
+                             const OMX_INDEXTYPE index)
+        : handle_ (a_handle), port_ (port), index_ (index)
+      {
+      }
+      OMX_HANDLETYPE handle_;
+      OMX_U32 port_;
+      OMX_INDEXTYPE index_;
+    };
+
+    struct omx_index_setting_evt
+    {
+      omx_index_setting_evt (const OMX_HANDLETYPE a_handle, const OMX_U32 port,
                              const OMX_INDEXTYPE index)
         : handle_ (a_handle), port_ (port), index_ (index)
       {
