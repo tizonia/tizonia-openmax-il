@@ -1,3 +1,9 @@
+tizmp3enc (0.3.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #156)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Wed, 23 Dec 2015 04:11:57 +0000
+
 tizmp3enc (0.2.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #141)
