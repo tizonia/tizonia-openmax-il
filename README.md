@@ -7,7 +7,7 @@
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
-## Install the latest binary release (v0.2.0)
+## Install the latest binary release (v0.3.0)
 
 Debian packages are available from [Bintray](https://bintray.com/tizonia) for
 the following distro/arch combinations:
@@ -49,7 +49,7 @@ _$HOME/.config/tizonia/tizonia.conf_
 ## 'tizonia' usage ##
 
 ```bash
-tizonia 0.2.0. Copyright (C) 2015 Juan A. Rubio
+tizonia 0.3.0. Copyright (C) 2015 Juan A. Rubio
 This software is part of the Tizonia project <http://tizonia.org>
 
 GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
