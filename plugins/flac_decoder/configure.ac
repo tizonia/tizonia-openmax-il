@@ -43,7 +43,7 @@ AC_CONFIG_MACRO_DIR([m4])
 #     then set AGE to 0.                                                       #
 #                                                                              #
 ################################################################################
-SHARED_VERSION_INFO="0:2:0"
+SHARED_VERSION_INFO="0:3:0"
 SHLIB_VERSION_ARG=""
 
 AC_SUBST(SHLIB_VERSION_ARG)
