@@ -819,6 +819,14 @@ static OMX_ERRORTYPE mp3d_proc_buffers_ready (const void *ap_obj)
         }
     }
 
+  if (p_obj->eos_ && p_obj->p_outhdr_)
+    {
+      /* EOS has been received and all the input data has been consumed
+       * already, so its time to propagate the EOS flag */
+      tiz_check_omx_err (
+          release_headers (p_obj, ARATELIA_MP3_DECODER_OUTPUT_PORT_INDEX));
+    }
+
   return OMX_ErrorNone;
 }
 
