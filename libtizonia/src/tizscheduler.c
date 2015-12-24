@@ -57,19 +57,20 @@
 #define SCHED_QUEUE_MAX_ITEMS 30
 
 #ifndef S_SPLINT_S
-#define TIZ_COMP_INIT_MSG(hdl, msg, msgtype)                            \
-  do                                                                    \
-    {                                                                   \
-      tiz_ret_on_err ((msg = init_scheduler_message (hdl, (msgtype)))); \
-    }                                                                   \
+#define TIZ_COMP_INIT_MSG(hdl, msg, msgtype)         \
+  do                                                 \
+    {                                                \
+      msg = init_scheduler_message (hdl, (msgtype)); \
+      tiz_ret_on_err (msg != NULL);                  \
+    }                                                \
   while (0)
 
-#define TIZ_COMP_INIT_MSG_OOM(hdl, msg, msgtype)                           \
-  do                                                                       \
-    {                                                                      \
-      tiz_ret_val_on_err ((msg = init_scheduler_message (hdl, (msgtype))), \
-                          OMX_ErrorInsufficientResources);                 \
-    }                                                                      \
+#define TIZ_COMP_INIT_MSG_OOM(hdl, msg, msgtype)     \
+  do                                                 \
+    {                                                \
+      msg = init_scheduler_message (hdl, (msgtype)); \
+      tiz_check_null_ret_oom (msg != NULL);          \
+    }                                                \
   while (0)
 #endif
 
@@ -2340,7 +2341,7 @@ static OMX_ERRORTYPE init_and_register_role (tiz_scheduler_t *ap_sched,
   p_rf = ap_sched->child.p_role_list[a_role_pos];
 
   /* Instantiate the config port */
-  tiz_check_null_ret_oom (p_port = p_rf->pf_cport (p_hdl));
+  tiz_check_null_ret_oom ((p_port = p_rf->pf_cport (p_hdl)) != NULL);
 
   /* Register it with the kernel */
   tiz_check_omx_err_ret_oom (tiz_krn_register_port (
@@ -2352,7 +2353,7 @@ static OMX_ERRORTYPE init_and_register_role (tiz_scheduler_t *ap_sched,
   for (j = 0; j < p_rf->nports && rc == OMX_ErrorNone; ++j)
     {
       /* Instantiate and register the normal ports */
-      tiz_check_null_ret_oom (p_port = p_rf->pf_port[j](p_hdl));
+      tiz_check_null_ret_oom ((p_port = p_rf->pf_port[j](p_hdl)) != NULL);
       tiz_check_omx_err_ret_oom (tiz_krn_register_port (
           ap_sched->child.p_ker, p_port, OMX_FALSE)); /* not a config port */
       rc = configure_port_preannouncements (ap_sched, p_hdl, p_port);
@@ -2361,7 +2362,7 @@ static OMX_ERRORTYPE init_and_register_role (tiz_scheduler_t *ap_sched,
   if (OMX_ErrorNone == rc)
     {
       /* Instantiate the processor */
-      tiz_check_null_ret_oom (p_proc = p_rf->pf_proc (p_hdl));
+      tiz_check_null_ret_oom ((p_proc = p_rf->pf_proc (p_hdl)) != NULL);
       assert (!ap_sched->child.p_prc);
       ap_sched->child.p_prc = p_proc;
 

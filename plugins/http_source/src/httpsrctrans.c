@@ -940,7 +940,7 @@ static OMX_ERRORTYPE allocate_curl_resources (httpsrc_trans_t *ap_trans)
     }
 
   /* Init the curl easy handle */
-  tiz_check_null_ret_oom ((ap_trans->p_curl_ = curl_easy_init ()));
+  tiz_check_null_ret_oom ((ap_trans->p_curl_ = curl_easy_init ()) != NULL);
   /* Now init the curl multi handle */
   bail_on_oom ((ap_trans->p_curl_multi_ = curl_multi_init ()));
   /* this is to ask libcurl to accept ICY OK headers*/

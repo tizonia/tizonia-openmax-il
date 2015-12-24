@@ -33,12 +33,12 @@
 #define TIZKERNEL_HELPERS_INL
 
 #ifndef S_SPLINT_S
-#define TIZ_KRN_INIT_MSG_OOM(obj, hdl, msg, msgtype)                      \
-  do                                                                      \
-    {                                                                     \
-      tiz_ret_val_on_err ((msg = init_krn_message (obj, hdl, (msgtype))), \
-                          OMX_ErrorInsufficientResources);                \
-    }                                                                     \
+#define TIZ_KRN_INIT_MSG_OOM(obj, hdl, msg, msgtype)    \
+  do                                                    \
+    {                                                   \
+      msg = init_krn_message (obj, hdl, (msgtype));     \
+      tiz_check_null_ret_oom (msg != NULL);             \
+    }                                                   \
   while (0)
 #endif
 

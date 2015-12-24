@@ -64,7 +64,7 @@ static OMX_ERRORTYPE alloc_temp_data_store (flacd_prc_t *ap_prc)
   assert (ap_prc->p_store_ == NULL);
   ap_prc->store_size_ = port_def.nBufferSize;
   tiz_check_null_ret_oom (
-      (ap_prc->p_store_ = tiz_mem_alloc (ap_prc->store_size_)));
+      (ap_prc->p_store_ = tiz_mem_alloc (ap_prc->store_size_)) != NULL);
 
   return OMX_ErrorNone;
 }

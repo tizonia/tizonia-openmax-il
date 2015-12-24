@@ -49,12 +49,13 @@
 #endif
 
 #ifndef S_SPLINT_S
-#define TIZ_FSM_INIT_MSG_OOM(obj,hdl,msg,msgtype)                       \
-  do                                                                    \
-    {                                                                   \
-      tiz_ret_val_on_err ( (msg = init_fsm_message (obj, hdl, (msgtype))), \
-                           OMX_ErrorInsufficientResources);             \
-    } while (0)
+#define TIZ_FSM_INIT_MSG_OOM(obj, hdl, msg, msgtype) \
+  do                                                 \
+    {                                                \
+      msg = init_fsm_message (obj, hdl, (msgtype));  \
+      tiz_check_null_ret_oom (msg != NULL);          \
+    }                                                \
+  while (0)
 #endif
 
 /* Forward declarations */

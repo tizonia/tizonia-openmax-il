@@ -756,12 +756,10 @@ static OMX_ERRORTYPE render_buffer (ar_prc_t *ap_prc,
       if (-EAGAIN == err)
         {
           /* got -EAGAIN, alsa buffers are full */
-          TIZ_TRACE (handleOf (ap_prc), "-EAGAIN");
           rc = OMX_ErrorNoMore;
         }
       else if (err < 0)
         {
-          TIZ_TRACE (handleOf (ap_prc), "err");
           /* This should handle -EINTR (interrupted system call), -EPIPE
            * (overrun or underrun) and -ESTRPIPE (stream is suspended) */
           err = snd_pcm_recover (ap_prc->p_pcm_, (int)err, 0);
@@ -939,7 +937,7 @@ static OMX_ERRORTYPE ar_prc_allocate_resources (void *ap_prc,
       /* Allocate space for the list of alsa fds */
       p_prc->p_fds_
           = tiz_mem_alloc (sizeof(struct pollfd) * p_prc->descriptor_count_);
-      tiz_check_null_ret_oom (p_prc->p_fds_);
+      tiz_check_null_ret_oom (p_prc->p_fds_ != NULL);
 
       /* This is to generate volume ramps when needed */
       if (p_prc->ramp_enabled_)

@@ -318,8 +318,9 @@ static OMX_ERRORTYPE enqueue_io_msg (tiz_event_io_t *ap_ev_io,
           || ETIZEventLoopMsgIoDestroy == a_class);
 
   tiz_check_omx_err (tiz_mutex_lock (&(gp_event_loop->mutex)));
-  tiz_ret_val_on_err ((p_msg = init_event_loop_msg (gp_event_loop, (a_class))),
-                      OMX_ErrorInsufficientResources);
+  p_msg = init_event_loop_msg (gp_event_loop, (a_class));
+  tiz_check_null_ret_oom (p_msg != NULL);
+  
   assert (p_msg);
   p_msg_io = &(p_msg->io);
   p_msg_io->p_ev_io = ap_ev_io;
@@ -345,8 +346,9 @@ static OMX_ERRORTYPE enqueue_timer_msg (
           || ETIZEventLoopMsgTimerDestroy == a_class);
 
   tiz_check_omx_err (tiz_mutex_lock (&(gp_event_loop->mutex)));
-  tiz_ret_val_on_err ((p_msg = init_event_loop_msg (gp_event_loop, (a_class))),
-                      OMX_ErrorInsufficientResources);
+  p_msg = init_event_loop_msg (gp_event_loop, (a_class));
+  tiz_check_null_ret_oom (p_msg != NULL);
+
   assert (p_msg);
   p_msg_timer = &(p_msg->timer);
   p_msg_timer->p_ev_timer = ap_ev_timer;
@@ -371,8 +373,9 @@ static OMX_ERRORTYPE enqueue_stat_msg (tiz_event_stat_t *ap_ev_stat,
           || ETIZEventLoopMsgStatDestroy == a_class);
 
   tiz_check_omx_err (tiz_mutex_lock (&(gp_event_loop->mutex)));
-  tiz_ret_val_on_err ((p_msg = init_event_loop_msg (gp_event_loop, (a_class))),
-                      OMX_ErrorInsufficientResources);
+  p_msg = init_event_loop_msg (gp_event_loop, (a_class));
+  tiz_check_null_ret_oom (p_msg != NULL);
+
   assert (p_msg);
   p_msg_stat = &(p_msg->stat);
   p_msg_stat->p_ev_stat = ap_ev_stat;
