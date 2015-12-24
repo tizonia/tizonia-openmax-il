@@ -1,10 +1,8 @@
 # -*-Mode: conf; -*-
 # @PACKAGE@ v@VERSION@ configuration file
 
-###########################################################################
-# Tizonia OpenMAX IL Core section
-###########################################################################
 [ilcore]
+# Tizonia OpenMAX IL Core section
 
 # Component plugins discovery
 # -------------------------------------------------------------------------
@@ -18,10 +16,9 @@ component-paths = @libdir@;
 # searching for IL Core extensions (not implemented yet)
 extension-paths =
 
-###########################################################################
-# Tizonia OpenMAX IL Resource Management (RM) section
-###########################################################################
+
 [resource-management]
+# Tizonia OpenMAX IL Resource Management (RM) section
 
 # Resource Manager (RM) daemon interface enable/disable switch
 # -------------------------------------------------------------------------
@@ -34,10 +31,8 @@ enabled = false
 rmdb = @datadir@/tizrmd/tizrm.db
 
 
-###########################################################################
-# OpenMAX IL Component plugins section
-###########################################################################
 [plugins]
+# OpenMAX IL Component plugins section
 
 # Each key-value pair represents a list of any data that a
 # specific component might need. The entries here must honor the following
@@ -50,10 +45,9 @@ rmdb = @datadir@/tizrmd/tizrm.db
 OMX.Aratelia.audio_renderer.alsa.pcm.alsa_device = default
 OMX.Aratelia.audio_renderer.alsa.pcm.alsa_mixer = Master
 
-###########################################################################
-# Tizonia player section
-###########################################################################
+
 [tizonia]
+# Tizonia player section
 
 # The default audio renderer used by the tizonia player
 # -------------------------------------------------------------------------
@@ -84,8 +78,9 @@ mpris-enabled = false
 # and configure accordingly.
 #
 # gmusic.user       = user@gmail.com
-# gmusic.password   = pass
-# gmusic.device_id  = deviceid
+# gmusic.password   = pass (account password or app-specific password for
+#                          2-factor users)
+# gmusic.device_id  = deviceid (16 hex digits, e.g. '1234567890abcdef')
 
 
 # SoundCloud configuration
@@ -94,6 +89,7 @@ mpris-enabled = false
 # and configure your SoundCloud OAuth token accordingly.
 #
 # To obtain your OAuth token, Tizonia needs to be granted access to your
-# SoundCloud account. Visit http://www.tizonia.org/soundcloud for the details.
+# SoundCloud account. Visit http://www.tizonia.org/soundcloud for the
+# details.
 #
 # soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX
