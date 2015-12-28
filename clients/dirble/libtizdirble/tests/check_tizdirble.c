@@ -40,7 +40,7 @@
 #include "tizdirble_c.h"
 
 #define DIRBLE_TEST_TIMEOUT 2500
-#define DIRBLE_API_KEY     "3b8b184fb6b1b3677fbc0db7f2"
+#define DIRBLE_API_KEY     "xxx"
 
 #define CMD_LEN 1000
 #define PLAYER "tizonia"
