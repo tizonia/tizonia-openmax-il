@@ -35,7 +35,7 @@ function main {
         command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
     done
 
-    # Build include, gmusic and soundcloud packages in parallel
+    # Build include, gmusic, soundcloud, and dirble packages in parallel
     local tmpsource=$(mktemp)
     for proj in "${TIZ_PROJECTS_ORDERED[@]}"; do
         echo "$proj" >> "$tmpsource"
