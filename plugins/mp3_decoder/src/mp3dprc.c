@@ -411,14 +411,14 @@ static int synthesize_samples (const void *ap_obj, int next_sample)
         {
           /* We're outputting two channels, also for mono streams.
            */
-          p_prc->pcmmode_.nChannels = 2;
+          const OMX_U32 nchannels = 2;
           TIZ_PRINTF_DBG_GRN ("samplerate [%d] NCHANNELS [%d] channels [%d].",
                               p_prc->frame_.header.samplerate,
                               MAD_NCHANNELS (&p_prc->frame_.header),
                               p_prc->synth_.pcm.channels);
           store_stream_metadata (p_prc, &(p_prc->frame_.header));
           (void)update_pcm_mode (p_prc, p_prc->synth_.pcm.samplerate,
-                                 p_prc->pcmmode_.nChannels);
+                                 nchannels);
         }
 
       /* release the output buffer if it is full, or if we are at the early stages
