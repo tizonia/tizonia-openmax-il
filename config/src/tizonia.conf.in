@@ -93,3 +93,10 @@ mpris-enabled = false
 # details.
 #
 # soundcloud.oauth_token = X-XXXXXX-XXXXXXXX-XXXXXXXXXXXXXX
+
+# Dirble configuration
+# -------------------------------------------------------------------------
+# To avoid passing this information on the command line, simply uncomment
+# and configure your Dirble Api Key accordingly.
+#
+# dirble.api_key = xxxxxxxxxxxxxx
