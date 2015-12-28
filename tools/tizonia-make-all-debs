@@ -31,6 +31,8 @@ if [[ "$trusty" == "0" ]];then
        && export ARCH=amd64 \
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
+    
+    sleep 1
 
     screen -S "ubuntu-trusty-i386" -d -m
     screen -r "ubuntu-trusty-i386" -X stuff \
@@ -41,6 +43,8 @@ if [[ "$trusty" == "0" ]];then
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
 
+    sleep 1
+
     screen -S "ubuntu-trusty-armhf" -d -m
     screen -r "ubuntu-trusty-armhf" -X stuff \
         $'cd $TIZONIA_REPO_DIR/tools \
@@ -49,6 +53,9 @@ if [[ "$trusty" == "0" ]];then
        && export ARCH=armhf \
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
+
+    sleep 1
+
 else
     echo >&2 "Ubuntu Trusty builds [$trusty] already in progress."
 fi
@@ -70,6 +77,8 @@ if [[ "$vivid" == "0" ]]; then
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
 
+    sleep 1
+
     screen -S "ubuntu-vivid-i386" -d -m
     screen -r "ubuntu-vivid-i386" -X stuff \
         $'cd $TIZONIA_REPO_DIR/tools \
@@ -79,6 +88,8 @@ if [[ "$vivid" == "0" ]]; then
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
 
+    sleep 1
+
     screen -S "ubuntu-vivid-armhf" -d -m
     screen -r "ubuntu-vivid-armhf" -X stuff \
         $'cd $TIZONIA_REPO_DIR/tools \
@@ -87,6 +98,9 @@ if [[ "$vivid" == "0" ]]; then
        && export ARCH=armhf \
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
+
+    sleep 1
+
 else
     echo >&2 "Ubuntu Vivid builds [$vivid] already in progress."
 fi
@@ -107,6 +121,8 @@ if [[ "$debian" == "0" ]]; then
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
 
+    sleep 1
+
     screen -S "debian-jessie-i386" -d -m
     screen -r "debian-jessie-i386" -X stuff \
         $'cd $TIZONIA_REPO_DIR/tools \
@@ -115,6 +131,8 @@ if [[ "$debian" == "0" ]]; then
        && export ARCH=i386 \
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
+
+    sleep 1
 
     screen -S "debian-jessie-armhf" -d -m
     screen -r "debian-jessie-armhf" -X stuff \
@@ -125,6 +143,8 @@ if [[ "$debian" == "0" ]]; then
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
 
+    sleep 1
+
     screen -S "debian-jessie-armel" -d -m
     screen -r "debian-jessie-armel" -X stuff \
         $'cd $TIZONIA_REPO_DIR/tools \
@@ -133,6 +153,8 @@ if [[ "$debian" == "0" ]]; then
        && export ARCH=armel \
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
+
+    sleep 1
 
 else
     echo >&2 "Debian Jessie builds [$debian] already in progress."
@@ -153,6 +175,9 @@ if [[ "$raspbian" == "0" ]]; then
        && export ARCH=armhf \
        && ./tizonia-qemu-debootstrap-env -b \
        && ./tizonia-qemu-debootstrap-env -m \n'
+
+    sleep 1
+
 else
     echo >&2 "Raspbian Jessie builds [$raspbian] already in progress."
 fi
