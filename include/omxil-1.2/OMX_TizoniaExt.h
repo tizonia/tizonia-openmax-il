@@ -68,6 +68,8 @@
 #define OMX_TizoniaIndexConfigPlaylistSkip           OMX_IndexVendorStartUnused + 12 /**< reference: OMX_TIZONIA_PLAYLISTSKIPTYPE */
 #define OMX_TizoniaIndexParamAudioSoundCloudSession  OMX_IndexVendorStartUnused + 13 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE */
 #define OMX_TizoniaIndexParamAudioSoundCloudPlaylist OMX_IndexVendorStartUnused + 14 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE */
+#define OMX_TizoniaIndexParamAudioDirbleSession      OMX_IndexVendorStartUnused + 15 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE */
+#define OMX_TizoniaIndexParamAudioDirblePlaylist     OMX_IndexVendorStartUnused + 16 /**< reference: OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE */
 
 /**
  * OMX_AUDIO_CODINGTYPE extensions
@@ -341,7 +343,6 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE {
 
 /**
  * SoundCloud source component
- * References:
  *
  */
 
@@ -375,5 +376,34 @@ typedef struct OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE {
     OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
     OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
 } OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE;
+
+/**
+ * Dirble source component
+ *
+ */
+
+typedef enum OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE {
+    OMX_AUDIO_DirblePlaylistTypeUnknown = 0, /**< PlaylistType type unknown (Default). */
+    OMX_AUDIO_DirblePlaylistTypePopularStations, /**< The service's popular stations playlist. */
+    OMX_AUDIO_DirblePlaylistTypeStations, /**< Station search. */
+    OMX_AUDIO_DirblePlaylistTypeCategory, /**< Category search. */
+    OMX_AUDIO_DirblePlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
+    OMX_AUDIO_DirblePlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
+    OMX_AUDIO_DirblePlaylistTypeMax = 0x7FFFFFFF
+} OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_U8 cApiKey[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE;
+
+typedef struct OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE {
+    OMX_U32 nSize;
+    OMX_VERSIONTYPE nVersion;
+    OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE ePlaylistType;
+    OMX_BOOL bShuffle;            /**< Default: OMX_FALSE */
+    OMX_U8 cPlaylistName[OMX_MAX_STRINGNAME_SIZE];
+} OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE;
 
 #endif /* OMX_TizoniaExt_h */
