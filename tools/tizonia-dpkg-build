@@ -128,6 +128,8 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizgmusic]="clients/gmusic/libtizgmusic" \
     [tizsoundcloudproxy]="clients/soundcloud/soundcloudproxy" \
     [tizsoundcloud]="clients/soundcloud/libtizsoundcloud" \
+    [tizdirbleproxy]="clients/dirble/dirbleproxy" \
+    [tizdirble]="clients/dirble/libtizdirble" \
     [tizplatform]="libtizplatform" \
     [tizrmd]="rm/tizrmd" \
     [tizrmproxy]="rm/libtizrmproxy" \
@@ -162,6 +164,8 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizgmusic \
     tizsoundcloudproxy \
     tizsoundcloud \
+    tizdirbleproxy \
+    tizdirble \
     tizplatform \
     tizrmd \
     tizrmproxy \
@@ -192,6 +196,7 @@ readonly TIZ_PROJECTS_ORDERED=( \
 readonly TIZ_PYTHON_PROJECTS=( \
     tizgmusicproxy \
     tizsoundcloudproxy \
+    tizdirbleproxy \
 )
 
 # &> /dev/null
@@ -205,6 +210,8 @@ declare -Ar TIZ_PROJECT_DIST_CMD=( \
     [tizgmusic]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizsoundcloudproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizsoundcloud]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
+    [tizdirbleproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizdirble]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizplatform]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizrmd]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
     [tizrmproxy]="$TIZ_C_CPP_PROJECT_DIST_CMD" \
@@ -241,6 +248,8 @@ declare -Ar TIZ_PROJECT_DH_MAKE_CMD=( \
     [tizgmusic]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizsoundcloudproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
     [tizsoundcloud]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
+    [tizdirbleproxy]="$TIZ_PYTHON_PROJECT_DIST_CMD" \
+    [tizdirble]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizplatform]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizrmd]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
     [tizrmproxy]="$TIZ_PROJECT_DH_MAKE_C_CMD" \
@@ -274,6 +283,8 @@ declare -Ar TIZ_PROJECT_MAIN_PKG=( \
     [tizgmusic]="libtizgmusic0" \
     [tizsoundcloudproxy]="python-tizsoundcloudproxy" \
     [tizsoundcloud]="libtizsoundcloud0" \
+    [tizdirbleproxy]="python-tizdirbleproxy" \
+    [tizdirble]="libtizdirble0" \
     [tizplatform]="libtizplatform0" \
     [tizrmd]="tizrmd" \
     [tizrmproxy]="libtizrmproxy0" \
