@@ -61,6 +61,7 @@ namespace tiz
     OMX_ERRORTYPE spotify_stream ();
     OMX_ERRORTYPE gmusic_stream ();
     OMX_ERRORTYPE scloud_stream ();
+    OMX_ERRORTYPE dirble_stream ();
 
     void print_banner () const;
 

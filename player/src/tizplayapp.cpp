@@ -63,6 +63,8 @@
 #include "services/googlemusic/tizgmusicmgr.hpp"
 #include "services/soundcloud/tizscloudconfig.hpp"
 #include "services/soundcloud/tizscloudmgr.hpp"
+#include "services/dirble/tizdirbleconfig.hpp"
+#include "services/dirble/tizdirblemgr.hpp"
 #include "tizdaemon.hpp"
 
 #include "tizplayapp.hpp"
@@ -311,6 +313,9 @@ void tiz::playapp::set_option_handlers ()
   // SoundCloud music streaming client program options
   popts_.set_option_handler ("scloud-stream",
                              boost::bind (&tiz::playapp::scloud_stream, this));
+  // Dirble internet radio directory streaming client program options
+  popts_.set_option_handler ("dirble-stream",
+                             boost::bind (&tiz::playapp::dirble_stream, this));
 }
 
 OMX_ERRORTYPE
@@ -794,6 +799,47 @@ tiz::playapp::scloud_stream ()
   // Instantiate the streaming client manager
   tiz::graphmgr::mgr_ptr_t p_mgr
       = boost::make_shared< tiz::graphmgr::scloudmgr >(config);
+
+  // TODO: Check return codes
+  p_mgr->init (playlist, graphmgr_termination_cback ());
+  p_mgr->start ();
+
+  while (ETIZPlayUserQuit != wait_for_user_input (p_mgr))
+  {
+  }
+
+  p_mgr->quit ();
+  p_mgr->deinit ();
+
+  return rc;
+}
+
+OMX_ERRORTYPE
+tiz::playapp::dirble_stream ()
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const bool shuffle = popts_.shuffle ();
+  const std::string api_key (popts_.dirble_api_key ());
+  const uri_lst_t &uri_list = popts_.dirble_playlist_container ();
+  const OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE playlist_type = popts_.dirble_playlist_type ();
+
+  print_banner ();
+
+  // daemon support
+  (void)daemonize_if_requested ();
+
+  tizplaylist_ptr_t playlist
+      = boost::make_shared< tiz::playlist >(tiz::playlist (uri_list, shuffle));
+
+  assert (playlist);
+  playlist->set_loop_playback (true);
+
+  tizgraphconfig_ptr_t config = boost::make_shared< tiz::graph::dirbleconfig >(
+      playlist, api_key, playlist_type);
+
+  // Instantiate the streaming client manager
+  tiz::graphmgr::mgr_ptr_t p_mgr
+      = boost::make_shared< tiz::graphmgr::dirblemgr >(config);
 
   // TODO: Check return codes
   p_mgr->init (playlist, graphmgr_termination_cback ());

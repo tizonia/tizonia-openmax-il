@@ -239,6 +239,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     spotify_ ("Spotify options (Spotify Premium required)"),
     gmusic_ ("Google Play Music options"),
     scloud_ ("SoundCloud options"),
+    dirble_ ("Dirble options"),
     input_ ("Intput urioption"),
     positional_ (),
     help_option_ ("help"),
@@ -286,6 +287,12 @@ tiz::programopts::programopts (int argc, char *argv[])
     scloud_tags_ (),
     scloud_playlist_container_ (),
     scloud_playlist_type_ (OMX_AUDIO_SoundCloudPlaylistTypeUnknown),
+    dirble_api_key_ (),
+    dirble_popular_stations_ (),
+    dirble_stations_ (),
+    dirble_category_ (),
+    dirble_playlist_container_ (),
+    dirble_playlist_type_ (OMX_AUDIO_DirblePlaylistTypeUnknown),
     consume_functions_ (),
     all_global_options_ (),
     all_debug_options_ (),
@@ -295,6 +302,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     all_spotify_client_options_ (),
     all_gmusic_client_options_ (),
     all_scloud_client_options_ (),
+    all_dirble_client_options_ (),
     all_input_uri_options_ (),
     all_given_options_ ()
 {
@@ -306,6 +314,7 @@ tiz::programopts::programopts (int argc, char *argv[])
   init_spotify_options ();
   init_gmusic_options ();
   init_scloud_options ();
+  init_dirble_options ();
   init_input_uri_option ();
 }
 
@@ -383,6 +392,7 @@ void tiz::programopts::print_usage_help () const
   std::cout << "  " << "spotify       Spotify options." << "\n";
   std::cout << "  " << "googlemusic   Google Play Music options." << "\n";
   std::cout << "  " << "soundcloud    SoundCloud options." << "\n";
+  std::cout << "  " << "dirble        Dirble options." << "\n";
   std::cout << "  " << "keyboard      Keyboard control." << "\n";
   std::cout << "  " << "config        Configuration files." << "\n";
   std::cout << "  " << "examples      Some command-line examples." << "\n";
@@ -732,6 +742,57 @@ tiz::programopts::scloud_playlist_type ()
   return scloud_playlist_type_;
 }
 
+const std::string &tiz::programopts::dirble_api_key () const
+{
+  return dirble_api_key_;
+}
+
+const std::vector< std::string > &
+    tiz::programopts::dirble_playlist_container ()
+{
+  dirble_playlist_container_.clear ();
+  if (!dirble_popular_stations_.empty ())
+    {
+      dirble_playlist_container_.push_back (dirble_popular_stations_);
+    }
+  else if (!dirble_stations_.empty ())
+    {
+      dirble_playlist_container_.push_back (dirble_stations_);
+    }
+  else if (!dirble_category_.empty ())
+    {
+      dirble_playlist_container_.push_back (dirble_category_);
+    }
+  else
+    {
+      assert (0);
+    }
+  return dirble_playlist_container_;
+}
+
+OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE
+tiz::programopts::dirble_playlist_type ()
+{
+  if (!dirble_popular_stations_.empty ())
+    {
+      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypePopularStations;
+    }
+  else if (!dirble_stations_.empty ())
+    {
+      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeStations;
+    }
+  else if (!dirble_category_.empty ())
+    {
+      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCategory;
+    }
+  else
+    {
+      assert (0);
+    }
+
+  return dirble_playlist_type_;
+}
+
 void tiz::programopts::print_license () const
 {
   TIZ_PRINTF_GRN (
@@ -962,6 +1023,26 @@ void tiz::programopts::init_scloud_options ()
     ("soundcloud-playlists") ("soundcloud-genres")("soundcloud-tags");
 }
 
+void tiz::programopts::init_dirble_options ()
+{
+  dirble_.add_options ()
+      /* TIZ_CLASS_COMMENT: */
+      ("dirble-api-key", po::value (&dirble_api_key_),
+       "Dirble Api Key (not required if provided via config file).")
+      /* TIZ_CLASS_COMMENT: */
+      ("dirble-popular-stations",
+       "Play Dirble's popular stations.")
+      /* TIZ_CLASS_COMMENT: */
+      ("dirble-stations", po::value (&dirble_stations_),
+       "Dirble station search.")
+      ("dirble-category", po::value (&dirble_category_),
+       "Dirble station search.");
+
+  register_consume_function (&tiz::programopts::consume_dirble_client_options);
+  all_dirble_client_options_ = boost::assign::list_of ("dirble-api-key")
+    ("dirble-popular-stations")("dirble-stations")("dirble-category");
+}
+
 void tiz::programopts::init_input_uri_option ()
 {
   input_.add_options ()
@@ -987,6 +1068,7 @@ unsigned int tiz::programopts::parse_command_line (int argc, char *argv[])
       .add (spotify_)
       .add (gmusic_)
       .add (scloud_)
+      .add (dirble_)
       .add (input_);
   po::parsed_options parsed = po::command_line_parser (argc, argv)
                                   .options (all)
@@ -1069,6 +1151,10 @@ int tiz::programopts::consume_global_options (bool &done,
     else if (0 == help_option_.compare ("soundcloud"))
       {
         print_usage_feature (scloud_);
+      }
+    else if (0 == help_option_.compare ("dirble"))
+      {
+        print_usage_feature (dirble_);
       }
     else if (0 == help_option_.compare ("keyboard"))
       {
@@ -1381,6 +1467,62 @@ int tiz::programopts::consume_scloud_client_options (bool &done,
   return rc;
 }
 
+int tiz::programopts::consume_dirble_client_options (bool &done,
+                                                     std::string &msg)
+{
+  int rc = EXIT_FAILURE;
+  done = false;
+
+  if (validate_dirble_client_options ())
+  {
+    done = true;
+
+    const int playlist_option_count = vm_.count ("dirble-popular-stations")
+      + vm_.count ("dirble-stations") + vm_.count ("dirble-category");
+
+    if (dirble_api_key_.empty ())
+      {
+        retrieve_config_from_rc_file ("tizonia", "dirble.api_key", dirble_api_key_);
+      }
+
+    if (vm_.count ("dirble-popular-stations"))
+      {
+        // This is not going to be used by the client code, but will help
+        // in dirble_playlist_type() to decide which playlist type value is returned.
+        dirble_popular_stations_.assign ("Dirble popular stations");
+      }
+
+    if (dirble_api_key_.empty ())
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Need to provide a Dirble API key.";
+      msg.assign (oss.str ());
+    }
+    else if (playlist_option_count > 1)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "Only one playlist type must be specified.";
+      msg.assign (oss.str ());
+    }
+    else if (!playlist_option_count)
+    {
+      rc = EXIT_FAILURE;
+      std::ostringstream oss;
+      oss << "A playlist must be specified.";
+      msg.assign (oss.str ());
+    }
+    else
+    {
+      rc = call_handler (option_handlers_map_.find ("dirble-stream"));
+    }
+  }
+  TIZ_PRINTF_DBG_RED ("dirble ; rc = [%s]\n",
+                      rc == EXIT_SUCCESS ? "SUCCESS" : "FAILURE");
+  return rc;
+}
+
 int tiz::programopts::consume_local_decode_options (bool &done,
                                                     std::string &msg)
 {
@@ -1529,6 +1671,28 @@ bool tiz::programopts::validate_scloud_client_options () const
   concat_option_lists (all_valid_options, all_debug_options_);
 
   if (scloud_opts_count > 0
+      && is_valid_options_combination (all_valid_options, all_given_options_))
+  {
+    outcome = true;
+  }
+  TIZ_PRINTF_DBG_RED ("outcome = [%s]\n",
+                      outcome ? "SUCCESS" : "FAILURE");
+  return outcome;
+}
+
+bool tiz::programopts::validate_dirble_client_options () const
+{
+  bool outcome = false;
+  unsigned int dirble_opts_count
+      = vm_.count ("dirble-api-key") + vm_.count ("dirble-popular-stations")
+        + vm_.count ("dirble-stations") + vm_.count ("dirble-category")
+        + vm_.count ("log-directory");
+
+  std::vector< std::string > all_valid_options = all_dirble_client_options_;
+  concat_option_lists (all_valid_options, all_global_options_);
+  concat_option_lists (all_valid_options, all_debug_options_);
+
+  if (dirble_opts_count > 0
       && is_valid_options_combination (all_valid_options, all_given_options_))
   {
     outcome = true;
