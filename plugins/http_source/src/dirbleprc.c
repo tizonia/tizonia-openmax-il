@@ -530,6 +530,11 @@ static OMX_ERRORTYPE enqueue_playlist_items (dirble_prc_t *ap_prc)
             rc = tiz_dirble_play_category (ap_prc->p_dirble_, p_playlist);
           }
           break;
+        case OMX_AUDIO_DirblePlaylistTypeCountry:
+          {
+            rc = tiz_dirble_play_country (ap_prc->p_dirble_, p_playlist);
+          }
+          break;
         default:
           {
             assert (0);
