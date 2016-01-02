@@ -133,6 +133,14 @@ extern "C" int tiz_dirble_play_category (tiz_dirble_t *ap_dirble,
   return ap_dirble->p_proxy_->play_category (ap_category);
 }
 
+extern "C" int tiz_dirble_play_country (tiz_dirble_t *ap_dirble,
+                                        const char *ap_country_code)
+{
+  assert (ap_dirble);
+  assert (ap_dirble->p_proxy_);
+  return ap_dirble->p_proxy_->play_country (ap_country_code);
+}
+
 extern "C" void tiz_dirble_clear_queue (tiz_dirble_t *ap_dirble)
 {
   assert (ap_dirble);

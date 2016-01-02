@@ -143,6 +143,14 @@ int tizdirble::play_category (const std::string &category)
   return rc;
 }
 
+int tizdirble::play_country (const std::string &country_code)
+{
+  int rc = 0;
+  try_catch_wrapper (
+      py_dirble_proxy_.attr ("enqueue_country")(bp::object (country_code)));
+  return rc;
+}
+
 const char *tizdirble::get_next_url ()
 {
   current_url_.clear ();

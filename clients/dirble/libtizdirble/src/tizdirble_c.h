@@ -101,8 +101,8 @@ void tiz_dirble_set_playback_mode (tiz_dirble_t *ap_dirble,
 int tiz_dirble_play_popular_stations (tiz_dirble_t *ap_dirble);
 
 /**
- * Search Dirble for a category and add matching stations to the playback
- * queue.
+ * Search Dirble for stations matching the query string and add them to the
+ * playback queue.
  *
  * After calling this method, the various tiz_dirble_get* methods can be
  * used to interact with the playback queue.
@@ -110,7 +110,7 @@ int tiz_dirble_play_popular_stations (tiz_dirble_t *ap_dirble);
  * @ingroup libtizdirble
  *
  * @param ap_dirble The dirble handle.
- * @param ap_genres The search query.
+ * @param ap_query The query string.
  *
  * @return 0 on success
  */
@@ -126,11 +126,27 @@ int tiz_dirble_play_stations (tiz_dirble_t *ap_dirble, const char *ap_query);
  * @ingroup libtizdirble
  *
  * @param ap_dirble The dirble handle.
- * @param ap_genres The category.
+ * @param ap_category The category.
  *
  * @return 0 on success
  */
 int tiz_dirble_play_category (tiz_dirble_t *ap_dirble, const char *ap_category);
+
+/**
+* Search Dirble for a country code and add its stations to the playback queue.
+*
+* After calling this method, the various tiz_dirble_get* methods can be
+* used to interact with the playback queue.
+*
+* @ingroup libtizdirble
+*
+* @param ap_dirble The dirble handle.
+* @param ap_country_code A two-letter country code.
+*
+* @return 0 on success
+*/
+int tiz_dirble_play_country (tiz_dirble_t *ap_dirble,
+                             const char *ap_country_code);
 
 /**
  * Clear the playback queue.

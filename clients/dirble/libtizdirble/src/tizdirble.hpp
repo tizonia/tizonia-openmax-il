@@ -58,6 +58,7 @@ public:
   int play_popular_stations ();
   int play_stations (const std::string &query);
   int play_category (const std::string &category);
+  int play_country (const std::string &country_code);
 
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);
