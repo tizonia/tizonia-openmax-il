@@ -387,6 +387,7 @@ typedef enum OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE {
     OMX_AUDIO_DirblePlaylistTypePopularStations, /**< The service's popular stations playlist. */
     OMX_AUDIO_DirblePlaylistTypeStations, /**< Station search. */
     OMX_AUDIO_DirblePlaylistTypeCategory, /**< Category search. */
+    OMX_AUDIO_DirblePlaylistTypeCountry, /**< Country search. */
     OMX_AUDIO_DirblePlaylistTypeKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_AUDIO_DirblePlaylistTypeVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     OMX_AUDIO_DirblePlaylistTypeMax = 0x7FFFFFFF
