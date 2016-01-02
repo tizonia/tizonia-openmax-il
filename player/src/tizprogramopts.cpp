@@ -291,6 +291,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     dirble_popular_stations_ (),
     dirble_stations_ (),
     dirble_category_ (),
+    dirble_country_ (),
     dirble_playlist_container_ (),
     dirble_playlist_type_ (OMX_AUDIO_DirblePlaylistTypeUnknown),
     consume_functions_ (),
@@ -763,6 +764,10 @@ const std::vector< std::string > &
     {
       dirble_playlist_container_.push_back (dirble_category_);
     }
+  else if (!dirble_country_.empty ())
+    {
+      dirble_playlist_container_.push_back (dirble_country_);
+    }
   else
     {
       assert (0);
@@ -784,6 +789,10 @@ tiz::programopts::dirble_playlist_type ()
   else if (!dirble_category_.empty ())
     {
       dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCategory;
+    }
+  else if (!dirble_country_.empty ())
+    {
+      dirble_playlist_type_ = OMX_AUDIO_DirblePlaylistTypeCountry;
     }
   else
     {
@@ -1036,11 +1045,14 @@ void tiz::programopts::init_dirble_options ()
       ("dirble-stations", po::value (&dirble_stations_),
        "Dirble station search.")
       ("dirble-category", po::value (&dirble_category_),
-       "Dirble station search.");
+       "Dirble category search.")
+      ("dirble-country", po::value (&dirble_country_),
+       "Dirble country search.");
 
   register_consume_function (&tiz::programopts::consume_dirble_client_options);
   all_dirble_client_options_ = boost::assign::list_of ("dirble-api-key")
-    ("dirble-popular-stations")("dirble-stations")("dirble-category");
+    ("dirble-popular-stations")("dirble-stations")("dirble-category")
+    ("dirble-country");
 }
 
 void tiz::programopts::init_input_uri_option ()
@@ -1478,7 +1490,8 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
     done = true;
 
     const int playlist_option_count = vm_.count ("dirble-popular-stations")
-      + vm_.count ("dirble-stations") + vm_.count ("dirble-category");
+      + vm_.count ("dirble-stations") + vm_.count ("dirble-category")
+      + vm_.count ("dirble-country");
 
     if (dirble_api_key_.empty ())
       {
@@ -1686,7 +1699,7 @@ bool tiz::programopts::validate_dirble_client_options () const
   unsigned int dirble_opts_count
       = vm_.count ("dirble-api-key") + vm_.count ("dirble-popular-stations")
         + vm_.count ("dirble-stations") + vm_.count ("dirble-category")
-        + vm_.count ("log-directory");
+        + vm_.count ("dirble-country") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_dirble_client_options_;
   concat_option_lists (all_valid_options, all_global_options_);

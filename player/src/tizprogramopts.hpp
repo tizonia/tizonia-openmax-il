@@ -206,6 +206,7 @@ namespace tiz
     std::string dirble_popular_stations_;
     std::string dirble_stations_;
     std::string dirble_category_;
+    std::string dirble_country_;
     std::vector< std::string > dirble_playlist_container_;
     OMX_TIZONIA_AUDIO_DIRBLEPLAYLISTTYPE dirble_playlist_type_;
     std::vector<consume_function_t> consume_functions_;
