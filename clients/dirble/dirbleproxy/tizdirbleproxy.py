@@ -38,7 +38,7 @@ from traceback import print_exception
 
 logging.captureWarnings(True)
 #logging.getLogger().addHandler(logging.NullHandler())
-logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.DEBUG)
 
 class _Colors:
     """A trivial class that defines various ANSI color codes.
@@ -179,9 +179,9 @@ class tizdirbleproxy(object):
         try:
             catids = list ()
             for d in self.api_call("categories"):
-                title = d["title"].encode("utf-8").lower()
+                title = to_ascii(d["title"])
                 print_nfo("[Dirble] [Category] '{0}'.".format(title))
-                if arg.lower() in title:
+                if arg.lower() in title.lower():
                     catids.append(d["id"])
 
             count = len(self.queue)
@@ -200,6 +200,30 @@ class tizdirbleproxy(object):
         except ValueError:
             raise ValueError(str("No stations found : %s" % arg))
 
+    def enqueue_country(self, arg):
+        """Search Dirble for stations from a particular country code and add them to
+        the playback queue.
+
+        :param arg: a search string
+
+        """
+        logging.info('enqueue_country : %s', arg)
+        try:
+            count = len(self.queue)
+            for d in self.api_call("countries/{0}/stations".format(arg.upper())):
+                self.add_to_playback_queue(d)
+
+            logging.info("Added {0} stations to queue" \
+                         .format(len(self.queue) - count))
+
+            if count == len(self.queue):
+                raise ValueError
+
+            self.__update_play_queue_order()
+
+        except ValueError:
+            raise ValueError(str("No stations found : %s" % arg))
+            
     def enqueue_stations(self, arg):
         """Search Dirble for a station name and add all matches to the
         playback queue.
@@ -381,6 +405,8 @@ class tizdirbleproxy(object):
             content_type = stream["content_type"]
             if content_type == "audio/mpeg" \
                or content_type == "?":
+                print_nfo("[Dirble] [Station] '{0}'." \
+                          .format(to_ascii(d["name"]).encode("utf-8")))
                 self.queue.append(
                     tizdirbleproxy.Station(d["id"], d["name"], d["country"], \
                                            d["website"], \
