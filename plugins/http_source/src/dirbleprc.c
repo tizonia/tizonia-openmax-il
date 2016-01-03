@@ -79,8 +79,9 @@ static inline bool is_valid_character (const char c)
   return (unsigned char)c > 0x20;
 }
 
-static void obtain_coding_type (dirble_prc_t *ap_prc, char *ap_info)
+static OMX_ERRORTYPE obtain_coding_type (dirble_prc_t *ap_prc, char *ap_info)
 {
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (ap_prc);
   assert (ap_info);
 
@@ -91,11 +92,13 @@ static void obtain_coding_type (dirble_prc_t *ap_prc, char *ap_info)
       || memcmp (ap_info, "audio/mp3", 9) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
+      rc = OMX_ErrorNone;
     }
   else
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
     }
+  return rc;
 }
 
 static OMX_ERRORTYPE set_audio_coding_on_port (dirble_prc_t *ap_prc)
@@ -110,6 +113,25 @@ static OMX_ERRORTYPE set_audio_coding_on_port (dirble_prc_t *ap_prc)
 
   /* Set the new value */
   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
+
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+      OMX_IndexParamPortDefinition, &port_def));
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE set_auto_detect_on_port (dirble_prc_t *ap_prc)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  assert (ap_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_IndexParamPortDefinition, &port_def));
+
+  /* Set the new value */
+  port_def.format.audio.eEncoding = OMX_AUDIO_CodingAutoDetect;
 
   tiz_check_omx_err (tiz_krn_SetParameter_internal (
       tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
@@ -218,9 +240,11 @@ static void obtain_audio_encoding_from_headers (dirble_prc_t *ap_prc,
           if (memcmp (name, "Content-Type", 12) == 0
               || memcmp (name, "content-type", 12) == 0)
             {
-              obtain_coding_type (ap_prc, p_info);
-              /* Now set the new coding type value on the output port */
-              (void)set_audio_coding_on_port (ap_prc);
+              if (OMX_ErrorNone == obtain_coding_type (ap_prc, p_info))
+                {
+                  /* Now set the new coding type value on the output port */
+                  (void)set_audio_coding_on_port (ap_prc);
+                }
             }
           tiz_mem_free (p_info);
         }
@@ -228,11 +252,11 @@ static void obtain_audio_encoding_from_headers (dirble_prc_t *ap_prc,
   }
 }
 
-static void send_port_auto_detect_events (dirble_prc_t *ap_prc)
+static void send_port_auto_detect_events(dirble_prc_t *ap_prc)
 {
   assert (ap_prc);
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
-      || ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
+      && ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
     {
       TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortFormatDetected");
       tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortFormatDetected, 0, 0,
@@ -248,6 +272,16 @@ static void send_port_auto_detect_events (dirble_prc_t *ap_prc)
   else
     {
       /* Oops... could not detect the stream format */
+
+      /* This is to make sure this url will not get processed again... */
+      ap_prc->remove_current_url_ = true;
+
+      /* Get ready to auto-detect another stream */
+      set_auto_detect_on_port (ap_prc);
+      prepare_for_port_auto_detection (ap_prc);
+
+      /* Finally, signal the client */
+      TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_ErrorFormatNotDetected");
       tiz_srv_issue_err_event ((OMX_PTR)ap_prc, OMX_ErrorFormatNotDetected);
     }
 }
@@ -270,6 +304,11 @@ static OMX_ERRORTYPE update_metadata (dirble_prc_t *ap_prc)
   tiz_check_omx_err (
       store_metadata (ap_prc, "Station",
                       tiz_dirble_get_current_station_name (ap_prc->p_dirble_)));
+
+  /* Country */
+  tiz_check_omx_err (store_metadata (
+      ap_prc, "URL",
+      (const char*)ap_prc->p_uri_param_->contentURI));
 
   /* Country */
   tiz_check_omx_err (store_metadata (
@@ -318,9 +357,13 @@ static OMX_ERRORTYPE obtain_next_url (dirble_prc_t *ap_prc, int a_skip_value)
   ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
   {
-    const char *p_next_url = a_skip_value > 0
-                                 ? tiz_dirble_get_next_url (ap_prc->p_dirble_)
-                                 : tiz_dirble_get_prev_url (ap_prc->p_dirble_);
+    const char *p_next_url
+        = a_skip_value > 0
+              ? tiz_dirble_get_next_url (ap_prc->p_dirble_,
+                                         ap_prc->remove_current_url_)
+              : tiz_dirble_get_prev_url (ap_prc->p_dirble_,
+                                         ap_prc->remove_current_url_);
+    ap_prc->remove_current_url_ = false;
     tiz_check_null_ret_oom (p_next_url != NULL);
 
     {
@@ -431,6 +474,10 @@ static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
   assert (p_prc);
   assert (ap_ptr);
 
+  TIZ_DEBUG (handleOf (p_prc), "p_prc->auto_detect_on_ [%s]",
+             (p_prc->auto_detect_on_ ? "TRUE"
+              : "FALSE"));
+
   if (p_prc->auto_detect_on_ && a_nbytes > 0)
     {
       p_prc->auto_detect_on_ = false;
@@ -451,6 +498,16 @@ static bool connection_lost (OMX_PTR ap_arg)
   dirble_prc_t *p_prc = ap_arg;
   assert (p_prc);
   TIZ_PRINTF_DBG_RED ("connection_lost\n");
+
+  if (p_prc->auto_detect_on_)
+    {
+      /* Oops... unable to connect to the station */
+
+      /* This is to make sure this url will not get processed again... */
+      p_prc->remove_current_url_ = true;
+      /* Signal the client */
+      tiz_srv_issue_err_event ((OMX_PTR)p_prc, OMX_ErrorFormatNotDetected);
+    }
   /* Return false to indicate that there is no need to start the automatic
      reconnection procedure */
   return false;
@@ -553,7 +610,12 @@ static void *dirble_prc_ctor (void *ap_obj, va_list *app)
 {
   dirble_prc_t *p_prc = super_ctor (typeOf (ap_obj, "dirbleprc"), ap_obj, app);
   p_prc->p_outhdr_ = NULL;
+  TIZ_INIT_OMX_STRUCT (p_prc->session_);
+  TIZ_INIT_OMX_STRUCT (p_prc->playlist_);
+  TIZ_INIT_OMX_STRUCT (p_prc->playlist_skip_);
   p_prc->p_uri_param_ = NULL;
+  p_prc->p_trans_ = NULL;
+  p_prc->p_dirble_ = NULL;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   p_prc->uri_changed_ = false;
@@ -563,6 +625,7 @@ static void *dirble_prc_ctor (void *ap_obj, va_list *app)
   p_prc->auto_detect_on_ = false;
   p_prc->bitrate_ = ARATELIA_HTTP_SOURCE_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
+  p_prc->remove_current_url_ = false;
   return p_prc;
 }
 
@@ -698,9 +761,9 @@ static OMX_ERRORTYPE dirble_prc_port_disable (const void *ap_obj,
 {
   dirble_prc_t *p_prc = (dirble_prc_t *)ap_obj;
   assert (p_prc);
+  p_prc->port_disabled_ = true;
   if (p_prc->p_trans_)
     {
-      p_prc->port_disabled_ = true;
       httpsrc_trans_pause (p_prc->p_trans_);
       httpsrc_trans_flush_buffer (p_prc->p_trans_);
     }
@@ -723,7 +786,7 @@ static OMX_ERRORTYPE dirble_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
       else
         {
           p_prc->uri_changed_ = false;
-          rc = httpsrc_trans_start (p_prc->p_trans_);
+/*           rc = httpsrc_trans_start (p_prc->p_trans_); */
         }
     }
   return rc;
@@ -755,11 +818,13 @@ static OMX_ERRORTYPE dirble_prc_config_change (void *ap_prc,
              re-enabled, we restart the transfer */
           p_prc->uri_changed_ = true;
         }
-      else
-        {
-          /* re-start the transfer */
-          httpsrc_trans_start (p_prc->p_trans_);
-        }
+
+      /* Get ready to auto-detect another stream */
+      set_auto_detect_on_port (p_prc);
+      prepare_for_port_auto_detection (p_prc);
+
+      /* Re-start the transfer */
+      httpsrc_trans_start (p_prc->p_trans_);
     }
   return rc;
 }

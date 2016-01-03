@@ -62,6 +62,7 @@ struct dirble_prc
   bool auto_detect_on_;
   int bitrate_;
   int cache_bytes_;
+  bool remove_current_url_;
 };
 
 typedef struct dirble_prc_class dirble_prc_class_t;
