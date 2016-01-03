@@ -160,24 +160,36 @@ void tiz_dirble_clear_queue (tiz_dirble_t *ap_dirble);
 /**
  * Retrieve the next station url
  *
- * The the playback queue pointer moves one position forwards.
+ * The playback queue pointer moves one position forwards.
  *
  * @ingroup libtizdirble
  *
  * @param ap_dirble The dirble handle.
+ * @param a_remove_current_url If true, delete the current url from the
+ * playback queue before moving to the next url.
+ *
+ * @return The next url in the playback queue or NULL if the playback queue is
+ * empty.
  */
-const char *tiz_dirble_get_next_url (tiz_dirble_t *ap_dirble);
+const char *tiz_dirble_get_next_url (tiz_dirble_t *ap_dirble,
+                                     const bool a_remove_current_url);
 
 /**
  * Retrieve the previous station url.
  *
- * The the playback queue pointer moves one position backwards.
+ * The playback queue pointer moves one position backwards.
  *
  * @ingroup libtizdirble
  *
  * @param ap_dirble The dirble handle.
+ * @param a_remove_current_url If true, delete the current url from the
+ * playback queue before moving to the previous url.
+ *
+ * @return The previous url in the playback queue or NULL if the playback queue
+ * is empty.
  */
-const char *tiz_dirble_get_prev_url (tiz_dirble_t *ap_dirble);
+const char *tiz_dirble_get_prev_url (tiz_dirble_t *ap_dirble,
+                                     const bool a_remove_current_url);
 
 /**
  * Retrieve the current station's name.

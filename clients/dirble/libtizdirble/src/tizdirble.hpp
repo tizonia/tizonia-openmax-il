@@ -63,8 +63,8 @@ public:
   void clear_queue ();
   void set_playback_mode (const playback_mode mode);
 
-  const char * get_next_url ();
-  const char * get_prev_url ();
+  const char * get_next_url (const bool a_remove_current_url);
+  const char * get_prev_url (const bool a_remove_current_url);
   const char * get_current_station_name ();
   const char * get_current_station_country ();
   const char * get_current_station_category ();

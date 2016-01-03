@@ -151,17 +151,21 @@ int tizdirble::play_country (const std::string &country_code)
   return rc;
 }
 
-const char *tizdirble::get_next_url ()
+const char *tizdirble::get_next_url (const bool a_remove_current_url)
 {
   current_url_.clear ();
   try
     {
+      if (a_remove_current_url)
+        {
+          py_dirble_proxy_.attr ("remove_current_url")();
+        }
       const char *p_next_url
           = bp::extract< char const * >(py_dirble_proxy_.attr ("next_url")());
       current_url_.assign (p_next_url);
-      if (p_next_url && !get_current_station ())
+      if (!p_next_url || get_current_station ())
         {
-//           current_url_.assign (p_next_url);
+          current_url_.clear ();
         }
     }
   catch (bp::error_already_set &e)
@@ -174,16 +178,21 @@ const char *tizdirble::get_next_url ()
   return current_url_.empty () ? NULL : current_url_.c_str ();
 }
 
-const char *tizdirble::get_prev_url ()
+const char *tizdirble::get_prev_url (const bool a_remove_current_url)
 {
   current_url_.clear ();
   try
     {
+      if (a_remove_current_url)
+        {
+          py_dirble_proxy_.attr ("remove_current_url")();
+        }
       const char *p_prev_url
           = bp::extract< char const * >(py_dirble_proxy_.attr ("prev_url")());
-      if (p_prev_url && !get_current_station ())
+      current_url_.assign (p_prev_url);
+      if (!p_prev_url || get_current_station ())
         {
-          current_url_.assign (p_prev_url);
+          current_url_.clear ();
         }
     }
   catch (bp::error_already_set &e)

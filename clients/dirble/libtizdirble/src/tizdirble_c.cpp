@@ -49,8 +49,7 @@ static void dirble_free_data (tiz_dirble_t *ap_dirble)
     }
 }
 
-static int dirble_alloc_data (tiz_dirble_t *ap_dirble,
-                                  const char *ap_api_key)
+static int dirble_alloc_data (tiz_dirble_t *ap_dirble, const char *ap_api_key)
 {
   int rc = 0;
   assert (ap_dirble);
@@ -148,18 +147,20 @@ extern "C" void tiz_dirble_clear_queue (tiz_dirble_t *ap_dirble)
   ap_dirble->p_proxy_->clear_queue ();
 }
 
-extern "C" const char *tiz_dirble_get_next_url (tiz_dirble_t *ap_dirble)
+extern "C" const char *tiz_dirble_get_next_url (tiz_dirble_t *ap_dirble,
+                                                const bool a_remove_current_url)
 {
   assert (ap_dirble);
   assert (ap_dirble->p_proxy_);
-  return ap_dirble->p_proxy_->get_next_url ();
+  return ap_dirble->p_proxy_->get_next_url (a_remove_current_url);
 }
 
-extern "C" const char *tiz_dirble_get_prev_url (tiz_dirble_t *ap_dirble)
+extern "C" const char *tiz_dirble_get_prev_url (tiz_dirble_t *ap_dirble,
+                                                const bool a_remove_current_url)
 {
   assert (ap_dirble);
   assert (ap_dirble->p_proxy_);
-  return ap_dirble->p_proxy_->get_prev_url ();
+  return ap_dirble->p_proxy_->get_prev_url (a_remove_current_url);
 }
 
 extern "C" const char *tiz_dirble_get_current_station_name (
