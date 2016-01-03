@@ -159,6 +159,7 @@ namespace tiz
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
           bmf::Row < tg::executing                    , tg::omx_port_settings_evt   , tg::awaiting_format_detected_evt, bmf::none              , bmf::none                  >,
           bmf::Row < tg::executing                    , tg::omx_format_detected_evt , tg::awaiting_port_settings_evt  , bmf::none              , bmf::none                  >,
+          bmf::Row < tg::executing                    , tg::omx_err_evt             , bmf::none                       , tg::do_skip            , tg::is_error<OMX_ErrorFormatNotDetected> >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
           bmf::Row < tg::awaiting_format_detected_evt , tg::omx_format_detected_evt , auto_detecting_exit             , bmf::none              , bmf::none                  >,
           //    +--+----------------------------------+-----------------------------+---------------------------------+------------------------+----------------------------+
@@ -488,6 +489,7 @@ namespace tiz
         bmf::Row < tg::executing                , tg::skip_evt              , skipping                , tg::do_store_skip                                          >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_retrieve_metadata    , tg::is_last_eos              >,
         bmf::Row < tg::executing                , tg::omx_eos_evt           , bmf::none               , tg::do_skip                 , tg::is_first_eos             >,
+        bmf::Row < tg::executing                , tg::omx_err_evt           , bmf::none               , tg::do_skip                 , tg::is_error<OMX_ErrorFormatNotDetected> >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
         bmf::Row < tg::exe2pause                , tg::omx_trans_evt         , tg::pause               , tg::do_ack_paused           , tg::is_trans_complete        >,
         //    +--+------------------------------+---------------------------+-------------------------+-----------------------------+------------------------------+
