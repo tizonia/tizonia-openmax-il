@@ -774,9 +774,9 @@ static OMX_ERRORTYPE gmusic_prc_port_disable (const void *ap_obj,
   assert (p_prc);
   TIZ_PRINTF_DBG_RED ("Disabling port was disabled? [%s]\n",
                       p_prc->port_disabled_ ? "YES" : "NO");
+  p_prc->port_disabled_ = true;
   if (p_prc->p_trans_)
     {
-      p_prc->port_disabled_ = true;
       httpsrc_trans_pause (p_prc->p_trans_);
       httpsrc_trans_flush_buffer (p_prc->p_trans_);
     }

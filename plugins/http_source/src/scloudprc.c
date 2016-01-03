@@ -787,9 +787,9 @@ static OMX_ERRORTYPE scloud_prc_port_disable (const void *ap_obj,
 {
   scloud_prc_t *p_prc = (scloud_prc_t *)ap_obj;
   assert (p_prc);
+  p_prc->port_disabled_ = true;
   if (p_prc->p_trans_)
     {
-      p_prc->port_disabled_ = true;
       httpsrc_trans_pause (p_prc->p_trans_);
       httpsrc_trans_flush_buffer (p_prc->p_trans_);
     }
