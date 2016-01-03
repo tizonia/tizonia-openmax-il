@@ -33,11 +33,11 @@ from requests.adapters import HTTPAdapter
 from operator import itemgetter
 
 # For use during debugging
-import pprint
+# import pprint
 from traceback import print_exception
 
 logging.captureWarnings(True)
-#logging.getLogger().addHandler(logging.NullHandler())
+logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.DEBUG)
 
 class _Colors:
@@ -88,7 +88,7 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[Dirble] (%s) : %s" % (exception_type.__name__, exception))
-    #del traceback # unused
+    # del traceback # unused
     print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
@@ -289,6 +289,21 @@ class tizdirbleproxy(object):
         """
         self.queue = list()
         self.queue_index = -1
+
+    def remove_current_url(self):
+        """Remove the currently active url from the playback queue.
+
+        """
+        logging.info("remove_current_url")
+        if len(self.queue) and self.queue_index:
+            station = self.queue[self.queue_index]
+            print_nfo("[Dirble] [Station] '{0}' removed." \
+                      .format(to_ascii(station.name).encode("utf-8")))
+            del self.queue[self.queue_index]
+            self.queue_index -= 1
+            if self.queue_index < 0:
+                self.queue_index = 0
+            self.__update_play_queue_order()
 
     def next_url(self):
         """ Retrieve the url of the next station in the playback queue.
