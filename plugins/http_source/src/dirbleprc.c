@@ -503,8 +503,13 @@ static bool connection_lost (OMX_PTR ap_arg)
     {
       /* Oops... unable to connect to the station */
 
-      /* This is to make sure this url will not get processed again... */
+      /* Make sure this url will not get processed again... */
       p_prc->remove_current_url_ = true;
+
+      /* Get ready to auto-detect another stream */
+      set_auto_detect_on_port (p_prc);
+      prepare_for_port_auto_detection (p_prc);
+
       /* Signal the client */
       tiz_srv_issue_err_event ((OMX_PTR)p_prc, OMX_ErrorFormatNotDetected);
     }
