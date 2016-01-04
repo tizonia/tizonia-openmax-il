@@ -27,6 +27,7 @@ import sys
 import logging
 import random
 import unicodedata
+import urllib
 from collections import namedtuple
 from requests import Session, exceptions
 from requests.adapters import HTTPAdapter
@@ -34,7 +35,7 @@ from operator import itemgetter
 
 # For use during debugging
 # import pprint
-from traceback import print_exception
+# from traceback import print_exception
 
 logging.captureWarnings(True)
 logging.getLogger().addHandler(logging.NullHandler())
@@ -88,8 +89,8 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[Dirble] (%s) : %s" % (exception_type.__name__, exception))
-    # del traceback # unused
-    print_exception(exception_type, exception, traceback)
+    del traceback # unused
+    #print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -186,8 +187,12 @@ class tizdirbleproxy(object):
 
             count = len(self.queue)
             for catid in catids:
-                for d in self.api_call("category/{0}/stations".format(catid)):
-                    self.add_to_playback_queue(d)
+                for p in range(0, 10):
+                    self._api.params = {'token': self.key, 'page': p}
+                    for d in self.api_call("category/{0}/stations".format(catid)):
+                        self.add_to_playback_queue(d)
+
+            self._api.params = {'token': self.key}
 
             logging.info("Added {0} stations to queue" \
                          .format(len(self.queue) - count))
@@ -210,8 +215,11 @@ class tizdirbleproxy(object):
         logging.info('enqueue_country : %s', arg)
         try:
             count = len(self.queue)
-            for d in self.api_call("countries/{0}/stations".format(arg.upper())):
-                self.add_to_playback_queue(d)
+            for p in range(0, 10):
+                self._api.params = {'token': self.key, 'page': p}
+                for d in self.api_call("countries/{0}/stations".format(arg.upper())):
+                    self.add_to_playback_queue(d)
+            self._api.params = {'token': self.key}
 
             logging.info("Added {0} stations to queue" \
                          .format(len(self.queue) - count))
@@ -234,8 +242,11 @@ class tizdirbleproxy(object):
         logging.info('enqueue_stations : %s', arg)
         try:
             count = len(self.queue)
-            for d in self.api_call("search/{0}".format(arg)):
-                self.add_to_playback_queue(d)
+            for p in range(0, 10):
+                self._api.params = {'token': self.key, 'page': p}
+                for d in self.api_call("search/{0}".format(arg)):
+                    self.add_to_playback_queue(d)
+            self._api.params = {'token': self.key}
 
             logging.info("Added {0} stations to queue" \
                          .format(len(self.queue) - count))
@@ -381,7 +392,7 @@ class tizdirbleproxy(object):
             raise
 
     def api_call(self, path):
-        uri = self.base_url + path
+        uri = self.base_url + urllib.quote(path)
 
         logging.debug('Fetching: %s', uri)
         try:
@@ -395,7 +406,6 @@ class tizdirbleproxy(object):
             logging.debug('Fetch failed, HTTP %s', resp.status_code)
 
             if resp.status_code == 404:
-                self._cache[uri] = default
                 return []
 
         except exceptions.RequestException as e:
