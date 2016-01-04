@@ -115,7 +115,7 @@ class tizdirbleproxy(object):
 
     """
     base_url = 'http://api.dirble.com/v2/'
-    
+
     Station = namedtuple("Station", "id name country website category streamurl bitrate content_type")
 
     def __init__(self, api_key):
@@ -223,7 +223,7 @@ class tizdirbleproxy(object):
 
         except ValueError:
             raise ValueError(str("No stations found : %s" % arg))
-            
+
     def enqueue_stations(self, arg):
         """Search Dirble for a station name and add all matches to the
         playback queue.
@@ -317,7 +317,7 @@ class tizdirbleproxy(object):
                    and (self.queue_index >= 0):
                     next_station = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_station_url(next_station)
+                    return self.__retrieve_station_url(next_station).rstrip()
                 else:
                     self.queue_index = -1
                     return self.next_url()
@@ -339,7 +339,7 @@ class tizdirbleproxy(object):
                    and (self.queue_index >= 0):
                     prev_station = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_station_url(prev_station)
+                    return self.__retrieve_station_url(prev_station).rstrip()
                 else:
                     self.queue_index = len(self.queue)
                     return self.prev_url()
@@ -429,6 +429,6 @@ class tizdirbleproxy(object):
                                            streamurl, \
                                            bitrate,
                                            content_type))
-            
+
 if __name__ == "__main__":
     tizdirbleproxy()
