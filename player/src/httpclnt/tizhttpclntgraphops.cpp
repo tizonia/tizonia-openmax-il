@@ -398,34 +398,35 @@ graph::httpclntops::get_channels_and_rate_from_http_source (
     }
     break;
     default:
+    {
+      if (OMX_AUDIO_CodingOPUS == encoding_)
       {
-        if (OMX_AUDIO_CodingOPUS == encoding_)
-          {
-            encoding_str = "opus";
-            rc = tiz::graph::util::
-              get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE >(
-              handle, port_id,
-              static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
-              channels, sampling_rate);
-          }
-        else if (OMX_AUDIO_CodingFLAC == encoding_)
-          {
-            encoding_str = "flac";
-            rc = tiz::graph::util::
-              get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_FLACTYPE >(
-              handle, port_id,
-              static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
-              channels, sampling_rate);
-        }
-        else
-          {
-            TIZ_LOG (TIZ_PRIORITY_ERROR,
-                     "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
-                     encoding_);
-            rc = OMX_ErrorFormatNotDetected;
-          }
+        encoding_str = "opus";
+        rc = tiz::graph::util::
+            get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE >(
+                handle, port_id,
+                static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioOpus),
+                channels, sampling_rate);
       }
-      break;
+      else if (OMX_AUDIO_CodingFLAC == encoding_)
+      {
+        encoding_str = "flac";
+        rc = tiz::graph::util::
+            get_channels_and_rate_from_audio_port< OMX_TIZONIA_AUDIO_PARAM_FLACTYPE >(
+                handle, port_id,
+                static_cast< OMX_INDEXTYPE >(OMX_TizoniaIndexParamAudioFlac),
+                channels, sampling_rate);
+      }
+      else
+      {
+        TIZ_LOG (
+            TIZ_PRIORITY_ERROR,
+            "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+            encoding_);
+        rc = OMX_ErrorFormatNotDetected;
+      }
+    }
+    break;
   };
 
   return rc;
@@ -534,8 +535,7 @@ graph::httpclntops::set_channels_and_rate_on_renderer (
 
   std::string coding_type_str ("http/");
   coding_type_str.append (encoding_str);
-  tiz::graph::util::dump_graph_info (coding_type_str.c_str (),
-                                     "Connection established",
+  tiz::graph::util::dump_graph_info (coding_type_str.c_str (), "Connected",
                                      playlist_->get_current_uri ().c_str ());
 
   TIZ_PRINTF_MAG ("     %ld Ch, %g KHz, %lu:%s:%s\n",

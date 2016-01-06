@@ -130,9 +130,8 @@ void graph::dirbleops::do_load ()
 
   omx_comp_name_lst_t comp_list;
   omx_comp_role_lst_t role_list;
-
-  comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
-  role_list.push_back ("audio_decoder.mp3");
+  G_OPS_BAIL_IF_ERROR (add_decoder_to_component_list (comp_list, role_list),
+                       "Unknown/unhandled stream format.");
 
   comp_list.push_back (tiz::graph::util::get_default_pcm_renderer ());
   role_list.push_back ("audio_renderer.pcm");
@@ -299,6 +298,56 @@ graph::dirbleops::transition_tunnel (
   return rc;
 }
 
+OMX_ERRORTYPE
+graph::dirbleops::add_decoder_to_component_list (
+    omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  switch (encoding_)
+  {
+    case OMX_AUDIO_CodingMP3:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.mp3");
+      role_list.push_back ("audio_decoder.mp3");
+    }
+    break;
+    case OMX_AUDIO_CodingAAC:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.aac");
+      role_list.push_back ("audio_decoder.aac");
+    }
+    break;
+    case OMX_AUDIO_CodingVORBIS:
+    {
+      comp_list.push_back ("OMX.Aratelia.audio_decoder.vorbis");
+      role_list.push_back ("audio_decoder.vorbis");
+    }
+    break;
+    default:
+      {
+      if (OMX_AUDIO_CodingOPUS == encoding_)
+        {
+          comp_list.push_back ("OMX.Aratelia.audio_decoder.opusfile.opus");
+          role_list.push_back ("audio_decoder.opus");
+        }
+      else if (OMX_AUDIO_CodingFLAC == encoding_)
+        {
+          comp_list.push_back ("OMX.Aratelia.audio_decoder.flac");
+          role_list.push_back ("audio_decoder.flac");
+        }
+      else
+        {
+          TIZ_LOG (TIZ_PRIORITY_ERROR,
+                   "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+                   encoding_);
+          rc = OMX_ErrorFormatNotDetected;
+        }
+      }
+      break;
+  };
+  return rc;
+}
+
 bool graph::dirbleops::probe_stream_hook ()
 {
   return true;
@@ -334,26 +383,54 @@ graph::dirbleops::get_channels_and_rate_from_decoder (
     OMX_U32 &channels, OMX_U32 &sampling_rate, std::string &encoding_str) const
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const OMX_HANDLETYPE handle = handles_[1];  // mp3 decoder's handle
-  const OMX_U32 port_id = 1;                  // mp3 decoder's output port
+  const OMX_HANDLETYPE handle = handles_[1];  // decoder's handle
+  const OMX_U32 port_id = 1;                  // decoder's output port
 
   switch (encoding_)
   {
     case OMX_AUDIO_CodingMP3:
     {
       encoding_str = "mp3";
-      rc = tiz::graph::util::
-          get_channels_and_rate_from_audio_port_v2< OMX_AUDIO_PARAM_PCMMODETYPE >(
-              handle, port_id, OMX_IndexParamAudioPcm, channels, sampling_rate);
+    }
+    break;
+    case OMX_AUDIO_CodingAAC:
+    {
+      encoding_str = "aac";
+    }
+    break;
+    case OMX_AUDIO_CodingVORBIS:
+    {
+      encoding_str = "vorbis";
     }
     break;
     default:
     {
-      assert (0);
+      if (OMX_AUDIO_CodingOPUS == encoding_)
+      {
+        encoding_str = "opus";
+      }
+      else if (OMX_AUDIO_CodingFLAC == encoding_)
+      {
+        encoding_str = "flac";
+      }
+      else
+      {
+        TIZ_LOG (
+            TIZ_PRIORITY_ERROR,
+            "[OMX_ErrorFormatNotDetected] : Unhandled encoding type [%d]...",
+            encoding_);
+        rc = OMX_ErrorFormatNotDetected;
+      }
     }
     break;
   };
 
+  if (OMX_ErrorNone == rc)
+  {
+    rc = tiz::graph::util::
+        get_channels_and_rate_from_audio_port_v2< OMX_AUDIO_PARAM_PCMMODETYPE >(
+            handle, port_id, OMX_IndexParamAudioPcm, channels, sampling_rate);
+  }
   TIZ_LOG (TIZ_PRIORITY_TRACE, "outcome = [%s]", tiz_err_to_str (rc));
 
   return rc;
@@ -381,6 +458,12 @@ graph::dirbleops::set_channels_and_rate_on_renderer (
   renderer_pcmtype_.eNumData = OMX_NumericalDataSigned;
   renderer_pcmtype_.eEndian
       = (encoding_ == OMX_AUDIO_CodingMP3 ? OMX_EndianBig : OMX_EndianLittle);
+
+  if (OMX_AUDIO_CodingOPUS == encoding_ || OMX_AUDIO_CodingVORBIS == encoding_)
+  {
+    // Opus and Vorbis decoders output 32 bit samples (floats)
+    renderer_pcmtype_.nBitPerSample = 32;
+  }
 
   // Set the new pcm settings
   tiz_check_omx_err (
@@ -501,7 +584,7 @@ void graph::dirbleops::do_reconfigure_second_tunnel ()
   TIZ_INIT_OMX_PORT_STRUCT (decoder_pcmtype, decoder_port_id);
   G_OPS_BAIL_IF_ERROR (
       OMX_GetParameter (handles_[1], OMX_IndexParamAudioPcm, &decoder_pcmtype),
-      "Unable to retrieve the PCM settings from the Mp3 decoder");
+      "Unable to retrieve the PCM settings from the decoder");
 
   // Retrieve the pcm settings from the renderer component
   OMX_AUDIO_PARAM_PCMMODETYPE renderer_pcmtype;

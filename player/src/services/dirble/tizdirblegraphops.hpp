@@ -67,6 +67,8 @@ namespace tiz
                                             const std::string &api_key);
       OMX_ERRORTYPE set_dirble_playlist (const OMX_HANDLETYPE handle,
                                          const std::string &playlist);
+      OMX_ERRORTYPE add_decoder_to_component_list (
+          omx_comp_name_lst_t &comp_list, omx_comp_role_lst_t &role_list);
 
     private:
       // re-implemented from the base class
