@@ -155,6 +155,7 @@ class tizdirbleproxy(object):
         logging.info('enqueue_popular_stations')
         try:
             count = len(self.queue)
+            self._api.params = {'token': self.key}
             for d in self.api_call("stations/popular"):
                 self.add_to_playback_queue(d)
 
@@ -179,6 +180,7 @@ class tizdirbleproxy(object):
         logging.info('enqueue_category : %s', arg)
         try:
             catids = list ()
+            self._api.params = {'token': self.key}
             for d in self.api_call("categories"):
                 title = to_ascii(d["title"])
                 print_nfo("[Dirble] [Category] '{0}'.".format(title))
@@ -191,8 +193,6 @@ class tizdirbleproxy(object):
                     self._api.params = {'token': self.key, 'page': p}
                     for d in self.api_call("category/{0}/stations".format(catid)):
                         self.add_to_playback_queue(d)
-
-            self._api.params = {'token': self.key}
 
             logging.info("Added {0} stations to queue" \
                          .format(len(self.queue) - count))
@@ -219,7 +219,6 @@ class tizdirbleproxy(object):
                 self._api.params = {'token': self.key, 'page': p}
                 for d in self.api_call("countries/{0}/stations".format(arg.upper())):
                     self.add_to_playback_queue(d)
-            self._api.params = {'token': self.key}
 
             logging.info("Added {0} stations to queue" \
                          .format(len(self.queue) - count))
@@ -246,7 +245,6 @@ class tizdirbleproxy(object):
                 self._api.params = {'token': self.key, 'page': p}
                 for d in self.api_call("search/{0}".format(arg)):
                     self.add_to_playback_queue(d)
-            self._api.params = {'token': self.key}
 
             logging.info("Added {0} stations to queue" \
                          .format(len(self.queue) - count))
@@ -427,18 +425,17 @@ class tizdirbleproxy(object):
         for stream in d["streams"]:
             streamurl = stream["stream"]
             bitrate = stream["bitrate"]
-            content_type = stream["content_type"]
-            if content_type == "audio/mpeg" \
-               or content_type == "?":
-                print_nfo("[Dirble] [Station] '{0}'." \
-                          .format(to_ascii(d["name"]).encode("utf-8")))
-                self.queue.append(
-                    tizdirbleproxy.Station(d["id"], d["name"], d["country"], \
-                                           d["website"], \
-                                           category, \
-                                           streamurl, \
-                                           bitrate,
-                                           content_type))
+            content_type = stream["content_type"].rstrip()
+            print_nfo("[Dirble] [Station] '{0}' [{1}]." \
+                      .format(to_ascii(d["name"]).encode("utf-8"), \
+                              to_ascii(content_type)))
+            self.queue.append(
+                tizdirbleproxy.Station(d["id"], d["name"], d["country"], \
+                                       d["website"], \
+                                       category, \
+                                       streamurl, \
+                                       bitrate,
+                                       content_type))
 
 if __name__ == "__main__":
     tizdirbleproxy()
