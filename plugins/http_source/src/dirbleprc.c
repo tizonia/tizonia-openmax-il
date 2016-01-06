@@ -81,7 +81,7 @@ static inline bool is_valid_character (const char c)
 
 static OMX_ERRORTYPE obtain_coding_type (dirble_prc_t *ap_prc, char *ap_info)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
   assert (ap_info);
 
@@ -92,11 +92,44 @@ static OMX_ERRORTYPE obtain_coding_type (dirble_prc_t *ap_prc, char *ap_info)
       || memcmp (ap_info, "audio/mp3", 9) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
-      rc = OMX_ErrorNone;
+    }
+  else if (memcmp (ap_info, "audio/aac", 9) == 0
+           || memcmp (ap_info, "audio/aacp", 10) == 0)
+    {
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
+    }
+  else if (memcmp (ap_info, "audio/vorbis", 12) == 0)
+    {
+      /* This is vorbis without container */
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingVORBIS;
+    }
+  else if (memcmp (ap_info, "audio/speex", 11) == 0)
+    {
+      /* This is speex without container */
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingSPEEX;
+    }
+  else if (memcmp (ap_info, "audio/flac", 10) == 0)
+    {
+      /* This is flac without container */
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingFLAC;
+    }
+  else if (memcmp (ap_info, "audio/opus", 10) == 0)
+    {
+      /* This is opus without container */
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOPUS;
+    }
+  else if (memcmp (ap_info, "application/ogg", 15) == 0
+           || memcmp (ap_info, "audio/ogg", 9) == 0)
+    {
+      /* This is for audio with ogg container (may be FLAC, Vorbis, Opus,
+         etc). We'll have to identify the actual codec when the first bytes
+         from the stream arrive */
+      ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOGA;
     }
   else
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
+      rc = OMX_ErrorInsufficientResources;
     }
   return rc;
 }
