@@ -550,30 +550,45 @@ void graph::dirbleops::do_record_fatal_error (const OMX_HANDLETYPE handle,
 
 void graph::dirbleops::do_reconfigure_first_tunnel ()
 {
-  // Retrieve the mp3 settings from the dirble source component
-  OMX_AUDIO_PARAM_MP3TYPE dirble_mp3type;
-  const OMX_U32 dirble_port_id = 0;
-  TIZ_INIT_OMX_PORT_STRUCT (dirble_mp3type, dirble_port_id);
-  G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[0], OMX_IndexParamAudioMp3, &dirble_mp3type),
-      "Unable to retrieve the MP3 settings from the dirble source");
+  switch (encoding_)
+  {
+    case OMX_AUDIO_CodingMP3:
+    {
+      // Retrieve the mp3 settings from the dirble source component
+      OMX_AUDIO_PARAM_MP3TYPE dirble_mp3type;
+      const OMX_U32 dirble_port_id = 0;
+      TIZ_INIT_OMX_PORT_STRUCT (dirble_mp3type, dirble_port_id);
+      G_OPS_BAIL_IF_ERROR (
+          OMX_GetParameter (handles_[0], OMX_IndexParamAudioMp3,
+                            &dirble_mp3type),
+          "Unable to retrieve the MP3 settings from the dirble source");
 
-  // Retrieve the mp3 settings from the decoder component
-  OMX_AUDIO_PARAM_MP3TYPE decoder_mp3type;
-  const OMX_U32 decoder_port_id = 0;
-  TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type, decoder_port_id);
-  G_OPS_BAIL_IF_ERROR (
-      OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3, &decoder_mp3type),
-      "Unable to retrieve the MP3 settings from the audio decoder");
+      // Retrieve the mp3 settings from the decoder component
+      OMX_AUDIO_PARAM_MP3TYPE decoder_mp3type;
+      const OMX_U32 decoder_port_id = 0;
+      TIZ_INIT_OMX_PORT_STRUCT (decoder_mp3type, decoder_port_id);
+      G_OPS_BAIL_IF_ERROR (
+          OMX_GetParameter (handles_[1], OMX_IndexParamAudioMp3,
+                            &decoder_mp3type),
+          "Unable to retrieve the MP3 settings from the audio decoder");
 
-  // Now assign the current settings to the decoder structure
-  decoder_mp3type.nChannels = dirble_mp3type.nChannels;
-  decoder_mp3type.nSampleRate = dirble_mp3type.nSampleRate;
+      // Now assign the current settings to the decoder structure
+      decoder_mp3type.nChannels = dirble_mp3type.nChannels;
+      decoder_mp3type.nSampleRate = dirble_mp3type.nSampleRate;
 
-  // Set the new mp3 settings
-  G_OPS_BAIL_IF_ERROR (
-      OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3, &decoder_mp3type),
-      "Unable to set the MP3 settings on the audio decoder");
+      // Set the new mp3 settings
+      G_OPS_BAIL_IF_ERROR (
+          OMX_SetParameter (handles_[1], OMX_IndexParamAudioMp3,
+                            &decoder_mp3type),
+          "Unable to set the MP3 settings on the audio decoder");
+    }
+    break;
+  default:
+    {
+      // TODO
+    }
+    break;
+  };
 }
 
 void graph::dirbleops::do_reconfigure_second_tunnel ()
