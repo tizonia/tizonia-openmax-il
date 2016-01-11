@@ -54,6 +54,7 @@ struct aacdec_prc
   unsigned char channels_;
   long nbytes_read_;
   bool first_buffer_read_;
+  bool second_buffer_read_;
   tiz_buffer_t *p_store_;
 };
 

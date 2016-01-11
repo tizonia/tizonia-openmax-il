@@ -179,6 +179,158 @@ static OMX_ERRORTYPE update_pcm_mode (aacdec_prc_t *ap_prc, const OMX_U32 a_samp
   return OMX_ErrorNone;
 }
 
+static OMX_ERRORTYPE store_metadata (aacdec_prc_t *ap_prc,
+                                     const char *ap_header_name,
+                                     const char *ap_header_info)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
+  size_t metadata_len = 0;
+  size_t info_len = 0;
+
+  assert (ap_prc);
+  if (ap_header_name && ap_header_info)
+    {
+      info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+      metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
+
+      if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
+                       1, metadata_len)))
+        {
+          rc = OMX_ErrorInsufficientResources;
+        }
+      else
+        {
+          const size_t name_len
+              = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+          strncpy ((char *)p_meta->nKey, ap_header_name, name_len - 1);
+          p_meta->nKey[name_len - 1] = '\0';
+          p_meta->nKeySizeUsed = name_len;
+
+          strncpy ((char *)p_meta->nValue, ap_header_info, info_len - 1);
+          p_meta->nValue[info_len - 1] = '\0';
+          p_meta->nValueMaxSize = info_len;
+          p_meta->nValueSizeUsed = info_len;
+
+          p_meta->nSize = metadata_len;
+          p_meta->nVersion.nVersion = OMX_VERSION;
+          p_meta->eScopeMode = OMX_MetadataScopeAllLevels;
+          p_meta->nScopeSpecifier = 0;
+          p_meta->nMetadataItemIndex = 0;
+          p_meta->eSearchMode = OMX_MetadataSearchValueSizeByIndex;
+          p_meta->eKeyCharset = OMX_MetadataCharsetASCII;
+          p_meta->eValueCharset = OMX_MetadataCharsetASCII;
+
+          rc = tiz_krn_store_metadata (tiz_get_krn (handleOf (ap_prc)), p_meta);
+        }
+    }
+  return rc;
+}
+
+static void store_stream_metadata (aacdec_prc_t *ap_prc)
+{
+  const char *p_object_type;
+  const char *p_sbr;
+  const char *p_header_type;
+  const char *p_ps;
+  char info[100];
+
+  assert (ap_prc);
+
+  switch (ap_prc->aac_info_.object_type)
+    {
+      case MAIN:
+        p_object_type = "MAIN";
+        break;
+      case LC:
+        p_object_type = "LC";
+        break;
+      case SSR:
+        p_object_type = "SSR";
+        break;
+      case LTP:
+        p_object_type = "LTP";
+        break;
+      case HE_AAC:
+        p_object_type = "HE_AAC";
+        break;
+      case ER_LC:
+        p_object_type = "ER_LC";
+        break;
+      case ER_LTP:
+        p_object_type = "ER_LTP";
+        break;
+      case LD:
+        p_object_type = "LD";
+        break;
+      default:
+        p_object_type = "(unknown)";
+        break;
+    };
+
+  switch (ap_prc->aac_info_.sbr)
+    {
+      case NO_SBR:
+        p_sbr = "NO_SBR";
+        break;
+      case SBR_UPSAMPLED:
+        p_sbr = "SBR_UPSAMPLED";
+        break;
+      case SBR_DOWNSAMPLED:
+        p_sbr = "SBR_DOWNSAMPLED";
+        break;
+      case NO_SBR_UPSAMPLED:
+        p_sbr = "NO_SBR_UPSAMPLED";
+        break;
+      default:
+        p_sbr = "(unknown)";
+        break;
+    };
+
+  switch (ap_prc->aac_info_.header_type)
+    {
+      case RAW:
+        p_header_type = "RAW/MP4";
+        break;
+      case ADIF:
+        p_header_type = "ADIF";
+        break;
+      case ADTS:
+        p_header_type = "ADTS";
+        break;
+      case LATM:
+        p_header_type = "LATM";
+        break;
+      default:
+        p_header_type = "(unknown)";
+        break;
+    };
+
+  switch (ap_prc->aac_info_.ps)
+    {
+      case 0:
+        p_ps = "PS off";
+        break;
+      case 1:
+        p_ps = "PS on";
+        break;
+      default:
+        p_ps = "(unknown)";
+        break;
+    };
+
+  (void)tiz_krn_clear_metadata (tiz_get_krn (handleOf (ap_prc)));
+
+  snprintf (info, 99, "%lu Hz, %d ch", ap_prc->samplerate_, ap_prc->channels_);
+  info[99] = '\000';
+  (void)store_metadata (ap_prc, "Audio Stream", info);
+
+  snprintf (info, 99, "%s, %s, %s, %s", p_object_type, p_sbr, p_header_type,
+            p_ps);
+  info[99] = '\000';
+  (void)store_metadata (ap_prc, "AAC", info);
+}
+
 static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
@@ -231,6 +383,7 @@ static OMX_ERRORTYPE init_aac_decoder (aacdec_prc_t *ap_prc)
       tiz_buffer_advance (ap_prc->p_store_, nbytes);
       TIZ_DEBUG (handleOf (ap_prc), "samplerate [%d] channels [%d]",
                  ap_prc->samplerate_, (int)ap_prc->channels_);
+      store_stream_metadata (ap_prc);
       rc = OMX_ErrorNone;
     }
   return rc;
@@ -298,6 +451,12 @@ static OMX_ERRORTYPE transform_buffer (aacdec_prc_t *ap_prc)
           = NeAACDecDecode (ap_prc->p_aac_dec_, &(ap_prc->aac_info_),
                             tiz_buffer_get (ap_prc->p_store_),
                             tiz_buffer_available (ap_prc->p_store_));
+
+      if (ap_prc->first_buffer_read_ && !ap_prc->second_buffer_read_)
+        {
+          store_stream_metadata (ap_prc);
+          ap_prc->second_buffer_read_ = true;
+        }
 
       TIZ_TRACE (handleOf (ap_prc),
                  "bytes_available = [%d] bytesconsumed = [%d] "
@@ -377,6 +536,7 @@ static void reset_stream_parameters (aacdec_prc_t *ap_prc)
   ap_prc->channels_ = 0;
   ap_prc->nbytes_read_ = 0;
   ap_prc->first_buffer_read_ = false;
+  ap_prc->second_buffer_read_ = false;
   tiz_filter_prc_update_eos_flag (ap_prc, false);
 }
 
