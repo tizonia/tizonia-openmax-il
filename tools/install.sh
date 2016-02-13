@@ -32,8 +32,8 @@ else
   exit 1
 fi
 
-# Make sure curl is already installed
-sudo apt-get -y install curl
+# Make sure some required packages are already installed
+sudo apt-get -y --force-yes install curl apt-transport-https
 
 # To install libspotify deb packages, add Mopidy's archive to APT's
 # sources.list
@@ -73,10 +73,14 @@ if [ ! -e "$TIZ_CONFIG_FILE" ]; then
 fi
 
 # Simply test to verify everyting went well
-tizonia -v
+which tizonia
 if [ $? -eq 0 ]; then
+    tizonia -v
     echo "Tizonia is now installed."
-    echo "Configuration file located in : $TIZ_CONFIG_FILE "
+    echo "Please add Spotify, Google Music and Soundcloud credentials in : $TIZ_CONFIG_FILE"
 else
     echo "Oops. Something went wrong!"
+    exit 1
 fi
+
+exit 0
