@@ -19,6 +19,9 @@
 # Script that installs Tizonia's debian packages and their dependencies.
 #
 
+# Run the install actions in a subshell
+(
+
 if cat /etc/*-release | grep raspbian; then
   DISTRO="raspbian" ; RELEASE="jessie"
 elif cat /etc/*-release | grep jessie; then
@@ -33,7 +36,7 @@ else
 fi
 
 # Make sure some required packages are already installed
-sudo apt-get -y --force-yes install curl apt-transport-https
+sudo apt-get -y --force-yes install python-dev curl apt-transport-https
 
 # To install libspotify deb packages, add Mopidy's archive to APT's
 # sources.list
@@ -72,7 +75,9 @@ if [ ! -e "$TIZ_CONFIG_FILE" ]; then
     cp /etc/tizonia/tizonia.conf/tizonia.conf "$TIZ_CONFIG_FILE"
 fi
 
-# Simply test to verify everyting went well
+) # end running in a subshell 
+
+# Simple test to verify that everything went well
 which tizonia
 if [ $? -eq 0 ]; then
     tizonia -v
