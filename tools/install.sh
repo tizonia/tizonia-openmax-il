@@ -68,11 +68,13 @@ sudo apt-get -y install libspotify12
 sudo apt-get -y install tizonia-all
 
 # Copy Tizonia's config file to the user's config directory
-TIZ_CONFIG_DIR="$HOME/.config/tizonia"
-TIZ_CONFIG_FILE="$TIZ_CONFIG_DIR/tizonia.conf"
-if [ ! -e "$TIZ_CONFIG_FILE" ]; then
-    mkdir "$TIZ_CONFIG_DIR"
-    cp /etc/tizonia/tizonia.conf/tizonia.conf "$TIZ_CONFIG_FILE"
+if [ $? -eq 0 ]; then
+    TIZ_CONFIG_DIR="$HOME/.config/tizonia"
+    TIZ_CONFIG_FILE="$TIZ_CONFIG_DIR/tizonia.conf"
+    if [ ! -e "$TIZ_CONFIG_FILE" ]; then
+        mkdir "$TIZ_CONFIG_DIR"
+        cp /etc/tizonia/tizonia.conf/tizonia.conf "$TIZ_CONFIG_FILE"
+    fi
 fi
 
 ) # end running in a subshell 
