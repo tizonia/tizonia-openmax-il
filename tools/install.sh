@@ -77,17 +77,17 @@ if [ $? -eq 0 ]; then
     fi
 fi
 
-) # end running in a subshell 
-
 # Simple test to verify that everything went well
-which tizonia
+which tizonia > /dev/null
 if [ $? -eq 0 ]; then
     tizonia -v
-    echo "Tizonia is now installed."
-    echo "Please add Spotify, Google Music and Soundcloud credentials in : $TIZ_CONFIG_FILE"
+    printf "\nTizonia is now installed.\n"
+    printf "Please add Spotify, Google Music and Soundcloud credentials in : $TIZ_CONFIG_FILE\n"
 else
     echo "Oops. Something went wrong!"
     exit 1
 fi
 
 exit 0
+
+) # end running in a subshell 
