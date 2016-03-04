@@ -398,20 +398,20 @@ function bootstrap_environment {
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Copying Tizonia repository" "$GRN"
     if [[ ! -e "tizonia-build/tizonia" ]]; then
-        hg clone https://bitbucket.org/tizonia/tizonia-openmax-il tizonia-build/tizonia
+        hg clone -r $TIZONIA_CHROOT_HG_REVISION https://bitbucket.org/tizonia/tizonia-openmax-il tizonia-build/tizonia
     else
-        cd tizonia-build/tizonia && hg revert -C --all && hg purge --all && hg pull -u && cd -
+        cd tizonia-build/tizonia && hg revert -C --all && hg purge --all && hg pull && hg up -r $TIZONIA_CHROOT_HG_REVISION && cd -
     fi
     $cmd_sudo cp -R tizonia-build/tizonia $TIZONIA_ROOTFS_DIR/root/work/tizonia
     pretty_print "$BLU" "Done Tizonia repo."
 
-    print_banner "[$DISTRO-$RELEASE-$ARCH] Copying gmusicapi repository" "$GRN"
-    if [[ ! -e "tizonia-build/gmusicapi" ]]; then
-        git clone https://github.com/simon-weber/gmusicapi tizonia-build/gmusicapi
-    fi
-    cd tizonia-build/gmusicapi && pwd && git pull && cd -
-    $cmd_sudo cp -R tizonia-build/gmusicapi $TIZONIA_ROOTFS_DIR/root/temp/gmusicapi
-    pretty_print "$BLU" "Done gmusicapi repo."
+#     print_banner "[$DISTRO-$RELEASE-$ARCH] Copying gmusicapi repository" "$GRN"
+#     if [[ ! -e "tizonia-build/gmusicapi" ]]; then
+#         git clone https://github.com/simon-weber/gmusicapi tizonia-build/gmusicapi
+#     fi
+#     cd tizonia-build/gmusicapi && pwd && git pull && cd -
+#     $cmd_sudo cp -R tizonia-build/gmusicapi $TIZONIA_ROOTFS_DIR/root/temp/gmusicapi
+#     pretty_print "$BLU" "Done gmusicapi repo."
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Updating build folder permissions" "$GRN"
     $cmd_sudo chmod o+rx $TIZONIA_ROOTFS_DIR/root $TIZONIA_ROOTFS_DIR/root/temp $TIZONIA_ROOTFS_DIR/root/work
@@ -497,7 +497,7 @@ function update_repo {
     $cmd_sudo rm -rf $TIZONIA_ROOTFS_DIR/root/work/tizonia
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Updating the external repo" "$GRN"
-    cd tizonia-build/tizonia && hg pull -u && cd -
+    cd tizonia-build/tizonia && hg pull && hg up -r $TIZONIA_CHROOT_HG_REVISION && cd -
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Copying the updated repo into the chroot" "$GRN"
     $cmd_sudo cp -R tizonia-build/tizonia $TIZONIA_ROOTFS_DIR/root/work/tizonia
@@ -577,6 +577,7 @@ function main {
     # Verify the existence of important environment variables
     : ${TIZONIA_RELEASE_VERSION:?"Need to set TIZONIA_RELEASE_VERSION"}
     : ${TIZONIA_CHROOT_ENVS_DIR:?"Need to set TIZONIA_CHROOT_ENVS_DIR"}
+    : ${TIZONIA_CHROOT_HG_REVISION:?"Need to set TIZONIA_CHROOT_HG_REVISION"}
     : ${DISTRO:?"Need to set DISTRO"}
     : ${RELEASE:?"Need to set RELEASE"}
     : ${ARCH:?"Need to set ARCH"}
