@@ -116,8 +116,7 @@ void graph::ops::do_load_source ()
 {
   assert (!comp_lst_.empty ());
   assert (!role_lst_.empty ());
-  // At this point we are instantiating a graph with a single component, the
-  // spotify source component.
+  // At this point we are instantiating a graph with a single component.
   assert (comp_lst_.size () == 1);
   tiz::graph::ops::do_load ();
 }
