@@ -80,7 +80,7 @@ fi
 # Simple test to verify that everything went well
 which tizonia > /dev/null
 if [ $? -eq 0 ]; then
-    tizonia -v
+    echo ; tizonia
     printf "\nTizonia is now installed.\n"
     printf "Please add Spotify, Google Music and Soundcloud credentials in : $TIZ_CONFIG_FILE\n"
 else
