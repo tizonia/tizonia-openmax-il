@@ -388,12 +388,10 @@ class tizgmusicproxy(object):
             # First try to find a suitable station in the user's library
             self.__enqueue_user_station_unlimited(arg)
 
-            # if not len(self.queue):
-                # If no suitable station found in the user's library, the
-                # search google play unlimited for potential match.
-                # This requires gmusicapi 7.0.1-dev, so it's disabled
-                # for now
-                # self.__enqueue_station_unlimited(arg)
+            if not len(self.queue):
+                # If no suitable station is found in the user's library, then
+                # search google play unlimited for a potential match.
+                self.__enqueue_station_unlimited(arg)
 
             if not len(self.queue):
                 raise KeyError
