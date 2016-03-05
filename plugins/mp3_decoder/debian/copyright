@@ -3,7 +3,7 @@ Upstream-Name: tizmp3dec
 Source: http://tizonia.org
 
 Files: *
-Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
+Copyright (C) 2011-2016 Aratelia Limited - Juan A. Rubio
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ License: GPL-2+
  Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
 
 Files: debian/*
-Copyright: 2015 Juan A. Rubio <juan.rubio@aratelia.com>
+Copyright: 2016 Juan A. Rubio <juan.rubio@aratelia.com>
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

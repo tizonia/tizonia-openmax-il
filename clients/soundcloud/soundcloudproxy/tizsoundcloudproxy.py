@@ -1,4 +1,4 @@
-# Copyright (C) 2015 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2016 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #

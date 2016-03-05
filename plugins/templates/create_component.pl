@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio
+# Copyright (C) 2011-2016 Aratelia Limited - Juan A. Rubio
 #
 # This file is part of Tizonia
 #
@@ -30,7 +30,7 @@ local $Term::ANSIColor::AUTORESET = 1;
 our $VERSION = qv('0.1.0');
 
 sub usage() {
-    print BOLD GREEN, "Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio\n";
+    print BOLD GREEN, "Copyright (C) 2011-2016 Aratelia Limited - Juan A. Rubio\n";
     print BOLD BRIGHT_RED, "Produce skeleton components from a template.\n";
     print WHITE, "Usage: $0 -l <library_name> -n <comp_name> -r <comp_role> -a <component_acronym>\n";
     print BRIGHT_YELLOW, "Example : cp -R filter template && perl $0 -l libtizvp8d -n \"VP8 Decoder\" -r video_decoder.vp8 -a vp8d\n";
@@ -51,7 +51,7 @@ sub init() {
     #         print "$key => $opt{$key}\n";
     #}
     usage() if $opt{h};
-    print BOLD RED, "Copyright (C) 2011-2015 Aratelia Limited - Juan A. Rubio\n";
+    print BOLD RED, "Copyright (C) 2011-2016 Aratelia Limited - Juan A. Rubio\n";
     print BOLD WHITE, "Creating skeleton component: $opt{n}\n";
     if (-d "template") {
         process_configure_ac( $opt{l} );
