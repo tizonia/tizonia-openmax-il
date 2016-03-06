@@ -1,0 +1,83 @@
+CID,Type,Impact,Status,First Detected,Owner,Classification,Severity,Action,Component,Category,File,Function
+1087235,Missing varargs init or cleanup,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,API usage errors,/libtizonia/src/tizdemuxerport.c,demuxerport_ctor
+1087236,Missing varargs init or cleanup,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,API usage errors,/libtizonia/src/tizbinaryport.c,binaryport_ctor
+1352327,Truncated stdio return value,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,API usage errors,/player/src/tizplayapp.cpp,getch_
+1087304,Logically dead code,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Control flow issues,/libtizplatform/src/tizrc.c,tiz_rcfile_init
+1087305,Logically dead code,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizcore,Control flow issues,/libtizcore/src/tizcore.c,get_core
+1087306,Logically dead code,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizrmproxy,Control flow issues,/rm/libtizrmproxy/src/tizrmproxy_c.cc,get_rm
+1352339,Logically dead code,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Control flow issues,/plugins/http_renderer/src/httprsrv.c,srv_accept_connection
+1352340,Logically dead code,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Control flow issues,/plugins/http_renderer/src/httprsrv.c,srv_accept_connection
+1087309,Unchecked return value,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Error handling issues,/libtizonia/src/tizstate.c,state_trans_complete
+1087317,Unchecked return value,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,tizrmd,Error handling issues,/rm/tizrmd/src/tizrmdb.cpp,release_all
+1352328,Unchecked return value,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_source,Error handling issues,/plugins/http_source/src/scloudprc.c,update_metadata
+1352329,Unchecked return value,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_source,Error handling issues,/plugins/http_source/src/httpsrctrans.c,start_curl
+1352330,Unchecked return value from library,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Error handling issues,/plugins/http_renderer/src/httprsrv.c,srv_create_server_socket
+1352331,Unchecked return value from library,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Error handling issues,/plugins/http_renderer/src/httprsrv.c,srv_send_http_error
+1352332,Unchecked return value from library,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Error handling issues,/plugins/http_renderer/src/httprsrv.c,srv_get_socket_buffer_size
+1087266,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizutils.c,tiz_fsm_state_to_str
+1087267,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizpausetoidle.c,pausetoidle_trans_complete
+1087268,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizexecutingtoidle.c,executingtoidle_trans_complete
+1087269,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizexecuting.c,executing_trans_complete
+1087270,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizloaded.c,loaded_trans_complete
+1087271,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizpause.c,pause_trans_complete
+1087272,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizstate.c,state_trans_complete
+1087274,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizwaitforresources.c,waitforresources_trans_complete
+1087275,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizloadedtoidle.c,loadedtoidle_trans_complete
+1087276,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizidletoloaded.c,idletoloaded_trans_complete
+1087277,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizidletoexecuting.c,idletoexecuting_trans_complete
+1087279,Mixing enum types,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizfsm.c,fsm_complete_transition
+1352335,Same on both sides,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Incorrect expression,/libtizplatform/src/tizev.c,ev_stat_msg_dequeue
+1352336,Same on both sides,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Incorrect expression,/libtizplatform/src/tizev.c,ev_timer_msg_dequeue
+1352337,Same on both sides,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Incorrect expression,/libtizplatform/src/tizev.c,ev_io_msg_dequeue
+1352354,Mixing enum types,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizservant.c,srv_issue_trans_event
+1352355,Inferred misuse of enum,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Incorrect expression,/player/src/tizgraph.cpp,omx_evt
+1352358,Array compared against 0,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizonia,Incorrect expression,/libtizonia/src/tizuricfgport.c,uri_cfgport_GetParameter
+1352367,Extra sizeof expression,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,vorbis_decoder,Incorrect expression,/plugins/vorbis_decoder/src/vorbisdprc.c,fishsound_decoded_callback
+1352375,Result is not floating-point,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,pcm_renderer_pa,Incorrect expression,/plugins/pcm_renderer_pa/src/pulsearprc.c,set_pa_sink_volume
+1352376,Result is not floating-point,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Incorrect expression,/plugins/http_renderer/src/httprsrv.c,httpr_srv_init
+1352377,Result is not floating-point,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Incorrect expression,/plugins/http_renderer/src/httprsrv.c,httpr_srv_set_mp3_settings
+993663,Untrusted array index read,Medium,New,03/27/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Insecure data handling,/libtizplatform/src/ev/ev.c,infy_cb
+1352349,Overflowed return value,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Insecure data handling,/player/src/tizplayapp.cpp,getch_
+1352333,Operands don't affect result,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,pcm_renderer_pa,Integer handling issues,/plugins/pcm_renderer_pa/src/pulsearprc.c,init_pulseaudio_stream
+1352334,Constant expression result,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,Various,Integer handling issues,/plugins/spotify_source/src/spfysrcprc.c,send_port_auto_detect_events
+1352356,Macro compares unsigned to 0,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,vorbis_decoder,Integer handling issues,/plugins/vorbis_decoder/src/vorbisdprc.c,transform_buffer
+1352357,Macro compares unsigned to 0,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Integer handling issues,/plugins/http_renderer/src/httprsrv.c,srv_write_omx_buffer
+1352359,Out-of-bounds write,High,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Memory - corruptions,/player/src/tizgraphutil.cpp,set_role
+1352378,Wrapper object use after free,High,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Memory - illegal accesses,/player/src/tizgraphcmd.cpp,c_str
+1087260,Dereference null return value,Medium,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Null pointer dereferences,/libtizplatform/src/avl/avl.c,avl_iterate_index_range
+1352341,Unchecked dynamic_cast,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Null pointer dereferences,/player/src/httpserv/tizhttpservgraphfsm.hpp,operator ()
+1352342,Unchecked dynamic_cast,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Null pointer dereferences,/player/src/httpserv/tizhttpservgraphfsm.hpp,operator ()
+1352343,Unchecked dynamic_cast,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Null pointer dereferences,/player/src/httpserv/tizhttpservgraphfsm.hpp,operator ()
+1352344,Unchecked dynamic_cast,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Null pointer dereferences,/player/src/httpserv/tizhttpservgraphfsm.hpp,operator ()
+1352345,Unchecked dynamic_cast,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Null pointer dereferences,/player/src/httpserv/tizhttpservgraphfsm.hpp,operator ()
+1352346,Unchecked dynamic_cast,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Null pointer dereferences,/player/src/httpserv/tizhttpservgraphfsm.hpp,operator ()
+1352347,Unchecked dynamic_cast,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Null pointer dereferences,/player/src/httpserv/tizhttpservgraphfsm.hpp,operator ()
+1352348,Unchecked dynamic_cast,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Null pointer dereferences,/player/src/httpserv/tizhttpservgraphfsm.hpp,operator ()
+1352366,Dereference before null check,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,pcm_renderer_pa,Null pointer dereferences,/plugins/pcm_renderer_pa/src/pulsearprc.c,pulseaudio_stream_state_cback_handler
+1352360,Big parameter passed by value,Low,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Performance inefficiencies,/player/src/mpris/tizmprisif.cpp,mprisif
+1352350,Double lock,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Program hangs,/player/src/tizgraphmgrops.cpp,deinit
+1352351,Missing unlock,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Program hangs,/libtizplatform/src/tizev.c,enqueue_stat_msg
+1352352,Missing unlock,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Program hangs,/libtizplatform/src/tizev.c,enqueue_io_msg
+1352353,Missing unlock,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Program hangs,/libtizplatform/src/tizev.c,enqueue_timer_msg
+1087244,Resource leak,High,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Resource leaks,/libtizplatform/src/tizvector.c,tiz_vector_init
+1087245,Resource leak,High,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Resource leaks,/libtizplatform/src/tizrc.c,tiz_rcfile_init
+1087246,Resource leak,High,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizcore,Resource leaks,/libtizcore/src/tizcore.c,instantiate_component
+1087247,Resource leak,High,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizcore,Resource leaks,/libtizcore/src/tizcore.c,scan_component_folders
+1087248,Resource leak,High,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizcore,Resource leaks,/libtizcore/src/tizcore.c,find_component_paths
+1087249,Resource leak,High,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Resource leaks,/libtizplatform/src/tizsync.c,tiz_sem_init
+1087250,Resource leak,High,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Resource leaks,/libtizplatform/src/tizsync.c,tiz_mutex_init
+1087251,Resource leak,High,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Resource leaks,/libtizplatform/src/tizsync.c,tiz_cond_init
+1087255,Resource leak,High,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Resource leaks,/libtizplatform/src/tizhttp.c,insert_kv_pair
+1352361,Resource leak,High,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,http_renderer,Resource leaks,/plugins/http_renderer/src/httprsrv.c,srv_accept_socket
+1352362,Resource leak,High,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Resource leaks,/player/src/tizgraphutil.cpp,set_content_uri
+1352363,Resource leak,High,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Resource leaks,/libtizplatform/src/tizev.c,init_event_loop_thread
+1352364,Resource leak,High,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,libtizplatform,Resource leaks,/libtizplatform/src/tizrc.c,get_node
+1352365,Resource leak,High,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Resource leaks,/player/src/tizdaemon.cpp,daemonize
+1087243,Copy into fixed size buffer,Low,New,09/11/13,Unassigned,Unclassified,Unspecified,Undecided,libtizcore,Security best practices violations,/libtizcore/src/tizcore.c,instantiate_comp_lib
+1352368,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,Other,Uninitialized members,/usr/include/boost/msm/back/state_machine.hpp,state_machine
+1352369,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/tizprobe.cpp,probe
+1352370,Uninitialized pointer field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,Other,Uninitialized members,/usr/include/boost/msm/back/dispatch_table.hpp,dispatch_table
+1352371,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/spotify/tizspotifygraphops.cpp,spotifyops
+1352372,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/soundcloud/tizscloudgraphops.cpp,scloudops
+1352373,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/googlemusic/tizgmusicgraphops.cpp,gmusicops
+1352374,Uninitialized scalar field,Medium,New,02/29/16,Unassigned,Unclassified,Unspecified,Undecided,player,Uninitialized members,/player/src/services/dirble/tizdirblegraphops.cpp,dirbleops

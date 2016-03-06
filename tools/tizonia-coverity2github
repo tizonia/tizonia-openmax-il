@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2016 Aratelia Limited - Juan A. Rubio
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Simple script that creates github defects out of a csv file exported from
+# Coverity Scan. The comma-separated-value file contains the latest
+# "outstanding" coverity defects.
+#
+# The script uses gcli (github_cli)
+#
+
+declare -ar TIZONIA_COVERITY2GITHUB_DEPS=( \
+    'gcli' \
+)
+
+##################################################################
+# Main function
+#
+# Globals
+#   TIZONIA_COVERITY2GITHUB_DEPS
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################################################
+function main {
+
+    # Check dependencies
+    for cmd in "${TIZONIA_COVERITY2GITHUB_DEPS[@]}"; do
+        command -v "$cmd" >/dev/null 2>&1 \
+            || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
+    done
+
+    while IFS=, read cid type impact status first_detected owner classification severity action component category file func
+    do
+        title="Coverity Scan (CID $cid) [$file:$func] : $type"
+        echo "Creating Githib issue : [$title]"
+        gcli issue create tizonia tizonia-openmax-il \
+            --title="Coverity Scan (CID $cid) [$file:$func] : $type" \
+            --labels=bug \
+            --body="* CID : $cid * Type : $type * Impact : $impact * Status : $status * First Detected : $first_detected * Classification : $classification * Severity : $severity * Component : $component * Category : $category * File : $file * Function : $func" \
+            --quiet
+
+        if [[ $? -eq 0 ]]; then
+            echo "  Successfully created."
+        else
+            echo "  Something went wrong."
+        fi
+
+    done < coverity-scan-outstanding-defects.csv
+}
+
+main "$@"
