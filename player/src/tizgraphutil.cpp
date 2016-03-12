@@ -610,10 +610,11 @@ graph::util::set_content_uri (const OMX_HANDLETYPE handle,
     p_uritype->contentURI[uri_len] = '\0';
 
     rc = OMX_SetParameter (handle, OMX_IndexParamContentURI, p_uritype);
-
-    tiz_mem_free (p_uritype);
-    p_uritype = NULL;
   }
+
+  tiz_mem_free (p_uritype);
+  p_uritype = NULL;
+
   return rc;
 }
 
