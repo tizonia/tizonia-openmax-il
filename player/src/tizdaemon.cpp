@@ -124,15 +124,18 @@ int tiz::daemon::daemonize ()
   if (fd != STDIN_FILENO)
   {
     // 'fd' should be 0
+    close (fd);
     return TIZ_DAEMON_FAILURE;
   }
   if (dup2 (STDIN_FILENO, STDOUT_FILENO) != STDOUT_FILENO)
   {
+    close (fd);
     return TIZ_DAEMON_FAILURE;
   }
 
   if (dup2 (STDIN_FILENO, STDERR_FILENO) != STDERR_FILENO)
   {
+    close (fd);
     return TIZ_DAEMON_FAILURE;
   }
 
@@ -142,8 +145,7 @@ int tiz::daemon::daemonize ()
   signal (SIGTTOU, SIG_IGN);
   signal (SIGTTIN, SIG_IGN);
 
-  // TODO:
-  //     signal(SIGHUP,signal_handler); /* catch hangup signal */
+  // TODO: signal(SIGHUP,signal_handler); /* catch hangup signal */
 
   return TIZ_DAEMON_SUCCESS;
 }
