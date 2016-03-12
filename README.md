@@ -33,18 +33,10 @@ _$HOME/.config/tizonia/tizonia.conf_
 The Debian packages are hosted on [Bintray](https://bintray.com/tizonia), with
 the following distro/arch combinations:
 
-- Ubuntu Trusty (14.04)
-  - amd64, i386, armhf
-      - [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion)
-- Ubuntu Vivid (15.04)
-  - amd64, i386, armhf
-      - [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-vivid/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-vivid/_latestVersion)
-- Debian Jessie (8) 
-  - amd64, i386, armhf, armel
-      - [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)
-- Raspbian Jessie (8)
-  - armhf
-      - [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion)
+| Ubuntu Trusty (14.04) | Ubuntu Vivid (15.04) | Debian Jessie (8) | Raspbian Jessie (8) |
+|         :---:         |        :---:         |        :---:      |       :---:         |
+| amd64, i386, armhf    |   amd64, i386, armhf | amd64, i386, armhf, armel | armhf       |
+| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-vivid/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-vivid/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
 
 ## 'tizonia' usage ##
 
