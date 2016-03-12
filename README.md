@@ -50,31 +50,6 @@ the following distro/arch combinations:
 
 ![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-gmusic-screencast.gif "Tizonia usage")
 
-```bash
-tizonia 0.3.0. Copyright (C) 2015 Juan A. Rubio
-This software is part of the Tizonia project <http://tizonia.org>
-
-GNU Lesser GPL version 3 <http://gnu.org/licenses/lgpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-
- Help topics:
-
-  global        Global options available with most features.
-  openmax       Various OpenMAX IL query options.
-  server        SHOUTcast/ICEcast streaming server options.
-  client        SHOUTcast/ICEcast streaming client options.
-  spotify       Spotify options.
-  googlemusic   Google Play Music options.
-  soundcloud    SoundCloud options.
-  keyboard      Keyboard control.
-  config        Configuration files.
-  examples      Some command-line examples.
-
-Use "tizonia --help topic".
-
-```
-
 ## The Tizonia project
 
 ### `tizonia`: command line music player and audio streaming client/server ###
