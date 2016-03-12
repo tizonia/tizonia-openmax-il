@@ -1111,6 +1111,7 @@ end:
   else
     {
       clean_up_thread_data (gp_event_loop);
+      tiz_mem_free (gp_event_loop);
       gp_event_loop = NULL;
     }
 }
