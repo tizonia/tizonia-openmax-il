@@ -21,7 +21,7 @@ use:
 
 ```
 
-This will install the latest version of Tizonia's deb packages from Bintray and
+This will install the latest version of Tizonia's deb packages from [Bintray](https://bintray.com/tizonia) and
 all the dependencies.
 
 Finally, to use Spotify, Google Play Music and SoundCloud, introduce your
