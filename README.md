@@ -10,8 +10,7 @@
 ## Install the latest binary release (v0.3.0)
 
 To install the
-[latest release](https://github.com/tizonia/tizonia-openmax-il/releases/latest),
-use:
+[latest release](https://github.com/tizonia/tizonia-openmax-il/releases/latest):
 
 ```bash
 
@@ -21,14 +20,17 @@ use:
 
 ```
 
-This will install the latest version of Tizonia's deb packages from [Bintray](https://bintray.com/tizonia) and
-all the dependencies.
+> NOTE: This installs the latest version of Tizonia's Debian packages from [Bintray](https://bintray.com/tizonia) and all their dependencies.
 
-Finally, to use Spotify, Google Play Music and SoundCloud, introduce your
-credentials in Tizonia's config file (see inside this file for more
+Finally, to use *Spotify*, *Google Play Music* and *SoundCloud*, introduce your
+credentials in Tizonia's config file (see instructions inside the file for more
 information):
 
-_$HOME/.config/tizonia/tizonia.conf_
+```bash
+
+    $HOME/.config/tizonia/tizonia.conf
+
+```
 
 The Debian packages are hosted on [Bintray](https://bintray.com/tizonia), with
 the following distro/arch combinations:
