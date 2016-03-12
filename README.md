@@ -48,6 +48,8 @@ the following distro/arch combinations:
 
 ## 'tizonia' usage ##
 
+![alt text](https://github.com/tizonia/tizonia-openmax-il/blob/master/docs/animated-gifs/tizonia-gmusic-screencast.gif "Tizonia usage")
+
 ```bash
 tizonia 0.3.0. Copyright (C) 2015 Juan A. Rubio
 This software is part of the Tizonia project <http://tizonia.org>
