@@ -343,6 +343,7 @@ static int srv_accept_socket (httpr_server_t *ap_server, char *ap_ip,
 end:
   if (some_error)
     {
+      close (accepted_sockfd);
       accepted_sockfd = ICE_SOCK_ERROR;
     }
 
