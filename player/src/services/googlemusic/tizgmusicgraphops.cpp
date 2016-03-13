@@ -74,6 +74,7 @@ graph::gmusicops::gmusicops (graph *p_graph,
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
     encoding_ (OMX_AUDIO_CodingAutoDetect)
 {
+  TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
 }
 
 void graph::gmusicops::do_enable_auto_detection (const int handle_id,
