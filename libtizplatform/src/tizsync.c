@@ -169,6 +169,7 @@ tiz_mutex_init (tiz_mutex_t *app_mutex)
   if (PTHREAD_SUCCESS != (error = pthread_mutex_init (p_mutex, NULL)))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
+      tiz_mem_free (p_mutex);
       return OMX_ErrorUndefined;
     }
 
