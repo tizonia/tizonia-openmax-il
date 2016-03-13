@@ -64,6 +64,7 @@ tiz_sem_init (tiz_sem_t *app_sem, OMX_U32 a_value)
   if (SEM_SUCCESS != sem_init (p_sem, 0, a_value))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
+      tiz_mem_free (p_sem);
       return OMX_ErrorUndefined;
     }
 
