@@ -411,6 +411,7 @@ tiz_rwmutex_init (tiz_rwmutex_t *app_rwmutex)
   if (PTHREAD_SUCCESS != (error = pthread_rwlock_init (p_mutex, NULL)))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
+      tiz_mem_free (p_mutex);
       return OMX_ErrorUndefined;
     }
 
