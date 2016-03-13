@@ -951,6 +951,7 @@ instantiate_component (tiz_core_msg_gethandle_t * ap_msg)
             {
               TIZ_LOG (TIZ_PRIORITY_ERROR, "{OMX_ErrorInsufficientResources] : "
                        "Could not allocate memory for component handle");
+              dlclose (p_dl_hdl);
               return OMX_ErrorInsufficientResources;
             }
 
@@ -961,6 +962,8 @@ instantiate_component (tiz_core_msg_gethandle_t * ap_msg)
             {
               TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : Call to component's entry point "
                        "failed", tiz_err_to_str (rc));
+              tiz_mem_free (p_hdl);
+              dlclose (p_dl_hdl);
               return rc;
             }
 
@@ -974,6 +977,8 @@ instantiate_component (tiz_core_msg_gethandle_t * ap_msg)
             {
               TIZ_LOG (TIZ_PRIORITY_ERROR, "[%s] : Call to SetCallbacks failed",
                        tiz_err_to_str (rc));
+              tiz_mem_free (p_hdl);
+              dlclose (p_dl_hdl);
               return rc;
             }
 
@@ -986,7 +991,6 @@ instantiate_component (tiz_core_msg_gethandle_t * ap_msg)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorComponentNotFound] : "
                "Component [%s] not found.", ap_msg->p_comp_name);
-
       rc = OMX_ErrorComponentNotFound;
     }
 
