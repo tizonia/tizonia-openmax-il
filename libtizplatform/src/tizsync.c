@@ -264,6 +264,7 @@ tiz_cond_init (tiz_cond_t *app_cond)
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (error));
       assert (EINVAL != error);
+      tiz_mem_free (p_cond);
       return OMX_ErrorUndefined;
     }
 
