@@ -727,6 +727,7 @@ find_component_paths(unsigned long * ap_npaths)
 
   if (!val_lst || 0 == * ap_npaths)
     {
+      tiz_mem_free (val_lst);
       val_lst = NULL;
       * ap_npaths = 0;
     }
