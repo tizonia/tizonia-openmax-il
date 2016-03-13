@@ -798,6 +798,7 @@ scan_component_folders (void)
                       == cache_comp_info (pp_paths[i],
                                           p_dir_entry->d_name))
                     {
+                      (void)closedir (p_dir);
                       free_paths (pp_paths, npaths);
                       return OMX_ErrorInsufficientResources;
                     }
@@ -806,7 +807,6 @@ scan_component_folders (void)
 
           (void)closedir (p_dir);
         }
-
     }
 
   free_paths (pp_paths, npaths);
