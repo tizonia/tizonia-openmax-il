@@ -346,8 +346,6 @@ static OMX_ERRORTYPE start_curl (httpsrc_trans_t *ap_trans)
       curl_easy_setopt (ap_trans->p_curl_, CURLOPT_SSL_VERIFYHOST, 0));
   bail_on_curl_error (
       curl_easy_setopt (ap_trans->p_curl_, CURLOPT_SSL_VERIFYPEER, 0));
-  bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_SSLVERSION, 3));
 
   bail_on_curl_error (curl_easy_setopt (ap_trans->p_curl_, CURLOPT_URL,
                                         ap_trans->p_uri_param_->contentURI));
