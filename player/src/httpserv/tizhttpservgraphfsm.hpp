@@ -94,7 +94,11 @@ namespace tiz
           if (fsm.pp_ops_ && *(fsm.pp_ops_))
             {
               // This is a httpservops-specific guard
-              rc = dynamic_cast<httpservops*>(*(fsm.pp_ops_))->is_initial_configuration ();
+              httpservops* p_ops = dynamic_cast<httpservops*>(*(fsm.pp_ops_));
+              if (p_ops)
+                {
+                  rc = p_ops->is_initial_configuration ();
+                }
             }
           TIZ_LOG (TIZ_PRIORITY_TRACE, " is_initial_configuration [%s]", rc ? "YES" : "NO");
           return rc;
