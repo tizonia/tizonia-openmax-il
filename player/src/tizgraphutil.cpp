@@ -256,7 +256,7 @@ graph::util::set_role (const OMX_HANDLETYPE handle,
   OMX_PARAM_COMPONENTROLETYPE roletype;
   TIZ_INIT_OMX_STRUCT (roletype);
   strncpy ((char *)roletype.cRole, comp_role.c_str (), OMX_MAX_STRINGNAME_SIZE - 1);
-  roletype.cRole[OMX_MAX_STRINGNAME_SIZE] = '\000';
+  roletype.cRole[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
   tiz_check_omx_err (OMX_SetParameter (
       handle, OMX_IndexParamStandardComponentRole, &roletype));
 
