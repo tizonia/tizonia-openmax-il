@@ -31,15 +31,15 @@
 
 #include <assert.h>
 
-#include <string>
-
 #include "tizgraphcmd.hpp"
 
 namespace graph = tiz::graph;
 
 graph::cmd::cmd (boost::any any_event, bool kill_thread /* = false */)
-  : evt_ (any_event), kill_thread_ (kill_thread)
+  : evt_ (any_event), kill_thread_ (kill_thread), cmd_name_("CMD [")
 {
+  cmd_name_.append (typeid(evt ()).name ());
+  cmd_name_.append ("]");
 }
 
 const boost::any graph::cmd::evt () const
@@ -49,10 +49,7 @@ const boost::any graph::cmd::evt () const
 
 /*@observer@*/ const char* graph::cmd::c_str () const
 {
-  std::string cmd_name ("CMD [");
-  cmd_name.append (typeid(evt ()).name ());
-  cmd_name.append ("]");
-  return cmd_name.c_str ();
+  return cmd_name_.c_str ();
 }
 
 bool graph::cmd::kill_thread () const

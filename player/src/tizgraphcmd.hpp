@@ -29,6 +29,8 @@
 #ifndef TIZGRAPHCMD_HPP
 #define TIZGRAPHCMD_HPP
 
+#include <string>
+
 #include <boost/any.hpp>
 #include <boost/function.hpp>
 
@@ -114,6 +116,7 @@ namespace tiz
     private:
       const boost::any evt_;
       const bool kill_thread_;
+      std::string cmd_name_;
     };
 
   }  // namespace graph
