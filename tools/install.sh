@@ -36,7 +36,7 @@ else
 fi
 
 # Make sure some required packages are already installed
-sudo apt-get -y --force-yes install python-dev curl apt-transport-https
+sudo apt-get -y --force-yes install python-dev curl apt-transport-https libffi-dev
 
 # To install libspotify deb packages, add Mopidy's archive to APT's
 # sources.list
