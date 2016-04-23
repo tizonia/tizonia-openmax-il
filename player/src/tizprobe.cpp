@@ -250,6 +250,7 @@ tiz::probe::probe (const std::string &uri, const bool quiet)
     opustype_ (),
     flactype_ (),
     vorbistype_ (),
+    aactype_ (),
     vp8type_ (),
     meta_file_ (uri.c_str ()),
     stream_title_ (),
@@ -319,7 +320,7 @@ tiz::probe::probe (const std::string &uri, const bool quiet)
   flactype_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
 
   // Defaults for the vorbis decoder
-  vorbistype_.nSize = sizeof(OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
+  vorbistype_.nSize = sizeof(OMX_AUDIO_PARAM_VORBISTYPE);
   vorbistype_.nVersion.nVersion = OMX_VERSION;
   vorbistype_.nPortIndex = 0;
   vorbistype_.nPortIndex = 0;
@@ -332,6 +333,30 @@ tiz::probe::probe (const std::string &uri, const bool quiet)
   vorbistype_.nQuality = 5;
   vorbistype_.bManaged = OMX_FALSE;
   vorbistype_.bDownmix = OMX_FALSE;
+
+  // Defaults for the aac decoder
+  aactype_.nSize = sizeof(OMX_AUDIO_PARAM_AACPROFILETYPE);
+  aactype_.nVersion.nVersion = OMX_VERSION;
+  aactype_.nPortIndex = 0;
+  aactype_.nChannels = 2;
+  aactype_.nSampleRate = 48000;
+  aactype_.nBitRate = 0;
+  aactype_.nAudioBandWidth = 0;
+  aactype_.nFrameLength = 0;
+  aactype_.nAACtools = OMX_AUDIO_AACToolAll;
+  aactype_.nAACERtools = OMX_AUDIO_AACERAll;
+  aactype_.eAACProfile = OMX_AUDIO_AACObjectLC;
+  aactype_.eAACStreamFormat = OMX_AUDIO_AACStreamFormatMP2ADTS;
+  aactype_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
+
+  // Defaults for the vp8 decoder
+  vp8type_.nSize = sizeof (OMX_VIDEO_PARAM_VP8TYPE);
+  vp8type_.nVersion.nVersion = OMX_VERSION;
+  vp8type_.nPortIndex = 0;
+  vp8type_.eProfile = OMX_VIDEO_VP8ProfileMain;
+  vp8type_.eLevel = OMX_VIDEO_VP8Level_Version0;
+  vp8type_.nDCTPartitions = 0; /* 1 DCP partitiion */
+  vp8type_.bErrorResilientMode = OMX_FALSE;
 }
 
 std::string tiz::probe::get_uri () const
