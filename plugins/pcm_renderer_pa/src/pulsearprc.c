@@ -294,14 +294,14 @@ static void pulseaudio_stream_state_cback_handler (
   assert (p_prc);
   assert (ap_event);
 
-  TIZ_TRACE (
-      handleOf (p_prc),
-      "PA STREAM STATE -> : [%s] stopped [%s] p_pa_stream_ [%p]",
-      pulseaudio_stream_state_to_str (*(pa_stream_state_t *)ap_event->p_data),
-      p_prc->stopped_ ? "YES" : "NO", p_prc->p_pa_stream_);
-
   if (ap_event->p_data)
     {
+      TIZ_TRACE (handleOf (p_prc),
+                 "PA STREAM STATE -> : [%s] stopped [%s] p_pa_stream_ [%p]",
+                 pulseaudio_stream_state_to_str (
+                     *(pa_stream_state_t *)ap_event->p_data),
+                 p_prc->stopped_ ? "YES" : "NO", p_prc->p_pa_stream_);
+
       p_prc->pa_stream_state_ = *((pa_stream_state_t *)(ap_event->p_data));
       TIZ_PRINTF_DBG_YEL ("PA STREAM STATE : [%s]\n",
                  pulseaudio_stream_state_to_str (p_prc->pa_stream_state_));
@@ -311,8 +311,8 @@ static void pulseaudio_stream_state_cback_handler (
           /* There is a  pending volume request, process it now */
           set_volume (p_prc, p_prc->pending_volume_);
         }
+      tiz_mem_free (ap_event->p_data);
     }
-  tiz_mem_free (ap_event->p_data);
   tiz_mem_free (ap_event);
 }
 
