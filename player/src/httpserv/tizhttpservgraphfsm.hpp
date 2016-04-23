@@ -214,7 +214,11 @@ namespace tiz
             if (fsm.pp_ops_ && *(fsm.pp_ops_))
               {
                 // This is a httpservops-specific method
-                dynamic_cast<httpservops*>(*(fsm.pp_ops_))->do_configure_stream ();
+                httpservops* p_ops = dynamic_cast<httpservops*>(*(fsm.pp_ops_));
+                if (p_ops)
+                  {
+                    p_ops->do_configure_stream ();
+                  }
               }
           }
         };
