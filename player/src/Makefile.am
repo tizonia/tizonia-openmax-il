@@ -81,6 +81,7 @@ noinst_HEADERS = \
 	services/soundcloud/tizscloudconfig.hpp \
 	services/soundcloud/tizscloudmgr.hpp \
 	services/dirble/tizdirblegraph.hpp \
+	services/dirble/tizdirblegraphfsm.hpp \
 	services/dirble/tizdirblegraphops.hpp \
 	services/dirble/tizdirbleconfig.hpp \
 	services/dirble/tizdirblemgr.hpp \
@@ -141,6 +142,7 @@ tizonia_SOURCES = \
 	services/soundcloud/tizscloudgraphops.cpp \
 	services/soundcloud/tizscloudmgr.cpp \
 	services/dirble/tizdirblegraph.cpp \
+	services/dirble/tizdirblegraphfsm.cpp \
 	services/dirble/tizdirblegraphops.cpp \
 	services/dirble/tizdirblemgr.cpp \
 	tizplaybackevents.cpp \

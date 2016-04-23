@@ -21,7 +21,8 @@
  * @file   tizdirblegraph.cpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dirble client graph implementation
+ * @brief  Dirble streaming service graph implementation
+ *
  *
  */
 
@@ -29,15 +30,10 @@
 #include <config.h>
 #endif
 
-#include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
+#include "tizgraphcmd.hpp"
+#include "tizgraphops.hpp"
 
-#include <OMX_Core.h>
-#include <OMX_Component.h>
-#include <OMX_TizoniaExt.h>
-
-#include <tizplatform.h>
-
+#include "tizdirblegraphfsm.hpp"
 #include "tizdirblegraphops.hpp"
 #include "tizdirblegraph.hpp"
 
@@ -47,12 +43,28 @@
 #endif
 
 namespace graph = tiz::graph;
+namespace dirblefsm = tiz::graph::dirblefsm;
 
 //
 // dirble
 //
-graph::dirble::dirble () : tiz::graph::servicegraph ("dirblegraph")
+graph::dirble::dirble ()
+  : graph::graph ("dirblegraph"),
+    fsm_ (new tiz::graph::dirblefsm::fsm (
+        boost::msm::back::states_
+        << tiz::graph::dirblefsm::fsm::auto_detecting (&p_ops_)
+        << tiz::graph::dirblefsm::fsm::updating_graph (&p_ops_)
+        << tiz::graph::dirblefsm::fsm::reconfiguring_tunnel_0 (&p_ops_)
+        << tiz::graph::dirblefsm::fsm::reconfiguring_tunnel_1 (&p_ops_)
+        << tiz::graph::dirblefsm::fsm::skipping (&p_ops_),
+        &p_ops_))
+
 {
+}
+
+graph::dirble::~dirble ()
+{
+  delete (boost::any_cast< dirblefsm::fsm * >(fsm_));
 }
 
 graph::ops *graph::dirble::do_init ()
@@ -65,3 +77,43 @@ graph::ops *graph::dirble::do_init ()
 
   return new dirbleops (this, comp_list, role_list);
 }
+
+bool graph::dirble::dispatch_cmd (const tiz::graph::cmd *p_cmd)
+{
+  assert (p_ops_);
+  assert (p_cmd);
+
+  if (!p_cmd->kill_thread ())
+  {
+    dirblefsm::fsm *p_fsm = boost::any_cast< dirblefsm::fsm * >(fsm_);
+    assert (p_fsm);
+
+    if (p_cmd->evt ().type () == typeid(tiz::graph::load_evt))
+    {
+      // Time to start the FSM
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "Starting [%s] fsm...",
+               get_graph_name ().c_str ());
+      p_fsm->start ();
+    }
+
+    p_cmd->inject< dirblefsm::fsm >(*p_fsm, tiz::graph::dirblefsm::pstate);
+
+    // Check for internal errors produced during the processing of the last
+    // event. If any, inject an "internal" error event. This is fatal and shall
+    // terminate the state machine.
+    if (OMX_ErrorNone != p_ops_->internal_error ())
+    {
+      p_fsm->process_event (tiz::graph::err_evt (
+          p_ops_->internal_error (), p_ops_->internal_error_msg ()));
+    }
+
+    if (p_fsm->terminated_)
+    {
+      TIZ_LOG (TIZ_PRIORITY_NOTICE, "[%s] fsm terminated...",
+               get_graph_name ().c_str ());
+    }
+  }
+
+  return p_cmd->kill_thread ();
+}
+

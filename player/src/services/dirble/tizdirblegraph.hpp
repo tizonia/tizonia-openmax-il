@@ -21,7 +21,7 @@
  * @file   tizdirblegraph.hpp
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Dirble client graph
+ * @brief  Dirble streaming service graph
  *
  *
  */
@@ -29,25 +29,33 @@
 #ifndef TIZDIRBLEGRAPH_HPP
 #define TIZDIRBLEGRAPH_HPP
 
-#include "tizservicegraph.hpp"
-#include "tizgraphops.hpp"
+#include <boost/any.hpp>
+
+#include "tizgraph.hpp"
 
 namespace tiz
 {
   namespace graph
   {
     // Forward declarations
+    class cmd;
     class ops;
 
-    class dirble : public servicegraph
+    class dirble : public graph
     {
 
     public:
-      dirble ();
+      explicit dirble ();
+      ~dirble ();
 
     protected:
+      bool dispatch_cmd (const tiz::graph::cmd *p_cmd);
       ops *do_init ();
+
+    protected:
+      boost::any fsm_;
     };
+
   }  // namespace graph
 }  // namespace tiz
 
