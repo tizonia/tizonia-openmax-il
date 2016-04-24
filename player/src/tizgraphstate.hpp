@@ -260,6 +260,7 @@ namespace tiz
       template < class Event, class FSM >
       void on_entry (Event const &evt, FSM &fsm)
       {
+        G_STATE_LOG ();
         TIZ_LOG (TIZ_PRIORITY_TRACE, "ack unload");
         if (!fsm.terminated_)
         {
