@@ -105,6 +105,51 @@ else
     echo >&2 "Ubuntu Vivid builds [$vivid] already in progress."
 fi
 
+
+#
+# Ubuntu Xenial
+#
+
+xenial=$(screen -list | grep tached | awk '{ print $1 }' | grep xenial | wc -l)
+
+if [[ "$xenial" == "0" ]];then
+    screen -S "ubuntu-xenial-amd64" -d -m
+    screen -r "ubuntu-xenial-amd64" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=ubuntu \
+       && export RELEASE=xenial \
+       && export ARCH=amd64 \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+    
+    sleep 1
+
+    screen -S "ubuntu-xenial-i386" -d -m
+    screen -r "ubuntu-xenial-i386" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=ubuntu \
+       && export RELEASE=xenial \
+       && export ARCH=i386 \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+
+    sleep 1
+
+    screen -S "ubuntu-xenial-armhf" -d -m
+    screen -r "ubuntu-xenial-armhf" -X stuff \
+        $'cd $TIZONIA_REPO_DIR/tools \
+       && export DISTRO=ubuntu \
+       && export RELEASE=xenial \
+       && export ARCH=armhf \
+       && ./tizonia-qemu-debootstrap-env -b \
+       && ./tizonia-qemu-debootstrap-env -m \n'
+
+    sleep 1
+
+else
+    echo >&2 "Ubuntu Xenial builds [$xenial] already in progress."
+fi
+
 #
 # Debian Jessie
 #

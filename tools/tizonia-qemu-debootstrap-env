@@ -49,6 +49,7 @@ declare -ar TIZ_SUPPORTED_DISTROS=( \
 declare -ar TIZ_SUPPORTED_RELEASES=( \
     ubuntu-trusty \
     ubuntu-vivid \
+    ubuntu-xenial \
     debian-jessie \
     raspbian-jessie \
 )
