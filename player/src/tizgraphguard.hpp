@@ -156,6 +156,23 @@ namespace tiz
       }
     };
 
+    template<int handle_id, OMX_STATETYPE state_id>
+    struct is_component_state
+    {
+      template < class EVT, class FSM, class SourceState, class TargetState >
+      bool operator()(EVT const& evt, FSM& fsm, SourceState& source,
+                      TargetState& target)
+      {
+        bool rc = false;
+        if (fsm.pp_ops_ && *(fsm.pp_ops_))
+        {
+          rc = (*(fsm.pp_ops_))->is_component_state (handle_id, state_id);
+        }
+        G_GUARD_LOG (rc);
+        return rc;
+      }
+    };
+
     template<OMX_STATETYPE state_id>
     struct is_destination_state
     {

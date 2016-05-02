@@ -294,16 +294,27 @@ graph::util::set_role_list (const omx_comp_handle_lst_t &hdl_list,
 
 void graph::util::destroy_list (omx_comp_handle_lst_t &hdl_list)
 {
-  int handle_lst_size = hdl_list.size ();
+  int hdl_lst_size = hdl_list.size ();
 
-  for (int i = 0; i < handle_lst_size; ++i)
+  for (int i = 0; i < hdl_lst_size; ++i)
   {
-    if (hdl_list[i] != NULL)
-    {
-      OMX_FreeHandle (hdl_list[i]);
-      hdl_list[i] = NULL;
-    }
+    // this function also removes the element from the list. So always remove
+    // the first element.
+    destroy_component (hdl_list, 0);
   }
+}
+
+void graph::util::destroy_component (omx_comp_handle_lst_t &hdl_list,
+                                     const int handle_id)
+{
+  assert (handle_id >= 0 && static_cast<std::size_t>(handle_id) < hdl_list.size ());
+
+  if (hdl_list[handle_id])
+    {
+      OMX_FreeHandle (hdl_list[handle_id]);
+      hdl_list[handle_id] = NULL;
+      hdl_list.erase(hdl_list.begin() + handle_id, hdl_list.begin() + handle_id + 1);
+    }
 }
 
 // TODO: Replace magic numbers in this function
@@ -311,11 +322,11 @@ OMX_ERRORTYPE
 graph::util::setup_tunnels (const omx_comp_handle_lst_t &hdl_list)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int handle_lst_size = hdl_list.size ();
+  const int hdl_lst_size = hdl_list.size ();
 
-  if (handle_lst_size > 0)
+  if (hdl_lst_size > 0)
     {
-      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; ++i)
+      for (int i = 0; i < hdl_lst_size - 1 && OMX_ErrorNone == error; ++i)
         {
           error = OMX_SetupTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
         }
@@ -328,11 +339,11 @@ OMX_ERRORTYPE
 graph::util::tear_down_tunnels (const omx_comp_handle_lst_t &hdl_list)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int handle_lst_size = hdl_list.size ();
+  const int hdl_lst_size = hdl_list.size ();
 
-  if (handle_lst_size > 0)
+  if (hdl_lst_size > 0)
     {
-      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; ++i)
+      for (int i = 0; i < hdl_lst_size - 1 && OMX_ErrorNone == error; ++i)
         {
           error
             = OMX_TeardownTunnel (hdl_list[i], i == 0 ? 0 : 1, hdl_list[i + 1], 0);
@@ -346,15 +357,15 @@ OMX_ERRORTYPE
 graph::util::setup_suppliers (const omx_comp_handle_lst_t &hdl_list)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int handle_lst_size = hdl_list.size ();
+  const int hdl_lst_size = hdl_list.size ();
 
-  if (handle_lst_size > 0)
+  if (hdl_lst_size > 0)
     {
       OMX_PARAM_BUFFERSUPPLIERTYPE supplier;
       TIZ_INIT_OMX_PORT_STRUCT (supplier, 0);
       supplier.eBufferSupplier = OMX_BufferSupplyInput;
 
-      for (int i = 0; i < handle_lst_size - 1 && OMX_ErrorNone == error; ++i)
+      for (int i = 0; i < hdl_lst_size - 1 && OMX_ErrorNone == error; ++i)
         {
           supplier.nPortIndex = i == 0 ? 0 : 1;
           error = OMX_SetParameter (hdl_list[i], OMX_IndexParamCompBufferSupplier,
@@ -544,11 +555,11 @@ graph::util::modify_tunnel (const omx_comp_handle_lst_t &hdl_list,
                             const int tunnel_id, const OMX_COMMANDTYPE cmd)
 {
   OMX_ERRORTYPE error = OMX_ErrorNone;
-  const int handle_lst_size = hdl_list.size ();
-  assert (tunnel_id < handle_lst_size - 1);
+  const int hdl_lst_size = hdl_list.size ();
+  assert (tunnel_id < hdl_lst_size - 1);
 
   TIZ_LOG (TIZ_PRIORITY_TRACE, "handle lst size [%d] - tunnel id [%d]",
-           handle_lst_size, tunnel_id);
+           hdl_lst_size, tunnel_id);
 
   omx_comp_handle_lst_t tunnel_handles;
   tunnel_handles.push_back (hdl_list[tunnel_id]);

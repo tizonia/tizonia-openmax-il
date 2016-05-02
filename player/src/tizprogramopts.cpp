@@ -1042,7 +1042,7 @@ void tiz::programopts::init_dirble_options ()
       ("dirble-popular-stations",
        "Play Dirble's popular stations.")
       /* TIZ_CLASS_COMMENT: */
-      ("dirble-stations", po::value (&dirble_stations_),
+      ("dirble-station", po::value (&dirble_stations_),
        "Dirble station search.")
       ("dirble-category", po::value (&dirble_category_),
        "Dirble category search.")
@@ -1051,7 +1051,7 @@ void tiz::programopts::init_dirble_options ()
 
   register_consume_function (&tiz::programopts::consume_dirble_client_options);
   all_dirble_client_options_ = boost::assign::list_of ("dirble-api-key")
-    ("dirble-popular-stations")("dirble-stations")("dirble-category")
+    ("dirble-popular-stations")("dirble-station")("dirble-category")
     ("dirble-country");
 }
 
@@ -1490,7 +1490,7 @@ int tiz::programopts::consume_dirble_client_options (bool &done,
     done = true;
 
     const int playlist_option_count = vm_.count ("dirble-popular-stations")
-      + vm_.count ("dirble-stations") + vm_.count ("dirble-category")
+      + vm_.count ("dirble-station") + vm_.count ("dirble-category")
       + vm_.count ("dirble-country");
 
     if (dirble_api_key_.empty ())
@@ -1698,7 +1698,7 @@ bool tiz::programopts::validate_dirble_client_options () const
   bool outcome = false;
   unsigned int dirble_opts_count
       = vm_.count ("dirble-api-key") + vm_.count ("dirble-popular-stations")
-        + vm_.count ("dirble-stations") + vm_.count ("dirble-category")
+        + vm_.count ("dirble-station") + vm_.count ("dirble-category")
         + vm_.count ("dirble-country") + vm_.count ("log-directory");
 
   std::vector< std::string > all_valid_options = all_dirble_client_options_;

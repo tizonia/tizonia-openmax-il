@@ -79,6 +79,9 @@ namespace tiz
 
       static void destroy_list (omx_comp_handle_lst_t &hdl_list);
 
+      static void destroy_component (omx_comp_handle_lst_t &hdl_list,
+                                     const int handle_id);
+
       static OMX_ERRORTYPE setup_suppliers (
           const omx_comp_handle_lst_t &hdl_list);
 

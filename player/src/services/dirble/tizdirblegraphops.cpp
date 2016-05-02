@@ -71,7 +71,8 @@ graph::dirbleops::dirbleops (graph *p_graph,
                              const omx_comp_name_lst_t &comp_lst,
                              const omx_comp_role_lst_t &role_lst)
   : tiz::graph::ops (p_graph, comp_lst, role_lst),
-    encoding_ (OMX_AUDIO_CodingAutoDetect)
+    encoding_ (OMX_AUDIO_CodingAutoDetect),
+    inital_graph_load_(false)
 {
   TIZ_INIT_OMX_PORT_STRUCT (renderer_pcmtype_, 0);
 }
@@ -83,8 +84,6 @@ void graph::dirbleops::do_enable_auto_detection (const int handle_id,
       = boost::dynamic_pointer_cast< dirbleconfig >(config_);
   assert (dirble_config);
   tiz::graph::ops::do_enable_auto_detection (handle_id, port_id);
-  tiz::graph::util::dump_graph_info ("Dirble", "Connecting",
-                                     dirble_config->get_api_key ().c_str ());
 }
 
 void graph::dirbleops::do_disable_ports ()
@@ -146,6 +145,16 @@ void graph::dirbleops::do_load ()
   // Now add the new components to the base class lists
   comp_lst_.insert (comp_lst_.begin (), comp_list.begin (), comp_list.end ());
   role_lst_.insert (role_lst_.begin (), role_list.begin (), role_list.end ());
+
+  if (inital_graph_load_)
+    {
+      inital_graph_load_ = false;
+      tizdirbleconfig_ptr_t dirble_config
+        = boost::dynamic_pointer_cast< dirbleconfig >(config_);
+      assert (dirble_config);
+      tiz::graph::util::dump_graph_info ("Dirble", "Connecting",
+                                         dirble_config->get_api_key ().c_str ());
+    }
 }
 
 void graph::dirbleops::do_configure ()

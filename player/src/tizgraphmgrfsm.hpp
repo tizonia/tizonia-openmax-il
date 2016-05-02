@@ -273,10 +273,10 @@ namespace tiz
 
         // Transition table for restarting
         struct transition_table : boost::mpl::vector<
-          //                       Start            Event                Next              Action                   Guard
-          //    +-----------------+----------------+--------------------+------------------+------------------------+--------+
+          //        Start            Event                Next               Action                   Guard
+          //    +---+----------------+--------------------+------------------+------------------------+--------+
           bmf::Row < unloading_graph , graph_unlded_evt   , restarting_exit                                    >
-          //    +-----------------+----------------+--------------------+------------------+------------------------+--------+
+          //    +---+----------------+--------------------+------------------+------------------------+--------+
           > {};
 
         // Replaces the default no-transition response.
@@ -637,6 +637,19 @@ namespace tiz
         }
       };
 
+      struct do_deinit
+      {
+        template <class FSM,class EVT,class SourceState,class TargetState>
+        void operator()(EVT const& , FSM& fsm, SourceState& , TargetState& )
+        {
+          GMGR_FSM_LOG ();
+          if (fsm.pp_ops_ && *(fsm.pp_ops_))
+            {
+              (*(fsm.pp_ops_))->do_deinit ();
+            }
+        }
+      };
+
       template<tiz::control::playback_status_t playstatus>
       struct do_update_control_ifcs
       {
@@ -769,7 +782,10 @@ namespace tiz
         bmf::Row < restarting
                    ::exit_pt
                    <restarting_
-                    ::restarting_exit >  , graph_unlded_evt , starting    , do_load                                     >,
+                    ::restarting_exit >  , graph_unlded_evt , starting    , bmf::ActionSequence_<
+                                                                              boost::mpl::vector<
+                                                                                do_deinit,
+                                                                                do_load> >                              >,
         bmf::Row < restarting            , err_evt          , quitted     , do_report_fatal_error                       >,
         //    +----+---------------------+------------------+-------------+------------------------+--------------------+
         bmf::Row < stopping

@@ -194,6 +194,27 @@ void graphmgr::ops::do_unload ()
   }
 }
 
+void graphmgr::ops::do_deinit ()
+{
+  if (p_managed_graph_)
+  {
+    p_managed_graph_->deinit ();
+
+    tizgraph_ptr_map_t::iterator registry_end = graph_registry_.end ();
+    for (tizgraph_ptr_map_t::iterator it = graph_registry_.begin ();
+         it != registry_end; ++it)
+      {
+        const tizgraph_ptr_t p_graph = (*it).second;
+        if (p_graph == p_managed_graph_)
+          {
+            graph_registry_.erase (it);
+            break;
+          }
+      }
+    p_managed_graph_.reset ();
+  }
+}
+
 void graphmgr::ops::do_next ()
 {
   GMGR_OPS_BAIL_IF_ERROR (p_managed_graph_, p_managed_graph_->skip (1),

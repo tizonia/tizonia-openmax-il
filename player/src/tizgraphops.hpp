@@ -121,6 +121,7 @@ namespace tiz
       virtual void do_end_of_play ();
       virtual void do_tear_down_tunnels ();
       virtual void do_destroy_graph ();
+      virtual void do_destroy_component (const int handle_id);
       virtual void do_ack_unloaded ();
       virtual void do_record_destination (
           const OMX_STATETYPE destination_state);
@@ -147,6 +148,7 @@ namespace tiz
       bool is_trans_complete (const OMX_HANDLETYPE handle,
                               const OMX_STATETYPE to_state);
       bool is_destination_state (const OMX_STATETYPE to_state);
+      bool is_component_state (const int handle_id, const OMX_STATETYPE state_id);
       bool is_port_disabling_complete (const OMX_HANDLETYPE handle,
                                        const OMX_U32 port_id);
       bool is_port_enabling_complete (const OMX_HANDLETYPE handle,

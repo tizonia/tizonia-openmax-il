@@ -149,7 +149,7 @@ void graph::ops::do_store_config (const tizgraphconfig_ptr_t &config)
 
 void graph::ops::do_enable_auto_detection (const int handle_id, const int port_id)
 {
-  assert (handle_id >= 0 && static_cast<size_t>(handle_id) < handles_.size ());
+  assert (handle_id >= 0 && static_cast<std::size_t>(handle_id) < handles_.size ());
   G_OPS_BAIL_IF_ERROR (
       tiz::graph::util::enable_port_format_auto_detection (
           handles_[handle_id], port_id, OMX_PortDomainAudio),
@@ -483,6 +483,18 @@ void graph::ops::do_destroy_graph ()
   util::destroy_list (handles_);
   handles_.clear ();
   h2n_.clear ();
+  comp_lst_.clear();
+  role_lst_.clear();
+}
+
+void graph::ops::do_destroy_component (const int handle_id)
+{
+  assert (handle_id >= 0 && static_cast<std::size_t>(handle_id) < handles_.size ());
+  assert (handle_id >= 0 && static_cast<std::size_t>(handle_id) < comp_lst_.size ());
+  comp_lst_.erase(comp_lst_.begin() + handle_id, comp_lst_.begin() + handle_id + 1);
+  role_lst_.erase(role_lst_.begin() + handle_id, role_lst_.begin() + handle_id + 1);
+  h2n_.erase(handles_[handle_id]);
+  util::destroy_component (handles_, handle_id);
 }
 
 void graph::ops::do_ack_unloaded ()
@@ -630,6 +642,12 @@ bool graph::ops::is_trans_complete (const OMX_HANDLETYPE handle,
 bool graph::ops::is_destination_state (const OMX_STATETYPE to_state)
 {
   return (destination_state_ == to_state);
+}
+
+bool graph::ops::is_component_state (const int handle_id, const OMX_STATETYPE state_id)
+{
+  assert (handle_id >= 0 && static_cast<std::size_t>(handle_id) < handles_.size ());
+  return tiz::graph::util::verify_transition_one (handles_[handle_id], state_id);
 }
 
 bool graph::ops::is_port_disabling_complete (const OMX_HANDLETYPE handle,

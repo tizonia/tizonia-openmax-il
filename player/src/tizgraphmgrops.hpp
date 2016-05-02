@@ -91,6 +91,7 @@ namespace tiz
       virtual void do_execute ();
       virtual void do_stop ();
       virtual void do_unload ();
+      virtual void do_deinit ();
       virtual void do_next ();
       virtual void do_prev ();
       virtual void do_fwd ();
