@@ -1135,6 +1135,11 @@ void httpsrc_trans_cancel (httpsrc_trans_t *ap_trans)
   assert (ap_trans);
   TRANS_LOG_API_START (ap_trans);
   httpsrc_trans_pause (ap_trans);
+  set_curl_state (ap_trans, ECurlStateStopped);
+  if (ap_trans->p_curl_multi_)
+    {
+      curl_multi_remove_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_);
+    }
   ap_trans->sockfd_ = -1;
   ap_trans->awaiting_io_ev_ = false;
   ap_trans->awaiting_curl_timer_ev_ = false;
