@@ -1,7 +1,48 @@
 # Change Log
 
-## [0.3.0](https://github.com/tizonia/tizonia-openmax-il/tree/0.3.0) (2015-12-23)
-[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.2.0...0.3.0)
+## [v0.4.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.4.0) (2016-05-02)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.3.0...v0.4.0)
+
+**Improvements:**
+
+- tizgmusicproxy: station search : If no suitable station is found in the user's library, then search google play unlimited for a potential match [\#158](https://github.com/tizonia/tizonia-openmax-il/issues/158)
+- tizonia-player: add Dirble support [\#123](https://github.com/tizonia/tizonia-openmax-il/issues/123)
+- plugins: Dirble open radio source component [\#122](https://github.com/tizonia/tizonia-openmax-il/issues/122)
+
+**Fixed bugs:**
+
+- Coverity Scan \(CID 1352374\) \[/player/src/services/dirble/tizdirblegraphops.cpp:dirbleops\] : Uninitialized scalar field [\#241](https://github.com/tizonia/tizonia-openmax-il/issues/241)
+- Coverity Scan \(CID 1352373\) \[/player/src/services/googlemusic/tizgmusicgraphops.cpp:gmusicops\] : Uninitialized scalar field [\#240](https://github.com/tizonia/tizonia-openmax-il/issues/240)
+- Coverity Scan \(CID 1352372\) \[/player/src/services/soundcloud/tizscloudgraphops.cpp:scloudops\] : Uninitialized scalar field [\#239](https://github.com/tizonia/tizonia-openmax-il/issues/239)
+- Coverity Scan \(CID 1352371\) \[/player/src/services/spotify/tizspotifygraphops.cpp:spotifyops\] : Uninitialized scalar field [\#238](https://github.com/tizonia/tizonia-openmax-il/issues/238)
+- Coverity Scan \(CID 1352369\) \[/player/src/tizprobe.cpp:probe\] : Uninitialized scalar field [\#236](https://github.com/tizonia/tizonia-openmax-il/issues/236)
+- Coverity Scan \(CID 1352365\) \[/player/src/tizdaemon.cpp:daemonize\] : Resource leak [\#233](https://github.com/tizonia/tizonia-openmax-il/issues/233)
+- Coverity Scan \(CID 1352363\) \[/libtizplatform/src/tizev.c:init\_event\_loop\_thread\] : Resource leak [\#231](https://github.com/tizonia/tizonia-openmax-il/issues/231)
+- Coverity Scan \(CID 1352362\) \[/player/src/tizgraphutil.cpp:set\_content\_uri\] : Resource leak [\#230](https://github.com/tizonia/tizonia-openmax-il/issues/230)
+- Coverity Scan \(CID 1352361\) \[/plugins/http\_renderer/src/httprsrv.c:srv\_accept\_socket\] : Resource leak [\#229](https://github.com/tizonia/tizonia-openmax-il/issues/229)
+- Coverity Scan \(CID 1087251\) \[/libtizplatform/src/tizsync.c:tiz\_cond\_init\] : Resource leak [\#227](https://github.com/tizonia/tizonia-openmax-il/issues/227)
+- Coverity Scan \(CID 1087250\) \[/libtizplatform/src/tizsync.c:tiz\_mutex\_init\] : Resource leak [\#226](https://github.com/tizonia/tizonia-openmax-il/issues/226)
+- Coverity Scan \(CID 1087249\) \[/libtizplatform/src/tizsync.c:tiz\_sem\_init\] : Resource leak [\#225](https://github.com/tizonia/tizonia-openmax-il/issues/225)
+- Coverity Scan \(CID 1087248\) \[/libtizcore/src/tizcore.c:find\_component\_paths\] : Resource leak [\#224](https://github.com/tizonia/tizonia-openmax-il/issues/224)
+- Coverity Scan \(CID 1087247\) \[/libtizcore/src/tizcore.c:scan\_component\_folders\] : Resource leak [\#223](https://github.com/tizonia/tizonia-openmax-il/issues/223)
+- Coverity Scan \(CID 1087246\) \[/libtizcore/src/tizcore.c:instantiate\_component\] : Resource leak [\#222](https://github.com/tizonia/tizonia-openmax-il/issues/222)
+- Coverity Scan \(CID 1352366\) \[/plugins/pcm\_renderer\_pa/src/pulsearprc.c:pulseaudio\_stream\_state\_cback\_handler\] : Dereference before null check [\#214](https://github.com/tizonia/tizonia-openmax-il/issues/214)
+- Coverity Scan \(CID 1352348\) \[/player/src/httpserv/tizhttpservgraphfsm.hpp:operator \(\)\] : Unchecked dynamic\_cast [\#213](https://github.com/tizonia/tizonia-openmax-il/issues/213)
+- Coverity Scan \(CID 1352347\) \[/player/src/httpserv/tizhttpservgraphfsm.hpp:operator \(\)\] : Unchecked dynamic\_cast [\#212](https://github.com/tizonia/tizonia-openmax-il/issues/212)
+- Coverity Scan \(CID 1352346\) \[/player/src/httpserv/tizhttpservgraphfsm.hpp:operator \(\)\] : Unchecked dynamic\_cast [\#211](https://github.com/tizonia/tizonia-openmax-il/issues/211)
+- Coverity Scan \(CID 1352345\) \[/player/src/httpserv/tizhttpservgraphfsm.hpp:operator \(\)\] : Unchecked dynamic\_cast [\#210](https://github.com/tizonia/tizonia-openmax-il/issues/210)
+- Coverity Scan \(CID 1352344\) \[/player/src/httpserv/tizhttpservgraphfsm.hpp:operator \(\)\] : Unchecked dynamic\_cast [\#209](https://github.com/tizonia/tizonia-openmax-il/issues/209)
+- Coverity Scan \(CID 1352343\) \[/player/src/httpserv/tizhttpservgraphfsm.hpp:operator \(\)\] : Unchecked dynamic\_cast [\#208](https://github.com/tizonia/tizonia-openmax-il/issues/208)
+- Coverity Scan \(CID 1352342\) \[/player/src/httpserv/tizhttpservgraphfsm.hpp:operator \(\)\] : Unchecked dynamic\_cast [\#207](https://github.com/tizonia/tizonia-openmax-il/issues/207)
+- Coverity Scan \(CID 1352341\) \[/player/src/httpserv/tizhttpservgraphfsm.hpp:operator \(\)\] : Unchecked dynamic\_cast [\#206](https://github.com/tizonia/tizonia-openmax-il/issues/206)
+- Coverity Scan \(CID 1352378\) \[/player/src/tizgraphcmd.cpp:c\_str\] : Wrapper object use after free [\#204](https://github.com/tizonia/tizonia-openmax-il/issues/204)
+- Coverity Scan \(CID 1352359\) \[/player/src/tizgraphutil.cpp:set\_role\] : Out-of-bounds write [\#203](https://github.com/tizonia/tizonia-openmax-il/issues/203)
+- Coverity Scan \(CID 1352355\) \[/player/src/tizgraph.cpp:omx\_evt\] : Inferred misuse of enum [\#191](https://github.com/tizonia/tizonia-openmax-il/issues/191)
+- http\_renderer: Google Music, SoundClound playback does not work in Ubuntu 16.04  [\#242](https://github.com/tizonia/tizonia-openmax-il/issues/242)
+- tizmp3dec: OMX\_EventPortSettingsChanged not signalled correclty with mono streams [\#157](https://github.com/tizonia/tizonia-openmax-il/issues/157)
+
+## [v0.3.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.3.0) (2015-12-24)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.2.0...v0.3.0)
 
 **Improvements:**
 
@@ -41,6 +82,8 @@
 
 **Fixed bugs:**
 
+- mp3\_decoder: output buffer size is too small and causes too many exchanges with the renderer [\#110](https://github.com/tizonia/tizonia-openmax-il/issues/110)
+- http\_source sometimes stalls when curl instructs to unregister the socket  [\#109](https://github.com/tizonia/tizonia-openmax-il/issues/109)
 - tizspotifysrc: playlist name matching improvements [\#146](https://github.com/tizonia/tizonia-openmax-il/issues/146)
 - tizplatform: tiz\_queue uses internally TIZ\_QUEUE\_MAX\_ITEMS instead of the 'capacity' argument provided [\#144](https://github.com/tizonia/tizonia-openmax-il/issues/144)
 - tizspotifysrc: don't allow the component's main event queue get full \(which leads to component stalling or crashing\)  [\#143](https://github.com/tizonia/tizonia-openmax-il/issues/143)
@@ -53,10 +96,10 @@
 - docs: fix build system under 'docs' folder to properly build doxygen docs [\#126](https://github.com/tizonia/tizonia-openmax-il/issues/126)
 - google play music: replace references to 'All-access' with 'Unlimited' [\#120](https://github.com/tizonia/tizonia-openmax-il/issues/120)
 - tizgmusicproxy: unicode to ASCII without errors [\#119](https://github.com/tizonia/tizonia-openmax-il/issues/119)
-- mp3\_decoder: output buffer size is too small and causes too many exchanges with the renderer [\#110](https://github.com/tizonia/tizonia-openmax-il/issues/110)
-- http\_source sometimes stalls when curl instructs to unregister the socket  [\#109](https://github.com/tizonia/tizonia-openmax-il/issues/109)
 
 ## [v0.1.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.1.0) (2015-09-28)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/0.1.0...v0.1.0)
+
 **Improvements:**
 
 - plugins: Google Music streaming client component [\#106](https://github.com/tizonia/tizonia-openmax-il/issues/106)
@@ -158,8 +201,6 @@
 
 **Closed issues:**
 
-- plugins: Grooveshark streaming client component [\#107](https://github.com/tizonia/tizonia-openmax-il/issues/107)
-- plugins: Google Music streaming client component [\#106](https://github.com/tizonia/tizonia-openmax-il/issues/106)
 - libtizonia: async events need a unique id to avoid processing duplicates in the component thread [\#102](https://github.com/tizonia/tizonia-openmax-il/issues/102)
 - libtizonia: automatically reset OMX\_BUFFERFLAG\_EOS on input buffers [\#101](https://github.com/tizonia/tizonia-openmax-il/issues/101)
 - Implement the shoutcast metadata protocol in the http\_renderer's streaming server [\#4](https://github.com/tizonia/tizonia-openmax-il/issues/4)
