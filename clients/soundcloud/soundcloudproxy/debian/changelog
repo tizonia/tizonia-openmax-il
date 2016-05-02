@@ -1,3 +1,9 @@
+tizsoundcloudproxy (0.4.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #243)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Mon, 02 May 2016 10:24:47 +0100
+
 tizsoundcloudproxy (0.1.0-1) unstable; urgency=low
 
   * Initial release (Closes: #141)
