@@ -126,16 +126,16 @@ void tiz_buffer_clear (tiz_buffer_t *ap_buf);
 /* DEPRECATED APIS */
 
 /* @deprecated From v0.2.0. Use tiz_buffer_push instead. Will be removed in
- * v0.3.0 */
+ * a future release */
 int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
                            const size_t a_nbytes);
 
 /* @deprecated From v0.2.0. Use tiz_buffer_available instead. Will be removed in
-*v0.3.0 */
+ * a future release */
 int tiz_buffer_bytes_available (const tiz_buffer_t *ap_buf);
 
 /* @deprecated From v0.2.0. Use tiz_buffer_get instead. Will be removed in
-*v0.3.0 */
+ * a future release */
 void *tiz_buffer_get_data (const tiz_buffer_t *ap_buf);
 
 #ifdef __cplusplus
