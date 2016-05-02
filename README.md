@@ -1,13 +1,13 @@
 # Tizonia #
 
 * A music player and audio streaming client/server for Linux.
-* With support for Spotify, Google Play Music (including Unlimited) and
-  SoundCloud.
+* With support for Spotify, Google Play Music (including Unlimited),
+  SoundCloud and Dirble.
 * A multimedia framework based on OpenMAX IL 1.2 provisional specification.
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
-## Install the latest binary release (v0.3.0)
+## Install the latest binary release (v0.4.0)
 
 To install the
 [latest release](https://github.com/tizonia/tizonia-openmax-il/releases/latest):
@@ -22,9 +22,9 @@ To install the
 
 > NOTE: This installs the latest version of Tizonia's Debian packages from [Bintray](https://bintray.com/tizonia) and all their dependencies.
 
-Finally, to use *Spotify*, *Google Play Music* and *SoundCloud*, introduce your
-credentials in Tizonia's config file (see instructions inside the file for more
-information):
+Finally, to use *Spotify*, *Google Play Music*, *SoundCloud* and *Dirble*,
+introduce your credentials in Tizonia's config file (see instructions inside
+the file for more information):
 
 ```bash
 
@@ -35,10 +35,10 @@ information):
 The Debian packages are hosted on [Bintray](https://bintray.com/tizonia), with
 the following distro/arch combinations:
 
-| Ubuntu Trusty (14.04) | Ubuntu Vivid (15.04) | Debian Jessie (8) | Raspbian Jessie (8) |
+| Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
 |         :---:         |        :---:         |        :---:      |       :---:         |
 | amd64, i386, armhf    |   amd64, i386, armhf | amd64, i386, armhf, armel | armhf       |
-| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-vivid/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-vivid/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
+| [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
 
 ## 'tizonia' usage ##
 
@@ -51,6 +51,7 @@ the following distro/arch combinations:
 * Stream audio from Spotify (Spotify Premium required).
 * Stream audio from Google Play Music (including Unlimited features).
 * Stream audio from SoundCloud.
+* Search and stream Internet radio stations with Dirble.
 * Playback of local media files (mp3, mp2, mpa, m2a, aac, ogg/vorbis, opus,
   wav, aiff, and flac).
 * Icecast/SHOUTcast streaming LAN server (mp3).
@@ -87,7 +88,9 @@ the following distro/arch combinations:
   * 'libtizrmproxy' : a C client library to interface with the RM daemon.
 5. OpenMAX IL 1.2 codecs/plugins
   * Spotify streaming service client (libspotify),
-  * Google Play Music streaming service client (based on gmusicapi)
+  * Google Play Music streaming service client (based on 'gmusicapi' Python module + libcurl)
+  * SoundCloud streaming service client (based on 'soundcloud' Python module + libcurl)
+  * Dirble internet radio station directory (Dirble REST API + libcurl)
   * mp3 decoders (libmad and libmpg123),
   * mpeg audio (mp2) decoder (libmpg123),
   * Sampled sound formats decoder (various pcm formats, including wav, etc, based on libsndfile)
