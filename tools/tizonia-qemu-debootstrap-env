@@ -304,6 +304,7 @@ function install_dependencies {
     local exit_status=0
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Checking/installing this program's dependencies" "$YEL"
+    check_dependency debscripts
     check_dependency debootstrap
     check_dependency qemu-user-static
     check_dependency coreutils

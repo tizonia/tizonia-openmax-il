@@ -76,6 +76,17 @@ readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.2.0"
 readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
 readonly TIZONIA_DEBIAN_CHANGELOG_CLOSING_BUG="156"
 
+# Program dependencies
+declare -ar TIZONIA_PREPARE_RELEASE_DEPS=( \
+    'dch' \
+    'github_changelog_generator' \
+    'perl' \
+    'tail' \
+    'cut' \
+    'grcat' \
+)
+
+
 function update_package_versions {
     pretty_print "$MAG" "[START] : updating package versions."
     cd "$TIZONIA_REPO_DIR"
@@ -152,14 +163,25 @@ function update_changelog {
     github_changelog_generator --future-release "$TIZONIA_RELEASE_VERSION" --enhancement-label "**Improvements:**" tizonia/tizonia-openmax-il
 }
 
-[[ "$TIZONIA_OLD_PACKAGE_VER" != "$TIZONIA_NEW_PACKAGE_VER" ]] || { echo >&2 "Forgot to update TIZONIA_RELEASE_VERSION. Aborting."; exit 1; }
+function main {
+    [[ "$TIZONIA_OLD_PACKAGE_VER" != "$TIZONIA_NEW_PACKAGE_VER" ]] || { echo >&2 "Forgot to update TIZONIA_RELEASE_VERSION. Aborting."; exit 1; }
 
-print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
-update_package_versions
-update_plugin_shared_lib_versions
-update_il_core_soname_strings
-update_shared_lib_versions
-update_python_version_strings
-update_debian_changelog_files
-update_changelog
-print_banner "[DONE] : Updating files." "$BLU" 
+    # Check dependencies
+    for cmd in "${TIZONIA_PREPARE_RELEASE_DEPS[@]}"; do
+        command -v "$cmd" >/dev/null 2>&1 \
+            || { echo >&2 "This program requires $cmd. Aborting."; exit 1; }
+    done
+
+    print_banner "[START] : Preparing Tizonia for release; version [$TIZONIA_RELEASE_VERSION]" "$YEL"
+    update_package_versions
+    update_plugin_shared_lib_versions
+    update_il_core_soname_strings
+    update_shared_lib_versions
+    update_python_version_strings
+    update_debian_changelog_files
+    update_changelog
+    print_banner "[DONE] : Updating files." "$BLU" 
+
+}
+
+main "$@"
