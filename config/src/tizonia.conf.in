@@ -65,7 +65,7 @@ mpris-enabled = false
 
 # Spotify configuration
 # -------------------------------------------------------------------------
-# To avoid passing this information on the command line, simply uncomment
+# To avoid passing this information on the command line, uncomment
 # and configure accordingly
 #
 # spotify.user     = user
@@ -74,8 +74,8 @@ mpris-enabled = false
 
 # Google Play Music configuration
 # -------------------------------------------------------------------------
-# To avoid passing this information on the command line, simply uncomment
-# and configure accordingly.
+# To avoid passing this information on the command line, uncomment and
+# configure here.
 #
 # gmusic.user       = user@gmail.com
 # gmusic.password   = pass (account password or app-specific password for
@@ -85,8 +85,8 @@ mpris-enabled = false
 
 # SoundCloud configuration
 # -------------------------------------------------------------------------
-# To avoid passing this information on the command line, simply uncomment
-# and configure your SoundCloud OAuth token accordingly.
+# To avoid passing this information on the command line, uncomment and
+# configure your SoundCloud OAuth token here.
 #
 # To obtain your OAuth token, Tizonia needs to be granted access to your
 # SoundCloud account. Visit http://www.tizonia.org/soundcloud for the
@@ -96,7 +96,9 @@ mpris-enabled = false
 
 # Dirble configuration
 # -------------------------------------------------------------------------
-# To avoid passing this information on the command line, simply uncomment
-# and configure your Dirble Api Key accordingly.
+# To avoid passing this information on the command line, uncomment and
+# configure your Dirble Api Key here.
+#
+# To obtain your Dirble API key, go to https://dirble.com/developer/
 #
 # dirble.api_key = xxxxxxxxxxxxxx
