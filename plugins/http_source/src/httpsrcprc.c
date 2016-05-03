@@ -123,39 +123,39 @@ static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
 
   TIZ_TRACE (handleOf (ap_prc), "encoding type  : [%s]", ap_info);
 
-  if (memcmp (ap_info, "audio/mpeg", 10) == 0
-      || memcmp (ap_info, "audio/mpg", 9) == 0
-      || memcmp (ap_info, "audio/mp3", 9) == 0)
+  if (strncasecmp (ap_info, "audio/mpeg", 10) == 0
+      || strncasecmp (ap_info, "audio/mpg", 9) == 0
+      || strncasecmp (ap_info, "audio/mp3", 9) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingMP3;
     }
-  else if (memcmp (ap_info, "audio/aac", 9) == 0
-           || memcmp (ap_info, "audio/aacp", 10) == 0)
+  else if (strncasecmp (ap_info, "audio/aac", 9) == 0
+           || strncasecmp (ap_info, "audio/aacp", 10) == 0)
     {
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingAAC;
     }
-  else if (memcmp (ap_info, "audio/vorbis", 12) == 0)
+  else if (strncasecmp (ap_info, "audio/vorbis", 12) == 0)
     {
       /* This is vorbis without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingVORBIS;
     }
-  else if (memcmp (ap_info, "audio/speex", 11) == 0)
+  else if (strncasecmp (ap_info, "audio/speex", 11) == 0)
     {
       /* This is speex without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingSPEEX;
     }
-  else if (memcmp (ap_info, "audio/flac", 10) == 0)
+  else if (strncasecmp (ap_info, "audio/flac", 10) == 0)
     {
       /* This is flac without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingFLAC;
     }
-  else if (memcmp (ap_info, "audio/opus", 10) == 0)
+  else if (strncasecmp (ap_info, "audio/opus", 10) == 0)
     {
       /* This is opus without container */
       ap_prc->audio_coding_type_ = OMX_AUDIO_CodingOPUS;
     }
-  else if (memcmp (ap_info, "application/ogg", 15) == 0
-           || memcmp (ap_info, "audio/ogg", 9) == 0)
+  else if (strncasecmp (ap_info, "application/ogg", 15) == 0
+           || strncasecmp (ap_info, "audio/ogg", 9) == 0)
     {
       /* This is for audio with ogg container (may be FLAC, Vorbis, Opus,
          etc). We'll have to identify the actual codec when the first bytes
@@ -466,14 +466,13 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
 
           (void)store_metadata (ap_prc, name, p_info);
 
-          if (memcmp (name, "Content-Type", 12) == 0
-              || memcmp (name, "content-type", 12) == 0)
+          if (strncasecmp (name, "content-type", 12) == 0)
             {
               obtain_coding_type (ap_prc, p_info);
               /* Now set the new coding type value on the output port */
               (void)set_audio_coding_on_port (ap_prc);
             }
-          else if (memcmp (name, "ice-audio-info", 14) == 0)
+          else if (strncasecmp (name, "ice-audio-info", 14) == 0)
             {
               obtain_audio_info (ap_prc, p_info);
               /* Now set the pcm info on the output port */
@@ -482,7 +481,7 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
                  header */
               update_cache_size (ap_prc);
             }
-          else if (memcmp (name, "icy-br", 6) == 0)
+          else if (strncasecmp (name, "icy-br", 6) == 0)
             {
               obtain_bit_rate (ap_prc, p_info);
               update_cache_size (ap_prc);
@@ -553,8 +552,8 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
       TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
                   ap_prc->p_uri_param_->contentURI);
       /* Verify we are getting an http scheme */
-      if (memcmp (ap_prc->p_uri_param_->contentURI, "http://", 7) != 0
-          && memcmp (ap_prc->p_uri_param_->contentURI, "https://", 8) != 0)
+      if (strncasecmp ((const char *)ap_prc->p_uri_param_->contentURI, "http://", 7) != 0
+          && strncasecmp ((const char *)ap_prc->p_uri_param_->contentURI, "https://", 8) != 0)
         {
           rc = OMX_ErrorContentURIError;
         }
