@@ -173,7 +173,7 @@ class tizgmusicproxy(object):
             with open(tizconfig, "a+") as f:
                 f.truncate()
                 pickle.dump(self.__gmusic.session._authtoken, f)
-            
+
         self.library = CaseInsensitiveDict()
         self.song_map = CaseInsensitiveDict()
         self.playlists = CaseInsensitiveDict()
@@ -730,7 +730,7 @@ class tizgmusicproxy(object):
                 if arg != station_name:
                     print_wrn("[Google Play Music] '{0}' not found. " \
                               "Playing '{1}' instead." \
-                              .format(arg, name))
+                              .format(arg.encode('utf-8'), name.encode('utf-8')))
                 logging.info("Added {0} tracks from {1} to queue" \
                              .format(tracks_added, arg))
                 self.__update_play_queue_order()
