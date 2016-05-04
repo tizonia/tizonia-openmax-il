@@ -294,7 +294,7 @@ function check_dependency {
     local result=$(dpkg-query -W -f='${Status} ${Version}\n' "$1" 2> /dev/null | cut -d ' ' -f3)
     if [[ "$result" != "installed" ]]; then
         pretty_print "$RED" "[NOK] $1 not installed. Installing now."
-        $cmd_sudo apt-get -y install "$1"
+        $cmd_sudo apt-get -y --force-yes install "$1"
     else
         pretty_print "$GRN" "[ OK] $1 installed."
     fi
@@ -375,8 +375,8 @@ EOF
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Installing additional packages" "$GRN"
     run_chroot apt-get update
-    run_chroot apt-get upgrade -qq
-    run_chroot apt-get install -qq sudo mercurial wget python python-setuptools apt-utils dpkg-dev
+    run_chroot apt-get upgrade -qq --force-yes
+    run_chroot apt-get install -qq --force-yes sudo mercurial wget python python-setuptools apt-utils dpkg-dev
     echo
     pretty_print "$BLU" "Done installing additional packages."
 }
@@ -430,7 +430,7 @@ function bootstrap_environment {
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Updating apt cache" "$GRN"
     run_chroot apt-get update
-    run_chroot apt-get upgrade -qq
+    run_chroot apt-get upgrade -qq --force-yes
 
     print_banner "[$DISTRO-$RELEASE-$ARCH] Installing Tizonia's dependencies" "$GRN"
     run_chroot /bin/bash -v -c 'source /root/.profile; /root/work/tizonia/tools/tizonia-dpkg-build --alldeps'

@@ -436,7 +436,7 @@ function do_tizonia_deps {
             echo deb http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
             echo deb-src http://apt.mopidy.com/ stable main contrib non-free | sudo tee -a /etc/apt/sources.list
             sudo apt-get update
-            sudo apt-get install libspotify12 libspotify-dev -q -y
+            sudo apt-get install libspotify12 libspotify-dev -qq --force-yes
             pretty_print "$GRN" "[libspotify] : installed."
         fi
     fi
@@ -448,7 +448,7 @@ function do_tizonia_deps {
             pretty_print "$GRN" "[$pkg] : $result."
         else
             pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -q -y "$pkg" #> /dev/null
+            sudo apt-get install -qq --force-yes "$pkg" #> /dev/null
             pretty_print "$GRN" "[$pkg] : installed."
         fi
     done
@@ -517,7 +517,7 @@ function do_all_deps {
             pretty_print "$GRN" "[$pkg] : $result."
         else
             pretty_print "$BLU" "[$pkg] : installing."
-            sudo apt-get install -q -y "$pkg" #> /dev/null
+            sudo apt-get install -qq --force-yes "$pkg" #> /dev/null
             pretty_print "$GRN" "[$pkg] : installed."
         fi
     done
@@ -982,7 +982,7 @@ function do_uninstall_project_debs {
 ##################################################################
 function do_uninstall_all_debs {
     local exit_status=0
-    sudo apt-get remove --purge tizonia-all -q -y && sudo apt-get autoremove -q -y
+    sudo apt-get remove --purge tizonia-all -qq --force-yes && sudo apt-get autoremove -qq --force-yes
     dpkg -l | grep -E 'ii\s*(libtiz|tiz|python-tiz)' | awk '{ print $2 }' | xargs sudo apt-get remove --purge -qq
     return "$exit_status"
 }
