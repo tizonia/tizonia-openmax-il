@@ -37,7 +37,7 @@ the following distro/arch combinations:
 
 | Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
 |         :---:         |        :---:         |        :---:      |       :---:         |
-| amd64, i386, armhf    |   amd64, i386, armhf | amd64, i386, armhf, armel | armhf       |
+| amd64, i386, armhf    |   amd64, i386, armhf | amd64, i386, armhf|      armhf          |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
 
 ## 'tizonia' usage ##
