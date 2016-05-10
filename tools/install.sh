@@ -38,7 +38,7 @@ else
 fi
 
 # Make sure some required packages are already installed
-sudo apt-get -y --force-yes install python-dev curl apt-transport-https libffi-dev
+sudo apt-get -y --force-yes install python-dev curl apt-transport-https libffi-dev libssl-dev
 
 # To install libspotify deb packages, add Mopidy's archive to APT's
 # sources.list
@@ -51,7 +51,7 @@ fi
 # Add Tizonia's archive to APT's sources.list
 grep -q "dl.bintray.com/tizonia" /etc/apt/sources.list
 if [ $? -eq 1 ]; then
-    curl 'https://bintray.com/user/downloadSubjectPublicKey?username=tizonia' | sudo apt-key add -
+    curl -k 'https://bintray.com/user/downloadSubjectPublicKey?username=tizonia' | sudo apt-key add -
     echo "deb https://dl.bintray.com/tizonia/$DISTRO $RELEASE main" | sudo tee -a /etc/apt/sources.list
 fi
 
