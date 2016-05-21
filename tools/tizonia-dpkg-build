@@ -90,6 +90,7 @@ declare -ar TIZ_TIZONIA_DEPS=( \
     liboggz2-dev \
     libsndfile1-dev \
     libffi-dev \
+    libssl-dev \
     python-dev \
     python-setuptools \
     python-pip \
