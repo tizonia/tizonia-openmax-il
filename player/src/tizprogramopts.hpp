@@ -186,6 +186,7 @@ namespace tiz
     std::string gmusic_playlist_;
     std::string gmusic_station_;
     std::string gmusic_genre_;
+    std::string gmusic_activity_;
     std::string gmusic_promoted_;
     std::string gmusic_feeling_lucky_station_;
     std::vector< std::string > gmusic_playlist_container_;

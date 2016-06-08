@@ -271,6 +271,7 @@ tiz::programopts::programopts (int argc, char *argv[])
     gmusic_playlist_ (),
     gmusic_station_ (),
     gmusic_genre_ (),
+    gmusic_activity_ (),
     gmusic_promoted_ (),
     gmusic_feeling_lucky_station_ (),
     gmusic_playlist_container_ (),
@@ -595,6 +596,10 @@ const std::vector< std::string > &
     {
       gmusic_playlist_container_.push_back (gmusic_genre_);
     }
+  else if (!gmusic_activity_.empty ())
+    {
+      gmusic_playlist_container_.push_back (gmusic_activity_);
+    }
   else if (!gmusic_promoted_.empty ())
     {
       // With gmusic promoted songs option, no playlist "name" is actually
@@ -634,6 +639,10 @@ tiz::programopts::gmusic_playlist_type ()
   else if (!gmusic_genre_.empty ())
     {
       gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeGenre;
+    }
+  else if (!gmusic_activity_.empty ())
+    {
+      gmusic_playlist_type_ = OMX_AUDIO_GmusicPlaylistTypeSituation;
     }
   else if (!gmusic_promoted_.empty ())
     {
@@ -981,6 +990,9 @@ void tiz::programopts::init_gmusic_options ()
       ("gmusic-unlimited-genre", po::value (&gmusic_genre_),
        "Search and play Google Play Music Unlimited tracks by genre.")
       /* TIZ_CLASS_COMMENT: */
+      ("gmusic-unlimited-activity", po::value (&gmusic_activity_),
+       "Search and play Google Play Music Unlimited tracks by activity.")
+      /* TIZ_CLASS_COMMENT: */
       ("gmusic-unlimited-feeling-lucky-station",
        "Play the user's Google Play Music Unlimited 'I'm Feeling Lucky' station.")
       /* TIZ_CLASS_COMMENT: */
@@ -992,7 +1004,8 @@ void tiz::programopts::init_gmusic_options ()
     ("gmusic-password")("gmusic-device-id")("gmusic-artist")("gmusic-album")
     ("gmusic-playlist")("gmusic-unlimited-station")("gmusic-unlimited-album")
     ("gmusic-unlimited-artist")("gmusic-unlimited-tracks")("gmusic-unlimited-genre")
-    ("gmusic-unlimited-feeling-lucky-station")("gmusic-unlimited-promoted-tracks");
+    ("gmusic-unlimited-activity") ("gmusic-unlimited-feeling-lucky-station")
+    ("gmusic-unlimited-promoted-tracks");
 }
 
 void tiz::programopts::init_scloud_options ()
@@ -1336,6 +1349,7 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
           + vm_.count ("gmusic-unlimited-artist")
           + vm_.count ("gmusic-unlimited-tracks")
           + vm_.count ("gmusic-unlimited-genre")
+          + vm_.count ("gmusic-unlimited-activity")
           + vm_.count ("gmusic-unlimited-feeling-lucky-station")
           + vm_.count ("gmusic-unlimited-promoted-tracks");
 
@@ -1370,7 +1384,8 @@ int tiz::programopts::consume_gmusic_client_options (bool &done,
         || vm_.count ("gmusic-unlimited-album")
         || vm_.count ("gmusic-unlimited-artist")
         || vm_.count ("gmusic-unlimited-tracks")
-        || vm_.count ("gmusic-unlimited-genre"))
+        || vm_.count ("gmusic-unlimited-genre")
+        || vm_.count ("gmusic-unlimited-activity"))
     {
       gmusic_is_unlimited_search_ = true;
     }
@@ -1650,7 +1665,8 @@ bool tiz::programopts::validate_gmusic_client_options () const
         + vm_.count ("gmusic-album") + vm_.count ("gmusic-playlist")
         + vm_.count ("gmusic-unlimited-station") + vm_.count ("gmusic-unlimited-album")
         + vm_.count ("gmusic-unlimited-artist") + vm_.count ("gmusic-unlimited-tracks")
-        + vm_.count ("gmusic-unlimited-genre") + vm_.count ("gmusic-unlimited-feeling-lucky-station")
+        + vm_.count ("gmusic-unlimited-genre") + vm_.count ("gmusic-unlimited-activity")
+        + vm_.count ("gmusic-unlimited-feeling-lucky-station")
         + vm_.count ("gmusic-unlimited-promoted-tracks")
         + vm_.count ("log-directory");
 
