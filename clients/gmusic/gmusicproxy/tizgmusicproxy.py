@@ -98,7 +98,7 @@ def exception_handler(exception_type, exception, traceback):
     print_err("[Google Play Music] (%s) : %s" \
               % (exception_type.__name__, exception))
     del traceback # unused
-    #print_exception(exception_type, exception, traceback)
+    # print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -379,7 +379,7 @@ class tizgmusicproxy(object):
 
     def enqueue_station_unlimited(self, arg):
         """Search the user's library for a station with a given name
-        and adds its tracks to the playback queue.
+        and add its tracks to the playback queue.
 
         Requires Unlimited subscription.
 
@@ -400,7 +400,7 @@ class tizgmusicproxy(object):
             raise KeyError("Station not found : {0}".format(arg))
 
     def enqueue_genre_unlimited(self, arg):
-        """Search Unlimited for a genre with a given name and adds its
+        """Search Unlimited for a genre with a given name and add its
         tracks to the playback queue.
 
         Requires Unlimited subscription.
@@ -446,6 +446,31 @@ class tizgmusicproxy(object):
         except CallFailure:
             raise RuntimeError("Operation requires an Unlimited subscription.")
 
+    def enqueue_situation_unlimited(self, arg):
+        """Search Unlimited for a situation with a given name and add its
+        tracks to the playback queue.
+
+        Requires Unlimited subscription.
+
+        """
+        print_msg("[Google Play Music] [Retrieving situations] : '{0}'. " \
+                  .format(self.__email))
+
+        try:
+
+            self.__enqueue_situation_unlimited(arg)
+
+            if not len(self.queue):
+                raise KeyError
+
+            logging.info("Added {0} tracks from {1} to queue" \
+                         .format(len(self.queue), arg))
+
+        except KeyError:
+            raise KeyError("Situation not found : {0}".format(arg))
+        except CallFailure:
+            raise RuntimeError("Operation requires an Unlimited subscription.")
+
     def enqueue_artist_unlimited(self, arg):
         """Search Unlimited for an artist and adds the artist's 200 top tracks to the
         playback queue.
@@ -487,7 +512,7 @@ class tizgmusicproxy(object):
             raise RuntimeError("Operation requires an Unlimited subscription.")
 
     def enqueue_album_unlimited(self, arg):
-        """Search Unlimited for an album and adds its tracks to the
+        """Search Unlimited for an album and add its tracks to the
         playback queue.
 
         Requires Unlimited subscription.
@@ -743,13 +768,14 @@ class tizgmusicproxy(object):
                       "suitable station in user's library. " \
                       .format(arg))
 
-    def __enqueue_station_unlimited(self, arg):
+    def __enqueue_station_unlimited(self, arg, max_results=200, quiet=False):
         """Search for a station and enqueue all of its tracks (Unlimited)
 
         """
-        print_msg("[Google Play Music] [Station search in "\
-                  "Google Play Music Unlimited] : '{0}'. " \
-                  .format(arg))
+        if not quiet:
+            print_msg("[Google Play Music] [Station search in "\
+                      "Google Play Music Unlimited] : '{0}'. " \
+                      .format(arg.encode('utf-8')))
         try:
             station_name = arg
             station_id = None
@@ -758,13 +784,21 @@ class tizgmusicproxy(object):
                             if 'best_result' in hit.keys()), None)
 
             if not station and len(station_hits):
+                secondary_hit = None
                 for hit in station_hits:
-                    print_nfo("[Google Play Music] [Station] '{0}'." \
-                              .format((hit['station']['name']).encode('utf-8')))
-                    if not station:
-                        if arg.lower() in \
-                           to_ascii(hit['station']['name']).lower():
-                            station = hit
+                    if not quiet:
+                        print_nfo("[Google Play Music] [Station] '{0}'." \
+                                  .format((hit['station']['name']).encode('utf-8')))
+                    if arg.lower() == \
+                       to_ascii(hit['station']['name']).lower():
+                        station = hit
+                        break
+                    if arg.lower() in \
+                       to_ascii(hit['station']['name']).lower():
+                        secondary_hit = hit
+                if not station and secondary_hit:
+                    station = secondary_hit
+
                 if not station:
                     # Play some random station from the search results
                     random.seed()
@@ -780,7 +814,9 @@ class tizgmusicproxy(object):
                 artist_id = seed['artistId'] if seed_type == u'3' else None
                 album_id = seed['albumId'] if seed_type == u'4' else None
                 genre_id = seed['genreId'] if seed_type == u'5' else None
-                num_tracks = 200
+                playlist_token = seed['playlistShareToken'] if seed_type == u'8' else None
+                curated_station_id = seed['curatedStationId'] if seed_type == u'9' else None
+                num_tracks = max_results
                 tracks = dict()
                 try:
                     station_id \
@@ -788,7 +824,9 @@ class tizgmusicproxy(object):
                                                        track_id, \
                                                        artist_id, \
                                                        album_id, \
-                                                       genre_id)
+                                                       genre_id, \
+                                                       playlist_token, \
+                                                       curated_station_id)
                     tracks \
                         = self.__gmusic.get_station_tracks(station_id, \
                                                            num_tracks)
@@ -797,14 +835,44 @@ class tizgmusicproxy(object):
                                        "Unlimited subscription.")
                 tracks_added = self.__enqueue_tracks(tracks)
                 if tracks_added:
-                    print_wrn("[Google Play Music] [Station] : '{0}'." \
-                              .format(station_name.encode('utf-8')))
+                    if not quiet:
+                        print_wrn("[Google Play Music] [Station] : '{0}'." \
+                                  .format(station_name.encode('utf-8')))
                     logging.info("Added {0} tracks from {1} to queue" \
-                                 .format(tracks_added, arg))
+                                 .format(tracks_added, arg.encode('utf-8')))
                     self.__update_play_queue_order()
 
         except KeyError:
             raise KeyError("Station not found : {0}".format(arg))
+
+    def __enqueue_situation_unlimited(self, arg):
+        """Search for a situation and enqueue all of its tracks (Unlimited)
+
+        """
+        print_msg("[Google Play Music] [Situation search in "\
+                  "Google Play Music Unlimited] : '{0}'. " \
+                  .format(arg))
+        try:
+            situation_name = arg
+            situation_id = None
+            situation_hits = self.__gmusic.search(arg)['situation_hits']
+            situation = next((hit for hit in situation_hits \
+                            if 'best_result' in hit.keys()), None)
+
+            num_tracks = 200
+            tracks = dict()
+            if not situation and len(situation_hits):
+                max_results = num_tracks / len(situation_hits)
+                for hit in situation_hits:
+                    situation = hit['situation']
+                    print_nfo("[Google Play Music] [Situation] '{0} : {1}'." \
+                              .format((hit['situation']['title']).encode('utf-8'),
+                                      (hit['situation']['description']).encode('utf-8')))
+
+                    self.__enqueue_station_unlimited(situation['title'], max_results, True)
+
+        except KeyError:
+            raise KeyError("Situation not found : {0}".format(arg))
 
     def __enqueue_tracks(self, tracks):
         """ Add tracks to the playback queue
