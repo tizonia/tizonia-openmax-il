@@ -454,7 +454,7 @@ class tizgmusicproxy(object):
 
         """
         try:
-            artist_hits = self.__gmusic.search_all_access(arg)['artist_hits']
+            artist_hits = self.__gmusic.search(arg)['artist_hits']
             artist = next((hit for hit in artist_hits \
                            if 'best_result' in hit.keys()), None)
             if not artist and len(artist_hits):
@@ -494,7 +494,7 @@ class tizgmusicproxy(object):
 
         """
         try:
-            album_hits = self.__gmusic.search_all_access(arg)['album_hits']
+            album_hits = self.__gmusic.search(arg)['album_hits']
             album = next((hit for hit in album_hits \
                           if 'best_result' in hit.keys()), None)
 
@@ -533,7 +533,7 @@ class tizgmusicproxy(object):
                   .format(self.__email))
 
         try:
-            track_hits = self.__gmusic.search_all_access(arg)['song_hits']
+            track_hits = self.__gmusic.search(arg)['song_hits']
             tracks = list()
             for hit in track_hits:
                 tracks.append(hit['track'])
@@ -753,7 +753,7 @@ class tizgmusicproxy(object):
         try:
             station_name = arg
             station_id = None
-            station_hits = self.__gmusic.search_all_access(arg)['station_hits']
+            station_hits = self.__gmusic.search(arg)['station_hits']
             station = next((hit for hit in station_hits \
                             if 'best_result' in hit.keys()), None)
 
