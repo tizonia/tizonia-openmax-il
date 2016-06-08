@@ -596,6 +596,11 @@ static OMX_ERRORTYPE enqueue_playlist_items (gmusic_prc_t *ap_prc)
             rc = tiz_gmusic_play_genre (ap_prc->p_gmusic_, p_playlist);
           }
           break;
+        case OMX_AUDIO_GmusicPlaylistTypeSituation:
+          {
+            rc = tiz_gmusic_play_situation (ap_prc->p_gmusic_, p_playlist);
+          }
+          break;
         case OMX_AUDIO_GmusicPlaylistTypePromotedTracks:
           {
             rc = tiz_gmusic_play_promoted_tracks (ap_prc->p_gmusic_);
