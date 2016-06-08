@@ -178,6 +178,23 @@ int tiz_gmusic_play_station (tiz_gmusic_t *ap_gmusic, const char *ap_station);
 int tiz_gmusic_play_genre (tiz_gmusic_t *ap_gmusic, const char *ap_genre);
 
 /**
+ * Add the tracks of the specified situation to the playback queue.
+ *
+ * After calling this method, the various tiz_gmusic_get* methods can be
+ * used to interact with the playback queue.
+ *
+ * @ingroup libtizgmusic
+ *
+ * @note An Google Play Unlimited subscription is required.
+ *
+ * @param ap_gmusic The gmusic handle.
+ * @param ap_situation The situation
+ *
+ * @return 0 on success
+ */
+int tiz_gmusic_play_situation (tiz_gmusic_t *ap_gmusic, const char *ap_situation);
+
+/**
 * Add Google Play Unlimited promoted tracks to the playback queue.
 *
 * After calling this method, the various tiz_gmusic_get* methods can be
