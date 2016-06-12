@@ -1,0 +1,13 @@
+# nestegg uninstalled pkg-config file
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: nestegg
+Description: WebM demuxer
+Version: @VERSION@
+Conflicts:
+Libs: -L${libdir} -lnestegg
+Cflags: -I${includedir}
