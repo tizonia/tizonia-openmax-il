@@ -48,13 +48,16 @@
 # 6.- Update Debian 'changelog' files.
 #     - as needed, following the changes made in the packages
 # 7.- Update README.md (as needed).
-# 8.- Update CHANGELOG.md
+# 8.- Close github issue: release v0.x.x
+# 9.- Create release and tag on GitHub.
+# 10.- Update CHANGELOG.md
 #     - using github-changelog-generator
-# 9.- Close github issue: release v0.x.x
-# 10.- Create release and tag on GitHub.
-#     - manual
-# 11.- Build debian packages and upload to Bintray.
-# 12.- Update website.
+# 11.- Now Delete the tag in GitHub, push the changes to CHANGELOG.md and re-create the tag
+    # $ git tag -l
+    # $ git tag -d v0.2.0
+    # $ git push origin :refs/tags/v0.2.0
+# 12.- Build debian packages and upload to Bintray.
+# 13.- Update Tizonia website.
 
 # Includes
 source tizonia-common.inc
@@ -181,7 +184,19 @@ function main {
     update_shared_lib_versions
     update_python_version_strings
     update_debian_changelog_files
+
+    # Do the following manual steps at this point
+    # 7.- Update README.md (as needed).
+    # 8.- Close github issue: release v0.x.x
+    # 9.- Create release and tag on GitHub.
+
     update_changelog
+
+    # Now Delete the tag in, push the changes to CHANGELOG.md and re-create the tag
+    # $ git tag -l
+    # $ git tag -d v0.2.0
+    # $ git push origin :refs/tags/v0.2.0
+
     print_banner "[DONE] : Updating files." "$BLU" 
 
 }
