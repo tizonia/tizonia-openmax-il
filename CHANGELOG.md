@@ -1,10 +1,28 @@
 # Change Log
 
-## [v0.4.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.4.0) (2016-05-02)
+## [v0.5.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.5.0) (2016-06-16)
+[Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.4.0...v0.5.0)
+
+**Improvements:**
+
+- release 0.5.0 [\#247](https://github.com/tizonia/tizonia-openmax-il/issues/247)
+- tizgmusic: play a random item from the user library or Google Music catalogue when search results are empty [\#246](https://github.com/tizonia/tizonia-openmax-il/issues/246)
+- tizgmusic: add "situations" search support [\#245](https://github.com/tizonia/tizonia-openmax-il/issues/245)
+
+**Fixed bugs:**
+
+- tizgmusic: broken after 'gmusicapi' renamed the search method [\#244](https://github.com/tizonia/tizonia-openmax-il/issues/244)
+
+**Closed issues:**
+
+- release v0.4.0 [\#159](https://github.com/tizonia/tizonia-openmax-il/issues/159)
+
+## [v0.4.0](https://github.com/tizonia/tizonia-openmax-il/tree/v0.4.0) (2016-05-04)
 [Full Changelog](https://github.com/tizonia/tizonia-openmax-il/compare/v0.3.0...v0.4.0)
 
 **Improvements:**
 
+- release v0.4.0 [\#243](https://github.com/tizonia/tizonia-openmax-il/issues/243)
 - tizgmusicproxy: station search : If no suitable station is found in the user's library, then search google play unlimited for a potential match [\#158](https://github.com/tizonia/tizonia-openmax-il/issues/158)
 - tizonia-player: add Dirble support [\#123](https://github.com/tizonia/tizonia-openmax-il/issues/123)
 - plugins: Dirble open radio source component [\#122](https://github.com/tizonia/tizonia-openmax-il/issues/122)
