@@ -1,3 +1,9 @@
+tizonia-player (0.5.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #247)
+
+ -- Juan A. Rubio <juan.rubio@aratelia.com>  Fri, 17 Jun 2016 00:21:44 +0100
+
 tizonia-player (0.4.0-1) unstable; urgency=low
 
   * New upstream release (Closes: #243)
