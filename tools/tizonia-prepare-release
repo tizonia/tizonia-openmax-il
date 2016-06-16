@@ -28,6 +28,8 @@
 #       - top-level configure.ac
 #       - plugins/configure.ac
 #       - config/configure.ac
+#     NOTE: Nowdays, bump all the package versions so that Bintray package
+#     numbers will always be aligned with the release.
 # 2.- Update plugin shared lib version infos
 #     - IMPORTANT: all plugin shared libs versions are sync'ed. This is currently so
 #     because the IL Core checks the soname and only loads shared libs of a specific
@@ -58,19 +60,19 @@
 source tizonia-common.inc
 
 # Constants
-readonly TIZONIA_OLD_PACKAGE_VER="0.3.0"
+readonly TIZONIA_OLD_PACKAGE_VER="0.4.0"
 readonly TIZONIA_NEW_PACKAGE_VER="$TIZONIA_RELEASE_VERSION"
 
 readonly TIZONIA_PLUGIN_OLD_SHLIB_VER="0:3:0"
-readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:4:0"
+readonly TIZONIA_PLUGIN_NEW_SHLIB_VER="0:5:0"
 
 readonly TIZONIA_ILCORE_OLD_SONAME_VER="0.0.3"
 readonly TIZONIA_ILCORE_NEW_SONAME_VER="0.0.4"
 
 readonly TIZONIA_OLD_SHLIB_VER="0:3:0"
-readonly TIZONIA_NEW_SHLIB_VER="0:4:0"
+readonly TIZONIA_NEW_SHLIB_VER="0:5:0"
 
-readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.3.0"
+readonly TIZONIA_PYTHON_OLD_MODULE_VER="0.4.0"
 readonly TIZONIA_PYTHON_NEW_MODULE_VER="0.4.0"
 
 readonly TIZONIA_DEBIAN_CHANGELOG_VER="$TIZONIA_NEW_PACKAGE_VER"
