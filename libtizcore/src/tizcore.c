@@ -68,8 +68,8 @@
 #define TIZ_IL_CORE_THREAD_NAME "omxilcore"
 #define TIZ_IL_CORE_RM_NAME "OMX.Aratelia.ilcore"
 #define TIZ_DEFAULT_COMP_ENTRY_POINT_NAME "OMX_ComponentInit"
-#define TIZ_SHARED_LIB_SONAME_STRING ".so.0.0.4"
-#define TIZ_SHARED_LIB_SONAMET_STRING ".so.0.0.4T"
+#define TIZ_SHARED_LIB_SONAME_STRING ".so.0.0.5"
+#define TIZ_SHARED_LIB_SONAMET_STRING ".so.0.0.5T"
 #define TIZ_CORE_QUEUE_MAX_ITEMS 30
 
 typedef struct role_list_item role_list_item_t;
