@@ -7,7 +7,7 @@
 
 [![Build Status](https://travis-ci.org/tizonia/tizonia-openmax-il.png)](https://travis-ci.org/tizonia/tizonia-openmax-il)  |  [![Coverity Scan Build Status](https://scan.coverity.com/projects/594/badge.svg)](https://scan.coverity.com/projects/594)  |  [![Documentation Status](https://readthedocs.org/projects/tizonia-openmax-il/badge/?version=master)](https://readthedocs.org/projects/tizonia-openmax-il/?badge=master)
 
-## Install the latest binary release (v0.4.0)
+## Install the latest binary release (v0.5.0)
 
 To install the
 [latest release](https://github.com/tizonia/tizonia-openmax-il/releases/latest):
@@ -33,11 +33,11 @@ the file for more information):
 ```
 
 The Debian packages are hosted on [Bintray](https://bintray.com/tizonia), with
-the following distro/arch combinations:
+the following distro/arch combinations (NOTE: i386 packages are not built anymore):
 
 | Ubuntu Trusty (14.04) | Ubuntu Xenial (16.04) | Debian Jessie (8) | Raspbian Jessie (8) |
-|         :---:         |        :---:         |        :---:      |       :---:         |
-| amd64, i386, armhf    |   amd64, i386, armhf | amd64, i386, armhf|      armhf          |
+|         :---:         |        :---:          |        :---:      |       :---:         |
+|     amd64, armhf      |     amd64, armhf      |    amd64, armhf   |      armhf          |
 | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-trusty/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-trusty/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/ubuntu/tizonia-xenial/images/download.svg) ](https://bintray.com/tizonia/ubuntu/tizonia-xenial/_latestVersion) | [ ![Download](https://api.bintray.com/packages/tizonia/debian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/debian/tizonia-jessie/_latestVersion)  | [ ![Download](https://api.bintray.com/packages/tizonia/raspbian/tizonia-jessie/images/download.svg) ](https://bintray.com/tizonia/raspbian/tizonia-jessie/_latestVersion) |
 
 ## 'tizonia' usage ##
