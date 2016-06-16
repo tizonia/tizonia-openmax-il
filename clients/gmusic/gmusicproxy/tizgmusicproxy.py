@@ -453,26 +453,31 @@ class tizgmusicproxy(object):
                               if arg.lower() in to_ascii(g['name']).lower()), \
                              None)
 
-            if not genre and len(all_genres):
-                # Play some random genre from the search results
-                random.seed()
-                genre = random.choice(all_genres)
-                print_wrn("[Google Play Music] '{0}' not found. "\
-                          "Feeling lucky?." \
-                          .format(arg.encode('utf-8')))
+            tracks_added = 0
+            while not tracks_added:
+                if not genre and len(all_genres):
+                    # Play some random genre from the search results
+                    random.seed()
+                    genre = random.choice(all_genres)
+                    print_wrn("[Google Play Music] '{0}' not found. "\
+                              "Feeling lucky?." \
+                              .format(arg.encode('utf-8')))
+
+                genre_name = genre['name']
+                genre_id = genre['id']
+                station_id = self.__gmusic.create_station(genre_name, \
+                                                          None, None, None, genre_id)
+                num_tracks = 200
+                tracks = self.__gmusic.get_station_tracks(station_id, num_tracks)
+                tracks_added = self.__enqueue_tracks(tracks)
+                logging.info("Added {0} tracks from {1} to queue" \
+                             .format(tracks_added, genre_name))
+                if not tracks_added:
+                    # This will produce another iteration in the loop
+                    genre = None
 
             print_wrn("[Google Play Music] Playing '{0}'." \
                       .format(to_ascii(genre['name'])))
-
-            genre_name = genre['name']
-            genre_id = genre['id']
-            station_id = self.__gmusic.create_station(genre_name, \
-                                                   None, None, None, genre_id)
-            num_tracks = 200
-            tracks = self.__gmusic.get_station_tracks(station_id, num_tracks)
-            tracks_added = self.__enqueue_tracks(tracks)
-            logging.info("Added {0} tracks from {1} to queue" \
-                         .format(tracks_added, genre_name))
             self.__update_play_queue_order()
         except KeyError:
             raise KeyError("Genre not found : {0}".format(arg))
@@ -574,7 +579,15 @@ class tizgmusicproxy(object):
                   .format(self.__email))
 
         try:
-            track_hits = self.__gmusic.search(arg)['song_hits']
+            max_results=200
+            track_hits = self.__gmusic.search(arg, max_results)['song_hits']
+            if not len(track_hits):
+                # Do another search with an empty string
+                track_hits = self.__gmusic.search("", max_results)['song_hits']
+                print_wrn("[Google Play Music] '{0}' not found. "\
+                          "Feeling lucky?." \
+                          .format(arg.encode('utf-8')))
+
             tracks = list()
             for hit in track_hits:
                 tracks.append(hit['track'])
