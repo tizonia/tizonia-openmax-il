@@ -12,7 +12,7 @@ parts:
   tizonia:
     plugin: autotools
     source: https://github.com/tizonia/tizonia-openmax-il.git
-    source-type: git
+    configflags: [--prefix=/]
     build-packages:
       - build-essential
       - autoconf
@@ -72,9 +72,9 @@ parts:
       headers:
         - include/tizonia/*
       modules:
-        - installlib/python2.7/dist-packages/*.py
+        - lib/python2.7/dist-packages/*
       libraries:
-        - lib/*
+        - lib/lib*
     stage:
       - $binaries
       - $headers
