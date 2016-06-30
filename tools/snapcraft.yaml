@@ -4,68 +4,83 @@ summary:  The Tizonia project
 description: Tizonia\'s OpenMAX IL 1.2 framework and command-line music/cloud player.
 confinement: devmode  # use "strict" to enforce system access only via declared interfaces
 
+build-packages:
+  - build-essential
+  - autoconf
+  - autoconf-archive
+  - automake
+  - autotools-dev
+  - libtool
+  - libmad0-dev
+  - liblog4c-dev
+  - libasound2-dev
+  - libdbus-1-dev
+  - libdbus-c++-dev
+  - libsqlite3-dev
+  - libboost-all-dev
+  - uuid-dev
+  - libsdl1.2-dev
+  - libvpx-dev
+  - libmp3lame-dev
+  - libfaad-dev
+  - libev-dev
+  - libtag1-dev
+  - libfishsound1-dev
+  - libmediainfo-dev
+  - libcurl4-openssl-dev
+  - libpulse-dev
+  - libmpg123-dev
+  - libvorbis-dev
+  - libopus-dev
+  - libopusfile-dev
+  - libogg-dev
+  - libflac-dev
+  - liboggz2-dev
+  - libsndfile1-dev
+  - libffi-dev
+  - libssl-dev
+  - python-dev
+  - python-setuptools
+  - python-pip
+  - python-decorator
+  - python-protobuf
+  - python-validictory
+  - python-bs4
+  - python-oauth2client
+  - python-dateutil
+  - python-mutagen
+  - python-crypto
+  - python-requests
+  - curl
+  - check
+  - wget
+  - sqlite3
+  - dbus-x11
+  - mercurial
+
 apps:
   tizonia:
     command: ./bin/tizonia
 
 parts:
+  pypideps:
+    plugin: python2
+    python-packages:
+      - soundcloud
+      - gmusicapi
+    filesets:
+      modules:
+        - lib/python2.7/dist-packages/*
+    stage:
+      - $modules
+    snap:
+      - $modules
   tizonia:
     plugin: autotools
     source: https://github.com/tizonia/tizonia-openmax-il.git
     configflags: [--prefix=/]
-    build-packages:
-      - build-essential
-      - autoconf
-      - autoconf-archive
-      - automake
-      - autotools-dev
-      - libtool
-      - libmad0-dev
-      - liblog4c-dev
-      - libasound2-dev
-      - libdbus-1-dev
-      - libdbus-c++-dev
-      - libsqlite3-dev
-      - libboost-all-dev
-      - uuid-dev
-      - libsdl1.2-dev
-      - libvpx-dev
-      - libmp3lame-dev
-      - libfaad-dev
-      - libev-dev
-      - libtag1-dev
-      - libfishsound1-dev
-      - libmediainfo-dev
-      - libcurl4-openssl-dev
-      - libpulse-dev
-      - libmpg123-dev
-      - libvorbis-dev
-      - libopus-dev
-      - libopusfile-dev
-      - libogg-dev
-      - libflac-dev
-      - liboggz2-dev
-      - libsndfile1-dev
-      - libffi-dev
-      - libssl-dev
-      - python-dev
-      - python-setuptools
-      - python-pip
-      - python-decorator
-      - python-protobuf
-      - python-validictory
-      - python-bs4
-      - python-oauth2client
-      - python-dateutil
-      - python-mutagen
-      - python-crypto
-      - python-requests
-      - curl
-      - check
-      - wget
-      - sqlite3
-      - dbus-x11
-      - mercurial
+    after:
+      - pypideps
     filesets:
       binaries:
         - bin/*
