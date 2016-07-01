@@ -46,6 +46,9 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.webm_demuxer.prc"
 #endif
 
+/* Forward declarations */
+static OMX_ERRORTYPE webmdmux_prc_deallocate_resources (void *);
+
 /*
  * webmdmuxprc
  */
@@ -55,12 +58,14 @@ webmdmux_prc_ctor (void *ap_obj, va_list * app)
 {
   webmdmux_prc_t *p_obj = super_ctor (typeOf (ap_obj, "webmdmuxprc"), ap_obj, app);
   p_obj->eos_ = false;
+  p_obj->p_ne_ctx_ = NULL;
   return p_obj;
 }
 
 static void *
 webmdmux_prc_dtor (void *ap_obj)
 {
+  (void) webmdmux_prc_deallocate_resources (ap_obj);
   return super_dtor (typeOf (ap_obj, "webmdmuxprc"), ap_obj);
 }
 
@@ -77,6 +82,9 @@ webmdmux_prc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
 static OMX_ERRORTYPE
 webmdmux_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
+/*   webmdmux_prc_t *p_prc = ap_obj; */
+/*   assert (!p_prc->p_ne_ctx_); */
+/*   nestegg_init(&demux_ctx, io, NULL); */
   return OMX_ErrorNone;
 }
 
