@@ -29,8 +29,7 @@
 #define WEBMDMUXPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
@@ -39,24 +38,27 @@ extern "C"
 
 #include <tizprc_decls.h>
 
-  typedef struct webmdmux_prc webmdmux_prc_t;
-  struct webmdmux_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    bool eos_;
-  };
+#include "nestegg.h"
 
-  typedef struct webmdmux_prc_class webmdmux_prc_class_t;
-  struct webmdmux_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct webmdmux_prc webmdmux_prc_t;
+struct webmdmux_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  nestegg * p_ne_ctx_;
+  bool eos_;
+};
+
+typedef struct webmdmux_prc_class webmdmux_prc_class_t;
+struct webmdmux_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* WEBMDMUXPRC_DECLS_H */
+#endif /* WEBMDMUXPRC_DECLS_H */
