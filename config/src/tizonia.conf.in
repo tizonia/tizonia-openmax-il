@@ -8,7 +8,7 @@
 # -------------------------------------------------------------------------
 # A comma-separated list of paths to be scanned by the Tizonia IL Core when
 # searching for component plugins
-component-paths = @libdir@;
+component-paths = @plugindir@;
 
 # IL Core extension plugins discovery
 # -------------------------------------------------------------------------

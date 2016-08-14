@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizmpg123d.la
+libtizmpg123ddir = $(plugindir)
+
+libtizmpg123d_LTLIBRARIES = libtizmpg123d.la
 
 noinst_HEADERS = \
 	mpg123d.h \

@@ -105,6 +105,14 @@ AS_IF([test "x$tiz_found_core_lib" == "xyes"],
 	[PKG_CHECK_MODULES([TIZCORE], [libtizcore >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZCORE cflags and libs])])
 
+# Define location of plugin directory
+AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)
+AC_DEFINE_UNQUOTED(PLUGINDIR, "$PLUGINDIR",
+  [Directory where Tizonia plugins are located])
+AC_MSG_NOTICE([Using $PLUGINDIR as the components install location])
+# Define plugin directory configure-time variable
+AC_SUBST([plugindir], ['${libdir}/tizonia0-plugins12'])
+
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stdlib.h string.h sys/time.h unistd.h])
 

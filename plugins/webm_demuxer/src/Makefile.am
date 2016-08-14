@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizwebmdemux.la
+libtizwebmdemuxdir = $(plugindir)
+
+libtizwebmdemux_LTLIBRARIES = libtizwebmdemux.la
 
 noinst_HEADERS = \
 	webmdmux.h \

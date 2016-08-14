@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizflacd.la
+libtizflacddir = $(plugindir)
+
+libtizflacd_LTLIBRARIES = libtizflacd.la
 
 noinst_HEADERS = \
 	flacd.h \

@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizfr.la
+libtizfrdir = $(plugindir)
+
+libtizfr_LTLIBRARIES = libtizfr.la
 
 noinst_HEADERS = \
 	fr.h \

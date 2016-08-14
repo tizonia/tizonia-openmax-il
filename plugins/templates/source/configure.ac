@@ -63,7 +63,6 @@ PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
 
-# Checks for header files.
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
 AS_IF([test "x$tiz_found_omx_headers" != "xyes"],
@@ -93,6 +92,16 @@ AS_IF([test "x$tiz_found_tizonia_headers" != "xyes"],
 AS_IF([test "x$tiz_found_tizonia_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZONIA], [libtizonia >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZONIA cflags and libs])])
+
+# Define location of plugin directory
+AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)
+AC_DEFINE_UNQUOTED(PLUGINDIR, "$PLUGINDIR",
+  [Directory where Tizonia plugins are located])
+AC_MSG_NOTICE([Using $PLUGINDIR as the components install location])
+# Define plugin directory configure-time variable
+AC_SUBST([plugindir], ['${libdir}/tizonia0-plugins12'])
+
+# Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.
 # This is currently commented out for Ubuntu 12.04

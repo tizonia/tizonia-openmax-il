@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizaacdec.la
+libtizaacdecdir = $(plugindir)
+
+libtizaacdec_LTLIBRARIES = libtizaacdec.la
 
 noinst_HEADERS = \
 	aacdec.h \

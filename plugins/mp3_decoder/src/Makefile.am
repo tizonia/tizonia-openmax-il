@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizmp3dec.la
+libtizmp3decdir = $(plugindir)
+
+libtizmp3dec_LTLIBRARIES = libtizmp3dec.la
 
 noinst_HEADERS = \
 	mp3d.h \

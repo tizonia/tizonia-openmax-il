@@ -105,6 +105,14 @@ AS_IF([test "x$tiz_found_rmd_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZRMD], [tizrmd >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZRMD cflags and libs])])
 
+# Define location of plugin directory
+AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)
+AC_DEFINE_UNQUOTED(PLUGINDIR, "$PLUGINDIR",
+  [Directory where Tizonia plugins are located])
+AC_MSG_NOTICE([Using $PLUGINDIR as the components install location])
+# Define plugin directory configure-time variable
+AC_SUBST([plugindir], ['${libdir}/tizonia0-plugins12'])
+
 #---------------------------------------------------------------------------
 # test suite
 #---------------------------------------------------------------------------

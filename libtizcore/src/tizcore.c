@@ -68,8 +68,6 @@
 #define TIZ_IL_CORE_THREAD_NAME "omxilcore"
 #define TIZ_IL_CORE_RM_NAME "OMX.Aratelia.ilcore"
 #define TIZ_DEFAULT_COMP_ENTRY_POINT_NAME "OMX_ComponentInit"
-#define TIZ_SHARED_LIB_SONAME_STRING ".so.0.0.5"
-#define TIZ_SHARED_LIB_SONAMET_STRING ".so.0.0.5T"
 #define TIZ_CORE_QUEUE_MAX_ITEMS 30
 
 typedef struct role_list_item role_list_item_t;
@@ -788,11 +786,7 @@ scan_component_folders (void)
             {
               TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]",
                        p_dir_entry->d_name);
-              if (p_dir_entry->d_type == DT_REG
-                  && strstr (p_dir_entry->d_name,
-                             TIZ_SHARED_LIB_SONAME_STRING)
-                  && !strstr (p_dir_entry->d_name,
-                              TIZ_SHARED_LIB_SONAMET_STRING))
+              if (p_dir_entry->d_type == DT_REG)
                 {
                   if (OMX_ErrorInsufficientResources
                       == cache_comp_info (pp_paths[i],

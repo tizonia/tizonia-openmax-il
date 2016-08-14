@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizmp3meta.la
+libtizmp3metadir = $(plugindir)
+
+libtizmp3meta_LTLIBRARIES = libtizmp3meta.la
 
 noinst_HEADERS = \
 	mp3meta.h \

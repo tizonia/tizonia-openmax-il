@@ -2,7 +2,7 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
-pluginsdir=@libdir@
+pluginsdir=@libdir@/tizonia0-plugins12
 
 Name: libtizcore
 Description: Tizonia OpenMAX IL 1.2 Core

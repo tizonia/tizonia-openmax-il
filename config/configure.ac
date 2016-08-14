@@ -26,10 +26,17 @@ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 # 'm4' is the directory where the extra autoconf macros are stored
 AC_CONFIG_MACRO_DIR([m4])
 
+# Define location of plugin directory
+AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)
+AC_DEFINE_UNQUOTED(PLUGINDIR, "$PLUGINDIR",
+  [Directory where Tizonia plugins are located])
+AC_MSG_NOTICE([Using $PLUGINDIR as the components install location])
+# Define plugin directory configure-time variable
+AC_SUBST([plugindir], ['${libdir}/tizonia0-plugins12'])
+
 # Checks for programs.
 
 # Checks for libraries.
-
 
 # Checks for header files.
 

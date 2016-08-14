@@ -127,6 +127,14 @@ AS_IF([test "x$tiz_found_dirble_headers" == "xyes"],
 	[PKG_CHECK_MODULES([TIZDIRBLE], [libtizdirble >= 0.1.0])],
 	[AC_MSG_NOTICE([Not using pkg-config to find TIZDIRBLE cflags and libs])])
 
+# Define location of plugin directory
+AS_AC_EXPAND(PLUGINDIR, ${libdir}/tizonia0-plugins12)
+AC_DEFINE_UNQUOTED(PLUGINDIR, "$PLUGINDIR",
+  [Directory where Tizonia plugins are located])
+AC_MSG_NOTICE([Using $PLUGINDIR as the components install location])
+# Define plugin directory configure-time variable
+AC_SUBST([plugindir], ['${libdir}/tizonia0-plugins12'])
+
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.

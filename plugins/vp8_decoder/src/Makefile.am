@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizvp8d.la
+libtizvp8ddir = $(plugindir)
+
+libtizvp8d_LTLIBRARIES = libtizvp8d.la
 
 noinst_HEADERS = \
 	vp8d.h \

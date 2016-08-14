@@ -26,6 +26,7 @@ EXTRA_DIST = $(tizonia_config) $(sqlite_databases) tizonia.conf.in log4crc.in
 do_subst = sed -e 's,[@]localstatedir[@],$(localstatedir),g' \
 	-e 's,[@]bindir[@],$(bindir),g' \
 	-e 's,[@]libdir[@],$(libdir),g' \
+	-e 's,[@]plugindir[@],$(plugindir),g' \
 	-e 's,[@]datadir[@],$(datadir),g' \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
 	-e 's,[@]VERSION[@],$(VERSION),g'

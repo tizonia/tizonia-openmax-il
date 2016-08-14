@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libtizcoretc.la
+libtizcoretcdir = $(plugindir)
+
+libtizcoretc_LTLIBRARIES = libtizcoretc.la
 
 libtizcoretc_la_SOURCES = tizcoretc.c
 
