@@ -1,2 +1,2 @@
-usr/lib/*/lib*.a
-usr/lib/*/lib*.so
+usr/lib/*/tizonia0-plugins12/lib*.a
+usr/lib/*/tizonia0-plugins12/lib*.so
