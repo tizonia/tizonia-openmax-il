@@ -1,18 +1,18 @@
 /*
- *	Copyright (c) 2004i-2010 Alex Pankratov. All rights reserved.
+ *	This file is a part of Hierarchical Allocator library.
+ *	Copyright (c) 2004-2011 Alex Pankratov. All rights reserved.
  *
- *	Hierarchical memory allocator, 1.2.1
  *	http://swapped.cc/halloc
  */
 
 /*
  *	The program is distributed under terms of BSD license. 
  *	You can obtain the copy of the license by visiting:
- *	
+ *
  *	http://www.opensource.org/licenses/bsd-license.php
  */
 
-#include <stdlib.h>  /* realloc */
+#include <malloc.h>  /* realloc */
 #include <string.h>  /* memset & co */
 
 #include "halloc.h"
@@ -93,12 +93,16 @@ void * halloc(void * ptr, size_t len)
 	/* realloc */
 	if (len)
 	{
+		int listed = hlist_item_listed(&p->siblings);
+
 		p = allocator(p, len + sizeof_hblock);
 		if (! p)
 			return NULL;
 
-		hlist_relink(&p->siblings);
 		hlist_relink_head(&p->children);
+
+		if (listed) hlist_relink(&p->siblings);
+		else        hlist_init_item(&p->siblings);
 		
 		return p->data;
 	}

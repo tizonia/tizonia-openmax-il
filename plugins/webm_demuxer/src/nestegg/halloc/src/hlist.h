@@ -1,14 +1,14 @@
 /*
- *	Copyright (c) 2004-2010 Alex Pankratov. All rights reserved.
+ *	This file is a part of Hierarchical Allocator library.
+ *	Copyright (c) 2004-2011 Alex Pankratov. All rights reserved.
  *
- *	Hierarchical memory allocator, 1.2.1
  *	http://swapped.cc/halloc
  */
 
 /*
  *	The program is distributed under terms of BSD license. 
  *	You can obtain the copy of the license by visiting:
- *	
+ *
  *	http://www.opensource.org/licenses/bsd-license.php
  */
 
@@ -52,6 +52,8 @@ struct hlist_item hlist_null;
 static_inline void hlist_init(hlist_head_t * h);
 static_inline void hlist_init_item(hlist_item_t * i);
 
+static_inline int hlist_item_listed(hlist_item_t * i);
+
 /* static_inline void hlist_purge(hlist_head_t * h); */
 
 /* static_inline bool_t hlist_empty(const hlist_head_t * h); */
@@ -94,6 +96,12 @@ static_inline void hlist_init_item(hlist_item_t * i)
 	assert(i);
 	i->prev = &i->next;
 	i->next = &hlist_null;
+}
+
+static_inline int hlist_item_listed(hlist_item_t * i)
+{
+	assert(i);
+	return i->prev != &i->next;
 }
 
 static_inline void hlist_add(hlist_head_t * h, hlist_item_t * i)
