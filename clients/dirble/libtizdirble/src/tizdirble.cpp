@@ -290,63 +290,6 @@ int tizdirble::get_current_station ()
       current_station_website_.assign (p_website);
     }
 
-//   int duration
-//       = bp::extract< int >(py_dirble_proxy_.attr ("current_track_duration")());
-
-//   int seconds = 0;
-//   current_duration_.clear ();
-//   if (duration)
-//     {
-//       duration /= 1000;
-//       seconds = duration % 60;
-//       int minutes = (duration - seconds) / 60;
-//       int hours = 0;
-//       if (minutes >= 60)
-//         {
-//           int total_minutes = minutes;
-//           minutes = total_minutes % 60;
-//           hours = (total_minutes - minutes) / 60;
-//         }
-
-//       if (hours > 0)
-//         {
-//           current_duration_.append (boost::lexical_cast< std::string >(hours));
-//           current_duration_.append ("h:");
-//         }
-
-//       if (minutes > 0)
-//         {
-//           current_duration_.append (
-//               boost::lexical_cast< std::string >(minutes));
-//           current_duration_.append ("m:");
-//         }
-//     }
-
-//   char seconds_str[3];
-//   sprintf (seconds_str, "%02i", seconds);
-//   current_duration_.append (seconds_str);
-//   current_duration_.append ("s");
-
-//   const int track_year = bp::extract< int >(py_dirble_proxy_.attr ("current_track_year")());
-//   current_track_year_.assign (boost::lexical_cast< std::string >(track_year));
-
-//   const char *p_track_permalink = bp::extract< char const * >(
-//       py_dirble_proxy_.attr ("current_track_permalink")());
-//   if (p_track_permalink)
-//     {
-//       current_track_permalink_.assign (p_track_permalink);
-//     }
-
-//   const char *p_track_license = bp::extract< char const * >(
-//       py_dirble_proxy_.attr ("current_track_license")());
-//   if (p_track_license)
-//     {
-//       current_track_license_.assign (p_track_license);
-//     }
-
-//   const int track_likes = bp::extract< int >(py_dirble_proxy_.attr ("current_track_likes")());
-//   current_track_likes_.assign (boost::lexical_cast< std::string >(track_likes));
-
   if (p_name)
      {
         rc = 0;
