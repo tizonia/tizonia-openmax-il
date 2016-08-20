@@ -27,18 +27,15 @@ import sys
 import logging
 import random
 import unicodedata
-import urllib
+import pafy
 from collections import namedtuple
-from requests import Session, exceptions
-from requests.adapters import HTTPAdapter
-from operator import itemgetter
 
 # For use during debugging
-# import pprint
-# from traceback import print_exception
+import pprint
+from traceback import print_exception
 
 logging.captureWarnings(True)
-logging.getLogger().addHandler(logging.NullHandler())
+# logging.getLogger().addHandler(logging.NullHandler())
 logging.getLogger().setLevel(logging.DEBUG)
 
 class _Colors:
@@ -89,8 +86,8 @@ def exception_handler(exception_type, exception, traceback):
     """
 
     print_err("[YouTube] (%s) : %s" % (exception_type.__name__, exception))
-    del traceback # unused
-    #print_exception(exception_type, exception, traceback)
+    #del traceback # unused
+    print_exception(exception_type, exception, traceback)
 
 sys.excepthook = exception_handler
 
@@ -115,26 +112,16 @@ class tizyoutubeproxy(object):
     a playback queue.
 
     """
-    base_url = 'http://api.youtube.com/v2/'
 
-    Station = namedtuple("Station", "id name country website category streamurl bitrate content_type")
+    Stream = namedtuple("Stream", "title url filesize quality bitrate rawbitrate mediatype notes")
 
-    def __init__(self, api_key):
-        self.key = api_key
-        self.base_url = tizyoutubeproxy.base_url
+    def __init__(self):
         self.queue = list()
         self.queue_index = -1
         self.play_queue_order = list()
         self.play_modes = TizEnumeration(["NORMAL", "SHUFFLE"])
         self.current_play_mode = self.play_modes.NORMAL
-        self.now_playing_station = None
-
-        self._api = Session()
-        self._api.params = {'token': api_key}
-        self._api.headers['User-Agent'] = ' '.join([
-            'Tizonia',
-            self._api.headers['User-Agent']])
-        self._api.mount(self.base_url, HTTPAdapter(max_retries=3))
+        self.now_playing_stream = None
 
     def set_play_mode(self, mode):
         """ Set the playback mode.
@@ -152,24 +139,21 @@ class tizyoutubeproxy(object):
         :param arg: a search string
 
         """
-        logging.info('enqueue_stations : %s', arg)
+        logging.info('enqueue_audio_stream : %s', arg)
         try:
             count = len(self.queue)
-            for p in range(0, 10):
-                self._api.params = {'token': self.key, 'page': p}
-                for d in self.api_call("search/{0}".format(arg)):
-                    self.add_to_playback_queue(d)
 
-            logging.info("Added {0} stations to queue" \
-                         .format(len(self.queue) - count))
+            video = pafy.new(arg)
+            audio = video.getbestaudio(preftype="webm")
+            if not audio:
+                raise ValueError(str("No WebM audio stream for : %s" % arg))
 
-            if count == len(self.queue):
-                raise ValueError
+            self.add_to_playback_queue(audio)
 
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No stations found : %s" % arg))
+            raise ValueError(str("Video not found : %s" % arg))
 
     def enqueue_audio_playlist(self, arg):
         """Search YouTube for a playlist and add all matches to the
@@ -178,16 +162,15 @@ class tizyoutubeproxy(object):
         :param arg: a search string
 
         """
-        logging.info('enqueue_stations : %s', arg)
+        logging.info('enqueue_audio_playlist : %s', arg)
         try:
             count = len(self.queue)
-            for p in range(0, 10):
-                self._api.params = {'token': self.key, 'page': p}
-                for d in self.api_call("search/{0}".format(arg)):
-                    self.add_to_playback_queue(d)
 
-            logging.info("Added {0} stations to queue" \
-                         .format(len(self.queue) - count))
+            playlist = pafy.get_playlist(arg)
+            for video in playlist:
+                audio = video.getbestaudio(preftype="webm")
+                if audio:
+                    self.add_to_playback_queue(audio)
 
             if count == len(self.queue):
                 raise ValueError
@@ -195,7 +178,7 @@ class tizyoutubeproxy(object):
             self.__update_play_queue_order()
 
         except ValueError:
-            raise ValueError(str("No stations found : %s" % arg))
+            raise ValueError(str("Playlist not found : %s" % arg))
 
     def clear_queue(self):
         """ Clears the playback queue.
@@ -210,9 +193,9 @@ class tizyoutubeproxy(object):
         """
         logging.info("remove_current_url")
         if len(self.queue) and self.queue_index:
-            station = self.queue[self.queue_index]
-            print_nfo("[YouTube] [Station] '{0}' removed." \
-                      .format(to_ascii(station.name).encode("utf-8")))
+            stream = self.queue[self.queue_index]
+            print_nfo("[YouTube] [Stream] '{0}' removed." \
+                      .format(to_ascii(stream.title).encode("utf-8")))
             del self.queue[self.queue_index]
             self.queue_index -= 1
             if self.queue_index < 0:
@@ -220,7 +203,7 @@ class tizyoutubeproxy(object):
             self.__update_play_queue_order()
 
     def next_url(self):
-        """ Retrieve the url of the next station in the playback queue.
+        """ Retrieve the url of the next stream in the playback queue.
 
         """
         logging.info("next_url")
@@ -229,9 +212,9 @@ class tizyoutubeproxy(object):
                 self.queue_index += 1
                 if (self.queue_index < len(self.queue)) \
                    and (self.queue_index >= 0):
-                    next_station = self.queue[self.play_queue_order \
+                    next_stream = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_station_url(next_station).rstrip()
+                    return self.__retrieve_stream_url(next_stream).rstrip()
                 else:
                     self.queue_index = -1
                     return self.next_url()
@@ -242,7 +225,7 @@ class tizyoutubeproxy(object):
             return self.next_url()
 
     def prev_url(self):
-        """ Retrieve the url of the previous station in the playback queue.
+        """ Retrieve the url of the previous stream in the playback queue.
 
         """
         logging.info("prev_url")
@@ -251,9 +234,9 @@ class tizyoutubeproxy(object):
                 self.queue_index -= 1
                 if (self.queue_index < len(self.queue)) \
                    and (self.queue_index >= 0):
-                    prev_station = self.queue[self.play_queue_order \
+                    prev_stream = self.queue[self.play_queue_order \
                                             [self.queue_index]]
-                    return self.__retrieve_station_url(prev_station).rstrip()
+                    return self.__retrieve_stream_url(prev_stream).rstrip()
                 else:
                     self.queue_index = len(self.queue)
                     return self.prev_url()
@@ -270,77 +253,53 @@ class tizyoutubeproxy(object):
         random order if current play mode is "SHUFFLE"
 
         """
-        total_stations = len(self.queue)
-        if total_stations:
+        total_streams = len(self.queue)
+        if total_streams:
             if not len(self.play_queue_order):
                 # Create a sequential play order, if empty
-                self.play_queue_order = range(total_stations)
+                self.play_queue_order = range(total_streams)
             if self.current_play_mode == self.play_modes.SHUFFLE:
                 random.shuffle(self.play_queue_order)
-            print_nfo("[YouTube] [Stations in queue] '{0}'." \
-                      .format(total_stations))
+            print_nfo("[YouTube] [Streams in queue] '{0}'." \
+                      .format(total_streams))
 
-    def __retrieve_station_url(self, station):
-        """ Retrieve a station url
+    def __retrieve_stream_url(self, stream):
+        """ Retrieve a stream url
 
         """
         try:
-            self.now_playing_station = station
-            logging.info("__retrieve_station_url streamurl : {0}".format(station.streamurl))
-            logging.info("__retrieve_station_url bitrate   : {0}".format(station.bitrate))
-            logging.info("__retrieve_station_url content_type: {0}".format(station.content_type))
-            return station.streamurl.encode("utf-8")
+            self.now_playing_stream = stream
+            logging.info("__retrieve_stream_url url : {0}".format(stream.url))
+            logging.info("__retrieve_stream_url bitrate   : {0}".format(stream.bitrate))
+            logging.info("__retrieve_stream_url mediatype: {0}".format(stream.mediatype))
+            return stream.url.encode("utf-8")
         except AttributeError:
-            logging.info("Could not retrieve the station url!")
+            logging.info("Could not retrieve the stream url!")
             raise
 
-    def api_call(self, path):
-        uri = self.base_url + urllib.quote(path)
+    def add_to_playback_queue(self, stream):
 
-        logging.debug('Fetching: %s', uri)
-        try:
-            resp = self._api.get(uri)
+        pprint.pprint(stream.title)
+        pprint.pprint(stream.url)
+        pprint.pprint(stream.get_filesize())
+        pprint.pprint(stream.quality)
+        pprint.pprint(stream.bitrate)
+        pprint.pprint(stream.rawbitrate)
+        pprint.pprint(stream.mediatype)
+        pprint.pprint(stream.notes)
 
-            if resp.status_code == 200:
-                data = resp.json(
-                    object_hook=lambda d: {k.lower(): v for k, v in d.items()})
-                return data
-
-            logging.debug('Fetch failed, HTTP %s', resp.status_code)
-
-            if resp.status_code == 404:
-                return []
-
-        except exceptions.RequestException as e:
-            logging.debug('Fetch failed: %s', e)
-        except ValueError as e:
-            logging.warning('Fetch failed: %s', e)
-
-        return []
-
-    def add_to_playback_queue(self, d):
-        catlist = list()
-        for cat in d["categories"]:
-            catlist.append(cat["title"])
-        separator = ', '
-        category = separator.join(catlist)
-
-        streamurl = ''
-        bitrate = ''
-        for stream in d["streams"]:
-            streamurl = stream["stream"]
-            bitrate = stream["bitrate"]
-            content_type = stream["content_type"].rstrip()
-            print_nfo("[YouTube] [Station] '{0}' [{1}]." \
-                      .format(to_ascii(d["name"]).encode("utf-8"), \
-                              to_ascii(content_type)))
-            self.queue.append(
-                tizyoutubeproxy.Station(d["id"], d["name"], d["country"], \
-                                       d["website"], \
-                                       category, \
-                                       streamurl, \
-                                       bitrate,
-                                       content_type))
+        print_nfo("[YouTube] [Stream] '{0}' [{1}]." \
+                  .format(to_ascii(stream.title).encode("utf-8"), \
+                          to_ascii(stream.mediatype)))
+        self.queue.append(
+            tizyoutubeproxy.Stream(stream.title, \
+                                   stream.url, \
+                                   stream.get_filesize(), \
+                                   stream.quality, \
+                                   stream.bitrate, \
+                                   stream.rawbitrate, \
+                                   stream.mediatype,
+                                   stream.notes))
 
 if __name__ == "__main__":
     tizyoutubeproxy()
