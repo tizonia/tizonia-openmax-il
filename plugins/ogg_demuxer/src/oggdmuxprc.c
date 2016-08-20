@@ -94,9 +94,9 @@ obtain_uri (oggdmux_prc_t * ap_prc)
   const long pathname_max = PATH_MAX + NAME_MAX;
 
   assert (ap_prc);
-  assert (NULL == ap_prc->p_uri_param_);
+  assert (!ap_prc->p_uri_param_);
 
-  if (NULL == (ap_prc->p_uri_param_ = tiz_mem_calloc
+  if (!(ap_prc->p_uri_param_ = tiz_mem_calloc
                (1,
                 sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1)))
     {
@@ -414,7 +414,7 @@ get_header (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
     {
       OMX_BUFFERHEADERTYPE **pp_hdr = get_header_ptr (ap_prc, a_pid);
       p_hdr = *pp_hdr;
-      if (NULL == p_hdr)
+      if (!p_hdr)
         {
           if (OMX_ErrorNone == tiz_krn_claim_buffer
               (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr))
@@ -428,7 +428,7 @@ get_header (oggdmux_prc_t * ap_prc, const OMX_U32 a_pid)
                 }
             }
         }
-      if (NULL == p_hdr)
+      if (!p_hdr)
         {
           ap_prc->awaiting_buffers_ = true;
         }
@@ -790,7 +790,7 @@ read_page_first_pass (OGGZ * ap_oggz, const ogg_page * ap_og,
   if (oggz_get_bos (ap_oggz, a_serialno) > 0)
     {
       TIZ_TRACE (handleOf (p_prc), "serialno = [%d]", a_serialno);
-      if (NULL == oggz_table_insert (p_prc->p_tracks_, a_serialno, &read_page_first_pass))      /* NULL makes it barf, needs
+      if (!oggz_table_insert (p_prc->p_tracks_, a_serialno, &read_page_first_pass))      /* NULL makes it barf, needs
                                                                                                  * something */
         {
           TIZ_ERROR (handleOf (p_prc), "serialno = [%d] - "
@@ -1044,8 +1044,8 @@ oggdmux_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
 {
   oggdmux_prc_t *p_prc = ap_obj;
   assert (p_prc);
-  assert (NULL == p_prc->p_oggz_);
-  assert (NULL == p_prc->p_uri_param_);
+  assert (!p_prc->p_oggz_);
+  assert (!p_prc->p_uri_param_);
 
   tiz_check_omx_err (obtain_uri (p_prc));
 
@@ -1061,14 +1061,14 @@ oggdmux_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
       return OMX_ErrorInsufficientResources;
     }
 
-  if (NULL == (p_prc->p_oggz_ = oggz_new (OGGZ_READ)))
+  if (!(p_prc->p_oggz_ = oggz_new (OGGZ_READ)))
     {
       TIZ_ERROR (handleOf (p_prc),
                  "Cannot create a new oggz object (%s)", strerror (errno));
       return OMX_ErrorInsufficientResources;
     }
 
-  if (NULL == (p_prc->p_tracks_ = oggz_table_new ()))
+  if (!(p_prc->p_tracks_ = oggz_table_new ()))
     {
       TIZ_ERROR (handleOf (p_prc), "Cannot create a new oggz object");
       return OMX_ErrorInsufficientResources;
