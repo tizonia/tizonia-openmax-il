@@ -39,7 +39,7 @@ libtizwebmdemux_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
 	@TIZPLATFORM_CFLAGS@ \
 	@TIZONIA_CFLAGS@ \
-	-I$(top_srcdir)/src/nestegg/include \
+	-I$(top_srcdir)/src/nestegg/include/nestegg \
 	-I$(top_srcdir)/src/nestegg/halloc
 
 libtizwebmdemux_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@

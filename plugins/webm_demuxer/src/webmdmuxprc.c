@@ -49,17 +49,36 @@
 /* Forward declarations */
 static OMX_ERRORTYPE webmdmux_prc_deallocate_resources (void *);
 
+static int ne_io_read (void *a_buffer, size_t a_length, void *a_userdata)
+{
+  return 0;
+}
+
+static int ne_io_seek (int64_t offset, int whence, void *userdata)
+{
+  return 0;
+}
+
+static int64_t ne_io_tell(void * userdata)
+{
+  return 0;
+}
+
 /*
  * webmdmuxprc
  */
 
 static void *
-webmdmux_prc_ctor (void *ap_obj, va_list * app)
+webmdmux_prc_ctor (void *ap_prc, va_list * app)
 {
-  webmdmux_prc_t *p_obj = super_ctor (typeOf (ap_obj, "webmdmuxprc"), ap_obj, app);
-  p_obj->eos_ = false;
-  p_obj->p_ne_ctx_ = NULL;
-  return p_obj;
+  webmdmux_prc_t *p_prc = super_ctor (typeOf (ap_prc, "webmdmuxprc"), ap_prc, app);
+  p_prc->eos_ = false;
+  p_prc->p_ne_ctx_ = NULL;
+  p_prc->ne_io_.read = ne_io_read;
+  p_prc->ne_io_.seek = ne_io_seek;
+  p_prc->ne_io_.tell = ne_io_tell;
+  p_prc->ne_io_.userdata = p_prc;
+  return p_prc;
 }
 
 static void *
@@ -69,45 +88,53 @@ webmdmux_prc_dtor (void *ap_obj)
   return super_dtor (typeOf (ap_obj, "webmdmuxprc"), ap_obj);
 }
 
-static OMX_ERRORTYPE
-webmdmux_prc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
-{
-  return OMX_ErrorNone;
-}
+/* static OMX_ERRORTYPE */
+/* webmdmux_prc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr) */
+/* { */
+/*   return OMX_ErrorNone; */
+/* } */
 
 /*
  * from tizsrv class
  */
 
 static OMX_ERRORTYPE
-webmdmux_prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
+webmdmux_prc_allocate_resources (void *ap_prc, OMX_U32 a_pid)
 {
-/*   webmdmux_prc_t *p_prc = ap_obj; */
-/*   assert (!p_prc->p_ne_ctx_); */
-/*   nestegg_init(&demux_ctx, io, NULL); */
+  webmdmux_prc_t *p_prc = ap_prc;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (!p_prc->p_ne_ctx_);
+  if (0 != nestegg_init (&p_prc->p_ne_ctx_, p_prc->ne_io_, NULL, -1))
+    {
+      TIZ_ERROR (handleOf (ap_prc), "Error allocating the nestegg demuxer");
+      rc = OMX_ErrorInsufficientResources;
+    }
+  return rc;
+}
+
+static OMX_ERRORTYPE
+webmdmux_prc_deallocate_resources (void *ap_prc)
+{
+  webmdmux_prc_t *p_prc = ap_prc;
+  nestegg_destroy(p_prc->p_ne_ctx_);
+  p_prc->p_ne_ctx_ = NULL;
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-webmdmux_prc_deallocate_resources (void *ap_obj)
+webmdmux_prc_prepare_to_transfer (void *ap_prc, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-webmdmux_prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+webmdmux_prc_transfer_and_process (void *ap_prc, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-webmdmux_prc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
-{
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-webmdmux_prc_stop_and_return (void *ap_obj)
+webmdmux_prc_stop_and_return (void *ap_prc)
 {
   return OMX_ErrorNone;
 }
@@ -117,7 +144,7 @@ webmdmux_prc_stop_and_return (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-webmdmux_prc_buffers_ready (const void *ap_obj)
+webmdmux_prc_buffers_ready (const void *ap_prc)
 {
   return OMX_ErrorNone;
 }
@@ -127,10 +154,10 @@ webmdmux_prc_buffers_ready (const void *ap_obj)
  */
 
 static void *
-webmdmux_prc_class_ctor (void *ap_obj, va_list * app)
+webmdmux_prc_class_ctor (void *ap_prc, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "webmdmuxprc_class"), ap_obj, app);
+  return super_ctor (typeOf (ap_prc, "webmdmuxprc_class"), ap_prc, app);
 }
 
 /*

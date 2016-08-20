@@ -46,6 +46,7 @@ struct webmdmux_prc
   /* Object */
   const tiz_prc_t _;
   nestegg * p_ne_ctx_;
+  nestegg_io ne_io_;
   bool eos_;
 };
 
