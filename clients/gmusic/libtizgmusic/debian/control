@@ -15,7 +15,7 @@ Depends: libtizgmusic0 (= ${binary:Version})
 Description: Tizonia's Google Play Music client library, development files
  Tizonia's Google Play Music client library.
  .
- This package contains the development library libtizplatform.
+ This package contains the development library libtizgmusic.
 
 Package: libtizgmusic0
 Section: libs

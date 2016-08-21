@@ -15,7 +15,7 @@ Depends: libtizsoundcloud0 (= ${binary:Version})
 Description: Tizonia's SoundCloud client library, development files
  Tizonia's SoundCloud client library.
  .
- This package contains the development library libtizplatform.
+ This package contains the development library libtizsoundcloud.
 
 Package: libtizsoundcloud0
 Section: libs

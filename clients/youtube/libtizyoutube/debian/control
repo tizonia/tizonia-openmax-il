@@ -15,7 +15,7 @@ Depends: libtizyoutube0 (= ${binary:Version})
 Description: Tizonia's YouTube audio client library, development files
  Tizonia's YouTube audio client library.
  .
- This package contains the development library libtizplatform.
+ This package contains the development library libtizyoutube.
 
 Package: libtizyoutube0
 Section: libs

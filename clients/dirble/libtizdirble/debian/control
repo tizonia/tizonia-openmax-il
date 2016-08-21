@@ -15,7 +15,7 @@ Depends: libtizdirble0 (= ${binary:Version})
 Description: Tizonia's Dirble client library, development files
  Tizonia's Dirble client library.
  .
- This package contains the development library libtizplatform.
+ This package contains the development library libtizdirble.
 
 Package: libtizdirble0
 Section: libs
