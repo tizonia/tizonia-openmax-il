@@ -30,34 +30,33 @@
 #define DIRBLECFGPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#include <OMX_Types.h>
 #include <OMX_TizoniaExt.h>
+#include <OMX_Types.h>
 
 #include <tizconfigport_decls.h>
 
-  typedef struct dirble_cfgport dirble_cfgport_t;
-  struct dirble_cfgport
-  {
-    /* Object */
-    const tiz_configport_t _;
-    OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE session_;
-    OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlist_;
-  };
+typedef struct dirble_cfgport dirble_cfgport_t;
+struct dirble_cfgport
+{
+  /* Object */
+  const tiz_configport_t _;
+  OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE session_;
+  OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlist_;
+};
 
-  typedef struct dirble_cfgport_class dirble_cfgport_class_t;
-  struct dirble_cfgport_class
-  {
-    /* Class */
-    const tiz_configport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct dirble_cfgport_class dirble_cfgport_class_t;
+struct dirble_cfgport_class
+{
+  /* Class */
+  const tiz_configport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* DIRBLECFGPORT_DECLS_H */
+#endif /* DIRBLECFGPORT_DECLS_H */

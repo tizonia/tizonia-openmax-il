@@ -374,7 +374,7 @@ static void update_cache_size (httpsrc_prc_t *ap_prc)
                          * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
   if (ap_prc->p_trans_)
     {
-      httpsrc_trans_set_internal_buffer_size (ap_prc->p_trans_, ap_prc->cache_bytes_);
+      tiz_urltrans_set_internal_buffer_size (ap_prc->p_trans_, ap_prc->cache_bytes_);
     }
 }
 
@@ -588,7 +588,7 @@ static void buffer_filled (OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_arg)
   (void)release_buffer (p_prc);
 }
 
-static OMX_BUFFERHEADERTYPE *buffer_wanted (OMX_PTR ap_arg)
+static OMX_BUFFERHEADERTYPE *buffer_emptied (OMX_PTR ap_arg)
 {
   httpsrc_prc_t *p_prc = ap_arg;
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
@@ -733,22 +733,38 @@ static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
                                                      OMX_U32 a_pid)
 {
   httpsrc_prc_t *p_prc = ap_obj;
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
   assert (NULL == p_prc->p_uri_param_);
   tiz_check_omx_err (obtain_uri (p_prc));
-  return httpsrc_trans_init (&(p_prc->p_trans_), p_prc,
-                             p_prc->p_uri_param_,
-                             buffer_filled, buffer_wanted,
-                             header_available,
-                             data_available,
-                             connection_lost);
+
+  {
+    const tiz_urltrans_buffer_cbacks_t buffer_cbacks
+        = { buffer_filled, buffer_emptied };
+    const tiz_urltrans_info_cbacks_t info_cbacks
+        = { header_available, data_available, connection_lost };
+    const tiz_urltrans_event_io_cbacks_t io_cbacks
+        = { tiz_srv_io_watcher_init, tiz_srv_io_watcher_destroy,
+            tiz_srv_io_watcher_start, tiz_srv_io_watcher_stop };
+    const tiz_urltrans_event_timer_cbacks_t timer_cbacks
+        = { tiz_srv_timer_watcher_init, tiz_srv_timer_watcher_destroy,
+            tiz_srv_timer_watcher_start, tiz_srv_timer_watcher_stop,
+            tiz_srv_timer_watcher_restart };
+    rc = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
+                            ARATELIA_HTTP_SOURCE_COMPONENT_NAME,
+                            ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE,
+                            ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT,
+                            buffer_cbacks, info_cbacks,
+                            io_cbacks, timer_cbacks);
+  }
+  return rc;
 }
 
 static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *ap_prc)
 {
   httpsrc_prc_t *p_prc = ap_prc;
   assert (p_prc);
-  httpsrc_trans_destroy (p_prc->p_trans_);
+  tiz_urltrans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
   delete_uri (p_prc);
   return OMX_ErrorNone;
@@ -760,8 +776,8 @@ static OMX_ERRORTYPE httpsrc_prc_prepare_to_transfer (void *ap_prc,
   httpsrc_prc_t *p_prc = ap_prc;
   assert (ap_prc);
   p_prc->eos_ = false;
-  httpsrc_trans_cancel (p_prc->p_trans_);
-  httpsrc_trans_set_internal_buffer_size (p_prc->p_trans_, p_prc->cache_bytes_);
+  tiz_urltrans_cancel (p_prc->p_trans_);
+  tiz_urltrans_set_internal_buffer_size (p_prc->p_trans_, p_prc->cache_bytes_);
   return prepare_for_port_auto_detection (p_prc);
 }
 
@@ -773,7 +789,7 @@ static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
   assert (p_prc);
   if (p_prc->auto_detect_on_)
     {
-      rc = httpsrc_trans_start (p_prc->p_trans_);
+      rc = tiz_urltrans_start (p_prc->p_trans_);
     }
   return rc;
 }
@@ -784,8 +800,8 @@ static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_prc)
   assert (p_prc);
   if (p_prc->p_trans_)
     {
-      httpsrc_trans_pause (p_prc->p_trans_);
-      httpsrc_trans_flush_buffer (p_prc->p_trans_);
+      tiz_urltrans_pause (p_prc->p_trans_);
+      tiz_urltrans_flush_buffer (p_prc->p_trans_);
     }
   return release_buffer (p_prc);
 }
@@ -798,7 +814,7 @@ static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
 {
   httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
   assert (p_prc);
-  return httpsrc_trans_on_buffers_ready (p_prc->p_trans_);
+  return tiz_urltrans_on_buffers_ready (p_prc->p_trans_);
 }
 
 static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
@@ -807,7 +823,7 @@ static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
 {
   httpsrc_prc_t *p_prc = ap_prc;
   assert (p_prc);
-  return httpsrc_trans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
+  return tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
 }
 
 static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
@@ -816,7 +832,7 @@ static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
 {
   httpsrc_prc_t *p_prc = ap_prc;
   assert (p_prc);
-  return httpsrc_trans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
+  return tiz_urltrans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
 }
 
 static OMX_ERRORTYPE httpsrc_prc_pause (const void *ap_obj)
@@ -835,7 +851,7 @@ static OMX_ERRORTYPE httpsrc_prc_port_flush (const void *ap_obj,
   httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_obj;
   if (p_prc->p_trans_)
     {
-      httpsrc_trans_flush_buffer (p_prc->p_trans_);
+      tiz_urltrans_flush_buffer (p_prc->p_trans_);
     }
   return release_buffer (p_prc);
 }
@@ -848,8 +864,8 @@ static OMX_ERRORTYPE httpsrc_prc_port_disable (const void *ap_obj,
   p_prc->port_disabled_ = true;
   if (p_prc->p_trans_)
     {
-      httpsrc_trans_pause (p_prc->p_trans_);
-      httpsrc_trans_flush_buffer (p_prc->p_trans_);
+      tiz_urltrans_pause (p_prc->p_trans_);
+      tiz_urltrans_flush_buffer (p_prc->p_trans_);
     }
   /* Release any buffers held  */
   return release_buffer ((httpsrc_prc_t *)ap_obj);
@@ -865,7 +881,7 @@ static OMX_ERRORTYPE httpsrc_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
   if (p_prc->port_disabled_)
     {
       p_prc->port_disabled_ = false;
-      rc = httpsrc_trans_unpause (p_prc->p_trans_);
+      rc = tiz_urltrans_unpause (p_prc->p_trans_);
     }
   return rc;
 }

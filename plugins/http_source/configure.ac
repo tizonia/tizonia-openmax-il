@@ -63,10 +63,6 @@ PKG_PROG_PKG_CONFIG()
 
 # Checks for libraries.
 
-# NOTE: Look for libcurl 7.18.0. Before this version, there was no explicit
-# support for pausing transfers.
-PKG_CHECK_MODULES([LIBCURL], [libcurl >= 7.18.0])
-
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tiz_found_omx_headers=yes; break;])
 AS_IF([test "x$tiz_found_omx_headers" != "xyes"],

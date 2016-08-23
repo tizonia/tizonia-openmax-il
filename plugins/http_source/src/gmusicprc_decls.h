@@ -39,7 +39,7 @@ extern "C" {
 #include <tizprc_decls.h>
 #include <tizgmusic_c.h>
 
-#include "httpsrctrans.h"
+#include <tizplatform.h>
 
 typedef struct gmusic_prc gmusic_prc_t;
 struct gmusic_prc
@@ -51,7 +51,7 @@ struct gmusic_prc
   OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
   OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  httpsrc_trans_t *p_trans_;
+  tiz_urltrans_t *p_trans_;
   tiz_gmusic_t *p_gmusic_;
   bool eos_;
   bool port_disabled_;

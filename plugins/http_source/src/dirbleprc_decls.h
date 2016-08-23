@@ -37,9 +37,9 @@ extern "C" {
 #include <OMX_Core.h>
 
 #include <tizprc_decls.h>
-#include <tizdirble_c.h>
 
-#include "httpsrctrans.h"
+#include <tizplatform.h>
+#include <tizdirble_c.h>
 
 typedef struct dirble_prc dirble_prc_t;
 struct dirble_prc
@@ -51,7 +51,7 @@ struct dirble_prc
   OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
   OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  httpsrc_trans_t *p_trans_;
+  tiz_urltrans_t *p_trans_;
   tiz_dirble_t *p_dirble_;
   bool eos_;
   bool port_disabled_;

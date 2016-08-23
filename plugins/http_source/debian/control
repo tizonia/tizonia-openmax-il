@@ -5,8 +5,7 @@ Build-Depends: debhelper (>= 8.0.0),
                dh-autoreconf,
                tizilheaders,
                libtizplatform-dev,
-               libtizonia-dev,
-               libcurl-dev
+               libtizonia-dev
 Standards-Version: 3.9.4
 Section: libs
 Homepage: http://tizonia.org
@@ -20,8 +19,7 @@ Depends: libtizhttpsrc0 (= ${binary:Version}),
          ${misc:Depends},
          tizilheaders,
          libtizplatform-dev,
-         libtizonia-dev,
-         libcurl-dev
+         libtizonia-dev
 Description: Tizonia's OpenMAX IL HTTP audio source library, development files
  Tizonia's OpenMAX IL HTTP audio source library.
  .

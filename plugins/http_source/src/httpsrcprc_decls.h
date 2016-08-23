@@ -38,7 +38,7 @@ extern "C" {
 
 #include <tizprc_decls.h>
 
-#include "httpsrctrans.h"
+#include <tizplatform.h>
 
 typedef struct httpsrc_prc httpsrc_prc_t;
 struct httpsrc_prc
@@ -47,7 +47,7 @@ struct httpsrc_prc
   const tiz_prc_t _;
   OMX_BUFFERHEADERTYPE *p_outhdr_;
   OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  httpsrc_trans_t *p_trans_;
+  tiz_urltrans_t *p_trans_;
   bool eos_;
   bool port_disabled_;
   OMX_S32 audio_coding_type_;

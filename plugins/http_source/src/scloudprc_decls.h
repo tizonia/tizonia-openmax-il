@@ -39,7 +39,7 @@ extern "C" {
 #include <tizprc_decls.h>
 #include <tizsoundcloud_c.h>
 
-#include "httpsrctrans.h"
+#include "tizplatform.h"
 
 typedef struct scloud_prc scloud_prc_t;
 struct scloud_prc
@@ -51,7 +51,7 @@ struct scloud_prc
   OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
   OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  httpsrc_trans_t *p_trans_;
+  tiz_urltrans_t *p_trans_;
   tiz_scloud_t *p_scloud_;
   bool eos_;
   bool port_disabled_;

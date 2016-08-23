@@ -70,6 +70,9 @@ AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([libuuid], [uuid_generate])
 PKG_CHECK_MODULES([UUID], [uuid >= 2.19.0])
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
+# NOTE: Look for libcurl 7.18.0. Before this version, there was no explicit
+# support for pausing transfers.
+PKG_CHECK_MODULES([LIBCURL], [libcurl >= 7.18.0])
 
 AC_CHECK_HEADERS([tizonia/OMX_Core.h tizonia/OMX_Component.h],
 	[tizrmd_found_omx_headers=yes; break;])

@@ -42,6 +42,8 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizsoundcloud]="clients/soundcloud/libtizsoundcloud" \
     [tizdirbleproxy]="clients/dirble/dirbleproxy" \
     [tizdirble]="clients/dirble/libtizdirble" \
+    [tizyoutubeproxy]="clients/youtube/youtubeproxy" \
+    [tizyoutube]="clients/youtube/libtizyoutube" \
     [tizplatform]="libtizplatform" \
     [tizrmd]="rm/tizrmd" \
     [tizrmproxy]="rm/libtizrmproxy" \
@@ -65,6 +67,7 @@ declare -Ar TIZ_PROJECT_DIRS=( \
     [tizpulsepcmrnd]="plugins/pcm_renderer_pa" \
     [tizspotifysrc]="plugins/spotify_source" \
     [tizvorbisdec]="plugins/vorbis_decoder" \
+    [tizwebmdemux]="plugins/webm_demuxer" \
     [tizonia-player]="player" \
     [tizonia-config]="config" \
 )
@@ -78,6 +81,8 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizsoundcloud \
     tizdirbleproxy \
     tizdirble \
+    tizyoutubeproxy \
+    tizyoutube \
     tizplatform \
     tizrmd \
     tizrmproxy \
@@ -101,6 +106,7 @@ readonly TIZ_PROJECTS_ORDERED=( \
     tizpulsepcmrnd \
     tizspotifysrc \
     tizvorbisdec \
+    tizwebmdemux \
     tizonia-player \
     tizonia-config \
 )

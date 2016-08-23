@@ -30,36 +30,35 @@
 #define HTTPSRCPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#include <OMX_Types.h>
-#include <OMX_TizoniaExt.h>
 #include <OMX_Audio.h>
+#include <OMX_TizoniaExt.h>
+#include <OMX_Types.h>
 
 #include <tizaudioport_decls.h>
 
-  typedef struct httpsrc_port httpsrc_port_t;
-  struct httpsrc_port
-  {
-    /* Object */
-    const tiz_audioport_t _;
-    OMX_AUDIO_PARAM_MP3TYPE mp3type_;
-    OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
-    OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
-  };
+typedef struct httpsrc_port httpsrc_port_t;
+struct httpsrc_port
+{
+  /* Object */
+  const tiz_audioport_t _;
+  OMX_AUDIO_PARAM_MP3TYPE mp3type_;
+  OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
+  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
+};
 
-  typedef struct httpsrc_port_class httpsrc_port_class_t;
-  struct httpsrc_port_class
-  {
-    /* Class */
-    const tiz_audioport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct httpsrc_port_class httpsrc_port_class_t;
+struct httpsrc_port_class
+{
+  /* Class */
+  const tiz_audioport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* HTTPSRCPORT_DECLS_H */
+#endif /* HTTPSRCPORT_DECLS_H */

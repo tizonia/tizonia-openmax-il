@@ -55,7 +55,8 @@ libtizplatform_include_HEADERS = \
 	tizhttp.h \
 	tizlimits.h \
 	tizprintf.h \
-	tizshufflelst.h
+	tizshufflelst.h \
+	tizurltransfer.h
 
 libtizplatform_la_SOURCES = \
 	http-parser/http_parser.c \
@@ -79,11 +80,13 @@ libtizplatform_la_SOURCES = \
 	tizhttp.c \
 	tizlimits.c \
 	tizprintf.c \
-	tizshufflelst.c
+	tizshufflelst.c \
+	tizurltransfer.c
 
 libtizplatform_la_CFLAGS = \
 	$(AM_CFLAGS) \
 	@TIZILHEADERS_CFLAGS@ \
+	@LIBCURL_CFLAGS@ \
 	@LOG4C_CFLAGS@
 
 libtizplatform_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_ARG@
@@ -91,6 +94,7 @@ libtizplatform_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@ @SHLIB_VERSION_A
 libtizplatform_la_LIBADD = \
 	-lpthread \
 	@LOG4C_LIBS@ \
+	@LIBCURL_LIBS@ \
 	@UUID_LIBS@
 
 do_subst = sed -e 's,[@]abs_top_builddir[@],$(abs_top_builddir),g' \

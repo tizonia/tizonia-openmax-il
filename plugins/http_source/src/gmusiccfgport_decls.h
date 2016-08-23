@@ -30,34 +30,33 @@
 #define GMUSICCFGPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#include <OMX_Types.h>
 #include <OMX_TizoniaExt.h>
+#include <OMX_Types.h>
 
 #include <tizconfigport_decls.h>
 
-  typedef struct gmusic_cfgport gmusic_cfgport_t;
-  struct gmusic_cfgport
-  {
-    /* Object */
-    const tiz_configport_t _;
-    OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE session_;
-    OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlist_;
-  };
+typedef struct gmusic_cfgport gmusic_cfgport_t;
+struct gmusic_cfgport
+{
+  /* Object */
+  const tiz_configport_t _;
+  OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE session_;
+  OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE playlist_;
+};
 
-  typedef struct gmusic_cfgport_class gmusic_cfgport_class_t;
-  struct gmusic_cfgport_class
-  {
-    /* Class */
-    const tiz_configport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct gmusic_cfgport_class gmusic_cfgport_class_t;
+struct gmusic_cfgport_class
+{
+  /* Class */
+  const tiz_configport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* GMUSICCFGPORT_DECLS_H */
+#endif /* GMUSICCFGPORT_DECLS_H */

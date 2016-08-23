@@ -55,6 +55,7 @@
 #include "tizlimits.h"
 #include "tizprintf.h"
 #include "tizshufflelst.h"
+#include "tizurltransfer.h"
 
 /** @} */
 
