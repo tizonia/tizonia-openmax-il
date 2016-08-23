@@ -263,6 +263,14 @@ struct tiz_urltrans_event_timer_cbacks
  *
  * @param ap_uri_param The url to transfer from.
  *
+ * @param ap_comp_name The component name.
+ *
+ * @param a_store_bytes The amount of bytes to use as internal buffer while
+ * retrieving data.
+ *
+ * @param a_reconnect_timeout The number of seconds until a new connection is
+ * attempted followin a disconnection.
+ *
  * @param a_buffer_cbacks Buffer callbacks registration structure.
  *
  * @param a_info_cbacks Informational callbacks registration structure.
