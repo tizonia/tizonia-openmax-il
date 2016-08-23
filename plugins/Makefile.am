@@ -36,5 +36,6 @@ SUBDIRS = \
 	spotify_source \
 	vorbis_decoder \
 	vp8_decoder \
+	webm_demuxer \
 	yuv_renderer
 

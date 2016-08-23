@@ -68,6 +68,7 @@ AC_CONFIG_SUBDIRS([aac_decoder
                    spotify_source
                    vorbis_decoder
                    vp8_decoder
+                   webm_demuxer
                    yuv_renderer])
 
 # End the configure script.
