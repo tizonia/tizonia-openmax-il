@@ -116,8 +116,11 @@ static OMX_ERRORTYPE
 webmdmux_prc_deallocate_resources (void *ap_prc)
 {
   webmdmux_prc_t *p_prc = ap_prc;
-  nestegg_destroy(p_prc->p_ne_ctx_);
-  p_prc->p_ne_ctx_ = NULL;
+  if (p_prc->p_ne_ctx_)
+    {
+      nestegg_destroy(p_prc->p_ne_ctx_);
+      p_prc->p_ne_ctx_ = NULL;
+    }
   return OMX_ErrorNone;
 }
 
