@@ -394,7 +394,7 @@ static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
   info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
   metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-  if (NULL == (p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
+  if (!(p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
                    1, metadata_len)))
     {
       rc = OMX_ErrorInsufficientResources;
@@ -529,12 +529,12 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
   const long pathname_max = PATH_MAX + NAME_MAX;
 
   assert (ap_prc);
-  assert (NULL == ap_prc->p_uri_param_);
+  assert (!ap_prc->p_uri_param_);
 
   ap_prc->p_uri_param_
       = tiz_mem_calloc (1, sizeof(OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
 
-  if (NULL == ap_prc->p_uri_param_)
+  if (!ap_prc->p_uri_param_)
     {
       TIZ_ERROR (handleOf (ap_prc),
                  "Error allocating memory for the content uri struct");
@@ -708,6 +708,7 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
       = super_ctor (typeOf (ap_obj, "httpsrcprc"), ap_obj, app);
   p_prc->p_outhdr_ = NULL;
   p_prc->p_uri_param_ = NULL;
+  p_prc->p_trans_ = NULL;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
@@ -735,7 +736,7 @@ static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
   httpsrc_prc_t *p_prc = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
-  assert (NULL == p_prc->p_uri_param_);
+  assert (!p_prc->p_uri_param_);
   tiz_check_omx_err (obtain_uri (p_prc));
 
   {
