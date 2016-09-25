@@ -36,15 +36,16 @@ extern "C"
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#define ARATELIA_WEBM_DEMUXER_DEFAULT_ROLE       "container_demuxer.webm"
-#define ARATELIA_WEBM_DEMUXER_COMPONENT_NAME     "OMX.Aratelia.container_demuxer.webm"
+#define ARATELIA_WEBM_DEMUXER_DEFAULT_ROLE             "container_demuxer.webm"
+#define ARATELIA_WEBM_DEMUXER_COMPONENT_NAME           "OMX.Aratelia.container_demuxer.webm"
 /* With libtizonia, port indexes must start at index 0 */
-#define ARATELIA_WEBM_DEMUXER_PORT_INDEX         0
-#define ARATELIA_WEBM_DEMUXER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_WEBM_DEMUXER_PORT_MIN_BUF_SIZE  8192
-#define ARATELIA_WEBM_DEMUXER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_WEBM_DEMUXER_PORT_ALIGNMENT     0
-#define ARATELIA_WEBM_DEMUXER_PORT_SUPPLIERPREF  OMX_BufferSupplyInput
+#define ARATELIA_WEBM_DEMUXER_PORT_INDEX               0
+#define ARATELIA_WEBM_DEMUXER_PORT_MIN_BUF_COUNT       2
+#define ARATELIA_WEBM_DEMUXER_PORT_MIN_BUF_SIZE        8192
+#define ARATELIA_WEBM_DEMUXER_PORT_NONCONTIGUOUS       OMX_FALSE
+#define ARATELIA_WEBM_DEMUXER_PORT_ALIGNMENT           0
+#define ARATELIA_WEBM_DEMUXER_PORT_SUPPLIERPREF        OMX_BufferSupplyInput
+#define ARATELIA_WEBM_DEMUXER_DEFAULT_RECONNECT_TIMEOUT 3.0F
 
 #ifdef __cplusplus
 }

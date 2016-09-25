@@ -38,6 +38,8 @@ extern "C" {
 
 #include <tizprc_decls.h>
 
+#include <tizplatform.h>
+
 #include "nestegg.h"
 
 typedef struct webmdmux_prc webmdmux_prc_t;
@@ -45,9 +47,15 @@ struct webmdmux_prc
 {
   /* Object */
   const tiz_prc_t _;
+  OMX_BUFFERHEADERTYPE *p_outhdr_;
+  OMX_PARAM_CONTENTURITYPE *p_uri_param_;
+  tiz_urltrans_t *p_trans_;
+  bool eos_;
+  bool port_disabled_;
+  bool auto_detect_on_;
+  OMX_S32 audio_coding_type_;
   nestegg * p_ne_ctx_;
   nestegg_io ne_io_;
-  bool eos_;
 };
 
 typedef struct webmdmux_prc_class webmdmux_prc_class_t;

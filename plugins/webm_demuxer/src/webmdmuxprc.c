@@ -31,6 +31,7 @@
 #endif
 
 #include <assert.h>
+#include <string.h>
 
 #include <tizplatform.h>
 
@@ -48,6 +49,7 @@
 
 /* Forward declarations */
 static OMX_ERRORTYPE webmdmux_prc_deallocate_resources (void *);
+static OMX_ERRORTYPE release_buffer (webmdmux_prc_t *);
 
 static int ne_io_read (void *a_buffer, size_t a_length, void *a_userdata)
 {
@@ -207,6 +209,169 @@ ne_log_cback(nestegg * ctx, unsigned int severity, char const * fmt, ...)
   fprintf(stderr, "\n");
 }
 
+static OMX_ERRORTYPE obtain_uri (webmdmux_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const long pathname_max = PATH_MAX + NAME_MAX;
+
+  assert (ap_prc);
+  assert (!ap_prc->p_uri_param_);
+
+  ap_prc->p_uri_param_
+      = tiz_mem_calloc (1, sizeof(OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
+
+  if (!ap_prc->p_uri_param_)
+    {
+      TIZ_ERROR (handleOf (ap_prc),
+                 "Error allocating memory for the content uri struct");
+      rc = OMX_ErrorInsufficientResources;
+    }
+  else
+    {
+      ap_prc->p_uri_param_->nSize = sizeof(OMX_PARAM_CONTENTURITYPE)
+                                    + pathname_max + 1;
+      ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
+
+      tiz_check_omx_err (tiz_api_GetParameter (
+          tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+          OMX_IndexParamContentURI, ap_prc->p_uri_param_));
+      TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
+                  ap_prc->p_uri_param_->contentURI);
+      /* Verify we are getting an http scheme */
+      if (strncasecmp ((const char *)ap_prc->p_uri_param_->contentURI, "http://", 7) != 0
+          && strncasecmp ((const char *)ap_prc->p_uri_param_->contentURI, "https://", 8) != 0)
+        {
+          rc = OMX_ErrorContentURIError;
+        }
+    }
+
+  return rc;
+}
+
+static void obtain_audio_encoding_from_headers (webmdmux_prc_t *ap_prc,
+                                                const char *ap_header,
+                                                const size_t a_size)
+{
+  (void)ap_prc;
+  (void)ap_header;
+  (void)a_size;
+}
+
+static OMX_ERRORTYPE release_buffer (webmdmux_prc_t *ap_prc)
+{
+  assert (ap_prc);
+
+  if (ap_prc->p_outhdr_)
+    {
+      TIZ_NOTICE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]",
+                  ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
+      tiz_check_omx_err (tiz_krn_release_buffer (
+          tiz_get_krn (handleOf (ap_prc)), ARATELIA_WEBM_DEMUXER_PORT_INDEX,
+          ap_prc->p_outhdr_));
+      ap_prc->p_outhdr_ = NULL;
+    }
+  return OMX_ErrorNone;
+}
+
+static void buffer_filled (OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_arg)
+{
+  webmdmux_prc_t *p_prc = ap_arg;
+  assert (p_prc);
+  assert (ap_hdr);
+  assert (p_prc->p_outhdr_ == ap_hdr);
+  ap_hdr->nOffset = 0;
+  (void)release_buffer (p_prc);
+}
+
+static OMX_BUFFERHEADERTYPE *buffer_emptied (OMX_PTR ap_arg)
+{
+  webmdmux_prc_t *p_prc = ap_arg;
+  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  assert (p_prc);
+
+  if (!p_prc->port_disabled_)
+    {
+      if (p_prc->p_outhdr_)
+        {
+          p_hdr = p_prc->p_outhdr_;
+        }
+      else
+        {
+          if (OMX_ErrorNone
+              == (tiz_krn_claim_buffer (tiz_get_krn (handleOf (p_prc)),
+                                        ARATELIA_WEBM_DEMUXER_PORT_INDEX, 0,
+                                        &p_prc->p_outhdr_)))
+            {
+              if (p_prc->p_outhdr_)
+                {
+                  TIZ_TRACE (handleOf (p_prc),
+                             "Claimed HEADER [%p]...nFilledLen [%d]",
+                             p_prc->p_outhdr_, p_prc->p_outhdr_->nFilledLen);
+                  p_hdr = p_prc->p_outhdr_;
+                }
+            }
+        }
+    }
+  return p_hdr;
+}
+
+static void header_available (OMX_PTR ap_arg, const void *ap_ptr,
+                              const size_t a_nbytes)
+{
+  webmdmux_prc_t *p_prc = ap_arg;
+  assert (p_prc);
+  assert (ap_ptr);
+
+  if (p_prc->auto_detect_on_)
+    {
+      obtain_audio_encoding_from_headers (p_prc, ap_ptr, a_nbytes);
+    }
+}
+
+static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
+                            const size_t a_nbytes)
+{
+  webmdmux_prc_t *p_prc = ap_arg;
+  bool pause_needed = false;
+  assert (p_prc);
+  assert (ap_ptr);
+
+/*   if (p_prc->auto_detect_on_ && a_nbytes > 0) */
+/*     { */
+/*       p_prc->auto_detect_on_ = false; */
+
+/*       /\* This will pause the http transfer *\/ */
+/*       pause_needed = true; */
+
+/*       if (OMX_AUDIO_CodingOGA == p_prc->audio_coding_type_) */
+/*         { */
+/*           /\* Try to identify the actual codec from the ogg stream *\/ */
+/*           p_prc->audio_coding_type_ */
+/*             = identify_ogg_codec (p_prc, (unsigned char *)ap_ptr, a_nbytes); */
+/*           if (OMX_AUDIO_CodingUnused != p_prc->audio_coding_type_) */
+/*             { */
+/*               set_audio_coding_on_port (p_prc); */
+/*               set_audio_info_on_port (p_prc); */
+/*             } */
+/*         } */
+/*       /\* And now trigger the OMX_EventPortFormatDetected and */
+/*          OMX_EventPortSettingsChanged events or a */
+/*          OMX_ErrorFormatNotDetected event *\/ */
+/*       send_port_auto_detect_events (p_prc); */
+/*     } */
+  return pause_needed;
+}
+
+static bool connection_lost (OMX_PTR ap_arg)
+{
+/*   webmdmux_prc_t *p_prc = ap_arg; */
+/*   assert (p_prc); */
+/*   prepare_for_port_auto_detection (p_prc); */
+  /* Return true to indicate that the automatic reconnection procedure needs to
+     be started */
+  return true;
+}
+
 /*
  * webmdmuxprc
  */
@@ -215,7 +380,14 @@ static void *
 webmdmux_prc_ctor (void *ap_prc, va_list * app)
 {
   webmdmux_prc_t *p_prc = super_ctor (typeOf (ap_prc, "webmdmuxprc"), ap_prc, app);
+  assert (p_prc);
+  p_prc->p_outhdr_ = NULL;
+  p_prc->p_uri_param_ = NULL;
+  p_prc->p_trans_ = NULL;
   p_prc->eos_ = false;
+  p_prc->port_disabled_ = false;
+  p_prc->auto_detect_on_ = false;
+  p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->p_ne_ctx_ = NULL;
   p_prc->ne_io_.read = ne_io_read;
   p_prc->ne_io_.seek = ne_io_seek;
@@ -246,12 +418,39 @@ webmdmux_prc_allocate_resources (void *ap_prc, OMX_U32 a_pid)
 {
   webmdmux_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (p_prc);
   assert (!p_prc->p_ne_ctx_);
+  assert (!p_prc->p_uri_param_);
+
+  tiz_check_omx_err (obtain_uri (p_prc));
+
   if (0 != nestegg_init (&p_prc->p_ne_ctx_, p_prc->ne_io_, ne_log_cback, -1))
     {
       TIZ_ERROR (handleOf (ap_prc), "Error allocating the nestegg demuxer");
       rc = OMX_ErrorInsufficientResources;
     }
+
+  if (OMX_ErrorNone == rc)
+    {
+      const tiz_urltrans_buffer_cbacks_t buffer_cbacks
+          = { buffer_filled, buffer_emptied };
+      const tiz_urltrans_info_cbacks_t info_cbacks
+          = { header_available, data_available, connection_lost };
+      const tiz_urltrans_event_io_cbacks_t io_cbacks
+          = { tiz_srv_io_watcher_init, tiz_srv_io_watcher_destroy,
+              tiz_srv_io_watcher_start, tiz_srv_io_watcher_stop };
+      const tiz_urltrans_event_timer_cbacks_t timer_cbacks
+          = { tiz_srv_timer_watcher_init, tiz_srv_timer_watcher_destroy,
+              tiz_srv_timer_watcher_start, tiz_srv_timer_watcher_stop,
+              tiz_srv_timer_watcher_restart };
+      rc = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
+                              ARATELIA_WEBM_DEMUXER_COMPONENT_NAME,
+                              ARATELIA_WEBM_DEMUXER_PORT_MIN_BUF_SIZE,
+                              ARATELIA_WEBM_DEMUXER_DEFAULT_RECONNECT_TIMEOUT,
+                              buffer_cbacks, info_cbacks, io_cbacks,
+                              timer_cbacks);
+    }
+
   return rc;
 }
 
@@ -259,6 +458,7 @@ static OMX_ERRORTYPE
 webmdmux_prc_deallocate_resources (void *ap_prc)
 {
   webmdmux_prc_t *p_prc = ap_prc;
+  assert (p_prc);
   if (p_prc->p_ne_ctx_)
     {
       nestegg_destroy(p_prc->p_ne_ctx_);
