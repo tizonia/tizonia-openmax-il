@@ -74,6 +74,8 @@
 static OMX_ERRORTYPE spfysrc_prc_deallocate_resources (void *ap_obj);
 static sp_bitrate omx_preferred_bitrate_to_spfy (
     const OMX_TIZONIA_AUDIO_SPOTIFYBITRATETYPE a_bitrate_type, int *ap_bitrate);
+static void end_of_track_handler (OMX_PTR ap_prc,
+                                  tiz_event_pluggable_t *ap_event);
 
 /* The application key, specific to each project. */
 extern const uint8_t g_appkey[];
@@ -719,9 +721,14 @@ static OMX_BUFFERHEADERTYPE *buffer_needed (spfysrc_prc_t *ap_prc)
 static void start_spotify (spfysrc_prc_t *ap_prc)
 {
   assert (ap_prc);
+  TIZ_TRACE (handleOf (ap_prc),
+             "start_spotify [%p]",
+             ap_prc->p_sp_session_);
   if (ap_prc->p_sp_session_)
     {
-      sp_session_player_play (ap_prc->p_sp_session_, true);
+      sp_error error = sp_session_player_play (ap_prc->p_sp_session_, true);
+      TIZ_DEBUG (handleOf (ap_prc), "Track error code [%s]",
+                 sp_error_message (error));
       ap_prc->spotify_paused_ = false;
     }
 }
@@ -886,16 +893,30 @@ static void start_playback (spfysrc_prc_t *ap_prc)
                  sp_error_message (sp_track_error (p_track)));
       verify_or_return ((sp_track_error (p_track) == SP_ERROR_OK),
                         "Track error. Waiting.");
+
       if (ap_prc->p_sp_track_ != p_track)
         {
-          TIZ_TRACE (handleOf (ap_prc),
-                     "loading player ap_prc->track_index_ [%d]",
-                     ap_prc->track_index_);
           ap_prc->p_sp_track_ = p_track;
-          store_relevant_track_metadata (ap_prc, num_tracks);
-          sp_session_player_load (ap_prc->p_sp_session_, p_track);
-          start_spotify (ap_prc);
-          ap_prc->spotify_inited_ = true;
+          sp_track_availability avail = sp_track_get_availability (ap_prc->p_sp_session_, p_track);
+          if (SP_TRACK_AVAILABILITY_AVAILABLE == avail)
+            {
+              TIZ_TRACE (handleOf (ap_prc),
+                         "loading player ap_prc->track_index_ [%d]",
+                         ap_prc->track_index_);
+              store_relevant_track_metadata (ap_prc, num_tracks);
+              sp_session_player_load (ap_prc->p_sp_session_, p_track);
+              start_spotify (ap_prc);
+              ap_prc->spotify_inited_ = true;
+            }
+          else
+            {
+              TIZ_PRINTF_RED ("[Spotify] :  '%s' not available\n",
+                              sp_track_name (ap_prc->p_sp_track_));
+
+              /* Let's process a fake end of track event */
+              process_spotify_event (ap_prc, end_of_track_handler,
+                                     ap_prc->p_sp_session_);
+            }
         }
     }
 }
@@ -976,6 +997,7 @@ static void metadata_updated (sp_session *sess)
           TIZ_TRACE (handleOf (p_prc), "Track = [%s]",
                      sp_track_name (p_prc->p_sp_track_));
         }
+
     }
   start_playback (p_prc);
 }
