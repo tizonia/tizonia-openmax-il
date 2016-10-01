@@ -78,6 +78,10 @@ elif [ "$UBUNTU_VER" == "14.04" ]; then
     # For use in Ubuntu 14.04
     echo "Now running etags on UBUNTU $UBUNTU_VER..."
     find $SOURCEDIR -name "*.h" -o -name "*.inl" -o -name "*.c" -o -name "*.hpp" -o -name "*.cpp" | etags -
+elif [ "$UBUNTU_VER" == "16.04" ]; then
+    # For use in Ubuntu 16.04
+    echo "Now running etags on UBUNTU $UBUNTU_VER..."
+    find $SOURCEDIR -name "*.h" -o -name "*.inl" -o -name "*.c" -o -name "*.hpp" -o -name "*.cpp" | etags -
 fi
 
 echo "Now running ebrowse on $SOURCEDIR..."
