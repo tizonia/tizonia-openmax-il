@@ -330,9 +330,7 @@ graph::gmusicops::apply_pcm_codec_info_from_decoder ()
 
   tiz_check_omx_err (get_channels_and_rate_from_decoder (
       channels, sampling_rate, encoding_str));
-  tiz_check_omx_err (set_channels_and_rate_on_renderer (channels, sampling_rate,
-                                                        encoding_str));
-  return OMX_ErrorNone;
+  return set_channels_and_rate_on_renderer (channels, sampling_rate);
 }
 
 OMX_ERRORTYPE
@@ -367,8 +365,7 @@ graph::gmusicops::get_channels_and_rate_from_decoder (
 
 OMX_ERRORTYPE
 graph::gmusicops::set_channels_and_rate_on_renderer (
-    const OMX_U32 channels, const OMX_U32 sampling_rate,
-    const std::string encoding_str)
+    const OMX_U32 channels, const OMX_U32 sampling_rate)
 {
   const OMX_HANDLETYPE handle = handles_[2];  // renderer's handle
   const OMX_U32 port_id = 0;                  // renderer's input port

@@ -78,8 +78,7 @@ namespace tiz
           OMX_U32 &channels, OMX_U32 &sampling_rate,
           std::string &encoding_str) const;
       OMX_ERRORTYPE set_channels_and_rate_on_renderer (
-          const OMX_U32 channels, const OMX_U32 sampling_rate,
-          const std::string encoding_str);
+          const OMX_U32 channels, const OMX_U32 sampling_rate);
 
       void do_reconfigure_first_tunnel ();
       void do_reconfigure_second_tunnel ();
