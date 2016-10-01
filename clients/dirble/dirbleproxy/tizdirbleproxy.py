@@ -425,17 +425,19 @@ class tizdirbleproxy(object):
         for stream in d["streams"]:
             streamurl = stream["stream"]
             bitrate = stream["bitrate"]
-            content_type = stream["content_type"].rstrip()
-            print_nfo("[Dirble] [Station] '{0}' [{1}]." \
-                      .format(to_ascii(d["name"]).encode("utf-8"), \
-                              to_ascii(content_type)))
-            self.queue.append(
-                tizdirbleproxy.Station(d["id"], d["name"], d["country"], \
-                                       d["website"], \
-                                       category, \
-                                       streamurl, \
-                                       bitrate,
-                                       content_type))
+            content_type = stream["content_type"]
+            if content_type:
+                content_type = content_type.rstrip()
+                print_nfo("[Dirble] [Station] '{0}' [{1}]." \
+                          .format(to_ascii(d["name"]).encode("utf-8"), \
+                                  to_ascii(content_type)))
+                self.queue.append(
+                    tizdirbleproxy.Station(d["id"], d["name"], d["country"], \
+                                           d["website"], \
+                                           category, \
+                                           streamurl, \
+                                           bitrate,
+                                           content_type))
 
 if __name__ == "__main__":
     tizdirbleproxy()
