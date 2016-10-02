@@ -50,6 +50,21 @@
 /* Forward declarations */
 static OMX_ERRORTYPE webmdmux_prc_deallocate_resources (void *);
 static OMX_ERRORTYPE release_buffer (webmdmux_prc_t *);
+static OMX_ERRORTYPE prepare_for_port_auto_detection (webmdmux_prc_t *ap_prc);
+
+#define on_nestegg_error_ret_omx_oom(expr)                                   \
+  do                                                                         \
+    {                                                                        \
+      int nestegg_error = 0;                                                 \
+      if (0 != (nestegg_error = (expr)))                                     \
+        {                                                                    \
+          TIZ_ERROR (handleOf (p_prc),                                       \
+                     "[OMX_ErrorInsufficientResources] : error while using " \
+                     "libnestegg");                                          \
+          return OMX_ErrorInsufficientResources;                             \
+        }                                                                    \
+    }                                                                        \
+  while (0)
 
 static int ne_io_read (void *a_buffer, size_t a_length, void *a_userdata)
 {
@@ -399,6 +414,22 @@ static bool connection_lost (OMX_PTR ap_arg)
   return true;
 }
 
+static OMX_ERRORTYPE prepare_for_port_auto_detection (webmdmux_prc_t *ap_prc)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  assert (ap_prc);
+
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_WEBM_DEMUXER_PORT_INDEX);
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_IndexParamPortDefinition, &port_def));
+  ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
+  ap_prc->auto_detect_on_
+      = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true
+                                                                   : false;
+  return OMX_ErrorNone;
+}
+
 /*
  * webmdmuxprc
  */
@@ -453,32 +484,28 @@ static OMX_ERRORTYPE webmdmux_prc_allocate_resources (void *ap_prc,
 
   tiz_check_omx_err (obtain_uri (p_prc));
 
-  if (0 != nestegg_init (&p_prc->p_ne_ctx_, p_prc->ne_io_, ne_log_cback, -1))
-    {
-      TIZ_ERROR (handleOf (ap_prc), "Error allocating the nestegg demuxer");
-      rc = OMX_ErrorInsufficientResources;
-    }
+  on_nestegg_error_ret_omx_oom (
+      nestegg_init (&p_prc->p_ne_ctx_, p_prc->ne_io_, ne_log_cback, -1));
 
-  if (OMX_ErrorNone == rc)
-    {
-      const tiz_urltrans_buffer_cbacks_t buffer_cbacks
-          = { buffer_filled, buffer_emptied };
-      const tiz_urltrans_info_cbacks_t info_cbacks
-          = { header_available, data_available, connection_lost };
-      const tiz_urltrans_event_io_cbacks_t io_cbacks
-          = { tiz_srv_io_watcher_init, tiz_srv_io_watcher_destroy,
-              tiz_srv_io_watcher_start, tiz_srv_io_watcher_stop };
-      const tiz_urltrans_event_timer_cbacks_t timer_cbacks
-          = { tiz_srv_timer_watcher_init, tiz_srv_timer_watcher_destroy,
-              tiz_srv_timer_watcher_start, tiz_srv_timer_watcher_stop,
-              tiz_srv_timer_watcher_restart };
-      rc = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
-                              ARATELIA_WEBM_DEMUXER_COMPONENT_NAME,
-                              ARATELIA_WEBM_DEMUXER_PORT_MIN_BUF_SIZE,
-                              ARATELIA_WEBM_DEMUXER_DEFAULT_RECONNECT_TIMEOUT,
-                              buffer_cbacks, info_cbacks, io_cbacks,
-                              timer_cbacks);
-    }
+  {
+    const tiz_urltrans_buffer_cbacks_t buffer_cbacks
+        = { buffer_filled, buffer_emptied };
+    const tiz_urltrans_info_cbacks_t info_cbacks
+        = { header_available, data_available, connection_lost };
+    const tiz_urltrans_event_io_cbacks_t io_cbacks
+        = { tiz_srv_io_watcher_init, tiz_srv_io_watcher_destroy,
+            tiz_srv_io_watcher_start, tiz_srv_io_watcher_stop };
+    const tiz_urltrans_event_timer_cbacks_t timer_cbacks
+        = { tiz_srv_timer_watcher_init, tiz_srv_timer_watcher_destroy,
+            tiz_srv_timer_watcher_start, tiz_srv_timer_watcher_stop,
+            tiz_srv_timer_watcher_restart };
+    rc = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
+                            ARATELIA_WEBM_DEMUXER_COMPONENT_NAME,
+                            ARATELIA_WEBM_DEMUXER_PORT_MIN_BUF_SIZE,
+                            ARATELIA_WEBM_DEMUXER_DEFAULT_RECONNECT_TIMEOUT,
+                            buffer_cbacks, info_cbacks, io_cbacks,
+                            timer_cbacks);
+  }
   return rc;
 }
 
@@ -505,19 +532,32 @@ static OMX_ERRORTYPE webmdmux_prc_prepare_to_transfer (void *ap_prc,
   p_prc->eos_ = false;
   tiz_urltrans_cancel (p_prc->p_trans_);
   tiz_urltrans_set_internal_buffer_size (p_prc->p_trans_, p_prc->cache_bytes_);
-  /*   return prepare_for_port_auto_detection (p_prc); */
-  return OMX_ErrorNone;
+  return prepare_for_port_auto_detection (p_prc);
 }
 
 static OMX_ERRORTYPE webmdmux_prc_transfer_and_process (void *ap_prc,
                                                         OMX_U32 a_pid)
 {
-  return OMX_ErrorNone;
+  webmdmux_prc_t *p_prc = ap_prc;
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (p_prc);
+  if (p_prc->auto_detect_on_)
+    {
+      rc = tiz_urltrans_start (p_prc->p_trans_);
+    }
+  return rc;
 }
 
 static OMX_ERRORTYPE webmdmux_prc_stop_and_return (void *ap_prc)
 {
-  return OMX_ErrorNone;
+  webmdmux_prc_t *p_prc = ap_prc;
+  assert (p_prc);
+  if (p_prc->p_trans_)
+    {
+      tiz_urltrans_pause (p_prc->p_trans_);
+      tiz_urltrans_flush_buffer (p_prc->p_trans_);
+    }
+  return release_buffer (p_prc);
 }
 
 /*
