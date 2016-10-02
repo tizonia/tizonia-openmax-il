@@ -158,7 +158,7 @@ OMX_S32 tiz_shuffle_lst_jump (tiz_shuffle_lst_t *ap_shuffle_lst,
     }
   else if (new_index < 0)
     {
-      new_index = ap_shuffle_lst->length - abs (new_index);
+      new_index = ap_shuffle_lst->length - labs (new_index);
     }
   ap_shuffle_lst->current_index = new_index;
   assert (new_index >= 0 && new_index < ap_shuffle_lst->length);

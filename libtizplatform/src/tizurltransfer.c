@@ -732,7 +732,6 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
                                "stored %d).",
                                nbytes, nbytes_available);
                     }
-                  nbytes -= nbytes_available;
                 }
             }
         }
@@ -1007,8 +1006,7 @@ OMX_ERRORTYPE tiz_urltrans_init (
     const tiz_urltrans_event_io_cbacks_t a_io_cbacks,
     const tiz_urltrans_event_timer_cbacks_t a_timer_cbacks)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_urltrans_t *p_trans = NULL;
+  OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
   assert (app_trans);
   assert (ap_parent);
@@ -1016,57 +1014,65 @@ OMX_ERRORTYPE tiz_urltrans_init (
   assert (ap_uri_param);
   assert (a_store_bytes > 0);
 
-  p_trans = (tiz_urltrans_t *)calloc (1, sizeof (tiz_urltrans_t));
-  rc = p_trans ? OMX_ErrorNone : OMX_ErrorInsufficientResources;
-  goto_end_on_omx_error (rc, "Unable to alloc the http transfer object");
-
-  p_trans->p_parent_ = ap_parent; /* Not owned */
-  p_trans->p_comp_name_ = ap_comp_name; /* Not owned */
-  p_trans->p_uri_param_ = ap_uri_param; /* Not owned */
-  p_trans->store_bytes_ = a_store_bytes;
-  p_trans->reconnect_timeout_ = a_reconnect_timeout;
-
-  p_trans->buffer_cbacks_ = a_buffer_cbacks;
-  p_trans->info_cbacks_ = a_info_cbacks;
-  p_trans->io_cbacks_ = a_io_cbacks;
-  p_trans->timer_cbacks_ = a_timer_cbacks;
-
-  p_trans->p_ev_io_ = NULL;
-  p_trans->sockfd_ = -1;
-  p_trans->io_type_ = TIZ_EVENT_READ;
-  p_trans->awaiting_io_ev_ = false;
-  p_trans->p_ev_curl_timer_ = NULL;
-  p_trans->awaiting_curl_timer_ev_ = false;
-  p_trans->curl_timeout_ = 0;
-  p_trans->p_ev_reconnect_timer_ = NULL;
-  p_trans->awaiting_reconnect_timer_ev_ = false;
-  p_trans->p_store_ = NULL;
-  p_trans->internal_buffer_size_ = 0;
-  p_trans->internal_buffer_size_initial_ = 0;
-  p_trans->p_curl_ = NULL;
-  p_trans->p_curl_multi_ = NULL;
-  p_trans->p_http_ok_aliases_ = NULL;
-  p_trans->p_http_headers_ = NULL;
-  p_trans->curl_state_ = ECurlStateStopped;
-  p_trans->curl_version_ = 0;
-
-  rc = allocate_temp_data_store (p_trans);
-  goto_end_on_omx_error (rc, "Unable to alloc the data store");
-
-  rc = allocate_events (p_trans);
-  goto_end_on_omx_error (rc, "Unable to alloc the timer events");
-
-  rc = allocate_curl_resources (p_trans);
-  goto_end_on_omx_error (rc, "Unable to alloc the timer events");
-
-end:
-  if (OMX_ErrorNone != rc)
+  if (app_trans && ap_parent && ap_comp_name && ap_uri_param
+      && a_store_bytes > 0)
     {
-      tiz_urltrans_destroy (p_trans);
-      p_trans = NULL;
-    }
+      tiz_urltrans_t *p_trans
+          = (tiz_urltrans_t *)calloc (1, sizeof (tiz_urltrans_t));
+      rc = (p_trans != NULL ? OMX_ErrorNone : OMX_ErrorInsufficientResources);
+      goto_end_on_omx_error (rc, "Unable to alloc the http transfer object");
 
-  *app_trans = p_trans;
+      if (p_trans)
+        {
+          p_trans->p_parent_ = ap_parent;       /* Not owned */
+          p_trans->p_comp_name_ = ap_comp_name; /* Not owned */
+          p_trans->p_uri_param_ = ap_uri_param; /* Not owned */
+          p_trans->store_bytes_ = a_store_bytes;
+          p_trans->reconnect_timeout_ = a_reconnect_timeout;
+
+          p_trans->buffer_cbacks_ = a_buffer_cbacks;
+          p_trans->info_cbacks_ = a_info_cbacks;
+          p_trans->io_cbacks_ = a_io_cbacks;
+          p_trans->timer_cbacks_ = a_timer_cbacks;
+
+          p_trans->p_ev_io_ = NULL;
+          p_trans->sockfd_ = -1;
+          p_trans->io_type_ = TIZ_EVENT_READ;
+          p_trans->awaiting_io_ev_ = false;
+          p_trans->p_ev_curl_timer_ = NULL;
+          p_trans->awaiting_curl_timer_ev_ = false;
+          p_trans->curl_timeout_ = 0;
+          p_trans->p_ev_reconnect_timer_ = NULL;
+          p_trans->awaiting_reconnect_timer_ev_ = false;
+          p_trans->p_store_ = NULL;
+          p_trans->internal_buffer_size_ = 0;
+          p_trans->internal_buffer_size_initial_ = 0;
+          p_trans->p_curl_ = NULL;
+          p_trans->p_curl_multi_ = NULL;
+          p_trans->p_http_ok_aliases_ = NULL;
+          p_trans->p_http_headers_ = NULL;
+          p_trans->curl_state_ = ECurlStateStopped;
+          p_trans->curl_version_ = 0;
+
+          rc = allocate_temp_data_store (p_trans);
+          goto_end_on_omx_error (rc, "Unable to alloc the data store");
+
+          rc = allocate_events (p_trans);
+          goto_end_on_omx_error (rc, "Unable to alloc the timer events");
+
+          rc = allocate_curl_resources (p_trans);
+          goto_end_on_omx_error (rc, "Unable to alloc the timer events");
+        }
+
+    end:
+      if (OMX_ErrorNone != rc)
+        {
+          tiz_urltrans_destroy (p_trans);
+          p_trans = NULL;
+        }
+
+      *app_trans = p_trans;
+    }
   return rc;
 }
 
