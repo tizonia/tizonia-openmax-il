@@ -210,9 +210,8 @@ static OMX_ERRORTYPE
 loaded_trans_complete (const void *ap_obj,
                        OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_DEBUG (handleOf(ap_servant),
-            "Trans complete to state [%s]...",
-            tiz_fsm_state_to_str (a_new_state));
+  TIZ_DEBUG (handleOf (ap_servant), "Trans complete to state [%s]...",
+             tiz_fsm_state_to_str ((tiz_fsm_state_id_t)a_new_state));
   assert (OMX_StateWaitForResources == a_new_state
           || OMX_StateIdle == a_new_state);
   return tiz_state_super_trans_complete (typeOf (ap_obj, "tizloaded"), ap_obj, ap_servant,

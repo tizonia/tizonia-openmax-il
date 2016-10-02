@@ -119,34 +119,35 @@ static OMX_ERRORTYPE uri_cfgport_GetParameter (const void *ap_obj,
     {
       case OMX_IndexParamContentURI:
         {
-          OMX_PARAM_CONTENTURITYPE *p_uri
-              = (OMX_PARAM_CONTENTURITYPE *)ap_struct;
-          OMX_U32 uri_buf_size = p_uri->nSize - sizeof(OMX_U32)
-                                 - sizeof(OMX_VERSIONTYPE);
-          OMX_U32 uri_len = 0;
-
-          TIZ_TRACE (ap_hdl, "uri_buf_size [%d]...", uri_buf_size);
-
           if (p_obj->p_uri_)
             {
-              uri_len = strlen (p_obj->p_uri_);
-            }
+              OMX_PARAM_CONTENTURITYPE *p_uri
+                  = (OMX_PARAM_CONTENTURITYPE *)ap_struct;
+              const OMX_U32 uri_len = strlen (p_obj->p_uri_);
 
-          if (uri_buf_size < (uri_len + 1))
-            {
-              rc = OMX_ErrorBadParameter;
-            }
-          else
-            {
-              p_uri->nVersion.nVersion = OMX_VERSION;
-              if (p_uri->contentURI)
+              if (p_uri && uri_len > 0)
                 {
-                  if (p_obj->p_uri_ && uri_len > 0)
+                  OMX_U32 uri_buf_offset
+                      = sizeof (OMX_U32) + sizeof (OMX_VERSIONTYPE);
+                  OMX_U32 uri_buf_size = (p_uri->nSize >= uri_buf_offset
+                                              ? p_uri->nSize - uri_buf_offset
+                                              : 0);
+
+                  TIZ_TRACE (ap_hdl, "uri_buf_size [%d]...", uri_buf_size);
+
+                  if (uri_buf_size < (uri_len + 1))
                     {
-                      strncpy ((char *)p_uri->contentURI, p_obj->p_uri_,
-                               uri_len + 1);
+                      rc = OMX_ErrorBadParameter;
                     }
-                  p_uri->contentURI[uri_len] = '\0';
+                  else
+                    {
+                      char *p_dest = (char *)p_uri->contentURI;
+                      assert (p_dest);
+                      assert (uri_len > 0);
+                      p_uri->nVersion.nVersion = OMX_VERSION;
+                      strncpy (p_dest, p_obj->p_uri_, uri_len);
+                      p_dest[uri_len] = '\0';
+                    }
                 }
             }
         }

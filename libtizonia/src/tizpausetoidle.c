@@ -87,9 +87,8 @@ pausetoidle_trans_complete (const void *ap_obj,
 {
   const tiz_state_t *p_base = (const tiz_state_t *) ap_obj;
 
-  TIZ_TRACE (handleOf (ap_obj),
-            "Trans complete to state [%s]...",
-            tiz_fsm_state_to_str (a_new_state));
+  TIZ_TRACE (handleOf (ap_obj), "Trans complete to state [%s]...",
+             tiz_fsm_state_to_str ((tiz_fsm_state_id_t)a_new_state));
   assert (OMX_StateIdle == a_new_state);
 
   assert (ap_obj);

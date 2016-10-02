@@ -134,9 +134,8 @@ static OMX_ERRORTYPE
 idletoexecuting_trans_complete (const void *ap_obj,
                                 OMX_PTR ap_servant, OMX_STATETYPE a_new_state)
 {
-  TIZ_TRACE (handleOf (ap_servant),
-            "Trans complete to state [%s]...",
-            tiz_fsm_state_to_str (a_new_state));
+  TIZ_TRACE (handleOf (ap_servant), "Trans complete to state [%s]...",
+             tiz_fsm_state_to_str ((tiz_fsm_state_id_t)a_new_state));
 
   assert (ap_obj);
   assert (ap_servant);

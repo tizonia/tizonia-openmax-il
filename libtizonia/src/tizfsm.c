@@ -1092,7 +1092,7 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
 
   TIZ_TRACE (p_hdl, "Servant [%s] notifies transition complete "
             "(to state [%s])", nameOf (ap_servant),
-            tiz_fsm_state_to_str (a_new_state));
+            tiz_fsm_state_to_str ((tiz_fsm_state_id_t)a_new_state));
 
   /* Validate that this is not an remnant from a cancelled transition */
   if ((ESubStateLoadedToIdle == p_obj->cur_state_id_
@@ -1108,10 +1108,12 @@ fsm_complete_transition (void *ap_obj, const void *ap_servant,
        && OMX_StateIdle != a_new_state))
     {
       /* Ignore this as this transition is not relevant anymore */
-      TIZ_TRACE (p_hdl, "[%s] Ignoring Servant [%s] "
-                "transition complete notification (to state [%s])",
-                tiz_fsm_state_to_str (p_obj->cur_state_id_),
-                nameOf (ap_servant), tiz_fsm_state_to_str (a_new_state));
+      TIZ_TRACE (p_hdl,
+                 "[%s] Ignoring Servant [%s] "
+                 "transition complete notification (to state [%s])",
+                 tiz_fsm_state_to_str (p_obj->cur_state_id_),
+                 nameOf (ap_servant),
+                 tiz_fsm_state_to_str ((tiz_fsm_state_id_t)a_new_state));
       return OMX_ErrorNone;
     }
 

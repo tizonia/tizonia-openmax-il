@@ -242,7 +242,7 @@ pause_trans_complete (const void *ap_obj,
 {
   TIZ_TRACE (handleOf (ap_servant),
             "Trans complete to state [%s]...",
-            tiz_fsm_state_to_str (a_new_state));
+             tiz_fsm_state_to_str ((tiz_fsm_state_id_t)a_new_state));
   assert (OMX_StatePause == a_new_state || OMX_StateIdle == a_new_state
           || OMX_StateExecuting == a_new_state);
   return tiz_state_super_trans_complete (typeOf (ap_obj, "tizpause"), ap_obj, ap_servant,

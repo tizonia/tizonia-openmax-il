@@ -181,10 +181,14 @@ configport_GetComponentVersion (const void *ap_obj,
                                 OMX_UUIDTYPE * ap_comp_uuid)
 {
   const tiz_configport_t *p_obj = ap_obj;
+  size_t str_len = 0;
 
   TIZ_TRACE (ap_hdl, "GetComponentVersion...");
 
-  strcpy (ap_comp_name, p_obj->comp_name_);
+  strncpy (ap_comp_name, p_obj->comp_name_, OMX_MAX_STRINGNAME_SIZE);
+  str_len = strnlen (ap_comp_name, OMX_MAX_STRINGNAME_SIZE - 1);
+  ap_comp_name[str_len] = '\0';
+
   *ap_comp_version = p_obj->comp_ver_;
   ap_spec_version->nVersion = OMX_VERSION;
 

@@ -541,7 +541,7 @@ static void srv_issue_trans_event (void *ap_obj, OMX_STATETYPE a_state,
 {
   TIZ_NOTICE (handleOf (ap_obj),
               "[OMX_EventCmdComplete] [OMX_CommandStateSet] [%s]",
-              tiz_fsm_state_to_str (a_state));
+              tiz_fsm_state_to_str ((tiz_fsm_state_id_t)a_state));
   srv_issue_event (ap_obj, OMX_EventCmdComplete, OMX_CommandStateSet, a_state,
                    (OMX_PTR)a_error);
 }

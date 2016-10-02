@@ -537,7 +537,7 @@ static OMX_ERRORTYPE dispatch_cb (void *ap_obj, OMX_PTR ap_msg)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   tiz_krn_msg_t *p_msg = ap_msg;
   tiz_krn_msg_callback_t *p_msg_cb = NULL;
-  tiz_fsm_state_id_t now = OMX_StateMax;
+  tiz_fsm_state_id_t now = (tiz_fsm_state_id_t)OMX_StateMax;
   tiz_vector_t *p_egress_lst = NULL;
   OMX_PTR p_port = NULL;
   OMX_S32 claimed_count = 0;

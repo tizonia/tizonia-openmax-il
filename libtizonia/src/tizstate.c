@@ -355,10 +355,10 @@ state_trans_complete (const void *ap_obj,
   p_obj->servants_count_++;
 
   TIZ_TRACE (handleOf (ap_obj),
-            "Transition to [%s] is NOW complete at [%s]..."
-            "Servant count is now [%d]...",
-            tiz_fsm_state_to_str (a_new_state), nameOf (ap_servant),
-            p_obj->servants_count_);
+             "Transition to [%s] is NOW complete at [%s]..."
+             "Servant count is now [%d]...",
+             tiz_fsm_state_to_str ((tiz_fsm_state_id_t)a_new_state),
+             nameOf (ap_servant), p_obj->servants_count_);
 
   /* Check that the two servats are complete */
   if (2 == p_obj->servants_count_)
