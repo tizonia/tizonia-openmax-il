@@ -517,7 +517,7 @@ static OMX_ERRORTYPE retrieve_playlist (spfysrc_prc_t *ap_prc)
 static sp_connection_type omx_connection_type_to_spfy (
     const OMX_TIZONIA_AUDIO_SPOTIFYCONNECTIONTYPE a_conn_type)
 {
-  sp_connection_type spfy_conn = OMX_AUDIO_SpotifyConnectionUnknown;
+  sp_connection_type spfy_conn = (sp_connection_type)OMX_AUDIO_SpotifyConnectionUnknown;
   switch (a_conn_type)
     {
       case OMX_AUDIO_SpotifyConnectionUnknown:
