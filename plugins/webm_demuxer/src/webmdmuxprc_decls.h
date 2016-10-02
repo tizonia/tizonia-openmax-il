@@ -54,6 +54,8 @@ struct webmdmux_prc
   bool port_disabled_;
   bool auto_detect_on_;
   OMX_S32 audio_coding_type_;
+  int bitrate_;
+  int cache_bytes_;
   nestegg * p_ne_ctx_;
   nestegg_io ne_io_;
 };
