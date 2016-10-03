@@ -52,6 +52,7 @@ struct webmdmux_prc
   tiz_urltrans_t *p_trans_;
   bool eos_;
   bool port_disabled_;
+  bool uri_changed_;
   bool auto_detect_on_;
   OMX_S32 audio_coding_type_;
   int bitrate_;

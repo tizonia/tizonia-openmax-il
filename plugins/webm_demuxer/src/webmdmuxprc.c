@@ -33,6 +33,8 @@
 #include <assert.h>
 #include <string.h>
 
+#include <OMX_TizoniaExt.h>
+
 #include <tizplatform.h>
 
 #include <tizkernel.h>
@@ -444,6 +446,7 @@ static void *webmdmux_prc_ctor (void *ap_prc, va_list *app)
   p_prc->p_trans_ = NULL;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
+  p_prc->uri_changed_ = false;
   p_prc->auto_detect_on_ = false;
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->bitrate_ = ARATELIA_WEBM_DEMUXER_DEFAULT_BIT_RATE_KBITS;
@@ -566,28 +569,87 @@ static OMX_ERRORTYPE webmdmux_prc_stop_and_return (void *ap_prc)
 
 static OMX_ERRORTYPE webmdmux_prc_buffers_ready (const void *ap_prc)
 {
-  /*   webmdmux_prc_t *p_prc = (webmdmux_prc_t *)ap_prc; */
+  webmdmux_prc_t *p_prc = (webmdmux_prc_t *)ap_prc;
+  assert (p_prc);
+  return tiz_urltrans_on_buffers_ready (p_prc->p_trans_);
+}
+
+static OMX_ERRORTYPE webmdmux_prc_io_ready (void *ap_prc,
+                                          tiz_event_io_t *ap_ev_io, int a_fd,
+                                          int a_events)
+{
+  webmdmux_prc_t *p_prc = ap_prc;
+  assert (p_prc);
+  return tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
+}
+
+static OMX_ERRORTYPE webmdmux_prc_timer_ready (void *ap_prc,
+                                             tiz_event_timer_t *ap_ev_timer,
+                                             void *ap_arg, const uint32_t a_id)
+{
+  webmdmux_prc_t *p_prc = ap_prc;
+  assert (p_prc);
+  return tiz_urltrans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
+}
+
+static OMX_ERRORTYPE webmdmux_prc_pause (const void *ap_obj)
+{
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE webmdmux_prc_resume (const void *ap_obj)
+{
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE webmdmux_prc_port_flush (const void *ap_obj,
+                                            OMX_U32 TIZ_UNUSED (a_pid))
+{
+  webmdmux_prc_t *p_prc = (webmdmux_prc_t *)ap_obj;
+  if (p_prc->p_trans_)
+    {
+      tiz_urltrans_flush_buffer (p_prc->p_trans_);
+    }
+  return release_buffer (p_prc);
+}
+
+static OMX_ERRORTYPE webmdmux_prc_port_disable (const void *ap_obj,
+                                              OMX_U32 TIZ_UNUSED (a_pid))
+{
+  webmdmux_prc_t *p_prc = (webmdmux_prc_t *)ap_obj;
+  assert (p_prc);
+  TIZ_PRINTF_DBG_RED ("Disabling port was disabled? [%s]\n",
+                      p_prc->port_disabled_ ? "YES" : "NO");
+  p_prc->port_disabled_ = true;
+  if (p_prc->p_trans_)
+    {
+      tiz_urltrans_pause (p_prc->p_trans_);
+      tiz_urltrans_flush_buffer (p_prc->p_trans_);
+    }
+  /* Release any buffers held  */
+  return release_buffer ((webmdmux_prc_t *)ap_obj);
+}
+
+static OMX_ERRORTYPE webmdmux_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
+{
+  webmdmux_prc_t *p_prc = (webmdmux_prc_t *)ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-
-  /*   assert (ap_prc); */
-
-  /*   if (!p_prc->demuxer_inited_) */
-  /*     { */
-  /*       rc = init_demuxer (p_prc); */
-  /*     } */
-
-  /*   if (p_prc->demuxer_inited_ && OMX_ErrorNone == rc) */
-  /*     { */
-  /*       while (OMX_ErrorNone == rc) */
-  /*         { */
-  /*           rc = transform_buffer (p_prc); */
-  /*         } */
-  /*       if (OMX_ErrorNotReady == rc) */
-  /*         { */
-  /*           rc = OMX_ErrorNone; */
-  /*         } */
-  /*     } */
-
+  assert (p_prc);
+  TIZ_PRINTF_DBG_RED ("Enabling port was disabled? [%s]\n",
+                      p_prc->port_disabled_ ? "YES" : "NO");
+  if (p_prc->port_disabled_)
+    {
+      p_prc->port_disabled_ = false;
+      if (!p_prc->uri_changed_)
+        {
+          rc = tiz_urltrans_unpause (p_prc->p_trans_);
+        }
+      else
+        {
+          p_prc->uri_changed_ = false;
+          rc = tiz_urltrans_start (p_prc->p_trans_);
+        }
+    }
   return rc;
 }
 
@@ -646,7 +708,21 @@ void *webmdmux_prc_init (void *ap_tos, void *ap_hdl)
        /* TIZ_CLASS_COMMENT: */
        tiz_srv_stop_and_return, webmdmux_prc_stop_and_return,
        /* TIZ_CLASS_COMMENT: */
+       tiz_srv_io_ready, webmdmux_prc_io_ready,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_srv_timer_ready, webmdmux_prc_timer_ready,
+       /* TIZ_CLASS_COMMENT: */
        tiz_prc_buffers_ready, webmdmux_prc_buffers_ready,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_pause, webmdmux_prc_pause,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_resume, webmdmux_prc_resume,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_port_flush, webmdmux_prc_port_flush,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_port_disable, webmdmux_prc_port_disable,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_prc_port_enable, webmdmux_prc_port_enable,
        /* TIZ_CLASS_COMMENT: stop value */
        0);
 
