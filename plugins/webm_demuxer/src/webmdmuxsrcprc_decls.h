@@ -17,7 +17,7 @@
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file   webmdmuxprc_decls.h
+ * @file   webmdmuxsrcprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia - WebM Demuxer processor declarations
@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef WEBMDMUXPRC_DECLS_H
-#define WEBMDMUXPRC_DECLS_H
+#ifndef WEBMDMUXSRCPRC_DECLS_H
+#define WEBMDMUXSRCPRC_DECLS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,8 +42,8 @@ extern "C" {
 
 #include "nestegg.h"
 
-typedef struct webmdmux_prc webmdmux_prc_t;
-struct webmdmux_prc
+typedef struct webmdmuxsrc_prc webmdmuxsrc_prc_t;
+struct webmdmuxsrc_prc
 {
   /* Object */
   const tiz_prc_t _;
@@ -61,8 +61,8 @@ struct webmdmux_prc
   nestegg_io ne_io_;
 };
 
-typedef struct webmdmux_prc_class webmdmux_prc_class_t;
-struct webmdmux_prc_class
+typedef struct webmdmuxsrc_prc_class webmdmuxsrc_prc_class_t;
+struct webmdmuxsrc_prc_class
 {
   /* Class */
   const tiz_prc_class_t _;
@@ -73,4 +73,4 @@ struct webmdmux_prc_class
 }
 #endif
 
-#endif /* WEBMDMUXPRC_DECLS_H */
+#endif /* WEBMDMUXSRCPRC_DECLS_H */

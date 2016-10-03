@@ -18,7 +18,7 @@
  */
 
 /**
- * @file   webmdmuxprc.h
+ * @file   webmdmuxsrcprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
  * @brief  Tizonia - WebM Demuxer processor
@@ -26,19 +26,19 @@
  *
  */
 
-#ifndef WEBMDMUXPRC_H
-#define WEBMDMUXPRC_H
+#ifndef WEBMDMUXSRCPRC_H
+#define WEBMDMUXSRCPRC_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  void * webmdmux_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * webmdmux_prc_init (void * ap_tos, void * ap_hdl);
+  void * webmdmuxsrc_prc_class_init (void * ap_tos, void * ap_hdl);
+  void * webmdmuxsrc_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* WEBMDMUXPRC_H */
+#endif                          /* WEBMDMUXSRCPRC_H */
