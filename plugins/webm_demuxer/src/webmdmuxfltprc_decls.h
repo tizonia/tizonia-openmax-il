@@ -36,9 +36,10 @@ extern "C" {
 
 #include <OMX_Core.h>
 
-#include <tizprc_decls.h>
-
 #include <tizplatform.h>
+
+#include <tizfilterprc.h>
+#include <tizfilterprc_decls.h>
 
 #include "nestegg.h"
 
@@ -46,10 +47,11 @@ typedef struct webmdmuxflt_prc webmdmuxflt_prc_t;
 struct webmdmuxflt_prc
 {
   /* Object */
-  const tiz_prc_t _;
+  const tiz_filter_prc_t _;
   OMX_BUFFERHEADERTYPE *p_outhdr_;
-  bool eos_;
-  bool port_disabled_;
+  tiz_buffer_t *p_store_;
+  OMX_U32 store_offset_;
+  bool demuxer_inited_;
   bool auto_detect_on_;
   OMX_S32 audio_coding_type_;
   int bitrate_;
@@ -62,7 +64,7 @@ typedef struct webmdmuxflt_prc_class webmdmuxflt_prc_class_t;
 struct webmdmuxflt_prc_class
 {
   /* Class */
-  const tiz_prc_class_t _;
+  const tiz_filter_prc_class_t _;
   /* NOTE: Class methods might be added in the future */
 };
 
