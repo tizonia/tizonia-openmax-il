@@ -294,6 +294,8 @@ static void *opusfiled_prc_ctor (void *ap_obj, va_list *app)
   opusfiled_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "opusfiledprc"), ap_obj, app);
   assert (p_prc);
+  p_prc->p_opus_dec_ = NULL;
+  p_prc->p_store_ = NULL;
   reset_stream_parameters (p_prc);
   return p_prc;
 }
