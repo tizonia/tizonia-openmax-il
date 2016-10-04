@@ -48,11 +48,8 @@ struct webmdmuxflt_prc
   /* Object */
   const tiz_prc_t _;
   OMX_BUFFERHEADERTYPE *p_outhdr_;
-  OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  tiz_urltrans_t *p_trans_;
   bool eos_;
   bool port_disabled_;
-  bool uri_changed_;
   bool auto_detect_on_;
   OMX_S32 audio_coding_type_;
   int bitrate_;
