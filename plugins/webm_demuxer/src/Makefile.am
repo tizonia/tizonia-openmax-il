@@ -24,7 +24,9 @@ noinst_HEADERS = \
 	webmdmuxsrcprc.h \
 	webmdmuxsrcprc_decls.h \
 	webmdmuxfltprc.h \
-	webmdmuxfltprc_decls.h
+	webmdmuxfltprc_decls.h \
+	webmdmuxfltport.h \
+	webmdmuxfltport_decls.h
 
 libtizwebmdemux_la_SOURCES = \
 	nestegg/halloc/src/halloc.c \
@@ -36,7 +38,8 @@ libtizwebmdemux_la_SOURCES = \
 	nestegg/src/nestegg.c \
 	webmdmux.c \
 	webmdmuxsrcprc.c \
-	webmdmuxfltprc.c
+	webmdmuxfltprc.c \
+	webmdmuxfltport.c
 
 libtizwebmdemux_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \

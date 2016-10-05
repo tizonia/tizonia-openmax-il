@@ -54,18 +54,18 @@ static OMX_ERRORTYPE webmdmuxflt_prc_deallocate_resources (void *);
 static OMX_ERRORTYPE release_buffer (webmdmuxflt_prc_t *);
 static OMX_ERRORTYPE prepare_for_port_auto_detection (webmdmuxflt_prc_t *ap_prc);
 
-#define on_nestegg_error_ret_omx_oom(expr)                                   \
-  do                                                                         \
-    {                                                                        \
-      int nestegg_error = 0;                                                 \
-      if (0 != (nestegg_error = (expr)))                                     \
-        {                                                                    \
-          TIZ_ERROR (handleOf (p_prc),                                       \
-                     "[OMX_ErrorInsufficientResources] : error while using " \
-                     "libnestegg");                                          \
-          return OMX_ErrorInsufficientResources;                             \
-        }                                                                    \
-    }                                                                        \
+#define on_nestegg_error_ret_omx_oom(expr)                            \
+  do                                                                  \
+    {                                                                 \
+      int nestegg_error = 0;                                          \
+      if (0 != (nestegg_error = (expr)))                              \
+        {                                                             \
+          TIZ_ERROR (handleOf (p_prc),                                \
+                     "[OMX_ErrorInsufficientResources] : while using" \
+                     "libnestegg");                                   \
+          return OMX_ErrorInsufficientResources;                      \
+        }                                                             \
+    }                                                                 \
   while (0)
 
 static int ne_io_read (void *a_buffer, size_t a_length, void *a_userdata)
@@ -602,10 +602,10 @@ static void *webmdmuxflt_prc_class_ctor (void *ap_prc, va_list *app)
 
 void *webmdmuxflt_prc_class_init (void *ap_tos, void *ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void *tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
   void *webmdmuxfltprc_class = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizprc), "webmdmuxfltprc_class", classOf (tizprc),
+      (classOf (tizfilterprc), "webmdmuxfltprc_class", classOf (tizfilterprc),
        sizeof (webmdmuxflt_prc_class_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
@@ -618,12 +618,12 @@ void *webmdmuxflt_prc_class_init (void *ap_tos, void *ap_hdl)
 
 void *webmdmuxflt_prc_init (void *ap_tos, void *ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void *tizfilterprc = tiz_get_type (ap_hdl, "tizfilterprc");
   void *webmdmuxfltprc_class = tiz_get_type (ap_hdl, "webmdmuxfltprc_class");
   TIZ_LOG_CLASS (webmdmuxfltprc_class);
   void *webmdmuxfltprc = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (webmdmuxfltprc_class, "webmdmuxfltprc", tizprc, sizeof (webmdmuxflt_prc_t),
+      (webmdmuxfltprc_class, "webmdmuxfltprc", tizfilterprc, sizeof (webmdmuxflt_prc_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
        /* TIZ_CLASS_COMMENT: class constructor */

@@ -44,6 +44,7 @@
 
 #include "webmdmuxsrcprc.h"
 #include "webmdmuxfltprc.h"
+#include "webmdmuxfltport.h"
 #include "webmdmux.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
@@ -138,7 +139,9 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   tiz_type_factory_t webmdmuxsrcprc_type;
   tiz_type_factory_t webmdmuxfltprc_type;
-  const tiz_type_factory_t *tf_list[] = { &webmdmuxsrcprc_type, &webmdmuxfltprc_type };
+  tiz_type_factory_t webmdmuxfltport_type;
+
+  const tiz_type_factory_t *tf_list[] = { &webmdmuxsrcprc_type, &webmdmuxfltprc_type, &webmdmuxfltport_type };
 
   strcpy ((OMX_STRING) source_role_factory.role, ARATELIA_WEBM_DEMUXER_SOURCE_ROLE);
   source_role_factory.pf_cport   = instantiate_source_config_port;
@@ -162,11 +165,16 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   strcpy ((OMX_STRING) webmdmuxfltprc_type.object_name, "webmdmuxfltprc");
   webmdmuxfltprc_type.pf_object_init = webmdmuxflt_prc_init;
 
+  strcpy ((OMX_STRING) webmdmuxfltport_type.class_name, "webmdmuxfltport_class");
+  webmdmuxfltport_type.pf_class_init = webmdmuxflt_port_class_init;
+  strcpy ((OMX_STRING) webmdmuxfltport_type.object_name, "webmdmuxfltport");
+  webmdmuxfltport_type.pf_object_init = webmdmuxflt_port_init;
+
   /* Initialize the component infrastructure */
   tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_WEBM_DEMUXER_COMPONENT_NAME));
 
   /* Register the various classes */
-  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 2));
+  tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 3));
 
   /* Register the component roles */
   tiz_check_omx_err (tiz_comp_register_roles (ap_hdl, rf_list, 2));
