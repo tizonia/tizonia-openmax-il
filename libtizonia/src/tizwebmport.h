@@ -18,27 +18,27 @@
  */
 
 /**
- * @file   webmdmuxfltport.h
+ * @file   tizwebmport.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief A specialised port class for the WebM demuxer filter role
+ * @brief Tizonia OpenMAX IL - webmport class
  *
  *
  */
 
-#ifndef WEBMDMUXFLTPORT_H
-#define WEBMDMUXFLTPORT_H
+#ifndef TIZWEBMPORT_H
+#define TIZWEBMPORT_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  void * webmdmuxflt_port_class_init (void * ap_tos, void * ap_hdl);
-  void * webmdmuxflt_port_init (void * ap_tos, void * ap_hdl);
+  void * tizwebm_port_class_init (void * ap_tos, void * ap_hdl);
+  void * tizwebm_port_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* WEBMDMUXFLTPORT_H */
+#endif                          /* TIZWEBMPORT_H */

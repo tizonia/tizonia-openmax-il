@@ -85,6 +85,8 @@ libtizonia_include_HEADERS = \
 	tizivrport.h \
 	tizdemuxerport_decls.h \
 	tizdemuxerport.h \
+	tizwebmport_decls.h \
+	tizwebmport.h \
 	tizuricfgport.h \
 	tizuricfgport_decls.h \
 	tizdemuxercfgport.h \
@@ -132,6 +134,7 @@ libtizonia_la_SOURCES = \
 	tizvp8port.c \
 	tizivrport.c \
 	tizdemuxerport.c \
+	tizwebmport.c \
 	tizuricfgport.c \
 	tizdemuxercfgport.c
 

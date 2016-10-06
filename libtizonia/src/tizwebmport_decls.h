@@ -18,42 +18,41 @@
  */
 
 /**
- * @file   webmdmuxfltport_decls.h
+ * @file   tizwebmport_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  A specialised port class for the HTTP source component - class decls
+ * @brief  Tizonia OpenMAX IL - webmport class declarations
  *
  *
  */
 
-#ifndef WEBMDMUXFLTPORT_DECLS_H
-#define WEBMDMUXFLTPORT_DECLS_H
+#ifndef TIZWEBMPORT_DECLS_H
+#define TIZWEBMPORT_DECLS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <OMX_Audio.h>
 #include <OMX_TizoniaExt.h>
 #include <OMX_Types.h>
 
-#include <tizaudioport_decls.h>
+#include <tizport_decls.h>
 
-typedef struct webmdmuxflt_port webmdmuxflt_port_t;
-struct webmdmuxflt_port
+typedef struct tizwebm_port tizwebm_port_t;
+struct tizwebm_port
 {
   /* Object */
-  const tiz_audioport_t _;
+  const tiz_port_t _;
   OMX_AUDIO_PARAM_MP3TYPE mp3type_;
   OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
 };
 
-typedef struct webmdmuxflt_port_class webmdmuxflt_port_class_t;
-struct webmdmuxflt_port_class
+typedef struct tizwebm_port_class tizwebm_port_class_t;
+struct tizwebm_port_class
 {
   /* Class */
-  const tiz_audioport_class_t _;
+  const tiz_port_class_t _;
   /* NOTE: Class methods might be added in the future */
 };
 
@@ -61,4 +60,4 @@ struct webmdmuxflt_port_class
 }
 #endif
 
-#endif /* WEBMDMUXFLTPORT_DECLS_H */
+#endif /* TIZWEBMPORT_DECLS_H */
