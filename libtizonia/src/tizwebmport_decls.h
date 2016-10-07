@@ -38,18 +38,15 @@ extern "C" {
 
 #include <tizport_decls.h>
 
-typedef struct tizwebm_port tizwebm_port_t;
-struct tizwebm_port
+typedef struct tiz_webmport tiz_webmport_t;
+struct tiz_webmport
 {
   /* Object */
   const tiz_port_t _;
-  OMX_AUDIO_PARAM_MP3TYPE mp3type_;
-  OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
-  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
 };
 
-typedef struct tizwebm_port_class tizwebm_port_class_t;
-struct tizwebm_port_class
+typedef struct tiz_webmport_class tiz_webmport_class_t;
+struct tiz_webmport_class
 {
   /* Class */
   const tiz_port_class_t _;

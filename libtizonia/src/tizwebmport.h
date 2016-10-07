@@ -34,8 +34,8 @@ extern "C"
 {
 #endif
 
-  void * tizwebm_port_class_init (void * ap_tos, void * ap_hdl);
-  void * tizwebm_port_init (void * ap_tos, void * ap_hdl);
+  void * tiz_webmport_class_init (void * ap_tos, void * ap_hdl);
+  void * tiz_webmport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

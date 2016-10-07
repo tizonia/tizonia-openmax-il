@@ -48,9 +48,9 @@
  * tizwebmport class
  */
 
-static void *tizwebm_port_ctor (void *ap_obj, va_list *app)
+static void *webmport_ctor (void *ap_obj, va_list *app)
 {
-  tizwebm_port_t *p_obj
+  tiz_webmport_t *p_obj
       = super_ctor (typeOf (ap_obj, "tizwebmport"), ap_obj, app);
   assert (p_obj);
 
@@ -60,9 +60,9 @@ static void *tizwebm_port_ctor (void *ap_obj, va_list *app)
   return p_obj;
 }
 
-static void *tizwebm_port_dtor (void *ap_obj)
+static void *webmport_dtor (void *ap_obj)
 {
-  tizwebm_port_t *p_obj = ap_obj;
+  tiz_webmport_t *p_obj = ap_obj;
   assert (p_obj);
   return super_dtor (typeOf (ap_obj, "tizwebmport"), ap_obj);
 }
@@ -71,12 +71,12 @@ static void *tizwebm_port_dtor (void *ap_obj)
  * from tiz_api
  */
 
-static OMX_ERRORTYPE tizwebm_port_GetParameter (const void *ap_obj,
+static OMX_ERRORTYPE webmport_GetParameter (const void *ap_obj,
                                                  OMX_HANDLETYPE ap_hdl,
                                                  OMX_INDEXTYPE a_index,
                                                  OMX_PTR ap_struct)
 {
-  const tizwebm_port_t *p_obj = ap_obj;
+  const tiz_webmport_t *p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -125,12 +125,12 @@ static OMX_ERRORTYPE tizwebm_port_GetParameter (const void *ap_obj,
   return rc;
 }
 
-static OMX_ERRORTYPE tizwebm_port_SetParameter (const void *ap_obj,
+static OMX_ERRORTYPE webmport_SetParameter (const void *ap_obj,
                                                 OMX_HANDLETYPE ap_hdl,
                                                 OMX_INDEXTYPE a_index,
                                                 OMX_PTR ap_struct)
 {
-  tizwebm_port_t *p_obj = (tizwebm_port_t *)ap_obj;
+  tiz_webmport_t *p_obj = (tiz_webmport_t *)ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -160,7 +160,7 @@ static OMX_ERRORTYPE tizwebm_port_SetParameter (const void *ap_obj,
   return rc;
 }
 
-static bool tizwebm_port_check_tunnel_compat (
+static bool webmport_check_tunnel_compat (
     const void *ap_obj, OMX_PARAM_PORTDEFINITIONTYPE *ap_this_def,
     OMX_PARAM_PORTDEFINITIONTYPE *ap_other_def)
 {
@@ -182,10 +182,10 @@ static bool tizwebm_port_check_tunnel_compat (
 }
 
 /*
- * tizwebm_port_class
+ * tiz_webmport_class
  */
 
-static void *tizwebm_port_class_ctor (void *ap_obj, va_list *app)
+static void *tiz_webmport_class_ctor (void *ap_obj, va_list *app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "tizwebmport_class"), ap_obj, app);
@@ -195,41 +195,41 @@ static void *tizwebm_port_class_ctor (void *ap_obj, va_list *app)
  * initialization
  */
 
-void *tizwebm_port_class_init (void *ap_tos, void *ap_hdl)
+void *tiz_webmport_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizport = tiz_get_type (ap_hdl, "tizport");
   void *tizwebmport_class = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizport), "tizwebmport_class", classOf (tizport), sizeof(tizwebm_port_class_t),
+      (classOf (tizport), "tizwebmport_class", classOf (tizport), sizeof(tiz_webmport_class_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
        /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, tizwebm_port_class_ctor,
+       ctor, tiz_webmport_class_ctor,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
   return tizwebmport_class;
 }
 
-void *tizwebm_port_init (void *ap_tos, void *ap_hdl)
+void *tiz_webmport_init (void *ap_tos, void *ap_hdl)
 {
   void *tizport = tiz_get_type (ap_hdl, "tizport");
   void *tizwebmport_class = tiz_get_type (ap_hdl, "tizwebmport_class");
   TIZ_LOG_CLASS (tizwebmport_class);
   void *tizwebmport = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (tizwebmport_class, "tizwebmport", tizport, sizeof(tizwebm_port_t),
+      (tizwebmport_class, "tizwebmport", tizport, sizeof(tiz_webmport_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
        /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, tizwebm_port_ctor,
+       ctor, webmport_ctor,
        /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, tizwebm_port_dtor,
+       dtor, webmport_dtor,
        /* TIZ_CLASS_COMMENT: */
-       tiz_api_GetParameter, tizwebm_port_GetParameter,
+       tiz_api_GetParameter, webmport_GetParameter,
        /* TIZ_CLASS_COMMENT: */
-       tiz_api_SetParameter, tizwebm_port_SetParameter,
+       tiz_api_SetParameter, webmport_SetParameter,
        /* TIZ_CLASS_COMMENT: */
-       tiz_port_check_tunnel_compat, tizwebm_port_check_tunnel_compat,
+       tiz_port_check_tunnel_compat, webmport_check_tunnel_compat,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
 

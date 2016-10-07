@@ -244,6 +244,8 @@ tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
   tiz_binaryport_init,
   tiz_demuxerport_class_init,
   tiz_demuxerport_init,
+  tiz_webmport_class_init,
+  tiz_webmport_init,
   tiz_uricfgport_class_init,
   tiz_uricfgport_init,
   tiz_demuxercfgport_class_init,
