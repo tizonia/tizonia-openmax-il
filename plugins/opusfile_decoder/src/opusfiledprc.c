@@ -73,7 +73,7 @@ static inline void deallocate_temp_data_store (
   ap_prc->p_store_ = NULL;
 }
 
-OMX_ERRORTYPE release_input_header (opusfiled_prc_t *ap_prc)
+static OMX_ERRORTYPE release_input_header (opusfiled_prc_t *ap_prc)
 {
   OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_OPUS_DECODER_INPUT_PORT_INDEX);
