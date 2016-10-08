@@ -24,6 +24,9 @@ declare -ar TIZONIA_PIDSTAT_DEPS=( \
     'pidof' \
 )
 
+PROCNAME=tizonia
+[[ -n "$2" ]] && { PROCNAME=$2; }
+
 function usagexit {
     echo >&2 "$(basename $0) [cpu|mem] [interval]"
     exit 1
@@ -41,16 +44,12 @@ function main {
     case "$1" in
         cpu) report="-I";;
         mem) report="-r";;
-        '') report="-I";;
         *) usagexit;;
     esac
 
     interval=10
-    if [[ ! -z "$2" ]]; then
-        interval="$1"
-    fi
 
-    eval 'pidstat "$interval" "$report" -p $(pidof tizonia)'
+    pidstat "$interval" "$report" -p $(pidof $PROCNAME)
 }
 
 main "$@"
