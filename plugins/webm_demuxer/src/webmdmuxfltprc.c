@@ -83,116 +83,6 @@ static int64_t ne_io_tell (void *userdata)
   return 0;
 }
 
-/* static OMX_ERRORTYPE init_demuxer (webmdmuxflt_prc_t *ap_prc) */
-/* { */
-/*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
-
-/*   if (store_data (ap_prc)) */
-/*     { */
-/*       int op_error = 0; */
-/*       OpusFileCallbacks op_cbacks = { read_cback, NULL, NULL, NULL }; */
-
-/*       ap_prc->p_opus_dec_ */
-/*           = op_open_callbacks (ap_prc, &op_cbacks, NULL, 0, &op_error); */
-
-/*       if (0 != op_error) */
-/*         { */
-/*           TIZ_ERROR (handleOf (ap_prc), */
-/*                      "Unable to open the opus file handle (op_error = %d).",
- */
-/*                      op_error); */
-/*           ap_prc->store_offset_ = 0; */
-/*         } */
-/*       else */
-/*         { */
-/*           TIZ_TRACE (handleOf (ap_prc), */
-/*                      "demuxer_inited = TRUE - store_offset [%d]", */
-/*                      ap_prc->store_offset_); */
-/*           ap_prc->demuxer_inited_ = true; */
-/*           tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_); */
-/*           ap_prc->store_offset_ = 0; */
-/*         } */
-/*     } */
-/*   else */
-/*     { */
-/*       rc = OMX_ErrorInsufficientResources; */
-/*     } */
-
-/*   return rc; */
-/* } */
-
-/* static OMX_ERRORTYPE transform_buffer (webmdmuxflt_prc_t *ap_prc) */
-/* { */
-/*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
-/*   OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header ( */
-/*       ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX); */
-
-/*   if (!store_data (ap_prc)) */
-/*     { */
-/*       TIZ_ERROR (handleOf (ap_prc), */
-/*                  "[OMX_ErrorInsufficientResources] : " */
-/*                  "Could not store all the incoming data"); */
-/*       return OMX_ErrorInsufficientResources; */
-/*     } */
-
-/*   if (tiz_buffer_available (ap_prc->p_store_) == 0 || NULL == p_out) */
-/*     { */
-/*       TIZ_TRACE (handleOf (ap_prc), "store bytes [%d] OUT HEADER [%p]", */
-/*                  tiz_buffer_available (ap_prc->p_store_), p_out); */
-
-/*       /\* Propagate the EOS flag to the next component *\/ */
-/*       if (tiz_buffer_available (ap_prc->p_store_) == 0 && p_out */
-/*           && tiz_filter_prc_is_eos (ap_prc)) */
-/*         { */
-/*           p_out->nFlags |= OMX_BUFFERFLAG_EOS; */
-/*           tiz_filter_prc_release_header ( */
-/*               ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX); */
-/*           tiz_filter_prc_update_eos_flag (ap_prc, false); */
-/*         } */
-/*       return OMX_ErrorNotReady; */
-/*     } */
-
-/*   assert (ap_prc); */
-/*   assert (ap_prc->p_opus_dec_); */
-
-/*   { */
-/*     unsigned char *p_pcm = p_out->pBuffer + p_out->nOffset; */
-/*     const long len = p_out->nAllocLen; */
-/*     int samples_read */
-/*         = op_read_float_stereo (ap_prc->p_opus_dec_, (float *)p_pcm, len); */
-/*     TIZ_TRACE (handleOf (ap_prc), "samples_read [%d] ", samples_read); */
-
-/*     if (samples_read > 0) */
-/*       { */
-/*         p_out->nFilledLen = 2 * samples_read * sizeof(float); */
-/*         (void)tiz_filter_prc_release_header ( */
-/*             ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX); */
-/*       } */
-/*     else */
-/*       { */
-/*         switch (samples_read) */
-/*           { */
-/*             case OP_HOLE: */
-/*               { */
-/*                 TIZ_NOTICE (handleOf (ap_prc), */
-/*                             "[OP_HOLE] : " */
-/*                             "While decoding the input stream."); */
-/*               } */
-/*               break; */
-/*             default: */
-/*               { */
-/*                 TIZ_ERROR (handleOf (ap_prc), */
-/*                            "[OMX_ErrorStreamCorruptFatal] : " */
-/*                            "While decoding the input stream."); */
-/*                 rc = OMX_ErrorStreamCorruptFatal; */
-/*               } */
-/*           }; */
-/*       } */
-/*   } */
-
-/*   return rc; */
-/* } */
-
 static void ne_log_cback (nestegg *ctx, unsigned int severity, char const *fmt,
                           ...)
 {
@@ -268,40 +158,62 @@ static OMX_ERRORTYPE prepare_for_port_auto_detection (webmdmuxflt_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE init_nestegg_demuxer (webmdmuxflt_prc_t *ap_prc)
+static OMX_ERRORTYPE release_input_header (webmdmuxflt_prc_t *ap_prc)
 {
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
+      ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX);
 
-/*   if (store_data (ap_prc)) */
-/*     { */
-/*       int op_error = 0; */
-/*       OpusFileCallbacks op_cbacks = { read_cback, NULL, NULL, NULL }; */
+  assert (ap_prc);
 
-/*       ap_prc->p_opus_dec_ */
-/*           = op_open_callbacks (ap_prc, &op_cbacks, NULL, 0, &op_error); */
+  if (p_in)
+    {
+      if ((p_in->nFlags & OMX_BUFFERFLAG_EOS) > 0)
+        {
+          /* Let's propagate EOS flag to output */
+          TIZ_TRACE (handleOf (ap_prc), "Propagating EOS flag to output");
+          OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
+              ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
+          if (p_out)
+            {
+              p_out->nFlags |= OMX_BUFFERFLAG_EOS;
+            }
+          tiz_filter_prc_update_eos_flag (ap_prc, true);
+          p_in->nFlags &= ~(1 << OMX_BUFFERFLAG_EOS);
+        }
+      tiz_filter_prc_release_header (ap_prc,
+                                     ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX);
+    }
+  return OMX_ErrorNone;
+}
 
-/*       if (0 != op_error) */
-/*         { */
-/*           TIZ_ERROR (handleOf (ap_prc), */
-/*                      "Unable to open the opus file handle (op_error = %d).", */
-/*                      op_error); */
-/*           ap_prc->store_offset_ = 0; */
-/*         } */
-/*       else */
-/*         { */
-/*           TIZ_TRACE (handleOf (ap_prc), */
-/*                      "decoder_inited = TRUE - store_offset [%d]", */
-/*                      ap_prc->store_offset_); */
-/*           ap_prc->decoder_inited_ = true; */
-/*           tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_); */
-/*           ap_prc->store_offset_ = 0; */
-/*         } */
-/*     } */
-/*   else */
-/*     { */
-/*       rc = OMX_ErrorInsufficientResources; */
-/*     } */
+static bool store_data (webmdmuxflt_prc_t *ap_prc)
+{
+  bool rc = true;
 
+  if ((tiz_buffer_available (ap_prc->p_store_) - ap_prc->store_offset_)
+      < ARATELIA_WEBM_DEMUXER_WEBM_PORT_MIN_BUF_SIZE)
+    {
+      OMX_BUFFERHEADERTYPE *p_in = tiz_filter_prc_get_header (
+          ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX);
+
+      assert (ap_prc);
+
+      if (p_in)
+        {
+          TIZ_TRACE (handleOf (ap_prc), "store available [%d]",
+                     tiz_buffer_available (ap_prc->p_store_));
+          if (tiz_buffer_push (ap_prc->p_store_,
+                                     p_in->pBuffer + p_in->nOffset,
+                                     p_in->nFilledLen) < p_in->nFilledLen)
+            {
+              TIZ_ERROR (handleOf (ap_prc),
+                         "[%s] : Unable to store all the data.",
+                         tiz_err_to_str (rc));
+              rc = false;
+            }
+          release_input_header (ap_prc);
+        }
+    }
   return rc;
 }
 
@@ -309,7 +221,7 @@ static OMX_ERRORTYPE transform_buffer (webmdmuxflt_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 /*   OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header ( */
-/*       ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX); */
+/*       ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX); */
 
 /*   if (!store_data (ap_prc)) */
 /*     { */
@@ -330,7 +242,7 @@ static OMX_ERRORTYPE transform_buffer (webmdmuxflt_prc_t *ap_prc)
 /*         { */
 /*           p_out->nFlags |= OMX_BUFFERFLAG_EOS; */
 /*           tiz_filter_prc_release_header ( */
-/*               ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX); */
+/*               ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX); */
 /*           tiz_filter_prc_update_eos_flag (ap_prc, false); */
 /*         } */
 /*       return OMX_ErrorNotReady; */
@@ -350,7 +262,7 @@ static OMX_ERRORTYPE transform_buffer (webmdmuxflt_prc_t *ap_prc)
 /*       { */
 /*         p_out->nFilledLen = 2 * samples_read * sizeof(float); */
 /*         (void)tiz_filter_prc_release_header ( */
-/*             ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX); */
+/*             ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX); */
 /*       } */
 /*     else */
 /*       { */
@@ -405,6 +317,16 @@ static void reset_nestegg_object (webmdmuxflt_prc_t *ap_prc)
   ap_prc->ne_io_.userdata = ap_prc;
 }
 
+static inline void deallocate_temp_data_store (
+    /*@special@ */ webmdmuxflt_prc_t *ap_prc)
+/*@releases ap_prc->p_store_@ */
+/*@ensures isnull ap_prc->p_store_@ */
+{
+  assert (ap_prc);
+  tiz_buffer_destroy (ap_prc->p_store_);
+  ap_prc->p_store_ = NULL;
+}
+
 static OMX_ERRORTYPE allocate_temp_data_store (webmdmuxflt_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
@@ -420,14 +342,55 @@ static OMX_ERRORTYPE allocate_temp_data_store (webmdmuxflt_prc_t *ap_prc)
   return tiz_buffer_init (&(ap_prc->p_store_), port_def.nBufferSize);
 }
 
-static inline void deallocate_temp_data_store (
+static inline void deallocate_nestegg_object (
     /*@special@ */ webmdmuxflt_prc_t *ap_prc)
-/*@releases ap_prc->p_store_@ */
-/*@ensures isnull ap_prc->p_store_@ */
+/*@releases ap_prc->p_ne_ctx_@ */
+/*@ensures isnull ap_prc->p_ne_ctx_@ */
 {
   assert (ap_prc);
-  tiz_buffer_destroy (ap_prc->p_store_);
-  ap_prc->p_store_ = NULL;
+  if (ap_prc->p_ne_ctx_)
+    {
+      nestegg_destroy (ap_prc->p_ne_ctx_);
+      ap_prc->p_ne_ctx_ = NULL;
+    }
+}
+
+static OMX_ERRORTYPE allocate_nestegg_object (webmdmuxflt_prc_t *ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+
+  if (store_data (ap_prc))
+    {
+      int nestegg_rc = 0;
+      assert (!p_prc->p_ne_ctx_);
+
+      nestegg_rc
+          = nestegg_init (&ap_prc->p_ne_ctx_, ap_prc->ne_io_, ne_log_cback, -1);
+
+      if (0 != nestegg_rc)
+        {
+          TIZ_ERROR (handleOf (ap_prc),
+                     "Unable to open the nestegg demuxer handle (error = %d).",
+                     nestegg_rc);
+          deallocate_nestegg_object(ap_prc);
+          ap_prc->store_offset_ = 0;
+        }
+      else
+        {
+          TIZ_TRACE (handleOf (ap_prc),
+                     "decoder_inited = TRUE - store_offset [%d]",
+                     ap_prc->store_offset_);
+          ap_prc->demuxer_inited_ = true;
+          tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_);
+          ap_prc->store_offset_ = 0;
+        }
+    }
+  else
+    {
+      rc = OMX_ErrorInsufficientResources;
+    }
+
+  return rc;
 }
 
 /*
@@ -471,11 +434,6 @@ static OMX_ERRORTYPE webmdmuxflt_prc_allocate_resources (void *ap_prc,
 {
   webmdmuxflt_prc_t *p_prc = ap_prc;
   assert (p_prc);
-  assert (!p_prc->p_ne_ctx_);
-
-  on_nestegg_error_ret_omx_oom (
-      nestegg_init (&p_prc->p_ne_ctx_, p_prc->ne_io_, ne_log_cback, -1));
-
   return allocate_temp_data_store (p_prc);
 }
 
@@ -484,11 +442,7 @@ static OMX_ERRORTYPE webmdmuxflt_prc_deallocate_resources (void *ap_prc)
   webmdmuxflt_prc_t *p_prc = ap_prc;
   assert (p_prc);
   deallocate_temp_data_store (p_prc);
-  if (p_prc->p_ne_ctx_)
-    {
-      nestegg_destroy (p_prc->p_ne_ctx_);
-      p_prc->p_ne_ctx_ = NULL;
-    }
+  deallocate_nestegg_object (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -532,7 +486,7 @@ static OMX_ERRORTYPE webmdmuxflt_prc_buffers_ready (const void *ap_prc)
 
   if (!p_prc->demuxer_inited_)
     {
-      rc = init_nestegg_demuxer (p_prc);
+      rc = allocate_nestegg_object (p_prc);
     }
 
   if (p_prc->demuxer_inited_ && OMX_ErrorNone == rc)

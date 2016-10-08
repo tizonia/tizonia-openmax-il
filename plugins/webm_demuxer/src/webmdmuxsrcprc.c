@@ -504,7 +504,7 @@ static OMX_ERRORTYPE webmdmuxsrc_prc_allocate_resources (void *ap_prc,
             tiz_srv_timer_watcher_restart };
     rc = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
                             ARATELIA_WEBM_DEMUXER_COMPONENT_NAME,
-                            ARATELIA_WEBM_DEMUXER_SOURCE_PORT_0_MIN_BUF_SIZE,
+                            ARATELIA_WEBM_DEMUXER_VIDEO_PORT_MIN_BUF_SIZE,
                             ARATELIA_WEBM_DEMUXER_DEFAULT_RECONNECT_TIMEOUT,
                             buffer_cbacks, info_cbacks, io_cbacks,
                             timer_cbacks);

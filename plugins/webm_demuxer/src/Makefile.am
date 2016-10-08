@@ -35,7 +35,8 @@ libtizwebmdemux_la_SOURCES = \
 	nestegg/include/nestegg/nestegg.h \
 	nestegg/src/nestegg.c \
 	webmdmux.c \
-	webmdmuxsrcprc.c
+	webmdmuxsrcprc.c \
+	webmdmuxfltprc.c
 
 libtizwebmdemux_la_CFLAGS = \
 	@TIZILHEADERS_CFLAGS@ \
