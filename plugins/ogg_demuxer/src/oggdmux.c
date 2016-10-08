@@ -63,15 +63,15 @@
 static OMX_VERSIONTYPE ogg_demuxer_version = { {1, 0, 0, 0} };
 
 static OMX_PTR
-instantiate_ogg_input_port (OMX_HANDLETYPE ap_hdl)
+instantiate_filter_ogg_input_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_AUDIO_CODINGTYPE encodings[] = {
     OMX_AUDIO_CodingUnused,
     OMX_AUDIO_CodingMax
   };
   tiz_port_options_t port_opts = {
-    OMX_PortDomainAudio,
-    OMX_DirOutput,
+    OMX_PortDomainOther,
+    OMX_DirInput,
     ARATELIA_OGG_DEMUXER_PORT_MIN_BUF_COUNT,
     ARATELIA_OGG_DEMUXER_PORT_MIN_AUDIO_OUTPUT_BUF_SIZE,
     ARATELIA_OGG_DEMUXER_PORT_NONCONTIGUOUS,
@@ -251,7 +251,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 
   strcpy ((OMX_STRING) filter_demuxer_role.role, ARATELIA_OGG_DEMUXER_FILTER_ROLE);
   filter_demuxer_role.pf_cport   = instantiate_config_port;
-  filter_demuxer_role.pf_port[0] = instantiate_ogg_input_port;
+  filter_demuxer_role.pf_port[0] = instantiate_filter_ogg_input_port;
   filter_demuxer_role.pf_port[1] = instantiate_filter_audio_output_port;
   filter_demuxer_role.pf_port[2] = instantiate_filter_video_output_port;
   /* TODO : Add clock output port */
