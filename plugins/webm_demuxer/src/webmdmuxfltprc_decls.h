@@ -60,8 +60,11 @@ struct webmdmuxflt_prc
   int cache_bytes_;
   nestegg * p_ne_ctx_;
   nestegg_io ne_io_;
-  nestegg_audio_params aparams_;
-  nestegg_video_params vparams_;
+  nestegg_audio_params ne_audio_params_;
+  nestegg_video_params ne_video_params_;
+  unsigned int ne_audio_track_;
+  unsigned int ne_video_track_;
+
 };
 
 typedef struct webmdmuxflt_prc_class webmdmuxflt_prc_class_t;
