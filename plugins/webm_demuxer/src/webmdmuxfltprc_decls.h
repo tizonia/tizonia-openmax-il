@@ -52,12 +52,16 @@ struct webmdmuxflt_prc
   tiz_buffer_t *p_store_;
   OMX_U32 store_offset_;
   bool demuxer_inited_;
-  bool auto_detect_on_;
+  bool audio_auto_detect_on_;
   OMX_S32 audio_coding_type_;
+  bool video_auto_detect_on_;
+  OMX_S32 video_coding_type_;
   int bitrate_;
   int cache_bytes_;
   nestegg * p_ne_ctx_;
   nestegg_io ne_io_;
+  nestegg_audio_params aparams_;
+  nestegg_video_params vparams_;
 };
 
 typedef struct webmdmuxflt_prc_class webmdmuxflt_prc_class_t;

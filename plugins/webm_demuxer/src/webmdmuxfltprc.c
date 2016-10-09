@@ -203,7 +203,7 @@ static OMX_ERRORTYPE release_buffer (webmdmuxflt_prc_t *ap_prc)
                   ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
       tiz_check_omx_err (tiz_krn_release_buffer (
           tiz_get_krn (handleOf (ap_prc)),
-          ARATELIA_WEBM_DEMUXER_SOURCE_PORT_0_INDEX, ap_prc->p_outhdr_));
+          ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX, ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
     }
   return OMX_ErrorNone;
@@ -214,15 +214,28 @@ static OMX_ERRORTYPE prepare_for_port_auto_detection (webmdmuxflt_prc_t *ap_prc)
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
 
+  /* Prepare audio port */
   TIZ_INIT_OMX_PORT_STRUCT (port_def,
-                            ARATELIA_WEBM_DEMUXER_SOURCE_PORT_0_INDEX);
+                            ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
   tiz_check_omx_err (
       tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                             OMX_IndexParamPortDefinition, &port_def));
   ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
-  ap_prc->auto_detect_on_
+  ap_prc->audio_auto_detect_on_
       = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true
                                                                    : false;
+
+  /* Prepare video port */
+  TIZ_INIT_OMX_PORT_STRUCT (port_def,
+                            ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_IndexParamPortDefinition, &port_def));
+  ap_prc->video_coding_type_ = port_def.format.video.eCompressionFormat;
+  ap_prc->video_auto_detect_on_
+      = (OMX_VIDEO_CodingAutoDetect == ap_prc->video_coding_type_) ? true
+                                                                   : false;
+
   return OMX_ErrorNone;
 }
 
@@ -291,6 +304,8 @@ static OMX_ERRORTYPE transform_buffer (webmdmuxflt_prc_t *ap_prc)
   OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header (
       ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
 
+  assert (ap_prc);
+
   if (!store_data (ap_prc))
     {
       TIZ_ERROR (handleOf (ap_prc),
@@ -316,8 +331,40 @@ static OMX_ERRORTYPE transform_buffer (webmdmuxflt_prc_t *ap_prc)
       return OMX_ErrorNotReady;
     }
 
-  assert (ap_prc);
-  assert (ap_prc->p_ne_ctx_);
+  {
+    int nestegg_rc = 0;
+    nestegg_packet *p_pkt = NULL;
+
+    assert (ap_prc->p_ne_ctx_);
+
+    while ((nestegg_rc = nestegg_read_packet (ap_prc->p_ne_ctx_, &p_pkt)) > 0)
+      {
+        unsigned int track;
+
+        nestegg_packet_track (p_pkt, &track);
+
+        // This example decodes the first track only.
+        if (track == 0)
+          {
+            unsigned int chunk, chunks;
+
+            nestegg_packet_count (p_pkt, &chunks);
+
+            // Decode each chunk of data.
+            for (chunk = 0; chunk < chunks; ++chunk)
+              {
+                unsigned char *data;
+                size_t data_size;
+
+                nestegg_packet_data (p_pkt, chunk, &data, &data_size);
+
+/*                 example_codec_decode (codec_ctx, data, data_size); */
+              }
+          }
+
+        nestegg_free_packet (p_pkt);
+      }
+  }
 
   /* { */
   /*     unsigned char *p_pcm = p_out->pBuffer + p_out->nOffset; */
@@ -364,7 +411,7 @@ static void reset_stream_parameters (webmdmuxflt_prc_t *ap_prc)
 
   ap_prc->store_offset_ = 0;
   ap_prc->demuxer_inited_ = false;
-  ap_prc->auto_detect_on_ = false;
+  ap_prc->audio_auto_detect_on_ = false;
   ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   ap_prc->bitrate_ = ARATELIA_WEBM_DEMUXER_DEFAULT_BIT_RATE_KBITS;
 
@@ -384,6 +431,8 @@ static void reset_nestegg_object (webmdmuxflt_prc_t *ap_prc)
   ap_prc->ne_io_.seek = ne_io_seek;
   ap_prc->ne_io_.tell = ne_io_tell;
   ap_prc->ne_io_.userdata = ap_prc;
+  tiz_mem_set (&(ap_prc->aparams_), 0, sizeof (ap_prc->aparams_));
+  tiz_mem_set (&(ap_prc->vparams_), 0, sizeof (ap_prc->vparams_));
 }
 
 static inline void deallocate_temp_data_store (
@@ -425,19 +474,69 @@ static inline void deallocate_nestegg_object (
     }
 }
 
+static OMX_ERRORTYPE set_audio_coding_on_port (webmdmuxflt_prc_t *ap_prc)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  assert (ap_prc);
+
+  TIZ_DEBUG (handleOf (ap_prc), " audio: %.2fhz %u bit %u channels",
+             ap_prc->aparams_.rate, ap_prc->aparams_.depth,
+             ap_prc->aparams_.channels);
+
+  TIZ_INIT_OMX_PORT_STRUCT (port_def,
+                            ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_IndexParamPortDefinition, &port_def));
+
+  /* Set the new value */
+  port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
+
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+      OMX_IndexParamPortDefinition, &port_def));
+
+  return OMX_ErrorNone;
+}
+
+static OMX_ERRORTYPE set_video_coding_on_port (webmdmuxflt_prc_t *ap_prc)
+{
+  OMX_PARAM_PORTDEFINITIONTYPE port_def;
+  assert (ap_prc);
+
+  TIZ_DEBUG (handleOf (ap_prc), " video: %ux%u (d: %ux%u %ux%ux%ux%u)",
+             ap_prc->vparams_.width, ap_prc->vparams_.height,
+             ap_prc->vparams_.display_width, ap_prc->vparams_.display_height,
+             ap_prc->vparams_.crop_top, ap_prc->vparams_.crop_left,
+             ap_prc->vparams_.crop_bottom, ap_prc->vparams_.crop_right);
+
+  TIZ_INIT_OMX_PORT_STRUCT (port_def,
+                            ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
+  tiz_check_omx_err (
+      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                            OMX_IndexParamPortDefinition, &port_def));
+
+  /* Set the new value */
+  port_def.format.video.eCompressionFormat = ap_prc->video_coding_type_;
+
+  tiz_check_omx_err (tiz_krn_SetParameter_internal (
+      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+      OMX_IndexParamPortDefinition, &port_def));
+
+  return OMX_ErrorNone;
+}
+
 static OMX_ERRORTYPE obtain_track_info (webmdmuxflt_prc_t *ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   unsigned int tracks = 0;
   uint64_t duration = 0;
   int nestegg_rc = 0;
-  int type;
-  unsigned int i, j;
+  int type = 0;
+  unsigned int i = 0, j = 0;
   unsigned int data_items = 0;
-  unsigned char *codec_data;
-  size_t length;
-  nestegg_video_params vparams;
-  nestegg_audio_params aparams;
+  unsigned char *p_codec_data = NULL;
+  size_t length = 0;
 
   assert (ap_prc);
 
@@ -463,28 +562,85 @@ static OMX_ERRORTYPE obtain_track_info (webmdmuxflt_prc_t *ap_prc)
       nestegg_track_codec_data_count (ap_prc->p_ne_ctx_, i, &data_items);
       for (j = 0; j < data_items; ++j)
         {
-          nestegg_track_codec_data (ap_prc->p_ne_ctx_, i, j, &codec_data,
+          nestegg_track_codec_data (ap_prc->p_ne_ctx_, i, j, &p_codec_data,
                                     &length);
-          TIZ_DEBUG (handleOf (ap_prc), " (%p, %u)", codec_data,
+          TIZ_DEBUG (handleOf (ap_prc), " (%p, %u)", p_codec_data,
                      (unsigned int)length);
         }
-      if (type == NESTEGG_TRACK_VIDEO)
+      if (NESTEGG_TRACK_VIDEO == type)
         {
-          nestegg_track_video_params (ap_prc->p_ne_ctx_, i, &vparams);
-          TIZ_DEBUG (handleOf (ap_prc), " video: %ux%u (d: %ux%u %ux%ux%ux%u)",
-                     vparams.width, vparams.height, vparams.display_width,
-                     vparams.display_height, vparams.crop_top,
-                     vparams.crop_left, vparams.crop_bottom,
-                     vparams.crop_right);
+          nestegg_track_video_params (ap_prc->p_ne_ctx_, i, &ap_prc->vparams_);
+          ap_prc->video_coding_type_
+              = (nestegg_track_codec_id (ap_prc->p_ne_ctx_, i)
+                         == NESTEGG_CODEC_VP8
+                     ? OMX_VIDEO_CodingVP8
+                     : OMX_VIDEO_CodingVP9);
+          set_video_coding_on_port (ap_prc);
         }
-      else if (type == NESTEGG_TRACK_AUDIO)
+      else if (NESTEGG_TRACK_AUDIO == type)
         {
-          nestegg_track_audio_params (ap_prc->p_ne_ctx_, i, &aparams);
-          TIZ_DEBUG (handleOf (ap_prc), " audio: %.2fhz %u bit %u channels",
-                     aparams.rate, aparams.depth, aparams.channels);
+          nestegg_track_audio_params (ap_prc->p_ne_ctx_, i, &ap_prc->aparams_);
+          ap_prc->audio_coding_type_
+              = (nestegg_track_codec_id (ap_prc->p_ne_ctx_, i)
+                         == NESTEGG_CODEC_OPUS
+                     ? OMX_AUDIO_CodingOPUS
+                     : OMX_AUDIO_CodingVORBIS);
+          set_audio_coding_on_port (ap_prc);
         }
     }
   return rc;
+}
+
+static void send_audio_port_auto_detect_events (webmdmuxflt_prc_t *ap_prc)
+{
+  assert (ap_prc);
+  if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
+      || ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
+    {
+      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortFormatDetected, 0, 0,
+                           NULL);
+      tiz_srv_issue_event (
+          (OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
+          ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX, /* port 1 */
+          OMX_IndexParamPortDefinition,              /* the index of the
+                                                        struct that has
+                                                        been modififed */
+          NULL);
+    }
+  else
+    {
+      /* Oops... could not detect the stream format */
+      tiz_srv_issue_err_event ((OMX_PTR)ap_prc, OMX_ErrorFormatNotDetected);
+    }
+}
+
+static void send_video_port_auto_detect_events (webmdmuxflt_prc_t *ap_prc)
+{
+  assert (ap_prc);
+  if (ap_prc->video_coding_type_ != OMX_VIDEO_CodingUnused
+      || ap_prc->video_coding_type_ != OMX_VIDEO_CodingAutoDetect)
+    {
+      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortFormatDetected, 0, 0,
+                           NULL);
+      tiz_srv_issue_event (
+          (OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
+          ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX, /* port 1 */
+          OMX_IndexParamPortDefinition,              /* the index of the
+                                                        struct that has
+                                                        been modififed */
+          NULL);
+    }
+  else
+    {
+      /* Oops... could not detect the stream format */
+      tiz_srv_issue_err_event ((OMX_PTR)ap_prc, OMX_ErrorFormatNotDetected);
+    }
+}
+
+static void send_port_auto_detect_events (webmdmuxflt_prc_t *ap_prc)
+{
+  send_audio_port_auto_detect_events (ap_prc);
+  send_video_port_auto_detect_events (ap_prc);
 }
 
 static OMX_ERRORTYPE allocate_nestegg_object (webmdmuxflt_prc_t *ap_prc)
@@ -494,28 +650,30 @@ static OMX_ERRORTYPE allocate_nestegg_object (webmdmuxflt_prc_t *ap_prc)
   if (store_data (ap_prc))
     {
       int nestegg_rc = 0;
-      assert (!p_prc->p_ne_ctx_);
+      assert (!ap_prc->p_ne_ctx_);
 
       nestegg_rc
           = nestegg_init (&ap_prc->p_ne_ctx_, ap_prc->ne_io_, ne_log_cback, -1);
 
+      ap_prc->store_offset_ = 0;
       if (0 != nestegg_rc)
         {
           TIZ_ERROR (handleOf (ap_prc),
                      "Unable to open the nestegg demuxer handle (error = %d).",
                      nestegg_rc);
           deallocate_nestegg_object (ap_prc);
-          ap_prc->store_offset_ = 0;
         }
       else
         {
           TIZ_TRACE (handleOf (ap_prc),
                      "decoder_inited = TRUE - store_offset [%d]",
                      ap_prc->store_offset_);
-          obtain_track_info (ap_prc);
+          if (OMX_ErrorNone == obtain_track_info (ap_prc))
+            {
+              send_port_auto_detect_events (ap_prc);
+            }
           ap_prc->demuxer_inited_ = true;
           tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_);
-          ap_prc->store_offset_ = 0;
         }
     }
   else
@@ -550,14 +708,6 @@ static void *webmdmuxflt_prc_dtor (void *ap_obj)
   (void)webmdmuxflt_prc_deallocate_resources (ap_obj);
   return super_dtor (typeOf (ap_obj, "webmdmuxfltprc"), ap_obj);
 }
-
-/* static OMX_ERRORTYPE */
-/* webmdmuxflt_prc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE *
- * p_hdr)
- */
-/* { */
-/*   return OMX_ErrorNone; */
-/* } */
 
 /*
  * from tizsrv class
@@ -594,7 +744,7 @@ static OMX_ERRORTYPE webmdmuxflt_prc_transfer_and_process (void *ap_prc,
   webmdmuxflt_prc_t *p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
-  if (p_prc->auto_detect_on_)
+  if (p_prc->audio_auto_detect_on_)
     {
     }
   return rc;

@@ -82,6 +82,11 @@
 #define OMX_AUDIO_CodingMP2   OMX_AUDIO_CodingVendorStartUnused + 5
 
 /**
+ * OMX_VIDEO_CODINGTYPE extensions
+ */
+#define OMX_VIDEO_CodingVP9  OMX_VIDEO_CodingVendorStartUnused + 1
+
+/**
  * The name of the pre-announcements mode extension.
  */
 #define OMX_TIZONIA_INDEX_PARAM_BUFFER_PREANNOUNCEMENTSMODE     \
