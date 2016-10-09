@@ -21,7 +21,7 @@
  * @file   webmdmuxfltprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - WebM Demuxer processor
+ * @brief  Tizonia - WebM demuxer processor
  *
  *
  */
@@ -185,14 +185,6 @@ static void ne_log_cback (nestegg *ctx, unsigned int severity, char const *fmt,
   fprintf (stderr, "\n");
 }
 
-static void update_cache_size (webmdmuxflt_prc_t *ap_prc)
-{
-  assert (ap_prc);
-  assert (ap_prc->bitrate_ > 0);
-  ap_prc->cache_bytes_ = ((ap_prc->bitrate_ * 1000) / 8)
-                         * ARATELIA_WEBM_DEMUXER_DEFAULT_CACHE_SECONDS;
-}
-
 static OMX_ERRORTYPE release_buffer (webmdmuxflt_prc_t *ap_prc)
 {
   assert (ap_prc);
@@ -300,30 +292,33 @@ static bool store_data (webmdmuxflt_prc_t *ap_prc)
 
 static OMX_ERRORTYPE extract_data (webmdmuxflt_prc_t *ap_prc,
                                    const unsigned int a_track,
-                                   nestegg_packet *ap_pkt, OMX_U32 a_pid,
+                                   OMX_U32 a_pid,
                                    OMX_BUFFERHEADERTYPE *ap_hdr)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  unsigned int chunk = 0;
   unsigned int chunks = 0;
+  unsigned char *p_data = NULL;
+  size_t data_size = 0;
 
   assert (ap_prc);
-  assert (ap_pkt);
-  assert (ap_hdr);
+  assert (ap_prc->p_ne_pkt_);
 
-  nestegg_packet_count (ap_pkt, &chunks);
+  nestegg_packet_count (ap_prc->p_ne_pkt_, &chunks);
 
-  // Extract each chunk of data.
-  for (chunk = 0; chunk < chunks && TIZ_OMX_BUF_AVAIL(ap_hdr) > 0 ; ++chunk)
+  // Extract the next chunks of data.
+  assert (ap_prc->ne_chunk_ <= chunks);
+  do
     {
-      unsigned char *p_data = NULL;
-      size_t data_size = 0;
-      nestegg_packet_data (ap_pkt, chunk, &p_data, &data_size);
-      int tocopy = MIN (data_size, TIZ_OMX_BUF_AVAIL(ap_hdr));
-      memcpy (TIZ_OMX_BUF_PTR(ap_hdr), p_data, tocopy);
-      ap_hdr->nFilledLen += tocopy;
-      (void)tiz_filter_prc_release_header (ap_prc, a_pid);
+      size_t to_copy = 0;
+      nestegg_packet_data (ap_prc->p_ne_pkt_, ap_prc->ne_chunk_, &p_data, &data_size);
+      to_copy = MIN (data_size, TIZ_OMX_BUF_AVAIL (ap_hdr));
+      memcpy (TIZ_OMX_BUF_PTR (ap_hdr), p_data, to_copy);
+      ap_hdr->nFilledLen += to_copy;
+      ++ap_prc->ne_chunk_;
     }
+  while (ap_prc->ne_chunk_ < chunks && TIZ_OMX_BUF_AVAIL (ap_hdr) > data_size);
+  (void)tiz_filter_prc_release_header (ap_prc, a_pid);
+
   return rc;
 }
 
@@ -362,27 +357,30 @@ static OMX_ERRORTYPE demux_stream (webmdmuxflt_prc_t *ap_prc)
 
   {
     int nestegg_rc = 0;
-    nestegg_packet *p_pkt = NULL;
 
     assert (ap_prc->p_ne_ctx_);
 
-    if ((nestegg_rc = nestegg_read_packet (ap_prc->p_ne_ctx_, &p_pkt)) > 0)
+    if (ap_prc->p_ne_pkt_
+        || (nestegg_rc
+            = nestegg_read_packet (ap_prc->p_ne_ctx_, &ap_prc->p_ne_pkt_))
+               > 0)
       {
         unsigned int track = 0;
-        nestegg_packet_track (p_pkt, &track);
+        nestegg_packet_track (ap_prc->p_ne_pkt_, &track);
         if (track == ap_prc->ne_audio_track_)
           {
-            extract_data (ap_prc, track, p_pkt,
+            extract_data (ap_prc, track,
                           ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX,
                           p_out);
           }
         else if (track == ap_prc->ne_video_track_)
           {
-            extract_data (ap_prc, track, p_pkt,
+            extract_data (ap_prc, track,
                           ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX,
                           p_out);
           }
-        nestegg_free_packet (p_pkt);
+        nestegg_free_packet (ap_prc->p_ne_pkt_);
+        ap_prc->p_ne_pkt_ = NULL;
       }
   }
 
@@ -401,7 +399,6 @@ static void reset_stream_parameters (webmdmuxflt_prc_t *ap_prc)
   ap_prc->bitrate_ = ARATELIA_WEBM_DEMUXER_DEFAULT_BIT_RATE_KBITS;
 
   tiz_buffer_clear (ap_prc->p_store_);
-  update_cache_size (ap_prc);
   tiz_filter_prc_update_eos_flag (ap_prc, false);
 }
 
@@ -418,8 +415,10 @@ static void reset_nestegg_object (webmdmuxflt_prc_t *ap_prc)
                sizeof (ap_prc->ne_audio_params_));
   tiz_mem_set (&(ap_prc->ne_video_params_), 0,
                sizeof (ap_prc->ne_video_params_));
-  ap_prc->ne_audio_track_ = 0;
-  ap_prc->ne_audio_track_ = 0;
+  ap_prc->ne_audio_track_ = NESTEGG_TRACK_UNKNOWN;
+  ap_prc->ne_video_track_ = NESTEGG_TRACK_UNKNOWN;
+  ap_prc->p_ne_pkt_ = NULL;
+  ap_prc->ne_chunk_ = 0;
 }
 
 static inline void deallocate_temp_data_store (
@@ -557,7 +556,8 @@ static OMX_ERRORTYPE obtain_track_info (webmdmuxflt_prc_t *ap_prc)
           TIZ_DEBUG (handleOf (ap_prc), " (%p, %u)", p_codec_data,
                      (unsigned int)length);
         }
-      if (NESTEGG_TRACK_VIDEO == type)
+      if (NESTEGG_TRACK_VIDEO == type
+          && NESTEGG_TRACK_UNKNOWN == ap_prc->ne_video_track_)
         {
           nestegg_track_video_params (ap_prc->p_ne_ctx_, i,
                                       &ap_prc->ne_video_params_);
@@ -566,9 +566,11 @@ static OMX_ERRORTYPE obtain_track_info (webmdmuxflt_prc_t *ap_prc)
                          == NESTEGG_CODEC_VP8
                      ? OMX_VIDEO_CodingVP8
                      : OMX_VIDEO_CodingVP9);
+          ap_prc->ne_video_track_ = i;
           set_video_coding_on_port (ap_prc);
         }
-      else if (NESTEGG_TRACK_AUDIO == type)
+      else if (NESTEGG_TRACK_AUDIO == type
+               && NESTEGG_TRACK_UNKNOWN == ap_prc->ne_audio_track_)
         {
           nestegg_track_audio_params (ap_prc->p_ne_ctx_, i,
                                       &ap_prc->ne_audio_params_);
@@ -577,6 +579,7 @@ static OMX_ERRORTYPE obtain_track_info (webmdmuxflt_prc_t *ap_prc)
                          == NESTEGG_CODEC_OPUS
                      ? OMX_AUDIO_CodingOPUS
                      : OMX_AUDIO_CodingVORBIS);
+          ap_prc->ne_audio_track_ = i;
           set_audio_coding_on_port (ap_prc);
         }
     }

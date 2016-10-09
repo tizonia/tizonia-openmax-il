@@ -57,14 +57,14 @@ struct webmdmuxflt_prc
   bool video_auto_detect_on_;
   OMX_S32 video_coding_type_;
   int bitrate_;
-  int cache_bytes_;
   nestegg * p_ne_ctx_;
   nestegg_io ne_io_;
   nestegg_audio_params ne_audio_params_;
   nestegg_video_params ne_video_params_;
   unsigned int ne_audio_track_;
   unsigned int ne_video_track_;
-
+  nestegg_packet *p_ne_pkt_;
+  unsigned int ne_chunk_;
 };
 
 typedef struct webmdmuxflt_prc_class webmdmuxflt_prc_class_t;
