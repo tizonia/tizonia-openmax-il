@@ -1,0 +1,16 @@
+#!/bin/bash
+# http://askubuntu.com/questions/71863/how-to-change-pulseaudio-sink-with-pacmd-set-default-sink-during-playback/72076#72076
+
+NEW_SINK=$(pacmd list-sinks | grep index | tee /dev/stdout | grep -m1 -A1 "* index" | tail -1 | cut -c12-)
+
+echo "Setting default sink to: $NEW_SINK";
+pacmd set-default-sink "$NEW_SINK"
+pacmd list-sink-inputs \
+    | grep index \
+    | \
+    while read line; do
+        echo "Moving input: ";
+        echo $line | cut -f2 -d' ';
+        echo "to sink: "$NEW_SINK"";
+        pacmd move-sink-input $(echo $line | cut -f2 -d' ') "$NEW_SINK"
+    done
