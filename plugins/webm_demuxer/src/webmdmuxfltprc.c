@@ -201,7 +201,7 @@ static OMX_ERRORTYPE release_buffer (webmdmuxflt_prc_t *ap_prc)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE prepare_for_port_auto_detection (webmdmuxflt_prc_t *ap_prc)
+static OMX_ERRORTYPE prepare_port_auto_detection (webmdmuxflt_prc_t *ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
@@ -325,7 +325,7 @@ static OMX_ERRORTYPE extract_data (webmdmuxflt_prc_t *ap_prc,
       /* Release the OMX buffer */
       (void)tiz_filter_prc_release_header (ap_prc, a_pid);
 
-      /* Release the ne packet if all chunks already processed */
+      /* Release the ne packet if all chunks have already been processed */
       if (ap_prc->ne_chunk_ >= chunks)
         {
           /* All chunks extracted, release the packet now. */
@@ -401,6 +401,7 @@ static OMX_ERRORTYPE demux_stream (webmdmuxflt_prc_t *ap_prc)
                > 0)
       {
         unsigned int track = 0;
+        assert (ap_prc->p_ne_pkt_);
         nestegg_packet_track (ap_prc->p_ne_pkt_, &track);
         if (track == ap_prc->ne_audio_track_)
           {
@@ -571,7 +572,7 @@ static OMX_ERRORTYPE obtain_track_info (webmdmuxflt_prc_t *ap_prc)
   else
     {
       TIZ_DEBUG (handleOf (ap_prc),
-                 "media has %u tracks and unknown duration\n", tracks);
+                 "media has %u tracks and unknown duration", tracks);
     }
 
   for (i = 0; i < tracks; ++i)
@@ -757,7 +758,7 @@ static OMX_ERRORTYPE webmdmuxflt_prc_prepare_to_transfer (void *ap_prc,
 {
   webmdmuxflt_prc_t *p_prc = ap_prc;
   assert (ap_prc);
-  return prepare_for_port_auto_detection (p_prc);
+  return prepare_port_auto_detection (p_prc);
 }
 
 static OMX_ERRORTYPE webmdmuxflt_prc_transfer_and_process (void *ap_prc,
