@@ -35,6 +35,8 @@ extern "C" {
 
 #include <OMX_Core.h>
 
+#include <tizplatform.h>
+
 #include "tizprc_decls.h"
 
 typedef struct tiz_filter_prc tiz_filter_prc_t;
@@ -42,11 +44,9 @@ struct tiz_filter_prc
 {
   /* Object */
   const tiz_prc_t _;
-  OMX_BUFFERHEADERTYPE *p_in_hdr_;
-  OMX_BUFFERHEADERTYPE *p_out_hdr_;
+  tiz_vector_t *p_hdrs_;
+  tiz_vector_t *p_disabled_flags_;
   bool eos_;
-  bool in_port_disabled_;
-  bool out_port_disabled_;
 };
 
 typedef struct tiz_filter_prc_class tiz_filter_prc_class_t;

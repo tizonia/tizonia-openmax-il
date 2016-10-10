@@ -34,7 +34,6 @@
 #include <limits.h>
 #include <string.h>
 
-
 #include <tizplatform.h>
 
 #include <tizkernel.h>
@@ -50,6 +49,29 @@
 /* Forward declaration */
 static OMX_ERRORTYPE filter_prc_release_all_headers (tiz_filter_prc_t *ap_prc);
 
+static OMX_ERRORTYPE lazily_grow_internal_lists (tiz_filter_prc_t *ap_prc,
+                                                 const OMX_U32 a_pid)
+{
+  assert (ap_prc);
+  assert (tiz_vector_length (ap_prc->p_hdrs_)
+          == tiz_vector_length (ap_prc->p_disabled_flags_));
+  if (a_pid >= tiz_vector_length (ap_prc->p_hdrs_))
+    {
+      int i = 0;
+      OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+      bool disabled_flag = false;
+      assert (tiz_krn_get_port (tiz_get_krn (handleOf (ap_prc)), a_pid));
+      for (i = tiz_vector_length (ap_prc->p_hdrs_); i <= a_pid; ++i)
+        {
+          tiz_check_omx_err_ret_oom (
+              tiz_vector_push_back (ap_prc->p_hdrs_, &p_hdr));
+          tiz_check_omx_err_ret_oom (
+              tiz_vector_push_back (ap_prc->p_disabled_flags_, &disabled_flag));
+        }
+    }
+  return OMX_ErrorNone;
+}
+
 /*
  * filterprc
  */
@@ -59,60 +81,82 @@ static void *filter_prc_ctor (void *ap_obj, va_list *app)
   tiz_filter_prc_t *p_prc
       = super_ctor (typeOf (ap_obj, "tizfilterprc"), ap_obj, app);
   assert (p_prc);
-  p_prc->p_in_hdr_ = NULL;
-  p_prc->p_out_hdr_ = NULL;
+
+  tiz_check_omx_err_ret_null (
+      tiz_vector_init (&(p_prc->p_hdrs_), sizeof (OMX_BUFFERHEADERTYPE *)));
+  tiz_check_omx_err_ret_null (
+      tiz_vector_init (&(p_prc->p_disabled_flags_), sizeof (bool)));
+
+  /* A filter has at least one input port and one output port. Initialise the
+     internal lists with defaults for the 'one-input-one-output' case */
+  {
+    OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+    tiz_check_omx_err_ret_null (tiz_vector_push_back (p_prc->p_hdrs_, &p_hdr));
+    tiz_check_omx_err_ret_null (tiz_vector_push_back (p_prc->p_hdrs_, &p_hdr));
+  }
+  {
+    bool disabled_flag = false;
+    tiz_check_omx_err_ret_null (
+        tiz_vector_push_back (p_prc->p_disabled_flags_, &disabled_flag));
+    tiz_check_omx_err_ret_null (
+        tiz_vector_push_back (p_prc->p_disabled_flags_, &disabled_flag));
+  }
+
   p_prc->eos_ = false;
-  p_prc->in_port_disabled_ = false;
-  p_prc->out_port_disabled_ = false;
   return p_prc;
 }
 
 static void *filter_prc_dtor (void *ap_obj)
 {
+  tiz_filter_prc_t *p_prc = ap_obj;
+  assert (p_prc);
+  tiz_vector_clear (p_prc->p_disabled_flags_);
+  tiz_vector_destroy (p_prc->p_disabled_flags_);
+  tiz_vector_clear (p_prc->p_hdrs_);
+  tiz_vector_destroy (p_prc->p_hdrs_);
   return super_dtor (typeOf (ap_obj, "tizfilterprc"), ap_obj);
 }
 
-static OMX_BUFFERHEADERTYPE **
-filter_prc_get_header_ptr (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
+static OMX_BUFFERHEADERTYPE **filter_prc_get_header_ptr (
+    tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE **pp_hdr = NULL;
   assert (ap_prc);
-  assert (a_pid <= TIZ_FILTER_OUTPUT_PORT_INDEX);
-  pp_hdr = (a_pid == TIZ_FILTER_INPUT_PORT_INDEX
-                ? &(ap_prc->p_in_hdr_)
-                : &(ap_prc->p_out_hdr_));
+  tiz_check_omx_err_ret_null (lazily_grow_internal_lists (ap_prc, a_pid));
+  pp_hdr = tiz_vector_at (ap_prc->p_hdrs_, a_pid);
   assert (pp_hdr);
   return pp_hdr;
 }
 
-OMX_BUFFERHEADERTYPE **
-tiz_filter_prc_get_header_ptr (void *ap_obj, const OMX_U32 a_pid)
+OMX_BUFFERHEADERTYPE **tiz_filter_prc_get_header_ptr (void *ap_obj,
+                                                      const OMX_U32 a_pid)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
   assert (class->get_header_ptr);
   return class->get_header_ptr (ap_obj, a_pid);
 }
 
-static OMX_BUFFERHEADERTYPE *
-filter_prc_get_header (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
+static OMX_BUFFERHEADERTYPE *filter_prc_get_header (tiz_filter_prc_t *ap_prc,
+                                                    const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE *p_hdr = NULL;
   bool port_disabled = *(tiz_filter_prc_get_port_disabled_ptr (ap_prc, a_pid));
 
   if (!port_disabled)
     {
-      OMX_BUFFERHEADERTYPE **pp_hdr = tiz_filter_prc_get_header_ptr (ap_prc, a_pid);
+      OMX_BUFFERHEADERTYPE **pp_hdr
+          = tiz_filter_prc_get_header_ptr (ap_prc, a_pid);
       p_hdr = *pp_hdr;
-      if (NULL == p_hdr
-          && (OMX_ErrorNone == tiz_krn_claim_buffer
-              (tiz_get_krn (handleOf (ap_prc)), a_pid, 0, pp_hdr)))
+      if (!p_hdr && (OMX_ErrorNone
+                     == tiz_krn_claim_buffer (tiz_get_krn (handleOf (ap_prc)),
+                                              a_pid, 0, pp_hdr)))
         {
           p_hdr = *pp_hdr;
           if (p_hdr)
             {
               TIZ_TRACE (handleOf (ap_prc),
-                         "Claimed HEADER [%p] pid [%d] nFilledLen [%d]",
-                         p_hdr, a_pid, p_hdr->nFilledLen);
+                         "Claimed HEADER [%p] pid [%d] nFilledLen [%d]", p_hdr,
+                         a_pid, p_hdr->nFilledLen);
             }
         }
     }
@@ -120,36 +164,47 @@ filter_prc_get_header (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
   return p_hdr;
 }
 
-OMX_BUFFERHEADERTYPE *
-tiz_filter_prc_get_header (void *ap_obj, const OMX_U32 a_pid)
+OMX_BUFFERHEADERTYPE *tiz_filter_prc_get_header (void *ap_obj,
+                                                 const OMX_U32 a_pid)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
   assert (class->get_header);
   return class->get_header (ap_obj, a_pid);
 }
 
-static bool
-filter_prc_headers_available (const tiz_filter_prc_t *ap_prc)
+static bool filter_prc_headers_available (const tiz_filter_prc_t *ap_prc)
 {
-  bool rc = true;
   tiz_filter_prc_t *p_prc = (tiz_filter_prc_t *)ap_prc;
-  rc &= (NULL != tiz_filter_prc_get_header (p_prc, TIZ_FILTER_INPUT_PORT_INDEX));
-  rc &= (NULL != tiz_filter_prc_get_header (p_prc, TIZ_FILTER_OUTPUT_PORT_INDEX));
+  bool rc = true;
+  OMX_S32 i = 0;
+  assert (p_prc);
+  {
+    const OMX_S32 nhdrs = tiz_vector_length (p_prc->p_hdrs_);
+    for (i = 0; i < nhdrs; ++i)
+      {
+        bool port_disabled = *(tiz_filter_prc_get_port_disabled_ptr (p_prc, i));
+        if (!port_disabled)
+          {
+            rc &= (NULL != tiz_filter_prc_get_header (p_prc, i));
+          }
+      }
+  }
   return rc;
 }
 
-bool
-tiz_filter_prc_headers_available (const void *ap_obj)
+bool tiz_filter_prc_headers_available (const void *ap_obj)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
   assert (class->headers_available);
   return class->headers_available (ap_obj);
 }
 
-static OMX_ERRORTYPE
-filter_prc_release_header (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
+static OMX_ERRORTYPE filter_prc_release_header (tiz_filter_prc_t *ap_prc,
+                                                const OMX_U32 a_pid)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (ap_prc);
+  tiz_check_omx_err_ret_oom (lazily_grow_internal_lists (ap_prc, a_pid));
 
   if (OMX_ALL == a_pid)
     {
@@ -157,7 +212,8 @@ filter_prc_release_header (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
     }
   else
     {
-      OMX_BUFFERHEADERTYPE **pp_hdr = tiz_filter_prc_get_header_ptr (ap_prc, a_pid);
+      OMX_BUFFERHEADERTYPE **pp_hdr
+          = tiz_filter_prc_get_header_ptr (ap_prc, a_pid);
       OMX_BUFFERHEADERTYPE *p_hdr = NULL;
 
       assert (pp_hdr);
@@ -165,13 +221,14 @@ filter_prc_release_header (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
 
       if (p_hdr)
         {
-          TIZ_TRACE (handleOf (ap_prc), "Releasing HEADER [%p] pid [%d] "
+          TIZ_TRACE (handleOf (ap_prc),
+                     "Releasing HEADER [%p] pid [%d] "
                      "nFilledLen [%d] nFlags [%d]",
                      p_hdr, a_pid, p_hdr->nFilledLen, p_hdr->nFlags);
 
           p_hdr->nOffset = 0;
-          rc = tiz_krn_release_buffer
-             (tiz_get_krn (handleOf (ap_prc)), a_pid, p_hdr);
+          rc = tiz_krn_release_buffer (tiz_get_krn (handleOf (ap_prc)), a_pid,
+                                       p_hdr);
           *pp_hdr = NULL;
         }
     }
@@ -186,13 +243,15 @@ tiz_filter_prc_release_header (void *ap_obj, const OMX_U32 a_pid)
   return class->release_header (ap_obj, a_pid);
 }
 
-static OMX_ERRORTYPE
-filter_prc_release_all_headers (tiz_filter_prc_t *ap_prc)
+static OMX_ERRORTYPE filter_prc_release_all_headers (tiz_filter_prc_t *ap_prc)
 {
-  tiz_check_omx_err
-  (tiz_filter_prc_release_header (ap_prc, TIZ_FILTER_INPUT_PORT_INDEX));
-  tiz_check_omx_err
-  (tiz_filter_prc_release_header (ap_prc, TIZ_FILTER_OUTPUT_PORT_INDEX));
+  tiz_filter_prc_t *p_prc = ap_prc;
+  OMX_S32 i = 0;
+  const OMX_S32 nhdrs = tiz_vector_length (p_prc->p_hdrs_);
+  for (i = 0; i < nhdrs; ++i)
+    {
+      tiz_check_omx_err (tiz_filter_prc_release_header (ap_prc, i));
+    }
   return OMX_ErrorNone;
 }
 
@@ -204,59 +263,54 @@ tiz_filter_prc_release_all_headers (void *ap_obj)
   return class->release_all_headers (ap_obj);
 }
 
-static bool *
-filter_prc_get_port_disabled_ptr (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid)
+static bool *filter_prc_get_port_disabled_ptr (tiz_filter_prc_t *ap_prc,
+                                               const OMX_U32 a_pid)
 {
   bool *p_port_disabled = NULL;
   assert (ap_prc);
-  assert (a_pid <= TIZ_FILTER_OUTPUT_PORT_INDEX);
-  p_port_disabled = (a_pid == TIZ_FILTER_INPUT_PORT_INDEX
-                         ? &(ap_prc->in_port_disabled_)
-                         : &(ap_prc->out_port_disabled_));
+  tiz_check_omx_err_ret_null (lazily_grow_internal_lists (ap_prc, a_pid));
+  p_port_disabled = tiz_vector_at (ap_prc->p_disabled_flags_, a_pid);
   assert (p_port_disabled);
   return p_port_disabled;
 }
 
-bool *
-tiz_filter_prc_get_port_disabled_ptr (void *ap_obj, const OMX_U32 a_pid)
+bool *tiz_filter_prc_get_port_disabled_ptr (void *ap_obj, const OMX_U32 a_pid)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
   assert (class->get_port_disabled_ptr);
   return class->get_port_disabled_ptr (ap_obj, a_pid);
 }
 
-static bool
-filter_prc_is_eos (const tiz_filter_prc_t *ap_prc)
+static bool filter_prc_is_eos (const tiz_filter_prc_t *ap_prc)
 {
   assert (ap_prc);
   return ap_prc->eos_;
 }
 
-bool
-tiz_filter_prc_is_eos (const void *ap_obj)
+bool tiz_filter_prc_is_eos (const void *ap_obj)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
   assert (class->is_eos);
   return class->is_eos (ap_obj);
 }
 
-static void
-filter_prc_update_eos_flag (tiz_filter_prc_t *ap_prc, const bool flag)
+static void filter_prc_update_eos_flag (tiz_filter_prc_t *ap_prc,
+                                        const bool flag)
 {
   assert (ap_prc);
   ap_prc->eos_ = flag;
 }
 
-void
-tiz_filter_prc_update_eos_flag (void *ap_obj, const bool flag)
+void tiz_filter_prc_update_eos_flag (void *ap_obj, const bool flag)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
   assert (class->update_eos_flag);
   class->update_eos_flag (ap_obj, flag);
 }
 
-static void
-filter_prc_update_port_disabled_flag (tiz_filter_prc_t *ap_prc, const OMX_U32 a_pid, const bool flag)
+static void filter_prc_update_port_disabled_flag (tiz_filter_prc_t *ap_prc,
+                                                  const OMX_U32 a_pid,
+                                                  const bool flag)
 {
   bool *p_port_disabled = tiz_filter_prc_get_port_disabled_ptr (ap_prc, a_pid);
   assert (ap_prc);
@@ -264,8 +318,9 @@ filter_prc_update_port_disabled_flag (tiz_filter_prc_t *ap_prc, const OMX_U32 a_
   *p_port_disabled = flag;
 }
 
-void
-tiz_filter_prc_update_port_disabled_flag (void *ap_obj, const OMX_U32 a_pid, const bool flag)
+void tiz_filter_prc_update_port_disabled_flag (void *ap_obj,
+                                               const OMX_U32 a_pid,
+                                               const bool flag)
 {
   const tiz_filter_prc_class_t *class = classOf (ap_obj);
   assert (class->update_port_disabled_flag);
@@ -279,8 +334,8 @@ tiz_filter_prc_update_port_disabled_flag (void *ap_obj, const OMX_U32 a_pid, con
 static void *filter_prc_class_ctor (void *ap_obj, va_list *app)
 {
   tiz_filter_prc_class_t *p_obj
-    = super_ctor (typeOf (ap_obj, "tizfilterprc_class"), ap_obj, app);
-  typedef void (*voidf)();
+      = super_ctor (typeOf (ap_obj, "tizfilterprc_class"), ap_obj, app);
+  typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
   va_copy (ap, *app);
@@ -342,14 +397,15 @@ void *tiz_filter_prc_class_init (void *ap_tos, void *ap_hdl)
 {
   void *tizprc = tiz_get_type (ap_hdl, "tizprc");
   void *tizfilterprc_class = factory_new
-    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizprc), "tizfilterprc_class", classOf (tizprc), sizeof(tiz_filter_prc_class_t),
-     /* TIZ_CLASS_COMMENT: */
-     ap_tos, ap_hdl,
-     /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, filter_prc_class_ctor,
-     /* TIZ_CLASS_COMMENT: stop value*/
-     0);
+      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+      (classOf (tizprc), "tizfilterprc_class", classOf (tizprc),
+       sizeof (tiz_filter_prc_class_t),
+       /* TIZ_CLASS_COMMENT: */
+       ap_tos, ap_hdl,
+       /* TIZ_CLASS_COMMENT: class constructor */
+       ctor, filter_prc_class_ctor,
+       /* TIZ_CLASS_COMMENT: stop value*/
+       0);
   return tizfilterprc_class;
 }
 
@@ -360,7 +416,7 @@ void *tiz_filter_prc_init (void *ap_tos, void *ap_hdl)
   TIZ_LOG_CLASS (tizfilterprc_class);
   void *filterprc = factory_new
       /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (tizfilterprc_class, "tizfilterprc", tizprc, sizeof(tiz_filter_prc_t),
+      (tizfilterprc_class, "tizfilterprc", tizprc, sizeof (tiz_filter_prc_t),
        /* TIZ_CLASS_COMMENT: */
        ap_tos, ap_hdl,
        /* TIZ_CLASS_COMMENT: class constructor */
@@ -384,7 +440,8 @@ void *tiz_filter_prc_init (void *ap_tos, void *ap_hdl)
        /* TIZ_CLASS_COMMENT: */
        tiz_filter_prc_update_eos_flag, filter_prc_update_eos_flag,
        /* TIZ_CLASS_COMMENT: */
-       tiz_filter_prc_update_port_disabled_flag, filter_prc_update_port_disabled_flag,
+       tiz_filter_prc_update_port_disabled_flag,
+       filter_prc_update_port_disabled_flag,
        /* TIZ_CLASS_COMMENT: stop value*/
        0);
 
