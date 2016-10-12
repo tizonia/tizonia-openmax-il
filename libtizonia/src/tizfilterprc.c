@@ -281,6 +281,34 @@ bool *tiz_filter_prc_get_port_disabled_ptr (void *ap_obj, const OMX_U32 a_pid)
   return class->get_port_disabled_ptr (ap_obj, a_pid);
 }
 
+static bool filter_prc_is_port_disabled (tiz_filter_prc_t *ap_prc,
+                                               const OMX_U32 a_pid)
+{
+  assert (ap_prc);
+  return *(tiz_filter_prc_get_port_disabled_ptr(ap_prc, a_pid));
+}
+
+bool tiz_filter_prc_is_port_disabled (void *ap_obj, const OMX_U32 a_pid)
+{
+  const tiz_filter_prc_class_t *class = classOf (ap_obj);
+  assert (class->is_port_disabled);
+  return class->is_port_disabled (ap_obj, a_pid);
+}
+
+static bool filter_prc_is_port_enabled (tiz_filter_prc_t *ap_prc,
+                                        const OMX_U32 a_pid)
+{
+  assert (ap_prc);
+  return !(*(tiz_filter_prc_get_port_disabled_ptr(ap_prc, a_pid)));
+}
+
+bool tiz_filter_prc_is_port_enabled (void *ap_obj, const OMX_U32 a_pid)
+{
+  const tiz_filter_prc_class_t *class = classOf (ap_obj);
+  assert (class->is_port_enabled);
+  return class->is_port_enabled (ap_obj, a_pid);
+}
+
 static bool filter_prc_is_eos (const tiz_filter_prc_t *ap_prc)
 {
   assert (ap_prc);
@@ -435,6 +463,10 @@ void *tiz_filter_prc_init (void *ap_tos, void *ap_hdl)
        tiz_filter_prc_release_all_headers, filter_prc_release_all_headers,
        /* TIZ_CLASS_COMMENT: */
        tiz_filter_prc_get_port_disabled_ptr, filter_prc_get_port_disabled_ptr,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_filter_prc_is_port_disabled, filter_prc_is_port_disabled,
+       /* TIZ_CLASS_COMMENT: */
+       tiz_filter_prc_is_port_enabled, filter_prc_is_port_enabled,
        /* TIZ_CLASS_COMMENT: */
        tiz_filter_prc_is_eos, filter_prc_is_eos,
        /* TIZ_CLASS_COMMENT: */
