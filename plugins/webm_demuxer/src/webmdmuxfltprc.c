@@ -403,7 +403,9 @@ static OMX_ERRORTYPE demux_stream (webmdmuxflt_prc_t *ap_prc)
         unsigned int track = 0;
         assert (ap_prc->p_ne_pkt_);
         nestegg_packet_track (ap_prc->p_ne_pkt_, &track);
-        if (track == ap_prc->ne_audio_track_)
+        if (track == ap_prc->ne_audio_track_
+            && !tiz_filter_prc_is_port_disabled (
+                   ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX))
           {
             extract_data (ap_prc, track,
                           ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
