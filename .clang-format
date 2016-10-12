@@ -20,53 +20,87 @@
 # This is for C projects (C++ projects use Allman style).
 #
 
----
+----
 Language:        Cpp
 # BasedOnStyle:  Google
 AccessModifierOffset: -2
-ConstructorInitializerIndentWidth: 2
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
 AlignEscapedNewlinesLeft: true
+AlignOperands:   true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: false
-AlwaysBreakTemplateDeclarations: true
+AlwaysBreakAfterDefinitionReturnType: All
+AlwaysBreakAfterReturnType: All
 AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: true
+BinPackArguments: true
+BinPackParameters: true
+BraceWrapping:   
+  AfterClass:      false
+  AfterControlStatement: false
+  AfterEnum:       false
+  AfterFunction:   false
+  AfterNamespace:  false
+  AfterObjCDeclaration: false
+  AfterStruct:     false
+  AfterUnion:      false
+  BeforeCatch:     false
+  BeforeElse:      false
+  IndentBraces:    false
 BreakBeforeBinaryOperators: true
+BreakBeforeBraces: GNU
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
-BinPackParameters: true
 ColumnLimit:     80
 CommentPragmas: "^ TIZ_CLASS_COMMENT:"
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
-DerivePointerBinding: true
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+DisableFormat:   false
 ExperimentalAutoDetectBinPacking: false
+ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH ]
+IncludeCategories: 
+  - Regex:           '^<.*\.h>'
+    Priority:        1
+  - Regex:           '^<.*'
+    Priority:        2
+  - Regex:           '.*'
+    Priority:        3
 IndentCaseLabels: true
+IndentWidth:     2
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
 ObjCSpaceBeforeProtocolList: false
 PenaltyBreakBeforeFirstCallParameter: 1
 PenaltyBreakComment: 60
-PenaltyBreakString: 1000
 PenaltyBreakFirstLessLess: 120
+PenaltyBreakString: 1000
 PenaltyExcessCharacter: 1000000
-PenaltyReturnTypeOnItsOwnLine: 200
-PointerBindsToType: false
+PenaltyReturnTypeOnItsOwnLine: 0
+PointerAlignment: Middle
+ReflowComments: false
+SortIncludes: false
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: Always
+SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
-Cpp11BracedListStyle: false
+SpacesInAngles:  true
+SpacesInContainerLiterals: true
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
 Standard:        Auto
-IndentWidth:     2
 TabWidth:        8
 UseTab:          Never
-BreakBeforeBraces: GNU
-IndentFunctionDeclarationAfterType: true
-SpacesInParentheses: false
-SpacesInAngles:  true
-SpaceInEmptyParentheses: false
-SpacesInCStyleCastParentheses: false
-SpaceBeforeAssignmentOperators: true
-ContinuationIndentWidth: 4
-SpaceBeforeParens: Always
 ...
 
