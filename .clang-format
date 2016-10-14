@@ -67,7 +67,7 @@ PenaltyReturnTypeOnItsOwnLine: 0
 PointerAlignment: Middle
 ReflowComments: false
 SortIncludes: false
-SpaceAfterCStyleCast: false
+SpaceAfterCStyleCast: true
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: Always
 SpaceInEmptyParentheses: false
