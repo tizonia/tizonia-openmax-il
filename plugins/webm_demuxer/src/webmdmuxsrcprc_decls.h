@@ -47,9 +47,9 @@ struct webmdmuxsrc_prc
 {
   /* Object */
   const tiz_prc_t _;
-  OMX_BUFFERHEADERTYPE *p_outhdr_;
-  OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  tiz_urltrans_t *p_trans_;
+  OMX_BUFFERHEADERTYPE * p_outhdr_;
+  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
+  tiz_urltrans_t * p_trans_;
   bool eos_;
   bool port_disabled_;
   bool uri_changed_;

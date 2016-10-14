@@ -30,15 +30,16 @@
 #define WEBMDMUXSRCPRC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * webmdmuxsrc_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * webmdmuxsrc_prc_init (void * ap_tos, void * ap_hdl);
+void *
+webmdmuxsrc_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+webmdmuxsrc_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* WEBMDMUXSRCPRC_H */
+#endif /* WEBMDMUXSRCPRC_H */
