@@ -46,6 +46,7 @@ struct tiz_filter_prc
   const tiz_prc_t _;
   tiz_vector_t *p_hdrs_;
   tiz_vector_t *p_disabled_flags_;
+  tiz_vector_t *p_port_dirs_;
   bool eos_;
 };
 
