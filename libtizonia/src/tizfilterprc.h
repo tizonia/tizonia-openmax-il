@@ -36,20 +36,34 @@ extern "C" {
 #define TIZ_FILTER_INPUT_PORT_INDEX 0
 #define TIZ_FILTER_OUTPUT_PORT_INDEX 1
 
-void *tiz_filter_prc_class_init (void *ap_tos, void *ap_hdl);
-void *tiz_filter_prc_init (void *ap_tos, void *ap_hdl);
+void *
+tiz_filter_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_filter_prc_init (void * ap_tos, void * ap_hdl);
 
-OMX_BUFFERHEADERTYPE **tiz_filter_prc_get_header_ptr (void *ap_obj, const OMX_U32 a_pid);
-OMX_BUFFERHEADERTYPE * tiz_filter_prc_get_header (void *ap_obj, const OMX_U32 a_pid);
-bool tiz_filter_prc_headers_available (const void *ap_obj);
-OMX_ERRORTYPE tiz_filter_prc_release_header (void *ap_obj, const OMX_U32 a_pid);
-OMX_ERRORTYPE tiz_filter_prc_release_all_headers (void *ap_obj);
-bool * tiz_filter_prc_get_port_disabled_ptr (void *ap_obj, const OMX_U32 a_pid);
-bool tiz_filter_prc_is_port_disabled (void *ap_obj, const OMX_U32 a_pid);
-bool tiz_filter_prc_is_port_enabled (void *ap_obj, const OMX_U32 a_pid);
-bool tiz_filter_prc_is_eos (const void *ap_obj);
-void tiz_filter_prc_update_eos_flag (void *ap_obj, const bool flag);
-void tiz_filter_prc_update_port_disabled_flag (void *ap_obj, const OMX_U32 a_pid, const bool flag);
+OMX_BUFFERHEADERTYPE **
+tiz_filter_prc_get_header_ptr (void * ap_obj, const OMX_U32 a_pid);
+OMX_BUFFERHEADERTYPE *
+tiz_filter_prc_get_header (void * ap_obj, const OMX_U32 a_pid);
+bool
+tiz_filter_prc_headers_available (const void * ap_obj);
+OMX_ERRORTYPE
+tiz_filter_prc_release_header (void * ap_obj, const OMX_U32 a_pid);
+OMX_ERRORTYPE
+tiz_filter_prc_release_all_headers (void * ap_obj);
+bool *
+tiz_filter_prc_get_port_disabled_ptr (void * ap_obj, const OMX_U32 a_pid);
+bool
+tiz_filter_prc_is_port_disabled (void * ap_obj, const OMX_U32 a_pid);
+bool
+tiz_filter_prc_is_port_enabled (void * ap_obj, const OMX_U32 a_pid);
+bool
+tiz_filter_prc_is_eos (const void * ap_obj);
+void
+tiz_filter_prc_update_eos_flag (void * ap_obj, const bool flag);
+void
+tiz_filter_prc_update_port_disabled_flag (void * ap_obj, const OMX_U32 a_pid,
+                                          const bool flag);
 
 #ifdef __cplusplus
 }
