@@ -30,6 +30,10 @@
 #include <config.h>
 #endif
 
+#ifdef _DEBUG
+#include <alloca.h>
+#endif
+
 #include <assert.h>
 #include <string.h>
 
@@ -47,6 +51,10 @@
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
 #define TIZ_LOG_CATEGORY_NAME "tiz.webm_demuxer.prc"
+#endif
+
+#ifdef _DEBUG
+static OMX_HANDLETYPE g_handle = NULL;
 #endif
 
 /* Forward declarations */
@@ -86,7 +94,11 @@ ne_io_read (void * ap_buffer, size_t a_length, void * a_userdata)
   int retval = -1;
 
   assert (a_userdata);
-  assert (ap_buffer);
+
+  if (tiz_filter_prc_is_eos (p_prc))
+    {
+      return 0;
+    }
 
   (void) store_data (p_prc);
 
@@ -117,6 +129,7 @@ ne_io_read (void * ap_buffer, size_t a_length, void * a_userdata)
       else
         {
           TIZ_TRACE (handleOf (p_prc), "Run out of compressed data");
+          retval = -1;
         }
     }
 
@@ -155,36 +168,43 @@ ne_io_tell (void * userdata)
 static void
 ne_log_cback (nestegg * ctx, unsigned int severity, char const * fmt, ...)
 {
-  va_list ap;
-  char const * sev = NULL;
+#ifdef _DEBUG
 
-#if !defined(DEBUG)
-  if (severity < NESTEGG_LOG_WARNING)
-    return;
-#endif
-
-  switch (severity)
+  if (g_handle)
     {
-      case NESTEGG_LOG_DEBUG:
-        sev = "debug:   ";
-        break;
-      case NESTEGG_LOG_WARNING:
-        sev = "warning: ";
-        break;
-      case NESTEGG_LOG_CRITICAL:
-        sev = "critical:";
-        break;
-      default:
-        sev = "unknown: ";
+      va_list ap;
+      char * p_buffer = alloca (4096);
+
+      va_start (ap, fmt);
+      vsprintf (p_buffer, fmt, ap);
+      va_end (ap);
+
+      switch (severity)
+        {
+          case NESTEGG_LOG_DEBUG:
+            {
+              TIZ_DEBUG (g_debug, fmt, ap);
+            }
+            break;
+          case NESTEGG_LOG_WARNING:
+            {
+              TIZ_WARN (g_handle, fmt, ap);
+            }
+            break;
+          case NESTEGG_LOG_CRITICAL:
+            {
+              TIZ_ERROR (g_handle, fmt, ap);
+            }
+            break;
+          default:
+            {
+              TIZ_NOTICE (g_handle, fmt, ap);
+            }
+            break;
+        };
     }
 
-  fprintf (stderr, "%p %s ", (void *) ctx, sev);
-
-  va_start (ap, fmt);
-  vfprintf (stderr, fmt, ap);
-  va_end (ap);
-
-  fprintf (stderr, "\n");
+#endif
 }
 
 static OMX_ERRORTYPE
@@ -740,6 +760,10 @@ webmdmuxflt_prc_ctor (void * ap_prc, va_list * app)
   reset_stream_parameters (p_prc);
   reset_nestegg_object (p_prc);
 
+#ifdef _DEBUG
+  g_handle = handleOf (ap_prc);
+#endif
+
   return p_prc;
 }
 
@@ -747,6 +771,9 @@ static void *
 webmdmuxflt_prc_dtor (void * ap_obj)
 {
   (void) webmdmuxflt_prc_deallocate_resources (ap_obj);
+#ifdef _DEBUG
+  g_handle = NULL;
+#endif
   return super_dtor (typeOf (ap_obj, "webmdmuxfltprc"), ap_obj);
 }
 
