@@ -59,6 +59,8 @@ lazily_grow_internal_lists (tiz_filter_prc_t * ap_prc, const OMX_U32 a_pid)
   assert (ap_prc);
   assert (tiz_vector_length (ap_prc->p_hdrs_)
           == tiz_vector_length (ap_prc->p_disabled_flags_));
+  assert (tiz_vector_length (ap_prc->p_hdrs_)
+          == tiz_vector_length (ap_prc->p_port_dirs_));
   if (a_pid >= tiz_vector_length (ap_prc->p_hdrs_))
     {
       int i = 0;
@@ -183,8 +185,8 @@ filter_prc_headers_available (const tiz_filter_prc_t * ap_prc)
   {
     OMX_S32 i = 0;
     const OMX_S32 nhdrs = tiz_vector_length (p_prc->p_hdrs_);
-    assert ((nhdrs == tiz_vector_length (p_prc->p_disabled_flags_))
-            == tiz_vector_length (p_prc->p_port_dirs_));
+    assert (nhdrs == tiz_vector_length (p_prc->p_disabled_flags_));
+    assert (nhdrs == tiz_vector_length (p_prc->p_port_dirs_));
     for (i = 0; i < nhdrs; ++i)
       {
         if (tiz_filter_prc_is_port_enabled (p_prc, i))
