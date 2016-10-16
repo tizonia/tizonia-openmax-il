@@ -46,6 +46,7 @@ declare -ar SKEMA_EXEMPT_SUITES=( \
     "OpusPlayback" \
     "PcmPlaybackPulse" \
     "WavPlayback" \
+    "WebmOpusPlayback" \
 )
 
 # Export important variables
