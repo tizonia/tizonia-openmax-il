@@ -21,7 +21,7 @@
  * @file   webmdmuxfltprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - WebM demuxer processor
+ * @brief  Tizonia - WebM demuxer filter processor
  *
  *
  */
@@ -50,7 +50,7 @@
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.webm_demuxer.prc"
+#define TIZ_LOG_CATEGORY_NAME "tiz.webm_demuxer.filter.prc"
 #endif
 
 #ifdef _DEBUG
