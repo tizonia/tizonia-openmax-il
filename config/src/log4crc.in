@@ -108,6 +108,9 @@
 <!--         <category name="tiz.sndfile_decoder.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.spotify_source" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.spotify_source.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.webm_demuxer" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.webm_demuxer.source.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.webm_demuxer.filter.prc" priority="trace" appender="tizlogfile" /> -->
 
 <!--         <category name="tiz.play" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.play.omxutil" priority="trace" appender="tizlogfile" /> -->
