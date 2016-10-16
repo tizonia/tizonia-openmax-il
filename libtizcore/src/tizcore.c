@@ -784,20 +784,23 @@ scan_component_folders (void)
         {
           while ((p_dir_entry = readdir (p_dir)))
             {
-              TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]",
-                       p_dir_entry->d_name);
-              if (p_dir_entry->d_type == DT_REG)
+              if (p_dir_entry->d_name[0] != '.'
+                  && p_dir_entry->d_name[strlen (p_dir_entry->d_name) - 1]
+                       != 'a')
                 {
-                  if (OMX_ErrorInsufficientResources
-                      == cache_comp_info (pp_paths[i],
-                                          p_dir_entry->d_name))
+                  TIZ_LOG (TIZ_PRIORITY_TRACE, "[%s]", p_dir_entry->d_name);
+                  if (p_dir_entry->d_type == DT_REG)
                     {
-                      (void)closedir (p_dir);
-                      free_paths (pp_paths, npaths);
-                      return OMX_ErrorInsufficientResources;
+                      if (OMX_ErrorInsufficientResources
+                          == cache_comp_info (pp_paths[i], p_dir_entry->d_name))
+                        {
+                          (void) closedir (p_dir);
+                          free_paths (pp_paths, npaths);
+                          return OMX_ErrorInsufficientResources;
+                        }
                     }
                 }
-            }
+            } /* while */
 
           (void)closedir (p_dir);
         }
@@ -943,7 +946,7 @@ instantiate_component (tiz_core_msg_gethandle_t * ap_msg)
           if (NULL == (p_hdl = (OMX_COMPONENTTYPE *) tiz_mem_calloc
                        (1, (sizeof (OMX_COMPONENTTYPE)))))
             {
-              TIZ_LOG (TIZ_PRIORITY_ERROR, "{OMX_ErrorInsufficientResources] : "
+              TIZ_LOG (TIZ_PRIORITY_ERROR, "[OMX_ErrorInsufficientResources] : "
                        "Could not allocate memory for component handle");
               dlclose (p_dl_hdl);
               return OMX_ErrorInsufficientResources;
