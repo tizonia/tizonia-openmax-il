@@ -54,7 +54,7 @@ static OMX_ERRORTYPE
 filter_prc_release_all_headers (tiz_filter_prc_t * ap_prc);
 
 static OMX_ERRORTYPE
-lazily_grow_internal_lists (tiz_filter_prc_t * ap_prc, const OMX_U32 a_pid)
+grow_internal_lists (tiz_filter_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   assert (ap_prc);
   assert (tiz_vector_length (ap_prc->p_hdrs_)
@@ -103,6 +103,16 @@ filter_prc_ctor (void * ap_obj, va_list * app)
   tiz_check_omx_err_ret_null (
     tiz_vector_init (&(p_prc->p_port_dirs_), sizeof (OMX_DIRTYPE)));
 
+  /* Initialise the internal lists */
+  {
+    OMX_U32 pid = 0;
+    while (tiz_krn_get_port (tiz_get_krn (handleOf (p_prc)), pid))
+      {
+        grow_internal_lists(p_prc, pid);
+        ++pid;
+      }
+  }
+
   p_prc->eos_ = false;
   return p_prc;
 }
@@ -112,6 +122,8 @@ filter_prc_dtor (void * ap_obj)
 {
   tiz_filter_prc_t * p_prc = ap_obj;
   assert (p_prc);
+  tiz_vector_clear (p_prc->p_port_dirs_);
+  tiz_vector_destroy (p_prc->p_port_dirs_);
   tiz_vector_clear (p_prc->p_disabled_flags_);
   tiz_vector_destroy (p_prc->p_disabled_flags_);
   tiz_vector_clear (p_prc->p_hdrs_);
@@ -124,7 +136,6 @@ filter_prc_get_header_ptr (tiz_filter_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_BUFFERHEADERTYPE ** pp_hdr = NULL;
   assert (ap_prc);
-  tiz_check_omx_err_ret_null (lazily_grow_internal_lists (ap_prc, a_pid));
   pp_hdr = tiz_vector_at (ap_prc->p_hdrs_, a_pid);
   assert (pp_hdr);
   return pp_hdr;
@@ -189,26 +200,24 @@ filter_prc_headers_available (const tiz_filter_prc_t * ap_prc)
     assert (nhdrs == tiz_vector_length (p_prc->p_port_dirs_));
     for (i = 0; i < nhdrs; ++i)
       {
-        if (tiz_filter_prc_is_port_enabled (p_prc, i))
+        const OMX_DIRTYPE * p_dir = tiz_vector_at (p_prc->p_port_dirs_, i);
+        assert (p_dir);
+        if (tiz_filter_prc_get_header (p_prc, i))
           {
-            const OMX_DIRTYPE * p_dir = tiz_vector_at (p_prc->p_port_dirs_, i);
-            assert (p_dir);
-            if (tiz_filter_prc_get_header (p_prc, i))
+            assert (*p_dir != OMX_DirMax);
+            if (*p_dir == OMX_DirInput)
               {
-                assert (*p_dir != OMX_DirMax);
-                if (*p_dir == OMX_DirInput)
-                  {
-                    ++in_hdrs;
-                  }
-                else
-                  {
-                    ++out_hdrs;
-                  }
+                ++in_hdrs;
+              }
+            else
+              {
+                ++out_hdrs;
               }
           }
       }
+    TIZ_DEBUG (handleOf (ap_prc), "nhdrs = %d - in = %d - out = %d", nhdrs,
+               in_hdrs, out_hdrs);
   }
-
   return (in_hdrs > 0 && out_hdrs > 0);
 }
 
@@ -225,7 +234,6 @@ filter_prc_release_header (tiz_filter_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
-  tiz_check_omx_err_ret_oom (lazily_grow_internal_lists (ap_prc, a_pid));
 
   if (OMX_ALL == a_pid)
     {
@@ -291,9 +299,10 @@ filter_prc_get_port_disabled_ptr (tiz_filter_prc_t * ap_prc,
 {
   bool * p_port_disabled = NULL;
   assert (ap_prc);
-  tiz_check_omx_err_ret_null (lazily_grow_internal_lists (ap_prc, a_pid));
   p_port_disabled = tiz_vector_at (ap_prc->p_disabled_flags_, a_pid);
   assert (p_port_disabled);
+  TIZ_DEBUG (handleOf (ap_prc), "pid = [%u] disabled [%s]", a_pid,
+             (*p_port_disabled ? "YES" : "NO"));
   return p_port_disabled;
 }
 
@@ -324,7 +333,7 @@ static bool
 filter_prc_is_port_enabled (tiz_filter_prc_t * ap_prc, const OMX_U32 a_pid)
 {
   assert (ap_prc);
-  return !(*(tiz_filter_prc_get_port_disabled_ptr (ap_prc, a_pid)));
+  return !(tiz_filter_prc_is_port_disabled (ap_prc, a_pid));
 }
 
 bool
