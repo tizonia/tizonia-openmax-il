@@ -47,6 +47,8 @@ OMX_BUFFERHEADERTYPE *
 tiz_filter_prc_get_header (void * ap_obj, const OMX_U32 a_pid);
 bool
 tiz_filter_prc_headers_available (const void * ap_obj);
+bool
+tiz_filter_prc_output_headers_available (const void * ap_obj);
 OMX_ERRORTYPE
 tiz_filter_prc_release_header (void * ap_obj, const OMX_U32 a_pid);
 OMX_ERRORTYPE

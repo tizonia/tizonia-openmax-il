@@ -229,6 +229,44 @@ tiz_filter_prc_headers_available (const void * ap_obj)
   return class->headers_available (ap_obj);
 }
 
+static bool
+filter_prc_output_headers_available (const tiz_filter_prc_t * ap_prc)
+{
+  tiz_filter_prc_t * p_prc = (tiz_filter_prc_t *) ap_prc;
+  OMX_U32 out_hdrs = 0;
+  assert (p_prc);
+
+  {
+    OMX_S32 i = 0;
+    const OMX_S32 nhdrs = tiz_vector_length (p_prc->p_hdrs_);
+    assert (nhdrs == tiz_vector_length (p_prc->p_disabled_flags_));
+    assert (nhdrs == tiz_vector_length (p_prc->p_port_dirs_));
+    for (i = 0; i < nhdrs; ++i)
+      {
+        const OMX_DIRTYPE * p_dir = tiz_vector_at (p_prc->p_port_dirs_, i);
+        assert (p_dir);
+        if (tiz_filter_prc_get_header (p_prc, i))
+          {
+            assert (*p_dir != OMX_DirMax);
+            if (*p_dir == OMX_DirOutput)
+              {
+                ++out_hdrs;
+              }
+          }
+      }
+    TIZ_DEBUG (handleOf (ap_prc), "nhdrs = %d - out = %d", nhdrs, out_hdrs);
+  }
+  return (out_hdrs > 0);
+}
+
+bool
+tiz_filter_prc_output_headers_available (const void * ap_obj)
+{
+  const tiz_filter_prc_class_t * class = classOf (ap_obj);
+  assert (class->output_headers_available);
+  return class->output_headers_available (ap_obj);
+}
+
 static OMX_ERRORTYPE
 filter_prc_release_header (tiz_filter_prc_t * ap_prc, const OMX_U32 a_pid)
 {
@@ -424,6 +462,10 @@ filter_prc_class_ctor (void * ap_obj, va_list * app)
         {
           *(voidf *) &p_obj->headers_available = method;
         }
+      else if (selector == (voidf) tiz_filter_prc_output_headers_available)
+        {
+          *(voidf *) &p_obj->output_headers_available = method;
+        }
       else if (selector == (voidf) tiz_filter_prc_release_header)
         {
           *(voidf *) &p_obj->release_header = method;
@@ -435,6 +477,14 @@ filter_prc_class_ctor (void * ap_obj, va_list * app)
       else if (selector == (voidf) tiz_filter_prc_get_port_disabled_ptr)
         {
           *(voidf *) &p_obj->get_port_disabled_ptr = method;
+        }
+      else if (selector == (voidf) tiz_filter_prc_is_port_disabled)
+        {
+          *(voidf *) &p_obj->is_port_disabled = method;
+        }
+      else if (selector == (voidf) tiz_filter_prc_is_port_enabled)
+        {
+          *(voidf *) &p_obj->is_port_enabled = method;
         }
       else if (selector == (voidf) tiz_filter_prc_is_eos)
         {
@@ -498,6 +548,8 @@ tiz_filter_prc_init (void * ap_tos, void * ap_hdl)
      tiz_filter_prc_get_header, filter_prc_get_header,
      /* TIZ_CLASS_COMMENT: */
      tiz_filter_prc_headers_available, filter_prc_headers_available,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_filter_prc_output_headers_available, filter_prc_output_headers_available,
      /* TIZ_CLASS_COMMENT: */
      tiz_filter_prc_release_header, filter_prc_release_header,
      /* TIZ_CLASS_COMMENT: */

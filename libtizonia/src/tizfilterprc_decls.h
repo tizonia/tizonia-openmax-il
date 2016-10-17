@@ -59,6 +59,7 @@ struct tiz_filter_prc_class
                                              const OMX_U32 a_pid);
   OMX_BUFFERHEADERTYPE * (*get_header) (void * ap_obj, const OMX_U32 a_pid);
   bool (*headers_available) (const void * ap_obj);
+  bool (*output_headers_available) (const void * ap_obj);
   OMX_ERRORTYPE (*release_header) (void * ap_obj, const OMX_U32 a_pid);
   OMX_ERRORTYPE (*release_all_headers) (void * ap_obj);
   bool * (*get_port_disabled_ptr) (void * ap_obj, const OMX_U32 a_pid);
