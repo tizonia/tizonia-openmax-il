@@ -106,7 +106,7 @@ ne_io_read (void * ap_buffer, size_t a_length, void * a_userdata)
                  (p_prc->demuxer_inited_ ? "YES" : "NO"), a_length,
                  tiz_buffer_available (p_prc->p_store_), p_prc->store_offset_);
 
-      if (tiz_buffer_available (p_prc->p_store_) > 0)
+      if (tiz_buffer_available (p_prc->p_store_) >= a_length)
         {
           int bytes_read = MIN (a_length, tiz_buffer_available (p_prc->p_store_)
                                             - p_prc->store_offset_);
@@ -327,6 +327,7 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
       unsigned int chunks = 0;
       unsigned char * p_data = NULL;
       size_t data_size = 0;
+      int nestegg_rc = 0;
 
       assert (ap_prc);
       assert (ap_prc->p_ne_pkt_);
@@ -336,9 +337,9 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
       /* Extract as many chunks of data as possible. */
       assert (ap_prc->ne_chunk_ <= chunks);
       while (ap_prc->ne_chunk_ < chunks
-             && (nestegg_packet_data (ap_prc->p_ne_pkt_, ap_prc->ne_chunk_,
-                                      &p_data, &data_size)
-                 > 0)
+             && ((nestegg_rc = nestegg_packet_data (ap_prc->p_ne_pkt_, ap_prc->ne_chunk_,
+                                                    &p_data, &data_size))
+                 == 0)
              && TIZ_OMX_BUF_AVAIL (p_out_hdr) >= data_size)
         {
           memcpy (TIZ_OMX_BUF_PTR (p_out_hdr) + p_out_hdr->nFilledLen, p_data,
@@ -347,13 +348,15 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
           ++ap_prc->ne_chunk_;
         }
 
-      TIZ_DEBUG (handleOf (ap_prc),
-                 "avail %d - data_size %d - ne_chunk_ = %d - chunks %d",
-                 TIZ_OMX_BUF_AVAIL (p_out_hdr), data_size, ap_prc->ne_chunk_,
-                 chunks);
+      TIZ_DEBUG (
+        handleOf (ap_prc),
+        "nestegg_rc %d - alloc %d - avail %d - fill %d - data_size %d - ne_chunk_ = %d - "
+        "chunks %d", nestegg_rc,
+        TIZ_OMX_BUF_ALLOC_LEN (p_out_hdr), TIZ_OMX_BUF_AVAIL (p_out_hdr),
+        TIZ_OMX_BUF_FILL_LEN (p_out_hdr), data_size, ap_prc->ne_chunk_, chunks);
+
       /* Release the OMX buffer */
-      if (TIZ_OMX_BUF_AVAIL (p_out_hdr) < data_size
-          || (ap_prc->ne_chunk_ >= chunks))
+      if (TIZ_OMX_BUF_AVAIL (p_out_hdr) < data_size)
         {
           tiz_check_omx_err (release_output_header (ap_prc, a_pid));
         }
@@ -408,7 +411,7 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
     assert (ap_prc);
     assert (ap_prc->p_ne_ctx_);
 
-    while (tiz_buffer_available (ap_prc->p_store_))
+    while (OMX_ErrorNone == am_i_able_to_demux (ap_prc))
       {
     if (ap_prc->p_ne_pkt_
         || (nestegg_rc
