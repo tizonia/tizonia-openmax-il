@@ -179,7 +179,6 @@ static OMX_ERRORTYPE init_opus_decoder (opusfiled_prc_t *ap_prc)
       ap_prc->p_opus_dec_
           = op_open_callbacks (ap_prc, &op_cbacks, NULL, 0, &op_error);
 
-      ap_prc->store_offset_ = 0;
       if (0 != op_error)
         {
           TIZ_ERROR (handleOf (ap_prc),
@@ -193,8 +192,8 @@ static OMX_ERRORTYPE init_opus_decoder (opusfiled_prc_t *ap_prc)
                      ap_prc->store_offset_);
           ap_prc->decoder_inited_ = true;
           tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_);
-
         }
+      ap_prc->store_offset_ = 0;
     }
   else
     {
