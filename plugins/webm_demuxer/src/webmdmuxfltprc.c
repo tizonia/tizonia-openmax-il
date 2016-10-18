@@ -30,9 +30,7 @@
 #include <config.h>
 #endif
 
-#ifdef _DEBUG
 #include <alloca.h>
-#endif
 
 #include <assert.h>
 #include <string.h>
@@ -53,9 +51,7 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.webm_demuxer.filter.prc"
 #endif
 
-#ifdef _DEBUG
 static OMX_HANDLETYPE g_handle = NULL;
-#endif
 
 /* Forward declarations */
 static OMX_ERRORTYPE
@@ -169,8 +165,6 @@ ne_io_tell (void * userdata)
 static void
 ne_log_cback (nestegg * ctx, unsigned int severity, char const * fmt, ...)
 {
-#ifdef _DEBUG
-
   if (g_handle)
     {
       va_list ap;
@@ -184,7 +178,7 @@ ne_log_cback (nestegg * ctx, unsigned int severity, char const * fmt, ...)
         {
           case NESTEGG_LOG_DEBUG:
             {
-              TIZ_DEBUG (g_debug, fmt, ap);
+              TIZ_DEBUG (g_handle, fmt, ap);
             }
             break;
           case NESTEGG_LOG_WARNING:
@@ -204,8 +198,6 @@ ne_log_cback (nestegg * ctx, unsigned int severity, char const * fmt, ...)
             break;
         };
     }
-
-#endif
 }
 
 static OMX_ERRORTYPE
@@ -296,8 +288,8 @@ store_data (webmdmuxflt_prc_t * ap_prc)
   bool rc = OMX_ErrorNone;
   assert (ap_prc);
 
-  if ((tiz_buffer_available (ap_prc->p_store_) - ap_prc->store_offset_)
-      < ARATELIA_WEBM_DEMUXER_WEBM_PORT_MIN_BUF_SIZE)
+/*   if ((tiz_buffer_available (ap_prc->p_store_) - ap_prc->store_offset_) */
+/*       < ARATELIA_WEBM_DEMUXER_WEBM_PORT_MIN_BUF_SIZE) */
     {
       OMX_BUFFERHEADERTYPE * p_in = tiz_filter_prc_get_header (
         ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_0_INDEX);
@@ -416,6 +408,8 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
     assert (ap_prc);
     assert (ap_prc->p_ne_ctx_);
 
+    while (tiz_buffer_available (ap_prc->p_store_))
+      {
     if (ap_prc->p_ne_pkt_
         || (nestegg_rc
             = nestegg_read_packet (ap_prc->p_ne_ctx_, &ap_prc->p_ne_pkt_))
@@ -445,6 +439,7 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
     else
       {
         TIZ_DEBUG (handleOf (ap_prc), "read packet return code %d", nestegg_rc);
+      }
       }
   }
 
@@ -779,9 +774,7 @@ webmdmuxflt_prc_ctor (void * ap_prc, va_list * app)
   reset_stream_parameters (p_prc);
   reset_nestegg_object (p_prc);
 
-#ifdef _DEBUG
   g_handle = handleOf (ap_prc);
-#endif
 
   return p_prc;
 }
@@ -790,9 +783,7 @@ static void *
 webmdmuxflt_prc_dtor (void * ap_obj)
 {
   (void) webmdmuxflt_prc_deallocate_resources (ap_obj);
-#ifdef _DEBUG
   g_handle = NULL;
-#endif
   return super_dtor (typeOf (ap_obj, "webmdmuxfltprc"), ap_obj);
 }
 
