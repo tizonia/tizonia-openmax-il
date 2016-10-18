@@ -225,22 +225,3 @@ void tiz_buffer_clear (tiz_buffer_t *ap_buf)
       ap_buf->filled_len = 0;
     }
 }
-
-/* DEPRECATED. For backward compatibility only. Will be removed in a future release. */
-int tiz_buffer_store_data (tiz_buffer_t *ap_buf, const void *ap_data,
-                           const size_t a_nbytes)
-{
-  return tiz_buffer_push (ap_buf, ap_data, a_nbytes);
-}
-
-/* DEPRECATED. For backward compatibility only. Will be removed in a future release. */
-int tiz_buffer_bytes_available (const tiz_buffer_t *ap_buf)
-{
-  return tiz_buffer_available (ap_buf);
-}
-
-/* DEPRECATED. For backward compatibility only. Will be removed in a future release. */
-void *tiz_buffer_get_data (const tiz_buffer_t *ap_buf)
-{
-  return tiz_buffer_get (ap_buf);
-}
