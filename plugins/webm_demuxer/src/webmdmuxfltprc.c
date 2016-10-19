@@ -113,11 +113,11 @@ ne_io_read (void * ap_buffer, size_t a_length, void * a_userdata)
           memcpy (ap_buffer,
                   tiz_buffer_get (p_prc->p_store_) + p_prc->store_offset_,
                   bytes_read);
-          if (p_prc->demuxer_inited_)
-            {
-              tiz_buffer_advance (p_prc->p_store_, bytes_read);
-            }
-          else
+/*           if (p_prc->demuxer_inited_) */
+/*             { */
+/*               tiz_buffer_advance (p_prc->p_store_, bytes_read); */
+/*             } */
+/*           else */
             {
               p_prc->store_offset_ += bytes_read;
             }
@@ -728,6 +728,7 @@ allocate_nestegg_object (webmdmuxflt_prc_t * ap_prc)
                      "Unable to open the nestegg demuxer handle (error = %d).",
                      nestegg_rc);
           deallocate_nestegg_object (ap_prc);
+          ap_prc->store_offset_ = 0;
         }
       else
         {
@@ -739,9 +740,8 @@ allocate_nestegg_object (webmdmuxflt_prc_t * ap_prc)
               send_port_auto_detect_events (ap_prc);
             }
           ap_prc->demuxer_inited_ = true;
-          tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_);
+/*           tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_); */
         }
-      ap_prc->store_offset_ = 0;
     }
 
   return rc;
