@@ -49,7 +49,7 @@ extern "C" {
  * @ingroup tizbuffer
  */
 typedef struct tiz_buffer tiz_buffer_t;
-typedef /*@null@ */ tiz_buffer_t *tiz_buffer_ptr_t;
+typedef /*@null@ */ tiz_buffer_t * tiz_buffer_ptr_t;
 
 /**
  * Create a new dynamic buffer object.
@@ -59,15 +59,16 @@ typedef /*@null@ */ tiz_buffer_t *tiz_buffer_ptr_t;
  * @param a_nbytes Initial size of the data store.
  * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
  */
-OMX_ERRORTYPE tiz_buffer_init (/*@null@ */ tiz_buffer_ptr_t *app_buf,
-                               const size_t a_nbytes);
+OMX_ERRORTYPE
+tiz_buffer_init (/*@null@ */ tiz_buffer_ptr_t * app_buf, const size_t a_nbytes);
 /**
  * Destroy a dynamic buffer object.
  *
  * @ingroup tizbuffer
  * @param ap_buf A dynamic buffer handle to be destroyed.
  */
-void tiz_buffer_destroy (tiz_buffer_t *ap_buf);
+void
+tiz_buffer_destroy (tiz_buffer_t * ap_buf);
 
 /**
  * Copy data at the back the buffer.
@@ -78,8 +79,9 @@ void tiz_buffer_destroy (tiz_buffer_t *ap_buf);
  * @param a_nbytes The number of bytes to store.
  * @return The number of bytes actually stored.
  */
-int tiz_buffer_push (tiz_buffer_t *ap_buf, const void *ap_data,
-                     const size_t a_nbytes);
+int
+tiz_buffer_push (tiz_buffer_t * ap_buf, const void * ap_data,
+                 const size_t a_nbytes);
 
 /**
  * Retrieve the number of bytes available in the buffer.
@@ -88,7 +90,8 @@ int tiz_buffer_push (tiz_buffer_t *ap_buf, const void *ap_data,
  * @param ap_buf The dynamic buffer handle.
  * @return The total number of bytes currently available.
  */
-int tiz_buffer_available (const tiz_buffer_t *ap_buf);
+int
+tiz_buffer_available (const tiz_buffer_t * ap_buf);
 
 /**
  * @brief Retrieve the current position in the buffer where data can be read
@@ -101,7 +104,8 @@ int tiz_buffer_available (const tiz_buffer_t *ap_buf);
  * @param ap_buf The dynamic buffer handle.
  * @return The pointer to the current position in the buffer.
  */
-void *tiz_buffer_get (const tiz_buffer_t *ap_buf);
+void *
+tiz_buffer_get (const tiz_buffer_t * ap_buf);
 
 /**
  * @brief Advance the current position in the buffer.
@@ -111,7 +115,19 @@ void *tiz_buffer_get (const tiz_buffer_t *ap_buf);
  * @param nbytes The number of bytes to increment the position marker by.
  * @return The number of bytes actually advanced.
  */
-int tiz_buffer_advance (tiz_buffer_t *ap_buf, const int nbytes);
+int
+tiz_buffer_advance (tiz_buffer_t * ap_buf, const int nbytes);
+
+/**
+ * @brief Reposition the buffer marker.
+ *
+ * TODO:
+ *
+ * @ingroup tizbuffer
+ * @param ap_buf The dynamic buffer handle.
+ */
+int
+tiz_buffer_seek (tiz_buffer_t * ap_buf, const long offset, const int whence);
 
 /**
  * @brief Reset the position marker.
@@ -121,7 +137,8 @@ int tiz_buffer_advance (tiz_buffer_t *ap_buf, const int nbytes);
  * @ingroup tizbuffer
  * @param ap_buf The dynamic buffer handle.
  */
-void tiz_buffer_clear (tiz_buffer_t *ap_buf);
+void
+tiz_buffer_clear (tiz_buffer_t * ap_buf);
 
 #ifdef __cplusplus
 }
