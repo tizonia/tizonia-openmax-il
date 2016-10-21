@@ -48,9 +48,7 @@ struct webmdmuxflt_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
-  OMX_BUFFERHEADERTYPE * p_outhdr_;
   tiz_buffer_t * p_store_;
-  OMX_U32 store_offset_;
   bool demuxer_inited_;
   bool audio_auto_detect_on_;
   OMX_S32 audio_coding_type_;
