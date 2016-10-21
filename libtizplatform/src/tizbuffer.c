@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "tizmem.h"
 #include "tizlog.h"
@@ -50,7 +51,14 @@ struct tiz_buffer
   int alloc_len;
   int filled_len;
   int offset;
+  int overwrite_mode;
 };
+
+static long abs_of (const long v)
+{
+  const int mask = v >> (sizeof(long) * CHAR_BIT - 1);
+  return (v + mask) ^ mask;
+}
 
 static inline void *
 alloc_data_store (tiz_buffer_t * ap_buf, const size_t nbytes)
@@ -66,6 +74,7 @@ alloc_data_store (tiz_buffer_t * ap_buf, const size_t nbytes)
           ap_buf->alloc_len = nbytes;
           ap_buf->filled_len = 0;
           ap_buf->offset = 0;
+          ap_buf->overwrite_mode = TIZ_BUFFER_OVERWRITE_ON_PUSH;
         }
     }
   return ap_buf->p_store;
@@ -84,6 +93,7 @@ dealloc_data_store (
       ap_buf->alloc_len = 0;
       ap_buf->filled_len = 0;
       ap_buf->offset = 0;
+      ap_buf->overwrite_mode = TIZ_BUFFER_OVERWRITE_ON_PUSH;
     }
 }
 
@@ -135,6 +145,20 @@ tiz_buffer_destroy (tiz_buffer_t * ap_buf)
 }
 
 int
+tiz_buffer_overwrite_mode (tiz_buffer_t * ap_buf, const int a_overwrite_mode)
+{
+  int old_val = -1;
+  if (a_overwrite_mode == TIZ_BUFFER_OVERWRITE_NEVER
+      || a_overwrite_mode == TIZ_BUFFER_OVERWRITE_ON_PUSH)
+    {
+      assert (ap_buf);
+      old_val = ap_buf->overwrite_mode;
+      ap_buf->overwrite_mode = a_overwrite_mode;
+    }
+  return old_val;
+}
+
+int
 tiz_buffer_push (tiz_buffer_t * ap_buf, const void * ap_data,
                  const size_t a_nbytes)
 {
@@ -147,7 +171,8 @@ tiz_buffer_push (tiz_buffer_t * ap_buf, const void * ap_data,
     {
       size_t avail = 0;
 
-      if (ap_buf->offset > 0)
+      if (ap_buf->overwrite_mode == TIZ_BUFFER_OVERWRITE_ON_PUSH
+          && ap_buf->offset > 0)
         {
           memmove (ap_buf->p_store, (ap_buf->p_store + ap_buf->offset),
                    ap_buf->filled_len);
@@ -185,6 +210,14 @@ tiz_buffer_available (const tiz_buffer_t * ap_buf)
   return ap_buf->filled_len;
 }
 
+int
+tiz_buffer_offset (const tiz_buffer_t * ap_buf)
+{
+  assert (ap_buf);
+  assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
+  return ap_buf->offset;
+}
+
 void *
 tiz_buffer_get (const tiz_buffer_t * ap_buf)
 {
@@ -210,25 +243,46 @@ tiz_buffer_advance (tiz_buffer_t * ap_buf, const int nbytes)
 int
 tiz_buffer_seek (tiz_buffer_t * ap_buf, const long offset, const int whence)
 {
+  int rc = -1;
   assert (ap_buf);
-  /*   if (offset != 0) */
-  /*     { */
-  /*       int min_nbytes = 0; */
-  /*       if (whence == SEEK_SET && offset > 0) */
-  /*         { */
-  /*           min_nbytes = MIN (offset, ap_buf->filled_len); */
-  /*           ap_buf->filled_len += (ap_buf->offset - min_nbytes); */
-  /*           ap_buf->offset = min_nbytes; */
-  /*         } */
-  /*       else if (whence == SEEK_CUR) */
-  /*         { */
 
-  /*         } */
-  /*       min_nbytes = MIN (nbytes, tiz_buffer_available (ap_buf)); */
-  /*       ap_buf->offset += min_nbytes; */
-  /*       ap_buf->filled_len -= min_nbytes; */
-  /*     } */
-  return 0;
+  if (offset == 0)
+    {
+      rc = 0;
+    }
+  else
+    {
+      int total = ap_buf->offset + ap_buf->filled_len;
+      if (whence == TIZ_BUFFER_SEEK_SET && offset > 0)
+        {
+          ap_buf->offset = MIN (offset, total);
+          rc = 0;
+        }
+      else if (whence == TIZ_BUFFER_SEEK_CUR)
+        {
+          unsigned int r = abs_of(offset);
+          if (offset < 0)
+            {
+              ap_buf->offset -= MIN (r, ap_buf->offset);
+            }
+          else
+            {
+              ap_buf->offset += MIN (r, ap_buf->filled_len);
+            }
+          rc = 0;
+        }
+      else if (whence == TIZ_BUFFER_SEEK_END && offset < 0)
+        {
+          unsigned int r = abs_of(offset);
+          ap_buf->offset = total - MIN (r, total);
+          rc = 0;
+        }
+      if (0 == rc)
+        {
+          ap_buf->filled_len = total - ap_buf->offset;
+        }
+    }
+  return rc;
 }
 
 void

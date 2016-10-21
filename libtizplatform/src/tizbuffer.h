@@ -44,6 +44,20 @@ extern "C" {
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
+/* The possibilities for the third argument to 'tiz_buffer_overwrite_mode'.
+   These values should not be changed.  */
+#define TIZ_BUFFER_OVERWRITE_ON_PUSH \
+  0 /** During push operations, data behind the current position marker gets
+        lost. This is the default mode of operation. */
+#define TIZ_BUFFER_OVERWRITE_NEVER \
+  1 /** Data behind the current position marker is not lost. */
+
+/* The possibilities for the third argument to 'tiz_buffer_seek'.
+   These values should not be changed.  */
+#define TIZ_BUFFER_SEEK_SET 0 /** Seek from beginning of buffer.  */
+#define TIZ_BUFFER_SEEK_CUR 1 /** Seek from current position.  */
+#define TIZ_BUFFER_SEEK_END 2 /** Seek from end of data.  */
+
 /**
  * Dynamic buffer object opaque handle.
  * @ingroup tizbuffer
@@ -61,6 +75,7 @@ typedef /*@null@ */ tiz_buffer_t * tiz_buffer_ptr_t;
  */
 OMX_ERRORTYPE
 tiz_buffer_init (/*@null@ */ tiz_buffer_ptr_t * app_buf, const size_t a_nbytes);
+
 /**
  * Destroy a dynamic buffer object.
  *
@@ -69,6 +84,18 @@ tiz_buffer_init (/*@null@ */ tiz_buffer_ptr_t * app_buf, const size_t a_nbytes);
  */
 void
 tiz_buffer_destroy (tiz_buffer_t * ap_buf);
+
+/**
+ * Set a new overwrite mode.
+ *
+ * @ingroup tizbuffer
+ * @param ap_buf The dynamic buffer handle.
+ * @param a_overwrite_mode TIZ_BUFFER_OVERWRITE_ON_PUSH (default) or
+ * TIZ_BUFFER_OVERWRITE_NEVER.
+ * @return The old overwrite mode, or -1 on error.
+ */
+int
+tiz_buffer_overwrite_mode (tiz_buffer_t * ap_buf, const int a_overwrite_mode);
 
 /**
  * Copy data at the back the buffer.
@@ -84,6 +111,17 @@ tiz_buffer_push (tiz_buffer_t * ap_buf, const void * ap_data,
                  const size_t a_nbytes);
 
 /**
+ * @brief Reset the position marker.
+ *
+ * After this operation, tiz_buffer_available returns zero.
+ *
+ * @ingroup tizbuffer
+ * @param ap_buf The dynamic buffer handle.
+ */
+void
+tiz_buffer_clear (tiz_buffer_t * ap_buf);
+
+/**
  * Retrieve the number of bytes available in the buffer.
  *
  * @ingroup tizbuffer
@@ -92,6 +130,16 @@ tiz_buffer_push (tiz_buffer_t * ap_buf, const void * ap_data,
  */
 int
 tiz_buffer_available (const tiz_buffer_t * ap_buf);
+
+/**
+ * @brief Retrieve the current position marker.
+ *
+ * @ingroup tizbuffer
+ * @param ap_buf The  buffer handle.
+ * @return The offset in bytes that marks the current position in the buffer.
+ */
+int
+tiz_buffer_offset (const tiz_buffer_t * ap_buf);
 
 /**
  * @brief Retrieve the current position in the buffer where data can be read
@@ -119,26 +167,27 @@ int
 tiz_buffer_advance (tiz_buffer_t * ap_buf, const int nbytes);
 
 /**
- * @brief Reposition the buffer marker.
+ * @brief Re-position the position marker.
  *
- * TODO:
+ * The new position, measured in bytes, is obtained by adding offset bytes to
+ * the position specified by whence. If whence is set to TIZ_BUFFER_SEEK_SET,
+ * TIZ_BUFFER_SEEK_CUR, or TIZ_BUFFER_SEEK_END, the offset is relative to the
+ * start of the buffer, the current position indicator, or end-of-data marker,
+ * respectively.
  *
  * @ingroup tizbuffer
  * @param ap_buf The dynamic buffer handle.
+ * @param a_offset The new position is obtained by adding a_offset bytes to the
+ * position specified by a_whence.
+ * @param a_whence TIZ_BUFFER_SEEK_SET, TIZ_BUFFER_SEEK_CUR, or
+ * TIZ_BUFFER_SEEK_END.
+ * @return 0 on success, -1 on error (e.g. the whence argument was not
+ * TIZ_BUFFER_SEEK_SET, TIZ_BUFFER_SEEK_END, or TIZ_BUFFER_SEEK_CUR.  Or the
+ * resulting buffer offset would be negative).
  */
 int
-tiz_buffer_seek (tiz_buffer_t * ap_buf, const long offset, const int whence);
-
-/**
- * @brief Reset the position marker.
- *
- * After this operation, tiz_buffer_available returns zero.
- *
- * @ingroup tizbuffer
- * @param ap_buf The dynamic buffer handle.
- */
-void
-tiz_buffer_clear (tiz_buffer_t * ap_buf);
+tiz_buffer_seek (tiz_buffer_t * ap_buf, const long a_offset,
+                 const int a_whence);
 
 #ifdef __cplusplus
 }
