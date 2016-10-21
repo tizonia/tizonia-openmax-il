@@ -38,8 +38,8 @@
 typedef struct value value_t;
 struct value
 {
-  char *p_value;
-  value_t *p_next;
+  char * p_value;
+  value_t * p_next;
 };
 
 /**
@@ -51,11 +51,11 @@ struct value
 typedef struct keyval keyval_t;
 struct keyval
 {
-  char *p_key;
-  value_t *p_value_list;
-  value_t *p_value_iter;
+  char * p_key;
+  value_t * p_value_list;
+  value_t * p_value_iter;
   int valcount;
-  keyval_t *p_next;
+  keyval_t * p_next;
 };
 
 /**
@@ -66,7 +66,7 @@ struct keyval
 typedef struct tiz_rcfile tiz_rcfile_t;
 struct tiz_rcfile
 {
-  keyval_t *p_keyvals;
+  keyval_t * p_keyvals;
   int count;
 };
 
@@ -80,7 +80,8 @@ struct tiz_rcfile
  * @return OMX_ErrorNone on success. OMX_ErrorInsuficientResources otherwise.
  *
  */
-OMX_ERRORTYPE tiz_rcfile_init (tiz_rcfile_t **rcfile);
+OMX_ERRORTYPE
+tiz_rcfile_init (tiz_rcfile_t ** rcfile);
 
 /**
  * Deinitialise the resources allocated for the Tizonia config file data
@@ -90,13 +91,15 @@ OMX_ERRORTYPE tiz_rcfile_init (tiz_rcfile_t **rcfile);
  *
  * @param rcfile The handle to the Tizonia config file data structure
  */
-void tiz_rcfile_destroy (tiz_rcfile_t *rcfile);
+void
+tiz_rcfile_destroy (tiz_rcfile_t * rcfile);
 
 /**
  * Retrieve the config file handle from the event loop thread
  *
  * @private
  */
-tiz_rcfile_t *tiz_rcfile_get_handle (void);
+tiz_rcfile_t *
+tiz_rcfile_get_handle (void);
 
 #endif /* TIZINT_H */

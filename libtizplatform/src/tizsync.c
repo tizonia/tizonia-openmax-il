@@ -49,13 +49,13 @@
 #define PTHREAD_SUCCESS 0
 
 OMX_ERRORTYPE
-tiz_sem_init (tiz_sem_t *app_sem, OMX_U32 a_value)
+tiz_sem_init (tiz_sem_t * app_sem, OMX_U32 a_value)
 {
-  sem_t *p_sem = 0;
+  sem_t * p_sem = 0;
 
   assert (app_sem);
 
-  if (!(p_sem = (sem_t *)tiz_mem_alloc (sizeof(sem_t))))
+  if (!(p_sem = (sem_t *) tiz_mem_alloc (sizeof (sem_t))))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorInsufficientResources");
       return OMX_ErrorInsufficientResources;
@@ -74,13 +74,13 @@ tiz_sem_init (tiz_sem_t *app_sem, OMX_U32 a_value)
 }
 
 OMX_ERRORTYPE
-tiz_sem_destroy (tiz_sem_t *app_sem)
+tiz_sem_destroy (tiz_sem_t * app_sem)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   if (app_sem)
     {
-      sem_t *p_sem = *app_sem;
+      sem_t * p_sem = *app_sem;
 
       if (p_sem && (SEM_SUCCESS != sem_destroy (p_sem)))
         {
@@ -97,9 +97,9 @@ tiz_sem_destroy (tiz_sem_t *app_sem)
 }
 
 OMX_ERRORTYPE
-tiz_sem_wait (tiz_sem_t *app_sem)
+tiz_sem_wait (tiz_sem_t * app_sem)
 {
-  sem_t *p_sem;
+  sem_t * p_sem;
 
   assert (app_sem);
   assert (*app_sem);
@@ -116,9 +116,9 @@ tiz_sem_wait (tiz_sem_t *app_sem)
 }
 
 OMX_ERRORTYPE
-tiz_sem_post (tiz_sem_t *app_sem)
+tiz_sem_post (tiz_sem_t * app_sem)
 {
-  sem_t *p_sem;
+  sem_t * p_sem;
 
   assert (app_sem);
   assert (*app_sem);
@@ -135,16 +135,16 @@ tiz_sem_post (tiz_sem_t *app_sem)
 }
 
 OMX_ERRORTYPE
-tiz_sem_getvalue (tiz_sem_t *app_sem, OMX_S32 *ap_sval)
+tiz_sem_getvalue (tiz_sem_t * app_sem, OMX_S32 * ap_sval)
 {
-  sem_t *p_sem;
+  sem_t * p_sem;
 
   assert (app_sem);
   assert (*app_sem);
 
   p_sem = *app_sem;
 
-  if (SEM_SUCCESS != sem_getvalue (p_sem, (int *)ap_sval))
+  if (SEM_SUCCESS != sem_getvalue (p_sem, (int *) ap_sval))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorUndefined : %s", strerror (errno));
       return OMX_ErrorUndefined;
@@ -154,14 +154,14 @@ tiz_sem_getvalue (tiz_sem_t *app_sem, OMX_S32 *ap_sval)
 }
 
 OMX_ERRORTYPE
-tiz_mutex_init (tiz_mutex_t *app_mutex)
+tiz_mutex_init (tiz_mutex_t * app_mutex)
 {
-  pthread_mutex_t *p_mutex;
+  pthread_mutex_t * p_mutex;
   int error = 0;
 
   assert (app_mutex);
 
-  if (!(p_mutex = (pthread_mutex_t *)tiz_mem_alloc (sizeof(pthread_mutex_t))))
+  if (!(p_mutex = (pthread_mutex_t *) tiz_mem_alloc (sizeof (pthread_mutex_t))))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorInsufficientResources");
       return OMX_ErrorInsufficientResources;
@@ -180,7 +180,7 @@ tiz_mutex_init (tiz_mutex_t *app_mutex)
 }
 
 OMX_ERRORTYPE
-tiz_mutex_destroy (tiz_mutex_t *app_mutex)
+tiz_mutex_destroy (tiz_mutex_t * app_mutex)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -191,7 +191,7 @@ tiz_mutex_destroy (tiz_mutex_t *app_mutex)
 
   {
     int error = 0;
-    pthread_mutex_t *p_mutex = *app_mutex;
+    pthread_mutex_t * p_mutex = *app_mutex;
 
     if (p_mutex
         && (PTHREAD_SUCCESS != (error = pthread_mutex_destroy (p_mutex))))
@@ -209,9 +209,9 @@ tiz_mutex_destroy (tiz_mutex_t *app_mutex)
 }
 
 OMX_ERRORTYPE
-tiz_mutex_lock (tiz_mutex_t *app_mutex)
+tiz_mutex_lock (tiz_mutex_t * app_mutex)
 {
-  pthread_mutex_t *p_mutex;
+  pthread_mutex_t * p_mutex;
   int error;
 
   assert (app_mutex);
@@ -229,9 +229,9 @@ tiz_mutex_lock (tiz_mutex_t *app_mutex)
 }
 
 OMX_ERRORTYPE
-tiz_mutex_unlock (tiz_mutex_t *app_mutex)
+tiz_mutex_unlock (tiz_mutex_t * app_mutex)
 {
-  pthread_mutex_t *p_mutex;
+  pthread_mutex_t * p_mutex;
   int error;
 
   assert (app_mutex);
@@ -249,14 +249,14 @@ tiz_mutex_unlock (tiz_mutex_t *app_mutex)
 }
 
 OMX_ERRORTYPE
-tiz_cond_init (tiz_cond_t *app_cond)
+tiz_cond_init (tiz_cond_t * app_cond)
 {
-  pthread_cond_t *p_cond;
+  pthread_cond_t * p_cond;
   int error;
 
   assert (app_cond);
 
-  if (!(p_cond = (pthread_cond_t *)tiz_mem_alloc (sizeof(pthread_cond_t))))
+  if (!(p_cond = (pthread_cond_t *) tiz_mem_alloc (sizeof (pthread_cond_t))))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorInsufficientResources");
       return OMX_ErrorInsufficientResources;
@@ -276,9 +276,9 @@ tiz_cond_init (tiz_cond_t *app_cond)
 }
 
 OMX_ERRORTYPE
-tiz_cond_destroy (tiz_cond_t *app_cond)
+tiz_cond_destroy (tiz_cond_t * app_cond)
 {
-  pthread_cond_t *p_cond;
+  pthread_cond_t * p_cond;
   int error = 0;
 
   assert (app_cond);
@@ -297,9 +297,9 @@ tiz_cond_destroy (tiz_cond_t *app_cond)
 }
 
 OMX_ERRORTYPE
-tiz_cond_signal (tiz_cond_t *app_cond)
+tiz_cond_signal (tiz_cond_t * app_cond)
 {
-  pthread_cond_t *p_cond;
+  pthread_cond_t * p_cond;
   int error = 0;
 
   assert (app_cond);
@@ -317,9 +317,9 @@ tiz_cond_signal (tiz_cond_t *app_cond)
 }
 
 OMX_ERRORTYPE
-tiz_cond_broadcast (tiz_cond_t *app_cond)
+tiz_cond_broadcast (tiz_cond_t * app_cond)
 {
-  pthread_cond_t *p_cond;
+  pthread_cond_t * p_cond;
   int error = 0;
 
   assert (app_cond);
@@ -337,10 +337,10 @@ tiz_cond_broadcast (tiz_cond_t *app_cond)
 }
 
 OMX_ERRORTYPE
-tiz_cond_wait (tiz_cond_t *app_cond, tiz_mutex_t *app_mutex)
+tiz_cond_wait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex)
 {
-  pthread_cond_t *p_cond;
-  pthread_mutex_t *p_mutex;
+  pthread_cond_t * p_cond;
+  pthread_mutex_t * p_mutex;
   int error = 0;
 
   assert (app_cond);
@@ -361,11 +361,11 @@ tiz_cond_wait (tiz_cond_t *app_cond, tiz_mutex_t *app_mutex)
 }
 
 OMX_ERRORTYPE
-tiz_cond_timedwait (tiz_cond_t *app_cond, tiz_mutex_t *app_mutex,
+tiz_cond_timedwait (tiz_cond_t * app_cond, tiz_mutex_t * app_mutex,
                     OMX_U32 a_millis)
 {
-  pthread_cond_t *p_cond;
-  pthread_mutex_t *p_mutex;
+  pthread_cond_t * p_cond;
+  pthread_mutex_t * p_mutex;
   int error = 0;
   OMX_U32 timeout_us;
   struct timespec timeout;
@@ -395,14 +395,15 @@ tiz_cond_timedwait (tiz_cond_t *app_cond, tiz_mutex_t *app_mutex,
 }
 
 OMX_ERRORTYPE
-tiz_rwmutex_init (tiz_rwmutex_t *app_rwmutex)
+tiz_rwmutex_init (tiz_rwmutex_t * app_rwmutex)
 {
-  pthread_rwlock_t *p_mutex;
+  pthread_rwlock_t * p_mutex;
   int error = 0;
 
   assert (app_rwmutex);
 
-  if (!(p_mutex = (pthread_rwlock_t *)tiz_mem_alloc (sizeof(pthread_rwlock_t))))
+  if (!(p_mutex
+        = (pthread_rwlock_t *) tiz_mem_alloc (sizeof (pthread_rwlock_t))))
     {
       TIZ_LOG (TIZ_PRIORITY_ERROR, "OMX_ErrorInsufficientResources");
       return OMX_ErrorInsufficientResources;
@@ -421,9 +422,9 @@ tiz_rwmutex_init (tiz_rwmutex_t *app_rwmutex)
 }
 
 OMX_ERRORTYPE
-tiz_rwmutex_destroy (tiz_rwmutex_t *app_rwmutex)
+tiz_rwmutex_destroy (tiz_rwmutex_t * app_rwmutex)
 {
-  pthread_rwlock_t *p_mutex;
+  pthread_rwlock_t * p_mutex;
   int error = 0;
 
   assert (app_rwmutex);
@@ -443,9 +444,9 @@ tiz_rwmutex_destroy (tiz_rwmutex_t *app_rwmutex)
 }
 
 OMX_ERRORTYPE
-tiz_rwmutex_rdlock (tiz_rwmutex_t *app_rwmutex)
+tiz_rwmutex_rdlock (tiz_rwmutex_t * app_rwmutex)
 {
-  pthread_rwlock_t *p_mutex;
+  pthread_rwlock_t * p_mutex;
   int error;
 
   assert (app_rwmutex);
@@ -463,9 +464,9 @@ tiz_rwmutex_rdlock (tiz_rwmutex_t *app_rwmutex)
 }
 
 OMX_ERRORTYPE
-tiz_rwmutex_rwlock (tiz_rwmutex_t *app_rwmutex)
+tiz_rwmutex_rwlock (tiz_rwmutex_t * app_rwmutex)
 {
-  pthread_rwlock_t *p_mutex;
+  pthread_rwlock_t * p_mutex;
   int error;
 
   assert (app_rwmutex);
@@ -483,9 +484,9 @@ tiz_rwmutex_rwlock (tiz_rwmutex_t *app_rwmutex)
 }
 
 OMX_ERRORTYPE
-tiz_rwmutex_unlock (tiz_rwmutex_t *app_rwmutex)
+tiz_rwmutex_unlock (tiz_rwmutex_t * app_rwmutex)
 {
-  pthread_rwlock_t *p_mutex;
+  pthread_rwlock_t * p_mutex;
   int error;
 
   assert (app_rwmutex);

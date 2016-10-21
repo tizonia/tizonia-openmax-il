@@ -49,7 +49,7 @@ extern "C" {
  * @ingroup tizatomic
  */
 typedef struct tiz_atomic_var tiz_atomic_var_t;
-typedef /*@null@ */ tiz_atomic_var_t *tiz_atomic_var_ptr_t;
+typedef /*@null@ */ tiz_atomic_var_t * tiz_atomic_var_ptr_t;
 
 /**
  * Create a new atomic binary variable.
@@ -58,7 +58,8 @@ typedef /*@null@ */ tiz_atomic_var_t *tiz_atomic_var_ptr_t;
  * @param app_atomic_var An atomic variable opaque handle to be initialised.
  * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
  */
-OMX_ERRORTYPE tiz_atomic_var_init (tiz_atomic_var_ptr_t *app_atomic_var);
+OMX_ERRORTYPE
+tiz_atomic_var_init (tiz_atomic_var_ptr_t * app_atomic_var);
 
 /**
  * Atomic test and set.
@@ -67,14 +68,16 @@ OMX_ERRORTYPE tiz_atomic_var_init (tiz_atomic_var_ptr_t *app_atomic_var);
  * @param app_atomic_var An atomic variable opaque handle.
  * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
  */
-OMX_ERRORTYPE tiz_atomic_var_test_and_set (tiz_atomic_var_t *ap_atomic_var);
+OMX_ERRORTYPE
+tiz_atomic_var_test_and_set (tiz_atomic_var_t * ap_atomic_var);
 
 /**
  * Destroy the atomic binary variable.
  * @param app_atomic_var An atomic variable opaque handle.
  * @ingroup tizatomic
  */
-void tiz_atomic_var_destroy (tiz_atomic_var_t *ap_atomic_var);
+void
+tiz_atomic_var_destroy (tiz_atomic_var_t * ap_atomic_var);
 
 #ifdef __cplusplus
 }

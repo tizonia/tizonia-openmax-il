@@ -67,13 +67,13 @@ typedef struct tiz_queue_item tiz_queue_item_t;
 struct tiz_queue_item
 {
   OMX_PTR p_data;
-  tiz_queue_item_t *p_next;
+  tiz_queue_item_t * p_next;
 };
 
 struct tiz_queue
 {
-  /*@null@ */ tiz_queue_item_t *p_first;
-  /*@null@ */ tiz_queue_item_t *p_last;
+  /*@null@ */ tiz_queue_item_t * p_first;
+  /*@null@ */ tiz_queue_item_t * p_last;
   OMX_S32 capacity;
   OMX_S32 length;
   tiz_mutex_t mutex;
@@ -81,29 +81,31 @@ struct tiz_queue
   tiz_cond_t cond_empty;
 };
 
-static inline void deinit_queue_struct (/*@null@ */ tiz_queue_t *ap_q)
+static inline void
+deinit_queue_struct (/*@null@ */ tiz_queue_t * ap_q)
 {
   /* Clean-up */
   if (ap_q)
     {
-      (void)tiz_cond_destroy (&(ap_q->cond_empty));
-      (void)tiz_cond_destroy (&(ap_q->cond_full));
-      (void)tiz_mutex_destroy (&(ap_q->mutex));
+      (void) tiz_cond_destroy (&(ap_q->cond_empty));
+      (void) tiz_cond_destroy (&(ap_q->cond_full));
+      (void) tiz_mutex_destroy (&(ap_q->mutex));
       tiz_mem_free (ap_q);
     }
 }
 
-/*@null@*/ static tiz_queue_t *init_queue_struct (void)
+/*@null@*/ static tiz_queue_t *
+init_queue_struct (void)
 {
   bool init_ok = false;
-  tiz_queue_t *p_q = (tiz_queue_t *)tiz_mem_calloc (1, sizeof(tiz_queue_t));
+  tiz_queue_t * p_q = (tiz_queue_t *) tiz_mem_calloc (1, sizeof (tiz_queue_t));
 
   TIZ_Q_GOTO_END_ON_NULL (p_q);
   TIZ_Q_GOTO_END_ON_ERROR (tiz_mutex_init (&(p_q->mutex)));
   TIZ_Q_GOTO_END_ON_ERROR (tiz_cond_init (&(p_q->cond_full)));
   TIZ_Q_GOTO_END_ON_ERROR (tiz_cond_init (&(p_q->cond_empty)));
   p_q->p_first
-      = (tiz_queue_item_t *)tiz_mem_calloc (1, sizeof(tiz_queue_item_t));
+    = (tiz_queue_item_t *) tiz_mem_calloc (1, sizeof (tiz_queue_item_t));
   TIZ_Q_GOTO_END_ON_NULL (p_q->p_first);
 
   /* All OK */
@@ -121,12 +123,12 @@ end:
 }
 
 OMX_ERRORTYPE
-tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
+tiz_queue_init (tiz_queue_ptr_t * app_q, OMX_S32 a_capacity)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_queue_item_t *p_new_item = NULL;
-  tiz_queue_item_t *p_cur_item = NULL;
-  tiz_queue_t *p_q = NULL;
+  tiz_queue_item_t * p_new_item = NULL;
+  tiz_queue_item_t * p_cur_item = NULL;
+  tiz_queue_t * p_q = NULL;
 
   assert (app_q);
 
@@ -145,8 +147,8 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
 
       for (i = 0; i < (a_capacity - 1); ++i)
         {
-          if ((p_new_item = (tiz_queue_item_t *)tiz_mem_calloc (
-                           1, sizeof(tiz_queue_item_t))))
+          if ((p_new_item = (tiz_queue_item_t *) tiz_mem_calloc (
+                 1, sizeof (tiz_queue_item_t))))
             {
               p_cur_item->p_next = p_new_item;
               p_cur_item = p_new_item;
@@ -162,7 +164,7 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
               while (p_q->p_first)
                 {
                   p_cur_item = p_q->p_first->p_next;
-                  tiz_mem_free ((OMX_PTR)p_q->p_first);
+                  tiz_mem_free ((OMX_PTR) p_q->p_first);
                   p_q->p_first = p_cur_item;
                 }
               /* end loop  */
@@ -198,11 +200,12 @@ tiz_queue_init (tiz_queue_ptr_t *app_q, OMX_S32 a_capacity)
   return rc;
 }
 
-void tiz_queue_destroy (/*@null@ */ tiz_queue_t *p_q)
+void
+tiz_queue_destroy (/*@null@ */ tiz_queue_t * p_q)
 {
   if (p_q)
     {
-      tiz_queue_item_t *p_cur_item = 0;
+      tiz_queue_item_t * p_cur_item = 0;
       int i = 0;
 
       for (i = 0; p_q->p_first && i < (p_q->capacity - 1); ++i)
@@ -217,7 +220,7 @@ void tiz_queue_destroy (/*@null@ */ tiz_queue_t *p_q)
 }
 
 OMX_ERRORTYPE
-tiz_queue_send (tiz_queue_t *p_q, OMX_PTR ap_data)
+tiz_queue_send (tiz_queue_t * p_q, OMX_PTR ap_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -248,7 +251,7 @@ tiz_queue_send (tiz_queue_t *p_q, OMX_PTR ap_data)
 }
 
 OMX_ERRORTYPE
-tiz_queue_receive (tiz_queue_t *p_q, OMX_PTR *app_data)
+tiz_queue_receive (tiz_queue_t * p_q, OMX_PTR * app_data)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
@@ -281,7 +284,7 @@ tiz_queue_receive (tiz_queue_t *p_q, OMX_PTR *app_data)
 }
 
 OMX_S32
-tiz_queue_capacity (tiz_queue_t *p_q)
+tiz_queue_capacity (tiz_queue_t * p_q)
 {
   OMX_S32 capacity = 0;
 
@@ -297,7 +300,7 @@ tiz_queue_capacity (tiz_queue_t *p_q)
 }
 
 OMX_S32
-tiz_queue_length (tiz_queue_t *p_q)
+tiz_queue_length (tiz_queue_t * p_q)
 {
   OMX_S32 length = 0;
 

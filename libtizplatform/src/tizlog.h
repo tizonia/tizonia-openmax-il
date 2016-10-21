@@ -59,14 +59,19 @@ extern "C" {
 #define TIZ_PRIORITY_TRACE 5
 #endif
 
-int tiz_log_init (void);
-void tiz_log_set_unique_rolling_file (const char* ap_logdir, const char * ap_file_prefix);
-int tiz_log_deinit (void);
-void tiz_log (const char *__p_file, int __line, const char *__p_func,
-              const char *__p_cat_name, int __priority,
-              /*@null@ */ const char *__p_cname,
-              /*@null@ */ char *__p_cbuf,
-              /*@null@ */ const char *__p_format, ...);
+int
+tiz_log_init (void);
+void
+tiz_log_set_unique_rolling_file (const char * ap_logdir,
+                                 const char * ap_file_prefix);
+int
+tiz_log_deinit (void);
+void
+tiz_log (const char * __p_file, int __line, const char * __p_func,
+         const char * __p_cat_name, int __priority,
+         /*@null@ */ const char * __p_cname,
+         /*@null@ */ char * __p_cbuf,
+         /*@null@ */ const char * __p_format, ...);
 
 #ifdef __cplusplus
 }

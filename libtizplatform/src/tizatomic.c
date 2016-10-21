@@ -48,7 +48,8 @@ struct tiz_atomic_var
   AO_TS_t lock;
 };
 
-static OMX_S32 rand_number (const OMX_S32 n)
+static OMX_S32
+rand_number (const OMX_S32 n)
 {
   OMX_S32 limit = RAND_MAX - RAND_MAX % n;
   OMX_S32 rnd;
@@ -61,7 +62,8 @@ static OMX_S32 rand_number (const OMX_S32 n)
   return rnd % n;
 }
 
-static void atomic_var (OMX_S32 *ap_array, OMX_S32 n)
+static void
+atomic_var (OMX_S32 * ap_array, OMX_S32 n)
 {
   OMX_S32 i = 0;
   OMX_S32 j = 0;
@@ -78,12 +80,13 @@ static void atomic_var (OMX_S32 *ap_array, OMX_S32 n)
     }
 }
 
-static OMX_ERRORTYPE init_lst (tiz_atomic_var_t *ap_atomic_var)
+static OMX_ERRORTYPE
+init_lst (tiz_atomic_var_t * ap_atomic_var)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (ap_atomic_var);
   ap_atomic_var->p_lst
-      = tiz_mem_alloc (ap_atomic_var->length * sizeof(OMX_S32));
+    = tiz_mem_alloc (ap_atomic_var->length * sizeof (OMX_S32));
   if (ap_atomic_var->p_lst)
     {
       OMX_S32 i = 0;
@@ -96,7 +99,8 @@ static OMX_ERRORTYPE init_lst (tiz_atomic_var_t *ap_atomic_var)
   return rc;
 }
 
-static void destroy_lst (tiz_atomic_var_t *ap_atomic_var)
+static void
+destroy_lst (tiz_atomic_var_t * ap_atomic_var)
 {
   if (ap_atomic_var)
     {
@@ -105,16 +109,17 @@ static void destroy_lst (tiz_atomic_var_t *ap_atomic_var)
   tiz_mem_free (ap_atomic_var);
 }
 
-OMX_ERRORTYPE tiz_atomic_var_init (tiz_atomic_var_ptr_t *app_atomic_var,
-                                    const size_t a_list_size)
+OMX_ERRORTYPE
+tiz_atomic_var_init (tiz_atomic_var_ptr_t * app_atomic_var,
+                     const size_t a_list_size)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
-  tiz_atomic_var_t *p_atomic_var = NULL;
+  tiz_atomic_var_t * p_atomic_var = NULL;
 
   assert (app_atomic_var);
   assert (a_list_size > 0);
 
-  p_atomic_var = tiz_mem_calloc (1, sizeof(tiz_atomic_var_t));
+  p_atomic_var = tiz_mem_calloc (1, sizeof (tiz_atomic_var_t));
   if (p_atomic_var)
     {
       p_atomic_var->length = a_list_size;
@@ -135,8 +140,8 @@ OMX_ERRORTYPE tiz_atomic_var_init (tiz_atomic_var_ptr_t *app_atomic_var,
   return rc;
 }
 
-
-void tiz_atomic_var_destroy (tiz_atomic_var_t *ap_atomic_var)
+void
+tiz_atomic_var_destroy (tiz_atomic_var_t * ap_atomic_var)
 {
   destroy_lst (ap_atomic_var);
 }

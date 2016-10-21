@@ -43,12 +43,13 @@
 
 struct tiz_shuffle_lst
 {
-  OMX_S32 *p_lst;
+  OMX_S32 * p_lst;
   size_t length;
   OMX_S32 current_index;
 };
 
-static OMX_S32 rand_number (const OMX_S32 n)
+static OMX_S32
+rand_number (const OMX_S32 n)
 {
   OMX_S32 limit = RAND_MAX - RAND_MAX % n;
   OMX_S32 rnd;
@@ -61,7 +62,8 @@ static OMX_S32 rand_number (const OMX_S32 n)
   return rnd % n;
 }
 
-static void shuffle_lst (OMX_S32 *ap_array, OMX_S32 n)
+static void
+shuffle_lst (OMX_S32 * ap_array, OMX_S32 n)
 {
   OMX_S32 i = 0;
   OMX_S32 j = 0;
@@ -78,12 +80,13 @@ static void shuffle_lst (OMX_S32 *ap_array, OMX_S32 n)
     }
 }
 
-static OMX_ERRORTYPE init_lst (tiz_shuffle_lst_t *ap_shuffle_lst)
+static OMX_ERRORTYPE
+init_lst (tiz_shuffle_lst_t * ap_shuffle_lst)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (ap_shuffle_lst);
   ap_shuffle_lst->p_lst
-      = tiz_mem_alloc (ap_shuffle_lst->length * sizeof(OMX_S32));
+    = tiz_mem_alloc (ap_shuffle_lst->length * sizeof (OMX_S32));
   if (ap_shuffle_lst->p_lst)
     {
       OMX_S32 i = 0;
@@ -96,7 +99,8 @@ static OMX_ERRORTYPE init_lst (tiz_shuffle_lst_t *ap_shuffle_lst)
   return rc;
 }
 
-static void destroy_lst (tiz_shuffle_lst_t *ap_shuffle_lst)
+static void
+destroy_lst (tiz_shuffle_lst_t * ap_shuffle_lst)
 {
   if (ap_shuffle_lst)
     {
@@ -105,16 +109,17 @@ static void destroy_lst (tiz_shuffle_lst_t *ap_shuffle_lst)
   tiz_mem_free (ap_shuffle_lst);
 }
 
-OMX_ERRORTYPE tiz_shuffle_lst_init (tiz_shuffle_lst_ptr_t *app_shuffle_lst,
-                                    const size_t a_list_size)
+OMX_ERRORTYPE
+tiz_shuffle_lst_init (tiz_shuffle_lst_ptr_t * app_shuffle_lst,
+                      const size_t a_list_size)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
-  tiz_shuffle_lst_t *p_shuffle_lst = NULL;
+  tiz_shuffle_lst_t * p_shuffle_lst = NULL;
 
   assert (app_shuffle_lst);
   assert (a_list_size > 0);
 
-  p_shuffle_lst = tiz_mem_calloc (1, sizeof(tiz_shuffle_lst_t));
+  p_shuffle_lst = tiz_mem_calloc (1, sizeof (tiz_shuffle_lst_t));
   if (p_shuffle_lst)
     {
       p_shuffle_lst->length = a_list_size;
@@ -135,18 +140,20 @@ OMX_ERRORTYPE tiz_shuffle_lst_init (tiz_shuffle_lst_ptr_t *app_shuffle_lst,
   return rc;
 }
 
-OMX_S32 tiz_shuffle_lst_next (tiz_shuffle_lst_t *ap_shuffle_lst)
+OMX_S32
+tiz_shuffle_lst_next (tiz_shuffle_lst_t * ap_shuffle_lst)
 {
   return tiz_shuffle_lst_jump (ap_shuffle_lst, 1);
 }
 
-OMX_S32 tiz_shuffle_lst_prev (tiz_shuffle_lst_t *ap_shuffle_lst)
+OMX_S32
+tiz_shuffle_lst_prev (tiz_shuffle_lst_t * ap_shuffle_lst)
 {
   return tiz_shuffle_lst_jump (ap_shuffle_lst, -1);
 }
 
-OMX_S32 tiz_shuffle_lst_jump (tiz_shuffle_lst_t *ap_shuffle_lst,
-                              const OMX_S32 a_jump)
+OMX_S32
+tiz_shuffle_lst_jump (tiz_shuffle_lst_t * ap_shuffle_lst, const OMX_S32 a_jump)
 {
   OMX_S32 new_index = 0;
   assert (ap_shuffle_lst);
@@ -165,7 +172,8 @@ OMX_S32 tiz_shuffle_lst_jump (tiz_shuffle_lst_t *ap_shuffle_lst,
   return ap_shuffle_lst->p_lst[new_index];
 }
 
-void tiz_shuffle_lst_destroy (tiz_shuffle_lst_t *ap_shuffle_lst)
+void
+tiz_shuffle_lst_destroy (tiz_shuffle_lst_t * ap_shuffle_lst)
 {
   destroy_lst (ap_shuffle_lst);
 }

@@ -43,7 +43,8 @@ tiz_mem_alloc (size_t a_size)
   return malloc (a_size);
 }
 
-void tiz_mem_free (/*@only@ */ /*@out@ */ /*@null@ */ OMX_PTR a_ptr)
+void
+tiz_mem_free (/*@only@ */ /*@out@ */ /*@null@ */ OMX_PTR a_ptr)
 {
   free (a_ptr);
 }
@@ -66,5 +67,5 @@ tiz_mem_calloc (size_t a_num_elem, size_t a_elem_size)
 OMX_PTR
 tiz_mem_set (OMX_PTR ap_dest, OMX_S32 a_orig, size_t a_num_bytes)
 {
-  return memset (ap_dest, (int)a_orig, a_num_bytes);
+  return memset (ap_dest, (int) a_orig, a_num_bytes);
 }

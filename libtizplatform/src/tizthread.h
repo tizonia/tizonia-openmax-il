@@ -60,10 +60,10 @@ typedef OMX_U32 tiz_thread_t;
  *
  * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
  */
-OMX_ERRORTYPE tiz_thread_create (tiz_thread_t *ap_thread, size_t a_stack_size,
-                                 OMX_U32 a_priority,
-                                 OMX_PTR (*a_pf_routine)(OMX_PTR),
-                                 OMX_PTR ap_arg);
+OMX_ERRORTYPE
+tiz_thread_create (tiz_thread_t * ap_thread, size_t a_stack_size,
+                   OMX_U32 a_priority, OMX_PTR (*a_pf_routine) (OMX_PTR),
+                   OMX_PTR ap_arg);
 
 /**
  * Make the calling thread wait for the termination of the thread ap_thread.
@@ -73,7 +73,8 @@ OMX_ERRORTYPE tiz_thread_create (tiz_thread_t *ap_thread, size_t a_stack_size,
  *
  * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
  */
-OMX_ERRORTYPE tiz_thread_join (tiz_thread_t *ap_thread, void **app_result);
+OMX_ERRORTYPE
+tiz_thread_join (tiz_thread_t * ap_thread, void ** app_result);
 
 /**
  * Set the name of a thread.
@@ -82,15 +83,16 @@ OMX_ERRORTYPE tiz_thread_join (tiz_thread_t *ap_thread, void **app_result);
  *
  * @return 0 if success, -1 otherwise.
  */
-OMX_ERRORTYPE tiz_thread_setname (tiz_thread_t *ap_thread,
-                                  const OMX_STRING a_name);
+OMX_ERRORTYPE
+tiz_thread_setname (tiz_thread_t * ap_thread, const OMX_STRING a_name);
 
 /**
  * Terminate the calling thread.
  *
  * @ingroup tizthread
  */
-void tiz_thread_exit (OMX_PTR a_status);
+void
+tiz_thread_exit (OMX_PTR a_status);
 
 /**
  * Get the thread id of the calling thread.
@@ -99,7 +101,8 @@ void tiz_thread_exit (OMX_PTR a_status);
  *
  * @return The thread id
  */
-OMX_S32 tiz_thread_id (void);
+OMX_S32
+tiz_thread_id (void);
 
 /**
  * Sleep for the specified number of micro seconds.
@@ -108,7 +111,8 @@ OMX_S32 tiz_thread_id (void);
  *
  * @return 0 if success, -1 otherwise.
  */
-OMX_S32 tiz_sleep (OMX_U32 a_usec);
+OMX_S32
+tiz_sleep (OMX_U32 a_usec);
 
 #ifdef __cplusplus
 }

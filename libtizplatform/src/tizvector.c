@@ -43,25 +43,25 @@
 
 struct tiz_vector
 {
-  UT_array *p_uta;
-  UT_icd *p_icd;
+  UT_array * p_uta;
+  UT_icd * p_icd;
 };
 
 OMX_ERRORTYPE
-tiz_vector_init (tiz_vector_t **app_vector, size_t a_elem_size)
+tiz_vector_init (tiz_vector_t ** app_vector, size_t a_elem_size)
 {
-  tiz_vector_t *p_vec = NULL;
+  tiz_vector_t * p_vec = NULL;
 
   assert (app_vector);
   assert (a_elem_size > 0);
 
   if (NULL
-      == (p_vec = (tiz_vector_t *)tiz_mem_calloc (1, sizeof(tiz_vector_t))))
+      == (p_vec = (tiz_vector_t *) tiz_mem_calloc (1, sizeof (tiz_vector_t))))
     {
       return OMX_ErrorInsufficientResources;
     }
 
-  if (NULL == (p_vec->p_icd = (UT_icd *)tiz_mem_calloc (1, sizeof(UT_icd))))
+  if (NULL == (p_vec->p_icd = (UT_icd *) tiz_mem_calloc (1, sizeof (UT_icd))))
     {
       return OMX_ErrorInsufficientResources;
     }
@@ -76,7 +76,8 @@ tiz_vector_init (tiz_vector_t **app_vector, size_t a_elem_size)
   return OMX_ErrorNone;
 }
 
-void tiz_vector_destroy (tiz_vector_t *p_vec)
+void
+tiz_vector_destroy (tiz_vector_t * p_vec)
 {
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Destroying vector [%p]", p_vec);
   if (p_vec)
@@ -88,7 +89,7 @@ void tiz_vector_destroy (tiz_vector_t *p_vec)
 }
 
 OMX_ERRORTYPE
-tiz_vector_insert (tiz_vector_t *p_vec, OMX_PTR ap_data, OMX_S32 a_pos)
+tiz_vector_insert (tiz_vector_t * p_vec, OMX_PTR ap_data, OMX_S32 a_pos)
 {
   assert (p_vec);
   assert (a_pos > 0);
@@ -98,7 +99,7 @@ tiz_vector_insert (tiz_vector_t *p_vec, OMX_PTR ap_data, OMX_S32 a_pos)
 }
 
 OMX_ERRORTYPE
-tiz_vector_push_back (tiz_vector_t *p_vec, OMX_PTR ap_data)
+tiz_vector_push_back (tiz_vector_t * p_vec, OMX_PTR ap_data)
 {
   assert (p_vec);
   TIZ_LOG (TIZ_PRIORITY_TRACE, "pushing back [%p] in vector [%p]", ap_data,
@@ -107,7 +108,8 @@ tiz_vector_push_back (tiz_vector_t *p_vec, OMX_PTR ap_data)
   return OMX_ErrorNone;
 }
 
-void tiz_vector_pop_back (tiz_vector_t *p_vec)
+void
+tiz_vector_pop_back (tiz_vector_t * p_vec)
 {
   assert (p_vec);
 
@@ -117,7 +119,8 @@ void tiz_vector_pop_back (tiz_vector_t *p_vec)
   return;
 }
 
-void tiz_vector_erase (tiz_vector_t *p_vec, OMX_S32 a_pos, OMX_S32 a_len)
+void
+tiz_vector_erase (tiz_vector_t * p_vec, OMX_S32 a_pos, OMX_S32 a_len)
 {
   assert (p_vec);
   assert (a_pos >= 0);
@@ -126,7 +129,7 @@ void tiz_vector_erase (tiz_vector_t *p_vec, OMX_S32 a_pos, OMX_S32 a_len)
 }
 
 OMX_PTR
-tiz_vector_at (const tiz_vector_t *p_vec, OMX_S32 a_pos)
+tiz_vector_at (const tiz_vector_t * p_vec, OMX_S32 a_pos)
 {
   assert (p_vec);
   assert (a_pos >= 0);
@@ -135,7 +138,7 @@ tiz_vector_at (const tiz_vector_t *p_vec, OMX_S32 a_pos)
 }
 
 OMX_PTR
-tiz_vector_front (tiz_vector_t *p_vec)
+tiz_vector_front (tiz_vector_t * p_vec)
 {
   assert (p_vec);
 
@@ -143,20 +146,21 @@ tiz_vector_front (tiz_vector_t *p_vec)
 }
 
 OMX_PTR
-tiz_vector_back (tiz_vector_t *p_vec)
+tiz_vector_back (tiz_vector_t * p_vec)
 {
   assert (p_vec);
   return utarray_back (p_vec->p_uta);
 }
 
 OMX_S32
-tiz_vector_length (const tiz_vector_t *p_vec)
+tiz_vector_length (const tiz_vector_t * p_vec)
 {
   assert (p_vec);
   return utarray_len (p_vec->p_uta);
 }
 
-void tiz_vector_clear (tiz_vector_t *p_vec)
+void
+tiz_vector_clear (tiz_vector_t * p_vec)
 {
   assert (p_vec);
   utarray_clear (p_vec->p_uta);
@@ -164,7 +168,7 @@ void tiz_vector_clear (tiz_vector_t *p_vec)
 }
 
 OMX_PTR
-tiz_vector_find (const tiz_vector_t *p_vec, const OMX_PTR ap_data)
+tiz_vector_find (const tiz_vector_t * p_vec, const OMX_PTR ap_data)
 {
   OMX_PTR p_next = NULL, p_cur = NULL;
 
@@ -190,7 +194,7 @@ tiz_vector_find (const tiz_vector_t *p_vec, const OMX_PTR ap_data)
 }
 
 OMX_ERRORTYPE
-tiz_vector_append (tiz_vector_t *p_dst, const tiz_vector_t *p_src)
+tiz_vector_append (tiz_vector_t * p_dst, const tiz_vector_t * p_src)
 {
   assert (p_dst);
   assert (p_src);

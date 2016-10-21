@@ -71,7 +71,7 @@ extern "C" {
 #define tiz_check_omx_err \
   (expr) do               \
   {                       \
-    (void)(expr);         \
+    (void) (expr);        \
   }                       \
   while (0)
 
@@ -89,7 +89,7 @@ extern "C" {
 #define tiz_check_omx_err_ret_oom \
   (expr) do                       \
   {                               \
-    (void)(expr);                 \
+    (void) (expr);                \
   }                               \
   while (0)
 
@@ -107,7 +107,7 @@ extern "C" {
 #define tiz_check_omx_err_ret_oom \
   (expr) do                       \
   {                               \
-    (void)(expr);                 \
+    (void) (expr);                \
   }                               \
   while (0)
 
@@ -124,7 +124,7 @@ extern "C" {
 #define tiz_check_omx_err_ret_null \
   (expr) do                        \
   {                                \
-    (void)(expr);                  \
+    (void) (expr);                 \
   }                                \
   while (0)
 
@@ -142,7 +142,7 @@ extern "C" {
 #define tiz_check_omx_err_ret_val \
   (expr) do                       \
   {                               \
-    (void)(expr);                 \
+    (void) (expr);                \
   }                               \
   while (0)
 
@@ -160,7 +160,7 @@ extern "C" {
 #define tiz_check_err \
   (expr) do           \
   {                   \
-    (void)(expr);     \
+    (void) (expr);    \
   }                   \
   while (0)
 
@@ -179,7 +179,7 @@ extern "C" {
 #define tiz_check_ret_ret_val \
   (expr, val) do              \
   {                           \
-    (void)(expr);             \
+    (void) (expr);            \
   }                           \
   while (0)
 
@@ -226,7 +226,7 @@ extern "C" {
   do                                                                        \
     {                                                                       \
       if                                                                    \
-        TIZ_LIKELY ((expr))                                         \
+        TIZ_LIKELY ((expr))                                                 \
         {                                                                   \
         }                                                                   \
       else                                                                  \
@@ -333,7 +333,7 @@ extern "C" {
 #define tiz_check_null_ret_oom(expr)                                        \
   do                                                                        \
     {                                                                       \
-      if ((expr))                                                   \
+      if ((expr))                                                           \
         {                                                                   \
         }                                                                   \
       else                                                                  \
@@ -402,7 +402,7 @@ extern "C" {
 
 #endif /* !TIZ_DISABLE_CHECKS */
 
-  /* Avoid unused variables warnings */
+/* Avoid unused variables warnings */
 
 #ifdef TIZ_UNUSED
 #elif defined(__GNUC__)
@@ -415,12 +415,12 @@ extern "C" {
 #define TIZ_UNUSED(x) x
 #endif
 
-  /* Turn off ASAN (Address Sanitazer) */
+/* Turn off ASAN (Address Sanitazer) */
 
-#if defined(__clang__) || defined (__GNUC__)
-# define ATTRIBUTE_NO_SANITIZE_ADDRESS __attribute__((no_sanitize_address))
+#if defined(__clang__) || defined(__GNUC__)
+#define ATTRIBUTE_NO_SANITIZE_ADDRESS __attribute__ ((no_sanitize_address))
 #else
-# define ATTRIBUTE_NO_SANITIZE_ADDRESS
+#define ATTRIBUTE_NO_SANITIZE_ADDRESS
 #endif
 
 #ifdef __cplusplus

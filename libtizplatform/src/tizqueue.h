@@ -51,7 +51,7 @@ extern "C" {
  * @ingroup tizqueue
  */
 typedef struct tiz_queue tiz_queue_t;
-typedef /*@null@ */ tiz_queue_t *tiz_queue_ptr_t;
+typedef /*@null@ */ tiz_queue_t * tiz_queue_ptr_t;
 
 /**
  * Initialize a new empty queue.
@@ -62,8 +62,8 @@ typedef /*@null@ */ tiz_queue_t *tiz_queue_ptr_t;
  *
  * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources otherwise.
  */
-OMX_ERRORTYPE tiz_queue_init (/*@out@*/ tiz_queue_ptr_t *app_q,
-                              OMX_S32 a_capacity);
+OMX_ERRORTYPE
+tiz_queue_init (/*@out@*/ tiz_queue_ptr_t * app_q, OMX_S32 a_capacity);
 
 /**
  * Destroy a queue. If ap_q is NULL, or the queue has already been detroyed
@@ -72,7 +72,8 @@ OMX_ERRORTYPE tiz_queue_init (/*@out@*/ tiz_queue_ptr_t *app_q,
  * @ingroup tizqueue
  *
  */
-void tiz_queue_destroy (/*@null@ */ tiz_queue_t *ap_q);
+void
+tiz_queue_destroy (/*@null@ */ tiz_queue_t * ap_q);
 
 /**
  * Add an item onto the end of the queue. If the queue is full, it blocks
@@ -81,7 +82,8 @@ void tiz_queue_destroy (/*@null@ */ tiz_queue_t *ap_q);
  * @ingroup tizqueue
  *
  */
-OMX_ERRORTYPE tiz_queue_send (tiz_queue_t *ap_q, OMX_PTR ap_data);
+OMX_ERRORTYPE
+tiz_queue_send (tiz_queue_t * ap_q, OMX_PTR ap_data);
 
 /**
  * Retrieve an item from the head of the queue. If the queue is empty, it
@@ -90,7 +92,8 @@ OMX_ERRORTYPE tiz_queue_send (tiz_queue_t *ap_q, OMX_PTR ap_data);
  * @ingroup tizqueue
  *
  */
-OMX_ERRORTYPE tiz_queue_receive (tiz_queue_t *ap_q, OMX_PTR *app_data);
+OMX_ERRORTYPE
+tiz_queue_receive (tiz_queue_t * ap_q, OMX_PTR * app_data);
 
 /**
  * Retrieve the maximum number of items that can be stored in the queue.
@@ -98,7 +101,8 @@ OMX_ERRORTYPE tiz_queue_receive (tiz_queue_t *ap_q, OMX_PTR *app_data);
  * @ingroup tizqueue
  *
  */
-OMX_S32 tiz_queue_capacity (tiz_queue_t *ap_q);
+OMX_S32
+tiz_queue_capacity (tiz_queue_t * ap_q);
 
 /**
  * Retrieve the number of items currently stored in the queue.
@@ -106,7 +110,8 @@ OMX_S32 tiz_queue_capacity (tiz_queue_t *ap_q);
  * @ingroup tizqueue
  *
  */
-OMX_S32 tiz_queue_length (tiz_queue_t *ap_q);
+OMX_S32
+tiz_queue_length (tiz_queue_t * ap_q);
 
 #ifdef __cplusplus
 }

@@ -54,9 +54,10 @@ struct tiz_buffer
   int overwrite_mode;
 };
 
-static long abs_of (const long v)
+static long
+abs_of (const long v)
 {
-  const int mask = v >> (sizeof(long) * CHAR_BIT - 1);
+  const int mask = v >> (sizeof (long) * CHAR_BIT - 1);
   return (v + mask) ^ mask;
 }
 
@@ -260,7 +261,7 @@ tiz_buffer_seek (tiz_buffer_t * ap_buf, const long offset, const int whence)
         }
       else if (whence == TIZ_BUFFER_SEEK_CUR)
         {
-          unsigned int r = abs_of(offset);
+          unsigned int r = abs_of (offset);
           if (offset < 0)
             {
               ap_buf->offset -= MIN (r, ap_buf->offset);
@@ -273,7 +274,7 @@ tiz_buffer_seek (tiz_buffer_t * ap_buf, const long offset, const int whence)
         }
       else if (whence == TIZ_BUFFER_SEEK_END && offset < 0)
         {
-          unsigned int r = abs_of(offset);
+          unsigned int r = abs_of (offset);
           ap_buf->offset = total - MIN (r, total);
           rc = 0;
         }

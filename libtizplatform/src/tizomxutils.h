@@ -38,15 +38,15 @@ extern "C" {
 
 #include "tizmem.h"
 
-#define TIZ_INIT_OMX_STRUCT(struct_storage)                     \
-  tiz_mem_set (&(struct_storage), 0x0, sizeof(struct_storage)); \
-  (struct_storage).nSize = sizeof(struct_storage);              \
+#define TIZ_INIT_OMX_STRUCT(struct_storage)                      \
+  tiz_mem_set (&(struct_storage), 0x0, sizeof (struct_storage)); \
+  (struct_storage).nSize = sizeof (struct_storage);              \
   (struct_storage).nVersion.nVersion = OMX_VERSION;
 
-#define TIZ_INIT_OMX_PORT_STRUCT(struct_storage, port_id)       \
-  tiz_mem_set (&(struct_storage), 0x0, sizeof(struct_storage)); \
-  (struct_storage).nSize = sizeof(struct_storage);              \
-  (struct_storage).nVersion.nVersion = OMX_VERSION;             \
+#define TIZ_INIT_OMX_PORT_STRUCT(struct_storage, port_id)        \
+  tiz_mem_set (&(struct_storage), 0x0, sizeof (struct_storage)); \
+  (struct_storage).nSize = sizeof (struct_storage);              \
+  (struct_storage).nVersion.nVersion = OMX_VERSION;              \
   (struct_storage).nPortIndex = port_id;
 
 #define TIZ_OMX_BUF_PTR(hdr) (hdr->pBuffer + hdr->nOffset)
@@ -57,15 +57,23 @@ extern "C" {
 
 #define TIZ_OMX_BUF_AVAIL(hdr) (hdr->nAllocLen - hdr->nOffset - hdr->nFilledLen)
 
-/*@observer@ */ OMX_STRING tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd);
-/*@observer@ */ OMX_STRING tiz_state_to_str (OMX_STATETYPE a_id);
-/*@observer@ */ OMX_STRING tiz_evt_to_str (OMX_EVENTTYPE a_evt);
-/*@observer@ */ OMX_STRING tiz_err_to_str (OMX_ERRORTYPE a_err);
-/*@observer@ */ OMX_STRING tiz_dir_to_str (OMX_DIRTYPE a_dir);
-/*@observer@ */ OMX_STRING tiz_idx_to_str (OMX_INDEXTYPE a_idx);
+/*@observer@ */ OMX_STRING
+tiz_cmd_to_str (OMX_COMMANDTYPE a_cmd);
+/*@observer@ */ OMX_STRING
+tiz_state_to_str (OMX_STATETYPE a_id);
+/*@observer@ */ OMX_STRING
+tiz_evt_to_str (OMX_EVENTTYPE a_evt);
+/*@observer@ */ OMX_STRING
+tiz_err_to_str (OMX_ERRORTYPE a_err);
+/*@observer@ */ OMX_STRING
+tiz_dir_to_str (OMX_DIRTYPE a_dir);
+/*@observer@ */ OMX_STRING
+tiz_idx_to_str (OMX_INDEXTYPE a_idx);
 
-void tiz_util_reset_eos_flag (OMX_BUFFERHEADERTYPE *p_hdr);
-void tiz_util_set_eos_flag (OMX_BUFFERHEADERTYPE *p_hdr);
+void
+tiz_util_reset_eos_flag (OMX_BUFFERHEADERTYPE * p_hdr);
+void
+tiz_util_set_eos_flag (OMX_BUFFERHEADERTYPE * p_hdr);
 
 #ifdef __cplusplus
 }

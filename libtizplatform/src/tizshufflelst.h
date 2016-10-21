@@ -49,7 +49,7 @@ extern "C" {
  * @ingroup tizshufflelst
  */
 typedef struct tiz_shuffle_lst tiz_shuffle_lst_t;
-typedef /*@null@ */ tiz_shuffle_lst_t *tiz_shuffle_lst_ptr_t;
+typedef /*@null@ */ tiz_shuffle_lst_t * tiz_shuffle_lst_ptr_t;
 
 /**
  * Create a new shuffled list of integers.
@@ -58,8 +58,9 @@ typedef /*@null@ */ tiz_shuffle_lst_t *tiz_shuffle_lst_ptr_t;
  *
  * @return OMX_ErrorNone if success, OMX_ErrorUndefined otherwise.
  */
-OMX_ERRORTYPE tiz_shuffle_lst_init (tiz_shuffle_lst_ptr_t *app_shuffle_lst,
-                                    const size_t a_list_size);
+OMX_ERRORTYPE
+tiz_shuffle_lst_init (tiz_shuffle_lst_ptr_t * app_shuffle_lst,
+                      const size_t a_list_size);
 
 /**
  * Return the next integer in the list.
@@ -68,7 +69,8 @@ OMX_ERRORTYPE tiz_shuffle_lst_init (tiz_shuffle_lst_ptr_t *app_shuffle_lst,
  *
  * @return 0 if success, -1 otherwise.
  */
-OMX_S32 tiz_shuffle_lst_next (tiz_shuffle_lst_t *ap_shuffle_lst);
+OMX_S32
+tiz_shuffle_lst_next (tiz_shuffle_lst_t * ap_shuffle_lst);
 
 /**
 * Return the prev integer in the list.
@@ -77,7 +79,8 @@ OMX_S32 tiz_shuffle_lst_next (tiz_shuffle_lst_t *ap_shuffle_lst);
 *
 * @return 0 if success, -1 otherwise.
 */
-OMX_S32 tiz_shuffle_lst_prev (tiz_shuffle_lst_t *ap_shuffle_lst);
+OMX_S32
+tiz_shuffle_lst_prev (tiz_shuffle_lst_t * ap_shuffle_lst);
 
 /**
 * Return the prev integer in the list.
@@ -86,15 +89,16 @@ OMX_S32 tiz_shuffle_lst_prev (tiz_shuffle_lst_t *ap_shuffle_lst);
 *
 * @return 0 if success, -1 otherwise.
 */
-OMX_S32 tiz_shuffle_lst_jump (tiz_shuffle_lst_t *ap_shuffle_lst,
-                              const OMX_S32 a_jump);
+OMX_S32
+tiz_shuffle_lst_jump (tiz_shuffle_lst_t * ap_shuffle_lst, const OMX_S32 a_jump);
 
 /**
  * Destroy the shuffled list object.
  *
  * @ingroup tizshufflelst
  */
-void tiz_shuffle_lst_destroy (tiz_shuffle_lst_t *p_shuffle_lst);
+void
+tiz_shuffle_lst_destroy (tiz_shuffle_lst_t * p_shuffle_lst);
 
 #ifdef __cplusplus
 }

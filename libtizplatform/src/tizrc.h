@@ -56,7 +56,8 @@ extern "C" {
  * @return A newly allocated string or NULL if the specified key cannot be
  *found.
  */
-const char *tiz_rcfile_get_value (const char *section, const char *key);
+const char *
+tiz_rcfile_get_value (const char * section, const char * key);
 
 /**
  * Returns a value string from a give section using the value's key
@@ -73,8 +74,9 @@ const char *tiz_rcfile_get_value (const char *section, const char *key);
  * @return An array of NULL-terminated strings or NULL if the specified key
  *cannot be found. The array should be freed by the caller.
  */
-char **tiz_rcfile_get_value_list (const char *section, const char *key,
-                                  unsigned long *length);
+char **
+tiz_rcfile_get_value_list (const char * section, const char * key,
+                           unsigned long * length);
 
 /**
  * Returns an integer less than, equal to, or greater than zero if the
@@ -94,8 +96,9 @@ char **tiz_rcfile_get_value_list (const char *section, const char *key,
  * (section and key found, value matched), or greater than zero (section and
  * key found, value unmatched).
  */
-int tiz_rcfile_compare_value (const char *section, const char *key,
-                              const char *value);
+int
+tiz_rcfile_compare_value (const char * section, const char * key,
+                          const char * value);
 
 /**
  * Returns 0 if the status of the configuration file is such that a tizonia
@@ -106,7 +109,8 @@ int tiz_rcfile_compare_value (const char *section, const char *key,
  *
  * @return On success, zero is returned. On error, -1 is returned.
  */
-int tiz_rcfile_status (void);
+int
+tiz_rcfile_status (void);
 
 #ifdef __cplusplus
 }

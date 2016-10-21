@@ -62,7 +62,7 @@ typedef struct tiz_pqueue tiz_pqueue_t;
  * or greater than the right one.
  *
  */
-typedef OMX_S32 (*tiz_pq_cmp_f)(void *ap_left, void *ap_right);
+typedef OMX_S32 (*tiz_pq_cmp_f) (void * ap_left, void * ap_right);
 
 /**
  * \typedef A comparison function to be used by the removal function
@@ -78,8 +78,8 @@ typedef OMX_S32 (*tiz_pq_cmp_f)(void *ap_left, void *ap_right);
  * criteria. OMX_FALSE otherwise.
  *
  */
-typedef OMX_BOOL (*tiz_pq_func_f)(void *ap_elem, OMX_S32 a_data1,
-                                  void *ap_data2);
+typedef OMX_BOOL (*tiz_pq_func_f) (void * ap_elem, OMX_S32 a_data1,
+                                   void * ap_data2);
 
 /**
  * \typedef Function callback that receives the contents of a node from the
@@ -98,9 +98,9 @@ typedef OMX_BOOL (*tiz_pq_func_f)(void *ap_elem, OMX_S32 a_data1,
  * @param ap_prev The address of the previous node (equal or higher priority)
  *
  */
-typedef void (*tiz_pq_dump_item_f)(const char *ap_name, void *ap_data,
-                                   OMX_S32 a_priority, void *ap_cur,
-                                   void *ap_next, void *ap_prev);
+typedef void (*tiz_pq_dump_item_f) (const char * ap_name, void * ap_data,
+                                    OMX_S32 a_priority, void * ap_cur,
+                                    void * ap_next, void * ap_prev);
 
 #define TIZ_PQUEUE_MAX_NAME_LEN 20
 /**
@@ -127,9 +127,10 @@ typedef void (*tiz_pq_dump_item_f)(const char *ap_name, void *ap_data,
  *
  * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources otherwise
  */
-OMX_ERRORTYPE tiz_pqueue_init (tiz_pqueue_t **app_pq, OMX_S32 a_max_prio,
-                               tiz_pq_cmp_f apf_cmp, tiz_soa_t *ap_soa,
-                               const char *ap_name);
+OMX_ERRORTYPE
+tiz_pqueue_init (tiz_pqueue_t ** app_pq, OMX_S32 a_max_prio,
+                 tiz_pq_cmp_f apf_cmp, tiz_soa_t * ap_soa,
+                 const char * ap_name);
 
 /**
  * Destroy a priority queue.
@@ -142,7 +143,8 @@ OMX_ERRORTYPE tiz_pqueue_init (tiz_pqueue_t **app_pq, OMX_S32 a_max_prio,
  * @ingroup tizpqueue
  *
  */
-void tiz_pqueue_destroy (/*@null@ */ tiz_pqueue_t *ap_pq);
+void
+tiz_pqueue_destroy (/*@null@ */ tiz_pqueue_t * ap_pq);
 
 /**
  * Add an item to the end of the priority group a_prio.
@@ -152,8 +154,8 @@ void tiz_pqueue_destroy (/*@null@ */ tiz_pqueue_t *ap_pq);
  * @return OMX_ErrorNone if success, OMX_ErrorInsufficientResources otherwise
  *
  */
-OMX_ERRORTYPE tiz_pqueue_send (tiz_pqueue_t *ap_pq, void *ap_data,
-                               OMX_S32 a_prio);
+OMX_ERRORTYPE
+tiz_pqueue_send (tiz_pqueue_t * ap_pq, void * ap_data, OMX_S32 a_prio);
 
 /**
  * Receive the first item from the queue. The item received is no longer in
@@ -164,7 +166,8 @@ OMX_ERRORTYPE tiz_pqueue_send (tiz_pqueue_t *ap_pq, void *ap_data,
  * @ingroup tizpqueue
  *
  */
-OMX_ERRORTYPE tiz_pqueue_receive (tiz_pqueue_t *ap_pq, void **app_data);
+OMX_ERRORTYPE
+tiz_pqueue_receive (tiz_pqueue_t * ap_pq, void ** app_data);
 
 /**
  * Remove an item from the queue. The item is found using the comparison
@@ -175,7 +178,8 @@ OMX_ERRORTYPE tiz_pqueue_receive (tiz_pqueue_t *ap_pq, void **app_data);
  * @ingroup tizpqueue
  *
  */
-OMX_ERRORTYPE tiz_pqueue_remove (tiz_pqueue_t *ap_pq, void *ap_data);
+OMX_ERRORTYPE
+tiz_pqueue_remove (tiz_pqueue_t * ap_pq, void * ap_data);
 
 /**
  * Remove an item from the queue. The item is found using the comparison
@@ -187,8 +191,8 @@ OMX_ERRORTYPE tiz_pqueue_remove (tiz_pqueue_t *ap_pq, void *ap_data);
  * @ingroup tizpqueue
  *
  */
-OMX_ERRORTYPE tiz_pqueue_removep (tiz_pqueue_t *ap_pq, void *ap_data,
-                                  OMX_S32 a_priority);
+OMX_ERRORTYPE
+tiz_pqueue_removep (tiz_pqueue_t * ap_pq, void * ap_data, OMX_S32 a_priority);
 
 /**
  * Remove from the queue all the items found using the comparison function
@@ -197,8 +201,9 @@ OMX_ERRORTYPE tiz_pqueue_removep (tiz_pqueue_t *ap_pq, void *ap_data,
  * @ingroup tizpqueue
  * @return The number of items removed from the queue.
  */
-OMX_S32 tiz_pqueue_remove_func (tiz_pqueue_t *ap_pq, tiz_pq_func_f apf_func,
-                                OMX_S32 a_data1, void *ap_data2);
+OMX_S32
+tiz_pqueue_remove_func (tiz_pqueue_t * ap_pq, tiz_pq_func_f apf_func,
+                        OMX_S32 a_data1, void * ap_data2);
 
 /**
  * Return a reference to the first item in the queue.
@@ -208,7 +213,8 @@ OMX_S32 tiz_pqueue_remove_func (tiz_pqueue_t *ap_pq, tiz_pq_func_f apf_func,
  * @ingroup tizpqueue
  *
  */
-OMX_ERRORTYPE tiz_pqueue_first (tiz_pqueue_t *ap_pq, void **app_data);
+OMX_ERRORTYPE
+tiz_pqueue_first (tiz_pqueue_t * ap_pq, void ** app_data);
 
 /**
  * Return the number of items currently in the queue.
@@ -218,7 +224,8 @@ OMX_ERRORTYPE tiz_pqueue_first (tiz_pqueue_t *ap_pq, void **app_data);
  * @ingroup tizpqueue
  *
  */
-OMX_S32 tiz_pqueue_length (const tiz_pqueue_t *ap_pq);
+OMX_S32
+tiz_pqueue_length (const tiz_pqueue_t * ap_pq);
 
 /**
  * This function dumps the contents of all the nodes in the queue using the
@@ -229,7 +236,8 @@ OMX_S32 tiz_pqueue_length (const tiz_pqueue_t *ap_pq);
  * @ingroup tizpqueue
  *
  */
-OMX_S32 tiz_pqueue_dump (tiz_pqueue_t *ap_pq, tiz_pq_dump_item_f apf_dump);
+OMX_S32
+tiz_pqueue_dump (tiz_pqueue_t * ap_pq, tiz_pq_dump_item_f apf_dump);
 
 #ifdef __cplusplus
 }

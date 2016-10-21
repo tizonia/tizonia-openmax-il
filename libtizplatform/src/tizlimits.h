@@ -33,7 +33,8 @@
 extern "C" {
 #endif
 
-long tiz_pathname_max (const char *file);
+long
+tiz_pathname_max (const char * file);
 
 #ifdef __cplusplus
 }

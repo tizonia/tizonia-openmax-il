@@ -36,7 +36,8 @@
 #include <stdbool.h>
 #include <errno.h>
 
-long tiz_pathname_max (const char *file)
+long
+tiz_pathname_max (const char * file)
 {
   bool call_fail = false;
   long path_max = 0;

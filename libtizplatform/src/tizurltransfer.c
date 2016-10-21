@@ -47,17 +47,22 @@
 #endif
 
 /* forward declarations */
-static void destroy_curl_resources (tiz_urltrans_t *ap_trans);
-static size_t curl_header_cback (void *ptr, size_t size, size_t nmemb,
-                                 void *userdata);
-static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
-                                void *userdata);
-static size_t curl_debug_cback (CURL *p_curl, curl_infotype type, char *buf,
-                                size_t nbytes, void *userdata);
-static int curl_socket_cback (CURL *easy, curl_socket_t s, int action,
-                              void *userp, void *socketp);
-static int curl_timer_cback (CURLM *multi, long timeout_ms, void *userp);
-static inline OMX_ERRORTYPE stop_io_watcher (tiz_urltrans_t *ap_trans);
+static void
+destroy_curl_resources (tiz_urltrans_t * ap_trans);
+static size_t
+curl_header_cback (void * ptr, size_t size, size_t nmemb, void * userdata);
+static size_t
+curl_write_cback (void * ptr, size_t size, size_t nmemb, void * userdata);
+static size_t
+curl_debug_cback (CURL * p_curl, curl_infotype type, char * buf, size_t nbytes,
+                  void * userdata);
+static int
+curl_socket_cback (CURL * easy, curl_socket_t s, int action, void * userp,
+                   void * socketp);
+static int
+curl_timer_cback (CURLM * multi, long timeout_ms, void * userp);
+static inline OMX_ERRORTYPE
+stop_io_watcher (tiz_urltrans_t * ap_trans);
 
 /* These macros assume the existence of an "ap_trans" local variable */
 #define bail_on_curl_error(expr)                                           \
@@ -157,50 +162,50 @@ typedef struct httpsrc_curl_state_id_str httpsrc_curl_state_id_str_t;
 struct httpsrc_curl_state_id_str
 {
   httpsrc_curl_state_id_t state;
-  const char *str;
+  const char * str;
 };
 
 static const httpsrc_curl_state_id_str_t httpsrc_curl_state_id_str_tbl[]
-    = { { ECurlStateStopped, (const OMX_STRING) "ECurlStateStopped" },
-        { ECurlStateConnecting, (const OMX_STRING) "ECurlStateConnecting" },
-        { ECurlStateTransfering, (const OMX_STRING) "ECurlStateTransfering" },
-        { ECurlStatePaused, (const OMX_STRING) "ECurlStatePaused" },
-        { ECurlStateMax, (const OMX_STRING) "ECurlStateMax" } };
+  = {{ECurlStateStopped, (const OMX_STRING) "ECurlStateStopped"},
+     {ECurlStateConnecting, (const OMX_STRING) "ECurlStateConnecting"},
+     {ECurlStateTransfering, (const OMX_STRING) "ECurlStateTransfering"},
+     {ECurlStatePaused, (const OMX_STRING) "ECurlStatePaused"},
+     {ECurlStateMax, (const OMX_STRING) "ECurlStateMax"}};
 
 struct tiz_urltrans
 {
-  void *p_parent_;         /* not owned */
-  OMX_STRING p_comp_name_; /* not owned */
-  OMX_PARAM_CONTENTURITYPE *p_uri_param_; /* not owned */
+  void * p_parent_;                        /* not owned */
+  OMX_STRING p_comp_name_;                 /* not owned */
+  OMX_PARAM_CONTENTURITYPE * p_uri_param_; /* not owned */
   size_t store_bytes_;
   double reconnect_timeout_;
   tiz_urltrans_buffer_cbacks_t buffer_cbacks_;
   tiz_urltrans_info_cbacks_t info_cbacks_;
   tiz_urltrans_event_io_cbacks_t io_cbacks_;
   tiz_urltrans_event_timer_cbacks_t timer_cbacks_;
-  tiz_event_io_t *p_ev_io_;
+  tiz_event_io_t * p_ev_io_;
   int sockfd_;
   tiz_event_io_event_t io_type_;
   bool awaiting_io_ev_;
-  tiz_event_timer_t *p_ev_curl_timer_;
+  tiz_event_timer_t * p_ev_curl_timer_;
   bool awaiting_curl_timer_ev_;
   double curl_timeout_;
-  tiz_event_timer_t *p_ev_reconnect_timer_;
+  tiz_event_timer_t * p_ev_reconnect_timer_;
   bool awaiting_reconnect_timer_ev_;
-  tiz_buffer_t *p_store_;
+  tiz_buffer_t * p_store_;
   int internal_buffer_size_;
   int internal_buffer_size_initial_;
-  CURL *p_curl_;        /* curl easy */
-  CURLM *p_curl_multi_; /* curl multi */
-  struct curl_slist *p_http_ok_aliases_;
-  struct curl_slist *p_http_headers_;
+  CURL * p_curl_;        /* curl easy */
+  CURLM * p_curl_multi_; /* curl multi */
+  struct curl_slist * p_http_ok_aliases_;
+  struct curl_slist * p_http_headers_;
   httpsrc_curl_state_id_t curl_state_;
   unsigned int curl_version_;
   char curl_err[CURL_ERROR_SIZE];
 };
 
-/*@observer@*/ const char *httpsrc_curl_state_to_str (
-    const httpsrc_curl_state_id_t a_state)
+/*@observer@*/ const char *
+httpsrc_curl_state_to_str (const httpsrc_curl_state_id_t a_state)
 {
   const size_t count = sizeof (httpsrc_curl_state_id_str_tbl)
                        / sizeof (httpsrc_curl_state_id_str_t);
@@ -237,21 +242,20 @@ struct tiz_urltrans
 #define TRANS_MSG_CBACK_START "TRANS CBACK START"
 #define TRANS_MSG_CBACK_END "TRANS CBACK END"
 
-#define TRANS_LOG(ap_trans, start_or_end_str)                                  \
-  do                                                                           \
-    {                                                                          \
-      TIZ_LOG (                                                                \
-          TIZ_PRIORITY_TRACE,                                                  \
-          "%s : STATE = [%s] fd [%d] store [%d] timer [%f] io [%s] "           \
-          "ct [%s] rt [%s]",                                                   \
-          start_or_end_str, httpsrc_curl_state_to_str (ap_trans->curl_state_), \
-          ap_trans->sockfd_,                                                   \
-          (ap_trans->p_store_ ? tiz_buffer_available (ap_trans->p_store_)      \
-                              : 0),                                            \
-          ap_trans->curl_timeout_, (ap_trans->awaiting_io_ev_ ? "Y" : "N"),    \
-          (ap_trans->awaiting_curl_timer_ev_ ? "Y" : "N"),                     \
-          (ap_trans->awaiting_reconnect_timer_ev_ ? "Y" : "N"));               \
-    }                                                                          \
+#define TRANS_LOG(ap_trans, start_or_end_str)                                 \
+  do                                                                          \
+    {                                                                         \
+      TIZ_LOG (                                                               \
+        TIZ_PRIORITY_TRACE,                                                   \
+        "%s : STATE = [%s] fd [%d] store [%d] timer [%f] io [%s] "            \
+        "ct [%s] rt [%s]",                                                    \
+        start_or_end_str, httpsrc_curl_state_to_str (ap_trans->curl_state_),  \
+        ap_trans->sockfd_,                                                    \
+        (ap_trans->p_store_ ? tiz_buffer_available (ap_trans->p_store_) : 0), \
+        ap_trans->curl_timeout_, (ap_trans->awaiting_io_ev_ ? "Y" : "N"),     \
+        (ap_trans->awaiting_curl_timer_ev_ ? "Y" : "N"),                      \
+        (ap_trans->awaiting_reconnect_timer_ev_ ? "Y" : "N"));                \
+    }                                                                         \
   while (0)
 
 #define ASSERT_ASYNC_EVENTS(ap_trans)                       \
@@ -274,32 +278,37 @@ struct tiz_urltrans
 #define URLTRANS_LOG_CBACK_END(ap_trans) \
   TRANS_LOG (ap_trans, TRANS_MSG_CBACK_END)
 
-static inline bool is_transfer_paused (tiz_urltrans_t *ap_trans)
+static inline bool
+is_transfer_paused (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   return (ECurlStatePaused == ap_trans->curl_state_);
 }
 
-static inline bool is_transfer_stopped (tiz_urltrans_t *ap_trans)
+static inline bool
+is_transfer_stopped (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   return (ECurlStateStopped == ap_trans->curl_state_);
 }
 
-static inline bool is_transfer_running (tiz_urltrans_t *ap_trans)
+static inline bool
+is_transfer_running (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   return (ECurlStateTransfering == ap_trans->curl_state_);
 }
 
-static inline bool is_passed_buffer_high_watermark (tiz_urltrans_t *ap_trans)
+static inline bool
+is_passed_buffer_high_watermark (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   return (tiz_buffer_available (ap_trans->p_store_)
           >= ap_trans->internal_buffer_size_initial_);
 }
 
-static OMX_ERRORTYPE start_curl (tiz_urltrans_t *ap_trans)
+static OMX_ERRORTYPE
+start_curl (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
@@ -314,38 +323,38 @@ static OMX_ERRORTYPE start_curl (tiz_urltrans_t *ap_trans)
 
   /* associate the processor with the curl handle */
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_PRIVATE, ap_trans));
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_PRIVATE, ap_trans));
   bail_on_curl_error (curl_easy_setopt (ap_trans->p_curl_, CURLOPT_USERAGENT,
                                         ap_trans->p_comp_name_));
   bail_on_curl_error (curl_easy_setopt (
-      ap_trans->p_curl_, CURLOPT_HEADERFUNCTION, curl_header_cback));
+    ap_trans->p_curl_, CURLOPT_HEADERFUNCTION, curl_header_cback));
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_WRITEHEADER, ap_trans));
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_WRITEHEADER, ap_trans));
   bail_on_curl_error (curl_easy_setopt (
-      ap_trans->p_curl_, CURLOPT_WRITEFUNCTION, curl_write_cback));
+    ap_trans->p_curl_, CURLOPT_WRITEFUNCTION, curl_write_cback));
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_WRITEDATA, ap_trans));
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_WRITEDATA, ap_trans));
   bail_on_curl_error (curl_easy_setopt (
-      ap_trans->p_curl_, CURLOPT_HTTP200ALIASES, ap_trans->p_http_ok_aliases_));
+    ap_trans->p_curl_, CURLOPT_HTTP200ALIASES, ap_trans->p_http_ok_aliases_));
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_FOLLOWLOCATION, 1));
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_FOLLOWLOCATION, 1));
   bail_on_curl_error (curl_easy_setopt (ap_trans->p_curl_, CURLOPT_NETRC, 1));
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_MAXREDIRS, 5));
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_MAXREDIRS, 5));
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_FAILONERROR, 1)); /* true */
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_FAILONERROR, 1)); /* true */
   bail_on_curl_error (curl_easy_setopt (ap_trans->p_curl_, CURLOPT_ERRORBUFFER,
                                         ap_trans->curl_err));
   /* no progress meter */
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_NOPROGRESS, 1));
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_NOPROGRESS, 1));
 
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_CONNECTTIMEOUT, 20));
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_CONNECTTIMEOUT, 20));
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_SSL_VERIFYHOST, 0));
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_SSL_VERIFYHOST, 0));
   bail_on_curl_error (
-      curl_easy_setopt (ap_trans->p_curl_, CURLOPT_SSL_VERIFYPEER, 0));
+    curl_easy_setopt (ap_trans->p_curl_, CURLOPT_SSL_VERIFYPEER, 0));
 
   bail_on_curl_error (curl_easy_setopt (ap_trans->p_curl_, CURLOPT_URL,
                                         ap_trans->p_uri_param_->contentURI));
@@ -361,18 +370,18 @@ static OMX_ERRORTYPE start_curl (tiz_urltrans_t *ap_trans)
 
   /* Set the socket callback with CURLMOPT_SOCKETFUNCTION */
   bail_on_curl_multi_error (curl_multi_setopt (
-      ap_trans->p_curl_multi_, CURLMOPT_SOCKETFUNCTION, curl_socket_cback));
-  bail_on_curl_multi_error (curl_multi_setopt (ap_trans->p_curl_multi_,
-                                               CURLMOPT_SOCKETDATA, ap_trans));
+    ap_trans->p_curl_multi_, CURLMOPT_SOCKETFUNCTION, curl_socket_cback));
+  bail_on_curl_multi_error (
+    curl_multi_setopt (ap_trans->p_curl_multi_, CURLMOPT_SOCKETDATA, ap_trans));
   /* Set the timeout callback with CURLMOPT_TIMERFUNCTION, to get to know what
      timeout value to use when waiting for socket activities. */
   bail_on_curl_multi_error (curl_multi_setopt (
-      ap_trans->p_curl_multi_, CURLMOPT_TIMERFUNCTION, curl_timer_cback));
-  bail_on_curl_multi_error (curl_multi_setopt (ap_trans->p_curl_multi_,
-                                               CURLMOPT_TIMERDATA, ap_trans));
+    ap_trans->p_curl_multi_, CURLMOPT_TIMERFUNCTION, curl_timer_cback));
+  bail_on_curl_multi_error (
+    curl_multi_setopt (ap_trans->p_curl_multi_, CURLMOPT_TIMERDATA, ap_trans));
   /* Add the easy handle to the multi */
   bail_on_curl_multi_error (
-      curl_multi_add_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_));
+    curl_multi_add_handle (ap_trans->p_curl_multi_, ap_trans->p_curl_));
 
   /* all ok */
   rc = OMX_ErrorNone;
@@ -382,8 +391,9 @@ end:
   return rc;
 }
 
-static inline OMX_ERRORTYPE start_io_watcher (
-    tiz_urltrans_t *ap_trans, const int fd, const tiz_event_io_event_t io_type)
+static inline OMX_ERRORTYPE
+start_io_watcher (tiz_urltrans_t * ap_trans, const int fd,
+                  const tiz_event_io_event_t io_type)
 {
   assert (ap_trans);
   assert (ap_trans->io_cbacks_.pf_io_init);
@@ -392,8 +402,9 @@ static inline OMX_ERRORTYPE start_io_watcher (
   if (fd != ap_trans->sockfd_ || io_type != ap_trans->io_type_)
     {
       /* We need to create a new watcher */
-      (void)stop_io_watcher (ap_trans);
-      ap_trans->io_cbacks_.pf_io_destroy (ap_trans->p_parent_, ap_trans->p_ev_io_);
+      (void) stop_io_watcher (ap_trans);
+      ap_trans->io_cbacks_.pf_io_destroy (ap_trans->p_parent_,
+                                          ap_trans->p_ev_io_);
       ap_trans->p_ev_io_ = NULL;
     }
 
@@ -404,15 +415,16 @@ static inline OMX_ERRORTYPE start_io_watcher (
       ap_trans->io_type_ = io_type;
       /* Allocate the io event */
       tiz_check_omx_err (ap_trans->io_cbacks_.pf_io_init (
-          ap_trans->p_parent_, &(ap_trans->p_ev_io_), ap_trans->sockfd_,
-          ap_trans->io_type_, true));
+        ap_trans->p_parent_, &(ap_trans->p_ev_io_), ap_trans->sockfd_,
+        ap_trans->io_type_, true));
     }
   ap_trans->awaiting_io_ev_ = true;
   return ap_trans->io_cbacks_.pf_io_start (ap_trans->p_parent_,
                                            ap_trans->p_ev_io_);
 }
 
-static inline OMX_ERRORTYPE restart_io_watcher (tiz_urltrans_t *ap_trans)
+static inline OMX_ERRORTYPE
+restart_io_watcher (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   assert (ap_trans->io_cbacks_.pf_io_init);
@@ -423,15 +435,16 @@ static inline OMX_ERRORTYPE restart_io_watcher (tiz_urltrans_t *ap_trans)
     {
       /* Allocate the io event */
       tiz_check_omx_err (ap_trans->io_cbacks_.pf_io_init (
-          ap_trans->p_parent_, &(ap_trans->p_ev_io_), ap_trans->sockfd_,
-          ap_trans->io_type_, true));
+        ap_trans->p_parent_, &(ap_trans->p_ev_io_), ap_trans->sockfd_,
+        ap_trans->io_type_, true));
     }
   ap_trans->awaiting_io_ev_ = true;
   return ap_trans->io_cbacks_.pf_io_start (ap_trans->p_parent_,
                                            ap_trans->p_ev_io_);
 }
 
-static inline OMX_ERRORTYPE stop_io_watcher (tiz_urltrans_t *ap_trans)
+static inline OMX_ERRORTYPE
+stop_io_watcher (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
@@ -445,7 +458,8 @@ static inline OMX_ERRORTYPE stop_io_watcher (tiz_urltrans_t *ap_trans)
   return rc;
 }
 
-static inline OMX_ERRORTYPE start_curl_timer_watcher (tiz_urltrans_t *ap_trans)
+static inline OMX_ERRORTYPE
+start_curl_timer_watcher (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
@@ -461,8 +475,8 @@ static inline OMX_ERRORTYPE start_curl_timer_watcher (tiz_urltrans_t *ap_trans)
   return rc;
 }
 
-static inline OMX_ERRORTYPE restart_curl_timer_watcher (
-    tiz_urltrans_t *ap_trans)
+static inline OMX_ERRORTYPE
+restart_curl_timer_watcher (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   assert (ap_trans->p_ev_curl_timer_);
@@ -472,7 +486,8 @@ static inline OMX_ERRORTYPE restart_curl_timer_watcher (
                                                    ap_trans->p_ev_curl_timer_);
 }
 
-static inline OMX_ERRORTYPE stop_curl_timer_watcher (tiz_urltrans_t *ap_trans)
+static inline OMX_ERRORTYPE
+stop_curl_timer_watcher (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
@@ -483,14 +498,14 @@ static inline OMX_ERRORTYPE stop_curl_timer_watcher (tiz_urltrans_t *ap_trans)
       if (ap_trans->p_ev_curl_timer_)
         {
           rc = ap_trans->timer_cbacks_.pf_timer_stop (
-              ap_trans->p_parent_, ap_trans->p_ev_curl_timer_);
+            ap_trans->p_parent_, ap_trans->p_ev_curl_timer_);
         }
     }
   return rc;
 }
 
-static inline OMX_ERRORTYPE start_reconnect_timer_watcher (
-    tiz_urltrans_t *ap_trans)
+static inline OMX_ERRORTYPE
+start_reconnect_timer_watcher (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
@@ -500,14 +515,14 @@ static inline OMX_ERRORTYPE start_reconnect_timer_watcher (
     {
       ap_trans->awaiting_reconnect_timer_ev_ = true;
       rc = ap_trans->timer_cbacks_.pf_timer_start (
-          ap_trans->p_parent_, ap_trans->p_ev_reconnect_timer_,
-          ap_trans->reconnect_timeout_, ap_trans->reconnect_timeout_);
+        ap_trans->p_parent_, ap_trans->p_ev_reconnect_timer_,
+        ap_trans->reconnect_timeout_, ap_trans->reconnect_timeout_);
     }
   return rc;
 }
 
-static inline OMX_ERRORTYPE stop_reconnect_timer_watcher (
-    tiz_urltrans_t *ap_trans)
+static inline OMX_ERRORTYPE
+stop_reconnect_timer_watcher (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
@@ -516,27 +531,28 @@ static inline OMX_ERRORTYPE stop_reconnect_timer_watcher (
   if (ap_trans->p_ev_reconnect_timer_)
     {
       rc = ap_trans->timer_cbacks_.pf_timer_stop (
-          ap_trans->p_parent_, ap_trans->p_ev_reconnect_timer_);
+        ap_trans->p_parent_, ap_trans->p_ev_reconnect_timer_);
     }
   return rc;
 }
 
-static OMX_ERRORTYPE kickstart_curl_socket (tiz_urltrans_t *ap_trans,
-                                            int *ap_running_handles)
+static OMX_ERRORTYPE
+kickstart_curl_socket (tiz_urltrans_t * ap_trans, int * ap_running_handles)
 {
   assert (ap_trans);
   assert (ap_running_handles);
   do
     {
       on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
-          ap_trans->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, ap_running_handles));
+        ap_trans->p_curl_multi_, CURL_SOCKET_TIMEOUT, 0, ap_running_handles));
     }
   while (0 == ap_trans->curl_timeout_);
 
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE resume_curl (tiz_urltrans_t *ap_trans)
+static OMX_ERRORTYPE
+resume_curl (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
 
@@ -546,7 +562,7 @@ static OMX_ERRORTYPE resume_curl (tiz_urltrans_t *ap_trans)
 
       set_curl_state (ap_trans, ECurlStateTransfering);
       on_curl_error_ret_omx_oom (
-          curl_easy_pause (ap_trans->p_curl_, CURLPAUSE_CONT));
+        curl_easy_pause (ap_trans->p_curl_, CURLPAUSE_CONT));
       if (ap_trans->curl_version_ < 0x072000)
         {
           /* USAGE WITH THE MULTI-SOCKET INTERFACE */
@@ -562,54 +578,58 @@ static OMX_ERRORTYPE resume_curl (tiz_urltrans_t *ap_trans)
              that a curl_multi_socket_action( ... CURL_SOCKET_TIMEOUT) can be
              used immediately afterwards to get the transfer going again as
              desired.  */
-          on_curl_multi_error_ret_omx_oom (curl_multi_socket_all (
-              ap_trans->p_curl_multi_, &running_handles));
+          on_curl_multi_error_ret_omx_oom (
+            curl_multi_socket_all (ap_trans->p_curl_multi_, &running_handles));
         }
       tiz_check_omx_err (kickstart_curl_socket (ap_trans, &running_handles));
     }
   return OMX_ErrorNone;
 }
 
-static inline int copy_to_omx_buffer (OMX_BUFFERHEADERTYPE *ap_hdr,
-                                      void *ap_src, const int nbytes)
+static inline int
+copy_to_omx_buffer (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_src,
+                    const int nbytes)
 {
   int n = MIN (nbytes, ap_hdr->nAllocLen - ap_hdr->nFilledLen);
-  (void)memcpy (ap_hdr->pBuffer + ap_hdr->nOffset, ap_src, n);
+  (void) memcpy (ap_hdr->pBuffer + ap_hdr->nOffset, ap_src, n);
   ap_hdr->nFilledLen += n;
   return n;
 }
 
-static OMX_ERRORTYPE send_from_internal_buffer (tiz_urltrans_t *p_trans)
+static OMX_ERRORTYPE
+send_from_internal_buffer (tiz_urltrans_t * p_trans)
 {
-  OMX_BUFFERHEADERTYPE *p_out = NULL;
+  OMX_BUFFERHEADERTYPE * p_out = NULL;
   int nbytes_available = 0;
   assert (p_trans);
 
   while (
-      (nbytes_available = tiz_buffer_available (p_trans->p_store_)) > 0
-      && (p_out = p_trans->buffer_cbacks_.pf_buf_emptied (p_trans->p_parent_))
-             != NULL)
+    (nbytes_available = tiz_buffer_available (p_trans->p_store_)) > 0
+    && (p_out = p_trans->buffer_cbacks_.pf_buf_emptied (p_trans->p_parent_))
+         != NULL)
     {
       int nbytes_copied = copy_to_omx_buffer (
-          p_out, tiz_buffer_get (p_trans->p_store_), nbytes_available);
+        p_out, tiz_buffer_get (p_trans->p_store_), nbytes_available);
       TIZ_PRINTF_DBG_MAG (
-          "Releasing buffer with size [%u] available [%u].",
-          (unsigned int)p_out->nFilledLen,
-          tiz_buffer_available (p_trans->p_store_) - nbytes_copied);
+        "Releasing buffer with size [%u] available [%u].",
+        (unsigned int) p_out->nFilledLen,
+        tiz_buffer_available (p_trans->p_store_) - nbytes_copied);
       p_trans->buffer_cbacks_.pf_buf_filled (p_out, p_trans->p_parent_);
-      (void)tiz_buffer_advance (p_trans->p_store_, nbytes_copied);
+      (void) tiz_buffer_advance (p_trans->p_store_, nbytes_copied);
       p_out = NULL;
     }
   return OMX_ErrorNone;
 }
 
-static void reset_initial_buffer_size (tiz_urltrans_t *ap_trans)
+static void
+reset_initial_buffer_size (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   ap_trans->internal_buffer_size_initial_ = ap_trans->internal_buffer_size_;
 }
 
-static void report_connection_lost_event (tiz_urltrans_t *ap_trans)
+static void
+report_connection_lost_event (tiz_urltrans_t * ap_trans)
 {
   bool auto_reconnect = false;
   assert (ap_trans);
@@ -618,11 +638,11 @@ static void report_connection_lost_event (tiz_urltrans_t *ap_trans)
   set_curl_state (ap_trans, ECurlStateStopped);
   send_from_internal_buffer (ap_trans);
   auto_reconnect
-      = ap_trans->info_cbacks_.pf_connection_lost (ap_trans->p_parent_);
+    = ap_trans->info_cbacks_.pf_connection_lost (ap_trans->p_parent_);
   reset_initial_buffer_size (ap_trans);
   if (auto_reconnect)
     {
-      (void)start_reconnect_timer_watcher (ap_trans);
+      (void) start_reconnect_timer_watcher (ap_trans);
     }
 }
 
@@ -636,10 +656,10 @@ static void report_connection_lost_event (tiz_urltrans_t *ap_trans)
    care of. If that amount differs from the amount passed to your function,
    it'll signal an error to the library. This will abort the transfer and
    return CURL_WRITE_ERROR. */
-static size_t curl_header_cback (void *ptr, size_t size, size_t nmemb,
-                                 void *userdata)
+static size_t
+curl_header_cback (void * ptr, size_t size, size_t nmemb, void * userdata)
 {
-  tiz_urltrans_t *p_trans = userdata;
+  tiz_urltrans_t * p_trans = userdata;
   size_t nbytes = size * nmemb;
   assert (p_trans);
   assert (p_trans->info_cbacks_.pf_header_avail);
@@ -656,10 +676,10 @@ static size_t curl_header_cback (void *ptr, size_t size, size_t nmemb,
    actually taken care of. If that amount differs from the amount passed to
    your function, it'll signal an error to the library. This will abort the
    transfer and return CURLE_WRITE_ERROR.  */
-static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
-                                void *userdata)
+static size_t
+curl_write_cback (void * ptr, size_t size, size_t nmemb, void * userdata)
 {
-  tiz_urltrans_t *p_trans = userdata;
+  tiz_urltrans_t * p_trans = userdata;
   size_t nbytes = size * nmemb;
   size_t rc = nbytes;
   assert (p_trans);
@@ -668,7 +688,7 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
   if (nbytes > 0)
     {
       set_curl_state (p_trans, ECurlStateTransfering);
-      OMX_BUFFERHEADERTYPE *p_out = NULL;
+      OMX_BUFFERHEADERTYPE * p_out = NULL;
 
       if (p_trans->info_cbacks_.pf_data_avail (p_trans->p_parent_, ptr, nbytes))
         {
@@ -693,12 +713,12 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
 
               while (nbytes > 0
                      && (p_out = p_trans->buffer_cbacks_.pf_buf_emptied (
-                             p_trans->p_parent_))
-                            != NULL)
+                           p_trans->p_parent_))
+                          != NULL)
                 {
                   int nbytes_copied = copy_to_omx_buffer (p_out, ptr, nbytes);
                   TIZ_PRINTF_DBG_CYN ("Releasing buffer with size [%u]",
-                                      (unsigned int)p_out->nFilledLen);
+                                      (unsigned int) p_out->nFilledLen);
                   p_trans->buffer_cbacks_.pf_buf_filled (p_out,
                                                          p_trans->p_parent_);
                   nbytes -= nbytes_copied;
@@ -750,13 +770,14 @@ static size_t curl_write_cback (void *ptr, size_t size, size_t nmemb,
    data pointed to by the char * passed to this function WILL NOT be zero
    terminated, but will be exactly of the size as told by the size_t
    argument.  */
-static size_t curl_debug_cback (CURL *p_curl, curl_infotype type, char *buf,
-                                size_t nbytes, void *userdata)
+static size_t
+curl_debug_cback (CURL * p_curl, curl_infotype type, char * buf, size_t nbytes,
+                  void * userdata)
 {
   if (CURLINFO_TEXT == type || CURLINFO_HEADER_IN == type
       || CURLINFO_HEADER_OUT == type)
     {
-      char *p_info = tiz_mem_calloc (1, nbytes + 1);
+      char * p_info = tiz_mem_calloc (1, nbytes + 1);
       memcpy (p_info, buf, nbytes);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "libcurl : [%s]", p_info);
       TIZ_PRINTF_DBG_RED ("libcurl : [%s]\n", p_info);
@@ -804,10 +825,11 @@ static size_t curl_debug_cback (CURL *p_curl, curl_infotype type, char *buf,
 /* The userp argument is a private pointer you have previously set with
    curl_multi_setopt(3) and the CURLMOPT_SOCKETDATA option.  */
 
-static int curl_socket_cback (CURL *easy, curl_socket_t s, int action,
-                              void *userp, void *socketp)
+static int
+curl_socket_cback (CURL * easy, curl_socket_t s, int action, void * userp,
+                   void * socketp)
 {
-  tiz_urltrans_t *p_trans = userp;
+  tiz_urltrans_t * p_trans = userp;
   assert (p_trans);
   assert (p_trans->io_cbacks_.pf_io_destroy);
   URLTRANS_LOG_CBACK_START (p_trans);
@@ -816,19 +838,19 @@ static int curl_socket_cback (CURL *easy, curl_socket_t s, int action,
            s, action);
   if (CURL_POLL_IN == action)
     {
-      (void)start_io_watcher (p_trans, s, TIZ_EVENT_READ);
+      (void) start_io_watcher (p_trans, s, TIZ_EVENT_READ);
     }
   else if (CURL_POLL_OUT == action)
     {
-      (void)start_io_watcher (p_trans, s, TIZ_EVENT_WRITE);
+      (void) start_io_watcher (p_trans, s, TIZ_EVENT_WRITE);
     }
   else if (CURL_POLL_REMOVE == action)
     {
-      (void)stop_io_watcher (p_trans);
+      (void) stop_io_watcher (p_trans);
       p_trans->io_cbacks_.pf_io_destroy (p_trans->p_parent_, p_trans->p_ev_io_);
       p_trans->p_ev_io_ = NULL;
       p_trans->sockfd_ = -1;
-      (void)stop_curl_timer_watcher (p_trans);
+      (void) stop_curl_timer_watcher (p_trans);
     }
   URLTRANS_LOG_CBACK_END (p_trans);
   return 0;
@@ -844,9 +866,10 @@ static int curl_socket_cback (CURL *easy, curl_socket_t s, int action,
    also CURLMOPT_TIMERDATA. The callback should return 0 on success, and -1 on
    error. This callback can be used instead of, or in addition to,
    curl_multi_timeout(3). (Added in 7.16.0) */
-static int curl_timer_cback (CURLM *multi, long timeout_ms, void *userp)
+static int
+curl_timer_cback (CURLM * multi, long timeout_ms, void * userp)
 {
-  tiz_urltrans_t *p_trans = userp;
+  tiz_urltrans_t * p_trans = userp;
   assert (p_trans);
 
   URLTRANS_LOG_CBACK_START (p_trans);
@@ -869,14 +892,15 @@ static int curl_timer_cback (CURLM *multi, long timeout_ms, void *userp)
         {
           timeout_ms = 10;
         }
-      p_trans->curl_timeout_ = ((double)timeout_ms / (double)1000);
-      (void)start_curl_timer_watcher (p_trans);
+      p_trans->curl_timeout_ = ((double) timeout_ms / (double) 1000);
+      (void) start_curl_timer_watcher (p_trans);
     }
   URLTRANS_LOG_CBACK_END (p_trans);
   return 0;
 }
 
-static OMX_ERRORTYPE allocate_curl_global_resources (tiz_urltrans_t *ap_trans)
+static OMX_ERRORTYPE
+allocate_curl_global_resources (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   bail_on_curl_error (curl_global_init (CURL_GLOBAL_ALL));
@@ -886,17 +910,19 @@ end:
   return rc;
 }
 
-static OMX_ERRORTYPE allocate_temp_data_store (tiz_urltrans_t *ap_trans)
+static OMX_ERRORTYPE
+allocate_temp_data_store (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   assert (ap_trans->p_store_ == NULL);
   tiz_check_omx_err (
-      tiz_buffer_init (&(ap_trans->p_store_), ap_trans->store_bytes_));
+    tiz_buffer_init (&(ap_trans->p_store_), ap_trans->store_bytes_));
   return OMX_ErrorNone;
 }
 
-static inline void destroy_temp_data_store (
-    /*@special@ */ tiz_urltrans_t *ap_trans)
+static inline void
+destroy_temp_data_store (
+  /*@special@ */ tiz_urltrans_t * ap_trans)
 /*@releases ap_trans->p_store_@ */
 /*@ensures isnull ap_trans->p_store_@ */
 {
@@ -905,7 +931,8 @@ static inline void destroy_temp_data_store (
   ap_trans->p_store_ = NULL;
 }
 
-static OMX_ERRORTYPE allocate_events (tiz_urltrans_t *ap_trans)
+static OMX_ERRORTYPE
+allocate_events (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   assert (!ap_trans->p_ev_io_);
@@ -916,16 +943,17 @@ static OMX_ERRORTYPE allocate_events (tiz_urltrans_t *ap_trans)
 
   /* Allocate the reconnect timer event */
   tiz_check_omx_err (ap_trans->timer_cbacks_.pf_timer_init (
-      ap_trans->p_parent_, &(ap_trans->p_ev_reconnect_timer_)));
+    ap_trans->p_parent_, &(ap_trans->p_ev_reconnect_timer_)));
 
   /* Allocate the curl timer event */
   tiz_check_omx_err (ap_trans->timer_cbacks_.pf_timer_init (
-      ap_trans->p_parent_, &(ap_trans->p_ev_curl_timer_)));
+    ap_trans->p_parent_, &(ap_trans->p_ev_curl_timer_)));
 
   return OMX_ErrorNone;
 }
 
-static void destroy_events (tiz_urltrans_t *ap_trans)
+static void
+destroy_events (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   assert (ap_trans->io_cbacks_.pf_io_destroy);
@@ -941,10 +969,11 @@ static void destroy_events (tiz_urltrans_t *ap_trans)
   ap_trans->p_ev_reconnect_timer_ = NULL;
 }
 
-static OMX_ERRORTYPE allocate_curl_resources (tiz_urltrans_t *ap_trans)
+static OMX_ERRORTYPE
+allocate_curl_resources (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
-  curl_version_info_data *p_version_info = NULL;
+  curl_version_info_data * p_version_info = NULL;
 
   assert (!ap_trans->p_curl_);
   assert (!ap_trans->p_curl_multi_);
@@ -965,10 +994,10 @@ static OMX_ERRORTYPE allocate_curl_resources (tiz_urltrans_t *ap_trans)
   bail_on_oom ((ap_trans->p_curl_multi_ = curl_multi_init ()));
   /* this is to ask libcurl to accept ICY OK headers*/
   bail_on_oom ((ap_trans->p_http_ok_aliases_ = curl_slist_append (
-                    ap_trans->p_http_ok_aliases_, "ICY 200 OK")));
+                  ap_trans->p_http_ok_aliases_, "ICY 200 OK")));
   /* and this is to not ask the server for Icy metadata, for now */
   bail_on_oom ((ap_trans->p_http_headers_ = curl_slist_append (
-                    ap_trans->p_http_headers_, "Icy-Metadata: 0")));
+                  ap_trans->p_http_headers_, "Icy-Metadata: 0")));
 
   /* all ok */
   rc = OMX_ErrorNone;
@@ -984,7 +1013,8 @@ end:
   return rc;
 }
 
-static void destroy_curl_resources (tiz_urltrans_t *ap_trans)
+static void
+destroy_curl_resources (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   curl_slist_free_all (ap_trans->p_http_ok_aliases_);
@@ -997,14 +1027,15 @@ static void destroy_curl_resources (tiz_urltrans_t *ap_trans)
   ap_trans->p_curl_ = NULL;
 }
 
-OMX_ERRORTYPE tiz_urltrans_init (
-    tiz_urltrans_ptr_t *app_trans, void *ap_parent,
-    OMX_PARAM_CONTENTURITYPE *ap_uri_param, OMX_STRING ap_comp_name,
-    const size_t a_store_bytes, const double a_reconnect_timeout,
-    const tiz_urltrans_buffer_cbacks_t a_buffer_cbacks,
-    const tiz_urltrans_info_cbacks_t a_info_cbacks,
-    const tiz_urltrans_event_io_cbacks_t a_io_cbacks,
-    const tiz_urltrans_event_timer_cbacks_t a_timer_cbacks)
+OMX_ERRORTYPE
+tiz_urltrans_init (tiz_urltrans_ptr_t * app_trans, void * ap_parent,
+                   OMX_PARAM_CONTENTURITYPE * ap_uri_param,
+                   OMX_STRING ap_comp_name, const size_t a_store_bytes,
+                   const double a_reconnect_timeout,
+                   const tiz_urltrans_buffer_cbacks_t a_buffer_cbacks,
+                   const tiz_urltrans_info_cbacks_t a_info_cbacks,
+                   const tiz_urltrans_event_io_cbacks_t a_io_cbacks,
+                   const tiz_urltrans_event_timer_cbacks_t a_timer_cbacks)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
 
@@ -1017,8 +1048,8 @@ OMX_ERRORTYPE tiz_urltrans_init (
   if (app_trans && ap_parent && ap_comp_name && ap_uri_param
       && a_store_bytes > 0)
     {
-      tiz_urltrans_t *p_trans
-          = (tiz_urltrans_t *)calloc (1, sizeof (tiz_urltrans_t));
+      tiz_urltrans_t * p_trans
+        = (tiz_urltrans_t *) calloc (1, sizeof (tiz_urltrans_t));
       rc = (p_trans != NULL ? OMX_ErrorNone : OMX_ErrorInsufficientResources);
       goto_end_on_omx_error (rc, "Unable to alloc the http transfer object");
 
@@ -1076,7 +1107,8 @@ OMX_ERRORTYPE tiz_urltrans_init (
   return rc;
 }
 
-void tiz_urltrans_destroy (tiz_urltrans_t *ap_trans)
+void
+tiz_urltrans_destroy (tiz_urltrans_t * ap_trans)
 {
   if (ap_trans)
     {
@@ -1087,8 +1119,9 @@ void tiz_urltrans_destroy (tiz_urltrans_t *ap_trans)
     }
 }
 
-void tiz_urltrans_set_uri (tiz_urltrans_t *ap_trans,
-                           OMX_PARAM_CONTENTURITYPE *ap_uri_param)
+void
+tiz_urltrans_set_uri (tiz_urltrans_t * ap_trans,
+                      OMX_PARAM_CONTENTURITYPE * ap_uri_param)
 {
   assert (ap_trans);
   assert (ap_uri_param);
@@ -1105,17 +1138,19 @@ end:
   return;
 }
 
-void tiz_urltrans_set_internal_buffer_size (tiz_urltrans_t *ap_trans,
-                                            const int a_nbytes)
+void
+tiz_urltrans_set_internal_buffer_size (tiz_urltrans_t * ap_trans,
+                                       const int a_nbytes)
 {
   assert (ap_trans);
   assert (a_nbytes > 0);
   URLTRANS_LOG_API_START (ap_trans);
   ap_trans->internal_buffer_size_ = ap_trans->internal_buffer_size_initial_
-      = a_nbytes;
+    = a_nbytes;
 }
 
-OMX_ERRORTYPE tiz_urltrans_start (tiz_urltrans_t *ap_trans)
+OMX_ERRORTYPE
+tiz_urltrans_start (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
@@ -1133,7 +1168,8 @@ OMX_ERRORTYPE tiz_urltrans_start (tiz_urltrans_t *ap_trans)
   return rc;
 }
 
-OMX_ERRORTYPE tiz_urltrans_pause (tiz_urltrans_t *ap_trans)
+OMX_ERRORTYPE
+tiz_urltrans_pause (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
@@ -1145,7 +1181,8 @@ OMX_ERRORTYPE tiz_urltrans_pause (tiz_urltrans_t *ap_trans)
   return rc;
 }
 
-OMX_ERRORTYPE tiz_urltrans_unpause (tiz_urltrans_t *ap_trans)
+OMX_ERRORTYPE
+tiz_urltrans_unpause (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int running_handles = 0;
@@ -1158,7 +1195,8 @@ OMX_ERRORTYPE tiz_urltrans_unpause (tiz_urltrans_t *ap_trans)
   return rc;
 }
 
-void tiz_urltrans_cancel (tiz_urltrans_t *ap_trans)
+void
+tiz_urltrans_cancel (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   URLTRANS_LOG_API_START (ap_trans);
@@ -1175,7 +1213,8 @@ void tiz_urltrans_cancel (tiz_urltrans_t *ap_trans)
   URLTRANS_LOG_API_END (ap_trans);
 }
 
-void tiz_urltrans_flush_buffer (tiz_urltrans_t *ap_trans)
+void
+tiz_urltrans_flush_buffer (tiz_urltrans_t * ap_trans)
 {
   assert (ap_trans);
   URLTRANS_LOG_API_START (ap_trans);
@@ -1186,7 +1225,8 @@ void tiz_urltrans_flush_buffer (tiz_urltrans_t *ap_trans)
   URLTRANS_LOG_API_END (ap_trans);
 }
 
-OMX_ERRORTYPE tiz_urltrans_on_buffers_ready (tiz_urltrans_t *ap_trans)
+OMX_ERRORTYPE
+tiz_urltrans_on_buffers_ready (tiz_urltrans_t * ap_trans)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
@@ -1205,9 +1245,9 @@ OMX_ERRORTYPE tiz_urltrans_on_buffers_ready (tiz_urltrans_t *ap_trans)
   return rc;
 }
 
-OMX_ERRORTYPE tiz_urltrans_on_io_ready (tiz_urltrans_t *ap_trans,
-                                        tiz_event_io_t *ap_ev_io, int a_fd,
-                                        int a_events)
+OMX_ERRORTYPE
+tiz_urltrans_on_io_ready (tiz_urltrans_t * ap_trans, tiz_event_io_t * ap_ev_io,
+                          int a_fd, int a_events)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_trans);
@@ -1228,8 +1268,8 @@ OMX_ERRORTYPE tiz_urltrans_on_io_ready (tiz_urltrans_t *ap_trans,
       do
         {
           on_curl_multi_error_ret_omx_oom (curl_multi_socket_action (
-              ap_trans->p_curl_multi_, ap_trans->sockfd_, curl_ev_bitmask,
-              &running_handles));
+            ap_trans->p_curl_multi_, ap_trans->sockfd_, curl_ev_bitmask,
+            &running_handles));
         }
       while (0 == ap_trans->curl_timeout_);
 
@@ -1254,8 +1294,9 @@ OMX_ERRORTYPE tiz_urltrans_on_io_ready (tiz_urltrans_t *ap_trans,
   return rc;
 }
 
-OMX_ERRORTYPE tiz_urltrans_on_timer_ready (tiz_urltrans_t *ap_trans,
-                                           tiz_event_timer_t *ap_ev_timer)
+OMX_ERRORTYPE
+tiz_urltrans_on_timer_ready (tiz_urltrans_t * ap_trans,
+                             tiz_event_timer_t * ap_ev_timer)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int running_handles = 0;
@@ -1267,7 +1308,7 @@ OMX_ERRORTYPE tiz_urltrans_on_timer_ready (tiz_urltrans_t *ap_trans,
       if (is_transfer_running (ap_trans))
         {
           tiz_check_omx_err (
-              kickstart_curl_socket (ap_trans, &running_handles));
+            kickstart_curl_socket (ap_trans, &running_handles));
           if (!running_handles)
             {
               report_connection_lost_event (ap_trans);

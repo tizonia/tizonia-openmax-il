@@ -44,22 +44,23 @@
 
 #include "tizprintf.h"
 
-void tiz_printf (const char *ap_color, const char *ap_file, int a_line,
-                 const char *ap_func, const char *ap_format, ...)
+void
+tiz_printf (const char * ap_color, const char * ap_file, int a_line,
+            const char * ap_func, const char * ap_format, ...)
 {
   size_t size = 256;
-  char *buffer = alloca (size);
+  char * buffer = alloca (size);
   va_list va;
   va_start (va, ap_format);
   vsnprintf (buffer, size, ap_format, va);
   va_end (va);
   if (ap_file && ap_func)
     {
-      const char *p_env = getenv("TIZONIA_DEBUG_COLOR_TRACE");
+      const char * p_env = getenv ("TIZONIA_DEBUG_COLOR_TRACE");
       if (p_env && strncmp (p_env, "1", 2) == 0)
         {
-          fprintf (stderr, "%s[%s:%s:%d] --- %s%s\n", ap_color, ap_file, ap_func,
-                   a_line, buffer, KNRM);
+          fprintf (stderr, "%s[%s:%s:%d] --- %s%s\n", ap_color, ap_file,
+                   ap_func, a_line, buffer, KNRM);
         }
     }
   else

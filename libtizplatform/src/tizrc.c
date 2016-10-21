@@ -68,21 +68,22 @@ struct file_info
   int exists;
 };
 
-static char *g_list_value_keys[] = { "component-paths", };
+static char * g_list_value_keys[] = {
+  "component-paths",
+};
 
 static const int g_num_list_value_keys = 1;
 
-static file_info_t g_rcfiles[] = {
-  { "$SYSCONFDIR/tizonia.conf" },
-  { "$HOME/.config/tizonia/tizonia.conf" },
-  { "$TIZONIA_RC_FILE/tizonia.conf" }
-};
+static file_info_t g_rcfiles[] = {{"$SYSCONFDIR/tizonia.conf"},
+                                  {"$HOME/.config/tizonia/tizonia.conf"},
+                                  {"$TIZONIA_RC_FILE/tizonia.conf"}};
 
-static const int g_num_rcfiles = sizeof(g_rcfiles) / sizeof(g_rcfiles[0]);
+static const int g_num_rcfiles = sizeof (g_rcfiles) / sizeof (g_rcfiles[0]);
 
-static char *trimwhitespace (char *str)
+static char *
+trimwhitespace (char * str)
 {
-  char *end;
+  char * end;
 
   /* Trim leading space */
   while (isspace (*str))
@@ -104,9 +105,10 @@ static char *trimwhitespace (char *str)
   return str;
 }
 
-static char *trimlistseparator (char *str)
+static char *
+trimlistseparator (char * str)
 {
-  char *end;
+  char * end;
 
   /* Trim trailing ';' */
   end = str + strlen (str) - 1;
@@ -119,9 +121,10 @@ static char *trimlistseparator (char *str)
   return str;
 }
 
-static char *trimsectioning (char *str)
+static char *
+trimsectioning (char * str)
 {
-  char *end;
+  char * end;
 
   /* Trim leading '[' */
   while ('[' == (*str))
@@ -138,7 +141,8 @@ static char *trimsectioning (char *str)
   return str;
 }
 
-static char *trimcommenting (char *str)
+static char *
+trimcommenting (char * str)
 {
 
   /* Trim leading '#' */
@@ -148,9 +152,10 @@ static char *trimcommenting (char *str)
   return str;
 }
 
-static keyval_t *find_node (const tiz_rcfile_t *ap_rc, const char *key)
+static keyval_t *
+find_node (const tiz_rcfile_t * ap_rc, const char * key)
 {
-  keyval_t *p_kvs = NULL;
+  keyval_t * p_kvs = NULL;
 
   assert (ap_rc);
   assert (key);
@@ -170,7 +175,8 @@ static keyval_t *find_node (const tiz_rcfile_t *ap_rc, const char *key)
   return NULL;
 }
 
-static bool is_list (const char *key)
+static bool
+is_list (const char * key)
 {
   int i;
   for (i = 0; i < g_num_list_value_keys; i++)
@@ -184,17 +190,18 @@ static bool is_list (const char *key)
   return false;
 }
 
-static int get_node (const tiz_rcfile_t *ap_rc, char *str, keyval_t **app_kv)
+static int
+get_node (const tiz_rcfile_t * ap_rc, char * str, keyval_t ** app_kv)
 {
   int ret = 0;
-  char *needle = strstr (str, "=");
-  char *key = strndup (trimwhitespace (str), needle - str);
-  char *value_start = str + (needle - str) + 1;
-  char *value = strndup (trimlistseparator (trimwhitespace (value_start)),
-                         strlen (str) - (needle - str));
-  keyval_t *p_kv = NULL;
-  value_t *p_v = NULL;
-  value_t *p_next_v = NULL;
+  char * needle = strstr (str, "=");
+  char * key = strndup (trimwhitespace (str), needle - str);
+  char * value_start = str + (needle - str) + 1;
+  char * value = strndup (trimlistseparator (trimwhitespace (value_start)),
+                          strlen (str) - (needle - str));
+  keyval_t * p_kv = NULL;
+  value_t * p_v = NULL;
+  value_t * p_next_v = NULL;
 
   assert (ap_rc);
   assert (str);
@@ -208,8 +215,8 @@ static int get_node (const tiz_rcfile_t *ap_rc, char *str, keyval_t **app_kv)
   p_kv = find_node (ap_rc, key);
   if (!p_kv)
     {
-      p_kv = (keyval_t *)tiz_mem_calloc (1, sizeof(keyval_t));
-      p_v = (value_t *)tiz_mem_calloc (1, sizeof(value_t));
+      p_kv = (keyval_t *) tiz_mem_calloc (1, sizeof (keyval_t));
+      p_v = (value_t *) tiz_mem_calloc (1, sizeof (value_t));
 
       if (!p_kv || !p_v)
         {
@@ -232,14 +239,15 @@ static int get_node (const tiz_rcfile_t *ap_rc, char *str, keyval_t **app_kv)
           p_kv->p_next = NULL;
           if (is_list (key))
             {
-              char* token = strtok(value, delim);
+              char * token = strtok (value, delim);
               while (token)
                 {
-                  p_v->p_value = strndup(token, PATH_MAX);
-                  token = strtok(0, delim);
+                  p_v->p_value = strndup (token, PATH_MAX);
+                  token = strtok (0, delim);
                   if (token)
                     {
-                      p_v->p_next = (value_t *)tiz_mem_calloc (1, sizeof(value_t));
+                      p_v->p_next
+                        = (value_t *) tiz_mem_calloc (1, sizeof (value_t));
                       p_v = p_v->p_next;
                       p_kv->valcount++;
                     }
@@ -259,7 +267,7 @@ static int get_node (const tiz_rcfile_t *ap_rc, char *str, keyval_t **app_kv)
       if (is_list (key))
         {
           /* Add another value to the list */
-          p_v = (value_t *)tiz_mem_calloc (1, sizeof(value_t));
+          p_v = (value_t *) tiz_mem_calloc (1, sizeof (value_t));
           p_v->p_value = value;
 
           p_next_v = p_kv->p_value_list;
@@ -296,13 +304,14 @@ static int get_node (const tiz_rcfile_t *ap_rc, char *str, keyval_t **app_kv)
   return ret;
 }
 
-static int extractkeyval (FILE *ap_file, char *ap_str, keyval_t **app_last_kv,
-                          tiz_rcfile_t *ap_tiz_rcfile)
+static int
+extractkeyval (FILE * ap_file, char * ap_str, keyval_t ** app_last_kv,
+               tiz_rcfile_t * ap_tiz_rcfile)
 {
   int len;
   int ret = 0;
   int is_new = 0;
-  keyval_t *p_kv = NULL;
+  keyval_t * p_kv = NULL;
   value_t *p_v = NULL, *p_next_v = NULL;
 
   is_new = get_node (ap_tiz_rcfile, ap_str, &p_kv);
@@ -339,9 +348,10 @@ static int extractkeyval (FILE *ap_file, char *ap_str, keyval_t **app_last_kv,
     {
       if (strstr (pat, ";"))
         {
-          p_next_v = (value_t *)tiz_mem_calloc (1, sizeof(value_t));
+          p_next_v = (value_t *) tiz_mem_calloc (1, sizeof (value_t));
 
-          p_next_v->p_value = strndup (trimlistseparator (trimwhitespace (pat)), PATH_MAX);
+          p_next_v->p_value
+            = strndup (trimlistseparator (trimwhitespace (pat)), PATH_MAX);
 
           p_v->p_next = p_next_v;
           p_v = p_next_v;
@@ -366,20 +376,21 @@ static int extractkeyval (FILE *ap_file, char *ap_str, keyval_t **app_last_kv,
   return ret;
 }
 
-static int analyze_pattern (FILE *ap_file, char *ap_str, keyval_t **app_last_kv,
-                            tiz_rcfile_t *ap_tiz_rcfile)
+static int
+analyze_pattern (FILE * ap_file, char * ap_str, keyval_t ** app_last_kv,
+                 tiz_rcfile_t * ap_tiz_rcfile)
 {
   if (strstr (ap_str, "#"))
     {
-      char *str = trimcommenting (trimwhitespace (ap_str));
+      char * str = trimcommenting (trimwhitespace (ap_str));
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Comment : [%s]", trimwhitespace (str));
-      (void)str;
+      (void) str;
     }
   else if ('[' == ap_str[0] && ']' == ap_str[strlen (ap_str) - 1])
     {
-      char *str = trimsectioning (ap_str);
+      char * str = trimsectioning (ap_str);
       TIZ_LOG (TIZ_PRIORITY_TRACE, "Section : [%s]", str);
-      (void)str;
+      (void) str;
     }
   else if (strstr (ap_str, "="))
     {
@@ -390,10 +401,10 @@ static int analyze_pattern (FILE *ap_file, char *ap_str, keyval_t **app_last_kv,
   return 0;
 }
 
-static int load_rc_file (const file_info_t *ap_finfo,
-                         tiz_rcfile_t *ap_tiz_rcfile)
+static int
+load_rc_file (const file_info_t * ap_finfo, tiz_rcfile_t * ap_tiz_rcfile)
 {
-  FILE *p_file = 0;
+  FILE * p_file = 0;
   int len;
   keyval_t **pp_last_kv = NULL, *p_kv = NULL;
 
@@ -463,7 +474,8 @@ static int load_rc_file (const file_info_t *ap_finfo,
   return 0;
 }
 
-static int stat_ctime (const char *path, time_t *time)
+static int
+stat_ctime (const char * path, time_t * time)
 {
   struct stat astat;
   int statret = stat (path, &astat);
@@ -476,12 +488,12 @@ static int stat_ctime (const char *path, time_t *time)
 }
 
 OMX_ERRORTYPE
-tiz_rcfile_init (tiz_rcfile_t **pp_rc)
+tiz_rcfile_init (tiz_rcfile_t ** pp_rc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   int i;
-  tiz_rcfile_t *p_rc = NULL;
-  char *p_env_str = NULL;
+  tiz_rcfile_t * p_rc = NULL;
+  char * p_env_str = NULL;
 
   assert (pp_rc);
 
@@ -489,23 +501,23 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
   TIZ_LOG (TIZ_PRIORITY_TRACE, "Looking for [%d] rc files...", g_num_rcfiles);
   assert (3 == g_num_rcfiles);
 
-  snprintf (g_rcfiles[0].name, sizeof(g_rcfiles[0].name) - 1, "%s/tizonia.conf",
-            SYSCONFDIR);
+  snprintf (g_rcfiles[0].name, sizeof (g_rcfiles[0].name) - 1,
+            "%s/tizonia.conf", SYSCONFDIR);
 
   if ((p_env_str = getenv ("HOME")))
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE, "HOME [%s] ...", p_env_str);
-      snprintf (g_rcfiles[1].name, sizeof(g_rcfiles[1].name) - 1,
+      snprintf (g_rcfiles[1].name, sizeof (g_rcfiles[1].name) - 1,
                 "%s/.config/tizonia/tizonia.conf", p_env_str ? p_env_str : "");
     }
 
   if ((p_env_str = getenv ("TIZONIA_RC_FILE")))
     {
-      snprintf (g_rcfiles[2].name, sizeof(g_rcfiles[2].name) - 1, "%s",
+      snprintf (g_rcfiles[2].name, sizeof (g_rcfiles[2].name) - 1, "%s",
                 p_env_str ? p_env_str : "");
     }
 
-  if (!(p_rc = (tiz_rcfile_t *)tiz_mem_calloc (1, sizeof(tiz_rcfile_t))))
+  if (!(p_rc = (tiz_rcfile_t *) tiz_mem_calloc (1, sizeof (tiz_rcfile_t))))
     {
       TIZ_LOG (TIZ_PRIORITY_TRACE,
                "Could not allocate memory "
@@ -515,8 +527,8 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
 
   for (i = (g_num_rcfiles - 1); i >= 0; --i)
     {
-      TIZ_LOG (TIZ_PRIORITY_TRACE, "Checking for rc file [%d] at [%s]",
-               i, g_rcfiles[i].name);
+      TIZ_LOG (TIZ_PRIORITY_TRACE, "Checking for rc file [%d] at [%s]", i,
+               g_rcfiles[i].name);
       /* Check file existence and user's read access */
       if (0 != access (g_rcfiles[i].name, R_OK))
         {
@@ -543,7 +555,7 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
         }
 
       TIZ_LOG (TIZ_PRIORITY_DEBUG, "Loading [%s] rc file succeeded",
-                   g_rcfiles[i].name);
+               g_rcfiles[i].name);
       g_rcfiles[i].exists = 1;
 
       /* We only need to load one file */
@@ -563,10 +575,11 @@ tiz_rcfile_init (tiz_rcfile_t **pp_rc)
   return rc;
 }
 
-const char *tiz_rcfile_get_value (const char *ap_section, const char *ap_key)
+const char *
+tiz_rcfile_get_value (const char * ap_section, const char * ap_key)
 {
-  keyval_t *p_kv = NULL;
-  tiz_rcfile_t *p_rc = tiz_rcfile_get_handle ();
+  keyval_t * p_kv = NULL;
+  tiz_rcfile_t * p_rc = tiz_rcfile_get_handle ();
 
   if (NULL == p_rc)
     {
@@ -589,13 +602,14 @@ const char *tiz_rcfile_get_value (const char *ap_section, const char *ap_key)
   return NULL;
 }
 
-char **tiz_rcfile_get_value_list (const char *ap_section, const char *ap_key,
-                                  unsigned long *ap_length)
+char **
+tiz_rcfile_get_value_list (const char * ap_section, const char * ap_key,
+                           unsigned long * ap_length)
 {
-  keyval_t *p_kv = NULL;
-  char **pp_ret = NULL;
-  value_t *p_next_value = NULL;
-  tiz_rcfile_t *p_rc = tiz_rcfile_get_handle ();
+  keyval_t * p_kv = NULL;
+  char ** pp_ret = NULL;
+  value_t * p_next_value = NULL;
+  tiz_rcfile_t * p_rc = tiz_rcfile_get_handle ();
 
   if (NULL == p_rc)
     {
@@ -617,7 +631,7 @@ char **tiz_rcfile_get_value_list (const char *ap_section, const char *ap_key,
     {
       int i = 0;
       *ap_length = p_kv->valcount;
-      pp_ret = (char **)tiz_mem_alloc (sizeof(char *) * p_kv->valcount);
+      pp_ret = (char **) tiz_mem_alloc (sizeof (char *) * p_kv->valcount);
 
       p_next_value = p_kv->p_value_list;
       for (i = 0; i < p_kv->valcount; ++i)
@@ -633,11 +647,12 @@ char **tiz_rcfile_get_value_list (const char *ap_section, const char *ap_key,
   return pp_ret;
 }
 
-void tiz_rcfile_destroy (tiz_rcfile_t *p_rc)
+void
+tiz_rcfile_destroy (tiz_rcfile_t * p_rc)
 {
-  keyval_t *p_kv_lst = NULL;
-  keyval_t *p_kvt = NULL;
-  value_t *p_val_lst = NULL;
+  keyval_t * p_kv_lst = NULL;
+  keyval_t * p_kvt = NULL;
+  value_t * p_val_lst = NULL;
 
   if (!p_rc)
     {
@@ -647,7 +662,7 @@ void tiz_rcfile_destroy (tiz_rcfile_t *p_rc)
   p_kv_lst = p_rc->p_keyvals;
   while (p_kv_lst)
     {
-      value_t *p_vt = NULL;
+      value_t * p_vt = NULL;
       tiz_mem_free (p_kv_lst->p_key);
       p_val_lst = p_kv_lst->p_value_list;
       while (p_val_lst)
@@ -665,11 +680,12 @@ void tiz_rcfile_destroy (tiz_rcfile_t *p_rc)
   tiz_mem_free (p_rc);
 }
 
-int tiz_rcfile_compare_value (const char *section, const char *key,
-                              const char *value)
+int
+tiz_rcfile_compare_value (const char * section, const char * key,
+                          const char * value)
 {
   int rc = -1;
-  const char *p_value = tiz_rcfile_get_value(section, key);
+  const char * p_value = tiz_rcfile_get_value (section, key);
   if (p_value)
     {
       rc = (0 == strncmp (p_value, value, PATH_MAX) ? 0 : 1);
@@ -677,10 +693,11 @@ int tiz_rcfile_compare_value (const char *section, const char *key,
   return rc;
 }
 
-int tiz_rcfile_status (void)
+int
+tiz_rcfile_status (void)
 {
   int status = -1;
-  tiz_rcfile_t *p_rc = NULL;
+  tiz_rcfile_t * p_rc = NULL;
   if (OMX_ErrorNone == tiz_rcfile_init (&p_rc))
     {
       status = 0;
