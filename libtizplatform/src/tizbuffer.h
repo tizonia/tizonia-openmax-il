@@ -44,13 +44,14 @@ extern "C" {
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-/* The possibilities for the third argument to 'tiz_buffer_overwrite_mode'.
+/* The possibilities for the third argument to 'tiz_buffer_seek_mode'.
    These values should not be changed.  */
-#define TIZ_BUFFER_OVERWRITE_ON_PUSH \
+#define TIZ_BUFFER_NON_SEEKABLE \
   0 /** During push operations, data behind the current position marker gets
-        lost. This is the default mode of operation. */
-#define TIZ_BUFFER_OVERWRITE_NEVER \
-  1 /** Data behind the current position marker is not lost. */
+        automatically discarded. This is the default mode of operation. */
+#define TIZ_BUFFER_SEEKABLE \
+  1 /** Data pushed on to the buffer is only discarded explicitely when
+        'tiz_clear_buffer' is used. */
 
 /* The possibilities for the third argument to 'tiz_buffer_seek'.
    These values should not be changed.  */
@@ -90,12 +91,12 @@ tiz_buffer_destroy (tiz_buffer_t * ap_buf);
  *
  * @ingroup tizbuffer
  * @param ap_buf The dynamic buffer handle.
- * @param a_overwrite_mode TIZ_BUFFER_OVERWRITE_ON_PUSH (default) or
- * TIZ_BUFFER_OVERWRITE_NEVER.
- * @return The old overwrite mode, or -1 on error.
+ * @param a_seek_mode TIZ_BUFFER_NON_SEEKABLE (default) or
+ * TIZ_BUFFER_SEEKABLE.
+ * @return The old seek mode, or -1 on error.
  */
 int
-tiz_buffer_overwrite_mode (tiz_buffer_t * ap_buf, const int a_overwrite_mode);
+tiz_buffer_seek_mode (tiz_buffer_t * ap_buf, const int a_seek_mode);
 
 /**
  * Copy data at the back the buffer.

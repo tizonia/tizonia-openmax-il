@@ -51,7 +51,7 @@ struct tiz_buffer
   int alloc_len;
   int filled_len;
   int offset;
-  int overwrite_mode;
+  int seek_mode;
 };
 
 static long
@@ -75,7 +75,7 @@ alloc_data_store (tiz_buffer_t * ap_buf, const size_t nbytes)
           ap_buf->alloc_len = nbytes;
           ap_buf->filled_len = 0;
           ap_buf->offset = 0;
-          ap_buf->overwrite_mode = TIZ_BUFFER_OVERWRITE_ON_PUSH;
+          ap_buf->seek_mode = TIZ_BUFFER_NON_SEEKABLE;
         }
     }
   return ap_buf->p_store;
@@ -94,7 +94,7 @@ dealloc_data_store (
       ap_buf->alloc_len = 0;
       ap_buf->filled_len = 0;
       ap_buf->offset = 0;
-      ap_buf->overwrite_mode = TIZ_BUFFER_OVERWRITE_ON_PUSH;
+      ap_buf->seek_mode = TIZ_BUFFER_NON_SEEKABLE;
     }
 }
 
@@ -146,15 +146,15 @@ tiz_buffer_destroy (tiz_buffer_t * ap_buf)
 }
 
 int
-tiz_buffer_overwrite_mode (tiz_buffer_t * ap_buf, const int a_overwrite_mode)
+tiz_buffer_seek_mode (tiz_buffer_t * ap_buf, const int a_seek_mode)
 {
   int old_val = -1;
-  if (a_overwrite_mode == TIZ_BUFFER_OVERWRITE_NEVER
-      || a_overwrite_mode == TIZ_BUFFER_OVERWRITE_ON_PUSH)
+  if (a_seek_mode == TIZ_BUFFER_SEEKABLE
+      || a_seek_mode == TIZ_BUFFER_NON_SEEKABLE)
     {
       assert (ap_buf);
-      old_val = ap_buf->overwrite_mode;
-      ap_buf->overwrite_mode = a_overwrite_mode;
+      old_val = ap_buf->seek_mode;
+      ap_buf->seek_mode = a_seek_mode;
     }
   return old_val;
 }
@@ -172,7 +172,7 @@ tiz_buffer_push (tiz_buffer_t * ap_buf, const void * ap_data,
     {
       size_t avail = 0;
 
-      if (ap_buf->overwrite_mode == TIZ_BUFFER_OVERWRITE_ON_PUSH
+      if (ap_buf->seek_mode == TIZ_BUFFER_NON_SEEKABLE
           && ap_buf->offset > 0)
         {
           memmove (ap_buf->p_store, (ap_buf->p_store + ap_buf->offset),
