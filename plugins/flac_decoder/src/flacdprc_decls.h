@@ -43,9 +43,9 @@ struct flacd_prc
 {
   /* Object */
   const tiz_prc_t _;
-  FLAC__StreamDecoder *p_flac_dec_;
-  OMX_BUFFERHEADERTYPE *p_in_hdr_;
-  OMX_BUFFERHEADERTYPE *p_out_hdr_;
+  FLAC__StreamDecoder * p_flac_dec_;
+  OMX_BUFFERHEADERTYPE * p_in_hdr_;
+  OMX_BUFFERHEADERTYPE * p_out_hdr_;
   bool eos_;
   bool in_port_disabled_;
   bool out_port_disabled_;
@@ -53,7 +53,7 @@ struct flacd_prc
   unsigned sample_rate_;
   unsigned channels_;
   unsigned bps_;
-  OMX_U8 *p_store_;
+  OMX_U8 * p_store_;
   OMX_U32 store_offset_;
   OMX_U32 store_size_;
 };

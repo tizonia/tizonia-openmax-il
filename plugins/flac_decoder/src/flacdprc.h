@@ -33,8 +33,10 @@
 extern "C" {
 #endif
 
-void *flacd_prc_class_init (void *ap_tos, void *ap_hdl);
-void *flacd_prc_init (void *ap_tos, void *ap_hdl);
+void *
+flacd_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+flacd_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
