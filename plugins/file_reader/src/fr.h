@@ -29,27 +29,27 @@
 #define FR_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#define ARATELIA_FILE_READER_AUDIO_READER_ROLE  "audio_reader.binary"
-#define ARATELIA_FILE_READER_VIDEO_READER_ROLE  "video_reader.binary"
-#define ARATELIA_FILE_READER_IMAGE_READER_ROLE  "image_reader.binary"
-#define ARATELIA_FILE_READER_OTHER_READER_ROLE  "other_reader.binary"
-#define ARATELIA_FILE_READER_COMPONENT_NAME     "OMX.Aratelia.file_reader.binary"
-#define ARATELIA_FILE_READER_PORT_INDEX         0 /* With libtizonia, port indexes must start at index 0 */
+#define ARATELIA_FILE_READER_AUDIO_READER_ROLE "audio_reader.binary"
+#define ARATELIA_FILE_READER_VIDEO_READER_ROLE "video_reader.binary"
+#define ARATELIA_FILE_READER_IMAGE_READER_ROLE "image_reader.binary"
+#define ARATELIA_FILE_READER_OTHER_READER_ROLE "other_reader.binary"
+#define ARATELIA_FILE_READER_COMPONENT_NAME "OMX.Aratelia.file_reader.binary"
+#define ARATELIA_FILE_READER_PORT_INDEX \
+  0 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_FILE_READER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE  1024 * 4
+#define ARATELIA_FILE_READER_PORT_MIN_BUF_SIZE 1024 * 4
 #define ARATELIA_FILE_READER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_FILE_READER_PORT_ALIGNMENT     0
-#define ARATELIA_FILE_READER_PORT_SUPPLIERPREF  OMX_BufferSupplyInput
+#define ARATELIA_FILE_READER_PORT_ALIGNMENT 0
+#define ARATELIA_FILE_READER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* FR_H */
+#endif /* FR_H */
