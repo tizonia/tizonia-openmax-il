@@ -30,15 +30,16 @@
 #define TIZBINARYPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_binaryport_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_binaryport_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_binaryport_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_binaryport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZBINARYPORT_H */
+#endif /* TIZBINARYPORT_H */

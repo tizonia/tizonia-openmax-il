@@ -30,15 +30,16 @@
 #define TIZWAITFORRESOURCES_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_waitforresources_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_waitforresources_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_waitforresources_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_waitforresources_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZWAITFORRESOURCES_H */
+#endif /* TIZWAITFORRESOURCES_H */

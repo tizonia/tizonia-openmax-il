@@ -46,21 +46,21 @@ struct tiz_prc
 };
 
 OMX_ERRORTYPE
-tiz_prc_super_buffers_ready (const void *class, const void *p_obj);
+tiz_prc_super_buffers_ready (const void * class, const void * p_obj);
 
 typedef struct tiz_prc_class tiz_prc_class_t;
 struct tiz_prc_class
 {
   /* Class */
   const tiz_srv_class_t _;
-  OMX_ERRORTYPE (*buffers_ready)(const void *p_obj);
-  OMX_ERRORTYPE (*pause)(const void *p_obj);
-  OMX_ERRORTYPE (*resume)(const void *p_obj);
-  OMX_ERRORTYPE (*port_flush)(const void *p_obj, OMX_U32 a_pid);
-  OMX_ERRORTYPE (*port_disable)(const void *p_obj, OMX_U32 a_pid);
-  OMX_ERRORTYPE (*port_enable)(const void *p_obj, OMX_U32 a_pid);
-  OMX_ERRORTYPE (*config_change)(const void *p_obj, OMX_U32 a_pid,
-                                 OMX_INDEXTYPE a_config_idx);
+  OMX_ERRORTYPE (*buffers_ready) (const void * p_obj);
+  OMX_ERRORTYPE (*pause) (const void * p_obj);
+  OMX_ERRORTYPE (*resume) (const void * p_obj);
+  OMX_ERRORTYPE (*port_flush) (const void * p_obj, OMX_U32 a_pid);
+  OMX_ERRORTYPE (*port_disable) (const void * p_obj, OMX_U32 a_pid);
+  OMX_ERRORTYPE (*port_enable) (const void * p_obj, OMX_U32 a_pid);
+  OMX_ERRORTYPE (*config_change)
+  (const void * p_obj, OMX_U32 a_pid, OMX_INDEXTYPE a_config_idx);
 };
 
 #ifdef __cplusplus

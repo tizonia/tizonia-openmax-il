@@ -30,31 +30,29 @@
 #define TIZURICFGPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
-
 
 #include "tizconfigport_decls.h"
 
-  typedef struct tiz_uricfgport tiz_uricfgport_t;
-  struct tiz_uricfgport
-  {
-    /* Object */
-    const tiz_configport_t _;
-    OMX_STRING p_uri_;
-  };
+typedef struct tiz_uricfgport tiz_uricfgport_t;
+struct tiz_uricfgport
+{
+  /* Object */
+  const tiz_configport_t _;
+  OMX_STRING p_uri_;
+};
 
-  typedef struct tiz_uricfgport_class tiz_uricfgport_class_t;
-  struct tiz_uricfgport_class
-  {
-    /* Class */
-    const tiz_configport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct tiz_uricfgport_class tiz_uricfgport_class_t;
+struct tiz_uricfgport_class
+{
+  /* Class */
+  const tiz_configport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZURICFGPORT_DECLS_H */
+#endif /* TIZURICFGPORT_DECLS_H */

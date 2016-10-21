@@ -36,25 +36,29 @@ extern "C" {
 #include <OMX_Core.h>
 
 /* Forward declarations */
-static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg);
-static OMX_ERRORTYPE dispatch_br (void *ap_obj, OMX_PTR ap_msg);
-static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg);
-static OMX_ERRORTYPE dispatch_dr (void *ap_obj, OMX_PTR ap_msg);
+static OMX_ERRORTYPE
+dispatch_sc (void * ap_obj, OMX_PTR ap_msg);
+static OMX_ERRORTYPE
+dispatch_br (void * ap_obj, OMX_PTR ap_msg);
+static OMX_ERRORTYPE
+dispatch_config (void * ap_obj, OMX_PTR ap_msg);
+static OMX_ERRORTYPE
+dispatch_dr (void * ap_obj, OMX_PTR ap_msg);
 
 typedef struct tiz_prc_msg_sendcommand tiz_prc_msg_sendcommand_t;
 
-static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
-                                         OMX_HANDLETYPE p_hdl,
-                                         tiz_prc_msg_sendcommand_t *ap_msg_sc);
-static OMX_ERRORTYPE dispatch_port_disable (
-    const void *ap_obj, OMX_HANDLETYPE p_hdl,
-    tiz_prc_msg_sendcommand_t *ap_msg_sc);
-static OMX_ERRORTYPE dispatch_port_enable (
-    const void *ap_obj, OMX_HANDLETYPE p_hdl,
-    tiz_prc_msg_sendcommand_t *ap_msg_sc);
-static OMX_ERRORTYPE dispatch_port_flush (const void *ap_obj,
-                                          OMX_HANDLETYPE p_hdl,
-                                          tiz_prc_msg_sendcommand_t *ap_msg_sc);
+static OMX_ERRORTYPE
+dispatch_state_set (const void * ap_obj, OMX_HANDLETYPE p_hdl,
+                    tiz_prc_msg_sendcommand_t * ap_msg_sc);
+static OMX_ERRORTYPE
+dispatch_port_disable (const void * ap_obj, OMX_HANDLETYPE p_hdl,
+                       tiz_prc_msg_sendcommand_t * ap_msg_sc);
+static OMX_ERRORTYPE
+dispatch_port_enable (const void * ap_obj, OMX_HANDLETYPE p_hdl,
+                      tiz_prc_msg_sendcommand_t * ap_msg_sc);
+static OMX_ERRORTYPE
+dispatch_port_flush (const void * ap_obj, OMX_HANDLETYPE p_hdl,
+                     tiz_prc_msg_sendcommand_t * ap_msg_sc);
 
 /**
  * Top-level command types understood by the processor servant. Do not
@@ -80,7 +84,7 @@ struct tiz_prc_msg_sendcommand
 typedef struct tiz_prc_msg_buffersready tiz_prc_msg_buffersready_t;
 struct tiz_prc_msg_buffersready
 {
-  OMX_BUFFERHEADERTYPE *p_buffer;
+  OMX_BUFFERHEADERTYPE * p_buffer;
   OMX_U32 pid;
 };
 
@@ -114,18 +118,18 @@ struct tiz_prc_msg
   };
 };
 
-typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_f)(void *ap_obj, OMX_PTR ap_msg);
+typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_f) (void * ap_obj, OMX_PTR ap_msg);
 
 /**
  * Function table for the top-level command types understood by the processor
  * servant. Do not re-order, it is indexed by the tiz_prc_msg_class_t indices.
  */
 static const tiz_prc_msg_dispatch_f tiz_prc_msg_to_fnt_tbl[]
-    = { dispatch_sc, dispatch_br, dispatch_config, dispatch_dr };
+  = {dispatch_sc, dispatch_br, dispatch_config, dispatch_dr};
 
-typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_sc_f)(
-    const void *ap_obj, OMX_HANDLETYPE p_hdl,
-    tiz_prc_msg_sendcommand_t *ap_msg_sc);
+typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_sc_f) (
+  const void * ap_obj, OMX_HANDLETYPE p_hdl,
+  tiz_prc_msg_sendcommand_t * ap_msg_sc);
 
 /**
  * Function table for the OMX_SendCommand message types understood by the
@@ -133,8 +137,8 @@ typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_sc_f)(
  * indices. NOTE that OMX_CommandMarkBuffer is not handled.
  */
 static const tiz_prc_msg_dispatch_sc_f tiz_prc_msg_dispatch_sc_to_fnt_tbl[]
-    = { dispatch_state_set, dispatch_port_flush, dispatch_port_disable,
-        dispatch_port_enable };
+  = {dispatch_state_set, dispatch_port_flush, dispatch_port_disable,
+     dispatch_port_enable};
 
 typedef struct tiz_prc_msg_str tiz_prc_msg_str_t;
 struct tiz_prc_msg_str
@@ -143,71 +147,77 @@ struct tiz_prc_msg_str
   OMX_STRING str;
 };
 
-static const tiz_prc_msg_str_t tiz_prc_msg_to_str_tbl[]
-= { { ETIZPrcMsgSendCommand, "ETIZPrcMsgSendCommand" },
-    { ETIZPrcMsgBuffersReady, "ETIZPrcMsgBuffersReady" },
-    { ETIZPrcMsgConfig, "ETIZPrcMsgConfig" },
-    { ETIZPrcMsgDeferredResume, "ETIZPrcMsgDeferredResume" },
-    { ETIZPrcMsgMax, "ETIZPrcMsgMax" }, };
-
-
+static const tiz_prc_msg_str_t tiz_prc_msg_to_str_tbl[] = {
+  {ETIZPrcMsgSendCommand, "ETIZPrcMsgSendCommand"},
+  {ETIZPrcMsgBuffersReady, "ETIZPrcMsgBuffersReady"},
+  {ETIZPrcMsgConfig, "ETIZPrcMsgConfig"},
+  {ETIZPrcMsgDeferredResume, "ETIZPrcMsgDeferredResume"},
+  {ETIZPrcMsgMax, "ETIZPrcMsgMax"},
+};
 
 /*
  * OMX_CommandStateSet dispatching
  */
 
-typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_state_set_f)(tiz_prc_t *ap_prc,
-                                                          bool * ap_done);
+typedef OMX_ERRORTYPE (*tiz_prc_msg_dispatch_state_set_f) (tiz_prc_t * ap_prc,
+                                                           bool * ap_done);
 /* Forward declarations */
-static OMX_ERRORTYPE dispatch_idle_to_loaded (tiz_prc_t *ap_prc,
-                                                bool * ap_done);
-static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_prc_t *ap_prc,
-                                              bool * ap_done);
-static OMX_ERRORTYPE dispatch_exe_or_pause_to_idle (tiz_prc_t *ap_prc,
-                                                    bool * ap_done);
-static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_prc_t *ap_prc,
-                                           bool * ap_done);
-static OMX_ERRORTYPE dispatch_pause_to_exe (tiz_prc_t *ap_prc,
-                                            bool * ap_done);
-static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_prc_t *ap_prc,
-                                            bool * ap_done);
-static OMX_ERRORTYPE dispatch_exe_or_idle_to_pause (tiz_prc_t *ap_prc,
-                                                    bool * ap_done);
-static OMX_ERRORTYPE dispatch_true (tiz_prc_t *ap_prc,
-                                    bool * ap_done);
-static OMX_ERRORTYPE dispatch_false (tiz_prc_t *ap_prc,
-                                     bool * ap_done);
+static OMX_ERRORTYPE
+dispatch_idle_to_loaded (tiz_prc_t * ap_prc, bool * ap_done);
+static OMX_ERRORTYPE
+dispatch_loaded_to_idle (tiz_prc_t * ap_prc, bool * ap_done);
+static OMX_ERRORTYPE
+dispatch_exe_or_pause_to_idle (tiz_prc_t * ap_prc, bool * ap_done);
+static OMX_ERRORTYPE
+dispatch_idle_to_exe (tiz_prc_t * ap_prc, bool * ap_done);
+static OMX_ERRORTYPE
+dispatch_pause_to_exe (tiz_prc_t * ap_prc, bool * ap_done);
+static OMX_ERRORTYPE
+dispatch_exe_to_exe (tiz_prc_t * ap_prc, bool * ap_done);
+static OMX_ERRORTYPE
+dispatch_exe_or_idle_to_pause (tiz_prc_t * ap_prc, bool * ap_done);
+static OMX_ERRORTYPE
+dispatch_true (tiz_prc_t * ap_prc, bool * ap_done);
+static OMX_ERRORTYPE
+dispatch_false (tiz_prc_t * ap_prc, bool * ap_done);
 
 /**
  * Function table for the processor servant state machine. Do not re-order, it
  * is indexed by the OMX_STATETYPE indices.
  */
-static const tiz_prc_msg_dispatch_state_set_f tiz_prc_state_set_dispatch_tbl[][OMX_StateWaitForResources + 1] =
-  {
+static const tiz_prc_msg_dispatch_state_set_f
+  tiz_prc_state_set_dispatch_tbl[][OMX_StateWaitForResources + 1]
+  = {
     /* From reserved */
     /* reserved , OMX_StateLoaded , OMX_StateIdle , OMX_StateExecuting , OMX_StatePause , OMX_StateWaitForResources */
-    {dispatch_false, dispatch_false, dispatch_false , dispatch_false, dispatch_false, dispatch_false},
+    {dispatch_false, dispatch_false, dispatch_false, dispatch_false,
+     dispatch_false, dispatch_false},
 
     /* From Loaded */
     /* reserved , OMX_StateLoaded , OMX_StateIdle , OMX_StateExecuting , OMX_StatePause , OMX_StateWaitForResources */
-    {dispatch_false, dispatch_false, dispatch_loaded_to_idle , dispatch_false, dispatch_false, dispatch_true},
+    {dispatch_false, dispatch_false, dispatch_loaded_to_idle, dispatch_false,
+     dispatch_false, dispatch_true},
 
     /* From Idle */
     /* reserved , OMX_StateLoaded , OMX_StateIdle , OMX_StateExecuting , OMX_StatePause , OMX_StateWaitForResources */
-    {dispatch_false, dispatch_idle_to_loaded, dispatch_false, dispatch_idle_to_exe, dispatch_exe_or_idle_to_pause, dispatch_false},
+    {dispatch_false, dispatch_idle_to_loaded, dispatch_false,
+     dispatch_idle_to_exe, dispatch_exe_or_idle_to_pause, dispatch_false},
 
     /* From Exe */
     /* reserved , OMX_StateLoaded , OMX_StateIdle , OMX_StateExecuting , OMX_StatePause , OMX_StateWaitForResources */
-    {dispatch_false, dispatch_false, dispatch_exe_or_pause_to_idle, dispatch_exe_to_exe, dispatch_exe_or_idle_to_pause, dispatch_false},
+    {dispatch_false, dispatch_false, dispatch_exe_or_pause_to_idle,
+     dispatch_exe_to_exe, dispatch_exe_or_idle_to_pause, dispatch_false},
 
     /* From Pause */
     /* reserved , OMX_StateLoaded , OMX_StateIdle , OMX_StateExecuting , OMX_StatePause , OMX_StateWaitForResources */
-    {dispatch_false, dispatch_false, dispatch_exe_or_pause_to_idle, dispatch_pause_to_exe, dispatch_false, dispatch_false},
+    {dispatch_false, dispatch_false, dispatch_exe_or_pause_to_idle,
+     dispatch_pause_to_exe, dispatch_false, dispatch_false},
 
     /* From WaitForResources */
     /* reserved , OMX_StateLoaded , OMX_StateIdle , OMX_StateExecuting , OMX_StatePause , OMX_StateWaitForResources */
-    {dispatch_false, dispatch_true, dispatch_false, dispatch_false, dispatch_false, dispatch_false},
-  };
+    {dispatch_false, dispatch_true, dispatch_false, dispatch_false,
+     dispatch_false, dispatch_false},
+};
 
 #ifdef __cplusplus
 }

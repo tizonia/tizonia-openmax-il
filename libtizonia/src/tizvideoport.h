@@ -30,15 +30,16 @@
 #define TIZVIDEOPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_videoport_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_videoport_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_videoport_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_videoport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZVIDEOPORT_H */
+#endif /* TIZVIDEOPORT_H */

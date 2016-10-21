@@ -108,7 +108,7 @@ filter_prc_ctor (void * ap_obj, va_list * app)
     OMX_U32 pid = 0;
     while (tiz_krn_get_port (tiz_get_krn (handleOf (p_prc)), pid))
       {
-        grow_internal_lists(p_prc, pid);
+        grow_internal_lists (p_prc, pid);
         ++pid;
       }
   }
@@ -549,7 +549,8 @@ tiz_filter_prc_init (void * ap_tos, void * ap_hdl)
      /* TIZ_CLASS_COMMENT: */
      tiz_filter_prc_headers_available, filter_prc_headers_available,
      /* TIZ_CLASS_COMMENT: */
-     tiz_filter_prc_output_headers_available, filter_prc_output_headers_available,
+     tiz_filter_prc_output_headers_available,
+     filter_prc_output_headers_available,
      /* TIZ_CLASS_COMMENT: */
      tiz_filter_prc_release_header, filter_prc_release_header,
      /* TIZ_CLASS_COMMENT: */

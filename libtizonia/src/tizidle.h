@@ -30,15 +30,16 @@
 #define TIZIDLE_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_idle_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_idle_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_idle_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_idle_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZIDLE_H */
+#endif /* TIZIDLE_H */

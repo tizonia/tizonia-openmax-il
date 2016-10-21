@@ -44,28 +44,31 @@
 typedef struct tiz_srv_watcher_id tiz_srv_watcher_id_t;
 struct tiz_srv_watcher_id
 {
-  tiz_srv_t *p_srv;
+  tiz_srv_t * p_srv;
   uint32_t id;
 };
 
-static OMX_S32 pqueue_cmp (OMX_PTR ap_left, OMX_PTR ap_right)
+static OMX_S32
+pqueue_cmp (OMX_PTR ap_left, OMX_PTR ap_right)
 {
   /* Not planning to use tiz_pqueue_remove or tiz_pqueue_removep */
   assert (0);
   return 1;
 }
 
-static OMX_S32 watchers_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
+static OMX_S32
+watchers_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
 {
   assert (ap_key1);
   assert (ap_key2);
   return (ap_key1 == ap_key2) ? 0 : ((ap_key1 < ap_key2) ? -1 : 1);
 }
 
-static void watchers_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
+static void
+watchers_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 {
-  tiz_srv_watcher_id_t *p_id = (tiz_srv_watcher_id_t *)ap_value;
-  tiz_srv_t *p_srv = p_id->p_srv;
+  tiz_srv_watcher_id_t * p_id = (tiz_srv_watcher_id_t *) ap_value;
+  tiz_srv_t * p_srv = p_id->p_srv;
   uint32_t id = p_id->id;
   assert (p_id);
   assert (p_srv);
@@ -73,7 +76,8 @@ static void watchers_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
   tiz_soa_free (p_srv->p_soa_, p_id);
 }
 
-static void destroy_watchers_map (tiz_srv_t *ap_srv)
+static void
+destroy_watchers_map (tiz_srv_t * ap_srv)
 {
   assert (ap_srv);
   if (ap_srv->p_watchers_)
@@ -87,11 +91,11 @@ static void destroy_watchers_map (tiz_srv_t *ap_srv)
     }
 }
 
-static inline bool is_watcher_active (tiz_srv_t *ap_srv, void *ap_watcher,
-                                      uint32_t *ap_id)
+static inline bool
+is_watcher_active (tiz_srv_t * ap_srv, void * ap_watcher, uint32_t * ap_id)
 {
   bool rc = false;
-  tiz_srv_watcher_id_t *p_id = NULL;
+  tiz_srv_watcher_id_t * p_id = NULL;
   assert (ap_srv);
   if (ap_srv->p_watchers_ && ap_watcher)
     {
@@ -105,9 +109,10 @@ static inline bool is_watcher_active (tiz_srv_t *ap_srv, void *ap_watcher,
   return rc;
 }
 
-static OMX_S32 watcher_count (const void *ap_obj)
+static OMX_S32
+watcher_count (const void * ap_obj)
 {
-  tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
+  tiz_srv_t * p_srv = (tiz_srv_t *) ap_obj;
   OMX_S32 count = 0;
   assert (p_srv);
   if (p_srv->p_watchers_)
@@ -121,9 +126,10 @@ static OMX_S32 watcher_count (const void *ap_obj)
  * tiz_srv
  */
 
-static void *srv_ctor (void *ap_obj, va_list *app)
+static void *
+srv_ctor (void * ap_obj, va_list * app)
 {
-  tiz_srv_t *p_srv = super_ctor (typeOf (ap_obj, "tizsrv"), ap_obj, app);
+  tiz_srv_t * p_srv = super_ctor (typeOf (ap_obj, "tizsrv"), ap_obj, app);
   /* NOTE: The priority queue is initialised only when the allocator is set via
    * set_allocator */
   p_srv->p_pq_ = NULL;
@@ -137,9 +143,10 @@ static void *srv_ctor (void *ap_obj, va_list *app)
   return p_srv;
 }
 
-static void *srv_dtor (void *ap_obj)
+static void *
+srv_dtor (void * ap_obj)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
 
   destroy_watchers_map (p_srv);
 
@@ -164,9 +171,10 @@ static void *srv_dtor (void *ap_obj)
   return super_dtor (typeOf (ap_obj, "tizsrv"), ap_obj);
 }
 
-static OMX_ERRORTYPE srv_set_allocator (void *ap_obj, tiz_soa_t *p_soa)
+static OMX_ERRORTYPE
+srv_set_allocator (void * ap_obj, tiz_soa_t * p_soa)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   assert (ap_obj);
   assert (p_soa);
   p_srv->p_soa_ = p_soa;
@@ -175,33 +183,36 @@ static OMX_ERRORTYPE srv_set_allocator (void *ap_obj, tiz_soa_t *p_soa)
 }
 
 OMX_ERRORTYPE
-tiz_srv_set_allocator (void *ap_obj, tiz_soa_t *p_soa)
+tiz_srv_set_allocator (void * ap_obj, tiz_soa_t * p_soa)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->set_allocator);
   return class->set_allocator (ap_obj, p_soa);
 }
 
-static void srv_set_callbacks (void *ap_obj, OMX_PTR ap_appdata,
-                               OMX_CALLBACKTYPE *ap_cbacks)
+static void
+srv_set_callbacks (void * ap_obj, OMX_PTR ap_appdata,
+                   OMX_CALLBACKTYPE * ap_cbacks)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   assert (p_srv);
   p_srv->p_appdata_ = ap_appdata;
   p_srv->p_cbacks_ = ap_cbacks;
 }
 
-void tiz_srv_set_callbacks (void *ap_obj, OMX_PTR ap_appdata,
-                            OMX_CALLBACKTYPE *ap_cbacks)
+void
+tiz_srv_set_callbacks (void * ap_obj, OMX_PTR ap_appdata,
+                       OMX_CALLBACKTYPE * ap_cbacks)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->set_callbacks);
   class->set_callbacks (ap_obj, ap_appdata, ap_cbacks);
 }
 
-static OMX_ERRORTYPE srv_tick (const void *ap_obj)
+static OMX_ERRORTYPE
+srv_tick (const void * ap_obj)
 {
-  tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
+  tiz_srv_t * p_srv = (tiz_srv_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_PTR p_msg = NULL;
 
@@ -242,89 +253,94 @@ end:
 }
 
 OMX_ERRORTYPE
-tiz_srv_tick (const void *ap_obj)
+tiz_srv_tick (const void * ap_obj)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->tick);
   return class->tick (ap_obj);
 }
 
 OMX_ERRORTYPE
-tiz_srv_super_tick (const void *a_class, const void *ap_obj)
+tiz_srv_super_tick (const void * a_class, const void * ap_obj)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->tick);
   return superclass->tick (ap_obj);
 }
 
-static OMX_PTR srv_init_msg (void *ap_obj, size_t msg_sz)
+static OMX_PTR
+srv_init_msg (void * ap_obj, size_t msg_sz)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   assert (p_srv);
   assert (p_srv->p_soa_);
   return tiz_soa_calloc (p_srv->p_soa_, msg_sz);
 }
 
 OMX_PTR
-tiz_srv_init_msg (void *ap_obj, size_t msg_sz)
+tiz_srv_init_msg (void * ap_obj, size_t msg_sz)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
 
   assert (class->init_msg);
   return class->init_msg (ap_obj, msg_sz);
 }
 
-static OMX_ERRORTYPE srv_enqueue (const void *ap_obj, OMX_PTR ap_data,
-                                  OMX_U32 a_priority)
+static OMX_ERRORTYPE
+srv_enqueue (const void * ap_obj, OMX_PTR ap_data, OMX_U32 a_priority)
 {
-  tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
+  tiz_srv_t * p_srv = (tiz_srv_t *) ap_obj;
   assert (p_srv);
   return tiz_pqueue_send (p_srv->p_pq_, ap_data, a_priority);
 }
 
 OMX_ERRORTYPE
-tiz_srv_enqueue (const void *ap_obj, OMX_PTR ap_data, OMX_U32 a_priority)
+tiz_srv_enqueue (const void * ap_obj, OMX_PTR ap_data, OMX_U32 a_priority)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->enqueue);
   return class->enqueue (ap_obj, ap_data, a_priority);
 }
 
 OMX_ERRORTYPE
-tiz_srv_super_enqueue (const void *a_class, const void *ap_obj, OMX_PTR ap_data,
-                       OMX_U32 a_priority)
+tiz_srv_super_enqueue (const void * a_class, const void * ap_obj,
+                       OMX_PTR ap_data, OMX_U32 a_priority)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->enqueue);
   return superclass->enqueue (ap_obj, ap_data, a_priority);
 }
 
-static void srv_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
-                                   OMX_S32 a_data1, OMX_PTR ap_data2)
+static void
+srv_remove_from_queue (const void * ap_obj, tiz_pq_func_f apf_func,
+                       OMX_S32 a_data1, OMX_PTR ap_data2)
 {
-  tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
+  tiz_srv_t * p_srv = (tiz_srv_t *) ap_obj;
   assert (p_srv);
   tiz_pqueue_remove_func (p_srv->p_pq_, apf_func, a_data1, ap_data2);
 }
 
-void tiz_srv_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
-                                OMX_S32 a_data1, OMX_PTR ap_data2)
+void
+tiz_srv_remove_from_queue (const void * ap_obj, tiz_pq_func_f apf_func,
+                           OMX_S32 a_data1, OMX_PTR ap_data2)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->remove_from_queue);
   class->remove_from_queue (ap_obj, apf_func, a_data1, ap_data2);
 }
 
-void tiz_srv_super_remove_from_queue (const void *a_class, const void *ap_obj,
-                                      tiz_pq_func_f apf_func, OMX_S32 a_data1,
-                                      OMX_PTR ap_data2)
+void
+tiz_srv_super_remove_from_queue (const void * a_class, const void * ap_obj,
+                                 tiz_pq_func_f apf_func, OMX_S32 a_data1,
+                                 OMX_PTR ap_data2)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->remove_from_queue);
   superclass->remove_from_queue (ap_obj, apf_func, a_data1, ap_data2);
 }
 
-static OMX_ERRORTYPE srv_dispatch_msg (const void *ap_obj, OMX_PTR ap_data)
+static OMX_ERRORTYPE
+srv_dispatch_msg (const void * ap_obj, OMX_PTR ap_data)
 {
   /* This must be implemented by the children */
   assert (0);
@@ -332,233 +348,247 @@ static OMX_ERRORTYPE srv_dispatch_msg (const void *ap_obj, OMX_PTR ap_data)
 }
 
 OMX_ERRORTYPE
-tiz_srv_dispatch_msg (const void *ap_obj, OMX_PTR ap_data)
+tiz_srv_dispatch_msg (const void * ap_obj, OMX_PTR ap_data)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->dispatch_msg);
   return class->dispatch_msg (ap_obj, ap_data);
 }
 
 OMX_ERRORTYPE
-tiz_srv_super_dispatch_msg (const void *a_class, const void *ap_obj,
+tiz_srv_super_dispatch_msg (const void * a_class, const void * ap_obj,
                             OMX_PTR ap_data)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->dispatch_msg);
   return superclass->dispatch_msg (ap_obj, ap_data);
 }
 
-static bool srv_is_ready (const void *ap_obj)
+static bool
+srv_is_ready (const void * ap_obj)
 {
-  const tiz_srv_t *p_srv = ap_obj;
+  const tiz_srv_t * p_srv = ap_obj;
   assert (p_srv);
   return (tiz_pqueue_length (p_srv->p_pq_) > 0 ? OMX_TRUE : OMX_FALSE);
 }
 
-bool tiz_srv_is_ready (const void *ap_obj)
+bool
+tiz_srv_is_ready (const void * ap_obj)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->is_ready);
   return class->is_ready (ap_obj);
 }
 
-bool tiz_srv_super_is_ready (const void *a_class, const void *ap_obj)
+bool
+tiz_srv_super_is_ready (const void * a_class, const void * ap_obj)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->is_ready);
   return superclass->is_ready (ap_obj);
 }
 
-static OMX_ERRORTYPE srv_allocate_resources (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+srv_allocate_resources (const void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
-tiz_srv_allocate_resources (const void *ap_obj, OMX_U32 a_pid)
+tiz_srv_allocate_resources (const void * ap_obj, OMX_U32 a_pid)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->allocate_resources);
   return class->allocate_resources (ap_obj, a_pid);
 }
 
 OMX_ERRORTYPE
-tiz_srv_super_allocate_resources (const void *a_class, const void *ap_obj,
+tiz_srv_super_allocate_resources (const void * a_class, const void * ap_obj,
                                   OMX_U32 a_pid)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->allocate_resources);
   return superclass->allocate_resources (ap_obj, a_pid);
 }
 
-static OMX_ERRORTYPE srv_deallocate_resources (void *ap_obj)
+static OMX_ERRORTYPE
+srv_deallocate_resources (void * ap_obj)
 {
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
-tiz_srv_deallocate_resources (const void *ap_obj)
+tiz_srv_deallocate_resources (const void * ap_obj)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->deallocate_resources);
   return class->deallocate_resources (ap_obj);
 }
 
 OMX_ERRORTYPE
-tiz_srv_super_deallocate_resources (const void *a_class, const void *ap_obj)
+tiz_srv_super_deallocate_resources (const void * a_class, const void * ap_obj)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->deallocate_resources);
   return superclass->deallocate_resources (ap_obj);
 }
 
-static OMX_ERRORTYPE srv_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+srv_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
-tiz_srv_prepare_to_transfer (const void *ap_obj, OMX_U32 a_pid)
+tiz_srv_prepare_to_transfer (const void * ap_obj, OMX_U32 a_pid)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->prepare_to_transfer);
   return class->prepare_to_transfer (ap_obj, a_pid);
 }
 
 OMX_ERRORTYPE
-tiz_srv_super_prepare_to_transfer (const void *a_class, const void *ap_obj,
+tiz_srv_super_prepare_to_transfer (const void * a_class, const void * ap_obj,
                                    OMX_U32 a_pid)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->prepare_to_transfer);
   return superclass->prepare_to_transfer (ap_obj, a_pid);
 }
 
-static OMX_ERRORTYPE srv_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+srv_transfer_and_process (void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
-tiz_srv_transfer_and_process (const void *ap_obj, OMX_U32 a_pid)
+tiz_srv_transfer_and_process (const void * ap_obj, OMX_U32 a_pid)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->transfer_and_process);
   return class->transfer_and_process (ap_obj, a_pid);
 }
 
 OMX_ERRORTYPE
-tiz_srv_super_transfer_and_process (const void *a_class, const void *ap_obj,
+tiz_srv_super_transfer_and_process (const void * a_class, const void * ap_obj,
                                     OMX_U32 a_pid)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->transfer_and_process);
   return superclass->transfer_and_process (ap_obj, a_pid);
 }
 
-static OMX_ERRORTYPE srv_stop_and_return (void *ap_obj)
+static OMX_ERRORTYPE
+srv_stop_and_return (void * ap_obj)
 {
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
-tiz_srv_stop_and_return (const void *ap_obj)
+tiz_srv_stop_and_return (const void * ap_obj)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->stop_and_return);
   return class->stop_and_return (ap_obj);
 }
 
 OMX_ERRORTYPE
-tiz_srv_super_stop_and_return (const void *a_class, const void *ap_obj)
+tiz_srv_super_stop_and_return (const void * a_class, const void * ap_obj)
 {
-  const tiz_srv_class_t *superclass = super (a_class);
+  const tiz_srv_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->stop_and_return);
   return superclass->stop_and_return (ap_obj);
 }
 
-static void srv_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
-                             OMX_U32 a_data1, OMX_U32 a_data2,
-                             /*@null@*/ OMX_PTR ap_eventdata)
+static void
+srv_issue_event (const void * ap_obj, OMX_EVENTTYPE a_event, OMX_U32 a_data1,
+                 OMX_U32 a_data2,
+                 /*@null@*/ OMX_PTR ap_eventdata)
 {
-  tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
+  tiz_srv_t * p_srv = (tiz_srv_t *) ap_obj;
   assert (p_srv);
   assert (p_srv->p_cbacks_);
   assert (p_srv->p_cbacks_->EventHandler);
   /* NOTE: Start ignoring splint warnings in this section of code */
   /*@ignore@*/
   TIZ_NOTICE (handleOf (ap_obj), "[%s]", tiz_evt_to_str (a_event));
-  (void)p_srv->p_cbacks_->EventHandler (handleOf (ap_obj), p_srv->p_appdata_,
-                                        a_event, a_data1, a_data2,
-                                        ap_eventdata);
+  (void) p_srv->p_cbacks_->EventHandler (handleOf (ap_obj), p_srv->p_appdata_,
+                                         a_event, a_data1, a_data2,
+                                         ap_eventdata);
   /*@end@*/
   /* NOTE: Stop ignoring splint warnings in this section  */
 }
 
-void tiz_srv_issue_event (const void *ap_obj, OMX_EVENTTYPE a_event,
-                          OMX_U32 a_data1, OMX_U32 a_data2,
-                          OMX_PTR ap_eventdata)
+void
+tiz_srv_issue_event (const void * ap_obj, OMX_EVENTTYPE a_event,
+                     OMX_U32 a_data1, OMX_U32 a_data2, OMX_PTR ap_eventdata)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->issue_event);
   class->issue_event (ap_obj, a_event, a_data1, a_data2, ap_eventdata);
 }
 
-static void srv_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error)
+static void
+srv_issue_err_event (const void * ap_obj, OMX_ERRORTYPE a_error)
 {
   TIZ_ERROR (handleOf (ap_obj), "[OMX_EventError] [%s]",
              tiz_err_to_str (a_error));
   srv_issue_event (ap_obj, OMX_EventError, a_error, 0, 0);
 }
 
-void tiz_srv_issue_err_event (const void *ap_obj, OMX_ERRORTYPE a_error)
+void
+tiz_srv_issue_err_event (const void * ap_obj, OMX_ERRORTYPE a_error)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->issue_err_event);
   class->issue_err_event (ap_obj, a_error);
 }
 
-static void srv_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
-                                 OMX_U32 a_pid, OMX_ERRORTYPE a_error)
+static void
+srv_issue_cmd_event (const void * ap_obj, OMX_COMMANDTYPE a_cmd, OMX_U32 a_pid,
+                     OMX_ERRORTYPE a_error)
 {
-  TIZ_NOTICE (handleOf (ap_obj),
-              "[OMX_EventCmdComplete] [%s] PID [%d] [%s]",
+  TIZ_NOTICE (handleOf (ap_obj), "[OMX_EventCmdComplete] [%s] PID [%d] [%s]",
               tiz_cmd_to_str (a_cmd), a_pid, tiz_err_to_str (a_error));
   srv_issue_event (ap_obj, OMX_EventCmdComplete, a_cmd, a_pid,
-                   (OMX_PTR)a_error);
+                   (OMX_PTR) a_error);
 }
 
-void tiz_srv_issue_cmd_event (const void *ap_obj, OMX_COMMANDTYPE a_cmd,
-                              OMX_U32 a_pid, OMX_ERRORTYPE a_error)
+void
+tiz_srv_issue_cmd_event (const void * ap_obj, OMX_COMMANDTYPE a_cmd,
+                         OMX_U32 a_pid, OMX_ERRORTYPE a_error)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->issue_cmd_event);
   class->issue_cmd_event (ap_obj, a_cmd, a_pid, a_error);
 }
 
-static void srv_issue_trans_event (void *ap_obj, OMX_STATETYPE a_state,
-                                   OMX_ERRORTYPE a_error)
+static void
+srv_issue_trans_event (void * ap_obj, OMX_STATETYPE a_state,
+                       OMX_ERRORTYPE a_error)
 {
   TIZ_NOTICE (handleOf (ap_obj),
               "[OMX_EventCmdComplete] [OMX_CommandStateSet] [%s]",
-              tiz_fsm_state_to_str ((tiz_fsm_state_id_t)a_state));
+              tiz_fsm_state_to_str ((tiz_fsm_state_id_t) a_state));
   srv_issue_event (ap_obj, OMX_EventCmdComplete, OMX_CommandStateSet, a_state,
-                   (OMX_PTR)a_error);
+                   (OMX_PTR) a_error);
 }
 
-void tiz_srv_issue_trans_event (const void *ap_obj, OMX_STATETYPE a_state,
-                                OMX_ERRORTYPE a_error)
+void
+tiz_srv_issue_trans_event (const void * ap_obj, OMX_STATETYPE a_state,
+                           OMX_ERRORTYPE a_error)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->issue_trans_event);
   class->issue_trans_event (ap_obj, a_state, a_error);
 }
 
-static void srv_issue_buf_callback (const void *ap_obj,
-                                    OMX_BUFFERHEADERTYPE *p_hdr, OMX_U32 pid,
-                                    OMX_DIRTYPE dir, OMX_HANDLETYPE ap_tcomp)
+static void
+srv_issue_buf_callback (const void * ap_obj, OMX_BUFFERHEADERTYPE * p_hdr,
+                        OMX_U32 pid, OMX_DIRTYPE dir, OMX_HANDLETYPE ap_tcomp)
 {
-  tiz_srv_t *p_srv = (tiz_srv_t *)ap_obj;
+  tiz_srv_t * p_srv = (tiz_srv_t *) ap_obj;
   assert (p_srv);
   assert (p_srv->p_cbacks_);
   assert (p_srv->p_cbacks_->EventHandler);
@@ -569,18 +599,18 @@ static void srv_issue_buf_callback (const void *ap_obj,
           TIZ_DEBUG (handleOf (ap_obj),
                      "[OMX_FillThisBuffer] : "
                      "HEADER [%p] BUFFER [%p] [F(%d):A(%d)] [w:%d] [%s]",
-                     p_hdr, p_hdr->pBuffer, p_hdr->nFilledLen,
-                     p_hdr->nAllocLen, watcher_count (ap_obj), TIZ_CNAME(ap_tcomp));
-          (void)OMX_FillThisBuffer (ap_tcomp, p_hdr);
+                     p_hdr, p_hdr->pBuffer, p_hdr->nFilledLen, p_hdr->nAllocLen,
+                     watcher_count (ap_obj), TIZ_CNAME (ap_tcomp));
+          (void) OMX_FillThisBuffer (ap_tcomp, p_hdr);
         }
       else
         {
           TIZ_DEBUG (handleOf (ap_obj),
                      "[OMX_EmptyThisBuffer] : "
                      "HEADER [%p] BUFFER [%p] [F(%d):A(%d)] [w:%d] [%s]",
-                     p_hdr, p_hdr->pBuffer, p_hdr->nFilledLen,
-                     p_hdr->nAllocLen, watcher_count (ap_obj), TIZ_CNAME (ap_tcomp));
-          (void)OMX_EmptyThisBuffer (ap_tcomp, p_hdr);
+                     p_hdr, p_hdr->pBuffer, p_hdr->nFilledLen, p_hdr->nAllocLen,
+                     watcher_count (ap_obj), TIZ_CNAME (ap_tcomp));
+          (void) OMX_EmptyThisBuffer (ap_tcomp, p_hdr);
         }
     }
 
@@ -588,74 +618,79 @@ static void srv_issue_buf_callback (const void *ap_obj,
     {
       OMX_ERRORTYPE (*fp_buf_done)
       (OMX_HANDLETYPE, OMX_PTR, OMX_BUFFERHEADERTYPE *)
-          = (dir == OMX_DirInput ? p_srv->p_cbacks_->EmptyBufferDone
-                                 : p_srv->p_cbacks_->FillBufferDone);
+        = (dir == OMX_DirInput ? p_srv->p_cbacks_->EmptyBufferDone
+                               : p_srv->p_cbacks_->FillBufferDone);
 
       TIZ_DEBUG (handleOf (ap_obj), "[%] : HEADER [%p] BUFFER [%p]",
                  dir == OMX_DirInput ? "EmptyBufferDone" : "FillBufferDone",
                  p_hdr, p_hdr->pBuffer);
 
-      (void)fp_buf_done (handleOf (ap_obj), p_srv->p_appdata_, p_hdr);
+      (void) fp_buf_done (handleOf (ap_obj), p_srv->p_appdata_, p_hdr);
     }
 }
 
-void tiz_srv_issue_buf_callback (const void *ap_obj,
-                                 OMX_BUFFERHEADERTYPE *p_hdr, OMX_U32 pid,
-                                 OMX_DIRTYPE dir, OMX_HANDLETYPE ap_tcomp)
+void
+tiz_srv_issue_buf_callback (const void * ap_obj, OMX_BUFFERHEADERTYPE * p_hdr,
+                            OMX_U32 pid, OMX_DIRTYPE dir,
+                            OMX_HANDLETYPE ap_tcomp)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->issue_buf_callback);
   class->issue_buf_callback (ap_obj, p_hdr, pid, dir, ap_tcomp);
 }
 
-static OMX_ERRORTYPE srv_receive_pluggable_event (
-    void *ap_obj, tiz_event_pluggable_t *ap_event)
+static OMX_ERRORTYPE
+srv_receive_pluggable_event (void * ap_obj, tiz_event_pluggable_t * ap_event)
 {
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
-tiz_srv_receive_pluggable_event (void *ap_obj, tiz_event_pluggable_t *ap_event)
+tiz_srv_receive_pluggable_event (void * ap_obj,
+                                 tiz_event_pluggable_t * ap_event)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->receive_pluggable_event);
   return class->receive_pluggable_event (ap_obj, ap_event);
 }
 
-static void *srv_soa_calloc (void *ap_obj, size_t a_size)
+static void *
+srv_soa_calloc (void * ap_obj, size_t a_size)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   assert (p_srv);
   return tiz_soa_calloc (p_srv->p_soa_, a_size);
 }
 
-void *tiz_srv_soa_calloc (void *ap_obj, size_t a_size)
+void *
+tiz_srv_soa_calloc (void * ap_obj, size_t a_size)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->soa_calloc);
   return class->soa_calloc (ap_obj, a_size);
 }
 
-static void srv_soa_free (void *ap_obj, void *ap_addr)
+static void
+srv_soa_free (void * ap_obj, void * ap_addr)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   assert (p_srv);
   tiz_soa_free (p_srv->p_soa_, ap_addr);
 }
 
-void tiz_srv_soa_free (void *ap_obj, void *ap_addr)
+void
+tiz_srv_soa_free (void * ap_obj, void * ap_addr)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->soa_free);
   class->soa_free (ap_obj, ap_addr);
 }
 
-static OMX_ERRORTYPE srv_io_watcher_init (void *ap_obj,
-                                          tiz_event_io_t **app_ev_io, int a_fd,
-                                          tiz_event_io_event_t a_event,
-                                          bool only_once)
+static OMX_ERRORTYPE
+srv_io_watcher_init (void * ap_obj, tiz_event_io_t ** app_ev_io, int a_fd,
+                     tiz_event_io_event_t a_event, bool only_once)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
 
   assert (p_srv);
   assert (app_ev_io);
@@ -667,26 +702,26 @@ static OMX_ERRORTYPE srv_io_watcher_init (void *ap_obj,
                                        watchers_map_compare_func,
                                        watchers_map_free_func, p_srv->p_soa_));
     }
-  tiz_check_omx_err (tiz_event_io_init (app_ev_io, handleOf (p_srv),
-                                        tiz_comp_event_io, p_srv));
+  tiz_check_omx_err (
+    tiz_event_io_init (app_ev_io, handleOf (p_srv), tiz_comp_event_io, p_srv));
   assert (*app_ev_io);
   tiz_event_io_set (*app_ev_io, a_fd, a_event, only_once);
   return OMX_ErrorNone;
 }
 
-OMX_ERRORTYPE tiz_srv_io_watcher_init (void *ap_obj, tiz_event_io_t **app_ev_io,
-                                       int a_fd, tiz_event_io_event_t a_event,
-                                       bool only_once)
+OMX_ERRORTYPE
+tiz_srv_io_watcher_init (void * ap_obj, tiz_event_io_t ** app_ev_io, int a_fd,
+                         tiz_event_io_event_t a_event, bool only_once)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->io_watcher_init);
   return class->io_watcher_init (ap_obj, app_ev_io, a_fd, a_event, only_once);
 }
 
-static OMX_ERRORTYPE srv_io_watcher_start (void *ap_obj,
-                                           tiz_event_io_t *ap_ev_io)
+static OMX_ERRORTYPE
+srv_io_watcher_start (void * ap_obj, tiz_event_io_t * ap_ev_io)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
 
@@ -696,7 +731,8 @@ static OMX_ERRORTYPE srv_io_watcher_start (void *ap_obj,
 
   if (!is_watcher_active (p_srv, ap_ev_io, &id))
     {
-      tiz_srv_watcher_id_t *p_id = tiz_soa_calloc (p_srv->p_soa_, sizeof(tiz_srv_watcher_id_t));
+      tiz_srv_watcher_id_t * p_id
+        = tiz_soa_calloc (p_srv->p_soa_, sizeof (tiz_srv_watcher_id_t));
       if (p_id)
         {
           OMX_U32 index = 0;
@@ -704,7 +740,8 @@ static OMX_ERRORTYPE srv_io_watcher_start (void *ap_obj,
           p_id->id = p_srv->watcher_id_++;
           id = p_id->id;
           index = tiz_map_size (p_srv->p_watchers_);
-          tiz_check_omx_err (tiz_map_insert (p_srv->p_watchers_, ap_ev_io, p_id, &index));
+          tiz_check_omx_err (
+            tiz_map_insert (p_srv->p_watchers_, ap_ev_io, p_id, &index));
           rc = tiz_event_io_start (ap_ev_io, id);
           TIZ_TRACE (handleOf (ap_obj),
                      "started io watcher id [%d] active watchers [%d]", id,
@@ -714,17 +751,18 @@ static OMX_ERRORTYPE srv_io_watcher_start (void *ap_obj,
   return rc;
 }
 
-OMX_ERRORTYPE tiz_srv_io_watcher_start (void *ap_obj, tiz_event_io_t *ap_ev_io)
+OMX_ERRORTYPE
+tiz_srv_io_watcher_start (void * ap_obj, tiz_event_io_t * ap_ev_io)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->io_watcher_start);
   return class->io_watcher_start (ap_obj, ap_ev_io);
 }
 
-static OMX_ERRORTYPE srv_io_watcher_stop (void *ap_obj,
-                                          tiz_event_io_t *ap_ev_io)
+static OMX_ERRORTYPE
+srv_io_watcher_stop (void * ap_obj, tiz_event_io_t * ap_ev_io)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
 
@@ -741,16 +779,18 @@ static OMX_ERRORTYPE srv_io_watcher_stop (void *ap_obj,
   return rc;
 }
 
-OMX_ERRORTYPE tiz_srv_io_watcher_stop (void *ap_obj, tiz_event_io_t *ap_ev_io)
+OMX_ERRORTYPE
+tiz_srv_io_watcher_stop (void * ap_obj, tiz_event_io_t * ap_ev_io)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->io_watcher_stop);
   return class->io_watcher_stop (ap_obj, ap_ev_io);
 }
 
-static void srv_io_watcher_destroy (void *ap_obj, tiz_event_io_t *ap_ev_io)
+static void
+srv_io_watcher_destroy (void * ap_obj, tiz_event_io_t * ap_ev_io)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
 
   assert (p_srv);
 
@@ -758,25 +798,25 @@ static void srv_io_watcher_destroy (void *ap_obj, tiz_event_io_t *ap_ev_io)
     {
       if (p_srv->p_watchers_)
         {
-          (void)srv_io_watcher_stop (p_srv, ap_ev_io);
+          (void) srv_io_watcher_stop (p_srv, ap_ev_io);
         }
       tiz_event_io_destroy (ap_ev_io);
       TIZ_TRACE (handleOf (ap_obj), "destroyed watcher [%p]", ap_ev_io);
-
     }
 }
 
-void tiz_srv_io_watcher_destroy (void *ap_obj, tiz_event_io_t *ap_ev_io)
+void
+tiz_srv_io_watcher_destroy (void * ap_obj, tiz_event_io_t * ap_ev_io)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->io_watcher_destroy);
   class->io_watcher_destroy (ap_obj, ap_ev_io);
 }
 
-static OMX_ERRORTYPE srv_timer_watcher_init (void *ap_obj,
-                                             tiz_event_timer_t **app_ev_timer)
+static OMX_ERRORTYPE
+srv_timer_watcher_init (void * ap_obj, tiz_event_timer_t ** app_ev_timer)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
 
   assert (p_srv);
   assert (app_ev_timer);
@@ -793,20 +833,19 @@ static OMX_ERRORTYPE srv_timer_watcher_init (void *ap_obj,
                                tiz_comp_event_timer, p_srv);
 }
 
-OMX_ERRORTYPE tiz_srv_timer_watcher_init (void *ap_obj,
-                                          tiz_event_timer_t **app_ev_timer)
+OMX_ERRORTYPE
+tiz_srv_timer_watcher_init (void * ap_obj, tiz_event_timer_t ** app_ev_timer)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->timer_watcher_init);
   return class->timer_watcher_init (ap_obj, app_ev_timer);
 }
 
-static OMX_ERRORTYPE srv_timer_watcher_start (void *ap_obj,
-                                              tiz_event_timer_t *ap_ev_timer,
-                                              const double a_after,
-                                              const double a_repeat)
+static OMX_ERRORTYPE
+srv_timer_watcher_start (void * ap_obj, tiz_event_timer_t * ap_ev_timer,
+                         const double a_after, const double a_repeat)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
 
@@ -816,7 +855,8 @@ static OMX_ERRORTYPE srv_timer_watcher_start (void *ap_obj,
 
   if (!is_watcher_active (p_srv, ap_ev_timer, &id))
     {
-      tiz_srv_watcher_id_t *p_id = tiz_soa_calloc (p_srv->p_soa_, sizeof(tiz_srv_watcher_id_t));
+      tiz_srv_watcher_id_t * p_id
+        = tiz_soa_calloc (p_srv->p_soa_, sizeof (tiz_srv_watcher_id_t));
       if (p_id)
         {
           OMX_U32 index = 0;
@@ -825,32 +865,32 @@ static OMX_ERRORTYPE srv_timer_watcher_start (void *ap_obj,
           id = p_id->id;
           tiz_event_timer_set (ap_ev_timer, a_after, a_repeat);
           index = tiz_map_size (p_srv->p_watchers_);
-          tiz_check_omx_err (tiz_map_insert (p_srv->p_watchers_, ap_ev_timer, p_id, &index));
+          tiz_check_omx_err (
+            tiz_map_insert (p_srv->p_watchers_, ap_ev_timer, p_id, &index));
           rc = tiz_event_timer_start (ap_ev_timer, id);
           TIZ_TRACE (handleOf (ap_obj),
-                     "started timer watcher id [%d] active watchers [%d]",
-                     id, watcher_count (p_srv));
+                     "started timer watcher id [%d] active watchers [%d]", id,
+                     watcher_count (p_srv));
         }
     }
   return rc;
 }
 
-OMX_ERRORTYPE tiz_srv_timer_watcher_start (void *ap_obj,
-                                           tiz_event_timer_t *ap_ev_timer,
-                                           const double a_after,
-                                           const double a_repeat)
+OMX_ERRORTYPE
+tiz_srv_timer_watcher_start (void * ap_obj, tiz_event_timer_t * ap_ev_timer,
+                             const double a_after, const double a_repeat)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->timer_watcher_start);
   return class->timer_watcher_start (ap_obj, ap_ev_timer, a_after, a_repeat);
 }
 
-static OMX_ERRORTYPE srv_timer_watcher_restart (void *ap_obj,
-                                                tiz_event_timer_t *ap_ev_timer)
+static OMX_ERRORTYPE
+srv_timer_watcher_restart (void * ap_obj, tiz_event_timer_t * ap_ev_timer)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_srv_watcher_id_t *p_id = NULL;
+  tiz_srv_watcher_id_t * p_id = NULL;
   uint32_t id = 0;
 
   assert (p_srv);
@@ -862,7 +902,7 @@ static OMX_ERRORTYPE srv_timer_watcher_restart (void *ap_obj,
       tiz_map_erase (p_srv->p_watchers_, ap_ev_timer);
     }
 
-  p_id = tiz_soa_calloc (p_srv->p_soa_, sizeof(tiz_srv_watcher_id_t));
+  p_id = tiz_soa_calloc (p_srv->p_soa_, sizeof (tiz_srv_watcher_id_t));
   if (p_id)
     {
       OMX_U32 index = 0;
@@ -870,7 +910,8 @@ static OMX_ERRORTYPE srv_timer_watcher_restart (void *ap_obj,
       p_id->id = p_srv->watcher_id_++;
       id = p_id->id;
       index = tiz_map_size (p_srv->p_watchers_);
-      tiz_check_omx_err (tiz_map_insert (p_srv->p_watchers_, ap_ev_timer, p_id, &index));
+      tiz_check_omx_err (
+        tiz_map_insert (p_srv->p_watchers_, ap_ev_timer, p_id, &index));
       rc = tiz_event_timer_restart (ap_ev_timer, id);
       TIZ_TRACE (handleOf (ap_obj),
                  "restarted io watcher id [%d] active watchers [%d]", id,
@@ -880,18 +921,18 @@ static OMX_ERRORTYPE srv_timer_watcher_restart (void *ap_obj,
   return rc;
 }
 
-OMX_ERRORTYPE tiz_srv_timer_watcher_restart (void *ap_obj,
-                                             tiz_event_timer_t *ap_ev_timer)
+OMX_ERRORTYPE
+tiz_srv_timer_watcher_restart (void * ap_obj, tiz_event_timer_t * ap_ev_timer)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->timer_watcher_restart);
   return class->timer_watcher_restart (ap_obj, ap_ev_timer);
 }
 
-static OMX_ERRORTYPE srv_timer_watcher_stop (void *ap_obj,
-                                             tiz_event_timer_t *ap_ev_timer)
+static OMX_ERRORTYPE
+srv_timer_watcher_stop (void * ap_obj, tiz_event_timer_t * ap_ev_timer)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorBadParameter;
   uint32_t id = 0;
 
@@ -908,42 +949,43 @@ static OMX_ERRORTYPE srv_timer_watcher_stop (void *ap_obj,
   return rc;
 }
 
-OMX_ERRORTYPE tiz_srv_timer_watcher_stop (void *ap_obj,
-                                          tiz_event_timer_t *ap_ev_timer)
+OMX_ERRORTYPE
+tiz_srv_timer_watcher_stop (void * ap_obj, tiz_event_timer_t * ap_ev_timer)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->timer_watcher_stop);
   return class->timer_watcher_stop (ap_obj, ap_ev_timer);
 }
 
-static void srv_timer_watcher_destroy (void *ap_obj,
-                                       tiz_event_timer_t *ap_ev_timer)
+static void
+srv_timer_watcher_destroy (void * ap_obj, tiz_event_timer_t * ap_ev_timer)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   assert (p_srv);
   if (ap_ev_timer)
     {
       if (p_srv->p_watchers_)
         {
-          (void)srv_timer_watcher_stop (p_srv, ap_ev_timer);
+          (void) srv_timer_watcher_stop (p_srv, ap_ev_timer);
         }
       tiz_event_timer_destroy (ap_ev_timer);
       TIZ_TRACE (handleOf (ap_obj), "destroyed watcher with [%p]", ap_ev_timer);
     }
 }
 
-void tiz_srv_timer_watcher_destroy (void *ap_obj,
-                                    tiz_event_timer_t *ap_ev_timer)
+void
+tiz_srv_timer_watcher_destroy (void * ap_obj, tiz_event_timer_t * ap_ev_timer)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->timer_watcher_destroy);
   class->timer_watcher_destroy (ap_obj, ap_ev_timer);
 }
 
-static OMX_ERRORTYPE srv_event_io (void *ap_obj, tiz_event_io_t *ap_ev_io,
-                                   const uint32_t a_id, int a_fd, int a_events)
+static OMX_ERRORTYPE
+srv_event_io (void * ap_obj, tiz_event_io_t * ap_ev_io, const uint32_t a_id,
+              int a_fd, int a_events)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
   assert (p_srv);
@@ -963,25 +1005,26 @@ static OMX_ERRORTYPE srv_event_io (void *ap_obj, tiz_event_io_t *ap_ev_io,
     }
   else
     {
-      TIZ_TRACE (handleOf (ap_obj), "ignoring watcher id [%d] a_id [%d]", id, a_id);
+      TIZ_TRACE (handleOf (ap_obj), "ignoring watcher id [%d] a_id [%d]", id,
+                 a_id);
     }
   return rc;
 }
 
 OMX_ERRORTYPE
-tiz_srv_event_io (void *ap_obj, tiz_event_io_t *ap_ev_io, const uint32_t a_id,
+tiz_srv_event_io (void * ap_obj, tiz_event_io_t * ap_ev_io, const uint32_t a_id,
                   int a_fd, int a_events)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->event_io);
   return class->event_io (ap_obj, ap_ev_io, a_id, a_fd, a_events);
 }
 
-static OMX_ERRORTYPE srv_event_timer (void *ap_obj,
-                                      tiz_event_timer_t *ap_ev_timer,
-                                      const uint32_t a_id)
+static OMX_ERRORTYPE
+srv_event_timer (void * ap_obj, tiz_event_timer_t * ap_ev_timer,
+                 const uint32_t a_id)
 {
-  tiz_srv_t *p_srv = ap_obj;
+  tiz_srv_t * p_srv = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   uint32_t id = 0;
   assert (p_srv);
@@ -1004,75 +1047,77 @@ static OMX_ERRORTYPE srv_event_timer (void *ap_obj,
     }
   else
     {
-      TIZ_TRACE (handleOf (ap_obj), "ignoring timer watcher id [%d] a_id [%d]", id, a_id);
+      TIZ_TRACE (handleOf (ap_obj), "ignoring timer watcher id [%d] a_id [%d]",
+                 id, a_id);
     }
   return rc;
 }
 
 OMX_ERRORTYPE
-tiz_srv_event_timer (void *ap_obj, tiz_event_timer_t *ap_ev_timer,
+tiz_srv_event_timer (void * ap_obj, tiz_event_timer_t * ap_ev_timer,
                      const uint32_t a_id)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->event_timer);
   return class->event_timer (ap_obj, ap_ev_timer, a_id);
 }
 
-static OMX_ERRORTYPE srv_event_stat (void *ap_obj, tiz_event_stat_t *ap_ev_stat,
-                                     int a_events)
+static OMX_ERRORTYPE
+srv_event_stat (void * ap_obj, tiz_event_stat_t * ap_ev_stat, int a_events)
 {
   /* TODO */
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_srv_event_stat (void *ap_obj, tiz_event_stat_t *ap_ev_stat,
+tiz_srv_event_stat (void * ap_obj, tiz_event_stat_t * ap_ev_stat,
                     const uint32_t a_id, int a_events)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->event_stat);
   return class->event_stat (ap_obj, ap_ev_stat, a_id, a_events);
 }
 
-static OMX_ERRORTYPE srv_io_ready (const void *ap_obj, tiz_event_io_t *ap_ev_io,
-                                   int a_fd, int a_events)
+static OMX_ERRORTYPE
+srv_io_ready (const void * ap_obj, tiz_event_io_t * ap_ev_io, int a_fd,
+              int a_events)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_srv_io_ready (void *ap_obj, tiz_event_io_t *ap_ev_io, int a_fd,
+tiz_srv_io_ready (void * ap_obj, tiz_event_io_t * ap_ev_io, int a_fd,
                   int a_events)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->io_ready);
   return class->io_ready (ap_obj, ap_ev_io, a_fd, a_events);
 }
 
-static OMX_ERRORTYPE srv_timer_ready (void *ap_obj,
-                                      tiz_event_timer_t *ap_ev_timer)
+static OMX_ERRORTYPE
+srv_timer_ready (void * ap_obj, tiz_event_timer_t * ap_ev_timer)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_srv_timer_ready (void *ap_obj, tiz_event_timer_t *ap_ev_timer)
+tiz_srv_timer_ready (void * ap_obj, tiz_event_timer_t * ap_ev_timer)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->timer_ready);
   return class->timer_ready (ap_obj, ap_ev_timer);
 }
 
-static OMX_ERRORTYPE srv_stat_ready (void *ap_obj, tiz_event_stat_t *ap_ev_stat,
-                                     int a_events)
+static OMX_ERRORTYPE
+srv_stat_ready (void * ap_obj, tiz_event_stat_t * ap_ev_stat, int a_events)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_srv_stat_ready (void *ap_obj, tiz_event_stat_t *ap_ev_stat, int a_events)
+tiz_srv_stat_ready (void * ap_obj, tiz_event_stat_t * ap_ev_stat, int a_events)
 {
-  const tiz_srv_class_t *class = classOf (ap_obj);
+  const tiz_srv_class_t * class = classOf (ap_obj);
   assert (class->stat_ready);
   return class->stat_ready (ap_obj, ap_ev_stat, a_events);
 }
@@ -1081,11 +1126,12 @@ tiz_srv_stat_ready (void *ap_obj, tiz_event_stat_t *ap_ev_stat, int a_events)
  * tiz_srv_class
  */
 
-static void *srv_class_ctor (void *ap_obj, va_list *app)
+static void *
+srv_class_ctor (void * ap_obj, va_list * app)
 {
-  tiz_srv_class_t *p_srv
-      = super_ctor (typeOf (ap_obj, "tizsrv_class"), ap_obj, app);
-  typedef void (*voidf)();
+  tiz_srv_class_t * p_srv
+    = super_ctor (typeOf (ap_obj, "tizsrv_class"), ap_obj, app);
+  typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
   va_copy (ap, *app);
@@ -1095,149 +1141,149 @@ static void *srv_class_ctor (void *ap_obj, va_list *app)
   while ((selector = va_arg (ap, voidf)))
     {
       voidf method = va_arg (ap, voidf);
-      if (selector == (voidf)tiz_srv_set_allocator)
+      if (selector == (voidf) tiz_srv_set_allocator)
         {
-          *(voidf *)&p_srv->set_allocator = method;
+          *(voidf *) &p_srv->set_allocator = method;
         }
-      else if (selector == (voidf)tiz_srv_set_callbacks)
+      else if (selector == (voidf) tiz_srv_set_callbacks)
         {
-          *(voidf *)&p_srv->set_callbacks = method;
+          *(voidf *) &p_srv->set_callbacks = method;
         }
-      else if (selector == (voidf)tiz_srv_tick)
+      else if (selector == (voidf) tiz_srv_tick)
         {
-          *(voidf *)&p_srv->tick = method;
+          *(voidf *) &p_srv->tick = method;
         }
-      else if (selector == (voidf)tiz_srv_init_msg)
+      else if (selector == (voidf) tiz_srv_init_msg)
         {
-          *(voidf *)&p_srv->init_msg = method;
+          *(voidf *) &p_srv->init_msg = method;
         }
-      else if (selector == (voidf)tiz_srv_enqueue)
+      else if (selector == (voidf) tiz_srv_enqueue)
         {
-          *(voidf *)&p_srv->enqueue = method;
+          *(voidf *) &p_srv->enqueue = method;
         }
-      else if (selector == (voidf)tiz_srv_remove_from_queue)
+      else if (selector == (voidf) tiz_srv_remove_from_queue)
         {
-          *(voidf *)&p_srv->remove_from_queue = method;
+          *(voidf *) &p_srv->remove_from_queue = method;
         }
-      else if (selector == (voidf)tiz_srv_dispatch_msg)
+      else if (selector == (voidf) tiz_srv_dispatch_msg)
         {
-          *(voidf *)&p_srv->dispatch_msg = method;
+          *(voidf *) &p_srv->dispatch_msg = method;
         }
-      else if (selector == (voidf)tiz_srv_is_ready)
+      else if (selector == (voidf) tiz_srv_is_ready)
         {
-          *(voidf *)&p_srv->is_ready = method;
+          *(voidf *) &p_srv->is_ready = method;
         }
-      else if (selector == (voidf)tiz_srv_allocate_resources)
+      else if (selector == (voidf) tiz_srv_allocate_resources)
         {
-          *(voidf *)&p_srv->allocate_resources = method;
+          *(voidf *) &p_srv->allocate_resources = method;
         }
-      else if (selector == (voidf)tiz_srv_deallocate_resources)
+      else if (selector == (voidf) tiz_srv_deallocate_resources)
         {
-          *(voidf *)&p_srv->deallocate_resources = method;
+          *(voidf *) &p_srv->deallocate_resources = method;
         }
-      else if (selector == (voidf)tiz_srv_prepare_to_transfer)
+      else if (selector == (voidf) tiz_srv_prepare_to_transfer)
         {
-          *(voidf *)&p_srv->prepare_to_transfer = method;
+          *(voidf *) &p_srv->prepare_to_transfer = method;
         }
-      else if (selector == (voidf)tiz_srv_transfer_and_process)
+      else if (selector == (voidf) tiz_srv_transfer_and_process)
         {
-          *(voidf *)&p_srv->transfer_and_process = method;
+          *(voidf *) &p_srv->transfer_and_process = method;
         }
-      else if (selector == (voidf)tiz_srv_stop_and_return)
+      else if (selector == (voidf) tiz_srv_stop_and_return)
         {
-          *(voidf *)&p_srv->stop_and_return = method;
+          *(voidf *) &p_srv->stop_and_return = method;
         }
-      else if (selector == (voidf)tiz_srv_issue_event)
+      else if (selector == (voidf) tiz_srv_issue_event)
         {
-          *(voidf *)&p_srv->issue_event = method;
+          *(voidf *) &p_srv->issue_event = method;
         }
-      else if (selector == (voidf)tiz_srv_issue_err_event)
+      else if (selector == (voidf) tiz_srv_issue_err_event)
         {
-          *(voidf *)&p_srv->issue_err_event = method;
+          *(voidf *) &p_srv->issue_err_event = method;
         }
-      else if (selector == (voidf)tiz_srv_issue_cmd_event)
+      else if (selector == (voidf) tiz_srv_issue_cmd_event)
         {
-          *(voidf *)&p_srv->issue_cmd_event = method;
+          *(voidf *) &p_srv->issue_cmd_event = method;
         }
-      else if (selector == (voidf)tiz_srv_issue_trans_event)
+      else if (selector == (voidf) tiz_srv_issue_trans_event)
         {
-          *(voidf *)&p_srv->issue_trans_event = method;
+          *(voidf *) &p_srv->issue_trans_event = method;
         }
-      else if (selector == (voidf)tiz_srv_issue_buf_callback)
+      else if (selector == (voidf) tiz_srv_issue_buf_callback)
         {
-          *(voidf *)&p_srv->issue_buf_callback = method;
+          *(voidf *) &p_srv->issue_buf_callback = method;
         }
-      else if (selector == (voidf)tiz_srv_receive_pluggable_event)
+      else if (selector == (voidf) tiz_srv_receive_pluggable_event)
         {
-          *(voidf *)&p_srv->receive_pluggable_event = method;
+          *(voidf *) &p_srv->receive_pluggable_event = method;
         }
-      else if (selector == (voidf)tiz_srv_soa_calloc)
+      else if (selector == (voidf) tiz_srv_soa_calloc)
         {
-          *(voidf *)&p_srv->soa_calloc = method;
+          *(voidf *) &p_srv->soa_calloc = method;
         }
-      else if (selector == (voidf)tiz_srv_soa_free)
+      else if (selector == (voidf) tiz_srv_soa_free)
         {
-          *(voidf *)&p_srv->soa_free = method;
+          *(voidf *) &p_srv->soa_free = method;
         }
-      else if (selector == (voidf)tiz_srv_io_watcher_init)
+      else if (selector == (voidf) tiz_srv_io_watcher_init)
         {
-          *(voidf *)&p_srv->io_watcher_init = method;
+          *(voidf *) &p_srv->io_watcher_init = method;
         }
-      else if (selector == (voidf)tiz_srv_io_watcher_start)
+      else if (selector == (voidf) tiz_srv_io_watcher_start)
         {
-          *(voidf *)&p_srv->io_watcher_start = method;
+          *(voidf *) &p_srv->io_watcher_start = method;
         }
-      else if (selector == (voidf)tiz_srv_io_watcher_stop)
+      else if (selector == (voidf) tiz_srv_io_watcher_stop)
         {
-          *(voidf *)&p_srv->io_watcher_stop = method;
+          *(voidf *) &p_srv->io_watcher_stop = method;
         }
-      else if (selector == (voidf)tiz_srv_io_watcher_destroy)
+      else if (selector == (voidf) tiz_srv_io_watcher_destroy)
         {
-          *(voidf *)&p_srv->io_watcher_destroy = method;
+          *(voidf *) &p_srv->io_watcher_destroy = method;
         }
-      else if (selector == (voidf)tiz_srv_timer_watcher_init)
+      else if (selector == (voidf) tiz_srv_timer_watcher_init)
         {
-          *(voidf *)&p_srv->timer_watcher_init = method;
+          *(voidf *) &p_srv->timer_watcher_init = method;
         }
-      else if (selector == (voidf)tiz_srv_timer_watcher_start)
+      else if (selector == (voidf) tiz_srv_timer_watcher_start)
         {
-          *(voidf *)&p_srv->timer_watcher_start = method;
+          *(voidf *) &p_srv->timer_watcher_start = method;
         }
-      else if (selector == (voidf)tiz_srv_timer_watcher_restart)
+      else if (selector == (voidf) tiz_srv_timer_watcher_restart)
         {
-          *(voidf *)&p_srv->timer_watcher_restart = method;
+          *(voidf *) &p_srv->timer_watcher_restart = method;
         }
-      else if (selector == (voidf)tiz_srv_timer_watcher_stop)
+      else if (selector == (voidf) tiz_srv_timer_watcher_stop)
         {
-          *(voidf *)&p_srv->timer_watcher_stop = method;
+          *(voidf *) &p_srv->timer_watcher_stop = method;
         }
-      else if (selector == (voidf)tiz_srv_timer_watcher_destroy)
+      else if (selector == (voidf) tiz_srv_timer_watcher_destroy)
         {
-          *(voidf *)&p_srv->timer_watcher_destroy = method;
+          *(voidf *) &p_srv->timer_watcher_destroy = method;
         }
-      else if (selector == (voidf)tiz_srv_event_io)
+      else if (selector == (voidf) tiz_srv_event_io)
         {
-          *(voidf *)&p_srv->event_io = method;
+          *(voidf *) &p_srv->event_io = method;
         }
-      else if (selector == (voidf)tiz_srv_event_timer)
+      else if (selector == (voidf) tiz_srv_event_timer)
         {
-          *(voidf *)&p_srv->event_timer = method;
+          *(voidf *) &p_srv->event_timer = method;
         }
-      else if (selector == (voidf)tiz_srv_event_stat)
+      else if (selector == (voidf) tiz_srv_event_stat)
         {
-          *(voidf *)&p_srv->event_stat = method;
+          *(voidf *) &p_srv->event_stat = method;
         }
-      else if (selector == (voidf)tiz_srv_io_ready)
+      else if (selector == (voidf) tiz_srv_io_ready)
         {
-          *(voidf *)&p_srv->io_ready = method;
+          *(voidf *) &p_srv->io_ready = method;
         }
-      else if (selector == (voidf)tiz_srv_timer_ready)
+      else if (selector == (voidf) tiz_srv_timer_ready)
         {
-          *(voidf *)&p_srv->timer_ready = method;
+          *(voidf *) &p_srv->timer_ready = method;
         }
-      else if (selector == (voidf)tiz_srv_stat_ready)
+      else if (selector == (voidf) tiz_srv_stat_ready)
         {
-          *(voidf *)&p_srv->stat_ready = method;
+          *(voidf *) &p_srv->stat_ready = method;
         }
     }
   /*@end@*/
@@ -1251,110 +1297,112 @@ static void *srv_class_ctor (void *ap_obj, va_list *app)
  * initialization
  */
 
-void *tiz_srv_class_init (void *ap_tos, void *ap_hdl)
+void *
+tiz_srv_class_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizapi = tiz_get_type (ap_hdl, "tizapi");
-  void *tizsrv_class = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizapi), "tizsrv_class", classOf (tizapi),
-       sizeof(tiz_srv_class_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, srv_class_ctor,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+  void * tizapi = tiz_get_type (ap_hdl, "tizapi");
+  void * tizsrv_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizapi), "tizsrv_class", classOf (tizapi),
+     sizeof (tiz_srv_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, srv_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizsrv_class;
 }
 
-void *tiz_srv_init (void *ap_tos, void *ap_hdl)
+void *
+tiz_srv_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizapi = tiz_get_type (ap_hdl, "tizapi");
-  void *tizsrv_class = tiz_get_type (ap_hdl, "tizsrv_class");
+  void * tizapi = tiz_get_type (ap_hdl, "tizapi");
+  void * tizsrv_class = tiz_get_type (ap_hdl, "tizsrv_class");
   TIZ_LOG_CLASS (tizsrv_class);
-  void *tizsrv = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (tizsrv_class, "tizsrv", tizapi, sizeof(tiz_srv_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, srv_ctor,
-       /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, srv_dtor,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_set_allocator, srv_set_allocator,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_set_callbacks, srv_set_callbacks,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_tick, srv_tick,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_init_msg, srv_init_msg,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_enqueue, srv_enqueue,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_remove_from_queue, srv_remove_from_queue,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_dispatch_msg, srv_dispatch_msg,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_is_ready, srv_is_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_allocate_resources, srv_allocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_deallocate_resources, srv_deallocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_prepare_to_transfer, srv_prepare_to_transfer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_transfer_and_process, srv_transfer_and_process,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stop_and_return, srv_stop_and_return,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_issue_event, srv_issue_event,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_issue_err_event, srv_issue_err_event,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_issue_cmd_event, srv_issue_cmd_event,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_issue_trans_event, srv_issue_trans_event,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_issue_buf_callback, srv_issue_buf_callback,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_receive_pluggable_event, srv_receive_pluggable_event,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_soa_calloc, srv_soa_calloc,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_soa_free, srv_soa_free,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_io_watcher_init, srv_io_watcher_init,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_io_watcher_start, srv_io_watcher_start,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_io_watcher_stop, srv_io_watcher_stop,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_io_watcher_destroy, srv_io_watcher_destroy,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_timer_watcher_init, srv_timer_watcher_init,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_timer_watcher_start, srv_timer_watcher_start,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_timer_watcher_restart, srv_timer_watcher_restart,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_timer_watcher_stop, srv_timer_watcher_stop,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_timer_watcher_destroy, srv_timer_watcher_destroy,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_event_io, srv_event_io,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_event_timer, srv_event_timer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_event_stat, srv_event_stat,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_io_ready, srv_io_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_timer_ready, srv_timer_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stat_ready, srv_stat_ready,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+  void * tizsrv = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizsrv_class, "tizsrv", tizapi, sizeof (tiz_srv_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, srv_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, srv_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_set_allocator, srv_set_allocator,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_set_callbacks, srv_set_callbacks,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_tick, srv_tick,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_init_msg, srv_init_msg,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_enqueue, srv_enqueue,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_remove_from_queue, srv_remove_from_queue,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_dispatch_msg, srv_dispatch_msg,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_is_ready, srv_is_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, srv_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, srv_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, srv_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, srv_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, srv_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_issue_event, srv_issue_event,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_issue_err_event, srv_issue_err_event,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_issue_cmd_event, srv_issue_cmd_event,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_issue_trans_event, srv_issue_trans_event,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_issue_buf_callback, srv_issue_buf_callback,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_receive_pluggable_event, srv_receive_pluggable_event,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_soa_calloc, srv_soa_calloc,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_soa_free, srv_soa_free,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_io_watcher_init, srv_io_watcher_init,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_io_watcher_start, srv_io_watcher_start,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_io_watcher_stop, srv_io_watcher_stop,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_io_watcher_destroy, srv_io_watcher_destroy,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_timer_watcher_init, srv_timer_watcher_init,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_timer_watcher_start, srv_timer_watcher_start,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_timer_watcher_restart, srv_timer_watcher_restart,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_timer_watcher_stop, srv_timer_watcher_stop,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_timer_watcher_destroy, srv_timer_watcher_destroy,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_event_io, srv_event_io,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_event_timer, srv_event_timer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_event_stat, srv_event_stat,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_io_ready, srv_io_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_timer_ready, srv_timer_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stat_ready, srv_stat_ready,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizsrv;
 }

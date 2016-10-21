@@ -30,15 +30,16 @@
 #define TIZOTHERPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_otherport_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_otherport_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_otherport_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_otherport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOTHERPORT_H */
+#endif /* TIZOTHERPORT_H */

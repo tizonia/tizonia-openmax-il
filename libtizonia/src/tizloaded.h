@@ -30,15 +30,16 @@
 #define TIZLOADED_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_loaded_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_loaded_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_loaded_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_loaded_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZLOADED_H */
+#endif /* TIZLOADED_H */

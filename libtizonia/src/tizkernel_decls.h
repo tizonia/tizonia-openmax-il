@@ -41,8 +41,8 @@ extern "C" {
 
 typedef struct tiz_krn_msg_sendcommand tiz_krn_msg_sendcommand_t;
 
-typedef OMX_ERRORTYPE (*tiz_krn_msg_dispatch_sc_f)(
-    void *ap_obj, OMX_HANDLETYPE ap_hdl, tiz_krn_msg_sendcommand_t *ap_msg_sc);
+typedef OMX_ERRORTYPE (*tiz_krn_msg_dispatch_sc_f) (
+  void * ap_obj, OMX_HANDLETYPE ap_hdl, tiz_krn_msg_sendcommand_t * ap_msg_sc);
 
 typedef enum tiz_krn_msg_class tiz_krn_msg_class_t;
 enum tiz_krn_msg_class
@@ -55,7 +55,7 @@ enum tiz_krn_msg_class
   ETIZKrnMsgMax
 };
 
-typedef OMX_ERRORTYPE (*tiz_krn_msg_dispatch_f)(void *ap_obj, OMX_PTR ap_msg);
+typedef OMX_ERRORTYPE (*tiz_krn_msg_dispatch_f) (void * ap_obj, OMX_PTR ap_msg);
 
 struct tiz_krn_msg_sendcommand
 {
@@ -67,13 +67,13 @@ struct tiz_krn_msg_sendcommand
 typedef struct tiz_krn_msg_emptyfillbuffer tiz_krn_msg_emptyfillbuffer_t;
 struct tiz_krn_msg_emptyfillbuffer
 {
-  OMX_BUFFERHEADERTYPE *p_hdr;
+  OMX_BUFFERHEADERTYPE * p_hdr;
 };
 
 typedef struct tiz_krn_msg_callback tiz_krn_msg_callback_t;
 struct tiz_krn_msg_callback
 {
-  OMX_BUFFERHEADERTYPE *p_hdr;
+  OMX_BUFFERHEADERTYPE * p_hdr;
   OMX_U32 pid;
   OMX_DIRTYPE dir;
 };
@@ -81,7 +81,7 @@ struct tiz_krn_msg_callback
 typedef struct tiz_krn_msg_plg_event tiz_krn_msg_plg_event_t;
 struct tiz_krn_msg_plg_event
 {
-  tiz_event_pluggable_t *p_event;
+  tiz_event_pluggable_t * p_event;
 };
 
 typedef struct tiz_krn_msg tiz_krn_msg_t;
@@ -110,9 +110,9 @@ struct tiz_krn
 {
   /* Object */
   const tiz_srv_t _;
-  tiz_vector_t *p_ports_;
-  tiz_vector_t *p_ingress_;
-  tiz_vector_t *p_egress_;
+  tiz_vector_t * p_ports_;
+  tiz_vector_t * p_ingress_;
+  tiz_vector_t * p_egress_;
   OMX_PTR p_cport_;
   OMX_PTR p_proc_;
   bool eos_;
@@ -130,30 +130,33 @@ struct tiz_krn
 };
 
 OMX_ERRORTYPE
-tiz_krn_super_register_port (const void *a_class, const void *ap_obj,
+tiz_krn_super_register_port (const void * a_class, const void * ap_obj,
                              OMX_PTR ap_port, const bool ais_config);
-tiz_krn_population_status_t tiz_krn_super_get_population_status (
-    const void *a_class, const void *ap_obj, const OMX_U32 a_pid,
-    OMX_BOOL *ap_may_be_fully_unpopulated);
+tiz_krn_population_status_t
+tiz_krn_super_get_population_status (const void * a_class, const void * ap_obj,
+                                     const OMX_U32 a_pid,
+                                     OMX_BOOL * ap_may_be_fully_unpopulated);
 OMX_ERRORTYPE
-tiz_krn_super_select (const void *a_class, const void *ap_obj,
-                      const OMX_U32 a_nports, tiz_pd_set_t *p_set);
+tiz_krn_super_select (const void * a_class, const void * ap_obj,
+                      const OMX_U32 a_nports, tiz_pd_set_t * p_set);
 OMX_ERRORTYPE
-tiz_krn_super_claim_buffer (const void *a_class, const void *ap_obj,
+tiz_krn_super_claim_buffer (const void * a_class, const void * ap_obj,
                             const OMX_U32 a_pid, const OMX_U32 a_pos,
-                            OMX_BUFFERHEADERTYPE **p_hdr);
+                            OMX_BUFFERHEADERTYPE ** p_hdr);
 OMX_ERRORTYPE
-tiz_krn_super_release_buffer (const void *a_class, const void *ap_obj,
+tiz_krn_super_release_buffer (const void * a_class, const void * ap_obj,
                               const OMX_U32 a_pid,
-                              OMX_BUFFERHEADERTYPE *ap_hdr);
+                              OMX_BUFFERHEADERTYPE * ap_hdr);
 OMX_ERRORTYPE
-tiz_krn_super_claim_eglimage (const void *a_class, const void *ap_obj,
+tiz_krn_super_claim_eglimage (const void * a_class, const void * ap_obj,
                               const OMX_U32 a_pid,
-                              const OMX_BUFFERHEADERTYPE *p_hdr,
-                              OMX_PTR *app_eglimage);
-void tiz_krn_super_deregister_all_ports (const void *a_class, void *ap_obj);
-void tiz_krn_super_reset_tunneled_ports_status (
-    const void *a_class, void *ap_obj, const OMX_U32 a_port_status_flag);
+                              const OMX_BUFFERHEADERTYPE * p_hdr,
+                              OMX_PTR * app_eglimage);
+void
+tiz_krn_super_deregister_all_ports (const void * a_class, void * ap_obj);
+void
+tiz_krn_super_reset_tunneled_ports_status (const void * a_class, void * ap_obj,
+                                           const OMX_U32 a_port_status_flag);
 
 typedef struct tiz_krn_class tiz_krn_class_t;
 struct tiz_krn_class
@@ -161,39 +164,40 @@ struct tiz_krn_class
   /* Class */
   const tiz_srv_class_t _;
 
-  OMX_ERRORTYPE (*register_port)(const void *ap_obj, OMX_PTR ap_port,
-                                 const bool ais_config);
-  void *(*get_port)(const void *ap_obj, const OMX_U32 a_pid);
-  OMX_ERRORTYPE (*find_managing_port)(const void *ap_obj,
-                                      const OMX_INDEXTYPE a_index,
-                                      const OMX_PTR ap_struct,
-                                      OMX_PTR *app_port);
-  tiz_krn_population_status_t (*get_population_status)
-  (const void *ap_obj, const OMX_U32 a_pid,
-   OMX_BOOL *ap_may_be_fully_unpopulated);
-  OMX_ERRORTYPE (*select)(const void *p_obj, const OMX_U32 a_nports,
-                          /*@out@*/ tiz_pd_set_t *ap_set);
-  OMX_ERRORTYPE (*claim_buffer)(const void *ap_obj, const OMX_U32 a_pid,
-                                const OMX_U32 a_pos,
-                                OMX_BUFFERHEADERTYPE **p_hdr);
-  OMX_ERRORTYPE (*release_buffer)(const void *ap_obj, const OMX_U32 a_pid,
-                                  OMX_BUFFERHEADERTYPE *p_hdr);
-  OMX_ERRORTYPE (*claim_eglimage)(const void *ap_obj, const OMX_U32 a_pid,
-                                  const OMX_BUFFERHEADERTYPE *p_hdr,
-                                  OMX_PTR *app_eglimage);
-  void (*deregister_all_ports)(void *ap_obj);
-  void (*reset_tunneled_ports_status)(void *ap_obj,
-                                      const OMX_U32 a_port_status_flag);
-  bool (*get_restriction_status)(const void *ap_obj,
-                                 const tiz_krn_restriction_t a_restriction);
-  void (*clear_metadata)(void *ap_obj);
-  OMX_ERRORTYPE (*store_metadata)(void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item);
-  OMX_ERRORTYPE (*SetParameter_internal) (const void *ap_obj,
-                                          OMX_HANDLETYPE ap_hdl,
-                                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
-  OMX_ERRORTYPE (*SetConfig_internal) (const void *ap_obj,
-                                       OMX_HANDLETYPE ap_hdl,
-                                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
+  OMX_ERRORTYPE (*register_port)
+  (const void * ap_obj, OMX_PTR ap_port, const bool ais_config);
+  void * (*get_port) (const void * ap_obj, const OMX_U32 a_pid);
+  OMX_ERRORTYPE (*find_managing_port)
+  (const void * ap_obj, const OMX_INDEXTYPE a_index, const OMX_PTR ap_struct,
+   OMX_PTR * app_port);
+  tiz_krn_population_status_t (*get_population_status) (
+    const void * ap_obj, const OMX_U32 a_pid,
+    OMX_BOOL * ap_may_be_fully_unpopulated);
+  OMX_ERRORTYPE (*select)
+  (const void * p_obj, const OMX_U32 a_nports,
+   /*@out@*/ tiz_pd_set_t * ap_set);
+  OMX_ERRORTYPE (*claim_buffer)
+  (const void * ap_obj, const OMX_U32 a_pid, const OMX_U32 a_pos,
+   OMX_BUFFERHEADERTYPE ** p_hdr);
+  OMX_ERRORTYPE (*release_buffer)
+  (const void * ap_obj, const OMX_U32 a_pid, OMX_BUFFERHEADERTYPE * p_hdr);
+  OMX_ERRORTYPE (*claim_eglimage)
+  (const void * ap_obj, const OMX_U32 a_pid, const OMX_BUFFERHEADERTYPE * p_hdr,
+   OMX_PTR * app_eglimage);
+  void (*deregister_all_ports) (void * ap_obj);
+  void (*reset_tunneled_ports_status) (void * ap_obj,
+                                       const OMX_U32 a_port_status_flag);
+  bool (*get_restriction_status) (const void * ap_obj,
+                                  const tiz_krn_restriction_t a_restriction);
+  void (*clear_metadata) (void * ap_obj);
+  OMX_ERRORTYPE (*store_metadata)
+  (void * ap_obj, const OMX_CONFIG_METADATAITEMTYPE * ap_meta_item);
+  OMX_ERRORTYPE (*SetParameter_internal)
+  (const void * ap_obj, OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index,
+   OMX_PTR ap_struct);
+  OMX_ERRORTYPE (*SetConfig_internal)
+  (const void * ap_obj, OMX_HANDLETYPE ap_hdl, OMX_INDEXTYPE a_index,
+   OMX_PTR ap_struct);
 };
 
 #ifdef __cplusplus

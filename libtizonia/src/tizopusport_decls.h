@@ -30,32 +30,31 @@
 #define TIZOPUSPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_TizoniaExt.h>
 
 #include "tizaudioport_decls.h"
 
-  typedef struct tiz_opusport tiz_opusport_t;
-  struct tiz_opusport
-  {
-    /* Object */
-    const tiz_audioport_t _;
-    OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
-  };
+typedef struct tiz_opusport tiz_opusport_t;
+struct tiz_opusport
+{
+  /* Object */
+  const tiz_audioport_t _;
+  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype_;
+};
 
-  typedef struct tiz_opusport_class tiz_opusport_class_t;
-  struct tiz_opusport_class
-  {
-    /* Class */
-    const tiz_audioport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct tiz_opusport_class tiz_opusport_class_t;
+struct tiz_opusport_class
+{
+  /* Class */
+  const tiz_audioport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOPUSPORT_DECLS_H */
+#endif /* TIZOPUSPORT_DECLS_H */

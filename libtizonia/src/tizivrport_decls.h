@@ -30,34 +30,33 @@
 #define TIZIVRPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "tizvideoport_decls.h"
 
-  typedef struct tiz_ivrport tiz_ivrport_t;
-  struct tiz_ivrport
-  {
-    /* Object */
-    const tiz_videoport_t _;
-    OMX_CONFIG_ROTATIONTYPE crotate_;
-    OMX_CONFIG_MIRRORTYPE cmirror_;
-    OMX_CONFIG_SCALEFACTORTYPE cscale_;
-    OMX_CONFIG_RECTTYPE cincrop_;
-    OMX_TIME_CONFIG_RENDERINGDELAYTYPE crendelay_;
-  };
+typedef struct tiz_ivrport tiz_ivrport_t;
+struct tiz_ivrport
+{
+  /* Object */
+  const tiz_videoport_t _;
+  OMX_CONFIG_ROTATIONTYPE crotate_;
+  OMX_CONFIG_MIRRORTYPE cmirror_;
+  OMX_CONFIG_SCALEFACTORTYPE cscale_;
+  OMX_CONFIG_RECTTYPE cincrop_;
+  OMX_TIME_CONFIG_RENDERINGDELAYTYPE crendelay_;
+};
 
-  typedef struct tiz_ivrport_class tiz_ivrport_class_t;
-  struct tiz_ivrport_class
-  {
-    /* Class */
-    const tiz_videoport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct tiz_ivrport_class tiz_ivrport_class_t;
+struct tiz_ivrport_class
+{
+  /* Class */
+  const tiz_videoport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZIVRPORT_DECLS_H */
+#endif /* TIZIVRPORT_DECLS_H */

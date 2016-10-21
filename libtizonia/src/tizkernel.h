@@ -71,7 +71,8 @@ enum tiz_krn_restriction
  * @param ap_hdl The OpenMAX IL handle.
  * @return The scheduler object.
  */
-void *tiz_krn_class_init (void *ap_tos, void *ap_hdl);
+void *
+tiz_krn_class_init (void * ap_tos, void * ap_hdl);
 
 /**
 *'kernel' class initialisation.
@@ -80,26 +81,31 @@ void *tiz_krn_class_init (void *ap_tos, void *ap_hdl);
 *@param ap_hdl The OpenMAX IL handle.
 *@return The scheduler object.
 */
-void *tiz_krn_init (void *ap_tos, void *ap_hdl);
+void *
+tiz_krn_init (void * ap_tos, void * ap_hdl);
 
-OMX_ERRORTYPE tiz_krn_register_port (const void *ap_obj, OMX_PTR ap_port,
-                                     const bool ais_config);
-void tiz_krn_deregister_all_ports (void *ap_obj);
-void *tiz_krn_get_port (const void *ap_obj, const OMX_U32 a_pid);
-OMX_ERRORTYPE tiz_krn_find_managing_port (const void *ap_obj,
-                                          const OMX_INDEXTYPE a_index,
-                                          const OMX_PTR ap_struct,
-                                          OMX_PTR *app_port);
+OMX_ERRORTYPE
+tiz_krn_register_port (const void * ap_obj, OMX_PTR ap_port,
+                       const bool ais_config);
+void
+tiz_krn_deregister_all_ports (void * ap_obj);
+void *
+tiz_krn_get_port (const void * ap_obj, const OMX_U32 a_pid);
+OMX_ERRORTYPE
+tiz_krn_find_managing_port (const void * ap_obj, const OMX_INDEXTYPE a_index,
+                            const OMX_PTR ap_struct, OMX_PTR * app_port);
 
 /** \deprecated
  */
-OMX_ERRORTYPE tiz_krn_select (const void *ap_obj, const OMX_U32 a_nports,
-                              /*@out@*/ tiz_pd_set_t *ap_set);
-OMX_ERRORTYPE tiz_krn_claim_buffer (const void *ap_obj, const OMX_U32 a_pid,
-                                    const OMX_U32 a_pos,
-                                    OMX_BUFFERHEADERTYPE **p_hdr);
-OMX_ERRORTYPE tiz_krn_release_buffer (const void *ap_obj, const OMX_U32 a_pid,
-                                      OMX_BUFFERHEADERTYPE *ap_hdr);
+OMX_ERRORTYPE
+tiz_krn_select (const void * ap_obj, const OMX_U32 a_nports,
+                /*@out@*/ tiz_pd_set_t * ap_set);
+OMX_ERRORTYPE
+tiz_krn_claim_buffer (const void * ap_obj, const OMX_U32 a_pid,
+                      const OMX_U32 a_pos, OMX_BUFFERHEADERTYPE ** p_hdr);
+OMX_ERRORTYPE
+tiz_krn_release_buffer (const void * ap_obj, const OMX_U32 a_pid,
+                        OMX_BUFFERHEADERTYPE * ap_hdr);
 /**
  * Retrieve the EGL image associated to a particular OpenMAX IL header.
  *
@@ -111,27 +117,30 @@ OMX_ERRORTYPE tiz_krn_release_buffer (const void *ap_obj, const OMX_U32 a_pid,
  * @param[out] app_eglimage The EGL image.
  * @return OMX_ErrorNone on success, other OMX_ERRORTYPE on error.
  */
-OMX_ERRORTYPE tiz_krn_claim_eglimage (const void *ap_obj, const OMX_U32 a_pid,
-                                      const OMX_BUFFERHEADERTYPE *p_hdr,
-                                      OMX_PTR *app_eglimage);
-void tiz_krn_reset_tunneled_ports_status (void *ap_obj,
-                                          const OMX_U32 a_port_status_flag);
-tiz_krn_population_status_t tiz_krn_get_population_status (
-    const void *ap_obj, const OMX_U32 a_pid,
-    OMX_BOOL *ap_may_be_fully_unpopulated);
-bool tiz_krn_get_restriction_status (const void *ap_obj,
-                                     const tiz_krn_restriction_t a_restriction);
-void tiz_krn_clear_metadata (void *ap_obj);
-OMX_ERRORTYPE tiz_krn_store_metadata (
-    void *ap_obj, const OMX_CONFIG_METADATAITEMTYPE *ap_meta_item);
-OMX_ERRORTYPE tiz_krn_SetParameter_internal (const void *ap_obj,
-                                             OMX_HANDLETYPE ap_hdl,
-                                             OMX_INDEXTYPE a_index,
-                                             OMX_PTR ap_struct);
-OMX_ERRORTYPE tiz_krn_SetConfig_internal (const void *ap_obj,
-                                          OMX_HANDLETYPE ap_hdl,
-                                          OMX_INDEXTYPE a_index,
-                                          OMX_PTR ap_struct);
+OMX_ERRORTYPE
+tiz_krn_claim_eglimage (const void * ap_obj, const OMX_U32 a_pid,
+                        const OMX_BUFFERHEADERTYPE * p_hdr,
+                        OMX_PTR * app_eglimage);
+void
+tiz_krn_reset_tunneled_ports_status (void * ap_obj,
+                                     const OMX_U32 a_port_status_flag);
+tiz_krn_population_status_t
+tiz_krn_get_population_status (const void * ap_obj, const OMX_U32 a_pid,
+                               OMX_BOOL * ap_may_be_fully_unpopulated);
+bool
+tiz_krn_get_restriction_status (const void * ap_obj,
+                                const tiz_krn_restriction_t a_restriction);
+void
+tiz_krn_clear_metadata (void * ap_obj);
+OMX_ERRORTYPE
+tiz_krn_store_metadata (void * ap_obj,
+                        const OMX_CONFIG_METADATAITEMTYPE * ap_meta_item);
+OMX_ERRORTYPE
+tiz_krn_SetParameter_internal (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                               OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
+OMX_ERRORTYPE
+tiz_krn_SetConfig_internal (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                            OMX_INDEXTYPE a_index, OMX_PTR ap_struct);
 
 #define TIZ_KRN_MAY_INIT_ALLOC_PHASE(_p) \
   tiz_krn_get_restriction_status (_p, ETIZKrnMayInitiateAllocPhase)

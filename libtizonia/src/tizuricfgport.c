@@ -44,13 +44,14 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.uricfgport"
 #endif
 
-static char *retrieve_default_uri_from_config (tiz_uricfgport_t *ap_obj)
+static char *
+retrieve_default_uri_from_config (tiz_uricfgport_t * ap_obj)
 {
-  const char *p_uri = NULL;
-  char *p_rv = NULL;
+  const char * p_uri = NULL;
+  char * p_rv = NULL;
   char fqd_key[OMX_MAX_STRINGNAME_SIZE];
   long pathname_max = -1;
-  tiz_configport_t *p_base = (tiz_configport_t *)ap_obj; /* The base class
+  tiz_configport_t * p_base = (tiz_configport_t *) ap_obj; /* The base class
                                                             contains the
                                                             component name in
                                                             a member
@@ -79,23 +80,25 @@ static char *retrieve_default_uri_from_config (tiz_uricfgport_t *ap_obj)
  * tizuricfgport class
  */
 
-static void *uri_cfgport_ctor (void *ap_obj, va_list *app)
+static void *
+uri_cfgport_ctor (void * ap_obj, va_list * app)
 {
-  tiz_uricfgport_t *p_obj
-      = super_ctor (typeOf (ap_obj, "tizuricfgport"), ap_obj, app);
+  tiz_uricfgport_t * p_obj
+    = super_ctor (typeOf (ap_obj, "tizuricfgport"), ap_obj, app);
   p_obj->p_uri_ = retrieve_default_uri_from_config (p_obj);
 
   /* In addition to the indexes registered by the parent class, register here
      this port's specific ones */
   tiz_check_omx_err_ret_null (
-      tiz_port_register_index (p_obj, OMX_IndexParamContentURI)); /* r/w */
+    tiz_port_register_index (p_obj, OMX_IndexParamContentURI)); /* r/w */
 
   return p_obj;
 }
 
-static void *uri_cfgport_dtor (void *ap_obj)
+static void *
+uri_cfgport_dtor (void * ap_obj)
 {
-  tiz_uricfgport_t *p_obj = ap_obj;
+  tiz_uricfgport_t * p_obj = ap_obj;
   tiz_mem_free (p_obj->p_uri_);
   return super_dtor (typeOf (ap_obj, "tizuricfgport"), ap_obj);
 }
@@ -104,12 +107,11 @@ static void *uri_cfgport_dtor (void *ap_obj)
  * from tiz_api
  */
 
-static OMX_ERRORTYPE uri_cfgport_GetParameter (const void *ap_obj,
-                                               OMX_HANDLETYPE ap_hdl,
-                                               OMX_INDEXTYPE a_index,
-                                               OMX_PTR ap_struct)
+static OMX_ERRORTYPE
+uri_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const tiz_uricfgport_t *p_obj = ap_obj;
+  const tiz_uricfgport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "GetParameter [%s]...", tiz_idx_to_str (a_index));
@@ -121,17 +123,17 @@ static OMX_ERRORTYPE uri_cfgport_GetParameter (const void *ap_obj,
         {
           if (p_obj->p_uri_)
             {
-              OMX_PARAM_CONTENTURITYPE *p_uri
-                  = (OMX_PARAM_CONTENTURITYPE *)ap_struct;
+              OMX_PARAM_CONTENTURITYPE * p_uri
+                = (OMX_PARAM_CONTENTURITYPE *) ap_struct;
               const OMX_U32 uri_len = strlen (p_obj->p_uri_);
 
               if (p_uri && uri_len > 0)
                 {
                   OMX_U32 uri_buf_offset
-                      = sizeof (OMX_U32) + sizeof (OMX_VERSIONTYPE);
+                    = sizeof (OMX_U32) + sizeof (OMX_VERSIONTYPE);
                   OMX_U32 uri_buf_size = (p_uri->nSize >= uri_buf_offset
-                                              ? p_uri->nSize - uri_buf_offset
-                                              : 0);
+                                            ? p_uri->nSize - uri_buf_offset
+                                            : 0);
 
                   TIZ_TRACE (ap_hdl, "uri_buf_size [%d]...", uri_buf_size);
 
@@ -141,7 +143,7 @@ static OMX_ERRORTYPE uri_cfgport_GetParameter (const void *ap_obj,
                     }
                   else
                     {
-                      char *p_dest = (char *)p_uri->contentURI;
+                      char * p_dest = (char *) p_uri->contentURI;
                       assert (p_dest);
                       assert (uri_len > 0);
                       p_uri->nVersion.nVersion = OMX_VERSION;
@@ -164,12 +166,11 @@ static OMX_ERRORTYPE uri_cfgport_GetParameter (const void *ap_obj,
   return rc;
 }
 
-static OMX_ERRORTYPE uri_cfgport_SetParameter (const void *ap_obj,
-                                               OMX_HANDLETYPE ap_hdl,
-                                               OMX_INDEXTYPE a_index,
-                                               OMX_PTR ap_struct)
+static OMX_ERRORTYPE
+uri_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  tiz_uricfgport_t *p_obj = (tiz_uricfgport_t *)ap_obj;
+  tiz_uricfgport_t * p_obj = (tiz_uricfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   TIZ_TRACE (ap_hdl, "SetParameter [%s]...", tiz_idx_to_str (a_index));
@@ -179,12 +180,12 @@ static OMX_ERRORTYPE uri_cfgport_SetParameter (const void *ap_obj,
     {
       case OMX_IndexParamContentURI:
         {
-          OMX_PARAM_CONTENTURITYPE *p_uri
-              = (OMX_PARAM_CONTENTURITYPE *)ap_struct;
-          OMX_U32 uri_size = p_uri->nSize - sizeof(OMX_U32)
-                             - sizeof(OMX_VERSIONTYPE);
+          OMX_PARAM_CONTENTURITYPE * p_uri
+            = (OMX_PARAM_CONTENTURITYPE *) ap_struct;
+          OMX_U32 uri_size
+            = p_uri->nSize - sizeof (OMX_U32) - sizeof (OMX_VERSIONTYPE);
           const long pathname_max
-              = tiz_pathname_max ((const char *)p_uri->contentURI);
+            = tiz_pathname_max ((const char *) p_uri->contentURI);
 
           if (pathname_max > 0 && uri_size > pathname_max)
             {
@@ -195,7 +196,7 @@ static OMX_ERRORTYPE uri_cfgport_SetParameter (const void *ap_obj,
           p_obj->p_uri_ = tiz_mem_calloc (1, uri_size);
           if (p_obj->p_uri_)
             {
-              strncpy (p_obj->p_uri_, (char *)p_uri->contentURI, uri_size);
+              strncpy (p_obj->p_uri_, (char *) p_uri->contentURI, uri_size);
               p_uri->contentURI[uri_size - 1] = '\000';
             }
 
@@ -218,7 +219,8 @@ static OMX_ERRORTYPE uri_cfgport_SetParameter (const void *ap_obj,
  * tizuricfgport_class
  */
 
-static void *uricfgport_class_ctor (void *ap_obj, va_list *app)
+static void *
+uricfgport_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "tizuricfgport_class"), ap_obj, app);
@@ -228,43 +230,45 @@ static void *uricfgport_class_ctor (void *ap_obj, va_list *app)
  * initialization
  */
 
-void *tiz_uricfgport_class_init (void *ap_tos, void *ap_hdl)
+void *
+tiz_uricfgport_class_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
-  void *tizuricfgport_class = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizconfigport), "tizuricfgport_class", classOf (tizconfigport),
-       sizeof(tiz_uricfgport_class_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, uricfgport_class_ctor,
-       /* TIZ_CLASS_COMMENT: */
-       0);
+  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * tizuricfgport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizconfigport), "tizuricfgport_class", classOf (tizconfigport),
+     sizeof (tiz_uricfgport_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, uricfgport_class_ctor,
+     /* TIZ_CLASS_COMMENT: */
+     0);
   return tizuricfgport_class;
 }
 
-void *tiz_uricfgport_init (void *ap_tos, void *ap_hdl)
+void *
+tiz_uricfgport_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
-  void *tizuricfgport_class = tiz_get_type (ap_hdl, "tizuricfgport_class");
+  void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
+  void * tizuricfgport_class = tiz_get_type (ap_hdl, "tizuricfgport_class");
   TIZ_LOG_CLASS (tizuricfgport_class);
-  void *tizuricfgport = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (tizuricfgport_class, "tizuricfgport", tizconfigport,
-       sizeof(tiz_uricfgport_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, uri_cfgport_ctor,
-       /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, uri_cfgport_dtor,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_api_GetParameter, uri_cfgport_GetParameter,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_api_SetParameter, uri_cfgport_SetParameter,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+  void * tizuricfgport = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizuricfgport_class, "tizuricfgport", tizconfigport,
+     sizeof (tiz_uricfgport_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, uri_cfgport_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, uri_cfgport_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_GetParameter, uri_cfgport_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_SetParameter, uri_cfgport_SetParameter,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return tizuricfgport;
 }

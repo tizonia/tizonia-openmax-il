@@ -30,32 +30,31 @@
 #define TIZMP2PORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_TizoniaExt.h>
 
 #include "tizaudioport_decls.h"
 
-  typedef struct tiz_mp2port tiz_mp2port_t;
-  struct tiz_mp2port
-  {
-    /* Object */
-    const tiz_audioport_t _;
-    OMX_TIZONIA_AUDIO_PARAM_MP2TYPE mp2type_;
-  };
+typedef struct tiz_mp2port tiz_mp2port_t;
+struct tiz_mp2port
+{
+  /* Object */
+  const tiz_audioport_t _;
+  OMX_TIZONIA_AUDIO_PARAM_MP2TYPE mp2type_;
+};
 
-  typedef struct tiz_mp2port_class tiz_mp2port_class_t;
-  struct tiz_mp2port_class
-  {
-    /* Class */
-    const tiz_audioport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct tiz_mp2port_class tiz_mp2port_class_t;
+struct tiz_mp2port_class
+{
+  /* Class */
+  const tiz_audioport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZMP2PORT_DECLS_H */
+#endif /* TIZMP2PORT_DECLS_H */

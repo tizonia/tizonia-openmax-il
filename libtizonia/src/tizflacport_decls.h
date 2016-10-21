@@ -30,32 +30,31 @@
 #define TIZFLACPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_TizoniaExt.h>
 
 #include "tizaudioport_decls.h"
 
-  typedef struct tiz_flacport tiz_flacport_t;
-  struct tiz_flacport
-  {
-    /* Object */
-    const tiz_audioport_t _;
-    OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_;
-  };
+typedef struct tiz_flacport tiz_flacport_t;
+struct tiz_flacport
+{
+  /* Object */
+  const tiz_audioport_t _;
+  OMX_TIZONIA_AUDIO_PARAM_FLACTYPE flactype_;
+};
 
-  typedef struct tiz_flacport_class tiz_flacport_class_t;
-  struct tiz_flacport_class
-  {
-    /* Class */
-    const tiz_audioport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct tiz_flacport_class tiz_flacport_class_t;
+struct tiz_flacport_class
+{
+  /* Class */
+  const tiz_audioport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZFLACPORT_DECLS_H */
+#endif /* TIZFLACPORT_DECLS_H */

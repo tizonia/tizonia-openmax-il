@@ -42,20 +42,19 @@ struct tiz_state_str
   OMX_STRING str;
 };
 
-tiz_state_str_t tiz_fsm_state_to_str_tbl[] = {
-  {EStateReserved_0x00000000, "OMX_StateReserved_0x00000000"},
-  {EStateLoaded, "OMX_StateLoaded"},
-  {EStateIdle, "OMX_StateIdle"},
-  {EStateExecuting, "OMX_StateExecuting"},
-  {EStatePause, "OMX_StatePause"},
-  {EStateWaitForResources, "OMX_StateWaitForResources"},
-  {ESubStateLoadedToIdle, "ESubStateLoadedToIdle"},
-  {ESubStateIdleToLoaded, "ESubStateIdleToLoaded"},
-  {ESubStateIdleToExecuting, "ESubStateIdleToExecuting"},
-  {ESubStateExecutingToIdle, "ESubStateExecutingToIdle"},
-  {ESubStatePauseToIdle, "ESubStatePauseToIdle"},
-  {EStateMax, "EStateMax"}
-};
+tiz_state_str_t tiz_fsm_state_to_str_tbl[]
+  = {{EStateReserved_0x00000000, "OMX_StateReserved_0x00000000"},
+     {EStateLoaded, "OMX_StateLoaded"},
+     {EStateIdle, "OMX_StateIdle"},
+     {EStateExecuting, "OMX_StateExecuting"},
+     {EStatePause, "OMX_StatePause"},
+     {EStateWaitForResources, "OMX_StateWaitForResources"},
+     {ESubStateLoadedToIdle, "ESubStateLoadedToIdle"},
+     {ESubStateIdleToLoaded, "ESubStateIdleToLoaded"},
+     {ESubStateIdleToExecuting, "ESubStateIdleToExecuting"},
+     {ESubStateExecutingToIdle, "ESubStateExecutingToIdle"},
+     {ESubStatePauseToIdle, "ESubStatePauseToIdle"},
+     {EStateMax, "EStateMax"}};
 
 void
 tiz_clear_header (OMX_BUFFERHEADERTYPE * ap_hdr)
@@ -74,8 +73,8 @@ tiz_clear_header (OMX_BUFFERHEADERTYPE * ap_hdr)
 const OMX_STRING
 tiz_fsm_state_to_str (tiz_fsm_state_id_t a_id)
 {
-  const OMX_S32 count =
-    sizeof (tiz_fsm_state_to_str_tbl) / sizeof (tiz_state_str_t);
+  const OMX_S32 count
+    = sizeof (tiz_fsm_state_to_str_tbl) / sizeof (tiz_state_str_t);
   OMX_S32 i = 0;
 
   for (i = 0; i < count; ++i)
@@ -92,5 +91,4 @@ tiz_fsm_state_to_str (tiz_fsm_state_id_t a_id)
     }
 
   return "Unknown OpenMAX IL state";
-
 }

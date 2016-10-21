@@ -30,32 +30,31 @@
 #define TIZPCMPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "tizaudioport_decls.h"
 
-  typedef struct tiz_pcmport tiz_pcmport_t;
-  struct tiz_pcmport
-  {
-    /* Object */
-    const tiz_audioport_t _;
-    OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
-    OMX_AUDIO_CONFIG_VOLUMETYPE volume_;
-    OMX_AUDIO_CONFIG_MUTETYPE mute_;
-  };
+typedef struct tiz_pcmport tiz_pcmport_t;
+struct tiz_pcmport
+{
+  /* Object */
+  const tiz_audioport_t _;
+  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode_;
+  OMX_AUDIO_CONFIG_VOLUMETYPE volume_;
+  OMX_AUDIO_CONFIG_MUTETYPE mute_;
+};
 
-  typedef struct tiz_pcmport_class tiz_pcmport_class_t;
-  struct tiz_pcmport_class
-  {
-    /* Class */
-    const tiz_audioport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct tiz_pcmport_class tiz_pcmport_class_t;
+struct tiz_pcmport_class
+{
+  /* Class */
+  const tiz_audioport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZPCMPORT_DECLS_H */
+#endif /* TIZPCMPORT_DECLS_H */

@@ -30,15 +30,16 @@
 #define TIZIVRPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_ivrport_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_ivrport_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_ivrport_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_ivrport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZIVRPORT_H */
+#endif /* TIZIVRPORT_H */

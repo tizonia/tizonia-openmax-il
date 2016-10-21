@@ -84,14 +84,14 @@
 
 struct tiz_os
 {
-  tiz_map_t *p_map;
+  tiz_map_t * p_map;
   OMX_HANDLETYPE p_hdl;
-  tiz_soa_t *p_soa;
+  tiz_soa_t * p_soa;
 };
 
 typedef enum tiz_os_type tiz_os_type_t;
 enum tiz_os_type
-  {
+{
   ETIZClass,
   ETIZObject,
   ETIZApi_class,
@@ -131,7 +131,7 @@ enum tiz_os_type
   ETIZPort_class,
   ETIZPort,
   ETIZConfigport_class,
-  ETIZConfigport,               /* TIZ_OS_BASE_TYPE_END */
+  ETIZConfigport, /* TIZ_OS_BASE_TYPE_END */
   ETIZAudioport_class,
   ETIZAudioport,
   ETIZPcmport_class,
@@ -168,12 +168,11 @@ enum tiz_os_type
   ETIZUricfgport,
   ETIZDemuxercfgport_class,
   ETIZDemuxercfgport,
-  };
+};
 
 #define TIZ_OS_BASE_TYPE_END ETIZConfigport
 
-static const
-tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
+static const tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
   tiz_class_init,
   tiz_object_init,
   tiz_api_class_init,
@@ -339,22 +338,21 @@ static tiz_os_type_str_t tiz_os_type_to_str_tbl[] = {
 };
 
 static /*@null@ */ void *
-os_calloc ( /*@null@ */ tiz_soa_t * p_soa, size_t a_size)
+os_calloc (/*@null@ */ tiz_soa_t * p_soa, size_t a_size)
 {
-  return p_soa
-    ? tiz_soa_calloc (p_soa, a_size) : tiz_mem_calloc (1, a_size);
+  return p_soa ? tiz_soa_calloc (p_soa, a_size) : tiz_mem_calloc (1, a_size);
 }
 
 static inline void
-os_free (tiz_soa_t * p_soa, void *ap_addr)
+os_free (tiz_soa_t * p_soa, void * ap_addr)
 {
   p_soa ? tiz_soa_free (p_soa, ap_addr) : tiz_mem_free (ap_addr);
 }
 
 static char *
-os_strndup (tiz_soa_t * p_soa, const char *s, size_t n)
+os_strndup (tiz_soa_t * p_soa, const char * s, size_t n)
 {
-  char *result;
+  char * result;
   size_t len = strlen (s);
 
   assert (p_soa);
@@ -376,8 +374,8 @@ os_strndup (tiz_soa_t * p_soa, const char *s, size_t n)
 static OMX_S32
 os_map_compare_func (OMX_PTR ap_key1, OMX_PTR ap_key2)
 {
-  return strncmp((const char *) ap_key1, (const char *) ap_key2,
-                 OMX_MAX_STRINGNAME_SIZE);
+  return strncmp ((const char *) ap_key1, (const char *) ap_key2,
+                  OMX_MAX_STRINGNAME_SIZE);
 }
 
 static void
@@ -391,33 +389,28 @@ os_map_free_func (OMX_PTR ap_key, OMX_PTR ap_value)
 
 #ifdef _DEBUG
 static OMX_S32
-print_function (OMX_PTR ap_key, OMX_PTR ap_value,
-                OMX_PTR ap_arg)
+print_function (OMX_PTR ap_key, OMX_PTR ap_value, OMX_PTR ap_arg)
 {
   const char * name = ap_key;
-  tiz_os_t *   p_os = ap_arg;
+  tiz_os_t * p_os = ap_arg;
   TIZ_TRACE (p_os->p_hdl, "type [%s]->[%p]", name, ap_value);
   return 0;
 }
 #endif
 
 static void
-print_types (const tiz_os_t *  ap_os)
+print_types (const tiz_os_t * ap_os)
 {
 #ifdef _DEBUG
   assert (ap_os);
   assert (ap_os->p_map);
-  tiz_map_for_each (ap_os->p_map,
-                    print_function,
-                    (tiz_os_t *) ap_os);
+  tiz_map_for_each (ap_os->p_map, print_function, (tiz_os_t *) ap_os);
 #endif
 }
 
 static OMX_ERRORTYPE
-os_register_type (tiz_os_t *                ap_os,
-                   const tiz_os_type_init_f a_type_init_f,
-                   const char *         a_type_name,
-                  const OMX_S32             a_type_id)
+os_register_type (tiz_os_t * ap_os, const tiz_os_type_init_f a_type_init_f,
+                  const char * a_type_name, const OMX_S32 a_type_id)
 {
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   void * p_obj = NULL;
@@ -436,16 +429,16 @@ os_register_type (tiz_os_t *                ap_os,
   if (p_obj)
     {
       /* Register the class or object type */
-      TIZ_TRACE (ap_os->p_hdl, "Registering type #[%d] : [%s] -> [%p] "
-                 "nameOf [%s]", a_type_id, a_type_name, p_obj,
-                 nameOf (p_obj));
-      rc = tiz_map_insert (ap_os->p_map,
-                           os_strndup (ap_os->p_soa, a_type_name,
-                                       OMX_MAX_STRINGNAME_SIZE),
-                           p_obj, (OMX_U32 *)(&a_type_id));
+      TIZ_TRACE (ap_os->p_hdl,
+                 "Registering type #[%d] : [%s] -> [%p] "
+                 "nameOf [%s]",
+                 a_type_id, a_type_name, p_obj, nameOf (p_obj));
+      rc = tiz_map_insert (ap_os->p_map, os_strndup (ap_os->p_soa, a_type_name,
+                                                     OMX_MAX_STRINGNAME_SIZE),
+                           p_obj, (OMX_U32 *) (&a_type_id));
     }
 
-/*   print_types (ap_os); */
+  /*   print_types (ap_os); */
 
   return rc;
 }
@@ -454,41 +447,37 @@ static OMX_ERRORTYPE
 register_base_types (tiz_os_t * ap_os)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const OMX_S32 count =
-    sizeof (tiz_os_type_to_str_tbl) / sizeof (tiz_os_type_str_t);
-  OMX_S32 type_id    = 0;
+  const OMX_S32 count
+    = sizeof (tiz_os_type_to_str_tbl) / sizeof (tiz_os_type_str_t);
+  OMX_S32 type_id = 0;
   OMX_S32 last_element = 0;
 
   assert (ap_os);
   assert (count >= TIZ_OS_BASE_TYPE_END);
   last_element = TIZ_OS_BASE_TYPE_END;
 
-  for (type_id = 0;
-       type_id <= last_element && OMX_ErrorNone == rc; ++type_id)
+  for (type_id = 0; type_id <= last_element && OMX_ErrorNone == rc; ++type_id)
     {
       TIZ_TRACE (ap_os->p_hdl, "Registering type [%s]...",
                  tiz_os_type_to_str_tbl[type_id].str);
-      rc = os_register_type
-        (ap_os, tiz_os_type_to_fnt_tbl[type_id],
-         tiz_os_type_to_str_tbl[type_id].str, type_id);
+      rc = os_register_type (ap_os, tiz_os_type_to_fnt_tbl[type_id],
+                             tiz_os_type_to_str_tbl[type_id].str, type_id);
     }
   return rc;
 }
 
 OMX_ERRORTYPE
-tiz_os_init (tiz_os_t ** app_os,
-             const OMX_HANDLETYPE ap_hdl,
+tiz_os_init (tiz_os_t ** app_os, const OMX_HANDLETYPE ap_hdl,
              tiz_soa_t * ap_soa)
 {
-  tiz_os_t *p_os = NULL;
+  tiz_os_t * p_os = NULL;
 
   assert (app_os);
   assert (ap_hdl);
 
   TIZ_TRACE (ap_hdl, "Init");
 
-  if (NULL == (p_os = (tiz_os_t *)
-               os_calloc (ap_soa, sizeof (tiz_os_t))))
+  if (NULL == (p_os = (tiz_os_t *) os_calloc (ap_soa, sizeof (tiz_os_t))))
     {
       return OMX_ErrorInsufficientResources;
     }
@@ -526,42 +515,40 @@ tiz_os_destroy (tiz_os_t * ap_os)
 }
 
 OMX_ERRORTYPE
-tiz_os_register_type (tiz_os_t *                ap_os,
-                       const tiz_os_type_init_f a_type_init_f,
-                       const OMX_STRING          a_type_name)
+tiz_os_register_type (tiz_os_t * ap_os, const tiz_os_type_init_f a_type_init_f,
+                      const OMX_STRING a_type_name)
 {
-  assert(ap_os);
+  assert (ap_os);
   return os_register_type (ap_os, a_type_init_f, a_type_name,
-                            tiz_map_size (ap_os->p_map));
+                           tiz_map_size (ap_os->p_map));
 }
 
 OMX_ERRORTYPE
 tiz_os_register_base_types (tiz_os_t * ap_os)
 {
-  assert(ap_os);
+  assert (ap_os);
   return register_base_types (ap_os);
 }
 
 static OMX_ERRORTYPE
-register_additional_type (tiz_os_t * ap_os,
-                          const char *a_type_name)
+register_additional_type (tiz_os_t * ap_os, const char * a_type_name)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const OMX_S32 count =
-    sizeof (tiz_os_type_to_str_tbl) / sizeof (tiz_os_type_str_t);
+  const OMX_S32 count
+    = sizeof (tiz_os_type_to_str_tbl) / sizeof (tiz_os_type_str_t);
   OMX_S32 type_id = TIZ_OS_BASE_TYPE_END + 1;
 
   assert (ap_os);
 
-  for ( ; type_id < count && OMX_ErrorNone == rc; ++type_id)
+  for (; type_id < count && OMX_ErrorNone == rc; ++type_id)
     {
       if (0 == strncmp (a_type_name, tiz_os_type_to_str_tbl[type_id].str,
                         OMX_MAX_STRINGNAME_SIZE))
         {
           TIZ_TRACE (ap_os->p_hdl, "Registering additional type [%s]...",
                      a_type_name);
-          rc = os_register_type
-            (ap_os, tiz_os_type_to_fnt_tbl[type_id], a_type_name, type_id);
+          rc = os_register_type (ap_os, tiz_os_type_to_fnt_tbl[type_id],
+                                 a_type_name, type_id);
           break;
         }
     }
@@ -569,14 +556,13 @@ register_additional_type (tiz_os_t * ap_os,
 }
 
 void *
-tiz_os_get_type (const tiz_os_t *  ap_os,
-                  const char      *a_type_name)
+tiz_os_get_type (const tiz_os_t * ap_os, const char * a_type_name)
 {
   void * res = NULL;
   assert (ap_os);
   assert (ap_os->p_map);
   assert (a_type_name);
-  res        = tiz_map_find (ap_os->p_map, (OMX_PTR) a_type_name);
+  res = tiz_map_find (ap_os->p_map, (OMX_PTR) a_type_name);
   TIZ_TRACE (ap_os->p_hdl, "Get type [%s]->[%p] - total types [%d]",
              a_type_name, res, tiz_map_size (ap_os->p_map));
   if (!res)
@@ -601,7 +587,7 @@ tiz_os_calloc (const tiz_os_t * ap_os, size_t a_size)
 }
 
 void
-tiz_os_free (const tiz_os_t * ap_os, void *ap_addr)
+tiz_os_free (const tiz_os_t * ap_os, void * ap_addr)
 {
   assert (ap_os);
   assert (ap_os->p_soa);

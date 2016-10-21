@@ -46,9 +46,9 @@ typedef OMX_U32 _tiz_pd_mask;
 
 /* Number of port indexes that can fit in an `tiz_pd_set'.  */
 #define _TIZ_PD_SETSIZE 64
-#define _TIZ_NPDBITS (8 * (int)sizeof(_tiz_pd_mask))
+#define _TIZ_NPDBITS (8 * (int) sizeof (_tiz_pd_mask))
 #define _TIZ_PDELT(d) ((d) / _TIZ_NPDBITS)
-#define _TIZ_PDMASK(d) ((_tiz_pd_mask)1 << ((d) % _TIZ_NPDBITS))
+#define _TIZ_PDMASK(d) ((_tiz_pd_mask) 1 << ((d) % _TIZ_NPDBITS))
 
 typedef struct tiz_pd_set tiz_pd_set_t;
 
@@ -58,22 +58,22 @@ struct tiz_pd_set
 #define TIZ_PDS_BITS(set) ((set)->a_pds_bits)
 };
 
-#define TIZ_PD_ZERO(set)                                                      \
-  do                                                                          \
-    {                                                                         \
-      unsigned int a_i;                                                       \
-      tiz_pd_set_t *a_arr = (set);                                            \
-      for (a_i = 0;                                                           \
-           a_i < (unsigned int)(sizeof(tiz_pd_set_t) / sizeof(_tiz_pd_mask)); \
-           ++a_i)                                                             \
-        TIZ_PDS_BITS (a_arr)[a_i] = 0;                                        \
-    }                                                                         \
+#define TIZ_PD_ZERO(set)                                            \
+  do                                                                \
+    {                                                               \
+      unsigned int a_i;                                             \
+      tiz_pd_set_t * a_arr = (set);                                 \
+      for (a_i = 0; a_i < (unsigned int) (sizeof (tiz_pd_set_t)     \
+                                          / sizeof (_tiz_pd_mask)); \
+           ++a_i)                                                   \
+        TIZ_PDS_BITS (a_arr)[a_i] = 0;                              \
+    }                                                               \
   while (0)
 
 #define TIZ_PD_SET(d, set) \
-  ((void)(TIZ_PDS_BITS (set)[_TIZ_PDELT (d)] |= _TIZ_PDMASK (d)))
+  ((void) (TIZ_PDS_BITS (set)[_TIZ_PDELT (d)] |= _TIZ_PDMASK (d)))
 #define TIZ_PD_CLR(d, set) \
-  ((void)(TIZ_PDS_BITS (set)[_TIZ_PDELT (d)] &= ~_TIZ_PDMASK (d)))
+  ((void) (TIZ_PDS_BITS (set)[_TIZ_PDELT (d)] &= ~_TIZ_PDMASK (d)))
 #define TIZ_PD_ISSET(d, set) \
   ((TIZ_PDS_BITS (set)[_TIZ_PDELT (d)] & _TIZ_PDMASK (d)) != 0)
 
@@ -82,9 +82,9 @@ struct tiz_pd_set
 /* ---------------------------------- */
 /* libtizonia-specific logging macros */
 /* ---------------------------------- */
-#define TIZ_CNAME(hdl) (((OMX_COMPONENTTYPE *)hdl)->pComponentPrivate)
+#define TIZ_CNAME(hdl) (((OMX_COMPONENTTYPE *) hdl)->pComponentPrivate)
 #define TIZ_CBUF(hdl) \
-  (((OMX_COMPONENTTYPE *)hdl)->pComponentPrivate + OMX_MAX_STRINGNAME_SIZE)
+  (((OMX_COMPONENTTYPE *) hdl)->pComponentPrivate + OMX_MAX_STRINGNAME_SIZE)
 
 #define TIZ_LOGN(priority, hdl, format, args...)                              \
   tiz_log (__FILE__, __LINE__, __FUNCTION__, TIZ_LOG_CATEGORY_NAME, priority, \
@@ -115,9 +115,11 @@ struct tiz_pd_set
            TIZ_PRIORITY_TRACE, TIZ_CNAME (hdl), TIZ_CBUF (hdl), format, \
            ##args);
 
-void tiz_clear_header (OMX_BUFFERHEADERTYPE *ap_hdr);
+void
+tiz_clear_header (OMX_BUFFERHEADERTYPE * ap_hdr);
 
-const OMX_STRING tiz_fsm_state_to_str (tiz_fsm_state_id_t a_id);
+const OMX_STRING
+tiz_fsm_state_to_str (tiz_fsm_state_id_t a_id);
 
 #ifdef __cplusplus
 }

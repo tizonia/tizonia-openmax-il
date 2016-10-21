@@ -67,7 +67,8 @@ enum tiz_fsm_state_id
  * @param ap_hdl The OpenMAX IL handle.
  * @return The scheduler object.
  */
-void *tiz_fsm_class_init (void *ap_tos, void *ap_hdl);
+void *
+tiz_fsm_class_init (void * ap_tos, void * ap_hdl);
 
 /**
  * 'fsm' class initialisation.
@@ -76,21 +77,26 @@ void *tiz_fsm_class_init (void *ap_tos, void *ap_hdl);
  * @param ap_hdl The OpenMAX IL handle.
  * @return The scheduler object.
  */
-void *tiz_fsm_init (void *ap_tos, void *ap_hdl);
+void *
+tiz_fsm_init (void * ap_tos, void * ap_hdl);
 
-OMX_ERRORTYPE tiz_fsm_set_state (void *ap_obj, tiz_fsm_state_id_t a_new_state,
-                                 tiz_fsm_state_id_t a_canceled_state);
+OMX_ERRORTYPE
+tiz_fsm_set_state (void * ap_obj, tiz_fsm_state_id_t a_new_state,
+                   tiz_fsm_state_id_t a_canceled_state);
 
-OMX_ERRORTYPE tiz_fsm_complete_transition (void *ap_obj, const void *ap_servant,
-                                           OMX_STATETYPE a_new_state);
+OMX_ERRORTYPE
+tiz_fsm_complete_transition (void * ap_obj, const void * ap_servant,
+                             OMX_STATETYPE a_new_state);
 
-OMX_ERRORTYPE tiz_fsm_complete_command (void *ap_obj, const void *ap_servant,
-                                        OMX_COMMANDTYPE a_cmd,
-                                        OMX_U32 a_param1);
+OMX_ERRORTYPE
+tiz_fsm_complete_command (void * ap_obj, const void * ap_servant,
+                          OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1);
 
-tiz_fsm_state_id_t tiz_fsm_get_substate (const void *ap_obj);
+tiz_fsm_state_id_t
+tiz_fsm_get_substate (const void * ap_obj);
 
-OMX_ERRORTYPE tiz_fsm_tunneled_ports_status_update (void *ap_obj);
+OMX_ERRORTYPE
+tiz_fsm_tunneled_ports_status_update (void * ap_obj);
 
 #ifdef __cplusplus
 }

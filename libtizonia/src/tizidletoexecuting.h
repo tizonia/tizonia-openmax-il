@@ -30,15 +30,16 @@
 #define TIZIDLETOEXECUTING_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_idletoexecuting_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_idletoexecuting_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_idletoexecuting_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_idletoexecuting_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZIDLETOEXECUTING_H */
+#endif /* TIZIDLETOEXECUTING_H */

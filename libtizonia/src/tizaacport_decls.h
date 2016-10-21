@@ -30,30 +30,29 @@
 #define TIZAACPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "tizaudioport_decls.h"
 
-  typedef struct tiz_aacport tiz_aacport_t;
-  struct tiz_aacport
-  {
-    /* Object */
-    const tiz_audioport_t _;
-    OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
-  };
+typedef struct tiz_aacport tiz_aacport_t;
+struct tiz_aacport
+{
+  /* Object */
+  const tiz_audioport_t _;
+  OMX_AUDIO_PARAM_AACPROFILETYPE aactype_;
+};
 
-  typedef struct tiz_aacport_class tiz_aacport_class_t;
-  struct tiz_aacport_class
-  {
-    /* Class */
-    const tiz_audioport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct tiz_aacport_class tiz_aacport_class_t;
+struct tiz_aacport_class
+{
+  /* Class */
+  const tiz_audioport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZAACPORT_DECLS_H */
+#endif /* TIZAACPORT_DECLS_H */

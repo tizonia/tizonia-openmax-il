@@ -41,17 +41,26 @@ extern "C" {
 
 #include <tizplatform.h>
 
-void *tiz_prc_class_init (void *ap_tos, void *ap_hdl);
-void *tiz_prc_init (void *ap_tos, void *ap_hdl);
+void *
+tiz_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_prc_init (void * ap_tos, void * ap_hdl);
 
-OMX_ERRORTYPE tiz_prc_buffers_ready (const void *p_obj);
-OMX_ERRORTYPE tiz_prc_pause (const void *p_obj);
-OMX_ERRORTYPE tiz_prc_resume (const void *p_obj);
-OMX_ERRORTYPE tiz_prc_port_flush (const void *ap_obj, OMX_U32 a_pid);
-OMX_ERRORTYPE tiz_prc_port_disable (const void *ap_obj, OMX_U32 a_pid);
-OMX_ERRORTYPE tiz_prc_port_enable (const void *ap_obj, OMX_U32 a_pid);
-OMX_ERRORTYPE tiz_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
-                                     OMX_INDEXTYPE a_config_idx);
+OMX_ERRORTYPE
+tiz_prc_buffers_ready (const void * p_obj);
+OMX_ERRORTYPE
+tiz_prc_pause (const void * p_obj);
+OMX_ERRORTYPE
+tiz_prc_resume (const void * p_obj);
+OMX_ERRORTYPE
+tiz_prc_port_flush (const void * ap_obj, OMX_U32 a_pid);
+OMX_ERRORTYPE
+tiz_prc_port_disable (const void * ap_obj, OMX_U32 a_pid);
+OMX_ERRORTYPE
+tiz_prc_port_enable (const void * ap_obj, OMX_U32 a_pid);
+OMX_ERRORTYPE
+tiz_prc_config_change (const void * ap_obj, OMX_U32 a_pid,
+                       OMX_INDEXTYPE a_config_idx);
 #ifdef __cplusplus
 }
 #endif

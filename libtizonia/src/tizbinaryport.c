@@ -53,10 +53,10 @@
  */
 
 static void *
-binaryport_ctor (void *ap_obj, va_list * app)
+binaryport_ctor (void * ap_obj, va_list * app)
 {
-  tiz_binaryport_t *p_obj = NULL;
-  tiz_port_options_t *p_opts = NULL;
+  tiz_binaryport_t * p_obj = NULL;
+  tiz_port_options_t * p_opts = NULL;
   va_list app_copy;
 
   assert (ap_obj);
@@ -70,7 +70,8 @@ binaryport_ctor (void *ap_obj, va_list * app)
   va_copy (app_copy, *app);
 
   /* Now give the original to the base class */
-  if (NULL == (p_obj = super_ctor (typeOf (ap_obj, "tizbinaryport"), ap_obj, app)))
+  if (NULL
+      == (p_obj = super_ctor (typeOf (ap_obj, "tizbinaryport"), ap_obj, app)))
     {
       return NULL;
     }
@@ -81,122 +82,108 @@ binaryport_ctor (void *ap_obj, va_list * app)
 
   switch (p_opts->domain)
     {
-    case OMX_PortDomainAudio:
-      {
-        OMX_AUDIO_CODINGTYPE encodings[] = {
-          OMX_AUDIO_CodingUnused,
-          OMX_AUDIO_CodingMax
-        };
+      case OMX_PortDomainAudio:
+        {
+          OMX_AUDIO_CODINGTYPE encodings[]
+            = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
 
-        tiz_check_omx_err_ret_null
-          (tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat));
+          tiz_check_omx_err_ret_null (
+            tiz_port_register_index (p_obj, OMX_IndexParamAudioPortFormat));
 
-        p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizaudioport"),
-                                      p_opts, &encodings);
-        if (NULL == p_obj->p_port_)
-          {
-            return NULL;
-          }
-      }
-      break;
+          p_obj->p_port_
+            = factory_new (typeOf (ap_obj, "tizaudioport"), p_opts, &encodings);
+          if (NULL == p_obj->p_port_)
+            {
+              return NULL;
+            }
+        }
+        break;
 
-    case OMX_PortDomainVideo:
-      {
-        OMX_VIDEO_PORTDEFINITIONTYPE portdef;
-        OMX_VIDEO_CODINGTYPE encodings[] = {
-          OMX_VIDEO_CodingUnused,
-          OMX_VIDEO_CodingMax
-        };
-        OMX_COLOR_FORMATTYPE formats[] = {
-          OMX_COLOR_FormatYUV420Planar,
-          OMX_COLOR_FormatMax
-        };
-        /* NOTE: No defaults are defined in the standard for the video output
+      case OMX_PortDomainVideo:
+        {
+          OMX_VIDEO_PORTDEFINITIONTYPE portdef;
+          OMX_VIDEO_CODINGTYPE encodings[]
+            = {OMX_VIDEO_CodingUnused, OMX_VIDEO_CodingMax};
+          OMX_COLOR_FORMATTYPE formats[]
+            = {OMX_COLOR_FormatYUV420Planar, OMX_COLOR_FormatMax};
+          /* NOTE: No defaults are defined in the standard for the video output
          * port of the video_reader.binary component. So for the sake of
          * completeness, simply provide some default values here. */
-        portdef.pNativeRender = NULL;
-        portdef.nFrameWidth = 176;
-        portdef.nFrameHeight = 144;
-        portdef.nStride = 0;
-        portdef.nSliceHeight = 0;
-        portdef.nBitrate = 0;
-        portdef.xFramerate = 15;
-        portdef.bFlagErrorConcealment = OMX_FALSE;
-        portdef.eCompressionFormat = OMX_VIDEO_CodingUnused;
-        portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
-        portdef.pNativeWindow = NULL;
+          portdef.pNativeRender = NULL;
+          portdef.nFrameWidth = 176;
+          portdef.nFrameHeight = 144;
+          portdef.nStride = 0;
+          portdef.nSliceHeight = 0;
+          portdef.nBitrate = 0;
+          portdef.xFramerate = 15;
+          portdef.bFlagErrorConcealment = OMX_FALSE;
+          portdef.eCompressionFormat = OMX_VIDEO_CodingUnused;
+          portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
+          portdef.pNativeWindow = NULL;
 
-        tiz_check_omx_err_ret_null
-          (tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat));
+          tiz_check_omx_err_ret_null (
+            tiz_port_register_index (p_obj, OMX_IndexParamVideoPortFormat));
 
-        p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizvideoport"),
-                                      p_opts, &portdef,
-                                      &encodings, &formats);
-        if (NULL == p_obj->p_port_)
-          {
-            return NULL;
-          }
-      }
-      break;
+          p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizvideoport"), p_opts,
+                                        &portdef, &encodings, &formats);
+          if (NULL == p_obj->p_port_)
+            {
+              return NULL;
+            }
+        }
+        break;
 
-    case OMX_PortDomainImage:
-      {
-        OMX_IMAGE_PORTDEFINITIONTYPE portdef;
-        OMX_IMAGE_CODINGTYPE encodings[] = {
-          OMX_IMAGE_CodingUnused,
-          OMX_IMAGE_CodingMax
-        };
-        OMX_COLOR_FORMATTYPE formats[] = {
-          OMX_COLOR_FormatYUV420Planar,
-          OMX_COLOR_FormatMax
-        };
-        /* NOTE: No defaults are defined in the standard for the image output
+      case OMX_PortDomainImage:
+        {
+          OMX_IMAGE_PORTDEFINITIONTYPE portdef;
+          OMX_IMAGE_CODINGTYPE encodings[]
+            = {OMX_IMAGE_CodingUnused, OMX_IMAGE_CodingMax};
+          OMX_COLOR_FORMATTYPE formats[]
+            = {OMX_COLOR_FormatYUV420Planar, OMX_COLOR_FormatMax};
+          /* NOTE: No defaults are defined in the standard for the image output
          * port of the image_reader.binary component. So for the sake of
          * completeness, simply provide some default values here. */
-        portdef.pNativeRender = NULL;
-        portdef.nFrameWidth = 176;
-        portdef.nFrameHeight = 144;
-        portdef.nStride = 0;
-        portdef.nSliceHeight = 0;
-        portdef.bFlagErrorConcealment = OMX_FALSE;
-        portdef.eCompressionFormat = OMX_IMAGE_CodingUnused;
-        portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
-        portdef.pNativeWindow = NULL;
+          portdef.pNativeRender = NULL;
+          portdef.nFrameWidth = 176;
+          portdef.nFrameHeight = 144;
+          portdef.nStride = 0;
+          portdef.nSliceHeight = 0;
+          portdef.bFlagErrorConcealment = OMX_FALSE;
+          portdef.eCompressionFormat = OMX_IMAGE_CodingUnused;
+          portdef.eColorFormat = OMX_COLOR_FormatYUV420Planar;
+          portdef.pNativeWindow = NULL;
 
-        tiz_check_omx_err_ret_null
-          (tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat));
+          tiz_check_omx_err_ret_null (
+            tiz_port_register_index (p_obj, OMX_IndexParamImagePortFormat));
 
-        p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizimageport"),
-                                      p_opts, &portdef,
-                                      &encodings, &formats);
-        if (NULL == p_obj->p_port_)
-          {
-            return NULL;
-          }
-      }
-      break;
+          p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizimageport"), p_opts,
+                                        &portdef, &encodings, &formats);
+          if (NULL == p_obj->p_port_)
+            {
+              return NULL;
+            }
+        }
+        break;
 
-    case OMX_PortDomainOther:
-      {
-        OMX_OTHER_FORMATTYPE formats[] = {
-          OMX_OTHER_FormatBinary,
-          OMX_OTHER_FormatMax
-        };
+      case OMX_PortDomainOther:
+        {
+          OMX_OTHER_FORMATTYPE formats[]
+            = {OMX_OTHER_FormatBinary, OMX_OTHER_FormatMax};
 
-        tiz_check_omx_err_ret_null
-          (tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat));
+          tiz_check_omx_err_ret_null (
+            tiz_port_register_index (p_obj, OMX_IndexParamOtherPortFormat));
 
-        p_obj->p_port_ = factory_new (typeOf (ap_obj, "tizotherport"),
-                                      p_opts, &formats);
-        if (NULL == p_obj->p_port_)
-          {
-            return NULL;
-          }
-      }
-      break;
+          p_obj->p_port_
+            = factory_new (typeOf (ap_obj, "tizotherport"), p_opts, &formats);
+          if (NULL == p_obj->p_port_)
+            {
+              return NULL;
+            }
+        }
+        break;
 
-    default:
-      assert (0);
+      default:
+        assert (0);
     };
 
   va_end (app_copy);
@@ -205,9 +192,9 @@ binaryport_ctor (void *ap_obj, va_list * app)
 }
 
 static void *
-binaryport_dtor (void *ap_obj)
+binaryport_dtor (void * ap_obj)
 {
-  tiz_binaryport_t *p_obj = ap_obj;
+  tiz_binaryport_t * p_obj = ap_obj;
   assert (p_obj);
   factory_delete (p_obj->p_port_);
   return super_dtor (typeOf (ap_obj, "tizbinaryport"), ap_obj);
@@ -218,97 +205,92 @@ binaryport_dtor (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-binaryport_GetParameter (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
+binaryport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const tiz_binaryport_t *p_obj = ap_obj;
+  const tiz_binaryport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
-            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...", tiz_port_index (ap_obj),
+             tiz_idx_to_str (a_index));
   assert (p_obj);
 
   switch (a_index)
     {
-    case OMX_IndexParamAudioPortFormat:
-    case OMX_IndexParamVideoPortFormat:
-    case OMX_IndexParamImagePortFormat:
-    case OMX_IndexParamOtherPortFormat:
-      {
-        /* Delegate to the domain-specific port */
-        if (OMX_ErrorUnsupportedIndex
-            != (rc = tiz_api_GetParameter (p_obj->p_port_,
-                                          ap_hdl, a_index, ap_struct)))
-          {
-            return rc;
-          }
-      }
+      case OMX_IndexParamAudioPortFormat:
+      case OMX_IndexParamVideoPortFormat:
+      case OMX_IndexParamImagePortFormat:
+      case OMX_IndexParamOtherPortFormat:
+        {
+          /* Delegate to the domain-specific port */
+          if (OMX_ErrorUnsupportedIndex
+              != (rc = tiz_api_GetParameter (p_obj->p_port_, ap_hdl, a_index,
+                                             ap_struct)))
+            {
+              return rc;
+            }
+        }
       /* NOTE: Fall through if GetParameter returned
        * OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
       /*@fallthrough@*/
-    default:
-      {
-        /* Delegate to the base port */
-        rc = super_GetParameter (typeOf (ap_obj, "tizbinaryport"),
-                                 ap_obj, ap_hdl, a_index, ap_struct);
-      }
+      default:
+        {
+          /* Delegate to the base port */
+          rc = super_GetParameter (typeOf (ap_obj, "tizbinaryport"), ap_obj,
+                                   ap_hdl, a_index, ap_struct);
+        }
     };
 
   return rc;
-
 }
 
 static OMX_ERRORTYPE
-binaryport_SetParameter (const void *ap_obj,
-                         OMX_HANDLETYPE ap_hdl,
+binaryport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  tiz_binaryport_t *p_obj = (tiz_binaryport_t *) ap_obj;
+  tiz_binaryport_t * p_obj = (tiz_binaryport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
-  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...",
-            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
+  TIZ_TRACE (ap_hdl, "PORT [%d] SetParameter [%s]...", tiz_port_index (ap_obj),
+             tiz_idx_to_str (a_index));
   assert (p_obj);
 
   switch (a_index)
     {
-    case OMX_IndexParamAudioPortFormat:
-    case OMX_IndexParamVideoPortFormat:
-    case OMX_IndexParamImagePortFormat:
-    case OMX_IndexParamOtherPortFormat:
-      {
-        /* Delegate to the domain-specific port */
-        if (OMX_ErrorUnsupportedIndex
-            != (rc = tiz_api_SetParameter (p_obj->p_port_,
-                                          ap_hdl, a_index, ap_struct)))
-          {
-            return rc;
-          }
-      }
+      case OMX_IndexParamAudioPortFormat:
+      case OMX_IndexParamVideoPortFormat:
+      case OMX_IndexParamImagePortFormat:
+      case OMX_IndexParamOtherPortFormat:
+        {
+          /* Delegate to the domain-specific port */
+          if (OMX_ErrorUnsupportedIndex
+              != (rc = tiz_api_SetParameter (p_obj->p_port_, ap_hdl, a_index,
+                                             ap_struct)))
+            {
+              return rc;
+            }
+        }
 
       /* NOTE: Fall through if GetParameter returned
        * OMX_ErrorUnsupportedIndex. So that we delegate to the parent */
       /*@fallthrough@*/
-    default:
-      {
-        /* Delegate to the base port */
-        rc = super_SetParameter (typeOf (ap_obj, "tizbinaryport"),
-                                 ap_obj, ap_hdl, a_index, ap_struct);
-      }
+      default:
+        {
+          /* Delegate to the base port */
+          rc = super_SetParameter (typeOf (ap_obj, "tizbinaryport"), ap_obj,
+                                   ap_hdl, a_index, ap_struct);
+        }
     };
 
   return rc;
-
 }
 
 static bool
-  binaryport_check_tunnel_compat
-  (const void *ap_obj,
-   OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
-   OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
+binaryport_check_tunnel_compat (const void * ap_obj,
+                                OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
+                                OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
-  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
+  tiz_port_t * p_obj = (tiz_port_t *) ap_obj;
 
   assert (ap_this_def);
   assert (ap_other_def);
@@ -316,8 +298,8 @@ static bool
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
       TIZ_ERROR (handleOf (ap_obj),
-                "port [%d] check_tunnel_compat : Different domain found [%d]",
-                p_obj->pid_, ap_other_def->eDomain);
+                 "port [%d] check_tunnel_compat : Different domain found [%d]",
+                 p_obj->pid_, ap_other_def->eDomain);
       return false;
     }
 
@@ -329,7 +311,7 @@ static bool
  */
 
 static void *
-binaryport_class_ctor (void *ap_obj, va_list * app)
+binaryport_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "tizbinaryport_class"), ap_obj, app);
@@ -345,7 +327,8 @@ tiz_binaryport_class_init (void * ap_tos, void * ap_hdl)
   void * tizport = tiz_get_type (ap_hdl, "tizport");
   void * tizbinaryport_class = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizport), "tizbinaryport_class", classOf (tizport), sizeof (tiz_binaryport_class_t),
+    (classOf (tizport), "tizbinaryport_class", classOf (tizport),
+     sizeof (tiz_binaryport_class_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
@@ -361,8 +344,7 @@ tiz_binaryport_init (void * ap_tos, void * ap_hdl)
   void * tizport = tiz_get_type (ap_hdl, "tizport");
   void * tizbinaryport_class = tiz_get_type (ap_hdl, "tizbinaryport_class");
   TIZ_LOG_CLASS (tizbinaryport_class);
-  void * tizbinaryport =
-    factory_new
+  void * tizbinaryport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
     (tizbinaryport_class, "tizbinaryport", tizport, sizeof (tiz_binaryport_t),
      /* TIZ_CLASS_COMMENT: */

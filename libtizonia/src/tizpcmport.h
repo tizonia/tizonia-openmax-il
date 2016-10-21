@@ -30,15 +30,16 @@
 #define TIZPCMPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_pcmport_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_pcmport_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_pcmport_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_pcmport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZPCMPORT_H */
+#endif /* TIZPCMPORT_H */

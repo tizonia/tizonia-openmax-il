@@ -30,15 +30,16 @@
 #define TIZFLACPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_flacport_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_flacport_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_flacport_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_flacport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZFLACPORT_H */
+#endif /* TIZFLACPORT_H */

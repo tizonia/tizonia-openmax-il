@@ -30,15 +30,16 @@
 #define TIZEXECUTING_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_executing_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_executing_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_executing_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_executing_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZEXECUTING_H */
+#endif /* TIZEXECUTING_H */

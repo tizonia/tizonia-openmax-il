@@ -30,15 +30,16 @@
 #define TIZDEMUXERCFGPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_demuxercfgport_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_demuxercfgport_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_demuxercfgport_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_demuxercfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZDEMUXERCFGPORT_H */
+#endif /* TIZDEMUXERCFGPORT_H */

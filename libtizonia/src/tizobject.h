@@ -17,13 +17,11 @@
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef TIZOBJECT_H
 #define TIZOBJECT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_Types.h>
@@ -32,35 +30,45 @@ extern "C"
 #include <stddef.h>
 #include <stdio.h>
 
-  void *tiz_class_init (void * ap_tos, void * ap_hdl);
-  void *tiz_object_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_object_init (void * ap_tos, void * ap_hdl);
 
-  void *factory_new (const void *class, ...);
-  void factory_delete (void *p_obj);
+void *
+factory_new (const void * class, ...);
+void
+factory_delete (void * p_obj);
 
-  const void *classOf (const void *p_obj);
-  size_t sizeOf (const void *p_obj);
-  const char *nameOf (const void *p_obj);
-  const OMX_HANDLETYPE handleOf (const void *ap_obj);
-  const void *typeOf (const void *ap_obj, const char *ap_class_name);
+const void *
+classOf (const void * p_obj);
+size_t
+sizeOf (const void * p_obj);
+const char *
+nameOf (const void * p_obj);
+const OMX_HANDLETYPE
+handleOf (const void * ap_obj);
+const void *
+typeOf (const void * ap_obj, const char * ap_class_name);
 
-  void *ctor (void *p_obj, va_list * app);
-  void *dtor (void *p_obj);
+void *
+ctor (void * p_obj, va_list * app);
+void *
+dtor (void * p_obj);
 
-  /* class' superclass */
-  const void *super (const void *p_obj);
+/* class' superclass */
+const void *
+super (const void * p_obj);
 
-  void print_class (const void * ap_class, const char *file, int line, const char *func);
+void
+print_class (const void * ap_class, const char * file, int line,
+             const char * func);
 
-#define TIZ_LOG_CLASS(ap_class)                     \
-  print_class(ap_class,                             \
-              __FILE__,                             \
-              __LINE__,                             \
-              __FUNCTION__);
+#define TIZ_LOG_CLASS(ap_class) \
+  print_class (ap_class, __FILE__, __LINE__, __FUNCTION__);
 
-  
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOBJECT_H */
+#endif /* TIZOBJECT_H */

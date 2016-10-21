@@ -30,32 +30,31 @@
 #define TIZVIDEOPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "tizport_decls.h"
 
-  typedef struct tiz_videoport tiz_videoport_t;
-  struct tiz_videoport
-  {
-    /* Object */
-    const tiz_port_t _;
-    OMX_VIDEO_PARAM_PORTFORMATTYPE port_format_;
-    tiz_vector_t *p_video_encodings_;
-    tiz_vector_t *p_color_formats_;
-  };
+typedef struct tiz_videoport tiz_videoport_t;
+struct tiz_videoport
+{
+  /* Object */
+  const tiz_port_t _;
+  OMX_VIDEO_PARAM_PORTFORMATTYPE port_format_;
+  tiz_vector_t * p_video_encodings_;
+  tiz_vector_t * p_color_formats_;
+};
 
-  typedef struct tiz_videoport_class tiz_videoport_class_t;
-  struct tiz_videoport_class
-  {
-    /* Class */
-    const tiz_port_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct tiz_videoport_class tiz_videoport_class_t;
+struct tiz_videoport_class
+{
+  /* Class */
+  const tiz_port_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZVIDEOPORT_DECLS_H */
+#endif /* TIZVIDEOPORT_DECLS_H */

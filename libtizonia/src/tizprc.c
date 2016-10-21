@@ -47,10 +47,11 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.prc"
 #endif
 
-static const OMX_STRING tiz_prc_msg_to_str (tiz_prc_msg_class_t a_msg)
+static const OMX_STRING
+tiz_prc_msg_to_str (tiz_prc_msg_class_t a_msg)
 {
-  const OMX_S32 count = sizeof(tiz_prc_msg_to_str_tbl)
-                        / sizeof(tiz_prc_msg_str_t);
+  const OMX_S32 count
+    = sizeof (tiz_prc_msg_to_str_tbl) / sizeof (tiz_prc_msg_str_t);
   OMX_S32 i = 0;
 
   for (i = 0; i < count; ++i)
@@ -64,82 +65,90 @@ static const OMX_STRING tiz_prc_msg_to_str (tiz_prc_msg_class_t a_msg)
   return "Unknown proc message";
 }
 
-static OMX_ERRORTYPE dispatch_idle_to_loaded (tiz_prc_t *ap_prc, bool *ap_done)
+static OMX_ERRORTYPE
+dispatch_idle_to_loaded (tiz_prc_t * ap_prc, bool * ap_done)
 {
   assert (ap_done);
   *ap_done = true;
   return tiz_srv_deallocate_resources (ap_prc);
 }
 
-static OMX_ERRORTYPE dispatch_loaded_to_idle (tiz_prc_t *ap_prc, bool *ap_done)
+static OMX_ERRORTYPE
+dispatch_loaded_to_idle (tiz_prc_t * ap_prc, bool * ap_done)
 {
   assert (ap_done);
   *ap_done = true;
   return tiz_srv_allocate_resources (ap_prc, OMX_ALL);
 }
 
-static OMX_ERRORTYPE dispatch_exe_or_pause_to_idle (tiz_prc_t *ap_prc,
-                                                    bool *ap_done)
+static OMX_ERRORTYPE
+dispatch_exe_or_pause_to_idle (tiz_prc_t * ap_prc, bool * ap_done)
 {
   assert (ap_done);
   *ap_done = true;
   return tiz_srv_stop_and_return (ap_prc);
 }
 
-static OMX_ERRORTYPE dispatch_idle_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
+static OMX_ERRORTYPE
+dispatch_idle_to_exe (tiz_prc_t * ap_prc, bool * ap_done)
 {
   assert (ap_done);
   *ap_done = true;
   return tiz_srv_prepare_to_transfer (ap_prc, OMX_ALL);
 }
 
-static OMX_ERRORTYPE prc_DeferredResume (const void *ap_obj);
-static OMX_ERRORTYPE dispatch_pause_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
+static OMX_ERRORTYPE
+prc_DeferredResume (const void * ap_obj);
+static OMX_ERRORTYPE
+dispatch_pause_to_exe (tiz_prc_t * ap_prc, bool * ap_done)
 {
   assert (ap_done);
   *ap_done = true;
   return prc_DeferredResume (ap_prc);
 }
 
-static OMX_ERRORTYPE dispatch_exe_to_exe (tiz_prc_t *ap_prc, bool *ap_done)
+static OMX_ERRORTYPE
+dispatch_exe_to_exe (tiz_prc_t * ap_prc, bool * ap_done)
 {
   assert (ap_done);
   *ap_done = true;
   return tiz_srv_transfer_and_process (ap_prc, OMX_ALL);
 }
 
-static OMX_ERRORTYPE dispatch_exe_or_idle_to_pause (tiz_prc_t *ap_prc,
-                                                    bool *ap_done)
+static OMX_ERRORTYPE
+dispatch_exe_or_idle_to_pause (tiz_prc_t * ap_prc, bool * ap_done)
 {
   assert (ap_done);
   *ap_done = true;
   return tiz_prc_pause (ap_prc);
 }
 
-static OMX_ERRORTYPE dispatch_true (tiz_prc_t *ap_prc, bool *ap_done)
+static OMX_ERRORTYPE
+dispatch_true (tiz_prc_t * ap_prc, bool * ap_done)
 {
   assert (ap_done);
   *ap_done = true;
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE dispatch_false (tiz_prc_t *ap_prc, bool *ap_done)
+static OMX_ERRORTYPE
+dispatch_false (tiz_prc_t * ap_prc, bool * ap_done)
 {
   return OMX_ErrorIncorrectStateTransition;
 }
 
-static inline tiz_prc_msg_t *init_prc_message (const void *ap_obj,
-                                               OMX_HANDLETYPE ap_hdl,
-                                               tiz_prc_msg_class_t a_msg_class)
+static inline tiz_prc_msg_t *
+init_prc_message (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                  tiz_prc_msg_class_t a_msg_class)
 {
-  tiz_prc_t *p_obj = (tiz_prc_t *)ap_obj;
-  tiz_prc_msg_t *p_msg = NULL;
+  tiz_prc_t * p_obj = (tiz_prc_t *) ap_obj;
+  tiz_prc_msg_t * p_msg = NULL;
 
   assert (p_obj);
   assert (ap_hdl);
   assert (a_msg_class < ETIZPrcMsgMax);
 
-  if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof(tiz_prc_msg_t))))
+  if (NULL == (p_msg = tiz_srv_init_msg (p_obj, sizeof (tiz_prc_msg_t))))
     {
       TIZ_ERROR (ap_hdl,
                  "[OMX_ErrorInsufficientResources] : "
@@ -155,14 +164,13 @@ static inline tiz_prc_msg_t *init_prc_message (const void *ap_obj,
   return p_msg;
 }
 
-static OMX_ERRORTYPE enqueue_buffersready_msg (const void *ap_obj,
-                                               OMX_HANDLETYPE ap_hdl,
-                                               OMX_BUFFERHEADERTYPE *ap_hdr,
-                                               OMX_U32 a_pid)
+static OMX_ERRORTYPE
+enqueue_buffersready_msg (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                          OMX_BUFFERHEADERTYPE * ap_hdr, OMX_U32 a_pid)
 {
-  const tiz_prc_t *p_obj = ap_obj;
-  tiz_prc_msg_t *p_msg = NULL;
-  tiz_prc_msg_buffersready_t *p_msg_br = NULL;
+  const tiz_prc_t * p_obj = ap_obj;
+  tiz_prc_msg_t * p_msg = NULL;
+  tiz_prc_msg_buffersready_t * p_msg_br = NULL;
 
   TIZ_TRACE (ap_hdl, "BuffersReady : HEADER [%p]", ap_hdr);
 
@@ -181,7 +189,8 @@ static OMX_ERRORTYPE enqueue_buffersready_msg (const void *ap_obj,
   return tiz_srv_enqueue (ap_obj, p_msg, 1);
 }
 
-static inline OMX_U32 cmd_to_priority (OMX_COMMANDTYPE a_cmd)
+static inline OMX_U32
+cmd_to_priority (OMX_COMMANDTYPE a_cmd)
 {
   OMX_U32 prio = 0;
 
@@ -206,11 +215,12 @@ static inline OMX_U32 cmd_to_priority (OMX_COMMANDTYPE a_cmd)
   return prio;
 }
 
-static OMX_ERRORTYPE prc_DeferredResume (const void *ap_obj)
+static OMX_ERRORTYPE
+prc_DeferredResume (const void * ap_obj)
 {
-  tiz_prc_t *p_obj = (tiz_prc_t *)ap_obj;
-  tiz_prc_msg_t *p_msg = NULL;
-  tiz_prc_msg_deferredresume_t *p_msg_dr = NULL;
+  tiz_prc_t * p_obj = (tiz_prc_t *) ap_obj;
+  tiz_prc_msg_t * p_msg = NULL;
+  tiz_prc_msg_deferredresume_t * p_msg_dr = NULL;
 
   assert (ap_obj);
 
@@ -228,11 +238,12 @@ static OMX_ERRORTYPE prc_DeferredResume (const void *ap_obj)
   return tiz_srv_enqueue (ap_obj, p_msg, 1);
 }
 
-static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
+static OMX_ERRORTYPE
+dispatch_sc (void * ap_obj, OMX_PTR ap_msg)
 {
-  tiz_prc_t *p_obj = ap_obj;
-  tiz_prc_msg_t *p_msg = ap_msg;
-  tiz_prc_msg_sendcommand_t *p_msg_sc = NULL;
+  tiz_prc_t * p_obj = ap_obj;
+  tiz_prc_msg_t * p_msg = ap_msg;
+  tiz_prc_msg_sendcommand_t * p_msg_sc = NULL;
 
   assert (p_msg);
 
@@ -245,14 +256,15 @@ static OMX_ERRORTYPE dispatch_sc (void *ap_obj, OMX_PTR ap_msg)
                                                            p_msg_sc);
 }
 
-static OMX_ERRORTYPE dispatch_br (void *ap_obj, OMX_PTR ap_msg)
+static OMX_ERRORTYPE
+dispatch_br (void * ap_obj, OMX_PTR ap_msg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_prc_t *p_obj = ap_obj;
-  tiz_prc_msg_t *p_msg = ap_msg;
-  tiz_prc_msg_buffersready_t *p_msg_br = NULL;
-  const void *p_krn = NULL;
-  const void *p_port = NULL;
+  tiz_prc_t * p_obj = ap_obj;
+  tiz_prc_msg_t * p_msg = ap_msg;
+  tiz_prc_msg_buffersready_t * p_msg_br = NULL;
+  const void * p_krn = NULL;
+  const void * p_port = NULL;
   tiz_fsm_state_id_t now = EStateMax;
 
   assert (p_obj);
@@ -294,14 +306,15 @@ static OMX_ERRORTYPE dispatch_br (void *ap_obj, OMX_PTR ap_msg)
   return rc;
 }
 
-static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg)
+static OMX_ERRORTYPE
+dispatch_config (void * ap_obj, OMX_PTR ap_msg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_prc_t *p_obj = ap_obj;
-  tiz_prc_msg_t *p_msg = ap_msg;
-  tiz_prc_msg_configchange_t *p_msg_cc = NULL;
-  const void *p_krn = NULL;
-  const void *p_port = NULL;
+  tiz_prc_t * p_obj = ap_obj;
+  tiz_prc_msg_t * p_msg = ap_msg;
+  tiz_prc_msg_configchange_t * p_msg_cc = NULL;
+  const void * p_krn = NULL;
+  const void * p_port = NULL;
   tiz_fsm_state_id_t now = EStateMax;
 
   assert (p_obj);
@@ -330,8 +343,8 @@ static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg)
    * */
   if (EStatePause != now && ESubStateExecutingToIdle != now
       && ESubStatePauseToIdle != now)
-/*       && !TIZ_PORT_IS_DISABLED (p_port) */
-/*       && !TIZ_PORT_IS_BEING_DISABLED (p_port)) */
+    /*       && !TIZ_PORT_IS_DISABLED (p_port) */
+    /*       && !TIZ_PORT_IS_BEING_DISABLED (p_port)) */
     {
       TIZ_TRACE (p_msg->p_hdl, "index [%s] ", tiz_idx_to_str (p_msg_cc->index));
       rc = tiz_prc_config_change (p_obj, p_msg_cc->pid, p_msg_cc->index);
@@ -340,12 +353,13 @@ static OMX_ERRORTYPE dispatch_config (void *ap_obj, OMX_PTR ap_msg)
   return rc;
 }
 
-static OMX_ERRORTYPE dispatch_dr (void *ap_obj, OMX_PTR ap_msg)
+static OMX_ERRORTYPE
+dispatch_dr (void * ap_obj, OMX_PTR ap_msg)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  tiz_prc_t *p_obj = ap_obj;
-  tiz_prc_msg_t *p_msg = ap_msg;
-  tiz_prc_msg_deferredresume_t *p_msg_dr = NULL;
+  tiz_prc_t * p_obj = ap_obj;
+  tiz_prc_msg_t * p_msg = ap_msg;
+  tiz_prc_msg_deferredresume_t * p_msg_dr = NULL;
   tiz_fsm_state_id_t now = EStateMax;
 
   assert (p_obj);
@@ -388,9 +402,10 @@ static OMX_ERRORTYPE dispatch_dr (void *ap_obj, OMX_PTR ap_msg)
   return rc;
 }
 
-static inline tiz_prc_msg_dispatch_state_set_f lookup_state_set_transition (
-    const void *ap_obj, const OMX_STATETYPE a_current_state,
-    const OMX_STATETYPE a_next_state)
+static inline tiz_prc_msg_dispatch_state_set_f
+lookup_state_set_transition (const void * ap_obj,
+                             const OMX_STATETYPE a_current_state,
+                             const OMX_STATETYPE a_next_state)
 {
   assert (a_current_state >= OMX_StateLoaded);
   assert (a_current_state <= OMX_StateWaitForResources);
@@ -404,11 +419,11 @@ static inline tiz_prc_msg_dispatch_state_set_f lookup_state_set_transition (
   return tiz_prc_state_set_dispatch_tbl[a_current_state][a_next_state];
 }
 
-static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
-                                         OMX_HANDLETYPE ap_hdl,
-                                         tiz_prc_msg_sendcommand_t *ap_msg_sc)
+static OMX_ERRORTYPE
+dispatch_state_set (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                    tiz_prc_msg_sendcommand_t * ap_msg_sc)
 {
-  tiz_prc_t *p_prc = (tiz_prc_t *)ap_obj;
+  tiz_prc_t * p_prc = (tiz_prc_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   OMX_STATETYPE now = OMX_StateMax;
   OMX_STATETYPE next = OMX_StateMax;
@@ -456,44 +471,44 @@ static OMX_ERRORTYPE dispatch_state_set (const void *ap_obj,
   return rc;
 }
 
-static OMX_ERRORTYPE dispatch_port_flush (const void *ap_obj,
-                                          OMX_HANDLETYPE p_hdl,
-                                          tiz_prc_msg_sendcommand_t *ap_msg_sc)
+static OMX_ERRORTYPE
+dispatch_port_flush (const void * ap_obj, OMX_HANDLETYPE p_hdl,
+                     tiz_prc_msg_sendcommand_t * ap_msg_sc)
 {
   assert (ap_msg_sc);
   return tiz_prc_port_flush (ap_obj, ap_msg_sc->param1);
 }
 
-static OMX_ERRORTYPE dispatch_port_disable (
-    const void *ap_obj, OMX_HANDLETYPE p_hdl,
-    tiz_prc_msg_sendcommand_t *ap_msg_sc)
+static OMX_ERRORTYPE
+dispatch_port_disable (const void * ap_obj, OMX_HANDLETYPE p_hdl,
+                       tiz_prc_msg_sendcommand_t * ap_msg_sc)
 {
   assert (ap_msg_sc);
   return tiz_prc_port_disable (ap_obj, ap_msg_sc->param1);
 }
 
-static OMX_ERRORTYPE dispatch_port_enable (const void *ap_obj,
-                                           OMX_HANDLETYPE p_hdl,
-                                           tiz_prc_msg_sendcommand_t *ap_msg_sc)
+static OMX_ERRORTYPE
+dispatch_port_enable (const void * ap_obj, OMX_HANDLETYPE p_hdl,
+                      tiz_prc_msg_sendcommand_t * ap_msg_sc)
 {
   assert (ap_msg_sc);
   return tiz_prc_port_enable (ap_obj, ap_msg_sc->param1);
 }
 
-static OMX_BOOL remove_buffer_from_servant_queue (OMX_PTR ap_elem,
-                                                  OMX_S32 a_data1,
-                                                  OMX_PTR ap_data2)
+static OMX_BOOL
+remove_buffer_from_servant_queue (OMX_PTR ap_elem, OMX_S32 a_data1,
+                                  OMX_PTR ap_data2)
 {
   OMX_BOOL rc = OMX_FALSE;
-  tiz_prc_msg_t *p_msg = ap_elem;
-  const OMX_BUFFERHEADERTYPE *p_hdr = ap_data2;
+  tiz_prc_msg_t * p_msg = ap_elem;
+  const OMX_BUFFERHEADERTYPE * p_hdr = ap_data2;
 
   assert (p_msg);
   assert (p_hdr);
 
   if (p_msg->class == a_data1)
     {
-      tiz_prc_msg_buffersready_t *p_msg_br = &(p_msg->br);
+      tiz_prc_msg_buffersready_t * p_msg_br = &(p_msg->br);
       assert (p_msg_br);
 
       if (p_hdr == p_msg_br->p_buffer)
@@ -519,12 +534,14 @@ static OMX_BOOL remove_buffer_from_servant_queue (OMX_PTR ap_elem,
  * tiz_prc
  */
 
-static void *prc_ctor (void *ap_obj, va_list *app)
+static void *
+prc_ctor (void * ap_obj, va_list * app)
 {
   return super_ctor (typeOf (ap_obj, "tizprc"), ap_obj, app);
 }
 
-static void *prc_dtor (void *ap_obj)
+static void *
+prc_dtor (void * ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "tizprc"), ap_obj);
 }
@@ -533,31 +550,31 @@ static void *prc_dtor (void *ap_obj)
  * from tiz_api
  */
 
-static OMX_ERRORTYPE prc_EmptyThisBuffer (const void *ap_obj,
-                                          OMX_HANDLETYPE ap_hdl,
-                                          OMX_BUFFERHEADERTYPE *ap_buf)
+static OMX_ERRORTYPE
+prc_EmptyThisBuffer (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                     OMX_BUFFERHEADERTYPE * ap_buf)
 {
   TIZ_TRACE (ap_hdl, "pid [%d]", ap_buf->nInputPortIndex);
   return enqueue_buffersready_msg (ap_obj, ap_hdl, ap_buf,
                                    ap_buf->nInputPortIndex);
 }
 
-static OMX_ERRORTYPE prc_FillThisBuffer (const void *ap_obj,
-                                         OMX_HANDLETYPE ap_hdl,
-                                         OMX_BUFFERHEADERTYPE *ap_buf)
+static OMX_ERRORTYPE
+prc_FillThisBuffer (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                    OMX_BUFFERHEADERTYPE * ap_buf)
 {
   TIZ_TRACE (ap_hdl, "pid [%d]", ap_buf->nOutputPortIndex);
   return enqueue_buffersready_msg (ap_obj, ap_hdl, ap_buf,
                                    ap_buf->nOutputPortIndex);
 }
 
-static OMX_ERRORTYPE prc_SendCommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                                      OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1,
-                                      OMX_PTR ap_cmd_data)
+static OMX_ERRORTYPE
+prc_SendCommand (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                 OMX_COMMANDTYPE a_cmd, OMX_U32 a_param1, OMX_PTR ap_cmd_data)
 {
-  const tiz_prc_t *p_obj = ap_obj;
-  tiz_prc_msg_t *p_msg = NULL;
-  tiz_prc_msg_sendcommand_t *p_msg_sc = NULL;
+  const tiz_prc_t * p_obj = ap_obj;
+  tiz_prc_msg_t * p_msg = NULL;
+  tiz_prc_msg_sendcommand_t * p_msg_sc = NULL;
 
   TIZ_TRACE (ap_hdl, "SendCommand [%s]", tiz_cmd_to_str (a_cmd));
 
@@ -575,12 +592,13 @@ static OMX_ERRORTYPE prc_SendCommand (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   return tiz_srv_enqueue (ap_obj, p_msg, cmd_to_priority (a_cmd));
 }
 
-static OMX_ERRORTYPE prc_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
-                                    OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+static OMX_ERRORTYPE
+prc_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+               OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  tiz_prc_t *p_obj = (tiz_prc_t *)ap_obj;
-  tiz_prc_msg_t *p_msg = NULL;
-  tiz_prc_msg_configchange_t *p_msg_cc = NULL;
+  tiz_prc_t * p_obj = (tiz_prc_t *) ap_obj;
+  tiz_prc_msg_t * p_msg = NULL;
+  tiz_prc_msg_configchange_t * p_msg_cc = NULL;
 
   assert (ap_obj);
   assert (ap_struct);
@@ -595,8 +613,8 @@ static OMX_ERRORTYPE prc_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
   /* Finish-up this message */
   p_msg_cc = &(p_msg->cc);
   /* BUG: There are structures that have no port index. */
-  p_msg_cc->pid = *((OMX_U32 *)ap_struct + sizeof(OMX_U32) / sizeof(OMX_U32)
-                    + sizeof(OMX_VERSIONTYPE) / sizeof(OMX_U32));
+  p_msg_cc->pid = *((OMX_U32 *) ap_struct + sizeof (OMX_U32) / sizeof (OMX_U32)
+                    + sizeof (OMX_VERSIONTYPE) / sizeof (OMX_U32));
   p_msg_cc->index = a_index;
 
   return tiz_srv_enqueue (ap_obj, p_msg, 1);
@@ -606,10 +624,11 @@ static OMX_ERRORTYPE prc_SetConfig (const void *ap_obj, OMX_HANDLETYPE ap_hdl,
  * from tiz_srv api
  */
 
-static void prc_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
-                                   OMX_S32 a_data1, OMX_PTR ap_data2)
+static void
+prc_remove_from_queue (const void * ap_obj, tiz_pq_func_f apf_func,
+                       OMX_S32 a_data1, OMX_PTR ap_data2)
 {
-  tiz_srv_t *p_obj = (tiz_srv_t *)ap_obj;
+  tiz_srv_t * p_obj = (tiz_srv_t *) ap_obj;
   /* Actual implementation is in the parent class */
   /* Replace dummy parameters apf_func and a_data1 */
   tiz_srv_super_remove_from_queue (typeOf (ap_obj, "tizprc"), p_obj,
@@ -617,10 +636,11 @@ static void prc_remove_from_queue (const void *ap_obj, tiz_pq_func_f apf_func,
                                    ETIZPrcMsgBuffersReady, ap_data2);
 }
 
-static OMX_ERRORTYPE prc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
+static OMX_ERRORTYPE
+prc_dispatch_msg (const void * ap_obj, OMX_PTR ap_msg)
 {
-  const tiz_prc_t *p_obj = ap_obj;
-  tiz_prc_msg_t *p_msg = ap_msg;
+  const tiz_prc_t * p_obj = ap_obj;
+  tiz_prc_msg_t * p_msg = ap_msg;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -631,50 +651,55 @@ static OMX_ERRORTYPE prc_dispatch_msg (const void *ap_obj, OMX_PTR ap_msg)
 
   assert (p_msg->class < ETIZPrcMsgMax);
 
-  rc = tiz_prc_msg_to_fnt_tbl[p_msg->class]((OMX_PTR)ap_obj, p_msg);
+  rc = tiz_prc_msg_to_fnt_tbl[p_msg->class]((OMX_PTR) ap_obj, p_msg);
 
   TIZ_TRACE (handleOf (ap_obj), "rc [%s]...", tiz_err_to_str (rc));
 
   return rc;
 }
 
-static OMX_ERRORTYPE prc_allocate_resources (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
   return OMX_ErrorNotImplemented;
 }
 
-static OMX_ERRORTYPE prc_deallocate_resources (void *ap_obj)
+static OMX_ERRORTYPE
+prc_deallocate_resources (void * ap_obj)
 {
   assert (ap_obj);
   return OMX_ErrorNotImplemented;
 }
 
-static OMX_ERRORTYPE prc_prepare_to_transfer (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+prc_prepare_to_transfer (void * ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
   return OMX_ErrorNotImplemented;
 }
 
-static OMX_ERRORTYPE prc_transfer_and_process (void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+prc_transfer_and_process (void * ap_obj, OMX_U32 a_pid)
 {
   assert (ap_obj);
   return OMX_ErrorNotImplemented;
 }
 
-static OMX_ERRORTYPE prc_stop_and_return (void *ap_obj)
+static OMX_ERRORTYPE
+prc_stop_and_return (void * ap_obj)
 {
   assert (ap_obj);
   return OMX_ErrorNotImplemented;
 }
 
-static OMX_ERRORTYPE prc_receive_pluggable_event (
-    void *ap_obj, tiz_event_pluggable_t *ap_event)
+static OMX_ERRORTYPE
+prc_receive_pluggable_event (void * ap_obj, tiz_event_pluggable_t * ap_event)
 {
   assert (ap_obj);
   if (ap_event && ap_event->pf_hdlr)
     {
-      (*(ap_event->pf_hdlr))(ap_event->p_servant, ap_event);
+      (*(ap_event->pf_hdlr)) (ap_event->p_servant, ap_event);
     }
   return OMX_ErrorNone;
 }
@@ -683,103 +708,110 @@ static OMX_ERRORTYPE prc_receive_pluggable_event (
  * from tiz_prc class
  */
 
-static OMX_ERRORTYPE prc_buffers_ready (const void *ap_obj)
+static OMX_ERRORTYPE
+prc_buffers_ready (const void * ap_obj)
 {
   return OMX_ErrorNotImplemented;
 }
 
 OMX_ERRORTYPE
-tiz_prc_buffers_ready (const void *ap_obj)
+tiz_prc_buffers_ready (const void * ap_obj)
 {
-  const tiz_prc_class_t *class = classOf (ap_obj);
+  const tiz_prc_class_t * class = classOf (ap_obj);
   assert (class->buffers_ready);
   return class->buffers_ready (ap_obj);
 }
 
 OMX_ERRORTYPE
-tiz_prc_super_buffers_ready (const void *a_class, const void *ap_obj)
+tiz_prc_super_buffers_ready (const void * a_class, const void * ap_obj)
 {
-  const tiz_prc_class_t *superclass = super (a_class);
+  const tiz_prc_class_t * superclass = super (a_class);
   assert (ap_obj && superclass->buffers_ready);
   return superclass->buffers_ready (ap_obj);
 }
 
-static OMX_ERRORTYPE prc_pause (const void *ap_obj)
+static OMX_ERRORTYPE
+prc_pause (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_prc_pause (const void *ap_obj)
+tiz_prc_pause (const void * ap_obj)
 {
-  const tiz_prc_class_t *class = classOf (ap_obj);
+  const tiz_prc_class_t * class = classOf (ap_obj);
   assert (class->pause);
   return class->pause (ap_obj);
 }
 
-static OMX_ERRORTYPE prc_resume (const void *ap_obj)
+static OMX_ERRORTYPE
+prc_resume (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_prc_resume (const void *ap_obj)
+tiz_prc_resume (const void * ap_obj)
 {
-  const tiz_prc_class_t *class = classOf (ap_obj);
+  const tiz_prc_class_t * class = classOf (ap_obj);
   assert (class->resume);
   return class->resume (ap_obj);
 }
 
-static OMX_ERRORTYPE prc_port_flush (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+prc_port_flush (const void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_prc_port_flush (const void *ap_obj, OMX_U32 a_pid)
+tiz_prc_port_flush (const void * ap_obj, OMX_U32 a_pid)
 {
-  const tiz_prc_class_t *class = classOf (ap_obj);
+  const tiz_prc_class_t * class = classOf (ap_obj);
   assert (class->port_flush);
   return class->port_flush (ap_obj, a_pid);
 }
 
-static OMX_ERRORTYPE prc_port_disable (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+prc_port_disable (const void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_prc_port_disable (const void *ap_obj, OMX_U32 a_pid)
+tiz_prc_port_disable (const void * ap_obj, OMX_U32 a_pid)
 {
-  const tiz_prc_class_t *class = classOf (ap_obj);
+  const tiz_prc_class_t * class = classOf (ap_obj);
   assert (class->port_disable);
   return class->port_disable (ap_obj, a_pid);
 }
 
-static OMX_ERRORTYPE prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+prc_port_enable (const void * ap_obj, OMX_U32 a_pid)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_prc_port_enable (const void *ap_obj, OMX_U32 a_pid)
+tiz_prc_port_enable (const void * ap_obj, OMX_U32 a_pid)
 {
-  const tiz_prc_class_t *class = classOf (ap_obj);
+  const tiz_prc_class_t * class = classOf (ap_obj);
   assert (class->port_enable);
   return class->port_enable (ap_obj, a_pid);
 }
 
-static OMX_ERRORTYPE prc_config_change (const void *ap_obj, OMX_U32 a_pid,
-                                        OMX_INDEXTYPE a_config_idx)
+static OMX_ERRORTYPE
+prc_config_change (const void * ap_obj, OMX_U32 a_pid,
+                   OMX_INDEXTYPE a_config_idx)
 {
   return OMX_ErrorNone;
 }
 
 OMX_ERRORTYPE
-tiz_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
+tiz_prc_config_change (const void * ap_obj, OMX_U32 a_pid,
                        OMX_INDEXTYPE a_config_idx)
 {
-  const tiz_prc_class_t *class = classOf (ap_obj);
+  const tiz_prc_class_t * class = classOf (ap_obj);
   assert (class->config_change);
   return class->config_change (ap_obj, a_pid, a_config_idx);
 }
@@ -788,11 +820,12 @@ tiz_prc_config_change (const void *ap_obj, OMX_U32 a_pid,
  * tizprc_class
  */
 
-static void *prc_class_ctor (void *ap_obj, va_list *app)
+static void *
+prc_class_ctor (void * ap_obj, va_list * app)
 {
-  tiz_prc_class_t *p_obj
-      = super_ctor (typeOf (ap_obj, "tizprc_class"), ap_obj, app);
-  typedef void (*voidf)();
+  tiz_prc_class_t * p_obj
+    = super_ctor (typeOf (ap_obj, "tizprc_class"), ap_obj, app);
+  typedef void (*voidf) ();
   voidf selector = NULL;
   va_list ap;
   va_copy (ap, *app);
@@ -802,33 +835,33 @@ static void *prc_class_ctor (void *ap_obj, va_list *app)
   while ((selector = va_arg (ap, voidf)))
     {
       voidf method = va_arg (ap, voidf);
-      if (selector == (voidf)tiz_prc_buffers_ready)
+      if (selector == (voidf) tiz_prc_buffers_ready)
         {
-          *(voidf *)&p_obj->buffers_ready = method;
+          *(voidf *) &p_obj->buffers_ready = method;
         }
-      else if (selector == (voidf)tiz_prc_pause)
+      else if (selector == (voidf) tiz_prc_pause)
         {
-          *(voidf *)&p_obj->pause = method;
+          *(voidf *) &p_obj->pause = method;
         }
-      else if (selector == (voidf)tiz_prc_resume)
+      else if (selector == (voidf) tiz_prc_resume)
         {
-          *(voidf *)&p_obj->resume = method;
+          *(voidf *) &p_obj->resume = method;
         }
-      else if (selector == (voidf)tiz_prc_port_flush)
+      else if (selector == (voidf) tiz_prc_port_flush)
         {
-          *(voidf *)&p_obj->port_flush = method;
+          *(voidf *) &p_obj->port_flush = method;
         }
-      else if (selector == (voidf)tiz_prc_port_disable)
+      else if (selector == (voidf) tiz_prc_port_disable)
         {
-          *(voidf *)&p_obj->port_disable = method;
+          *(voidf *) &p_obj->port_disable = method;
         }
-      else if (selector == (voidf)tiz_prc_port_enable)
+      else if (selector == (voidf) tiz_prc_port_enable)
         {
-          *(voidf *)&p_obj->port_enable = method;
+          *(voidf *) &p_obj->port_enable = method;
         }
-      else if (selector == (voidf)tiz_prc_config_change)
+      else if (selector == (voidf) tiz_prc_config_change)
         {
-          *(voidf *)&p_obj->config_change = method;
+          *(voidf *) &p_obj->config_change = method;
         }
     }
   /*@end@*/
@@ -842,76 +875,78 @@ static void *prc_class_ctor (void *ap_obj, va_list *app)
  * initialization
  */
 
-void *tiz_prc_class_init (void *ap_tos, void *ap_hdl)
+void *
+tiz_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizsrv = tiz_get_type (ap_hdl, "tizsrv");
-  void *tizprc_class = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizsrv), "tizprc_class", classOf (tizsrv),
-       sizeof(tiz_prc_class_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, prc_class_ctor,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+  void * tizsrv = tiz_get_type (ap_hdl, "tizsrv");
+  void * tizprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizsrv), "tizprc_class", classOf (tizsrv),
+     sizeof (tiz_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return tizprc_class;
 }
 
-void *tiz_prc_init (void *ap_tos, void *ap_hdl)
+void *
+tiz_prc_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizsrv = tiz_get_type (ap_hdl, "tizsrv");
-  void *tizprc_class = tiz_get_type (ap_hdl, "tizprc_class");
+  void * tizsrv = tiz_get_type (ap_hdl, "tizsrv");
+  void * tizprc_class = tiz_get_type (ap_hdl, "tizprc_class");
   TIZ_LOG_CLASS (tizprc_class);
-  void *tizprc = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (tizprc_class, "tizprc", tizsrv, sizeof(tiz_prc_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, prc_ctor,
-       /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, prc_dtor,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_api_EmptyThisBuffer, prc_EmptyThisBuffer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_api_FillThisBuffer, prc_FillThisBuffer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_api_SendCommand, prc_SendCommand,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_api_SetConfig, prc_SetConfig,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_remove_from_queue, prc_remove_from_queue,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_dispatch_msg, prc_dispatch_msg,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_allocate_resources, prc_allocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_deallocate_resources, prc_deallocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_prepare_to_transfer, prc_prepare_to_transfer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_transfer_and_process, prc_transfer_and_process,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stop_and_return, prc_stop_and_return,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_receive_pluggable_event, prc_receive_pluggable_event,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, prc_buffers_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_pause, prc_pause,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_resume, prc_resume,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_flush, prc_port_flush,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_disable, prc_port_disable,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_enable, prc_port_enable,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_config_change, prc_config_change,
-       /* TIZ_CLASS_COMMENT: stop value */
-       0);
+  void * tizprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (tizprc_class, "tizprc", tizsrv, sizeof (tiz_prc_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, prc_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_EmptyThisBuffer, prc_EmptyThisBuffer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_FillThisBuffer, prc_FillThisBuffer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_SendCommand, prc_SendCommand,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_SetConfig, prc_SetConfig,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_remove_from_queue, prc_remove_from_queue,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_dispatch_msg, prc_dispatch_msg,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, prc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_receive_pluggable_event, prc_receive_pluggable_event,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_pause, prc_pause,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_resume, prc_resume,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_flush, prc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_disable, prc_port_disable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, prc_port_enable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_config_change, prc_config_change,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return tizprc;
 }

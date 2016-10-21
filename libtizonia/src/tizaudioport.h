@@ -30,15 +30,16 @@
 #define TIZAUDIOPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * tiz_audioport_class_init (void * ap_tos, void * ap_hdl);
-  void * tiz_audioport_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_audioport_class_init (void * ap_tos, void * ap_hdl);
+void *
+tiz_audioport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZAUDIOPORT_H */
+#endif /* TIZAUDIOPORT_H */

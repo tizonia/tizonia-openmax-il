@@ -30,31 +30,30 @@
 #define TIZOTHERPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "tizport_decls.h"
 
-  typedef struct tiz_otherport tiz_otherport_t;
-  struct tiz_otherport
-  {
-    /* Object */
-    const tiz_port_t _;
-    OMX_OTHER_PARAM_PORTFORMATTYPE port_format_;
-    tiz_vector_t *p_formats_;
-  };
+typedef struct tiz_otherport tiz_otherport_t;
+struct tiz_otherport
+{
+  /* Object */
+  const tiz_port_t _;
+  OMX_OTHER_PARAM_PORTFORMATTYPE port_format_;
+  tiz_vector_t * p_formats_;
+};
 
-  typedef struct tiz_otherport_class tiz_otherport_class_t;
-  struct tiz_otherport_class
-  {
-    /* Class */
-    const tiz_port_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct tiz_otherport_class tiz_otherport_class_t;
+struct tiz_otherport_class
+{
+  /* Class */
+  const tiz_port_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* TIZOTHERPORT_DECLS_H */
+#endif /* TIZOTHERPORT_DECLS_H */
