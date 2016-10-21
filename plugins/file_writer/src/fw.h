@@ -29,27 +29,27 @@
 #define FR_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#define ARATELIA_FILE_WRITER_AUDIO_WRITER_ROLE  "audio_writer.binary"
-#define ARATELIA_FILE_WRITER_VIDEO_WRITER_ROLE  "video_writer.binary"
-#define ARATELIA_FILE_WRITER_IMAGE_WRITER_ROLE  "image_writer.binary"
-#define ARATELIA_FILE_WRITER_OTHER_WRITER_ROLE  "other_writer.binary"
-#define ARATELIA_FILE_WRITER_COMPONENT_NAME     "OMX.Aratelia.file_writer.binary"
-#define ARATELIA_FILE_WRITER_PORT_INDEX         0 /* With libtizonia, port indexes must start at index 0 */
+#define ARATELIA_FILE_WRITER_AUDIO_WRITER_ROLE "audio_writer.binary"
+#define ARATELIA_FILE_WRITER_VIDEO_WRITER_ROLE "video_writer.binary"
+#define ARATELIA_FILE_WRITER_IMAGE_WRITER_ROLE "image_writer.binary"
+#define ARATELIA_FILE_WRITER_OTHER_WRITER_ROLE "other_writer.binary"
+#define ARATELIA_FILE_WRITER_COMPONENT_NAME "OMX.Aratelia.file_writer.binary"
+#define ARATELIA_FILE_WRITER_PORT_INDEX \
+  0 /* With libtizonia, port indexes must start at index 0 */
 #define ARATELIA_FILE_WRITER_PORT_MIN_BUF_COUNT 2
-#define ARATELIA_FILE_WRITER_PORT_MIN_BUF_SIZE  1024 * 4
+#define ARATELIA_FILE_WRITER_PORT_MIN_BUF_SIZE 1024 * 4
 #define ARATELIA_FILE_WRITER_PORT_NONCONTIGUOUS OMX_FALSE
-#define ARATELIA_FILE_WRITER_PORT_ALIGNMENT     0
-#define ARATELIA_FILE_WRITER_PORT_SUPPLIERPREF  OMX_BufferSupplyInput
+#define ARATELIA_FILE_WRITER_PORT_ALIGNMENT 0
+#define ARATELIA_FILE_WRITER_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* FR_H */
+#endif /* FR_H */

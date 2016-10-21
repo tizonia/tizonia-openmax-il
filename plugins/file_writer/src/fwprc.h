@@ -30,15 +30,16 @@
 #define FWPRC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * fw_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * fw_prc_init (void * ap_tos, void * ap_hdl);
+void *
+fw_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+fw_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* FWPRC_H */
+#endif /* FWPRC_H */

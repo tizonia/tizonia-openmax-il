@@ -30,8 +30,7 @@
 #define FWPRC_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdbool.h>
@@ -39,27 +38,27 @@ extern "C"
 #include "fwprc.h"
 #include "tizprc_decls.h"
 
-  typedef struct fw_prc fw_prc_t;
-  struct fw_prc
-  {
-    /* Object */
-    const tiz_prc_t _;
-    FILE *p_file_;
-    OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-    OMX_U32 counter_;
-    bool eos_;
-  };
+typedef struct fw_prc fw_prc_t;
+struct fw_prc
+{
+  /* Object */
+  const tiz_prc_t _;
+  FILE * p_file_;
+  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
+  OMX_U32 counter_;
+  bool eos_;
+};
 
-  typedef struct fw_prc_class fw_prc_class_t;
-  struct fw_prc_class
-  {
-    /* Class */
-    const tiz_prc_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct fw_prc_class fw_prc_class_t;
+struct fw_prc_class
+{
+  /* Class */
+  const tiz_prc_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* FWPRC_DECLS_H */
+#endif /* FWPRC_DECLS_H */
