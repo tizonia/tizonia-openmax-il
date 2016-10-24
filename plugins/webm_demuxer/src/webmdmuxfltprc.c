@@ -89,10 +89,18 @@ ne_io_read (void * ap_buffer, size_t a_length, void * a_userdata)
   webmdmuxflt_prc_t * p_prc = a_userdata;
   int retval = -1;
 
-  assert (a_userdata);
+  assert (p_prc);
+  p_prc->ne_last_read_len_ = a_length;
 
-  if (tiz_filter_prc_is_eos (p_prc)
-      && tiz_buffer_available (p_prc->p_store_) == 0)
+  TIZ_TRACE (
+    handleOf (p_prc),
+    "ne_inited_ [%s] eos [%s] a_length [%u] store avail [%d] offset [%d]",
+    (p_prc->ne_inited_ ? "YES" : "NO"),
+    (tiz_filter_prc_is_eos (p_prc) ? "YES" : "NO"), a_length,
+    tiz_buffer_available (p_prc->p_store_),
+    tiz_buffer_offset (p_prc->p_store_));
+
+  if (tiz_filter_prc_is_eos (p_prc))
     {
       return 0;
     }
@@ -101,13 +109,6 @@ ne_io_read (void * ap_buffer, size_t a_length, void * a_userdata)
 
   if (ap_buffer && a_length > 0)
     {
-      TIZ_TRACE (
-        handleOf (p_prc),
-        "ne_inited_ [%s] a_length [%u] store avail [%d] offset [%d]",
-        (p_prc->ne_inited_ ? "YES" : "NO"), a_length,
-        tiz_buffer_available (p_prc->p_store_),
-        tiz_buffer_offset (p_prc->p_store_));
-
       if (tiz_buffer_available (p_prc->p_store_) >= a_length)
         {
           memcpy (ap_buffer, tiz_buffer_get (p_prc->p_store_), a_length);
@@ -176,8 +177,9 @@ ne_io_seek (int64_t offset, int whence, void * userdata)
 static int64_t
 ne_io_tell (void * userdata)
 {
-  TIZ_DEBUG (handleOf (userdata), "");
-  return 0;
+  webmdmuxflt_prc_t * p_prc = userdata;
+  assert (p_prc);
+  return tiz_buffer_offset (p_prc->p_store_);
 }
 
 /** nestegg logging callback function. */
@@ -312,8 +314,9 @@ store_data (webmdmuxflt_prc_t * ap_prc)
 
   if (p_in)
     {
-      TIZ_TRACE (handleOf (ap_prc), "store available [%d]",
-                 tiz_buffer_available (ap_prc->p_store_));
+      TIZ_TRACE (handleOf (ap_prc), "avail [%d] incoming [%d]",
+                 tiz_buffer_available (ap_prc->p_store_),
+                 p_in->nFilledLen - p_in->nOffset);
       if (tiz_buffer_push (ap_prc->p_store_, p_in->pBuffer + p_in->nOffset,
                            p_in->nFilledLen)
           < p_in->nFilledLen)
@@ -397,15 +400,25 @@ static OMX_ERRORTYPE
 am_i_able_to_demux (webmdmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  int compressed_data_avail = tiz_buffer_available (ap_prc->p_store_);
+  bool compressed_data_avail
+    = (tiz_buffer_available (ap_prc->p_store_) > 0);
+  bool enough_compressed_data_avail
+    = compressed_data_avail
+      && !(ap_prc->ne_read_err_ < 0
+           && tiz_buffer_available (ap_prc->p_store_)
+                < ap_prc->ne_last_read_len_);
+
+  TIZ_TRACE (handleOf (ap_prc),
+             "store bytes [%d] last read len ? [%d] ne read err [%d] out buffers [%s]",
+             tiz_buffer_available (ap_prc->p_store_),
+             ap_prc->ne_last_read_len_,
+             ap_prc->ne_read_err_,
+             (tiz_filter_prc_output_headers_available (ap_prc) ? "TRUE" : "FALSE"));
 
   if (!compressed_data_avail
+      || !enough_compressed_data_avail
       || (!tiz_filter_prc_output_headers_available (ap_prc)))
     {
-      TIZ_TRACE (handleOf (ap_prc),
-                 "store bytes [%d] output headers available ? [%s]",
-                 compressed_data_avail,
-                 (tiz_filter_prc_headers_available (ap_prc) ? "YES" : "NO"));
       rc = OMX_ErrorNotReady;
     }
   return rc;
@@ -423,10 +436,12 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
   assert (ap_prc);
   assert (ap_prc->p_ne_ctx_);
 
-  while (OMX_ErrorNone == (rc = am_i_able_to_demux (ap_prc)))
+  while (OMX_ErrorNone == (rc = am_i_able_to_demux (ap_prc))
+         && !tiz_filter_prc_is_eos (ap_prc))
     {
-      if (0 != ap_prc->ne_read_err_)
+      if (ap_prc->ne_read_err_ < 0)
         {
+          TIZ_DEBUG (handleOf (ap_prc), "read reset : %d", ap_prc->ne_read_err_);
           ap_prc->ne_read_err_ = 0;
           nestegg_read_reset (ap_prc->p_ne_ctx_);
         }
@@ -454,6 +469,13 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
             {
               rc = extract_track_data (
                 ap_prc, track, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
+            }
+          else
+            {
+              /* read the next packet */
+              nestegg_free_packet (ap_prc->p_ne_pkt_);
+              ap_prc->p_ne_pkt_ = NULL;
+              ap_prc->ne_chunk_ = 0;
             }
         }
       else
@@ -519,6 +541,7 @@ reset_nestegg_members (webmdmuxflt_prc_t * ap_prc)
   ap_prc->p_ne_pkt_ = NULL;
   ap_prc->ne_chunk_ = 0;
   ap_prc->ne_read_err_ = 0;
+  ap_prc->ne_last_read_len_ = 0;
 }
 
 static void

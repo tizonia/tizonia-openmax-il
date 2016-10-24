@@ -63,6 +63,7 @@ struct webmdmuxflt_prc
   nestegg_packet * p_ne_pkt_;
   unsigned int ne_chunk_;
   int ne_read_err_;
+  int ne_last_read_len_;
 };
 
 typedef struct webmdmuxflt_prc_class webmdmuxflt_prc_class_t;
