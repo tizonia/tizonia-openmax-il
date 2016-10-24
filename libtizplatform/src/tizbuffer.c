@@ -246,43 +246,38 @@ tiz_buffer_seek (tiz_buffer_t * ap_buf, const long offset, const int whence)
 {
   int rc = -1;
   assert (ap_buf);
+  assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
 
-  if (offset == 0)
+  int total = ap_buf->offset + ap_buf->filled_len;
+  if (whence == TIZ_BUFFER_SEEK_SET)
     {
+      ap_buf->offset = MIN (offset, total);
       rc = 0;
     }
-  else
+  else if (whence == TIZ_BUFFER_SEEK_CUR)
     {
-      int total = ap_buf->offset + ap_buf->filled_len;
-      if (whence == TIZ_BUFFER_SEEK_SET && offset > 0)
+      unsigned int r = abs_of (offset);
+      if (offset < 0)
         {
-          ap_buf->offset = MIN (offset, total);
-          rc = 0;
+          ap_buf->offset -= MIN (r, ap_buf->offset);
         }
-      else if (whence == TIZ_BUFFER_SEEK_CUR)
+      else
         {
-          unsigned int r = abs_of (offset);
-          if (offset < 0)
-            {
-              ap_buf->offset -= MIN (r, ap_buf->offset);
-            }
-          else
-            {
-              ap_buf->offset += MIN (r, ap_buf->filled_len);
-            }
-          rc = 0;
+          ap_buf->offset += MIN (r, ap_buf->filled_len);
         }
-      else if (whence == TIZ_BUFFER_SEEK_END && offset < 0)
-        {
-          unsigned int r = abs_of (offset);
-          ap_buf->offset = total - MIN (r, total);
-          rc = 0;
-        }
-      if (0 == rc)
-        {
-          ap_buf->filled_len = total - ap_buf->offset;
-        }
+      rc = 0;
     }
+  else if (whence == TIZ_BUFFER_SEEK_END && offset < 0)
+    {
+      unsigned int r = abs_of (offset);
+      ap_buf->offset = total - MIN (r, total);
+      rc = 0;
+    }
+  if (0 == rc)
+    {
+      ap_buf->filled_len = total - ap_buf->offset;
+    }
+  assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
   return rc;
 }
 
