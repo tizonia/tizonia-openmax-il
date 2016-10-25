@@ -186,20 +186,19 @@ tiz_buffer_push (tiz_buffer_t * ap_buf, const void * ap_data,
         {
           /* need to re-alloc */
           OMX_U8 * p_new_store = NULL;
-          size_t need = ap_buf->alloc_len + (a_nbytes - avail);
+          size_t need = ap_buf->alloc_len * 2;
           p_new_store = tiz_mem_realloc (ap_buf->p_store, need);
           if (p_new_store)
             {
               ap_buf->p_store = p_new_store;
               ap_buf->alloc_len = need;
-              avail = a_nbytes;
+              avail = ap_buf->alloc_len - (ap_buf->offset + ap_buf->filled_len);
             }
         }
       nbytes_to_copy = MIN (avail, a_nbytes);
-      memcpy (ap_buf->p_store + ap_buf->filled_len, ap_data, nbytes_to_copy);
+      memcpy (ap_buf->p_store + ap_buf->offset + ap_buf->filled_len, ap_data, nbytes_to_copy);
       ap_buf->filled_len += nbytes_to_copy;
     }
-
   return nbytes_to_copy;
 }
 
@@ -277,7 +276,9 @@ tiz_buffer_seek (tiz_buffer_t * ap_buf, const long offset, const int whence)
     {
       ap_buf->filled_len = total - ap_buf->offset;
     }
+  assert (total == ap_buf->offset + ap_buf->filled_len);
   assert (ap_buf->alloc_len >= (ap_buf->offset + ap_buf->filled_len));
+
   return rc;
 }
 
