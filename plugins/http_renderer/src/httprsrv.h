@@ -38,42 +38,50 @@ extern "C" {
 
 typedef struct httpr_server httpr_server_t;
 
-typedef void (*httpr_srv_release_buffer_f)(OMX_BUFFERHEADERTYPE *ap_hdr,
-                                       OMX_PTR ap_arg);
-typedef OMX_BUFFERHEADERTYPE *(*httpr_srv_acquire_buffer_f)(OMX_PTR ap_arg);
+typedef void (*httpr_srv_release_buffer_f) (OMX_BUFFERHEADERTYPE * ap_hdr,
+                                            OMX_PTR ap_arg);
+typedef OMX_BUFFERHEADERTYPE * (*httpr_srv_acquire_buffer_f) (OMX_PTR ap_arg);
 
-OMX_ERRORTYPE httpr_srv_init (httpr_server_t **app_server,
-                              void * ap_parent, OMX_STRING a_address,
-                              OMX_U32 a_port, OMX_U32 a_max_clients,
-                              httpr_srv_release_buffer_f a_pf_release_buf,
-                              httpr_srv_acquire_buffer_f a_pf_acquire_buf,
-                              OMX_PTR ap_arg);
+OMX_ERRORTYPE
+httpr_srv_init (httpr_server_t ** app_server, void * ap_parent,
+                OMX_STRING a_address, OMX_U32 a_port, OMX_U32 a_max_clients,
+                httpr_srv_release_buffer_f a_pf_release_buf,
+                httpr_srv_acquire_buffer_f a_pf_acquire_buf, OMX_PTR ap_arg);
 
-void httpr_srv_destroy (httpr_server_t *ap_server);
+void
+httpr_srv_destroy (httpr_server_t * ap_server);
 
-OMX_ERRORTYPE httpr_srv_start (httpr_server_t *ap_server);
+OMX_ERRORTYPE
+httpr_srv_start (httpr_server_t * ap_server);
 
-OMX_ERRORTYPE httpr_srv_stop (httpr_server_t *ap_server);
+OMX_ERRORTYPE
+httpr_srv_stop (httpr_server_t * ap_server);
 
-void httpr_srv_release_buffers (httpr_server_t *ap_server);
+void
+httpr_srv_release_buffers (httpr_server_t * ap_server);
 
-void httpr_srv_set_mp3_settings (httpr_server_t *ap_server,
-                                 const OMX_U32 a_bitrate,
-                                 const OMX_U32 a_num_channels,
-                                 const OMX_U32 a_sample_rate);
+void
+httpr_srv_set_mp3_settings (httpr_server_t * ap_server, const OMX_U32 a_bitrate,
+                            const OMX_U32 a_num_channels,
+                            const OMX_U32 a_sample_rate);
 
-void httpr_srv_set_mountpoint_settings (
-    httpr_server_t *ap_server, OMX_U8 *ap_mount_name, OMX_U8 *ap_station_name,
-    OMX_U8 *ap_station_description, OMX_U8 *ap_station_genre,
-    OMX_U8 *ap_station_url, const OMX_U32 metadata_period,
-    const OMX_U32 burst_size, const OMX_U32 max_clients);
+void
+httpr_srv_set_mountpoint_settings (
+  httpr_server_t * ap_server, OMX_U8 * ap_mount_name, OMX_U8 * ap_station_name,
+  OMX_U8 * ap_station_description, OMX_U8 * ap_station_genre,
+  OMX_U8 * ap_station_url, const OMX_U32 metadata_period,
+  const OMX_U32 burst_size, const OMX_U32 max_clients);
 
-void httpr_srv_set_stream_title (httpr_server_t *ap_server,
-                                 OMX_U8 *ap_stream_title);
+void
+httpr_srv_set_stream_title (httpr_server_t * ap_server,
+                            OMX_U8 * ap_stream_title);
 
-OMX_ERRORTYPE httpr_srv_buffer_event (httpr_server_t *ap_server);
-OMX_ERRORTYPE httpr_srv_io_event (httpr_server_t *ap_server, const int a_fd);
-OMX_ERRORTYPE httpr_srv_timer_event (httpr_server_t *ap_server);
+OMX_ERRORTYPE
+httpr_srv_buffer_event (httpr_server_t * ap_server);
+OMX_ERRORTYPE
+httpr_srv_io_event (httpr_server_t * ap_server, const int a_fd);
+OMX_ERRORTYPE
+httpr_srv_timer_event (httpr_server_t * ap_server);
 
 #ifdef __cplusplus
 }

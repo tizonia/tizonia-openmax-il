@@ -30,15 +30,16 @@
 #define HTTPRCFGPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * httpr_cfgport_class_init (void * ap_tos, void * ap_hdl);
-  void * httpr_cfgport_init (void * ap_tos, void * ap_hdl);
+void *
+httpr_cfgport_class_init (void * ap_tos, void * ap_hdl);
+void *
+httpr_cfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* HTTPRCFGPORT_H */
+#endif /* HTTPRCFGPORT_H */

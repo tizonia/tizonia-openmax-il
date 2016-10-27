@@ -30,15 +30,16 @@
 #define HTTPRMP3PORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * httpr_mp3port_class_init (void * ap_tos, void * ap_hdl);
-  void * httpr_mp3port_init (void * ap_tos, void * ap_hdl);
+void *
+httpr_mp3port_class_init (void * ap_tos, void * ap_hdl);
+void *
+httpr_mp3port_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* HTTPRMP3PORT_H */
+#endif /* HTTPRMP3PORT_H */
