@@ -49,27 +49,28 @@
  * httpsrcport class
  */
 
-static void *httpsrc_port_ctor (void *ap_obj, va_list *app)
+static void *
+httpsrc_port_ctor (void * ap_obj, va_list * app)
 {
-  httpsrc_port_t *p_obj
-      = super_ctor (typeOf (ap_obj, "httpsrcport"), ap_obj, app);
+  httpsrc_port_t * p_obj
+    = super_ctor (typeOf (ap_obj, "httpsrcport"), ap_obj, app);
   assert (p_obj);
 
   tiz_port_register_index (p_obj, OMX_IndexParamAudioMp3);
   tiz_port_register_index (p_obj, OMX_IndexParamAudioAac);
   tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioOpus);
 
-  p_obj->mp3type_.nSize             = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
+  p_obj->mp3type_.nSize = sizeof (OMX_AUDIO_PARAM_MP3TYPE);
   p_obj->mp3type_.nVersion.nVersion = OMX_VERSION;
-  p_obj->mp3type_.nPortIndex        = ARATELIA_HTTP_SOURCE_PORT_INDEX;
-  p_obj->mp3type_.nChannels         = 2;
-  p_obj->mp3type_.nBitRate          = 0;
-  p_obj->mp3type_.nSampleRate       = 44100;
-  p_obj->mp3type_.nAudioBandWidth   = 0;
-  p_obj->mp3type_.eChannelMode      = OMX_AUDIO_ChannelModeStereo;
-  p_obj->mp3type_.eFormat           = OMX_AUDIO_MP3StreamFormatMP1Layer3;
+  p_obj->mp3type_.nPortIndex = ARATELIA_HTTP_SOURCE_PORT_INDEX;
+  p_obj->mp3type_.nChannels = 2;
+  p_obj->mp3type_.nBitRate = 0;
+  p_obj->mp3type_.nSampleRate = 44100;
+  p_obj->mp3type_.nAudioBandWidth = 0;
+  p_obj->mp3type_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
+  p_obj->mp3type_.eFormat = OMX_AUDIO_MP3StreamFormatMP1Layer3;
 
-  p_obj->aactype_.nSize = sizeof(OMX_AUDIO_PARAM_AACPROFILETYPE);
+  p_obj->aactype_.nSize = sizeof (OMX_AUDIO_PARAM_AACPROFILETYPE);
   p_obj->aactype_.nVersion.nVersion = OMX_VERSION;
   p_obj->aactype_.nPortIndex = ARATELIA_HTTP_SOURCE_PORT_INDEX;
   p_obj->aactype_.nChannels = 2;
@@ -83,26 +84,27 @@ static void *httpsrc_port_ctor (void *ap_obj, va_list *app)
   p_obj->aactype_.eAACStreamFormat = OMX_AUDIO_AACStreamFormatMP2ADTS;
   p_obj->aactype_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
 
-  p_obj->opustype_.nSize                   = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
-  p_obj->opustype_.nVersion.nVersion       = OMX_VERSION;
-  p_obj->opustype_.nPortIndex              = ARATELIA_HTTP_SOURCE_PORT_INDEX;
-  p_obj->opustype_.nChannels               = 2;
-  p_obj->opustype_.nBitRate                = 256;
-  p_obj->opustype_.nSampleRate             = 48000;
-  p_obj->opustype_.nFrameDuration          = 2;
-  p_obj->opustype_.nEncoderComplexity      = 0;
-  p_obj->opustype_.bPacketLossResilience   = OMX_FALSE;
+  p_obj->opustype_.nSize = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
+  p_obj->opustype_.nVersion.nVersion = OMX_VERSION;
+  p_obj->opustype_.nPortIndex = ARATELIA_HTTP_SOURCE_PORT_INDEX;
+  p_obj->opustype_.nChannels = 2;
+  p_obj->opustype_.nBitRate = 256;
+  p_obj->opustype_.nSampleRate = 48000;
+  p_obj->opustype_.nFrameDuration = 2;
+  p_obj->opustype_.nEncoderComplexity = 0;
+  p_obj->opustype_.bPacketLossResilience = OMX_FALSE;
   p_obj->opustype_.bForwardErrorCorrection = OMX_FALSE;
-  p_obj->opustype_.bDtx                    = OMX_FALSE;
-  p_obj->opustype_.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
-  p_obj->opustype_.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
+  p_obj->opustype_.bDtx = OMX_FALSE;
+  p_obj->opustype_.eChannelMode = OMX_AUDIO_ChannelModeStereo;
+  p_obj->opustype_.eFormat = OMX_AUDIO_OPUSStreamFormatVBR;
 
   return p_obj;
 }
 
-static void *httpsrc_port_dtor (void *ap_obj)
+static void *
+httpsrc_port_dtor (void * ap_obj)
 {
-  httpsrc_port_t *p_obj = ap_obj;
+  httpsrc_port_t * p_obj = ap_obj;
   assert (p_obj);
   return super_dtor (typeOf (ap_obj, "httpsrcport"), ap_obj);
 }
@@ -111,65 +113,62 @@ static void *httpsrc_port_dtor (void *ap_obj)
  * from tiz_api
  */
 
-static OMX_ERRORTYPE httpsrc_port_GetParameter (const void *ap_obj,
-                                                 OMX_HANDLETYPE ap_hdl,
-                                                 OMX_INDEXTYPE a_index,
-                                                 OMX_PTR ap_struct)
+static OMX_ERRORTYPE
+httpsrc_port_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const httpsrc_port_t *p_obj = ap_obj;
+  const httpsrc_port_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
 
-  TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...",
-            tiz_port_index (ap_obj), tiz_idx_to_str (a_index));
-
+  TIZ_TRACE (ap_hdl, "PORT [%d] GetParameter [%s]...", tiz_port_index (ap_obj),
+             tiz_idx_to_str (a_index));
 
   switch (a_index)
     {
-    case OMX_IndexParamAudioMp3:
-      {
-        OMX_AUDIO_PARAM_MP3TYPE *p_mp3mode
-          = (OMX_AUDIO_PARAM_MP3TYPE *) ap_struct;
-        *p_mp3mode = p_obj->mp3type_;
-      }
-      break;
+      case OMX_IndexParamAudioMp3:
+        {
+          OMX_AUDIO_PARAM_MP3TYPE * p_mp3mode
+            = (OMX_AUDIO_PARAM_MP3TYPE *) ap_struct;
+          *p_mp3mode = p_obj->mp3type_;
+        }
+        break;
 
-    case OMX_IndexParamAudioAac:
-      {
-        OMX_AUDIO_PARAM_AACPROFILETYPE *p_aacmode
-          = (OMX_AUDIO_PARAM_AACPROFILETYPE *) ap_struct;
-        *p_aacmode = p_obj->aactype_;
-      }
-      break;
+      case OMX_IndexParamAudioAac:
+        {
+          OMX_AUDIO_PARAM_AACPROFILETYPE * p_aacmode
+            = (OMX_AUDIO_PARAM_AACPROFILETYPE *) ap_struct;
+          *p_aacmode = p_obj->aactype_;
+        }
+        break;
 
-    default:
-      {
-        if (OMX_TizoniaIndexParamAudioOpus == a_index)
-          {
-            OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opusmode
-              = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;
-            *p_opusmode = p_obj->opustype_;
-          }
-        else
-          {
-            /* Try the parent's indexes */
-            rc = super_GetParameter (typeOf (ap_obj, "httpsrcport"),
-                                     ap_obj, ap_hdl, a_index, ap_struct);
-          }
-      }
-      break;
+      default:
+        {
+          if (OMX_TizoniaIndexParamAudioOpus == a_index)
+            {
+              OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE * p_opusmode
+                = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;
+              *p_opusmode = p_obj->opustype_;
+            }
+          else
+            {
+              /* Try the parent's indexes */
+              rc = super_GetParameter (typeOf (ap_obj, "httpsrcport"), ap_obj,
+                                       ap_hdl, a_index, ap_struct);
+            }
+        }
+        break;
     };
 
   return rc;
 }
 
-static OMX_ERRORTYPE httpsrc_port_SetParameter (const void *ap_obj,
-                                                OMX_HANDLETYPE ap_hdl,
-                                                OMX_INDEXTYPE a_index,
-                                                OMX_PTR ap_struct)
+static OMX_ERRORTYPE
+httpsrc_port_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  httpsrc_port_t *p_obj = (httpsrc_port_t *)ap_obj;
+  httpsrc_port_t * p_obj = (httpsrc_port_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -178,106 +177,59 @@ static OMX_ERRORTYPE httpsrc_port_SetParameter (const void *ap_obj,
 
   switch (a_index)
     {
-    case OMX_IndexParamAudioMp3:
-      {
-        const OMX_AUDIO_PARAM_MP3TYPE *p_mp3type
-          = (OMX_AUDIO_PARAM_MP3TYPE *) ap_struct;
+      case OMX_IndexParamAudioMp3:
+        {
+          const OMX_AUDIO_PARAM_MP3TYPE * p_mp3type
+            = (OMX_AUDIO_PARAM_MP3TYPE *) ap_struct;
 
-        switch (p_mp3type->nSampleRate)
-          {
-          case 16000:           /* MPEG-2 */
-          case 24000:           /* MPEG-2 */
-          case 22050:           /* MPEG-2 */
-          case 32000:           /* MPEG-1 */
-          case 44100:           /* MPEG-1 */
-          case 48000:           /* MPEG-1 */
+          switch (p_mp3type->nSampleRate)
             {
-              break;
-            }
-          default:
+              case 16000: /* MPEG-2 */
+              case 24000: /* MPEG-2 */
+              case 22050: /* MPEG-2 */
+              case 32000: /* MPEG-1 */
+              case 44100: /* MPEG-1 */
+              case 48000: /* MPEG-1 */
+                {
+                  break;
+                }
+              default:
+                {
+                  TIZ_TRACE (ap_hdl,
+                             "[%s] : OMX_ErrorBadParameter : "
+                             "Sample rate not supported [%d]. "
+                             "Returning...",
+                             tiz_idx_to_str (a_index), p_mp3type->nSampleRate);
+                  rc = OMX_ErrorBadParameter;
+                }
+            };
+
+          if (OMX_ErrorNone == rc)
             {
-              TIZ_TRACE (ap_hdl,
-                         "[%s] : OMX_ErrorBadParameter : "
-                         "Sample rate not supported [%d]. "
-                         "Returning...", tiz_idx_to_str (a_index),
-                         p_mp3type->nSampleRate);
-              rc = OMX_ErrorBadParameter;
+              /* Apply the new default values */
+              p_obj->mp3type_.nChannels = p_mp3type->nChannels;
+              p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
+              p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
+              p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
+              p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
+              p_obj->mp3type_.eFormat = p_mp3type->eFormat;
             }
-          };
+        }
+        break;
 
-        if (OMX_ErrorNone == rc)
-          {
-            /* Apply the new default values */
-            p_obj->mp3type_.nChannels = p_mp3type->nChannels;
-            p_obj->mp3type_.nBitRate = p_mp3type->nBitRate;
-            p_obj->mp3type_.nSampleRate = p_mp3type->nSampleRate;
-            p_obj->mp3type_.nAudioBandWidth = p_mp3type->nAudioBandWidth;
-            p_obj->mp3type_.eChannelMode = p_mp3type->eChannelMode;
-            p_obj->mp3type_.eFormat = p_mp3type->eFormat;
-          }
-      }
-      break;
+      case OMX_IndexParamAudioAac:
+        {
+          const OMX_AUDIO_PARAM_AACPROFILETYPE * p_aactype
+            = (OMX_AUDIO_PARAM_AACPROFILETYPE *) ap_struct;
 
-    case OMX_IndexParamAudioAac:
-      {
-        const OMX_AUDIO_PARAM_AACPROFILETYPE *p_aactype
-          = (OMX_AUDIO_PARAM_AACPROFILETYPE *) ap_struct;
-
-        switch (p_aactype->nSampleRate)
-          {
-          case 8000:
-          case 11025:
-          case 12000:
-          case 16000:
-          case 22050:
-          case 24000:
-          case 32000:
-          case 44100:
-          case 48000:
+          switch (p_aactype->nSampleRate)
             {
-              break;
-            }
-          default:
-            {
-              TIZ_TRACE (ap_hdl, "[%s] : OMX_ErrorBadParameter : "
-                         "Sample rate not supported [%d]. "
-                         "Returning...", tiz_idx_to_str (a_index),
-                         p_aactype->nSampleRate);
-              rc = OMX_ErrorBadParameter;
-            }
-          };
-
-        if (OMX_ErrorNone == rc)
-          {
-            /* Apply the new default values */
-            p_obj->aactype_.nChannels        = p_aactype->nChannels;
-            p_obj->aactype_.nSampleRate      = p_aactype->nSampleRate;
-            p_obj->aactype_.nBitRate         = p_aactype->nBitRate;
-            p_obj->aactype_.nAudioBandWidth  = p_aactype->nAudioBandWidth;
-            p_obj->aactype_.nFrameLength     = p_aactype->nFrameLength;
-            p_obj->aactype_.nAACtools        = p_aactype->nAACtools;
-            p_obj->aactype_.nAACERtools      = p_aactype->nAACERtools;
-            p_obj->aactype_.eAACProfile      = p_aactype->eAACProfile;
-            p_obj->aactype_.eAACStreamFormat = p_aactype->eAACStreamFormat;
-            p_obj->aactype_.eChannelMode     = p_aactype->eChannelMode;
-          }
-      }
-      break;
-
-    default:
-      {
-
-        if (OMX_TizoniaIndexParamAudioOpus == a_index)
-          {
-            const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opustype
-              = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;
-
-            switch (p_opustype->nSampleRate)
-              {
               case 8000:
+              case 11025:
+              case 12000:
               case 16000:
-              case 24000:
               case 22050:
+              case 24000:
               case 32000:
               case 44100:
               case 48000:
@@ -286,46 +238,99 @@ static OMX_ERRORTYPE httpsrc_port_SetParameter (const void *ap_obj,
                 }
               default:
                 {
-                  TIZ_ERROR (ap_hdl, "[%s] : OMX_ErrorBadParameter : "
+                  TIZ_TRACE (ap_hdl,
+                             "[%s] : OMX_ErrorBadParameter : "
                              "Sample rate not supported [%d]. "
-                             "Returning...", tiz_idx_to_str (a_index),
-                             p_opustype->nSampleRate);
+                             "Returning...",
+                             tiz_idx_to_str (a_index), p_aactype->nSampleRate);
                   rc = OMX_ErrorBadParameter;
                 }
-              };
+            };
 
-            if (OMX_ErrorNone == rc)
-              {
-                /* Apply the new default values */
-                p_obj->opustype_.nChannels               = p_opustype->nChannels;
-                p_obj->opustype_.nBitRate                = p_opustype->nBitRate;
-                p_obj->opustype_.nSampleRate             = p_opustype->nSampleRate;
-                p_obj->opustype_.nFrameDuration          = p_opustype->nFrameDuration;
-                p_obj->opustype_.nEncoderComplexity      = p_opustype->nEncoderComplexity;
-                p_obj->opustype_.bPacketLossResilience   = p_opustype->bPacketLossResilience;
-                p_obj->opustype_.bForwardErrorCorrection = p_opustype->bForwardErrorCorrection;
-                p_obj->opustype_.bDtx                    = p_opustype->bDtx;
-                p_obj->opustype_.eChannelMode            = p_opustype->eChannelMode;
-                p_obj->opustype_.eFormat                 = p_opustype->eFormat;
-              }
-          }
-        else
-          {
-            /* Try the parent's indexes */
-            rc = super_SetParameter (typeOf (ap_obj, "httpsrcport"),
-                                     ap_obj, ap_hdl, a_index, ap_struct);
-          }
-      }
+          if (OMX_ErrorNone == rc)
+            {
+              /* Apply the new default values */
+              p_obj->aactype_.nChannels = p_aactype->nChannels;
+              p_obj->aactype_.nSampleRate = p_aactype->nSampleRate;
+              p_obj->aactype_.nBitRate = p_aactype->nBitRate;
+              p_obj->aactype_.nAudioBandWidth = p_aactype->nAudioBandWidth;
+              p_obj->aactype_.nFrameLength = p_aactype->nFrameLength;
+              p_obj->aactype_.nAACtools = p_aactype->nAACtools;
+              p_obj->aactype_.nAACERtools = p_aactype->nAACERtools;
+              p_obj->aactype_.eAACProfile = p_aactype->eAACProfile;
+              p_obj->aactype_.eAACStreamFormat = p_aactype->eAACStreamFormat;
+              p_obj->aactype_.eChannelMode = p_aactype->eChannelMode;
+            }
+        }
+        break;
+
+      default:
+        {
+
+          if (OMX_TizoniaIndexParamAudioOpus == a_index)
+            {
+              const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE * p_opustype
+                = (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *) ap_struct;
+
+              switch (p_opustype->nSampleRate)
+                {
+                  case 8000:
+                  case 16000:
+                  case 24000:
+                  case 22050:
+                  case 32000:
+                  case 44100:
+                  case 48000:
+                    {
+                      break;
+                    }
+                  default:
+                    {
+                      TIZ_ERROR (ap_hdl,
+                                 "[%s] : OMX_ErrorBadParameter : "
+                                 "Sample rate not supported [%d]. "
+                                 "Returning...",
+                                 tiz_idx_to_str (a_index),
+                                 p_opustype->nSampleRate);
+                      rc = OMX_ErrorBadParameter;
+                    }
+                };
+
+              if (OMX_ErrorNone == rc)
+                {
+                  /* Apply the new default values */
+                  p_obj->opustype_.nChannels = p_opustype->nChannels;
+                  p_obj->opustype_.nBitRate = p_opustype->nBitRate;
+                  p_obj->opustype_.nSampleRate = p_opustype->nSampleRate;
+                  p_obj->opustype_.nFrameDuration = p_opustype->nFrameDuration;
+                  p_obj->opustype_.nEncoderComplexity
+                    = p_opustype->nEncoderComplexity;
+                  p_obj->opustype_.bPacketLossResilience
+                    = p_opustype->bPacketLossResilience;
+                  p_obj->opustype_.bForwardErrorCorrection
+                    = p_opustype->bForwardErrorCorrection;
+                  p_obj->opustype_.bDtx = p_opustype->bDtx;
+                  p_obj->opustype_.eChannelMode = p_opustype->eChannelMode;
+                  p_obj->opustype_.eFormat = p_opustype->eFormat;
+                }
+            }
+          else
+            {
+              /* Try the parent's indexes */
+              rc = super_SetParameter (typeOf (ap_obj, "httpsrcport"), ap_obj,
+                                       ap_hdl, a_index, ap_struct);
+            }
+        }
     };
   return rc;
 }
 
 static bool
-httpsrc_port_check_tunnel_compat (const void *ap_obj,
-                             OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
-                             OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
+httpsrc_port_check_tunnel_compat (const void * ap_obj,
+                                  OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
+                                  OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
-  tiz_port_t *p_obj = (tiz_port_t *) ap_obj;
+  tiz_port_t * p_obj = (tiz_port_t *) ap_obj;
 
   assert (ap_this_def);
   assert (ap_other_def);
@@ -333,9 +338,9 @@ httpsrc_port_check_tunnel_compat (const void *ap_obj,
   if (ap_other_def->eDomain != ap_this_def->eDomain)
     {
       TIZ_ERROR (handleOf (ap_obj),
-               "port [%d] check_tunnel_compat : "
-               "Audio domain not found, instead found domain [%d]",
-               p_obj->pid_, ap_other_def->eDomain);
+                 "port [%d] check_tunnel_compat : "
+                 "Audio domain not found, instead found domain [%d]",
+                 p_obj->pid_, ap_other_def->eDomain);
       return false;
     }
 
@@ -349,27 +354,27 @@ httpsrc_port_check_tunnel_compat (const void *ap_obj,
           && ap_other_def->format.audio.eEncoding != OMX_AUDIO_CodingAAC)
         {
           TIZ_ERROR (handleOf (ap_obj),
-                    "port [%d] check_tunnel_compat : "
-                    "Unknown encoding found [%d]",
-                    p_obj->pid_, ap_other_def->format.audio.eEncoding);
+                     "port [%d] check_tunnel_compat : "
+                     "Unknown encoding found [%d]",
+                     p_obj->pid_, ap_other_def->format.audio.eEncoding);
           return false;
         }
     }
 
-  TIZ_TRACE (handleOf (ap_obj),
-            "port [%d] check_tunnel_compat [OK]", p_obj->pid_);
+  TIZ_TRACE (handleOf (ap_obj), "port [%d] check_tunnel_compat [OK]",
+             p_obj->pid_);
 
   return true;
 }
 
 static OMX_ERRORTYPE
-httpsrc_port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
-                                 const OMX_INDEXTYPE a_index,
-                                 const OMX_PTR ap_struct,
-                                 tiz_vector_t * ap_changed_idxs)
+httpsrc_port_apply_slaving_behaviour (void * ap_obj, void * ap_mos_port,
+                                      const OMX_INDEXTYPE a_index,
+                                      const OMX_PTR ap_struct,
+                                      tiz_vector_t * ap_changed_idxs)
 {
-  httpsrc_port_t *p_obj = ap_obj;
-  tiz_port_t *p_base = ap_obj;
+  httpsrc_port_t * p_obj = ap_obj;
+  tiz_port_t * p_base = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   /* OpenMAX IL 1.2 Section 3.5 : Slaving behaviour for nSamplingRate and
@@ -385,131 +390,143 @@ httpsrc_port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
 
     switch (a_index)
       {
-      case OMX_IndexParamAudioPcm:
-        {
-          const OMX_AUDIO_PARAM_PCMMODETYPE *p_pcmmode = ap_struct;
-          new_rate = p_pcmmode->nSamplingRate;
-          new_channels = p_pcmmode->nChannels;
+        case OMX_IndexParamAudioPcm:
+          {
+            const OMX_AUDIO_PARAM_PCMMODETYPE * p_pcmmode = ap_struct;
+            new_rate = p_pcmmode->nSamplingRate;
+            new_channels = p_pcmmode->nChannels;
 
-          TIZ_TRACE (handleOf (ap_obj),
-                     "OMX_IndexParamAudioPcm : new sampling rate[%d] "
-                     "new num channels[%d]", new_rate, new_channels);
-        }
-        break;
+            TIZ_TRACE (handleOf (ap_obj),
+                       "OMX_IndexParamAudioPcm : new sampling rate[%d] "
+                       "new num channels[%d]",
+                       new_rate, new_channels);
+          }
+          break;
 
-      case OMX_IndexParamAudioMp3:
-        {
-          const OMX_AUDIO_PARAM_MP3TYPE *p_mp3type = ap_struct;
-          new_rate = p_mp3type->nSampleRate;
-          new_channels = p_mp3type->nChannels;
+        case OMX_IndexParamAudioMp3:
+          {
+            const OMX_AUDIO_PARAM_MP3TYPE * p_mp3type = ap_struct;
+            new_rate = p_mp3type->nSampleRate;
+            new_channels = p_mp3type->nChannels;
 
-          TIZ_TRACE (handleOf (ap_obj),
-                     "OMX_IndexParamAudioMp3 : new sampling rate[%d] "
-                     "new num channels[%d]", new_rate, new_channels);
-        }
-        break;
+            TIZ_TRACE (handleOf (ap_obj),
+                       "OMX_IndexParamAudioMp3 : new sampling rate[%d] "
+                       "new num channels[%d]",
+                       new_rate, new_channels);
+          }
+          break;
 
-      case OMX_IndexParamAudioAac:
-        {
-          const OMX_AUDIO_PARAM_AACPROFILETYPE *p_aactype = ap_struct;
-          new_rate = p_aactype->nSampleRate;
-          new_channels = p_aactype->nChannels;
+        case OMX_IndexParamAudioAac:
+          {
+            const OMX_AUDIO_PARAM_AACPROFILETYPE * p_aactype = ap_struct;
+            new_rate = p_aactype->nSampleRate;
+            new_channels = p_aactype->nChannels;
 
-          TIZ_TRACE (handleOf (ap_obj),
-                     "OMX_IndexParamAudioAac : new sampling rate[%d] "
-                     "new num channels[%d]", new_rate, new_channels);
-        }
-        break;
+            TIZ_TRACE (handleOf (ap_obj),
+                       "OMX_IndexParamAudioAac : new sampling rate[%d] "
+                       "new num channels[%d]",
+                       new_rate, new_channels);
+          }
+          break;
 
-      case OMX_IndexParamAudioVorbis:
-        {
-          const OMX_AUDIO_PARAM_VORBISTYPE *p_vortype = ap_struct;
-          new_rate = p_vortype->nSampleRate;
-          new_channels = p_vortype->nChannels;
+        case OMX_IndexParamAudioVorbis:
+          {
+            const OMX_AUDIO_PARAM_VORBISTYPE * p_vortype = ap_struct;
+            new_rate = p_vortype->nSampleRate;
+            new_channels = p_vortype->nChannels;
 
-          TIZ_TRACE (handleOf (ap_obj),
-                     "OMX_IndexParamAudioVorbis : new sampling rate[%d] "
-                     "new num channels[%d]", new_rate, new_channels);
-        }
-        break;
+            TIZ_TRACE (handleOf (ap_obj),
+                       "OMX_IndexParamAudioVorbis : new sampling rate[%d] "
+                       "new num channels[%d]",
+                       new_rate, new_channels);
+          }
+          break;
 
-      case OMX_IndexParamAudioWma:
-        {
-          const OMX_AUDIO_PARAM_WMATYPE *p_wmatype = ap_struct;
-          new_rate = p_wmatype->nSamplingRate;
-          new_channels = p_wmatype->nChannels;
+        case OMX_IndexParamAudioWma:
+          {
+            const OMX_AUDIO_PARAM_WMATYPE * p_wmatype = ap_struct;
+            new_rate = p_wmatype->nSamplingRate;
+            new_channels = p_wmatype->nChannels;
 
-          TIZ_TRACE (handleOf (ap_obj),
-                     "OMX_IndexParamAudioWma : new sampling rate[%d] "
-                     "new num channels[%d]", new_rate, new_channels);
-        }
-        break;
+            TIZ_TRACE (handleOf (ap_obj),
+                       "OMX_IndexParamAudioWma : new sampling rate[%d] "
+                       "new num channels[%d]",
+                       new_rate, new_channels);
+          }
+          break;
 
-      case OMX_IndexParamAudioRa:
-        {
-          const OMX_AUDIO_PARAM_RATYPE *p_ratype = ap_struct;
-          new_rate = p_ratype->nSamplingRate;
-          new_channels = p_ratype->nChannels;
+        case OMX_IndexParamAudioRa:
+          {
+            const OMX_AUDIO_PARAM_RATYPE * p_ratype = ap_struct;
+            new_rate = p_ratype->nSamplingRate;
+            new_channels = p_ratype->nChannels;
 
-          TIZ_TRACE (handleOf (ap_obj),
-                     "OMX_IndexParamAudioRa : new sampling rate[%d] "
-                     "new num channels[%d]", new_rate, new_channels);
-        }
-        break;
+            TIZ_TRACE (handleOf (ap_obj),
+                       "OMX_IndexParamAudioRa : new sampling rate[%d] "
+                       "new num channels[%d]",
+                       new_rate, new_channels);
+          }
+          break;
 
-      case OMX_IndexParamAudioSbc:
-        {
-          const OMX_AUDIO_PARAM_SBCTYPE *p_sbctype = ap_struct;
-          new_rate = p_sbctype->nSampleRate;
-          new_channels = p_sbctype->nChannels;
+        case OMX_IndexParamAudioSbc:
+          {
+            const OMX_AUDIO_PARAM_SBCTYPE * p_sbctype = ap_struct;
+            new_rate = p_sbctype->nSampleRate;
+            new_channels = p_sbctype->nChannels;
 
-          TIZ_TRACE (handleOf (ap_obj),
-                     "OMX_IndexParamAudioSbc : new sampling rate[%d] "
-                     "new num channels[%d]", new_rate, new_channels);
-        }
-        break;
+            TIZ_TRACE (handleOf (ap_obj),
+                       "OMX_IndexParamAudioSbc : new sampling rate[%d] "
+                       "new num channels[%d]",
+                       new_rate, new_channels);
+          }
+          break;
 
-      case OMX_IndexParamAudioAdpcm:
-        {
-          const OMX_AUDIO_PARAM_ADPCMTYPE *p_adpcmtype = ap_struct;
-          new_rate = p_adpcmtype->nSampleRate;
-          new_channels = p_adpcmtype->nChannels;
+        case OMX_IndexParamAudioAdpcm:
+          {
+            const OMX_AUDIO_PARAM_ADPCMTYPE * p_adpcmtype = ap_struct;
+            new_rate = p_adpcmtype->nSampleRate;
+            new_channels = p_adpcmtype->nChannels;
 
-          TIZ_TRACE (handleOf (ap_obj),
-                     "OMX_IndexParamAudioAdpcm : new sampling rate[%d] "
-                     "new num channels[%d]", new_rate, new_channels);
-        }
-        break;
+            TIZ_TRACE (handleOf (ap_obj),
+                       "OMX_IndexParamAudioAdpcm : new sampling rate[%d] "
+                       "new num channels[%d]",
+                       new_rate, new_channels);
+          }
+          break;
 
-      default:
-        {
-          if (OMX_TizoniaIndexParamAudioOpus == a_index)
-            {
-              const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *p_opustype = ap_struct;
-              new_rate = p_opustype->nSampleRate;
-              new_channels = p_opustype->nChannels;
+        default:
+          {
+            if (OMX_TizoniaIndexParamAudioOpus == a_index)
+              {
+                const OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE * p_opustype = ap_struct;
+                new_rate = p_opustype->nSampleRate;
+                new_channels = p_opustype->nChannels;
 
-              TIZ_TRACE (handleOf (ap_obj),
-                         "OMX_IndexParamAudioOpus : new sampling rate[%d] "
-                         "new num channels[%d]", new_rate, new_channels);
-            }
+                TIZ_TRACE (handleOf (ap_obj),
+                           "OMX_IndexParamAudioOpus : new sampling rate[%d] "
+                           "new num channels[%d]",
+                           new_rate, new_channels);
+              }
 
-          else if (OMX_TizoniaIndexParamAudioFlac == a_index)
-            {
-              const OMX_TIZONIA_AUDIO_PARAM_FLACTYPE *p_flactype = ap_struct;
-              new_rate = p_flactype->nSampleRate;
-              new_channels = p_flactype->nChannels;
+            else if (OMX_TizoniaIndexParamAudioFlac == a_index)
+              {
+                const OMX_TIZONIA_AUDIO_PARAM_FLACTYPE * p_flactype = ap_struct;
+                new_rate = p_flactype->nSampleRate;
+                new_channels = p_flactype->nChannels;
 
-              TIZ_TRACE (handleOf (ap_obj),
-                         "OMX_TizoniaIndexParamAudioFlac : new sampling rate[%d] "
-                         "new num channels[%d]", new_rate, new_channels);
-            }
-        }
+                TIZ_TRACE (
+                  handleOf (ap_obj),
+                  "OMX_TizoniaIndexParamAudioFlac : new sampling rate[%d] "
+                  "new num channels[%d]",
+                  new_rate, new_channels);
+              }
+          }
       };
 
     {
-      const tiz_audioport_t *p_audio_port = ap_obj;
-      const OMX_AUDIO_CODINGTYPE encoding = p_audio_port->port_format_.eEncoding;
+      const tiz_audioport_t * p_audio_port = ap_obj;
+      const OMX_AUDIO_CODINGTYPE encoding
+        = p_audio_port->port_format_.eEncoding;
 
       if (encoding == OMX_AUDIO_CodingMP3)
         {
@@ -556,7 +573,8 @@ httpsrc_port_apply_slaving_behaviour (void *ap_obj, void *ap_mos_port,
  * httpsrc_port_class
  */
 
-static void *httpsrc_port_class_ctor (void *ap_obj, va_list *app)
+static void *
+httpsrc_port_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "httpsrcport_class"), ap_obj, app);
@@ -566,45 +584,48 @@ static void *httpsrc_port_class_ctor (void *ap_obj, va_list *app)
  * initialization
  */
 
-void *httpsrc_port_class_init (void *ap_tos, void *ap_hdl)
+void *
+httpsrc_port_class_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
-  void *httpsrcport_class = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizaudioport), "httpsrcport_class", classOf (tizaudioport), sizeof(httpsrc_port_class_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, httpsrc_port_class_ctor,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+  void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
+  void * httpsrcport_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizaudioport), "httpsrcport_class", classOf (tizaudioport),
+     sizeof (httpsrc_port_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, httpsrc_port_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return httpsrcport_class;
 }
 
-void *httpsrc_port_init (void *ap_tos, void *ap_hdl)
+void *
+httpsrc_port_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
-  void *httpsrcport_class = tiz_get_type (ap_hdl, "httpsrcport_class");
+  void * tizaudioport = tiz_get_type (ap_hdl, "tizaudioport");
+  void * httpsrcport_class = tiz_get_type (ap_hdl, "httpsrcport_class");
   TIZ_LOG_CLASS (httpsrcport_class);
-  void *httpsrcport = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (httpsrcport_class, "httpsrcport", tizaudioport, sizeof(httpsrc_port_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, httpsrc_port_ctor,
-       /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, httpsrc_port_dtor,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_api_GetParameter, httpsrc_port_GetParameter,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_api_SetParameter, httpsrc_port_SetParameter,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_port_check_tunnel_compat, httpsrc_port_check_tunnel_compat,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_port_apply_slaving_behaviour, httpsrc_port_apply_slaving_behaviour,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+  void * httpsrcport = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (httpsrcport_class, "httpsrcport", tizaudioport, sizeof (httpsrc_port_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, httpsrc_port_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, httpsrc_port_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_GetParameter, httpsrc_port_GetParameter,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_api_SetParameter, httpsrc_port_SetParameter,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_check_tunnel_compat, httpsrc_port_check_tunnel_compat,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_port_apply_slaving_behaviour, httpsrc_port_apply_slaving_behaviour,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
 
   return httpsrcport;
 }

@@ -30,15 +30,16 @@
 #define DIRBLEPRC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * dirble_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * dirble_prc_init (void * ap_tos, void * ap_hdl);
+void *
+dirble_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+dirble_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* DIRBLEPRC_H */
+#endif /* DIRBLEPRC_H */

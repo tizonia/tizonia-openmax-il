@@ -30,15 +30,16 @@
 #define HTTPSRCPRC_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * httpsrc_prc_class_init (void * ap_tos, void * ap_hdl);
-  void * httpsrc_prc_init (void * ap_tos, void * ap_hdl);
+void *
+httpsrc_prc_class_init (void * ap_tos, void * ap_hdl);
+void *
+httpsrc_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* HTTPSRCPRC_H */
+#endif /* HTTPSRCPRC_H */

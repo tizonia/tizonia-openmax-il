@@ -46,13 +46,13 @@ struct dirble_prc
 {
   /* Object */
   const tiz_prc_t _;
-  OMX_BUFFERHEADERTYPE *p_outhdr_;
+  OMX_BUFFERHEADERTYPE * p_outhdr_;
   OMX_TIZONIA_AUDIO_PARAM_DIRBLESESSIONTYPE session_;
   OMX_TIZONIA_AUDIO_PARAM_DIRBLEPLAYLISTTYPE playlist_;
   OMX_TIZONIA_PLAYLISTSKIPTYPE playlist_skip_;
-  OMX_PARAM_CONTENTURITYPE *p_uri_param_;
-  tiz_urltrans_t *p_trans_;
-  tiz_dirble_t *p_dirble_;
+  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
+  tiz_urltrans_t * p_trans_;
+  tiz_dirble_t * p_dirble_;
   bool eos_;
   bool port_disabled_;
   bool uri_changed_;

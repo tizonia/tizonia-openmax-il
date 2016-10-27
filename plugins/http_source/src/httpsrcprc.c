@@ -52,42 +52,45 @@
 #endif
 
 /* forward declarations */
-static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *);
-static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *);
-static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc);
+static OMX_ERRORTYPE
+httpsrc_prc_deallocate_resources (void *);
+static OMX_ERRORTYPE
+release_buffer (httpsrc_prc_t *);
+static OMX_ERRORTYPE
+prepare_for_port_auto_detection (httpsrc_prc_t * ap_prc);
 
 typedef struct ogg_codec_id ogg_codec_id_t;
 struct ogg_codec_id
 {
-  const char *p_bos_str;
+  const char * p_bos_str;
   int bos_str_len;
-  const char *p_coding_type;
+  const char * p_coding_type;
   OMX_S32 omx_coding_type;
 };
 
 static const ogg_codec_id_t ogg_codec_type_tbl[]
-    = { { "\200theora", 7, "Theora", OMX_AUDIO_CodingUnused },
-        { "\001vorbis", 7, "Vorbis", OMX_AUDIO_CodingVORBIS },
-        { "Speex", 5, "Speex", OMX_AUDIO_CodingSPEEX },
-        { "PCM     ", 8, "PCM", OMX_AUDIO_CodingPCM },
-        { "CMML\0\0\0\0", 8, "CMML", OMX_AUDIO_CodingUnused },
-        { "Annodex", 7, "Annodex", OMX_AUDIO_CodingUnused },
-        { "fishead", 7, "Skeleton", OMX_AUDIO_CodingUnused },
-        { "fLaC", 4, "Flac0", OMX_AUDIO_CodingFLAC },
-        { "\177FLAC", 5, "Flac", OMX_AUDIO_CodingFLAC },
-        { "AnxData", 7, "AnxData", OMX_VIDEO_CodingUnused },
-        { "CELT    ", 8, "CELT", OMX_AUDIO_CodingUnused },
-        { "\200kate\0\0\0", 8, "Kate", OMX_AUDIO_CodingUnused },
-        { "BBCD\0", 5, "Dirac", OMX_AUDIO_CodingUnused },
-        { "OpusHead", 8, "Opus", OMX_AUDIO_CodingOPUS },
-        { "\x4fVP80", 5, "VP8", OMX_VIDEO_CodingVP8 },
-        { "", 0, "Unknown", OMX_AUDIO_CodingUnused } };
+  = {{"\200theora", 7, "Theora", OMX_AUDIO_CodingUnused},
+     {"\001vorbis", 7, "Vorbis", OMX_AUDIO_CodingVORBIS},
+     {"Speex", 5, "Speex", OMX_AUDIO_CodingSPEEX},
+     {"PCM     ", 8, "PCM", OMX_AUDIO_CodingPCM},
+     {"CMML\0\0\0\0", 8, "CMML", OMX_AUDIO_CodingUnused},
+     {"Annodex", 7, "Annodex", OMX_AUDIO_CodingUnused},
+     {"fishead", 7, "Skeleton", OMX_AUDIO_CodingUnused},
+     {"fLaC", 4, "Flac0", OMX_AUDIO_CodingFLAC},
+     {"\177FLAC", 5, "Flac", OMX_AUDIO_CodingFLAC},
+     {"AnxData", 7, "AnxData", OMX_VIDEO_CodingUnused},
+     {"CELT    ", 8, "CELT", OMX_AUDIO_CodingUnused},
+     {"\200kate\0\0\0", 8, "Kate", OMX_AUDIO_CodingUnused},
+     {"BBCD\0", 5, "Dirac", OMX_AUDIO_CodingUnused},
+     {"OpusHead", 8, "Opus", OMX_AUDIO_CodingOPUS},
+     {"\x4fVP80", 5, "VP8", OMX_VIDEO_CodingVP8},
+     {"", 0, "Unknown", OMX_AUDIO_CodingUnused}};
 
-static OMX_S32 identify_ogg_codec (httpsrc_prc_t *ap_prc,
-                                   unsigned char *ap_data, long a_len)
+static OMX_S32
+identify_ogg_codec (httpsrc_prc_t * ap_prc, unsigned char * ap_data, long a_len)
 {
   OMX_S32 rc = OMX_AUDIO_CodingUnused;
-  const size_t id_count = sizeof(ogg_codec_type_tbl) / sizeof(ogg_codec_id_t);
+  const size_t id_count = sizeof (ogg_codec_type_tbl) / sizeof (ogg_codec_id_t);
   size_t i = 0;
 
   assert (ap_prc);
@@ -96,7 +99,7 @@ static OMX_S32 identify_ogg_codec (httpsrc_prc_t *ap_prc,
 
   for (i = 0; i < id_count; ++i)
     {
-      const ogg_codec_id_t *p_id = ogg_codec_type_tbl + i;
+      const ogg_codec_id_t * p_id = ogg_codec_type_tbl + i;
 
       if (a_len >= p_id->bos_str_len
           && memcmp (ap_data + 28, p_id->p_bos_str, p_id->bos_str_len) == 0)
@@ -111,12 +114,14 @@ static OMX_S32 identify_ogg_codec (httpsrc_prc_t *ap_prc,
   return rc;
 }
 
-static inline bool is_valid_character (const char c)
+static inline bool
+is_valid_character (const char c)
 {
-  return (unsigned char)c > 0x20;
+  return (unsigned char) c > 0x20;
 }
 
-static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
+static void
+obtain_coding_type (httpsrc_prc_t * ap_prc, char * ap_info)
 {
   assert (ap_prc);
   assert (ap_info);
@@ -168,8 +173,9 @@ static void obtain_coding_type (httpsrc_prc_t *ap_prc, char *ap_info)
     }
 }
 
-static int convert_str_to_int (httpsrc_prc_t *ap_prc, const char *ap_start,
-                               char **ap_end)
+static int
+convert_str_to_int (httpsrc_prc_t * ap_prc, const char * ap_start,
+                    char ** ap_end)
 {
   long val = -1;
   assert (ap_prc);
@@ -197,22 +203,23 @@ static int convert_str_to_int (httpsrc_prc_t *ap_prc, const char *ap_start,
   return val;
 }
 
-static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
+static void
+obtain_audio_info (httpsrc_prc_t * ap_prc, char * ap_info)
 {
-  const char *channels = "channels";
-  const char *samplerate = "samplerate";
-  const char *p_start = NULL;
-  char *p_end = NULL;
-  const char *p_value = NULL;
+  const char * channels = "channels";
+  const char * samplerate = "samplerate";
+  const char * p_start = NULL;
+  char * p_end = NULL;
+  const char * p_value = NULL;
   assert (ap_prc);
   assert (ap_info);
 
   TIZ_TRACE (handleOf (ap_prc), "audio info  : [%s]", ap_info);
 
   /* Find the number of channels */
-  if ((p_value = (const char *)strstr (ap_info, channels)))
+  if ((p_value = (const char *) strstr (ap_info, channels)))
     {
-      if ((p_start = (const char *)strchr (p_value, '=')))
+      if ((p_start = (const char *) strchr (p_value, '=')))
         {
           /* skip the equal sign */
           p_start++;
@@ -221,9 +228,9 @@ static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
     }
 
   /* Find the sampling rate */
-  if ((p_value = (const char *)strstr (ap_info, samplerate)))
+  if ((p_value = (const char *) strstr (ap_info, samplerate)))
     {
-      if ((p_start = (const char *)strchr (p_value, '=')))
+      if ((p_start = (const char *) strchr (p_value, '=')))
         {
           /* skip the equal sign */
           p_start++;
@@ -232,9 +239,10 @@ static void obtain_audio_info (httpsrc_prc_t *ap_prc, char *ap_info)
     }
 }
 
-static void obtain_bit_rate (httpsrc_prc_t *ap_prc, char *ap_info)
+static void
+obtain_bit_rate (httpsrc_prc_t * ap_prc, char * ap_info)
 {
-  char *p_end = NULL;
+  char * p_end = NULL;
 
   assert (ap_prc);
   assert (ap_info);
@@ -244,26 +252,28 @@ static void obtain_bit_rate (httpsrc_prc_t *ap_prc, char *ap_info)
   ap_prc->bitrate_ = convert_str_to_int (ap_prc, ap_info, &p_end);
 }
 
-static OMX_ERRORTYPE set_audio_coding_on_port (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE
+set_audio_coding_on_port (httpsrc_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (
-      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                            OMX_IndexParamPortDefinition, &port_def));
+    tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_IndexParamPortDefinition, &port_def));
 
   /* Set the new value */
   port_def.format.audio.eEncoding = ap_prc->audio_coding_type_;
 
   tiz_check_omx_err (tiz_krn_SetParameter_internal (
-      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-      OMX_IndexParamPortDefinition, &port_def));
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+    OMX_IndexParamPortDefinition, &port_def));
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE set_mp3_audio_info_on_port (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE
+set_mp3_audio_info_on_port (httpsrc_prc_t * ap_prc)
 {
   OMX_AUDIO_PARAM_MP3TYPE mp3type;
   assert (ap_prc);
@@ -278,12 +288,13 @@ static OMX_ERRORTYPE set_mp3_audio_info_on_port (httpsrc_prc_t *ap_prc)
   mp3type.nSampleRate = ap_prc->samplerate_;
 
   tiz_check_omx_err (tiz_krn_SetParameter_internal (
-      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-      OMX_IndexParamAudioMp3, &mp3type));
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), OMX_IndexParamAudioMp3,
+    &mp3type));
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE set_aac_audio_info_on_port (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE
+set_aac_audio_info_on_port (httpsrc_prc_t * ap_prc)
 {
   OMX_AUDIO_PARAM_AACPROFILETYPE aactype;
   assert (ap_prc);
@@ -298,32 +309,34 @@ static OMX_ERRORTYPE set_aac_audio_info_on_port (httpsrc_prc_t *ap_prc)
   aactype.nSampleRate = ap_prc->samplerate_;
 
   tiz_check_omx_err (tiz_krn_SetParameter_internal (
-      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-      OMX_IndexParamAudioAac, &aactype));
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc), OMX_IndexParamAudioAac,
+    &aactype));
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE set_opus_audio_info_on_port (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE
+set_opus_audio_info_on_port (httpsrc_prc_t * ap_prc)
 {
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype;
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (opustype, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (
-      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                            OMX_TizoniaIndexParamAudioOpus, &opustype));
+    tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_TizoniaIndexParamAudioOpus, &opustype));
 
   /* Set the new values */
   opustype.nChannels = ap_prc->num_channels_;
   opustype.nSampleRate = ap_prc->samplerate_;
 
   tiz_check_omx_err (tiz_krn_SetParameter_internal (
-      tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-      OMX_TizoniaIndexParamAudioOpus, &opustype));
+    tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+    OMX_TizoniaIndexParamAudioOpus, &opustype));
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE
+set_audio_info_on_port (httpsrc_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
@@ -366,7 +379,8 @@ static OMX_ERRORTYPE set_audio_info_on_port (httpsrc_prc_t *ap_prc)
   return rc;
 }
 
-static void update_cache_size (httpsrc_prc_t *ap_prc)
+static void
+update_cache_size (httpsrc_prc_t * ap_prc)
 {
   assert (ap_prc);
   assert (ap_prc->bitrate_ > 0);
@@ -374,16 +388,17 @@ static void update_cache_size (httpsrc_prc_t *ap_prc)
                          * ARATELIA_HTTP_SOURCE_DEFAULT_CACHE_SECONDS;
   if (ap_prc->p_trans_)
     {
-      tiz_urltrans_set_internal_buffer_size (ap_prc->p_trans_, ap_prc->cache_bytes_);
+      tiz_urltrans_set_internal_buffer_size (ap_prc->p_trans_,
+                                             ap_prc->cache_bytes_);
     }
 }
 
-static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
-                                     const char *ap_header_name,
-                                     const char *ap_header_info)
+static OMX_ERRORTYPE
+store_metadata (httpsrc_prc_t * ap_prc, const char * ap_header_name,
+                const char * ap_header_info)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  OMX_CONFIG_METADATAITEMTYPE *p_meta = NULL;
+  OMX_CONFIG_METADATAITEMTYPE * p_meta = NULL;
   size_t metadata_len = 0;
   size_t info_len = 0;
 
@@ -392,22 +407,22 @@ static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
   assert (ap_header_info);
 
   info_len = strnlen (ap_header_info, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
-  metadata_len = sizeof(OMX_CONFIG_METADATAITEMTYPE) + info_len;
+  metadata_len = sizeof (OMX_CONFIG_METADATAITEMTYPE) + info_len;
 
-  if (!(p_meta = (OMX_CONFIG_METADATAITEMTYPE *)tiz_mem_calloc (
-                   1, metadata_len)))
+  if (!(p_meta
+        = (OMX_CONFIG_METADATAITEMTYPE *) tiz_mem_calloc (1, metadata_len)))
     {
       rc = OMX_ErrorInsufficientResources;
     }
   else
     {
       const size_t name_len
-          = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
-      strncpy ((char *)p_meta->nKey, ap_header_name, name_len - 1);
+        = strnlen (ap_header_name, OMX_MAX_STRINGNAME_SIZE - 1) + 1;
+      strncpy ((char *) p_meta->nKey, ap_header_name, name_len - 1);
       p_meta->nKey[name_len - 1] = '\0';
       p_meta->nKeySizeUsed = name_len;
 
-      strncpy ((char *)p_meta->nValue, ap_header_info, info_len - 1);
+      strncpy ((char *) p_meta->nValue, ap_header_info, info_len - 1);
       p_meta->nValue[info_len - 1] = '\0';
       p_meta->nValueMaxSize = info_len;
       p_meta->nValueSizeUsed = info_len;
@@ -427,18 +442,18 @@ static OMX_ERRORTYPE store_metadata (httpsrc_prc_t *ap_prc,
   return rc;
 }
 
-static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
-                                                const char *ap_header,
-                                                const size_t a_size)
+static void
+obtain_audio_encoding_from_headers (httpsrc_prc_t * ap_prc,
+                                    const char * ap_header, const size_t a_size)
 {
   assert (ap_prc);
   assert (ap_header);
   {
-    const char *p_end = ap_header + a_size;
-    const char *p_value = (const char *)memchr (ap_header, ':', a_size);
+    const char * p_end = ap_header + a_size;
+    const char * p_value = (const char *) memchr (ap_header, ':', a_size);
     char name[64];
 
-    if (p_value && (size_t)(p_value - ap_header) < sizeof(name))
+    if (p_value && (size_t) (p_value - ap_header) < sizeof (name))
       {
         memcpy (name, ap_header, p_value - ap_header);
         name[p_value - ap_header] = 0;
@@ -458,25 +473,25 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
           }
 
         {
-          char *p_info = tiz_mem_calloc (1, (p_end - p_value) + 1);
+          char * p_info = tiz_mem_calloc (1, (p_end - p_value) + 1);
           memcpy (p_info, p_value, p_end - p_value);
           p_info[(p_end - p_value)] = '\000';
           TIZ_TRACE (handleOf (ap_prc), "header name  : [%s]", name);
           TIZ_TRACE (handleOf (ap_prc), "header value : [%s]", p_info);
 
-          (void)store_metadata (ap_prc, name, p_info);
+          (void) store_metadata (ap_prc, name, p_info);
 
           if (strncasecmp (name, "content-type", 12) == 0)
             {
               obtain_coding_type (ap_prc, p_info);
               /* Now set the new coding type value on the output port */
-              (void)set_audio_coding_on_port (ap_prc);
+              (void) set_audio_coding_on_port (ap_prc);
             }
           else if (strncasecmp (name, "ice-audio-info", 14) == 0)
             {
               obtain_audio_info (ap_prc, p_info);
               /* Now set the pcm info on the output port */
-              (void)set_audio_info_on_port (ap_prc);
+              (void) set_audio_info_on_port (ap_prc);
               /* Sometimes, the bitrate is provided in the ice-audio-info
                  header */
               update_cache_size (ap_prc);
@@ -492,17 +507,18 @@ static void obtain_audio_encoding_from_headers (httpsrc_prc_t *ap_prc,
   }
 }
 
-static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
+static void
+send_port_auto_detect_events (httpsrc_prc_t * ap_prc)
 {
   assert (ap_prc);
   if (ap_prc->audio_coding_type_ != OMX_AUDIO_CodingUnused
       || ap_prc->audio_coding_type_ != OMX_AUDIO_CodingAutoDetect)
     {
       TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortFormatDetected");
-      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortFormatDetected, 0, 0,
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortFormatDetected, 0, 0,
                            NULL);
       TIZ_DEBUG (handleOf (ap_prc), "Issuing OMX_EventPortSettingsChanged");
-      tiz_srv_issue_event ((OMX_PTR)ap_prc, OMX_EventPortSettingsChanged,
+      tiz_srv_issue_event ((OMX_PTR) ap_prc, OMX_EventPortSettingsChanged,
                            ARATELIA_HTTP_SOURCE_PORT_INDEX, /* port 0 */
                            OMX_IndexParamPortDefinition,    /* the index of the
                                                          struct that has
@@ -512,18 +528,20 @@ static void send_port_auto_detect_events (httpsrc_prc_t *ap_prc)
   else
     {
       /* Oops... could not detect the stream format */
-      tiz_srv_issue_err_event ((OMX_PTR)ap_prc, OMX_ErrorFormatNotDetected);
+      tiz_srv_issue_err_event ((OMX_PTR) ap_prc, OMX_ErrorFormatNotDetected);
     }
 }
 
-static inline void delete_uri (httpsrc_prc_t *ap_prc)
+static inline void
+delete_uri (httpsrc_prc_t * ap_prc)
 {
   assert (ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
   ap_prc->p_uri_param_ = NULL;
 }
 
-static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE
+obtain_uri (httpsrc_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
@@ -532,7 +550,7 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
   assert (!ap_prc->p_uri_param_);
 
   ap_prc->p_uri_param_
-      = tiz_mem_calloc (1, sizeof(OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
+    = tiz_mem_calloc (1, sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
 
   if (!ap_prc->p_uri_param_)
     {
@@ -542,18 +560,22 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
     }
   else
     {
-      ap_prc->p_uri_param_->nSize = sizeof(OMX_PARAM_CONTENTURITYPE)
-                                    + pathname_max + 1;
+      ap_prc->p_uri_param_->nSize
+        = sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1;
       ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
 
       tiz_check_omx_err (tiz_api_GetParameter (
-          tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-          OMX_IndexParamContentURI, ap_prc->p_uri_param_));
+        tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+        OMX_IndexParamContentURI, ap_prc->p_uri_param_));
       TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
                   ap_prc->p_uri_param_->contentURI);
       /* Verify we are getting an http scheme */
-      if (strncasecmp ((const char *)ap_prc->p_uri_param_->contentURI, "http://", 7) != 0
-          && strncasecmp ((const char *)ap_prc->p_uri_param_->contentURI, "https://", 8) != 0)
+      if (strncasecmp ((const char *) ap_prc->p_uri_param_->contentURI,
+                       "http://", 7)
+            != 0
+          && strncasecmp ((const char *) ap_prc->p_uri_param_->contentURI,
+                          "https://", 8)
+               != 0)
         {
           rc = OMX_ErrorContentURIError;
         }
@@ -562,7 +584,8 @@ static OMX_ERRORTYPE obtain_uri (httpsrc_prc_t *ap_prc)
   return rc;
 }
 
-static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE
+release_buffer (httpsrc_prc_t * ap_prc)
 {
   assert (ap_prc);
 
@@ -571,27 +594,29 @@ static OMX_ERRORTYPE release_buffer (httpsrc_prc_t *ap_prc)
       TIZ_NOTICE (handleOf (ap_prc), "releasing HEADER [%p] nFilledLen [%d]",
                   ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
       tiz_check_omx_err (tiz_krn_release_buffer (
-          tiz_get_krn (handleOf (ap_prc)), ARATELIA_HTTP_SOURCE_PORT_INDEX,
-          ap_prc->p_outhdr_));
+        tiz_get_krn (handleOf (ap_prc)), ARATELIA_HTTP_SOURCE_PORT_INDEX,
+        ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
     }
   return OMX_ErrorNone;
 }
 
-static void buffer_filled (OMX_BUFFERHEADERTYPE *ap_hdr, void *ap_arg)
+static void
+buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
+  httpsrc_prc_t * p_prc = ap_arg;
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
   ap_hdr->nOffset = 0;
-  (void)release_buffer (p_prc);
+  (void) release_buffer (p_prc);
 }
 
-static OMX_BUFFERHEADERTYPE *buffer_emptied (OMX_PTR ap_arg)
+static OMX_BUFFERHEADERTYPE *
+buffer_emptied (OMX_PTR ap_arg)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
-  OMX_BUFFERHEADERTYPE *p_hdr = NULL;
+  httpsrc_prc_t * p_prc = ap_arg;
+  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (p_prc);
 
   if (!p_prc->port_disabled_)
@@ -620,10 +645,10 @@ static OMX_BUFFERHEADERTYPE *buffer_emptied (OMX_PTR ap_arg)
   return p_hdr;
 }
 
-static void header_available (OMX_PTR ap_arg, const void *ap_ptr,
-                              const size_t a_nbytes)
+static void
+header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
+  httpsrc_prc_t * p_prc = ap_arg;
   assert (p_prc);
   assert (ap_ptr);
 
@@ -633,10 +658,10 @@ static void header_available (OMX_PTR ap_arg, const void *ap_ptr,
     }
 }
 
-static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
-                            const size_t a_nbytes)
+static bool
+data_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
+  httpsrc_prc_t * p_prc = ap_arg;
   bool pause_needed = false;
   assert (p_prc);
   assert (ap_ptr);
@@ -652,7 +677,7 @@ static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
         {
           /* Try to identify the actual codec from the ogg stream */
           p_prc->audio_coding_type_
-            = identify_ogg_codec (p_prc, (unsigned char *)ap_ptr, a_nbytes);
+            = identify_ogg_codec (p_prc, (unsigned char *) ap_ptr, a_nbytes);
           if (OMX_AUDIO_CodingUnused != p_prc->audio_coding_type_)
             {
               set_audio_coding_on_port (p_prc);
@@ -667,9 +692,10 @@ static bool data_available (OMX_PTR ap_arg, const void *ap_ptr,
   return pause_needed;
 }
 
-static bool connection_lost (OMX_PTR ap_arg)
+static bool
+connection_lost (OMX_PTR ap_arg)
 {
-  httpsrc_prc_t *p_prc = ap_arg;
+  httpsrc_prc_t * p_prc = ap_arg;
   assert (p_prc);
   prepare_for_port_auto_detection (p_prc);
   /* Return true to indicate that the automatic reconnection procedure needs to
@@ -677,23 +703,23 @@ static bool connection_lost (OMX_PTR ap_arg)
   return true;
 }
 
-static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc)
+static OMX_ERRORTYPE
+prepare_for_port_auto_detection (httpsrc_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_HTTP_SOURCE_PORT_INDEX);
   tiz_check_omx_err (
-      tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                            OMX_IndexParamPortDefinition, &port_def));
+    tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                          OMX_IndexParamPortDefinition, &port_def));
   ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
   ap_prc->auto_detect_on_
-      = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true
-                                                                   : false;
+    = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true : false;
 
   TIZ_TRACE (
-      handleOf (ap_prc), "auto_detect_on_ [%s]...audio_coding_type_ [%d]",
-      ap_prc->auto_detect_on_ ? "true" : "false", ap_prc->audio_coding_type_);
+    handleOf (ap_prc), "auto_detect_on_ [%s]...audio_coding_type_ [%d]",
+    ap_prc->auto_detect_on_ ? "true" : "false", ap_prc->audio_coding_type_);
 
   return OMX_ErrorNone;
 }
@@ -702,10 +728,11 @@ static OMX_ERRORTYPE prepare_for_port_auto_detection (httpsrc_prc_t *ap_prc)
  * httpsrcprc
  */
 
-static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
+static void *
+httpsrc_prc_ctor (void * ap_obj, va_list * app)
 {
-  httpsrc_prc_t *p_prc
-      = super_ctor (typeOf (ap_obj, "httpsrcprc"), ap_obj, app);
+  httpsrc_prc_t * p_prc
+    = super_ctor (typeOf (ap_obj, "httpsrcprc"), ap_obj, app);
   p_prc->p_outhdr_ = NULL;
   p_prc->p_uri_param_ = NULL;
   p_prc->p_trans_ = NULL;
@@ -720,9 +747,10 @@ static void *httpsrc_prc_ctor (void *ap_obj, va_list *app)
   return p_prc;
 }
 
-static void *httpsrc_prc_dtor (void *ap_obj)
+static void *
+httpsrc_prc_dtor (void * ap_obj)
 {
-  (void)httpsrc_prc_deallocate_resources (ap_obj);
+  (void) httpsrc_prc_deallocate_resources (ap_obj);
   return super_dtor (typeOf (ap_obj, "httpsrcprc"), ap_obj);
 }
 
@@ -730,10 +758,10 @@ static void *httpsrc_prc_dtor (void *ap_obj)
  * from tizsrv class
  */
 
-static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
-                                                     OMX_U32 a_pid)
+static OMX_ERRORTYPE
+httpsrc_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
-  httpsrc_prc_t *p_prc = ap_obj;
+  httpsrc_prc_t * p_prc = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorInsufficientResources;
   assert (p_prc);
   assert (!p_prc->p_uri_param_);
@@ -741,29 +769,30 @@ static OMX_ERRORTYPE httpsrc_prc_allocate_resources (void *ap_obj,
 
   {
     const tiz_urltrans_buffer_cbacks_t buffer_cbacks
-        = { buffer_filled, buffer_emptied };
+      = {buffer_filled, buffer_emptied};
     const tiz_urltrans_info_cbacks_t info_cbacks
-        = { header_available, data_available, connection_lost };
+      = {header_available, data_available, connection_lost};
     const tiz_urltrans_event_io_cbacks_t io_cbacks
-        = { tiz_srv_io_watcher_init, tiz_srv_io_watcher_destroy,
-            tiz_srv_io_watcher_start, tiz_srv_io_watcher_stop };
+      = {tiz_srv_io_watcher_init, tiz_srv_io_watcher_destroy,
+         tiz_srv_io_watcher_start, tiz_srv_io_watcher_stop};
     const tiz_urltrans_event_timer_cbacks_t timer_cbacks
-        = { tiz_srv_timer_watcher_init, tiz_srv_timer_watcher_destroy,
-            tiz_srv_timer_watcher_start, tiz_srv_timer_watcher_stop,
-            tiz_srv_timer_watcher_restart };
-    rc = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
-                            ARATELIA_HTTP_SOURCE_COMPONENT_NAME,
-                            ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE,
-                            ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT,
-                            buffer_cbacks, info_cbacks,
-                            io_cbacks, timer_cbacks);
+      = {tiz_srv_timer_watcher_init, tiz_srv_timer_watcher_destroy,
+         tiz_srv_timer_watcher_start, tiz_srv_timer_watcher_stop,
+         tiz_srv_timer_watcher_restart};
+    rc
+      = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
+                           ARATELIA_HTTP_SOURCE_COMPONENT_NAME,
+                           ARATELIA_HTTP_SOURCE_PORT_MIN_BUF_SIZE,
+                           ARATELIA_HTTP_SOURCE_DEFAULT_RECONNECT_TIMEOUT,
+                           buffer_cbacks, info_cbacks, io_cbacks, timer_cbacks);
   }
   return rc;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *ap_prc)
+static OMX_ERRORTYPE
+httpsrc_prc_deallocate_resources (void * ap_prc)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  httpsrc_prc_t * p_prc = ap_prc;
   assert (p_prc);
   tiz_urltrans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
@@ -771,10 +800,10 @@ static OMX_ERRORTYPE httpsrc_prc_deallocate_resources (void *ap_prc)
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_prepare_to_transfer (void *ap_prc,
-                                                      OMX_U32 a_pid)
+static OMX_ERRORTYPE
+httpsrc_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  httpsrc_prc_t * p_prc = ap_prc;
   assert (ap_prc);
   p_prc->eos_ = false;
   tiz_urltrans_cancel (p_prc->p_trans_);
@@ -782,10 +811,10 @@ static OMX_ERRORTYPE httpsrc_prc_prepare_to_transfer (void *ap_prc,
   return prepare_for_port_auto_detection (p_prc);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
-                                                       OMX_U32 a_pid)
+static OMX_ERRORTYPE
+httpsrc_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  httpsrc_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   if (p_prc->auto_detect_on_)
@@ -795,9 +824,10 @@ static OMX_ERRORTYPE httpsrc_prc_transfer_and_process (void *ap_prc,
   return rc;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_prc)
+static OMX_ERRORTYPE
+httpsrc_prc_stop_and_return (void * ap_prc)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  httpsrc_prc_t * p_prc = ap_prc;
   assert (p_prc);
   if (p_prc->p_trans_)
     {
@@ -811,45 +841,48 @@ static OMX_ERRORTYPE httpsrc_prc_stop_and_return (void *ap_prc)
  * from tizprc class
  */
 
-static OMX_ERRORTYPE httpsrc_prc_buffers_ready (const void *ap_prc)
+static OMX_ERRORTYPE
+httpsrc_prc_buffers_ready (const void * ap_prc)
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
+  httpsrc_prc_t * p_prc = (httpsrc_prc_t *) ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_buffers_ready (p_prc->p_trans_);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_io_ready (void *ap_prc,
-                                           tiz_event_io_t *ap_ev_io, int a_fd,
-                                           int a_events)
+static OMX_ERRORTYPE
+httpsrc_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
+                      int a_events)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  httpsrc_prc_t * p_prc = ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_timer_ready (void *ap_prc,
-                                              tiz_event_timer_t *ap_ev_timer,
-                                              void *ap_arg, const uint32_t a_id)
+static OMX_ERRORTYPE
+httpsrc_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
+                         void * ap_arg, const uint32_t a_id)
 {
-  httpsrc_prc_t *p_prc = ap_prc;
+  httpsrc_prc_t * p_prc = ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_pause (const void *ap_obj)
+static OMX_ERRORTYPE
+httpsrc_prc_pause (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_resume (const void *ap_obj)
+static OMX_ERRORTYPE
+httpsrc_prc_resume (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE httpsrc_prc_port_flush (const void *ap_obj,
-                                             OMX_U32 TIZ_UNUSED (a_pid))
+static OMX_ERRORTYPE
+httpsrc_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_obj;
+  httpsrc_prc_t * p_prc = (httpsrc_prc_t *) ap_obj;
   if (p_prc->p_trans_)
     {
       tiz_urltrans_flush_buffer (p_prc->p_trans_);
@@ -857,10 +890,10 @@ static OMX_ERRORTYPE httpsrc_prc_port_flush (const void *ap_obj,
   return release_buffer (p_prc);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_port_disable (const void *ap_obj,
-                                               OMX_U32 TIZ_UNUSED (a_pid))
+static OMX_ERRORTYPE
+httpsrc_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_obj;
+  httpsrc_prc_t * p_prc = (httpsrc_prc_t *) ap_obj;
   assert (p_prc);
   p_prc->port_disabled_ = true;
   if (p_prc->p_trans_)
@@ -869,12 +902,13 @@ static OMX_ERRORTYPE httpsrc_prc_port_disable (const void *ap_obj,
       tiz_urltrans_flush_buffer (p_prc->p_trans_);
     }
   /* Release any buffers held  */
-  return release_buffer ((httpsrc_prc_t *)ap_obj);
+  return release_buffer ((httpsrc_prc_t *) ap_obj);
 }
 
-static OMX_ERRORTYPE httpsrc_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
+static OMX_ERRORTYPE
+httpsrc_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 {
-  httpsrc_prc_t *p_prc = (httpsrc_prc_t *)ap_prc;
+  httpsrc_prc_t * p_prc = (httpsrc_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   TIZ_NOTICE (handleOf (p_prc), "Enabling port [%d] was disabled? [%s]", a_pid,
@@ -891,7 +925,8 @@ static OMX_ERRORTYPE httpsrc_prc_port_enable (const void *ap_prc, OMX_U32 a_pid)
  * httpsrc_prc_class
  */
 
-static void *httpsrc_prc_class_ctor (void *ap_obj, va_list *app)
+static void *
+httpsrc_prc_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "httpsrcprc_class"), ap_obj, app);
@@ -901,64 +936,66 @@ static void *httpsrc_prc_class_ctor (void *ap_obj, va_list *app)
  * initialization
  */
 
-void *httpsrc_prc_class_init (void *ap_tos, void *ap_hdl)
+void *
+httpsrc_prc_class_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *httpsrcprc_class = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (classOf (tizprc), "httpsrcprc_class", classOf (tizprc),
-       sizeof(httpsrc_prc_class_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, httpsrc_prc_class_ctor,
-       /* TIZ_CLASS_COMMENT: stop value*/
-       0);
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * httpsrcprc_class = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (classOf (tizprc), "httpsrcprc_class", classOf (tizprc),
+     sizeof (httpsrc_prc_class_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, httpsrc_prc_class_ctor,
+     /* TIZ_CLASS_COMMENT: stop value*/
+     0);
   return httpsrcprc_class;
 }
 
-void *httpsrc_prc_init (void *ap_tos, void *ap_hdl)
+void *
+httpsrc_prc_init (void * ap_tos, void * ap_hdl)
 {
-  void *tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void *httpsrcprc_class = tiz_get_type (ap_hdl, "httpsrcprc_class");
+  void * tizprc = tiz_get_type (ap_hdl, "tizprc");
+  void * httpsrcprc_class = tiz_get_type (ap_hdl, "httpsrcprc_class");
   TIZ_LOG_CLASS (httpsrcprc_class);
-  void *httpsrcprc = factory_new
-      /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-      (httpsrcprc_class, "httpsrcprc", tizprc, sizeof(httpsrc_prc_t),
-       /* TIZ_CLASS_COMMENT: */
-       ap_tos, ap_hdl,
-       /* TIZ_CLASS_COMMENT: class constructor */
-       ctor, httpsrc_prc_ctor,
-       /* TIZ_CLASS_COMMENT: class destructor */
-       dtor, httpsrc_prc_dtor,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_allocate_resources, httpsrc_prc_allocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_deallocate_resources, httpsrc_prc_deallocate_resources,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_prepare_to_transfer, httpsrc_prc_prepare_to_transfer,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_transfer_and_process, httpsrc_prc_transfer_and_process,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_stop_and_return, httpsrc_prc_stop_and_return,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_io_ready, httpsrc_prc_io_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_srv_timer_ready, httpsrc_prc_timer_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_buffers_ready, httpsrc_prc_buffers_ready,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_pause, httpsrc_prc_pause,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_resume, httpsrc_prc_resume,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_flush, httpsrc_prc_port_flush,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_disable, httpsrc_prc_port_disable,
-       /* TIZ_CLASS_COMMENT: */
-       tiz_prc_port_enable, httpsrc_prc_port_enable,
-       /* TIZ_CLASS_COMMENT: stop value */
-       0);
+  void * httpsrcprc = factory_new
+    /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
+    (httpsrcprc_class, "httpsrcprc", tizprc, sizeof (httpsrc_prc_t),
+     /* TIZ_CLASS_COMMENT: */
+     ap_tos, ap_hdl,
+     /* TIZ_CLASS_COMMENT: class constructor */
+     ctor, httpsrc_prc_ctor,
+     /* TIZ_CLASS_COMMENT: class destructor */
+     dtor, httpsrc_prc_dtor,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_allocate_resources, httpsrc_prc_allocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_deallocate_resources, httpsrc_prc_deallocate_resources,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_prepare_to_transfer, httpsrc_prc_prepare_to_transfer,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_transfer_and_process, httpsrc_prc_transfer_and_process,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_stop_and_return, httpsrc_prc_stop_and_return,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_io_ready, httpsrc_prc_io_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_srv_timer_ready, httpsrc_prc_timer_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_buffers_ready, httpsrc_prc_buffers_ready,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_pause, httpsrc_prc_pause,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_resume, httpsrc_prc_resume,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_flush, httpsrc_prc_port_flush,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_disable, httpsrc_prc_port_disable,
+     /* TIZ_CLASS_COMMENT: */
+     tiz_prc_port_enable, httpsrc_prc_port_enable,
+     /* TIZ_CLASS_COMMENT: stop value */
+     0);
 
   return httpsrcprc;
 }

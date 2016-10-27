@@ -48,31 +48,33 @@
  * scloudcfgport class
  */
 
-static void *scloud_cfgport_ctor (void *ap_obj, va_list *app)
+static void *
+scloud_cfgport_ctor (void * ap_obj, va_list * app)
 {
-  scloud_cfgport_t *p_obj
-      = super_ctor (typeOf (ap_obj, "scloudcfgport"), ap_obj, app);
+  scloud_cfgport_t * p_obj
+    = super_ctor (typeOf (ap_obj, "scloudcfgport"), ap_obj, app);
 
   assert (p_obj);
 
   tiz_check_omx_err_ret_null (tiz_port_register_index (
-      p_obj, OMX_TizoniaIndexParamAudioSoundCloudSession));
+    p_obj, OMX_TizoniaIndexParamAudioSoundCloudSession));
   tiz_check_omx_err_ret_null (tiz_port_register_index (
-      p_obj, OMX_TizoniaIndexParamAudioSoundCloudPlaylist));
+    p_obj, OMX_TizoniaIndexParamAudioSoundCloudPlaylist));
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->session_);
-  snprintf ((char *)p_obj->session_.cUserName,
-            sizeof(p_obj->session_.cUserName), "tizonia");
-  snprintf ((char *)p_obj->session_.cUserPassword,
-            sizeof(p_obj->session_.cUserPassword), "pass");
-  snprintf ((char *)p_obj->session_.cUserOauthToken,
-            sizeof(p_obj->session_.cUserOauthToken), "1-111111-11111111-11111111111111");
+  snprintf ((char *) p_obj->session_.cUserName,
+            sizeof (p_obj->session_.cUserName), "tizonia");
+  snprintf ((char *) p_obj->session_.cUserPassword,
+            sizeof (p_obj->session_.cUserPassword), "pass");
+  snprintf ((char *) p_obj->session_.cUserOauthToken,
+            sizeof (p_obj->session_.cUserOauthToken),
+            "1-111111-11111111-11111111111111");
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
-  snprintf ((char *)p_obj->playlist_.cPlaylistName,
-            sizeof(p_obj->playlist_.cPlaylistName), "playlist");
+  snprintf ((char *) p_obj->playlist_.cPlaylistName,
+            sizeof (p_obj->playlist_.cPlaylistName), "playlist");
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_SoundCloudPlaylistTypeUnknown;
   p_obj->playlist_.bShuffle = OMX_FALSE;
 
@@ -80,7 +82,7 @@ static void *scloud_cfgport_ctor (void *ap_obj, va_list *app)
 }
 
 static void *
-scloud_cfgport_dtor (void *ap_obj)
+scloud_cfgport_dtor (void * ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "scloudcfgport"), ap_obj);
 }
@@ -90,11 +92,10 @@ scloud_cfgport_dtor (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-scloud_cfgport_GetParameter (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+scloud_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const scloud_cfgport_t *p_obj = ap_obj;
+  const scloud_cfgport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -105,29 +106,28 @@ scloud_cfgport_GetParameter (const void *ap_obj,
   if (OMX_TizoniaIndexParamAudioSoundCloudSession == a_index)
     {
       memcpy (ap_struct, &(p_obj->session_),
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE));
     }
   else if (OMX_TizoniaIndexParamAudioSoundCloudPlaylist == a_index)
     {
       memcpy (ap_struct, &(p_obj->playlist_),
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE));
     }
   else
     {
       /* Delegate to the base port */
-      rc = super_GetParameter (typeOf (ap_obj, "scloudcfgport"),
-                               ap_obj, ap_hdl, a_index, ap_struct);
+      rc = super_GetParameter (typeOf (ap_obj, "scloudcfgport"), ap_obj, ap_hdl,
+                               a_index, ap_struct);
     }
 
   return rc;
 }
 
 static OMX_ERRORTYPE
-scloud_cfgport_SetParameter (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+scloud_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  scloud_cfgport_t *p_obj = (scloud_cfgport_t *) ap_obj;
+  scloud_cfgport_t * p_obj = (scloud_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -138,7 +138,7 @@ scloud_cfgport_SetParameter (const void *ap_obj,
   if (OMX_TizoniaIndexParamAudioSoundCloudSession == a_index)
     {
       memcpy (&(p_obj->session_), ap_struct,
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE));
       p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       p_obj->session_.cUserOauthToken[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
@@ -148,7 +148,7 @@ scloud_cfgport_SetParameter (const void *ap_obj,
   else if (OMX_TizoniaIndexParamAudioSoundCloudPlaylist == a_index)
     {
       memcpy (&(p_obj->playlist_), ap_struct,
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE));
       p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       TIZ_TRACE (ap_hdl, "SoundCloud playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
@@ -156,8 +156,8 @@ scloud_cfgport_SetParameter (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      rc = super_SetParameter (typeOf (ap_obj, "scloudcfgport"),
-                               ap_obj, ap_hdl, a_index, ap_struct);
+      rc = super_SetParameter (typeOf (ap_obj, "scloudcfgport"), ap_obj, ap_hdl,
+                               a_index, ap_struct);
     }
 
   return rc;
@@ -168,7 +168,7 @@ scloud_cfgport_SetParameter (const void *ap_obj,
  */
 
 static void *
-scloud_cfgport_class_ctor (void *ap_obj, va_list * app)
+scloud_cfgport_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "scloudcfgport_class"), ap_obj, app);
@@ -182,12 +182,10 @@ void *
 scloud_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
-  void * scloudcfgport_class = factory_new (classOf (tizconfigport),
-                                          "scloudcfgport_class",
-                                          classOf (tizconfigport),
-                                          sizeof (scloud_cfgport_class_t),
-                                          ap_tos, ap_hdl,
-                                          ctor, scloud_cfgport_class_ctor, 0);
+  void * scloudcfgport_class
+    = factory_new (classOf (tizconfigport), "scloudcfgport_class",
+                   classOf (tizconfigport), sizeof (scloud_cfgport_class_t),
+                   ap_tos, ap_hdl, ctor, scloud_cfgport_class_ctor, 0);
   return scloudcfgport_class;
 }
 
@@ -199,7 +197,8 @@ scloud_cfgport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (scloudcfgport_class);
   void * scloudcfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (scloudcfgport_class, "scloudcfgport", tizconfigport, sizeof (scloud_cfgport_t),
+    (scloudcfgport_class, "scloudcfgport", tizconfigport,
+     sizeof (scloud_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */

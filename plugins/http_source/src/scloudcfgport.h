@@ -30,15 +30,16 @@
 #define SCLOUDCFGPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * scloud_cfgport_class_init (void * ap_tos, void * ap_hdl);
-  void * scloud_cfgport_init (void * ap_tos, void * ap_hdl);
+void *
+scloud_cfgport_class_init (void * ap_tos, void * ap_hdl);
+void *
+scloud_cfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* SCLOUDCFGPORT_H */
+#endif /* SCLOUDCFGPORT_H */

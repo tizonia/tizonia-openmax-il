@@ -30,15 +30,16 @@
 #define GMUSICCFGPORT_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  void * gmusic_cfgport_class_init (void * ap_tos, void * ap_hdl);
-  void * gmusic_cfgport_init (void * ap_tos, void * ap_hdl);
+void *
+gmusic_cfgport_class_init (void * ap_tos, void * ap_hdl);
+void *
+gmusic_cfgport_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* GMUSICCFGPORT_H */
+#endif /* GMUSICCFGPORT_H */

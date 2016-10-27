@@ -30,8 +30,7 @@
 #define SCLOUDCFGPORT_DECLS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <OMX_Types.h>
@@ -39,25 +38,25 @@ extern "C"
 
 #include <tizconfigport_decls.h>
 
-  typedef struct scloud_cfgport scloud_cfgport_t;
-  struct scloud_cfgport
-  {
-    /* Object */
-    const tiz_configport_t _;
-    OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE session_;
-    OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE playlist_;
-  };
+typedef struct scloud_cfgport scloud_cfgport_t;
+struct scloud_cfgport
+{
+  /* Object */
+  const tiz_configport_t _;
+  OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDSESSIONTYPE session_;
+  OMX_TIZONIA_AUDIO_PARAM_SOUNDCLOUDPLAYLISTTYPE playlist_;
+};
 
-  typedef struct scloud_cfgport_class scloud_cfgport_class_t;
-  struct scloud_cfgport_class
-  {
-    /* Class */
-    const tiz_configport_class_t _;
-    /* NOTE: Class methods might be added in the future */
-  };
+typedef struct scloud_cfgport_class scloud_cfgport_class_t;
+struct scloud_cfgport_class
+{
+  /* Class */
+  const tiz_configport_class_t _;
+  /* NOTE: Class methods might be added in the future */
+};
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif                          /* SCLOUDCFGPORT_DECLS_H */
+#endif /* SCLOUDCFGPORT_DECLS_H */

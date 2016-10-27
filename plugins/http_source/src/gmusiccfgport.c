@@ -48,31 +48,32 @@
  * gmusiccfgport class
  */
 
-static void *gmusic_cfgport_ctor (void *ap_obj, va_list *app)
+static void *
+gmusic_cfgport_ctor (void * ap_obj, va_list * app)
 {
-  gmusic_cfgport_t *p_obj
-      = super_ctor (typeOf (ap_obj, "gmusiccfgport"), ap_obj, app);
+  gmusic_cfgport_t * p_obj
+    = super_ctor (typeOf (ap_obj, "gmusiccfgport"), ap_obj, app);
 
   assert (p_obj);
 
-  tiz_check_omx_err_ret_null (tiz_port_register_index (
-      p_obj, OMX_TizoniaIndexParamAudioGmusicSession));
-  tiz_check_omx_err_ret_null (tiz_port_register_index (
-      p_obj, OMX_TizoniaIndexParamAudioGmusicPlaylist));
+  tiz_check_omx_err_ret_null (
+    tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioGmusicSession));
+  tiz_check_omx_err_ret_null (
+    tiz_port_register_index (p_obj, OMX_TizoniaIndexParamAudioGmusicPlaylist));
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->session_);
-  snprintf ((char *)p_obj->session_.cUserName,
-            sizeof(p_obj->session_.cUserName), "tizonia");
-  snprintf ((char *)p_obj->session_.cUserPassword,
-            sizeof(p_obj->session_.cUserPassword), "pass");
-  snprintf ((char *)p_obj->session_.cDeviceId,
-            sizeof(p_obj->session_.cDeviceId), "deviceId");
+  snprintf ((char *) p_obj->session_.cUserName,
+            sizeof (p_obj->session_.cUserName), "tizonia");
+  snprintf ((char *) p_obj->session_.cUserPassword,
+            sizeof (p_obj->session_.cUserPassword), "pass");
+  snprintf ((char *) p_obj->session_.cDeviceId,
+            sizeof (p_obj->session_.cDeviceId), "deviceId");
 
   /* Initialize the OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE structure */
   TIZ_INIT_OMX_STRUCT (p_obj->playlist_);
-  snprintf ((char *)p_obj->playlist_.cPlaylistName,
-            sizeof(p_obj->playlist_.cPlaylistName), "playlist");
+  snprintf ((char *) p_obj->playlist_.cPlaylistName,
+            sizeof (p_obj->playlist_.cPlaylistName), "playlist");
   p_obj->playlist_.ePlaylistType = OMX_AUDIO_GmusicPlaylistTypeUnknown;
   p_obj->playlist_.bShuffle = OMX_FALSE;
   p_obj->playlist_.bUnlimitedSearch = OMX_FALSE;
@@ -81,7 +82,7 @@ static void *gmusic_cfgport_ctor (void *ap_obj, va_list *app)
 }
 
 static void *
-gmusic_cfgport_dtor (void *ap_obj)
+gmusic_cfgport_dtor (void * ap_obj)
 {
   return super_dtor (typeOf (ap_obj, "gmusiccfgport"), ap_obj);
 }
@@ -91,11 +92,10 @@ gmusic_cfgport_dtor (void *ap_obj)
  */
 
 static OMX_ERRORTYPE
-gmusic_cfgport_GetParameter (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+gmusic_cfgport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const gmusic_cfgport_t *p_obj = ap_obj;
+  const gmusic_cfgport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -106,29 +106,28 @@ gmusic_cfgport_GetParameter (const void *ap_obj,
   if (OMX_TizoniaIndexParamAudioGmusicSession == a_index)
     {
       memcpy (ap_struct, &(p_obj->session_),
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE));
     }
   else if (OMX_TizoniaIndexParamAudioGmusicPlaylist == a_index)
     {
       memcpy (ap_struct, &(p_obj->playlist_),
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE));
     }
   else
     {
       /* Delegate to the base port */
-      rc = super_GetParameter (typeOf (ap_obj, "gmusiccfgport"),
-                               ap_obj, ap_hdl, a_index, ap_struct);
+      rc = super_GetParameter (typeOf (ap_obj, "gmusiccfgport"), ap_obj, ap_hdl,
+                               a_index, ap_struct);
     }
 
   return rc;
 }
 
 static OMX_ERRORTYPE
-gmusic_cfgport_SetParameter (const void *ap_obj,
-                           OMX_HANDLETYPE ap_hdl,
-                           OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+gmusic_cfgport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+                             OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  gmusic_cfgport_t *p_obj = (gmusic_cfgport_t *) ap_obj;
+  gmusic_cfgport_t * p_obj = (gmusic_cfgport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -139,17 +138,16 @@ gmusic_cfgport_SetParameter (const void *ap_obj,
   if (OMX_TizoniaIndexParamAudioGmusicSession == a_index)
     {
       memcpy (&(p_obj->session_), ap_struct,
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICSESSIONTYPE));
       p_obj->session_.cUserName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       p_obj->session_.cUserPassword[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       p_obj->session_.cDeviceId[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
-      TIZ_TRACE (ap_hdl, "Gmusic User Name [%s]...",
-                 p_obj->session_.cUserName);
+      TIZ_TRACE (ap_hdl, "Gmusic User Name [%s]...", p_obj->session_.cUserName);
     }
   else if (OMX_TizoniaIndexParamAudioGmusicPlaylist == a_index)
     {
       memcpy (&(p_obj->playlist_), ap_struct,
-              sizeof(OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE));
+              sizeof (OMX_TIZONIA_AUDIO_PARAM_GMUSICPLAYLISTTYPE));
       p_obj->playlist_.cPlaylistName[OMX_MAX_STRINGNAME_SIZE - 1] = '\000';
       TIZ_TRACE (ap_hdl, "Gmusic playlist [%s]...",
                  p_obj->playlist_.cPlaylistName);
@@ -157,8 +155,8 @@ gmusic_cfgport_SetParameter (const void *ap_obj,
   else
     {
       /* Delegate to the base port */
-      rc = super_SetParameter (typeOf (ap_obj, "gmusiccfgport"),
-                               ap_obj, ap_hdl, a_index, ap_struct);
+      rc = super_SetParameter (typeOf (ap_obj, "gmusiccfgport"), ap_obj, ap_hdl,
+                               a_index, ap_struct);
     }
 
   return rc;
@@ -169,7 +167,7 @@ gmusic_cfgport_SetParameter (const void *ap_obj,
  */
 
 static void *
-gmusic_cfgport_class_ctor (void *ap_obj, va_list * app)
+gmusic_cfgport_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
   return super_ctor (typeOf (ap_obj, "gmusiccfgport_class"), ap_obj, app);
@@ -183,12 +181,10 @@ void *
 gmusic_cfgport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizconfigport = tiz_get_type (ap_hdl, "tizconfigport");
-  void * gmusiccfgport_class = factory_new (classOf (tizconfigport),
-                                          "gmusiccfgport_class",
-                                          classOf (tizconfigport),
-                                          sizeof (gmusic_cfgport_class_t),
-                                          ap_tos, ap_hdl,
-                                          ctor, gmusic_cfgport_class_ctor, 0);
+  void * gmusiccfgport_class
+    = factory_new (classOf (tizconfigport), "gmusiccfgport_class",
+                   classOf (tizconfigport), sizeof (gmusic_cfgport_class_t),
+                   ap_tos, ap_hdl, ctor, gmusic_cfgport_class_ctor, 0);
   return gmusiccfgport_class;
 }
 
@@ -200,7 +196,8 @@ gmusic_cfgport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (gmusiccfgport_class);
   void * gmusiccfgport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (gmusiccfgport_class, "gmusiccfgport", tizconfigport, sizeof (gmusic_cfgport_t),
+    (gmusiccfgport_class, "gmusiccfgport", tizconfigport,
+     sizeof (gmusic_cfgport_t),
      /* TIZ_CLASS_COMMENT: class constructor */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
