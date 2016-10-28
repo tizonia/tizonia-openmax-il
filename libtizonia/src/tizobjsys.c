@@ -249,6 +249,8 @@ static const tiz_os_type_init_f tiz_os_type_to_fnt_tbl[] = {
   tiz_binaryport_init,
   tiz_demuxerport_class_init,
   tiz_demuxerport_init,
+  tiz_muxerport_class_init,
+  tiz_muxerport_init,
   tiz_webmport_class_init,
   tiz_webmport_init,
   tiz_oggport_class_init,
