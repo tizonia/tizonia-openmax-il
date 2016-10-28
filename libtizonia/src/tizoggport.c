@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   tizwebmport.c
+ * @file   tizoggport.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief Tizonia OpenMAX IL - webmport class implementation
+ * @brief Tizonia OpenMAX IL - oggport class implementation
  *
  * NOTE: This port implementation is work in progress!
  */
@@ -36,23 +36,23 @@
 
 #include <tizplatform.h>
 
-#include "tizwebmport.h"
-#include "tizwebmport_decls.h"
+#include "tizoggport.h"
+#include "tizoggport_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.webm_demuxer.filter.port"
+#define TIZ_LOG_CATEGORY_NAME "tiz.ogg_demuxer.filter.port"
 #endif
 
 /*
- * tizwebmport class
+ * tizoggport class
  */
 
 static void *
-webmport_ctor (void * ap_obj, va_list * app)
+oggport_ctor (void * ap_obj, va_list * app)
 {
-  tiz_webmport_t * p_obj
-    = super_ctor (typeOf (ap_obj, "tizwebmport"), ap_obj, app);
+  tiz_oggport_t * p_obj
+    = super_ctor (typeOf (ap_obj, "tizoggport"), ap_obj, app);
   assert (p_obj);
 
   tiz_check_omx_err_ret_null (
@@ -62,11 +62,11 @@ webmport_ctor (void * ap_obj, va_list * app)
 }
 
 static void *
-webmport_dtor (void * ap_obj)
+oggport_dtor (void * ap_obj)
 {
-  tiz_webmport_t * p_obj = ap_obj;
+  tiz_oggport_t * p_obj = ap_obj;
   assert (p_obj);
-  return super_dtor (typeOf (ap_obj, "tizwebmport"), ap_obj);
+  return super_dtor (typeOf (ap_obj, "tizoggport"), ap_obj);
 }
 
 /*
@@ -74,10 +74,10 @@ webmport_dtor (void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-webmport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+oggport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  const tiz_webmport_t * p_obj = ap_obj;
+  const tiz_oggport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -127,10 +127,10 @@ webmport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static OMX_ERRORTYPE
-webmport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
+oggport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
-  tiz_webmport_t * p_obj = (tiz_webmport_t *) ap_obj;
+  tiz_oggport_t * p_obj = (tiz_oggport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
 
   assert (p_obj);
@@ -151,7 +151,7 @@ webmport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       default:
         {
           /* Try the parent's indexes */
-          rc = super_SetParameter (typeOf (ap_obj, "tizwebmport"), ap_obj,
+          rc = super_SetParameter (typeOf (ap_obj, "tizoggport"), ap_obj,
                                    ap_hdl, a_index, ap_struct);
         }
     };
@@ -160,7 +160,7 @@ webmport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 }
 
 static bool
-webmport_check_tunnel_compat (const void * ap_obj,
+oggport_check_tunnel_compat (const void * ap_obj,
                               OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
                               OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
@@ -182,14 +182,14 @@ webmport_check_tunnel_compat (const void * ap_obj,
 }
 
 /*
- * tiz_webmport_class
+ * tiz_oggport_class
  */
 
 static void *
-tiz_webmport_class_ctor (void * ap_obj, va_list * app)
+tiz_oggport_class_ctor (void * ap_obj, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_obj, "tizwebmport_class"), ap_obj, app);
+  return super_ctor (typeOf (ap_obj, "tizoggport_class"), ap_obj, app);
 }
 
 /*
@@ -197,45 +197,45 @@ tiz_webmport_class_ctor (void * ap_obj, va_list * app)
  */
 
 void *
-tiz_webmport_class_init (void * ap_tos, void * ap_hdl)
+tiz_oggport_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizport = tiz_get_type (ap_hdl, "tizport");
-  void * tizwebmport_class = factory_new
+  void * tizoggport_class = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizport), "tizwebmport_class", classOf (tizport),
-     sizeof (tiz_webmport_class_t),
+    (classOf (tizport), "tizoggport_class", classOf (tizport),
+     sizeof (tiz_oggport_class_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, tiz_webmport_class_ctor,
+     ctor, tiz_oggport_class_ctor,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
-  return tizwebmport_class;
+  return tizoggport_class;
 }
 
 void *
-tiz_webmport_init (void * ap_tos, void * ap_hdl)
+tiz_oggport_init (void * ap_tos, void * ap_hdl)
 {
   void * tizport = tiz_get_type (ap_hdl, "tizport");
-  void * tizwebmport_class = tiz_get_type (ap_hdl, "tizwebmport_class");
-  TIZ_LOG_CLASS (tizwebmport_class);
-  void * tizwebmport = factory_new
+  void * tizoggport_class = tiz_get_type (ap_hdl, "tizoggport_class");
+  TIZ_LOG_CLASS (tizoggport_class);
+  void * tizoggport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (tizwebmport_class, "tizwebmport", tizport, sizeof (tiz_webmport_t),
+    (tizoggport_class, "tizoggport", tizport, sizeof (tiz_oggport_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, webmport_ctor,
+     ctor, oggport_ctor,
      /* TIZ_CLASS_COMMENT: class destructor */
-     dtor, webmport_dtor,
+     dtor, oggport_dtor,
      /* TIZ_CLASS_COMMENT: */
-     tiz_api_GetParameter, webmport_GetParameter,
+     tiz_api_GetParameter, oggport_GetParameter,
      /* TIZ_CLASS_COMMENT: */
-     tiz_api_SetParameter, webmport_SetParameter,
+     tiz_api_SetParameter, oggport_SetParameter,
      /* TIZ_CLASS_COMMENT: */
-     tiz_port_check_tunnel_compat, webmport_check_tunnel_compat,
+     tiz_port_check_tunnel_compat, oggport_check_tunnel_compat,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
 
-  return tizwebmport;
+  return tizoggport;
 }
