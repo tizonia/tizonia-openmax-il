@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   oggmuxsrcprc.c
+ * @file   oggmuxsnkprc.c
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Ogg Muxer source processor
+ * @brief  Tizonia - Ogg muxer sink processor
  *
  *
  */
@@ -41,21 +41,21 @@
 #include <tizscheduler.h>
 
 #include "oggmux.h"
-#include "oggmuxsrcprc.h"
-#include "oggmuxsrcprc_decls.h"
+#include "oggmuxsnkprc.h"
+#include "oggmuxsnkprc_decls.h"
 
 #ifdef TIZ_LOG_CATEGORY_NAME
 #undef TIZ_LOG_CATEGORY_NAME
-#define TIZ_LOG_CATEGORY_NAME "tiz.ogg_muxer.source.prc"
+#define TIZ_LOG_CATEGORY_NAME "tiz.ogg_muxer.sink.prc"
 #endif
 
 /* Forward declarations */
 static OMX_ERRORTYPE
-oggmuxsrc_prc_deallocate_resources (void *);
+oggmuxsnk_prc_deallocate_resources (void *);
 static OMX_ERRORTYPE
-release_buffer (oggmuxsrc_prc_t *);
+release_buffer (oggmuxsnk_prc_t *);
 static OMX_ERRORTYPE
-prepare_for_port_auto_detection (oggmuxsrc_prc_t * ap_prc);
+prepare_for_port_auto_detection (oggmuxsnk_prc_t * ap_prc);
 
 #define on_nestegg_error_ret_omx_oom(expr)                                   \
   do                                                                         \
@@ -89,7 +89,7 @@ ne_io_tell (void * userdata)
   return 0;
 }
 
-/* static OMX_ERRORTYPE init_muxer (oggmuxsrc_prc_t *ap_prc) */
+/* static OMX_ERRORTYPE init_muxer (oggmuxsnk_prc_t *ap_prc) */
 /* { */
 /*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
 
@@ -127,7 +127,7 @@ ne_io_tell (void * userdata)
 /*   return rc; */
 /* } */
 
-/* static OMX_ERRORTYPE transform_buffer (oggmuxsrc_prc_t *ap_prc) */
+/* static OMX_ERRORTYPE transform_buffer (oggmuxsnk_prc_t *ap_prc) */
 /* { */
 /*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
 /*   OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header ( */
@@ -235,7 +235,7 @@ ne_log_cback (nestegg * ctx, unsigned int severity, char const * fmt, ...)
 }
 
 static void
-update_cache_size (oggmuxsrc_prc_t * ap_prc)
+update_cache_size (oggmuxsnk_prc_t * ap_prc)
 {
   assert (ap_prc);
   assert (ap_prc->bitrate_ > 0);
@@ -249,7 +249,7 @@ update_cache_size (oggmuxsrc_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-obtain_uri (oggmuxsrc_prc_t * ap_prc)
+obtain_uri (oggmuxsnk_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
@@ -293,7 +293,7 @@ obtain_uri (oggmuxsrc_prc_t * ap_prc)
 }
 
 static void
-obtain_audio_encoding_from_headers (oggmuxsrc_prc_t * ap_prc,
+obtain_audio_encoding_from_headers (oggmuxsnk_prc_t * ap_prc,
                                     const char * ap_header, const size_t a_size)
 {
   (void) ap_prc;
@@ -302,7 +302,7 @@ obtain_audio_encoding_from_headers (oggmuxsrc_prc_t * ap_prc,
 }
 
 static inline void
-delete_uri (oggmuxsrc_prc_t * ap_prc)
+delete_uri (oggmuxsnk_prc_t * ap_prc)
 {
   assert (ap_prc);
   tiz_mem_free (ap_prc->p_uri_param_);
@@ -310,7 +310,7 @@ delete_uri (oggmuxsrc_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-release_buffer (oggmuxsrc_prc_t * ap_prc)
+release_buffer (oggmuxsnk_prc_t * ap_prc)
 {
   assert (ap_prc);
 
@@ -320,7 +320,7 @@ release_buffer (oggmuxsrc_prc_t * ap_prc)
                   ap_prc->p_outhdr_, ap_prc->p_outhdr_->nFilledLen);
       tiz_check_omx_err (tiz_krn_release_buffer (
         tiz_get_krn (handleOf (ap_prc)),
-        ARATELIA_OGG_MUXER_SOURCE_PORT_0_INDEX, ap_prc->p_outhdr_));
+        ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX, ap_prc->p_outhdr_));
       ap_prc->p_outhdr_ = NULL;
     }
   return OMX_ErrorNone;
@@ -329,7 +329,7 @@ release_buffer (oggmuxsrc_prc_t * ap_prc)
 static void
 buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
 {
-  oggmuxsrc_prc_t * p_prc = ap_arg;
+  oggmuxsnk_prc_t * p_prc = ap_arg;
   assert (p_prc);
   assert (ap_hdr);
   assert (p_prc->p_outhdr_ == ap_hdr);
@@ -340,7 +340,7 @@ buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
 static OMX_BUFFERHEADERTYPE *
 buffer_emptied (OMX_PTR ap_arg)
 {
-  oggmuxsrc_prc_t * p_prc = ap_arg;
+  oggmuxsnk_prc_t * p_prc = ap_arg;
   OMX_BUFFERHEADERTYPE * p_hdr = NULL;
   assert (p_prc);
 
@@ -354,7 +354,7 @@ buffer_emptied (OMX_PTR ap_arg)
         {
           if (OMX_ErrorNone == (tiz_krn_claim_buffer (
                                  tiz_get_krn (handleOf (p_prc)),
-                                 ARATELIA_OGG_MUXER_SOURCE_PORT_0_INDEX, 0,
+                                 ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX, 0,
                                  &p_prc->p_outhdr_)))
             {
               if (p_prc->p_outhdr_)
@@ -373,7 +373,7 @@ buffer_emptied (OMX_PTR ap_arg)
 static void
 header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 {
-  oggmuxsrc_prc_t * p_prc = ap_arg;
+  oggmuxsnk_prc_t * p_prc = ap_arg;
   assert (p_prc);
   assert (ap_ptr);
 
@@ -386,7 +386,7 @@ header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 static bool
 data_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 {
-  oggmuxsrc_prc_t * p_prc = ap_arg;
+  oggmuxsnk_prc_t * p_prc = ap_arg;
   bool pause_needed = false;
   assert (p_prc);
   assert (ap_ptr);
@@ -421,7 +421,7 @@ data_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
 static bool
 connection_lost (OMX_PTR ap_arg)
 {
-  /*   oggmuxsrc_prc_t *p_prc = ap_arg; */
+  /*   oggmuxsnk_prc_t *p_prc = ap_arg; */
   /*   assert (p_prc); */
   /*   prepare_for_port_auto_detection (p_prc); */
   /* Return true to indicate that the automatic reconnection procedure needs to
@@ -430,13 +430,13 @@ connection_lost (OMX_PTR ap_arg)
 }
 
 static OMX_ERRORTYPE
-prepare_for_port_auto_detection (oggmuxsrc_prc_t * ap_prc)
+prepare_for_port_auto_detection (oggmuxsnk_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
 
   TIZ_INIT_OMX_PORT_STRUCT (port_def,
-                            ARATELIA_OGG_MUXER_SOURCE_PORT_0_INDEX);
+                            ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX);
   tiz_check_omx_err (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
@@ -447,14 +447,14 @@ prepare_for_port_auto_detection (oggmuxsrc_prc_t * ap_prc)
 }
 
 /*
- * oggmuxsrcprc
+ * oggmuxsnkprc
  */
 
 static void *
-oggmuxsrc_prc_ctor (void * ap_prc, va_list * app)
+oggmuxsnk_prc_ctor (void * ap_prc, va_list * app)
 {
-  oggmuxsrc_prc_t * p_prc
-    = super_ctor (typeOf (ap_prc, "oggmuxsrcprc"), ap_prc, app);
+  oggmuxsnk_prc_t * p_prc
+    = super_ctor (typeOf (ap_prc, "oggmuxsnkprc"), ap_prc, app);
   assert (p_prc);
   p_prc->p_outhdr_ = NULL;
   p_prc->p_uri_param_ = NULL;
@@ -475,14 +475,14 @@ oggmuxsrc_prc_ctor (void * ap_prc, va_list * app)
 }
 
 static void *
-oggmuxsrc_prc_dtor (void * ap_obj)
+oggmuxsnk_prc_dtor (void * ap_obj)
 {
-  (void) oggmuxsrc_prc_deallocate_resources (ap_obj);
-  return super_dtor (typeOf (ap_obj, "oggmuxsrcprc"), ap_obj);
+  (void) oggmuxsnk_prc_deallocate_resources (ap_obj);
+  return super_dtor (typeOf (ap_obj, "oggmuxsnkprc"), ap_obj);
 }
 
 /* static OMX_ERRORTYPE */
-/* oggmuxsrc_prc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
+/* oggmuxsnk_prc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
  */
 /* { */
 /*   return OMX_ErrorNone; */
@@ -493,9 +493,9 @@ oggmuxsrc_prc_dtor (void * ap_obj)
  */
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
+oggmuxsnk_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
-  oggmuxsrc_prc_t * p_prc = ap_prc;
+  oggmuxsnk_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   assert (!p_prc->p_ne_ctx_);
@@ -529,9 +529,9 @@ oggmuxsrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_deallocate_resources (void * ap_prc)
+oggmuxsnk_prc_deallocate_resources (void * ap_prc)
 {
-  oggmuxsrc_prc_t * p_prc = ap_prc;
+  oggmuxsnk_prc_t * p_prc = ap_prc;
   assert (p_prc);
   tiz_urltrans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
@@ -545,9 +545,9 @@ oggmuxsrc_prc_deallocate_resources (void * ap_prc)
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
+oggmuxsnk_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 {
-  oggmuxsrc_prc_t * p_prc = ap_prc;
+  oggmuxsnk_prc_t * p_prc = ap_prc;
   assert (ap_prc);
   p_prc->eos_ = false;
   tiz_urltrans_cancel (p_prc->p_trans_);
@@ -556,9 +556,9 @@ oggmuxsrc_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
+oggmuxsnk_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 {
-  oggmuxsrc_prc_t * p_prc = ap_prc;
+  oggmuxsnk_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   if (p_prc->auto_detect_on_)
@@ -569,9 +569,9 @@ oggmuxsrc_prc_transfer_and_process (void * ap_prc, OMX_U32 a_pid)
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_stop_and_return (void * ap_prc)
+oggmuxsnk_prc_stop_and_return (void * ap_prc)
 {
-  oggmuxsrc_prc_t * p_prc = ap_prc;
+  oggmuxsnk_prc_t * p_prc = ap_prc;
   assert (p_prc);
   if (p_prc->p_trans_)
     {
@@ -586,47 +586,47 @@ oggmuxsrc_prc_stop_and_return (void * ap_prc)
  */
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_buffers_ready (const void * ap_prc)
+oggmuxsnk_prc_buffers_ready (const void * ap_prc)
 {
-  oggmuxsrc_prc_t * p_prc = (oggmuxsrc_prc_t *) ap_prc;
+  oggmuxsnk_prc_t * p_prc = (oggmuxsnk_prc_t *) ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_buffers_ready (p_prc->p_trans_);
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
+oggmuxsnk_prc_io_ready (void * ap_prc, tiz_event_io_t * ap_ev_io, int a_fd,
                           int a_events)
 {
-  oggmuxsrc_prc_t * p_prc = ap_prc;
+  oggmuxsnk_prc_t * p_prc = ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_io_ready (p_prc->p_trans_, ap_ev_io, a_fd, a_events);
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
+oggmuxsnk_prc_timer_ready (void * ap_prc, tiz_event_timer_t * ap_ev_timer,
                              void * ap_arg, const uint32_t a_id)
 {
-  oggmuxsrc_prc_t * p_prc = ap_prc;
+  oggmuxsnk_prc_t * p_prc = ap_prc;
   assert (p_prc);
   return tiz_urltrans_on_timer_ready (p_prc->p_trans_, ap_ev_timer);
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_pause (const void * ap_obj)
+oggmuxsnk_prc_pause (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_resume (const void * ap_obj)
+oggmuxsnk_prc_resume (const void * ap_obj)
 {
   return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
+oggmuxsnk_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  oggmuxsrc_prc_t * p_prc = (oggmuxsrc_prc_t *) ap_obj;
+  oggmuxsnk_prc_t * p_prc = (oggmuxsnk_prc_t *) ap_obj;
   if (p_prc->p_trans_)
     {
       tiz_urltrans_flush_buffer (p_prc->p_trans_);
@@ -635,9 +635,9 @@ oggmuxsrc_prc_port_flush (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
+oggmuxsnk_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
 {
-  oggmuxsrc_prc_t * p_prc = (oggmuxsrc_prc_t *) ap_obj;
+  oggmuxsnk_prc_t * p_prc = (oggmuxsnk_prc_t *) ap_obj;
   assert (p_prc);
   TIZ_PRINTF_DBG_RED ("Disabling port was disabled? [%s]\n",
                       p_prc->port_disabled_ ? "YES" : "NO");
@@ -648,13 +648,13 @@ oggmuxsrc_prc_port_disable (const void * ap_obj, OMX_U32 TIZ_UNUSED (a_pid))
       tiz_urltrans_flush_buffer (p_prc->p_trans_);
     }
   /* Release any buffers held  */
-  return release_buffer ((oggmuxsrc_prc_t *) ap_obj);
+  return release_buffer ((oggmuxsnk_prc_t *) ap_obj);
 }
 
 static OMX_ERRORTYPE
-oggmuxsrc_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
+oggmuxsnk_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 {
-  oggmuxsrc_prc_t * p_prc = (oggmuxsrc_prc_t *) ap_prc;
+  oggmuxsnk_prc_t * p_prc = (oggmuxsnk_prc_t *) ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
   TIZ_PRINTF_DBG_RED ("Enabling port was disabled? [%s]\n",
@@ -676,14 +676,14 @@ oggmuxsrc_prc_port_enable (const void * ap_prc, OMX_U32 a_pid)
 }
 
 /*
- * oggmuxsrc_prc_class
+ * oggmuxsnk_prc_class
  */
 
 static void *
-oggmuxsrc_prc_class_ctor (void * ap_prc, va_list * app)
+oggmuxsnk_prc_class_ctor (void * ap_prc, va_list * app)
 {
   /* NOTE: Class methods might be added in the future. None for now. */
-  return super_ctor (typeOf (ap_prc, "oggmuxsrcprc_class"), ap_prc, app);
+  return super_ctor (typeOf (ap_prc, "oggmuxsnkprc_class"), ap_prc, app);
 }
 
 /*
@@ -691,65 +691,65 @@ oggmuxsrc_prc_class_ctor (void * ap_prc, va_list * app)
  */
 
 void *
-oggmuxsrc_prc_class_init (void * ap_tos, void * ap_hdl)
+oggmuxsnk_prc_class_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * oggmuxsrcprc_class = factory_new
+  void * oggmuxsnkprc_class = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (classOf (tizprc), "oggmuxsrcprc_class", classOf (tizprc),
-     sizeof (oggmuxsrc_prc_class_t),
+    (classOf (tizprc), "oggmuxsnkprc_class", classOf (tizprc),
+     sizeof (oggmuxsnk_prc_class_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, oggmuxsrc_prc_class_ctor,
+     ctor, oggmuxsnk_prc_class_ctor,
      /* TIZ_CLASS_COMMENT: stop value*/
      0);
-  return oggmuxsrcprc_class;
+  return oggmuxsnkprc_class;
 }
 
 void *
-oggmuxsrc_prc_init (void * ap_tos, void * ap_hdl)
+oggmuxsnk_prc_init (void * ap_tos, void * ap_hdl)
 {
   void * tizprc = tiz_get_type (ap_hdl, "tizprc");
-  void * oggmuxsrcprc_class = tiz_get_type (ap_hdl, "oggmuxsrcprc_class");
-  TIZ_LOG_CLASS (oggmuxsrcprc_class);
-  void * oggmuxsrcprc = factory_new
+  void * oggmuxsnkprc_class = tiz_get_type (ap_hdl, "oggmuxsnkprc_class");
+  TIZ_LOG_CLASS (oggmuxsnkprc_class);
+  void * oggmuxsnkprc = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (oggmuxsrcprc_class, "oggmuxsrcprc", tizprc, sizeof (oggmuxsrc_prc_t),
+    (oggmuxsnkprc_class, "oggmuxsnkprc", tizprc, sizeof (oggmuxsnk_prc_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
-     ctor, oggmuxsrc_prc_ctor,
+     ctor, oggmuxsnk_prc_ctor,
      /* TIZ_CLASS_COMMENT: class destructor */
-     dtor, oggmuxsrc_prc_dtor,
+     dtor, oggmuxsnk_prc_dtor,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_allocate_resources, oggmuxsrc_prc_allocate_resources,
+     tiz_srv_allocate_resources, oggmuxsnk_prc_allocate_resources,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_deallocate_resources, oggmuxsrc_prc_deallocate_resources,
+     tiz_srv_deallocate_resources, oggmuxsnk_prc_deallocate_resources,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_prepare_to_transfer, oggmuxsrc_prc_prepare_to_transfer,
+     tiz_srv_prepare_to_transfer, oggmuxsnk_prc_prepare_to_transfer,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_transfer_and_process, oggmuxsrc_prc_transfer_and_process,
+     tiz_srv_transfer_and_process, oggmuxsnk_prc_transfer_and_process,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_stop_and_return, oggmuxsrc_prc_stop_and_return,
+     tiz_srv_stop_and_return, oggmuxsnk_prc_stop_and_return,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_io_ready, oggmuxsrc_prc_io_ready,
+     tiz_srv_io_ready, oggmuxsnk_prc_io_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_srv_timer_ready, oggmuxsrc_prc_timer_ready,
+     tiz_srv_timer_ready, oggmuxsnk_prc_timer_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_buffers_ready, oggmuxsrc_prc_buffers_ready,
+     tiz_prc_buffers_ready, oggmuxsnk_prc_buffers_ready,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_pause, oggmuxsrc_prc_pause,
+     tiz_prc_pause, oggmuxsnk_prc_pause,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_resume, oggmuxsrc_prc_resume,
+     tiz_prc_resume, oggmuxsnk_prc_resume,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_flush, oggmuxsrc_prc_port_flush,
+     tiz_prc_port_flush, oggmuxsnk_prc_port_flush,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_disable, oggmuxsrc_prc_port_disable,
+     tiz_prc_port_disable, oggmuxsnk_prc_port_disable,
      /* TIZ_CLASS_COMMENT: */
-     tiz_prc_port_enable, oggmuxsrc_prc_port_enable,
+     tiz_prc_port_enable, oggmuxsnk_prc_port_enable,
      /* TIZ_CLASS_COMMENT: stop value */
      0);
 
-  return oggmuxsrcprc;
+  return oggmuxsnkprc;
 }

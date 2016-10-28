@@ -45,7 +45,7 @@
 #include <tizmuxercfgport.h>
 #include <tizscheduler.h>
 
-#include "oggmuxsrcprc.h"
+#include "oggmuxsnkprc.h"
 #include "oggmuxfltprc.h"
 #include "oggmux.h"
 
@@ -58,7 +58,7 @@
  *@defgroup tizoggmux 'tizoggmux' : OpenMAX IL Ogg Muxer
  *
  * - Component name : "OMX.Aratelia.container_muxer.ogg"
- * - Implements role: "container_muxer.source.ogg"
+ * - Implements role: "container_muxer.sink.ogg"
  * - Implements role: "container_muxer.filter.ogg"
  *
  *@ingroup plugins
@@ -67,19 +67,19 @@
 static OMX_VERSIONTYPE ogg_muxer_version = {{1, 0, 0, 0}};
 
 static OMX_PTR
-instantiate_filter_ogg_input_port (OMX_HANDLETYPE ap_hdl)
+instantiate_filter_ogg_output_port (OMX_HANDLETYPE ap_hdl)
 {
   OMX_AUDIO_CODINGTYPE encodings[]
     = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
   tiz_port_options_t port_opts = {
     OMX_PortDomainOther,
-    OMX_DirInput,
+    OMX_DirOutput,
     ARATELIA_OGG_MUXER_OGG_PORT_MIN_BUF_COUNT,
     ARATELIA_OGG_MUXER_OGG_PORT_MIN_BUF_SIZE,
     ARATELIA_OGG_MUXER_OGG_PORT_NONCONTIGUOUS,
     ARATELIA_OGG_MUXER_OGG_PORT_ALIGNMENT,
     ARATELIA_OGG_MUXER_OGG_PORT_SUPPLIERPREF,
-    {ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX, NULL, NULL, NULL},
+    {ARATELIA_OGG_MUXER_FILTER_PORT_2_INDEX, NULL, NULL, NULL},
     -1 /* use -1 for now */
   };
 
@@ -88,7 +88,7 @@ instantiate_filter_ogg_input_port (OMX_HANDLETYPE ap_hdl)
 }
 
 static OMX_PTR
-instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
+instantiate_audio_input_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 {
   OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
   OMX_AUDIO_CONFIG_VOLUMETYPE volume;
@@ -97,7 +97,7 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
     = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
   tiz_port_options_t port_opts = {
     OMX_PortDomainAudio,
-    OMX_DirOutput,
+    OMX_DirInput,
     ARATELIA_OGG_MUXER_AUDIO_PORT_MIN_BUF_COUNT,
     ARATELIA_OGG_MUXER_AUDIO_PORT_MIN_BUF_SIZE,
     ARATELIA_OGG_MUXER_AUDIO_PORT_NONCONTIGUOUS,
@@ -144,21 +144,21 @@ instantiate_audio_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 }
 
 static OMX_PTR
-instantiate_source_audio_output_port (OMX_HANDLETYPE ap_hdl)
+instantiate_sink_audio_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  return instantiate_audio_output_port (
-    ap_hdl, ARATELIA_OGG_MUXER_SOURCE_PORT_0_INDEX);
+  return instantiate_audio_input_port (
+    ap_hdl, ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX);
 }
 
 static OMX_PTR
-instantiate_filter_audio_output_port (OMX_HANDLETYPE ap_hdl)
+instantiate_filter_audio_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  return instantiate_audio_output_port (
-    ap_hdl, ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX);
+  return instantiate_audio_input_port (
+    ap_hdl, ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX);
 }
 
 static OMX_PTR
-instantiate_video_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
+instantiate_video_input_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 {
   OMX_VIDEO_PORTDEFINITIONTYPE portdef;
   OMX_VIDEO_CODINGTYPE encodings[]
@@ -167,7 +167,7 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
     = {OMX_COLOR_FormatUnused, OMX_COLOR_FormatMax};
   tiz_port_options_t port_opts = {
     OMX_PortDomainVideo,
-    OMX_DirOutput,
+    OMX_DirInput,
     ARATELIA_OGG_MUXER_VIDEO_PORT_MIN_BUF_COUNT,
     ARATELIA_OGG_MUXER_VIDEO_PORT_MIN_BUF_SIZE,
     ARATELIA_OGG_MUXER_VIDEO_PORT_NONCONTIGUOUS,
@@ -202,17 +202,17 @@ instantiate_video_output_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 }
 
 static OMX_PTR
-instantiate_source_video_output_port (OMX_HANDLETYPE ap_hdl)
+instantiate_sink_video_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  return instantiate_video_output_port (
-    ap_hdl, ARATELIA_OGG_MUXER_SOURCE_PORT_1_INDEX);
+  return instantiate_video_input_port (
+    ap_hdl, ARATELIA_OGG_MUXER_SINK_PORT_1_INDEX);
 }
 
 static OMX_PTR
-instantiate_filter_video_output_port (OMX_HANDLETYPE ap_hdl)
+instantiate_filter_video_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  return instantiate_video_output_port (
-    ap_hdl, ARATELIA_OGG_MUXER_FILTER_PORT_2_INDEX);
+  return instantiate_video_input_port (
+    ap_hdl, ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX);
 }
 
 static OMX_PTR
@@ -225,9 +225,9 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 }
 
 static OMX_PTR
-instantiate_source_processor (OMX_HANDLETYPE ap_hdl)
+instantiate_sink_processor (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "oggmuxsrcprc"));
+  return factory_new (tiz_get_type (ap_hdl, "oggmuxsnkprc"));
 }
 
 static OMX_PTR
@@ -239,37 +239,37 @@ instantiate_filter_processor (OMX_HANDLETYPE ap_hdl)
 OMX_ERRORTYPE
 OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
 {
-  tiz_role_factory_t source_role_factory;
+  tiz_role_factory_t sink_role_factory;
   tiz_role_factory_t filter_role_factory;
   const tiz_role_factory_t * rf_list[]
-    = {&source_role_factory, &filter_role_factory};
+    = {&sink_role_factory, &filter_role_factory};
 
-  tiz_type_factory_t oggmuxsrcprc_type;
+  tiz_type_factory_t oggmuxsnkprc_type;
   tiz_type_factory_t oggmuxfltprc_type;
   const tiz_type_factory_t * tf_list[]
-    = {&oggmuxsrcprc_type, &oggmuxfltprc_type};
+    = {&oggmuxsnkprc_type, &oggmuxfltprc_type};
 
-  strcpy ((OMX_STRING) source_role_factory.role,
-          ARATELIA_OGG_MUXER_SOURCE_ROLE);
-  source_role_factory.pf_cport = instantiate_config_port;
-  source_role_factory.pf_port[0] = instantiate_source_audio_output_port;
-  source_role_factory.pf_port[1] = instantiate_source_video_output_port;
-  source_role_factory.nports = 2;
-  source_role_factory.pf_proc = instantiate_source_processor;
+  strcpy ((OMX_STRING) sink_role_factory.role,
+          ARATELIA_OGG_MUXER_SINK_ROLE);
+  sink_role_factory.pf_cport = instantiate_config_port;
+  sink_role_factory.pf_port[0] = instantiate_sink_audio_input_port;
+  sink_role_factory.pf_port[1] = instantiate_sink_video_input_port;
+  sink_role_factory.nports = 2;
+  sink_role_factory.pf_proc = instantiate_sink_processor;
 
   strcpy ((OMX_STRING) filter_role_factory.role,
           ARATELIA_OGG_MUXER_FILTER_ROLE);
   filter_role_factory.pf_cport = instantiate_config_port;
-  filter_role_factory.pf_port[0] = instantiate_filter_ogg_input_port;
-  filter_role_factory.pf_port[1] = instantiate_filter_audio_output_port;
-  filter_role_factory.pf_port[2] = instantiate_filter_video_output_port;
+  filter_role_factory.pf_port[0] = instantiate_filter_ogg_output_port;
+  filter_role_factory.pf_port[1] = instantiate_filter_audio_input_port;
+  filter_role_factory.pf_port[2] = instantiate_filter_video_input_port;
   filter_role_factory.nports = 3;
   filter_role_factory.pf_proc = instantiate_filter_processor;
 
-  strcpy ((OMX_STRING) oggmuxsrcprc_type.class_name, "oggmuxsrcprc_class");
-  oggmuxsrcprc_type.pf_class_init = oggmuxsrc_prc_class_init;
-  strcpy ((OMX_STRING) oggmuxsrcprc_type.object_name, "oggmuxsrcprc");
-  oggmuxsrcprc_type.pf_object_init = oggmuxsrc_prc_init;
+  strcpy ((OMX_STRING) oggmuxsnkprc_type.class_name, "oggmuxsnkprc_class");
+  oggmuxsnkprc_type.pf_class_init = oggmuxsnk_prc_class_init;
+  strcpy ((OMX_STRING) oggmuxsnkprc_type.object_name, "oggmuxsnkprc");
+  oggmuxsnkprc_type.pf_object_init = oggmuxsnk_prc_init;
 
   strcpy ((OMX_STRING) oggmuxfltprc_type.class_name, "oggmuxfltprc_class");
   oggmuxfltprc_type.pf_class_init = oggmuxflt_prc_class_init;

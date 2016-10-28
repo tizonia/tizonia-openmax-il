@@ -37,40 +37,40 @@ extern "C" {
 
 #define ARATELIA_OGG_MUXER_COMPONENT_NAME \
   "OMX.Aratelia.container_muxer.ogg"
-#define ARATELIA_OGG_MUXER_SOURCE_ROLE "container_muxer.source.ogg"
+#define ARATELIA_OGG_MUXER_SINK_ROLE "container_muxer.sink.ogg"
 #define ARATELIA_OGG_MUXER_FILTER_ROLE "container_muxer.filter.ogg"
 
 /* Filter role (with libtizonia, port indexes must start at index 0) */
-#define ARATELIA_OGG_MUXER_SOURCE_PORT_0_INDEX 0 /* Audio output */
-#define ARATELIA_OGG_MUXER_SOURCE_PORT_1_INDEX 1 /* Video output */
+#define ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX 0 /* audio input */
+#define ARATELIA_OGG_MUXER_SINK_PORT_1_INDEX 1 /* video input */
 
 /* Filter role  (with libtizonia, port indexes must start at index 0) */
-#define ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX 0 /* Ogg input port */
-#define ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX 1 /* Audio output */
-#define ARATELIA_OGG_MUXER_FILTER_PORT_2_INDEX 2 /* Video output */
+#define ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX 0 /* audio input */
+#define ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX 1 /* video input */
+#define ARATELIA_OGG_MUXER_FILTER_PORT_2_INDEX 2 /* Ogg output port */
 
-/* Filter ogg input port */
+/* Filter ogg output port */
 #define ARATELIA_OGG_MUXER_OGG_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_OGG_MUXER_OGG_PORT_MIN_BUF_SIZE 8192
 #define ARATELIA_OGG_MUXER_OGG_PORT_NONCONTIGUOUS OMX_FALSE
 #define ARATELIA_OGG_MUXER_OGG_PORT_ALIGNMENT 0
 #define ARATELIA_OGG_MUXER_OGG_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
-/* Source/filter audio output port */
+/* Sink/filter audio input port */
 #define ARATELIA_OGG_MUXER_AUDIO_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_OGG_MUXER_AUDIO_PORT_MIN_BUF_SIZE 8192
 #define ARATELIA_OGG_MUXER_AUDIO_PORT_NONCONTIGUOUS OMX_FALSE
 #define ARATELIA_OGG_MUXER_AUDIO_PORT_ALIGNMENT 0
 #define ARATELIA_OGG_MUXER_AUDIO_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
-/* Source/filter video output port */
+/* Sink/filter video input port */
 #define ARATELIA_OGG_MUXER_VIDEO_PORT_MIN_BUF_COUNT 2
 #define ARATELIA_OGG_MUXER_VIDEO_PORT_MIN_BUF_SIZE 8192 * 4
 #define ARATELIA_OGG_MUXER_VIDEO_PORT_NONCONTIGUOUS OMX_FALSE
 #define ARATELIA_OGG_MUXER_VIDEO_PORT_ALIGNMENT 0
 #define ARATELIA_OGG_MUXER_VIDEO_PORT_SUPPLIERPREF OMX_BufferSupplyInput
 
-/* Source role - additional configs */
+/* Sink role - additional configs */
 #define ARATELIA_OGG_MUXER_DEFAULT_RECONNECT_TIMEOUT 3.0F
 #define ARATELIA_OGG_MUXER_DEFAULT_BIT_RATE_KBITS 128
 #define ARATELIA_OGG_MUXER_DEFAULT_CACHE_SECONDS 10

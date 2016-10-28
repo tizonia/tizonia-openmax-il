@@ -21,14 +21,14 @@ libtizoggmux_LTLIBRARIES = libtizoggmux.la
 
 noinst_HEADERS = \
 	oggmux.h \
-	oggmuxsrcprc.h \
-	oggmuxsrcprc_decls.h \
+	oggmuxsnkprc.h \
+	oggmuxsnkprc_decls.h \
 	oggmuxfltprc.h \
 	oggmuxfltprc_decls.h
 
 libtizoggmux_la_SOURCES = \
 	oggmux.c \
-	oggmuxsrcprc.c \
+	oggmuxsnkprc.c \
 	oggmuxfltprc.c
 
 libtizoggmux_la_CFLAGS = \

@@ -18,10 +18,10 @@
  */
 
 /**
- * @file   oggmuxsrcprc.h
+ * @file   oggmuxsnkprc.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Ogg Muxer processor
+ * @brief  Tizonia - Ogg muxer sink processor
  *
  *
  */
@@ -34,9 +34,9 @@ extern "C" {
 #endif
 
 void *
-oggmuxsrc_prc_class_init (void * ap_tos, void * ap_hdl);
+oggmuxsnk_prc_class_init (void * ap_tos, void * ap_hdl);
 void *
-oggmuxsrc_prc_init (void * ap_tos, void * ap_hdl);
+oggmuxsnk_prc_init (void * ap_tos, void * ap_hdl);
 
 #ifdef __cplusplus
 }

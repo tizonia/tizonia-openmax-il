@@ -17,10 +17,10 @@
  * along with Tizonia.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file   oggmuxsrcprc_decls.h
+ * @file   oggmuxsnkprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
  *
- * @brief  Tizonia - Ogg Muxer processor declarations
+ * @brief  Tizonia - Ogg muxer sink processor declarations
  *
  *
  */
@@ -42,8 +42,8 @@ extern "C" {
 
 #include "nestegg.h"
 
-typedef struct oggmuxsrc_prc oggmuxsrc_prc_t;
-struct oggmuxsrc_prc
+typedef struct oggmuxsnk_prc oggmuxsnk_prc_t;
+struct oggmuxsnk_prc
 {
   /* Object */
   const tiz_prc_t _;
@@ -61,8 +61,8 @@ struct oggmuxsrc_prc
   nestegg_io ne_io_;
 };
 
-typedef struct oggmuxsrc_prc_class oggmuxsrc_prc_class_t;
-struct oggmuxsrc_prc_class
+typedef struct oggmuxsnk_prc_class oggmuxsnk_prc_class_t;
+struct oggmuxsnk_prc_class
 {
   /* Class */
   const tiz_prc_class_t _;

@@ -112,7 +112,7 @@
 <!--         <category name="tiz.webm_demuxer.source.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.webm_demuxer.filter.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_muxer" priority="trace" appender="tizlogfile" /> -->
-<!--         <category name="tiz.ogg_muxer.source.prc" priority="trace" appender="tizlogfile" /> -->
+<!--         <category name="tiz.ogg_muxer.sink.prc" priority="trace" appender="tizlogfile" /> -->
 <!--         <category name="tiz.ogg_muxer.filter.prc" priority="trace" appender="tizlogfile" /> -->
 
 <!--         <category name="tiz.play" priority="trace" appender="tizlogfile" /> -->
