@@ -42,7 +42,7 @@
 #include <tizport.h>
 #include <tizoggport.h>
 #include <tizmuxerport.h>
-#include <tizcfgport.h>
+#include <tizconfigport.h>
 #include <tizscheduler.h>
 
 #include "oggmuxsnkprc.h"

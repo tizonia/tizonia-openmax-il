@@ -23,7 +23,7 @@
  *
  * @brief  Tizonia - Ogg muxer sink processor
  *
- *
+ * NOTE: This processor implementation is just a skeleton for now!
  */
 
 #ifdef HAVE_CONFIG_H
@@ -32,6 +32,9 @@
 
 #include <assert.h>
 #include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <limits.h>
 
 #include <OMX_TizoniaExt.h>
 
@@ -56,183 +59,6 @@ static OMX_ERRORTYPE
 release_buffer (oggmuxsnk_prc_t *);
 static OMX_ERRORTYPE
 prepare_for_port_auto_detection (oggmuxsnk_prc_t * ap_prc);
-
-#define on_nestegg_error_ret_omx_oom(expr)                                   \
-  do                                                                         \
-    {                                                                        \
-      int nestegg_error = 0;                                                 \
-      if (0 != (nestegg_error = (expr)))                                     \
-        {                                                                    \
-          TIZ_ERROR (handleOf (p_prc),                                       \
-                     "[OMX_ErrorInsufficientResources] : error while using " \
-                     "libnestegg");                                          \
-          return OMX_ErrorInsufficientResources;                             \
-        }                                                                    \
-    }                                                                        \
-  while (0)
-
-static int
-ne_io_read (void * a_buffer, size_t a_length, void * a_userdata)
-{
-  return 0;
-}
-
-static int
-ne_io_seek (int64_t offset, int whence, void * userdata)
-{
-  return 0;
-}
-
-static int64_t
-ne_io_tell (void * userdata)
-{
-  return 0;
-}
-
-/* static OMX_ERRORTYPE init_muxer (oggmuxsnk_prc_t *ap_prc) */
-/* { */
-/*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
-
-/*   if (store_data (ap_prc)) */
-/*     { */
-/*       int op_error = 0; */
-/*       OpusFileCallbacks op_cbacks = { read_cback, NULL, NULL, NULL }; */
-
-/*       ap_prc->p_opus_dec_ */
-/*           = op_open_callbacks (ap_prc, &op_cbacks, NULL, 0, &op_error); */
-
-/*       if (0 != op_error) */
-/*         { */
-/*           TIZ_ERROR (handleOf (ap_prc), */
-/*                      "Unable to open the opus file handle (op_error = %d).",
- */
-/*                      op_error); */
-/*           ap_prc->store_offset_ = 0; */
-/*         } */
-/*       else */
-/*         { */
-/*           TIZ_TRACE (handleOf (ap_prc), */
-/*                      "muxer_inited = TRUE - store_offset [%d]", */
-/*                      ap_prc->store_offset_); */
-/*           ap_prc->muxer_inited_ = true; */
-/*           tiz_buffer_advance (ap_prc->p_store_, ap_prc->store_offset_); */
-/*           ap_prc->store_offset_ = 0; */
-/*         } */
-/*     } */
-/*   else */
-/*     { */
-/*       rc = OMX_ErrorInsufficientResources; */
-/*     } */
-
-/*   return rc; */
-/* } */
-
-/* static OMX_ERRORTYPE transform_buffer (oggmuxsnk_prc_t *ap_prc) */
-/* { */
-/*   OMX_ERRORTYPE rc = OMX_ErrorNone; */
-/*   OMX_BUFFERHEADERTYPE *p_out = tiz_filter_prc_get_header ( */
-/*       ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX); */
-
-/*   if (!store_data (ap_prc)) */
-/*     { */
-/*       TIZ_ERROR (handleOf (ap_prc), */
-/*                  "[OMX_ErrorInsufficientResources] : " */
-/*                  "Could not store all the incoming data"); */
-/*       return OMX_ErrorInsufficientResources; */
-/*     } */
-
-/*   if (tiz_buffer_available (ap_prc->p_store_) == 0 || NULL == p_out) */
-/*     { */
-/*       TIZ_TRACE (handleOf (ap_prc), "store bytes [%d] OUT HEADER [%p]", */
-/*                  tiz_buffer_available (ap_prc->p_store_), p_out); */
-
-/*       /\* Propagate the EOS flag to the next component *\/ */
-/*       if (tiz_buffer_available (ap_prc->p_store_) == 0 && p_out */
-/*           && tiz_filter_prc_is_eos (ap_prc)) */
-/*         { */
-/*           p_out->nFlags |= OMX_BUFFERFLAG_EOS; */
-/*           tiz_filter_prc_release_header ( */
-/*               ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX); */
-/*           tiz_filter_prc_update_eos_flag (ap_prc, false); */
-/*         } */
-/*       return OMX_ErrorNotReady; */
-/*     } */
-
-/*   assert (ap_prc); */
-/*   assert (ap_prc->p_opus_dec_); */
-
-/*   { */
-/*     unsigned char *p_pcm = p_out->pBuffer + p_out->nOffset; */
-/*     const long len = p_out->nAllocLen; */
-/*     int samples_read */
-/*         = op_read_float_stereo (ap_prc->p_opus_dec_, (float *)p_pcm, len); */
-/*     TIZ_TRACE (handleOf (ap_prc), "samples_read [%d] ", samples_read); */
-
-/*     if (samples_read > 0) */
-/*       { */
-/*         p_out->nFilledLen = 2 * samples_read * sizeof(float); */
-/*         (void)tiz_filter_prc_release_header ( */
-/*             ap_prc, ARATELIA_OPUS_DECODER_OUTPUT_PORT_INDEX); */
-/*       } */
-/*     else */
-/*       { */
-/*         switch (samples_read) */
-/*           { */
-/*             case OP_HOLE: */
-/*               { */
-/*                 TIZ_NOTICE (handleOf (ap_prc), */
-/*                             "[OP_HOLE] : " */
-/*                             "While decoding the input stream."); */
-/*               } */
-/*               break; */
-/*             default: */
-/*               { */
-/*                 TIZ_ERROR (handleOf (ap_prc), */
-/*                            "[OMX_ErrorStreamCorruptFatal] : " */
-/*                            "While decoding the input stream."); */
-/*                 rc = OMX_ErrorStreamCorruptFatal; */
-/*               } */
-/*           }; */
-/*       } */
-/*   } */
-
-/*   return rc; */
-/* } */
-
-static void
-ne_log_cback (nestegg * ctx, unsigned int severity, char const * fmt, ...)
-{
-  va_list ap;
-  char const * sev = NULL;
-
-#if !defined(DEBUG)
-  if (severity < NESTEGG_LOG_WARNING)
-    return;
-#endif
-
-  switch (severity)
-    {
-      case NESTEGG_LOG_DEBUG:
-        sev = "debug:   ";
-        break;
-      case NESTEGG_LOG_WARNING:
-        sev = "warning: ";
-        break;
-      case NESTEGG_LOG_CRITICAL:
-        sev = "critical:";
-        break;
-      default:
-        sev = "unknown: ";
-    }
-
-  fprintf (stderr, "%p %s ", (void *) ctx, sev);
-
-  va_start (ap, fmt);
-  vfprintf (stderr, fmt, ap);
-  va_end (ap);
-
-  fprintf (stderr, "\n");
-}
 
 static void
 update_cache_size (oggmuxsnk_prc_t * ap_prc)
@@ -292,15 +118,6 @@ obtain_uri (oggmuxsnk_prc_t * ap_prc)
   return rc;
 }
 
-static void
-obtain_audio_encoding_from_headers (oggmuxsnk_prc_t * ap_prc,
-                                    const char * ap_header, const size_t a_size)
-{
-  (void) ap_prc;
-  (void) ap_header;
-  (void) a_size;
-}
-
 static inline void
 delete_uri (oggmuxsnk_prc_t * ap_prc)
 {
@@ -324,109 +141,6 @@ release_buffer (oggmuxsnk_prc_t * ap_prc)
       ap_prc->p_outhdr_ = NULL;
     }
   return OMX_ErrorNone;
-}
-
-static void
-buffer_filled (OMX_BUFFERHEADERTYPE * ap_hdr, void * ap_arg)
-{
-  oggmuxsnk_prc_t * p_prc = ap_arg;
-  assert (p_prc);
-  assert (ap_hdr);
-  assert (p_prc->p_outhdr_ == ap_hdr);
-  ap_hdr->nOffset = 0;
-  (void) release_buffer (p_prc);
-}
-
-static OMX_BUFFERHEADERTYPE *
-buffer_emptied (OMX_PTR ap_arg)
-{
-  oggmuxsnk_prc_t * p_prc = ap_arg;
-  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
-  assert (p_prc);
-
-  if (!p_prc->port_disabled_)
-    {
-      if (p_prc->p_outhdr_)
-        {
-          p_hdr = p_prc->p_outhdr_;
-        }
-      else
-        {
-          if (OMX_ErrorNone == (tiz_krn_claim_buffer (
-                                 tiz_get_krn (handleOf (p_prc)),
-                                 ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX, 0,
-                                 &p_prc->p_outhdr_)))
-            {
-              if (p_prc->p_outhdr_)
-                {
-                  TIZ_TRACE (handleOf (p_prc),
-                             "Claimed HEADER [%p]...nFilledLen [%d]",
-                             p_prc->p_outhdr_, p_prc->p_outhdr_->nFilledLen);
-                  p_hdr = p_prc->p_outhdr_;
-                }
-            }
-        }
-    }
-  return p_hdr;
-}
-
-static void
-header_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
-{
-  oggmuxsnk_prc_t * p_prc = ap_arg;
-  assert (p_prc);
-  assert (ap_ptr);
-
-  if (p_prc->auto_detect_on_)
-    {
-      obtain_audio_encoding_from_headers (p_prc, ap_ptr, a_nbytes);
-    }
-}
-
-static bool
-data_available (OMX_PTR ap_arg, const void * ap_ptr, const size_t a_nbytes)
-{
-  oggmuxsnk_prc_t * p_prc = ap_arg;
-  bool pause_needed = false;
-  assert (p_prc);
-  assert (ap_ptr);
-
-  /*   if (p_prc->auto_detect_on_ && a_nbytes > 0) */
-  /*     { */
-  /*       p_prc->auto_detect_on_ = false; */
-
-  /*       /\* This will pause the http transfer *\/ */
-  /*       pause_needed = true; */
-
-  /*       if (OMX_AUDIO_CodingOGA == p_prc->audio_coding_type_) */
-  /*         { */
-  /*           /\* Try to identify the actual codec from the ogg stream *\/ */
-  /*           p_prc->audio_coding_type_ */
-  /*             = identify_ogg_codec (p_prc, (unsigned char *)ap_ptr,
-   * a_nbytes); */
-  /*           if (OMX_AUDIO_CodingUnused != p_prc->audio_coding_type_) */
-  /*             { */
-  /*               set_audio_coding_on_port (p_prc); */
-  /*               set_audio_info_on_port (p_prc); */
-  /*             } */
-  /*         } */
-  /*       /\* And now trigger the OMX_EventPortFormatDetected and */
-  /*          OMX_EventPortSettingsChanged events or a */
-  /*          OMX_ErrorFormatNotDetected event *\/ */
-  /*       send_port_auto_detect_events (p_prc); */
-  /*     } */
-  return pause_needed;
-}
-
-static bool
-connection_lost (OMX_PTR ap_arg)
-{
-  /*   oggmuxsnk_prc_t *p_prc = ap_arg; */
-  /*   assert (p_prc); */
-  /*   prepare_for_port_auto_detection (p_prc); */
-  /* Return true to indicate that the automatic reconnection procedure needs to
-     be started */
-  return true;
 }
 
 static OMX_ERRORTYPE
@@ -466,11 +180,6 @@ oggmuxsnk_prc_ctor (void * ap_prc, va_list * app)
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->bitrate_ = ARATELIA_OGG_MUXER_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
-  p_prc->p_ne_ctx_ = NULL;
-  p_prc->ne_io_.read = ne_io_read;
-  p_prc->ne_io_.seek = ne_io_seek;
-  p_prc->ne_io_.tell = ne_io_tell;
-  p_prc->ne_io_.userdata = p_prc;
   return p_prc;
 }
 
@@ -480,13 +189,6 @@ oggmuxsnk_prc_dtor (void * ap_obj)
   (void) oggmuxsnk_prc_deallocate_resources (ap_obj);
   return super_dtor (typeOf (ap_obj, "oggmuxsnkprc"), ap_obj);
 }
-
-/* static OMX_ERRORTYPE */
-/* oggmuxsnk_prc_read_buffer (const void *ap_obj, OMX_BUFFERHEADERTYPE * p_hdr)
- */
-/* { */
-/*   return OMX_ErrorNone; */
-/* } */
 
 /*
  * from tizsrv class
@@ -498,33 +200,8 @@ oggmuxsnk_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   oggmuxsnk_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
-  assert (!p_prc->p_ne_ctx_);
   assert (!p_prc->p_uri_param_);
-
   tiz_check_omx_err (obtain_uri (p_prc));
-
-  on_nestegg_error_ret_omx_oom (
-    nestegg_init (&p_prc->p_ne_ctx_, p_prc->ne_io_, ne_log_cback, -1));
-
-  {
-    const tiz_urltrans_buffer_cbacks_t buffer_cbacks
-      = {buffer_filled, buffer_emptied};
-    const tiz_urltrans_info_cbacks_t info_cbacks
-      = {header_available, data_available, connection_lost};
-    const tiz_urltrans_event_io_cbacks_t io_cbacks
-      = {tiz_srv_io_watcher_init, tiz_srv_io_watcher_destroy,
-         tiz_srv_io_watcher_start, tiz_srv_io_watcher_stop};
-    const tiz_urltrans_event_timer_cbacks_t timer_cbacks
-      = {tiz_srv_timer_watcher_init, tiz_srv_timer_watcher_destroy,
-         tiz_srv_timer_watcher_start, tiz_srv_timer_watcher_stop,
-         tiz_srv_timer_watcher_restart};
-    rc
-      = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
-                           ARATELIA_OGG_MUXER_COMPONENT_NAME,
-                           ARATELIA_OGG_MUXER_VIDEO_PORT_MIN_BUF_SIZE,
-                           ARATELIA_OGG_MUXER_DEFAULT_RECONNECT_TIMEOUT,
-                           buffer_cbacks, info_cbacks, io_cbacks, timer_cbacks);
-  }
   return rc;
 }
 
@@ -536,11 +213,6 @@ oggmuxsnk_prc_deallocate_resources (void * ap_prc)
   tiz_urltrans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
   delete_uri (p_prc);
-  if (p_prc->p_ne_ctx_)
-    {
-      nestegg_destroy (p_prc->p_ne_ctx_);
-      p_prc->p_ne_ctx_ = NULL;
-    }
   return OMX_ErrorNone;
 }
 

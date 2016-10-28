@@ -34,6 +34,8 @@ extern "C" {
 
 #include <stdbool.h>
 
+#include <oggz/oggz.h>
+
 #include <OMX_Core.h>
 
 #include <tizplatform.h>
@@ -41,29 +43,16 @@ extern "C" {
 #include <tizfilterprc.h>
 #include <tizfilterprc_decls.h>
 
-#include "nestegg.h"
-
 typedef struct oggmuxflt_prc oggmuxflt_prc_t;
 struct oggmuxflt_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
   tiz_buffer_t * p_store_;
-  bool ne_inited_;
   bool audio_auto_detect_on_;
   OMX_S32 audio_coding_type_;
   bool video_auto_detect_on_;
   OMX_S32 video_coding_type_;
-  nestegg * p_ne_ctx_;
-  nestegg_io ne_io_;
-  nestegg_audio_params ne_audio_params_;
-  nestegg_video_params ne_video_params_;
-  unsigned int ne_audio_track_;
-  unsigned int ne_video_track_;
-  nestegg_packet * p_ne_pkt_;
-  unsigned int ne_chunk_;
-  int ne_read_err_;
-  int ne_last_read_len_;
 };
 
 typedef struct oggmuxflt_prc_class oggmuxflt_prc_class_t;

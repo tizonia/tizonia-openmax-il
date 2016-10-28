@@ -40,7 +40,7 @@ extern "C" {
 
 #include <tizplatform.h>
 
-#include "nestegg.h"
+#include <oggz/oggz.h>
 
 typedef struct oggmuxsnk_prc oggmuxsnk_prc_t;
 struct oggmuxsnk_prc
@@ -57,8 +57,6 @@ struct oggmuxsnk_prc
   OMX_S32 audio_coding_type_;
   int bitrate_;
   int cache_bytes_;
-  nestegg * p_ne_ctx_;
-  nestegg_io ne_io_;
 };
 
 typedef struct oggmuxsnk_prc_class oggmuxsnk_prc_class_t;
