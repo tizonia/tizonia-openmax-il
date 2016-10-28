@@ -73,6 +73,7 @@
 #include "tizivrport.h"
 #include "tizbinaryport.h"
 #include "tizdemuxerport.h"
+#include "tizmuxerport.h"
 #include "tizwebmport.h"
 #include "tizoggport.h"
 #include "tizuricfgport.h"
@@ -163,6 +164,8 @@ enum tiz_os_type
   ETIZBinaryport,
   ETIZDemuxerport_class,
   ETIZDemuxerport,
+  ETIZMuxerport_class,
+  ETIZMuxerport,
   ETIZWebmport_class,
   ETIZWebmport,
   ETIZOggport_class,
@@ -334,6 +337,8 @@ static tiz_os_type_str_t tiz_os_type_to_str_tbl[] = {
   {ETIZBinaryport, "tizbinaryport"},
   {ETIZDemuxerport_class, "tizdemuxerport_class"},
   {ETIZDemuxerport, "tizdemuxerport"},
+  {ETIZMuxerport_class, "tizmuxerport_class"},
+  {ETIZMuxerport, "tizmuxerport"},
   {ETIZWebmport_class, "tizwebmport_class"},
   {ETIZWebmport, "tizwebmport"},
   {ETIZOggport_class, "tizoggport_class"},

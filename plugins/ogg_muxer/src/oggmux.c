@@ -42,7 +42,7 @@
 #include <tizport.h>
 #include <tizoggport.h>
 #include <tizmuxerport.h>
-#include <tizmuxercfgport.h>
+#include <tizcfgport.h>
 #include <tizscheduler.h>
 
 #include "oggmuxsnkprc.h"
@@ -218,7 +218,7 @@ instantiate_filter_video_input_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizmuxercfgport"),
+  return factory_new (tiz_get_type (ap_hdl, "tizcfgport"),
                       NULL, /* this port does not take options */
                       ARATELIA_OGG_MUXER_COMPONENT_NAME,
                       ogg_muxer_version);
