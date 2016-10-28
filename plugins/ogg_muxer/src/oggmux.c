@@ -218,7 +218,7 @@ instantiate_filter_video_input_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
-  return factory_new (tiz_get_type (ap_hdl, "tizcfgport"),
+  return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
                       NULL, /* this port does not take options */
                       ARATELIA_OGG_MUXER_COMPONENT_NAME,
                       ogg_muxer_version);
