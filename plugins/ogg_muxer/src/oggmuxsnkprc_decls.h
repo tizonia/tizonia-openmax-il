@@ -48,7 +48,7 @@ struct oggmuxsnk_prc
   /* Object */
   const tiz_prc_t _;
   OMX_BUFFERHEADERTYPE * p_outhdr_;
-  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
+  OMX_PARAM_CONTENTURITYPE * p_uri_;
   tiz_urltrans_t * p_trans_;
   bool eos_;
   bool port_disabled_;

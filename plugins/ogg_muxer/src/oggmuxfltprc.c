@@ -34,6 +34,9 @@
 
 #include <assert.h>
 #include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <limits.h>
 
 #include <OMX_TizoniaExt.h>
 
@@ -51,11 +54,46 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.ogg_muxer.filter.prc"
 #endif
 
+#define on_oggz_error_ret_omx_oom(expr)                    \
+  do                                                       \
+    {                                                      \
+      int oggz_error = 0;                                  \
+      if (0 != (oggz_error = (expr)))                      \
+        {                                                  \
+          TIZ_ERROR (handleOf (ap_prc),                    \
+                     "[OMX_ErrorInsufficientResources] : " \
+                     "oggz (%s)",                          \
+                     strerror (errno));                    \
+          return OMX_ErrorInsufficientResources;           \
+        }                                                  \
+    }                                                      \
+  while (0)
+
 static OMX_HANDLETYPE g_handle = NULL;
 
 /* Forward declarations */
 static OMX_ERRORTYPE
 oggmuxflt_prc_deallocate_resources (void *);
+
+static int
+oggz_hungry_cback (OGGZ * oggz, int empty, void * user_data)
+{
+  /*   ogg_packet op; */
+  /*   unsigned char buf[1]; */
+  /*   buf[0] = 'A' + (int)packetno; */
+  /*   op.packet = buf; */
+  /*   op.bytes = 1; */
+  /*   op.granulepos = granulepos; */
+  /*   op.packetno = packetno; */
+  /*   if (packetno == 0) op.b_o_s = 1; */
+  /*   else op.b_o_s = 0; */
+  /*   if (packetno == 9) op.e_o_s = 1; */
+  /*   else op.e_o_s = 0; */
+  /*   oggz_write_feed (oggz, &op, serialno, OGGZ_FLUSH_AFTER, NULL); */
+  /*   granulepos += 100; */
+  /*   packetno++; */
+  return 0;
+}
 
 static OMX_ERRORTYPE
 prepare_port_auto_detection (oggmuxflt_prc_t * ap_prc)
@@ -64,8 +102,7 @@ prepare_port_auto_detection (oggmuxflt_prc_t * ap_prc)
   assert (ap_prc);
 
   /* Prepare audio port */
-  TIZ_INIT_OMX_PORT_STRUCT (port_def,
-                            ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX);
   tiz_check_omx_err (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
@@ -74,8 +111,7 @@ prepare_port_auto_detection (oggmuxflt_prc_t * ap_prc)
     = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true : false;
 
   /* Prepare video port */
-  TIZ_INIT_OMX_PORT_STRUCT (port_def,
-                            ARATELIA_OGG_MUXER_FILTER_PORT_2_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_OGG_MUXER_FILTER_PORT_2_INDEX);
   tiz_check_omx_err (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
@@ -94,13 +130,52 @@ mux_stream (oggmuxflt_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-allocate_temp_data_store (oggmuxflt_prc_t * ap_prc)
+obtain_uri (oggmuxflt_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  const long pathname_max = PATH_MAX + NAME_MAX;
+
+  assert (ap_prc);
+  assert (!ap_prc->p_uri_);
+
+  if (!(ap_prc->p_uri_ = tiz_mem_calloc (
+          1, sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1)))
+    {
+      TIZ_ERROR (handleOf (ap_prc),
+                 "Error allocating memory for the content uri struct");
+      rc = OMX_ErrorInsufficientResources;
+    }
+  else
+    {
+      ap_prc->p_uri_->nSize
+        = sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1;
+      ap_prc->p_uri_->nVersion.nVersion = OMX_VERSION;
+
+      if (OMX_ErrorNone
+          != (rc = tiz_api_GetParameter (
+                tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
+                OMX_IndexParamContentURI, ap_prc->p_uri_)))
+        {
+          TIZ_ERROR (handleOf (ap_prc),
+                     "[%s] : Error retrieving the URI param from port",
+                     tiz_err_to_str (rc));
+        }
+      else
+        {
+          TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
+                      ap_prc->p_uri_->contentURI);
+        }
+    }
+  return rc;
+}
+
+static OMX_ERRORTYPE
+alloc_data_store (oggmuxflt_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
 
-  TIZ_INIT_OMX_PORT_STRUCT (port_def,
-                            ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX);
   tiz_check_omx_err (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
@@ -111,6 +186,29 @@ allocate_temp_data_store (oggmuxflt_prc_t * ap_prc)
 
   /* Will need to seek on this buffer  */
   return tiz_buffer_seek_mode (ap_prc->p_store_, TIZ_BUFFER_SEEKABLE);
+}
+
+static OMX_ERRORTYPE
+alloc_oggz (oggmuxflt_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (ap_prc);
+
+  /* Open the file using the URI provided (assumed a valid path) */
+  tiz_check_null_ret_oom (
+    (ap_prc->p_file_ = fopen ((const char *) ap_prc->p_uri_->contentURI, "w")));
+
+  /* Allocate the oggz object */
+  tiz_check_null_ret_oom ((ap_prc->p_oggz_ = oggz_new (OGGZ_WRITE)));
+
+  /* Obtain a serial number */
+  ap_prc->oggz_serialno_ = oggz_serialno_new (ap_prc->p_oggz_);
+
+  /* Set the 'hungry' callback */
+  on_oggz_error_ret_omx_oom (oggz_write_set_hungry_callback (
+    ap_prc->p_oggz_, oggz_hungry_cback, 1, ap_prc));
+
+  return rc;
 }
 
 static void
@@ -128,7 +226,7 @@ reset_stream_parameters (oggmuxflt_prc_t * ap_prc)
 }
 
 static inline void
-deallocate_temp_data_store (
+dealloc_data_store (
   /*@special@ */ oggmuxflt_prc_t * ap_prc)
 /*@releases ap_prc->p_store_@ */
 /*@ensures isnull ap_prc->p_store_@ */
@@ -136,6 +234,21 @@ deallocate_temp_data_store (
   assert (ap_prc);
   tiz_buffer_destroy (ap_prc->p_store_);
   ap_prc->p_store_ = NULL;
+}
+
+static inline void
+dealloc_oggz (
+  /*@special@ */ oggmuxflt_prc_t * ap_prc)
+/*@releases ap_prc->p_ne_ctx_@ */
+/*@ensures isnull ap_prc->p_oggz_@ */
+{
+  assert (ap_prc);
+  if (ap_prc->p_oggz_)
+    {
+      /* TODO: delete oggz */
+      /*   oggz_close (ap_prc->p_oggz_); */
+      ap_prc->p_oggz_ = NULL;
+    }
 }
 
 static inline OMX_ERRORTYPE
@@ -161,6 +274,10 @@ oggmuxflt_prc_ctor (void * ap_prc, va_list * app)
   oggmuxflt_prc_t * p_prc
     = super_ctor (typeOf (ap_prc, "oggmuxfltprc"), ap_prc, app);
   assert (p_prc);
+  p_prc->p_file_ = NULL;
+  p_prc->p_uri_ = NULL;
+  p_prc->p_oggz_ = NULL;
+  p_prc->oggz_serialno_ = 0;
   p_prc->p_store_ = NULL;
   reset_stream_parameters (p_prc);
   g_handle = handleOf (ap_prc);
@@ -184,7 +301,9 @@ oggmuxflt_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
   oggmuxflt_prc_t * p_prc = ap_prc;
   assert (p_prc);
-  return allocate_temp_data_store (p_prc);
+  tiz_check_omx_err (obtain_uri (p_prc));
+  tiz_check_omx_err (alloc_oggz (p_prc));
+  return alloc_data_store (p_prc);
 }
 
 static OMX_ERRORTYPE
@@ -192,7 +311,8 @@ oggmuxflt_prc_deallocate_resources (void * ap_prc)
 {
   oggmuxflt_prc_t * p_prc = ap_prc;
   assert (p_prc);
-  deallocate_temp_data_store (p_prc);
+  dealloc_data_store (p_prc);
+  dealloc_oggz (p_prc);
   return OMX_ErrorNone;
 }
 
@@ -319,8 +439,7 @@ oggmuxflt_prc_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (oggmuxfltprc_class);
   void * oggmuxfltprc = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (oggmuxfltprc_class, "oggmuxfltprc", tizfilterprc,
-     sizeof (oggmuxflt_prc_t),
+    (oggmuxfltprc_class, "oggmuxfltprc", tizfilterprc, sizeof (oggmuxflt_prc_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */
