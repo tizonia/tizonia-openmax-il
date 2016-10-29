@@ -48,7 +48,7 @@ struct webmdmuxsrc_prc
   /* Object */
   const tiz_prc_t _;
   OMX_BUFFERHEADERTYPE * p_outhdr_;
-  OMX_PARAM_CONTENTURITYPE * p_uri_param_;
+  OMX_PARAM_CONTENTURITYPE * p_uri_;
   tiz_urltrans_t * p_trans_;
   bool eos_;
   bool port_disabled_;
@@ -57,7 +57,7 @@ struct webmdmuxsrc_prc
   OMX_S32 audio_coding_type_;
   int bitrate_;
   int cache_bytes_;
-  nestegg * p_ne_ctx_;
+  nestegg * p_ne_;
   nestegg_io ne_io_;
 };
 

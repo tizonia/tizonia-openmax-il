@@ -255,12 +255,12 @@ obtain_uri (webmdmuxsrc_prc_t * ap_prc)
   const long pathname_max = PATH_MAX + NAME_MAX;
 
   assert (ap_prc);
-  assert (!ap_prc->p_uri_param_);
+  assert (!ap_prc->p_uri_);
 
-  ap_prc->p_uri_param_
+  ap_prc->p_uri_
     = tiz_mem_calloc (1, sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1);
 
-  if (!ap_prc->p_uri_param_)
+  if (!ap_prc->p_uri_)
     {
       TIZ_ERROR (handleOf (ap_prc),
                  "Error allocating memory for the content uri struct");
@@ -268,21 +268,19 @@ obtain_uri (webmdmuxsrc_prc_t * ap_prc)
     }
   else
     {
-      ap_prc->p_uri_param_->nSize
+      ap_prc->p_uri_->nSize
         = sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1;
-      ap_prc->p_uri_param_->nVersion.nVersion = OMX_VERSION;
+      ap_prc->p_uri_->nVersion.nVersion = OMX_VERSION;
 
       tiz_check_omx_err (tiz_api_GetParameter (
         tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-        OMX_IndexParamContentURI, ap_prc->p_uri_param_));
-      TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
-                  ap_prc->p_uri_param_->contentURI);
+        OMX_IndexParamContentURI, ap_prc->p_uri_));
+      TIZ_NOTICE (handleOf (ap_prc), "URI [%s]", ap_prc->p_uri_->contentURI);
       /* Verify we are getting an http scheme */
-      if (strncasecmp ((const char *) ap_prc->p_uri_param_->contentURI,
-                       "http://", 7)
+      if (strncasecmp ((const char *) ap_prc->p_uri_->contentURI, "http://", 7)
             != 0
-          && strncasecmp ((const char *) ap_prc->p_uri_param_->contentURI,
-                          "https://", 8)
+          && strncasecmp ((const char *) ap_prc->p_uri_->contentURI, "https://",
+                          8)
                != 0)
         {
           rc = OMX_ErrorContentURIError;
@@ -305,8 +303,8 @@ static inline void
 delete_uri (webmdmuxsrc_prc_t * ap_prc)
 {
   assert (ap_prc);
-  tiz_mem_free (ap_prc->p_uri_param_);
-  ap_prc->p_uri_param_ = NULL;
+  tiz_mem_free (ap_prc->p_uri_);
+  ap_prc->p_uri_ = NULL;
 }
 
 static OMX_ERRORTYPE
@@ -457,7 +455,7 @@ webmdmuxsrc_prc_ctor (void * ap_prc, va_list * app)
     = super_ctor (typeOf (ap_prc, "webmdmuxsrcprc"), ap_prc, app);
   assert (p_prc);
   p_prc->p_outhdr_ = NULL;
-  p_prc->p_uri_param_ = NULL;
+  p_prc->p_uri_ = NULL;
   p_prc->p_trans_ = NULL;
   p_prc->eos_ = false;
   p_prc->port_disabled_ = false;
@@ -466,7 +464,7 @@ webmdmuxsrc_prc_ctor (void * ap_prc, va_list * app)
   p_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
   p_prc->bitrate_ = ARATELIA_WEBM_DEMUXER_DEFAULT_BIT_RATE_KBITS;
   update_cache_size (p_prc);
-  p_prc->p_ne_ctx_ = NULL;
+  p_prc->p_ne_ = NULL;
   p_prc->ne_io_.read = ne_io_read;
   p_prc->ne_io_.seek = ne_io_seek;
   p_prc->ne_io_.tell = ne_io_tell;
@@ -498,13 +496,13 @@ webmdmuxsrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   webmdmuxsrc_prc_t * p_prc = ap_prc;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (p_prc);
-  assert (!p_prc->p_ne_ctx_);
-  assert (!p_prc->p_uri_param_);
+  assert (!p_prc->p_ne_);
+  assert (!p_prc->p_uri_);
 
   tiz_check_omx_err (obtain_uri (p_prc));
 
   on_nestegg_error_ret_omx_oom (
-    nestegg_init (&p_prc->p_ne_ctx_, p_prc->ne_io_, ne_log_cback, -1));
+    nestegg_init (&p_prc->p_ne_, p_prc->ne_io_, ne_log_cback, -1));
 
   {
     const tiz_urltrans_buffer_cbacks_t buffer_cbacks
@@ -519,7 +517,7 @@ webmdmuxsrc_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
          tiz_srv_timer_watcher_start, tiz_srv_timer_watcher_stop,
          tiz_srv_timer_watcher_restart};
     rc
-      = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_param_,
+      = tiz_urltrans_init (&(p_prc->p_trans_), p_prc, p_prc->p_uri_,
                            ARATELIA_WEBM_DEMUXER_COMPONENT_NAME,
                            ARATELIA_WEBM_DEMUXER_VIDEO_PORT_MIN_BUF_SIZE,
                            ARATELIA_WEBM_DEMUXER_DEFAULT_RECONNECT_TIMEOUT,
@@ -536,10 +534,10 @@ webmdmuxsrc_prc_deallocate_resources (void * ap_prc)
   tiz_urltrans_destroy (p_prc->p_trans_);
   p_prc->p_trans_ = NULL;
   delete_uri (p_prc);
-  if (p_prc->p_ne_ctx_)
+  if (p_prc->p_ne_)
     {
-      nestegg_destroy (p_prc->p_ne_ctx_);
-      p_prc->p_ne_ctx_ = NULL;
+      nestegg_destroy (p_prc->p_ne_);
+      p_prc->p_ne_ = NULL;
     }
   return OMX_ErrorNone;
 }

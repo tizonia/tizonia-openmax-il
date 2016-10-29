@@ -389,8 +389,9 @@ extract_track_data (webmdmuxflt_prc_t * ap_prc, const unsigned int a_track,
       if (TIZ_OMX_BUF_AVAIL (p_out_hdr) < (data_size * 2)
           || tiz_buffer_available (ap_prc->p_store_) == 0)
         {
-          TIZ_DEBUG(handleOf(ap_prc), "Releasing buffer : data size [%u] nFilledLen [%u]",
-                    g_data_size, p_out_hdr->nFilledLen);
+          TIZ_DEBUG (handleOf (ap_prc),
+                     "Releasing buffer : data size [%u] nFilledLen [%u]",
+                     g_data_size, p_out_hdr->nFilledLen);
           g_data_size = 0;
           tiz_check_omx_err (release_output_header (ap_prc, a_pid));
         }
@@ -414,41 +415,44 @@ static OMX_ERRORTYPE
 am_i_able_to_demux (webmdmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
-  bool compressed_data_avail
-    = (tiz_buffer_available (ap_prc->p_store_) > 0);
+  bool compressed_data_avail = (tiz_buffer_available (ap_prc->p_store_) > 0);
   bool enough_compressed_data_avail
     = compressed_data_avail
       && !(ap_prc->ne_read_err_ < 0
            && tiz_buffer_available (ap_prc->p_store_)
                 < ap_prc->ne_last_read_len_);
 
-  if (!compressed_data_avail
-      || !enough_compressed_data_avail
+  if (!compressed_data_avail || !enough_compressed_data_avail
       || (!tiz_filter_prc_output_headers_available (ap_prc)))
     {
       rc = OMX_ErrorNotReady;
     }
 
-  if (!compressed_data_avail && tiz_filter_prc_is_eos(ap_prc))
+  if (!compressed_data_avail && tiz_filter_prc_is_eos (ap_prc))
     {
-      if (tiz_filter_prc_is_port_enabled(ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX))
+      if (tiz_filter_prc_is_port_enabled (
+            ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX))
         {
-          release_output_header(ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
+          release_output_header (ap_prc,
+                                 ARATELIA_WEBM_DEMUXER_FILTER_PORT_1_INDEX);
         }
-      if (tiz_filter_prc_is_port_enabled(ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX))
+      if (tiz_filter_prc_is_port_enabled (
+            ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX))
         {
-          release_output_header(ap_prc, ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
+          release_output_header (ap_prc,
+                                 ARATELIA_WEBM_DEMUXER_FILTER_PORT_2_INDEX);
         }
     }
 
-  TIZ_TRACE (handleOf (ap_prc),
-             "%s -: store [%d] eos [%s] last read len ? [%d] ne read err [%d] out buffers [%s]",
-             (rc == OMX_ErrorNotReady ? "NO" : "YES"),
-             tiz_buffer_available (ap_prc->p_store_),
-             (tiz_filter_prc_is_eos(ap_prc) ? "YES" : "NO"),
-             ap_prc->ne_last_read_len_,
-             ap_prc->ne_read_err_,
-             (tiz_filter_prc_output_headers_available (ap_prc) ? "TRUE" : "FALSE"));
+  TIZ_TRACE (
+    handleOf (ap_prc),
+    "%s -: store [%d] eos [%s] last read len ? [%d] ne read err [%d] out "
+    "buffers [%s]",
+    (rc == OMX_ErrorNotReady ? "NO" : "YES"),
+    tiz_buffer_available (ap_prc->p_store_),
+    (tiz_filter_prc_is_eos (ap_prc) ? "YES" : "NO"), ap_prc->ne_last_read_len_,
+    ap_prc->ne_read_err_,
+    (tiz_filter_prc_output_headers_available (ap_prc) ? "TRUE" : "FALSE"));
   return rc;
 }
 
@@ -462,7 +466,7 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
   tiz_check_omx_err (store_data (ap_prc));
 
   assert (ap_prc);
-  assert (ap_prc->p_ne_ctx_);
+  assert (ap_prc->p_ne_);
 
   while (OMX_ErrorNone == (rc = am_i_able_to_demux (ap_prc)))
     {
@@ -473,13 +477,14 @@ demux_stream (webmdmuxflt_prc_t * ap_prc)
 
       if (ap_prc->ne_read_err_ < 0)
         {
-          TIZ_DEBUG (handleOf (ap_prc), "read reset : %d", ap_prc->ne_read_err_);
+          TIZ_DEBUG (handleOf (ap_prc), "read reset : %d",
+                     ap_prc->ne_read_err_);
           ap_prc->ne_read_err_ = 0;
-          nestegg_read_reset (ap_prc->p_ne_ctx_);
+          nestegg_read_reset (ap_prc->p_ne_);
         }
       if (ap_prc->p_ne_pkt_
           || (ap_prc->ne_read_err_
-              = nestegg_read_packet (ap_prc->p_ne_ctx_, &ap_prc->p_ne_pkt_))
+              = nestegg_read_packet (ap_prc->p_ne_, &ap_prc->p_ne_pkt_))
                > 0)
         {
           unsigned int track = 0;
@@ -543,14 +548,14 @@ allocate_temp_data_store (webmdmuxflt_prc_t * ap_prc)
 static inline void
 deallocate_nestegg_object (
   /*@special@ */ webmdmuxflt_prc_t * ap_prc)
-/*@releases ap_prc->p_ne_ctx_@ */
-/*@ensures isnull ap_prc->p_ne_ctx_@ */
+/*@releases ap_prc->p_ne_@ */
+/*@ensures isnull ap_prc->p_ne_@ */
 {
   assert (ap_prc);
-  if (ap_prc->p_ne_ctx_)
+  if (ap_prc->p_ne_)
     {
-      nestegg_destroy (ap_prc->p_ne_ctx_);
-      ap_prc->p_ne_ctx_ = NULL;
+      nestegg_destroy (ap_prc->p_ne_);
+      ap_prc->p_ne_ = NULL;
     }
 }
 
@@ -558,8 +563,8 @@ static void
 reset_nestegg_members (webmdmuxflt_prc_t * ap_prc)
 {
   assert (ap_prc);
-  assert (!ap_prc->p_ne_ctx_);
-  ap_prc->p_ne_ctx_ = NULL;
+  assert (!ap_prc->p_ne_);
+  ap_prc->p_ne_ = NULL;
   ap_prc->ne_io_.read = ne_io_read;
   ap_prc->ne_io_.seek = ne_io_seek;
   ap_prc->ne_io_.tell = ne_io_tell;
@@ -676,10 +681,9 @@ obtain_track_info (webmdmuxflt_prc_t * ap_prc)
 
   assert (ap_prc);
 
-  on_nestegg_error_ret_omx_oom (
-    nestegg_track_count (ap_prc->p_ne_ctx_, &tracks));
+  on_nestegg_error_ret_omx_oom (nestegg_track_count (ap_prc->p_ne_, &tracks));
 
-  nestegg_rc = nestegg_duration (ap_prc->p_ne_ctx_, &duration);
+  nestegg_rc = nestegg_duration (ap_prc->p_ne_, &duration);
 
   if (nestegg_rc == 0)
     {
@@ -694,14 +698,14 @@ obtain_track_info (webmdmuxflt_prc_t * ap_prc)
 
   for (i = 0; i < tracks; ++i)
     {
-      type = nestegg_track_type (ap_prc->p_ne_ctx_, i);
+      type = nestegg_track_type (ap_prc->p_ne_, i);
       TIZ_DEBUG (handleOf (ap_prc), "track %u: type: %d codec: %d", i, type,
-                 nestegg_track_codec_id (ap_prc->p_ne_ctx_, i));
+                 nestegg_track_codec_id (ap_prc->p_ne_, i));
       on_nestegg_error_ret_omx_oom (
-        nestegg_track_codec_data_count (ap_prc->p_ne_ctx_, i, &data_items));
+        nestegg_track_codec_data_count (ap_prc->p_ne_, i, &data_items));
       for (j = 0; j < data_items; ++j)
         {
-          nestegg_track_codec_data (ap_prc->p_ne_ctx_, i, j, &p_codec_data,
+          nestegg_track_codec_data (ap_prc->p_ne_, i, j, &p_codec_data,
                                     &length);
           TIZ_DEBUG (handleOf (ap_prc), " (%p, %u)", p_codec_data,
                      (unsigned int) length);
@@ -710,11 +714,10 @@ obtain_track_info (webmdmuxflt_prc_t * ap_prc)
       if (NESTEGG_TRACK_VIDEO == type
           && NESTEGG_TRACK_UNKNOWN == ap_prc->ne_video_track_)
         {
-          nestegg_track_video_params (ap_prc->p_ne_ctx_, i,
+          nestegg_track_video_params (ap_prc->p_ne_, i,
                                       &ap_prc->ne_video_params_);
           ap_prc->video_coding_type_
-            = (nestegg_track_codec_id (ap_prc->p_ne_ctx_, i)
-                   == NESTEGG_CODEC_VP8
+            = (nestegg_track_codec_id (ap_prc->p_ne_, i) == NESTEGG_CODEC_VP8
                  ? OMX_VIDEO_CodingVP8
                  : OMX_VIDEO_CodingVP9);
           ap_prc->ne_video_track_ = i;
@@ -723,11 +726,10 @@ obtain_track_info (webmdmuxflt_prc_t * ap_prc)
       else if (NESTEGG_TRACK_AUDIO == type
                && NESTEGG_TRACK_UNKNOWN == ap_prc->ne_audio_track_)
         {
-          nestegg_track_audio_params (ap_prc->p_ne_ctx_, i,
+          nestegg_track_audio_params (ap_prc->p_ne_, i,
                                       &ap_prc->ne_audio_params_);
           ap_prc->audio_coding_type_
-            = (nestegg_track_codec_id (ap_prc->p_ne_ctx_, i)
-                   == NESTEGG_CODEC_OPUS
+            = (nestegg_track_codec_id (ap_prc->p_ne_, i) == NESTEGG_CODEC_OPUS
                  ? OMX_AUDIO_CodingOPUS
                  : OMX_AUDIO_CodingVORBIS);
           ap_prc->ne_audio_track_ = i;
@@ -785,9 +787,8 @@ allocate_nestegg_object (webmdmuxflt_prc_t * ap_prc)
   if (OMX_ErrorNone == (rc = store_data (ap_prc)))
     {
       int nestegg_rc = 0;
-      assert (!ap_prc->p_ne_ctx_);
-      nestegg_rc
-        = nestegg_init (&ap_prc->p_ne_ctx_, ap_prc->ne_io_, ne_log, -1);
+      assert (!ap_prc->p_ne_);
+      nestegg_rc = nestegg_init (&ap_prc->p_ne_, ap_prc->ne_io_, ne_log, -1);
 
       if (0 != nestegg_rc)
         {

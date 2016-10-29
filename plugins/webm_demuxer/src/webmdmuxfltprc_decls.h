@@ -54,7 +54,7 @@ struct webmdmuxflt_prc
   OMX_S32 audio_coding_type_;
   bool video_auto_detect_on_;
   OMX_S32 video_coding_type_;
-  nestegg * p_ne_ctx_;
+  nestegg * p_ne_;
   nestegg_io ne_io_;
   nestegg_audio_params ne_audio_params_;
   nestegg_video_params ne_video_params_;
