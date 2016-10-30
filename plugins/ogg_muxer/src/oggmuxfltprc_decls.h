@@ -48,15 +48,16 @@ struct oggmuxflt_prc
 {
   /* Object */
   const tiz_filter_prc_t _;
-  FILE *p_file_;
-  OGGZ *p_oggz_;
-  long oggz_serialno_;
-  tiz_buffer_t * p_store_;
+  tiz_buffer_t * p_audio_store_;
+  tiz_buffer_t * p_video_store_;
   OMX_PARAM_CONTENTURITYPE * p_uri_;
-  bool audio_auto_detect_on_;
-  OMX_S32 audio_coding_type_;
-  bool video_auto_detect_on_;
-  OMX_S32 video_coding_type_;
+  OGGZ *p_oggz_;
+  long oggz_audio_serialno_;
+  long oggz_video_serialno_;
+  long oggz_audio_granulepos_;
+  long oggz_video_granulepos_;
+  long oggz_audio_packetno_;
+  long oggz_video_packetno_;
 };
 
 typedef struct oggmuxflt_prc_class oggmuxflt_prc_class_t;

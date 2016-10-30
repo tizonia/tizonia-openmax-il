@@ -78,54 +78,49 @@ oggmuxflt_prc_deallocate_resources (void *);
 static int
 oggz_hungry_cback (OGGZ * oggz, int empty, void * user_data)
 {
-  /*   ogg_packet op; */
-  /*   unsigned char buf[1]; */
-  /*   buf[0] = 'A' + (int)packetno; */
-  /*   op.packet = buf; */
-  /*   op.bytes = 1; */
-  /*   op.granulepos = granulepos; */
-  /*   op.packetno = packetno; */
-  /*   if (packetno == 0) op.b_o_s = 1; */
-  /*   else op.b_o_s = 0; */
-  /*   if (packetno == 9) op.e_o_s = 1; */
-  /*   else op.e_o_s = 0; */
-  /*   oggz_write_feed (oggz, &op, serialno, OGGZ_FLUSH_AFTER, NULL); */
-  /*   granulepos += 100; */
-  /*   packetno++; */
+  oggmuxflt_prc_t * p_prc = user_data;
+  OMX_BUFFERHEADERTYPE * p_hdr = NULL;
+  ogg_packet op;
+
+  assert (p_prc);
+
+  if ((p_hdr = tiz_filter_prc_get_header (
+         p_prc, ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX)))
+    {
+      op.packet = p_hdr->pBuffer + p_hdr->nOffset;
+      op.bytes = p_hdr->nFilledLen;
+      op.granulepos = p_prc->oggz_audio_granulepos_;
+      op.packetno = p_prc->oggz_audio_packetno_;
+      if (op.packetno == 0)
+        {
+          op.b_o_s = 1;
+        }
+      else
+        {
+          op.b_o_s = 0;
+        }
+      if (op.packetno == 9)
+        {
+          op.e_o_s = 1;
+        }
+      else
+        {
+          op.e_o_s = 0;
+        }
+      oggz_write_feed (oggz, &op, p_prc->oggz_audio_serialno_, OGGZ_FLUSH_AFTER, NULL);
+      p_prc->oggz_audio_granulepos_ += 100;
+      p_prc->oggz_audio_packetno_++;
+    }
+
   return 0;
 }
 
 static OMX_ERRORTYPE
-prepare_port_auto_detection (oggmuxflt_prc_t * ap_prc)
-{
-  OMX_PARAM_PORTDEFINITIONTYPE port_def;
-  assert (ap_prc);
-
-  /* Prepare audio port */
-  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX);
-  tiz_check_omx_err (
-    tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                          OMX_IndexParamPortDefinition, &port_def));
-  ap_prc->audio_coding_type_ = port_def.format.audio.eEncoding;
-  ap_prc->audio_auto_detect_on_
-    = (OMX_AUDIO_CodingAutoDetect == ap_prc->audio_coding_type_) ? true : false;
-
-  /* Prepare video port */
-  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_OGG_MUXER_FILTER_PORT_2_INDEX);
-  tiz_check_omx_err (
-    tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                          OMX_IndexParamPortDefinition, &port_def));
-  ap_prc->video_coding_type_ = port_def.format.video.eCompressionFormat;
-  ap_prc->video_auto_detect_on_
-    = (OMX_VIDEO_CodingAutoDetect == ap_prc->video_coding_type_) ? true : false;
-
-  return OMX_ErrorNone;
-}
-
-static OMX_ERRORTYPE
-mux_stream (oggmuxflt_prc_t * ap_prc)
+mux_streams (oggmuxflt_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNotReady;
+  long oggz_rc = 0;
+  while ((oggz_rc = oggz_write (ap_prc->p_oggz_, 32)) > 0);
   return rc;
 }
 
@@ -170,22 +165,19 @@ obtain_uri (oggmuxflt_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-alloc_data_store (oggmuxflt_prc_t * ap_prc)
+alloc_data_store (oggmuxflt_prc_t * ap_prc, tiz_buffer_t *ap_store, const OMX_U32 a_pid)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
   assert (ap_prc);
 
-  TIZ_INIT_OMX_PORT_STRUCT (port_def, ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX);
+  TIZ_INIT_OMX_PORT_STRUCT (port_def, a_pid);
   tiz_check_omx_err (
     tiz_api_GetParameter (tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
                           OMX_IndexParamPortDefinition, &port_def));
-
-  assert (ap_prc->p_store_ == NULL);
+  assert (ap_store == NULL);
   tiz_check_omx_err (
-    tiz_buffer_init (&(ap_prc->p_store_), port_def.nBufferSize * 4));
-
-  /* Will need to seek on this buffer  */
-  return tiz_buffer_seek_mode (ap_prc->p_store_, TIZ_BUFFER_SEEKABLE);
+    tiz_buffer_init (&(ap_store), port_def.nBufferSize * 4));
+  return OMX_ErrorNone;;
 }
 
 static OMX_ERRORTYPE
@@ -194,15 +186,14 @@ alloc_oggz (oggmuxflt_prc_t * ap_prc)
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   assert (ap_prc);
 
-  /* Open the file using the URI provided (assumed a valid path) */
-  tiz_check_null_ret_oom (
-    (ap_prc->p_file_ = fopen ((const char *) ap_prc->p_uri_->contentURI, "w")));
-
   /* Allocate the oggz object */
-  tiz_check_null_ret_oom ((ap_prc->p_oggz_ = oggz_new (OGGZ_WRITE)));
+  tiz_check_null_ret_oom (
+    (ap_prc->p_oggz_
+     = oggz_open ((const char *) ap_prc->p_uri_->contentURI, OGGZ_WRITE)));
 
-  /* Obtain a serial number */
-  ap_prc->oggz_serialno_ = oggz_serialno_new (ap_prc->p_oggz_);
+  /* Obtain the serial numbers */
+  ap_prc->oggz_audio_serialno_ = oggz_serialno_new (ap_prc->p_oggz_);
+  ap_prc->oggz_video_serialno_ = oggz_serialno_new (ap_prc->p_oggz_);
 
   /* Set the 'hungry' callback */
   on_oggz_error_ret_omx_oom (oggz_write_set_hungry_callback (
@@ -211,29 +202,35 @@ alloc_oggz (oggmuxflt_prc_t * ap_prc)
   return rc;
 }
 
+static OMX_ERRORTYPE
+am_i_able_to_mux (oggmuxflt_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  bool audio_data_avail = (tiz_buffer_available (ap_prc->p_audio_store_) > 0);
+  bool video_data_avail = (tiz_buffer_available (ap_prc->p_video_store_) > 0);
+  if (!audio_data_avail && !video_data_avail)
+    {
+      rc = OMX_ErrorNotReady;
+    }
+  return rc;
+}
+
 static void
 reset_stream_parameters (oggmuxflt_prc_t * ap_prc)
 {
   assert (ap_prc);
 
-  ap_prc->audio_auto_detect_on_ = false;
-  ap_prc->audio_coding_type_ = OMX_AUDIO_CodingUnused;
-  ap_prc->video_auto_detect_on_ = false;
-  ap_prc->video_coding_type_ = OMX_VIDEO_CodingUnused;
-
-  tiz_buffer_clear (ap_prc->p_store_);
+  tiz_buffer_clear (ap_prc->p_audio_store_);
   tiz_filter_prc_update_eos_flag (ap_prc, false);
 }
 
 static inline void
-dealloc_data_store (
-  /*@special@ */ oggmuxflt_prc_t * ap_prc)
-/*@releases ap_prc->p_store_@ */
-/*@ensures isnull ap_prc->p_store_@ */
+dealloc_data_store (tiz_buffer_t ** app_store)
 {
-  assert (ap_prc);
-  tiz_buffer_destroy (ap_prc->p_store_);
-  ap_prc->p_store_ = NULL;
+  assert (app_store);
+  assert (*app_store);
+  tiz_buffer_destroy (*app_store);
+  *app_store = NULL;
 }
 
 static inline void
@@ -274,11 +271,12 @@ oggmuxflt_prc_ctor (void * ap_prc, va_list * app)
   oggmuxflt_prc_t * p_prc
     = super_ctor (typeOf (ap_prc, "oggmuxfltprc"), ap_prc, app);
   assert (p_prc);
-  p_prc->p_file_ = NULL;
   p_prc->p_uri_ = NULL;
   p_prc->p_oggz_ = NULL;
-  p_prc->oggz_serialno_ = 0;
-  p_prc->p_store_ = NULL;
+  p_prc->oggz_audio_serialno_ = 0;
+  p_prc->oggz_video_serialno_ = 0;
+  p_prc->p_audio_store_ = NULL;
+  p_prc->p_video_store_ = NULL;
   reset_stream_parameters (p_prc);
   g_handle = handleOf (ap_prc);
   return p_prc;
@@ -303,7 +301,11 @@ oggmuxflt_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
   assert (p_prc);
   tiz_check_omx_err (obtain_uri (p_prc));
   tiz_check_omx_err (alloc_oggz (p_prc));
-  return alloc_data_store (p_prc);
+  tiz_check_omx_err (alloc_data_store (p_prc, p_prc->p_audio_store_,
+                                       ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX));
+  tiz_check_omx_err (alloc_data_store (p_prc, p_prc->p_video_store_,
+                                       ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX));
+  return OMX_ErrorNone;
 }
 
 static OMX_ERRORTYPE
@@ -311,7 +313,8 @@ oggmuxflt_prc_deallocate_resources (void * ap_prc)
 {
   oggmuxflt_prc_t * p_prc = ap_prc;
   assert (p_prc);
-  dealloc_data_store (p_prc);
+  dealloc_data_store (&(p_prc->p_audio_store_));
+  dealloc_data_store (&(p_prc->p_video_store_));
   dealloc_oggz (p_prc);
   return OMX_ErrorNone;
 }
@@ -319,9 +322,7 @@ oggmuxflt_prc_deallocate_resources (void * ap_prc)
 static OMX_ERRORTYPE
 oggmuxflt_prc_prepare_to_transfer (void * ap_prc, OMX_U32 a_pid)
 {
-  oggmuxflt_prc_t * p_prc = ap_prc;
-  assert (ap_prc);
-  return prepare_port_auto_detection (p_prc);
+  return OMX_ErrorNone;;
 }
 
 static OMX_ERRORTYPE
@@ -350,9 +351,9 @@ oggmuxflt_prc_buffers_ready (const void * ap_prc)
 
   assert (ap_prc);
 
-  while (OMX_ErrorNone == rc)
+  while (OMX_ErrorNone == (rc = am_i_able_to_mux(p_prc)))
     {
-      rc = mux_stream (p_prc);
+      rc = mux_streams (p_prc);
     }
   if (OMX_ErrorNotReady == rc)
     {
