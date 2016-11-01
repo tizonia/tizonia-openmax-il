@@ -51,7 +51,7 @@ struct oggmuxflt_prc
   tiz_buffer_t * p_audio_store_;
   tiz_buffer_t * p_video_store_;
   OMX_PARAM_CONTENTURITYPE * p_uri_;
-  OGGZ *p_oggz_;
+  OGGZ * p_oggz_;
   long oggz_audio_serialno_;
   long oggz_video_serialno_;
   long oggz_audio_granulepos_;

@@ -47,14 +47,21 @@ struct oggmuxsnk_prc
 {
   /* Object */
   const tiz_prc_t _;
-  OMX_BUFFERHEADERTYPE * p_outhdr_;
+  tiz_buffer_t * p_audio_store_;
+  tiz_buffer_t * p_video_store_;
+  FILE * p_file_;
   OMX_PARAM_CONTENTURITYPE * p_uri_;
-  tiz_urltrans_t * p_trans_;
+  OGGZ * p_oggz_;
+  long oggz_audio_serialno_;
+  long oggz_video_serialno_;
+  long oggz_audio_granulepos_;
+  long oggz_video_granulepos_;
+  long oggz_audio_packetno_;
+  long oggz_video_packetno_;
   bool eos_;
   bool port_disabled_;
   bool uri_changed_;
-  bool auto_detect_on_;
-  OMX_S32 audio_coding_type_;
+  tiz_urltrans_t * p_trans_;
   int bitrate_;
   int cache_bytes_;
 };

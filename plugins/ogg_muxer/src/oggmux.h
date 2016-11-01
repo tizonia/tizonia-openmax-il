@@ -35,8 +35,7 @@ extern "C" {
 #include <OMX_Core.h>
 #include <OMX_Types.h>
 
-#define ARATELIA_OGG_MUXER_COMPONENT_NAME \
-  "OMX.Aratelia.container_muxer.ogg"
+#define ARATELIA_OGG_MUXER_COMPONENT_NAME "OMX.Aratelia.container_muxer.ogg"
 #define ARATELIA_OGG_MUXER_SINK_ROLE "container_muxer.sink.ogg"
 #define ARATELIA_OGG_MUXER_FILTER_ROLE "container_muxer.filter.ogg"
 

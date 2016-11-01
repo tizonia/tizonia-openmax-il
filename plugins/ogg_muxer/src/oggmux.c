@@ -146,15 +146,15 @@ instantiate_audio_input_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 static OMX_PTR
 instantiate_sink_audio_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  return instantiate_audio_input_port (
-    ap_hdl, ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX);
+  return instantiate_audio_input_port (ap_hdl,
+                                       ARATELIA_OGG_MUXER_SINK_PORT_0_INDEX);
 }
 
 static OMX_PTR
 instantiate_filter_audio_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  return instantiate_audio_input_port (
-    ap_hdl, ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX);
+  return instantiate_audio_input_port (ap_hdl,
+                                       ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX);
 }
 
 static OMX_PTR
@@ -204,15 +204,15 @@ instantiate_video_input_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 static OMX_PTR
 instantiate_sink_video_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  return instantiate_video_input_port (
-    ap_hdl, ARATELIA_OGG_MUXER_SINK_PORT_1_INDEX);
+  return instantiate_video_input_port (ap_hdl,
+                                       ARATELIA_OGG_MUXER_SINK_PORT_1_INDEX);
 }
 
 static OMX_PTR
 instantiate_filter_video_input_port (OMX_HANDLETYPE ap_hdl)
 {
-  return instantiate_video_input_port (
-    ap_hdl, ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX);
+  return instantiate_video_input_port (ap_hdl,
+                                       ARATELIA_OGG_MUXER_FILTER_PORT_1_INDEX);
 }
 
 static OMX_PTR
@@ -220,8 +220,7 @@ instantiate_config_port (OMX_HANDLETYPE ap_hdl)
 {
   return factory_new (tiz_get_type (ap_hdl, "tizconfigport"),
                       NULL, /* this port does not take options */
-                      ARATELIA_OGG_MUXER_COMPONENT_NAME,
-                      ogg_muxer_version);
+                      ARATELIA_OGG_MUXER_COMPONENT_NAME, ogg_muxer_version);
 }
 
 static OMX_PTR
@@ -249,8 +248,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   const tiz_type_factory_t * tf_list[]
     = {&oggmuxsnkprc_type, &oggmuxfltprc_type};
 
-  strcpy ((OMX_STRING) sink_role_factory.role,
-          ARATELIA_OGG_MUXER_SINK_ROLE);
+  strcpy ((OMX_STRING) sink_role_factory.role, ARATELIA_OGG_MUXER_SINK_ROLE);
   sink_role_factory.pf_cport = instantiate_config_port;
   sink_role_factory.pf_port[0] = instantiate_sink_audio_input_port;
   sink_role_factory.pf_port[1] = instantiate_sink_video_input_port;
@@ -277,8 +275,7 @@ OMX_ComponentInit (OMX_HANDLETYPE ap_hdl)
   oggmuxfltprc_type.pf_object_init = oggmuxflt_prc_init;
 
   /* Initialize the component infrastructure */
-  tiz_check_omx_err (
-    tiz_comp_init (ap_hdl, ARATELIA_OGG_MUXER_COMPONENT_NAME));
+  tiz_check_omx_err (tiz_comp_init (ap_hdl, ARATELIA_OGG_MUXER_COMPONENT_NAME));
 
   /* Register the various classes */
   tiz_check_omx_err (tiz_comp_register_types (ap_hdl, tf_list, 2));
