@@ -20,10 +20,10 @@
 /**
  * @file   oggdmuxprc_decls.h
  * @author Juan A. Rubio <juan.rubio@aratelia.com>
- * 
+ *
  * @brief  Tizonia - OGG demuxer processor class decls
- * 
- * 
+ *
+ *
  */
 
 #ifndef OGGDMUXPRC_DECLS_H

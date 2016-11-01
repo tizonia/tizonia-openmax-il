@@ -49,6 +49,21 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.ogg_demuxer.prc"
 #endif
 
+#define on_oggz_error_ret_omx_oom(expr)                    \
+  do                                                       \
+    {                                                      \
+      int oggz_error = 0;                                  \
+      if (0 != (oggz_error = (expr)))                      \
+        {                                                  \
+          TIZ_ERROR (handleOf (ap_prc),                    \
+                     "[OMX_ErrorInsufficientResources] : " \
+                     "oggz (%s)",                          \
+                     strerror (errno));                    \
+          return OMX_ErrorInsufficientResources;           \
+        }                                                  \
+    }                                                      \
+  while (0)
+
 #ifdef _DEBUG
 static int g_total_read = 0;
 static int g_last_read = 0;
@@ -88,8 +103,47 @@ is_video_content (const OggzStreamContent content)
     };
 }
 
+static size_t
+og_io_read (void * ap_user_handle, void * ap_buf, size_t n)
+{
+  oggdmux_prc_t * p_prc = ap_user_handle;
+  FILE * f = NULL;
+  ssize_t bytes_read = 0;
+
+  assert (p_prc);
+  f = p_prc->p_file_;
+
+  bytes_read = read (fileno (f), ap_buf, n);
+  if (0 == bytes_read)
+    {
+      TIZ_TRACE (handleOf (p_prc), "Zero bytes_read buf [%p] n [%d]", ap_buf,
+                 n);
+    }
+  return bytes_read;
+}
+
+static int
+og_io_seek (void * ap_user_handle, long offset, int whence)
+{
+  oggdmux_prc_t * p_prc = ap_user_handle;
+  FILE * f = NULL;
+  assert (p_prc);
+  f = p_prc->p_file_;
+  return (fseek (f, offset, whence));
+}
+
+static long
+og_io_tell (void * ap_user_handle)
+{
+  oggdmux_prc_t * p_prc = ap_user_handle;
+  FILE * f = NULL;
+  assert (p_prc);
+  f = p_prc->p_file_;
+  return ftell (f);
+}
+
 static OMX_ERRORTYPE
-obtain_uri (oggdmux_prc_t * ap_prc)
+alloc_uri (oggdmux_prc_t * ap_prc)
 {
   OMX_ERRORTYPE rc = OMX_ErrorNone;
   const long pathname_max = PATH_MAX + NAME_MAX;
@@ -129,7 +183,18 @@ obtain_uri (oggdmux_prc_t * ap_prc)
 }
 
 static OMX_ERRORTYPE
-alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
+alloc_file (oggdmux_prc_t * ap_prc)
+{
+  OMX_ERRORTYPE rc = OMX_ErrorNone;
+  assert (ap_prc);
+  assert (!ap_prc->p_file_);
+  tiz_check_null_ret_oom (
+    (ap_prc->p_file_ = fopen ((const char *) ap_prc->p_uri_->contentURI, "r")));
+  return rc;
+}
+
+static OMX_ERRORTYPE
+alloc_data_stores (oggdmux_prc_t * ap_prc)
 {
   OMX_PARAM_PORTDEFINITIONTYPE port_def;
 
@@ -163,8 +228,31 @@ alloc_temp_data_stores (oggdmux_prc_t * ap_prc)
   return OMX_ErrorNone;
 }
 
+static OMX_ERRORTYPE
+alloc_oggz (oggdmux_prc_t * ap_prc)
+{
+  assert (ap_prc);
+  assert (!ap_prc->p_oggz_);
+
+  /* Allocate the oggz object */
+  tiz_check_null_ret_oom ((ap_prc->p_oggz_ = oggz_new (OGGZ_READ)));
+
+  /* Allocate a table */
+  tiz_check_null_ret_oom ((ap_prc->p_tracks_ = oggz_table_new ()));
+
+  /* Set the io callbacks */
+  on_oggz_error_ret_omx_oom (
+    oggz_io_set_read (ap_prc->p_oggz_, og_io_read, ap_prc));
+  on_oggz_error_ret_omx_oom (
+    oggz_io_set_seek (ap_prc->p_oggz_, og_io_seek, ap_prc));
+  on_oggz_error_ret_omx_oom (
+    oggz_io_set_tell (ap_prc->p_oggz_, og_io_tell, ap_prc));
+
+  return OMX_ErrorNone;
+}
+
 static inline void
-close_file (/*@special@ */ oggdmux_prc_t * ap_prc)
+dealloc_file (/*@special@ */ oggdmux_prc_t * ap_prc)
 /*@releases ap_prc->p_file_ @ */
 /*@ensures isnull ap_prc->p_file_@ */
 {
@@ -177,20 +265,26 @@ close_file (/*@special@ */ oggdmux_prc_t * ap_prc)
 }
 
 static inline void
-delete_oggz (/*@special@ */ oggdmux_prc_t * ap_prc)
+dealloc_oggz (/*@special@ */ oggdmux_prc_t * ap_prc)
 /*@releases ap_prc->p_oggz_, ap_prc->p_tracks_ @ */
 /*@ensures isnull ap_prc->p_oggz_, ap_prc->p_tracks_ @ */
 {
   assert (ap_prc);
-  oggz_table_delete (ap_prc->p_tracks_);
-  ap_prc->p_tracks_ = NULL;
-  /* TODO: why did I comment this out? */
-  /*   oggz_close (ap_prc->p_oggz_); */
-  ap_prc->p_oggz_ = NULL;
+  if (ap_prc->p_tracks_)
+    {
+      oggz_table_delete (ap_prc->p_tracks_);
+      ap_prc->p_tracks_ = NULL;
+    }
+  if (ap_prc->p_oggz_)
+    {
+      /* TODO: why did I comment this out? */
+      /*   oggz_close (ap_prc->p_oggz_); */
+      ap_prc->p_oggz_ = NULL;
+    }
 }
 
 static inline void
-delete_uri (/*@special@ */ oggdmux_prc_t * ap_prc)
+dealloc_uri (/*@special@ */ oggdmux_prc_t * ap_prc)
 /*@releases ap_prc->p_uri_ @ */
 /*@ensures isnull ap_prc->p_uri_ @ */
 {
@@ -200,7 +294,7 @@ delete_uri (/*@special@ */ oggdmux_prc_t * ap_prc)
 }
 
 static inline void
-dealloc_temp_data_stores (/*@special@ */ oggdmux_prc_t * ap_prc)
+dealloc_data_stores (/*@special@ */ oggdmux_prc_t * ap_prc)
 /*@releases ap_prc->p_aud_store_, ap_prc->p_vid_store_ @ */
 /*@ensures isnull ap_prc->p_aud_store_, ap_prc->p_vid_store_ @ */
 {
@@ -738,45 +832,6 @@ do_flush (oggdmux_prc_t * ap_prc)
   return release_all_buffers (ap_prc, OMX_ALL);
 }
 
-static size_t
-io_read (void * ap_user_handle, void * ap_buf, size_t n)
-{
-  oggdmux_prc_t * p_prc = ap_user_handle;
-  FILE * f = NULL;
-  ssize_t bytes_read = 0;
-
-  assert (p_prc);
-  f = p_prc->p_file_;
-
-  bytes_read = read (fileno (f), ap_buf, n);
-  if (0 == bytes_read)
-    {
-      TIZ_TRACE (handleOf (p_prc), "Zero bytes_read buf [%p] n [%d]", ap_buf,
-                 n);
-    }
-  return bytes_read;
-}
-
-static int
-io_seek (void * ap_user_handle, long offset, int whence)
-{
-  oggdmux_prc_t * p_prc = ap_user_handle;
-  FILE * f = NULL;
-  assert (p_prc);
-  f = p_prc->p_file_;
-  return (fseek (f, offset, whence));
-}
-
-static long
-io_tell (void * ap_user_handle)
-{
-  oggdmux_prc_t * p_prc = ap_user_handle;
-  FILE * f = NULL;
-  assert (p_prc);
-  f = p_prc->p_file_;
-  return ftell (f);
-}
-
 static int
 read_page_normal (OGGZ * ap_oggz, const ogg_page * ap_og, long a_serialno,
                   void * ap_user_data)
@@ -1065,60 +1120,10 @@ oggdmux_prc_allocate_resources (void * ap_obj, OMX_U32 a_pid)
 {
   oggdmux_prc_t * p_prc = ap_obj;
   assert (p_prc);
-  assert (!p_prc->p_oggz_);
-  assert (!p_prc->p_uri_);
-
-  tiz_check_omx_err (obtain_uri (p_prc));
-
-  TIZ_TRACE (handleOf (p_prc), "Allocating resources");
-
-  tiz_check_omx_err (alloc_temp_data_stores (p_prc));
-
-  if ((p_prc->p_file_ = fopen ((const char *) p_prc->p_uri_->contentURI, "r"))
-      == 0)
-    {
-      TIZ_ERROR (handleOf (p_prc), "Error opening file from URI (%s)",
-                 strerror (errno));
-      return OMX_ErrorInsufficientResources;
-    }
-
-  if (!(p_prc->p_oggz_ = oggz_new (OGGZ_READ)))
-    {
-      TIZ_ERROR (handleOf (p_prc), "Cannot create a new oggz object (%s)",
-                 strerror (errno));
-      return OMX_ErrorInsufficientResources;
-    }
-
-  if (!(p_prc->p_tracks_ = oggz_table_new ()))
-    {
-      TIZ_ERROR (handleOf (p_prc), "Cannot create a new oggz object");
-      return OMX_ErrorInsufficientResources;
-    }
-
-  if (oggz_io_set_read (p_prc->p_oggz_, io_read, p_prc) != 0)
-    {
-      TIZ_ERROR (handleOf (p_prc),
-                 "[OMX_ErrorInsufficientResources] : "
-                 "Cannot set the oggz io read callback");
-      return OMX_ErrorInsufficientResources;
-    }
-
-  if (oggz_io_set_seek (p_prc->p_oggz_, io_seek, p_prc) != 0)
-    {
-      TIZ_ERROR (handleOf (p_prc),
-                 "[OMX_ErrorInsufficientResources] : "
-                 "Cannot set the oggz io seek callback");
-      return OMX_ErrorInsufficientResources;
-    }
-
-  if (oggz_io_set_tell (p_prc->p_oggz_, io_tell, p_prc) != 0)
-    {
-      TIZ_ERROR (handleOf (p_prc),
-                 "[OMX_ErrorInsufficientResources] : "
-                 "Cannot set the oggz io tell callback");
-      return OMX_ErrorInsufficientResources;
-    }
-
+  tiz_check_omx_err (alloc_uri (p_prc));
+  tiz_check_omx_err (alloc_file (p_prc));
+  tiz_check_omx_err (alloc_data_stores (p_prc));
+  tiz_check_omx_err (alloc_oggz (p_prc));
   return OMX_ErrorNone;
 }
 
@@ -1127,11 +1132,10 @@ oggdmux_prc_deallocate_resources (void * ap_obj)
 {
   oggdmux_prc_t * p_prc = ap_obj;
   assert (p_prc);
-  TIZ_TRACE (handleOf (p_prc), "Deallocating resources");
-  close_file (p_prc);
-  delete_oggz (p_prc);
-  delete_uri (p_prc);
-  dealloc_temp_data_stores (p_prc);
+  dealloc_oggz (p_prc);
+  dealloc_data_stores (p_prc);
+  dealloc_file (p_prc);
+  dealloc_uri (p_prc);
   return OMX_ErrorNone;
 }
 
