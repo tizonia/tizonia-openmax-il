@@ -335,7 +335,10 @@ store_data (webmdmuxflt_prc_t * ap_prc)
                      "all the data.");
           rc = OMX_ErrorInsufficientResources;
         }
-      release_input_header (ap_prc);
+      else
+        {
+          rc = release_input_header (ap_prc);
+        }
     }
   return rc;
 }
