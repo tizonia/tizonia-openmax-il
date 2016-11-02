@@ -320,9 +320,11 @@ static inline void
 dealloc_data_store (tiz_buffer_t ** app_store)
 {
   assert (app_store);
-  assert (*app_store);
-  tiz_buffer_destroy (*app_store);
-  *app_store = NULL;
+  if (*app_store)
+    {
+      tiz_buffer_destroy (*app_store);
+      *app_store = NULL;
+    }
 }
 
 static inline void
