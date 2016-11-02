@@ -45,6 +45,71 @@
 #define TIZ_LOG_CATEGORY_NAME "tiz.tizonia.muxerport"
 #endif
 
+static void *
+alloc_pcm_port (tiz_muxerport_t * ap_obj, tiz_port_options_t * ap_opts,
+                OMX_AUDIO_CODINGTYPE a_encodings[], va_list * ap_args)
+{
+  OMX_AUDIO_PARAM_PCMMODETYPE * p_pcmmode = NULL;
+  OMX_AUDIO_CONFIG_VOLUMETYPE * p_volume = NULL;
+  OMX_AUDIO_CONFIG_MUTETYPE * p_mute = NULL;
+
+  assert (ap_obj);
+  assert (ap_opts);
+  assert (a_encodings);
+  assert (ap_args);
+
+  /* Register the PCM port indexes, so this port receives the get/set
+               requests */
+  tiz_check_omx_err_ret_null (
+    tiz_port_register_index (ap_obj, OMX_IndexParamAudioPcm));
+  tiz_check_omx_err_ret_null (
+    tiz_port_register_index (ap_obj, OMX_IndexConfigAudioVolume));
+  tiz_check_omx_err_ret_null (
+    tiz_port_register_index (ap_obj, OMX_IndexConfigAudioMute));
+
+  /* Get the OMX_AUDIO_PARAM_PCMMODETYPE structure (mandatory argument) */
+  p_pcmmode = va_arg (*ap_args, OMX_AUDIO_PARAM_PCMMODETYPE *);
+  assert (p_pcmmode);
+
+  /* Get the OMX_AUDIO_CONFIG_VOLUMETYPE structure (mandatory argument) */
+  p_volume = va_arg (*ap_args, OMX_AUDIO_CONFIG_VOLUMETYPE *);
+  assert (p_volume);
+
+  /* Get the OMX_AUDIO_CONFIG_MUTETYPE structure (mandatory argument) */
+  p_mute = va_arg (*ap_args, OMX_AUDIO_CONFIG_MUTETYPE *);
+  assert (p_mute);
+
+  TIZ_TRACE (handleOf (ap_obj), "p_volume->sVolume.nValue [%d]",
+             p_volume->sVolume.nValue);
+
+  return factory_new (typeOf (ap_obj, "tizpcmport"), ap_opts, a_encodings,
+                      p_pcmmode, p_volume, p_mute);
+}
+
+static void *
+alloc_opus_port (tiz_muxerport_t * ap_obj, tiz_port_options_t * ap_opts,
+                 OMX_AUDIO_CODINGTYPE a_encodings[], va_list * ap_args)
+{
+  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE * p_opusmode = NULL;
+
+  assert (ap_obj);
+  assert (ap_opts);
+  assert (a_encodings);
+  assert (ap_args);
+
+  /* Register the OPUS port indexes, for when this port receives the get/set
+   requests */
+  tiz_check_omx_err_ret_null (
+    tiz_port_register_index (ap_obj, OMX_TizoniaIndexParamAudioOpus));
+
+  /* Get the OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE structure (mandatory argument) */
+  p_opusmode = va_arg (*ap_args, OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE *);
+  assert (p_opusmode);
+
+  return factory_new (typeOf (ap_obj, "tizopusport"), ap_opts, a_encodings,
+                      p_opusmode);
+}
+
 /*
  * tizmuxerport class
  */
@@ -83,46 +148,31 @@ muxerport_ctor (void * ap_obj, va_list * app)
         {
           case OMX_PortDomainAudio:
             {
-              /* Let's instantiate a PCM port */
               OMX_AUDIO_CODINGTYPE * p_encodings = NULL;
-              OMX_AUDIO_PARAM_PCMMODETYPE * p_pcmmode = NULL;
-              OMX_AUDIO_CONFIG_VOLUMETYPE * p_volume = NULL;
-              OMX_AUDIO_CONFIG_MUTETYPE * p_mute = NULL;
-              OMX_AUDIO_CODINGTYPE encodings[]
-                = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
-
-              /* Register the PCM port indexes, so this port receives the get/set
-               requests */
-              tiz_check_omx_err_ret_null (
-                tiz_port_register_index (p_obj, OMX_IndexParamAudioPcm));
-              tiz_check_omx_err_ret_null (
-                tiz_port_register_index (p_obj, OMX_IndexConfigAudioVolume));
-              tiz_check_omx_err_ret_null (
-                tiz_port_register_index (p_obj, OMX_IndexConfigAudioMute));
 
               /* Get the array of OMX_AUDIO_CODINGTYPE values  (mandatory argument) */
               p_encodings = va_arg (app_copy, OMX_AUDIO_CODINGTYPE *);
               assert (p_encodings);
 
-              /* Get the OMX_AUDIO_PARAM_PCMMODETYPE structure (mandatory argument) */
-              p_pcmmode = va_arg (app_copy, OMX_AUDIO_PARAM_PCMMODETYPE *);
-              assert (p_pcmmode);
-
-              /* Get the OMX_AUDIO_CONFIG_VOLUMETYPE structure (mandatory argument) */
-              p_volume = va_arg (app_copy, OMX_AUDIO_CONFIG_VOLUMETYPE *);
-              assert (p_volume);
-
-              TIZ_TRACE (handleOf (ap_obj), "p_volume->sVolume.nValue [%d]",
-                         p_volume->sVolume.nValue);
-
-              /* Get the OMX_AUDIO_CONFIG_MUTETYPE structure (mandatory argument) */
-              p_mute = va_arg (app_copy, OMX_AUDIO_CONFIG_MUTETYPE *);
-              assert (p_mute);
-
-              p_obj->p_port_
-                = factory_new (typeOf (ap_obj, "tizpcmport"), p_opts,
-                               &encodings, p_pcmmode, p_volume, p_mute);
-              if (NULL == p_obj->p_port_)
+              switch (p_encodings[0])
+                {
+                case OMX_AUDIO_CodingPCM:
+                {
+                  /* Let's instantiate am PCM port */
+                  p_obj->p_port_ = alloc_pcm_port(p_obj, p_opts, p_encodings, &app_copy);
+                }
+                break;
+                default:
+                {
+                  if (OMX_AUDIO_CodingOPUS == p_encodings[0])
+                    {
+                      /* Let's instantiate an OPUS port */
+                      p_obj->p_port_ = alloc_opus_port(p_obj, p_opts, p_encodings, &app_copy);
+                    }
+                }
+                break;
+                };
+              if (!p_obj->p_port_)
                 {
                   return NULL;
                 }
@@ -152,9 +202,9 @@ muxerport_ctor (void * ap_obj, va_list * app)
               p_formats = va_arg (app_copy, OMX_COLOR_FORMATTYPE *);
               assert (p_formats);
 
-              if (NULL == (p_obj->p_port_ = factory_new (
-                             typeOf (ap_obj, "tizvideoport"), p_opts, p_portdef,
-                             p_encodings, p_formats)))
+              if (!(p_obj->p_port_
+                    = factory_new (typeOf (ap_obj, "tizvideoport"), p_opts,
+                                   p_portdef, p_encodings, p_formats)))
                 {
                   return NULL;
                 }
