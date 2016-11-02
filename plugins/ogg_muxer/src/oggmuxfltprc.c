@@ -211,46 +211,6 @@ og_io_flush (void * ap_user_handle)
 }
 
 static OMX_ERRORTYPE
-alloc_uri (oggmuxflt_prc_t * ap_prc)
-{
-  OMX_ERRORTYPE rc = OMX_ErrorNone;
-  const long pathname_max = PATH_MAX + NAME_MAX;
-
-  assert (ap_prc);
-  assert (!ap_prc->p_uri_);
-
-  if (!(ap_prc->p_uri_ = tiz_mem_calloc (
-          1, sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1)))
-    {
-      TIZ_ERROR (handleOf (ap_prc),
-                 "Error allocating memory for the content uri struct");
-      rc = OMX_ErrorInsufficientResources;
-    }
-  else
-    {
-      ap_prc->p_uri_->nSize
-        = sizeof (OMX_PARAM_CONTENTURITYPE) + pathname_max + 1;
-      ap_prc->p_uri_->nVersion.nVersion = OMX_VERSION;
-
-      if (OMX_ErrorNone
-          != (rc = tiz_api_GetParameter (
-                tiz_get_krn (handleOf (ap_prc)), handleOf (ap_prc),
-                OMX_IndexParamContentURI, ap_prc->p_uri_)))
-        {
-          TIZ_ERROR (handleOf (ap_prc),
-                     "[%s] : Error retrieving the URI param from port",
-                     tiz_err_to_str (rc));
-        }
-      else
-        {
-          TIZ_NOTICE (handleOf (ap_prc), "URI [%s]",
-                      ap_prc->p_uri_->contentURI);
-        }
-    }
-  return rc;
-}
-
-static OMX_ERRORTYPE
 alloc_data_store (oggmuxflt_prc_t * ap_prc, tiz_buffer_t * ap_store,
                   const OMX_U32 a_pid)
 {
@@ -324,16 +284,6 @@ reset_stream_parameters (oggmuxflt_prc_t * ap_prc)
 
   tiz_buffer_clear (ap_prc->p_audio_store_);
   tiz_filter_prc_update_eos_flag (ap_prc, false);
-}
-
-static inline void
-dealloc_uri (/*@special@ */ oggmuxflt_prc_t * ap_prc)
-/*@releases ap_prc->p_uri_ @ */
-/*@ensures isnull ap_prc->p_uri_ @ */
-{
-  assert (ap_prc);
-  tiz_mem_free (ap_prc->p_uri_);
-  ap_prc->p_uri_ = NULL;
 }
 
 static inline void
@@ -472,7 +422,6 @@ oggmuxflt_prc_allocate_resources (void * ap_prc, OMX_U32 a_pid)
 {
   oggmuxflt_prc_t * p_prc = ap_prc;
   assert (p_prc);
-  tiz_check_omx_err (alloc_uri (p_prc));
   tiz_check_omx_err (alloc_oggz (p_prc));
   tiz_check_omx_err (alloc_data_store (p_prc, p_prc->p_audio_store_,
                                        ARATELIA_OGG_MUXER_FILTER_PORT_0_INDEX));
@@ -489,7 +438,6 @@ oggmuxflt_prc_deallocate_resources (void * ap_prc)
   dealloc_data_store (&(p_prc->p_audio_store_));
   dealloc_data_store (&(p_prc->p_video_store_));
   dealloc_oggz (p_prc);
-  dealloc_uri (p_prc);
   return OMX_ErrorNone;
 }
 
