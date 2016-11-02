@@ -36,6 +36,7 @@
 #include <OMX_Core.h>
 #include <OMX_Component.h>
 #include <OMX_Types.h>
+#include <OMX_TizoniaExt.h>
 
 #include <tizplatform.h>
 
@@ -90,12 +91,12 @@ instantiate_filter_ogg_output_port (OMX_HANDLETYPE ap_hdl)
 static OMX_PTR
 instantiate_audio_input_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 {
-  OMX_AUDIO_PARAM_PCMMODETYPE pcmmode;
-  OMX_AUDIO_CONFIG_VOLUMETYPE volume;
-  OMX_AUDIO_CONFIG_MUTETYPE mute;
-  OMX_AUDIO_CODINGTYPE encodings[]
-    = {OMX_AUDIO_CodingUnused, OMX_AUDIO_CodingMax};
-  tiz_port_options_t port_opts = {
+  OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype;
+  OMX_AUDIO_CODINGTYPE encodings[] = {
+    (OMX_AUDIO_CODINGTYPE) OMX_AUDIO_CodingOPUS,
+    OMX_AUDIO_CodingMax
+  };
+  tiz_port_options_t opus_port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
     ARATELIA_OGG_MUXER_AUDIO_PORT_MIN_BUF_COUNT,
@@ -104,43 +105,29 @@ instantiate_audio_input_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
     ARATELIA_OGG_MUXER_AUDIO_PORT_ALIGNMENT,
     ARATELIA_OGG_MUXER_AUDIO_PORT_SUPPLIERPREF,
     {port_id, NULL, NULL, NULL},
-    -1 /* use -1 for now */
+    1                           /* slave port's index  */
   };
 
-  /* The muxer port expects to receive PCM mode, volume and mute structures
-     when instantiated as an audio domain port */
+  /* Instantiate the muxer port as an OPUS audio port */
+  /* For now, this is the only audio encoding type supported in this muxer
+     component */
 
-  /* Initialize the pcm info */
-  pcmmode.nSize = sizeof (OMX_AUDIO_PARAM_PCMMODETYPE);
-  pcmmode.nVersion.nVersion = OMX_VERSION;
-  pcmmode.nPortIndex = port_id;
-  pcmmode.nChannels = 2;
-  pcmmode.eNumData = OMX_NumericalDataSigned;
-  pcmmode.eEndian = OMX_EndianLittle;
-  pcmmode.bInterleaved = OMX_TRUE;
-  pcmmode.nBitPerSample = 16;
-  pcmmode.nSamplingRate = 48000;
-  pcmmode.ePCMMode = OMX_AUDIO_PCMModeLinear;
-  pcmmode.eChannelMapping[0] = OMX_AUDIO_ChannelLF;
-  pcmmode.eChannelMapping[1] = OMX_AUDIO_ChannelRF;
+  opustype.nSize                   = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
+  opustype.nVersion.nVersion       = OMX_VERSION;
+  opustype.nPortIndex              = port_id;
+  opustype.nChannels               = 2;
+  opustype.nBitRate                = 256;
+  opustype.nSampleRate             = 48000;
+  opustype.nFrameDuration          = 2;
+  opustype.nEncoderComplexity      = 0;
+  opustype.bPacketLossResilience   = OMX_FALSE;
+  opustype.bForwardErrorCorrection = OMX_FALSE;
+  opustype.bDtx                    = OMX_FALSE;
+  opustype.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
+  opustype.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
 
-  /* Initialize the pcm struct */
-  volume.nSize = sizeof (OMX_AUDIO_CONFIG_VOLUMETYPE);
-  volume.nVersion.nVersion = OMX_VERSION;
-  volume.nPortIndex = port_id;
-  volume.bLinear = OMX_FALSE;
-  volume.sVolume.nValue = 50;
-  volume.sVolume.nMin = 0;
-  volume.sVolume.nMax = 100;
-
-  /* Initialize the mute struct */
-  mute.nSize = sizeof (OMX_AUDIO_CONFIG_MUTETYPE);
-  mute.nVersion.nVersion = OMX_VERSION;
-  mute.nPortIndex = port_id;
-  mute.bMute = OMX_FALSE;
-
-  return factory_new (tiz_get_type (ap_hdl, "tizmuxerport"), &port_opts,
-                      &encodings, &pcmmode, &volume, &mute);
+  return factory_new (tiz_get_type (ap_hdl, "tizmuxerport"), &opus_port_opts,
+                      &encodings, &opustype);
 }
 
 static OMX_PTR
