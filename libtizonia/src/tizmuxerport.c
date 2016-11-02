@@ -132,11 +132,6 @@ muxerport_ctor (void * ap_obj, va_list * app)
   /* Now give the original to the base class */
   if ((p_obj = super_ctor (typeOf (ap_obj, "tizmuxerport"), ap_obj, app)))
     {
-      /* Register the muxer-specific indexes  */
-      tiz_check_omx_err_ret_null (
-        tiz_port_register_index (p_obj, OMX_IndexParamNumAvailableStreams));
-      tiz_check_omx_err_ret_null (
-        tiz_port_register_index (p_obj, OMX_IndexParamActiveStream));
 
       /* Grab the port options structure (mandatory argument) */
       p_opts = va_arg (app_copy, tiz_port_options_t *);
@@ -245,25 +240,6 @@ muxerport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
   switch (a_index)
     {
-      case OMX_IndexParamNumAvailableStreams:
-      case OMX_IndexParamActiveStream:
-        {
-          /* Only the processor knows about available or active streams. So lets
-           get the processor to fill this info for us. */
-          void * p_prc = tiz_get_prc (ap_hdl);
-          assert (p_prc);
-          if (OMX_ErrorNone != (rc = tiz_api_GetParameter (p_prc, ap_hdl,
-                                                           a_index, ap_struct)))
-            {
-              TIZ_ERROR (ap_hdl,
-                         "[%s] : Error retrieving [%s] "
-                         "from the processor",
-                         tiz_err_to_str (rc), tiz_idx_to_str (a_index));
-              return rc;
-            }
-        }
-        break;
-
       case OMX_IndexParamAudioPortFormat:
       case OMX_IndexParamVideoPortFormat:
       case OMX_IndexParamAudioPcm:
@@ -303,33 +279,6 @@ muxerport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
   switch (a_index)
     {
-      case OMX_IndexParamNumAvailableStreams:
-        {
-          /* This is a read-only index. Simply ignore it. */
-          TIZ_NOTICE (ap_hdl, "Ignoring read-only index [%s] ",
-                      tiz_idx_to_str (a_index));
-        }
-        break;
-
-      case OMX_IndexParamActiveStream:
-        {
-          /* Only the processor knows about active streams. So lets
-           get the processor update this info for us. */
-          void * p_prc = tiz_get_prc (ap_hdl);
-          assert (p_prc);
-          if (OMX_ErrorUnsupportedIndex
-              != (rc
-                  = tiz_api_SetParameter (p_prc, ap_hdl, a_index, ap_struct)))
-            {
-              TIZ_ERROR (ap_hdl,
-                         "[%s] : Error setting [%s] "
-                         "on the processor",
-                         tiz_err_to_str (rc), tiz_idx_to_str (a_index));
-              return rc;
-            }
-        }
-        break;
-
       case OMX_IndexParamAudioPortFormat:
       case OMX_IndexParamVideoPortFormat:
         {
