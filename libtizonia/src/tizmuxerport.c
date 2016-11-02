@@ -151,21 +151,23 @@ muxerport_ctor (void * ap_obj, va_list * app)
 
               switch (p_encodings[0])
                 {
-                case OMX_AUDIO_CodingPCM:
-                {
-                  /* Let's instantiate am PCM port */
-                  p_obj->p_port_ = alloc_pcm_port(p_obj, p_opts, p_encodings, &app_copy);
-                }
-                break;
-                default:
-                {
-                  if (OMX_AUDIO_CodingOPUS == p_encodings[0])
+                  case OMX_AUDIO_CodingPCM:
                     {
-                      /* Let's instantiate an OPUS port */
-                      p_obj->p_port_ = alloc_opus_port(p_obj, p_opts, p_encodings, &app_copy);
+                      /* Let's instantiate am PCM port */
+                      p_obj->p_port_ = alloc_pcm_port (p_obj, p_opts,
+                                                       p_encodings, &app_copy);
                     }
-                }
-                break;
+                    break;
+                  default:
+                    {
+                      if (OMX_AUDIO_CodingOPUS == p_encodings[0])
+                        {
+                          /* Let's instantiate an OPUS port */
+                          p_obj->p_port_ = alloc_opus_port (
+                            p_obj, p_opts, p_encodings, &app_copy);
+                        }
+                    }
+                    break;
                 };
               if (!p_obj->p_port_)
                 {
@@ -229,7 +231,7 @@ muxerport_dtor (void * ap_obj)
  */
 static OMX_ERRORTYPE
 muxerport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_muxerport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -264,8 +266,8 @@ muxerport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               /* Delegate to the domain-specific port */
               if (OMX_ErrorUnsupportedIndex
-                  != (rc = tiz_api_GetParameter (p_obj->p_port_, ap_hdl, a_index,
-                                                 ap_struct)))
+                  != (rc = tiz_api_GetParameter (p_obj->p_port_, ap_hdl,
+                                                 a_index, ap_struct)))
                 {
                   return rc;
                 }
@@ -274,7 +276,6 @@ muxerport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
           /* Delegate to the base port */
           return super_GetParameter (typeOf (ap_obj, "tizmuxerport"), ap_obj,
                                      ap_hdl, a_index, ap_struct);
-
         }
     };
 
@@ -283,7 +284,7 @@ muxerport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
 static OMX_ERRORTYPE
 muxerport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                          OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                        OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_muxerport_t * p_obj = (tiz_muxerport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -320,8 +321,8 @@ muxerport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
             {
               /* Delegate to the domain-specific port */
               if (OMX_ErrorUnsupportedIndex
-                  != (rc = tiz_api_SetParameter (p_obj->p_port_, ap_hdl, a_index,
-                                                 ap_struct)))
+                  != (rc = tiz_api_SetParameter (p_obj->p_port_, ap_hdl,
+                                                 a_index, ap_struct)))
                 {
                   return rc;
                 }
@@ -338,7 +339,7 @@ muxerport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
 static OMX_ERRORTYPE
 muxerport_GetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_muxerport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -367,8 +368,8 @@ muxerport_GetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       default:
         {
           /* Try the parent's indexes */
-          rc = super_GetConfig (typeOf (ap_obj, "tizmuxerport"), ap_obj,
-                                ap_hdl, a_index, ap_struct);
+          rc = super_GetConfig (typeOf (ap_obj, "tizmuxerport"), ap_obj, ap_hdl,
+                                a_index, ap_struct);
         }
     };
 
@@ -377,7 +378,7 @@ muxerport_GetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
 static OMX_ERRORTYPE
 muxerport_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                     OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_muxerport_t * p_obj = (tiz_muxerport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -406,8 +407,8 @@ muxerport_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       default:
         {
           /* Try the parent's indexes */
-          rc = super_SetConfig (typeOf (ap_obj, "tizmuxerport"), ap_obj,
-                                ap_hdl, a_index, ap_struct);
+          rc = super_SetConfig (typeOf (ap_obj, "tizmuxerport"), ap_obj, ap_hdl,
+                                a_index, ap_struct);
         }
     };
 
@@ -416,8 +417,8 @@ muxerport_SetConfig (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
 static bool
 muxerport_check_tunnel_compat (const void * ap_obj,
-                                 OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
-                                 OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
+                               OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
+                               OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
   tiz_port_t * p_obj = (tiz_port_t *) ap_obj;
   assert (ap_this_def);
@@ -474,8 +475,7 @@ tiz_muxerport_init (void * ap_tos, void * ap_hdl)
   TIZ_LOG_CLASS (tizmuxerport_class);
   void * tizmuxerport = factory_new
     /* TIZ_CLASS_COMMENT: class type, class name, parent, size */
-    (tizmuxerport_class, "tizmuxerport", tizport,
-     sizeof (tiz_muxerport_t),
+    (tizmuxerport_class, "tizmuxerport", tizport, sizeof (tiz_muxerport_t),
      /* TIZ_CLASS_COMMENT: */
      ap_tos, ap_hdl,
      /* TIZ_CLASS_COMMENT: class constructor */

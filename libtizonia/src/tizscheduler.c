@@ -113,7 +113,7 @@ struct tiz_scheduler
   tiz_srv_group_t child;
   tiz_sched_state_t state;
   OMX_PTR
-    appdata; /* For use during setting of the component callbacks, not owned */
+  appdata; /* For use during setting of the component callbacks, not owned */
   OMX_CALLBACKTYPE *
     cbacks; /* For use during setting of the component callbacks, not owned */
 };

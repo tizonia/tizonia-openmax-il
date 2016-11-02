@@ -75,7 +75,7 @@ oggport_dtor (void * ap_obj)
 
 static OMX_ERRORTYPE
 oggport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   const tiz_oggport_t * p_obj = ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -128,7 +128,7 @@ oggport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
 static OMX_ERRORTYPE
 oggport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
-                       OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
+                      OMX_INDEXTYPE a_index, OMX_PTR ap_struct)
 {
   tiz_oggport_t * p_obj = (tiz_oggport_t *) ap_obj;
   OMX_ERRORTYPE rc = OMX_ErrorNone;
@@ -161,8 +161,8 @@ oggport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
 
 static bool
 oggport_check_tunnel_compat (const void * ap_obj,
-                              OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
-                              OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
+                             OMX_PARAM_PORTDEFINITIONTYPE * ap_this_def,
+                             OMX_PARAM_PORTDEFINITIONTYPE * ap_other_def)
 {
   tiz_port_t * p_obj = (tiz_port_t *) ap_obj;
 
