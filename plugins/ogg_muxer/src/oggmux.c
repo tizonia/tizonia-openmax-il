@@ -92,10 +92,8 @@ static OMX_PTR
 instantiate_audio_input_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
 {
   OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE opustype;
-  OMX_AUDIO_CODINGTYPE encodings[] = {
-    (OMX_AUDIO_CODINGTYPE) OMX_AUDIO_CodingOPUS,
-    OMX_AUDIO_CodingMax
-  };
+  OMX_AUDIO_CODINGTYPE encodings[]
+    = {(OMX_AUDIO_CODINGTYPE) OMX_AUDIO_CodingOPUS, OMX_AUDIO_CodingMax};
   tiz_port_options_t opus_port_opts = {
     OMX_PortDomainAudio,
     OMX_DirInput,
@@ -105,26 +103,26 @@ instantiate_audio_input_port (OMX_HANDLETYPE ap_hdl, const OMX_U32 port_id)
     ARATELIA_OGG_MUXER_AUDIO_PORT_ALIGNMENT,
     ARATELIA_OGG_MUXER_AUDIO_PORT_SUPPLIERPREF,
     {port_id, NULL, NULL, NULL},
-    1                           /* slave port's index  */
+    1 /* slave port's index  */
   };
 
   /* Instantiate the muxer port as an OPUS audio port */
   /* For now, this is the only audio encoding type supported in this muxer
      component */
 
-  opustype.nSize                   = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
-  opustype.nVersion.nVersion       = OMX_VERSION;
-  opustype.nPortIndex              = port_id;
-  opustype.nChannels               = 2;
-  opustype.nBitRate                = 256;
-  opustype.nSampleRate             = 48000;
-  opustype.nFrameDuration          = 2;
-  opustype.nEncoderComplexity      = 0;
-  opustype.bPacketLossResilience   = OMX_FALSE;
+  opustype.nSize = sizeof (OMX_TIZONIA_AUDIO_PARAM_OPUSTYPE);
+  opustype.nVersion.nVersion = OMX_VERSION;
+  opustype.nPortIndex = port_id;
+  opustype.nChannels = 2;
+  opustype.nBitRate = 256;
+  opustype.nSampleRate = 48000;
+  opustype.nFrameDuration = 2;
+  opustype.nEncoderComplexity = 0;
+  opustype.bPacketLossResilience = OMX_FALSE;
   opustype.bForwardErrorCorrection = OMX_FALSE;
-  opustype.bDtx                    = OMX_FALSE;
-  opustype.eChannelMode            = OMX_AUDIO_ChannelModeStereo;
-  opustype.eFormat                 = OMX_AUDIO_OPUSStreamFormatVBR;
+  opustype.bDtx = OMX_FALSE;
+  opustype.eChannelMode = OMX_AUDIO_ChannelModeStereo;
+  opustype.eFormat = OMX_AUDIO_OPUSStreamFormatVBR;
 
   return factory_new (tiz_get_type (ap_hdl, "tizmuxerport"), &opus_port_opts,
                       &encodings, &opustype);
