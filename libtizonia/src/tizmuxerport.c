@@ -243,6 +243,8 @@ muxerport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       case OMX_IndexParamAudioPortFormat:
       case OMX_IndexParamVideoPortFormat:
       case OMX_IndexParamAudioPcm:
+      case OMX_IndexConfigAudioVolume:
+      case OMX_IndexConfigAudioMute:
         {
           /* Delegate to the domain-specific port */
           if (OMX_ErrorUnsupportedIndex
@@ -257,9 +259,22 @@ muxerport_GetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       /*@fallthrough@*/
       default:
         {
+          /* But before delegating, check if this is an extension index */
+          if (OMX_TizoniaIndexParamAudioOpus == a_index)
+            {
+              /* Delegate to the domain-specific port */
+              if (OMX_ErrorUnsupportedIndex
+                  != (rc = tiz_api_GetParameter (p_obj->p_port_, ap_hdl, a_index,
+                                                 ap_struct)))
+                {
+                  return rc;
+                }
+            }
+
           /* Delegate to the base port */
           return super_GetParameter (typeOf (ap_obj, "tizmuxerport"), ap_obj,
                                      ap_hdl, a_index, ap_struct);
+
         }
     };
 
@@ -281,6 +296,9 @@ muxerport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
     {
       case OMX_IndexParamAudioPortFormat:
       case OMX_IndexParamVideoPortFormat:
+      case OMX_IndexParamAudioPcm:
+      case OMX_IndexConfigAudioVolume:
+      case OMX_IndexConfigAudioMute:
         {
           /* Delegate to the domain-specific port */
           assert (p_obj->p_port_);
@@ -297,6 +315,18 @@ muxerport_SetParameter (const void * ap_obj, OMX_HANDLETYPE ap_hdl,
       /*@fallthrough@*/
       default:
         {
+          /* But before delegating, check if this is an extension index */
+          if (OMX_TizoniaIndexParamAudioOpus == a_index)
+            {
+              /* Delegate to the domain-specific port */
+              if (OMX_ErrorUnsupportedIndex
+                  != (rc = tiz_api_SetParameter (p_obj->p_port_, ap_hdl, a_index,
+                                                 ap_struct)))
+                {
+                  return rc;
+                }
+            }
+
           /* Delegate to the base port */
           return super_SetParameter (typeOf (ap_obj, "tizmuxerport"), ap_obj,
                                      ap_hdl, a_index, ap_struct);
