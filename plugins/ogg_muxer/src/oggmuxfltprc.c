@@ -361,23 +361,17 @@ store_data (oggmuxflt_prc_t * ap_prc, const OMX_U32 a_pid,
 
   if (p_in)
     {
+      int pushed = 0;
       TIZ_TRACE (handleOf (ap_prc), "avail [%d] pid [%d] incoming [%d]",
                  tiz_buffer_available (p_store), a_pid,
                  p_in->nFilledLen - p_in->nOffset);
-      if (tiz_buffer_push (p_store, p_in->pBuffer + p_in->nOffset,
-                           p_in->nFilledLen)
-          < p_in->nFilledLen)
-        {
-          TIZ_ERROR (handleOf (ap_prc),
-                     "[OMX_ErrorInsufficientResources] : Unable to store "
-                     "all the data - pid [%d].",
-                     a_pid);
-          rc = OMX_ErrorInsufficientResources;
-        }
-      else
-        {
-          rc = release_input_header (ap_prc, a_pid, p_in);
-        }
+      pushed = tiz_buffer_push (p_store, p_in->pBuffer + p_in->nOffset,
+                                p_in->nFilledLen);
+
+      tiz_ret_val_on_err ((pushed < p_in->nFilledLen),
+                          OMX_ErrorInsufficientResources);
+
+      rc = release_input_header (ap_prc, a_pid, p_in);
     }
   return rc;
 }
